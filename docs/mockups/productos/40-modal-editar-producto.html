@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>40 · Modal Editar Producto · pixel-perfect</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<style>
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f1f5f9; font-variant-numeric: tabular-nums; padding: 60px 20px 40px; }
+.tabular { font-variant-numeric: tabular-nums; }
+.context-frame { position: fixed; top: 12px; left: 50%; transform: translateX(-50%); background: white; border: 2px solid #5eead4; border-radius: 12px; padding: 8px 16px; z-index: 100; box-shadow: 0 4px 20px rgba(0,0,0,0.08); display: flex; align-items: center; gap: 12px; min-width: 580px; }
+.context-icon { width: 32px; height: 32px; border-radius: 8px; background: #f0fdfa; color: #0f766e; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+.context-info { flex: 1; min-width: 0; }
+.context-type { font-size: 9px; text-transform: uppercase; letter-spacing: 0.05em; color: #0f766e; font-weight: 700; }
+.context-title { font-size: 12px; font-weight: 700; color: #0f172a; }
+.context-meta { font-size: 10px; color: #64748b; margin-top: 1px; }
+.context-id { font-family: ui-monospace, monospace; font-size: 9px; background: #f1f5f9; color: #475569; padding: 2px 6px; border-radius: 4px; flex-shrink: 0; }
+.section-num { width: 22px; height: 22px; border-radius: 999px; background: #f1f5f9; color: #475569; font-size: 11px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; }
+.section-num.active { background: #14b8a6; color: white; }
+.section-num.modificada { background: #f59e0b; color: white; }
+.parent-hint { background: linear-gradient(135deg, #fafafa 0%, #f1f5f9 100%); border: 1px solid #e2e8f0; border-radius: 16px; padding: 18px; opacity: 0.92; }
+.dot-pulse { animation: pulse 2s ease-in-out infinite; }
+@keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.6; transform: scale(1.2); } }
+.modificado-bg { background: linear-gradient(to right, #fef3c7 0%, white 8px); border-color: #f59e0b !important; }
+</style>
+</head>
+<body>
+
+<div class="context-frame">
+  <div class="context-icon">✏️</div>
+  <div class="context-info">
+    <div class="context-type">Modal Editar · F6(A) · reusa toda la base del Wizard #41</div>
+    <div class="context-title">Modal #40 · Editar Producto · auditoría de cambios + advertencias inter-módulo</div>
+    <div class="context-meta">3 estados: A=Vista general con 2 campos modificados (visual amber) · B=Panel cambios pendientes · C=Modal confirmar guardado con resumen + advertencias</div>
+  </div>
+  <div class="context-id">40-modal-editar-producto</div>
+</div>
+
+<div class="max-w-3xl mx-auto space-y-8 mt-6">
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- INTRO · Diferencias con Wizard #41                                -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <div class="bg-white rounded-xl p-5 border-2 border-teal-200 shadow-sm">
+    <div class="flex items-start gap-3 mb-3">
+      <div class="w-10 h-10 rounded-xl bg-teal-100 flex items-center justify-center flex-shrink-0">
+        <i data-lucide="edit-2" class="w-5 h-5 text-teal-700"></i>
+      </div>
+      <div>
+        <div class="text-[10px] uppercase tracking-wider text-teal-700 font-bold">Modal #40 · Editar Producto</div>
+        <h3 class="text-base font-bold text-slate-900">Reusa toda la estructura del Wizard #41 · 5 diferencias clave</h3>
+        <p class="text-xs text-slate-600 mt-1">Mismas secciones, mismos átomos Campo Creable, mismos atributos por línea. Lo que cambia: el flujo de modificación.</p>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-5 gap-2">
+      <div class="bg-slate-50 rounded-lg p-2.5 border border-slate-200">
+        <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1">1 · Campos pre-cargados</div>
+        <div class="text-[10px] text-slate-700">Todos los valores actuales del producto se ven al abrir</div>
+      </div>
+      <div class="bg-amber-50 rounded-lg p-2.5 border border-amber-200">
+        <div class="text-[10px] uppercase tracking-wider text-amber-700 font-bold mb-1">2 · Diff visual</div>
+        <div class="text-[10px] text-slate-700">Border amber + dot pulsante en campos modificados</div>
+      </div>
+      <div class="bg-purple-50 rounded-lg p-2.5 border border-purple-200">
+        <div class="text-[10px] uppercase tracking-wider text-purple-700 font-bold mb-1">3 · Read-only críticos</div>
+        <div class="text-[10px] text-slate-700">SKU, Línea, País son intocables (afectan referencias)</div>
+      </div>
+      <div class="bg-rose-50 rounded-lg p-2.5 border border-rose-200">
+        <div class="text-[10px] uppercase tracking-wider text-rose-700 font-bold mb-1">4 · Advertencias</div>
+        <div class="text-[10px] text-slate-700">Si cambio afecta OCs/Ventas/Stock, alerta antes de guardar</div>
+      </div>
+      <div class="bg-emerald-50 rounded-lg p-2.5 border border-emerald-200">
+        <div class="text-[10px] uppercase tracking-wider text-emerald-700 font-bold mb-1">5 · Auditoría</div>
+        <div class="text-[10px] text-slate-700">Registra quién + cuándo + qué cambió en historial</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- ESTADO A · Vista general · 2 campos modificados                  -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <div>
+    <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-2">Estado A · Vista general · Modal Editar producto SKINCARE con 2 campos modificados (precio + ingrediente)</div>
+
+    <div class="parent-hint">
+      <div class="bg-white rounded-2xl shadow-2xl overflow-hidden border border-slate-200">
+        <!-- HEADER -->
+        <div class="bg-gradient-to-br from-teal-50 to-white border-b border-slate-200 px-5 py-4">
+          <div class="flex items-start justify-between gap-3">
+            <div class="flex items-start gap-2.5 min-w-0">
+              <div class="w-10 h-10 rounded-xl bg-teal-100 flex items-center justify-center flex-shrink-0">
+                <i data-lucide="edit-2" class="w-5 h-5 text-teal-700"></i>
+              </div>
+              <div class="min-w-0">
+                <div class="text-[10px] text-slate-500 flex items-center gap-1 mb-0.5">
+                  <i data-lucide="droplets" class="w-3 h-3 text-amber-600"></i>
+                  <span>Skincare</span>
+                  <i data-lucide="chevron-right" class="w-3 h-3"></i>
+                  <span>Editar producto</span>
+                </div>
+                <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                  Vitamin C Brightening Serum 30ml
+                  <span class="px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 text-[9px] font-bold flex items-center gap-1">
+                    <span class="w-1.5 h-1.5 rounded-full bg-amber-500 dot-pulse"></span>
+                    2 cambios sin guardar
+                  </span>
+                </h2>
+                <div class="text-[10px] text-slate-500 mt-0.5">
+                  <span class="font-mono">SKC-0042</span> · creado 12 mar 2025 · última edición: 15 abr 2026 por José LP
+                </div>
+              </div>
+            </div>
+            <div class="flex items-center gap-1.5 flex-shrink-0">
+              <button class="p-1.5 hover:bg-slate-100 rounded-md text-slate-500" title="Ver historial de cambios">
+                <i data-lucide="history" class="w-4 h-4"></i>
+              </button>
+              <button class="p-1.5 hover:bg-slate-100 rounded-md text-slate-500"><i data-lucide="x" class="w-4 h-4"></i></button>
+            </div>
+          </div>
+        </div>
+
+        <!-- BANNER · campos read-only -->
+        <div class="bg-purple-50 border-b border-purple-200 px-5 py-2 flex items-center gap-2">
+          <i data-lucide="lock" class="w-3.5 h-3.5 text-purple-700 flex-shrink-0"></i>
+          <div class="text-[10px] text-purple-900 flex-1">
+            <strong>Campos no editables:</strong> SKU, Línea de negocio y País de origen. Estos cambian referencias en OCs/Ventas/Stock — para modificarlos hay que duplicar el producto.
+          </div>
+        </div>
+
+        <div class="p-5 space-y-3 max-h-[640px] overflow-y-auto">
+
+          <!-- Sección 1 · Origen · READ-ONLY -->
+          <div class="border border-slate-200 rounded-xl overflow-hidden">
+            <div class="px-4 py-3 bg-slate-50 flex items-center gap-2.5">
+              <span class="section-num"><i data-lucide="lock" class="w-3 h-3"></i></span>
+              <div class="flex-1 min-w-0">
+                <div class="text-sm font-bold text-slate-900 flex items-center gap-2">
+                  Origen <span class="px-1.5 py-0.5 rounded bg-purple-100 text-purple-800 text-[9px] font-bold">READ-ONLY</span>
+                </div>
+                <div class="text-[10px] text-slate-500 mt-0.5">Línea: <strong>Skincare</strong> · País: <strong>Corea</strong></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sección 2 · Información Básica -->
+          <div class="border border-slate-200 rounded-xl overflow-hidden">
+            <div class="px-4 py-3 bg-slate-50 flex items-center gap-2.5 cursor-pointer">
+              <span class="section-num">2</span>
+              <div class="flex-1 min-w-0">
+                <div class="text-sm font-bold text-slate-900">Información básica</div>
+                <div class="text-[10px] text-slate-500">Vitamin C Brightening Serum · SkinCeuticals · 30ml</div>
+              </div>
+              <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400"></i>
+            </div>
+          </div>
+
+          <!-- ════ Sección 3 · ATRIBUTOS SKC con 1 modificación ════ -->
+          <div class="border-2 border-amber-400 rounded-xl overflow-hidden">
+            <div class="px-4 py-3 bg-amber-50 flex items-center gap-2.5">
+              <span class="section-num modificada"><i data-lucide="pencil" class="w-3 h-3"></i></span>
+              <div class="flex-1">
+                <div class="text-sm font-bold text-slate-900 flex items-center gap-2">
+                  Atributos Skincare
+                  <span class="px-1.5 py-0.5 rounded bg-amber-600 text-white text-[9px] font-bold">1 cambio</span>
+                </div>
+                <div class="text-[10px] text-amber-700 mt-0.5">Ingrediente clave modificado · resto sin cambios</div>
+              </div>
+              <i data-lucide="chevron-down" class="w-4 h-4 text-amber-700"></i>
+            </div>
+
+            <!-- Contenido expandido · solo el campo modificado se ve -->
+            <div class="p-4 space-y-3 bg-white">
+              <!-- Campo modificado · ingrediente clave -->
+              <div>
+                <label class="block text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1 flex items-center justify-between">
+                  <span class="flex items-center gap-1.5">
+                    Ingrediente clave
+                    <span class="w-1.5 h-1.5 rounded-full bg-amber-500 dot-pulse"></span>
+                    <span class="text-[9px] text-amber-700 font-bold normal-case">MODIFICADO</span>
+                  </span>
+                </label>
+                <input type="text" value="Vitamina C 15% + Ácido Ferúlico 0.5%" class="w-full px-3 py-2 border-2 rounded-lg text-sm modificado-bg focus:outline-none focus:ring-2 focus:ring-amber-400">
+                <div class="mt-1 flex items-center gap-2 text-[10px]">
+                  <i data-lucide="undo-2" class="w-3 h-3 text-slate-400"></i>
+                  <span class="text-slate-500 italic">Antes:</span>
+                  <span class="text-slate-700 line-through">Vitamina C 15%</span>
+                  <button class="ml-auto px-1.5 py-0.5 rounded bg-slate-100 hover:bg-slate-200 text-slate-600 text-[10px] font-medium">↻ Revertir</button>
+                </div>
+              </div>
+
+              <!-- Resto de campos sin modificar (resumido) -->
+              <div class="rounded-lg bg-slate-50 border border-slate-200 px-3 py-2 flex items-center gap-2">
+                <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-slate-500"></i>
+                <div class="text-[10px] text-slate-600 flex-1">
+                  Sin cambios: Tipo SKC (Sérum) · Volumen (30ml) · Línea de marca (C E Ferulic) · Tipo piel (Mixta+Grasa) · Preocupaciones (3) · Paso rutina (Sérum) · Textura (Aceite) · Zona (Rostro)
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ════ Sección 4 · CLASIFICACIÓN sin modificaciones ════ -->
+          <div class="border border-slate-200 rounded-xl overflow-hidden">
+            <div class="px-4 py-3 bg-slate-50 flex items-center gap-2.5 cursor-pointer">
+              <span class="section-num">4</span>
+              <div class="flex-1 min-w-0">
+                <div class="text-sm font-bold text-slate-900">Clasificación</div>
+                <div class="text-[10px] text-slate-500">SkinCeuticals · Sérum Vitamina C · 3 categorías · 4 etiquetas</div>
+              </div>
+              <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400"></i>
+            </div>
+          </div>
+
+          <!-- ════ Sección 5 · INVENTARIO + PRECIO con 1 modificación ════ -->
+          <div class="border-2 border-amber-400 rounded-xl overflow-hidden">
+            <div class="px-4 py-3 bg-amber-50 flex items-center gap-2.5">
+              <span class="section-num modificada"><i data-lucide="pencil" class="w-3 h-3"></i></span>
+              <div class="flex-1">
+                <div class="text-sm font-bold text-slate-900 flex items-center gap-2">
+                  Inventario y precio
+                  <span class="px-1.5 py-0.5 rounded bg-amber-600 text-white text-[9px] font-bold">1 cambio</span>
+                </div>
+                <div class="text-[10px] text-amber-700 mt-0.5">Precio venta modificado · alerta de impacto en inventario activo</div>
+              </div>
+              <i data-lucide="chevron-down" class="w-4 h-4 text-amber-700"></i>
+            </div>
+
+            <div class="p-4 space-y-3 bg-white">
+              <!-- Stock min/max sin cambios -->
+              <div class="grid grid-cols-3 gap-3">
+                <div>
+                  <label class="block text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1">Stock mínimo</label>
+                  <input type="number" value="5" class="w-full px-3 py-1.5 border border-slate-300 rounded-lg text-sm tabular">
+                </div>
+                <div>
+                  <label class="block text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1">Stock máximo</label>
+                  <input type="number" value="100" class="w-full px-3 py-1.5 border border-slate-300 rounded-lg text-sm tabular">
+                </div>
+                <div>
+                  <label class="block text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1 flex items-center gap-1.5">
+                    Precio venta
+                    <span class="w-1.5 h-1.5 rounded-full bg-amber-500 dot-pulse"></span>
+                  </label>
+                  <div class="relative">
+                    <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-slate-400 font-mono">S/</span>
+                    <input type="number" value="295" step="0.01" class="w-full pl-9 pr-3 py-1.5 border-2 rounded-lg text-sm tabular modificado-bg focus:outline-none focus:ring-2 focus:ring-amber-400">
+                  </div>
+                  <div class="mt-1 flex items-center gap-1 text-[9px]">
+                    <i data-lucide="undo-2" class="w-2.5 h-2.5 text-slate-400"></i>
+                    <span class="text-slate-500 italic">Antes:</span>
+                    <span class="text-slate-700 line-through tabular">S/ 285</span>
+                    <span class="text-emerald-700 font-bold tabular">+3.5%</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- ALERTA IMPACTO IMPORTANTE -->
+              <div class="rounded-lg border-2 border-rose-200 bg-rose-50 p-3 flex items-start gap-2">
+                <i data-lucide="alert-triangle" class="w-4 h-4 text-rose-600 flex-shrink-0 mt-0.5"></i>
+                <div class="flex-1">
+                  <div class="text-[11px] font-bold text-rose-900">Cambio con impacto</div>
+                  <div class="text-[10px] text-rose-800 mt-0.5">El precio se aplica solo a NUEVAS ventas. Las cotizaciones activas (3) y carritos pendientes (2) mantienen el precio anterior. Productos en stock no se ajustan retroactivamente.</div>
+                </div>
+                <button class="text-[10px] font-bold text-rose-700 hover:text-rose-900 underline whitespace-nowrap">Ver detalle</button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- FOOTER · siempre visible con resumen -->
+        <div class="border-t-2 border-amber-300 bg-amber-50 px-5 py-3 flex items-center justify-between gap-3">
+          <div class="flex items-center gap-2.5">
+            <span class="w-2 h-2 rounded-full bg-amber-500 dot-pulse"></span>
+            <div class="text-[11px] text-slate-700">
+              <strong class="text-amber-900">2 cambios sin guardar</strong> · Ingrediente clave · Precio venta
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <button class="px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-100 rounded-lg">Descartar cambios</button>
+            <button class="px-4 py-1.5 text-xs font-bold text-white bg-teal-600 hover:bg-teal-700 rounded-lg flex items-center gap-1.5 shadow-sm">
+              <i data-lucide="check" class="w-3.5 h-3.5"></i>Revisar y guardar (2)
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- ESTADO B · Modal de confirmación al guardar                      -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <div>
+    <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-2">Estado B · Modal de confirmación al hacer click "Revisar y guardar" · resumen + advertencias + auditoría</div>
+
+    <div class="parent-hint">
+      <div class="bg-white rounded-2xl shadow-2xl overflow-hidden border border-slate-200 max-w-2xl mx-auto">
+        <!-- HEADER -->
+        <div class="bg-gradient-to-br from-emerald-50 to-white border-b border-slate-200 px-5 py-3.5">
+          <div class="flex items-start justify-between gap-3">
+            <div class="flex items-start gap-2.5 min-w-0">
+              <div class="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center flex-shrink-0">
+                <i data-lucide="check-square" class="w-5 h-5 text-emerald-700"></i>
+              </div>
+              <div>
+                <h2 class="text-base font-bold text-slate-900">Confirmar cambios</h2>
+                <p class="text-[10px] text-slate-500 mt-0.5">Vitamin C Brightening Serum · <span class="font-mono">SKC-0042</span></p>
+              </div>
+            </div>
+            <button class="p-1.5 hover:bg-slate-100 rounded-md text-slate-500"><i data-lucide="x" class="w-4 h-4"></i></button>
+          </div>
+        </div>
+
+        <div class="p-5 space-y-4 max-h-[500px] overflow-y-auto">
+
+          <!-- RESUMEN DE CAMBIOS · 2 cambios -->
+          <div>
+            <div class="flex items-center gap-2 mb-2">
+              <i data-lucide="list" class="w-3.5 h-3.5 text-slate-500"></i>
+              <span class="text-[11px] font-bold text-slate-700 uppercase tracking-wider">Resumen de cambios · 2</span>
+            </div>
+
+            <div class="space-y-2">
+              <!-- Cambio 1 · Ingrediente clave -->
+              <div class="rounded-lg border border-slate-200 bg-white p-3">
+                <div class="flex items-start gap-2">
+                  <div class="w-6 h-6 rounded bg-amber-100 flex items-center justify-center flex-shrink-0">
+                    <i data-lucide="flask-conical" class="w-3.5 h-3.5 text-amber-700"></i>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <div class="text-[11px] font-bold text-slate-900">Atributos Skincare → Ingrediente clave</div>
+                    <div class="mt-1 grid grid-cols-2 gap-2 text-[10px]">
+                      <div>
+                        <div class="text-slate-500 italic">Antes</div>
+                        <div class="text-slate-700 line-through">Vitamina C 15%</div>
+                      </div>
+                      <div>
+                        <div class="text-emerald-700 italic font-bold">Ahora</div>
+                        <div class="text-slate-900 font-bold">Vitamina C 15% + Ácido Ferúlico 0.5%</div>
+                      </div>
+                    </div>
+                    <div class="mt-1.5 text-[9px] text-slate-500 italic">Sin impacto en otros módulos</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Cambio 2 · Precio venta -->
+              <div class="rounded-lg border-2 border-rose-200 bg-rose-50/40 p-3">
+                <div class="flex items-start gap-2">
+                  <div class="w-6 h-6 rounded bg-rose-100 flex items-center justify-center flex-shrink-0">
+                    <i data-lucide="dollar-sign" class="w-3.5 h-3.5 text-rose-700"></i>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <div class="text-[11px] font-bold text-slate-900 flex items-center gap-1.5">
+                      Inventario y precio → Precio venta
+                      <span class="px-1 py-0.5 rounded bg-rose-200 text-rose-800 text-[9px] font-bold">IMPACTA OTROS MÓDULOS</span>
+                    </div>
+                    <div class="mt-1 grid grid-cols-2 gap-2 text-[10px]">
+                      <div>
+                        <div class="text-slate-500 italic">Antes</div>
+                        <div class="text-slate-700 line-through tabular">S/ 285</div>
+                      </div>
+                      <div>
+                        <div class="text-emerald-700 italic font-bold">Ahora</div>
+                        <div class="text-slate-900 font-bold tabular">S/ 295 <span class="text-emerald-700 text-[9px]">(+3.5%)</span></div>
+                      </div>
+                    </div>
+
+                    <!-- Detalle de impacto -->
+                    <div class="mt-2 rounded bg-white border border-rose-200 p-2 space-y-1">
+                      <div class="text-[10px] font-bold text-rose-900">Análisis de impacto:</div>
+                      <div class="text-[10px] text-slate-700 flex items-center gap-1.5">
+                        <i data-lucide="check" class="w-2.5 h-2.5 text-emerald-600"></i>
+                        Cotizaciones activas (3): mantienen precio S/ 285 hasta caducar
+                      </div>
+                      <div class="text-[10px] text-slate-700 flex items-center gap-1.5">
+                        <i data-lucide="check" class="w-2.5 h-2.5 text-emerald-600"></i>
+                        Carritos pendientes (2): mantienen precio S/ 285 hasta cierre
+                      </div>
+                      <div class="text-[10px] text-slate-700 flex items-center gap-1.5">
+                        <i data-lucide="check" class="w-2.5 h-2.5 text-emerald-600"></i>
+                        Stock activo (47 uds): no se ajusta retroactivamente
+                      </div>
+                      <div class="text-[10px] text-slate-700 flex items-center gap-1.5">
+                        <i data-lucide="info" class="w-2.5 h-2.5 text-blue-600"></i>
+                        ML/Shopee se actualizan en próximo sync (~10 min)
+                      </div>
+                      <div class="text-[10px] text-slate-700 flex items-center gap-1.5">
+                        <i data-lucide="info" class="w-2.5 h-2.5 text-blue-600"></i>
+                        Margen proyectado actualizado: 52% → 53.6%
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- AUDITORÍA · información que se registra -->
+          <div class="rounded-lg bg-slate-50 border border-slate-200 p-3">
+            <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1.5 flex items-center gap-1">
+              <i data-lucide="clipboard-check" class="w-3 h-3"></i>Información que se registra en historial
+            </div>
+            <div class="grid grid-cols-2 gap-2 text-[10px] text-slate-700">
+              <div>👤 <strong>Usuario:</strong> José LP</div>
+              <div>📅 <strong>Fecha:</strong> 3 may 2026 · 10:42</div>
+              <div>📝 <strong>Cambios:</strong> 2 campos en 2 secciones</div>
+              <div>⚠️ <strong>Con impacto:</strong> 1 (precio venta)</div>
+            </div>
+          </div>
+
+          <!-- Motivo del cambio (opcional) -->
+          <div>
+            <label class="block text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1 flex items-center justify-between">
+              <span>Motivo del cambio <span class="text-slate-400 lowercase normal-case">(opcional)</span></span>
+              <span class="text-[9px] text-slate-400 italic">queda en historial · útil para auditorías</span>
+            </label>
+            <textarea rows="2" placeholder="ej: ajuste por aumento de costo proveedor + actualización formula con nuevo ingrediente..." class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-teal-400 resize-none">Aumento por nuevo costo proveedor + agregado de Ácido Ferúlico a la formula</textarea>
+          </div>
+
+        </div>
+
+        <!-- FOOTER -->
+        <div class="border-t border-slate-200 bg-slate-50 px-5 py-3 flex items-center justify-between gap-2">
+          <button class="px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-100 rounded-lg flex items-center gap-1.5">
+            <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>Volver a editar
+          </button>
+          <div class="flex items-center gap-2">
+            <button class="px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-100 rounded-lg">Descartar cambios</button>
+            <button class="px-4 py-1.5 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg flex items-center gap-1.5 shadow-sm">
+              <i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i>Confirmar y guardar
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- ESTADO C · Panel de historial de cambios (icono history)         -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <div>
+    <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-2">Estado C · Drawer lateral · Historial completo de cambios al hacer click en icono "history" del header</div>
+
+    <div class="parent-hint">
+      <div class="bg-white rounded-2xl shadow-2xl overflow-hidden border border-slate-200 max-w-md mx-auto">
+        <!-- HEADER -->
+        <div class="bg-gradient-to-br from-slate-50 to-white border-b border-slate-200 px-4 py-3">
+          <div class="flex items-center justify-between gap-2">
+            <div class="flex items-center gap-2">
+              <i data-lucide="history" class="w-4 h-4 text-slate-700"></i>
+              <h3 class="text-sm font-bold text-slate-900">Historial de cambios</h3>
+              <span class="text-[10px] text-slate-500 tabular">12 versiones</span>
+            </div>
+            <button class="p-1 hover:bg-slate-100 rounded text-slate-500"><i data-lucide="x" class="w-3.5 h-3.5"></i></button>
+          </div>
+          <div class="text-[10px] text-slate-500 mt-0.5">Vitamin C Brightening Serum · SKC-0042</div>
+        </div>
+
+        <!-- BODY · timeline de cambios -->
+        <div class="p-4 space-y-2 max-h-[500px] overflow-y-auto">
+          <!-- Cambio 1 · más reciente · pendiente -->
+          <div class="rounded-lg border-2 border-amber-300 bg-amber-50/40 p-3">
+            <div class="flex items-start gap-2">
+              <div class="w-7 h-7 rounded-lg bg-amber-100 flex items-center justify-center flex-shrink-0">
+                <i data-lucide="pencil" class="w-3.5 h-3.5 text-amber-700"></i>
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-1.5 flex-wrap">
+                  <span class="text-[11px] font-bold text-amber-900">Edición actual</span>
+                  <span class="px-1.5 py-0.5 rounded bg-amber-600 text-white text-[9px] font-bold">PENDIENTE</span>
+                </div>
+                <div class="text-[10px] text-slate-600">2 cambios · José LP · ahora</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Cambio 2 · 15 abr -->
+          <div class="rounded-lg border border-slate-200 bg-white p-3">
+            <div class="flex items-start gap-2">
+              <div class="w-7 h-7 rounded-lg bg-slate-100 flex items-center justify-center flex-shrink-0">
+                <i data-lucide="pencil" class="w-3.5 h-3.5 text-slate-600"></i>
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="text-[11px] font-bold text-slate-900">Edición v11</div>
+                <div class="text-[10px] text-slate-500">15 abr 2026 · 14:23 · José LP</div>
+                <div class="text-[10px] text-slate-700 mt-1">
+                  • Tipo de piel: + Mixta<br>
+                  • Preocupaciones: + Brillo
+                </div>
+                <button class="text-[9px] font-bold text-teal-700 hover:underline mt-1">Ver diff completo →</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Cambio 3 · 02 abr · alto impacto -->
+          <div class="rounded-lg border border-slate-200 bg-white p-3">
+            <div class="flex items-start gap-2">
+              <div class="w-7 h-7 rounded-lg bg-rose-100 flex items-center justify-center flex-shrink-0">
+                <i data-lucide="alert-triangle" class="w-3.5 h-3.5 text-rose-700"></i>
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-1.5 flex-wrap">
+                  <span class="text-[11px] font-bold text-slate-900">Edición v10</span>
+                  <span class="px-1 py-0.5 rounded bg-rose-100 text-rose-700 text-[9px] font-bold">CON IMPACTO</span>
+                </div>
+                <div class="text-[10px] text-slate-500">2 abr 2026 · 09:15 · María Q.</div>
+                <div class="text-[10px] text-slate-700 mt-1">
+                  • Precio venta: S/ 270 → S/ 285 (+5.5%)<br>
+                  <span class="text-[9px] italic text-slate-500">Motivo: Ajuste por inflación Q2</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Cambio 4 · 20 mar · creación -->
+          <div class="rounded-lg border border-slate-200 bg-white p-3">
+            <div class="flex items-start gap-2">
+              <div class="w-7 h-7 rounded-lg bg-emerald-100 flex items-center justify-center flex-shrink-0">
+                <i data-lucide="plus" class="w-3.5 h-3.5 text-emerald-700"></i>
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="text-[11px] font-bold text-slate-900">Producto creado</div>
+                <div class="text-[10px] text-slate-500">12 mar 2025 · 11:42 · José LP</div>
+                <div class="text-[10px] text-slate-700 mt-1">SKU asignado: SKC-0042 · línea Skincare · 17 atributos iniciales</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- FOOTER -->
+        <div class="border-t border-slate-200 bg-slate-50 px-4 py-2 flex items-center justify-between">
+          <div class="text-[10px] text-slate-500">Histórico inmutable · audit-log</div>
+          <button class="text-[10px] font-bold text-teal-700 hover:underline">Exportar CSV</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>if(typeof lucide!=='undefined')lucide.createIcons();</script>
+</body>
+</html>
