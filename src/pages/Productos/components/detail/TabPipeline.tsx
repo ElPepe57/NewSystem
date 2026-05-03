@@ -37,6 +37,7 @@ import {
 } from 'lucide-react';
 import type { Producto } from '../../../../types/producto.types';
 import { calcularInvestigacion } from '../../utils/investigacionCalculos';
+import { useTipoCambio } from '../../../../hooks/useTipoCambio';
 
 interface TabPipelineProps {
   producto: Producto;
@@ -59,16 +60,31 @@ function getStock(p: Producto): number {
 }
 
 export const TabPipeline: React.FC<TabPipelineProps> = ({ producto }) => {
+  // Stock real desde campos cache del producto (sincronizados desde unidades)
   const stockPeru = (producto as any).stockDisponiblePeru ?? (producto as any).stockPeru ?? getStock(producto);
   const stockUSA = (producto as any).stockUSA ?? 0;
   const stockTransito = (producto as any).stockTransito ?? 0;
   const stockReservado = (producto as any).stockReservado ?? 0;
   const ventasMes = (producto as any).ventasMes ?? 0;
-  const ctru = producto.investigacion?.ctruEstimado ?? producto.ctruPromedio ?? 0;
+
+  // Fase H+ · usa TC del SISTEMA (vía useTipoCambio · 5min refresh) en lugar
+  // del hardcoded 3.85 anterior · garantiza consistencia con TabInvestigación
+  const { tc } = useTipoCambio();
+  const tcVenta = tc?.venta ?? 3.7;
+
+  // Fase H+ · usa helper compartido (mismo cálculo en cards, sort y otros tabs)
+  // En vez de leer ctruEstimado legacy (= 0 después del cleanup), calcula en vivo:
+  //   costoPEN = (mejorProv × (1+tax%) + flete) × TC
+  const calculos = calcularInvestigacion(producto, tcVenta);
   const proveedorPrincipal = producto.investigacion?.proveedoresUSA?.[0];
-  const costoEXW = proveedorPrincipal?.precio ?? 0;
-  const fleteIntl = producto.costoFleteInternacional ?? 4.5;
-  const precioVenta = calcularInvestigacion(producto).precioEfectivo;
+  const costoEXW = calculos.precioMejorProvUSD;
+  const fleteIntl = calculos.fleteUSD;
+  const ctru = calculos.costoPEN;
+  const precioVenta = calculos.precioEfectivo;
+
+  // Total uds en el pipeline · si 0, mostrar banner empty
+  const totalUdsEnPipeline = stockUSA + stockTransito + stockPeru + stockReservado;
+  const tieneCostosCalculables = costoEXW > 0;
 
   // 6 etapas del pipeline
   const etapas: Etapa[] = useMemo(
@@ -79,7 +95,7 @@ export const TabPipeline: React.FC<TabPipelineProps> = ({ producto }) => {
         subtitulo: proveedorPrincipal?.nombre ?? 'Sin proveedor',
         uds: 0,
         costoUnit: costoEXW > 0 ? { valor: costoEXW.toFixed(2), moneda: '$' } : undefined,
-        extras: costoEXW > 0 ? [{ label: '≈ S/', valor: (costoEXW * 3.85).toFixed(2) }] : undefined,
+        extras: costoEXW > 0 ? [{ label: '≈ S/', valor: (costoEXW * tcVenta).toFixed(2) }] : undefined,
         variant: 'slate',
         icon: Factory,
       },
@@ -89,7 +105,7 @@ export const TabPipeline: React.FC<TabPipelineProps> = ({ producto }) => {
         subtitulo: 'En tránsito intl.',
         uds: stockUSA,
         costoUnit: costoEXW > 0 ? { valor: costoEXW.toFixed(2), moneda: '$' } : undefined,
-        total: stockUSA > 0 && costoEXW > 0 ? { valor: (stockUSA * costoEXW * 3.85).toFixed(0), moneda: 'S/' } : undefined,
+        total: stockUSA > 0 && costoEXW > 0 ? { valor: (stockUSA * costoEXW * tcVenta).toFixed(0), moneda: 'S/' } : undefined,
         variant: 'sky',
         icon: Globe,
       },
@@ -102,7 +118,7 @@ export const TabPipeline: React.FC<TabPipelineProps> = ({ producto }) => {
         extras: [{ label: '+ flete', valor: `$ ${fleteIntl.toFixed(2)}` }],
         total:
           stockTransito > 0 && costoEXW > 0
-            ? { valor: (stockTransito * (costoEXW + fleteIntl) * 3.85).toFixed(0), moneda: 'S/' }
+            ? { valor: (stockTransito * (costoEXW + fleteIntl) * tcVenta).toFixed(0), moneda: 'S/' }
             : undefined,
         variant: 'amber',
         icon: PackageX,
@@ -143,18 +159,18 @@ export const TabPipeline: React.FC<TabPipelineProps> = ({ producto }) => {
         icon: CheckCircle,
       },
     ],
-    [stockUSA, stockTransito, stockPeru, stockReservado, ventasMes, ctru, costoEXW, fleteIntl, precioVenta, proveedorPrincipal]
+    [stockUSA, stockTransito, stockPeru, stockReservado, ventasMes, ctru, costoEXW, fleteIntl, precioVenta, proveedorPrincipal, tcVenta]
   );
 
   // 4 KPIs financieros derivados
   const kpis = useMemo(() => {
     const inPipeline = stockUSA + stockTransito + stockPeru + stockReservado;
     const capitalInvertido =
-      stockUSA * costoEXW * 3.85 +
-      stockTransito * (costoEXW + fleteIntl) * 3.85 +
+      stockUSA * costoEXW * tcVenta +
+      stockTransito * (costoEXW + fleteIntl) * tcVenta +
       stockPeru * ctru +
       stockReservado * ctru;
-    const capitalAtrapado = stockUSA * costoEXW * 3.85 + stockTransito * (costoEXW + fleteIntl) * 3.85;
+    const capitalAtrapado = stockUSA * costoEXW * tcVenta + stockTransito * (costoEXW + fleteIntl) * tcVenta;
     const siVendieraTodo = inPipeline * precioVenta - capitalInvertido;
     const ingresosMes = ventasMes * precioVenta;
     return {
@@ -165,7 +181,7 @@ export const TabPipeline: React.FC<TabPipelineProps> = ({ producto }) => {
       inPipeline,
       atrapadoUds: stockUSA + stockTransito,
     };
-  }, [stockUSA, stockTransito, stockPeru, stockReservado, ventasMes, ctru, costoEXW, fleteIntl, precioVenta]);
+  }, [stockUSA, stockTransito, stockPeru, stockReservado, ventasMes, ctru, costoEXW, fleteIntl, precioVenta, tcVenta]);
 
   // Score liquidez (placeholder · derivado de velocidad ventas vs stock)
   const scoreLiquidez = useMemo(() => {
@@ -177,9 +193,8 @@ export const TabPipeline: React.FC<TabPipelineProps> = ({ producto }) => {
     return { value: score, label: 'LENTO', color: 'rose' };
   }, [stockPeru, ventasMes]);
 
-  // Empty state si no hay nada
-  const sinDatos = etapas.every(e => !e.uds && !e.costoUnit);
-  if (sinDatos) {
+  // Empty state CRITICO · sin investigación NI stock = nada que mostrar
+  if (!tieneCostosCalculables && totalUdsEnPipeline === 0) {
     return (
       <div className="p-3 lg:p-5">
         <div className="bg-white border-2 border-dashed border-slate-200 rounded-xl p-8 lg:p-10 text-center">
@@ -188,8 +203,8 @@ export const TabPipeline: React.FC<TabPipelineProps> = ({ producto }) => {
           </div>
           <h3 className="text-base font-bold text-slate-900 mb-1">Pipeline sin datos</h3>
           <p className="text-xs lg:text-sm text-slate-500 max-w-md mx-auto">
-            Este producto aún no tiene proveedores · stock · ni ventas. El pipeline se construirá automáticamente cuando
-            ingreses datos.
+            Este producto aún no tiene proveedores ni stock. Agregá un proveedor en
+            la pestaña Investigación para ver costos por etapa.
           </p>
         </div>
       </div>
@@ -223,6 +238,26 @@ export const TabPipeline: React.FC<TabPipelineProps> = ({ producto }) => {
           </span>
         )}
       </div>
+
+      {/* Banner empty cuando hay investigación pero pipeline vacío
+          TODO Fase Final · activar CTAs reales con navigate('/compras/nueva?productoId=X') y ('/unidades?productoId=X') */}
+      {totalUdsEnPipeline === 0 && tieneCostosCalculables && (
+        <div className="rounded-lg bg-amber-50 border border-amber-200 p-3 flex items-start gap-2.5">
+          <Lightbulb className="w-4 h-4 text-amber-700 flex-shrink-0 mt-0.5" />
+          <div className="flex-1 text-[11px] text-amber-900">
+            <strong>Pipeline vacío</strong> · estás viendo una proyección con los costos de la
+            investigación. Las cajas se llenarán automáticamente cuando confirmes una OC con este producto.
+          </div>
+          <div className="flex items-center gap-1.5 flex-shrink-0">
+            <span className="text-[10px] text-amber-700 italic px-2 py-1 bg-white border border-amber-200 rounded">
+              Crear OC →
+            </span>
+            <span className="text-[10px] text-amber-700 italic px-2 py-1 bg-white border border-amber-200 rounded">
+              Ver unidades →
+            </span>
+          </div>
+        </div>
+      )}
 
       {/* ═══════ PIPELINE · DESKTOP horizontal ═══════ */}
       <div className="hidden lg:block bg-gradient-to-b from-slate-50/60 to-white rounded-xl p-4">
