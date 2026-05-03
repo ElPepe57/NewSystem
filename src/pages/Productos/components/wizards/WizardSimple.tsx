@@ -41,12 +41,14 @@ const PRESENTACIONES: { value: Presentacion; label: string }[] = [
   { value: 'liquido', label: 'Líquido' },
 ];
 
+// GAP-143 fix · paisOrigen ahora se guarda como CODIGO ('USA', 'KOR', etc.)
+// para coherencia con productos legacy y filtros · label es solo display
 const PAISES = [
-  { value: 'Estados Unidos', emoji: '🇺🇸' },
-  { value: 'Corea del Sur', emoji: '🇰🇷' },
-  { value: 'China', emoji: '🇨🇳' },
-  { value: 'Francia', emoji: '🇫🇷' },
-  { value: 'Perú', emoji: '🇵🇪' },
+  { value: 'USA', label: 'Estados Unidos', emoji: '🇺🇸' },
+  { value: 'KOR', label: 'Corea del Sur', emoji: '🇰🇷' },
+  { value: 'CHN', label: 'China', emoji: '🇨🇳' },
+  { value: 'FRA', label: 'Francia', emoji: '🇫🇷' },
+  { value: 'PER', label: 'Perú', emoji: '🇵🇪' },
 ];
 
 export const WizardSimple: React.FC<WizardSimpleProps> = ({ open, onClose, onSubmit, lineasNegocio = [] }) => {
@@ -54,7 +56,7 @@ export const WizardSimple: React.FC<WizardSimpleProps> = ({ open, onClose, onSub
   const [submitting, setSubmitting] = useState(false);
 
   // Estado del form
-  const [paisOrigen, setPaisOrigen] = useState('Estados Unidos');
+  const [paisOrigen, setPaisOrigen] = useState('USA');
   const [costoFlete, setCostoFlete] = useState<string>('');
   const [pesoLibras, setPesoLibras] = useState<string>('');
 
@@ -196,7 +198,7 @@ export const WizardSimple: React.FC<WizardSimpleProps> = ({ open, onClose, onSub
                 >
                   {PAISES.map(p => (
                     <option key={p.value} value={p.value}>
-                      {p.emoji} {p.value}
+                      {p.emoji} {p.label}
                     </option>
                   ))}
                 </select>

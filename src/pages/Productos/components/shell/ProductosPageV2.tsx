@@ -73,6 +73,7 @@ import {
 } from '../tools';
 import { ProductoService } from '../../../../services/producto.service';
 import { useLineaNegocioStore } from '../../../../store/lineaNegocioStore';
+import { useLineaFilter } from '../../../../hooks/useLineaFilter';
 import type { Producto, ProductoFormData } from '../../../../types/producto.types';
 
 // ─── Configuración de filtros ────────────────────────────────────────────────
@@ -154,7 +155,9 @@ export const ProductosPageV2: React.FC = () => {
     }
   }, [user, fetchProductos, fetchArchivados, fetchLineasActivas]);
 
-  const lista = useMemo(() => (Array.isArray(productos) ? productos : []), [productos]);
+  // GAP-002 fix · respetar filtro global de linea del header
+  const listaCruda = useMemo(() => (Array.isArray(productos) ? productos : []), [productos]);
+  const lista = useLineaFilter(listaCruda, (p: any) => p.lineaNegocioId);
 
   // ─── Lista filtrada (aplicando todos los filtros + pillActivo) ─────────────
   const productosFiltered = useMemo(() => {
@@ -188,24 +191,36 @@ export const ProductosPageV2: React.FC = () => {
         break;
     }
 
-    // 2. Búsqueda por término
+    // 2. Búsqueda por término · GAP-003 fix: campo correcto es nombreComercial · sumar más campos
     if (filtros.searchTerm.trim()) {
       const term = filtros.searchTerm.toLowerCase();
-      result = result.filter(
-        (p: any) =>
-          p.nombre?.toLowerCase().includes(term) ||
-          p.marca?.toLowerCase().includes(term) ||
-          p.sku?.toLowerCase().includes(term)
-      );
+      result = result.filter((p: any) => {
+        // Identidad
+        if (p.nombreComercial?.toLowerCase().includes(term)) return true;
+        if (p.marca?.toLowerCase().includes(term)) return true;
+        if (p.sku?.toLowerCase().includes(term)) return true;
+        // Clasificación legacy + nueva
+        if (p.grupo?.toLowerCase().includes(term)) return true;
+        if (p.subgrupo?.toLowerCase().includes(term)) return true;
+        if (p.tipoProducto?.nombre?.toLowerCase().includes(term)) return true;
+        if (Array.isArray(p.categorias) && p.categorias.some((c: any) => c.nombre?.toLowerCase().includes(term))) return true;
+        if (Array.isArray(p.etiquetasData) && p.etiquetasData.some((e: any) => e.nombre?.toLowerCase().includes(term))) return true;
+        if (Array.isArray(p.etiquetas) && p.etiquetas.some((e: string) => e?.toLowerCase().includes(term))) return true;
+        return false;
+      });
     }
 
     // 3. Filtros por chip group (línea / tipo / estado)
+    // GAP-001 fix · linea ahora compara contra lineaNegocioNombre y lineaNegocioId
+    // Mapeo: chips usan slug ("skincare", "suplementos") · productos guardan
+    // lineaNegocioNombre ("Skincare", "Suplementos y Vitaminas") · matching insensible
     Object.entries(filtros.selecciones).forEach(([groupKey, values]) => {
       if (values.length === 0) return;
       result = result.filter((p: any) => {
         if (groupKey === 'linea') {
-          const linea = (p.linea ?? p.lineaNegocio ?? '').toLowerCase();
-          return values.some(v => linea.includes(v));
+          const lineaNombre = (p.lineaNegocioNombre ?? '').toLowerCase();
+          // Slug→keyword: skincare matches "skincare" · suplementos matches "suplementos"
+          return values.some(v => lineaNombre.includes(v.toLowerCase()));
         }
         if (groupKey === 'tipo') {
           if (values.includes('pack') && p.esPack) return true;
@@ -226,7 +241,8 @@ export const ProductosPageV2: React.FC = () => {
     // 4. Sort
     switch (filtros.sortValue) {
       case 'nombre_asc':
-        result.sort((a: any, b: any) => (a.nombre ?? '').localeCompare(b.nombre ?? ''));
+        // GAP-003 fix · campo correcto es nombreComercial
+        result.sort((a: any, b: any) => (a.nombreComercial ?? '').localeCompare(b.nombreComercial ?? ''));
         break;
       case 'margen_desc':
         result.sort((a: any, b: any) => {
@@ -355,8 +371,9 @@ export const ProductosPageV2: React.FC = () => {
       }
     });
 
+    // GAP-007 fix · investigacion es OBJETO (InvestigacionMercado), no array
     const conMargenList = lista.filter((p: any) => {
-      const inv = p.investigacion?.[0];
+      const inv = p.investigacion;
       return inv?.ctruEstimado > 0 && p.precioVenta > 0;
     });
     const margenPromedio =
@@ -364,7 +381,7 @@ export const ProductosPageV2: React.FC = () => {
         ? 0
         : Math.round(
             conMargenList.reduce((acc: number, p: any) => {
-              const inv = p.investigacion[0];
+              const inv = p.investigacion;
               const ctru = inv.ctruEstimado;
               const precioVenta = p.precioVenta;
               return acc + ((precioVenta - ctru) / precioVenta) * 100;
@@ -956,6 +973,7 @@ export const ProductosPageV2: React.FC = () => {
         onArchivar={handleArchivarProducto}
         onDuplicar={p => toast.info(`Duplicar ${p.nombreComercial} · pendiente`)}
         onAgregarVariante={p => toast.info(`Agregar variante a ${p.nombreComercial} · disponible en Fase 7`)}
+        onAbrirInvestigacion={handleAbrirInvestigacion}
       />
 
       {/* Modal Papelera · Fase 8 · #23 · listado archivados con restaurar/eliminar */}
@@ -1090,7 +1108,8 @@ export const ProductosPageV2: React.FC = () => {
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
 function calcMargen(p: any): number {
-  const inv = p.investigacion?.[0];
+  // GAP-007 fix · investigacion es OBJETO, no array
+  const inv = p.investigacion;
   if (!inv?.ctruEstimado || !p.precioVenta) return -1;
   return ((p.precioVenta - inv.ctruEstimado) / p.precioVenta) * 100;
 }

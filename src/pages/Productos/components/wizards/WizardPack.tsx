@@ -193,7 +193,9 @@ export const WizardPack: React.FC<WizardPackProps> = ({
       const data: Partial<ProductoFormData> = {
         marca: marca.trim(),
         nombreComercial: nombrePack.trim(),
-        presentacion: 'capsulas' as Presentacion, // valor default · pack no usa
+        // GAP-144 fix · pack NO debe tener presentacion (rompe filtros)
+        // legacy guarda '' · usamos misma estrategia
+        presentacion: '' as Presentacion,
         dosaje: '',
         contenido: `${componentes.length} componentes`,
         codigoUPC: '',

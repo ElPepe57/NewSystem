@@ -72,12 +72,13 @@ const PRESENTACIONES: { value: Presentacion; label: string }[] = [
   { value: 'liquido', label: 'Líquido' },
 ];
 
+// GAP-143 fix · paisOrigen como CODIGO de 3 letras
 const PAISES = [
-  { value: 'Estados Unidos', emoji: '🇺🇸' },
-  { value: 'Corea del Sur', emoji: '🇰🇷' },
-  { value: 'China', emoji: '🇨🇳' },
-  { value: 'Francia', emoji: '🇫🇷' },
-  { value: 'Perú', emoji: '🇵🇪' },
+  { value: 'USA', label: 'Estados Unidos', emoji: '🇺🇸' },
+  { value: 'KOR', label: 'Corea del Sur', emoji: '🇰🇷' },
+  { value: 'CHN', label: 'China', emoji: '🇨🇳' },
+  { value: 'FRA', label: 'Francia', emoji: '🇫🇷' },
+  { value: 'PER', label: 'Perú', emoji: '🇵🇪' },
 ];
 
 const EJES: { key: EjeVariacion; label: string; unidadDefault: string }[] = [
@@ -104,7 +105,7 @@ export const WizardConVariantes: React.FC<WizardConVariantesProps> = ({ open, on
   const [marca, setMarca] = useState('');
   const [nombreComercial, setNombreComercial] = useState('');
   const [presentacion, setPresentacion] = useState<Presentacion>('liquido');
-  const [paisOrigen, setPaisOrigen] = useState('Estados Unidos');
+  const [paisOrigen, setPaisOrigen] = useState('USA');
   const [lineaNegocioId, setLineaNegocioId] = useState('');
   const [costoFlete, setCostoFlete] = useState('');
   const [pesoLibras, setPesoLibras] = useState('');
@@ -488,7 +489,7 @@ const PasoDatos: React.FC<any> = ({
           >
             {PAISES.map(p => (
               <option key={p.value} value={p.value}>
-                {p.emoji} {p.value}
+                {p.emoji} {p.label}
               </option>
             ))}
           </select>

@@ -374,6 +374,20 @@ export const ProductoRowCard: React.FC<ProductoRowCardProps> = ({
             </>
           ) : (
             <>
+              {/* GAP-080 fix · boton Investigar cuando NO hay investigacion */}
+              {!producto.investigacion && onReInvestigar && (
+                <button
+                  type="button"
+                  onClick={e => {
+                    e.stopPropagation();
+                    onReInvestigar(producto);
+                  }}
+                  className="p-1.5 rounded hover:bg-amber-50 text-slate-500 hover:text-amber-700 transition-colors"
+                  title="Investigar este producto · agregar proveedores y competencia"
+                >
+                  <Search className="w-4 h-4" />
+                </button>
+              )}
               {onView && (
                 <button
                   type="button"

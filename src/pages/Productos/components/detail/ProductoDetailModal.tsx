@@ -58,6 +58,8 @@ interface ProductoDetailModalProps {
   onArchivar?: (producto: Producto) => void;
   onDuplicar?: (producto: Producto) => void;
   onAgregarVariante?: (producto: Producto) => void;
+  /** GAP-021 fix · permite que TabInvestigacion abra el modal #24 */
+  onAbrirInvestigacion?: (producto: Producto) => void;
 }
 
 type TabKey = 'resumen' | 'variantes' | 'investigacion' | 'stock' | 'historico' | 'pipeline' | 'componentes';
@@ -127,6 +129,7 @@ export const ProductoDetailModal: React.FC<ProductoDetailModalProps> = ({
   onArchivar,
   onDuplicar,
   onAgregarVariante,
+  onAbrirInvestigacion,
 }) => {
   const [activeTab, setActiveTab] = useState<TabKey>('resumen');
   const [showMoreMenu, setShowMoreMenu] = useState(false);
@@ -430,7 +433,13 @@ export const ProductoDetailModal: React.FC<ProductoDetailModalProps> = ({
               onAgregarVariante={onAgregarVariante ? () => onAgregarVariante(producto) : undefined}
             />
           )}
-          {activeTab === 'investigacion' && <TabInvestigacion producto={producto} />}
+          {activeTab === 'investigacion' && (
+            <TabInvestigacion
+              producto={producto}
+              onReInvestigar={onAbrirInvestigacion ? () => onAbrirInvestigacion(producto) : undefined}
+              onVerCompleto={onAbrirInvestigacion ? () => onAbrirInvestigacion(producto) : undefined}
+            />
+          )}
           {activeTab === 'stock' && <TabStock producto={producto} hermanasGrupo={hermanasGrupo} />}
           {activeTab === 'historico' && <TabHistorico producto={producto} />}
           {activeTab === 'pipeline' && <TabPipeline producto={producto} />}
