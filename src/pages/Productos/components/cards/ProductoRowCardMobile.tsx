@@ -71,17 +71,18 @@ function diasDesdeInvestigacion(producto: Producto): number | null {
   return Math.floor((Date.now() - ts) / (1000 * 60 * 60 * 24));
 }
 
+// Helpers · usan calcularInvestigacion compartido (Fase H+) · MISMA fórmula
+// que TabInvestigacion + ProductoRowCard desktop + sort comparators.
+import { calcularInvestigacion } from '../../utils/investigacionCalculos';
+
 function getPrecioVenta(producto: Producto): number {
-  return (producto as any).precioVenta ?? producto.investigacion?.precioSugeridoCalculado ?? 0;
+  return calcularInvestigacion(producto).precioEfectivo;
 }
 
 function getMargenPct(producto: Producto): number | null {
-  // Alineado a V1 · solo usa investigación real (no ctruPromedio legacy = precio*0.7)
-  const inv: any = producto.investigacion;
-  if (!inv?.ctruEstimado || inv.ctruEstimado <= 0) return null;
-  const precio = inv.precioEntrada || inv.precioSugeridoCalculado || getPrecioVenta(producto);
-  if (precio <= 0) return null;
-  return Math.round(((precio - inv.ctruEstimado) / precio) * 100);
+  const c = calcularInvestigacion(producto);
+  if (!c.esCompleta || c.precioEfectivo <= 0 || c.costoPEN <= 0) return null;
+  return Math.round(c.margenPct * 10) / 10;
 }
 
 function getMargenColor(pct: number | null): string {

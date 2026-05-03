@@ -28,6 +28,7 @@ import { Filter as FilterIcon, Droplets, Pill, Box, Package2, Check, Search as S
 import { useToastStore } from '../../../../store/toastStore';
 import { useProductoStore } from '../../../../store/productoStore';
 import { useAuthStore } from '../../../../store/authStore';
+import { calcularInvestigacion } from '../../utils/investigacionCalculos';
 import { HeaderV2 } from './HeaderV2';
 import { KpiStripV2 } from './KpiStripV2';
 import { LoadingState } from './LoadingState';
@@ -1350,11 +1351,13 @@ export const ProductosPageV2: React.FC = () => {
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
+// Helper · usa calcularInvestigacion compartido (Fase H+) · MISMA fórmula
+// que cards y TabInvestigacion. Devuelve -Infinity si no se puede calcular
+// (sort coloca esos al final).
 function calcMargen(p: any): number {
-  // GAP-007 fix · investigacion es OBJETO, no array
-  const inv = p.investigacion;
-  if (!inv?.ctruEstimado || !p.precioVenta) return -1;
-  return ((p.precioVenta - inv.ctruEstimado) / p.precioVenta) * 100;
+  const c = calcularInvestigacion(p);
+  if (!c.esCompleta || c.precioEfectivo <= 0 || c.costoPEN <= 0) return -Infinity;
+  return c.margenPct;
 }
 
 // ─── Fase G · Sort comparators (12 keys) ─────────────────────────────────────
@@ -1379,34 +1382,28 @@ function getSortComparator(key: SortKey): (a: any, b: any) => number {
     case 'margen_desc':
       return (a, b) => calcMargen(b) - calcMargen(a);
     case 'roi_desc':
+      // Fase H+ · usa calcularInvestigacion · MISMA fórmula que cards y tab
       return (a, b) => {
-        // Usa ctruEstimado real (no ctruPromedio legacy = precio*0.7)
-        const ctruA = a.investigacion?.ctruEstimado ?? 0;
-        const ctruB = b.investigacion?.ctruEstimado ?? 0;
-        const precioA = a.investigacion?.precioEntrada || a.investigacion?.precioSugeridoCalculado || a.precioVenta || 0;
-        const precioB = b.investigacion?.precioEntrada || b.investigacion?.precioSugeridoCalculado || b.precioVenta || 0;
-        const roiA = (precioA && ctruA) ? (precioA - ctruA) / ctruA : -1;
-        const roiB = (precioB && ctruB) ? (precioB - ctruB) / ctruB : -1;
+        const ca = calcularInvestigacion(a);
+        const cb = calcularInvestigacion(b);
+        const roiA = ca.esCompleta && ca.costoPEN > 0 ? (ca.precioEfectivo - ca.costoPEN) / ca.costoPEN : -Infinity;
+        const roiB = cb.esCompleta && cb.costoPEN > 0 ? (cb.precioEfectivo - cb.costoPEN) / cb.costoPEN : -Infinity;
         return roiB - roiA;
       };
     case 'multiplicador_desc':
       return (a, b) => {
-        const ctruA = a.investigacion?.ctruEstimado ?? 0;
-        const ctruB = b.investigacion?.ctruEstimado ?? 0;
-        const precioA = a.investigacion?.precioEntrada || a.investigacion?.precioSugeridoCalculado || a.precioVenta || 0;
-        const precioB = b.investigacion?.precioEntrada || b.investigacion?.precioSugeridoCalculado || b.precioVenta || 0;
-        const mA = (precioA && ctruA) ? precioA / ctruA : 0;
-        const mB = (precioB && ctruB) ? precioB / ctruB : 0;
+        const ca = calcularInvestigacion(a);
+        const cb = calcularInvestigacion(b);
+        const mA = ca.esCompleta && ca.costoPEN > 0 ? ca.precioEfectivo / ca.costoPEN : -Infinity;
+        const mB = cb.esCompleta && cb.costoPEN > 0 ? cb.precioEfectivo / cb.costoPEN : -Infinity;
         return mB - mA;
       };
     case 'utilidad_desc':
       return (a, b) => {
-        const ctruA = a.investigacion?.ctruEstimado ?? 0;
-        const ctruB = b.investigacion?.ctruEstimado ?? 0;
-        const precioA = a.investigacion?.precioEntrada || a.investigacion?.precioSugeridoCalculado || a.precioVenta || 0;
-        const precioB = b.investigacion?.precioEntrada || b.investigacion?.precioSugeridoCalculado || b.precioVenta || 0;
-        const uA = ctruA > 0 ? precioA - ctruA : -Infinity;
-        const uB = ctruB > 0 ? precioB - ctruB : -Infinity;
+        const ca = calcularInvestigacion(a);
+        const cb = calcularInvestigacion(b);
+        const uA = ca.esCompleta && ca.costoPEN > 0 ? ca.utilidad : -Infinity;
+        const uB = cb.esCompleta && cb.costoPEN > 0 ? cb.utilidad : -Infinity;
         return uB - uA;
       };
     case 'ventas_30d':

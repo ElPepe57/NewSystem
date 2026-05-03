@@ -85,20 +85,20 @@ function diasDesdeInvestigacion(producto: Producto): number | null {
   return Math.floor((Date.now() - ts) / (1000 * 60 * 60 * 24));
 }
 
-// Calcula precio venta · prioridad: campo legacy precioVenta > precioSugeridoCalculado
+// Helpers · usan calcularInvestigacion compartido (Fase H+) para consistencia
+// total con TabInvestigacion · MISMA fórmula en cards, modal detalle y sort.
+import { calcularInvestigacion } from '../../utils/investigacionCalculos';
+
+// Devuelve el precio efectivo: manual si existe, sino sugerido (MIN comp × 0.95)
 function getPrecioVenta(producto: Producto): number {
-  return (producto as any).precioVenta ?? producto.investigacion?.precioSugeridoCalculado ?? 0;
+  return calcularInvestigacion(producto).precioEfectivo;
 }
 
-// Calcula margen % · alineado a V1 · prioriza datos REALES de investigación
-// y devuelve null si no hay investigación con ctruEstimado real (NO usa ctruPromedio
-// como fallback porque legacy lo populaba como precioVenta*0.7 dando siempre 30%).
-function getMargenPct(producto: Producto): number | null {
-  const inv: any = producto.investigacion;
-  if (!inv?.ctruEstimado || inv.ctruEstimado <= 0) return null;
-  const precio = inv.precioEntrada || inv.precioSugeridoCalculado || getPrecioVenta(producto);
-  if (precio <= 0) return null;
-  return Math.round(((precio - inv.ctruEstimado) / precio) * 100);
+// Devuelve { pct, esEstimado } o null si no hay investigación completa
+function getMargenInfo(producto: Producto): { pct: number; esEstimado: boolean } | null {
+  const c = calcularInvestigacion(producto);
+  if (!c.esCompleta || c.precioEfectivo <= 0 || c.costoPEN <= 0) return null;
+  return { pct: Math.round(c.margenPct * 10) / 10, esEstimado: c.usaSugerido };
 }
 
 // Color del margen segun rangos
@@ -151,7 +151,9 @@ export const ProductoRowCard: React.FC<ProductoRowCardProps> = ({
   const stockTotal = (producto as any).stockDisponible ?? (producto as any).stockTotal ?? 0;
   const stockMinimo = producto.stockMinimo ?? 0;
   const precioVenta = getPrecioVenta(producto);
-  const margenPct = getMargenPct(producto);
+  const precioEsEstimado = !((producto as any).precioVenta > 0) && precioVenta > 0;
+  const margenInfo = getMargenInfo(producto);
+  const margenPct = margenInfo?.pct ?? null;
   const sparklineSerie = useMemo(() => getSparklineSerie(producto), [producto.id]);
   const sparklineColor = getSparklineColor(estado, margenPct);
   const dias = diasDesdeInvestigacion(producto);
@@ -308,13 +310,23 @@ export const ProductoRowCard: React.FC<ProductoRowCardProps> = ({
           )}
         </div>
 
-        {/* Col 2 · precio venta */}
+        {/* Col 2 · precio venta · estimado si no hay manual */}
         <div className="col-span-2 text-right">
           {precioVenta > 0 ? (
             <>
-              <div className="text-sm font-semibold text-slate-900 tabular-nums">
-                S/ {Math.floor(precioVenta)}
-                <span className="text-slate-400">.{((precioVenta * 100) % 100).toFixed(0).padStart(2, '0')}</span>
+              <div className="flex items-center justify-end gap-1">
+                <div className={`text-sm font-semibold tabular-nums ${precioEsEstimado ? 'text-amber-700' : 'text-slate-900'}`}>
+                  S/ {Math.floor(precioVenta)}
+                  <span className={precioEsEstimado ? 'text-amber-400' : 'text-slate-400'}>.{((precioVenta * 100) % 100).toFixed(0).padStart(2, '0')}</span>
+                </div>
+                {precioEsEstimado && (
+                  <span
+                    className="px-1 py-0.5 rounded bg-amber-100 text-amber-700 text-[8px] font-bold"
+                    title="Precio sugerido · MIN(competidores) × 0.95 · ajustá manualmente desde el detalle"
+                  >
+                    AUTO
+                  </span>
+                )}
               </div>
               {variantesAvatars.length > 0 && precioVenta > 0 && (
                 <div className="text-[10px] text-slate-500 tabular-nums">desde S/ {Math.floor(precioVenta * 0.6)}</div>
