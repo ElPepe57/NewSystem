@@ -47,6 +47,7 @@ import {
 } from '../filters';
 import { ProductosListV2 } from '../cards';
 import { ProductoDetailModal } from '../detail';
+import { ProductoEditModal } from '../edit';
 import { WizardSelector, WizardSimple, WizardConVariantes, WizardPack, WizardVarianteExistente, type TipoCreacion, type DatosComunes, type VarianteEntry } from '../wizards';
 import {
   PapeleraModal,
@@ -130,6 +131,9 @@ export const ProductosPageV2: React.FC = () => {
   // Fase 8 · Modales standalone
   const [showPapelera, setShowPapelera] = useState(false);
   const [investigacionProducto, setInvestigacionProducto] = useState<Producto | null>(null);
+  // Modal Editar Producto · Fase D
+  const [editingProducto, setEditingProducto] = useState<Producto | null>(null);
+
   // Sub-modales de Proveedor/Competidor (Fase B-feedback v6.1)
   // Estado: null = cerrado · 'nuevo' = crear · ProveedorInvestigacionFormValue = editar
   const [proveedorEditing, setProveedorEditing] = useState<
@@ -969,11 +973,21 @@ export const ProductosPageV2: React.FC = () => {
             : []
         }
         onClose={() => setDetailProducto(null)}
-        onEdit={p => toast.info(`Editar ${p.nombreComercial} · disponible en Fase 7 (wizards)`)}
+        onEdit={(p) => {
+          setDetailProducto(null);
+          setEditingProducto(p);
+        }}
         onArchivar={handleArchivarProducto}
         onDuplicar={p => toast.info(`Duplicar ${p.nombreComercial} · pendiente`)}
         onAgregarVariante={p => toast.info(`Agregar variante a ${p.nombreComercial} · disponible en Fase 7`)}
         onAbrirInvestigacion={handleAbrirInvestigacion}
+      />
+
+      {/* Modal Editar Producto · Fase D · #40 · GAP-020 + GAP-060 */}
+      <ProductoEditModal
+        open={!!editingProducto}
+        producto={editingProducto}
+        onClose={() => setEditingProducto(null)}
       />
 
       {/* Modal Papelera · Fase 8 · #23 · listado archivados con restaurar/eliminar */}
