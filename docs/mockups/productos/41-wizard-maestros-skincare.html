@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>41 v2 · Wizard Crear · Patrón "Campo Creable" universal · pixel-perfect</title>
+<title>41 v3 · Wizard Crear · Campo Creable + Atributos cerrados/abiertos · pixel-perfect</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
 <style>
@@ -19,7 +19,10 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 .section-num.active { background: #14b8a6; color: white; }
 .section-num.complete { background: #10b981; color: white; }
 .parent-hint { background: linear-gradient(135deg, #fafafa 0%, #f1f5f9 100%); border: 1px solid #e2e8f0; border-radius: 16px; padding: 18px; opacity: 0.92; }
-.creable-badge { font-size: 9px; padding: 2px 6px; border-radius: 999px; font-weight: 700; background: #fef3c7; color: #92400e; border: 1px solid #fcd34d; display: inline-flex; align-items: center; gap: 3px; }
+.badge-creable { font-size: 9px; padding: 2px 6px; border-radius: 999px; font-weight: 700; background: #fef3c7; color: #92400e; border: 1px solid #fcd34d; display: inline-flex; align-items: center; gap: 3px; }
+.badge-cerrado { font-size: 9px; padding: 2px 6px; border-radius: 999px; font-weight: 700; background: #ede9fe; color: #5b21b6; border: 1px solid #c4b5fd; display: inline-flex; align-items: center; gap: 3px; }
+.badge-text { font-size: 9px; padding: 2px 6px; border-radius: 999px; font-weight: 700; background: #e0e7ff; color: #4338ca; border: 1px solid #a5b4fc; display: inline-flex; align-items: center; gap: 3px; }
+.badge-nuevo { font-size: 9px; padding: 1px 4px; border-radius: 4px; font-weight: 700; background: #fce7f3; color: #9d174d; border: 1px solid #f9a8d4; }
 .demo-card { background: #fff; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
 </style>
 </head>
@@ -28,127 +31,67 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 <div class="context-frame">
   <div class="context-icon">🪟</div>
   <div class="context-info">
-    <div class="context-type">Wizard Crear · v2 · Patrón "Campo Creable" universal</div>
-    <div class="context-title">Wizard #41 v2 · TODOS los selects/chips permiten crear inline desde el mismo dropdown</div>
-    <div class="context-meta">v1: solo maestros · v2: maestros + atributos SKC + atributos por línea (suplemento/wellness/pack) usan EL MISMO PATRÓN unificado</div>
+    <div class="context-type">Wizard Crear · v3 · Final · Campo Creable + Cerrados completos</div>
+    <div class="context-title">Wizard #41 v3 · 3 tipos de campo: Creable · Cerrado · TEXT+sugerencias · Skincare + Suplementos (sin Wellness · Pack es flag)</div>
+    <div class="context-meta">v3 cambios: paso rutina sin orden · canónicos cerrados con TODOS los chips · sumados valores faltantes · eliminado Wellness · Pack no es línea · arquitectura performance 150+ productos</div>
   </div>
-  <div class="context-id">41-v2-wizard-campo-creable</div>
+  <div class="context-id">41-v3-final</div>
 </div>
 
 <div class="max-w-3xl mx-auto space-y-8 mt-6">
 
   <!-- ═══════════════════════════════════════════════════════════════ -->
-  <!-- INTRO · Patrón canónico "Campo Creable"                          -->
+  <!-- INTRO · 3 tipos de campo                                          -->
   <!-- ═══════════════════════════════════════════════════════════════ -->
   <div class="demo-card p-5 border-2 border-purple-200 bg-gradient-to-br from-purple-50 to-white">
     <div class="flex items-start gap-3 mb-4">
       <div class="w-10 h-10 rounded-xl bg-purple-100 flex items-center justify-center flex-shrink-0">
-        <i data-lucide="lightbulb" class="w-5 h-5 text-purple-700"></i>
+        <i data-lucide="sparkles" class="w-5 h-5 text-purple-700"></i>
       </div>
       <div>
-        <div class="text-[10px] uppercase tracking-wider text-purple-700 font-bold">Principio canónico V2</div>
-        <h3 class="text-base font-bold text-slate-900">Patrón "Campo Creable" universal</h3>
+        <div class="text-[10px] uppercase tracking-wider text-purple-700 font-bold">Principio canónico V2 · final</div>
+        <h3 class="text-base font-bold text-slate-900">3 tipos de campo · cada uno con regla clara</h3>
         <p class="text-xs text-slate-600 mt-1">
-          TODOS los campos de selección permiten <strong>crear nuevos valores inline</strong> desde el mismo dropdown.
-          El sistema sugiere lo existente primero (evita duplicados por tipeo), y solo crea si no hay match.
+          Algunos atributos crecen orgánicamente con el negocio (marcas, etiquetas) y deben permitir crear inline.
+          Otros son <strong>vocabulario canónico cerrado</strong> de la industria (tipos de piel, texturas) y NO deberían dejarse abrir libremente.
+          Otros son texto descriptivo libre que se beneficia de sugerencias del histórico.
         </p>
       </div>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
 
-      <!-- Variante A · SELECT creable -->
-      <div class="bg-white rounded-lg border border-slate-200 p-3">
-        <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1.5 flex items-center gap-1">
-          <i data-lucide="circle-dot" class="w-3 h-3 text-teal-600"></i>
-          Variante A · SELECT (1 valor)
-        </div>
-        <div class="text-[10px] text-slate-600 mb-2">Tipo, Marca, Paso rutina, Textura</div>
-        <div class="relative mb-1">
-          <input type="text" value="vit d3" placeholder="Buscar..." class="w-full pl-2 pr-7 py-1 text-[11px] border-2 border-teal-300 bg-teal-50 rounded focus:outline-none">
-          <i data-lucide="chevron-down" class="absolute right-2 top-1/2 -translate-y-1/2 w-3 h-3 text-slate-400"></i>
-        </div>
-        <div class="bg-white border border-slate-200 rounded shadow-sm overflow-hidden">
-          <div class="px-2 py-1 text-[10px] hover:bg-slate-50 border-b border-slate-100">
-            <span class="text-emerald-600">✓</span> Vitamina D3 · 5 prods
-          </div>
-          <div class="px-2 py-1 text-[10px] hover:bg-slate-50 border-b border-slate-100">
-            <span class="text-emerald-600">✓</span> Vitamina D3 + K2 · 3 prods
-          </div>
-          <div class="px-2 py-1 text-[10px] bg-teal-50 text-teal-700 font-bold flex items-center gap-1">
-            <i data-lucide="plus-circle" class="w-2.5 h-2.5"></i>
-            Crear "vit d3"
-          </div>
-        </div>
-        <div class="text-[9px] text-slate-500 mt-1.5 italic">Si nada matchea, footer "+ Crear" · 1 click crea + selecciona</div>
+      <!-- Tipo 1 · Creable -->
+      <div class="bg-white rounded-lg border-2 border-amber-300 p-3">
+        <span class="badge-creable mb-2"><i data-lucide="zap" class="w-2.5 h-2.5"></i>CREABLE</span>
+        <div class="text-[11px] font-bold text-slate-900 mt-2">Crece orgánicamente</div>
+        <div class="text-[10px] text-slate-600 mt-1">Marca · Tipo producto · Categorías · Etiquetas · Sabor · Restricciones</div>
+        <div class="text-[10px] text-amber-800 mt-2 italic">Cualquier usuario puede sumar nuevos · admin Gestor Maestro consolida después</div>
       </div>
 
-      <!-- Variante B · CHIPS multi creables -->
-      <div class="bg-white rounded-lg border border-slate-200 p-3">
-        <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1.5 flex items-center gap-1">
-          <i data-lucide="layers" class="w-3 h-3 text-amber-600"></i>
-          Variante B · CHIPS (multi valor)
-        </div>
-        <div class="text-[10px] text-slate-600 mb-2">Categorías, Etiquetas, Tipo piel, Preocupaciones, Zona</div>
-        <div class="border border-amber-300 bg-amber-50 rounded p-1.5">
-          <div class="flex flex-wrap gap-1 items-center">
-            <span class="px-1.5 py-0.5 rounded bg-amber-200 text-amber-900 text-[9px] font-bold">✓ Mixta</span>
-            <span class="px-1.5 py-0.5 rounded bg-amber-200 text-amber-900 text-[9px] font-bold">✓ Grasa</span>
-            <input type="text" value="" placeholder="+ otra" class="text-[10px] flex-1 min-w-[60px] px-1 py-0 focus:outline-none bg-transparent placeholder:text-slate-400">
-          </div>
-        </div>
-        <div class="bg-white border border-slate-200 rounded shadow-sm overflow-hidden mt-1">
-          <div class="px-2 py-1 text-[10px] hover:bg-slate-50 border-b border-slate-100">
-            <span class="text-emerald-600">✓</span> Seca
-          </div>
-          <div class="px-2 py-1 text-[10px] hover:bg-slate-50 border-b border-slate-100">
-            <span class="text-emerald-600">✓</span> Sensible
-          </div>
-          <div class="px-2 py-1 text-[10px] bg-amber-50 text-amber-700 font-bold flex items-center gap-1">
-            <i data-lucide="plus-circle" class="w-2.5 h-2.5"></i>
-            Crear nuevo tipo
-          </div>
-        </div>
-        <div class="text-[9px] text-slate-500 mt-1.5 italic">Click "+ otra" abre dropdown · escribe + crea sin salir</div>
+      <!-- Tipo 2 · Cerrado -->
+      <div class="bg-white rounded-lg border-2 border-purple-300 p-3">
+        <span class="badge-cerrado mb-2"><i data-lucide="lock" class="w-2.5 h-2.5"></i>CERRADO</span>
+        <div class="text-[11px] font-bold text-slate-900 mt-2">Vocabulario canónico industria</div>
+        <div class="text-[10px] text-slate-600 mt-1">Tipo SKC · Tipo de piel · Preocupaciones · Paso rutina · Textura · Zona aplicación · Presentación SUP</div>
+        <div class="text-[10px] text-purple-800 mt-2 italic">Preset completo · si falta algo, se evalúa y se agrega al canon · NO crea inline</div>
       </div>
 
-      <!-- Variante C · TEXT con sugerencias -->
-      <div class="bg-white rounded-lg border border-slate-200 p-3">
-        <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1.5 flex items-center gap-1">
-          <i data-lucide="text-cursor-input" class="w-3 h-3 text-indigo-600"></i>
-          Variante C · TEXT + sugerencias
-        </div>
-        <div class="text-[10px] text-slate-600 mb-2">Ingrediente clave, Línea de marca</div>
-        <div class="relative mb-1">
-          <input type="text" value="Vitamina C" placeholder="Escribir..." class="w-full pl-2 pr-2 py-1 text-[11px] border-2 border-indigo-300 bg-indigo-50 rounded focus:outline-none">
-        </div>
-        <div class="bg-white border border-slate-200 rounded shadow-sm overflow-hidden">
-          <div class="px-2 py-1 text-[10px] text-slate-500 italic border-b border-slate-100 bg-slate-50">Usado antes:</div>
-          <div class="px-2 py-1 text-[10px] hover:bg-slate-50 border-b border-slate-100">
-            <span class="text-indigo-600">↻</span> Vitamina C 15% · 8 prods
-          </div>
-          <div class="px-2 py-1 text-[10px] hover:bg-slate-50 border-b border-slate-100">
-            <span class="text-indigo-600">↻</span> Vitamina C Pura · 2 prods
-          </div>
-        </div>
-        <div class="text-[9px] text-slate-500 mt-1.5 italic">Texto libre con histórico · sugiere lo ya usado</div>
-      </div>
-
-    </div>
-
-    <div class="mt-3 rounded-lg bg-slate-50 px-3 py-2 flex items-center gap-2 border border-slate-200">
-      <i data-lucide="zap" class="w-3.5 h-3.5 text-amber-500 flex-shrink-0"></i>
-      <div class="text-[10px] text-slate-700">
-        <strong>Beneficios del patrón:</strong> 1 click para reusar existente · sin abrir modal aparte para crear · evita duplicados por tipeo (Vit C · vitC · Vitamina C todos colapsados al mismo) · power users avanzan rápido sin perder gobernanza.
+      <!-- Tipo 3 · Text -->
+      <div class="bg-white rounded-lg border-2 border-indigo-300 p-3">
+        <span class="badge-text mb-2"><i data-lucide="text-cursor-input" class="w-2.5 h-2.5"></i>TEXT + SUG</span>
+        <div class="text-[11px] font-bold text-slate-900 mt-2">Descriptivo libre</div>
+        <div class="text-[10px] text-slate-600 mt-1">Ingrediente clave · Línea de marca · Dosaje SUP</div>
+        <div class="text-[10px] text-indigo-800 mt-2 italic">Texto libre con autocomplete del histórico · sugiere "Vitamina C 15%" cuando escribís "vit"</div>
       </div>
     </div>
   </div>
 
   <!-- ═══════════════════════════════════════════════════════════════ -->
-  <!-- ESTADO A · WizardSimple Suplemento · Sección Clasificación TODA  -->
+  <!-- ESTADO A · WizardSimple Suplemento                                -->
   <!-- ═══════════════════════════════════════════════════════════════ -->
   <div>
-    <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-2">Estado A · WizardSimple SUPLEMENTO · Sección "Clasificación" · 4 maestros con patrón Campo Creable</div>
+    <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-2">Estado A · WizardSimple SUPLEMENTO · Clasificación con 4 maestros CREABLES</div>
 
     <div class="parent-hint">
       <div class="bg-white rounded-2xl shadow-2xl overflow-hidden border border-slate-200">
@@ -156,10 +99,10 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
           <div class="flex items-start justify-between gap-3">
             <div class="flex items-start gap-2.5 min-w-0">
               <div class="w-10 h-10 rounded-xl bg-indigo-100 flex items-center justify-center flex-shrink-0">
-                <i data-lucide="package-2" class="w-5 h-5 text-indigo-700"></i>
+                <i data-lucide="pill" class="w-5 h-5 text-indigo-700"></i>
               </div>
               <div>
-                <h2 class="text-lg font-bold text-slate-900">Crear producto único · Suplemento</h2>
+                <h2 class="text-lg font-bold text-slate-900">Crear producto · Suplemento</h2>
                 <p class="text-[10px] text-slate-500 mt-0.5">SKU sugerido: <span class="font-mono text-emerald-700 font-bold">SUP-0142</span></p>
               </div>
             </div>
@@ -168,26 +111,21 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
         </div>
 
         <div class="p-5 space-y-3 max-h-[680px] overflow-y-auto">
-          <!-- Resúmenes de secciones previas completas -->
           <div class="border border-slate-200 rounded-xl px-4 py-2.5 bg-slate-50 flex items-center gap-2.5 text-[11px]">
             <span class="section-num complete"><i data-lucide="check" class="w-3 h-3"></i></span>
             <div class="flex-1"><strong>Origen:</strong> Suplementos · USA</div>
           </div>
           <div class="border border-slate-200 rounded-xl px-4 py-2.5 bg-slate-50 flex items-center gap-2.5 text-[11px]">
             <span class="section-num complete"><i data-lucide="check" class="w-3 h-3"></i></span>
-            <div class="flex-1"><strong>Básico:</strong> Vitamin D3 + K2 · 90 caps · 5000 IU</div>
+            <div class="flex-1"><strong>Básico:</strong> Vitamin D3 + K2</div>
           </div>
 
-          <!-- ════ Sección 3 · CLASIFICACIÓN con Campo Creable en TODOS ════ -->
           <div class="border-2 border-teal-300 rounded-xl overflow-hidden">
             <div class="px-4 py-3 bg-teal-50 flex items-center gap-2.5">
               <span class="section-num active">3</span>
               <div class="flex-1">
-                <div class="text-sm font-bold text-slate-900 flex items-center gap-2">
-                  Clasificación
-                  <span class="creable-badge"><i data-lucide="zap" class="w-2.5 h-2.5"></i>Todo creable inline</span>
-                </div>
-                <div class="text-[10px] text-teal-700 mt-0.5">4 vínculos al Gestor Maestro · sugiere existentes · permite crear sin salir</div>
+                <div class="text-sm font-bold text-slate-900">Clasificación</div>
+                <div class="text-[10px] text-teal-700 mt-0.5">4 vínculos al Gestor Maestro · todos creables inline</div>
               </div>
             </div>
 
@@ -197,14 +135,13 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
               <div>
                 <label class="block text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1 flex items-center justify-between">
                   <span>Marca <span class="text-rose-500">*</span></span>
-                  <span class="creable-badge"><i data-lucide="circle-dot" class="w-2.5 h-2.5"></i>SELECT creable</span>
+                  <span class="badge-creable"><i data-lucide="zap" class="w-2.5 h-2.5"></i>CREABLE</span>
                 </label>
                 <div class="relative">
                   <i data-lucide="award" class="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400"></i>
-                  <input type="text" value="sports res" placeholder="Buscar marca..." class="w-full pl-9 pr-9 py-2 border-2 border-teal-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-400 bg-white">
+                  <input type="text" value="sports res" class="w-full pl-9 pr-9 py-2 border-2 border-teal-300 rounded-lg text-sm bg-white">
                   <i data-lucide="chevron-down" class="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400"></i>
                 </div>
-                <!-- Dropdown ABIERTO -->
                 <div class="mt-1 bg-white border border-slate-200 rounded-lg shadow-xl overflow-hidden">
                   <div class="px-3 py-1.5 text-[9px] uppercase tracking-wider text-slate-500 font-bold bg-slate-50 border-b border-slate-100">
                     Coincidencias del Gestor Maestro · 2
@@ -224,33 +161,32 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
                       <div class="text-[10px] text-slate-500">3 productos · margen prom. 38% · USA</div>
                     </div>
                   </button>
-                  <button type="button" class="w-full px-3 py-2.5 text-left bg-teal-50 hover:bg-teal-100 text-teal-800 border-t border-teal-200 flex items-center gap-2 transition-colors">
+                  <button type="button" class="w-full px-3 py-2.5 text-left bg-teal-50 hover:bg-teal-100 text-teal-800 border-t border-teal-200 flex items-center gap-2">
                     <i data-lucide="plus-circle" class="w-3.5 h-3.5"></i>
-                    <span class="text-xs font-bold">Crear "sports res" como nueva marca en Gestor Maestro</span>
+                    <span class="text-xs font-bold">Crear "sports res" como nueva marca</span>
                   </button>
                 </div>
-                <div class="text-[9px] text-slate-500 mt-1 italic">Sugiere por nombre + alias · evita duplicados como "SportsResearch" vs "Sports Research"</div>
               </div>
 
               <!-- 2. TIPO PRODUCTO · SELECT creable -->
               <div>
                 <label class="block text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1 flex items-center justify-between">
                   <span>Tipo de producto <span class="text-rose-500">*</span></span>
-                  <span class="creable-badge"><i data-lucide="circle-dot" class="w-2.5 h-2.5"></i>SELECT creable</span>
+                  <span class="badge-creable"><i data-lucide="zap" class="w-2.5 h-2.5"></i>CREABLE</span>
                 </label>
                 <div class="relative">
                   <i data-lucide="layers" class="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-emerald-600"></i>
-                  <input type="text" value="Vitamina D3 + K2" class="w-full pl-9 pr-9 py-2 border-2 border-emerald-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-400 bg-emerald-50">
+                  <input type="text" value="Vitamina D3 + K2" class="w-full pl-9 pr-9 py-2 border-2 border-emerald-300 rounded-lg text-sm bg-emerald-50">
                   <i data-lucide="check" class="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-emerald-600"></i>
                 </div>
-                <div class="text-[9px] text-slate-500 mt-1">✓ Vinculado a tipo "Vitamina D3 + K2" · usado por 3 marcas</div>
+                <div class="text-[9px] text-slate-500 mt-1">✓ Vinculado · usado por 3 marcas · agrupa equivalentes</div>
               </div>
 
               <!-- 3. CATEGORÍAS · CHIPS multi creables -->
               <div>
                 <label class="block text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1.5 flex items-center justify-between">
                   <span>Categorías <span class="text-rose-500">*</span> <span class="text-[9px] font-normal text-slate-400 italic">áreas de salud · max 5</span></span>
-                  <span class="creable-badge"><i data-lucide="layers" class="w-2.5 h-2.5"></i>CHIPS creables</span>
+                  <span class="badge-creable"><i data-lucide="zap" class="w-2.5 h-2.5"></i>CREABLE</span>
                 </label>
                 <div class="border-2 border-emerald-300 rounded-lg p-2 bg-emerald-50">
                   <div class="flex flex-wrap gap-1.5 items-center">
@@ -261,100 +197,47 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
                       ✓ Salud Ósea <span class="text-[8px] bg-emerald-600 text-white rounded px-1 ml-0.5">PRINCIPAL</span>
                       <button class="hover:text-emerald-900"><i data-lucide="x" class="w-2.5 h-2.5"></i></button>
                     </span>
-                    <input type="text" placeholder="+ otra categoría..." class="text-[10px] flex-1 min-w-[100px] px-1 py-0.5 focus:outline-none bg-transparent placeholder:text-slate-400">
+                    <input type="text" placeholder="+ otra..." class="text-[10px] flex-1 min-w-[80px] px-1 py-0.5 focus:outline-none bg-transparent placeholder:text-slate-400">
                   </div>
                 </div>
-                <!-- Dropdown del input + otra · ABIERTO -->
-                <div class="mt-1 bg-white border border-slate-200 rounded-lg shadow-xl overflow-hidden">
-                  <div class="px-3 py-1.5 text-[9px] uppercase tracking-wider text-slate-500 font-bold bg-slate-50 border-b border-slate-100">
-                    Categorías sugeridas · 4 disponibles
-                  </div>
-                  <button type="button" class="w-full px-3 py-1.5 text-left hover:bg-emerald-50 border-b border-slate-100 text-[11px] flex items-center justify-between">
-                    <span><span class="text-emerald-600 mr-1.5">✓</span>Antioxidante</span>
-                    <span class="text-[9px] text-slate-400">42 prods</span>
-                  </button>
-                  <button type="button" class="w-full px-3 py-1.5 text-left hover:bg-emerald-50 border-b border-slate-100 text-[11px] flex items-center justify-between">
-                    <span><span class="text-emerald-600 mr-1.5">✓</span>Energía</span>
-                    <span class="text-[9px] text-slate-400">28 prods</span>
-                  </button>
-                  <button type="button" class="w-full px-3 py-1.5 text-left hover:bg-emerald-50 border-b border-slate-100 text-[11px] flex items-center justify-between">
-                    <span><span class="text-emerald-600 mr-1.5">✓</span>Cardiovascular</span>
-                    <span class="text-[9px] text-slate-400">15 prods</span>
-                  </button>
-                  <button type="button" class="w-full px-3 py-1.5 text-left hover:bg-emerald-50 border-b border-slate-100 text-[11px] flex items-center justify-between">
-                    <span><span class="text-emerald-600 mr-1.5">✓</span>Digestivo</span>
-                    <span class="text-[9px] text-slate-400">19 prods</span>
-                  </button>
-                  <button type="button" class="w-full px-3 py-1.5 text-left bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border-t border-emerald-200 text-[11px] font-bold flex items-center gap-1.5">
-                    <i data-lucide="plus-circle" class="w-3 h-3"></i>Crear nueva categoría · escribí el nombre
-                  </button>
-                </div>
-                <div class="text-[9px] text-slate-500 mt-1 italic">2/5 categorías · click en una para hacerla principal · "+otra" abre dropdown con sugerencias y opción crear</div>
+                <div class="text-[9px] text-slate-500 mt-1 italic">2/5 categorías · click "+otra" abre dropdown con sugerencias y opción crear</div>
               </div>
 
               <!-- 4. ETIQUETAS · CHIPS libres con sugerencias -->
               <div>
                 <label class="block text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1.5 flex items-center justify-between">
-                  <span>Etiquetas <span class="text-[9px] font-normal text-slate-400 italic">tags marketing flexibles</span></span>
-                  <span class="creable-badge"><i data-lucide="layers" class="w-2.5 h-2.5"></i>CHIPS creables</span>
+                  <span>Etiquetas <span class="text-[9px] font-normal text-slate-400 italic">tags marketing</span></span>
+                  <span class="badge-creable"><i data-lucide="zap" class="w-2.5 h-2.5"></i>CREABLE</span>
                 </label>
                 <div class="border border-amber-300 rounded-lg p-2 bg-white">
                   <div class="flex flex-wrap gap-1.5 items-center">
-                    <span class="px-2 py-0.5 rounded bg-amber-100 text-amber-800 text-[10px] font-bold flex items-center gap-1">
-                      ✓ vegano <button class="hover:text-amber-900"><i data-lucide="x" class="w-2.5 h-2.5"></i></button>
-                    </span>
-                    <span class="px-2 py-0.5 rounded bg-amber-100 text-amber-800 text-[10px] font-bold flex items-center gap-1">
-                      ✓ sin-gluten <button class="hover:text-amber-900"><i data-lucide="x" class="w-2.5 h-2.5"></i></button>
-                    </span>
-                    <span class="px-2 py-0.5 rounded bg-amber-100 text-amber-800 text-[10px] font-bold flex items-center gap-1">
-                      ✓ best-seller <button class="hover:text-amber-900"><i data-lucide="x" class="w-2.5 h-2.5"></i></button>
-                    </span>
+                    <span class="px-2 py-0.5 rounded bg-amber-100 text-amber-800 text-[10px] font-bold flex items-center gap-1">✓ vegano <button><i data-lucide="x" class="w-2.5 h-2.5"></i></button></span>
+                    <span class="px-2 py-0.5 rounded bg-amber-100 text-amber-800 text-[10px] font-bold flex items-center gap-1">✓ sin-gluten <button><i data-lucide="x" class="w-2.5 h-2.5"></i></button></span>
+                    <span class="px-2 py-0.5 rounded bg-amber-100 text-amber-800 text-[10px] font-bold flex items-center gap-1">✓ best-seller <button><i data-lucide="x" class="w-2.5 h-2.5"></i></button></span>
                     <input type="text" value="org" placeholder="+ etiqueta" class="text-[10px] flex-1 min-w-[80px] px-1 py-0.5 focus:outline-none bg-transparent placeholder:text-slate-400">
                   </div>
                 </div>
-                <!-- Sugerencias inline (no dropdown · más rápido) -->
                 <div class="mt-1 flex flex-wrap gap-1 items-center">
                   <span class="text-[9px] text-slate-500 italic">Sugerencias:</span>
-                  <button type="button" class="px-1.5 py-0.5 rounded bg-amber-50 hover:bg-amber-100 text-amber-700 text-[10px] border border-amber-200">
-                    + organico
-                  </button>
-                  <button type="button" class="px-1.5 py-0.5 rounded bg-amber-50 hover:bg-amber-100 text-amber-700 text-[10px] border border-amber-200">
-                    + organic-certified
-                  </button>
-                  <button type="button" class="px-1.5 py-0.5 rounded bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-[10px] border border-emerald-200 font-bold">
-                    + Crear "org"
-                  </button>
+                  <button class="px-1.5 py-0.5 rounded bg-amber-50 hover:bg-amber-100 text-amber-700 text-[10px] border border-amber-200">+ organico</button>
+                  <button class="px-1.5 py-0.5 rounded bg-amber-50 hover:bg-amber-100 text-amber-700 text-[10px] border border-amber-200">+ organic-certified</button>
+                  <button class="px-1.5 py-0.5 rounded bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-[10px] border border-emerald-200 font-bold">+ Crear "org"</button>
                 </div>
-                <div class="text-[9px] text-slate-500 mt-1 italic">Tags se normalizan automáticamente · "ORG" → "org" · "Sin Gluten" → "sin-gluten"</div>
               </div>
 
             </div>
           </div>
 
-          <!-- Inventario placeholder -->
-          <div class="border border-slate-200 rounded-xl px-4 py-2.5 bg-slate-50 flex items-center gap-2.5 text-[11px]">
-            <span class="section-num">4</span>
-            <div class="flex-1"><strong>Inventario</strong> · stock min/max · ciclo recompra <span class="text-slate-400">(pendiente)</span></div>
-          </div>
-
-        </div>
-
-        <div class="border-t border-slate-200 bg-slate-50 px-5 py-3 flex items-center justify-between">
-          <div class="text-[10px] text-slate-500">3 de 4 secciones · Marca pendiente</div>
-          <div class="flex items-center gap-2">
-            <button class="px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-100 rounded-lg">Cancelar</button>
-            <button disabled class="px-3 py-1.5 text-xs font-bold text-white bg-indigo-600 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed">Crear producto</button>
-          </div>
         </div>
       </div>
     </div>
   </div>
 
   <!-- ═══════════════════════════════════════════════════════════════ -->
-  <!-- ESTADO B · WizardSimple Skincare · TODOS los SKC con Creable     -->
+  <!-- ESTADO B · WizardSimple Skincare · Atributos CERRADOS completos  -->
   <!-- ═══════════════════════════════════════════════════════════════ -->
   <div>
-    <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-2">Estado B · WizardSimple SKINCARE · Sección "Atributos SKC" · TODOS los campos con patrón Campo Creable</div>
+    <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-2">Estado B · WizardSimple SKINCARE · Atributos CERRADOS muestran TODOS los chips · TEXT con sugerencias</div>
 
     <div class="parent-hint">
       <div class="bg-white rounded-2xl shadow-2xl overflow-hidden border border-slate-200">
@@ -365,15 +248,15 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
                 <i data-lucide="droplets" class="w-5 h-5 text-amber-700"></i>
               </div>
               <div>
-                <h2 class="text-lg font-bold text-slate-900">Crear producto único · Skincare</h2>
-                <p class="text-[10px] text-slate-500 mt-0.5">SKU sugerido: <span class="font-mono text-emerald-700 font-bold">SKC-0044</span> · línea SKC detectada</p>
+                <h2 class="text-lg font-bold text-slate-900">Crear producto · Skincare</h2>
+                <p class="text-[10px] text-slate-500 mt-0.5">SKU: <span class="font-mono text-emerald-700 font-bold">SKC-0044</span> · línea SKC detectada</p>
               </div>
             </div>
             <button class="p-1.5 hover:bg-slate-100 rounded-md text-slate-500"><i data-lucide="x" class="w-4 h-4"></i></button>
           </div>
         </div>
 
-        <div class="p-5 space-y-3 max-h-[820px] overflow-y-auto">
+        <div class="p-5 space-y-3 max-h-[900px] overflow-y-auto">
           <div class="border border-slate-200 rounded-xl px-4 py-2.5 bg-slate-50 flex items-center gap-2.5 text-[11px]">
             <span class="section-num complete"><i data-lucide="check" class="w-3 h-3"></i></span>
             <div class="flex-1"><strong>Origen:</strong> Skincare · Corea</div>
@@ -383,7 +266,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
             <div class="flex-1"><strong>Básico:</strong> Vitamin C Brightening Serum · SkinCeuticals</div>
           </div>
 
-          <!-- ════ Sección 3 · ATRIBUTOS SKC con TODO Creable ════ -->
           <div class="border-2 border-amber-400 rounded-xl overflow-hidden">
             <div class="px-4 py-3 bg-amber-50 flex items-center gap-2.5">
               <span class="section-num active" style="background:#f59e0b">3</span>
@@ -391,139 +273,200 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
                 <div class="text-sm font-bold text-slate-900 flex items-center gap-2">
                   Atributos Skincare
                   <span class="px-1.5 py-0.5 rounded bg-amber-600 text-white text-[9px] font-bold">SOLO LÍNEA SKC</span>
-                  <span class="creable-badge"><i data-lucide="zap" class="w-2.5 h-2.5"></i>Todo creable</span>
                 </div>
-                <div class="text-[10px] text-amber-700 mt-0.5">Vocabulario controlado pero EXTENSIBLE · sugiere lo ya usado · permite crear nuevos términos</div>
+                <div class="text-[10px] text-amber-700 mt-0.5">Vocabulario CERRADO de la industria · si falta algo, se evalúa para el canon</div>
               </div>
             </div>
 
             <div class="p-4 space-y-4 bg-white">
 
-              <!-- 1. Tipo SKC + Volumen -->
-              <div class="grid grid-cols-2 gap-3">
-                <div>
-                  <label class="block text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1 flex items-center justify-between">
-                    <span>Tipo SKC <span class="text-rose-500">*</span></span>
-                    <span class="creable-badge"><i data-lucide="circle-dot" class="w-2.5 h-2.5"></i>SELECT creable</span>
-                  </label>
-                  <div class="relative">
-                    <i data-lucide="droplet" class="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-emerald-600"></i>
-                    <input type="text" value="Sérum" class="w-full pl-9 pr-9 py-2 border-2 border-emerald-300 rounded-lg text-sm bg-emerald-50">
-                    <i data-lucide="check" class="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-emerald-600"></i>
+              <!-- 1. Tipo SKC · CERRADO completo -->
+              <div>
+                <label class="block text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1.5 flex items-center justify-between">
+                  <span>Tipo SKC <span class="text-rose-500">*</span></span>
+                  <span class="badge-cerrado"><i data-lucide="lock" class="w-2.5 h-2.5"></i>CERRADO · 25 opciones</span>
+                </label>
+                <div class="border border-slate-200 rounded-lg p-2 bg-slate-50">
+                  <div class="flex flex-wrap gap-1">
+                    <button class="px-2 py-1 text-[10px] font-bold rounded border-2 border-amber-400 bg-amber-100 text-amber-900">✓ Sérum</button>
+                    <button class="px-2 py-1 text-[10px] rounded border border-slate-200 bg-white text-slate-700 hover:bg-slate-50">Crema</button>
+                    <button class="px-2 py-1 text-[10px] rounded border border-slate-200 bg-white text-slate-700 hover:bg-slate-50">Tónico</button>
+                    <button class="px-2 py-1 text-[10px] rounded border border-slate-200 bg-white text-slate-700 hover:bg-slate-50">Esencia</button>
+                    <button class="px-2 py-1 text-[10px] rounded border border-slate-200 bg-white text-slate-700 hover:bg-slate-50">Ampolla</button>
+                    <button class="px-2 py-1 text-[10px] rounded border border-slate-200 bg-white text-slate-700 hover:bg-slate-50">Limpiador</button>
+                    <button class="px-2 py-1 text-[10px] rounded border border-slate-200 bg-white text-slate-700 hover:bg-slate-50">Aceite limpiador</button>
+                    <button class="px-2 py-1 text-[10px] rounded border border-slate-200 bg-white text-slate-700 hover:bg-slate-50">Agua micelar <span class="badge-nuevo ml-0.5">+</span></button>
+                    <button class="px-2 py-1 text-[10px] rounded border border-slate-200 bg-white text-slate-700 hover:bg-slate-50">Bálsamo limpiador <span class="badge-nuevo ml-0.5">+</span></button>
+                    <button class="px-2 py-1 text-[10px] rounded border border-slate-200 bg-white text-slate-700 hover:bg-slate-50">Exfoliante</button>
+                    <button class="px-2 py-1 text-[10px] rounded border border-slate-200 bg-white text-slate-700 hover:bg-slate-50">Peeling</button>
+                    <button class="px-2 py-1 text-[10px] rounded border border-slate-200 bg-white text-slate-700 hover:bg-slate-50">Mascarilla</button>
+                    <button class="px-2 py-1 text-[10px] rounded border border-slate-200 bg-white text-slate-700 hover:bg-slate-50">Mascarilla nocturna <span class="badge-nuevo ml-0.5">+</span></button>
+                    <button class="px-2 py-1 text-[10px] rounded border border-slate-200 bg-white text-slate-700 hover:bg-slate-50">Parches</button>
+                    <button class="px-2 py-1 text-[10px] rounded border border-slate-200 bg-white text-slate-700 hover:bg-slate-50">Contorno ojos</button>
+                    <button class="px-2 py-1 text-[10px] rounded border border-slate-200 bg-white text-slate-700 hover:bg-slate-50">Contorno labios <span class="badge-nuevo ml-0.5">+</span></button>
+                    <button class="px-2 py-1 text-[10px] rounded border border-slate-200 bg-white text-slate-700 hover:bg-slate-50">Bálsamo</button>
+                    <button class="px-2 py-1 text-[10px] rounded border border-slate-200 bg-white text-slate-700 hover:bg-slate-50">Stick</button>
+                    <button class="px-2 py-1 text-[10px] rounded border border-slate-200 bg-white text-slate-700 hover:bg-slate-50">Bruma · Mist</button>
+                    <button class="px-2 py-1 text-[10px] rounded border border-slate-200 bg-white text-slate-700 hover:bg-slate-50">Spray facial <span class="badge-nuevo ml-0.5">+</span></button>
+                    <button class="px-2 py-1 text-[10px] rounded border border-slate-200 bg-white text-slate-700 hover:bg-slate-50">Aceite facial <span class="badge-nuevo ml-0.5">+</span></button>
+                    <button class="px-2 py-1 text-[10px] rounded border border-slate-200 bg-white text-slate-700 hover:bg-slate-50">Protector solar</button>
+                    <button class="px-2 py-1 text-[10px] rounded border border-slate-200 bg-white text-slate-700 hover:bg-slate-50">After sun <span class="badge-nuevo ml-0.5">+</span></button>
+                    <button class="px-2 py-1 text-[10px] rounded border border-slate-200 bg-white text-slate-700 hover:bg-slate-50">Cushion <span class="badge-nuevo ml-0.5">+</span></button>
+                    <button class="px-2 py-1 text-[10px] rounded border border-slate-200 bg-white text-slate-700 hover:bg-slate-50">Primer / BB / CC <span class="badge-nuevo ml-0.5">+</span></button>
                   </div>
-                  <div class="text-[9px] text-slate-500 mt-0.5">17 tipos canónicos preseed · podés agregar nuevos</div>
                 </div>
+                <div class="text-[9px] text-slate-500 mt-1 italic">17 originales + <strong class="text-pink-700">8 nuevos detectados</strong> (badge "+") · todos siempre visibles</div>
+              </div>
+
+              <!-- 2. Volumen + Ingrediente clave + Línea de marca -->
+              <div class="grid grid-cols-3 gap-3">
                 <div>
                   <label class="block text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1">Volumen <span class="text-rose-500">*</span></label>
                   <div class="flex items-stretch border border-slate-300 rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-amber-400">
-                    <input type="number" value="30" class="flex-1 px-3 py-1.5 text-sm tabular focus:outline-none border-0 min-w-0">
-                    <select class="px-2 py-1 text-xs font-bold bg-white border-l border-slate-200 focus:outline-none">
+                    <input type="number" value="30" class="flex-1 px-2 py-1.5 text-sm tabular focus:outline-none border-0 min-w-0">
+                    <select class="px-1.5 py-1 text-xs font-bold bg-white border-l border-slate-200 focus:outline-none">
                       <option>ml</option><option>g</option><option>oz</option><option>uds</option>
                     </select>
                   </div>
                 </div>
-              </div>
-
-              <!-- 2. Ingrediente clave + Línea de marca · TEXT con sugerencias -->
-              <div class="grid grid-cols-2 gap-3">
                 <div>
-                  <label class="block text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1 flex items-center justify-between">
-                    <span>Ingrediente clave</span>
-                    <span class="creable-badge" style="background:#e0e7ff;color:#4338ca;border-color:#a5b4fc"><i data-lucide="text-cursor-input" class="w-2.5 h-2.5"></i>TEXT + sugerencias</span>
+                  <label class="block text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1 flex items-center gap-1">
+                    Ingrediente clave <span class="badge-text"><i data-lucide="text-cursor-input" class="w-2 h-2"></i>TEXT+sug</span>
                   </label>
-                  <div class="relative">
-                    <input type="text" value="Vitamina C 15%" class="w-full px-3 py-2 border border-indigo-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 bg-indigo-50">
-                  </div>
-                  <div class="mt-1 flex flex-wrap gap-1 items-center">
-                    <span class="text-[9px] text-slate-500 italic">Usado antes:</span>
-                    <button class="px-1.5 py-0.5 rounded bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-[10px] border border-indigo-200">↻ Vitamina C 10%</button>
-                    <button class="px-1.5 py-0.5 rounded bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-[10px] border border-indigo-200">↻ Niacinamida 5%</button>
-                  </div>
+                  <input type="text" value="Vitamina C 15%" class="w-full px-3 py-2 border border-indigo-300 rounded-lg text-sm bg-indigo-50">
                 </div>
                 <div>
-                  <label class="block text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1 flex items-center justify-between">
-                    <span>Línea de la marca</span>
-                    <span class="creable-badge" style="background:#e0e7ff;color:#4338ca;border-color:#a5b4fc"><i data-lucide="text-cursor-input" class="w-2.5 h-2.5"></i>TEXT + sugerencias</span>
+                  <label class="block text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1 flex items-center gap-1">
+                    Línea de marca <span class="badge-text"><i data-lucide="text-cursor-input" class="w-2 h-2"></i>TEXT+sug</span>
                   </label>
-                  <input type="text" value="C E Ferulic" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-400">
-                  <div class="mt-1 flex flex-wrap gap-1 items-center">
-                    <span class="text-[9px] text-slate-500 italic">Marca SkinCeuticals:</span>
-                    <button class="px-1.5 py-0.5 rounded bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-[10px] border border-indigo-200">↻ Brightening</button>
-                    <button class="px-1.5 py-0.5 rounded bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-[10px] border border-indigo-200">↻ Anti-Aging</button>
-                  </div>
+                  <input type="text" value="C E Ferulic" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm">
                 </div>
               </div>
 
-              <!-- 3. Tipo de piel · CHIPS multi creables -->
+              <!-- 3. Tipo de piel · CERRADO completo -->
               <div>
                 <label class="block text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1.5 flex items-center justify-between">
                   <span>Tipo de piel</span>
-                  <span class="creable-badge"><i data-lucide="layers" class="w-2.5 h-2.5"></i>CHIPS creables</span>
+                  <span class="badge-cerrado"><i data-lucide="lock" class="w-2.5 h-2.5"></i>CERRADO · 8 opciones</span>
                 </label>
-                <div class="border border-amber-300 rounded-lg p-2 bg-white">
-                  <div class="flex flex-wrap gap-1.5 items-center">
-                    <span class="px-2.5 py-1 text-[10px] font-bold rounded-full border-2 border-amber-400 bg-amber-100 text-amber-900 flex items-center gap-1"><i data-lucide="check" class="w-2.5 h-2.5"></i>Mixta <button class="ml-0.5 hover:text-amber-900"><i data-lucide="x" class="w-2.5 h-2.5"></i></button></span>
-                    <span class="px-2.5 py-1 text-[10px] font-bold rounded-full border-2 border-amber-400 bg-amber-100 text-amber-900 flex items-center gap-1"><i data-lucide="check" class="w-2.5 h-2.5"></i>Grasa <button class="ml-0.5 hover:text-amber-900"><i data-lucide="x" class="w-2.5 h-2.5"></i></button></span>
-                    <button class="px-2.5 py-1 text-[10px] font-medium rounded-full border border-dashed border-slate-300 bg-white text-slate-500 hover:bg-slate-50 flex items-center gap-1"><i data-lucide="plus" class="w-2.5 h-2.5"></i>Otra</button>
+                <div class="border border-slate-200 rounded-lg p-2 bg-slate-50">
+                  <div class="flex flex-wrap gap-1.5">
+                    <button class="px-2.5 py-1 text-[10px] font-bold rounded-full border-2 border-amber-400 bg-amber-100 text-amber-900 flex items-center gap-1"><i data-lucide="check" class="w-2.5 h-2.5"></i>Mixta</button>
+                    <button class="px-2.5 py-1 text-[10px] font-bold rounded-full border-2 border-amber-400 bg-amber-100 text-amber-900 flex items-center gap-1"><i data-lucide="check" class="w-2.5 h-2.5"></i>Grasa</button>
+                    <button class="px-2.5 py-1 text-[10px] rounded-full border border-slate-200 bg-white text-slate-600 hover:bg-slate-50">Seca</button>
+                    <button class="px-2.5 py-1 text-[10px] rounded-full border border-slate-200 bg-white text-slate-600 hover:bg-slate-50">Sensible</button>
+                    <button class="px-2.5 py-1 text-[10px] rounded-full border border-slate-200 bg-white text-slate-600 hover:bg-slate-50">Normal</button>
+                    <button class="px-2.5 py-1 text-[10px] rounded-full border border-slate-200 bg-white text-slate-600 hover:bg-slate-50">Deshidratada <span class="badge-nuevo ml-0.5">+</span></button>
+                    <button class="px-2.5 py-1 text-[10px] rounded-full border border-slate-200 bg-white text-slate-600 hover:bg-slate-50">Acneica <span class="badge-nuevo ml-0.5">+</span></button>
+                    <button class="px-2.5 py-1 text-[10px] rounded-full border border-slate-200 bg-white text-slate-600 hover:bg-slate-50">Madura <span class="badge-nuevo ml-0.5">+</span></button>
+                    <button class="px-2.5 py-1 text-[10px] font-bold rounded-full border border-emerald-300 bg-emerald-50 text-emerald-700">Todos los tipos</button>
                   </div>
                 </div>
-                <div class="text-[9px] text-slate-500 mt-1 italic">Click "Otra" → dropdown con: Seca · Sensible · Normal · Todos · "+ Crear nuevo tipo"</div>
+                <div class="text-[9px] text-slate-500 mt-1 italic">6 originales + 3 nuevos detectados (deshidratada · acneica · madura)</div>
               </div>
 
-              <!-- 4. Preocupaciones · CHIPS multi creables -->
+              <!-- 4. Preocupaciones · CERRADO completo -->
               <div>
                 <label class="block text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1.5 flex items-center justify-between">
                   <span>Preocupaciones que aborda</span>
-                  <span class="creable-badge"><i data-lucide="layers" class="w-2.5 h-2.5"></i>CHIPS creables</span>
+                  <span class="badge-cerrado"><i data-lucide="lock" class="w-2.5 h-2.5"></i>CERRADO · 17 opciones</span>
                 </label>
-                <div class="border border-amber-300 rounded-lg p-2 bg-white">
-                  <div class="flex flex-wrap gap-1.5 items-center">
-                    <span class="px-2.5 py-1 text-[10px] font-bold rounded-full border-2 border-amber-400 bg-amber-100 text-amber-900 flex items-center gap-1"><i data-lucide="check" class="w-2.5 h-2.5"></i>Manchas <button class="ml-0.5"><i data-lucide="x" class="w-2.5 h-2.5"></i></button></span>
-                    <span class="px-2.5 py-1 text-[10px] font-bold rounded-full border-2 border-amber-400 bg-amber-100 text-amber-900 flex items-center gap-1"><i data-lucide="check" class="w-2.5 h-2.5"></i>Anti-edad <button class="ml-0.5"><i data-lucide="x" class="w-2.5 h-2.5"></i></button></span>
-                    <span class="px-2.5 py-1 text-[10px] font-bold rounded-full border-2 border-amber-400 bg-amber-100 text-amber-900 flex items-center gap-1"><i data-lucide="check" class="w-2.5 h-2.5"></i>Brillo <button class="ml-0.5"><i data-lucide="x" class="w-2.5 h-2.5"></i></button></span>
-                    <button class="px-2.5 py-1 text-[10px] font-medium rounded-full border border-dashed border-slate-300 bg-white text-slate-500 hover:bg-slate-50 flex items-center gap-1"><i data-lucide="plus" class="w-2.5 h-2.5"></i>Otra</button>
+                <div class="border border-slate-200 rounded-lg p-2 bg-slate-50">
+                  <div class="flex flex-wrap gap-1.5">
+                    <button class="px-2.5 py-1 text-[10px] font-bold rounded-full border-2 border-amber-400 bg-amber-100 text-amber-900 flex items-center gap-1"><i data-lucide="check" class="w-2.5 h-2.5"></i>Manchas</button>
+                    <button class="px-2.5 py-1 text-[10px] font-bold rounded-full border-2 border-amber-400 bg-amber-100 text-amber-900 flex items-center gap-1"><i data-lucide="check" class="w-2.5 h-2.5"></i>Anti-edad</button>
+                    <button class="px-2.5 py-1 text-[10px] font-bold rounded-full border-2 border-amber-400 bg-amber-100 text-amber-900 flex items-center gap-1"><i data-lucide="check" class="w-2.5 h-2.5"></i>Brillo · Iluminar</button>
+                    <button class="px-2.5 py-1 text-[10px] rounded-full border border-slate-200 bg-white text-slate-600 hover:bg-slate-50">Acné · brotes</button>
+                    <button class="px-2.5 py-1 text-[10px] rounded-full border border-slate-200 bg-white text-slate-600 hover:bg-slate-50">Hidratación</button>
+                    <button class="px-2.5 py-1 text-[10px] rounded-full border border-slate-200 bg-white text-slate-600 hover:bg-slate-50">Poros visibles</button>
+                    <button class="px-2.5 py-1 text-[10px] rounded-full border border-slate-200 bg-white text-slate-600 hover:bg-slate-50">Sensibilidad · enrojecimiento</button>
+                    <button class="px-2.5 py-1 text-[10px] rounded-full border border-slate-200 bg-white text-slate-600 hover:bg-slate-50">Líneas expresión <span class="badge-nuevo ml-0.5">+</span></button>
+                    <button class="px-2.5 py-1 text-[10px] rounded-full border border-slate-200 bg-white text-slate-600 hover:bg-slate-50">Elasticidad · firmeza <span class="badge-nuevo ml-0.5">+</span></button>
+                    <button class="px-2.5 py-1 text-[10px] rounded-full border border-slate-200 bg-white text-slate-600 hover:bg-slate-50">Rosácea <span class="badge-nuevo ml-0.5">+</span></button>
+                    <button class="px-2.5 py-1 text-[10px] rounded-full border border-slate-200 bg-white text-slate-600 hover:bg-slate-50">Post-acné · cicatrices <span class="badge-nuevo ml-0.5">+</span></button>
+                    <button class="px-2.5 py-1 text-[10px] rounded-full border border-slate-200 bg-white text-slate-600 hover:bg-slate-50">Fotoenvejecimiento <span class="badge-nuevo ml-0.5">+</span></button>
+                    <button class="px-2.5 py-1 text-[10px] rounded-full border border-slate-200 bg-white text-slate-600 hover:bg-slate-50">Barrera cutánea <span class="badge-nuevo ml-0.5">+</span></button>
+                    <button class="px-2.5 py-1 text-[10px] rounded-full border border-slate-200 bg-white text-slate-600 hover:bg-slate-50">Anti-polución <span class="badge-nuevo ml-0.5">+</span></button>
+                    <button class="px-2.5 py-1 text-[10px] rounded-full border border-slate-200 bg-white text-slate-600 hover:bg-slate-50">Ojeras · oscuridad <span class="badge-nuevo ml-0.5">+</span></button>
+                    <button class="px-2.5 py-1 text-[10px] rounded-full border border-slate-200 bg-white text-slate-600 hover:bg-slate-50">Bolsas · hinchazón <span class="badge-nuevo ml-0.5">+</span></button>
+                    <button class="px-2.5 py-1 text-[10px] rounded-full border border-slate-200 bg-white text-slate-600 hover:bg-slate-50">Textura · suavidad <span class="badge-nuevo ml-0.5">+</span></button>
                   </div>
                 </div>
-                <div class="text-[9px] text-slate-500 mt-1 italic">Sugiere: Acné · Hidratación · Poros · Sensibilidad · Rosácea + permite crear</div>
+                <div class="text-[9px] text-slate-500 mt-1 italic">7 originales + <strong class="text-pink-700">10 nuevos detectados</strong> (canónicos de la industria SKC moderna)</div>
               </div>
 
-              <!-- 5. Paso rutina + Textura · 2 SELECT creables -->
+              <!-- 5. Paso rutina + Textura · SIN ORDEN NUMÉRICO -->
               <div class="grid grid-cols-2 gap-3">
                 <div>
-                  <label class="block text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1 flex items-center justify-between">
+                  <label class="block text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1.5 flex items-center justify-between">
                     <span>Paso de rutina</span>
-                    <span class="creable-badge"><i data-lucide="circle-dot" class="w-2.5 h-2.5"></i>SELECT creable</span>
+                    <span class="badge-cerrado"><i data-lucide="lock" class="w-2.5 h-2.5"></i>CERRADO · 14 opciones</span>
                   </label>
-                  <div class="relative">
-                    <input type="text" value="4 · Sérum / Tratamiento" class="w-full px-3 py-2 pr-8 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 bg-white">
-                    <i data-lucide="chevron-down" class="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400"></i>
+                  <div class="border border-slate-200 rounded-lg p-2 bg-slate-50">
+                    <div class="flex flex-wrap gap-1">
+                      <button class="px-2 py-1 text-[10px] font-bold rounded border-2 border-amber-400 bg-amber-100 text-amber-900">✓ Sérum / Tratamiento</button>
+                      <button class="px-2 py-1 text-[10px] rounded border border-slate-200 bg-white text-slate-700 hover:bg-slate-50">Limpieza con aceite</button>
+                      <button class="px-2 py-1 text-[10px] rounded border border-slate-200 bg-white text-slate-700 hover:bg-slate-50">Limpieza con agua</button>
+                      <button class="px-2 py-1 text-[10px] rounded border border-slate-200 bg-white text-slate-700 hover:bg-slate-50">Doble limpieza <span class="badge-nuevo ml-0.5">+</span></button>
+                      <button class="px-2 py-1 text-[10px] rounded border border-slate-200 bg-white text-slate-700 hover:bg-slate-50">Exfoliación</button>
+                      <button class="px-2 py-1 text-[10px] rounded border border-slate-200 bg-white text-slate-700 hover:bg-slate-50">Tonificación</button>
+                      <button class="px-2 py-1 text-[10px] rounded border border-slate-200 bg-white text-slate-700 hover:bg-slate-50">Esencia</button>
+                      <button class="px-2 py-1 text-[10px] rounded border border-slate-200 bg-white text-slate-700 hover:bg-slate-50">Mascarilla</button>
+                      <button class="px-2 py-1 text-[10px] rounded border border-slate-200 bg-white text-slate-700 hover:bg-slate-50">Contorno de ojos</button>
+                      <button class="px-2 py-1 text-[10px] rounded border border-slate-200 bg-white text-slate-700 hover:bg-slate-50">Hidratación</button>
+                      <button class="px-2 py-1 text-[10px] rounded border border-slate-200 bg-white text-slate-700 hover:bg-slate-50">Protección solar</button>
+                      <button class="px-2 py-1 text-[10px] rounded border border-slate-200 bg-white text-slate-700 hover:bg-slate-50">Reparadora nocturna <span class="badge-nuevo ml-0.5">+</span></button>
+                      <button class="px-2 py-1 text-[10px] rounded border border-slate-200 bg-white text-slate-700 hover:bg-slate-50">Refrescante <span class="badge-nuevo ml-0.5">+</span></button>
+                      <button class="px-2 py-1 text-[10px] rounded border border-slate-200 bg-white text-slate-700 hover:bg-slate-50">Pre-makeup <span class="badge-nuevo ml-0.5">+</span></button>
+                    </div>
                   </div>
+                  <div class="text-[9px] text-slate-500 mt-1 italic">Sin orden numérico · cada paso es una etapa flexible</div>
                 </div>
                 <div>
-                  <label class="block text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1 flex items-center justify-between">
+                  <label class="block text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1.5 flex items-center justify-between">
                     <span>Textura</span>
-                    <span class="creable-badge"><i data-lucide="circle-dot" class="w-2.5 h-2.5"></i>SELECT creable</span>
+                    <span class="badge-cerrado"><i data-lucide="lock" class="w-2.5 h-2.5"></i>CERRADO · 14 opciones</span>
                   </label>
-                  <div class="relative">
-                    <input type="text" value="Aceite" class="w-full px-3 py-2 pr-8 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 bg-white">
-                    <i data-lucide="chevron-down" class="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400"></i>
+                  <div class="border border-slate-200 rounded-lg p-2 bg-slate-50">
+                    <div class="flex flex-wrap gap-1">
+                      <button class="px-2 py-1 text-[10px] font-bold rounded border-2 border-amber-400 bg-amber-100 text-amber-900">✓ Aceite</button>
+                      <button class="px-2 py-1 text-[10px] rounded border border-slate-200 bg-white text-slate-700">Gel</button>
+                      <button class="px-2 py-1 text-[10px] rounded border border-slate-200 bg-white text-slate-700">Crema</button>
+                      <button class="px-2 py-1 text-[10px] rounded border border-slate-200 bg-white text-slate-700">Espuma</button>
+                      <button class="px-2 py-1 text-[10px] rounded border border-slate-200 bg-white text-slate-700">Loción</button>
+                      <button class="px-2 py-1 text-[10px] rounded border border-slate-200 bg-white text-slate-700">Bálsamo</button>
+                      <button class="px-2 py-1 text-[10px] rounded border border-slate-200 bg-white text-slate-700">Stick</button>
+                      <button class="px-2 py-1 text-[10px] rounded border border-slate-200 bg-white text-slate-700">Polvo</button>
+                      <button class="px-2 py-1 text-[10px] rounded border border-slate-200 bg-white text-slate-700">Agua</button>
+                      <button class="px-2 py-1 text-[10px] rounded border border-slate-200 bg-white text-slate-700">Parche</button>
+                      <button class="px-2 py-1 text-[10px] rounded border border-slate-200 bg-white text-slate-700">Mousse <span class="badge-nuevo ml-0.5">+</span></button>
+                      <button class="px-2 py-1 text-[10px] rounded border border-slate-200 bg-white text-slate-700">Fluido <span class="badge-nuevo ml-0.5">+</span></button>
+                      <button class="px-2 py-1 text-[10px] rounded border border-slate-200 bg-white text-slate-700">Leche <span class="badge-nuevo ml-0.5">+</span></button>
+                      <button class="px-2 py-1 text-[10px] rounded border border-slate-200 bg-white text-slate-700">Película pelable <span class="badge-nuevo ml-0.5">+</span></button>
+                    </div>
                   </div>
                 </div>
               </div>
 
-              <!-- 6. Zona aplicación · CHIPS multi creables -->
+              <!-- 6. Zona aplicación · CERRADO completo -->
               <div>
                 <label class="block text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1.5 flex items-center justify-between">
                   <span>Zona de aplicación</span>
-                  <span class="creable-badge"><i data-lucide="layers" class="w-2.5 h-2.5"></i>CHIPS creables</span>
+                  <span class="badge-cerrado"><i data-lucide="lock" class="w-2.5 h-2.5"></i>CERRADO · 9 opciones</span>
                 </label>
-                <div class="border border-amber-300 rounded-lg p-2 bg-white">
-                  <div class="flex flex-wrap gap-1.5 items-center">
-                    <span class="px-2.5 py-1 text-[10px] font-bold rounded-full border-2 border-amber-400 bg-amber-100 text-amber-900 flex items-center gap-1"><i data-lucide="check" class="w-2.5 h-2.5"></i>Rostro <button class="ml-0.5"><i data-lucide="x" class="w-2.5 h-2.5"></i></button></span>
-                    <button class="px-2.5 py-1 text-[10px] font-medium rounded-full border border-dashed border-slate-300 bg-white text-slate-500 hover:bg-slate-50 flex items-center gap-1"><i data-lucide="plus" class="w-2.5 h-2.5"></i>Otra</button>
+                <div class="border border-slate-200 rounded-lg p-2 bg-slate-50">
+                  <div class="flex flex-wrap gap-1.5">
+                    <button class="px-2.5 py-1 text-[10px] font-bold rounded-full border-2 border-amber-400 bg-amber-100 text-amber-900 flex items-center gap-1"><i data-lucide="check" class="w-2.5 h-2.5"></i>Rostro</button>
+                    <button class="px-2.5 py-1 text-[10px] rounded-full border border-slate-200 bg-white text-slate-600">Cuello</button>
+                    <button class="px-2.5 py-1 text-[10px] rounded-full border border-slate-200 bg-white text-slate-600">Escote <span class="badge-nuevo ml-0.5">+</span></button>
+                    <button class="px-2.5 py-1 text-[10px] rounded-full border border-slate-200 bg-white text-slate-600">Contorno ojos</button>
+                    <button class="px-2.5 py-1 text-[10px] rounded-full border border-slate-200 bg-white text-slate-600">Labios <span class="badge-nuevo ml-0.5">+</span></button>
+                    <button class="px-2.5 py-1 text-[10px] rounded-full border border-slate-200 bg-white text-slate-600">Manos <span class="badge-nuevo ml-0.5">+</span></button>
+                    <button class="px-2.5 py-1 text-[10px] rounded-full border border-slate-200 bg-white text-slate-600">Cuerpo</button>
+                    <button class="px-2.5 py-1 text-[10px] rounded-full border border-slate-200 bg-white text-slate-600">Pies <span class="badge-nuevo ml-0.5">+</span></button>
+                    <button class="px-2.5 py-1 text-[10px] rounded-full border border-slate-200 bg-white text-slate-600">Cuero cabelludo <span class="badge-nuevo ml-0.5">+</span></button>
                   </div>
                 </div>
-                <div class="text-[9px] text-slate-500 mt-1 italic">Sugiere: Cuello · Contorno ojos · Cuerpo · Manos · Labios + permite crear</div>
               </div>
 
               <!-- 7. Banner condicional SPF/PA -->
@@ -537,24 +480,116 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
             </div>
           </div>
 
-          <!-- Clasificación + Inventario · placeholder -->
-          <div class="border border-slate-200 rounded-xl px-4 py-2.5 bg-slate-50 flex items-center gap-2.5 text-[11px]">
-            <span class="section-num">4</span>
-            <div class="flex-1"><strong>Clasificación:</strong> Marca · Tipo · Categorías · Etiquetas <span class="text-slate-400">(igual a Estado A)</span></div>
-          </div>
-
-          <div class="border border-slate-200 rounded-xl px-4 py-2.5 bg-slate-50 flex items-center gap-2.5 text-[11px]">
-            <span class="section-num">5</span>
-            <div class="flex-1"><strong>Inventario</strong> <span class="text-slate-400">(pendiente)</span></div>
-          </div>
-
         </div>
+      </div>
+    </div>
+  </div>
 
-        <div class="border-t border-slate-200 bg-slate-50 px-5 py-3 flex items-center justify-between">
-          <div class="text-[10px] text-slate-500">3 de 5 secciones · Clasificación + Inventario pendientes</div>
-          <div class="flex items-center gap-2">
-            <button class="px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-100 rounded-lg">Cancelar</button>
-            <button class="px-3 py-1.5 text-xs font-bold text-white bg-amber-600 rounded-lg disabled:opacity-50">Crear producto</button>
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- ESTADO C · Tabla simplificada Skincare + Suplementos             -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <div>
+    <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-2">Estado C · Modelo de líneas SIMPLIFICADO · Skincare + Suplementos · Pack es FLAG dentro de SKC</div>
+
+    <div class="parent-hint">
+      <div class="bg-white rounded-2xl shadow-2xl overflow-hidden border border-slate-200">
+        <div class="p-5 space-y-4">
+          <h3 class="text-base font-bold text-slate-900">Líneas y atributos · modelo final</h3>
+
+          <!-- Cajas de líneas -->
+          <div class="grid grid-cols-2 gap-4">
+            <div class="rounded-xl border-2 border-amber-300 bg-amber-50/40 p-4">
+              <div class="flex items-center gap-2 mb-2">
+                <div class="w-9 h-9 rounded-lg bg-amber-200 flex items-center justify-center"><i data-lucide="droplets" class="w-5 h-5 text-amber-800"></i></div>
+                <div>
+                  <div class="text-sm font-bold text-amber-900">Skincare</div>
+                  <div class="text-[10px] text-amber-700">Línea principal</div>
+                </div>
+              </div>
+              <div class="text-[10px] text-slate-700">Productos individuales o <strong>Packs</strong> (con flag <code class="bg-white px-1 rounded text-[9px]">esPack=true</code>) que combinan varios SKUs Skincare existentes.</div>
+              <div class="mt-2 inline-flex items-center gap-1 px-2 py-0.5 rounded bg-purple-100 text-purple-800 text-[9px] font-bold">
+                <i data-lucide="gift" class="w-2.5 h-2.5"></i>Pack es opción interna
+              </div>
+            </div>
+
+            <div class="rounded-xl border-2 border-indigo-300 bg-indigo-50/40 p-4">
+              <div class="flex items-center gap-2 mb-2">
+                <div class="w-9 h-9 rounded-lg bg-indigo-200 flex items-center justify-center"><i data-lucide="pill" class="w-5 h-5 text-indigo-800"></i></div>
+                <div>
+                  <div class="text-sm font-bold text-indigo-900">Suplementos y Vitaminas</div>
+                  <div class="text-[10px] text-indigo-700">Línea secundaria</div>
+                </div>
+              </div>
+              <div class="text-[10px] text-slate-700">Cápsulas · gomitas · polvos · líquidos. Cada producto un SKU. Posibilidad de Packs (raro).</div>
+            </div>
+          </div>
+
+          <!-- Tabla -->
+          <div class="overflow-x-auto">
+            <table class="w-full text-[11px] border border-slate-200 rounded-lg overflow-hidden">
+              <thead>
+                <tr class="bg-slate-50 border-b border-slate-200">
+                  <th class="px-3 py-2 text-left text-[10px] uppercase tracking-wider text-slate-500 font-bold">Atributo</th>
+                  <th class="px-3 py-2 text-left text-[10px] uppercase tracking-wider text-slate-500 font-bold">Tipo de campo</th>
+                  <th class="px-3 py-2 text-center text-[10px] uppercase tracking-wider font-bold">
+                    <div class="flex items-center justify-center gap-1 text-amber-700"><i data-lucide="droplets" class="w-3 h-3"></i>Skincare</div>
+                  </th>
+                  <th class="px-3 py-2 text-center text-[10px] uppercase tracking-wider font-bold">
+                    <div class="flex items-center justify-center gap-1 text-indigo-700"><i data-lucide="pill" class="w-3 h-3"></i>Suplementos</div>
+                  </th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100">
+                <tr class="bg-slate-50/30">
+                  <td colspan="4" class="px-3 py-1 text-[9px] uppercase tracking-wider text-slate-400 font-bold">Comunes a ambas líneas · Maestros</td>
+                </tr>
+                <tr><td class="px-3 py-2 font-medium">Marca</td><td><span class="badge-creable text-[8px]"><i data-lucide="zap" class="w-2 h-2"></i>creable</span></td><td class="text-center">✓</td><td class="text-center">✓</td></tr>
+                <tr><td class="px-3 py-2 font-medium">Tipo de producto</td><td><span class="badge-creable text-[8px]"><i data-lucide="zap" class="w-2 h-2"></i>creable</span></td><td class="text-center">✓</td><td class="text-center">✓</td></tr>
+                <tr><td class="px-3 py-2 font-medium">Categorías</td><td><span class="badge-creable text-[8px]"><i data-lucide="zap" class="w-2 h-2"></i>chips creables</span></td><td class="text-center">✓</td><td class="text-center">✓</td></tr>
+                <tr><td class="px-3 py-2 font-medium">Etiquetas</td><td><span class="badge-creable text-[8px]"><i data-lucide="zap" class="w-2 h-2"></i>chips creables</span></td><td class="text-center">✓</td><td class="text-center">✓</td></tr>
+
+                <tr class="bg-amber-50/40">
+                  <td colspan="4" class="px-3 py-1 text-[9px] uppercase tracking-wider text-amber-700 font-bold">Solo Skincare · 9 atributos</td>
+                </tr>
+                <tr><td class="px-3 py-2">Tipo SKC</td><td><span class="badge-cerrado text-[8px]"><i data-lucide="lock" class="w-2 h-2"></i>cerrado · 25</span></td><td class="text-center bg-amber-100 font-bold text-amber-900">✓</td><td class="text-center text-slate-300">—</td></tr>
+                <tr><td class="px-3 py-2">Volumen + unidad</td><td>NUMBER + select</td><td class="text-center bg-amber-100 font-bold text-amber-900">✓</td><td class="text-center text-slate-300">—</td></tr>
+                <tr><td class="px-3 py-2">Ingrediente clave</td><td><span class="badge-text text-[8px]"><i data-lucide="text-cursor-input" class="w-2 h-2"></i>text+sug</span></td><td class="text-center bg-amber-100 font-bold text-amber-900">✓</td><td class="text-center text-slate-300">—</td></tr>
+                <tr><td class="px-3 py-2">Línea de marca</td><td><span class="badge-text text-[8px]"><i data-lucide="text-cursor-input" class="w-2 h-2"></i>text+sug</span></td><td class="text-center bg-amber-100 font-bold text-amber-900">✓</td><td class="text-center text-slate-300">—</td></tr>
+                <tr><td class="px-3 py-2">Tipo de piel</td><td><span class="badge-cerrado text-[8px]"><i data-lucide="lock" class="w-2 h-2"></i>cerrado · 8</span></td><td class="text-center bg-amber-100 font-bold text-amber-900">✓</td><td class="text-center text-slate-300">—</td></tr>
+                <tr><td class="px-3 py-2">Preocupaciones</td><td><span class="badge-cerrado text-[8px]"><i data-lucide="lock" class="w-2 h-2"></i>cerrado · 17</span></td><td class="text-center bg-amber-100 font-bold text-amber-900">✓</td><td class="text-center text-slate-300">—</td></tr>
+                <tr><td class="px-3 py-2">Paso rutina</td><td><span class="badge-cerrado text-[8px]"><i data-lucide="lock" class="w-2 h-2"></i>cerrado · 14</span></td><td class="text-center bg-amber-100 font-bold text-amber-900">✓</td><td class="text-center text-slate-300">—</td></tr>
+                <tr><td class="px-3 py-2">Textura</td><td><span class="badge-cerrado text-[8px]"><i data-lucide="lock" class="w-2 h-2"></i>cerrado · 14</span></td><td class="text-center bg-amber-100 font-bold text-amber-900">✓</td><td class="text-center text-slate-300">—</td></tr>
+                <tr><td class="px-3 py-2">Zona aplicación</td><td><span class="badge-cerrado text-[8px]"><i data-lucide="lock" class="w-2 h-2"></i>cerrado · 9</span></td><td class="text-center bg-amber-100 font-bold text-amber-900">✓</td><td class="text-center text-slate-300">—</td></tr>
+                <tr><td class="px-3 py-2 italic text-slate-500">SPF / PA / PAO</td><td class="italic text-slate-500">condicional</td><td class="text-center text-amber-700 italic">si protector solar</td><td class="text-center text-slate-300">—</td></tr>
+
+                <tr class="bg-indigo-50/40">
+                  <td colspan="4" class="px-3 py-1 text-[9px] uppercase tracking-wider text-indigo-700 font-bold">Solo Suplementos · 5 atributos</td>
+                </tr>
+                <tr><td class="px-3 py-2">Presentación</td><td><span class="badge-cerrado text-[8px]"><i data-lucide="lock" class="w-2 h-2"></i>cerrado · 6</span></td><td class="text-center text-slate-300">—</td><td class="text-center bg-indigo-100 font-bold text-indigo-900">✓</td></tr>
+                <tr><td class="px-3 py-2">Dosaje</td><td><span class="badge-text text-[8px]"><i data-lucide="text-cursor-input" class="w-2 h-2"></i>text+sug</span></td><td class="text-center text-slate-300">—</td><td class="text-center bg-indigo-100 font-bold text-indigo-900">✓</td></tr>
+                <tr><td class="px-3 py-2">Sabor</td><td><span class="badge-creable text-[8px]"><i data-lucide="zap" class="w-2 h-2"></i>chips creables</span></td><td class="text-center text-slate-300">—</td><td class="text-center bg-indigo-100 font-bold text-indigo-900">✓</td></tr>
+                <tr><td class="px-3 py-2">Servings/día</td><td>NUMBER</td><td class="text-center text-slate-300">—</td><td class="text-center bg-indigo-100 font-bold text-indigo-900">✓</td></tr>
+                <tr><td class="px-3 py-2">Restricciones (kosher/halal)</td><td><span class="badge-creable text-[8px]"><i data-lucide="zap" class="w-2 h-2"></i>chips creables</span></td><td class="text-center text-slate-300">—</td><td class="text-center bg-indigo-100 font-bold text-indigo-900">✓</td></tr>
+
+                <tr class="bg-purple-50/40">
+                  <td colspan="4" class="px-3 py-1 text-[9px] uppercase tracking-wider text-purple-700 font-bold">Si esPack=true (puede aplicar a SKC o SUP)</td>
+                </tr>
+                <tr><td class="px-3 py-2">Componentes vinculados</td><td>buscador con SKUs existentes</td><td class="text-center bg-purple-100 font-bold text-purple-900">✓</td><td class="text-center bg-purple-100 font-bold text-purple-900">✓</td></tr>
+                <tr><td class="px-3 py-2">Componentes exclusivos</td><td>texto libre · sin vínculo SKU</td><td class="text-center bg-purple-100 font-bold text-purple-900">✓</td><td class="text-center bg-purple-100 font-bold text-purple-900">✓</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Banner explicativo Pack -->
+          <div class="rounded-lg bg-purple-50 border-2 border-purple-200 p-3">
+            <div class="flex items-start gap-2">
+              <div class="w-7 h-7 rounded-lg bg-purple-200 flex items-center justify-center flex-shrink-0">
+                <i data-lucide="gift" class="w-4 h-4 text-purple-700"></i>
+              </div>
+              <div class="text-[11px] text-purple-900">
+                <strong>Pack NO es una línea separada.</strong> Es un FLAG (<code class="bg-white px-1 rounded text-[10px]">esPack=true</code>) en un producto Skincare (o Suplemento) que <strong>se compone de otros SKUs existentes</strong>. El Wizard Pack es realmente <strong>WizardSimple + sección Componentes</strong> · hereda los atributos del componente principal o del agregado mayoritario.
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -562,101 +597,118 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
   </div>
 
   <!-- ═══════════════════════════════════════════════════════════════ -->
-  <!-- ESTADO C · Variabilidad por línea de negocio                     -->
+  <!-- ESTADO D · Arquitectura para escalar a 150+ productos por línea -->
   <!-- ═══════════════════════════════════════════════════════════════ -->
   <div>
-    <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-2">Estado C · Variabilidad por LÍNEA DE NEGOCIO · qué atributos aparecen para cada una</div>
+    <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-2">Estado D · Arquitectura recomendada para escalar a 150+ productos por línea</div>
 
     <div class="parent-hint">
       <div class="bg-white rounded-2xl shadow-2xl overflow-hidden border border-slate-200">
-        <div class="p-5">
-          <h3 class="text-base font-bold text-slate-900 mb-1">Atributos por línea · sección dinámica del wizard</h3>
-          <p class="text-xs text-slate-500 mb-4">El wizard detecta la línea elegida en Origen y muestra solo los atributos relevantes. Todos siguen el patrón Campo Creable.</p>
-
-          <div class="overflow-x-auto">
-            <table class="w-full text-[11px] border border-slate-200 rounded-lg overflow-hidden">
-              <thead>
-                <tr class="bg-slate-50 border-b border-slate-200">
-                  <th class="px-3 py-2 text-left text-[10px] uppercase tracking-wider text-slate-500 font-bold">Atributo</th>
-                  <th class="px-3 py-2 text-center text-[10px] uppercase tracking-wider font-bold">
-                    <div class="flex items-center justify-center gap-1 text-amber-700"><i data-lucide="droplets" class="w-3 h-3"></i>Skincare</div>
-                  </th>
-                  <th class="px-3 py-2 text-center text-[10px] uppercase tracking-wider font-bold">
-                    <div class="flex items-center justify-center gap-1 text-indigo-700"><i data-lucide="pill" class="w-3 h-3"></i>Suplementos</div>
-                  </th>
-                  <th class="px-3 py-2 text-center text-[10px] uppercase tracking-wider font-bold">
-                    <div class="flex items-center justify-center gap-1 text-rose-700"><i data-lucide="flower" class="w-3 h-3"></i>Wellness</div>
-                  </th>
-                  <th class="px-3 py-2 text-center text-[10px] uppercase tracking-wider font-bold">
-                    <div class="flex items-center justify-center gap-1 text-purple-700"><i data-lucide="gift" class="w-3 h-3"></i>Pack</div>
-                  </th>
-                </tr>
-              </thead>
-              <tbody class="divide-y divide-slate-100">
-                <!-- COMUNES -->
-                <tr class="bg-slate-50/30">
-                  <td colspan="5" class="px-3 py-1 text-[9px] uppercase tracking-wider text-slate-400 font-bold">Comunes a todas las líneas</td>
-                </tr>
-                <tr><td class="px-3 py-2 font-medium text-slate-700">Marca · SELECT creable</td><td class="text-center">✓</td><td class="text-center">✓</td><td class="text-center">✓</td><td class="text-center">✓</td></tr>
-                <tr><td class="px-3 py-2 font-medium text-slate-700">Tipo de producto · SELECT creable</td><td class="text-center">✓</td><td class="text-center">✓</td><td class="text-center">✓</td><td class="text-center">✓</td></tr>
-                <tr><td class="px-3 py-2 font-medium text-slate-700">Categorías · CHIPS creables</td><td class="text-center">✓</td><td class="text-center">✓</td><td class="text-center">✓</td><td class="text-center">✓</td></tr>
-                <tr><td class="px-3 py-2 font-medium text-slate-700">Etiquetas · CHIPS creables</td><td class="text-center">✓</td><td class="text-center">✓</td><td class="text-center">✓</td><td class="text-center">✓</td></tr>
-
-                <!-- SKC ESPECÍFICOS -->
-                <tr class="bg-amber-50/40">
-                  <td colspan="5" class="px-3 py-1 text-[9px] uppercase tracking-wider text-amber-700 font-bold">Solo Skincare</td>
-                </tr>
-                <tr><td class="px-3 py-2 text-slate-700">Tipo SKC · SELECT creable</td><td class="text-center bg-amber-100 font-bold text-amber-900">✓</td><td class="text-center text-slate-300">—</td><td class="text-center text-slate-300">—</td><td class="text-center text-slate-300">—</td></tr>
-                <tr><td class="px-3 py-2 text-slate-700">Volumen + unidad</td><td class="text-center bg-amber-100 font-bold text-amber-900">✓</td><td class="text-center text-slate-300">—</td><td class="text-center text-slate-300">—</td><td class="text-center text-slate-300">—</td></tr>
-                <tr><td class="px-3 py-2 text-slate-700">Ingrediente clave · TEXT + sug.</td><td class="text-center bg-amber-100 font-bold text-amber-900">✓</td><td class="text-center text-slate-300">—</td><td class="text-center text-slate-300">—</td><td class="text-center text-slate-300">—</td></tr>
-                <tr><td class="px-3 py-2 text-slate-700">Línea de marca · TEXT + sug.</td><td class="text-center bg-amber-100 font-bold text-amber-900">✓</td><td class="text-center text-slate-300">—</td><td class="text-center text-slate-300">—</td><td class="text-center text-slate-300">—</td></tr>
-                <tr><td class="px-3 py-2 text-slate-700">Tipo de piel · CHIPS creables</td><td class="text-center bg-amber-100 font-bold text-amber-900">✓</td><td class="text-center text-slate-300">—</td><td class="text-center text-slate-300">—</td><td class="text-center text-slate-300">—</td></tr>
-                <tr><td class="px-3 py-2 text-slate-700">Preocupaciones · CHIPS creables</td><td class="text-center bg-amber-100 font-bold text-amber-900">✓</td><td class="text-center text-slate-300">—</td><td class="text-center text-slate-300">—</td><td class="text-center text-slate-300">—</td></tr>
-                <tr><td class="px-3 py-2 text-slate-700">Paso rutina · SELECT creable</td><td class="text-center bg-amber-100 font-bold text-amber-900">✓</td><td class="text-center text-slate-300">—</td><td class="text-center text-slate-300">—</td><td class="text-center text-slate-300">—</td></tr>
-                <tr><td class="px-3 py-2 text-slate-700">Textura · SELECT creable</td><td class="text-center bg-amber-100 font-bold text-amber-900">✓</td><td class="text-center text-slate-300">—</td><td class="text-center text-slate-300">—</td><td class="text-center text-slate-300">—</td></tr>
-                <tr><td class="px-3 py-2 text-slate-700">Zona aplicación · CHIPS creables</td><td class="text-center bg-amber-100 font-bold text-amber-900">✓</td><td class="text-center text-slate-300">—</td><td class="text-center text-slate-300">—</td><td class="text-center text-slate-300">—</td></tr>
-                <tr><td class="px-3 py-2 text-slate-700">SPF / PA / PAO · si protector</td><td class="text-center bg-amber-100 font-bold text-amber-900">✓ (cond)</td><td class="text-center text-slate-300">—</td><td class="text-center text-slate-300">—</td><td class="text-center text-slate-300">—</td></tr>
-
-                <!-- SUP ESPECÍFICOS -->
-                <tr class="bg-indigo-50/40">
-                  <td colspan="5" class="px-3 py-1 text-[9px] uppercase tracking-wider text-indigo-700 font-bold">Solo Suplementos</td>
-                </tr>
-                <tr><td class="px-3 py-2 text-slate-700">Presentación · SELECT creable</td><td class="text-center text-slate-300">—</td><td class="text-center bg-indigo-100 font-bold text-indigo-900">✓</td><td class="text-center text-slate-300">—</td><td class="text-center text-slate-300">—</td></tr>
-                <tr><td class="px-3 py-2 text-slate-700">Dosaje · TEXT</td><td class="text-center text-slate-300">—</td><td class="text-center bg-indigo-100 font-bold text-indigo-900">✓</td><td class="text-center text-slate-300">—</td><td class="text-center text-slate-300">—</td></tr>
-                <tr><td class="px-3 py-2 text-slate-700">Sabor · CHIPS creables</td><td class="text-center text-slate-300">—</td><td class="text-center bg-indigo-100 font-bold text-indigo-900">✓</td><td class="text-center text-slate-300">—</td><td class="text-center text-slate-300">—</td></tr>
-                <tr><td class="px-3 py-2 text-slate-700">Servings/día · NUMBER</td><td class="text-center text-slate-300">—</td><td class="text-center bg-indigo-100 font-bold text-indigo-900">✓</td><td class="text-center text-slate-300">—</td><td class="text-center text-slate-300">—</td></tr>
-                <tr><td class="px-3 py-2 text-slate-700">Restricciones (kosher/halal/etc) · CHIPS</td><td class="text-center text-slate-300">—</td><td class="text-center bg-indigo-100 font-bold text-indigo-900">✓</td><td class="text-center text-slate-300">—</td><td class="text-center text-slate-300">—</td></tr>
-
-                <!-- WLL ESPECÍFICOS · placeholder -->
-                <tr class="bg-rose-50/40">
-                  <td colspan="5" class="px-3 py-1 text-[9px] uppercase tracking-wider text-rose-700 font-bold">Solo Wellness · sugerencias para definir</td>
-                </tr>
-                <tr><td class="px-3 py-2 text-slate-700">Modalidad · SELECT creable</td><td class="text-center text-slate-300">—</td><td class="text-center text-slate-300">—</td><td class="text-center bg-rose-100 font-bold text-rose-900">a definir</td><td class="text-center text-slate-300">—</td></tr>
-                <tr><td class="px-3 py-2 text-slate-700">Beneficios · CHIPS creables</td><td class="text-center text-slate-300">—</td><td class="text-center text-slate-300">—</td><td class="text-center bg-rose-100 font-bold text-rose-900">a definir</td><td class="text-center text-slate-300">—</td></tr>
-
-                <!-- PACK -->
-                <tr class="bg-purple-50/40">
-                  <td colspan="5" class="px-3 py-1 text-[9px] uppercase tracking-wider text-purple-700 font-bold">Solo Pack</td>
-                </tr>
-                <tr><td class="px-3 py-2 text-slate-700">Componentes vinculados · BUSCADOR</td><td class="text-center text-slate-300">—</td><td class="text-center text-slate-300">—</td><td class="text-center text-slate-300">—</td><td class="text-center bg-purple-100 font-bold text-purple-900">✓</td></tr>
-                <tr><td class="px-3 py-2 text-slate-700">Componentes exclusivos · TEXT libre</td><td class="text-center text-slate-300">—</td><td class="text-center text-slate-300">—</td><td class="text-center text-slate-300">—</td><td class="text-center bg-purple-100 font-bold text-purple-900">✓</td></tr>
-
-              </tbody>
-            </table>
-          </div>
-
-          <div class="mt-4 rounded-lg bg-emerald-50 border border-emerald-200 p-3">
-            <div class="text-[10px] uppercase tracking-wider text-emerald-700 font-bold mb-1 flex items-center gap-1">
-              <i data-lucide="zap" class="w-3 h-3"></i>Decisión arquitectural unificada
+        <div class="p-5 space-y-4">
+          <div class="flex items-start gap-3">
+            <div class="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center flex-shrink-0">
+              <i data-lucide="zap" class="w-5 h-5 text-emerald-700"></i>
             </div>
-            <ul class="text-[11px] text-slate-700 space-y-1">
-              <li><strong>1 catálogo Firestore por atributo</strong> creable (tipoSKC, tipoPiel, preocupacion, paso, textura, zona, sabor, etc.) · permite analytics + gobernanza</li>
-              <li><strong>Línea de negocio</strong> determina qué catálogos cargar · evita ruido cross-línea</li>
-              <li><strong>Crear inline</strong> agrega al catálogo + lo selecciona · próxima vez aparece como opción</li>
-              <li><strong>Normalización automática</strong>: trim + lowercase + dedup · evita "Vit C" vs "vitC" vs "Vitamina C" como duplicados</li>
-              <li><strong>Permisos</strong>: cualquier usuario crea · admin del Gestor Maestro puede mergear duplicados detectados después</li>
-            </ul>
+            <div>
+              <h3 class="text-base font-bold text-slate-900">Performance + gobernanza para 150+ productos por línea</h3>
+              <p class="text-xs text-slate-600 mt-1">Recomendación arquitectural para que el sistema escale sin perder velocidad de uso ni calidad de datos.</p>
+            </div>
           </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+            <!-- Decisión 1 -->
+            <div class="rounded-lg border border-slate-200 p-3">
+              <div class="text-[10px] uppercase tracking-wider text-emerald-700 font-bold mb-1.5 flex items-center gap-1">
+                <i data-lucide="database" class="w-3 h-3"></i>1 catálogo Firestore por atributo creable
+              </div>
+              <ul class="text-[11px] text-slate-700 space-y-1">
+                <li>• <code class="bg-slate-100 px-1 rounded text-[10px]">marcas/</code> · ya existe (proveedoresStore)</li>
+                <li>• <code class="bg-slate-100 px-1 rounded text-[10px]">tiposProducto/</code> · ya existe</li>
+                <li>• <code class="bg-slate-100 px-1 rounded text-[10px]">categorias/</code> · ya existe</li>
+                <li>• <code class="bg-slate-100 px-1 rounded text-[10px]">etiquetas/</code> · ya existe</li>
+                <li>• <code class="bg-slate-100 px-1 rounded text-[10px]">sabores/</code> · NUEVO para SUP</li>
+                <li>• <code class="bg-slate-100 px-1 rounded text-[10px]">restricciones/</code> · NUEVO para SUP</li>
+              </ul>
+              <div class="text-[9px] text-slate-500 mt-2 italic">Atributos cerrados (Tipo SKC, Tipo piel, etc.) viven como ENUM hardcoded · NO requieren Firestore</div>
+            </div>
+
+            <!-- Decisión 2 -->
+            <div class="rounded-lg border border-slate-200 p-3">
+              <div class="text-[10px] uppercase tracking-wider text-emerald-700 font-bold mb-1.5 flex items-center gap-1">
+                <i data-lucide="zap" class="w-3 h-3"></i>Carga lazy + cache global
+              </div>
+              <ul class="text-[11px] text-slate-700 space-y-1">
+                <li>• Al abrir wizard: <strong>fetch paralelo</strong> de los 4 maestros</li>
+                <li>• Cache 10min en Zustand store global (SWR pattern)</li>
+                <li>• Subsiguiente apertura: ya cargado · 0ms</li>
+                <li>• Peso típico: marcas ~30 docs · ~50KB JSON</li>
+              </ul>
+              <div class="text-[9px] text-slate-500 mt-2 italic">Para 150 prods × 10 atributos × promedio 8 valores únicos = 80 docs por catálogo · ínfimo en Firestore</div>
+            </div>
+
+            <!-- Decisión 3 -->
+            <div class="rounded-lg border border-slate-200 p-3">
+              <div class="text-[10px] uppercase tracking-wider text-emerald-700 font-bold mb-1.5 flex items-center gap-1">
+                <i data-lucide="filter" class="w-3 h-3"></i>Sugerencias por contador de uso
+              </div>
+              <ul class="text-[11px] text-slate-700 space-y-1">
+                <li>• Cada doc del catálogo tiene <code class="bg-slate-100 px-1 rounded text-[10px]">usadoEn: number</code></li>
+                <li>• Dropdown ordena DESC por usadoEn</li>
+                <li>• Más usados arriba · más fácil reuso</li>
+                <li>• Cuando creo producto, +1 al contador</li>
+              </ul>
+            </div>
+
+            <!-- Decisión 4 -->
+            <div class="rounded-lg border border-slate-200 p-3">
+              <div class="text-[10px] uppercase tracking-wider text-emerald-700 font-bold mb-1.5 flex items-center gap-1">
+                <i data-lucide="shield-check" class="w-3 h-3"></i>Normalización + dedup en client
+              </div>
+              <ul class="text-[11px] text-slate-700 space-y-1">
+                <li>• Antes de guardar: <code class="bg-slate-100 px-1 rounded text-[10px]">trim().toLowerCase()</code></li>
+                <li>• Compara contra normalizado existente</li>
+                <li>• Si match → reusa el existente · NO duplica</li>
+                <li>• Display preserva mayúsculas/espacios originales</li>
+              </ul>
+            </div>
+
+          </div>
+
+          <!-- Decisión 5 · gobernanza -->
+          <div class="rounded-lg bg-emerald-50 border-2 border-emerald-200 p-3">
+            <div class="text-[10px] uppercase tracking-wider text-emerald-700 font-bold mb-1.5 flex items-center gap-1">
+              <i data-lucide="users" class="w-3 h-3"></i>Gobernanza · módulo "Mantenimiento Maestros" (futuro)
+            </div>
+            <div class="text-[11px] text-slate-700">
+              Pantalla admin que muestra catálogos con duplicados detectados (ej: "Vit C" + "vitC" + "Vitamina C"). Admin <strong>elige cuál es la canónica</strong> y el sistema migra todas las referencias en 1 click. <strong>Beneficio:</strong> usuarios crean rápido sin friction · admin consolida después con visibilidad total.
+            </div>
+          </div>
+
+          <!-- Métricas estimadas -->
+          <div class="rounded-lg bg-slate-50 border border-slate-200 p-3">
+            <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1.5 flex items-center gap-1">
+              <i data-lucide="bar-chart-3" class="w-3 h-3"></i>Métricas estimadas a 150 productos × 2 líneas
+            </div>
+            <div class="grid grid-cols-3 gap-3 text-[11px]">
+              <div>
+                <div class="text-[9px] uppercase tracking-wider text-slate-500">Catálogos creables</div>
+                <div class="font-bold text-slate-900 tabular text-base">6</div>
+                <div class="text-[10px] text-slate-500">marcas · tipos · cats · etiq · sabor · restr.</div>
+              </div>
+              <div>
+                <div class="text-[9px] uppercase tracking-wider text-slate-500">Docs totales (estimado)</div>
+                <div class="font-bold text-slate-900 tabular text-base">~480</div>
+                <div class="text-[10px] text-slate-500">~80 docs por catálogo</div>
+              </div>
+              <div>
+                <div class="text-[9px] uppercase tracking-wider text-slate-500">Peso JSON cargado</div>
+                <div class="font-bold text-emerald-700 tabular text-base">~80KB</div>
+                <div class="text-[10px] text-slate-500">cargado 1× por sesión</div>
+              </div>
+            </div>
+          </div>
+
         </div>
       </div>
     </div>
