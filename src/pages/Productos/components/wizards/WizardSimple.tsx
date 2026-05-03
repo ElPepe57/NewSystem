@@ -21,6 +21,12 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { X, Package, Check, Lightbulb } from 'lucide-react';
 import type { ProductoFormData, Presentacion } from '../../../../types/producto.types';
 import { SeccionColapsable } from './SeccionColapsable';
+import { MaestroSelect, MaestroChipsMulti, type MaestroChipSelection } from '../maestros';
+import { useMarcaStore } from '../../../../store/marcaStore';
+import { useTipoProductoStore } from '../../../../store/tipoProductoStore';
+import { useCategoriaStore } from '../../../../store/categoriaStore';
+import { useEtiquetaStore } from '../../../../store/etiquetaStore';
+import { useAuthStore } from '../../../../store/authStore';
 
 interface WizardSimpleProps {
   open: boolean;
@@ -54,6 +60,22 @@ const PAISES = [
 export const WizardSimple: React.FC<WizardSimpleProps> = ({ open, onClose, onSubmit, lineasNegocio = [] }) => {
   const [seccionAbierta, setSeccionAbierta] = useState<SeccionKey>('origen');
   const [submitting, setSubmitting] = useState(false);
+  const user = useAuthStore(s => s.user);
+
+  // GAP-040 fix · Stores de maestros
+  const { marcasActivas, fetchMarcasActivas, createMarca } = useMarcaStore();
+  const { tiposActivos, fetchTiposActivos, create: createTipo } = useTipoProductoStore();
+  const { categoriasActivas, fetchCategoriasActivas, create: createCategoria } = useCategoriaStore();
+  const { etiquetasActivas, fetchEtiquetasActivas, create: createEtiqueta } = useEtiquetaStore();
+
+  // Cargar maestros al abrir
+  useEffect(() => {
+    if (!open) return;
+    fetchMarcasActivas();
+    fetchTiposActivos();
+    fetchCategoriasActivas();
+    fetchEtiquetasActivas();
+  }, [open, fetchMarcasActivas, fetchTiposActivos, fetchCategoriasActivas, fetchEtiquetasActivas]);
 
   // Estado del form
   const [paisOrigen, setPaisOrigen] = useState('USA');
@@ -61,7 +83,9 @@ export const WizardSimple: React.FC<WizardSimpleProps> = ({ open, onClose, onSub
   const [pesoLibras, setPesoLibras] = useState<string>('');
 
   const [nombreComercial, setNombreComercial] = useState('');
+  // GAP-040 · marca ahora vincula al Gestor Maestro
   const [marca, setMarca] = useState('');
+  const [marcaId, setMarcaId] = useState<string | undefined>();
   const [presentacion, setPresentacion] = useState<Presentacion>('capsulas');
   const [dosaje, setDosaje] = useState('');
   const [contenido, setContenido] = useState('');
@@ -69,6 +93,11 @@ export const WizardSimple: React.FC<WizardSimpleProps> = ({ open, onClose, onSub
   const [sabor, setSabor] = useState('');
 
   const [lineaNegocioId, setLineaNegocioId] = useState('');
+  // GAP-040 · vínculos a maestros (Clasificación)
+  const [tipoProductoId, setTipoProductoId] = useState<string | undefined>();
+  const [tipoProductoNombre, setTipoProductoNombre] = useState<string>('');
+  const [categoriasSel, setCategoriasSel] = useState<MaestroChipSelection[]>([]);
+  const [etiquetasSel, setEtiquetasSel] = useState<MaestroChipSelection[]>([]);
 
   const [stockMinimo, setStockMinimo] = useState<string>('5');
   const [stockMaximo, setStockMaximo] = useState<string>('100');
@@ -78,6 +107,13 @@ export const WizardSimple: React.FC<WizardSimpleProps> = ({ open, onClose, onSub
     if (!open) {
       setSeccionAbierta('origen');
       setSubmitting(false);
+      // Reset maestros para evitar arrastre entre productos
+      setMarca('');
+      setMarcaId(undefined);
+      setTipoProductoId(undefined);
+      setTipoProductoNombre('');
+      setCategoriasSel([]);
+      setEtiquetasSel([]);
     }
   }, [open]);
 
@@ -109,8 +145,11 @@ export const WizardSimple: React.FC<WizardSimpleProps> = ({ open, onClose, onSub
     if (!camposRequeridosOK || submitting) return;
     setSubmitting(true);
     try {
+      // GAP-040 · vínculos a maestros incluidos
+      const categoriaPrincipal = categoriasSel.find(c => c.esPrincipal);
       const data: Partial<ProductoFormData> = {
         marca: marca.trim(),
+        marcaId,
         nombreComercial: nombreComercial.trim(),
         presentacion,
         dosaje: dosaje.trim(),
@@ -124,8 +163,12 @@ export const WizardSimple: React.FC<WizardSimpleProps> = ({ open, onClose, onSub
         paisOrigen,
         costoFleteInternacional: costoFlete ? parseFloat(costoFlete) : undefined,
         pesoLibras: pesoLibras ? parseFloat(pesoLibras) : undefined,
-        // Clasificación
+        // Clasificación con maestros
         lineaNegocioId: lineaNegocioId || undefined,
+        tipoProductoId,
+        categoriaIds: categoriasSel.map(c => c.id),
+        categoriaPrincipalId: categoriaPrincipal?.id,
+        etiquetaIds: etiquetasSel.map(e => e.id),
         // Stock
         stockMinimo: parseInt(stockMinimo) || 0,
         stockMaximo: parseInt(stockMaximo) || 100,
@@ -245,15 +288,47 @@ export const WizardSimple: React.FC<WizardSimpleProps> = ({ open, onClose, onSub
                   className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm"
                 />
               </Field>
-              <Field label="Marca *" required>
-                <input
-                  type="text"
-                  value={marca}
-                  onChange={e => setMarca(e.target.value)}
-                  placeholder="ej. SkinCeuticals"
-                  className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm"
+              <div className="text-xs">
+                <MaestroSelect
+                  label="Marca"
+                  required
+                  tipo="marca"
+                  valueId={marcaId}
+                  valueSnapshot={marcaId ? { id: marcaId, nombre: marca } : undefined}
+                  items={marcasActivas.map(m => ({
+                    id: m.id,
+                    codigo: m.codigo,
+                    nombre: m.nombre,
+                    meta1: (m as any).tipoMarca,
+                  }))}
+                  onSelect={(item) => {
+                    setMarca(item.nombre);
+                    setMarcaId(item.id);
+                  }}
+                  onSolicitarCrear={async (queryActual) => {
+                    if (!user) return;
+                    try {
+                      const id = await createMarca(
+                        {
+                          nombre: queryActual,
+                          tipoMarca: 'otro',
+                          lineaNegocioIds: lineaNegocioId ? [lineaNegocioId] : undefined,
+                        } as any,
+                        user.uid,
+                      );
+                      setMarca(queryActual);
+                      setMarcaId(id);
+                    } catch (err) {
+                      console.error('[WizardSimple] error al crear marca', err);
+                    }
+                  }}
+                  onClear={() => {
+                    setMarca('');
+                    setMarcaId(undefined);
+                  }}
+                  helperText="Vinculado al Gestor Maestro · podés crear nuevas inline"
                 />
-              </Field>
+              </div>
               <Field label="Presentación *" required>
                 <select
                   value={presentacion}
@@ -310,12 +385,13 @@ export const WizardSimple: React.FC<WizardSimpleProps> = ({ open, onClose, onSub
           <SeccionColapsable
             numero={3}
             titulo="Clasificación"
-            subtitulo="Línea de negocio + atributos"
+            subtitulo="Línea + Tipo + Categorías + Etiquetas · maestros vinculados"
             expanded={seccionAbierta === 'clasificacion'}
             onToggle={() => toggleSeccion('clasificacion')}
             estado={seccionAbierta === 'clasificacion' ? 'active' : 'inactive'}
           >
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+            <div className="space-y-4 text-xs">
+              {/* Línea de negocio · select tradicional (no es Gestor Maestro) */}
               <Field label="Línea de negocio">
                 <select
                   value={lineaNegocioId}
@@ -330,9 +406,105 @@ export const WizardSimple: React.FC<WizardSimpleProps> = ({ open, onClose, onSub
                   ))}
                 </select>
               </Field>
-            </div>
-            <div className="text-[11px] text-slate-500 italic mt-2">
-              Categorías, etiquetas y atributos avanzados se pueden agregar después editando el producto.
+
+              {/* GAP-040 · Tipo de producto · MaestroSelect */}
+              <MaestroSelect
+                label="Tipo de producto"
+                tipo="tipo-producto"
+                valueId={tipoProductoId}
+                valueSnapshot={tipoProductoId ? { id: tipoProductoId, nombre: tipoProductoNombre } : undefined}
+                items={tiposActivos.map(t => ({
+                  id: t.id,
+                  codigo: (t as any).codigo,
+                  nombre: t.nombre,
+                  meta1: (t as any).principioActivo,
+                }))}
+                onSelect={(item) => {
+                  setTipoProductoId(item.id);
+                  setTipoProductoNombre(item.nombre);
+                }}
+                onSolicitarCrear={async (queryActual) => {
+                  if (!user) return;
+                  try {
+                    const nuevo = await createTipo(
+                      {
+                        nombre: queryActual,
+                        descripcion: '',
+                      } as any,
+                      user.uid,
+                    );
+                    setTipoProductoId(nuevo.id);
+                    setTipoProductoNombre(nuevo.nombre);
+                  } catch (err) {
+                    console.error('[WizardSimple] error al crear tipo', err);
+                  }
+                }}
+                onClear={() => {
+                  setTipoProductoId(undefined);
+                  setTipoProductoNombre('');
+                }}
+                helperText="Agrupa productos equivalentes de distintas marcas (ej: 'Vitamina D3 + K2')"
+              />
+
+              {/* GAP-040 · Categorías · MaestroChipsMulti */}
+              <MaestroChipsMulti
+                label="Categorías"
+                permitePrincipal
+                maximo={5}
+                tema="emerald"
+                selecciones={categoriasSel}
+                items={categoriasActivas.map(c => ({
+                  id: c.id,
+                  codigo: (c as any).codigo,
+                  nombre: c.nombre,
+                }))}
+                onChange={setCategoriasSel}
+                onCrearNuevo={async (nombre) => {
+                  if (!user) return null;
+                  try {
+                    const nueva = await createCategoria(
+                      {
+                        nombre,
+                      } as any,
+                      user.uid,
+                    );
+                    return nueva.id;
+                  } catch (err) {
+                    console.error('[WizardSimple] error al crear categoría', err);
+                    return null;
+                  }
+                }}
+                helperText="Áreas de salud · max 5 · click en chip para hacerla principal"
+              />
+
+              {/* GAP-040 · Etiquetas · MaestroChipsMulti tema amber */}
+              <MaestroChipsMulti
+                label="Etiquetas"
+                tema="amber"
+                selecciones={etiquetasSel}
+                items={etiquetasActivas.map(e => ({
+                  id: e.id,
+                  codigo: (e as any).codigo,
+                  nombre: e.nombre,
+                }))}
+                onChange={setEtiquetasSel}
+                onCrearNuevo={async (nombre) => {
+                  if (!user) return null;
+                  try {
+                    const nueva = await createEtiqueta(
+                      {
+                        nombre,
+                      } as any,
+                      user.uid,
+                    );
+                    return nueva.id;
+                  } catch (err) {
+                    console.error('[WizardSimple] error al crear etiqueta', err);
+                    return null;
+                  }
+                }}
+                helperText="Tags marketing flexibles · ej: vegano, sin-gluten, best-seller"
+              />
             </div>
           </SeccionColapsable>
 
