@@ -73,7 +73,8 @@ export const HeaderV2: React.FC<HeaderV2Props> = ({
   return (
     <div className="flex items-start justify-between gap-3 flex-wrap mb-5">
       {/* Lado izquierdo · breadcrumb + título · IGUAL en mobile/desktop */}
-      <div className="flex-1 min-w-0">
+      {/* min-w-[260px] evita que el subtítulo se comprima palabra por palabra cuando los botones de la derecha llenan el ancho · si no cabe todo, el padre flex-wrap envuelve los botones a una nueva fila. */}
+      <div className="flex-1 min-w-[260px]">
         <div className="flex items-center gap-1.5 text-xs text-slate-400 mb-1">
           <span className="hover:text-teal-600 transition-colors cursor-pointer">Catálogo</span>
           <ChevronRight className="w-2.5 h-2.5 lg:w-3 lg:h-3" />

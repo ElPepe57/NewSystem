@@ -1,4 +1,4 @@
-import { doc, runTransaction, setDoc } from 'firebase/firestore';
+import { doc, runTransaction, setDoc, collection, getDocs, query, where } from 'firebase/firestore';
 import { db } from './firebase';
 
 /**
@@ -21,12 +21,40 @@ export async function getNextSequenceNumber(
 ): Promise<string> {
   const counterRef = doc(db, 'contadores', prefix);
 
+  // S3.4 (2026-05-04) · DEUDA-SKU-001 · Defensiva contra contadores no inicializados.
+  // Si el contador no existe Y hay productos legacy con ese prefijo, escaneamos
+  // para arrancar desde el max real (en vez de desde 0). Solo escanea para los
+  // prefijos de productos (SUP/SKC/APPAREL/ALIM) · prefijos de ventas/gastos
+  // siguen el comportamiento original (no escanean).
+  let baselineFromLegacy = 0;
+  const esPrefijoProducto = ['SUP', 'SKC', 'APPAREL', 'ALIM', 'BMN'].includes(prefix);
+  if (esPrefijoProducto) {
+    try {
+      // Verificación previa fuera de la transacción (las TX no aceptan queries).
+      const snap = await getDocs(query(collection(db, 'productos'), where('lineaCodigo', '==', prefix))).catch(() => null);
+      if (snap) {
+        let max = 0;
+        for (const d of snap.docs) {
+          const sku = (d.data() as { sku?: string }).sku;
+          const m = sku?.match(new RegExp(`^${prefix}-(\\d+)$`));
+          if (m) max = Math.max(max, parseInt(m[1], 10));
+        }
+        baselineFromLegacy = max;
+      }
+    } catch {
+      // Si falla por permisos o cualquier otra razón, comportamiento legacy (arrancar en 0).
+    }
+  }
+
   const nextNumber = await runTransaction(db, async (transaction) => {
     const counterDoc = await transaction.get(counterRef);
 
     let current = 0;
     if (counterDoc.exists()) {
       current = counterDoc.data().current || 0;
+    } else if (baselineFromLegacy > 0) {
+      // Contador no existe pero hay productos legacy → arrancar desde el max real.
+      current = baselineFromLegacy;
     }
 
     const next = current + 1;
@@ -54,6 +82,23 @@ export async function peekNextSequenceNumber(
   let current = 0;
   if (counterDoc.exists()) {
     current = counterDoc.data().current || 0;
+  } else {
+    // S3.4 · Mismo defensa que getNextSequenceNumber para coherencia del preview.
+    const esPrefijoProducto = ['SUP', 'SKC', 'APPAREL', 'ALIM', 'BMN'].includes(prefix);
+    if (esPrefijoProducto) {
+      try {
+        const snap = await getDocs(query(collection(db, 'productos'), where('lineaCodigo', '==', prefix))).catch(() => null);
+        if (snap) {
+          let max = 0;
+          for (const d of snap.docs) {
+            const sku = (d.data() as { sku?: string }).sku;
+            const m = sku?.match(new RegExp(`^${prefix}-(\\d+)$`));
+            if (m) max = Math.max(max, parseInt(m[1], 10));
+          }
+          current = max;
+        }
+      } catch { /* fallback 0 */ }
+    }
   }
 
   const next = current + 1;

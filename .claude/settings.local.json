@@ -295,7 +295,11 @@
       "Bash(echo \"---exit $?\")",
       "Bash(awk '/const envioColumns/,/^  \\\\];/{print NR\": \"$0}' /c/Users/josel/businessmn-v2/src/pages/Envios/Envios.tsx)",
       "Bash(taskkill //F //PID 37660)",
-      "Bash(GOOGLE_APPLICATION_CREDENTIALS=\"C:/Users/josel/AppData/Roaming/gcloud/application_default_credentials.json\" node scripts/reset-pf-001.mjs --dry-run --clean-refs)"
+      "Bash(GOOGLE_APPLICATION_CREDENTIALS=\"C:/Users/josel/AppData/Roaming/gcloud/application_default_credentials.json\" node scripts/reset-pf-001.mjs --dry-run --clean-refs)",
+      "Bash(echo \"Exit: $?\")",
+      "PowerShell(& npx --prefix functions tsc --noEmit -p functions 2>&1)",
+      "PowerShell($ErrorActionPreference = 'Continue')",
+      "Bash(echo \"EXIT $?\")"
     ],
     "deny": [],
     "ask": []

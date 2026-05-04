@@ -5,6 +5,7 @@ export { WizardSelector } from './WizardSelector';
 export type { TipoCreacion } from './WizardSelector';
 
 export { WizardSimple } from './WizardSimple';
+export { WizardProductoV2 } from './WizardProductoV2';
 
 export { WizardConVariantes } from './WizardConVariantes';
 export type { DatosComunes, VarianteEntry } from './WizardConVariantes';

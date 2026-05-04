@@ -165,7 +165,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
             </div>
           </div>
 
-          <!-- ════ Sección 3 · ATRIBUTOS SKC con 1 modificación ════ -->
+          <!-- ════ Sección 3 · ATRIBUTOS SKC con 1 modificación · era Sec.4 · ahora Sec.3 ════ -->
           <div class="border-2 border-amber-400 rounded-xl overflow-hidden">
             <div class="px-4 py-3 bg-amber-50 flex items-center gap-2.5">
               <span class="section-num modificada"><i data-lucide="pencil" class="w-3 h-3"></i></span>
@@ -203,13 +203,13 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
               <div class="rounded-lg bg-slate-50 border border-slate-200 px-3 py-2 flex items-center gap-2">
                 <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-slate-500"></i>
                 <div class="text-[10px] text-slate-600 flex-1">
-                  Sin cambios: Tipo SKC (Sérum) · Volumen (30ml) · Línea de marca (C E Ferulic) · Tipo piel (Mixta+Grasa) · Preocupaciones (3) · Paso rutina (Sérum) · Textura (Aceite) · Zona (Rostro)
+                  Sin cambios: Tipo SKC (Sérum) · Línea de marca (C E Ferulic) · Tipo piel (Mixta+Grasa) · Preocupaciones (3) · Paso rutina (Sérum) · Textura (Aceite) · Zona (Rostro)
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- ════ Sección 4 · CLASIFICACIÓN sin modificaciones ════ -->
+          <!-- ════ Sección 4 · CLASIFICACIÓN sin modificaciones · era Sec.5 · ahora Sec.4 ════ -->
           <div class="border border-slate-200 rounded-xl overflow-hidden">
             <div class="px-4 py-3 bg-slate-50 flex items-center gap-2.5 cursor-pointer">
               <span class="section-num">4</span>
@@ -219,6 +219,82 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
               </div>
               <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400"></i>
             </div>
+          </div>
+
+          <!-- ════ Sección 5 · LOGÍSTICA · era Sec.6 · ahora Sec.5 · expandida con peso editable ════ -->
+          <div class="border border-blue-200 rounded-xl overflow-hidden">
+            <div class="px-4 py-3 bg-blue-50/60 flex items-center gap-2.5">
+              <span class="section-num" style="background:#dbeafe; color:#1d4ed8">5</span>
+              <div class="flex-1 min-w-0">
+                <div class="text-sm font-bold text-slate-900 flex items-center gap-2">
+                  Logística
+                  <span class="px-1.5 py-0.5 rounded bg-blue-100 text-blue-800 text-[9px] font-bold flex items-center gap-1">
+                    <i data-lucide="truck" class="w-2.5 h-2.5"></i>FÍSICO
+                  </span>
+                  <span class="px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 text-[9px] font-bold border border-emerald-200">NUEVA · S3.2</span>
+                </div>
+                <div class="text-[10px] text-blue-700 mt-0.5">Peso unitario · usado por tramos peso (D-11), packing list, cotización despacho</div>
+              </div>
+              <i data-lucide="chevron-up" class="w-4 h-4 text-blue-700"></i>
+            </div>
+
+            <div class="p-4 space-y-2.5 bg-white">
+              <!-- Peso unitario · editable -->
+              <div>
+                <label class="block text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1">Peso unitario</label>
+                <div class="grid grid-cols-3 gap-2">
+                  <div class="col-span-2 flex items-center gap-2">
+                    <input type="number" step="0.01" value="0.18" class="flex-1 px-3 py-2 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-blue-400">
+                    <select class="px-2 py-2 border border-slate-200 rounded-lg text-xs">
+                      <option>lb</option>
+                      <option>kg</option>
+                      <option>oz</option>
+                      <option>g</option>
+                    </select>
+                  </div>
+                  <div class="flex items-center text-[10px] text-slate-500 italic">
+                    ≈ <span class="tabular text-slate-700 font-medium ml-1">0.082 kg</span> · 30ml frasco
+                  </div>
+                </div>
+                <div class="mt-1 text-[9px] text-slate-500 italic flex items-center gap-1">
+                  <i data-lucide="info" class="w-2.5 h-2.5"></i>Si el colaborador transportista tiene tabla de tramos peso (D-11), este valor decide el tramo aplicado en el despacho.
+                </div>
+              </div>
+
+              <!-- Dimensiones · futuro -->
+              <div class="rounded-lg bg-slate-50 border border-dashed border-slate-300 px-3 py-2">
+                <div class="flex items-center gap-2">
+                  <i data-lucide="box" class="w-3 h-3 text-slate-500"></i>
+                  <span class="text-[10px] text-slate-600">Dimensiones (alto/ancho/profundidad cm) · disponibles en sub-fase de cubicaje</span>
+                </div>
+              </div>
+
+              <!-- Eliminado costo flete -->
+              <div class="rounded-lg bg-rose-50 border border-rose-200 px-3 py-2 flex items-start gap-2">
+                <i data-lucide="trash-2" class="w-3 h-3 text-rose-700 flex-shrink-0 mt-0.5"></i>
+                <div class="text-[10px] text-rose-900 flex-1">
+                  <strong>Costo flete intl. (USD)</strong> eliminado del maestro · ahora se calcula dinámico por envío/OC según ruta, modalidad y peso.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ════ Sección 6 · MARKETING COMERCIAL · era Sec.3 · MOVIDO al final · colapsada ════ -->
+          <div class="border-2 border-purple-200 rounded-xl overflow-hidden">
+            <button class="w-full flex items-center gap-2.5 px-4 py-3 bg-purple-50/40 hover:bg-purple-50 text-left">
+              <span class="section-num" style="background:#f3e8ff; color:#7e22ce">6</span>
+              <div class="flex-1 min-w-0">
+                <div class="text-sm font-bold text-slate-900 flex items-center gap-2">
+                  Marketing comercial
+                  <span class="px-1.5 py-0.5 rounded bg-purple-100 text-purple-800 text-[9px] font-bold border border-purple-300 flex items-center gap-1">
+                    <i data-lucide="sparkles" class="w-2.5 h-2.5"></i>3 NIVELES + IA
+                  </span>
+                  <span class="px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 text-[9px] font-bold border border-emerald-200">NUEVA · S3.2</span>
+                </div>
+                <div class="text-[10px] text-slate-500 mt-0.5">Frase gancho · 5 beneficios · descripción · <span class="text-emerald-700 font-bold">fuente IA · 12 abr 2026</span> · regenerable si modificás atributos arriba</div>
+              </div>
+              <i data-lucide="chevron-down" class="w-4 h-4 text-purple-400 flex-shrink-0"></i>
+            </button>
           </div>
 
           <!-- INFO · Stock + Pricing viven en otros módulos -->
@@ -472,6 +548,184 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
         <div class="border-t border-slate-200 bg-slate-50 px-4 py-2 flex items-center justify-between">
           <div class="text-[10px] text-slate-500">Histórico inmutable · audit-log</div>
           <button class="text-[10px] font-bold text-teal-700 hover:underline">Exportar CSV</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- ESTADO D · EDITOR SUP · Sec.2 sin Presentación + Sec.3 chip duración (S3.4) -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <div>
+    <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-2">Estado D · Editar producto SUPLEMENTO · Sec.2 con 7 atributos (sin Presentación · vive en unidad de Sec.3) + Sec.3 expandida con chip Duración auto · S3.4</div>
+
+    <div class="parent-hint">
+      <div class="bg-white rounded-2xl shadow-2xl overflow-hidden border border-slate-200 max-w-2xl mx-auto">
+        <!-- HEADER -->
+        <div class="bg-gradient-to-br from-indigo-50 to-white border-b border-slate-200 px-5 py-3.5">
+          <div class="flex items-start justify-between gap-3">
+            <div class="flex items-start gap-2.5 min-w-0">
+              <div class="w-10 h-10 rounded-xl bg-indigo-100 flex items-center justify-center flex-shrink-0">
+                <i data-lucide="pill" class="w-5 h-5 text-indigo-700"></i>
+              </div>
+              <div class="min-w-0">
+                <div class="text-[10px] text-slate-500 flex items-center gap-1 mb-0.5">
+                  <span>Inventario</span>
+                  <i data-lucide="chevron-right" class="w-3 h-3"></i>
+                  <span>Productos</span>
+                  <i data-lucide="chevron-right" class="w-3 h-3"></i>
+                  <span class="text-slate-700 font-medium">Editar · Suplemento</span>
+                </div>
+                <h2 class="text-base font-bold text-slate-900">Vitamin D3 + K2 5000 IU</h2>
+                <p class="text-[10px] text-slate-500 mt-0.5">NOW Foods · <span class="font-mono text-emerald-700 font-bold">SUP-0142</span> · 60 cápsulas</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-1">
+              <button class="p-1.5 hover:bg-slate-100 rounded-md text-slate-500" title="Historial"><i data-lucide="history" class="w-4 h-4"></i></button>
+              <button class="p-1.5 hover:bg-slate-100 rounded-md text-slate-500"><i data-lucide="x" class="w-4 h-4"></i></button>
+            </div>
+          </div>
+        </div>
+
+        <div class="p-5 space-y-3 max-h-[640px] overflow-y-auto">
+
+          <!-- Sec.1 Identidad colapsada read-only -->
+          <div class="border border-slate-200 rounded-xl px-4 py-3 bg-slate-50 flex items-center gap-2.5">
+            <span class="section-num"><i data-lucide="lock" class="w-3 h-3"></i></span>
+            <div class="flex-1 min-w-0">
+              <div class="text-sm font-bold text-slate-700">Identidad</div>
+              <div class="text-[10px] text-slate-500">Suplementos · USA · NOW Foods · Vitamin D3 + K2 5000 IU · <span class="text-slate-400 italic">immutables</span></div>
+            </div>
+            <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400"></i>
+          </div>
+
+          <!-- ════ Sección 2 · ATRIBUTOS SUP · 7 atributos · sin Presentación · S3.4 ════ -->
+          <div class="border-2 border-indigo-300 rounded-xl overflow-hidden">
+            <div class="px-4 py-3 bg-indigo-50 flex items-center gap-2.5">
+              <span class="section-num active" style="background:#6366f1">2</span>
+              <div class="flex-1">
+                <div class="text-sm font-bold text-slate-900 flex items-center gap-2">
+                  Atributos Suplementos
+                  <span class="px-1.5 py-0.5 rounded bg-indigo-600 text-white text-[9px] font-bold flex items-center gap-1"><i data-lucide="pill" class="w-2.5 h-2.5"></i>SUP · 7 atributos</span>
+                  <span class="px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 text-[9px] font-bold border border-emerald-200">S3.4</span>
+                </div>
+                <div class="text-[10px] text-indigo-700 mt-0.5">Sin Presentación · la unidad del Contenido neto en Sec.3 ya define cápsulas/tabletas/polvo</div>
+              </div>
+              <i data-lucide="chevron-up" class="w-4 h-4 text-indigo-700"></i>
+            </div>
+            <div class="p-4 space-y-3 bg-white">
+              <!-- Servings/día con preview duración -->
+              <div class="rounded-lg bg-emerald-50 border border-emerald-200 p-3">
+                <div class="grid grid-cols-2 gap-3 items-end">
+                  <div>
+                    <label class="block text-[10px] uppercase tracking-wider text-emerald-800 font-bold mb-1.5 flex items-center gap-1.5">
+                      <i data-lucide="calendar-clock" class="w-3 h-3"></i>Servings/día
+                    </label>
+                    <input type="number" value="2" class="w-full px-3 py-2 border border-emerald-300 rounded-lg text-xs bg-white tabular">
+                  </div>
+                  <div class="text-[10px]">
+                    <div class="text-emerald-800 font-bold uppercase tracking-wider mb-0.5">Duración auto</div>
+                    <div class="text-emerald-900 leading-tight">
+                      <span class="text-base font-bold tabular">≈ 30 días</span><br>
+                      <span class="text-[9px] text-emerald-700">60 cáps ÷ 2/día</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!-- Preview compacto resto de atributos -->
+              <div class="grid grid-cols-2 gap-2 text-[10px] text-slate-600 border border-slate-200 rounded-lg bg-slate-50 p-2.5">
+                <div><strong class="text-slate-500 uppercase tracking-wider">Sabor:</strong> Sin sabor</div>
+                <div><strong class="text-slate-500 uppercase tracking-wider">Dosaje:</strong> 5000 IU D3 + 100 mcg K2</div>
+                <div><strong class="text-slate-500 uppercase tracking-wider">Restricciones:</strong> Vegano · Sin gluten</div>
+                <div><strong class="text-slate-500 uppercase tracking-wider">Momento día:</strong> Mañana</div>
+                <div><strong class="text-slate-500 uppercase tracking-wider">Comida:</strong> Con</div>
+                <div><strong class="text-slate-500 uppercase tracking-wider">Edad:</strong> Adultos</div>
+                <div class="col-span-2"><strong class="text-slate-500 uppercase tracking-wider">Advertencias:</strong> Embarazadas consultar</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ════ Sección 3 · IDENTIFICADORES expandida con CHIP DURACIÓN · S3.4 ════ -->
+          <div class="border-2 border-emerald-300 rounded-xl overflow-hidden">
+            <div class="px-4 py-3 bg-emerald-50 flex items-center gap-2.5">
+              <span class="section-num active" style="background:#059669">3</span>
+              <div class="flex-1">
+                <div class="text-sm font-bold text-slate-900 flex items-center gap-2">
+                  Identificadores comerciales
+                  <span class="px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 text-[9px] font-bold border border-emerald-200 flex items-center gap-1"><i data-lucide="sparkles" class="w-2.5 h-2.5"></i>CHIP DURACIÓN</span>
+                </div>
+                <div class="text-[10px] text-emerald-700 mt-0.5">UPC + Contenido neto + Duración auto · cross-línea</div>
+              </div>
+              <i data-lucide="chevron-up" class="w-4 h-4 text-emerald-700"></i>
+            </div>
+            <div class="p-4 space-y-3 bg-white">
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <label class="block text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1.5">Código UPC</label>
+                  <input type="text" value="033984041417" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs font-mono">
+                </div>
+                <div>
+                  <label class="block text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1.5">Contenido neto del envase</label>
+                  <div class="flex items-center gap-1.5">
+                    <input type="number" value="60" class="flex-1 px-3 py-2 border border-slate-200 rounded-lg text-xs tabular">
+                    <select class="px-2 py-2 border border-slate-200 rounded-lg text-xs"><option>cápsulas</option><option>tabletas</option><option>gomitas</option><option>sobres</option><option>scoops</option><option>g</option><option>ml</option><option>lb</option></select>
+                  </div>
+                  <div class="mt-1 text-[9px] text-slate-500 italic">Unidades SUP: cápsulas · tabletas · gomitas · sobres · scoops · g · ml · lb</div>
+                </div>
+              </div>
+              <!-- CHIP DURACIÓN -->
+              <div class="rounded-lg bg-emerald-50 border border-emerald-300 p-3 flex items-center gap-3">
+                <div class="w-9 h-9 rounded-lg bg-emerald-600 text-white flex items-center justify-center flex-shrink-0">
+                  <i data-lucide="calendar-clock" class="w-4 h-4"></i>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="text-[10px] uppercase tracking-wider text-emerald-800 font-bold">Duración del envase</div>
+                  <div class="text-base font-bold text-emerald-900 tabular">≈ 30 días</div>
+                  <div class="text-[9px] text-emerald-700 mt-0.5">60 cápsulas ÷ 2 servings/día · ciclo de recompra estimado</div>
+                </div>
+                <div class="text-[9px] px-2 py-0.5 rounded-full bg-emerald-200 text-emerald-900 font-bold flex items-center gap-1"><i data-lucide="zap" class="w-2.5 h-2.5"></i>auto</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sec.4 + Sec.5 colapsadas -->
+          <div class="border border-slate-200 rounded-xl px-4 py-3 bg-slate-50 flex items-center gap-2.5">
+            <span class="section-num">4</span>
+            <div class="flex-1 text-sm font-bold text-slate-700">Clasificación</div>
+            <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400"></i>
+          </div>
+          <div class="border border-slate-200 rounded-xl px-4 py-3 bg-slate-50 flex items-center gap-2.5">
+            <span class="section-num">5</span>
+            <div class="flex-1 min-w-0">
+              <div class="text-sm font-bold text-slate-700">Logística <span class="text-[9px] text-slate-400 normal-case font-normal">(opcional)</span></div>
+              <div class="text-[10px] text-slate-500">Peso unitario · 0.21 lb · ≈ 0.095 kg</div>
+            </div>
+            <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400"></i>
+          </div>
+
+          <!-- Sec.6 Marketing colapsada con audit -->
+          <div class="border-2 border-purple-200 rounded-xl px-4 py-3 bg-purple-50/40 flex items-center gap-2.5">
+            <span class="section-num" style="background:#f3e8ff; color:#7e22ce">6</span>
+            <div class="flex-1 min-w-0">
+              <div class="text-sm font-bold text-slate-900 flex items-center gap-2">
+                Marketing comercial
+                <span class="px-1.5 py-0.5 rounded bg-purple-100 text-purple-800 text-[9px] font-bold flex items-center gap-1"><i data-lucide="sparkles" class="w-2.5 h-2.5"></i>fuente IA</span>
+              </div>
+              <div class="text-[10px] text-slate-500 mt-0.5">Generado: 12 abr 2026 · Tagline + 4 beneficios + descripción · disclaimer DIGEMID auto</div>
+            </div>
+            <i data-lucide="chevron-down" class="w-4 h-4 text-purple-400"></i>
+          </div>
+        </div>
+
+        <!-- FOOTER -->
+        <div class="border-t border-slate-200 bg-slate-50 px-5 py-3 flex items-center justify-between gap-3">
+          <div class="flex items-center gap-2 text-[10px] text-emerald-700">
+            <i data-lucide="check-circle-2" class="w-3 h-3"></i>
+            <span>Sin cambios pendientes</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <button class="px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-100 rounded-lg">Cerrar</button>
+          </div>
         </div>
       </div>
     </div>

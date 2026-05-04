@@ -73,6 +73,11 @@ export {
 // ============================================================
 export { geocodificaCoordenadasVenta } from "./geocoding.functions";
 
+// ============================================================
+// PRODUCTOS — Marketing IA (S3.2 · DEUDA-IA-001)
+// ============================================================
+export { generarDescripcionProducto } from "./productos/generarDescripcionProducto";
+
 const db = admin.firestore();
 
 // ============================================================

@@ -60,6 +60,37 @@ Las empresas de referencia (Stripe, Linear, Mercury, Notion, Vercel) comparten 5
 
 **Anti-pattern:** PageHeader legacy con gradient.
 
+#### F1.1 · Layout defensivo en `flex-wrap` con acciones (S3.3 · 2026-05-03)
+
+**REGLA OBLIGATORIA:** en cualquier header / fila con estructura `[contenido + acciones]` que use `flex-wrap`, el contenedor del CONTENIDO debe usar **`flex-1 min-w-[260px]`** (no `min-w-0`).
+
+**Patrón canónico:**
+```jsx
+<div className="flex items-start justify-between gap-3 flex-wrap mb-5">
+  <div className="flex-1 min-w-[260px]">  {/* ✅ ancho mínimo defensivo */}
+    {/* breadcrumb + h1 + subtítulo */}
+  </div>
+  <div className="flex items-center gap-2 flex-wrap flex-shrink-0">
+    {/* acciones */}
+  </div>
+</div>
+```
+
+**Por qué `min-w-[260px]` y no `min-w-0`:**
+- Con `min-w-0`, el contenedor de contenido puede colapsar hasta su `min-content` (la palabra más larga del subtítulo).
+- Cuando los siblings de acciones tienen `flex-shrink-0` (no se comprimen), el contenido es lo único que cede ancho cuando el viewport es estrecho.
+- Resultado del bug: el subtítulo (`max-w-2xl` = 672px) se comprime a ~110px y rendea palabra por palabra en columna apilada (ej. "Catálogo / maestro / qué / vendemos / cómo / ..."), 15 líneas de altura.
+- `min-w-[260px]` fuerza al padre `flex-wrap` a envolver las acciones en una nueva fila cuando no hay 260px disponibles, en lugar de comprimir el subtítulo.
+- 260px ≈ ancho de 1 columna de KPI strip (F2) y caben las 4-5 palabras más largas en 2 líneas como mucho.
+
+**Cuándo se manifiesta el bug:** viewport útil <1100px (DevTools abierto, sidebar interno + navegación, tablets en landscape angosto).
+
+**Anti-pattern:** `flex-1 min-w-0` en el lado de contenido cuando los siblings tienen `flex-shrink-0`. Genera el "subtítulo apilado palabra por palabra" cuando el viewport se estrecha.
+
+**Aplica a:** TODOS los headers de página (HeaderV2 productos, headers de Stock/Ventas/Compras/Envíos/Tesorería/Finanzas/etc.) y a cualquier fila `[contenido + acciones]` con `flex-wrap`.
+
+**Origen del descubrimiento:** S3.3 implementación del wizard producto V2 — usuario reportó el subtítulo apilado en `/productos`. Fix aplicado a `src/pages/Productos/components/shell/HeaderV2.tsx`.
+
 ---
 
 ### F2 · KPI strip

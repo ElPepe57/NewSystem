@@ -2,19 +2,27 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>17 · Wizard crear simple · pixel-perfect</title>
+<title>17 · Wizard crear simple · pixel-perfect · v3 (S3.2 + Marketing IA)</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
 <style>
-body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: rgba(15, 23, 42, 0.5); font-variant-numeric: tabular-nums; padding: 60px 20px 40px; min-height: 100vh; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f1f5f9; font-variant-numeric: tabular-nums; padding: 60px 20px 40px; }
 .tabular { font-variant-numeric: tabular-nums; }
-.context-frame { position: fixed; top: 12px; left: 50%; transform: translateX(-50%); background: white; border: 2px solid #d8b4fe; border-radius: 12px; padding: 8px 16px; z-index: 100; box-shadow: 0 4px 20px rgba(0,0,0,0.08); display: flex; align-items: center; gap: 12px; min-width: 580px; }
-.context-icon { width: 32px; height: 32px; border-radius: 8px; background: #faf5ff; color: #581c87; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+.context-frame { position: fixed; top: 12px; left: 50%; transform: translateX(-50%); background: white; border: 2px solid #5eead4; border-radius: 12px; padding: 8px 16px; z-index: 100; box-shadow: 0 4px 20px rgba(0,0,0,0.08); display: flex; align-items: center; gap: 12px; min-width: 580px; }
+.context-icon { width: 32px; height: 32px; border-radius: 8px; background: #f0fdfa; color: #0f766e; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
 .context-info { flex: 1; min-width: 0; }
-.context-type { font-size: 9px; text-transform: uppercase; letter-spacing: 0.05em; color: #581c87; font-weight: 700; }
+.context-type { font-size: 9px; text-transform: uppercase; letter-spacing: 0.05em; color: #0f766e; font-weight: 700; }
 .context-title { font-size: 12px; font-weight: 700; color: #0f172a; }
 .context-meta { font-size: 10px; color: #64748b; margin-top: 1px; }
 .context-id { font-family: ui-monospace, monospace; font-size: 9px; background: #f1f5f9; color: #475569; padding: 2px 6px; border-radius: 4px; flex-shrink: 0; }
+.section-num { width: 22px; height: 22px; border-radius: 999px; background: #f1f5f9; color: #475569; font-size: 11px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.section-num.active { background: #14b8a6; color: white; }
+.section-num.complete { background: #10b981; color: white; }
+.parent-hint { background: linear-gradient(135deg, #fafafa 0%, #f1f5f9 100%); border: 1px solid #e2e8f0; border-radius: 16px; padding: 18px; opacity: 0.92; }
+.badge-cerrado { font-size: 9px; padding: 2px 6px; border-radius: 999px; font-weight: 700; background: #ede9fe; color: #5b21b6; border: 1px solid #c4b5fd; display: inline-flex; align-items: center; gap: 3px; }
+.badge-creable { font-size: 9px; padding: 2px 6px; border-radius: 999px; font-weight: 700; background: #fef3c7; color: #92400e; border: 1px solid #fcd34d; display: inline-flex; align-items: center; gap: 3px; }
+.badge-text { font-size: 9px; padding: 2px 6px; border-radius: 999px; font-weight: 700; background: #e0e7ff; color: #4338ca; border: 1px solid #a5b4fc; display: inline-flex; align-items: center; gap: 3px; }
+.badge-ia { font-size: 9px; padding: 2px 6px; border-radius: 999px; font-weight: 700; background: linear-gradient(135deg, #f3e8ff 0%, #fce7f3 100%); color: #7e22ce; border: 1px solid #d8b4fe; display: inline-flex; align-items: center; gap: 3px; }
 </style>
 </head>
 <body>
@@ -22,126 +30,1118 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 <div class="context-frame">
   <div class="context-icon">🪟</div>
   <div class="context-info">
-    <div class="context-type">Modal centrado · Wizard F5 variante D · 1 paso</div>
-    <div class="context-title">Wizard Crear PRODUCTO ÚNICO · Form simple con secciones colapsables</div>
-    <div class="context-meta">Trigger: selector #16 → "Producto único" · Sin pasos · Todo en 1 modal · Secciones acordeón (4 secciones) · Cierre: Cancelar / Guardar / X</div>
+    <div class="context-type">Modal centrado · Wizard F5(D) · 1 paso · 6 secciones · v3 + Marketing IA</div>
+    <div class="context-title">Wizard Crear PRODUCTO ÚNICO · estructura canónica unificada con Editor #40</div>
+    <div class="context-meta">6 secciones: 1=Identidad · 2=Atributos · 3=Identificadores · 4=Clasificación · 5=Logística · 6=Marketing IA (al final · requiere todo lleno)</div>
   </div>
-  <div class="context-id">17-wizard-simple</div>
+  <div class="context-id">17-v3-marketing-ia</div>
 </div>
 
-<div class="max-w-3xl mx-auto bg-white rounded-2xl shadow-2xl overflow-hidden mt-6">
-  <!-- HEADER · gradient sutil F6.1 -->
-  <div class="bg-gradient-to-br from-slate-50 to-white border-b border-slate-200 px-6 py-4">
-    <div class="flex items-start justify-between">
+<div class="max-w-3xl mx-auto space-y-8 mt-6">
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- INTRO · 6 secciones                                                -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <div class="bg-white rounded-xl p-5 border-2 border-teal-200 shadow-sm">
+    <div class="flex items-start gap-3 mb-3">
+      <div class="w-10 h-10 rounded-xl bg-teal-100 flex items-center justify-center flex-shrink-0">
+        <i data-lucide="package" class="w-5 h-5 text-teal-700"></i>
+      </div>
+      <div>
+        <div class="text-[10px] uppercase tracking-wider text-teal-700 font-bold">Wizard #17 v3 · Crear producto único</div>
+        <h3 class="text-base font-bold text-slate-900">Reorden estructural · 6 secciones unificadas con Editor #40 · Marketing comercial con IA</h3>
+        <p class="text-xs text-slate-600 mt-1">Línea de negocio al top porque define los atributos. Stock y Costo flete salieron del wizard. Sabor/Presentación/Dosaje top-level eliminados. <strong>S3.4 · Sec.2 SUP pierde "Presentación" (la unidad del Contenido neto en Sec.3 ya lo dice) y Sec.3 gana chip vivo "Duración del envase ≈ N días" calculado desde Contenido + Servings/día.</strong> Nueva Sec.6 Marketing genera copy comercial con IA usando todos los datos del producto como input.</p>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2">
+      <div class="bg-teal-50 rounded-lg p-2.5 border border-teal-200">
+        <div class="text-[10px] uppercase tracking-wider text-teal-700 font-bold mb-1">1 · Identidad</div>
+        <div class="text-[10px] text-slate-700">SKU + Línea + País + Marca + Nombre</div>
+      </div>
+      <div class="bg-amber-50 rounded-lg p-2.5 border border-amber-200">
+        <div class="text-[10px] uppercase tracking-wider text-amber-700 font-bold mb-1">2 · Atributos línea</div>
+        <div class="text-[10px] text-slate-700">8 SKC o 7 SUP · presentación SUP movida a Sec.3</div>
+      </div>
+      <div class="bg-slate-50 rounded-lg p-2.5 border border-slate-200">
+        <div class="text-[10px] uppercase tracking-wider text-slate-600 font-bold mb-1">3 · Identificadores</div>
+        <div class="text-[10px] text-slate-700">UPC + Contenido neto + <strong class="text-emerald-700">Duración auto</strong></div>
+      </div>
+      <div class="bg-fuchsia-50 rounded-lg p-2.5 border border-fuchsia-200">
+        <div class="text-[10px] uppercase tracking-wider text-fuchsia-700 font-bold mb-1">4 · Clasificación</div>
+        <div class="text-[10px] text-slate-700">Tipo + Categorías + Etiquetas</div>
+      </div>
+      <div class="bg-blue-50 rounded-lg p-2.5 border border-blue-200">
+        <div class="text-[10px] uppercase tracking-wider text-blue-700 font-bold mb-1">5 · Logística</div>
+        <div class="text-[10px] text-slate-700">Peso unitario · dimensiones (futuro)</div>
+      </div>
+      <div class="bg-purple-50 rounded-lg p-2.5 border-2 border-purple-300 ring-2 ring-purple-100">
+        <div class="text-[10px] uppercase tracking-wider text-purple-700 font-bold mb-1 flex items-center gap-1">
+          <i data-lucide="sparkles" class="w-2.5 h-2.5"></i>6 · Marketing IA
+        </div>
+        <div class="text-[10px] text-slate-700">Frase gancho · Beneficios · Descripción · al final</div>
+      </div>
+    </div>
+
+    <!-- Eliminados -->
+    <div class="mt-3 rounded-lg bg-rose-50 border border-rose-200 p-2.5">
+      <div class="text-[10px] uppercase tracking-wider text-rose-700 font-bold mb-1 flex items-center gap-1">
+        <i data-lucide="trash-2" class="w-3 h-3"></i>Eliminado del wizard (vive en otros módulos o duplicaba)
+      </div>
+      <div class="grid grid-cols-2 md:grid-cols-3 gap-1.5 text-[10px] text-rose-900">
+        <div>• <strong>Costo flete intl. (USD)</strong> → viene de envíos/OC</div>
+        <div>• <strong>Stock min/max</strong> → módulo Stock</div>
+        <div>• <strong>Precio venta</strong> → Investigación de mercado</div>
+        <div>• <strong>Sabor</strong> top-level → vive en Atributos SUP</div>
+        <div>• <strong>Dosaje</strong> top-level → vive en Atributos SUP</div>
+        <div>• <strong>Volumen (atributo SKC)</strong> → unificado con Contenido neto en Sec.3</div>
+        <div class="col-span-2 md:col-span-3 mt-1 pt-1 border-t border-rose-200">• <strong>Presentación (atributo SUP)</strong> → reemplazado por la <strong>unidad del Contenido neto</strong> en Sec.3 · evita duplicar "cápsulas/tabletas/polvo" en dos lugares (S3.4)</div>
+      </div>
+    </div>
+
+    <!-- Marketing IA · highlight -->
+    <div class="mt-3 rounded-lg bg-gradient-to-br from-purple-50 to-indigo-50 border border-purple-200 p-3">
+      <div class="flex items-start gap-2">
+        <i data-lucide="sparkles" class="w-4 h-4 text-purple-700 flex-shrink-0 mt-0.5"></i>
+        <div class="flex-1 text-[10px]">
+          <div class="font-bold text-purple-900 mb-0.5">Marketing comercial · 3 niveles generados por IA (Gemini Flash 2.0 · gratis)</div>
+          <div class="text-purple-800 leading-relaxed">
+            <strong>Frase gancho</strong> (1 línea hook) · <strong>Beneficios</strong> (3-5 bullets escaneables) · <strong>Descripción</strong> (2-3 párrafos persuasivos). Generación basada en TODOS los datos del producto. Compliance DIGEMID/INDECOPI integrado en el prompt. Editable + auditoría por campo (ia / manual / mixto).
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- ESTADO A · Crear PRODUCTO SKINCARE · Sec.1 expandida              -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <div>
+    <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-2">Estado A · Crear producto SKINCARE · Sec.1 expandida (Identidad) · resto colapsadas con preview</div>
+
+    <div class="parent-hint">
+      <div class="bg-white rounded-2xl shadow-2xl overflow-hidden border border-slate-200">
+        <!-- HEADER -->
+        <div class="bg-gradient-to-br from-slate-50 to-white border-b border-slate-200 px-5 py-4">
+          <div class="flex items-start justify-between gap-3">
+            <div class="flex items-start gap-2.5 min-w-0">
+              <div class="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center flex-shrink-0">
+                <i data-lucide="droplets" class="w-5 h-5 text-amber-700"></i>
+              </div>
+              <div class="min-w-0">
+                <div class="text-[10px] text-slate-500 flex items-center gap-1 mb-0.5">
+                  <span>Inventario</span>
+                  <i data-lucide="chevron-right" class="w-3 h-3"></i>
+                  <span>Productos</span>
+                  <i data-lucide="chevron-right" class="w-3 h-3"></i>
+                  <span class="text-slate-700 font-medium">Nuevo · Skincare</span>
+                </div>
+                <h2 class="text-base font-bold text-slate-900">Crear producto único</h2>
+                <p class="text-[10px] text-slate-500 mt-0.5">Sin variantes · 1 SKU único · SKU sugerido <span class="font-mono text-emerald-700 font-bold">SKC-0212</span></p>
+              </div>
+            </div>
+            <button class="p-1.5 hover:bg-slate-100 rounded-md text-slate-500"><i data-lucide="x" class="w-4 h-4"></i></button>
+          </div>
+        </div>
+
+        <div class="p-5 space-y-3 max-h-[680px] overflow-y-auto">
+
+          <!-- Sec.1 expandida -->
+          <div class="border-2 border-teal-300 rounded-xl overflow-hidden">
+            <div class="px-4 py-3 bg-teal-50 flex items-center gap-2.5">
+              <span class="section-num active">1</span>
+              <div class="flex-1">
+                <div class="text-sm font-bold text-slate-900 flex items-center gap-2">
+                  Identidad
+                  <span class="px-1.5 py-0.5 rounded bg-teal-600 text-white text-[9px] font-bold">DEFINE EL FORMULARIO</span>
+                </div>
+                <div class="text-[10px] text-teal-700 mt-0.5">Línea + País + Marca son <strong>immutables post-creación</strong></div>
+              </div>
+              <i data-lucide="chevron-up" class="w-4 h-4 text-teal-700"></i>
+            </div>
+            <div class="p-4 space-y-3 bg-white">
+              <div>
+                <label class="block text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1.5 flex items-center justify-between">
+                  <span>Línea de negocio <span class="text-rose-500">*</span></span>
+                  <span class="badge-cerrado"><i data-lucide="lock" class="w-2.5 h-2.5"></i>CERRADO · 5 opciones</span>
+                </label>
+                <div class="grid grid-cols-5 gap-1.5">
+                  <button class="px-2 py-2.5 text-[10px] font-bold rounded-lg border-2 border-amber-400 bg-amber-100 text-amber-900 flex flex-col items-center gap-1"><i data-lucide="droplets" class="w-3.5 h-3.5"></i>Skincare</button>
+                  <button class="px-2 py-2.5 text-[10px] rounded-lg border border-slate-200 bg-white text-slate-700 flex flex-col items-center gap-1"><i data-lucide="pill" class="w-3.5 h-3.5 text-slate-500"></i>Suplementos</button>
+                  <button class="px-2 py-2.5 text-[10px] rounded-lg border border-slate-200 bg-white text-slate-700 flex flex-col items-center gap-1"><i data-lucide="shirt" class="w-3.5 h-3.5 text-slate-500"></i>Apparel</button>
+                  <button class="px-2 py-2.5 text-[10px] rounded-lg border border-slate-200 bg-white text-slate-700 flex flex-col items-center gap-1"><i data-lucide="utensils" class="w-3.5 h-3.5 text-slate-500"></i>Alimentos</button>
+                  <button class="px-2 py-2.5 text-[10px] rounded-lg border border-slate-200 bg-white text-slate-700 flex flex-col items-center gap-1"><i data-lucide="more-horizontal" class="w-3.5 h-3.5 text-slate-500"></i>Otros</button>
+                </div>
+              </div>
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <label class="block text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1.5">País origen <span class="text-rose-500">*</span></label>
+                  <select class="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs">
+                    <option>🇰🇷 Corea del Sur</option><option>🇺🇸 Estados Unidos</option><option>🇨🇳 China</option><option>🇫🇷 Francia</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1.5 flex items-center justify-between">
+                    <span>Marca <span class="text-rose-500">*</span></span>
+                    <span class="badge-creable"><i data-lucide="zap" class="w-2.5 h-2.5"></i>CREABLE</span>
+                  </label>
+                  <input type="text" value="Centellian24" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs">
+                </div>
+              </div>
+              <div>
+                <label class="block text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1.5">Nombre comercial <span class="text-rose-500">*</span></label>
+                <input type="text" value="Madeca Cream Time Reverse" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs">
+              </div>
+            </div>
+          </div>
+
+          <!-- Sec.2 colapsada · Atributos -->
+          <div class="border border-slate-200 rounded-xl overflow-hidden">
+            <button class="w-full flex items-center gap-2.5 px-4 py-3 bg-slate-50 hover:bg-slate-100 text-left">
+              <span class="section-num">2</span>
+              <div class="flex-1 min-w-0">
+                <div class="text-sm font-bold text-slate-900 flex items-center gap-2">
+                  Atributos por línea
+                  <span class="px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 text-[9px] font-bold flex items-center gap-1"><i data-lucide="droplets" class="w-2.5 h-2.5"></i>SKC · 8 atributos</span>
+                </div>
+                <div class="text-[10px] text-slate-500 mt-0.5 truncate">Tipo SKC · Ingrediente · Línea marca · Tipo piel · Preocupaciones · Paso rutina · Textura · Zona aplicación</div>
+              </div>
+              <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 flex-shrink-0"></i>
+            </button>
+          </div>
+
+          <!-- Sec.3 colapsada · Identificadores · era Sec.4 -->
+          <div class="border border-slate-200 rounded-xl overflow-hidden">
+            <button class="w-full flex items-center gap-2.5 px-4 py-3 bg-slate-50 hover:bg-slate-100 text-left">
+              <span class="section-num">3</span>
+              <div class="flex-1 min-w-0">
+                <div class="text-sm font-bold text-slate-900">Identificadores comerciales</div>
+                <div class="text-[10px] text-slate-500 mt-0.5">Código UPC · Contenido neto del envase · <span class="text-emerald-700 font-semibold">Duración auto (SUP)</span></div>
+              </div>
+              <span class="text-[9px] text-slate-400 italic">requerido para Sec.6</span>
+              <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 flex-shrink-0"></i>
+            </button>
+          </div>
+
+          <!-- Sec.4 colapsada · Clasificación · era Sec.5 -->
+          <div class="border border-slate-200 rounded-xl overflow-hidden">
+            <button class="w-full flex items-center gap-2.5 px-4 py-3 bg-slate-50 hover:bg-slate-100 text-left">
+              <span class="section-num">4</span>
+              <div class="flex-1 min-w-0">
+                <div class="text-sm font-bold text-slate-900 flex items-center gap-2">
+                  Clasificación
+                  <span class="badge-creable"><i data-lucide="zap" class="w-2.5 h-2.5"></i>CREABLES</span>
+                </div>
+                <div class="text-[10px] text-slate-500 mt-0.5">Tipo de producto · Categorías · Etiquetas</div>
+              </div>
+              <span class="text-[9px] text-slate-400 italic">requerido para Sec.6</span>
+              <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 flex-shrink-0"></i>
+            </button>
+          </div>
+
+          <!-- Sec.5 colapsada · Logística · era Sec.6 -->
+          <div class="border border-slate-200 rounded-xl overflow-hidden">
+            <button class="w-full flex items-center gap-2.5 px-4 py-3 bg-slate-50 hover:bg-slate-100 text-left">
+              <span class="section-num">5</span>
+              <div class="flex-1 min-w-0">
+                <div class="text-sm font-bold text-slate-900 flex items-center gap-2">
+                  Logística
+                  <span class="px-1.5 py-0.5 rounded bg-blue-100 text-blue-800 text-[9px] font-bold flex items-center gap-1"><i data-lucide="truck" class="w-2.5 h-2.5"></i>FÍSICO</span>
+                </div>
+                <div class="text-[10px] text-slate-500 mt-0.5">Peso unitario (lb) · dimensiones (futuro)</div>
+              </div>
+              <span class="text-[9px] text-slate-400 italic">requerido para Sec.6</span>
+              <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 flex-shrink-0"></i>
+            </button>
+          </div>
+
+          <!-- Sec.6 colapsada · Marketing comercial · era Sec.3 · MOVIDO al final · activación condicional -->
+          <div class="border-2 border-purple-200 rounded-xl overflow-hidden">
+            <button class="w-full flex items-center gap-2.5 px-4 py-3 bg-purple-50/40 hover:bg-purple-50 text-left">
+              <span class="section-num" style="background:#f3e8ff; color:#7e22ce">6</span>
+              <div class="flex-1 min-w-0">
+                <div class="text-sm font-bold text-slate-900 flex items-center gap-2">
+                  Marketing comercial
+                  <span class="badge-ia"><i data-lucide="sparkles" class="w-2.5 h-2.5"></i>3 NIVELES + IA</span>
+                  <span class="px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 text-[9px] font-bold flex items-center gap-1"><i data-lucide="lock" class="w-2.5 h-2.5"></i>ESPERA SEC.1-5</span>
+                </div>
+                <div class="text-[10px] text-slate-500 mt-0.5">Botón "Generar IA" se habilita cuando las 5 secciones anteriores están completas · usa TODA la data como input</div>
+              </div>
+              <span class="text-[9px] text-emerald-600 italic font-bold">★ último paso</span>
+              <i data-lucide="chevron-down" class="w-4 h-4 text-purple-400 flex-shrink-0"></i>
+            </button>
+          </div>
+
+          <!-- INFO -->
+          <div class="rounded-xl border border-blue-200 bg-blue-50/40 p-3">
+            <div class="flex items-start gap-2">
+              <div class="w-7 h-7 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0"><i data-lucide="info" class="w-4 h-4 text-blue-700"></i></div>
+              <div class="flex-1">
+                <div class="text-[11px] font-bold text-blue-900">Stock, precio venta y costo NO se llenan acá</div>
+                <div class="text-[10px] text-blue-800 mt-0.5">Requieren información REAL que recién existe DESPUÉS de crear el producto · viven en módulos operativos.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="border-t border-slate-200 bg-slate-50 px-5 py-3 flex items-center justify-between gap-3">
+          <div class="flex items-center gap-2 text-[10px] text-slate-500">
+            <i data-lucide="check-circle-2" class="w-3 h-3 text-emerald-500"></i>
+            <span>Auto-guardado: hace 2 segundos</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <button class="px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-100 rounded-lg">Cancelar</button>
+            <button class="px-4 py-1.5 text-xs font-bold text-white bg-teal-600 hover:bg-teal-700 rounded-lg flex items-center gap-1.5 shadow-sm">
+              <i data-lucide="check" class="w-3.5 h-3.5"></i>Crear producto
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- ESTADO B · Crear PRODUCTO SUPLEMENTO · Sec.2 expandida            -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <div>
+    <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-2">Estado B · Crear producto SUPLEMENTO · Sec.2 expandida con 7 atributos (sin Presentación) · resto colapsadas · Sec.3 muestra preview de chip duración</div>
+
+    <div class="parent-hint">
+      <div class="bg-white rounded-2xl shadow-2xl overflow-hidden border border-slate-200">
+        <div class="bg-gradient-to-br from-slate-50 to-white border-b border-slate-200 px-5 py-4">
+          <div class="flex items-start justify-between gap-3">
+            <div class="flex items-start gap-2.5 min-w-0">
+              <div class="w-10 h-10 rounded-xl bg-indigo-100 flex items-center justify-center flex-shrink-0">
+                <i data-lucide="pill" class="w-5 h-5 text-indigo-700"></i>
+              </div>
+              <div class="min-w-0">
+                <div class="text-[10px] text-slate-500 flex items-center gap-1 mb-0.5">
+                  <span>Inventario</span>
+                  <i data-lucide="chevron-right" class="w-3 h-3"></i>
+                  <span>Productos</span>
+                  <i data-lucide="chevron-right" class="w-3 h-3"></i>
+                  <span class="text-slate-700 font-medium">Nuevo · Suplemento</span>
+                </div>
+                <h2 class="text-base font-bold text-slate-900">Crear producto único</h2>
+                <p class="text-[10px] text-slate-500 mt-0.5">SKU sugerido <span class="font-mono text-emerald-700 font-bold">SUP-0142</span></p>
+              </div>
+            </div>
+            <button class="p-1.5 hover:bg-slate-100 rounded-md text-slate-500"><i data-lucide="x" class="w-4 h-4"></i></button>
+          </div>
+        </div>
+
+        <div class="p-5 space-y-3 max-h-[680px] overflow-y-auto">
+
+          <div class="border border-slate-200 rounded-xl px-4 py-2.5 bg-slate-50 flex items-center gap-2.5 text-[11px]">
+            <span class="section-num complete"><i data-lucide="check" class="w-3 h-3"></i></span>
+            <div class="flex-1"><strong>Identidad:</strong> Suplementos · USA · NOW Foods · Vitamin D3 + K2 5000 IU</div>
+            <button class="text-[10px] text-teal-700 font-bold hover:underline">Editar</button>
+          </div>
+
+          <!-- Sec.2 SUP expandida (compacta) · S3.4 sin Presentación -->
+          <div class="border-2 border-indigo-400 rounded-xl overflow-hidden">
+            <div class="px-4 py-3 bg-indigo-50 flex items-center gap-2.5">
+              <span class="section-num active" style="background:#6366f1">2</span>
+              <div class="flex-1">
+                <div class="text-sm font-bold text-slate-900 flex items-center gap-2">
+                  Atributos por línea
+                  <span class="px-1.5 py-0.5 rounded bg-indigo-600 text-white text-[9px] font-bold flex items-center gap-1"><i data-lucide="pill" class="w-2.5 h-2.5"></i>SUP · 7 atributos</span>
+                </div>
+                <div class="text-[10px] text-indigo-700 mt-0.5">Servings/día + Sabor + Dosaje + Restricciones + Momento día + Comida + Edad + Advertencias · <strong>presentación se infiere de la unidad en Sec.3</strong></div>
+              </div>
+              <i data-lucide="chevron-up" class="w-4 h-4 text-indigo-700"></i>
+            </div>
+            <div class="p-4 space-y-3 bg-white">
+              <!-- Servings/día con preview de duración (auto-cálculo cuando hay contenido en Sec.3) -->
+              <div class="rounded-lg bg-emerald-50 border border-emerald-200 p-3">
+                <div class="grid grid-cols-2 gap-3 items-end">
+                  <div>
+                    <label class="block text-[10px] uppercase tracking-wider text-emerald-800 font-bold mb-1.5 flex items-center gap-1.5">
+                      <i data-lucide="calendar-clock" class="w-3 h-3"></i>Servings/día <span class="text-rose-500">*</span>
+                    </label>
+                    <input type="number" value="2" class="w-full px-3 py-2 border border-emerald-300 rounded-lg text-xs bg-white tabular">
+                  </div>
+                  <div class="text-[10px]">
+                    <div class="text-emerald-800 font-bold uppercase tracking-wider mb-0.5">Duración auto</div>
+                    <div class="text-emerald-900 leading-tight">
+                      <span class="text-base font-bold tabular">≈ 30 días</span><br>
+                      <span class="text-[9px] text-emerald-700">60 cáps ÷ 2/día · cálculo en Sec.3</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div>
+                <label class="block text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1.5">Sabor</label>
+                <input type="text" placeholder="Sin sabor" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs">
+              </div>
+              <div>
+                <label class="block text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1.5 flex items-center justify-between">
+                  <span>Dosaje (composición por servida)</span>
+                  <span class="badge-text"><i data-lucide="text-cursor-input" class="w-2.5 h-2.5"></i>TEXT+SUG</span>
+                </label>
+                <input type="text" value="5000 IU D3 + 100 mcg K2 (MK-7)" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs">
+                <div class="mt-1 text-[9px] text-slate-500 italic">Necesario para calcular duración cuando el contenido está en ml/g (no discreto)</div>
+              </div>
+              <div>
+                <label class="block text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1.5">Restricciones</label>
+                <div class="flex flex-wrap gap-1.5">
+                  <span class="px-2 py-0.5 text-[10px] rounded bg-emerald-100 text-emerald-800 border border-emerald-300 flex items-center gap-1">Vegano <i data-lucide="x" class="w-2.5 h-2.5"></i></span>
+                  <span class="px-2 py-0.5 text-[10px] rounded bg-emerald-100 text-emerald-800 border border-emerald-300 flex items-center gap-1">Sin gluten <i data-lucide="x" class="w-2.5 h-2.5"></i></span>
+                  <button class="px-2 py-0.5 text-[10px] rounded bg-amber-50 text-amber-700 border border-dashed border-amber-300 font-bold flex items-center gap-1"><i data-lucide="plus" class="w-2.5 h-2.5"></i>Agregar</button>
+                </div>
+              </div>
+              <div>
+                <label class="block text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1.5">Advertencias</label>
+                <input type="text" placeholder="Embarazadas consultar · evitar al manejar maquinaria…" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs">
+              </div>
+              <div class="grid grid-cols-3 gap-2 text-[10px] text-slate-600">
+                <div>Momento día: <strong class="text-indigo-700">Mañana</strong></div>
+                <div>Comida: <strong class="text-indigo-700">Con</strong></div>
+                <div>Edad: <strong class="text-indigo-700">Adultos</strong></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sec.3-5 colapsadas compactas (Identif · Clasif · Logística) · Sec.3 muestra preview con chip duración -->
+          <div class="border border-emerald-200 rounded-xl px-4 py-3 bg-emerald-50/50 flex items-center gap-2.5">
+            <span class="section-num">3</span>
+            <div class="flex-1 min-w-0">
+              <div class="text-sm font-bold text-slate-700">Identificadores comerciales</div>
+              <div class="text-[10px] text-emerald-700 mt-0.5 flex items-center gap-1.5"><i data-lucide="sparkles" class="w-2.5 h-2.5"></i><span class="tabular">60 cápsulas</span> · <strong>Duración auto: ≈ 30 días</strong> <span class="text-slate-500">(usa Servings/día de Sec.2)</span></div>
+            </div>
+            <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400"></i>
+          </div>
+          <div class="border border-slate-200 rounded-xl px-4 py-3 bg-slate-50 flex items-center gap-2.5">
+            <span class="section-num">4</span>
+            <div class="flex-1 text-sm font-bold text-slate-700">Clasificación</div>
+            <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400"></i>
+          </div>
+          <div class="border border-slate-200 rounded-xl px-4 py-3 bg-slate-50 flex items-center gap-2.5">
+            <span class="section-num">5</span>
+            <div class="flex-1 text-sm font-bold text-slate-700">Logística</div>
+            <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400"></i>
+          </div>
+
+          <!-- Sec.6 Marketing colapsada · al FINAL · disclaimer DIGEMID en SUP -->
+          <div class="border-2 border-purple-200 rounded-xl overflow-hidden">
+            <button class="w-full flex items-center gap-2.5 px-4 py-3 bg-purple-50/40 hover:bg-purple-50 text-left">
+              <span class="section-num" style="background:#f3e8ff; color:#7e22ce">6</span>
+              <div class="flex-1 min-w-0">
+                <div class="text-sm font-bold text-slate-900 flex items-center gap-2">
+                  Marketing comercial
+                  <span class="badge-ia"><i data-lucide="sparkles" class="w-2.5 h-2.5"></i>IA</span>
+                  <span class="px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 text-[9px] font-bold flex items-center gap-1"><i data-lucide="lock" class="w-2.5 h-2.5"></i>ESPERA SEC.1-5</span>
+                </div>
+                <div class="text-[10px] text-slate-500 mt-0.5">Disclaimer DIGEMID auto en SUP · "Este producto no reemplaza una dieta balanceada · consulte a su médico"</div>
+              </div>
+              <span class="text-[9px] text-emerald-600 italic font-bold">★ último paso</span>
+              <i data-lucide="chevron-down" class="w-4 h-4 text-purple-400 flex-shrink-0"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="border-t border-slate-200 bg-slate-50 px-5 py-3 flex items-center justify-between gap-3">
+          <div class="flex items-center gap-2 text-[10px] text-slate-500">
+            <i data-lucide="check-circle-2" class="w-3 h-3 text-emerald-500"></i>
+            <span>Auto-guardado: hace 4 segundos</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <button class="px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-100 rounded-lg">Cancelar</button>
+            <button class="px-4 py-1.5 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg flex items-center gap-1.5 shadow-sm">
+              <i data-lucide="check" class="w-3.5 h-3.5"></i>Crear producto
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- ESTADO C · Sec.3 MARKETING expandida con IA generando             -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <div>
+    <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-2">Estado C · Detalle Sec.6 Marketing comercial (al final) · 3 niveles + botón Generar con IA · sub-estado checklist (esperando) y sub-estado data-completa (habilitado)</div>
+
+    <div class="parent-hint">
+      <div class="bg-white rounded-2xl shadow-md overflow-hidden border-2 border-purple-300 max-w-2xl mx-auto">
+        <div class="px-4 py-3 bg-gradient-to-br from-purple-50 to-indigo-50 flex items-center gap-2.5">
+          <span class="section-num active" style="background:#9333ea">6</span>
+          <div class="flex-1">
+            <div class="text-sm font-bold text-slate-900 flex items-center gap-2">
+              Marketing comercial
+              <span class="px-1.5 py-0.5 rounded bg-purple-600 text-white text-[9px] font-bold flex items-center gap-1"><i data-lucide="sparkles" class="w-2.5 h-2.5"></i>3 NIVELES + IA</span>
+              <span class="px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 text-[9px] font-bold flex items-center gap-1"><i data-lucide="arrow-down-to-line" class="w-2.5 h-2.5"></i>ÚLTIMO PASO</span>
+            </div>
+            <div class="text-[10px] text-purple-700 mt-0.5">Copy para cliente final · generado desde TODA la data del producto (Sec.1-5) · editable</div>
+          </div>
+          <i data-lucide="chevron-up" class="w-4 h-4 text-purple-700"></i>
+        </div>
+
+        <div class="p-4 space-y-3 bg-white">
+
+          <!-- ESTADO C.1 · esperando data · botón DISABLED con checklist -->
+          <div class="rounded-lg bg-amber-50 border-2 border-amber-300 p-3 mb-2">
+            <div class="flex items-start gap-2.5">
+              <div class="w-7 h-7 rounded-lg bg-amber-100 flex items-center justify-center flex-shrink-0">
+                <i data-lucide="clock" class="w-4 h-4 text-amber-700"></i>
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="text-[11px] font-bold text-amber-900 mb-1">Esperando data completa · botón deshabilitado</div>
+                <div class="text-[10px] text-amber-800 mb-2">El copy se genera UNA SOLA VEZ con TODA la data del producto · esto garantiza máxima calidad y evita regeneraciones repetidas durante creación.</div>
+                <div class="space-y-1 text-[10px]">
+                  <div class="flex items-center gap-2 text-emerald-700"><i data-lucide="check-circle-2" class="w-3 h-3"></i>Sec.1 Identidad · completa</div>
+                  <div class="flex items-center gap-2 text-emerald-700"><i data-lucide="check-circle-2" class="w-3 h-3"></i>Sec.2 Atributos · 8/8 SKC completos</div>
+                  <div class="flex items-center gap-2 text-rose-700"><i data-lucide="circle" class="w-3 h-3"></i>Sec.4 Identificadores · falta Contenido neto <span class="text-rose-500">*</span></div>
+                  <div class="flex items-center gap-2 text-rose-700"><i data-lucide="circle" class="w-3 h-3"></i>Sec.5 Clasificación · falta Tipo de producto</div>
+                  <div class="flex items-center gap-2 text-rose-700"><i data-lucide="circle" class="w-3 h-3"></i>Sec.6 Logística · falta Peso unitario</div>
+                </div>
+              </div>
+              <button disabled class="px-3 py-1.5 text-[10px] font-bold text-slate-400 bg-slate-100 border border-slate-200 rounded-lg flex items-center gap-1 cursor-not-allowed flex-shrink-0">
+                <i data-lucide="sparkles" class="w-3 h-3"></i>Generar con IA
+              </button>
+            </div>
+          </div>
+
+          <!-- Banner IA · ESTADO C.2 · data completa · botón HABILITADO o post-generación -->
+          <div class="rounded-lg bg-gradient-to-br from-purple-50 to-indigo-50 border border-purple-200 p-3">
+            <div class="flex items-start justify-between gap-3">
+              <div class="flex-1 min-w-0">
+                <div class="text-[11px] font-bold text-purple-900 flex items-center gap-1">
+                  <i data-lucide="sparkles" class="w-3 h-3"></i>Generación con IA · Gemini Flash 2.0 (gratis)
+                </div>
+                <div class="text-[10px] text-purple-700 mt-0.5 leading-relaxed">Usa TODA la data del producto · 6 secciones completas · compliance DIGEMID/INDECOPI integrado · sin claims terapéuticos prohibidos · disclaimer auto en SUP.</div>
+                <div class="text-[9px] text-purple-600 italic mt-1">Después de la creación, en el Editor #40 podrás regenerar si modificás atributos.</div>
+              </div>
+              <div class="flex items-center gap-2 flex-shrink-0">
+                <button class="px-3 py-1.5 text-[10px] font-bold text-purple-600 bg-white border border-purple-300 hover:bg-purple-50 rounded-lg flex items-center gap-1">
+                  <i data-lucide="refresh-cw" class="w-3 h-3"></i>Regenerar
+                </button>
+                <button class="px-3 py-1.5 text-[10px] font-bold text-white bg-purple-600 hover:bg-purple-700 rounded-lg flex items-center gap-1 shadow-sm">
+                  <i data-lucide="sparkles" class="w-3 h-3"></i>Generar con IA
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Nivel 1 · Frase gancho -->
+          <div>
+            <label class="block text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1.5 flex items-center justify-between">
+              <span>1 · Frase gancho · ~10-15 palabras</span>
+              <span class="px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 text-[9px] font-bold border border-emerald-200 flex items-center gap-1"><i data-lucide="sparkles" class="w-2.5 h-2.5"></i>IA · ahora</span>
+            </label>
+            <input type="text" value="Crema coreana con TECA y Colágeno para barrera fortalecida" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs">
+            <div class="mt-1 text-[9px] text-slate-500 italic">Hook que ve primero el cliente · listings, ads, MercadoLibre título extendido</div>
+          </div>
+
+          <!-- Nivel 2 · Beneficios -->
+          <div>
+            <label class="block text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1.5 flex items-center justify-between">
+              <span>2 · Beneficios principales · 3-5 bullets</span>
+              <span class="px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 text-[9px] font-bold border border-emerald-200 flex items-center gap-1"><i data-lucide="sparkles" class="w-2.5 h-2.5"></i>IA · ahora</span>
+            </label>
+            <div class="space-y-1.5">
+              <div class="flex items-center gap-2">
+                <i data-lucide="check" class="w-3 h-3 text-emerald-600 flex-shrink-0"></i>
+                <input type="text" value="Repara barrera dañada con Centella Asiática titulada" class="flex-1 px-2 py-1.5 border border-slate-200 rounded text-xs">
+                <button class="text-slate-400 hover:text-rose-600"><i data-lucide="x" class="w-3 h-3"></i></button>
+              </div>
+              <div class="flex items-center gap-2">
+                <i data-lucide="check" class="w-3 h-3 text-emerald-600 flex-shrink-0"></i>
+                <input type="text" value="Refirma con Colágeno hidrolizado" class="flex-1 px-2 py-1.5 border border-slate-200 rounded text-xs">
+                <button class="text-slate-400 hover:text-rose-600"><i data-lucide="x" class="w-3 h-3"></i></button>
+              </div>
+              <div class="flex items-center gap-2">
+                <i data-lucide="check" class="w-3 h-3 text-emerald-600 flex-shrink-0"></i>
+                <input type="text" value="Reduce líneas finas en uso continuo" class="flex-1 px-2 py-1.5 border border-slate-200 rounded text-xs">
+                <button class="text-slate-400 hover:text-rose-600"><i data-lucide="x" class="w-3 h-3"></i></button>
+              </div>
+              <div class="flex items-center gap-2">
+                <i data-lucide="check" class="w-3 h-3 text-emerald-600 flex-shrink-0"></i>
+                <input type="text" value="Apta para todo tipo de piel · incluso sensible" class="flex-1 px-2 py-1.5 border border-slate-200 rounded text-xs">
+                <button class="text-slate-400 hover:text-rose-600"><i data-lucide="x" class="w-3 h-3"></i></button>
+              </div>
+              <div class="flex items-center gap-2">
+                <i data-lucide="check" class="w-3 h-3 text-emerald-600 flex-shrink-0"></i>
+                <input type="text" value="K-Beauty premium · Made in Korea" class="flex-1 px-2 py-1.5 border border-slate-200 rounded text-xs">
+                <button class="text-slate-400 hover:text-rose-600"><i data-lucide="x" class="w-3 h-3"></i></button>
+              </div>
+              <button class="text-[10px] font-bold text-purple-600 hover:text-purple-700 flex items-center gap-1 ml-5">
+                <i data-lucide="plus" class="w-3 h-3"></i>Agregar beneficio
+              </button>
+            </div>
+            <div class="mt-1 text-[9px] text-slate-500 italic">Bullets escaneables · página producto, banners, redes sociales</div>
+          </div>
+
+          <!-- Nivel 3 · Descripción -->
+          <div>
+            <label class="block text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1.5 flex items-center justify-between">
+              <span>3 · Descripción comercial · 2-3 párrafos · ~80-120 palabras</span>
+              <span class="px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 text-[9px] font-bold border border-emerald-200 flex items-center gap-1"><i data-lucide="sparkles" class="w-2.5 h-2.5"></i>IA · ahora</span>
+            </label>
+            <textarea rows="5" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs resize-y leading-relaxed">Madeca Cream Time Reverse de Centellian24 combina TECA (Extracto Titulado de Centella Asiática) con Colágeno hidrolizado para devolverle firmeza y resistencia a tu piel. Su textura cremosa se absorbe rápido sin dejar sensación grasa, ideal para rutina diaria en rostro y cuello. Apta para todo tipo de piel y especialmente reparadora en pieles con barrera comprometida. La esencia del K-Beauty con resultados visibles.</textarea>
+            <div class="mt-1 text-[9px] text-slate-500 italic">Texto narrativo persuasivo · página producto, marketplaces, fichas técnicas</div>
+          </div>
+
+          <!-- Auditoría -->
+          <div class="rounded-lg bg-slate-50 border border-slate-200 px-3 py-2 flex items-center gap-2 text-[10px]">
+            <i data-lucide="clipboard-check" class="w-3 h-3 text-slate-500"></i>
+            <span class="text-slate-600">Fuente: <strong class="text-emerald-700">IA · ahora</strong> · si editás ≥30% el campo pasa a "Mixto" · queda en historial de auditoría</span>
+          </div>
+
+          <!-- Compliance reminder -->
+          <div class="rounded-lg bg-amber-50 border border-amber-200 px-3 py-2 flex items-start gap-2">
+            <i data-lucide="shield-check" class="w-3 h-3 text-amber-700 flex-shrink-0 mt-0.5"></i>
+            <div class="text-[10px] text-amber-900 flex-1">
+              <strong>Compliance Perú:</strong> el prompt evita claims terapéuticos prohibidos por DIGEMID/INDECOPI. Sólo beneficios cosméticos legítimos (hidrata, ilumina, suaviza, mejora apariencia). En Suplementos se agrega disclaimer auto.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- ESTADO D · Sec.5 LOGÍSTICA expandida (detalle)                    -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <div>
+    <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-2">Estado D · Detalle Sec.5 Logística expandida · campos físicos del producto · ahora pre-último paso antes de Marketing</div>
+
+    <div class="parent-hint">
+      <div class="bg-white rounded-2xl shadow-md overflow-hidden border-2 border-blue-300 max-w-2xl mx-auto">
+        <div class="px-4 py-3 bg-blue-50 flex items-center gap-2.5">
+          <span class="section-num active" style="background:#3b82f6">5</span>
+          <div class="flex-1">
+            <div class="text-sm font-bold text-slate-900 flex items-center gap-2">
+              Logística
+              <span class="px-1.5 py-0.5 rounded bg-blue-600 text-white text-[9px] font-bold flex items-center gap-1"><i data-lucide="truck" class="w-2.5 h-2.5"></i>FÍSICO</span>
+            </div>
+            <div class="text-[10px] text-blue-700 mt-0.5">Datos físicos · usados por logística (tramos peso D-11, packing list, despacho)</div>
+          </div>
+          <i data-lucide="chevron-up" class="w-4 h-4 text-blue-700"></i>
+        </div>
+
+        <div class="p-4 space-y-3 bg-white">
+          <div>
+            <label class="block text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1.5">Peso unitario</label>
+            <div class="grid grid-cols-3 gap-2">
+              <div class="col-span-2 flex items-center gap-2">
+                <input type="number" step="0.01" placeholder="0.00" class="flex-1 px-3 py-2 border border-slate-200 rounded-lg text-xs">
+                <select class="px-2 py-2 border border-slate-200 rounded-lg text-xs"><option>lb</option><option>kg</option><option>oz</option><option>g</option></select>
+              </div>
+              <div class="flex items-center text-[10px] text-slate-500 italic">≈ <span class="tabular text-slate-700 font-medium ml-1">0.45 kg</span></div>
+            </div>
+            <div class="mt-1 text-[9px] text-slate-500 italic flex items-center gap-1"><i data-lucide="info" class="w-2.5 h-2.5"></i>Si el colaborador transportista tiene tabla de tramos peso (D-11), este valor decide el tramo aplicado.</div>
+          </div>
+
+          <div class="rounded-lg bg-slate-50 border border-dashed border-slate-300 p-3">
+            <div class="flex items-center gap-2 mb-1">
+              <i data-lucide="box" class="w-3.5 h-3.5 text-slate-500"></i>
+              <span class="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Dimensiones · sub-fase futura</span>
+            </div>
+            <div class="text-[10px] text-slate-600">Alto · Ancho · Profundidad (cm) · cubicaje volumétrico</div>
+          </div>
+
+          <div class="rounded-lg bg-rose-50 border border-rose-200 p-3 flex items-start gap-2">
+            <i data-lucide="trash-2" class="w-3.5 h-3.5 text-rose-700 flex-shrink-0 mt-0.5"></i>
+            <div class="flex-1">
+              <div class="text-[10px] uppercase tracking-wider text-rose-700 font-bold mb-0.5">Costo flete intl. (USD) · ELIMINADO</div>
+              <div class="text-[10px] text-rose-900">Anteriormente fijo en el maestro. AHORA se calcula <strong>dinámico en cada envío/OC</strong> según ruta, transportista, modalidad y peso del producto.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- ESTADO E · WIZARD SKC COMPLETO · TODAS las 6 secciones expandidas -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <div>
+    <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-2">Estado E · Wizard SKINCARE COMPLETO · TODAS las 6 secciones expandidas en un solo scroll · vista holística para validar el flujo entero</div>
+
+    <div class="parent-hint">
+      <div class="bg-white rounded-2xl shadow-2xl overflow-hidden border border-slate-200">
+        <!-- HEADER -->
+        <div class="bg-gradient-to-br from-slate-50 to-white border-b border-slate-200 px-5 py-4">
+          <div class="flex items-start justify-between gap-3">
+            <div class="flex items-start gap-2.5 min-w-0">
+              <div class="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center flex-shrink-0">
+                <i data-lucide="droplets" class="w-5 h-5 text-amber-700"></i>
+              </div>
+              <div class="min-w-0">
+                <div class="text-[10px] text-slate-500 flex items-center gap-1 mb-0.5">
+                  <span>Inventario</span>
+                  <i data-lucide="chevron-right" class="w-3 h-3"></i>
+                  <span>Productos</span>
+                  <i data-lucide="chevron-right" class="w-3 h-3"></i>
+                  <span class="text-slate-700 font-medium">Nuevo · Skincare</span>
+                </div>
+                <h2 class="text-base font-bold text-slate-900">Crear producto único</h2>
+                <p class="text-[10px] text-slate-500 mt-0.5">SKU sugerido <span class="font-mono text-emerald-700 font-bold">SKC-0212</span></p>
+              </div>
+            </div>
+            <button class="p-1.5 hover:bg-slate-100 rounded-md text-slate-500"><i data-lucide="x" class="w-4 h-4"></i></button>
+          </div>
+        </div>
+
+        <div class="p-5 space-y-3 max-h-[1400px] overflow-y-auto">
+
+          <!-- ════ Sec.1 IDENTIDAD expandida ════ -->
+          <div class="border-2 border-teal-300 rounded-xl overflow-hidden">
+            <div class="px-4 py-3 bg-teal-50 flex items-center gap-2.5">
+              <span class="section-num active">1</span>
+              <div class="flex-1">
+                <div class="text-sm font-bold text-slate-900 flex items-center gap-2">Identidad <span class="px-1.5 py-0.5 rounded bg-teal-600 text-white text-[9px] font-bold">DEFINE EL FORMULARIO</span></div>
+                <div class="text-[10px] text-teal-700 mt-0.5">Línea + País + Marca <strong>immutables post-creación</strong></div>
+              </div>
+              <i data-lucide="chevron-up" class="w-4 h-4 text-teal-700"></i>
+            </div>
+            <div class="p-4 space-y-3 bg-white">
+              <div>
+                <label class="block text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1.5 flex items-center justify-between">
+                  <span>Línea de negocio <span class="text-rose-500">*</span></span>
+                  <span class="badge-cerrado"><i data-lucide="lock" class="w-2.5 h-2.5"></i>CERRADO</span>
+                </label>
+                <div class="grid grid-cols-5 gap-1.5">
+                  <button class="px-2 py-2.5 text-[10px] font-bold rounded-lg border-2 border-amber-400 bg-amber-100 text-amber-900 flex flex-col items-center gap-1"><i data-lucide="droplets" class="w-3.5 h-3.5"></i>Skincare</button>
+                  <button class="px-2 py-2.5 text-[10px] rounded-lg border border-slate-200 bg-white text-slate-700 flex flex-col items-center gap-1"><i data-lucide="pill" class="w-3.5 h-3.5 text-slate-500"></i>Suplementos</button>
+                  <button class="px-2 py-2.5 text-[10px] rounded-lg border border-slate-200 bg-white text-slate-700 flex flex-col items-center gap-1"><i data-lucide="shirt" class="w-3.5 h-3.5 text-slate-500"></i>Apparel</button>
+                  <button class="px-2 py-2.5 text-[10px] rounded-lg border border-slate-200 bg-white text-slate-700 flex flex-col items-center gap-1"><i data-lucide="utensils" class="w-3.5 h-3.5 text-slate-500"></i>Alimentos</button>
+                  <button class="px-2 py-2.5 text-[10px] rounded-lg border border-slate-200 bg-white text-slate-700 flex flex-col items-center gap-1"><i data-lucide="more-horizontal" class="w-3.5 h-3.5 text-slate-500"></i>Otros</button>
+                </div>
+              </div>
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <label class="block text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1.5">País origen <span class="text-rose-500">*</span></label>
+                  <select class="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs"><option>🇰🇷 Corea del Sur</option></select>
+                </div>
+                <div>
+                  <label class="block text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1.5 flex items-center justify-between"><span>Marca <span class="text-rose-500">*</span></span><span class="badge-creable"><i data-lucide="zap" class="w-2.5 h-2.5"></i>CREABLE</span></label>
+                  <input type="text" value="Centellian24" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs">
+                </div>
+              </div>
+              <div>
+                <label class="block text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1.5">Nombre comercial <span class="text-rose-500">*</span></label>
+                <input type="text" value="Madeca Cream Time Reverse" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs">
+              </div>
+            </div>
+          </div>
+
+          <!-- ════ Sec.2 ATRIBUTOS SKC expandida (compacta) ════ -->
+          <div class="border-2 border-amber-400 rounded-xl overflow-hidden">
+            <div class="px-4 py-3 bg-amber-50 flex items-center gap-2.5">
+              <span class="section-num active" style="background:#d97706">2</span>
+              <div class="flex-1">
+                <div class="text-sm font-bold text-slate-900 flex items-center gap-2">Atributos por línea <span class="px-1.5 py-0.5 rounded bg-amber-600 text-white text-[9px] font-bold flex items-center gap-1"><i data-lucide="droplets" class="w-2.5 h-2.5"></i>SKINCARE · 8 atributos</span></div>
+                <div class="text-[10px] text-amber-700 mt-0.5">6 cerrados (vocabulario industria) · 2 text+sug · Volumen movido a Sec.4 Contenido neto</div>
+              </div>
+              <i data-lucide="chevron-up" class="w-4 h-4 text-amber-700"></i>
+            </div>
+            <div class="p-4 space-y-3 bg-white">
+              <div>
+                <label class="block text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1.5 flex items-center justify-between"><span>Tipo SKC <span class="text-rose-500">*</span></span><span class="badge-cerrado"><i data-lucide="lock" class="w-2.5 h-2.5"></i>17 op.</span></label>
+                <div class="flex flex-wrap gap-1">
+                  <button class="px-2 py-1 text-[10px] rounded border border-slate-200 bg-white text-slate-700">Sérum</button>
+                  <button class="px-2 py-1 text-[10px] font-bold rounded border-2 border-amber-400 bg-amber-100 text-amber-900">✓ Crema</button>
+                  <button class="px-2 py-1 text-[10px] rounded border border-slate-200 bg-white text-slate-700">Tónico</button>
+                  <button class="px-2 py-1 text-[10px] rounded border border-slate-200 bg-white text-slate-700">+14 más</button>
+                </div>
+              </div>
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <label class="block text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1.5 flex items-center justify-between"><span>Ingrediente clave</span><span class="badge-text"><i data-lucide="text-cursor-input" class="w-2.5 h-2.5"></i>SUG</span></label>
+                  <input type="text" value="TECA + Colágeno" class="w-full px-2 py-2 border border-slate-200 rounded-lg text-xs">
+                </div>
+                <div>
+                  <label class="block text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1.5 flex items-center justify-between"><span>Línea de marca</span><span class="badge-text"><i data-lucide="text-cursor-input" class="w-2.5 h-2.5"></i>SUG</span></label>
+                  <input type="text" value="Madeca Cream" class="w-full px-2 py-2 border border-slate-200 rounded-lg text-xs">
+                </div>
+              </div>
+              <div class="grid grid-cols-2 gap-3 text-[10px]">
+                <div><strong class="text-slate-500 uppercase tracking-wider">Tipo piel:</strong> <span class="text-amber-700 font-bold">Todo tipo</span></div>
+                <div><strong class="text-slate-500 uppercase tracking-wider">Preocupaciones:</strong> <span class="text-amber-700 font-bold">Hidratación · Barrera · Firmeza · Líneas finas</span></div>
+                <div><strong class="text-slate-500 uppercase tracking-wider">Paso rutina:</strong> <span class="text-amber-700 font-bold">Crema</span></div>
+                <div><strong class="text-slate-500 uppercase tracking-wider">Textura:</strong> <span class="text-amber-700 font-bold">Crema</span></div>
+                <div class="col-span-2"><strong class="text-slate-500 uppercase tracking-wider">Zona aplicación:</strong> <span class="text-amber-700 font-bold">Rostro · Cuello</span></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ════ Sec.3 IDENTIFICADORES expandida · era Sec.4 ════ -->
+          <div class="border-2 border-slate-300 rounded-xl overflow-hidden">
+            <div class="px-4 py-3 bg-slate-100 flex items-center gap-2.5">
+              <span class="section-num active" style="background:#64748b">3</span>
+              <div class="flex-1">
+                <div class="text-sm font-bold text-slate-900">Identificadores comerciales</div>
+                <div class="text-[10px] text-slate-600 mt-0.5">Identificación de envase + tracking</div>
+              </div>
+              <span class="text-[9px] text-slate-500 italic">requerido</span>
+              <i data-lucide="chevron-up" class="w-4 h-4 text-slate-600"></i>
+            </div>
+            <div class="p-4 grid grid-cols-2 gap-3 bg-white">
+              <div>
+                <label class="block text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1.5">Código UPC</label>
+                <input type="text" placeholder="ej. 8809390590318" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs font-mono">
+              </div>
+              <div>
+                <label class="block text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1.5">Contenido neto del envase <span class="text-rose-500">*</span></label>
+                <div class="flex items-center gap-1.5">
+                  <input type="number" value="50" class="flex-1 px-3 py-2 border border-slate-200 rounded-lg text-xs tabular">
+                  <select class="px-2 py-2 border border-slate-200 rounded-lg text-xs"><option>ml</option><option>g</option><option>oz</option><option>fl oz</option></select>
+                </div>
+                <div class="mt-1 text-[9px] text-slate-500 italic">Unidades SKC: ml · g · oz · fl oz · (en SUP el selector cambia a cápsulas/tabletas/gomitas/sobres/scoops/ml/g/lb)</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ════ Sec.4 CLASIFICACIÓN expandida · era Sec.5 ════ -->
+          <div class="border-2 border-fuchsia-300 rounded-xl overflow-hidden">
+            <div class="px-4 py-3 bg-fuchsia-50 flex items-center gap-2.5">
+              <span class="section-num active" style="background:#c026d3">4</span>
+              <div class="flex-1">
+                <div class="text-sm font-bold text-slate-900 flex items-center gap-2">Clasificación <span class="badge-creable"><i data-lucide="zap" class="w-2.5 h-2.5"></i>3 CREABLES</span></div>
+                <div class="text-[10px] text-fuchsia-700 mt-0.5">Taxonomía transversal</div>
+              </div>
+              <span class="text-[9px] text-slate-500 italic">requerido</span>
+              <i data-lucide="chevron-up" class="w-4 h-4 text-fuchsia-700"></i>
+            </div>
+            <div class="p-4 space-y-3 bg-white">
+              <div>
+                <label class="block text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1.5">Tipo de producto</label>
+                <input type="text" value="Crema reparadora" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs">
+              </div>
+              <div>
+                <label class="block text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1.5">Categorías</label>
+                <div class="border border-slate-200 rounded-lg p-2 flex flex-wrap gap-1.5">
+                  <span class="px-2 py-0.5 text-[10px] font-medium rounded-md bg-fuchsia-100 text-fuchsia-800 border border-fuchsia-300 flex items-center gap-1">Reparación de barrera <span class="text-[9px] text-fuchsia-600">★</span><i data-lucide="x" class="w-2.5 h-2.5 ml-1"></i></span>
+                  <span class="px-2 py-0.5 text-[10px] font-medium rounded-md bg-slate-100 text-slate-700 border border-slate-200 flex items-center gap-1">Anti-edad <i data-lucide="x" class="w-2.5 h-2.5 ml-1"></i></span>
+                  <span class="px-2 py-0.5 text-[10px] font-medium rounded-md bg-slate-100 text-slate-700 border border-slate-200 flex items-center gap-1">Hidratación <i data-lucide="x" class="w-2.5 h-2.5 ml-1"></i></span>
+                  <button class="px-2 py-0.5 text-[10px] rounded-md bg-amber-50 text-amber-700 border border-dashed border-amber-300 font-bold flex items-center gap-1"><i data-lucide="plus" class="w-2.5 h-2.5"></i>Agregar</button>
+                </div>
+              </div>
+              <div>
+                <label class="block text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1.5">Etiquetas</label>
+                <div class="border border-slate-200 rounded-lg p-2 flex flex-wrap gap-1.5">
+                  <span class="px-2 py-0.5 text-[10px] rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1">#K-Beauty <i data-lucide="x" class="w-2.5 h-2.5"></i></span>
+                  <span class="px-2 py-0.5 text-[10px] rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1">#Sin-fragancia <i data-lucide="x" class="w-2.5 h-2.5"></i></span>
+                  <span class="px-2 py-0.5 text-[10px] rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1">#Vegano <i data-lucide="x" class="w-2.5 h-2.5"></i></span>
+                  <button class="px-2 py-0.5 text-[10px] rounded-md bg-amber-50 text-amber-700 border border-dashed border-amber-300 font-bold flex items-center gap-1"><i data-lucide="plus" class="w-2.5 h-2.5"></i>Agregar</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ════ Sec.5 LOGÍSTICA expandida · era Sec.6 ════ -->
+          <div class="border-2 border-blue-300 rounded-xl overflow-hidden">
+            <div class="px-4 py-3 bg-blue-50 flex items-center gap-2.5">
+              <span class="section-num active" style="background:#3b82f6">5</span>
+              <div class="flex-1">
+                <div class="text-sm font-bold text-slate-900 flex items-center gap-2">Logística <span class="px-1.5 py-0.5 rounded bg-blue-600 text-white text-[9px] font-bold flex items-center gap-1"><i data-lucide="truck" class="w-2.5 h-2.5"></i>FÍSICO</span></div>
+                <div class="text-[10px] text-blue-700 mt-0.5">Datos físicos · tramos peso D-11, packing list</div>
+              </div>
+              <span class="text-[9px] text-slate-500 italic">requerido</span>
+              <i data-lucide="chevron-up" class="w-4 h-4 text-blue-700"></i>
+            </div>
+            <div class="p-4 space-y-3 bg-white">
+              <div>
+                <label class="block text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1.5">Peso unitario</label>
+                <div class="grid grid-cols-3 gap-2">
+                  <div class="col-span-2 flex items-center gap-2"><input type="number" step="0.01" value="0.21" class="flex-1 px-3 py-2 border border-slate-200 rounded-lg text-xs"><select class="px-2 py-2 border border-slate-200 rounded-lg text-xs"><option>lb</option><option>kg</option></select></div>
+                  <div class="flex items-center text-[10px] text-slate-500 italic">≈ <span class="tabular text-slate-700 font-medium ml-1">0.095 kg</span></div>
+                </div>
+              </div>
+              <div class="rounded-lg bg-slate-50 border border-dashed border-slate-300 px-3 py-2 flex items-center gap-2">
+                <i data-lucide="box" class="w-3 h-3 text-slate-500"></i>
+                <span class="text-[10px] text-slate-600">Dimensiones (alto/ancho/profundidad cm) · sub-fase futura</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- ════ Sec.6 MARKETING COMERCIAL expandida con IA · era Sec.3 · MOVIDO al final ════ -->
+          <div class="border-2 border-purple-400 rounded-xl overflow-hidden">
+            <div class="px-4 py-3 bg-gradient-to-br from-purple-50 to-indigo-50 flex items-center gap-2.5">
+              <span class="section-num active" style="background:#9333ea">6</span>
+              <div class="flex-1">
+                <div class="text-sm font-bold text-slate-900 flex items-center gap-2">
+                  Marketing comercial
+                  <span class="px-1.5 py-0.5 rounded bg-purple-600 text-white text-[9px] font-bold flex items-center gap-1"><i data-lucide="sparkles" class="w-2.5 h-2.5"></i>3 NIVELES + IA</span>
+                  <span class="px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 text-[9px] font-bold flex items-center gap-1"><i data-lucide="arrow-down-to-line" class="w-2.5 h-2.5"></i>ÚLTIMO PASO</span>
+                </div>
+                <div class="text-[10px] text-purple-700 mt-0.5">Sec.1-5 completas → botón habilitado · usa TODA la data como input · Gemini Flash 2.0 · DIGEMID-safe</div>
+              </div>
+              <i data-lucide="chevron-up" class="w-4 h-4 text-purple-700"></i>
+            </div>
+
+            <div class="p-4 space-y-3 bg-white">
+
+              <!-- Banner generación IA -->
+              <div class="rounded-lg bg-gradient-to-br from-purple-50 to-indigo-50 border border-purple-200 p-3 flex items-start justify-between gap-3">
+                <div class="flex-1 min-w-0">
+                  <div class="text-[11px] font-bold text-purple-900 flex items-center gap-1"><i data-lucide="sparkles" class="w-3 h-3"></i>Generado con IA · hace 12 segundos</div>
+                  <div class="text-[10px] text-purple-700 mt-0.5">Input: 8 atributos SKC + 4 datos identidad + contenido neto + categorías + etiquetas + peso · Output JSON estructurado · 1,247 tokens · costo $0</div>
+                </div>
+                <div class="flex items-center gap-2 flex-shrink-0">
+                  <button class="px-2 py-1.5 text-[10px] font-bold text-purple-600 bg-white border border-purple-300 hover:bg-purple-50 rounded-lg flex items-center gap-1"><i data-lucide="refresh-cw" class="w-3 h-3"></i>Regenerar</button>
+                </div>
+              </div>
+
+              <!-- Nivel 1 · Frase gancho -->
+              <div>
+                <label class="block text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1.5 flex items-center justify-between"><span>1 · Frase gancho · ~10-15 palabras</span><span class="px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 text-[9px] font-bold border border-emerald-200 flex items-center gap-1"><i data-lucide="sparkles" class="w-2.5 h-2.5"></i>IA</span></label>
+                <input type="text" value="Crema coreana con TECA y Colágeno para barrera fortalecida" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs">
+              </div>
+
+              <!-- Nivel 2 · Beneficios -->
+              <div>
+                <label class="block text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1.5 flex items-center justify-between"><span>2 · Beneficios · 3-5 bullets</span><span class="px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 text-[9px] font-bold border border-emerald-200 flex items-center gap-1"><i data-lucide="sparkles" class="w-2.5 h-2.5"></i>IA</span></label>
+                <div class="space-y-1.5">
+                  <div class="flex items-center gap-2"><i data-lucide="check" class="w-3 h-3 text-emerald-600 flex-shrink-0"></i><input type="text" value="Repara barrera dañada con Centella Asiática titulada" class="flex-1 px-2 py-1.5 border border-slate-200 rounded text-xs"><button class="text-slate-400 hover:text-rose-600"><i data-lucide="x" class="w-3 h-3"></i></button></div>
+                  <div class="flex items-center gap-2"><i data-lucide="check" class="w-3 h-3 text-emerald-600 flex-shrink-0"></i><input type="text" value="Refirma con Colágeno hidrolizado" class="flex-1 px-2 py-1.5 border border-slate-200 rounded text-xs"><button class="text-slate-400 hover:text-rose-600"><i data-lucide="x" class="w-3 h-3"></i></button></div>
+                  <div class="flex items-center gap-2"><i data-lucide="check" class="w-3 h-3 text-emerald-600 flex-shrink-0"></i><input type="text" value="Reduce líneas finas en uso continuo" class="flex-1 px-2 py-1.5 border border-slate-200 rounded text-xs"><button class="text-slate-400 hover:text-rose-600"><i data-lucide="x" class="w-3 h-3"></i></button></div>
+                  <div class="flex items-center gap-2"><i data-lucide="check" class="w-3 h-3 text-emerald-600 flex-shrink-0"></i><input type="text" value="Apta para todo tipo de piel · incluso sensible" class="flex-1 px-2 py-1.5 border border-slate-200 rounded text-xs"><button class="text-slate-400 hover:text-rose-600"><i data-lucide="x" class="w-3 h-3"></i></button></div>
+                  <div class="flex items-center gap-2"><i data-lucide="check" class="w-3 h-3 text-emerald-600 flex-shrink-0"></i><input type="text" value="K-Beauty premium · Made in Korea" class="flex-1 px-2 py-1.5 border border-slate-200 rounded text-xs"><button class="text-slate-400 hover:text-rose-600"><i data-lucide="x" class="w-3 h-3"></i></button></div>
+                  <button class="text-[10px] font-bold text-purple-600 hover:text-purple-700 flex items-center gap-1 ml-5"><i data-lucide="plus" class="w-3 h-3"></i>Agregar beneficio</button>
+                </div>
+              </div>
+
+              <!-- Nivel 3 · Descripción -->
+              <div>
+                <label class="block text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1.5 flex items-center justify-between"><span>3 · Descripción comercial · ~80-120 palabras</span><span class="px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 text-[9px] font-bold border border-emerald-200 flex items-center gap-1"><i data-lucide="sparkles" class="w-2.5 h-2.5"></i>IA</span></label>
+                <textarea rows="4" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs resize-y leading-relaxed">Madeca Cream Time Reverse de Centellian24 combina TECA (Extracto Titulado de Centella Asiática) con Colágeno hidrolizado para devolverle firmeza y resistencia a tu piel. Su textura cremosa se absorbe rápido sin dejar sensación grasa, ideal para rutina diaria en rostro y cuello. Apta para todo tipo de piel y especialmente reparadora en pieles con barrera comprometida. La esencia del K-Beauty con resultados visibles.</textarea>
+              </div>
+
+              <!-- Compliance reminder -->
+              <div class="rounded-lg bg-amber-50 border border-amber-200 px-3 py-2 flex items-start gap-2">
+                <i data-lucide="shield-check" class="w-3 h-3 text-amber-700 flex-shrink-0 mt-0.5"></i>
+                <div class="text-[10px] text-amber-900 flex-1"><strong>Compliance:</strong> sin claims terapéuticos prohibidos · DIGEMID/INDECOPI safe · sólo beneficios cosméticos legítimos.</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- INFO -->
+          <div class="rounded-xl border border-blue-200 bg-blue-50/40 p-3">
+            <div class="flex items-start gap-2">
+              <div class="w-7 h-7 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0"><i data-lucide="info" class="w-4 h-4 text-blue-700"></i></div>
+              <div class="flex-1">
+                <div class="text-[11px] font-bold text-blue-900">Stock, precio venta y costo NO se llenan acá</div>
+                <div class="text-[10px] text-blue-800 mt-0.5">Requieren info REAL que recién existe DESPUÉS de crear el producto.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="border-t border-slate-200 bg-emerald-50 px-5 py-3 flex items-center justify-between gap-3">
+          <div class="flex items-center gap-2 text-[10px]">
+            <i data-lucide="check-circle-2" class="w-3 h-3 text-emerald-600"></i>
+            <span class="text-emerald-800 font-bold">Las 6 secciones completas</span>
+            <span class="text-slate-500">· auto-guardado hace 1 segundo</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <button class="px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-100 rounded-lg">Cancelar</button>
+            <button class="px-4 py-1.5 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg flex items-center gap-1.5 shadow-sm"><i data-lucide="check" class="w-3.5 h-3.5"></i>Crear producto</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- ESTADO F · Sec.3 INTELIGENTE · Chip Duración · 4 variantes (S3.4) -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <div>
+    <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-2">Estado F · Sec.3 expandida · Chip Duración inteligente · 4 variantes (SUP discreto · SUP continuo · datos faltantes · banner validación)</div>
+
+    <div class="bg-white rounded-xl p-5 border-2 border-emerald-200 shadow-sm mb-4">
       <div class="flex items-start gap-3">
-        <div class="w-10 h-10 rounded-xl bg-teal-100 flex items-center justify-center flex-shrink-0">
-          <i data-lucide="package" class="w-5 h-5 text-teal-700"></i>
+        <div class="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center flex-shrink-0">
+          <i data-lucide="sparkles" class="w-5 h-5 text-emerald-700"></i>
         </div>
         <div>
-          <h2 class="text-lg font-bold text-slate-900">Crear producto único</h2>
-          <p class="text-xs text-slate-500 mt-0.5">Sin variantes · 1 SKU único en el catálogo</p>
+          <div class="text-[10px] uppercase tracking-wider text-emerald-700 font-bold">S3.4 · Inteligencia activa en Sec.3</div>
+          <h3 class="text-base font-bold text-slate-900">Chip "Duración del envase" se calcula solo en tiempo real</h3>
+          <p class="text-xs text-slate-600 mt-1">Cuando el producto es <strong>SUP con unidad discreta</strong> (cápsulas/tabletas/gomitas/sobres/scoops): <code class="text-[10px] bg-slate-100 px-1 rounded">duración = contenido ÷ servings/día</code>. Cuando es <strong>SUP con unidad continua</strong> (ml/g/lb): <code class="text-[10px] bg-slate-100 px-1 rounded">duración = contenido ÷ (dosaje × servings/día)</code>. Validación blanda en banner amber si el resultado es atípico (&lt;14d o &gt;180d). El cálculo y los chips también aparecen en el modal detalle producto cara cliente.</p>
         </div>
       </div>
-      <button class="p-1.5 hover:bg-slate-100 rounded-md text-slate-500"><i data-lucide="x" class="w-4 h-4"></i></button>
     </div>
-  </div>
 
-  <!-- CONTENIDO · 4 secciones colapsables -->
-  <div class="p-5 space-y-3 max-h-[500px] overflow-y-auto">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 
-    <!-- Sección 1 · Origen (expandida default) -->
-    <div class="border-2 border-teal-200 rounded-xl overflow-hidden">
-      <button class="w-full flex items-center justify-between px-4 py-3 bg-teal-50/50">
-        <div class="flex items-center gap-2">
-          <span class="w-6 h-6 rounded-full bg-teal-600 text-white flex items-center justify-center text-[10px] font-bold">1</span>
-          <span class="text-sm font-bold text-teal-900">Origen</span>
-          <span class="text-[10px] text-teal-700">Country + método de envío</span>
-        </div>
-        <i data-lucide="chevron-up" class="w-4 h-4 text-teal-700"></i>
-      </button>
-      <div class="px-4 py-4 space-y-3">
-        <div class="grid grid-cols-2 gap-3 text-xs">
-          <div>
-            <label class="block text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1">País origen *</label>
-            <select class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm">
-              <option>🇺🇸 Estados Unidos</option>
-              <option>🇰🇷 Corea del Sur</option>
-              <option>🇨🇳 China</option>
-              <option>🇫🇷 Francia</option>
-            </select>
+      <!-- F1 · SUP DISCRETO · cápsulas -->
+      <div class="parent-hint">
+        <div class="text-[9px] uppercase tracking-wider text-emerald-700 font-bold mb-2 flex items-center gap-1.5"><i data-lucide="circle-check" class="w-3 h-3"></i>F1 · SUP discreto · 60 cápsulas · 2/día</div>
+        <div class="bg-white rounded-xl border-2 border-slate-300 overflow-hidden shadow-sm">
+          <div class="px-4 py-3 bg-slate-100 flex items-center gap-2.5">
+            <span class="section-num active" style="background:#64748b">3</span>
+            <div class="flex-1">
+              <div class="text-sm font-bold text-slate-900">Identificadores comerciales</div>
+              <div class="text-[10px] text-slate-600 mt-0.5">UPC + Contenido neto + Duración auto</div>
+            </div>
+            <i data-lucide="chevron-up" class="w-4 h-4 text-slate-600"></i>
           </div>
-          <div>
-            <label class="block text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1">Método envío</label>
-            <select class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm">
-              <option>Casilla USA · Marítimo</option>
-              <option>Casilla USA · Aéreo</option>
-              <option>Directo proveedor · Aéreo</option>
-            </select>
+          <div class="p-4 space-y-3 bg-white">
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1.5">Código UPC</label>
+                <input type="text" value="033984041417" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs font-mono">
+              </div>
+              <div>
+                <label class="block text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1.5">Contenido neto <span class="text-rose-500">*</span></label>
+                <div class="flex items-center gap-1.5">
+                  <input type="number" value="60" class="flex-1 px-3 py-2 border border-slate-200 rounded-lg text-xs tabular">
+                  <select class="px-2 py-2 border border-slate-200 rounded-lg text-xs"><option>cápsulas</option><option>tabletas</option><option>g</option></select>
+                </div>
+              </div>
+            </div>
+            <!-- CHIP DURACIÓN -->
+            <div class="rounded-lg bg-emerald-50 border border-emerald-300 p-3 flex items-center gap-3">
+              <div class="w-9 h-9 rounded-lg bg-emerald-600 text-white flex items-center justify-center flex-shrink-0">
+                <i data-lucide="calendar-clock" class="w-4 h-4"></i>
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="text-[10px] uppercase tracking-wider text-emerald-800 font-bold">Duración del envase</div>
+                <div class="text-base font-bold text-emerald-900 tabular">≈ 30 días</div>
+                <div class="text-[9px] text-emerald-700 mt-0.5">60 cápsulas ÷ 2 servings/día · ciclo de recompra estimado</div>
+              </div>
+              <div class="text-[9px] px-2 py-0.5 rounded-full bg-emerald-200 text-emerald-900 font-bold flex items-center gap-1"><i data-lucide="zap" class="w-2.5 h-2.5"></i>auto</div>
+            </div>
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- Sección 2 · Básico (colapsada) -->
-    <div class="border border-slate-200 rounded-xl overflow-hidden">
-      <button class="w-full flex items-center justify-between px-4 py-3 hover:bg-slate-50">
-        <div class="flex items-center gap-2">
-          <span class="w-6 h-6 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center text-[10px] font-bold">2</span>
-          <span class="text-sm font-bold text-slate-700">Básico</span>
-          <span class="text-[10px] text-slate-500">Nombre, marca, SKU</span>
+      <!-- F2 · SUP CONTINUO · proteína 300g · 2 scoops × 5g/serv -->
+      <div class="parent-hint">
+        <div class="text-[9px] uppercase tracking-wider text-emerald-700 font-bold mb-2 flex items-center gap-1.5"><i data-lucide="circle-check" class="w-3 h-3"></i>F2 · SUP continuo · 300 g · 2 servings × 5 g</div>
+        <div class="bg-white rounded-xl border-2 border-slate-300 overflow-hidden shadow-sm">
+          <div class="px-4 py-3 bg-slate-100 flex items-center gap-2.5">
+            <span class="section-num active" style="background:#64748b">3</span>
+            <div class="flex-1">
+              <div class="text-sm font-bold text-slate-900">Identificadores comerciales</div>
+              <div class="text-[10px] text-slate-600 mt-0.5">Polvo · usa dosaje (Sec.2) para calcular duración</div>
+            </div>
+            <i data-lucide="chevron-up" class="w-4 h-4 text-slate-600"></i>
+          </div>
+          <div class="p-4 space-y-3 bg-white">
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1.5">Código UPC</label>
+                <input type="text" value="610764012345" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs font-mono">
+              </div>
+              <div>
+                <label class="block text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1.5">Contenido neto <span class="text-rose-500">*</span></label>
+                <div class="flex items-center gap-1.5">
+                  <input type="number" value="300" class="flex-1 px-3 py-2 border border-slate-200 rounded-lg text-xs tabular">
+                  <select class="px-2 py-2 border border-slate-200 rounded-lg text-xs"><option>g</option><option>ml</option><option>lb</option></select>
+                </div>
+              </div>
+            </div>
+            <!-- CHIP DURACIÓN -->
+            <div class="rounded-lg bg-emerald-50 border border-emerald-300 p-3 flex items-center gap-3">
+              <div class="w-9 h-9 rounded-lg bg-emerald-600 text-white flex items-center justify-center flex-shrink-0">
+                <i data-lucide="calendar-clock" class="w-4 h-4"></i>
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="text-[10px] uppercase tracking-wider text-emerald-800 font-bold">Duración del envase</div>
+                <div class="text-base font-bold text-emerald-900 tabular">≈ 30 días</div>
+                <div class="text-[9px] text-emerald-700 mt-0.5">300 g ÷ (5 g × 2/día) · usa dosaje "5 g/serving" de Sec.2</div>
+              </div>
+              <div class="text-[9px] px-2 py-0.5 rounded-full bg-emerald-200 text-emerald-900 font-bold flex items-center gap-1"><i data-lucide="zap" class="w-2.5 h-2.5"></i>auto</div>
+            </div>
+          </div>
         </div>
-        <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400"></i>
-      </button>
-    </div>
-
-    <!-- Sección 3 · Clasificación (colapsada) -->
-    <div class="border border-slate-200 rounded-xl overflow-hidden">
-      <button class="w-full flex items-center justify-between px-4 py-3 hover:bg-slate-50">
-        <div class="flex items-center gap-2">
-          <span class="w-6 h-6 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center text-[10px] font-bold">3</span>
-          <span class="text-sm font-bold text-slate-700">Clasificación</span>
-          <span class="text-[10px] text-slate-500">Línea, tipo, atributos, etiquetas</span>
-        </div>
-        <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400"></i>
-      </button>
-    </div>
-
-    <!-- Sección 4 · Inventario (colapsada) -->
-    <div class="border border-slate-200 rounded-xl overflow-hidden">
-      <button class="w-full flex items-center justify-between px-4 py-3 hover:bg-slate-50">
-        <div class="flex items-center gap-2">
-          <span class="w-6 h-6 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center text-[10px] font-bold">4</span>
-          <span class="text-sm font-bold text-slate-700">Inventario</span>
-          <span class="text-[10px] text-slate-500">Stock inicial, ubicación, mínimo</span>
-        </div>
-        <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400"></i>
-      </button>
-    </div>
-
-    <!-- Banner sugerencia variantes (Gap H03 = 32) -->
-    <div class="bg-amber-50 border border-amber-200 rounded-lg p-3 flex items-start gap-2.5">
-      <i data-lucide="lightbulb" class="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5"></i>
-      <div class="text-xs flex-1">
-        <div class="font-bold text-amber-900">Detectamos 2 productos similares</div>
-        <div class="text-amber-800">¿Querés agregar este como variante en lugar de producto único? <a href="#" class="font-bold underline">Ver candidatos</a></div>
       </div>
-      <button class="text-[10px] font-bold text-amber-800 px-2 py-1 hover:bg-amber-100 rounded">×</button>
+
+      <!-- F3 · SUP datos faltantes -->
+      <div class="parent-hint">
+        <div class="text-[9px] uppercase tracking-wider text-amber-700 font-bold mb-2 flex items-center gap-1.5"><i data-lucide="alert-circle" class="w-3 h-3"></i>F3 · SUP con datos faltantes · servings/día vacío</div>
+        <div class="bg-white rounded-xl border-2 border-slate-300 overflow-hidden shadow-sm">
+          <div class="px-4 py-3 bg-slate-100 flex items-center gap-2.5">
+            <span class="section-num active" style="background:#64748b">3</span>
+            <div class="flex-1">
+              <div class="text-sm font-bold text-slate-900">Identificadores comerciales</div>
+              <div class="text-[10px] text-slate-600 mt-0.5">Sin servings/día no se puede calcular duración</div>
+            </div>
+            <i data-lucide="chevron-up" class="w-4 h-4 text-slate-600"></i>
+          </div>
+          <div class="p-4 space-y-3 bg-white">
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1.5">Código UPC</label>
+                <input type="text" placeholder="ej. 8809390590318" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs font-mono">
+              </div>
+              <div>
+                <label class="block text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1.5">Contenido neto <span class="text-rose-500">*</span></label>
+                <div class="flex items-center gap-1.5">
+                  <input type="number" value="120" class="flex-1 px-3 py-2 border border-slate-200 rounded-lg text-xs tabular">
+                  <select class="px-2 py-2 border border-slate-200 rounded-lg text-xs"><option>cápsulas</option></select>
+                </div>
+              </div>
+            </div>
+            <!-- CHIP DURACIÓN PENDIENTE -->
+            <div class="rounded-lg bg-slate-50 border border-dashed border-slate-300 p-3 flex items-center gap-3">
+              <div class="w-9 h-9 rounded-lg bg-slate-200 text-slate-500 flex items-center justify-center flex-shrink-0">
+                <i data-lucide="calendar-clock" class="w-4 h-4"></i>
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Duración del envase</div>
+                <div class="text-xs text-slate-700 mt-0.5">Pendiente · falta <strong>Servings/día</strong></div>
+              </div>
+              <button class="text-[10px] px-2 py-1 rounded-md bg-indigo-50 text-indigo-700 font-bold border border-indigo-200 hover:bg-indigo-100 flex items-center gap-1">Ir a Sec.2 <i data-lucide="arrow-right" class="w-2.5 h-2.5"></i></button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- F4 · Banner validación blanda · duración atípica -->
+      <div class="parent-hint">
+        <div class="text-[9px] uppercase tracking-wider text-amber-700 font-bold mb-2 flex items-center gap-1.5"><i data-lucide="alert-triangle" class="w-3 h-3"></i>F4 · Validación blanda · duración atípica (&lt;14d o &gt;180d)</div>
+        <div class="bg-white rounded-xl border-2 border-slate-300 overflow-hidden shadow-sm">
+          <div class="px-4 py-3 bg-slate-100 flex items-center gap-2.5">
+            <span class="section-num active" style="background:#64748b">3</span>
+            <div class="flex-1">
+              <div class="text-sm font-bold text-slate-900">Identificadores comerciales</div>
+              <div class="text-[10px] text-slate-600 mt-0.5">Banner amber · NO bloquea · solo alerta</div>
+            </div>
+            <i data-lucide="chevron-up" class="w-4 h-4 text-slate-600"></i>
+          </div>
+          <div class="p-4 space-y-3 bg-white">
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1.5">Código UPC</label>
+                <input type="text" value="033984099999" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs font-mono">
+              </div>
+              <div>
+                <label class="block text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1.5">Contenido neto <span class="text-rose-500">*</span></label>
+                <div class="flex items-center gap-1.5">
+                  <input type="number" value="30" class="flex-1 px-3 py-2 border border-slate-200 rounded-lg text-xs tabular">
+                  <select class="px-2 py-2 border border-slate-200 rounded-lg text-xs"><option>cápsulas</option></select>
+                </div>
+              </div>
+            </div>
+            <!-- CHIP CON BANNER VALIDACIÓN -->
+            <div class="rounded-lg bg-emerald-50 border border-emerald-300 p-3 flex items-center gap-3">
+              <div class="w-9 h-9 rounded-lg bg-emerald-600 text-white flex items-center justify-center flex-shrink-0">
+                <i data-lucide="calendar-clock" class="w-4 h-4"></i>
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="text-[10px] uppercase tracking-wider text-emerald-800 font-bold">Duración del envase</div>
+                <div class="text-base font-bold text-emerald-900 tabular">≈ 7 días</div>
+                <div class="text-[9px] text-emerald-700 mt-0.5">30 cápsulas ÷ 4 servings/día</div>
+              </div>
+              <div class="text-[9px] px-2 py-0.5 rounded-full bg-emerald-200 text-emerald-900 font-bold flex items-center gap-1"><i data-lucide="zap" class="w-2.5 h-2.5"></i>auto</div>
+            </div>
+            <div class="rounded-lg bg-amber-50 border border-amber-300 p-2.5 flex items-start gap-2">
+              <i data-lucide="alert-triangle" class="w-3.5 h-3.5 text-amber-700 flex-shrink-0 mt-0.5"></i>
+              <div class="text-[10px] text-amber-900 leading-relaxed">
+                <strong>Frasco rinde menos de 2 semanas.</strong> Verificá que <strong>Servings/día</strong> (4) y el <strong>Contenido</strong> (30 cápsulas) sean correctos. Si es un blister chico para muestra, ignorá esta alerta.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
 
-  <!-- FOOTER -->
-  <div class="border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-between">
-    <div class="flex items-center gap-2 text-[10px] text-slate-500">
-      <i data-lucide="check-circle-2" class="w-3 h-3 text-emerald-500"></i>
-      <span>Auto-guardado: hace 2 segundos</span>
-    </div>
-    <div class="flex items-center gap-2">
-      <button class="px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-100 rounded-lg">Cancelar</button>
-      <button class="px-4 py-1.5 text-xs font-bold text-white bg-teal-600 hover:bg-teal-700 rounded-lg flex items-center gap-1.5 shadow-sm">
-        <i data-lucide="check" class="w-3.5 h-3.5"></i>Crear producto
-      </button>
-    </div>
-  </div>
 </div>
 
 <script>if(typeof lucide!=='undefined')lucide.createIcons();</script>

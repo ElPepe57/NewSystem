@@ -67,7 +67,15 @@ interface ProductoDetailModalProps {
   onArchivar?: (producto: Producto) => void;
   onDuplicar?: (producto: Producto) => void;
   onAgregarVariante?: (producto: Producto) => void;
-  /** GAP-021 fix · permite que TabInvestigacion abra el modal #24 */
+  /**
+   * S3.4 (2026-05-04) · Tab inicial al abrir el modal.
+   * Por defecto 'resumen'. Cuando el listado lanza "Abrir investigación" del producto,
+   * se pasa 'investigacion' para que arranque ahí directo.
+   * Reemplaza el viejo onAbrirInvestigacion que abría InvestigacionCompletaModal aislado.
+   */
+  initialTab?: TabKey;
+  /** @deprecated S3.4 · usar `initialTab='investigacion'` en su lugar. Se mantiene por compat
+   *  hasta migrar todos los consumidores. Si se pasa, se ignora · ya no abre el modal viejo. */
   onAbrirInvestigacion?: (producto: Producto) => void;
 }
 
@@ -84,7 +92,7 @@ function useProductoFresco(productoOriginal: Producto | null): Producto | null {
   return fresco ?? productoOriginal;
 }
 
-type TabKey = 'resumen' | 'variantes' | 'investigacion' | 'stock' | 'historico' | 'pipeline' | 'componentes';
+export type TabKey = 'resumen' | 'variantes' | 'investigacion' | 'stock' | 'historico' | 'pipeline' | 'componentes';
 
 interface TabConfig {
   key: TabKey;
@@ -153,21 +161,21 @@ export const ProductoDetailModal: React.FC<ProductoDetailModalProps> = ({
   onArchivar,
   onDuplicar,
   onAgregarVariante,
-  onAbrirInvestigacion,
+  initialTab = 'resumen',
 }) => {
   // Resolver siempre la versión más fresca del producto desde el store
   // para reflejar cambios sin tener que cerrar/reabrir el modal (ej. agregar
   // proveedor/competidor, ajustar precio, marcar revisada, auto-save flete).
   const producto = useProductoFresco(productoProp);
 
-  const [activeTab, setActiveTab] = useState<TabKey>('resumen');
+  const [activeTab, setActiveTab] = useState<TabKey>(initialTab);
   const [showMoreMenu, setShowMoreMenu] = useState(false);
   const moreMenuRef = useRef<HTMLDivElement>(null);
 
-  // Reset tab cuando cambia el producto
+  // Reset tab cuando cambia el producto · usa initialTab si se pasó
   useEffect(() => {
-    if (open) setActiveTab('resumen');
-  }, [open, producto?.id]);
+    if (open) setActiveTab(initialTab);
+  }, [open, producto?.id, initialTab]);
 
   // Cerrar con ESC
   useEffect(() => {
@@ -662,7 +670,9 @@ export const ProductoDetailModal: React.FC<ProductoDetailModalProps> = ({
               onActualizarNotas={handleActualizarNotas}
               onMarcarRevisada={handleMarcarRevisada}
               onAbrirAjustarPrecio={handleAbrirAjustarPrecio}
-              onIniciarInvestigacion={onAbrirInvestigacion ? () => onAbrirInvestigacion(producto) : handleAgregarProveedor}
+              // S3.4 · "Iniciar investigación" ahora dispara "Agregar proveedor"
+              // (abre sub-modal en el mismo contexto · ya no salta a modal aislado).
+              onIniciarInvestigacion={handleAgregarProveedor}
             />
           )}
           {activeTab === 'stock' && <TabStock producto={producto} hermanasGrupo={hermanasGrupo} />}

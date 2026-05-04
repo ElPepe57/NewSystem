@@ -17,9 +17,10 @@
  */
 
 import React, { useMemo } from 'react';
-import { Info, Palette, Globe, DollarSign, Award, Building, Calculator, Users } from 'lucide-react';
+import { Info, Palette, Globe, DollarSign, Award, Building, Calculator, Users, Sparkles, CalendarClock, Zap } from 'lucide-react';
 import type { Producto } from '../../../../types/producto.types';
 import { calcularInvestigacion } from '../../utils/investigacionCalculos';
+import { calcularDuracionEnvase } from '../../utils/duracionEnvase';
 
 interface TabResumenProps {
   producto: Producto;
@@ -88,7 +89,9 @@ export const TabResumen: React.FC<TabResumenProps> = ({ producto }) => {
             {producto.tipoProducto?.nombre && (
               <Field label="Tipo de producto" value={producto.tipoProducto.nombre} />
             )}
-            {(producto as any).descripcion && (
+            {/* S3.4 (2026-05-04) · Si NO hay descripcionMarketing nuevo, mostrar descripcion legacy plana.
+                Cuando hay descripcionMarketing, se usa la sección "Marketing comercial" más abajo. */}
+            {!producto.descripcionMarketing && (producto as any).descripcion && (
               <div className="sm:col-span-2">
                 <FieldLabel>Descripción</FieldLabel>
                 <div className="text-slate-700 text-sm leading-relaxed">{(producto as any).descripcion}</div>
@@ -96,6 +99,16 @@ export const TabResumen: React.FC<TabResumenProps> = ({ producto }) => {
             )}
           </div>
         </Section>
+
+        {/* S3.4 · Marketing comercial · 4 niveles generados por IA (DEUDA-IA-SEO-001) */}
+        {producto.descripcionMarketing && (
+          <MarketingSection marketing={producto.descripcionMarketing} />
+        )}
+
+        {/* S3.4 · Chip duración del envase · solo SUP */}
+        {(producto.lineaNegocioNombre ?? '').toLowerCase().includes('suplem') && (
+          <DuracionEnvaseRow producto={producto} />
+        )}
 
         {/* 2. Atributos Skincare (solo si línea es skincare) */}
         {isSkincare && producto.atributosSkincare && (
@@ -350,3 +363,154 @@ const InsightCards: React.FC<InsightCardsProps> = ({ precioVenta, margenPct, ctr
     </div>
   </>
 );
+
+// ═══════ S3.4 · Marketing comercial · 4 niveles generados por IA ════════════
+const MarketingSection: React.FC<{ marketing: NonNullable<Producto['descripcionMarketing']> }> = ({ marketing }) => {
+  const tagline = marketing.tagline?.texto;
+  const beneficios = marketing.beneficios?.texto;
+  const descripcion = marketing.descripcion?.texto;
+  const keywords = marketing.keywordsSEO?.texto;
+  const fuente = marketing.tagline?.fuente ?? marketing.descripcion?.fuente ?? 'manual';
+
+  // No renderizar si está completamente vacío
+  if (!tagline && !descripcion && (!beneficios || beneficios.length === 0)) return null;
+
+  const fuenteBadge =
+    fuente === 'ia' ? { label: 'IA', cls: 'bg-purple-100 text-purple-700 border-purple-200' }
+    : fuente === 'mixto' ? { label: 'IA + edición', cls: 'bg-amber-100 text-amber-700 border-amber-200' }
+    : { label: 'Manual', cls: 'bg-slate-100 text-slate-700 border-slate-200' };
+
+  return (
+    <Section title="Marketing comercial" icon={Sparkles} iconColor="text-purple-600">
+      <div className="space-y-3">
+        {/* Header con badge de fuente */}
+        <div className="flex items-center gap-2">
+          <span className={`text-[10px] uppercase tracking-wider font-bold px-2 py-0.5 rounded-full border ${fuenteBadge.cls} flex items-center gap-1`}>
+            <Sparkles className="w-2.5 h-2.5" />{fuenteBadge.label}
+          </span>
+          {marketing.tagline?.generadoEn && (
+            <span className="text-[10px] text-slate-500 italic">
+              Generado: {formatTimestamp(marketing.tagline.generadoEn)}
+            </span>
+          )}
+        </div>
+
+        {/* Nivel 1 · Tagline (frase gancho · arranca con keyword principal) */}
+        {tagline && (
+          <div>
+            <FieldLabel>Frase gancho</FieldLabel>
+            <div className="text-slate-900 text-base font-bold leading-snug">{tagline}</div>
+          </div>
+        )}
+
+        {/* Nivel 2 · Beneficios bullets */}
+        {beneficios && beneficios.length > 0 && (
+          <div>
+            <FieldLabel>Beneficios principales</FieldLabel>
+            <ul className="space-y-1">
+              {beneficios.map((b, i) => (
+                <li key={i} className="flex items-start gap-2 text-sm text-slate-700">
+                  <span className="text-purple-600 font-bold mt-0.5">•</span>
+                  <span className="leading-relaxed">{b}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {/* Nivel 3 · Descripción narrativa */}
+        {descripcion && (
+          <div>
+            <FieldLabel>Descripción</FieldLabel>
+            <div className="text-slate-700 text-sm leading-relaxed whitespace-pre-line">{descripcion}</div>
+          </div>
+        )}
+
+        {/* Nivel 4 · Keywords SEO */}
+        {keywords && keywords.length > 0 && (
+          <div>
+            <FieldLabel>Keywords SEO · long-tail Google + Mercado Libre</FieldLabel>
+            <div className="rounded-lg bg-emerald-50 border border-emerald-200 p-2.5">
+              <div className="flex flex-wrap gap-1.5">
+                {keywords.map((kw, i) => (
+                  <span key={i} className="px-2 py-0.5 rounded-full bg-white border border-emerald-300 text-emerald-900 text-[10px] font-medium">
+                    {kw}
+                  </span>
+                ))}
+              </div>
+              <div className="mt-1.5 text-[9px] text-emerald-800 italic">
+                Listas para meta-tags · atributos Mercado Libre · schema.org · sitemap interno
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </Section>
+  );
+};
+
+function formatTimestamp(ts: any): string {
+  try {
+    const date = ts?.toDate?.() ?? (ts?.seconds ? new Date(ts.seconds * 1000) : null);
+    if (!date) return '';
+    return date.toLocaleDateString('es-PE', { day: 'numeric', month: 'short', year: 'numeric' });
+  } catch {
+    return '';
+  }
+}
+
+// ═══════ S3.4 · Chip duración del envase (solo SUP · cara cliente) ═══════════
+//
+// Lazy migration: si el producto NO tiene `contenidoNeto` estructurado pero SÍ
+// tiene el campo legacy `contenido` ("150 capsulas", "60 cápsulas", etc.), lo
+// parseamos al vuelo para que el chip funcione también en productos legacy que
+// nunca pasaron por el wizard nuevo.
+function parseLegacyContenido(contenidoStr: string | undefined): { valor: number; unidad: any } | undefined {
+  if (!contenidoStr) return undefined;
+  const m = contenidoStr.match(/^([\d.]+)\s*(\w+)/);
+  if (!m) return undefined;
+  const valor = parseFloat(m[1]);
+  if (!isFinite(valor) || valor <= 0) return undefined;
+  const unidadRaw = m[2].toLowerCase();
+  // Normalizar tildes y palabras frecuentes
+  const map: Record<string, string> = {
+    'cápsulas': 'capsulas', 'capsulas': 'capsulas', 'caps': 'capsulas', 'cápsula': 'capsulas',
+    'tabletas': 'tabletas', 'tabs': 'tabletas', 'tableta': 'tabletas',
+    'gomitas': 'gomitas', 'gomita': 'gomitas',
+    'sobres': 'sobres', 'sticks': 'sticks', 'scoops': 'scoops',
+    'ml': 'ml', 'g': 'g', 'gr': 'g', 'gramos': 'g', 'gramo': 'g',
+    'lb': 'lb', 'libras': 'lb', 'oz': 'oz', 'kg': 'kg',
+  };
+  const unidad = map[unidadRaw];
+  if (!unidad) return undefined;
+  return { valor, unidad };
+}
+
+const DuracionEnvaseRow: React.FC<{ producto: Producto }> = ({ producto }) => {
+  const contenidoNetoEfectivo = producto.contenidoNeto
+    ?? parseLegacyContenido((producto as any).contenido);
+  const estado = calcularDuracionEnvase({
+    contenidoNeto: contenidoNetoEfectivo,
+    servingsPerDay: producto.servingsPerDay,
+    dosaje: producto.atributosSuplementos?.dosaje,
+  });
+  if (estado.tipo !== 'ok') return null;
+
+  return (
+    <Section title="Ciclo del producto" icon={CalendarClock} iconColor="text-emerald-600">
+      <div className="rounded-lg bg-emerald-50 border border-emerald-300 p-3 flex items-center gap-3">
+        <div className="w-9 h-9 rounded-lg bg-emerald-600 text-white flex items-center justify-center flex-shrink-0">
+          <CalendarClock className="w-4 h-4" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="text-[10px] uppercase tracking-wider text-emerald-800 font-bold">Duración del envase</div>
+          <div className="text-base font-bold text-emerald-900 tabular-nums">≈ {estado.dias} días</div>
+          <div className="text-[10px] text-emerald-700 mt-0.5">{estado.razonCalculo} · ciclo de recompra estimado</div>
+        </div>
+        <div className="text-[9px] px-2 py-0.5 rounded-full bg-emerald-200 text-emerald-900 font-bold flex items-center gap-1">
+          <Zap className="w-2.5 h-2.5" />auto
+        </div>
+      </div>
+    </Section>
+  );
+};

@@ -66,7 +66,9 @@ export type TexturaSKC =
 
 export interface AtributosSkincare {
   tipoProductoSKC: TipoProductoSKC;
+  /** @deprecated S3.2 · usar `Producto.contenidoNeto` (campo cross-línea) · era el mismo dato */
   volumen: string;
+  /** @deprecated S3.2 · usar `Producto.contenidoNeto.unidad` (cross-línea) */
   unidadMedida?: 'ml' | 'g' | 'oz' | 'unidades';
   ingredienteClave?: string;
   ingredientesSecundarios?: string[];
@@ -238,6 +240,13 @@ export const SABORES_SUGERIDOS = [
 
 /** Atributos Suplementos · estructura denormalizada en el Producto */
 export interface AtributosSuplementos {
+  /**
+   * @deprecated S3.4 (2026-05-04) · La presentación física (cápsulas/tabletas/polvo)
+   * ahora se infiere de `producto.contenidoNeto.unidad`. Se mantiene en lectura para
+   * productos legacy pero NO se renderiza en el wizard ni editor V2. Migración lazy:
+   * cuando se edita un producto legacy con `presentacion='capsulas'` y la unidad de
+   * `contenidoNeto` ya cubre el caso, este campo se ignora silenciosamente.
+   */
   presentacion?: PresentacionSUP;            // CERRADO single
   momentoDia?: string[];                     // CERRADO multi
   tomaConComida?: TomaConComida;             // CERRADO single
@@ -245,6 +254,151 @@ export interface AtributosSuplementos {
   restricciones?: string[];                  // CHIPS creables (free)
   sabor?: string;                            // single string (legacy compat)
   advertencias?: string;                     // TEXTAREA
+  /** Composición / ingredientes activos por serving · ej. "5000 IU D3 + 100 mcg K2 (MK-7)" · S3.2 movido desde top-level */
+  dosaje?: string;
+}
+
+// ============================================
+// CONTENIDO NETO (cross-línea · S3.2)
+// ============================================
+
+/**
+ * Contenido neto del envase · campo único cross-línea (S3.2 · 2026-05-03).
+ *
+ * Reemplaza el ex-`AtributosSkincare.volumen` + `AtributosSkincare.unidadMedida`
+ * (ahora @deprecated) por un campo unificado que aplica a TODAS las líneas:
+ *   - SKC: 50 ml · 30 ml · 100 g
+ *   - SUP: 90 cápsulas · 60 tabletas · 250 g polvo
+ *   - Apparel: 1 unidad
+ *   - Alimentos: 500 g · 1 kg
+ *
+ * El campo legacy `Producto.contenido` (string) se conserva para retrocompat
+ * pero las nuevas creaciones usan `contenidoNeto` estructurado.
+ */
+export type UnidadContenido =
+  | 'ml'
+  | 'g'
+  | 'oz'
+  | 'fl_oz'
+  | 'kg'
+  | 'lb'
+  | 'capsulas'
+  | 'tabletas'
+  | 'gomitas'
+  | 'sobres'
+  | 'sticks'
+  | 'scoops'
+  | 'unidades'
+  | 'pares';
+
+export const UNIDAD_CONTENIDO_LABELS: Record<UnidadContenido, string> = {
+  ml: 'ml',
+  g: 'g',
+  oz: 'oz',
+  fl_oz: 'fl oz',
+  kg: 'kg',
+  lb: 'lb',
+  capsulas: 'cápsulas',
+  tabletas: 'tabletas',
+  gomitas: 'gomitas',
+  sobres: 'sobres',
+  sticks: 'sticks',
+  scoops: 'scoops',
+  unidades: 'unidades',
+  pares: 'pares',
+};
+
+/**
+ * S3.4 (2026-05-04) · Unidades discretas: cuando el contenido se mide en
+ * piezas contables (cápsulas, tabletas, gomitas, sobres, sticks, scoops),
+ * la duración del envase es directa: contenido / servings/día.
+ * Para unidades continuas (ml/g/lb) se requiere `dosaje` para calcular.
+ */
+export const UNIDADES_DISCRETAS_SUP: ReadonlyArray<UnidadContenido> = [
+  'capsulas', 'tabletas', 'gomitas', 'sobres', 'sticks', 'scoops',
+] as const;
+
+/** S3.4 · Unidades válidas para suplementos. */
+export const UNIDADES_SUP: ReadonlyArray<UnidadContenido> = [
+  'capsulas', 'tabletas', 'gomitas', 'sobres', 'sticks', 'scoops',
+  'g', 'ml', 'lb', 'oz',
+] as const;
+
+/** S3.4 · Unidades válidas para skincare. */
+export const UNIDADES_SKC: ReadonlyArray<UnidadContenido> = [
+  'ml', 'g', 'oz', 'fl_oz',
+] as const;
+
+/** S3.4 · Unidades válidas para apparel. */
+export const UNIDADES_APPAREL: ReadonlyArray<UnidadContenido> = [
+  'unidades', 'pares',
+] as const;
+
+/** S3.4 · Unidades válidas para alimentos. */
+export const UNIDADES_ALIMENTOS: ReadonlyArray<UnidadContenido> = [
+  'g', 'kg', 'ml', 'oz', 'lb',
+] as const;
+
+export interface ContenidoNeto {
+  valor: number;
+  unidad: UnidadContenido;
+}
+
+// ============================================
+// MARKETING COMERCIAL (S3.2 · IA · DEUDA-IA-001)
+// ============================================
+
+/**
+ * Marketing comercial generado por IA · 3 niveles (S3.2 · 2026-05-03).
+ *
+ * Implementa DEUDA-IA-001 declarada en MEMORY.md:
+ *   - Generación con Gemini Flash 2.0 vía Cloud Function `generarDescripcionProducto`
+ *   - Compliance DIGEMID/INDECOPI integrado en prompt (sin claims terapéuticos)
+ *   - Disclaimer auto en SUP
+ *   - Auditoría por campo (ia/manual/mixto) + timestamps
+ *   - Botón "Generar con IA" deshabilitado hasta tener Sec.1-5 completas
+ */
+
+/** Fuente del campo marketing · permite trackear origen */
+export type FuenteMarketing = 'ia' | 'manual' | 'mixto';
+
+/**
+ * Audit info de un campo marketing.
+ *
+ * - `generadoEn` = última vez que IA produjo el contenido (timestamp)
+ * - `editadoEn` = última edición manual del usuario (timestamp)
+ * - Si edición manual diverge ≥30% del texto generado → `fuente` pasa a 'mixto'
+ */
+export interface MarketingFieldAudit<T = string> {
+  texto: T;
+  fuente: FuenteMarketing;
+  generadoEn?: Timestamp;
+  editadoEn?: Timestamp;
+  generadoPor?: string;     // userId
+  editadoPor?: string;      // userId
+}
+
+/**
+ * Estructura completa de marketing comercial · 3 niveles.
+ *
+ * Cada nivel trackea su propia auditoría: un usuario puede generar todo
+ * con IA y después editar manualmente solo el tagline → tagline pasa a
+ * 'mixto' pero beneficios y descripción siguen 'ia'.
+ */
+export interface DescripcionMarketing {
+  /** Nivel 1 · Hook ~10-15 palabras · listings, ads, MercadoLibre título extendido · arranca con keyword principal */
+  tagline: MarketingFieldAudit<string>;
+  /** Nivel 2 · 3-5 bullets escaneables · página producto, banners, redes */
+  beneficios: MarketingFieldAudit<string[]>;
+  /** Nivel 3 · 2-3 párrafos persuasivos · ~120-180 palabras · marketplaces, fichas · primer párrafo carga keyword principal + LSI */
+  descripcion: MarketingFieldAudit<string>;
+  /**
+   * S3.4 (2026-05-04) · Keywords objetivo para SEO orgánico Google + Mercado Libre.
+   * 5-10 frases largas (long-tail) generadas por la IA desde marca + ingrediente
+   * clave + tipo + beneficios. Usables en meta-tags, sitemap, palabras clave
+   * de Mercado Libre, atributos schema.org. NO requiere edición manual.
+   */
+  keywordsSEO?: MarketingFieldAudit<string[]>;
 }
 
 // ============================================
@@ -614,8 +768,8 @@ export interface Producto {
   ctruPromedio: number;
 
   /**
-   * Costo FIJO de flete internacional por unidad (USD)
-   * Es intrínseco al producto porque depende de su peso/volumen.
+   * @deprecated S3.2 · vive en envíos/OC dinámico (ruta + modalidad + peso)
+   * Mantenido para retrocompat con productos existentes.
    */
   costoFleteInternacional?: number;
 
@@ -632,6 +786,14 @@ export interface Producto {
 
   // === ATRIBUTOS SUPLEMENTOS (solo línea SUP) — Fase E2 ===
   atributosSuplementos?: AtributosSuplementos;
+
+  // === CONTENIDO NETO (S3.2 · cross-línea) ===
+  /** Cantidad real del envase · ml/g/oz para SKC · cápsulas/tabletas para SUP · unidades para Apparel · g/kg para Alimentos. Reemplaza al ex-`atributosSkincare.volumen`. */
+  contenidoNeto?: ContenidoNeto;
+
+  // === MARKETING COMERCIAL (S3.2 · IA · DEUDA-IA-001) ===
+  /** Copy comercial 3 niveles (tagline + beneficios + descripción) generado por IA con auditoría por campo. Se genera al final del wizard una vez todas las secciones están completas. */
+  descripcionMarketing?: DescripcionMarketing;
 
   // === STOCK ===
   /** @deprecated Usar stockOrigen para multi-país */
@@ -736,6 +898,7 @@ export interface ProductoFormData {
   codigoUPC: string;
   stockMinimo: number;
   stockMaximo: number;
+  /** @deprecated S3.2 · vive en envíos/OC · ya no se llena en wizard nuevo */
   costoFleteInternacional?: number;
   pesoLibras?: number;                      // Peso por unidad en libras (lb)
   paisOrigen?: string;                      // País de origen del producto
@@ -746,6 +909,12 @@ export interface ProductoFormData {
 
   // === ATRIBUTOS SUPLEMENTOS (solo línea SUP) — Fase E2 ===
   atributosSuplementos?: AtributosSuplementos;
+
+  // === CONTENIDO NETO (S3.2 · cross-línea) ===
+  contenidoNeto?: ContenidoNeto;
+
+  // === MARKETING COMERCIAL (S3.2 · IA) ===
+  descripcionMarketing?: DescripcionMarketing;
 
   // === CICLO DE RECOMPRA ===
   /**

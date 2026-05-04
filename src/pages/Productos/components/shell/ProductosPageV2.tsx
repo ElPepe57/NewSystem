@@ -53,16 +53,15 @@ import {
 import { ProductosListV2 } from '../cards';
 import { ProductoDetailModal } from '../detail';
 import { ProductoEditModal } from '../edit';
-import { WizardSelector, WizardSimple, WizardConVariantes, WizardPack, WizardVarianteExistente, type TipoCreacion, type DatosComunes, type VarianteEntry } from '../wizards';
+import { ProductoEditModalV2 } from '../edit/ProductoEditModalV2';
+import { WizardSelector, WizardSimple, WizardProductoV2, WizardConVariantes, WizardPack, WizardVarianteExistente, type TipoCreacion, type DatosComunes, type VarianteEntry } from '../wizards';
+import { isWizardProductoV2Enabled } from '../../../../config/features';
 import {
   PapeleraModal,
-  InvestigacionCompletaModal,
-  ProveedorFormModal,
-  CompetidorFormModal,
   ImportarCSVModal,
-  type InvestigacionPayload,
-  type ProveedorInvestigacionFormValue,
-  type CompetidorInvestigacionFormValue,
+  // S3.4 · InvestigacionCompletaModal, ProveedorFormModal, CompetidorFormModal
+  // y sus tipos ELIMINADOS de este import: la gestión vive ahora dentro del
+  // modal detalle del producto (TabInvestigacion + sub-modales internos).
 } from '../modals';
 import {
   CambiarEstadoBulkModal,
@@ -145,22 +144,19 @@ export const ProductosPageV2: React.FC = () => {
   const { createProducto } = useProductoStore();
   const [showMobileDrawer, setShowMobileDrawer] = useState(false);
   const [detailProducto, setDetailProducto] = useState<Producto | null>(null);
+  // S3.4 · tab inicial al abrir el modal detalle. 'resumen' por default · 'investigacion'
+  // cuando el usuario clickea "Investigación" en el listado o en el dashboard.
+  const [detailInitialTab, setDetailInitialTab] = useState<'resumen' | 'investigacion'>('resumen');
   const [showSelector, setShowSelector] = useState(false);
   const [wizardActivo, setWizardActivo] = useState<TipoCreacion | null>(null);
   // Fase 8 · Modales standalone
   const [showPapelera, setShowPapelera] = useState(false);
-  const [investigacionProducto, setInvestigacionProducto] = useState<Producto | null>(null);
   // Modal Editar Producto · Fase D
   const [editingProducto, setEditingProducto] = useState<Producto | null>(null);
 
-  // Sub-modales de Proveedor/Competidor (Fase B-feedback v6.1)
-  // Estado: null = cerrado · 'nuevo' = crear · ProveedorInvestigacionFormValue = editar
-  const [proveedorEditing, setProveedorEditing] = useState<
-    ProveedorInvestigacionFormValue | 'nuevo' | null
-  >(null);
-  const [competidorEditing, setCompetidorEditing] = useState<
-    CompetidorInvestigacionFormValue | 'nuevo' | null
-  >(null);
+  // S3.4 (2026-05-04) · States `investigacionProducto`, `proveedorEditing`, `competidorEditing`
+  // ELIMINADOS junto con InvestigacionCompletaModal. Ahora todo el CRUD de proveedores/
+  // competidores vive dentro de ProductoDetailModal · TabInvestigacion.
 
   // Fase 9 · Tools
   const [showIntel, setShowIntel] = useState(false);
@@ -663,169 +659,25 @@ export const ProductosPageV2: React.FC = () => {
     }
   };
 
+  /**
+   * S3.4 (2026-05-04) · Consolidación de gestión de Investigación.
+   *
+   * Antes esto abría el modal full-screen `InvestigacionCompletaModal` aislado
+   * (con 3 sub-tabs Proveedores · Competencia · Decisión). Ahora abre el modal
+   * detalle del producto directamente en el tab `investigacion`, donde el
+   * usuario tiene contexto completo del producto y la misma funcionalidad de
+   * agregar/editar proveedores y competidores · sin perder contexto.
+   *
+   * El modal viejo y sus 3 sub-tabs quedan eliminados (eran duplicación de UI).
+   */
   const handleAbrirInvestigacion = (p: Producto) => {
-    setInvestigacionProducto(p);
+    setDetailProducto(p);
+    setDetailInitialTab('investigacion');
   };
 
-  // Sub-modales Proveedor / Competidor (CRUD sobre producto.investigacion)
-  const handleAgregarProveedorInv = () => setProveedorEditing('nuevo');
-
-  const handleEditarProveedorInv = (proveedorId: string) => {
-    if (!investigacionProducto) return;
-    const inv: any = (investigacionProducto as any).investigacion;
-    const raw = (inv?.proveedoresUSA ?? []).find((p: any) => p.id === proveedorId);
-    if (!raw) return;
-    setProveedorEditing({
-      id: raw.id,
-      proveedorId: raw.proveedorId,
-      proveedorNombre: raw.nombre,
-      proveedorTipo: undefined,
-      proveedorPais: raw.pais,
-      proveedorMetricasOC: raw.ocsHistoricas,
-      costoUnitarioUSD: raw.precio ?? 0,
-      taxValor: raw.impuesto ?? 0,
-      taxModo: raw.impuestoModo === '$' ? '$' : '%',
-      url: raw.url,
-      notas: raw.notas,
-    });
-  };
-
-  const handleGuardarProveedorInv = async (val: ProveedorInvestigacionFormValue) => {
-    if (!investigacionProducto || !user) return;
-    const invActual: any = (investigacionProducto as any).investigacion ?? {};
-    const proveedoresActuales: any[] = invActual.proveedoresUSA ?? [];
-    const isNuevo = !proveedoresActuales.some((p) => p.id === val.id);
-    const provDoc = {
-      id: val.id,
-      proveedorId: val.proveedorId,
-      nombre: val.proveedorNombre ?? '',
-      precio: val.costoUnitarioUSD,
-      impuesto: val.taxValor,
-      impuestoModo: val.taxModo,
-      url: val.url,
-      notas: val.notas,
-      pais: val.proveedorPais,
-      disponibilidad: 'desconocido',
-      fechaConsulta: new Date(),
-    };
-    const nuevos = isNuevo
-      ? [...proveedoresActuales, provDoc]
-      : proveedoresActuales.map((p) => (p.id === val.id ? provDoc : p));
-    try {
-      await ProductoService.update(investigacionProducto.id, {
-        investigacion: { ...invActual, proveedoresUSA: nuevos },
-      } as any);
-      toast.success(isNuevo ? `Proveedor agregado a la investigación` : `Proveedor actualizado`);
-      setProveedorEditing(null);
-      // Refrescar el producto en estado local
-      await fetchProductos();
-      const refreshed = (useProductoStore.getState().productos ?? []).find(
-        (p: any) => p.id === investigacionProducto.id,
-      );
-      if (refreshed) setInvestigacionProducto(refreshed as Producto);
-    } catch (err: any) {
-      toast.error(`Error al guardar proveedor: ${err?.message ?? 'desconocido'}`);
-    }
-  };
-
-  const handleEliminarProveedorInv = async () => {
-    if (!investigacionProducto || !user || proveedorEditing === 'nuevo' || !proveedorEditing) return;
-    const idToRemove = proveedorEditing.id;
-    const invActual: any = (investigacionProducto as any).investigacion ?? {};
-    const nuevos = (invActual.proveedoresUSA ?? []).filter((p: any) => p.id !== idToRemove);
-    try {
-      await ProductoService.update(investigacionProducto.id, {
-        investigacion: { ...invActual, proveedoresUSA: nuevos },
-      } as any);
-      toast.success('Proveedor eliminado de la investigación');
-      setProveedorEditing(null);
-      await fetchProductos();
-      const refreshed = (useProductoStore.getState().productos ?? []).find(
-        (p: any) => p.id === investigacionProducto.id,
-      );
-      if (refreshed) setInvestigacionProducto(refreshed as Producto);
-    } catch (err: any) {
-      toast.error(`Error al eliminar proveedor: ${err?.message ?? 'desconocido'}`);
-    }
-  };
-
-  const handleAgregarCompetidorInv = (_nombre?: string) => setCompetidorEditing('nuevo');
-
-  const handleEditarCompetidorInv = (competidorId: string) => {
-    if (!investigacionProducto) return;
-    const inv: any = (investigacionProducto as any).investigacion;
-    const raw = (inv?.competidoresPeru ?? []).find((c: any) => c.id === competidorId);
-    if (!raw) return;
-    setCompetidorEditing({
-      id: raw.id,
-      competidorId: raw.competidorId,
-      competidorNombre: raw.nombre,
-      competidorPais: raw.pais,
-      competidorPlataformas: raw.plataformasDelMaestro,
-      plataformaSeleccionada: raw.plataforma,
-      precioPEN: raw.precio ?? 0,
-      url: raw.url,
-      notas: raw.notas,
-    });
-  };
-
-  const handleGuardarCompetidorInv = async (val: CompetidorInvestigacionFormValue) => {
-    if (!investigacionProducto || !user) return;
-    const invActual: any = (investigacionProducto as any).investigacion ?? {};
-    const competidoresActuales: any[] = invActual.competidoresPeru ?? [];
-    const isNuevo = !competidoresActuales.some((c) => c.id === val.id);
-    const compDoc = {
-      id: val.id,
-      competidorId: val.competidorId,
-      nombre: val.competidorNombre ?? '',
-      plataforma: val.plataformaSeleccionada,
-      plataformasDelMaestro: val.competidorPlataformas,
-      pais: val.competidorPais,
-      precio: val.precioPEN,
-      url: val.url,
-      notas: val.notas,
-      fechaConsulta: new Date(),
-    };
-    const nuevos = isNuevo
-      ? [...competidoresActuales, compDoc]
-      : competidoresActuales.map((c) => (c.id === val.id ? compDoc : c));
-    try {
-      await ProductoService.update(investigacionProducto.id, {
-        investigacion: { ...invActual, competidoresPeru: nuevos },
-      } as any);
-      toast.success(isNuevo ? `Competidor agregado a la investigación` : `Competidor actualizado`);
-      setCompetidorEditing(null);
-      await fetchProductos();
-      const refreshed = (useProductoStore.getState().productos ?? []).find(
-        (p: any) => p.id === investigacionProducto.id,
-      );
-      if (refreshed) setInvestigacionProducto(refreshed as Producto);
-    } catch (err: any) {
-      toast.error(`Error al guardar competidor: ${err?.message ?? 'desconocido'}`);
-    }
-  };
-
-  const handleEliminarCompetidorInv = async () => {
-    if (!investigacionProducto || !user || competidorEditing === 'nuevo' || !competidorEditing)
-      return;
-    const idToRemove = competidorEditing.id;
-    const invActual: any = (investigacionProducto as any).investigacion ?? {};
-    const nuevos = (invActual.competidoresPeru ?? []).filter((c: any) => c.id !== idToRemove);
-    try {
-      await ProductoService.update(investigacionProducto.id, {
-        investigacion: { ...invActual, competidoresPeru: nuevos },
-      } as any);
-      toast.success('Competidor eliminado de la investigación');
-      setCompetidorEditing(null);
-      await fetchProductos();
-      const refreshed = (useProductoStore.getState().productos ?? []).find(
-        (p: any) => p.id === investigacionProducto.id,
-      );
-      if (refreshed) setInvestigacionProducto(refreshed as Producto);
-    } catch (err: any) {
-      toast.error(`Error al eliminar competidor: ${err?.message ?? 'desconocido'}`);
-    }
-  };
+  // S3.4 · Handlers handle*Inv ELIMINADOS · vivían acoplados al InvestigacionCompletaModal.
+  // El CRUD de proveedores/competidores ahora se hace dentro del ProductoDetailModal
+  // → TabInvestigacion → ProveedorFormModal/CompetidorFormModal (todo en un solo lugar).
 
   // Fase 9 · Tools (memos)
   const intelRows = useMemo(() => buildIntelRows(lista), [lista]);
@@ -1127,23 +979,34 @@ export const ProductosPageV2: React.FC = () => {
       />
 
       {/* Wizard Simple · Fase 7a · 5 secciones colapsables (con Atributos SKC/SUP) + Fase H detección duplicados */}
-      <WizardSimple
-        open={wizardActivo === 'simple'}
-        onClose={() => setWizardActivo(null)}
-        onSubmit={handleCrearSimple}
-        lineasNegocio={lineasActivas.map(l => ({ id: l.id, nombre: l.nombre, codigo: l.codigo }))}
-        catalogoExistente={lista}
-        onConvertirAVariante={(productoBase) => {
-          // Cierra el wizard simple y abre el de variante con el padre pre-seleccionado
-          setWizardActivo('variante_existente');
-          // Pasar el producto base al WizardVarianteExistente (placeholder · TBD)
-          toast.info(`Convertí a variante de "${productoBase.nombreComercial}" · seleccionalo manualmente`);
-        }}
-        onVerDetalle={(p) => {
-          setDetailProducto(p);
-          setWizardActivo(null); // cierra el wizard para ver detalle
-        }}
-      />
+      {/* S3.2 · Si flag WIZARD_PRODUCTO_V2 activo → WizardProductoV2 (6 secciones + Marketing IA) · sino legacy */}
+      {isWizardProductoV2Enabled() ? (
+        <WizardProductoV2
+          open={wizardActivo === 'simple'}
+          onClose={() => setWizardActivo(null)}
+          onSubmit={handleCrearSimple}
+          lineasNegocio={lineasActivas.map(l => ({ id: l.id, nombre: l.nombre, codigo: l.codigo }))}
+          catalogoExistente={lista}
+        />
+      ) : (
+        <WizardSimple
+          open={wizardActivo === 'simple'}
+          onClose={() => setWizardActivo(null)}
+          onSubmit={handleCrearSimple}
+          lineasNegocio={lineasActivas.map(l => ({ id: l.id, nombre: l.nombre, codigo: l.codigo }))}
+          catalogoExistente={lista}
+          onConvertirAVariante={(productoBase) => {
+            // Cierra el wizard simple y abre el de variante con el padre pre-seleccionado
+            setWizardActivo('variante_existente');
+            // Pasar el producto base al WizardVarianteExistente (placeholder · TBD)
+            toast.info(`Convertí a variante de "${productoBase.nombreComercial}" · seleccionalo manualmente`);
+          }}
+          onVerDetalle={(p) => {
+            setDetailProducto(p);
+            setWizardActivo(null); // cierra el wizard para ver detalle
+          }}
+        />
+      )}
 
       {/* Wizard Con Variantes · Fase 7b · F5(A) sidebar 4 pasos · Fase E3 con maestros */}
       <WizardConVariantes
@@ -1182,7 +1045,11 @@ export const ProductosPageV2: React.FC = () => {
             ? [detailProducto]
             : []
         }
-        onClose={() => setDetailProducto(null)}
+        initialTab={detailInitialTab}
+        onClose={() => {
+          setDetailProducto(null);
+          setDetailInitialTab('resumen'); // reset para próximo open
+        }}
         onEdit={(p) => {
           setDetailProducto(null);
           setEditingProducto(p);
@@ -1190,15 +1057,23 @@ export const ProductosPageV2: React.FC = () => {
         onArchivar={handleArchivarProducto}
         onDuplicar={p => toast.info(`Duplicar ${p.nombreComercial} · pendiente`)}
         onAgregarVariante={p => toast.info(`Agregar variante a ${p.nombreComercial} · disponible en Fase 7`)}
-        onAbrirInvestigacion={handleAbrirInvestigacion}
       />
 
       {/* Modal Editar Producto · Fase D · #40 · GAP-020 + GAP-060 */}
-      <ProductoEditModal
-        open={!!editingProducto}
-        producto={editingProducto}
-        onClose={() => setEditingProducto(null)}
-      />
+      {/* S3.2 · Si flag WIZARD_PRODUCTO_V2 activo → ProductoEditModalV2 (6 secciones + Marketing IA) · sino legacy */}
+      {isWizardProductoV2Enabled() ? (
+        <ProductoEditModalV2
+          open={!!editingProducto}
+          producto={editingProducto}
+          onClose={() => setEditingProducto(null)}
+        />
+      ) : (
+        <ProductoEditModal
+          open={!!editingProducto}
+          producto={editingProducto}
+          onClose={() => setEditingProducto(null)}
+        />
+      )}
 
       {/* Modal Papelera · Fase 8 · #23 · listado archivados con restaurar/eliminar */}
       <PapeleraModal
@@ -1210,28 +1085,10 @@ export const ProductosPageV2: React.FC = () => {
         onVaciarPapelera={handleVaciarPapelera}
       />
 
-      {/* Modal Investigación Completa · Fase 8 · #24 · 3 sub-tabs (#25, #26, #27) */}
-      <InvestigacionCompletaModal
-        open={!!investigacionProducto}
-        payload={investigacionProducto ? buildInvestigacionPayload(investigacionProducto) : null}
-        tuPrecioPEN={(investigacionProducto as any)?.precioVenta ?? undefined}
-        onClose={() => setInvestigacionProducto(null)}
-        onReinvestigar={() => toast.info('Re-investigación · disponible en Fase 9 (Tools)')}
-        onMarcarVista={() => {
-          toast.success('Investigación marcada como vista');
-          setInvestigacionProducto(null);
-        }}
-        onAgregarProveedor={handleAgregarProveedorInv}
-        onEditarProveedor={handleEditarProveedorInv}
-        onCrearOC={(provId) => toast.info(`Crear OC con proveedor ${provId} · pendiente`)}
-        onAgregarCompetidor={handleAgregarCompetidorInv}
-        onEditarCompetidor={handleEditarCompetidorInv}
-        onImportar={() => {
-          toast.success('Producto importado al catálogo · pendiente flujo de OC');
-          setInvestigacionProducto(null);
-        }}
-        onDescartar={() => toast.warning('Descartar oportunidad · pendiente captura de motivo')}
-      />
+      {/* S3.4 (2026-05-04) · InvestigacionCompletaModal ELIMINADO · consolidado en
+          el tab "Investigación" del modal detalle del producto. handleAbrirInvestigacion
+          ahora abre el modal detalle directamente en ese tab (no más modal aislado). */}
+
 
       {/* Tool #30 · Productos Intel Dashboard · Fase 9 */}
       <ProductosIntelDashboard
@@ -1296,35 +1153,9 @@ export const ProductosPageV2: React.FC = () => {
         }}
       />
 
-      {/* Sub-modal #37 · Form Proveedor · sobre InvestigacionCompletaModal */}
-      <ProveedorFormModal
-        open={proveedorEditing !== null && !!investigacionProducto}
-        valor={proveedorEditing === 'nuevo' ? null : proveedorEditing}
-        modo={proveedorEditing === 'nuevo' ? 'crear' : 'editar'}
-        productoSku={investigacionProducto?.sku ?? '—'}
-        productoNombre={(investigacionProducto as any)?.nombreComercial ?? 'Producto'}
-        productoPaisOrigen={(investigacionProducto as any)?.paisOrigen}
-        productoLineaNegocioId={(investigacionProducto as any)?.lineaNegocioId}
-        productoLineaNegocioNombre={(investigacionProducto as any)?.lineaNegocioNombre}
-        onClose={() => setProveedorEditing(null)}
-        onGuardar={handleGuardarProveedorInv}
-        onEliminar={proveedorEditing !== 'nuevo' ? handleEliminarProveedorInv : undefined}
-      />
-
-      {/* Sub-modal #38 · Form Competidor · sobre InvestigacionCompletaModal */}
-      <CompetidorFormModal
-        open={competidorEditing !== null && !!investigacionProducto}
-        valor={competidorEditing === 'nuevo' ? null : competidorEditing}
-        modo={competidorEditing === 'nuevo' ? 'crear' : 'editar'}
-        productoSku={investigacionProducto?.sku ?? '—'}
-        productoNombre={(investigacionProducto as any)?.nombreComercial ?? 'Producto'}
-        productoLineaNegocioId={(investigacionProducto as any)?.lineaNegocioId}
-        productoLineaNegocioNombre={(investigacionProducto as any)?.lineaNegocioNombre}
-        tuPrecioPEN={(investigacionProducto as any)?.precioVenta}
-        onClose={() => setCompetidorEditing(null)}
-        onGuardar={handleGuardarCompetidorInv}
-        onEliminar={competidorEditing !== 'nuevo' ? handleEliminarCompetidorInv : undefined}
-      />
+      {/* S3.4 · ProveedorFormModal y CompetidorFormModal a nivel page ELIMINADOS.
+          Esos sub-modales ahora viven dentro de ProductoDetailModal (línea 687-708),
+          invocados desde TabInvestigacion · NO necesitan duplicarse a nivel page. */}
 
       {/* ═══════ Fase G · Mini-modales BulkActions ═══════ */}
       <CambiarEstadoBulkModal
@@ -1454,8 +1285,11 @@ function getSortComparator(key: SortKey): (a: any, b: any) => number {
   }
 }
 
-// ─── Adaptador Producto → InvestigacionPayload (Fase 8 · Modal #24) ─────────
-function buildInvestigacionPayload(p: Producto): InvestigacionPayload {
+// S3.4 · `buildInvestigacionPayload` ELIMINADO · solo se usaba para alimentar
+// el InvestigacionCompletaModal (también eliminado). El TabInvestigacion del
+// modal detalle lee directo de `producto.investigacion` sin necesidad de
+// adaptar al payload legacy.
+/* function buildInvestigacionPayload(p: Producto): InvestigacionPayload {
   const inv: any = (p as any).investigacion;
   const proveedoresRaw: any[] = inv?.proveedoresUSA ?? [];
   const competidoresRaw: any[] = inv?.competidoresPeru ?? [];
@@ -1622,7 +1456,7 @@ function buildInvestigacionPayload(p: Producto): InvestigacionPayload {
       consideraciones: (inv?.alertas ?? []).slice(0, 3).map((a: any) => a.mensaje ?? a.descripcion).filter(Boolean),
     },
   };
-}
+} */
 
 // ─── Adaptadores Fase 9 · Tools ─────────────────────────────────────────────
 

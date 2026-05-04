@@ -150,9 +150,37 @@ export const FEATURES = {
    * Flujo de rollout:
    *   1. false (default) → código desplegado sin acceso del usuario
    *   2. localStorage.setItem('FEATURE_PRODUCTOS_V2', 'true') para UAT
-   *   3. true global tras validación end-to-end de TODAS las fases
+   *   3. true global tras validación end-to-end de TODAS las fases  ← AHORA
+   *
+   * 2026-05-03 · Activado globalmente tras Fases C-H+ validadas en producción.
    */
-  PRODUCTOS_V2: false,
+  PRODUCTOS_V2: true,
+
+  /**
+   * S3.2 · WIZARD_PRODUCTO_V2 · Wizard crear producto único con 6 secciones
+   *
+   * Reorden estructural aprobado en S3.2 (mockups #17 + #40):
+   *   1. Identidad (Línea + País + Marca + Nombre)
+   *   2. Atributos por línea (8 SKC o 8 SUP · componente compartido)
+   *   3. Identificadores (UPC + Contenido neto cross-línea)
+   *   4. Clasificación (Tipo + Categorías + Etiquetas)
+   *   5. Logística (Peso unitario)
+   *   6. Marketing comercial (IA · 3 niveles · Gemini Flash 2.0)
+   *
+   * Eliminados del wizard nuevo (decidido en S3.2):
+   *   - Costo flete intl (vive en envíos/OC dinámico)
+   *   - Stock min/max (vive en módulo Stock)
+   *   - Sabor/Presentación/Dosaje top-level (movidos a atributos por línea)
+   *   - Volumen (atributo SKC) (unificado con Contenido neto)
+   *
+   * Flujo de rollout:
+   *   1. false (default) → wizard legacy sigue activo
+   *   2. localStorage.setItem('FEATURE_WIZARD_PRODUCTO_V2', 'true') para UAT
+   *   3. true global tras validación end-to-end con datos reales  ← AHORA
+   *
+   * 2026-05-03 · Activado globalmente · S3.3 wizard nuevo + Marketing IA UATeados.
+   */
+  WIZARD_PRODUCTO_V2: true,
 } as const;
 
 // S53 F5 · isWizardT2Enabled ELIMINADO — wizard unificado no tiene flag (D-4 reemplazo directo).
@@ -244,6 +272,21 @@ export function isProductosV2Enabled(): boolean {
   if (typeof window !== 'undefined') {
     try {
       return window.localStorage.getItem('FEATURE_PRODUCTOS_V2') === 'true';
+    } catch {
+      return false;
+    }
+  }
+  return false;
+}
+
+/**
+ * S3.2 — Helper para WIZARD_PRODUCTO_V2 (wizard de 6 secciones + Marketing IA).
+ */
+export function isWizardProductoV2Enabled(): boolean {
+  if (FEATURES.WIZARD_PRODUCTO_V2) return true;
+  if (typeof window !== 'undefined') {
+    try {
+      return window.localStorage.getItem('FEATURE_WIZARD_PRODUCTO_V2') === 'true';
     } catch {
       return false;
     }

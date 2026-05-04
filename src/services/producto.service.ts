@@ -400,6 +400,16 @@ export class ProductoService {
         (newProducto as any).atributosSuplementos = (data as any).atributosSuplementos;
       }
 
+      // S3.4 (2026-05-04) · ContenidoNeto estructurado cross-línea + DescripcionMarketing
+      // Antes este flujo se estaba perdiendo y los productos creados via wizard nuevo
+      // no traían los campos nuevos · BUG declarado y arreglado en S3.4.
+      if ((data as any).contenidoNeto) {
+        (newProducto as any).contenidoNeto = (data as any).contenidoNeto;
+      }
+      if ((data as any).descripcionMarketing) {
+        (newProducto as any).descripcionMarketing = (data as any).descripcionMarketing;
+      }
+
       // Variantes — modelo grupoVarianteId + legacy compat
       if (data.grupoVarianteId) {
         newProducto.grupoVarianteId = data.grupoVarianteId;
@@ -585,6 +595,19 @@ export class ProductoService {
       // Si se actualizan atributos suplementos (Fase E2)
       if ((data as any).atributosSuplementos !== undefined) {
         updateData.atributosSuplementos = (data as any).atributosSuplementos;
+      }
+
+      // S3.4 (2026-05-04) · ContenidoNeto + DescripcionMarketing en update
+      // Mismo bug que en create() · arreglado en S3.4.
+      if ((data as any).contenidoNeto !== undefined) {
+        updateData.contenidoNeto = (data as any).contenidoNeto;
+      }
+      if ((data as any).descripcionMarketing !== undefined) {
+        updateData.descripcionMarketing = (data as any).descripcionMarketing;
+      }
+      // Persistir servingsPerDay también en update (faltaba)
+      if (data.servingsPerDay !== undefined) {
+        updateData.servingsPerDay = data.servingsPerDay;
       }
 
       // Limpiar el objeto final de valores undefined (por si quedaron de los snapshots)
