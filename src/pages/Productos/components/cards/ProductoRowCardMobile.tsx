@@ -47,17 +47,26 @@ interface ProductoRowCardMobileProps {
 
 // ─── Helpers (reusa lógica de ProductoRowCard desktop) ───────────────────────
 
+// Fase H+ · sin ruido cuando no hay actividad real (ver doc en ProductoRowCard.tsx)
 function getEstadoVisual(producto: Producto): RowEstadoVisualMobile {
   if (producto.estado === 'eliminado' || producto.estado === 'inactivo') return 'archivado';
 
   const stockTotal = (producto as any).stockDisponible ?? (producto as any).stockTotal ?? 0;
   const stockMinimo = producto.stockMinimo ?? 0;
-  if (stockMinimo > 0 && stockTotal <= stockMinimo) return 'stock_critico';
+  const velocidad = (producto as any).metricas?.velocidadVenta ?? 0;
+  const tieneVelocidadReal = typeof velocidad === 'number' && velocidad > 0;
+  if (stockMinimo > 0 && stockTotal <= stockMinimo && tieneVelocidadReal) {
+    return 'stock_critico';
+  }
 
   const inv = producto.investigacion;
-  if (!inv) return 'normal';
-  const vigenciaTs = (inv.vigenciaHasta as any)?.toDate?.()?.getTime?.() ?? 0;
-  if (vigenciaTs > 0 && vigenciaTs < Date.now()) return 'investigacion_vencida';
+  if (inv) {
+    const proveedoresCount = inv.proveedoresUSA?.length ?? 0;
+    const vigenciaTs = (inv.vigenciaHasta as any)?.toDate?.()?.getTime?.() ?? 0;
+    if (proveedoresCount > 0 && vigenciaTs > 0 && vigenciaTs < Date.now()) {
+      return 'investigacion_vencida';
+    }
+  }
 
   if (producto.esPack === true) return 'pack';
   return 'normal';
@@ -358,7 +367,7 @@ export const ProductoRowCardMobile: React.FC<ProductoRowCardMobileProps> = ({
         <div className="px-3 py-2 bg-amber-50 border-t border-amber-100 border-l-4 border-l-amber-400 flex items-center justify-between gap-2">
           <div className="text-[10px] text-amber-800 flex items-center gap-1 flex-1 min-w-0">
             <Search className="w-3 h-3 flex-shrink-0" />
-            <span>Datos +90 días</span>
+            <span>{dias !== null && dias > 0 ? `Datos · ${dias}d sin actualizar` : 'Datos desactualizados'}</span>
           </div>
           <button
             type="button"

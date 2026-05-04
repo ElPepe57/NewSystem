@@ -50,18 +50,47 @@ interface ProductoRowCardProps {
 
 // ─── Helpers de estado ───────────────────────────────────────────────────────
 
+/**
+ * Determina el estado visual de la fila.
+ *
+ * REGLAS (Fase H+ · sin ruido cuando no hay actividad real):
+ *
+ * - stock_critico: requiere DOS condiciones simultáneas:
+ *     1. stock actual <= stockMinimo (umbral superado)
+ *     2. velocidad de venta REAL > 0 (el producto se está moviendo)
+ *   Si no hay velocidad real, no es "crítico" · es "sin stock todavía", lo cual
+ *   es esperado al inicio. No alarmar gratis.
+ *
+ * - investigacion_vencida: requiere TRES condiciones:
+ *     1. el producto tiene investigación
+ *     2. esa investigación tiene proveedores agregados (no esqueleto vacío)
+ *     3. vigenciaHasta ya pasó
+ *   Si la investigación está vacía o nunca se completó, no es "vencida" ·
+ *   es "sin investigar" (estado normal sin urgencia).
+ */
 function getEstadoVisual(producto: Producto): RowEstadoVisual {
   if (producto.estado === 'eliminado' || producto.estado === 'inactivo') return 'archivado';
 
   const stockTotal = (producto as any).stockDisponible ?? (producto as any).stockTotal ?? 0;
   const stockMinimo = producto.stockMinimo ?? 0;
-  if (stockMinimo > 0 && stockTotal <= stockMinimo) return 'stock_critico';
+  // Velocidad de venta real (placeholder: hasta tener agregación BI, requerimos
+  // que producto.metricas.velocidadVenta exista y sea > 0). Si nunca hubo venta,
+  // no flagueamos como crítico aunque el stock esté en 0.
+  const velocidad = (producto as any).metricas?.velocidadVenta ?? 0;
+  const tieneVelocidadReal = typeof velocidad === 'number' && velocidad > 0;
+  if (stockMinimo > 0 && stockTotal <= stockMinimo && tieneVelocidadReal) {
+    return 'stock_critico';
+  }
 
-  // Investigación vencida = sin investigar O con vigenciaHasta pasada
+  // Investigación vencida = TIENE proveedores Y vigencia pasada
   const inv = producto.investigacion;
-  if (!inv) return 'normal'; // sin investigar pero no flagear como vencida si no fue requerido
-  const vigenciaTs = (inv.vigenciaHasta as any)?.toDate?.()?.getTime?.() ?? 0;
-  if (vigenciaTs > 0 && vigenciaTs < Date.now()) return 'investigacion_vencida';
+  if (inv) {
+    const proveedoresCount = inv.proveedoresUSA?.length ?? 0;
+    const vigenciaTs = (inv.vigenciaHasta as any)?.toDate?.()?.getTime?.() ?? 0;
+    if (proveedoresCount > 0 && vigenciaTs > 0 && vigenciaTs < Date.now()) {
+      return 'investigacion_vencida';
+    }
+  }
 
   if (producto.esPack === true) return 'pack';
 
@@ -434,11 +463,11 @@ export const ProductoRowCard: React.FC<ProductoRowCardProps> = ({
         </div>
       </div>
 
-      {/* Banner accion rapida (debajo del row) */}
+      {/* Banner accion rapida (debajo del row) · solo cuando hay velocidad/datos reales */}
       {isCritico && onCrearOC && (
         <BannerAccionRapida
           tipo="stock_critico"
-          mensaje="Reordenar ahora · Stock cubrirá pocos días al ritmo actual de venta."
+          mensaje="Reordenar ahora · stock por debajo del mínimo y se está vendiendo."
           ctaLabel="+ Crear OC"
           onCta={() => onCrearOC(producto)}
         />
@@ -446,7 +475,11 @@ export const ProductoRowCard: React.FC<ProductoRowCardProps> = ({
       {isInvVencida && onReInvestigar && (
         <BannerAccionRapida
           tipo="investigacion_vencida"
-          mensaje="Re-investigar precios · datos de proveedores y competencia con +90 días."
+          mensaje={
+            dias !== null && dias > 0
+              ? `Re-investigar precios · proveedores y competencia con ${dias} días sin actualizar.`
+              : 'Re-investigar precios · datos desactualizados.'
+          }
           ctaLabel="Re-investigar ahora"
           onCta={() => onReInvestigar(producto)}
         />
