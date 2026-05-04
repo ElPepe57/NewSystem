@@ -125,62 +125,9 @@ export const FEATURES = {
    */
   PRODUCTO_PACK: false,
 
-  /**
-   * Etapa 4 mockups · PRODUCTOS_V2
-   *
-   * Controla la migración pixel-perfect del módulo Productos a la versión nueva
-   * basada en los 42 mockups validados que viven en `docs/mockups/productos/`.
-   *
-   * Cuando está activo:
-   *   - La página `/productos` renderiza `ProductosPageV2` (nuevo árbol)
-   *   - Cuando está inactivo (default): renderiza `Productos` legacy
-   *
-   * Implementación gradual por fases (0-10):
-   *   - Fase 0+1 · Átomos compartidos + shell + estados vacíos/loading
-   *   - Fase 2  · Filtros y bulk actions
-   *   - Fase 3  · Card de producto (6 estados)
-   *   - Fase 4  · Modal detalle (Resumen + Variantes + Stock)
-   *   - Fase 5  · Modal detalle (Investigación + Histórico + Pipeline)
-   *   - Fase 6  · Tab Componentes Pack
-   *   - Fase 7  · Wizards de creación (cuidar consumidores externos)
-   *   - Fase 8  · Papelera + Investigación completa
-   *   - Fase 9  · Herramientas (Productos Intel · PEC · Sugerencias del día)
-   *   - Fase 10 · Cleanup + eliminar flag
-   *
-   * Flujo de rollout:
-   *   1. false (default) → código desplegado sin acceso del usuario
-   *   2. localStorage.setItem('FEATURE_PRODUCTOS_V2', 'true') para UAT
-   *   3. true global tras validación end-to-end de TODAS las fases  ← AHORA
-   *
-   * 2026-05-03 · Activado globalmente tras Fases C-H+ validadas en producción.
-   */
-  PRODUCTOS_V2: true,
-
-  /**
-   * S3.2 · WIZARD_PRODUCTO_V2 · Wizard crear producto único con 6 secciones
-   *
-   * Reorden estructural aprobado en S3.2 (mockups #17 + #40):
-   *   1. Identidad (Línea + País + Marca + Nombre)
-   *   2. Atributos por línea (8 SKC o 8 SUP · componente compartido)
-   *   3. Identificadores (UPC + Contenido neto cross-línea)
-   *   4. Clasificación (Tipo + Categorías + Etiquetas)
-   *   5. Logística (Peso unitario)
-   *   6. Marketing comercial (IA · 3 niveles · Gemini Flash 2.0)
-   *
-   * Eliminados del wizard nuevo (decidido en S3.2):
-   *   - Costo flete intl (vive en envíos/OC dinámico)
-   *   - Stock min/max (vive en módulo Stock)
-   *   - Sabor/Presentación/Dosaje top-level (movidos a atributos por línea)
-   *   - Volumen (atributo SKC) (unificado con Contenido neto)
-   *
-   * Flujo de rollout:
-   *   1. false (default) → wizard legacy sigue activo
-   *   2. localStorage.setItem('FEATURE_WIZARD_PRODUCTO_V2', 'true') para UAT
-   *   3. true global tras validación end-to-end con datos reales  ← AHORA
-   *
-   * 2026-05-03 · Activado globalmente · S3.3 wizard nuevo + Marketing IA UATeados.
-   */
-  WIZARD_PRODUCTO_V2: true,
+  // S3.4 (2026-05-04) · Flags PRODUCTOS_V2 y WIZARD_PRODUCTO_V2 ELIMINADOS.
+  // El módulo Productos corre 100% en V2 sin bifurcación ni rollback.
+  // Snapshot pre-limpieza: tag git `pre-limpieza-v1-2026-05-04` (commit 935c012).
 } as const;
 
 // S53 F5 · isWizardT2Enabled ELIMINADO — wizard unificado no tiene flag (D-4 reemplazo directo).
@@ -264,32 +211,5 @@ export function isProductoPackEnabled(): boolean {
   return false;
 }
 
-/**
- * Etapa 4 — Helper análogo para el flag PRODUCTOS_V2 (refactor pixel-perfect).
- */
-export function isProductosV2Enabled(): boolean {
-  if (FEATURES.PRODUCTOS_V2) return true;
-  if (typeof window !== 'undefined') {
-    try {
-      return window.localStorage.getItem('FEATURE_PRODUCTOS_V2') === 'true';
-    } catch {
-      return false;
-    }
-  }
-  return false;
-}
-
-/**
- * S3.2 — Helper para WIZARD_PRODUCTO_V2 (wizard de 6 secciones + Marketing IA).
- */
-export function isWizardProductoV2Enabled(): boolean {
-  if (FEATURES.WIZARD_PRODUCTO_V2) return true;
-  if (typeof window !== 'undefined') {
-    try {
-      return window.localStorage.getItem('FEATURE_WIZARD_PRODUCTO_V2') === 'true';
-    } catch {
-      return false;
-    }
-  }
-  return false;
-}
+// S3.4 (2026-05-04) · Helpers `isProductosV2Enabled` e `isWizardProductoV2Enabled`
+// ELIMINADOS junto con sus flags. El módulo Productos corre 100% en V2.
