@@ -55,30 +55,40 @@ interface ProductoRowCardProps {
  *
  * REGLAS (Fase H+ · sin ruido cuando no hay actividad real):
  *
- * - stock_critico: requiere DOS condiciones simultáneas:
+ * - stock_critico: requiere TRES condiciones simultáneas:
  *     1. stock actual <= stockMinimo (umbral superado)
  *     2. velocidad de venta REAL > 0 (el producto se está moviendo)
- *   Si no hay velocidad real, no es "crítico" · es "sin stock todavía", lo cual
- *   es esperado al inicio. No alarmar gratis.
+ *     3. EVIDENCIA SUFICIENTE de tracking confiable:
+ *        - al menos 3 compras (OCs) históricas, O
+ *        - al menos 5 ventas históricas
+ *   El #3 evita el "espejismo": si llegó una unidad y al día siguiente se
+ *   vendió, no era velocidad real · era coincidencia con la intención del
+ *   comprador. Sin historial, no recomendamos reordenar.
  *
  * - investigacion_vencida: requiere TRES condiciones:
  *     1. el producto tiene investigación
  *     2. esa investigación tiene proveedores agregados (no esqueleto vacío)
  *     3. vigenciaHasta ya pasó
- *   Si la investigación está vacía o nunca se completó, no es "vencida" ·
- *   es "sin investigar" (estado normal sin urgencia).
  */
 function getEstadoVisual(producto: Producto): RowEstadoVisual {
   if (producto.estado === 'eliminado' || producto.estado === 'inactivo') return 'archivado';
 
   const stockTotal = (producto as any).stockDisponible ?? (producto as any).stockTotal ?? 0;
   const stockMinimo = producto.stockMinimo ?? 0;
-  // Velocidad de venta real (placeholder: hasta tener agregación BI, requerimos
-  // que producto.metricas.velocidadVenta exista y sea > 0). Si nunca hubo venta,
-  // no flagueamos como crítico aunque el stock esté en 0.
+  // Velocidad de venta real
   const velocidad = (producto as any).metricas?.velocidadVenta ?? 0;
   const tieneVelocidadReal = typeof velocidad === 'number' && velocidad > 0;
-  if (stockMinimo > 0 && stockTotal <= stockMinimo && tieneVelocidadReal) {
+  // Evidencia de tracking confiable: 3+ OCs O 5+ ventas (anti-espejismo)
+  const ocsHistoricas = (producto as any).ocsHistoricas ?? 0;
+  const ventasHistoricas = (producto as any).cantidadVentas ?? (producto as any).unidadesVendidas ?? 0;
+  const tieneEvidenciaSuficiente = ocsHistoricas >= 3 || ventasHistoricas >= 5;
+
+  if (
+    stockMinimo > 0 &&
+    stockTotal <= stockMinimo &&
+    tieneVelocidadReal &&
+    tieneEvidenciaSuficiente
+  ) {
     return 'stock_critico';
   }
 
