@@ -42,9 +42,9 @@ export interface PuntoEquilibrioInput {
   productoSku: string;
   productoNombre: string;
   productoMarca?: string;
-  ctruInicial: number;            // S/
-  precioVentaInicial: number;     // S/
-  costosFijosInicial: number;     // S/
+  ctruInicial: number;                   // S/ · viene de calcularInvestigacion(p).costoPEN
+  precioVentaInicial: number;            // S/ · viene de calcularInvestigacion(p).precioEfectivo
+  unidadesCompradasInicial: number;      // uds · default 30 · el usuario ajusta
 }
 
 // ─── #36 Sugerencias del Día ─────────────────────────────────────────────────

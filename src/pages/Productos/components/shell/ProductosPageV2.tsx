@@ -842,18 +842,18 @@ export const ProductosPageV2: React.FC = () => {
   const handleCalculadora = () => setShowIntel(true);
   const handleSugerencias = () => setShowSugerenciasDia(true);
   const handleAbrirPuntoEquilibrio = (p: Producto) => {
-    const pAny = p as any;
-    const ctru = (pAny.investigacion?.ctruEstimado as number) ?? pAny.ctruPromedio ?? 100;
-    const precio = pAny.precioVenta ?? Math.round(ctru * 2.15);
-    const fijos = Math.round(ctru * 13);
+    // Fase H+ · usa helper compartido · MISMOS números que TabInvestigacion + cards
+    // Si no hay investigación, ctru y precio quedan en 0 y el modal mostrará
+    // empty state pidiendo agregar proveedores y competidores primero.
+    const calc = calcularInvestigacion(p);
     setPuntoEquilibrioInput({
       productoId: p.id,
       productoSku: p.sku ?? '—',
-      productoNombre: pAny.nombreComercial ?? 'Producto',
+      productoNombre: (p as any).nombreComercial ?? 'Producto',
       productoMarca: p.marca,
-      ctruInicial: ctru,
-      precioVentaInicial: precio,
-      costosFijosInicial: fijos,
+      ctruInicial: calc.costoPEN,                                  // (prov × (1+tax%) + flete) × TC
+      precioVentaInicial: calc.precioEfectivo,                     // manual o sugerido (MIN comp × 0.95)
+      unidadesCompradasInicial: 30,                                // default razonable · usuario ajusta
     });
   };
   const handleImportar = () => setImportarOpen(true);

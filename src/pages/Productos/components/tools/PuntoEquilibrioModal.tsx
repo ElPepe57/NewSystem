@@ -3,13 +3,14 @@
  *
  * Mockup canónico: docs/mockups/productos/31-tool-punto-equilibrio.html
  *
- * Calculadora interactiva con sliders en tiempo real:
- *   - 3 inputs sliders: CTRU + Precio venta + Costos fijos
- *   - Hero con punto de equilibrio (uds) + sub-KPIs (margen contribución, ingresos, %)
- *   - Chart SVG ingresos vs costos totales (0-50 uds) con cruce visual
- *   - 3 escenarios: Pesimista · Base actual · Optimista
+ * Calculadora interactiva con sliders en tiempo real (Fase H+ refactor):
+ *   - CTRU = costo unitario de investigación (prov × (1+tax%) + flete) × TC
+ *   - Precio venta = precio efectivo (manual O sugerido MIN comp × 0.95)
+ *   - Unidades a comprar = slider editable (cuántas piensas importar)
+ *   - Inversión inicial = uds × CTRU (derivado · no editable directo)
  *
- * Trigger: detalle producto botón "Calcular punto equilibrio" o módulo de pricing
+ * Hero: cuántas uds vender para recuperar la inversión total del lote.
+ * Sin "costos fijos del lote" especulativos · solo data observable.
  */
 
 import React, { useEffect, useMemo, useState } from 'react';
@@ -18,11 +19,12 @@ import {
   Calculator,
   Package,
   DollarSign,
-  Building,
+  Layers,
   Target,
   LineChart as LineChartIcon,
   RotateCcw,
   Download,
+  AlertTriangle,
 } from 'lucide-react';
 import type { PuntoEquilibrioInput } from './types';
 
@@ -33,15 +35,26 @@ interface PuntoEquilibrioModalProps {
   onGuardarEscenario?: (datos: {
     ctru: number;
     precioVenta: number;
-    costosFijos: number;
+    unidadesCompradas: number;
     breakEven: number;
   }) => void;
 }
 
-function calcularBreakEven(ctru: number, precioVenta: number, costosFijos: number): number {
+/**
+ * Punto de equilibrio = unidades a vender para recuperar la inversión inicial.
+ * inversion = unidades_compradas × CTRU
+ * margenContribución = precioVenta − CTRU
+ * breakEven = ceil(inversion / margenContribución)
+ *
+ * Ejemplo: si comprás 30 uds a CTRU S/50 (inversión S/1500), y vendés a S/85
+ * (margen S/35/u) → break-even = ceil(1500/35) = 43 uds. Como compraste solo 30,
+ * con vender las 30 uds NO recuperás la inversión completa.
+ */
+function calcularBreakEven(ctru: number, precioVenta: number, unidadesCompradas: number): number {
   const margenContribucion = precioVenta - ctru;
   if (margenContribucion <= 0) return Infinity;
-  return Math.ceil(costosFijos / margenContribucion);
+  const inversion = unidadesCompradas * ctru;
+  return Math.ceil(inversion / margenContribucion);
 }
 
 export function PuntoEquilibrioModal({
@@ -52,16 +65,16 @@ export function PuntoEquilibrioModal({
 }: PuntoEquilibrioModalProps) {
   const [ctru, setCtru] = useState(0);
   const [precioVenta, setPrecioVenta] = useState(0);
-  const [costosFijos, setCostosFijos] = useState(0);
+  const [unidadesCompradas, setUnidadesCompradas] = useState(30);
 
   // Reset al abrir/cambiar producto
   useEffect(() => {
     if (input) {
       setCtru(input.ctruInicial);
       setPrecioVenta(input.precioVentaInicial);
-      setCostosFijos(input.costosFijosInicial);
+      setUnidadesCompradas(input.unidadesCompradasInicial);
     }
-  }, [input?.productoId, input?.ctruInicial, input?.precioVentaInicial, input?.costosFijosInicial]);
+  }, [input?.productoId, input?.ctruInicial, input?.precioVentaInicial, input?.unidadesCompradasInicial]);
 
   // ESC
   useEffect(() => {
@@ -73,38 +86,39 @@ export function PuntoEquilibrioModal({
     return () => window.removeEventListener('keydown', onKey);
   }, [open, onClose]);
 
-  // Cálculos
+  // Cálculos · sin costos fijos especulativos
   const calc = useMemo(() => {
     const margenContrib = precioVenta - ctru;
-    const breakEven = calcularBreakEven(ctru, precioVenta, costosFijos);
+    const inversionTotal = unidadesCompradas * ctru;
+    const breakEven = calcularBreakEven(ctru, precioVenta, unidadesCompradas);
     const ingresosEnPE = breakEven * precioVenta;
     const margenPct = precioVenta > 0 ? (margenContrib / precioVenta) * 100 : 0;
-    return { margenContrib, breakEven, ingresosEnPE, margenPct };
-  }, [ctru, precioVenta, costosFijos]);
+    // Si break-even <= unidades compradas, vendiendo TODO el lote queda utilidad
+    const utilidadVendiendoTodo = unidadesCompradas * margenContrib;
+    return { margenContrib, breakEven, ingresosEnPE, margenPct, inversionTotal, utilidadVendiendoTodo };
+  }, [ctru, precioVenta, unidadesCompradas]);
 
-  // Escenarios
+  // Escenarios (mantienen unidadesCompradas constante · varían precio/ctru)
   const pesimista = useMemo(() => {
     const ctruP = ctru * 1.08;
     const precioP = precioVenta * 0.9;
-    return calcularBreakEven(ctruP, precioP, costosFijos);
-  }, [ctru, precioVenta, costosFijos]);
+    return calcularBreakEven(ctruP, precioP, unidadesCompradas);
+  }, [ctru, precioVenta, unidadesCompradas]);
 
   const optimista = useMemo(() => {
     const ctruO = ctru * 0.97;
     const precioO = precioVenta * 1.05;
-    return calcularBreakEven(ctruO, precioO, costosFijos);
-  }, [ctru, precioVenta, costosFijos]);
+    return calcularBreakEven(ctruO, precioO, unidadesCompradas);
+  }, [ctru, precioVenta, unidadesCompradas]);
 
-  // Chart ingresos/costos (0-50 uds)
+  // Chart ingresos/costos (0 hasta unidadesCompradas + buffer)
   const chart = useMemo(() => {
-    const maxUds = 50;
+    const maxUds = Math.max(50, Math.ceil(unidadesCompradas * 1.5));
     const ingresoMax = precioVenta * maxUds;
-    const costoMax = costosFijos + ctru * maxUds;
+    const costoMax = ctru * maxUds;
     const yMaxRaw = Math.max(ingresoMax, costoMax, 1);
-    // Redondeo amigable a 5K
-    const yMax = Math.ceil(yMaxRaw / 5000) * 5000;
+    const yMax = Math.ceil(yMaxRaw / 1000) * 1000;
 
-    // Coords (eje 40-580 X · 30-180 Y · invertido)
     const xStart = 40;
     const xEnd = 580;
     const yTop = 30;
@@ -113,11 +127,11 @@ export function PuntoEquilibrioModal({
     const xFor = (uds: number) => xStart + ((xEnd - xStart) * uds) / maxUds;
     const yFor = (val: number) => yBottom - ((yBottom - yTop) * val) / yMax;
 
-    // Costos: y0 = costosFijos · y50 = costosFijos + ctru*50
+    // Costos VARIABLES: y0 = 0 · y_max = ctru*maxUds (sin fijos · sale del origen)
     const costoX0 = xStart;
-    const costoY0 = yFor(costosFijos);
+    const costoY0 = yFor(0);
     const costoX50 = xEnd;
-    const costoY50 = yFor(costosFijos + ctru * maxUds);
+    const costoY50 = yFor(ctru * maxUds);
 
     // Ingresos: y0 = 0 · y50 = precio*50
     const ingresoX0 = xStart;
@@ -141,6 +155,7 @@ export function PuntoEquilibrioModal({
 
     return {
       yMax,
+      maxUds,
       yLabels,
       costoX0,
       costoY0,
@@ -155,14 +170,17 @@ export function PuntoEquilibrioModal({
       peVisible,
       peUds,
     };
-  }, [ctru, precioVenta, costosFijos, calc.breakEven]);
+  }, [ctru, precioVenta, unidadesCompradas, calc.breakEven]);
 
   if (!open || !input) return null;
+
+  // Empty state · sin datos de investigación · no podemos calcular nada
+  const sinDatos = ctru <= 0 || precioVenta <= 0;
 
   const reset = () => {
     setCtru(input.ctruInicial);
     setPrecioVenta(input.precioVentaInicial);
-    setCostosFijos(input.costosFijosInicial);
+    setUnidadesCompradas(input.unidadesCompradasInicial);
   };
 
   const breakEvenLabel = isFinite(calc.breakEven) ? `${calc.breakEven}` : '∞';
@@ -212,41 +230,56 @@ export function PuntoEquilibrioModal({
 
         {/* BODY */}
         <div className="flex-1 overflow-y-auto p-5 space-y-5">
-          {/* INPUTS */}
+          {sinDatos && (
+            <div className="rounded-lg bg-amber-50 border border-amber-200 p-3 flex items-start gap-2.5">
+              <AlertTriangle className="w-4 h-4 text-amber-700 flex-shrink-0 mt-0.5" />
+              <div className="flex-1 text-[11px] text-amber-900">
+                <strong>Sin datos de investigación.</strong> Para calcular el punto de equilibrio
+                necesitás al menos un proveedor (para el costo) y un competidor (para el precio
+                sugerido) en la pestaña Investigación. Los sliders se desbloquearán automáticamente.
+              </div>
+            </div>
+          )}
+
+          {/* INPUTS · 3 sliders alineados con datos de investigación */}
           <div className="space-y-4">
             <SliderRow
               icon={<Package className="w-3.5 h-3.5 text-slate-500" />}
               label="Costo unitario (CTRU)"
               value={ctru}
-              min={Math.round(input.ctruInicial * 0.6)}
-              max={Math.round(input.ctruInicial * 1.5)}
+              min={ctru > 0 ? Math.max(1, Math.round(ctru * 0.5)) : 0}
+              max={ctru > 0 ? Math.round(ctru * 2) : 100}
               onChange={setCtru}
               prefix="S/"
               valueColor="text-slate-900"
               fillColor="#14b8a6"
+              helpText="(prov × (1+tax%) + flete) × TC · viene de la investigación"
             />
             <SliderRow
               icon={<DollarSign className="w-3.5 h-3.5 text-emerald-500" />}
               label="Precio de venta"
               value={precioVenta}
-              min={Math.round(input.precioVentaInicial * 0.6)}
-              max={Math.round(input.precioVentaInicial * 1.4)}
+              min={precioVenta > 0 ? Math.max(1, Math.round(precioVenta * 0.5)) : 0}
+              max={precioVenta > 0 ? Math.round(precioVenta * 1.5) : 100}
               onChange={setPrecioVenta}
               prefix="S/"
               valueColor="text-emerald-700"
               fillColor="#10b981"
+              helpText="Manual confirmado o sugerido (MIN competidores × 0.95)"
             />
             <SliderRow
-              icon={<Building className="w-3.5 h-3.5 text-amber-500" />}
-              label="Costos fijos del lote"
-              value={costosFijos}
-              min={Math.round(input.costosFijosInicial * 0.3)}
-              max={Math.round(input.costosFijosInicial * 3)}
-              onChange={setCostosFijos}
-              prefix="S/"
-              valueColor="text-amber-700"
-              fillColor="#f59e0b"
-              helpText="Incluye: marketing + comisiones + flete intl + gastos administrativos"
+              icon={<Layers className="w-3.5 h-3.5 text-indigo-500" />}
+              label="Unidades a comprar"
+              value={unidadesCompradas}
+              min={1}
+              max={500}
+              step={1}
+              onChange={setUnidadesCompradas}
+              prefix=""
+              suffix="uds"
+              valueColor="text-indigo-700"
+              fillColor="#6366f1"
+              helpText={`Inversión total: S/ ${(unidadesCompradas * ctru).toLocaleString('es-PE', { maximumFractionDigits: 0 })}`}
             />
           </div>
 
@@ -268,12 +301,24 @@ export function PuntoEquilibrioModal({
                 </div>
                 <p className="text-xs text-slate-700 mt-1">
                   {isFinite(calc.breakEven) ? (
-                    <>
-                      Necesitas vender{' '}
-                      <strong className="text-teal-700">{calc.breakEven} uds</strong> a S/{' '}
-                      {precioVenta.toFixed(0)} para cubrir CTRU + costos fijos. A partir de la{' '}
-                      <strong>{calc.breakEven + 1}ª unidad</strong> empezás a generar utilidad real.
-                    </>
+                    calc.breakEven <= unidadesCompradas ? (
+                      <>
+                        Necesitas vender{' '}
+                        <strong className="text-teal-700">{calc.breakEven} uds</strong> a S/{' '}
+                        {precioVenta.toFixed(0)} para recuperar la inversión de S/{' '}
+                        {calc.inversionTotal.toLocaleString('es-PE', { maximumFractionDigits: 0 })}.
+                        Vendiendo TODO el lote ({unidadesCompradas} uds) ganás{' '}
+                        <strong className="text-emerald-700">
+                          S/ {calc.utilidadVendiendoTodo.toLocaleString('es-PE', { maximumFractionDigits: 0 })}
+                        </strong> de utilidad.
+                      </>
+                    ) : (
+                      <>
+                        <strong className="text-amber-700">No alcanza con el lote actual.</strong>{' '}
+                        Necesitarías vender {calc.breakEven} uds para recuperar la inversión, pero solo
+                        comprás {unidadesCompradas}. Aumentá las uds compradas, sube precio, o bajá CTRU.
+                      </>
+                    )
                   ) : (
                     <>
                       <strong className="text-rose-700">Margen negativo</strong>: el precio de venta
@@ -491,7 +536,7 @@ export function PuntoEquilibrioModal({
                 onGuardarEscenario?.({
                   ctru,
                   precioVenta,
-                  costosFijos,
+                  unidadesCompradas,
                   breakEven: isFinite(calc.breakEven) ? calc.breakEven : 0,
                 })
               }
@@ -514,8 +559,10 @@ function SliderRow({
   value,
   min,
   max,
+  step = 1,
   onChange,
   prefix,
+  suffix,
   valueColor,
   fillColor,
   helpText,
@@ -525,32 +572,40 @@ function SliderRow({
   value: number;
   min: number;
   max: number;
+  step?: number;
   onChange: (n: number) => void;
   prefix: string;
+  suffix?: string;
   valueColor: string;
   fillColor: string;
   helpText?: string;
 }) {
+  const disabled = max <= min;
   const pct = max > min ? ((value - min) / (max - min)) * 100 : 0;
-  const bg = `linear-gradient(to right, ${fillColor} 0%, ${fillColor} ${pct}%, #e2e8f0 ${pct}%, #e2e8f0 100%)`;
+  const bg = disabled
+    ? '#e2e8f0'
+    : `linear-gradient(to right, ${fillColor} 0%, ${fillColor} ${pct}%, #e2e8f0 ${pct}%, #e2e8f0 100%)`;
+  const fmt = (n: number) => `${prefix}${prefix ? ' ' : ''}${n.toLocaleString('es-PE', { maximumFractionDigits: 0 })}${suffix ? ' ' + suffix : ''}`.trim();
   return (
-    <div>
+    <div className={disabled ? 'opacity-50' : ''}>
       <div className="flex items-center justify-between mb-1.5">
         <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
           {icon}
           {label}
         </label>
         <div className={`text-base font-bold tabular-nums ${valueColor}`}>
-          {prefix} {value.toLocaleString('es-PE', { maximumFractionDigits: 0 })}
+          {fmt(value)}
         </div>
       </div>
       <input
         type="range"
         min={min}
         max={max}
+        step={step}
         value={value}
+        disabled={disabled}
         onChange={(e) => onChange(Number(e.target.value))}
-        className="w-full h-1.5 rounded-full appearance-none cursor-pointer
+        className="w-full h-1.5 rounded-full appearance-none cursor-pointer disabled:cursor-not-allowed
                    [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4
                    [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full
                    [&::-webkit-slider-thumb]:bg-teal-500 [&::-webkit-slider-thumb]:border-2
@@ -559,15 +614,9 @@ function SliderRow({
         style={{ background: bg }}
       />
       <div className="flex justify-between text-[10px] text-slate-400 mt-1 tabular-nums">
-        <span>
-          {prefix} {min.toLocaleString('es-PE')}
-        </span>
-        <span>
-          {prefix} {value.toLocaleString('es-PE')}
-        </span>
-        <span>
-          {prefix} {max.toLocaleString('es-PE')}
-        </span>
+        <span>{fmt(min)}</span>
+        <span>{fmt(value)}</span>
+        <span>{fmt(max)}</span>
       </div>
       {helpText && <div className="text-[10px] text-slate-500 mt-1">{helpText}</div>}
     </div>
