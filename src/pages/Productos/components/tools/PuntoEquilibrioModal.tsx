@@ -41,16 +41,26 @@ interface PuntoEquilibrioModalProps {
 }
 
 /**
- * Punto de equilibrio = unidades a vender para recuperar la inversión inicial.
- * inversion = unidades_compradas × CTRU
- * margenContribución = precioVenta − CTRU
- * breakEven = ceil(inversion / margenContribución)
+ * Dos definiciones de "punto de equilibrio" · ambas válidas:
  *
- * Ejemplo: si comprás 30 uds a CTRU S/50 (inversión S/1500), y vendés a S/85
- * (margen S/35/u) → break-even = ceil(1500/35) = 43 uds. Como compraste solo 30,
- * con vender las 30 uds NO recuperás la inversión completa.
+ * 1. RECUPERO DE CAJA (más intuitivo)
+ *    breakEvenCaja = ceil(inversion / precioVenta)
+ *    "Cuántas uds vender para que mis ingresos cubran lo que invertí"
+ *    Ejemplo: inv S/560, precio S/130 → 560/130 = 4.3 → 5 uds
+ *
+ * 2. EQUILIBRIO DE UTILIDAD (más estricto contablemente)
+ *    breakEvenUtilidad = ceil(inversion / margenContribución)
+ *    "Cuántas uds vender para que mi GANANCIA acumulada iguale la inversión"
+ *    Considera capital atrapado en stock no vendido.
+ *    Ejemplo: inv S/560, margen S/74 → 560/74 = 7.6 → 8 uds
  */
-function calcularBreakEven(ctru: number, precioVenta: number, unidadesCompradas: number): number {
+function calcularBreakEvenCaja(precioVenta: number, unidadesCompradas: number, ctru: number): number {
+  if (precioVenta <= 0) return Infinity;
+  const inversion = unidadesCompradas * ctru;
+  return Math.ceil(inversion / precioVenta);
+}
+
+function calcularBreakEvenUtilidad(ctru: number, precioVenta: number, unidadesCompradas: number): number {
   const margenContribucion = precioVenta - ctru;
   if (margenContribucion <= 0) return Infinity;
   const inversion = unidadesCompradas * ctru;
@@ -86,29 +96,38 @@ export function PuntoEquilibrioModal({
     return () => window.removeEventListener('keydown', onKey);
   }, [open, onClose]);
 
-  // Cálculos · sin costos fijos especulativos
+  // Cálculos · ambas definiciones de break-even
   const calc = useMemo(() => {
     const margenContrib = precioVenta - ctru;
     const inversionTotal = unidadesCompradas * ctru;
-    const breakEven = calcularBreakEven(ctru, precioVenta, unidadesCompradas);
-    const ingresosEnPE = breakEven * precioVenta;
+    const breakEvenCaja = calcularBreakEvenCaja(precioVenta, unidadesCompradas, ctru);
+    const breakEvenUtilidad = calcularBreakEvenUtilidad(ctru, precioVenta, unidadesCompradas);
+    const ingresosEnPE = breakEvenCaja * precioVenta;
     const margenPct = precioVenta > 0 ? (margenContrib / precioVenta) * 100 : 0;
-    // Si break-even <= unidades compradas, vendiendo TODO el lote queda utilidad
+    // Si break-even utilidad <= unidades compradas, vendiendo TODO el lote queda utilidad neta
     const utilidadVendiendoTodo = unidadesCompradas * margenContrib;
-    return { margenContrib, breakEven, ingresosEnPE, margenPct, inversionTotal, utilidadVendiendoTodo };
+    return {
+      margenContrib,
+      breakEvenCaja,        // recupero de caja · KPI principal
+      breakEvenUtilidad,    // equilibrio contable · sub-KPI
+      ingresosEnPE,
+      margenPct,
+      inversionTotal,
+      utilidadVendiendoTodo,
+    };
   }, [ctru, precioVenta, unidadesCompradas]);
 
-  // Escenarios (mantienen unidadesCompradas constante · varían precio/ctru)
+  // Escenarios usan break-even de CAJA (consistente con el KPI principal)
   const pesimista = useMemo(() => {
     const ctruP = ctru * 1.08;
     const precioP = precioVenta * 0.9;
-    return calcularBreakEven(ctruP, precioP, unidadesCompradas);
+    return calcularBreakEvenCaja(precioP, unidadesCompradas, ctruP);
   }, [ctru, precioVenta, unidadesCompradas]);
 
   const optimista = useMemo(() => {
     const ctruO = ctru * 0.97;
     const precioO = precioVenta * 1.05;
-    return calcularBreakEven(ctruO, precioO, unidadesCompradas);
+    return calcularBreakEvenCaja(precioO, unidadesCompradas, ctruO);
   }, [ctru, precioVenta, unidadesCompradas]);
 
   // Chart ingresos/costos (0 hasta unidadesCompradas + buffer)
@@ -140,7 +159,7 @@ export function PuntoEquilibrioModal({
     const ingresoY50 = yFor(precioVenta * maxUds);
 
     // PE point
-    const peUds = isFinite(calc.breakEven) ? calc.breakEven : maxUds;
+    const peUds = isFinite(calc.breakEvenCaja) ? calc.breakEvenCaja : maxUds;
     const peVisible = peUds > 0 && peUds <= maxUds;
     const peX = xFor(Math.min(peUds, maxUds));
     const peY = yFor(peUds * precioVenta);
@@ -170,7 +189,7 @@ export function PuntoEquilibrioModal({
       peVisible,
       peUds,
     };
-  }, [ctru, precioVenta, unidadesCompradas, calc.breakEven]);
+  }, [ctru, precioVenta, unidadesCompradas, calc.breakEvenCaja]);
 
   if (!open || !input) return null;
 
@@ -183,7 +202,7 @@ export function PuntoEquilibrioModal({
     setUnidadesCompradas(input.unidadesCompradasInicial);
   };
 
-  const breakEvenLabel = isFinite(calc.breakEven) ? `${calc.breakEven}` : '∞';
+  const breakEvenLabel = isFinite(calc.breakEvenCaja) ? `${calc.breakEvenCaja}` : '∞';
 
   return (
     <div
@@ -292,7 +311,7 @@ export function PuntoEquilibrioModal({
               </div>
               <div className="flex-1 min-w-0">
                 <div className="text-[10px] uppercase tracking-wider text-teal-700 font-bold">
-                  Punto de equilibrio
+                  Recupero de caja
                 </div>
                 <div className="flex items-baseline gap-2 mt-0.5">
                   <span className="text-3xl lg:text-4xl font-bold text-slate-900 tabular-nums">
@@ -301,23 +320,23 @@ export function PuntoEquilibrioModal({
                   <span className="text-base font-medium text-slate-700">unidades</span>
                 </div>
                 <p className="text-xs text-slate-700 mt-1">
-                  {isFinite(calc.breakEven) ? (
-                    calc.breakEven <= unidadesCompradas ? (
+                  {isFinite(calc.breakEvenCaja) ? (
+                    calc.breakEvenCaja <= unidadesCompradas ? (
                       <>
-                        Necesitas vender{' '}
-                        <strong className="text-teal-700">{calc.breakEven} uds</strong> a S/{' '}
-                        {precioVenta.toFixed(0)} para recuperar la inversión de S/{' '}
-                        {calc.inversionTotal.toLocaleString('es-PE', { maximumFractionDigits: 0 })}.
-                        Vendiendo TODO el lote ({unidadesCompradas} uds) ganás{' '}
+                        Vendiendo{' '}
+                        <strong className="text-teal-700">{calc.breakEvenCaja} uds</strong> a S/{' '}
+                        {precioVenta.toFixed(0)} ya recuperás los{' '}
+                        <strong>S/ {calc.inversionTotal.toLocaleString('es-PE', { maximumFractionDigits: 0 })}</strong>{' '}
+                        invertidos. Vendiendo TODO el lote ({unidadesCompradas} uds) ganás{' '}
                         <strong className="text-emerald-700">
                           S/ {calc.utilidadVendiendoTodo.toLocaleString('es-PE', { maximumFractionDigits: 0 })}
-                        </strong> de utilidad.
+                        </strong> de utilidad neta.
                       </>
                     ) : (
                       <>
                         <strong className="text-amber-700">No alcanza con el lote actual.</strong>{' '}
-                        Necesitarías vender {calc.breakEven} uds para recuperar la inversión, pero solo
-                        comprás {unidadesCompradas}. Aumentá las uds compradas, sube precio, o bajá CTRU.
+                        Necesitarías vender {calc.breakEvenCaja} uds para que los ingresos cubran la
+                        inversión, pero solo comprás {unidadesCompradas}. Aumentá las uds, sube precio o bajá CTRU.
                       </>
                     )
                   ) : (
@@ -331,8 +350,20 @@ export function PuntoEquilibrioModal({
               </div>
             </div>
 
-            {/* Sub-KPIs */}
-            <div className="grid grid-cols-3 gap-3 mt-4 pt-4 border-t border-teal-200">
+            {/* Sub-KPIs · 4 columnas con Equilibrio de Utilidad como concepto contable adicional */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4 pt-4 border-t border-teal-200">
+              <div>
+                <div
+                  className="text-[10px] uppercase tracking-wider text-amber-700 font-bold cursor-help"
+                  title="Cuántas uds vender para que la GANANCIA acumulada iguale la inversión. Concepto contable estricto: considera las unidades sin vender como capital atrapado."
+                >
+                  Equilibrio utilidad
+                </div>
+                <div className="text-base font-bold text-amber-700 tabular-nums">
+                  {isFinite(calc.breakEvenUtilidad) ? `${calc.breakEvenUtilidad} uds` : '∞'}
+                </div>
+                <div className="text-[9px] text-slate-500">contable</div>
+              </div>
               <div>
                 <div className="text-[10px] uppercase tracking-wider text-slate-500 font-bold">
                   Margen contribución
@@ -344,16 +375,18 @@ export function PuntoEquilibrioModal({
                 >
                   S/ {calc.margenContrib.toFixed(0)}/u
                 </div>
+                <div className="text-[9px] text-slate-500">precio − CTRU</div>
               </div>
               <div>
                 <div className="text-[10px] uppercase tracking-wider text-slate-500 font-bold">
-                  Ingresos en PE
+                  Ingresos en PE caja
                 </div>
                 <div className="text-base font-bold text-slate-900 tabular-nums">
                   {isFinite(calc.ingresosEnPE)
                     ? `S/ ${calc.ingresosEnPE.toLocaleString('es-PE', { maximumFractionDigits: 0 })}`
                     : '—'}
                 </div>
+                <div className="text-[9px] text-slate-500">{isFinite(calc.breakEvenCaja) ? `${calc.breakEvenCaja} uds × S/${precioVenta.toFixed(0)}` : ''}</div>
               </div>
               <div>
                 <div className="text-[10px] uppercase tracking-wider text-slate-500 font-bold">
@@ -366,6 +399,7 @@ export function PuntoEquilibrioModal({
                 >
                   {calc.margenPct.toFixed(1)}%
                 </div>
+                <div className="text-[9px] text-slate-500">por unidad</div>
               </div>
             </div>
           </div>
@@ -482,8 +516,8 @@ export function PuntoEquilibrioModal({
               uds={pesimista}
               detalle="precio -10% · CTRU +8%"
               delta={
-                isFinite(pesimista) && isFinite(calc.breakEven)
-                  ? `+${pesimista - calc.breakEven} uds vs base`
+                isFinite(pesimista) && isFinite(calc.breakEvenCaja)
+                  ? `+${pesimista - calc.breakEvenCaja} uds vs base`
                   : '—'
               }
               deltaColor="text-rose-600"
@@ -493,7 +527,7 @@ export function PuntoEquilibrioModal({
               colorDot="bg-teal-500"
               titulo="Base · actual"
               tituloColor="text-teal-700"
-              uds={isFinite(calc.breakEven) ? calc.breakEven : null}
+              uds={isFinite(calc.breakEvenCaja) ? calc.breakEvenCaja : null}
               detalle={`precio S/${precioVenta.toFixed(0)} · CTRU S/${ctru.toFixed(0)}`}
               detalleColor="text-teal-700"
               delta="Punto de partida"
@@ -507,8 +541,8 @@ export function PuntoEquilibrioModal({
               uds={optimista}
               detalle="precio +5% · CTRU -3%"
               delta={
-                isFinite(optimista) && isFinite(calc.breakEven)
-                  ? `${optimista - calc.breakEven} uds vs base`
+                isFinite(optimista) && isFinite(calc.breakEvenCaja)
+                  ? `${optimista - calc.breakEvenCaja} uds vs base`
                   : '—'
               }
               deltaColor="text-emerald-600"
@@ -538,7 +572,7 @@ export function PuntoEquilibrioModal({
                   ctru,
                   precioVenta,
                   unidadesCompradas,
-                  breakEven: isFinite(calc.breakEven) ? calc.breakEven : 0,
+                  breakEven: isFinite(calc.breakEvenCaja) ? calc.breakEvenCaja : 0,
                 })
               }
               className="px-3 py-1.5 text-xs font-bold text-white bg-teal-600 hover:bg-teal-700 rounded-lg flex items-center gap-1.5 shadow-sm"
