@@ -352,27 +352,11 @@ export const ProductoRowCardMobile: React.FC<ProductoRowCardMobileProps> = ({
         </div>
       )}
 
-      {/* ═══════════ BANNER CONTEXTUAL (condicional) ═══════════ */}
-      {isCritico && onCrearOC && (
-        <div className="px-3 py-2 bg-rose-50 border-t border-rose-100 border-l-4 border-l-rose-500 flex items-center justify-between gap-2">
-          <div className="text-[10px] text-rose-800 flex items-center gap-1 flex-1 min-w-0">
-            <AlertTriangle className="w-3 h-3 flex-shrink-0" />
-            <span>
-              <strong>Reordenar.</strong> Stock cubre pocos días.
-            </span>
-          </div>
-          <button
-            type="button"
-            onClick={e => {
-              e.stopPropagation();
-              onCrearOC(producto);
-            }}
-            className="px-2.5 py-1 text-[10px] font-bold text-white bg-rose-600 hover:bg-rose-700 rounded flex-shrink-0"
-          >
-            + Crear OC
-          </button>
-        </div>
-      )}
+      {/* ═══════════ BANNER CONTEXTUAL (condicional) ═══════════
+          Banner Stock Crítico ELIMINADO (Fase H+ · Opción A · 2026-05-03)
+          Ver justificación en ProductoRowCard.tsx · mismo principio
+          (sin DEUDA-PV2-METRICAS-VENTA-CONFIABLE resuelta, no podemos
+          diferenciar demanda real de espejismos · el badge visual se conserva). */}
       {isInvVencida && onReInvestigar && (
         <div className="px-3 py-2 bg-amber-50 border-t border-amber-100 border-l-4 border-l-amber-400 flex items-center justify-between gap-2">
           <div className="text-[10px] text-amber-800 flex items-center gap-1 flex-1 min-w-0">

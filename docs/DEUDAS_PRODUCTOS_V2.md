@@ -105,31 +105,66 @@ interno consume ciclos.
 
 ---
 
-## DEUDA-PV2-VENTAS-UNICAS · Métrica de "transacciones con clientes distintos"
+## DEUDA-PV2-METRICAS-VENTA-CONFIABLE · Distribución temporal + clientes únicos
 
-**Status:** declarada · pendiente de cache pre-calculado en BI
+**Status:** declarada · CRÍTICA · banner "Stock Crítico" deshabilitado hasta resolución
 
-**Contexto:** el banner "Stock crítico" actualmente requiere `ocsHistoricas >= 3`
-porque NO existe pre-calculado en `producto.*` un campo de "transacciones únicas
-con clientes distintos". Las ventas crudas (`cantidadVentas`, `unidadesVendidas`)
-pueden ser engañosas:
-- 5 unidades vendidas a 1 cliente único = NO es demanda diversa
-- 1 venta puntual el día que llegó el producto = NO es patrón
+**Contexto:** El usuario reportó dos escenarios donde las métricas básicas
+(ocsHistoricas, cantidadVentas, unidadesVendidas) MIENTEN sobre la velocidad
+de venta real:
 
-Por eso el criterio actual usa SOLO OCs (decisiones empresariales activas).
+**Escenario 1 · 1 cliente con compra grande:**
+- Cliente A compra 5 unidades en una sola transacción
+- Métrica básica: "5 ventas" → falso · es 1 transacción
+- Demanda real: incierta · puede no haber recompra
 
-**Resolución sugerida:**
-- Agregar campo `producto.transaccionesVentaCount` (count distinct ventaId)
-- Agregar campo `producto.clientesUnicosCount` (count distinct clienteId)
-- Cloud Function `recalcMetricasProducto(productoId)` que se dispare al
-  crear/cancelar venta y mantenga el cache actualizado
-- Una vez disponible, sumar al criterio:
-  ```
-  tieneDemandaValidada = ocsHistoricas >= 3 || transaccionesVentaCount >= 5
-  ```
+**Escenario 2 · espejismo temporal:**
+- Día 1: llegan 5 uds (OC #1)
+- Día 2: Cliente A compra las 5 uds (1 transacción)
+- Día 3: llegan 5 uds más (OC #2 · basada en el espejismo)
+- Día 80: Cliente B compra 1 ud
+- Métrica básica: "vendiste 6 uds, velocidad 0.075/día" → falso
+- Realidad: 2 clientes en 80 días · velocidad estructural ≈ 1 venta cada 40 días
 
-**Mientras tanto:** el criterio "3+ OCs" es conservador pero seguro · prefiere
-no alarmar antes que alarmar falsamente.
+**Problema arquitectural:** ninguna de las métricas pre-calculadas hoy
+distingue entre:
+- Ventas concentradas vs distribuidas en el tiempo
+- Clientes recurrentes vs únicos
+- Transacciones con 1 unidad vs N unidades por transacción
+
+**Decisión Fase H+ · Opción A:**
+Banner "Stock Crítico" + CTA "+ Crear OC" ELIMINADO del listado · solo se
+conserva el border visual rojo + badge en el avatar como info. Sin recomendación
+de acción hasta tener métricas confiables.
+
+**Resolución sugerida (Cloud Function `recalcMetricasProducto`):**
+Pre-calcular y persistir en `producto.metricasVenta`:
+```
+{
+  ventasUltimos30d: { transacciones: 4, unidades: 8, clientesUnicos: 3 },
+  ventasUltimos60d: { transacciones: 7, unidades: 12, clientesUnicos: 5 },
+  ventasUltimos90d: { transacciones: 9, unidades: 15, clientesUnicos: 6 },
+  diasPromedioEntreVentas: 12,
+  coeficienteVariacionTemporal: 0.45,  // bajo = regular · alto = errático
+  clientesRecurrentes30d: 1,
+  clientesNuevos30d: 2,
+  ultimaVentaFecha: Timestamp,
+  primeraVentaFecha: Timestamp,
+}
+```
+
+**Trigger:** al crear o cancelar una venta del producto · recalcula y persiste.
+
+**Una vez disponible · criterio nuevo del banner:**
+```
+tieneDemandaConfiable = (
+  metricasVenta.ventasUltimos60d.transacciones >= 5 &&
+  metricasVenta.ventasUltimos60d.clientesUnicos >= 3 &&
+  metricasVenta.coeficienteVariacionTemporal < 0.7
+)
+```
+
+**Estimación:** 1-2 sesiones · diseño + Cloud Function + cache + integración UI.
 
 ---
 

@@ -476,15 +476,13 @@ export const ProductoRowCard: React.FC<ProductoRowCardProps> = ({
         </div>
       </div>
 
-      {/* Banner accion rapida (debajo del row) · solo cuando hay velocidad/datos reales */}
-      {isCritico && onCrearOC && (
-        <BannerAccionRapida
-          tipo="stock_critico"
-          mensaje="Reordenar ahora · stock por debajo del mínimo y se está vendiendo."
-          ctaLabel="+ Crear OC"
-          onCta={() => onCrearOC(producto)}
-        />
-      )}
+      {/* Banner Stock Crítico ELIMINADO (Fase H+ · Opción A · 2026-05-03)
+          Razón: las métricas básicas (ocsHistoricas, cantidadVentas) no permiten
+          distinguir demanda real de espejismos (1 cliente con compra grande +
+          ventas concentradas en pocos días). El badge visual (border rojo + icono)
+          se conserva como info, pero sin CTA prematuro de "+ Crear OC".
+          Se reactivará cuando exista DEUDA-PV2-VENTAS-UNICAS resuelta:
+          velocidad real con distribución temporal + clientes únicos. */}
       {isInvVencida && onReInvestigar && (
         <BannerAccionRapida
           tipo="investigacion_vencida"
