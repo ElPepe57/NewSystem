@@ -105,6 +105,40 @@ interno consume ciclos.
 
 ---
 
+## DEUDA-PV2-INVESTIGACION-SNAPSHOTS · Histórico de versiones de investigación
+
+**Status:** declarada · diferida hasta tener histórico operativo amplio
+
+**Contexto:** la investigación es mutable · cuando el usuario agrega/edita/elimina
+proveedores o competidores, se sobreescribe el documento. Solo se conserva la
+versión MÁS RECIENTE.
+
+**Por qué importa para el comparativo "Acierto vs Realidad":**
+- Hoy compara CTRU real vs investigación ACTUAL (mutable)
+- Lo correcto sería: CTRU real vs snapshot de investigación AL MOMENTO DE LA OC
+- Si el usuario re-investigó después de comprar, las cifras se distorsionan
+
+**Ejemplo:**
+- Enero · investigás Amazon a $10
+- Marzo · confirmás OC con base en eso
+- Mayo · Amazon subió a $15, lo actualizás en la investigación
+- Hoy: el sistema dice "subestimaste el costo en $5"
+- Realidad: investigaste bien · el mercado subió DESPUÉS
+
+**Resolución sugerida:**
+- Al confirmar primera OC del producto, capturar snapshot de la investigación
+  actual a `producto.investigacionSnapshots[]` con timestamp
+- El comparativo "Acierto" usa el snapshot ANTERIOR a la fecha de la OC
+- Mantener máximo 5 snapshots por producto (rotación FIFO)
+- Estimación: 1 sesión adicional · modificar flujo confirmar OC + adapter en
+  `calcularAciertoInversion` para que reciba un timestamp opcional
+
+**Mientras tanto (estado actual Fase H+):**
+El comparativo funciona con la investigación actual. Es 80/20 útil pero no 100%
+preciso si los precios fluctúan mucho entre re-investigaciones.
+
+---
+
 ## DEUDA-PV2-METRICAS-VENTA-CONFIABLE · Distribución temporal + clientes únicos
 
 **Status:** declarada · CRÍTICA · banner "Stock Crítico" deshabilitado hasta resolución

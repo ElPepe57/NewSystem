@@ -171,3 +171,137 @@ export function getMargenEnVivo(producto: Producto | null | undefined, tc?: numb
 export function getPrecioEfectivoEnVivo(producto: Producto | null | undefined, tc?: number): number {
   return calcularInvestigacion(producto, tc).precioEfectivo;
 }
+
+// ═══════════════════════════════════════════════════════════════════════════
+// ACIERTO vs REALIDAD · Variance Analysis (Fase H+ · Productos Intel)
+// ═══════════════════════════════════════════════════════════════════════════
+//
+// Compara la EXPECTATIVA (de la investigación) vs la REALIDAD (de la operación)
+// en 3 ejes:
+//   1. Costo unitario:  estimado en investigación vs CTRU real (promedio)
+//   2. Precio venta:    sugerido (MIN comp × 0.95) vs precio manual confirmado
+//   3. Margen:          esperado vs realizado (derivado de los anteriores)
+//
+// Sirve para que el usuario aprenda qué tan bien investiga · cuando un score
+// está bajo, indica que su metodología de investigación necesita ajuste.
+//
+// LIMITACIÓN ACTUAL · DEUDA-PV2-INV-SNAPSHOTS
+// La investigación es mutable · si el usuario re-investiga después de comprar,
+// estamos comparando CTRU real vs investigación ACTUALIZADA (no la del momento
+// de la decisión). Es engañoso si los precios del mercado fluctuaron mucho.
+// Solución futura: snapshot automático al confirmar OC.
+
+export type EtiquetaAcierto = 'acierto' | 'medio' | 'desvio' | 'en_curso';
+
+export interface EjeComparativo {
+  esperado: number | null;
+  obtenido: number | null;
+  variacionPct: number | null;  // (obt - esp) / esp · puede ser negativa
+}
+
+export interface AciertoInversion {
+  /** Score 0-100 · más alto = más certero · null si no hay base */
+  score: number | null;
+  /** Etiqueta visual semáforo */
+  etiqueta: EtiquetaAcierto;
+  /** Detalle por eje · permite tooltip explicativo */
+  costo: EjeComparativo;
+  precio: EjeComparativo;
+  margen: EjeComparativo;
+  /** Promedio de variación absoluta de los ejes con data */
+  variacionPromedioPct: number | null;
+}
+
+/**
+ * Calcula el acierto de la inversión comparando expectativa vs realidad.
+ *
+ * Casos:
+ * - Sin investigación completa (proveedores+competidores) → null
+ * - Con investigación pero sin operación real (sin CTRU promedio ni precio
+ *   manual) → 'en_curso' · score null · "esperando data"
+ * - Con investigación + al menos 1 eje con data real → score calculado
+ */
+export function calcularAciertoInversion(
+  producto: Producto | null | undefined,
+  tc?: number,
+): AciertoInversion | null {
+  if (!producto) return null;
+  const calc = calcularInvestigacion(producto, tc);
+
+  // Requisito mínimo: investigación completa (al menos 1 prov + 1 comp)
+  if (!calc.esCompleta) return null;
+
+  // ── EJE 1 · COSTO UNITARIO ──────────────────────────────────────────────
+  // Esperado: costoPEN derivado de investigación · Real: ctruPromedio
+  const ctruReal = (producto as any).ctruPromedio;
+  const costoEsp = calc.costoPEN > 0 ? calc.costoPEN : null;
+  const costoReal = typeof ctruReal === 'number' && ctruReal > 0 ? ctruReal : null;
+  const costo: EjeComparativo = {
+    esperado: costoEsp,
+    obtenido: costoReal,
+    variacionPct: costoEsp !== null && costoReal !== null && costoEsp > 0
+      ? ((costoReal - costoEsp) / costoEsp) * 100
+      : null,
+  };
+
+  // ── EJE 2 · PRECIO VENTA ────────────────────────────────────────────────
+  // Esperado: precioReferencia (MIN comp × 0.95) · Real: precio manual confirmado
+  const precioManual = (producto as any).precioVenta;
+  const precioEsp = calc.precioReferencia > 0 ? calc.precioReferencia : null;
+  const precioReal = typeof precioManual === 'number' && precioManual > 0 ? precioManual : null;
+  const precio: EjeComparativo = {
+    esperado: precioEsp,
+    obtenido: precioReal,
+    variacionPct: precioEsp !== null && precioReal !== null && precioEsp > 0
+      ? ((precioReal - precioEsp) / precioEsp) * 100
+      : null,
+  };
+
+  // ── EJE 3 · MARGEN % ────────────────────────────────────────────────────
+  // Esperado: (precioRef − costoEsp) / precioRef · Real: (precioReal − costoReal) / precioReal
+  const margenEsp = precioEsp !== null && costoEsp !== null && precioEsp > 0
+    ? ((precioEsp - costoEsp) / precioEsp) * 100
+    : null;
+  const margenReal = precioReal !== null && costoReal !== null && precioReal > 0
+    ? ((precioReal - costoReal) / precioReal) * 100
+    : null;
+  const margen: EjeComparativo = {
+    esperado: margenEsp,
+    obtenido: margenReal,
+    variacionPct: margenEsp !== null && margenReal !== null && Math.abs(margenEsp) > 0.01
+      ? ((margenReal - margenEsp) / Math.abs(margenEsp)) * 100
+      : null,
+  };
+
+  // ── SCORE Y ETIQUETA ────────────────────────────────────────────────────
+  const variaciones = [costo.variacionPct, precio.variacionPct, margen.variacionPct]
+    .filter((v): v is number => v !== null)
+    .map(v => Math.abs(v));
+
+  if (variaciones.length === 0) {
+    // Hay investigación pero ningún eje con data real todavía
+    return {
+      score: null,
+      etiqueta: 'en_curso',
+      costo, precio, margen,
+      variacionPromedioPct: null,
+    };
+  }
+
+  const variacionPromedio = variaciones.reduce((s, v) => s + v, 0) / variaciones.length;
+
+  // Score: 100 si variación promedio = 0 · 0 si variación >= 50%
+  const score = Math.max(0, Math.min(100, Math.round(100 - variacionPromedio * 2)));
+
+  let etiqueta: EtiquetaAcierto;
+  if (variacionPromedio < 10) etiqueta = 'acierto';
+  else if (variacionPromedio < 25) etiqueta = 'medio';
+  else etiqueta = 'desvio';
+
+  return {
+    score,
+    etiqueta,
+    costo, precio, margen,
+    variacionPromedioPct: variacionPromedio,
+  };
+}

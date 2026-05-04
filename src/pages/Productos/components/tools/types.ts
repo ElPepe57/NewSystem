@@ -32,6 +32,8 @@ export interface ProductoIntelRow {
   accion: AccionIntel | null;             // null si no hay datos para decidir
   diasParaVencer?: number;                // si aplica · viene de unidad.fechaVencimiento
   esPerdidaSiVence?: boolean;
+  // Fase H+ · Acierto vs Realidad (Variance Analysis)
+  acierto?: import('../../utils/investigacionCalculos').AciertoInversion | null;
 }
 
 // ─── #31 Punto de Equilibrio ─────────────────────────────────────────────────

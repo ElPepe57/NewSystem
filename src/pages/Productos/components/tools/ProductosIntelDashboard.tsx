@@ -281,8 +281,10 @@ export function ProductosIntelDashboard({
               <div className="min-w-0">
                 <h2 className="text-lg lg:text-xl font-bold text-slate-900">Productos Intel</h2>
                 <p className="text-xs text-slate-500 mt-0.5 hidden sm:block">
-                  Inteligencia de catálogo · valor del stock + lead time real + score liquidez +
-                  sugerencias accionables
+                  Inteligencia operativa · solo productos con actividad real (OCs, ventas o stock)
+                </p>
+                <p className="text-[10px] text-indigo-600 mt-0.5 font-medium">
+                  Mostrando <strong className="tabular-nums">{productos.length}</strong> producto{productos.length === 1 ? '' : 's'} en operación
                 </p>
               </div>
             </div>
@@ -486,7 +488,26 @@ export function ProductosIntelDashboard({
 
         {/* LISTADO INTEL */}
         <div className="bg-white flex-1 overflow-y-auto">
-          {lista.length === 0 ? (
+          {productos.length === 0 ? (
+            <div className="px-6 py-16 text-center max-w-md mx-auto">
+              <div className="w-14 h-14 rounded-2xl bg-indigo-100 flex items-center justify-center mx-auto mb-4">
+                <Zap className="w-7 h-7 text-indigo-600" />
+              </div>
+              <h3 className="text-base font-bold text-slate-900 mb-2">Aún no hay productos en operación</h3>
+              <p className="text-sm text-slate-500 mb-1">
+                Productos Intel solo muestra productos con actividad real:
+              </p>
+              <ul className="text-xs text-slate-500 inline-block text-left mb-4">
+                <li>• Al menos 1 OC histórica</li>
+                <li>• Al menos 1 venta registrada</li>
+                <li>• Stock &gt; 0 en cualquier país</li>
+                <li>• Investigación completa (proveedores + competidores)</li>
+              </ul>
+              <p className="text-[11px] text-slate-400 italic">
+                Confirmá una OC, registrá una venta o completá una investigación para empezar a ver inteligencia.
+              </p>
+            </div>
+          ) : lista.length === 0 ? (
             <div className="px-6 py-16 text-center">
               <Snail className="w-10 h-10 text-slate-300 mx-auto mb-3" />
               <p className="text-sm text-slate-500">
@@ -495,8 +516,8 @@ export function ProductosIntelDashboard({
             </div>
           ) : (
             <>
-              {/* Header desktop */}
-              <div className="hidden lg:grid grid-cols-[44px_minmax(0,1.6fr)_130px_80px_90px_110px_110px_90px] gap-3 items-center px-4 py-2 bg-slate-50 border-b border-slate-200 text-[10px] uppercase tracking-wider text-slate-500 font-semibold">
+              {/* Header desktop · grid actualizado con columna Acierto */}
+              <div className="hidden lg:grid grid-cols-[44px_minmax(0,1.6fr)_120px_70px_80px_100px_100px_90px_90px] gap-3 items-center px-4 py-2 bg-slate-50 border-b border-slate-200 text-[10px] uppercase tracking-wider text-slate-500 font-semibold">
                 <div></div>
                 <div>Producto</div>
                 <div>Score liquidez</div>
@@ -504,6 +525,7 @@ export function ProductosIntelDashboard({
                 <div className="text-right">Velocidad</div>
                 <div className="text-right">Capital invertido</div>
                 <div className="text-right">Margen potencial</div>
+                <div className="text-right" title="Comparativo investigación vs realidad">Acierto inv.</div>
                 <div className="text-right">Acción</div>
               </div>
 
@@ -520,7 +542,7 @@ export function ProductosIntelDashboard({
                     key={p.id}
                     onClick={() => onClickProducto?.(p.id)}
                     className="border-b border-slate-100 transition-colors hover:bg-slate-50 cursor-pointer
-                               grid grid-cols-1 lg:grid-cols-[44px_minmax(0,1.6fr)_130px_80px_90px_110px_110px_90px]
+                               grid grid-cols-1 lg:grid-cols-[44px_minmax(0,1.6fr)_120px_70px_80px_100px_100px_90px_90px]
                                gap-3 items-center px-4 py-3"
                   >
                     {/* Avatar */}
@@ -717,6 +739,10 @@ export function ProductosIntelDashboard({
                         <div className="text-sm text-slate-400 italic">—</div>
                       )}
                     </div>
+                    {/* Acierto vs Realidad · Variance Analysis (Fase H+) */}
+                    <div className="hidden lg:block text-right">
+                      <AciertoBadge acierto={p.acierto} />
+                    </div>
                     <div className="hidden lg:block text-right">
                       {accion && AccionIconCmp ? (
                         <span
@@ -816,4 +842,72 @@ function FiltroChip({
 
 function capitalize(s: string): string {
   return s.charAt(0).toUpperCase() + s.slice(1);
+}
+
+// ─── Sub-componente: badge de Acierto vs Realidad ────────────────────────────
+import type { AciertoInversion } from '../../utils/investigacionCalculos';
+
+const ACIERTO_STYLES: Record<NonNullable<AciertoInversion['etiqueta']>, { bg: string; text: string; emoji: string }> = {
+  acierto:  { bg: 'bg-emerald-50 border-emerald-200', text: 'text-emerald-700', emoji: '🎯' },
+  medio:    { bg: 'bg-amber-50 border-amber-200',     text: 'text-amber-700',   emoji: '⚠️' },
+  desvio:   { bg: 'bg-rose-50 border-rose-200',       text: 'text-rose-700',    emoji: '❌' },
+  en_curso: { bg: 'bg-slate-50 border-slate-200',     text: 'text-slate-500',   emoji: '⏳' },
+};
+
+const ACIERTO_LABELS: Record<NonNullable<AciertoInversion['etiqueta']>, string> = {
+  acierto: 'ACIERTO',
+  medio: 'MEDIO',
+  desvio: 'DESVÍO',
+  en_curso: 'EN CURSO',
+};
+
+function AciertoBadge({ acierto }: { acierto: AciertoInversion | null | undefined }) {
+  if (!acierto) {
+    // Producto sin investigación completa · no hay base para comparar
+    return <span className="text-[10px] text-slate-400 italic">—</span>;
+  }
+  const style = ACIERTO_STYLES[acierto.etiqueta];
+  const label = ACIERTO_LABELS[acierto.etiqueta];
+  // Tooltip detallado con los 3 ejes
+  const tooltip = construirTooltipAcierto(acierto);
+  return (
+    <span
+      title={tooltip}
+      className={`inline-flex items-center gap-1 px-2 py-1 rounded-full border text-[10px] font-bold cursor-help ${style.bg} ${style.text}`}
+    >
+      <span>{style.emoji}</span>
+      {acierto.score !== null && (
+        <span className="tabular-nums">{acierto.score}</span>
+      )}
+      <span>·</span>
+      <span>{label}</span>
+    </span>
+  );
+}
+
+function construirTooltipAcierto(a: AciertoInversion): string {
+  const lines: string[] = ['Acierto investigación vs realidad:'];
+  if (a.costo.esperado !== null) {
+    const esp = `S/ ${a.costo.esperado.toFixed(2)}`;
+    const real = a.costo.obtenido !== null ? `S/ ${a.costo.obtenido.toFixed(2)}` : 'sin data real';
+    const v = a.costo.variacionPct !== null ? ` (${a.costo.variacionPct >= 0 ? '+' : ''}${a.costo.variacionPct.toFixed(1)}%)` : '';
+    lines.push(`Costo: esperado ${esp} · obtenido ${real}${v}`);
+  }
+  if (a.precio.esperado !== null) {
+    const esp = `S/ ${a.precio.esperado.toFixed(2)}`;
+    const real = a.precio.obtenido !== null ? `S/ ${a.precio.obtenido.toFixed(2)}` : 'sin precio confirmado';
+    const v = a.precio.variacionPct !== null ? ` (${a.precio.variacionPct >= 0 ? '+' : ''}${a.precio.variacionPct.toFixed(1)}%)` : '';
+    lines.push(`Precio: esperado ${esp} · obtenido ${real}${v}`);
+  }
+  if (a.margen.esperado !== null) {
+    const esp = `${a.margen.esperado.toFixed(1)}%`;
+    const real = a.margen.obtenido !== null ? `${a.margen.obtenido.toFixed(1)}%` : 'sin margen real';
+    const v = a.margen.variacionPct !== null ? ` (${a.margen.variacionPct >= 0 ? '+' : ''}${a.margen.variacionPct.toFixed(1)}%)` : '';
+    lines.push(`Margen: esperado ${esp} · obtenido ${real}${v}`);
+  }
+  if (a.etiqueta === 'en_curso') {
+    lines.push('');
+    lines.push('Sin operación real todavía · esperando ventas o recepciones para comparar');
+  }
+  return lines.join('\n');
 }

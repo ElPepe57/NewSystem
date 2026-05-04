@@ -28,7 +28,7 @@ import { Filter as FilterIcon, Droplets, Pill, Box, Package2, Check, Search as S
 import { useToastStore } from '../../../../store/toastStore';
 import { useProductoStore } from '../../../../store/productoStore';
 import { useAuthStore } from '../../../../store/authStore';
-import { calcularInvestigacion } from '../../utils/investigacionCalculos';
+import { calcularInvestigacion, calcularAciertoInversion } from '../../utils/investigacionCalculos';
 import { HeaderV2 } from './HeaderV2';
 import { KpiStripV2 } from './KpiStripV2';
 import { LoadingState } from './LoadingState';
@@ -1653,9 +1653,35 @@ function inferAccion(p: any, score: number, diasVencer?: number): AccionIntel {
   return 'reponer';
 }
 
+/**
+ * Filtra productos con ACTIVIDAD REAL para Productos Intel.
+ * (Fase H+ · acordado con usuario · 2026-05-03)
+ *
+ * Un producto tiene actividad si CUALQUIERA de:
+ *   - Tiene >= 1 OC histórica (decisión activa de compra)
+ *   - Tiene >= 1 venta histórica (generó ingreso)
+ *   - Tiene stock > 0 en cualquier país (capital invertido)
+ *   - Tiene investigación COMPLETA (proveedores+competidores · análisis pre-OC)
+ *
+ * Productos sin nada de eso son "creados pero no en operación" · no aportan
+ * a inteligencia. Se excluyen del modal Productos Intel.
+ */
+function tieneActividadReal(p: any): boolean {
+  const ocs = p.ocsHistoricas ?? 0;
+  const ventas = p.cantidadVentas ?? p.unidadesVendidas ?? 0;
+  const stockTotal = (p.stockUSA ?? 0) + (p.stockTransito ?? 0) +
+                     (p.stockPeru ?? 0) + (p.stockReservado ?? 0);
+  if (ocs >= 1 || ventas >= 1 || stockTotal >= 1) return true;
+  // Investigación completa también cuenta · habilita el comparativo "Acierto"
+  const provs = p.investigacion?.proveedoresUSA?.length ?? 0;
+  const comps = p.investigacion?.competidoresPeru?.length ?? 0;
+  return provs > 0 && comps > 0;
+}
+
 function buildIntelRows(productos: Producto[]): ProductoIntelRow[] {
   return productos
     .filter((p: any) => (p.estado ?? 'activo') === 'activo')
+    .filter(tieneActividadReal)
     .map((p: any): ProductoIntelRow => {
       // ── Datos REALES sin placeholders ─────────────────────────────────────
       // CTRU real: solo si existe el campo en producto · NO inventamos default
@@ -1736,6 +1762,8 @@ function buildIntelRows(productos: Producto[]): ProductoIntelRow[] {
         accion,
         diasParaVencer: diasVencer,
         esPerdidaSiVence,
+        // Fase H+ · Acierto vs Realidad (null si no hay base para comparar)
+        acierto: calcularAciertoInversion(p),
       };
     });
 }
