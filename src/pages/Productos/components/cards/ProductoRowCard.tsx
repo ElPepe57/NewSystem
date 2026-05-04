@@ -58,12 +58,16 @@ interface ProductoRowCardProps {
  * - stock_critico: requiere TRES condiciones simultáneas:
  *     1. stock actual <= stockMinimo (umbral superado)
  *     2. velocidad de venta REAL > 0 (el producto se está moviendo)
- *     3. EVIDENCIA SUFICIENTE de tracking confiable:
- *        - al menos 3 compras (OCs) históricas, O
- *        - al menos 5 ventas históricas
- *   El #3 evita el "espejismo": si llegó una unidad y al día siguiente se
- *   vendió, no era velocidad real · era coincidencia con la intención del
- *   comprador. Sin historial, no recomendamos reordenar.
+ *     3. al menos 3 OCs históricas (decisiones empresariales de reabastecer)
+ *
+ *   ¿Por qué SOLO OCs y NO "ventas históricas"?
+ *   Las ventas pueden ser engañosas:
+ *     - 5 unidades vendidas a 1 solo cliente NO son demanda diversa
+ *     - 1 venta puntual el día que llegó la unidad NO es patrón
+ *   Las OCs son decisiones ACTIVAS del negocio: si compraste 3 veces,
+ *   es porque YA validaste empíricamente que ese producto se vende.
+ *   Hasta tener métrica de "transacciones únicas con clientes distintos"
+ *   pre-calculada (deuda BI), las OCs son el indicador más confiable.
  *
  * - investigacion_vencida: requiere TRES condiciones:
  *     1. el producto tiene investigación
@@ -78,16 +82,15 @@ function getEstadoVisual(producto: Producto): RowEstadoVisual {
   // Velocidad de venta real
   const velocidad = (producto as any).metricas?.velocidadVenta ?? 0;
   const tieneVelocidadReal = typeof velocidad === 'number' && velocidad > 0;
-  // Evidencia de tracking confiable: 3+ OCs O 5+ ventas (anti-espejismo)
+  // Evidencia de demanda validada: 3+ OCs históricas (decisiones del negocio)
   const ocsHistoricas = (producto as any).ocsHistoricas ?? 0;
-  const ventasHistoricas = (producto as any).cantidadVentas ?? (producto as any).unidadesVendidas ?? 0;
-  const tieneEvidenciaSuficiente = ocsHistoricas >= 3 || ventasHistoricas >= 5;
+  const tieneDemandaValidada = ocsHistoricas >= 3;
 
   if (
     stockMinimo > 0 &&
     stockTotal <= stockMinimo &&
     tieneVelocidadReal &&
-    tieneEvidenciaSuficiente
+    tieneDemandaValidada
   ) {
     return 'stock_critico';
   }

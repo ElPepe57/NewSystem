@@ -105,6 +105,34 @@ interno consume ciclos.
 
 ---
 
+## DEUDA-PV2-VENTAS-UNICAS · Métrica de "transacciones con clientes distintos"
+
+**Status:** declarada · pendiente de cache pre-calculado en BI
+
+**Contexto:** el banner "Stock crítico" actualmente requiere `ocsHistoricas >= 3`
+porque NO existe pre-calculado en `producto.*` un campo de "transacciones únicas
+con clientes distintos". Las ventas crudas (`cantidadVentas`, `unidadesVendidas`)
+pueden ser engañosas:
+- 5 unidades vendidas a 1 cliente único = NO es demanda diversa
+- 1 venta puntual el día que llegó el producto = NO es patrón
+
+Por eso el criterio actual usa SOLO OCs (decisiones empresariales activas).
+
+**Resolución sugerida:**
+- Agregar campo `producto.transaccionesVentaCount` (count distinct ventaId)
+- Agregar campo `producto.clientesUnicosCount` (count distinct clienteId)
+- Cloud Function `recalcMetricasProducto(productoId)` que se dispare al
+  crear/cancelar venta y mantenga el cache actualizado
+- Una vez disponible, sumar al criterio:
+  ```
+  tieneDemandaValidada = ocsHistoricas >= 3 || transaccionesVentaCount >= 5
+  ```
+
+**Mientras tanto:** el criterio "3+ OCs" es conservador pero seguro · prefiere
+no alarmar antes que alarmar falsamente.
+
+---
+
 ## Deudas resueltas durante Fase H+
 
 - ✅ Margen 30% genérico → fix con helper `calcularInvestigacion`

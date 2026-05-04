@@ -48,7 +48,8 @@ interface ProductoRowCardMobileProps {
 // ─── Helpers (reusa lógica de ProductoRowCard desktop) ───────────────────────
 
 // Fase H+ · sin ruido cuando no hay actividad real (ver doc en ProductoRowCard.tsx)
-// Anti-espejismo: stock_critico requiere también 3+ OCs históricas o 5+ ventas
+// Anti-espejismo: stock_critico requiere 3+ OCs históricas
+// (las ventas pueden ser engañosas · 5 uds a 1 cliente NO es demanda diversa)
 function getEstadoVisual(producto: Producto): RowEstadoVisualMobile {
   if (producto.estado === 'eliminado' || producto.estado === 'inactivo') return 'archivado';
 
@@ -57,14 +58,13 @@ function getEstadoVisual(producto: Producto): RowEstadoVisualMobile {
   const velocidad = (producto as any).metricas?.velocidadVenta ?? 0;
   const tieneVelocidadReal = typeof velocidad === 'number' && velocidad > 0;
   const ocsHistoricas = (producto as any).ocsHistoricas ?? 0;
-  const ventasHistoricas = (producto as any).cantidadVentas ?? (producto as any).unidadesVendidas ?? 0;
-  const tieneEvidenciaSuficiente = ocsHistoricas >= 3 || ventasHistoricas >= 5;
+  const tieneDemandaValidada = ocsHistoricas >= 3;
 
   if (
     stockMinimo > 0 &&
     stockTotal <= stockMinimo &&
     tieneVelocidadReal &&
-    tieneEvidenciaSuficiente
+    tieneDemandaValidada
   ) {
     return 'stock_critico';
   }
