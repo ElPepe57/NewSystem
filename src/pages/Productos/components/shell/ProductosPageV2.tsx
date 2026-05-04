@@ -978,35 +978,14 @@ export const ProductosPageV2: React.FC = () => {
         onSelect={handleSelectorChoice}
       />
 
-      {/* Wizard Simple · Fase 7a · 5 secciones colapsables (con Atributos SKC/SUP) + Fase H detección duplicados */}
-      {/* S3.2 · Si flag WIZARD_PRODUCTO_V2 activo → WizardProductoV2 (6 secciones + Marketing IA) · sino legacy */}
-      {isWizardProductoV2Enabled() ? (
-        <WizardProductoV2
-          open={wizardActivo === 'simple'}
-          onClose={() => setWizardActivo(null)}
-          onSubmit={handleCrearSimple}
-          lineasNegocio={lineasActivas.map(l => ({ id: l.id, nombre: l.nombre, codigo: l.codigo }))}
-          catalogoExistente={lista}
-        />
-      ) : (
-        <WizardSimple
-          open={wizardActivo === 'simple'}
-          onClose={() => setWizardActivo(null)}
-          onSubmit={handleCrearSimple}
-          lineasNegocio={lineasActivas.map(l => ({ id: l.id, nombre: l.nombre, codigo: l.codigo }))}
-          catalogoExistente={lista}
-          onConvertirAVariante={(productoBase) => {
-            // Cierra el wizard simple y abre el de variante con el padre pre-seleccionado
-            setWizardActivo('variante_existente');
-            // Pasar el producto base al WizardVarianteExistente (placeholder · TBD)
-            toast.info(`Convertí a variante de "${productoBase.nombreComercial}" · seleccionalo manualmente`);
-          }}
-          onVerDetalle={(p) => {
-            setDetailProducto(p);
-            setWizardActivo(null); // cierra el wizard para ver detalle
-          }}
-        />
-      )}
+      {/* Wizard producto único · S3.4 (2026-05-04) · WizardSimple legacy ELIMINADO · solo V2 */}
+      <WizardProductoV2
+        open={wizardActivo === 'simple'}
+        onClose={() => setWizardActivo(null)}
+        onSubmit={handleCrearSimple}
+        lineasNegocio={lineasActivas.map(l => ({ id: l.id, nombre: l.nombre, codigo: l.codigo }))}
+        catalogoExistente={lista}
+      />
 
       {/* Wizard Con Variantes · Fase 7b · F5(A) sidebar 4 pasos · Fase E3 con maestros */}
       <WizardConVariantes
@@ -1059,21 +1038,12 @@ export const ProductosPageV2: React.FC = () => {
         onAgregarVariante={p => toast.info(`Agregar variante a ${p.nombreComercial} · disponible en Fase 7`)}
       />
 
-      {/* Modal Editar Producto · Fase D · #40 · GAP-020 + GAP-060 */}
-      {/* S3.2 · Si flag WIZARD_PRODUCTO_V2 activo → ProductoEditModalV2 (6 secciones + Marketing IA) · sino legacy */}
-      {isWizardProductoV2Enabled() ? (
-        <ProductoEditModalV2
-          open={!!editingProducto}
-          producto={editingProducto}
-          onClose={() => setEditingProducto(null)}
-        />
-      ) : (
-        <ProductoEditModal
-          open={!!editingProducto}
-          producto={editingProducto}
-          onClose={() => setEditingProducto(null)}
-        />
-      )}
+      {/* Modal Editar Producto · S3.4 (2026-05-04) · ProductoEditModal legacy ELIMINADO · solo V2 */}
+      <ProductoEditModalV2
+        open={!!editingProducto}
+        producto={editingProducto}
+        onClose={() => setEditingProducto(null)}
+      />
 
       {/* Modal Papelera · Fase 8 · #23 · listado archivados con restaurar/eliminar */}
       <PapeleraModal

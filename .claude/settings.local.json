@@ -299,7 +299,8 @@
       "Bash(echo \"Exit: $?\")",
       "PowerShell(& npx --prefix functions tsc --noEmit -p functions 2>&1)",
       "PowerShell($ErrorActionPreference = 'Continue')",
-      "Bash(echo \"EXIT $?\")"
+      "Bash(echo \"EXIT $?\")",
+      "Bash(git tag *)"
     ],
     "deny": [],
     "ask": []
