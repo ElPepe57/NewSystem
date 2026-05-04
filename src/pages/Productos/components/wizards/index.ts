@@ -4,7 +4,7 @@
 export { WizardSelector } from './WizardSelector';
 export type { TipoCreacion } from './WizardSelector';
 
-export { WizardSimple } from './WizardSimple';
+// S3.4 (2026-05-04) · WizardSimple legacy ELIMINADO · usar WizardProductoV2.
 export { WizardProductoV2 } from './WizardProductoV2';
 
 export { WizardConVariantes } from './WizardConVariantes';

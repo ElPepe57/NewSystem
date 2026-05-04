@@ -1,5 +1,8 @@
 /**
  * Barrel · Modales de edición del módulo Productos V2
- *   - ProductoEditModal · Fase D · GAP-020 + GAP-060
+ *
+ * S3.4 (2026-05-04) · ProductoEditModal V1 ELIMINADO. Ahora usar
+ * `ProductoEditModalV2` directamente desde su archivo:
+ *   import { ProductoEditModalV2 } from './edit/ProductoEditModalV2';
  */
-export { ProductoEditModal } from './ProductoEditModal';
+export { ProductoEditModalV2 } from './ProductoEditModalV2';

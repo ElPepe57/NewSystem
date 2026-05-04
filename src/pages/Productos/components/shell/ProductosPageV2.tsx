@@ -52,10 +52,9 @@ import {
 } from '../filters';
 import { ProductosListV2 } from '../cards';
 import { ProductoDetailModal } from '../detail';
-import { ProductoEditModal } from '../edit';
+// S3.4 · ProductoEditModal legacy y WizardSimple legacy ELIMINADOS
 import { ProductoEditModalV2 } from '../edit/ProductoEditModalV2';
-import { WizardSelector, WizardSimple, WizardProductoV2, WizardConVariantes, WizardPack, WizardVarianteExistente, type TipoCreacion, type DatosComunes, type VarianteEntry } from '../wizards';
-import { isWizardProductoV2Enabled } from '../../../../config/features';
+import { WizardSelector, WizardProductoV2, WizardConVariantes, WizardPack, WizardVarianteExistente, type TipoCreacion, type DatosComunes, type VarianteEntry } from '../wizards';
 import {
   PapeleraModal,
   ImportarCSVModal,
