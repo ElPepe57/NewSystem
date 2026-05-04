@@ -191,15 +191,15 @@ export function PuntoEquilibrioModal({
       onClick={onClose}
     >
       <div
-        className="w-full max-w-3xl bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh]"
+        className="w-full max-w-xl bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* HEADER */}
-        <div className="bg-gradient-to-br from-slate-50 to-white border-b border-slate-200 px-4 lg:px-6 py-4">
+        <div className="bg-gradient-to-br from-slate-50 to-white border-b border-slate-200 px-4 py-3">
           <div className="flex items-start justify-between gap-3">
             <div className="flex items-start gap-3 min-w-0">
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-teal-100 to-teal-200 flex items-center justify-center flex-shrink-0">
-                <Calculator className="w-6 h-6 text-teal-700" />
+              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-teal-100 to-teal-200 flex items-center justify-center flex-shrink-0">
+                <Calculator className="w-5 h-5 text-teal-700" />
               </div>
               <div className="min-w-0">
                 <div className="text-[11px] text-slate-500 flex items-center gap-2 mb-0.5">
@@ -229,7 +229,7 @@ export function PuntoEquilibrioModal({
         </div>
 
         {/* BODY */}
-        <div className="flex-1 overflow-y-auto p-5 space-y-5">
+        <div className="flex-1 overflow-y-auto p-4 space-y-3">
           {sinDatos && (
             <div className="rounded-lg bg-amber-50 border border-amber-200 p-3 flex items-start gap-2.5">
               <AlertTriangle className="w-4 h-4 text-amber-700 flex-shrink-0 mt-0.5" />
@@ -272,22 +272,23 @@ export function PuntoEquilibrioModal({
               label="Unidades a comprar"
               value={unidadesCompradas}
               min={1}
-              max={500}
+              max={100}
               step={1}
               onChange={setUnidadesCompradas}
               prefix=""
               suffix="uds"
               valueColor="text-indigo-700"
               fillColor="#6366f1"
+              allowEditOver={true}
               helpText={`Inversión total: S/ ${(unidadesCompradas * ctru).toLocaleString('es-PE', { maximumFractionDigits: 0 })}`}
             />
           </div>
 
           {/* RESULTADO HERO */}
-          <div className="rounded-xl border-2 border-teal-300 bg-gradient-to-br from-teal-50 to-white p-5">
+          <div className="rounded-xl border-2 border-teal-300 bg-gradient-to-br from-teal-50 to-white p-3">
             <div className="flex items-center gap-4">
-              <div className="w-14 h-14 lg:w-16 lg:h-16 rounded-2xl bg-teal-600 text-white flex items-center justify-center flex-shrink-0 shadow-lg shadow-teal-200">
-                <Target className="w-7 h-7 lg:w-8 lg:h-8" />
+              <div className="w-12 h-12 rounded-xl bg-teal-600 text-white flex items-center justify-center flex-shrink-0 shadow-md shadow-teal-200">
+                <Target className="w-6 h-6" />
               </div>
               <div className="flex-1 min-w-0">
                 <div className="text-[10px] uppercase tracking-wider text-teal-700 font-bold">
@@ -387,7 +388,7 @@ export function PuntoEquilibrioModal({
                 </div>
               </div>
             </div>
-            <svg viewBox="0 0 600 220" className="w-full h-44 lg:h-48">
+            <svg viewBox="0 0 600 220" className="w-full h-32 lg:h-36">
               {/* Grid */}
               <g stroke="#e2e8f0" strokeWidth="1" strokeDasharray="2,4">
                 <line x1="40" y1="30" x2="580" y2="30" />
@@ -566,6 +567,7 @@ function SliderRow({
   valueColor,
   fillColor,
   helpText,
+  allowEditOver = false,
 }: {
   icon: React.ReactNode;
   label: string;
@@ -579,13 +581,30 @@ function SliderRow({
   valueColor: string;
   fillColor: string;
   helpText?: string;
+  /** Si true, permite escribir valores POR ENCIMA del max del slider (input libre) */
+  allowEditOver?: boolean;
 }) {
   const disabled = max <= min;
-  const pct = max > min ? ((value - min) / (max - min)) * 100 : 0;
+  // Slider visual va de min a max · si value supera max, slider queda al tope
+  const sliderValue = Math.min(max, Math.max(min, value));
+  const pct = max > min ? ((sliderValue - min) / (max - min)) * 100 : 0;
   const bg = disabled
     ? '#e2e8f0'
     : `linear-gradient(to right, ${fillColor} 0%, ${fillColor} ${pct}%, #e2e8f0 ${pct}%, #e2e8f0 100%)`;
+  const [editText, setEditText] = useState<string>('');
+  const [isEditing, setIsEditing] = useState(false);
+
+  const handleInputBlur = () => {
+    setIsEditing(false);
+    const parsed = parseFloat(editText.replace(/[^\d.-]/g, ''));
+    if (!isNaN(parsed) && parsed >= 0) {
+      const limit = allowEditOver ? Math.max(parsed, max * 10) : max;
+      onChange(Math.min(parsed, limit));
+    }
+  };
+
   const fmt = (n: number) => `${prefix}${prefix ? ' ' : ''}${n.toLocaleString('es-PE', { maximumFractionDigits: 0 })}${suffix ? ' ' + suffix : ''}`.trim();
+
   return (
     <div className={disabled ? 'opacity-50' : ''}>
       <div className="flex items-center justify-between mb-1.5">
@@ -593,16 +612,47 @@ function SliderRow({
           {icon}
           {label}
         </label>
-        <div className={`text-base font-bold tabular-nums ${valueColor}`}>
-          {fmt(value)}
-        </div>
+        {/* Input editable · click para escribir · blur para confirmar */}
+        {isEditing ? (
+          <div className="flex items-center gap-1">
+            {prefix && <span className="text-[11px] font-mono text-slate-500">{prefix}</span>}
+            <input
+              type="number"
+              min={0}
+              step={step}
+              autoFocus
+              value={editText}
+              onChange={(e) => setEditText(e.target.value)}
+              onBlur={handleInputBlur}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') handleInputBlur();
+                if (e.key === 'Escape') { setIsEditing(false); }
+              }}
+              className={`w-20 text-right text-base font-bold tabular-nums bg-white border border-slate-300 rounded px-1.5 py-0.5 focus:outline-none focus:ring-2 focus:ring-teal-400 ${valueColor}`}
+            />
+            {suffix && <span className="text-[11px] text-slate-500">{suffix}</span>}
+          </div>
+        ) : (
+          <button
+            type="button"
+            onClick={() => {
+              if (disabled) return;
+              setEditText(String(value));
+              setIsEditing(true);
+            }}
+            className={`text-base font-bold tabular-nums hover:bg-slate-50 rounded px-1.5 py-0.5 -mr-1.5 -my-0.5 ${valueColor} ${!disabled ? 'cursor-text border border-transparent hover:border-slate-200' : ''}`}
+            title={disabled ? '' : 'Click para editar'}
+          >
+            {fmt(value)}
+          </button>
+        )}
       </div>
       <input
         type="range"
         min={min}
         max={max}
         step={step}
-        value={value}
+        value={sliderValue}
         disabled={disabled}
         onChange={(e) => onChange(Number(e.target.value))}
         className="w-full h-1.5 rounded-full appearance-none cursor-pointer disabled:cursor-not-allowed
@@ -615,8 +665,10 @@ function SliderRow({
       />
       <div className="flex justify-between text-[10px] text-slate-400 mt-1 tabular-nums">
         <span>{fmt(min)}</span>
-        <span>{fmt(value)}</span>
-        <span>{fmt(max)}</span>
+        {value > max && allowEditOver && (
+          <span className="text-amber-600 font-medium">↑ {fmt(value)} (sobre el slider)</span>
+        )}
+        <span>{fmt(max)}{allowEditOver ? '+' : ''}</span>
       </div>
       {helpText && <div className="text-[10px] text-slate-500 mt-1">{helpText}</div>}
     </div>
