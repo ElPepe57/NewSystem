@@ -853,7 +853,7 @@ export const ProductosPageV2: React.FC = () => {
       productoMarca: p.marca,
       ctruInicial: calc.costoPEN,                                  // (prov × (1+tax%) + flete) × TC
       precioVentaInicial: calc.precioEfectivo,                     // manual o sugerido (MIN comp × 0.95)
-      unidadesCompradasInicial: 30,                                // default razonable · usuario ajusta
+      unidadesCompradasInicial: 12,                                // default · 1 docena (usuario ajusta a su realidad)
     });
   };
   const handleImportar = () => setImportarOpen(true);

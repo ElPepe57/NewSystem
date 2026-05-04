@@ -75,7 +75,7 @@ export function PuntoEquilibrioModal({
 }: PuntoEquilibrioModalProps) {
   const [ctru, setCtru] = useState(0);
   const [precioVenta, setPrecioVenta] = useState(0);
-  const [unidadesCompradas, setUnidadesCompradas] = useState(30);
+  const [unidadesCompradas, setUnidadesCompradas] = useState(12);
 
   // Reset al abrir/cambiar producto
   useEffect(() => {
