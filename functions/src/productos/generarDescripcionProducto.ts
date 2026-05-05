@@ -43,6 +43,12 @@ import { getSecret } from "../secrets";
 
 // ─── Tipos del request ──────────────────────────────────────────────────────
 
+interface EtiquetaCatalogo {
+  id: string;
+  nombre: string;
+  tipo: string; // 'descriptiva' | 'certificacion' | 'restriccion' | 'origen' | 'comercial' | 'ingrediente' | 'performance' | 'pack' | etc.
+}
+
 interface GenerarDescripcionRequest {
   lineaCodigo?: "SKC" | "SUP" | "";
   marca?: string;
@@ -77,6 +83,26 @@ interface GenerarDescripcionRequest {
   categorias?: string[];
   etiquetas?: string[];
   pesoLibras?: number;
+  /**
+   * S3.5 (2026-05-05) · Onda 2 · Si true, devuelve también `atributosSugeridos`
+   * con propuestas de IA para campos vacíos. Cuando se incluye, se debe pasar
+   * `etiquetasCatalogo` para que la IA solo sugiera etiquetas existentes.
+   */
+  incluirAtributos?: boolean;
+  etiquetasCatalogo?: EtiquetaCatalogo[];
+}
+
+interface AtributosSugeridos {
+  // SUP-only
+  momentoDia?: string[];           // CERRADO: Mañana, Tarde, Noche, Pre-entreno, Post-entreno, Cualquiera
+  tomaConComida?: string;          // CERRADO: Con, En ayunas, Indiferente, Antes de dormir
+  edadRecomendada?: string;        // CERRADO: Niños (3-12), Adolescentes (13-17), Adultos (18+), Adultos mayores (60+), Cualquier edad
+  restricciones?: string[];        // FREE: ej. Vegano, Sin gluten, Halal
+  // SKC-only
+  zonaAplicacion?: string[];       // CERRADO: Rostro, Cuello, Manos, Cuerpo, Ojos, Labios
+  pasoRutina?: string;             // CERRADO según mockup
+  // Cross-línea
+  etiquetaIds?: string[];          // IDs del maestro · solo de las que existen
 }
 
 interface GenerarDescripcionResponse {
@@ -85,6 +111,8 @@ interface GenerarDescripcionResponse {
   descripcion: string;
   /** S3.4 · 5-10 long-tail keywords para SEO orgánico Google + Mercado Libre */
   keywordsSEO: string[];
+  /** S3.5 · Atributos sugeridos por IA cuando incluirAtributos=true */
+  atributosSugeridos?: AtributosSugeridos;
 }
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
@@ -172,9 +200,86 @@ ${contexto}
 - "beneficios": array de 4-5 strings · cada bullet 60-100 caracteres · empieza con verbo de acción · incluye 1 LSI keyword en al menos 2 bullets
 - "descripcion": 120-180 palabras · 2-3 párrafos cortos · primer párrafo carga keyword principal + LSI · segundo párrafo desarrolla beneficios concretos · cierre con CTA suave (a quién va dirigido)${esSUP ? " · TERMINA con el disclaimer DIGEMID obligatorio mencionado arriba" : ""}
 - "keywordsSEO": array de 5-10 long-tail keywords (frases de 3-7 palabras) · variadas por intent (informacional, comercial, comparativo) · usables en meta-tags y atributos de Mercado Libre
-
+${input.incluirAtributos ? buildSeccionAtributos(input) : ""}
 Usa solo los datos provistos. Si falta info no inventes datos · no inventes ingredientes que no estén listados.
 Devuelve SOLO el JSON, sin markdown ni texto adicional.`;
+}
+
+/**
+ * S3.5 · Onda 2 · Sección adicional del prompt cuando se piden atributos sugeridos.
+ * Incluye listado de etiquetas válidas (filtrado del maestro) para que la IA
+ * solo elija de ellas y no invente nuevas.
+ */
+function buildSeccionAtributos(input: GenerarDescripcionRequest): string {
+  const esSUP = input.lineaCodigo === "SUP";
+  const esSKC = input.lineaCodigo === "SKC";
+  const cat = input.etiquetasCatalogo ?? [];
+
+  // Filtrar etiquetas por tipo · solo descriptivas/restricciones/certificaciones/ingrediente/performance
+  const tiposPermitidos = ["descriptiva", "restriccion", "certificacion", "ingrediente", "performance"];
+  const candidatas = cat.filter(e => tiposPermitidos.includes(e.tipo));
+  const etiquetasPorTipo: Record<string, EtiquetaCatalogo[]> = {};
+  for (const e of candidatas) {
+    etiquetasPorTipo[e.tipo] = etiquetasPorTipo[e.tipo] || [];
+    etiquetasPorTipo[e.tipo].push(e);
+  }
+
+  let listadoEtiquetas = "";
+  for (const [tipo, lista] of Object.entries(etiquetasPorTipo)) {
+    listadoEtiquetas += `\n  ${tipo.toUpperCase()}: ${lista.map(e => `"${e.nombre}" (id=${e.id})`).join(" · ")}`;
+  }
+
+  return `
+
+═══ ATRIBUTOS SUGERIDOS (campo "atributosSugeridos") ═══
+Sugerí valores para los siguientes campos SI tenés alta confianza derivable del nombre / marca / categoría / dosaje / industria. Si tenés DUDA · DEJÁ VACÍO o array vacío. Cero invención.
+${esSUP ? `
+SUP-only:
+- "momentoDia": array · solo de estos valores cerrados: "Mañana", "Tarde", "Noche", "Pre-entreno", "Post-entreno", "Cualquiera"
+   Ejemplos típicos por tipo de producto:
+   · Melatonina/sueño → ["Noche"]
+   · Multivitamínico → ["Mañana"]
+   · Vitamina D3 → ["Mañana"]
+   · Pre-workout → ["Pre-entreno"]
+   · Proteína → ["Post-entreno"]
+   · Probiótico → ["Mañana"] (en ayunas)
+   Si no es claro, vacío [].
+- "tomaConComida": una de "Con", "En ayunas", "Indiferente", "Antes de dormir"
+   Reglas:
+   · Liposolubles (D, E, K, A, Omega 3) → "Con"
+   · Hidrosolubles (C, complejo B) → "Indiferente"
+   · Probióticos → "En ayunas"
+   · Melatonina → "Antes de dormir"
+   · Enzimas digestivas → "Con"
+   Si no es claro, vacío "".
+- "edadRecomendada": una de "Niños (3-12)", "Adolescentes (13-17)", "Adultos (18+)", "Adultos mayores (60+)", "Cualquier edad"
+   Reglas:
+   · Si el nombre contiene "Kids", "Niños", "Children" → "Niños (3-12)"
+   · Si contiene "Adolescentes" o "Teens" → "Adolescentes (13-17)"
+   · Si contiene "+50", "+60", "Mayores", "Senior" → "Adultos mayores (60+)"
+   · Por defecto adultos → "Adultos (18+)"
+- "restricciones": array de strings · cualquier valor descriptivo · solo si HAY EVIDENCIA en nombre/marca/contexto. Ejemplos:
+   · "Vegano" si el nombre dice "Vegan" o marca conocida vegana
+   · "Sin gluten" si dice "Gluten-Free"
+   · "Halal" / "Kosher" si dice los términos
+   · "Non-GMO" si dice los términos
+   Si no es claro, vacío [].
+` : ""}${esSKC ? `
+SKC-only:
+- "zonaAplicacion": array · solo de "Rostro", "Cuello", "Manos", "Cuerpo", "Ojos", "Labios"
+   Reglas:
+   · Crema facial / Sérum facial → ["Rostro"]
+   · Eye Cream / contorno de ojos → ["Ojos"]
+   · Crema de manos → ["Manos"]
+   · Lip balm / labial → ["Labios"]
+   · Crema corporal → ["Cuerpo"]
+   · Productos generales de skincare → ["Rostro"] (default)
+- "pasoRutina": uno de "Limpiador", "Tónico", "Esencia", "Sérum", "Crema", "Protector solar", "Mascarilla", "Exfoliante", "Aceite"
+   Inferir directamente del Tipo de producto SKC y del nombre.
+` : ""}
+- "etiquetaIds": array de IDs · SOLO de las etiquetas listadas abajo · NO inventes etiquetas nuevas. Sugerí 3-7 que apliquen al producto:${listadoEtiquetas || "\n   (catálogo no provisto)"}
+
+REGLA CRÍTICA: si la confianza es baja, vacío. Es mejor no sugerir que sugerir mal.`;
 }
 
 // ─── Schema JSON · structured output ────────────────────────────────────────
@@ -199,6 +304,19 @@ const RESPONSE_SCHEMA = {
       type: "array",
       items: { type: "string" },
       description: "5-10 long-tail keywords (3-7 palabras c/u) para meta-tags y Mercado Libre",
+    },
+    atributosSugeridos: {
+      type: "object",
+      description: "S3.5 · Atributos sugeridos cuando incluirAtributos=true",
+      properties: {
+        momentoDia: { type: "array", items: { type: "string" } },
+        tomaConComida: { type: "string" },
+        edadRecomendada: { type: "string" },
+        restricciones: { type: "array", items: { type: "string" } },
+        zonaAplicacion: { type: "array", items: { type: "string" } },
+        pasoRutina: { type: "string" },
+        etiquetaIds: { type: "array", items: { type: "string" } },
+      },
     },
   },
   required: ["tagline", "beneficios", "descripcion", "keywordsSEO"],
@@ -272,7 +390,8 @@ export const generarDescripcionProducto = functions
               // (~270) + keywordsSEO 10 frases (~100) + estructura JSON (~50)
               // ≈ 600 tokens reales · 1500 da 2.5x de margen.
               // Costo aprox: $0.0003 USD/producto en tier paid · gratis en free.
-              maxOutputTokens: 1500,
+              // S3.5 · subido de 1500 a 2500 para acomodar bloque atributosSugeridos opcional
+              maxOutputTokens: 2500,
               responseMimeType: "application/json",
               responseSchema: RESPONSE_SCHEMA,
               // thinkingBudget=0 desactiva el modo thinking de Gemini 2.5 Flash

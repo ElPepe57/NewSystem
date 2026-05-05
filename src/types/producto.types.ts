@@ -62,7 +62,9 @@ export type TexturaSKC =
   | 'polvo'
   | 'agua'
   | 'balsamo'
-  | 'locion';
+  | 'locion'
+  // S3.5 (2026-05-05) · Onda 2 · agregado tras feedback usuario · sérum es textura propia
+  | 'serum';
 
 export interface AtributosSkincare {
   tipoProductoSKC: TipoProductoSKC;
@@ -128,6 +130,7 @@ export const TEXTURA_LABELS: Record<TexturaSKC, string> = {
   agua: 'Agua / Mist',
   balsamo: 'Bálsamo',
   locion: 'Loción',
+  serum: 'Sérum',
 };
 
 export const TIPO_PIEL_OPTIONS = [
