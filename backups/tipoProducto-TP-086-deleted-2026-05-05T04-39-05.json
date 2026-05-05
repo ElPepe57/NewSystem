@@ -1,0 +1,37 @@
+{
+  "meta": {
+    "eliminadoEn": "2026-05-05T04:39:05.059Z",
+    "motivo": "Onda 1.5 · duplicado de TP-024 · cerrar gap por Opción 2"
+  },
+  "documento": {
+    "id": "n4lAfKgT4EnsljVnyZpp",
+    "codigo": "TP-086",
+    "nombre": "D3 + K2",
+    "nombreNormalizado": "d3  k2",
+    "alias": [],
+    "descripcion": "",
+    "principioActivo": "",
+    "beneficiosPrincipales": [],
+    "categoriasSugeridasIds": [],
+    "iconoUrl": "",
+    "imagenUrl": "",
+    "lineaNegocioIds": [
+      "Z50CnuaBdD5x0w7XGRv8"
+    ],
+    "estado": "activo",
+    "creadoPor": "IlFyjjoBAZgLkFt9XSp2uChtBVi2",
+    "fechaCreacion": {
+      "_seconds": 1775694293,
+      "_nanoseconds": 569000000
+    },
+    "ingresoTotalPEN": 0,
+    "unidadesMovidas": 0,
+    "ingresoTotalUSD": 0,
+    "cantidadVentas": 0,
+    "metricasReseteadasEn": {
+      "_seconds": 1776990844,
+      "_nanoseconds": 62000000
+    },
+    "metricasReseteadasPor": "S53.14-reset-transactional"
+  }
+}

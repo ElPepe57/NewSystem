@@ -1,0 +1,5295 @@
+{
+  "meta": {
+    "fecha": "2026-05-05T03:44:15.164Z",
+    "totalProductos": 212,
+    "porLinea": {
+      "SKC": {
+        "total": 42,
+        "completos": 0,
+        "conHuecos": 42
+      },
+      "SUP": {
+        "total": 170,
+        "completos": 0,
+        "conHuecos": 170
+      },
+      "OTRA": {
+        "total": 0,
+        "completos": 0,
+        "conHuecos": 0
+      }
+    },
+    "conteoCampo": {
+      "APORTABLE::precioVenta": 212,
+      "INVESTIG::fleteUSD": 212,
+      "IA::descripcionMarketing (4 niveles · IA + review)": 211,
+      "APORTABLE::atributosSuplementos.momentoDia": 170,
+      "APORTABLE::atributosSuplementos.tomaConComida": 170,
+      "APORTABLE::atributosSuplementos.edadRecomendada": 170,
+      "APORTABLE::atributosSuplementos.restricciones": 170,
+      "APORTABLE::codigoUPC": 163,
+      "APORTABLE::pesoLibras": 162,
+      "APORTABLE::etiquetas": 57,
+      "APORTABLE::atributosSkincare.zonaAplicacion": 42,
+      "APORTABLE::atributosSkincare.pasoRutina": 37,
+      "INVESTIG::competidoresPeru": 29,
+      "INVESTIG::proveedoresUSA": 26,
+      "APORTABLE::servingsPerDay": 9,
+      "APORTABLE::contenidoNeto": 2,
+      "APORTABLE::atributosSkincare.tipoProductoSKC": 2,
+      "APORTABLE::atributosSkincare.ingredienteClave": 2,
+      "APORTABLE::atributosSkincare.tipoPiel": 2,
+      "APORTABLE::atributosSkincare.preocupaciones": 2,
+      "APORTABLE::atributosSkincare.textura": 2,
+      "DERIVABLE::contenidoNeto (parseable de contenido legacy)": 1
+    },
+    "completos": 0
+  },
+  "productos": [
+    {
+      "id": "0XujfII365826J4EcMJS",
+      "sku": "SUP-0001",
+      "marca": "MicroIngredients",
+      "nombre": "Glucosamina Condroitina",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "0crBwTDpxN8y9Xssn8cB",
+      "sku": "SKC-0027",
+      "marca": "SKIN1004",
+      "nombre": "Madagascar Centella Probio-Cica Bakuchiol Eye Cream",
+      "linea": "SKC",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSkincare.pasoRutina",
+          "atributosSkincare.zonaAplicacion",
+          "etiquetas",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "0k408nr586sFTstgE3hy",
+      "sku": "SUP-0002",
+      "marca": "AlliMax",
+      "nombre": "Allisure Powder",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "0lj2gv5pFrVzy31ttTHx",
+      "sku": "SUP-0003",
+      "marca": "Carlyle",
+      "nombre": "Magnesio Bisglicinato",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "1UzgNVJZ4LGxX78btozF",
+      "sku": "SUP-0155",
+      "marca": "Solaray",
+      "nombre": "Zinc",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "1VDeFEayBxezNWGhhH2S",
+      "sku": "SUP-0004",
+      "marca": "Carlyle",
+      "nombre": "Ashwagandha",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "2fvmpJTUmCzwwzFlK7Wn",
+      "sku": "SUP-0005",
+      "marca": "NOW Foods",
+      "nombre": "Boro",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "37j9vRwhMWsRZ0IPwNQu",
+      "sku": "SKC-0035",
+      "marca": "Dr. Althea",
+      "nombre": "345 Relief Cream",
+      "linea": "SKC",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSkincare.pasoRutina",
+          "atributosSkincare.zonaAplicacion",
+          "etiquetas",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "38jGBfCpIPPEtEKqq0uy",
+      "sku": "SUP-0006",
+      "marca": "Mary Ruth's",
+      "nombre": "Zinc Iónico Orgánico",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "38lkGgOY1iyrSeIPjfKC",
+      "sku": "SKC-0011",
+      "marca": "Medicube",
+      "nombre": "Deep Vita C Capsule Cream",
+      "linea": "SKC",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSkincare.pasoRutina",
+          "atributosSkincare.zonaAplicacion",
+          "etiquetas",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "3JQDMQN1YTD7ooS28b26",
+      "sku": "SKC-0037",
+      "marca": "SKIN1004",
+      "nombre": "Madagascar Centella Toning Toner",
+      "linea": "SKC",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSkincare.zonaAplicacion",
+          "etiquetas",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "3O3ecZ0fNfNu76r1CpUs",
+      "sku": "SUP-0007",
+      "marca": "Carlyle",
+      "nombre": "Melatonina",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "3iCBVSqHikeI99AqaRD4",
+      "sku": "SKC-0001",
+      "marca": "Tocobo",
+      "nombre": "Cica Cooling Sun Stick",
+      "linea": "SKC",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSkincare.pasoRutina",
+          "atributosSkincare.zonaAplicacion",
+          "etiquetas",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "3zfxnL9usLeDZCuKfdBo",
+      "sku": "SUP-0151",
+      "marca": "Solaray",
+      "nombre": "D3 + K2",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "servingsPerDay",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "proveedoresUSA",
+          "competidoresPeru",
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "4IWgSamOm4weIIXynhob",
+      "sku": "SKC-0023",
+      "marca": "Mixsoon",
+      "nombre": "Bean Essence Jumbo",
+      "linea": "SKC",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSkincare.pasoRutina",
+          "atributosSkincare.zonaAplicacion",
+          "etiquetas",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "4YZ7GkbW0lj7ZDav6l6j",
+      "sku": "SUP-0008",
+      "marca": "Doctor's Best",
+      "nombre": "PepZin GI",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "4oCyBFhyPvctheQb3Pr3",
+      "sku": "SKC-0020",
+      "marca": "Beauty of Joseon",
+      "nombre": "Revive Eye Serum",
+      "linea": "SKC",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSkincare.pasoRutina",
+          "atributosSkincare.zonaAplicacion",
+          "etiquetas",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "5aINpRBokq1yTCp3hMlY",
+      "sku": "SUP-0132",
+      "marca": "Nordic Naturals",
+      "nombre": "DHA para Niños",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "5uJrSgXy15iIyQLKDCIw",
+      "sku": "SUP-0009",
+      "marca": "Carlyle",
+      "nombre": "Melena de León",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "61W2jU42CYYDqJ2pZu7z",
+      "sku": "SUP-0010",
+      "marca": "Life Extension",
+      "nombre": "Folato Optimizado",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "6g4PuvJMwEGev6RRp4iP",
+      "sku": "SUP-0011",
+      "marca": "Physician's Choice",
+      "nombre": "Enzimas Digestivas",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "proveedoresUSA",
+          "competidoresPeru",
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "6qebnkHKPNW8U69YojTo",
+      "sku": "SKC-0009",
+      "marca": "Anua",
+      "nombre": "Azelaic Acid 10 Hyaluron Redness Soothing Serum",
+      "linea": "SKC",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSkincare.pasoRutina",
+          "atributosSkincare.zonaAplicacion",
+          "etiquetas",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "70xnojaai1wK1Seipu4d",
+      "sku": "SUP-0142",
+      "marca": "Real Mushrooms",
+      "nombre": "Melena de León",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "proveedoresUSA",
+          "competidoresPeru",
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "74CoJ5vsITU5wOkTvAtf",
+      "sku": "SUP-0123",
+      "marca": "Youtheory",
+      "nombre": "Collagen + Biotin Verisol",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "7aUgTDaDQ8erexiImmIY",
+      "sku": "SUP-0012",
+      "marca": "Horbaach",
+      "nombre": "Berberina",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "7lih9afWlX8LtpDjGI3c",
+      "sku": "SKC-0003",
+      "marca": "SKIN1004",
+      "nombre": "Madagascar Centella Ampoule Foam",
+      "linea": "SKC",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSkincare.pasoRutina",
+          "atributosSkincare.zonaAplicacion",
+          "etiquetas",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "88d59Ss1CqptgHhZHC7n",
+      "sku": "SUP-0161",
+      "marca": "NatureBell",
+      "nombre": "Aceite de pescado Omega 3",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "etiquetas",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "8dj8sDQrSlpgtkQwT4I0",
+      "sku": "SUP-0013",
+      "marca": "NOW Foods",
+      "nombre": "Omega 369",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "8eNhVqcWR2QhdJ8BmyqY",
+      "sku": "SKC-0034",
+      "marca": "SKIN1004",
+      "nombre": "Madagascar Centella Soothing Cream",
+      "linea": "SKC",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSkincare.zonaAplicacion",
+          "etiquetas",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "competidoresPeru",
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "9ISkoOb1owIGezFdyy7p",
+      "sku": "SUP-0014",
+      "marca": "Centrum",
+      "nombre": "Gomitas Multivitamínicas de Hombre",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "proveedoresUSA",
+          "competidoresPeru",
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "9NLyqcT4rFLYHYi8nQx9",
+      "sku": "SUP-0015",
+      "marca": "Carlyle",
+      "nombre": "Krill Oil",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "9ZFTKzdoyFDuM5RDoSvf",
+      "sku": "SKC-0007",
+      "marca": "Round Lab",
+      "nombre": "Birch Juice Moisturizing Sunscreen",
+      "linea": "SKC",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSkincare.pasoRutina",
+          "atributosSkincare.zonaAplicacion",
+          "etiquetas",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "9qieuDH0pm8g0y7WPia4",
+      "sku": "SUP-0154",
+      "marca": "Solaray",
+      "nombre": "Berberina",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "servingsPerDay",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "proveedoresUSA",
+          "competidoresPeru",
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "A2MwgdKxKdtGs23UR5lv",
+      "sku": "SUP-0016",
+      "marca": "Nordic Naturals",
+      "nombre": "Zero Azúcar DHA para Niños",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "AW3DZkZJxF9SXQEfhB4z",
+      "sku": "SUP-0017",
+      "marca": "MicroIngredients",
+      "nombre": "Melatonina",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "AtXpeo5NtfbxmOEhBHMG",
+      "sku": "SUP-0159",
+      "marca": "NusaPure",
+      "nombre": "CandiHealth Complex",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "etiquetas",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "B71pHmfC4YBjZSSSu8cm",
+      "sku": "SUP-0160",
+      "marca": "NusaPure",
+      "nombre": "Licopeno & Luteina Complex",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "etiquetas",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "BhOb1kiYzGOOXJw4y580",
+      "sku": "SUP-0018",
+      "marca": "Carlyle",
+      "nombre": "Prebióticos + Probióticos 50 Billion",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "BiNUKT836tsPcvdZticy",
+      "sku": "SUP-0019",
+      "marca": "Coco March",
+      "nombre": "Digestive Drops",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "proveedoresUSA",
+          "competidoresPeru",
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "BoxuGpP3HKm7btV9xzoa",
+      "sku": "SKC-0002",
+      "marca": "Tocobo",
+      "nombre": "Cotton Soft Sun Stick",
+      "linea": "SKC",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSkincare.pasoRutina",
+          "atributosSkincare.zonaAplicacion",
+          "etiquetas",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "Bozq9iEEJ9yCMjMTQH61",
+      "sku": "SKC-0008",
+      "marca": "SKIN1004",
+      "nombre": "Madagascar Centella Tea-Trica Spot Cream",
+      "linea": "SKC",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSkincare.pasoRutina",
+          "atributosSkincare.zonaAplicacion",
+          "etiquetas",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "C8WpM1zhPuXngEH80PCt",
+      "sku": "SUP-0020",
+      "marca": "Carlyle",
+      "nombre": "Melatonina",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "CnX6JddWDI96rxPaKckx",
+      "sku": "SUP-0130",
+      "marca": "Pure Encapsulations",
+      "nombre": "Magnesio Glicinato",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "Dfza7jBLobscduJXHnqG",
+      "sku": "SUP-0164",
+      "marca": "NusaPure",
+      "nombre": "High Absortion White Kidney Beans",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "etiquetas",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "F02gtK0vgLNqdsW8ZYoV",
+      "sku": "SUP-0021",
+      "marca": "NOW Foods",
+      "nombre": "Super Enzimas",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "FButyvShjATnj5ZX559w",
+      "sku": "SUP-0022",
+      "marca": "Life Extension",
+      "nombre": "NAD+",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "FDdgZJ85oFdUDMDNEkpF",
+      "sku": "SUP-0023",
+      "marca": "NOW Foods",
+      "nombre": "KSM-66 + Ashwagandha",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "FMLDB2TAySAA79M2LXUe",
+      "sku": "SKC-0040",
+      "marca": "SKIN1004",
+      "nombre": "Madagascar Centella Light Cleansing Oil",
+      "linea": "SKC",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSkincare.pasoRutina",
+          "atributosSkincare.zonaAplicacion",
+          "etiquetas",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "FiuQZM87mNFd4e6Fgvji",
+      "sku": "SUP-0024",
+      "marca": "Natrol",
+      "nombre": "Melatonina",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "GsRcmGnBCvDqItBFwBop",
+      "sku": "SUP-0124",
+      "marca": "NatureBell",
+      "nombre": "Magnesium Complex",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "GuEMOJkE24pUSeUPm12R",
+      "sku": "SUP-0149",
+      "marca": "Thorne",
+      "nombre": "Zinc Bisglycinate",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "Hc6nsorCzjmBoa2Rctgw",
+      "sku": "SUP-0025",
+      "marca": "Solaray",
+      "nombre": "Magnesio Glicinato",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "I4snhCrsENI6R8QfrIoP",
+      "sku": "SUP-0026",
+      "marca": "Carlyle",
+      "nombre": "Citicoline CDP",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "J17yx56XjXPvGRAtLHOC",
+      "sku": "SUP-0146",
+      "marca": "Natrol",
+      "nombre": "Gomitas de Melatonina para Adultos",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "servingsPerDay",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "proveedoresUSA",
+          "competidoresPeru",
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "J9WDi7F5yIlyHqTR9nNA",
+      "sku": "SUP-0027",
+      "marca": "Icy Hot",
+      "nombre": "Icy Hot Spray",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "proveedoresUSA",
+          "competidoresPeru",
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "JZ7PZUgl1ToeSEobRGwc",
+      "sku": "SUP-0157",
+      "marca": "NusaPure",
+      "nombre": "Fosfatidilserina Memory Ultimate Complex",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "etiquetas",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "K94NzrcxZmYoXEfqV4ML",
+      "sku": "SUP-0028",
+      "marca": "JoySpring",
+      "nombre": "Gotas Genius",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "KCBAxakFM6P0AJbdFZDy",
+      "sku": "SUP-0029",
+      "marca": "Centrum",
+      "nombre": "Cápsulas Multivitamínicas de Mujer",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "KbAdrUYhdVlnlWGCEMPI",
+      "sku": "SUP-0153",
+      "marca": "Solaray",
+      "nombre": "Berberina",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "servingsPerDay",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "KnCyZsl8Gn4iowseDCUA",
+      "sku": "SUP-0030",
+      "marca": "MicroIngredients",
+      "nombre": "Cápsulas de Péptidos de Colágeno",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "KrwI76t7RMt2ryWTvKoM",
+      "sku": "SUP-0031",
+      "marca": "Lil Critter's",
+      "nombre": "Gomitas Multivitamínicas de Niño",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "L1Lg1698n1RI94tpBIjp",
+      "sku": "SUP-0032",
+      "marca": "MicroIngredients",
+      "nombre": "Alpha Lipoic Acid",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "L7v7Yae2ZoBLpC62ySm5",
+      "sku": "SUP-0033",
+      "marca": "MicroIngredients",
+      "nombre": "Astaxantina",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "LCzOVuw8FkR1IcA8Q1V9",
+      "sku": "SUP-0034",
+      "marca": "Nordic Naturals",
+      "nombre": "Zero Azúcar DHA para Niños",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "LY2ehOftGOTUDzAY6HDW",
+      "sku": "SUP-0165",
+      "marca": "NusaPure",
+      "nombre": "Saw Palmetto",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "etiquetas",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "LtjVse04WiA4BAKRTlBw",
+      "sku": "SKC-0039",
+      "marca": "SKIN1004",
+      "nombre": "Madagascar Centella Toning Toner",
+      "linea": "SKC",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSkincare.zonaAplicacion",
+          "etiquetas",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "proveedoresUSA",
+          "competidoresPeru",
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "M7nGEJVyG3cDiTikoySl",
+      "sku": "SKC-0017",
+      "marca": "Beauty of Joseon",
+      "nombre": "Glow Serum",
+      "linea": "SKC",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSkincare.pasoRutina",
+          "atributosSkincare.zonaAplicacion",
+          "etiquetas",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "MBEXCRC2sVNAuVwQP22i",
+      "sku": "SUP-0035",
+      "marca": "Nordic Naturals",
+      "nombre": "Artic-D",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "NT40fNr6KjgHXKje7ZQC",
+      "sku": "SUP-0036",
+      "marca": "Natrol",
+      "nombre": "Melatonina + L-Teanina para Niños",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "proveedoresUSA",
+          "competidoresPeru",
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "NV2diMx47b9YAHafoXTw",
+      "sku": "SUP-0037",
+      "marca": "NOW Foods",
+      "nombre": "Ultra Omega 3 - Cardiovascular",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "Ng2TFTwSHY9b6hyVMAJg",
+      "sku": "SUP-0156",
+      "marca": "Double Wood",
+      "nombre": "KSM-66 + Ashwagandha",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "etiquetas",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "competidoresPeru",
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "O5HxABm88IHIVE8rh6Z1",
+      "sku": "SKC-0012",
+      "marca": "Medicube",
+      "nombre": "PDRN Pink Collagen Capsule Cream",
+      "linea": "SKC",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSkincare.pasoRutina",
+          "atributosSkincare.zonaAplicacion",
+          "etiquetas",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "OSMyVl4J0IoHKO8Y0yrf",
+      "sku": "SUP-0137",
+      "marca": "NatureBell",
+      "nombre": "Probiotics + Pre + Postbiotics + Enzymes",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "OXj6T8cvG8KJFcZtBDRI",
+      "sku": "SKC-0019",
+      "marca": "Beauty of Joseon",
+      "nombre": "Relief Sun : Rice + Probiotics",
+      "linea": "SKC",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSkincare.pasoRutina",
+          "atributosSkincare.zonaAplicacion",
+          "etiquetas",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "OlWdJCjCxIs6SbBLp7D7",
+      "sku": "SUP-0038",
+      "marca": "Carlyle",
+      "nombre": "Resveratrol",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "PMHT325MbPSS6vlAZjYP",
+      "sku": "SUP-0039",
+      "marca": "MicroIngredients",
+      "nombre": "D3 + K2",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "PqVBBQE00ddvQ33WdW8b",
+      "sku": "SUP-0040",
+      "marca": "MicroIngredients",
+      "nombre": "Ginkgo Biloba",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "QA0wDWgPSSyfL8ROlj5g",
+      "sku": "SUP-0168",
+      "marca": "Sports Research",
+      "nombre": "Triple Strength Omega 3 Fish Oil",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "etiquetas",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "QTaZS454ffFOx5mERNq3",
+      "sku": "SUP-0041",
+      "marca": "Carlyle",
+      "nombre": "Selenio",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "QVgqOiuLLLBykC7MujnS",
+      "sku": "SUP-0147",
+      "marca": "Piping Rock",
+      "nombre": "Fruit & Veggies for life",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "R5xj1rg2mfxKdKA6UeHo",
+      "sku": "SUP-0042",
+      "marca": "Carlyle",
+      "nombre": "Melatonina para Adultos",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "RHQRPE7ReWQJs7CaM3zr",
+      "sku": "SUP-0043",
+      "marca": "Icy Hot",
+      "nombre": "Icy Hot Roll On",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "proveedoresUSA",
+          "competidoresPeru",
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "Ra5zM4nnlZfQesY0tMU6",
+      "sku": "SUP-0044",
+      "marca": "Kirkland Signature",
+      "nombre": "Multivitamínico para Adultos",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "RcNhEpQQYf0Op8GQhQVh",
+      "sku": "SUP-0128",
+      "marca": "Deal Supplement",
+      "nombre": "D3 + K2",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "Rn283diB9XpnpXQJjRwZ",
+      "sku": "SUP-0045",
+      "marca": "NOW Foods",
+      "nombre": "L-Teanina",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "RriAyVXkDt3eUOgaVZam",
+      "sku": "SKC-0024",
+      "marca": "Nineless",
+      "nombre": "A-Control 10% Azelaic Acid Serum",
+      "linea": "SKC",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSkincare.pasoRutina",
+          "atributosSkincare.zonaAplicacion",
+          "etiquetas",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "RyYFoWEPuddCWFOlZmkO",
+      "sku": "SUP-0046",
+      "marca": "Horbaach",
+      "nombre": "Tongkat Ali",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "SHXJveI0XKFu8IoWSpd2",
+      "sku": "SUP-0126",
+      "marca": "MicroIngredients",
+      "nombre": "Myo Inositol",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "SJy7nOtm5ZxeXnECz4sr",
+      "sku": "SUP-0047",
+      "marca": "Nordic Naturals",
+      "nombre": "Ultimate Omega Junior",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "SQMhdS5XJmw45YUqoQlX",
+      "sku": "SUP-0048",
+      "marca": "NuBest",
+      "nombre": "Vitamina para el Crecimiento +10 Años",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "proveedoresUSA",
+          "competidoresPeru",
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "SUHKb5zZf7PBJBfiRD7H",
+      "sku": "SUP-0049",
+      "marca": "Nordic Naturals",
+      "nombre": "Ultimate Omega Teen",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "SWsqJAWaHcnlXqxmcnfL",
+      "sku": "SUP-0050",
+      "marca": "NOW Foods",
+      "nombre": "Ashwagandha",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "Spb4eFpEL2P2R3wPN4FL",
+      "sku": "SKC-0042",
+      "marca": "SKIN1004",
+      "nombre": "Madagascar Double Cleansing Duo",
+      "linea": "SKC",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "contenidoNeto",
+          "atributosSkincare.tipoProductoSKC",
+          "atributosSkincare.ingredienteClave",
+          "atributosSkincare.tipoPiel",
+          "atributosSkincare.preocupaciones",
+          "atributosSkincare.pasoRutina",
+          "atributosSkincare.textura",
+          "atributosSkincare.zonaAplicacion",
+          "etiquetas",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "T1jSnECR6ZJEWRZnvJSu",
+      "sku": "SUP-0051",
+      "marca": "Horbaach",
+      "nombre": "Melena de León",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "TChiKP8Bano4oUgucrhP",
+      "sku": "SUP-0150",
+      "marca": "Solaray",
+      "nombre": "D3 + K2",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "servingsPerDay",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "TPaWaWAYHSfmfeSGpj6a",
+      "sku": "SUP-0052",
+      "marca": "MicroIngredients",
+      "nombre": "CoQ10",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "UL5bR7iP3WnWqdVuTIYA",
+      "sku": "SKC-0021",
+      "marca": "KSECRET - SEOUL",
+      "nombre": "Eye Cream :Retinal Liposome 4% + Fermented Bean",
+      "linea": "SKC",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSkincare.pasoRutina",
+          "atributosSkincare.zonaAplicacion",
+          "etiquetas",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "UT5T3wgX14whxERgvcIt",
+      "sku": "SUP-0152",
+      "marca": "Solaray",
+      "nombre": "D3 + K2",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "servingsPerDay",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "proveedoresUSA",
+          "competidoresPeru",
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "UcIcNfl0Jz2kgKKklEwu",
+      "sku": "SKC-0032",
+      "marca": "SKIN1004",
+      "nombre": "Madagascar Centella Ampoule Foam",
+      "linea": "SKC",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSkincare.pasoRutina",
+          "atributosSkincare.zonaAplicacion",
+          "etiquetas",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "Uew5uNWNzEH5hgkwB3HU",
+      "sku": "SKC-0005",
+      "marca": "SKIN1004",
+      "nombre": "Madagascar Centella Air-Fit Suncream Plus",
+      "linea": "SKC",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSkincare.pasoRutina",
+          "atributosSkincare.zonaAplicacion",
+          "etiquetas",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "UkAyIBBPihxhR8yRscDX",
+      "sku": "SUP-0053",
+      "marca": "Carlyle",
+      "nombre": "D3 + K2",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "UpIL7RE2piS19XC0qTGz",
+      "sku": "SUP-0054",
+      "marca": "Piping Rock",
+      "nombre": "Aceite de Orégano",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "VApBKN4ABcYQW1ZCDRor",
+      "sku": "SUP-0148",
+      "marca": "JoySpring",
+      "nombre": "Para Patrol",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [
+          "contenidoNeto (parseable de contenido legacy)"
+        ],
+        "aportable": [
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "VPe8d0O6AWtv9rS4f2X8",
+      "sku": "SUP-0129",
+      "marca": "Deal Supplement",
+      "nombre": "Myo Inositol",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "W7iAr3D0VU1uVynM29cv",
+      "sku": "SUP-0055",
+      "marca": "Life Extension",
+      "nombre": "Complejo B",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "WHRcGTv8RB54ceTd1dpX",
+      "sku": "SKC-0004",
+      "marca": "SKIN1004",
+      "nombre": "Madagascar Centella Ampoule",
+      "linea": "SKC",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSkincare.pasoRutina",
+          "atributosSkincare.zonaAplicacion",
+          "etiquetas",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "WQGmZsiUsQwiFSJsOdWc",
+      "sku": "SKC-0018",
+      "marca": "Beauty of Joseon",
+      "nombre": "Beauty of Joseon - Matte Sun Stick",
+      "linea": "SKC",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSkincare.pasoRutina",
+          "atributosSkincare.zonaAplicacion",
+          "etiquetas",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "WiSKEAgdNTXsPtB19dKw",
+      "sku": "SKC-0030",
+      "marca": "Round Lab",
+      "nombre": "BIRCH JUICE HAND CREAM",
+      "linea": "SKC",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSkincare.pasoRutina",
+          "atributosSkincare.zonaAplicacion",
+          "etiquetas",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "competidoresPeru",
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "XBd57B5pUvq7yATdourU",
+      "sku": "SUP-0056",
+      "marca": "Horbaach",
+      "nombre": "Vitamina B12",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "XBl1ptdStpqN2tDNd0KM",
+      "sku": "SUP-0057",
+      "marca": "NOW Foods",
+      "nombre": "5-HTP",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "XLePXD9pIQbYTlsVe7uX",
+      "sku": "SUP-0058",
+      "marca": "MicroIngredients",
+      "nombre": "Cápsulas de Aceite de Semilla de Calabaza",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "XZPxa1RqYMJA6zvo7Jb5",
+      "sku": "SUP-0059",
+      "marca": "Wellness Labs RX",
+      "nombre": "NAD + Resveratrol",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "Y8QSJkux0TRbfpyR1ZDU",
+      "sku": "SUP-0060",
+      "marca": "Carlyle",
+      "nombre": "Myo Inositol",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "YEw5uIo5jiTSeI9UPXim",
+      "sku": "SUP-0061",
+      "marca": "Carlyle",
+      "nombre": "Luteína",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "YkrUxQlBTzmsB1MQP2nf",
+      "sku": "SUP-0062",
+      "marca": "Sports Research",
+      "nombre": "Alaska Omega 3",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "YpMdltCdRfYtnqMA6vYA",
+      "sku": "SUP-0125",
+      "marca": "MicroIngredients",
+      "nombre": "Triple Magnesium Complex",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "Yrc0zIbAihEjKRtswvI4",
+      "sku": "SUP-0063",
+      "marca": "Natrol",
+      "nombre": "Melatonina",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "Ys7hc10eMA4itsCMk0SJ",
+      "sku": "SUP-0170",
+      "marca": "Viva Naturals",
+      "nombre": "Omega 3",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "etiquetas",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "proveedoresUSA",
+          "competidoresPeru",
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "YwcriieBsaqo7zSubPkE",
+      "sku": "SUP-0064",
+      "marca": "MicroIngredients",
+      "nombre": "Aceite de Orégano",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "YzI2xAE1fonUpL9YJm0Z",
+      "sku": "SUP-0144",
+      "marca": "Carlyle",
+      "nombre": "Zinc",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "Z52x919TBu6UXIzhLc0u",
+      "sku": "SKC-0013",
+      "marca": "Medicube",
+      "nombre": "TXA Niacinamide Capsule Cream",
+      "linea": "SKC",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSkincare.pasoRutina",
+          "atributosSkincare.zonaAplicacion",
+          "etiquetas",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "ZBnpv34W2XfRX700HPMu",
+      "sku": "SUP-0065",
+      "marca": "Nordic Naturals",
+      "nombre": "DHA para Bebés",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "ZOsrKTZ0qJW01aMPysuh",
+      "sku": "SUP-0066",
+      "marca": "VitaFusion",
+      "nombre": "Gomitas Multivitamínicas de Mujer",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "Zc7XO6Q86OvQFK8I3qI1",
+      "sku": "SKC-0016",
+      "marca": "KSECRET - SEOUL",
+      "nombre": "Retinal Liposome 2% + Black Ginseng",
+      "linea": "SKC",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSkincare.pasoRutina",
+          "atributosSkincare.zonaAplicacion",
+          "etiquetas",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "ZwOH29bDAayOc5VkBS8G",
+      "sku": "SUP-0067",
+      "marca": "Natrol",
+      "nombre": "Gomitas de Melatonina para Niños",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "a8Ctw3ggAbDNPfaDpEAe",
+      "sku": "SUP-0068",
+      "marca": "Double Wood",
+      "nombre": "Magtein",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "aAQ544P2wR4eml8uvHy5",
+      "sku": "SUP-0069",
+      "marca": "Life Extension",
+      "nombre": "Super Omega 3 Plus",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "aU25Bv2ZvyRb2Sl619r9",
+      "sku": "SUP-0070",
+      "marca": "MicroIngredients",
+      "nombre": "D3 + K2",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "amXWQujxTAy0pBfPEgsX",
+      "sku": "SUP-0071",
+      "marca": "Life Extension",
+      "nombre": "Neuromag",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "amZHpjiKeAiNRmT8A9T9",
+      "sku": "SKC-0033",
+      "marca": "SKIN1004",
+      "nombre": "Madagascar Centella Soothing Cream",
+      "linea": "SKC",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSkincare.zonaAplicacion",
+          "etiquetas",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "auIXkSDbXaOb7wqMt72x",
+      "sku": "SUP-0072",
+      "marca": "Carlyle",
+      "nombre": "Shilajit",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "proveedoresUSA",
+          "competidoresPeru",
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "bK3K0l4iSDozkEcQbjKX",
+      "sku": "SUP-0073",
+      "marca": "Horbaach",
+      "nombre": "Vitamina E",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "bnsl6GPUaDtBYefAnU1t",
+      "sku": "SUP-0074",
+      "marca": "Doctor's Best",
+      "nombre": "Magnesio Glicinato",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "bxwyow70wjdD5hmAduMx",
+      "sku": "SKC-0031",
+      "marca": "Centellian24",
+      "nombre": "Madeca Cream Time Reverse",
+      "linea": "SKC",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSkincare.pasoRutina",
+          "atributosSkincare.zonaAplicacion",
+          "etiquetas",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "c3r73qahjURUK0tLlIGz",
+      "sku": "SKC-0025",
+      "marca": "SKIN1004",
+      "nombre": "Madagascar Centella Light Cleansing Oil",
+      "linea": "SKC",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSkincare.pasoRutina",
+          "atributosSkincare.zonaAplicacion",
+          "etiquetas",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "c6OgoqaPmVZ0KuUuayEh",
+      "sku": "SUP-0075",
+      "marca": "MicroIngredients",
+      "nombre": "Complejo B",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "cm1DlC2fgngkGl8eIckM",
+      "sku": "SUP-0076",
+      "marca": "Carlyle",
+      "nombre": "Vitamina C Liposomal",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "cx06tpEJcSI2PENhw4cy",
+      "sku": "SUP-0077",
+      "marca": "Nordic Naturals",
+      "nombre": "Ultimate Omega",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "dC34lIB5iO5OkKVcfIkD",
+      "sku": "SUP-0143",
+      "marca": "Carlyle",
+      "nombre": "Myo Inositol",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "dD5C2rEimsJJzWopvVaO",
+      "sku": "SUP-0078",
+      "marca": "Carlyle",
+      "nombre": "Vitamina B Complex",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "dOGah33kJhMeW6MwBULt",
+      "sku": "SUP-0079",
+      "marca": "Dr. Moritz",
+      "nombre": "Zinc",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "dcQc7tgf6ObshC6XZJxE",
+      "sku": "SUP-0136",
+      "marca": "NatureBell",
+      "nombre": "Magnesio Glicinato",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "e0gcMDbCjl0YnrcJ3IxP",
+      "sku": "SUP-0139",
+      "marca": "NatureBell",
+      "nombre": "Alpha Lipoic Acid",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "eQEgVs2jKBESHTr37VPg",
+      "sku": "SUP-0080",
+      "marca": "Horbaach",
+      "nombre": "Cardo Mariano",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "ee5BnaREkJzON1mk99JL",
+      "sku": "SUP-0081",
+      "marca": "Natrol",
+      "nombre": "Gomitas de Melatonina para Niños",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "eiJeJV77EjOuu5dXo2sO",
+      "sku": "SUP-0134",
+      "marca": "Nordic Naturals",
+      "nombre": "Ultimate Omega Junior",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "proveedoresUSA",
+          "competidoresPeru",
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "f3qu6NB8yzsug5Ncvwrr",
+      "sku": "SUP-0082",
+      "marca": "Physician's Choice",
+      "nombre": "60 Billion Probiotic",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "proveedoresUSA",
+          "competidoresPeru",
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "fTddWPfJ60hwXBGRZfwa",
+      "sku": "SUP-0127",
+      "marca": "NatureBell",
+      "nombre": "Vitamina C Liposomal",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "fzzf0OrL0JyF2thenMoV",
+      "sku": "SUP-0083",
+      "marca": "Carlyle",
+      "nombre": "Aceite de Orégano",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "gIjcwhJtFZgiAPCo8ZHG",
+      "sku": "SUP-0141",
+      "marca": "Real Mushrooms",
+      "nombre": "Melena de León",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "proveedoresUSA",
+          "competidoresPeru",
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "gb8OtRJplyODOTtnXYzj",
+      "sku": "SUP-0084",
+      "marca": "Carlyle",
+      "nombre": "Vitamina B12",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "h3y428CfNUzck30RFpII",
+      "sku": "SUP-0085",
+      "marca": "Mary Ruth's",
+      "nombre": "Líquido Multivitamínico",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "hbPvJvdOb14ScCzUxdSW",
+      "sku": "SKC-0006",
+      "marca": "SKIN1004",
+      "nombre": "Madagascar Centella Hyalu-Cica Water-Fit Sun Serum",
+      "linea": "SKC",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSkincare.pasoRutina",
+          "atributosSkincare.zonaAplicacion",
+          "etiquetas",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "hdUy4qCGnYaRh23XL6rW",
+      "sku": "SUP-0086",
+      "marca": "Kirkland Signature",
+      "nombre": "Calcium, D3 y Zinc",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "htTXDKh17pOhuJ19qQrH",
+      "sku": "SUP-0140",
+      "marca": "NatureBell",
+      "nombre": "Berberina",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "iGlTXVGSF0xo2KjM9hDC",
+      "sku": "SUP-0087",
+      "marca": "MicroIngredients",
+      "nombre": "Omega 3",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "iQTXC6RbMZCy2Oxl2c2s",
+      "sku": "SUP-0088",
+      "marca": "MicroIngredients",
+      "nombre": "Polvo de Péptidos de Colágeno",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "ihDrneNykn5BDeGf6oGB",
+      "sku": "SUP-0169",
+      "marca": "NatureBell",
+      "nombre": "Electrolitos Formula Avanzada",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "etiquetas",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "jlREG06XjUSky2uGaypF",
+      "sku": "SKC-0026",
+      "marca": "SKIN1004",
+      "nombre": "Madagascar Centella Poremizing Light Gel Cream",
+      "linea": "SKC",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSkincare.pasoRutina",
+          "atributosSkincare.zonaAplicacion",
+          "etiquetas",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "keExrI63jKPN53fycLBT",
+      "sku": "SUP-0158",
+      "marca": "NatureBell",
+      "nombre": "Ginseng rojo coreano",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "etiquetas",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "kggh6e0g5MOsP8CUUsVt",
+      "sku": "SUP-0089",
+      "marca": "Triquetra",
+      "nombre": "Folato de Metilo Orgánico para Niños",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "ktICfsWYUr5hVnHfHBgB",
+      "sku": "SUP-0090",
+      "marca": "MicroIngredients",
+      "nombre": "Krill Oil",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "kvqbpNmDZm0gdki3mRzj",
+      "sku": "SUP-0091",
+      "marca": "JoySpring",
+      "nombre": "Lingo Leap",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "lj7qJF4OVLNpInq2IMYg",
+      "sku": "SUP-0092",
+      "marca": "Nordic Naturals",
+      "nombre": "DHA Xtra",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "lnZDMkUyeRkXkNOuGHw8",
+      "sku": "SUP-0093",
+      "marca": "Horbaach",
+      "nombre": "Magnesio Glicinato",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "m0dwINFHyHU64jt1gSnf",
+      "sku": "SUP-0094",
+      "marca": "Nordic Naturals",
+      "nombre": "Omega 3",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "mL7byXOYc2GptBZTUxmI",
+      "sku": "SUP-0095",
+      "marca": "NOW Foods",
+      "nombre": "D3 + K2",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "mTsYT365EWfGQhPEswuB",
+      "sku": "SUP-0096",
+      "marca": "Dr. Moritz",
+      "nombre": "Magnesio para Niños",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "mUAC23V14J1ZOE4bjEaO",
+      "sku": "SUP-0097",
+      "marca": "Horbaach",
+      "nombre": "Ashwagandha",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "mqqbeBL0Cdie8AOBb8ev",
+      "sku": "SUP-0098",
+      "marca": "Horbaach",
+      "nombre": "5-MTHF",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "myio3kWfMx7W6YOfFVDA",
+      "sku": "SUP-0138",
+      "marca": "NatureBell",
+      "nombre": "CoQ10",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "servingsPerDay",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "nTe9Pqs4R9is7OmdiyZl",
+      "sku": "SKC-0029",
+      "marca": "Cosrx",
+      "nombre": "The 6 Peptide Skin Booster",
+      "linea": "SKC",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSkincare.pasoRutina",
+          "atributosSkincare.zonaAplicacion",
+          "etiquetas",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "nW0a06Fc1cEffISwvr5L",
+      "sku": "SUP-0099",
+      "marca": "Sports Research",
+      "nombre": "Multi Colágeno",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "nobNfNTBmWHLSpZvi1f6",
+      "sku": "SUP-0100",
+      "marca": "NOW Foods",
+      "nombre": "Refuerzo de Cándida",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "oRdnAFWxQGOeujJflY7V",
+      "sku": "SUP-0133",
+      "marca": "Pure Encapsulations",
+      "nombre": "Zinc 30",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "oySSprA7R6HdnMi0l7ST",
+      "sku": "SUP-0162",
+      "marca": "NusaPure",
+      "nombre": "Magnesio Citrato",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "etiquetas",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "p0WAZsyorV8eo0kQ7H3u",
+      "sku": "SUP-0101",
+      "marca": "JoySpring",
+      "nombre": "Detoxzee",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "p75kJIU2rvSXWZIx3Dra",
+      "sku": "SKC-0010",
+      "marca": "Anua",
+      "nombre": "Niacinamide 10 TXA 4 Serum",
+      "linea": "SKC",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSkincare.pasoRutina",
+          "atributosSkincare.zonaAplicacion",
+          "etiquetas",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "pTQ93tO2EBRF9EGahg9d",
+      "sku": "SUP-0102",
+      "marca": "Carlyle",
+      "nombre": "Magnesio + Ashwagandha",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "pVdVPTbtPepHULqMs8dF",
+      "sku": "SUP-0145",
+      "marca": "Nordic Naturals",
+      "nombre": "DHA para Bebés",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "servingsPerDay",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "proveedoresUSA",
+          "competidoresPeru",
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "pqA1JtYRF1iFKsYWSze7",
+      "sku": "SUP-0103",
+      "marca": "Swanson",
+      "nombre": "Zinc Carnosine",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "proveedoresUSA",
+          "competidoresPeru",
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "pusBFJ6IEHwsEfZJk9ad",
+      "sku": "SUP-0131",
+      "marca": "MAV Nutrition",
+      "nombre": "Omega 3",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "q7plyO9LG3fjDCKT2xay",
+      "sku": "SKC-0038",
+      "marca": "SKIN1004",
+      "nombre": "Madagascar Centella Toning Toner",
+      "linea": "SKC",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSkincare.zonaAplicacion",
+          "etiquetas",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "proveedoresUSA",
+          "competidoresPeru",
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "qlzgeiGSXX1SBkNJbDqh",
+      "sku": "SUP-0104",
+      "marca": "Carlyle",
+      "nombre": "Vitamina D3",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "proveedoresUSA",
+          "competidoresPeru",
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "ri1a0oEsGycCEUa4Epsc",
+      "sku": "SKC-0022",
+      "marca": "Medicube",
+      "nombre": "PDRN Pink Peptide Serum",
+      "linea": "SKC",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSkincare.pasoRutina",
+          "atributosSkincare.zonaAplicacion",
+          "etiquetas",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "rlz8dRM6Ja3BTMcwm9l3",
+      "sku": "SUP-0105",
+      "marca": "Life Extension",
+      "nombre": "NAD + Resveratrol",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "rp5tWNakgeIqQ0xjh3YI",
+      "sku": "SUP-0106",
+      "marca": "Nature's Truth",
+      "nombre": "Vinagre de Manzana",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "proveedoresUSA",
+          "competidoresPeru",
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "ryDnS6MHx7CtcY8HqvXX",
+      "sku": "SKC-0028",
+      "marca": "SKIN1004",
+      "nombre": "Madagascar Centella Tone Brightening Capsule Ampoule",
+      "linea": "SKC",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSkincare.pasoRutina",
+          "atributosSkincare.zonaAplicacion",
+          "etiquetas",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "t5RbZT75Xyqw5rrxvto4",
+      "sku": "SUP-0107",
+      "marca": "Centrum",
+      "nombre": "Cápsulas Multivitamínicas de Hombre",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "tFiVqDoiMbfJxfavv1lP",
+      "sku": "SKC-0014",
+      "marca": "SKIN1004",
+      "nombre": "Madagascar Centella Poremizing Quick Clay Stick Mask",
+      "linea": "SKC",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSkincare.pasoRutina",
+          "atributosSkincare.zonaAplicacion",
+          "etiquetas",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "tHd5FVQF96WipdlsrXsX",
+      "sku": "SUP-0108",
+      "marca": "MicroIngredients",
+      "nombre": "Espirulina de Chlorella",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "tRp1MyTrOMSpCBVhLFn8",
+      "sku": "SKC-0015",
+      "marca": "Purito",
+      "nombre": "Mighty Bamboo Panthenol Cream",
+      "linea": "SKC",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSkincare.pasoRutina",
+          "atributosSkincare.zonaAplicacion",
+          "etiquetas",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "tUsxYVERRwOTYnL4BEPA",
+      "sku": "SUP-0109",
+      "marca": "Carlyle",
+      "nombre": "Vitamina D3",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "proveedoresUSA",
+          "competidoresPeru",
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "tdwV1884DBT2UvJY5vsl",
+      "sku": "SUP-0110",
+      "marca": "Natrol",
+      "nombre": "Gomitas de Melatonina para Adultos",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "uM9E0s7sb4Anrso0yi0l",
+      "sku": "SUP-0111",
+      "marca": "Centrum",
+      "nombre": "Cápsulas Multivitamínicas de Adulto",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "uykY2SzAZ5RN7tlMGXaO",
+      "sku": "SUP-0112",
+      "marca": "Centrum",
+      "nombre": "Gomitas Multivitamínicas de Mujer",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "proveedoresUSA",
+          "competidoresPeru",
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "vLWb2I4lTSqU7PIjBKvO",
+      "sku": "SUP-0166",
+      "marca": "NatureBell",
+      "nombre": "D3 + K2",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "etiquetas",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "vmpFhydX6gDch22IphcO",
+      "sku": "SUP-0113",
+      "marca": "Kirkland Signature",
+      "nombre": "Gomitas Multivitamínicas de Niño",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "vpW2zKJxJ5pjdE07Sdx3",
+      "sku": "SUP-0114",
+      "marca": "NOW Foods",
+      "nombre": "Ultra Omega 3 - Cerebro y Corazón",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "vz00lieEjVPRednZE0TF",
+      "sku": "SUP-0135",
+      "marca": "Wellness Labs RX",
+      "nombre": "Melena de León",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "wmQewonlM1b8ihvPGWJf",
+      "sku": "SKC-0041",
+      "marca": "SKIN1004",
+      "nombre": "Madagascar Centella Travel Kit",
+      "linea": "SKC",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "contenidoNeto",
+          "atributosSkincare.tipoProductoSKC",
+          "atributosSkincare.ingredienteClave",
+          "atributosSkincare.tipoPiel",
+          "atributosSkincare.preocupaciones",
+          "atributosSkincare.pasoRutina",
+          "atributosSkincare.textura",
+          "atributosSkincare.zonaAplicacion",
+          "etiquetas",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "wnolEOFLCvGrtEaV7aek",
+      "sku": "SUP-0115",
+      "marca": "Carlyle",
+      "nombre": "Aceite de Orégano",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "wvujLliOFs2nVCXuXrs9",
+      "sku": "SUP-0116",
+      "marca": "Life Extension",
+      "nombre": "CoQ10",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "x2PZdgiMDsum9EL3zdVw",
+      "sku": "SUP-0117",
+      "marca": "Carlyle",
+      "nombre": "Berberina",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "xYPd5Xxlm9u9m9WqQpzP",
+      "sku": "SUP-0118",
+      "marca": "Mary Ruth's",
+      "nombre": "Líquido Multivitamínico + Crecimiento del Cabello",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "xgbEMbGGFiLzJayV5u7E",
+      "sku": "SUP-0119",
+      "marca": "Nordic Naturals",
+      "nombre": "Complete Omega Junior",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "yfbY64x92NZgq6f3XOUw",
+      "sku": "SUP-0120",
+      "marca": "Youtheory",
+      "nombre": "Collagen + Biotin",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "proveedoresUSA",
+          "competidoresPeru",
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "yieH1omkKSMTlPxZMQwb",
+      "sku": "SKC-0036",
+      "marca": "SKIN1004",
+      "nombre": "Madagascar Centella Ampoule",
+      "linea": "SKC",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSkincare.pasoRutina",
+          "atributosSkincare.zonaAplicacion",
+          "etiquetas",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "ylUOxWZ50RcAd1WtYBUm",
+      "sku": "SUP-0163",
+      "marca": "NatureBell",
+      "nombre": "D3+ K2",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "servingsPerDay",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "etiquetas",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "z835kWkGmaZkBGLINjWi",
+      "sku": "SUP-0121",
+      "marca": "Life Extension",
+      "nombre": "D3 + K2",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "zSO2GYUdNhhamlOb269r",
+      "sku": "SUP-0167",
+      "marca": "NusaPure",
+      "nombre": "Calostro",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "codigoUPC",
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "etiquetas",
+          "pesoLibras",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    },
+    {
+      "id": "zvgeNdMI7J0Qd6na0FzG",
+      "sku": "SUP-0122",
+      "marca": "Double Wood",
+      "nombre": "Magnesio Glicinato",
+      "linea": "SUP",
+      "huecos": {
+        "derivable": [],
+        "aportable": [
+          "atributosSuplementos.momentoDia",
+          "atributosSuplementos.tomaConComida",
+          "atributosSuplementos.edadRecomendada",
+          "atributosSuplementos.restricciones",
+          "precioVenta"
+        ],
+        "ia": [
+          "descripcionMarketing (4 niveles · IA + review)"
+        ],
+        "investigacion": [
+          "fleteUSD"
+        ]
+      }
+    }
+  ]
+}
