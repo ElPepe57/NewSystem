@@ -1,0 +1,145 @@
+{
+  "meta": {
+    "fecha": "2026-05-05T05:02:32.386Z",
+    "motivo": "Onda 1.5 Acción 3 · saneamiento etiquetas"
+  },
+  "eliminadas": [
+    {
+      "id": "b8tSRz3Jmn6mqu5r5SW0",
+      "doc": {
+        "id": "b8tSRz3Jmn6mqu5r5SW0",
+        "icono": "",
+        "ordenDisplay": 0,
+        "mostrarEnFiltros": true,
+        "color": "#1D4ED8",
+        "slug": "made-in-usa",
+        "creadoPor": "SYSTEM_MIGRATION",
+        "descripcion": "Fabricado en Estados Unidos",
+        "mostrarEnProducto": true,
+        "tipo": "calidad",
+        "codigo": "ETQ-029",
+        "nombreNormalizado": "made in usa",
+        "fechaCreacion": {
+          "_seconds": 1767427229,
+          "_nanoseconds": 694000000
+        },
+        "nombre": "Made in USA",
+        "estado": "activa",
+        "metricas": {
+          "ventasTotalPEN": 0,
+          "unidadesVendidas": 0,
+          "productosTotal": 131,
+          "productosActivos": 131
+        },
+        "lineaNegocioIds": [
+          "Z50CnuaBdD5x0w7XGRv8"
+        ]
+      }
+    },
+    {
+      "id": "egtKl42MOloR2qhmoOcE",
+      "doc": {
+        "id": "egtKl42MOloR2qhmoOcE",
+        "codigo": "ETQ-047",
+        "nombre": "Sin Sabor",
+        "nombreNormalizado": "sin sabor",
+        "tipo": "presentacion",
+        "color": "#9CA3AF",
+        "descripcion": "Producto sin sabor o neutro",
+        "lineaNegocioIds": [
+          "Z50CnuaBdD5x0w7XGRv8"
+        ],
+        "estado": "activa",
+        "creadoPor": "system",
+        "fechaCreacion": {
+          "_seconds": 1775243376,
+          "_nanoseconds": 419000000
+        }
+      }
+    },
+    {
+      "id": "Jbaza3fq94Cq2hRkd06H",
+      "doc": {
+        "id": "Jbaza3fq94Cq2hRkd06H",
+        "codigo": "ETQ-046",
+        "nombre": "Con Sabor",
+        "nombreNormalizado": "con sabor",
+        "tipo": "presentacion",
+        "color": "#F472B6",
+        "descripcion": "Producto con sabor (fresa, limón, bayas, etc.)",
+        "lineaNegocioIds": [
+          "Z50CnuaBdD5x0w7XGRv8"
+        ],
+        "estado": "activa",
+        "creadoPor": "system",
+        "fechaCreacion": {
+          "_seconds": 1775243376,
+          "_nanoseconds": 419000000
+        }
+      }
+    },
+    {
+      "id": "2VRV4F67s1kdRljRq6k5",
+      "doc": {
+        "id": "2VRV4F67s1kdRljRq6k5",
+        "codigo": "ETQ-049",
+        "nombre": "Formato Líquido",
+        "nombreNormalizado": "formato liquido",
+        "tipo": "presentacion",
+        "color": "#38BDF8",
+        "descripcion": "Presentación líquida (gotas, spray, jarabe)",
+        "lineaNegocioIds": [
+          "Z50CnuaBdD5x0w7XGRv8"
+        ],
+        "estado": "activa",
+        "creadoPor": "system",
+        "fechaCreacion": {
+          "_seconds": 1775243376,
+          "_nanoseconds": 419000000
+        }
+      }
+    },
+    {
+      "id": "yV4qSITcj3TF4qH0WvpF",
+      "doc": {
+        "id": "yV4qSITcj3TF4qH0WvpF",
+        "codigo": "ETQ-048",
+        "nombre": "Formato Gomitas",
+        "nombreNormalizado": "formato gomitas",
+        "tipo": "presentacion",
+        "color": "#FBBF24",
+        "descripcion": "Presentación en gomitas masticables",
+        "lineaNegocioIds": [
+          "Z50CnuaBdD5x0w7XGRv8"
+        ],
+        "estado": "activa",
+        "creadoPor": "system",
+        "fechaCreacion": {
+          "_seconds": 1775243376,
+          "_nanoseconds": 419000000
+        }
+      }
+    },
+    {
+      "id": "IISaC8tTFb8M7QFUKccU",
+      "doc": {
+        "id": "IISaC8tTFb8M7QFUKccU",
+        "codigo": "ETQ-050",
+        "nombre": "Formato Polvo",
+        "nombreNormalizado": "formato polvo",
+        "tipo": "presentacion",
+        "color": "#A78BFA",
+        "descripcion": "Presentación en polvo para mezclar",
+        "lineaNegocioIds": [
+          "Z50CnuaBdD5x0w7XGRv8"
+        ],
+        "estado": "activa",
+        "creadoPor": "system",
+        "fechaCreacion": {
+          "_seconds": 1775243376,
+          "_nanoseconds": 419000000
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,799 @@
+{
+  "meta": {
+    "fecha": "2026-05-05T04:45:12.107Z",
+    "totalEtiquetas": 82,
+    "stats": {
+      "AMBIGUA": 8,
+      "ATRIBUTO-PRESENTACION": 1,
+      "ATRIBUTO-SABOR": 2,
+      "CERTIFICACION": 7,
+      "COMERCIAL": 2,
+      "DESCRIPTIVA": 6,
+      "HUERFANA": 50,
+      "ORIGEN": 1,
+      "RESTRICCION": 5
+    }
+  },
+  "etiquetas": [
+    {
+      "id": "etyQ0SdqVPaD1LkI2YsG",
+      "nombre": "Fórmula Combinada",
+      "estado": "activa",
+      "productos": 31,
+      "samples": [
+        "SUP-0151:D3 + K2",
+        "SUP-0123:Collagen + Biotin Verisol",
+        "SUP-0015:Krill Oil"
+      ],
+      "tipoSugerido": "AMBIGUA"
+    },
+    {
+      "id": "2VRV4F67s1kdRljRq6k5",
+      "nombre": "Formato Líquido",
+      "estado": "activa",
+      "productos": 19,
+      "samples": [
+        "SUP-0006:Zinc Iónico Orgánico",
+        "SUP-0132:DHA para Niños",
+        "SUP-0009:Melena de León"
+      ],
+      "tipoSugerido": "AMBIGUA"
+    },
+    {
+      "id": "yV4qSITcj3TF4qH0WvpF",
+      "nombre": "Formato Gomitas",
+      "estado": "activa",
+      "productos": 15,
+      "samples": [
+        "SUP-0014:Gomitas Multivitamínicas de Hombre",
+        "SUP-0016:Zero Azúcar DHA para Niños",
+        "SUP-0146:Gomitas de Melatonina para Adultos"
+      ],
+      "tipoSugerido": "AMBIGUA"
+    },
+    {
+      "id": "P55qFmYh7PxzbhnmFcr4",
+      "nombre": "Friend of the Sea",
+      "estado": "activa",
+      "productos": 11,
+      "samples": [
+        "SUP-0016:Zero Azúcar DHA para Niños",
+        "SUP-0034:Zero Azúcar DHA para Niños",
+        "SUP-0035:Artic-D"
+      ],
+      "tipoSugerido": "AMBIGUA"
+    },
+    {
+      "id": "fCwicBfTlJGVx3ro4TL3",
+      "nombre": "Original Formula",
+      "estado": "activa",
+      "productos": 11,
+      "samples": [
+        "SUP-0132:DHA para Niños",
+        "SUP-0123:Collagen + Biotin Verisol",
+        "SUP-0130:Magnesio Glicinato"
+      ],
+      "tipoSugerido": "AMBIGUA"
+    },
+    {
+      "id": "ANqVl24VjNFpWIfPfbJl",
+      "nombre": "Drug-Free",
+      "estado": "activa",
+      "productos": 7,
+      "samples": [
+        "SUP-0024:Melatonina",
+        "SUP-0146:Gomitas de Melatonina para Adultos",
+        "SUP-0036:Melatonina + L-Teanina para Niños"
+      ],
+      "tipoSugerido": "AMBIGUA"
+    },
+    {
+      "id": "Fo5bv97KtFYjZWOk0eUS",
+      "nombre": "Clean Label Project",
+      "estado": "activa",
+      "productos": 3,
+      "samples": [
+        "SUP-0006:Zinc Iónico Orgánico",
+        "SUP-0085:Líquido Multivitamínico",
+        "SUP-0118:Líquido Multivitamínico + Crecimiento del Cabello"
+      ],
+      "tipoSugerido": "AMBIGUA"
+    },
+    {
+      "id": "xurq1dkEdpnWciZMWX0l",
+      "nombre": "Sin Lácteos",
+      "estado": "activa",
+      "productos": 3,
+      "samples": [
+        "SUP-0006:Zinc Iónico Orgánico",
+        "SUP-0085:Líquido Multivitamínico",
+        "SUP-0118:Líquido Multivitamínico + Crecimiento del Cabello"
+      ],
+      "tipoSugerido": "AMBIGUA"
+    },
+    {
+      "id": "IISaC8tTFb8M7QFUKccU",
+      "nombre": "Formato Polvo",
+      "estado": "activa",
+      "productos": 3,
+      "samples": [
+        "SUP-0002:Allisure Powder",
+        "SUP-0126:Myo Inositol",
+        "SUP-0088:Polvo de Péptidos de Colágeno"
+      ],
+      "tipoSugerido": "ATRIBUTO-PRESENTACION"
+    },
+    {
+      "id": "egtKl42MOloR2qhmoOcE",
+      "nombre": "Sin Sabor",
+      "estado": "activa",
+      "productos": 104,
+      "samples": [
+        "SUP-0001:Glucosamina Condroitina",
+        "SUP-0002:Allisure Powder",
+        "SUP-0003:Magnesio Bisglicinato"
+      ],
+      "tipoSugerido": "ATRIBUTO-SABOR"
+    },
+    {
+      "id": "Jbaza3fq94Cq2hRkd06H",
+      "nombre": "Con Sabor",
+      "estado": "activa",
+      "productos": 51,
+      "samples": [
+        "SUP-0006:Zinc Iónico Orgánico",
+        "SUP-0132:DHA para Niños",
+        "SUP-0012:Berberina"
+      ],
+      "tipoSugerido": "ATRIBUTO-SABOR"
+    },
+    {
+      "id": "4n5L57jTWG5go7hm1qui",
+      "nombre": "Third-Party Tested",
+      "estado": "activa",
+      "productos": 94,
+      "samples": [
+        "SUP-0001:Glucosamina Condroitina",
+        "SUP-0002:Allisure Powder",
+        "SUP-0003:Magnesio Bisglicinato"
+      ],
+      "tipoSugerido": "CERTIFICACION"
+    },
+    {
+      "id": "vqSJwx7jXcqyrhS6h6q2",
+      "nombre": "Non-GMO",
+      "estado": "activa",
+      "productos": 87,
+      "samples": [
+        "SUP-0001:Glucosamina Condroitina",
+        "SUP-0003:Magnesio Bisglicinato",
+        "SUP-0004:Ashwagandha"
+      ],
+      "tipoSugerido": "CERTIFICACION"
+    },
+    {
+      "id": "fMA6eImowdFzXTYUURL9",
+      "nombre": "GMP Certified",
+      "estado": "activa",
+      "productos": 75,
+      "samples": [
+        "SUP-0003:Magnesio Bisglicinato",
+        "SUP-0004:Ashwagandha",
+        "SUP-0005:Boro"
+      ],
+      "tipoSugerido": "CERTIFICACION"
+    },
+    {
+      "id": "Ak3WoHmt6kMSGoqRFAVN",
+      "nombre": "Non-GMO Project Verified",
+      "estado": "activa",
+      "productos": 13,
+      "samples": [
+        "SUP-0005:Boro",
+        "SUP-0013:Omega 369",
+        "SUP-0021:Super Enzimas"
+      ],
+      "tipoSugerido": "CERTIFICACION"
+    },
+    {
+      "id": "ATooOxkATe1ncEBFxQPV",
+      "nombre": "NSF Certified",
+      "estado": "activa",
+      "productos": 8,
+      "samples": [
+        "SUP-0010:Folato Optimizado",
+        "SUP-0022:NAD+",
+        "SUP-0055:Complejo B"
+      ],
+      "tipoSugerido": "CERTIFICACION"
+    },
+    {
+      "id": "BqG1r5fBfjZ2TiiQc7kj",
+      "nombre": "USDA Organic",
+      "estado": "activa",
+      "productos": 4,
+      "samples": [
+        "SUP-0006:Zinc Iónico Orgánico",
+        "SUP-0085:Líquido Multivitamínico",
+        "SUP-0089:Folato de Metilo Orgánico para Niños"
+      ],
+      "tipoSugerido": "CERTIFICACION"
+    },
+    {
+      "id": "4RY5KgxjTDmxqzFyvpvm",
+      "nombre": "B Corp Certified",
+      "estado": "activa",
+      "productos": 3,
+      "samples": [
+        "SUP-0006:Zinc Iónico Orgánico",
+        "SUP-0085:Líquido Multivitamínico",
+        "SUP-0118:Líquido Multivitamínico + Crecimiento del Cabello"
+      ],
+      "tipoSugerido": "CERTIFICACION"
+    },
+    {
+      "id": "IYV7i8oIHCw4JQmC5HHT",
+      "nombre": "Marca Valor",
+      "estado": "activa",
+      "productos": 47,
+      "samples": [
+        "SUP-0003:Magnesio Bisglicinato",
+        "SUP-0004:Ashwagandha",
+        "SUP-0007:Melatonina"
+      ],
+      "tipoSugerido": "COMERCIAL"
+    },
+    {
+      "id": "SlbQagQysLeRAApaEVBz",
+      "nombre": "Marca Premium",
+      "estado": "activa",
+      "productos": 30,
+      "samples": [
+        "SUP-0008:PepZin GI",
+        "SUP-0132:DHA para Niños",
+        "SUP-0010:Folato Optimizado"
+      ],
+      "tipoSugerido": "COMERCIAL"
+    },
+    {
+      "id": "qHKvVTxXQt5cWrlJOE61",
+      "nombre": "Para Niños",
+      "estado": "activa",
+      "productos": 13,
+      "samples": [
+        "SUP-0132:DHA para Niños",
+        "SUP-0016:Zero Azúcar DHA para Niños",
+        "SUP-0031:Gomitas Multivitamínicas de Niño"
+      ],
+      "tipoSugerido": "DESCRIPTIVA"
+    },
+    {
+      "id": "YpNXyDOTjFb5dla93gas",
+      "nombre": "Para Adultos",
+      "estado": "activa",
+      "productos": 5,
+      "samples": [
+        "SUP-0146:Gomitas de Melatonina para Adultos",
+        "SUP-0042:Melatonina para Adultos",
+        "SUP-0044:Multivitamínico para Adultos"
+      ],
+      "tipoSugerido": "DESCRIPTIVA"
+    },
+    {
+      "id": "hKKecgD1ySzzmqtDurEE",
+      "nombre": "Para Mujeres",
+      "estado": "activa",
+      "productos": 3,
+      "samples": [
+        "SUP-0029:Cápsulas Multivitamínicas de Mujer",
+        "SUP-0066:Gomitas Multivitamínicas de Mujer",
+        "SUP-0112:Gomitas Multivitamínicas de Mujer"
+      ],
+      "tipoSugerido": "DESCRIPTIVA"
+    },
+    {
+      "id": "LFdVcdd3PDe5kPMlrxdt",
+      "nombre": "Para Hombres",
+      "estado": "activa",
+      "productos": 2,
+      "samples": [
+        "SUP-0014:Gomitas Multivitamínicas de Hombre",
+        "SUP-0107:Cápsulas Multivitamínicas de Hombre"
+      ],
+      "tipoSugerido": "DESCRIPTIVA"
+    },
+    {
+      "id": "mTYNj4xkrnTriaFXdErb",
+      "nombre": "Para Bebés",
+      "estado": "activa",
+      "productos": 2,
+      "samples": [
+        "SUP-0065:DHA para Bebés",
+        "SUP-0145:DHA para Bebés"
+      ],
+      "tipoSugerido": "DESCRIPTIVA"
+    },
+    {
+      "id": "Biw8XAIm6WYkFhzIY2YP",
+      "nombre": "Para Adolescentes",
+      "estado": "activa",
+      "productos": 1,
+      "samples": [
+        "SUP-0049:Ultimate Omega Teen"
+      ],
+      "tipoSugerido": "DESCRIPTIVA"
+    },
+    {
+      "id": "0gE64KelmA5gXSMjEzIk",
+      "nombre": "Ingrediente Estrella",
+      "estado": "activa",
+      "productos": 0,
+      "samples": [],
+      "tipoSugerido": "HUERFANA"
+    },
+    {
+      "id": "2ZwlZChBwvJ0G0uUvgNZ",
+      "nombre": "Magnesio",
+      "estado": "activa",
+      "productos": 0,
+      "samples": [],
+      "tipoSugerido": "HUERFANA"
+    },
+    {
+      "id": "4d3rSEWCtjzVJ29pWCnB",
+      "nombre": "Nuevo Lanzamiento",
+      "estado": "activa",
+      "productos": 0,
+      "samples": [],
+      "tipoSugerido": "HUERFANA"
+    },
+    {
+      "id": "5fh0ZCX2SOFG1MePoTlz",
+      "nombre": "Omega / DHA",
+      "estado": "activa",
+      "productos": 0,
+      "samples": [],
+      "tipoSugerido": "HUERFANA"
+    },
+    {
+      "id": "5snahsoOrSO76vTamaE6",
+      "nombre": "Para Embarazo",
+      "estado": "activa",
+      "productos": 0,
+      "samples": [],
+      "tipoSugerido": "HUERFANA"
+    },
+    {
+      "id": "6GPxCdkP2KvE0Wsgm30N",
+      "nombre": "Presentación Líquida",
+      "estado": "activa",
+      "productos": 0,
+      "samples": [],
+      "tipoSugerido": "HUERFANA"
+    },
+    {
+      "id": "8fRoYVQ4dZuo7tnKNBFe",
+      "nombre": "Melatonina / Sueño",
+      "estado": "activa",
+      "productos": 0,
+      "samples": [],
+      "tipoSugerido": "HUERFANA"
+    },
+    {
+      "id": "9G61faqdtkJpE50IOtIY",
+      "nombre": "Margen Alto",
+      "estado": "activa",
+      "productos": 0,
+      "samples": [],
+      "tipoSugerido": "HUERFANA"
+    },
+    {
+      "id": "9K4ndblDESELPgGpLQ17",
+      "nombre": "Uso Tópico",
+      "estado": "activa",
+      "productos": 0,
+      "samples": [],
+      "tipoSugerido": "HUERFANA"
+    },
+    {
+      "id": "ANRMna9eKT4cR1og3nlw",
+      "nombre": "Pack Rutina",
+      "estado": "activa",
+      "productos": 0,
+      "samples": [],
+      "tipoSugerido": "HUERFANA"
+    },
+    {
+      "id": "BXN7s0LjAOXXDyMrONcZ",
+      "nombre": "Alta Potencia",
+      "estado": "activa",
+      "productos": 0,
+      "samples": [],
+      "tipoSugerido": "HUERFANA"
+    },
+    {
+      "id": "CgYIu7WJCLv19o52nI5V",
+      "nombre": "Probiótico",
+      "estado": "activa",
+      "productos": 0,
+      "samples": [],
+      "tipoSugerido": "HUERFANA"
+    },
+    {
+      "id": "DJLUePQmiuNPcdOLkBZL",
+      "nombre": "Piel Sensible",
+      "estado": "activa",
+      "productos": 0,
+      "samples": [],
+      "tipoSugerido": "HUERFANA"
+    },
+    {
+      "id": "E0U5qvWSafs6jcVuPRPw",
+      "nombre": "Familiar",
+      "estado": "activa",
+      "productos": 0,
+      "samples": [],
+      "tipoSugerido": "HUERFANA"
+    },
+    {
+      "id": "Eh4nWJ1RS1hxW8jHsXN5",
+      "nombre": "Alto Contenido",
+      "estado": "activa",
+      "productos": 0,
+      "samples": [],
+      "tipoSugerido": "HUERFANA"
+    },
+    {
+      "id": "FTIRc3SCkBnWNVK8rIhV",
+      "nombre": "Rutina 10 Pasos",
+      "estado": "activa",
+      "productos": 0,
+      "samples": [],
+      "tipoSugerido": "HUERFANA"
+    },
+    {
+      "id": "HorQJtUZGCDHDUHlsox8",
+      "nombre": "Con SPF",
+      "estado": "activa",
+      "productos": 0,
+      "samples": [],
+      "tipoSugerido": "HUERFANA"
+    },
+    {
+      "id": "JVk3lOuYRxcXrDPGupqC",
+      "nombre": "Competencia Baja",
+      "estado": "activa",
+      "productos": 0,
+      "samples": [],
+      "tipoSugerido": "HUERFANA"
+    },
+    {
+      "id": "Ow6bi7PYuNCCeeFPQSTk",
+      "nombre": "Trending",
+      "estado": "activa",
+      "productos": 0,
+      "samples": [],
+      "tipoSugerido": "HUERFANA"
+    },
+    {
+      "id": "QfeHUbGKgKrNtWUDIzve",
+      "nombre": "Science-Based",
+      "estado": "activa",
+      "productos": 0,
+      "samples": [],
+      "tipoSugerido": "HUERFANA"
+    },
+    {
+      "id": "R1qgM4ITI7AqRmYd2wnc",
+      "nombre": "Fácil de Tragar",
+      "estado": "activa",
+      "productos": 0,
+      "samples": [],
+      "tipoSugerido": "HUERFANA"
+    },
+    {
+      "id": "R7UYNscvNOtq0hR25jsT",
+      "nombre": "Edición Limitada",
+      "estado": "activa",
+      "productos": 0,
+      "samples": [],
+      "tipoSugerido": "HUERFANA"
+    },
+    {
+      "id": "RJgIg6v7fnLl6hf5YfxK",
+      "nombre": "Piel Grasa",
+      "estado": "activa",
+      "productos": 0,
+      "samples": [],
+      "tipoSugerido": "HUERFANA"
+    },
+    {
+      "id": "SfWcGP9oTyZU2ZC5cUWk",
+      "nombre": "Multivitamínico",
+      "estado": "activa",
+      "productos": 0,
+      "samples": [],
+      "tipoSugerido": "HUERFANA"
+    },
+    {
+      "id": "Sz5hbFXOvlpfhOSPNMW1",
+      "nombre": "K-Beauty Classic",
+      "estado": "activa",
+      "productos": 0,
+      "samples": [],
+      "tipoSugerido": "HUERFANA"
+    },
+    {
+      "id": "U0EFFT3hIDFPclc2UdTg",
+      "nombre": "Sin Alcohol",
+      "estado": "activa",
+      "productos": 0,
+      "samples": [],
+      "tipoSugerido": "HUERFANA"
+    },
+    {
+      "id": "V1k8egA1mOELtuvFvizy",
+      "nombre": "Kosher",
+      "estado": "activa",
+      "productos": 0,
+      "samples": [],
+      "tipoSugerido": "HUERFANA"
+    },
+    {
+      "id": "VyDK0hg9H7nyNPYmUgxY",
+      "nombre": "Importado Corea",
+      "estado": "activa",
+      "productos": 0,
+      "samples": [],
+      "tipoSugerido": "HUERFANA"
+    },
+    {
+      "id": "XCLBUxuQDy1npjdEKFIG",
+      "nombre": "Alta Absorción",
+      "estado": "activa",
+      "productos": 0,
+      "samples": [],
+      "tipoSugerido": "HUERFANA"
+    },
+    {
+      "id": "XX4NFQ1gxypAsBdk62B6",
+      "nombre": "Best-Seller",
+      "estado": "activa",
+      "productos": 0,
+      "samples": [],
+      "tipoSugerido": "HUERFANA"
+    },
+    {
+      "id": "Xm3UFzVmJAo7ajqFH1pF",
+      "nombre": "Sin Fragancia",
+      "estado": "activa",
+      "productos": 0,
+      "samples": [],
+      "tipoSugerido": "HUERFANA"
+    },
+    {
+      "id": "Z9k26rXh2hPTXxXUqR0V",
+      "nombre": "Sin Parabenos",
+      "estado": "activa",
+      "productos": 0,
+      "samples": [],
+      "tipoSugerido": "HUERFANA"
+    },
+    {
+      "id": "ZRhtk3mZj5jmwUE8hroo",
+      "nombre": "Rendimiento +90 días",
+      "estado": "activa",
+      "productos": 0,
+      "samples": [],
+      "tipoSugerido": "HUERFANA"
+    },
+    {
+      "id": "b8tSRz3Jmn6mqu5r5SW0",
+      "nombre": "Made in USA",
+      "estado": "activa",
+      "productos": 0,
+      "samples": [],
+      "tipoSugerido": "HUERFANA"
+    },
+    {
+      "id": "bFCkk0Asw39mEQNRgyV0",
+      "nombre": "Dermatológicamente Testeado",
+      "estado": "activa",
+      "productos": 0,
+      "samples": [],
+      "tipoSugerido": "HUERFANA"
+    },
+    {
+      "id": "eoUo2vHCMh46JkwFqpk9",
+      "nombre": "Producto Estrella",
+      "estado": "activa",
+      "productos": 0,
+      "samples": [],
+      "tipoSugerido": "HUERFANA"
+    },
+    {
+      "id": "f7S6F4TySdCFDsUyXbil",
+      "nombre": "Colágeno",
+      "estado": "activa",
+      "productos": 0,
+      "samples": [],
+      "tipoSugerido": "HUERFANA"
+    },
+    {
+      "id": "fWnQD2GIiVfGTSVdPzCs",
+      "nombre": "Para Mayores +50",
+      "estado": "activa",
+      "productos": 0,
+      "samples": [],
+      "tipoSugerido": "HUERFANA"
+    },
+    {
+      "id": "jga4otQC8YMbKJ0xeQMM",
+      "nombre": "Sabor Agradable",
+      "estado": "activa",
+      "productos": 0,
+      "samples": [],
+      "tipoSugerido": "HUERFANA"
+    },
+    {
+      "id": "mMJJ9RoZu92VSGtTPYe4",
+      "nombre": "Requiere Frío",
+      "estado": "activa",
+      "productos": 0,
+      "samples": [],
+      "tipoSugerido": "HUERFANA"
+    },
+    {
+      "id": "nJlRlmOH0xbRZoiJwDoO",
+      "nombre": "Apto Keto",
+      "estado": "activa",
+      "productos": 0,
+      "samples": [],
+      "tipoSugerido": "HUERFANA"
+    },
+    {
+      "id": "ot71Silu4SOFhVkc3Blt",
+      "nombre": "Piel Seca",
+      "estado": "activa",
+      "productos": 0,
+      "samples": [],
+      "tipoSugerido": "HUERFANA"
+    },
+    {
+      "id": "rniQxt8CnpSl2gKq9xR3",
+      "nombre": "Importado Japón",
+      "estado": "activa",
+      "productos": 0,
+      "samples": [],
+      "tipoSugerido": "HUERFANA"
+    },
+    {
+      "id": "rqGVYfwiNBAqeO4Jx1Dq",
+      "nombre": "Vitamina D",
+      "estado": "activa",
+      "productos": 0,
+      "samples": [],
+      "tipoSugerido": "HUERFANA"
+    },
+    {
+      "id": "sbTiWIh4W62VXTymAo01",
+      "nombre": "pH Bajo",
+      "estado": "activa",
+      "productos": 0,
+      "samples": [],
+      "tipoSugerido": "HUERFANA"
+    },
+    {
+      "id": "vLruFdLpIiApYlATaxoJ",
+      "nombre": "Fecha Corta",
+      "estado": "activa",
+      "productos": 0,
+      "samples": [],
+      "tipoSugerido": "HUERFANA"
+    },
+    {
+      "id": "vly1efnvdGj041r6GC1F",
+      "nombre": "Disolución Rápida",
+      "estado": "activa",
+      "productos": 0,
+      "samples": [],
+      "tipoSugerido": "HUERFANA"
+    },
+    {
+      "id": "yWc2UCpqZG3fMa2mWsDP",
+      "nombre": "Cruelty-Free",
+      "estado": "activa",
+      "productos": 0,
+      "samples": [],
+      "tipoSugerido": "HUERFANA"
+    },
+    {
+      "id": "yqCQ4ldGz9opNBzCExes",
+      "nombre": "Uso Deportivo",
+      "estado": "activa",
+      "productos": 0,
+      "samples": [],
+      "tipoSugerido": "HUERFANA"
+    },
+    {
+      "id": "yz6yvzY76ZsZxIFhXKFH",
+      "nombre": "Importado China",
+      "estado": "activa",
+      "productos": 0,
+      "samples": [],
+      "tipoSugerido": "HUERFANA"
+    },
+    {
+      "id": "SYZRSysHRyzneQZx58XA",
+      "nombre": "Importado USA",
+      "estado": "activa",
+      "productos": 155,
+      "samples": [
+        "SUP-0001:Glucosamina Condroitina",
+        "SUP-0002:Allisure Powder",
+        "SUP-0003:Magnesio Bisglicinato"
+      ],
+      "tipoSugerido": "ORIGEN"
+    },
+    {
+      "id": "21J1RyjMD1ImPaZoPWNW",
+      "nombre": "Sin Gluten",
+      "estado": "activa",
+      "productos": 71,
+      "samples": [
+        "SUP-0001:Glucosamina Condroitina",
+        "SUP-0003:Magnesio Bisglicinato",
+        "SUP-0004:Ashwagandha"
+      ],
+      "tipoSugerido": "RESTRICCION"
+    },
+    {
+      "id": "euqQCRDlRwF3Hdi80mRD",
+      "nombre": "Vegetariano",
+      "estado": "activa",
+      "productos": 30,
+      "samples": [
+        "SUP-0005:Boro",
+        "SUP-0008:PepZin GI",
+        "SUP-0010:Folato Optimizado"
+      ],
+      "tipoSugerido": "RESTRICCION"
+    },
+    {
+      "id": "UQXd4FeEzkkADtGDtN8y",
+      "nombre": "Vegano",
+      "estado": "activa",
+      "productos": 22,
+      "samples": [
+        "SUP-0001:Glucosamina Condroitina",
+        "SUP-0006:Zinc Iónico Orgánico",
+        "SUP-0017:Melatonina"
+      ],
+      "tipoSugerido": "RESTRICCION"
+    },
+    {
+      "id": "tOYQdxxIWQ35pRKm6nMa",
+      "nombre": "Sin Soya",
+      "estado": "activa",
+      "productos": 19,
+      "samples": [
+        "SUP-0001:Glucosamina Condroitina",
+        "SUP-0006:Zinc Iónico Orgánico",
+        "SUP-0017:Melatonina"
+      ],
+      "tipoSugerido": "RESTRICCION"
+    },
+    {
+      "id": "EVvdnZWtEodQcdUw0YER",
+      "nombre": "Sin Azúcar",
+      "estado": "activa",
+      "productos": 7,
+      "samples": [
+        "SUP-0024:Melatonina",
+        "SUP-0146:Gomitas de Melatonina para Adultos",
+        "SUP-0036:Melatonina + L-Teanina para Niños"
+      ],
+      "tipoSugerido": "RESTRICCION"
+    }
+  ]
+}
