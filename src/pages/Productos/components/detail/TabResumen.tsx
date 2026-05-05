@@ -110,15 +110,33 @@ export const TabResumen: React.FC<TabResumenProps> = ({ producto }) => {
           <DuracionEnvaseRow producto={producto} />
         )}
 
-        {/* 2. Atributos Skincare (solo si línea es skincare) */}
+        {/* 2. Atributos Skincare (solo si línea es skincare) · S3.5 ampliado */}
         {isSkincare && producto.atributosSkincare && (
           <Section title="Atributos Skincare" icon={Palette} iconColor="text-amber-600">
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm">
+              {producto.atributosSkincare.tipoProductoSKC && (
+                <Field label="Tipo SKC" value={producto.atributosSkincare.tipoProductoSKC} />
+              )}
               {producto.atributosSkincare.pasoRutina && (
                 <Field label="Paso de rutina" value={producto.atributosSkincare.pasoRutina} />
               )}
               {producto.atributosSkincare.textura && (
                 <Field label="Textura" value={producto.atributosSkincare.textura} />
+              )}
+              {producto.atributosSkincare.lineaProducto && (
+                <Field label="Línea de marca" value={producto.atributosSkincare.lineaProducto} />
+              )}
+              {producto.atributosSkincare.spf !== undefined && producto.atributosSkincare.spf > 0 && (
+                <Field label="SPF" value={String(producto.atributosSkincare.spf)} mono />
+              )}
+              {producto.atributosSkincare.pa && (
+                <Field label="PA" value={producto.atributosSkincare.pa} mono />
+              )}
+              {producto.atributosSkincare.ingredienteClave && (
+                <div className="sm:col-span-3">
+                  <FieldLabel>Ingrediente clave</FieldLabel>
+                  <div className="text-slate-700">{producto.atributosSkincare.ingredienteClave}</div>
+                </div>
               )}
               {producto.atributosSkincare.tipoPiel && producto.atributosSkincare.tipoPiel.length > 0 && (
                 <Field label="Tipo de piel" custom>
@@ -126,6 +144,17 @@ export const TabResumen: React.FC<TabResumenProps> = ({ producto }) => {
                     {producto.atributosSkincare.tipoPiel.map((tipo: string, i: number) => (
                       <span key={i} className="px-1.5 py-0.5 rounded bg-slate-100 text-slate-700 text-[10px]">
                         {tipo}
+                      </span>
+                    ))}
+                  </div>
+                </Field>
+              )}
+              {producto.atributosSkincare.zonaAplicacion && producto.atributosSkincare.zonaAplicacion.length > 0 && (
+                <Field label="Zona de aplicación" custom>
+                  <div className="flex flex-wrap gap-1">
+                    {producto.atributosSkincare.zonaAplicacion.map((z: string, i: number) => (
+                      <span key={i} className="px-1.5 py-0.5 rounded bg-slate-100 text-slate-700 text-[10px]">
+                        {z}
                       </span>
                     ))}
                   </div>
@@ -141,6 +170,61 @@ export const TabResumen: React.FC<TabResumenProps> = ({ producto }) => {
                       </span>
                     ))}
                   </div>
+                </div>
+              )}
+            </div>
+          </Section>
+        )}
+
+        {/* S3.5 · Atributos Suplementos · igual que SKC pero para SUP */}
+        {(producto.lineaNegocioNombre ?? '').toLowerCase().includes('suplem') && producto.atributosSuplementos && (
+          <Section title="Atributos Suplementos" icon={Palette} iconColor="text-indigo-600">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm">
+              {producto.atributosSuplementos.dosaje && (
+                <div className="sm:col-span-3">
+                  <FieldLabel>Dosaje / composición</FieldLabel>
+                  <div className="text-slate-700">{producto.atributosSuplementos.dosaje}</div>
+                </div>
+              )}
+              {producto.servingsPerDay !== undefined && producto.servingsPerDay > 0 && (
+                <Field label="Servings/día" value={String(producto.servingsPerDay)} mono />
+              )}
+              {producto.atributosSuplementos.tomaConComida && (
+                <Field label="Toma" value={producto.atributosSuplementos.tomaConComida} />
+              )}
+              {producto.atributosSuplementos.edadRecomendada && (
+                <Field label="Edad recomendada" value={producto.atributosSuplementos.edadRecomendada} />
+              )}
+              {producto.atributosSuplementos.sabor && (
+                <Field label="Sabor" value={producto.atributosSuplementos.sabor} />
+              )}
+              {producto.atributosSuplementos.momentoDia && producto.atributosSuplementos.momentoDia.length > 0 && (
+                <Field label="Momento del día" custom>
+                  <div className="flex flex-wrap gap-1">
+                    {producto.atributosSuplementos.momentoDia.map((m: string, i: number) => (
+                      <span key={i} className="px-1.5 py-0.5 rounded bg-indigo-50 text-indigo-700 text-[10px] font-medium">
+                        {m}
+                      </span>
+                    ))}
+                  </div>
+                </Field>
+              )}
+              {producto.atributosSuplementos.restricciones && producto.atributosSuplementos.restricciones.length > 0 && (
+                <div className="sm:col-span-3">
+                  <FieldLabel>Restricciones / certificaciones</FieldLabel>
+                  <div className="flex flex-wrap gap-1">
+                    {producto.atributosSuplementos.restricciones.map((r: string, i: number) => (
+                      <span key={i} className="px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 text-[10px] font-medium">
+                        {r}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {producto.atributosSuplementos.advertencias && (
+                <div className="sm:col-span-3">
+                  <FieldLabel>Advertencias</FieldLabel>
+                  <div className="text-slate-700 text-xs">{producto.atributosSuplementos.advertencias}</div>
                 </div>
               )}
             </div>
