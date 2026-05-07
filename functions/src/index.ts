@@ -772,68 +772,6 @@ export const obtenerTipoCambioManual = functions.https.onCall(async (data, conte
 // FUNCIÓN 3: Recalcular CTRU al registrar gasto prorrateable
 // ============================================================
 
-/**
- * onGastoCreado — CTRU v2
- *
- * Ya NO hace recálculo incremental de CTRU en unidades.
- * Solo marca el gasto como pendiente de recálculo.
- * El recálculo completo (full-recalc con dual-view contable/gerencial)
- * se ejecuta desde el frontend via ctruService.recalcularCTRUDinamicoSafe().
- *
- * Razón del cambio:
- * - El recálculo incremental de la CF usaba modelo diferente al frontend
- * - La CF distribuía por partes iguales; el frontend proporcional al costo base
- * - Ambos escribían ctruDinamico con valores diferentes → datos corruptos
- * - El modelo CTRU v2 requiere dual-view (contable + gerencial) que solo el frontend calcula
- */
-export const onGastoCreado = functions.firestore
-  .document("gastos/{gastoId}")
-  .onCreate(async (snapshot, context) => {
-    const gasto = snapshot.data();
-
-    // Solo procesar gastos prorrateables que impactan CTRU
-    if (!gasto.esProrrateable || !gasto.impactaCTRU) {
-      return null;
-    }
-
-    const gastoId = context.params.gastoId;
-    functions.logger.info(`Gasto prorrateable registrado: ${gasto.numeroGasto || gastoId}`, {
-      gastoId,
-      categoria: gasto.categoria,
-      montoPEN: gasto.montoPEN,
-    });
-
-    try {
-      // Marcar el gasto como pendiente de recálculo (el frontend lo procesará)
-      await snapshot.ref.update({
-        ctruRecalculado: false,
-        ctruPendienteRecalculo: true,
-        fechaRegistro: admin.firestore.FieldValue.serverTimestamp(),
-      });
-
-      // Registrar en historial que hay un gasto pendiente
-      await db.collection(COLLECTIONS.HISTORIAL_CTRU).add({
-        gastoId,
-        numeroGasto: gasto.numeroGasto || '',
-        montoGasto: gasto.montoPEN,
-        tipo: 'gasto_pendiente_recalculo',
-        categoria: gasto.categoria,
-        fechaRegistro: admin.firestore.FieldValue.serverTimestamp(),
-        ejecutadoPor: "system",
-        nota: "CTRU v2: recálculo delegado al frontend (dual-view contable/gerencial)",
-      });
-
-      functions.logger.info(
-        `✅ Gasto ${gasto.numeroGasto || gastoId} marcado como pendiente de recálculo CTRU`
-      );
-
-      return { success: true, pendienteRecalculo: true };
-    } catch (error) {
-      functions.logger.error("Error procesando gasto para CTRU:", error);
-      return null; // No lanzar error — el gasto ya se creó correctamente
-    }
-  });
-
 // ============================================================
 // FUNCIÓN 4: Limpiar caché y estadísticas diarias (opcional)
 // ============================================================

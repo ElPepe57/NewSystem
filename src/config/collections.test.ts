@@ -61,7 +61,6 @@ describe('COLLECTIONS', () => {
     expect(COLLECTIONS.USERS).toBe('users');
     expect(COLLECTIONS.NOTIFICACIONES).toBe('notificaciones');
     expect(COLLECTIONS.AUDIT_LOGS).toBe('audit_logs');
-    expect(COLLECTIONS.HISTORIAL_CTRU).toBe('historialRecalculoCTRU');
     expect(COLLECTIONS.CONTADORES).toBe('contadores');
     expect(COLLECTIONS.CONFIGURACION).toBe('configuracion');
   });

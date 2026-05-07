@@ -7,8 +7,6 @@ Cloud Functions de Firebase para automatización del sistema BMN:
 1. **onOrdenCompraRecibida**: Genera unidades de inventario automáticamente cuando una OC cambia a estado "recibida"
 2. **obtenerTipoCambioDiario**: Función programada que obtiene el TC de la SBS diariamente a las 9 AM
 3. **obtenerTipoCambioManual**: Función callable para obtener TC bajo demanda
-4. **onGastoCreado**: Recalcula el CTRU de las unidades afectadas cuando se registra un gasto prorrateable
-5. **limpiezaDiaria**: Tareas de mantenimiento diario
 
 ## Instalación
 
@@ -68,22 +66,6 @@ npm run logs
 - Consulta API externa para obtener TC USD/PEN
 - Guarda en `tiposCambio/{YYYY-MM-DD}`
 - Incluye compra, venta, fuente y timestamp
-
-### 3. onGastoCreado (Firestore Trigger)
-
-**Trigger**: Creación de documento en `gastos/{gastoId}`
-
-**Condiciones**:
-- `esProrrateable === true`
-- `impactaCTRU === true`
-
-**Comportamiento**:
-- Determina unidades afectadas según `prorrateoTipo`:
-  - `"oc"`: Solo unidades de esa orden de compra
-  - Otro: Unidades disponibles del período
-- Calcula `montoPorUnidad = montoPEN / totalUnidades`
-- Actualiza `ctruGastos` y `ctruDinamico` en cada unidad
-- Registra en `historialRecalculoCTRU`
 
 ## Variables de Entorno
 

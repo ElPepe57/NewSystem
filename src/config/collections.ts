@@ -59,7 +59,6 @@ export const COLLECTIONS = {
   NOTIFICACIONES: 'notificaciones',
   AUDIT_LOGS: 'audit_logs',
   MOVIMIENTOS_TRANSPORTISTA: 'movimientos_transportista',
-  HISTORIAL_CTRU: 'historialRecalculoCTRU',
 
   // === Escáner ===
   SCAN_HISTORY: 'scanHistory',
