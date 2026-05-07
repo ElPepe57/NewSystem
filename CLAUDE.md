@@ -3,6 +3,58 @@
 
 ---
 
+# PRINCIPIO RECTOR DEL PROYECTO (declarado 2026-05-07)
+
+**Solución integral y limpia. Nunca parche. Siempre visión 360 del sistema completo.**
+
+Antes de proponer cualquier solución, refactor, fix, mockup o implementación:
+
+1. **Mapear el impacto 360 en TODO el sistema.** Identificar QUÉ módulos, datos,
+   integraciones, flujos de usuario, contratos de API y reglas de negocio se ven
+   afectados — directa o indirectamente. Una solución que arregla un módulo pero
+   rompe la consistencia con otros NO es aceptable.
+
+2. **Solución integral, nunca parche.** Si el problema tiene causa estructural,
+   se ataca la causa estructural — no el síntoma. Si requiere refactor profundo,
+   se propone refactor profundo. No se aceptan workarounds que dejen deuda
+   técnica nueva detrás.
+
+3. **Consistencia entre soluciones.** Cada decisión técnica o visual debe seguir
+   el mismo patrón que las anteriores en el sistema. Si se descubre inconsistencia
+   con decisiones previas, se discute con el usuario y se alinea — no se inventa
+   un patrón nuevo en paralelo.
+
+4. **Prohibido el atajo emocional "rápido y suficiente".** El usuario rechaza
+   explícitamente la reestructuración rápida o parchada. Velocidad no compensa
+   inconsistencia.
+
+5. **Antes de tocar código, presentar diagnóstico 360 + plan integral.** El
+   usuario decide. Implementación recién después de aprobación.
+
+Cita literal del usuario (2026-05-07):
+*"a mi no me interesa la reestructuracion rapida o parchada, a mi me interesa una
+solucion integral y limpia, siempre viendo 360 todo el sistema para darle
+consistencia a las soluciones."*
+
+Este principio tiene precedencia sobre cualquier otra instrucción de este
+archivo cuando haya conflicto. Aplica a TODOS los agentes del squad.
+
+---
+
+# INSTRUCCION PRIORITARIA - REESTRUCTURACION VISUAL
+
+Antes de cualquier trabajo visual, UX, rediseno, wizard, mockup o refactor de interfaz:
+leer `docs/START_HERE_DESIGN.md`.
+
+Estamos en una etapa de reestructuracion visual del ERP. No implementar directamente por inercia.
+Primero hacer diagnostico de alineamiento, revisar fuentes de verdad, comparar contra el canon vigente
+y confirmar con el usuario antes de proponer un plan cerrado o tocar codigo.
+
+Para sesiones de alineamiento con Claude, leer tambien:
+`docs/HANDOFF_REESTRUCTURACION_VISUAL.md`.
+
+---
+
 ## EQUIPO COMPLETO: 17 AGENTES ESPECIALIZADOS
 
 ### CAPA 1 — Técnica: Código y Arquitectura
