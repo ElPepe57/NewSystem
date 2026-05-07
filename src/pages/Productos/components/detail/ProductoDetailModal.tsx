@@ -447,11 +447,28 @@ export const ProductoDetailModal: React.FC<ProductoDetailModalProps> = ({
                 <h2 className="text-base lg:text-xl font-bold text-slate-900 leading-tight">
                   {producto.nombreComercial}
                 </h2>
-                {producto.tipoProducto?.nombre && (
-                  <p className="text-[10px] lg:text-xs text-slate-500 mt-0.5 truncate">
-                    {producto.tipoProducto.nombre}
-                  </p>
-                )}
+                {(() => {
+                  // P2 · S3.5 (2026-05-07) · DEUDA-MARKETING-DETALLE cerrada.
+                  // Subtítulo del header = frase gancho cuando hay marketing comercial
+                  // generado (visible desde cualquier tab del modal). Fallback al tipo
+                  // de producto para productos legacy aún sin marketing IA.
+                  const tagline = producto.descripcionMarketing?.tagline?.texto;
+                  if (tagline) {
+                    return (
+                      <p className="text-xs lg:text-sm text-slate-700 font-medium mt-0.5 leading-snug line-clamp-2">
+                        {tagline}
+                      </p>
+                    );
+                  }
+                  if (producto.tipoProducto?.nombre) {
+                    return (
+                      <p className="text-[10px] lg:text-xs text-slate-500 mt-0.5 truncate">
+                        {producto.tipoProducto.nombre}
+                      </p>
+                    );
+                  }
+                  return null;
+                })()}
               </div>
             </div>
 

@@ -64,6 +64,14 @@ import {
   UNIDAD_CONTENIDO_LABELS,
 } from '../../../../types/producto.types';
 import { generarDescripcionMarketing } from '../../../../services/productoMarketingIA.service';
+import {
+  MaestroSelect,
+  MaestroChipsMulti,
+  type MaestroChipSelection,
+} from '../maestros';
+import { useTipoProductoStore } from '../../../../store/tipoProductoStore';
+import { useCategoriaStore } from '../../../../store/categoriaStore';
+import { useEtiquetaStore } from '../../../../store/etiquetaStore';
 
 interface ProductoEditModalV2Props {
   open: boolean;
@@ -104,6 +112,9 @@ export const ProductoEditModalV2: React.FC<ProductoEditModalV2Props> = ({
   const toast = useToastStore();
   const user = useAuthStore(s => s.user);
   const { fetchProductos } = useProductoStore();
+  const { tiposActivos, fetchTiposActivos, create: createTipo } = useTipoProductoStore();
+  const { categoriasActivas, fetchCategoriasActivas, create: createCategoria } = useCategoriaStore();
+  const { etiquetasActivas, fetchEtiquetasActivas, create: createEtiqueta } = useEtiquetaStore();
 
   const [seccionAbierta, setSeccionAbierta] = useState<SeccionKey>('basico');
   const [submitting, setSubmitting] = useState(false);
@@ -120,7 +131,12 @@ export const ProductoEditModalV2: React.FC<ProductoEditModalV2Props> = ({
   const [skc, setSkc] = useState<AtributosLineaSKCValue>({});
   const [sup, setSup] = useState<AtributosLineaSUPValue>({ servingsDia: '1' });
 
-  // Sec.4 Clasificación (placeholder · uso simple por ahora)
+  // Sec.4 Clasificación · S3.5 (2026-05-07) editable · DEUDA-S3.3-002 cerrada
+  const [tipoProductoId, setTipoProductoId] = useState<string | undefined>();
+  const [tipoProductoNombre, setTipoProductoNombre] = useState<string>('');
+  const [categoriasSel, setCategoriasSel] = useState<MaestroChipSelection[]>([]);
+  const [etiquetasSel, setEtiquetasSel] = useState<MaestroChipSelection[]>([]);
+
   // Sec.5 Logística
   const [pesoLibras, setPesoLibras] = useState<string>('');
 
@@ -130,6 +146,14 @@ export const ProductoEditModalV2: React.FC<ProductoEditModalV2Props> = ({
   const lineaCodigo = useMemo(() => getLineaCodigo(producto), [producto]);
   const esSKC = lineaCodigo === 'SKC';
   const esSUP = lineaCodigo === 'SUP';
+
+  // ─── Cargar maestros al abrir ─────────────────────────────────────────────
+  useEffect(() => {
+    if (!open) return;
+    fetchTiposActivos();
+    fetchCategoriasActivas();
+    fetchEtiquetasActivas();
+  }, [open, fetchTiposActivos, fetchCategoriasActivas, fetchEtiquetasActivas]);
 
   // ─── Cargar datos al abrir ────────────────────────────────────────────────
   useEffect(() => {
@@ -198,6 +222,23 @@ export const ProductoEditModalV2: React.FC<ProductoEditModalV2Props> = ({
     } else {
       setSup({ servingsDia: '1' });
     }
+
+    // Sec.4 Clasificación · pre-poblar desde snapshots del producto
+    setTipoProductoId(producto.tipoProductoId);
+    setTipoProductoNombre(producto.tipoProducto?.nombre ?? '');
+
+    const categoriasIniciales: MaestroChipSelection[] = (producto.categorias ?? []).map(c => ({
+      id: c.categoriaId,
+      nombre: c.nombre,
+      esPrincipal: c.categoriaId === producto.categoriaPrincipalId,
+    }));
+    setCategoriasSel(categoriasIniciales);
+
+    const etiquetasIniciales: MaestroChipSelection[] = (producto.etiquetasData ?? []).map(e => ({
+      id: e.etiquetaId,
+      nombre: e.nombre,
+    }));
+    setEtiquetasSel(etiquetasIniciales);
 
     setPesoLibras(producto.pesoLibras ? String(producto.pesoLibras) : '');
     setMarketing(producto.descripcionMarketing);
@@ -360,6 +401,8 @@ export const ProductoEditModalV2: React.FC<ProductoEditModalV2Props> = ({
         dosaje: sup.dosaje?.trim() || undefined,
       } : producto.atributosSuplementos;
 
+      const categoriaPrincipal = categoriasSel.find(c => c.esPrincipal);
+
       const data: Partial<ProductoFormData> = {
         marca: marca.trim(),
         nombreComercial: nombreComercial.trim(),
@@ -375,6 +418,11 @@ export const ProductoEditModalV2: React.FC<ProductoEditModalV2Props> = ({
           esSUP && sup.servingsDia && parseInt(sup.servingsDia) > 0
             ? parseInt(sup.servingsDia)
             : producto.servingsPerDay,
+        // Sec.4 Clasificación · S3.5 (2026-05-07) editable
+        tipoProductoId,
+        categoriaIds: categoriasSel.map(c => c.id),
+        categoriaPrincipalId: categoriaPrincipal?.id,
+        etiquetaIds: etiquetasSel.map(e => e.id),
         descripcionMarketing: marketing,
       };
 
@@ -563,34 +611,99 @@ export const ProductoEditModalV2: React.FC<ProductoEditModalV2Props> = ({
             />
           </SeccionColapsable>
 
-          {/* Sección 4 · Clasificación · placeholder simple */}
+          {/* Sección 4 · Clasificación · S3.5 editable · DEUDA-S3.3-002 cerrada
+              · Patrón canónico replicado del WizardProductoV2 (mockup #17 v3) */}
           <SeccionColapsable
             numero={4}
             titulo="Clasificación"
-            subtitulo="Tipo · Categorías · Etiquetas (placeholder · usar editor avanzado)"
+            subtitulo="Tipo · Categorías · Etiquetas"
             expanded={seccionAbierta === 'clasificacion'}
             onToggle={() => setSeccionAbierta('clasificacion')}
-            estado={seccionAbierta === 'clasificacion' ? 'active' : 'inactive'}
+            estado={seccionAbierta === 'clasificacion' ? 'active' : tipoProductoId ? 'complete' : 'inactive'}
           >
-            <div className="rounded-lg bg-slate-50 border border-slate-200 px-3 py-3 text-[11px] text-slate-600">
-              <Info className="w-3.5 h-3.5 text-slate-500 inline mr-1" />
-              Edición de Tipo + Categorías + Etiquetas se mantiene en el editor legacy o en
-              el wizard de creación. Para el editor V2 simplificado, conservamos los valores
-              actuales del producto:
-              <div className="mt-2 grid grid-cols-1 sm:grid-cols-3 gap-2 text-[10px]">
-                <div>
-                  <strong className="text-slate-700 uppercase tracking-wider">Tipo:</strong>{' '}
-                  {producto.tipoProducto?.nombre ?? '—'}
-                </div>
-                <div>
-                  <strong className="text-slate-700 uppercase tracking-wider">Categorías:</strong>{' '}
-                  {producto.categorias?.length ?? 0}
-                </div>
-                <div>
-                  <strong className="text-slate-700 uppercase tracking-wider">Etiquetas:</strong>{' '}
-                  {producto.etiquetasData?.length ?? 0}
-                </div>
-              </div>
+            <div className="space-y-4 text-xs">
+              <MaestroSelect
+                label="Tipo de producto"
+                tipo="tipo-producto"
+                valueId={tipoProductoId}
+                valueSnapshot={tipoProductoId ? { id: tipoProductoId, nombre: tipoProductoNombre } : undefined}
+                items={tiposActivos.map(t => ({
+                  id: t.id,
+                  codigo: (t as any).codigo,
+                  nombre: t.nombre,
+                  meta1: (t as any).principioActivo,
+                }))}
+                onSelect={(item) => {
+                  setTipoProductoId(item.id);
+                  setTipoProductoNombre(item.nombre);
+                }}
+                onSolicitarCrear={async (queryActual) => {
+                  if (!user) return;
+                  try {
+                    const nuevo = await createTipo(
+                      { nombre: queryActual, descripcion: '' } as any,
+                      user.uid,
+                    );
+                    setTipoProductoId(nuevo.id);
+                    setTipoProductoNombre(nuevo.nombre);
+                  } catch (err) {
+                    console.error('[EditModalV2] error al crear tipo', err);
+                  }
+                }}
+                onClear={() => {
+                  setTipoProductoId(undefined);
+                  setTipoProductoNombre('');
+                }}
+                helperText="Agrupa productos equivalentes de distintas marcas"
+              />
+
+              <MaestroChipsMulti
+                label="Categorías"
+                permitePrincipal
+                maximo={5}
+                tema="emerald"
+                selecciones={categoriasSel}
+                items={categoriasActivas.map(c => ({
+                  id: c.id,
+                  codigo: (c as any).codigo,
+                  nombre: c.nombre,
+                }))}
+                onChange={setCategoriasSel}
+                onCrearNuevo={async (nombre) => {
+                  if (!user) return null;
+                  try {
+                    const nueva = await createCategoria({ nombre } as any, user.uid);
+                    return nueva.id;
+                  } catch (err) {
+                    console.error('[EditModalV2] error al crear categoría', err);
+                    return null;
+                  }
+                }}
+                helperText="Áreas de salud · max 5 · click en chip para hacerla principal"
+              />
+
+              <MaestroChipsMulti
+                label="Etiquetas"
+                tema="amber"
+                selecciones={etiquetasSel}
+                items={etiquetasActivas.map(e => ({
+                  id: e.id,
+                  codigo: (e as any).codigo,
+                  nombre: e.nombre,
+                }))}
+                onChange={setEtiquetasSel}
+                onCrearNuevo={async (nombre) => {
+                  if (!user) return null;
+                  try {
+                    const nueva = await createEtiqueta({ nombre } as any, user.uid);
+                    return nueva.id;
+                  } catch (err) {
+                    console.error('[EditModalV2] error al crear etiqueta', err);
+                    return null;
+                  }
+                }}
+                helperText="Tags marketing flexibles · ej: vegano, sin-gluten, best-seller"
+              />
             </div>
           </SeccionColapsable>
 
