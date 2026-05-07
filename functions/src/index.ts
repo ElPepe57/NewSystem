@@ -40,7 +40,6 @@ export {
   mlreenrichbuyers,
   mlrepararventasurbano,
   mlrepararnamesdni,
-  mldiagshipping,
   mlpatchenvio,
   mlfixventashistoricas,
   mlmigratestockpendiente,
@@ -53,8 +52,6 @@ export {
   mlconfirmmatch,
   mldiaginconsistencias,
   mlresolverinconsistencias,
-  mlrepairgastosml,
-  mlrepairmetodoenvio,
   mlautocreateventas,
   mldisconnect,
 } from "./mercadolibre";

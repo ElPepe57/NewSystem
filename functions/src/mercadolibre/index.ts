@@ -51,11 +51,8 @@ export {
   mlreenrichbuyers,
   mlrepararventasurbano,
   mlrepararnamesdni,
-  mldiagshipping,
   mlpatchenvio,
   mlfixventashistoricas,
-  mlrepairgastosml,
-  mlrepairmetodoenvio,
 } from "./ml.diagnostics";
 
 export {
