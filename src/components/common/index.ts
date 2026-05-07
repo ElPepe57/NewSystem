@@ -61,10 +61,6 @@ export { TabNavigation } from './TabNavigation';
 export { SectionHeader } from './SectionHeader';
 export { EmptyState } from './EmptyStatePro';
 
-// Virtual List
-export { VirtualList, useVirtualTable } from './VirtualList';
-export type { VirtualListProps, UseVirtualTableOptions, UseVirtualTableResult } from './VirtualList';
-
 // Charts
 export {
   SimpleLineChart,
@@ -96,7 +92,7 @@ export { PipelineHeader } from './PipelineHeader';
 export type { PipelineHeaderProps, PipelineStage } from './PipelineHeader';
 
 // Status Timeline
-export { StatusTimeline, useVentaTimelineSteps, useOrdenCompraTimelineSteps } from './StatusTimeline';
+export { StatusTimeline } from './StatusTimeline';
 export type { StatusTimelineProps, TimelineStep, NextAction } from './StatusTimeline';
 
 // Action Modal
