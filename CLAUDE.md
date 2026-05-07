@@ -41,6 +41,69 @@ archivo cuando haya conflicto. Aplica a TODOS los agentes del squad.
 
 ---
 
+# CANON DE FORMULARIOS · BORRADOR + DESCARTAR (declarado 2026-05-07)
+
+**TODO formulario o wizard de creación debe ofrecer "Guardar como borrador" + "Descartar".**
+
+El usuario declaró este patrón como canónico para el sistema completo, basado
+en la implementación ya validada en compras (OC) y envíos:
+
+> *"lo otro que hicimos funcionar en otros medios fue en compras y envios,
+> que se pudiera quedar guardado como borrador y tambien la opcion de
+> descartar, este siempre con relacion a los formularios es algo canonico
+> que siempre deberiamos contemplar."*
+
+## Implementación canónica vigente (NO se reinventa)
+
+- **Tipo:** `BorradorWizard` en `src/types/borradorWizard.types.ts`
+  - Campos: `id`, `tipo`, `userId`, `pasoActual`, `estado` (snapshot completo),
+    `fechaCreacion`, `fechaActualizacion`, `resumen`, `montoEstimado?`
+  - Discriminator: `TipoBorradorWizard` (extender al sumar nuevos formularios)
+- **Service:** `borradorWizardService` en `src/services/borradorWizard.service.ts`
+  - `save / get / delete / listAll / listByUser / deleteExpired / deleteMultiple`
+- **Storage 2 capas:**
+  - localStorage (síncrono, respuesta inmediata · key `wizard_draft_{tipo}_{userId}`)
+  - Firestore `borradoresWizard/{userId}_{tipo}` (async, fuente de verdad cross-device)
+  - Función `pickMasReciente(local, remote)` para conciliar en cada lectura
+- **ID determinístico:** `${userId}_${tipo}` → MAX 1 borrador por (usuario, tipo).
+  Si reabre el wizard estando con borrador, se sobrescribe el snapshot.
+- **Banner UI canónico** (replicar tema amber):
+  - Aparece en la página del módulo (NO dentro del wizard) — máxima visibilidad
+  - `<FileText>` icon · "Tienes un X en borrador" · resumen · paso N de M · fecha relativa
+  - 2 botones: "Descartar" (Trash2 icon) y "Continuar" (ArrowRight icon)
+  - Referencias canónicas:
+    - `src/components/modules/ordenCompra/BorradorOCBanner.tsx`
+    - `src/pages/Envios/EnvioWizard/shared/BorradorEnvioBanner.tsx`
+- **Lifecycle:**
+  - Wizard abierto sin borrador previo → autoguardado en cada cambio significativo
+  - Cierre del wizard sin confirmar → borrador queda persistido
+  - Banner aparece en la página del módulo al volver → "Continuar" o "Descartar"
+  - Confirmación final del wizard → `delete(userId, tipo)` para limpiar el borrador
+
+## Cuándo aplica este canon
+
+- ✅ Todo wizard multi-paso (compras OC, envíos, productos, ventas, cotizaciones, etc.)
+- ✅ Todo formulario largo de creación (gasto compuesto, reclamo, devolución, etc.)
+- ⚠️ Modales de edición rápida con 1-2 campos NO requieren borrador (cambio menor)
+- ⚠️ Formularios efímeros (login, búsqueda, filtros) NO requieren borrador
+
+## Cómo extender el canon a un nuevo módulo
+
+1. Agregar el tipo nuevo a `TipoBorradorWizard` (ej: `'producto'`)
+2. Wire up autoguardado dentro del wizard: `borradorWizardService.save({ tipo, userId, pasoActual, estado, resumen, montoEstimado })`
+3. Crear `BorradorXBanner.tsx` (copia de `BorradorOCBanner.tsx` con `tipo: 'X'` + nº de pasos correcto)
+4. Renderizar el banner al tope de la página `<X>.tsx` (ej: `Productos.tsx`)
+5. Implementar `onContinuar(borrador)` para reabrir el wizard con el snapshot pre-cargado
+6. Limpiar borrador en el confirm final (`borradorWizardService.delete`)
+
+## Auditoría de cobertura (por hacer · diagnóstico 360)
+
+Mapear todos los formularios/wizards del sistema y confirmar cuáles tienen
+borrador implementado y cuáles no. Cada gap es deuda visible que debe cerrarse
+por sesión dedicada al módulo correspondiente.
+
+---
+
 # INSTRUCCION PRIORITARIA - REESTRUCTURACION VISUAL
 
 Antes de cualquier trabajo visual, UX, rediseno, wizard, mockup o refactor de interfaz:

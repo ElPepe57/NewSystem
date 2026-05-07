@@ -22,8 +22,12 @@
  * sin generar marketing y editarlo después en el editor para generarlo.
  */
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { X, Package, Check, Droplets, Pill, Sparkles, Truck } from 'lucide-react';
+import { useWizardAutosave } from '../../../../hooks/useWizardAutosave';
+import type { BorradorWizard } from '../../../../types/borradorWizard.types';
+import { BorradorProductoBanner } from './BorradorProductoBanner';
+import { ConfirmarSalidaWizardModal } from '../../../../design-system';
 import type {
   ProductoFormData,
   Presentacion,
@@ -224,18 +228,150 @@ export const WizardProductoV2: React.FC<WizardProductoV2Props> = ({
       setEtiquetasSel([]);
       setPesoLibras('');
       setMarketing(undefined);
+      setDraftAceptado(false);
     }
   }, [open]);
+
+  // ─── Borrador · S3.5 (2026-05-07) · canon de formularios ─────────────────
+  // Mapeo seccionAbierta → paso 0-5 (para mostrar "Paso N de 6" en banner)
+  const SECCION_ORDEN: SeccionKey[] = [
+    'identidad', 'atributos', 'identificadores', 'clasificacion', 'logistica', 'marketing',
+  ];
+  const pasoActual = useMemo(
+    () => Math.max(0, SECCION_ORDEN.indexOf(seccionAbierta)),
+    [seccionAbierta],
+  );
+
+  // Snapshot completo del state para autoguardado (capa 1 + capa 2)
+  const wizardStateSnapshot = useMemo(() => ({
+    lineaNegocioId, paisOrigen, marca, marcaId, nombreComercial,
+    skc, sup,
+    codigoUPC, contenidoValor, contenidoUnidad, unidadTocada,
+    tipoProductoId, tipoProductoNombre, categoriasSel, etiquetasSel,
+    pesoLibras,
+    marketing,
+    seccionAbierta,
+  }), [
+    lineaNegocioId, paisOrigen, marca, marcaId, nombreComercial,
+    skc, sup,
+    codigoUPC, contenidoValor, contenidoUnidad, unidadTocada,
+    tipoProductoId, tipoProductoNombre, categoriasSel, etiquetasSel,
+    pesoLibras,
+    marketing,
+    seccionAbierta,
+  ]);
+
+  // Contador de aperturas — fuerza re-mount del banner interno en cada reapertura
+  const [openCount, setOpenCount] = useState(0);
+  useEffect(() => {
+    if (open) setOpenCount(n => n + 1);
+  }, [open]);
+
+  // El banner desaparece tras "Continuar" o "Descartar"
+  const [draftAceptado, setDraftAceptado] = useState(false);
+  const submittedRef = useRef(false);
+
+  const { descartarBorrador, clearDraft, forceSave } = useWizardAutosave({
+    tipo: 'producto',
+    state: wizardStateSnapshot,
+    pasoActual,
+    enabled: open && !submittedRef.current,
+    buildResumen: (s: typeof wizardStateSnapshot) => {
+      const partes: string[] = [];
+      if (s.marca) partes.push(s.marca);
+      if (s.nombreComercial) partes.push(s.nombreComercial);
+      if (s.contenidoValor) partes.push(`${s.contenidoValor} ${s.contenidoUnidad}`);
+      return partes.length > 0 ? partes.join(' · ') : undefined;
+    },
+  });
+
+  // Modal "salida con cambios sin guardar"
+  const [showExitConfirm, setShowExitConfirm] = useState(false);
+
+  const hayCambiosSignificativos = useMemo(() => (
+    !!lineaNegocioId
+    || !!marca.trim()
+    || !!nombreComercial.trim()
+    || !!skc.tipo
+    || !!sup.presentacion
+    || !!codigoUPC.trim()
+    || !!contenidoValor
+    || !!tipoProductoId
+    || categoriasSel.length > 0
+    || etiquetasSel.length > 0
+    || !!pesoLibras
+    || !!marketing
+  ), [
+    lineaNegocioId, marca, nombreComercial, skc.tipo, sup.presentacion,
+    codigoUPC, contenidoValor, tipoProductoId, categoriasSel.length,
+    etiquetasSel.length, pesoLibras, marketing,
+  ]);
+
+  const handleClose = () => {
+    if (hayCambiosSignificativos && !submittedRef.current) {
+      setShowExitConfirm(true);
+      return;
+    }
+    onClose();
+  };
+
+  const handleGuardarBorradorYCerrar = async () => {
+    await forceSave();
+    setShowExitConfirm(false);
+    onClose();
+  };
+
+  const handleDescartarYCerrar = async () => {
+    await descartarBorrador();
+    setShowExitConfirm(false);
+    onClose();
+  };
+
+  const handleSeguirEditando = () => {
+    setShowExitConfirm(false);
+  };
+
+  // Reconstruir state desde snapshot del borrador
+  const handleContinuarDesdeBanner = (borrador: BorradorWizard) => {
+    const draft = borrador.estado as Partial<typeof wizardStateSnapshot> | undefined;
+    if (!draft) {
+      setDraftAceptado(true);
+      return;
+    }
+    if (draft.lineaNegocioId !== undefined) setLineaNegocioId(draft.lineaNegocioId);
+    if (draft.paisOrigen !== undefined) setPaisOrigen(draft.paisOrigen);
+    if (draft.marca !== undefined) setMarca(draft.marca);
+    if (draft.marcaId !== undefined) setMarcaId(draft.marcaId);
+    if (draft.nombreComercial !== undefined) setNombreComercial(draft.nombreComercial);
+    if (draft.skc) setSkc(draft.skc);
+    if (draft.sup) setSup(draft.sup);
+    if (draft.codigoUPC !== undefined) setCodigoUPC(draft.codigoUPC);
+    if (draft.contenidoValor !== undefined) setContenidoValor(draft.contenidoValor);
+    if (draft.contenidoUnidad !== undefined) setContenidoUnidad(draft.contenidoUnidad);
+    if (draft.unidadTocada !== undefined) setUnidadTocada(draft.unidadTocada);
+    if (draft.tipoProductoId !== undefined) setTipoProductoId(draft.tipoProductoId);
+    if (draft.tipoProductoNombre !== undefined) setTipoProductoNombre(draft.tipoProductoNombre);
+    if (draft.categoriasSel) setCategoriasSel(draft.categoriasSel);
+    if (draft.etiquetasSel) setEtiquetasSel(draft.etiquetasSel);
+    if (draft.pesoLibras !== undefined) setPesoLibras(draft.pesoLibras);
+    if (draft.marketing !== undefined) setMarketing(draft.marketing);
+    if (draft.seccionAbierta) setSeccionAbierta(draft.seccionAbierta);
+    setDraftAceptado(true);
+  };
+
+  // Mostrar banner solo si: wizard abierto + draft no aceptado en esta sesión
+  const showBannerInterno = open && !draftAceptado;
 
   // ESC para cerrar
   useEffect(() => {
     if (!open) return;
     const handler = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
+      if (e.key === 'Escape') handleClose();
     };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
-  }, [open, onClose]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
 
   // ─── Validación por sección ──────────────────────────────────────────────
   const sec1OK = !!lineaNegocioId && !!paisOrigen && marca.trim().length > 0 && nombreComercial.trim().length > 0;
@@ -431,6 +567,9 @@ export const WizardProductoV2: React.FC<WizardProductoV2Props> = ({
         descripcionMarketing: marketing,
       };
       await onSubmit(data);
+      // S3.5 · Borrador queda sin propósito tras crear el producto exitosamente
+      submittedRef.current = true;
+      void clearDraft();
       // El parent cierra el modal después de éxito
     } catch (err) {
       console.error('[WizardProductoV2] error en submit', err);
@@ -462,7 +601,7 @@ export const WizardProductoV2: React.FC<WizardProductoV2Props> = ({
     <div className="fixed inset-0 z-50 flex items-end lg:items-center justify-center">
       <button
         type="button"
-        onClick={onClose}
+        onClick={handleClose}
         className="absolute inset-0 bg-slate-900/55 backdrop-blur-sm"
         aria-label="Cerrar"
       />
@@ -490,7 +629,7 @@ export const WizardProductoV2: React.FC<WizardProductoV2Props> = ({
               </div>
             </div>
             <button
-              onClick={onClose}
+              onClick={handleClose}
               className="p-1.5 hover:bg-slate-100 rounded-md text-slate-500 flex-shrink-0"
               aria-label="Cerrar"
             >
@@ -498,6 +637,17 @@ export const WizardProductoV2: React.FC<WizardProductoV2Props> = ({
             </button>
           </div>
         </div>
+
+        {/* Banner de borrador interno · S3.5 canon */}
+        {showBannerInterno && (
+          <div className="px-5 pt-3 flex-shrink-0">
+            <BorradorProductoBanner
+              key={`banner-borrador-${openCount}`}
+              refreshKey={openCount}
+              onContinuar={handleContinuarDesdeBanner}
+            />
+          </div>
+        )}
 
         {/* Body */}
         <div className="flex-1 overflow-y-auto p-4 lg:p-6 space-y-3">
@@ -876,7 +1026,7 @@ export const WizardProductoV2: React.FC<WizardProductoV2Props> = ({
           <div className="flex items-center gap-2 ml-auto">
             <button
               type="button"
-              onClick={onClose}
+              onClick={handleClose}
               disabled={submitting}
               className="px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-100 rounded-lg disabled:opacity-50"
             >
@@ -894,6 +1044,23 @@ export const WizardProductoV2: React.FC<WizardProductoV2Props> = ({
           </div>
         </div>
       </div>
+
+      {/* Modal de salida · S3.5 canon de formularios */}
+      <ConfirmarSalidaWizardModal
+        isOpen={showExitConfirm}
+        resumen={(() => {
+          const partes: string[] = [];
+          if (marca.trim()) partes.push(marca.trim());
+          if (nombreComercial.trim()) partes.push(nombreComercial.trim());
+          if (contenidoValor) partes.push(`${contenidoValor} ${contenidoUnidad}`);
+          return partes.length > 0 ? partes.join(' · ') : undefined;
+        })()}
+        pasoActual={`Paso ${pasoActual + 1} de ${SECCION_ORDEN.length}`}
+        contextoSingular="este producto"
+        onGuardarBorrador={handleGuardarBorradorYCerrar}
+        onDescartar={handleDescartarYCerrar}
+        onSeguirEditando={handleSeguirEditando}
+      />
     </div>
   );
 };

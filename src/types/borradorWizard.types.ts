@@ -4,7 +4,7 @@ import type { Timestamp } from 'firebase/firestore';
  * Tipo de wizard que persiste borradores.
  * Extensible si en el futuro se agregan más wizards con autoguardado.
  */
-export type TipoBorradorWizard = 'oc' | 'envio';
+export type TipoBorradorWizard = 'oc' | 'envio' | 'producto';
 
 /**
  * Documento de borrador de wizard almacenado en Firestore.
