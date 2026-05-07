@@ -69,6 +69,7 @@ import {
   MaestroChipsMulti,
   type MaestroChipSelection,
 } from '../maestros';
+import { useMarcaStore } from '../../../../store/marcaStore';
 import { useTipoProductoStore } from '../../../../store/tipoProductoStore';
 import { useCategoriaStore } from '../../../../store/categoriaStore';
 import { useEtiquetaStore } from '../../../../store/etiquetaStore';
@@ -112,6 +113,7 @@ export const ProductoEditModalV2: React.FC<ProductoEditModalV2Props> = ({
   const toast = useToastStore();
   const user = useAuthStore(s => s.user);
   const { fetchProductos } = useProductoStore();
+  const { marcasActivas, fetchMarcasActivas, createMarca } = useMarcaStore();
   const { tiposActivos, fetchTiposActivos, create: createTipo } = useTipoProductoStore();
   const { categoriasActivas, fetchCategoriasActivas, create: createCategoria } = useCategoriaStore();
   const { etiquetasActivas, fetchEtiquetasActivas, create: createEtiqueta } = useEtiquetaStore();
@@ -122,6 +124,7 @@ export const ProductoEditModalV2: React.FC<ProductoEditModalV2Props> = ({
   // ─── Estado del form (pre-cargado desde el producto) ──────────────────────
   // Sec.2 Información básica
   const [marca, setMarca] = useState('');
+  const [marcaId, setMarcaId] = useState<string | undefined>();
   const [nombreComercial, setNombreComercial] = useState('');
   const [codigoUPC, setCodigoUPC] = useState('');
   const [contenidoValor, setContenidoValor] = useState<string>('');
@@ -150,16 +153,18 @@ export const ProductoEditModalV2: React.FC<ProductoEditModalV2Props> = ({
   // ─── Cargar maestros al abrir ─────────────────────────────────────────────
   useEffect(() => {
     if (!open) return;
+    fetchMarcasActivas();
     fetchTiposActivos();
     fetchCategoriasActivas();
     fetchEtiquetasActivas();
-  }, [open, fetchTiposActivos, fetchCategoriasActivas, fetchEtiquetasActivas]);
+  }, [open, fetchMarcasActivas, fetchTiposActivos, fetchCategoriasActivas, fetchEtiquetasActivas]);
 
   // ─── Cargar datos al abrir ────────────────────────────────────────────────
   useEffect(() => {
     if (!open || !producto) return;
 
     setMarca(producto.marca ?? '');
+    setMarcaId(producto.marcaId);
     setNombreComercial((producto as any).nombreComercial ?? '');
     setCodigoUPC(producto.codigoUPC ?? '');
 
@@ -405,6 +410,7 @@ export const ProductoEditModalV2: React.FC<ProductoEditModalV2Props> = ({
 
       const data: Partial<ProductoFormData> = {
         marca: marca.trim(),
+        marcaId,
         nombreComercial: nombreComercial.trim(),
         codigoUPC: codigoUPC.trim(),
         contenido: contenidoValor ? `${contenidoValor} ${contenidoUnidad}` : '',
@@ -521,11 +527,34 @@ export const ProductoEditModalV2: React.FC<ProductoEditModalV2Props> = ({
             <div className="space-y-3 text-xs">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <Field label="Marca" required>
-                  <input
-                    type="text"
-                    value={marca}
-                    onChange={e => setMarca(e.target.value)}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-400"
+                  <MaestroSelect
+                    label=""
+                    tipo="marca"
+                    valueId={marcaId}
+                    valueSnapshot={marcaId ? { id: marcaId, nombre: marca } : undefined}
+                    items={marcasActivas.map(m => ({
+                      id: m.id,
+                      codigo: (m as any).codigo,
+                      nombre: m.nombre,
+                    }))}
+                    onSelect={(item) => {
+                      setMarcaId(item.id);
+                      setMarca(item.nombre);
+                    }}
+                    onSolicitarCrear={async (queryActual) => {
+                      if (!user) return;
+                      try {
+                        const id = await createMarca({ nombre: queryActual } as any, user.uid);
+                        setMarcaId(id);
+                        setMarca(queryActual);
+                      } catch (err) {
+                        console.error('[EditModalV2] error al crear marca', err);
+                      }
+                    }}
+                    onClear={() => {
+                      setMarcaId(undefined);
+                      setMarca('');
+                    }}
                   />
                 </Field>
                 <Field label="Código UPC">

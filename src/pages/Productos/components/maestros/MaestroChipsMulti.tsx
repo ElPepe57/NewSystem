@@ -15,6 +15,7 @@
 
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { X, Plus, PlusCircle, Tag, Layers } from 'lucide-react';
+import { FloatingDropdown } from './FloatingDropdown';
 
 export interface MaestroChipItem {
   id: string;
@@ -84,6 +85,8 @@ export function MaestroChipsMulti({
   const [open, setOpen] = useState(false);
   const [creando, setCreando] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const anchorRef = useRef<HTMLDivElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const cls = TEMA[tema];
 
@@ -105,11 +108,14 @@ export function MaestroChipsMulti({
     [sugerenciasRapidas, seleccionadosIds],
   );
 
-  // Click fuera cierra dropdown
+  // Click fuera cierra dropdown · contempla portal (dropdownRef)
   useEffect(() => {
     if (!open) return;
     const onClick = (e: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+      const target = e.target as Node;
+      const insideContainer = containerRef.current?.contains(target) ?? false;
+      const insideDropdown = dropdownRef.current?.contains(target) ?? false;
+      if (!insideContainer && !insideDropdown) {
         setOpen(false);
       }
     };
@@ -172,8 +178,8 @@ export function MaestroChipsMulti({
         </span>
       </label>
 
-      {/* Caja con chips + input */}
-      <div className={`border-2 ${cls.border} rounded-lg p-2 ${cls.bg}`}>
+      {/* Caja con chips + input · ancla del dropdown floating */}
+      <div ref={anchorRef} className={`border-2 ${cls.border} rounded-lg p-2 ${cls.bg}`}>
         <div className="flex flex-wrap gap-1.5 items-center">
           {selecciones.map((sel) => (
             <span
@@ -233,58 +239,57 @@ export function MaestroChipsMulti({
         </div>
       )}
 
-      {/* Dropdown de búsqueda */}
-      {open && (
-        <div className="relative">
-          <div className="absolute z-[60] mt-1 w-full bg-white border border-slate-200 rounded-lg shadow-xl max-h-72 overflow-hidden">
-            <div className="max-h-56 overflow-y-auto">
-              {itemsDisponibles.length === 0 ? (
-                <div className="px-3 py-3 text-center text-slate-500 text-xs italic">
-                  {loading
-                    ? 'Cargando...'
-                    : query
-                      ? `No se encontró "${query}"`
-                      : 'Escribí para buscar o creá uno nuevo'}
-                </div>
-              ) : (
-                <>
-                  <div className="px-3 py-1.5 text-[9px] uppercase tracking-wider text-slate-500 font-bold bg-slate-50 border-b border-slate-100">
-                    {itemsDisponibles.length} disponible{itemsDisponibles.length === 1 ? '' : 's'}
-                  </div>
-                  {itemsDisponibles.map((it) => (
-                    <button
-                      key={it.id}
-                      type="button"
-                      onClick={() => agregar(it)}
-                      className={`w-full px-3 py-1.5 text-left hover:${cls.bg} text-[11px] border-b border-slate-100 last:border-b-0`}
-                    >
-                      <span className="text-emerald-600 mr-1.5">+</span>
-                      {it.nombre}
-                      {it.codigo && <span className="text-[9px] text-slate-400 ml-1.5 font-mono">{it.codigo}</span>}
-                    </button>
-                  ))}
-                </>
-              )}
-            </div>
-
-            {query.trim() && !creando && (
-              <button
-                type="button"
-                onClick={() => handleCrear(query.trim())}
-                className={`w-full px-3 py-2.5 text-left ${cls.bgChip} ${cls.textChip} hover:opacity-90 border-t-2 ${cls.border} flex items-center gap-2`}
-              >
-                <PlusCircle className="w-3.5 h-3.5" />
-                <span className="text-xs font-bold">Crear "{query.trim()}" como {label.toLowerCase()}</span>
-              </button>
-            )}
-            {creando && (
-              <div className={`w-full px-3 py-2.5 text-center ${cls.bgChip} ${cls.textChip} border-t-2 ${cls.border} text-xs`}>
-                Creando...
+      {/* Dropdown de búsqueda · S3.5 portaleado vía FloatingDropdown
+          para escapar del overflow del modal contenedor */}
+      <FloatingDropdown anchorRef={anchorRef} dropdownRef={dropdownRef} isOpen={open}>
+        <div className="bg-white border border-slate-200 rounded-lg shadow-xl max-h-72 overflow-hidden">
+          <div className="max-h-56 overflow-y-auto">
+            {itemsDisponibles.length === 0 ? (
+              <div className="px-3 py-3 text-center text-slate-500 text-xs italic">
+                {loading
+                  ? 'Cargando...'
+                  : query
+                    ? `No se encontró "${query}"`
+                    : 'Escribí para buscar o creá uno nuevo'}
               </div>
+            ) : (
+              <>
+                <div className="px-3 py-1.5 text-[9px] uppercase tracking-wider text-slate-500 font-bold bg-slate-50 border-b border-slate-100">
+                  {itemsDisponibles.length} disponible{itemsDisponibles.length === 1 ? '' : 's'}
+                </div>
+                {itemsDisponibles.map((it) => (
+                  <button
+                    key={it.id}
+                    type="button"
+                    onClick={() => agregar(it)}
+                    className={`w-full px-3 py-1.5 text-left hover:${cls.bg} text-[11px] border-b border-slate-100 last:border-b-0`}
+                  >
+                    <span className="text-emerald-600 mr-1.5">+</span>
+                    {it.nombre}
+                    {it.codigo && <span className="text-[9px] text-slate-400 ml-1.5 font-mono">{it.codigo}</span>}
+                  </button>
+                ))}
+              </>
             )}
           </div>
+
+          {query.trim() && !creando && (
+            <button
+              type="button"
+              onClick={() => handleCrear(query.trim())}
+              className={`w-full px-3 py-2.5 text-left ${cls.bgChip} ${cls.textChip} hover:opacity-90 border-t-2 ${cls.border} flex items-center gap-2`}
+            >
+              <PlusCircle className="w-3.5 h-3.5" />
+              <span className="text-xs font-bold">Crear "{query.trim()}" como {label.toLowerCase()}</span>
+            </button>
+          )}
+          {creando && (
+            <div className={`w-full px-3 py-2.5 text-center ${cls.bgChip} ${cls.textChip} border-t-2 ${cls.border} text-xs`}>
+              Creando...
+            </div>
+          )}
         </div>
-      )}
+      </FloatingDropdown>
 
       {helperText && <div className="text-[9px] text-slate-500 mt-1 italic">{helperText}</div>}
     </div>
