@@ -13,8 +13,7 @@ import { StepInteligencia } from './StepInteligencia';
 import { StepConfirm } from './StepConfirm';
 import { OCWizardPreview } from './OCWizardPreview';
 import { useWizardAutosave } from '../../../../hooks/useWizardAutosave';
-import { ConfirmarSalidaWizardModal } from '../../../../design-system';
-import { BorradorOCBanner } from '../BorradorOCBanner';
+import { ConfirmarSalidaWizardModal, BorradorBanner } from '../../../../design-system';
 import type { BorradorWizard } from '../../../../types/borradorWizard.types';
 
 // ════════════════════════════════════════════════════════════════════════════
@@ -521,8 +520,9 @@ export const OCWizardV3: React.FC<OCWizardV3Props> = ({
     <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm p-4 sm:p-6 md:p-8 flex flex-col">
       {showBannerInterno && (
         <div className="w-full max-w-7xl mx-auto mb-3 flex-shrink-0">
-          <BorradorOCBanner
+          <BorradorBanner
             key={`banner-interno-${openCount}`}
+            tipo="oc"
             refreshKey={openCount}
             onContinuar={handleContinuarDesdeBannerInterno}
           />

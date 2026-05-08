@@ -30,7 +30,7 @@ import { useToastStore } from '../../../store/toastStore';
 
 import { useEnvioWizardState } from './useEnvioWizardState';
 import { RutaVerticalSidebar } from './shared/RutaVerticalSidebar';
-import { BorradorEnvioBanner } from './shared/BorradorEnvioBanner';
+import { BorradorBanner } from '../../../design-system';
 import { Paso1OrigenDestinoUnidades } from './steps/Paso1OrigenDestinoUnidades';
 import { Paso2DestinoDetalles } from './steps/Paso2DestinoDetalles';
 import { Paso3Logistica } from './steps/Paso3Logistica';
@@ -269,8 +269,9 @@ export const EnvioWizardPage: React.FC = () => {
         {/* Banner de borrador (arriba del WizardShell) */}
         {showBannerInterno && (
           <div className="w-full max-w-7xl mx-auto mb-3 flex-shrink-0">
-            <BorradorEnvioBanner
+            <BorradorBanner
               key={`envio-banner-${openCount}`}
+              tipo="envio"
               refreshKey={openCount}
               onContinuar={handleContinuarBorrador}
             />

@@ -1,34 +1,89 @@
 /**
- * BorradorProductoBanner — Banner del Wizard de Producto cuando hay un
- * borrador sin terminar.
+ * BorradorBanner — Banner canónico de "tenés borrador en wizard sin terminar"
  *
- * Réplica directa del patrón canónico de S53.20-23 (BorradorOCBanner,
- * BorradorEnvioBanner). Lee localStorage + Firestore al montar, prioriza
- * el más reciente y permite Continuar / Descartar.
+ * Promovido a design-system en S3.6 M1 chk2 (2026-05-07) consolidando los 3
+ * banners idénticos previos:
+ *   - BorradorOCBanner (compras)
+ *   - BorradorEnvioBanner (envíos)
+ *   - BorradorProductoBanner (productos)
  *
- * Tipo: 'producto' · 6 pasos (Identidad · Atributos · Identificadores ·
- * Clasificación · Logística · Marketing).
+ * Patrón canónico declarado en CLAUDE.md sección "CANON DE FORMULARIOS ·
+ * BORRADOR + DESCARTAR" (2026-05-07).
+ *
+ * Uso:
+ *   <BorradorBanner
+ *     tipo="oc"
+ *     refreshKey={openCount}
+ *     onContinuar={(borrador) => abrirWizardConBorrador(borrador.estado)}
+ *   />
+ *
+ * Comportamiento:
+ *   - Lee el borrador desde localStorage (capa 1, instant) + Firestore (capa 2)
+ *   - Prioriza el más reciente entre ambas capas
+ *   - Click "Continuar" → callback al padre con el snapshot del estado
+ *   - Click "Descartar" → borra ambas capas y oculta el banner
+ *   - Si no hay borrador, retorna null (no renderiza nada)
+ *
+ * Para extender a un nuevo tipo de wizard:
+ *   1. Sumar el discriminator a TipoBorradorWizard en types/borradorWizard.types.ts
+ *   2. Agregar entrada en LABELS abajo con título + fallback + totalPasos
+ *   3. El consumidor solo pasa `tipo="X"`; las labels se resuelven automáticamente
  */
 import React, { useEffect, useState } from 'react';
 import { FileText, Trash2, ArrowRight } from 'lucide-react';
-import { auth } from '../../../../lib/firebase';
-import { borradorWizardService } from '../../../../services/borradorWizard.service';
+import { auth } from '../../lib/firebase';
+import { borradorWizardService } from '../../services/borradorWizard.service';
 import {
   buildBorradorLocalStorageKey,
   type BorradorWizard,
-} from '../../../../types/borradorWizard.types';
-import { formatFechaRelativa } from '../../../../design-system';
+  type TipoBorradorWizard,
+} from '../../types/borradorWizard.types';
+import { formatFechaRelativa } from './DraftBanner';
 
-interface Props {
-  /** Versión reactiva — al cambiar, el banner relee el borrador. */
+/**
+ * Configuración por tipo · centraliza labels para que el consumidor solo pase `tipo`.
+ * Al agregar un wizard nuevo, sumar entrada acá.
+ */
+const LABELS: Record<TipoBorradorWizard, {
+  titulo: string;
+  resumenFallback: string;
+  totalPasos: number;
+}> = {
+  oc: {
+    titulo: 'Tienes una Orden de Compra en borrador',
+    resumenFallback: 'OC sin terminar',
+    totalPasos: 5,
+  },
+  envio: {
+    titulo: 'Tienes un envío en borrador',
+    resumenFallback: 'Envío sin terminar',
+    totalPasos: 4,
+  },
+  producto: {
+    titulo: 'Tienes un producto en borrador',
+    resumenFallback: 'Producto sin terminar',
+    totalPasos: 6,
+  },
+};
+
+interface BorradorBannerProps {
+  /** Tipo de wizard · resuelve labels y key de storage */
+  tipo: TipoBorradorWizard;
+  /** Versión reactiva — al cambiar, el banner relee el borrador */
   refreshKey?: number;
   /** Callback cuando el usuario hace click en "Continuar" */
   onContinuar: (borrador: BorradorWizard) => void;
+  /** Override opcional de totalPasos · default del LABELS */
+  totalPasos?: number;
+  /** Override opcional del título · default del LABELS */
+  titulo?: string;
+  /** Override opcional del resumen fallback · default del LABELS */
+  resumenFallback?: string;
 }
 
 function pickMasReciente(
   local: BorradorWizard | null,
-  remote: BorradorWizard | null
+  remote: BorradorWizard | null,
 ): BorradorWizard | null {
   if (!local && !remote) return null;
   if (!local) return remote;
@@ -40,10 +95,19 @@ function pickMasReciente(
   return localTs > remoteTs ? local : remote;
 }
 
-export const BorradorProductoBanner: React.FC<Props> = ({
+export const BorradorBanner: React.FC<BorradorBannerProps> = ({
+  tipo,
   refreshKey = 0,
   onContinuar,
+  totalPasos: totalPasosOverride,
+  titulo: tituloOverride,
+  resumenFallback: fallbackOverride,
 }) => {
+  const cfg = LABELS[tipo];
+  const titulo = tituloOverride ?? cfg.titulo;
+  const fallback = fallbackOverride ?? cfg.resumenFallback;
+  const totalPasos = totalPasosOverride ?? cfg.totalPasos;
+
   const [borrador, setBorrador] = useState<BorradorWizard | null>(null);
   const [descartando, setDescartando] = useState(false);
 
@@ -51,10 +115,10 @@ export const BorradorProductoBanner: React.FC<Props> = ({
     const userId = auth.currentUser?.uid;
     if (!userId) return;
 
-    // Lectura síncrona de localStorage para respuesta inmediata
+    // Capa 1 · localStorage síncrono
     let local: BorradorWizard | null = null;
     try {
-      const lsKey = buildBorradorLocalStorageKey(userId, 'producto');
+      const lsKey = buildBorradorLocalStorageKey(userId, tipo);
       const raw = localStorage.getItem(lsKey);
       if (raw) local = JSON.parse(raw) as BorradorWizard;
     } catch {
@@ -63,11 +127,11 @@ export const BorradorProductoBanner: React.FC<Props> = ({
 
     if (local) setBorrador(local);
 
-    // Lectura async de Firestore — verdad cross-device
+    // Capa 2 · Firestore async (fuente de verdad cross-device)
     let cancelled = false;
     (async () => {
       try {
-        const remote = await borradorWizardService.get(userId, 'producto');
+        const remote = await borradorWizardService.get(userId, tipo);
         if (cancelled) return;
         const pick = pickMasReciente(local, remote);
         setBorrador(pick);
@@ -79,19 +143,19 @@ export const BorradorProductoBanner: React.FC<Props> = ({
     return () => {
       cancelled = true;
     };
-  }, [refreshKey]);
+  }, [refreshKey, tipo]);
 
   const handleDescartar = async () => {
     const userId = auth.currentUser?.uid;
     if (!userId || descartando) return;
     setDescartando(true);
     try {
-      localStorage.removeItem(buildBorradorLocalStorageKey(userId, 'producto'));
+      localStorage.removeItem(buildBorradorLocalStorageKey(userId, tipo));
     } catch {
       /* silencioso */
     }
     try {
-      await borradorWizardService.delete(userId, 'producto');
+      await borradorWizardService.delete(userId, tipo);
     } catch {
       /* silencioso */
     }
@@ -101,7 +165,6 @@ export const BorradorProductoBanner: React.FC<Props> = ({
 
   if (!borrador) return null;
 
-  const totalPasos = 6;
   const pasoActualTexto = `Paso ${(borrador.pasoActual ?? 0) + 1} de ${totalPasos}`;
   const fechaTexto = formatFechaRelativa(borrador.fechaActualizacion);
 
@@ -112,11 +175,9 @@ export const BorradorProductoBanner: React.FC<Props> = ({
       </div>
 
       <div className="flex-1 min-w-0">
-        <div className="text-sm font-semibold text-amber-900">
-          Tienes un producto en borrador
-        </div>
+        <div className="text-sm font-semibold text-amber-900">{titulo}</div>
         <div className="text-xs text-amber-800 mt-0.5 truncate">
-          {borrador.resumen ?? 'Producto sin terminar'}
+          {borrador.resumen ?? fallback}
           <span className="text-amber-600 mx-1.5">·</span>
           <span>{fechaTexto}</span>
           <span className="text-amber-600 mx-1.5">·</span>

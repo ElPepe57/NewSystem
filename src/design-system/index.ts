@@ -89,6 +89,8 @@ export type { ProductoDisplayData } from './components/ProductoDisplay';
 export { DraftBanner, formatFechaRelativa } from './components/DraftBanner';
 // Modal de confirmación al cerrar wizard con cambios sin guardar (S53.19)
 export { ConfirmarSalidaWizardModal } from './components/ConfirmarSalidaWizardModal';
+// S3.6 M1 chk2 · Banner canónico unificado (consolida BorradorOC/Envio/Producto)
+export { BorradorBanner } from './components/BorradorBanner';
 
 // ─── S3.6 M1 · Componentes Maestros canónicos (promovidos desde Productos) ─
 // MaestroSelect (single value · marca · tipo de producto)

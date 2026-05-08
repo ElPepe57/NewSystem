@@ -26,8 +26,7 @@ import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { X, Package, Check, Droplets, Pill, Sparkles, Truck } from 'lucide-react';
 import { useWizardAutosave } from '../../../../hooks/useWizardAutosave';
 import type { BorradorWizard } from '../../../../types/borradorWizard.types';
-import { BorradorProductoBanner } from './BorradorProductoBanner';
-import { ConfirmarSalidaWizardModal } from '../../../../design-system';
+import { ConfirmarSalidaWizardModal, BorradorBanner } from '../../../../design-system';
 import type {
   ProductoFormData,
   Presentacion,
@@ -641,8 +640,9 @@ export const WizardProductoV2: React.FC<WizardProductoV2Props> = ({
         {/* Banner de borrador interno · S3.5 canon */}
         {showBannerInterno && (
           <div className="px-5 pt-3 flex-shrink-0">
-            <BorradorProductoBanner
+            <BorradorBanner
               key={`banner-borrador-${openCount}`}
+              tipo="producto"
               refreshKey={openCount}
               onContinuar={handleContinuarDesdeBanner}
             />
