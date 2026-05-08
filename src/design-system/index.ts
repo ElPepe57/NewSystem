@@ -90,6 +90,13 @@ export { DraftBanner, formatFechaRelativa } from './components/DraftBanner';
 // Modal de confirmación al cerrar wizard con cambios sin guardar (S53.19)
 export { ConfirmarSalidaWizardModal } from './components/ConfirmarSalidaWizardModal';
 
+// ─── S3.6 M1 · Componentes Maestros canónicos (promovidos desde Productos) ─
+// MaestroSelect (single value · marca · tipo de producto)
+// MaestroChipsMulti (multi value · categorías · etiquetas)
+// FloatingDropdown (portaleado · escapa overflow del modal contenedor)
+// ChipsCerrados (vocabulario cerrado · atributos por línea)
+export * from './components/maestros';
+
 // ─── S52 — Capa 3: Plantillas de dominio ─────────────────────────────────
 // Patrones canónicos del ERP derivados del estándar OrdenCompraCard.
 // Ver `docs/DESIGN_PATTERNS.md` para documentación completa.

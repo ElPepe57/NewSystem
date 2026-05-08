@@ -29,7 +29,7 @@ import {
   Search,
 } from 'lucide-react';
 import type { Producto, ProductoFormData, ComponentePack, Presentacion } from '../../../../types/producto.types';
-import { MaestroSelect, MaestroChipsMulti, type MaestroChipSelection } from '../maestros';
+import { MaestroSelect, MaestroChipsMulti, type MaestroChipSelection } from '../../../../design-system';
 import { useMarcaStore } from '../../../../store/marcaStore';
 import { useTipoProductoStore } from '../../../../store/tipoProductoStore';
 import { useCategoriaStore } from '../../../../store/categoriaStore';

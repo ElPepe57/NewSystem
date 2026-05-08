@@ -42,7 +42,7 @@ import {
 import {
   ChipsCerrados,
   type ChipCerradoOption,
-} from '../maestros';
+} from '../../../../design-system';
 
 // ─── Tipos de Props ─────────────────────────────────────────────────────────
 

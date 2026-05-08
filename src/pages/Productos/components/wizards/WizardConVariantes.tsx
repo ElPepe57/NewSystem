@@ -62,7 +62,7 @@ import {
   ChipsCerrados,
   type MaestroChipSelection,
   type ChipCerradoOption,
-} from '../maestros';
+} from '../../../../design-system';
 import { useMarcaStore } from '../../../../store/marcaStore';
 import { useTipoProductoStore } from '../../../../store/tipoProductoStore';
 import { useCategoriaStore } from '../../../../store/categoriaStore';
