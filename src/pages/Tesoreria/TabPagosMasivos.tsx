@@ -7,8 +7,8 @@
  */
 import React, { useState } from 'react';
 import { Layers, History, ChevronRight } from 'lucide-react';
-import { HistorialLotes } from '../PagosMasivos/components/HistorialLotes';
-import { LoteDetalleModal } from '../PagosMasivos/components/LoteDetalleModal';
+import { HistorialLotes } from './components/pagosMasivos/HistorialLotes';
+import { LoteDetalleModal } from './components/pagosMasivos/LoteDetalleModal';
 import { PagosMasivosWizard } from './PagosMasivosWizard';
 import { cn } from '../../design-system/utils';
 

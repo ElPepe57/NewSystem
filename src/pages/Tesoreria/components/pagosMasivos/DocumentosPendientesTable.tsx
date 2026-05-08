@@ -5,11 +5,11 @@
  */
 import React, { useState, useMemo } from 'react';
 import { Search, FileText, ShoppingCart, Receipt } from 'lucide-react';
-import { DataTable } from '../../../design-system';
-import type { DataTableColumn } from '../../../design-system';
-import { formatCurrency } from '../../../utils/format';
-import { usePagoMasivoStore } from '../../../store/pagoMasivoStore';
-import type { PendienteFinanciero } from '../../../types/tesoreria.types';
+import { DataTable } from '../../../../design-system';
+import type { DataTableColumn } from '../../../../design-system';
+import { formatCurrency } from '../../../../utils/format';
+import { usePagoMasivoStore } from '../../../../store/pagoMasivoStore';
+import type { PendienteFinanciero } from '../../../../types/tesoreria.types';
 
 const TIPO_LABELS: Record<string, { label: string; color: string; icon: React.ReactNode }> = {
   venta_por_cobrar:       { label: 'Venta',  color: 'bg-emerald-100 text-emerald-700', icon: <FileText size={14} /> },

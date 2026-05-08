@@ -6,15 +6,15 @@
  */
 import React, { useState, useEffect, useMemo } from 'react';
 import { Wallet, CreditCard, Smartphone, Banknote, AlertCircle } from 'lucide-react';
-import { Button } from '../../../components/common';
-import { useTesoreriaStore } from '../../../store/tesoreriaStore';
-import { useTipoCambioStore } from '../../../store/tipoCambioStore';
-import { usePagoMasivoStore } from '../../../store/pagoMasivoStore';
-import { METODOS_PAGO_INFO } from '../../../types/pago.types';
-import { formatCurrency } from '../../../utils/format';
-import type { CuentaCaja } from '../../../types/tesoreria.types';
-import type { ConfigPagoMasivo } from '../../../types/pagoMasivo.types';
-import type { MetodoPagoUnificado } from '../../../types/pago.types';
+import { Button } from '../../../../components/common';
+import { useTesoreriaStore } from '../../../../store/tesoreriaStore';
+import { useTipoCambioStore } from '../../../../store/tipoCambioStore';
+import { usePagoMasivoStore } from '../../../../store/pagoMasivoStore';
+import { METODOS_PAGO_INFO } from '../../../../types/pago.types';
+import { formatCurrency } from '../../../../utils/format';
+import type { CuentaCaja } from '../../../../types/tesoreria.types';
+import type { ConfigPagoMasivo } from '../../../../types/pagoMasivo.types';
+import type { MetodoPagoUnificado } from '../../../../types/pago.types';
 
 function getIconoCuenta(tipo: string) {
   switch (tipo) {

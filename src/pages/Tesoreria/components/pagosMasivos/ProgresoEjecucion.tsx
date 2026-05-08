@@ -5,12 +5,12 @@
  */
 import React from 'react';
 import { CheckCircle, XCircle, Loader2, Clock } from 'lucide-react';
-import { Modal, Button } from '../../../components/common';
-import { DataTable } from '../../../design-system';
-import type { DataTableColumn } from '../../../design-system';
-import { formatCurrency } from '../../../utils/format';
-import { usePagoMasivoStore } from '../../../store/pagoMasivoStore';
-import type { EstadoItemLote, ResultadoItemLote } from '../../../types/pagoMasivo.types';
+import { Modal, Button } from '../../../../components/common';
+import { DataTable } from '../../../../design-system';
+import type { DataTableColumn } from '../../../../design-system';
+import { formatCurrency } from '../../../../utils/format';
+import { usePagoMasivoStore } from '../../../../store/pagoMasivoStore';
+import type { EstadoItemLote, ResultadoItemLote } from '../../../../types/pagoMasivo.types';
 
 const ESTADO_ICONO: Record<EstadoItemLote, React.ReactNode> = {
   pendiente:   <Clock size={14} className="text-slate-400" />,

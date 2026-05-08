@@ -5,13 +5,13 @@
  */
 import React from 'react';
 import { CheckCircle, XCircle, Wallet, Calendar, Clock } from 'lucide-react';
-import { Modal, Badge } from '../../../components/common';
-import { DataTable } from '../../../design-system';
-import type { DataTableColumn } from '../../../design-system';
-import { formatCurrency } from '../../../utils/format';
-import { METODOS_PAGO_INFO } from '../../../types/pago.types';
-import { usePagoMasivoStore } from '../../../store/pagoMasivoStore';
-import type { ResultadoItemLote } from '../../../types/pagoMasivo.types';
+import { Modal, Badge } from '../../../../components/common';
+import { DataTable } from '../../../../design-system';
+import type { DataTableColumn } from '../../../../design-system';
+import { formatCurrency } from '../../../../utils/format';
+import { METODOS_PAGO_INFO } from '../../../../types/pago.types';
+import { usePagoMasivoStore } from '../../../../store/pagoMasivoStore';
+import type { ResultadoItemLote } from '../../../../types/pagoMasivo.types';
 
 export const LoteDetalleModal: React.FC = () => {
   const { loteDetalle, setLoteDetalle } = usePagoMasivoStore();

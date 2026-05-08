@@ -59,7 +59,6 @@ const Auditoria = React.lazy(() => import('./pages/Auditoria/Auditoria').then(m 
 const Contabilidad = React.lazy(() => import('./pages/Contabilidad/Contabilidad').then(m => ({ default: m.Contabilidad })));
 const ProductosIntel = React.lazy(() => import('./pages/ProductosIntel/ProductosIntel').then(m => ({ default: m.ProductosIntel })));
 const MiPerfil = React.lazy(() => import('./pages/Perfil/MiPerfil').then(m => ({ default: m.MiPerfil })));
-const TestPDF = React.lazy(() => import('./pages/TestPDF/TestPDF').then(m => ({ default: m.TestPDF })));
 const Escaner = React.lazy(() => import('./pages/Escaner/Escaner').then(m => ({ default: m.Escaner })));
 const MercadoLibre = React.lazy(() => import('./pages/MercadoLibre/MercadoLibre').then(m => ({ default: m.MercadoLibre })));
 const NotasIA = React.lazy(() => import('./pages/NotasIA/NotasIA').then(m => ({ default: m.NotasIA })));
@@ -228,7 +227,6 @@ function App() {
               <Route path="perfil" element={<MiPerfil />} />
 
               {/* Utilidades */}
-              <Route path="test-pdf" element={<TestPDF />} />
             </Route>
 
             {/* Ruta Catch-all */}

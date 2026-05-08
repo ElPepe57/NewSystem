@@ -3,12 +3,12 @@
  */
 import React, { useEffect } from 'react';
 import { CheckCircle, XCircle, Eye, Clock } from 'lucide-react';
-import { Badge, Button } from '../../../components/common';
-import { DataTable } from '../../../design-system';
-import type { DataTableColumn } from '../../../design-system';
-import { formatCurrency } from '../../../utils/format';
-import { usePagoMasivoStore } from '../../../store/pagoMasivoStore';
-import type { LotePago } from '../../../types/pagoMasivo.types';
+import { Badge, Button } from '../../../../components/common';
+import { DataTable } from '../../../../design-system';
+import type { DataTableColumn } from '../../../../design-system';
+import { formatCurrency } from '../../../../utils/format';
+import { usePagoMasivoStore } from '../../../../store/pagoMasivoStore';
+import type { LotePago } from '../../../../types/pagoMasivo.types';
 
 const loteColumns = (setLoteDetalle: (lote: LotePago) => void): DataTableColumn<LotePago>[] => [
   {

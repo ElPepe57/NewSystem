@@ -6,9 +6,9 @@ import { formatCurrency } from '../../utils/format';
 import { DataTable } from '../../design-system';
 import type { DataTableColumn } from '../../design-system';
 // S40 Bloque F: secciones ejecutivas adicionales
-import { LogisticaAlertasSection } from '../../components/modules/reportes/LogisticaAlertasSection';
-import { ReclamosEjecutivoSection } from '../../components/modules/reportes/ReclamosEjecutivoSection';
-import { RankingProveedoresIntegridad } from '../../components/modules/reportes/RankingProveedoresIntegridad';
+import { LogisticaAlertasSection } from '../../components/modules/reporte/LogisticaAlertasSection';
+import { ReclamosEjecutivoSection } from '../../components/modules/reporte/ReclamosEjecutivoSection';
+import { RankingProveedoresIntegridad } from '../../components/modules/reporte/RankingProveedoresIntegridad';
 
 export const TabLogistica: React.FC = () => {
   const [data, setData] = useState<ResumenLogistica | null>(null);
