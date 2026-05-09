@@ -32,7 +32,7 @@ interface KpiStripV2Props {
 
 export const KpiStripV2: React.FC<KpiStripV2Props> = ({ stats }) => {
   return (
-    <div className="bg-white border border-slate-200 rounded-xl grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 divide-y sm:divide-y-0 sm:divide-x divide-slate-200">
+    <div className="bg-white border border-slate-200 rounded-xl grid grid-cols-2 md:grid-cols-5 divide-y md:divide-y-0 md:divide-x divide-slate-200">
       {/* Unidades totales */}
       <div className="p-4">
         <div className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1.5">

@@ -17,15 +17,17 @@
  * que fue eliminado completamente en chk5 (commits chk4.1 + chk5).
  */
 
-// shell (chk4.2)
+// shell (chk4.2 + chk4.7)
 export { InventarioPageV2 } from './shell/InventarioPageV2';
 export { HeaderV2 } from './shell/HeaderV2';
 export { KpiStripV2 } from './shell/KpiStripV2';
 export type { KpiStripStats } from './shell/KpiStripV2';
 export { SegmentedControl } from './shell/SegmentedControl';
+export { InventarioPills } from './shell/InventarioPills';
+export type { PillInventario, PillInventarioCounts } from './shell/InventarioPills';
 
 // cards
-export { StockProductoCard } from './cards/StockProductoCard';
+export { StockProductoCard, StockListHeader } from './cards/StockProductoCard';
 export { UnidadCard } from './cards/UnidadCard';
 
 // detail
@@ -50,3 +52,4 @@ export { UnidadesDesglose } from './sections/UnidadesDesglose';
 export { AtencionTab } from './sections/AtencionTab';
 export { MapaTab } from './sections/MapaTab';
 export { UnidadesListView } from './sections/UnidadesListView';
+export { AlertasBanner } from './sections/AlertasBanner';

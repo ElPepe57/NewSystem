@@ -21,7 +21,7 @@
 
 import React, { useEffect, useState, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Package, BarChart3, Bell, MapPin } from 'lucide-react';
+import { Package, BarChart3, Bell, MapPin, CheckCircle, Boxes } from 'lucide-react';
 import { useToastStore } from '../../../../store/toastStore';
 import { calcularDiasParaVencer } from '../../../../utils/dateFormatters';
 import {
@@ -29,22 +29,22 @@ import {
   Button,
   Modal,
   InventarioSkeleton,
-  SearchInput,
-  Select,
   Tabs,
 } from '../../../../components/common';
-import { Toolbar, FilterDrawer, FilterSection } from '../../../../design-system';
+import { FiltrosBar } from '../../../../design-system';
+import type { ChipGroupConfig, SortOption } from '../../../../design-system';
 import type { Tab } from '../../../../components/common/Tabs';
-import { CheckCircle } from 'lucide-react';
 
 // Componentes locales del módulo
 import { HeaderV2 } from './HeaderV2';
 import { KpiStripV2 } from './KpiStripV2';
 import { SegmentedControl } from './SegmentedControl';
+import { InventarioPills, type PillInventario } from './InventarioPills';
 import {
   ProductoInventarioTable,
   UnidadDetailsModal,
   StockProductoCard,
+  StockListHeader,
   InventarioAnalytics,
   PromocionModal,
   GestionVencidasModal,
@@ -52,6 +52,7 @@ import {
 import { AtencionTab } from '../sections/AtencionTab';
 import { MapaTab } from '../sections/MapaTab';
 import { UnidadesListView } from '../sections/UnidadesListView';
+import { AlertasBanner } from '../sections/AlertasBanner';
 import type { PromocionData, ProductoConUnidades, AlertaProducto } from '../index';
 
 // Stores
@@ -60,6 +61,7 @@ import { useProductoStore } from '../../../../store/productoStore';
 import { useAlmacenStore } from '../../../../store/casillaStore';
 import { useInventarioStore } from '../../../../store/inventarioStore';
 import { useCTRUStore } from '../../../../store/ctruStore';
+import { useLineaNegocioStore } from '../../../../store/lineaNegocioStore';
 
 // Services + helpers
 import { exportService } from '../../../../services/export.service';
@@ -86,6 +88,8 @@ export const InventarioPageV2: React.FC = () => {
   const fetchStats = useInventarioStore(state => state.fetchStats);
   const ctruData = useCTRUStore(state => state.productosDetalle);
   const fetchCTRU = useCTRUStore(state => state.fetchAll);
+  const lineasNegocio = useLineaNegocioStore(state => state.lineasActivas);
+  const fetchLineas = useLineaNegocioStore(state => state.fetchLineas);
 
   // Pre-filtrar unidades por línea de negocio global
   const unidadesPorLinea = useLineaFilter(
@@ -110,11 +114,17 @@ export const InventarioPageV2: React.FC = () => {
 
   // Filtros y estado UI
   const [filtroEstado, setFiltroEstado] = useState<string | null>(null);
-  const [filtroAlmacen, setFiltroAlmacen] = useState<string>('');
-  const [filtroPais, setFiltroPais] = useState<string>('');
   const [busqueda, setBusqueda] = useState('');
-  const [showFilters, setShowFilters] = useState(false);
   const [vistaActual, setVistaActual] = useState<VistaInventario>('cards');
+
+  // Pills rápidos (chk4.7c)
+  const [pillActivo, setPillActivo] = useState<PillInventario>('todos');
+
+  // Chip groups multi-valor (chk4.7d) · línea · país · ubicación
+  const [selecciones, setSelecciones] = useState<Record<string, string[]>>({});
+
+  // Sort (chk4.7e)
+  const [sortValue, setSortValue] = useState<string>('stock_desc');
 
   // Modales
   const [unidadSeleccionada, setUnidadSeleccionada] = useState<Unidad | null>(null);
@@ -136,7 +146,8 @@ export const InventarioPageV2: React.FC = () => {
     fetchProductos();
     fetchAlmacenes();
     fetchCTRU();
-  }, [fetchUnidades, fetchStats, fetchProductos, fetchAlmacenes, fetchCTRU]);
+    fetchLineas();
+  }, [fetchUnidades, fetchStats, fetchProductos, fetchAlmacenes, fetchCTRU, fetchLineas]);
 
   // ==================== STATS DERIVADOS ====================
 
@@ -157,9 +168,14 @@ export const InventarioPageV2: React.FC = () => {
     const hoy = new Date();
     hoy.setHours(0, 0, 0, 0);
 
+    const lineasSel = selecciones.linea ?? [];
+    const paisesSel = selecciones.pais ?? [];
+    const ubicacionesSel = selecciones.ubicacion ?? [];
+
     unidadesPorLinea.forEach(u => {
-      if (filtroAlmacen && (u.casillaActualId || u.almacenId) !== filtroAlmacen) return;
-      if (filtroPais && u.pais !== filtroPais) return;
+      if (lineasSel.length > 0 && !lineasSel.includes(u.lineaNegocioId ?? '')) return;
+      if (paisesSel.length > 0 && !paisesSel.includes(u.pais ?? '')) return;
+      if (ubicacionesSel.length > 0 && !ubicacionesSel.includes(u.casillaActualId || u.almacenId || '')) return;
 
       if (u.estado === 'vendida') {
         vendida++;
@@ -217,7 +233,7 @@ export const InventarioPageV2: React.FC = () => {
       valorTotalUSD,
       proximasAVencer,
     };
-  }, [unidadesPorLinea, filtroAlmacen, filtroPais]);
+  }, [unidadesPorLinea, selecciones]);
 
   // KPI derivado para el strip
   const pctDisponiblesPeru = inventarioStats.total > 0
@@ -234,12 +250,19 @@ export const InventarioPageV2: React.FC = () => {
       vendidasPorProducto[u.productoId] = (vendidasPorProducto[u.productoId] || 0) + 1;
     });
 
+    const lineasSel = selecciones.linea ?? [];
+    const paisesSel = selecciones.pais ?? [];
+    const ubicacionesSel = selecciones.ubicacion ?? [];
+
     let unidadesActivas = unidadesPorLinea.filter(u => u.estado !== 'vendida');
-    if (filtroAlmacen) {
-      unidadesActivas = unidadesActivas.filter(u => (u.casillaActualId || u.almacenId) === filtroAlmacen);
+    if (lineasSel.length > 0) {
+      unidadesActivas = unidadesActivas.filter(u => lineasSel.includes(u.lineaNegocioId ?? ''));
     }
-    if (filtroPais) {
-      unidadesActivas = unidadesActivas.filter(u => u.pais === filtroPais);
+    if (paisesSel.length > 0) {
+      unidadesActivas = unidadesActivas.filter(u => paisesSel.includes(u.pais ?? ''));
+    }
+    if (ubicacionesSel.length > 0) {
+      unidadesActivas = unidadesActivas.filter(u => ubicacionesSel.includes(u.casillaActualId || u.almacenId || ''));
     }
 
     unidadesActivas.forEach(unidad => {
@@ -346,13 +369,39 @@ export const InventarioPageV2: React.FC = () => {
     });
 
     return Object.values(grupos).sort((a, b) => (a.sku ?? '').localeCompare(b.sku ?? ''));
-  }, [unidadesPorLinea, productos, filtroAlmacen, filtroPais]);
+  }, [unidadesPorLinea, productos, selecciones]);
 
-  // ==================== FILTRADO ====================
+  // ==================== PILL COUNTS (chk4.7c) ====================
+
+  const pillCounts = useMemo(() => ({
+    todos: productosConUnidades.length,
+    disponibles: productosConUnidades.filter(p => p.disponiblePeru > 0).length,
+    stock_critico: productosConUnidades.filter(p => p.stockCritico).length,
+    vencen_pronto: productosConUnidades.filter(p => p.proximasAVencer30Dias > 0).length,
+    en_transito: productosConUnidades.filter(
+      p => p.enTransitoOrigen > 0 || p.enTransitoPeru > 0
+    ).length,
+  }), [productosConUnidades]);
+
+  // ==================== FILTRADO + SORT ====================
 
   const productosFiltrados = useMemo(() => {
     let resultado = productosConUnidades;
 
+    // Pill rápido
+    if (pillActivo !== 'todos') {
+      resultado = resultado.filter(p => {
+        switch (pillActivo) {
+          case 'disponibles': return p.disponiblePeru > 0;
+          case 'stock_critico': return p.stockCritico;
+          case 'vencen_pronto': return p.proximasAVencer30Dias > 0;
+          case 'en_transito': return p.enTransitoOrigen > 0 || p.enTransitoPeru > 0;
+          default: return true;
+        }
+      });
+    }
+
+    // Estado pipeline legacy (compatible)
     if (filtroEstado) {
       resultado = resultado.filter(p => {
         switch (filtroEstado) {
@@ -368,6 +417,7 @@ export const InventarioPageV2: React.FC = () => {
       });
     }
 
+    // Búsqueda
     if (busqueda.trim()) {
       const termino = busqueda.toLowerCase();
       resultado = resultado.filter(p => {
@@ -378,8 +428,26 @@ export const InventarioPageV2: React.FC = () => {
       });
     }
 
-    return resultado;
-  }, [productosConUnidades, filtroEstado, busqueda]);
+    // Sort (chk4.7e)
+    const sorted = [...resultado];
+    switch (sortValue) {
+      case 'stock_desc':
+        sorted.sort((a, b) => b.totalUnidades - a.totalUnidades); break;
+      case 'stock_asc':
+        sorted.sort((a, b) => a.totalUnidades - b.totalUnidades); break;
+      case 'valor_desc':
+        sorted.sort((a, b) => b.valorTotalUSD - a.valorTotalUSD); break;
+      case 'vencen_asc':
+        sorted.sort((a, b) => b.proximasAVencer30Dias - a.proximasAVencer30Dias); break;
+      case 'sku_asc':
+        sorted.sort((a, b) => (a.sku ?? '').localeCompare(b.sku ?? '')); break;
+      case 'nombre_asc':
+        sorted.sort((a, b) => (a.nombre ?? '').localeCompare(b.nombre ?? '')); break;
+      default:
+        break;
+    }
+    return sorted;
+  }, [productosConUnidades, pillActivo, filtroEstado, busqueda, sortValue]);
 
   // ==================== ALERTAS (para badge en tab Atención) ====================
 
@@ -427,6 +495,94 @@ export const InventarioPageV2: React.FC = () => {
     });
   }, [productosConUnidades]);
 
+  // ==================== CHIP GROUPS PARA FILTROSBAR (chk4.7d) ====================
+
+  const chipGroups: ChipGroupConfig[] = useMemo(() => {
+    // Contar productos por línea de negocio
+    const byLinea = new Map<string, number>();
+    productosConUnidades.forEach(p => {
+      const lid = p.lineaNegocioId ?? 'sin-linea';
+      byLinea.set(lid, (byLinea.get(lid) ?? 0) + 1);
+    });
+
+    // Contar productos por país (basado en sus unidades)
+    const productosPorPais: Record<string, Set<string>> = { USA: new Set(), Peru: new Set() };
+    unidadesPorLinea.forEach(u => {
+      const p = u.pais;
+      if (p && productosPorPais[p]) productosPorPais[p].add(u.productoId);
+    });
+
+    return [
+      {
+        key: 'linea',
+        label: 'Línea',
+        multi: true,
+        options: lineasNegocio.map(ln => ({
+          value: ln.id,
+          label: ln.nombre,
+          count: byLinea.get(ln.id) ?? 0,
+          variant: ln.id.toLowerCase().includes('skin') ? 'amber' :
+                   ln.id.toLowerCase().includes('supl') ? 'indigo' : 'slate',
+        })),
+      },
+      {
+        key: 'pais',
+        label: 'País',
+        multi: true,
+        options: [
+          { value: 'USA', label: 'USA', count: productosPorPais.USA.size, variant: 'sky' },
+          { value: 'Peru', label: 'Perú', count: productosPorPais.Peru.size, variant: 'emerald' },
+        ],
+      },
+      {
+        key: 'ubicacion',
+        label: 'Ubicación',
+        multi: true,
+        options: almacenes.map(a => ({
+          value: a.id,
+          label: a.nombre,
+          variant: 'slate' as const,
+        })),
+      },
+    ];
+  }, [lineasNegocio, productosConUnidades, almacenes, unidadesPorLinea]);
+
+  const sortOptions: SortOption[] = useMemo(() => [
+    { value: 'stock_desc',  label: 'Mayor stock' },
+    { value: 'stock_asc',   label: 'Menor stock' },
+    { value: 'valor_desc',  label: 'Mayor valor USD' },
+    { value: 'vencen_asc',  label: 'Por vencer primero' },
+    { value: 'sku_asc',     label: 'SKU A-Z' },
+    { value: 'nombre_asc',  label: 'Nombre A-Z' },
+  ], []);
+
+  const hayFiltrosActivos = useMemo(() => {
+    if (Object.values(selecciones).some(v => v.length > 0)) return true;
+    if (busqueda.trim().length > 0) return true;
+    if (pillActivo !== 'todos') return true;
+    return false;
+  }, [selecciones, busqueda, pillActivo]);
+
+  const handleChipToggle = (groupKey: string, value: string) => {
+    setSelecciones(prev => {
+      const current = prev[groupKey] ?? [];
+      const next = current.includes(value)
+        ? current.filter(v => v !== value)
+        : [...current, value];
+      const updated = { ...prev };
+      if (next.length === 0) delete updated[groupKey];
+      else updated[groupKey] = next;
+      return updated;
+    });
+  };
+
+  const handleLimpiarTodo = () => {
+    setSelecciones({});
+    setBusqueda('');
+    setPillActivo('todos');
+    setFiltroEstado(null);
+  };
+
   // ==================== TABS CANÓNICOS (4) ====================
 
   const tabs: Tab[] = useMemo(() => [
@@ -472,13 +628,6 @@ export const InventarioPageV2: React.FC = () => {
       OrdenCompra: u.ordenCompraNumero,
     }));
     exportService.downloadExcel(dataExport, 'Inventario_Unidades');
-  };
-
-  const limpiarFiltros = () => {
-    setFiltroEstado(null);
-    setFiltroAlmacen('');
-    setFiltroPais('');
-    setBusqueda('');
   };
 
   const handleVerProducto = (_productoId: string) => {
@@ -573,6 +722,12 @@ export const InventarioPageV2: React.FC = () => {
         }}
       />
 
+      {/* Banner amber alertas inmediatas (chk4.7a) */}
+      <AlertasBanner
+        alertas={alertasPrioritarias}
+        onIrAtencion={() => setTabActivo('atencion')}
+      />
+
       {/* Tabs canónicos (4) */}
       <Tabs
         tabs={tabs}
@@ -585,58 +740,53 @@ export const InventarioPageV2: React.FC = () => {
       {/* ==================== TAB: INVENTARIO ==================== */}
       {tabActivo === 'inventario' && (
         <>
-          {/* SegmentedControl Stock|Unidades */}
+          {/* SegmentedControl Stock|Unidades + helper text inline (chk4.7b) */}
           <div className="flex items-center justify-between flex-wrap gap-3">
             <SegmentedControl<ModoInventario>
               options={[
-                { value: 'stock', label: 'Stock', icon: Package },
-                { value: 'unidades', label: 'Unidades', icon: Package },
+                { value: 'stock',    label: 'Stock',    icon: Package, count: productosConUnidades.length },
+                { value: 'unidades', label: 'Unidades', icon: Boxes,   count: unidades.length },
               ]}
               value={modoInventario}
               onChange={setModoInventario}
             />
+            <p className="text-xs text-slate-500 hidden md:block">
+              <span className="font-medium text-slate-600">Stock</span> = vista agregada por producto ·{' '}
+              <span className="font-medium text-slate-600">Unidades</span> = vista granular por lote y vencimiento (FEFO)
+            </p>
           </div>
 
           {modoInventario === 'stock' ? (
             <>
-              {/* Toolbar stock */}
-              <Toolbar
-                search={{ value: busqueda, onChange: setBusqueda, placeholder: 'Buscar por SKU, nombre o marca...' }}
-                viewMode={vistaActual === 'tabla' ? 'table' : 'card'}
-                onViewModeChange={(mode) => setVistaActual(mode === 'table' ? 'tabla' : 'cards')}
-                filterCount={[filtroPais, filtroAlmacen].filter(Boolean).length}
-                onFilterToggle={() => setShowFilters(true)}
-                resultCount={productosFiltrados.length}
+              {/* Pills rápidos canónicos (chk4.7c) */}
+              <InventarioPills
+                counts={pillCounts}
+                active={pillActivo}
+                onChange={setPillActivo}
               />
 
-              <FilterDrawer
-                isOpen={showFilters}
-                onClose={() => setShowFilters(false)}
-                onClearAll={limpiarFiltros}
-                activeFilterCount={[filtroPais, filtroAlmacen].filter(Boolean).length}
-              >
-                <FilterSection title="Ubicación">
-                  <Select
-                    label="País"
-                    value={filtroPais}
-                    onChange={(e) => setFiltroPais(e.target.value)}
-                    options={[{ value: '', label: 'Todos' }, { value: 'USA', label: 'USA' }, { value: 'Peru', label: 'Perú' }]}
-                  />
-                  <Select
-                    label="Casilla"
-                    value={filtroAlmacen}
-                    onChange={(e) => setFiltroAlmacen(e.target.value)}
-                    options={[{ value: '', label: 'Todas' }, ...almacenes.map(a => ({ value: a.id, label: a.nombre }))]}
-                  />
-                </FilterSection>
-              </FilterDrawer>
+              {/* FiltrosBar componible (chk4.7d + chk4.7e) */}
+              <FiltrosBar
+                chipGroups={chipGroups}
+                selecciones={selecciones}
+                onChipToggle={handleChipToggle}
+                searchTerm={busqueda}
+                searchPlaceholder="Buscar por SKU, nombre, marca o lote..."
+                onSearchChange={setBusqueda}
+                sortValue={sortValue}
+                sortOptions={sortOptions}
+                onSortChange={setSortValue}
+                hayFiltrosActivos={hayFiltrosActivos}
+                onLimpiarTodo={handleLimpiarTodo}
+              />
 
               {vistaActual === 'cards' ? (
-                /* Cards apiladas (canon F4 default) · 1 columna · 1 card por fila */
-                <div className="space-y-2">
-                  {productosFiltrados.length === 0 ? (
-                    <Card padding="lg">
-                      <div className="text-center py-8">
+                /* Cards apiladas (canon F4) con header de columnas tipo tabla */
+                <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
+                  <StockListHeader total={productosFiltrados.length} />
+                  <div className="divide-y divide-slate-100">
+                    {productosFiltrados.length === 0 ? (
+                      <div className="text-center py-12 px-4">
                         <Package className="mx-auto h-12 w-12 text-slate-400" />
                         <h3 className="mt-2 text-sm font-medium text-slate-900">
                           No hay productos en inventario
@@ -645,16 +795,17 @@ export const InventarioPageV2: React.FC = () => {
                           Las unidades se crean automáticamente al recibir órdenes de compra
                         </p>
                       </div>
-                    </Card>
-                  ) : (
-                    productosFiltrados.map((producto) => (
-                      <StockProductoCard
-                        key={producto.productoId}
-                        producto={producto}
-                        onVerDetalle={() => setVistaActual('tabla')}
-                      />
-                    ))
-                  )}
+                    ) : (
+                      productosFiltrados.map((producto) => (
+                        <div key={producto.productoId} className="border-0 rounded-none">
+                          <StockProductoCard
+                            producto={producto}
+                            onVerDetalle={() => setVistaActual('tabla')}
+                          />
+                        </div>
+                      ))
+                    )}
+                  </div>
                 </div>
               ) : (
                 <Card padding="md">
