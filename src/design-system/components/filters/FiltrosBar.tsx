@@ -112,6 +112,24 @@ const CHIP_HOVER_BY_VARIANT: Record<ChipOption['variant'], string> = {
   teal: 'hover:bg-teal-50',
 };
 
+/**
+ * Color del ícono Lucide en estado default (chip NO activo).
+ * El chip mantiene fondo blanco + texto slate (canon F3) pero el ícono
+ * lleva el color del variant para distinción visual cross-dimensión.
+ *
+ * En estado activo, el ícono hereda el `text-{variant}-700` del chip entero.
+ */
+const CHIP_ICON_COLOR_BY_VARIANT: Record<ChipOption['variant'], string> = {
+  amber: 'text-amber-600',
+  indigo: 'text-indigo-600',
+  emerald: 'text-emerald-600',
+  rose: 'text-rose-600',
+  sky: 'text-sky-600',
+  purple: 'text-purple-600',
+  slate: 'text-slate-500',
+  teal: 'text-teal-600',
+};
+
 const CHIP_ACTIVE_BY_VARIANT: Record<ChipOption['variant'], string> = {
   amber: 'inline-flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-bold bg-amber-100 text-amber-700 ring-2 ring-amber-300',
   indigo: 'inline-flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-bold bg-indigo-100 text-indigo-700 ring-2 ring-indigo-300',
@@ -204,7 +222,11 @@ export const FiltrosBar: React.FC<FiltrosBarProps> = ({
                       {opt.emojiPrefix ? (
                         <span className="text-[11px] leading-none">{opt.emojiPrefix}</span>
                       ) : opt.icon ? (
-                        <opt.icon className="w-2.5 h-2.5" />
+                        <opt.icon
+                          className={`w-2.5 h-2.5 ${
+                            isActive ? '' : CHIP_ICON_COLOR_BY_VARIANT[opt.variant]
+                          }`}
+                        />
                       ) : null}
                       <span>{opt.label}</span>
                       {opt.count !== undefined && <span className="opacity-60 tabular-nums">{opt.count}</span>}
