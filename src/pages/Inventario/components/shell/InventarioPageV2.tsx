@@ -1123,6 +1123,7 @@ export const InventarioPageV2: React.FC = () => {
       {/* ==================== TAB: ATENCIÓN (fusión Alertas + Incidencias) ==================== */}
       {tabActivo === 'atencion' && (
         <AtencionTab
+          alertas={alertasPrioritarias}
           unidades={unidades}
           productos={productos}
           onVerProducto={handleVerProducto}
