@@ -23,7 +23,8 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import {
   Package, BarChart3, Bell, MapPin, CheckCircle, Boxes,
-  Droplets, Pill, Shirt, UtensilsCrossed, type LucideIcon,
+  Droplets, Pill, Shirt, UtensilsCrossed,
+  User, Truck, Warehouse, Building2, Globe2, type LucideIcon,
 } from 'lucide-react';
 import { useToastStore } from '../../../../store/toastStore';
 import { calcularDiasParaVencer } from '../../../../utils/dateFormatters';
@@ -35,7 +36,10 @@ import {
   Tabs,
 } from '../../../../components/common';
 import { FiltrosBar } from '../../../../design-system';
-import type { ChipGroupConfig, ChipOption, SortOption, LeadingFilterConfig } from '../../../../design-system';
+import type {
+  ChipGroupConfig, ChipOption, SortOption,
+  LeadingFilterConfig, LeadingFilterOptionGroup,
+} from '../../../../design-system';
 import type { Tab } from '../../../../components/common/Tabs';
 
 // Componentes locales del módulo
@@ -556,25 +560,70 @@ export const InventarioPageV2: React.FC = () => {
   // Leading filter: "Todas las ubicaciones ▼" (mockup X · adaptado al contexto Stock)
   // En Inventario, ubicación = casilla/almacén · puede haber 10-20+ por país.
   // Tratarlas como chips no escala (sobrecarga visual). Dropdown single-select
-  // es la solución inteligente para listas largas (mismo patrón que dateRange
-  // dropdown de Productos · es un selector contextual líder).
+  // agrupado por TIPO de almacén con icono específico por tipo (chk4.15).
+  //
+  // Mapeo canónico tipo → icono lucide (alineado con `Almacen.types.ts`):
+  //   viajero        → User      · persona que transporta
+  //   courier        → Truck     · servicio de envío internacional
+  //   almacen_origen → Warehouse · almacén físico en país de origen (USA/China/Corea)
+  //   almacen_peru   → Building2 · almacén físico en Perú
   const ubicacionSel = selecciones.ubicacion?.[0] ?? '';
-  const leadingFilter: LeadingFilterConfig = useMemo(() => ({
-    label: 'Todas las ubicaciones',
-    value: ubicacionSel,
-    options: [
-      { value: '', label: 'Todas las ubicaciones' },
-      ...almacenes.map(a => ({ value: a.id, label: a.nombre })),
-    ],
-    onChange: (value: string) => {
-      setSelecciones(prev => {
-        const updated = { ...prev };
-        if (value === '') delete updated.ubicacion;
-        else updated.ubicacion = [value];
-        return updated;
+  const leadingFilter: LeadingFilterConfig = useMemo(() => {
+    const TIPO_CONFIG: Record<string, { label: string; icon: LucideIcon; itemIcon: LucideIcon; orden: number }> = {
+      almacen_peru:   { label: 'Almacenes Perú',     icon: Building2, itemIcon: Building2, orden: 1 },
+      almacen_origen: { label: 'Almacenes en origen', icon: Warehouse, itemIcon: Warehouse, orden: 2 },
+      viajero:        { label: 'Viajeros',           icon: User,      itemIcon: User,      orden: 3 },
+      courier:        { label: 'Couriers',           icon: Truck,     itemIcon: Truck,     orden: 4 },
+    };
+
+    // Agrupar almacenes por tipo
+    const porTipo = new Map<string, typeof almacenes>();
+    almacenes.forEach(a => {
+      const tipo = a.tipo || 'almacen_peru';
+      if (!porTipo.has(tipo)) porTipo.set(tipo, []);
+      porTipo.get(tipo)!.push(a);
+    });
+
+    // Construir grupos ordenados según TIPO_CONFIG
+    const grupos: LeadingFilterOptionGroup[] = Array.from(porTipo.keys())
+      .filter(tipo => (porTipo.get(tipo)?.length ?? 0) > 0)
+      .sort((a, b) => (TIPO_CONFIG[a]?.orden ?? 99) - (TIPO_CONFIG[b]?.orden ?? 99))
+      .map(tipo => {
+        const cfg = TIPO_CONFIG[tipo] ?? { label: tipo, icon: Warehouse, itemIcon: Warehouse, orden: 99 };
+        const items = (porTipo.get(tipo) ?? []).slice().sort((a, b) =>
+          (a.nombre ?? '').localeCompare(b.nombre ?? '')
+        );
+        return {
+          groupLabel: cfg.label,
+          groupIcon: cfg.icon,
+          options: items.map(a => ({
+            value: a.id,
+            label: a.nombre,
+            icon: cfg.itemIcon,
+          })),
+        };
       });
-    },
-  }), [ubicacionSel, almacenes]);
+
+    return {
+      label: 'Todas las ubicaciones',
+      value: ubicacionSel,
+      icon: Globe2, // icono del trigger button cuando "Todas las ubicaciones"
+      allOption: {
+        value: '',
+        label: 'Todas las ubicaciones',
+        icon: Globe2,
+      },
+      options: grupos,
+      onChange: (value: string) => {
+        setSelecciones(prev => {
+          const updated = { ...prev };
+          if (value === '') delete updated.ubicacion;
+          else updated.ubicacion = [value];
+          return updated;
+        });
+      },
+    };
+  }, [ubicacionSel, almacenes]);
 
   const sortOptions: SortOption[] = useMemo(() => [
     { value: 'stock_desc',  label: 'Mayor stock' },

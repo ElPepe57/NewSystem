@@ -55,16 +55,49 @@ export type SortOption = { value: string; label: string };
 /**
  * Filtro single-select que se renderiza al inicio de la fila 1 como dropdown
  * botón compacto · ej "Todas las ubicaciones ▼" en Inventario.
+ *
+ * Soporta dos formatos de opciones:
+ *   1. Flat: { value, label, icon? }[]  → lista plana sin grupos
+ *   2. Grouped: { groupLabel, groupIcon?, options }[] → secciones agrupadas
+ *      con label uppercase pequeño tipo Notion/Linear (ej "Viajeros · Couriers
+ *      · Almacenes Perú")
  */
+export interface LeadingFilterOption {
+  value: string;
+  label: string;
+  icon?: LucideIcon;
+}
+
+export interface LeadingFilterOptionGroup {
+  groupLabel: string;
+  groupIcon?: LucideIcon;
+  options: LeadingFilterOption[];
+}
+
 export interface LeadingFilterConfig {
   label: string;
   icon?: LucideIcon;
   /** Valor actual · '' = "Todas/Todos" */
   value: string;
-  /** Opciones disponibles · primer item suele ser "Todas/Todos" con value '' */
-  options: { value: string; label: string }[];
+  /**
+   * Opciones disponibles. Acepta:
+   *  - LeadingFilterOption[] (flat) · primer item suele ser "Todas/Todos"
+   *  - LeadingFilterOptionGroup[] (grouped) · secciones agrupadas
+   */
+  options: LeadingFilterOption[] | LeadingFilterOptionGroup[];
+  /**
+   * Item "Todas/Todos" mostrado SIEMPRE arriba del menú cuando se usa formato
+   * grouped (porque value '' no encaja en ningún grupo). Opcional.
+   */
+  allOption?: LeadingFilterOption;
   onChange: (value: string) => void;
 }
+
+const isGroupedOptions = (
+  opts: LeadingFilterOption[] | LeadingFilterOptionGroup[]
+): opts is LeadingFilterOptionGroup[] => {
+  return opts.length > 0 && (opts[0] as LeadingFilterOptionGroup).options !== undefined;
+};
 
 interface FiltrosBarProps {
   // Date range
@@ -288,11 +321,61 @@ export const FiltrosBar: React.FC<FiltrosBarProps> = ({
 
 const Divider: React.FC = () => <div className="h-5 w-px bg-slate-200" />;
 
-const LeadingFilterDropdown: React.FC<{ config: LeadingFilterConfig }> = ({ config }) => {
-  const Icon = config.icon ?? MapPin;
-  const currentLabel = config.options.find(o => o.value === config.value)?.label
+// Helper · cuenta total de items en el menú (flat o agrupado)
+const countMenuItems = (config: LeadingFilterConfig): number => {
+  if (isGroupedOptions(config.options)) {
+    return config.options.reduce((s, g) => s + g.options.length, 0)
+      + config.options.length // labels de grupos
+      + (config.allOption ? 1 : 0);
+  }
+  return config.options.length;
+};
+
+// Helper · obtiene el label actual seleccionado (flat o agrupado)
+const getCurrentLabel = (config: LeadingFilterConfig): string => {
+  if (config.value === '' && config.allOption) return config.allOption.label;
+  if (isGroupedOptions(config.options)) {
+    for (const group of config.options) {
+      const found = group.options.find(o => o.value === config.value);
+      if (found) return found.label;
+    }
+    return config.allOption?.label ?? config.label;
+  }
+  return config.options.find(o => o.value === config.value)?.label
     ?? config.options[0]?.label
     ?? config.label;
+};
+
+interface MenuItemProps {
+  option: LeadingFilterOption;
+  isSelected: boolean;
+  onClick: () => void;
+}
+
+const MenuItem: React.FC<MenuItemProps> = ({ option, isSelected, onClick }) => {
+  const Icon = option.icon;
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`w-full flex items-center justify-between gap-2 px-3 py-1.5 text-left text-xs transition-colors ${
+        isSelected
+          ? 'bg-teal-50 text-teal-700 font-semibold'
+          : 'text-slate-700 hover:bg-slate-50'
+      }`}
+    >
+      <span className="flex items-center gap-2 min-w-0">
+        {Icon && <Icon className={`w-3.5 h-3.5 flex-shrink-0 ${isSelected ? 'text-teal-600' : 'text-slate-400'}`} />}
+        <span className="truncate">{option.label}</span>
+      </span>
+      {isSelected && <Check className="w-3.5 h-3.5 text-teal-600 flex-shrink-0" />}
+    </button>
+  );
+};
+
+const LeadingFilterDropdown: React.FC<{ config: LeadingFilterConfig }> = ({ config }) => {
+  const Icon = config.icon ?? MapPin;
+  const currentLabel = getCurrentLabel(config);
   const active = config.value !== '';
 
   const anchorRef = useRef<HTMLDivElement>(null);
@@ -319,6 +402,8 @@ const LeadingFilterDropdown: React.FC<{ config: LeadingFilterConfig }> = ({ conf
     setIsOpen(false);
   };
 
+  const grouped = isGroupedOptions(config.options);
+
   return (
     <>
       <div ref={anchorRef} className="relative">
@@ -343,31 +428,58 @@ const LeadingFilterDropdown: React.FC<{ config: LeadingFilterConfig }> = ({ conf
         dropdownRef={dropdownRef}
         isOpen={isOpen}
         offset={6}
-        estimatedHeight={Math.min(360, config.options.length * 36 + 16)}
+        estimatedHeight={Math.min(420, countMenuItems(config) * 30 + 32)}
       >
         <div
           ref={dropdownRef}
-          className="bg-white border border-slate-200 rounded-xl shadow-lg overflow-hidden max-h-[360px] overflow-y-auto py-1"
-          style={{ minWidth: 220 }}
+          className="bg-white border border-slate-200 rounded-xl shadow-lg overflow-hidden max-h-[420px] overflow-y-auto py-1"
+          style={{ minWidth: 240 }}
         >
-          {config.options.map(o => {
-            const isSelected = o.value === config.value;
-            return (
-              <button
-                key={o.value}
-                type="button"
-                onClick={() => handleSelect(o.value)}
-                className={`w-full flex items-center justify-between gap-2 px-3 py-2 text-left text-xs transition-colors ${
-                  isSelected
-                    ? 'bg-teal-50 text-teal-700 font-semibold'
-                    : 'text-slate-700 hover:bg-slate-50'
-                }`}
-              >
-                <span className="truncate">{o.label}</span>
-                {isSelected && <Check className="w-3.5 h-3.5 text-teal-600 flex-shrink-0" />}
-              </button>
-            );
-          })}
+          {/* Item "Todas/Todos" (cuando hay grupos) */}
+          {grouped && config.allOption && (
+            <>
+              <MenuItem
+                option={config.allOption}
+                isSelected={config.value === config.allOption.value}
+                onClick={() => handleSelect(config.allOption!.value)}
+              />
+              <div className="my-1 border-t border-slate-100" />
+            </>
+          )}
+
+          {/* Render flat o agrupado */}
+          {grouped
+            ? (config.options as LeadingFilterOptionGroup[]).map((group, idx) => {
+                const GroupIcon = group.groupIcon;
+                return (
+                  <div key={`grp-${idx}`}>
+                    {idx > 0 && <div className="my-1 border-t border-slate-100" />}
+                    <div className="flex items-center gap-1.5 px-3 pt-2 pb-1">
+                      {GroupIcon && <GroupIcon className="w-3 h-3 text-slate-400" />}
+                      <span className="text-[10px] uppercase tracking-wider text-slate-400 font-bold">
+                        {group.groupLabel}
+                      </span>
+                    </div>
+                    {group.options.map(o => (
+                      <MenuItem
+                        key={o.value}
+                        option={o}
+                        isSelected={o.value === config.value}
+                        onClick={() => handleSelect(o.value)}
+                      />
+                    ))}
+                  </div>
+                );
+              })
+            : (config.options as LeadingFilterOption[]).map(o => (
+                <MenuItem
+                  key={o.value}
+                  option={o}
+                  isSelected={o.value === config.value}
+                  onClick={() => handleSelect(o.value)}
+                />
+              ))
+          }
         </div>
       </FloatingDropdown>
     </>
