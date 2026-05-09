@@ -35,10 +35,10 @@ import {
   InventarioSkeleton,
   Tabs,
 } from '../../../../components/common';
-import { FiltrosBar } from '../../../../design-system';
+import { FiltrosBar, ChipsActivos, BulkActionsToolbar, PaginacionFooter } from '../../../../design-system';
 import type {
   ChipGroupConfig, ChipOption, SortOption,
-  LeadingFilterConfig, LeadingFilterOptionGroup,
+  LeadingFilterConfig, LeadingFilterOptionGroup, ChipActivo,
 } from '../../../../design-system';
 import type { Tab } from '../../../../components/common/Tabs';
 
@@ -132,6 +132,13 @@ export const InventarioPageV2: React.FC = () => {
 
   // Sort (chk4.7e)
   const [sortValue, setSortValue] = useState<string>('stock_desc');
+
+  // Bulk selection (chk4.20) · IDs de productos seleccionados con checkbox
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+
+  // Paginación (chk4.21) · canon Productos · 25 items por página default
+  const [paginaActual, setPaginaActual] = useState<number>(1);
+  const ITEMS_POR_PAGINA = 25;
 
   // Modales
   const [unidadSeleccionada, setUnidadSeleccionada] = useState<Unidad | null>(null);
@@ -634,6 +641,93 @@ export const InventarioPageV2: React.FC = () => {
     { value: 'nombre_asc',  label: 'Nombre A-Z' },
   ], []);
 
+  // Chips activos (chk4.19) · banner removible bajo el FiltrosBar cuando hay filtros aplicados
+  const chipsActivos: ChipActivo[] = useMemo(() => {
+    const chips: ChipActivo[] = [];
+
+    // Pill rápido (excepto "todos")
+    if (pillActivo !== 'todos') {
+      const PILL_LABELS: Record<Exclude<PillInventario, 'todos'>, string> = {
+        disponibles: 'Disponibles',
+        stock_critico: 'Stock crítico',
+        vencen_pronto: 'Vencen pronto',
+        en_transito: 'En tránsito',
+      };
+      const PILL_COLORS: Record<Exclude<PillInventario, 'todos'>, ChipActivo['color']> = {
+        disponibles: 'emerald',
+        stock_critico: 'rose',
+        vencen_pronto: 'amber',
+        en_transito: 'sky',
+      };
+      chips.push({
+        key: `pill:${pillActivo}`,
+        label: PILL_LABELS[pillActivo],
+        color: PILL_COLORS[pillActivo],
+        onRemove: () => setPillActivo('todos'),
+      });
+    }
+
+    // Línea de negocio
+    (selecciones.linea ?? []).forEach(lineaId => {
+      const linea = lineasNegocio.find(ln => ln.id === lineaId);
+      if (!linea) return;
+      const codigo = linea.codigo?.toUpperCase();
+      const colorMap: Record<string, ChipActivo['color']> = {
+        SKC: 'amber',
+        SUP: 'indigo',
+        APPAREL: 'emerald',
+        ALIM: 'amber',
+      };
+      chips.push({
+        key: `linea:${lineaId}`,
+        label: `Línea: ${linea.nombre}`,
+        color: colorMap[codigo] ?? 'slate',
+        onRemove: () => handleChipToggle('linea', lineaId),
+      });
+    });
+
+    // País
+    (selecciones.pais ?? []).forEach(pais => {
+      chips.push({
+        key: `pais:${pais}`,
+        label: `${pais === 'USA' ? '🇺🇸' : '🇵🇪'} ${pais === 'Peru' ? 'Perú' : pais}`,
+        color: pais === 'USA' ? 'sky' : 'emerald',
+        onRemove: () => handleChipToggle('pais', pais),
+      });
+    });
+
+    // Ubicación
+    (selecciones.ubicacion ?? []).forEach(almacenId => {
+      const almacen = almacenes.find(a => a.id === almacenId);
+      if (!almacen) return;
+      chips.push({
+        key: `ubicacion:${almacenId}`,
+        label: `Ubicación: ${almacen.nombre}`,
+        color: 'teal',
+        onRemove: () => {
+          setSelecciones(prev => {
+            const updated = { ...prev };
+            delete updated.ubicacion;
+            return updated;
+          });
+        },
+      });
+    });
+
+    // Búsqueda
+    if (busqueda.trim()) {
+      chips.push({
+        key: 'search',
+        label: `"${busqueda}"`,
+        color: 'slate',
+        onRemove: () => setBusqueda(''),
+      });
+    }
+
+    return chips;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pillActivo, selecciones, busqueda, lineasNegocio, almacenes]);
+
   const hayFiltrosActivos = useMemo(() => {
     if (Object.values(selecciones).some(v => v.length > 0)) return true;
     if (busqueda.trim().length > 0) return true;
@@ -660,6 +754,64 @@ export const InventarioPageV2: React.FC = () => {
     setPillActivo('todos');
     setFiltroEstado(null);
   };
+
+  // Bulk handlers (chk4.20)
+  const toggleSelectAll = () => {
+    setSelectedIds(prev => {
+      // Si TODOS los filtrados están seleccionados, deseleccionar todo · si no, seleccionar todos
+      const filteredIds = new Set(productosFiltrados.map(p => p.productoId));
+      const allSelected = filteredIds.size > 0 &&
+        Array.from(filteredIds).every(id => prev.has(id));
+      if (allSelected) return new Set();
+      return filteredIds;
+    });
+  };
+  const toggleSelectOne = (productoId: string) => {
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(productoId)) next.delete(productoId);
+      else next.add(productoId);
+      return next;
+    });
+  };
+  const clearSelection = () => setSelectedIds(new Set());
+
+  // Acciones bulk
+  const handleBulkExportar = () => {
+    const productosSeleccionados = productosConUnidades.filter(p => selectedIds.has(p.productoId));
+    const dataExport = productosSeleccionados.flatMap(p =>
+      p.unidades.map(u => ({
+        SKU: p.sku,
+        Producto: p.nombre,
+        Marca: p.marca,
+        Lote: u.lote,
+        Estado: u.estado,
+        Almacen: u.almacenNombre,
+        Pais: u.pais,
+        CostoUSD: u.costoUnitarioUSD,
+        FechaVencimiento: u.fechaVencimiento?.toDate?.()?.toLocaleDateString() || '-',
+      }))
+    );
+    exportService.downloadExcel(dataExport, `Inventario_Seleccion_${selectedIds.size}_productos`);
+    toast.success(`Exportados ${selectedIds.size} productos seleccionados`);
+  };
+
+  // ¿Todos los filtrados están seleccionados? (para checkbox del header)
+  const allFilteredSelected = useMemo(() => {
+    if (productosFiltrados.length === 0) return false;
+    return productosFiltrados.every(p => selectedIds.has(p.productoId));
+  }, [productosFiltrados, selectedIds]);
+
+  // Productos paginados (chk4.21)
+  const productosPaginados = useMemo(() => {
+    const start = (paginaActual - 1) * ITEMS_POR_PAGINA;
+    return productosFiltrados.slice(start, start + ITEMS_POR_PAGINA);
+  }, [productosFiltrados, paginaActual]);
+
+  // Reset página a 1 cuando cambien filtros (chk4.21)
+  useEffect(() => {
+    setPaginaActual(1);
+  }, [pillActivo, selecciones, busqueda, sortValue]);
 
   // ==================== TABS CANÓNICOS (4) ====================
 
@@ -865,44 +1017,78 @@ export const InventarioPageV2: React.FC = () => {
                 onLimpiarTodo={handleLimpiarTodo}
               />
 
+              {/* ChipsActivos (chk4.19) · banner removible cuando hay filtros aplicados */}
+              <ChipsActivos
+                resultCount={productosFiltrados.length}
+                totalCount={productosConUnidades.length}
+                chips={chipsActivos}
+              />
+
               {vistaActual === 'cards' ? (
-                /* Cards apiladas (canon F4 + paleta mockup X chk4.8) */
-                <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
-                  <StockListHeader total={productosFiltrados.length} />
-                  <div className="divide-y divide-slate-100">
-                    {productosFiltrados.length === 0 ? (
-                      <div className="text-center py-12 px-4">
-                        <Package className="mx-auto h-12 w-12 text-slate-400" />
-                        <h3 className="mt-2 text-sm font-medium text-slate-900">
-                          No hay productos en inventario
-                        </h3>
-                        <p className="mt-1 text-sm text-slate-500">
-                          Las unidades se crean automáticamente al recibir órdenes de compra
-                        </p>
-                      </div>
-                    ) : (
-                      productosFiltrados.map((producto) => {
-                        const linea = lineasNegocio.find(
-                          ln => ln.id === producto.lineaNegocioId
-                        ) ?? null;
-                        const productoOriginal = productos.find(p => p.id === producto.productoId);
-                        const esPack = !!productoOriginal?.esPack;
-                        const packCount = productoOriginal?.componentesPack?.length;
-                        return (
-                          <StockProductoCard
-                            key={producto.productoId}
-                            producto={producto}
-                            linea={linea}
-                            esPack={esPack}
-                            packCount={packCount}
-                            onVerDetalle={() => setVistaActual('tabla')}
-                            onCrearPromocion={() => handlePromocionar(producto.productoId)}
-                          />
-                        );
-                      })
+                <>
+                  {/* BulkActionsToolbar (chk4.20) · sticky cuando hay selección */}
+                  <BulkActionsToolbar
+                    selectedCount={selectedIds.size}
+                    totalCount={productosFiltrados.length}
+                    onClear={clearSelection}
+                    onExportar={handleBulkExportar}
+                  />
+
+                  {/* Cards apiladas (canon F4 + paleta mockup X chk4.8) */}
+                  <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
+                    <StockListHeader
+                      total={productosFiltrados.length}
+                      hasSelection
+                      allSelected={allFilteredSelected}
+                      onToggleAll={toggleSelectAll}
+                    />
+                    <div className="divide-y divide-slate-100">
+                      {productosFiltrados.length === 0 ? (
+                        <div className="text-center py-12 px-4">
+                          <Package className="mx-auto h-12 w-12 text-slate-400" />
+                          <h3 className="mt-2 text-sm font-medium text-slate-900">
+                            No hay productos en inventario
+                          </h3>
+                          <p className="mt-1 text-sm text-slate-500">
+                            Las unidades se crean automáticamente al recibir órdenes de compra
+                          </p>
+                        </div>
+                      ) : (
+                        productosPaginados.map((producto) => {
+                          const linea = lineasNegocio.find(
+                            ln => ln.id === producto.lineaNegocioId
+                          ) ?? null;
+                          const productoOriginal = productos.find(p => p.id === producto.productoId);
+                          const esPack = !!productoOriginal?.esPack;
+                          const packCount = productoOriginal?.componentesPack?.length;
+                          return (
+                            <StockProductoCard
+                              key={producto.productoId}
+                              producto={producto}
+                              linea={linea}
+                              esPack={esPack}
+                              packCount={packCount}
+                              selected={selectedIds.has(producto.productoId)}
+                              onToggleSelect={() => toggleSelectOne(producto.productoId)}
+                              onVerDetalle={() => setVistaActual('tabla')}
+                              onCrearPromocion={() => handlePromocionar(producto.productoId)}
+                            />
+                          );
+                        })
+                      )}
+                    </div>
+
+                    {/* Paginación canónica (chk4.21) · solo cuando hay items que paginar */}
+                    {productosFiltrados.length > ITEMS_POR_PAGINA && (
+                      <PaginacionFooter
+                        paginaActual={paginaActual}
+                        totalItems={productosFiltrados.length}
+                        itemsPorPagina={ITEMS_POR_PAGINA}
+                        onCambiarPagina={setPaginaActual}
+                      />
                     )}
                   </div>
-                </div>
+                </>
               ) : (
                 <Card padding="md">
                   <ProductoInventarioTable

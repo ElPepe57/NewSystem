@@ -37,12 +37,6 @@ interface StockProductoCardProps {
   onCrearPromocion?: () => void;
 }
 
-interface SegmentoConfig {
-  count: number;
-  /** Background literal Tailwind (no interpolado dinámicamente) */
-  color: string;
-}
-
 export const StockProductoCard: React.FC<StockProductoCardProps> = ({
   producto,
   linea,
@@ -103,16 +97,16 @@ export const StockProductoCard: React.FC<StockProductoCardProps> = ({
   };
 
   // Segmentos de la stock-bar · mockup usa colores Tailwind 500
-  const segmentos: SegmentoConfig[] = [
-    { count: producto.enOrigen,                                          color: 'bg-sky-500' },
-    { count: producto.enTransitoOrigen + producto.enTransitoPeru,        color: 'bg-amber-500' },
-    { count: producto.disponiblePeru,                                    color: 'bg-emerald-500' },
-    { count: producto.reservadaOrigen + producto.reservadaPeru,          color: 'bg-violet-500' },
+  const segmentos: { count: number; color: string; label: string }[] = [
+    { count: producto.enOrigen,                                          color: 'bg-sky-500',     label: 'En origen' },
+    { count: producto.enTransitoOrigen + producto.enTransitoPeru,        color: 'bg-amber-500',   label: 'En tránsito' },
+    { count: producto.disponiblePeru,                                    color: 'bg-emerald-500', label: 'Disponible Perú' },
+    { count: producto.reservadaOrigen + producto.reservadaPeru,          color: 'bg-violet-500',  label: 'Reservadas' },
   ];
 
   // Solo packs vendidas se muestran al final (mockup row 4)
   if (producto.vendida > 0 && esPack) {
-    segmentos.push({ count: producto.vendida, color: 'bg-slate-400' });
+    segmentos.push({ count: producto.vendida, color: 'bg-slate-400', label: 'Vendidas' });
   }
 
   const totalSegmentos = segmentos.reduce((s, x) => s + x.count, 0);
@@ -173,19 +167,30 @@ export const StockProductoCard: React.FC<StockProductoCardProps> = ({
       <div className="col-span-3">
         {producto.totalUnidades > 0 ? (
           <>
-            <div className="h-1.5 rounded bg-slate-100 overflow-hidden flex mb-1.5">
+            <div className="h-1.5 rounded bg-slate-100 overflow-hidden flex mb-1.5 group/bar">
               {segmentos.map((seg, idx) =>
                 seg.count > 0 ? (
                   <div
                     key={idx}
-                    className={`${seg.color} transition-opacity hover:opacity-85`}
+                    className={`${seg.color} transition-opacity hover:opacity-90 relative cursor-help`}
                     style={{ flex: seg.count }}
-                    title={`${seg.count}`}
-                  />
+                  >
+                    {/* Tooltip estilizado on-hover · canon Notion/Linear (chk4.22) */}
+                    <div className="absolute left-1/2 -translate-x-1/2 -top-8 hidden group-hover/bar:hidden hover:!block pointer-events-none z-10">
+                      <div className="bg-slate-900 text-white text-[10px] font-medium px-2 py-1 rounded shadow-lg whitespace-nowrap tabular-nums">
+                        {seg.label}: {seg.count}
+                      </div>
+                      <div className="absolute left-1/2 -translate-x-1/2 -bottom-1 w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-slate-900"></div>
+                    </div>
+                  </div>
                 ) : null
               )}
               {filler > 0 && producto.stockCritico && (
-                <div className="bg-slate-100" style={{ flex: filler }} />
+                <div
+                  className="bg-slate-100 cursor-help"
+                  style={{ flex: filler }}
+                  title={`Espacio libre hasta stock mínimo: ${filler}`}
+                />
               )}
             </div>
             <div className="flex items-center gap-2 text-[10px] tabular-nums text-slate-500">
