@@ -626,21 +626,20 @@ export const InventarioPageV2: React.FC = () => {
               </FilterDrawer>
 
               {vistaActual === 'cards' ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                /* Cards apiladas (canon F4 default) · 1 columna · 1 card por fila */
+                <div className="space-y-2">
                   {productosFiltrados.length === 0 ? (
-                    <div className="col-span-full">
-                      <Card padding="lg">
-                        <div className="text-center py-8">
-                          <Package className="mx-auto h-12 w-12 text-slate-400" />
-                          <h3 className="mt-2 text-sm font-medium text-slate-900">
-                            No hay productos en inventario
-                          </h3>
-                          <p className="mt-1 text-sm text-slate-500">
-                            Las unidades se crean automáticamente al recibir órdenes de compra
-                          </p>
-                        </div>
-                      </Card>
-                    </div>
+                    <Card padding="lg">
+                      <div className="text-center py-8">
+                        <Package className="mx-auto h-12 w-12 text-slate-400" />
+                        <h3 className="mt-2 text-sm font-medium text-slate-900">
+                          No hay productos en inventario
+                        </h3>
+                        <p className="mt-1 text-sm text-slate-500">
+                          Las unidades se crean automáticamente al recibir órdenes de compra
+                        </p>
+                      </div>
+                    </Card>
                   ) : (
                     productosFiltrados.map((producto) => (
                       <StockProductoCard

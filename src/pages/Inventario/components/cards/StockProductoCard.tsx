@@ -1,3 +1,21 @@
+/**
+ * StockProductoCard · card apilada canónica (F4 default · S3.6 M1 chk4.3)
+ *
+ * Layout horizontal denso · 1 fila visual aprovechando todo el ancho de columna
+ * (no es grid de 4 col vertical · ese era el legacy pre-canon).
+ *
+ * Estructura:
+ *   [icono] [SKU + nombre + marca + chip línea]
+ *   [mini-distribución stock: 6 cifras inline con colores]
+ *   [total + valor (tabular-nums)]
+ *   [chips problema · si aplica]
+ *   [botón Ver]
+ *
+ * Canon F4 (cards apiladas) · F7 (tabular-nums obligatorio) · F8 (lucide únicos).
+ *
+ * Patrón visual referencia: CompraCard.tsx + EnvioCardSimple.tsx (canon Era 2 vigente).
+ */
+
 import React from 'react';
 import {
   Package,
@@ -7,11 +25,10 @@ import {
   ShoppingBag,
   AlertTriangle,
   Clock,
-  DollarSign,
   Eye,
-  CheckCircle
+  CheckCircle,
 } from 'lucide-react';
-import { Badge, Button, Card, LineaNegocioBadge } from '../../../../components/common';
+import { Badge, Button, LineaNegocioBadge } from '../../../../components/common';
 import type { ProductoConUnidades } from '../sections/ProductoInventarioTable';
 import { formatCurrency } from '../../../../utils/format';
 import { getDescripcionProducto } from '../../../../utils/producto.helpers';
@@ -21,40 +38,132 @@ interface StockProductoCardProps {
   onVerDetalle: () => void;
 }
 
+interface StockChipProps {
+  icon: React.ReactNode;
+  label: string;
+  value: number;
+  color: 'sky' | 'amber' | 'emerald' | 'purple' | 'slate';
+}
+
+const StockChip: React.FC<StockChipProps> = ({ icon, label, value, color }) => {
+  const colorMap = {
+    sky: 'text-sky-700',
+    amber: 'text-amber-700',
+    emerald: 'text-emerald-700',
+    purple: 'text-purple-700',
+    slate: 'text-slate-600',
+  };
+  const isZero = value === 0;
+  return (
+    <div className="flex flex-col items-center min-w-[52px]">
+      <div className={`flex items-center gap-1 ${isZero ? 'text-slate-400' : colorMap[color]}`}>
+        {icon}
+        <span className={`text-sm font-bold tabular-nums ${isZero ? 'text-slate-400' : ''}`}>
+          {value}
+        </span>
+      </div>
+      <div className={`text-[10px] uppercase tracking-wide font-medium mt-0.5 ${isZero ? 'text-slate-400' : 'text-slate-500'}`}>
+        {label}
+      </div>
+    </div>
+  );
+};
+
 export const StockProductoCard: React.FC<StockProductoCardProps> = ({
   producto,
-  onVerDetalle
+  onVerDetalle,
 }) => {
-  // formatCurrency importado de utils/format (USD por defecto)
-
   const tieneProblemas = producto.stockCritico || producto.proximasAVencer30Dias > 0 || producto.problemas > 0;
+  const descripcion = getDescripcionProducto(producto);
 
   return (
-    <Card
-      padding="none"
-      className={`overflow-hidden hover:shadow-lg transition-shadow ${
-        producto.stockCritico ? 'ring-2 ring-red-300' : ''
-      }`}
+    <div
+      className={`
+        bg-white border rounded-xl px-4 py-3
+        hover:border-slate-300 hover:shadow-sm transition-all
+        ${producto.stockCritico ? 'border-rose-200 ring-1 ring-rose-100' : 'border-slate-200'}
+      `.trim().replace(/\s+/g, ' ')}
     >
-      {/* Header */}
-      <div className="bg-slate-50 px-4 py-3 border-b border-slate-200">
-        <div className="flex items-start justify-between">
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-lg bg-white border border-slate-200 flex items-center justify-center">
-              <Package className="h-5 w-5 text-slate-400" />
-            </div>
-            <div>
-              <div className="font-mono text-sm font-bold text-slate-900">
+      <div className="flex items-center gap-4 flex-wrap lg:flex-nowrap">
+        {/* Bloque 1: Identidad (icon + SKU + nombre + marca + línea) */}
+        <div className="flex items-center gap-3 min-w-[240px] flex-1">
+          <div className="h-10 w-10 rounded-lg bg-slate-50 border border-slate-200 flex items-center justify-center flex-shrink-0">
+            <Package className="h-5 w-5 text-slate-400" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="font-mono text-sm font-bold text-slate-900 tabular-nums">
                 {producto.sku}
-              </div>
-              <div className="text-xs text-slate-500 truncate max-w-[150px]">
-                {producto.marca}
-              </div>
+              </span>
               <LineaNegocioBadge lineaNegocioId={producto.lineaNegocioId} />
             </div>
+            <div className="text-sm text-slate-700 truncate">
+              {producto.nombre}
+            </div>
+            <div className="text-xs text-slate-500 truncate">
+              {producto.marca}
+              {descripcion && <span className="text-slate-400"> · {descripcion}</span>}
+            </div>
           </div>
+        </div>
+
+        {/* Bloque 2: Distribución horizontal (6 chips) */}
+        <div className="flex items-center gap-3 flex-shrink-0 px-2 border-l border-slate-100 pl-4">
+          <StockChip
+            icon={<Warehouse className="h-3.5 w-3.5" />}
+            label="Origen"
+            value={producto.enOrigen}
+            color="sky"
+          />
+          <StockChip
+            icon={<Plane className="h-3.5 w-3.5" />}
+            label="Tránsito"
+            value={producto.enTransitoOrigen + producto.enTransitoPeru}
+            color="amber"
+          />
+          <StockChip
+            icon={<MapPin className="h-3.5 w-3.5" />}
+            label="Perú"
+            value={producto.disponiblePeru}
+            color="emerald"
+          />
+          <StockChip
+            icon={<ShoppingBag className="h-3.5 w-3.5" />}
+            label="Reserva"
+            value={producto.reservadaOrigen + producto.reservadaPeru}
+            color="purple"
+          />
+          <StockChip
+            icon={<CheckCircle className="h-3.5 w-3.5" />}
+            label="Vendidas"
+            value={producto.vendida}
+            color="slate"
+          />
+        </div>
+
+        {/* Bloque 3: Total + Valor */}
+        <div className="flex flex-col items-end min-w-[120px] flex-shrink-0 border-l border-slate-100 pl-4">
+          <div className="text-[10px] uppercase tracking-wider text-slate-500 font-medium">
+            Total · Valor
+          </div>
+          <div className="flex items-baseline gap-2">
+            <span className="text-base font-bold text-slate-900 tabular-nums">
+              {producto.totalUnidades}
+            </span>
+            <span className="text-xs text-slate-400">u</span>
+          </div>
+          <div className="text-sm font-semibold text-emerald-700 tabular-nums">
+            {formatCurrency(producto.valorTotalUSD)}
+          </div>
+          <div className="text-[10px] text-slate-400 tabular-nums">
+            Prom {formatCurrency(producto.costoPromedioUSD)}
+          </div>
+        </div>
+
+        {/* Bloque 4: Problemas + Acción */}
+        <div className="flex items-center gap-2 flex-shrink-0">
           {tieneProblemas && (
-            <div className="flex flex-col gap-1">
+            <div className="flex flex-col gap-1 items-end">
               {producto.stockCritico && (
                 <Badge variant="danger" size="sm">
                   <AlertTriangle className="h-3 w-3 mr-1" />
@@ -64,118 +173,21 @@ export const StockProductoCard: React.FC<StockProductoCardProps> = ({
               {producto.proximasAVencer30Dias > 0 && (
                 <Badge variant="warning" size="sm">
                   <Clock className="h-3 w-3 mr-1" />
-                  {producto.proximasAVencer30Dias}
+                  {producto.proximasAVencer30Dias} vencen
                 </Badge>
               )}
             </div>
           )}
-        </div>
-        <div className="text-sm text-slate-600 mt-1 truncate">
-          {producto.nombre}
-        </div>
-        {getDescripcionProducto(producto) && (
-          <div className="text-[10px] text-slate-400 mt-0.5 truncate">
-            {getDescripcionProducto(producto)}
-          </div>
-        )}
-
-      </div>
-
-      {/* Distribución de Stock */}
-      <div className="p-4">
-        <div className="text-xs font-medium text-slate-500 uppercase mb-2">
-          Distribución
-        </div>
-        <div className="grid grid-cols-3 gap-2">
-          {/* Origen */}
-          <div className="text-center p-2 bg-sky-50 rounded-lg">
-            <Warehouse className="h-4 w-4 text-sky-500 mx-auto mb-1" />
-            <div className="text-lg font-bold text-sky-600">
-              {producto.enOrigen}
-            </div>
-            <div className="text-[10px] text-sky-500 font-medium">Origen</div>
-          </div>
-
-          {/* Tránsito */}
-          <div className="text-center p-2 bg-amber-50 rounded-lg">
-            <Plane className="h-4 w-4 text-amber-500 mx-auto mb-1" />
-            <div className="text-lg font-bold text-amber-600">
-              {producto.enTransitoOrigen + producto.enTransitoPeru}
-            </div>
-            <div className="text-[10px] text-amber-500 font-medium">Tránsito</div>
-          </div>
-
-          {/* Perú */}
-          <div className="text-center p-2 bg-emerald-50 rounded-lg">
-            <MapPin className="h-4 w-4 text-emerald-500 mx-auto mb-1" />
-            <div className="text-lg font-bold text-emerald-600">
-              {producto.disponiblePeru}
-            </div>
-            <div className="text-[10px] text-emerald-500 font-medium">Perú</div>
-          </div>
-
-          {/* Reservadas Origen */}
-          <div className="text-center p-2 bg-purple-50 rounded-lg">
-            <ShoppingBag className="h-4 w-4 text-purple-500 mx-auto mb-1" />
-            <div className="text-lg font-bold text-purple-600">
-              {producto.reservadaOrigen}
-            </div>
-            <div className="text-[10px] text-purple-500 font-medium">Res. Origen</div>
-          </div>
-
-          {/* Reservadas Perú */}
-          <div className="text-center p-2 bg-purple-50 rounded-lg">
-            <ShoppingBag className="h-4 w-4 text-purple-400 mx-auto mb-1" />
-            <div className="text-lg font-bold text-purple-500">
-              {producto.reservadaPeru}
-            </div>
-            <div className="text-[10px] text-purple-400 font-medium">Res. Perú</div>
-          </div>
-
-          {/* Vendidas */}
-          <div className="text-center p-2 bg-emerald-50 rounded-lg">
-            <CheckCircle className="h-4 w-4 text-emerald-500 mx-auto mb-1" />
-            <div className="text-lg font-bold text-emerald-600">
-              {producto.vendida}
-            </div>
-            <div className="text-[10px] text-emerald-500 font-medium">Vendidas</div>
-          </div>
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={onVerDetalle}
+          >
+            <Eye className="h-3 w-3 mr-1" />
+            Ver
+          </Button>
         </div>
       </div>
-
-      {/* Valor y Total */}
-      <div className="px-4 pb-4">
-        <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
-          <div>
-            <div className="text-xs text-slate-500">Total Unidades</div>
-            <div className="text-xl font-bold text-slate-900">
-              {producto.totalUnidades}
-            </div>
-          </div>
-          <div className="text-right">
-            <div className="text-xs text-slate-500">Valor Total</div>
-            <div className="text-lg font-bold text-emerald-600">
-              {formatCurrency(producto.valorTotalUSD)}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Footer con costo promedio */}
-      <div className="px-4 pb-4 flex items-center justify-between">
-        <div className="flex items-center gap-1 text-xs text-slate-500">
-          <DollarSign className="h-3 w-3" />
-          Prom: {formatCurrency(producto.costoPromedioUSD)}
-        </div>
-        <Button
-          variant="secondary"
-          size="sm"
-          onClick={onVerDetalle}
-        >
-          <Eye className="h-3 w-3 mr-1" />
-          Ver Unidades
-        </Button>
-      </div>
-    </Card>
+    </div>
   );
 };
