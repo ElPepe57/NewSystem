@@ -1160,6 +1160,10 @@ export const InventarioPageV2: React.FC = () => {
             } : undefined;
           })()}
           onClose={() => setUnidadSeleccionada(null)}
+          onCrearPromocion={(u) => {
+            handlePromocionar(u.productoId);
+            setUnidadSeleccionada(null);
+          }}
         />
       )}
 
