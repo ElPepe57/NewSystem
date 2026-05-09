@@ -22,8 +22,9 @@
  * futura cuando se identifiquen otros consumidores con necesidades similares.
  */
 
-import React from 'react';
-import { Calendar, ChevronDown, Search, X, ArrowUpDown, MapPin, type LucideIcon } from 'lucide-react';
+import React, { useRef, useState, useEffect } from 'react';
+import { Calendar, ChevronDown, Search, X, ArrowUpDown, MapPin, Check, type LucideIcon } from 'lucide-react';
+import { FloatingDropdown } from '../maestros/FloatingDropdown';
 
 // ─── Tipos públicos ──────────────────────────────────────────────────────────
 
@@ -293,35 +294,83 @@ const LeadingFilterDropdown: React.FC<{ config: LeadingFilterConfig }> = ({ conf
     ?? config.options[0]?.label
     ?? config.label;
   const active = config.value !== '';
+
+  const anchorRef = useRef<HTMLDivElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const [isOpen, setIsOpen] = useState(false);
+
+  // Click outside · cierra el dropdown
+  useEffect(() => {
+    if (!isOpen) return;
+    const handler = (e: MouseEvent) => {
+      const target = e.target as Node;
+      if (
+        anchorRef.current?.contains(target) ||
+        dropdownRef.current?.contains(target)
+      ) return;
+      setIsOpen(false);
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [isOpen]);
+
+  const handleSelect = (value: string) => {
+    config.onChange(value);
+    setIsOpen(false);
+  };
+
   return (
-    <div className="relative">
-      <button
-        type="button"
-        className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 transition-all ${
-          active
-            ? 'bg-teal-50 border border-teal-200 ring-2 ring-teal-100'
-            : 'bg-slate-50 border border-slate-200 hover:bg-slate-100'
-        }`}
+    <>
+      <div ref={anchorRef} className="relative">
+        <button
+          type="button"
+          onClick={() => setIsOpen(o => !o)}
+          className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 transition-all ${
+            active
+              ? 'bg-teal-50 border border-teal-200 ring-2 ring-teal-100'
+              : 'bg-slate-50 border border-slate-200 hover:bg-slate-100'
+          }`}
+        >
+          <Icon className="w-3.5 h-3.5 text-teal-600" />
+          <span className={`text-xs font-medium whitespace-nowrap ${active ? 'text-teal-700 font-bold' : 'text-slate-700'}`}>
+            {currentLabel}
+          </span>
+          <ChevronDown className={`w-3 h-3 text-slate-400 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+        </button>
+      </div>
+      <FloatingDropdown
+        anchorRef={anchorRef}
+        dropdownRef={dropdownRef}
+        isOpen={isOpen}
+        offset={6}
+        estimatedHeight={Math.min(360, config.options.length * 36 + 16)}
       >
-        <Icon className={`w-3.5 h-3.5 ${active ? 'text-teal-600' : 'text-teal-600'}`} />
-        <span className={`text-xs font-medium ${active ? 'text-teal-700 font-bold' : 'text-slate-700'}`}>
-          {currentLabel}
-        </span>
-        <ChevronDown className="w-3 h-3 text-slate-400" />
-      </button>
-      <select
-        value={config.value}
-        onChange={e => config.onChange(e.target.value)}
-        className="absolute inset-0 opacity-0 cursor-pointer"
-        aria-label={config.label}
-      >
-        {config.options.map(o => (
-          <option key={o.value} value={o.value}>
-            {o.label}
-          </option>
-        ))}
-      </select>
-    </div>
+        <div
+          ref={dropdownRef}
+          className="bg-white border border-slate-200 rounded-xl shadow-lg overflow-hidden max-h-[360px] overflow-y-auto py-1"
+          style={{ minWidth: 220 }}
+        >
+          {config.options.map(o => {
+            const isSelected = o.value === config.value;
+            return (
+              <button
+                key={o.value}
+                type="button"
+                onClick={() => handleSelect(o.value)}
+                className={`w-full flex items-center justify-between gap-2 px-3 py-2 text-left text-xs transition-colors ${
+                  isSelected
+                    ? 'bg-teal-50 text-teal-700 font-semibold'
+                    : 'text-slate-700 hover:bg-slate-50'
+                }`}
+              >
+                <span className="truncate">{o.label}</span>
+                {isSelected && <Check className="w-3.5 h-3.5 text-teal-600 flex-shrink-0" />}
+              </button>
+            );
+          })}
+        </div>
+      </FloatingDropdown>
+    </>
   );
 };
 
@@ -360,30 +409,76 @@ const SortDropdown: React.FC<{ value: string; options: SortOption[]; onChange: (
   onChange,
 }) => {
   const currentLabel = options.find(o => o.value === value)?.label ?? options[0]?.label ?? '';
+
+  const anchorRef = useRef<HTMLDivElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const [isOpen, setIsOpen] = useState(false);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const handler = (e: MouseEvent) => {
+      const target = e.target as Node;
+      if (
+        anchorRef.current?.contains(target) ||
+        dropdownRef.current?.contains(target)
+      ) return;
+      setIsOpen(false);
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [isOpen]);
+
+  const handleSelect = (v: string) => {
+    onChange(v);
+    setIsOpen(false);
+  };
+
   return (
-    <div className="relative">
-      <button
-        type="button"
-        className="bg-slate-50 border border-slate-200 text-slate-700 font-medium text-xs px-3 py-2 rounded-lg flex items-center gap-1.5 hover:bg-slate-100 transition-all"
+    <>
+      <div ref={anchorRef} className="relative">
+        <button
+          type="button"
+          onClick={() => setIsOpen(o => !o)}
+          className="bg-slate-50 border border-slate-200 text-slate-700 font-medium text-xs px-3 py-2 rounded-lg flex items-center gap-1.5 hover:bg-slate-100 transition-all"
+        >
+          <ArrowUpDown className="w-3 h-3 text-slate-400" />
+          <span className="text-slate-400 font-normal">Ordenar:</span>
+          <span>{currentLabel}</span>
+          <ChevronDown className={`w-3 h-3 text-slate-400 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+        </button>
+      </div>
+      <FloatingDropdown
+        anchorRef={anchorRef}
+        dropdownRef={dropdownRef}
+        isOpen={isOpen}
+        offset={6}
+        estimatedHeight={Math.min(320, options.length * 36 + 16)}
       >
-        <ArrowUpDown className="w-3 h-3 text-slate-400" />
-        <span className="text-slate-400 font-normal">Ordenar:</span>
-        <span>{currentLabel}</span>
-        <ChevronDown className="w-3 h-3 text-slate-400" />
-      </button>
-      {/* Select nativo invisible para mantenerlo simple en Fase 2 · UX mejorable luego */}
-      <select
-        value={value}
-        onChange={e => onChange(e.target.value)}
-        className="absolute inset-0 opacity-0 cursor-pointer"
-        aria-label="Ordenar"
-      >
-        {options.map(o => (
-          <option key={o.value} value={o.value}>
-            {o.label}
-          </option>
-        ))}
-      </select>
-    </div>
+        <div
+          ref={dropdownRef}
+          className="bg-white border border-slate-200 rounded-xl shadow-lg overflow-hidden max-h-[320px] overflow-y-auto py-1"
+          style={{ minWidth: 200 }}
+        >
+          {options.map(o => {
+            const isSelected = o.value === value;
+            return (
+              <button
+                key={o.value}
+                type="button"
+                onClick={() => handleSelect(o.value)}
+                className={`w-full flex items-center justify-between gap-2 px-3 py-2 text-left text-xs transition-colors ${
+                  isSelected
+                    ? 'bg-teal-50 text-teal-700 font-semibold'
+                    : 'text-slate-700 hover:bg-slate-50'
+                }`}
+              >
+                <span className="truncate">{o.label}</span>
+                {isSelected && <Check className="w-3.5 h-3.5 text-teal-600 flex-shrink-0" />}
+              </button>
+            );
+          })}
+        </div>
+      </FloatingDropdown>
+    </>
   );
 };
