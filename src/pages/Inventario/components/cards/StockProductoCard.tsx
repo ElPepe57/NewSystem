@@ -18,15 +18,16 @@
 import React from 'react';
 import { Eye, MoreHorizontal, Tag, Check, AlertCircle, Clock, Warehouse } from 'lucide-react';
 import type { ProductoConUnidades } from '../sections/ProductoInventarioTable';
+import type { LineaNegocio } from '../../../../types/lineaNegocio.types';
 import { formatCurrency } from '../../../../utils/format';
 import { getDescripcionProducto } from '../../../../utils/producto.helpers';
 import { ProductoAvatar, LineaChipInline, EstadoChipInline } from '../shell/ProductoAvatar';
 
 interface StockProductoCardProps {
   producto: ProductoConUnidades;
-  /** Código de la línea de negocio (SKC, SUP, APPAREL, ALIM) · resuelto desde el store en InventarioPageV2 */
-  lineaCodigo?: string;
-  /** True si es un pack · render con avatar purple + badge contador + chip "Pack" */
+  /** Línea de negocio del producto · objeto completo del store (BD) · NO código hardcoded */
+  linea?: LineaNegocio | null;
+  /** True si es un pack · render con avatar especial + badge contador + chip "Pack" */
   esPack?: boolean;
   /** Cantidad de productos vinculados al pack (badge contador en avatar) */
   packCount?: number;
@@ -44,7 +45,7 @@ interface SegmentoConfig {
 
 export const StockProductoCard: React.FC<StockProductoCardProps> = ({
   producto,
-  lineaCodigo,
+  linea,
   esPack = false,
   packCount,
   selected = false,
@@ -138,7 +139,7 @@ export const StockProductoCard: React.FC<StockProductoCardProps> = ({
             className="rounded border-slate-300 text-teal-600 w-3.5 h-3.5 focus:ring-teal-500"
           />
         )}
-        <ProductoAvatar lineaCodigo={lineaCodigo} esPack={esPack} packCount={packCount} />
+        <ProductoAvatar linea={linea} esPack={esPack} packCount={packCount} />
       </div>
 
       {/* COL 2-5 · Identidad: nombre + SKU + marca + chips inline */}
@@ -152,7 +153,7 @@ export const StockProductoCard: React.FC<StockProductoCardProps> = ({
           <span>·</span>
           <span className="truncate max-w-[120px]">{producto.marca}</span>
           <span>·</span>
-          <LineaChipInline lineaCodigo={lineaCodigo} />
+          <LineaChipInline linea={linea} />
           {producto.stockCritico && <EstadoChipInline variant="critico" />}
           {!producto.stockCritico && producto.proximasAVencer30Dias > 0 && (
             <EstadoChipInline variant="vencen" label={`Vence pronto`} />

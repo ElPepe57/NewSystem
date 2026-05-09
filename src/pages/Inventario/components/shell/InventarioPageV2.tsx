@@ -512,6 +512,22 @@ export const InventarioPageV2: React.FC = () => {
       if (p && productosPorPais[p]) productosPorPais[p].add(u.productoId);
     });
 
+    // Mapeo aproximado HEX→variant Tailwind (FiltrosBar canónico solo admite
+    // variants enum · TODO: extender FiltrosBar para aceptar style HEX dinámico
+    // y reemplazar este mapeo aproximado por linea.color directo · deuda técnica
+    // declarada chk4.9 · candidato a abordar cuando se refactorice FiltrosBar v2).
+    const colorToVariant = (hex?: string): ChipGroupConfig['options'][0]['variant'] => {
+      if (!hex) return 'slate';
+      const c = hex.toLowerCase();
+      if (c.match(/^#f[5-9a-c]/)) return 'amber';   // ámbar/dorado/rojo claro
+      if (c.match(/^#[6-9]/))     return 'indigo';  // indigo/azul oscuro
+      if (c.match(/^#[01]/))      return 'sky';     // azul-cian
+      if (c.match(/^#[2-4]/))     return 'emerald'; // verde
+      if (c.match(/^#[de]/))      return 'rose';    // rojo/rosa
+      if (c.match(/^#[ab]/))      return 'purple';
+      return 'slate';
+    };
+
     return [
       {
         key: 'linea',
@@ -521,8 +537,7 @@ export const InventarioPageV2: React.FC = () => {
           value: ln.id,
           label: ln.nombre,
           count: byLinea.get(ln.id) ?? 0,
-          variant: ln.id.toLowerCase().includes('skin') ? 'amber' :
-                   ln.id.toLowerCase().includes('supl') ? 'indigo' : 'slate',
+          variant: colorToVariant(ln.color),
         })),
       },
       {
@@ -797,9 +812,9 @@ export const InventarioPageV2: React.FC = () => {
                       </div>
                     ) : (
                       productosFiltrados.map((producto) => {
-                        const lineaCodigo = lineasNegocio.find(
+                        const linea = lineasNegocio.find(
                           ln => ln.id === producto.lineaNegocioId
-                        )?.codigo;
+                        ) ?? null;
                         const productoOriginal = productos.find(p => p.id === producto.productoId);
                         const esPack = !!productoOriginal?.esPack;
                         const packCount = productoOriginal?.componentesPack?.length;
@@ -807,7 +822,7 @@ export const InventarioPageV2: React.FC = () => {
                           <StockProductoCard
                             key={producto.productoId}
                             producto={producto}
-                            lineaCodigo={lineaCodigo}
+                            linea={linea}
                             esPack={esPack}
                             packCount={packCount}
                             onVerDetalle={() => setVistaActual('tabla')}
