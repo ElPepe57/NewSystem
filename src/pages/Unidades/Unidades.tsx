@@ -39,7 +39,7 @@ import {
 import { PageShell, PageHeader, Toolbar, FilterDrawer, FilterSection, DataTable, StatCard } from '../../design-system';
 import type { DataTableColumn } from '../../design-system';
 import type { PipelineStage } from '../../components/common/PipelineHeader';
-import { UnidadDetailsModal, UnidadCard, EditarVencimientoModal } from '../../components/modules/inventario';
+import { UnidadDetailsModal, UnidadCard, EditarVencimientoModal } from '../Inventario/components';
 import { useUnidadStore } from '../../store/unidadStore';
 import { useProductoStore } from '../../store/productoStore';
 import { useAlmacenStore } from '../../store/casillaStore';

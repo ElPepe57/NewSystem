@@ -7,7 +7,7 @@ import {
   Megaphone,
   Package
 } from 'lucide-react';
-import { Badge, Button } from '../../common';
+import { Badge, Button } from '../../../../components/common';
 import type { ProductoConUnidades } from './ProductoInventarioTable';
 
 export interface AlertaProducto {

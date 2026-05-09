@@ -1,11 +1,11 @@
 import React from 'react';
-import { formatFecha as formatDate } from '../../../utils/dateFormatters';
+import { formatFecha as formatDate } from '../../../../utils/dateFormatters';
 import { Package, TrendingUp, MapPin, Calendar, Clock } from 'lucide-react';
-import { Badge } from '../../common';
-import { DataTable } from '../../../design-system';
-import type { DataTableColumn } from '../../../design-system';
-import type { Unidad, EstadoUnidad } from '../../../types/unidad.types';
-import { getLabelEstadoUnidad, esEstadoEnOrigen, esEstadoEnTransitoOrigen } from '../../../utils/multiOrigen.helpers';
+import { Badge } from '../../../../components/common';
+import { DataTable } from '../../../../design-system';
+import type { DataTableColumn } from '../../../../design-system';
+import type { Unidad, EstadoUnidad } from '../../../../types/unidad.types';
+import { getLabelEstadoUnidad, esEstadoEnOrigen, esEstadoEnTransitoOrigen } from '../../../../utils/multiOrigen.helpers';
 
 interface UnidadTableProps {
   unidades: Unidad[];

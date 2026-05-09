@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
-import { formatCurrency } from '../../../utils/format';
-import { getDescripcionProducto } from '../../../utils/producto.helpers';
+import { formatCurrency } from '../../../../utils/format';
+import { getDescripcionProducto } from '../../../../utils/producto.helpers';
 import {
   Package,
   AlertTriangle,
@@ -8,12 +8,12 @@ import {
   Search,
   ArrowUpDown,
 } from 'lucide-react';
-import { Badge, LineaNegocioBadge } from '../../common';
-import { DataTable } from '../../../design-system';
-import type { DataTableColumn } from '../../../design-system';
+import { Badge, LineaNegocioBadge } from '../../../../components/common';
+import { DataTable } from '../../../../design-system';
+import type { DataTableColumn } from '../../../../design-system';
 import { UnidadesDesglose } from './UnidadesDesglose';
-import type { Unidad } from '../../../types/unidad.types';
-import { esEstadoEnOrigen, esEstadoEnTransitoOrigen } from '../../../utils/multiOrigen.helpers';
+import type { Unidad } from '../../../../types/unidad.types';
+import { esEstadoEnOrigen, esEstadoEnTransitoOrigen } from '../../../../utils/multiOrigen.helpers';
 
 // Interfaz para producto con sus unidades agrupadas
 export interface ProductoConUnidades {

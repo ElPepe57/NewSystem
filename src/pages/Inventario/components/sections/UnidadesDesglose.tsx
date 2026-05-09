@@ -1,12 +1,12 @@
 import React, { useMemo, useState } from 'react';
-import { formatFecha, calcularDiasParaVencer as calcularDiasParaVencerUtil } from '../../../utils/dateFormatters';
-import { formatCurrency } from '../../../utils/format';
+import { formatFecha, calcularDiasParaVencer as calcularDiasParaVencerUtil } from '../../../../utils/dateFormatters';
+import { formatCurrency } from '../../../../utils/format';
 import { Package, MapPin, Eye } from 'lucide-react';
-import { Badge } from '../../common';
-import { DataTable } from '../../../design-system';
-import type { DataTableColumn } from '../../../design-system';
-import type { Unidad, EstadoUnidad } from '../../../types/unidad.types';
-import { getLabelEstadoUnidad, esEstadoEnOrigen, esEstadoEnTransitoOrigen, getPaisEmoji } from '../../../utils/multiOrigen.helpers';
+import { Badge } from '../../../../components/common';
+import { DataTable } from '../../../../design-system';
+import type { DataTableColumn } from '../../../../design-system';
+import type { Unidad, EstadoUnidad } from '../../../../types/unidad.types';
+import { getLabelEstadoUnidad, esEstadoEnOrigen, esEstadoEnTransitoOrigen, getPaisEmoji } from '../../../../utils/multiOrigen.helpers';
 
 interface UnidadesDesgloseProps {
   unidades: Unidad[];

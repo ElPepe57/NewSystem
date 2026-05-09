@@ -7,11 +7,11 @@ import {
   ChevronRight,
   Check
 } from 'lucide-react';
-import { Modal, Button, Badge } from '../../common';
-import type { Unidad } from '../../../types/unidad.types';
-import { unidadService } from '../../../services/unidad.service';
-import { useAuthStore } from '../../../store/authStore';
-import { useToastStore } from '../../../store/toastStore';
+import { Modal, Button, Badge } from '../../../../components/common';
+import type { Unidad } from '../../../../types/unidad.types';
+import { unidadService } from '../../../../services/unidad.service';
+import { useAuthStore } from '../../../../store/authStore';
+import { useToastStore } from '../../../../store/toastStore';
 
 interface EditarVencimientoModalProps {
   isOpen: boolean;

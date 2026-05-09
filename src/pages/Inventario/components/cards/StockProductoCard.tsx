@@ -11,10 +11,10 @@ import {
   Eye,
   CheckCircle
 } from 'lucide-react';
-import { Badge, Button, Card, LineaNegocioBadge } from '../../common';
-import type { ProductoConUnidades } from './ProductoInventarioTable';
-import { formatCurrency } from '../../../utils/format';
-import { getDescripcionProducto } from '../../../utils/producto.helpers';
+import { Badge, Button, Card, LineaNegocioBadge } from '../../../../components/common';
+import type { ProductoConUnidades } from '../sections/ProductoInventarioTable';
+import { formatCurrency } from '../../../../utils/format';
+import { getDescripcionProducto } from '../../../../utils/producto.helpers';
 
 interface StockProductoCardProps {
   producto: ProductoConUnidades;

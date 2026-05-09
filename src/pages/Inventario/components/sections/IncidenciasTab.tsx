@@ -9,13 +9,13 @@ import {
   Filter,
   RefreshCw,
 } from 'lucide-react';
-import { Card, Button, Badge } from '../../common';
-import { bajaInventarioService } from '../../../services/bajaInventario.service';
-import { useProductoStore } from '../../../store/productoStore';
-import { useToastStore } from '../../../store/toastStore';
-import { calcularDiasParaVencer } from '../../../utils/dateFormatters';
-import { formatCurrency } from '../../../utils/format';
-import type { Unidad } from '../../../types/unidad.types';
+import { Card, Button, Badge } from '../../../../components/common';
+import { bajaInventarioService } from '../../../../services/bajaInventario.service';
+import { useProductoStore } from '../../../../store/productoStore';
+import { useToastStore } from '../../../../store/toastStore';
+import { calcularDiasParaVencer } from '../../../../utils/dateFormatters';
+import { formatCurrency } from '../../../../utils/format';
+import type { Unidad } from '../../../../types/unidad.types';
 
 type FiltroIncidencia = 'todas' | 'vencidas' | 'danadas';
 

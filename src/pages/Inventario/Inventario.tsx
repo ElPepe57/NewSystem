@@ -52,11 +52,10 @@ import {
   InventarioAnalytics,
   AlertasInventario,
   PromocionModal,
-  IncidenciasTab
-} from '../../components/modules/inventario';
-import { GestionVencidasModal } from './GestionVencidasModal';
-import type { PromocionData } from '../../components/modules/inventario';
-import type { ProductoConUnidades, AlertaProducto } from '../../components/modules/inventario';
+  IncidenciasTab,
+  GestionVencidasModal
+} from './components';
+import type { PromocionData, ProductoConUnidades, AlertaProducto } from './components';
 import { useUnidadStore } from '../../store/unidadStore';
 import { useProductoStore } from '../../store/productoStore';
 import { useAlmacenStore } from '../../store/casillaStore';

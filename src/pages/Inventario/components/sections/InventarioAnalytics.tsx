@@ -1,9 +1,9 @@
 import React, { useMemo, useState } from 'react';
-import { StatCard as DSStatCard, DataTable } from '../../../design-system';
-import type { DataTableColumn } from '../../../design-system';
-import { calcularDiasParaVencer } from '../../../utils/dateFormatters';
-import { getDescripcionProducto } from '../../../utils/producto.helpers';
-import { formatCurrency } from '../../../utils/format';
+import { StatCard as DSStatCard, DataTable } from '../../../../design-system';
+import type { DataTableColumn } from '../../../../design-system';
+import { calcularDiasParaVencer } from '../../../../utils/dateFormatters';
+import { getDescripcionProducto } from '../../../../utils/producto.helpers';
+import { formatCurrency } from '../../../../utils/format';
 import {
   TrendingUp,
   TrendingDown,
@@ -30,12 +30,12 @@ import {
   Percent,
   Activity
 } from 'lucide-react';
-import { Card, Badge,  StatDistribution, Select, Button } from '../../common';
-import type { Unidad } from '../../../types/unidad.types';
-import type { Producto, AtributosSkincare } from '../../../types/producto.types';
-import type { Almacen } from '../../../types/almacen.types';
-import type { CTRUProductoDetalle } from '../../../store/ctruStore';
-import { exportService } from '../../../services/export.service';
+import { Card, Badge,  StatDistribution, Select, Button } from '../../../../components/common';
+import type { Unidad } from '../../../../types/unidad.types';
+import type { Producto, AtributosSkincare } from '../../../../types/producto.types';
+import type { Almacen } from '../../../../types/almacen.types';
+import type { CTRUProductoDetalle } from '../../../../store/ctruStore';
+import { exportService } from '../../../../services/export.service';
 
 interface InventarioAnalyticsProps {
   unidades: Unidad[];

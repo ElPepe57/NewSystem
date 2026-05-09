@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
-import { StatCard as DSStatCard } from '../../../design-system';
-import { calcularDiasParaVencer } from '../../../utils/dateFormatters';
-import { formatCurrency } from '../../../utils/format';
+import { StatCard as DSStatCard } from '../../../../design-system';
+import { calcularDiasParaVencer } from '../../../../utils/dateFormatters';
+import { formatCurrency } from '../../../../utils/format';
 import {
   AlertTriangle,
   Clock,
@@ -19,9 +19,9 @@ import {
   Lightbulb,
   Percent
 } from 'lucide-react';
-import { Card, Badge, Button, Select, SearchInput } from '../../common';
-import type { Unidad } from '../../../types/unidad.types';
-import type { Producto } from '../../../types/producto.types';
+import { Card, Badge, Button, Select, SearchInput } from '../../../../components/common';
+import type { Unidad } from '../../../../types/unidad.types';
+import type { Producto } from '../../../../types/producto.types';
 
 interface AlertasInventarioProps {
   unidades: Unidad[];

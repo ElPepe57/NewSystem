@@ -10,12 +10,12 @@ import {
   Calendar,
   Hash
 } from 'lucide-react';
-import { Badge, Button, Card, LineaNegocioBadge, PaisOrigenBadge } from '../../common';
-import type { Unidad, EstadoUnidad } from '../../../types/unidad.types';
-import { getLabelEstadoUnidad, esEstadoEnOrigen, esEstadoEnTransitoOrigen, getPaisEmoji } from '../../../utils/multiOrigen.helpers';
-import { formatFecha, calcularDiasParaVencer as calcularDiasParaVencerUtil } from '../../../utils/dateFormatters';
-import { formatCurrency } from '../../../utils/format';
-import { getDescripcionProducto } from '../../../utils/producto.helpers';
+import { Badge, Button, Card, LineaNegocioBadge, PaisOrigenBadge } from '../../../../components/common';
+import type { Unidad, EstadoUnidad } from '../../../../types/unidad.types';
+import { getLabelEstadoUnidad, esEstadoEnOrigen, esEstadoEnTransitoOrigen, getPaisEmoji } from '../../../../utils/multiOrigen.helpers';
+import { formatFecha, calcularDiasParaVencer as calcularDiasParaVencerUtil } from '../../../../utils/dateFormatters';
+import { formatCurrency } from '../../../../utils/format';
+import { getDescripcionProducto } from '../../../../utils/producto.helpers';
 
 interface UnidadCardProps {
   unidad: Unidad;

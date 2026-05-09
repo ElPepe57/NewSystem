@@ -7,11 +7,11 @@ import {
   Package,
   Clock,
 } from 'lucide-react';
-import { Modal, Button, Badge } from '../../components/common';
-import { bajaInventarioService } from '../../services/bajaInventario.service';
-import { useToastStore } from '../../store/toastStore';
-import { useAuthStore } from '../../store/authStore';
-import type { DisposicionVencida } from '../../types/unidad.types';
+import { Modal, Button, Badge } from '../../../../components/common';
+import { bajaInventarioService } from '../../../../services/bajaInventario.service';
+import { useToastStore } from '../../../../store/toastStore';
+import { useAuthStore } from '../../../../store/authStore';
+import type { DisposicionVencida } from '../../../../types/unidad.types';
 
 const OPCIONES_DISPOSICION: {
   value: DisposicionVencida;

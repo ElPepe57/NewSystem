@@ -1,7 +1,7 @@
 import React from 'react';
-import { formatFecha as formatDate, calcularDiasParaVencer as calcularDiasParaVencerUtil } from '../../../utils/dateFormatters';
-import { formatCurrency } from '../../../utils/format';
-import { Modal } from '../../common';
+import { formatFecha as formatDate, calcularDiasParaVencer as calcularDiasParaVencerUtil } from '../../../../utils/dateFormatters';
+import { formatCurrency } from '../../../../utils/format';
+import { Modal } from '../../../../components/common';
 import {
   Package,
   MapPin,
@@ -15,11 +15,11 @@ import {
   ShoppingCart,
   Unlock
 } from 'lucide-react';
-import { Badge, Button } from '../../common';
-import { useUserName } from '../../../hooks/useUserNames';
-import type { Unidad, EstadoUnidad } from '../../../types/unidad.types';
-import { getLabelEstadoUnidad, esEstadoEnOrigen, esEstadoEnTransitoOrigen, getPaisEmoji } from '../../../utils/multiOrigen.helpers';
-import { getDescripcionProducto } from '../../../utils/producto.helpers';
+import { Badge, Button } from '../../../../components/common';
+import { useUserName } from '../../../../hooks/useUserNames';
+import type { Unidad, EstadoUnidad } from '../../../../types/unidad.types';
+import { getLabelEstadoUnidad, esEstadoEnOrigen, esEstadoEnTransitoOrigen, getPaisEmoji } from '../../../../utils/multiOrigen.helpers';
+import { getDescripcionProducto } from '../../../../utils/producto.helpers';
 
 interface UnidadDetailsModalProps {
   unidad: Unidad;

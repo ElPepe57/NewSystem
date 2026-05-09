@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { formatCurrency } from '../../../utils/format';
+import { formatCurrency } from '../../../../utils/format';
 import {
   Megaphone,
   Percent,
@@ -10,9 +10,9 @@ import {
   Clock,
   CheckCircle
 } from 'lucide-react';
-import { Modal, Button, Badge, Input, Select } from '../../common';
-import type { Producto } from '../../../types/producto.types';
-import type { Unidad } from '../../../types/unidad.types';
+import { Modal, Button, Badge, Input, Select } from '../../../../components/common';
+import type { Producto } from '../../../../types/producto.types';
+import type { Unidad } from '../../../../types/unidad.types';
 
 interface PromocionModalProps {
   isOpen: boolean;
