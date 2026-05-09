@@ -23,7 +23,7 @@
  */
 
 import React from 'react';
-import { Calendar, ChevronDown, Search, X, ArrowUpDown, type LucideIcon } from 'lucide-react';
+import { Calendar, ChevronDown, Search, X, ArrowUpDown, MapPin, type LucideIcon } from 'lucide-react';
 
 // ─── Tipos públicos ──────────────────────────────────────────────────────────
 
@@ -33,6 +33,10 @@ export interface ChipOption {
   value: string;
   label: string;
   icon?: LucideIcon;
+  /** Emoji opcional ANTES del label (ej: bandera de país, icono de línea) · prioritario sobre icon */
+  emojiPrefix?: string;
+  /** Color HEX directo (override · usa CSS inline en lugar de variant Tailwind) */
+  hexColor?: string;
   count?: number;
   variant: 'amber' | 'indigo' | 'emerald' | 'rose' | 'sky' | 'purple' | 'slate' | 'teal';
 }
@@ -47,10 +51,30 @@ export interface ChipGroupConfig {
 
 export type SortOption = { value: string; label: string };
 
+/**
+ * Filtro single-select que se renderiza al inicio de la fila 1 como dropdown
+ * botón compacto · ej "Todas las ubicaciones ▼" en Inventario.
+ */
+export interface LeadingFilterConfig {
+  label: string;
+  icon?: LucideIcon;
+  /** Valor actual · '' = "Todas/Todos" */
+  value: string;
+  /** Opciones disponibles · primer item suele ser "Todas/Todos" con value '' */
+  options: { value: string; label: string }[];
+  onChange: (value: string) => void;
+}
+
 interface FiltrosBarProps {
   // Date range
   dateRange?: DateRangePreset;
   onDateRangeChange?: (preset: DateRangePreset) => void;
+
+  /**
+   * Filtro líder al inicio de la fila 1 (opcional · ej "Todas las ubicaciones").
+   * Se renderiza como dropdown botón compacto antes de los chipGroups.
+   */
+  leadingFilter?: LeadingFilterConfig;
 
   // Chips por dimensión
   chipGroups: ChipGroupConfig[];
@@ -113,6 +137,7 @@ const DATE_PRESET_LABEL: Record<DateRangePreset, string> = {
 export const FiltrosBar: React.FC<FiltrosBarProps> = ({
   dateRange,
   onDateRangeChange,
+  leadingFilter,
   chipGroups,
   selecciones,
   onChipToggle,
@@ -131,11 +156,18 @@ export const FiltrosBar: React.FC<FiltrosBarProps> = ({
   return (
     <div className="bg-white border border-slate-200 rounded-xl p-3 mb-4">
       <div className="space-y-2.5">
-        {/* FILA 1 · DateRange + Chips por dimensión */}
+        {/* FILA 1 · DateRange + LeadingFilter + Chips por dimensión */}
         <div className="flex items-center gap-2 flex-wrap">
           {dateRange !== undefined && onDateRangeChange && (
             <>
               <DateRangeButton value={dateRange} active={dateActive} onCycle={onDateRangeChange} />
+              <Divider />
+            </>
+          )}
+
+          {leadingFilter && (
+            <>
+              <LeadingFilterDropdown config={leadingFilter} />
               <Divider />
             </>
           )}
@@ -147,17 +179,33 @@ export const FiltrosBar: React.FC<FiltrosBarProps> = ({
                 <span className="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">{group.label}:</span>
                 {group.options.map(opt => {
                   const isActive = groupSelecciones.includes(opt.value);
-                  const className = isActive
-                    ? CHIP_ACTIVE_BY_VARIANT[opt.variant]
-                    : `${CHIP_DEFAULT_CLASSES} ${CHIP_HOVER_BY_VARIANT[opt.variant]}`;
+                  // Si hay hexColor, override CSS inline · si no, variant Tailwind
+                  const useHex = !!opt.hexColor;
+                  const inlineStyle: React.CSSProperties | undefined = useHex
+                    ? isActive
+                      ? { backgroundColor: `${opt.hexColor}20`, color: opt.hexColor, boxShadow: `0 0 0 2px ${opt.hexColor}50` }
+                      : undefined
+                    : undefined;
+                  const className = useHex
+                    ? `inline-flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-bold transition-all ${
+                        isActive ? '' : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
+                      }`
+                    : isActive
+                      ? CHIP_ACTIVE_BY_VARIANT[opt.variant]
+                      : `${CHIP_DEFAULT_CLASSES} ${CHIP_HOVER_BY_VARIANT[opt.variant]}`;
                   return (
                     <button
                       key={opt.value}
                       onClick={() => onChipToggle(group.key, opt.value)}
                       type="button"
                       className={className}
+                      style={inlineStyle}
                     >
-                      {opt.icon && <opt.icon className="w-2.5 h-2.5" />}
+                      {opt.emojiPrefix ? (
+                        <span className="text-[11px] leading-none">{opt.emojiPrefix}</span>
+                      ) : opt.icon ? (
+                        <opt.icon className="w-2.5 h-2.5" />
+                      ) : null}
                       <span>{opt.label}</span>
                       {opt.count !== undefined && <span className="opacity-60 tabular-nums">{opt.count}</span>}
                     </button>
@@ -216,6 +264,44 @@ export const FiltrosBar: React.FC<FiltrosBarProps> = ({
 // ─── Sub-componentes internos ────────────────────────────────────────────────
 
 const Divider: React.FC = () => <div className="h-5 w-px bg-slate-200" />;
+
+const LeadingFilterDropdown: React.FC<{ config: LeadingFilterConfig }> = ({ config }) => {
+  const Icon = config.icon ?? MapPin;
+  const currentLabel = config.options.find(o => o.value === config.value)?.label
+    ?? config.options[0]?.label
+    ?? config.label;
+  const active = config.value !== '';
+  return (
+    <div className="relative">
+      <button
+        type="button"
+        className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 transition-all ${
+          active
+            ? 'bg-teal-50 border border-teal-200 ring-2 ring-teal-100'
+            : 'bg-slate-50 border border-slate-200 hover:bg-slate-100'
+        }`}
+      >
+        <Icon className={`w-3.5 h-3.5 ${active ? 'text-teal-600' : 'text-teal-600'}`} />
+        <span className={`text-xs font-medium ${active ? 'text-teal-700 font-bold' : 'text-slate-700'}`}>
+          {currentLabel}
+        </span>
+        <ChevronDown className="w-3 h-3 text-slate-400" />
+      </button>
+      <select
+        value={config.value}
+        onChange={e => config.onChange(e.target.value)}
+        className="absolute inset-0 opacity-0 cursor-pointer"
+        aria-label={config.label}
+      >
+        {config.options.map(o => (
+          <option key={o.value} value={o.value}>
+            {o.label}
+          </option>
+        ))}
+      </select>
+    </div>
+  );
+};
 
 const DateRangeButton: React.FC<{ value: DateRangePreset; active: boolean; onCycle: (next: DateRangePreset) => void }> = ({
   value,

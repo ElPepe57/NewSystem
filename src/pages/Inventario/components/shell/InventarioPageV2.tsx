@@ -32,7 +32,7 @@ import {
   Tabs,
 } from '../../../../components/common';
 import { FiltrosBar } from '../../../../design-system';
-import type { ChipGroupConfig, SortOption } from '../../../../design-system';
+import type { ChipGroupConfig, SortOption, LeadingFilterConfig } from '../../../../design-system';
 import type { Tab } from '../../../../components/common/Tabs';
 
 // Componentes locales del módulo
@@ -512,22 +512,6 @@ export const InventarioPageV2: React.FC = () => {
       if (p && productosPorPais[p]) productosPorPais[p].add(u.productoId);
     });
 
-    // Mapeo aproximado HEX→variant Tailwind (FiltrosBar canónico solo admite
-    // variants enum · TODO: extender FiltrosBar para aceptar style HEX dinámico
-    // y reemplazar este mapeo aproximado por linea.color directo · deuda técnica
-    // declarada chk4.9 · candidato a abordar cuando se refactorice FiltrosBar v2).
-    const colorToVariant = (hex?: string): ChipGroupConfig['options'][0]['variant'] => {
-      if (!hex) return 'slate';
-      const c = hex.toLowerCase();
-      if (c.match(/^#f[5-9a-c]/)) return 'amber';   // ámbar/dorado/rojo claro
-      if (c.match(/^#[6-9]/))     return 'indigo';  // indigo/azul oscuro
-      if (c.match(/^#[01]/))      return 'sky';     // azul-cian
-      if (c.match(/^#[2-4]/))     return 'emerald'; // verde
-      if (c.match(/^#[de]/))      return 'rose';    // rojo/rosa
-      if (c.match(/^#[ab]/))      return 'purple';
-      return 'slate';
-    };
-
     return [
       {
         key: 'linea',
@@ -537,7 +521,10 @@ export const InventarioPageV2: React.FC = () => {
           value: ln.id,
           label: ln.nombre,
           count: byLinea.get(ln.id) ?? 0,
-          variant: colorToVariant(ln.color),
+          // hexColor + emojiPrefix usan los datos REALES de BD (chk4.9 · alineado con sistema)
+          hexColor: ln.color,
+          emojiPrefix: ln.icono,
+          variant: 'slate' as const, // fallback · ignored cuando hexColor está presente
         })),
       },
       {
@@ -545,22 +532,32 @@ export const InventarioPageV2: React.FC = () => {
         label: 'País',
         multi: true,
         options: [
-          { value: 'USA', label: 'USA', count: productosPorPais.USA.size, variant: 'sky' },
-          { value: 'Peru', label: 'Perú', count: productosPorPais.Peru.size, variant: 'emerald' },
+          { value: 'USA',  label: 'USA',  count: productosPorPais.USA.size,  emojiPrefix: '🇺🇸', variant: 'sky' as const },
+          { value: 'Peru', label: 'Perú', count: productosPorPais.Peru.size, emojiPrefix: '🇵🇪', variant: 'emerald' as const },
         ],
       },
-      {
-        key: 'ubicacion',
-        label: 'Ubicación',
-        multi: true,
-        options: almacenes.map(a => ({
-          value: a.id,
-          label: a.nombre,
-          variant: 'slate' as const,
-        })),
-      },
     ];
-  }, [lineasNegocio, productosConUnidades, almacenes, unidadesPorLinea]);
+  }, [lineasNegocio, productosConUnidades, unidadesPorLinea]);
+
+  // Leading filter: "Todas las ubicaciones ▼" como dropdown único (mockup X)
+  const ubicacionSel = selecciones.ubicacion?.[0] ?? '';
+  const leadingFilter: LeadingFilterConfig = useMemo(() => ({
+    label: 'Todas las ubicaciones',
+    icon: undefined, // default MapPin teal en LeadingFilterDropdown
+    value: ubicacionSel,
+    options: [
+      { value: '', label: 'Todas las ubicaciones' },
+      ...almacenes.map(a => ({ value: a.id, label: a.nombre })),
+    ],
+    onChange: (value: string) => {
+      setSelecciones(prev => {
+        const updated = { ...prev };
+        if (value === '') delete updated.ubicacion;
+        else updated.ubicacion = [value];
+        return updated;
+      });
+    },
+  }), [ubicacionSel, almacenes]);
 
   const sortOptions: SortOption[] = useMemo(() => [
     { value: 'stock_desc',  label: 'Mayor stock' },
@@ -780,8 +777,9 @@ export const InventarioPageV2: React.FC = () => {
                 onChange={setPillActivo}
               />
 
-              {/* FiltrosBar componible (chk4.7d + chk4.7e) */}
+              {/* FiltrosBar componible (chk4.7d + chk4.7e + chk4.10 leadingFilter) */}
               <FiltrosBar
+                leadingFilter={leadingFilter}
                 chipGroups={chipGroups}
                 selecciones={selecciones}
                 onChipToggle={handleChipToggle}

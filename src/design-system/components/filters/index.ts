@@ -12,7 +12,7 @@ export { PillsRapidos } from './PillsRapidos';
 export type { PillKey, PillCounts } from './PillsRapidos';
 
 export { FiltrosBar } from './FiltrosBar';
-export type { ChipGroupConfig, ChipOption, DateRangePreset, SortOption } from './FiltrosBar';
+export type { ChipGroupConfig, ChipOption, DateRangePreset, SortOption, LeadingFilterConfig } from './FiltrosBar';
 
 export { ChipsActivos } from './ChipsActivos';
 export type { ChipActivo, ChipColor } from './ChipsActivos';
