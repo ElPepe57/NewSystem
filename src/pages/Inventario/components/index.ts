@@ -25,6 +25,8 @@ export type { KpiStripStats } from './shell/KpiStripV2';
 export { SegmentedControl } from './shell/SegmentedControl';
 export { InventarioPills } from './shell/InventarioPills';
 export type { PillInventario, PillInventarioCounts } from './shell/InventarioPills';
+export { ProductoAvatar, LineaChipInline, EstadoChipInline } from './shell/ProductoAvatar';
+export type { EstadoChipVariant } from './shell/ProductoAvatar';
 
 // cards
 export { StockProductoCard, StockListHeader } from './cards/StockProductoCard';

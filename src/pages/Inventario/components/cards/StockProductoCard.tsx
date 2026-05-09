@@ -1,220 +1,271 @@
 /**
- * StockProductoCard · card apilada canónica (F4 default · S3.6 M1 chk4.7f)
+ * StockProductoCard · pixel-perfect mockup stock-canon-s3.6-X.html (chk4.8)
  *
- * Pixel-perfect mockup stock-canon-s3.6-X.html. Estructura tipo "row de tabla
- * apilada" (a diferencia del simple stack de cards · sigue patrón Stripe/Linear):
+ * Refinamiento de la paleta del chk4.7f:
+ *   - Avatar coloreado por línea de negocio (ProductoAvatar) · NO gris
+ *   - LineaChipInline (rounded plano · paleta Tailwind directa) · NO LineaNegocioBadge legacy
+ *   - EstadoChipInline para Crítico / Vence Nd / Solo origen / Activo / Pack
+ *   - Tinte de fila por estado: rose-50/30 (crítico) · amber-50/30 (vencen)
+ *   - Stock bar h-1.5 rounded (NO h-2 rounded-full)
+ *   - Stock total: rose-600 cuando crítico · slate-900 normal
+ *   - Valor USD: slate-900 (NO emerald)
+ *   - Acciones hover-only (Eye + MoreHorizontal/Tag) con opacity-0 group-hover:opacity-100
  *
- *   Layout: 4 columnas alineadas con StockListHeader:
- *     [checkbox + identidad SKU/nombre/marca/línea]
- *     [barra distribución horizontal de colores + leyenda numérica]
- *     [stock total con badge alerta]
- *     [valor USD]
- *
- *   Indicadores:
- *     - Stock crítico: ring-1 rose
- *     - Próx. vencer: badge amber inline
- *     - Botón Ver al final
- *
- * Canon F4 (cards apiladas) + F7 (tabular-nums) + F8 (lucide únicos).
+ * Layout grid 12 cols del mockup:
+ *   col-1 (avatar+chk) · col-4 (identidad) · col-3 (stock bar) · col-2 (total) · col-1 (valor) · col-1 (acciones)
  */
 
 import React from 'react';
-import {
-  Package,
-  AlertTriangle,
-  Clock,
-  Eye,
-  CheckCircle,
-} from 'lucide-react';
-import { Badge, Button, LineaNegocioBadge } from '../../../../components/common';
+import { Eye, MoreHorizontal, Tag, Check, AlertCircle, Clock, Warehouse } from 'lucide-react';
 import type { ProductoConUnidades } from '../sections/ProductoInventarioTable';
 import { formatCurrency } from '../../../../utils/format';
 import { getDescripcionProducto } from '../../../../utils/producto.helpers';
+import { ProductoAvatar, LineaChipInline, EstadoChipInline } from '../shell/ProductoAvatar';
 
 interface StockProductoCardProps {
   producto: ProductoConUnidades;
-  onVerDetalle: () => void;
-  /** Si true, render compacto · si false, expanded con descripción producto */
+  /** Código de la línea de negocio (SKC, SUP, APPAREL, ALIM) · resuelto desde el store en InventarioPageV2 */
+  lineaCodigo?: string;
+  /** True si es un pack · render con avatar purple + badge contador + chip "Pack" */
+  esPack?: boolean;
+  /** Cantidad de productos vinculados al pack (badge contador en avatar) */
+  packCount?: number;
   selected?: boolean;
   onToggleSelect?: () => void;
+  onVerDetalle: () => void;
+  onCrearPromocion?: () => void;
 }
 
-interface DistribucionSegmentProps {
+interface SegmentoConfig {
   count: number;
-  total: number;
-  label: string;
+  /** Background literal Tailwind (no interpolado dinámicamente) */
   color: string;
 }
 
-const DistribucionSegment: React.FC<DistribucionSegmentProps> = ({ count, total, color }) => {
-  if (count === 0 || total === 0) return null;
-  const pct = (count / total) * 100;
-  return (
-    <div
-      className={`h-2 ${color} transition-all`}
-      style={{ width: `${pct}%` }}
-    />
-  );
-};
-
 export const StockProductoCard: React.FC<StockProductoCardProps> = ({
   producto,
-  onVerDetalle,
+  lineaCodigo,
+  esPack = false,
+  packCount,
   selected = false,
   onToggleSelect,
+  onVerDetalle,
+  onCrearPromocion,
 }) => {
-  const tieneProblemas = producto.stockCritico || producto.proximasAVencer30Dias > 0;
   const descripcion = getDescripcionProducto(producto);
 
-  // Distribución para la barra horizontal (canónico mockup X)
-  const segmentos = [
-    { count: producto.enOrigen, label: 'Origen', color: 'bg-sky-500' },
-    { count: producto.enTransitoOrigen + producto.enTransitoPeru, label: 'Tránsito', color: 'bg-amber-500' },
-    { count: producto.disponiblePeru, label: 'Perú', color: 'bg-emerald-500' },
-    { count: producto.reservadaOrigen + producto.reservadaPeru, label: 'Reservadas', color: 'bg-purple-500' },
-    { count: producto.vendida, label: 'Vendidas', color: 'bg-slate-400' },
+  // Tinte de fila según estado prioritario (mockup canónico)
+  const tinteFila = producto.stockCritico
+    ? 'bg-rose-50/30'
+    : producto.proximasAVencer30Dias > 0
+      ? 'bg-amber-50/30'
+      : '';
+
+  // Color del stock total (mockup: rose cuando crítico)
+  const stockTotalColor = producto.stockCritico ? 'text-rose-600' : 'text-slate-900';
+
+  // Indicador secundario debajo del stock total (mockup canónico)
+  const renderIndicadorStock = () => {
+    if (producto.stockCritico) {
+      return (
+        <div className="text-[10px] text-rose-600 tabular-nums font-bold flex items-center gap-1 justify-end">
+          <AlertCircle className="w-3 h-3" />
+          Bajo mínimo
+        </div>
+      );
+    }
+    if (producto.proximasAVencer30Dias > 0) {
+      return (
+        <div className="text-[10px] text-amber-600 tabular-nums font-medium flex items-center gap-1 justify-end">
+          <Clock className="w-3 h-3" />
+          {producto.proximasAVencer30Dias} vencen pronto
+        </div>
+      );
+    }
+    if (producto.disponiblePeru > 0) {
+      return (
+        <div className="text-[10px] text-emerald-600 tabular-nums flex items-center gap-1 justify-end">
+          <Check className="w-3 h-3" />
+          {producto.disponiblePeru} disp. PE
+        </div>
+      );
+    }
+    if (producto.enOrigen > 0 && producto.disponiblePeru === 0) {
+      return (
+        <div className="text-[10px] text-sky-600 tabular-nums flex items-center gap-1 justify-end">
+          <Warehouse className="w-3 h-3" />
+          USA
+        </div>
+      );
+    }
+    return null;
+  };
+
+  // Segmentos de la stock-bar · mockup usa colores Tailwind 500
+  const segmentos: SegmentoConfig[] = [
+    { count: producto.enOrigen,                                          color: 'bg-sky-500' },
+    { count: producto.enTransitoOrigen + producto.enTransitoPeru,        color: 'bg-amber-500' },
+    { count: producto.disponiblePeru,                                    color: 'bg-emerald-500' },
+    { count: producto.reservadaOrigen + producto.reservadaPeru,          color: 'bg-violet-500' },
   ];
 
-  const total = producto.totalUnidades;
+  // Solo packs vendidas se muestran al final (mockup row 4)
+  if (producto.vendida > 0 && esPack) {
+    segmentos.push({ count: producto.vendida, color: 'bg-slate-400' });
+  }
+
+  const totalSegmentos = segmentos.reduce((s, x) => s + x.count, 0);
+  const filler = Math.max(0, producto.totalUnidades - totalSegmentos);
+
+  // Estado especial inline (mockup row 5: "Solo origen")
+  const soloOrigen = producto.enOrigen > 0 && producto.disponiblePeru === 0
+    && producto.enTransitoOrigen + producto.enTransitoPeru === 0
+    && producto.reservada === 0;
 
   return (
     <div
-      className={`
-        bg-white border rounded-xl px-4 py-3
-        hover:border-slate-300 hover:shadow-sm transition-all
-        ${producto.stockCritico ? 'border-rose-200 ring-1 ring-rose-100' : 'border-slate-200'}
-      `.trim().replace(/\s+/g, ' ')}
+      className={`px-4 py-3 grid grid-cols-12 gap-3 items-center cursor-pointer group transition-all hover:bg-slate-50/50 ${tinteFila}`}
+      onClick={onVerDetalle}
     >
-      <div className="grid grid-cols-12 gap-3 items-center">
-        {/* COL 1-5 · Identidad: checkbox + icono + SKU/nombre/marca/chip */}
-        <div className="col-span-12 lg:col-span-5 flex items-center gap-3 min-w-0">
-          {onToggleSelect && (
-            <input
-              type="checkbox"
-              checked={selected}
-              onChange={onToggleSelect}
-              onClick={e => e.stopPropagation()}
-              className="h-4 w-4 rounded border-slate-300 text-teal-600 focus:ring-teal-500 flex-shrink-0"
-            />
-          )}
-          <div className="h-10 w-10 rounded-lg bg-slate-50 border border-slate-200 flex items-center justify-center flex-shrink-0">
-            <Package className="h-5 w-5 text-slate-400" />
-          </div>
-          <div className="min-w-0 flex-1">
-            <div className="text-sm font-semibold text-slate-900 truncate">
-              {producto.nombre}
-            </div>
-            <div className="flex items-center gap-2 flex-wrap text-xs text-slate-500 mt-0.5">
-              <span className="font-mono tabular-nums">{producto.sku}</span>
-              <span>·</span>
-              <span className="truncate">{producto.marca}</span>
-              <LineaNegocioBadge lineaNegocioId={producto.lineaNegocioId} />
-            </div>
-            {descripcion && (
-              <div className="text-[10px] text-slate-400 truncate mt-0.5">
-                {descripcion}
-              </div>
-            )}
-          </div>
-        </div>
+      {/* COL 1 · Checkbox + avatar coloreado por línea */}
+      <div className="col-span-1 flex items-center gap-2.5">
+        {onToggleSelect && (
+          <input
+            type="checkbox"
+            checked={selected}
+            onChange={onToggleSelect}
+            onClick={e => e.stopPropagation()}
+            className="rounded border-slate-300 text-teal-600 w-3.5 h-3.5 focus:ring-teal-500"
+          />
+        )}
+        <ProductoAvatar lineaCodigo={lineaCodigo} esPack={esPack} packCount={packCount} />
+      </div>
 
-        {/* COL 6-9 · Estados (barra distribución horizontal + leyenda numérica) */}
-        <div className="col-span-12 lg:col-span-4">
-          {total > 0 ? (
-            <div className="space-y-1">
-              <div className="h-2 rounded-full bg-slate-100 overflow-hidden flex">
-                {segmentos.map((seg, idx) => (
-                  <DistribucionSegment
+      {/* COL 2-5 · Identidad: nombre + SKU + marca + chips inline */}
+      <div className="col-span-4 min-w-0">
+        <div className="text-sm font-semibold text-slate-900 truncate flex items-center gap-1.5">
+          {producto.nombre}
+          {esPack && <EstadoChipInline variant="pack" />}
+        </div>
+        <div className="flex items-center gap-1.5 text-[10px] text-slate-500 mt-0.5 flex-wrap">
+          <span className="font-mono">{producto.sku}</span>
+          <span>·</span>
+          <span className="truncate max-w-[120px]">{producto.marca}</span>
+          <span>·</span>
+          <LineaChipInline lineaCodigo={lineaCodigo} />
+          {producto.stockCritico && <EstadoChipInline variant="critico" />}
+          {!producto.stockCritico && producto.proximasAVencer30Dias > 0 && (
+            <EstadoChipInline variant="vencen" label={`Vence pronto`} />
+          )}
+          {!producto.stockCritico && producto.proximasAVencer30Dias === 0 && soloOrigen && (
+            <EstadoChipInline variant="solo_origen" />
+          )}
+        </div>
+        {descripcion && !esPack && (
+          <div className="text-[10px] text-slate-400 truncate mt-0.5">
+            {descripcion}
+          </div>
+        )}
+      </div>
+
+      {/* COL 6-8 · Stock bar segmentado + leyenda numérica */}
+      <div className="col-span-3">
+        {producto.totalUnidades > 0 ? (
+          <>
+            <div className="h-1.5 rounded bg-slate-100 overflow-hidden flex mb-1.5">
+              {segmentos.map((seg, idx) =>
+                seg.count > 0 ? (
+                  <div
                     key={idx}
-                    count={seg.count}
-                    total={total}
-                    label={seg.label}
-                    color={seg.color}
+                    className={`${seg.color} transition-opacity hover:opacity-85`}
+                    style={{ flex: seg.count }}
+                    title={`${seg.count}`}
                   />
-                ))}
-              </div>
-              <div className="flex items-center gap-2 text-[10px] text-slate-500 tabular-nums flex-wrap">
-                {producto.enOrigen > 0 && <span className="text-sky-600 font-medium">{producto.enOrigen}</span>}
-                {(producto.enTransitoOrigen + producto.enTransitoPeru) > 0 && (
-                  <span className="text-amber-600 font-medium">{producto.enTransitoOrigen + producto.enTransitoPeru}</span>
-                )}
-                {producto.disponiblePeru > 0 && <span className="text-emerald-600 font-medium">{producto.disponiblePeru}</span>}
-                {(producto.reservadaOrigen + producto.reservadaPeru) > 0 && (
-                  <span className="text-purple-600 font-medium">{producto.reservadaOrigen + producto.reservadaPeru}</span>
-                )}
-                {producto.vendida > 0 && <span className="text-slate-500 font-medium">{producto.vendida}</span>}
-              </div>
+                ) : null
+              )}
+              {filler > 0 && producto.stockCritico && (
+                <div className="bg-slate-100" style={{ flex: filler }} />
+              )}
             </div>
-          ) : (
-            <div className="text-xs text-slate-400 italic">Sin unidades activas</div>
-          )}
-        </div>
+            <div className="flex items-center gap-2 text-[10px] tabular-nums text-slate-500">
+              {producto.enOrigen > 0 && <span className="text-sky-600">{producto.enOrigen}</span>}
+              {(producto.enTransitoOrigen + producto.enTransitoPeru) > 0 && (
+                <span className="text-amber-600">{producto.enTransitoOrigen + producto.enTransitoPeru} tránsito</span>
+              )}
+              {producto.disponiblePeru > 0 && (
+                <span className="text-emerald-600">{producto.disponiblePeru} disp.</span>
+              )}
+              {(producto.reservadaOrigen + producto.reservadaPeru) > 0 && (
+                <span className="text-violet-600">{producto.reservadaOrigen + producto.reservadaPeru} reserv.</span>
+              )}
+              {producto.stockCritico && (
+                <span className="text-rose-600 font-bold">
+                  {producto.totalDisponibles} {producto.totalDisponibles === 1 ? 'mín' : '/ mín'}
+                </span>
+              )}
+              {producto.proximasAVencer30Dias > 0 && (
+                <span className="text-amber-600 font-bold">{producto.proximasAVencer30Dias} vencen</span>
+              )}
+            </div>
+          </>
+        ) : (
+          <div className="text-[10px] text-slate-400 italic">Sin unidades activas</div>
+        )}
+      </div>
 
-        {/* COL 10-11 · Stock total + indicador */}
-        <div className="col-span-6 lg:col-span-2 text-right">
-          <div className="text-base font-bold text-slate-900 tabular-nums">
-            {producto.totalUnidades.toLocaleString('es-PE')} <span className="text-xs text-slate-400 font-normal">uds</span>
-          </div>
-          {producto.stockCritico ? (
-            <div className="flex items-center gap-1 justify-end text-[10px] text-rose-600 font-medium tabular-nums">
-              <AlertTriangle className="h-2.5 w-2.5" />
-              Bajo mínimo
-            </div>
-          ) : producto.proximasAVencer30Dias > 0 ? (
-            <div className="flex items-center gap-1 justify-end text-[10px] text-amber-600 font-medium tabular-nums">
-              <Clock className="h-2.5 w-2.5" />
-              {producto.proximasAVencer30Dias} vencen
-            </div>
-          ) : producto.disponiblePeru > 0 ? (
-            <div className="flex items-center gap-1 justify-end text-[10px] text-emerald-600 font-medium tabular-nums">
-              <CheckCircle className="h-2.5 w-2.5" />
-              {producto.disponiblePeru} disp. PE
-            </div>
-          ) : null}
+      {/* COL 9-10 · Stock total + indicador */}
+      <div className="col-span-2 text-right">
+        <div className={`text-sm font-bold tabular-nums ${stockTotalColor}`}>
+          {producto.totalUnidades.toLocaleString('es-PE')} uds
         </div>
+        {renderIndicadorStock()}
+      </div>
 
-        {/* COL 12 · Valor USD + acción */}
-        <div className="col-span-6 lg:col-span-1 flex items-center justify-end gap-2">
-          <div className="text-right">
-            <div className="text-sm font-semibold text-emerald-700 tabular-nums">
-              {formatCurrency(producto.valorTotalUSD)}
-            </div>
-          </div>
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={onVerDetalle}
-            title="Ver unidades"
-          >
-            <Eye className="h-3 w-3" />
-          </Button>
+      {/* COL 11 · Valor USD */}
+      <div className="col-span-1 text-right">
+        <div className="text-sm font-semibold text-slate-900 tabular-nums">
+          {formatCurrency(producto.valorTotalUSD)}
         </div>
       </div>
 
-      {/* Indicadores secundarios extra (problemas múltiples) */}
-      {tieneProblemas && producto.stockCritico && producto.proximasAVencer30Dias > 0 && (
-        <div className="mt-2 pt-2 border-t border-slate-100 flex items-center gap-2">
-          <Badge variant="danger" size="sm">
-            <AlertTriangle className="h-3 w-3 mr-1" />
-            Crítico
-          </Badge>
-          <Badge variant="warning" size="sm">
-            <Clock className="h-3 w-3 mr-1" />
-            {producto.proximasAVencer30Dias} vencen pronto
-          </Badge>
-        </div>
-      )}
+      {/* COL 12 · Acciones hover-only */}
+      <div className="col-span-1 flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+        {producto.proximasAVencer30Dias > 0 && onCrearPromocion ? (
+          <button
+            type="button"
+            onClick={(e) => { e.stopPropagation(); onCrearPromocion(); }}
+            className="p-1.5 rounded hover:bg-amber-100 text-amber-600 transition-colors"
+            title="Crear promoción"
+          >
+            <Tag className="w-4 h-4" />
+          </button>
+        ) : null}
+        <button
+          type="button"
+          onClick={(e) => { e.stopPropagation(); onVerDetalle(); }}
+          className="p-1.5 rounded hover:bg-teal-50 text-slate-500 hover:text-teal-600 transition-colors"
+          title="Ver detalle"
+        >
+          <Eye className="w-4 h-4" />
+        </button>
+        <button
+          type="button"
+          onClick={(e) => e.stopPropagation()}
+          className="p-1.5 rounded hover:bg-slate-100 text-slate-500 transition-colors"
+          title="Más acciones"
+        >
+          <MoreHorizontal className="w-4 h-4" />
+        </button>
+      </div>
     </div>
   );
 };
 
 /**
- * StockListHeader · header de columnas tipo tabla para alinear con StockProductoCard
+ * StockListHeader · header de columnas tipo tabla canónico (mockup X)
  *
- * Mockup canónico stock-canon-s3.6-X.html · 4 columnas:
- *   PRODUCTO · N RESULTADOS  |  ESTADOS  |  STOCK TOTAL  |  VALOR USD
- *
- * Se renderiza arriba de la lista apilada de cards en modo Stock.
+ * bg-slate-50 · text-[10px] uppercase tracking-wider text-slate-500 font-semibold
+ * Distribución exacta para alinear con StockProductoCard (col-1+4+3+2+1+1).
  */
 
 interface StockListHeaderProps {
@@ -231,21 +282,22 @@ export const StockListHeader: React.FC<StockListHeaderProps> = ({
   onToggleAll,
 }) => {
   return (
-    <div className="px-4 py-2 grid grid-cols-12 gap-3 items-center text-[10px] font-semibold uppercase tracking-wider text-slate-500 border-b border-slate-200">
-      <div className="col-span-12 lg:col-span-5 flex items-center gap-3">
+    <div className="px-4 py-2.5 bg-slate-50 border-b border-slate-200 grid grid-cols-12 gap-3 items-center text-[10px] uppercase tracking-wider text-slate-500 font-semibold">
+      <div className="col-span-5 flex items-center gap-3">
         {hasSelection && onToggleAll && (
           <input
             type="checkbox"
             checked={allSelected}
             onChange={onToggleAll}
-            className="h-4 w-4 rounded border-slate-300 text-teal-600 focus:ring-teal-500"
+            className="rounded border-slate-300 text-teal-600 w-3.5 h-3.5 focus:ring-teal-500"
           />
         )}
         <span>Producto · <span className="tabular-nums">{total.toLocaleString('es-PE')}</span> resultados</span>
       </div>
-      <div className="hidden lg:block lg:col-span-4">Estados</div>
-      <div className="hidden lg:block lg:col-span-2 text-right">Stock total</div>
-      <div className="hidden lg:block lg:col-span-1 text-right">Valor USD</div>
+      <div className="col-span-3">Estados</div>
+      <div className="col-span-2 text-right">Stock total</div>
+      <div className="col-span-1 text-right">Valor USD</div>
+      <div className="col-span-1" />
     </div>
   );
 };

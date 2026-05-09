@@ -781,7 +781,7 @@ export const InventarioPageV2: React.FC = () => {
               />
 
               {vistaActual === 'cards' ? (
-                /* Cards apiladas (canon F4) con header de columnas tipo tabla */
+                /* Cards apiladas (canon F4 + paleta mockup X chk4.8) */
                 <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
                   <StockListHeader total={productosFiltrados.length} />
                   <div className="divide-y divide-slate-100">
@@ -796,14 +796,25 @@ export const InventarioPageV2: React.FC = () => {
                         </p>
                       </div>
                     ) : (
-                      productosFiltrados.map((producto) => (
-                        <div key={producto.productoId} className="border-0 rounded-none">
+                      productosFiltrados.map((producto) => {
+                        const lineaCodigo = lineasNegocio.find(
+                          ln => ln.id === producto.lineaNegocioId
+                        )?.codigo;
+                        const productoOriginal = productos.find(p => p.id === producto.productoId);
+                        const esPack = !!productoOriginal?.esPack;
+                        const packCount = productoOriginal?.componentesPack?.length;
+                        return (
                           <StockProductoCard
+                            key={producto.productoId}
                             producto={producto}
+                            lineaCodigo={lineaCodigo}
+                            esPack={esPack}
+                            packCount={packCount}
                             onVerDetalle={() => setVistaActual('tabla')}
+                            onCrearPromocion={() => handlePromocionar(producto.productoId)}
                           />
-                        </div>
-                      ))
+                        );
+                      })
                     )}
                   </div>
                 </div>
