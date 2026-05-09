@@ -21,7 +21,10 @@
 
 import React, { useEffect, useState, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Package, BarChart3, Bell, MapPin, CheckCircle, Boxes } from 'lucide-react';
+import {
+  Package, BarChart3, Bell, MapPin, CheckCircle, Boxes,
+  Droplets, Pill, Shirt, UtensilsCrossed, Warehouse, type LucideIcon,
+} from 'lucide-react';
 import { useToastStore } from '../../../../store/toastStore';
 import { calcularDiasParaVencer } from '../../../../utils/dateFormatters';
 import {
@@ -32,7 +35,7 @@ import {
   Tabs,
 } from '../../../../components/common';
 import { FiltrosBar } from '../../../../design-system';
-import type { ChipGroupConfig, SortOption, LeadingFilterConfig } from '../../../../design-system';
+import type { ChipGroupConfig, ChipOption, SortOption } from '../../../../design-system';
 import type { Tab } from '../../../../components/common/Tabs';
 
 // Componentes locales del módulo
@@ -497,6 +500,15 @@ export const InventarioPageV2: React.FC = () => {
 
   // ==================== CHIP GROUPS PARA FILTROSBAR (chk4.7d) ====================
 
+  // Mapeo canónico por código de línea (alineado con Productos · ProductosPageV2.tsx:407)
+  // Mantiene consistencia cross-módulo: SKC siempre amber+Droplets, SUP siempre indigo+Pill, etc.
+  const lineaConfig: Record<string, { icon: LucideIcon; variant: ChipOption['variant'] }> = {
+    SKC:     { icon: Droplets,         variant: 'amber'   },
+    SUP:     { icon: Pill,              variant: 'indigo'  },
+    APPAREL: { icon: Shirt,             variant: 'emerald' },
+    ALIM:    { icon: UtensilsCrossed,   variant: 'amber'   },
+  };
+
   const chipGroups: ChipGroupConfig[] = useMemo(() => {
     // Contar productos por línea de negocio
     const byLinea = new Map<string, number>();
@@ -512,20 +524,30 @@ export const InventarioPageV2: React.FC = () => {
       if (p && productosPorPais[p]) productosPorPais[p].add(u.productoId);
     });
 
+    // Contar productos únicos por almacén
+    const productosPorAlmacen = new Map<string, Set<string>>();
+    unidadesPorLinea.forEach(u => {
+      const aid = u.casillaActualId || u.almacenId;
+      if (!aid) return;
+      if (!productosPorAlmacen.has(aid)) productosPorAlmacen.set(aid, new Set());
+      productosPorAlmacen.get(aid)!.add(u.productoId);
+    });
+
     return [
       {
         key: 'linea',
         label: 'Línea',
         multi: true,
-        options: lineasNegocio.map(ln => ({
-          value: ln.id,
-          label: ln.nombre,
-          count: byLinea.get(ln.id) ?? 0,
-          // hexColor + emojiPrefix usan los datos REALES de BD (chk4.9 · alineado con sistema)
-          hexColor: ln.color,
-          emojiPrefix: ln.icono,
-          variant: 'slate' as const, // fallback · ignored cuando hexColor está presente
-        })),
+        options: lineasNegocio.map(ln => {
+          const cfg = lineaConfig[ln.codigo?.toUpperCase()] ?? { icon: Package, variant: 'slate' as const };
+          return {
+            value: ln.id,
+            label: ln.nombre,
+            count: byLinea.get(ln.id) ?? 0,
+            icon: cfg.icon,
+            variant: cfg.variant,
+          };
+        }),
       },
       {
         key: 'pais',
@@ -536,28 +558,21 @@ export const InventarioPageV2: React.FC = () => {
           { value: 'Peru', label: 'Perú', count: productosPorPais.Peru.size, emojiPrefix: '🇵🇪', variant: 'emerald' as const },
         ],
       },
+      {
+        key: 'ubicacion',
+        label: 'Ubicación',
+        multi: true,
+        options: almacenes.map(a => ({
+          value: a.id,
+          label: a.nombre,
+          count: productosPorAlmacen.get(a.id)?.size ?? 0,
+          icon: Warehouse,
+          variant: 'slate' as const,
+        })),
+      },
     ];
-  }, [lineasNegocio, productosConUnidades, unidadesPorLinea]);
-
-  // Leading filter: "Todas las ubicaciones ▼" como dropdown único (mockup X)
-  const ubicacionSel = selecciones.ubicacion?.[0] ?? '';
-  const leadingFilter: LeadingFilterConfig = useMemo(() => ({
-    label: 'Todas las ubicaciones',
-    icon: undefined, // default MapPin teal en LeadingFilterDropdown
-    value: ubicacionSel,
-    options: [
-      { value: '', label: 'Todas las ubicaciones' },
-      ...almacenes.map(a => ({ value: a.id, label: a.nombre })),
-    ],
-    onChange: (value: string) => {
-      setSelecciones(prev => {
-        const updated = { ...prev };
-        if (value === '') delete updated.ubicacion;
-        else updated.ubicacion = [value];
-        return updated;
-      });
-    },
-  }), [ubicacionSel, almacenes]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lineasNegocio, productosConUnidades, almacenes, unidadesPorLinea]);
 
   const sortOptions: SortOption[] = useMemo(() => [
     { value: 'stock_desc',  label: 'Mayor stock' },
@@ -777,9 +792,8 @@ export const InventarioPageV2: React.FC = () => {
                 onChange={setPillActivo}
               />
 
-              {/* FiltrosBar componible (chk4.7d + chk4.7e + chk4.10 leadingFilter) */}
+              {/* FiltrosBar canónico · alineado con patrón Productos (chk4.11) */}
               <FiltrosBar
-                leadingFilter={leadingFilter}
                 chipGroups={chipGroups}
                 selecciones={selecciones}
                 onChipToggle={handleChipToggle}
