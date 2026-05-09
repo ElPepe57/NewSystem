@@ -45,7 +45,7 @@ import { useToastStore } from '../../../../store/toastStore';
 import { useAuthStore } from '../../../../store/authStore';
 import { ProductoService } from '../../../../services/producto.service';
 import { useProductoStore } from '../../../../store/productoStore';
-import { SeccionColapsable } from '../wizards/SeccionColapsable';
+import { SeccionColapsable } from '../../../../design-system';
 import {
   AtributosPorLineaSection,
   type AtributosLineaSKCValue,

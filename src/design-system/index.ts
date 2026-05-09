@@ -92,6 +92,12 @@ export { ConfirmarSalidaWizardModal } from './components/ConfirmarSalidaWizardMo
 // S3.6 M1 chk2 · Banner canónico unificado (consolida BorradorOC/Envio/Producto)
 export { BorradorBanner } from './components/BorradorBanner';
 
+// S3.6 M1 chk3 · Sección colapsable canónica para wizards V2 (de Productos)
+export { SeccionColapsable } from './components/SeccionColapsable';
+
+// S3.6 M1 chk3 · FiltrosBar componible (canon F3 v7.0 · de Productos)
+export * from './components/filters';
+
 // ─── S3.6 M1 · Componentes Maestros canónicos (promovidos desde Productos) ─
 // MaestroSelect (single value · marca · tipo de producto)
 // MaestroChipsMulti (multi value · categorías · etiquetas)

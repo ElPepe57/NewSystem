@@ -14,6 +14,8 @@ export { WizardPack } from './WizardPack';
 
 export { WizardVarianteExistente } from './WizardVarianteExistente';
 
-export { SeccionColapsable } from './SeccionColapsable';
+// SeccionColapsable promovido a design-system en S3.6 M1 chk3
+// Re-export para retrocompat de cualquier consumidor restante
+export { SeccionColapsable } from '../../../../design-system';
 export { StepperVerticalWizard } from './StepperVerticalWizard';
 export type { StepConfig, ResumenItem } from './StepperVerticalWizard';

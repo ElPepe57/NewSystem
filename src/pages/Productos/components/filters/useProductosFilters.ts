@@ -20,9 +20,8 @@
 
 import { useState, useMemo, useCallback, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import type { DateRangePreset } from './FiltrosBar';
-import type { PillKey } from './PillsRapidos';
-import type { ChipActivo } from './ChipsActivos';
+// S3.6 M1 chk3 · types promovidos a design-system con los componentes de filtros
+import type { DateRangePreset, PillKey, ChipActivo } from '../../../../design-system';
 
 export interface FiltrosState {
   pillActivo: PillKey;

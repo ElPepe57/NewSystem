@@ -47,7 +47,7 @@ import {
   UNIDADES_ALIMENTOS,
   UNIDAD_CONTENIDO_LABELS,
 } from '../../../../types/producto.types';
-import { SeccionColapsable } from './SeccionColapsable';
+import { SeccionColapsable } from '../../../../design-system';
 import {
   AtributosPorLineaSection,
   type AtributosLineaSKCValue,

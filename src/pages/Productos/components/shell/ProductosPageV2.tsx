@@ -40,7 +40,6 @@ import {
   ChipsActivos,
   FiltrosDrawerMobile,
   BulkActionsToolbar,
-  useProductosFilters,
   PaginacionFooter,
   OrdenamientoSelect,
   type PillKey,
@@ -49,7 +48,9 @@ import {
   type SortOption,
   type SortKey,
   type PageSize,
-} from '../filters';
+} from '../../../../design-system';
+// useProductosFilters permanece page-scoped (lógica específica de Productos)
+import { useProductosFilters } from '../filters';
 import { ProductosListV2 } from '../cards';
 import { ProductoDetailModal } from '../detail';
 // S3.4 · ProductoEditModal legacy y WizardSimple legacy ELIMINADOS
