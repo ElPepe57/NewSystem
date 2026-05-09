@@ -23,7 +23,7 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import {
   Package, BarChart3, Bell, MapPin, CheckCircle, Boxes,
-  Droplets, Pill, Shirt, UtensilsCrossed, Warehouse, type LucideIcon,
+  Droplets, Pill, Shirt, UtensilsCrossed, type LucideIcon,
 } from 'lucide-react';
 import { useToastStore } from '../../../../store/toastStore';
 import { calcularDiasParaVencer } from '../../../../utils/dateFormatters';
@@ -35,7 +35,7 @@ import {
   Tabs,
 } from '../../../../components/common';
 import { FiltrosBar } from '../../../../design-system';
-import type { ChipGroupConfig, ChipOption, SortOption } from '../../../../design-system';
+import type { ChipGroupConfig, ChipOption, SortOption, LeadingFilterConfig } from '../../../../design-system';
 import type { Tab } from '../../../../components/common/Tabs';
 
 // Componentes locales del módulo
@@ -524,15 +524,6 @@ export const InventarioPageV2: React.FC = () => {
       if (p && productosPorPais[p]) productosPorPais[p].add(u.productoId);
     });
 
-    // Contar productos únicos por almacén
-    const productosPorAlmacen = new Map<string, Set<string>>();
-    unidadesPorLinea.forEach(u => {
-      const aid = u.casillaActualId || u.almacenId;
-      if (!aid) return;
-      if (!productosPorAlmacen.has(aid)) productosPorAlmacen.set(aid, new Set());
-      productosPorAlmacen.get(aid)!.add(u.productoId);
-    });
-
     return [
       {
         key: 'linea',
@@ -558,21 +549,32 @@ export const InventarioPageV2: React.FC = () => {
           { value: 'Peru', label: 'Perú', count: productosPorPais.Peru.size, emojiPrefix: '🇵🇪', variant: 'emerald' as const },
         ],
       },
-      {
-        key: 'ubicacion',
-        label: 'Ubicación',
-        multi: true,
-        options: almacenes.map(a => ({
-          value: a.id,
-          label: a.nombre,
-          count: productosPorAlmacen.get(a.id)?.size ?? 0,
-          icon: Warehouse,
-          variant: 'slate' as const,
-        })),
-      },
     ];
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [lineasNegocio, productosConUnidades, almacenes, unidadesPorLinea]);
+  }, [lineasNegocio, productosConUnidades, unidadesPorLinea]);
+
+  // Leading filter: "Todas las ubicaciones ▼" (mockup X · adaptado al contexto Stock)
+  // En Inventario, ubicación = casilla/almacén · puede haber 10-20+ por país.
+  // Tratarlas como chips no escala (sobrecarga visual). Dropdown single-select
+  // es la solución inteligente para listas largas (mismo patrón que dateRange
+  // dropdown de Productos · es un selector contextual líder).
+  const ubicacionSel = selecciones.ubicacion?.[0] ?? '';
+  const leadingFilter: LeadingFilterConfig = useMemo(() => ({
+    label: 'Todas las ubicaciones',
+    value: ubicacionSel,
+    options: [
+      { value: '', label: 'Todas las ubicaciones' },
+      ...almacenes.map(a => ({ value: a.id, label: a.nombre })),
+    ],
+    onChange: (value: string) => {
+      setSelecciones(prev => {
+        const updated = { ...prev };
+        if (value === '') delete updated.ubicacion;
+        else updated.ubicacion = [value];
+        return updated;
+      });
+    },
+  }), [ubicacionSel, almacenes]);
 
   const sortOptions: SortOption[] = useMemo(() => [
     { value: 'stock_desc',  label: 'Mayor stock' },
@@ -792,8 +794,15 @@ export const InventarioPageV2: React.FC = () => {
                 onChange={setPillActivo}
               />
 
-              {/* FiltrosBar canónico · alineado con patrón Productos (chk4.11) */}
+              {/* FiltrosBar adaptado al contexto Stock (chk4.13)
+                  - leadingFilter "Todas las ubicaciones ▼" (dropdown · escalable a N casillas)
+                  - chipGroups línea + país (cantidades fijas · viables como chips)
+                  - búsqueda + sort
+                  Patrón canónico GENERAL de Productos (chips por dimensión + sort)
+                  pero adaptado al contexto Stock (ubicaciones via dropdown · NO chips
+                  porque puede haber 10-20+ casillas · sobrecarga visual). */}
               <FiltrosBar
+                leadingFilter={leadingFilter}
                 chipGroups={chipGroups}
                 selecciones={selecciones}
                 onChipToggle={handleChipToggle}
