@@ -52,7 +52,6 @@ import {
   UnidadDetailsModal,
   StockProductoCard,
   StockListHeader,
-  InventarioAnalytics,
   PromocionModal,
   GestionVencidasModal,
 } from '../index';
@@ -60,6 +59,7 @@ import { AtencionTab } from '../sections/AtencionTab';
 import { MapaTab } from '../sections/MapaTab';
 import { UnidadesListView } from '../sections/UnidadesListView';
 import { AlertasBanner } from '../sections/AlertasBanner';
+import { AnalyticsTab } from '../sections/AnalyticsTab';
 import type { PromocionData, ProductoConUnidades, AlertaProducto } from '../index';
 
 // Stores
@@ -1112,11 +1112,16 @@ export const InventarioPageV2: React.FC = () => {
 
       {/* ==================== TAB: ANALYTICS ==================== */}
       {tabActivo === 'analytics' && (
-        <InventarioAnalytics
-          unidades={unidades}
-          productos={productos}
-          almacenes={almacenes}
-          ctruData={ctruData}
+        <AnalyticsTab
+          productosConUnidades={productosConUnidades}
+          stats={{
+            enOrigen: inventarioStats.enOrigen,
+            enTransito: inventarioStats.enTransito,
+            disponiblePeru: inventarioStats.disponiblePeru,
+            reservada: inventarioStats.reservada,
+            problemas: inventarioStats.problemas,
+            total: inventarioStats.total,
+          }}
         />
       )}
 
