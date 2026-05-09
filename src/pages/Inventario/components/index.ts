@@ -2,13 +2,13 @@
  * Barrel · componentes page-scoped del módulo Inventario V2 (S3.6 M1 chk4)
  *
  * Estructura canónica (8 subcarpetas):
- *   shell/    → orquestador InventarioPageV2 + tabs (chk4.2)
+ *   shell/    → InventarioPageV2 (orquestador) · HeaderV2 · KpiStripV2 · SegmentedControl
  *   cards/    → StockProductoCard · UnidadCard
  *   detail/   → UnidadDetailsModal
  *   modals/   → PromocionModal · EditarVencimientoModal · GestionVencidasModal
  *   sections/ → AlertasInventario · AlertasPrioritarias · IncidenciasTab
- *               · InventarioAnalytics · ProductoInventarioTable
- *               · UnidadTable · UnidadesDesglose
+ *               · InventarioAnalytics · ProductoInventarioTable · UnidadTable
+ *               · UnidadesDesglose · AtencionTab · MapaTab
  *   shared/   → helpers cross-componente (vacío inicial)
  *   tools/    → utility components (vacío inicial)
  *   wizards/  → wizards de creación (vacío inicial)
@@ -16,6 +16,13 @@
  * NOTA · este barrel REEMPLAZA al antiguo `src/components/modules/inventario/index.ts`
  * que será eliminado en chk5 junto con sus 2 huérfanos (RecepcionForm, InventarioPipeline).
  */
+
+// shell (chk4.2)
+export { InventarioPageV2 } from './shell/InventarioPageV2';
+export { HeaderV2 } from './shell/HeaderV2';
+export { KpiStripV2 } from './shell/KpiStripV2';
+export type { KpiStripStats } from './shell/KpiStripV2';
+export { SegmentedControl } from './shell/SegmentedControl';
 
 // cards
 export { StockProductoCard } from './cards/StockProductoCard';
@@ -40,3 +47,5 @@ export { ProductoInventarioTable } from './sections/ProductoInventarioTable';
 export type { ProductoConUnidades } from './sections/ProductoInventarioTable';
 export { UnidadTable } from './sections/UnidadTable';
 export { UnidadesDesglose } from './sections/UnidadesDesglose';
+export { AtencionTab } from './sections/AtencionTab';
+export { MapaTab } from './sections/MapaTab';
