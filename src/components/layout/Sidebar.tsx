@@ -83,7 +83,7 @@ const menuGroups: MenuGroup[] = [
     items: [
       { icon: Package, label: 'Productos', path: '/productos', permiso: PERMISOS.VER_INVENTARIO },
       { icon: Warehouse, label: 'Stock', path: '/inventario', permiso: PERMISOS.VER_INVENTARIO },
-      { icon: Box, label: 'Unidades', path: '/unidades', permiso: PERMISOS.GESTIONAR_INVENTARIO },
+      { icon: Box, label: 'Unidades', path: '/inventario?modo=unidades', permiso: PERMISOS.GESTIONAR_INVENTARIO },
       { icon: ArrowRightLeft, label: 'Env\u00edos', path: '/envios', permiso: PERMISOS.TRANSFERIR_UNIDADES },
       { icon: Network, label: 'Red Log\u00edstica', path: '/red-logistica', permiso: PERMISOS.VER_INVENTARIO },
       { icon: ScanLine, label: 'Escaner', path: '/escaner', permiso: PERMISOS.VER_INVENTARIO },

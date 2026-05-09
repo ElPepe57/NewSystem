@@ -49,3 +49,4 @@ export { UnidadTable } from './sections/UnidadTable';
 export { UnidadesDesglose } from './sections/UnidadesDesglose';
 export { AtencionTab } from './sections/AtencionTab';
 export { MapaTab } from './sections/MapaTab';
+export { UnidadesListView } from './sections/UnidadesListView';

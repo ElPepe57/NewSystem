@@ -51,6 +51,7 @@ import {
 } from '../index';
 import { AtencionTab } from '../sections/AtencionTab';
 import { MapaTab } from '../sections/MapaTab';
+import { UnidadesListView } from '../sections/UnidadesListView';
 import type { PromocionData, ProductoConUnidades, AlertaProducto } from '../index';
 
 // Stores
@@ -95,12 +96,17 @@ export const InventarioPageV2: React.FC = () => {
   // Tab activo via URL ?tab=
   const [searchParams] = useSearchParams();
   const tabParam = searchParams.get('tab') as TabInventarioV2 | null;
+  const modoParam = searchParams.get('modo') as ModoInventario | null;
   const [tabActivo, setTabActivo] = useState<TabInventarioV2>(
-    tabParam && ['inventario', 'mapa', 'analytics', 'atencion'].includes(tabParam) ? tabParam : 'inventario'
+    tabParam && ['inventario', 'mapa', 'analytics', 'atencion'].includes(tabParam)
+      ? tabParam
+      : (modoParam === 'unidades' ? 'inventario' : 'inventario')
   );
 
-  // Modo Stock|Unidades dentro del tab Inventario
-  const [modoInventario, setModoInventario] = useState<ModoInventario>('stock');
+  // Modo Stock|Unidades dentro del tab Inventario · respeta ?modo= en URL
+  const [modoInventario, setModoInventario] = useState<ModoInventario>(
+    modoParam === 'unidades' ? 'unidades' : 'stock'
+  );
 
   // Filtros y estado UI
   const [filtroEstado, setFiltroEstado] = useState<string | null>(null);
@@ -662,19 +668,8 @@ export const InventarioPageV2: React.FC = () => {
               )}
             </>
           ) : (
-            // Modo "Unidades" · placeholder para chk4.4 (fusión /pages/Unidades/)
-            <div className="bg-white border border-slate-200 rounded-xl p-12">
-              <div className="text-center max-w-md mx-auto">
-                <Package className="mx-auto h-12 w-12 text-slate-400 mb-3" />
-                <h3 className="text-lg font-semibold text-slate-900 mb-2">Vista por unidades</h3>
-                <p className="text-sm text-slate-500 mb-3">
-                  Listado de unidades individuales con su trazabilidad por lote, ubicación y estado.
-                </p>
-                <p className="text-xs text-slate-400">
-                  La fusión completa con /pages/Unidades/ entra en chk4.4.
-                </p>
-              </div>
-            </div>
+            // Modo "Unidades" · vista FEFO de unidades individuales (chk4.4 · fusión)
+            <UnidadesListView />
           )}
         </>
       )}
