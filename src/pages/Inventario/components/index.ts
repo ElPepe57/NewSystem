@@ -13,8 +13,8 @@
  *   tools/    → utility components (vacío inicial)
  *   wizards/  → wizards de creación (vacío inicial)
  *
- * NOTA · este barrel REEMPLAZA al antiguo `src/components/modules/inventario/index.ts`
- * que será eliminado en chk5 junto con sus 2 huérfanos (RecepcionForm, InventarioPipeline).
+ * NOTA · este barrel REEMPLAZA al antiguo `src/components/modules/inventario/`
+ * que fue eliminado completamente en chk5 (commits chk4.1 + chk5).
  */
 
 // shell (chk4.2)

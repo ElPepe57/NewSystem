@@ -12,7 +12,7 @@
  * orquestador. Eliminados del flujo legacy:
  *   - StatCards interactivos (redundantes con KPI strip)
  *   - StatDistribution dual (visual viejo)
- *   - PipelineHeader (huérfano · vive en /sections/InventarioPipeline.tsx · chk5)
+ *   - PipelineHeader (huérfano · eliminado completamente en chk5)
  *   - AlertasPrioritarias suelto en tab Inventario (vive solo en tab Atención)
  *
  * Toda la lógica de useMemo (stats, productosConUnidades, alertas, etc.) se preserva
