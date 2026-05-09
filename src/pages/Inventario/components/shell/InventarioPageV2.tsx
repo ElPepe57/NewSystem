@@ -1108,7 +1108,12 @@ export const InventarioPageV2: React.FC = () => {
       )}
 
       {/* ==================== TAB: MAPA ==================== */}
-      {tabActivo === 'mapa' && <MapaTab />}
+      {tabActivo === 'mapa' && (
+        <MapaTab
+          unidades={unidades}
+          almacenes={almacenes}
+        />
+      )}
 
       {/* ==================== TAB: ANALYTICS ==================== */}
       {tabActivo === 'analytics' && (
