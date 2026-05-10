@@ -98,8 +98,12 @@ export const CATEGORIAS_SEED: Record<BloqueCosto, CategoriaSeedItem[]> = {
       { nombre: 'Comision vendedor',   icono: '🤝' },
     ]},
     { nombre: 'Distribucion',       icono: '🚐', subcategorias: [
-      { nombre: 'Delivery local',  icono: '🛵' },
-      { nombre: 'Courier local',   icono: '📮' },
+      { nombre: 'Delivery local',     icono: '🛵' },
+      { nombre: 'Courier local',      icono: '📮' },
+      // chk5.A14b · sub genérica para envíos al interior · luego se especializan
+      // vía Maestros UI por transportista (Olva, Shalom, Cruz del Sur, etc.).
+      // Ver DEUDA-ENVIOS-PROVINCIALES-LINK en MEMORY.md.
+      { nombre: 'Envío provincial',   icono: '🚚' },
     ]},
     { nombre: 'Empaque',            icono: '📦', subcategorias: [
       { nombre: 'Kit de empaque',  icono: '🎁' },
@@ -120,11 +124,16 @@ export const CATEGORIAS_SEED: Record<BloqueCosto, CategoriaSeedItem[]> = {
       { nombre: 'Alquiler',                    icono: '🏠' },
       { nombre: 'Servicios (luz/agua/internet)', icono: '💧' },
       { nombre: 'Mantenimiento',               icono: '🔧' },
+      // chk5.A14b · realidad operativa Vita Skin Peru
+      { nombre: 'Limpieza',                    icono: '🧹' },
+      { nombre: 'Seguridad',                   icono: '🛡️' },
     ]},
     { nombre: 'Profesionales',     icono: '⚖️', subcategorias: [
-      { nombre: 'Contador',     icono: '🧮' },
-      { nombre: 'Abogado',      icono: '⚖️' },
-      { nombre: 'Consultorias', icono: '💼' },
+      { nombre: 'Contador',           icono: '🧮' },
+      { nombre: 'Abogado',            icono: '⚖️' },
+      { nombre: 'Consultorias',       icono: '💼' },
+      // chk5.A14b · fotógrafo / CM / diseñador freelance / agencia creativa
+      { nombre: 'Servicios creativos', icono: '📸' },
     ]},
     { nombre: 'Tecnologia',        icono: '💻', subcategorias: [
       { nombre: 'Software/SaaS', icono: '☁️' },
@@ -135,6 +144,8 @@ export const CATEGORIAS_SEED: Record<BloqueCosto, CategoriaSeedItem[]> = {
       { nombre: 'Movilidad',             icono: '🚗' },
       { nombre: 'Suministros oficina',   icono: '📎' },
       { nombre: 'Herramientas',          icono: '🛠️' },
+      // chk5.A14b · compras menores en mercado / fondo fijo de operación
+      { nombre: 'Caja chica',            icono: '💵' },
     ]},
     { nombre: 'Financieros',       icono: '🏦', subcategorias: [
       { nombre: 'Comisiones bancarias', icono: '💳' },
@@ -145,6 +156,9 @@ export const CATEGORIAS_SEED: Record<BloqueCosto, CategoriaSeedItem[]> = {
       { nombre: 'Publicidad online', icono: '📱' },
       { nombre: 'Material POP',      icono: '🪧' },
       { nombre: 'Eventos',           icono: '🎉' },
+      // chk5.A14b · realidad operativa Vita Skin Peru
+      { nombre: 'Influencers',       icono: '🤳' },
+      { nombre: 'Sampling',          icono: '🎁' },
     ]},
   ],
 };
