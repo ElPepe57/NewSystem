@@ -16,9 +16,9 @@
  *     recojo_local           → bloque 'producto' · categoría "Manipuleo" → "Recojo local"
  *     almacenaje             → bloque 'producto' · categoría "Manipuleo" → "Almacenaje temporal"
  *     internacion            → bloque 'producto' · categoría "Aranceles" → "Impuesto importacion"
- *     merma_transferencia    → bloque 'producto' · categoría "Manipuleo" → "Almacenaje temporal" (proxy)
- *     merma_vencimiento      → bloque 'producto' · categoría "Manipuleo" → "Almacenaje temporal" (proxy)
- *     desmedro               → bloque 'producto' · categoría "Manipuleo" → "Almacenaje temporal" (proxy)
+ *     merma_transferencia    → bloque 'producto' · categoría "Pérdidas"  → "Merma transferencia"   (chk5.A10)
+ *     merma_vencimiento      → bloque 'producto' · categoría "Pérdidas"  → "Merma vencimiento"     (chk5.A10)
+ *     desmedro               → bloque 'producto' · categoría "Pérdidas"  → "Desmedro"              (chk5.A10)
  *     comision_ml            → bloque 'venta' · categoría "Comisiones" → "Comision ML"
  *     comision_pasarela      → bloque 'venta' · categoría "Comisiones" → "Comision pasarela"
  *     comision_vendedor      → bloque 'venta' · categoría "Comisiones" → "Comision vendedor"
@@ -77,10 +77,10 @@ const TIPO_MAPPING = {
   recojo_local:         { bloque: 'producto', padre: 'Manipuleo',   sub: 'Recojo local' },
   almacenaje:           { bloque: 'producto', padre: 'Manipuleo',   sub: 'Almacenaje temporal' },
   internacion:          { bloque: 'producto', padre: 'Aranceles',   sub: 'Impuesto importacion' },
-  // PRODUCTO · pérdidas (proxy a Manipuleo · refinable manualmente después)
-  merma_transferencia:  { bloque: 'producto', padre: 'Manipuleo',   sub: 'Almacenaje temporal' },
-  merma_vencimiento:    { bloque: 'producto', padre: 'Manipuleo',   sub: 'Almacenaje temporal' },
-  desmedro:             { bloque: 'producto', padre: 'Manipuleo',   sub: 'Almacenaje temporal' },
+  // PRODUCTO · pérdidas (chk5.A10 · ahora apuntan a la categoría dedicada "Pérdidas")
+  merma_transferencia:  { bloque: 'producto', padre: 'Pérdidas',    sub: 'Merma transferencia' },
+  merma_vencimiento:    { bloque: 'producto', padre: 'Pérdidas',    sub: 'Merma vencimiento' },
+  desmedro:             { bloque: 'producto', padre: 'Pérdidas',    sub: 'Desmedro' },
 
   // VENTA (afecta margen contribución)
   comision_ml:          { bloque: 'venta', padre: 'Comisiones',         sub: 'Comision ML' },

@@ -82,6 +82,14 @@ export const CATEGORIAS_SEED: Record<BloqueCosto, CategoriaSeedItem[]> = {
       { nombre: 'Recojo local',         icono: '🚛' },
       { nombre: 'Almacenaje temporal',  icono: '🏬' },
     ]},
+    // chk5.A10 (S3.6 M1.bis · Cost Intelligence) — separar pérdidas de
+    // inventario en su propia categoría · NO pegarse a "Manipuleo" como
+    // proxy histórico. Mermas y desmedro afectan CTRU vía bloque 'producto'.
+    { nombre: 'Pérdidas',    icono: '📉', subcategorias: [
+      { nombre: 'Merma transferencia',  icono: '📦' },   // daño en traslado entre almacenes
+      { nombre: 'Merma vencimiento',    icono: '⏰' },   // producto vencido
+      { nombre: 'Desmedro',             icono: '💔' },   // deterioro físico
+    ]},
   ],
   venta: [
     { nombre: 'Comisiones',         icono: '💰', subcategorias: [

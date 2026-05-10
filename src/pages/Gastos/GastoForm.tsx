@@ -21,10 +21,33 @@ import { ProveedorForm } from '../../components/modules/ordenCompra/ProveedorFor
 import type { ProveedorFormData } from '../../types/ordenCompra.types';
 import { useCategoriaCostoStore } from '../../store/categoriaCostoStore';
 import type { BloqueCosto } from '../../types/categoriaCosto.types';
+import { toDateOrNow } from '../../utils/dateFormatters';
 
 interface GastoFormProps {
   onClose: () => void;
   gastoEditar?: Gasto | null;
+}
+
+/**
+ * chk5.A8 (S3.6 M1.bis · Cost Intelligence) — derivación canónica del campo
+ * legacy `categoria` (CategoriaGasto: GA/GD/GV/GO) a partir del nuevo
+ * `BloqueCosto` (producto/venta/periodo). Mientras se mantiene compatibilidad
+ * de lectura con datos legacy, el form NUNCA escribe `categoria` directamente:
+ * la deriva desde `bloqueSeleccionado` al momento del submit.
+ *
+ * Mapping canónico:
+ *   bloque 'producto' → categoria 'GA' (gasto de adquisición / importación)
+ *   bloque 'venta'    → categoria 'GD' (gasto directo de venta)
+ *   bloque 'periodo'  → categoria 'GO' (gasto operativo del periodo)
+ *
+ * Nota: GV (gasto variable) es legacy del modelo viejo y se mapea a 'GD' en el
+ * sentido amplio de "gasto asociado a venta". El detalle GV vs GD se preserva
+ * por retrocompatibilidad de lectura, pero no se escribe en flujos nuevos.
+ */
+function bloqueToLegacyCategoria(bloque: BloqueCosto): CategoriaGasto {
+  if (bloque === 'producto') return 'GA';
+  if (bloque === 'venta') return 'GD';
+  return 'GO';
 }
 
 export const GastoForm: React.FC<GastoFormProps> = ({ onClose, gastoEditar }) => {
@@ -86,6 +109,14 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose, gastoEditar }) =>
     };
   });
 
+  // chk5.A8 · Estado de la cascada Bloque > Categoria > Subcategoria
+  // Declarado tempranamente porque varios useEffect (cargarVentas, sync legacy)
+  // dependen de `bloqueSeleccionado`. La inicialización desde gasto legacy
+  // (deriveBloqueInicial) se hace más abajo cuando el árbol está disponible.
+  const [bloqueSeleccionado, setBloqueSeleccionado] = useState<BloqueCosto | null>(null);
+  const [categoriaPadreId, setCategoriaPadreId] = useState<string | null>(null);
+  const [subcategoriaId, setSubcategoriaId] = useState<string | null>(null);
+
   // Cargar tipo de cambio al montar
   React.useEffect(() => {
     const loadTC = async () => {
@@ -117,10 +148,11 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose, gastoEditar }) =>
   const [ventaSeleccionada, setVentaSeleccionada] = useState<Venta | null>(null);
   const [busquedaVenta, setBusquedaVenta] = useState('');
 
-  // Cargar ventas recientes cuando se selecciona GV o GD
+  // Cargar ventas recientes cuando el bloque es 'venta' (GV/GD legacy)
+  // chk5.A8 · ahora dispara por bloqueSeleccionado, no por formData.categoria.
   useEffect(() => {
     const cargarVentas = async () => {
-      if (formData.categoria !== 'GV' && formData.categoria !== 'GD') {
+      if (bloqueSeleccionado !== 'venta') {
         setVentas([]);
         setVentaSeleccionada(null);
         return;
@@ -152,7 +184,7 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose, gastoEditar }) =>
     };
 
     cargarVentas();
-  }, [formData.categoria]);
+  }, [bloqueSeleccionado]);
 
   // Filtrar ventas por búsqueda (con validación segura)
   const ventasFiltradas = useMemo(() => {
@@ -241,8 +273,8 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose, gastoEditar }) =>
         if (pagoExistente.metodoPago) setMetodoPago(pagoExistente.metodoPago as MetodoTesoreria);
         if (pagoExistente.referencia) setReferenciaPago(pagoExistente.referencia);
       } else {
-        // Legacy: pre-poblar desde campos del gasto
-        if ((gastoEditar as any).cuentaOrigenId) setCuentaOrigenId((gastoEditar as any).cuentaOrigenId);
+        // Legacy: pre-poblar desde campos del gasto (campo @deprecated cuentaOrigenId · ver gasto.types.ts)
+        if (gastoEditar.cuentaOrigenId) setCuentaOrigenId(gastoEditar.cuentaOrigenId);
         if (gastoEditar.metodoPago) setMetodoPago(gastoEditar.metodoPago as MetodoTesoreria);
       }
       return; // No aplicar lógica de cuenta por defecto
@@ -295,9 +327,9 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose, gastoEditar }) =>
       return;
     }
 
-    // Validar que GV y GD tengan venta asociada
-    if ((formData.categoria === 'GV' || formData.categoria === 'GD') && !ventaSeleccionada) {
-      toast.warning('Los gastos de Venta y Distribución deben asociarse a una venta');
+    // chk5.A8 · Validar que el bloque sea 'venta' tenga venta asociada
+    if (bloqueSeleccionado === 'venta' && !ventaSeleccionada) {
+      toast.warning('Los gastos del bloque Venta deben asociarse a una venta');
       return;
     }
 
@@ -375,9 +407,8 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose, gastoEditar }) =>
     return 'periodo'; // GO
   };
 
-  const [bloqueSeleccionado, setBloqueSeleccionado] = useState<BloqueCosto | null>(null);
-  const [categoriaPadreId, setCategoriaPadreId] = useState<string | null>(null);
-  const [subcategoriaId, setSubcategoriaId] = useState<string | null>(null);
+  // chk5.A8 · Los useState de la cascada se declararon arriba; aquí solo
+  // inicializamos los valores cuando el árbol ya cargó (típicamente en edición).
 
   // Inicializar la cascada cuando el arbol esta listo (importante para edicion)
   useEffect(() => {
@@ -407,15 +438,23 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose, gastoEditar }) =>
   }, [arbolCategorias]);
 
   // Handler · al elegir bloque, resetea niveles 2 y 3
+  // chk5.A8 · solo limpia categoriaCostoId; el campo legacy `categoria`
+  // se deriva automáticamente vía useEffect abajo (single source of truth = bloque).
   const handleSeleccionarBloque = (bloque: BloqueCosto) => {
     setBloqueSeleccionado(bloque);
     setCategoriaPadreId(null);
     setSubcategoriaId(null);
-    // Auto-derivar categoria legacy del bloque (mantener compat hasta migracion total)
-    const legacy: CategoriaGasto =
-      bloque === 'producto' ? 'GA' : bloque === 'venta' ? 'GD' : 'GO';
-    setFormData((prev) => ({ ...prev, categoria: legacy, categoriaCostoId: undefined }));
+    setFormData((prev) => ({ ...prev, categoriaCostoId: undefined }));
   };
+
+  // chk5.A8 · Sync canónico: el campo legacy `formData.categoria` siempre
+  // refleja el `bloqueSeleccionado` actual. NO se persiste como dual-write
+  // controlado por usuario; es una proyección 1:1 derivada del bloque.
+  useEffect(() => {
+    if (!bloqueSeleccionado) return;
+    const legacy = bloqueToLegacyCategoria(bloqueSeleccionado);
+    setFormData((prev) => (prev.categoria === legacy ? prev : { ...prev, categoria: legacy }));
+  }, [bloqueSeleccionado]);
 
   // Handler · al elegir categoria padre, resetea subcategoria y persiste categoriaCostoId
   const handleSeleccionarCategoriaPadre = (padreId: string) => {
@@ -503,7 +542,7 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose, gastoEditar }) =>
     const inicio12m = new Date(ahora.getFullYear(), ahora.getMonth() - 11, 1);
     const gastosDelProveedor = gastos.filter((g) => g.proveedorId === formData.proveedorId);
     const ultimos12m = gastosDelProveedor.filter((g) => {
-      const f = g.fecha?.toDate?.() ?? new Date(g.fecha as any);
+      const f = toDateOrNow(g.fecha);
       return f >= inicio12m;
     });
     const total12m = ultimos12m.reduce((acc, g) => acc + (g.montoPEN || 0), 0);
@@ -511,7 +550,7 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose, gastoEditar }) =>
     // Próximo vencimiento (pendientes con fecha futura)
     const pendientes = gastosDelProveedor
       .filter((g) => g.estado === 'pendiente' || g.estado === 'parcial')
-      .map((g) => ({ g, fecha: g.fecha?.toDate?.() ?? new Date(g.fecha as any) }))
+      .map((g) => ({ g, fecha: toDateOrNow(g.fecha) }))
       .filter(({ fecha }) => !isNaN(fecha.getTime()))
       .sort((a, b) => a.fecha.getTime() - b.fecha.getTime());
     const proximo = pendientes[0];
@@ -603,17 +642,10 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose, gastoEditar }) =>
       [field]: value
     }));
 
-    // Si cambia la categoría, actualizar impactaCTRU según la configuración por defecto
-    if (field === 'categoria') {
-      const catInfo = CATEGORIAS_GASTO[value as CategoriaGasto];
-      setFormData(prev => ({
-        ...prev,
-        categoria: value,
-        esProrrateable: catInfo.impactaCTRU,
-        impactaCTRU: catInfo.impactaCTRU,
-        tipo: 'otros' // Resetear tipo al cambiar categoría
-      }));
-    }
+    // chk5.A8 · El branch que escribía `categoria` legacy fue eliminado:
+    // la categoría ahora se deriva automáticamente del bloque seleccionado
+    // (ver useEffect de sync arriba). El form ya no acepta cambios directos
+    // al campo `categoria`; los cambios pasan por `handleSeleccionarBloque`.
 
     // Ajustar impactaCTRU automáticamente si esProrrateable cambia
     if (field === 'esProrrateable') {
@@ -766,7 +798,7 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose, gastoEditar }) =>
                     {categoriasPadreDelBloque.map((padre) => {
                       const isSelected = categoriaPadreId === padre.id;
                       const numHijos = arbolCategorias?.[bloqueSeleccionado]?.hijos?.[padre.id]?.length ?? 0;
-                      const icono = (padre as any).icono;
+                      const icono = padre.icono;
                       return (
                         <button
                           key={padre.id}
@@ -822,7 +854,7 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose, gastoEditar }) =>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 ml-9">
                   {subcategoriasDelPadre.map((hijo) => {
                     const isSelected = subcategoriaId === hijo.id;
-                    const icono = (hijo as any).icono;
+                    const icono = hijo.icono;
                     return (
                       <button
                         key={hijo.id}
@@ -914,8 +946,8 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose, gastoEditar }) =>
                 : 'Resta margen operativo';
               const padre = categoriasPadreDelBloque.find(p => p.id === categoriaPadreId);
               const hijo = subcategoriaId ? subcategoriasDelPadre.find(s => s.id === subcategoriaId) : null;
-              const padreIcono = padre ? (padre as any).icono : '';
-              const hijoIcono = hijo ? (hijo as any).icono : '';
+              const padreIcono = padre?.icono ?? '';
+              const hijoIcono = hijo?.icono ?? '';
 
               return (
                 <div className={`bg-gradient-to-r ${blockBgGrad} border rounded-xl p-4`}>
@@ -974,8 +1006,8 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose, gastoEditar }) =>
             </div>
           </div>
 
-          {/* Sección 2: Asociar a Venta (solo para GV y GD) */}
-          {(formData.categoria === 'GV' || formData.categoria === 'GD') && (
+          {/* Sección 2: Asociar a Venta (solo bloque 'venta') · chk5.A8 */}
+          {bloqueSeleccionado === 'venta' && (
             <div className="space-y-4">
               <h3 className="text-lg font-semibold text-slate-900 flex items-center gap-2">
                 <Link className="h-5 w-5" />
@@ -1201,8 +1233,8 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose, gastoEditar }) =>
             )}
           </div>
 
-          {/* Sección 4: CTRU y Prorrateo - Solo para GA y GO */}
-          {(formData.categoria === 'GA' || formData.categoria === 'GO') && (
+          {/* Sección 4: CTRU y Prorrateo · solo bloques 'producto' o 'periodo' · chk5.A8 */}
+          {(bloqueSeleccionado === 'producto' || bloqueSeleccionado === 'periodo') && (
             <div className="space-y-3 sm:space-y-4">
               <h3 className="text-base sm:text-lg font-semibold text-slate-900">Impacto en CTRU</h3>
 
@@ -1240,13 +1272,13 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose, gastoEditar }) =>
             </div>
           )}
 
-          {/* Info para GV y GD */}
-          {(formData.categoria === 'GV' || formData.categoria === 'GD') && (
+          {/* Info para bloque 'venta' · chk5.A8 */}
+          {bloqueSeleccionado === 'venta' && (
             <div className="bg-slate-50 p-4 rounded-lg border">
               <div className="flex items-start gap-2 text-sm text-slate-600">
                 <Info className="h-4 w-4 mt-0.5 flex-shrink-0" />
                 <div>
-                  <span className="font-medium">Nota:</span> Los gastos de Venta y Distribución no afectan el CTRU.
+                  <span className="font-medium">Nota:</span> Los gastos del bloque Venta no afectan el CTRU.
                   Se descuentan directamente de la utilidad de cada venta cuando se asocian desde el módulo de Ventas.
                 </div>
               </div>

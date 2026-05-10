@@ -1,6 +1,64 @@
 import { Timestamp } from 'firebase/firestore';
 
 /**
+ * Tipos que aparecen en el sistema cuando se lee `fecha` de Firestore o legacy.
+ * - Timestamp: el tipo declarado en los modelos canónicos
+ * - { seconds: number, nanoseconds?: number }: Timestamp serializado (export/import)
+ * - Date: cuando ya fue convertido en memoria
+ * - string | number: legacy o ISO strings
+ * - null | undefined: cuando el campo es opcional
+ */
+export type FechaLike =
+  | Timestamp
+  | Date
+  | { seconds: number; nanoseconds?: number }
+  | string
+  | number
+  | null
+  | undefined;
+
+/**
+ * Convierte cualquier `FechaLike` a `Date`. Reemplaza el patrón duplicado en
+ * ~33 ocurrencias del codebase: `f?.toDate?.() ?? new Date(f as any)`.
+ *
+ * Si la fecha es inválida (campo ausente, formato corrupto), devuelve `null`.
+ * Para casos donde quieras un fallback no nulo, usa `toDateOrNow(f)`.
+ *
+ * chk5.A7 (S3.6 M1.bis · Cost Intelligence) — utility canónica para reemplazar
+ * `as any` en conversiones Timestamp→Date a lo largo del sistema.
+ */
+export function toDateSafe(fecha: FechaLike): Date | null {
+  if (fecha === null || fecha === undefined) return null;
+  try {
+    let date: Date;
+    if (fecha instanceof Timestamp) {
+      date = fecha.toDate();
+    } else if (fecha instanceof Date) {
+      date = fecha;
+    } else if (typeof fecha === 'object' && 'seconds' in fecha) {
+      date = new Date((fecha as { seconds: number }).seconds * 1000);
+    } else if (typeof fecha === 'string' || typeof fecha === 'number') {
+      date = new Date(fecha);
+    } else {
+      return null;
+    }
+    if (isNaN(date.getTime())) return null;
+    return date;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Variante de `toDateSafe` que devuelve `new Date()` si la fecha es inválida.
+ * Útil cuando el flujo tolera "ahora" como fallback (ej. ordenar por fecha,
+ * calcular últimos 12m, etc.).
+ */
+export function toDateOrNow(fecha: FechaLike): Date {
+  return toDateSafe(fecha) ?? new Date();
+}
+
+/**
  * Convierte un valor de fecha (Firestore Timestamp, Date, string, number, etc.)
  * a un string formateado legible.
  *
