@@ -2,7 +2,9 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { TrendingUp, TrendingDown, Minus, BarChart3 } from 'lucide-react';
 import { Card } from '../../common';
 import { gastoService } from '../../../services/gasto.service';
+import { categoriaCostoService } from '../../../services/categoriaCosto.service';
 import { VentaService } from '../../../services/venta.service';
+import { esGastoDePeriodo, type ArbolCategorias } from '../../../utils/gasto.bloque';
 import type { Venta } from '../../../types/venta.types';
 
 interface NivelRentabilidad {
@@ -61,10 +63,14 @@ export const RentabilidadTresNivelesWidget: React.FC = () => {
           costosVenta += cv;
         }
 
-        // Gastos fijos del mes (Caja 3)
-        const todosGastos = await gastoService.getAll();
+        // Gastos fijos del mes (Caja 3 = bloque 'periodo' canon 3 niveles · chk5.A5)
+        // Resuelve via categoriaCostoId (canon) o fallback a categoria legacy GA/GO
+        const [todosGastos, arbolCategorias] = await Promise.all([
+          gastoService.getAll(),
+          categoriaCostoService.getArbol() as Promise<ArbolCategorias>,
+        ]);
         const gastosFijosMes = todosGastos.filter(g => {
-          const esGastoFijo = g.categoria === 'GA' || g.categoria === 'GO';
+          const esGastoFijo = esGastoDePeriodo(g, arbolCategorias);
           return esGastoFijo && g.mes === (now.getMonth() + 1) && g.anio === now.getFullYear();
         });
         const gastosFijos = gastosFijosMes.reduce((sum, g) => sum + g.montoPEN, 0);

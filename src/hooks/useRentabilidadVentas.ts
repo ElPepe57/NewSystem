@@ -1,7 +1,9 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { gastoService } from '../services/gasto.service';
 import { unidadService } from '../services/unidad.service';
+import { categoriaCostoService } from '../services/categoriaCosto.service';
 import { getCostoBasePEN } from '../utils/ctru.utils';
+import { esGastoDeVenta, esGastoDePeriodo, getBloqueDelGasto, type ArbolCategorias } from '../utils/gasto.bloque';
 import type { Venta } from '../types/venta.types';
 import type { Gasto } from '../types/gasto.types';
 import type { Unidad } from '../types/unidad.types';
@@ -12,6 +14,23 @@ const CACHE_TTL = 30000; // 30 segundos
 
 // Cache global de unidades vendidas para consistencia con CTRU
 let unidadesVendidasCache: { data: Unidad[] | null; timestamp: number } = { data: null, timestamp: 0 };
+
+// Cache global del árbol de categorías (chk5.A5 · canon 3 niveles)
+let arbolCategoriasCache: { data: ArbolCategorias | null; timestamp: number } = { data: null, timestamp: 0 };
+
+/**
+ * Obtener árbol de categorías con cache (chk5.A5).
+ * El árbol se usa para resolver qué bloque tiene cada gasto via categoriaCostoId.
+ */
+async function getArbolCategoriasConCache(): Promise<ArbolCategorias> {
+  const now = Date.now();
+  if (arbolCategoriasCache.data && (now - arbolCategoriasCache.timestamp) < CACHE_TTL) {
+    return arbolCategoriasCache.data;
+  }
+  const arbol = await categoriaCostoService.getArbol() as ArbolCategorias;
+  arbolCategoriasCache = { data: arbol, timestamp: now };
+  return arbol;
+}
 
 /**
  * Desglose de costos y gastos por producto individual
@@ -152,6 +171,7 @@ async function getUnidadesVendidasConCache(): Promise<Unidad[]> {
 export function invalidarCacheGastos() {
   gastosCache = { data: null, timestamp: 0 };
   unidadesVendidasCache = { data: null, timestamp: 0 };
+  arbolCategoriasCache = { data: null, timestamp: 0 };
 }
 
 /**
@@ -192,18 +212,18 @@ export function useRentabilidadVentas(ventas: Venta[]) {
     setError(null);
 
     try {
-      // 1. Obtener gastos y unidades con venta vinculada (vendidas + asignadas)
-      const [todosLosGastos, unidadesConVenta] = await Promise.all([
+      // 1. Obtener gastos · unidades · árbol de categorías (chk5.A5 · canon 3 niveles)
+      const [todosLosGastos, unidadesConVenta, arbolCategorias] = await Promise.all([
         getGastosConCache(),
-        getUnidadesVendidasConCache()
+        getUnidadesVendidasConCache(),
+        getArbolCategoriasConCache(),
       ]);
 
-      // REINGENIERIA (Acuerdo 3): GA/GO ya NO se prorratean a ventas individuales.
-      // Son "Gastos Fijos del Mes" y aparecen como linea separada en el P&L.
-      // totalGastosGAGO se mantiene para referencia pero costoGAGO por venta = 0.
-      const gastosGAGO = todosLosGastos.filter(
-        g => g.categoria === 'GA' || g.categoria === 'GO'
-      );
+      // REINGENIERIA (Acuerdo 3): gastos del bloque 'periodo' (ex GA/GO) ya NO se
+      // prorratean a ventas individuales · son "Gastos Fijos del Mes" en el P&L.
+      // chk5.A5 · usa esGastoDePeriodo helper que respeta canon 3 niveles
+      // (categoriaCostoId.bloque === 'periodo') con fallback a categoria legacy GA/GO.
+      const gastosGAGO = todosLosGastos.filter(g => esGastoDePeriodo(g, arbolCategorias));
       const totalGastosGAGO = gastosGAGO.reduce((sum, g) => sum + g.montoPEN, 0);
 
       // 2. Calcular costo base total desde UNIDADES VENDIDAS (consistente con CTRU)
@@ -225,27 +245,32 @@ export function useRentabilidadVentas(ventas: Venta[]) {
       const baseCostoTotal = costoBaseTotalUnidades > 0 ? costoBaseTotalUnidades : 1;
       const impactoPorUnidad = totalGastosGAGO / baseUnidades;
 
-      // 3. Agrupar gastos GV y GD por ventaId (una sola pasada)
+      // 3. Agrupar gastos del bloque 'venta' (ex GV+GD) por ventaId (chk5.A5)
+      // Mantener distinción GV vs GD para backward-compat en API del hook:
+      //   · Si hay categoria legacy → usar GV/GD directo
+      //   · Si solo hay categoriaCostoId con bloque 'venta' → asignar a GV por default
+      //     (matemáticamente equivalente · ambos restan margen contribución)
       const gastosGVPorVenta = new Map<string, number>();
       const gastosGDPorVenta = new Map<string, number>();
       let gastosGVSinVenta = 0;
       let gastosGDSinVenta = 0;
 
       for (const gasto of todosLosGastos) {
-        if (gasto.categoria === 'GV') {
-          if (gasto.ventaId) {
-            const actual = gastosGVPorVenta.get(gasto.ventaId) || 0;
-            gastosGVPorVenta.set(gasto.ventaId, actual + gasto.montoPEN);
-          } else {
-            gastosGVSinVenta += gasto.montoPEN;
-          }
-        } else if (gasto.categoria === 'GD') {
-          if (gasto.ventaId) {
-            const actual = gastosGDPorVenta.get(gasto.ventaId) || 0;
-            gastosGDPorVenta.set(gasto.ventaId, actual + gasto.montoPEN);
-          } else {
-            gastosGDSinVenta += gasto.montoPEN;
-          }
+        // Determinar si es bloque 'venta' (canon o legacy)
+        const bloque = getBloqueDelGasto(gasto, arbolCategorias);
+        if (bloque !== 'venta') continue;
+
+        // Distinguir GV vs GD para preservar API legacy
+        // Prioridad: categoria legacy explícita > default a GV
+        const esGD = gasto.categoria === 'GD';
+        const targetMap = esGD ? gastosGDPorVenta : gastosGVPorVenta;
+
+        if (gasto.ventaId) {
+          const actual = targetMap.get(gasto.ventaId) || 0;
+          targetMap.set(gasto.ventaId, actual + gasto.montoPEN);
+        } else {
+          if (esGD) gastosGDSinVenta += gasto.montoPEN;
+          else gastosGVSinVenta += gasto.montoPEN;
         }
       }
 
