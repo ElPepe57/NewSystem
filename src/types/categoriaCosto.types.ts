@@ -28,6 +28,9 @@ export interface CategoriaCosto {
   categoriaPadreNombre?: string;       // Desnormalizado
   nivel: number;                       // 0 = raiz, 1 = sub-categoria
 
+  // Visual (chk5.A2 · canon mockup gastoform-v2-3-niveles-s58f.html)
+  icono?: string;                      // Emoji opcional · ej '👥', '🏢', '⚡' · fallback a default por bloque
+
   // Configuracion
   activa: boolean;
   orden: number;                       // Para ordenar en UI
@@ -47,33 +50,93 @@ export interface CategoriaCostoFormData {
   descripcion?: string;
   bloque: BloqueCosto;
   categoriaPadreId?: string;
+  icono?: string;                      // Emoji opcional · ver CategoriaCosto.icono
   activa: boolean;
   orden: number;
 }
 
 /**
- * Categorias pre-pobladas por bloque (seed)
+ * Categorias pre-pobladas por bloque (seed) · con iconos canónicos
  */
-export const CATEGORIAS_SEED: Record<BloqueCosto, { nombre: string; subcategorias?: string[] }[]> = {
+export interface CategoriaSeedItem {
+  nombre: string;
+  icono?: string;                                                  // Emoji canon (chk5.A2)
+  subcategorias?: { nombre: string; icono?: string }[];
+}
+
+export const CATEGORIAS_SEED: Record<BloqueCosto, CategoriaSeedItem[]> = {
   producto: [
-    { nombre: 'Transporte', subcategorias: ['Flete viajero', 'Flete courier', 'Flete maritimo'] },
-    { nombre: 'Aranceles', subcategorias: ['Impuesto importacion', 'Agente aduanero'] },
-    { nombre: 'Seguros', subcategorias: ['Seguro de carga'] },
-    { nombre: 'Manipuleo', subcategorias: ['Recojo local', 'Almacenaje temporal'] },
+    { nombre: 'Transporte',  icono: '🚚', subcategorias: [
+      { nombre: 'Flete viajero',  icono: '✈️' },
+      { nombre: 'Flete courier',  icono: '📦' },
+      { nombre: 'Flete maritimo', icono: '🚢' },
+    ]},
+    { nombre: 'Aranceles',   icono: '🛃', subcategorias: [
+      { nombre: 'Impuesto importacion', icono: '📋' },
+      { nombre: 'Agente aduanero',      icono: '👨‍💼' },
+    ]},
+    { nombre: 'Seguros',     icono: '🛡️', subcategorias: [
+      { nombre: 'Seguro de carga', icono: '🛡️' },
+    ]},
+    { nombre: 'Manipuleo',   icono: '📥', subcategorias: [
+      { nombre: 'Recojo local',         icono: '🚛' },
+      { nombre: 'Almacenaje temporal',  icono: '🏬' },
+    ]},
   ],
   venta: [
-    { nombre: 'Comisiones', subcategorias: ['Comision ML', 'Comision pasarela', 'Comision vendedor'] },
-    { nombre: 'Distribucion', subcategorias: ['Delivery local', 'Courier local'] },
-    { nombre: 'Empaque', subcategorias: ['Kit de empaque', 'Material extra'] },
-    { nombre: 'Marketing directo', subcategorias: ['Descuento por venta', 'Promocion'] },
+    { nombre: 'Comisiones',         icono: '💰', subcategorias: [
+      { nombre: 'Comision ML',         icono: '🛍️' },
+      { nombre: 'Comision pasarela',   icono: '💳' },
+      { nombre: 'Comision vendedor',   icono: '🤝' },
+    ]},
+    { nombre: 'Distribucion',       icono: '🚐', subcategorias: [
+      { nombre: 'Delivery local',  icono: '🛵' },
+      { nombre: 'Courier local',   icono: '📮' },
+    ]},
+    { nombre: 'Empaque',            icono: '📦', subcategorias: [
+      { nombre: 'Kit de empaque',  icono: '🎁' },
+      { nombre: 'Material extra',  icono: '📎' },
+    ]},
+    { nombre: 'Marketing directo',  icono: '📣', subcategorias: [
+      { nombre: 'Descuento por venta', icono: '🏷️' },
+      { nombre: 'Promocion',           icono: '🎯' },
+    ]},
   ],
   periodo: [
-    { nombre: 'Personal', subcategorias: ['Sueldos', 'Comisiones fijas', 'Capacitacion'] },
-    { nombre: 'Local', subcategorias: ['Alquiler', 'Servicios (luz/agua/internet)', 'Mantenimiento'] },
-    { nombre: 'Profesionales', subcategorias: ['Contador', 'Abogado', 'Consultorias'] },
-    { nombre: 'Tecnologia', subcategorias: ['Software/SaaS', 'Hosting', 'Dominio'] },
-    { nombre: 'Operativos', subcategorias: ['Movilidad', 'Suministros oficina', 'Herramientas'] },
-    { nombre: 'Financieros', subcategorias: ['Comisiones bancarias', 'Intereses', 'ITF'] },
-    { nombre: 'Marketing general', subcategorias: ['Publicidad online', 'Material POP', 'Eventos'] },
+    { nombre: 'Personal',          icono: '👥', subcategorias: [
+      { nombre: 'Sueldos',           icono: '💵' },
+      { nombre: 'Comisiones fijas',  icono: '💰' },
+      { nombre: 'Capacitacion',      icono: '📚' },
+    ]},
+    { nombre: 'Local',             icono: '🏢', subcategorias: [
+      { nombre: 'Alquiler',                    icono: '🏠' },
+      { nombre: 'Servicios (luz/agua/internet)', icono: '💧' },
+      { nombre: 'Mantenimiento',               icono: '🔧' },
+    ]},
+    { nombre: 'Profesionales',     icono: '⚖️', subcategorias: [
+      { nombre: 'Contador',     icono: '🧮' },
+      { nombre: 'Abogado',      icono: '⚖️' },
+      { nombre: 'Consultorias', icono: '💼' },
+    ]},
+    { nombre: 'Tecnologia',        icono: '💻', subcategorias: [
+      { nombre: 'Software/SaaS', icono: '☁️' },
+      { nombre: 'Hosting',       icono: '🖥️' },
+      { nombre: 'Dominio',       icono: '🌐' },
+    ]},
+    { nombre: 'Operativos',        icono: '🔧', subcategorias: [
+      { nombre: 'Movilidad',             icono: '🚗' },
+      { nombre: 'Suministros oficina',   icono: '📎' },
+      { nombre: 'Herramientas',          icono: '🛠️' },
+    ]},
+    { nombre: 'Financieros',       icono: '🏦', subcategorias: [
+      { nombre: 'Comisiones bancarias', icono: '💳' },
+      { nombre: 'Intereses',            icono: '📈' },
+      { nombre: 'ITF',                  icono: '🏛️' },
+    ]},
+    { nombre: 'Marketing general', icono: '📣', subcategorias: [
+      { nombre: 'Publicidad online', icono: '📱' },
+      { nombre: 'Material POP',      icono: '🪧' },
+      { nombre: 'Eventos',           icono: '🎉' },
+    ]},
   ],
 };

@@ -654,60 +654,42 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose, gastoEditar }) =>
             </div>
           )}
 
-          {/* Sección 1: Categorización (TAREA-GASTOFORM-V2 · cascada 3 niveles) */}
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="text-base sm:text-lg font-semibold text-slate-900">Categorización del Gasto</h3>
-              {bloqueSeleccionado && categoriaPadreId && (
-                <div className="flex items-center gap-1.5 text-xs">
-                  <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full font-semibold ${
-                    bloqueSeleccionado === 'producto' ? 'bg-blue-100 text-blue-800'
-                    : bloqueSeleccionado === 'venta' ? 'bg-purple-100 text-purple-800'
-                    : 'bg-amber-100 text-amber-800'
-                  }`}>
-                    {bloqueSeleccionado === 'producto' ? '📦 Producto'
-                      : bloqueSeleccionado === 'venta' ? '🛒 Venta'
-                      : '📅 Período'}
-                  </span>
-                  <span className="text-slate-300">›</span>
-                  <span className="font-semibold text-slate-700">
-                    {categoriasPadreDelBloque.find(p => p.id === categoriaPadreId)?.nombre}
-                  </span>
-                  {subcategoriaId && (
-                    <>
-                      <span className="text-slate-300">›</span>
-                      <span className="font-semibold text-slate-700">
-                        {subcategoriasDelPadre.find(s => s.id === subcategoriaId)?.nombre}
-                      </span>
-                    </>
-                  )}
-                </div>
-              )}
-            </div>
+          {/* Sección 1: Categorización (TAREA-GASTOFORM-V2 · cascada 3 niveles) · canon mockup gastoform-v2-3-niveles-s58f.html · chk5.A2 */}
+          <div className="space-y-5">
+            <h3 className="text-base sm:text-lg font-semibold text-slate-900">Categorización del Gasto</h3>
 
-            {/* Nivel 1 · Bloque (3 cards visuales con gradient) */}
+            {/* ════════════════════════════════════════════════════════
+                NIVEL 1 · Selector de Bloque (paso 1 de 3)
+                ════════════════════════════════════════════════════════ */}
             <div>
-              <div className="text-xs uppercase tracking-wider text-slate-600 font-semibold mb-2">
-                Nivel 1 · ¿Qué tipo de gasto es?
+              <div className="flex items-center gap-2 mb-2">
+                <div className="w-7 h-7 rounded-full bg-gradient-to-br from-amber-500 to-orange-600 text-white flex items-center justify-center text-xs font-bold">1</div>
+                <label className="text-sm font-bold uppercase tracking-wider text-slate-700">Tipo de gasto · Bloque</label>
+                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-700">paso 1 de 3</span>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3">
-                {/* Importación */}
+              <p className="text-xs text-slate-500 mb-3 ml-9">¿A qué caja de costos pertenece? Define si afecta CTRU o margen.</p>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3 ml-9">
+                {/* Producto */}
                 <button
                   type="button"
                   onClick={() => handleSeleccionarBloque('producto')}
-                  className={`rounded-xl overflow-hidden border-2 text-left transition-all ${
+                  className={`rounded-2xl overflow-hidden text-left transition-all relative ${
                     bloqueSeleccionado === 'producto'
-                      ?'border-blue-500 ring-2 ring-blue-200'
-                      : 'border-slate-200 hover:border-blue-300'
+                      ? 'ring-2 ring-blue-500 ring-offset-2'
+                      : 'ring-1 ring-blue-200 hover:ring-blue-400'
                   }`}
                 >
+                  {bloqueSeleccionado === 'producto' && (
+                    <span className="absolute top-2 right-2 bg-white text-blue-700 text-[10px] font-bold px-2 py-0.5 rounded-full ring-1 ring-blue-300 z-10">✓ SELECCIONADO</span>
+                  )}
                   <div className="bg-gradient-to-br from-blue-600 to-indigo-600 text-white p-3">
-                    <div className="text-xl mb-0.5">📦</div>
-                    <div className="text-sm font-bold">Importación</div>
+                    <div className="text-2xl mb-1">📦</div>
+                    <div className="text-base font-bold">Producto</div>
                   </div>
-                  <div className="bg-blue-50 px-3 py-2">
-                    <div className="text-[10px] text-blue-700">Costos directos de traer producto</div>
-                    <div className="text-[10px] text-blue-600 italic mt-0.5">→ flete · aranceles · seguros</div>
+                  <div className="bg-blue-50 p-3">
+                    <div className="text-xs text-blue-900 mb-1">Costos directos de traer producto</div>
+                    <div className="text-[10px] text-blue-600 italic">→ flete · aranceles · seguros</div>
+                    <div className="mt-2 text-[10px] text-blue-700 font-semibold">⓵ Impacta CTRU</div>
                   </div>
                 </button>
 
@@ -715,19 +697,23 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose, gastoEditar }) =>
                 <button
                   type="button"
                   onClick={() => handleSeleccionarBloque('venta')}
-                  className={`rounded-xl overflow-hidden border-2 text-left transition-all ${
+                  className={`rounded-2xl overflow-hidden text-left transition-all relative ${
                     bloqueSeleccionado === 'venta'
-                      ? 'border-purple-500 ring-2 ring-purple-200'
-                      : 'border-slate-200 hover:border-purple-300'
+                      ? 'ring-2 ring-purple-500 ring-offset-2'
+                      : 'ring-1 ring-purple-200 hover:ring-purple-400'
                   }`}
                 >
+                  {bloqueSeleccionado === 'venta' && (
+                    <span className="absolute top-2 right-2 bg-white text-purple-700 text-[10px] font-bold px-2 py-0.5 rounded-full ring-1 ring-purple-300 z-10">✓ SELECCIONADO</span>
+                  )}
                   <div className="bg-gradient-to-br from-purple-600 to-fuchsia-600 text-white p-3">
-                    <div className="text-xl mb-0.5">🛒</div>
-                    <div className="text-sm font-bold">Venta</div>
+                    <div className="text-2xl mb-1">🛒</div>
+                    <div className="text-base font-bold">Venta</div>
                   </div>
-                  <div className="bg-purple-50 px-3 py-2">
-                    <div className="text-[10px] text-purple-700">Costos directos por venta</div>
-                    <div className="text-[10px] text-purple-600 italic mt-0.5">→ comisión ML · delivery · empaque</div>
+                  <div className="bg-purple-50 p-3">
+                    <div className="text-xs text-purple-900 mb-1">Costos directos por cada venta</div>
+                    <div className="text-[10px] text-purple-600 italic">→ comisión ML · delivery · empaque</div>
+                    <div className="mt-2 text-[10px] text-purple-700 font-semibold">⓵ Resta margen contribución</div>
                   </div>
                 </button>
 
@@ -735,55 +721,69 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose, gastoEditar }) =>
                 <button
                   type="button"
                   onClick={() => handleSeleccionarBloque('periodo')}
-                  className={`rounded-xl overflow-hidden border-2 text-left transition-all ${
+                  className={`rounded-2xl overflow-hidden text-left transition-all relative ${
                     bloqueSeleccionado === 'periodo'
-                      ? 'border-amber-500 ring-2 ring-amber-200'
-                      : 'border-slate-200 hover:border-amber-300'
+                      ? 'ring-2 ring-amber-500 ring-offset-2'
+                      : 'ring-1 ring-amber-200 hover:ring-amber-400'
                   }`}
                 >
+                  {bloqueSeleccionado === 'periodo' && (
+                    <span className="absolute top-2 right-2 bg-white text-amber-700 text-[10px] font-bold px-2 py-0.5 rounded-full ring-1 ring-amber-300 z-10">✓ SELECCIONADO</span>
+                  )}
                   <div className="bg-gradient-to-br from-amber-500 to-orange-600 text-white p-3">
-                    <div className="text-xl mb-0.5">📅</div>
-                    <div className="text-sm font-bold">Período</div>
+                    <div className="text-2xl mb-1">📅</div>
+                    <div className="text-base font-bold">Período</div>
                   </div>
-                  <div className="bg-amber-50 px-3 py-2">
-                    <div className="text-[10px] text-amber-700">Gastos fijos del mes</div>
-                    <div className="text-[10px] text-amber-600 italic mt-0.5">→ planilla · alquiler · servicios</div>
+                  <div className="bg-amber-50 p-3">
+                    <div className="text-xs text-amber-900 mb-1">Gastos fijos del mes</div>
+                    <div className="text-[10px] text-amber-600 italic">→ planilla · alquiler · servicios</div>
+                    <div className="mt-2 text-[10px] text-amber-700 font-semibold">⓵ Resta margen operativo</div>
                   </div>
                 </button>
               </div>
             </div>
 
-            {/* Nivel 2 · Categoría padre (filtrada por bloque) */}
+            {/* ════════════════════════════════════════════════════════
+                NIVEL 2 · Categoría padre (paso 2 de 3 · filtrada por bloque)
+                ════════════════════════════════════════════════════════ */}
             {bloqueSeleccionado && (
               <div>
-                <div className="text-xs uppercase tracking-wider text-slate-600 font-semibold mb-2">
-                  Nivel 2 · Categoría
-                  {cargandoCategorias && <span className="ml-2 text-slate-400 italic">cargando...</span>}
+                <div className="flex items-center gap-2 mb-2 flex-wrap">
+                  <div className="w-7 h-7 rounded-full bg-gradient-to-br from-amber-500 to-orange-600 text-white flex items-center justify-center text-xs font-bold">2</div>
+                  <label className="text-sm font-bold uppercase tracking-wider text-slate-700">Categoría padre</label>
+                  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-700">paso 2 de 3</span>
+                  <span className="text-[11px] text-slate-500">filtrado por bloque "{bloqueSeleccionado === 'producto' ? 'Producto' : bloqueSeleccionado === 'venta' ? 'Venta' : 'Período'}"</span>
+                  {cargandoCategorias && <span className="text-[11px] text-slate-400 italic">cargando...</span>}
                 </div>
+                <p className="text-xs text-slate-500 mb-3 ml-9">{categoriasPadreDelBloque.length} categorías disponibles · seleccionar una.</p>
                 {categoriasPadreDelBloque.length === 0 && !cargandoCategorias ? (
-                  <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 text-xs text-amber-800">
+                  <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 text-xs text-amber-800 ml-9">
                     ⚠ No hay categorías cargadas en el bloque "{bloqueSeleccionado}". Si recién instalaste el sistema, ejecuta el seed:
                     <code className="block bg-white px-2 py-1 rounded mt-1 font-mono text-[10px]">node scripts/reingenieria/03-seed-categorias-costos.mjs --execute</code>
                   </div>
                 ) : (
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 ml-9">
                     {categoriasPadreDelBloque.map((padre) => {
                       const isSelected = categoriaPadreId === padre.id;
                       const numHijos = arbolCategorias?.[bloqueSeleccionado]?.hijos?.[padre.id]?.length ?? 0;
+                      const icono = (padre as any).icono;
                       return (
                         <button
                           key={padre.id}
                           type="button"
                           onClick={() => handleSeleccionarCategoriaPadre(padre.id)}
-                          className={`p-3 rounded-lg border-2 text-left transition-all ${
+                          className={`p-3 rounded-xl border-2 text-left transition-all ${
                             isSelected
                               ? 'bg-amber-50 border-amber-500 ring-2 ring-amber-200'
-                              : 'bg-white border-slate-200 hover:border-amber-300'
+                              : 'bg-white border-slate-200 hover:border-amber-300 hover:shadow-sm'
                           }`}
                         >
-                          <div className="text-xs font-bold text-slate-900">{padre.nombre}</div>
+                          {icono && <div className="text-base mb-1">{icono}</div>}
+                          <div className={`text-xs font-bold ${isSelected ? 'text-amber-900' : 'text-slate-900'}`}>{padre.nombre}</div>
                           {numHijos > 0 && (
-                            <div className="text-[10px] text-slate-500 mt-0.5">{numHijos} sub</div>
+                            <div className={`text-[10px] mt-0.5 ${isSelected ? 'text-amber-700 font-semibold' : 'text-slate-500'}`}>
+                              {numHijos} sub{isSelected ? ' · seleccionado' : ''}
+                            </div>
                           )}
                         </button>
                       );
@@ -795,38 +795,49 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose, gastoEditar }) =>
                         setNuevaCategoriaNombre('');
                         setShowCategoriaInline('padre');
                       }}
-                      className="p-3 rounded-lg border-2 border-dashed border-pink-300 text-left transition-all hover:border-pink-500 hover:bg-pink-50"
+                      className="p-3 rounded-xl border-2 border-dashed border-pink-300 text-left transition-all hover:border-pink-500 hover:bg-pink-50"
                       title="Crear nueva categoria padre · D-INLINE-8"
                     >
-                      <div className="text-xs font-bold text-pink-700">+ Nueva categoría</div>
-                      <div className="text-[10px] text-pink-500 mt-0.5">Inline · sin abandonar</div>
+                      <div className="text-base mb-1">+</div>
+                      <div className="text-xs font-bold text-pink-700">Nueva categoría</div>
+                      <div className="text-[10px] text-pink-500 mt-0.5">inline desde Maestros</div>
                     </button>
                   </div>
                 )}
               </div>
             )}
 
-            {/* Nivel 3 · Subcategoría (opcional · filtrada por padre) */}
+            {/* ════════════════════════════════════════════════════════
+                NIVEL 3 · Subcategoría (paso 3 de 3 · opcional · filtrada por padre)
+                ════════════════════════════════════════════════════════ */}
             {bloqueSeleccionado && categoriaPadreId && subcategoriasDelPadre.length > 0 && (
               <div>
-                <div className="text-xs uppercase tracking-wider text-slate-600 font-semibold mb-2">
-                  Nivel 3 · Subcategoría · opcional
+                <div className="flex items-center gap-2 mb-2 flex-wrap">
+                  <div className="w-7 h-7 rounded-full bg-gradient-to-br from-amber-500 to-orange-600 text-white flex items-center justify-center text-xs font-bold">3</div>
+                  <label className="text-sm font-bold uppercase tracking-wider text-slate-700">Subcategoría · opcional</label>
+                  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-700">paso 3 de 3</span>
+                  <span className="text-[11px] text-slate-500">filtrado por categoría "{categoriasPadreDelBloque.find(p => p.id === categoriaPadreId)?.nombre}"</span>
                 </div>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                <p className="text-xs text-slate-500 mb-3 ml-9">{subcategoriasDelPadre.length} subcategorías disponibles · puedes elegir una o dejar solo la categoría padre.</p>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 ml-9">
                   {subcategoriasDelPadre.map((hijo) => {
                     const isSelected = subcategoriaId === hijo.id;
+                    const icono = (hijo as any).icono;
                     return (
                       <button
                         key={hijo.id}
                         type="button"
                         onClick={() => handleSeleccionarSubcategoria(hijo.id)}
-                        className={`p-2.5 rounded-lg border-2 text-left transition-all ${
+                        className={`p-2.5 rounded-xl border-2 text-left transition-all ${
                           isSelected
                             ? 'bg-amber-50 border-amber-500 ring-2 ring-amber-200'
-                            : 'bg-white border-slate-200 hover:border-amber-300'
+                            : 'bg-white border-slate-200 hover:border-amber-300 hover:shadow-sm'
                         }`}
                       >
-                        <div className="text-[11px] font-semibold text-slate-900">{hijo.nombre}</div>
+                        <div className={`text-[11px] font-bold ${isSelected ? 'text-amber-900' : 'text-slate-900'}`}>
+                          {icono ? `${icono} ` : ''}{hijo.nombre}
+                        </div>
+                        {isSelected && <div className="text-[10px] text-amber-700 font-semibold mt-0.5">seleccionado</div>}
                       </button>
                     );
                   })}
@@ -837,7 +848,7 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose, gastoEditar }) =>
                         setSubcategoriaId(null);
                         setFormData((prev) => ({ ...prev, categoriaCostoId: categoriaPadreId ?? undefined }));
                       }}
-                      className="p-2.5 rounded-lg border-2 border-dashed border-slate-300 text-[11px] text-slate-500 hover:border-slate-400"
+                      className="p-2.5 rounded-xl border-2 border-dashed border-slate-300 text-[11px] text-slate-500 hover:border-slate-400"
                     >
                       ✕ Sin subcategoría
                     </button>
@@ -849,7 +860,7 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose, gastoEditar }) =>
                       setNuevaCategoriaNombre('');
                       setShowCategoriaInline('subcategoria');
                     }}
-                    className="p-2.5 rounded-lg border-2 border-dashed border-pink-300 text-[11px] text-pink-700 font-bold hover:border-pink-500 hover:bg-pink-50"
+                    className="p-2.5 rounded-xl border-2 border-dashed border-pink-300 text-[11px] text-pink-700 font-bold hover:border-pink-500 hover:bg-pink-50"
                     title="Crear nueva subcategoria · D-INLINE-8"
                   >
                     + Nueva sub
@@ -861,8 +872,10 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose, gastoEditar }) =>
             {/* Permitir crear subcategoria aunque la categoria padre no tenga ninguna */}
             {bloqueSeleccionado && categoriaPadreId && subcategoriasDelPadre.length === 0 && (
               <div>
-                <div className="text-xs uppercase tracking-wider text-slate-600 font-semibold mb-2">
-                  Nivel 3 · Subcategoría · opcional
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-7 h-7 rounded-full bg-gradient-to-br from-amber-500 to-orange-600 text-white flex items-center justify-center text-xs font-bold">3</div>
+                  <label className="text-sm font-bold uppercase tracking-wider text-slate-700">Subcategoría · opcional</label>
+                  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-700">paso 3 de 3</span>
                 </div>
                 <button
                   type="button"
@@ -870,37 +883,73 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose, gastoEditar }) =>
                     setNuevaCategoriaNombre('');
                     setShowCategoriaInline('subcategoria');
                   }}
-                  className="px-4 py-2 rounded-lg border-2 border-dashed border-pink-300 text-xs text-pink-700 font-semibold hover:border-pink-500 hover:bg-pink-50"
+                  className="ml-9 px-4 py-2 rounded-xl border-2 border-dashed border-pink-300 text-xs text-pink-700 font-semibold hover:border-pink-500 hover:bg-pink-50"
                 >
                   + Crear primera subcategoría de "{categoriasPadreDelBloque.find(p => p.id === categoriaPadreId)?.nombre}"
                 </button>
               </div>
             )}
 
-            {/* Info contextual del bloque seleccionado · impacto contable */}
-            {bloqueSeleccionado && (
-              <div className={`p-3 rounded-lg border text-xs ${
-                bloqueSeleccionado === 'producto' ? 'bg-blue-50 border-blue-200 text-blue-900'
-                : bloqueSeleccionado === 'venta' ? 'bg-purple-50 border-purple-200 text-purple-900'
-                : 'bg-amber-50 border-amber-200 text-amber-900'
-              }`}>
-                <div className="flex items-start gap-2">
-                  <Info className="h-4 w-4 mt-0.5 flex-shrink-0" />
-                  <div>
-                    <div className="font-semibold">
-                      {bloqueSeleccionado === 'producto' ? '🎯 Impacto: prorratea a unidades del envío (CTRU)'
-                        : bloqueSeleccionado === 'venta' ? '🎯 Impacto: resta margen contribución de la venta'
-                        : '🎯 Impacto: resta margen operativo del período'}
+            {/* ════════════════════════════════════════════════════════
+                BANNER SÍNTESIS · categorización completa + impacto contable
+                ════════════════════════════════════════════════════════ */}
+            {bloqueSeleccionado && categoriaPadreId && (() => {
+              const blockBgGrad = bloqueSeleccionado === 'producto' ? 'from-blue-50 to-indigo-50 border-blue-300'
+                : bloqueSeleccionado === 'venta' ? 'from-purple-50 to-fuchsia-50 border-purple-300'
+                : 'from-amber-50 to-orange-50 border-amber-300';
+              const blockTextColor = bloqueSeleccionado === 'producto' ? 'text-blue-700'
+                : bloqueSeleccionado === 'venta' ? 'text-purple-700'
+                : 'text-amber-700';
+              const blockTitleColor = bloqueSeleccionado === 'producto' ? 'text-blue-900'
+                : bloqueSeleccionado === 'venta' ? 'text-purple-900'
+                : 'text-amber-900';
+              const pillGrad = bloqueSeleccionado === 'producto' ? 'bg-gradient-to-br from-blue-600 to-indigo-600'
+                : bloqueSeleccionado === 'venta' ? 'bg-gradient-to-br from-purple-600 to-fuchsia-600'
+                : 'bg-gradient-to-br from-amber-500 to-orange-600';
+              const pillEmoji = bloqueSeleccionado === 'producto' ? '📦 Producto'
+                : bloqueSeleccionado === 'venta' ? '🛒 Venta'
+                : '📅 Período';
+              const impactoLabel = bloqueSeleccionado === 'producto' ? 'Prorratea a unidades · CTRU'
+                : bloqueSeleccionado === 'venta' ? 'Resta margen contribución'
+                : 'Resta margen operativo';
+              const padre = categoriasPadreDelBloque.find(p => p.id === categoriaPadreId);
+              const hijo = subcategoriaId ? subcategoriasDelPadre.find(s => s.id === subcategoriaId) : null;
+              const padreIcono = padre ? (padre as any).icono : '';
+              const hijoIcono = hijo ? (hijo as any).icono : '';
+
+              return (
+                <div className={`bg-gradient-to-r ${blockBgGrad} border rounded-xl p-4`}>
+                  <div className="flex items-start justify-between gap-3 flex-wrap">
+                    <div className="min-w-0 flex-1">
+                      <div className={`text-[10px] uppercase tracking-wider font-semibold mb-1.5 ${blockTextColor}`}>
+                        Categorización completa
+                      </div>
+                      <div className="flex items-center gap-2 text-sm flex-wrap">
+                        <span className={`${pillGrad} text-white px-2.5 py-1 rounded-full text-xs font-bold`}>
+                          {pillEmoji}
+                        </span>
+                        <span className="text-slate-400">›</span>
+                        <span className={`font-bold ${blockTitleColor}`}>
+                          {padreIcono ? `${padreIcono} ` : ''}{padre?.nombre}
+                        </span>
+                        {hijo && (
+                          <>
+                            <span className="text-slate-400">›</span>
+                            <span className={`font-bold ${blockTitleColor}`}>
+                              {hijoIcono ? `${hijoIcono} ` : ''}{hijo.nombre}
+                            </span>
+                          </>
+                        )}
+                      </div>
                     </div>
-                    <div className="text-[11px] mt-1 opacity-80">
-                      {bloqueSeleccionado === 'producto' ? 'Ej. flete adicional, aranceles, almacenaje temporal'
-                        : bloqueSeleccionado === 'venta' ? 'Ej. comisión ML, delivery, empaque, descuento por venta'
-                        : 'Ej. recibo Sedapal/Movistar, alquiler, planilla, software'}
+                    <div className="text-right flex-shrink-0">
+                      <div className="text-[10px] uppercase text-slate-500 font-semibold">Impacto contable</div>
+                      <div className={`text-sm font-bold ${blockTextColor}`}>{impactoLabel}</div>
                     </div>
                   </div>
                 </div>
-              </div>
-            )}
+              );
+            })()}
           </div>
 
           {/* Sección: Línea de Negocio */}
