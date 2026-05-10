@@ -3,6 +3,8 @@ import { db } from '../lib/firebase';
 import { logger } from '../lib/logger';
 import { COLLECTIONS } from '../config/collections';
 import { gastoService } from './gasto.service';
+import { categoriaCostoService } from './categoriaCosto.service';
+import { resolverCategoriaCostoIdParaTipo, type ArbolCategorias } from '../utils/gasto.bloque';
 import type { DisposicionDanada, ResponsableDano, IncidenciaEnvio } from '../types/envio.types';
 import type { EstadoUnidad, DisposicionVencida, Unidad } from '../types/unidad.types';
 import type { TipoGasto } from '../types/gasto.types';
@@ -203,10 +205,14 @@ export const bajaInventarioService = {
       } else {
         try {
           const tipoGasto: TipoGasto = 'merma_transferencia';
+          // chk5.A6 · resolver categoriaCostoId canónico desde el tipo (bloque 'producto' · Pérdidas)
+          const arbol = await categoriaCostoService.getArbol() as ArbolCategorias;
+          const categoriaCostoId = resolverCategoriaCostoIdParaTipo(tipoGasto, arbol);
           gastoId = await gastoService.create(
             {
               tipo: tipoGasto,
-              categoria: 'GV',                // S40: categoría válida (antes: 'operativo' inválido)
+              categoria: 'GV',                // legacy compat · @deprecated (chk5.A9 marcará deprecated · chk5.A8 eliminará escritura)
+              categoriaCostoId: categoriaCostoId ?? undefined,  // canon (bloque 'producto' · Pérdidas · Merma transferencia)
               descripcion: `Baja por daño ${data.sku} — ${data.productoNombre}. Disposición: ${data.disposicion}. ${data.motivo}`,
               moneda: 'PEN',
               montoOriginal: costoEfectivoPEN,
@@ -419,9 +425,13 @@ export const bajaInventarioService = {
 
     // 2. Generar gasto contable solo para baja definitiva
     if (data.disposicion === 'baja_definitiva') {
+      // chk5.A6 · resolver categoriaCostoId canónico desde el tipo (bloque 'producto' · Pérdidas)
+      const arbol = await categoriaCostoService.getArbol() as ArbolCategorias;
+      const categoriaCostoId = resolverCategoriaCostoIdParaTipo('merma_vencimiento', arbol);
       const gastoRef = await addDoc(collection(db, COLLECTIONS.GASTOS), {
         tipo: 'merma_vencimiento' as TipoGasto,
-        categoria: 'operativo',
+        categoria: 'GO',                       // legacy compat · @deprecated (chk5.A9)
+        categoriaCostoId: categoriaCostoId ?? null,  // canon (bloque 'producto' · Pérdidas · Merma vencimiento)
         concepto: `Baja por vencimiento: ${data.sku} - ${data.productoNombre}`,
         descripcion: `Producto vencido. Motivo: ${data.motivo}`,
         montoOriginal: data.costoUnidadPEN,

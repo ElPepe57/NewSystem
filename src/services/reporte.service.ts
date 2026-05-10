@@ -197,8 +197,14 @@ export class ReporteService {
 
       // Enriquecer con GV/GD por venta (prorrateado por precio entre productos)
       // y GA/GO prorrateado del periodo
+      // chk5.A6 · normalizar gastos · derivar categoria desde categoriaCostoId si falta
       try {
-        const todosGastos = await gastoService.getAll();
+        const [todosGastosRaw, arbol] = await Promise.all([
+          gastoService.getAll(),
+          (await import('./categoriaCosto.service')).categoriaCostoService.getArbol().catch(() => null),
+        ]);
+        const { normalizarGastosConCategoriaLegacy } = await import('../utils/gasto.bloque');
+        const todosGastos = normalizarGastosConCategoriaLegacy(todosGastosRaw, arbol as any);
         const gastosGVGD = todosGastos.filter(g =>
           (g.categoria === 'GV' || g.categoria === 'GD') && g.ventaId
         );

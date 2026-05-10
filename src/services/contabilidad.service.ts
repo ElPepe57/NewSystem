@@ -24,6 +24,8 @@ import {
 import { db } from '../lib/firebase';
 import { tipoCambioService } from './tipoCambio.service';
 import { tesoreriaService } from './tesoreria.service';
+import { categoriaCostoService } from './categoriaCosto.service';
+import { normalizarGastosConCategoriaLegacy, type ArbolCategorias } from '../utils/gasto.bloque';
 import type { Venta } from '../types/venta.types';
 import type { Gasto } from '../types/gasto.types';
 import type { OrdenCompra } from '../types/ordenCompra.types';
@@ -764,12 +766,19 @@ export async function generarEstadoResultados(mes: number, anio: number, lineaNe
   const tcDefault = await tipoCambioService.resolverTCVenta();
 
   // Obtener datos de todas las fuentes (filtrados por línea de negocio si aplica)
-  const [ventas, gastos, ordenesCompra, transferencias] = await Promise.all([
+  // chk5.A6 · canon · cargar árbol de categorías para normalizar gastos sin categoria legacy
+  const [ventas, gastosRaw, ordenesCompra, transferencias, arbol] = await Promise.all([
     getVentasPeriodo(mes, anio, lineaNegocioId),
     getGastosPeriodo(mes, anio, lineaNegocioId),
     getComprasPeriodo(mes, anio),
-    getTransferenciasPeriodo(mes, anio)
+    getTransferenciasPeriodo(mes, anio),
+    categoriaCostoService.getArbol().catch(() => null) as Promise<ArbolCategorias | null>,
   ]);
+
+  // Normalizar gastos · si solo tienen categoriaCostoId (canon nuevo) sin categoria legacy,
+  // derivar categoria desde tipo + bloque para que las funciones internas (calcularGV/GD/GA/GO)
+  // sigan funcionando sin refactor masivo. Si el gasto ya tiene categoria, no se toca.
+  const gastos = normalizarGastosConCategoriaLegacy(gastosRaw, arbol);
 
   // Período
   const periodo: PeriodoContable = {

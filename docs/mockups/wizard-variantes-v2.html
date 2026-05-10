@@ -1,0 +1,2520 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Wizard Crear Con Variantes V2 · pixel-perfect · 5 estados</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<style>
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f1f5f9; font-variant-numeric: tabular-nums; padding: 60px 20px 60px; }
+.tabular { font-variant-numeric: tabular-nums; }
+
+/* Context frame fijo arriba */
+.context-frame { position: fixed; top: 12px; left: 50%; transform: translateX(-50%); background: white; border: 2px solid #a78bfa; border-radius: 12px; padding: 8px 16px; z-index: 100; box-shadow: 0 4px 20px rgba(0,0,0,0.1); display: flex; align-items: center; gap: 12px; min-width: 620px; }
+.context-icon { width: 32px; height: 32px; border-radius: 8px; background: #ede9fe; color: #6d28d9; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.context-type { font-size: 9px; text-transform: uppercase; letter-spacing: 0.05em; color: #6d28d9; font-weight: 700; }
+.context-title { font-size: 12px; font-weight: 700; color: #0f172a; }
+.context-meta { font-size: 10px; color: #64748b; margin-top: 1px; }
+.context-id { font-family: ui-monospace, monospace; font-size: 9px; background: #f1f5f9; color: #475569; padding: 2px 6px; border-radius: 4px; flex-shrink: 0; }
+
+/* Wrapper de cada estado */
+.parent-hint { background: linear-gradient(135deg, #fafafa 0%, #f1f5f9 100%); border: 1px solid #e2e8f0; border-radius: 16px; padding: 20px; opacity: 0.95; }
+
+/* Numbering secciones (igual #17) */
+.section-num { width: 22px; height: 22px; border-radius: 999px; background: #f1f5f9; color: #475569; font-size: 11px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.section-num.active { background: #14b8a6; color: white; }
+.section-num.complete { background: #10b981; color: white; }
+.section-num.violet { background: #8b5cf6; color: white; }
+
+/* Pasos sidebar wizard */
+.step-dot-complete { width: 28px; height: 28px; border-radius: 999px; background: #10b981; color: white; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.step-dot-active { width: 28px; height: 28px; border-radius: 999px; background: #7c3aed; color: white; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; box-shadow: 0 0 0 4px #ede9fe; }
+.step-dot-pending { width: 28px; height: 28px; border-radius: 999px; background: #e2e8f0; color: #94a3b8; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; }
+.step-line { width: 2px; height: 32px; margin-left: 13px; background: #e2e8f0; }
+.step-line-done { background: #10b981; }
+
+/* Badges inline */
+.badge-ia { font-size: 9px; padding: 2px 6px; border-radius: 999px; font-weight: 700; background: linear-gradient(135deg, #f3e8ff 0%, #fce7f3 100%); color: #7e22ce; border: 1px solid #d8b4fe; display: inline-flex; align-items: center; gap: 3px; }
+.badge-grupo { font-size: 9px; padding: 2px 6px; border-radius: 999px; font-weight: 700; background: #ede9fe; color: #5b21b6; border: 1px solid #c4b5fd; display: inline-flex; align-items: center; gap: 3px; }
+.badge-variante { font-size: 9px; padding: 2px 6px; border-radius: 999px; font-weight: 700; background: #dbeafe; color: #1e40af; border: 1px solid #93c5fd; display: inline-flex; align-items: center; gap: 3px; }
+.badge-cerrado { font-size: 9px; padding: 2px 6px; border-radius: 999px; font-weight: 700; background: #ede9fe; color: #5b21b6; border: 1px solid #c4b5fd; display: inline-flex; align-items: center; gap: 3px; }
+.badge-warn { font-size: 9px; padding: 2px 6px; border-radius: 999px; font-weight: 700; background: #fef3c7; color: #92400e; border: 1px solid #fcd34d; display: inline-flex; align-items: center; gap: 3px; }
+.badge-ok { font-size: 9px; padding: 2px 7px; border-radius: 999px; font-weight: 700; background: #d1fae5; color: #065f46; border: 1px solid #6ee7b7; display: inline-flex; align-items: center; gap: 3px; }
+
+/* Celda de matriz variante */
+.matrix-cell { border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 10px; cursor: pointer; transition: all 0.15s; min-height: 52px; display: flex; flex-direction: column; justify-content: center; }
+.matrix-cell.checked { background: #f0fdf4; border-color: #6ee7b7; border-width: 2px; }
+.matrix-cell.unchecked { background: #f8fafc; border-color: #e2e8f0; opacity: 0.6; }
+.matrix-cell.principal { background: #eff6ff; border-color: #93c5fd; border-width: 2px; }
+
+/* Fila de tabla variante editable */
+.variant-row { background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 12px; display: grid; align-items: center; gap: 8px; }
+.variant-row:hover { border-color: #c4b5fd; background: #faf5ff; }
+.variant-row.principal-row { border-color: #93c5fd; background: #eff6ff; }
+
+/* Chip duracion */
+.chip-dur { font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 999px; display: inline-flex; align-items: center; gap: 4px; }
+.chip-dur.ok { background: #d1fae5; color: #065f46; border: 1px solid #6ee7b7; }
+.chip-dur.atipico { background: #fef3c7; color: #92400e; border: 1px solid #fcd34d; }
+
+/* Inputs inline compactos */
+.input-sm { border: 1px solid #e2e8f0; border-radius: 6px; padding: 4px 8px; font-size: 11px; width: 100%; font-variant-numeric: tabular-nums; }
+.input-sm:focus { outline: none; border-color: #a78bfa; box-shadow: 0 0 0 2px #ede9fe; }
+
+/* Estado label de sección */
+.estado-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; margin-bottom: 8px; }
+</style>
+</head>
+<body>
+
+<!-- Context frame fijo -->
+<div class="context-frame">
+  <div class="context-icon">
+    <i data-lucide="git-branch" style="width:16px;height:16px;"></i>
+  </div>
+  <div class="context-info">
+    <div class="context-type">Wizard F5(A) · Sidebar vertical · 5 pasos · Pixel-perfect · S3.5 V2 · extendido con F/G/H</div>
+    <div class="context-title">WizardConVariantes V2 · Extensión natural de #17 v3 · Grilla 2D + Tabla inline + Marketing IA de grupo</div>
+    <div class="context-meta">8 estados: A=SUP 1 eje · B=SUP 2 ejes (grilla 2D) · C=SKC paso 3 · D=Marketing IA grupo · E=SUP completo · F=SKC 8 atributos expandidos · G=SUP multi-presentación [VD-3] · H=Marketing SKC generado INDECOPI</div>
+  </div>
+  <div class="context-id">wizard-variantes-v2</div>
+</div>
+
+<div class="max-w-6xl mx-auto space-y-10 mt-6">
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- INTRO CARD                                                              -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<div class="bg-white rounded-xl p-5 border-2 border-violet-200 shadow-sm">
+  <div class="flex items-start gap-3 mb-4">
+    <div class="w-10 h-10 rounded-xl bg-violet-100 flex items-center justify-center flex-shrink-0">
+      <i data-lucide="git-branch" class="w-5 h-5 text-violet-700"></i>
+    </div>
+    <div>
+      <div class="text-[10px] uppercase tracking-wider text-violet-700 font-bold">WizardConVariantes V2 · Reemplaza el legacy de 4 pasos</div>
+      <h3 class="text-base font-bold text-slate-900">5 pasos · Sidebar vertical (F5-A) · 8 estados · Extensión natural del Wizard Único #17 v3</h3>
+      <p class="text-xs text-slate-600 mt-1">
+        Mismos componentes compartidos (<code class="bg-slate-100 px-1 rounded">AtributosPorLineaSection</code> · <code class="bg-slate-100 px-1 rounded">MarketingComercialSection</code> · <code class="bg-slate-100 px-1 rounded">ChipDuracionEnvase</code>).
+        Agrega la <strong>Matriz de Variantes</strong> como pieza nueva exclusiva del grupo.
+        Marketing IA genera una vez para todo el grupo con contexto "disponible en N presentaciones".
+        Estados F/G/H incorporan: SKC 8 atributos completos · modo "Distintas presentaciones" con selector de unidad por fila · marketing SKC con compliance INDECOPI diferenciado de SUP.
+      </p>
+    </div>
+  </div>
+
+  <!-- Grid de pasos -->
+  <div class="grid grid-cols-5 gap-2 mb-4">
+    <div class="bg-violet-50 rounded-lg p-2.5 border border-violet-200">
+      <div class="text-[10px] uppercase tracking-wider text-violet-700 font-bold mb-1">1 · Datos comunes</div>
+      <div class="text-[10px] text-slate-700">Identidad + Atributos línea + Clasificación · todo el grupo</div>
+      <div class="mt-1.5 flex flex-wrap gap-1">
+        <span class="badge-grupo">GRUPO</span>
+      </div>
+    </div>
+    <div class="bg-sky-50 rounded-lg p-2.5 border border-sky-200">
+      <div class="text-[10px] uppercase tracking-wider text-sky-700 font-bold mb-1">2 · Variantes</div>
+      <div class="text-[10px] text-slate-700">Eje contenido + eje sabor opcional · Matriz 2D · mín 2 variantes</div>
+      <div class="mt-1.5 flex flex-wrap gap-1">
+        <span class="badge-variante">POR VARIANTE</span>
+      </div>
+    </div>
+    <div class="bg-emerald-50 rounded-lg p-2.5 border border-emerald-200">
+      <div class="text-[10px] uppercase tracking-wider text-emerald-700 font-bold mb-1">3 · Datos por variante</div>
+      <div class="text-[10px] text-slate-700">UPC · Peso · SKU tentativo · Chip duración (SUP)</div>
+      <div class="mt-1.5 flex flex-wrap gap-1">
+        <span class="badge-variante">POR VARIANTE</span>
+      </div>
+    </div>
+    <div class="bg-purple-50 rounded-lg p-2.5 border border-purple-200">
+      <div class="text-[10px] uppercase tracking-wider text-purple-700 font-bold mb-1">4 · Marketing IA</div>
+      <div class="text-[10px] text-slate-700">Genera para todo el grupo · menciona N presentaciones</div>
+      <div class="mt-1.5 flex flex-wrap gap-1">
+        <span class="badge-grupo">GRUPO</span>
+        <span class="badge-ia"><i data-lucide="sparkles" class="w-2.5 h-2.5"></i>IA</span>
+      </div>
+    </div>
+    <div class="bg-slate-50 rounded-lg p-2.5 border border-slate-200">
+      <div class="text-[10px] uppercase tracking-wider text-slate-600 font-bold mb-1">5 · Confirmar</div>
+      <div class="text-[10px] text-slate-700">Resumen + SKUs tentativos + "Crear N variantes"</div>
+    </div>
+  </div>
+
+  <!-- Decisiones visuales resueltas -->
+  <div class="grid grid-cols-2 gap-3">
+    <div class="rounded-lg bg-blue-50 border border-blue-200 p-3">
+      <div class="text-[10px] font-bold text-blue-800 uppercase tracking-wider mb-1 flex items-center gap-1.5">
+        <i data-lucide="check-circle-2" class="w-3 h-3"></i>VISUAL-DECISION-1 · Matriz 2 ejes activos
+      </div>
+      <div class="text-[10px] text-blue-800 leading-relaxed">
+        <strong>Grilla 2D tipo Stripe</strong>: filas = tamaños, columnas = sabores. Celdas clickables (checkbox + label). Celdas grises = hueco (combinación que no existe). La excepción F4 "catálogo denso" aplica: la grilla ES el catálogo de variantes a crear. Permite ver todo el universo de combinaciones de un vistazo y marcar solo las que existen físicamente.
+      </div>
+    </div>
+    <div class="rounded-lg bg-emerald-50 border border-emerald-200 p-3">
+      <div class="text-[10px] font-bold text-emerald-800 uppercase tracking-wider mb-1 flex items-center gap-1.5">
+        <i data-lucide="check-circle-2" class="w-3 h-3"></i>VISUAL-DECISION-2 · Tabla inline vs acordeón
+      </div>
+      <div class="text-[10px] text-emerald-800 leading-relaxed">
+        <strong>Tabla inline compacta</strong> (F4 excepción "catálogo denso"): una fila por variante, columnas: SKU tentativo, contenido, sabor (si aplica), UPC, peso, chip duración, estrella principal, eliminar. Inline editable por celda. Más escaneable y eficiente que acordeones para 3-12 variantes. El chip duracion aparece solo para SUP.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- ESTADO A · SUP · 1 eje (contenido) · Paso 2 Variantes expandido       -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<div>
+  <div class="estado-label">Estado A · SUP simple · 1 eje (contenido) · 3 variantes 90/180/360 cáps · Paso 2 Variantes activo · Paso 1 completado</div>
+
+  <div class="parent-hint">
+    <!-- Modal con sidebar -->
+    <div class="bg-white rounded-2xl shadow-2xl overflow-hidden border border-slate-200 flex" style="min-height:600px;">
+
+      <!-- ══ SIDEBAR ══ -->
+      <aside class="w-56 bg-slate-50 border-r border-slate-200 p-4 flex flex-col flex-shrink-0">
+        <!-- Header sidebar -->
+        <div class="flex items-center gap-2 mb-4 pb-3 border-b border-slate-200">
+          <div class="w-8 h-8 rounded-lg bg-violet-600 flex items-center justify-center flex-shrink-0">
+            <i data-lucide="git-branch" class="w-4 h-4 text-white"></i>
+          </div>
+          <div>
+            <div class="text-[10px] font-bold text-violet-700">Con variantes</div>
+            <div class="text-[9px] text-slate-500">Múltiples SKUs · grupo</div>
+          </div>
+        </div>
+
+        <!-- Pasos -->
+        <div class="flex-1 space-y-0">
+          <!-- Paso 1 · completado -->
+          <div class="flex items-start gap-2.5">
+            <div class="flex flex-col items-center">
+              <div class="step-dot-complete"><i data-lucide="check" style="width:13px;height:13px;"></i></div>
+              <div class="step-line step-line-done"></div>
+            </div>
+            <div class="pt-0.5 pb-1">
+              <div class="text-[10px] font-bold text-emerald-700">Datos comunes</div>
+              <div class="text-[9px] text-emerald-600">SUP · USA · Now Foods</div>
+            </div>
+          </div>
+          <!-- Paso 2 · activo -->
+          <div class="flex items-start gap-2.5">
+            <div class="flex flex-col items-center">
+              <div class="step-dot-active">2</div>
+              <div class="step-line"></div>
+            </div>
+            <div class="pt-0.5 pb-1">
+              <div class="text-[10px] font-bold text-violet-700">Variantes</div>
+              <div class="text-[9px] text-slate-500">En progreso · 3 variantes</div>
+            </div>
+          </div>
+          <!-- Paso 3 -->
+          <div class="flex items-start gap-2.5">
+            <div class="flex flex-col items-center">
+              <div class="step-dot-pending">3</div>
+              <div class="step-line"></div>
+            </div>
+            <div class="pt-0.5 pb-1">
+              <div class="text-[10px] font-medium text-slate-400">Datos por variante</div>
+              <div class="text-[9px] text-slate-400">UPC · Peso · SKU</div>
+            </div>
+          </div>
+          <!-- Paso 4 -->
+          <div class="flex items-start gap-2.5">
+            <div class="flex flex-col items-center">
+              <div class="step-dot-pending">4</div>
+              <div class="step-line"></div>
+            </div>
+            <div class="pt-0.5 pb-1">
+              <div class="text-[10px] font-medium text-slate-400">Marketing IA</div>
+              <div class="text-[9px] text-slate-400">Opcional · grupo</div>
+            </div>
+          </div>
+          <!-- Paso 5 -->
+          <div class="flex items-start gap-2.5">
+            <div class="step-dot-pending">5</div>
+            <div class="pt-0.5 pl-0.5">
+              <div class="text-[10px] font-medium text-slate-400">Confirmar</div>
+              <div class="text-[9px] text-slate-400">Crear N variantes</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Resumen acumulado -->
+        <div class="mt-4 pt-3 border-t border-slate-200">
+          <div class="text-[9px] uppercase tracking-wider text-slate-500 font-bold mb-2">Resumen</div>
+          <div class="bg-white rounded-lg p-2.5 text-[10px] space-y-1.5">
+            <div class="flex justify-between">
+              <span class="text-slate-500">Línea</span>
+              <span class="font-semibold text-indigo-700 flex items-center gap-1"><i data-lucide="pill" class="w-2.5 h-2.5"></i>SUP</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-slate-500">Marca</span>
+              <span class="font-semibold text-slate-900">Now Foods</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-slate-500">Variantes</span>
+              <span class="font-bold text-violet-700 tabular">3</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-slate-500">SKUs previstos</span>
+              <span class="font-bold text-emerald-700 tabular">SUP-0171 → 0173</span>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- ══ CONTENIDO ══ -->
+      <div class="flex-1 flex flex-col min-w-0">
+        <!-- Header del paso -->
+        <div class="bg-gradient-to-br from-slate-50 to-white border-b border-slate-200 px-5 py-4">
+          <div class="flex items-start justify-between gap-3">
+            <div class="flex-1 min-w-[260px]">
+              <div class="text-[10px] text-slate-500 flex items-center gap-1 mb-0.5">
+                <span>Inventario</span>
+                <i data-lucide="chevron-right" class="w-3 h-3 text-slate-400"></i>
+                <span>Productos</span>
+                <i data-lucide="chevron-right" class="w-3 h-3 text-slate-400"></i>
+                <span class="text-slate-700 font-medium">Nuevo con variantes · Paso 2</span>
+              </div>
+              <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                <i data-lucide="layers" class="w-4 h-4 text-violet-600"></i>
+                Definir variantes
+              </h2>
+              <p class="text-[10px] text-slate-500 mt-0.5">Define los contenidos (cantidad neta de cada envase) · mínimo 2 · máximo 12</p>
+            </div>
+            <button class="p-1.5 hover:bg-slate-100 rounded-md text-slate-500 flex-shrink-0"><i data-lucide="x" class="w-4 h-4"></i></button>
+          </div>
+        </div>
+
+        <!-- Body del paso -->
+        <div class="flex-1 p-5 overflow-y-auto space-y-4">
+
+          <!-- Sección: Eje de variación -->
+          <div>
+            <label class="block text-[10px] uppercase tracking-wider text-slate-600 font-bold mb-2 flex items-center gap-1.5">
+              <i data-lucide="git-branch" class="w-3 h-3 text-violet-600"></i>
+              Eje primario de variación <span class="text-rose-500">*</span>
+              <span class="ml-1 text-[9px] text-slate-400 font-normal normal-case">(la unidad es la misma para todas las variantes)</span>
+            </label>
+            <!-- Para SUP: la unidad se hereda del tipo de producto -->
+            <div class="flex items-center gap-2 p-3 bg-indigo-50 border border-indigo-200 rounded-lg">
+              <div class="w-7 h-7 rounded-lg bg-indigo-100 flex items-center justify-center flex-shrink-0">
+                <i data-lucide="pill" class="w-3.5 h-3.5 text-indigo-700"></i>
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="text-[10px] font-bold text-indigo-800">Suplemento · Unidad: cápsulas</div>
+                <div class="text-[9px] text-indigo-600">Heredada de la línea SUP · cada variante tendrá su cantidad en cápsulas</div>
+              </div>
+              <span class="badge-cerrado"><i data-lucide="lock" class="w-2.5 h-2.5"></i>FIJO</span>
+            </div>
+          </div>
+
+          <!-- Sección: Eje secundario (sabor) -->
+          <div>
+            <label class="block text-[10px] uppercase tracking-wider text-slate-600 font-bold mb-2 flex items-center gap-1.5">
+              <i data-lucide="plus-circle" class="w-3 h-3 text-slate-500"></i>
+              Segundo eje (opcional)
+            </label>
+            <!-- Toggle sabor desactivado -->
+            <button class="flex items-center gap-2.5 p-3 bg-white border border-dashed border-slate-300 rounded-lg hover:bg-slate-50 transition-all w-full text-left">
+              <div class="w-7 h-7 rounded-lg bg-slate-100 flex items-center justify-center flex-shrink-0">
+                <i data-lucide="flask-conical" class="w-3.5 h-3.5 text-slate-500"></i>
+              </div>
+              <div class="flex-1">
+                <div class="text-[10px] font-bold text-slate-700">Activar eje Sabor</div>
+                <div class="text-[9px] text-slate-500">Si este producto tiene múltiples sabores por contenido → activa la grilla 2D</div>
+              </div>
+              <div class="w-8 h-4 bg-slate-200 rounded-full flex items-center px-0.5">
+                <div class="w-3 h-3 bg-white rounded-full shadow-sm"></div>
+              </div>
+            </button>
+          </div>
+
+          <!-- Sección: Lista de variantes (1 eje) -->
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <label class="text-[10px] uppercase tracking-wider text-slate-600 font-bold flex items-center gap-1.5">
+                <i data-lucide="list" class="w-3 h-3"></i>
+                Variantes a crear <span class="ml-1 px-1.5 py-0.5 bg-violet-100 text-violet-700 rounded font-bold tabular">3</span>
+              </label>
+              <div class="text-[9px] text-slate-500">mín <span class="tabular font-bold">2</span> · máx <span class="tabular font-bold">12</span></div>
+            </div>
+
+            <!-- Filas de variantes · 1 eje -->
+            <div class="space-y-2">
+              <!-- Variante 1 · principal -->
+              <div class="flex items-center gap-2 p-3 bg-blue-50 border-2 border-blue-300 rounded-xl">
+                <div class="flex items-center gap-1.5 flex-shrink-0">
+                  <!-- Estrella principal -->
+                  <button title="Variante principal" class="text-amber-500 flex-shrink-0">
+                    <i data-lucide="star" class="w-3.5 h-3.5" style="fill: #f59e0b;"></i>
+                  </button>
+                </div>
+                <div class="flex-1 grid grid-cols-3 gap-2 items-center">
+                  <div>
+                    <div class="text-[9px] text-slate-500 mb-0.5">Cantidad</div>
+                    <input type="number" value="90" class="input-sm" style="font-weight:700;">
+                  </div>
+                  <div>
+                    <div class="text-[9px] text-slate-500 mb-0.5">Unidad</div>
+                    <div class="input-sm bg-slate-50 text-slate-600">cápsulas</div>
+                  </div>
+                  <div>
+                    <div class="text-[9px] text-slate-500 mb-0.5">Etiqueta auto</div>
+                    <div class="text-[10px] font-bold text-blue-800 tabular">90 cápsulas</div>
+                  </div>
+                </div>
+                <div class="flex items-center gap-1.5 flex-shrink-0">
+                  <span class="badge-ok">Principal</span>
+                  <button class="p-1 text-slate-300 cursor-not-allowed" title="No se puede eliminar el principal" disabled>
+                    <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Variante 2 -->
+              <div class="flex items-center gap-2 p-3 bg-white border border-slate-200 rounded-xl hover:border-violet-300 transition-all">
+                <button title="Marcar como principal" class="text-slate-300 hover:text-amber-400 flex-shrink-0">
+                  <i data-lucide="star" class="w-3.5 h-3.5"></i>
+                </button>
+                <div class="flex-1 grid grid-cols-3 gap-2 items-center">
+                  <div>
+                    <div class="text-[9px] text-slate-500 mb-0.5">Cantidad</div>
+                    <input type="number" value="180" class="input-sm" style="font-weight:700;">
+                  </div>
+                  <div>
+                    <div class="text-[9px] text-slate-500 mb-0.5">Unidad</div>
+                    <div class="input-sm bg-slate-50 text-slate-600">cápsulas</div>
+                  </div>
+                  <div>
+                    <div class="text-[9px] text-slate-500 mb-0.5">Etiqueta auto</div>
+                    <div class="text-[10px] font-bold text-slate-700 tabular">180 cápsulas</div>
+                  </div>
+                </div>
+                <button class="p-1 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded flex-shrink-0">
+                  <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                </button>
+              </div>
+
+              <!-- Variante 3 -->
+              <div class="flex items-center gap-2 p-3 bg-white border border-slate-200 rounded-xl hover:border-violet-300 transition-all">
+                <button title="Marcar como principal" class="text-slate-300 hover:text-amber-400 flex-shrink-0">
+                  <i data-lucide="star" class="w-3.5 h-3.5"></i>
+                </button>
+                <div class="flex-1 grid grid-cols-3 gap-2 items-center">
+                  <div>
+                    <div class="text-[9px] text-slate-500 mb-0.5">Cantidad</div>
+                    <input type="number" value="360" class="input-sm" style="font-weight:700;">
+                  </div>
+                  <div>
+                    <div class="text-[9px] text-slate-500 mb-0.5">Unidad</div>
+                    <div class="input-sm bg-slate-50 text-slate-600">cápsulas</div>
+                  </div>
+                  <div>
+                    <div class="text-[9px] text-slate-500 mb-0.5">Etiqueta auto</div>
+                    <div class="text-[10px] font-bold text-slate-700 tabular">360 cápsulas</div>
+                  </div>
+                </div>
+                <button class="p-1 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded flex-shrink-0">
+                  <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- Botón agregar variante -->
+            <button class="mt-2 w-full flex items-center justify-center gap-1.5 py-2.5 border border-dashed border-violet-300 bg-violet-50/50 rounded-xl text-[10px] font-bold text-violet-700 hover:bg-violet-100 transition-all">
+              <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+              Agregar variante
+            </button>
+          </div>
+
+          <!-- Info: UPC y peso van en paso 3 -->
+          <div class="rounded-lg border border-sky-200 bg-sky-50 p-3 flex items-start gap-2">
+            <i data-lucide="info" class="w-3.5 h-3.5 text-sky-700 flex-shrink-0 mt-0.5"></i>
+            <div class="text-[10px] text-sky-800">
+              <strong>UPC, peso y SKU tentativo</strong> se definen en el Paso 3 · uno por variante.
+              El chip de duración del envase también aparece en el Paso 3 calculado automáticamente.
+            </div>
+          </div>
+        </div>
+
+        <!-- Footer navegación -->
+        <div class="border-t border-slate-200 bg-slate-50 px-5 py-3 flex items-center justify-between gap-3 flex-shrink-0">
+          <button class="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50">
+            <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
+            Paso anterior
+          </button>
+          <div class="flex items-center gap-1.5 text-[10px] text-slate-500">
+            <i data-lucide="check-circle-2" class="w-3 h-3 text-emerald-500"></i>
+            3 variantes · 1 principal definida
+          </div>
+          <button class="flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-white bg-violet-600 hover:bg-violet-700 rounded-lg shadow-sm">
+            Siguiente · Datos por variante
+            <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- ESTADO B · SUP 2 ejes · Grilla 2D · [VISUAL-DECISION-1 RESUELTA]      -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<div>
+  <div class="estado-label">Estado B · SUP 2 ejes (contenido + sabor) · 2×3 = 6 celdas · 1 hueco · 5 variantes activas · GRILLA 2D [VISUAL-DECISION-1]</div>
+
+  <div class="parent-hint">
+    <div class="bg-white rounded-2xl shadow-2xl overflow-hidden border border-slate-200 flex" style="min-height:600px;">
+
+      <!-- SIDEBAR B (comprimido, igual patrón) -->
+      <aside class="w-56 bg-slate-50 border-r border-slate-200 p-4 flex flex-col flex-shrink-0">
+        <div class="flex items-center gap-2 mb-4 pb-3 border-b border-slate-200">
+          <div class="w-8 h-8 rounded-lg bg-violet-600 flex items-center justify-center flex-shrink-0">
+            <i data-lucide="git-branch" class="w-4 h-4 text-white"></i>
+          </div>
+          <div>
+            <div class="text-[10px] font-bold text-violet-700">Con variantes</div>
+            <div class="text-[9px] text-slate-500">Múltiples SKUs · grupo</div>
+          </div>
+        </div>
+        <div class="flex-1 space-y-0">
+          <div class="flex items-start gap-2.5">
+            <div class="flex flex-col items-center">
+              <div class="step-dot-complete"><i data-lucide="check" style="width:13px;height:13px;"></i></div>
+              <div class="step-line step-line-done"></div>
+            </div>
+            <div class="pt-0.5 pb-1">
+              <div class="text-[10px] font-bold text-emerald-700">Datos comunes</div>
+              <div class="text-[9px] text-emerald-600">SUP · USA · Optimum</div>
+            </div>
+          </div>
+          <div class="flex items-start gap-2.5">
+            <div class="flex flex-col items-center">
+              <div class="step-dot-active">2</div>
+              <div class="step-line"></div>
+            </div>
+            <div class="pt-0.5 pb-1">
+              <div class="text-[10px] font-bold text-violet-700">Variantes</div>
+              <div class="text-[9px] text-violet-600">2×3 · 5 activas · 1 hueco</div>
+            </div>
+          </div>
+          <div class="flex items-start gap-2.5">
+            <div class="flex flex-col items-center"><div class="step-dot-pending">3</div><div class="step-line"></div></div>
+            <div class="pt-0.5 pb-1"><div class="text-[10px] text-slate-400">Datos por variante</div></div>
+          </div>
+          <div class="flex items-start gap-2.5">
+            <div class="flex flex-col items-center"><div class="step-dot-pending">4</div><div class="step-line"></div></div>
+            <div class="pt-0.5 pb-1"><div class="text-[10px] text-slate-400">Marketing IA</div></div>
+          </div>
+          <div class="flex items-start gap-2.5">
+            <div class="step-dot-pending">5</div>
+            <div class="pt-0.5 pl-0.5"><div class="text-[10px] text-slate-400">Confirmar</div></div>
+          </div>
+        </div>
+        <div class="mt-4 pt-3 border-t border-slate-200">
+          <div class="text-[9px] uppercase tracking-wider text-slate-500 font-bold mb-2">Resumen</div>
+          <div class="bg-white rounded-lg p-2.5 text-[10px] space-y-1.5">
+            <div class="flex justify-between"><span class="text-slate-500">Línea</span><span class="font-semibold text-indigo-700">SUP</span></div>
+            <div class="flex justify-between"><span class="text-slate-500">Marca</span><span class="font-semibold">Optimum</span></div>
+            <div class="flex justify-between"><span class="text-slate-500">Ejes</span><span class="font-bold text-violet-700">2 · Contenido + Sabor</span></div>
+            <div class="flex justify-between"><span class="text-slate-500">Variantes</span><span class="font-bold text-violet-700 tabular">5 activas</span></div>
+            <div class="flex justify-between"><span class="text-slate-500">SKUs previstos</span><span class="font-bold text-emerald-700 tabular text-[9px]">SUP-0171 → 0175</span></div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- CONTENIDO B -->
+      <div class="flex-1 flex flex-col min-w-0">
+        <div class="bg-gradient-to-br from-slate-50 to-white border-b border-slate-200 px-5 py-4">
+          <div class="flex items-start justify-between gap-3">
+            <div class="flex-1 min-w-[260px]">
+              <div class="text-[10px] text-slate-500 flex items-center gap-1 mb-0.5">
+                <span>Inventario</span>
+                <i data-lucide="chevron-right" class="w-3 h-3 text-slate-400"></i>
+                <span>Productos</span>
+                <i data-lucide="chevron-right" class="w-3 h-3 text-slate-400"></i>
+                <span class="text-slate-700 font-medium">Nuevo con variantes · Paso 2</span>
+              </div>
+              <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                <i data-lucide="grid-2x2" class="w-4 h-4 text-violet-600"></i>
+                Matriz de variantes · 2 ejes activos
+              </h2>
+              <p class="text-[10px] text-slate-500 mt-0.5">Filas = contenidos · Columnas = sabores · Celda marcada = variante existe · celda gris = no crear</p>
+            </div>
+            <button class="p-1.5 hover:bg-slate-100 rounded-md text-slate-500 flex-shrink-0"><i data-lucide="x" class="w-4 h-4"></i></button>
+          </div>
+        </div>
+
+        <div class="flex-1 p-5 overflow-y-auto space-y-4">
+
+          <!-- Ejes configurados -->
+          <div class="grid grid-cols-2 gap-3">
+            <!-- Eje primario: tamaños -->
+            <div class="bg-indigo-50 border border-indigo-200 rounded-lg p-3">
+              <div class="flex items-center justify-between mb-2">
+                <div class="text-[10px] font-bold text-indigo-800 uppercase tracking-wider flex items-center gap-1.5">
+                  <i data-lucide="move-vertical" class="w-3 h-3"></i>Eje primario · Contenido
+                </div>
+                <span class="badge-cerrado"><i data-lucide="lock" class="w-2.5 h-2.5"></i>OBLIGATORIO</span>
+              </div>
+              <div class="space-y-1.5">
+                <div class="flex items-center gap-2">
+                  <input type="number" value="2" class="input-sm w-16 tabular" style="font-weight:700;">
+                  <span class="text-[10px] text-slate-600">lb</span>
+                  <button class="ml-auto p-0.5 text-slate-400 hover:text-rose-500"><i data-lucide="trash-2" class="w-3 h-3"></i></button>
+                </div>
+                <div class="flex items-center gap-2">
+                  <input type="number" value="5" class="input-sm w-16 tabular" style="font-weight:700;">
+                  <span class="text-[10px] text-slate-600">lb</span>
+                  <button class="ml-auto p-0.5 text-slate-400 hover:text-rose-500"><i data-lucide="trash-2" class="w-3 h-3"></i></button>
+                </div>
+                <button class="flex items-center gap-1 text-[9px] text-indigo-700 font-bold hover:underline mt-1">
+                  <i data-lucide="plus" class="w-3 h-3"></i>Añadir contenido
+                </button>
+              </div>
+            </div>
+
+            <!-- Eje secundario: sabores -->
+            <div class="bg-violet-50 border-2 border-violet-300 rounded-lg p-3">
+              <div class="flex items-center justify-between mb-2">
+                <div class="text-[10px] font-bold text-violet-800 uppercase tracking-wider flex items-center gap-1.5">
+                  <i data-lucide="move-horizontal" class="w-3 h-3"></i>Eje secundario · Sabor
+                </div>
+                <div class="flex items-center gap-1.5">
+                  <!-- Toggle ON -->
+                  <div class="w-8 h-4 bg-violet-500 rounded-full flex items-center px-0.5 justify-end">
+                    <div class="w-3 h-3 bg-white rounded-full shadow-sm"></div>
+                  </div>
+                  <span class="text-[9px] font-bold text-violet-700">ACTIVO</span>
+                </div>
+              </div>
+              <div class="space-y-1.5">
+                <div class="flex items-center gap-2">
+                  <input type="text" value="Chocolate" class="input-sm flex-1">
+                  <button class="p-0.5 text-slate-400 hover:text-rose-500"><i data-lucide="trash-2" class="w-3 h-3"></i></button>
+                </div>
+                <div class="flex items-center gap-2">
+                  <input type="text" value="Vainilla" class="input-sm flex-1">
+                  <button class="p-0.5 text-slate-400 hover:text-rose-500"><i data-lucide="trash-2" class="w-3 h-3"></i></button>
+                </div>
+                <div class="flex items-center gap-2">
+                  <input type="text" value="Fresa" class="input-sm flex-1">
+                  <button class="p-0.5 text-slate-400 hover:text-rose-500"><i data-lucide="trash-2" class="w-3 h-3"></i></button>
+                </div>
+                <button class="flex items-center gap-1 text-[9px] text-violet-700 font-bold hover:underline">
+                  <i data-lucide="plus" class="w-3 h-3"></i>Añadir sabor
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- ═══════════════════════════════════════════════════════════ -->
+          <!-- GRILLA 2D · VISUAL-DECISION-1 RESUELTA                      -->
+          <!-- Decisión: grilla 2D tipo Stripe · filas=tamaños cols=sabores -->
+          <!-- Celdas clickables · checkbox semántico + SKU tentativo       -->
+          <!-- Celda gris = hueco (no crear esta combinación)               -->
+          <!-- ═══════════════════════════════════════════════════════════ -->
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <div class="text-[10px] font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+                <i data-lucide="grid-2x2" class="w-3 h-3 text-violet-600"></i>
+                Matriz de combinaciones
+                <!-- Leyenda -->
+                <span class="flex items-center gap-2 ml-2 font-normal normal-case text-[9px] text-slate-500">
+                  <span class="w-3 h-3 rounded bg-green-100 border border-green-300 inline-block"></span>Crear
+                  <span class="w-3 h-3 rounded bg-slate-100 border border-slate-200 inline-block opacity-50"></span>No crear
+                  <span class="w-3 h-3 rounded bg-blue-100 border-2 border-blue-300 inline-block"></span>Principal
+                </span>
+              </div>
+              <div class="text-[9px] text-violet-700 font-bold tabular">5 variantes activas · 1 hueco</div>
+            </div>
+
+            <!-- Tabla grilla -->
+            <div class="overflow-x-auto">
+              <table class="w-full text-[10px]">
+                <thead>
+                  <tr>
+                    <!-- Celda esquina vacía -->
+                    <th class="w-24 p-2 text-left text-[9px] text-slate-500 font-bold uppercase tracking-wider border-b border-slate-200">Contenido</th>
+                    <!-- Columnas sabores -->
+                    <th class="p-2 text-center font-bold text-violet-700 border-b border-slate-200">
+                      <div class="flex items-center justify-center gap-1">
+                        <i data-lucide="flask-conical" class="w-3 h-3"></i>Chocolate
+                      </div>
+                    </th>
+                    <th class="p-2 text-center font-bold text-violet-700 border-b border-slate-200">
+                      <div class="flex items-center justify-center gap-1">
+                        <i data-lucide="flask-conical" class="w-3 h-3"></i>Vainilla
+                      </div>
+                    </th>
+                    <th class="p-2 text-center font-bold text-violet-700 border-b border-slate-200">
+                      <div class="flex items-center justify-center gap-1">
+                        <i data-lucide="flask-conical" class="w-3 h-3"></i>Fresa
+                      </div>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <!-- Fila: 2 lb -->
+                  <tr class="border-b border-slate-100">
+                    <td class="p-2 font-bold text-slate-800 tabular">
+                      <div class="flex items-center gap-1">
+                        <span class="text-base font-bold tabular">2</span>
+                        <span class="text-slate-500">lb</span>
+                      </div>
+                    </td>
+                    <!-- 2lb · Chocolate · PRINCIPAL -->
+                    <td class="p-1.5">
+                      <div class="matrix-cell principal" style="cursor:pointer;" title="2 lb · Chocolate · Principal del grupo">
+                        <div class="flex items-center gap-1 mb-1">
+                          <input type="checkbox" checked class="w-3 h-3 rounded accent-blue-500">
+                          <i data-lucide="star" class="w-3 h-3 text-amber-500" style="fill:#f59e0b;" title="Principal"></i>
+                        </div>
+                        <div class="text-[9px] font-bold text-blue-800 tabular">SUP-0171</div>
+                        <div class="text-[8px] text-blue-600 mt-0.5">2 lb · Chocolate</div>
+                      </div>
+                    </td>
+                    <!-- 2lb · Vainilla -->
+                    <td class="p-1.5">
+                      <div class="matrix-cell checked" title="2 lb · Vainilla">
+                        <div class="flex items-center gap-1 mb-1">
+                          <input type="checkbox" checked class="w-3 h-3 rounded accent-emerald-500">
+                        </div>
+                        <div class="text-[9px] font-bold text-emerald-800 tabular">SUP-0172</div>
+                        <div class="text-[8px] text-emerald-600 mt-0.5">2 lb · Vainilla</div>
+                      </div>
+                    </td>
+                    <!-- 2lb · Fresa -->
+                    <td class="p-1.5">
+                      <div class="matrix-cell checked" title="2 lb · Fresa">
+                        <div class="flex items-center gap-1 mb-1">
+                          <input type="checkbox" checked class="w-3 h-3 rounded accent-emerald-500">
+                        </div>
+                        <div class="text-[9px] font-bold text-emerald-800 tabular">SUP-0173</div>
+                        <div class="text-[8px] text-emerald-600 mt-0.5">2 lb · Fresa</div>
+                      </div>
+                    </td>
+                  </tr>
+                  <!-- Fila: 5 lb -->
+                  <tr>
+                    <td class="p-2 font-bold text-slate-800 tabular">
+                      <div class="flex items-center gap-1">
+                        <span class="text-base font-bold tabular">5</span>
+                        <span class="text-slate-500">lb</span>
+                      </div>
+                    </td>
+                    <!-- 5lb · Chocolate -->
+                    <td class="p-1.5">
+                      <div class="matrix-cell checked" title="5 lb · Chocolate">
+                        <div class="flex items-center gap-1 mb-1">
+                          <input type="checkbox" checked class="w-3 h-3 rounded accent-emerald-500">
+                        </div>
+                        <div class="text-[9px] font-bold text-emerald-800 tabular">SUP-0174</div>
+                        <div class="text-[8px] text-emerald-600 mt-0.5">5 lb · Chocolate</div>
+                      </div>
+                    </td>
+                    <!-- 5lb · Vainilla -->
+                    <td class="p-1.5">
+                      <div class="matrix-cell checked" title="5 lb · Vainilla">
+                        <div class="flex items-center gap-1 mb-1">
+                          <input type="checkbox" checked class="w-3 h-3 rounded accent-emerald-500">
+                        </div>
+                        <div class="text-[9px] font-bold text-emerald-800 tabular">SUP-0175</div>
+                        <div class="text-[8px] text-emerald-600 mt-0.5">5 lb · Vainilla</div>
+                      </div>
+                    </td>
+                    <!-- 5lb · Fresa · HUECO -->
+                    <td class="p-1.5">
+                      <!-- Decisión de diseño: celda gris con checkbox desmarcado = no crear esta combinación -->
+                      <!-- El usuario puede marcarla si la combinación existe físicamente -->
+                      <div class="matrix-cell unchecked" title="5 lb · Fresa · No existe esta combinación · clic para activar">
+                        <div class="flex items-center gap-1 mb-1">
+                          <input type="checkbox" class="w-3 h-3 rounded">
+                        </div>
+                        <div class="text-[9px] text-slate-400 tabular">—</div>
+                        <div class="text-[8px] text-slate-400 mt-0.5">No crear</div>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Info hueco -->
+            <div class="mt-2 flex items-start gap-1.5 text-[9px] text-slate-500">
+              <i data-lucide="info" class="w-3 h-3 flex-shrink-0 mt-0.5"></i>
+              Las celdas grises no generan variante. Clic en cualquier celda para activar/desactivar. El sistema crea solo las combinaciones marcadas.
+            </div>
+          </div>
+
+        </div>
+
+        <div class="border-t border-slate-200 bg-slate-50 px-5 py-3 flex items-center justify-between gap-3 flex-shrink-0">
+          <button class="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50">
+            <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>Paso anterior
+          </button>
+          <div class="text-[10px] text-slate-500 flex items-center gap-1.5">
+            <i data-lucide="check-circle-2" class="w-3 h-3 text-emerald-500"></i>
+            5 variantes · grilla 2×3 · 1 hueco
+          </div>
+          <button class="flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-white bg-violet-600 hover:bg-violet-700 rounded-lg shadow-sm">
+            Siguiente · Datos por variante
+            <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- ESTADO C · SKC 1 eje (contenido ml) · Paso 3 Datos por variante       -->
+<!-- [VISUAL-DECISION-2 RESUELTA: Tabla inline compacta]                    -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<div>
+  <div class="estado-label">Estado C · SKC simple · 50ml / 70ml · Paso 3 Datos por variante · Tabla inline [VISUAL-DECISION-2] · sin chip duración (solo SUP)</div>
+
+  <div class="parent-hint">
+    <div class="bg-white rounded-2xl shadow-2xl overflow-hidden border border-slate-200 flex" style="min-height:560px;">
+
+      <!-- SIDEBAR C -->
+      <aside class="w-56 bg-slate-50 border-r border-slate-200 p-4 flex flex-col flex-shrink-0">
+        <div class="flex items-center gap-2 mb-4 pb-3 border-b border-slate-200">
+          <div class="w-8 h-8 rounded-lg bg-violet-600 flex items-center justify-center">
+            <i data-lucide="git-branch" class="w-4 h-4 text-white"></i>
+          </div>
+          <div>
+            <div class="text-[10px] font-bold text-violet-700">Con variantes</div>
+            <div class="text-[9px] text-slate-500">Skincare · 2 variantes</div>
+          </div>
+        </div>
+        <div class="flex-1 space-y-0">
+          <div class="flex items-start gap-2.5">
+            <div class="flex flex-col items-center">
+              <div class="step-dot-complete"><i data-lucide="check" style="width:13px;height:13px;"></i></div>
+              <div class="step-line step-line-done"></div>
+            </div>
+            <div class="pt-0.5 pb-1">
+              <div class="text-[10px] font-bold text-emerald-700">Datos comunes</div>
+              <div class="text-[9px] text-emerald-600">SKC · Corea · Centellian24</div>
+            </div>
+          </div>
+          <div class="flex items-start gap-2.5">
+            <div class="flex flex-col items-center">
+              <div class="step-dot-complete"><i data-lucide="check" style="width:13px;height:13px;"></i></div>
+              <div class="step-line step-line-done"></div>
+            </div>
+            <div class="pt-0.5 pb-1">
+              <div class="text-[10px] font-bold text-emerald-700">Variantes</div>
+              <div class="text-[9px] text-emerald-600">50 ml · 70 ml</div>
+            </div>
+          </div>
+          <div class="flex items-start gap-2.5">
+            <div class="flex flex-col items-center">
+              <div class="step-dot-active">3</div>
+              <div class="step-line"></div>
+            </div>
+            <div class="pt-0.5 pb-1">
+              <div class="text-[10px] font-bold text-violet-700">Datos por variante</div>
+              <div class="text-[9px] text-violet-600">UPC · Peso · SKU</div>
+            </div>
+          </div>
+          <div class="flex items-start gap-2.5">
+            <div class="flex flex-col items-center"><div class="step-dot-pending">4</div><div class="step-line"></div></div>
+            <div class="pt-0.5 pb-1"><div class="text-[10px] text-slate-400">Marketing IA</div></div>
+          </div>
+          <div class="flex items-start gap-2.5">
+            <div class="step-dot-pending">5</div>
+            <div class="pt-0.5 pl-0.5"><div class="text-[10px] text-slate-400">Confirmar</div></div>
+          </div>
+        </div>
+        <div class="mt-4 pt-3 border-t border-slate-200">
+          <div class="text-[9px] uppercase tracking-wider text-slate-500 font-bold mb-2">Resumen</div>
+          <div class="bg-white rounded-lg p-2.5 text-[10px] space-y-1.5">
+            <div class="flex justify-between"><span class="text-slate-500">Línea</span><span class="font-semibold text-amber-700 flex items-center gap-1"><i data-lucide="droplets" class="w-2.5 h-2.5"></i>SKC</span></div>
+            <div class="flex justify-between"><span class="text-slate-500">Marca</span><span class="font-semibold">Centellian24</span></div>
+            <div class="flex justify-between"><span class="text-slate-500">Variantes</span><span class="font-bold text-violet-700 tabular">2</span></div>
+            <div class="flex justify-between"><span class="text-slate-500">SKUs</span><span class="font-bold text-emerald-700 tabular text-[9px]">SKC-0043 · 0044</span></div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- CONTENIDO C · Tabla inline -->
+      <div class="flex-1 flex flex-col min-w-0">
+        <div class="bg-gradient-to-br from-slate-50 to-white border-b border-slate-200 px-5 py-4">
+          <div class="flex items-start justify-between gap-3">
+            <div class="flex-1 min-w-[260px]">
+              <div class="text-[10px] text-slate-500 flex items-center gap-1 mb-0.5">
+                <span>Inventario</span>
+                <i data-lucide="chevron-right" class="w-3 h-3 text-slate-400"></i>
+                <span>Productos</span>
+                <i data-lucide="chevron-right" class="w-3 h-3 text-slate-400"></i>
+                <span class="text-slate-700 font-medium">Nuevo con variantes · Paso 3</span>
+              </div>
+              <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                <i data-lucide="table-2" class="w-4 h-4 text-violet-600"></i>
+                Datos por variante
+              </h2>
+              <p class="text-[10px] text-slate-500 mt-0.5">UPC único · SKU tentativo · peso opcional (se confirma al recibir el producto en destino)</p>
+            </div>
+            <button class="p-1.5 hover:bg-slate-100 rounded-md text-slate-500 flex-shrink-0"><i data-lucide="x" class="w-4 h-4"></i></button>
+          </div>
+        </div>
+
+        <div class="flex-1 p-5 overflow-y-auto">
+
+          <!-- ═══════════════════════════════════════════════════════════ -->
+          <!-- TABLA INLINE · VISUAL-DECISION-2 RESUELTA                   -->
+          <!-- Decisión: tabla densa (F4 excepción catálogo denso)         -->
+          <!-- Columnas: Variante · SKU tentativo · UPC · Peso · Acciones  -->
+          <!-- Edición inline por celda · sin acordeones                   -->
+          <!-- Para SUP: columna extra "Duración" con chip calculado        -->
+          <!-- ═══════════════════════════════════════════════════════════ -->
+          <div class="bg-white border border-slate-200 rounded-xl overflow-hidden">
+            <!-- Header tabla -->
+            <div class="grid bg-slate-50 border-b border-slate-200 px-3 py-2 text-[9px] font-bold uppercase tracking-wider text-slate-500" style="grid-template-columns: 2fr 1fr 1.5fr 1fr auto;">
+              <div class="pl-1">Variante</div>
+              <div class="tabular">SKU tentativo</div>
+              <div>Código UPC</div>
+              <div class="tabular" title="Opcional al crear · se confirma al recibir el producto en destino">Peso lb <span class="text-[8px] text-slate-400 normal-case font-normal">opcional</span></div>
+              <div class="w-8"></div>
+            </div>
+
+            <!-- Fila 1 · 50ml · principal -->
+            <div class="grid items-center px-3 py-2.5 border-b border-slate-100 bg-blue-50/60 hover:bg-blue-50 transition-all" style="grid-template-columns: 2fr 1fr 1.5fr 1fr auto;">
+              <div class="flex items-center gap-2 min-w-0">
+                <i data-lucide="star" class="w-3.5 h-3.5 text-amber-500 flex-shrink-0" style="fill:#f59e0b;" title="Principal"></i>
+                <div>
+                  <div class="text-xs font-bold text-slate-900 tabular">50 ml</div>
+                  <div class="text-[9px] text-blue-600 font-medium">Principal del grupo</div>
+                </div>
+              </div>
+              <div class="text-[10px] font-mono font-bold text-emerald-700 tabular">SKC-0043</div>
+              <div>
+                <input type="text" placeholder="012345678901" class="input-sm tabular" value="8809568711030">
+              </div>
+              <div>
+                <input type="number" step="0.01" placeholder="0.00" class="input-sm tabular" value="0.14">
+              </div>
+              <div>
+                <button class="p-1 text-slate-300 cursor-not-allowed" disabled title="No se puede eliminar el principal">
+                  <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- Fila 2 · 70ml -->
+            <div class="grid items-center px-3 py-2.5 hover:bg-slate-50 transition-all" style="grid-template-columns: 2fr 1fr 1.5fr 1fr auto;">
+              <div class="flex items-center gap-2 min-w-0">
+                <button title="Marcar como principal" class="text-slate-300 hover:text-amber-400 flex-shrink-0">
+                  <i data-lucide="star" class="w-3.5 h-3.5"></i>
+                </button>
+                <div>
+                  <div class="text-xs font-bold text-slate-900 tabular">70 ml</div>
+                  <div class="text-[9px] text-slate-400">Click estrella para ser principal</div>
+                </div>
+              </div>
+              <div class="text-[10px] font-mono font-bold text-emerald-700 tabular">SKC-0044</div>
+              <div>
+                <input type="text" placeholder="012345678901" class="input-sm tabular">
+              </div>
+              <div>
+                <input type="number" step="0.01" placeholder="0.00" class="input-sm tabular" value="0.20">
+              </div>
+              <div>
+                <button class="p-1 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded">
+                  <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Info SKUs tentativos -->
+          <div class="mt-3 rounded-lg bg-amber-50 border border-amber-200 p-3 flex items-start gap-2">
+            <i data-lucide="alert-triangle" class="w-3.5 h-3.5 text-amber-600 flex-shrink-0 mt-0.5"></i>
+            <div class="text-[10px] text-amber-800">
+              <strong>SKUs tentativos:</strong> los números finales se asignan en el submit vía transacciones atómicas.
+              Si otro usuario crea productos simultáneamente, los SKUs reales pueden diferir.
+            </div>
+          </div>
+
+          <!-- Info UPC -->
+          <div class="mt-2 rounded-lg bg-slate-50 border border-slate-200 p-2.5 flex items-start gap-2">
+            <i data-lucide="scan-barcode" class="w-3.5 h-3.5 text-slate-500 flex-shrink-0 mt-0.5"></i>
+            <div class="text-[10px] text-slate-600">
+              <strong>UPC es opcional</strong> por variante. Si lo dejas vacío, se puede ingresar después desde el editor. Cada variante tiene su propio código GS1 único.
+            </div>
+          </div>
+        </div>
+
+        <div class="border-t border-slate-200 bg-slate-50 px-5 py-3 flex items-center justify-between gap-3 flex-shrink-0">
+          <button class="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50">
+            <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>Paso anterior
+          </button>
+          <div class="text-[10px] text-slate-500 flex items-center gap-1.5">
+            <i data-lucide="check-circle-2" class="w-3 h-3 text-emerald-500"></i>
+            2/2 variantes · 1 principal · 2 pesos definidos
+          </div>
+          <button class="flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-white bg-violet-600 hover:bg-violet-700 rounded-lg shadow-sm">
+            Siguiente · Marketing IA
+            <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- ESTADO D · Paso 3 SUP con chip duración + Paso 4 Marketing IA grupo   -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<div>
+  <div class="estado-label">Estado D · SUP · Paso 3 con chip duración por variante + Paso 4 Marketing IA "Generar para el grupo" habilitado · output preview</div>
+
+  <div class="parent-hint">
+    <div class="bg-white rounded-2xl shadow-2xl overflow-hidden border border-slate-200 flex" style="min-height:620px;">
+
+      <!-- SIDEBAR D -->
+      <aside class="w-56 bg-slate-50 border-r border-slate-200 p-4 flex flex-col flex-shrink-0">
+        <div class="flex items-center gap-2 mb-4 pb-3 border-b border-slate-200">
+          <div class="w-8 h-8 rounded-lg bg-violet-600 flex items-center justify-center">
+            <i data-lucide="git-branch" class="w-4 h-4 text-white"></i>
+          </div>
+          <div>
+            <div class="text-[10px] font-bold text-violet-700">Con variantes</div>
+            <div class="text-[9px] text-slate-500">SUP · 3 variantes</div>
+          </div>
+        </div>
+        <div class="flex-1 space-y-0">
+          <div class="flex items-start gap-2.5">
+            <div class="flex flex-col items-center">
+              <div class="step-dot-complete"><i data-lucide="check" style="width:13px;height:13px;"></i></div>
+              <div class="step-line step-line-done"></div>
+            </div>
+            <div class="pt-0.5 pb-1"><div class="text-[10px] font-bold text-emerald-700">Datos comunes</div></div>
+          </div>
+          <div class="flex items-start gap-2.5">
+            <div class="flex flex-col items-center">
+              <div class="step-dot-complete"><i data-lucide="check" style="width:13px;height:13px;"></i></div>
+              <div class="step-line step-line-done"></div>
+            </div>
+            <div class="pt-0.5 pb-1"><div class="text-[10px] font-bold text-emerald-700">Variantes · 90/180/360 caps</div></div>
+          </div>
+          <div class="flex items-start gap-2.5">
+            <div class="flex flex-col items-center">
+              <div class="step-dot-complete"><i data-lucide="check" style="width:13px;height:13px;"></i></div>
+              <div class="step-line step-line-done"></div>
+            </div>
+            <div class="pt-0.5 pb-1"><div class="text-[10px] font-bold text-emerald-700">Datos por variante</div></div>
+          </div>
+          <div class="flex items-start gap-2.5">
+            <div class="flex flex-col items-center">
+              <div class="step-dot-active">4</div>
+              <div class="step-line"></div>
+            </div>
+            <div class="pt-0.5 pb-1">
+              <div class="text-[10px] font-bold text-violet-700">Marketing IA</div>
+              <div class="text-[9px] text-violet-600">Listo para generar</div>
+            </div>
+          </div>
+          <div class="flex items-start gap-2.5">
+            <div class="step-dot-pending">5</div>
+            <div class="pt-0.5 pl-0.5"><div class="text-[10px] text-slate-400">Confirmar</div></div>
+          </div>
+        </div>
+        <div class="mt-4 pt-3 border-t border-slate-200">
+          <div class="text-[9px] uppercase tracking-wider text-slate-500 font-bold mb-2">Resumen</div>
+          <div class="bg-white rounded-lg p-2.5 text-[10px] space-y-1.5">
+            <div class="flex justify-between"><span class="text-slate-500">Producto</span><span class="font-semibold">Omega 3 EPA/DHA</span></div>
+            <div class="flex justify-between"><span class="text-slate-500">Marca</span><span class="font-semibold">Now Foods</span></div>
+            <div class="flex justify-between"><span class="text-slate-500">Variantes</span><span class="font-bold text-violet-700 tabular">3</span></div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- CONTENIDO D · dos secciones (Paso 3 chip dur + Paso 4 marketing) -->
+      <div class="flex-1 flex flex-col min-w-0 overflow-y-auto">
+
+        <!-- SUB-SECCIÓN D.1: Paso 3 con chip duración SUP -->
+        <div class="p-5 border-b border-slate-200">
+          <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-3 flex items-center gap-1.5">
+            <i data-lucide="clock" class="w-3 h-3 text-emerald-600"></i>
+            Paso 3 · Datos por variante SUP · con chip duración calculado en vivo
+          </div>
+
+          <div class="bg-white border border-slate-200 rounded-xl overflow-hidden">
+            <!-- Header tabla SUP (tiene columna extra Duración) -->
+            <div class="grid bg-slate-50 border-b border-slate-200 px-3 py-2 text-[9px] font-bold uppercase tracking-wider text-slate-500" style="grid-template-columns: 1.5fr 1fr 1.5fr 0.8fr 1.2fr auto;">
+              <div>Variante</div>
+              <div class="tabular">SKU</div>
+              <div>UPC</div>
+              <div class="tabular">Peso lb</div>
+              <!-- Columna extra solo SUP: duración del envase -->
+              <div class="text-emerald-700 flex items-center gap-1">
+                <i data-lucide="calendar-clock" class="w-3 h-3"></i>Duración
+              </div>
+              <div class="w-8"></div>
+            </div>
+
+            <!-- Fila 1 · 90 cáps · principal · 90 días -->
+            <div class="grid items-center px-3 py-2.5 border-b border-slate-100 bg-blue-50/60" style="grid-template-columns: 1.5fr 1fr 1.5fr 0.8fr 1.2fr auto;">
+              <div class="flex items-center gap-1.5">
+                <i data-lucide="star" class="w-3 h-3 text-amber-500 flex-shrink-0" style="fill:#f59e0b;"></i>
+                <div>
+                  <div class="text-xs font-bold text-slate-900 tabular">90 cáps</div>
+                  <div class="text-[9px] text-blue-600">Principal</div>
+                </div>
+              </div>
+              <div class="text-[10px] font-mono font-bold text-emerald-700 tabular">SUP-0171</div>
+              <input type="text" class="input-sm tabular" value="099071011506">
+              <input type="number" step="0.01" class="input-sm tabular" value="0.25">
+              <!-- Chip duración 90 días · ok (entre 14 y 180 días) -->
+              <div>
+                <span class="chip-dur ok">
+                  <i data-lucide="check-circle-2" class="w-3 h-3"></i>
+                  <span class="tabular">90 días</span>
+                </span>
+                <div class="text-[8px] text-slate-500 mt-0.5 tabular">90 ÷ 1/día</div>
+              </div>
+              <button class="p-1 text-slate-300 cursor-not-allowed" disabled><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+            </div>
+
+            <!-- Fila 2 · 180 cáps · 180 días -->
+            <div class="grid items-center px-3 py-2.5 border-b border-slate-100 hover:bg-slate-50" style="grid-template-columns: 1.5fr 1fr 1.5fr 0.8fr 1.2fr auto;">
+              <div class="flex items-center gap-1.5">
+                <button class="text-slate-300 hover:text-amber-400"><i data-lucide="star" class="w-3 h-3"></i></button>
+                <div class="text-xs font-bold text-slate-900 tabular">180 cáps</div>
+              </div>
+              <div class="text-[10px] font-mono font-bold text-emerald-700 tabular">SUP-0172</div>
+              <input type="text" class="input-sm tabular" value="099071011599">
+              <input type="number" step="0.01" class="input-sm tabular" value="0.42">
+              <div>
+                <span class="chip-dur ok">
+                  <i data-lucide="check-circle-2" class="w-3 h-3"></i>
+                  <span class="tabular">180 días</span>
+                </span>
+                <div class="text-[8px] text-slate-500 mt-0.5 tabular">180 ÷ 1/día</div>
+              </div>
+              <button class="p-1 text-slate-400 hover:text-rose-500 rounded"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+            </div>
+
+            <!-- Fila 3 · 360 cáps · 360 días · ATIPICO (>180) -->
+            <div class="grid items-center px-3 py-2.5 hover:bg-slate-50" style="grid-template-columns: 1.5fr 1fr 1.5fr 0.8fr 1.2fr auto;">
+              <div class="flex items-center gap-1.5">
+                <button class="text-slate-300 hover:text-amber-400"><i data-lucide="star" class="w-3 h-3"></i></button>
+                <div class="text-xs font-bold text-slate-900 tabular">360 cáps</div>
+              </div>
+              <div class="text-[10px] font-mono font-bold text-emerald-700 tabular">SUP-0173</div>
+              <input type="text" class="input-sm tabular" placeholder="Ingresar UPC">
+              <input type="number" step="0.01" class="input-sm tabular" value="0.78">
+              <!-- Chip duración atípico · >180 días · banner amber -->
+              <div>
+                <span class="chip-dur atipico">
+                  <i data-lucide="alert-triangle" class="w-3 h-3"></i>
+                  <span class="tabular">360 días</span>
+                </span>
+                <div class="text-[8px] text-amber-600 mt-0.5">Atípico · &gt;180 días</div>
+              </div>
+              <button class="p-1 text-slate-400 hover:text-rose-500 rounded"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+            </div>
+          </div>
+
+          <!-- Banner atípico duración -->
+          <div class="mt-2 rounded-lg bg-amber-50 border border-amber-200 p-2.5 flex items-start gap-2">
+            <i data-lucide="alert-triangle" class="w-3.5 h-3.5 text-amber-600 flex-shrink-0 mt-0.5"></i>
+            <div class="text-[9px] text-amber-800">
+              <strong>360 cáps con 1 serving/día = 360 días.</strong> Duración atípica (&gt;180 días). Verificar que el dato de servings/día sea correcto. Podés continuar.
+            </div>
+          </div>
+        </div>
+
+        <!-- SUB-SECCIÓN D.2: Paso 4 · Marketing IA grupo · habilitado -->
+        <div class="p-5">
+          <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-3 flex items-center gap-1.5">
+            <i data-lucide="sparkles" class="w-3 h-3 text-purple-600"></i>
+            Paso 4 · Marketing IA · Generar para todo el grupo
+          </div>
+
+          <!-- Sección marketing expandida -->
+          <div class="border-2 border-purple-300 rounded-xl overflow-hidden">
+            <div class="px-4 py-3 bg-gradient-to-br from-purple-50 to-indigo-50 flex items-center gap-2.5">
+              <span class="section-num violet">4</span>
+              <div class="flex-1">
+                <div class="text-sm font-bold text-slate-900 flex items-center gap-2">
+                  Marketing comercial
+                  <span class="badge-ia"><i data-lucide="sparkles" class="w-2.5 h-2.5"></i>3 NIVELES + IA</span>
+                  <span class="badge-grupo">GRUPO</span>
+                </div>
+                <div class="text-[10px] text-purple-700 mt-0.5">
+                  Genera una vez · aplica a las <strong class="tabular">3</strong> variantes · menciona "disponible en 3 presentaciones" · OPCIONAL
+                </div>
+              </div>
+              <i data-lucide="chevron-up" class="w-4 h-4 text-purple-700"></i>
+            </div>
+
+            <div class="p-4 space-y-3 bg-white">
+              <!-- Checklist data completa · listo para generar -->
+              <div class="rounded-lg bg-emerald-50 border border-emerald-200 p-3">
+                <div class="flex items-start gap-2">
+                  <div class="w-6 h-6 rounded-lg bg-emerald-100 flex items-center justify-center flex-shrink-0">
+                    <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-emerald-700"></i>
+                  </div>
+                  <div class="flex-1">
+                    <div class="text-[10px] font-bold text-emerald-800 mb-1.5">Toda la data del grupo está completa · botón habilitado</div>
+                    <div class="grid grid-cols-2 gap-1 text-[9px]">
+                      <div class="flex items-center gap-1.5 text-emerald-700"><i data-lucide="check-circle-2" class="w-3 h-3"></i>Paso 1 · Datos comunes · completo</div>
+                      <div class="flex items-center gap-1.5 text-emerald-700"><i data-lucide="check-circle-2" class="w-3 h-3"></i>Paso 2 · Variantes · 3 definidas</div>
+                      <div class="flex items-center gap-1.5 text-emerald-700"><i data-lucide="check-circle-2" class="w-3 h-3"></i>Paso 3 · Datos variante · pesos OK</div>
+                      <div class="flex items-center gap-1.5 text-emerald-700"><i data-lucide="check-circle-2" class="w-3 h-3"></i>Clasificación · tipo + categorías</div>
+                    </div>
+                  </div>
+                  <button class="flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-bold text-white bg-purple-600 hover:bg-purple-700 rounded-lg shadow-sm flex-shrink-0">
+                    <i data-lucide="sparkles" class="w-3 h-3"></i>
+                    Generar con IA
+                  </button>
+                </div>
+              </div>
+
+              <!-- Preview output IA · ya generado -->
+              <div class="rounded-lg bg-purple-50/60 border border-purple-200 p-3 space-y-2.5">
+                <div class="flex items-center justify-between mb-1">
+                  <div class="text-[10px] font-bold text-purple-800 flex items-center gap-1.5">
+                    <i data-lucide="sparkles" class="w-3 h-3"></i>Output generado · fuente: IA · 7 may 2026
+                  </div>
+                  <div class="flex items-center gap-1.5">
+                    <span class="text-[9px] text-purple-600">Aplica a 3 variantes</span>
+                    <button class="text-[9px] text-violet-700 hover:underline font-bold flex items-center gap-1">
+                      <i data-lucide="refresh-cw" class="w-2.5 h-2.5"></i>Regenerar
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Frase gancho -->
+                <div>
+                  <div class="text-[9px] text-slate-500 uppercase tracking-wider font-bold mb-1">Frase gancho</div>
+                  <div class="text-xs font-bold text-slate-900 bg-white rounded p-2 border border-purple-200">
+                    Potencia tu corazón con la fórmula más pura de Omega 3 EPA/DHA · Now Foods, disponible en 3 presentaciones para adaptarse a tu ritmo de vida.
+                  </div>
+                  <div class="flex items-center gap-2 mt-1">
+                    <span class="text-[8px] text-purple-600 font-bold">fuente: ia</span>
+                    <span class="text-[8px] text-slate-400">· generado: 7 may 2026, 10:32</span>
+                    <button class="text-[8px] text-slate-500 hover:text-slate-700 ml-auto">Editar</button>
+                  </div>
+                </div>
+
+                <!-- Beneficios -->
+                <div>
+                  <div class="text-[9px] text-slate-500 uppercase tracking-wider font-bold mb-1">Beneficios clave</div>
+                  <div class="bg-white rounded p-2 border border-purple-200 space-y-1">
+                    <div class="flex items-start gap-2 text-[10px]"><i data-lucide="check" class="w-3 h-3 text-emerald-600 flex-shrink-0 mt-0.5"></i><span>Apoya la salud cardiovascular y reduce triglicéridos</span></div>
+                    <div class="flex items-start gap-2 text-[10px]"><i data-lucide="check" class="w-3 h-3 text-emerald-600 flex-shrink-0 mt-0.5"></i><span>Alta concentración: 1000 mg EPA/DHA por softgel</span></div>
+                    <div class="flex items-start gap-2 text-[10px]"><i data-lucide="check" class="w-3 h-3 text-emerald-600 flex-shrink-0 mt-0.5"></i><span>Libre de mercurio · purificado molecularmente</span></div>
+                    <div class="flex items-start gap-2 text-[10px]"><i data-lucide="check" class="w-3 h-3 text-emerald-600 flex-shrink-0 mt-0.5"></i><span>Disponible en 90, 180 y 360 cápsulas para mayor ahorro</span></div>
+                  </div>
+                </div>
+
+                <!-- Descripción -->
+                <div>
+                  <div class="text-[9px] text-slate-500 uppercase tracking-wider font-bold mb-1">Descripción comercial (142 palabras)</div>
+                  <textarea rows="3" class="w-full text-[10px] p-2 border border-purple-200 rounded bg-white resize-none leading-relaxed">
+Now Foods Omega 3 EPA/DHA es una fórmula premium de ácidos grasos esenciales obtenidos de fuentes marinas sostenibles. Cada cápsula aporta una concentración óptima para apoyar la salud cardiovascular, cognitiva y articular. Libre de metales pesados gracias a su proceso de destilación molecular, garantiza pureza farmacéutica en cada dosis.
+
+Disponible en presentaciones de 90, 180 y 360 cápsulas para adaptarse a tu plan de suplementación. Ideal para adultos que buscan mejorar sus niveles de triglicéridos y cuidar su bienestar integral. Este producto no reemplaza una dieta balanceada; consulte a su médico antes de consumir.</textarea>
+                </div>
+
+                <!-- Keywords SEO -->
+                <div>
+                  <div class="text-[9px] text-slate-500 uppercase tracking-wider font-bold mb-1 flex items-center gap-1.5">
+                    <i data-lucide="tag" class="w-3 h-3"></i>Keywords SEO (7 long-tail)
+                  </div>
+                  <div class="flex flex-wrap gap-1.5">
+                    <span class="px-2 py-0.5 bg-emerald-100 text-emerald-800 text-[9px] rounded border border-emerald-200 font-medium">omega 3 epa dha suplemento</span>
+                    <span class="px-2 py-0.5 bg-emerald-100 text-emerald-800 text-[9px] rounded border border-emerald-200 font-medium">now foods omega 3 peru</span>
+                    <span class="px-2 py-0.5 bg-emerald-100 text-emerald-800 text-[9px] rounded border border-emerald-200 font-medium">omega 3 cardiovascular</span>
+                    <span class="px-2 py-0.5 bg-emerald-100 text-emerald-800 text-[9px] rounded border border-emerald-200 font-medium">aceite de pescado purificado</span>
+                    <span class="px-2 py-0.5 bg-emerald-100 text-emerald-800 text-[9px] rounded border border-emerald-200 font-medium">omega 3 180 capsulas</span>
+                    <span class="px-2 py-0.5 bg-emerald-100 text-emerald-800 text-[9px] rounded border border-emerald-200 font-medium">omega 3 trigliceridos</span>
+                    <span class="px-2 py-0.5 bg-emerald-100 text-emerald-800 text-[9px] rounded border border-emerald-200 font-medium">suplemento omega 3 sin mercurio</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Disclaimer DIGEMID SUP -->
+              <div class="rounded-lg bg-slate-50 border border-slate-200 p-2.5 flex items-start gap-2">
+                <i data-lucide="shield" class="w-3.5 h-3.5 text-slate-500 flex-shrink-0 mt-0.5"></i>
+                <div class="text-[9px] text-slate-600">
+                  <strong>Disclaimer DIGEMID/INDECOPI auto-incluido:</strong> "Este producto no reemplaza una dieta balanceada; consulte a su médico antes de consumir." Insertado en la descripción. No afectable por el usuario.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Navegación paso 4 -->
+          <div class="mt-3 flex items-center justify-between gap-3">
+            <button class="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50">
+              <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>Paso anterior
+            </button>
+            <div class="text-[10px] text-slate-500 flex items-center gap-1.5">
+              <i data-lucide="sparkles" class="w-3 h-3 text-purple-500"></i>
+              Marketing generado · aplicará a 3 variantes
+            </div>
+            <button class="flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-white bg-violet-600 hover:bg-violet-700 rounded-lg shadow-sm">
+              Siguiente · Confirmar
+              <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- ESTADO E · Wizard completo SUP · Todas las secciones · Paso 5 Confirmar -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<div>
+  <div class="estado-label">Estado E · Wizard completo SUP · Paso 5 Confirmar · Resumen de grupo + 3 SKUs tentativos + botón "Crear 3 variantes"</div>
+
+  <div class="parent-hint">
+    <div class="bg-white rounded-2xl shadow-2xl overflow-hidden border border-slate-200 flex" style="min-height:600px;">
+
+      <!-- SIDEBAR E · todos completos -->
+      <aside class="w-56 bg-slate-50 border-r border-slate-200 p-4 flex flex-col flex-shrink-0">
+        <div class="flex items-center gap-2 mb-4 pb-3 border-b border-slate-200">
+          <div class="w-8 h-8 rounded-lg bg-emerald-600 flex items-center justify-center">
+            <i data-lucide="check" class="w-4 h-4 text-white"></i>
+          </div>
+          <div>
+            <div class="text-[10px] font-bold text-emerald-700">Listo para crear</div>
+            <div class="text-[9px] text-slate-500">3 variantes · SUP</div>
+          </div>
+        </div>
+        <div class="flex-1 space-y-0">
+          <div class="flex items-start gap-2.5">
+            <div class="flex flex-col items-center">
+              <div class="step-dot-complete"><i data-lucide="check" style="width:13px;height:13px;"></i></div>
+              <div class="step-line step-line-done"></div>
+            </div>
+            <div class="pt-0.5 pb-1">
+              <div class="text-[10px] font-bold text-emerald-700">Datos comunes</div>
+              <div class="text-[9px] text-emerald-600">SUP · USA · Now Foods</div>
+            </div>
+          </div>
+          <div class="flex items-start gap-2.5">
+            <div class="flex flex-col items-center">
+              <div class="step-dot-complete"><i data-lucide="check" style="width:13px;height:13px;"></i></div>
+              <div class="step-line step-line-done"></div>
+            </div>
+            <div class="pt-0.5 pb-1">
+              <div class="text-[10px] font-bold text-emerald-700">Variantes</div>
+              <div class="text-[9px] text-emerald-600">90 · 180 · 360 cáps</div>
+            </div>
+          </div>
+          <div class="flex items-start gap-2.5">
+            <div class="flex flex-col items-center">
+              <div class="step-dot-complete"><i data-lucide="check" style="width:13px;height:13px;"></i></div>
+              <div class="step-line step-line-done"></div>
+            </div>
+            <div class="pt-0.5 pb-1">
+              <div class="text-[10px] font-bold text-emerald-700">Datos por variante</div>
+              <div class="text-[9px] text-emerald-600">UPC · Peso · SKU OK</div>
+            </div>
+          </div>
+          <div class="flex items-start gap-2.5">
+            <div class="flex flex-col items-center">
+              <div class="step-dot-complete"><i data-lucide="check" style="width:13px;height:13px;"></i></div>
+              <div class="step-line step-line-done"></div>
+            </div>
+            <div class="pt-0.5 pb-1">
+              <div class="text-[10px] font-bold text-emerald-700">Marketing IA</div>
+              <div class="text-[9px] text-emerald-600">Generado · 3 variantes</div>
+            </div>
+          </div>
+          <div class="flex items-start gap-2.5">
+            <div class="step-dot-active">5</div>
+            <div class="pt-0.5 pl-0.5">
+              <div class="text-[10px] font-bold text-violet-700">Confirmar</div>
+              <div class="text-[9px] text-violet-600">Revisar y crear</div>
+            </div>
+          </div>
+        </div>
+        <div class="mt-4 pt-3 border-t border-slate-200">
+          <div class="text-[9px] uppercase tracking-wider text-slate-500 font-bold mb-2">Resumen final</div>
+          <div class="bg-white rounded-lg p-2.5 text-[10px] space-y-1.5">
+            <div class="flex justify-between"><span class="text-slate-500">Documentos</span><span class="font-bold text-violet-700 tabular">3</span></div>
+            <div class="flex justify-between"><span class="text-slate-500">SKUs</span><span class="font-bold text-emerald-700 tabular text-[9px]">SUP-0171 → 0173</span></div>
+            <div class="flex justify-between"><span class="text-slate-500">Marketing</span><span class="font-bold text-purple-700">Incluido</span></div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- CONTENIDO E · Paso 5 confirmación -->
+      <div class="flex-1 flex flex-col min-w-0">
+        <div class="bg-gradient-to-br from-emerald-50 to-white border-b border-slate-200 px-5 py-4">
+          <div class="flex items-start justify-between gap-3">
+            <div class="flex-1 min-w-[260px]">
+              <div class="text-[10px] text-slate-500 flex items-center gap-1 mb-0.5">
+                <span>Inventario</span>
+                <i data-lucide="chevron-right" class="w-3 h-3 text-slate-400"></i>
+                <span>Productos</span>
+                <i data-lucide="chevron-right" class="w-3 h-3 text-slate-400"></i>
+                <span class="text-slate-700 font-medium">Nuevo con variantes · Paso 5</span>
+              </div>
+              <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-600"></i>
+                Confirmar creación
+              </h2>
+              <p class="text-[10px] text-slate-500 mt-0.5">Revisa el grupo antes de crear los <span class="font-bold tabular text-violet-700">3</span> documentos en Firestore</p>
+            </div>
+            <button class="p-1.5 hover:bg-slate-100 rounded-md text-slate-500 flex-shrink-0"><i data-lucide="x" class="w-4 h-4"></i></button>
+          </div>
+        </div>
+
+        <div class="flex-1 p-5 overflow-y-auto space-y-4">
+
+          <!-- Resumen datos comunes del grupo -->
+          <div class="bg-slate-50 border border-slate-200 rounded-xl p-4">
+            <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-3 flex items-center gap-1.5">
+              <i data-lucide="layers" class="w-3 h-3"></i>Datos comunes del grupo
+            </div>
+            <div class="grid grid-cols-3 gap-3 text-[10px]">
+              <div>
+                <div class="text-[9px] text-slate-400 mb-0.5">Línea</div>
+                <div class="font-bold text-indigo-700 flex items-center gap-1"><i data-lucide="pill" class="w-3 h-3"></i>Suplementos</div>
+              </div>
+              <div>
+                <div class="text-[9px] text-slate-400 mb-0.5">País origen</div>
+                <div class="font-bold text-slate-800">Estados Unidos</div>
+              </div>
+              <div>
+                <div class="text-[9px] text-slate-400 mb-0.5">Marca</div>
+                <div class="font-bold text-slate-800">Now Foods</div>
+              </div>
+              <div class="col-span-3">
+                <div class="text-[9px] text-slate-400 mb-0.5">Nombre comercial</div>
+                <div class="font-bold text-slate-900">Omega 3 EPA/DHA 1000 mg</div>
+              </div>
+              <div>
+                <div class="text-[9px] text-slate-400 mb-0.5">Servings/día</div>
+                <div class="font-bold tabular">1</div>
+              </div>
+              <div>
+                <div class="text-[9px] text-slate-400 mb-0.5">Tipo</div>
+                <div class="font-bold">Omega 3 · EPA/DHA</div>
+              </div>
+              <div>
+                <div class="text-[9px] text-slate-400 mb-0.5">Categorías</div>
+                <div class="flex flex-wrap gap-1">
+                  <span class="px-1.5 py-0.5 bg-violet-100 text-violet-700 rounded text-[9px] font-bold">Cardiovascular</span>
+                  <span class="px-1.5 py-0.5 bg-violet-100 text-violet-700 rounded text-[9px] font-bold">Antiinflamatorio</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tabla resumen variantes -->
+          <div>
+            <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-2 flex items-center gap-1.5">
+              <i data-lucide="git-branch" class="w-3 h-3 text-violet-600"></i>
+              Variantes a crear · <span class="tabular text-violet-700 font-bold">3 documentos Firestore</span>
+            </div>
+
+            <div class="bg-white border border-slate-200 rounded-xl overflow-hidden">
+              <div class="grid bg-slate-50 border-b border-slate-200 px-3 py-2 text-[9px] font-bold uppercase tracking-wider text-slate-500" style="grid-template-columns: 1fr 1.2fr 1.2fr 0.8fr 1fr 1fr;">
+                <div>Variante</div>
+                <div class="tabular">SKU tentativo</div>
+                <div>UPC</div>
+                <div class="tabular">Peso lb</div>
+                <div>Duración</div>
+                <div>Estado</div>
+              </div>
+
+              <!-- Variante 1 principal -->
+              <div class="grid items-center px-3 py-2.5 border-b border-slate-100 bg-blue-50/50" style="grid-template-columns: 1fr 1.2fr 1.2fr 0.8fr 1fr 1fr;">
+                <div class="flex items-center gap-1.5">
+                  <i data-lucide="star" class="w-3 h-3 text-amber-500" style="fill:#f59e0b;"></i>
+                  <span class="text-xs font-bold tabular">90 cáps</span>
+                </div>
+                <div class="font-mono text-[10px] font-bold text-emerald-700 tabular">SUP-0171</div>
+                <div class="text-[10px] tabular text-slate-600">099071011506</div>
+                <div class="text-[10px] tabular font-bold">0<span class="text-slate-400">.25</span></div>
+                <span class="chip-dur ok text-[8px]"><i data-lucide="check-circle-2" class="w-2.5 h-2.5"></i><span class="tabular">90 días</span></span>
+                <span class="badge-ok">Principal</span>
+              </div>
+
+              <!-- Variante 2 -->
+              <div class="grid items-center px-3 py-2.5 border-b border-slate-100" style="grid-template-columns: 1fr 1.2fr 1.2fr 0.8fr 1fr 1fr;">
+                <div class="flex items-center gap-1.5">
+                  <div class="w-3 h-3"></div>
+                  <span class="text-xs font-bold tabular">180 cáps</span>
+                </div>
+                <div class="font-mono text-[10px] font-bold text-emerald-700 tabular">SUP-0172</div>
+                <div class="text-[10px] tabular text-slate-600">099071011599</div>
+                <div class="text-[10px] tabular font-bold">0<span class="text-slate-400">.42</span></div>
+                <span class="chip-dur ok text-[8px]"><i data-lucide="check-circle-2" class="w-2.5 h-2.5"></i><span class="tabular">180 días</span></span>
+                <span class="text-[9px] text-slate-500">—</span>
+              </div>
+
+              <!-- Variante 3 · duración atípica -->
+              <div class="grid items-center px-3 py-2.5" style="grid-template-columns: 1fr 1.2fr 1.2fr 0.8fr 1fr 1fr;">
+                <div class="flex items-center gap-1.5">
+                  <div class="w-3 h-3"></div>
+                  <span class="text-xs font-bold tabular">360 cáps</span>
+                </div>
+                <div class="font-mono text-[10px] font-bold text-emerald-700 tabular">SUP-0173</div>
+                <div class="text-[10px] text-slate-400 italic">sin UPC</div>
+                <div class="text-[10px] tabular font-bold">0<span class="text-slate-400">.78</span></div>
+                <span class="chip-dur atipico text-[8px]"><i data-lucide="alert-triangle" class="w-2.5 h-2.5"></i><span class="tabular">360 días</span></span>
+                <span class="text-[9px] text-slate-500">—</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Marketing incluido -->
+          <div class="rounded-lg bg-purple-50 border border-purple-200 p-3 flex items-start gap-2">
+            <i data-lucide="sparkles" class="w-3.5 h-3.5 text-purple-600 flex-shrink-0 mt-0.5"></i>
+            <div class="text-[10px] text-purple-800">
+              <strong>Marketing IA incluido.</strong> Las 3 variantes recibirán la misma copia (frase gancho + beneficios + descripción + keywords SEO). Podrás editar individualmente después desde el editor de cada variante.
+            </div>
+          </div>
+
+          <!-- Aviso concurrencia SKU -->
+          <div class="rounded-lg bg-amber-50 border border-amber-200 p-3 flex items-start gap-2">
+            <i data-lucide="alert-circle" class="w-3.5 h-3.5 text-amber-600 flex-shrink-0 mt-0.5"></i>
+            <div class="text-[10px] text-amber-800">
+              <strong>SKUs tentativos:</strong> los números finales (SUP-0171 → 0173) se confirman al momento del submit vía transacciones atómicas. En caso de concurrencia, pueden diferir ligeramente.
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Footer final · botón crear -->
+        <div class="border-t border-slate-200 bg-slate-50 px-5 py-3 flex items-center justify-between gap-3 flex-shrink-0">
+          <button class="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50">
+            <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>Revisar
+          </button>
+          <div class="flex items-center gap-2">
+            <button class="px-3 py-2 text-xs font-medium text-slate-600 hover:bg-slate-100 rounded-lg">
+              Cancelar
+            </button>
+            <button class="flex items-center gap-2 px-5 py-2 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg shadow-sm">
+              <i data-lucide="git-branch" class="w-3.5 h-3.5"></i>
+              Crear <span class="tabular font-black">3</span> variantes
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- ESTADO F · SKC simple completo · Paso 2 atributos expandidos + 3 vars  -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<div>
+  <div class="estado-label">Estado F · SKC simple · SKINFOOD · Madeca Cream · Paso 1 con 8 atributos SKC expandidos completamente · Paso 2 variantes 3×ml · sin ChipDuracion (exclusivo SUP)</div>
+
+  <div class="parent-hint">
+    <div class="bg-white rounded-2xl shadow-2xl overflow-hidden border border-slate-200 flex" style="min-height:680px;">
+
+      <!-- SIDEBAR F -->
+      <aside class="w-56 bg-slate-50 border-r border-slate-200 p-4 flex flex-col flex-shrink-0">
+        <div class="flex items-center gap-2 mb-4 pb-3 border-b border-slate-200">
+          <div class="w-8 h-8 rounded-lg bg-violet-600 flex items-center justify-center flex-shrink-0">
+            <i data-lucide="git-branch" class="w-4 h-4 text-white"></i>
+          </div>
+          <div>
+            <div class="text-[10px] font-bold text-violet-700">Con variantes</div>
+            <div class="text-[9px] text-slate-500">Skincare · 3 variantes</div>
+          </div>
+        </div>
+        <div class="flex-1 space-y-0">
+          <!-- Paso 1 · activo (mostramos Sec.2 atributos expandida) -->
+          <div class="flex items-start gap-2.5">
+            <div class="flex flex-col items-center">
+              <div class="step-dot-active">1</div>
+              <div class="step-line"></div>
+            </div>
+            <div class="pt-0.5 pb-1">
+              <div class="text-[10px] font-bold text-violet-700">Datos comunes</div>
+              <div class="text-[9px] text-violet-600">SKC · Corea · SKINFOOD</div>
+            </div>
+          </div>
+          <div class="flex items-start gap-2.5">
+            <div class="flex flex-col items-center">
+              <div class="step-dot-pending">2</div>
+              <div class="step-line"></div>
+            </div>
+            <div class="pt-0.5 pb-1">
+              <div class="text-[10px] font-medium text-slate-400">Variantes</div>
+              <div class="text-[9px] text-slate-400">30 ml · 50 ml · 100 ml</div>
+            </div>
+          </div>
+          <div class="flex items-start gap-2.5">
+            <div class="flex flex-col items-center"><div class="step-dot-pending">3</div><div class="step-line"></div></div>
+            <div class="pt-0.5 pb-1"><div class="text-[10px] text-slate-400">Datos por variante</div></div>
+          </div>
+          <div class="flex items-start gap-2.5">
+            <div class="flex flex-col items-center"><div class="step-dot-pending">4</div><div class="step-line"></div></div>
+            <div class="pt-0.5 pb-1"><div class="text-[10px] text-slate-400">Marketing IA</div></div>
+          </div>
+          <div class="flex items-start gap-2.5">
+            <div class="step-dot-pending">5</div>
+            <div class="pt-0.5 pl-0.5"><div class="text-[10px] text-slate-400">Confirmar</div></div>
+          </div>
+        </div>
+        <div class="mt-4 pt-3 border-t border-slate-200">
+          <div class="text-[9px] uppercase tracking-wider text-slate-500 font-bold mb-2">Resumen</div>
+          <div class="bg-white rounded-lg p-2.5 text-[10px] space-y-1.5">
+            <div class="flex justify-between">
+              <span class="text-slate-500">Línea</span>
+              <span class="font-semibold text-amber-700 flex items-center gap-1"><i data-lucide="droplets" class="w-2.5 h-2.5"></i>SKC</span>
+            </div>
+            <div class="flex justify-between"><span class="text-slate-500">Marca</span><span class="font-semibold">SKINFOOD</span></div>
+            <div class="flex justify-between"><span class="text-slate-500">Variantes</span><span class="font-bold text-violet-700 tabular">3</span></div>
+            <div class="flex justify-between"><span class="text-slate-500">SKUs previstos</span><span class="font-bold text-emerald-700 tabular text-[9px]">SKC-0043→0045</span></div>
+          </div>
+          <!-- Nota: sin ChipDuracion en SKC -->
+          <div class="mt-2 rounded-lg bg-amber-50 border border-amber-200 p-2">
+            <div class="text-[9px] text-amber-800 flex items-start gap-1">
+              <i data-lucide="info" class="w-3 h-3 flex-shrink-0 mt-0.5"></i>
+              <span><strong>Sin duración de envase.</strong> El chip de días es exclusivo de línea SUP (conteo de servings). SKC usa ml/g, no aplica.</span>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- CONTENIDO F · Paso 1 con sección 2 de atributos SKC expandida -->
+      <div class="flex-1 flex flex-col min-w-0">
+        <!-- Header del paso -->
+        <div class="bg-gradient-to-br from-slate-50 to-white border-b border-slate-200 px-5 py-4">
+          <div class="flex items-start justify-between gap-3">
+            <div class="flex-1 min-w-[260px]">
+              <div class="text-[10px] text-slate-500 flex items-center gap-1 mb-0.5">
+                <span>Inventario</span>
+                <i data-lucide="chevron-right" class="w-3 h-3 text-slate-400"></i>
+                <span>Productos</span>
+                <i data-lucide="chevron-right" class="w-3 h-3 text-slate-400"></i>
+                <span class="text-slate-700 font-medium">Nuevo con variantes · Paso 1</span>
+              </div>
+              <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                <i data-lucide="package" class="w-4 h-4 text-violet-600"></i>
+                Datos comunes del grupo
+              </h2>
+              <p class="text-[10px] text-slate-500 mt-0.5">Identidad + atributos de línea · todos los campos se heredan a las 3 variantes</p>
+            </div>
+            <button class="p-1.5 hover:bg-slate-100 rounded-md text-slate-500 flex-shrink-0"><i data-lucide="x" class="w-4 h-4"></i></button>
+          </div>
+        </div>
+
+        <!-- Body: acordeón de secciones -->
+        <div class="flex-1 p-5 overflow-y-auto space-y-3">
+
+          <!-- Sec. 1 · IDENTIDAD · colapsada / completada -->
+          <div class="border border-emerald-200 rounded-xl bg-emerald-50/40 overflow-hidden">
+            <div class="flex items-center justify-between px-4 py-3 cursor-pointer">
+              <div class="flex items-center gap-2.5">
+                <span class="section-num complete">1</span>
+                <div>
+                  <div class="text-[11px] font-bold text-slate-800">Identidad del grupo</div>
+                  <div class="text-[9px] text-emerald-700">SKC · Corea · SKINFOOD · Madeca Cream</div>
+                </div>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="badge-ok"><i data-lucide="check" class="w-2.5 h-2.5"></i>Completo</span>
+                <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-400"></i>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sec. 2 · ATRIBUTOS SKC · expandida con los 8 atributos reales -->
+          <div class="border-2 border-violet-300 rounded-xl bg-white overflow-hidden shadow-sm">
+            <div class="flex items-center justify-between px-4 py-3 bg-violet-50/60 border-b border-violet-200">
+              <div class="flex items-center gap-2.5">
+                <span class="section-num violet">2</span>
+                <div>
+                  <div class="text-[11px] font-bold text-slate-800">Atributos Skincare · 8 campos</div>
+                  <div class="text-[9px] text-violet-600">Comunes a las 3 variantes · misma formulación</div>
+                </div>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="badge-grupo">GRUPO</span>
+                <i data-lucide="chevron-up" class="w-3.5 h-3.5 text-violet-500"></i>
+              </div>
+            </div>
+
+            <div class="p-4 space-y-3">
+              <!-- Fila 1: Tipo SKC + Ingrediente clave -->
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <label class="block text-[9px] uppercase tracking-wider text-slate-500 font-bold mb-1.5">Tipo SKC <span class="text-rose-500">*</span></label>
+                  <!-- Chips cerrados · seleccionado: crema -->
+                  <div class="flex flex-wrap gap-1">
+                    <span class="text-[10px] px-2.5 py-1 rounded-lg border-2 font-semibold cursor-pointer bg-amber-50 border-amber-400 text-amber-800">Crema</span>
+                    <span class="text-[10px] px-2.5 py-1 rounded-lg border font-medium cursor-pointer bg-white border-slate-200 text-slate-600 hover:border-amber-300">Sérum</span>
+                    <span class="text-[10px] px-2.5 py-1 rounded-lg border font-medium cursor-pointer bg-white border-slate-200 text-slate-600 hover:border-amber-300">Tónico</span>
+                    <span class="text-[10px] px-2.5 py-1 rounded-lg border font-medium cursor-pointer bg-white border-slate-200 text-slate-600 hover:border-amber-300">Esencia</span>
+                    <span class="text-[10px] px-2.5 py-1 rounded-lg border font-medium cursor-pointer bg-white border-slate-200 text-slate-600 hover:border-amber-300">Limpiador</span>
+                  </div>
+                </div>
+                <div>
+                  <label class="block text-[9px] uppercase tracking-wider text-slate-500 font-bold mb-1.5">Ingrediente clave</label>
+                  <input type="text" value="Centella Asiática" class="input-sm" style="font-weight:600;">
+                  <div class="text-[8px] text-slate-400 mt-0.5">Ingrediente activo principal · aparece en marketing IA</div>
+                </div>
+              </div>
+
+              <!-- Fila 2: Línea producto + Paso rutina -->
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <label class="block text-[9px] uppercase tracking-wider text-slate-500 font-bold mb-1.5">Línea de producto</label>
+                  <input type="text" value="Madeca" class="input-sm" style="font-weight:600;">
+                  <div class="text-[8px] text-slate-400 mt-0.5">Sub-línea de la marca · ej. "Madeca", "Tone Up"</div>
+                </div>
+                <div>
+                  <label class="block text-[9px] uppercase tracking-wider text-slate-500 font-bold mb-1.5">Paso de rutina</label>
+                  <div class="flex flex-wrap gap-1">
+                    <span class="text-[10px] px-2.5 py-1 rounded-lg border-2 font-semibold cursor-pointer bg-amber-50 border-amber-400 text-amber-800">Hidratación</span>
+                    <span class="text-[10px] px-2.5 py-1 rounded-lg border font-medium cursor-pointer bg-white border-slate-200 text-slate-600">Serum</span>
+                    <span class="text-[10px] px-2.5 py-1 rounded-lg border font-medium cursor-pointer bg-white border-slate-200 text-slate-600">Tónico</span>
+                    <span class="text-[10px] px-2.5 py-1 rounded-lg border font-medium cursor-pointer bg-white border-slate-200 text-slate-600">Limpieza</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Fila 3: Tipo piel (multi-select) -->
+              <div>
+                <label class="block text-[9px] uppercase tracking-wider text-slate-500 font-bold mb-1.5">Tipo de piel <span class="text-[9px] font-normal text-slate-400">(multi-select)</span></label>
+                <div class="flex flex-wrap gap-1.5">
+                  <span class="text-[10px] px-2.5 py-1 rounded-full border-2 font-semibold cursor-pointer bg-amber-50 border-amber-400 text-amber-800 flex items-center gap-1"><i data-lucide="check" class="w-2.5 h-2.5"></i>Sensible</span>
+                  <span class="text-[10px] px-2.5 py-1 rounded-full border-2 font-semibold cursor-pointer bg-amber-50 border-amber-400 text-amber-800 flex items-center gap-1"><i data-lucide="check" class="w-2.5 h-2.5"></i>Madura</span>
+                  <span class="text-[10px] px-2.5 py-1 rounded-full border font-medium cursor-pointer bg-white border-slate-200 text-slate-600">Todo tipo</span>
+                  <span class="text-[10px] px-2.5 py-1 rounded-full border font-medium cursor-pointer bg-white border-slate-200 text-slate-600">Seca</span>
+                  <span class="text-[10px] px-2.5 py-1 rounded-full border font-medium cursor-pointer bg-white border-slate-200 text-slate-600">Mixta</span>
+                  <span class="text-[10px] px-2.5 py-1 rounded-full border font-medium cursor-pointer bg-white border-slate-200 text-slate-600">Con acné</span>
+                </div>
+              </div>
+
+              <!-- Fila 4: Preocupaciones (multi-select) -->
+              <div>
+                <label class="block text-[9px] uppercase tracking-wider text-slate-500 font-bold mb-1.5">Preocupaciones <span class="text-[9px] font-normal text-slate-400">(multi-select)</span></label>
+                <div class="flex flex-wrap gap-1.5">
+                  <span class="text-[10px] px-2.5 py-1 rounded-full border-2 font-semibold cursor-pointer bg-amber-50 border-amber-400 text-amber-800 flex items-center gap-1"><i data-lucide="check" class="w-2.5 h-2.5"></i>Hidratación</span>
+                  <span class="text-[10px] px-2.5 py-1 rounded-full border-2 font-semibold cursor-pointer bg-amber-50 border-amber-400 text-amber-800 flex items-center gap-1"><i data-lucide="check" class="w-2.5 h-2.5"></i>Barrera dañada</span>
+                  <span class="text-[10px] px-2.5 py-1 rounded-full border-2 font-semibold cursor-pointer bg-amber-50 border-amber-400 text-amber-800 flex items-center gap-1"><i data-lucide="check" class="w-2.5 h-2.5"></i>Rojeces</span>
+                  <span class="text-[10px] px-2.5 py-1 rounded-full border font-medium cursor-pointer bg-white border-slate-200 text-slate-600">Arrugas</span>
+                  <span class="text-[10px] px-2.5 py-1 rounded-full border font-medium cursor-pointer bg-white border-slate-200 text-slate-600">Piel seca</span>
+                  <span class="text-[10px] px-2.5 py-1 rounded-full border font-medium cursor-pointer bg-white border-slate-200 text-slate-600">Manchas</span>
+                  <span class="text-[10px] px-2.5 py-1 rounded-full border font-medium cursor-pointer bg-white border-slate-200 text-slate-600">Rosácea</span>
+                </div>
+              </div>
+
+              <!-- Fila 5: Textura + Zona aplicación -->
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <label class="block text-[9px] uppercase tracking-wider text-slate-500 font-bold mb-1.5">Textura</label>
+                  <div class="flex flex-wrap gap-1">
+                    <span class="text-[10px] px-2.5 py-1 rounded-lg border-2 font-semibold cursor-pointer bg-amber-50 border-amber-400 text-amber-800">Crema</span>
+                    <span class="text-[10px] px-2.5 py-1 rounded-lg border font-medium cursor-pointer bg-white border-slate-200 text-slate-600">Gel</span>
+                    <span class="text-[10px] px-2.5 py-1 rounded-lg border font-medium cursor-pointer bg-white border-slate-200 text-slate-600">Sérum</span>
+                    <span class="text-[10px] px-2.5 py-1 rounded-lg border font-medium cursor-pointer bg-white border-slate-200 text-slate-600">Loción</span>
+                  </div>
+                </div>
+                <div>
+                  <label class="block text-[9px] uppercase tracking-wider text-slate-500 font-bold mb-1.5">Zona de aplicación <span class="text-[9px] font-normal text-slate-400">(multi)</span></label>
+                  <div class="flex flex-wrap gap-1">
+                    <span class="text-[10px] px-2.5 py-1 rounded-full border-2 font-semibold cursor-pointer bg-amber-50 border-amber-400 text-amber-800 flex items-center gap-1"><i data-lucide="check" class="w-2.5 h-2.5"></i>Rostro</span>
+                    <span class="text-[10px] px-2.5 py-1 rounded-full border-2 font-semibold cursor-pointer bg-amber-50 border-amber-400 text-amber-800 flex items-center gap-1"><i data-lucide="check" class="w-2.5 h-2.5"></i>Cuello</span>
+                    <span class="text-[10px] px-2.5 py-1 rounded-full border font-medium cursor-pointer bg-white border-slate-200 text-slate-600">Escote</span>
+                    <span class="text-[10px] px-2.5 py-1 rounded-full border font-medium cursor-pointer bg-white border-slate-200 text-slate-600">Ojos</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Fila 6: SPF/PA · condicional protector solar · deshabilitado para crema -->
+              <div class="rounded-lg border border-slate-100 bg-slate-50 p-3">
+                <div class="flex items-center gap-2 mb-2">
+                  <i data-lucide="sun" class="w-3.5 h-3.5 text-slate-300"></i>
+                  <span class="text-[10px] font-bold text-slate-400">SPF / PA · solo protectores solares</span>
+                  <span class="text-[9px] text-slate-300 ml-1">· deshabilitado · tipo = crema</span>
+                </div>
+                <div class="flex gap-2 opacity-40 pointer-events-none">
+                  <div class="flex-1">
+                    <div class="text-[9px] text-slate-400 mb-0.5">SPF</div>
+                    <input type="number" disabled placeholder="ej. 50" class="input-sm bg-white">
+                  </div>
+                  <div class="flex-1">
+                    <div class="text-[9px] text-slate-400 mb-0.5">PA</div>
+                    <select disabled class="input-sm bg-white text-slate-400">
+                      <option>PA++++</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Sec. 3 · CLASIFICACIÓN · colapsada -->
+          <div class="border border-slate-200 rounded-xl bg-white overflow-hidden">
+            <div class="flex items-center justify-between px-4 py-3 cursor-pointer hover:bg-slate-50">
+              <div class="flex items-center gap-2.5">
+                <span class="section-num">3</span>
+                <div>
+                  <div class="text-[11px] font-bold text-slate-700">Clasificación</div>
+                  <div class="text-[9px] text-slate-400">Tipo · Categorías · Etiquetas</div>
+                </div>
+              </div>
+              <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-400"></i>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Sub-sección: variantes definidas (2 compacto) -->
+        <div class="border-t border-slate-100 px-5 py-3 bg-slate-50/60">
+          <div class="text-[9px] uppercase tracking-wider text-slate-500 font-bold mb-2 flex items-center gap-1.5">
+            <i data-lucide="layers" class="w-3 h-3 text-violet-500"></i>
+            Variantes configuradas en Paso 2 · 3 variantes · 1 eje ml
+          </div>
+          <div class="flex gap-2 flex-wrap">
+            <!-- Variante 30ml · principal -->
+            <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border-2 border-blue-300 bg-blue-50">
+              <i data-lucide="star" class="w-3 h-3 text-amber-500" style="fill:#f59e0b;"></i>
+              <span class="text-[10px] font-bold text-slate-800 tabular">30 ml</span>
+              <span class="font-mono text-[9px] text-emerald-700 tabular">SKC-0043</span>
+            </div>
+            <!-- Variante 50ml -->
+            <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 bg-white">
+              <i data-lucide="star" class="w-3 h-3 text-slate-300"></i>
+              <span class="text-[10px] font-bold text-slate-800 tabular">50 ml</span>
+              <span class="font-mono text-[9px] text-emerald-700 tabular">SKC-0044</span>
+            </div>
+            <!-- Variante 100ml -->
+            <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 bg-white">
+              <i data-lucide="star" class="w-3 h-3 text-slate-300"></i>
+              <span class="text-[10px] font-bold text-slate-800 tabular">100 ml</span>
+              <span class="font-mono text-[9px] text-emerald-700 tabular">SKC-0045</span>
+            </div>
+            <!-- Nota sin chip -->
+            <div class="flex items-center gap-1 text-[9px] text-slate-400 ml-2">
+              <i data-lucide="minus-circle" class="w-3 h-3"></i>
+              Sin chip duración · solo SUP
+            </div>
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="border-t border-slate-200 bg-slate-50 px-5 py-3 flex items-center justify-between gap-3 flex-shrink-0">
+          <button class="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50">
+            <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
+            Paso anterior
+          </button>
+          <div class="flex items-center gap-1.5 text-[10px] text-slate-500">
+            <i data-lucide="check-circle-2" class="w-3 h-3 text-emerald-500"></i>
+            Sec. 1 completa · Sec. 2 SKC 8/8 campos · Sec. 3 pendiente
+          </div>
+          <button class="flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-white bg-violet-600 hover:bg-violet-700 rounded-lg shadow-sm">
+            Siguiente · Variantes
+            <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- ESTADO G · SUP multi-presentación · "Distintas presentaciones"         -->
+<!-- Caso: Vitamin C 1000mg Now Foods · 90 cáps / 100g polvo / 60 gomitas  -->
+<!-- [VISUAL-DECISION-3] Modo de matriz con selector de unidad por fila     -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<div>
+  <div class="estado-label">Estado G · SUP multi-presentación · Now Foods Vitamin C 1000mg · modo "Distintas presentaciones" activo · servingsDia POR VARIANTE · ChipDuracion por unidad propia · [VISUAL-DECISION-3]</div>
+
+  <div class="parent-hint">
+    <div class="bg-white rounded-2xl shadow-2xl overflow-hidden border border-slate-200 flex" style="min-height:680px;">
+
+      <!-- SIDEBAR G -->
+      <aside class="w-56 bg-slate-50 border-r border-slate-200 p-4 flex flex-col flex-shrink-0">
+        <div class="flex items-center gap-2 mb-4 pb-3 border-b border-slate-200">
+          <div class="w-8 h-8 rounded-lg bg-violet-600 flex items-center justify-center flex-shrink-0">
+            <i data-lucide="git-branch" class="w-4 h-4 text-white"></i>
+          </div>
+          <div>
+            <div class="text-[10px] font-bold text-violet-700">Con variantes</div>
+            <div class="text-[9px] text-slate-500">SUP · 3 presentaciones</div>
+          </div>
+        </div>
+        <div class="flex-1 space-y-0">
+          <div class="flex items-start gap-2.5">
+            <div class="flex flex-col items-center">
+              <div class="step-dot-complete"><i data-lucide="check" style="width:13px;height:13px;"></i></div>
+              <div class="step-line step-line-done"></div>
+            </div>
+            <div class="pt-0.5 pb-1">
+              <div class="text-[10px] font-bold text-emerald-700">Datos comunes</div>
+              <div class="text-[9px] text-emerald-600">SUP · USA · Now Foods</div>
+            </div>
+          </div>
+          <div class="flex items-start gap-2.5">
+            <div class="flex flex-col items-center">
+              <div class="step-dot-active">2</div>
+              <div class="step-line"></div>
+            </div>
+            <div class="pt-0.5 pb-1">
+              <div class="text-[10px] font-bold text-violet-700">Variantes</div>
+              <div class="text-[9px] text-violet-600">3 presentaciones distintas</div>
+            </div>
+          </div>
+          <div class="flex items-start gap-2.5">
+            <div class="flex flex-col items-center"><div class="step-dot-pending">3</div><div class="step-line"></div></div>
+            <div class="pt-0.5 pb-1"><div class="text-[10px] text-slate-400">Datos por variante</div></div>
+          </div>
+          <div class="flex items-start gap-2.5">
+            <div class="flex flex-col items-center"><div class="step-dot-pending">4</div><div class="step-line"></div></div>
+            <div class="pt-0.5 pb-1"><div class="text-[10px] text-slate-400">Marketing IA</div></div>
+          </div>
+          <div class="flex items-start gap-2.5">
+            <div class="step-dot-pending">5</div>
+            <div class="pt-0.5 pl-0.5"><div class="text-[10px] text-slate-400">Confirmar</div></div>
+          </div>
+        </div>
+        <div class="mt-4 pt-3 border-t border-slate-200">
+          <div class="text-[9px] uppercase tracking-wider text-slate-500 font-bold mb-2">Resumen</div>
+          <div class="bg-white rounded-lg p-2.5 text-[10px] space-y-1.5">
+            <div class="flex justify-between"><span class="text-slate-500">Línea</span><span class="font-semibold text-indigo-700 flex items-center gap-1"><i data-lucide="pill" class="w-2.5 h-2.5"></i>SUP</span></div>
+            <div class="flex justify-between"><span class="text-slate-500">Marca</span><span class="font-semibold">Now Foods</span></div>
+            <div class="flex justify-between"><span class="text-slate-500">Variantes</span><span class="font-bold text-violet-700 tabular">3</span></div>
+            <div class="flex justify-between"><span class="text-slate-500">Modo</span><span class="text-[9px] font-bold text-orange-600">Distintas pres.</span></div>
+            <div class="flex justify-between"><span class="text-slate-500">SKUs</span><span class="font-bold text-emerald-700 tabular text-[9px]">SUP-0171→0173</span></div>
+          </div>
+          <!-- Advertencia: modo distintas pres. excluye eje sabor -->
+          <div class="mt-2 rounded-lg bg-orange-50 border border-orange-200 p-2">
+            <div class="text-[9px] text-orange-800 flex items-start gap-1">
+              <i data-lucide="alert-triangle" class="w-3 h-3 flex-shrink-0 mt-0.5"></i>
+              <span>Modo "Distintas presentaciones" es exclusivo con eje Sabor. El segundo eje queda desactivado.</span>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- CONTENIDO G -->
+      <div class="flex-1 flex flex-col min-w-0">
+        <!-- Header -->
+        <div class="bg-gradient-to-br from-slate-50 to-white border-b border-slate-200 px-5 py-4">
+          <div class="flex items-start justify-between gap-3">
+            <div class="flex-1 min-w-[260px]">
+              <div class="text-[10px] text-slate-500 flex items-center gap-1 mb-0.5">
+                <span>Inventario</span>
+                <i data-lucide="chevron-right" class="w-3 h-3 text-slate-400"></i>
+                <span>Productos</span>
+                <i data-lucide="chevron-right" class="w-3 h-3 text-slate-400"></i>
+                <span class="text-slate-700 font-medium">Nuevo con variantes · Paso 2</span>
+              </div>
+              <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                <i data-lucide="layers" class="w-4 h-4 text-violet-600"></i>
+                Definir variantes · Vitamin C 1000mg
+              </h2>
+              <p class="text-[10px] text-slate-500 mt-0.5">Modo activo: cada fila tiene su propia unidad · el wizard genera 3 SKUs separados</p>
+            </div>
+            <button class="p-1.5 hover:bg-slate-100 rounded-md text-slate-500 flex-shrink-0"><i data-lucide="x" class="w-4 h-4"></i></button>
+          </div>
+        </div>
+
+        <div class="flex-1 p-5 overflow-y-auto space-y-4">
+
+          <!-- ─── SELECTOR DE MODO DE MATRIZ ─── -->
+          <div>
+            <label class="block text-[10px] uppercase tracking-wider text-slate-600 font-bold mb-2 flex items-center gap-1.5">
+              <i data-lucide="settings-2" class="w-3 h-3 text-violet-600"></i>
+              Modo de variación <span class="text-rose-500">*</span>
+            </label>
+
+            <!-- 3 opciones radio · Distintas presentaciones activa -->
+            <div class="space-y-2">
+              <!-- Opción A: misma presentación, distintas cantidades (default) -->
+              <label class="flex items-start gap-2.5 p-3 rounded-lg border border-slate-200 bg-white cursor-pointer hover:border-violet-300 transition-all opacity-60">
+                <input type="radio" name="modo_matriz_g" class="mt-0.5 accent-violet-600 flex-shrink-0">
+                <div>
+                  <div class="text-[10px] font-bold text-slate-700">Misma presentación, distintas cantidades</div>
+                  <div class="text-[9px] text-slate-500">Ej. 90 / 180 / 360 cápsulas · la unidad es la misma para todas las filas</div>
+                  <div class="mt-0.5 text-[9px] text-slate-400 italic">Default · corresponde al modo estándar del wizard</div>
+                </div>
+              </label>
+
+              <!-- Opción B: misma presentación + sabores (grilla 2D) -->
+              <label class="flex items-start gap-2.5 p-3 rounded-lg border border-slate-200 bg-white cursor-pointer hover:border-violet-300 transition-all opacity-60">
+                <input type="radio" name="modo_matriz_g" class="mt-0.5 accent-violet-600 flex-shrink-0">
+                <div>
+                  <div class="text-[10px] font-bold text-slate-700">Misma presentación, cantidades + sabores</div>
+                  <div class="text-[9px] text-slate-500">Ej. 2 lb / 5 lb × Chocolate / Vainilla / Fresa · activa la grilla 2D</div>
+                </div>
+              </label>
+
+              <!-- Opción C: distintas presentaciones · ACTIVA -->
+              <label class="flex items-start gap-2.5 p-3 rounded-lg border-2 border-orange-400 bg-orange-50 cursor-pointer transition-all">
+                <input type="radio" name="modo_matriz_g" checked class="mt-0.5 accent-orange-500 flex-shrink-0">
+                <div>
+                  <div class="text-[10px] font-bold text-orange-800 flex items-center gap-1.5">
+                    Distintas presentaciones
+                    <span class="px-1.5 py-0.5 bg-orange-200 text-orange-800 rounded text-[9px] font-bold">ACTIVO</span>
+                  </div>
+                  <div class="text-[9px] text-orange-700">Cada fila elige su propia unidad · ej. cápsulas / polvo / gomitas</div>
+                  <div class="mt-0.5 text-[9px] text-orange-600 flex items-center gap-1">
+                    <i data-lucide="alert-triangle" class="w-2.5 h-2.5"></i>
+                    Exclusivo con eje Sabor · el segundo eje queda desactivado en este modo
+                  </div>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <!-- ─── BANNER MODO DISTINTAS PRESENTACIONES ─── -->
+          <div class="rounded-xl border border-orange-200 bg-orange-50 p-3 flex items-start gap-2.5">
+            <i data-lucide="info" class="w-3.5 h-3.5 text-orange-600 flex-shrink-0 mt-0.5"></i>
+            <div class="text-[10px] text-orange-800">
+              <strong>Modo: Distintas presentaciones.</strong> Cada fila puede tener distinta unidad de contenido.
+              El sistema generará <strong class="tabular">3 SKUs separados</strong> con sus propias etiquetas y chip de duración calculado independientemente.
+              Útil cuando el mismo producto existe en cápsulas, polvo y gomitas con distinto servings/día.
+            </div>
+          </div>
+
+          <!-- ─── MATRIZ DE FILAS CON UNIDAD POR FILA ─── -->
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <label class="text-[10px] uppercase tracking-wider text-slate-600 font-bold flex items-center gap-1.5">
+                <i data-lucide="list" class="w-3 h-3"></i>
+                Presentaciones a crear <span class="ml-1 px-1.5 py-0.5 bg-violet-100 text-violet-700 rounded font-bold tabular">3</span>
+              </label>
+              <div class="text-[9px] text-slate-500">mín <span class="tabular font-bold">2</span> · máx <span class="tabular font-bold">12</span></div>
+            </div>
+
+            <!-- Header de la tabla de filas multi-presentación -->
+            <div class="grid text-[9px] font-bold uppercase tracking-wider text-slate-500 px-3 py-1.5 bg-slate-50 rounded-t-lg border border-b-0 border-slate-200" style="grid-template-columns: auto 1.5fr 1.2fr 1.4fr 1.5fr auto;">
+              <div class="w-5"></div>
+              <div>Cantidad</div>
+              <div>Unidad propia</div>
+              <div>Servings/día <span class="font-normal normal-case text-slate-400">por variante</span></div>
+              <div class="flex items-center gap-1 text-emerald-700">
+                <i data-lucide="calendar-clock" class="w-3 h-3"></i>Duración
+              </div>
+              <div class="w-6"></div>
+            </div>
+
+            <div class="border border-slate-200 rounded-b-lg overflow-hidden divide-y divide-slate-100">
+
+              <!-- Fila 1 · 90 cápsulas · principal · 1/día · 90 días -->
+              <div class="grid items-center px-3 py-2.5 bg-blue-50/60" style="grid-template-columns: auto 1.5fr 1.2fr 1.4fr 1.5fr auto;">
+                <!-- Estrella principal -->
+                <button title="Variante principal" class="w-5 flex-shrink-0 text-amber-500">
+                  <i data-lucide="star" class="w-3.5 h-3.5" style="fill:#f59e0b;"></i>
+                </button>
+                <!-- Cantidad -->
+                <div>
+                  <input type="number" value="90" class="input-sm" style="font-weight:700;">
+                </div>
+                <!-- Unidad propia (select) · cápsulas -->
+                <div>
+                  <select class="input-sm text-slate-700 font-semibold" style="background:#eff6ff; border-color:#93c5fd;">
+                    <option selected>cápsulas</option>
+                    <option>tabletas</option>
+                    <option>gomitas</option>
+                    <option>g</option>
+                    <option>ml</option>
+                    <option>sobres</option>
+                    <option>sticks</option>
+                    <option>scoops</option>
+                  </select>
+                </div>
+                <!-- Servings/día · editable por variante -->
+                <div class="flex items-center gap-1">
+                  <input type="number" value="1" min="0.5" step="0.5" class="input-sm" style="font-weight:600; width:52px;">
+                  <span class="text-[9px] text-slate-500">/día</span>
+                </div>
+                <!-- Chip duración · 90 ÷ 1 = 90 días · ok -->
+                <div>
+                  <span class="chip-dur ok">
+                    <i data-lucide="check-circle-2" class="w-3 h-3"></i>
+                    <span class="tabular">90 días</span>
+                  </span>
+                  <div class="text-[8px] text-slate-500 mt-0.5 tabular">90 cáps ÷ 1/día</div>
+                </div>
+                <!-- Eliminar · deshabilitado (principal) -->
+                <button class="p-1 text-slate-300 cursor-not-allowed" disabled>
+                  <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                </button>
+              </div>
+
+              <!-- Fila 2 · 100g polvo · 1/día · 1 scoop · ~100 días -->
+              <!-- [VISUAL-DECISION-3] servingsDia=1 (1 scoop/día) → 100g / 1 = 100 porciones teóricas -->
+              <!-- Nota: para unidades continuas (g/ml) la duración requiere el dosaje -->
+              <!-- Decisión tomada: mostrar chip "pendia" (reloj) cuando la unidad es continua -->
+              <div class="grid items-center px-3 py-2.5 bg-white hover:bg-slate-50 transition-all" style="grid-template-columns: auto 1.5fr 1.2fr 1.4fr 1.5fr auto;">
+                <button title="Marcar como principal" class="w-5 flex-shrink-0 text-slate-300 hover:text-amber-400">
+                  <i data-lucide="star" class="w-3.5 h-3.5"></i>
+                </button>
+                <div>
+                  <input type="number" value="100" class="input-sm" style="font-weight:700;">
+                </div>
+                <!-- Unidad propia · g (polvo) -->
+                <div>
+                  <select class="input-sm text-slate-700 font-semibold" style="background:#f0fdf4; border-color:#86efac;">
+                    <option>cápsulas</option>
+                    <option>tabletas</option>
+                    <option>gomitas</option>
+                    <option selected>g</option>
+                    <option>ml</option>
+                    <option>sobres</option>
+                    <option>sticks</option>
+                    <option>scoops</option>
+                  </select>
+                </div>
+                <!-- Servings/día · 1 scoop/día -->
+                <div class="flex items-center gap-1">
+                  <input type="number" value="1" min="0.5" step="0.5" class="input-sm" style="font-weight:600; width:52px;">
+                  <span class="text-[9px] text-slate-500">/día</span>
+                </div>
+                <!-- Chip duración · unidad continua · requiere dosaje para calcular días exactos -->
+                <!-- Decisión visual: chip "pendiente" con icono reloj + tooltip explicativo -->
+                <div>
+                  <span class="text-[10px] font-bold px-2 py-1 rounded-full bg-slate-100 border border-slate-300 text-slate-500 flex items-center gap-1 w-fit">
+                    <i data-lucide="clock" class="w-3 h-3"></i>
+                    <span class="tabular">100 g ÷ ?</span>
+                  </span>
+                  <div class="text-[8px] text-slate-400 mt-0.5">Ingresar dosaje en Sec. 2 para calcular</div>
+                </div>
+                <button class="p-1 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded">
+                  <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                </button>
+              </div>
+
+              <!-- Fila 3 · 60 gomitas · 2/día · 30 días -->
+              <div class="grid items-center px-3 py-2.5 bg-white hover:bg-slate-50 transition-all" style="grid-template-columns: auto 1.5fr 1.2fr 1.4fr 1.5fr auto;">
+                <button title="Marcar como principal" class="w-5 flex-shrink-0 text-slate-300 hover:text-amber-400">
+                  <i data-lucide="star" class="w-3.5 h-3.5"></i>
+                </button>
+                <div>
+                  <input type="number" value="60" class="input-sm" style="font-weight:700;">
+                </div>
+                <!-- Unidad propia · gomitas -->
+                <div>
+                  <select class="input-sm text-slate-700 font-semibold" style="background:#fdf4ff; border-color:#d8b4fe;">
+                    <option>cápsulas</option>
+                    <option>tabletas</option>
+                    <option selected>gomitas</option>
+                    <option>g</option>
+                    <option>ml</option>
+                    <option>sobres</option>
+                    <option>sticks</option>
+                    <option>scoops</option>
+                  </select>
+                </div>
+                <!-- Servings/día · 2/día -->
+                <div class="flex items-center gap-1">
+                  <input type="number" value="2" min="0.5" step="0.5" class="input-sm" style="font-weight:600; width:52px;">
+                  <span class="text-[9px] text-slate-500">/día</span>
+                </div>
+                <!-- Chip duración · 60 ÷ 2 = 30 días · atípico (<14? No, 30 ok) -->
+                <div>
+                  <span class="chip-dur ok">
+                    <i data-lucide="check-circle-2" class="w-3 h-3"></i>
+                    <span class="tabular">30 días</span>
+                  </span>
+                  <div class="text-[8px] text-slate-500 mt-0.5 tabular">60 gomitas ÷ 2/día</div>
+                </div>
+                <button class="p-1 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded">
+                  <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                </button>
+              </div>
+
+            </div>
+
+            <!-- Botón agregar variante -->
+            <button class="mt-2 w-full flex items-center justify-center gap-1.5 py-2.5 border border-dashed border-violet-300 bg-violet-50/50 rounded-xl text-[10px] font-bold text-violet-700 hover:bg-violet-100 transition-all">
+              <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+              Agregar presentación
+            </button>
+          </div>
+
+          <!-- Leyenda eje sabor desactivado -->
+          <div class="rounded-lg border border-slate-200 bg-slate-50 p-3 flex items-start gap-2">
+            <i data-lucide="x-circle" class="w-3.5 h-3.5 text-slate-400 flex-shrink-0 mt-0.5"></i>
+            <div class="text-[10px] text-slate-500">
+              <strong class="text-slate-600">Eje Sabor desactivado</strong> · el modo "Distintas presentaciones" es exclusivo con el segundo eje.
+              Si necesitás sabores por presentación (ej. polvo en 3 sabores), creá un grupo separado para ese formato.
+            </div>
+          </div>
+
+          <!-- Nota funcional servingsDia por variante -->
+          <div class="rounded-lg bg-indigo-50 border border-indigo-200 p-3 flex items-start gap-2">
+            <i data-lucide="flask-conical" class="w-3.5 h-3.5 text-indigo-600 flex-shrink-0 mt-0.5"></i>
+            <div class="text-[10px] text-indigo-800">
+              <strong>Servings/día es por variante en este modo.</strong> Cada presentación puede tener un ritmo de consumo diferente
+              (90 cáps × 1/día = 90 días · 60 gomitas × 2/día = 30 días). El campo se mueve de "datos comunes"
+              a la matriz cuando se activa este modo. En modo estándar (misma presentación), servings/día sigue siendo un dato común.
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Footer -->
+        <div class="border-t border-slate-200 bg-slate-50 px-5 py-3 flex items-center justify-between gap-3 flex-shrink-0">
+          <button class="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50">
+            <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>Paso anterior
+          </button>
+          <div class="flex items-center gap-1.5 text-[10px] text-slate-500">
+            <i data-lucide="check-circle-2" class="w-3 h-3 text-emerald-500"></i>
+            3 presentaciones · 1 principal · duraciones: 90d / pendiente / 30d
+          </div>
+          <button class="flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-white bg-violet-600 hover:bg-violet-700 rounded-lg shadow-sm">
+            Siguiente · Datos por variante
+            <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- ESTADO H · SKC · Marketing IA generado (grupo) · compliance INDECOPI  -->
+<!-- Madeca Cream 30ml/50ml/100ml · Paso 4 expandido · 3 niveles + keywords -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<div>
+  <div class="estado-label">Estado H · SKC · Paso 4 Marketing IA generado para el grupo Madeca Cream · 3 niveles visibles · audit por campo · keywords SEO · banner "aplica a las 3 variantes" · compliance INDECOPI</div>
+
+  <div class="parent-hint">
+    <div class="bg-white rounded-2xl shadow-2xl overflow-hidden border border-slate-200 flex" style="min-height:700px;">
+
+      <!-- SIDEBAR H -->
+      <aside class="w-56 bg-slate-50 border-r border-slate-200 p-4 flex flex-col flex-shrink-0">
+        <div class="flex items-center gap-2 mb-4 pb-3 border-b border-slate-200">
+          <div class="w-8 h-8 rounded-lg bg-violet-600 flex items-center justify-center flex-shrink-0">
+            <i data-lucide="git-branch" class="w-4 h-4 text-white"></i>
+          </div>
+          <div>
+            <div class="text-[10px] font-bold text-violet-700">Con variantes</div>
+            <div class="text-[9px] text-slate-500">SKC · 3 variantes</div>
+          </div>
+        </div>
+        <div class="flex-1 space-y-0">
+          <div class="flex items-start gap-2.5">
+            <div class="flex flex-col items-center">
+              <div class="step-dot-complete"><i data-lucide="check" style="width:13px;height:13px;"></i></div>
+              <div class="step-line step-line-done"></div>
+            </div>
+            <div class="pt-0.5 pb-1"><div class="text-[10px] font-bold text-emerald-700">Datos comunes</div><div class="text-[9px] text-emerald-600">SKC · Corea · SKINFOOD</div></div>
+          </div>
+          <div class="flex items-start gap-2.5">
+            <div class="flex flex-col items-center">
+              <div class="step-dot-complete"><i data-lucide="check" style="width:13px;height:13px;"></i></div>
+              <div class="step-line step-line-done"></div>
+            </div>
+            <div class="pt-0.5 pb-1"><div class="text-[10px] font-bold text-emerald-700">Variantes · 30/50/100ml</div></div>
+          </div>
+          <div class="flex items-start gap-2.5">
+            <div class="flex flex-col items-center">
+              <div class="step-dot-complete"><i data-lucide="check" style="width:13px;height:13px;"></i></div>
+              <div class="step-line step-line-done"></div>
+            </div>
+            <div class="pt-0.5 pb-1"><div class="text-[10px] font-bold text-emerald-700">Datos por variante</div></div>
+          </div>
+          <div class="flex items-start gap-2.5">
+            <div class="flex flex-col items-center">
+              <div class="step-dot-active">4</div>
+              <div class="step-line"></div>
+            </div>
+            <div class="pt-0.5 pb-1">
+              <div class="text-[10px] font-bold text-violet-700">Marketing IA</div>
+              <div class="text-[9px] text-violet-600 flex items-center gap-1"><i data-lucide="sparkles" class="w-2.5 h-2.5"></i>Generado</div>
+            </div>
+          </div>
+          <div class="flex items-start gap-2.5">
+            <div class="step-dot-pending">5</div>
+            <div class="pt-0.5 pl-0.5"><div class="text-[10px] text-slate-400">Confirmar</div></div>
+          </div>
+        </div>
+        <div class="mt-4 pt-3 border-t border-slate-200">
+          <div class="text-[9px] uppercase tracking-wider text-slate-500 font-bold mb-2">Resumen</div>
+          <div class="bg-white rounded-lg p-2.5 text-[10px] space-y-1.5">
+            <div class="flex justify-between"><span class="text-slate-500">Producto</span><span class="font-semibold">Madeca Cream</span></div>
+            <div class="flex justify-between"><span class="text-slate-500">Línea</span><span class="font-semibold text-amber-700">SKC</span></div>
+            <div class="flex justify-between"><span class="text-slate-500">Variantes</span><span class="font-bold text-violet-700 tabular">3</span></div>
+            <div class="flex justify-between"><span class="text-slate-500">Marketing</span><span class="badge-ia"><i data-lucide="sparkles" class="w-2.5 h-2.5"></i>IA</span></div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- CONTENIDO H · Paso 4 Marketing IA expandido -->
+      <div class="flex-1 flex flex-col min-w-0">
+        <!-- Header -->
+        <div class="bg-gradient-to-br from-slate-50 to-white border-b border-slate-200 px-5 py-4">
+          <div class="flex items-start justify-between gap-3">
+            <div class="flex-1 min-w-[260px]">
+              <div class="text-[10px] text-slate-500 flex items-center gap-1 mb-0.5">
+                <span>Inventario</span>
+                <i data-lucide="chevron-right" class="w-3 h-3 text-slate-400"></i>
+                <span>Productos</span>
+                <i data-lucide="chevron-right" class="w-3 h-3 text-slate-400"></i>
+                <span class="text-slate-700 font-medium">Nuevo con variantes · Paso 4</span>
+              </div>
+              <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                <i data-lucide="sparkles" class="w-4 h-4 text-purple-600"></i>
+                Marketing comercial IA
+              </h2>
+              <p class="text-[10px] text-slate-500 mt-0.5">Generado con Gemini · 3 niveles editables · se copia a las 3 variantes del grupo · compliance INDECOPI</p>
+            </div>
+            <button class="p-1.5 hover:bg-slate-100 rounded-md text-slate-500 flex-shrink-0"><i data-lucide="x" class="w-4 h-4"></i></button>
+          </div>
+        </div>
+
+        <div class="flex-1 p-5 overflow-y-auto space-y-4">
+
+          <!-- Banner: aplica a las 3 variantes del grupo -->
+          <div class="rounded-xl border border-purple-200 bg-purple-50 p-3 flex items-start gap-2.5">
+            <i data-lucide="git-branch" class="w-3.5 h-3.5 text-purple-600 flex-shrink-0 mt-0.5"></i>
+            <div class="text-[10px] text-purple-800">
+              <strong>Marketing de grupo.</strong> Este contenido aplica a las 3 variantes (30 ml / 50 ml / 100 ml).
+              La descripción es genérica respecto al tamaño y menciona las tres presentaciones.
+              Podés editar el marketing de una variante individualmente después desde el editor, sin afectar a las otras.
+            </div>
+          </div>
+
+          <!-- ─── NIVEL 1: TAGLINE ─── -->
+          <div class="bg-white border border-slate-200 rounded-xl overflow-hidden">
+            <div class="flex items-center justify-between px-4 py-2.5 bg-slate-50 border-b border-slate-100">
+              <div class="flex items-center gap-2">
+                <span class="text-[10px] font-bold text-slate-700">Frase gancho (tagline)</span>
+                <span class="badge-ia"><i data-lucide="sparkles" class="w-2.5 h-2.5"></i>ia</span>
+              </div>
+              <!-- Audit del campo -->
+              <div class="flex items-center gap-1.5 text-[9px] text-slate-400">
+                <i data-lucide="clock" class="w-3 h-3"></i>
+                fuente: ia · hace 2 min
+              </div>
+            </div>
+            <div class="p-3">
+              <textarea class="w-full text-xs text-slate-800 font-medium border border-slate-200 rounded-lg p-2.5 resize-none leading-relaxed focus:outline-none focus:border-purple-400 focus:ring-1 focus:ring-purple-200" rows="2">Hidratación intensa con Centella · barrera fortalecida desde la primera aplicación</textarea>
+              <div class="flex items-center justify-between mt-1.5">
+                <div class="text-[9px] text-slate-400">10-15 palabras · hook emocional · sin claims terapéuticos</div>
+                <div class="text-[9px] tabular text-slate-400">10 palabras</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ─── NIVEL 2: BENEFICIOS (4 bullets) ─── -->
+          <div class="bg-white border border-slate-200 rounded-xl overflow-hidden">
+            <div class="flex items-center justify-between px-4 py-2.5 bg-slate-50 border-b border-slate-100">
+              <div class="flex items-center gap-2">
+                <span class="text-[10px] font-bold text-slate-700">Beneficios · 4 bullets</span>
+                <span class="badge-ia"><i data-lucide="sparkles" class="w-2.5 h-2.5"></i>ia</span>
+              </div>
+              <div class="flex items-center gap-1.5 text-[9px] text-slate-400">
+                <i data-lucide="clock" class="w-3 h-3"></i>
+                fuente: ia · hace 2 min
+              </div>
+            </div>
+            <div class="p-3 space-y-2">
+              <!-- Bullet 1 -->
+              <div class="flex items-start gap-2">
+                <div class="w-1.5 h-1.5 rounded-full bg-amber-400 mt-1.5 flex-shrink-0"></div>
+                <input type="text" value="Hidratación profunda con extracto TECA de Centella Asiática" class="input-sm flex-1">
+              </div>
+              <!-- Bullet 2 -->
+              <div class="flex items-start gap-2">
+                <div class="w-1.5 h-1.5 rounded-full bg-amber-400 mt-1.5 flex-shrink-0"></div>
+                <input type="text" value="Fortalece la barrera cutánea y reduce rojeces visibles" class="input-sm flex-1">
+              </div>
+              <!-- Bullet 3 -->
+              <div class="flex items-start gap-2">
+                <div class="w-1.5 h-1.5 rounded-full bg-amber-400 mt-1.5 flex-shrink-0"></div>
+                <input type="text" value="Textura crema no grasa · absorción rápida · apta piel sensible" class="input-sm flex-1">
+              </div>
+              <!-- Bullet 4 -->
+              <div class="flex items-start gap-2">
+                <div class="w-1.5 h-1.5 rounded-full bg-amber-400 mt-1.5 flex-shrink-0"></div>
+                <input type="text" value="Sin fragancia añadida · pH equilibrado · testeado dermatológicamente" class="input-sm flex-1">
+              </div>
+              <!-- Agregar bullet -->
+              <button class="text-[9px] text-violet-600 hover:text-violet-800 flex items-center gap-1 mt-1">
+                <i data-lucide="plus" class="w-3 h-3"></i> Agregar bullet
+              </button>
+            </div>
+          </div>
+
+          <!-- ─── NIVEL 3: DESCRIPCIÓN COMERCIAL ─── -->
+          <div class="bg-white border border-slate-200 rounded-xl overflow-hidden">
+            <div class="flex items-center justify-between px-4 py-2.5 bg-slate-50 border-b border-slate-100">
+              <div class="flex items-center gap-2">
+                <span class="text-[10px] font-bold text-slate-700">Descripción comercial · 120-180 palabras</span>
+                <span class="badge-ia"><i data-lucide="sparkles" class="w-2.5 h-2.5"></i>ia</span>
+              </div>
+              <div class="flex items-center gap-1.5 text-[9px] text-slate-400">
+                <i data-lucide="clock" class="w-3 h-3"></i>
+                fuente: ia · hace 2 min
+              </div>
+            </div>
+            <div class="p-3">
+              <textarea class="w-full text-[11px] text-slate-700 border border-slate-200 rounded-lg p-2.5 resize-none leading-relaxed focus:outline-none focus:border-purple-400 focus:ring-1 focus:ring-purple-200" rows="6">La crema hidratante centella asiática de SKINFOOD combina el extracto TECA concentrado con ingredientes calming que restauran la barrera cutánea desde la primera aplicación. Desarrollada para piel sensible y madura, su fórmula sin fragancia reduce visiblemente las rojeces, alivia la irritación y aporta hidratación duradera sin efecto graso.
+
+Disponible en presentaciones de 30 ml, 50 ml y 100 ml para adaptarse a tu rutina. Ideal como paso final de hidratación day &amp; night sobre tónico o esencia. Dermatológicamente testeada. Sin parabenos · sin alcohol desnaturalizado.</textarea>
+              <div class="flex items-center justify-between mt-1.5">
+                <div class="text-[9px] text-slate-400">keyword principal en primer párrafo · tono informativo sin claims médicos</div>
+                <div class="text-[9px] tabular text-slate-400">148 palabras</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ─── KEYWORDS SEO ─── -->
+          <div class="bg-white border border-slate-200 rounded-xl overflow-hidden">
+            <div class="flex items-center justify-between px-4 py-2.5 bg-slate-50 border-b border-slate-100">
+              <div class="flex items-center gap-2">
+                <span class="text-[10px] font-bold text-slate-700">Keywords SEO · 7 long-tail</span>
+                <span class="badge-ia"><i data-lucide="sparkles" class="w-2.5 h-2.5"></i>ia</span>
+              </div>
+              <div class="flex items-center gap-1.5 text-[9px] text-slate-400">
+                <i data-lucide="clock" class="w-3 h-3"></i>
+                fuente: ia · hace 2 min
+              </div>
+            </div>
+            <div class="p-3">
+              <div class="flex flex-wrap gap-1.5 mb-2">
+                <span class="text-[10px] px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-300 text-emerald-800 font-medium">crema centella asiática rojeces</span>
+                <span class="text-[10px] px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-300 text-emerald-800 font-medium">madeca cream skinfood Perú</span>
+                <span class="text-[10px] px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-300 text-emerald-800 font-medium">crema hidratante piel sensible Corea</span>
+                <span class="text-[10px] px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-300 text-emerald-800 font-medium">centella asiática barrera cutánea</span>
+                <span class="text-[10px] px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-300 text-emerald-800 font-medium">skinfood madeca cream skincare coreano</span>
+                <span class="text-[10px] px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-300 text-emerald-800 font-medium">crema sin fragancia piel reactiva</span>
+                <span class="text-[10px] px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-300 text-emerald-800 font-medium">hidratante k-beauty centella teca</span>
+              </div>
+              <div class="text-[9px] text-slate-400">5-10 long-tail · usables en meta-tags ML · schema.org · sitemap interno · read-only</div>
+            </div>
+          </div>
+
+          <!-- Banner INDECOPI compliance -->
+          <div class="rounded-lg border border-slate-200 bg-slate-50 p-3 flex items-start gap-2">
+            <i data-lucide="shield-check" class="w-3.5 h-3.5 text-slate-500 flex-shrink-0 mt-0.5"></i>
+            <div class="text-[10px] text-slate-600">
+              <strong>Compliance INDECOPI · SKC:</strong> el prompt de IA excluye automáticamente claims terapéuticos o medicinales. Los textos generados usan terminología cosmética ("fortalece la barrera", "reduce rojeces visibles") que no requiere registro sanitario. Revisá que ningún bullet incluya promesas de cura o tratamiento de patologías.
+            </div>
+          </div>
+
+          <!-- Botón regenerar -->
+          <div class="flex items-center justify-between px-1">
+            <div class="text-[9px] text-slate-400 flex items-center gap-1">
+              <i data-lucide="info" class="w-3 h-3"></i>
+              Editá los campos libremente · si cambiás más del 30% pasará a fuente "mixto"
+            </div>
+            <button class="flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-medium text-purple-700 bg-purple-50 border border-purple-200 rounded-lg hover:bg-purple-100 transition-all">
+              <i data-lucide="refresh-cw" class="w-3 h-3"></i>
+              Regenerar para las 3 variantes
+            </button>
+          </div>
+
+        </div>
+
+        <!-- Footer -->
+        <div class="border-t border-slate-200 bg-slate-50 px-5 py-3 flex items-center justify-between gap-3 flex-shrink-0">
+          <button class="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50">
+            <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>Paso anterior
+          </button>
+          <div class="flex items-center gap-2 text-[10px] text-slate-500">
+            <i data-lucide="check-circle-2" class="w-3 h-3 text-emerald-500"></i>
+            Marketing generado · 3 campos auditados · 7 keywords SEO
+          </div>
+          <button class="flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-white bg-violet-600 hover:bg-violet-700 rounded-lg shadow-sm">
+            Siguiente · Confirmar
+            <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- DECISIONES VISUALES NUEVAS (F/G/H)                                     -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<div class="bg-white rounded-xl p-5 border border-slate-200">
+  <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-3 flex items-center gap-1.5">
+    <i data-lucide="clipboard-check" class="w-3 h-3"></i>Decisiones visuales estados F/G/H
+  </div>
+  <div class="grid grid-cols-3 gap-3 text-[10px]">
+
+    <!-- VISUAL-DECISION-3 -->
+    <div class="bg-orange-50 rounded-lg p-3 border border-orange-200">
+      <div class="font-bold text-orange-800 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+        <i data-lucide="check-circle-2" class="w-3 h-3"></i>VISUAL-DECISION-3 · Modo distintas presentaciones
+      </div>
+      <div class="text-orange-800 leading-relaxed">
+        <strong>3 botones radio</strong> para seleccionar el modo de variación. Cuando se activa "Distintas presentaciones": (a) cada fila obtiene un select de unidad propio, (b) se agrega la columna "Servings/día" como campo editable por fila, (c) el eje Sabor se desactiva con banner explicativo, (d) el ChipDuracion se calcula con la unidad propia de cada fila. Exclusivo con modo grilla 2D.
+      </div>
+    </div>
+
+    <!-- VISUAL-DECISION-4 -->
+    <div class="bg-blue-50 rounded-lg p-3 border border-blue-200">
+      <div class="font-bold text-blue-800 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+        <i data-lucide="check-circle-2" class="w-3 h-3"></i>VISUAL-DECISION-4 · ChipDuracion con unidad continua
+      </div>
+      <div class="text-blue-800 leading-relaxed">
+        Cuando la unidad es continua (g/ml/lb), el chip de duración no puede calcular días exactos sin saber el dosaje por porción. Decisión: chip "pendiente" en gris con icono reloj y texto "100 g ÷ ?" + nota al pie "Ingresar dosaje en Sec. 2 para calcular". Evita mostrar un número erróneo y guía al usuario hacia dónde completar el dato faltante.
+      </div>
+    </div>
+
+    <!-- VISUAL-DECISION-5 -->
+    <div class="bg-emerald-50 rounded-lg p-3 border border-emerald-200">
+      <div class="font-bold text-emerald-800 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+        <i data-lucide="check-circle-2" class="w-3 h-3"></i>VISUAL-DECISION-5 · Marketing SKC sin disclaimer SUP
+      </div>
+      <div class="text-emerald-800 leading-relaxed">
+        El banner de compliance INDECOPI difiere por línea: SKC muestra solo la nota cosmética ("fortalece la barrera" es válido). SUP agrega el disclaimer DIGEMID automático ("No reemplaza dieta balanceada · consulte a su médico"). El texto del compliance se adapta en el componente según <code class="bg-white px-1 rounded border text-emerald-700">lineaCodigo</code> recibido por prop.
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- NOTAS DE IMPLEMENTACIÓN                                                 -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<div class="bg-white rounded-xl p-5 border border-slate-200">
+  <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-3 flex items-center gap-1.5">
+    <i data-lucide="clipboard-list" class="w-3 h-3"></i>Notas de implementación · componentes nuevos requeridos
+  </div>
+  <div class="grid grid-cols-2 gap-3 text-[10px]">
+    <div class="bg-violet-50 rounded-lg p-3 border border-violet-200">
+      <div class="font-bold text-violet-800 mb-1">Componentes nuevos exclusivos del wizard de variantes</div>
+      <ul class="space-y-1 text-slate-700">
+        <li><code class="bg-white px-1 rounded border text-violet-700">&lt;MatrizVariantes1Eje&gt;</code> · lista lineal de filas editables</li>
+        <li><code class="bg-white px-1 rounded border text-violet-700">&lt;MatrizVariantes2Ejes&gt;</code> · grilla 2D tipo tabla con celdas toggle</li>
+        <li><code class="bg-white px-1 rounded border text-violet-700">&lt;MatrizVariantesMultiPres&gt;</code> · modo "Distintas presentaciones" · fila con select de unidad propio + servingsDia por fila (NUEVO · Estado G)</li>
+        <li><code class="bg-white px-1 rounded border text-violet-700">&lt;TablaVariantesInline&gt;</code> · tabla editable paso 3 (UPC+peso+SKU)</li>
+        <li><code class="bg-white px-1 rounded border text-violet-700">&lt;SelectorModoMatriz&gt;</code> · 3 botones radio para elegir modo de variación (NUEVO · Estado G)</li>
+        <li><code class="bg-white px-1 rounded border text-violet-700">&lt;StepperSidebar&gt;</code> · ya existe en StepperVerticalWizard</li>
+      </ul>
+    </div>
+    <div class="bg-emerald-50 rounded-lg p-3 border border-emerald-200">
+      <div class="font-bold text-emerald-800 mb-1">Componentes compartidos reutilizados (ya implementados)</div>
+      <ul class="space-y-1 text-slate-700">
+        <li><code class="bg-white px-1 rounded border text-emerald-700">&lt;AtributosPorLineaSection&gt;</code> · paso 1 · idéntico al wizard único · Estado F muestra todos los 8 campos SKC</li>
+        <li><code class="bg-white px-1 rounded border text-emerald-700">&lt;MarketingComercialSection&gt;</code> · paso 4 · mismo componente, prop <code>esGrupo=true</code> · Estado H</li>
+        <li><code class="bg-white px-1 rounded border text-emerald-700">&lt;ChipDuracionEnvase&gt;</code> · fila de tabla en paso 3, solo SUP · Estado G muestra chip por unidad propia · chip "pendiente" en unidades continuas</li>
+        <li><code class="bg-white px-1 rounded border text-emerald-700">&lt;MaestroSelect&gt; · &lt;MaestroChipsMulti&gt;</code> · clasificación paso 1</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+</div><!-- /max-w-6xl -->
+
+<script>
+  lucide.createIcons();
+</script>
+</body>
+</html>

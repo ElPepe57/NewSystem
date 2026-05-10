@@ -25,6 +25,8 @@ import { COLLECTIONS } from '../config/collections';
 import { getNextSequenceNumber } from '../lib/sequenceGenerator';
 import { userService } from './user.service';
 import { gastoService } from './gasto.service';
+import { categoriaCostoService } from './categoriaCosto.service';
+import { resolverCategoriaCostoIdParaTipo, type ArbolCategorias } from '../utils/gasto.bloque';
 import { calcularComisionesEmpleado } from './planilla.comisiones.service';
 // S55 Fase 5 — CC del empleado
 import { cuentaCorrienteService } from './cuentaCorriente.service';
@@ -321,13 +323,19 @@ export const planillaService = {
 
     const fechaPago = new Date();
 
-    // 1. Crear gasto GA (sueldo + bonificaciones) si > 0
+    // chk5.A6 · cargar árbol una vez para resolver categoriaCostoId canónicos
+    const arbol = await categoriaCostoService.getArbol() as ArbolCategorias;
+    const categoriaCostoIdNomina = resolverCategoriaCostoIdParaTipo('nomina', arbol);
+    const categoriaCostoIdComision = resolverCategoriaCostoIdParaTipo('comision_vendedor', arbol);
+
+    // 1. Crear gasto bloque 'periodo' (sueldo + bonificaciones) si > 0
     const montoNomina = boleta.salarioBase + boleta.bonificaciones + boleta.otrosIngresos;
     let gastoNominaId: string | undefined;
     if (montoNomina > 0) {
       gastoNominaId = await gastoService.create({
         tipo: 'nomina',
-        categoria: 'GA',
+        categoria: 'GA',                              // legacy compat · @deprecated (chk5.A9)
+        categoriaCostoId: categoriaCostoIdNomina ?? undefined,  // canon · bloque 'periodo' · Personal · Sueldos
         descripcion: `Planilla ${boleta.empleadoNombre} - ${String(boleta.mes).padStart(2, '0')}/${boleta.anio}`,
         moneda: 'PEN',
         montoOriginal: montoNomina,
@@ -345,12 +353,13 @@ export const planillaService = {
       }, userId);
     }
 
-    // 2. Crear gasto GV (comisiones) si > 0
+    // 2. Crear gasto bloque 'venta' (comisiones) si > 0
     let gastoComisionId: string | undefined;
     if (boleta.comisionesVentas > 0) {
       gastoComisionId = await gastoService.create({
         tipo: 'comision_vendedor',
-        categoria: 'GV',
+        categoria: 'GV',                              // legacy compat · @deprecated (chk5.A9)
+        categoriaCostoId: categoriaCostoIdComision ?? undefined,  // canon · bloque 'venta' · Comisiones · Comision vendedor
         descripcion: `Comisiones ${boleta.empleadoNombre} - ${String(boleta.mes).padStart(2, '0')}/${boleta.anio} (${boleta.detalleComisiones.length} ventas)`,
         moneda: 'PEN',
         montoOriginal: boleta.comisionesVentas,

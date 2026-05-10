@@ -25,6 +25,8 @@ import type {
 } from '../types/gasto.types';
 import { getClaseGasto } from '../types/gasto.types';
 import { ctruService } from './ctru.service';
+import { categoriaCostoService } from './categoriaCosto.service';
+import { esGastoDePeriodo, resolverCategoriaCostoIdParaTipo, type ArbolCategorias } from '../utils/gasto.bloque';
 import { tesoreriaService } from './tesoreria.service';
 // poolUSDService + TipoMovimientoPool: eliminados — tesorería registra automáticamente en Pool USD
 import type { MetodoTesoreria, MonedaTesoreria } from '../types/tesoreria.types';
@@ -81,6 +83,7 @@ export const gastoService = {
       };
 
       // Agregar campos opcionales solo si tienen valor
+      if (data.categoriaCostoId) gasto.categoriaCostoId = data.categoriaCostoId;  // chk5.A6 · canon 3 niveles
       if (data.tipoCambio !== undefined) gasto.tipoCambio = data.tipoCambio;
       if (data.prorrateoTipo) gasto.prorrateoTipo = data.prorrateoTipo;
       if (data.ordenCompraId) gasto.ordenCompraId = data.ordenCompraId;
@@ -203,9 +206,11 @@ export const gastoService = {
         // Registrarlo aquí causaba DOBLE REGISTRO en Pool USD.
       }
 
-      // Auto-recálculo de CTRU cuando se crea un gasto GA/GO prorrateable
+      // Auto-recálculo de CTRU cuando se crea un gasto del bloque 'periodo' prorrateable
+      // (chk5.A6 · canon · esGastoDePeriodo resuelve categoriaCostoId o fallback a categoria legacy)
       // Se ejecuta en background (no bloquea la creación del gasto)
-      if (data.esProrrateable && (data.categoria === 'GA' || data.categoria === 'GO')) {
+      const arbolBloqueCheck = await categoriaCostoService.getArbol().catch(() => null) as ArbolCategorias | null;
+      if (data.esProrrateable && esGastoDePeriodo(data, arbolBloqueCheck)) {
         ctruService.recalcularCTRUDinamicoSafe()
           .then(result => {
             if (result) {
@@ -896,12 +901,14 @@ export const gastoService = {
       // Obtener todos los gastos y filtrar en memoria para evitar índices compuestos
       const snapshot = await getDocs(collection(db, GASTOS_COLLECTION));
 
+      // chk5.A6 · canon · filtra bloque 'periodo' (categoriaCostoId) con fallback legacy GA/GO
+      const arbol = await categoriaCostoService.getArbol().catch(() => null) as ArbolCategorias | null;
       const gastos = snapshot.docs
         .map(doc => ({
           id: doc.id,
           ...doc.data()
         } as Gasto))
-        .filter(g => (g.categoria === 'GA' || g.categoria === 'GO') && g.ctruRecalculado === false);
+        .filter(g => esGastoDePeriodo(g, arbol) && g.ctruRecalculado === false);
 
       // Ordenar por fecha ascendente en memoria
       return gastos.sort((a, b) => {
@@ -1150,15 +1157,18 @@ export const gastoService = {
       const numeroGasto = await this.generateNumeroGasto();
       const ahora = new Date();
 
-      // GD = Gasto de Distribución (delivery)
-      const claseGasto = getClaseGasto('GD');
+      // chk5.A6 · canon · resolver categoriaCostoId para 'delivery' (bloque 'venta' · Distribucion)
+      const claseGasto = getClaseGasto('GD');                          // legacy compat
+      const arbolEntrega = await categoriaCostoService.getArbol().catch(() => null) as ArbolCategorias | null;
+      const categoriaCostoIdEntrega = resolverCategoriaCostoIdParaTipo('delivery', arbolEntrega);
 
       const descripcionBase = `Entrega ${data.entregaCodigo} - ${data.transportistaNombre}${data.distrito ? ` (${data.distrito})` : ''}`;
 
       const gasto: Record<string, unknown> = {
         numeroGasto,
         tipo: 'delivery',
-        categoria: 'GD',
+        categoria: 'GD',                                                // legacy compat · @deprecated (chk5.A9)
+        ...(categoriaCostoIdEntrega ? { categoriaCostoId: categoriaCostoIdEntrega } : {}),  // canon
         claseGasto,
         descripcion: data.descripcionExtra
           ? `${descripcionBase} - ${data.descripcionExtra}`

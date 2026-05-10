@@ -300,7 +300,16 @@
       "PowerShell(& npx --prefix functions tsc --noEmit -p functions 2>&1)",
       "PowerShell($ErrorActionPreference = 'Continue')",
       "Bash(echo \"EXIT $?\")",
-      "Bash(git tag *)"
+      "Bash(git tag *)",
+      "Read(//c/c/Users/josel/businessmn-v2/functions/**)",
+      "Bash(not exist *)",
+      "Bash(gh repo *)",
+      "Bash(wait bqw5sq1a1 *)",
+      "Bash(cd /c/Users/josel/businessmn-v2 && pwd && ls index.html)",
+      "Bash(head -n 386 functions/src/mercadolibre/ml.diagnostics.ts)",
+      "Bash(mv /tmp/ml.diagnostics.tmp functions/src/mercadolibre/ml.diagnostics.ts)",
+      "Bash(mkdir -p src/pages/Tesoreria/components/pagosMasivos && mv src/pages/PagosMasivos/components/*.tsx src/pages/Tesoreria/components/pagosMasivos/ && ls src/pages/Tesoreria/components/pagosMasivos/)",
+      "Bash(git mv *)"
     ],
     "deny": [],
     "ask": []

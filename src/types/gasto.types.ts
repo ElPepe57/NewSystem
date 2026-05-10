@@ -385,6 +385,11 @@ export interface Gasto {
 export interface GastoFormData {
   tipo: TipoGasto;
   categoria: CategoriaGasto;
+  /**
+   * Modelo canónico 3 niveles (chk5.A2/A6) · apunta a categoriasCosto/{id}.
+   * Coexiste con `categoria` legacy hasta que chk5.A8 elimine la dual-write.
+   */
+  categoriaCostoId?: string;
   descripcion: string;
   moneda: MonedaGasto;
   montoOriginal: number;

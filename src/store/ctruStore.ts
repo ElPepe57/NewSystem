@@ -3,6 +3,7 @@ import { collection, getDocs, query, where, doc, getDoc } from 'firebase/firesto
 import { db } from '../lib/firebase';
 import { COLLECTIONS } from '../config/collections';
 import { ctruService } from '../services/ctru.service';
+import { normalizarGastosConCategoriaLegacy, type ArbolCategorias } from '../utils/gasto.bloque';
 import { envioCrudService } from '../services/envio.crud.service';
 import { ProductoService } from '../services/producto.service';
 import { getCTRU, getCostoBasePEN, getTC, calcularGAGOProporcional } from '../utils/ctru.utils';
@@ -851,16 +852,21 @@ function processHistorialMensual(
   return entries;
 }
 
-function processHistorialGastos(todosGastos: Gasto[]): HistorialGastosEntry[] {
+function processHistorialGastos(todosGastos: Gasto[], arbol?: ArbolCategorias | null): HistorialGastosEntry[] {
   const ahora = new Date();
   const entries: HistorialGastosEntry[] = [];
+
+  // chk5.A6 · normalizar gastos · si solo tienen categoriaCostoId, derivar categoria legacy
+  const gastosNormalizados: Gasto[] = arbol
+    ? normalizarGastosConCategoriaLegacy(todosGastos, arbol)
+    : todosGastos;
 
   for (let i = 5; i >= 0; i--) {
     const fecha = new Date(ahora.getFullYear(), ahora.getMonth() - i, 1);
     const mes = fecha.getMonth() + 1;
     const anio = fecha.getFullYear();
 
-    const gastosMes = todosGastos.filter(g => g.mes === mes && g.anio === anio);
+    const gastosMes = gastosNormalizados.filter(g => g.mes === mes && g.anio === anio);
     const GA = gastosMes.filter(g => g.categoria === 'GA').reduce((sum, g) => sum + g.montoPEN, 0);
     const GO = gastosMes.filter(g => g.categoria === 'GO').reduce((sum, g) => sum + g.montoPEN, 0);
     const GV = gastosMes.filter(g => g.categoria === 'GV').reduce((sum, g) => sum + g.montoPEN, 0);

@@ -29,6 +29,8 @@ import { getNextSequenceNumber } from '../lib/sequenceGenerator';
 import { envioCrudService } from './envio.crud.service';
 import { tesoreriaService } from './tesoreria.service';
 import { gastoService } from './gasto.service';
+import { categoriaCostoService } from './categoriaCosto.service';
+import { resolverCategoriaCostoIdParaTipo, type ArbolCategorias } from '../utils/gasto.bloque';
 import type {
   Reclamo,
   ReclamoFormData,
@@ -827,10 +829,14 @@ export const reclamoService = {
     }
 
     // 1. Crear gasto contable (merma logística)
+    // chk5.A6 · resolver categoriaCostoId canónico (bloque 'producto' · Pérdidas · Merma transferencia)
+    const arbol = await categoriaCostoService.getArbol() as ArbolCategorias;
+    const categoriaCostoId = resolverCategoriaCostoIdParaTipo('merma_transferencia', arbol);
     const gastoId = await gastoService.create(
       {
         tipo: 'merma_transferencia',
-        categoria: 'GV',
+        categoria: 'GV',                          // legacy compat · @deprecated (chk5.A9)
+        categoriaCostoId: categoriaCostoId ?? undefined,
         descripcion: `Reclamo ${reclamo.numeroReclamo} ${opts?.porTimeout ? 'cerrado sin cobrar' : 'rechazado'} — ${motivoRechazo}`,
         moneda: 'PEN',
         montoOriginal: reclamo.montoReclamadoPEN,

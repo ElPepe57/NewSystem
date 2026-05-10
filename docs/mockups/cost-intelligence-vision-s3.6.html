@@ -1,0 +1,1056 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Cost Intelligence · Visión moderna · S3.6 M1.bis</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif; background: #f8fafc; font-variant-numeric: tabular-nums; color: #0f172a; }
+  .tabular { font-variant-numeric: tabular-nums; }
+  .mono { font-family: ui-monospace, "SF Mono", Monaco, monospace; }
+
+  /* Sparkline anim */
+  .spark { stroke-dasharray: 200; stroke-dashoffset: 0; }
+
+  /* Density row hover */
+  .density-row { transition: background-color 0.1s ease; }
+  .density-row:hover { background: #f8fafc; }
+
+  /* Driver bars */
+  .driver-bar { transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+
+  /* Keyboard hints */
+  .kbd { font-family: ui-monospace, monospace; font-size: 9px; background: #1e293b; color: white; padding: 2px 6px; border-radius: 4px; font-weight: 700; }
+
+  /* Score gauge */
+  .gauge-track { fill: none; stroke: #e2e8f0; stroke-width: 8; stroke-linecap: round; }
+  .gauge-fill { fill: none; stroke-width: 8; stroke-linecap: round; transition: stroke-dasharray 0.6s ease; }
+  .gauge-text { font-family: ui-monospace, monospace; font-weight: 700; }
+
+  /* Anomaly badge pulse */
+  @keyframes pulse-ring { 0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.5); } 70% { box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); } 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } }
+  .pulse-anomaly { animation: pulse-ring 2s infinite; }
+
+  /* Header banner */
+  .scenario-badge { position: fixed; top: 12px; left: 50%; transform: translateX(-50%); background: linear-gradient(135deg, #1e293b 0%, #475569 100%); color: white; border-radius: 12px; padding: 10px 18px; z-index: 100; box-shadow: 0 4px 20px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 12px; min-width: 580px; }
+  .scenario-icon { width: 36px; height: 36px; border-radius: 10px; background: linear-gradient(135deg, #f59e0b, #d97706); color: white; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .scenario-info { flex: 1; min-width: 0; }
+  .scenario-type { font-size: 9px; text-transform: uppercase; letter-spacing: 0.05em; color: #fbbf24; font-weight: 700; }
+  .scenario-title { font-size: 13px; font-weight: 700; }
+  .scenario-meta { font-size: 10px; color: #cbd5e1; margin-top: 2px; }
+
+  /* Variance waterfall */
+  .waterfall-row { display: flex; align-items: center; gap: 8px; padding: 6px 0; }
+  .waterfall-bar-bg { flex: 1; height: 22px; background: #f1f5f9; border-radius: 4px; position: relative; overflow: hidden; }
+  .waterfall-bar { height: 100%; position: absolute; top: 0; transition: width 0.4s ease; }
+
+  /* Multi-pane layout */
+  .layout-grid { display: grid; grid-template-columns: minmax(0, 1fr) 480px; gap: 20px; }
+  @media (max-width: 1280px) { .layout-grid { grid-template-columns: 1fr; } }
+
+  /* Soft gradients */
+  .grad-amber-soft { background: linear-gradient(135deg, #fffbeb 0%, #ffffff 60%); }
+  .grad-rose-soft  { background: linear-gradient(135deg, #fff1f2 0%, #ffffff 60%); }
+  .grad-emerald-soft { background: linear-gradient(135deg, #ecfdf5 0%, #ffffff 60%); }
+  .grad-sky-soft { background: linear-gradient(135deg, #f0f9ff 0%, #ffffff 60%); }
+  .grad-purple-soft { background: linear-gradient(135deg, #faf5ff 0%, #ffffff 60%); }
+
+  /* Bloomberg-density tables */
+  .density-table { font-size: 11px; line-height: 1.4; }
+  .density-table th { font-size: 9px; text-transform: uppercase; letter-spacing: 0.05em; color: #94a3b8; font-weight: 700; padding: 6px 8px; border-bottom: 1px solid #e2e8f0; }
+  .density-table td { padding: 6px 8px; border-bottom: 1px solid #f1f5f9; }
+  .density-table tr:hover td { background: #f8fafc; }
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<!-- SCENARIO BADGE -->
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<div class="scenario-badge">
+  <div class="scenario-icon">
+    <i data-lucide="brain-circuit" class="w-5 h-5"></i>
+  </div>
+  <div class="scenario-info">
+    <div class="scenario-type">Visión moderna · Cost Intelligence System</div>
+    <div class="scenario-title">Reemplazo total de CTRU + ProductosIntel · S3.6 M1.bis</div>
+    <div class="scenario-meta">Bloomberg-density · Variance attribution · Time-series · Action-oriented · Keyboard-first</div>
+  </div>
+</div>
+
+<div style="height: 90px"></div>
+
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<!-- SECCIÓN 1 · ARQUITECTURA · Workspaces analíticos -->
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<div class="max-w-7xl mx-auto px-6 mb-8">
+  <div class="flex items-center gap-2 mb-3">
+    <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Sección 1 · Arquitectura propuesta</span>
+    <div class="h-px flex-1 bg-slate-200"></div>
+  </div>
+
+  <div class="bg-white border border-slate-200 rounded-xl p-5">
+    <h2 class="text-lg font-bold text-slate-900 mb-1">Workspaces analíticos · subviews por URL</h2>
+    <p class="text-xs text-slate-500 mb-4">Patrón Notion/Linear · 1 módulo · 5 lentes navegables · drill-down progresivo · keyboard-first</p>
+
+    <div class="grid grid-cols-5 gap-2 mb-4">
+      <div class="border border-teal-300 bg-teal-50 rounded-lg p-3">
+        <div class="flex items-center gap-1.5 mb-1">
+          <i data-lucide="layout-grid" class="w-3.5 h-3.5 text-teal-700"></i>
+          <span class="text-[10px] font-bold text-teal-900 uppercase tracking-wider">Catálogo</span>
+        </div>
+        <div class="text-[10px] text-teal-700">Lista valorizada · density-first · sparklines inline</div>
+        <div class="mono text-[9px] text-teal-600 mt-1.5">/intel-productos</div>
+      </div>
+      <div class="border border-amber-300 bg-amber-50 rounded-lg p-3">
+        <div class="flex items-center gap-1.5 mb-1">
+          <i data-lucide="dollar-sign" class="w-3.5 h-3.5 text-amber-700"></i>
+          <span class="text-[10px] font-bold text-amber-900 uppercase tracking-wider">Costos</span>
+        </div>
+        <div class="text-[10px] text-amber-700">Time-series · variance attribution · TCPA tracking</div>
+        <div class="mono text-[9px] text-amber-600 mt-1.5">/intel-productos/costos</div>
+      </div>
+      <div class="border border-purple-300 bg-purple-50 rounded-lg p-3">
+        <div class="flex items-center gap-1.5 mb-1">
+          <i data-lucide="git-branch" class="w-3.5 h-3.5 text-purple-700"></i>
+          <span class="text-[10px] font-bold text-purple-900 uppercase tracking-wider">Pipeline</span>
+        </div>
+        <div class="text-[10px] text-purple-700">6 etapas valorización · capital atrapado · drill-down</div>
+        <div class="mono text-[9px] text-purple-600 mt-1.5">/intel-productos/pipeline</div>
+      </div>
+      <div class="border border-rose-300 bg-rose-50 rounded-lg p-3">
+        <div class="flex items-center gap-1.5 mb-1">
+          <i data-lucide="zap" class="w-3.5 h-3.5 text-rose-700"></i>
+          <span class="text-[10px] font-bold text-rose-900 uppercase tracking-wider">Alertas</span>
+        </div>
+        <div class="text-[10px] text-rose-700">Anomaly detection · variance > threshold · CTAs</div>
+        <div class="mono text-[9px] text-rose-600 mt-1.5">/intel-productos/alertas</div>
+      </div>
+      <div class="border border-sky-300 bg-sky-50 rounded-lg p-3">
+        <div class="flex items-center gap-1.5 mb-1">
+          <i data-lucide="trending-up" class="w-3.5 h-3.5 text-sky-700"></i>
+          <span class="text-[10px] font-bold text-sky-900 uppercase tracking-wider">Forecast</span>
+        </div>
+        <div class="text-[10px] text-sky-700">Proyecciones 30/60/90d · what-if scenarios</div>
+        <div class="mono text-[9px] text-sky-600 mt-1.5">/intel-productos/forecast</div>
+      </div>
+    </div>
+
+    <div class="bg-slate-900 text-white rounded-lg p-3 text-xs flex items-center gap-3 flex-wrap">
+      <span class="font-bold">Keyboard-first navigation:</span>
+      <span class="flex items-center gap-1"><span class="kbd">j</span> bajar</span>
+      <span class="flex items-center gap-1"><span class="kbd">k</span> subir</span>
+      <span class="flex items-center gap-1"><span class="kbd">⏎</span> drill-down</span>
+      <span class="flex items-center gap-1"><span class="kbd">esc</span> volver</span>
+      <span class="flex items-center gap-1"><span class="kbd">⌘k</span> command palette</span>
+      <span class="flex items-center gap-1"><span class="kbd">/</span> búsqueda</span>
+      <span class="flex items-center gap-1"><span class="kbd">f</span> filtros</span>
+      <span class="flex items-center gap-1"><span class="kbd">1-5</span> cambiar workspace</span>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<!-- SECCIÓN 2 · WORKSPACE 1 · Catálogo (vista principal) -->
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<div class="max-w-7xl mx-auto px-6 mb-8">
+  <div class="flex items-center gap-2 mb-3">
+    <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Sección 2 · Workspace Catálogo · vista principal</span>
+    <div class="h-px flex-1 bg-slate-200"></div>
+  </div>
+
+  <!-- Header banking-grade -->
+  <div class="flex items-start justify-between gap-4 flex-wrap mb-4">
+    <div class="flex-1 min-w-[260px]">
+      <div class="flex items-center gap-2 text-xs text-slate-400 mb-1">
+        <span class="hover:text-teal-600 cursor-pointer">Inteligencia</span>
+        <i data-lucide="chevron-right" class="w-3 h-3"></i>
+        <span class="text-slate-600 font-medium">Catálogo · 142 productos</span>
+      </div>
+      <h1 class="text-2xl font-bold text-slate-900 flex items-center gap-2.5 tracking-tight">
+        <i data-lucide="brain-circuit" class="w-6 h-6 text-teal-600"></i>
+        Cost Intelligence
+      </h1>
+      <p class="text-sm text-slate-500 mt-0.5">
+        Análisis estratégico de costos · evolución temporal · variance attribution · sugerencias accionables
+      </p>
+    </div>
+    <div class="flex items-center gap-2">
+      <button class="text-xs font-medium text-slate-600 bg-white border border-slate-200 rounded-lg px-3 py-2 hover:bg-slate-50 flex items-center gap-1.5">
+        <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+        Recalcular
+      </button>
+      <button class="text-xs font-medium text-white bg-slate-900 rounded-lg px-3 py-2 hover:bg-slate-800 flex items-center gap-1.5">
+        <i data-lucide="download" class="w-3.5 h-3.5"></i>
+        Reporte ejecutivo
+      </button>
+    </div>
+  </div>
+
+  <!-- KPI strip ejecutivo · 5 KPIs -->
+  <div class="bg-white border border-slate-200 rounded-xl grid grid-cols-2 md:grid-cols-5 divide-y md:divide-y-0 md:divide-x divide-slate-200 mb-4">
+    <div class="p-4">
+      <div class="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Capital invertido</div>
+      <div class="text-2xl font-bold text-slate-900 tabular tracking-tight">S/ 87,234</div>
+      <div class="text-[11px] text-slate-500 mt-1.5 tabular flex items-center gap-1">
+        <i data-lucide="package" class="w-3 h-3"></i>
+        1,847 uds · 142 SKUs
+      </div>
+    </div>
+    <div class="p-4">
+      <div class="text-[10px] font-bold text-amber-700 uppercase tracking-wider mb-1.5">Capital atrapado</div>
+      <div class="text-2xl font-bold text-amber-700 tabular tracking-tight">S/ 18,420</div>
+      <div class="text-[11px] text-amber-700 mt-1.5 tabular flex items-center gap-1">
+        <i data-lucide="alert-triangle" class="w-3 h-3"></i>
+        21% del total · USA + aduana
+      </div>
+    </div>
+    <div class="p-4">
+      <div class="text-[10px] font-bold text-emerald-700 uppercase tracking-wider mb-1.5">Margen potencial</div>
+      <div class="text-2xl font-bold text-emerald-600 tabular tracking-tight">+S/ 142k</div>
+      <div class="text-[11px] text-emerald-600 mt-1.5 tabular flex items-center gap-1">
+        <i data-lucide="trending-up" class="w-3 h-3"></i>
+        Si vendieras todo a precio actual
+      </div>
+    </div>
+    <div class="p-4">
+      <div class="text-[10px] font-bold text-rose-700 uppercase tracking-wider mb-1.5">Anomalías 7d</div>
+      <div class="text-2xl font-bold text-rose-700 tabular tracking-tight">7</div>
+      <div class="text-[11px] text-rose-700 mt-1.5 tabular flex items-center gap-1">
+        <i data-lucide="zap" class="w-3 h-3"></i>
+        3 críticas · revisar
+      </div>
+    </div>
+    <div class="p-4">
+      <div class="text-[10px] font-bold text-sky-700 uppercase tracking-wider mb-1.5">Stability score</div>
+      <div class="text-2xl font-bold text-sky-700 tabular tracking-tight">82</div>
+      <div class="text-[11px] text-sky-700 mt-1.5 tabular flex items-center gap-1">
+        <i data-lucide="shield-check" class="w-3 h-3"></i>
+        Costos predecibles · -3 vs mes anterior
+      </div>
+    </div>
+  </div>
+
+  <!-- Multi-pane: tabla densa izquierda + drill-down derecha -->
+  <div class="layout-grid">
+    <!-- Pane izquierda · tabla densa con sparklines -->
+    <div class="bg-white border border-slate-200 rounded-xl overflow-hidden">
+      <div class="px-4 py-2.5 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <input type="checkbox" class="w-3.5 h-3.5 rounded border-slate-300">
+          <span class="text-[10px] font-bold text-slate-600 uppercase tracking-wider">Catálogo · 142 SKUs</span>
+        </div>
+        <div class="flex items-center gap-1.5">
+          <button class="text-[10px] font-medium text-slate-600 hover:bg-slate-100 px-2 py-1 rounded flex items-center gap-1">
+            <i data-lucide="sliders-horizontal" class="w-3 h-3"></i>
+            Columnas (12)
+          </button>
+        </div>
+      </div>
+
+      <table class="density-table w-full">
+        <thead>
+          <tr>
+            <th class="text-left">SKU</th>
+            <th class="text-left">Producto</th>
+            <th class="text-right">Costo unit.</th>
+            <th class="text-right">Δ 30d</th>
+            <th class="text-center">Trend 90d</th>
+            <th class="text-right">Stock</th>
+            <th class="text-right">Capital</th>
+            <th class="text-center">Score</th>
+            <th class="text-center">Acción</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Producto 1 · anomalía rosa -->
+          <tr class="density-row cursor-pointer bg-rose-50/30 ring-1 ring-rose-200">
+            <td class="mono text-rose-700 font-bold">SUP-0078</td>
+            <td>
+              <div class="font-semibold text-slate-900">Vitamin D3 NOW</div>
+              <div class="text-[9px] text-slate-500">240 caps · NOW Foods</div>
+            </td>
+            <td class="text-right">
+              <div class="font-bold text-slate-900 tabular">S/ 13.40</div>
+              <div class="text-[9px] text-slate-500">$ 12.20</div>
+            </td>
+            <td class="text-right">
+              <span class="inline-flex items-center gap-0.5 text-rose-700 font-bold tabular">
+                <i data-lucide="trending-up" class="w-2.5 h-2.5"></i>
+                +12%
+              </span>
+            </td>
+            <td class="text-center">
+              <svg width="80" height="20" viewBox="0 0 80 20" class="inline">
+                <polyline class="spark" points="0,15 10,12 20,11 30,10 40,9 50,7 60,5 70,4 80,3" fill="none" stroke="#e11d48" stroke-width="1.5"/>
+                <circle cx="80" cy="3" r="2" fill="#e11d48"/>
+              </svg>
+            </td>
+            <td class="text-right">
+              <span class="text-rose-700 font-bold tabular">17</span>
+              <span class="text-[9px] text-slate-400 block">/ mín 30</span>
+            </td>
+            <td class="text-right tabular">S/ 228</td>
+            <td class="text-center">
+              <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-rose-100 text-rose-700 font-bold text-[10px]">42</span>
+            </td>
+            <td class="text-center">
+              <button class="text-[9px] font-bold text-white bg-rose-600 hover:bg-rose-700 px-2 py-1 rounded">Revisar</button>
+            </td>
+          </tr>
+
+          <!-- Producto 2 · normal teal -->
+          <tr class="density-row cursor-pointer">
+            <td class="mono text-slate-700 font-bold">SKC-0042</td>
+            <td>
+              <div class="font-semibold text-slate-900">Vitamin C Brightening Serum</div>
+              <div class="text-[9px] text-slate-500">30 ml · SkinCeuticals</div>
+            </td>
+            <td class="text-right">
+              <div class="font-bold text-slate-900 tabular">S/ 29.00</div>
+              <div class="text-[9px] text-slate-500">$ 8.20</div>
+            </td>
+            <td class="text-right">
+              <span class="inline-flex items-center gap-0.5 text-emerald-700 font-medium tabular">
+                <i data-lucide="trending-down" class="w-2.5 h-2.5"></i>
+                -1.2%
+              </span>
+            </td>
+            <td class="text-center">
+              <svg width="80" height="20" viewBox="0 0 80 20" class="inline">
+                <polyline points="0,8 10,9 20,8 30,10 40,9 50,9 60,10 70,11 80,11" fill="none" stroke="#10b981" stroke-width="1.5"/>
+                <circle cx="80" cy="11" r="2" fill="#10b981"/>
+              </svg>
+            </td>
+            <td class="text-right">
+              <span class="text-slate-900 font-bold tabular">64</span>
+              <span class="text-[9px] text-emerald-600 block">+38 dispon.</span>
+            </td>
+            <td class="text-right tabular">S/ 1,856</td>
+            <td class="text-center">
+              <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-emerald-100 text-emerald-700 font-bold text-[10px]">87</span>
+            </td>
+            <td class="text-center">
+              <span class="text-[9px] text-slate-400">—</span>
+            </td>
+          </tr>
+
+          <!-- Producto 3 · oportunidad emerald -->
+          <tr class="density-row cursor-pointer bg-emerald-50/30 ring-1 ring-emerald-200">
+            <td class="mono text-emerald-700 font-bold">SKC-0091</td>
+            <td>
+              <div class="font-semibold text-slate-900">Niacinamide 10% + Zinc 1%</div>
+              <div class="text-[9px] text-slate-500">30 ml · Cosrx</div>
+            </td>
+            <td class="text-right">
+              <div class="font-bold text-slate-900 tabular">S/ 12.00</div>
+              <div class="text-[9px] text-slate-500">$ 3.40</div>
+            </td>
+            <td class="text-right">
+              <span class="inline-flex items-center gap-0.5 text-emerald-700 font-bold tabular">
+                <i data-lucide="trending-down" class="w-2.5 h-2.5"></i>
+                -8%
+              </span>
+            </td>
+            <td class="text-center">
+              <svg width="80" height="20" viewBox="0 0 80 20" class="inline">
+                <polyline points="0,5 10,7 20,8 30,10 40,11 50,12 60,13 70,14 80,15" fill="none" stroke="#10b981" stroke-width="1.5"/>
+                <circle cx="80" cy="15" r="2" fill="#10b981"/>
+              </svg>
+            </td>
+            <td class="text-right">
+              <span class="text-slate-900 font-bold tabular">44</span>
+              <span class="text-[9px] text-amber-600 block">12 vencen 23d</span>
+            </td>
+            <td class="text-right tabular">S/ 528</td>
+            <td class="text-center">
+              <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-emerald-100 text-emerald-700 font-bold text-[10px]">73</span>
+            </td>
+            <td class="text-center">
+              <button class="text-[9px] font-bold text-emerald-700 bg-emerald-100 hover:bg-emerald-200 px-2 py-1 rounded">Comprar +</button>
+            </td>
+          </tr>
+
+          <!-- Producto 4 · estable slate -->
+          <tr class="density-row cursor-pointer">
+            <td class="mono text-slate-700 font-bold">SUP-0103</td>
+            <td>
+              <div class="font-semibold text-slate-900">Magnesium Glycinate</div>
+              <div class="text-[9px] text-slate-500">400mg · Doctor's Best</div>
+            </td>
+            <td class="text-right">
+              <div class="font-bold text-slate-900 tabular">S/ 45.50</div>
+              <div class="text-[9px] text-slate-500">$ 12.95</div>
+            </td>
+            <td class="text-right">
+              <span class="text-slate-500 tabular">±0%</span>
+            </td>
+            <td class="text-center">
+              <svg width="80" height="20" viewBox="0 0 80 20" class="inline">
+                <polyline points="0,10 10,10 20,10 30,11 40,10 50,10 60,11 70,10 80,10" fill="none" stroke="#94a3b8" stroke-width="1.5"/>
+                <circle cx="80" cy="10" r="2" fill="#94a3b8"/>
+              </svg>
+            </td>
+            <td class="text-right">
+              <span class="text-slate-900 font-bold tabular">36</span>
+              <span class="text-[9px] text-sky-600 block">solo USA</span>
+            </td>
+            <td class="text-right tabular">S/ 432</td>
+            <td class="text-center">
+              <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-sky-100 text-sky-700 font-bold text-[10px]">94</span>
+            </td>
+            <td class="text-center">
+              <span class="text-[9px] text-slate-400">—</span>
+            </td>
+          </tr>
+
+          <!-- Más rows... -->
+          <tr class="density-row">
+            <td colspan="9" class="text-center text-[10px] text-slate-400 py-3">
+              <i data-lucide="more-horizontal" class="w-4 h-4 inline"></i>
+              138 productos más
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pane derecha · drill-down de SUP-0078 (anomalía seleccionada) -->
+    <div class="space-y-3">
+      <div class="bg-white border-2 border-rose-200 rounded-xl overflow-hidden">
+        <div class="px-4 py-3 bg-gradient-to-br from-rose-50 to-white border-b border-rose-200">
+          <div class="flex items-start justify-between gap-2">
+            <div class="min-w-0">
+              <div class="flex items-center gap-1.5 mb-1">
+                <span class="mono text-[10px] text-rose-700 font-bold">SUP-0078</span>
+                <span class="bg-rose-600 text-white text-[8px] font-bold px-1.5 py-0.5 rounded uppercase pulse-anomaly">⚠ Anomalía</span>
+              </div>
+              <h3 class="text-sm font-bold text-slate-900 truncate">Vitamin D3 NOW · 240 caps</h3>
+              <p class="text-[10px] text-slate-500">NOW Foods · USA · 17 uds activas · S/ 228 capital</p>
+            </div>
+            <button class="text-slate-400 hover:text-slate-600">
+              <i data-lucide="x" class="w-4 h-4"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Tabs sticky drill-down -->
+        <div class="border-b border-slate-200 bg-white px-4">
+          <div class="flex items-center gap-3 -mb-px">
+            <button class="border-b-2 border-rose-600 text-rose-700 font-bold text-[11px] py-2 flex items-center gap-1">
+              <i data-lucide="zap" class="w-3 h-3"></i>
+              Variance
+            </button>
+            <button class="border-b-2 border-transparent text-slate-500 hover:text-slate-900 font-medium text-[11px] py-2 flex items-center gap-1">
+              <i data-lucide="trending-up" class="w-3 h-3"></i>
+              Histórico
+            </button>
+            <button class="border-b-2 border-transparent text-slate-500 hover:text-slate-900 font-medium text-[11px] py-2 flex items-center gap-1">
+              <i data-lucide="layers" class="w-3 h-3"></i>
+              Lotes
+            </button>
+            <button class="border-b-2 border-transparent text-slate-500 hover:text-slate-900 font-medium text-[11px] py-2 flex items-center gap-1">
+              <i data-lucide="users" class="w-3 h-3"></i>
+              Proveedores
+            </button>
+          </div>
+        </div>
+
+        <!-- Variance attribution waterfall -->
+        <div class="p-4 space-y-3">
+          <div>
+            <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-2">Variance attribution · costo subió 12% en 60 días</div>
+
+            <div class="space-y-1">
+              <!-- Driver 1 -->
+              <div class="waterfall-row">
+                <span class="text-[10px] text-slate-700 font-medium w-32">Precio proveedor</span>
+                <div class="waterfall-bar-bg">
+                  <div class="waterfall-bar bg-rose-500" style="width: 53%; left: 0;"></div>
+                  <span class="absolute inset-0 flex items-center px-2 text-[9px] font-bold text-white">+6.4 pp</span>
+                </div>
+                <span class="text-[10px] text-rose-700 font-bold tabular w-12 text-right">53%</span>
+              </div>
+              <!-- Driver 2 -->
+              <div class="waterfall-row">
+                <span class="text-[10px] text-slate-700 font-medium w-32">Flete intl.</span>
+                <div class="waterfall-bar-bg">
+                  <div class="waterfall-bar bg-amber-500" style="width: 26%; left: 0;"></div>
+                  <span class="absolute inset-0 flex items-center px-2 text-[9px] font-bold text-white">+3.1 pp</span>
+                </div>
+                <span class="text-[10px] text-amber-700 font-bold tabular w-12 text-right">26%</span>
+              </div>
+              <!-- Driver 3 -->
+              <div class="waterfall-row">
+                <span class="text-[10px] text-slate-700 font-medium w-32">TC (TCPA)</span>
+                <div class="waterfall-bar-bg">
+                  <div class="waterfall-bar bg-sky-500" style="width: 15%; left: 0;"></div>
+                  <span class="absolute inset-0 flex items-center px-2 text-[9px] font-bold text-white">+1.8 pp</span>
+                </div>
+                <span class="text-[10px] text-sky-700 font-bold tabular w-12 text-right">15%</span>
+              </div>
+              <!-- Driver 4 -->
+              <div class="waterfall-row">
+                <span class="text-[10px] text-slate-700 font-medium w-32">Costos landed</span>
+                <div class="waterfall-bar-bg">
+                  <div class="waterfall-bar bg-purple-500" style="width: 6%; left: 0;"></div>
+                  <span class="absolute inset-0 flex items-center px-2 text-[9px] font-bold text-white">+0.7 pp</span>
+                </div>
+                <span class="text-[10px] text-purple-700 font-bold tabular w-12 text-right">6%</span>
+              </div>
+              <div class="border-t border-slate-200 pt-1 flex items-center justify-between">
+                <span class="text-[10px] text-slate-700 font-bold">Total atribuido</span>
+                <span class="text-[11px] text-rose-700 font-bold tabular">+12.0 pp ✓</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Histórico mini -->
+          <div class="bg-slate-50 rounded-lg p-3">
+            <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-2">Costo unitario · últimos 90 días</div>
+            <svg viewBox="0 0 300 80" class="w-full h-20">
+              <line x1="0" y1="60" x2="300" y2="60" stroke="#e2e8f0" stroke-dasharray="2 2"/>
+              <polyline points="20,55 60,52 100,48 140,45 180,38 220,32 260,25 300,20" fill="none" stroke="#e11d48" stroke-width="2"/>
+              <circle cx="300" cy="20" r="3" fill="#e11d48"/>
+              <text x="20" y="75" font-size="8" fill="#94a3b8">15 feb</text>
+              <text x="155" y="75" font-size="8" fill="#94a3b8" text-anchor="middle">15 mar</text>
+              <text x="300" y="75" font-size="8" fill="#e11d48" text-anchor="end" font-weight="bold">15 abr ▲</text>
+            </svg>
+            <div class="flex items-center justify-between mt-1.5 text-[9px]">
+              <span class="text-slate-500">$ 11.95 → $ 12.20 → <strong class="text-rose-700">$ 13.40</strong></span>
+              <span class="text-rose-700 font-bold">+12% (60d)</span>
+            </div>
+          </div>
+
+          <!-- Acciones sugeridas -->
+          <div class="bg-amber-50 border border-amber-200 rounded-lg p-3">
+            <div class="text-[10px] uppercase tracking-wider text-amber-700 font-bold mb-2 flex items-center gap-1">
+              <i data-lucide="lightbulb" class="w-3 h-3"></i>
+              Acciones sugeridas
+            </div>
+            <div class="space-y-1.5">
+              <button class="w-full bg-white hover:bg-amber-100 border border-amber-200 rounded px-2.5 py-1.5 text-left flex items-center justify-between">
+                <span class="text-[10px] text-amber-900">Renegociar con NOW Foods</span>
+                <i data-lucide="arrow-right" class="w-3 h-3 text-amber-700"></i>
+              </button>
+              <button class="w-full bg-white hover:bg-amber-100 border border-amber-200 rounded px-2.5 py-1.5 text-left flex items-center justify-between">
+                <span class="text-[10px] text-amber-900">Explorar 3 alternativas (iHerb · Vitacost · Pure Encaps)</span>
+                <i data-lucide="arrow-right" class="w-3 h-3 text-amber-700"></i>
+              </button>
+              <button class="w-full bg-white hover:bg-amber-100 border border-amber-200 rounded px-2.5 py-1.5 text-left flex items-center justify-between">
+                <span class="text-[10px] text-amber-900">Subir precio venta +8% para mantener margen</span>
+                <i data-lucide="arrow-right" class="w-3 h-3 text-amber-700"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<!-- SECCIÓN 3 · WORKSPACE 2 · Costos · Time-series + 3 niveles -->
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<div class="max-w-7xl mx-auto px-6 mb-8">
+  <div class="flex items-center gap-2 mb-3">
+    <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Sección 3 · Workspace Costos · time-series + P&L 3 niveles</span>
+    <div class="h-px flex-1 bg-slate-200"></div>
+  </div>
+
+  <!-- P&L 3 niveles canónica -->
+  <div class="bg-white border border-slate-200 rounded-xl p-5 mb-4">
+    <div class="flex items-center justify-between mb-4">
+      <div>
+        <h2 class="text-base font-bold text-slate-900">P&L 3 niveles · margen waterfall</h2>
+        <p class="text-[10px] text-slate-500">Bloques: Producto (afecta CTRU) · Venta (margen contrib.) · Período (margen operativo)</p>
+      </div>
+      <div class="flex items-center gap-1.5">
+        <button class="text-[10px] font-medium text-white bg-slate-900 px-2 py-1 rounded">Mes actual</button>
+        <button class="text-[10px] font-medium text-slate-600 hover:bg-slate-100 px-2 py-1 rounded">Trim.</button>
+        <button class="text-[10px] font-medium text-slate-600 hover:bg-slate-100 px-2 py-1 rounded">Año</button>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-3 gap-3">
+      <!-- Bloque Producto · azul -->
+      <div class="border-2 border-blue-200 rounded-xl overflow-hidden">
+        <div class="bg-gradient-to-br from-blue-600 to-blue-700 text-white p-3">
+          <div class="text-[9px] uppercase tracking-wider opacity-80 font-bold">Bloque 1 · Producto</div>
+          <div class="text-base font-bold mt-0.5">📦 Costo del producto</div>
+          <div class="text-[10px] opacity-80 mt-0.5">Afecta CTRU · prorrateo a unidades</div>
+        </div>
+        <div class="p-3 space-y-2 bg-blue-50/30">
+          <div class="flex items-center justify-between text-[10px]">
+            <span class="text-slate-600">Precio adquisición</span>
+            <span class="font-bold tabular text-slate-900">S/ 42,180</span>
+          </div>
+          <div class="flex items-center justify-between text-[10px]">
+            <span class="text-slate-600">+ Flete internacional</span>
+            <span class="font-bold tabular text-slate-900">S/ 8,420</span>
+          </div>
+          <div class="flex items-center justify-between text-[10px]">
+            <span class="text-slate-600">+ Aduana / nacionalización</span>
+            <span class="font-bold tabular text-slate-900">S/ 3,840</span>
+          </div>
+          <div class="flex items-center justify-between text-[10px]">
+            <span class="text-slate-600">+ Almacenaje · manipuleo</span>
+            <span class="font-bold tabular text-slate-900">S/ 1,260</span>
+          </div>
+          <div class="flex items-center justify-between text-[10px]">
+            <span class="text-slate-600">+ Diferencial TCPA vs oficial</span>
+            <span class="font-bold tabular text-emerald-700">−S/ 1,580</span>
+          </div>
+          <div class="border-t border-blue-300 pt-2 flex items-center justify-between">
+            <span class="text-[11px] font-bold text-blue-900">CTRU consolidado</span>
+            <span class="text-base font-bold tabular text-blue-700">S/ 54,120</span>
+          </div>
+        </div>
+        <div class="px-3 py-2 bg-slate-900 text-white text-center">
+          <div class="text-[9px] uppercase tracking-wider opacity-70">Margen bruto del mes</div>
+          <div class="text-lg font-bold tabular text-emerald-400">+S/ 78,420 (59.2%)</div>
+        </div>
+      </div>
+
+      <!-- Bloque Venta · púrpura -->
+      <div class="border-2 border-purple-200 rounded-xl overflow-hidden">
+        <div class="bg-gradient-to-br from-purple-600 to-purple-700 text-white p-3">
+          <div class="text-[9px] uppercase tracking-wider opacity-80 font-bold">Bloque 2 · Venta</div>
+          <div class="text-base font-bold mt-0.5">🛒 Costos por venta</div>
+          <div class="text-[10px] opacity-80 mt-0.5">NO afecta CTRU · resta a margen</div>
+        </div>
+        <div class="p-3 space-y-2 bg-purple-50/30">
+          <div class="flex items-center justify-between text-[10px]">
+            <span class="text-slate-600">Comisiones (vendedores)</span>
+            <span class="font-bold tabular text-slate-900">S/ 12,840</span>
+          </div>
+          <div class="flex items-center justify-between text-[10px]">
+            <span class="text-slate-600">Distribución (Olva, Shalom...)</span>
+            <span class="font-bold tabular text-slate-900">S/ 8,120</span>
+          </div>
+          <div class="flex items-center justify-between text-[10px]">
+            <span class="text-slate-600">Empaque · materiales</span>
+            <span class="font-bold tabular text-slate-900">S/ 2,340</span>
+          </div>
+          <div class="flex items-center justify-between text-[10px]">
+            <span class="text-slate-600">Marketing directo (ML, Insta)</span>
+            <span class="font-bold tabular text-slate-900">S/ 4,680</span>
+          </div>
+          <div class="border-t border-purple-300 pt-2 flex items-center justify-between">
+            <span class="text-[11px] font-bold text-purple-900">Costos venta totales</span>
+            <span class="text-base font-bold tabular text-purple-700">S/ 27,980</span>
+          </div>
+        </div>
+        <div class="px-3 py-2 bg-slate-900 text-white text-center">
+          <div class="text-[9px] uppercase tracking-wider opacity-70">Margen contribución</div>
+          <div class="text-lg font-bold tabular text-emerald-400">+S/ 50,440 (38.1%)</div>
+        </div>
+      </div>
+
+      <!-- Bloque Período · ámbar -->
+      <div class="border-2 border-amber-200 rounded-xl overflow-hidden">
+        <div class="bg-gradient-to-br from-amber-600 to-amber-700 text-white p-3">
+          <div class="text-[9px] uppercase tracking-wider opacity-80 font-bold">Bloque 3 · Período</div>
+          <div class="text-base font-bold mt-0.5">📅 Gastos fijos del mes</div>
+          <div class="text-[10px] opacity-80 mt-0.5">NO afecta CTRU · resta margen op.</div>
+        </div>
+        <div class="p-3 space-y-2 bg-amber-50/30">
+          <div class="flex items-center justify-between text-[10px]">
+            <span class="text-slate-600">Personal · planilla</span>
+            <span class="font-bold tabular text-slate-900">S/ 18,200</span>
+          </div>
+          <div class="flex items-center justify-between text-[10px]">
+            <span class="text-slate-600">Local · alquiler + servicios</span>
+            <span class="font-bold tabular text-slate-900">S/ 6,420</span>
+          </div>
+          <div class="flex items-center justify-between text-[10px]">
+            <span class="text-slate-600">Tecnología · softw + cloud</span>
+            <span class="font-bold tabular text-slate-900">S/ 1,840</span>
+          </div>
+          <div class="flex items-center justify-between text-[10px]">
+            <span class="text-slate-600">Profesionales · contador</span>
+            <span class="font-bold tabular text-slate-900">S/ 1,200</span>
+          </div>
+          <div class="border-t border-amber-300 pt-2 flex items-center justify-between">
+            <span class="text-[11px] font-bold text-amber-900">Gastos fijos totales</span>
+            <span class="text-base font-bold tabular text-amber-700">S/ 27,660</span>
+          </div>
+        </div>
+        <div class="px-3 py-2 bg-slate-900 text-white text-center">
+          <div class="text-[9px] uppercase tracking-wider opacity-70">Margen operativo</div>
+          <div class="text-lg font-bold tabular text-emerald-400">+S/ 22,780 (17.2%)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Time-series · evolución de cada bloque + TCPA tracking -->
+  <div class="grid grid-cols-2 gap-4">
+    <!-- Cost evolution stacked bars -->
+    <div class="bg-white border border-slate-200 rounded-xl p-4">
+      <div class="flex items-center justify-between mb-3">
+        <div>
+          <div class="text-sm font-bold text-slate-900">Evolución 3 bloques · 6 meses</div>
+          <div class="text-[10px] text-slate-500">Stacked bars · S/ por mes</div>
+        </div>
+        <i data-lucide="bar-chart-3" class="w-4 h-4 text-slate-400"></i>
+      </div>
+      <svg viewBox="0 0 360 180" class="w-full h-44">
+        <!-- Eje Y -->
+        <line x1="40" y1="20" x2="40" y2="160" stroke="#e2e8f0"/>
+        <line x1="40" y1="160" x2="350" y2="160" stroke="#e2e8f0"/>
+        <text x="35" y="25" font-size="8" fill="#94a3b8" text-anchor="end">120k</text>
+        <text x="35" y="90" font-size="8" fill="#94a3b8" text-anchor="end">60k</text>
+        <text x="35" y="160" font-size="8" fill="#94a3b8" text-anchor="end">0</text>
+
+        <!-- Bars Dec -->
+        <rect x="55" y="100" width="35" height="60" fill="#3b82f6"/>
+        <rect x="55" y="80" width="35" height="20" fill="#a855f7"/>
+        <rect x="55" y="60" width="35" height="20" fill="#f59e0b"/>
+        <text x="72" y="172" font-size="8" fill="#64748b" text-anchor="middle">Dic</text>
+
+        <!-- Bars Ene -->
+        <rect x="105" y="95" width="35" height="65" fill="#3b82f6"/>
+        <rect x="105" y="73" width="35" height="22" fill="#a855f7"/>
+        <rect x="105" y="55" width="35" height="18" fill="#f59e0b"/>
+        <text x="122" y="172" font-size="8" fill="#64748b" text-anchor="middle">Ene</text>
+
+        <!-- Bars Feb -->
+        <rect x="155" y="92" width="35" height="68" fill="#3b82f6"/>
+        <rect x="155" y="68" width="35" height="24" fill="#a855f7"/>
+        <rect x="155" y="50" width="35" height="18" fill="#f59e0b"/>
+        <text x="172" y="172" font-size="8" fill="#64748b" text-anchor="middle">Feb</text>
+
+        <!-- Bars Mar -->
+        <rect x="205" y="85" width="35" height="75" fill="#3b82f6"/>
+        <rect x="205" y="60" width="35" height="25" fill="#a855f7"/>
+        <rect x="205" y="42" width="35" height="18" fill="#f59e0b"/>
+        <text x="222" y="172" font-size="8" fill="#64748b" text-anchor="middle">Mar</text>
+
+        <!-- Bars Abr (subió flete!) -->
+        <rect x="255" y="78" width="35" height="82" fill="#3b82f6"/>
+        <rect x="255" y="55" width="35" height="23" fill="#a855f7"/>
+        <rect x="255" y="35" width="35" height="20" fill="#f59e0b"/>
+        <text x="272" y="172" font-size="8" fill="#e11d48" text-anchor="middle" font-weight="bold">Abr ▲</text>
+
+        <!-- Bars May actual -->
+        <rect x="305" y="72" width="35" height="88" fill="#3b82f6" stroke="#1e40af" stroke-width="2"/>
+        <rect x="305" y="48" width="35" height="24" fill="#a855f7" stroke="#7e22ce" stroke-width="2"/>
+        <rect x="305" y="28" width="35" height="20" fill="#f59e0b" stroke="#b45309" stroke-width="2"/>
+        <text x="322" y="172" font-size="8" fill="#1e293b" text-anchor="middle" font-weight="bold">May (act)</text>
+      </svg>
+      <div class="flex items-center gap-3 text-[9px] mt-2">
+        <div class="flex items-center gap-1"><div class="w-3 h-2 rounded-sm bg-blue-500"></div><span class="text-slate-700">Producto (CTRU)</span></div>
+        <div class="flex items-center gap-1"><div class="w-3 h-2 rounded-sm bg-purple-500"></div><span class="text-slate-700">Venta</span></div>
+        <div class="flex items-center gap-1"><div class="w-3 h-2 rounded-sm bg-amber-500"></div><span class="text-slate-700">Período</span></div>
+      </div>
+    </div>
+
+    <!-- TCPA vs TC oficial -->
+    <div class="bg-white border border-slate-200 rounded-xl p-4">
+      <div class="flex items-center justify-between mb-3">
+        <div>
+          <div class="text-sm font-bold text-slate-900">TCPA vs TC oficial · ganancia oculta</div>
+          <div class="text-[10px] text-slate-500">Pool USD vs SBS · diferencia favorable este mes</div>
+        </div>
+        <i data-lucide="dollar-sign" class="w-4 h-4 text-slate-400"></i>
+      </div>
+      <svg viewBox="0 0 360 180" class="w-full h-44">
+        <line x1="40" y1="20" x2="40" y2="160" stroke="#e2e8f0"/>
+        <line x1="40" y1="160" x2="350" y2="160" stroke="#e2e8f0"/>
+        <text x="35" y="30" font-size="8" fill="#94a3b8" text-anchor="end">3.95</text>
+        <text x="35" y="90" font-size="8" fill="#94a3b8" text-anchor="end">3.75</text>
+        <text x="35" y="160" font-size="8" fill="#94a3b8" text-anchor="end">3.55</text>
+
+        <!-- TC oficial línea -->
+        <polyline points="60,80 110,75 160,70 210,55 260,40 310,35" fill="none" stroke="#94a3b8" stroke-width="2" stroke-dasharray="3 3"/>
+        <!-- TCPA línea -->
+        <polyline points="60,110 110,105 160,98 210,90 260,85 310,82" fill="none" stroke="#10b981" stroke-width="2.5"/>
+        <circle cx="310" cy="35" r="3" fill="#94a3b8"/>
+        <circle cx="310" cy="82" r="3" fill="#10b981"/>
+        <text x="320" y="38" font-size="9" fill="#94a3b8" font-weight="bold">3.92 SBS</text>
+        <text x="320" y="86" font-size="9" fill="#10b981" font-weight="bold">3.65 TCPA</text>
+
+        <!-- Etiquetas meses -->
+        <text x="60" y="172" font-size="8" fill="#64748b">Dic</text>
+        <text x="160" y="172" font-size="8" fill="#64748b">Feb</text>
+        <text x="260" y="172" font-size="8" fill="#64748b">Abr</text>
+        <text x="310" y="172" font-size="8" fill="#1e293b" font-weight="bold">May</text>
+      </svg>
+      <div class="bg-emerald-50 border border-emerald-200 rounded-lg p-2.5 mt-2 flex items-center gap-2">
+        <i data-lucide="trending-down" class="w-4 h-4 text-emerald-700"></i>
+        <div class="text-[10px] text-emerald-900 flex-1">
+          <strong>Ahorro real S/ 1,580</strong> · TCPA 0.27 menor que SBS · costo 6.9% inferior al oficial
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<!-- SECCIÓN 4 · COMPARATIVA DE LOTES -->
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<div class="max-w-7xl mx-auto px-6 mb-8">
+  <div class="flex items-center gap-2 mb-3">
+    <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Sección 4 · Comparativa de lotes · ¿qué significa?</span>
+    <div class="h-px flex-1 bg-slate-200"></div>
+  </div>
+
+  <div class="bg-white border border-slate-200 rounded-xl p-5">
+    <div class="flex items-start justify-between mb-4">
+      <div>
+        <h2 class="text-base font-bold text-slate-900">Vitamin D3 NOW · 240 caps · evolución por lote</h2>
+        <p class="text-[10px] text-slate-500">Compara el costo de la MISMA SKU en cada compra (lote/OC) en el tiempo</p>
+      </div>
+      <span class="bg-slate-900 text-white text-[10px] font-bold px-2.5 py-1 rounded">3 lotes recibidos · 230 uds</span>
+    </div>
+
+    <table class="density-table w-full mb-4">
+      <thead>
+        <tr>
+          <th class="text-left">Lote</th>
+          <th class="text-left">OC origen</th>
+          <th class="text-left">Recibido</th>
+          <th class="text-right">Uds</th>
+          <th class="text-right">Costo unit. USD</th>
+          <th class="text-right">TCPA</th>
+          <th class="text-right">Costo unit. PEN</th>
+          <th class="text-center">Δ vs lote ant.</th>
+          <th class="text-left">Driver principal</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="density-row">
+          <td class="mono font-bold">L-2025-12-A</td>
+          <td class="mono">OC-2025-018</td>
+          <td>15 dic 2025</td>
+          <td class="text-right tabular">50</td>
+          <td class="text-right tabular font-bold">$ 12.20</td>
+          <td class="text-right tabular">3.62</td>
+          <td class="text-right tabular font-bold">S/ 44.16</td>
+          <td class="text-center"><span class="text-slate-400">—</span></td>
+          <td><span class="text-[9px] text-slate-500">Primer lote · baseline</span></td>
+        </tr>
+        <tr class="density-row bg-amber-50/30">
+          <td class="mono font-bold">L-2026-01-B</td>
+          <td class="mono">OC-2026-003</td>
+          <td>22 ene 2026</td>
+          <td class="text-right tabular">80</td>
+          <td class="text-right tabular font-bold">$ 12.20</td>
+          <td class="text-right tabular text-amber-700">3.78</td>
+          <td class="text-right tabular font-bold">S/ 46.12</td>
+          <td class="text-center">
+            <span class="text-amber-700 font-bold">+4.4%</span>
+          </td>
+          <td><span class="text-[9px] text-amber-700">TC subió +4.4% · proveedor estable</span></td>
+        </tr>
+        <tr class="density-row bg-rose-50/40 ring-1 ring-rose-200">
+          <td class="mono font-bold text-rose-700">L-2026-04-C</td>
+          <td class="mono text-rose-700">OC-2026-014</td>
+          <td>10 abr 2026</td>
+          <td class="text-right tabular">100</td>
+          <td class="text-right tabular font-bold text-rose-700">$ 13.40</td>
+          <td class="text-right tabular">3.65</td>
+          <td class="text-right tabular font-bold text-rose-700">S/ 48.91</td>
+          <td class="text-center">
+            <span class="text-rose-700 font-bold">+6.0%</span>
+          </td>
+          <td><span class="text-[9px] text-rose-700">Proveedor subió 9.8% · TC bajó (compensó parte)</span></td>
+        </tr>
+        <tr class="bg-slate-100">
+          <td colspan="2" class="font-bold">Promedio ponderado (FIFO)</td>
+          <td></td>
+          <td class="text-right tabular font-bold">230</td>
+          <td class="text-right tabular font-bold">$ 12.86</td>
+          <td class="text-right tabular font-bold">3.69</td>
+          <td class="text-right tabular font-bold text-slate-900">S/ 47.43</td>
+          <td class="text-center text-rose-700 font-bold">+10.4%</td>
+          <td><span class="text-[10px] text-slate-700 font-bold">Tendencia: alcista</span></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="grid grid-cols-3 gap-3">
+      <div class="bg-amber-50 border border-amber-200 rounded-lg p-3">
+        <div class="text-[10px] uppercase tracking-wider text-amber-700 font-bold mb-1.5">Lección estratégica</div>
+        <div class="text-[11px] text-amber-900">El proveedor subió 9.8% en abril · explorar 3 alternativas (iHerb · Vitacost · Pure Encaps) antes de la siguiente OC</div>
+      </div>
+      <div class="bg-emerald-50 border border-emerald-200 rounded-lg p-3">
+        <div class="text-[10px] uppercase tracking-wider text-emerald-700 font-bold mb-1.5">Decisión de pricing</div>
+        <div class="text-[11px] text-emerald-900">Vendiste a S/ 89 con CTRU 44.16 (margen 50%) · ahora cuesta 48.91 (margen 45%) · subir a S/ 95 mantiene margen</div>
+      </div>
+      <div class="bg-sky-50 border border-sky-200 rounded-lg p-3">
+        <div class="text-[10px] uppercase tracking-wider text-sky-700 font-bold mb-1.5">FIFO costing real</div>
+        <div class="text-[11px] text-sky-900">Para P&L de mayo · usar promedio ponderado S/ 47.43 (cubre las 50 uds más antiguas que están saliendo primero)</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<!-- SECCIÓN 5 · ALTERNATIVAS ARQUITECTÓNICAS · A/B/C/D -->
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<div class="max-w-7xl mx-auto px-6 mb-8">
+  <div class="flex items-center gap-2 mb-3">
+    <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Sección 5 · Alternativas arquitectónicas comparadas</span>
+    <div class="h-px flex-1 bg-slate-200"></div>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4">
+    <!-- Opción A · Fusión total -->
+    <div class="bg-white border border-slate-200 rounded-xl p-4">
+      <div class="flex items-center gap-2 mb-2">
+        <span class="bg-slate-200 text-slate-700 text-[10px] font-bold px-2 py-0.5 rounded">Opción A</span>
+        <h3 class="text-sm font-bold">Fusión total · 1 URL</h3>
+      </div>
+      <div class="bg-slate-50 rounded-lg p-3 mb-3 mono text-[10px] space-y-1">
+        <div class="text-slate-700">/intel-productos    ← TODO aquí</div>
+        <div class="text-slate-400 italic">/ctru        → eliminada</div>
+        <div class="text-slate-400 italic">/productos-intel → eliminada</div>
+      </div>
+      <div class="text-[10px] space-y-1">
+        <div class="text-emerald-700">✓ Una sola URL · navegación reducida</div>
+        <div class="text-emerald-700">✓ Drill-down progresivo único</div>
+        <div class="text-rose-700">✗ Página puede saturarse · todo en uno</div>
+      </div>
+      <div class="text-[9px] text-slate-500 mt-2 italic">Estilo: Mercury Lab · Notion Insights</div>
+    </div>
+
+    <!-- Opción B · Separados -->
+    <div class="bg-white border border-slate-200 rounded-xl p-4">
+      <div class="flex items-center gap-2 mb-2">
+        <span class="bg-slate-200 text-slate-700 text-[10px] font-bold px-2 py-0.5 rounded">Opción B</span>
+        <h3 class="text-sm font-bold">Mantener separados</h3>
+      </div>
+      <div class="bg-slate-50 rounded-lg p-3 mb-3 mono text-[10px] space-y-1">
+        <div class="text-slate-700">/productos-intel  ← BI comercial</div>
+        <div class="text-slate-700">/ctru             ← Costos</div>
+      </div>
+      <div class="text-[10px] space-y-1">
+        <div class="text-emerald-700">✓ Sin breaking changes</div>
+        <div class="text-rose-700">✗ KPIs duplicados</div>
+        <div class="text-rose-700">✗ 2 sidebars · más navegación</div>
+        <div class="text-rose-700">✗ Visión fragmentada</div>
+      </div>
+      <div class="text-[9px] text-slate-500 mt-2 italic">Estilo: SAP rígido · usuario rechazó</div>
+    </div>
+
+    <!-- Opción C · Tabs internos -->
+    <div class="bg-white border border-slate-200 rounded-xl p-4">
+      <div class="flex items-center gap-2 mb-2">
+        <span class="bg-slate-200 text-slate-700 text-[10px] font-bold px-2 py-0.5 rounded">Opción C</span>
+        <h3 class="text-sm font-bold">Tabs internos</h3>
+      </div>
+      <div class="bg-slate-50 rounded-lg p-3 mb-3 mono text-[10px] space-y-1">
+        <div class="text-slate-700">/intel-productos</div>
+        <div class="text-slate-500 ml-4">[Catálogo] [Costos] [Pipeline]</div>
+        <div class="text-slate-400 italic">/ctru → redirect</div>
+      </div>
+      <div class="text-[10px] space-y-1">
+        <div class="text-emerald-700">✓ URL legacy preservada (redirect)</div>
+        <div class="text-rose-700">✗ Tabs esconden funcionalidad</div>
+        <div class="text-rose-700">✗ Sin URL deep-linkable por vista</div>
+      </div>
+      <div class="text-[9px] text-slate-500 mt-2 italic">Estilo: Stripe Dashboard tabs · funcional pero limitado</div>
+    </div>
+
+    <!-- Opción D · Workspaces · ⭐ -->
+    <div class="bg-gradient-to-br from-teal-50 to-emerald-50 border-2 border-teal-400 rounded-xl p-4 relative">
+      <span class="absolute -top-2 -right-2 bg-amber-500 text-white text-[9px] font-bold px-2 py-0.5 rounded-full">⭐ recomendado</span>
+      <div class="flex items-center gap-2 mb-2">
+        <span class="bg-teal-600 text-white text-[10px] font-bold px-2 py-0.5 rounded">Opción D</span>
+        <h3 class="text-sm font-bold">Workspaces analíticos</h3>
+      </div>
+      <div class="bg-white border border-teal-200 rounded-lg p-3 mb-3 mono text-[10px] space-y-1">
+        <div class="text-slate-700">/intel-productos              ← Catálogo</div>
+        <div class="text-slate-700">/intel-productos/costos       ← Costos</div>
+        <div class="text-slate-700">/intel-productos/pipeline     ← Pipeline</div>
+        <div class="text-slate-700">/intel-productos/alertas      ← Alertas</div>
+        <div class="text-slate-700">/intel-productos/forecast     ← Forecast</div>
+        <div class="text-slate-700">/intel-productos/SUP-0078     ← Drill-down</div>
+        <div class="text-slate-400 italic">/ctru → redirect a /costos</div>
+      </div>
+      <div class="text-[10px] space-y-1">
+        <div class="text-emerald-700">✓ Cada vista con URL propia · deep-linkable</div>
+        <div class="text-emerald-700">✓ Drill-down progresivo · keyboard-first</div>
+        <div class="text-emerald-700">✓ Escalable · agregar workspace = agregar route</div>
+        <div class="text-emerald-700">✓ Compartir links a vistas específicas</div>
+      </div>
+      <div class="text-[9px] text-slate-500 mt-2 italic">Estilo: Linear Insights · Notion Databases · estado del arte</div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<!-- SECCIÓN 6 · REQUISITOS COMPLETOS PARA AVANZAR -->
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<div class="max-w-7xl mx-auto px-6 mb-8">
+  <div class="flex items-center gap-2 mb-3">
+    <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Sección 6 · Requisitos completos antes de codear</span>
+    <div class="h-px flex-1 bg-slate-200"></div>
+  </div>
+
+  <div class="bg-slate-900 text-white rounded-xl p-5">
+    <h2 class="text-base font-bold mb-3 flex items-center gap-2">
+      <i data-lucide="check-circle-2" class="w-5 h-5 text-emerald-400"></i>
+      Confirmaciones técnicas (validadas en código)
+    </h2>
+    <ul class="space-y-1.5 text-[11px] text-slate-300 mb-5">
+      <li>✓ Sistema de 3 niveles ya tiene mockup canónico (gastoform-v2-3-niveles-s58f.html) · NO está implementado activo</li>
+      <li>✓ TCPA del Pool USD sí afecta costo real · documentado en poolUSD.service.ts línea 44</li>
+      <li>✓ NO existe histórico de precios · TODOs explícitos lo confirman</li>
+      <li>✓ utils/ctru.utils es transversal · 10+ servicios dependen · NO se toca</li>
+      <li>✓ TabPipeline (Productos) ya implementa el pipeline 6 etapas · se preserva</li>
+      <li>✓ ProductosIntelDashboard (913 ln) duplica funcionalidad · se elimina</li>
+    </ul>
+
+    <h2 class="text-base font-bold mb-3 flex items-center gap-2">
+      <i data-lucide="alert-circle" class="w-5 h-5 text-amber-400"></i>
+      Decisiones que necesito de ti
+    </h2>
+    <div class="space-y-2 text-[11px]">
+      <div class="bg-slate-800 rounded-lg p-3 border border-slate-700">
+        <div class="font-bold text-amber-300 mb-1">Q1 · Arquitectura</div>
+        <div class="text-slate-300">¿Confirmas Opción D (Workspaces analíticos · subviews por URL · drill-down keyboard-first)?</div>
+      </div>
+      <div class="bg-slate-800 rounded-lg p-3 border border-slate-700">
+        <div class="font-bold text-amber-300 mb-1">Q2 · 3 niveles de costeo</div>
+        <div class="text-slate-300">¿Activamos el modelo Producto/Venta/Período AHORA junto con Cost Intelligence? (afecta P&L y reportes existentes)</div>
+      </div>
+      <div class="bg-slate-800 rounded-lg p-3 border border-slate-700">
+        <div class="font-bold text-amber-300 mb-1">Q3 · Histórico de precios</div>
+        <div class="text-slate-300">¿Creamos las 3 colecciones nuevas (costoSnapshots · costoVariations · costoBenchmarks)?</div>
+      </div>
+      <div class="bg-slate-800 rounded-lg p-3 border border-slate-700">
+        <div class="font-bold text-amber-300 mb-1">Q4 · Backfill</div>
+        <div class="text-slate-300">¿Histórico se reconstruye desde unidades existentes (1 punto por OC) o empezamos desde hoy?</div>
+      </div>
+      <div class="bg-slate-800 rounded-lg p-3 border border-slate-700">
+        <div class="font-bold text-amber-300 mb-1">Q5 · Forecast + ML</div>
+        <div class="text-slate-300">¿Algoritmos simples (moving average, lineal) o invertimos en algo más sofisticado (Holt-Winters, regresión)?</div>
+      </div>
+      <div class="bg-slate-800 rounded-lg p-3 border border-slate-700">
+        <div class="font-bold text-amber-300 mb-1">Q6 · Componentes huérfanos</div>
+        <div class="text-slate-300">¿Eliminamos DesgloseCTRU.tsx · DesgloseCTRUPorOC.tsx · MarginErosionChart.tsx · ProductosIntelDashboard.tsx (Tool #30)?</div>
+      </div>
+      <div class="bg-slate-800 rounded-lg p-3 border border-slate-700">
+        <div class="font-bold text-amber-300 mb-1">Q7 · Naming</div>
+        <div class="text-slate-300">¿"Cost Intelligence" como nombre del módulo · sidebar "Inteligencia" · URL /intel-productos? (o propones otro)</div>
+      </div>
+    </div>
+
+    <div class="mt-5 pt-4 border-t border-slate-700 flex items-center justify-between">
+      <div class="text-[10px] text-slate-400">
+        Sin código aún · solo análisis y mockup visual · planificación llega después de tus decisiones
+      </div>
+      <div class="text-[10px] text-emerald-400 font-bold">
+        Listo para arrancar cuando confirmes Q1-Q7 ✓
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>lucide.createIcons();</script>
+</body>
+</html>
