@@ -87,6 +87,40 @@ export const esGastoDeVenta = (g: Pick<Gasto, 'categoria' | 'categoriaCostoId'>,
 export const esGastoDePeriodo = (g: Pick<Gasto, 'categoria' | 'categoriaCostoId'>, a?: ArbolCategorias | null) =>
   esGastoDelBloque(g, 'periodo', a);
 
+/**
+ * Resuelve el bloque + nombre de la categoría padre de un gasto en un solo
+ * paso (chk5.A12 · evita doble loop en consumers como ReportesGastosBI).
+ *
+ * - Si tiene `categoriaCostoId` y existe en `arbol`: retorna ambos resueltos.
+ * - Si solo tiene categoria legacy: retorna bloque derivado + categoriaPadre = null.
+ * - Si nada match: retorna { bloque: null, categoriaPadre: null }.
+ */
+export function resolverGastoCanonico(
+  gasto: Pick<Gasto, 'categoria' | 'categoriaCostoId'>,
+  arbol?: ArbolCategorias | null
+): { bloque: BloqueCosto | null; categoriaPadre: string | null } {
+  // Estrategia 1: categoriaCostoId + arbol → resolver ambos en un loop
+  if (gasto.categoriaCostoId && arbol) {
+    for (const bloque of ['producto', 'venta', 'periodo'] as BloqueCosto[]) {
+      const datos = arbol[bloque];
+      if (!datos) continue;
+      // ¿Es categoría padre directa?
+      const padreDirecto = datos.padres.find(p => p.id === gasto.categoriaCostoId);
+      if (padreDirecto) return { bloque, categoriaPadre: padreDirecto.nombre };
+      // ¿Es subcategoría? Buscar el padre por id
+      for (const padreId of Object.keys(datos.hijos)) {
+        if (datos.hijos[padreId].some(h => h.id === gasto.categoriaCostoId)) {
+          const padreObj = datos.padres.find(p => p.id === padreId);
+          return { bloque, categoriaPadre: padreObj?.nombre ?? null };
+        }
+      }
+    }
+  }
+
+  // Estrategia 2: fallback legacy (solo bloque, sin nombre de padre)
+  return { bloque: getBloqueDelGasto(gasto, arbol), categoriaPadre: null };
+}
+
 // ─── RESOLUCIÓN INVERSA · TipoGasto legacy → categoriaCostoId canónico ──────
 
 /**

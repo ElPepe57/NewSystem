@@ -19,6 +19,7 @@ import React, { useMemo } from 'react';
 import type { Gasto } from '../../../types/gasto.types';
 import type { BloqueCosto } from '../../../types/categoriaCosto.types';
 import { toDateOrNow } from '../../../utils/dateFormatters';
+import { resolverGastoCanonico } from '../../../utils/gasto.bloque';
 
 interface ReportesGastosBIProps {
   gastos: Gasto[];
@@ -37,26 +38,15 @@ const MESES_ABREV = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Se
 
 export const ReportesGastosBI: React.FC<ReportesGastosBIProps> = ({ gastos, arbolCategorias }) => {
 
-  // Helper · resolver bloque + categoria padre de un gasto
+  // chk5.A12 · canon · delegado a resolverGastoCanonico que resuelve
+  // bloque + nombre de categoría padre en un solo paso. Defaults locales:
+  //   bloque null → 'periodo' · categoriaPadre null → 'Sin categorizar'.
   const resolverGasto = useMemo(() => (g: Gasto): { bloque: BloqueCosto; categoriaPadre: string } => {
-    if (g.categoriaCostoId && arbolCategorias) {
-      for (const b of ['producto', 'venta', 'periodo'] as BloqueCosto[]) {
-        const datos = arbolCategorias[b];
-        if (!datos) continue;
-        const padre = datos.padres.find(p => p.id === g.categoriaCostoId);
-        if (padre) return { bloque: b, categoriaPadre: padre.nombre };
-        for (const padreId of Object.keys(datos.hijos)) {
-          if (datos.hijos[padreId].some((h: any) => h.id === g.categoriaCostoId)) {
-            const padreObj = datos.padres.find(p => p.id === padreId);
-            return { bloque: b, categoriaPadre: padreObj?.nombre || 'Sin nombre' };
-          }
-        }
-      }
-    }
-    // Fallback legacy
-    if (g.categoria === 'GA') return { bloque: 'producto', categoriaPadre: 'Sin categorizar' };
-    if (g.categoria === 'GD' || g.categoria === 'GV') return { bloque: 'venta', categoriaPadre: 'Sin categorizar' };
-    return { bloque: 'periodo', categoriaPadre: 'Sin categorizar' };
+    const r = resolverGastoCanonico(g, arbolCategorias);
+    return {
+      bloque: r.bloque ?? 'periodo',
+      categoriaPadre: r.categoriaPadre ?? 'Sin categorizar',
+    };
   }, [arbolCategorias]);
 
   // ── REPORTE 1 · Top 10 proveedores · gasto anual ──

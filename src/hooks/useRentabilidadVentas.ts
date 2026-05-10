@@ -3,7 +3,7 @@ import { gastoService } from '../services/gasto.service';
 import { unidadService } from '../services/unidad.service';
 import { categoriaCostoService } from '../services/categoriaCosto.service';
 import { getCostoBasePEN } from '../utils/ctru.utils';
-import { esGastoDeVenta, esGastoDePeriodo, getBloqueDelGasto, type ArbolCategorias } from '../utils/gasto.bloque';
+import { esGastoDeVenta, esGastoDePeriodo, getBloqueDelGasto, getCategoriaLegacyDelGasto, type ArbolCategorias } from '../utils/gasto.bloque';
 import type { Venta } from '../types/venta.types';
 import type { Gasto } from '../types/gasto.types';
 import type { Unidad } from '../types/unidad.types';
@@ -260,9 +260,9 @@ export function useRentabilidadVentas(ventas: Venta[]) {
         const bloque = getBloqueDelGasto(gasto, arbolCategorias);
         if (bloque !== 'venta') continue;
 
-        // Distinguir GV vs GD para preservar API legacy
-        // Prioridad: categoria legacy explícita > default a GV
-        const esGD = gasto.categoria === 'GD';
+        // Distinguir GV vs GD para preservar API legacy · chk5.A12 · canon vía helper
+        // Prioridad: categoria legacy resuelta (explícita o derivada) > default a GV
+        const esGD = getCategoriaLegacyDelGasto(gasto, arbolCategorias) === 'GD';
         const targetMap = esGD ? gastosGDPorVenta : gastosGVPorVenta;
 
         if (gasto.ventaId) {

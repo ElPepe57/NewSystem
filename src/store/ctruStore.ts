@@ -3,7 +3,7 @@ import { collection, getDocs, query, where, doc, getDoc } from 'firebase/firesto
 import { db } from '../lib/firebase';
 import { COLLECTIONS } from '../config/collections';
 import { ctruService } from '../services/ctru.service';
-import { normalizarGastosConCategoriaLegacy, type ArbolCategorias } from '../utils/gasto.bloque';
+import { normalizarGastosConCategoriaLegacy, esGastoDelBloque, getCategoriaLegacyDelGasto, type ArbolCategorias } from '../utils/gasto.bloque';
 import { envioCrudService } from '../services/envio.crud.service';
 import { ProductoService } from '../services/producto.service';
 import { getCTRU, getCostoBasePEN, getTC, calcularGAGOProporcional } from '../utils/ctru.utils';
@@ -761,9 +761,9 @@ function processHistorialMensual(
     });
 
     // GA/GO para este mes — solo entre vendidas del mes, proporcional al costo base
+    // chk5.A12 · canon · esGastoDelBloque(_, 'periodo') == GA||GO legacy
     const gastosGAGOMes = todosGastos.filter(g =>
-      g.mes === mes && g.anio === anio &&
-      (g.categoria === 'GA' || g.categoria === 'GO')
+      g.mes === mes && g.anio === anio && esGastoDelBloque(g, 'periodo')
     );
     const totalGAGOMes = gastosGAGOMes.reduce((sum, g) => sum + g.montoPEN, 0);
     // Costo base total de vendidas del mes (para prorrateo proporcional)
@@ -867,10 +867,11 @@ function processHistorialGastos(todosGastos: Gasto[], arbol?: ArbolCategorias | 
     const anio = fecha.getFullYear();
 
     const gastosMes = gastosNormalizados.filter(g => g.mes === mes && g.anio === anio);
-    const GA = gastosMes.filter(g => g.categoria === 'GA').reduce((sum, g) => sum + g.montoPEN, 0);
-    const GO = gastosMes.filter(g => g.categoria === 'GO').reduce((sum, g) => sum + g.montoPEN, 0);
-    const GV = gastosMes.filter(g => g.categoria === 'GV').reduce((sum, g) => sum + g.montoPEN, 0);
-    const GD = gastosMes.filter(g => g.categoria === 'GD').reduce((sum, g) => sum + g.montoPEN, 0);
+    // chk5.A12 · canon · resolver categoría legacy una sola vez por gasto + agrupar
+    const GA = gastosMes.filter(g => getCategoriaLegacyDelGasto(g, arbol) === 'GA').reduce((sum, g) => sum + g.montoPEN, 0);
+    const GO = gastosMes.filter(g => getCategoriaLegacyDelGasto(g, arbol) === 'GO').reduce((sum, g) => sum + g.montoPEN, 0);
+    const GV = gastosMes.filter(g => getCategoriaLegacyDelGasto(g, arbol) === 'GV').reduce((sum, g) => sum + g.montoPEN, 0);
+    const GD = gastosMes.filter(g => getCategoriaLegacyDelGasto(g, arbol) === 'GD').reduce((sum, g) => sum + g.montoPEN, 0);
 
     entries.push({
       mes, anio, label: MONTH_LABELS[mes - 1],
@@ -1143,19 +1144,17 @@ export const useCTRUStore = create<CTRUState>((set, get) => ({
         fleteByProductMap.set(prodId, acc.sum / acc.count);
       }
 
-      // GV/GD por venta
+      // GV/GD por venta · chk5.A12 · canon · bloque 'venta'
       const gastosByVentaId = new Map<string, Gasto[]>();
       for (const g of todosGastos) {
-        if (g.ventaId && (g.categoria === 'GV' || g.categoria === 'GD')) {
+        if (g.ventaId && esGastoDelBloque(g, 'venta')) {
           if (!gastosByVentaId.has(g.ventaId)) gastosByVentaId.set(g.ventaId, []);
           gastosByVentaId.get(g.ventaId)!.push(g);
         }
       }
 
-      // GA/GO — total y costo base de vendidas para prorrateo proporcional
-      const gastosGAGO = todosGastos.filter(g =>
-        g.categoria === 'GA' || g.categoria === 'GO'
-      );
+      // GA/GO — total y costo base de vendidas para prorrateo proporcional · canon
+      const gastosGAGO = todosGastos.filter(g => esGastoDelBloque(g, 'periodo'));
       const totalGAGOPEN = gastosGAGO.reduce((sum, g) => sum + g.montoPEN, 0);
       const unidadesVendidasAll = todasUnidades.filter(u => u.estado === 'vendida');
       // Costo base total de TODAS las unidades vendidas (para prorrateo proporcional)

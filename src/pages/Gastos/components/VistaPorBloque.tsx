@@ -13,6 +13,7 @@ import React, { useMemo } from 'react';
 import type { Gasto } from '../../../types/gasto.types';
 import type { BloqueCosto } from '../../../types/categoriaCosto.types';
 import { toDateOrNow } from '../../../utils/dateFormatters';
+import { getBloqueDelGasto } from '../../../utils/gasto.bloque';
 
 interface VistaPorBloqueProps {
   gastos: Gasto[];
@@ -72,21 +73,12 @@ export const VistaPorBloque: React.FC<VistaPorBloqueProps> = ({
   onEditar,
   onPagar,
 }) => {
-  const bloqueDeGasto = useMemo(() => (g: Gasto): BloqueCosto => {
-    if (g.categoriaCostoId && arbolCategorias) {
-      for (const b of ['producto', 'venta', 'periodo'] as BloqueCosto[]) {
-        const datos = arbolCategorias[b];
-        if (!datos) continue;
-        if (datos.padres.some(p => p.id === g.categoriaCostoId)) return b;
-        for (const padreId of Object.keys(datos.hijos)) {
-          if (datos.hijos[padreId].some((h: any) => h.id === g.categoriaCostoId)) return b;
-        }
-      }
-    }
-    if (g.categoria === 'GA') return 'producto';
-    if (g.categoria === 'GD' || g.categoria === 'GV') return 'venta';
-    return 'periodo';
-  }, [arbolCategorias]);
+  // chk5.A12 · canon · delegado a getBloqueDelGasto. El default 'periodo' se
+  // mantiene para gastos sin clasificar (mismo comportamiento previo).
+  const bloqueDeGasto = useMemo(
+    () => (g: Gasto): BloqueCosto => getBloqueDelGasto(g, arbolCategorias) ?? 'periodo',
+    [arbolCategorias],
+  );
 
   const datosBloques = useMemo(() => {
     const out: Record<BloqueCosto, {

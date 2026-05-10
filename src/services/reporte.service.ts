@@ -197,19 +197,21 @@ export class ReporteService {
 
       // Enriquecer con GV/GD por venta (prorrateado por precio entre productos)
       // y GA/GO prorrateado del periodo
-      // chk5.A6 · normalizar gastos · derivar categoria desde categoriaCostoId si falta
+      // chk5.A6/A12 · normalizar gastos + canon esGastoDelBloque (sin tipos legacy)
       try {
         const [todosGastosRaw, arbol] = await Promise.all([
           gastoService.getAll(),
           (await import('./categoriaCosto.service')).categoriaCostoService.getArbol().catch(() => null),
         ]);
-        const { normalizarGastosConCategoriaLegacy } = await import('../utils/gasto.bloque');
-        const todosGastos = normalizarGastosConCategoriaLegacy(todosGastosRaw, arbol as any);
+        const { normalizarGastosConCategoriaLegacy, esGastoDelBloque } = await import('../utils/gasto.bloque');
+        const todosGastos = normalizarGastosConCategoriaLegacy(todosGastosRaw, arbol);
+        // Gastos del bloque 'venta' (legacy GV/GD) asociados a una venta específica
         const gastosGVGD = todosGastos.filter(g =>
-          (g.categoria === 'GV' || g.categoria === 'GD') && g.ventaId
+          esGastoDelBloque(g, 'venta', arbol) && g.ventaId
         );
+        // Gastos del bloque 'periodo' (legacy GA/GO) que impactan CTRU
         const gastosGAGO = todosGastos.filter(g =>
-          (g.categoria === 'GA' || g.categoria === 'GO') &&
+          esGastoDelBloque(g, 'periodo', arbol) &&
           g.impactaCTRU !== false && g.esProrrateable !== false
         );
 

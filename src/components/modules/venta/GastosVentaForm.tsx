@@ -6,6 +6,7 @@ import type { Gasto, TipoGasto, CategoriaGasto } from '../../../types/gasto.type
 import { CATEGORIAS_GASTO, CATEGORIAS_GASTO_VENTA, TIPOS_GASTO_LABELS } from '../../../types/gasto.types';
 import { gastoService } from '../../../services/gasto.service';
 import { useGastoStore } from '../../../store/gastoStore';
+import { getCategoriaLegacyDelGasto } from '../../../utils/gasto.bloque';
 
 interface GastoItem {
   id: string;
@@ -54,10 +55,13 @@ export const GastosVentaForm: React.FC<GastosVentaFormProps> = ({
     const result: Record<string, string[]> = { GV: [], GD: [] };
 
     // 1. Tipos ya usados en gastos existentes del sistema
+    // chk5.A12 · canon · resolver categoria legacy vía helper
     todosLosGastos.forEach(g => {
-      if (g.categoria && g.tipo && (g.categoria === 'GV' || g.categoria === 'GD')) {
-        if (!result[g.categoria].includes(g.tipo)) {
-          result[g.categoria].push(g.tipo);
+      if (!g.tipo) return;
+      const cat = getCategoriaLegacyDelGasto(g);
+      if (cat === 'GV' || cat === 'GD') {
+        if (!result[cat].includes(g.tipo)) {
+          result[cat].push(g.tipo);
         }
       }
     });

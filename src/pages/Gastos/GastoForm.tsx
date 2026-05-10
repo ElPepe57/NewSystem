@@ -22,6 +22,7 @@ import type { ProveedorFormData } from '../../types/ordenCompra.types';
 import { useCategoriaCostoStore } from '../../store/categoriaCostoStore';
 import type { BloqueCosto } from '../../types/categoriaCosto.types';
 import { toDateOrNow } from '../../utils/dateFormatters';
+import { getBloqueDelGasto } from '../../utils/gasto.bloque';
 
 interface GastoFormProps {
   onClose: () => void;
@@ -387,24 +388,11 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose, gastoEditar }) =>
     fetchArbolCategorias();
   }, [fetchArbolCategorias]);
 
-  // Derivar bloque inicial desde gastoEditar (si tiene categoriaCostoId, buscar en arbol;
-  // si solo tiene categoria legacy, mapear: GA→producto · GD/GV→venta · GO→periodo)
+  // Derivar bloque inicial desde gastoEditar · chk5.A12 · canon delegado a
+  // getBloqueDelGasto que resuelve via árbol (canon) o fallback a categoria legacy.
   const deriveBloqueInicial = (): BloqueCosto | null => {
-    if (gastoEditar?.categoriaCostoId && arbolCategorias) {
-      // Buscar en cada bloque si la categoria pertenece
-      for (const bloque of ['producto', 'venta', 'periodo'] as BloqueCosto[]) {
-        const datos = arbolCategorias[bloque];
-        if (!datos) continue;
-        if (datos.padres.some((p) => p.id === gastoEditar.categoriaCostoId)) return bloque;
-        for (const padreId of Object.keys(datos.hijos)) {
-          if (datos.hijos[padreId].some((h) => h.id === gastoEditar.categoriaCostoId)) return bloque;
-        }
-      }
-    }
-    if (!gastoEditar?.categoria) return null;
-    if (gastoEditar.categoria === 'GA') return 'producto';
-    if (gastoEditar.categoria === 'GD' || gastoEditar.categoria === 'GV') return 'venta';
-    return 'periodo'; // GO
+    if (!gastoEditar) return null;
+    return getBloqueDelGasto(gastoEditar, arbolCategorias);
   };
 
   // chk5.A8 · Los useState de la cascada se declararon arriba; aquí solo

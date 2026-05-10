@@ -18,6 +18,7 @@ import { useLineaFilter } from '../../hooks/useLineaFilter';
 import { CATEGORIAS_GASTO, type Gasto, type TipoGasto, type CategoriaGasto, type EstadoGasto, type ClaseGasto } from '../../types/gasto.types';
 import { useCategoriaCostoStore } from '../../store/categoriaCostoStore';
 import type { BloqueCosto } from '../../types/categoriaCosto.types';
+import { getBloqueDelGasto, resolverGastoCanonico, esGastoDelBloque } from '../../utils/gasto.bloque';
 import { FiltrosGastosBar, type OrdenGasto } from './components/FiltrosGastosBar';
 import { GastoCardCanonico } from './components/GastoCardCanonico';
 import { DrawerUrgentes } from './components/DrawerUrgentes';
@@ -152,51 +153,22 @@ export const Gastos: React.FC = () => {
       return fecha.getMonth() + 1 === selectedMonth && fecha.getFullYear() === selectedYear;
     });
 
-    // Mix por bloque (resolviendo via arbolCategorias)
+    // Mix por bloque (canon · getBloqueDelGasto resuelve via arbol o fallback legacy)
     const mixPorBloque: Record<BloqueCosto, number> = {
       producto: 0, venta: 0, periodo: 0,
     };
-    const bloqueDeGasto = (g: Gasto): BloqueCosto => {
-      // Si tiene categoriaCostoId, resolver desde arbol
-      if (g.categoriaCostoId && arbolCategorias) {
-        for (const b of ['producto', 'venta', 'periodo'] as BloqueCosto[]) {
-          const datos = arbolCategorias[b];
-          if (!datos) continue;
-          if (datos.padres.some(p => p.id === g.categoriaCostoId)) return b;
-          for (const padreId of Object.keys(datos.hijos)) {
-            if (datos.hijos[padreId].some(h => h.id === g.categoriaCostoId)) return b;
-          }
-        }
-      }
-      // Fallback legacy
-      if (g.categoria === 'GA') return 'producto';
-      if (g.categoria === 'GD' || g.categoria === 'GV') return 'venta';
-      return 'periodo';
-    };
     for (const g of gastosDelMes) {
-      mixPorBloque[bloqueDeGasto(g)] += g.montoPEN || 0;
+      const bloque = getBloqueDelGasto(g, arbolCategorias) ?? 'periodo';
+      mixPorBloque[bloque] += g.montoPEN || 0;
     }
     const totalMix = mixPorBloque.producto + mixPorBloque.venta + mixPorBloque.periodo;
 
-    // Top categoria padre (por monto)
+    // Top categoria padre (por monto) · chk5.A12 · canon vía resolverGastoCanonico
     const porCategoria: Record<string, { nombre: string; monto: number; bloque: BloqueCosto }> = {};
     for (const g of gastosDelMes) {
-      let nombre = 'Sin categorizar';
-      let bloque: BloqueCosto = bloqueDeGasto(g);
-      if (g.categoriaCostoId && arbolCategorias) {
-        for (const b of ['producto', 'venta', 'periodo'] as BloqueCosto[]) {
-          const datos = arbolCategorias[b];
-          if (!datos) continue;
-          const padre = datos.padres.find(p => p.id === g.categoriaCostoId);
-          if (padre) { nombre = padre.nombre; bloque = b; break; }
-          for (const padreId of Object.keys(datos.hijos)) {
-            if (datos.hijos[padreId].some(h => h.id === g.categoriaCostoId)) {
-              const padreDeHijo = datos.padres.find(p => p.id === padreId);
-              nombre = padreDeHijo?.nombre || 'Categoria'; bloque = b; break;
-            }
-          }
-        }
-      }
+      const r = resolverGastoCanonico(g, arbolCategorias);
+      const bloque: BloqueCosto = r.bloque ?? 'periodo';
+      const nombre = r.categoriaPadre ?? 'Sin categorizar';
       const key = `${bloque}::${nombre}`;
       if (!porCategoria[key]) porCategoria[key] = { nombre, monto: 0, bloque };
       porCategoria[key].monto += g.montoPEN || 0;
@@ -385,23 +357,11 @@ export const Gastos: React.FC = () => {
     if (filtros.esProrrateable) {
       resultado = resultado.filter(g => g.esProrrateable === (filtros.esProrrateable === 'true'));
     }
-    // F2 · filtro por bloque (resuelve via arbolCategorias o fallback legacy)
+    // F2 · filtro por bloque · chk5.A12 · canon · esGastoDelBloque resuelve
+    // via árbol cuando hay categoriaCostoId, fallback legacy si solo categoria.
     if (filtros.bloque) {
-      resultado = resultado.filter(g => {
-        if (g.categoriaCostoId && arbolCategorias) {
-          const datos = arbolCategorias[filtros.bloque as BloqueCosto];
-          if (!datos) return false;
-          if (datos.padres.some(p => p.id === g.categoriaCostoId)) return true;
-          for (const padreId of Object.keys(datos.hijos)) {
-            if (datos.hijos[padreId].some(h => h.id === g.categoriaCostoId)) return true;
-          }
-          return false;
-        }
-        // Fallback legacy
-        if (filtros.bloque === 'producto') return g.categoria === 'GA';
-        if (filtros.bloque === 'venta') return g.categoria === 'GD' || g.categoria === 'GV';
-        return g.categoria === 'GO';
-      });
+      const bloqueObjetivo = filtros.bloque as BloqueCosto;
+      resultado = resultado.filter(g => esGastoDelBloque(g, bloqueObjetivo, arbolCategorias));
     }
 
     return resultado;
@@ -1197,22 +1157,8 @@ export const Gastos: React.FC = () => {
         conteosBloque={(() => {
           const conteos: Partial<Record<BloqueCosto, number>> = { producto: 0, venta: 0, periodo: 0 };
           for (const g of gastosPorLinea) {
-            let bloque: BloqueCosto = 'periodo';
-            if (g.categoriaCostoId && arbolCategorias) {
-              for (const b of ['producto', 'venta', 'periodo'] as BloqueCosto[]) {
-                const datos = arbolCategorias[b];
-                if (!datos) continue;
-                if (datos.padres.some(p => p.id === g.categoriaCostoId)) { bloque = b; break; }
-                let found = false;
-                for (const padreId of Object.keys(datos.hijos)) {
-                  if (datos.hijos[padreId].some(h => h.id === g.categoriaCostoId)) { bloque = b; found = true; break; }
-                }
-                if (found) break;
-              }
-            } else {
-              if (g.categoria === 'GA') bloque = 'producto';
-              else if (g.categoria === 'GD' || g.categoria === 'GV') bloque = 'venta';
-            }
+            // chk5.A12 · canon · resolución unificada vía utility
+            const bloque: BloqueCosto = getBloqueDelGasto(g, arbolCategorias) ?? 'periodo';
             conteos[bloque] = (conteos[bloque] || 0) + 1;
           }
           return conteos;

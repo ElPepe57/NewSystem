@@ -9,6 +9,7 @@ import React, { useMemo, useState } from 'react';
 import type { Gasto } from '../../../types/gasto.types';
 import type { BloqueCosto } from '../../../types/categoriaCosto.types';
 import { toDateOrNow } from '../../../utils/dateFormatters';
+import { getBloqueDelGasto, type ArbolCategorias } from '../../../utils/gasto.bloque';
 
 interface VistaCalendarioProps {
   gastos: Gasto[];
@@ -26,21 +27,10 @@ const formatPEN = (n: number) =>
 const MESES_LARGOS = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
 const DIAS_SHORT = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
 
-const bloqueDeGasto = (g: Gasto, arbolCategorias: any): BloqueCosto => {
-  if (g.categoriaCostoId && arbolCategorias) {
-    for (const b of ['producto', 'venta', 'periodo'] as BloqueCosto[]) {
-      const datos = arbolCategorias[b];
-      if (!datos) continue;
-      if (datos.padres.some((p: any) => p.id === g.categoriaCostoId)) return b;
-      for (const padreId of Object.keys(datos.hijos)) {
-        if (datos.hijos[padreId].some((h: any) => h.id === g.categoriaCostoId)) return b;
-      }
-    }
-  }
-  if (g.categoria === 'GA') return 'producto';
-  if (g.categoria === 'GD' || g.categoria === 'GV') return 'venta';
-  return 'periodo';
-};
+// chk5.A12 · canon · delegado a getBloqueDelGasto. Default 'periodo' para
+// gastos sin clasificar (mantiene comportamiento previo del calendario).
+const bloqueDeGasto = (g: Gasto, arbolCategorias: ArbolCategorias | null): BloqueCosto =>
+  getBloqueDelGasto(g, arbolCategorias) ?? 'periodo';
 
 const dotColorByBloque: Record<BloqueCosto, string> = {
   producto: 'bg-blue-500',

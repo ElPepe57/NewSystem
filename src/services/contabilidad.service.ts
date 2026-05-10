@@ -25,7 +25,7 @@ import { db } from '../lib/firebase';
 import { tipoCambioService } from './tipoCambio.service';
 import { tesoreriaService } from './tesoreria.service';
 import { categoriaCostoService } from './categoriaCosto.service';
-import { normalizarGastosConCategoriaLegacy, type ArbolCategorias } from '../utils/gasto.bloque';
+import { normalizarGastosConCategoriaLegacy, getCategoriaLegacyDelGasto, type ArbolCategorias } from '../utils/gasto.bloque';
 import type { Venta } from '../types/venta.types';
 import type { Gasto } from '../types/gasto.types';
 import type { OrdenCompra } from '../types/ordenCompra.types';
@@ -488,9 +488,9 @@ function calcularGV(ventas: Venta[], gastos: Gasto[]): GastosVenta {
     if (venta.otrosGastosVenta) otros += venta.otrosGastosVenta;
   });
 
-  // Desde gastos registrados como GV
+  // Desde gastos registrados como GV · chk5.A12 · canon vía helper
   gastos
-    .filter(g => g.categoria === 'GV')
+    .filter(g => getCategoriaLegacyDelGasto(g) === 'GV')
     .forEach(g => {
       if (g.tipo === 'marketing') {
         marketingPublicidad += g.montoPEN;
@@ -526,9 +526,9 @@ function calcularGD(ventas: Venta[], gastos: Gasto[]): GastosDistribucion {
     if (venta.costoEnvioNegocio) delivery += venta.costoEnvioNegocio;
   });
 
-  // Desde gastos registrados como GD
+  // Desde gastos registrados como GD · chk5.A12 · canon vía helper
   gastos
-    .filter(g => g.categoria === 'GD')
+    .filter(g => getCategoriaLegacyDelGasto(g) === 'GD')
     .forEach(g => {
       if (g.tipo === 'delivery') {
         delivery += g.montoPEN;
@@ -558,8 +558,9 @@ function calcularGA(gastos: Gasto[]): GastosAdministrativos {
   let contabilidad = 0;
   let otros = 0;
 
+  // chk5.A12 · canon vía helper
   gastos
-    .filter(g => g.categoria === 'GA')
+    .filter(g => getCategoriaLegacyDelGasto(g) === 'GA')
     .forEach(g => {
       const desc = g.descripcion?.toLowerCase() || '';
       if (desc.includes('planilla') || desc.includes('sueldo') || desc.includes('salario')) {
@@ -594,8 +595,9 @@ function calcularGO(gastos: Gasto[]): GastosOperativos {
   let mantenimiento = 0;
   let otros = 0;
 
+  // chk5.A12 · canon vía helper
   gastos
-    .filter(g => g.categoria === 'GO')
+    .filter(g => getCategoriaLegacyDelGasto(g) === 'GO')
     .forEach(g => {
       const desc = g.descripcion?.toLowerCase() || '';
       if (desc.includes('movilidad') || desc.includes('transporte') || desc.includes('gasolina')) {
