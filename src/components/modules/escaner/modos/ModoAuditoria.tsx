@@ -9,6 +9,7 @@ import { useToastStore } from '../../../../store/toastStore';
 import { useAuthStore } from '../../../../store/authStore';
 import type { Almacen } from '../../../../types/almacen.types';
 import type { AuditoriaItem, AuditoriaSession, AuditoriaSessionItem, AuditoriaResumen } from '../../../../types/escanerModos.types';
+import { toDateOrNow } from '../../../../utils/dateFormatters';
 
 export interface ModoAuditoriaHandle {
   handleScan: (barcode: string, format?: string) => void;
@@ -207,9 +208,7 @@ export const ModoAuditoria = forwardRef<ModoAuditoriaHandle>((_props, ref) => {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    const fecha = session.fecha && 'toDate' in session.fecha
-      ? (session.fecha as any).toDate().toISOString().slice(0, 10)
-      : new Date().toISOString().slice(0, 10);
+    const fecha = toDateOrNow(session.fecha).toISOString().slice(0, 10);
     link.download = `auditoria-${fecha}.csv`;
     link.click();
     URL.revokeObjectURL(url);
@@ -387,9 +386,7 @@ export const ModoAuditoria = forwardRef<ModoAuditoriaHandle>((_props, ref) => {
           <div className="space-y-2">
             {historialFiltrado.map(session => {
               const isExpanded = expandedSessionId === session.id;
-              const fecha = session.fecha && 'toDate' in session.fecha
-                ? (session.fecha as any).toDate()
-                : new Date(session.fecha as any);
+              const fecha = toDateOrNow(session.fecha);
               const fechaStr = fecha.toLocaleDateString('es-PE', {
                 day: '2-digit', month: 'short', year: 'numeric',
               });

@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { formatFecha as formatDate } from '../../utils/dateFormatters';
+import { formatFecha as formatDate, toDateOrNow } from '../../utils/dateFormatters';
 import {
   ArrowUpCircle,
   ArrowDownCircle,
@@ -200,7 +200,7 @@ export const TabMovimientos: React.FC<TabMovimientosProps> = ({
     return movimientosFiltrados.filter((m) => {
       // Fechas
       if (inicioRango) {
-        const f = m.fecha instanceof Date ? m.fecha : new Date((m.fecha as any)?.toDate?.() ?? m.fecha);
+        const f = toDateOrNow(m.fecha);
         if (f < inicioRango) return false;
       }
       // Categoría

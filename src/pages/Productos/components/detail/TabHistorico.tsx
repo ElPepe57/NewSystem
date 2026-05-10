@@ -34,6 +34,7 @@ import {
 import type { Producto } from '../../../../types/producto.types';
 import type { Unidad, MovimientoUnidad } from '../../../../types/unidad.types';
 import { unidadService } from '../../../../services/unidad.service';
+import { toDateOrNow, toMillisSafe } from '../../../../utils/dateFormatters';
 
 interface TabHistoricoProps {
   producto: Producto;
@@ -109,10 +110,7 @@ export const TabHistorico: React.FC<TabHistoricoProps> = ({ producto, onExportar
     }
 
     // 2. Filtrar por rango de fechas
-    const filtrados = planos.filter(m => {
-      const ts = (m.fecha as any)?.toDate?.()?.getTime?.() ?? 0;
-      return ts >= corte;
-    });
+    const filtrados = planos.filter(m => toMillisSafe(m.fecha) >= corte);
 
     // 3. Agrupar por documentoRelacionado.id (OC/Venta/Transferencia)
     //    Si no tiene documento, agrupar como evento individual de la unidad
@@ -120,7 +118,7 @@ export const TabHistorico: React.FC<TabHistoricoProps> = ({ producto, onExportar
     for (const m of filtrados) {
       const docId = m.documentoRelacionado?.id;
       const key = docId ? `${m.tipo}-${docId}` : `${m.tipo}-${m.unidadId}-${m.id}`;
-      const fecha = (m.fecha as any)?.toDate?.() ?? new Date();
+      const fecha = toDateOrNow(m.fecha);
       const signo = TIPOS_ENTRADA.has(m.tipo) ? 1 : TIPOS_SALIDA.has(m.tipo) ? -1 : 1;
 
       if (grupos.has(key)) {

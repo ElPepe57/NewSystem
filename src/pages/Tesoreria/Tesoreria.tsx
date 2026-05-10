@@ -29,6 +29,7 @@ import { useTesoreriaStore } from '../../store/tesoreriaStore';
 import { useLineaFilter } from '../../hooks/useLineaFilter';
 // S58 Fase 3 — submit optimista con toast undo
 import { useOptimisticSubmit } from '../../hooks/useOptimisticSubmit';
+import { toDateOrNow } from '../../utils/dateFormatters';
 // S58 Fase 4 — auto-save de borradores en localStorage
 import { useDraft } from '../../hooks/useDraft';
 import type {
@@ -388,7 +389,7 @@ export const Tesoreria: React.FC = () => {
       concepto: mov.concepto,
       referencia: mov.referencia,
       notas: mov.notas,
-      fecha: mov.fecha.toDate ? mov.fecha.toDate() : new Date(mov.fecha as any),
+      fecha: toDateOrNow(mov.fecha),
       metodo: mov.metodo,
       cuentaOrigen: mov.cuentaOrigen,
       cuentaDestino: mov.cuentaDestino

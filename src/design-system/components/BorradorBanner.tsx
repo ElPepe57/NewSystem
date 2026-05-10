@@ -39,6 +39,7 @@ import {
   type TipoBorradorWizard,
 } from '../../types/borradorWizard.types';
 import { formatFechaRelativa } from './DraftBanner';
+import { toMillisSafe } from '../../utils/dateFormatters';
 
 /**
  * Configuración por tipo · centraliza labels para que el consumidor solo pase `tipo`.
@@ -88,10 +89,8 @@ function pickMasReciente(
   if (!local && !remote) return null;
   if (!local) return remote;
   if (!remote) return local;
-  const localTs = new Date(local.fechaActualizacion as any).getTime();
-  const remoteTs =
-    (remote.fechaActualizacion as any)?.toMillis?.() ||
-    new Date(remote.fechaActualizacion as any).getTime();
+  const localTs = toMillisSafe(local.fechaActualizacion);
+  const remoteTs = toMillisSafe(remote.fechaActualizacion);
   return localTs > remoteTs ? local : remote;
 }
 

@@ -16,6 +16,7 @@ import type {
 } from '../../types/colaborador.types';
 import type { Envio } from '../../types/envio.types';
 import type { Producto } from '../../types/producto.types';
+import { toDateOrNow } from '../../utils/dateFormatters';
 
 // ════════════════════════════════════════════════════════════════════════════
 // DespacharEnvioModal — S41 Flujo 4 (Momento 3 — asignación colaborador)
@@ -333,10 +334,7 @@ export const DespacharEnvioModal: React.FC<DespacharEnvioModalProps> = ({
               {envio.fechaCreacion && (
                 <InfoRow label="Recibido en casilla">
                   <span className="font-medium">
-                    {new Date(
-                      (envio.fechaCreacion as any)?.toDate?.() ??
-                        envio.fechaCreacion
-                    ).toLocaleDateString('es-PE', {
+                    {toDateOrNow(envio.fechaCreacion).toLocaleDateString('es-PE', {
                       day: '2-digit',
                       month: 'short',
                       year: 'numeric',

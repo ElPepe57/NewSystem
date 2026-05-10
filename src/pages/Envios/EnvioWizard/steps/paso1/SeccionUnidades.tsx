@@ -26,6 +26,7 @@ import { useUnidadStore } from '../../../../../store/unidadStore';
 import { useProductoStore } from '../../../../../store/productoStore';
 import type { Unidad } from '../../../../../types/unidad.types';
 import type { UseEnvioWizardStateReturn } from '../../useEnvioWizardState';
+import { toDateSafe } from '../../../../../utils/dateFormatters';
 
 interface Props {
   wizard: UseEnvioWizardStateReturn;
@@ -44,9 +45,9 @@ interface GrupoProducto {
 
 // Formato de fecha para UI (sin time)
 function fechaVencLabel(unidad: Unidad): string {
-  const ts = unidad.fechaVencimiento;
+  const d = toDateSafe(unidad.fechaVencimiento);
+  if (!d) return '—';
   try {
-    const d = ts.toDate ? ts.toDate() : new Date(ts as any);
     return d.toLocaleDateString('es-PE', {
       day: '2-digit',
       month: 'short',

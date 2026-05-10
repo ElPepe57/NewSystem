@@ -6,6 +6,7 @@ import type { OrdenCompra } from '../types/ordenCompra.types';
 import type { Envio } from '../types/envio.types';
 import type { Gasto } from '../types/gasto.types';
 import type { InventarioProducto } from '../types/inventario.types';
+import { toDateSafe } from '../utils/dateFormatters';
 
 /**
  * Servicio para exportar datos a Excel
@@ -121,7 +122,7 @@ export const exportService = {
   async exportEnvios(envios: Envio[], filename = 'envios'): Promise<void> {
     const data = envios.map(e => ({
       'N° Envío': e.numeroEnvio,
-      'Fecha Creación': (e.fechaCreacion as any)?.toDate?.().toLocaleDateString('es-PE') || '',
+      'Fecha Creación': toDateSafe(e.fechaCreacion)?.toLocaleDateString('es-PE') || '',
       'Estado': e.estado,
       'Tipo': e.tipo,
       'Origen': e.origenTipo === 'proveedor'
@@ -139,10 +140,10 @@ export const exportService = {
       'Unidades Dañadas': e.totalUnidadesDanadas || 0,
       'Unidades Faltantes': e.totalUnidadesFaltantes || 0,
       'Costos Landed USD': (e.costosLanded || []).reduce((s, c) => s + (c.monto || 0), 0),
-      'Fecha Salida': (e.fechaSalida as any)?.toDate?.().toLocaleDateString('es-PE') || '',
+      'Fecha Salida': toDateSafe(e.fechaSalida)?.toLocaleDateString('es-PE') || '',
       'Fecha Última Recepción': (() => {
         const ultima = (e.recepciones || [])[e.recepciones?.length ? e.recepciones.length - 1 : -1];
-        return (ultima?.fechaRecepcion as any)?.toDate?.().toLocaleDateString('es-PE') || '';
+        return toDateSafe(ultima?.fechaRecepcion)?.toLocaleDateString('es-PE') || '';
       })(),
       'Días en Tránsito': e.diasEnTransito || 0,
       'Incidencias Abiertas': (e.incidencias || []).filter(i => !i.resuelta).length,

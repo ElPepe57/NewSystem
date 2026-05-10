@@ -162,17 +162,17 @@ export const SubOrdenDetailModal: React.FC<SubOrdenDetailModalProps> = ({
             estado={estado}
             fechaConfirmada={
               orden.fechaCreacion
-                ? formatFechaRelativa(orden.fechaCreacion as any)
+                ? formatFechaRelativa(orden.fechaCreacion)
                 : null
             }
             fechaEnTransito={
               subOrden.fechaEnvio
-                ? formatFechaRelativa(subOrden.fechaEnvio as any)
+                ? formatFechaRelativa(subOrden.fechaEnvio)
                 : null
             }
             fechaRecibida={
               subOrden.fechaRecepcion
-                ? formatFechaRelativa(subOrden.fechaRecepcion as any)
+                ? formatFechaRelativa(subOrden.fechaRecepcion)
                 : null
             }
           />
@@ -367,9 +367,9 @@ export const SubOrdenDetailModal: React.FC<SubOrdenDetailModalProps> = ({
                     label="Despachado"
                     value={
                       subOrden.fechaEnvio
-                        ? formatFechaRelativa(subOrden.fechaEnvio as any)
+                        ? formatFechaRelativa(subOrden.fechaEnvio)
                         : envio?.fechaSalida
-                          ? formatFechaRelativa(envio.fechaSalida as any)
+                          ? formatFechaRelativa(envio.fechaSalida)
                           : '—'
                     }
                   />

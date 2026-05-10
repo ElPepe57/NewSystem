@@ -12,6 +12,7 @@
 import React, { useMemo } from 'react';
 import { TrendingUp, ArrowUpRight, ArrowDownRight } from 'lucide-react';
 import type { MovimientoTesoreria } from '../../../types/tesoreria.types';
+import { toDateOrNow } from '../../../utils/dateFormatters';
 
 const ES_INGRESO = (m: MovimientoTesoreria): boolean => {
   const tipoIngreso = ['ingreso_venta', 'ingreso_anticipo', 'ingreso_otro', 'aporte_capital', 'ajuste_positivo'];
@@ -68,7 +69,7 @@ export const MovimientosKpiRow: React.FC<MovimientosKpiRowProps> = ({
       if (m.estado === 'anulado') continue;
       totalCount++;
       const montoPEN = m.montoEquivalentePEN ?? (m.moneda === 'PEN' ? m.monto : m.monto * tipoCambio);
-      const fecha = m.fecha instanceof Date ? m.fecha : new Date((m.fecha as any)?.toDate?.() ?? m.fecha);
+      const fecha = toDateOrNow(m.fecha);
       const enMesActual = fecha >= inicioMesActual;
       const enMesAnterior = fecha >= inicioMesAnterior && fecha < inicioMesActual;
 

@@ -62,6 +62,7 @@ import type { Unidad } from '../types/unidad.types';
 import { ESTADOS_EN_ORIGEN } from '../types/unidad.types';
 import { esPaisOrigen } from '../utils/multiOrigen.helpers';
 import { getCTRU } from '../utils/ctru.utils';
+import { toMillisSafe } from '../utils/dateFormatters';
 import { ProductoService } from './producto.service';
 import { inventarioService } from './inventario.service';
 import { unidadService } from './unidad.service';
@@ -1868,11 +1869,7 @@ export class VentaService {
 
       logger.log(`[getHistorialFinancieroCliente] Cliente ${cliente.nombre}: ${ventas.length} ventas encontradas`);
 
-      ventas.sort((a, b) => {
-        const fechaA = a.fechaCreacion?.toDate?.() || new Date(a.fechaCreacion as any);
-        const fechaB = b.fechaCreacion?.toDate?.() || new Date(b.fechaCreacion as any);
-        return fechaB.getTime() - fechaA.getTime();
-      });
+      ventas.sort((a, b) => toMillisSafe(b.fechaCreacion) - toMillisSafe(a.fechaCreacion));
 
       const { resumen, porCobrar, cobradas } = StatsService.calcularHistorialFinanciero(ventas);
 

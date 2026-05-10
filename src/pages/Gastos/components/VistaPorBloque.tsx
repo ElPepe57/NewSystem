@@ -12,6 +12,7 @@
 import React, { useMemo } from 'react';
 import type { Gasto } from '../../../types/gasto.types';
 import type { BloqueCosto } from '../../../types/categoriaCosto.types';
+import { toDateOrNow } from '../../../utils/dateFormatters';
 
 interface VistaPorBloqueProps {
   gastos: Gasto[];
@@ -203,7 +204,7 @@ export const VistaPorBloque: React.FC<VistaPorBloqueProps> = ({
                   {data.gastos.slice(0, 8).map((g) => {
                     const esVencido = g.estado === 'pendiente' || g.estado === 'parcial'
                       ? (() => {
-                          const f = g.fecha?.toDate?.() ?? new Date(g.fecha as any);
+                          const f = toDateOrNow(g.fecha);
                           return !isNaN(f.getTime()) && f < new Date();
                         })()
                       : false;

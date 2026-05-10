@@ -19,13 +19,13 @@ export type FechaLike =
 
 /**
  * Convierte cualquier `FechaLike` a `Date`. Reemplaza el patrón duplicado en
- * ~33 ocurrencias del codebase: `f?.toDate?.() ?? new Date(f as any)`.
+ * ~50 ocurrencias del codebase: `f?.toDate?.() ?? new Date(f as any)`.
  *
  * Si la fecha es inválida (campo ausente, formato corrupto), devuelve `null`.
  * Para casos donde quieras un fallback no nulo, usa `toDateOrNow(f)`.
  *
- * chk5.A7 (S3.6 M1.bis · Cost Intelligence) — utility canónica para reemplazar
- * `as any` en conversiones Timestamp→Date a lo largo del sistema.
+ * chk5.A7/A11 (S3.6 M1.bis · Cost Intelligence) — utility canónica para
+ * reemplazar `as any` en conversiones Timestamp→Date a lo largo del sistema.
  */
 export function toDateSafe(fecha: FechaLike): Date | null {
   if (fecha === null || fecha === undefined) return null;
@@ -56,6 +56,24 @@ export function toDateSafe(fecha: FechaLike): Date | null {
  */
 export function toDateOrNow(fecha: FechaLike): Date {
   return toDateSafe(fecha) ?? new Date();
+}
+
+/**
+ * Variante numérica · devuelve los milisegundos de epoch de la fecha o 0 si
+ * es inválida. Reemplaza el patrón duplicado en BorradorBanner / autosave:
+ *   `(remote.fecha as any)?.toMillis?.() || new Date(remote.fecha as any).getTime()`
+ *
+ * Útil para comparaciones de "qué versión es más reciente" entre local
+ * (number/string) y remote (Timestamp).
+ */
+export function toMillisSafe(fecha: FechaLike): number {
+  if (fecha === null || fecha === undefined) return 0;
+  // Atajo para Firestore Timestamp · evita la doble conversión
+  if (fecha instanceof Timestamp) return fecha.toMillis();
+  if (typeof fecha === 'object' && 'toMillis' in fecha && typeof (fecha as { toMillis?: unknown }).toMillis === 'function') {
+    return (fecha as Timestamp).toMillis();
+  }
+  return toDateSafe(fecha)?.getTime() ?? 0;
 }
 
 /**

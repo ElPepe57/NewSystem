@@ -18,6 +18,7 @@
 import React, { useMemo } from 'react';
 import type { Gasto } from '../../../types/gasto.types';
 import type { BloqueCosto } from '../../../types/categoriaCosto.types';
+import { toDateOrNow } from '../../../utils/dateFormatters';
 
 interface ReportesGastosBIProps {
   gastos: Gasto[];
@@ -72,7 +73,7 @@ export const ReportesGastosBI: React.FC<ReportesGastosBIProps> = ({ gastos, arbo
     }> = {};
 
     for (const g of gastos) {
-      const fecha = g.fecha?.toDate?.() ?? new Date(g.fecha as any);
+      const fecha = toDateOrNow(g.fecha);
       if (fecha < inicio12m) continue;
       const provId = g.proveedorId || (g.proveedor || g.proveedorNombre || 'sin_proveedor');
       const provNombre = g.proveedorNombre || g.proveedor || 'Sin proveedor';
@@ -113,7 +114,7 @@ export const ReportesGastosBI: React.FC<ReportesGastosBIProps> = ({ gastos, arbo
     const totalPorProv: Record<string, number> = {};
 
     for (const g of gastos) {
-      const fecha = g.fecha?.toDate?.() ?? new Date(g.fecha as any);
+      const fecha = toDateOrNow(g.fecha);
       if (fecha < inicio12m) continue;
       const { categoriaPadre } = resolverGasto(g);
       const provNombre = g.proveedorNombre || g.proveedor || 'Sin proveedor';
@@ -171,7 +172,7 @@ export const ReportesGastosBI: React.FC<ReportesGastosBIProps> = ({ gastos, arbo
     }
 
     for (const g of gastos) {
-      const fecha = g.fecha?.toDate?.() ?? new Date(g.fecha as any);
+      const fecha = toDateOrNow(g.fecha);
       if (fecha < inicio12m) continue;
       const mesIdx = meses.findIndex(m => m.year === fecha.getFullYear() && m.month === fecha.getMonth());
       if (mesIdx < 0) continue;

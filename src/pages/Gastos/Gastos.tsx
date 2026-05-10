@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo, useCallback } from 'react';
-import { formatFecha } from '../../utils/dateFormatters';
+import { formatFecha, toDateOrNow } from '../../utils/dateFormatters';
 import { formatCurrencyPEN } from '../../utils/format';
 import { DollarSign, TrendingUp, TrendingDown, AlertCircle, Plus, Filter, Download, PieChart, CreditCard, Wallet, ChevronLeft, ChevronRight, Calendar, List, Pencil, Trash2, Receipt } from 'lucide-react';
 import { Card, Badge, Button, Select, SearchInput, useConfirmDialog, ConfirmDialog, ListSummary, EmptyStateAction, GastosSkeleton, GastoLineaBadge } from '../../components/common';
@@ -148,7 +148,7 @@ export const Gastos: React.FC = () => {
   // a partir de los gastos cargados en el mes actual.
   const heroKpis = useMemo(() => {
     const gastosDelMes = gastosPorLinea.filter(g => {
-      const fecha = g.fecha?.toDate?.() ?? new Date(g.fecha as any);
+      const fecha = toDateOrNow(g.fecha);
       return fecha.getMonth() + 1 === selectedMonth && fecha.getFullYear() === selectedYear;
     });
 
@@ -218,18 +218,14 @@ export const Gastos: React.FC = () => {
     const vencenPronto = gastosPorLinea
       .filter(g => g.estado === 'pendiente' || g.estado === 'parcial')
       .filter(g => {
-        const f = g.fecha?.toDate?.() ?? new Date(g.fecha as any);
+        const f = toDateOrNow(g.fecha);
         return f >= hoy && f <= en7d;
       })
-      .sort((a, b) => {
-        const fa = a.fecha?.toDate?.() ?? new Date(a.fecha as any);
-        const fb = b.fecha?.toDate?.() ?? new Date(b.fecha as any);
-        return fa.getTime() - fb.getTime();
-      });
+      .sort((a, b) => toDateOrNow(a.fecha).getTime() - toDateOrNow(b.fecha).getTime());
     const vencidos = gastosPorLinea
       .filter(g => g.estado === 'pendiente' || g.estado === 'parcial')
       .filter(g => {
-        const f = g.fecha?.toDate?.() ?? new Date(g.fecha as any);
+        const f = toDateOrNow(g.fecha);
         return f < hoy;
       });
 

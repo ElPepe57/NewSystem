@@ -10,6 +10,7 @@
 
 import type { Venta, VentaStats } from '../types/venta.types';
 import { logger } from '../lib/logger';
+import { toDateSafe } from '../utils/dateFormatters';
 
 /**
  * Calcular estadísticas agregadas sobre una lista de ventas.
@@ -103,8 +104,8 @@ export function calcularHistorialFinanciero(ventas: Venta[]): {
 
   if (ventas.length > 0) {
     const fechas = ventas
-      .map(v => v.fechaCreacion?.toDate?.() || new Date(v.fechaCreacion as any))
-      .filter(f => f instanceof Date && !isNaN(f.getTime()))
+      .map(v => toDateSafe(v.fechaCreacion))
+      .filter((f): f is Date => f !== null)
       .sort((a, b) => b.getTime() - a.getTime());
 
     if (fechas.length > 0) {

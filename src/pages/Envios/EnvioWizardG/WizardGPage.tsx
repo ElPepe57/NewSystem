@@ -202,9 +202,7 @@ export const WizardGPage: React.FC<WizardGPageProps> = ({
   };
 
   const borradorFechaRelativa = autosave.borradorExistente
-    ? formatFechaRelativa(
-        (autosave.borradorExistente as { fechaActualizacion?: unknown }).fechaActualizacion as any
-      )
+    ? formatFechaRelativa(autosave.borradorExistente.fechaActualizacion)
     : undefined;
 
   return (

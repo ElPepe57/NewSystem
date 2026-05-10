@@ -41,6 +41,7 @@ import { tipoProductoService } from './tipoProducto.service';
 import { categoriaService } from './categoria.service';
 import { etiquetaService } from './etiqueta.service';
 import { logger } from '../lib/logger';
+import { toMillisSafe, type FechaLike } from '../utils/dateFormatters';
 
 /**
  * Normaliza campos legacy de variantes al modelo grupoVarianteId.
@@ -97,11 +98,14 @@ export class ProductoService {
         .filter(p => p.estado !== 'eliminado')
         .filter(p => incluirInactivos ? true : p.estado !== 'inactivo');
 
-      // Ordenar por fecha de creación (creadoEn o fechaCreacion para compatibilidad)
+      // Ordenar por fecha de creación (creadoEn legacy o fechaCreacion canónico)
+      // chk5.A11 · usa toMillisSafe + cast explícito al campo legacy `creadoEn`
       return filtrados.sort((a, b) => {
-        const fechaA = (a as any).creadoEn?.toDate?.() || (a as any).fechaCreacion?.toDate?.() || new Date(0);
-        const fechaB = (b as any).creadoEn?.toDate?.() || (b as any).fechaCreacion?.toDate?.() || new Date(0);
-        return fechaB.getTime() - fechaA.getTime();
+        const aLegacy = (a as Producto & { creadoEn?: FechaLike }).creadoEn;
+        const bLegacy = (b as Producto & { creadoEn?: FechaLike }).creadoEn;
+        const fechaA = toMillisSafe(aLegacy ?? a.fechaCreacion);
+        const fechaB = toMillisSafe(bLegacy ?? b.fechaCreacion);
+        return fechaB - fechaA;
       });
     } catch (error: any) {
       logger.error('Error al obtener productos:', error);

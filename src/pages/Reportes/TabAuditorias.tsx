@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { ClipboardCheck, CheckCircle2, AlertTriangle, XCircle, Download, TrendingUp, Loader2 } from 'lucide-react';
 import { conteoInventarioService } from '../../services/conteoInventario.service';
 import type { AuditoriaSession } from '../../types/escanerModos.types';
+import { toDateOrNow } from '../../utils/dateFormatters';
 
 export const TabAuditorias: React.FC = () => {
   const [sesiones, setSesiones] = useState<AuditoriaSession[]>([]);
@@ -59,9 +60,7 @@ export const TabAuditorias: React.FC = () => {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    const fecha = session.fecha && 'toDate' in session.fecha
-      ? (session.fecha as any).toDate().toISOString().slice(0, 10)
-      : new Date().toISOString().slice(0, 10);
+    const fecha = toDateOrNow(session.fecha).toISOString().slice(0, 10);
     link.download = `auditoria-${fecha}.csv`;
     link.click();
     URL.revokeObjectURL(url);
@@ -140,9 +139,7 @@ export const TabAuditorias: React.FC = () => {
           <div className="divide-y">
             {sesionesFiltradas.map(session => {
               const isExpanded = expandedId === session.id;
-              const fecha = session.fecha && 'toDate' in session.fecha
-                ? (session.fecha as any).toDate()
-                : new Date(session.fecha as any);
+              const fecha = toDateOrNow(session.fecha);
               const r = session.resumen;
               const todoOK = r.faltantes === 0 && r.sobrantes === 0;
 

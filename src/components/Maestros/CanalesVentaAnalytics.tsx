@@ -2,6 +2,7 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { KPIBar as DSKPIBar, StatCard as DSStatCard, DataTable } from '../../design-system';
 import type { DataTableColumn } from '../../design-system';
 import { formatCurrencyPEN } from '../../utils/format';
+import { toDateOrNow } from '../../utils/dateFormatters';
 import {
   Tag,
   Plus,
@@ -164,7 +165,7 @@ export const CanalesVentaAnalytics: React.FC<CanalesVentaAnalyticsProps> = ({
       const canal = canales.find(c => c.id === venta.canal || c.codigo === venta.canal);
       if (!canal) return;
 
-      const fechaVenta = venta.fechaCreacion?.toDate?.() || new Date(venta.fechaCreacion as any);
+      const fechaVenta = toDateOrNow(venta.fechaCreacion);
       const esVentaReal = venta.estado !== 'cotizacion' && venta.estado !== 'cancelada';
       const esMesActual = fechaVenta >= mesActual;
       const esMesAnterior = fechaVenta >= mesAnterior && fechaVenta <= finMesAnterior;

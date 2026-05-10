@@ -41,6 +41,7 @@ import {
 import type { Producto } from '../../../../types/producto.types';
 import type { ProveedorInvestigacionFormValue } from '../modals/investigacion/ProveedorFormModal';
 import type { CompetidorInvestigacionFormValue } from '../modals/investigacion/CompetidorFormModal';
+import { toMillisSafe } from '../../../../utils/dateFormatters';
 
 interface TabInvestigacionProps {
   producto: Producto;
@@ -75,7 +76,7 @@ interface TabInvestigacionProps {
 function diasDesdeInvestigacion(p: Producto): number | null {
   const inv = p.investigacion;
   if (!inv) return null;
-  const ts = (inv.fechaInvestigacion as any)?.toDate?.()?.getTime?.() ?? 0;
+  const ts = toMillisSafe(inv.fechaInvestigacion);
   if (!ts) return null;
   return Math.floor((Date.now() - ts) / (1000 * 60 * 60 * 24));
 }

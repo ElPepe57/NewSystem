@@ -17,6 +17,7 @@ import type { TipoCambio, TipoCambioFormData, TipoCambioFiltros, SunatTCResponse
 import { TC_CONFIG_DEFAULTS } from '../types/tipoCambio.types';
 import { COLLECTIONS } from '../config/collections';
 import { logger } from '../lib/logger';
+import { toDateOrNow } from '../utils/dateFormatters';
 
 const COLLECTION_NAME = COLLECTIONS.TIPOS_CAMBIO;
 
@@ -424,7 +425,7 @@ export const tipoCambioService = {
     try {
       const tc = await this.getTCDelDia();
       if (tc) {
-        const fechaTC = tc.fecha instanceof Timestamp ? tc.fecha.toDate() : new Date(tc.fecha as any);
+        const fechaTC = toDateOrNow(tc.fecha);
         const { freshness, edadHoras } = this._calcularFreshness(fechaTC, config);
 
         // Usar campo paralelo si existe (Decisión 11), sino raíz
@@ -532,7 +533,7 @@ export const tipoCambioService = {
     try {
       const tc = await this.getTCDelDia();
       if (tc) {
-        const fechaTC = tc.fecha instanceof Timestamp ? tc.fecha.toDate() : new Date(tc.fecha as any);
+        const fechaTC = toDateOrNow(tc.fecha);
         const { freshness, edadHoras } = this._calcularFreshness(fechaTC, config);
 
         // Usar campo sunat si existe, sino raíz (compatibilidad)

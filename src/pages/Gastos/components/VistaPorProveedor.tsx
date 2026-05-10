@@ -7,6 +7,7 @@
 
 import React, { useMemo, useState } from 'react';
 import type { Gasto } from '../../../types/gasto.types';
+import { toDateOrNow } from '../../../utils/dateFormatters';
 
 interface VistaPorProveedorProps {
   gastos: Gasto[];
@@ -47,7 +48,7 @@ export const VistaPorProveedor: React.FC<VistaPorProveedorProps> = ({
     }> = {};
 
     for (const g of gastos) {
-      const fecha = g.fecha?.toDate?.() ?? new Date(g.fecha as any);
+      const fecha = toDateOrNow(g.fecha);
       const key = g.proveedorId || (g.proveedor || g.proveedorNombre || 'sin_proveedor');
       const nombre = g.proveedorNombre || g.proveedor || 'Sin proveedor';
       if (!map[key]) {
@@ -169,7 +170,7 @@ export const VistaPorProveedor: React.FC<VistaPorProveedorProps> = ({
                     <div className="space-y-1.5 max-h-80 overflow-y-auto">
                       {p.gastos.map((g) => {
                         const esPdte = g.estado === 'pendiente' || g.estado === 'parcial';
-                        const f = g.fecha?.toDate?.() ?? new Date(g.fecha as any);
+                        const f = toDateOrNow(g.fecha);
                         const esVencido = esPdte && !isNaN(f.getTime()) && f < new Date();
                         return (
                           <div

@@ -23,6 +23,7 @@ import { ProductoAvatar, inferLineaFromProducto } from '../shared/ProductoAvatar
 import { SparklineMini } from '../shared/SparklineMini';
 import { VariantesApiladas, buildVariantesFromGrupo } from './VariantesApiladas';
 import { BannerAccionRapida } from './BannerAccionRapida';
+import { toMillisSafe } from '../../../../utils/dateFormatters';
 
 // ─── Tipos ───────────────────────────────────────────────────────────────────
 
@@ -122,7 +123,7 @@ const ESTADO_BORDER: Record<RowEstadoVisual, string> = {
 function diasDesdeInvestigacion(producto: Producto): number | null {
   const inv = producto.investigacion;
   if (!inv) return null;
-  const ts = (inv.fechaInvestigacion as any)?.toDate?.()?.getTime?.() ?? 0;
+  const ts = toMillisSafe(inv.fechaInvestigacion);
   if (!ts) return null;
   return Math.floor((Date.now() - ts) / (1000 * 60 * 60 * 24));
 }

@@ -23,6 +23,7 @@ import { Eye, AlertTriangle, Search, Clock, Check, RotateCcw, Trash2 } from 'luc
 import type { Producto } from '../../../../types/producto.types';
 import { ProductoAvatar, inferLineaFromProducto } from '../shared/ProductoAvatar';
 import { SparklineMini } from '../shared/SparklineMini';
+import { toMillisSafe } from '../../../../utils/dateFormatters';
 
 export type RowEstadoVisualMobile =
   | 'normal'
@@ -85,7 +86,7 @@ function getEstadoVisual(producto: Producto): RowEstadoVisualMobile {
 function diasDesdeInvestigacion(producto: Producto): number | null {
   const inv = producto.investigacion;
   if (!inv) return null;
-  const ts = (inv.fechaInvestigacion as any)?.toDate?.()?.getTime?.() ?? 0;
+  const ts = toMillisSafe(inv.fechaInvestigacion);
   if (!ts) return null;
   return Math.floor((Date.now() - ts) / (1000 * 60 * 60 * 24));
 }

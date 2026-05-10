@@ -8,6 +8,7 @@
 import React, { useMemo, useState } from 'react';
 import type { Gasto } from '../../../types/gasto.types';
 import type { BloqueCosto } from '../../../types/categoriaCosto.types';
+import { toDateOrNow } from '../../../utils/dateFormatters';
 
 interface VistaCalendarioProps {
   gastos: Gasto[];
@@ -70,7 +71,7 @@ export const VistaCalendario: React.FC<VistaCalendarioProps> = ({
     // Mapa dia -> gastos
     const gastosPorDia: Record<number, Gasto[]> = {};
     for (const g of gastos) {
-      const f = g.fecha?.toDate?.() ?? new Date(g.fecha as any);
+      const f = toDateOrNow(g.fecha);
       if (isNaN(f.getTime())) continue;
       if (f.getFullYear() !== selectedYear || f.getMonth() !== selectedMonth - 1) continue;
       const dia = f.getDate();
@@ -159,7 +160,7 @@ export const VistaCalendario: React.FC<VistaCalendarioProps> = ({
             const esHoy = esHoyMes && cell.dia === hoy.getDate();
             const tieneVencidos = cell.gastos.some(g => {
               if (g.estado !== 'pendiente' && g.estado !== 'parcial') return false;
-              const f = g.fecha?.toDate?.() ?? new Date(g.fecha as any);
+              const f = toDateOrNow(g.fecha);
               return !isNaN(f.getTime()) && f < hoy;
             });
             const totalDia = cell.gastos.reduce((a, g) => a + (g.montoPEN || 0), 0);

@@ -24,6 +24,7 @@ import {
 } from 'lucide-react';
 import type { Producto } from '../../../../types/producto.types';
 import { inferLineaFromProducto } from '../shared/ProductoAvatar';
+import { toMillisSafe } from '../../../../utils/dateFormatters';
 
 interface PapeleraModalProps {
   open: boolean;
@@ -131,8 +132,8 @@ export function PapeleraModal({
     }
     return [...filtrados].sort((a, b) => {
       if (orden === 'marca') return (a.marca ?? '').localeCompare(b.marca ?? '');
-      const fa = (a.fechaEliminacion as any)?.toDate?.()?.getTime?.() ?? 0;
-      const fb = (b.fechaEliminacion as any)?.toDate?.()?.getTime?.() ?? 0;
+      const fa = toMillisSafe(a.fechaEliminacion);
+      const fb = toMillisSafe(b.fechaEliminacion);
       return orden === 'recientes' ? fb - fa : fa - fb;
     });
   }, [archivados, busqueda, orden]);

@@ -258,7 +258,7 @@ const CompraCardSimple: React.FC<{
                 {orden.numeroOrden}
               </div>
               <div className="text-[10px] text-slate-400">
-                {formatFechaRelativa(orden.fechaCreacion as any)} · {estadoCfg.label}
+                {formatFechaRelativa(orden.fechaCreacion)} · {estadoCfg.label}
               </div>
             </div>
           </div>
@@ -392,7 +392,7 @@ const CompraCardSimple: React.FC<{
             {orden.numeroOrden}
           </div>
           <div className="text-[9px] text-slate-400">
-            {formatFechaRelativa(orden.fechaCreacion as any)}
+            {formatFechaRelativa(orden.fechaCreacion)}
           </div>
         </div>
 
@@ -921,7 +921,7 @@ const CompraCardConSubOrdenes: React.FC<{
           <div>
             <div className="text-slate-400 mb-1">Fecha</div>
             <div className="font-medium text-slate-700">
-              {formatFechaRelativa(orden.fechaCreacion as any)}
+              {formatFechaRelativa(orden.fechaCreacion)}
             </div>
           </div>
         </div>
@@ -1227,7 +1227,7 @@ const SubOrdenExpandible: React.FC<{
                 <div className="flex items-center gap-1.5 ml-auto">
                   <span className="text-slate-500">Despachado:</span>
                   <span className="font-medium text-slate-700">
-                    {formatFechaRelativa(envio.fechaSalida as any)}
+                    {formatFechaRelativa(envio.fechaSalida)}
                   </span>
                 </div>
               )}

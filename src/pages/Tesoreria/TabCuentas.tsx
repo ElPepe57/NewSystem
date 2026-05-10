@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { formatFecha as formatDate } from '../../utils/dateFormatters';
+import { formatFecha as formatDate, toMillisSafe } from '../../utils/dateFormatters';
 import {
   Plus,
   TrendingUp,
@@ -727,11 +727,7 @@ export const TabCuentas: React.FC<TabCuentasProps> = ({
           const movsCuenta = movimientosFiltrados.filter(m =>
             m.cuentaOrigen === cuentaDetalle.id || m.cuentaDestino === cuentaDetalle.id
           );
-          const movsOrdenados = [...movsCuenta].sort((a, b) => {
-            const fa = a.fecha?.toDate ? a.fecha.toDate().getTime() : new Date(a.fecha as any).getTime();
-            const fb = b.fecha?.toDate ? b.fecha.toDate().getTime() : new Date(b.fecha as any).getTime();
-            return fa - fb;
-          });
+          const movsOrdenados = [...movsCuenta].sort((a, b) => toMillisSafe(a.fecha) - toMillisSafe(b.fecha));
           let saldoCorridoPEN = 0, saldoCorridoUSD = 0;
           const saldosPorMov = new Map<string, { pen: number; usd: number }>();
           for (const mov of movsOrdenados) {
@@ -742,11 +738,7 @@ export const TabCuentas: React.FC<TabCuentasProps> = ({
             else saldoCorridoUSD += signo * mov.monto;
             saldosPorMov.set(mov.id, { pen: saldoCorridoPEN, usd: saldoCorridoUSD });
           }
-          const movsDisplay = [...movsCuenta].sort((a, b) => {
-            const fa = a.fecha?.toDate ? a.fecha.toDate().getTime() : new Date(a.fecha as any).getTime();
-            const fb = b.fecha?.toDate ? b.fecha.toDate().getTime() : new Date(b.fecha as any).getTime();
-            return fb - fa;
-          });
+          const movsDisplay = [...movsCuenta].sort((a, b) => toMillisSafe(b.fecha) - toMillisSafe(a.fecha));
           let entPEN = 0, salPEN = 0, entUSD = 0, salUSD = 0;
           for (const mov of movsCuenta) {
             if (mov.estado === 'anulado') continue;

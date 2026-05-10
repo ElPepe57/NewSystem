@@ -3,6 +3,7 @@ import { borradorWizardService } from '../services/borradorWizard.service';
 import type { BorradorWizard, TipoBorradorWizard } from '../types/borradorWizard.types';
 import { buildBorradorLocalStorageKey } from '../types/borradorWizard.types';
 import { auth } from '../lib/firebase';
+import { toMillisSafe } from '../utils/dateFormatters';
 
 interface UseWizardAutosaveOptions<TState> {
   /** Tipo de wizard ('oc' | 'envio'). Determina la clave en localStorage y Firestore */
@@ -176,7 +177,7 @@ export function useWizardAutosave<TState>({
           tipo,
           userId,
           pasoActual,
-          estado: state as any,
+          estado: state as Record<string, unknown>,
           resumen: buildResumen?.(state),
           montoEstimado: buildMonto?.(state),
         });
@@ -252,7 +253,7 @@ export function useWizardAutosave<TState>({
         tipo,
         userId,
         pasoActual,
-        estado: state as any,
+        estado: state as Record<string, unknown>,
         resumen: buildResumen?.(state),
         montoEstimado: buildMonto?.(state),
       });
@@ -288,10 +289,8 @@ function pickMasReciente(
   if (!local) return remote;
   if (!remote) return local;
 
-  const localTs = new Date(local.fechaActualizacion as any).getTime();
-  const remoteTs =
-    (remote.fechaActualizacion as any)?.toMillis?.() ||
-    new Date(remote.fechaActualizacion as any).getTime();
+  const localTs = toMillisSafe(local.fechaActualizacion);
+  const remoteTs = toMillisSafe(remote.fechaActualizacion);
 
   return localTs > remoteTs ? local : remote;
 }
