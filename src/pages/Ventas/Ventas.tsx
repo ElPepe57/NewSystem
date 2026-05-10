@@ -678,10 +678,14 @@ export const Ventas: React.FC = () => {
   };
 
   // Registrar gastos de venta
+  // chk5.A15 · canon · `subBloque` distingue comisiones vs distribución dentro
+  // del bloque 'venta'. La asignación a `categoriaCostoId` (canon 3 niveles)
+  // queda como deuda DEUDA-VENTASFORM-CATCOSTOID · el usuario podrá completar
+  // la categorización desde el módulo Gastos editando cada gasto creado.
   const handleRegistrarGastos = async (gastos: Array<{
     id: string;
     tipo: string;
-    categoria: string;
+    subBloque: 'comisiones' | 'distribucion';
     descripcion: string;
     monto: number;
   }>) => {
@@ -693,7 +697,6 @@ export const Ventas: React.FC = () => {
         selectedVenta.id,
         gastos.map(g => ({
           tipo: g.tipo,
-          categoria: g.categoria,
           descripcion: g.descripcion,
           monto: g.monto,
           ventaNumero: selectedVenta.numeroVenta

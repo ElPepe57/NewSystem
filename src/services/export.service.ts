@@ -99,7 +99,9 @@ export const exportService = {
       'N° Gasto': g.numeroGasto,
       'Fecha': g.fecha?.toDate?.().toLocaleDateString('es-PE') || '',
       'Tipo': g.tipo,
-      'Categoría': g.categoria,
+      // chk5.A15 · canon · `categoria` legacy reemplazado por `categoriaCostoNombre`
+      // del árbol dinámico (desnormalizado en el doc del gasto).
+      'Categoría': g.categoriaCostoNombre || '',
       'Descripción': g.descripcion,
       'Moneda': g.moneda,
       'Monto Original': g.montoOriginal,
@@ -248,7 +250,7 @@ export const exportService = {
       'N° Gasto': g.numeroGasto,
       'Fecha': g.fecha?.toDate?.().toLocaleDateString('es-PE') || '',
       'Descripción': g.descripcion,
-      'Categoría': g.categoria,
+      'Categoría': g.categoriaCostoNombre || '',
       'Monto PEN': g.montoPEN,
       'Prorrateable': g.esProrrateable ? 'Sí' : 'No'
     }));

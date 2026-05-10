@@ -211,7 +211,6 @@ export const bajaInventarioService = {
           gastoId = await gastoService.create(
             {
               tipo: tipoGasto,
-              categoria: 'GV',                // legacy compat · @deprecated (chk5.A9 marcará deprecated · chk5.A8 eliminará escritura)
               categoriaCostoId: categoriaCostoId ?? undefined,  // canon (bloque 'producto' · Pérdidas · Merma transferencia)
               descripcion: `Baja por daño ${data.sku} — ${data.productoNombre}. Disposición: ${data.disposicion}. ${data.motivo}`,
               moneda: 'PEN',

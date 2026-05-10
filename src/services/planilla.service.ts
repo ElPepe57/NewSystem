@@ -334,7 +334,6 @@ export const planillaService = {
     if (montoNomina > 0) {
       gastoNominaId = await gastoService.create({
         tipo: 'nomina',
-        categoria: 'GA',                              // legacy compat · @deprecated (chk5.A9)
         categoriaCostoId: categoriaCostoIdNomina ?? undefined,  // canon · bloque 'periodo' · Personal · Sueldos
         descripcion: `Planilla ${boleta.empleadoNombre} - ${String(boleta.mes).padStart(2, '0')}/${boleta.anio}`,
         moneda: 'PEN',
@@ -358,7 +357,6 @@ export const planillaService = {
     if (boleta.comisionesVentas > 0) {
       gastoComisionId = await gastoService.create({
         tipo: 'comision_vendedor',
-        categoria: 'GV',                              // legacy compat · @deprecated (chk5.A9)
         categoriaCostoId: categoriaCostoIdComision ?? undefined,  // canon · bloque 'venta' · Comisiones · Comision vendedor
         descripcion: `Comisiones ${boleta.empleadoNombre} - ${String(boleta.mes).padStart(2, '0')}/${boleta.anio} (${boleta.detalleComisiones.length} ventas)`,
         moneda: 'PEN',

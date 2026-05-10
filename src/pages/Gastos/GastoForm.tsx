@@ -10,7 +10,7 @@ import { useTipoCambioStore } from '../../store/tipoCambioStore';
 import { useToastStore } from '../../store/toastStore';
 import { tesoreriaService } from '../../services/tesoreria.service';
 import { VentaService } from '../../services/venta.service';
-import type { Gasto, GastoFormData, CategoriaGasto, MonedaGasto, EstadoGasto } from '../../types/gasto.types';
+import type { Gasto, GastoFormData, MonedaGasto, EstadoGasto } from '../../types/gasto.types';
 import type { CuentaCaja, MetodoTesoreria } from '../../types/tesoreria.types';
 import type { Venta } from '../../types/venta.types';
 import { useLineaNegocioStore } from '../../store/lineaNegocioStore';
@@ -29,27 +29,10 @@ interface GastoFormProps {
   gastoEditar?: Gasto | null;
 }
 
-/**
- * chk5.A8 (S3.6 M1.bis · Cost Intelligence) — derivación canónica del campo
- * legacy `categoria` (CategoriaGasto: GA/GD/GV/GO) a partir del nuevo
- * `BloqueCosto` (producto/venta/periodo). Mientras se mantiene compatibilidad
- * de lectura con datos legacy, el form NUNCA escribe `categoria` directamente:
- * la deriva desde `bloqueSeleccionado` al momento del submit.
- *
- * Mapping canónico:
- *   bloque 'producto' → categoria 'GA' (gasto de adquisición / importación)
- *   bloque 'venta'    → categoria 'GD' (gasto directo de venta)
- *   bloque 'periodo'  → categoria 'GO' (gasto operativo del periodo)
- *
- * Nota: GV (gasto variable) es legacy del modelo viejo y se mapea a 'GD' en el
- * sentido amplio de "gasto asociado a venta". El detalle GV vs GD se preserva
- * por retrocompatibilidad de lectura, pero no se escribe en flujos nuevos.
- */
-function bloqueToLegacyCategoria(bloque: BloqueCosto): CategoriaGasto {
-  if (bloque === 'producto') return 'GA';
-  if (bloque === 'venta') return 'GD';
-  return 'GO';
-}
+// chk5.A15 · `bloqueToLegacyCategoria` eliminado · era helper transicional
+// para shadow-derive el campo `formData.categoria` legacy. Ya no existe el
+// campo categoria en GastoFormData ni en Gasto · la persistencia se basa
+// exclusivamente en `bloqueSeleccionado` + `categoriaCostoId`.
 
 export const GastoForm: React.FC<GastoFormProps> = ({ onClose, gastoEditar }) => {
   const isEditing = !!gastoEditar;
@@ -74,7 +57,7 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose, gastoEditar }) =>
     if (gastoEditar) {
       return {
         tipo: gastoEditar.tipo || 'otros',
-        categoria: gastoEditar.categoria || 'GO',
+        categoriaCostoId: gastoEditar.categoriaCostoId,
         descripcion: gastoEditar.descripcion || '',
         moneda: gastoEditar.moneda || 'PEN',
         montoOriginal: gastoEditar.montoOriginal || 0,
@@ -96,7 +79,6 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose, gastoEditar }) =>
     }
     return {
       tipo: 'otros',
-      categoria: 'GO',
       descripcion: '',
       moneda: 'PEN',
       montoOriginal: 0,
@@ -244,8 +226,8 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose, gastoEditar }) =>
         if (pagoExistente.metodoPago) setMetodoPago(pagoExistente.metodoPago as MetodoTesoreria);
         if (pagoExistente.referencia) setReferenciaPago(pagoExistente.referencia);
       } else {
-        // Legacy: pre-poblar desde campos del gasto (campo @deprecated cuentaOrigenId · ver gasto.types.ts)
-        if (gastoEditar.cuentaOrigenId) setCuentaOrigenId(gastoEditar.cuentaOrigenId);
+        // chk5.A15 · `gastoEditar.cuentaOrigenId` legacy eliminado del tipo Gasto.
+        // Si no hay PagoGasto registrado aún, pre-pobla solo desde metodoPago.
         if (gastoEditar.metodoPago) setMetodoPago(gastoEditar.metodoPago as MetodoTesoreria);
       }
       return; // No aplicar lógica de cuenta por defecto
@@ -406,14 +388,10 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose, gastoEditar }) =>
     setFormData((prev) => ({ ...prev, categoriaCostoId: undefined }));
   };
 
-  // chk5.A8 · Sync canónico: el campo legacy `formData.categoria` siempre
-  // refleja el `bloqueSeleccionado` actual. NO se persiste como dual-write
-  // controlado por usuario; es una proyección 1:1 derivada del bloque.
-  useEffect(() => {
-    if (!bloqueSeleccionado) return;
-    const legacy = bloqueToLegacyCategoria(bloqueSeleccionado);
-    setFormData((prev) => (prev.categoria === legacy ? prev : { ...prev, categoria: legacy }));
-  }, [bloqueSeleccionado]);
+  // chk5.A15 · useEffect shadow-derive de `formData.categoria` eliminado · ya
+  // no existe el campo `categoria` en GastoFormData ni en Gasto. La fuente de
+  // verdad es `bloqueSeleccionado` (para el flow de UI) + `categoriaCostoId`
+  // (para la persistencia).
 
   // Handler · al elegir categoria padre, resetea subcategoria y persiste categoriaCostoId
   const handleSeleccionarCategoriaPadre = (padreId: string) => {

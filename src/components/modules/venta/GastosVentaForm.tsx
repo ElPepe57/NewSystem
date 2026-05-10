@@ -2,21 +2,23 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Plus, Trash2, Loader2, AlertCircle, CheckCircle, Info } from 'lucide-react';
 import { AutocompleteInput, Button } from '../../common';
 import type { Venta } from '../../../types/venta.types';
-import type { Gasto, TipoGasto, CategoriaGasto } from '../../../types/gasto.types';
+import type { Gasto, TipoGasto } from '../../../types/gasto.types';
 import { TIPOS_GASTO_LABELS } from '../../../types/gasto.types';
 import { gastoService } from '../../../services/gasto.service';
 import { useGastoStore } from '../../../store/gastoStore';
-import { getCategoriaLegacyDelGasto } from '../../../utils/gasto.bloque';
+import { esGastoDeVenta, esGastoDistribucion } from '../../../utils/gasto.bloque';
 
-// chk5.A14 · array local · reemplaza CATEGORIAS_GASTO_VENTA. Categorías legacy
-// del bloque 'venta' que se ofrecen en este form. La distinción GV vs GD se
-// mantiene aquí porque es UX de negocio (Comisiones vs Distribución).
-const CATEGORIAS_VENTA_LEGACY = ['GV', 'GD'] as const satisfies readonly CategoriaGasto[];
+// chk5.A15 · enum local · sub-clasificación funcional del bloque 'venta'.
+// Reemplaza la distinción legacy GV/GD que dependía del tipo `CategoriaGasto`.
+//   - 'comisiones'   ≡ comisiones/marketing (legacy GV)
+//   - 'distribucion' ≡ delivery/empaque (legacy GD)
+type SubBloqueVenta = 'comisiones' | 'distribucion';
+const SUB_BLOQUES_VENTA = ['comisiones', 'distribucion'] as const satisfies readonly SubBloqueVenta[];
 
 interface GastoItem {
   id: string;
   tipo: string;
-  categoria: CategoriaGasto;
+  subBloque: SubBloqueVenta;
   descripcion: string;
   monto: number;
 }
@@ -43,7 +45,7 @@ export const GastosVentaForm: React.FC<GastosVentaFormProps> = ({
   const [nuevosGastos, setNuevosGastos] = useState<GastoItem[]>([]);
 
   // Estado del formulario para agregar un nuevo item
-  const [nuevaCategoria, setNuevaCategoria] = useState<CategoriaGasto>('GV');
+  const [nuevaCategoria, setNuevaCategoria] = useState<SubBloqueVenta>('comisiones');
   const [nuevoTipo, setNuevoTipo] = useState<string>('');
   const [nuevoMonto, setNuevoMonto] = useState<string>('');
   const [nuevaDescripcion, setNuevaDescripcion] = useState<string>('');
@@ -55,26 +57,19 @@ export const GastosVentaForm: React.FC<GastosVentaFormProps> = ({
     if (todosLosGastos.length === 0) fetchGastos();
   }, []);
 
-  // Construir sugerencias dinámicas (mismo patrón que GastoForm.tsx)
+  // chk5.A15 · canon · sugerencias dinámicas por sub-bloque del bloque 'venta'.
+  // Histórico real del usuario filtrado por bloque venta + distinción
+  // distribucion/comisiones vía esGastoDistribucion.
   const sugerenciasPorCategoria = useMemo(() => {
-    const result: Record<string, string[]> = { GV: [], GD: [] };
-
-    // 1. Tipos ya usados en gastos existentes del sistema
-    // chk5.A12 · canon · resolver categoria legacy vía helper
+    const result: Record<SubBloqueVenta, string[]> = { comisiones: [], distribucion: [] };
     todosLosGastos.forEach(g => {
       if (!g.tipo) return;
-      const cat = getCategoriaLegacyDelGasto(g);
-      if (cat === 'GV' || cat === 'GD') {
-        if (!result[cat].includes(g.tipo)) {
-          result[cat].push(g.tipo);
-        }
+      if (!esGastoDeVenta(g)) return;
+      const key: SubBloqueVenta = esGastoDistribucion(g) ? 'distribucion' : 'comisiones';
+      if (!result[key].includes(g.tipo)) {
+        result[key].push(g.tipo);
       }
     });
-
-    // chk5.A14 · ejemplos predefinidos eliminados: vivían en CATEGORIAS_GASTO[cat].ejemplos
-    // (record estático). Las sugerencias ahora son sólo el histórico real del usuario;
-    // los "ejemplos" canónicos viven en el árbol dinámico de categorías (categoriasCosto).
-
     return result;
   }, [todosLosGastos]);
 
@@ -124,7 +119,7 @@ export const GastosVentaForm: React.FC<GastosVentaFormProps> = ({
     const nuevoItem: GastoItem = {
       id: `temp-${Date.now()}`,
       tipo: nuevoTipo.trim(),
-      categoria: nuevaCategoria,
+      subBloque: nuevaCategoria,
       descripcion: nuevaDescripcion || `${nuevoTipo.trim()} - ${venta.numeroVenta} - ${venta.nombreCliente}`,
       monto: Number(nuevoMonto)
     };
@@ -137,15 +132,11 @@ export const GastosVentaForm: React.FC<GastosVentaFormProps> = ({
     setNuevaDescripcion('');
   };
 
-  // Color para cada categoría (GV/GD/GA/GO)
-  const getCategoriaColor = (cat: CategoriaGasto): string => {
-    const colors: Record<CategoriaGasto, string> = {
-      GV: 'bg-purple-100 text-purple-700 border-purple-200',
-      GD: 'bg-sky-100 text-sky-700 border-sky-200',
-      GA: 'bg-amber-100 text-amber-700 border-amber-200',
-      GO: 'bg-emerald-100 text-emerald-700 border-emerald-200'
-    };
-    return colors[cat] || 'bg-slate-100 text-slate-700';
+  // chk5.A15 · color por sub-bloque del bloque 'venta'
+  const getCategoriaColor = (sb: SubBloqueVenta): string => {
+    return sb === 'distribucion'
+      ? 'bg-sky-100 text-sky-700 border-sky-200'
+      : 'bg-purple-100 text-purple-700 border-purple-200';
   };
 
   // Quitar gasto de la lista de nuevos
@@ -234,38 +225,38 @@ export const GastosVentaForm: React.FC<GastosVentaFormProps> = ({
           Agregar nuevo gasto
         </h4>
 
-        {/* Selector de categoría */}
+        {/* Selector de sub-bloque (chk5.A15 · canon · enum local · bloque venta) */}
         <div className="flex gap-2 mb-4">
-          {CATEGORIAS_VENTA_LEGACY.map((cat) => (
+          {SUB_BLOQUES_VENTA.map((sb) => (
             <button
-              key={cat}
+              key={sb}
               type="button"
-              onClick={() => setNuevaCategoria(cat)}
+              onClick={() => setNuevaCategoria(sb)}
               className={`px-4 py-2 rounded-lg text-sm font-medium border transition-colors ${
-                nuevaCategoria === cat
-                  ? getCategoriaColor(cat)
+                nuevaCategoria === sb
+                  ? getCategoriaColor(sb)
                   : 'bg-white text-slate-500 border-slate-200 hover:bg-slate-50'
               }`}
             >
-              {cat === 'GV' ? 'Gasto de Venta (GV)' : 'Distribución (GD)'}
+              {sb === 'comisiones' ? 'Comisiones' : 'Distribución'}
             </button>
           ))}
         </div>
 
-        <div className={`p-3 rounded-lg border mb-4 ${nuevaCategoria === 'GD' ? 'bg-sky-50 border-sky-200' : 'bg-purple-50 border-purple-200'}`}>
+        <div className={`p-3 rounded-lg border mb-4 ${nuevaCategoria === 'distribucion' ? 'bg-sky-50 border-sky-200' : 'bg-purple-50 border-purple-200'}`}>
           <div className="flex items-start gap-2">
-            <Info className={`h-4 w-4 flex-shrink-0 mt-0.5 ${nuevaCategoria === 'GD' ? 'text-sky-600' : 'text-purple-600'}`} />
+            <Info className={`h-4 w-4 flex-shrink-0 mt-0.5 ${nuevaCategoria === 'distribucion' ? 'text-sky-600' : 'text-purple-600'}`} />
             <div>
-              {nuevaCategoria === 'GV' ? (
+              {nuevaCategoria === 'comisiones' ? (
                 <>
-                  <p className="text-sm font-medium text-purple-800">Gastos de Venta (GV)</p>
+                  <p className="text-sm font-medium text-purple-800">Comisiones</p>
                   <p className="text-xs text-purple-600 mt-0.5">
                     Comisiones, pasarelas de pago, fees de plataformas, marketing directo
                   </p>
                 </>
               ) : (
                 <>
-                  <p className="text-sm font-medium text-sky-800">Gastos de Distribución (GD)</p>
+                  <p className="text-sm font-medium text-sky-800">Distribución</p>
                   <p className="text-xs text-sky-600 mt-0.5">
                     Costos adicionales de transporte, recargos, empaque extra
                   </p>
@@ -345,8 +336,8 @@ export const GastosVentaForm: React.FC<GastosVentaFormProps> = ({
                 className="flex items-center justify-between bg-white rounded-lg p-3 border border-emerald-100"
               >
                 <div className="flex items-center gap-3">
-                  <span className={`text-xs px-2 py-0.5 rounded font-medium ${getCategoriaColor(gasto.categoria)}`}>
-                    {gasto.categoria}
+                  <span className={`text-xs px-2 py-0.5 rounded font-medium ${getCategoriaColor(gasto.subBloque)}`}>
+                    {gasto.subBloque === 'comisiones' ? 'Comisiones' : 'Distribución'}
                   </span>
                   <div>
                     <p className="text-sm font-medium text-slate-900">

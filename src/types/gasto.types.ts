@@ -14,238 +14,39 @@ export type TipoGasto =
   | 'almacenaje'                // Almacenamiento origen o Perú
   | 'internacion'               // Internación/aduanas (si aplica)
   // GASTOS DEL NEGOCIO
-  | 'administrativo'            // GA: Gastos administrativos
-  | 'operativo'                 // GO: Gastos operativos (incluye packaging como GO)
-  | 'marketing'                 // GV: Marketing y publicidad
-  | 'empaque'                   // GO: Material de empaque (reclasificado de GD a GO)
-  | 'delivery'                  // GD: Delivery local al cliente
-  | 'comision_ml'               // GV: Comisión Mercado Libre
-  | 'comision_pasarela'         // GV: Comisión pasarela de pago
-  | 'comision_vendedor'         // GV: Comisión vendedor
+  | 'administrativo'            // bloque 'periodo' · administrativos
+  | 'operativo'                 // bloque 'periodo' · operativos (incluye packaging)
+  | 'marketing'                 // bloque 'venta' · marketing y publicidad directa
+  | 'empaque'                   // bloque 'venta' · material de empaque
+  | 'delivery'                  // bloque 'venta' · delivery local al cliente
+  | 'comision_ml'               // bloque 'venta' · comisión Mercado Libre
+  | 'comision_pasarela'         // bloque 'venta' · comisión pasarela de pago
+  | 'comision_vendedor'         // bloque 'venta' · comisión vendedor
   // PLANILLA
-  | 'nomina'                     // GA: Sueldo/planilla de empleado
-  // PÉRDIDAS DE INVENTARIO
+  | 'nomina'                    // bloque 'periodo' · sueldo/planilla de empleado
+  // PÉRDIDAS DE INVENTARIO (bloque 'producto')
   | 'merma_transferencia'       // Pérdida por daño en transferencia (cuenta 6952)
   | 'merma_vencimiento'         // Pérdida por vencimiento de producto (cuenta 6951)
   | 'desmedro'                  // Deterioro físico de producto (cuenta 6952)
   // OTROS
   | 'otros';                    // Otros gastos
 
-/**
- * Categorías de gasto para clasificación
- * - GV: Gastos de Venta (comisiones, fees, marketing)
- * - GD: Gastos de Distribución (delivery, empaque, flete local)
- * - GA: Gastos Administrativos (planilla, servicios, contador)
- * - GO: Gastos Operativos (movilidad, suministros, mantenimiento)
- *
- * @deprecated chk5.A9 (S3.6 M1.bis · Cost Intelligence) — reemplazado por
- * `BloqueCosto` ('producto' | 'venta' | 'periodo') + `categoriaCostoId`
- * (referencia al maestro dinámico de categorías). Mapeo legacy:
- *   GA           → bloque 'producto'
- *   GD, GV       → bloque 'venta'
- *   GO           → bloque 'periodo'
- * Ver `bloqueToLegacyCategoria()` en GastoForm.tsx para la conversión.
- * Se mantiene exportado para compatibilidad de lectura con datos persistidos
- * antes de la migración (chk5.A4) y será eliminado cuando todos los gastos
- * legacy hayan sido remappeados a categoriaCostoId.
- */
-export type CategoriaGasto = 'GV' | 'GD' | 'GA' | 'GO';
-
-/**
- * @deprecated Usar tipoCosto y asignacionGasto en su lugar
- * Clase de gasto - agrupación de categorías (mantener para compatibilidad)
- */
-export type ClaseGasto = 'GVD' | 'GAO';
-
-/**
- * Tipo de costo para clasificación contable
- * - directo: Varía directamente con cada venta (GV, GD)
- * - indirecto: Fijo del período, independiente del volumen (GA, GO)
- *
- * @deprecated chk5.A9 — derivable del `bloque` de la categoría:
- *   bloque 'venta' → 'directo' · bloque 'producto' o 'periodo' → 'indirecto'.
- */
-export type TipoCosto = 'directo' | 'indirecto';
-
-/**
- * Tipo de asignación del gasto
- * - venta: Se asigna directamente a cada venta (GV, GD)
- * - periodo: Se asigna al período completo (GA, GO)
- *
- * @deprecated chk5.A9 — equivalente a `BloqueCosto` salvo que GA/GO se
- * fusionan aquí en 'periodo'. Usar directamente `BloqueCosto`.
- */
-export type AsignacionGasto = 'venta' | 'periodo';
-
-/**
- * Comportamiento del costo
- * - variable: Cambia proporcionalmente con las ventas (comisiones %)
- * - fijo: Se mantiene constante independiente del volumen (alquiler)
- * - semi_variable: Tiene componente fijo y variable (algunos servicios)
- *
- * @deprecated chk5.A9 — derivable del bloque + tipo de categoría dinámica.
- * Pendiente: campo opcional `comportamiento` en `CategoriaCosto`.
- */
-export type ComportamientoCosto = 'variable' | 'fijo' | 'semi_variable';
-
-/**
- * @deprecated Usar getTipoCosto en su lugar
- * Obtener la clase de gasto a partir de la categoría
- */
-export const getClaseGasto = (categoria: CategoriaGasto): ClaseGasto => {
-  return categoria === 'GV' || categoria === 'GD' ? 'GVD' : 'GAO';
-};
-
-/**
- * Obtener el tipo de costo a partir de la categoría
- *
- * @deprecated chk5.A9 — usar el `bloque` de la categoría directamente:
- *   bloque 'venta' → 'directo' · 'producto' o 'periodo' → 'indirecto'.
- */
-export const getTipoCosto = (categoria: CategoriaGasto): TipoCosto => {
-  return categoria === 'GV' || categoria === 'GD' ? 'directo' : 'indirecto';
-};
-
-/**
- * Obtener el tipo de asignación a partir de la categoría
- *
- * @deprecated chk5.A9 — usar `BloqueCosto` directamente.
- */
-export const getAsignacionGasto = (categoria: CategoriaGasto): AsignacionGasto => {
-  return categoria === 'GV' || categoria === 'GD' ? 'venta' : 'periodo';
-};
-
-/**
- * Obtener el comportamiento típico de una categoría
- *
- * @deprecated chk5.A9 — pendiente de moverse a un campo opcional en
- * `CategoriaCosto`. No usar en código nuevo.
- */
-export const getComportamientoCosto = (categoria: CategoriaGasto): ComportamientoCosto => {
-  switch (categoria) {
-    case 'GV': return 'variable';      // Comisiones varían con ventas
-    case 'GD': return 'variable';      // Delivery varía con entregas
-    case 'GA': return 'fijo';          // Administrativos son fijos
-    case 'GO': return 'semi_variable'; // Operativos pueden variar algo
-  }
-};
-
-/**
- * Información de cada clase de gasto
- *
- * @deprecated chk5.A9 — la nomenclatura GVD/GAO fue reemplazada por
- * `BloqueCosto` ('producto' | 'venta' | 'periodo'). Ver UI canónica del
- * bloque selector en GastoForm.tsx.
- */
-export const CLASES_GASTO: Record<ClaseGasto, {
-  codigo: ClaseGasto;
-  nombre: string;
-  descripcion: string;
-  categorias: CategoriaGasto[];
-  impactaCTRU: boolean;
-}> = {
-  GVD: {
-    codigo: 'GVD',
-    nombre: 'Costos por Venta',
-    descripcion: 'Costos directos asociados a ventas (comisiones, delivery, empaque)',
-    categorias: ['GV', 'GD'],
-    impactaCTRU: false
-  },
-  GAO: {
-    codigo: 'GAO',
-    nombre: 'Gastos Fijos del Mes',
-    descripcion: 'Gastos del periodo (personal, local, servicios, operativos)',
-    categorias: ['GA', 'GO'],
-    impactaCTRU: true
-  }
-};
-
-/**
- * Información de cada categoría de gasto para la UI
- *
- * @deprecated chk5.A9 — la fuente de verdad de categorías es ahora la
- * colección `categoriasCosto/{id}` (maestro dinámico con bloque + nombre +
- * icono). Este registro estático queda como fallback para gastos legacy.
- * Ver `useCategoriaCostoStore.arbol` para el árbol vivo desde Firestore.
- */
-export const CATEGORIAS_GASTO: Record<CategoriaGasto, {
-  codigo: CategoriaGasto;
-  nombre: string;
-  nombreCorto: string;
-  descripcion: string;
-  color: string;
-  ejemplos: string[];
-  /** @deprecated Usar tipoCosto en su lugar */
-  impactaCTRU: boolean;
-  // Nuevos campos de clasificación contable
-  tipoCosto: TipoCosto;
-  asignacion: AsignacionGasto;
-  comportamiento: ComportamientoCosto;
-}> = {
-  GV: {
-    codigo: 'GV',
-    nombre: 'Costo por Venta',
-    nombreCorto: 'Ventas',
-    descripcion: 'Comisiones, pasarelas de pago, fees de plataformas',
-    color: 'purple',
-    ejemplos: ['Comisi\u00f3n ML', 'Comisi\u00f3n pasarela', 'Fee plataforma', 'Marketing'],
-    impactaCTRU: false,
-    tipoCosto: 'directo',
-    asignacion: 'venta',
-    comportamiento: 'variable'
-  },
-  GD: {
-    codigo: 'GD',
-    nombre: 'Costo de Distribuci\u00f3n',
-    nombreCorto: 'Distribuci\u00f3n',
-    descripcion: 'Delivery, empaque, flete local',
-    color: 'blue',
-    ejemplos: ['Delivery', 'Empaque', 'Flete local', 'Courier'],
-    impactaCTRU: false,
-    tipoCosto: 'directo',
-    asignacion: 'venta',
-    comportamiento: 'variable'
-  },
-  GA: {
-    codigo: 'GA',
-    nombre: 'Gasto Fijo Administrativo',
-    nombreCorto: 'Administrativos',
-    descripcion: 'Planilla, servicios, contador, alquiler',
-    color: 'amber',
-    ejemplos: ['Planilla', 'Luz', 'Agua', 'Internet', 'Contador', 'Alquiler'],
-    impactaCTRU: false,
-    tipoCosto: 'indirecto',
-    asignacion: 'periodo',
-    comportamiento: 'fijo'
-  },
-  GO: {
-    codigo: 'GO',
-    nombre: 'Gasto Fijo Operativo',
-    nombreCorto: 'Operativos',
-    descripcion: 'Movilidad, suministros, mantenimiento',
-    color: 'green',
-    ejemplos: ['Movilidad', 'Suministros', 'Mantenimiento', 'Herramientas'],
-    impactaCTRU: false,
-    tipoCosto: 'indirecto',
-    asignacion: 'periodo',
-    comportamiento: 'semi_variable'
-  }
-};
-
-/**
- * @deprecated chk5.A9 — alias de CATEGORIAS_GASTO. Usar el árbol dinámico
- * desde `useCategoriaCostoStore.arbol`.
- */
-export const CATEGORIAS_GASTO_INFO = CATEGORIAS_GASTO;
-
-/**
- * Categorías aplicables a gastos directos de venta
- * Solo GV (Gasto de Venta) - comisiones, pasarelas, fees, etc.
- * NOTA: GD (Gasto de Distribución) ahora se gestiona en el módulo de Transportistas
- *
- * @deprecated chk5.A9 — usar `bloque === 'venta'` con el árbol dinámico.
- */
-export const CATEGORIAS_GASTO_VENTA: CategoriaGasto[] = ['GV', 'GD'];
+// chk5.A15 · CIRUGÍA FINAL · tipos/funciones/constantes legacy ELIMINADOS:
+// ─────────────────────────────────────────────────────────────────────
+//   - type CategoriaGasto ('GV' | 'GD' | 'GA' | 'GO')
+//   - type ClaseGasto ('GVD' | 'GAO')
+//   - type TipoCosto ('directo' | 'indirecto')
+//   - type AsignacionGasto ('venta' | 'periodo')
+//   - type ComportamientoCosto ('variable' | 'fijo' | 'semi_variable')
+//   - getClaseGasto / getTipoCosto / getAsignacionGasto / getComportamientoCosto
+//   - const CLASES_GASTO / CATEGORIAS_GASTO / CATEGORIAS_GASTO_INFO / CATEGORIAS_GASTO_VENTA
+//
+// Modelo canónico vigente: `BloqueCosto` ('producto' | 'venta' | 'periodo')
+// + `categoriaCostoId` (referencia al árbol dinámico en `categoriasCosto/{id}`).
+// Las distinciones GV/GD y GA/GO se derivan vía helpers en `gasto.bloque.ts`:
+//   - esGastoDistribucion(g)    ≡ GD legacy
+//   - esGastoAdministrativo(g)  ≡ GA legacy
+//   - esGastoDelBloque(g, ...)  ≡ filtrado por bloque
 
 /**
  * Labels para mostrar tipos de gasto en la UI
@@ -337,6 +138,12 @@ export interface PagoGasto {
 /**
  * Gasto del negocio
  * Puede ser directo (asociado a una OC) o indirecto (prorrateado)
+ *
+ * chk5.A15 · CIRUGÍA FINAL · modelo canon (cero campos legacy):
+ *   - Sin `categoria: CategoriaGasto`
+ *   - Sin `claseGasto: ClaseGasto`
+ *   - Sin `cuentaOrigenId` (vive en `pagos[].cuentaOrigenId`)
+ *   - La clasificación de costo se resuelve vía `categoriaCostoId` + árbol.
  */
 export interface Gasto {
   id: string;
@@ -344,15 +151,11 @@ export interface Gasto {
   // Identificación
   numeroGasto: string;            // GAS-0001, GAS-0002, etc.
 
-  // Clasificacion
+  // Clasificacion canónica (3 niveles)
   tipo: TipoGasto;
-  /** @deprecated Usar categoriaCostoId */ categoria: CategoriaGasto;
-  /** @deprecated Usar categoriaCostoId */ claseGasto: ClaseGasto;
   descripcion: string;
-
-  // Reingenieria: referencia al maestro dinamico de categorias de costo
-  categoriaCostoId?: string;
-  categoriaCostoNombre?: string;
+  categoriaCostoId?: string;       // Referencia al maestro dinámico en categoriasCosto/{id}
+  categoriaCostoNombre?: string;   // Desnormalizado para queries y exports
 
   // Monto
   moneda: MonedaGasto;
@@ -398,14 +201,9 @@ export interface Gasto {
   estado: EstadoGasto;
   metodoPago?: string;             // Efectivo, Tarjeta, Transferencia (legacy)
   fechaPago?: Timestamp;           // Legacy: fecha del pago único
-  /**
-   * @deprecated Migrado a `pagos[].cuentaOrigenId` (el flujo nuevo usa la sub-colección de pagos).
-   * Se mantiene como campo de lectura por compatibilidad con gastos legacy creados antes del modelo de pagos parciales.
-   */
-  cuentaOrigenId?: string;
   numeroComprobante?: string;      // Factura, boleta, etc.
 
-  // Pagos parciales
+  // Pagos parciales (modelo canon · ver PagoGasto interface)
   pagos?: PagoGasto[];             // Historial de pagos
   montoPagado?: number;            // Suma de todos los pagos en PEN
   montoPendiente?: number;         // montoPEN - montoPagado
@@ -432,16 +230,8 @@ export interface Gasto {
 export interface GastoFormData {
   tipo: TipoGasto;
   /**
-   * @deprecated chk5.A8/A9 — el form deriva este campo automáticamente desde
-   * `bloqueSeleccionado` (ver `bloqueToLegacyCategoria()` en GastoForm.tsx).
-   * Se mantiene en el shape porque `gasto.service.ts` lo persiste para
-   * compatibilidad con queries legacy. No escribir directamente desde UI.
-   */
-  categoria: CategoriaGasto;
-  /**
-   * Modelo canónico 3 niveles (chk5.A2/A6) · apunta a categoriasCosto/{id}.
-   * chk5.A8: la persistencia dual con `categoria` legacy quedó eliminada
-   * a nivel de UI; `categoria` ahora es shadow-derived desde `bloque`.
+   * Modelo canónico 3 niveles · apunta a categoriasCosto/{id}.
+   * Identifica el bloque + categoría padre + (opcional) subcategoría.
    */
   categoriaCostoId?: string;
   descripcion: string;
@@ -463,7 +253,7 @@ export interface GastoFormData {
   estado: EstadoGasto;
   // Información de pago
   metodoPago?: string;
-  cuentaOrigenId?: string;       // Cuenta de donde sale el dinero
+  cuentaOrigenId?: string;       // Cuenta de donde sale el dinero (input · se materializa en PagoGasto)
   referenciaPago?: string;       // Nº operación, voucher, etc.
   numeroComprobante?: string;
   impactaCTRU: boolean;
@@ -489,13 +279,7 @@ export interface ResumenGastosMes {
   gastosRecurrentes: number;
   montoRecurrente: number;
 
-  // Por categoría
-  porCategoria: {
-    categoria: CategoriaGasto;
-    totalPEN: number;
-    cantidad: number;
-  }[];
-
+  // chk5.A15 · `porCategoria` legacy eliminado · era dead.
   // Por tipo
   porTipo: {
     tipo: TipoGasto;
@@ -509,7 +293,8 @@ export interface ResumenGastosMes {
  */
 export interface GastoFiltros {
   tipo?: TipoGasto;
-  categoria?: CategoriaGasto;
+  // chk5.A15 · canon · filtrar por categoría = pasar categoriaCostoId del árbol dinámico
+  categoriaCostoId?: string;
   mes?: number;
   anio?: number;
   estado?: EstadoGasto;

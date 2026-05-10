@@ -835,7 +835,6 @@ export const reclamoService = {
     const gastoId = await gastoService.create(
       {
         tipo: 'merma_transferencia',
-        categoria: 'GV',                          // legacy compat · @deprecated (chk5.A9)
         categoriaCostoId: categoriaCostoId ?? undefined,
         descripcion: `Reclamo ${reclamo.numeroReclamo} ${opts?.porTimeout ? 'cerrado sin cobrar' : 'rechazado'} — ${motivoRechazo}`,
         moneda: 'PEN',

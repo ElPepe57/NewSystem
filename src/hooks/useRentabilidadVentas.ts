@@ -3,7 +3,7 @@ import { gastoService } from '../services/gasto.service';
 import { unidadService } from '../services/unidad.service';
 import { categoriaCostoService } from '../services/categoriaCosto.service';
 import { getCostoBasePEN } from '../utils/ctru.utils';
-import { esGastoDeVenta, esGastoDePeriodo, getBloqueDelGasto, getCategoriaLegacyDelGasto, type ArbolCategorias } from '../utils/gasto.bloque';
+import { esGastoDeVenta, esGastoDePeriodo, getBloqueDelGasto, esGastoDistribucion, type ArbolCategorias } from '../utils/gasto.bloque';
 import type { Venta } from '../types/venta.types';
 import type { Gasto } from '../types/gasto.types';
 import type { Unidad } from '../types/unidad.types';
@@ -260,9 +260,10 @@ export function useRentabilidadVentas(ventas: Venta[]) {
         const bloque = getBloqueDelGasto(gasto, arbolCategorias);
         if (bloque !== 'venta') continue;
 
-        // Distinguir GV vs GD para preservar API legacy · chk5.A12 · canon vía helper
-        // Prioridad: categoria legacy resuelta (explícita o derivada) > default a GV
-        const esGD = getCategoriaLegacyDelGasto(gasto, arbolCategorias) === 'GD';
+        // chk5.A15 · canon · distinción GV vs GD ahora derivada del tipo del gasto
+        // (delivery/empaque → GD-equivalente · resto del bloque venta → GV-equivalente).
+        // Reemplaza el uso de getCategoriaLegacyDelGasto eliminado en la cirugía.
+        const esGD = esGastoDistribucion(gasto);
         const targetMap = esGD ? gastosGDPorVenta : gastosGVPorVenta;
 
         if (gasto.ventaId) {

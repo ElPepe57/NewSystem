@@ -56,18 +56,19 @@ export const ReporteDirectoIndirecto: React.FC<{ mes?: number; anio?: number }> 
 
         for (const g of gastosMes) {
           const tipo = g.tipo;
-          const cat = g.categoria;
 
-          // Directos: importacion
+          // chk5.A15 · canon · clasificación basada exclusivamente en `tipo`
+          // (sin depender del campo `categoria` legacy eliminado).
+          // Directos: importacion (bloque 'producto')
           if (['flete_internacional', 'flete_usa_peru', 'recojo_local', 'almacenaje', 'internacion'].includes(tipo)) {
             costosImportacion += g.montoPEN;
           }
-          // Directos: venta
+          // Directos: venta (bloque 'venta')
           else if (['comision_ml', 'comision_pasarela', 'comision_vendedor', 'delivery', 'empaque', 'marketing'].includes(tipo)) {
             costosVenta += g.montoPEN;
           }
-          // Indirectos
-          else if (cat === 'GA' || cat === 'GO') {
+          // Indirectos: bloque 'periodo' · desglose por tipo
+          else {
             if (tipo === 'nomina') gastosPersonal += g.montoPEN;
             else if (tipo === 'administrativo') gastosLocal += g.montoPEN;
             else if (tipo === 'operativo') gastosOperativos += g.montoPEN;

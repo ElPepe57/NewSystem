@@ -25,7 +25,7 @@ import { db } from '../lib/firebase';
 import { tipoCambioService } from './tipoCambio.service';
 import { tesoreriaService } from './tesoreria.service';
 import { categoriaCostoService } from './categoriaCosto.service';
-import { normalizarGastosConCategoriaLegacy, getCategoriaLegacyDelGasto, type ArbolCategorias } from '../utils/gasto.bloque';
+import { esGastoDeVenta, esGastoDePeriodo, esGastoDistribucion, esGastoAdministrativo, type ArbolCategorias } from '../utils/gasto.bloque';
 import type { Venta } from '../types/venta.types';
 import type { Gasto } from '../types/gasto.types';
 import type { OrdenCompra } from '../types/ordenCompra.types';
@@ -488,9 +488,9 @@ function calcularGV(ventas: Venta[], gastos: Gasto[]): GastosVenta {
     if (venta.otrosGastosVenta) otros += venta.otrosGastosVenta;
   });
 
-  // Desde gastos registrados como GV · chk5.A12 · canon vía helper
+  // Bloque 'venta' excluyendo distribución (chk5.A15 · canon · GV ≡ bloque venta no-distribución)
   gastos
-    .filter(g => getCategoriaLegacyDelGasto(g) === 'GV')
+    .filter(g => esGastoDeVenta(g) && !esGastoDistribucion(g))
     .forEach(g => {
       if (g.tipo === 'marketing') {
         marketingPublicidad += g.montoPEN;
@@ -526,9 +526,9 @@ function calcularGD(ventas: Venta[], gastos: Gasto[]): GastosDistribucion {
     if (venta.costoEnvioNegocio) delivery += venta.costoEnvioNegocio;
   });
 
-  // Desde gastos registrados como GD · chk5.A12 · canon vía helper
+  // Bloque 'venta' filtrado por distribución (chk5.A15 · canon · GD ≡ delivery/empaque)
   gastos
-    .filter(g => getCategoriaLegacyDelGasto(g) === 'GD')
+    .filter(g => esGastoDeVenta(g) && esGastoDistribucion(g))
     .forEach(g => {
       if (g.tipo === 'delivery') {
         delivery += g.montoPEN;
@@ -558,9 +558,9 @@ function calcularGA(gastos: Gasto[]): GastosAdministrativos {
   let contabilidad = 0;
   let otros = 0;
 
-  // chk5.A12 · canon vía helper
+  // Bloque 'periodo' administrativo (chk5.A15 · canon · GA ≡ administrativo/nomina)
   gastos
-    .filter(g => getCategoriaLegacyDelGasto(g) === 'GA')
+    .filter(g => esGastoDePeriodo(g) && esGastoAdministrativo(g))
     .forEach(g => {
       const desc = g.descripcion?.toLowerCase() || '';
       if (desc.includes('planilla') || desc.includes('sueldo') || desc.includes('salario')) {
@@ -595,9 +595,9 @@ function calcularGO(gastos: Gasto[]): GastosOperativos {
   let mantenimiento = 0;
   let otros = 0;
 
-  // chk5.A12 · canon vía helper
+  // Bloque 'periodo' operativo (chk5.A15 · canon · GO ≡ resto del bloque periodo no-administrativo)
   gastos
-    .filter(g => getCategoriaLegacyDelGasto(g) === 'GO')
+    .filter(g => esGastoDePeriodo(g) && !esGastoAdministrativo(g))
     .forEach(g => {
       const desc = g.descripcion?.toLowerCase() || '';
       if (desc.includes('movilidad') || desc.includes('transporte') || desc.includes('gasolina')) {
@@ -767,20 +767,14 @@ export async function generarEstadoResultados(mes: number, anio: number, lineaNe
   // Obtener TC centralizado para conversiones
   const tcDefault = await tipoCambioService.resolverTCVenta();
 
-  // Obtener datos de todas las fuentes (filtrados por línea de negocio si aplica)
-  // chk5.A6 · canon · cargar árbol de categorías para normalizar gastos sin categoria legacy
-  const [ventas, gastosRaw, ordenesCompra, transferencias, arbol] = await Promise.all([
+  // chk5.A15 · canon · los helpers de gasto.bloque ya resuelven bloque desde
+  // categoriaCostoId+arbol sin necesidad de campo categoria legacy.
+  const [ventas, gastos, ordenesCompra, transferencias] = await Promise.all([
     getVentasPeriodo(mes, anio, lineaNegocioId),
     getGastosPeriodo(mes, anio, lineaNegocioId),
     getComprasPeriodo(mes, anio),
     getTransferenciasPeriodo(mes, anio),
-    categoriaCostoService.getArbol().catch(() => null) as Promise<ArbolCategorias | null>,
   ]);
-
-  // Normalizar gastos · si solo tienen categoriaCostoId (canon nuevo) sin categoria legacy,
-  // derivar categoria desde tipo + bloque para que las funciones internas (calcularGV/GD/GA/GO)
-  // sigan funcionando sin refactor masivo. Si el gasto ya tiene categoria, no se toca.
-  const gastos = normalizarGastosConCategoriaLegacy(gastosRaw, arbol);
 
   // Período
   const periodo: PeriodoContable = {

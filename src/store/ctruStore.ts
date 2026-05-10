@@ -3,7 +3,7 @@ import { collection, getDocs, query, where, doc, getDoc } from 'firebase/firesto
 import { db } from '../lib/firebase';
 import { COLLECTIONS } from '../config/collections';
 import { ctruService } from '../services/ctru.service';
-import { normalizarGastosConCategoriaLegacy, esGastoDelBloque, getCategoriaLegacyDelGasto, type ArbolCategorias } from '../utils/gasto.bloque';
+import { esGastoDelBloque, esGastoDeVenta, esGastoDePeriodo, esGastoDistribucion, esGastoAdministrativo, type ArbolCategorias } from '../utils/gasto.bloque';
 import { envioCrudService } from '../services/envio.crud.service';
 import { ProductoService } from '../services/producto.service';
 import { getCTRU, getCostoBasePEN, getTC, calcularGAGOProporcional } from '../utils/ctru.utils';
@@ -305,18 +305,19 @@ async function fetchUnidadesParaCTRU(): Promise<Unidad[]> {
 }
 
 /**
- * Fetch only the expense categories that CTRU processing uses:
- *   GA / GO  → overhead allocation (impacts ctruDinamico)
- *   GV / GD  → per-sale direct costs (impacts margen neto)
- * Excludes unrelated types (fletes en OC, impuestos, etc.) and reduces
- * downloaded documents significantly on mature datasets.
+ * Fetch all gastos relevant to CTRU processing.
+ *
+ * chk5.A15 · canon · query Firestore simplificada (sin filter por `categoria`
+ * legacy). El downstream `processHistorialMensual` / `processProductosDetalle`
+ * filtra por bloque + tipo usando los helpers canónicos de `gasto.bloque.ts`.
+ *
+ * Trade-off: trae todos los gastos del sistema (incluyendo bloque 'producto'
+ * que no afecta este flujo). Aceptable hoy porque (a) el filtrado downstream
+ * descarta lo irrelevante, (b) volumen de gastos es bajo. Si el dataset crece
+ * significativamente, considerar índice compuesto en `categoriaCostoId`.
  */
 async function fetchGastosParaCTRU(): Promise<Gasto[]> {
-  const q = query(
-    collection(db, COLLECTIONS.GASTOS),
-    where('categoria', 'in', ['GA', 'GO', 'GV', 'GD'])
-  );
-  const snapshot = await getDocs(q);
+  const snapshot = await getDocs(collection(db, COLLECTIONS.GASTOS));
   return snapshot.docs.map(d => ({ id: d.id, ...d.data() } as Gasto));
 }
 
@@ -856,22 +857,28 @@ function processHistorialGastos(todosGastos: Gasto[], arbol?: ArbolCategorias | 
   const ahora = new Date();
   const entries: HistorialGastosEntry[] = [];
 
-  // chk5.A6 · normalizar gastos · si solo tienen categoriaCostoId, derivar categoria legacy
-  const gastosNormalizados: Gasto[] = arbol
-    ? normalizarGastosConCategoriaLegacy(todosGastos, arbol)
-    : todosGastos;
-
   for (let i = 5; i >= 0; i--) {
     const fecha = new Date(ahora.getFullYear(), ahora.getMonth() - i, 1);
     const mes = fecha.getMonth() + 1;
     const anio = fecha.getFullYear();
 
-    const gastosMes = gastosNormalizados.filter(g => g.mes === mes && g.anio === anio);
-    // chk5.A12 · canon · resolver categoría legacy una sola vez por gasto + agrupar
-    const GA = gastosMes.filter(g => getCategoriaLegacyDelGasto(g, arbol) === 'GA').reduce((sum, g) => sum + g.montoPEN, 0);
-    const GO = gastosMes.filter(g => getCategoriaLegacyDelGasto(g, arbol) === 'GO').reduce((sum, g) => sum + g.montoPEN, 0);
-    const GV = gastosMes.filter(g => getCategoriaLegacyDelGasto(g, arbol) === 'GV').reduce((sum, g) => sum + g.montoPEN, 0);
-    const GD = gastosMes.filter(g => getCategoriaLegacyDelGasto(g, arbol) === 'GD').reduce((sum, g) => sum + g.montoPEN, 0);
+    const gastosMes = todosGastos.filter(g => g.mes === mes && g.anio === anio);
+
+    // chk5.A15 · canon · buckets derivados de bloque + tipo (sin legacy categoria):
+    //   GA ≡ bloque periodo administrativo (tipos 'administrativo' / 'nomina')
+    //   GO ≡ bloque periodo no-administrativo
+    //   GV ≡ bloque venta no-distribución (comisiones, marketing)
+    //   GD ≡ bloque venta distribución (delivery, empaque)
+    let GA = 0, GO = 0, GV = 0, GD = 0;
+    for (const g of gastosMes) {
+      if (esGastoDeVenta(g, arbol)) {
+        if (esGastoDistribucion(g)) GD += g.montoPEN;
+        else GV += g.montoPEN;
+      } else if (esGastoDePeriodo(g, arbol)) {
+        if (esGastoAdministrativo(g)) GA += g.montoPEN;
+        else GO += g.montoPEN;
+      }
+    }
 
     entries.push({
       mes, anio, label: MONTH_LABELS[mes - 1],

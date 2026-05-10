@@ -827,7 +827,10 @@ export const poolUSDService = {
       if (g.estado !== 'pagado' && g.estado !== 'aprobado') return;
       const fechaGasto = g.fechaPago?.toDate?.() || g.fecha?.toDate?.();
       if (!fechaGasto || fechaGasto < fechaInicio) return;
-      const esImportacion = ['GI', 'flete', 'aduana'].includes(g.categoria);
+      // chk5.A15 · canon · clasificación de gasto USD por tipo (no por categoria legacy)
+      // Tipos de importación = afectan bloque 'producto' (CTRU).
+      const tiposImportacion = ['flete_internacional', 'flete_usa_peru', 'recojo_local', 'almacenaje', 'internacion'];
+      const esImportacion = tiposImportacion.includes(g.tipo);
       gastosUSD.push({
         tipo: esImportacion ? 'GASTO_IMPORTACION_USD' : 'GASTO_SERVICIO_USD',
         montoUSD: g.montoOriginal || g.monto || 0,

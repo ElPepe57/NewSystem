@@ -20,12 +20,11 @@ import type {
   GastoFiltros,
   ResumenGastosMes,
   GastoStats,
-  CategoriaGasto,
   PagoGasto
 } from '../types/gasto.types';
 import { ctruService } from './ctru.service';
 import { categoriaCostoService } from './categoriaCosto.service';
-import { esGastoDePeriodo, resolverCategoriaCostoIdParaTipo, resolverClaseGasto, bloqueToClaseGasto, type ArbolCategorias } from '../utils/gasto.bloque';
+import { esGastoDePeriodo, resolverCategoriaCostoIdParaTipo, type ArbolCategorias } from '../utils/gasto.bloque';
 import { tesoreriaService } from './tesoreria.service';
 // poolUSDService + TipoMovimientoPool: eliminados — tesorería registra automáticamente en Pool USD
 import type { MetodoTesoreria, MonedaTesoreria } from '../types/tesoreria.types';
@@ -55,18 +54,15 @@ export const gastoService = {
         montoPEN = data.montoOriginal * data.tipoCambio;
       }
 
-      // chk5.A13 · canon · derivar claseGasto desde bloque (no desde categoria legacy).
-      // resolverClaseGasto cae a fallback legacy via `data.categoria` cuando no hay
-      // árbol disponible · valor garantizado por chk5.A8 (formData siempre poblado).
-      const claseGasto = resolverClaseGasto(data);
+      // chk5.A15 · CIRUGÍA FINAL · stop persistir categoria/claseGasto legacy.
+      // El modelo canónico vive en categoriaCostoId (referencia al árbol dinámico).
+      // Los campos `categoria` y `claseGasto` fueron eliminados del tipo Gasto.
 
       // Crear objeto gasto - solo incluir campos con valor definido
       // Firestore no acepta valores undefined
       const gasto: Record<string, unknown> = {
         numeroGasto,
         tipo: data.tipo,
-        categoria: data.categoria,
-        claseGasto,
         descripcion: data.descripcion,
         moneda: data.moneda,
         montoOriginal: data.montoOriginal,
@@ -222,7 +218,7 @@ export const gastoService = {
           })
           .catch(error => {
             logger.error('[CTRU] Error en auto-recálculo (no bloqueante):', error);
-            logBackgroundError('ctru.recalcPostGasto', error, 'critical', { gastoCategoria: data.categoria, esProrrateable: data.esProrrateable });
+            logBackgroundError('ctru.recalcPostGasto', error, 'critical', { gastoTipo: data.tipo, gastoCategoriaCostoId: data.categoriaCostoId, esProrrateable: data.esProrrateable });
           });
       }
 
@@ -584,8 +580,8 @@ export const gastoService = {
       if (filtros.tipo) {
         q = query(q, where('tipo', '==', filtros.tipo));
       }
-      if (filtros.categoria) {
-        q = query(q, where('categoria', '==', filtros.categoria));
+      if (filtros.categoriaCostoId) {
+        q = query(q, where('categoriaCostoId', '==', filtros.categoriaCostoId));
       }
       if (filtros.mes) {
         q = query(q, where('mes', '==', filtros.mes));
@@ -682,15 +678,9 @@ export const gastoService = {
       .filter(g => g.esRecurrente)
       .reduce((sum, g) => sum + g.montoPEN, 0);
 
-    // Por categoría
-    const categorias = new Set(gastos.map(g => g.categoria));
-    const porCategoria = Array.from(categorias).map(categoria => ({
-      categoria,
-      totalPEN: gastos
-        .filter(g => g.categoria === categoria)
-        .reduce((sum, g) => sum + g.montoPEN, 0),
-      cantidad: gastos.filter(g => g.categoria === categoria).length
-    }));
+    // chk5.A15 · `porCategoria` legacy eliminado · era dead (no se consumía).
+    // Si se necesita desglose, usar porTipo (canon) o agrupar por bloque
+    // directamente desde gasto.bloque.ts helpers.
 
     // Por tipo
     const tipos = new Set(gastos.map(g => g.tipo));
@@ -714,7 +704,6 @@ export const gastoService = {
       montoDirecto,
       gastosRecurrentes,
       montoRecurrente,
-      porCategoria,
       porTipo
     };
   },
@@ -830,12 +819,15 @@ export const gastoService = {
 
   /**
    * Crear múltiples gastos asociados a una venta
+   *
+   * chk5.A15 · canon · acepta `categoriaCostoId` (referencia al árbol de
+   * categorías) en lugar del campo `categoria` legacy.
    */
   async createGastosVenta(
     ventaId: string,
     gastos: Array<{
       tipo: string;
-      categoria: string;
+      categoriaCostoId?: string;
       descripcion: string;
       monto: number;
       ventaNumero?: string;
@@ -858,16 +850,10 @@ export const gastoService = {
         const numeroGasto = `GAS-${baseNum.toString().padStart(4, '0')}`;
         baseNum++;
 
-        // chk5.A13 · canon · derivar claseGasto vía resolverClaseGasto.
-        // El gasto entrante tiene categoria explícita (API legacy del caller),
-        // resolverClaseGasto la usa como fallback cuando no hay categoriaCostoId.
-        const claseGasto = resolverClaseGasto({ categoria: gasto.categoria as CategoriaGasto });
-
-        batch.set(docRef, {
+        // chk5.A15 · canon · solo persistir el modelo nuevo (sin categoria/claseGasto)
+        const gastoDoc: Record<string, unknown> = {
           numeroGasto,
           tipo: gasto.tipo,
-          categoria: gasto.categoria,
-          claseGasto,
           descripcion: gasto.descripcion,
           moneda: 'PEN',
           montoOriginal: gasto.monto,
@@ -884,8 +870,10 @@ export const gastoService = {
           impactaCTRU: false,
           ctruRecalculado: false,
           creadoPor: userId,
-          fechaCreacion: Timestamp.now()
-        });
+          fechaCreacion: Timestamp.now(),
+        };
+        if (gasto.categoriaCostoId) gastoDoc.categoriaCostoId = gasto.categoriaCostoId;
+        batch.set(docRef, gastoDoc);
       }
 
       await batch.commit();
@@ -1160,8 +1148,7 @@ export const gastoService = {
       const numeroGasto = await this.generateNumeroGasto();
       const ahora = new Date();
 
-      // chk5.A6/A13 · canon · 'delivery' es bloque 'venta' → claseGasto = 'GVD'
-      const claseGasto = bloqueToClaseGasto('venta');                  // legacy compat
+      // chk5.A15 · canon · 'delivery' es bloque 'venta' subcategoría 'Distribucion > Delivery local'
       const arbolEntrega = await categoriaCostoService.getArbol().catch(() => null) as ArbolCategorias | null;
       const categoriaCostoIdEntrega = resolverCategoriaCostoIdParaTipo('delivery', arbolEntrega);
 
@@ -1170,9 +1157,7 @@ export const gastoService = {
       const gasto: Record<string, unknown> = {
         numeroGasto,
         tipo: 'delivery',
-        categoria: 'GD',                                                // legacy compat · @deprecated (chk5.A9)
         ...(categoriaCostoIdEntrega ? { categoriaCostoId: categoriaCostoIdEntrega } : {}),  // canon
-        claseGasto,
         descripcion: data.descripcionExtra
           ? `${descripcionBase} - ${data.descripcionExtra}`
           : descripcionBase,
@@ -1193,7 +1178,7 @@ export const gastoService = {
         esRecurrente: false,
         // Pendiente de pago al transportista
         estado: 'pendiente',
-        // GD no impacta CTRU (es gasto directo de venta)
+        // Bloque 'venta' no impacta CTRU (es gasto directo de venta · descuenta margen contribución)
         impactaCTRU: false,
         ctruRecalculado: false,
         proveedor: data.transportistaNombre,

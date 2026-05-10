@@ -1,22 +1,22 @@
 /**
- * Utility · Resolver bloque de costo de un Gasto (chk5.A5)
+ * Utility · Resolver bloque de costo de un Gasto (chk5 · S3.6 M1.bis)
  *
  * Centraliza la lógica de "qué bloque tiene este gasto" para evitar duplicación
  * entre hooks (useRentabilidadVentas), widgets (RentabilidadTresNivelesWidget),
- * componentes (Gastos.tsx, GastoForm.tsx), y reportes (ReporteDirectoIndirecto).
+ * componentes (Gastos.tsx, GastoForm.tsx), servicios (contabilidad, reporte,
+ * gasto, ctru), y reportes (ReporteDirectoIndirecto).
  *
- * Estrategia:
- *   1. Prioriza `gasto.categoriaCostoId` (modelo canónico 3 niveles)
- *      Resuelve via árbol cargado en categoriaCostoStore
- *   2. Fallback a `gasto.categoria` legacy (GV/GD/GA/GO)
- *      Mapping: GA/GO → 'periodo' · GV/GD → 'venta'
- *   3. Si nada match → null (gasto sin clasificar)
+ * Modelo canónico (chk5.A15 · cirugía final completada):
+ *   - Único path: `gasto.categoriaCostoId` resuelto via árbol dinámico
+ *     (categoriasCosto/{id}) cargado en categoriaCostoStore.
+ *   - Sin fallback legacy. Los tipos `CategoriaGasto`/`ClaseGasto`/etc fueron
+ *     eliminados. El campo `gasto.categoria` ya no existe en el modelo.
  *
  * El árbol debe pasarse desde el componente que ya lo carga vía
  * useCategoriaCostoStore.fetchArbol(). Esta utility NO carga · solo lee.
  */
 
-import type { Gasto, CategoriaGasto, ClaseGasto, TipoGasto } from '../types/gasto.types';
+import type { Gasto, TipoGasto } from '../types/gasto.types';
 import type { BloqueCosto, CategoriaCosto } from '../types/categoriaCosto.types';
 
 /** Estructura del árbol cargado por categoriaCostoStore */
@@ -25,41 +25,30 @@ export type ArbolCategorias = Record<
   { padres: CategoriaCosto[]; hijos: Record<string, CategoriaCosto[]> }
 >;
 
-/** Mapping de categoría legacy a bloque */
-const LEGACY_CATEGORIA_A_BLOQUE: Record<CategoriaGasto, BloqueCosto> = {
-  GA: 'periodo',
-  GO: 'periodo',
-  GV: 'venta',
-  GD: 'venta',
-};
+/**
+ * Tipo mínimo para resolver bloque · solo necesita categoriaCostoId (canon).
+ * chk5.A15 · el fallback legacy a `gasto.categoria` fue eliminado tras la
+ * cirugía final · el campo categoria ya no existe en Gasto/GastoFormData.
+ */
+type GastoMinimoParaBloque = { categoriaCostoId?: string };
 
 /**
- * Resuelve el bloque de un gasto.
- * Retorna null si no se puede determinar (gasto sin clasificar).
+ * Resuelve el bloque de un gasto desde su `categoriaCostoId` + árbol.
+ * Retorna null si no se puede determinar (gasto sin clasificar o árbol no cargado).
  */
 export function getBloqueDelGasto(
-  gasto: Pick<Gasto, 'categoria' | 'categoriaCostoId'>,
+  gasto: GastoMinimoParaBloque,
   arbol?: ArbolCategorias | null
 ): BloqueCosto | null {
-  // Estrategia 1: categoriaCostoId (canon)
-  if (gasto.categoriaCostoId && arbol) {
-    for (const bloque of ['producto', 'venta', 'periodo'] as BloqueCosto[]) {
-      const datos = arbol[bloque];
-      if (!datos) continue;
-      // ¿Es categoría padre?
-      if (datos.padres.some(p => p.id === gasto.categoriaCostoId)) return bloque;
-      // ¿Es subcategoría?
-      for (const padreId of Object.keys(datos.hijos)) {
-        if (datos.hijos[padreId].some(h => h.id === gasto.categoriaCostoId)) return bloque;
-      }
+  if (!gasto.categoriaCostoId || !arbol) return null;
+  for (const bloque of ['producto', 'venta', 'periodo'] as BloqueCosto[]) {
+    const datos = arbol[bloque];
+    if (!datos) continue;
+    if (datos.padres.some(p => p.id === gasto.categoriaCostoId)) return bloque;
+    for (const padreId of Object.keys(datos.hijos)) {
+      if (datos.hijos[padreId].some(h => h.id === gasto.categoriaCostoId)) return bloque;
     }
   }
-
-  // Estrategia 2: categoria legacy
-  if (gasto.categoria) {
-    return LEGACY_CATEGORIA_A_BLOQUE[gasto.categoria] ?? null;
-  }
-
   return null;
 }
 
@@ -68,7 +57,7 @@ export function getBloqueDelGasto(
  * Útil para .filter() de listas.
  */
 export function esGastoDelBloque(
-  gasto: Pick<Gasto, 'categoria' | 'categoriaCostoId'>,
+  gasto: GastoMinimoParaBloque,
   bloque: BloqueCosto,
   arbol?: ArbolCategorias | null
 ): boolean {
@@ -78,47 +67,74 @@ export function esGastoDelBloque(
 /**
  * Helpers semánticos · más legible que repetir esGastoDelBloque(g, 'producto', a)
  */
-export const esGastoDeProducto = (g: Pick<Gasto, 'categoria' | 'categoriaCostoId'>, a?: ArbolCategorias | null) =>
+export const esGastoDeProducto = (g: GastoMinimoParaBloque, a?: ArbolCategorias | null) =>
   esGastoDelBloque(g, 'producto', a);
 
-export const esGastoDeVenta = (g: Pick<Gasto, 'categoria' | 'categoriaCostoId'>, a?: ArbolCategorias | null) =>
+export const esGastoDeVenta = (g: GastoMinimoParaBloque, a?: ArbolCategorias | null) =>
   esGastoDelBloque(g, 'venta', a);
 
-export const esGastoDePeriodo = (g: Pick<Gasto, 'categoria' | 'categoriaCostoId'>, a?: ArbolCategorias | null) =>
+export const esGastoDePeriodo = (g: GastoMinimoParaBloque, a?: ArbolCategorias | null) =>
   esGastoDelBloque(g, 'periodo', a);
+
+/**
+ * Predicado canónico: ¿este gasto cae en la dimensión "distribución" del bloque
+ * 'venta'? Reemplaza la distinción legacy GD vs GV que dependía del campo
+ * `gasto.categoria`. Ahora se deriva del `tipo` del gasto (canon):
+ *   - GD legacy ≡ tipos relacionados a distribución física: delivery, empaque, courier
+ *   - GV legacy ≡ resto del bloque venta (comisiones, marketing directo, etc.)
+ *
+ * Útil para servicios que necesitan separar costos directos de distribución
+ * vs costos directos de venta (comisiones) dentro del bloque 'venta'.
+ */
+const TIPOS_GASTO_DISTRIBUCION = new Set<TipoGasto>(['delivery', 'empaque']);
+
+export function esGastoDistribucion(gasto: Pick<Gasto, 'tipo'>): boolean {
+  return TIPOS_GASTO_DISTRIBUCION.has(gasto.tipo);
+}
+
+/**
+ * Predicado canónico: ¿este gasto cae en la dimensión "administrativa" del
+ * bloque 'periodo'? Reemplaza la distinción legacy GA vs GO que dependía del
+ * campo `gasto.categoria`. Ahora se deriva del `tipo` (canon):
+ *   - GA legacy ≡ tipos administrativos: 'administrativo', 'nomina'
+ *   - GO legacy ≡ resto del bloque periodo (operativo, otros)
+ *
+ * Útil para reportes contables que aún necesitan el desglose administrativo
+ * vs operativo dentro de los costos fijos del periodo.
+ */
+const TIPOS_GASTO_ADMINISTRATIVO = new Set<TipoGasto>(['administrativo', 'nomina']);
+
+export function esGastoAdministrativo(gasto: Pick<Gasto, 'tipo'>): boolean {
+  return TIPOS_GASTO_ADMINISTRATIVO.has(gasto.tipo);
+}
 
 /**
  * Resuelve el bloque + nombre de la categoría padre de un gasto en un solo
  * paso (chk5.A12 · evita doble loop en consumers como ReportesGastosBI).
  *
  * - Si tiene `categoriaCostoId` y existe en `arbol`: retorna ambos resueltos.
- * - Si solo tiene categoria legacy: retorna bloque derivado + categoriaPadre = null.
  * - Si nada match: retorna { bloque: null, categoriaPadre: null }.
  */
 export function resolverGastoCanonico(
-  gasto: Pick<Gasto, 'categoria' | 'categoriaCostoId'>,
+  gasto: GastoMinimoParaBloque,
   arbol?: ArbolCategorias | null
 ): { bloque: BloqueCosto | null; categoriaPadre: string | null } {
-  // Estrategia 1: categoriaCostoId + arbol → resolver ambos en un loop
-  if (gasto.categoriaCostoId && arbol) {
-    for (const bloque of ['producto', 'venta', 'periodo'] as BloqueCosto[]) {
-      const datos = arbol[bloque];
-      if (!datos) continue;
-      // ¿Es categoría padre directa?
-      const padreDirecto = datos.padres.find(p => p.id === gasto.categoriaCostoId);
-      if (padreDirecto) return { bloque, categoriaPadre: padreDirecto.nombre };
-      // ¿Es subcategoría? Buscar el padre por id
-      for (const padreId of Object.keys(datos.hijos)) {
-        if (datos.hijos[padreId].some(h => h.id === gasto.categoriaCostoId)) {
-          const padreObj = datos.padres.find(p => p.id === padreId);
-          return { bloque, categoriaPadre: padreObj?.nombre ?? null };
-        }
+  if (!gasto.categoriaCostoId || !arbol) return { bloque: null, categoriaPadre: null };
+  for (const bloque of ['producto', 'venta', 'periodo'] as BloqueCosto[]) {
+    const datos = arbol[bloque];
+    if (!datos) continue;
+    // ¿Es categoría padre directa?
+    const padreDirecto = datos.padres.find(p => p.id === gasto.categoriaCostoId);
+    if (padreDirecto) return { bloque, categoriaPadre: padreDirecto.nombre };
+    // ¿Es subcategoría? Buscar el padre por id
+    for (const padreId of Object.keys(datos.hijos)) {
+      if (datos.hijos[padreId].some(h => h.id === gasto.categoriaCostoId)) {
+        const padreObj = datos.padres.find(p => p.id === padreId);
+        return { bloque, categoriaPadre: padreObj?.nombre ?? null };
       }
     }
   }
-
-  // Estrategia 2: fallback legacy (solo bloque, sin nombre de padre)
-  return { bloque: getBloqueDelGasto(gasto, arbol), categoriaPadre: null };
+  return { bloque: null, categoriaPadre: null };
 }
 
 // ─── RESOLUCIÓN INVERSA · TipoGasto legacy → categoriaCostoId canónico ──────
@@ -199,123 +215,20 @@ export function getBloqueParaTipo(tipo: TipoGasto): BloqueCosto | null {
   return TIPO_GASTO_A_CANON[tipo]?.bloque ?? null;
 }
 
-// ─── DERIVACIÓN LEGACY · canon → CategoriaGasto GV/GD/GA/GO ─────────────────
-
-/**
- * Mapeo · TipoGasto → CategoriaGasto legacy.
- * Útil para servicios antiguos (contabilidad, reporte) que aún filtran por
- * GV/GD/GA/GO · permite preservar lógica interna sin refactor masivo.
- *
- * Lo que el método hace: convierte la semántica del modelo nuevo (bloque +
- * tipo) en la categoría legacy correspondiente. Si el gasto ya tiene
- * categoria explícita, la respeta (idempotente).
- */
-const TIPO_A_CATEGORIA_LEGACY: Record<TipoGasto, CategoriaGasto> = {
-  // PRODUCTO (ex GA · costos de importación afectan CTRU)
-  flete_internacional:  'GA',
-  flete_usa_peru:       'GA',
-  recojo_local:         'GA',
-  almacenaje:           'GA',
-  internacion:          'GA',
-  // PRODUCTO · pérdidas (legacy las mapeaba dispersas · normalizamos a GV por baja)
-  merma_transferencia:  'GV',
-  merma_vencimiento:    'GO',
-  desmedro:             'GO',
-  // VENTA
-  comision_ml:          'GV',
-  comision_pasarela:    'GV',
-  comision_vendedor:    'GV',
-  delivery:             'GD',
-  empaque:              'GD',
-  marketing:            'GV',
-  // PERIODO
-  nomina:               'GA',
-  administrativo:       'GA',
-  operativo:            'GO',
-  otros:                'GO',
-};
-
-/**
- * Resuelve la categoría legacy GV/GD/GA/GO de un gasto.
- * Estrategia:
- *   1. Si tiene `categoria` explícita → la retorna (no toca)
- *   2. Si tiene `tipo` mapeado → deriva categoría legacy
- *   3. Si tiene `categoriaCostoId` con bloque → deriva fallback genérico
- *      ('venta' → 'GV' · 'periodo' → 'GA' · 'producto' → 'GA')
- *   4. null si no se puede determinar
- */
-export function getCategoriaLegacyDelGasto(
-  gasto: Pick<Gasto, 'categoria' | 'categoriaCostoId' | 'tipo'>,
-  arbol?: ArbolCategorias | null
-): CategoriaGasto | null {
-  // Estrategia 1: categoria explícita
-  if (gasto.categoria) return gasto.categoria;
-
-  // Estrategia 2: tipo mapeado
-  if (gasto.tipo && TIPO_A_CATEGORIA_LEGACY[gasto.tipo]) {
-    return TIPO_A_CATEGORIA_LEGACY[gasto.tipo];
-  }
-
-  // Estrategia 3: derivar del bloque
-  const bloque = getBloqueDelGasto(gasto, arbol);
-  if (bloque === 'venta') return 'GV';
-  if (bloque === 'periodo') return 'GA';
-  if (bloque === 'producto') return 'GA';
-
-  return null;
-}
-
-/**
- * Helper · normaliza un array de gastos legacy.
- * Devuelve un nuevo array donde cada gasto tiene `categoria` poblada
- * (sea la original o derivada del canon).
- *
- * Útil para servicios que filtran masivamente por categoria legacy y
- * no quieren refactorizar su lógica interna · solo normalizar input.
- */
-export function normalizarGastosConCategoriaLegacy<T extends Pick<Gasto, 'categoria' | 'categoriaCostoId' | 'tipo'>>(
-  gastos: T[],
-  arbol?: ArbolCategorias | null
-): T[] {
-  return gastos.map(g => {
-    if (g.categoria) return g;
-    const cat = getCategoriaLegacyDelGasto(g, arbol);
-    return cat ? { ...g, categoria: cat } : g;
-  });
-}
-
-// ─── DERIVACIONES LEGACY DESDE BLOQUE (chk5.A13) ────────────────────────────
-
-/**
- * Deriva la `ClaseGasto` legacy ('GVD' | 'GAO') desde el bloque canónico.
- * Reemplaza el patrón `getClaseGasto(g.categoria)` por una derivación que
- * NO depende del campo legacy `categoria`, lo cual destraba la cirugía
- * final (chk5.A15) donde `Gasto.categoria` se elimina del modelo.
- *
- * Mapeo:
- *   bloque 'venta'    → 'GVD' (gastos directos de venta)
- *   bloque 'producto' → 'GAO' (costos de adquisición · afectan CTRU)
- *   bloque 'periodo'  → 'GAO' (gastos fijos del mes)
- *
- * Nota: 'GAO' agrupa producto+periodo en el modelo legacy. Esto se mantiene
- * por retrocompat pero la distinción entre ambos vive en `bloque` directamente.
- */
-export function bloqueToClaseGasto(bloque: BloqueCosto): ClaseGasto {
-  return bloque === 'venta' ? 'GVD' : 'GAO';
-}
-
-/**
- * Resuelve `claseGasto` directamente desde un gasto (canon · sin necesidad
- * de arbol porque el fallback legacy via `categoria` ya está integrado en
- * `getBloqueDelGasto`).
- *
- * Reemplazo canónico de `getClaseGasto(data.categoria)` en gasto.service.ts:
- *   const claseGasto = resolverClaseGasto(data);
- */
-export function resolverClaseGasto(
-  gasto: Pick<Gasto, 'categoria' | 'categoriaCostoId'>,
-  arbol?: ArbolCategorias | null
-): ClaseGasto {
-  const bloque = getBloqueDelGasto(gasto, arbol) ?? 'periodo';
-  return bloqueToClaseGasto(bloque);
-}
+// chk5.A15 · ADAPTADORES LEGACY ELIMINADOS · cirugía final completada
+// ─────────────────────────────────────────────────────────────────────
+// Eliminados en este chunk:
+//   - LEGACY_CATEGORIA_A_BLOQUE (Record<CategoriaGasto, BloqueCosto>)
+//   - TIPO_A_CATEGORIA_LEGACY (Record<TipoGasto, CategoriaGasto>)
+//   - getCategoriaLegacyDelGasto(gasto, arbol)
+//   - normalizarGastosConCategoriaLegacy(gastos, arbol)
+//   - bloqueToClaseGasto(bloque)
+//   - resolverClaseGasto(gasto, arbol)
+//
+// Razón: los tipos CategoriaGasto/ClaseGasto fueron eliminados de
+// `gasto.types.ts`. Toda derivación legacy queda obsoleta. Los servicios y
+// hooks que dependían de estas funciones fueron migrados en chk5.A12-A14:
+//   - Distinción GV/GD ahora vía esGastoDistribucion(g)
+//   - Distinción GA/GO ahora vía esGastoAdministrativo(g)
+//   - Filtros por bloque vía esGastoDelBloque(g, 'venta'/'periodo'/'producto')
+//   - claseGasto no se persiste más (campo eliminado del modelo Gasto)

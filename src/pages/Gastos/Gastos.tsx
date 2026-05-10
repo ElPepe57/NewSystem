@@ -15,7 +15,7 @@ import { PagoUnificadoForm } from '../../components/modules/pagos/PagoUnificadoF
 import type { PagoUnificadoResult } from '../../components/modules/pagos/PagoUnificadoForm';
 import { exportService } from '../../services/export.service';
 import { useLineaFilter } from '../../hooks/useLineaFilter';
-import type { Gasto, TipoGasto, CategoriaGasto, EstadoGasto, ClaseGasto } from '../../types/gasto.types';
+import type { Gasto, TipoGasto, EstadoGasto } from '../../types/gasto.types';
 import { useCategoriaCostoStore } from '../../store/categoriaCostoStore';
 import type { BloqueCosto } from '../../types/categoriaCosto.types';
 import { getBloqueDelGasto, resolverGastoCanonico, esGastoDelBloque } from '../../utils/gasto.bloque';
@@ -49,12 +49,13 @@ export const Gastos: React.FC = () => {
   const [gastoParaPago, setGastoParaPago] = useState<Gasto | null>(null);
   const [gastoParaEditar, setGastoParaEditar] = useState<Gasto | null>(null);
   const [filtros, setFiltros] = useState({
-    claseGasto: '' as ClaseGasto | '',
+    // chk5.A15 · filtros canónicos (sin ClaseGasto/CategoriaGasto legacy).
+    // El filtro principal es `bloque` del modelo 3 niveles; `tipo` discrimina
+    // sub-tipos canónicos (delivery, comision_ml, etc).
     tipo: '' as TipoGasto | '',
-    categoria: '' as CategoriaGasto | '',
     estado: '' as EstadoGasto | '',
     esProrrateable: '' as 'true' | 'false' | '',
-    bloque: '' as BloqueCosto | '', // F2 · filtro por bloque del modelo de 3 niveles
+    bloque: '' as BloqueCosto | '',
   });
   // chk5.A3 · ELIMINADO tabActiva legacy (negocio/importacion/perdidas)
   // El filtrado ahora vive en FiltrosGastosBar via filtros.bloque (canon 3 niveles)
@@ -109,15 +110,15 @@ export const Gastos: React.FC = () => {
     return null;
   };
 
-  // Componente helper · breadcrumb pills si hay categoriaCostoId, fallback al pill legacy
+  // Componente helper · breadcrumb pills desde categoriaCostoId (canon)
+  // chk5.A15 · si no hay categoriaCostoId, muestra "Sin clasificar" en gris
   const renderCategoriaBreadcrumb = (gasto: Gasto, size: 'sm' | 'xs' = 'xs') => {
     const bc = resolveBreadcrumb(gasto.categoriaCostoId);
     const sizeClasses = size === 'sm' ? 'text-xs' : 'text-[10px]';
     if (!bc) {
-      // Fallback legacy
       return (
-        <span className={`${sizeClasses} px-1.5 py-0.5 rounded font-medium ${getCategoriaColor(gasto.categoria)}`}>
-          {gasto.categoria}
+        <span className={`${sizeClasses} px-1.5 py-0.5 rounded font-medium bg-slate-100 text-slate-500`}>
+          Sin clasificar
         </span>
       );
     }
@@ -342,14 +343,9 @@ export const Gastos: React.FC = () => {
       );
     }
 
-    if (filtros.claseGasto) {
-      resultado = resultado.filter(g => g.claseGasto === filtros.claseGasto);
-    }
+    // chk5.A15 · filtros legacy claseGasto/categoria eliminados · usar bloque + tipo
     if (filtros.tipo) {
       resultado = resultado.filter(g => g.tipo === filtros.tipo);
-    }
-    if (filtros.categoria) {
-      resultado = resultado.filter(g => g.categoria === filtros.categoria);
     }
     if (filtros.estado) {
       resultado = resultado.filter(g => g.estado === filtros.estado);
@@ -442,17 +438,10 @@ export const Gastos: React.FC = () => {
     return { variant: 'default' as const, label: tipo };
   };
 
-  // Colores para las categorías
-  const getCategoriaColor = (cat: CategoriaGasto | undefined): string => {
-    if (!cat) return 'bg-slate-100 text-slate-700';
-    const colors: Record<CategoriaGasto, string> = {
-      GV: 'bg-purple-100 text-purple-700',
-      GD: 'bg-sky-100 text-sky-700',
-      GA: 'bg-amber-100 text-amber-700',
-      GO: 'bg-emerald-100 text-emerald-700'
-    };
-    return colors[cat] || 'bg-slate-100 text-slate-700';
-  };
+  // chk5.A15 · `getCategoriaColor` eliminado · ya no se usa (renderCategoriaBreadcrumb
+  // ahora retorna "Sin clasificar" en gris cuando no hay categoriaCostoId · el color
+  // por bloque ya está dentro del componente vía bloqueColors).
+
 
   const handleRecalcularCTRU = async () => {
     const confirmed = await confirm({
@@ -505,9 +494,7 @@ export const Gastos: React.FC = () => {
 
   const limpiarFiltros = () => {
     setFiltros({
-      claseGasto: '',
       tipo: '',
-      categoria: '',
       estado: '',
       esProrrateable: '',
       bloque: '',
@@ -516,18 +503,10 @@ export const Gastos: React.FC = () => {
   };
 
   // Verificar si hay algún filtro activo
-  const hayFiltrosActivos = filtros.claseGasto || filtros.tipo || filtros.categoria || filtros.estado || filtros.esProrrateable || filtros.bloque || searchTerm.trim();
+  const hayFiltrosActivos = filtros.tipo || filtros.estado || filtros.esProrrateable || filtros.bloque || searchTerm.trim();
 
-  // Obtener badge para clase de gasto
-  const getClaseBadge = (clase: ClaseGasto | undefined) => {
-    if (!clase) {
-      return { label: 'GAO', color: 'bg-slate-100 text-slate-700' };
-    }
-    if (clase === 'GVD') {
-      return { label: 'GVD', color: 'bg-purple-100 text-purple-700' };
-    }
-    return { label: 'GAO', color: 'bg-sky-100 text-sky-700' };
-  };
+  // chk5.A15 · `getClaseBadge` eliminado · era dead post limpieza (no se renderiza
+  // claseGasto en la UI canon · sustituido por el badge de bloque vía renderCategoriaBreadcrumb).
 
   // Label dinámico para métricas
   const getViewLabel = () => {
@@ -541,26 +520,22 @@ export const Gastos: React.FC = () => {
     {
       key: 'numero',
       header: 'Número',
-      render: (gasto) => {
-        const claseBadge = getClaseBadge(gasto.claseGasto);
-        return (
-          <div>
-            <div className="flex items-center gap-2">
-              <span className={`text-xs font-semibold px-1.5 py-0.5 rounded ${claseBadge.color}`}>
-                {claseBadge.label}
-              </span>
-              <span className="text-sm font-medium text-slate-900">
-                {gasto.numeroGasto}
-              </span>
-            </div>
-            {gasto.ventaId && (
-              <div className="text-xs text-purple-600 mt-0.5">
-                → Venta vinculada
-              </div>
-            )}
+      render: (gasto) => (
+        <div>
+          <div className="flex items-center gap-2">
+            {/* chk5.A15 · badge de claseGasto eliminado · sustituido por
+                breadcrumb de bloque vía renderCategoriaBreadcrumb en otras columnas */}
+            <span className="text-sm font-medium text-slate-900">
+              {gasto.numeroGasto}
+            </span>
           </div>
-        );
-      },
+          {gasto.ventaId && (
+            <div className="text-xs text-purple-600 mt-0.5">
+              → Venta vinculada
+            </div>
+          )}
+        </div>
+      ),
     },
     {
       key: 'descripcion',
