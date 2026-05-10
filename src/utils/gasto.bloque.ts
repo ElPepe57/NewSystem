@@ -16,7 +16,7 @@
  * useCategoriaCostoStore.fetchArbol(). Esta utility NO carga · solo lee.
  */
 
-import type { Gasto, CategoriaGasto, TipoGasto } from '../types/gasto.types';
+import type { Gasto, CategoriaGasto, ClaseGasto, TipoGasto } from '../types/gasto.types';
 import type { BloqueCosto, CategoriaCosto } from '../types/categoriaCosto.types';
 
 /** Estructura del árbol cargado por categoriaCostoStore */
@@ -282,4 +282,40 @@ export function normalizarGastosConCategoriaLegacy<T extends Pick<Gasto, 'catego
     const cat = getCategoriaLegacyDelGasto(g, arbol);
     return cat ? { ...g, categoria: cat } : g;
   });
+}
+
+// ─── DERIVACIONES LEGACY DESDE BLOQUE (chk5.A13) ────────────────────────────
+
+/**
+ * Deriva la `ClaseGasto` legacy ('GVD' | 'GAO') desde el bloque canónico.
+ * Reemplaza el patrón `getClaseGasto(g.categoria)` por una derivación que
+ * NO depende del campo legacy `categoria`, lo cual destraba la cirugía
+ * final (chk5.A15) donde `Gasto.categoria` se elimina del modelo.
+ *
+ * Mapeo:
+ *   bloque 'venta'    → 'GVD' (gastos directos de venta)
+ *   bloque 'producto' → 'GAO' (costos de adquisición · afectan CTRU)
+ *   bloque 'periodo'  → 'GAO' (gastos fijos del mes)
+ *
+ * Nota: 'GAO' agrupa producto+periodo en el modelo legacy. Esto se mantiene
+ * por retrocompat pero la distinción entre ambos vive en `bloque` directamente.
+ */
+export function bloqueToClaseGasto(bloque: BloqueCosto): ClaseGasto {
+  return bloque === 'venta' ? 'GVD' : 'GAO';
+}
+
+/**
+ * Resuelve `claseGasto` directamente desde un gasto (canon · sin necesidad
+ * de arbol porque el fallback legacy via `categoria` ya está integrado en
+ * `getBloqueDelGasto`).
+ *
+ * Reemplazo canónico de `getClaseGasto(data.categoria)` en gasto.service.ts:
+ *   const claseGasto = resolverClaseGasto(data);
+ */
+export function resolverClaseGasto(
+  gasto: Pick<Gasto, 'categoria' | 'categoriaCostoId'>,
+  arbol?: ArbolCategorias | null
+): ClaseGasto {
+  const bloque = getBloqueDelGasto(gasto, arbol) ?? 'periodo';
+  return bloqueToClaseGasto(bloque);
 }

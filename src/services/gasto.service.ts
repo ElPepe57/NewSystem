@@ -23,10 +23,9 @@ import type {
   CategoriaGasto,
   PagoGasto
 } from '../types/gasto.types';
-import { getClaseGasto } from '../types/gasto.types';
 import { ctruService } from './ctru.service';
 import { categoriaCostoService } from './categoriaCosto.service';
-import { esGastoDePeriodo, resolverCategoriaCostoIdParaTipo, type ArbolCategorias } from '../utils/gasto.bloque';
+import { esGastoDePeriodo, resolverCategoriaCostoIdParaTipo, resolverClaseGasto, bloqueToClaseGasto, type ArbolCategorias } from '../utils/gasto.bloque';
 import { tesoreriaService } from './tesoreria.service';
 // poolUSDService + TipoMovimientoPool: eliminados — tesorería registra automáticamente en Pool USD
 import type { MetodoTesoreria, MonedaTesoreria } from '../types/tesoreria.types';
@@ -56,8 +55,10 @@ export const gastoService = {
         montoPEN = data.montoOriginal * data.tipoCambio;
       }
 
-      // Determinar clase de gasto a partir de la categoría
-      const claseGasto = getClaseGasto(data.categoria);
+      // chk5.A13 · canon · derivar claseGasto desde bloque (no desde categoria legacy).
+      // resolverClaseGasto cae a fallback legacy via `data.categoria` cuando no hay
+      // árbol disponible · valor garantizado por chk5.A8 (formData siempre poblado).
+      const claseGasto = resolverClaseGasto(data);
 
       // Crear objeto gasto - solo incluir campos con valor definido
       // Firestore no acepta valores undefined
@@ -857,8 +858,10 @@ export const gastoService = {
         const numeroGasto = `GAS-${baseNum.toString().padStart(4, '0')}`;
         baseNum++;
 
-        // Determinar clase de gasto a partir de la categoría
-        const claseGasto = getClaseGasto(gasto.categoria as CategoriaGasto);
+        // chk5.A13 · canon · derivar claseGasto vía resolverClaseGasto.
+        // El gasto entrante tiene categoria explícita (API legacy del caller),
+        // resolverClaseGasto la usa como fallback cuando no hay categoriaCostoId.
+        const claseGasto = resolverClaseGasto({ categoria: gasto.categoria as CategoriaGasto });
 
         batch.set(docRef, {
           numeroGasto,
@@ -1157,8 +1160,8 @@ export const gastoService = {
       const numeroGasto = await this.generateNumeroGasto();
       const ahora = new Date();
 
-      // chk5.A6 · canon · resolver categoriaCostoId para 'delivery' (bloque 'venta' · Distribucion)
-      const claseGasto = getClaseGasto('GD');                          // legacy compat
+      // chk5.A6/A13 · canon · 'delivery' es bloque 'venta' → claseGasto = 'GVD'
+      const claseGasto = bloqueToClaseGasto('venta');                  // legacy compat
       const arbolEntrega = await categoriaCostoService.getArbol().catch(() => null) as ArbolCategorias | null;
       const categoriaCostoIdEntrega = resolverCategoriaCostoIdParaTipo('delivery', arbolEntrega);
 
