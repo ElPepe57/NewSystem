@@ -58,6 +58,7 @@ const Usuarios = React.lazy(() => import('./pages/Usuarios/Usuarios').then(m => 
 const Auditoria = React.lazy(() => import('./pages/Auditoria/Auditoria').then(m => ({ default: m.Auditoria })));
 const Contabilidad = React.lazy(() => import('./pages/Contabilidad/Contabilidad').then(m => ({ default: m.Contabilidad })));
 const ProductosIntel = React.lazy(() => import('./pages/ProductosIntel/ProductosIntel').then(m => ({ default: m.ProductosIntel })));
+const IntelProductosPage = React.lazy(() => import('./pages/IntelProductos').then(m => ({ default: m.IntelProductosPage })));
 const MiPerfil = React.lazy(() => import('./pages/Perfil/MiPerfil').then(m => ({ default: m.MiPerfil })));
 const Escaner = React.lazy(() => import('./pages/Escaner/Escaner').then(m => ({ default: m.Escaner })));
 const MercadoLibre = React.lazy(() => import('./pages/MercadoLibre/MercadoLibre').then(m => ({ default: m.MercadoLibre })));
@@ -167,6 +168,9 @@ function App() {
               {/* Inventario */}
               <Route path="productos" element={<Productos />} />
               <Route path="productos-intel" element={<ProductosIntel />} />
+              {/* chk5.B · Cost Intelligence System · módulo nuevo · 5 workspaces analíticos */}
+              <Route path="intel-productos" element={<IntelProductosPage />} />
+              <Route path="intel-productos/:workspace" element={<IntelProductosPage />} />
               <Route path="inventario" element={<Inventario />} />
               <Route path="envios" element={<Envios />} />
               {/* S53 — Wizard UNIFICADO (v7). Ruta principal de creación de envíos
