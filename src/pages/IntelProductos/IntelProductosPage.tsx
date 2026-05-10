@@ -66,10 +66,11 @@ export const IntelProductosPage: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // KPIs ejecutivos derivados del catálogo
+  // KPIs ejecutivos derivados del catálogo · chk5.B5 canon · 4 cols
   const kpis = useMemo<KpiCatalogo>(() => {
     if (productos.length === 0) {
       return {
+        capitalCatalogadoPEN: 0,
         totalProductos: 0,
         marcasUnicas: 0,
         lineasUnicas: 0,
@@ -77,7 +78,6 @@ export const IntelProductosPage: React.FC = () => {
         porcentajeInvestigados: 0,
         margenPromedio: null,
         productosSinPrecioVenta: 0,
-        stabilityScore: 0,
       };
     }
 
@@ -85,6 +85,7 @@ export const IntelProductosPage: React.FC = () => {
     const lineas = new Set<string>();
     let investigados = 0;
     let sinPrecio = 0;
+    let capitalAcum = 0;
     const margenes: number[] = [];
 
     for (const p of productos) {
@@ -94,7 +95,8 @@ export const IntelProductosPage: React.FC = () => {
       const c = calcularInvestigacion(p, tc);
       if (c.tieneInvestigacion) {
         investigados++;
-        if (c.tieneInvestigacion && c.margenPct !== undefined) {
+        capitalAcum += c.costoPEN;
+        if (c.margenPct !== undefined) {
           margenes.push(c.margenPct);
         }
       }
@@ -108,6 +110,7 @@ export const IntelProductosPage: React.FC = () => {
       : null;
 
     return {
+      capitalCatalogadoPEN: capitalAcum,
       totalProductos: productos.length,
       marcasUnicas: marcas.size,
       lineasUnicas: lineas.size,
@@ -115,22 +118,29 @@ export const IntelProductosPage: React.FC = () => {
       porcentajeInvestigados: (investigados / productos.length) * 100,
       margenPromedio,
       productosSinPrecioVenta: sinPrecio,
-      // Stability score: placeholder · cuando haya variance real, se calcula con desviación
-      // estándar relativa de costos en los últimos 90 días por producto.
-      stabilityScore: 0,
+      // margenSerie + margenDeltaTrimestre se omiten · requieren histórico (chk5.B8+)
     };
   }, [productos, tc]);
 
-  // Workspace label dinámico
-  const activeWorkspace = WORKSPACES.find(w => w.id === activeId)!;
-  const workspaceLabel = activeId === 'catalogo'
-    ? `Catálogo · ${productos.length.toLocaleString('es-PE')} productos`
-    : activeWorkspace.label;
-
-  // Subtítulo por workspace
-  const subtitle = activeId === 'catalogo'
-    ? 'Vista valorizada del catálogo · score por calidad de datos · drill-down por SKU'
-    : activeWorkspace.description;
+  // Workspace label dinámico (canon · breadcrumb actualiza con workspace activo)
+  const activeWorkspace = WORKSPACES.find((w) => w.id === activeId)!;
+  const WORKSPACE_LABELS: Record<typeof activeId, string> = {
+    catalogo: `Catálogo · ${productos.length.toLocaleString('es-PE')} SKUs analizados`,
+    costos:   'Costos · evolución temporal',
+    pipeline: 'Pipeline · capital atrapado',
+    alertas:  'Alertas · anomaly detection',
+    forecast: 'Forecast · proyecciones futuras',
+  };
+  const WORKSPACE_SUBTITLES: Record<typeof activeId, string> = {
+    catalogo: 'Vista valorizada del catálogo · score por calidad de datos · drill-down por SKU.',
+    costos:   'Time-series · variance attribution · TCPA tracking · sugerencias accionables.',
+    pipeline: '6 etapas de valorización · capital atrapado · drill-down por etapa.',
+    alertas:  'Anomaly detection · variance > threshold · CTAs accionables.',
+    forecast: 'Proyecciones 30/60/90d · weighted moving avg · what-if scenarios.',
+  };
+  const workspaceLabel = WORKSPACE_LABELS[activeId];
+  const subtitle = WORKSPACE_SUBTITLES[activeId];
+  void activeWorkspace; // referencia para evitar lint warning
 
   // Renderizar workspace activo
   const renderWorkspace = () => {
@@ -155,10 +165,9 @@ export const IntelProductosPage: React.FC = () => {
         subtitle={subtitle}
         loading={loadingProductos}
         onRecalcular={() => fetchProductos(false)}
-        onExport={() => {
-          // chk5.B (MVP): export diferido · pendiente integración con export.service
-          alert('Reporte ejecutivo · próximamente');
-        }}
+        onExport={() => alert('Exportar Cost Intelligence · próximamente')}
+        onReporte={() => alert('Reporte ejecutivo · próximamente')}
+        // onSugerencias se omite hasta integrar el módulo de sugerencias del día
       />
 
       <WorkspaceSwitcher activeId={activeId} />
