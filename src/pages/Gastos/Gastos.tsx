@@ -55,7 +55,8 @@ export const Gastos: React.FC = () => {
     esProrrateable: '' as 'true' | 'false' | '',
     bloque: '' as BloqueCosto | '', // F2 · filtro por bloque del modelo de 3 niveles
   });
-  const [tabActiva, setTabActiva] = useState<'negocio' | 'importacion' | 'perdidas'>('negocio');
+  // chk5.A3 · ELIMINADO tabActiva legacy (negocio/importacion/perdidas)
+  // El filtrado ahora vive en FiltrosGastosBar via filtros.bloque (canon 3 niveles)
 
   // Vista y navegación temporal
   const [viewMode, setViewMode] = useState<ViewMode>('month');
@@ -410,24 +411,10 @@ export const Gastos: React.FC = () => {
     return resultado;
   }, [gastosPorLinea, filtros, searchTerm, arbolCategorias]);
 
-  // Aplicar filtro de tab activa sobre los gastos filtrados
-  const TIPOS_IMPORTACION = ['flete_internacional', 'flete_usa_peru', 'almacenaje', 'internacion', 'recojo_local'];
-  const TIPOS_PERDIDAS = ['merma_transferencia', 'merma_vencimiento', 'desmedro'];
-
+  // chk5.A3 · gastosVisibles solo aplica orden ahora · filtrado completo lo hace FiltrosGastosBar
+  // (Filtro por bloque canónico vive en filtros.bloque · tabs legacy eliminados)
   const gastosVisibles = useMemo(() => {
-    let resultado: Gasto[];
-    if (tabActiva === 'importacion') {
-      resultado = gastosFiltrados.filter(g => TIPOS_IMPORTACION.includes(g.tipo));
-    } else if (tabActiva === 'perdidas') {
-      resultado = gastosFiltrados.filter(g => TIPOS_PERDIDAS.includes(g.tipo));
-    } else {
-      // negocio: excluir importación y pérdidas
-      resultado = gastosFiltrados.filter(g =>
-        !TIPOS_IMPORTACION.includes(g.tipo) && !TIPOS_PERDIDAS.includes(g.tipo)
-      );
-    }
-    // F2 · aplicar orden seleccionado en FiltrosGastosBar
-    const ordenado = [...resultado];
+    const ordenado = [...gastosFiltrados];
     switch (ordenLista) {
       case 'monto_desc':
         ordenado.sort((a, b) => (b.montoPEN || 0) - (a.montoPEN || 0));
@@ -449,7 +436,7 @@ export const Gastos: React.FC = () => {
       }
     }
     return ordenado;
-  }, [gastosFiltrados, tabActiva, ordenLista]);
+  }, [gastosFiltrados, ordenLista]);
 
   // Calcular resumen por tipo de gasto
   const resumenPorTipo = useMemo(() => {
@@ -1123,40 +1110,13 @@ export const Gastos: React.FC = () => {
       {/* Wrap todo el resto del listado · solo cuando vistaActiva === 'listado' */}
       {vistaActiva === 'listado' && (<>
 
-      {/* Tabs de Categoría: Gastos del Negocio / Costos de Importación / Pérdidas */}
-      <div className="flex items-center gap-1 bg-slate-100 rounded-lg p-1 overflow-x-auto scrollbar-hide">
-        {[
-          { id: 'negocio', label: 'Gastos del Negocio', shortLabel: 'Negocio', color: 'text-slate-900', filter: (g: Gasto) => !['flete_internacional', 'flete_usa_peru', 'almacenaje', 'internacion', 'recojo_local'].includes(g.tipo) && !['merma_transferencia', 'merma_vencimiento', 'desmedro'].includes(g.tipo) },
-          { id: 'importacion', label: 'Costos de Importación', shortLabel: 'Importación', color: 'text-sky-700', filter: (g: Gasto) => ['flete_internacional', 'flete_usa_peru', 'almacenaje', 'internacion', 'recojo_local'].includes(g.tipo) },
-          { id: 'perdidas', label: 'Pérdidas de Inventario', shortLabel: 'Pérdidas', color: 'text-red-700', filter: (g: Gasto) => ['merma_transferencia', 'merma_vencimiento', 'desmedro'].includes(g.tipo) },
-        ].map(tab => {
-          const count = gastosFiltrados.filter(tab.filter).length;
-          const isActive = tabActiva === tab.id;
-          return (
-            <button
-              key={tab.id}
-              onClick={() => {
-                setTabActiva(tab.id as 'negocio' | 'importacion' | 'perdidas');
-                // Reset filtros de clase al cambiar tab
-                setFiltros(prev => ({ ...prev, claseGasto: '' as ClaseGasto | '', tipo: '' as TipoGasto | '' }));
-              }}
-              className={`flex-1 sm:flex-none px-3 py-2 text-xs sm:text-sm rounded-md font-medium transition-colors flex items-center justify-center gap-1.5 ${
-                isActive ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              <span className="hidden sm:inline">{tab.label}</span>
-              <span className="sm:hidden">{tab.shortLabel}</span>
-              {count > 0 && (
-                <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-full ${
-                  tab.id === 'perdidas' ? 'bg-red-100 text-red-700' : 'bg-slate-200 text-slate-600'
-                }`}>
-                  {count}
-                </span>
-              )}
-            </button>
-          );
-        })}
-      </div>
+      {/* chk5.A3 · ELIMINADO bloque "Tabs de Categoría" legacy
+          (Gastos del Negocio / Costos de Importación / Pérdidas)
+          Razón: filtraban por g.tipo legacy (flete_internacional · merma_*) que viene
+          de la deprecated CategoriaGasto = 'GV/GD/GA/GO'. El filtrado canónico ahora
+          se hace via FiltrosGastosBar.bloque (modelo 3 niveles producto/venta/periodo).
+          Si se necesita filtrar específicamente por "Pérdidas de Inventario" eso ya
+          existe en filtros.tipo (subcategoría) o se puede buscar por categoriaCostoId */}
 
       {/* Resumen por Tipo de Gasto */}
       {resumenPorTipo.items.length > 0 && (
