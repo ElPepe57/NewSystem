@@ -89,7 +89,7 @@ export const Gastos: React.FC = () => {
   // Helper · resuelve un categoriaCostoId al breadcrumb (bloque > padre > sub)
   const resolveBreadcrumb = (categoriaCostoId?: string): { bloque: BloqueCosto; padre: string; sub?: string } | null => {
     if (!categoriaCostoId || !arbolCategorias) return null;
-    for (const bloque of ['importacion', 'venta', 'periodo'] as BloqueCosto[]) {
+    for (const bloque of ['producto', 'venta', 'periodo'] as BloqueCosto[]) {
       const datos = arbolCategorias[bloque];
       if (!datos) continue;
       // ¿es padre directo?
@@ -119,12 +119,12 @@ export const Gastos: React.FC = () => {
         </span>
       );
     }
-    const bloqueColors = bc.bloque === 'importacion'
+    const bloqueColors = bc.bloque === 'producto'
       ? 'bg-blue-100 text-blue-800'
       : bc.bloque === 'venta'
         ? 'bg-purple-100 text-purple-800'
         : 'bg-amber-100 text-amber-800';
-    const bloqueLabel = bc.bloque === 'importacion' ? '📦' : bc.bloque === 'venta' ? '🛒' : '📅';
+    const bloqueLabel = bc.bloque === 'producto' ? '📦' : bc.bloque === 'venta' ? '🛒' : '📅';
     return (
       <span className={`${sizeClasses} inline-flex items-center gap-1`}>
         <span className={`px-1.5 py-0.5 rounded font-medium ${bloqueColors}`}>{bloqueLabel}</span>
@@ -153,12 +153,12 @@ export const Gastos: React.FC = () => {
 
     // Mix por bloque (resolviendo via arbolCategorias)
     const mixPorBloque: Record<BloqueCosto, number> = {
-      importacion: 0, venta: 0, periodo: 0,
+      producto: 0, venta: 0, periodo: 0,
     };
     const bloqueDeGasto = (g: Gasto): BloqueCosto => {
       // Si tiene categoriaCostoId, resolver desde arbol
       if (g.categoriaCostoId && arbolCategorias) {
-        for (const b of ['importacion', 'venta', 'periodo'] as BloqueCosto[]) {
+        for (const b of ['producto', 'venta', 'periodo'] as BloqueCosto[]) {
           const datos = arbolCategorias[b];
           if (!datos) continue;
           if (datos.padres.some(p => p.id === g.categoriaCostoId)) return b;
@@ -168,14 +168,14 @@ export const Gastos: React.FC = () => {
         }
       }
       // Fallback legacy
-      if (g.categoria === 'GA') return 'importacion';
+      if (g.categoria === 'GA') return 'producto';
       if (g.categoria === 'GD' || g.categoria === 'GV') return 'venta';
       return 'periodo';
     };
     for (const g of gastosDelMes) {
       mixPorBloque[bloqueDeGasto(g)] += g.montoPEN || 0;
     }
-    const totalMix = mixPorBloque.importacion + mixPorBloque.venta + mixPorBloque.periodo;
+    const totalMix = mixPorBloque.producto + mixPorBloque.venta + mixPorBloque.periodo;
 
     // Top categoria padre (por monto)
     const porCategoria: Record<string, { nombre: string; monto: number; bloque: BloqueCosto }> = {};
@@ -183,7 +183,7 @@ export const Gastos: React.FC = () => {
       let nombre = 'Sin categorizar';
       let bloque: BloqueCosto = bloqueDeGasto(g);
       if (g.categoriaCostoId && arbolCategorias) {
-        for (const b of ['importacion', 'venta', 'periodo'] as BloqueCosto[]) {
+        for (const b of ['producto', 'venta', 'periodo'] as BloqueCosto[]) {
           const datos = arbolCategorias[b];
           if (!datos) continue;
           const padre = datos.padres.find(p => p.id === g.categoriaCostoId);
@@ -401,7 +401,7 @@ export const Gastos: React.FC = () => {
           return false;
         }
         // Fallback legacy
-        if (filtros.bloque === 'importacion') return g.categoria === 'GA';
+        if (filtros.bloque === 'producto') return g.categoria === 'GA';
         if (filtros.bloque === 'venta') return g.categoria === 'GD' || g.categoria === 'GV';
         return g.categoria === 'GO';
       });
@@ -988,10 +988,10 @@ export const Gastos: React.FC = () => {
               <span className="text-base">📊</span>
             </div>
             <div className="space-y-1.5 mt-2">
-              {(['importacion', 'venta', 'periodo'] as BloqueCosto[]).map(b => {
+              {(['producto', 'venta', 'periodo'] as BloqueCosto[]).map(b => {
                 const monto = heroKpis.mixPorBloque[b];
                 const pct = heroKpis.totalMix > 0 ? (monto / heroKpis.totalMix) * 100 : 0;
-                const cfg = b === 'importacion'
+                const cfg = b === 'producto'
                   ? { emoji: '📦', label: 'Imp.', barColor: 'from-blue-500 to-indigo-500', textColor: 'text-blue-700' }
                   : b === 'venta'
                     ? { emoji: '🛒', label: 'Venta', barColor: 'from-purple-500 to-fuchsia-500', textColor: 'text-purple-700' }
@@ -1239,11 +1239,11 @@ export const Gastos: React.FC = () => {
           return acc;
         }, {})}
         conteosBloque={(() => {
-          const conteos: Partial<Record<BloqueCosto, number>> = { importacion: 0, venta: 0, periodo: 0 };
+          const conteos: Partial<Record<BloqueCosto, number>> = { producto: 0, venta: 0, periodo: 0 };
           for (const g of gastosPorLinea) {
             let bloque: BloqueCosto = 'periodo';
             if (g.categoriaCostoId && arbolCategorias) {
-              for (const b of ['importacion', 'venta', 'periodo'] as BloqueCosto[]) {
+              for (const b of ['producto', 'venta', 'periodo'] as BloqueCosto[]) {
                 const datos = arbolCategorias[b];
                 if (!datos) continue;
                 if (datos.padres.some(p => p.id === g.categoriaCostoId)) { bloque = b; break; }
@@ -1254,7 +1254,7 @@ export const Gastos: React.FC = () => {
                 if (found) break;
               }
             } else {
-              if (g.categoria === 'GA') bloque = 'importacion';
+              if (g.categoria === 'GA') bloque = 'producto';
               else if (g.categoria === 'GD' || g.categoria === 'GV') bloque = 'venta';
             }
             conteos[bloque] = (conteos[bloque] || 0) + 1;

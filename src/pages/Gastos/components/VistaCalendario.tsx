@@ -27,7 +27,7 @@ const DIAS_SHORT = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
 
 const bloqueDeGasto = (g: Gasto, arbolCategorias: any): BloqueCosto => {
   if (g.categoriaCostoId && arbolCategorias) {
-    for (const b of ['importacion', 'venta', 'periodo'] as BloqueCosto[]) {
+    for (const b of ['producto', 'venta', 'periodo'] as BloqueCosto[]) {
       const datos = arbolCategorias[b];
       if (!datos) continue;
       if (datos.padres.some((p: any) => p.id === g.categoriaCostoId)) return b;
@@ -36,13 +36,13 @@ const bloqueDeGasto = (g: Gasto, arbolCategorias: any): BloqueCosto => {
       }
     }
   }
-  if (g.categoria === 'GA') return 'importacion';
+  if (g.categoria === 'GA') return 'producto';
   if (g.categoria === 'GD' || g.categoria === 'GV') return 'venta';
   return 'periodo';
 };
 
 const dotColorByBloque: Record<BloqueCosto, string> = {
-  importacion: 'bg-blue-500',
+  producto: 'bg-blue-500',
   venta: 'bg-purple-500',
   periodo: 'bg-amber-500',
 };
@@ -243,7 +243,7 @@ export const VistaCalendario: React.FC<VistaCalendarioProps> = ({
                     <div className="flex items-center gap-1.5 mb-1">
                       <span className={`w-2 h-2 rounded-full ${dotColor}`}></span>
                       <span className="text-[9px] uppercase tracking-wider text-slate-500 font-bold">
-                        {b === 'importacion' ? '📦 Imp.' : b === 'venta' ? '🛒 Venta' : '📅 Per.'}
+                        {b === 'producto' ? '📦 Prod.' : b === 'venta' ? '🛒 Venta' : '📅 Per.'}
                       </span>
                       <span className="ml-auto text-[10px] font-bold tabular-nums">{formatPEN(g.montoPEN || 0)}</span>
                     </div>

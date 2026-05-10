@@ -39,7 +39,7 @@ export const ReportesGastosBI: React.FC<ReportesGastosBIProps> = ({ gastos, arbo
   // Helper · resolver bloque + categoria padre de un gasto
   const resolverGasto = useMemo(() => (g: Gasto): { bloque: BloqueCosto; categoriaPadre: string } => {
     if (g.categoriaCostoId && arbolCategorias) {
-      for (const b of ['importacion', 'venta', 'periodo'] as BloqueCosto[]) {
+      for (const b of ['producto', 'venta', 'periodo'] as BloqueCosto[]) {
         const datos = arbolCategorias[b];
         if (!datos) continue;
         const padre = datos.padres.find(p => p.id === g.categoriaCostoId);
@@ -53,7 +53,7 @@ export const ReportesGastosBI: React.FC<ReportesGastosBIProps> = ({ gastos, arbo
       }
     }
     // Fallback legacy
-    if (g.categoria === 'GA') return { bloque: 'importacion', categoriaPadre: 'Sin categorizar' };
+    if (g.categoria === 'GA') return { bloque: 'producto', categoriaPadre: 'Sin categorizar' };
     if (g.categoria === 'GD' || g.categoria === 'GV') return { bloque: 'venta', categoriaPadre: 'Sin categorizar' };
     return { bloque: 'periodo', categoriaPadre: 'Sin categorizar' };
   }, [arbolCategorias]);
@@ -152,7 +152,7 @@ export const ReportesGastosBI: React.FC<ReportesGastosBIProps> = ({ gastos, arbo
       label: string;
       year: number;
       month: number;
-      importacion: number;
+      producto: number;
       venta: number;
       periodo: number;
       total: number;
@@ -163,7 +163,7 @@ export const ReportesGastosBI: React.FC<ReportesGastosBIProps> = ({ gastos, arbo
         label: MESES_ABREV[d.getMonth()],
         year: d.getFullYear(),
         month: d.getMonth(),
-        importacion: 0,
+        producto: 0,
         venta: 0,
         periodo: 0,
         total: 0,
@@ -354,7 +354,7 @@ export const ReportesGastosBI: React.FC<ReportesGastosBIProps> = ({ gastos, arbo
           <div className="flex items-end gap-1.5 h-48">
             {gastoPorBloqueMes.meses.map((mes, idx) => {
               const totalMesPct = (mes.total / gastoPorBloqueMes.maxTotalMes) * 100;
-              const impPct = mes.total > 0 ? (mes.importacion / mes.total) * 100 : 0;
+              const impPct = mes.total > 0 ? (mes.producto / mes.total) * 100 : 0;
               const ventaPct = mes.total > 0 ? (mes.venta / mes.total) * 100 : 0;
               const periodoPct = mes.total > 0 ? (mes.periodo / mes.total) * 100 : 0;
               const esActual = idx === 11;
@@ -390,7 +390,7 @@ export const ReportesGastosBI: React.FC<ReportesGastosBIProps> = ({ gastos, arbo
             <div className="bg-blue-50 rounded p-3">
               <div className="text-[10px] uppercase text-blue-700 font-bold">📦 Importación · 12m</div>
               <div className="text-base font-bold tabular-nums text-blue-900">
-                {formatPEN(gastoPorBloqueMes.meses.reduce((a, m) => a + m.importacion, 0))}
+                {formatPEN(gastoPorBloqueMes.meses.reduce((a, m) => a + m.producto, 0))}
               </div>
             </div>
             <div className="bg-purple-50 rounded p-3">

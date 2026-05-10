@@ -59,7 +59,7 @@ export const categoriaCostoService = {
     const todas = await this.getAll();
 
     const arbol: Record<BloqueCosto, { padres: CategoriaCosto[]; hijos: Record<string, CategoriaCosto[]> }> = {
-      importacion: { padres: [], hijos: {} },
+      producto: { padres: [], hijos: {} },
       venta: { padres: [], hijos: {} },
       periodo: { padres: [], hijos: {} },
     };

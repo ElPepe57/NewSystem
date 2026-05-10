@@ -6,7 +6,7 @@
  *
  * Style canonico aplicado:
  * - R2 Cards anchored como elemento de informacion primario
- * - R4 Avatar/icono con color por bloque (importacion blue · venta purple · periodo amber)
+ * - R4 Avatar/icono con color por bloque (producto blue · venta purple · periodo amber)
  * - R6 Tabular-nums obsesivo en montos
  * - Estados con paleta semantica (estado-pagado/pendiente/vencido/parcial)
  * - Acciones rapidas inline (Pagar / Detalle)
@@ -68,8 +68,8 @@ const getEstadoConfig = (estado: EstadoGasto) => {
 
 const getBloqueConfig = (bloque?: BloqueCosto) => {
   switch (bloque) {
-    case 'importacion':
-      return { emoji: '📦', label: 'Importación', avatarBg: 'bg-blue-100 text-blue-700', pillClasses: 'bg-blue-100 text-blue-700' };
+    case 'producto':
+      return { emoji: '📦', label: 'Producto', avatarBg: 'bg-blue-100 text-blue-700', pillClasses: 'bg-blue-100 text-blue-700' };
     case 'venta':
       return { emoji: '🛒', label: 'Venta', avatarBg: 'bg-purple-100 text-purple-700', pillClasses: 'bg-purple-100 text-purple-700' };
     case 'periodo':

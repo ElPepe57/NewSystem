@@ -6,10 +6,10 @@ import { Card, Button, Badge } from '../common';
 import type { BloqueCosto, CategoriaCosto } from '../../types/categoriaCosto.types';
 
 const BLOQUE_CONFIG: Record<BloqueCosto, { nombre: string; color: string; descripcion: string }> = {
-  importacion: {
-    nombre: 'Importaci\u00f3n',
+  producto: {
+    nombre: 'Producto',
     color: 'blue',
-    descripcion: 'Costos landed en env\u00edos (flete, aranceles, seguros)',
+    descripcion: 'Costos directos del producto \u00b7 landed en env\u00edos (flete, aranceles, seguros) \u00b7 IMPACTA CTRU',
   },
   venta: {
     nombre: 'Venta',
@@ -25,7 +25,7 @@ const BLOQUE_CONFIG: Record<BloqueCosto, { nombre: string; color: string; descri
 
 export const CategoriasCostos: React.FC = () => {
   const { categorias, arbol, loading, fetchArbol } = useCategoriaCostoStore();
-  const [bloqueActivo, setBloqueActivo] = useState<BloqueCosto>('importacion');
+  const [bloqueActivo, setBloqueActivo] = useState<BloqueCosto>('producto');
 
   useEffect(() => {
     fetchArbol();
@@ -35,7 +35,7 @@ export const CategoriasCostos: React.FC = () => {
     return <div className="text-center py-8 text-slate-500">Cargando categor\u00edas...</div>;
   }
 
-  const bloques: BloqueCosto[] = ['importacion', 'venta', 'periodo'];
+  const bloques: BloqueCosto[] = ['producto', 'venta', 'periodo'];
   const datosBloque = arbol?.[bloqueActivo];
 
   return (

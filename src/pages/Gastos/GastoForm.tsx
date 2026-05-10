@@ -356,11 +356,11 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose, gastoEditar }) =>
   }, [fetchArbolCategorias]);
 
   // Derivar bloque inicial desde gastoEditar (si tiene categoriaCostoId, buscar en arbol;
-  // si solo tiene categoria legacy, mapear: GA→importacion · GD/GV→venta · GO→periodo)
+  // si solo tiene categoria legacy, mapear: GA→producto · GD/GV→venta · GO→periodo)
   const deriveBloqueInicial = (): BloqueCosto | null => {
     if (gastoEditar?.categoriaCostoId && arbolCategorias) {
       // Buscar en cada bloque si la categoria pertenece
-      for (const bloque of ['importacion', 'venta', 'periodo'] as BloqueCosto[]) {
+      for (const bloque of ['producto', 'venta', 'periodo'] as BloqueCosto[]) {
         const datos = arbolCategorias[bloque];
         if (!datos) continue;
         if (datos.padres.some((p) => p.id === gastoEditar.categoriaCostoId)) return bloque;
@@ -370,7 +370,7 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose, gastoEditar }) =>
       }
     }
     if (!gastoEditar?.categoria) return null;
-    if (gastoEditar.categoria === 'GA') return 'importacion';
+    if (gastoEditar.categoria === 'GA') return 'producto';
     if (gastoEditar.categoria === 'GD' || gastoEditar.categoria === 'GV') return 'venta';
     return 'periodo'; // GO
   };
@@ -413,7 +413,7 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose, gastoEditar }) =>
     setSubcategoriaId(null);
     // Auto-derivar categoria legacy del bloque (mantener compat hasta migracion total)
     const legacy: CategoriaGasto =
-      bloque === 'importacion' ? 'GA' : bloque === 'venta' ? 'GD' : 'GO';
+      bloque === 'producto' ? 'GA' : bloque === 'venta' ? 'GD' : 'GO';
     setFormData((prev) => ({ ...prev, categoria: legacy, categoriaCostoId: undefined }));
   };
 
@@ -661,11 +661,11 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose, gastoEditar }) =>
               {bloqueSeleccionado && categoriaPadreId && (
                 <div className="flex items-center gap-1.5 text-xs">
                   <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full font-semibold ${
-                    bloqueSeleccionado === 'importacion' ? 'bg-blue-100 text-blue-800'
+                    bloqueSeleccionado === 'producto' ? 'bg-blue-100 text-blue-800'
                     : bloqueSeleccionado === 'venta' ? 'bg-purple-100 text-purple-800'
                     : 'bg-amber-100 text-amber-800'
                   }`}>
-                    {bloqueSeleccionado === 'importacion' ? '📦 Importación'
+                    {bloqueSeleccionado === 'producto' ? '📦 Producto'
                       : bloqueSeleccionado === 'venta' ? '🛒 Venta'
                       : '📅 Período'}
                   </span>
@@ -694,10 +694,10 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose, gastoEditar }) =>
                 {/* Importación */}
                 <button
                   type="button"
-                  onClick={() => handleSeleccionarBloque('importacion')}
+                  onClick={() => handleSeleccionarBloque('producto')}
                   className={`rounded-xl overflow-hidden border-2 text-left transition-all ${
-                    bloqueSeleccionado === 'importacion'
-                      ? 'border-blue-500 ring-2 ring-blue-200'
+                    bloqueSeleccionado === 'producto'
+                      ?'border-blue-500 ring-2 ring-blue-200'
                       : 'border-slate-200 hover:border-blue-300'
                   }`}
                 >
@@ -880,7 +880,7 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose, gastoEditar }) =>
             {/* Info contextual del bloque seleccionado · impacto contable */}
             {bloqueSeleccionado && (
               <div className={`p-3 rounded-lg border text-xs ${
-                bloqueSeleccionado === 'importacion' ? 'bg-blue-50 border-blue-200 text-blue-900'
+                bloqueSeleccionado === 'producto' ? 'bg-blue-50 border-blue-200 text-blue-900'
                 : bloqueSeleccionado === 'venta' ? 'bg-purple-50 border-purple-200 text-purple-900'
                 : 'bg-amber-50 border-amber-200 text-amber-900'
               }`}>
@@ -888,12 +888,12 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose, gastoEditar }) =>
                   <Info className="h-4 w-4 mt-0.5 flex-shrink-0" />
                   <div>
                     <div className="font-semibold">
-                      {bloqueSeleccionado === 'importacion' ? '🎯 Impacto: prorratea a unidades del envío (CTRU)'
+                      {bloqueSeleccionado === 'producto' ? '🎯 Impacto: prorratea a unidades del envío (CTRU)'
                         : bloqueSeleccionado === 'venta' ? '🎯 Impacto: resta margen contribución de la venta'
                         : '🎯 Impacto: resta margen operativo del período'}
                     </div>
                     <div className="text-[11px] mt-1 opacity-80">
-                      {bloqueSeleccionado === 'importacion' ? 'Ej. flete adicional, aranceles, almacenaje temporal'
+                      {bloqueSeleccionado === 'producto' ? 'Ej. flete adicional, aranceles, almacenaje temporal'
                         : bloqueSeleccionado === 'venta' ? 'Ej. comisión ML, delivery, empaque, descuento por venta'
                         : 'Ej. recibo Sedapal/Movistar, alquiler, planilla, software'}
                     </div>
@@ -1512,11 +1512,11 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose, gastoEditar }) =>
                 <div className="text-[10px] uppercase tracking-wider text-slate-500 font-semibold mb-1">Contexto</div>
                 <div className="flex items-center gap-2">
                   <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full font-semibold text-[10px] ${
-                    bloqueSeleccionado === 'importacion' ? 'bg-blue-100 text-blue-800'
+                    bloqueSeleccionado === 'producto' ? 'bg-blue-100 text-blue-800'
                     : bloqueSeleccionado === 'venta' ? 'bg-purple-100 text-purple-800'
                     : 'bg-amber-100 text-amber-800'
                   }`}>
-                    {bloqueSeleccionado === 'importacion' ? '📦 Importación'
+                    {bloqueSeleccionado === 'producto' ? '📦 Producto'
                       : bloqueSeleccionado === 'venta' ? '🛒 Venta'
                       : '📅 Período'}
                   </span>
@@ -1536,7 +1536,7 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose, gastoEditar }) =>
                 onChange={(e) => setNuevaCategoriaNombre(e.target.value)}
                 placeholder={
                   showCategoriaInline === 'padre'
-                    ? bloqueSeleccionado === 'importacion' ? 'Ej. Inspecciones, Certificados...'
+                    ? bloqueSeleccionado === 'producto' ? 'Ej. Inspecciones, Certificados...'
                     : bloqueSeleccionado === 'venta' ? 'Ej. Garantías, Postventa...'
                     : 'Ej. Capacitación, Eventos...'
                     : `Ej. ${bloqueSeleccionado === 'periodo' ? 'Streaming, Cursos online' : 'Variante específica'}`

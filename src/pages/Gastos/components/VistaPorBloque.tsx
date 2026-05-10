@@ -33,9 +33,9 @@ const BLOQUE_CONFIG: Record<BloqueCosto, {
   badge: string;
   descripcion: string;
 }> = {
-  importacion: {
+  producto: {
     emoji: '📦',
-    label: 'Importación',
+    label: 'Producto',
     gradient: 'from-blue-600 to-indigo-600',
     bgLight: 'bg-blue-50',
     textColor: 'text-blue-900',
@@ -73,7 +73,7 @@ export const VistaPorBloque: React.FC<VistaPorBloqueProps> = ({
 }) => {
   const bloqueDeGasto = useMemo(() => (g: Gasto): BloqueCosto => {
     if (g.categoriaCostoId && arbolCategorias) {
-      for (const b of ['importacion', 'venta', 'periodo'] as BloqueCosto[]) {
+      for (const b of ['producto', 'venta', 'periodo'] as BloqueCosto[]) {
         const datos = arbolCategorias[b];
         if (!datos) continue;
         if (datos.padres.some(p => p.id === g.categoriaCostoId)) return b;
@@ -82,7 +82,7 @@ export const VistaPorBloque: React.FC<VistaPorBloqueProps> = ({
         }
       }
     }
-    if (g.categoria === 'GA') return 'importacion';
+    if (g.categoria === 'GA') return 'producto';
     if (g.categoria === 'GD' || g.categoria === 'GV') return 'venta';
     return 'periodo';
   }, [arbolCategorias]);
@@ -93,7 +93,7 @@ export const VistaPorBloque: React.FC<VistaPorBloqueProps> = ({
       total: number;
       porCategoria: Record<string, number>;
     }> = {
-      importacion: { gastos: [], total: 0, porCategoria: {} },
+      producto: { gastos: [], total: 0, porCategoria: {} },
       venta: { gastos: [], total: 0, porCategoria: {} },
       periodo: { gastos: [], total: 0, porCategoria: {} },
     };
@@ -134,7 +134,7 @@ export const VistaPorBloque: React.FC<VistaPorBloqueProps> = ({
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-      {(['importacion', 'venta', 'periodo'] as BloqueCosto[]).map((bloque) => {
+      {(['producto', 'venta', 'periodo'] as BloqueCosto[]).map((bloque) => {
         const cfg = BLOQUE_CONFIG[bloque];
         const data = datosBloques[bloque];
         const topCategorias = Object.entries(data.porCategoria)

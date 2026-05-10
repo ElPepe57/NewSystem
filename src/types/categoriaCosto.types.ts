@@ -2,11 +2,15 @@ import { Timestamp } from 'firebase/firestore';
 
 /**
  * Bloque de costo — las 3 cajas del modelo de costos
- * - importacion: Costos directos de traer el producto (landed costs en envios)
- * - venta: Costos directos por cada venta (comision ML, delivery, empaque)
- * - periodo: Gastos fijos del mes (planilla, alquiler, servicios)
+ * - producto: Costos directos de traer el producto al país (landed costs en envios) · IMPACTA CTRU
+ * - venta: Costos directos por cada venta (comision ML, delivery, empaque) · NO impacta CTRU · resta margen contribución
+ * - periodo: Gastos fijos del mes (planilla, alquiler, servicios) · NO impacta CTRU · resta margen operativo
+ *
+ * Renaming chk5.A1 (S3.6 M1.bis · Cost Intelligence):
+ *   ANTES: 'importacion' (legacy técnico)
+ *   AHORA: 'producto' (canónico user-facing · alineado con mockup gastoform-v2-3-niveles-s58f.html)
  */
-export type BloqueCosto = 'importacion' | 'venta' | 'periodo';
+export type BloqueCosto = 'producto' | 'venta' | 'periodo';
 
 /**
  * Categoria de costo/gasto — maestro dinamico editable desde UI
@@ -51,7 +55,7 @@ export interface CategoriaCostoFormData {
  * Categorias pre-pobladas por bloque (seed)
  */
 export const CATEGORIAS_SEED: Record<BloqueCosto, { nombre: string; subcategorias?: string[] }[]> = {
-  importacion: [
+  producto: [
     { nombre: 'Transporte', subcategorias: ['Flete viajero', 'Flete courier', 'Flete maritimo'] },
     { nombre: 'Aranceles', subcategorias: ['Impuesto importacion', 'Agente aduanero'] },
     { nombre: 'Seguros', subcategorias: ['Seguro de carga'] },

@@ -88,8 +88,8 @@ const CHIPS_BLOQUE: Array<{
   classes: { activo: string; inactivo: string };
 }> = [
   {
-    id: 'importacion',
-    label: 'Importación',
+    id: 'producto',
+    label: 'Producto',
     emoji: '📦',
     classes: {
       activo: 'bg-blue-100 text-blue-700 ring-2 ring-blue-300',
