@@ -3,10 +3,15 @@ import { Plus, Trash2, Loader2, AlertCircle, CheckCircle, Info } from 'lucide-re
 import { AutocompleteInput, Button } from '../../common';
 import type { Venta } from '../../../types/venta.types';
 import type { Gasto, TipoGasto, CategoriaGasto } from '../../../types/gasto.types';
-import { CATEGORIAS_GASTO, CATEGORIAS_GASTO_VENTA, TIPOS_GASTO_LABELS } from '../../../types/gasto.types';
+import { TIPOS_GASTO_LABELS } from '../../../types/gasto.types';
 import { gastoService } from '../../../services/gasto.service';
 import { useGastoStore } from '../../../store/gastoStore';
 import { getCategoriaLegacyDelGasto } from '../../../utils/gasto.bloque';
+
+// chk5.A14 · array local · reemplaza CATEGORIAS_GASTO_VENTA. Categorías legacy
+// del bloque 'venta' que se ofrecen en este form. La distinción GV vs GD se
+// mantiene aquí porque es UX de negocio (Comisiones vs Distribución).
+const CATEGORIAS_VENTA_LEGACY = ['GV', 'GD'] as const satisfies readonly CategoriaGasto[];
 
 interface GastoItem {
   id: string;
@@ -66,13 +71,9 @@ export const GastosVentaForm: React.FC<GastosVentaFormProps> = ({
       }
     });
 
-    // 2. Agregar ejemplos predefinidos que no estén ya
-    (['GV', 'GD'] as CategoriaGasto[]).forEach(cat => {
-      const ejemplos = CATEGORIAS_GASTO[cat]?.ejemplos || [];
-      ejemplos.forEach(ej => {
-        if (!result[cat].includes(ej)) result[cat].push(ej);
-      });
-    });
+    // chk5.A14 · ejemplos predefinidos eliminados: vivían en CATEGORIAS_GASTO[cat].ejemplos
+    // (record estático). Las sugerencias ahora son sólo el histórico real del usuario;
+    // los "ejemplos" canónicos viven en el árbol dinámico de categorías (categoriasCosto).
 
     return result;
   }, [todosLosGastos]);
@@ -235,7 +236,7 @@ export const GastosVentaForm: React.FC<GastosVentaFormProps> = ({
 
         {/* Selector de categoría */}
         <div className="flex gap-2 mb-4">
-          {CATEGORIAS_GASTO_VENTA.map((cat) => (
+          {CATEGORIAS_VENTA_LEGACY.map((cat) => (
             <button
               key={cat}
               type="button"

@@ -15,7 +15,7 @@ import { PagoUnificadoForm } from '../../components/modules/pagos/PagoUnificadoF
 import type { PagoUnificadoResult } from '../../components/modules/pagos/PagoUnificadoForm';
 import { exportService } from '../../services/export.service';
 import { useLineaFilter } from '../../hooks/useLineaFilter';
-import { CATEGORIAS_GASTO, type Gasto, type TipoGasto, type CategoriaGasto, type EstadoGasto, type ClaseGasto } from '../../types/gasto.types';
+import type { Gasto, TipoGasto, CategoriaGasto, EstadoGasto, ClaseGasto } from '../../types/gasto.types';
 import { useCategoriaCostoStore } from '../../store/categoriaCostoStore';
 import type { BloqueCosto } from '../../types/categoriaCosto.types';
 import { getBloqueDelGasto, resolverGastoCanonico, esGastoDelBloque } from '../../utils/gasto.bloque';

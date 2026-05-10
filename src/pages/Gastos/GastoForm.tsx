@@ -10,7 +10,7 @@ import { useTipoCambioStore } from '../../store/tipoCambioStore';
 import { useToastStore } from '../../store/toastStore';
 import { tesoreriaService } from '../../services/tesoreria.service';
 import { VentaService } from '../../services/venta.service';
-import { CATEGORIAS_GASTO, type Gasto, type GastoFormData, type CategoriaGasto, type MonedaGasto, type EstadoGasto } from '../../types/gasto.types';
+import type { Gasto, GastoFormData, CategoriaGasto, MonedaGasto, EstadoGasto } from '../../types/gasto.types';
 import type { CuentaCaja, MetodoTesoreria } from '../../types/tesoreria.types';
 import type { Venta } from '../../types/venta.types';
 import { useLineaNegocioStore } from '../../store/lineaNegocioStore';
@@ -201,38 +201,8 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose, gastoEditar }) =>
       .slice(0, 10);
   }, [ventas, busquedaVenta]);
 
-  // Obtener tipos de gasto existentes para sugerencias (por categoría)
-  const tiposSugeridos = useMemo(() => {
-    const tiposPorCategoria: Record<CategoriaGasto, string[]> = {
-      GV: [],
-      GD: [],
-      GA: [],
-      GO: []
-    };
-
-    // Agregar tipos existentes de los gastos
-    gastos.forEach(g => {
-      if (g.categoria && g.tipo && !tiposPorCategoria[g.categoria]?.includes(g.tipo)) {
-        tiposPorCategoria[g.categoria]?.push(g.tipo);
-      }
-    });
-
-    // Agregar ejemplos predefinidos de cada categoría
-    Object.entries(CATEGORIAS_GASTO).forEach(([cat, info]) => {
-      info.ejemplos.forEach(ejemplo => {
-        if (!tiposPorCategoria[cat as CategoriaGasto].includes(ejemplo)) {
-          tiposPorCategoria[cat as CategoriaGasto].push(ejemplo);
-        }
-      });
-    });
-
-    return tiposPorCategoria;
-  }, [gastos]);
-
-  // Sugerencias actuales según categoría seleccionada
-  const sugerenciasActuales = useMemo(() => {
-    return tiposSugeridos[formData.categoria] || [];
-  }, [tiposSugeridos, formData.categoria]);
+  // chk5.A14 · sugerenciasActuales se declara abajo, después de arbolCategorias,
+  // para evitar block-scoped use-before-declaration. Ver más abajo.
 
   // Cargar cuentas disponibles
   useEffect(() => {
@@ -297,8 +267,9 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose, gastoEditar }) =>
 
   const cuentaSeleccionada = cuentas.find(c => c.id === cuentaOrigenId);
 
-  // Info de la categoría seleccionada
-  const categoriaInfo = CATEGORIAS_GASTO[formData.categoria];
+  // chk5.A14 · `categoriaInfo` (CATEGORIAS_GASTO[formData.categoria]) eliminado:
+  // era dead variable post chk5.A8 (la UI ahora se conduce por `bloqueSeleccionado`
+  // y el árbol dinámico, no por el record estático CATEGORIAS_GASTO).
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -456,6 +427,23 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose, gastoEditar }) =>
     setSubcategoriaId(subId);
     setFormData((prev) => ({ ...prev, categoriaCostoId: subId }));
   };
+
+  // chk5.A14 · canon · sugerencias dinámicas del bloque seleccionado.
+  // Reemplaza el patrón anterior que mezclaba histórico + ejemplos de
+  // CATEGORIAS_GASTO[cat].ejemplos. Ahora usa solo el histórico del
+  // bloque actual (los ejemplos predefinidos viven en el árbol de
+  // categorías dinámico, no en strings sueltos del tipo legacy).
+  const sugerenciasActuales = useMemo<string[]>(() => {
+    if (!bloqueSeleccionado) return [];
+    const set = new Set<string>();
+    for (const g of gastos) {
+      if (!g.tipo) continue;
+      if (getBloqueDelGasto(g, arbolCategorias) === bloqueSeleccionado) {
+        set.add(g.tipo);
+      }
+    }
+    return Array.from(set);
+  }, [gastos, bloqueSeleccionado, arbolCategorias]);
 
   // Datos derivados del arbol para los selectores
   const categoriasPadreDelBloque = bloqueSeleccionado && arbolCategorias
@@ -644,16 +632,10 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose, gastoEditar }) =>
     }
   };
 
-  // Colores según categoría
-  const getCategoriaColor = (cat: CategoriaGasto) => {
-    const colors: Record<CategoriaGasto, string> = {
-      GV: 'bg-purple-50 border-purple-200 text-purple-800',
-      GD: 'bg-sky-50 border-sky-200 text-sky-800',
-      GA: 'bg-amber-50 border-amber-200 text-amber-800',
-      GO: 'bg-emerald-50 border-emerald-200 text-emerald-800'
-    };
-    return colors[cat];
-  };
+  // chk5.A14 · `getCategoriaColor` eliminado: era dead function (legacy del
+  // selector visual antes de chk5.A8). Los colores hoy se aplican vía bloque
+  // y el chip pill del banner síntesis (ver Sec. 3 banner gradient).
+
 
   return (
     <Modal
