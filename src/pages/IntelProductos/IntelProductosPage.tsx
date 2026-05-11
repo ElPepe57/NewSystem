@@ -150,7 +150,14 @@ export const IntelProductosPage: React.FC = () => {
           />
         );
       case 'pipeline':
-        return <PipelineWorkspace />;
+        return (
+          <PipelineWorkspace
+            unidades={unidades}
+            productos={productos}
+            tcpa={poolResumen?.tcpa}
+            tcSpotFallback={tcSpotFallback}
+          />
+        );
       case 'alertas':
         return <AlertasWorkspace />;
       case 'forecast':

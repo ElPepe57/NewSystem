@@ -930,6 +930,294 @@ function nombreMesCorto(mes: number): string {
   return nombres[mes - 1] ?? '—';
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// chk5.B10a · WORKSPACE PIPELINE · capital atrapado por etapa
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Thresholds canónicos de antigüedad por etapa · una unidad en su etapa más
+ * tiempo que esto se considera "estancada" y aparece en el banner de alertas.
+ * Valores iniciales · ajustables vía settings en el futuro.
+ */
+export const PIPELINE_THRESHOLDS_DIAS: Record<EtapaPipeline, number> = {
+  pedido: 14,
+  transito: 45,
+  aduana: 7,
+  almacen: 180,
+};
+
+/** Etapa pipeline valorizada · 1 etapa = 1 stage card */
+export interface EtapaPipelineValorizada {
+  etapa: EtapaPipeline;
+  label: string;                    // 'Pedido' · 'Tránsito' · 'Aduana' · 'Almacén'
+  uds: number;                      // count de unidades en esta etapa
+  skus: number;                     // count de productoIds distintos
+  capitalPEN: number;               // Σ costoUnitarioPEN · de unidades en esta etapa
+  /** Porcentaje del capital atrapado · 0-100 · sólo para pre-almacén */
+  pctAtrapado: number;
+  antiguedadPromedioDias: number;
+  thresholdDias: number;
+  /** true si antigüedadPromedio > threshold · banner alertas */
+  superaThreshold: boolean;
+  /** Count de unidades individuales con dias > threshold */
+  cantidadEstancadas: number;
+}
+
+/** Unidad estancada · referenciada en el banner + drill-down */
+export interface UnidadEstancada {
+  unidadId: string;
+  productoId: string;
+  productoSKU: string;
+  productoNombre: string;
+  etapa: EtapaPipeline;
+  diasEnEtapa: number;
+  capitalPEN: number;
+  lote: string;
+  ordenCompraNumero: string;
+  /** Date de referencia desde la que se cuenta antigüedad */
+  fechaReferencia: Date;
+}
+
+/** Detalle de drill-down · 1 fila = 1 unidad en la etapa seleccionada */
+export interface UnidadEnEtapa {
+  unidadId: string;
+  productoId: string;
+  productoSKU: string;
+  productoNombre: string;
+  marca?: string;
+  lineaNegocioNombre?: string;
+  lote: string;
+  ordenCompraNumero: string;
+  fechaReferencia: Date;
+  diasEnEtapa: number;
+  capitalPEN: number;
+  superaThreshold: boolean;
+}
+
+export interface PipelineValorizado {
+  etapas: EtapaPipelineValorizada[];
+  /** Total atrapado pre-almacén = pedido + transito + aduana */
+  totalAtrapadoPEN: number;
+  totalAtrapadoUds: number;
+  /** Capital en almacén (disponible) */
+  capitalAlmacenPEN: number;
+  unidadesAlmacen: number;
+  /** Etapa con mayor capital pre-almacén · default selection · null si todas en cero */
+  etapaConMayorCapital: EtapaPipeline | null;
+  /** Lista de unidades estancadas en CUALQUIER etapa */
+  unidadesEstancadas: UnidadEstancada[];
+  /** true si hay al menos 1 unidad en pipeline */
+  hasData: boolean;
+}
+
+/**
+ * Construye la vista valorizada del pipeline a partir de todas las unidades.
+ *
+ * Para cada etapa (Pedido, Tránsito, Aduana, Almacén):
+ *   - cuenta unidades + SKUs distintos
+ *   - suma capital en PEN
+ *   - calcula antigüedad promedio (días desde fechaActualizacion || fechaCreacion)
+ *   - identifica unidades estancadas (> threshold)
+ *
+ * @param unidades lista completa de unidades del sistema
+ * @param tcpa TCPA del pool USD · fallback para convertir USD→PEN si la unidad no tiene costoPEN
+ * @param tcSpotFallback TC SUNAT del día · fallback de último recurso
+ * @param anchorDate fecha de referencia (default hoy) · útil para tests
+ */
+export function calcularPipelineValorizado(
+  unidades: Unidad[],
+  tcpa?: number,
+  tcSpotFallback?: number,
+  anchorDate: Date = new Date(),
+): PipelineValorizado {
+  // Buckets por etapa
+  type Bucket = {
+    uds: Unidad[];
+    capital: number;
+    productosIds: Set<string>;
+    sumDias: number;
+    estancadas: number;
+  };
+  const buckets: Record<EtapaPipeline, Bucket> = {
+    pedido:   { uds: [], capital: 0, productosIds: new Set(), sumDias: 0, estancadas: 0 },
+    transito: { uds: [], capital: 0, productosIds: new Set(), sumDias: 0, estancadas: 0 },
+    aduana:   { uds: [], capital: 0, productosIds: new Set(), sumDias: 0, estancadas: 0 },
+    almacen:  { uds: [], capital: 0, productosIds: new Set(), sumDias: 0, estancadas: 0 },
+  };
+
+  const unidadesEstancadas: UnidadEstancada[] = [];
+
+  for (const u of unidades) {
+    const etapa = etapaFromEstadoUnidad(u.estado as EstadoUnidad);
+    if (!etapa) continue; // estados vendida/dañada/perdida no entran al pipeline
+
+    const tc = u.tcPago || u.tcCompra || tcpa || tcSpotFallback || 3.75;
+    const costoPEN = u.costoUnitarioPEN || (u.costoUnitarioUSD * tc);
+
+    // Fecha de referencia: priorizar fechaActualizacion (último cambio) sobre fechaCreacion
+    // Para almacén, fechaRecepcion es mejor proxy de "cuándo entré al almacén"
+    const fechaRefRaw = etapa === 'almacen'
+      ? (u.fechaRecepcion || u.fechaActualizacion || u.fechaCreacion)
+      : (u.fechaActualizacion || u.fechaCreacion);
+    const fechaRef = tsToDate(fechaRefRaw) ?? anchorDate;
+    const dias = Math.max(0, Math.floor(
+      (anchorDate.getTime() - fechaRef.getTime()) / (1000 * 60 * 60 * 24)
+    ));
+
+    const bucket = buckets[etapa];
+    bucket.uds.push(u);
+    bucket.capital += costoPEN;
+    if (u.productoId) bucket.productosIds.add(u.productoId);
+    bucket.sumDias += dias;
+
+    const threshold = PIPELINE_THRESHOLDS_DIAS[etapa];
+    if (dias > threshold) {
+      bucket.estancadas++;
+      unidadesEstancadas.push({
+        unidadId: u.id,
+        productoId: u.productoId,
+        productoSKU: u.productoSKU || '',
+        productoNombre: u.productoNombre || '',
+        etapa,
+        diasEnEtapa: dias,
+        capitalPEN: costoPEN,
+        lote: u.lote || '',
+        ordenCompraNumero: u.ordenCompraNumero || '',
+        fechaReferencia: fechaRef,
+      });
+    }
+  }
+
+  // Total atrapado = pedido + transito + aduana (NO incluye almacén)
+  const totalAtrapadoPEN = buckets.pedido.capital + buckets.transito.capital + buckets.aduana.capital;
+  const totalAtrapadoUds = buckets.pedido.uds.length + buckets.transito.uds.length + buckets.aduana.uds.length;
+
+  const labels: Record<EtapaPipeline, string> = ETAPA_LABELS;
+
+  const etapas: EtapaPipelineValorizada[] = (['pedido', 'transito', 'aduana', 'almacen'] as EtapaPipeline[]).map((e) => {
+    const b = buckets[e];
+    const ud = b.uds.length;
+    const antiguedad = ud > 0 ? b.sumDias / ud : 0;
+    const isPreAlmacen = e !== 'almacen';
+    const pctAtrapado = isPreAlmacen && totalAtrapadoPEN > 0
+      ? (b.capital / totalAtrapadoPEN) * 100
+      : 0;
+    const threshold = PIPELINE_THRESHOLDS_DIAS[e];
+
+    return {
+      etapa: e,
+      label: labels[e],
+      uds: ud,
+      skus: b.productosIds.size,
+      capitalPEN: b.capital,
+      pctAtrapado,
+      antiguedadPromedioDias: Math.round(antiguedad),
+      thresholdDias: threshold,
+      superaThreshold: antiguedad > threshold,
+      cantidadEstancadas: b.estancadas,
+    };
+  });
+
+  // Etapa con mayor capital pre-almacén · null si todas en cero
+  let etapaConMayorCapital: EtapaPipeline | null = null;
+  let maxCapital = 0;
+  for (const e of etapas) {
+    if (e.etapa === 'almacen') continue;
+    if (e.capitalPEN > maxCapital) {
+      maxCapital = e.capitalPEN;
+      etapaConMayorCapital = e.etapa;
+    }
+  }
+  // Fallback: si todo pre-almacén está en cero pero hay almacén con data → almacén
+  if (etapaConMayorCapital === null && buckets.almacen.capital > 0) {
+    etapaConMayorCapital = 'almacen';
+  }
+
+  // Ordenar estancadas: más días primero, luego mayor capital
+  unidadesEstancadas.sort((a, b) => {
+    if (b.diasEnEtapa !== a.diasEnEtapa) return b.diasEnEtapa - a.diasEnEtapa;
+    return b.capitalPEN - a.capitalPEN;
+  });
+
+  return {
+    etapas,
+    totalAtrapadoPEN,
+    totalAtrapadoUds,
+    capitalAlmacenPEN: buckets.almacen.capital,
+    unidadesAlmacen: buckets.almacen.uds.length,
+    etapaConMayorCapital,
+    unidadesEstancadas,
+    hasData: totalAtrapadoUds + buckets.almacen.uds.length > 0,
+  };
+}
+
+/**
+ * Detalle de unidades en una etapa específica · usado por el drill-down.
+ *
+ * @param unidades lista completa de unidades
+ * @param etapa etapa filtro
+ * @param productoIndex índice productoId → Producto (para enriquecer marca/línea)
+ * @param tcpa fallback de conversión
+ * @param anchorDate referencia temporal
+ */
+export function calcularUnidadesEnEtapa(
+  unidades: Unidad[],
+  etapa: EtapaPipeline,
+  productoIndex: Map<string, Producto>,
+  tcpa?: number,
+  tcSpotFallback?: number,
+  anchorDate: Date = new Date(),
+): UnidadEnEtapa[] {
+  const threshold = PIPELINE_THRESHOLDS_DIAS[etapa];
+
+  const filtered = unidades.filter((u) =>
+    etapaFromEstadoUnidad(u.estado as EstadoUnidad) === etapa
+  );
+
+  const detalle: UnidadEnEtapa[] = filtered.map((u) => {
+    const tc = u.tcPago || u.tcCompra || tcpa || tcSpotFallback || 3.75;
+    const costoPEN = u.costoUnitarioPEN || (u.costoUnitarioUSD * tc);
+
+    const fechaRefRaw = etapa === 'almacen'
+      ? (u.fechaRecepcion || u.fechaActualizacion || u.fechaCreacion)
+      : (u.fechaActualizacion || u.fechaCreacion);
+    const fechaRef = tsToDate(fechaRefRaw) ?? anchorDate;
+    const dias = Math.max(0, Math.floor(
+      (anchorDate.getTime() - fechaRef.getTime()) / (1000 * 60 * 60 * 24)
+    ));
+
+    const producto = productoIndex.get(u.productoId);
+
+    return {
+      unidadId: u.id,
+      productoId: u.productoId,
+      productoSKU: u.productoSKU || producto?.sku || '',
+      productoNombre: u.productoNombre || producto?.nombreComercial || '',
+      marca: producto?.marca,
+      lineaNegocioNombre: producto?.lineaNegocioNombre || u.lineaNegocioNombre,
+      lote: u.lote || '',
+      ordenCompraNumero: u.ordenCompraNumero || '',
+      fechaReferencia: fechaRef,
+      diasEnEtapa: dias,
+      capitalPEN: costoPEN,
+      superaThreshold: dias > threshold,
+    };
+  });
+
+  // Ordenar: estancadas primero (más días), luego mayor capital
+  detalle.sort((a, b) => {
+    if (a.superaThreshold !== b.superaThreshold) return a.superaThreshold ? -1 : 1;
+    if (b.diasEnEtapa !== a.diasEnEtapa) return b.diasEnEtapa - a.diasEnEtapa;
+    return b.capitalPEN - a.capitalPEN;
+  });
+
+  return detalle;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// chk5.B9 · helpers reusables (mantienen su sección original)
+// ─────────────────────────────────────────────────────────────────────────────
+
 /**
  * Driver inferido para un lote · usado en la columna "Driver principal" de la
  * tabla de comparativa de lotes. Compara el lote actual con el anterior y

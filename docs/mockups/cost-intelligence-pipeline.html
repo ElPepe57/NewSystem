@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<title>Cost Intelligence · Workspace Pipeline · chk5.B10a</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f1f5f9; color: #0f172a; }
+  .tabular { font-variant-numeric: tabular-nums; }
+  .section-divider {
+    background: #0f172a; color: white;
+    padding: 12px 20px; border-radius: 8px;
+    margin: 32px 0 16px 0; font-weight: 700;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .section-num {
+    background: #14b8a6; color: white;
+    width: 28px; height: 28px;
+    display: inline-flex; align-items: center; justify-content: center;
+    border-radius: 6px; font-size: 13px;
+  }
+  .producto-avatar {
+    width: 36px; height: 36px;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .stage-arrow {
+    width: 24px; height: 36px;
+    display: flex; align-items: center; justify-content: center;
+    color: #cbd5e1;
+  }
+  .stage-card {
+    transition: all 0.15s ease;
+    cursor: pointer;
+  }
+  .stage-card:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
+  }
+  .stage-card.active {
+    box-shadow: 0 0 0 2px #14b8a6;
+  }
+</style>
+</head>
+<body class="px-6 py-8 max-w-7xl mx-auto">
+
+<h1 class="text-2xl font-bold mb-2 text-slate-900">Cost Intelligence · Workspace Pipeline</h1>
+<p class="text-sm text-slate-600 mb-6">chk5.B10a · pixel-perfect canon · responde "¿dónde está atrapado mi capital ahora mismo?"</p>
+
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+<!-- SECCIÓN 1 · WORKSPACE PIPELINE CON DATA -->
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+<div class="section-divider">
+  <span class="section-num">1</span>
+  Workspace Pipeline · 4 etapas valorizadas + flujo + drill-down etapa seleccionada
+</div>
+
+<div class="bg-white rounded-2xl shadow-lg p-6">
+
+  <!-- Header canon · breadcrumb + h1 + acciones -->
+  <div class="flex items-start justify-between gap-4 flex-wrap mb-5">
+    <div class="flex-1 min-w-[260px]">
+      <div class="flex items-center gap-1.5 text-xs text-slate-400 mb-1">
+        <span class="hover:text-teal-600 cursor-pointer">Inteligencia</span>
+        <i data-lucide="chevron-right" class="w-3 h-3"></i>
+        <span class="text-slate-600 font-medium">Pipeline · capital atrapado</span>
+      </div>
+      <h1 class="text-2xl font-bold text-slate-900 flex items-center gap-2.5">
+        <i data-lucide="brain-circuit" class="w-6 h-6 text-teal-600"></i>
+        Cost Intelligence
+      </h1>
+      <p class="text-sm text-slate-500 mt-0.5 max-w-2xl">4 etapas de valorización · capital atrapado · drill-down por etapa.</p>
+    </div>
+    <div class="flex items-center gap-2 flex-wrap flex-shrink-0">
+      <button class="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50">
+        <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>Recalcular
+      </button>
+      <button class="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50">
+        <i data-lucide="download" class="w-3.5 h-3.5"></i>Exportar
+      </button>
+      <button class="flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-white bg-slate-900 rounded-lg hover:bg-slate-800 shadow-sm">
+        <i data-lucide="file-text" class="w-3.5 h-3.5"></i>Reporte ejecutivo
+      </button>
+    </div>
+  </div>
+
+  <!-- KPI strip · 4 KPIs canon CI -->
+  <div class="bg-white border border-slate-200 rounded-xl grid grid-cols-2 lg:grid-cols-4 divide-y lg:divide-y-0 lg:divide-x divide-slate-200 mb-5">
+    <div class="p-3 lg:p-4">
+      <div class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Capital invertido</div>
+      <div class="text-xl lg:text-2xl font-bold text-slate-900 tracking-tight tabular">S/ 87,234</div>
+      <div class="text-[11px] text-slate-500 mt-1.5 tabular flex items-center gap-1">
+        <i data-lucide="package" class="w-3 h-3"></i>1,847 uds · 142 SKUs
+      </div>
+    </div>
+    <div class="p-3 lg:p-4">
+      <div class="text-[10px] font-semibold text-amber-700 uppercase tracking-wider mb-1.5">Capital atrapado</div>
+      <div class="text-xl lg:text-2xl font-bold text-amber-700 tracking-tight tabular">S/ 18,420</div>
+      <div class="text-[11px] text-amber-700 mt-1.5 tabular flex items-center gap-1">
+        <i data-lucide="alert-triangle" class="w-3 h-3"></i>21% del total · en tránsito + aduana
+      </div>
+    </div>
+    <div class="p-3 lg:p-4">
+      <div class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Variance promedio 30d</div>
+      <div class="text-xl lg:text-2xl font-bold text-rose-600 tracking-tight tabular">+4.8<span class="text-base text-rose-300 font-normal">%</span></div>
+      <div class="text-[11px] text-rose-600 mt-1.5 flex items-center gap-1 tabular">
+        <i data-lucide="trending-up" class="w-3 h-3"></i>+1.7 vs mes anterior
+      </div>
+    </div>
+    <div class="p-3 lg:p-4">
+      <div class="text-[10px] font-semibold text-rose-700 uppercase tracking-wider mb-1.5">Anomalías 7D</div>
+      <div class="text-xl lg:text-2xl font-bold text-rose-700 tracking-tight tabular">7</div>
+      <div class="text-[11px] text-rose-700 mt-1.5 tabular flex items-center gap-1">
+        <i data-lucide="zap" class="w-3 h-3"></i>3 críticas · revisar
+      </div>
+    </div>
+  </div>
+
+  <!-- Workspaces switcher · Pipeline activo -->
+  <div class="flex items-center gap-2 flex-wrap mb-4">
+    <button class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-teal-50 text-teal-700 border border-teal-200">
+      <i data-lucide="layout-grid" class="w-3 h-3"></i>Catálogo <span class="opacity-60 tabular">142</span>
+    </button>
+    <button class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200">
+      <i data-lucide="dollar-sign" class="w-3 h-3"></i>Costos
+    </button>
+    <button class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-slate-900 text-white shadow-sm">
+      <i data-lucide="git-branch" class="w-3 h-3"></i>Pipeline
+      <kbd class="ml-1 text-[8px] font-mono bg-white/20 text-white px-1 py-0.5 rounded">3</kbd>
+    </button>
+    <button class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-rose-50 text-rose-700 border border-rose-200">
+      <i data-lucide="zap" class="w-3 h-3"></i>Alertas <span class="opacity-60 tabular">7</span>
+    </button>
+    <button class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-sky-50 text-sky-700 border border-sky-200">
+      <i data-lucide="trending-up" class="w-3 h-3"></i>Forecast
+    </button>
+  </div>
+
+  <!-- ─── PANEL 1 · 4 STAGE CARDS HORIZONTALES + FLOW ARROWS ─────────────── -->
+  <div class="bg-white border border-slate-200 rounded-xl p-4 mb-4">
+    <div class="flex items-start justify-between mb-3 gap-2 flex-wrap">
+      <div>
+        <div class="text-sm font-bold text-slate-900">Flujo de capital · 4 etapas valorizadas</div>
+        <div class="text-[10px] text-slate-500 mt-0.5">Click una etapa para drill-down · SKUs en esa etapa</div>
+      </div>
+      <div class="flex items-center gap-2 text-[10px] text-slate-500">
+        <i data-lucide="info" class="w-3 h-3"></i>
+        <span>Cantidad uds · capital · % del total · antigüedad promedio</span>
+      </div>
+    </div>
+
+    <!-- Flow desktop · 4 cards inline con flechas -->
+    <div class="hidden lg:flex items-stretch gap-1.5">
+      <!-- Stage 1 · Pedido (slate) -->
+      <div class="stage-card flex-1 bg-slate-50 border border-slate-200 rounded-lg p-3">
+        <div class="flex items-center gap-1.5 mb-2">
+          <div class="w-6 h-6 rounded-md bg-white border border-slate-300 flex items-center justify-center">
+            <i data-lucide="shopping-cart" class="w-3 h-3 text-slate-600"></i>
+          </div>
+          <span class="text-[10px] font-bold text-slate-700 uppercase tracking-wider">Pedido</span>
+        </div>
+        <div class="text-lg font-bold text-slate-900 tabular">S/ 1,840</div>
+        <div class="text-[10px] text-slate-500 tabular mt-0.5">23 uds · 5 SKUs</div>
+        <div class="text-[10px] text-slate-500 tabular mt-2 flex items-center gap-1">
+          <i data-lucide="percent" class="w-2.5 h-2.5"></i>10% atrapado
+        </div>
+        <div class="text-[10px] text-slate-500 tabular flex items-center gap-1">
+          <i data-lucide="clock" class="w-2.5 h-2.5"></i>8 días promedio
+        </div>
+      </div>
+      <div class="stage-arrow"><i data-lucide="chevron-right" class="w-5 h-5"></i></div>
+
+      <!-- Stage 2 · Tránsito (sky) -->
+      <div class="stage-card flex-1 bg-sky-50/50 border border-sky-200 rounded-lg p-3">
+        <div class="flex items-center gap-1.5 mb-2">
+          <div class="w-6 h-6 rounded-md bg-white border border-sky-300 flex items-center justify-center">
+            <i data-lucide="truck" class="w-3 h-3 text-sky-700"></i>
+          </div>
+          <span class="text-[10px] font-bold text-sky-700 uppercase tracking-wider">Tránsito</span>
+        </div>
+        <div class="text-lg font-bold text-slate-900 tabular">S/ 12,300</div>
+        <div class="text-[10px] text-slate-600 tabular mt-0.5">45 uds · 8 SKUs</div>
+        <div class="text-[10px] text-sky-700 tabular mt-2 flex items-center gap-1">
+          <i data-lucide="percent" class="w-2.5 h-2.5"></i>67% atrapado
+        </div>
+        <div class="text-[10px] text-sky-700 tabular flex items-center gap-1">
+          <i data-lucide="clock" class="w-2.5 h-2.5"></i>21 días promedio
+        </div>
+      </div>
+      <div class="stage-arrow"><i data-lucide="chevron-right" class="w-5 h-5"></i></div>
+
+      <!-- Stage 3 · Aduana (amber) · SELECCIONADA -->
+      <div class="stage-card active flex-1 bg-amber-50 border border-amber-300 rounded-lg p-3">
+        <div class="flex items-center gap-1.5 mb-2">
+          <div class="w-6 h-6 rounded-md bg-white border border-amber-300 flex items-center justify-center">
+            <i data-lucide="shield" class="w-3 h-3 text-amber-700"></i>
+          </div>
+          <span class="text-[10px] font-bold text-amber-700 uppercase tracking-wider">Aduana</span>
+          <span class="ml-auto px-1.5 py-0.5 rounded bg-amber-200 text-amber-800 text-[8px] font-bold">ACTIVO</span>
+        </div>
+        <div class="text-lg font-bold text-slate-900 tabular">S/ 4,280</div>
+        <div class="text-[10px] text-slate-600 tabular mt-0.5">12 uds · 3 SKUs</div>
+        <div class="text-[10px] text-amber-700 tabular mt-2 flex items-center gap-1">
+          <i data-lucide="percent" class="w-2.5 h-2.5"></i>23% atrapado
+        </div>
+        <div class="text-[10px] text-amber-700 tabular flex items-center gap-1 font-bold">
+          <i data-lucide="alert-circle" class="w-2.5 h-2.5"></i>14 días · &gt;7d esperado
+        </div>
+      </div>
+      <div class="stage-arrow"><i data-lucide="chevron-right" class="w-5 h-5"></i></div>
+
+      <!-- Stage 4 · Almacén (emerald) -->
+      <div class="stage-card flex-1 bg-emerald-50/50 border border-emerald-200 rounded-lg p-3">
+        <div class="flex items-center gap-1.5 mb-2">
+          <div class="w-6 h-6 rounded-md bg-white border border-emerald-300 flex items-center justify-center">
+            <i data-lucide="warehouse" class="w-3 h-3 text-emerald-700"></i>
+          </div>
+          <span class="text-[10px] font-bold text-emerald-700 uppercase tracking-wider">Almacén</span>
+        </div>
+        <div class="text-lg font-bold text-slate-900 tabular">S/ 68,814</div>
+        <div class="text-[10px] text-slate-600 tabular mt-0.5">1,767 uds · 132 SKUs</div>
+        <div class="text-[10px] text-emerald-700 tabular mt-2 flex items-center gap-1">
+          <i data-lucide="check-circle" class="w-2.5 h-2.5"></i>Disponible para venta
+        </div>
+        <div class="text-[10px] text-slate-500 tabular flex items-center gap-1">
+          <i data-lucide="clock" class="w-2.5 h-2.5"></i>45 días rotación media
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile · cards apiladas verticalmente (F4 canon) -->
+    <div class="lg:hidden space-y-2">
+      <div class="bg-slate-50 border border-slate-200 rounded-lg p-3">
+        <div class="flex items-center gap-2 mb-1">
+          <i data-lucide="shopping-cart" class="w-3.5 h-3.5 text-slate-600"></i>
+          <span class="text-[11px] font-bold text-slate-700 uppercase">Pedido</span>
+          <span class="ml-auto text-base font-bold text-slate-900 tabular">S/ 1,840</span>
+        </div>
+        <div class="text-[10px] text-slate-500 tabular">23 uds · 5 SKUs · 10% · 8d</div>
+      </div>
+      <div class="bg-sky-50/50 border border-sky-200 rounded-lg p-3">
+        <div class="flex items-center gap-2 mb-1">
+          <i data-lucide="truck" class="w-3.5 h-3.5 text-sky-700"></i>
+          <span class="text-[11px] font-bold text-sky-700 uppercase">Tránsito</span>
+          <span class="ml-auto text-base font-bold text-slate-900 tabular">S/ 12,300</span>
+        </div>
+        <div class="text-[10px] text-sky-700 tabular">45 uds · 8 SKUs · 67% · 21d</div>
+      </div>
+      <div class="bg-amber-50 border border-amber-300 rounded-lg p-3 ring-2 ring-teal-500">
+        <div class="flex items-center gap-2 mb-1">
+          <i data-lucide="shield" class="w-3.5 h-3.5 text-amber-700"></i>
+          <span class="text-[11px] font-bold text-amber-700 uppercase">Aduana</span>
+          <span class="ml-auto text-base font-bold text-slate-900 tabular">S/ 4,280</span>
+        </div>
+        <div class="text-[10px] text-amber-700 tabular">12 uds · 3 SKUs · 23% · 14d ⚠</div>
+      </div>
+      <div class="bg-emerald-50/50 border border-emerald-200 rounded-lg p-3">
+        <div class="flex items-center gap-2 mb-1">
+          <i data-lucide="warehouse" class="w-3.5 h-3.5 text-emerald-700"></i>
+          <span class="text-[11px] font-bold text-emerald-700 uppercase">Almacén</span>
+          <span class="ml-auto text-base font-bold text-slate-900 tabular">S/ 68,814</span>
+        </div>
+        <div class="text-[10px] text-emerald-700 tabular">1,767 uds · 132 SKUs · 45d rot.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── BANNER ALERTAS · si hay SKUs estancados > threshold ────────────── -->
+  <div class="bg-amber-50/50 border border-amber-200 rounded-lg p-3 mb-4 flex items-start gap-2">
+    <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-700 flex-shrink-0 mt-0.5"></i>
+    <div class="flex-1">
+      <div class="text-xs font-bold text-amber-800 mb-1">2 SKUs estancados &gt; 7 días en Aduana</div>
+      <div class="text-[11px] text-amber-700">
+        Vitamin D3 NOW (8 uds · 21 días) · Magnesium Glycinate (4 uds · 15 días)
+        — capital comprometido: <span class="font-bold tabular">S/ 4,280</span>.
+        Sugerencia: contactar agencia aduanal · DUA pendiente.
+      </div>
+    </div>
+    <button class="text-[11px] font-medium text-amber-700 hover:text-amber-800 underline whitespace-nowrap flex-shrink-0">
+      Ver detalle →
+    </button>
+  </div>
+
+  <!-- ─── PANEL 2 · DRILL-DOWN ETAPA SELECCIONADA · TABLA SKUs ───────────── -->
+  <div class="bg-white border border-slate-200 rounded-xl p-4">
+    <div class="flex items-start justify-between mb-3 gap-2 flex-wrap">
+      <div class="min-w-0">
+        <div class="text-sm font-bold text-slate-900 flex items-center gap-2">
+          <i data-lucide="shield" class="w-4 h-4 text-amber-700"></i>
+          SKUs en Aduana · drill-down
+        </div>
+        <div class="text-[10px] text-slate-500 mt-0.5">3 SKUs · 12 unidades · S/ 4,280 capital comprometido</div>
+      </div>
+      <div class="flex items-center gap-2 flex-shrink-0">
+        <button class="text-[11px] font-medium text-teal-700 hover:text-teal-800 underline">
+          Exportar etapa
+        </button>
+      </div>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="w-full text-[11px] mt-2">
+        <thead>
+          <tr class="text-left text-[10px] uppercase tracking-wider text-slate-500 font-semibold border-b border-slate-200">
+            <th class="px-2 py-2">SKU</th>
+            <th class="px-2 py-2">Producto</th>
+            <th class="px-2 py-2">Lote</th>
+            <th class="px-2 py-2">OC origen</th>
+            <th class="px-2 py-2">Ingresó etapa</th>
+            <th class="px-2 py-2 text-right">Uds</th>
+            <th class="px-2 py-2 text-right">Capital S/</th>
+            <th class="px-2 py-2 text-right">Días</th>
+            <th class="px-2 py-2">Estado</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+          <!-- Row 1 · estancado >7d · rose -->
+          <tr class="bg-rose-50/30 hover:bg-rose-50/60 ring-1 ring-rose-200">
+            <td class="px-2 py-2 font-mono text-rose-700 font-bold">SUP-0078</td>
+            <td class="px-2 py-2">
+              <div class="flex items-center gap-2">
+                <div class="producto-avatar bg-gradient-to-br from-indigo-50 to-indigo-100 ring-1 ring-indigo-200/50" style="width:24px;height:24px">
+                  <i data-lucide="pill" class="w-3 h-3 text-indigo-700"></i>
+                </div>
+                <span class="text-slate-900 font-medium truncate">Vitamin D3 NOW · 240 caps</span>
+              </div>
+            </td>
+            <td class="px-2 py-2 font-mono text-slate-600">L-2026-04-C</td>
+            <td class="px-2 py-2 font-mono text-slate-600">OC-2026-014</td>
+            <td class="px-2 py-2 text-slate-700">26 mar 2026</td>
+            <td class="px-2 py-2 text-right tabular">8</td>
+            <td class="px-2 py-2 text-right tabular font-semibold">S/ 2,853</td>
+            <td class="px-2 py-2 text-right tabular text-rose-700 font-bold">21d</td>
+            <td class="px-2 py-2">
+              <span class="px-1.5 py-0.5 rounded bg-rose-100 text-rose-700 text-[9px] font-bold">ESTANCADO</span>
+            </td>
+          </tr>
+          <!-- Row 2 · 15d · amber -->
+          <tr class="bg-amber-50/30 hover:bg-amber-50/60">
+            <td class="px-2 py-2 font-mono text-amber-700 font-bold">SUP-0156</td>
+            <td class="px-2 py-2">
+              <div class="flex items-center gap-2">
+                <div class="producto-avatar bg-gradient-to-br from-indigo-50 to-indigo-100 ring-1 ring-indigo-200/50" style="width:24px;height:24px">
+                  <i data-lucide="pill" class="w-3 h-3 text-indigo-700"></i>
+                </div>
+                <span class="text-slate-900 font-medium truncate">Magnesium Glycinate · 120 caps</span>
+              </div>
+            </td>
+            <td class="px-2 py-2 font-mono text-slate-600">L-2026-04-A</td>
+            <td class="px-2 py-2 font-mono text-slate-600">OC-2026-012</td>
+            <td class="px-2 py-2 text-slate-700">01 abr 2026</td>
+            <td class="px-2 py-2 text-right tabular">4</td>
+            <td class="px-2 py-2 text-right tabular font-semibold">S/ 1,184</td>
+            <td class="px-2 py-2 text-right tabular text-amber-700 font-bold">15d</td>
+            <td class="px-2 py-2">
+              <span class="px-1.5 py-0.5 rounded bg-amber-100 text-amber-700 text-[9px] font-bold">RETRASADO</span>
+            </td>
+          </tr>
+          <!-- Row 3 · 3d · ok -->
+          <tr class="hover:bg-slate-50">
+            <td class="px-2 py-2 font-mono text-slate-700 font-bold">SKC-0042</td>
+            <td class="px-2 py-2">
+              <div class="flex items-center gap-2">
+                <div class="producto-avatar bg-gradient-to-br from-amber-50 to-amber-100 ring-1 ring-amber-200/50" style="width:24px;height:24px">
+                  <i data-lucide="droplets" class="w-3 h-3 text-amber-700"></i>
+                </div>
+                <span class="text-slate-900 font-medium truncate">Madecassoside Cream · 50ml</span>
+              </div>
+            </td>
+            <td class="px-2 py-2 font-mono text-slate-600">L-2026-04-F</td>
+            <td class="px-2 py-2 font-mono text-slate-600">OC-2026-017</td>
+            <td class="px-2 py-2 text-slate-700">13 abr 2026</td>
+            <td class="px-2 py-2 text-right tabular">—</td>
+            <td class="px-2 py-2 text-right tabular font-semibold text-slate-400">S/ 243</td>
+            <td class="px-2 py-2 text-right tabular text-slate-500">3d</td>
+            <td class="px-2 py-2">
+              <span class="px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 text-[9px] font-bold">EN PROCESO</span>
+            </td>
+          </tr>
+          <!-- Footer · suma -->
+          <tr class="bg-slate-50 border-t-2 border-slate-300 font-bold">
+            <td class="px-2 py-2 text-slate-900" colspan="5">Total etapa Aduana</td>
+            <td class="px-2 py-2 text-right tabular">12</td>
+            <td class="px-2 py-2 text-right tabular">S/ 4,280</td>
+            <td class="px-2 py-2 text-right tabular">14d prom.</td>
+            <td class="px-2 py-2 text-amber-700">2 con retraso</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Footer drill-down · acciones -->
+    <div class="flex items-center justify-between mt-3 pt-3 border-t border-slate-100 gap-2 flex-wrap">
+      <div class="text-[10px] text-slate-500">
+        Tip: click cualquier SKU para abrir drill-down completo en Catálogo
+      </div>
+      <div class="flex items-center gap-2">
+        <button class="text-[11px] font-medium text-slate-700 bg-white border border-slate-200 hover:bg-slate-100 rounded-md px-3 py-1.5 flex items-center gap-1.5">
+          <i data-lucide="bell" class="w-3 h-3"></i>Crear alerta etapa
+        </button>
+        <button class="text-[11px] font-bold text-white bg-teal-600 hover:bg-teal-700 rounded-md px-3 py-1.5 flex items-center gap-1.5">
+          <i data-lucide="phone" class="w-3 h-3"></i>Contactar agencia aduanal
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+<!-- SECCIÓN 2 · ESTADO SIN DATA · EMPTY STATE INTERNO WORKSPACE -->
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+<div class="section-divider">
+  <span class="section-num">2</span>
+  Estado · SIN unidades en pipeline · empty state honesto del workspace
+</div>
+
+<div class="bg-white rounded-2xl shadow-lg p-6">
+  <!-- Header igual -->
+  <div class="flex items-start justify-between gap-4 flex-wrap mb-5">
+    <div class="flex-1 min-w-[260px]">
+      <div class="flex items-center gap-1.5 text-xs text-slate-400 mb-1">
+        <span>Inteligencia</span>
+        <i data-lucide="chevron-right" class="w-3 h-3"></i>
+        <span class="text-slate-600 font-medium">Pipeline · sin unidades aún</span>
+      </div>
+      <h1 class="text-2xl font-bold text-slate-900 flex items-center gap-2.5">
+        <i data-lucide="brain-circuit" class="w-6 h-6 text-teal-600"></i>
+        Cost Intelligence
+      </h1>
+    </div>
+  </div>
+
+  <!-- KPI strip dim (mismo patrón empty state global) -->
+  <div class="bg-white border border-slate-200 rounded-xl grid grid-cols-2 lg:grid-cols-4 divide-y lg:divide-y-0 lg:divide-x divide-slate-200 mb-5 opacity-70">
+    <div class="p-3 lg:p-4">
+      <div class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Capital invertido</div>
+      <div class="text-xl lg:text-2xl font-bold text-slate-400 tracking-tight tabular">S/ —</div>
+      <div class="text-[11px] text-slate-400 mt-1.5 tabular">0 OCs cerradas</div>
+    </div>
+    <div class="p-3 lg:p-4">
+      <div class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Capital atrapado</div>
+      <div class="text-xl lg:text-2xl font-bold text-slate-400 tracking-tight tabular">S/ —</div>
+      <div class="text-[11px] text-slate-400 mt-1.5 tabular">0 unidades en pipeline</div>
+    </div>
+    <div class="p-3 lg:p-4">
+      <div class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Variance promedio 30d</div>
+      <div class="text-xl lg:text-2xl font-bold text-slate-400 tracking-tight tabular">—</div>
+      <div class="text-[11px] text-slate-400 mt-1.5 tabular">Requiere ≥2 OCs mismo SKU</div>
+    </div>
+    <div class="p-3 lg:p-4">
+      <div class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Anomalías 7D</div>
+      <div class="text-xl lg:text-2xl font-bold text-slate-400 tracking-tight tabular">—</div>
+      <div class="text-[11px] text-slate-400 mt-1.5 tabular">Requiere histórico 60d</div>
+    </div>
+  </div>
+
+  <!-- Switcher pipeline activo · dim -->
+  <div class="flex items-center gap-2 flex-wrap mb-4">
+    <button class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-teal-50 text-teal-700 border border-teal-200 opacity-60"><i data-lucide="layout-grid" class="w-3 h-3"></i>Catálogo</button>
+    <button class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200 opacity-60"><i data-lucide="dollar-sign" class="w-3 h-3"></i>Costos</button>
+    <button class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-slate-900 text-white shadow-sm"><i data-lucide="git-branch" class="w-3 h-3"></i>Pipeline</button>
+    <button class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-rose-50 text-rose-700 border border-rose-200 opacity-60"><i data-lucide="zap" class="w-3 h-3"></i>Alertas</button>
+    <button class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-sky-50 text-sky-700 border border-sky-200 opacity-60"><i data-lucide="trending-up" class="w-3 h-3"></i>Forecast</button>
+  </div>
+
+  <!-- Empty state interno workspace -->
+  <div class="bg-white border border-slate-200 rounded-xl p-12">
+    <div class="max-w-lg mx-auto text-center">
+      <div class="w-20 h-20 rounded-2xl bg-gradient-to-br from-teal-50 to-teal-100 ring-1 ring-teal-200/50 flex items-center justify-center mx-auto mb-4">
+        <i data-lucide="git-branch" class="w-10 h-10 text-teal-700"></i>
+      </div>
+      <h2 class="text-lg font-bold text-slate-900 mb-2">Sin capital en pipeline</h2>
+      <p class="text-sm text-slate-600 mb-6 leading-relaxed max-w-md mx-auto">
+        Pipeline valoriza tus unidades por etapa: pedidas · en tránsito · en aduana · en almacén.
+        Hoy no hay unidades cargadas operacionalmente.
+      </p>
+
+      <!-- 4 stage cards dim como placeholders -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-2 mb-6 opacity-50">
+        <div class="bg-slate-50 border border-slate-200 rounded-lg p-3">
+          <div class="text-[10px] font-bold text-slate-500 uppercase">Pedido</div>
+          <div class="text-base font-bold text-slate-400 tabular mt-1">S/ —</div>
+        </div>
+        <div class="bg-slate-50 border border-slate-200 rounded-lg p-3">
+          <div class="text-[10px] font-bold text-slate-500 uppercase">Tránsito</div>
+          <div class="text-base font-bold text-slate-400 tabular mt-1">S/ —</div>
+        </div>
+        <div class="bg-slate-50 border border-slate-200 rounded-lg p-3">
+          <div class="text-[10px] font-bold text-slate-500 uppercase">Aduana</div>
+          <div class="text-base font-bold text-slate-400 tabular mt-1">S/ —</div>
+        </div>
+        <div class="bg-slate-50 border border-slate-200 rounded-lg p-3">
+          <div class="text-[10px] font-bold text-slate-500 uppercase">Almacén</div>
+          <div class="text-base font-bold text-slate-400 tabular mt-1">S/ —</div>
+        </div>
+      </div>
+
+      <!-- CTAs canon -->
+      <div class="flex items-center justify-center gap-2 flex-wrap">
+        <button class="flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-white bg-slate-900 rounded-lg hover:bg-slate-800 shadow-sm">
+          <i data-lucide="plus" class="w-3.5 h-3.5"></i>Crear primera OC
+        </button>
+        <button class="flex items-center gap-1.5 px-4 py-2 text-xs font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50">
+          Ver módulo Envíos
+          <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+        </button>
+      </div>
+
+      <!-- Nota explícita -->
+      <div class="mt-6 px-4 py-2.5 bg-slate-50 border border-slate-200 rounded text-[10px] text-slate-500 text-left">
+        <span class="font-bold">Nota:</span> Pipeline sólo lista unidades en estados
+        <code class="text-teal-700 font-mono">pedida</code>,
+        <code class="text-teal-700 font-mono">en_transito</code>,
+        <code class="text-teal-700 font-mono">retenida_aduana</code>,
+        <code class="text-teal-700 font-mono">disponible/reservada/asignada_venta</code>.
+        Las unidades vendidas, dañadas o perdidas NO aparecen acá.
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+<!-- SECCIÓN 3 · MAPPING · DATA SOURCES CANON -->
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+<div class="section-divider">
+  <span class="section-num">3</span>
+  Mapping · de dónde viene cada componente del Pipeline
+</div>
+
+<div class="bg-white rounded-2xl shadow-lg p-6">
+  <div class="overflow-x-auto">
+    <table class="w-full text-xs">
+      <thead>
+        <tr class="text-left text-[10px] uppercase tracking-wider text-slate-500 font-bold border-b-2 border-slate-200">
+          <th class="px-3 py-2">Componente Pipeline</th>
+          <th class="px-3 py-2">Data source canon</th>
+          <th class="px-3 py-2">Fórmula / cálculo</th>
+          <th class="px-3 py-2 text-center">Estado hoy</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-100">
+        <tr>
+          <td class="px-3 py-2.5 font-semibold text-slate-900">Stage card · Capital S/</td>
+          <td class="px-3 py-2.5 text-slate-600 font-mono text-[10px]">unidades (filtradas por estado)</td>
+          <td class="px-3 py-2.5 text-slate-600">Σ (costoUnitarioPEN || costoUnitarioUSD × tc) por etapa</td>
+          <td class="px-3 py-2.5 text-center"><span class="text-[10px] font-bold text-amber-700">— (0 uds)</span></td>
+        </tr>
+        <tr class="bg-slate-50">
+          <td class="px-3 py-2.5 font-semibold text-slate-900">Stage card · Uds</td>
+          <td class="px-3 py-2.5 text-slate-600 font-mono text-[10px]">unidades (count por estado)</td>
+          <td class="px-3 py-2.5 text-slate-600">unidades.length por etapa</td>
+          <td class="px-3 py-2.5 text-center"><span class="text-[10px] font-bold text-amber-700">— (0 uds)</span></td>
+        </tr>
+        <tr>
+          <td class="px-3 py-2.5 font-semibold text-slate-900">Stage card · SKUs</td>
+          <td class="px-3 py-2.5 text-slate-600 font-mono text-[10px]">unidades.productoId distinct</td>
+          <td class="px-3 py-2.5 text-slate-600">new Set(unidades.map(u =&gt; u.productoId)).size</td>
+          <td class="px-3 py-2.5 text-center"><span class="text-[10px] font-bold text-amber-700">—</span></td>
+        </tr>
+        <tr class="bg-slate-50">
+          <td class="px-3 py-2.5 font-semibold text-slate-900">Stage card · % atrapado</td>
+          <td class="px-3 py-2.5 text-slate-600 font-mono text-[10px]">capital etapa / capital total atrapado</td>
+          <td class="px-3 py-2.5 text-slate-600">Sólo aplica para pre-almacén (pedido + tránsito + aduana)</td>
+          <td class="px-3 py-2.5 text-center"><span class="text-[10px] font-bold text-amber-700">—</span></td>
+        </tr>
+        <tr>
+          <td class="px-3 py-2.5 font-semibold text-slate-900">Stage card · Antigüedad promedio</td>
+          <td class="px-3 py-2.5 text-slate-600 font-mono text-[10px]">unidades.fechaCreacion / unidad.movimientos[]</td>
+          <td class="px-3 py-2.5 text-slate-600">avg(now - fechaIngresoEtapa) en días</td>
+          <td class="px-3 py-2.5 text-center"><span class="text-[10px] font-bold text-amber-700">— (sin data)</span></td>
+        </tr>
+        <tr class="bg-slate-50">
+          <td class="px-3 py-2.5 font-semibold text-slate-900">Banner alertas etapa</td>
+          <td class="px-3 py-2.5 text-slate-600 font-mono text-[10px]">unidades.diasEnEtapa &gt; threshold</td>
+          <td class="px-3 py-2.5 text-slate-600">Threshold por etapa: Pedido &gt;14d · Tránsito &gt;45d · Aduana &gt;7d</td>
+          <td class="px-3 py-2.5 text-center"><span class="text-[10px] font-bold text-amber-700">—</span></td>
+        </tr>
+        <tr>
+          <td class="px-3 py-2.5 font-semibold text-slate-900">Drill-down tabla SKUs</td>
+          <td class="px-3 py-2.5 text-slate-600 font-mono text-[10px]">unidades en etapa seleccionada</td>
+          <td class="px-3 py-2.5 text-slate-600">filter(u =&gt; etapaFromEstadoUnidad(u.estado) === etapaActiva)</td>
+          <td class="px-3 py-2.5 text-center"><span class="text-[10px] font-bold text-amber-700">—</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="mt-4 px-3 py-2 bg-teal-50 border border-teal-200 rounded text-[11px] text-teal-800">
+    <span class="font-bold">Engine reuse:</span> el helper <code class="font-mono">etapaFromEstadoUnidad()</code>
+    y la constante <code class="font-mono">ESTADOS_PIPELINE_PRE_ALMACEN</code> ya existen en
+    <code class="font-mono">costIntelligence.ts</code>. La función nueva a agregar es
+    <code class="font-mono">calcularPipelineValorizado(unidades, tcpa?, tcSpot?)</code>.
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+<!-- SECCIÓN 4 · DECISIONES A VALIDAR -->
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+<div class="section-divider">
+  <span class="section-num">4</span>
+  Decisiones de diseño a validar con el usuario
+</div>
+
+<div class="bg-white rounded-2xl shadow-lg p-6">
+  <ul class="space-y-3 text-sm">
+    <li class="flex items-start gap-3">
+      <span class="w-6 h-6 rounded bg-teal-100 text-teal-700 font-bold flex items-center justify-center flex-shrink-0 text-xs">1</span>
+      <div>
+        <div class="font-bold text-slate-900">4 etapas (Pedido · Tránsito · Aduana · Almacén) vs 6 etapas más granulares</div>
+        <div class="text-slate-600 text-xs">Engine ya soporta 4. El subtítulo canónico decía "6 etapas" pero podría ser aspiracional. Propuesta: empezar con 4 (matching engine) · marcar como deuda si quieres granularidad mayor (tránsito origen vs tránsito Perú, etc.).</div>
+      </div>
+    </li>
+    <li class="flex items-start gap-3">
+      <span class="w-6 h-6 rounded bg-teal-100 text-teal-700 font-bold flex items-center justify-center flex-shrink-0 text-xs">2</span>
+      <div>
+        <div class="font-bold text-slate-900">Drill-down inline (bajo el flow) vs side-pane (como Catálogo)</div>
+        <div class="text-slate-600 text-xs">Propuesta: drill-down INLINE porque (a) el flow horizontal es la vista principal · ocupa todo el ancho · (b) el drill-down de un workspace es menos detallado que el de Catálogo F6 · (c) las acciones (alerta/contactar agencia) son contextuales a la etapa, no al SKU individual.</div>
+      </div>
+    </li>
+    <li class="flex items-start gap-3">
+      <span class="w-6 h-6 rounded bg-teal-100 text-teal-700 font-bold flex items-center justify-center flex-shrink-0 text-xs">3</span>
+      <div>
+        <div class="font-bold text-slate-900">Thresholds de antigüedad por etapa</div>
+        <div class="text-slate-600 text-xs">Pedido &gt; 14d · Tránsito &gt; 45d · Aduana &gt; 7d · Almacén &gt; 180d (rotación crítica). Son políticas canónicas iniciales · ajustables vía settings en el futuro.</div>
+      </div>
+    </li>
+    <li class="flex items-start gap-3">
+      <span class="w-6 h-6 rounded bg-teal-100 text-teal-700 font-bold flex items-center justify-center flex-shrink-0 text-xs">4</span>
+      <div>
+        <div class="font-bold text-slate-900">Etapa default al abrir el workspace</div>
+        <div class="text-slate-600 text-xs">Propuesta: la etapa CON MAYOR CAPITAL ATRAPADO PRE-ALMACÉN (la más urgente de revisar). Si todas en cero, defaultea a Almacén.</div>
+      </div>
+    </li>
+    <li class="flex items-start gap-3">
+      <span class="w-6 h-6 rounded bg-teal-100 text-teal-700 font-bold flex items-center justify-center flex-shrink-0 text-xs">5</span>
+      <div>
+        <div class="font-bold text-slate-900">Acción "Contactar agencia aduanal"</div>
+        <div class="text-slate-600 text-xs">Cuando Aduana tenga SKUs estancados &gt; threshold. ¿Debe ser placeholder o tiene flujo real? Propuesta MVP: placeholder con alert("próximamente") · feature real va en deuda futura.</div>
+      </div>
+    </li>
+  </ul>
+</div>
+
+<script>
+  lucide.createIcons();
+</script>
+</body>
+</html>
