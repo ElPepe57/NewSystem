@@ -28,7 +28,8 @@
  */
 
 import React, { useEffect, useMemo } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useSearchParams } from 'react-router-dom';
+import { TestTube, X } from 'lucide-react';
 
 import { useProductoStore } from '../../store/productoStore';
 import { useOrdenCompraStore } from '../../store/ordenCompraStore';
@@ -44,6 +45,8 @@ import {
   calcularTCPAvsSBS,
   calcularEvolucionPorBloque,
 } from './utils/costIntelligence';
+// chk5.B-DEMO · modo demo URL-flag · borrar este import + uses para eliminar
+import { generateDemoMockData } from './utils/seedMock';
 
 import { HeaderV2 } from './components/shell/HeaderV2';
 import { WorkspaceSwitcher, type WorkspaceId, WORKSPACES } from './components/shell/WorkspaceSwitcher';
@@ -71,6 +74,9 @@ function slugToWorkspaceId(slug: string | undefined): WorkspaceId {
 export const IntelProductosPage: React.FC = () => {
   const { workspace: slug } = useParams<{ workspace?: string }>();
   const activeId = slugToWorkspaceId(slug);
+  // chk5.B-DEMO · activación con ?demo=true · 100% reversible (quitar URL param)
+  const [searchParams, setSearchParams] = useSearchParams();
+  const isDemoMode = searchParams.get('demo') === 'true';
 
   // Stores · data operacional propia (cero investigación)
   const { productos, fetchProductos, loading: loadingProductos } = useProductoStore();
@@ -101,31 +107,47 @@ export const IntelProductosPage: React.FC = () => {
 
   const loading = loadingProductos || loadingOrdenes || loadingUnidades || loadingGastos;
 
+  // chk5.B-DEMO · cuando isDemoMode=true, generamos data mock y bypasseamos
+  // los stores. NO escribe a Firestore. Cero efectos colaterales.
+  const demoData = useMemo(
+    () => (isDemoMode ? generateDemoMockData(productos, arbolCategorias) : null),
+    [isDemoMode, productos, arbolCategorias]
+  );
+
+  // Datos efectivos: si demo, mock; si no, stores reales
+  const effectiveProductos = demoData?.productos ?? productos;
+  const effectiveOrdenes = demoData?.ordenes ?? ordenes;
+  const effectiveUnidades = demoData?.unidades ?? unidades;
+  const effectiveGastos = demoData?.gastos ?? gastos;
+  const effectivePoolSnapshots = demoData?.poolSnapshots ?? poolSnapshots;
+  const effectivePoolResumen = demoData?.poolResumen ?? poolResumen;
+  const effectiveTcSpot = demoData?.tcSpot ?? tcSpotFallback;
+
   // ─── Cost Intelligence: data engine propio (NO investigación) ────────────
   const ciResult = useMemo(() => {
     return calcularCostIntelligence({
-      productos,
-      ordenes,
-      unidades,
-      tcpa: poolResumen?.tcpa,
-      tcSpotFallback,
+      productos: effectiveProductos,
+      ordenes: effectiveOrdenes,
+      unidades: effectiveUnidades,
+      tcpa: effectivePoolResumen?.tcpa,
+      tcSpotFallback: effectiveTcSpot,
     });
-  }, [productos, ordenes, unidades, poolResumen, tcSpotFallback]);
+  }, [effectiveProductos, effectiveOrdenes, effectiveUnidades, effectivePoolResumen, effectiveTcSpot]);
 
   // Pipeline + TCPAvsSBS · consumidos por Alertas para consolidar fuentes
   const pipelineResult = useMemo(
-    () => calcularPipelineValorizado(unidades, poolResumen?.tcpa, tcSpotFallback),
-    [unidades, poolResumen, tcSpotFallback]
+    () => calcularPipelineValorizado(effectiveUnidades, effectivePoolResumen?.tcpa, effectiveTcSpot),
+    [effectiveUnidades, effectivePoolResumen, effectiveTcSpot]
   );
   const tcpaVsSBS = useMemo(
-    () => calcularTCPAvsSBS(poolSnapshots, 6),
-    [poolSnapshots]
+    () => calcularTCPAvsSBS(effectivePoolSnapshots, 6),
+    [effectivePoolSnapshots]
   );
 
   // Evolución gastos por bloque · consumido por Costos y Forecast
   const evolucionGastos = useMemo(
-    () => calcularEvolucionPorBloque(gastos, arbolCategorias, 6),
-    [gastos, arbolCategorias]
+    () => calcularEvolucionPorBloque(effectiveGastos, arbolCategorias, 6),
+    [effectiveGastos, arbolCategorias]
   );
 
   // Workspace label dinámico (breadcrumb)
@@ -167,20 +189,20 @@ export const IntelProductosPage: React.FC = () => {
         return (
           <CostosWorkspace
             skus={ciResult.skus}
-            gastos={gastos}
+            gastos={effectiveGastos}
             arbolCategorias={arbolCategorias}
-            poolSnapshots={poolSnapshots}
-            saldoUSDPool={poolResumen?.saldoUSD}
+            poolSnapshots={effectivePoolSnapshots}
+            saldoUSDPool={effectivePoolResumen?.saldoUSD}
           />
         );
       case 'pipeline':
         // PipelineWorkspace tiene EmptyPipeline interno con 4 stage cards dim
         return (
           <PipelineWorkspace
-            unidades={unidades}
-            productos={productos}
-            tcpa={poolResumen?.tcpa}
-            tcSpotFallback={tcSpotFallback}
+            unidades={effectiveUnidades}
+            productos={effectiveProductos}
+            tcpa={effectivePoolResumen?.tcpa}
+            tcSpotFallback={effectiveTcSpot}
           />
         );
       case 'alertas':
@@ -200,7 +222,7 @@ export const IntelProductosPage: React.FC = () => {
           <ForecastWorkspace
             skus={ciResult.skus}
             evolucionGastos={evolucionGastos}
-            poolSnapshotsCount={poolSnapshots.length}
+            poolSnapshotsCount={effectivePoolSnapshots.length}
             capitalInvertidoPEN={ciResult.kpis.capitalInvertidoPEN}
             capitalAtrapadoPEN={ciResult.kpis.capitalAtrapadoPEN}
             hasOperationalData={ciResult.hasOperationalData}
@@ -209,8 +231,37 @@ export const IntelProductosPage: React.FC = () => {
     }
   };
 
+  // chk5.B-DEMO · handler para salir del demo · quita el param de la URL
+  const handleSalirDemo = () => {
+    const next = new URLSearchParams(searchParams);
+    next.delete('demo');
+    setSearchParams(next, { replace: true });
+  };
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 space-y-4">
+      {/* chk5.B-DEMO · banner rojo de modo demo · sólo visible con ?demo=true */}
+      {isDemoMode && (
+        <div className="bg-rose-50 border border-rose-300 rounded-lg p-3 flex items-start gap-2">
+          <TestTube className="w-4 h-4 text-rose-700 flex-shrink-0 mt-0.5" />
+          <div className="flex-1 text-[11px] text-rose-800">
+            <span className="font-bold">MODO DEMO ACTIVO</span> · data simulada
+            determinística · <span className="font-mono">NO persiste a Firestore</span>.
+            Vita Skin Peru · 6 OCs · 60+ unidades · 6 meses gastos · Pool USD histórico.
+            Para volver al estado real, quitar <code className="font-mono bg-rose-100 px-1 rounded">?demo=true</code> de la URL.
+          </div>
+          <button
+            type="button"
+            onClick={handleSalirDemo}
+            aria-label="Salir del modo demo"
+            className="text-rose-700 hover:text-rose-900 flex items-center gap-1 text-[11px] font-medium whitespace-nowrap flex-shrink-0"
+          >
+            <X className="w-3.5 h-3.5" />
+            Salir del demo
+          </button>
+        </div>
+      )}
+
       <HeaderV2
         workspaceLabel={workspaceLabel}
         subtitle={subtitle}
