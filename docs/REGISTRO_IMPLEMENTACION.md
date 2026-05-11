@@ -2,8 +2,203 @@
 
 **Agente:** implementation-controller (Agente 23)
 **Proyecto:** ERP de importacion y venta de suplementos y skincare — Vitaskin Peru
-**Ultima actualizacion:** 2026-05-01 (35 commits en main post-S58f · 7 BLOQUES MAYORES CERRADOS: (1) GASTOFORM-V2 + GASTOS-PAGE-V2 + PROVEEDOR-GASTOS · 5/5 · ~4.5h · (2) PAGOFORM-001 Fase 1 visual + Fase 2 destino tercero opt-in · (3) MIGRACION VISUAL TESORERIA pixel-perfect S58e: 9 tabs con headers banking-grade unificados + TabMovimientos completo. (4) MIGRACION VISUAL PRODUCTOS + INVENTARIO pixel-perfect S58f. (5) MIGRACION VISUAL VENTAS pixel-perfect S58f. (6) MIGRACION VISUAL RECLAMOS + FINANZAS LAYOUT pixel-perfect + decision Nav Shell preservar. (7) Hook useDatosBancariosTercero. Quedan: PAGOFORM-001 Fase 3 split (~1.5 ses) · DEUDA-FLETE-001/002/003 (~2.5 ses) · Diferidos pragmaticos (Productos-Intel + Mapa-calor + Mapa-ventas-geo · 1 ses c/u) · Finanzas sub-paginas (Cash-flow + Overview + Unificadas + Modales · ~1 ses si se requieren).)
+**Ultima actualizacion:** 2026-05-10 (chk5.B8 CERRADO OPERATIVAMENTE · Cost Intelligence System · separacion conceptual Productos/CI · engine propio sin investigacion · mockup pixel-perfect implementado · EmptyStateGlobal · KpiStripExecutive · CatalogoTable/Workspace/ProductoDetailPane reescritos · CANON DE UBICACION DE FUNCIONALIDAD declarado en CLAUDE.md · tsc 0 errores · vite build 22.19s exitoso · pendiente: chk5.B9 Workspace Costos · chk5.B10 workspaces secundarios · chk5.B-UAT)
 **Branch activo:** main
+
+---
+
+## chk5.B8 · CIERRE OPERATIVO — COST INTELLIGENCE SYSTEM · SEPARACION CONCEPTUAL PRODUCTOS/CI
+
+### Fecha y contexto
+
+**Fecha de cierre:** 2026-05-10
+**Checkpoint:** chk5.B8 (sucesor de chk5.B4-B7)
+**Modulo:** `/intel-productos` (Cost Intelligence) — ruta nueva · separada del modulo existente Intel. Productos (`/intel-productos` legacy)
+**Mockup de referencia aprobado:** `docs/mockups/cost-intelligence-canon-productos.html`
+**Build:** `npx tsc --noEmit` 0 errores · `npx vite build` 22.19s exitoso
+**Deploy:** pendiente (CI NO desplegado aun a produccion — requiere decision del usuario sobre coexistencia en sidebar)
+
+### Origen y decision conceptual
+
+Durante chk5.B4-B7 se construyo el modulo Cost Intelligence usando incorrectamente la logica de investigacion de Productos (`calcularInvestigacion` + `producto.investigacion`). El usuario detecto el error conceptual:
+
+> *"no tiene sentido que Cost Intelligence me hable de cosas que viven o nacieron de Investigacion de Productos"*
+
+La auditoria 360 revelo que los dos modulos tienen naturaleza radicalmente distinta:
+
+| Dimension | Intel. Productos (legado) | Cost Intelligence (nuevo) |
+|-----------|--------------------------|--------------------------|
+| Datos origen | `producto.investigacion` (investigacion de mercado) | OCs cerradas + unidades + Pool USD (datos operacionales) |
+| Logica core | `calcularInvestigacion()` | `calcularCostIntelligence()` nuevo |
+| Pregunta de negocio | "¿Que precio cobrar?" | "¿Cuanto me cuesta importar?" |
+| Fuente de verdad | Catalogos de mercado | Transacciones reales del ERP |
+
+Decision aprobada: construir engine CI 100% nuevo sin ninguna dependencia de `producto.investigacion`. Los patrones UI/UX de Productos se mantienen (canon) pero la data/logica es 100% operacional.
+
+### Artefactos NUEVOS (2 archivos)
+
+**1. `src/pages/IntelProductos/utils/costIntelligence.ts` (530 ln · 24.6 KB)**
+
+Engine propio CI. Cero imports de `calcularInvestigacion` ni de `producto.investigacion`.
+
+Tipos publicos exportados:
+- `SkuConCostos` · `LoteCosto` · `ProveedorReal` — entidades del dominio CI
+- `KpiCostIntelligence` · `PrerequisitosCI` · `CostIntelligenceResult` — outputs de la funcion principal
+- `EtapaPipeline` (`'pedido' | 'transito' | 'aduana' | 'almacen'`)
+- `EstadoCosto` (`'estable' | 'volatil' | 'anomalo'`)
+- `VarianceAttribution` — desglose de varianza por driver
+
+Funcion principal `calcularCostIntelligence({ productos, ordenes, unidades, tcpa?, tcSpotFallback? })` retorna `{ kpis, skus, hasOperationalData, prerequisitos }`.
+
+Logica key:
+- `hasOperationalData = prerequisitos.ocsCerradas || prerequisitos.unidadesPipeline`
+- Sin data → KPIs en cero, skus vacio (no falla, muestra EmptyState)
+- Con data → construye lotes por SKU desde unidades (key: `productoId|ocId|lote`) · variance attribution · stability score (coeficiente de variacion) · etapa pipeline dominante · proveedores reales desde OCs
+- `calcularVarianceAttribution(sku)` retorna desglose por driver: precio proveedor USD + TC + placeholders flete/landed (0pp hasta chk5.B9 que integra `envio.costosLanded`)
+
+Constantes de umbral: `ANOMALIA_THRESHOLD_PCT=5` · `ANOMALIA_CRITICA_PCT=10` · `VARIANCE_ESTABLE_MAX=2` · `VARIANCE_VOLATIL_MAX=5`
+
+Helpers exportados: `ETAPA_LABELS` · `ESTADO_COSTO_CLASSES` · `ESTADO_COSTO_LABELS`
+
+**Verificacion de separacion (post-implementacion):**
+`grep calcularInvestigacion|producto.investigacion` en `src/pages/IntelProductos/` → 0 matches reales (solo 2 docstrings que DECLARAN explicitamente la separacion).
+
+**2. `src/pages/IntelProductos/components/workspaces/EmptyStateGlobal.tsx` (145 ln)**
+
+Canon EmptyStateBd pattern. Hero icon `BrainCircuit` con gradient teal.
+
+Checklist de 4 prerequisitos:
+- Marca cada item con checkmark verde si esta cumplido, numero amber si no
+- Items: OC creada · OC cerrada · Unidades en pipeline · Pool USD con TC
+
+CTAs contextuales: "Crear primera OC" → `/compras` · "Importar historico CSV" (placeholder) · "Ver Pool USD" → `/tesoreria`
+
+Nota explicita en el componente declarando la separacion con el modulo Productos (sin data de investigacion).
+
+### Artefactos MODIFICADOS (5 archivos)
+
+**3. `src/pages/IntelProductos/components/shell/KpiStripExecutive.tsx`**
+
+4 KPIs reescritos con semantica CI:
+- Capital invertido (slate)
+- Capital atrapado en pipeline (amber si pipeline alto)
+- Variance promedio 30d + sparkline + delta vs mes anterior (rose/emerald segun direccion)
+- Anomalias 7D (rose si hay anomalias activas)
+
+Prop nuevo `hasData: boolean` — cuando false, todos los valores en "—" con clase `opacity-70` (feedback claro de "sin data aun").
+
+**4. `src/pages/IntelProductos/components/workspaces/CatalogoTable.tsx`**
+
+Columnas reescritas:
+- Producto (avatar + chip ANOMALIA rose + lotes badge)
+- Ultimo costo (S/ + USD + TCPA usado)
+- Variance vs lote anterior (% con color + label estable/volatil/anomalo)
+- Capital + Trend 90d (S/ + sparkline real de lotes, no simulado)
+- Stability score (pill verde/amber/rose 0-100)
+
+SortKey nuevo: `nombre | ultimoCosto | variance | capital | stability`
+Seleccion row: ring rose si anomalia, ring teal si estado normal.
+
+**5. `src/pages/IntelProductos/components/workspaces/CatalogoWorkspace.tsx`**
+
+Recibe `skus: SkuConCostos[]` (antes recibia `productos: Producto[]`).
+
+Filtros CI canon:
+- Linea de negocio (SKC/SUP/etc)
+- Estado costo (Estable/Volatil/Anomalo)
+- Etapa pipeline (Pedido/Transito/Aduana/Almacen)
+
+Sort options: Variance · Capital · Ultimo costo · Stability · Nombre A-Z
+
+Search: incluye busqueda por `lote.loteId`.
+
+**6. `src/pages/IntelProductos/components/workspaces/ProductoDetailPane.tsx`**
+
+4 tabs reescritos canon CI:
+- **Variance** — waterfall attribution (precio USD / TC / flete placeholder / landed placeholder) + acciones sugeridas contextuales
+- **Historico** — time-series 90d + min/max/stability del SKU
+- **Lotes** — cards con variance vs lote anterior · lote ACTUAL marcado · badge "anomalo" si supera umbral
+- **Proveedores** — REALES de OCs cerradas (NO de investigacion) · ordenados por costo promedio · "MEJOR" marcado · nota declarando separacion
+
+Footer: "Crear alerta" + "Generar OC" (placeholders para chk5.B10).
+Header del pane: gradient rose si `estadoCosto === 'anomalo'`.
+
+**7. `src/pages/IntelProductos/IntelProductosPage.tsx`**
+
+- Carga `useOrdenCompraStore` + `useUnidadStore` + `usePoolUSDStore` ademas de productos
+- Invoca `calcularCostIntelligence()` en `useMemo` (recalculo reactivo al cambiar cualquier store)
+- Si `!hasOperationalData` → render `<EmptyStateGlobal prerequisitos={...} />` en TODOS los workspaces (no solo en el activo)
+- Si hay data → render workspace segun `activeId`
+- Acciones header `onExport` / `onReporte` condicionadas a `hasOperationalData` (fix UX: no ofrecer exportar si no hay nada)
+- `onRecalcular` siempre disponible — recarga los 4 stores
+
+### Sidebar integrado
+
+**8. `src/components/layout/Sidebar.tsx`**
+
+Agregada entrada `Cost Intelligence` en grupo Analisis:
+- Icon: `BrainCircuit`
+- Path: `/intel-productos`
+- Permiso: `VER_INVENTARIO`
+- Posicion: debajo de `Intel. Productos` (entry existente con icon `Zap`)
+
+Los dos modulos coexisten en el sidebar con iconos distintos hasta que se resuelva `DEUDA-REVIEW-INTELS` (ver abajo).
+
+### Canon NUEVO declarado en CLAUDE.md
+
+**9. `CLAUDE.md`** — nueva seccion: "CANON DE UBICACION DE FUNCIONALIDAD (declarado 2026-05-10)"
+
+Antes de construir cualquier ruta/modulo/feature, responder 5 preguntas de diagnostico de ubicacion:
+1. ¿Que datos consume principalmente?
+2. ¿Que pregunta de negocio contesta?
+3. ¿Que rol de usuario lo usa y con que frecuencia?
+4. ¿Que acciones permite tomar?
+5. ¿Con que modulos existentes se solapa mas de un 30%?
+
+Reglas derivadas:
+- Cero rutas en el aire (toda ruta tiene un modulo dueno)
+- NO fusionar especulativamente modulos hermanos en construccion temprana
+- Si dos modulos comparten UI pero no datos → mismo modulo, workspaces distintos
+- Si dos modulos comparten datos pero no UI → modulos distintos con servicios compartidos
+
+Caso de uso documentado en el canon: Cost Intelligence vs Intel. Productos.
+
+### Deudas declaradas en esta sesion
+
+**DEUDA-REVIEW-INTELS** (declarada chk5.B8 · 2026-05-10)
+- **Estado:** abierta · prioridad baja
+- **Descripcion:** coexistencia de "Intel. Productos" (icono Zap · ruta `/intel-productos`) y "Cost Intelligence" (icono BrainCircuit · misma ruta `/intel-productos`) en el sidebar grupo Analisis. Hay ambiguedad de ruta.
+- **Accion pendiente:** revisar despues de ≥3 meses de uso operativo real. Si el usuario trabaja habitualmente en CI y no en Intel.Productos, consolidar bajo una sola entrada. Si ambos tienen uso activo, resolver el conflicto de ruta.
+- **Regla:** NO fusionar especulativamente antes de tener datos de uso real.
+- **Responsable:** `project-manager-erp` agendar revision en agosto 2026.
+
+### Deudas heredadas de chk5.B4-B7 que SIGUEN abiertas (NO se cerraron en B8)
+
+| ID | Descripcion | Prioridad | Sesion estimada |
+|----|-------------|-----------|----------------|
+| chk5.B9 | Integrar `envio.costosLanded[]` en variance attribution (hoy flete + landed = 0pp placeholder) · Workspace Costos completo | Alta | 1 sesion · mockup ya aprobado en `cost-intelligence-canon-productos.html` Sec 2 |
+| chk5.B10 | Mockup + build de 4 workspaces secundarios (Costos · Pipeline · Alertas · Forecast — hoy `EmptyWorkspace.tsx` placeholders) | Media | ~2 sesiones |
+| chk5.B-UAT | UAT con seed de data simulada · validar transicion empty → con-data · exit gate antes de declarar CI cerrado | Alta | 1 sesion · prerequisito para deploy a produccion |
+
+### Decision sobre el mockup de referencia (chk5.B9 proxima sesion)
+
+El engine `costIntelligence.ts` ya tiene la data necesaria para el Workspace Costos:
+- `sku.lotes[]` → historial de costos por lote
+- `sku.proveedoresReales[]` → proveedores reales de OCs
+- `kpis.capitalInvertido` + `kpis.capitalEnPipeline` → comparativa TCPA vs SBS (desde Pool USD)
+- Variance attribution parcial (flete/landed = 0pp hasta B9)
+
+El mockup aprobado tiene 3 bloques apilados: (a) TCPA vs SBS comparativa en lineas por mes, (b) comparativa lotes por SKU top 5, (c) desglose variance attribution con waterfall. Esfuerzo estimado: 1 sesion.
+
+### Lecciones aprendidas y registro de decision
+
+**ADR-CI-001: Separacion de Cost Intelligence respecto a Intel. Productos**
+
+- **Contexto:** chk5.B4-B7 construyo CI reutilizando `calcularInvestigacion()`. El engine funcionaba pero mezclaba datos de investigacion de mercado (precios externos) con costos operacionales reales (OCs). El usuario lo detecto como incoherente.
+- **Opcion A (descartada):** extender `calcularInvestigacion()` para soportar datos de OCs. Contra: contamina el contrato de la funcion, crea una god-function que sirve a dos masters.
+- **Opcion B (elegida):** engine nuevo `calcularCostIntelligence()` con tipos propios, 0 dependencia de investigacion. La UI canon de Productos se replica pero los datos son 100% operacionales.
+- **Consecuencia:** dos motores paralelos en el sistema, pero con responsabilidades claras y sin acoplamiento. El motor de investigacion queda inalterado para su uso original.
+- **Canon resultante:** CLAUDE.md actualizado con "CANON DE UBICACION DE FUNCIONALIDAD" — previene que este patron de confusion vuelva a ocurrir en futuros modulos.
 
 ---
 

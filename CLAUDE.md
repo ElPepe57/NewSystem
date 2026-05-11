@@ -104,6 +104,94 @@ por sesión dedicada al módulo correspondiente.
 
 ---
 
+# CANON DE UBICACIÓN DE FUNCIONALIDAD (declarado 2026-05-10)
+
+**Antes de construir cualquier ruta, módulo o feature nueva, hacer diagnóstico
+360 de DÓNDE vive mejor su acceso en el sistema existente. Cero rutas en el aire.**
+
+El usuario lo declaró tras detectar que el módulo `/intel-productos` (chk5.B8 ·
+Cost Intelligence) se había construido sin haber respondido conscientemente la
+pregunta arquitectónica de dónde pertenecía su entrada de acceso:
+
+> *"No necesito explicitamente que se integre en el sidebar, sino entender
+> donde es que va mejor acomodado toda creacion."*
+
+> *"Como parte de los principios canonicos, siempre hay que ir viendo como
+> integramos los accesos a las nuevas rutas que se van creando porque sino
+> luego nos quedamos con rutas en el aire."*
+
+## Regla operativa
+
+Antes de codear cualquier funcionalidad nueva, responder explícitamente las 5
+preguntas del diagnóstico de ubicación:
+
+1. **¿Qué busca lograr el usuario con esto?** (intent del usuario, no de la
+   arquitectura)
+2. **¿Dónde lo buscaría instintivamente?**
+   - ¿Es una herramienta autónoma que abrirá por su nombre?
+   - ¿Es una extensión natural de un módulo que ya conoce?
+3. **¿Cuál es la ubicación óptima entre las posibles?**
+   - Módulo top-level (entrada propia en sidebar · definir qué grupo)
+   - Tab dentro de módulo existente
+   - Workspace/sub-vista interna
+   - Drill-down desde listado
+   - Acción contextual (botón, modal)
+   - Sub-item en grupo de sidebar (pareja con un pariente)
+   - Wizard step dentro de un flujo más amplio
+4. **¿Compite o se complementa con algo existente?**
+   - Si compite → declarar deuda de review antes de fusionar.
+   - Si se complementa → la ubicación debe reflejar la relación.
+5. **¿Cómo nace el acceso en la misma sesión que la implementación?**
+   Cero rutas en el aire. La integración del acceso es parte del cierre
+   operativo de la feature, no una tarea pendiente.
+
+## Posibles ubicaciones · matriz de decisión
+
+| Tipo de ubicación | Cuándo es apropiada |
+|---|---|
+| Módulo top-level en sidebar | Herramienta independiente con identidad propia, alto uso diario, se busca por nombre |
+| Tab dentro de módulo existente | Extensión natural de un dominio (ej. tab "Variance" dentro de Productos) |
+| Workspace/sub-página interna | Vista alternativa de la misma data del módulo padre |
+| Drill-down desde lista | Detalle de un registro existente |
+| Acción contextual (botón/modal) | Operación puntual sobre un objeto |
+| Wizard step | Forma parte de un flujo más amplio |
+| Sub-item en grupo de sidebar | Variante de algo ya existente, se entiende junto a su pariente |
+
+## NO aplicar este canon genera deuda visible de arquitectura de información
+
+Si se construye un módulo sin haber respondido las 5 preguntas:
+- El usuario tendrá que "buscar" la funcionalidad → opuesto a un sistema bien diseñado.
+- Quedan rutas registradas en `App.tsx` sin acceso desde UI → técnicamente "funciona"
+  pero es inconsistente.
+- Se generan módulos paralelos que después requieren refactor de unificación.
+
+Esta inconsistencia es exactamente lo que el PRINCIPIO RECTOR (visión 360)
+busca evitar.
+
+## Aplica a
+
+- ✅ Rutas nuevas top-level (`/intel-productos`, `/ctru`, etc.)
+- ✅ Sub-rutas que tengan punto de entrada propio (ej. `/finanzas/saldos`
+  si fuera linkeable directo desde sidebar)
+- ✅ Features que aunque no tengan ruta nueva, agregan un nuevo punto de
+  acceso desde alguna pantalla (botón nuevo, drill-down, etc.)
+- ⚠️ Rutas internas que son sub-vistas naturales (tabs internos de un módulo,
+  modales contextuales, drill-downs) NO requieren entrada propia en sidebar
+  — se acceden desde su módulo padre.
+
+## Cuándo coexistir vs. fusionar (caso Cost Intelligence)
+
+Cuando una funcionalidad nueva tiene parentesco conceptual con un módulo
+existente pero foco distinto (ej. Cost Intelligence vs. Intel. Productos viejo):
+
+- **NO fusionar especulativamente en construcción temprana** sin data real de uso.
+- Mantener ambos vivos con identidad visual clara (iconos distintos · labels
+  diferenciados) en el mismo grupo de sidebar.
+- Declarar deuda explícita de review futura (ej. `DEUDA-REVIEW-INTELS`)
+  para evaluar fusión/separación cuando haya ≥3 meses de uso operativo real.
+
+---
+
 # INSTRUCCION PRIORITARIA - REESTRUCTURACION VISUAL
 
 Antes de cualquier trabajo visual, UX, rediseno, wizard, mockup o refactor de interfaz:

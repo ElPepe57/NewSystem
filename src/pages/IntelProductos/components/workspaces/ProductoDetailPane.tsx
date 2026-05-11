@@ -1,41 +1,60 @@
 /**
  * ProductoDetailPane · drill-down pane derecha · Cost Intelligence
  *
- * chk5.B7 (S3.6 M1.bis · Cost Intelligence) · refactor pixel-perfect canon F6
- * UnidadDetailsModal pattern.
+ * chk5.B8 (S3.6 M1.bis · Cost Intelligence) · refactor canon CI · 4 tabs
+ * propios CI (NO investigación). Sustituye tabs Resumen/Costo/Mercado por:
  *
- * Estructura:
- *   - Header gradient amber + ProductoAvatar + nombre + chips
- *   - 3 tabs sticky: Resumen · Costo · Mercado
- *   - Contenido scrolleable según tab activo:
- *       Resumen → 4 KPIs + Score gauge + Recomendación
- *       Costo   → Proveedores top + breakdown
- *       Mercado → Competidores + posición + banner análisis
- *   - Footer: "Ver en Productos" + "Generar OC" (teal primary)
+ *   Tab 1 · Variance   → attribution waterfall + mini time-series + acciones
+ *   Tab 2 · Histórico  → time-series 90d de costos por lote
+ *   Tab 3 · Lotes      → tabla de lotes con OC + fecha + cantidad + costo
+ *   Tab 4 · Proveedores→ proveedores REALES que vendieron este SKU
+ *
+ * Footer: "Crear alerta" (icon bell) + "Generar OC" (icon shopping-cart).
  *
  * Mockup canónico: docs/mockups/cost-intelligence-canon-productos.html · Sec 1
  */
 
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { X, ExternalLink, ShoppingCart, AlertTriangle, ClipboardCheck, ArrowRight, ThumbsUp } from 'lucide-react';
-import { ProductoAvatar, inferLineaFromProducto } from '../../../Productos/components/shared/ProductoAvatar';
-import type { ProductoEnriquecido } from './CatalogoWorkspace';
+import {
+  X,
+  ShoppingCart,
+  Bell,
+  TrendingUp,
+  LineChart,
+  Layers,
+  Users,
+  Lightbulb,
+  ArrowRight,
+  Zap,
+} from 'lucide-react';
+import {
+  ProductoAvatar,
+  inferLineaFromProducto,
+} from '../../../Productos/components/shared/ProductoAvatar';
+import type { SkuConCostos } from '../../utils/costIntelligence';
+import { calcularVarianceAttribution } from '../../utils/costIntelligence';
 
 interface ProductoDetailPaneProps {
-  item: ProductoEnriquecido;
+  sku: SkuConCostos;
   onClose: () => void;
 }
 
-type Tab = 'resumen' | 'costo' | 'mercado';
+type Tab = 'variance' | 'historico' | 'lotes' | 'proveedores';
 
-const fmtPEN = (n: number) => n.toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-const fmtUSD = (n: number) => n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const fmtPEN = (n: number) =>
+  n.toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const fmtPEN0 = (n: number) =>
+  n.toLocaleString('es-PE', { maximumFractionDigits: 0 });
+const fmtUSD = (n: number) =>
+  n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const fmtPct = (n: number, decimals = 1) =>
+  `${n >= 0 ? '+' : ''}${n.toFixed(decimals)}%`;
+const fmtPp = (n: number) =>
+  `${n >= 0 ? '+' : ''}${n.toFixed(1)} pp`;
 
-function scoreColor(score: number): { text: string; stroke: string; bg: string } {
-  if (score >= 70) return { text: 'text-emerald-700', stroke: '#10b981', bg: 'from-emerald-50 to-emerald-100/40 border-emerald-200' };
-  if (score >= 40) return { text: 'text-amber-700',   stroke: '#f59e0b', bg: 'from-amber-50 to-amber-100/40 border-amber-200' };
-  return { text: 'text-rose-700', stroke: '#e11d48', bg: 'from-rose-50 to-rose-100/40 border-rose-200' };
+function fmtFechaCorta(d: Date | null): string {
+  if (!d) return '—';
+  return d.toLocaleDateString('es-PE', { day: '2-digit', month: 'short', year: '2-digit' });
 }
 
 function lineaBadgeClasses(linea: string | undefined): string {
@@ -45,43 +64,59 @@ function lineaBadgeClasses(linea: string | undefined): string {
   return 'bg-slate-50 text-slate-600';
 }
 
-export const ProductoDetailPane: React.FC<ProductoDetailPaneProps> = ({ item, onClose }) => {
-  const p = item.producto;
-  const inv = p.investigacion;
-  const tieneInv = item.tieneInvestigacion;
-  const [tab, setTab] = useState<Tab>('resumen');
+export const ProductoDetailPane: React.FC<ProductoDetailPaneProps> = ({ sku, onClose }) => {
+  const [tab, setTab] = useState<Tab>('variance');
+  const isAnomalia = sku.estadoCosto === 'anomalo';
 
   const linea = inferLineaFromProducto({
-    linea: p.lineaNegocioNombre,
-    tipo: p.tipoProducto?.nombre,
-    esPack: p.esPack,
+    linea: sku.lineaNegocioNombre,
+    tipo: sku.tipoProductoNombre,
+    esPack: sku.esPack,
   });
 
-  const sc = scoreColor(item.score);
+  // Header gradient · rose si anomalía · línea-based si no
+  const headerBg = isAnomalia
+    ? 'from-rose-50/60 to-white'
+    : linea === 'skincare'
+    ? 'from-amber-50/60 to-white'
+    : linea === 'suplemento'
+    ? 'from-indigo-50/60 to-white'
+    : linea === 'pack'
+    ? 'from-purple-50/60 to-white'
+    : 'from-slate-50/60 to-white';
 
   return (
     <aside className="bg-white border border-slate-200 rounded-xl flex flex-col max-h-[calc(100vh-200px)] overflow-hidden sticky top-4">
-      {/* Header pane · gradient según línea */}
-      <div className={`px-4 py-3 border-b border-slate-200 flex items-start justify-between gap-2 bg-gradient-to-br ${
-        linea === 'skincare'   ? 'from-amber-50/60 to-white' :
-        linea === 'suplemento' ? 'from-indigo-50/60 to-white' :
-        linea === 'pack'       ? 'from-purple-50/60 to-white' :
-        'from-slate-50/60 to-white'
-      }`}>
+      {/* Header pane · gradient + chips */}
+      <div className={`px-4 py-3 border-b border-slate-200 flex items-start justify-between gap-2 bg-gradient-to-br ${headerBg}`}>
         <div className="flex items-start gap-3 min-w-0 flex-1">
           <ProductoAvatar linea={linea} size="md" />
           <div className="min-w-0 flex-1">
-            <div className="text-[9px] font-mono text-slate-500 mb-0.5">{p.sku ?? '—'}</div>
-            <div className="font-bold text-slate-900 text-sm truncate" title={p.nombreComercial ?? undefined}>
-              {p.nombreComercial ?? '—'}
-            </div>
-            <div className="text-[10px] text-slate-500 flex items-center gap-1 mt-0.5 flex-wrap">
-              {p.marca && <span>{p.marca}</span>}
-              {p.marca && p.lineaNegocioNombre && <span>·</span>}
-              {p.lineaNegocioNombre && (
-                <span className={`px-1.5 py-0.5 rounded font-bold ${lineaBadgeClasses(p.lineaNegocioNombre)}`}>
-                  {p.lineaNegocioNombre}
+            <div className="text-[9px] font-mono text-slate-500 mb-0.5 flex items-center gap-1">
+              <span>{sku.sku || '—'}</span>
+              {isAnomalia && (
+                <span className="px-1 py-0.5 rounded bg-rose-100 text-rose-700 text-[8px] font-bold flex items-center gap-0.5">
+                  <Zap className="w-2.5 h-2.5" />
+                  ANOMALÍA
                 </span>
+              )}
+            </div>
+            <div className="font-bold text-slate-900 text-sm truncate" title={sku.nombreComercial}>
+              {sku.nombreComercial}
+            </div>
+            <div className="text-[10px] text-slate-500 mt-0.5 flex items-center gap-1.5 flex-wrap">
+              {sku.marca && <span>{sku.marca}</span>}
+              {sku.marca && (sku.lineaNegocioNombre || sku.unidadesActivas > 0) && <span>·</span>}
+              {sku.lineaNegocioNombre && (
+                <span className={`px-1.5 py-0.5 rounded font-bold ${lineaBadgeClasses(sku.lineaNegocioNombre)}`}>
+                  {sku.lineaNegocioNombre}
+                </span>
+              )}
+              {sku.unidadesActivas > 0 && (
+                <>
+                  <span>·</span>
+                  <span>{sku.unidadesActivas} uds activas · S/ {fmtPEN0(sku.capitalActivoPEN)} capital</span>
+                </>
               )}
             </div>
           </div>
@@ -96,225 +131,46 @@ export const ProductoDetailPane: React.FC<ProductoDetailPaneProps> = ({ item, on
         </button>
       </div>
 
-      {/* Tabs sticky · canon F6 */}
+      {/* Tabs sticky · 4 tabs canon CI */}
       <div className="flex border-b border-slate-200 bg-white sticky top-0 z-10">
-        <TabButton active={tab === 'resumen'} onClick={() => setTab('resumen')}>Resumen</TabButton>
-        <TabButton active={tab === 'costo'}   onClick={() => setTab('costo')}>Costo</TabButton>
-        <TabButton active={tab === 'mercado'} onClick={() => setTab('mercado')}>Mercado</TabButton>
+        <TabButton active={tab === 'variance'} onClick={() => setTab('variance')} icon={TrendingUp}>
+          Variance
+        </TabButton>
+        <TabButton active={tab === 'historico'} onClick={() => setTab('historico')} icon={LineChart}>
+          Histórico
+        </TabButton>
+        <TabButton active={tab === 'lotes'} onClick={() => setTab('lotes')} icon={Layers}>
+          Lotes
+        </TabButton>
+        <TabButton active={tab === 'proveedores'} onClick={() => setTab('proveedores')} icon={Users}>
+          Proveedores
+        </TabButton>
       </div>
 
-      {/* Contenido scrolleable */}
+      {/* Contenido scrolleable según tab */}
       <div className="flex-1 overflow-auto p-4 space-y-4">
-        {!tieneInv ? (
-          <EmptyInvestigacion productoId={p.id} />
-        ) : (
-          <>
-            {tab === 'resumen' && (
-              <>
-                {/* 4 KPIs canon F2 mini */}
-                <div className="grid grid-cols-2 gap-2">
-                  <Kpi label="Costo unit." valueClass="text-slate-900">S/ {fmtPEN(item.costoPEN)}</Kpi>
-                  <Kpi label="Precio venta" valueClass="text-slate-900">
-                    {item.precioEfectivo > 0 ? `S/ ${fmtPEN(item.precioEfectivo)}` : '—'}
-                  </Kpi>
-                  <Kpi label="Margen" valueClass={item.margenPct !== null && item.margenPct >= 20 ? 'text-emerald-700' : 'text-amber-700'} bg="emerald">
-                    {item.margenPct !== null ? `${item.margenPct.toFixed(1)}%` : '—'}
-                  </Kpi>
-                  <Kpi label="Utilidad/u" valueClass={item.utilidad !== null && item.utilidad > 0 ? 'text-emerald-700' : 'text-rose-700'} bg="emerald">
-                    {item.utilidad !== null ? `S/ ${fmtPEN(item.utilidad)}` : '—'}
-                  </Kpi>
-                </div>
-
-                {/* Score gauge SVG circular · canon */}
-                <div className={`bg-gradient-to-br border rounded-lg p-3 ${sc.bg}`}>
-                  <div className="flex items-center gap-3">
-                    <div className="relative w-14 h-14 flex-shrink-0">
-                      <svg viewBox="0 0 36 36" className="w-14 h-14 -rotate-90">
-                        <circle cx="18" cy="18" r="15" fill="none" stroke="#e2e8f0" strokeWidth="3" />
-                        <circle
-                          cx="18"
-                          cy="18"
-                          r="15"
-                          fill="none"
-                          stroke={sc.stroke}
-                          strokeWidth="3"
-                          strokeDasharray={`${(item.score / 100) * 94.2} 94.2`}
-                          strokeLinecap="round"
-                        />
-                      </svg>
-                      <div className={`absolute inset-0 flex items-center justify-center text-lg font-bold tabular-nums ${sc.text}`}>
-                        {item.score}
-                      </div>
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className={`text-[10px] font-bold uppercase tracking-wider ${sc.text}`}>
-                        Cost Intelligence Score
-                      </div>
-                      <div className="text-[11px] text-slate-700 mt-0.5">
-                        {item.score >= 70 ? 'Producto óptimo · listo para escalar' :
-                         item.score >= 40 ? 'Producto medio · margen mejorable' :
-                                            'Producto pobre · datos faltantes'}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Recomendación · si existe */}
-                {inv?.recomendacion && (
-                  <div className="bg-emerald-50 border border-emerald-200 rounded-md p-2.5">
-                    <div className="flex items-center gap-1.5 mb-1">
-                      <ThumbsUp className="w-3.5 h-3.5 text-emerald-700" />
-                      <span className="text-[10px] font-bold text-emerald-700 uppercase tracking-wider">Recomendación</span>
-                    </div>
-                    <div className="text-[11px] text-slate-700 font-semibold capitalize">
-                      {inv.recomendacion.replace(/_/g, ' ')}
-                    </div>
-                    {inv.razonamiento && (
-                      <div className="text-[10px] text-slate-500 italic mt-0.5">"{inv.razonamiento}"</div>
-                    )}
-                  </div>
-                )}
-              </>
-            )}
-
-            {tab === 'costo' && (
-              <>
-                {/* Breakdown costo */}
-                <div>
-                  <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">Breakdown costo</div>
-                  <div className="space-y-1.5 text-[11px]">
-                    <div className="flex justify-between py-1 border-b border-slate-100">
-                      <span className="text-slate-600">Costo USD</span>
-                      <span className="font-semibold tabular-nums">$ {fmtUSD(item.costoUSD)}</span>
-                    </div>
-                    <div className="flex justify-between py-1 border-b border-slate-100">
-                      <span className="text-slate-600">TC aplicado</span>
-                      <span className="font-semibold tabular-nums">{item.tc.toFixed(2)}</span>
-                    </div>
-                    <div className="flex justify-between py-1.5 pt-2 border-t-2 border-slate-200">
-                      <span className="text-slate-900 font-bold">Costo total PEN</span>
-                      <span className="font-bold tabular-nums">S/ {fmtPEN(item.costoPEN)}</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Top proveedores */}
-                {inv?.proveedoresUSA && inv.proveedoresUSA.length > 0 && (
-                  <div>
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Proveedores</span>
-                      <span className="text-[9px] text-slate-400 tabular-nums">{inv.proveedoresUSA.length}</span>
-                    </div>
-                    <ul className="space-y-0.5">
-                      {inv.proveedoresUSA
-                        .slice()
-                        .sort((a, b) => (a.precio ?? 0) - (b.precio ?? 0))
-                        .slice(0, 5)
-                        .map((prov, idx) => (
-                          <li
-                            key={idx}
-                            className={`flex items-center justify-between gap-2 text-[11px] py-1.5 ${
-                              idx < (inv.proveedoresUSA.length - 1) ? 'border-b border-slate-100' : ''
-                            }`}
-                          >
-                            <span className="flex items-center gap-1.5 truncate">
-                              {idx === 0 && <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 flex-shrink-0" />}
-                              <span className="text-slate-700 truncate">{prov.nombre ?? `Prov. ${idx + 1}`}</span>
-                              {idx === 0 && (
-                                <span className="px-1 py-0.5 text-[8px] rounded bg-emerald-50 text-emerald-700 font-bold flex-shrink-0">
-                                  MEJOR
-                                </span>
-                              )}
-                            </span>
-                            <span className="font-semibold tabular-nums text-slate-900 whitespace-nowrap">
-                              $ {fmtUSD(prov.precio ?? 0)}
-                            </span>
-                          </li>
-                        ))}
-                    </ul>
-                  </div>
-                )}
-              </>
-            )}
-
-            {tab === 'mercado' && (
-              <>
-                {inv?.competidoresPeru && inv.competidoresPeru.length > 0 && (
-                  <div>
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Competidores en Perú</span>
-                      <span className="text-[9px] text-slate-400 tabular-nums">{inv.competidoresPeru.length}</span>
-                    </div>
-                    <ul className="space-y-0.5">
-                      {inv.competidoresPeru
-                        .slice()
-                        .sort((a, b) => (a.precio ?? 0) - (b.precio ?? 0))
-                        .slice(0, 5)
-                        .map((comp, idx) => (
-                          <li
-                            key={idx}
-                            className={`flex items-center justify-between gap-2 text-[11px] py-1.5 ${
-                              idx < (inv.competidoresPeru.length - 1) ? 'border-b border-slate-100' : ''
-                            }`}
-                          >
-                            <span className="text-slate-700 truncate">{comp.nombre ?? `Comp. ${idx + 1}`}</span>
-                            <span className="font-semibold tabular-nums text-slate-900 whitespace-nowrap">
-                              S/ {fmtPEN(comp.precio ?? 0)}
-                            </span>
-                          </li>
-                        ))}
-                    </ul>
-
-                    {/* Banner posición competitiva */}
-                    {item.precioEfectivo > 0 && (() => {
-                      const preciosComp = inv.competidoresPeru.map((c) => c.precio ?? 0).filter((p) => p > 0).sort((a, b) => a - b);
-                      const posicion = preciosComp.findIndex((pc) => item.precioEfectivo <= pc) + 1;
-                      const minComp = preciosComp[0] ?? 0;
-                      const diffPct = minComp > 0 ? ((minComp - item.precioEfectivo) / minComp) * 100 : 0;
-                      const isCheaper = item.precioEfectivo < minComp;
-                      const totalComp = preciosComp.length;
-                      const posStr = posicion > 0 ? `${posicion}/${totalComp}` : `${totalComp + 1}/${totalComp}`;
-                      return (
-                        <div className={`mt-3 px-2 py-1.5 rounded text-[10px] ${
-                          isCheaper ? 'bg-sky-50 border border-sky-200 text-sky-800' : 'bg-amber-50 border border-amber-200 text-amber-800'
-                        }`}>
-                          <span className="font-bold">Posición:</span> {posStr}
-                          {' · '}
-                          {isCheaper
-                            ? <>más barato que mercado por <span className="font-bold tabular-nums">{Math.abs(diffPct).toFixed(1)}%</span></>
-                            : <>arriba del mercado por <span className="font-bold tabular-nums">{Math.abs(diffPct).toFixed(1)}%</span></>
-                          }
-                        </div>
-                      );
-                    })()}
-                  </div>
-                )}
-
-                {(!inv?.competidoresPeru || inv.competidoresPeru.length === 0) && (
-                  <div className="text-center text-xs text-slate-500 py-6">
-                    Sin datos de competencia
-                  </div>
-                )}
-              </>
-            )}
-          </>
-        )}
+        {tab === 'variance' && <VarianceTab sku={sku} />}
+        {tab === 'historico' && <HistoricoTab sku={sku} />}
+        {tab === 'lotes' && <LotesTab sku={sku} />}
+        {tab === 'proveedores' && <ProveedoresTab sku={sku} />}
       </div>
 
-      {/* Footer · acciones canon */}
+      {/* Footer · acciones canon CI */}
       <div className="border-t border-slate-200 p-2.5 flex items-center gap-2 bg-slate-50">
-        <Link
-          to={`/productos?p=${p.id}`}
+        <button
+          type="button"
           className="flex-1 text-[11px] font-medium text-slate-700 bg-white border border-slate-200 hover:bg-slate-100 rounded-md px-2 py-1.5 flex items-center justify-center gap-1.5"
+          title="Crear alerta · próximamente"
+          onClick={() => alert('Crear alerta · próximamente')}
         >
-          Ver en Productos
-          <ExternalLink className="w-3 h-3" />
-        </Link>
+          <Bell className="w-3 h-3" />
+          Crear alerta
+        </button>
         <button
           type="button"
           className="flex-1 text-[11px] font-bold text-white bg-teal-600 hover:bg-teal-700 rounded-md px-2 py-1.5 flex items-center justify-center gap-1.5"
-          title="Crear orden de compra · próximamente"
-          onClick={() => alert('Crear OC desde Cost Intelligence · próximamente')}
+          title="Generar OC · próximamente"
+          onClick={() => alert('Generar OC desde Cost Intelligence · próximamente')}
         >
           <ShoppingCart className="w-3 h-3" />
           Generar OC
@@ -324,50 +180,385 @@ export const ProductoDetailPane: React.FC<ProductoDetailPaneProps> = ({ item, on
   );
 };
 
-interface TabButtonProps { active: boolean; onClick: () => void; children: React.ReactNode }
-const TabButton: React.FC<TabButtonProps> = ({ active, onClick, children }) => (
-  <button
-    type="button"
-    onClick={onClick}
-    className={`flex-1 py-2 text-[11px] font-medium border-b-2 transition-colors ${
-      active ? 'text-teal-700 border-teal-600 font-bold' : 'text-slate-500 border-transparent hover:text-slate-700'
-    }`}
-  >
-    {children}
-  </button>
-);
+// ─── TAB 1 · Variance attribution waterfall ──────────────────────────────────
+const VarianceTab: React.FC<{ sku: SkuConCostos }> = ({ sku }) => {
+  const attribution = calcularVarianceAttribution(sku);
 
-interface KpiProps { label: string; children: React.ReactNode; valueClass?: string; bg?: 'slate' | 'emerald' }
-const Kpi: React.FC<KpiProps> = ({ label, children, valueClass = 'text-slate-900', bg = 'slate' }) => {
-  const bgClasses = bg === 'emerald'
-    ? 'bg-emerald-50 border-emerald-200'
-    : 'bg-slate-50 border-slate-200';
-  const labelClasses = bg === 'emerald' ? 'text-emerald-700' : 'text-slate-500';
+  if (sku.varianceVsLoteAntPct === null || !attribution) {
+    return (
+      <div className="text-center text-xs text-slate-500 py-6">
+        <Layers className="w-8 h-8 text-slate-300 mx-auto mb-2" />
+        Sólo 1 lote registrado · Variance requiere ≥2 OCs
+      </div>
+    );
+  }
+
+  const totalAbs = Math.abs(attribution.totalPp) || 1;
+  const drivers: Array<{ label: string; valuePp: number; colorBar: string; colorText: string }> = [
+    { label: 'Precio proveedor', valuePp: attribution.precioProveedorPp, colorBar: 'bg-rose-500',   colorText: 'text-rose-700'   },
+    { label: 'Flete intl.',      valuePp: attribution.fleteIntlPp,       colorBar: 'bg-amber-500',  colorText: 'text-amber-700'  },
+    { label: 'TC (TCPA)',        valuePp: attribution.tcPp,              colorBar: 'bg-sky-500',    colorText: 'text-sky-700'    },
+    { label: 'Costos landed',    valuePp: attribution.costosLandedPp,    colorBar: 'bg-purple-500', colorText: 'text-purple-700' },
+  ];
+
   return (
-    <div className={`${bgClasses} border rounded-md p-2`}>
-      <div className={`text-[9px] font-bold uppercase tracking-wider mb-0.5 ${labelClasses}`}>{label}</div>
-      <div className={`text-sm font-bold tabular-nums ${valueClass}`}>{children}</div>
+    <>
+      {/* Resumen */}
+      <div>
+        <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">
+          Variance attribution
+        </div>
+        <div className="text-[11px] text-slate-700">
+          Costo varió{' '}
+          <span className={`font-bold tabular-nums ${
+            sku.varianceVsLoteAntPct >= 0 ? 'text-rose-600' : 'text-emerald-600'
+          }`}>
+            {fmtPct(sku.varianceVsLoteAntPct)}
+          </span>{' '}
+          entre los últimos 2 lotes
+        </div>
+      </div>
+
+      {/* Drivers waterfall */}
+      <div className="space-y-2">
+        {drivers.map((d) => {
+          const width = Math.min(100, (Math.abs(d.valuePp) / totalAbs) * 100);
+          return (
+            <div key={d.label} className="flex items-center gap-2">
+              <div className="w-24 text-[10px] text-slate-700 font-medium">{d.label}</div>
+              <div className="relative flex-1 h-5 bg-slate-100 rounded overflow-hidden">
+                <div className={`absolute inset-y-0 left-0 ${d.colorBar} rounded`} style={{ width: `${width}%` }} />
+                <div className="absolute inset-0 flex items-center justify-center text-[9px] font-bold text-white">
+                  {fmtPp(d.valuePp)}
+                </div>
+              </div>
+              <div className={`w-10 text-[10px] text-right font-bold tabular-nums ${d.colorText}`}>
+                {Math.round((Math.abs(d.valuePp) / totalAbs) * 100)}%
+              </div>
+            </div>
+          );
+        })}
+        <div className="border-t border-slate-200 pt-2 flex items-center justify-between">
+          <span className="text-[11px] text-slate-700 font-bold">Total atribuido</span>
+          <span
+            className={`text-[12px] font-bold tabular-nums ${
+              attribution.totalPp >= 0 ? 'text-rose-700' : 'text-emerald-700'
+            }`}
+          >
+            {fmtPp(attribution.totalPp)} ✓
+          </span>
+        </div>
+      </div>
+
+      {/* Acciones data-driven (NO investigación) */}
+      {sku.estadoCosto === 'anomalo' && (
+        <div className="bg-amber-50/50 border border-amber-200 rounded-lg p-3">
+          <div className="flex items-center gap-1.5 mb-2">
+            <Lightbulb className="w-3.5 h-3.5 text-amber-700" />
+            <span className="text-[10px] font-bold text-amber-700 uppercase tracking-wider">
+              Acciones sugeridas
+            </span>
+          </div>
+          <div className="space-y-1.5">
+            {sku.proveedores.length > 0 && (
+              <button
+                type="button"
+                className="w-full flex items-center justify-between gap-2 text-left bg-white border border-amber-200 rounded px-2.5 py-1.5 text-[11px] hover:border-amber-300"
+              >
+                <span className="text-slate-700">
+                  Renegociar con {sku.proveedores[0].proveedorNombre}
+                </span>
+                <ArrowRight className="w-3 h-3 text-amber-700" />
+              </button>
+            )}
+            <button
+              type="button"
+              className="w-full flex items-center justify-between gap-2 text-left bg-white border border-amber-200 rounded px-2.5 py-1.5 text-[11px] hover:border-amber-300"
+            >
+              <span className="text-slate-700">
+                Revisar próxima OC · ajustar cantidad
+              </span>
+              <ArrowRight className="w-3 h-3 text-amber-700" />
+            </button>
+            <button
+              type="button"
+              className="w-full flex items-center justify-between gap-2 text-left bg-white border border-amber-200 rounded px-2.5 py-1.5 text-[11px] hover:border-amber-300"
+            >
+              <span className="text-slate-700">Subir precio venta para mantener margen</span>
+              <ArrowRight className="w-3 h-3 text-amber-700" />
+            </button>
+          </div>
+        </div>
+      )}
+    </>
+  );
+};
+
+// ─── TAB 2 · Histórico time-series ───────────────────────────────────────────
+const HistoricoTab: React.FC<{ sku: SkuConCostos }> = ({ sku }) => {
+  if (sku.trendCostosPEN.length < 2) {
+    return (
+      <div className="text-center text-xs text-slate-500 py-6">
+        <LineChart className="w-8 h-8 text-slate-300 mx-auto mb-2" />
+        Necesita ≥2 lotes para serie temporal
+      </div>
+    );
+  }
+
+  const valores = sku.trendCostosPEN;
+  const min = Math.min(...valores);
+  const max = Math.max(...valores);
+  const range = max - min || 1;
+  const fechas = sku.lotes.map((l) => l.fechaRecepcion);
+
+  // Generar polyline SVG (viewBox 280x60)
+  const points = valores.map((v, i) => {
+    const x = (i / (valores.length - 1)) * 280;
+    const y = 55 - ((v - min) / range) * 50;
+    return `${x},${y}`;
+  }).join(' ');
+
+  const ultimo = valores[valores.length - 1];
+  const primero = valores[0];
+  const deltaPct = ((ultimo - primero) / primero) * 100;
+
+  return (
+    <div className="space-y-3">
+      <div>
+        <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">
+          Costo unitario · histórico
+        </div>
+        <div className="text-[11px] text-slate-700 tabular-nums">
+          S/ {fmtPEN(primero)} → S/ {fmtPEN(ultimo)}{' '}
+          <span className={deltaPct >= 0 ? 'text-rose-600 font-bold' : 'text-emerald-600 font-bold'}>
+            ({fmtPct(deltaPct)})
+          </span>
+        </div>
+      </div>
+
+      <div className="bg-slate-50 border border-slate-200 rounded-lg p-3">
+        <svg viewBox="0 0 280 60" className="w-full h-16">
+          <polyline
+            points={points}
+            fill="none"
+            stroke={deltaPct >= 0 ? '#e11d48' : '#10b981'}
+            strokeWidth="2"
+          />
+          {valores.map((v, i) => {
+            const x = (i / (valores.length - 1)) * 280;
+            const y = 55 - ((v - min) / range) * 50;
+            return <circle key={i} cx={x} cy={y} r="2.5" fill={deltaPct >= 0 ? '#e11d48' : '#10b981'} />;
+          })}
+        </svg>
+        <div className="flex items-center justify-between mt-1 text-[9px] text-slate-500">
+          <span>{fmtFechaCorta(fechas[0] ?? null)}</span>
+          <span>{fmtFechaCorta(fechas[fechas.length - 1] ?? null)}</span>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-3 gap-2">
+        <div className="bg-slate-50 border border-slate-200 rounded p-2">
+          <div className="text-[9px] font-bold text-slate-500 uppercase tracking-wider">Mín</div>
+          <div className="text-sm font-bold text-slate-900 tabular-nums">S/ {fmtPEN(min)}</div>
+        </div>
+        <div className="bg-slate-50 border border-slate-200 rounded p-2">
+          <div className="text-[9px] font-bold text-slate-500 uppercase tracking-wider">Máx</div>
+          <div className="text-sm font-bold text-slate-900 tabular-nums">S/ {fmtPEN(max)}</div>
+        </div>
+        <div className="bg-slate-50 border border-slate-200 rounded p-2">
+          <div className="text-[9px] font-bold text-slate-500 uppercase tracking-wider">Stability</div>
+          <div className="text-sm font-bold text-slate-900 tabular-nums">{sku.stabilityScore}/100</div>
+        </div>
+      </div>
     </div>
   );
 };
 
-const EmptyInvestigacion: React.FC<{ productoId: string }> = ({ productoId }) => (
-  <div className="flex flex-col items-center text-center py-6 px-3">
-    <div className="w-12 h-12 rounded-full bg-amber-100 flex items-center justify-center mb-3">
-      <AlertTriangle className="w-6 h-6 text-amber-600" />
+// ─── TAB 3 · Lotes ───────────────────────────────────────────────────────────
+const LotesTab: React.FC<{ sku: SkuConCostos }> = ({ sku }) => {
+  if (sku.lotes.length === 0) {
+    return (
+      <div className="text-center text-xs text-slate-500 py-6">
+        <Layers className="w-8 h-8 text-slate-300 mx-auto mb-2" />
+        Sin lotes registrados
+      </div>
+    );
+  }
+
+  // Render en orden descendente (más reciente arriba)
+  const lotesDesc = [...sku.lotes].reverse();
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-2">
+        <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+          Lotes registrados
+        </div>
+        <span className="text-[9px] text-slate-400 tabular-nums">
+          {sku.lotes.length} {sku.lotes.length === 1 ? 'lote' : 'lotes'}
+        </span>
+      </div>
+      <div className="space-y-1.5">
+        {lotesDesc.map((lote, idx) => {
+          const esElUltimo = idx === 0;
+          // Variance vs siguiente (anterior cronológicamente)
+          const next = lotesDesc[idx + 1];
+          const variancePct = next && next.costoUnitarioPEN > 0
+            ? ((lote.costoUnitarioPEN - next.costoUnitarioPEN) / next.costoUnitarioPEN) * 100
+            : null;
+          const varianceClass = variancePct === null
+            ? 'text-slate-400'
+            : Math.abs(variancePct) <= 2
+            ? 'text-emerald-600'
+            : Math.abs(variancePct) <= 5
+            ? 'text-amber-600'
+            : 'text-rose-600';
+
+          return (
+            <div
+              key={`${lote.ordenCompraId}-${lote.loteId}`}
+              className={`border rounded-lg p-2.5 ${
+                esElUltimo ? 'bg-teal-50/40 border-teal-200' : 'bg-white border-slate-200'
+              }`}
+            >
+              <div className="flex items-center justify-between mb-1">
+                <div className="flex items-center gap-1.5 min-w-0">
+                  <span className="text-[11px] font-bold text-slate-900 font-mono">
+                    {lote.loteId}
+                  </span>
+                  {esElUltimo && (
+                    <span className="px-1 py-0.5 text-[8px] rounded bg-teal-100 text-teal-700 font-bold">
+                      ACTUAL
+                    </span>
+                  )}
+                </div>
+                <span className="text-[10px] text-slate-500 tabular-nums">
+                  {fmtFechaCorta(lote.fechaRecepcion)}
+                </span>
+              </div>
+              <div className="flex items-end justify-between">
+                <div className="min-w-0">
+                  <div className="text-[10px] text-slate-500 truncate">
+                    {lote.ordenCompraNumero || '—'} · {lote.cantidad} uds
+                  </div>
+                  {lote.proveedorNombre && (
+                    <div className="text-[10px] text-slate-500 truncate">
+                      {lote.proveedorNombre}
+                    </div>
+                  )}
+                </div>
+                <div className="text-right">
+                  <div className="text-sm font-bold text-slate-900 tabular-nums">
+                    S/ {fmtPEN(lote.costoUnitarioPEN)}
+                  </div>
+                  <div className="text-[10px] text-slate-500 tabular-nums">
+                    $ {fmtUSD(lote.costoUnitarioUSD)} · TC {lote.tc.toFixed(2)}
+                  </div>
+                  {variancePct !== null && (
+                    <div className={`text-[10px] font-bold tabular-nums ${varianceClass}`}>
+                      {fmtPct(variancePct)} vs anterior
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
     </div>
-    <h4 className="text-sm font-bold text-slate-900 mb-1">Sin investigación de mercado</h4>
-    <p className="text-[11px] text-slate-500 mb-4 leading-relaxed">
-      Sin investigación no podemos calcular costo · margen · score.
-      Registra proveedores y competidores en el módulo de Productos.
-    </p>
-    <Link
-      to={`/productos?p=${productoId}`}
-      className="text-[11px] font-bold text-white bg-teal-600 hover:bg-teal-700 rounded-md px-3 py-1.5 flex items-center gap-1.5"
-    >
-      <ClipboardCheck className="w-3 h-3" />
-      Investigar producto
-      <ArrowRight className="w-3 h-3" />
-    </Link>
-  </div>
+  );
+};
+
+// ─── TAB 4 · Proveedores REALES (de OCs · NO investigación) ──────────────────
+const ProveedoresTab: React.FC<{ sku: SkuConCostos }> = ({ sku }) => {
+  if (sku.proveedores.length === 0) {
+    return (
+      <div className="text-center text-xs text-slate-500 py-6">
+        <Users className="w-8 h-8 text-slate-300 mx-auto mb-2" />
+        Sin proveedores registrados en OCs
+      </div>
+    );
+  }
+
+  // Ordenar por costo promedio ascendente (mejor primero)
+  const provs = [...sku.proveedores].sort((a, b) => a.costoPromedioUSD - b.costoPromedioUSD);
+  const mejorId = provs[0]?.proveedorId;
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-2">
+        <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+          Proveedores reales · de OCs
+        </div>
+        <span className="text-[9px] text-slate-400 tabular-nums">
+          {sku.proveedores.length}
+        </span>
+      </div>
+      <ul className="space-y-1">
+        {provs.map((prov) => {
+          const esMejor = prov.proveedorId === mejorId;
+          return (
+            <li
+              key={prov.proveedorId}
+              className={`flex items-center justify-between gap-2 px-2.5 py-2 rounded border ${
+                esMejor ? 'bg-emerald-50/40 border-emerald-200' : 'bg-white border-slate-200'
+              }`}
+            >
+              <div className="flex items-center gap-1.5 min-w-0">
+                {esMejor && <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 flex-shrink-0" />}
+                <div className="min-w-0">
+                  <div className="text-[11px] font-semibold text-slate-900 truncate">
+                    {prov.proveedorNombre}
+                  </div>
+                  <div className="text-[9px] text-slate-500 tabular-nums">
+                    {prov.ocs} {prov.ocs === 1 ? 'OC' : 'OCs'} · última {fmtFechaCorta(prov.ultimaOC)}
+                  </div>
+                </div>
+              </div>
+              <div className="text-right flex-shrink-0">
+                {esMejor && (
+                  <span className="px-1 py-0.5 text-[8px] rounded bg-emerald-50 text-emerald-700 font-bold">
+                    MEJOR
+                  </span>
+                )}
+                <div className="text-sm font-bold text-slate-900 tabular-nums">
+                  $ {fmtUSD(prov.costoPromedioUSD)}
+                </div>
+                <div className="text-[9px] text-slate-500 tabular-nums">
+                  últ. $ {fmtUSD(prov.ultimoCostoUSD)}
+                </div>
+              </div>
+            </li>
+          );
+        })}
+      </ul>
+
+      <div className="mt-3 px-3 py-2 bg-slate-50 border border-slate-200 rounded text-[10px] text-slate-500">
+        <span className="font-bold">Nota:</span> esta lista proviene de OCs reales · NO de
+        investigación de mercado. Para precios sugeridos pre-compra ver módulo Productos.
+      </div>
+    </div>
+  );
+};
+
+// ─── Helpers UI ──────────────────────────────────────────────────────────────
+interface TabButtonProps {
+  active: boolean;
+  onClick: () => void;
+  icon: React.ComponentType<{ className?: string }>;
+  children: React.ReactNode;
+}
+const TabButton: React.FC<TabButtonProps> = ({ active, onClick, icon: Icon, children }) => (
+  <button
+    type="button"
+    onClick={onClick}
+    className={`flex-1 py-2 text-[11px] font-medium border-b-2 transition-colors flex items-center justify-center gap-1 ${
+      active
+        ? 'text-teal-700 border-teal-600 font-bold'
+        : 'text-slate-500 border-transparent hover:text-slate-700'
+    }`}
+  >
+    <Icon className="w-3 h-3" />
+    {children}
+  </button>
 );

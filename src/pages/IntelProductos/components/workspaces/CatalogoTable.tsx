@@ -1,51 +1,64 @@
 /**
- * CatalogoTable · grid-12 canon Productos · density-first
+ * CatalogoTable · grid-12 canon Productos · density-first · Cost Intelligence
  *
- * chk5.B7 (S3.6 M1.bis · Cost Intelligence) · refactor pixel-perfect contra
- * canon Productos V2. Reemplaza tabla HTML por grid-12 divs (canon F4).
+ * chk5.B8 (S3.6 M1.bis · Cost Intelligence) · refactor canon CI · cero refs
+ * a investigación. Las columnas reflejan la lógica propia del módulo:
+ * costos reales de adquisición + variance + capital atrapado + stability.
  *
- * COLUMNAS (grid 12 cols):
+ * COLUMNAS (grid 12 cols · canon F4):
  *   col-1  checkbox
- *   col-4  Producto · avatar gradient (canon) + nombre + sub-info (sku · marca · línea · estado)
- *   col-2  Costo unit. (S/ + $USD · TC)
- *   col-2  Margen % + sparkline mini inline + utilidad/u
- *   col-2  Trend 90d (sparkline real cuando haya histórico · placeholder gris MVP)
- *   col-1  Score pill (verde/amber/rose)
+ *   col-4  Producto · avatar gradient + nombre + sub-info (sku · marca · línea · lotes)
+ *   col-2  Último costo (S/ + $USD · TCPA)
+ *   col-2  Variance vs lote ant (% · color + label estable/volátil/anómalo)
+ *   col-2  Capital · Trend 90d (S/ + sparkline real de lotes)
+ *   col-1  Stability score pill (verde/amber/rose)
  *
  * Mockup canónico: docs/mockups/cost-intelligence-canon-productos.html · Sec 1
  */
 
 import React from 'react';
-import { ChevronUp, ChevronDown, AlertCircle, Search as SearchIcon } from 'lucide-react';
-import { ProductoAvatar, inferLineaFromProducto } from '../../../Productos/components/shared/ProductoAvatar';
+import {
+  ChevronUp,
+  ChevronDown,
+  Search as SearchIcon,
+  Zap,
+  TrendingUp,
+} from 'lucide-react';
+import {
+  ProductoAvatar,
+  inferLineaFromProducto,
+} from '../../../Productos/components/shared/ProductoAvatar';
 import { SparklineMini } from '../../../Productos/components/shared/SparklineMini';
-import type { ProductoEnriquecido, SortKey, SortDir } from './CatalogoWorkspace';
+import type { SkuConCostos } from '../../utils/costIntelligence';
+import {
+  ESTADO_COSTO_CLASSES,
+  ESTADO_COSTO_LABELS,
+} from '../../utils/costIntelligence';
+
+export type SortKey = 'nombre' | 'ultimoCosto' | 'variance' | 'capital' | 'stability';
+export type SortDir = 'asc' | 'desc';
 
 interface CatalogoTableProps {
-  enriquecidos: ProductoEnriquecido[];
+  skus: SkuConCostos[];
   sortKey: SortKey;
   sortDir: SortDir;
   onSort: (key: SortKey) => void;
   seleccionadoId: string | null;
-  onSelect: (item: ProductoEnriquecido) => void;
+  onSelect: (sku: SkuConCostos) => void;
 }
 
-const fmtPEN = (n: number) => n.toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-const fmtUSD = (n: number) => n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const fmtPEN = (n: number) =>
+  n.toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const fmtUSD = (n: number) =>
+  n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const fmtInt = (n: number) => n.toLocaleString('es-PE');
+const fmtPct = (n: number, decimals = 1) =>
+  `${n >= 0 ? '+' : ''}${n.toFixed(decimals)}%`;
 
-function scoreClasses(score: number): string {
+function stabilityClasses(score: number): string {
   if (score >= 70) return 'bg-emerald-100 text-emerald-700';
   if (score >= 40) return 'bg-amber-100 text-amber-700';
   return 'bg-rose-100 text-rose-700';
-}
-
-function margenClasses(margenPct: number | null): string {
-  if (margenPct === null) return 'text-slate-400';
-  if (margenPct >= 30) return 'text-emerald-600';
-  if (margenPct >= 20) return 'text-emerald-600';
-  if (margenPct >= 10) return 'text-amber-600';
-  return 'text-rose-600';
 }
 
 function lineaBadgeClasses(linea: string | undefined): string {
@@ -56,30 +69,21 @@ function lineaBadgeClasses(linea: string | undefined): string {
   return 'bg-slate-50 text-slate-600';
 }
 
-/** Genera una serie mock determinística de 7 puntos basada en margen actual.
- *  Cuando haya histórico real de costos, reemplazar por la serie verdadera. */
-function generarTrendSerie(score: number, margen: number | null): number[] {
-  if (margen === null) return [];
-  const base = margen;
-  const seed = score / 100;
-  // Trend ascendente si score alto · plano si medio · descendente si bajo
-  const dir = score >= 70 ? 1 : score >= 40 ? 0 : -1;
-  return Array.from({ length: 7 }, (_, i) => base + (i * 0.4 * dir * seed));
-}
-
 export const CatalogoTable: React.FC<CatalogoTableProps> = ({
-  enriquecidos,
+  skus,
   sortKey,
   sortDir,
   onSort,
   seleccionadoId,
   onSelect,
 }) => {
-  if (enriquecidos.length === 0) {
+  if (skus.length === 0) {
     return (
       <div className="p-12 text-center">
         <SearchIcon className="w-8 h-8 text-slate-300 mx-auto mb-2" />
-        <p className="text-sm text-slate-500">No hay productos que coincidan con los filtros</p>
+        <p className="text-sm text-slate-500">
+          No hay SKUs con costos que coincidan con los filtros
+        </p>
       </div>
     );
   }
@@ -88,35 +92,100 @@ export const CatalogoTable: React.FC<CatalogoTableProps> = ({
     <>
       {/* Header tabla · grid 12 cols canon */}
       <div className="grid grid-cols-12 gap-3 px-4 py-2.5 bg-slate-50 border-b border-slate-200 text-[10px] uppercase tracking-wider text-slate-500 font-semibold">
-        <div className="col-span-1"><input type="checkbox" className="rounded border-slate-300 text-teal-600 w-3.5 h-3.5" /></div>
-        <SortHeader label="Producto" k="nombre" align="left" sortKey={sortKey} sortDir={sortDir} onSort={onSort} className="col-span-4" />
-        <SortHeader label="Costo unit." k="costo" align="right" sortKey={sortKey} sortDir={sortDir} onSort={onSort} className="col-span-2" />
-        <SortHeader label="Margen" k="margen" align="right" sortKey={sortKey} sortDir={sortDir} onSort={onSort} className="col-span-2" />
-        <div className="col-span-2 text-center">Trend 90d</div>
-        <SortHeader label="Score" k="score" align="center" sortKey={sortKey} sortDir={sortDir} onSort={onSort} className="col-span-1" />
+        <div className="col-span-1">
+          <input
+            type="checkbox"
+            className="rounded border-slate-300 text-teal-600 w-3.5 h-3.5"
+          />
+        </div>
+        <SortHeader
+          label="Producto"
+          k="nombre"
+          align="left"
+          sortKey={sortKey}
+          sortDir={sortDir}
+          onSort={onSort}
+          className="col-span-4"
+        />
+        <SortHeader
+          label="Último costo"
+          k="ultimoCosto"
+          align="right"
+          sortKey={sortKey}
+          sortDir={sortDir}
+          onSort={onSort}
+          className="col-span-2"
+        />
+        <SortHeader
+          label="Variance vs lote ant."
+          k="variance"
+          align="right"
+          sortKey={sortKey}
+          sortDir={sortDir}
+          onSort={onSort}
+          className="col-span-2"
+        />
+        <SortHeader
+          label="Capital · Trend 90d"
+          k="capital"
+          align="right"
+          sortKey={sortKey}
+          sortDir={sortDir}
+          onSort={onSort}
+          className="col-span-2"
+        />
+        <SortHeader
+          label="Stability"
+          k="stability"
+          align="center"
+          sortKey={sortKey}
+          sortDir={sortDir}
+          onSort={onSort}
+          className="col-span-1"
+        />
       </div>
 
       {/* Cuerpo · divide-y canon */}
       <div className="divide-y divide-slate-100">
-        {enriquecidos.map((item) => {
-          const p = item.producto;
-          const isSelected = seleccionadoId === p.id;
-          const isInactive = p.estado !== 'activo';
+        {skus.map((sku) => {
+          const isSelected = seleccionadoId === sku.productoId;
+          const isAnomalia = sku.estadoCosto === 'anomalo';
+          const isInactive = sku.estado !== 'activo';
+
           const linea = inferLineaFromProducto({
-            linea: p.lineaNegocioNombre,
-            tipo: p.tipoProducto?.nombre,
-            esPack: p.esPack,
+            linea: sku.lineaNegocioNombre,
+            tipo: sku.tipoProductoNombre,
+            esPack: sku.esPack,
           });
-          const trendSerie = generarTrendSerie(item.score, item.margenPct);
-          const trendColor = item.score >= 70 ? '#10b981' : item.score >= 40 ? '#f59e0b' : '#e11d48';
+
+          // Trend color · derivado del último variance (no del score)
+          const trendColor = sku.estadoCosto === 'estable'
+            ? '#10b981'
+            : sku.estadoCosto === 'volatil'
+            ? '#f59e0b'
+            : sku.estadoCosto === 'anomalo'
+            ? '#e11d48'
+            : '#94a3b8';
+
+          // Variance display
+          const variance = sku.varianceVsLoteAntPct;
+          const varianceClasses = variance === null
+            ? 'text-slate-400'
+            : sku.estadoCosto === 'estable'
+            ? 'text-emerald-600'
+            : sku.estadoCosto === 'volatil'
+            ? 'text-amber-600'
+            : 'text-rose-600';
 
           return (
             <div
-              key={p.id}
-              onClick={() => onSelect(item)}
+              key={sku.productoId}
+              onClick={() => onSelect(sku)}
               className={`grid grid-cols-12 gap-3 items-center px-4 py-3 cursor-pointer group transition-colors ${
                 isSelected
-                  ? 'bg-teal-50/60 ring-1 ring-teal-200'
+                  ? isAnomalia
+                    ? 'bg-rose-50/30 ring-1 ring-rose-200'
+                    : 'bg-teal-50/60 ring-1 ring-teal-200'
                   : 'hover:bg-slate-50'
               } ${isInactive ? 'opacity-60' : ''}`}
             >
@@ -133,107 +202,125 @@ export const CatalogoTable: React.FC<CatalogoTableProps> = ({
               <div className="col-span-4 flex items-center gap-3 min-w-0">
                 <ProductoAvatar linea={linea} size="md" />
                 <div className="min-w-0">
-                  <div className="text-sm font-semibold text-slate-900 truncate">
-                    {p.nombreComercial ?? '—'}
+                  <div className="text-sm font-semibold text-slate-900 truncate flex items-center gap-1.5">
+                    {sku.nombreComercial}
+                    {isAnomalia && (
+                      <span className="px-1.5 py-0.5 rounded bg-rose-100 text-rose-700 text-[9px] font-bold flex items-center gap-0.5">
+                        <Zap className="w-2.5 h-2.5" />
+                        ANOMALÍA
+                      </span>
+                    )}
                   </div>
                   <div className="flex items-center gap-1.5 text-[10px] text-slate-500 flex-wrap">
-                    <span className="font-mono">{p.sku ?? '—'}</span>
-                    {p.marca && (
+                    <span className="font-mono">{sku.sku || '—'}</span>
+                    {sku.marca && (
                       <>
                         <span>·</span>
-                        <span className="text-slate-600 font-medium truncate">{p.marca}</span>
+                        <span className="text-slate-600 font-medium truncate">{sku.marca}</span>
                       </>
                     )}
-                    {p.lineaNegocioNombre && (
+                    {sku.lineaNegocioNombre && (
                       <>
                         <span>·</span>
-                        <span className={`px-1.5 py-0.5 rounded font-bold ${lineaBadgeClasses(p.lineaNegocioNombre)}`}>
-                          {p.lineaNegocioNombre}
+                        <span
+                          className={`px-1.5 py-0.5 rounded font-bold ${lineaBadgeClasses(
+                            sku.lineaNegocioNombre
+                          )}`}
+                        >
+                          {sku.lineaNegocioNombre}
                         </span>
                       </>
                     )}
-                    {!item.tieneInvestigacion && (
-                      <span className="px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 font-bold flex items-center gap-0.5">
-                        <SearchIcon className="w-2.5 h-2.5" />
-                        Sin investigar
-                      </span>
+                    {sku.lotes.length > 0 && (
+                      <>
+                        <span>·</span>
+                        <span className="px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 font-bold">
+                          {sku.lotes.length} {sku.lotes.length === 1 ? 'lote' : 'lotes'}
+                        </span>
+                      </>
                     )}
                   </div>
                 </div>
               </div>
 
-              {/* col-2 Costo unit. */}
+              {/* col-2 Último costo */}
               <div className="col-span-2 text-right">
-                {item.tieneInvestigacion ? (
+                <div className="text-sm font-semibold text-slate-900 tabular-nums">
+                  S/ {fmtPEN(sku.ultimoCostoPEN).split('.')[0]}
+                  <span className="text-slate-400">
+                    .{fmtPEN(sku.ultimoCostoPEN).split('.')[1]}
+                  </span>
+                </div>
+                <div className="text-[10px] text-slate-500 tabular-nums">
+                  $ {fmtUSD(sku.ultimoCostoUSD)} · TCPA {sku.tcUltimoLote.toFixed(2)}
+                </div>
+              </div>
+
+              {/* col-2 Variance vs lote anterior */}
+              <div className="col-span-2 text-right">
+                {variance !== null ? (
                   <>
-                    <div className="text-sm font-semibold text-slate-900 tabular-nums">
-                      S/ {fmtPEN(item.costoPEN).split('.')[0]}
-                      <span className="text-slate-400">.{fmtPEN(item.costoPEN).split('.')[1]}</span>
+                    <div className="flex items-center justify-end gap-1">
+                      <span className={`text-sm font-bold tabular-nums ${varianceClasses}`}>
+                        {fmtPct(variance)}
+                      </span>
+                      {sku.estadoCosto === 'anomalo' && (
+                        <TrendingUp className="w-3.5 h-3.5 text-rose-600" />
+                      )}
                     </div>
-                    {item.costoUSD > 0 && (
-                      <div className="text-[10px] text-slate-500 tabular-nums">$ {fmtUSD(item.costoUSD)} · TC {item.tc.toFixed(2)}</div>
+                    {sku.estadoCosto && (
+                      <div
+                        className={`text-[10px] ${
+                          sku.estadoCosto === 'estable'
+                            ? 'text-slate-500'
+                            : sku.estadoCosto === 'volatil'
+                            ? 'text-amber-600'
+                            : 'text-rose-600'
+                        }`}
+                      >
+                        {ESTADO_COSTO_LABELS[sku.estadoCosto]}
+                        {sku.estadoCosto === 'volatil' && ' · revisar'}
+                      </div>
                     )}
                   </>
                 ) : (
                   <>
                     <div className="text-sm font-semibold text-slate-400 tabular-nums italic">—</div>
-                    <div className="text-[10px] text-amber-600">Sin proveedor</div>
+                    <div className="text-[10px] text-slate-500">Sólo 1 lote</div>
                   </>
                 )}
               </div>
 
-              {/* col-2 Margen + sparkline mini inline + utilidad */}
+              {/* col-2 Capital · Trend 90d */}
               <div className="col-span-2 text-right">
-                {item.margenPct !== null ? (
-                  <>
-                    <div className="flex items-center justify-end gap-1">
-                      <span className={`text-sm font-semibold tabular-nums ${margenClasses(item.margenPct)}`}>
-                        {item.margenPct.toFixed(1)}%
-                      </span>
-                      <SparklineMini
-                        values={trendSerie}
-                        color={trendColor}
-                        width={32}
-                        height={14}
-                        strokeWidth={1.5}
-                      />
-                    </div>
-                    {item.utilidad !== null && (
-                      <div className="text-[10px] text-slate-500 tabular-nums">
-                        S/ {fmtPEN(item.utilidad)}/u
-                      </div>
-                    )}
-                  </>
-                ) : (
-                  <div className="text-sm font-semibold text-slate-400 tabular-nums italic">—</div>
-                )}
-              </div>
-
-              {/* col-2 Trend 90d · sparkline o placeholder */}
-              <div className="col-span-2 text-center">
-                {item.tieneInvestigacion && trendSerie.length >= 2 ? (
+                <div className="text-sm font-semibold text-slate-900 tabular-nums">
+                  S/ {fmtInt(Math.round(sku.capitalActivoPEN))}
+                </div>
+                {sku.trendCostosPEN.length >= 2 ? (
                   <SparklineMini
-                    values={trendSerie}
+                    values={sku.trendCostosPEN}
                     color={trendColor}
                     width={80}
                     height={16}
                     strokeWidth={1.5}
-                    className="inline"
+                    className="inline mt-0.5"
                   />
                 ) : (
-                  <span
-                    className="inline-block w-20 h-3 bg-slate-100 rounded"
-                    title="Sin data histórica · requiere ≥2 OCs"
-                  />
+                  <div className="text-[10px] text-slate-400 italic">
+                    {sku.unidadesActivas} uds · 1 lote
+                  </div>
                 )}
               </div>
 
-              {/* col-1 Score pill canon */}
+              {/* col-1 Stability score pill */}
               <div className="col-span-1 text-center">
                 <span
-                  className={`inline-flex items-center justify-center min-w-[28px] h-6 rounded-full font-bold tabular-nums text-[10px] ${scoreClasses(item.score)}`}
+                  className={`inline-flex items-center justify-center min-w-[28px] h-6 rounded-full font-bold tabular-nums text-[10px] ${stabilityClasses(
+                    sku.stabilityScore
+                  )}`}
+                  title={`Stability score · ${sku.stabilityScore}/100`}
                 >
-                  {item.score}
+                  {sku.stabilityScore}
                 </span>
               </div>
             </div>
@@ -241,20 +328,25 @@ export const CatalogoTable: React.FC<CatalogoTableProps> = ({
         })}
       </div>
 
-      {/* Footer info · canon Productos */}
+      {/* Footer info · canon */}
       <div className="px-4 py-2 bg-slate-50/50 border-t border-slate-200 text-[10px] text-slate-500 tabular-nums flex items-center justify-between">
         <span>
-          {fmtInt(enriquecidos.length)} productos · score promedio:{' '}
+          {fmtInt(skus.length)} SKUs · stability promedio:{' '}
           <span className="font-semibold text-slate-700">
-            {Math.round(enriquecidos.reduce((s, e) => s + e.score, 0) / enriquecidos.length)}
+            {Math.round(skus.reduce((s, e) => s + e.stabilityScore, 0) / skus.length)}
           </span>
         </span>
-        {enriquecidos.some((e) => !e.tieneInvestigacion) && (
-          <span className="flex items-center gap-1 text-amber-700">
-            <AlertCircle className="w-3 h-3" />
-            {fmtInt(enriquecidos.filter((e) => !e.tieneInvestigacion).length)} sin investigar
-          </span>
-        )}
+        {(() => {
+          const anomalias = skus.filter((s) => s.estadoCosto === 'anomalo').length;
+          if (anomalias === 0) return null;
+          const cls = ESTADO_COSTO_CLASSES.anomalo;
+          return (
+            <span className={`flex items-center gap-1 ${cls.text}`}>
+              <Zap className="w-3 h-3" />
+              {fmtInt(anomalias)} con anomalía
+            </span>
+          );
+        })()}
       </div>
     </>
   );
@@ -270,17 +362,37 @@ interface SortHeaderProps {
   className?: string;
 }
 
-const SortHeader: React.FC<SortHeaderProps> = ({ label, k, align, sortKey, sortDir, onSort, className = '' }) => {
+const SortHeader: React.FC<SortHeaderProps> = ({
+  label,
+  k,
+  align,
+  sortKey,
+  sortDir,
+  onSort,
+  className = '',
+}) => {
   const isActive = sortKey === k;
-  const justifyClass = align === 'left' ? 'justify-start' : align === 'right' ? 'justify-end' : 'justify-center';
+  const justifyClass =
+    align === 'left'
+      ? 'justify-start'
+      : align === 'right'
+      ? 'justify-end'
+      : 'justify-center';
   return (
     <button
       type="button"
       onClick={() => onSort(k)}
-      className={`${className} flex items-center gap-0.5 ${justifyClass} hover:text-slate-900 ${isActive ? 'text-slate-900' : ''} select-none`}
+      className={`${className} flex items-center gap-0.5 ${justifyClass} hover:text-slate-900 ${
+        isActive ? 'text-slate-900' : ''
+      } select-none`}
     >
       {label}
-      {isActive && (sortDir === 'asc' ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />)}
+      {isActive &&
+        (sortDir === 'asc' ? (
+          <ChevronUp className="w-3 h-3" />
+        ) : (
+          <ChevronDown className="w-3 h-3" />
+        ))}
     </button>
   );
 };

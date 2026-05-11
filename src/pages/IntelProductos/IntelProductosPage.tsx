@@ -1,14 +1,21 @@
 /**
  * IntelProductosPage · Shell orquestador · Cost Intelligence System
  *
- * chk5.B (S3.6 M1.bis · Cost Intelligence)
+ * chk5.B8 (S3.6 M1.bis · Cost Intelligence)
  *
- * Página principal del módulo nuevo. Orquesta:
+ * Página principal del módulo. Orquesta:
  *   - Header canon (HeaderV2)
  *   - WorkspaceSwitcher (tabs 1-5 con keyboard nav)
- *   - KpiStripExecutive (5 KPIs ejecutivos)
- *   - Workspace activo (1 de 5 · enrutado por URL)
- *   - KeyboardHints (banner de atajos)
+ *   - KpiStripExecutive (4 KPIs canon CI · derivados de utilidad propia)
+ *   - Workspace activo · catálogo con drill-down O empty state global
+ *
+ * Lógica propia Cost Intelligence (NO investigación):
+ *   - Carga OCs (estado=cerrada/recibida) → capital invertido
+ *   - Carga unidades → capital atrapado · variance · trend
+ *   - Carga Pool USD · TCPA real
+ *   - calcularCostIntelligence() produce KPIs + SKUs con costos
+ *   - Si hasOperationalData=false → <EmptyStateGlobal /> con prerequisitos
+ *   - Si true → workspaces activos
  *
  * Ruteo:
  *   - /intel-productos             → Catálogo (default)
@@ -17,19 +24,23 @@
  *   - /intel-productos/alertas     → Alertas (empty state)
  *   - /intel-productos/forecast    → Forecast (empty state)
  *
- * Mockup canónico: docs/mockups/cost-intelligence-vision-s3.6.html
+ * Mockup canónico: docs/mockups/cost-intelligence-canon-productos.html
  */
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 
 import { useProductoStore } from '../../store/productoStore';
+import { useOrdenCompraStore } from '../../store/ordenCompraStore';
+import { useUnidadStore } from '../../store/unidadStore';
+import { usePoolUSDStore } from '../../store/poolUSDStore';
 import { useTipoCambioStore } from '../../store/tipoCambioStore';
-import { calcularInvestigacion } from '../Productos/utils/investigacionCalculos';
+
+import { calcularCostIntelligence } from './utils/costIntelligence';
 
 import { HeaderV2 } from './components/shell/HeaderV2';
 import { WorkspaceSwitcher, type WorkspaceId, WORKSPACES } from './components/shell/WorkspaceSwitcher';
-import { KpiStripExecutive, type KpiCatalogo } from './components/shell/KpiStripExecutive';
+import { KpiStripExecutive } from './components/shell/KpiStripExecutive';
 import { KeyboardHints } from './components/shell/KeyboardHints';
 
 import { CatalogoWorkspace } from './components/workspaces/CatalogoWorkspace';
@@ -37,6 +48,7 @@ import { CostosWorkspace } from './components/workspaces/CostosWorkspace';
 import { PipelineWorkspace } from './components/workspaces/PipelineWorkspace';
 import { AlertasWorkspace } from './components/workspaces/AlertasWorkspace';
 import { ForecastWorkspace } from './components/workspaces/ForecastWorkspace';
+import { EmptyStateGlobal } from './components/workspaces/EmptyStateGlobal';
 
 /** Mapping URL slug → WorkspaceId */
 function slugToWorkspaceId(slug: string | undefined): WorkspaceId {
@@ -53,86 +65,53 @@ export const IntelProductosPage: React.FC = () => {
   const { workspace: slug } = useParams<{ workspace?: string }>();
   const activeId = slugToWorkspaceId(slug);
 
-  // Stores · cargamos catálogo + TC
+  // Stores · data operacional propia (cero investigación)
   const { productos, fetchProductos, loading: loadingProductos } = useProductoStore();
+  const { ordenes, fetchOrdenes, loading: loadingOrdenes } = useOrdenCompraStore();
+  const { unidades, fetchUnidades, loading: loadingUnidades } = useUnidadStore();
+  const { resumen: poolResumen, fetchResumen: fetchPoolResumen } = usePoolUSDStore();
   const { getTCDelDia } = useTipoCambioStore();
-  const [tc, setTc] = useState<number>(3.7);
 
+  const [tcSpotFallback, setTcSpotFallback] = React.useState<number>(3.75);
+
+  // Cargar data operacional al montar
   useEffect(() => {
     if (productos.length === 0) fetchProductos(false);
+    if (ordenes.length === 0) fetchOrdenes();
+    if (unidades.length === 0) fetchUnidades();
+    if (!poolResumen) fetchPoolResumen();
     getTCDelDia().then((tcData) => {
-      if (tcData?.venta) setTc(tcData.venta);
+      if (tcData?.venta) setTcSpotFallback(tcData.venta);
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // KPIs ejecutivos derivados del catálogo · chk5.B5 canon · 4 cols
-  const kpis = useMemo<KpiCatalogo>(() => {
-    if (productos.length === 0) {
-      return {
-        capitalCatalogadoPEN: 0,
-        totalProductos: 0,
-        marcasUnicas: 0,
-        lineasUnicas: 0,
-        productosInvestigados: 0,
-        porcentajeInvestigados: 0,
-        margenPromedio: null,
-        productosSinPrecioVenta: 0,
-      };
-    }
+  const loading = loadingProductos || loadingOrdenes || loadingUnidades;
 
-    const marcas = new Set<string>();
-    const lineas = new Set<string>();
-    let investigados = 0;
-    let sinPrecio = 0;
-    let capitalAcum = 0;
-    const margenes: number[] = [];
+  // ─── Cost Intelligence: data engine propio (NO investigación) ────────────
+  const ciResult = useMemo(() => {
+    return calcularCostIntelligence({
+      productos,
+      ordenes,
+      unidades,
+      tcpa: poolResumen?.tcpa,
+      tcSpotFallback,
+    });
+  }, [productos, ordenes, unidades, poolResumen, tcSpotFallback]);
 
-    for (const p of productos) {
-      if (p.marca) marcas.add(p.marca);
-      if (p.lineaNegocioNombre) lineas.add(p.lineaNegocioNombre);
-
-      const c = calcularInvestigacion(p, tc);
-      if (c.tieneInvestigacion) {
-        investigados++;
-        capitalAcum += c.costoPEN;
-        if (c.margenPct !== undefined) {
-          margenes.push(c.margenPct);
-        }
-      }
-      if (c.precioVentaManual <= 0 && c.precioReferencia <= 0) {
-        sinPrecio++;
-      }
-    }
-
-    const margenPromedio = margenes.length > 0
-      ? margenes.reduce((s, m) => s + m, 0) / margenes.length
-      : null;
-
-    return {
-      capitalCatalogadoPEN: capitalAcum,
-      totalProductos: productos.length,
-      marcasUnicas: marcas.size,
-      lineasUnicas: lineas.size,
-      productosInvestigados: investigados,
-      porcentajeInvestigados: (investigados / productos.length) * 100,
-      margenPromedio,
-      productosSinPrecioVenta: sinPrecio,
-      // margenSerie + margenDeltaTrimestre se omiten · requieren histórico (chk5.B8+)
-    };
-  }, [productos, tc]);
-
-  // Workspace label dinámico (canon · breadcrumb actualiza con workspace activo)
+  // Workspace label dinámico (breadcrumb)
   const activeWorkspace = WORKSPACES.find((w) => w.id === activeId)!;
   const WORKSPACE_LABELS: Record<typeof activeId, string> = {
-    catalogo: `Catálogo · ${productos.length.toLocaleString('es-PE')} SKUs analizados`,
+    catalogo: ciResult.hasOperationalData
+      ? `Catálogo · ${ciResult.skus.length.toLocaleString('es-PE')} SKUs con costos`
+      : 'Catálogo de costos · sin data aún',
     costos:   'Costos · evolución temporal',
     pipeline: 'Pipeline · capital atrapado',
     alertas:  'Alertas · anomaly detection',
     forecast: 'Forecast · proyecciones futuras',
   };
   const WORKSPACE_SUBTITLES: Record<typeof activeId, string> = {
-    catalogo: 'Vista valorizada del catálogo · score por calidad de datos · drill-down por SKU.',
+    catalogo: 'Costos reales de adquisición · variance attribution · TCPA · capital atrapado.',
     costos:   'Time-series · variance attribution · TCPA tracking · sugerencias accionables.',
     pipeline: '6 etapas de valorización · capital atrapado · drill-down por etapa.',
     alertas:  'Anomaly detection · variance > threshold · CTAs accionables.',
@@ -140,13 +119,18 @@ export const IntelProductosPage: React.FC = () => {
   };
   const workspaceLabel = WORKSPACE_LABELS[activeId];
   const subtitle = WORKSPACE_SUBTITLES[activeId];
-  void activeWorkspace; // referencia para evitar lint warning
+  void activeWorkspace;
 
   // Renderizar workspace activo
   const renderWorkspace = () => {
+    // Si NO hay data operacional → empty state global en TODOS los workspaces
+    if (!ciResult.hasOperationalData) {
+      return <EmptyStateGlobal prerequisitos={ciResult.prerequisitos} />;
+    }
+
     switch (activeId) {
       case 'catalogo':
-        return <CatalogoWorkspace productos={productos} tc={tc} />;
+        return <CatalogoWorkspace skus={ciResult.skus} />;
       case 'costos':
         return <CostosWorkspace />;
       case 'pipeline':
@@ -163,16 +147,27 @@ export const IntelProductosPage: React.FC = () => {
       <HeaderV2
         workspaceLabel={workspaceLabel}
         subtitle={subtitle}
-        loading={loadingProductos}
-        onRecalcular={() => fetchProductos(false)}
-        onExport={() => alert('Exportar Cost Intelligence · próximamente')}
-        onReporte={() => alert('Reporte ejecutivo · próximamente')}
-        // onSugerencias se omite hasta integrar el módulo de sugerencias del día
+        loading={loading}
+        onRecalcular={() => {
+          fetchProductos(false);
+          fetchOrdenes();
+          fetchUnidades();
+          fetchPoolResumen();
+        }}
+        // Empty state · ocultamos acciones placeholder porque NO tienen sentido
+        // sin data (¿qué exportás de 0 OCs? ¿qué reporte hay sobre BD vacía?).
+        // Reaparecen cuando hay data operacional · evita CTAs contradictorias.
+        onExport={ciResult.hasOperationalData
+          ? () => alert('Exportar Cost Intelligence · próximamente')
+          : undefined}
+        onReporte={ciResult.hasOperationalData
+          ? () => alert('Reporte ejecutivo · próximamente')
+          : undefined}
       />
 
       <WorkspaceSwitcher activeId={activeId} />
 
-      <KpiStripExecutive kpis={kpis} />
+      <KpiStripExecutive kpis={ciResult.kpis} hasData={ciResult.hasOperationalData} />
 
       {renderWorkspace()}
 

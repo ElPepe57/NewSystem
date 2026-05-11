@@ -118,6 +118,8 @@ const menuGroups: MenuGroup[] = [
       { icon: TrendingUp, label: 'Reportes', path: '/reportes', permiso: PERMISOS.VER_REPORTES },
       { icon: Calculator, label: 'Costos CTRU', path: '/ctru', permiso: PERMISOS.VER_CTRU },
       { icon: Zap, label: 'Intel. Productos', path: '/productos-intel', permiso: PERMISOS.VER_INVENTARIO },
+      // chk5.B8 · Cost Intelligence System · módulo nuevo · costos reales/variance/TCPA · coexiste con Intel. Productos viejo hasta DEUDA-REVIEW-INTELS
+      { icon: BrainCircuit, label: 'Cost Intelligence', path: '/intel-productos', permiso: PERMISOS.VER_INVENTARIO },
       { icon: Activity, label: 'Rendimiento FX', path: '/rendimiento-cambiario', permiso: PERMISOS.VER_TESORERIA },
       { icon: Target, label: 'Proyeccion', path: '/proyeccion', permiso: PERMISOS.VER_CTRU },
       { icon: MapPin, label: 'Mapa Ventas', path: '/mapa-ventas', permiso: PERMISOS.VER_REPORTES },
