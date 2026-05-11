@@ -1215,6 +1215,397 @@ export function calcularUnidadesEnEtapa(
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// chk5.B10c · WORKSPACE FORECAST · proyecciones WMA + confidence + what-if
+// ─────────────────────────────────────────────────────────────────────────────
+
+/** Nivel de confianza para una proyección */
+export type ConfidenceLevel = 'alta' | 'media' | 'baja';
+
+/** Tipos de horizonte temporal del forecast */
+export type ForecastHorizon = '30d' | '60d' | '90d';
+
+/** Margen baseline asumido para what-if MVP · DEUDA-FORECAST-MARGEN-REAL */
+export const ASSUMED_MARGEN_BASELINE_PCT = 30;
+
+/** Forecast proyectado para un SKU específico */
+export interface ForecastCostoSku {
+  productoId: string;
+  sku: string;
+  nombreComercial: string;
+  marca?: string;
+  lineaNegocioNombre?: string;
+  tipoProductoNombre?: string;
+  esPack?: boolean;
+  /** Costo PEN del lote más reciente */
+  costoActualPEN: number;
+  /** Proyección por horizonte */
+  proyeccion30d: number;
+  proyeccion60d: number;
+  proyeccion90d: number;
+  /** % esperado vs costo actual · cada horizonte */
+  deltaPct30d: number;
+  deltaPct60d: number;
+  deltaPct90d: number;
+  /** Capital actualmente activo (capital atrapado del SKU · uds en pipeline) */
+  capitalAfectadoPEN: number;
+  /** Confidence canon basado en cantidad de lotes históricos */
+  confidence: ConfidenceLevel;
+  confidenceScore: number;          // 0-100
+  /** Cantidad de lotes que sustentaron el cálculo · transparencia */
+  lotesHistoricos: number;
+}
+
+/** Punto proyectado para evolución gastos · 1 punto = 1 mes futuro */
+export interface ForecastPuntoEvolucion {
+  anio: number;
+  mes: number;
+  label: string;                    // 'Jun*' · '*' indica proyectado
+  producto: number;
+  venta: number;
+  periodo: number;
+  total: number;
+  proyectado: true;                 // discriminator vs PuntoEvolucionBloques
+}
+
+/** Resultado del forecast de gastos por bloque */
+export interface ForecastGastos {
+  /** Serie histórica + futura · combinada para chart único */
+  serieHistorica: PuntoEvolucionBloques[];
+  serieFutura: ForecastPuntoEvolucion[];
+  /** Total proyectado del trimestre próximo */
+  totalProximoTrimestrePEN: number;
+  /** % esperado vs trimestre anterior */
+  deltaPctVsTrimestreAnt: number | null;
+  confidence: ConfidenceLevel;
+  hasData: boolean;
+}
+
+/** Input del what-if · 3 sliders MVP */
+export interface WhatIfInputs {
+  /** % variación TC · -15 a +15 */
+  deltaTcPct: number;
+  /** % variación precio proveedor USD · -20 a +20 */
+  deltaProveedorPct: number;
+  /** % variación volumen ventas · -30 a +30 */
+  deltaVolumenPct: number;
+}
+
+/** Output del what-if · impacto agregado en KPIs clave */
+export interface WhatIfOutput {
+  /** Δ margen en puntos porcentuales (pp) · -2.4 = bajó 2.4pp */
+  deltaMargenPp: number;
+  margenBaselinePct: number;
+  margenProyectadoPct: number;
+  /** Δ capital atrapado en PEN · positivo = más atrapado */
+  deltaCapitalAtrapadoPEN: number;
+  deltaCapitalAtrapadoPct: number;
+  /** Δ ingreso esperado en PEN · positivo = más ingresos */
+  deltaIngresoPEN: number;
+  /** Δ utilidad neta proyectada en PEN */
+  deltaUtilidadNetaPEN: number;
+  deltaUtilidadNetaPct: number;
+}
+
+/** Resultado completo del forecast · 3 paneles */
+export interface ForecastResult {
+  /** Forecast por SKU · top N ordenados por riesgo (mayor proyectada de subida) */
+  skusForecast: ForecastCostoSku[];
+  /** Forecast gastos por bloque · serie hist + futura */
+  gastos: ForecastGastos;
+  /** true si data suficiente para activar workspace */
+  hasData: boolean;
+  /** Confidence general · derivado de máximo entre fuentes */
+  confidenceGeneral: ConfidenceLevel;
+  /** true si confidence permite habilitar what-if + horizontes 60/90 */
+  whatIfHabilitado: boolean;
+  /** Prerequisitos para empty state · diagnóstico de qué falta */
+  prerequisitos: {
+    mesesOperacion: number;          // estimado · max(lotes-1, gastos-meses)
+    skusConSeisLotes: number;
+    skusConTresLotes: number;
+    mesesGastosClasificados: number;
+    snapshotsPool: number;
+  };
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Helpers internos · forecast
+// ─────────────────────────────────────────────────────────────────────────────
+
+function confidenceFromCount(count: number): { level: ConfidenceLevel; score: number } {
+  if (count >= 6) return { level: 'alta', score: Math.min(100, 60 + count * 4) };
+  if (count >= 3) return { level: 'media', score: 30 + count * 8 };
+  return { level: 'baja', score: count * 12 };
+}
+
+/**
+ * WMA sobre serie · proyecta N períodos hacia adelante.
+ *
+ * Calcula el % de cambio promedio ponderado entre puntos consecutivos
+ * (ponderación creciente: el cambio más reciente pesa más) y proyecta
+ * el último valor N períodos hacia adelante aplicando ese % geométrico.
+ */
+function wmaForecast(values: number[], periodsAhead: number): number {
+  if (values.length === 0) return 0;
+  if (values.length === 1 || periodsAhead === 0) return values[values.length - 1];
+
+  // % de cambio entre puntos consecutivos
+  const changes: number[] = [];
+  for (let i = 1; i < values.length; i++) {
+    if (values[i - 1] === 0) continue;
+    changes.push((values[i] - values[i - 1]) / values[i - 1]);
+  }
+  if (changes.length === 0) return values[values.length - 1];
+
+  // Pesos crecientes · el cambio más reciente pesa más
+  const weights = changes.map((_, i) => i + 1);
+  const sumWeights = weights.reduce((a, b) => a + b, 0);
+  const wmaChangeRate = changes.reduce((acc, c, i) => acc + c * weights[i], 0) / sumWeights;
+
+  // Proyectar geométricamente
+  const current = values[values.length - 1];
+  return current * Math.pow(1 + wmaChangeRate, periodsAhead);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Función principal · calcularForecast
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Calcula el forecast completo del workspace · 3 paneles consolidados.
+ *
+ * Combina:
+ *   - Proyección de costos por SKU usando WMA sobre lotes
+ *   - Proyección de gastos mensuales por bloque usando WMA sobre series
+ *   - Prerequisitos diagnóstico para empty state
+ *
+ * Filosofía: NO inventa data. SKUs con <3 lotes muestran proyección con
+ * confidence baja (visualmente italic). Si confidence general es baja,
+ * el what-if y horizontes 60/90d se deshabilitan en el UI.
+ */
+export function calcularForecast(
+  skus: SkuConCostos[],
+  evolucionGastos: EvolucionPorBloque,
+  poolSnapshotsCount: number,
+  topN: number = 10,
+): ForecastResult {
+  // ─── 1. Forecast por SKU ────────────────────────────────────────────────
+  const forecasts: ForecastCostoSku[] = [];
+
+  for (const sku of skus) {
+    const lotes = sku.lotes;
+    if (lotes.length === 0) continue;
+
+    // Asumimos ~1 nuevo lote cada 30d para horizonte de proyección
+    // (proxy razonable · cada SKU varía pero MVP simplifica)
+    const values = sku.trendCostosPEN; // serie cronológica ascendente
+    const proyeccion30d = wmaForecast(values, 1);
+    const proyeccion60d = wmaForecast(values, 2);
+    const proyeccion90d = wmaForecast(values, 3);
+
+    const costoActual = sku.ultimoCostoPEN;
+    const safeDelta = (proj: number) =>
+      costoActual > 0 ? ((proj - costoActual) / costoActual) * 100 : 0;
+
+    const conf = confidenceFromCount(lotes.length);
+
+    forecasts.push({
+      productoId: sku.productoId,
+      sku: sku.sku,
+      nombreComercial: sku.nombreComercial,
+      marca: sku.marca,
+      lineaNegocioNombre: sku.lineaNegocioNombre,
+      tipoProductoNombre: sku.tipoProductoNombre,
+      esPack: sku.esPack,
+      costoActualPEN: costoActual,
+      proyeccion30d,
+      proyeccion60d,
+      proyeccion90d,
+      deltaPct30d: safeDelta(proyeccion30d),
+      deltaPct60d: safeDelta(proyeccion60d),
+      deltaPct90d: safeDelta(proyeccion90d),
+      capitalAfectadoPEN: sku.capitalActivoPEN,
+      confidence: conf.level,
+      confidenceScore: conf.score,
+      lotesHistoricos: lotes.length,
+    });
+  }
+
+  // Ordenar por mayor delta esperado (riesgo de subida) en 30d
+  forecasts.sort((a, b) => b.deltaPct30d - a.deltaPct30d);
+  const skusForecast = forecasts.slice(0, topN);
+
+  // ─── 2. Forecast gastos por bloque ──────────────────────────────────────
+  const serieHist = evolucionGastos.serie;
+  const serieFutura: ForecastPuntoEvolucion[] = [];
+  let totalProximoTrimestre = 0;
+
+  if (serieHist.length >= 2) {
+    const valsProd = serieHist.map((p) => p.producto);
+    const valsVenta = serieHist.map((p) => p.venta);
+    const valsPeriodo = serieHist.map((p) => p.periodo);
+
+    const ultimoPunto = serieHist[serieHist.length - 1];
+    for (let i = 1; i <= 3; i++) {
+      const nextDate = new Date(ultimoPunto.anio, ultimoPunto.mes - 1 + i, 1);
+      const projProd = wmaForecast(valsProd, i);
+      const projVenta = wmaForecast(valsVenta, i);
+      const projPeriodo = wmaForecast(valsPeriodo, i);
+      const projTotal = projProd + projVenta + projPeriodo;
+      totalProximoTrimestre += projTotal;
+
+      serieFutura.push({
+        anio: nextDate.getFullYear(),
+        mes: nextDate.getMonth() + 1,
+        label: `${nombreMesCorto(nextDate.getMonth() + 1)}*`,
+        producto: projProd,
+        venta: projVenta,
+        periodo: projPeriodo,
+        total: projTotal,
+        proyectado: true,
+      });
+    }
+  }
+
+  // Trimestre anterior real (últimos 3 puntos hist)
+  const ultimos3Hist = serieHist.slice(-3);
+  const totalTrimestreAnt = ultimos3Hist.reduce((s, p) => s + p.total, 0);
+  const deltaPctVsTrimestreAnt = totalTrimestreAnt > 0
+    ? ((totalProximoTrimestre - totalTrimestreAnt) / totalTrimestreAnt) * 100
+    : null;
+
+  const confGastos = confidenceFromCount(serieHist.filter((p) => p.total > 0).length);
+
+  const gastosForecast: ForecastGastos = {
+    serieHistorica: serieHist,
+    serieFutura,
+    totalProximoTrimestrePEN: totalProximoTrimestre,
+    deltaPctVsTrimestreAnt,
+    confidence: confGastos.level,
+    hasData: serieFutura.length > 0,
+  };
+
+  // ─── 3. Prerequisitos y confidence general ──────────────────────────────
+  const skusConSeisLotes = skus.filter((s) => s.lotes.length >= 6).length;
+  const skusConTresLotes = skus.filter((s) => s.lotes.length >= 3).length;
+  const mesesGastosClasificados = serieHist.filter((p) => p.total > 0).length;
+  const maxLotes = skus.reduce((m, s) => Math.max(m, s.lotes.length), 0);
+  const mesesOperacion = Math.max(maxLotes, mesesGastosClasificados);
+
+  // Confidence general · max entre fuentes
+  const skuMaxConfidence = skusForecast.reduce<ConfidenceLevel>(
+    (best, sf) => {
+      const order: Record<ConfidenceLevel, number> = { baja: 0, media: 1, alta: 2 };
+      return order[sf.confidence] > order[best] ? sf.confidence : best;
+    },
+    'baja' as ConfidenceLevel
+  );
+  const order: Record<ConfidenceLevel, number> = { baja: 0, media: 1, alta: 2 };
+  const confidenceGeneral: ConfidenceLevel =
+    order[skuMaxConfidence] >= order[gastosForecast.confidence]
+      ? skuMaxConfidence
+      : gastosForecast.confidence;
+
+  const whatIfHabilitado = confidenceGeneral !== 'baja';
+
+  const hasData = skusForecast.length > 0 || gastosForecast.hasData;
+
+  return {
+    skusForecast,
+    gastos: gastosForecast,
+    hasData,
+    confidenceGeneral,
+    whatIfHabilitado,
+    prerequisitos: {
+      mesesOperacion,
+      skusConSeisLotes,
+      skusConTresLotes,
+      mesesGastosClasificados,
+      snapshotsPool: poolSnapshotsCount,
+    },
+  };
+}
+
+/**
+ * Calcula el output del what-if sobre la baseline del módulo.
+ *
+ * Cálculo lineal · NO modela elasticidad de demanda ni efectos no-lineales.
+ * Margen baseline asumido = ASSUMED_MARGEN_BASELINE_PCT (configurable
+ * en deuda · DEUDA-FORECAST-MARGEN-REAL).
+ */
+export function calcularWhatIf(
+  inputs: WhatIfInputs,
+  baseline: {
+    capitalInvertidoPEN: number;
+    capitalAtrapadoPEN: number;
+    margenBaselinePct?: number;
+  },
+): WhatIfOutput {
+  const margenBaseline = baseline.margenBaselinePct ?? ASSUMED_MARGEN_BASELINE_PCT;
+  const factorTc = 1 + inputs.deltaTcPct / 100;
+  const factorProv = 1 + inputs.deltaProveedorPct / 100;
+  const factorVol = 1 + inputs.deltaVolumenPct / 100;
+
+  // Factor combinado de costo unitario (TC × Proveedor)
+  const factorCostoCombinado = factorTc * factorProv;
+
+  // Δ margen pp · si costos suben pero precio se mantiene, margen baja
+  // Aproximación: margen nuevo = margen baseline - (costoFactor - 1) × (1 - margen baseline)
+  // Si costo sube 8% sobre 70% del precio (costo es 100-30=70%), margen baja 5.6pp
+  const ratioCostoSobrePrecio = (100 - margenBaseline) / 100;
+  const deltaMargenPp = -((factorCostoCombinado - 1) * ratioCostoSobrePrecio * 100);
+  const margenProyectadoPct = margenBaseline + deltaMargenPp;
+
+  // Δ capital atrapado · subida de costos = mismo volumen × más capital
+  const capitalAtrapadoProyectado = baseline.capitalAtrapadoPEN * factorCostoCombinado;
+  const deltaCapitalAtrapadoPEN = capitalAtrapadoProyectado - baseline.capitalAtrapadoPEN;
+  const deltaCapitalAtrapadoPct = baseline.capitalAtrapadoPEN > 0
+    ? (deltaCapitalAtrapadoPEN / baseline.capitalAtrapadoPEN) * 100
+    : 0;
+
+  // Δ ingreso esperado · proxy baseline · capital invertido × asumido turnover trimestral
+  // Asumimos 1 vuelta trimestral · ingreso mensual ≈ capital × (1+margen) / 3
+  const ingresoBaselineMensual = baseline.capitalInvertidoPEN > 0
+    ? (baseline.capitalInvertidoPEN * (1 + margenBaseline / 100)) / 3
+    : 0;
+  const deltaIngresoPEN = ingresoBaselineMensual * (factorVol - 1);
+
+  // Δ utilidad neta = Δ ingreso × margen NUEVO + (margen actual × ingreso baseline × cambio margen)
+  // Simplificación: utilidad nueva = ingreso × factorVol × margen proyectado
+  // utilidad baseline = ingreso × margen baseline
+  const utilidadBaseline = ingresoBaselineMensual * (margenBaseline / 100);
+  const utilidadProyectada = ingresoBaselineMensual * factorVol * (margenProyectadoPct / 100);
+  const deltaUtilidadNetaPEN = utilidadProyectada - utilidadBaseline;
+  const deltaUtilidadNetaPct = utilidadBaseline !== 0
+    ? (deltaUtilidadNetaPEN / utilidadBaseline) * 100
+    : 0;
+
+  return {
+    deltaMargenPp,
+    margenBaselinePct: margenBaseline,
+    margenProyectadoPct,
+    deltaCapitalAtrapadoPEN,
+    deltaCapitalAtrapadoPct,
+    deltaIngresoPEN,
+    deltaUtilidadNetaPEN,
+    deltaUtilidadNetaPct,
+  };
+}
+
+/** Labels canon */
+export const CONFIDENCE_LABELS: Record<ConfidenceLevel, string> = {
+  alta: 'Alta',
+  media: 'Media',
+  baja: 'Baja',
+};
+
+export const CONFIDENCE_CLASSES: Record<ConfidenceLevel, { bar: string; text: string }> = {
+  alta: { bar: 'bg-emerald-500', text: 'text-emerald-600' },
+  media: { bar: 'bg-amber-500', text: 'text-amber-600' },
+  baja: { bar: 'bg-rose-500', text: 'text-rose-600' },
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
 // chk5.B10b · WORKSPACE ALERTAS · consolidación de anomalías cross-categoría
 // ─────────────────────────────────────────────────────────────────────────────
 

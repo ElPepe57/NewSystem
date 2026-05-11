@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<title>Cost Intelligence · Workspace Forecast · chk5.B10c</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f1f5f9; color: #0f172a; }
+  .tabular { font-variant-numeric: tabular-nums; }
+  .section-divider {
+    background: #0f172a; color: white;
+    padding: 12px 20px; border-radius: 8px;
+    margin: 32px 0 16px 0; font-weight: 700;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .section-num {
+    background: #14b8a6; color: white;
+    width: 28px; height: 28px;
+    display: inline-flex; align-items: center; justify-content: center;
+    border-radius: 6px; font-size: 13px;
+  }
+  .confidence-bar {
+    display: inline-block;
+    height: 4px;
+    border-radius: 2px;
+    background: #e2e8f0;
+    overflow: hidden;
+    width: 32px;
+    vertical-align: middle;
+  }
+  .confidence-bar-fill {
+    height: 100%;
+    transition: width 0.2s ease;
+  }
+  .slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 4px;
+    background: #e2e8f0;
+    border-radius: 2px;
+    outline: none;
+  }
+  .slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 14px; height: 14px;
+    background: #14b8a6;
+    border-radius: 50%;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body class="px-6 py-8 max-w-7xl mx-auto">
+
+<h1 class="text-2xl font-bold mb-2 text-slate-900">Cost Intelligence · Workspace Forecast</h1>
+<p class="text-sm text-slate-600 mb-6">chk5.B10c · pixel-perfect canon · responde "¿hacia dónde va mi negocio en 30/60/90 días?"</p>
+
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+<!-- SECCIÓN 1 · CON DATA HISTÓRICA RICA · 3 paneles plenamente operativos -->
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+<div class="section-divider">
+  <span class="section-num">1</span>
+  Workspace Forecast · proyecciones 30/60/90d + gastos futuros + what-if scenarios
+</div>
+
+<div class="bg-white rounded-2xl shadow-lg p-6">
+
+  <!-- Header canon -->
+  <div class="flex items-start justify-between gap-4 flex-wrap mb-5">
+    <div class="flex-1 min-w-[260px]">
+      <div class="flex items-center gap-1.5 text-xs text-slate-400 mb-1">
+        <span class="hover:text-teal-600 cursor-pointer">Inteligencia</span>
+        <i data-lucide="chevron-right" class="w-3 h-3"></i>
+        <span class="text-slate-600 font-medium">Forecast · proyecciones futuras</span>
+      </div>
+      <h1 class="text-2xl font-bold text-slate-900 flex items-center gap-2.5">
+        <i data-lucide="brain-circuit" class="w-6 h-6 text-teal-600"></i>
+        Cost Intelligence
+      </h1>
+      <p class="text-sm text-slate-500 mt-0.5 max-w-2xl">Proyecciones 30/60/90d · weighted moving avg · what-if scenarios.</p>
+    </div>
+    <div class="flex items-center gap-2 flex-wrap flex-shrink-0">
+      <button class="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50">
+        <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>Recalcular
+      </button>
+      <button class="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50">
+        <i data-lucide="download" class="w-3.5 h-3.5"></i>Exportar
+      </button>
+      <button class="flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-white bg-slate-900 rounded-lg hover:bg-slate-800 shadow-sm">
+        <i data-lucide="file-text" class="w-3.5 h-3.5"></i>Reporte ejecutivo
+      </button>
+    </div>
+  </div>
+
+  <!-- KPI strip canon -->
+  <div class="bg-white border border-slate-200 rounded-xl grid grid-cols-2 lg:grid-cols-4 divide-y lg:divide-y-0 lg:divide-x divide-slate-200 mb-5">
+    <div class="p-3 lg:p-4">
+      <div class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Capital invertido</div>
+      <div class="text-xl lg:text-2xl font-bold text-slate-900 tracking-tight tabular">S/ 87,234</div>
+      <div class="text-[11px] text-slate-500 mt-1.5 tabular flex items-center gap-1">
+        <i data-lucide="package" class="w-3 h-3"></i>1,847 uds
+      </div>
+    </div>
+    <div class="p-3 lg:p-4">
+      <div class="text-[10px] font-semibold text-amber-700 uppercase tracking-wider mb-1.5">Capital atrapado</div>
+      <div class="text-xl lg:text-2xl font-bold text-amber-700 tracking-tight tabular">S/ 18,420</div>
+      <div class="text-[11px] text-amber-700 mt-1.5 tabular">21% del total</div>
+    </div>
+    <div class="p-3 lg:p-4">
+      <div class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Variance promedio 30d</div>
+      <div class="text-xl lg:text-2xl font-bold text-rose-600 tracking-tight tabular">+4.8<span class="text-base text-rose-300 font-normal">%</span></div>
+      <div class="text-[11px] text-rose-600 mt-1.5 tabular">+1.7 vs mes ant.</div>
+    </div>
+    <div class="p-3 lg:p-4">
+      <div class="text-[10px] font-semibold text-rose-700 uppercase tracking-wider mb-1.5">Anomalías 7D</div>
+      <div class="text-xl lg:text-2xl font-bold text-rose-700 tracking-tight tabular">7</div>
+      <div class="text-[11px] text-rose-700 mt-1.5 tabular">3 críticas</div>
+    </div>
+  </div>
+
+  <!-- Workspace switcher · Forecast activo -->
+  <div class="flex items-center gap-2 flex-wrap mb-4">
+    <button class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-teal-50 text-teal-700 border border-teal-200"><i data-lucide="layout-grid" class="w-3 h-3"></i>Catálogo</button>
+    <button class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200"><i data-lucide="dollar-sign" class="w-3 h-3"></i>Costos</button>
+    <button class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-purple-50 text-purple-700 border border-purple-200"><i data-lucide="git-branch" class="w-3 h-3"></i>Pipeline</button>
+    <button class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-rose-50 text-rose-700 border border-rose-200"><i data-lucide="zap" class="w-3 h-3"></i>Alertas <span class="opacity-60 tabular">7</span></button>
+    <button class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-slate-900 text-white shadow-sm">
+      <i data-lucide="trending-up" class="w-3 h-3"></i>Forecast
+      <kbd class="ml-1 text-[8px] font-mono bg-white/20 text-white px-1 py-0.5 rounded">5</kbd>
+    </button>
+  </div>
+
+  <!-- Banner confidence general · transparencia metodológica -->
+  <div class="bg-sky-50/50 border border-sky-200 rounded-lg p-3 mb-4 flex items-start gap-2">
+    <i data-lucide="info" class="w-4 h-4 text-sky-700 flex-shrink-0 mt-0.5"></i>
+    <div class="flex-1 text-[11px] text-sky-800">
+      <span class="font-bold">Metodología:</span> Forecast usa Weighted Moving Average (WMA) sobre serie de lotes/meses.
+      Confidence score por SKU se basa en cantidad de puntos históricos · ≥6 lotes = alta · 3-5 = media · &lt;3 = baja.
+      Las proyecciones NO consideran shocks externos, estacionalidad fina ni cambios estructurales.
+    </div>
+  </div>
+
+  <!-- ─── PANEL 1 · Forecast costos catálogo · top 10 por riesgo ──────────── -->
+  <div class="bg-white border border-slate-200 rounded-xl p-4 mb-4">
+    <div class="flex items-start justify-between mb-3 gap-2 flex-wrap">
+      <div>
+        <div class="text-sm font-bold text-slate-900">Proyección costos · top 10 SKUs por riesgo</div>
+        <div class="text-[10px] text-slate-500 mt-0.5">Ordenados por mayor proyección de subida · WMA de últimos lotes</div>
+      </div>
+      <div class="flex items-center gap-2 flex-wrap">
+        <span class="text-[10px] text-slate-500">Horizonte:</span>
+        <button class="px-2 py-1 rounded text-[10px] font-bold bg-slate-900 text-white">30d</button>
+        <button class="px-2 py-1 rounded text-[10px] font-bold bg-white text-slate-600 border border-slate-200">60d</button>
+        <button class="px-2 py-1 rounded text-[10px] font-bold bg-white text-slate-600 border border-slate-200">90d</button>
+      </div>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="w-full text-[11px] mt-2">
+        <thead>
+          <tr class="text-left text-[10px] uppercase tracking-wider text-slate-500 font-semibold border-b border-slate-200">
+            <th class="px-2 py-2">SKU</th>
+            <th class="px-2 py-2">Producto</th>
+            <th class="px-2 py-2 text-right">Costo actual</th>
+            <th class="px-2 py-2 text-right">Proyectado 30d</th>
+            <th class="px-2 py-2 text-right">Δ esperado</th>
+            <th class="px-2 py-2 text-right">Capital afectado</th>
+            <th class="px-2 py-2 text-center">Confidence</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+          <!-- Row 1 · Alta proyección alza · rose -->
+          <tr class="bg-rose-50/30 hover:bg-rose-50/60">
+            <td class="px-2 py-2 font-mono text-rose-700 font-bold">SUP-0078</td>
+            <td class="px-2 py-2">
+              <div class="flex items-center gap-1.5">
+                <i data-lucide="pill" class="w-3 h-3 text-indigo-700"></i>
+                <span class="text-slate-900 font-medium">Vitamin D3 NOW · 240 caps</span>
+              </div>
+            </td>
+            <td class="px-2 py-2 text-right tabular font-semibold">S/ 49.55</td>
+            <td class="px-2 py-2 text-right tabular font-bold text-rose-700">S/ 53.42</td>
+            <td class="px-2 py-2 text-right tabular font-bold text-rose-700">+7.8%</td>
+            <td class="px-2 py-2 text-right tabular text-slate-600">S/ 908</td>
+            <td class="px-2 py-2 text-center">
+              <span class="flex items-center justify-center gap-1">
+                <span class="confidence-bar"><span class="confidence-bar-fill bg-emerald-500" style="width:80%"></span></span>
+                <span class="text-[9px] text-emerald-600 font-bold">Alta</span>
+              </span>
+              <span class="text-[8px] text-slate-400 tabular">8 lotes</span>
+            </td>
+          </tr>
+          <!-- Row 2 · Alta proyección alza · amber -->
+          <tr class="bg-amber-50/30 hover:bg-amber-50/60">
+            <td class="px-2 py-2 font-mono text-amber-700 font-bold">SKC-0103</td>
+            <td class="px-2 py-2">
+              <div class="flex items-center gap-1.5">
+                <i data-lucide="droplets" class="w-3 h-3 text-amber-700"></i>
+                <span class="text-slate-900 font-medium">Niacinamide 10% Serum</span>
+              </div>
+            </td>
+            <td class="px-2 py-2 text-right tabular font-semibold">S/ 43.74</td>
+            <td class="px-2 py-2 text-right tabular font-bold text-amber-700">S/ 45.83</td>
+            <td class="px-2 py-2 text-right tabular font-bold text-amber-700">+4.8%</td>
+            <td class="px-2 py-2 text-right tabular text-slate-600">S/ 1,420</td>
+            <td class="px-2 py-2 text-center">
+              <span class="flex items-center justify-center gap-1">
+                <span class="confidence-bar"><span class="confidence-bar-fill bg-amber-500" style="width:55%"></span></span>
+                <span class="text-[9px] text-amber-600 font-bold">Media</span>
+              </span>
+              <span class="text-[8px] text-slate-400 tabular">4 lotes</span>
+            </td>
+          </tr>
+          <!-- Row 3 · Estable · slate -->
+          <tr class="hover:bg-slate-50">
+            <td class="px-2 py-2 font-mono text-slate-700 font-bold">SUP-0114</td>
+            <td class="px-2 py-2">
+              <div class="flex items-center gap-1.5">
+                <i data-lucide="pill" class="w-3 h-3 text-indigo-700"></i>
+                <span class="text-slate-900 font-medium">Omega 3 EPA/DHA · 180 caps</span>
+              </div>
+            </td>
+            <td class="px-2 py-2 text-right tabular font-semibold">S/ 30.33</td>
+            <td class="px-2 py-2 text-right tabular font-bold text-slate-700">S/ 30.78</td>
+            <td class="px-2 py-2 text-right tabular text-emerald-600 font-bold">+1.5%</td>
+            <td class="px-2 py-2 text-right tabular text-slate-600">S/ 760</td>
+            <td class="px-2 py-2 text-center">
+              <span class="flex items-center justify-center gap-1">
+                <span class="confidence-bar"><span class="confidence-bar-fill bg-emerald-500" style="width:75%"></span></span>
+                <span class="text-[9px] text-emerald-600 font-bold">Alta</span>
+              </span>
+              <span class="text-[8px] text-slate-400 tabular">6 lotes</span>
+            </td>
+          </tr>
+          <!-- Row 4 · Baja confidence · sólo 2 lotes -->
+          <tr class="hover:bg-slate-50">
+            <td class="px-2 py-2 font-mono text-slate-700 font-bold">SKC-0042</td>
+            <td class="px-2 py-2">
+              <div class="flex items-center gap-1.5">
+                <i data-lucide="droplets" class="w-3 h-3 text-amber-700"></i>
+                <span class="text-slate-900 font-medium">Madecassoside Cream · 50ml</span>
+              </div>
+            </td>
+            <td class="px-2 py-2 text-right tabular font-semibold">S/ 84.59</td>
+            <td class="px-2 py-2 text-right tabular text-slate-500 italic">S/ 85.34</td>
+            <td class="px-2 py-2 text-right tabular text-slate-500">+0.9%</td>
+            <td class="px-2 py-2 text-right tabular text-slate-400">S/ 2,150</td>
+            <td class="px-2 py-2 text-center">
+              <span class="flex items-center justify-center gap-1">
+                <span class="confidence-bar"><span class="confidence-bar-fill bg-rose-500" style="width:25%"></span></span>
+                <span class="text-[9px] text-rose-600 font-bold">Baja</span>
+              </span>
+              <span class="text-[8px] text-slate-400 tabular">2 lotes</span>
+            </td>
+          </tr>
+          <!-- Footer suma -->
+          <tr class="bg-slate-50 border-t-2 border-slate-300 font-bold">
+            <td class="px-2 py-2 text-slate-900" colspan="2">Promedio top 10 (peso por capital)</td>
+            <td class="px-2 py-2 text-right tabular">—</td>
+            <td class="px-2 py-2 text-right tabular">—</td>
+            <td class="px-2 py-2 text-right tabular text-rose-700">+3.2%</td>
+            <td class="px-2 py-2 text-right tabular">S/ 5,238</td>
+            <td class="px-2 py-2 text-center text-[10px] text-slate-500">7 SKUs alta · 3 baja</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="text-[10px] text-slate-400 mt-3">
+      <span class="font-bold">Confidence:</span> ≥6 lotes = alta · 3-5 = media · &lt;3 = baja (proyección poco confiable, marcada en italic)
+    </div>
+  </div>
+
+  <!-- ─── PANEL 2 · Forecast gastos por bloque · 6m histórico + 3m proyectado ─ -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+    <div class="bg-white border border-slate-200 rounded-xl p-4">
+      <div class="flex items-start justify-between mb-3">
+        <div>
+          <div class="text-sm font-bold text-slate-900">Proyección gastos · 6m hist + 3m futuro</div>
+          <div class="text-[10px] text-slate-500 mt-0.5">Stacked bars históricas + futuras dashed</div>
+        </div>
+        <i data-lucide="bar-chart-3" class="w-4 h-4 text-slate-400"></i>
+      </div>
+
+      <svg viewBox="0 0 360 180" class="w-full h-44">
+        <!-- Histórico 6 meses · sólidos -->
+        <g>
+          <rect x="10" y="80" width="22" height="50" fill="#3b82f6"/>
+          <rect x="10" y="60" width="22" height="20" fill="#8b5cf6"/>
+          <rect x="10" y="40" width="22" height="20" fill="#f59e0b"/>
+          <text x="21" y="158" text-anchor="middle" font-size="8" fill="#94a3b8">Dic</text>
+        </g>
+        <g>
+          <rect x="42" y="75" width="22" height="55" fill="#3b82f6"/>
+          <rect x="42" y="55" width="22" height="20" fill="#8b5cf6"/>
+          <rect x="42" y="35" width="22" height="20" fill="#f59e0b"/>
+          <text x="53" y="158" text-anchor="middle" font-size="8" fill="#94a3b8">Ene</text>
+        </g>
+        <g>
+          <rect x="74" y="70" width="22" height="60" fill="#3b82f6"/>
+          <rect x="74" y="48" width="22" height="22" fill="#8b5cf6"/>
+          <rect x="74" y="28" width="22" height="20" fill="#f59e0b"/>
+          <text x="85" y="158" text-anchor="middle" font-size="8" fill="#94a3b8">Feb</text>
+        </g>
+        <g>
+          <rect x="106" y="65" width="22" height="65" fill="#3b82f6"/>
+          <rect x="106" y="42" width="22" height="23" fill="#8b5cf6"/>
+          <rect x="106" y="22" width="22" height="20" fill="#f59e0b"/>
+          <text x="117" y="158" text-anchor="middle" font-size="8" fill="#94a3b8">Mar</text>
+        </g>
+        <g>
+          <rect x="138" y="55" width="22" height="75" fill="#3b82f6"/>
+          <rect x="138" y="35" width="22" height="20" fill="#8b5cf6"/>
+          <rect x="138" y="18" width="22" height="17" fill="#f59e0b"/>
+          <text x="149" y="158" text-anchor="middle" font-size="8" fill="#94a3b8">Abr</text>
+        </g>
+        <g>
+          <rect x="170" y="50" width="22" height="80" fill="#3b82f6"/>
+          <rect x="170" y="30" width="22" height="20" fill="#8b5cf6"/>
+          <rect x="170" y="12" width="22" height="18" fill="#f59e0b"/>
+          <rect x="168" y="10" width="26" height="122" fill="none" stroke="#0f172a" stroke-width="1.5"/>
+          <text x="181" y="158" text-anchor="middle" font-size="8" fill="#0f172a" font-weight="700">May (act)</text>
+        </g>
+        <!-- Línea separadora histórico/futuro -->
+        <line x1="200" y1="10" x2="200" y2="135" stroke="#cbd5e1" stroke-width="1" stroke-dasharray="3 2"/>
+        <text x="200" y="170" text-anchor="middle" font-size="7" fill="#94a3b8" font-style="italic">— futuro —</text>
+        <!-- Proyectado 3 meses · dashed -->
+        <g opacity="0.6">
+          <rect x="206" y="45" width="22" height="85" fill="#3b82f6" stroke="#1e40af" stroke-width="0.5" stroke-dasharray="2 1"/>
+          <rect x="206" y="25" width="22" height="20" fill="#8b5cf6" stroke="#5b21b6" stroke-width="0.5" stroke-dasharray="2 1"/>
+          <rect x="206" y="8" width="22" height="17" fill="#f59e0b" stroke="#92400e" stroke-width="0.5" stroke-dasharray="2 1"/>
+          <text x="217" y="158" text-anchor="middle" font-size="8" fill="#94a3b8" font-style="italic">Jun*</text>
+        </g>
+        <g opacity="0.5">
+          <rect x="238" y="40" width="22" height="90" fill="#3b82f6" stroke="#1e40af" stroke-width="0.5" stroke-dasharray="2 1"/>
+          <rect x="238" y="20" width="22" height="20" fill="#8b5cf6" stroke="#5b21b6" stroke-width="0.5" stroke-dasharray="2 1"/>
+          <rect x="238" y="3" width="22" height="17" fill="#f59e0b" stroke="#92400e" stroke-width="0.5" stroke-dasharray="2 1"/>
+          <text x="249" y="158" text-anchor="middle" font-size="8" fill="#94a3b8" font-style="italic">Jul*</text>
+        </g>
+        <g opacity="0.4">
+          <rect x="270" y="35" width="22" height="95" fill="#3b82f6" stroke="#1e40af" stroke-width="0.5" stroke-dasharray="2 1"/>
+          <rect x="270" y="15" width="22" height="20" fill="#8b5cf6" stroke="#5b21b6" stroke-width="0.5" stroke-dasharray="2 1"/>
+          <rect x="270" y="0" width="22" height="15" fill="#f59e0b" stroke="#92400e" stroke-width="0.5" stroke-dasharray="2 1"/>
+          <text x="281" y="158" text-anchor="middle" font-size="8" fill="#94a3b8" font-style="italic">Ago*</text>
+        </g>
+      </svg>
+
+      <div class="flex items-center gap-3 mt-2 text-[10px] flex-wrap">
+        <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded bg-blue-500"></span>Producto</span>
+        <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded bg-purple-500"></span>Venta</span>
+        <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded bg-amber-500"></span>Período</span>
+        <span class="flex items-center gap-1 italic text-slate-500">— dashed: proyectado</span>
+      </div>
+
+      <div class="mt-3 px-3 py-2 bg-amber-50/50 border border-amber-200 rounded text-[11px] text-amber-800 flex items-start gap-1.5">
+        <i data-lucide="trending-up" class="w-3.5 h-3.5 flex-shrink-0 mt-0.5"></i>
+        <span><span class="font-bold">Total Q3 proyectado: S/ 358,200</span> · tendencia +8% vs Q2 (S/ 331,500). Revisar gastos de período si subida es sostenida.</span>
+      </div>
+    </div>
+
+    <!-- ─── PANEL 3 · What-if scenarios · sliders interactivos ────────────── -->
+    <div class="bg-white border border-slate-200 rounded-xl p-4">
+      <div class="flex items-start justify-between mb-3">
+        <div>
+          <div class="text-sm font-bold text-slate-900">What-if scenarios · simulación</div>
+          <div class="text-[10px] text-slate-500 mt-0.5">Ajustá variables · impacto agregado en tiempo real</div>
+        </div>
+        <i data-lucide="sliders" class="w-4 h-4 text-slate-400"></i>
+      </div>
+
+      <!-- Sliders -->
+      <div class="space-y-3">
+        <!-- Slider 1 · TC -->
+        <div>
+          <div class="flex items-center justify-between text-[11px] mb-1">
+            <span class="font-semibold text-slate-700 flex items-center gap-1">
+              <i data-lucide="dollar-sign" class="w-3 h-3 text-sky-700"></i>
+              TC variación
+            </span>
+            <span class="font-bold tabular text-rose-600">+5.0%</span>
+          </div>
+          <input type="range" min="-15" max="15" value="5" class="slider" />
+          <div class="flex justify-between text-[9px] text-slate-400 tabular mt-0.5">
+            <span>-15%</span><span>0</span><span>+15%</span>
+          </div>
+        </div>
+
+        <!-- Slider 2 · Precio proveedor -->
+        <div>
+          <div class="flex items-center justify-between text-[11px] mb-1">
+            <span class="font-semibold text-slate-700 flex items-center gap-1">
+              <i data-lucide="package" class="w-3 h-3 text-indigo-700"></i>
+              Precio proveedor (USD)
+            </span>
+            <span class="font-bold tabular text-amber-600">+3.0%</span>
+          </div>
+          <input type="range" min="-20" max="20" value="3" class="slider" />
+          <div class="flex justify-between text-[9px] text-slate-400 tabular mt-0.5">
+            <span>-20%</span><span>0</span><span>+20%</span>
+          </div>
+        </div>
+
+        <!-- Slider 3 · Volumen ventas -->
+        <div>
+          <div class="flex items-center justify-between text-[11px] mb-1">
+            <span class="font-semibold text-slate-700 flex items-center gap-1">
+              <i data-lucide="shopping-bag" class="w-3 h-3 text-emerald-700"></i>
+              Volumen ventas
+            </span>
+            <span class="font-bold tabular text-emerald-600">+10%</span>
+          </div>
+          <input type="range" min="-30" max="30" value="10" class="slider" />
+          <div class="flex justify-between text-[9px] text-slate-400 tabular mt-0.5">
+            <span>-30%</span><span>0</span><span>+30%</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Output · impacto agregado -->
+      <div class="border-t border-slate-100 mt-4 pt-3 space-y-2">
+        <div class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Impacto estimado</div>
+        <div class="grid grid-cols-2 gap-2">
+          <div class="bg-rose-50/50 border border-rose-200 rounded p-2">
+            <div class="text-[9px] font-bold text-rose-700 uppercase">Margen agregado</div>
+            <div class="text-base font-bold text-rose-700 tabular mt-0.5">-2.4pp</div>
+            <div class="text-[9px] text-rose-600">31% → 28.6%</div>
+          </div>
+          <div class="bg-rose-50/50 border border-rose-200 rounded p-2">
+            <div class="text-[9px] font-bold text-rose-700 uppercase">Capital atrapado</div>
+            <div class="text-base font-bold text-rose-700 tabular mt-0.5">+S/ 1,420</div>
+            <div class="text-[9px] text-rose-600">+7.7%</div>
+          </div>
+          <div class="bg-emerald-50/50 border border-emerald-200 rounded p-2">
+            <div class="text-[9px] font-bold text-emerald-700 uppercase">Ingreso esperado</div>
+            <div class="text-base font-bold text-emerald-700 tabular mt-0.5">+S/ 12,800</div>
+            <div class="text-[9px] text-emerald-600">vol +10%</div>
+          </div>
+          <div class="bg-amber-50/50 border border-amber-200 rounded p-2">
+            <div class="text-[9px] font-bold text-amber-700 uppercase">Utilidad neta proy.</div>
+            <div class="text-base font-bold text-amber-700 tabular mt-0.5">+S/ 4,100</div>
+            <div class="text-[9px] text-amber-600">+5.2%</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="text-[10px] text-slate-400 mt-3 italic">
+        Cálculo lineal sobre baseline actual · no considera elasticidad ni efectos no-lineales
+      </div>
+    </div>
+  </div>
+
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+<!-- SECCIÓN 2 · CON DATA PARCIAL · low confidence warnings -->
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+<div class="section-divider">
+  <span class="section-num">2</span>
+  Estado · DATA PARCIAL · módulo recién activado · warnings de baja confidence
+</div>
+
+<div class="bg-white rounded-2xl shadow-lg p-6">
+  <!-- Header -->
+  <div class="flex items-start justify-between gap-4 flex-wrap mb-5">
+    <div class="flex-1 min-w-[260px]">
+      <div class="flex items-center gap-1.5 text-xs text-slate-400 mb-1">
+        <span>Inteligencia</span>
+        <i data-lucide="chevron-right" class="w-3 h-3"></i>
+        <span class="text-amber-600 font-medium">Forecast · data parcial · low confidence</span>
+      </div>
+      <h1 class="text-2xl font-bold text-slate-900 flex items-center gap-2.5">
+        <i data-lucide="brain-circuit" class="w-6 h-6 text-teal-600"></i>
+        Cost Intelligence
+      </h1>
+    </div>
+  </div>
+
+  <!-- Banner warning principal -->
+  <div class="bg-amber-50 border border-amber-200 rounded-lg p-3 mb-4 flex items-start gap-2">
+    <i data-lucide="alert-circle" class="w-4 h-4 text-amber-700 flex-shrink-0 mt-0.5"></i>
+    <div class="flex-1 text-[11px] text-amber-800">
+      <span class="font-bold">Confidence general: BAJA.</span> Apenas tenés 2 meses de histórico · las proyecciones a 60d y 90d
+      tienen alta varianza esperada. Para forecast más confiable se recomienda &gt;3 meses de operación.
+      Esta vista se muestra parcial · panel What-if deshabilitado.
+    </div>
+  </div>
+
+  <!-- Switcher dim -->
+  <div class="flex items-center gap-2 flex-wrap mb-4">
+    <button class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-teal-50 text-teal-700 border border-teal-200"><i data-lucide="layout-grid" class="w-3 h-3"></i>Catálogo</button>
+    <button class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200"><i data-lucide="dollar-sign" class="w-3 h-3"></i>Costos</button>
+    <button class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-purple-50 text-purple-700 border border-purple-200"><i data-lucide="git-branch" class="w-3 h-3"></i>Pipeline</button>
+    <button class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-rose-50 text-rose-700 border border-rose-200"><i data-lucide="zap" class="w-3 h-3"></i>Alertas</button>
+    <button class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-slate-900 text-white shadow-sm"><i data-lucide="trending-up" class="w-3 h-3"></i>Forecast</button>
+  </div>
+
+  <!-- Tabla con warnings · sólo 30d horizon -->
+  <div class="bg-white border border-slate-200 rounded-xl p-4 mb-4">
+    <div class="flex items-start justify-between mb-3 gap-2 flex-wrap">
+      <div>
+        <div class="text-sm font-bold text-slate-900">Proyección 30d · 3 SKUs con &gt;2 lotes</div>
+        <div class="text-[10px] text-amber-600 mt-0.5">⚠ Horizonte 60/90d deshabilitado por baja confidence general</div>
+      </div>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="w-full text-[11px]">
+        <thead>
+          <tr class="text-left text-[10px] uppercase tracking-wider text-slate-500 font-semibold border-b border-slate-200">
+            <th class="px-2 py-2">SKU</th>
+            <th class="px-2 py-2">Producto</th>
+            <th class="px-2 py-2 text-right">Costo actual</th>
+            <th class="px-2 py-2 text-right">Proyectado 30d</th>
+            <th class="px-2 py-2 text-right">Δ esperado</th>
+            <th class="px-2 py-2 text-center">Confidence</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+          <tr class="hover:bg-slate-50">
+            <td class="px-2 py-2 font-mono text-slate-700 font-bold">SUP-0078</td>
+            <td class="px-2 py-2 text-slate-900">Vitamin D3 NOW</td>
+            <td class="px-2 py-2 text-right tabular font-semibold">S/ 49.55</td>
+            <td class="px-2 py-2 text-right tabular text-slate-500 italic">~S/ 51.20</td>
+            <td class="px-2 py-2 text-right tabular text-slate-500 italic">+3.3% ±5%</td>
+            <td class="px-2 py-2 text-center">
+              <span class="flex items-center justify-center gap-1">
+                <span class="confidence-bar"><span class="confidence-bar-fill bg-rose-500" style="width:25%"></span></span>
+                <span class="text-[9px] text-rose-600 font-bold">Baja</span>
+              </span>
+              <span class="text-[8px] text-slate-400 tabular">2 lotes</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="text-[10px] text-slate-500 italic mt-3">
+      "~" indica valor estimado con baja confidence · ± rango de varianza esperada
+    </div>
+  </div>
+
+  <!-- What-if deshabilitado -->
+  <div class="bg-white border border-slate-200 rounded-xl p-4 opacity-60">
+    <div class="flex items-center gap-2 mb-2">
+      <i data-lucide="lock" class="w-4 h-4 text-slate-400"></i>
+      <div class="text-sm font-bold text-slate-500">What-if scenarios · bloqueado</div>
+    </div>
+    <div class="text-[11px] text-slate-500">
+      Las simulaciones requieren confidence general ≥ media. Volvé cuando tengas más histórico (≥3 meses · ≥3 lotes por SKU principal).
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+<!-- SECCIÓN 3 · EMPTY · sin data o sin lotes mínimos -->
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+<div class="section-divider">
+  <span class="section-num">3</span>
+  Estado · SIN DATA SUFICIENTE · empty state honesto del workspace
+</div>
+
+<div class="bg-white rounded-2xl shadow-lg p-6">
+  <div class="flex items-start justify-between gap-4 flex-wrap mb-5">
+    <div class="flex-1 min-w-[260px]">
+      <div class="flex items-center gap-1.5 text-xs text-slate-400 mb-1">
+        <span>Inteligencia</span>
+        <i data-lucide="chevron-right" class="w-3 h-3"></i>
+        <span class="text-slate-600 font-medium">Forecast · sin histórico suficiente</span>
+      </div>
+      <h1 class="text-2xl font-bold text-slate-900 flex items-center gap-2.5">
+        <i data-lucide="brain-circuit" class="w-6 h-6 text-teal-600"></i>
+        Cost Intelligence
+      </h1>
+    </div>
+  </div>
+
+  <div class="flex items-center gap-2 flex-wrap mb-4">
+    <button class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-teal-50 text-teal-700 border border-teal-200 opacity-60"><i data-lucide="layout-grid" class="w-3 h-3"></i>Catálogo</button>
+    <button class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200 opacity-60"><i data-lucide="dollar-sign" class="w-3 h-3"></i>Costos</button>
+    <button class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-purple-50 text-purple-700 border border-purple-200 opacity-60"><i data-lucide="git-branch" class="w-3 h-3"></i>Pipeline</button>
+    <button class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-rose-50 text-rose-700 border border-rose-200 opacity-60"><i data-lucide="zap" class="w-3 h-3"></i>Alertas</button>
+    <button class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-slate-900 text-white shadow-sm"><i data-lucide="trending-up" class="w-3 h-3"></i>Forecast</button>
+  </div>
+
+  <div class="bg-white border border-slate-200 rounded-xl p-12">
+    <div class="max-w-lg mx-auto text-center">
+      <div class="w-20 h-20 rounded-2xl bg-gradient-to-br from-teal-50 to-teal-100 ring-1 ring-teal-200/50 flex items-center justify-center mx-auto mb-4">
+        <i data-lucide="line-chart" class="w-10 h-10 text-teal-700"></i>
+      </div>
+      <h2 class="text-lg font-bold text-slate-900 mb-2">Sin histórico suficiente para forecast</h2>
+      <p class="text-sm text-slate-600 mb-6 leading-relaxed max-w-md mx-auto">
+        Forecast proyecta costos, gastos y simula escenarios. Requiere histórico operacional real ·
+        no inventamos data ni hacemos proyecciones sobre baseline insuficiente.
+      </p>
+
+      <!-- Prerequisitos -->
+      <div class="bg-amber-50/50 border border-amber-200 rounded-lg p-4 mb-6 text-left">
+        <div class="text-[10px] font-bold text-amber-700 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+          <i data-lucide="info" class="w-3 h-3"></i>
+          Para activar Forecast necesitas:
+        </div>
+        <ul class="space-y-2">
+          <li class="text-xs text-slate-700 flex items-start gap-2">
+            <span class="font-bold text-amber-700 mt-0.5">1.</span>
+            <span><span class="font-semibold">≥3 meses de operación</span> (baseline mínimo para WMA · ideal 6m)</span>
+          </li>
+          <li class="text-xs text-slate-700 flex items-start gap-2">
+            <span class="font-bold text-amber-700 mt-0.5">2.</span>
+            <span><span class="font-semibold">≥1 SKU con ≥3 lotes</span> (activa proyección catálogo · ideal ≥6)</span>
+          </li>
+          <li class="text-xs text-slate-700 flex items-start gap-2">
+            <span class="font-bold text-amber-700 mt-0.5">3.</span>
+            <span><span class="font-semibold">Gastos clasificados por bloque ≥6m</span> (activa proyección gastos)</span>
+          </li>
+          <li class="text-xs text-slate-700 flex items-start gap-2">
+            <span class="font-bold text-amber-700 mt-0.5">4.</span>
+            <span><span class="font-semibold">Snapshots Pool USD ≥3</span> (activa proyección TCPA · what-if)</span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="flex items-center justify-center gap-2 flex-wrap">
+        <button class="flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-white bg-slate-900 rounded-lg hover:bg-slate-800 shadow-sm">
+          <i data-lucide="plus" class="w-3.5 h-3.5"></i>Crear primera OC
+        </button>
+        <button class="flex items-center gap-1.5 px-4 py-2 text-xs font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50">
+          Ver Catálogo
+          <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+        </button>
+      </div>
+
+      <div class="mt-6 px-4 py-2.5 bg-slate-50 border border-slate-200 rounded text-[10px] text-slate-500 text-left">
+        <span class="font-bold">Filosofía:</span> Forecast NO inventa data ni proyecta sobre 1 punto.
+        Preferimos no mostrar nada antes que dar una proyección engañosamente segura.
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+<!-- SECCIÓN 4 · MAPPING + decisiones -->
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+<div class="section-divider">
+  <span class="section-num">4</span>
+  Mapping data sources + decisiones de diseño a validar
+</div>
+
+<div class="bg-white rounded-2xl shadow-lg p-6">
+  <h3 class="text-sm font-bold text-slate-900 mb-3">Data sources y algoritmos</h3>
+  <div class="overflow-x-auto mb-6">
+    <table class="w-full text-xs">
+      <thead>
+        <tr class="text-left text-[10px] uppercase tracking-wider text-slate-500 font-bold border-b-2 border-slate-200">
+          <th class="px-3 py-2">Componente</th>
+          <th class="px-3 py-2">Data source</th>
+          <th class="px-3 py-2">Algoritmo</th>
+          <th class="px-3 py-2">Confidence</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-100">
+        <tr>
+          <td class="px-3 py-2.5 font-semibold text-slate-900">Proyección costos catálogo</td>
+          <td class="px-3 py-2.5 text-slate-600 font-mono text-[10px]">skus[].lotes (orden cronológico)</td>
+          <td class="px-3 py-2.5 text-slate-600">Weighted Moving Average · peso decreciente por antigüedad</td>
+          <td class="px-3 py-2.5 text-slate-600">≥6 lotes alta · 3-5 media · &lt;3 baja</td>
+        </tr>
+        <tr class="bg-slate-50">
+          <td class="px-3 py-2.5 font-semibold text-slate-900">Proyección gastos por bloque</td>
+          <td class="px-3 py-2.5 text-slate-600 font-mono text-[10px]">evolucion.serie (6m hist)</td>
+          <td class="px-3 py-2.5 text-slate-600">WMA mensual por bloque (producto/venta/periodo)</td>
+          <td class="px-3 py-2.5 text-slate-600">≥6 meses alta · 3-5 media · &lt;3 baja</td>
+        </tr>
+        <tr>
+          <td class="px-3 py-2.5 font-semibold text-slate-900">What-if · margen</td>
+          <td class="px-3 py-2.5 text-slate-600 font-mono text-[10px]">skus baseline + sliders</td>
+          <td class="px-3 py-2.5 text-slate-600">Cálculo lineal · costoUSD × (1+ΔTC) × (1+ΔProveedor)</td>
+          <td class="px-3 py-2.5 text-slate-600">Requiere confidence ≥ media</td>
+        </tr>
+        <tr class="bg-slate-50">
+          <td class="px-3 py-2.5 font-semibold text-slate-900">What-if · capital atrapado</td>
+          <td class="px-3 py-2.5 text-slate-600 font-mono text-[10px]">pipeline.totalAtrapadoPEN × ratios</td>
+          <td class="px-3 py-2.5 text-slate-600">Proporcional al cambio de costos × volumen</td>
+          <td class="px-3 py-2.5 text-slate-600">Requiere pipeline activo</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3 class="text-sm font-bold text-slate-900 mb-3">Decisiones a validar</h3>
+  <ul class="space-y-3 text-sm">
+    <li class="flex items-start gap-3">
+      <span class="w-6 h-6 rounded bg-teal-100 text-teal-700 font-bold flex items-center justify-center flex-shrink-0 text-xs">1</span>
+      <div>
+        <div class="font-bold text-slate-900">Algoritmo: Weighted Moving Average (WMA)</div>
+        <div class="text-slate-600 text-xs">Simple y honesto. Más sofisticado (Holt-Winters · ARIMA) es overkill para etapa temprana. Si en producción real se ve que WMA falla en estacionalidad, se evoluciona (DEUDA-FORECAST-MODELOS).</div>
+      </div>
+    </li>
+    <li class="flex items-start gap-3">
+      <span class="w-6 h-6 rounded bg-teal-100 text-teal-700 font-bold flex items-center justify-center flex-shrink-0 text-xs">2</span>
+      <div>
+        <div class="font-bold text-slate-900">Confidence basado en CANTIDAD de puntos históricos</div>
+        <div class="text-slate-600 text-xs">≥6 lotes/meses = alta · 3-5 = media · &lt;3 = baja. Visual: barra horizontal + label. SKUs con confidence baja muestran proyección en italic + ± rango varianza.</div>
+      </div>
+    </li>
+    <li class="flex items-start gap-3">
+      <span class="w-6 h-6 rounded bg-teal-100 text-teal-700 font-bold flex items-center justify-center flex-shrink-0 text-xs">3</span>
+      <div>
+        <div class="font-bold text-slate-900">3 horizontes (30/60/90d) + selector activo</div>
+        <div class="text-slate-600 text-xs">Defaultea 30d. Cuando confidence general &lt; media, sólo 30d se habilita (60/90d ocultos · evita falsa precisión a largo plazo).</div>
+      </div>
+    </li>
+    <li class="flex items-start gap-3">
+      <span class="w-6 h-6 rounded bg-teal-100 text-teal-700 font-bold flex items-center justify-center flex-shrink-0 text-xs">4</span>
+      <div>
+        <div class="font-bold text-slate-900">What-if scenarios · sólo 3 sliders MVP</div>
+        <div class="text-slate-600 text-xs">TC · precio proveedor · volumen ventas. Más variables (estacionalidad, comisiones específicas, etc.) inflarían complejidad sin ganar uso MVP. Si en operación real piden más, agregamos uno a uno con feedback.</div>
+      </div>
+    </li>
+    <li class="flex items-start gap-3">
+      <span class="w-6 h-6 rounded bg-teal-100 text-teal-700 font-bold flex items-center justify-center flex-shrink-0 text-xs">5</span>
+      <div>
+        <div class="font-bold text-slate-900">What-if · cálculo lineal · NO modela elasticidad</div>
+        <div class="text-slate-600 text-xs">El what-if asume: si TC sube 5%, costo PEN sube 5%. NO modela: que ventas caigan si precio sube (elasticidad de demanda). Limitación declarada en disclaimer. DEUDA-FORECAST-ELASTICIDAD si crece la necesidad.</div>
+      </div>
+    </li>
+    <li class="flex items-start gap-3">
+      <span class="w-6 h-6 rounded bg-teal-100 text-teal-700 font-bold flex items-center justify-center flex-shrink-0 text-xs">6</span>
+      <div>
+        <div class="font-bold text-slate-900">Empty state con prerequisitos numéricos explícitos</div>
+        <div class="text-slate-600 text-xs">≥3 meses operación · ≥1 SKU con ≥3 lotes · ≥6m gastos clasificados · ≥3 snapshots Pool. Sin ambigüedad. La frase final declara la filosofía honesta de no proyectar sobre 1 punto.</div>
+      </div>
+    </li>
+  </ul>
+</div>
+
+<script>
+  lucide.createIcons();
+</script>
+</body>
+</html>

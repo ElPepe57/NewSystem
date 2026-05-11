@@ -42,6 +42,7 @@ import {
   calcularCostIntelligence,
   calcularPipelineValorizado,
   calcularTCPAvsSBS,
+  calcularEvolucionPorBloque,
 } from './utils/costIntelligence';
 
 import { HeaderV2 } from './components/shell/HeaderV2';
@@ -121,6 +122,12 @@ export const IntelProductosPage: React.FC = () => {
     [poolSnapshots]
   );
 
+  // Evolución gastos por bloque · consumido por Costos y Forecast
+  const evolucionGastos = useMemo(
+    () => calcularEvolucionPorBloque(gastos, arbolCategorias, 6),
+    [gastos, arbolCategorias]
+  );
+
   // Workspace label dinámico (breadcrumb)
   const activeWorkspace = WORKSPACES.find((w) => w.id === activeId)!;
   const WORKSPACE_LABELS: Record<typeof activeId, string> = {
@@ -188,7 +195,17 @@ export const IntelProductosPage: React.FC = () => {
           />
         );
       case 'forecast':
-        return <ForecastWorkspace />;
+        // ForecastWorkspace · proyecciones WMA + what-if · honesto con confidence
+        return (
+          <ForecastWorkspace
+            skus={ciResult.skus}
+            evolucionGastos={evolucionGastos}
+            poolSnapshotsCount={poolSnapshots.length}
+            capitalInvertidoPEN={ciResult.kpis.capitalInvertidoPEN}
+            capitalAtrapadoPEN={ciResult.kpis.capitalAtrapadoPEN}
+            hasOperationalData={ciResult.hasOperationalData}
+          />
+        );
     }
   };
 
