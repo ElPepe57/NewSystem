@@ -64,15 +64,15 @@ export const CostosWorkspace: React.FC<CostosWorkspaceProps> = ({
     return seleccionarSkuFocoCostos(skus);
   }, [skus, skuFocoIdManual]);
 
-  // Handler para botón "Cambiar SKU" · ciclar entre SKUs con ≥2 lotes
-  const handleCambiarSku = () => {
-    const candidatos = skus.filter((s) => s.lotes.length >= 2);
-    if (candidatos.length <= 1) return;
-    const currentIdx = skuFoco
-      ? candidatos.findIndex((c) => c.productoId === skuFoco.productoId)
-      : -1;
-    const nextIdx = (currentIdx + 1) % candidatos.length;
-    setSkuFocoIdManual(candidatos[nextIdx].productoId);
+  // Candidatos para el selector dropdown del Panel 3
+  const candidatosLotes = useMemo(
+    () => skus.filter((s) => s.lotes.length >= 2),
+    [skus]
+  );
+
+  // Handler para seleccionar un SKU específico por productoId (dropdown selector)
+  const handleSeleccionarSku = (productoId: string) => {
+    setSkuFocoIdManual(productoId);
   };
 
   return (
@@ -83,14 +83,11 @@ export const CostosWorkspace: React.FC<CostosWorkspaceProps> = ({
         <TCPAvsSBSChart data={tcpaSerie} saldoUSDPool={saldoUSDPool} />
       </div>
 
-      {/* Fila 2 · tabla de lotes del SKU foco */}
+      {/* Fila 2 · tabla de lotes del SKU foco · dropdown selector inline en el título */}
       <ComparativaLotesTable
         sku={skuFoco}
-        onCambiarSku={
-          skus.filter((s) => s.lotes.length >= 2).length > 1
-            ? handleCambiarSku
-            : undefined
-        }
+        candidatos={candidatosLotes}
+        onSeleccionarSku={handleSeleccionarSku}
       />
     </div>
   );

@@ -179,8 +179,7 @@ function generarOrdenes(productos: Producto[]): OrdenCompra[] {
     items: Array<[Producto, number, number]>, // [producto, cantidad, costoUnitarioUSD]
     tcPago: number,
   ): OrdenCompra => {
-    const subtotalUSD = items.reduce((s, [_, q, c]) => s + q * c, 0);
-    void _;
+    const subtotalUSD = items.reduce((s, [, q, c]) => s + q * c, 0);
     const fecha = fechaAtras(diasAtras);
     return {
       id: `demo-oc-${n}`,
