@@ -130,16 +130,19 @@ export const IntelProductosPage: React.FC = () => {
   void activeWorkspace;
 
   // Renderizar workspace activo
+  // chk5.B10a fix · cada workspace maneja su empty state contextual.
+  // EmptyStateGlobal aplica SÓLO en Catálogo (landing del módulo · 4 prerequisitos
+  // de activación). Otros workspaces tienen su propio empty state más educativo
+  // para lo que ESE workspace hace específicamente.
   const renderWorkspace = () => {
-    // Si NO hay data operacional → empty state global en TODOS los workspaces
-    if (!ciResult.hasOperationalData) {
-      return <EmptyStateGlobal prerequisitos={ciResult.prerequisitos} />;
-    }
-
     switch (activeId) {
       case 'catalogo':
-        return <CatalogoWorkspace skus={ciResult.skus} />;
+        // Catálogo es landing · empty global con 4 prerequisitos de activación
+        return ciResult.hasOperationalData
+          ? <CatalogoWorkspace skus={ciResult.skus} />
+          : <EmptyStateGlobal prerequisitos={ciResult.prerequisitos} />;
       case 'costos':
+        // CostosWorkspace tiene 3 empty states internos (uno por panel)
         return (
           <CostosWorkspace
             skus={ciResult.skus}
@@ -150,6 +153,7 @@ export const IntelProductosPage: React.FC = () => {
           />
         );
       case 'pipeline':
+        // PipelineWorkspace tiene EmptyPipeline interno con 4 stage cards dim
         return (
           <PipelineWorkspace
             unidades={unidades}
