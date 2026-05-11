@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<title>Cost Intelligence · Workspace Alertas · chk5.B10b</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f1f5f9; color: #0f172a; }
+  .tabular { font-variant-numeric: tabular-nums; }
+  .section-divider {
+    background: #0f172a; color: white;
+    padding: 12px 20px; border-radius: 8px;
+    margin: 32px 0 16px 0; font-weight: 700;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .section-num {
+    background: #14b8a6; color: white;
+    width: 28px; height: 28px;
+    display: inline-flex; align-items: center; justify-content: center;
+    border-radius: 6px; font-size: 13px;
+  }
+  .producto-avatar {
+    width: 24px; height: 24px;
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .alert-card {
+    transition: all 0.15s ease;
+  }
+  .alert-card:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
+  }
+  .category-card {
+    transition: all 0.15s ease;
+    cursor: pointer;
+  }
+  .category-card:hover { transform: translateY(-1px); }
+  .category-card.active { box-shadow: 0 0 0 2px #14b8a6; }
+</style>
+</head>
+<body class="px-6 py-8 max-w-7xl mx-auto">
+
+<h1 class="text-2xl font-bold mb-2 text-slate-900">Cost Intelligence · Workspace Alertas</h1>
+<p class="text-sm text-slate-600 mb-6">chk5.B10b · pixel-perfect canon · responde "¿qué está mal AHORA que requiere acción inmediata?"</p>
+
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+<!-- SECCIÓN 1 · WORKSPACE ALERTAS CON DATA · feed lleno -->
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+<div class="section-divider">
+  <span class="section-num">1</span>
+  Workspace Alertas · 4 categorías + filtros + feed accionable
+</div>
+
+<div class="bg-white rounded-2xl shadow-lg p-6">
+
+  <!-- Header canon -->
+  <div class="flex items-start justify-between gap-4 flex-wrap mb-5">
+    <div class="flex-1 min-w-[260px]">
+      <div class="flex items-center gap-1.5 text-xs text-slate-400 mb-1">
+        <span class="hover:text-teal-600 cursor-pointer">Inteligencia</span>
+        <i data-lucide="chevron-right" class="w-3 h-3"></i>
+        <span class="text-slate-600 font-medium">Alertas · 7 anomalías activas</span>
+      </div>
+      <h1 class="text-2xl font-bold text-slate-900 flex items-center gap-2.5">
+        <i data-lucide="brain-circuit" class="w-6 h-6 text-teal-600"></i>
+        Cost Intelligence
+      </h1>
+      <p class="text-sm text-slate-500 mt-0.5 max-w-2xl">Anomaly detection · variance &gt; threshold · CTAs accionables.</p>
+    </div>
+    <div class="flex items-center gap-2 flex-wrap flex-shrink-0">
+      <button class="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50">
+        <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>Recalcular
+      </button>
+      <button class="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50">
+        <i data-lucide="check-check" class="w-3.5 h-3.5"></i>Marcar todo visto
+      </button>
+      <button class="flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-white bg-slate-900 rounded-lg hover:bg-slate-800 shadow-sm">
+        <i data-lucide="file-text" class="w-3.5 h-3.5"></i>Reporte ejecutivo
+      </button>
+    </div>
+  </div>
+
+  <!-- KPI strip canon (mismo) -->
+  <div class="bg-white border border-slate-200 rounded-xl grid grid-cols-2 lg:grid-cols-4 divide-y lg:divide-y-0 lg:divide-x divide-slate-200 mb-5">
+    <div class="p-3 lg:p-4">
+      <div class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Capital invertido</div>
+      <div class="text-xl lg:text-2xl font-bold text-slate-900 tracking-tight tabular">S/ 87,234</div>
+      <div class="text-[11px] text-slate-500 mt-1.5 tabular flex items-center gap-1">
+        <i data-lucide="package" class="w-3 h-3"></i>1,847 uds · 142 SKUs
+      </div>
+    </div>
+    <div class="p-3 lg:p-4">
+      <div class="text-[10px] font-semibold text-amber-700 uppercase tracking-wider mb-1.5">Capital atrapado</div>
+      <div class="text-xl lg:text-2xl font-bold text-amber-700 tracking-tight tabular">S/ 18,420</div>
+      <div class="text-[11px] text-amber-700 mt-1.5 tabular flex items-center gap-1">
+        <i data-lucide="alert-triangle" class="w-3 h-3"></i>21% del total
+      </div>
+    </div>
+    <div class="p-3 lg:p-4">
+      <div class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Variance promedio 30d</div>
+      <div class="text-xl lg:text-2xl font-bold text-rose-600 tracking-tight tabular">+4.8<span class="text-base text-rose-300 font-normal">%</span></div>
+      <div class="text-[11px] text-rose-600 mt-1.5 tabular flex items-center gap-1">
+        <i data-lucide="trending-up" class="w-3 h-3"></i>+1.7 vs mes ant.
+      </div>
+    </div>
+    <div class="p-3 lg:p-4">
+      <div class="text-[10px] font-semibold text-rose-700 uppercase tracking-wider mb-1.5">Anomalías 7D</div>
+      <div class="text-xl lg:text-2xl font-bold text-rose-700 tracking-tight tabular">7</div>
+      <div class="text-[11px] text-rose-700 mt-1.5 tabular flex items-center gap-1">
+        <i data-lucide="zap" class="w-3 h-3"></i>3 críticas
+      </div>
+    </div>
+  </div>
+
+  <!-- Workspaces switcher · Alertas activo -->
+  <div class="flex items-center gap-2 flex-wrap mb-4">
+    <button class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-teal-50 text-teal-700 border border-teal-200">
+      <i data-lucide="layout-grid" class="w-3 h-3"></i>Catálogo <span class="opacity-60 tabular">142</span>
+    </button>
+    <button class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200">
+      <i data-lucide="dollar-sign" class="w-3 h-3"></i>Costos
+    </button>
+    <button class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-purple-50 text-purple-700 border border-purple-200">
+      <i data-lucide="git-branch" class="w-3 h-3"></i>Pipeline
+    </button>
+    <button class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-slate-900 text-white shadow-sm">
+      <i data-lucide="zap" class="w-3 h-3"></i>Alertas <span class="opacity-80 tabular">7</span>
+      <kbd class="ml-1 text-[8px] font-mono bg-white/20 text-white px-1 py-0.5 rounded">4</kbd>
+    </button>
+    <button class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-sky-50 text-sky-700 border border-sky-200">
+      <i data-lucide="trending-up" class="w-3 h-3"></i>Forecast
+    </button>
+  </div>
+
+  <!-- ─── PANEL 1 · 4 CATEGORY CARDS · clickeables como filtros ────────────── -->
+  <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
+    <!-- Cat 1 · Variance costos (rose) · ACTIVA -->
+    <div class="category-card active bg-rose-50/50 border border-rose-200 rounded-xl p-3">
+      <div class="flex items-center gap-1.5 mb-2">
+        <div class="w-6 h-6 rounded-md bg-white border border-rose-300 flex items-center justify-center">
+          <i data-lucide="trending-up" class="w-3 h-3 text-rose-700"></i>
+        </div>
+        <span class="text-[10px] font-bold text-rose-700 uppercase tracking-wider">Variance costos</span>
+      </div>
+      <div class="text-lg font-bold text-rose-700 tabular">4</div>
+      <div class="text-[10px] text-rose-600 mt-0.5">2 críticas · 2 altas</div>
+    </div>
+
+    <!-- Cat 2 · Pipeline estancado (amber) -->
+    <div class="category-card bg-amber-50/50 border border-amber-200 rounded-xl p-3">
+      <div class="flex items-center gap-1.5 mb-2">
+        <div class="w-6 h-6 rounded-md bg-white border border-amber-300 flex items-center justify-center">
+          <i data-lucide="clock" class="w-3 h-3 text-amber-700"></i>
+        </div>
+        <span class="text-[10px] font-bold text-amber-700 uppercase tracking-wider">Pipeline</span>
+      </div>
+      <div class="text-lg font-bold text-amber-700 tabular">2</div>
+      <div class="text-[10px] text-amber-600 mt-0.5">SKUs estancados &gt;7d</div>
+    </div>
+
+    <!-- Cat 3 · FX / TCPA (sky) -->
+    <div class="category-card bg-sky-50/50 border border-sky-200 rounded-xl p-3">
+      <div class="flex items-center gap-1.5 mb-2">
+        <div class="w-6 h-6 rounded-md bg-white border border-sky-300 flex items-center justify-center">
+          <i data-lucide="dollar-sign" class="w-3 h-3 text-sky-700"></i>
+        </div>
+        <span class="text-[10px] font-bold text-sky-700 uppercase tracking-wider">FX · TCPA</span>
+      </div>
+      <div class="text-lg font-bold text-sky-700 tabular">1</div>
+      <div class="text-[10px] text-sky-600 mt-0.5">Desviación SBS</div>
+    </div>
+
+    <!-- Cat 4 · Stock crítico (purple) · placeholder -->
+    <div class="category-card bg-slate-50 border border-slate-200 rounded-xl p-3 opacity-50">
+      <div class="flex items-center gap-1.5 mb-2">
+        <div class="w-6 h-6 rounded-md bg-white border border-slate-300 flex items-center justify-center">
+          <i data-lucide="package" class="w-3 h-3 text-slate-400"></i>
+        </div>
+        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Stock</span>
+      </div>
+      <div class="text-lg font-bold text-slate-400 tabular">—</div>
+      <div class="text-[10px] text-slate-400 mt-0.5">Próximo · DEUDA</div>
+    </div>
+  </div>
+
+  <!-- ─── FILTROS BAR · canon F3 ──────────────────────────────────────────── -->
+  <div class="bg-white border border-slate-200 rounded-xl p-3 mb-4">
+    <div class="space-y-2.5">
+      <div class="flex items-center gap-2 flex-wrap">
+        <span class="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">Severidad:</span>
+        <button class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-bold bg-rose-100 text-rose-700 ring-2 ring-rose-300">
+          <i data-lucide="zap" class="w-2.5 h-2.5"></i>Crítica <span class="opacity-60 tabular">3</span>
+        </button>
+        <button class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200">
+          <i data-lucide="alert-triangle" class="w-2.5 h-2.5"></i>Alta <span class="opacity-60 tabular">3</span>
+        </button>
+        <button class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-bold bg-slate-50 text-slate-600 border border-slate-200">
+          <i data-lucide="info" class="w-2.5 h-2.5"></i>Media <span class="opacity-60 tabular">1</span>
+        </button>
+        <div class="h-5 w-px bg-slate-200"></div>
+        <span class="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">Estado:</span>
+        <button class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-bold bg-white text-slate-600 border border-slate-200 hover:bg-slate-50">
+          <i data-lucide="eye" class="w-2.5 h-2.5"></i>Sin ver <span class="opacity-60 tabular">5</span>
+        </button>
+        <button class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-bold bg-white text-slate-600 border border-slate-200 hover:bg-slate-50">
+          <i data-lucide="check" class="w-2.5 h-2.5"></i>Vista <span class="opacity-60 tabular">2</span>
+        </button>
+      </div>
+      <div class="border-t border-slate-100"></div>
+      <div class="flex items-center gap-2">
+        <div class="relative flex-1 min-w-[260px]">
+          <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none"></i>
+          <input type="text" placeholder="Buscar por SKU, descripción..." class="w-full pl-9 pr-9 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 placeholder:text-slate-400">
+        </div>
+        <button class="bg-slate-50 border border-slate-200 text-slate-700 font-medium text-xs px-3 py-2 rounded-lg flex items-center gap-1.5 hover:bg-slate-100">
+          <span class="text-slate-400 font-normal">Ordenar:</span>
+          <span>Severidad ↓</span>
+          <i data-lucide="chevron-down" class="w-3 h-3 text-slate-400"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── FEED DE ALERTAS · cards apiladas F4 ─────────────────────────────── -->
+  <div class="space-y-2.5">
+
+    <!-- ALERTA 1 · Crítica · Variance -->
+    <div class="alert-card bg-white border border-rose-200 rounded-xl p-4 ring-1 ring-rose-100">
+      <div class="flex items-start gap-3">
+        <div class="w-9 h-9 rounded-lg bg-rose-100 flex items-center justify-center flex-shrink-0">
+          <i data-lucide="trending-up" class="w-4 h-4 text-rose-700"></i>
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-2 mb-1 flex-wrap">
+            <span class="px-1.5 py-0.5 rounded bg-rose-100 text-rose-700 text-[9px] font-bold flex items-center gap-0.5">
+              <i data-lucide="zap" class="w-2.5 h-2.5"></i>CRÍTICA
+            </span>
+            <span class="px-1.5 py-0.5 rounded bg-rose-50 text-rose-700 text-[9px] font-bold">VARIANCE COSTOS</span>
+            <span class="text-[10px] text-slate-400 tabular">hace 2 horas</span>
+          </div>
+          <div class="text-sm font-bold text-slate-900 mb-1">
+            Vitamin D3 NOW · costo subió +12.0% en último lote
+          </div>
+          <div class="flex items-center gap-2 text-[11px] text-slate-600 mb-2">
+            <div class="producto-avatar bg-gradient-to-br from-indigo-50 to-indigo-100 ring-1 ring-indigo-200/50">
+              <i data-lucide="pill" class="w-3 h-3 text-indigo-700"></i>
+            </div>
+            <span class="font-mono text-slate-500">SUP-0078</span>
+            <span>·</span>
+            <span>NOW Foods</span>
+            <span>·</span>
+            <span class="font-semibold">S/ 44.16 → S/ 49.55</span>
+          </div>
+          <div class="text-[11px] text-slate-600 mb-3">
+            Detectado por driver: <span class="font-bold text-rose-700">Precio proveedor +9.8%</span>
+            (53% del cambio) + <span class="font-bold">TC +1.8%</span> (15%) + flete (32%).
+            Si la tendencia se mantiene, el margen baja del 32% al 22% sobre precio actual.
+          </div>
+          <div class="flex items-center gap-2 flex-wrap">
+            <button class="text-[11px] font-medium text-slate-700 bg-white border border-slate-200 hover:bg-slate-100 rounded-md px-2.5 py-1 flex items-center gap-1">
+              <i data-lucide="external-link" class="w-3 h-3"></i>Ver en Catálogo
+            </button>
+            <button class="text-[11px] font-medium text-slate-700 bg-white border border-slate-200 hover:bg-slate-100 rounded-md px-2.5 py-1 flex items-center gap-1">
+              <i data-lucide="check" class="w-3 h-3"></i>Marcar visto
+            </button>
+            <button class="text-[11px] font-bold text-white bg-rose-600 hover:bg-rose-700 rounded-md px-2.5 py-1 flex items-center gap-1">
+              <i data-lucide="phone" class="w-3 h-3"></i>Renegociar proveedor
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ALERTA 2 · Crítica · Pipeline -->
+    <div class="alert-card bg-white border border-rose-200 rounded-xl p-4 ring-1 ring-rose-100">
+      <div class="flex items-start gap-3">
+        <div class="w-9 h-9 rounded-lg bg-rose-100 flex items-center justify-center flex-shrink-0">
+          <i data-lucide="shield" class="w-4 h-4 text-rose-700"></i>
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-2 mb-1 flex-wrap">
+            <span class="px-1.5 py-0.5 rounded bg-rose-100 text-rose-700 text-[9px] font-bold flex items-center gap-0.5">
+              <i data-lucide="zap" class="w-2.5 h-2.5"></i>CRÍTICA
+            </span>
+            <span class="px-1.5 py-0.5 rounded bg-amber-50 text-amber-700 text-[9px] font-bold">PIPELINE</span>
+            <span class="text-[10px] text-slate-400 tabular">hace 1 día</span>
+          </div>
+          <div class="text-sm font-bold text-slate-900 mb-1">
+            8 unidades estancadas en Aduana · 21 días sin liberación
+          </div>
+          <div class="flex items-center gap-2 text-[11px] text-slate-600 mb-2">
+            <span class="font-mono text-slate-500">SUP-0078</span>
+            <span>·</span>
+            <span>Vitamin D3 NOW · 240 caps</span>
+            <span>·</span>
+            <span class="font-semibold">Capital comprometido: S/ 2,853</span>
+          </div>
+          <div class="text-[11px] text-slate-600 mb-3">
+            Threshold canónico para etapa Aduana: 7 días. Las unidades están 3× sobre lo esperado.
+            Probable causa: DUA pendiente o documentación incompleta.
+          </div>
+          <div class="flex items-center gap-2 flex-wrap">
+            <button class="text-[11px] font-medium text-slate-700 bg-white border border-slate-200 hover:bg-slate-100 rounded-md px-2.5 py-1 flex items-center gap-1">
+              <i data-lucide="external-link" class="w-3 h-3"></i>Ver en Pipeline
+            </button>
+            <button class="text-[11px] font-medium text-slate-700 bg-white border border-slate-200 hover:bg-slate-100 rounded-md px-2.5 py-1 flex items-center gap-1">
+              <i data-lucide="check" class="w-3 h-3"></i>Marcar visto
+            </button>
+            <button class="text-[11px] font-bold text-white bg-rose-600 hover:bg-rose-700 rounded-md px-2.5 py-1 flex items-center gap-1">
+              <i data-lucide="phone" class="w-3 h-3"></i>Contactar agencia aduanal
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ALERTA 3 · Crítica · Variance -->
+    <div class="alert-card bg-white border border-rose-200 rounded-xl p-4 ring-1 ring-rose-100">
+      <div class="flex items-start gap-3">
+        <div class="w-9 h-9 rounded-lg bg-rose-100 flex items-center justify-center flex-shrink-0">
+          <i data-lucide="trending-up" class="w-4 h-4 text-rose-700"></i>
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-2 mb-1 flex-wrap">
+            <span class="px-1.5 py-0.5 rounded bg-rose-100 text-rose-700 text-[9px] font-bold flex items-center gap-0.5">
+              <i data-lucide="zap" class="w-2.5 h-2.5"></i>CRÍTICA
+            </span>
+            <span class="px-1.5 py-0.5 rounded bg-rose-50 text-rose-700 text-[9px] font-bold">VARIANCE COSTOS</span>
+            <span class="text-[10px] text-slate-400 tabular">hace 3 días</span>
+          </div>
+          <div class="text-sm font-bold text-slate-900 mb-1">
+            Niacinamide 10% Serum · costo subió +14.5% (anómalo)
+          </div>
+          <div class="flex items-center gap-2 text-[11px] text-slate-600 mb-2">
+            <div class="producto-avatar bg-gradient-to-br from-amber-50 to-amber-100 ring-1 ring-amber-200/50">
+              <i data-lucide="droplets" class="w-3 h-3 text-amber-700"></i>
+            </div>
+            <span class="font-mono text-slate-500">SKC-0103</span>
+            <span>·</span>
+            <span>The Ordinary</span>
+            <span>·</span>
+            <span class="font-semibold">S/ 38.20 → S/ 43.74</span>
+          </div>
+          <div class="flex items-center gap-2 flex-wrap">
+            <button class="text-[11px] font-medium text-slate-700 bg-white border border-slate-200 hover:bg-slate-100 rounded-md px-2.5 py-1 flex items-center gap-1">
+              <i data-lucide="external-link" class="w-3 h-3"></i>Ver en Catálogo
+            </button>
+            <button class="text-[11px] font-medium text-slate-700 bg-white border border-slate-200 hover:bg-slate-100 rounded-md px-2.5 py-1 flex items-center gap-1">
+              <i data-lucide="check" class="w-3 h-3"></i>Marcar visto
+            </button>
+            <button class="text-[11px] font-bold text-white bg-rose-600 hover:bg-rose-700 rounded-md px-2.5 py-1 flex items-center gap-1">
+              <i data-lucide="dollar-sign" class="w-3 h-3"></i>Subir precio venta
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ALERTA 4 · Alta · Variance -->
+    <div class="alert-card bg-white border border-amber-200 rounded-xl p-4">
+      <div class="flex items-start gap-3">
+        <div class="w-9 h-9 rounded-lg bg-amber-100 flex items-center justify-center flex-shrink-0">
+          <i data-lucide="trending-up" class="w-4 h-4 text-amber-700"></i>
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-2 mb-1 flex-wrap">
+            <span class="px-1.5 py-0.5 rounded bg-amber-100 text-amber-700 text-[9px] font-bold flex items-center gap-0.5">
+              <i data-lucide="alert-triangle" class="w-2.5 h-2.5"></i>ALTA
+            </span>
+            <span class="px-1.5 py-0.5 rounded bg-rose-50 text-rose-700 text-[9px] font-bold">VARIANCE COSTOS</span>
+            <span class="text-[10px] text-slate-400 tabular">hace 5 días</span>
+          </div>
+          <div class="text-sm font-bold text-slate-900 mb-1">
+            Omega 3 EPA/DHA · variance +6.8% (volátil)
+          </div>
+          <div class="flex items-center gap-2 text-[11px] text-slate-600 mb-2">
+            <span class="font-mono text-slate-500">SUP-0114</span>
+            <span>·</span>
+            <span>NOW Foods · 180 caps</span>
+            <span>·</span>
+            <span class="font-semibold">S/ 28.40 → S/ 30.33</span>
+          </div>
+          <div class="flex items-center gap-2 flex-wrap">
+            <button class="text-[11px] font-medium text-slate-700 bg-white border border-slate-200 hover:bg-slate-100 rounded-md px-2.5 py-1 flex items-center gap-1">
+              <i data-lucide="external-link" class="w-3 h-3"></i>Ver en Catálogo
+            </button>
+            <button class="text-[11px] font-medium text-slate-700 bg-white border border-slate-200 hover:bg-slate-100 rounded-md px-2.5 py-1 flex items-center gap-1">
+              <i data-lucide="check" class="w-3 h-3"></i>Marcar visto
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ALERTA 5 · Alta · Pipeline -->
+    <div class="alert-card bg-white border border-amber-200 rounded-xl p-4">
+      <div class="flex items-start gap-3">
+        <div class="w-9 h-9 rounded-lg bg-amber-100 flex items-center justify-center flex-shrink-0">
+          <i data-lucide="clock" class="w-4 h-4 text-amber-700"></i>
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-2 mb-1 flex-wrap">
+            <span class="px-1.5 py-0.5 rounded bg-amber-100 text-amber-700 text-[9px] font-bold flex items-center gap-0.5">
+              <i data-lucide="alert-triangle" class="w-2.5 h-2.5"></i>ALTA
+            </span>
+            <span class="px-1.5 py-0.5 rounded bg-amber-50 text-amber-700 text-[9px] font-bold">PIPELINE</span>
+            <span class="text-[10px] text-slate-400 tabular">hace 1 semana</span>
+          </div>
+          <div class="text-sm font-bold text-slate-900 mb-1">
+            Magnesium Glycinate · 15 días en Aduana
+          </div>
+          <div class="text-[11px] text-slate-600 mb-2">
+            <span class="font-mono text-slate-500">SUP-0156</span> · 4 unidades · S/ 1,184 capital comprometido
+          </div>
+          <div class="flex items-center gap-2 flex-wrap">
+            <button class="text-[11px] font-medium text-slate-700 bg-white border border-slate-200 hover:bg-slate-100 rounded-md px-2.5 py-1 flex items-center gap-1">
+              <i data-lucide="external-link" class="w-3 h-3"></i>Ver en Pipeline
+            </button>
+            <button class="text-[11px] font-medium text-slate-700 bg-white border border-slate-200 hover:bg-slate-100 rounded-md px-2.5 py-1 flex items-center gap-1">
+              <i data-lucide="check" class="w-3 h-3"></i>Marcar visto
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ALERTA 6 · Alta · FX -->
+    <div class="alert-card bg-white border border-amber-200 rounded-xl p-4">
+      <div class="flex items-start gap-3">
+        <div class="w-9 h-9 rounded-lg bg-sky-100 flex items-center justify-center flex-shrink-0">
+          <i data-lucide="dollar-sign" class="w-4 h-4 text-sky-700"></i>
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-2 mb-1 flex-wrap">
+            <span class="px-1.5 py-0.5 rounded bg-amber-100 text-amber-700 text-[9px] font-bold flex items-center gap-0.5">
+              <i data-lucide="alert-triangle" class="w-2.5 h-2.5"></i>ALTA
+            </span>
+            <span class="px-1.5 py-0.5 rounded bg-sky-50 text-sky-700 text-[9px] font-bold">FX · TCPA</span>
+            <span class="text-[10px] text-slate-400 tabular">hace 2 días</span>
+          </div>
+          <div class="text-sm font-bold text-slate-900 mb-1">
+            TCPA 0.27 menor que SBS · oportunidad de hedging
+          </div>
+          <div class="text-[11px] text-slate-600 mb-2">
+            TCPA actual: 3.65 · SBS: 3.92 · Ahorro real estimado: <span class="font-bold tabular">S/ 1,580</span>.
+            Si la brecha se mantiene, vale la pena revisar tamaño de pool y estrategia de compra.
+          </div>
+          <div class="flex items-center gap-2 flex-wrap">
+            <button class="text-[11px] font-medium text-slate-700 bg-white border border-slate-200 hover:bg-slate-100 rounded-md px-2.5 py-1 flex items-center gap-1">
+              <i data-lucide="external-link" class="w-3 h-3"></i>Ver Pool USD
+            </button>
+            <button class="text-[11px] font-medium text-slate-700 bg-white border border-slate-200 hover:bg-slate-100 rounded-md px-2.5 py-1 flex items-center gap-1">
+              <i data-lucide="check" class="w-3 h-3"></i>Marcar visto
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ALERTA 7 · Media · Variance (VISTA · opacity-60) -->
+    <div class="alert-card bg-white border border-slate-200 rounded-xl p-4 opacity-60">
+      <div class="flex items-start gap-3">
+        <div class="w-9 h-9 rounded-lg bg-slate-100 flex items-center justify-center flex-shrink-0">
+          <i data-lucide="trending-up" class="w-4 h-4 text-slate-500"></i>
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-2 mb-1 flex-wrap">
+            <span class="px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 text-[9px] font-bold flex items-center gap-0.5">
+              <i data-lucide="info" class="w-2.5 h-2.5"></i>MEDIA
+            </span>
+            <span class="px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 text-[9px] font-bold flex items-center gap-0.5">
+              <i data-lucide="check" class="w-2.5 h-2.5"></i>VISTA
+            </span>
+            <span class="text-[10px] text-slate-400 tabular">hace 10 días</span>
+          </div>
+          <div class="text-sm font-semibold text-slate-700 mb-1">
+            Hyaluronic Acid · variance +4.2% (volátil)
+          </div>
+          <div class="text-[11px] text-slate-500">
+            <span class="font-mono">SKC-0089</span> · The Ordinary
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer · pagination + counter -->
+  <div class="flex items-center justify-between mt-4 pt-3 border-t border-slate-100 gap-2 flex-wrap">
+    <div class="text-[10px] text-slate-500 tabular">
+      Mostrando 7 de 7 alertas · ordenadas por severidad ↓
+    </div>
+    <div class="text-[10px] text-slate-400">
+      Política canon: variance &gt;10% = crítica · &gt;5% = alta · &gt;2% = media · ≤2% no se alerta
+    </div>
+  </div>
+
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+<!-- SECCIÓN 2 · EMPTY POSITIVO · TODO BAJO CONTROL -->
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+<div class="section-divider">
+  <span class="section-num">2</span>
+  Estado · 0 anomalías · empty state POSITIVO (no honesto-frío sino celebratorio)
+</div>
+
+<div class="bg-white rounded-2xl shadow-lg p-6">
+  <!-- Header igual -->
+  <div class="flex items-start justify-between gap-4 flex-wrap mb-5">
+    <div class="flex-1 min-w-[260px]">
+      <div class="flex items-center gap-1.5 text-xs text-slate-400 mb-1">
+        <span>Inteligencia</span>
+        <i data-lucide="chevron-right" class="w-3 h-3"></i>
+        <span class="text-emerald-600 font-medium">Alertas · 0 activas · todo bajo control</span>
+      </div>
+      <h1 class="text-2xl font-bold text-slate-900 flex items-center gap-2.5">
+        <i data-lucide="brain-circuit" class="w-6 h-6 text-teal-600"></i>
+        Cost Intelligence
+      </h1>
+    </div>
+  </div>
+
+  <!-- KPI strip (mismo · valores con 0 anomalías) -->
+  <div class="bg-white border border-slate-200 rounded-xl grid grid-cols-2 lg:grid-cols-4 divide-y lg:divide-y-0 lg:divide-x divide-slate-200 mb-5">
+    <div class="p-3 lg:p-4">
+      <div class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Capital invertido</div>
+      <div class="text-xl lg:text-2xl font-bold text-slate-900 tracking-tight tabular">S/ 92,400</div>
+      <div class="text-[11px] text-slate-500 mt-1.5 tabular">1,890 uds · 145 SKUs</div>
+    </div>
+    <div class="p-3 lg:p-4">
+      <div class="text-[10px] font-semibold text-emerald-700 uppercase tracking-wider mb-1.5">Capital atrapado</div>
+      <div class="text-xl lg:text-2xl font-bold text-emerald-700 tracking-tight tabular">S/ 6,200</div>
+      <div class="text-[11px] text-emerald-700 mt-1.5 tabular">7% del total · bajo</div>
+    </div>
+    <div class="p-3 lg:p-4">
+      <div class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Variance promedio 30d</div>
+      <div class="text-xl lg:text-2xl font-bold text-emerald-600 tracking-tight tabular">+1.2<span class="text-base text-emerald-300 font-normal">%</span></div>
+      <div class="text-[11px] text-emerald-600 mt-1.5 tabular">Estable · sin desvíos</div>
+    </div>
+    <div class="p-3 lg:p-4">
+      <div class="text-[10px] font-semibold text-emerald-700 uppercase tracking-wider mb-1.5">Anomalías 7D</div>
+      <div class="text-xl lg:text-2xl font-bold text-emerald-700 tracking-tight tabular">0</div>
+      <div class="text-[11px] text-emerald-700 mt-1.5 tabular">sin anomalías</div>
+    </div>
+  </div>
+
+  <!-- Switcher (alertas activo) -->
+  <div class="flex items-center gap-2 flex-wrap mb-4">
+    <button class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-teal-50 text-teal-700 border border-teal-200"><i data-lucide="layout-grid" class="w-3 h-3"></i>Catálogo</button>
+    <button class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200"><i data-lucide="dollar-sign" class="w-3 h-3"></i>Costos</button>
+    <button class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-purple-50 text-purple-700 border border-purple-200"><i data-lucide="git-branch" class="w-3 h-3"></i>Pipeline</button>
+    <button class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-slate-900 text-white shadow-sm"><i data-lucide="zap" class="w-3 h-3"></i>Alertas <span class="opacity-80 tabular">0</span></button>
+    <button class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-sky-50 text-sky-700 border border-sky-200"><i data-lucide="trending-up" class="w-3 h-3"></i>Forecast</button>
+  </div>
+
+  <!-- 4 category cards · 0 en cada uno · emerald -->
+  <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
+    <div class="bg-emerald-50/30 border border-emerald-200 rounded-xl p-3">
+      <div class="flex items-center gap-1.5 mb-2">
+        <div class="w-6 h-6 rounded-md bg-white border border-emerald-300 flex items-center justify-center">
+          <i data-lucide="trending-up" class="w-3 h-3 text-emerald-700"></i>
+        </div>
+        <span class="text-[10px] font-bold text-emerald-700 uppercase tracking-wider">Variance</span>
+      </div>
+      <div class="text-lg font-bold text-emerald-700 tabular">0</div>
+      <div class="text-[10px] text-emerald-600 mt-0.5">Sin anomalías</div>
+    </div>
+    <div class="bg-emerald-50/30 border border-emerald-200 rounded-xl p-3">
+      <div class="flex items-center gap-1.5 mb-2">
+        <div class="w-6 h-6 rounded-md bg-white border border-emerald-300 flex items-center justify-center">
+          <i data-lucide="clock" class="w-3 h-3 text-emerald-700"></i>
+        </div>
+        <span class="text-[10px] font-bold text-emerald-700 uppercase tracking-wider">Pipeline</span>
+      </div>
+      <div class="text-lg font-bold text-emerald-700 tabular">0</div>
+      <div class="text-[10px] text-emerald-600 mt-0.5">Sin estancados</div>
+    </div>
+    <div class="bg-emerald-50/30 border border-emerald-200 rounded-xl p-3">
+      <div class="flex items-center gap-1.5 mb-2">
+        <div class="w-6 h-6 rounded-md bg-white border border-emerald-300 flex items-center justify-center">
+          <i data-lucide="dollar-sign" class="w-3 h-3 text-emerald-700"></i>
+        </div>
+        <span class="text-[10px] font-bold text-emerald-700 uppercase tracking-wider">FX · TCPA</span>
+      </div>
+      <div class="text-lg font-bold text-emerald-700 tabular">0</div>
+      <div class="text-[10px] text-emerald-600 mt-0.5">Estable</div>
+    </div>
+    <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 opacity-50">
+      <div class="flex items-center gap-1.5 mb-2">
+        <div class="w-6 h-6 rounded-md bg-white border border-slate-300 flex items-center justify-center">
+          <i data-lucide="package" class="w-3 h-3 text-slate-400"></i>
+        </div>
+        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Stock</span>
+      </div>
+      <div class="text-lg font-bold text-slate-400 tabular">—</div>
+      <div class="text-[10px] text-slate-400 mt-0.5">DEUDA</div>
+    </div>
+  </div>
+
+  <!-- Empty positivo · "Todo bajo control" -->
+  <div class="bg-white border border-emerald-200 rounded-xl p-12">
+    <div class="max-w-lg mx-auto text-center">
+      <div class="w-20 h-20 rounded-2xl bg-gradient-to-br from-emerald-50 to-emerald-100 ring-1 ring-emerald-200/50 flex items-center justify-center mx-auto mb-4">
+        <i data-lucide="shield-check" class="w-10 h-10 text-emerald-700"></i>
+      </div>
+      <h2 class="text-lg font-bold text-slate-900 mb-2">Todo bajo control</h2>
+      <p class="text-sm text-slate-600 mb-6 leading-relaxed max-w-md mx-auto">
+        0 anomalías detectadas en los últimos 30 días.
+        Variance promedio: <span class="font-bold tabular">+1.2%</span>.
+        Capital atrapado: <span class="font-bold tabular">7% del total</span>.
+        El sistema sigue monitoreando · te avisaremos cuando algo se desvíe.
+      </p>
+
+      <!-- Mini stats -->
+      <div class="grid grid-cols-3 gap-2 mb-6">
+        <div class="bg-emerald-50/50 border border-emerald-200 rounded p-2">
+          <div class="text-[9px] font-bold text-emerald-700 uppercase">Variance hoy</div>
+          <div class="text-base font-bold text-emerald-700 tabular mt-0.5">+1.2%</div>
+        </div>
+        <div class="bg-emerald-50/50 border border-emerald-200 rounded p-2">
+          <div class="text-[9px] font-bold text-emerald-700 uppercase">Pipeline OK</div>
+          <div class="text-base font-bold text-emerald-700 tabular mt-0.5">100%</div>
+        </div>
+        <div class="bg-emerald-50/50 border border-emerald-200 rounded p-2">
+          <div class="text-[9px] font-bold text-emerald-700 uppercase">FX hedging</div>
+          <div class="text-base font-bold text-emerald-700 tabular mt-0.5">3.65</div>
+        </div>
+      </div>
+
+      <div class="text-[10px] text-slate-500">
+        Política canon: variance &gt;10% = crítica · &gt;5% = alta · &gt;2% = media · ≤2% no se alerta
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+<!-- SECCIÓN 3 · EMPTY SIN DATA · módulo sin activar -->
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+<div class="section-divider">
+  <span class="section-num">3</span>
+  Estado · SIN DATA OPERACIONAL · empty state honesto del workspace
+</div>
+
+<div class="bg-white rounded-2xl shadow-lg p-6">
+  <!-- Header -->
+  <div class="flex items-start justify-between gap-4 flex-wrap mb-5">
+    <div class="flex-1 min-w-[260px]">
+      <div class="flex items-center gap-1.5 text-xs text-slate-400 mb-1">
+        <span>Inteligencia</span>
+        <i data-lucide="chevron-right" class="w-3 h-3"></i>
+        <span class="text-slate-600 font-medium">Alertas · sin data para monitorear</span>
+      </div>
+      <h1 class="text-2xl font-bold text-slate-900 flex items-center gap-2.5">
+        <i data-lucide="brain-circuit" class="w-6 h-6 text-teal-600"></i>
+        Cost Intelligence
+      </h1>
+    </div>
+  </div>
+
+  <!-- KPI strip dim -->
+  <div class="bg-white border border-slate-200 rounded-xl grid grid-cols-2 lg:grid-cols-4 divide-y lg:divide-y-0 lg:divide-x divide-slate-200 mb-5 opacity-70">
+    <div class="p-3 lg:p-4">
+      <div class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Capital invertido</div>
+      <div class="text-xl lg:text-2xl font-bold text-slate-400 tracking-tight tabular">S/ —</div>
+    </div>
+    <div class="p-3 lg:p-4">
+      <div class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Capital atrapado</div>
+      <div class="text-xl lg:text-2xl font-bold text-slate-400 tracking-tight tabular">S/ —</div>
+    </div>
+    <div class="p-3 lg:p-4">
+      <div class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Variance</div>
+      <div class="text-xl lg:text-2xl font-bold text-slate-400 tracking-tight tabular">—</div>
+    </div>
+    <div class="p-3 lg:p-4">
+      <div class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Anomalías 7D</div>
+      <div class="text-xl lg:text-2xl font-bold text-slate-400 tracking-tight tabular">—</div>
+    </div>
+  </div>
+
+  <!-- Switcher · alertas activo dim -->
+  <div class="flex items-center gap-2 flex-wrap mb-4">
+    <button class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-teal-50 text-teal-700 border border-teal-200 opacity-60"><i data-lucide="layout-grid" class="w-3 h-3"></i>Catálogo</button>
+    <button class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200 opacity-60"><i data-lucide="dollar-sign" class="w-3 h-3"></i>Costos</button>
+    <button class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-purple-50 text-purple-700 border border-purple-200 opacity-60"><i data-lucide="git-branch" class="w-3 h-3"></i>Pipeline</button>
+    <button class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-slate-900 text-white shadow-sm"><i data-lucide="zap" class="w-3 h-3"></i>Alertas</button>
+    <button class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-sky-50 text-sky-700 border border-sky-200 opacity-60"><i data-lucide="trending-up" class="w-3 h-3"></i>Forecast</button>
+  </div>
+
+  <!-- 4 category cards en gris -->
+  <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4 opacity-50">
+    <div class="bg-slate-50 border border-slate-200 rounded-xl p-3">
+      <div class="text-[10px] font-bold text-slate-500 uppercase">Variance</div>
+      <div class="text-lg font-bold text-slate-400 tabular mt-1">—</div>
+    </div>
+    <div class="bg-slate-50 border border-slate-200 rounded-xl p-3">
+      <div class="text-[10px] font-bold text-slate-500 uppercase">Pipeline</div>
+      <div class="text-lg font-bold text-slate-400 tabular mt-1">—</div>
+    </div>
+    <div class="bg-slate-50 border border-slate-200 rounded-xl p-3">
+      <div class="text-[10px] font-bold text-slate-500 uppercase">FX · TCPA</div>
+      <div class="text-lg font-bold text-slate-400 tabular mt-1">—</div>
+    </div>
+    <div class="bg-slate-50 border border-slate-200 rounded-xl p-3">
+      <div class="text-[10px] font-bold text-slate-500 uppercase">Stock</div>
+      <div class="text-lg font-bold text-slate-400 tabular mt-1">—</div>
+    </div>
+  </div>
+
+  <!-- Empty state -->
+  <div class="bg-white border border-slate-200 rounded-xl p-12">
+    <div class="max-w-lg mx-auto text-center">
+      <div class="w-20 h-20 rounded-2xl bg-gradient-to-br from-teal-50 to-teal-100 ring-1 ring-teal-200/50 flex items-center justify-center mx-auto mb-4">
+        <i data-lucide="zap-off" class="w-10 h-10 text-teal-700"></i>
+      </div>
+      <h2 class="text-lg font-bold text-slate-900 mb-2">Sin data para monitorear</h2>
+      <p class="text-sm text-slate-600 mb-6 leading-relaxed max-w-md mx-auto">
+        Alertas detecta anomalías de costo, pipeline estancado y desviaciones FX.
+        Hoy no hay transacciones operacionales para analizar — no podemos detectar problemas
+        sobre data que no existe.
+      </p>
+
+      <!-- CTAs canon -->
+      <div class="flex items-center justify-center gap-2 flex-wrap">
+        <button class="flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-white bg-slate-900 rounded-lg hover:bg-slate-800 shadow-sm">
+          <i data-lucide="plus" class="w-3.5 h-3.5"></i>Crear primera OC
+        </button>
+        <button class="flex items-center gap-1.5 px-4 py-2 text-xs font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50">
+          Ver Catálogo
+          <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+        </button>
+      </div>
+
+      <div class="mt-6 px-4 py-2.5 bg-slate-50 border border-slate-200 rounded text-[10px] text-slate-500 text-left">
+        <span class="font-bold">Nota:</span> Alertas se alimenta de la misma data que Catálogo y Pipeline.
+        Cuando se active el módulo (≥1 OC cerrada + unidades en pipeline), Alertas empieza a monitorear
+        automáticamente.
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+<!-- SECCIÓN 4 · MAPPING DATA SOURCES + DECISIONES -->
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+<div class="section-divider">
+  <span class="section-num">4</span>
+  Mapping · de dónde viene cada alerta + decisiones a validar
+</div>
+
+<div class="bg-white rounded-2xl shadow-lg p-6">
+  <h3 class="text-sm font-bold text-slate-900 mb-3">Data sources por categoría</h3>
+  <div class="overflow-x-auto mb-6">
+    <table class="w-full text-xs">
+      <thead>
+        <tr class="text-left text-[10px] uppercase tracking-wider text-slate-500 font-bold border-b-2 border-slate-200">
+          <th class="px-3 py-2">Categoría</th>
+          <th class="px-3 py-2">Trigger</th>
+          <th class="px-3 py-2">Severidad</th>
+          <th class="px-3 py-2">Engine source</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-100">
+        <tr>
+          <td class="px-3 py-2.5 font-semibold text-rose-700">Variance costos</td>
+          <td class="px-3 py-2.5 text-slate-600">|varianceVsLoteAntPct| supera threshold</td>
+          <td class="px-3 py-2.5 text-slate-600">&gt;10% crítica · &gt;5% alta · &gt;2% media</td>
+          <td class="px-3 py-2.5 text-slate-600 font-mono text-[10px]">skus[].estadoCosto + varianceVsLoteAntPct</td>
+        </tr>
+        <tr class="bg-slate-50">
+          <td class="px-3 py-2.5 font-semibold text-amber-700">Pipeline estancado</td>
+          <td class="px-3 py-2.5 text-slate-600">diasEnEtapa supera PIPELINE_THRESHOLDS_DIAS</td>
+          <td class="px-3 py-2.5 text-slate-600">&gt;2× threshold crítica · &gt;1× alta</td>
+          <td class="px-3 py-2.5 text-slate-600 font-mono text-[10px]">pipeline.unidadesEstancadas</td>
+        </tr>
+        <tr>
+          <td class="px-3 py-2.5 font-semibold text-sky-700">FX · TCPA</td>
+          <td class="px-3 py-2.5 text-slate-600">|diffPctActual| supera 5%</td>
+          <td class="px-3 py-2.5 text-slate-600">&gt;10% crítica · &gt;5% alta</td>
+          <td class="px-3 py-2.5 text-slate-600 font-mono text-[10px]">tcpaVsSBS.diffPctActual</td>
+        </tr>
+        <tr class="bg-slate-50">
+          <td class="px-3 py-2.5 font-semibold text-slate-400">Stock crítico</td>
+          <td class="px-3 py-2.5 text-slate-400">Stock &lt; punto reorden</td>
+          <td class="px-3 py-2.5 text-slate-400">Por implementar · DEUDA-B10b-STOCK</td>
+          <td class="px-3 py-2.5 text-slate-400 font-mono text-[10px]">requiere módulo Inventario</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3 class="text-sm font-bold text-slate-900 mb-3">Decisiones de diseño a validar</h3>
+  <ul class="space-y-3 text-sm">
+    <li class="flex items-start gap-3">
+      <span class="w-6 h-6 rounded bg-teal-100 text-teal-700 font-bold flex items-center justify-center flex-shrink-0 text-xs">1</span>
+      <div>
+        <div class="font-bold text-slate-900">4 categorías (Variance · Pipeline · FX · Stock)</div>
+        <div class="text-slate-600 text-xs">Stock queda como placeholder gris (requiere integrar módulo Inventario · DEUDA-B10b-STOCK). Las otras 3 se alimentan del engine actual sin nada nuevo.</div>
+      </div>
+    </li>
+    <li class="flex items-start gap-3">
+      <span class="w-6 h-6 rounded bg-teal-100 text-teal-700 font-bold flex items-center justify-center flex-shrink-0 text-xs">2</span>
+      <div>
+        <div class="font-bold text-slate-900">Severidad: thresholds canónicos</div>
+        <div class="text-slate-600 text-xs">Variance: &gt;10% crítica · &gt;5% alta · &gt;2% media. Pipeline: &gt;2× threshold-etapa crítica · &gt;1× alta. FX: &gt;10% crítica · &gt;5% alta. Configurables vía settings en el futuro (DEUDA-CONFIG-THRESHOLDS).</div>
+      </div>
+    </li>
+    <li class="flex items-start gap-3">
+      <span class="w-6 h-6 rounded bg-teal-100 text-teal-700 font-bold flex items-center justify-center flex-shrink-0 text-xs">3</span>
+      <div>
+        <div class="font-bold text-slate-900">Persistencia "marcar visto"</div>
+        <div class="text-slate-600 text-xs">MVP: estado en localStorage por userId · keyed by alert.id. Cuando llegue módulo de Notificaciones formal, se migra. Suficiente para MVP porque las alertas son derivadas (se regeneran al recalcular).</div>
+      </div>
+    </li>
+    <li class="flex items-start gap-3">
+      <span class="w-6 h-6 rounded bg-teal-100 text-teal-700 font-bold flex items-center justify-center flex-shrink-0 text-xs">4</span>
+      <div>
+        <div class="font-bold text-slate-900">CTAs accionables vs informativas</div>
+        <div class="text-slate-600 text-xs">Acciones SIEMPRE visibles: "Ver en [contexto]" + "Marcar visto". Acción primaria (Renegociar · Contactar agencia · Subir precio venta) son placeholders con alert() · sin handlers reales en MVP. Va a deuda futura.</div>
+      </div>
+    </li>
+    <li class="flex items-start gap-3">
+      <span class="w-6 h-6 rounded bg-teal-100 text-teal-700 font-bold flex items-center justify-center flex-shrink-0 text-xs">5</span>
+      <div>
+        <div class="font-bold text-slate-900">Empty positivo "Todo bajo control"</div>
+        <div class="text-slate-600 text-xs">Cuando hay data pero 0 anomalías. NO el empty-frío canon. Banner verde celebratorio + mini-stats positivas. Es la única excepción al patrón empty-amber/teal canónico · justificada por la semántica.</div>
+      </div>
+    </li>
+  </ul>
+</div>
+
+<script>
+  lucide.createIcons();
+</script>
+</body>
+</html>

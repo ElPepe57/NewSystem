@@ -38,7 +38,11 @@ import { useTipoCambioStore } from '../../store/tipoCambioStore';
 import { useGastoStore } from '../../store/gastoStore';
 import { useCategoriaCostoStore } from '../../store/categoriaCostoStore';
 
-import { calcularCostIntelligence } from './utils/costIntelligence';
+import {
+  calcularCostIntelligence,
+  calcularPipelineValorizado,
+  calcularTCPAvsSBS,
+} from './utils/costIntelligence';
 
 import { HeaderV2 } from './components/shell/HeaderV2';
 import { WorkspaceSwitcher, type WorkspaceId, WORKSPACES } from './components/shell/WorkspaceSwitcher';
@@ -107,6 +111,16 @@ export const IntelProductosPage: React.FC = () => {
     });
   }, [productos, ordenes, unidades, poolResumen, tcSpotFallback]);
 
+  // Pipeline + TCPAvsSBS · consumidos por Alertas para consolidar fuentes
+  const pipelineResult = useMemo(
+    () => calcularPipelineValorizado(unidades, poolResumen?.tcpa, tcSpotFallback),
+    [unidades, poolResumen, tcSpotFallback]
+  );
+  const tcpaVsSBS = useMemo(
+    () => calcularTCPAvsSBS(poolSnapshots, 6),
+    [poolSnapshots]
+  );
+
   // Workspace label dinámico (breadcrumb)
   const activeWorkspace = WORKSPACES.find((w) => w.id === activeId)!;
   const WORKSPACE_LABELS: Record<typeof activeId, string> = {
@@ -163,7 +177,16 @@ export const IntelProductosPage: React.FC = () => {
           />
         );
       case 'alertas':
-        return <AlertasWorkspace />;
+        // AlertasWorkspace consolida 3 fuentes del engine (variance + pipeline + fx)
+        // Maneja 3 empty states internos (sin-data · todo-bajo-control · sin-resultados-filtros)
+        return (
+          <AlertasWorkspace
+            skus={ciResult.skus}
+            pipeline={pipelineResult}
+            tcpaVsSBS={tcpaVsSBS}
+            hasOperationalData={ciResult.hasOperationalData}
+          />
+        );
       case 'forecast':
         return <ForecastWorkspace />;
     }

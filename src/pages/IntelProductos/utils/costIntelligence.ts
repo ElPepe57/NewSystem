@@ -1215,6 +1215,398 @@ export function calcularUnidadesEnEtapa(
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// chk5.B10b · WORKSPACE ALERTAS · consolidación de anomalías cross-categoría
+// ─────────────────────────────────────────────────────────────────────────────
+
+/** Severidad canónica de una alerta */
+export type AlertaSeverity = 'critica' | 'alta' | 'media';
+
+/** Categoría canónica de una alerta · MVP 3 + stock como placeholder */
+export type AlertaCategoria = 'variance' | 'pipeline' | 'fx' | 'stock';
+
+/** Thresholds canónicos · ajustables vía settings en deuda DEUDA-CONFIG-THRESHOLDS */
+export const ALERTA_THRESHOLDS = {
+  variance: { critica: 10, alta: 5, media: 2 },     // % absoluto
+  fx:       { critica: 10, alta: 5 },               // % absoluto
+  // pipeline severity = factor × threshold-de-la-etapa (PIPELINE_THRESHOLDS_DIAS)
+  pipelineFactor: { critica: 2, alta: 1 },
+};
+
+export interface AlertaContexto {
+  skuId?: string;
+  sku?: string;
+  productoNombre?: string;
+  marca?: string;
+  lineaNegocioNombre?: string;
+  etapa?: EtapaPipeline;
+  valorComprometidoPEN?: number;
+  /** Métrica visible en la card (ej "+12.0%" · "21d") */
+  metrica?: string;
+  /** Texto secundario (ej "S/ 44.16 → S/ 49.55") */
+  detalleAdicional?: string;
+}
+
+/** Acción primaria sugerida · placeholder MVP (handler real va a deuda) */
+export interface AlertaAccionPrimaria {
+  label: string;
+  iconName: 'phone' | 'dollar-sign' | 'plus' | 'refresh-cw';
+}
+
+/** Link interno para navegación contextual desde la alerta */
+export interface AlertaLink {
+  workspace: 'catalogo' | 'pipeline' | 'costos';
+  skuId?: string;
+  etapa?: EtapaPipeline;
+}
+
+export interface Alerta {
+  id: string;                       // determinístico · {categoria}-{contexto}-{periodo}
+  severity: AlertaSeverity;
+  category: AlertaCategoria;
+  titulo: string;
+  descripcion: string;
+  contexto: AlertaContexto;
+  fechaDeteccion: Date;
+  accionPrimaria?: AlertaAccionPrimaria;
+  linkInternal?: AlertaLink;
+}
+
+export interface AlertasConsolidadas {
+  alertas: Alerta[];
+  /** Resumen counts por categoría */
+  countByCategoria: Record<AlertaCategoria, number>;
+  /** Resumen counts por severidad */
+  countBySeverity: Record<AlertaSeverity, number>;
+  totalActivas: number;
+  /** true si hay data operacional Y al menos 1 alerta */
+  hayAnomalias: boolean;
+  /** true si hay data operacional pero 0 alertas · empty positivo */
+  todoBajoControl: boolean;
+}
+
+/** Convierte categoría a iconName lucide · usado en cards y feed */
+export const ALERTA_CATEGORIA_ICONS: Record<AlertaCategoria, string> = {
+  variance: 'trending-up',
+  pipeline: 'clock',
+  fx: 'dollar-sign',
+  stock: 'package',
+};
+
+export const ALERTA_CATEGORIA_LABELS: Record<AlertaCategoria, string> = {
+  variance: 'Variance costos',
+  pipeline: 'Pipeline',
+  fx: 'FX · TCPA',
+  stock: 'Stock',
+};
+
+const SEVERITY_RANK: Record<AlertaSeverity, number> = {
+  critica: 0,
+  alta: 1,
+  media: 2,
+};
+
+/**
+ * Genera el ID determinístico de una alerta basado en categoría + contexto +
+ * período. Esto permite que la persistencia "marcar visto" en localStorage
+ * funcione consistentemente entre recálculos (la misma anomalía mantiene su id).
+ */
+function generarAlertaId(categoria: AlertaCategoria, contexto: string, periodo: string): string {
+  return `${categoria}-${contexto}-${periodo}`;
+}
+
+/** Periodo "YYYY-MM" para alertas mensuales (variance, fx) */
+function periodoMensual(d: Date): string {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+}
+
+/** Periodo "YYYY-W##" para alertas semanales (pipeline · puede cambiar rápido) */
+function periodoSemanal(d: Date): string {
+  const start = new Date(d.getFullYear(), 0, 1);
+  const diff = Math.floor((d.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
+  const week = Math.floor((diff + start.getDay()) / 7);
+  return `${d.getFullYear()}-W${String(week).padStart(2, '0')}`;
+}
+
+/**
+ * Consolidación de alertas cross-categoría desde el engine.
+ *
+ * Genera alertas de 3 fuentes (Stock queda placeholder hasta integrar Inventario):
+ *   - Variance: SKUs con |variance| > threshold (rose · ordenadas por severidad)
+ *   - Pipeline: unidades estancadas agrupadas por SKU+etapa
+ *   - FX: desviación TCPA vs SBS > threshold (1 sola alerta del mes)
+ *
+ * Ordenadas por severidad descendente, luego fecha descendente.
+ *
+ * @param skus catalog enriquecido con costos (del engine principal)
+ * @param pipeline resultado de calcularPipelineValorizado()
+ * @param tcpaVsSBS resultado de calcularTCPAvsSBS()
+ * @param anchorDate fecha de referencia (default hoy)
+ */
+export function calcularAlertasConsolidadas(
+  skus: SkuConCostos[],
+  pipeline: PipelineValorizado,
+  tcpaVsSBS: TCPAvsSBS,
+  anchorDate: Date = new Date(),
+): AlertasConsolidadas {
+  const alertas: Alerta[] = [];
+  const periodoMes = periodoMensual(anchorDate);
+
+  // ─── 1. Variance alerts · uno por SKU con |variance| > umbral ───────────
+  for (const sku of skus) {
+    if (sku.varianceVsLoteAntPct === null || sku.estadoCosto === 'estable') continue;
+    if (sku.estadoCosto !== 'volatil' && sku.estadoCosto !== 'anomalo') continue;
+
+    const abs = Math.abs(sku.varianceVsLoteAntPct);
+    let severity: AlertaSeverity;
+    if (abs > ALERTA_THRESHOLDS.variance.critica) severity = 'critica';
+    else if (abs > ALERTA_THRESHOLDS.variance.alta) severity = 'alta';
+    else if (abs > ALERTA_THRESHOLDS.variance.media) severity = 'media';
+    else continue;
+
+    const direccion = sku.varianceVsLoteAntPct > 0 ? 'subió' : 'bajó';
+    const sign = sku.varianceVsLoteAntPct > 0 ? '+' : '';
+    const titulo = `${sku.nombreComercial} · costo ${direccion} ${sign}${sku.varianceVsLoteAntPct.toFixed(1)}% en último lote`;
+
+    // Construir descripción con drivers si están disponibles
+    const attribution = calcularVarianceAttribution(sku);
+    let descripcion = `Variance detectada al recibir lote más reciente vs anterior.`;
+    if (attribution) {
+      const totalAbs = Math.abs(attribution.totalPp) || 1;
+      const pctProveedor = Math.round((Math.abs(attribution.precioProveedorPp) / totalAbs) * 100);
+      const pctTC = Math.round((Math.abs(attribution.tcPp) / totalAbs) * 100);
+      descripcion = `Drivers principales: precio proveedor ${attribution.precioProveedorPp >= 0 ? '+' : ''}${attribution.precioProveedorPp.toFixed(1)}pp (${pctProveedor}%) + TC ${attribution.tcPp >= 0 ? '+' : ''}${attribution.tcPp.toFixed(1)}pp (${pctTC}%).`;
+    }
+
+    // Acción primaria según severity
+    let accionPrimaria: AlertaAccionPrimaria | undefined;
+    if (severity === 'critica') {
+      accionPrimaria = sku.varianceVsLoteAntPct > 0
+        ? { label: 'Renegociar proveedor', iconName: 'phone' }
+        : { label: 'Confirmar baseline', iconName: 'refresh-cw' };
+    }
+
+    const ultimoLote = sku.lotes[sku.lotes.length - 1];
+    const loteAnterior = sku.lotes.length >= 2 ? sku.lotes[sku.lotes.length - 2] : null;
+    const detalleAdicional = loteAnterior
+      ? `S/ ${loteAnterior.costoUnitarioPEN.toFixed(2)} → S/ ${ultimoLote.costoUnitarioPEN.toFixed(2)}`
+      : undefined;
+
+    alertas.push({
+      id: generarAlertaId('variance', sku.productoId, periodoMes),
+      severity,
+      category: 'variance',
+      titulo,
+      descripcion,
+      contexto: {
+        skuId: sku.productoId,
+        sku: sku.sku,
+        productoNombre: sku.nombreComercial,
+        marca: sku.marca,
+        lineaNegocioNombre: sku.lineaNegocioNombre,
+        metrica: `${sign}${sku.varianceVsLoteAntPct.toFixed(1)}%`,
+        detalleAdicional,
+      },
+      fechaDeteccion: ultimoLote?.fechaRecepcion ?? anchorDate,
+      accionPrimaria,
+      linkInternal: { workspace: 'catalogo', skuId: sku.productoId },
+    });
+  }
+
+  // ─── 2. Pipeline alerts · agrupado por SKU+etapa para no inundar feed ────
+  // Agrupamos las unidades estancadas por (productoId, etapa) y generamos 1 alerta
+  // por grupo. La severidad se deriva de los días MÁXIMOS del grupo.
+  type GroupKey = string;
+  const grupoPipeline = new Map<GroupKey, {
+    productoId: string;
+    productoSKU: string;
+    productoNombre: string;
+    etapa: EtapaPipeline;
+    unidades: number;
+    capitalTotal: number;
+    diasMax: number;
+    fechaMasAntigua: Date;
+  }>();
+
+  for (const u of pipeline.unidadesEstancadas) {
+    const key = `${u.productoId}|${u.etapa}`;
+    const existing = grupoPipeline.get(key);
+    if (existing) {
+      existing.unidades += 1;
+      existing.capitalTotal += u.capitalPEN;
+      if (u.diasEnEtapa > existing.diasMax) existing.diasMax = u.diasEnEtapa;
+      if (u.fechaReferencia.getTime() < existing.fechaMasAntigua.getTime()) {
+        existing.fechaMasAntigua = u.fechaReferencia;
+      }
+    } else {
+      grupoPipeline.set(key, {
+        productoId: u.productoId,
+        productoSKU: u.productoSKU,
+        productoNombre: u.productoNombre,
+        etapa: u.etapa,
+        unidades: 1,
+        capitalTotal: u.capitalPEN,
+        diasMax: u.diasEnEtapa,
+        fechaMasAntigua: u.fechaReferencia,
+      });
+    }
+  }
+
+  for (const grupo of grupoPipeline.values()) {
+    const threshold = PIPELINE_THRESHOLDS_DIAS[grupo.etapa];
+    const factor = threshold > 0 ? grupo.diasMax / threshold : 1;
+    let severity: AlertaSeverity;
+    if (factor >= ALERTA_THRESHOLDS.pipelineFactor.critica) severity = 'critica';
+    else if (factor >= ALERTA_THRESHOLDS.pipelineFactor.alta) severity = 'alta';
+    else severity = 'media';
+
+    const etapaLabel = ETAPA_LABELS[grupo.etapa];
+    const titulo = `${grupo.unidades} ${grupo.unidades === 1 ? 'unidad estancada' : 'unidades estancadas'} en ${etapaLabel} · ${grupo.diasMax} días`;
+    const descripcion = `Threshold canónico para etapa ${etapaLabel}: ${threshold} días. Las unidades están ${factor.toFixed(1)}× sobre lo esperado.`;
+
+    let accionPrimaria: AlertaAccionPrimaria | undefined;
+    if (severity === 'critica' && grupo.etapa === 'aduana') {
+      accionPrimaria = { label: 'Contactar agencia aduanal', iconName: 'phone' };
+    }
+
+    alertas.push({
+      id: generarAlertaId('pipeline', `${grupo.productoId}-${grupo.etapa}`, periodoSemanal(anchorDate)),
+      severity,
+      category: 'pipeline',
+      titulo,
+      descripcion,
+      contexto: {
+        skuId: grupo.productoId,
+        sku: grupo.productoSKU,
+        productoNombre: grupo.productoNombre,
+        etapa: grupo.etapa,
+        valorComprometidoPEN: grupo.capitalTotal,
+        metrica: `${grupo.diasMax}d`,
+        detalleAdicional: `${grupo.unidades} ${grupo.unidades === 1 ? 'unidad' : 'unidades'} · S/ ${Math.round(grupo.capitalTotal).toLocaleString('es-PE')} comprometidos`,
+      },
+      fechaDeteccion: grupo.fechaMasAntigua,
+      accionPrimaria,
+      linkInternal: { workspace: 'pipeline', etapa: grupo.etapa, skuId: grupo.productoId },
+    });
+  }
+
+  // ─── 3. FX alert · una sola alerta del mes si desviación supera threshold ─
+  if (tcpaVsSBS.hasData && tcpaVsSBS.diffPctActual !== null) {
+    const absDiff = Math.abs(tcpaVsSBS.diffPctActual);
+    let severity: AlertaSeverity | null = null;
+    if (absDiff > ALERTA_THRESHOLDS.fx.critica) severity = 'critica';
+    else if (absDiff > ALERTA_THRESHOLDS.fx.alta) severity = 'alta';
+
+    if (severity) {
+      const esAhorro = (tcpaVsSBS.diffAbsoluteActual ?? 0) > 0;
+      const titulo = esAhorro
+        ? `TCPA ${(tcpaVsSBS.diffAbsoluteActual ?? 0).toFixed(2)} menor que SBS · oportunidad de hedging`
+        : `TCPA ${Math.abs(tcpaVsSBS.diffAbsoluteActual ?? 0).toFixed(2)} mayor que SBS · sobrecosto cambiario`;
+
+      const descripcion = `TCPA actual: ${tcpaVsSBS.tcpaActual?.toFixed(2)} · SBS: ${tcpaVsSBS.sbsActual?.toFixed(2)} · ${esAhorro ? 'costo' : 'sobrecosto'} ${absDiff.toFixed(1)}% ${esAhorro ? 'inferior' : 'sobre'} el oficial.`;
+
+      alertas.push({
+        id: generarAlertaId('fx', 'tcpa-sbs', periodoMes),
+        severity,
+        category: 'fx',
+        titulo,
+        descripcion,
+        contexto: {
+          metrica: `${tcpaVsSBS.diffPctActual >= 0 ? '+' : ''}${tcpaVsSBS.diffPctActual.toFixed(1)}%`,
+        },
+        fechaDeteccion: anchorDate,
+        // FX no tiene acción primaria · informativa para hedging
+        linkInternal: { workspace: 'costos' },
+      });
+    }
+  }
+
+  // ─── 4. Ordenar: severidad descendente, luego fecha descendente ──────────
+  alertas.sort((a, b) => {
+    const rankDiff = SEVERITY_RANK[a.severity] - SEVERITY_RANK[b.severity];
+    if (rankDiff !== 0) return rankDiff;
+    return b.fechaDeteccion.getTime() - a.fechaDeteccion.getTime();
+  });
+
+  // ─── 5. Agregados ────────────────────────────────────────────────────────
+  const countByCategoria: Record<AlertaCategoria, number> = {
+    variance: 0,
+    pipeline: 0,
+    fx: 0,
+    stock: 0,
+  };
+  const countBySeverity: Record<AlertaSeverity, number> = {
+    critica: 0,
+    alta: 0,
+    media: 0,
+  };
+  for (const a of alertas) {
+    countByCategoria[a.category]++;
+    countBySeverity[a.severity]++;
+  }
+
+  // hayAnomalias = al menos 1 alerta · todoBajoControl = hay data Y 0 alertas
+  const tieneData = skus.length > 0 || pipeline.hasData;
+  const hayAnomalias = alertas.length > 0;
+  const todoBajoControl = tieneData && !hayAnomalias;
+
+  return {
+    alertas,
+    countByCategoria,
+    countBySeverity,
+    totalActivas: alertas.length,
+    hayAnomalias,
+    todoBajoControl,
+  };
+}
+
+/**
+ * Persistencia "marcar visto" en localStorage · key prefix por userId.
+ * Devuelve true si la alerta está marcada como vista.
+ */
+const ALERTAS_VISTAS_KEY = (userId: string) => `ci_alertas_vistas_${userId}`;
+
+export function leerAlertasVistas(userId: string): Set<string> {
+  try {
+    const raw = localStorage.getItem(ALERTAS_VISTAS_KEY(userId));
+    if (!raw) return new Set();
+    const arr = JSON.parse(raw) as string[];
+    return new Set(arr);
+  } catch {
+    return new Set();
+  }
+}
+
+export function marcarAlertaVista(userId: string, alertaId: string): void {
+  const vistas = leerAlertasVistas(userId);
+  vistas.add(alertaId);
+  try {
+    localStorage.setItem(ALERTAS_VISTAS_KEY(userId), JSON.stringify(Array.from(vistas)));
+  } catch {
+    // ignorar errores · localStorage puede estar deshabilitado
+  }
+}
+
+export function desmarcarAlertaVista(userId: string, alertaId: string): void {
+  const vistas = leerAlertasVistas(userId);
+  vistas.delete(alertaId);
+  try {
+    localStorage.setItem(ALERTAS_VISTAS_KEY(userId), JSON.stringify(Array.from(vistas)));
+  } catch {
+    // ignorar
+  }
+}
+
+export function marcarTodasComoVistas(userId: string, alertasIds: string[]): void {
+  const vistas = leerAlertasVistas(userId);
+  for (const id of alertasIds) vistas.add(id);
+  try {
+    localStorage.setItem(ALERTAS_VISTAS_KEY(userId), JSON.stringify(Array.from(vistas)));
+  } catch {
+    // ignorar
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // chk5.B9 · helpers reusables (mantienen su sección original)
 // ─────────────────────────────────────────────────────────────────────────────
 
