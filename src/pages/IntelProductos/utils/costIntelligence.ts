@@ -19,6 +19,10 @@
 import type { Producto } from '../../../types/producto.types';
 import type { OrdenCompra } from '../../../types/ordenCompra.types';
 import type { Unidad, EstadoUnidad } from '../../../types/unidad.types';
+import type { Gasto } from '../../../types/gasto.types';
+import type { CategoriaCosto, BloqueCosto } from '../../../types/categoriaCosto.types';
+import type { PoolUSDSnapshot } from '../../../types/rendimientoCambiario.types';
+import { getBloqueDelGasto } from '../../../utils/gasto.bloque';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // TIPOS PÚBLICOS
@@ -607,4 +611,357 @@ export function calcularVarianceAttribution(sku: SkuConCostos): VarianceAttribut
     costosLandedPp: 0,
     totalPp: Number(totalPp.toFixed(2)),
   };
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// chk5.B9 · WORKSPACE COSTOS · evolución temporal + TCPA vs SBS + lotes foco
+// ─────────────────────────────────────────────────────────────────────────────
+
+/** Punto de la serie de evolución mensual por bloque · 1 punto = 1 mes */
+export interface PuntoEvolucionBloques {
+  anio: number;
+  mes: number;                     // 1-12
+  label: string;                   // 'May' · 'Abr ▲' si anomalía
+  producto: number;                // Σ montoPEN bloque 'producto' del mes
+  venta: number;                   // Σ montoPEN bloque 'venta' del mes
+  periodo: number;                 // Σ montoPEN bloque 'periodo' del mes
+  total: number;                   // producto + venta + periodo
+  esActual: boolean;               // mes en curso (resalta visualmente)
+  esAnomalia: boolean;             // total >= 120% del promedio de meses previos
+}
+
+/** Resultado de la función de evolución · serie + agregados */
+export interface EvolucionPorBloque {
+  serie: PuntoEvolucionBloques[];
+  totalSerie: number;
+  /** Total del mes actual */
+  totalMesActual: number;
+  /** Delta % del mes actual vs promedio de los meses previos */
+  deltaPctVsPromedio: number | null;
+  /** Máximo total mensual · usado para escala Y del chart */
+  maxTotalMensual: number;
+  /** true si hay al menos 1 punto con datos · false si todos los meses en 0 */
+  hasData: boolean;
+}
+
+/**
+ * Construye la serie de evolución de gastos por bloque (producto/venta/periodo)
+ * en los últimos N meses. Si un mes no tiene gastos, va en 0.
+ *
+ * @param gastos lista completa de gastos del sistema
+ * @param arbolCategorias árbol de categoriasCosto (para resolver el bloque vía categoriaCostoId)
+ * @param monthsBack cantidad de meses históricos incluyendo el mes actual (default 6)
+ * @param anchorDate fecha de referencia (default: hoy) · útil para tests deterministicos
+ */
+export function calcularEvolucionPorBloque(
+  gastos: Gasto[],
+  arbolCategorias: CategoriaCosto[],
+  monthsBack = 6,
+  anchorDate: Date = new Date(),
+): EvolucionPorBloque {
+  // Generar los últimos N meses (cronológicamente ascendente)
+  const mesesObjetivo: Array<{ anio: number; mes: number }> = [];
+  for (let i = monthsBack - 1; i >= 0; i--) {
+    const d = new Date(anchorDate.getFullYear(), anchorDate.getMonth() - i, 1);
+    mesesObjetivo.push({ anio: d.getFullYear(), mes: d.getMonth() + 1 });
+  }
+
+  const mesActual = { anio: anchorDate.getFullYear(), mes: anchorDate.getMonth() + 1 };
+
+  // Acumular gastos por (anio, mes, bloque)
+  type Bucket = Record<BloqueCosto, number>;
+  const acumulado = new Map<string, Bucket>();
+  const keyFn = (anio: number, mes: number) => `${anio}-${mes}`;
+
+  for (const m of mesesObjetivo) {
+    acumulado.set(keyFn(m.anio, m.mes), { producto: 0, venta: 0, periodo: 0 });
+  }
+
+  for (const g of gastos) {
+    if (typeof g.mes !== 'number' || typeof g.anio !== 'number') continue;
+    const k = keyFn(g.anio, g.mes);
+    const bucket = acumulado.get(k);
+    if (!bucket) continue;                    // gasto fuera del rango de N meses
+    const bloque = getBloqueDelGasto(g, arbolCategorias);
+    if (!bloque) continue;                    // gasto sin categoría canon · ignorar
+    bucket[bloque] += g.montoPEN || 0;
+  }
+
+  // Construir serie ordenada con flag de anomalía
+  // Anomalía: total mensual >= 120% del promedio de los meses previos no-vacíos
+  let runningSumPrev = 0;
+  let runningCountPrev = 0;
+
+  const serie: PuntoEvolucionBloques[] = mesesObjetivo.map((m, idx) => {
+    const bucket = acumulado.get(keyFn(m.anio, m.mes))!;
+    const total = bucket.producto + bucket.venta + bucket.periodo;
+
+    // Para detectar anomalía necesitamos promedio de meses PREVIOS al actual
+    let esAnomalia = false;
+    if (idx > 0 && runningCountPrev > 0) {
+      const promedioPrev = runningSumPrev / runningCountPrev;
+      if (promedioPrev > 0 && total >= promedioPrev * 1.2) {
+        esAnomalia = true;
+      }
+    }
+    // Después de evaluar el mes actual, lo acumulamos para los próximos
+    if (total > 0) {
+      runningSumPrev += total;
+      runningCountPrev += 1;
+    }
+
+    const esActual = m.anio === mesActual.anio && m.mes === mesActual.mes;
+    const labelBase = nombreMesCorto(m.mes);
+    const label = esAnomalia ? `${labelBase} ▲` : esActual ? `${labelBase} (act)` : labelBase;
+
+    return {
+      anio: m.anio,
+      mes: m.mes,
+      label,
+      producto: bucket.producto,
+      venta: bucket.venta,
+      periodo: bucket.periodo,
+      total,
+      esActual,
+      esAnomalia,
+    };
+  });
+
+  const totalSerie = serie.reduce((s, p) => s + p.total, 0);
+  const totalMesActual = serie[serie.length - 1]?.total ?? 0;
+  const totalesPrevios = serie.slice(0, -1).map((p) => p.total).filter((t) => t > 0);
+  const promedioPrevios = totalesPrevios.length > 0
+    ? totalesPrevios.reduce((s, t) => s + t, 0) / totalesPrevios.length
+    : 0;
+  const deltaPctVsPromedio = promedioPrevios > 0
+    ? ((totalMesActual - promedioPrevios) / promedioPrevios) * 100
+    : null;
+  const maxTotalMensual = Math.max(0, ...serie.map((p) => p.total));
+  const hasData = totalSerie > 0;
+
+  return {
+    serie,
+    totalSerie,
+    totalMesActual,
+    deltaPctVsPromedio,
+    maxTotalMensual,
+    hasData,
+  };
+}
+
+/** Punto de la serie comparativa TCPA vs SBS · 1 punto = 1 mes con snapshot */
+export interface PuntoTCPAvsSBS {
+  anio: number;
+  mes: number;
+  label: string;
+  tcpa: number;                    // del snapshot Pool USD
+  sbs: number;                     // del snapshot · tcCierreSunat
+  diffPct: number;                 // (sbs - tcpa) / sbs × 100 · positivo = TCPA menor (ahorro)
+  esActual: boolean;
+}
+
+/** Resultado comparativa TCPA vs SBS + indicadores ahorro/sobrecosto */
+export interface TCPAvsSBS {
+  serie: PuntoTCPAvsSBS[];
+  /** TCPA del mes más reciente con snapshot */
+  tcpaActual: number | null;
+  /** TC SBS del mes más reciente con snapshot */
+  sbsActual: number | null;
+  /** Δ absoluto del mes actual · positivo = ahorro (TCPA < SBS) */
+  diffAbsoluteActual: number | null;
+  /** Δ % del mes actual · positivo = ahorro */
+  diffPctActual: number | null;
+  /** Min/max de la serie para escala Y */
+  minSerie: number;
+  maxSerie: number;
+  hasData: boolean;
+}
+
+/**
+ * Construye serie comparativa TCPA vs TC SBS para los últimos N meses con snapshot.
+ *
+ * Toma los snapshots tal cual los entrega el Pool USD (ya tienen tcpa + tcCierreSunat
+ * sincronizados al cierre del mes · no requiere cargar TC histórico por separado).
+ *
+ * @param poolSnapshots snapshots del Pool USD (ordenados o no · la función ordena)
+ * @param monthsBack cantidad de meses a incluir (default 6)
+ * @param anchorDate fecha de referencia (default: hoy)
+ */
+export function calcularTCPAvsSBS(
+  poolSnapshots: PoolUSDSnapshot[],
+  monthsBack = 6,
+  anchorDate: Date = new Date(),
+): TCPAvsSBS {
+  // Filtrar snapshots dentro del rango de monthsBack meses
+  const cutoff = new Date(anchorDate.getFullYear(), anchorDate.getMonth() - monthsBack + 1, 1);
+  const cutoffKey = cutoff.getFullYear() * 100 + (cutoff.getMonth() + 1);
+  const mesActualKey = anchorDate.getFullYear() * 100 + (anchorDate.getMonth() + 1);
+
+  const filtrados = poolSnapshots
+    .filter((s) => {
+      const k = s.anio * 100 + s.mes;
+      return k >= cutoffKey && k <= mesActualKey;
+    })
+    .sort((a, b) => (a.anio * 100 + a.mes) - (b.anio * 100 + b.mes));
+
+  const serie: PuntoTCPAvsSBS[] = filtrados.map((s) => {
+    const diffPct = s.tcCierreSunat > 0
+      ? ((s.tcCierreSunat - s.tcpa) / s.tcCierreSunat) * 100
+      : 0;
+    const esActual = s.anio === anchorDate.getFullYear() && s.mes === (anchorDate.getMonth() + 1);
+    return {
+      anio: s.anio,
+      mes: s.mes,
+      label: nombreMesCorto(s.mes),
+      tcpa: s.tcpa,
+      sbs: s.tcCierreSunat,
+      diffPct,
+      esActual,
+    };
+  });
+
+  const ultimo = serie[serie.length - 1] ?? null;
+  const valores = serie.flatMap((p) => [p.tcpa, p.sbs]).filter((v) => v > 0);
+  const minSerie = valores.length > 0 ? Math.min(...valores) : 0;
+  const maxSerie = valores.length > 0 ? Math.max(...valores) : 0;
+
+  return {
+    serie,
+    tcpaActual: ultimo?.tcpa ?? null,
+    sbsActual: ultimo?.sbs ?? null,
+    diffAbsoluteActual: ultimo ? ultimo.sbs - ultimo.tcpa : null,
+    diffPctActual: ultimo?.diffPct ?? null,
+    minSerie,
+    maxSerie,
+    hasData: serie.length > 0,
+  };
+}
+
+/**
+ * Selecciona el SKU con mayor variance absoluto como "foco" del panel de
+ * comparativa de lotes cuando no hay selección explícita del usuario.
+ *
+ * Prioridad:
+ *   1. SKU anómalo con variance más alto en absoluto
+ *   2. Si no hay anómalos → cualquier SKU con ≥2 lotes ordenado por |variance|
+ *   3. null si ningún SKU tiene ≥2 lotes
+ */
+export function seleccionarSkuFocoCostos(skus: SkuConCostos[]): SkuConCostos | null {
+  const conLotesMultiples = skus.filter((s) => s.lotes.length >= 2 && s.varianceVsLoteAntPct !== null);
+  if (conLotesMultiples.length === 0) return null;
+
+  // Prioridad: anómalos primero
+  const anomalos = conLotesMultiples.filter((s) => s.estadoCosto === 'anomalo');
+  const pool = anomalos.length > 0 ? anomalos : conLotesMultiples;
+
+  return [...pool].sort(
+    (a, b) => Math.abs(b.varianceVsLoteAntPct ?? 0) - Math.abs(a.varianceVsLoteAntPct ?? 0)
+  )[0] ?? null;
+}
+
+/**
+ * Calcula el promedio ponderado FIFO de costos para un SKU (todos sus lotes).
+ * Usado en la fila resumen de la tabla "Comparativa de lotes".
+ */
+export interface PromedioFIFO {
+  totalUds: number;
+  costoPromedioUSD: number;       // Σ(costoUSD × cantidad) / Σ cantidad
+  costoPromedioPEN: number;       // Σ(costoPEN × cantidad) / Σ cantidad
+  tcpaPromedio: number;            // Σ(tc × cantidad) / Σ cantidad
+  varianceTotalPct: number | null; // % entre lote más viejo y más reciente
+  tendencia: 'alcista' | 'estable' | 'bajista' | null;
+}
+
+export function calcularPromedioFIFO(sku: SkuConCostos): PromedioFIFO {
+  const lotes = sku.lotes;
+  if (lotes.length === 0) {
+    return {
+      totalUds: 0,
+      costoPromedioUSD: 0,
+      costoPromedioPEN: 0,
+      tcpaPromedio: 0,
+      varianceTotalPct: null,
+      tendencia: null,
+    };
+  }
+
+  const totalUds = lotes.reduce((s, l) => s + l.cantidad, 0);
+  if (totalUds === 0) {
+    return {
+      totalUds: 0,
+      costoPromedioUSD: 0,
+      costoPromedioPEN: 0,
+      tcpaPromedio: 0,
+      varianceTotalPct: null,
+      tendencia: null,
+    };
+  }
+
+  const sumaUSD = lotes.reduce((s, l) => s + l.costoUnitarioUSD * l.cantidad, 0);
+  const sumaPEN = lotes.reduce((s, l) => s + l.costoUnitarioPEN * l.cantidad, 0);
+  const sumaTC = lotes.reduce((s, l) => s + l.tc * l.cantidad, 0);
+
+  const primero = lotes[0];
+  const ultimo = lotes[lotes.length - 1];
+  const varianceTotalPct = primero.costoUnitarioPEN > 0
+    ? ((ultimo.costoUnitarioPEN - primero.costoUnitarioPEN) / primero.costoUnitarioPEN) * 100
+    : null;
+
+  let tendencia: PromedioFIFO['tendencia'] = null;
+  if (varianceTotalPct !== null) {
+    if (varianceTotalPct >= 2) tendencia = 'alcista';
+    else if (varianceTotalPct <= -2) tendencia = 'bajista';
+    else tendencia = 'estable';
+  }
+
+  return {
+    totalUds,
+    costoPromedioUSD: sumaUSD / totalUds,
+    costoPromedioPEN: sumaPEN / totalUds,
+    tcpaPromedio: sumaTC / totalUds,
+    varianceTotalPct,
+    tendencia,
+  };
+}
+
+/** Helper · nombre corto mes 1-12 → 'Ene', 'Feb', etc. */
+function nombreMesCorto(mes: number): string {
+  const nombres = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+  return nombres[mes - 1] ?? '—';
+}
+
+/**
+ * Driver inferido para un lote · usado en la columna "Driver principal" de la
+ * tabla de comparativa de lotes. Compara el lote actual con el anterior y
+ * decide cuál fue la causa dominante del cambio de costo (USD vs TC).
+ */
+export function driverPrincipalLote(
+  loteActual: LoteCosto,
+  loteAnterior: LoteCosto | null,
+): string {
+  if (!loteAnterior) return 'Primer lote · baseline';
+
+  const dUSD = loteAnterior.costoUnitarioUSD > 0
+    ? ((loteActual.costoUnitarioUSD - loteAnterior.costoUnitarioUSD) / loteAnterior.costoUnitarioUSD) * 100
+    : 0;
+  const dTC = loteAnterior.tc > 0
+    ? ((loteActual.tc - loteAnterior.tc) / loteAnterior.tc) * 100
+    : 0;
+
+  const fmtDriver = (label: string, pct: number) =>
+    `${label} ${pct >= 0 ? 'subió' : 'bajó'} ${Math.abs(pct).toFixed(1)}%`;
+
+  // Si ambos drivers son <0.5%, lote estable
+  if (Math.abs(dUSD) < 0.5 && Math.abs(dTC) < 0.5) {
+    return 'Sin cambios significativos · lote estable';
+  }
+
+  // Driver dominante (mayor magnitud absoluta)
+  if (Math.abs(dUSD) >= Math.abs(dTC)) {
+    const otro = Math.abs(dTC) >= 0.5 ? ` · TC ${dTC >= 0 ? 'compensó parte' : 'agravó'}` : ' · TC estable';
+    return `${fmtDriver('Proveedor', dUSD)}${otro}`;
+  } else {
+    const otro = Math.abs(dUSD) >= 0.5 ? ` · proveedor ${dUSD >= 0 ? 'también subió' : 'compensó parte'}` : ' · proveedor estable';
+    return `${fmtDriver('TC', dTC)}${otro}`;
+  }
 }

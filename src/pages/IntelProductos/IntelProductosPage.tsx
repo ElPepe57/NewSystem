@@ -35,6 +35,8 @@ import { useOrdenCompraStore } from '../../store/ordenCompraStore';
 import { useUnidadStore } from '../../store/unidadStore';
 import { usePoolUSDStore } from '../../store/poolUSDStore';
 import { useTipoCambioStore } from '../../store/tipoCambioStore';
+import { useGastoStore } from '../../store/gastoStore';
+import { useCategoriaCostoStore } from '../../store/categoriaCostoStore';
 
 import { calcularCostIntelligence } from './utils/costIntelligence';
 
@@ -69,8 +71,11 @@ export const IntelProductosPage: React.FC = () => {
   const { productos, fetchProductos, loading: loadingProductos } = useProductoStore();
   const { ordenes, fetchOrdenes, loading: loadingOrdenes } = useOrdenCompraStore();
   const { unidades, fetchUnidades, loading: loadingUnidades } = useUnidadStore();
-  const { resumen: poolResumen, fetchResumen: fetchPoolResumen } = usePoolUSDStore();
+  const { resumen: poolResumen, snapshots: poolSnapshots, fetchResumen: fetchPoolResumen, fetchSnapshots: fetchPoolSnapshots } = usePoolUSDStore();
   const { getTCDelDia } = useTipoCambioStore();
+  // chk5.B9 · Workspace Costos requiere gastos + árbol categorías + snapshots Pool
+  const { gastos, fetchGastos, loading: loadingGastos } = useGastoStore();
+  const { categorias: arbolCategorias, fetchCategorias: fetchCategoriasCosto } = useCategoriaCostoStore();
 
   const [tcSpotFallback, setTcSpotFallback] = React.useState<number>(3.75);
 
@@ -80,13 +85,16 @@ export const IntelProductosPage: React.FC = () => {
     if (ordenes.length === 0) fetchOrdenes();
     if (unidades.length === 0) fetchUnidades();
     if (!poolResumen) fetchPoolResumen();
+    if (poolSnapshots.length === 0) fetchPoolSnapshots();
+    if (gastos.length === 0) fetchGastos();
+    if (arbolCategorias.length === 0) fetchCategoriasCosto();
     getTCDelDia().then((tcData) => {
       if (tcData?.venta) setTcSpotFallback(tcData.venta);
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const loading = loadingProductos || loadingOrdenes || loadingUnidades;
+  const loading = loadingProductos || loadingOrdenes || loadingUnidades || loadingGastos;
 
   // ─── Cost Intelligence: data engine propio (NO investigación) ────────────
   const ciResult = useMemo(() => {
@@ -132,7 +140,15 @@ export const IntelProductosPage: React.FC = () => {
       case 'catalogo':
         return <CatalogoWorkspace skus={ciResult.skus} />;
       case 'costos':
-        return <CostosWorkspace />;
+        return (
+          <CostosWorkspace
+            skus={ciResult.skus}
+            gastos={gastos}
+            arbolCategorias={arbolCategorias}
+            poolSnapshots={poolSnapshots}
+            saldoUSDPool={poolResumen?.saldoUSD}
+          />
+        );
       case 'pipeline':
         return <PipelineWorkspace />;
       case 'alertas':
@@ -153,6 +169,9 @@ export const IntelProductosPage: React.FC = () => {
           fetchOrdenes();
           fetchUnidades();
           fetchPoolResumen();
+          fetchPoolSnapshots();
+          fetchGastos();
+          fetchCategoriasCosto();
         }}
         // Empty state · ocultamos acciones placeholder porque NO tienen sentido
         // sin data (¿qué exportás de 0 OCs? ¿qué reporte hay sobre BD vacía?).

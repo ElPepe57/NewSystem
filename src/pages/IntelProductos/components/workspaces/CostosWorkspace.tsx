@@ -1,29 +1,97 @@
 /**
  * CostosWorkspace · workspace 2 · Cost Intelligence
  *
- * Visión canon: time-series · variance attribution waterfall · TCPA tracking.
- * Estado actual: placeholder · activará cuando haya OCs/envíos/gastos históricos
- * para construir la evolución temporal del costo.
+ * chk5.B9 (S3.6 M1.bis · Cost Intelligence) · pixel-perfect contra mockup
+ * `cost-intelligence-canon-productos.html · Sec 2`.
+ *
+ * Orquesta 3 paneles con lógica propia CI:
+ *   1. EvolucionBloquesChart  · stacked bars 6 meses · gastos por bloque
+ *   2. TCPAvsSBSChart          · líneas comparativas Pool USD vs TC SUNAT
+ *   3. ComparativaLotesTable  · tabla de lotes del SKU foco (variance/driver)
+ *
+ * Cada panel maneja su propio empty state interno (siguiendo principio rector
+ * de honestidad: no mostramos data inventada cuando no hay).
  */
 
-import React from 'react';
-import { DollarSign } from 'lucide-react';
-import { EmptyWorkspace } from './EmptyWorkspace';
+import React, { useMemo, useState } from 'react';
+import type { Gasto } from '../../../../types/gasto.types';
+import type { CategoriaCosto } from '../../../../types/categoriaCosto.types';
+import type { PoolUSDSnapshot } from '../../../../types/rendimientoCambiario.types';
+import type { SkuConCostos } from '../../utils/costIntelligence';
+import {
+  calcularEvolucionPorBloque,
+  calcularTCPAvsSBS,
+  seleccionarSkuFocoCostos,
+} from '../../utils/costIntelligence';
+import { EvolucionBloquesChart } from './costos/EvolucionBloquesChart';
+import { TCPAvsSBSChart } from './costos/TCPAvsSBSChart';
+import { ComparativaLotesTable } from './costos/ComparativaLotesTable';
 
-export const CostosWorkspace: React.FC = () => (
-  <EmptyWorkspace
-    icon={DollarSign}
-    iconColor="amber"
-    title="Costos · evolución temporal"
-    description="Mostrará la serie temporal del costo unitario por producto, variance attribution (precio proveedor · flete · TC · landed) y tracking de TCPA del Pool USD."
-    prerequisites={[
-      'Al menos 2 órdenes de compra cerradas del mismo producto (para calcular delta)',
-      'Envíos recibidos con landed cost completo (flete + aduana asignados)',
-      'Histórico mínimo de 30 días para mostrar series',
-    ]}
-    ctas={[
-      { label: 'Crear orden de compra', href: '/compras', variant: 'primary' },
-      { label: 'Ver envíos', href: '/envios' },
-    ]}
-  />
-);
+interface CostosWorkspaceProps {
+  skus: SkuConCostos[];
+  gastos: Gasto[];
+  arbolCategorias: CategoriaCosto[];
+  poolSnapshots: PoolUSDSnapshot[];
+  /** Saldo USD actual del pool · para calcular ahorro real PEN en TCPAvsSBS */
+  saldoUSDPool?: number;
+}
+
+export const CostosWorkspace: React.FC<CostosWorkspaceProps> = ({
+  skus,
+  gastos,
+  arbolCategorias,
+  poolSnapshots,
+  saldoUSDPool,
+}) => {
+  // SKU foco para Panel 3 · selección manual o auto (SKU con mayor variance)
+  const [skuFocoIdManual, setSkuFocoIdManual] = useState<string | null>(null);
+
+  const evolucion = useMemo(
+    () => calcularEvolucionPorBloque(gastos, arbolCategorias, 6),
+    [gastos, arbolCategorias]
+  );
+
+  const tcpaSerie = useMemo(
+    () => calcularTCPAvsSBS(poolSnapshots, 6),
+    [poolSnapshots]
+  );
+
+  const skuFoco = useMemo<SkuConCostos | null>(() => {
+    if (skuFocoIdManual) {
+      const encontrado = skus.find((s) => s.productoId === skuFocoIdManual);
+      if (encontrado) return encontrado;
+    }
+    return seleccionarSkuFocoCostos(skus);
+  }, [skus, skuFocoIdManual]);
+
+  // Handler para botón "Cambiar SKU" · ciclar entre SKUs con ≥2 lotes
+  const handleCambiarSku = () => {
+    const candidatos = skus.filter((s) => s.lotes.length >= 2);
+    if (candidatos.length <= 1) return;
+    const currentIdx = skuFoco
+      ? candidatos.findIndex((c) => c.productoId === skuFoco.productoId)
+      : -1;
+    const nextIdx = (currentIdx + 1) % candidatos.length;
+    setSkuFocoIdManual(candidatos[nextIdx].productoId);
+  };
+
+  return (
+    <div className="space-y-4">
+      {/* Fila 1 · 2 paneles arriba (responsive: 1 col mobile · 2 col desktop) */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <EvolucionBloquesChart data={evolucion} />
+        <TCPAvsSBSChart data={tcpaSerie} saldoUSDPool={saldoUSDPool} />
+      </div>
+
+      {/* Fila 2 · tabla de lotes del SKU foco */}
+      <ComparativaLotesTable
+        sku={skuFoco}
+        onCambiarSku={
+          skus.filter((s) => s.lotes.length >= 2).length > 1
+            ? handleCambiarSku
+            : undefined
+        }
+      />
+    </div>
+  );
+};
