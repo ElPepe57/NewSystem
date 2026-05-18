@@ -65,7 +65,7 @@ async function main() {
   // ─── Fase 1 · categoriasCosto ──────────────────────────────────────────
   console.log(`${C.cyan}▸ Fase 1 · Migrar categoriasCosto.bloque${C.reset}`);
 
-  const categoriasRef = db.collection('categoriasCosto');
+  const categoriasRef = db.collection('categoriasCostos');
   const categoriasSnap = await categoriasRef.where('bloque', '==', BLOQUE_VIEJO).get();
 
   console.log(`  ${C.gray}Detectadas ${categoriasSnap.size} categorías con bloque='${BLOQUE_VIEJO}'${C.reset}`);

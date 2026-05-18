@@ -113,7 +113,7 @@ async function main() {
 
   // ─── Fase 1 · Cargar arbol de categorías ──────────────────────────────
   console.log(`${C.cyan}▸ Fase 1 · Cargar categoriasCosto/* en memoria${C.reset}`);
-  const categoriasSnap = await db.collection('categoriasCosto').get();
+  const categoriasSnap = await db.collection('categoriasCostos').get();
 
   if (categoriasSnap.empty) {
     console.log(`  ${C.red}✗ No hay categorías cargadas en categoriasCosto/*${C.reset}`);

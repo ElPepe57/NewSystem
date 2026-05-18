@@ -70,7 +70,7 @@ async function main() {
 
   // ─── Fase 1 · Verificar estado actual ──────────────────────────────────
   console.log(`${C.cyan}▸ Fase 1 · Inspección de estado actual${C.reset}`);
-  const todasSnap = await db.collection('categoriasCosto').get();
+  const todasSnap = await db.collection('categoriasCostos').get();
 
   if (todasSnap.empty) {
     console.log(`  ${C.yellow}⚠ La colección categoriasCosto está vacía.${C.reset}`);
@@ -171,7 +171,7 @@ async function main() {
       creadoPor: SEED_USER_ID,
       fechaCreacion: Timestamp.now(),
     };
-    const padreRef = await db.collection('categoriasCosto').add(padreData);
+    const padreRef = await db.collection('categoriasCostos').add(padreData);
     padreId = padreRef.id;
     console.log(`  ${C.green}✓${C.reset} Padre creado · id=${padreRef.id}`);
   }
@@ -191,7 +191,7 @@ async function main() {
       creadoPor: SEED_USER_ID,
       fechaCreacion: Timestamp.now(),
     };
-    const hijoRef = await db.collection('categoriasCosto').add(hijoData);
+    const hijoRef = await db.collection('categoriasCostos').add(hijoData);
     console.log(`  ${C.green}✓${C.reset} Hijo creado · "${item.nombre}" · id=${hijoRef.id}`);
   }
 

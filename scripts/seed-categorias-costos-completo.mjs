@@ -153,7 +153,7 @@ async function main() {
 
   // ─── Fase 1 · Inspección de estado actual ───────────────────────────────
   console.log(`${C.cyan}▸ Fase 1 · Estado actual de categoriasCosto/*${C.reset}`);
-  const existentesSnap = await db.collection('categoriasCosto').get();
+  const existentesSnap = await db.collection('categoriasCostos').get();
   const existentes = existentesSnap.docs.map(d => ({ id: d.id, ...d.data() }));
   console.log(`  ${C.gray}Documentos existentes: ${existentes.length}${C.reset}`);
 
@@ -292,7 +292,7 @@ async function main() {
       creadoPor: SEED_USER_ID,
       fechaCreacion: Timestamp.now(),
     };
-    const ref = await db.collection('categoriasCosto').add(data);
+    const ref = await db.collection('categoriasCostos').add(data);
     padresCreados.set(p.key, ref.id);
     console.log(`  ${C.green}✓${C.reset} ${codigo} · [${p.bloque}] ${p.nombre} → ${ref.id}`);
   }
@@ -319,7 +319,7 @@ async function main() {
       creadoPor: SEED_USER_ID,
       fechaCreacion: Timestamp.now(),
     };
-    const ref = await db.collection('categoriasCosto').add(data);
+    const ref = await db.collection('categoriasCostos').add(data);
     console.log(`  ${C.green}✓${C.reset} ${codigo} · [${s.bloque}] ${s.padreNombre} > ${s.nombre} → ${ref.id}`);
   }
 
