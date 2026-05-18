@@ -1,415 +1,976 @@
 /**
- * FinanzasSaldos — S57 Fase C · Vista de saldos por entidad (lista CC)
+ * FinanzasSaldos — chk5.D-S3.ter · SF6
  *
- * Movido desde Finanzas.tsx (que ahora es el Overview ejecutivo).
- * Vista relacional de todas las cuentas corrientes con pipeline filtrable
- * y cards densas estilo CompraCard.
+ * REEMPLAZO COMPLETO de la versión legacy (S57 Fase C).
  *
- * Ruta: /finanzas/saldos
+ * Sub-vista canon `/finanzas/saldos` · pixel-perfect MOCK 6.
+ * Lista productos financieros físicos: cuentas bancarias · wallets digitales ·
+ * tarjetas de crédito · tarjetas de débito · cajas efectivo · cajas recaudadoras.
+ * Agrupado por titular (Empresa · Personal · Recaudador) con sub-grupo Pool USD
+ * (D13 · vista agregada de cuentas USD físicas).
  *
- * Decisiones aplicadas:
- *   - D-FIN-1: hub único en /finanzas (overview + sub-rutas)
- *   - D-FIN-2: pipeline clickable como filtro principal
- *   - D-FIN-3: cards estilo CompraCard 12-col
- *   - D-FIN-5: acciones rápidas inline
- *   - D-FIN-7-A: tabs CxC/CxP viejos eliminados de Reportes
- *   - D-FIN-8-A: 1 card por persona (multi-rol con badges futuro)
+ * IMPORTANTE: la versión legacy de esta página mostraba CC entidades · NO
+ * productos financieros. Esa funcionalidad ahora vive en `/finanzas/cc` (S3.bis).
+ * El cambio de comportamiento es intencional según mockup canon MOCK 6.
+ *
+ * Override del shell adaptativo (S3.SF1):
+ *   - breadcrumb leaf: "Saldos"
+ *   - header: icon Wallet emerald + "Saldos" + subtitle
+ *   - actions: [Exportar · Conciliar bancos · Nueva cuenta] + dropdown
+ *   - kpiSlot: 5 KPIs Saldos propios (Patrimonio · PEN · Pool USD · Deuda TC · Recaudadoras)
+ *
+ * Conecta:
+ *   - useFinanzasShellContext() → cuentas + tcpaActual
+ *   - tarjetaCreditoService.getAll() → tarjetas
+ *   - getProductosFinancierosActivos() → cajas recaudadoras
+ *   - cajaRecaudadoraService.calcularBalanceMes() → saldos pendientes
+ *   - DrawerProductoFinanciero al click row
  */
 
-import React, { useEffect, useMemo, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
-import { Wallet } from 'lucide-react';
-import { Card } from '../../components/common';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
-  cuentaCorrienteService,
-} from '../../services/cuentaCorriente.service';
-import type {
-  CuentaCorriente,
-  TipoEntidadCC,
-  SaldosResumen,
-} from '../../types/cuentaCorriente.types';
-import { EntidadCCCard } from './components/EntidadCCCard';
-import { EntidadCCDetailModal } from './components/EntidadCCDetailModal';
-import { PagoAbonoWizard } from './components/PagoAbonoWizard';
-import { TarjetaDetailModal } from '../Tesoreria/TarjetasCreditoV2';
-import { useTarjetaCreditoStore } from '../../store/tarjetaCreditoStore';
-import { useTesoreriaStore } from '../../store/tesoreriaStore';
-import { PatrimonioHero } from './components/PatrimonioHero';
+  Wallet,
+  Download,
+  RefreshCw,
+  AlertTriangle,
+  Building2,
+  Smartphone,
+  CreditCard,
+  Banknote,
+  Truck,
+  Plus,
+} from 'lucide-react';
+import { useFinanzasShellContext } from './FinanzasLayout';
+import { tarjetaCreditoService } from '../../services/tarjetaCredito.service';
+import { tesoreriaService } from '../../services/tesoreria.service';
+import { getProductosFinancierosActivos } from '../../services/productoFinanciero.service';
+import { cajaRecaudadoraService } from '../../services/cajaRecaudadora.service';
 import type { TarjetaCredito } from '../../types/tarjetaCredito.types';
+import type { ProductoFinanciero } from '../../types/productoFinanciero.types';
+import type { CuentaCaja, CuentaCajaFormData } from '../../types/tesoreria.types';
+import { CuentaWizard } from './components/wizards/CuentaWizard/CuentaWizard';
+import { useToastStore } from '../../store/toastStore';
+import { useAuthStore } from '../../store/authStore';
 import {
-  FiltrosFinanzasBar,
-  type FiltroEstado,
-  type ConteosFiltro,
-  type RangoFecha,
-  type OrdenLista,
-} from './components/FiltrosFinanzasBar';
-import { cn } from '../../design-system';
+  ProductoFinancieroRow,
+  type ProductoFinancieroBadge,
+} from './components/saldos/ProductoFinancieroRow';
+import { GrupoTitularHeader, SubGrupoPoolUSDHeader, GrupoGenericoHeader } from './components/saldos/GruposHeaders';
+import {
+  FiltrosSaldosBar,
+  ToolbarAgruparSaldos,
+  type VistaSaldos,
+} from './components/saldos/FiltrosSaldosBar';
+import { DrawerProductoFinanciero } from './components/saldos/DrawerProductoFinanciero';
+import {
+  wrapCuentaCaja,
+  wrapTarjetaCredito,
+  wrapCajaRecaudadora,
+  aplicarFiltrosSaldos,
+  contarFiltrosSaldosActivos,
+  defaultFiltrosSaldos,
+  agruparPorTitular,
+  agruparPorTipo,
+  agruparPorMoneda,
+  agruparPorBanco,
+  calcularKPIsSaldos,
+  extraerCuentasPoolUSD,
+  kindFinalDe,
+  monedaPrincipalDe,
+  esBiMonedaDe,
+  titularGrupoDe,
+  saldoUSDDe,
+  type ProductoFinancieroUnif,
+  type FiltrosSaldosState,
+  type GrupoSaldos,
+} from './components/saldos/saldosHelpers';
 
-const DIAS_VENCIDO = 30;
+// ═════════════════════════════════════════════════════════════════════════
+// HELPERS
+// ═════════════════════════════════════════════════════════════════════════
 
-function fmtPEN(n: number): string {
-  return `S/ ${n.toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-}
-function fmtUSD(n: number): string {
-  return `US$ ${n.toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-}
+const fmt0 = (n: number) =>
+  n.toLocaleString('es-PE', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
 
-/**
- * Categoriza una CC en uno de los 5 estados del pipeline.
- */
-function clasificarCC(cc: CuentaCorriente): FiltroEstado[] {
-  const tienePEN = Math.abs(cc.saldoPEN) > 0.01;
-  const tieneUSD = Math.abs(cc.saldoUSD) > 0.01;
-  if (!tienePEN && !tieneUSD) return ['saldadas'];
-
-  const estados: FiltroEstado[] = [];
-  if (cc.saldoPEN > 0.01 || cc.saldoUSD > 0.01) estados.push('por_cobrar');
-  if (cc.saldoPEN < -0.01 || cc.saldoUSD < -0.01) estados.push('por_pagar');
-
-  if (cc.fechaUltimoMovimiento) {
-    const dias = Math.floor(
-      (Date.now() - cc.fechaUltimoMovimiento.toMillis()) / (1000 * 60 * 60 * 24),
-    );
-    if (dias > DIAS_VENCIDO) estados.push('vencidas');
-  }
-  return estados;
-}
+// ═════════════════════════════════════════════════════════════════════════
+// COMPONENTE PRINCIPAL
+// ═════════════════════════════════════════════════════════════════════════
 
 const FinanzasSaldos: React.FC = () => {
-  const [resumen, setResumen] = useState<SaldosResumen | null>(null);
-  const [ccs, setCCs] = useState<CuentaCorriente[]>([]);
-  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+  const { cuentas, miniStats, setSubVistaConfig, onSeleccionarAccion } =
+    useFinanzasShellContext();
+  const tcpaActual = miniStats?.tcpa ?? 0;
 
-  // ── Filtros iniciales desde query params (deep-link desde Overview, etc.) ──
-  const [searchParams] = useSearchParams();
-  const estadoParam = searchParams.get('estado');
-  const tipoParam = searchParams.get('tipo');
-  const estadosValidos: FiltroEstado[] = ['todas', 'por_cobrar', 'por_pagar', 'vencidas', 'saldadas'];
-  const tiposValidos: (TipoEntidadCC | 'todos')[] = ['todos', 'cliente', 'proveedor', 'colaborador', 'empleado'];
-  const estadoInicial: FiltroEstado =
-    estadoParam && estadosValidos.includes(estadoParam as FiltroEstado)
-      ? (estadoParam as FiltroEstado)
-      : 'todas';
-  const tipoInicial: TipoEntidadCC | 'todos' =
-    tipoParam && tiposValidos.includes(tipoParam as TipoEntidadCC | 'todos')
-      ? (tipoParam as TipoEntidadCC | 'todos')
-      : 'todos';
+  // Estado local · fetch extra (tarjetas + recaudadoras)
+  const [tarjetas, setTarjetas] = useState<TarjetaCredito[]>([]);
+  const [recaudadoras, setRecaudadoras] = useState<ProductoFinanciero[]>([]);
+  const [saldosRecaudadoras, setSaldosRecaudadoras] = useState<Map<string, number>>(new Map());
+  const [loadingExtra, setLoadingExtra] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const [estadoFiltro, setEstadoFiltro] = useState<FiltroEstado>(estadoInicial);
-  const [tipoFiltro, setTipoFiltro] = useState<TipoEntidadCC | 'todos'>(tipoInicial);
-  const [rangoFecha, setRangoFecha] = useState<RangoFecha>('todos');
-  const [fechaDesde, setFechaDesde] = useState<string>('');
-  const [fechaHasta, setFechaHasta] = useState<string>('');
-  const [busqueda, setBusqueda] = useState('');
-  const [orden, setOrden] = useState<OrdenLista>('mayor_saldo');
+  // Filtros + agrupación + vista
+  const [filtros, setFiltros] = useState<FiltrosSaldosState>(defaultFiltrosSaldos);
+  const [agrupacion, setAgrupacion] = useState<GrupoSaldos>('titular');
+  const [vista, setVista] = useState<VistaSaldos>('lista');
+  const [productoSeleccionado, setProductoSeleccionado] = useState<ProductoFinancieroUnif | null>(
+    null,
+  );
 
-  // Imp-L11.d · Cuando el usuario abandona el modo custom, limpia las fechas.
-  useEffect(() => {
-    if (rangoFecha !== 'custom') {
-      if (fechaDesde) setFechaDesde('');
-      if (fechaHasta) setFechaHasta('');
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [rangoFecha]);
+  // ─── CuentaWizard inline (chk5.D-S6.SF1 · cierra gap del audit) ─────
+  const [cuentaWizardOpen, setCuentaWizardOpen] = useState(false);
+  const [cuentaWizardEditar, setCuentaWizardEditar] = useState<CuentaCaja | null>(null);
+  const [cuentaWizardSubmitting, setCuentaWizardSubmitting] = useState(false);
+  const toastSuccess = useToastStore((s) => s.success);
+  const toastError = useToastStore((s) => s.error);
+  const userIdAuth = useAuthStore((s) => s.user?.uid ?? '');
 
-  const [ccSeleccionada, setCCSeleccionada] = useState<CuentaCorriente | null>(null);
+  // ─── Fetch extra ─────────────────────────────────────────────────────
+  const cargarExtra = useCallback(() => {
+    setLoadingExtra(true);
+    setError(null);
 
-  // S58d F5 — Modal detalle de tarjeta (cuando el CC seleccionada es de tipo TC)
-  const [tarjetaDetalle, setTarjetaDetalle] = useState<TarjetaCredito | null>(null);
-  const { tarjetas, fetchTarjetas } = useTarjetaCreditoStore();
+    const ahora = new Date();
+    const inicioMes = new Date(ahora.getFullYear(), ahora.getMonth(), 1);
 
-  // Imp-L8 · Hero ejecutivo necesita cuentas del store de tesorería
-  const cuentasTesoreria = useTesoreriaStore((s) => s.cuentas);
-  const fetchCuentas = useTesoreriaStore((s) => s.fetchCuentas);
+    Promise.all([tarjetaCreditoService.getAll(), getProductosFinancierosActivos()])
+      .then(async ([tarj, prodsFinancieros]) => {
+        setTarjetas(tarj);
+        const recList = prodsFinancieros.filter((p) => p.tipoProducto === 'caja_recaudadora');
+        setRecaudadoras(recList);
 
-  useEffect(() => {
-    if (cuentasTesoreria.length === 0) void fetchCuentas();
-  }, [cuentasTesoreria.length, fetchCuentas]);
-
-  // Asegurar que las tarjetas estén cargadas (para resolver CC tipo='tarjeta_credito')
-  useEffect(() => {
-    if (tarjetas.length === 0) void fetchTarjetas();
-  }, [tarjetas.length, fetchTarjetas]);
-
-  // Handler unificado: abre el modal correcto según el tipo de la CC
-  const abrirCCDetalle = (cc: CuentaCorriente) => {
-    if (cc.tipo === 'tarjeta_credito') {
-      const t = tarjetas.find((x) => x.id === cc.entidadId);
-      if (t) {
-        setTarjetaDetalle(t);
-        return;
-      }
-      // Si no encontró, fallback al modal genérico
-    }
-    setCCSeleccionada(cc);
-  };
-
-  // ── Wizard de pago/cobro distribuido ──
-  const [wizardOpen, setWizardOpen] = useState(false);
-  const [wizardEntidad, setWizardEntidad] = useState<{
-    entidadId: string;
-    entidadTipo: TipoEntidadCC;
-    entidadNombre: string;
-    saldoUSD: number;
-    saldoPEN: number;
-  } | null>(null);
-
-  const abrirWizardConCC = (cc: CuentaCorriente) => {
-    setWizardEntidad({
-      entidadId: cc.entidadId,
-      entidadTipo: cc.tipo,
-      entidadNombre: cc.entidadNombre,
-      saldoUSD: cc.saldoUSD,
-      saldoPEN: cc.saldoPEN,
-    });
-    setWizardOpen(true);
-  };
-
-  const recargarCCs = async () => {
-    const [r, list] = await Promise.all([
-      cuentaCorrienteService.getResumen(),
-      cuentaCorrienteService.getAll(),
-    ]);
-    setResumen(r);
-    setCCs(list);
-  };
-
-  // Sincronizar si cambian los params (ej: usuario navega Overview → Saldos otra vez)
-  useEffect(() => {
-    if (estadoParam && estadosValidos.includes(estadoParam as FiltroEstado)) {
-      setEstadoFiltro(estadoParam as FiltroEstado);
-    }
-    if (tipoParam && tiposValidos.includes(tipoParam as TipoEntidadCC | 'todos')) {
-      setTipoFiltro(tipoParam as TipoEntidadCC | 'todos');
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [estadoParam, tipoParam]);
-
-  useEffect(() => {
-    let cancelled = false;
-    setLoading(true);
-    Promise.all([
-      cuentaCorrienteService.getResumen(),
-      cuentaCorrienteService.getAll(),
-    ])
-      .then(([r, list]) => {
-        if (cancelled) return;
-        setResumen(r);
-        setCCs(list);
+        // Calcular saldos pendientes de liquidación por cada recaudadora
+        const saldosMap = new Map<string, number>();
+        await Promise.all(
+          recList.map(async (r) => {
+            if (!r.id) return;
+            try {
+              const balance = await cajaRecaudadoraService.calcularBalanceMes(
+                r.id,
+                inicioMes,
+                ahora,
+              );
+              saldosMap.set(r.id, balance.pendienteLiquidar);
+            } catch {
+              saldosMap.set(r.id, 0);
+            }
+          }),
+        );
+        setSaldosRecaudadoras(saldosMap);
       })
-      .finally(() => {
-        if (!cancelled) setLoading(false);
-      });
-    return () => {
-      cancelled = true;
-    };
+      .catch((err) => {
+        setError(err?.message ?? 'Error cargando productos financieros');
+      })
+      .finally(() => setLoadingExtra(false));
   }, []);
 
-  const conteos: ConteosFiltro = useMemo(() => {
-    const c: ConteosFiltro = {
-      todas: ccs.length,
-      porCobrar: 0,
-      porPagar: 0,
-      vencidas: 0,
-      saldadas: 0,
-      porTipo: { cliente: 0, proveedor: 0, colaborador: 0, empleado: 0, tarjeta_credito: 0 },
-    };
-    for (const cc of ccs) {
-      const estados = clasificarCC(cc);
-      if (estados.includes('saldadas')) c.saldadas++;
-      if (estados.includes('por_cobrar')) c.porCobrar++;
-      if (estados.includes('por_pagar')) c.porPagar++;
-      if (estados.includes('vencidas')) c.vencidas++;
-      c.porTipo[cc.tipo] = (c.porTipo[cc.tipo] || 0) + 1;
-    }
-    return c;
-  }, [ccs]);
+  useEffect(() => {
+    cargarExtra();
+  }, [cargarExtra]);
 
-  // Imp-L11.c/d · Calcula rango de timestamps [min, max] según filtro de fecha.
-  // Para presets (ult_7d, etc.) max=null (=ahora). Para 'custom', min y max
-  // vienen de los inputs date YYYY-MM-DD del usuario.
-  const rangoTimestamps = useMemo<{ min: number | null; max: number | null }>(() => {
-    const ahora = new Date();
-    if (rangoFecha === 'todos') return { min: null, max: null };
-    if (rangoFecha === 'ult_7d')
-      return { min: ahora.getTime() - 7 * 24 * 60 * 60 * 1000, max: null };
-    if (rangoFecha === 'ult_30d')
-      return { min: ahora.getTime() - 30 * 24 * 60 * 60 * 1000, max: null };
-    if (rangoFecha === 'ult_90d')
-      return { min: ahora.getTime() - 90 * 24 * 60 * 60 * 1000, max: null };
-    if (rangoFecha === 'ult_6m')
-      return { min: ahora.getTime() - 180 * 24 * 60 * 60 * 1000, max: null };
-    if (rangoFecha === 'este_anio') {
-      return { min: new Date(ahora.getFullYear(), 0, 1).getTime(), max: null };
-    }
-    if (rangoFecha === 'custom') {
-      // Si falta alguna fecha, no aplica filtro hasta que ambas estén llenas.
-      if (!fechaDesde || !fechaHasta) return { min: null, max: null };
-      const [ya, ma, da] = fechaDesde.split('-').map(Number);
-      const [yb, mb, db] = fechaHasta.split('-').map(Number);
-      // Inicio de día desde, final de día hasta (inclusive).
-      const min = new Date(ya, ma - 1, da, 0, 0, 0, 0).getTime();
-      const max = new Date(yb, mb - 1, db, 23, 59, 59, 999).getTime();
-      return { min, max };
-    }
-    return { min: null, max: null };
-  }, [rangoFecha, fechaDesde, fechaHasta]);
+  // ─── Productos unificados ───────────────────────────────────────────
+  const productosUnif = useMemo<ProductoFinancieroUnif[]>(() => {
+    const lista: ProductoFinancieroUnif[] = [];
 
-  const ccsFiltradas = useMemo(() => {
-    let list = ccs;
+    for (const c of cuentas) {
+      lista.push(wrapCuentaCaja(c));
+    }
+    for (const tc of tarjetas) {
+      // TODO chk5.D-S4 · cargar saldo CC espejo real (legacy saldoActualUSD por ahora)
+      lista.push(wrapTarjetaCredito(tc));
+    }
+    for (const r of recaudadoras) {
+      lista.push(wrapCajaRecaudadora(r, saldosRecaudadoras.get(r.id ?? '') ?? 0));
+    }
+    return lista;
+  }, [cuentas, tarjetas, recaudadoras, saldosRecaudadoras]);
 
-    if (estadoFiltro !== 'todas') {
-      list = list.filter((cc) => clasificarCC(cc).includes(estadoFiltro));
-    }
-    if (tipoFiltro !== 'todos') {
-      list = list.filter((cc) => cc.tipo === tipoFiltro);
-    }
-    if (rangoTimestamps.min !== null || rangoTimestamps.max !== null) {
-      list = list.filter((cc) => {
-        if (!cc.fechaUltimoMovimiento) return false;
-        const t = cc.fechaUltimoMovimiento.toMillis();
-        if (rangoTimestamps.min !== null && t < rangoTimestamps.min) return false;
-        if (rangoTimestamps.max !== null && t > rangoTimestamps.max) return false;
-        return true;
-      });
-    }
-    if (busqueda.trim()) {
-      const q = busqueda.trim().toLowerCase();
-      list = list.filter((cc) => cc.entidadNombre.toLowerCase().includes(q));
-    }
+  // ─── Productos filtrados ────────────────────────────────────────────
+  const productosFiltrados = useMemo(
+    () => aplicarFiltrosSaldos(productosUnif, filtros),
+    [productosUnif, filtros],
+  );
 
-    const sorted = [...list];
-    if (orden === 'mayor_saldo') {
-      sorted.sort(
-        (a, b) =>
-          Math.abs(b.saldoPEN) +
-          Math.abs(b.saldoUSD) -
-          (Math.abs(a.saldoPEN) + Math.abs(a.saldoUSD)),
-      );
-    } else if (orden === 'ultima_act') {
-      sorted.sort(
-        (a, b) =>
-          (b.fechaUltimoMovimiento?.toMillis() || 0) -
-          (a.fechaUltimoMovimiento?.toMillis() || 0),
-      );
-    } else {
-      sorted.sort((a, b) => a.entidadNombre.localeCompare(b.entidadNombre));
+  // ─── KPIs canon MOCK 6 ──────────────────────────────────────────────
+  const kpis = useMemo(
+    () => calcularKPIsSaldos(productosUnif, tcpaActual),
+    [productosUnif, tcpaActual],
+  );
+
+  // ─── Grupos según agrupación seleccionada ───────────────────────────
+  const grupos = useMemo(() => {
+    switch (agrupacion) {
+      case 'titular':
+        return agruparPorTitular(productosFiltrados);
+      case 'tipo':
+        return agruparPorTipo(productosFiltrados);
+      case 'moneda':
+        return agruparPorMoneda(productosFiltrados);
+      case 'banco':
+        return agruparPorBanco(productosFiltrados);
     }
+  }, [productosFiltrados, agrupacion]);
 
-    return sorted;
-  }, [ccs, estadoFiltro, tipoFiltro, rangoTimestamps, busqueda, orden]);
+  // ─── Pool USD (D13) · sub-grupo dentro de titular Empresa ──────────
+  const poolUSDCuentas = useMemo(() => {
+    if (agrupacion !== 'titular') return [];
+    const empresaGrupo = grupos.find((g) => g.key === 'empresa');
+    if (!empresaGrupo) return [];
+    return extraerCuentasPoolUSD(empresaGrupo.productos);
+  }, [grupos, agrupacion]);
 
-  return (
-    <>
-      {/* Imp-L8 · Hero ejecutivo Mercury-style con patrimonio total
-           + sparkline 90 días + KPI strip + distribución por moneda */}
-      <div className="mb-5">
-        <PatrimonioHero
-          cuentas={cuentasTesoreria}
-          ccs={ccs}
-          tarjetas={tarjetas}
+  const poolUSDTotal = useMemo(
+    () => poolUSDCuentas.reduce((sum, p) => sum + saldoUSDDe(p), 0),
+    [poolUSDCuentas],
+  );
+
+  // ─── Handlers ────────────────────────────────────────────────────────
+  const handleExportar = useCallback(() => {
+    console.info('FinanzasSaldos · exportar', productosFiltrados.length, 'productos');
+  }, [productosFiltrados.length]);
+
+  const handleConciliar = useCallback(() => {
+    console.info('FinanzasSaldos · conciliar bancos');
+  }, []);
+
+  const handleNuevaCuenta = useCallback(() => {
+    // chk5.D-S6.SF1 · Wire-up directo al CuentaWizard como modal · cero salidas a /tesoreria
+    setCuentaWizardEditar(null);
+    setCuentaWizardOpen(true);
+  }, []);
+
+  const handleEditarCuenta = useCallback((cuenta: CuentaCaja) => {
+    // chk5.D-S6.SF1 · Edit mode del wizard inline
+    setCuentaWizardEditar(cuenta);
+    setCuentaWizardOpen(true);
+  }, []);
+
+  const handleGuardarCuenta = useCallback(
+    async (data: CuentaCajaFormData, editar?: CuentaCaja | null) => {
+      if (!userIdAuth) {
+        toastError('Sesión inválida · recargá la página', 'Error');
+        return;
+      }
+      setCuentaWizardSubmitting(true);
+      try {
+        if (editar?.id) {
+          await tesoreriaService.actualizarCuenta(editar.id, data, userIdAuth);
+          toastSuccess(`Cuenta "${data.nombre}" actualizada`, 'Cuenta editada');
+        } else {
+          await tesoreriaService.crearCuenta(data, userIdAuth);
+          toastSuccess(`Cuenta "${data.nombre}" creada`, 'Cuenta nueva');
+        }
+        setCuentaWizardOpen(false);
+        setCuentaWizardEditar(null);
+        // Refresh data del shell · trigger refetch
+        cargarExtra();
+      } catch (e: any) {
+        toastError(e?.message ?? 'Error al guardar la cuenta', 'Error');
+      } finally {
+        setCuentaWizardSubmitting(false);
+      }
+    },
+    [userIdAuth, toastSuccess, toastError, cargarExtra],
+  );
+
+  const handleLimpiarFiltros = useCallback(() => {
+    setFiltros(defaultFiltrosSaldos());
+  }, []);
+
+  // ─── Resolver badges por producto ───────────────────────────────────
+  const resolverBadges = useCallback(
+    (p: ProductoFinancieroUnif): ProductoFinancieroBadge[] => {
+      const badges: ProductoFinancieroBadge[] = [];
+      const kind = kindFinalDe(p);
+
+      // Default PEN · primera cuenta bancaria PEN del titular Empresa
+      // Heurística: si la cuenta tiene esCuentaPorDefecto=true
+      if (p.kind === 'cuenta_bancaria') {
+        const c = p.kindData;
+        if (c.esCuentaPorDefecto) {
+          const mon = monedaPrincipalDe(p);
+          badges.push({ label: `Default ${mon}`, color: 'emerald' });
+        }
+      }
+
+      // TC bimoneda
+      if (kind === 'tarjeta_credito') {
+        if (esBiMonedaDe(p)) {
+          badges.push({ label: 'TC Bimoneda', color: 'amber' });
+        } else {
+          badges.push({ label: `TC ${monedaPrincipalDe(p)}`, color: 'amber' });
+        }
+        // Vencimiento próximo
+        if (p.kind === 'tarjeta_credito') {
+          const diaPago = p.kindData.diaPago;
+          const hoy = new Date();
+          const diaActual = hoy.getDate();
+          let diasHasta = diaPago - diaActual;
+          if (diasHasta < 0) diasHasta += 30;
+          if (diasHasta <= 7) {
+            badges.push({
+              label: `Vence ${diasHasta}d`,
+              color: 'rose',
+              pulse: diasHasta <= 3,
+            });
+          }
+          // Reembolso para TC personal
+          if (p.kindData.titularidad === 'personal') {
+            badges.push({ label: 'Reembolso', color: 'indigo' });
+          }
+        }
+      }
+
+      // Wallet
+      if (kind === 'wallet_digital') {
+        badges.push({ label: 'Wallet', color: 'sky' });
+      }
+
+      // TC débito vinculada
+      if (kind === 'tarjeta_debito') {
+        badges.push({ label: 'TC Débito', color: 'indigo' });
+        badges.push({ label: '↗ Pool USD', color: 'amber' });
+      }
+
+      // Caja efectivo
+      if (kind === 'caja_efectivo') {
+        badges.push({ label: 'Caja', color: 'slate' });
+      }
+
+      // Recaudadora
+      if (kind === 'caja_recaudadora') {
+        badges.push({ label: 'Recaudadora', color: 'purple' });
+      }
+
+      return badges;
+    },
+    [],
+  );
+
+  // ─── Resolver estado label ──────────────────────────────────────────
+  const resolverEstado = useCallback(
+    (p: ProductoFinancieroUnif): { label: string; color: ProductoFinancieroBadge['color'] } => {
+      const kind = kindFinalDe(p);
+      if (kind === 'caja_recaudadora') {
+        return { label: 'Pendiente liquidar', color: 'purple' };
+      }
+      if (kind === 'tarjeta_credito') {
+        if (esBiMonedaDe(p)) return { label: '2 saldos · ciclo cerrado', color: 'amber' };
+        return { label: 'Ciclo cerrado', color: 'amber' };
+      }
+      if (kind === 'tarjeta_debito') {
+        return { label: 'Disponible Pool USD', color: 'indigo' };
+      }
+      if (kind === 'wallet_digital') {
+        return { label: 'Pendiente payout', color: 'sky' };
+      }
+      if (kind === 'caja_efectivo') {
+        if (p.kind === 'caja_efectivo' && p.kindData.titular) {
+          return { label: `Resp: ${p.kindData.titular}`, color: 'slate' };
+        }
+        return { label: 'Caja activa', color: 'slate' };
+      }
+      // Cuenta bancaria
+      if (p.kind === 'cuenta_bancaria' && p.kindData.esCuentaPorDefecto) {
+        const mon = monedaPrincipalDe(p);
+        return { label: `Default ${mon}`, color: 'emerald' };
+      }
+      return { label: '', color: 'slate' };
+    },
+    [],
+  );
+
+  // ─── Resolver highlight (Pool USD sub-grupo) ────────────────────────
+  const esCuentaPoolUSD = useCallback(
+    (p: ProductoFinancieroUnif): boolean => {
+      return poolUSDCuentas.some((c) => c.id === p.id);
+    },
+    [poolUSDCuentas],
+  );
+
+  // ─── KPI slot canon MOCK 6 §1 ────────────────────────────────────────
+  const kpiSlot = useMemo(
+    () => (
+      <div className="px-6 py-4 border-b border-slate-100 grid grid-cols-2 md:grid-cols-5 gap-3">
+        {/* KPI 1 · Patrimonio total · teal */}
+        <KpiSaldoCard
+          color="teal"
+          icon={Building2}
+          label="Total patrimonio"
+          value={`S/ ${fmt0(kpis.patrimonioTotalPEN)}`}
+          subtitle={`${kpis.productosActivosCount} productos activos`}
+        />
+        {/* KPI 2 · Cuentas PEN · emerald */}
+        <KpiSaldoCard
+          color="emerald"
+          icon={Banknote}
+          label="Cuentas PEN"
+          value={`S/ ${fmt0(kpis.cuentasPENTotal)}`}
+          subtitle={`${kpis.cuentasPENCount} ${kpis.cuentasPENCount === 1 ? 'cuenta' : 'cuentas'} · ${kpis.cuentasPENPctPatrimonio}%`}
+        />
+        {/* KPI 3 · Pool USD · teal */}
+        <KpiSaldoCard
+          color="teal"
+          icon={Banknote}
+          label={`Pool USD (vista · ${kpis.poolUSDCuentasCount} ${kpis.poolUSDCuentasCount === 1 ? 'cta' : 'ctas'})`}
+          value={`$ ${fmt0(kpis.poolUSDTotal)}`}
+          subtitle={`≈ S/ ${fmt0(kpis.poolUSDEquivPEN)} · TCPA ${tcpaActual > 0 ? tcpaActual.toFixed(3) : '—'}`}
+        />
+        {/* KPI 4 · Deuda TC · amber */}
+        <KpiSaldoCard
+          color="amber"
+          icon={CreditCard}
+          label="Deuda TC total"
+          value={kpis.deudaTCTotalUSD > 0 ? `$ ${fmt0(kpis.deudaTCTotalUSD)}` : `S/ ${fmt0(kpis.deudaTCTotalPEN)}`}
+          subtitle={`${kpis.tcCount} TC${
+            kpis.tcPersonalReembolsoCount > 0
+              ? ` · ${kpis.tcPersonalReembolsoCount} personal reembolso`
+              : ''
+          }`}
+        />
+        {/* KPI 5 · Recaudadoras · purple */}
+        <KpiSaldoCard
+          color="purple"
+          icon={Truck}
+          label="Recaudadoras"
+          value={`S/ ${fmt0(kpis.recaudadorasPendientePEN)}`}
+          subtitle={`${kpis.recaudadorasCount} ${kpis.recaudadorasCount === 1 ? 'caja' : 'cajas'} · pendiente liq.`}
         />
       </div>
+    ),
+    [kpis, tcpaActual],
+  );
 
-      {/* Imp-L11.c · Barra de filtros UNIFICADA estilo M6 (mockup movimientos).
-            Antes: PipelineFinanzas (chips) + toolbar separado (búsqueda+orden) en
-            2 cards. Ahora: una sola barra horizontal con date range + estado +
-            tipo + búsqueda + orden + limpiar, replicando el patrón Stripe/Mercury. */}
-      {resumen && (
-        <Card padding="md" className="mb-4">
-          <FiltrosFinanzasBar
-            estadoActivo={estadoFiltro}
-            onCambiarEstado={setEstadoFiltro}
-            tipoActivo={tipoFiltro}
-            onCambiarTipo={setTipoFiltro}
-            rangoFecha={rangoFecha}
-            onCambiarRango={setRangoFecha}
-            fechaDesde={fechaDesde}
-            fechaHasta={fechaHasta}
-            onCambiarFechasCustom={(desde, hasta) => {
-              setFechaDesde(desde);
-              setFechaHasta(hasta);
-            }}
-            busqueda={busqueda}
-            onCambiarBusqueda={setBusqueda}
-            orden={orden}
-            onCambiarOrden={setOrden}
-            conteos={conteos}
-          />
-        </Card>
-      )}
+  // ─── Actions custom ─────────────────────────────────────────────────
+  const actionsCustom = useMemo(
+    () => (
+      <>
+        <button
+          type="button"
+          onClick={handleExportar}
+          aria-label="Exportar"
+          title="Exportar"
+          className="text-[11px] font-semibold text-slate-600 hover:bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-lg flex items-center gap-1.5"
+        >
+          <Download className="w-3 h-3" />
+          <span className="hidden sm:inline">Exportar</span>
+        </button>
+        <button
+          type="button"
+          onClick={handleConciliar}
+          aria-label="Conciliar bancos"
+          title="Conciliar bancos"
+          className="text-[11px] font-semibold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 px-3 py-1.5 rounded-lg flex items-center gap-1.5"
+        >
+          <RefreshCw className="w-3 h-3" />
+          <span className="hidden sm:inline">Conciliar bancos</span>
+        </button>
+        <button
+          type="button"
+          onClick={handleNuevaCuenta}
+          aria-label="Nueva cuenta"
+          title="Nueva cuenta"
+          className="text-[11px] font-bold text-white bg-teal-600 hover:bg-teal-700 px-3 py-1.5 rounded-lg inline-flex items-center gap-1.5 shadow-sm"
+        >
+          <Plus className="w-3 h-3" />
+          <span className="hidden sm:inline">Nueva cuenta</span>
+        </button>
+      </>
+    ),
+    [handleExportar, handleConciliar, handleNuevaCuenta],
+  );
 
-      {/* Lista de cards */}
-      {loading ? (
-        <Card padding="lg">
-          <div className="text-center py-8 text-sm text-slate-400">
-            Cargando cuentas corrientes...
+  // ─── Setear sub-vista config en el shell ────────────────────────────
+  useEffect(() => {
+    setSubVistaConfig({
+      breadcrumbLeaf: 'Saldos',
+      header: {
+        title: 'Saldos',
+        subtitle:
+          'Estado consolidado de TODAS las cuentas · bancarias · wallets · TC · cajas · recaudadoras',
+        icon: Wallet,
+        iconColor: 'emerald',
+      },
+      kpiSlot,
+      actions: actionsCustom,
+      // El header del mockup MOCK 6 incluye "Nueva cuenta" como CTA propia
+      // del módulo Saldos · ya NO mostrar el dropdown "+ Nuevo movimiento" general.
+      actionsReplaceAll: true,
+    });
+  }, [setSubVistaConfig, kpiSlot, actionsCustom]);
+
+  const activeCount = contarFiltrosSaldosActivos(filtros);
+  const totalPEN = productosFiltrados.reduce((s, p) => {
+    const kind = kindFinalDe(p);
+    if (kind === 'tarjeta_credito' || kind === 'tarjeta_debito' || kind === 'caja_recaudadora') {
+      return s;
+    }
+    if (monedaPrincipalDe(p) === 'PEN') {
+      return s + (esBiMonedaDe(p) ? Math.abs(p.kind === 'cuenta_bancaria' ? p.kindData.saldoPEN ?? 0 : 0) : Math.abs(p.kind === 'cuenta_bancaria' || p.kind === 'wallet_digital' || p.kind === 'caja_efectivo' ? p.kindData.saldoActual ?? 0 : 0));
+    }
+    return s;
+  }, 0);
+  const totalUSDListado = productosFiltrados.reduce((s, p) => {
+    const kind = kindFinalDe(p);
+    if (kind === 'cuenta_bancaria' && monedaPrincipalDe(p) === 'USD') {
+      return s + saldoUSDDe(p);
+    }
+    return s;
+  }, 0);
+
+  const resumenToolbar = `${productosFiltrados.length} ${productosFiltrados.length === 1 ? 'producto' : 'productos'} · S/ ${fmt0(totalPEN)}${
+    totalUSDListado > 0 ? ` + $ ${fmt0(totalUSDListado)}` : ''
+  }`;
+
+  // ═════════════════════════════════════════════════════════════════════
+  // RENDER
+  // ═════════════════════════════════════════════════════════════════════
+
+  // Error state
+  if (error) {
+    return (
+      <div className="p-8 text-center space-y-4">
+        <div className="w-16 h-16 mx-auto rounded-full bg-rose-100 flex items-center justify-center">
+          <AlertTriangle className="w-8 h-8 text-rose-600" />
+        </div>
+        <div>
+          <div className="text-[14px] font-bold text-slate-900">No se pudieron cargar los saldos</div>
+          <div className="text-[11px] text-slate-500 mt-1">{error}</div>
+        </div>
+        <button
+          type="button"
+          onClick={cargarExtra}
+          className="text-[11px] font-bold text-white bg-rose-600 hover:bg-rose-700 px-3 py-1.5 rounded-lg inline-flex items-center gap-1.5"
+        >
+          <RefreshCw className="w-3 h-3" /> Reintentar
+        </button>
+      </div>
+    );
+  }
+
+  // Loading state
+  if (loadingExtra && cuentas.length === 0) {
+    return (
+      <>
+        <FiltrosSaldosBar
+          state={filtros}
+          onChange={setFiltros}
+          activeCount={activeCount}
+          onLimpiarTodo={handleLimpiarFiltros}
+        />
+        <div className="p-4 space-y-2">
+          <div className="shimmer h-12 rounded-lg" />
+          <div className="shimmer h-12 rounded-lg" />
+          <div className="shimmer h-12 rounded-lg" />
+          <div className="shimmer h-12 rounded-lg" />
+          <div className="text-center pt-4">
+            <div className="text-[10px] text-slate-500">Cargando saldos...</div>
           </div>
-        </Card>
-      ) : ccsFiltradas.length === 0 ? (
-        <Card padding="lg">
-          <div className="text-center py-8">
-            <Wallet className="w-8 h-8 text-slate-300 mx-auto mb-2" />
-            <div className="text-sm text-slate-500">
-              {ccs.length === 0
-                ? 'Aún no hay cuentas corrientes registradas. Cualquier OC, venta o pago generará una automáticamente.'
-                : 'No hay entidades que coincidan con los filtros aplicados.'}
+        </div>
+      </>
+    );
+  }
+
+  // Empty state · ningún producto registrado
+  // chk5.D-S8.SF3.D6 · CuentaWizard también debe vivir aquí · sin esto el wizard
+  // nunca se monta cuando la BD está vacía y el botón "+ Nueva cuenta" parece roto.
+  if (productosUnif.length === 0) {
+    return (
+      <>
+        <EmptyStateSaldos onNuevaCuenta={handleNuevaCuenta} />
+        <CuentaWizard
+          isOpen={cuentaWizardOpen}
+          onClose={() => {
+            setCuentaWizardOpen(false);
+            setCuentaWizardEditar(null);
+          }}
+          cuentaEditar={cuentaWizardEditar}
+          onGuardar={handleGuardarCuenta}
+          isSubmitting={cuentaWizardSubmitting}
+        />
+      </>
+    );
+  }
+
+  // Render principal
+  return (
+    <>
+      <FiltrosSaldosBar
+        state={filtros}
+        onChange={setFiltros}
+        activeCount={activeCount}
+        onLimpiarTodo={handleLimpiarFiltros}
+      />
+      <ToolbarAgruparSaldos
+        resumen={resumenToolbar}
+        agrupacion={agrupacion}
+        onAgrupacionChange={setAgrupacion}
+        vista={vista}
+        onVistaChange={setVista}
+      />
+
+      {vista === 'grid' ? (
+        <div className="p-6 text-center text-[12px] text-slate-500">
+          Vista <strong className="text-slate-700">grid</strong> próximamente · chk5.D-S4. Cambiá a
+          vista <strong>lista</strong> para ver el listado completo.
+        </div>
+      ) : grupos.length === 0 ? (
+        <div className="p-8 text-center space-y-3">
+          <Wallet className="w-12 h-12 text-slate-300 mx-auto" />
+          <div>
+            <div className="text-[14px] font-bold text-slate-900">
+              Sin productos para los filtros seleccionados
+            </div>
+            <div className="text-[11px] text-slate-500 mt-1">
+              Ajustá los filtros o limpiá para ver todo.
             </div>
           </div>
-        </Card>
+          <button
+            type="button"
+            onClick={handleLimpiarFiltros}
+            className="text-[11px] font-bold text-white bg-slate-700 hover:bg-slate-800 px-3 py-1.5 rounded-lg"
+          >
+            Limpiar filtros
+          </button>
+        </div>
       ) : (
-        <div className={cn('space-y-3')}>
-          <div className="text-[11px] text-slate-500 px-1">
-            Mostrando {ccsFiltradas.length} de {ccs.length} entidades
-          </div>
-          {ccsFiltradas.map((cc) => (
-            <EntidadCCCard
-              key={cc.id}
-              cc={cc}
-              onView={() => abrirCCDetalle(cc)}
-              onAccionPrincipal={() => {
-                // Para tarjetas, no aplica abono distribuido — abrir detalle
-                if (cc.tipo === 'tarjeta_credito') {
-                  abrirCCDetalle(cc);
-                } else {
-                  abrirWizardConCC(cc);
-                }
-              }}
-            />
+        <div className="divide-y divide-slate-200">
+          {grupos.map((grupo) => (
+            <div key={grupo.key}>
+              {agrupacion === 'titular' ? (
+                <GrupoTitularHeader
+                  grupo={grupo.key as 'empresa' | 'personal' | 'recaudador'}
+                  label={grupo.label}
+                  count={grupo.productos.length}
+                  subtotalLabel={`${grupo.subtotalPEN > 0 ? `S/ ${fmt0(grupo.subtotalPEN)}` : ''}${
+                    grupo.subtotalUSD > 0 ? ` + $ ${fmt0(grupo.subtotalUSD)}` : ''
+                  }`.trim() || '—'}
+                />
+              ) : (
+                <GrupoGenericoHeader
+                  label={grupo.label}
+                  count={grupo.productos.length}
+                  subtotalLabel={`${grupo.subtotalPEN > 0 ? `S/ ${fmt0(grupo.subtotalPEN)}` : ''}${
+                    grupo.subtotalUSD > 0 ? ` + $ ${fmt0(grupo.subtotalUSD)}` : ''
+                  }`.trim() || '—'}
+                  color={agrupacion === 'tipo' ? 'teal' : 'slate'}
+                  icon={iconParaGrupoTipo(grupo.key)}
+                />
+              )}
+
+              {/* Render productos · con sub-header Pool USD intercalado si aplica */}
+              <div className="divide-y divide-slate-100">
+                {agrupacion === 'titular' && grupo.key === 'empresa' && poolUSDCuentas.length > 0
+                  ? renderProductosConPoolUSD(grupo.productos, poolUSDCuentas, poolUSDTotal, tcpaActual, {
+                      resolverBadges,
+                      resolverEstado,
+                      esCuentaPoolUSD,
+                      setProductoSeleccionado,
+                    })
+                  : grupo.productos.map((p) => {
+                      const estado = resolverEstado(p);
+                      return (
+                        <ProductoFinancieroRow
+                          key={p.id}
+                          producto={p}
+                          badges={resolverBadges(p)}
+                          estadoLabel={estado.label}
+                          estadoColor={estado.color as never}
+                          highlight={esCuentaPoolUSD(p)}
+                          onClick={() => setProductoSeleccionado(p)}
+                        />
+                      );
+                    })}
+              </div>
+            </div>
           ))}
         </div>
       )}
 
-      {ccSeleccionada && (
-        <EntidadCCDetailModal
-          cc={ccSeleccionada}
-          onClose={() => setCCSeleccionada(null)}
-          onAccionPrincipal={() => {
-            const cc = ccSeleccionada;
-            setCCSeleccionada(null);
-            abrirWizardConCC(cc);
+      {/* Drawer detalle */}
+      {productoSeleccionado && (
+        <DrawerProductoFinanciero
+          producto={productoSeleccionado}
+          onClose={() => setProductoSeleccionado(null)}
+          onAccionPrimary={() => {
+            const kind = kindFinalDe(productoSeleccionado);
+            setProductoSeleccionado(null);
+            if (kind === 'caja_recaudadora') onSeleccionarAccion('liquidar_recaudadora');
+            else if (kind === 'tarjeta_credito') onSeleccionarAccion('pagar_tc');
+            else if (kind === 'tarjeta_debito') navigate('/finanzas/saldos');
+            else if (kind === 'wallet_digital') console.info('forzar payout · pendiente S4');
+            else if (kind === 'cuenta_bancaria') console.info('conciliar · pendiente S4');
+            else if (kind === 'caja_efectivo') console.info('nuevo arqueo · pendiente S4');
           }}
+          onEditar={() => {
+            // chk5.D-S6.SF1 · Solo cuentas (CuentaCaja) editables via CuentaWizard.
+            // Tarjetas de crédito · recaudadoras tienen sus propios editores legacy
+            // (DEUDA-S6-EDITORES-PRODUCTOS: refactor a invocables canon · sprint futuro).
+            const kind = kindFinalDe(productoSeleccionado);
+            if (
+              kind === 'cuenta_bancaria' ||
+              kind === 'wallet_digital' ||
+              kind === 'tarjeta_debito' ||
+              kind === 'caja_efectivo'
+            ) {
+              // Producto.kindData es CuentaCaja para estos 4 kinds
+              handleEditarCuenta(productoSeleccionado.kindData as CuentaCaja);
+              setProductoSeleccionado(null);
+            } else {
+              // Tarjeta de crédito · caja recaudadora · sin editor canon aún
+              toastError(
+                `Editar ${kind} aún no disponible inline · sprint S6.bis pendiente`,
+                'Editor canon pendiente',
+              );
+            }
+          }}
+          onVerHistorico={() => navigate('/finanzas/movimientos')}
         />
       )}
 
-      {/* ─── Wizard pago/cobro distribuido ──────────────────────────── */}
-      <PagoAbonoWizard
-        isOpen={wizardOpen}
-        onClose={() => setWizardOpen(false)}
-        entidadPreseleccionada={wizardEntidad ?? undefined}
-        onSuccess={() => {
-          void recargarCCs();
+      {/* CuentaWizard inline · chk5.D-S6.SF1 · cierra gap del audit honesto */}
+      <CuentaWizard
+        isOpen={cuentaWizardOpen}
+        onClose={() => {
+          setCuentaWizardOpen(false);
+          setCuentaWizardEditar(null);
         }}
-      />
-
-      {/* ─── S58d F5 · Modal detalle TC (cuando cc.tipo='tarjeta_credito') ─── */}
-      <TarjetaDetailModal
-        isOpen={!!tarjetaDetalle}
-        onClose={() => setTarjetaDetalle(null)}
-        tarjeta={tarjetaDetalle}
+        cuentaEditar={cuentaWizardEditar}
+        onGuardar={handleGuardarCuenta}
+        isSubmitting={cuentaWizardSubmitting}
       />
     </>
   );
 };
 
 export default FinanzasSaldos;
+
+// ═════════════════════════════════════════════════════════════════════════
+// SUB-COMPONENTES INLINE
+// ═════════════════════════════════════════════════════════════════════════
+
+interface KpiSaldoCardProps {
+  color: 'teal' | 'emerald' | 'amber' | 'purple';
+  icon: React.ComponentType<{ className?: string }>;
+  label: string;
+  value: string;
+  subtitle: string;
+}
+
+const KPI_BG: Record<KpiSaldoCardProps['color'], string> = {
+  teal: 'bg-gradient-to-br from-teal-50 to-teal-100/40 ring-teal-200/50',
+  emerald: 'bg-gradient-to-br from-emerald-50 to-emerald-100/40 ring-emerald-200/50',
+  amber: 'bg-gradient-to-br from-amber-50 to-amber-100/40 ring-amber-200/50',
+  purple: 'bg-gradient-to-br from-purple-50 to-purple-100/40 ring-purple-200/50',
+};
+
+const KPI_LABEL: Record<KpiSaldoCardProps['color'], string> = {
+  teal: 'text-teal-700',
+  emerald: 'text-emerald-700',
+  amber: 'text-amber-700',
+  purple: 'text-purple-700',
+};
+
+const KPI_VALUE: Record<KpiSaldoCardProps['color'], string> = {
+  teal: 'text-teal-900',
+  emerald: 'text-emerald-900',
+  amber: 'text-amber-900',
+  purple: 'text-purple-900',
+};
+
+const KpiSaldoCard: React.FC<KpiSaldoCardProps> = ({ color, icon: Icon, label, value, subtitle }) => (
+  <div className={`ring-1 rounded-2xl p-4 ${KPI_BG[color]}`}>
+    <div className="flex items-center justify-between mb-2 gap-2">
+      <span className={`text-[10px] uppercase tracking-wider font-bold truncate ${KPI_LABEL[color]}`}>
+        {label}
+      </span>
+      <Icon className={`w-3.5 h-3.5 flex-shrink-0 ${KPI_LABEL[color]}`} />
+    </div>
+    <div className={`text-2xl font-bold tabular-nums ${KPI_VALUE[color]}`}>{value}</div>
+    <div className={`text-[11px] mt-1 ${KPI_LABEL[color]}`}>{subtitle}</div>
+  </div>
+);
+
+interface EmptyStateProps {
+  onNuevaCuenta: () => void;
+}
+
+const EmptyStateSaldos: React.FC<EmptyStateProps> = ({ onNuevaCuenta }) => (
+  <div className="p-8 text-center space-y-4">
+    <div className="w-16 h-16 mx-auto rounded-full bg-emerald-100 flex items-center justify-center">
+      <Wallet className="w-8 h-8 text-emerald-600" />
+    </div>
+    <div>
+      <div className="text-[14px] font-bold text-slate-900">
+        Aún no tienes cuentas registradas
+      </div>
+      <div className="text-[11px] text-slate-500 mt-1 max-w-xs mx-auto">
+        Creá tu primera cuenta bancaria, wallet digital, tarjeta o caja para empezar a operar
+        Finanzas.
+      </div>
+    </div>
+    <div className="grid grid-cols-2 gap-2 max-w-xs mx-auto">
+      <QuickStartCard icon={Building2} label="Bancaria" hint="BCP · IBK · BBVA" color="teal" onClick={onNuevaCuenta} />
+      <QuickStartCard icon={Smartphone} label="Wallet" hint="Stripe · PayPal · MP" color="sky" onClick={onNuevaCuenta} />
+      <QuickStartCard icon={CreditCard} label="Tarjeta" hint="Visa · MC · Amex" color="amber" onClick={onNuevaCuenta} />
+      <QuickStartCard icon={Banknote} label="Caja" hint="Efectivo + arqueo" color="slate" onClick={onNuevaCuenta} />
+    </div>
+    <button
+      type="button"
+      onClick={onNuevaCuenta}
+      className="text-[11px] font-bold text-white bg-teal-600 hover:bg-teal-700 px-4 py-2 rounded-lg inline-flex items-center gap-1.5"
+    >
+      + Nueva cuenta
+    </button>
+  </div>
+);
+
+interface QuickStartCardProps {
+  icon: React.ComponentType<{ className?: string }>;
+  label: string;
+  hint: string;
+  color: 'teal' | 'sky' | 'amber' | 'slate';
+  onClick: () => void;
+}
+
+const QUICKSTART_HOVER: Record<QuickStartCardProps['color'], string> = {
+  teal: 'hover:border-teal-300 hover:bg-teal-50/30',
+  sky: 'hover:border-sky-300 hover:bg-sky-50/30',
+  amber: 'hover:border-amber-300 hover:bg-amber-50/30',
+  slate: 'hover:border-slate-400 hover:bg-slate-50',
+};
+
+const QUICKSTART_ICON: Record<QuickStartCardProps['color'], string> = {
+  teal: 'text-teal-600',
+  sky: 'text-sky-600',
+  amber: 'text-amber-600',
+  slate: 'text-slate-600',
+};
+
+const QuickStartCard: React.FC<QuickStartCardProps> = ({ icon: Icon, label, hint, color, onClick }) => (
+  <button
+    type="button"
+    onClick={onClick}
+    className={`text-left p-2 bg-white border border-slate-200 rounded-lg transition-colors ${QUICKSTART_HOVER[color]}`}
+  >
+    <Icon className={`w-4 h-4 mb-1 ${QUICKSTART_ICON[color]}`} />
+    <div className="text-[11px] font-bold">{label}</div>
+    <div className="text-[9px] text-slate-500">{hint}</div>
+  </button>
+);
+
+// ═════════════════════════════════════════════════════════════════════════
+// HELPERS RENDER
+// ═════════════════════════════════════════════════════════════════════════
+
+interface RenderHelpers {
+  resolverBadges: (p: ProductoFinancieroUnif) => ProductoFinancieroBadge[];
+  resolverEstado: (p: ProductoFinancieroUnif) => {
+    label: string;
+    color: ProductoFinancieroBadge['color'];
+  };
+  esCuentaPoolUSD: (p: ProductoFinancieroUnif) => boolean;
+  setProductoSeleccionado: (p: ProductoFinancieroUnif) => void;
+}
+
+/**
+ * Renderiza productos del titular Empresa intercalando el sub-header Pool USD
+ * justo ANTES de la primera cuenta USD del pool. Las cuentas que NO son del
+ * pool se renderizan normal · las del pool con highlight bg-teal-50/10.
+ */
+function renderProductosConPoolUSD(
+  productos: ProductoFinancieroUnif[],
+  poolUSDCuentas: ProductoFinancieroUnif[],
+  poolUSDTotal: number,
+  tcpa: number,
+  helpers: RenderHelpers,
+): React.ReactNode[] {
+  const poolUSDIds = new Set(poolUSDCuentas.map((p) => p.id));
+  const noPool = productos.filter((p) => !poolUSDIds.has(p.id));
+  const pool = productos.filter((p) => poolUSDIds.has(p.id));
+
+  // Insertar pool después de la primera cuenta bancaria PEN si existe
+  // (canon mockup: BCP Soles Operativa va primero · luego sub-header Pool USD)
+  const cuentaPENIdx = noPool.findIndex(
+    (p) => p.kind === 'cuenta_bancaria' && monedaPrincipalDe(p) === 'PEN',
+  );
+  const insertAfter = cuentaPENIdx >= 0 ? cuentaPENIdx + 1 : 0;
+
+  const items: React.ReactNode[] = [];
+  noPool.slice(0, insertAfter).forEach((p) => {
+    const estado = helpers.resolverEstado(p);
+    items.push(
+      <ProductoFinancieroRow
+        key={p.id}
+        producto={p}
+        badges={helpers.resolverBadges(p)}
+        estadoLabel={estado.label}
+        estadoColor={estado.color as never}
+        onClick={() => helpers.setProductoSeleccionado(p)}
+      />,
+    );
+  });
+
+  if (pool.length > 0) {
+    items.push(
+      <SubGrupoPoolUSDHeader
+        key="pool-usd-header"
+        cuentasCount={pool.length}
+        tcpa={tcpa}
+        totalUSD={poolUSDTotal}
+        equivPEN={poolUSDTotal * (tcpa || 0)}
+      />,
+    );
+    pool.forEach((p) => {
+      const estado = helpers.resolverEstado(p);
+      items.push(
+        <ProductoFinancieroRow
+          key={p.id}
+          producto={p}
+          badges={helpers.resolverBadges(p)}
+          estadoLabel={estado.label}
+          estadoColor={estado.color as never}
+          highlight={true}
+          onClick={() => helpers.setProductoSeleccionado(p)}
+        />,
+      );
+    });
+  }
+
+  noPool.slice(insertAfter).forEach((p) => {
+    const estado = helpers.resolverEstado(p);
+    items.push(
+      <ProductoFinancieroRow
+        key={p.id}
+        producto={p}
+        badges={helpers.resolverBadges(p)}
+        estadoLabel={estado.label}
+        estadoColor={estado.color as never}
+        onClick={() => helpers.setProductoSeleccionado(p)}
+      />,
+    );
+  });
+
+  return items;
+}
+
+function iconParaGrupoTipo(key: string): React.ComponentType<{ className?: string }> | undefined {
+  switch (key) {
+    case 'cuenta_bancaria':
+      return Building2;
+    case 'wallet_digital':
+      return Smartphone;
+    case 'tarjeta_credito':
+    case 'tarjeta_debito':
+      return CreditCard;
+    case 'caja_efectivo':
+      return Banknote;
+    case 'caja_recaudadora':
+      return Truck;
+    default:
+      return undefined;
+  }
+}
+
+void titularGrupoDe; // suprimir warning · usado solo via helpers

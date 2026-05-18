@@ -18,17 +18,11 @@
  */
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { Wallet, Check, ArrowRight, ArrowLeft } from 'lucide-react';
-import { FormModalV2 } from '../../../../design-system/components/FormModalV2';
-import { Button } from '../../../../components/common';
 import { useToastStore } from '../../../../store/toastStore';
 import { useAuthStore } from '../../../../store/authStore';
 import { pagoAbonoDistribuidoService } from '../../../../services/pagoAbonoDistribuido.service';
 import {
   autoDistribuir,
-} from '../../../../types/pagoAbonoDistribuido.types';
-import type {
-  DistribucionItem,
 } from '../../../../types/pagoAbonoDistribuido.types';
 import type { TipoEntidadCC } from '../../../../types/cuentaCorriente.types';
 import { Paso1Entidad } from './Paso1Entidad';
@@ -42,7 +36,11 @@ import {
   type PagoAbonoState,
   type PasoWizard,
 } from './types';
-import { cn } from '../../../../design-system/utils';
+import {
+  WizardShellSidebar,
+  type WizardPasoItem,
+  type WizardContextoItem,
+} from '../wizards/shells/WizardShellSidebar';
 
 // ═════════════════════════════════════════════════════════════════════════
 // PROPS
@@ -63,56 +61,8 @@ export interface PagoAbonoWizardProps {
   onSuccess?: (movimientoTesoreriaId: string) => void;
 }
 
-// ═════════════════════════════════════════════════════════════════════════
-// STEPPER
-// ═════════════════════════════════════════════════════════════════════════
-
-const Stepper: React.FC<{ pasoActual: PasoWizard }> = ({ pasoActual }) => {
-  const pasos: PasoWizard[] = [1, 2, 3, 4];
-  return (
-    <div className="px-6 py-3 bg-slate-50 border-b border-slate-100">
-      <div className="flex items-center gap-2">
-        {pasos.map((p, i) => {
-          const completed = p < pasoActual;
-          const active = p === pasoActual;
-          return (
-            <React.Fragment key={p}>
-              <div className="flex items-center gap-1.5">
-                <div
-                  className={cn(
-                    'w-6 h-6 rounded-full text-[11px] font-bold flex items-center justify-center transition-colors',
-                    completed && 'bg-emerald-500 text-white',
-                    active && 'bg-teal-600 text-white',
-                    !completed && !active && 'bg-white border-2 border-slate-300 text-slate-500',
-                  )}
-                >
-                  {completed ? <Check className="w-3 h-3" /> : p}
-                </div>
-                <span
-                  className={cn(
-                    'text-[12px] whitespace-nowrap',
-                    active && 'font-semibold text-slate-900',
-                    !active && 'text-slate-500',
-                  )}
-                >
-                  {PASOS_LABEL[p]}
-                </span>
-              </div>
-              {i < pasos.length - 1 && (
-                <div
-                  className={cn(
-                    'flex-1 h-px mx-1',
-                    p < pasoActual ? 'bg-teal-300' : 'bg-slate-300',
-                  )}
-                />
-              )}
-            </React.Fragment>
-          );
-        })}
-      </div>
-    </div>
-  );
-};
+// Stepper horizontal interno legacy · removido chk5.D-S4.b.SF2 (2026-05-16).
+// Reemplazado por sidebar lateral del WizardShellSidebar canon MOCK 3 §3.
 
 // ═════════════════════════════════════════════════════════════════════════
 // COMPONENTE
@@ -281,48 +231,64 @@ export const PagoAbonoWizard: React.FC<PagoAbonoWizardProps> = ({
     }
   };
 
-  // ── Footer custom: Atrás + Continuar/Confirmar ──
-  const footerExtras = (
-    <Button
-      variant="ghost"
-      size="sm"
-      onClick={handleBack}
-      disabled={loading}
-      className="!gap-1.5"
-    >
-      <ArrowLeft className="w-3 h-3" />
-      {paso === 1 ? 'Cancelar' : 'Atrás'}
-    </Button>
+  // ── Build pasos para WizardShellSidebar ──
+  const pasosShell = useMemo<WizardPasoItem[]>(
+    () =>
+      ([1, 2, 3, 4] as PasoWizard[]).map((p) => ({
+        numero: p,
+        label: PASOS_LABEL[p],
+        completado: p < paso,
+        actual: p === paso,
+      })),
+    [paso],
   );
 
-  const submitLabel =
-    paso === 4 ? 'Confirmar y ejecutar' : 'Continuar';
-  const submitIcon = paso === 4 ? Check : ArrowRight;
+  // ── Build contexto inferior sidebar ──
+  const contextoShell = useMemo<WizardContextoItem[]>(() => {
+    const items: WizardContextoItem[] = [];
+    if (state.entidad) {
+      items.push({ label: 'Entidad', valor: state.entidad.entidadNombre });
+    }
+    if (state.montoAbono && state.montoAbono > 0) {
+      items.push({
+        label: 'Monto',
+        valor: `${state.monedaAbono === 'USD' ? '$' : 'S/'} ${state.montoAbono.toLocaleString('es-PE', { minimumFractionDigits: 2 })}`,
+      });
+    }
+    if (state.cuentaNombre) {
+      items.push({ label: 'Cuenta', valor: state.cuentaNombre });
+    }
+    if (state.entidad && state.deudas.length > 0) {
+      const total = state.deudas.reduce((s, d) => s + d.montoPendiente, 0);
+      items.push({
+        label: 'Deuda total',
+        valor: `${state.monedaAbono === 'USD' ? '$' : 'S/'} ${total.toLocaleString('es-PE', { minimumFractionDigits: 2 })}`,
+        valorColor: 'rose',
+      });
+    }
+    return items;
+  }, [state]);
 
   return (
-    <FormModalV2
+    <WizardShellSidebar
       isOpen={isOpen}
       onClose={onClose}
-      onSubmit={handleNext}
-      title={title}
-      subtitle={subtitle}
-      icon={Wallet}
-      iconTone="teal"
-      size={paso === 3 ? 'lg' : 'md'}
-      submitLabel={submitLabel}
-      submitIcon={submitIcon}
-      submitVariant={paso === 4 ? 'primary' : 'primary-soft'}
-      cancelLabel=""
+      onAtras={paso > 1 ? handleBack : undefined}
+      onSiguiente={handleNext}
+      onSubmit={handleSubmit}
+      tono="purple"
+      titulo={title}
+      pasos={pasosShell}
+      contexto={contextoShell.length > 0 ? contextoShell : undefined}
+      topBarLabel={`PASO ${paso} · ${PASOS_LABEL[paso]}`}
+      topBarSubtitulo={subtitle}
+      siguienteLabel={paso === 4 ? 'Confirmar y ejecutar' : 'Siguiente'}
+      siguienteEsSubmit={paso === 4}
+      siguienteDisabled={!validacion.valido}
       loading={loading}
-      disabled={!validacion.valido || loading}
-      showShortcuts={true}
-      footerExtras={footerExtras}
     >
-      <div className="-mx-6 -my-5">
-        <Stepper pasoActual={paso} />
-        <div className="px-6 py-5">{renderPaso()}</div>
-      </div>
-    </FormModalV2>
+      {renderPaso()}
+    </WizardShellSidebar>
   );
 };
 
