@@ -2036,3 +2036,143 @@ export function driverPrincipalLote(
     return `${fmtDriver('TC', dTC)}${otro}`;
   }
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// chk5.C-FIX · DEUDA-CI-LEE-ALLOCATION CERRADA · 2026-05-11
+// Cost Intelligence consume la política canon de AllocationEngineSettings
+// (declarado en Gastos · D-GR-7). Cambiar config en Gastos → cambia los lentes
+// A/B/C de CI en tiempo real (sin persistir data transaccional).
+// ─────────────────────────────────────────────────────────────────────────────
+
+import type { Venta } from '../../../types/venta.types';
+import {
+  getAllocationConfig,
+  type AllocationEngineConfig,
+} from '../../Gastos/components/AllocationEngineSettings';
+
+/** Snapshot del estado de la política aplicada hoy · cross-link bidireccional con Gastos */
+export interface AllocationLensSnapshot {
+  /** Config activa leída de AllocationEngineSettings · refleja Gastos */
+  config: AllocationEngineConfig;
+  /** Overhead total del período base (bloque=periodo · S/) */
+  overheadPeriodoPEN: number;
+  /** Ingreso total del período base (S/) */
+  ingresoPeriodoPEN: number;
+  /** Ratio % overhead/ingreso · 0 si ingreso=0 (cuidando NaN) */
+  ratioActivoPct: number;
+  /** Período resuelto (anio, mes) que se usó como base · útil para labels */
+  periodoBase: { anio: number; mes: number; etiqueta: string };
+  /** Si false, no hay datos suficientes en el período base (overhead+ingreso ambos 0) */
+  hasData: boolean;
+}
+
+const NOMBRES_MES = [
+  'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+  'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre',
+];
+
+/**
+ * Aplica la política canon de allocation engine usando los datos transaccionales
+ * del sistema. Resuelve el período base según la config (realtime · mes anterior ·
+ * promedio móvil 3m) y devuelve el ratio overhead/ingreso aplicable.
+ *
+ * NO persiste nada · 100% runtime (D-GR-7).
+ *
+ * @param gastos lista completa de gastos del sistema (filtrar pre-call si querés línea)
+ * @param ventas lista completa de ventas
+ * @param arbolCategorias árbol de categorías (resuelve bloque vía categoriaCostoId)
+ * @param anchorDate fecha de referencia · default hoy (útil para tests)
+ */
+export function applyAllocationLens(
+  gastos: Gasto[],
+  ventas: Venta[],
+  arbolCategorias: CategoriaCosto[],
+  anchorDate: Date = new Date(),
+): AllocationLensSnapshot {
+  const config = getAllocationConfig();
+
+  // ── Resolver período base según config.periodo ──────────────────────────
+  let mesObjetivo: number;
+  let anioObjetivo: number;
+  let etiqueta: string;
+
+  if (config.periodo === 'realtime') {
+    mesObjetivo = anchorDate.getMonth() + 1;
+    anioObjetivo = anchorDate.getFullYear();
+    etiqueta = `${NOMBRES_MES[mesObjetivo - 1]} ${anioObjetivo} (mes actual · tiempo real)`;
+  } else if (config.periodo === 'mes_anterior') {
+    const prev = new Date(anchorDate.getFullYear(), anchorDate.getMonth() - 1, 1);
+    mesObjetivo = prev.getMonth() + 1;
+    anioObjetivo = prev.getFullYear();
+    etiqueta = `${NOMBRES_MES[mesObjetivo - 1]} ${anioObjetivo} (mes anterior cerrado)`;
+  } else {
+    // movil_3m · promedio de los últimos 3 meses cerrados (incl. actual)
+    mesObjetivo = anchorDate.getMonth() + 1;
+    anioObjetivo = anchorDate.getFullYear();
+    etiqueta = `Promedio móvil 3m hasta ${NOMBRES_MES[mesObjetivo - 1]} ${anioObjetivo}`;
+  }
+
+  // ── Calcular overhead + ingreso del período resuelto ────────────────────
+  // Para periodos 'realtime' y 'mes_anterior' es 1 solo mes.
+  // Para 'movil_3m' promediamos 3 meses (current + 2 previos).
+  const mesesACalcular: Array<{ anio: number; mes: number }> = [];
+  if (config.periodo === 'movil_3m') {
+    for (let i = 0; i < 3; i++) {
+      const d = new Date(anchorDate.getFullYear(), anchorDate.getMonth() - i, 1);
+      mesesACalcular.push({ anio: d.getFullYear(), mes: d.getMonth() + 1 });
+    }
+  } else {
+    mesesACalcular.push({ anio: anioObjetivo, mes: mesObjetivo });
+  }
+
+  let overheadAcum = 0;
+  let ingresoAcum = 0;
+
+  for (const m of mesesACalcular) {
+    // Overhead = gastos del bloque 'periodo' del mes
+    for (const g of gastos) {
+      if (g.anio !== m.anio || g.mes !== m.mes) continue;
+      const bloque = getBloqueDelGasto(g, arbolCategorias);
+      if (bloque === 'periodo') overheadAcum += g.montoPEN || 0;
+    }
+    // Ingreso = totalPEN de las ventas del mes
+    for (const v of ventas) {
+      const f = v.fecha?.toDate?.();
+      if (!f) continue;
+      if (f.getFullYear() === m.anio && f.getMonth() + 1 === m.mes) {
+        ingresoAcum += v.totalPEN || 0;
+      }
+    }
+  }
+
+  // Para móvil 3m, promediar
+  const divisor = mesesACalcular.length;
+  const overheadPeriodoPEN = overheadAcum / divisor;
+  const ingresoPeriodoPEN = ingresoAcum / divisor;
+  const ratioActivoPct = ingresoPeriodoPEN > 0
+    ? (overheadPeriodoPEN / ingresoPeriodoPEN) * 100
+    : 0;
+
+  return {
+    config,
+    overheadPeriodoPEN,
+    ingresoPeriodoPEN,
+    ratioActivoPct,
+    periodoBase: { anio: anioObjetivo, mes: mesObjetivo, etiqueta },
+    hasData: overheadPeriodoPEN > 0 || ingresoPeriodoPEN > 0,
+  };
+}
+
+/** Labels canon para la UI · mismo string que usa AllocationEngineSettings */
+export const ALLOCATION_METHOD_LABELS: Record<AllocationEngineConfig['metodo'], string> = {
+  unidades: 'Por unidades',
+  ingreso: 'Por ingreso',
+  margen: 'Por margen contribución',
+  manual: 'Manual por SKU',
+};
+
+export const ALLOCATION_PERIOD_LABELS: Record<AllocationEngineConfig['periodo'], string> = {
+  realtime: 'Tiempo real (mes actual)',
+  mes_anterior: 'Mes anterior cerrado',
+  movil_3m: 'Promedio móvil 3 meses',
+};

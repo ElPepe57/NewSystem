@@ -36,6 +36,8 @@ import { useUnidadStore } from '../../store/unidadStore';
 import { usePoolUSDStore } from '../../store/poolUSDStore';
 import { useTipoCambioStore } from '../../store/tipoCambioStore';
 import { useGastoStore } from '../../store/gastoStore';
+// chk5.C-FIX · ventas para applyAllocationLens canon (D-GR-7 · CI consume Gastos)
+import { useVentaStore } from '../../store/ventaStore';
 import { useCategoriaCostoStore } from '../../store/categoriaCostoStore';
 
 import {
@@ -81,6 +83,8 @@ export const IntelProductosPage: React.FC = () => {
   // chk5.B9 · Workspace Costos requiere gastos + árbol categorías + snapshots Pool
   const { gastos, fetchGastos, loading: loadingGastos } = useGastoStore();
   const { categorias: arbolCategorias, fetchCategorias: fetchCategoriasCosto } = useCategoriaCostoStore();
+  // chk5.C-FIX · ventas para applyAllocationLens (DEUDA-CI-LEE-ALLOCATION cerrada)
+  const { ventas, fetchVentas } = useVentaStore();
 
   const [tcSpotFallback, setTcSpotFallback] = React.useState<number>(3.75);
 
@@ -93,6 +97,7 @@ export const IntelProductosPage: React.FC = () => {
     if (poolSnapshots.length === 0) fetchPoolSnapshots();
     if (gastos.length === 0) fetchGastos();
     if (arbolCategorias.length === 0) fetchCategoriasCosto();
+    if (ventas.length === 0) fetchVentas();
     getTCDelDia().then((tcData) => {
       if (tcData?.venta) setTcSpotFallback(tcData.venta);
     });
@@ -171,6 +176,7 @@ export const IntelProductosPage: React.FC = () => {
             arbolCategorias={arbolCategorias}
             poolSnapshots={poolSnapshots}
             saldoUSDPool={poolResumen?.saldoUSD}
+            ventas={ventas}
           />
         );
       case 'pipeline':

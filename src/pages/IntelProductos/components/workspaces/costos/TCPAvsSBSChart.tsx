@@ -94,8 +94,8 @@ const EmptyChart: React.FC = () => (
       Para activar este chart, generar al menos 1 snapshot mensual de Pool USD
       con TCPA + TC cierre.
     </p>
-    <Link to="/tesoreria" className="text-[10px] font-bold text-teal-700 hover:text-teal-800 underline">
-      Ir a Tesorería → Pool USD
+    <Link to="/finanzas/saldos" className="text-[10px] font-bold text-teal-700 hover:text-teal-800 underline">
+      Ir a Finanzas → Pool USD
     </Link>
   </div>
 );

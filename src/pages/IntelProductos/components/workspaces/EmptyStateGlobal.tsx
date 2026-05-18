@@ -130,7 +130,7 @@ export const EmptyStateGlobal: React.FC<EmptyStateGlobalProps> = ({ prerequisito
             Importar histórico CSV
           </button>
           <Link
-            to="/tesoreria"
+            to="/finanzas"
             className="flex items-center gap-1.5 px-4 py-2 text-xs font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50"
           >
             Ver Pool USD
