@@ -1,17 +1,21 @@
 /**
- * DrawerUrgentes · TAREA-GASTOS-PAGE-V2 F4.b
+ * DrawerUrgentes · panel lateral de urgentes · Gastos rework v3
  *
- * Panel lateral derecho sticky con gastos urgentes (vencidos + vencen en 7d).
- * Inspirado en Linear · stack reorderable manual (sin drag&drop por simplicidad inicial).
+ * chk5.C6 (S3.6 M3 · Gastos Rework) · refactor del componente F4.b canon:
+ *   - Reemplaza TODOS los emojis por lucide-icons (canon F8 · zero emojis en chrome)
+ *   - Header con color sólido rose (sin gradient pesado · acorde canon F8/F11)
+ *   - Chevron expand/collapse usa <ChevronDown> rotable
  *
+ * Panel lateral sticky con gastos urgentes (vencidos + vencen en 7d).
  * Comportamiento:
- * - Si no hay urgentes · solo muestra un boton compacto "✓ Sin pendientes"
- * - Si hay urgentes · panel expandido con cards mini · CTA para pagar
- * - Colapsable manual via boton chevron
- * - Posicion: sticky en desktop · drawer flotante bottom en mobile (futuro)
+ * - Si no hay urgentes → mensaje compacto verde (lo renderiza el padre · este
+ *   componente solo se monta cuando hay urgentes en F5).
+ * - Si hay urgentes → panel expandido con cards mini · CTA Pagar HOY/Pagar →
+ * - Colapsable manual via ChevronDown
  */
 
 import React, { useState } from 'react';
+import { AlertTriangle, Clock, ChevronDown, CheckCircle2 } from 'lucide-react';
 import type { Gasto } from '../../../types/gasto.types';
 
 interface DrawerUrgentesProps {
@@ -52,11 +56,13 @@ export const DrawerUrgentes: React.FC<DrawerUrgentesProps> = ({
   const totalMontoPronto = vencenPronto.reduce((acc, g) => acc + (g.montoPEN - (g.montoPagado || 0)), 0);
   const totalMonto = totalMontoVencido + totalMontoPronto;
 
-  // Estado vacio · solo muestra mensaje compacto
+  // Estado vacio · canon v9.0 M1 · gradient sutil + icon wrapper
   if (totalUrgentes === 0) {
     return (
-      <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-4 text-center">
-        <div className="text-3xl mb-2">✓</div>
+      <div className="bg-gradient-to-br from-emerald-50 to-white border border-emerald-200 rounded-2xl p-4 text-center">
+        <div className="w-12 h-12 mx-auto rounded-xl bg-emerald-100 flex items-center justify-center mb-2">
+          <CheckCircle2 className="w-6 h-6 text-emerald-600" />
+        </div>
         <div className="text-sm font-bold text-emerald-900">Sin pendientes urgentes</div>
         <p className="text-xs text-emerald-700 mt-1">No hay gastos vencidos ni que venzan en 7 días.</p>
       </div>
@@ -65,14 +71,14 @@ export const DrawerUrgentes: React.FC<DrawerUrgentesProps> = ({
 
   return (
     <div className="bg-white rounded-2xl border-2 border-rose-200 shadow-md overflow-hidden">
-      {/* Header del drawer */}
+      {/* Header del drawer · canon F8/F11 · color sólido (no gradient pesado) */}
       <button
         type="button"
         onClick={() => setExpandido((e) => !e)}
-        className="w-full bg-gradient-to-r from-rose-500 to-pink-500 text-white px-4 py-3 flex items-center justify-between hover:from-rose-600 hover:to-pink-600 transition-colors"
+        className="w-full bg-rose-600 hover:bg-rose-700 text-white px-4 py-3 flex items-center justify-between transition-colors"
       >
         <div className="flex items-center gap-2">
-          <span className="text-lg">⚠</span>
+          <AlertTriangle className="w-5 h-5" />
           <div className="text-left">
             <div className="text-xs uppercase tracking-wider text-white/80 font-bold">Urgentes</div>
             <div className="text-sm font-bold">{totalUrgentes} pendientes</div>
@@ -83,7 +89,7 @@ export const DrawerUrgentes: React.FC<DrawerUrgentesProps> = ({
             <div className="text-[10px] uppercase tracking-wider text-white/80 font-bold">Total</div>
             <div className="text-sm font-bold tabular-nums">{formatPEN(totalMonto)}</div>
           </div>
-          <span className={`text-base transition-transform ${expandido ? 'rotate-180' : ''}`}>⌃</span>
+          <ChevronDown className={`w-4 h-4 transition-transform ${expandido ? '' : '-rotate-90'}`} />
         </div>
       </button>
 
@@ -105,8 +111,11 @@ export const DrawerUrgentes: React.FC<DrawerUrgentesProps> = ({
                     key={g.id}
                     className="bg-rose-50 border-2 border-rose-300 rounded-lg p-2.5 hover:shadow-sm transition-shadow"
                   >
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="text-[9px] uppercase tracking-wider text-rose-700 font-bold">⚠ −{dias}d</span>
+                    <div className="flex items-center gap-1 mb-1">
+                      <AlertTriangle className="w-3 h-3 text-rose-700" />
+                      <span className="text-[9px] uppercase tracking-wider text-rose-700 font-bold tabular-nums">
+                        −{dias}d
+                      </span>
                     </div>
                     <button
                       type="button"
@@ -157,8 +166,9 @@ export const DrawerUrgentes: React.FC<DrawerUrgentesProps> = ({
                     className="bg-amber-50 border border-amber-200 rounded-lg p-2.5 hover:shadow-sm transition-shadow"
                   >
                     <div className="flex items-center justify-between mb-1">
-                      <span className="text-[9px] uppercase tracking-wider text-amber-700 font-bold">
-                        ⏰ {dias === 0 ? 'HOY' : `EN ${dias}d`}
+                      <span className="text-[9px] uppercase tracking-wider text-amber-700 font-bold flex items-center gap-0.5 tabular-nums">
+                        <Clock className="w-3 h-3" />
+                        {dias === 0 ? 'HOY' : `EN ${dias}d`}
                       </span>
                       <span className="text-[9px] text-amber-600 tabular-nums">{formatFecha(g.fecha)}</span>
                     </div>

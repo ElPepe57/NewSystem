@@ -1,22 +1,24 @@
 /**
- * GastoCardCanonico · TAREA-GASTOS-PAGE-V2 F3.a
+ * GastoCardCanonico · card de gasto canon · Gastos rework v3
  *
- * Card anchored para listado de gastos · responsive (mobile + desktop unificados).
- * Reemplaza el split DataTable + cards mobile por un patron unico canonico.
+ * chk5.C4 (S3.6 M3 · Gastos Rework) · refactor del componente F3.a canon:
+ *   - Reemplaza TODOS los emojis por lucide-icons (canon F8 · cero emojis en chrome)
+ *   - Separador breadcrumb ChevronRight (canon F9)
+ *   - Agrega badge de ORIGEN (manual · OC · Envío · Venta) según D-GR-8
+ *   - Cuando origen ≠ manual, expone CTA "Ver doc" (link a la fuente)
  *
- * Style canonico aplicado:
- * - R2 Cards anchored como elemento de informacion primario
- * - R4 Avatar/icono con color por bloque (producto blue · venta purple · periodo amber)
- * - R6 Tabular-nums obsesivo en montos
- * - Estados con paleta semantica (estado-pagado/pendiente/vencido/parcial)
- * - Acciones rapidas inline (Pagar / Detalle)
- *
- * Mockup referencia: docs/mockups/gastos-page-completa-s58f.html · Vista 2.
+ * Pixel-perfect contra mockup `gastos-rework-v3-final.html · Sección 4 · cards`.
  */
 
 import React from 'react';
+import {
+  Check, Clock, Hourglass, XCircle, AlertTriangle,
+  Package, ShoppingBag, Calendar, CircleDollarSign,
+  ChevronRight, Edit3, Truck, ExternalLink,
+} from 'lucide-react';
 import type { Gasto, EstadoGasto } from '../../../types/gasto.types';
-import type { BloqueCosto, CategoriaCosto } from '../../../types/categoriaCosto.types';
+import type { BloqueCosto } from '../../../types/categoriaCosto.types';
+import { getOrigenGasto, type OrigenGasto } from '../utils/origenGasto';
 
 interface GastoCardCanonicoProps {
   gasto: Gasto;
@@ -25,6 +27,8 @@ interface GastoCardCanonicoProps {
   // Acciones
   onEditar: (g: Gasto) => void;
   onPagar?: (g: Gasto) => void;
+  /** chk5.C4 · navegación a doc origen (OC/Envío/Venta) · null = origen manual */
+  onVerDocOrigen?: (g: Gasto, origen: OrigenGasto) => void;
   // Multi-select (opcional para F4 bulk)
   seleccionado?: boolean;
   onToggleSeleccion?: (g: Gasto) => void;
@@ -51,31 +55,47 @@ const diasHastaVencimiento = (timestamp: any): number => {
   return Math.round((fecha.getTime() - hoy.getTime()) / (1000 * 60 * 60 * 24));
 };
 
+// chk5.C4 · canon F8 · lucide icon por estado (sin emojis)
 const getEstadoConfig = (estado: EstadoGasto) => {
   switch (estado) {
     case 'pagado':
-      return { emoji: '✓', label: 'PAGADO', classes: 'bg-emerald-100 text-emerald-700 border border-emerald-300' };
+      return { Icon: Check, label: 'PAGADO', classes: 'bg-emerald-100 text-emerald-700 border border-emerald-300' };
     case 'pendiente':
-      return { emoji: '⏰', label: 'PENDIENTE', classes: 'bg-amber-100 text-amber-700 border border-amber-300' };
+      return { Icon: Clock, label: 'PENDIENTE', classes: 'bg-amber-100 text-amber-700 border border-amber-300' };
     case 'parcial':
-      return { emoji: '◐', label: 'PARCIAL', classes: 'bg-sky-100 text-sky-700 border border-sky-300' };
+      return { Icon: Hourglass, label: 'PARCIAL', classes: 'bg-sky-100 text-sky-700 border border-sky-300' };
     case 'cancelado':
-      return { emoji: '✕', label: 'CANCELADO', classes: 'bg-rose-100 text-rose-700 border border-rose-300' };
+      return { Icon: XCircle, label: 'CANCELADO', classes: 'bg-rose-100 text-rose-700 border border-rose-300' };
     default:
-      return { emoji: '?', label: String(estado).toUpperCase(), classes: 'bg-slate-100 text-slate-700 border border-slate-300' };
+      return { Icon: AlertTriangle, label: String(estado).toUpperCase(), classes: 'bg-slate-100 text-slate-700 border border-slate-300' };
   }
 };
 
+// chk5.C4 · canon F8 · lucide icon por bloque (sin emojis)
 const getBloqueConfig = (bloque?: BloqueCosto) => {
   switch (bloque) {
     case 'producto':
-      return { emoji: '📦', label: 'Producto', avatarBg: 'bg-blue-100 text-blue-700', pillClasses: 'bg-blue-100 text-blue-700' };
+      return { Icon: Package, label: 'Producto', avatarBg: 'bg-blue-100 text-blue-700', pillClasses: 'bg-blue-100 text-blue-700' };
     case 'venta':
-      return { emoji: '🛒', label: 'Venta', avatarBg: 'bg-purple-100 text-purple-700', pillClasses: 'bg-purple-100 text-purple-700' };
+      return { Icon: ShoppingBag, label: 'Venta', avatarBg: 'bg-purple-100 text-purple-700', pillClasses: 'bg-purple-100 text-purple-700' };
     case 'periodo':
-      return { emoji: '📅', label: 'Período', avatarBg: 'bg-amber-100 text-amber-700', pillClasses: 'bg-amber-100 text-amber-700' };
+      return { Icon: Calendar, label: 'Período', avatarBg: 'bg-amber-100 text-amber-700', pillClasses: 'bg-amber-100 text-amber-700' };
     default:
-      return { emoji: '💰', label: 'Otro', avatarBg: 'bg-slate-100 text-slate-700', pillClasses: 'bg-slate-100 text-slate-700' };
+      return { Icon: CircleDollarSign, label: 'Otro', avatarBg: 'bg-slate-100 text-slate-700', pillClasses: 'bg-slate-100 text-slate-700' };
+  }
+};
+
+// chk5.C4 · D-GR-8 · config visual por origen (manual / OC / envío / venta)
+const getOrigenConfig = (origen: OrigenGasto) => {
+  switch (origen) {
+    case 'manual':
+      return { Icon: Edit3,       label: 'Manual', shortLabel: 'Manual', classes: 'bg-slate-100 text-slate-600 border border-slate-200', clickable: false };
+    case 'oc':
+      return { Icon: Package,     label: 'Auto · OC',     shortLabel: 'OC',     classes: 'bg-blue-50 text-blue-700 border border-blue-200',     clickable: true };
+    case 'envio':
+      return { Icon: Truck,       label: 'Auto · Envío',  shortLabel: 'Envío',  classes: 'bg-purple-50 text-purple-700 border border-purple-200', clickable: true };
+    case 'venta':
+      return { Icon: ShoppingBag, label: 'Auto · Venta',  shortLabel: 'Venta',  classes: 'bg-emerald-50 text-emerald-700 border border-emerald-200', clickable: true };
   }
 };
 
@@ -84,12 +104,15 @@ export const GastoCardCanonico: React.FC<GastoCardCanonicoProps> = ({
   breadcrumb,
   onEditar,
   onPagar,
+  onVerDocOrigen,
   seleccionado = false,
   onToggleSeleccion,
   mostrarCheckbox = false,
 }) => {
   const estadoConf = getEstadoConfig(gasto.estado);
   const bloqueConf = getBloqueConfig(breadcrumb?.bloque);
+  const origen = getOrigenGasto(gasto);
+  const origenConf = getOrigenConfig(origen);
   const dias = gasto.estado !== 'pagado' && gasto.estado !== 'cancelado'
     ? diasHastaVencimiento(gasto.fecha)
     : null;
@@ -102,14 +125,18 @@ export const GastoCardCanonico: React.FC<GastoCardCanonicoProps> = ({
     ? 'bg-rose-50/30 hover:bg-rose-50'
     : 'bg-white hover:bg-slate-50';
 
-  // Avatar del proveedor (iniciales o emoji bloque)
+  // Avatar del proveedor (iniciales · sin emoji fallback)
   const proveedorIniciales = (gasto.proveedor || gasto.proveedorNombre || '')
     .split(' ')
     .filter(w => w.length > 0)
     .slice(0, 2)
     .map(w => w[0])
     .join('')
-    .toUpperCase() || bloqueConf.emoji;
+    .toUpperCase();
+
+  const BloqueIcon = bloqueConf.Icon;
+  const EstadoIcon = estadoConf.Icon;
+  const OrigenIcon = origenConf.Icon;
 
   return (
     <div
@@ -134,15 +161,15 @@ export const GastoCardCanonico: React.FC<GastoCardCanonicoProps> = ({
           />
         )}
 
-        {/* Avatar del proveedor con color por bloque */}
+        {/* Avatar del proveedor con color por bloque (fallback al icon del bloque) */}
         <div className={`w-10 h-10 rounded-lg ${bloqueConf.avatarBg} flex items-center justify-center font-bold text-xs flex-shrink-0`}>
-          {proveedorIniciales}
+          {proveedorIniciales || <BloqueIcon className="w-4 h-4" />}
         </div>
 
         {/* Grid responsive 12 cols · descripcion + breadcrumb + fecha + estado + monto */}
         <div className="flex-1 min-w-0 grid grid-cols-1 sm:grid-cols-12 gap-1.5 sm:gap-3 items-center">
 
-          {/* Descripcion + proveedor (3 cols desktop · stacked mobile) */}
+          {/* Descripcion + proveedor + chip origen (3 cols desktop · stacked mobile) */}
           <div className="sm:col-span-3 min-w-0">
             <div className="text-sm font-bold text-slate-900 truncate" title={gasto.descripcion}>
               {gasto.descripcion || gasto.tipo || gasto.numeroGasto}
@@ -152,24 +179,50 @@ export const GastoCardCanonico: React.FC<GastoCardCanonicoProps> = ({
                 {gasto.proveedor || gasto.proveedorNombre}
               </div>
             )}
+            {/* chk5.C4 · chip ORIGEN inline · auto-generados son clickeables a la fuente */}
+            <div className="mt-1 flex items-center gap-1">
+              {origenConf.clickable && onVerDocOrigen ? (
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onVerDocOrigen(gasto, origen);
+                  }}
+                  className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold transition-colors hover:opacity-80 ${origenConf.classes}`}
+                  title={`Ver ${origenConf.label}`}
+                >
+                  <OrigenIcon className="w-3 h-3" />
+                  <span>{origenConf.shortLabel}</span>
+                  <ExternalLink className="w-2.5 h-2.5 opacity-60" />
+                </button>
+              ) : (
+                <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold ${origenConf.classes}`}>
+                  <OrigenIcon className="w-3 h-3" />
+                  <span>{origenConf.shortLabel}</span>
+                </span>
+              )}
+            </div>
             {esVencido && (
-              <div className="text-[10px] text-rose-600 font-bold sm:hidden">⚠ vencido hace {Math.abs(dias!)}d</div>
+              <div className="text-[10px] text-rose-600 font-bold sm:hidden flex items-center gap-0.5 mt-0.5">
+                <AlertTriangle className="w-3 h-3" />
+                vencido hace {Math.abs(dias!)}d
+              </div>
             )}
           </div>
 
-          {/* Breadcrumb 3 niveles (3 cols desktop · oculto mobile) */}
+          {/* Breadcrumb 3 niveles (3 cols desktop · oculto mobile · canon F9 ChevronRight) */}
           <div className="hidden sm:flex sm:col-span-3 items-center gap-1.5 min-w-0">
             {breadcrumb ? (
               <>
                 <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold ${bloqueConf.pillClasses}`}>
-                  <span>{bloqueConf.emoji}</span>
+                  <BloqueIcon className="w-3 h-3" />
                   <span className="hidden lg:inline">{bloqueConf.label}</span>
                 </span>
-                <span className="text-slate-300 text-xs">›</span>
+                <ChevronRight className="w-3 h-3 text-slate-300 flex-shrink-0" />
                 <span className="text-[10px] text-slate-700 font-medium truncate">{breadcrumb.padre}</span>
                 {breadcrumb.sub && (
                   <>
-                    <span className="text-slate-300 text-xs">›</span>
+                    <ChevronRight className="w-3 h-3 text-slate-300 flex-shrink-0" />
                     <span className="text-[10px] text-slate-500 truncate">{breadcrumb.sub}</span>
                   </>
                 )}
@@ -188,7 +241,10 @@ export const GastoCardCanonico: React.FC<GastoCardCanonicoProps> = ({
               </>
             ) : esVencido ? (
               <>
-                <div className="text-rose-600 font-semibold">⚠ Venció</div>
+                <div className="text-rose-600 font-semibold flex items-center gap-0.5">
+                  <AlertTriangle className="w-3 h-3" />
+                  Venció
+                </div>
                 <div className="font-bold tabular-nums text-rose-700">hace {Math.abs(dias!)}d</div>
               </>
             ) : esVencePronto ? (
@@ -204,10 +260,11 @@ export const GastoCardCanonico: React.FC<GastoCardCanonicoProps> = ({
             )}
           </div>
 
-          {/* Estado pill (2 cols desktop) */}
+          {/* Estado pill (2 cols desktop · canon F8 lucide icon) */}
           <div className="sm:col-span-2 flex items-center gap-1.5">
-            <span className={`text-[10px] font-bold px-2 py-1 rounded-full ${estadoConf.classes}`}>
-              {estadoConf.emoji} {estadoConf.label}
+            <span className={`inline-flex items-center gap-1 text-[10px] font-bold px-2 py-1 rounded-full ${estadoConf.classes}`}>
+              <EstadoIcon className="w-3 h-3" />
+              <span>{estadoConf.label}</span>
             </span>
             {gasto.estado === 'parcial' && gasto.montoPEN > 0 && (
               <span className="text-[10px] text-sky-700 tabular-nums font-bold">

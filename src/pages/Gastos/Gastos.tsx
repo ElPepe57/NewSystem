@@ -1,11 +1,18 @@
 import React, { useEffect, useState, useMemo, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { formatFecha, toDateOrNow } from '../../utils/dateFormatters';
 import { formatCurrencyPEN } from '../../utils/format';
-import { DollarSign, TrendingUp, TrendingDown, AlertCircle, Plus, Filter, Download, PieChart, CreditCard, Wallet, ChevronLeft, ChevronRight, Calendar, List, Pencil, Trash2, Receipt } from 'lucide-react';
-import { Card, Badge, Button, Select, SearchInput, useConfirmDialog, ConfirmDialog, ListSummary, EmptyStateAction, GastosSkeleton, GastoLineaBadge } from '../../components/common';
+import {
+  AlertCircle, PieChart, Calendar, Trash2, CheckSquare, Square,
+  X as XIcon, Download as DownloadIcon, Trash as TrashIcon,
+  // chk5.C8 · canon F8 · iconos para tabs de vistas alternativas (sin emojis)
+  List, Package, Factory,
+  // chk5.C10 · F10 · empty state canon · iconos lucide
+  Receipt, Building, User as UserIcon, Cloud, ArrowRight, CheckCircle2, Plus,
+} from 'lucide-react';
+// chk5.C-FIX · cleanup · Pencil/CreditCard/Badge/GastoLineaBadge removidos (eran del DataTable legacy eliminado)
+import { Card, useConfirmDialog, ConfirmDialog, ListSummary, EmptyStateAction, GastosSkeleton } from '../../components/common';
 import { LineaDropdown } from '../../components/common/LineaDropdown';
-import { PageShell, PageHeader, Toolbar, FilterDrawer, FilterSection, DataTable } from '../../design-system';
-import type { DataTableColumn } from '../../design-system';
 import { useToastStore } from '../../store/toastStore';
 import { useGastoStore } from '../../store/gastoStore';
 import { useAuthStore } from '../../store/authStore';
@@ -20,22 +27,39 @@ import { useCategoriaCostoStore } from '../../store/categoriaCostoStore';
 import type { BloqueCosto } from '../../types/categoriaCosto.types';
 import { getBloqueDelGasto, resolverGastoCanonico, esGastoDelBloque } from '../../utils/gasto.bloque';
 import { FiltrosGastosBar, type OrdenGasto } from './components/FiltrosGastosBar';
+import { getOrigenGasto, type OrigenGasto } from './utils/origenGasto';
 import { GastoCardCanonico } from './components/GastoCardCanonico';
 import { DrawerUrgentes } from './components/DrawerUrgentes';
-import { ReportesGastosBI } from './components/ReportesGastosBI';
+import { TopProveedoresLightWidget } from './components/TopProveedoresLightWidget';
+import { AllocationEngineSettings } from './components/AllocationEngineSettings';
+// chk5.C8 · D-GR-8 · ReportesGastosBI eliminado del módulo · análisis profundo
+// vive en Cost Intelligence / BI (módulos especializados). Gastos NO duplica.
 import { VistaPorBloque } from './components/VistaPorBloque';
 import { VistaCalendario } from './components/VistaCalendario';
 import { VistaPorProveedor } from './components/VistaPorProveedor';
+// chk5.C1 · shell canon banking-grade
+import { HeaderGastos } from './components/HeaderGastos';
+// chk5.C-FIX · canon F-Borradores extendido a Gastos
+import { BorradorBanner } from '../../design-system/components/BorradorBanner';
+import { KpiStripGastos, type KpiGastosData, type MiniStatsData } from './components/KpiStripGastos';
+import { NavegacionTemporal } from './components/NavegacionTemporal';
+// chk5.C2 · link-card cross-módulo
+import { LinkCardEficiencia } from './components/LinkCardEficiencia';
+import { useUnidadStore } from '../../store/unidadStore';
+import { useVentaStore } from '../../store/ventaStore';
 
 const MONTH_NAMES = [
   'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
   'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
 ];
 
-type ViewMode = 'month' | 'all' | 'pending';
+// chk5.C-UX-PASS · U5 · ViewMode 'pending' ELIMINADO (era duplicado con
+// chip Estado=Pendiente del FiltrosBar). Solo quedan 'month' y 'all'.
+type ViewMode = 'month' | 'all';
 
 export const Gastos: React.FC = () => {
   const { user } = useAuthStore();
+  const navigate = useNavigate();
   const {
     gastos, stats, loading,
     fetchGastos, fetchGastosMes, buscarGastos,
@@ -52,10 +76,12 @@ export const Gastos: React.FC = () => {
     // chk5.A15 · filtros canónicos (sin ClaseGasto/CategoriaGasto legacy).
     // El filtro principal es `bloque` del modelo 3 niveles; `tipo` discrimina
     // sub-tipos canónicos (delivery, comision_ml, etc).
+    // chk5.C3 · `origen` (manual/oc/envio/venta) según D-GR-8 (módulo consolidador).
     tipo: '' as TipoGasto | '',
     estado: '' as EstadoGasto | '',
     esProrrateable: '' as 'true' | 'false' | '',
     bloque: '' as BloqueCosto | '',
+    origen: '' as OrigenGasto | '',
   });
   // chk5.A3 · ELIMINADO tabActiva legacy (negocio/importacion/perdidas)
   // El filtrado ahora vive en FiltrosGastosBar via filtros.bloque (canon 3 niveles)
@@ -70,8 +96,12 @@ export const Gastos: React.FC = () => {
   // F4.a · Bulk actions
   const [bulkMode, setBulkMode] = useState(false);
   const [seleccionados, setSeleccionados] = useState<Set<string>>(new Set());
-  // PROVEEDOR-GASTOS F4 + GASTOS-PAGE-V2 F3.b · toggle de 5 vistas
-  const [vistaActiva, setVistaActiva] = useState<'listado' | 'bloque' | 'calendario' | 'proveedor' | 'reportes'>('listado');
+  // chk5.C8 · D-GR-8 · toggle de 4 vistas (Reportes BI eliminado · vive en CI/BI)
+  const [vistaActiva, setVistaActiva] = useState<'listado' | 'bloque' | 'calendario' | 'proveedor'>('listado');
+  // chk5.C9 · F9 · settings panel del Allocation Engine
+  const [showAllocationSettings, setShowAllocationSettings] = useState(false);
+  // chk5.C-FIX · canon F-Borradores · refresh del banner al cerrar el modal
+  const [borradorRefreshKey, setBorradorRefreshKey] = useState(0);
 
   // Filtrar gastos por línea de negocio (sin lineaNegocioId = compartidos, siempre visibles)
   const gastosPorLinea = useLineaFilter(gastos, g => g.lineaNegocioId, { allowUndefined: true });
@@ -88,6 +118,15 @@ export const Gastos: React.FC = () => {
       fetchArbolCategorias();
     }
   }, [arbolCategorias, fetchArbolCategorias]);
+
+  // chk5.C2 · Unidades + Ventas para calcular ratios eficiencia (cross-link CI)
+  const { unidades, fetchUnidades } = useUnidadStore();
+  const { ventas, fetchVentas } = useVentaStore();
+  useEffect(() => {
+    if (unidades.length === 0) fetchUnidades();
+    if (ventas.length === 0) fetchVentas();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Helper · resuelve un categoriaCostoId al breadcrumb (bloque > padre > sub)
   const resolveBreadcrumb = (categoriaCostoId?: string): { bloque: BloqueCosto; padre: string; sub?: string } | null => {
@@ -110,38 +149,9 @@ export const Gastos: React.FC = () => {
     return null;
   };
 
-  // Componente helper · breadcrumb pills desde categoriaCostoId (canon)
-  // chk5.A15 · si no hay categoriaCostoId, muestra "Sin clasificar" en gris
-  const renderCategoriaBreadcrumb = (gasto: Gasto, size: 'sm' | 'xs' = 'xs') => {
-    const bc = resolveBreadcrumb(gasto.categoriaCostoId);
-    const sizeClasses = size === 'sm' ? 'text-xs' : 'text-[10px]';
-    if (!bc) {
-      return (
-        <span className={`${sizeClasses} px-1.5 py-0.5 rounded font-medium bg-slate-100 text-slate-500`}>
-          Sin clasificar
-        </span>
-      );
-    }
-    const bloqueColors = bc.bloque === 'producto'
-      ? 'bg-blue-100 text-blue-800'
-      : bc.bloque === 'venta'
-        ? 'bg-purple-100 text-purple-800'
-        : 'bg-amber-100 text-amber-800';
-    const bloqueLabel = bc.bloque === 'producto' ? '📦' : bc.bloque === 'venta' ? '🛒' : '📅';
-    return (
-      <span className={`${sizeClasses} inline-flex items-center gap-1`}>
-        <span className={`px-1.5 py-0.5 rounded font-medium ${bloqueColors}`}>{bloqueLabel}</span>
-        <span className="text-slate-300">›</span>
-        <span className="text-slate-700 font-medium truncate">{bc.padre}</span>
-        {bc.sub && (
-          <>
-            <span className="text-slate-300">›</span>
-            <span className="text-slate-500 truncate">{bc.sub}</span>
-          </>
-        )}
-      </span>
-    );
-  };
+  // chk5.C-FIX · DEUDA-GASTOS-DEAD-CODE CERRADA · helper `renderCategoriaBreadcrumb`
+  // ELIMINADO · era dead code (solo lo usaba `gastosColumns` también eliminado).
+  // El breadcrumb canon se renderiza directamente dentro de `GastoCardCanonico` (F4).
 
   const isCurrentMonth = selectedMonth === new Date().getMonth() + 1 && selectedYear === new Date().getFullYear();
 
@@ -202,12 +212,126 @@ export const Gastos: React.FC = () => {
         return f < hoy;
       });
 
+    // chk5.C1 · cálculos extendidos para KpiStripGastos canon
+    // Burn Rate 3m: promedio de los últimos 3 meses (incluyendo mes actual)
+    const inicioBurnRate = new Date(selectedYear, selectedMonth - 1 - 2, 1);
+    const finBurnRate = new Date(selectedYear, selectedMonth, 1);
+    const gastosUlt3m = gastosPorLinea.filter(g => {
+      const f = toDateOrNow(g.fecha);
+      return f >= inicioBurnRate && f < finBurnRate;
+    });
+    const burnRate3m = gastosUlt3m.length > 0
+      ? gastosUlt3m.reduce((s, g) => s + (g.montoPEN || 0), 0) / 3
+      : 0;
+
+    // % Recurrentes del mes (esRecurrente flag)
+    const recurrentesMes = gastosDelMes.filter(g => g.esRecurrente === true);
+    const recurrentesPEN = recurrentesMes.reduce((s, g) => s + (g.montoPEN || 0), 0);
+    const totalMesPEN = gastosDelMes.reduce((s, g) => s + (g.montoPEN || 0), 0);
+    const porcentajeRecurrentes = totalMesPEN > 0 ? (recurrentesPEN / totalMesPEN) * 100 : 0;
+
+    // Vencimientos 30d · monto + count + críticos (vencen <3d o ya vencidos)
+    const hoyRef = new Date();
+    const en30dRef = new Date(); en30dRef.setDate(hoyRef.getDate() + 30);
+    const en3dRef = new Date(); en3dRef.setDate(hoyRef.getDate() + 3);
+    const vencimientos30d = gastosPorLinea
+      .filter(g => g.estado === 'pendiente' || g.estado === 'parcial')
+      .filter(g => {
+        const f = toDateOrNow(g.fecha);
+        return f <= en30dRef;
+      });
+    const vencimientos30dPEN = vencimientos30d.reduce(
+      (s, g) => s + ((g.montoPEN || 0) - (g.montoPagado || 0)),
+      0,
+    );
+    const vencimientosCriticos = vencimientos30d.filter(g => {
+      const f = toDateOrNow(g.fecha);
+      return f <= en3dRef;
+    }).length;
+
+    // DPO · días promedio de pago (últimos 90d con pagos)
+    const inicioDPO = new Date(); inicioDPO.setDate(inicioDPO.getDate() - 90);
+    const gastosConPago90d = gastosPorLinea.filter(g => {
+      if (!g.pagos || g.pagos.length === 0) return false;
+      const fechaPrimerPago = g.pagos[0].fecha?.toDate?.();
+      return fechaPrimerPago && fechaPrimerPago >= inicioDPO;
+    });
+    const dpoDias = gastosConPago90d.length > 0
+      ? Math.round(
+          gastosConPago90d.reduce((acc, g) => {
+            const fCreacion = toDateOrNow(g.fecha);
+            const fPago = g.pagos![0].fecha?.toDate?.() ?? new Date();
+            const dias = Math.max(0, Math.floor((fPago.getTime() - fCreacion.getTime()) / (1000 * 60 * 60 * 24)));
+            return acc + dias;
+          }, 0) / gastosConPago90d.length,
+        )
+      : 0;
+    // DPO trimestre anterior (rough · usamos 90-180d) para comparación
+    const inicioDPOPrev = new Date(); inicioDPOPrev.setDate(inicioDPOPrev.getDate() - 180);
+    const finDPOPrev = new Date(); finDPOPrev.setDate(finDPOPrev.getDate() - 90);
+    const gastosConPagoPrev = gastosPorLinea.filter(g => {
+      if (!g.pagos || g.pagos.length === 0) return false;
+      const fechaPrimerPago = g.pagos[0].fecha?.toDate?.();
+      return fechaPrimerPago && fechaPrimerPago >= inicioDPOPrev && fechaPrimerPago < finDPOPrev;
+    });
+    const dpoDiasPrev = gastosConPagoPrev.length > 0
+      ? Math.round(
+          gastosConPagoPrev.reduce((acc, g) => {
+            const fCreacion = toDateOrNow(g.fecha);
+            const fPago = g.pagos![0].fecha?.toDate?.() ?? new Date();
+            const dias = Math.max(0, Math.floor((fPago.getTime() - fCreacion.getTime()) / (1000 * 60 * 60 * 24)));
+            return acc + dias;
+          }, 0) / gastosConPagoPrev.length,
+        )
+      : 0;
+    const dpoDeltaTrimestre = dpoDias - dpoDiasPrev;
+
+    // Top proveedor del mes
+    const porProveedor: Record<string, { nombre: string; monto: number }> = {};
+    for (const g of gastosDelMes) {
+      const key = g.proveedorId || g.proveedor || 'sin-prov';
+      const nombre = g.proveedorNombre || g.proveedor || 'Sin proveedor';
+      if (!porProveedor[key]) porProveedor[key] = { nombre, monto: 0 };
+      porProveedor[key].monto += g.montoPEN || 0;
+    }
+    const topProveedorArr = Object.values(porProveedor).sort((a, b) => b.monto - a.monto);
+    const topProveedor = topProveedorArr[0] && totalMesPEN > 0
+      ? { nombre: topProveedorArr[0].nombre, pctDelMes: (topProveedorArr[0].monto / totalMesPEN) * 100 }
+      : null;
+
+    // Sin clasificar · gastos sin categoriaCostoId
+    const sinClasificarCount = gastosPorLinea.filter(g => !g.categoriaCostoId).length;
+
+    // Próximo vencimiento · primero de vencenPronto
+    const proximoVencimiento = vencenPronto[0]
+      ? {
+          descripcion: vencenPronto[0].descripcion?.slice(0, 30) || 'Gasto',
+          diasParaVencer: Math.max(
+            0,
+            Math.floor(
+              (toDateOrNow(vencenPronto[0].fecha).getTime() - hoyRef.getTime()) / (1000 * 60 * 60 * 24),
+            ),
+          ),
+        }
+      : null;
+
     return {
       mixPorBloque, totalMix,
       topCategoria, segundaCategoria, totalCategorias: topCategorias.length,
       proveedoresUnicos: proveedoresUnicos.size,
       vencenPronto, vencidos,
       gastosDelMes,
+      // chk5.C1 · campos nuevos
+      burnRate3m,
+      porcentajeRecurrentes,
+      vencimientos30dPEN,
+      vencimientos30dCount: vencimientos30d.length,
+      vencimientosCriticos,
+      dpoDias,
+      dpoDeltaTrimestre,
+      topProveedor,
+      sinClasificarCount,
+      proximoVencimiento,
     };
   }, [gastosPorLinea, arbolCategorias, selectedMonth, selectedYear]);
 
@@ -290,16 +414,17 @@ export const Gastos: React.FC = () => {
   }, [seleccionStats.items, eliminarGasto, confirm, toast, handleSalirBulkMode]);
 
   // Cargar datos según el modo de vista
+  // chk5.C-UX-PASS · U5 · rama 'pending' eliminada · pendientes se filtran
+  // client-side via chip Estado=Pendiente del FiltrosBar
   useEffect(() => {
     storeSetViewMode(viewMode, selectedMonth, selectedYear);
     if (viewMode === 'all') {
       fetchGastos();
-    } else if (viewMode === 'pending') {
-      fetchGastosPendientesYParciales();
     } else {
       fetchGastosMes(selectedMonth, selectedYear);
     }
     fetchStats();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [viewMode, selectedMonth, selectedYear]);
 
   // Navegación de mes
@@ -358,6 +483,11 @@ export const Gastos: React.FC = () => {
     if (filtros.bloque) {
       const bloqueObjetivo = filtros.bloque as BloqueCosto;
       resultado = resultado.filter(g => esGastoDelBloque(g, bloqueObjetivo, arbolCategorias));
+    }
+    // chk5.C3 · filtro por origen (manual/oc/envio/venta · D-GR-8 consolidador)
+    if (filtros.origen) {
+      const origenObjetivo = filtros.origen as OrigenGasto;
+      resultado = resultado.filter(g => getOrigenGasto(g) === origenObjetivo);
     }
 
     return resultado;
@@ -423,24 +553,8 @@ export const Gastos: React.FC = () => {
 
   const formatCurrency = (amount: number): string => formatCurrencyPEN(amount);
 
-
-  const getEstadoBadge = (estado: EstadoGasto) => {
-    const badges = {
-      'pendiente': { variant: 'warning' as const, label: 'Pendiente' },
-      'parcial': { variant: 'info' as const, label: 'Parcial' },
-      'pagado': { variant: 'success' as const, label: 'Pagado' },
-      'cancelado': { variant: 'danger' as const, label: 'Cancelado' }
-    };
-    return badges[estado] || { variant: 'default' as const, label: 'Desconocido' };
-  };
-
-  const getTipoBadge = (tipo: TipoGasto) => {
-    return { variant: 'default' as const, label: tipo };
-  };
-
-  // chk5.A15 · `getCategoriaColor` eliminado · ya no se usa (renderCategoriaBreadcrumb
-  // ahora retorna "Sin clasificar" en gris cuando no hay categoriaCostoId · el color
-  // por bloque ya está dentro del componente vía bloqueColors).
+  // chk5.C-FIX · `getEstadoBadge` y `getTipoBadge` ELIMINADOS · eran dead code
+  // (solo los usaba el `gastosColumns` legacy también eliminado).
 
 
   const handleRecalcularCTRU = async () => {
@@ -498,244 +612,202 @@ export const Gastos: React.FC = () => {
       estado: '',
       esProrrateable: '',
       bloque: '',
+      origen: '',
     });
     setSearchTerm('');
   };
 
   // Verificar si hay algún filtro activo
-  const hayFiltrosActivos = filtros.tipo || filtros.estado || filtros.esProrrateable || filtros.bloque || searchTerm.trim();
+  const hayFiltrosActivos = filtros.tipo || filtros.estado || filtros.esProrrateable || filtros.bloque || filtros.origen || searchTerm.trim();
 
   // chk5.A15 · `getClaseBadge` eliminado · era dead post limpieza (no se renderiza
   // claseGasto en la UI canon · sustituido por el badge de bloque vía renderCategoriaBreadcrumb).
 
   // Label dinámico para métricas
+  // chk5.C-UX-PASS · U5 · rama 'pending' eliminada del viewMode
   const getViewLabel = () => {
     if (viewMode === 'all') return 'Total General';
-    if (viewMode === 'pending') return 'Total Pendiente';
     return `Total ${MONTH_NAMES[selectedMonth - 1]}`;
   };
 
-  // Columnas del DataTable (desktop)
-  const gastosColumns: DataTableColumn<Gasto>[] = [
-    {
-      key: 'numero',
-      header: 'Número',
-      render: (gasto) => (
-        <div>
-          <div className="flex items-center gap-2">
-            {/* chk5.A15 · badge de claseGasto eliminado · sustituido por
-                breadcrumb de bloque vía renderCategoriaBreadcrumb en otras columnas */}
-            <span className="text-sm font-medium text-slate-900">
-              {gasto.numeroGasto}
-            </span>
-          </div>
-          {gasto.ventaId && (
-            <div className="text-xs text-purple-600 mt-0.5">
-              → Venta vinculada
-            </div>
-          )}
-        </div>
-      ),
-    },
-    {
-      key: 'descripcion',
-      header: 'Descripción',
-      render: (gasto) => (
-        <div>
-          <div className="text-sm text-slate-900">{gasto.descripcion}</div>
-          {gasto.proveedor && (
-            <div className="text-xs text-slate-500">{gasto.proveedor}</div>
-          )}
-        </div>
-      ),
-    },
-    {
-      key: 'tipo',
-      header: 'Tipo / Categoría',
-      render: (gasto) => (
-        <div className="space-y-1">
-          <div className="text-sm font-medium text-slate-900">{gasto.tipo}</div>
-          <div className="flex items-center gap-1">
-            {renderCategoriaBreadcrumb(gasto, 'sm')}
-          </div>
-        </div>
-      ),
-    },
-    {
-      key: 'monto',
-      header: 'Monto',
-      align: 'right',
-      render: (gasto) => (
-        <div>
-          <div className="text-sm font-medium text-slate-900">
-            {formatCurrency(gasto.montoPEN)}
-          </div>
-          {gasto.moneda === 'USD' && (
-            <div className="text-xs text-slate-500">
-              ${gasto.montoOriginal.toFixed(2)} USD
-            </div>
-          )}
-          {gasto.estado === 'parcial' && gasto.montoPagado !== undefined && (
-            <div className="mt-1">
-              <div className="w-full bg-slate-200 rounded-full h-1.5">
-                <div
-                  className="bg-teal-500 h-1.5 rounded-full transition-all"
-                  style={{ width: `${Math.min((gasto.montoPagado / gasto.montoPEN) * 100, 100)}%` }}
-                />
-              </div>
-              <div className="text-xs text-teal-600 mt-0.5">
-                {((gasto.montoPagado / gasto.montoPEN) * 100).toFixed(0)}% pagado
-              </div>
-            </div>
-          )}
-        </div>
-      ),
-    },
-    {
-      key: 'fecha',
-      header: 'Fecha',
-      align: 'center',
-      render: (gasto) => (
-        <div className="text-sm text-slate-900">
-          {formatFecha(gasto.fecha)}
-        </div>
-      ),
-    },
-    {
-      key: 'estado',
-      header: 'Estado',
-      align: 'center',
-      render: (gasto) => {
-        const estadoBadge = getEstadoBadge(gasto.estado);
-        return (
-          <div className="flex flex-col items-center gap-1">
-            <Badge variant={estadoBadge.variant}>{estadoBadge.label}</Badge>
-            <GastoLineaBadge lineaNegocioId={gasto.lineaNegocioId} />
-          </div>
-        );
-      },
-    },
-    {
-      key: 'ctru',
-      header: 'CTRU',
-      align: 'center',
-      render: (gasto) =>
-        gasto.esProrrateable ? (
-          <Badge variant={gasto.ctruRecalculado ? 'success' : 'warning'}>
-            {gasto.ctruRecalculado ? 'Aplicado' : 'Pendiente'}
-          </Badge>
-        ) : (
-          <span className="text-xs text-slate-400">N/A</span>
-        ),
-    },
-    {
-      key: 'acciones',
-      header: 'Acciones',
-      align: 'center',
-      render: (gasto) => (
-        <div>
-          <div className="flex items-center justify-center gap-1">
-            {(gasto.estado === 'pendiente' || gasto.estado === 'parcial') && (
-              <button
-                onClick={() => {
-                  setGastoParaPago(gasto);
-                  setShowPagoModal(true);
-                }}
-                className="inline-flex items-center gap-1 px-2.5 py-1.5 text-sm font-medium text-emerald-700 bg-emerald-100 hover:bg-emerald-200 rounded-lg transition-colors"
-                title={gasto.estado === 'pendiente' ? 'Registrar pago' : 'Registrar pago parcial'}
-              >
-                <CreditCard className="h-3.5 w-3.5" />
-                Pagar
-              </button>
-            )}
-            <button
-              onClick={() => handleEditarGasto(gasto)}
-              className="inline-flex items-center p-1.5 text-slate-500 hover:text-sky-600 hover:bg-sky-50 rounded-lg transition-colors"
-              title="Editar gasto"
-            >
-              <Pencil className="h-4 w-4" />
-            </button>
-            {(gasto.estado === 'pendiente' || gasto.estado === 'cancelado') && !gasto.pagos?.length && (
-              <button
-                onClick={() => handleEliminarGasto(gasto)}
-                className="inline-flex items-center p-1.5 text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                title="Eliminar gasto"
-              >
-                <Trash2 className="h-4 w-4" />
-              </button>
-            )}
-          </div>
-          {gasto.estado === 'parcial' && gasto.montoPagado !== undefined && (
-            <div className="text-xs text-slate-500 mt-1">
-              {formatCurrency(gasto.montoPagado)} / {formatCurrency(gasto.montoPEN)}
-            </div>
-          )}
-          {gasto.estado === 'pagado' && (
-            <div className="text-xs text-slate-400 mt-1">
-              {gasto.pagos && gasto.pagos.length > 1
-                ? `${gasto.pagos.length} pagos`
-                : gasto.metodoPago || '-'}
-            </div>
-          )}
-        </div>
-      ),
-    },
-  ];
+  // chk5.C-FIX · DEUDA-GASTOS-DEAD-CODE CERRADA · `gastosColumns: DataTableColumn<Gasto>[]`
+  // ELIMINADO · era dead code (165 líneas) · pertenecía al DataTable legacy ya
+  // reemplazado por <GastoCardCanonico> (F4 · cards apiladas canon).
+
+  // chk5.C1 · KPI data canon para KpiStripGastos
+  // CRÍTICO: estos useMemo DEBEN declararse ANTES del early return de skeleton
+  // para respetar Rules of Hooks (mismo número de hooks en cada render).
+  const kpiData: KpiGastosData = useMemo(() => ({
+    gastoMesPEN: stats?.totalMesActual ?? 0,
+    variacionPct: stats?.variacionVsMesAnterior ?? 0,
+    burnRate3m: heroKpis.burnRate3m,
+    porcentajeRecurrentes: heroKpis.porcentajeRecurrentes,
+    vencimientos30dPEN: heroKpis.vencimientos30dPEN,
+    vencimientos30dCount: heroKpis.vencimientos30dCount,
+    vencimientosCriticos: heroKpis.vencimientosCriticos,
+    dpoDias: heroKpis.dpoDias,
+    dpoDeltaTrimestre: heroKpis.dpoDeltaTrimestre,
+  }), [stats, heroKpis]);
+
+  const miniStatsData: MiniStatsData = useMemo(() => ({
+    topProveedor: heroKpis.topProveedor,
+    sinClasificarCount: heroKpis.sinClasificarCount,
+    proximoVencimiento: heroKpis.proximoVencimiento,
+  }), [heroKpis]);
+
+  // chk5.C2 · Ratios eficiencia cross-link a Cost Intelligence
+  // Cálculos derivados de unidades (capital invertido) + ventas (ingresos)
+  const ratiosEficiencia = useMemo(() => {
+    // Capital invertido = costos unitarios PEN de unidades activas (no vendidas)
+    const capitalInvertidoPEN = unidades
+      .filter(u => u.estado !== 'vendida' && u.estado !== 'danada' && u.estado !== 'perdida')
+      .reduce((s, u) => s + (u.costoUnitarioPEN || 0), 0);
+
+    // Ingreso mes seleccionado
+    const ingresoMesPEN = ventas
+      .filter(v => {
+        const f = v.fecha?.toDate?.();
+        return f && f.getMonth() + 1 === selectedMonth && f.getFullYear() === selectedYear;
+      })
+      .reduce((s, v) => s + (v.totalPEN || 0), 0);
+
+    // Ingreso mes anterior (para delta)
+    const mesAnt = selectedMonth === 1 ? 12 : selectedMonth - 1;
+    const anioAnt = selectedMonth === 1 ? selectedYear - 1 : selectedYear;
+    const ingresoMesAntPEN = ventas
+      .filter(v => {
+        const f = v.fecha?.toDate?.();
+        return f && f.getMonth() + 1 === mesAnt && f.getFullYear() === anioAnt;
+      })
+      .reduce((s, v) => s + (v.totalPEN || 0), 0);
+
+    // Gasto mes anterior · de stats no tenemos · usar heroKpis del mes anterior aproximado
+    // (más preciso requiere fetchear · MVP usa stats.variacionVsMesAnterior para inferir)
+    const gastoMesActual = stats?.totalMesActual ?? 0;
+    const gastoMesAnt = stats?.variacionVsMesAnterior !== undefined && stats.variacionVsMesAnterior !== -100
+      ? gastoMesActual / (1 + (stats.variacionVsMesAnterior / 100))
+      : 0;
+
+    const ratioGastoInversion = capitalInvertidoPEN > 0
+      ? (gastoMesActual / capitalInvertidoPEN) * 100
+      : 0;
+    const ratioGastoInversionAnt = capitalInvertidoPEN > 0
+      ? (gastoMesAnt / capitalInvertidoPEN) * 100
+      : 0;
+    const deltaGastoInversionPp = ratioGastoInversion - ratioGastoInversionAnt;
+
+    const ratioGastoIngreso = ingresoMesPEN > 0
+      ? (gastoMesActual / ingresoMesPEN) * 100
+      : 0;
+    const ratioGastoIngresoAnt = ingresoMesAntPEN > 0
+      ? (gastoMesAnt / ingresoMesAntPEN) * 100
+      : 0;
+    const deltaGastoIngresoPp = ratioGastoIngreso - ratioGastoIngresoAnt;
+
+    return {
+      ratioGastoInversion,
+      deltaGastoInversionPp,
+      ratioGastoIngreso,
+      deltaGastoIngresoPp,
+      hasData: capitalInvertidoPEN > 0 || ingresoMesPEN > 0,
+      // chk5.C9 · F9 · expone bases para el Allocation Engine settings panel
+      ingresoMesPEN,
+      capitalInvertidoPEN,
+    };
+  }, [unidades, ventas, stats, selectedMonth, selectedYear]);
+
+  // chk5.C9 · F9 · overhead del mes = total gastos bloque Período (numerador)
+  const overheadMesPEN = useMemo(() => {
+    return heroKpis.gastosDelMes
+      .filter(g => (getBloqueDelGasto(g, arbolCategorias) ?? 'periodo') === 'periodo')
+      .reduce((s, g) => s + (g.montoPEN || 0), 0);
+  }, [heroKpis.gastosDelMes, arbolCategorias]);
 
   // Mostrar skeleton durante carga inicial
+  // chk5.C-FIX · este early return va DESPUÉS de TODOS los useMemo/hooks
+  // para no romper Rules of Hooks (count constante de hooks por render).
   if (loading && gastos.length === 0) {
     return <GastosSkeleton />;
   }
 
   return (
-    <PageShell>
-      {/* Header */}
-      <PageHeader
-        title="Gastos Fijos"
-        subtitle="Gastos del período: personal, local, servicios, operativos"
-        icon={Receipt}
-        actions={
-          <div className="flex gap-2">
-            <Button variant="outline" size="sm" onClick={() => exportService.exportGastos(gastosFiltrados)} disabled={gastosVisibles.length === 0}>
-              <Download className="h-4 w-4 mr-1.5" /><span className="hidden sm:inline">Exportar</span>
-            </Button>
-            <Button variant="primary" size="sm" onClick={() => { setGastoParaEditar(null); setShowModal(true); }}>
-              <Plus className="h-4 w-4 mr-1.5" />Nuevo
-            </Button>
-          </div>
-        }
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 space-y-4">
+      {/* chk5.C1 · Header canon banking-grade · reemplaza PageHeader legacy */}
+      <HeaderGastos
+        totalMovimientosMes={heroKpis.gastosDelMes.length}
+        onPoliticaAsignacion={() => setShowAllocationSettings(true)}
+        onVerPnL={() => navigate('/contabilidad')}
+        onExportar={() => exportService.exportGastos(gastosFiltrados)}
+        onNuevoGasto={() => { setGastoParaEditar(null); setShowModal(true); }}
+        exportDisabled={gastosVisibles.length === 0}
       />
 
-      {/* TAREA-GASTOS-PAGE-V2 F3.b · Toggle de 5 vistas */}
-      <div className="bg-white rounded-xl border border-slate-200 p-1 inline-flex flex-wrap gap-1 shadow-sm">
-        {([
-          { key: 'listado', label: '📋 Listado', activeClass: 'bg-amber-100 text-amber-800 ring-2 ring-amber-300' },
-          { key: 'bloque', label: '📦 Por Bloque', activeClass: 'bg-blue-100 text-blue-800 ring-2 ring-blue-300' },
-          { key: 'calendario', label: '📅 Calendario', activeClass: 'bg-emerald-100 text-emerald-800 ring-2 ring-emerald-300' },
-          { key: 'proveedor', label: '🏭 Por Proveedor', activeClass: 'bg-sky-100 text-sky-800 ring-2 ring-sky-300' },
-          { key: 'reportes', label: '📊 Reportes BI', activeClass: 'bg-purple-100 text-purple-800 ring-2 ring-purple-300' },
-        ] as const).map((opt) => (
-          <button
-            key={opt.key}
-            type="button"
-            onClick={() => setVistaActiva(opt.key)}
-            className={`px-3 py-2 rounded-lg text-xs sm:text-sm font-bold transition-all ${
-              vistaActiva === opt.key ? opt.activeClass : 'text-slate-600 hover:bg-slate-50'
-            }`}
-          >
-            {opt.label}
-          </button>
-        ))}
+      {/* chk5.C-FIX · canon F-Borradores · banner page-level con borrador de gasto */}
+      <BorradorBanner
+        tipo="gasto"
+        refreshKey={borradorRefreshKey}
+        onContinuar={() => {
+          // Re-abre el GastoForm en CREATE mode · useWizardAutosave detecta el
+          // borrador y pre-carga el estado al montar.
+          setGastoParaEditar(null);
+          setShowModal(true);
+        }}
+      />
+
+      {/* chk5.C-UX-PASS · U4 · Toolbar unificado · canon v8.0 N4+N6
+          Vistas + nav temporal + LineaDropdown en 1 fila (desktop) ·
+          mobile: scroll horizontal en vistas (N6) · nav temporal stack */}
+      <div className="bg-white rounded-2xl border border-slate-200 px-3 sm:px-4 py-2.5 sm:py-3 mb-4">
+        <div className="flex items-center justify-between gap-3 flex-wrap">
+          {/* Toggle 4 vistas · scroll horizontal en mobile · canon v8.0 N6 */}
+          <div className="flex gap-1.5 overflow-x-auto pb-1 sm:pb-0 -mx-1 px-1" style={{ scrollbarWidth: 'none' }}>
+            {([
+              { key: 'listado',    Icon: List,     label: 'Listado',      activeClass: 'bg-amber-100 text-amber-800 ring-2 ring-amber-300' },
+              { key: 'bloque',     Icon: Package,  label: 'Por Bloque',   activeClass: 'bg-blue-100 text-blue-800 ring-2 ring-blue-300' },
+              { key: 'calendario', Icon: Calendar, label: 'Calendario',   activeClass: 'bg-emerald-100 text-emerald-800 ring-2 ring-emerald-300' },
+              { key: 'proveedor',  Icon: Factory,  label: 'Por Proveedor', activeClass: 'bg-sky-100 text-sky-800 ring-2 ring-sky-300' },
+            ] as const).map((opt) => {
+              const TabIcon = opt.Icon;
+              return (
+                <button
+                  key={opt.key}
+                  type="button"
+                  onClick={() => setVistaActiva(opt.key)}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all inline-flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 ${
+                    vistaActiva === opt.key ? opt.activeClass : 'text-slate-600 hover:bg-slate-50'
+                  }`}
+                >
+                  <TabIcon className="w-3.5 h-3.5" />
+                  <span>{opt.label}</span>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Nav temporal + LineaDropdown · solo en vista Listado */}
+          {vistaActiva === 'listado' && (
+            <div className="ml-auto">
+              <NavegacionTemporal
+                selectedMonth={selectedMonth}
+                selectedYear={selectedYear}
+                onPrevMonth={() => navigateMonth('prev')}
+                onNextMonth={() => navigateMonth('next')}
+                onGoToCurrentMonth={goToCurrentMonth}
+                isCurrentMonth={isCurrentMonth}
+                trailingSlot={<LineaDropdown />}
+              />
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* Render condicional · cada vista maneja su propio layout */}
-      {vistaActiva === 'reportes' && (
-        <ReportesGastosBI
-          gastos={gastosPorLinea}
-          arbolCategorias={arbolCategorias}
-        />
-      )}
+      {/* chk5.C-UX-PASS-ALT · canon v8.0 N7 · GRID main+sidebar envuelve LAS 4 VISTAS
+          · Listado · Por Bloque · Calendario · Por Proveedor
+          · sidebar (DrawerUrgentes + TopProveedoresLight) persiste en TODAS · canon v8.0 consistencia */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="md:col-span-3 space-y-4">
 
+      {/* Vistas alternativas · canon v8.0 · cada una dentro del main del grid */}
       {vistaActiva === 'bloque' && (
         <VistaPorBloque
           gastos={gastosPorLinea}
@@ -763,283 +835,37 @@ export const Gastos: React.FC = () => {
       {vistaActiva === 'proveedor' && (
         <VistaPorProveedor
           gastos={gastosPorLinea}
+          arbolCategorias={arbolCategorias}
           onEditar={handleEditarGasto}
           onPagar={(g) => setGastoParaPago(g)}
         />
       )}
 
-      {/* TODO el flujo de listado se renderiza solo cuando vistaActiva === 'listado' (cada bloque top-level abajo tiene la condicion) */}
-
-      {/* Navegador de Período · solo listado */}
-      {vistaActiva === 'listado' && (
-      <Card padding="md">
-        <div className="flex flex-col gap-3">
-          {/* Row 1: Tabs + month nav / label */}
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-            {/* Tabs de vista */}
-            <div className="flex items-center gap-0.5 sm:gap-1 bg-slate-100 rounded-lg p-1 w-full sm:w-auto">
-              <button
-                onClick={() => setViewMode('month')}
-                className={`flex-1 sm:flex-none px-2.5 sm:px-3 py-1.5 text-xs sm:text-sm rounded-md font-medium transition-colors flex items-center justify-center gap-1 sm:gap-1.5 ${
-                  viewMode === 'month'
-                    ? 'bg-white text-slate-900 shadow-sm'
-                    : 'text-slate-600 hover:text-slate-900'
-                }`}
-              >
-                <Calendar className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                Mensual
-              </button>
-              <button
-                onClick={() => setViewMode('all')}
-                className={`flex-1 sm:flex-none px-2.5 sm:px-3 py-1.5 text-xs sm:text-sm rounded-md font-medium transition-colors flex items-center justify-center gap-1 sm:gap-1.5 ${
-                  viewMode === 'all'
-                    ? 'bg-white text-slate-900 shadow-sm'
-                    : 'text-slate-600 hover:text-slate-900'
-                }`}
-              >
-                <List className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                Todos
-              </button>
-              <button
-                onClick={() => setViewMode('pending')}
-                className={`flex-1 sm:flex-none px-2.5 sm:px-3 py-1.5 text-xs sm:text-sm rounded-md font-medium transition-colors flex items-center justify-center gap-1 sm:gap-1.5 ${
-                  viewMode === 'pending'
-                    ? 'bg-amber-50 text-amber-800 shadow-sm'
-                    : 'text-slate-600 hover:text-slate-900'
-                }`}
-              >
-                <AlertCircle className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                Pendientes
-              </button>
-            </div>
-
-            {/* Navegación de mes (solo en modo mensual) */}
-            {viewMode === 'month' && (
-              <div className="flex items-center justify-center sm:justify-end gap-2 sm:gap-3">
-                <button
-                  onClick={() => navigateMonth('prev')}
-                  className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-600 transition-colors"
-                >
-                  <ChevronLeft className="h-5 w-5" />
-                </button>
-                <div className="text-center min-w-[140px] sm:min-w-[180px]">
-                  <span className="text-sm sm:text-lg font-semibold text-slate-900">
-                    {MONTH_NAMES[selectedMonth - 1]} {selectedYear}
-                  </span>
-                </div>
-                <button
-                  onClick={() => navigateMonth('next')}
-                  className={`p-1.5 rounded-lg hover:bg-slate-100 text-slate-600 transition-colors ${
-                    isCurrentMonth ? 'opacity-30 cursor-not-allowed' : ''
-                  }`}
-                  disabled={isCurrentMonth}
-                >
-                  <ChevronRight className="h-5 w-5" />
-                </button>
-                {!isCurrentMonth && (
-                  <button
-                    onClick={goToCurrentMonth}
-                    className="text-xs sm:text-sm text-teal-600 hover:text-teal-700 font-medium"
-                  >
-                    Hoy
-                  </button>
-                )}
-              </div>
-            )}
-
-            {/* Label para modos no-mensuales */}
-            {viewMode === 'all' && (
-              <span className="text-sm sm:text-lg font-semibold text-slate-900 text-center sm:text-right">
-                Todos los gastos ({gastosPorLinea.length})
-              </span>
-            )}
-            {viewMode === 'pending' && (
-              <span className="text-sm sm:text-lg font-semibold text-amber-700 text-center sm:text-right">
-                Pendientes de pago ({gastosPorLinea.length})
-              </span>
-            )}
-          </div>
-        </div>
-      </Card>
-      )}
-
-      {/* TAREA-GASTOS-PAGE-V2 F1 · Hero ejecutivo · 5 KPI cards anchored + insights */}
-      {vistaActiva === 'listado' && stats && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
-
-          {/* KPI 1 · Total mes con variacion */}
-          <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl ring-1 ring-amber-200 p-4 hover:shadow-md transition-shadow">
-            <div className="flex items-center justify-between mb-2">
-              <div className="text-[10px] uppercase tracking-wider text-amber-700 font-semibold">Total mes</div>
-              <span className="text-base">💰</span>
-            </div>
-            <div className="text-2xl font-bold tabular-nums text-amber-900">
-              {formatCurrency(viewMode === 'month' && isCurrentMonth ? stats.totalMesActual : resumenPorTipo.totalGeneral)}
-            </div>
-            <div className="flex items-center gap-2 mt-2 text-[11px]">
-              <span className={`font-bold tabular-nums ${stats.variacionVsMesAnterior >= 0 ? 'text-rose-600' : 'text-emerald-600'}`}>
-                {stats.variacionVsMesAnterior >= 0 ? '↗ +' : '↘ '}{stats.variacionVsMesAnterior.toFixed(1)}%
-              </span>
-              <span className="text-slate-500">vs anterior</span>
-            </div>
-          </div>
-
-          {/* KPI 2 · Pendientes con vencimientos */}
-          <div className="bg-gradient-to-br from-rose-50 to-pink-50 rounded-2xl ring-1 ring-rose-200 p-4 hover:shadow-md transition-shadow">
-            <div className="flex items-center justify-between mb-2">
-              <div className="text-[10px] uppercase tracking-wider text-rose-700 font-semibold">Pendientes</div>
-              <span className="text-base">⏰</span>
-            </div>
-            <div className="text-2xl font-bold tabular-nums text-rose-900">{formatCurrency(stats.totalPendientePago)}</div>
-            <div className="flex items-center gap-2 mt-2 text-[11px]">
-              <span className="text-rose-700 font-bold tabular-nums">{stats.cantidadPendientePago} gastos</span>
-              {heroKpis.vencidos.length > 0 && (
-                <span className="text-rose-700 font-bold">· {heroKpis.vencidos.length} vencidos ⚠</span>
-              )}
-            </div>
-          </div>
-
-          {/* KPI 3 · Mix por bloque */}
-          <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl ring-1 ring-blue-200 p-4 hover:shadow-md transition-shadow">
-            <div className="flex items-center justify-between mb-2">
-              <div className="text-[10px] uppercase tracking-wider text-blue-700 font-semibold">Mix por bloque</div>
-              <span className="text-base">📊</span>
-            </div>
-            <div className="space-y-1.5 mt-2">
-              {(['producto', 'venta', 'periodo'] as BloqueCosto[]).map(b => {
-                const monto = heroKpis.mixPorBloque[b];
-                const pct = heroKpis.totalMix > 0 ? (monto / heroKpis.totalMix) * 100 : 0;
-                const cfg = b === 'producto'
-                  ? { emoji: '📦', label: 'Imp.', barColor: 'from-blue-500 to-indigo-500', textColor: 'text-blue-700' }
-                  : b === 'venta'
-                    ? { emoji: '🛒', label: 'Venta', barColor: 'from-purple-500 to-fuchsia-500', textColor: 'text-purple-700' }
-                    : { emoji: '📅', label: 'Per.', barColor: 'from-amber-500 to-orange-500', textColor: 'text-amber-700' };
-                return (
-                  <div key={b}>
-                    <div className="flex justify-between text-[10px] mb-0.5">
-                      <span className={`${cfg.textColor} font-semibold`}>{cfg.emoji} {cfg.label}</span>
-                      <span className="font-bold tabular-nums text-slate-900">{pct.toFixed(0)}%</span>
-                    </div>
-                    <div className="bg-white/70 rounded h-1.5 overflow-hidden">
-                      <div className={`bg-gradient-to-r ${cfg.barColor} h-1.5 rounded`} style={{ width: `${pct}%` }}></div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* KPI 4 · Top categoria */}
-          <div className="bg-gradient-to-br from-purple-50 to-fuchsia-50 rounded-2xl ring-1 ring-purple-200 p-4 hover:shadow-md transition-shadow">
-            <div className="flex items-center justify-between mb-2">
-              <div className="text-[10px] uppercase tracking-wider text-purple-700 font-semibold">Top categoría</div>
-              <span className="text-base">👑</span>
-            </div>
-            {heroKpis.topCategoria ? (
-              <>
-                <div className="text-base font-bold text-purple-900 truncate">{heroKpis.topCategoria.nombre}</div>
-                <div className="text-lg font-bold tabular-nums text-purple-700 mt-0.5">{formatCurrency(heroKpis.topCategoria.monto)}</div>
-                {heroKpis.totalCategorias > 1 && heroKpis.segundaCategoria && (
-                  <div className="text-[10px] text-slate-600 mt-1 truncate">
-                    2°: {heroKpis.segundaCategoria.nombre} · {formatCurrency(heroKpis.segundaCategoria.monto)}
-                  </div>
-                )}
-              </>
-            ) : (
-              <div className="text-xs text-slate-500 italic mt-2">Sin gastos categorizados</div>
-            )}
-          </div>
-
-          {/* KPI 5 · Proveedores */}
-          <div className="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-2xl ring-1 ring-emerald-200 p-4 hover:shadow-md transition-shadow">
-            <div className="flex items-center justify-between mb-2">
-              <div className="text-[10px] uppercase tracking-wider text-emerald-700 font-semibold">Proveedores</div>
-              <span className="text-base">🏭</span>
-            </div>
-            <div className="text-2xl font-bold tabular-nums text-emerald-900">{heroKpis.proveedoresUnicos}</div>
-            <div className="text-[11px] text-emerald-700 mt-1">
-              <span className="font-bold">{heroKpis.gastosDelMes.length}</span> gastos · {heroKpis.proveedoresUnicos} proveedores
-            </div>
-            <div className="mt-2 text-[10px] text-slate-500 italic">
-              {stats.gastosProrrateablesMesActual > 0
-                ? `${formatCurrency(stats.gastosProrrateablesMesActual)} impactan CTRU`
-                : 'Sin gastos prorrateables'}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Insights automáticos del sistema · 3 banners contextuales */}
-      {vistaActiva === 'listado' && stats && (heroKpis.vencidos.length > 0 || heroKpis.vencenPronto.length > 0 || stats.variacionVsMesAnterior !== 0) && (
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          {/* Insight 1 · Vencidos */}
-          {heroKpis.vencidos.length > 0 ? (
-            <div className="bg-rose-50 border border-rose-200 rounded-xl p-3 flex items-start gap-3">
-              <div className="w-8 h-8 rounded-full bg-rose-500 text-white flex items-center justify-center flex-shrink-0 text-sm font-bold">⚠</div>
-              <div className="flex-1 min-w-0">
-                <div className="text-xs font-bold text-rose-900">{heroKpis.vencidos.length} gastos vencidos</div>
-                <p className="text-[11px] text-rose-700 mt-0.5">
-                  {formatCurrency(heroKpis.vencidos.reduce((acc, g) => acc + (g.montoPEN - (g.montoPagado || 0)), 0))} pendiente · pagar HOY.
-                </p>
-              </div>
-            </div>
-          ) : heroKpis.vencenPronto.length > 0 ? (
-            <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 flex items-start gap-3">
-              <div className="w-8 h-8 rounded-full bg-amber-500 text-white flex items-center justify-center flex-shrink-0 text-sm font-bold">⏰</div>
-              <div className="flex-1 min-w-0">
-                <div className="text-xs font-bold text-amber-900">{heroKpis.vencenPronto.length} vencen en 7 días</div>
-                <p className="text-[11px] text-amber-700 mt-0.5">
-                  Próximo: {heroKpis.vencenPronto[0].descripcion?.slice(0, 30) || 'gasto'} ·{' '}
-                  {formatCurrency(heroKpis.vencenPronto[0].montoPEN - (heroKpis.vencenPronto[0].montoPagado || 0))}
-                </p>
-              </div>
-            </div>
-          ) : (
-            <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-3 flex items-start gap-3">
-              <div className="w-8 h-8 rounded-full bg-emerald-500 text-white flex items-center justify-center flex-shrink-0 text-sm font-bold">✓</div>
-              <div className="flex-1 min-w-0">
-                <div className="text-xs font-bold text-emerald-900">Sin vencimientos próximos</div>
-                <p className="text-[11px] text-emerald-700 mt-0.5">No hay gastos vencidos ni que venzan en 7 días.</p>
-              </div>
-            </div>
-          )}
-
-          {/* Insight 2 · Variacion vs mes anterior */}
-          <div className={`${stats.variacionVsMesAnterior >= 0 ? 'bg-amber-50 border-amber-200' : 'bg-emerald-50 border-emerald-200'} border rounded-xl p-3 flex items-start gap-3`}>
-            <div className={`w-8 h-8 rounded-full ${stats.variacionVsMesAnterior >= 0 ? 'bg-amber-500' : 'bg-emerald-500'} text-white flex items-center justify-center flex-shrink-0 text-sm font-bold`}>
-              {stats.variacionVsMesAnterior >= 0 ? '📈' : '📉'}
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className={`text-xs font-bold ${stats.variacionVsMesAnterior >= 0 ? 'text-amber-900' : 'text-emerald-900'}`}>
-                {stats.variacionVsMesAnterior >= 0 ? 'Subida' : 'Bajada'} {Math.abs(stats.variacionVsMesAnterior).toFixed(1)}% vs anterior
-              </div>
-              <p className={`text-[11px] mt-0.5 ${stats.variacionVsMesAnterior >= 0 ? 'text-amber-700' : 'text-emerald-700'}`}>
-                Promedio anual: {formatCurrency(stats.promedioMensualAnioActual)}
-                {heroKpis.topCategoria && ` · top: ${heroKpis.topCategoria.nombre}`}
-              </p>
-            </div>
-          </div>
-
-          {/* Insight 3 · Top categoria como hint accionable */}
-          {heroKpis.topCategoria && heroKpis.totalMix > 0 && (
-            <div className="bg-purple-50 border border-purple-200 rounded-xl p-3 flex items-start gap-3">
-              <div className="w-8 h-8 rounded-full bg-purple-500 text-white flex items-center justify-center flex-shrink-0 text-sm font-bold">💡</div>
-              <div className="flex-1 min-w-0">
-                <div className="text-xs font-bold text-purple-900">
-                  Concentración en "{heroKpis.topCategoria.nombre}"
-                </div>
-                <p className="text-[11px] text-purple-700 mt-0.5">
-                  {((heroKpis.topCategoria.monto / heroKpis.totalMix) * 100).toFixed(0)}% del mes ·{' '}
-                  bloque {heroKpis.topCategoria.bloque}.
-                </p>
-              </div>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Wrap todo el resto del listado · solo cuando vistaActiva === 'listado' */}
+      {/* Vista Listado · contenido completo (KPIs + LinkCard + Filtros + Lista) */}
       {vistaActiva === 'listado' && (<>
+
+      {/* chk5.C1 · KPI strip canon banking-grade · reemplaza 5 KPI cards gradientes legacy */}
+      {stats && (
+        <KpiStripGastos kpis={kpiData} miniStats={miniStatsData} />
+      )}
+
+      {/* chk5.C-UX-PASS · canon v8.0 N8 · Link-card cross-módulo SIEMPRE visible
+          (con estado vacío + CTA si no hay data · discovery de feature) */}
+      <LinkCardEficiencia
+        ratioGastoInversion={ratiosEficiencia.ratioGastoInversion}
+        deltaGastoInversionPp={ratiosEficiencia.deltaGastoInversionPp}
+        ratioGastoIngreso={ratiosEficiencia.ratioGastoIngreso}
+        deltaGastoIngresoPp={ratiosEficiencia.deltaGastoIngresoPp}
+        onVerEvolucion={() => navigate('/intel-productos/costos')}
+        hasData={ratiosEficiencia.hasData}
+      />
+
+      {/* chk5.C-FIX · DEUDA-GASTOS-DEAD-CODE CERRADA · ELIMINADOS 2 bloques legacy:
+          - 5 KPI cards con gradientes pesados + emojis 💰⏰📊👑🏭 (~110 líneas)
+            → reemplazados por <KpiStripGastos> canon (chk5.C1 · F1)
+          - 3 insights banners ⚠⏰✓📈📉💡 (~70 líneas)
+            → info absorbida en KpiStripGastos (deltas TrendingUp/Down) + DrawerUrgentes + mini-stats */}
+
 
       {/* chk5.A3 · ELIMINADO bloque "Tabs de Categoría" legacy
           (Gastos del Negocio / Costos de Importación / Pérdidas)
@@ -1116,10 +942,12 @@ export const Gastos: React.FC = () => {
 
       {/* Filtro de línea de negocio */}
 
-      {/* TAREA-GASTOS-PAGE-V2 F2 · FiltrosGastosBar canonico (patron 6a referencia · S58e) */}
+      {/* TAREA-GASTOS-PAGE-V2 F2 · FiltrosGastosBar canonico (patron 6a referencia · S58e)
+          chk5.C3 · agregado filtro Origen (manual/oc/envio/venta · D-GR-8) */}
       <FiltrosGastosBar
         estadoActivo={filtros.estado}
         bloqueActivo={filtros.bloque}
+        origenActivo={filtros.origen}
         searchTerm={searchTerm}
         orden={ordenLista}
         totalResultados={gastosVisibles.length}
@@ -1138,9 +966,19 @@ export const Gastos: React.FC = () => {
           }
           return conteos;
         })()}
+        conteosOrigen={(() => {
+          // chk5.C3 · conteo por origen para chips del FiltrosBar
+          const conteos: Partial<Record<OrigenGasto, number>> = { manual: 0, oc: 0, envio: 0, venta: 0 };
+          for (const g of gastosPorLinea) {
+            const o = getOrigenGasto(g);
+            conteos[o] = (conteos[o] || 0) + 1;
+          }
+          return conteos;
+        })()}
         hayFiltrosActivos={!!hayFiltrosActivos}
         onCambiarEstado={(estado) => setFiltros((f) => ({ ...f, estado }))}
         onCambiarBloque={(bloque) => setFiltros((f) => ({ ...f, bloque }))}
+        onCambiarOrigen={(origen) => setFiltros((f) => ({ ...f, origen }))}
         onCambiarSearchTerm={setSearchTerm}
         onCambiarOrden={setOrdenLista}
         onLimpiarTodo={limpiarFiltros}
@@ -1244,9 +1082,8 @@ export const Gastos: React.FC = () => {
         </div>
       )}
 
-      {/* TAREA-GASTOS-PAGE-V2 F4.b · Layout 2 columnas (listado + drawer urgentes) */}
-      <div className={heroKpis.vencidos.length + heroKpis.vencenPronto.length > 0 ? 'grid grid-cols-1 lg:grid-cols-4 gap-4' : ''}>
-        <div className={heroKpis.vencidos.length + heroKpis.vencenPronto.length > 0 ? 'lg:col-span-3' : ''}>
+      {/* chk5.C-UX-PASS · grid main+sidebar ya abierto arriba (línea 843)
+          aquí solo continúa con FiltrosBar + listado dentro del mismo main */}
 
       {/* Tabla de Gastos */}
       <Card padding="md">
@@ -1266,111 +1103,112 @@ export const Gastos: React.FC = () => {
             ))}
           </div>
         ) : gastosVisibles.length === 0 ? (
-          /* TAREA-GASTOS-PAGE-V2 F4.c · Empty state segun contexto */
-          hayFiltrosActivos || viewMode === 'pending' ? (
+          /* TAREA-GASTOS-PAGE-V2 F4.c · Empty state segun contexto
+             chk5.C-UX-PASS · U5 · rama 'pending' eliminada · usa chip Estado del FiltrosBar */
+          hayFiltrosActivos ? (
             <EmptyStateAction
-              title={
-                viewMode === 'pending'
-                  ? 'No hay gastos pendientes'
-                  : 'No se encontraron gastos'
-              }
-              description={
-                viewMode === 'pending'
-                  ? 'Todos los gastos han sido pagados'
-                  : 'Prueba con otros filtros o limpia los filtros actuales'
-              }
+              title="No se encontraron gastos"
+              description="Prueba con otros filtros o limpia los filtros actuales"
               variant="no-results"
-              icon={hayFiltrosActivos ? 'search' : 'file'}
+              icon="search"
               actionLabel="Limpiar Filtros"
-              onAction={hayFiltrosActivos ? limpiarFiltros : undefined}
+              onAction={limpiarFiltros}
             />
           ) : gastos.length === 0 ? (
-            /* Onboarding · primera vez en el modulo · sin gastos en TODA la base */
-            <div className="text-center py-10 px-4">
-              <div className="text-6xl mb-4">💰</div>
-              <h3 className="text-2xl font-bold text-slate-900 mb-2">No hay gastos registrados aún</h3>
-              <p className="text-sm text-slate-600 max-w-xl mx-auto mb-6">
-                Empezar a registrar gastos te permite calcular margen real · auditar fiscalmente · y ver el panorama
-                de tu negocio. Te sugerimos por dónde empezar.
-              </p>
-
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 max-w-3xl mx-auto mb-6">
-                <button
-                  type="button"
-                  onClick={() => setShowModal(true)}
-                  className="bg-amber-50 border-2 border-amber-300 hover:border-amber-500 rounded-2xl p-5 text-left transition-all hover:shadow-md"
-                >
-                  <div className="text-3xl mb-2">📅</div>
-                  <div className="font-bold text-amber-900 mb-1">Tu primer gasto recurrente</div>
-                  <p className="text-xs text-amber-700">
-                    Recibo Movistar · Sedapal · Edelnor. Tarda 1 minuto · queda como recurrente.
-                  </p>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setShowModal(true)}
-                  className="bg-blue-50 border-2 border-blue-300 hover:border-blue-500 rounded-2xl p-5 text-left transition-all hover:shadow-md"
-                >
-                  <div className="text-3xl mb-2">📦</div>
-                  <div className="font-bold text-blue-900 mb-1">Costo de un envío</div>
-                  <p className="text-xs text-blue-700">
-                    Flete adicional o aranceles · vincula a un envío · impacta CTRU automáticamente.
-                  </p>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setShowModal(true)}
-                  className="bg-purple-50 border-2 border-purple-300 hover:border-purple-500 rounded-2xl p-5 text-left transition-all hover:shadow-md"
-                >
-                  <div className="text-3xl mb-2">🛒</div>
-                  <div className="font-bold text-purple-900 mb-1">Comisión de venta</div>
-                  <p className="text-xs text-purple-700">
-                    ML · pasarela · si conectas webhook se auto-detecta · sin entrada manual.
-                  </p>
-                </button>
-              </div>
-
-              <div className="flex items-center justify-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => setShowModal(true)}
-                  className="bg-amber-600 hover:bg-amber-700 text-white font-bold px-5 py-2.5 rounded-lg shadow-sm"
-                >
-                  + Registrar primer gasto
-                </button>
-              </div>
-
-              {/* Pre-requisitos · checklist */}
-              <div className="mt-8 max-w-3xl mx-auto bg-slate-50 rounded-xl border border-slate-200 p-4">
-                <div className="text-[10px] uppercase tracking-wider text-slate-700 font-bold mb-3">
-                  📋 Pre-requisitos para usar el módulo · checklist
+            /* chk5.C10 · F10 · Onboarding canon · pixel-perfect mockup
+               `gastos-rework-v3-final.html · Sección 7 · empty state honesto`.
+               Cero emojis · 3 quick-starts canon (Alquiler/Sueldo/SaaS) ·
+               checklist activación + CTA "Ver módulo Compras" cross-link. */
+            <div className="bg-white border border-slate-200 rounded-xl p-12">
+              <div className="max-w-lg mx-auto text-center">
+                <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-teal-50 to-teal-100 ring-1 ring-teal-200/50 flex items-center justify-center mx-auto mb-4">
+                  <Receipt className="w-10 h-10 text-teal-700" />
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                  <div className={`bg-white rounded-lg border p-3 flex items-center gap-2 ${arbolCategorias && Object.keys(arbolCategorias).length > 0 ? 'border-emerald-200' : 'border-amber-200'}`}>
-                    <div className="text-xl">{arbolCategorias && Object.keys(arbolCategorias).length > 0 ? '✓' : '📝'}</div>
-                    <div className="flex-1 text-left">
-                      <div className={`text-xs font-bold ${arbolCategorias && Object.keys(arbolCategorias).length > 0 ? 'text-emerald-900' : 'text-amber-900'}`}>
-                        Categorías de costo
-                      </div>
-                      <div className={`text-[10px] ${arbolCategorias && Object.keys(arbolCategorias).length > 0 ? 'text-emerald-700' : 'text-amber-700'}`}>
-                        {arbolCategorias && Object.keys(arbolCategorias).length > 0 ? '3 niveles cargados (S40 seed)' : 'Ejecutar seed pre-populado'}
-                      </div>
-                    </div>
+                <h2 className="text-lg font-bold text-slate-900 mb-2">Sin gastos registrados</h2>
+                <p className="text-sm text-slate-600 mb-6 leading-relaxed max-w-md mx-auto">
+                  Gastos consolida los movimientos manuales que registrés acá +
+                  los gastos auto-generados por OCs, Envíos y Ventas. Empezá por registrar
+                  tus primeros gastos fijos para activar el módulo.
+                </p>
+
+                {/* 3 quick-starts canon */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-6">
+                  <button
+                    type="button"
+                    onClick={() => setShowModal(true)}
+                    className="bg-white border border-slate-200 rounded-lg p-3 hover:border-teal-300 hover:bg-teal-50/30 text-left transition-colors"
+                  >
+                    <Building className="w-4 h-4 text-amber-600 mb-1.5" />
+                    <div className="text-[11px] font-bold text-slate-900">Alquiler mensual</div>
+                    <div className="text-[10px] text-slate-500">Período · recurrente</div>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowModal(true)}
+                    className="bg-white border border-slate-200 rounded-lg p-3 hover:border-teal-300 hover:bg-teal-50/30 text-left transition-colors"
+                  >
+                    <UserIcon className="w-4 h-4 text-teal-600 mb-1.5" />
+                    <div className="text-[11px] font-bold text-slate-900">Sueldo empleado</div>
+                    <div className="text-[10px] text-slate-500">Período · recurrente</div>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowModal(true)}
+                    className="bg-white border border-slate-200 rounded-lg p-3 hover:border-teal-300 hover:bg-teal-50/30 text-left transition-colors"
+                  >
+                    <Cloud className="w-4 h-4 text-sky-600 mb-1.5" />
+                    <div className="text-[11px] font-bold text-slate-900">Suscripción SaaS</div>
+                    <div className="text-[10px] text-slate-500">Período · USD</div>
+                  </button>
+                </div>
+
+                {/* Checklist activación · canon F8 lucide */}
+                <div className="bg-amber-50/50 border border-amber-200 rounded-lg p-3 mb-6 text-left">
+                  <div className="text-[10px] font-bold text-amber-700 uppercase tracking-wider mb-2">
+                    Para activar el módulo completo:
                   </div>
-                  <div className="bg-white rounded-lg border border-emerald-200 p-3 flex items-center gap-2">
-                    <div className="text-xl">✓</div>
-                    <div className="flex-1 text-left">
-                      <div className="text-xs font-bold text-emerald-900">Cuentas bancarias</div>
-                      <div className="text-[10px] text-emerald-700">Para registrar pagos · ya configuradas</div>
-                    </div>
-                  </div>
-                  <div className="bg-white rounded-lg border border-amber-200 p-3 flex items-center gap-2">
-                    <div className="text-xl">📝</div>
-                    <div className="flex-1 text-left">
-                      <div className="text-xs font-bold text-amber-900">Top proveedores</div>
-                      <div className="text-[10px] text-amber-700">Sugerido cargar · o crear inline al primer gasto</div>
-                    </div>
-                  </div>
+                  <ul className="space-y-1 text-[11px] text-slate-700">
+                    <li className="flex items-start gap-1.5">
+                      {arbolCategorias && Object.keys(arbolCategorias).length > 0 ? (
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0 mt-0.5" />
+                      ) : (
+                        <span className="font-bold text-amber-700 tabular-nums w-3.5 text-center">0.</span>
+                      )}
+                      <span>Categorías canon seeded (64 disponibles)</span>
+                    </li>
+                    <li className="flex items-start gap-1.5">
+                      <span className="font-bold text-amber-700 tabular-nums w-3.5 text-center mt-0.5">1.</span>
+                      <span>≥3 gastos manuales (baseline operativo)</span>
+                    </li>
+                    <li className="flex items-start gap-1.5">
+                      <span className="font-bold text-amber-700 tabular-nums w-3.5 text-center mt-0.5">2.</span>
+                      <span>≥1 OC cerrada que genere gastos auto</span>
+                    </li>
+                    <li className="flex items-start gap-1.5">
+                      <span className="font-bold text-amber-700 tabular-nums w-3.5 text-center mt-0.5">3.</span>
+                      <span>≥1 venta cerrada que genere gastos auto</span>
+                    </li>
+                  </ul>
+                </div>
+
+                {/* CTAs: primary + cross-link a Compras */}
+                <div className="flex items-center justify-center gap-2 flex-wrap">
+                  <button
+                    type="button"
+                    onClick={() => setShowModal(true)}
+                    className="flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-white bg-slate-900 rounded-lg hover:bg-slate-800 shadow-sm"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    Registrar primer gasto
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => navigate('/compras')}
+                    className="flex items-center gap-1.5 px-4 py-2 text-xs font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50"
+                  >
+                    Ver módulo Compras
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </button>
                 </div>
               </div>
             </div>
@@ -1399,6 +1237,18 @@ export const Gastos: React.FC = () => {
                   breadcrumb={resolveBreadcrumb(gasto.categoriaCostoId)}
                   onEditar={handleEditarGasto}
                   onPagar={(g) => setGastoParaPago(g)}
+                  /* chk5.C4 · D-GR-8 · CTA al doc origen (OC/Envío/Venta).
+                     Las listas son modal-based · pasamos query ?highlight=ID
+                     para que el módulo destino pueda abrir el detalle. */
+                  onVerDocOrigen={(g, origen) => {
+                    if (origen === 'oc' && g.ordenCompraId) {
+                      navigate(`/compras?highlight=${g.ordenCompraId}`);
+                    } else if (origen === 'envio' && (g as any).envioId) {
+                      navigate(`/envios?highlight=${(g as any).envioId}`);
+                    } else if (origen === 'venta' && g.ventaId) {
+                      navigate(`/ventas?highlight=${g.ventaId}`);
+                    }
+                  }}
                   mostrarCheckbox={bulkMode}
                   seleccionado={seleccionados.has(gasto.id)}
                   onToggleSeleccion={handleToggleSeleccion}
@@ -1433,22 +1283,51 @@ export const Gastos: React.FC = () => {
           </div>
         )}
       </Card>
+
+      {/* chk5.C-UX-PASS-ALT · cierre del wrap vistaActiva === 'listado'
+          el sidebar SIGUE abajo · persiste en las 4 vistas */}
+      </>)}
+
         </div>
 
-        {/* F4.b · Drawer lateral con urgentes (sticky en desktop) */}
-        {heroKpis.vencidos.length + heroKpis.vencenPronto.length > 0 && (
-          <div className="lg:col-span-1">
-            <div className="lg:sticky lg:top-4">
+        {/* Sidebar derecho (sticky en desktop) · PERSISTE EN LAS 4 VISTAS
+            chk5.C-UX-PASS-ALT · canon v8.0 N7 · md: (768px) no lg:
+              - DrawerUrgentes (solo si hay vencidos/vencenPronto)
+              - TopProveedoresLightWidget (SIEMPRE · D-GR-8 cross-link a Maestros) */}
+        <div className="md:col-span-1">
+          <div className="md:sticky md:top-4 space-y-3">
+            {heroKpis.vencidos.length + heroKpis.vencenPronto.length > 0 && (
               <DrawerUrgentes
                 vencidos={heroKpis.vencidos}
                 vencenPronto={heroKpis.vencenPronto}
                 onPagar={(g) => setGastoParaPago(g)}
                 onVerDetalle={handleEditarGasto}
               />
-            </div>
+            )}
+            <TopProveedoresLightWidget
+              gastosDelMes={heroKpis.gastosDelMes}
+              onVerAnalisisCompleto={() => navigate('/maestros?tab=proveedores')}
+              onClickProveedor={(nombreProveedor) => {
+                // Pre-cargar búsqueda con el proveedor clickeado · UX rápido
+                setSearchTerm(nombreProveedor);
+              }}
+            />
           </div>
-        )}
+        </div>
       </div>
+
+      {/* chk5.C9 · F9 · Allocation Engine settings panel · D-GR-7 */}
+      {showAllocationSettings && (
+        <AllocationEngineSettings
+          onClose={() => setShowAllocationSettings(false)}
+          onVerImpactoEnProductos={() => {
+            setShowAllocationSettings(false);
+            navigate('/intel-productos/costos');
+          }}
+          overheadMesPEN={overheadMesPEN}
+          ingresoBasePEN={ratiosEficiencia.ingresoMesPEN}
+        />
+      )}
 
       {/* Modal Formulario Nuevo/Editar Gasto */}
       {showModal && (
@@ -1457,6 +1336,9 @@ export const Gastos: React.FC = () => {
           onClose={() => {
             setShowModal(false);
             setGastoParaEditar(null);
+            // chk5.C-FIX · canon F-Borradores · refresca el banner page-level
+            // (puede haberse guardado un borrador nuevo o eliminado uno existente)
+            setBorradorRefreshKey((k) => k + 1);
           }}
         />
       )}
@@ -1507,56 +1389,23 @@ export const Gastos: React.FC = () => {
         </div>
       )}
 
-      {/* TAREA-GASTOS-PAGE-V2 F5 · Integraciones · atajos a 7 modulos relacionados */}
-      <div className="bg-gradient-to-br from-slate-50 to-orange-50/30 rounded-2xl border border-slate-200 p-5">
-        <div className="flex items-center gap-2 mb-3">
-          <span className="text-base">🔗</span>
-          <h3 className="text-sm font-bold text-slate-900">Integraciones · módulos relacionados con Gastos</h3>
-          <span className="text-[11px] text-slate-500 italic">Cierre del círculo del sistema</span>
-        </div>
-        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2">
-          <a href="/tesoreria" className="bg-emerald-50 border border-emerald-200 rounded-xl p-3 hover:shadow-md transition-shadow text-center group">
-            <div className="text-2xl mb-1 group-hover:scale-110 transition-transform">💸</div>
-            <div className="text-xs font-bold text-emerald-900">Tesorería</div>
-            <div className="text-[10px] text-emerald-700">Pagar gasto</div>
-          </a>
-          <a href="/maestros" className="bg-purple-50 border border-purple-200 rounded-xl p-3 hover:shadow-md transition-shadow text-center group">
-            <div className="text-2xl mb-1 group-hover:scale-110 transition-transform">📂</div>
-            <div className="text-xs font-bold text-purple-900">Maestros</div>
-            <div className="text-[10px] text-purple-700">Categorías</div>
-          </a>
-          <a href="/red-logistica" className="bg-blue-50 border border-blue-200 rounded-xl p-3 hover:shadow-md transition-shadow text-center group">
-            <div className="text-2xl mb-1 group-hover:scale-110 transition-transform">🏭</div>
-            <div className="text-xs font-bold text-blue-900">Red Log.</div>
-            <div className="text-[10px] text-blue-700">Proveedores</div>
-          </a>
-          <a href="/envios" className="bg-indigo-50 border border-indigo-200 rounded-xl p-3 hover:shadow-md transition-shadow text-center group">
-            <div className="text-2xl mb-1 group-hover:scale-110 transition-transform">📦</div>
-            <div className="text-xs font-bold text-indigo-900">Envíos</div>
-            <div className="text-[10px] text-indigo-700">CTRU</div>
-          </a>
-          <a href="/ventas" className="bg-pink-50 border border-pink-200 rounded-xl p-3 hover:shadow-md transition-shadow text-center group">
-            <div className="text-2xl mb-1 group-hover:scale-110 transition-transform">🛒</div>
-            <div className="text-xs font-bold text-pink-900">Ventas</div>
-            <div className="text-[10px] text-pink-700">Comisiones</div>
-          </a>
-          <a href="/planilla" className="bg-rose-50 border border-rose-200 rounded-xl p-3 hover:shadow-md transition-shadow text-center group">
-            <div className="text-2xl mb-1 group-hover:scale-110 transition-transform">👥</div>
-            <div className="text-xs font-bold text-rose-900">Planilla</div>
-            <div className="text-[10px] text-rose-700">Sueldos</div>
-          </a>
-          <a href="/finanzas" className="bg-teal-50 border border-teal-200 rounded-xl p-3 hover:shadow-md transition-shadow text-center group">
-            <div className="text-2xl mb-1 group-hover:scale-110 transition-transform">📊</div>
-            <div className="text-xs font-bold text-teal-900">BI</div>
-            <div className="text-[10px] text-teal-700">P&L 3 niveles</div>
-          </a>
-        </div>
-      </div>
+      {/* chk5.C11 · F11 · Panel "Integraciones · 7 atajos" ELIMINADO.
+          Motivación: D-GR-8 (no overlap entre módulos) + canon F8 (cero
+          emojis) + el panel era 100% redundante con la navegación cross-módulo
+          que ahora vive integrada en componentes canon:
+            - Tesorería:    se navega vía PagoUnificadoForm (separación gasto/pago F7)
+            - Maestros:     TopProveedoresLightWidget · CTA "Ver análisis completo →" (F5)
+            - Red Log:      mismo Maestros tab=proveedores
+            - Envíos:       chip origen "Envío" en GastoCardCanonico (F4)
+            - Ventas:       chip origen "Venta" en GastoCardCanonico (F4)
+            - Planilla:     fuera de canon Gastos · pertenece a su propio módulo
+            - BI / P&L:     HeaderGastos · botón "Ver P&L" → /contabilidad (F1) */}
 
-      </>)}{/* Cierre del wrap vistaActiva === 'listado' */}
+      {/* chk5.C-UX-PASS-ALT · wrap vistaActiva === 'listado' YA CERRADO arriba
+          (junto al cierre del Card de lista de gastos) · sidebar persiste en las 4 vistas */}
 
       {/* Dialogo de Confirmacion */}
       <ConfirmDialog {...dialogProps} />
-    </PageShell>
+    </div>
   );
 };
