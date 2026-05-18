@@ -241,8 +241,9 @@ export const Envios: React.FC = () => {
   }, [todosProductos.length, fetchProductos]);
 
   // Deep-link desde query param
+  // chk5.C-FIX · B4.2 · acepta `?envioId=` (legacy) o `?highlight=` (cross-módulo canon)
   useEffect(() => {
-    const envioId = searchParams.get('envioId');
+    const envioId = searchParams.get('envioId') || searchParams.get('highlight');
     if (envioId && envios.length > 0) {
       const found = envios.find(e => e.id === envioId);
       if (found) {

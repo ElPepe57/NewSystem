@@ -39,9 +39,6 @@ const Configuracion = React.lazy(() => import('./pages/Configuracion/Configuraci
 const BorradoresWizardPanel = React.lazy(() => import('./pages/Configuracion/BorradoresWizardPanel').then(m => ({ default: m.BorradoresWizardPanel })));
 const Cotizaciones = React.lazy(() => import('./pages/Cotizaciones/Cotizaciones').then(m => ({ default: m.Cotizaciones })));
 const Requerimientos = React.lazy(() => import('./pages/Requerimientos/Requerimientos').then(m => ({ default: m.Requerimientos })));
-// S57 Fase C+ — Tesoreria eager (era lazy, pero al ser sub-ruta del FinanzasLayout
-// el Suspense compartido congelaba el Outlet en la sub-vista anterior al navegar).
-import { Tesoreria } from './pages/Tesoreria/Tesoreria';
 import FinanzasCashFlow from './pages/Finanzas/FinanzasCashFlow';
 // S56 — Hub Finanzas (CC unificada + acciones rápidas)
 // S57 Fase C — Finanzas ahora es Overview ejecutivo;
@@ -52,6 +49,9 @@ import FinanzasCashFlow from './pages/Finanzas/FinanzasCashFlow';
 import FinanzasLayout from './pages/Finanzas/FinanzasLayout';
 import Finanzas from './pages/Finanzas/Finanzas';
 import FinanzasSaldos from './pages/Finanzas/FinanzasSaldos';
+import FinanzasMovimientos from './pages/Finanzas/FinanzasMovimientos';
+import FinanzasCC from './pages/Finanzas/FinanzasCC';
+import FinanzasAnalisis from './pages/Finanzas/FinanzasAnalisis';
 const RendimientoCambiario = React.lazy(() => import('./pages/RendimientoCambiario/RendimientoCambiario').then(m => ({ default: m.RendimientoCambiario })));
 const Maestros = React.lazy(() => import('./pages/Maestros/Maestros').then(m => ({ default: m.Maestros })));
 const Usuarios = React.lazy(() => import('./pages/Usuarios/Usuarios').then(m => ({ default: m.Usuarios })));
@@ -199,9 +199,14 @@ function App() {
               <Route path="finanzas" element={<FinanzasLayout />}>
                 <Route index element={<Finanzas />} />
                 <Route path="saldos" element={<FinanzasSaldos />} />
+                <Route path="movimientos" element={<FinanzasMovimientos />} />
+                <Route path="cc" element={<FinanzasCC />} />
                 <Route path="cash-flow" element={<FinanzasCashFlow />} />
+                <Route path="analisis" element={<FinanzasAnalisis />} />
               </Route>
-              <Route path="tesoreria" element={<Tesoreria />} />
+              {/* chk5.D-S7.SF2 (2026-05-16) · Tesoreria.tsx eliminado · redirect efectivo a /finanzas */}
+              <Route path="tesoreria" element={<Navigate to="/finanzas" replace />} />
+              <Route path="tesoreria/*" element={<Navigate to="/finanzas" replace />} />
               <Route path="gastos" element={<Gastos />} />
               <Route path="contabilidad" element={<Contabilidad />} />
               <Route path="tipo-cambio" element={<TipoCambio />} />
@@ -210,7 +215,8 @@ function App() {
               <Route path="reportes" element={<Reportes />} />
               <Route path="proyeccion" element={<Proyeccion />} />
               <Route path="mapa-ventas" element={<MapaCalor />} />
-              <Route path="pagos-masivos" element={<Navigate to="/tesoreria" replace />} />
+              {/* Alias legacy · chk5.D-S4.c · saltar alias intermedio y mandar directo al shell Finanzas */}
+              <Route path="pagos-masivos" element={<Navigate to="/finanzas" replace />} />
               <Route path="planilla" element={<Planilla />} />
 
               {/* Administración */}

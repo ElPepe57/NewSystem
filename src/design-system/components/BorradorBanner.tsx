@@ -65,6 +65,18 @@ const LABELS: Record<TipoBorradorWizard, {
     resumenFallback: 'Producto sin terminar',
     totalPasos: 6,
   },
+  // chk5.C-FIX · canon F-Borradores extendido a Gastos (form 5 secciones canon)
+  gasto: {
+    titulo: 'Tienes un gasto en borrador',
+    resumenFallback: 'Gasto sin terminar',
+    totalPasos: 5,
+  },
+  // chk5.D-S1f · F5 · canon F-Borradores extendido a LiquidarRecaudadoraWizard
+  liquidar_recaudadora: {
+    titulo: 'Tienes una liquidación de Caja Recaudadora en borrador',
+    resumenFallback: 'Liquidación sin terminar',
+    totalPasos: 3,
+  },
 };
 
 interface BorradorBannerProps {

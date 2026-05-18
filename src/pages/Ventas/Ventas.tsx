@@ -1,4 +1,5 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo, useRef } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Plus, ShoppingCart, DollarSign, TrendingUp, Package, CheckCircle, CreditCard, Calculator, PieChart, FileText, Truck, XCircle, Clock, Timer, Zap, PackageCheck, AlertTriangle, ChevronDown, ChevronUp, Users, RotateCcw, ChevronRight, Download } from 'lucide-react';
 import { Button, Card, Modal, useConfirmDialog, ConfirmDialog, PipelineHeader, useActionModal, ActionModal, ErrorBoundary } from '../../components/common';
 import { PageShell, PageHeader, Toolbar, DataTable } from '../../design-system';
@@ -103,6 +104,25 @@ export const Ventas: React.FC = () => {
   const { dialogProps, confirm } = useConfirmDialog();
   const { modalProps: actionModalProps, open: openActionModal } = useActionModal();
   const toast = useToastStore();
+
+  // chk5.C-FIX · B4.3 · cross-link desde Gastos · lee ?highlight=ID y abre modal venta
+  const [searchParams, setSearchParams] = useSearchParams();
+  const highlightHandledRef = useRef<string | null>(null);
+  useEffect(() => {
+    const highlightId = searchParams.get('highlight');
+    if (!highlightId) return;
+    if (highlightHandledRef.current === highlightId) return;
+    if (loading || ventas.length === 0) return;
+    const v = ventas.find(x => x.id === highlightId);
+    if (v) {
+      setSelectedVenta(v);
+      setIsDetailsModalOpen(true);
+      highlightHandledRef.current = highlightId;
+      const next = new URLSearchParams(searchParams);
+      next.delete('highlight');
+      setSearchParams(next, { replace: true });
+    }
+  }, [searchParams, ventas, loading, setSearchParams]);
 
   // Ventas filtradas por línea de negocio global
   const ventasLineaFiltradas = useLineaFilter(ventas, v => v.lineaNegocioId);

@@ -1,5 +1,5 @@
-import React, { useEffect, useState, useMemo } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import React, { useEffect, useState, useMemo, useRef } from 'react';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { Plus, Package, DollarSign, TrendingUp, AlertCircle, Download, ExternalLink, FileText, Send, Truck, CheckCircle, XCircle, CreditCard, PackageCheck, Calendar, Building2, Edit3, Search } from 'lucide-react';
 import { Button, Card, Modal, useConfirmDialog, ConfirmDialog, useActionModal, ActionModal } from '../../components/common';
 import { PageShell, PageHeader, KPIBar, StatCard, DataCard } from '../../design-system';
@@ -615,6 +615,26 @@ export const OrdenesCompra: React.FC = () => {
     setSelectedOrdenLocal(orden);
     setIsDetailsModalOpen(true);
   };
+
+  // chk5.C-FIX · B4.1 · cross-link desde Gastos · lee ?highlight=ID y abre modal detalle
+  const [searchParams, setSearchParams] = useSearchParams();
+  const highlightHandledRef = useRef<string | null>(null);
+  useEffect(() => {
+    const highlightId = searchParams.get('highlight');
+    if (!highlightId) return;
+    if (highlightHandledRef.current === highlightId) return; // ya procesado
+    if (loading || ordenes.length === 0) return; // esperar a que cargue
+    const oc = ordenes.find(o => o.id === highlightId);
+    if (oc) {
+      setSelectedOrdenLocal(oc);
+      setIsDetailsModalOpen(true);
+      highlightHandledRef.current = highlightId;
+      // Limpia el param de la URL para que back/refresh no re-dispare el modal
+      const next = new URLSearchParams(searchParams);
+      next.delete('highlight');
+      setSearchParams(next, { replace: true });
+    }
+  }, [searchParams, ordenes, loading, setSearchParams]);
 
   // Editar orden (solo permitido en estado borrador) — S53.9: abre OCWizardV3
   // con el prop `ordenEditar` que pre-carga todos los datos.
