@@ -577,6 +577,29 @@ service cloud.firestore {
     }
 
     // ============================================================
+    // chk5.D-S1f · Caja Recaudadora (D5 + D12) · 2026-05-15
+    // ============================================================
+
+    // Eventos atómicos de Caja Recaudadora (cobros entrantes + servicios
+    // descontados). Update permitido SOLO para marcar como liquidado o
+    // cancelar (audit trail preservado). Delete prohibido.
+    match /eventosServicioRecaudador/{docId} {
+      allow read: if hasAnyRole(['admin', 'gerente', 'finanzas', 'supervisor']);
+      allow create: if hasAnyRole(['admin', 'gerente', 'finanzas']);
+      allow update: if hasAnyRole(['admin', 'gerente', 'finanzas']);
+      allow delete: if false;
+    }
+
+    // Documentos de liquidación periódica. Update permitido SOLO para
+    // anulación (estado='anulada' preserva histórico). Delete prohibido.
+    match /liquidacionesRecaudadora/{docId} {
+      allow read: if hasAnyRole(['admin', 'gerente', 'finanzas', 'supervisor']);
+      allow create: if hasAnyRole(['admin', 'gerente', 'finanzas']);
+      allow update: if hasAnyRole(['admin', 'gerente', 'finanzas']);
+      allow delete: if false;
+    }
+
+    // ============================================================
     // SIN REGLA CATCH-ALL
     // Cualquier coleccion no listada arriba sera DENEGADA por defecto.
     // ============================================================

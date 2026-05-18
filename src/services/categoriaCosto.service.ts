@@ -64,7 +64,17 @@ export const categoriaCostoService = {
       periodo: { padres: [], hijos: {} },
     };
 
+    // chk5.C-FIX-B7 · defensive guard · ignora docs con bloque desconocido
+    // (legacy 'importacion' u otros typos) en vez de crashear con
+    // "Cannot read properties of undefined". Loguea para que el DBA migre.
+    const BLOQUES_CANON: BloqueCosto[] = ['producto', 'venta', 'periodo'];
+    const bloquesDesconocidos = new Set<string>();
+
     for (const cat of todas) {
+      if (!BLOQUES_CANON.includes(cat.bloque as BloqueCosto)) {
+        bloquesDesconocidos.add(`${cat.bloque} (${cat.nombre})`);
+        continue; // skip docs con bloque legacy/inválido · no romper la UI
+      }
       if (cat.nivel === 0) {
         arbol[cat.bloque].padres.push(cat);
       } else if (cat.categoriaPadreId) {
@@ -73,6 +83,15 @@ export const categoriaCostoService = {
         }
         arbol[cat.bloque].hijos[cat.categoriaPadreId].push(cat);
       }
+    }
+
+    if (bloquesDesconocidos.size > 0) {
+      console.warn(
+        '[categoriaCostoService.getArbol] Ignorados docs con bloque no canon ' +
+        '(esperado producto/venta/periodo). Ejecutá scripts/diagnose-categorias-costos.mjs ' +
+        'para inspeccionar y migrar:',
+        Array.from(bloquesDesconocidos),
+      );
     }
 
     return arbol;

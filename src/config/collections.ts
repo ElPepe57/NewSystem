@@ -142,6 +142,20 @@ export const COLLECTIONS = {
   RELACIONES_BANCARIAS: 'relacionesBancarias',
   /** Libro mayor unico (movs tesoreria + cargos TC + pagos TC + conversiones). */
   MOVIMIENTOS_FINANCIEROS: 'movimientosFinancieros',
+
+  // === chk5.D-S1f · Caja Recaudadora (D5 + D12 · 2026-05-15) ===
+  /**
+   * Eventos atomicos de Caja Recaudadora (cobros entrantes + servicios
+   * descontados). Cada evento es FK a productoFinanciero con tipoProducto
+   * 'caja_recaudadora'. Ver eventoServicioRecaudador.types.ts.
+   */
+  EVENTOS_SERVICIO_RECAUDADOR: 'eventosServicioRecaudador',
+  /**
+   * Documentos de liquidacion periodica de Caja Recaudadora (transfiere
+   * saldo neto del periodo al banco destino · consolida cobros − servicios).
+   * Ver eventoServicioRecaudador.types.ts::LiquidacionRecaudadora.
+   */
+  LIQUIDACIONES_RECAUDADORA: 'liquidacionesRecaudadora',
 } as const;
 
 /** Tipo union de todos los nombres de colección */

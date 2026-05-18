@@ -4,7 +4,11 @@ import type { Timestamp } from 'firebase/firestore';
  * Tipo de wizard que persiste borradores.
  * Extensible si en el futuro se agregan más wizards con autoguardado.
  */
-export type TipoBorradorWizard = 'oc' | 'envio' | 'producto';
+// chk5.C-FIX · agregado 'gasto' · canon F-Borradores extendido al módulo Gastos
+// (referencias canon: oc · envio · producto · ahora también gasto)
+// chk5.D-S1f · F5 · agregado 'liquidar_recaudadora' para LiquidarRecaudadoraWizard
+// (DEUDA-MODELO-RECAUDADOR · D5 + D12 · F-Borradores obligatorio en wizards multi-step)
+export type TipoBorradorWizard = 'oc' | 'envio' | 'producto' | 'gasto' | 'liquidar_recaudadora';
 
 /**
  * Documento de borrador de wizard almacenado en Firestore.

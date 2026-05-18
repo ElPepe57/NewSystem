@@ -38,6 +38,12 @@ export type MonedaPF = 'USD' | 'PEN';
  * independientes — son canales adosados a una cuenta banco. Solo wallets
  * con saldo PROPIO independiente del banco son `wallet_digital`
  * (PayPal, Wise, MercadoPago, Zelle, Binance).
+ *
+ * D5 + D12 (chk5.D-S1e · 2026-05-15): `caja_recaudadora` es 6to tipo
+ * agregado para terceros que recaudan en nombre del negocio (ej. GK Xpress)
+ * via N canales aceptados (multi-canal) · balance consolidado · 1 sola CC
+ * con el proveedor · liquidacion periodica al banco destino.
+ * Ver DEUDA-MODELO-RECAUDADOR (refinada) en docs/mockups/SUPERSEDED-v5.md.
  */
 export type TipoProductoFinanciero =
   | 'cuenta_corriente'
@@ -45,7 +51,8 @@ export type TipoProductoFinanciero =
   | 'tarjeta_credito'
   | 'tarjeta_debito'
   | 'caja_efectivo'
-  | 'wallet_digital';
+  | 'wallet_digital'
+  | 'caja_recaudadora';
 
 // ═════════════════════════════════════════════════════════════════════════
 // PROVEEDOR DE WALLET DIGITAL
@@ -99,6 +106,126 @@ export interface CanalDigital {
   identificador: string;                   // Numero telefono / alias
   titular?: string;                        // Display titular del canal
 }
+
+// ═════════════════════════════════════════════════════════════════════════
+// CANAL RECAUDACION (D12 · chk5.D-S1e · multi-canal Caja Recaudadora)
+// ═════════════════════════════════════════════════════════════════════════
+
+/**
+ * Canales por los cuales un tercero recaudador puede cobrar en nombre del
+ * negocio. Cubre TODAS las modalidades reales operadas en Peru:
+ *   - Digitales: yape, plin, sip, agora, bim
+ *   - Fisica: efectivo (cash physical · manual report)
+ *   - POS terminals: niubiz, izipay, visanet
+ *   - Bancario: transferencia (banco directo)
+ *
+ * NOTA: estos canales NO requieren validacion banco<->canal (a diferencia
+ * de TipoCanalDigital de cuenta_corriente/ahorros). El recaudador tercero
+ * usa sus propias cuentas/POS · solo le interesa al negocio el monto que
+ * le cobran a su cliente final y la liquidacion consolidada.
+ */
+export type TipoCanalRecaudacion =
+  | 'yape'
+  | 'plin'
+  | 'sip'
+  | 'agora'
+  | 'bim'
+  | 'efectivo'
+  | 'pos_niubiz'
+  | 'pos_izipay'
+  | 'pos_visanet'
+  | 'transferencia';
+
+export const CANAL_RECAUDACION_LABEL: Record<TipoCanalRecaudacion, string> = {
+  yape:           'Yape',
+  plin:           'Plin',
+  sip:            'SIP',
+  agora:          'Ágora',
+  bim:            'BIM',
+  efectivo:       'Efectivo',
+  pos_niubiz:     'POS Niubiz',
+  pos_izipay:     'POS Izipay',
+  pos_visanet:    'POS Visanet',
+  transferencia:  'Transferencia bancaria',
+};
+
+/**
+ * Color semantico canon v8.0 por canal de recaudacion (para UI consistente).
+ * Mantener sincronizado con docs/mockups MOCK 2 drawer Caja recaudadora.
+ */
+export const CANAL_RECAUDACION_COLOR: Record<TipoCanalRecaudacion, string> = {
+  yape:           'purple',
+  plin:           'cyan',
+  sip:            'amber',
+  agora:          'emerald',
+  bim:            'sky',
+  efectivo:       'emerald',
+  pos_niubiz:     'amber',
+  pos_izipay:     'amber',
+  pos_visanet:    'amber',
+  transferencia:  'teal',
+};
+
+/**
+ * Canal aceptado en una Caja Recaudadora. Diferente de CanalDigital:
+ *   - No requiere validacion banco (el recaudador tercero usa sus cuentas)
+ *   - Tiene flag `activo` para desactivar temporalmente sin eliminar histórico
+ *   - `identificador` opcional (efectivo no tiene · POS tiene merchant ID)
+ */
+export interface CanalAceptado {
+  tipo: TipoCanalRecaudacion;
+  identificador?: string;                  // Cel Yape/Plin · merchant ID POS · CCI · N/A para efectivo
+  activo: boolean;                         // Desactivable sin perder histórico (ej. POS en reparación)
+}
+
+// ═════════════════════════════════════════════════════════════════════════
+// TARIFA SERVICIO (D5 · Caja Recaudadora · como cobra el recaudador)
+// ═════════════════════════════════════════════════════════════════════════
+
+/**
+ * Tarifa del recaudador por su servicio. Se descuenta del saldo a liquidar
+ * en cada liquidacion periodica al negocio.
+ *
+ * Tipos:
+ *   - 'fijo_por_evento': monto fijo por cada evento (ej. S/ 25 por carrera de GK Xpress)
+ *   - 'porcentaje': % del monto cobrado (ej. 2% sobre cobro)
+ *   - 'mixto': % + fijo (ej. 1.5% + S/ 5 por evento)
+ *
+ * El campo `eventoLabel` es display de la unidad de cobro
+ * (ej. "por carrera" · "por envio" · "por transaccion").
+ */
+export interface TarifaServicio {
+  tipo: 'fijo_por_evento' | 'porcentaje' | 'mixto';
+  valor: number;                           // Monto fijo o % segun tipo
+  valorAdicional?: number;                 // Solo si tipo='mixto' (el componente fijo del mixto)
+  eventoLabel: string;                     // "por carrera", "por envio", "por transaccion"
+  /** Vigencia · si cambia tarifa se preserva la antigua para eventos viejos */
+  vigenteDesde: Timestamp;
+}
+
+export const TIPO_TARIFA_LABEL: Record<TarifaServicio['tipo'], string> = {
+  fijo_por_evento: 'Fijo por evento',
+  porcentaje:      'Porcentaje del cobro',
+  mixto:           'Mixto · % + fijo',
+};
+
+// ═════════════════════════════════════════════════════════════════════════
+// RESPONSABLE TERCERO (D5 · Caja Recaudadora)
+// ═════════════════════════════════════════════════════════════════════════
+
+/**
+ * Tipo de entidad que puede ser responsable tercero de una Caja Recaudadora.
+ * Tipicamente es 'proveedor' (GK Xpress · servicios logisticos · etc.)
+ * pero puede ser 'colaborador' (freelance que cobra a clientes) o 'cliente'
+ * (cliente grande que recauda para su grupo).
+ */
+export type TipoResponsableTercero = 'proveedor' | 'colaborador' | 'cliente';
+
+export const TIPO_RESPONSABLE_TERCERO_LABEL: Record<TipoResponsableTercero, string> = {
+  proveedor:    'Proveedor',
+  colaborador:  'Colaborador',
+  cliente:      'Cliente',
+};
 
 // ═════════════════════════════════════════════════════════════════════════
 // MARCA DE TARJETA
@@ -188,6 +315,39 @@ export interface ProductoFinanciero {
   proveedorWallet?: ProveedorWallet;
   identificadorWallet?: string;            // Email, telefono, alias
 
+  // ─── Caja Recaudadora (D5 + D12 · solo si tipoProducto='caja_recaudadora') ─
+  /**
+   * Tercero responsable que recauda en nombre del negocio (ej. GK Xpress).
+   * Vincula a entidad del modulo correspondiente (proveedor/colaborador/cliente).
+   */
+  responsableTerceroId?: string;
+  responsableTerceroTipo?: TipoResponsableTercero;
+  responsableTerceroNombre?: string;       // Display denormalizado
+
+  /**
+   * Tarifa que cobra el recaudador por su servicio · se descuenta de cada
+   * liquidacion. Ver TarifaServicio para tipos posibles.
+   */
+  tarifaServicio?: TarifaServicio;
+
+  /**
+   * Cuenta destino donde el recaudador liquida el saldo periodico al negocio.
+   * Tipicamente BCP Soles Operativa. Solo PEN (raro USD recaudadora local).
+   */
+  cuentaLiquidacionDefaultId?: string;
+
+  /**
+   * Canales aceptados multi-canal · el cliente final paga con cualquiera de
+   * estos al recaudador · balance se consolida. NO confundir con
+   * `canalesDigitales` (que es para cuenta bancaria normal).
+   */
+  canalesAceptados?: CanalAceptado[];
+
+  /**
+   * Frecuencia esperada de liquidacion · informativa para alertas.
+   */
+  frecuenciaLiquidacion?: 'diaria' | 'semanal' | 'quincenal' | 'mensual' | 'a_demanda';
+
   // ─── Metodos de pago aceptados ──────────────────────────────────────
   metodosDisponibles?: string[];
 
@@ -264,6 +424,15 @@ export interface ProductoFinancieroFormData {
   proveedorWallet?: ProveedorWallet;
   identificadorWallet?: string;
 
+  // Caja Recaudadora (D5 + D12)
+  responsableTerceroId?: string;
+  responsableTerceroTipo?: TipoResponsableTercero;
+  responsableTerceroNombre?: string;
+  tarifaServicio?: TarifaServicio;
+  cuentaLiquidacionDefaultId?: string;
+  canalesAceptados?: CanalAceptado[];
+  frecuenciaLiquidacion?: 'diaria' | 'semanal' | 'quincenal' | 'mensual' | 'a_demanda';
+
   // Metodos
   metodosDisponibles?: string[];
   canalesDigitales?: CanalDigital[];
@@ -288,10 +457,13 @@ export const TIPOS_CON_BANCO: TipoProductoFinanciero[] = [
 
 /**
  * Tipos que NO tienen banco asociado.
+ * Caja recaudadora tampoco tiene RelacionBancaria directa · el banco
+ * relevante es el del recaudador (de su POS/Yape/etc.) que es opaco al negocio.
  */
 export const TIPOS_SIN_BANCO: TipoProductoFinanciero[] = [
   'caja_efectivo',
   'wallet_digital',
+  'caja_recaudadora',
 ];
 
 export function requiereRelacionBancaria(
@@ -328,13 +500,92 @@ export function validarCanalDigital(
   return null;
 }
 
+// ─── Helpers Caja Recaudadora (D5 + D12) ──────────────────────────────
+
+/**
+ * Indica si el tipo requiere configuracion de responsable tercero + tarifa
+ * servicio + canales aceptados (solo Caja Recaudadora).
+ */
+export function requiereResponsableTercero(
+  tipo: TipoProductoFinanciero,
+): boolean {
+  return tipo === 'caja_recaudadora';
+}
+
+/**
+ * Indica si el tipo admite multi-canal de recaudacion (vs canales digitales
+ * de cuenta bancaria que tienen validacion banco<->canal).
+ */
+export function admiteCanalesRecaudacion(
+  tipo: TipoProductoFinanciero,
+): boolean {
+  return tipo === 'caja_recaudadora';
+}
+
+/**
+ * Valida configuracion de canal aceptado para Caja Recaudadora.
+ * Reglas:
+ *   - efectivo: NO requiere identificador
+ *   - todos los demas: SI requieren identificador (cel/merchant ID/CCI)
+ * Retorna null si OK, o un mensaje de error si hay inconsistencia.
+ */
+export function validarCanalRecaudacion(
+  canal: CanalAceptado,
+): string | null {
+  const requiereIdentificador = canal.tipo !== 'efectivo';
+  if (requiereIdentificador && (!canal.identificador || !canal.identificador.trim())) {
+    return `${CANAL_RECAUDACION_LABEL[canal.tipo]}: falta identificador (celular · merchant ID · CCI).`;
+  }
+  return null;
+}
+
+/**
+ * Valida que el array de canales aceptados sea valido:
+ *   - Al menos 1 canal activo
+ *   - Cada canal pasa validarCanalRecaudacion()
+ *   - No hay tipos duplicados
+ */
+export function validarCanalesAceptados(
+  canales: CanalAceptado[],
+): string | null {
+  if (canales.length === 0) {
+    return 'Debe haber al menos 1 canal aceptado configurado.';
+  }
+  const activos = canales.filter((c) => c.activo);
+  if (activos.length === 0) {
+    return 'Debe haber al menos 1 canal activo (los inactivos se preservan pero no aceptan cobros).';
+  }
+  const tipos = new Set<TipoCanalRecaudacion>();
+  for (const canal of canales) {
+    if (tipos.has(canal.tipo)) {
+      return `Canal ${CANAL_RECAUDACION_LABEL[canal.tipo]} duplicado · use solo uno por tipo.`;
+    }
+    tipos.add(canal.tipo);
+    const err = validarCanalRecaudacion(canal);
+    if (err) return err;
+  }
+  return null;
+}
+
 export const TIPO_PRODUCTO_LABEL: Record<TipoProductoFinanciero, string> = {
-  cuenta_corriente: 'Cuenta corriente',
-  cuenta_ahorros:   'Cuenta de ahorros',
-  tarjeta_credito:  'Tarjeta de crédito',
-  tarjeta_debito:   'Tarjeta de débito',
-  caja_efectivo:    'Caja efectivo',
-  wallet_digital:   'Wallet digital',
+  cuenta_corriente:  'Cuenta corriente',
+  cuenta_ahorros:    'Cuenta de ahorros',
+  tarjeta_credito:   'Tarjeta de crédito',
+  tarjeta_debito:    'Tarjeta de débito',
+  caja_efectivo:     'Caja efectivo',
+  wallet_digital:    'Wallet digital',
+  caja_recaudadora:  'Caja recaudadora',
+};
+
+export const FRECUENCIA_LIQUIDACION_LABEL: Record<
+  NonNullable<ProductoFinanciero['frecuenciaLiquidacion']>,
+  string
+> = {
+  diaria:     'Diaria',
+  semanal:    'Semanal',
+  quincenal:  'Quincenal',
+  mensual:    'Mensual',
+  a_demanda:  'A demanda',
 };
 
 export const PROVEEDOR_WALLET_LABEL: Record<ProveedorWallet, string> = {

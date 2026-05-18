@@ -273,6 +273,15 @@ function mapearTipoProductoAlegacy(
       return 'efectivo';
     case 'wallet_digital':
       return 'digital';
+    case 'caja_recaudadora':
+      // D5 + D12 · chk5.D-S1f · CuentaCaja legacy NO soporta caja_recaudadora
+      // como tipo nativo. Las cajas recaudadoras se gestionan via
+      // ProductoFinanciero directo + cajaRecaudadora.service.ts (F3).
+      // Si por compatibilidad se necesita exportar a CuentaCaja legacy
+      // (ej. para reporte historico), proyectamos como 'efectivo' que es
+      // el mas cercano (sin banco · operativa similar). Los consumers que
+      // necesiten distinguir deben mirar `productoFinanciero` directamente.
+      return 'efectivo';
   }
 }
 
@@ -288,6 +297,11 @@ function mapearProductoFinancieroAlegacy(
     case 'caja_efectivo':    return 'caja';
     case 'wallet_digital':
       return proveedor ?? 'billetera_digital';
+    case 'caja_recaudadora':
+      // D5 + D12 · chk5.D-S1f · caja_recaudadora NO tiene equivalente legacy
+      // en CuentaCaja.productoFinanciero. Retornamos undefined para que
+      // consumers legacy no la confundan con otro producto.
+      return undefined;
   }
 }
 
