@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gastos v4 · Responsive + Color Canon · chk5.C-UX-PASS</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background: #f8fafc; }
+    .tabular { font-variant-numeric: tabular-nums; }
+    .section-divider { display: flex; align-items: center; gap: 12px; margin: 48px 0 16px; padding-bottom: 8px; border-bottom: 2px dashed #cbd5e1; }
+    .section-num { background: #0f766e; color: white; padding: 2px 10px; border-radius: 999px; font-size: 11px; font-weight: bold; }
+    /* Viewport demo wrapper */
+    .viewport-demo { border: 1px solid #cbd5e1; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 24px; }
+    .viewport-label { background: linear-gradient(90deg, #0f766e, #14b8a6); color: white; padding: 6px 12px; font-size: 11px; font-weight: bold; display: flex; justify-content: space-between; }
+    .viewport-content { background: #f8fafc; }
+    /* For demo screens at fixed widths */
+    .vp-mobile { max-width: 375px; margin: 0 auto; }
+    .vp-tablet { max-width: 768px; margin: 0 auto; }
+    .vp-desktop { max-width: 1280px; margin: 0 auto; }
+    .vp-wide { max-width: 1536px; margin: 0 auto; }
+  </style>
+</head>
+<body class="p-4 lg:p-8">
+
+  <!-- ═══════════════════════════════════════════════════════════════════════════ -->
+  <!-- INTRO + PALETA CANON DECLARADA                                              -->
+  <!-- ═══════════════════════════════════════════════════════════════════════════ -->
+  <div class="max-w-5xl mx-auto mb-8">
+    <h1 class="text-3xl font-bold text-slate-900 mb-2">Gastos · Rework V4 · Responsive + Color Canon</h1>
+    <p class="text-sm text-slate-600 mb-4">
+      chk5.C-UX-PASS (2026-05-11) · refactor visual integral tras feedback del usuario:
+      <em>"no siento un flujo u orden en los patrones de diseño · todo está muy gris"</em>
+    </p>
+
+    <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
+      <h2 class="text-base font-bold text-slate-900 mb-3 flex items-center gap-2">
+        <i data-lucide="palette" class="w-4 h-4 text-teal-600"></i>
+        Paleta canon del sistema (auditada en Productos + Cost Intelligence)
+      </h2>
+      <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-2 text-[10px]">
+        <div class="bg-teal-600 text-white p-2.5 rounded-lg font-bold">teal-600<br><span class="opacity-80 font-normal">CTA primary</span></div>
+        <div class="bg-indigo-50 text-indigo-700 border border-indigo-200 p-2.5 rounded-lg font-bold">indigo-700<br><span class="opacity-80 font-normal">Secondary</span></div>
+        <div class="bg-amber-100 text-amber-800 p-2.5 rounded-lg font-bold">amber<br><span class="opacity-80 font-normal">Gasto / Período</span></div>
+        <div class="bg-blue-100 text-blue-800 p-2.5 rounded-lg font-bold">blue<br><span class="opacity-80 font-normal">Producto</span></div>
+        <div class="bg-purple-100 text-purple-800 p-2.5 rounded-lg font-bold">purple<br><span class="opacity-80 font-normal">Venta</span></div>
+        <div class="bg-rose-100 text-rose-800 p-2.5 rounded-lg font-bold">rose<br><span class="opacity-80 font-normal">Urgente / Vencido</span></div>
+        <div class="bg-emerald-100 text-emerald-800 p-2.5 rounded-lg font-bold">emerald<br><span class="opacity-80 font-normal">Pagado / Cash OK</span></div>
+      </div>
+      <p class="text-[11px] text-slate-500 mt-3 italic">
+        Cada bloque/KPI tiene un tinte semántico (no decoración). Reemplaza el gris uniforme actual
+        que diluye la jerarquía visual.
+      </p>
+    </div>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════════════════════════════════════ -->
+  <!-- SECCIÓN 1 · MOBILE 375px (iPhone SE / 12 mini)                              -->
+  <!-- ═══════════════════════════════════════════════════════════════════════════ -->
+  <div class="section-divider max-w-5xl mx-auto">
+    <span class="section-num">1</span>
+    <h2 class="text-xl font-bold text-slate-900">Mobile · 375px (iPhone SE)</h2>
+    <span class="text-xs text-slate-500 italic">layout stack vertical · KPIs 2-col · filtros colapsables</span>
+  </div>
+
+  <div class="viewport-demo vp-mobile">
+    <div class="viewport-label">
+      <span>📱 Mobile · 375px</span>
+      <span>chk5.C-UX-PASS</span>
+    </div>
+    <div class="viewport-content" style="width: 375px;">
+
+      <!-- Header móvil compacto · 2 filas -->
+      <div class="bg-white px-4 py-3 border-b border-slate-200">
+        <div class="flex items-center gap-1.5 text-[10px] text-slate-400 mb-1">
+          <span>Finanzas</span>
+          <i data-lucide="chevron-right" class="w-2.5 h-2.5"></i>
+          <span class="text-slate-600 font-medium">Gastos</span>
+        </div>
+        <div class="flex items-center justify-between">
+          <h1 class="text-lg font-bold text-slate-900 flex items-center gap-1.5">
+            <div class="w-7 h-7 rounded-lg bg-gradient-to-br from-teal-50 to-teal-100 flex items-center justify-center">
+              <i data-lucide="receipt" class="w-4 h-4 text-teal-700"></i>
+            </div>
+            Gastos
+          </h1>
+          <button class="text-slate-400 active:bg-slate-100 p-2 rounded-lg">
+            <i data-lucide="more-vertical" class="w-5 h-5"></i>
+          </button>
+        </div>
+        <p class="text-[10px] text-slate-500 mt-1">0 movimientos · Mayo 2026</p>
+      </div>
+
+      <!-- CTA Nuevo gasto · sticky mobile · COLOR primary teal -->
+      <div class="bg-white px-4 py-3 border-b border-slate-200">
+        <button class="w-full bg-teal-600 hover:bg-teal-700 text-white py-2.5 px-4 rounded-lg flex items-center justify-center gap-2 text-sm font-bold shadow-sm">
+          <i data-lucide="plus" class="w-4 h-4"></i>
+          Nuevo gasto manual
+        </button>
+      </div>
+
+      <!-- Toggle vistas · scroll horizontal en mobile -->
+      <div class="bg-white px-4 py-3 border-b border-slate-200">
+        <div class="flex gap-1.5 overflow-x-auto pb-1 -mx-1 px-1" style="scrollbar-width: none;">
+          <button class="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-100 text-amber-800 ring-2 ring-amber-300 whitespace-nowrap">
+            <i data-lucide="list" class="w-3 h-3"></i> Listado
+          </button>
+          <button class="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold text-slate-600 hover:bg-slate-50 whitespace-nowrap">
+            <i data-lucide="package" class="w-3 h-3"></i> Bloque
+          </button>
+          <button class="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold text-slate-600 hover:bg-slate-50 whitespace-nowrap">
+            <i data-lucide="calendar" class="w-3 h-3"></i> Calendario
+          </button>
+          <button class="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold text-slate-600 hover:bg-slate-50 whitespace-nowrap">
+            <i data-lucide="factory" class="w-3 h-3"></i> Proveedor
+          </button>
+        </div>
+      </div>
+
+      <!-- Navegación temporal · más compacta en mobile -->
+      <div class="bg-slate-50 px-4 py-2.5 border-b border-slate-200 flex items-center justify-between gap-2">
+        <button class="p-1.5 rounded bg-white border border-slate-200 active:bg-slate-100">
+          <i data-lucide="chevron-left" class="w-4 h-4 text-slate-600"></i>
+        </button>
+        <div class="text-center flex-1">
+          <div class="text-[9px] uppercase tracking-wider text-slate-400 font-semibold">Período</div>
+          <div class="text-xs font-bold text-slate-900 tabular">Mayo 2026</div>
+        </div>
+        <button class="p-1.5 rounded bg-white border border-slate-200 active:bg-slate-100 opacity-50" disabled>
+          <i data-lucide="chevron-right" class="w-4 h-4 text-slate-600"></i>
+        </button>
+      </div>
+
+      <!-- KPI Strip · 2 columnas en mobile · COLOR semántico por KPI -->
+      <div class="px-3 py-3 grid grid-cols-2 gap-2">
+        <!-- KPI 1 · Gasto del mes · AMBER (dinero) -->
+        <div class="bg-gradient-to-br from-amber-50 to-amber-100/50 ring-1 ring-amber-200/50 rounded-xl p-3">
+          <div class="flex items-center gap-1 mb-1">
+            <i data-lucide="receipt" class="w-3 h-3 text-amber-700"></i>
+            <span class="text-[9px] uppercase tracking-wider text-amber-700 font-bold">Gasto mes</span>
+          </div>
+          <div class="text-lg font-bold tabular text-amber-900">S/ 0<span class="text-amber-400">.00</span></div>
+          <div class="text-[9px] text-amber-700 flex items-center gap-0.5 mt-0.5">
+            <i data-lucide="minus" class="w-2 h-2"></i> +0.0% vs ant.
+          </div>
+        </div>
+        <!-- KPI 2 · Burn Rate · ROSE (consumo) -->
+        <div class="bg-gradient-to-br from-rose-50 to-rose-100/50 ring-1 ring-rose-200/50 rounded-xl p-3">
+          <div class="flex items-center gap-1 mb-1">
+            <i data-lucide="flame" class="w-3 h-3 text-rose-700"></i>
+            <span class="text-[9px] uppercase tracking-wider text-rose-700 font-bold">Burn 3m</span>
+          </div>
+          <div class="text-lg font-bold tabular text-rose-900">S/ 0</div>
+          <div class="text-[9px] text-rose-700 mt-0.5">promedio móvil</div>
+        </div>
+        <!-- KPI 3 · Recurrentes · INDIGO (commitment) -->
+        <div class="bg-gradient-to-br from-indigo-50 to-indigo-100/50 ring-1 ring-indigo-200/50 rounded-xl p-3">
+          <div class="flex items-center gap-1 mb-1">
+            <i data-lucide="repeat" class="w-3 h-3 text-indigo-700"></i>
+            <span class="text-[9px] uppercase tracking-wider text-indigo-700 font-bold">Recurr.</span>
+          </div>
+          <div class="text-lg font-bold tabular text-indigo-900">0<span class="text-indigo-400">%</span></div>
+          <div class="text-[9px] text-indigo-700 mt-0.5">fijos comprometidos</div>
+        </div>
+        <!-- KPI 4 · Vencimientos · ROSE STRONG (alerta) -->
+        <div class="bg-gradient-to-br from-rose-100 to-rose-200/50 ring-1 ring-rose-300/50 rounded-xl p-3">
+          <div class="flex items-center gap-1 mb-1">
+            <i data-lucide="clock" class="w-3 h-3 text-rose-800"></i>
+            <span class="text-[9px] uppercase tracking-wider text-rose-800 font-bold">Vencen 30d</span>
+          </div>
+          <div class="text-lg font-bold tabular text-rose-900">S/ 0</div>
+          <div class="text-[9px] text-rose-800 mt-0.5">0 gastos</div>
+        </div>
+        <!-- KPI 5 · DPO · EMERALD (cash management positivo) · ocupa 2 cols -->
+        <div class="col-span-2 bg-gradient-to-r from-emerald-50 to-emerald-100/50 ring-1 ring-emerald-200/50 rounded-xl p-3">
+          <div class="flex items-center justify-between">
+            <div>
+              <div class="flex items-center gap-1 mb-0.5">
+                <i data-lucide="calendar-check" class="w-3 h-3 text-emerald-700"></i>
+                <span class="text-[9px] uppercase tracking-wider text-emerald-700 font-bold">DPO · Días Pago</span>
+              </div>
+              <div class="text-lg font-bold tabular text-emerald-900">0d</div>
+            </div>
+            <div class="text-right">
+              <div class="text-[9px] text-emerald-700">vs trimestre</div>
+              <div class="text-[11px] font-bold text-emerald-700 flex items-center gap-0.5">
+                <i data-lucide="trending-up" class="w-2.5 h-2.5"></i> +0%d
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- LinkCardEficiencia con estado vacío en mobile -->
+      <div class="mx-3 mb-3 bg-gradient-to-br from-teal-50 to-cyan-50/50 border border-teal-200 rounded-xl p-3">
+        <div class="flex items-start gap-2">
+          <div class="w-8 h-8 rounded-lg bg-teal-100 flex items-center justify-center flex-shrink-0">
+            <i data-lucide="bar-chart-3" class="w-4 h-4 text-teal-700"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="text-[10px] uppercase tracking-wider text-teal-700 font-bold">Eficiencia este mes</div>
+            <p class="text-[10px] text-slate-600 italic mt-1">
+              Ratios disponibles cuando registres ventas + unidades.
+            </p>
+            <button class="mt-1.5 text-[10px] text-teal-700 hover:text-teal-800 font-medium flex items-center gap-1">
+              Ver Cost Intelligence
+              <i data-lucide="arrow-right" class="w-2.5 h-2.5"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filtros bar mobile · COLAPSABLE -->
+      <div class="bg-white border-t border-slate-200">
+        <button class="w-full px-4 py-3 flex items-center justify-between text-sm">
+          <div class="flex items-center gap-2">
+            <i data-lucide="filter" class="w-4 h-4 text-slate-500"></i>
+            <span class="font-bold text-slate-700">Filtros</span>
+            <span class="text-[10px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded-full">Sin filtros</span>
+          </div>
+          <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400"></i>
+        </button>
+      </div>
+
+      <!-- Buscador mobile -->
+      <div class="bg-white px-4 py-3 border-t border-slate-100">
+        <div class="relative">
+          <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"></i>
+          <input type="text" placeholder="Buscar..." class="w-full pl-9 pr-3 py-2 border border-slate-200 rounded-lg text-sm">
+        </div>
+      </div>
+
+      <!-- Lista de gastos · empty state mobile -->
+      <div class="bg-white px-4 py-10 text-center border-t border-slate-100">
+        <div class="w-14 h-14 mx-auto rounded-2xl bg-gradient-to-br from-teal-50 to-teal-100 flex items-center justify-center mb-3">
+          <i data-lucide="receipt" class="w-7 h-7 text-teal-700"></i>
+        </div>
+        <h3 class="text-sm font-bold text-slate-900">Sin gastos este mes</h3>
+        <p class="text-[11px] text-slate-500 mt-1 px-4">Empezá registrando tus gastos fijos.</p>
+        <button class="mt-4 w-full bg-teal-600 text-white py-2.5 rounded-lg text-sm font-bold">
+          + Crear primer gasto
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════════════════════════════════════ -->
+  <!-- SECCIÓN 2 · TABLET 768px (iPad portrait)                                    -->
+  <!-- ═══════════════════════════════════════════════════════════════════════════ -->
+  <div class="section-divider max-w-5xl mx-auto">
+    <span class="section-num">2</span>
+    <h2 class="text-xl font-bold text-slate-900">Tablet · 768px (iPad portrait)</h2>
+    <span class="text-xs text-slate-500 italic">KPIs 3-col · acciones visibles · filtros 1-fila</span>
+  </div>
+
+  <div class="viewport-demo vp-tablet">
+    <div class="viewport-label">
+      <span>📐 Tablet · 768px</span>
+      <span>chk5.C-UX-PASS</span>
+    </div>
+    <div class="viewport-content p-4" style="width: 768px;">
+
+      <!-- Header tablet · 2 filas · acciones visibles -->
+      <div class="bg-white rounded-2xl border border-slate-200 p-4 mb-4">
+        <div class="flex items-center gap-1.5 text-xs text-slate-400 mb-1">
+          <span>Finanzas</span>
+          <i data-lucide="chevron-right" class="w-2.5 h-2.5"></i>
+          <span class="text-slate-600 font-medium">Gastos · 0 movimientos este mes</span>
+        </div>
+        <div class="flex items-start justify-between gap-3 flex-wrap">
+          <div class="flex-1 min-w-[260px]">
+            <h1 class="text-xl font-bold text-slate-900 flex items-center gap-2">
+              <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-teal-50 to-teal-100 flex items-center justify-center">
+                <i data-lucide="receipt" class="w-5 h-5 text-teal-700"></i>
+              </div>
+              Gastos
+            </h1>
+            <p class="text-xs text-slate-500 mt-1">Consolidador · manuales + auto OC/Envío/Venta · separación gasto/pago.</p>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <button class="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-indigo-700 bg-indigo-50 border border-indigo-200 rounded-lg hover:bg-indigo-100">
+              <i data-lucide="settings" class="w-3.5 h-3.5"></i> Política
+            </button>
+            <button class="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50">
+              <i data-lucide="download" class="w-3.5 h-3.5"></i>
+            </button>
+            <button class="flex items-center gap-1.5 px-3 py-2 text-xs font-bold text-white bg-teal-600 hover:bg-teal-700 rounded-lg shadow-sm">
+              <i data-lucide="plus" class="w-3.5 h-3.5"></i> Nuevo gasto
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Toggle vistas + nav temporal · 1 fila -->
+      <div class="bg-white rounded-2xl border border-slate-200 px-4 py-3 mb-4 flex items-center justify-between flex-wrap gap-3">
+        <div class="flex gap-1.5 flex-wrap">
+          <button class="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-100 text-amber-800 ring-2 ring-amber-300">
+            <i data-lucide="list" class="w-3 h-3"></i> Listado
+          </button>
+          <button class="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold text-slate-600 hover:bg-slate-50">
+            <i data-lucide="package" class="w-3 h-3"></i> Bloque
+          </button>
+          <button class="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold text-slate-600 hover:bg-slate-50">
+            <i data-lucide="calendar" class="w-3 h-3"></i> Calendario
+          </button>
+          <button class="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold text-slate-600 hover:bg-slate-50">
+            <i data-lucide="factory" class="w-3 h-3"></i> Proveedor
+          </button>
+        </div>
+        <div class="flex items-center gap-1.5 ml-auto">
+          <button class="p-1.5 rounded bg-white border border-slate-200 hover:bg-slate-50">
+            <i data-lucide="chevron-left" class="w-3.5 h-3.5"></i>
+          </button>
+          <span class="text-xs font-bold text-slate-900 tabular min-w-[100px] text-center">Mayo 2026</span>
+          <button class="p-1.5 rounded bg-white border border-slate-200 hover:bg-slate-50 opacity-50" disabled>
+            <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- KPI Strip 3 cols (tablet) · COLOR semántico canon -->
+      <div class="grid grid-cols-3 gap-3 mb-4">
+        <!-- KPI 1 · Gasto del mes · AMBER -->
+        <div class="bg-gradient-to-br from-amber-50 to-amber-100/40 ring-1 ring-amber-200/50 rounded-2xl p-4">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-[10px] uppercase tracking-wider text-amber-700 font-bold">Gasto del mes</span>
+            <i data-lucide="receipt" class="w-4 h-4 text-amber-700"></i>
+          </div>
+          <div class="text-xl font-bold tabular text-amber-900">S/ 0<span class="text-amber-400">.00</span></div>
+          <div class="text-[10px] text-amber-700 flex items-center gap-1 mt-1">
+            <i data-lucide="minus" class="w-2.5 h-2.5"></i> +0.0% vs anterior
+          </div>
+        </div>
+        <!-- KPI 2 · Burn Rate · ROSE -->
+        <div class="bg-gradient-to-br from-rose-50 to-rose-100/40 ring-1 ring-rose-200/50 rounded-2xl p-4">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-[10px] uppercase tracking-wider text-rose-700 font-bold">Burn Rate · 3m</span>
+            <i data-lucide="flame" class="w-4 h-4 text-rose-700"></i>
+          </div>
+          <div class="text-xl font-bold tabular text-rose-900">S/ 0</div>
+          <div class="text-[10px] text-rose-700 mt-1">promedio móvil</div>
+        </div>
+        <!-- KPI 3 · Recurrentes · INDIGO -->
+        <div class="bg-gradient-to-br from-indigo-50 to-indigo-100/40 ring-1 ring-indigo-200/50 rounded-2xl p-4">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-[10px] uppercase tracking-wider text-indigo-700 font-bold">Recurrentes</span>
+            <i data-lucide="repeat" class="w-4 h-4 text-indigo-700"></i>
+          </div>
+          <div class="text-xl font-bold tabular text-indigo-900">0<span class="text-indigo-400">%</span></div>
+          <div class="text-[10px] text-indigo-700 mt-1">fijos comprometidos</div>
+        </div>
+        <!-- KPI 4 · Vencimientos · ROSE STRONG -->
+        <div class="bg-gradient-to-br from-rose-100 to-rose-200/40 ring-1 ring-rose-300/50 rounded-2xl p-4">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-[10px] uppercase tracking-wider text-rose-800 font-bold">Vencen 30d</span>
+            <i data-lucide="clock" class="w-4 h-4 text-rose-800"></i>
+          </div>
+          <div class="text-xl font-bold tabular text-rose-900">S/ 0</div>
+          <div class="text-[10px] text-rose-800 mt-1">0 gastos</div>
+        </div>
+        <!-- KPI 5 · DPO · EMERALD -->
+        <div class="bg-gradient-to-br from-emerald-50 to-emerald-100/40 ring-1 ring-emerald-200/50 rounded-2xl p-4">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-[10px] uppercase tracking-wider text-emerald-700 font-bold">DPO · Días Pago</span>
+            <i data-lucide="calendar-check" class="w-4 h-4 text-emerald-700"></i>
+          </div>
+          <div class="text-xl font-bold tabular text-emerald-900">0d</div>
+          <div class="text-[10px] text-emerald-700 flex items-center gap-1 mt-1">
+            <i data-lucide="trending-up" class="w-2.5 h-2.5"></i> +0%d vs trimestre
+          </div>
+        </div>
+        <!-- Mini-stats card · integrado al strip · 3 chips inline -->
+        <div class="bg-white border border-slate-200 rounded-2xl p-4 flex flex-col gap-1.5 justify-center">
+          <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1">Mini-stats</div>
+          <div class="text-[11px] text-slate-600">
+            <span class="font-bold">Top proveedor:</span> <span class="text-slate-400">—</span>
+          </div>
+          <div class="text-[11px] text-slate-600">
+            <span class="font-bold">Sin clasificar:</span> <span class="text-slate-400">0</span>
+          </div>
+          <div class="text-[11px] text-slate-600">
+            <span class="font-bold">Próximo vto:</span> <span class="text-slate-400">—</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- LinkCardEficiencia tablet · empty state CON cross-link visible -->
+      <div class="bg-gradient-to-r from-teal-50 to-cyan-50/30 border border-teal-200 rounded-2xl p-4 mb-4 flex items-center justify-between gap-3 flex-wrap">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-teal-100 flex items-center justify-center">
+            <i data-lucide="bar-chart-3" class="w-5 h-5 text-teal-700"></i>
+          </div>
+          <div>
+            <div class="text-[11px] uppercase tracking-wider text-teal-700 font-bold">Eficiencia este mes</div>
+            <p class="text-xs text-slate-600 italic">Ratios Gasto/Inversión y Gasto/Ingreso aparecerán cuando tengas data.</p>
+          </div>
+        </div>
+        <button class="flex items-center gap-1 text-xs font-medium text-teal-700 hover:text-teal-800">
+          Ver Cost Intelligence
+          <i data-lucide="arrow-right" class="w-3 h-3"></i>
+        </button>
+      </div>
+
+      <!-- FiltrosBar canon · 3 grupos con dividers · COLOR por chip -->
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-4">
+        <div class="px-4 py-3 flex items-center gap-2 flex-wrap">
+          <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mr-1">Origen</div>
+          <button class="px-2.5 py-1 rounded-full text-xs font-semibold inline-flex items-center gap-1 bg-slate-100 text-slate-600 hover:bg-slate-200">
+            <i data-lucide="edit-3" class="w-3 h-3"></i> Manual
+          </button>
+          <button class="px-2.5 py-1 rounded-full text-xs font-semibold inline-flex items-center gap-1 bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100">
+            <i data-lucide="package" class="w-3 h-3"></i> OC
+          </button>
+          <button class="px-2.5 py-1 rounded-full text-xs font-semibold inline-flex items-center gap-1 bg-purple-50 text-purple-700 border border-purple-200 hover:bg-purple-100">
+            <i data-lucide="truck" class="w-3 h-3"></i> Envío
+          </button>
+          <button class="px-2.5 py-1 rounded-full text-xs font-semibold inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100">
+            <i data-lucide="shopping-bag" class="w-3 h-3"></i> Venta
+          </button>
+          <div class="w-px h-5 bg-slate-200 mx-1"></div>
+          <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mr-1">Bloque</div>
+          <button class="px-2.5 py-1 rounded-full text-xs font-semibold inline-flex items-center gap-1 bg-blue-50 text-blue-700 border border-blue-200">
+            <i data-lucide="package" class="w-3 h-3"></i> Producto
+          </button>
+          <button class="px-2.5 py-1 rounded-full text-xs font-semibold inline-flex items-center gap-1 bg-purple-50 text-purple-700 border border-purple-200">
+            <i data-lucide="shopping-bag" class="w-3 h-3"></i> Venta
+          </button>
+          <button class="px-2.5 py-1 rounded-full text-xs font-semibold inline-flex items-center gap-1 bg-amber-50 text-amber-700 border border-amber-200">
+            <i data-lucide="calendar" class="w-3 h-3"></i> Período
+          </button>
+          <div class="w-px h-5 bg-slate-200 mx-1"></div>
+          <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mr-1">Estado</div>
+          <button class="px-2.5 py-1 rounded-full text-xs font-semibold inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 border border-emerald-200">
+            <i data-lucide="check" class="w-3 h-3"></i> Pagado
+          </button>
+          <button class="px-2.5 py-1 rounded-full text-xs font-semibold inline-flex items-center gap-1 bg-amber-50 text-amber-700 border border-amber-200">
+            <i data-lucide="clock" class="w-3 h-3"></i> Pendiente
+          </button>
+        </div>
+        <div class="bg-slate-50 border-t border-slate-200 px-4 py-2.5 flex items-center gap-3 flex-wrap">
+          <div class="flex-1 min-w-[160px] relative">
+            <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400"></i>
+            <input type="text" placeholder="Buscar..." class="w-full pl-8 pr-3 py-1.5 border border-slate-200 rounded-lg text-xs bg-white">
+          </div>
+          <select class="text-xs border border-slate-200 rounded-lg px-2 py-1.5 bg-white">
+            <option>Más recientes</option>
+            <option>Mayor monto</option>
+          </select>
+          <div class="text-xs text-slate-600 ml-auto">
+            <span class="font-bold text-slate-900">0</span> gastos · <span class="font-bold text-slate-900">S/ 0.00</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Empty state tablet -->
+      <div class="bg-white border border-slate-200 rounded-2xl py-12 text-center">
+        <div class="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-br from-teal-50 to-teal-100 ring-1 ring-teal-200/50 flex items-center justify-center mb-3">
+          <i data-lucide="receipt" class="w-8 h-8 text-teal-700"></i>
+        </div>
+        <h3 class="text-base font-bold text-slate-900">Sin gastos registrados</h3>
+        <p class="text-xs text-slate-500 mt-1 max-w-md mx-auto">
+          Gastos consolida manuales + auto-generados por OC/Envío/Venta.
+        </p>
+        <button class="mt-4 bg-teal-600 text-white px-4 py-2 rounded-lg text-xs font-bold">
+          + Crear primer gasto
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════════════════════════════════════ -->
+  <!-- SECCIÓN 3 · DESKTOP 1280px (laptop standard)                                -->
+  <!-- ═══════════════════════════════════════════════════════════════════════════ -->
+  <div class="section-divider max-w-5xl mx-auto">
+    <span class="section-num">3</span>
+    <h2 class="text-xl font-bold text-slate-900">Desktop · 1280px</h2>
+    <span class="text-xs text-slate-500 italic">KPI strip 5-col horizontal · sidebar derecho · todo visible</span>
+  </div>
+
+  <div class="viewport-demo vp-desktop">
+    <div class="viewport-label">
+      <span>🖥️ Desktop · 1280px</span>
+      <span>chk5.C-UX-PASS</span>
+    </div>
+    <div class="viewport-content p-6" style="width: 1280px;">
+
+      <!-- Header desktop -->
+      <div class="bg-white rounded-2xl border border-slate-200 p-5 mb-4">
+        <div class="flex items-center gap-1.5 text-xs text-slate-400 mb-1">
+          <span class="hover:text-teal-600 cursor-pointer">Finanzas</span>
+          <i data-lucide="chevron-right" class="w-3 h-3"></i>
+          <span class="text-slate-600 font-medium">Gastos · 0 movimientos este mes</span>
+        </div>
+        <div class="flex items-start justify-between gap-3 flex-wrap">
+          <div class="flex-1 min-w-[260px]">
+            <h1 class="text-2xl font-bold text-slate-900 flex items-center gap-2.5">
+              <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-teal-50 to-teal-100 ring-1 ring-teal-200/50 flex items-center justify-center">
+                <i data-lucide="receipt" class="w-6 h-6 text-teal-700"></i>
+              </div>
+              Gastos
+            </h1>
+            <p class="text-sm text-slate-500 mt-1 max-w-2xl">
+              Consolidador de gastos · manuales + auto-generados por OC/Envío/Venta · separación gasto/pago canon.
+            </p>
+          </div>
+          <div class="flex items-center gap-2 flex-wrap">
+            <button class="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-indigo-700 bg-indigo-50 border border-indigo-200 rounded-lg hover:bg-indigo-100">
+              <i data-lucide="settings" class="w-3.5 h-3.5"></i> Política asignación
+            </button>
+            <button class="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50">
+              <i data-lucide="file-bar-chart" class="w-3.5 h-3.5"></i> Ver P&L
+              <i data-lucide="external-link" class="w-3 h-3 opacity-50"></i>
+            </button>
+            <button class="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50">
+              <i data-lucide="download" class="w-3.5 h-3.5"></i> Exportar
+            </button>
+            <button class="flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-white bg-teal-600 hover:bg-teal-700 rounded-lg shadow-sm">
+              <i data-lucide="plus" class="w-3.5 h-3.5"></i> Nuevo gasto manual
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Toggle vistas + nav temporal en 1 fila horizontal limpia -->
+      <div class="bg-white rounded-2xl border border-slate-200 px-4 py-3 mb-4 flex items-center justify-between gap-4 flex-wrap">
+        <div class="flex gap-1.5">
+          <button class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-100 text-amber-800 ring-2 ring-amber-300">
+            <i data-lucide="list" class="w-3.5 h-3.5"></i> Listado
+          </button>
+          <button class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-slate-600 hover:bg-slate-50">
+            <i data-lucide="package" class="w-3.5 h-3.5"></i> Por Bloque
+          </button>
+          <button class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-slate-600 hover:bg-slate-50">
+            <i data-lucide="calendar" class="w-3.5 h-3.5"></i> Calendario
+          </button>
+          <button class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-slate-600 hover:bg-slate-50">
+            <i data-lucide="factory" class="w-3.5 h-3.5"></i> Por Proveedor
+          </button>
+        </div>
+        <div class="flex items-center gap-2 ml-auto">
+          <button class="flex items-center gap-1 px-2 py-1 rounded text-[11px] font-bold bg-white border border-slate-200 hover:bg-slate-50">
+            <i data-lucide="chevron-left" class="w-3 h-3"></i> Abril
+          </button>
+          <span class="text-sm font-bold text-slate-900 tabular min-w-[120px] text-center">Mayo 2026</span>
+          <button class="flex items-center gap-1 px-2 py-1 rounded text-[11px] font-bold bg-white border border-slate-200 hover:bg-slate-50 opacity-40" disabled>
+            Junio <i data-lucide="chevron-right" class="w-3 h-3"></i>
+          </button>
+        </div>
+        <div class="flex items-center gap-2 px-3 py-1.5 bg-slate-50 rounded-lg border border-slate-200">
+          <span class="w-2 h-2 rounded-full bg-teal-500"></span>
+          <span class="text-xs text-slate-700 font-medium">Todas las líneas</span>
+          <i data-lucide="chevron-down" class="w-3 h-3 text-slate-400"></i>
+        </div>
+      </div>
+
+      <!-- Layout 2 columnas: main (lg:col-span-3) + sidebar (lg:col-span-1) -->
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div class="md:col-span-3 space-y-4">
+
+          <!-- KPI Strip 5 col horizontal + mini-stats integrados · COLOR CANON -->
+          <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden">
+            <div class="grid grid-cols-2 md:grid-cols-5 divide-y md:divide-y-0 md:divide-x divide-slate-200">
+              <!-- KPI 1 · Gasto del mes · AMBER -->
+              <div class="p-4 bg-gradient-to-br from-amber-50/40 to-transparent">
+                <div class="flex items-center justify-between mb-2">
+                  <span class="text-[10px] uppercase tracking-wider text-amber-700 font-bold">Gasto del mes</span>
+                  <i data-lucide="receipt" class="w-3.5 h-3.5 text-amber-700"></i>
+                </div>
+                <div class="text-2xl font-bold tabular text-amber-900">S/ 0<span class="text-amber-400">.00</span></div>
+                <div class="text-[11px] text-amber-700 flex items-center gap-1 mt-1">
+                  <i data-lucide="minus" class="w-3 h-3"></i> +0.0% vs anterior
+                </div>
+              </div>
+              <!-- KPI 2 · Burn Rate · ROSE -->
+              <div class="p-4 bg-gradient-to-br from-rose-50/40 to-transparent">
+                <div class="flex items-center justify-between mb-2">
+                  <span class="text-[10px] uppercase tracking-wider text-rose-700 font-bold">Burn Rate · 3m</span>
+                  <i data-lucide="flame" class="w-3.5 h-3.5 text-rose-700"></i>
+                </div>
+                <div class="text-2xl font-bold tabular text-rose-900">S/ 0</div>
+                <div class="text-[11px] text-rose-700 mt-1">promedio móvil</div>
+              </div>
+              <!-- KPI 3 · Recurrentes · INDIGO -->
+              <div class="p-4 bg-gradient-to-br from-indigo-50/40 to-transparent">
+                <div class="flex items-center justify-between mb-2">
+                  <span class="text-[10px] uppercase tracking-wider text-indigo-700 font-bold">Recurrentes</span>
+                  <i data-lucide="repeat" class="w-3.5 h-3.5 text-indigo-700"></i>
+                </div>
+                <div class="text-2xl font-bold tabular text-indigo-900">0<span class="text-indigo-400">%</span></div>
+                <div class="text-[11px] text-indigo-700 mt-1">fijos comprometidos</div>
+              </div>
+              <!-- KPI 4 · Vencimientos · ROSE STRONG -->
+              <div class="p-4 bg-gradient-to-br from-rose-100/40 to-transparent">
+                <div class="flex items-center justify-between mb-2">
+                  <span class="text-[10px] uppercase tracking-wider text-rose-800 font-bold">Vencen 30d</span>
+                  <i data-lucide="clock" class="w-3.5 h-3.5 text-rose-800"></i>
+                </div>
+                <div class="text-2xl font-bold tabular text-rose-900">S/ 0</div>
+                <div class="text-[11px] text-rose-800 mt-1">0 gastos</div>
+              </div>
+              <!-- KPI 5 · DPO · EMERALD -->
+              <div class="p-4 bg-gradient-to-br from-emerald-50/40 to-transparent">
+                <div class="flex items-center justify-between mb-2">
+                  <span class="text-[10px] uppercase tracking-wider text-emerald-700 font-bold">DPO · Días Pago</span>
+                  <i data-lucide="calendar-check" class="w-3.5 h-3.5 text-emerald-700"></i>
+                </div>
+                <div class="text-2xl font-bold tabular text-emerald-900">0d</div>
+                <div class="text-[11px] text-emerald-700 flex items-center gap-1 mt-1">
+                  <i data-lucide="trending-up" class="w-3 h-3"></i> +0%d vs trimestre
+                </div>
+              </div>
+            </div>
+            <!-- Mini-stats footer INTEGRADO al strip canon -->
+            <div class="bg-slate-50/50 border-t border-slate-200 px-4 py-2 flex items-center gap-4 text-[11px] flex-wrap">
+              <span class="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Mini-stats:</span>
+              <div class="flex items-center gap-1">
+                <i data-lucide="user-check" class="w-3 h-3 text-slate-500"></i>
+                <span class="text-slate-600">Top proveedor:</span>
+                <span class="font-bold text-slate-900">—</span>
+              </div>
+              <span class="text-slate-300">·</span>
+              <div class="flex items-center gap-1">
+                <i data-lucide="alert-circle" class="w-3 h-3 text-slate-500"></i>
+                <span class="text-slate-600">Sin clasificar:</span>
+                <span class="font-bold text-slate-900 tabular">0</span>
+              </div>
+              <span class="text-slate-300">·</span>
+              <div class="flex items-center gap-1">
+                <i data-lucide="bell" class="w-3 h-3 text-slate-500"></i>
+                <span class="text-slate-600">Próximo vto:</span>
+                <span class="font-bold text-slate-900">—</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- LinkCardEficiencia desktop · banner SIEMPRE visible -->
+          <div class="bg-gradient-to-r from-teal-50 to-cyan-50/30 border border-teal-200 rounded-2xl p-4 flex items-center justify-between gap-3 flex-wrap">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-teal-100 flex items-center justify-center flex-shrink-0">
+                <i data-lucide="bar-chart-3" class="w-5 h-5 text-teal-700"></i>
+              </div>
+              <div>
+                <div class="text-[11px] uppercase tracking-wider text-teal-700 font-bold">Eficiencia este mes</div>
+                <div class="flex items-center gap-4 text-xs mt-1">
+                  <div>
+                    <span class="text-slate-600">Gasto/Inversión:</span>
+                    <span class="font-bold text-slate-400 ml-1 italic">sin data</span>
+                  </div>
+                  <span class="text-slate-300">·</span>
+                  <div>
+                    <span class="text-slate-600">Gasto/Ingreso:</span>
+                    <span class="font-bold text-slate-400 ml-1 italic">sin data</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <button class="flex items-center gap-1 text-xs font-medium text-teal-700 hover:text-teal-800">
+              Ver evolución 6m y análisis
+              <i data-lucide="arrow-right" class="w-3 h-3"></i>
+              <span class="text-[10px] text-slate-400 ml-1">en Cost Intelligence</span>
+            </button>
+          </div>
+
+          <!-- FiltrosBar canon desktop · 3 grupos COLOR semántico -->
+          <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+            <div class="px-4 py-3 flex items-center gap-2 flex-wrap">
+              <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mr-1">Origen</div>
+              <button class="px-2.5 py-1 rounded-full text-xs font-semibold inline-flex items-center gap-1 bg-slate-100 text-slate-600 hover:bg-slate-200">
+                <i data-lucide="edit-3" class="w-3 h-3"></i> Manual
+              </button>
+              <button class="px-2.5 py-1 rounded-full text-xs font-semibold inline-flex items-center gap-1 bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100">
+                <i data-lucide="package" class="w-3 h-3"></i> OC
+              </button>
+              <button class="px-2.5 py-1 rounded-full text-xs font-semibold inline-flex items-center gap-1 bg-purple-50 text-purple-700 border border-purple-200 hover:bg-purple-100">
+                <i data-lucide="truck" class="w-3 h-3"></i> Envío
+              </button>
+              <button class="px-2.5 py-1 rounded-full text-xs font-semibold inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100">
+                <i data-lucide="shopping-bag" class="w-3 h-3"></i> Venta
+              </button>
+              <div class="w-px h-5 bg-slate-200 mx-2"></div>
+              <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mr-1">Bloque</div>
+              <button class="px-2.5 py-1 rounded-full text-xs font-semibold inline-flex items-center gap-1 bg-blue-50 text-blue-700 border border-blue-200">
+                <i data-lucide="package" class="w-3 h-3"></i> Producto
+              </button>
+              <button class="px-2.5 py-1 rounded-full text-xs font-semibold inline-flex items-center gap-1 bg-purple-50 text-purple-700 border border-purple-200">
+                <i data-lucide="shopping-bag" class="w-3 h-3"></i> Venta
+              </button>
+              <button class="px-2.5 py-1 rounded-full text-xs font-semibold inline-flex items-center gap-1 bg-amber-50 text-amber-700 border border-amber-200">
+                <i data-lucide="calendar" class="w-3 h-3"></i> Período
+              </button>
+              <div class="w-px h-5 bg-slate-200 mx-2"></div>
+              <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mr-1">Estado</div>
+              <button class="px-2.5 py-1 rounded-full text-xs font-semibold inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 border border-emerald-200">
+                <i data-lucide="check" class="w-3 h-3"></i> Pagado
+              </button>
+              <button class="px-2.5 py-1 rounded-full text-xs font-semibold inline-flex items-center gap-1 bg-amber-50 text-amber-700 border border-amber-200">
+                <i data-lucide="clock" class="w-3 h-3"></i> Pendiente
+              </button>
+              <button class="px-2.5 py-1 rounded-full text-xs font-semibold inline-flex items-center gap-1 bg-sky-50 text-sky-700 border border-sky-200">
+                <i data-lucide="hourglass" class="w-3 h-3"></i> Parcial
+              </button>
+            </div>
+            <div class="bg-slate-50 border-t border-slate-200 px-4 py-2.5 flex items-center gap-3 flex-wrap">
+              <div class="flex-1 min-w-[200px] max-w-md relative">
+                <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"></i>
+                <input type="text" placeholder="Buscar por descripción, proveedor, número..." class="w-full pl-9 pr-3 py-2 border border-slate-200 rounded-lg text-sm bg-white">
+              </div>
+              <div class="flex items-center gap-1.5 text-xs">
+                <span class="uppercase tracking-wider text-slate-500 font-bold">Orden</span>
+                <select class="border border-slate-200 rounded-lg px-2 py-1.5 text-xs bg-white">
+                  <option>Más recientes</option>
+                </select>
+              </div>
+              <div class="ml-auto text-xs text-slate-600">
+                <span class="font-bold tabular text-slate-900">0</span> gastos ·
+                <span class="font-bold tabular text-slate-900">S/ 0.00</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Empty state desktop -->
+          <div class="bg-white border border-slate-200 rounded-2xl p-12 text-center">
+            <div class="w-20 h-20 mx-auto rounded-2xl bg-gradient-to-br from-teal-50 to-teal-100 ring-1 ring-teal-200/50 flex items-center justify-center mb-4">
+              <i data-lucide="receipt" class="w-10 h-10 text-teal-700"></i>
+            </div>
+            <h2 class="text-lg font-bold text-slate-900">Sin gastos registrados</h2>
+            <p class="text-sm text-slate-600 mt-2 max-w-md mx-auto leading-relaxed">
+              Empezá registrando tus gastos fijos manuales. Los auto-generados aparecerán al cerrar OCs, envíos o ventas.
+            </p>
+            <div class="grid grid-cols-3 gap-3 mt-6 max-w-xl mx-auto">
+              <button class="bg-white border border-slate-200 rounded-lg p-3 hover:border-amber-300 hover:bg-amber-50/30 text-left transition-colors">
+                <i data-lucide="building" class="w-4 h-4 text-amber-600 mb-1.5"></i>
+                <div class="text-[11px] font-bold text-slate-900">Alquiler mensual</div>
+                <div class="text-[10px] text-slate-500">Período · recurrente</div>
+              </button>
+              <button class="bg-white border border-slate-200 rounded-lg p-3 hover:border-indigo-300 hover:bg-indigo-50/30 text-left transition-colors">
+                <i data-lucide="user" class="w-4 h-4 text-indigo-600 mb-1.5"></i>
+                <div class="text-[11px] font-bold text-slate-900">Sueldo empleado</div>
+                <div class="text-[10px] text-slate-500">Período · recurrente</div>
+              </button>
+              <button class="bg-white border border-slate-200 rounded-lg p-3 hover:border-sky-300 hover:bg-sky-50/30 text-left transition-colors">
+                <i data-lucide="cloud" class="w-4 h-4 text-sky-600 mb-1.5"></i>
+                <div class="text-[11px] font-bold text-slate-900">Suscripción SaaS</div>
+                <div class="text-[10px] text-slate-500">Período · USD</div>
+              </button>
+            </div>
+            <button class="mt-6 inline-flex items-center gap-1.5 bg-teal-600 hover:bg-teal-700 text-white px-5 py-2.5 rounded-lg text-sm font-bold shadow-sm">
+              <i data-lucide="plus" class="w-4 h-4"></i>
+              Crear primer gasto
+            </button>
+          </div>
+        </div>
+
+        <!-- Sidebar derecho · DrawerUrgentes + TopProveedoresLight · sticky -->
+        <aside class="md:col-span-1 space-y-3">
+          <!-- DrawerUrgentes empty state -->
+          <div class="bg-gradient-to-br from-emerald-50 to-white border border-emerald-200 rounded-2xl p-4 text-center">
+            <div class="w-12 h-12 mx-auto rounded-xl bg-emerald-100 flex items-center justify-center mb-2">
+              <i data-lucide="check-circle-2" class="w-6 h-6 text-emerald-600"></i>
+            </div>
+            <div class="text-sm font-bold text-emerald-900">Sin pendientes urgentes</div>
+            <p class="text-xs text-emerald-700 mt-1">No hay gastos vencidos ni que venzan en 7 días.</p>
+          </div>
+
+          <!-- TopProveedoresLightWidget empty state -->
+          <div class="bg-white border border-slate-200 rounded-2xl p-3">
+            <div class="flex items-center gap-2 mb-3">
+              <i data-lucide="users" class="w-4 h-4 text-slate-600"></i>
+              <span class="text-[11px] font-bold text-slate-700 uppercase tracking-wider">Top proveedores · mes</span>
+            </div>
+            <div class="text-[11px] text-slate-400 italic text-center py-4">
+              Sin proveedores este mes.
+            </div>
+            <button class="mt-2 w-full text-[10px] text-teal-700 hover:text-teal-800 hover:underline text-center">
+              Ver análisis completo
+              <i data-lucide="arrow-right" class="w-2.5 h-2.5 inline"></i>
+              <span class="text-slate-400 font-normal">en Maestros</span>
+            </button>
+          </div>
+        </aside>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════════════════════════════════════ -->
+  <!-- COMPARATIVA · ANTES VS DESPUÉS                                              -->
+  <!-- ═══════════════════════════════════════════════════════════════════════════ -->
+  <div class="section-divider max-w-5xl mx-auto">
+    <span class="section-num">4</span>
+    <h2 class="text-xl font-bold text-slate-900">Comparativa · cambios clave</h2>
+  </div>
+
+  <div class="max-w-5xl mx-auto bg-white border border-slate-200 rounded-2xl overflow-hidden">
+    <table class="w-full text-sm">
+      <thead class="bg-slate-50">
+        <tr>
+          <th class="text-left px-4 py-3 text-xs uppercase tracking-wider text-slate-500 font-bold">Aspecto</th>
+          <th class="text-left px-4 py-3 text-xs uppercase tracking-wider text-rose-700 font-bold">Antes (gris uniforme)</th>
+          <th class="text-left px-4 py-3 text-xs uppercase tracking-wider text-emerald-700 font-bold">Después (canon V4)</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-100 text-xs">
+        <tr>
+          <td class="px-4 py-3 font-bold">Mobile responsive</td>
+          <td class="px-4 py-3 text-slate-600">FiltrosBar + LinkCardEficiencia <strong>0 clases responsive</strong> · se rompen <640px</td>
+          <td class="px-4 py-3 text-slate-600">Filtros colapsables · KPIs 2-col mobile · CTAs full-width · toggle scroll horizontal</td>
+        </tr>
+        <tr>
+          <td class="px-4 py-3 font-bold">Color KPIs</td>
+          <td class="px-4 py-3 text-slate-600">Todo slate gris uniforme · sin jerarquía visual</td>
+          <td class="px-4 py-3 text-slate-600">Cada KPI con tinte semántico: amber/rose/indigo/rose-strong/emerald</td>
+        </tr>
+        <tr>
+          <td class="px-4 py-3 font-bold">Mini-stats</td>
+          <td class="px-4 py-3 text-slate-600">Banner gris separado abajo del strip · se siente huérfano</td>
+          <td class="px-4 py-3 text-slate-600">Footer integrado al mismo card del KPI strip · 3 chips inline</td>
+        </tr>
+        <tr>
+          <td class="px-4 py-3 font-bold">Toggle vistas</td>
+          <td class="px-4 py-3 text-slate-600">Botones grandes pesados · fila propia · ocupa mucho vertical</td>
+          <td class="px-4 py-3 text-slate-600">Compacto inline con nav temporal + LineaDropdown · 1 sola fila desktop</td>
+        </tr>
+        <tr>
+          <td class="px-4 py-3 font-bold">Solo pendientes</td>
+          <td class="px-4 py-3 text-slate-600">Toggle huérfano legacy + chip Pendiente en FiltrosBar (duplicado)</td>
+          <td class="px-4 py-3 text-slate-600"><strong>ELIMINADO</strong> · solo chip Pendiente en FiltrosBar (único)</td>
+        </tr>
+        <tr>
+          <td class="px-4 py-3 font-bold">LinkCardEficiencia</td>
+          <td class="px-4 py-3 text-slate-600">Oculto si <code>!hasData</code> · usuario no sabe que existe</td>
+          <td class="px-4 py-3 text-slate-600">Siempre visible con estado vacío "sin data" + CTA a CI</td>
+        </tr>
+        <tr>
+          <td class="px-4 py-3 font-bold">Sidebar</td>
+          <td class="px-4 py-3 text-slate-600">lg: (1024px) · se va al fondo en tablet</td>
+          <td class="px-4 py-3 text-slate-600">md: (768px) · sidebar visible desde tablet</td>
+        </tr>
+        <tr>
+          <td class="px-4 py-3 font-bold">FiltrosBar chips</td>
+          <td class="px-4 py-3 text-slate-600">3 botones "Todos" repetidos (uno por grupo)</td>
+          <td class="px-4 py-3 text-slate-600">"Todos" implícito · 1 chip "Limpiar filtros" al final si hay activos</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Footer -->
+  <div class="max-w-5xl mx-auto mt-8 text-center text-xs text-slate-400 italic">
+    Mockup chk5.C-UX-PASS · pendiente aprobación del usuario antes de implementación
+  </div>
+
+  <script>lucide.createIcons();</script>
+</body>
+</html>

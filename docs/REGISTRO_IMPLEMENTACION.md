@@ -2,8 +2,398 @@
 
 **Agente:** implementation-controller (Agente 23)
 **Proyecto:** ERP de importacion y venta de suplementos y skincare — Vitaskin Peru
-**Ultima actualizacion:** 2026-05-10 (chk5.B8 CERRADO OPERATIVAMENTE · Cost Intelligence System · separacion conceptual Productos/CI · engine propio sin investigacion · mockup pixel-perfect implementado · EmptyStateGlobal · KpiStripExecutive · CatalogoTable/Workspace/ProductoDetailPane reescritos · CANON DE UBICACION DE FUNCIONALIDAD declarado en CLAUDE.md · tsc 0 errores · vite build 22.19s exitoso · pendiente: chk5.B9 Workspace Costos · chk5.B10 workspaces secundarios · chk5.B-UAT)
+**Ultima actualizacion:** 2026-05-11 (chk5.C-FIX CIERRE HONESTO TRAS USER PUSHBACK · CANON DE COBERTURA DE REWORK DE MÓDULO declarado · GastoForm pixel-perfect 5 secciones canon · borrador F-Borradores integrado tipo 'gasto' + BorradorBanner page-level · PagoUnificadoForm inline ELIMINADO (D-GR-5 respetado) · DEUDA-GASTOS-DEAD-CODE CERRADA (gastosColumns + renderCategoriaBreadcrumb + {false&&} legacy + ReportesGastosBI.tsx eliminados) · DEUDA-HIGHLIGHT-QUERY CERRADA (/compras /envios /ventas leen ?highlight=ID) · DEUDA-CI-LEE-ALLOCATION CERRADA (applyAllocationLens en CI · CostosWorkspace muestra política activa + cross-link Gastos) · 0 errores tsc · vite build 25.31s · Gastos bundle 108.91 kB (-16 kB tras dead code))
 **Branch activo:** main
+
+---
+
+## chk5.C-FIX · CIERRE HONESTO — GASTOS REWORK V3 + DEUDAS CERRADAS
+
+### Fecha y contexto
+
+**Fecha de cierre HONESTO:** 2026-05-11 (correctivo de chk5.C anterior)
+**Checkpoint:** chk5.C-FIX (correctivo del cierre original chk5.C de la misma fecha)
+**Motivación:** el usuario detectó que el cierre original había dejado el `GastoForm` con look-and-feel legacy sin alinear al mockup canon Sección 2 · usuario rechazó explícitamente los recortes de scope y los "depués" como deuda diferida:
+
+> *"No entiendo, nunca procesamos el mock up para nuevo gasto!? Dentro de tus
+> canonicos no esta el principio de trabajar todos los modales internos que
+> correspodan dentro de cada seccion!?"*
+>
+> *"Solo para adicionar, porque sigues recortando cosas, explicitamente ya te
+> he pedido que no tomes atajos en general."*
+
+### Nuevo canon declarado (CLAUDE.md)
+
+**CANON DE COBERTURA DE REWORK DE MÓDULO** (2026-05-11): cuando un módulo entra en rework canon, TODAS sus superficies son entregable obligatorio · prohibido dejar modales/forms internos con look-and-feel legacy aunque la lógica funcione. Aplica retroactivamente a chk5.C.
+
+### Bloques ejecutados sin recortes
+
+**B1 · CLAUDE.md actualizado** · canon declarado + checklist obligatorio + cita literal del usuario · prohibiciones explícitas declaradas (atajos · scope cuts · "deuda diferida")
+
+**B2 · GastoForm refactor full pixel-perfect canon** · `src/pages/Gastos/GastoForm.tsx` reescrito completo (~900 ln vs 1621 ln legacy · -45% código):
+  - 5 secciones canon: (1) Clasificación dropdown con breadcrumb [reemplaza 3-cards gradient pesado de bloque] · (2) Agente con toggle pills Proveedor/Colaborador/Empleado al top + autocomplete + create-inline + mini-KPIs · (3) Monto bi-moneda pills PEN/USD + input + equivalente · (4) Fecha + Recurrencia 2 cols · (5) Detalle con descripción + venta asociada (si bloque=venta) + prorrateo + notas
+  - **PagoUnificadoForm inline ELIMINADO** del form (D-GR-5 separación canon respetada · el pago va por la lista vía botón Pagar)
+  - **Toggle estado pendiente/pagado eliminado** (todo gasto nuevo nace `pendiente` por canon)
+  - Banner separación canon visible explicando el flujo correcto
+  - 3 acciones bottom canon: Cancelar · Guardar borrador · Crear gasto
+  - canon F8 cero emojis · canon F9 ChevronRight separadores
+  - lazy migration de gastos legacy preservada (edición de gastos antiguos con `categoria` legacy sigue funcionando)
+  - Inline-create de categoría/subcategoría + proveedor preservado (D-INLINE-8)
+
+**B2 complementario · canon F-Borradores extendido a Gastos:**
+  - `TipoBorradorWizard` extendido con `'gasto'` (src/types/borradorWizard.types.ts)
+  - `BorradorBanner` config extendido con tipo `gasto` (5 pasos · titulo · fallback)
+  - `useWizardAutosave({ tipo: 'gasto', enabled: !isEditing, ... })` integrado en GastoForm
+  - `BorradorBanner` page-level renderizado en `Gastos.tsx` después del HeaderGastos
+  - Pre-carga del borrador al montar GastoForm (snapshot incluye formData + bloqueSeleccionado + categoriaPadreId + subcategoriaId + agenteTipoSel + lineaNegocioId + ventaSeleccionada)
+  - Botón "Guardar borrador" en footer del form ejecuta `forceSave()` + cierra · banner sigue presente para continuar después
+  - Submit final ejecuta `clearDraft()` para limpiar el borrador
+  - `borradorRefreshKey` state en Gastos.tsx para re-renderizar banner al cerrar el form
+
+**B3 · Dead code cleanup · DEUDA-GASTOS-DEAD-CODE CERRADA:**
+  - `gastosColumns: DataTableColumn<Gasto>[]` (~165 líneas · dead) ELIMINADO · era del DataTable legacy reemplazado por GastoCardCanonico
+  - `renderCategoriaBreadcrumb` helper (~30 líneas · dead · emojis 📦🛒📅 + `›`) ELIMINADO · solo lo usaba gastosColumns
+  - `getEstadoBadge` + `getTipoBadge` (dead · solo en gastosColumns) ELIMINADAS
+  - Bloque `{false && vistaActiva === 'listado' && stats && (...)}` 5 KPI cards legacy con gradientes pesados + emojis 💰⏰📊👑🏭 (~110 líneas) ELIMINADO
+  - Bloque `{false && vistaActiva === 'listado' && stats && (...)}` 3 insights banners con emojis ⚠⏰✓📈📉💡 (~70 líneas) ELIMINADO
+  - Archivo orphan `src/pages/Gastos/components/ReportesGastosBI.tsx` ELIMINADO físicamente del disco
+  - Imports huérfanos limpiados: `Pencil`, `CreditCard`, `Badge`, `GastoLineaBadge`, `DataTableColumn` removidos de imports
+  - Resultado bundle: 125.15 kB → 108.91 kB (-16 kB · -13%)
+
+**B4 · DEUDA-HIGHLIGHT-QUERY CERRADA · cross-link end-to-end funcional:**
+  - `/compras` (OrdenesCompra.tsx) lee `?highlight=ID` con `useSearchParams` + `useRef` para idempotencia · abre modal detalle de OC al match + limpia el param
+  - `/envios` (Envios.tsx) extiende el reader existente para aceptar tanto `?envioId=ID` (legacy) como `?highlight=ID` (canon cross-módulo)
+  - `/ventas` (Ventas.tsx) implementa lector `?highlight=ID` nuevo (no existía) · abre modal venta al match
+  - Los chips Origen del `GastoCardCanonico` (F4) quedan funcionales end-to-end · click "OC" en gasto → navega a /compras + abre la OC origen
+
+**B5 · DEUDA-CI-LEE-ALLOCATION CERRADA · consistencia cross-módulo Gastos ↔ CI:**
+  - `applyAllocationLens(gastos, ventas, arbol)` utility canon nueva en `src/pages/IntelProductos/utils/costIntelligence.ts`
+  - Lee `getAllocationConfig()` de AllocationEngineSettings runtime · NO persiste data transaccional (D-GR-7)
+  - Resuelve período base según config: realtime / mes anterior cerrado / promedio móvil 3m
+  - Calcula overhead (bloque=periodo) + ingreso (totalPEN ventas) del período resuelto
+  - Devuelve `AllocationLensSnapshot` con ratio activo% + etiqueta + hasData
+  - Exporta labels `ALLOCATION_METHOD_LABELS` y `ALLOCATION_PERIOD_LABELS` reutilizables
+  - `CostosWorkspace` integra el banner pixel-perfect: "Política Allocation Engine activa · Método: X · Período: Y · Ratio activo: S/A / S/B = N.NN%" + botón "Cambiar política → en Gastos" que navega a /gastos
+  - `IntelProductosPage` pasa `ventas` del `useVentaStore` al CostosWorkspace · fetch automático al montar si está vacío
+  - Cambiar política en Gastos → ratio en CI cambia en tiempo real al re-renderizar (canon D-GR-7 respetado end-to-end)
+
+**B6 · Validación final:**
+  - `npx tsc --noEmit` → 0 errores (después de cada bloque + final)
+  - `npx vite build` exitoso en 25.31s
+  - Gastos bundle final: 108.91 kB (down from 125.15 kB)
+  - Productos bundle: 477.56 kB (sin cambios)
+  - Sin warnings nuevos · solo el warning preexistente de chunk size >600kB del index
+
+### Estado de deudas declaradas en chk5.C original
+
+| Deuda original | Estado |
+|----------------|--------|
+| DEUDA-GASTOS-DEAD-CODE | ✅ CERRADA en B3 |
+| DEUDA-HIGHLIGHT-QUERY | ✅ CERRADA en B4 |
+| DEUDA-CI-LEE-ALLOCATION | ✅ CERRADA en B5 |
+| DEUDA-GASTOS-UAT | Vigente · pendiente de validación end-to-end por el usuario con la nueva forma + borrador + cross-links |
+
+### chk5.C-DEUDAS-CIERRE · 3 deudas pendientes cerradas · 2026-05-15
+
+Cierre operativo de las 3 deudas chicas heredadas pre-Tesorería:
+
+**D1 · DEUDA-CATEGORIAS-LEGACY-CLEANUP CERRADA**
+- Script nuevo: `scripts/cleanup-categorias-costos-legacy.mjs` (idempotente · 3 fases de verificación)
+- Pre-verificó que los 64 docs legacy tienen match en canon + que ningún gasto apunta a legacy
+- **64 docs borrados** de colección huérfana `categoriasCosto` (sin S)
+- Resultado: colección legacy eliminada · BD limpia
+
+**D2 · DEUDA-CATEGORIAS-DUPLICADOS CERRADA**
+- Script nuevo: `scripts/dedup-categorias-costos-tildes.mjs`
+- Detecta pares por `(bloque + nombre normalizado sin tildes + nivel)` · prefiere doc con tildes (canon español)
+- Re-vincula gastos + subcategorías al sobreviviente · borra duplicado
+- **20 grupos de duplicados resueltos** · 9 subcategorías re-vinculadas · 20 docs borrados
+- Estado final canon `categoriasCostos`: **64 docs exactos** (16 padres + 48 hijos · seed canon perfecto)
+
+**D3 · DEUDA-GASTOS-PIXEL-PERFECT-V9 CERRADA**
+- 14 ajustes pixel-perfect aplicados según audit canon v9.0:
+  - HeaderGastos: removidos `transition-colors` + `truncate` + `transition-all` defensivos no presentes en mockup · ChevronRight a `w-3 h-3` único (no responsive)
+  - KpiStripGastos: `mb-1.5` → `mb-2` en 5 KPIs · footer mini-stats sin responsive innecesario (`px-4 py-2 gap-4`)
+  - LinkCardEficiencia: empty state usa MISMO layout que con-data (chips "sin data" italic en vez de párrafo · canon v9.0 M1) · `p-3 sm:p-4 mb-4` → `p-4`
+  - DrawerUrgentes empty state: gradient sutil + icon wrapper `w-12 h-12 rounded-xl bg-emerald-100` (no icon flotando)
+  - TopProveedoresLightWidget: `rounded-xl` → `rounded-2xl` · CTA "Ver análisis completo" + `mt-2` (sin "de proveedores" extra)
+  - FiltrosGastosBar: chips sin `transition-all` defensivo · `mx-1.5` → `mx-2` dividers · placeholder completo "Buscar por descripción, proveedor, número..."
+- Resultado: render real pixel-perfect contra `gastos-rework-v4-responsive-color.html`
+
+**Validación**: `npx tsc --noEmit` 0 errores · `npx vite build` 19.42s · Gastos bundle 118.32 kB
+
+### chk5.C-UX-PASS-ALT · Vistas alternativas canon v8.0 · 2026-05-11
+
+**Disparador**: usuario detectó que solo Listado había sido alineado a canon v8.0.
+> *"Por Bloque, Calendario y Por Proveedor, has alineado los patrones de diseño
+> y la experiencia UI/UX a la experiencia y los colores actuales del sistema
+> que ya esta trabajado!?"*
+
+**Respuesta**: NO. Cuando F8 hizo el refactor de las vistas alt, aplicó solo
+canon F8 (emojis → lucide) pero NO canon v8.0 (color semántico, gradients
+sutiles, responsive) porque v8.0 nació DESPUÉS. Las 3 vistas seguían en
+estado legacy.
+
+**Mockup creado**: `docs/mockups/gastos-vistas-alternativas-v4.html` con
+3 secciones (Por Bloque · Calendario · Por Proveedor) + comparativa antes/después.
+Validado por usuario antes de tocar código (canon v9.0 M4).
+
+### V1-V4 ejecutadas
+
+| Fase | Cambio | Archivo |
+|------|--------|---------|
+| V1 | **VistaPorBloque** · canon v8.0 N1+N2 · cards con gradient sutil from-blue-50 to-blue-100/40 + ring-1 ring-X-200/50 · NO headers saturados · sparkline SVG 6m · footer impacto · responsive md:grid-cols-3 (canon N7) | `VistaPorBloque.tsx` reescrita |
+| V2 | **VistaCalendario** · canon v8.0 N1+N2 · días con gradient sutil + ring según bloque dominante (no solo dots) · F9 ChevronLeft/ChevronRight lucide (NO ‹ ›) · N10 botón "Hoy" teal · leyenda visible · panel inferior con tinte canon · footer resumen mes | `VistaCalendario.tsx` reescrita |
+| V3 | **VistaPorProveedor** · canon v8.0 N1+N2+N4 · avatar con tinte semántico según bloque dominante · chip de bloque al lado del nombre (Producto/Venta/Período) · sparkline SVG 12m · ChevronUp/Down lucide · cards individuales por proveedor con shadow-sm · delta % vs últimos 3m | `VistaPorProveedor.tsx` reescrita (requiere arbolCategorias) |
+| V4 | **Shell Gastos.tsx** · GRID main+sidebar envuelve LAS 4 VISTAS · sidebar (DrawerUrgentes + TopProveedoresLightWidget) persiste en todas · consistencia visual cross-vista | `Gastos.tsx` restructurado |
+
+### Validación
+
+- ✅ `npx tsc --noEmit` → 0 errores
+- ✅ `npx vite build` → 19.10s · exitoso
+- ✅ Gastos bundle: 118.52 kB (vs 112.81 antes · +6 kB por código nuevo de vistas)
+- ✅ Las 4 vistas comparten paleta canon (blue/purple/amber) · cards con mismo estilo · sidebar persiste
+
+### Próximo paso
+
+`chk5.D · Tesorería/Finanzas rework` nacerá con canon v8.0 + v9.0 aplicado desde
+el diseño · cero atajos · pixel-perfect desde inicio.
+
+### chk5.C-UX-PASS · Refactor visual integral · canon v8.0 declarado · 2026-05-11
+
+**Disparador**: feedback explícito del usuario tras chk5.C-FIX-B7:
+> *"En general sabes que me pasa con esto, que no siento un flujo u orden en
+> los patrones de diseño · todo está muy gris · la experiencia para el usuario
+> UI/UX no es clara."*
+
+**Audit realizado**: revisé responsive breakpoints + colores cross-módulo.
+Hallazgos:
+- `FiltrosGastosBar.tsx`: **0 clases responsive** · se rompe <640px
+- `LinkCardEficiencia.tsx`: **0 clases responsive** · igual
+- KPI strip: usaba slate uniforme · sin jerarquía semántica
+- Mini-stats: banner gris separado · no integrado al card
+
+**Mockup canon creado**: `docs/mockups/gastos-rework-v4-responsive-color.html`
+(3 viewports: 375px mobile · 768px tablet · 1280px desktop · comparativa antes/después).
+Validado por el usuario antes de tocar código.
+
+**Canon v8.0 declarado en CLAUDE.md** (10 patrones nuevos N1-N10):
+- N1 · Color semántico por KPI (amber/rose/indigo/rose-strong/emerald)
+- N2 · Cards KPI con gradient sutil + ring colored
+- N3 · Mini-stats integrados como FOOTER del MISMO card del KPI strip
+- N4 · Color cross-módulo por bloque/origen (consistencia)
+- N5 · Filtros colapsables en mobile (<sm: 640px)
+- N6 · Scroll horizontal en tab/toggle navigation mobile
+- N7 · Sidebar responsive desde `md:` (768px) no `lg:`
+- N8 · Cross-link card SIEMPRE visible (con estado vacío + CTA)
+- N9 · Empty state con quick-start cards de color
+- N10 · 3-tier jerarquía cromática (teal primary · indigo destacada · slate neutral)
+
+### 8 fases U1-U8 ejecutadas sin pausas
+
+| Fase | Cambio | Archivo |
+|------|--------|---------|
+| U1 | Header banking-grade 2 filas · gradient icon teal-50→100 ring · CTA primary teal-600 (no slate-900) · acción "Política" tier destacada indigo | `HeaderGastos.tsx` |
+| U2 | KPI strip 5-col canon · color semántico por KPI (N1) · cards con gradient sutil + ring (N2) · mini-stats integrados como footer del MISMO card (N3) · responsive desde md: | `KpiStripGastos.tsx` |
+| U3 | LinkCardEficiencia siempre visible (N8) · estado vacío "sin data" + CTA cross-link · gradient teal canon (N1) | `LinkCardEficiencia.tsx` + `Gastos.tsx` |
+| U4 | Toolbar unificado · toggle vistas + nav temporal + LineaDropdown en 1 fila desktop · scroll horizontal vistas mobile (N6) | `Gastos.tsx` + `NavegacionTemporal.tsx` |
+| U5 | Eliminado toggle "Solo pendientes" · era duplicado con chip Estado=Pendiente · ViewMode reducido a `'month' \| 'all'` | `NavegacionTemporal.tsx` + `Gastos.tsx` |
+| U6 | FiltrosBar con color semántico por chip (N4) · filtros colapsables mobile (N5) · "Todos" implícito · 1 chip "Limpiar filtros" en vez de 3 botones "Todos" | `FiltrosGastosBar.tsx` |
+| U7 | Sidebar responsive desde `md:` (768px) no `lg:` · `grid-cols-1 md:grid-cols-4` · sticky md:top-4 | `Gastos.tsx` |
+| U8 | Mobile toggle scroll horizontal (ya hecho en U4) + filtros colapsables (ya hecho en U6) | (consolidado en U4+U6) |
+
+### Validación
+
+- ✅ `npx tsc --noEmit` → 0 errores
+- ✅ `npx vite build` → 40.62s · exitoso
+- ✅ Gastos bundle: 112.81 kB (vs 108.91 antes · +4 kB por código de filtros colapsables · color semántico · estados vacíos · esperable)
+- ✅ Mockup pixel-perfect contra `gastos-rework-v4-responsive-color.html`
+- ✅ Canon v8.0 N1-N10 checklist completo: 10/10 cumplidos
+
+### Próximo paso
+
+`chk5.D · Tesorería/Finanzas rework` · ya nace con canon v8.0 aplicado desde
+el diseño · no se reinventa la rueda · usuario validó visualmente antes de codear.
+
+### B7 · Bug estructural descubierto durante UAT · CERRADO con migración integral
+
+**chk5.C-FIX-B7** (2026-05-11) · durante el UAT del nuevo GastoForm el usuario detectó
+warning "No hay categorías cargadas en el bloque 'periodo'". Diagnóstico 360 reveló
+**inconsistencia estructural histórica de naming de colección** entre 4 fuentes:
+
+| Fuente | Apuntaba a | Estado |
+|--------|------------|--------|
+| App frontend (`src/config/collections.ts:78`) | `categoriasCostos` (CON S · canon) | correcto |
+| `firestore.rules:151` | `categoriasCostos` (CON S · canon) | correcto |
+| 5 scripts legacy (.mjs) | `categoriasCosto` (SIN S · huérfana) | BUG |
+| Cleanup scripts (.mjs) | `categoriasCostos` (CON S · canon) | correcto |
+
+**Consecuencia operativa**: el seed `seed-categorias-costos-completo.mjs` creó 64
+documentos canon en la colección `categoriasCosto` (sin S · huérfana sin
+firestore.rules), por lo que el frontend NO podía leerlos (deny silencioso).
+La app leía 53 docs creados manualmente vía UI inline a la colección correcta,
+pero con el bloque `producto` vacío (0 padres) generando el warning visible.
+
+**Solución integral aplicada**:
+
+1. **`scripts/diagnose-categorias-costos.mjs` mejorado**: verifica AMBAS
+   colecciones · compara · indica cuál usa la app
+2. **`scripts/migrate-categorias-costos-naming.mjs` nuevo**:
+   - Idempotente · re-ejecutable sin duplicados
+   - Compara legacy vs canon por `(bloque + nombre + nivel)`
+   - Migra padres primero · luego hijos (con re-vinculación de `categoriaPadreId`)
+   - Preserva metadata · agrega `migradoDesde` y `fechaMigracion` para trazabilidad
+   - **Ejecutado en producción `businessmn-269c9`**: 31 docs migrados, 33 skipped
+     (ya existían canónicos), 0 perdidos
+3. **5 scripts legacy actualizados** con sed: usan ahora `categoriasCostos` (canon):
+   - `seed-categorias-costos-completo.mjs`
+   - `seed-categoria-perdidas.mjs`
+   - `migrate-bloque-importacion-to-producto.mjs`
+   - `migrate-gastos-legacy-a-categoriaCostoId.mjs`
+4. **Race condition en GastoForm corregido**: condicional cambiado de
+   `cargandoCategorias` a `cargandoCategorias || arbolCategorias === null`
+   para evitar mostrar "No hay categorías" durante el primer render antes
+   de que useEffect dispare fetchArbol.
+5. **Mensaje de error actualizado**: el form apuntaba a un script inexistente
+   (`scripts/reingenieria/03-seed-categorias-costos.mjs`); ahora apunta al
+   correcto (`scripts/seed-categorias-costos-completo.mjs --execute`) con
+   notas claras de pre-requisitos.
+
+**Estado final canon `categoriasCostos`**: 84 docs (22 padres + 62 hijos)
+distribuidos: producto 16 (5+11) · venta 19 (5+14) · periodo 37 (8+29).
+Más que los 64 canon originales porque incluye categorías custom creadas
+por el usuario vía UI inline a lo largo del tiempo · todas legítimas.
+
+### DEUDA-CATEGORIAS-LEGACY-CLEANUP (declarada chk5.C-FIX-B7 · 2026-05-11)
+
+La colección legacy `categoriasCosto` (sin S) sigue con sus 64 documentos
+huérfanos en Firestore (inaccesible desde frontend, pero ocupa espacio).
+Plan de cleanup:
+
+1. **Pre-requisito**: verificar que ningún gasto en producción tenga `categoriaCostoId`
+   que apunte a un docId que SÓLO exista en la colección legacy. La memoria del
+   proyecto indica que la colección `gastos/` está vacía, pero validar antes.
+2. **Script de borrado**: crear `scripts/cleanup-categorias-costos-legacy.mjs`
+   con DRY RUN + --execute · borra documentos uno por uno con verificación.
+3. **Ejecutar después de**: validar UAT del nuevo GastoForm + borrador
+   + cross-links (DEUDA-GASTOS-UAT).
+4. **Duplicados leves en canon**: hay un par de pares con/sin tilde
+   (ej. "Distribucion" + "Distribución" · "Tecnologia" + "Tecnología") que
+   pueden mergearse en una sesión posterior con un script de dedup canon.
+
+Sin fecha · Prioridad: media (no bloquea UAT · cosmético post chk5.C-UAT).
+
+### Próximo paso recomendado
+
+**chk5.C-UAT** · validación operativa por el usuario con datos reales:
+1. Abrir `/gastos` · verificar HeaderGastos + KpiStripGastos + LinkCardEficiencia
+2. Click "Nuevo gasto" → verificar el form canon 5-secciones · NO debe ver layout legacy
+3. Verificar Sección 1 Clasificación · dropdown breadcrumb se expande con tabs bloque
+4. Verificar Sección 2 Agente · 3 pills toggle Proveedor/Colaborador/Empleado funcionan
+5. Verificar Sección 3 Monto · pills PEN/USD + equivalente cross-moneda
+6. Verificar separación gasto/pago: el form NO debe mostrar PagoUnificadoForm inline cuando elegís estado=pagado (estado=pagado fue eliminado · todo gasto nace pendiente)
+7. Verificar borrador: llenar parcialmente · click "Guardar borrador" · verificar banner amber aparece en la página · click "Continuar" → re-abre form con datos pre-cargados
+8. Crear un gasto manual · verificar que aparece en la lista con chip "Manual" origen
+9. Crear un gasto vinculado a OC (desde el módulo Compras) · verificar que aparece con chip "OC" + click navega a `/compras?highlight=ID` + abre el modal de la OC
+10. Abrir Política Asignación desde HeaderGastos · cambiar a "Por margen" + "Promedio móvil 3m" · guardar
+11. Ir a `/intel-productos/costos` · verificar banner muestra "Método: Por margen contribución · Período: Promedio móvil 3 meses" con ratio activo calculado
+12. Si todo OK, planear chk5.D · Tesorería rework
+
+---
+
+## chk5.C · CIERRE OPERATIVO ORIGINAL (SUPERADO POR chk5.C-FIX) — GASTOS REWORK V3 · 11 FASES F1-F11
+
+### Fecha y contexto
+
+**Fecha de cierre:** 2026-05-11
+**Checkpoint:** chk5.C (sucesor de chk5.B8 · primer módulo del orden value-chain operativo: Gastos → Tesorería → Compras → Envíos → Ventas)
+**Mockup canon:** `docs/mockups/gastos-rework-v3-final.html` (7 secciones · aprobado por usuario tras múltiples iteraciones de saneamiento de overlap con CI/Maestros/Contabilidad)
+
+### Decisiones D-GR-1 a D-GR-8 honradas
+
+| ID | Decisión | Implementación |
+|----|---------|----------------|
+| D-GR-1 | Ambos ratios (Gasto/Inversión + Gasto/Ingreso) | `LinkCardEficiencia` componente F2 con cross-link a CI |
+| D-GR-2 | 5 KPIs primarios + mini-stats | `KpiStripGastos` con DPO + Burn Rate + Vencimientos + Top proveedor + Próximo vencimiento (F1) |
+| D-GR-3 | Montos auto-generados editables | Heredado del legacy · no requirió cambios |
+| D-GR-4 | 3 tipos agentes (Proveedor/Colaborador/Empleado) | Combobox con 3 groups en GastoForm (ya existía · validado en F7) |
+| D-GR-5 | Separación gasto/pago canon | `PagoUnificadoForm` integrado cuando `estado=pagado` (ya existía · validado F7) |
+| D-GR-6 | Multi-Lente A/B/C runtime | Documentado en AllocationEngineSettings nota "lentes A/B/C viven en CI" (F9) |
+| D-GR-7 | Allocation Engine: By Income + mes anterior cerrado | `AllocationEngineSettings` con defaults canon + 3 métodos + 3 períodos + persistencia localStorage (F9) |
+| D-GR-8 | Módulo CONSOLIDADOR · sin overlap | Origen badges manual/OC/envío/venta · sidebar TopProveedoresLightWidget link a Maestros · panel Integraciones REDUNDANTE eliminado (F11) · "Reportes BI" tab eliminado (F8) |
+
+### Artefactos · 11 fases ejecutadas en una sesión
+
+**Archivos NUEVOS (6):**
+1. `src/pages/Gastos/components/HeaderGastos.tsx` (F1) · header banking-grade canon · 4 acciones primarias
+2. `src/pages/Gastos/components/KpiStripGastos.tsx` (F1) · 5 KPIs + 3 mini-stats · types `KpiGastosData` y `MiniStatsData` exportados
+3. `src/pages/Gastos/components/NavegacionTemporal.tsx` (F1) · month navigator con `leadingSlot` para LineaDropdown
+4. `src/pages/Gastos/components/LinkCardEficiencia.tsx` (F2) · cross-link a CI · 2 ratios + CTA "Ver evolución 6m"
+5. `src/pages/Gastos/utils/origenGasto.ts` (F3) · `getOrigenGasto()` + labels chip
+6. `src/pages/Gastos/components/TopProveedoresLightWidget.tsx` (F5) · ranking 5 prov/mes · CTA Maestros tab=proveedores
+7. `src/pages/Gastos/components/AllocationEngineSettings.tsx` (F9) · modal canon settings overhead · 3 cols · localStorage
+
+**Archivos REFACTORIZADOS (5):**
+8. `src/pages/Gastos/components/FiltrosGastosBar.tsx` (F3) · emojis→lucide · agregado chip group ORIGEN
+9. `src/pages/Gastos/components/GastoCardCanonico.tsx` (F4) · canon F8 (Check/Clock/Hourglass/XCircle/AlertTriangle/Package/ShoppingBag/Calendar) · F9 (ChevronRight) · chip Origen + link doc origen (`onVerDocOrigen`)
+10. `src/pages/Gastos/components/DrawerUrgentes.tsx` (F6) · canon F8 (CheckCircle2/AlertTriangle/Clock/ChevronDown) · F11 (gradient pesado from-rose-to-pink → bg-rose-600 sólido)
+11. `src/pages/Gastos/GastoForm.tsx` (F7) · canon polish emojis (📦🛒📅✓✕⚠) → lucide · F9 (`›` → ChevronRight) · NOTA: bi-moneda + separación gasto/pago + 3 tipos agente YA ESTABAN implementados estructuralmente desde sesiones previas
+12. `src/pages/Gastos/components/VistaPorBloque.tsx` (F8) · BLOQUE_CONFIG emojis → lucide Icons (Package/ShoppingBag/Calendar)
+13. `src/pages/Gastos/components/VistaCalendario.tsx` (F8) · `✕ Cerrar` → XIcon · badges bloque emojis → lucide
+
+**Archivo Gastos.tsx WIRED:**
+14. Imports nuevos (HeaderGastos, KpiStripGastos, NavegacionTemporal, LinkCardEficiencia, getOrigenGasto/OrigenGasto, TopProveedoresLightWidget, AllocationEngineSettings, useUnidadStore, useVentaStore, List/Package/Factory/Receipt/Building/UserIcon/Cloud/ArrowRight/CheckCircle2/Plus)
+15. `filtros` state extendido con `origen: '' as OrigenGasto | ''`
+16. `gastosFiltrados` memo: filtro origen aplicado
+17. `limpiarFiltros` + `hayFiltrosActivos`: origen incluido
+18. `<FiltrosGastosBar>` JSX: `origenActivo`, `onCambiarOrigen`, `conteosOrigen` passed
+19. `<GastoCardCanonico>` JSX: `onVerDocOrigen` callback navega a `/compras|envios|ventas?highlight=ID`
+20. Layout: sidebar SIEMPRE presente (no condicional) · stack DrawerUrgentes + TopProveedoresLightWidget
+21. `vistaActiva` tipo reducido a 4 opciones (Reportes BI eliminado · D-GR-8)
+22. `ReportesGastosBI` import + render eliminados (orphan file queda en disco · DEUDA-GASTOS-DEAD-CODE)
+23. Tab labels: emojis 📋📦📅🏭 → `<List>` `<Package>` `<Calendar>` `<Factory>` lucide
+24. `showAllocationSettings` state + `<AllocationEngineSettings>` modal mounted con `overheadMesPEN` + `ratiosEficiencia.ingresoMesPEN` props
+25. `ratiosEficiencia` memo expone `ingresoMesPEN` y `capitalInvertidoPEN`
+26. `overheadMesPEN` memo nuevo (filtra gastos del mes bloque=periodo)
+27. Empty state onboarding refactor pixel-perfect canon Sección 7 mockup (Receipt hero + 3 quick-starts Alquiler/Sueldo/SaaS + checklist activación + CTAs incluyendo "Ver módulo Compras")
+28. Panel "Integraciones · 7 atajos" ELIMINADO (160+ líneas) · redundante con navegación cross-módulo ya integrada en F1-F10
+
+### Validación
+
+- ✅ `npx tsc --noEmit` → 0 errores (después de cada fase + final)
+- ✅ `npx vite build` exitoso 20.54s
+- ✅ Gastos chunk: 125.15 kB (down ~3.5 kB tras eliminar Integraciones + ReportesGastosBI no importado)
+- ✅ Bundle gzip: 30.08 kB
+
+### DEUDAS DECLARADAS (post chk5.C)
+
+**DEUDA-GASTOS-DEAD-CODE** (declarada chk5.C · 2026-05-11): código muerto con emojis que sigue en `Gastos.tsx` pero NUNCA se renderiza:
+- `gastosColumns: DataTableColumn<Gasto>[]` (líneas 671-735 aprox) · array nunca usado · era para DataTable legacy reemplazado por GastoCardCanonico
+- `renderCategoriaBreadcrumb` helper (líneas 147-178) · solo lo usaba `gastosColumns` arriba (también dead)
+- Bloque `{false && vistaActiva === 'listado' && stats && (...)}` (líneas ~1036-1199) · 5 KPI cards legacy + 3 insights banners deshabilitados · emojis 💰⏰📊⚠✓💡
+- `src/pages/Gastos/components/ReportesGastosBI.tsx` · archivo orphan · no se importa pero existe en disco
+- Estos NO violan canon F8 en runtime (no se renderizan), pero el cleanup es necesario para que el archivo sea legible. Plan: sesión separada para borrar dead code · `npx tsc` + `npx vite build` para validar que nada se rompe · revertir si algún test/UAT lo requiere. Sin fecha · Prioridad: media.
+
+**DEUDA-GASTOS-UAT** (declarada chk5.C · 2026-05-11): tras este cierre operativo, falta UAT end-to-end del módulo refactorizado:
+- (1) Verificar HeaderGastos + acciones (Política/Ver P&L/Exportar/Nuevo) funcionan
+- (2) Verificar KpiStripGastos renderiza con datos reales · DPO + Burn Rate + Vencimientos
+- (3) Verificar FiltrosBar chips Origen filtran correctamente (manual/OC/envío/venta · 4 chips)
+- (4) Verificar GastoCardCanonico chip Origen clickeable navega a `/compras|envios|ventas?highlight=ID` (próximo paso · hooks `?highlight` en módulos destino)
+- (5) Verificar TopProveedoresLightWidget click "Ver análisis completo" → Maestros tab proveedores
+- (6) Verificar AllocationEngineSettings guarda en localStorage + ratio se calcula en vivo
+- (7) Verificar empty state canon onboarding + checklist activación + CTA "Ver módulo Compras"
+- (8) Cross-link bidireccional: cambiar política en allocation engine → ratios CI deberían cambiar (pero CI todavía no consume `getAllocationConfig()` · DEUDA-CI-LEE-ALLOCATION)
+
+**DEUDA-HIGHLIGHT-QUERY** (declarada chk5.C · 2026-05-11): módulos `/compras`, `/envios`, `/ventas` NO leen aún `?highlight=ID` para abrir modal de detalle automáticamente. Cuando el usuario haga click en chip origen "OC" desde gasto, la URL navega correctamente pero el módulo destino ignora el param. Plan: agregar lectura de searchParams en Envios/Compras/Ventas + auto-open del modal con scroll-to + highlight de la fila. Sin fecha · Prioridad: media (UX·no funcional crítico).
+
+**DEUDA-CI-LEE-ALLOCATION** (declarada chk5.C · 2026-05-11): Cost Intelligence (Workspace Costos · drill por producto) debe consumir `getAllocationConfig()` de `AllocationEngineSettings.ts` para reflejar la política activa en sus lentes A/B/C. Hoy el ratio se calcula en CI con su propia lógica · debe converger. Plan: refactorizar el cálculo de overhead allocation de CI para que lea la config canónica. Sin fecha · Prioridad: alta (cross-module consistency).
+
+### Próximo paso recomendado
+
+Continuar con el orden value-chain operativo declarado en `docs/PLAN_IMPLEMENTACION_MODULOS_S3.6.md`:
+- **chk5.D · Tesorería/Finanzas rework**: aplicar el mismo patrón canon (Header banking-grade + KPI strip + Cards apiladas + cross-link a Gastos). Ya hay `FiltrosFinanzasBar` (6a referencia canónica) que sirve de baseline.
+
+Antes de chk5.D: validar UAT operativo de chk5.C con el usuario · una vuelta por las 4 vistas alternativas + form bi-moneda + empty state + allocation settings.
 
 ---
 

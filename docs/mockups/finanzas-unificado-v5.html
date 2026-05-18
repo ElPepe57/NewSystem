@@ -1,0 +1,1313 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Finanzas Unificado v5 · canon v8.0+v9.0 · chk5.D-S1</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background: #f8fafc; }
+    .tabular { font-variant-numeric: tabular-nums; }
+    .section-divider { display: flex; align-items: center; gap: 12px; margin: 48px 0 16px; padding-bottom: 8px; border-bottom: 2px dashed #cbd5e1; }
+    .section-num { background: #0f766e; color: white; padding: 2px 10px; border-radius: 999px; font-size: 11px; font-weight: bold; }
+    .viewport-demo { border: 1px solid #cbd5e1; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 24px; }
+    .viewport-label { background: linear-gradient(90deg, #0f766e, #14b8a6); color: white; padding: 6px 12px; font-size: 11px; font-weight: bold; display: flex; justify-content: space-between; }
+    .viewport-content { background: #f8fafc; }
+    .vp-desktop { max-width: 1440px; margin: 0 auto; }
+    .vp-mobile { max-width: 375px; margin: 0 auto; }
+    .scrollbar-none::-webkit-scrollbar { display: none; }
+    .scrollbar-none { scrollbar-width: none; }
+  </style>
+</head>
+<body class="p-4 lg:p-8">
+
+  <!-- ═══════════════════════════════════════════════════════════════════════════ -->
+  <!-- INTRO + ARQUITECTURA                                                        -->
+  <!-- ═══════════════════════════════════════════════════════════════════════════ -->
+  <div class="max-w-6xl mx-auto mb-8">
+    <h1 class="text-3xl font-bold text-slate-900 mb-2">Finanzas Unificado v5 · canon v8.0 + v9.0</h1>
+    <p class="text-sm text-slate-600 mb-4">
+      chk5.D-S1 (2026-05-15) · refactor estratégico tras audit 360 · pasamos de 2 rutas confusas
+      (<code class="bg-slate-200 px-1 py-0.5 rounded">/finanzas</code> + <code class="bg-slate-200 px-1 py-0.5 rounded">/tesoreria</code>)
+      con 9-10 sub-vistas + 6 wizards desperdigados → <strong>1 sola ruta</strong>
+      <code class="bg-teal-100 text-teal-800 px-1 py-0.5 rounded">/finanzas</code>
+      con <strong>5 vistas canon</strong> + acciones unificadas + sidebar persistente.
+    </p>
+
+    <!-- Arquitectura propuesta · 5 vistas por intent -->
+    <div class="bg-white border border-slate-200 rounded-2xl p-5 mb-4">
+      <h2 class="text-base font-bold text-slate-900 mb-3 flex items-center gap-2">
+        <i data-lucide="layout-dashboard" class="w-4 h-4 text-teal-600"></i>
+        Arquitectura por intent del CFO
+      </h2>
+      <div class="grid grid-cols-1 md:grid-cols-5 gap-3">
+        <div class="bg-gradient-to-br from-teal-50 to-teal-100/40 ring-1 ring-teal-200/50 rounded-xl p-3">
+          <div class="flex items-center gap-1.5 mb-1">
+            <i data-lucide="chart-pie" class="w-3.5 h-3.5 text-teal-700"></i>
+            <span class="text-[10px] uppercase tracking-wider text-teal-700 font-bold">Overview</span>
+          </div>
+          <div class="text-[11px] font-bold text-teal-900">¿Cuánta plata tengo HOY?</div>
+          <div class="text-[10px] text-teal-700 mt-0.5">/finanzas (landing)</div>
+        </div>
+        <div class="bg-gradient-to-br from-emerald-50 to-emerald-100/40 ring-1 ring-emerald-200/50 rounded-xl p-3">
+          <div class="flex items-center gap-1.5 mb-1">
+            <i data-lucide="handshake" class="w-3.5 h-3.5 text-emerald-700"></i>
+            <span class="text-[10px] uppercase tracking-wider text-emerald-700 font-bold">Saldos</span>
+          </div>
+          <div class="text-[11px] font-bold text-emerald-900">¿Quién me debe/le debo?</div>
+          <div class="text-[10px] text-emerald-700 mt-0.5">/finanzas/saldos</div>
+        </div>
+        <div class="bg-gradient-to-br from-indigo-50 to-indigo-100/40 ring-1 ring-indigo-200/50 rounded-xl p-3">
+          <div class="flex items-center gap-1.5 mb-1">
+            <i data-lucide="arrow-right-left" class="w-3.5 h-3.5 text-indigo-700"></i>
+            <span class="text-[10px] uppercase tracking-wider text-indigo-700 font-bold">Movimientos</span>
+          </div>
+          <div class="text-[11px] font-bold text-indigo-900">Dinero entrando/saliendo</div>
+          <div class="text-[10px] text-indigo-700 mt-0.5">/finanzas/movimientos</div>
+        </div>
+        <div class="bg-gradient-to-br from-amber-50 to-amber-100/40 ring-1 ring-amber-200/50 rounded-xl p-3">
+          <div class="flex items-center gap-1.5 mb-1">
+            <i data-lucide="building-2" class="w-3.5 h-3.5 text-amber-700"></i>
+            <span class="text-[10px] uppercase tracking-wider text-amber-700 font-bold">Cuentas</span>
+          </div>
+          <div class="text-[11px] font-bold text-amber-900">¿Dónde está mi plata?</div>
+          <div class="text-[10px] text-amber-700 mt-0.5">/finanzas/cuentas</div>
+        </div>
+        <div class="bg-gradient-to-br from-purple-50 to-purple-100/40 ring-1 ring-purple-200/50 rounded-xl p-3">
+          <div class="flex items-center gap-1.5 mb-1">
+            <i data-lucide="trending-up" class="w-3.5 h-3.5 text-purple-700"></i>
+            <span class="text-[10px] uppercase tracking-wider text-purple-700 font-bold">Cash flow</span>
+          </div>
+          <div class="text-[11px] font-bold text-purple-900">¿Cómo proyecto el mes?</div>
+          <div class="text-[10px] text-purple-700 mt-0.5">/finanzas/cash-flow</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Paleta canon cross-módulo -->
+    <div class="bg-white border border-slate-200 rounded-2xl p-5">
+      <h2 class="text-base font-bold text-slate-900 mb-3 flex items-center gap-2">
+        <i data-lucide="palette" class="w-4 h-4 text-teal-600"></i>
+        Paleta canon v8.0 N4 · cross-módulo
+      </h2>
+      <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-2 text-[10px]">
+        <div class="bg-teal-100 text-teal-800 p-2.5 rounded-lg font-bold">teal · Patrimonio<br><span class="opacity-80 font-normal">marca · cuentas</span></div>
+        <div class="bg-emerald-100 text-emerald-800 p-2.5 rounded-lg font-bold">emerald · Por cobrar<br><span class="opacity-80 font-normal">cliente · success</span></div>
+        <div class="bg-rose-100 text-rose-800 p-2.5 rounded-lg font-bold">rose · Por pagar<br><span class="opacity-80 font-normal">proveedor · alert</span></div>
+        <div class="bg-purple-100 text-purple-800 p-2.5 rounded-lg font-bold">purple · Colaborador<br><span class="opacity-80 font-normal">logística · cash flow</span></div>
+        <div class="bg-indigo-100 text-indigo-800 p-2.5 rounded-lg font-bold">indigo · Empleado<br><span class="opacity-80 font-normal">commitment · sueldo</span></div>
+        <div class="bg-amber-100 text-amber-800 p-2.5 rounded-lg font-bold">amber · Tarjeta TC<br><span class="opacity-80 font-normal">deuda short · warning</span></div>
+        <div class="bg-slate-100 text-slate-700 p-2.5 rounded-lg font-bold">slate · Neutral<br><span class="opacity-80 font-normal">manual · sin clasif</span></div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════════════════════════════════════ -->
+  <!-- SECCIÓN 1 · DESKTOP 1440px · OVERVIEW (landing)                            -->
+  <!-- ═══════════════════════════════════════════════════════════════════════════ -->
+  <div class="section-divider max-w-6xl mx-auto">
+    <span class="section-num">1</span>
+    <h2 class="text-xl font-bold text-slate-900">Overview · landing · 1440px</h2>
+    <span class="text-xs text-slate-500 italic">Header banking-grade + tabs sticky + KPI strip único + sidebar persistente</span>
+  </div>
+
+  <div class="viewport-demo vp-desktop">
+    <div class="viewport-label">
+      <span>🖥️ Desktop 1440px · /finanzas (Overview)</span>
+      <span>canon v8.0+v9.0</span>
+    </div>
+    <div class="viewport-content p-6" style="width: 1440px;">
+
+      <!-- Header banking-grade canon v8.0 N10 · 2 filas -->
+      <div class="bg-white rounded-2xl border border-slate-200 p-5 mb-4">
+        <div class="flex items-center gap-1.5 text-xs text-slate-400 mb-1">
+          <span class="hover:text-teal-600 cursor-pointer">Finanzas y Contabilidad</span>
+          <i data-lucide="chevron-right" class="w-3 h-3"></i>
+          <span class="text-slate-600 font-medium">Overview · 11 mayo 2026</span>
+        </div>
+        <div class="flex items-start justify-between gap-3 flex-wrap">
+          <div class="flex-1 min-w-[260px]">
+            <h1 class="text-2xl font-bold text-slate-900 flex items-center gap-2.5">
+              <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-teal-50 to-teal-100 ring-1 ring-teal-200/50 flex items-center justify-center">
+                <i data-lucide="chart-pie" class="w-6 h-6 text-teal-700"></i>
+              </div>
+              Finanzas
+            </h1>
+            <p class="text-sm text-slate-500 mt-1 max-w-2xl">
+              Pantalla de mando ejecutiva · tu salud financiera de un vistazo · cobranza · pagos · flujo proyectado.
+            </p>
+          </div>
+          <!-- Acciones canon N10 · 3-tier jerarquía -->
+          <div class="flex items-center gap-2 flex-wrap">
+            <button class="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-indigo-700 bg-indigo-50 border border-indigo-200 rounded-lg hover:bg-indigo-100">
+              <i data-lucide="layers" class="w-3.5 h-3.5"></i> Pagos masivos
+            </button>
+            <button class="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-indigo-700 bg-indigo-50 border border-indigo-200 rounded-lg hover:bg-indigo-100">
+              <i data-lucide="check-square" class="w-3.5 h-3.5"></i> Conciliar
+            </button>
+            <button class="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50">
+              <i data-lucide="download" class="w-3.5 h-3.5"></i> Reporte mensual
+            </button>
+            <!-- Primary CTA · dropdown -->
+            <div class="relative">
+              <button class="flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-white bg-teal-600 hover:bg-teal-700 rounded-lg shadow-sm">
+                <i data-lucide="plus" class="w-3.5 h-3.5"></i> Nuevo movimiento
+                <i data-lucide="chevron-down" class="w-3 h-3 ml-0.5"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabs sticky canon · 5 vistas con color semántico (v8.0 N4) -->
+      <div class="bg-white rounded-2xl border border-slate-200 px-3 py-2 mb-4 flex items-center gap-1.5 flex-wrap">
+        <button class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-teal-100 text-teal-800 ring-2 ring-teal-300">
+          <i data-lucide="chart-pie" class="w-3.5 h-3.5"></i> Overview
+        </button>
+        <button class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-slate-600 hover:bg-slate-50">
+          <i data-lucide="handshake" class="w-3.5 h-3.5"></i> Saldos
+        </button>
+        <button class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-slate-600 hover:bg-slate-50">
+          <i data-lucide="arrow-right-left" class="w-3.5 h-3.5"></i> Movimientos
+        </button>
+        <button class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-slate-600 hover:bg-slate-50">
+          <i data-lucide="building-2" class="w-3.5 h-3.5"></i> Cuentas
+        </button>
+        <button class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-slate-600 hover:bg-slate-50">
+          <i data-lucide="trending-up" class="w-3.5 h-3.5"></i> Cash flow
+        </button>
+      </div>
+
+      <!-- Layout main + sidebar -->
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div class="md:col-span-3 space-y-4">
+
+          <!-- KPI strip único canon v8.0 N1+N2+N3 · 5 KPIs · 1 por intent -->
+          <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden">
+            <div class="grid grid-cols-2 md:grid-cols-5 divide-y md:divide-y-0 md:divide-x divide-slate-200">
+              <!-- KPI 1 · Patrimonio · teal -->
+              <div class="p-4 bg-gradient-to-br from-teal-50/40 to-transparent">
+                <div class="flex items-center justify-between mb-2">
+                  <span class="text-[10px] uppercase tracking-wider text-teal-700 font-bold">Patrimonio total</span>
+                  <i data-lucide="wallet" class="w-3.5 h-3.5 text-teal-700"></i>
+                </div>
+                <div class="text-2xl font-bold tabular text-teal-900">S/ 87,420<span class="text-teal-400">.50</span></div>
+                <div class="text-[11px] text-teal-700 flex items-center gap-1 mt-1">
+                  <i data-lucide="trending-up" class="w-3 h-3"></i> +12.4% vs mes ant.
+                </div>
+              </div>
+              <!-- KPI 2 · Por cobrar · emerald -->
+              <div class="p-4 bg-gradient-to-br from-emerald-50/40 to-transparent">
+                <div class="flex items-center justify-between mb-2">
+                  <span class="text-[10px] uppercase tracking-wider text-emerald-700 font-bold">Por cobrar</span>
+                  <i data-lucide="arrow-down-circle" class="w-3.5 h-3.5 text-emerald-700"></i>
+                </div>
+                <div class="text-2xl font-bold tabular text-emerald-900">S/ 24,180<span class="text-emerald-400">.00</span></div>
+                <div class="text-[11px] text-emerald-700 mt-1">12 clientes · 3 vencidos</div>
+              </div>
+              <!-- KPI 3 · Por pagar · rose -->
+              <div class="p-4 bg-gradient-to-br from-rose-50/40 to-transparent">
+                <div class="flex items-center justify-between mb-2">
+                  <span class="text-[10px] uppercase tracking-wider text-rose-700 font-bold">Por pagar</span>
+                  <i data-lucide="arrow-up-circle" class="w-3.5 h-3.5 text-rose-700"></i>
+                </div>
+                <div class="text-2xl font-bold tabular text-rose-900">S/ 18,650<span class="text-rose-400">.00</span></div>
+                <div class="text-[11px] text-rose-700 mt-1">8 proveedores · 2 vencidos</div>
+              </div>
+              <!-- KPI 4 · Flujo neto · indigo -->
+              <div class="p-4 bg-gradient-to-br from-indigo-50/40 to-transparent">
+                <div class="flex items-center justify-between mb-2">
+                  <span class="text-[10px] uppercase tracking-wider text-indigo-700 font-bold">Flujo neto · mes</span>
+                  <i data-lucide="trending-up" class="w-3.5 h-3.5 text-indigo-700"></i>
+                </div>
+                <div class="text-2xl font-bold tabular text-indigo-900">+S/ 5,530<span class="text-indigo-400">.00</span></div>
+                <div class="text-[11px] text-indigo-700 mt-1">positivo · sano</div>
+              </div>
+              <!-- KPI 5 · DSO/DPO · amber -->
+              <div class="p-4 bg-gradient-to-br from-amber-50/40 to-transparent">
+                <div class="flex items-center justify-between mb-2">
+                  <span class="text-[10px] uppercase tracking-wider text-amber-700 font-bold">DSO / DPO</span>
+                  <i data-lucide="calendar-check" class="w-3.5 h-3.5 text-amber-700"></i>
+                </div>
+                <div class="text-2xl font-bold tabular text-amber-900">22<span class="text-amber-400">d</span> / 35<span class="text-amber-400">d</span></div>
+                <div class="text-[11px] text-amber-700 mt-1">cobro/pago · health</div>
+              </div>
+            </div>
+            <!-- Mini-stats footer integrado N3 -->
+            <div class="bg-slate-50/50 border-t border-slate-200 px-4 py-2 flex items-center gap-4 text-[11px] flex-wrap">
+              <span class="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Mini-stats:</span>
+              <div class="flex items-center gap-1">
+                <i data-lucide="building-2" class="w-3 h-3 text-slate-500"></i>
+                <span class="text-slate-600">Cuentas activas:</span>
+                <span class="font-bold tabular text-slate-900">5</span>
+              </div>
+              <span class="text-slate-300">·</span>
+              <div class="flex items-center gap-1">
+                <i data-lucide="users" class="w-3 h-3 text-slate-500"></i>
+                <span class="text-slate-600">Entidades:</span>
+                <span class="font-bold tabular text-slate-900">20</span>
+              </div>
+              <span class="text-slate-300">·</span>
+              <div class="flex items-center gap-1">
+                <i data-lucide="bell" class="w-3 h-3 text-amber-600"></i>
+                <span class="text-slate-600">Próximo vto:</span>
+                <span class="font-bold tabular text-amber-700">Alquiler · en 4d · S/ 2,500</span>
+              </div>
+              <span class="text-slate-300">·</span>
+              <div class="flex items-center gap-1">
+                <i data-lucide="credit-card" class="w-3 h-3 text-amber-600"></i>
+                <span class="text-slate-600">Tarjeta venc:</span>
+                <span class="font-bold tabular text-amber-700">BCP Visa · 22 may</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Pipeline ejecutivo · vista compacta de CC por estado -->
+          <div class="bg-white border border-slate-200 rounded-2xl p-4">
+            <div class="flex items-center justify-between mb-3">
+              <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+                <i data-lucide="git-branch" class="w-4 h-4 text-slate-600"></i>
+                Pipeline CxC + CxP
+              </h3>
+              <button class="text-[11px] text-teal-700 hover:text-teal-800 font-medium">
+                Ver todos en Saldos →
+              </button>
+            </div>
+            <!-- 4 chips canon v8.0 N4 -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+              <button class="bg-gradient-to-br from-emerald-50 to-emerald-100/40 ring-1 ring-emerald-200/50 rounded-xl p-3 text-left hover:from-emerald-100 hover:to-emerald-100 transition-colors">
+                <div class="flex items-center justify-between mb-1">
+                  <span class="text-[10px] uppercase tracking-wider text-emerald-700 font-bold">Por cobrar</span>
+                  <span class="text-[10px] font-bold text-emerald-700 bg-white px-1.5 py-0.5 rounded">12</span>
+                </div>
+                <div class="text-lg font-bold tabular text-emerald-900">S/ 24,180</div>
+                <div class="text-[10px] text-emerald-700 mt-0.5">avg DSO 22d</div>
+              </button>
+              <button class="bg-gradient-to-br from-rose-50 to-rose-100/40 ring-1 ring-rose-200/50 rounded-xl p-3 text-left hover:from-rose-100 hover:to-rose-100 transition-colors">
+                <div class="flex items-center justify-between mb-1">
+                  <span class="text-[10px] uppercase tracking-wider text-rose-700 font-bold">Por pagar</span>
+                  <span class="text-[10px] font-bold text-rose-700 bg-white px-1.5 py-0.5 rounded">8</span>
+                </div>
+                <div class="text-lg font-bold tabular text-rose-900">S/ 18,650</div>
+                <div class="text-[10px] text-rose-700 mt-0.5">avg DPO 35d</div>
+              </button>
+              <button class="bg-gradient-to-br from-rose-100 to-rose-200/40 ring-1 ring-rose-300/50 rounded-xl p-3 text-left hover:from-rose-200 hover:to-rose-200 transition-colors">
+                <div class="flex items-center justify-between mb-1">
+                  <span class="text-[10px] uppercase tracking-wider text-rose-800 font-bold">Vencidos</span>
+                  <span class="text-[10px] font-bold text-rose-800 bg-white px-1.5 py-0.5 rounded">5</span>
+                </div>
+                <div class="text-lg font-bold tabular text-rose-900">S/ 4,820</div>
+                <div class="text-[10px] text-rose-800 mt-0.5 font-medium">acción inmediata</div>
+              </button>
+              <button class="bg-gradient-to-br from-slate-50 to-slate-100/40 ring-1 ring-slate-200/50 rounded-xl p-3 text-left hover:from-slate-100 hover:to-slate-100 transition-colors">
+                <div class="flex items-center justify-between mb-1">
+                  <span class="text-[10px] uppercase tracking-wider text-slate-700 font-bold">Saldadas</span>
+                  <span class="text-[10px] font-bold text-slate-700 bg-white px-1.5 py-0.5 rounded">28</span>
+                </div>
+                <div class="text-lg font-bold tabular text-slate-700">S/ 0</div>
+                <div class="text-[10px] text-slate-500 mt-0.5">histórico OK</div>
+              </button>
+            </div>
+          </div>
+
+          <!-- Tendencia 6m + Top entidades · grid 2 cols -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- Tendencia chart -->
+            <div class="bg-white border border-slate-200 rounded-2xl p-4">
+              <div class="flex items-center justify-between mb-3">
+                <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+                  <i data-lucide="line-chart" class="w-4 h-4 text-purple-600"></i>
+                  Tendencia 6 meses
+                </h3>
+                <button class="text-[11px] text-purple-700 hover:text-purple-800 font-medium">
+                  Ver en Cash flow →
+                </button>
+              </div>
+              <svg viewBox="0 0 400 100" class="w-full h-24">
+                <!-- Líneas suaves -->
+                <polyline points="0,70 67,60 133,50 200,55 267,40 333,35 400,30" fill="none" stroke="#10b981" stroke-width="2" opacity="0.7"/>
+                <polyline points="0,80 67,75 133,72 200,68 267,65 333,60 400,55" fill="none" stroke="#f43f5e" stroke-width="2" opacity="0.7"/>
+                <circle cx="400" cy="30" r="3" fill="#10b981"/>
+                <circle cx="400" cy="55" r="3" fill="#f43f5e"/>
+              </svg>
+              <div class="flex items-center gap-3 text-[10px] mt-2">
+                <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-emerald-500"></span><span class="text-slate-600">Ingresos</span></span>
+                <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-rose-500"></span><span class="text-slate-600">Egresos</span></span>
+              </div>
+            </div>
+
+            <!-- Pool USD widget · cross-link a tesorería operativa -->
+            <div class="bg-gradient-to-br from-teal-50 to-cyan-50/30 border border-teal-200 rounded-2xl p-4">
+              <div class="flex items-center justify-between mb-2">
+                <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+                  <i data-lucide="dollar-sign" class="w-4 h-4 text-teal-700"></i>
+                  Pool USD
+                </h3>
+                <span class="text-[9px] font-bold text-teal-700 bg-white px-1.5 py-0.5 rounded">TCPA 3.68</span>
+              </div>
+              <div class="text-2xl font-bold tabular text-teal-900">US$ 4,250<span class="text-teal-400">.00</span></div>
+              <div class="text-[11px] text-teal-700 mt-1">≈ S/ 15,640 · TCPA vs SBS +0.04</div>
+              <div class="mt-3 pt-3 border-t border-teal-200/50 flex items-center justify-between">
+                <span class="text-[10px] text-teal-700">Última conversión: 8 may · S/ 1,840</span>
+                <button class="text-[10px] text-teal-700 hover:text-teal-800 font-medium underline">
+                  Convertir →
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sidebar persistente · acciones urgentes + top entidades · md:col-span-1 -->
+        <aside class="md:col-span-1 space-y-3">
+          <!-- Acciones urgentes -->
+          <div class="bg-gradient-to-br from-rose-50 to-white border border-rose-200 rounded-2xl p-4">
+            <div class="flex items-center gap-2 mb-2">
+              <div class="w-7 h-7 rounded-lg bg-rose-100 flex items-center justify-center">
+                <i data-lucide="alert-triangle" class="w-4 h-4 text-rose-600"></i>
+              </div>
+              <span class="text-[11px] font-bold text-rose-900 uppercase tracking-wider">Urgente · 5</span>
+            </div>
+            <div class="space-y-1.5 text-[11px]">
+              <button class="w-full text-left bg-white border border-rose-200 rounded-lg px-2.5 py-1.5 hover:shadow-sm">
+                <div class="font-bold text-slate-900 truncate">NOW Foods</div>
+                <div class="text-[10px] text-rose-700">Vencido hace 12d · S/ 1,225</div>
+              </button>
+              <button class="w-full text-left bg-white border border-rose-200 rounded-lg px-2.5 py-1.5 hover:shadow-sm">
+                <div class="font-bold text-slate-900 truncate">Cliente Juan Mendoza</div>
+                <div class="text-[10px] text-rose-700">Vencido hace 7d · S/ 980</div>
+              </button>
+              <button class="w-full text-left bg-white border border-amber-200 rounded-lg px-2.5 py-1.5 hover:shadow-sm">
+                <div class="font-bold text-slate-900 truncate">Alquiler local</div>
+                <div class="text-[10px] text-amber-700">Vence en 4d · S/ 2,500</div>
+              </button>
+            </div>
+            <button class="mt-2 w-full text-[10px] text-rose-700 hover:text-rose-800 font-medium hover:underline text-center">
+              Ver los 5 →
+            </button>
+          </div>
+
+          <!-- Top entidades -->
+          <div class="bg-white border border-slate-200 rounded-2xl p-4">
+            <div class="flex items-center gap-2 mb-3">
+              <i data-lucide="trophy" class="w-4 h-4 text-amber-500"></i>
+              <span class="text-[11px] font-bold text-slate-700 uppercase tracking-wider">Top entidades · 30d</span>
+            </div>
+            <div class="space-y-1.5 text-[11px]">
+              <div class="flex items-center justify-between">
+                <span class="flex items-center gap-1.5 min-w-0 flex-1">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 flex-shrink-0"></span>
+                  <span class="text-slate-700 truncate">Cliente Ana M.</span>
+                </span>
+                <span class="font-bold tabular text-emerald-700">S/ 4,820</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="flex items-center gap-1.5 min-w-0 flex-1">
+                  <span class="w-1.5 h-1.5 rounded-full bg-rose-500 flex-shrink-0"></span>
+                  <span class="text-slate-700 truncate">NOW Foods</span>
+                </span>
+                <span class="font-bold tabular text-rose-700">S/ 3,540</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="flex items-center gap-1.5 min-w-0 flex-1">
+                  <span class="w-1.5 h-1.5 rounded-full bg-purple-500 flex-shrink-0"></span>
+                  <span class="text-slate-700 truncate">Olva Courier</span>
+                </span>
+                <span class="font-bold tabular text-purple-700">S/ 1,280</span>
+              </div>
+            </div>
+            <a href="#" class="block mt-3 text-[10px] text-teal-700 hover:text-teal-800 hover:underline text-center">
+              Ver análisis completo → en Maestros
+            </a>
+          </div>
+
+          <!-- Tarjetas próximas a vencer -->
+          <div class="bg-gradient-to-br from-amber-50 to-white border border-amber-200 rounded-2xl p-4">
+            <div class="flex items-center gap-2 mb-2">
+              <i data-lucide="credit-card" class="w-4 h-4 text-amber-600"></i>
+              <span class="text-[11px] font-bold text-amber-900 uppercase tracking-wider">TC · próximo vto</span>
+            </div>
+            <div class="text-[11px] space-y-1.5">
+              <div class="flex items-center justify-between">
+                <span class="text-slate-700">BCP Visa · ●●●● 4521</span>
+                <span class="font-bold text-amber-700">22 may</span>
+              </div>
+              <div class="text-[10px] text-amber-700">Deuda actual: S/ 3,240</div>
+            </div>
+            <button class="mt-2 w-full text-[10px] bg-amber-100 hover:bg-amber-200 text-amber-800 font-bold py-1.5 rounded">
+              Pagar estado de cuenta
+            </button>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════════════════════════════════════ -->
+  <!-- SECCIÓN 2 · SALDOS (CxC + CxP)                                             -->
+  <!-- ═══════════════════════════════════════════════════════════════════════════ -->
+  <div class="section-divider max-w-6xl mx-auto">
+    <span class="section-num">2</span>
+    <h2 class="text-xl font-bold text-slate-900">Saldos · 1280px</h2>
+    <span class="text-xs text-slate-500 italic">Lista CC con pipeline · cards por entidad · filtros canon</span>
+  </div>
+
+  <div class="viewport-demo vp-desktop">
+    <div class="viewport-label">
+      <span>🖥️ Desktop · /finanzas/saldos</span>
+      <span>canon v8.0</span>
+    </div>
+    <div class="viewport-content p-6" style="width: 1280px;">
+
+      <!-- (Header + tabs igual que Overview · omitido por brevedad) -->
+      <div class="text-[11px] text-slate-500 italic mb-3 px-1">
+        🎯 Responde: <span class="font-medium">"¿Quién me debe / a quién debo?"</span> · gestiona cobranza + pago a entidades
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div class="md:col-span-3 space-y-4">
+
+          <!-- Filtros canon v8.0 N4+N5 · chips con color cross-módulo -->
+          <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+            <div class="px-4 py-3 flex items-center gap-2 flex-wrap">
+              <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mr-1">Tipo</div>
+              <button class="px-2.5 py-1 rounded-full text-xs font-semibold inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100">
+                <i data-lucide="user" class="w-3 h-3"></i> Cliente · 12
+              </button>
+              <button class="px-2.5 py-1 rounded-full text-xs font-semibold inline-flex items-center gap-1 bg-rose-50 text-rose-700 border border-rose-200 hover:bg-rose-100">
+                <i data-lucide="briefcase" class="w-3 h-3"></i> Proveedor · 8
+              </button>
+              <button class="px-2.5 py-1 rounded-full text-xs font-semibold inline-flex items-center gap-1 bg-purple-50 text-purple-700 border border-purple-200 hover:bg-purple-100">
+                <i data-lucide="truck" class="w-3 h-3"></i> Colaborador · 3
+              </button>
+              <button class="px-2.5 py-1 rounded-full text-xs font-semibold inline-flex items-center gap-1 bg-indigo-50 text-indigo-700 border border-indigo-200 hover:bg-indigo-100">
+                <i data-lucide="user-check" class="w-3 h-3"></i> Empleado · 5
+              </button>
+              <button class="px-2.5 py-1 rounded-full text-xs font-semibold inline-flex items-center gap-1 bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100">
+                <i data-lucide="credit-card" class="w-3 h-3"></i> Tarjeta · 2
+              </button>
+              <div class="w-px h-5 bg-slate-200 mx-2"></div>
+              <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mr-1">Estado</div>
+              <button class="px-2.5 py-1 rounded-full text-xs font-semibold inline-flex items-center gap-1 bg-emerald-100 text-emerald-800 border border-emerald-300 ring-2 ring-emerald-200">
+                <i data-lucide="arrow-down-circle" class="w-3 h-3"></i> Por cobrar · 12
+              </button>
+              <button class="px-2.5 py-1 rounded-full text-xs font-semibold inline-flex items-center gap-1 bg-rose-50 text-rose-700 border border-rose-200 hover:bg-rose-100">
+                <i data-lucide="arrow-up-circle" class="w-3 h-3"></i> Por pagar · 8
+              </button>
+              <button class="px-2.5 py-1 rounded-full text-xs font-semibold inline-flex items-center gap-1 bg-rose-100 text-rose-800 border border-rose-300 hover:bg-rose-200">
+                <i data-lucide="alert-triangle" class="w-3 h-3"></i> Vencidos · 5
+              </button>
+            </div>
+            <div class="bg-slate-50 border-t border-slate-200 px-4 py-2.5 flex items-center gap-3 flex-wrap">
+              <div class="flex-1 min-w-[200px] max-w-md relative">
+                <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"></i>
+                <input type="text" placeholder="Buscar por nombre de entidad..." class="w-full pl-9 pr-3 py-2 border border-slate-200 rounded-lg text-sm bg-white">
+              </div>
+              <div class="flex items-center gap-1.5 text-xs">
+                <span class="uppercase tracking-wider text-slate-500 font-bold">Orden</span>
+                <select class="border border-slate-200 rounded-lg px-2 py-1.5 text-xs bg-white">
+                  <option>Mayor saldo</option>
+                </select>
+              </div>
+              <div class="ml-auto text-xs text-slate-600 tabular">
+                <span class="font-bold text-slate-900">20</span> entidades · <span class="font-bold text-slate-900">S/ 42,830</span> total
+              </div>
+            </div>
+          </div>
+
+          <!-- Cards de CC por entidad · cards anchored estilo F4 -->
+          <div class="space-y-3">
+            <!-- Card 1 · Cliente · por cobrar (emerald) · vencido -->
+            <div class="bg-white border border-slate-200 rounded-2xl p-4 hover:shadow-sm transition-shadow cursor-pointer">
+              <div class="flex items-center gap-3">
+                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-50 to-emerald-100 ring-1 ring-emerald-200/50 flex items-center justify-center font-bold text-sm text-emerald-700">
+                  AM
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-2 mb-0.5">
+                    <span class="text-sm font-bold text-slate-900">Ana Mendoza</span>
+                    <span class="text-[9px] font-bold text-emerald-700 bg-emerald-100 px-1.5 py-0.5 rounded inline-flex items-center gap-0.5">
+                      <i data-lucide="user" class="w-2.5 h-2.5"></i> Cliente
+                    </span>
+                    <span class="text-[9px] font-bold text-rose-700 bg-rose-100 px-1.5 py-0.5 rounded inline-flex items-center gap-0.5">
+                      <i data-lucide="alert-triangle" class="w-2.5 h-2.5"></i> Vencido 7d
+                    </span>
+                  </div>
+                  <div class="text-[11px] text-slate-500">Última actividad: 4 may · 3 movimientos en 30d</div>
+                </div>
+                <div class="text-right">
+                  <div class="text-lg font-bold tabular text-emerald-700">S/ 4,820<span class="text-emerald-400">.00</span></div>
+                  <div class="text-[10px] text-emerald-700">+ US$ 0</div>
+                </div>
+                <button class="bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold px-3 py-1.5 rounded-lg flex items-center gap-1 shadow-sm">
+                  <i data-lucide="circle-dollar-sign" class="w-3 h-3"></i> Registrar cobro
+                </button>
+              </div>
+            </div>
+
+            <!-- Card 2 · Proveedor · por pagar (rose) -->
+            <div class="bg-white border border-slate-200 rounded-2xl p-4 hover:shadow-sm transition-shadow cursor-pointer">
+              <div class="flex items-center gap-3">
+                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-rose-50 to-rose-100 ring-1 ring-rose-200/50 flex items-center justify-center font-bold text-sm text-rose-700">
+                  NF
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-2 mb-0.5">
+                    <span class="text-sm font-bold text-slate-900">NOW Foods</span>
+                    <span class="text-[9px] font-bold text-rose-700 bg-rose-100 px-1.5 py-0.5 rounded inline-flex items-center gap-0.5">
+                      <i data-lucide="briefcase" class="w-2.5 h-2.5"></i> Proveedor
+                    </span>
+                  </div>
+                  <div class="text-[11px] text-slate-500">2 OCs pendientes · 8 gastos últimos 12m</div>
+                </div>
+                <div class="text-right">
+                  <div class="text-lg font-bold tabular text-rose-700">S/ 0</div>
+                  <div class="text-[11px] text-rose-700 font-medium">+ US$ 980<span class="text-rose-400">.00</span></div>
+                </div>
+                <button class="bg-rose-600 hover:bg-rose-700 text-white text-[11px] font-bold px-3 py-1.5 rounded-lg flex items-center gap-1 shadow-sm">
+                  <i data-lucide="banknote" class="w-3 h-3"></i> Registrar pago
+                </button>
+              </div>
+            </div>
+
+            <!-- Card 3 · Tarjeta crédito (amber) -->
+            <div class="bg-white border border-slate-200 rounded-2xl p-4 hover:shadow-sm transition-shadow cursor-pointer">
+              <div class="flex items-center gap-3">
+                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-50 to-amber-100 ring-1 ring-amber-200/50 flex items-center justify-center">
+                  <i data-lucide="credit-card" class="w-5 h-5 text-amber-700"></i>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-2 mb-0.5">
+                    <span class="text-sm font-bold text-slate-900">BCP Visa Empresarial</span>
+                    <span class="text-[9px] font-bold text-amber-700 bg-amber-100 px-1.5 py-0.5 rounded inline-flex items-center gap-0.5">
+                      <i data-lucide="credit-card" class="w-2.5 h-2.5"></i> Tarjeta
+                    </span>
+                    <span class="text-[9px] font-bold text-amber-700 bg-white border border-amber-200 px-1.5 py-0.5 rounded">
+                      Vence 22 may · en 11d
+                    </span>
+                  </div>
+                  <div class="text-[11px] text-slate-500">●●●● 4521 · cierre 15 · vto 22</div>
+                </div>
+                <div class="text-right">
+                  <div class="text-lg font-bold tabular text-amber-700">S/ 3,240<span class="text-amber-400">.00</span></div>
+                  <div class="text-[10px] text-slate-500">de S/ 8,000 disponible</div>
+                </div>
+                <button class="bg-amber-600 hover:bg-amber-700 text-white text-[11px] font-bold px-3 py-1.5 rounded-lg flex items-center gap-1 shadow-sm">
+                  <i data-lucide="banknote" class="w-3 h-3"></i> Pagar estado
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sidebar (mismo · DrawerUrgentes + TopEntidades + Pool USD) -->
+        <aside class="md:col-span-1">
+          <div class="bg-gradient-to-br from-emerald-50 to-white border border-emerald-200 rounded-2xl p-4 text-center">
+            <div class="w-12 h-12 mx-auto rounded-xl bg-emerald-100 flex items-center justify-center mb-2">
+              <i data-lucide="check-circle-2" class="w-6 h-6 text-emerald-600"></i>
+            </div>
+            <div class="text-sm font-bold text-emerald-900">5 entidades al día</div>
+            <p class="text-xs text-emerald-700 mt-1">Sin vencimientos en los próximos 7 días.</p>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════════════════════════════════════ -->
+  <!-- SECCIÓN 3 · MOVIMIENTOS                                                    -->
+  <!-- ═══════════════════════════════════════════════════════════════════════════ -->
+  <div class="section-divider max-w-6xl mx-auto">
+    <span class="section-num">3</span>
+    <h2 class="text-xl font-bold text-slate-900">Movimientos · 1280px</h2>
+    <span class="text-xs text-slate-500 italic">Ingresos/egresos por cuenta · filtros · timeline canon</span>
+  </div>
+
+  <div class="viewport-demo vp-desktop">
+    <div class="viewport-label">
+      <span>🖥️ Desktop · /finanzas/movimientos</span>
+      <span>canon v8.0</span>
+    </div>
+    <div class="viewport-content p-6" style="width: 1280px;">
+
+      <div class="text-[11px] text-slate-500 italic mb-3 px-1">
+        🎯 Responde: <span class="font-medium">"Cada movimiento real de dinero entrando y saliendo de mis cuentas"</span>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div class="md:col-span-3 space-y-4">
+
+          <!-- Filtros canon v8.0 N4 · tipo movimiento + cuenta + moneda + rango fecha -->
+          <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+            <div class="px-4 py-3 flex items-center gap-2 flex-wrap">
+              <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mr-1">Tipo</div>
+              <button class="px-2.5 py-1 rounded-full text-xs font-semibold inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100">
+                <i data-lucide="arrow-down-circle" class="w-3 h-3"></i> Ingreso · 24
+              </button>
+              <button class="px-2.5 py-1 rounded-full text-xs font-semibold inline-flex items-center gap-1 bg-rose-50 text-rose-700 border border-rose-200 hover:bg-rose-100">
+                <i data-lucide="arrow-up-circle" class="w-3 h-3"></i> Egreso · 32
+              </button>
+              <button class="px-2.5 py-1 rounded-full text-xs font-semibold inline-flex items-center gap-1 bg-teal-50 text-teal-700 border border-teal-200 hover:bg-teal-100">
+                <i data-lucide="arrow-right-left" class="w-3 h-3"></i> Conversión · 4
+              </button>
+              <button class="px-2.5 py-1 rounded-full text-xs font-semibold inline-flex items-center gap-1 bg-indigo-50 text-indigo-700 border border-indigo-200 hover:bg-indigo-100">
+                <i data-lucide="repeat" class="w-3 h-3"></i> Transferencia · 8
+              </button>
+              <div class="w-px h-5 bg-slate-200 mx-2"></div>
+              <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mr-1">Cuenta</div>
+              <select class="border border-slate-200 rounded-lg px-2 py-1 text-xs bg-white">
+                <option>Todas las cuentas</option>
+                <option>BCP cuenta soles</option>
+                <option>BCP cuenta dólares</option>
+                <option>Yape</option>
+                <option>Caja chica</option>
+              </select>
+            </div>
+            <div class="bg-slate-50 border-t border-slate-200 px-4 py-2.5 flex items-center gap-3 flex-wrap">
+              <div class="flex-1 min-w-[200px] max-w-md relative">
+                <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"></i>
+                <input type="text" placeholder="Buscar por concepto · entidad · referencia..." class="w-full pl-9 pr-3 py-2 border border-slate-200 rounded-lg text-sm bg-white">
+              </div>
+              <div class="flex items-center gap-1.5 text-xs">
+                <span class="uppercase tracking-wider text-slate-500 font-bold">Período</span>
+                <select class="border border-slate-200 rounded-lg px-2 py-1.5 text-xs bg-white">
+                  <option>Mayo 2026</option>
+                </select>
+              </div>
+              <div class="ml-auto text-xs text-slate-600 tabular">
+                <span class="font-bold text-slate-900">68</span> movs · ingreso <span class="font-bold text-emerald-700">+S/ 42K</span> · egreso <span class="font-bold text-rose-700">−S/ 36K</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Lista de movimientos · canon F4 cards apiladas -->
+          <div class="bg-white border border-slate-200 rounded-2xl divide-y divide-slate-100">
+            <!-- Movimiento 1 · ingreso (emerald) -->
+            <div class="flex items-center gap-3 px-4 py-3 hover:bg-slate-50 cursor-pointer">
+              <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-emerald-50 to-emerald-100 ring-1 ring-emerald-200/50 flex items-center justify-center flex-shrink-0">
+                <i data-lucide="arrow-down-circle" class="w-4 h-4 text-emerald-700"></i>
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-2 mb-0.5">
+                  <span class="text-sm font-bold text-slate-900 truncate">Cobro Ana Mendoza · venta V-1024</span>
+                  <span class="text-[9px] font-bold text-emerald-700 bg-emerald-100 px-1.5 py-0.5 rounded">Ingreso</span>
+                </div>
+                <div class="text-[10px] text-slate-500">15 may · BCP cuenta soles · Yape ref Y-12345</div>
+              </div>
+              <div class="text-right">
+                <div class="text-sm font-bold tabular text-emerald-700">+S/ 4,820<span class="text-emerald-400">.00</span></div>
+                <div class="text-[10px] text-slate-500">Saldo: S/ 23,450</div>
+              </div>
+            </div>
+            <!-- Movimiento 2 · egreso (rose) -->
+            <div class="flex items-center gap-3 px-4 py-3 hover:bg-slate-50 cursor-pointer">
+              <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-rose-50 to-rose-100 ring-1 ring-rose-200/50 flex items-center justify-center flex-shrink-0">
+                <i data-lucide="arrow-up-circle" class="w-4 h-4 text-rose-700"></i>
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-2 mb-0.5">
+                  <span class="text-sm font-bold text-slate-900 truncate">Pago NOW Foods · OC-0089</span>
+                  <span class="text-[9px] font-bold text-rose-700 bg-rose-100 px-1.5 py-0.5 rounded">Egreso</span>
+                </div>
+                <div class="text-[10px] text-slate-500">14 may · BCP cuenta dólares · transferencia</div>
+              </div>
+              <div class="text-right">
+                <div class="text-sm font-bold tabular text-rose-700">−US$ 1,225<span class="text-rose-400">.00</span></div>
+                <div class="text-[10px] text-slate-500">≈ S/ 4,508 · TC 3.68</div>
+              </div>
+            </div>
+            <!-- Movimiento 3 · conversión (teal) -->
+            <div class="flex items-center gap-3 px-4 py-3 hover:bg-slate-50 cursor-pointer">
+              <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-teal-50 to-teal-100 ring-1 ring-teal-200/50 flex items-center justify-center flex-shrink-0">
+                <i data-lucide="arrow-right-left" class="w-4 h-4 text-teal-700"></i>
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-2 mb-0.5">
+                  <span class="text-sm font-bold text-slate-900 truncate">Conversión USD → PEN</span>
+                  <span class="text-[9px] font-bold text-teal-700 bg-teal-100 px-1.5 py-0.5 rounded">Conversión</span>
+                </div>
+                <div class="text-[10px] text-slate-500">8 may · TC 3.68 · pool USD → BCP soles</div>
+              </div>
+              <div class="text-right">
+                <div class="text-sm font-bold tabular text-teal-700">US$ 500 → S/ 1,840</div>
+                <div class="text-[10px] text-teal-700">TCPA actual</div>
+              </div>
+            </div>
+            <!-- Movimiento 4 · transferencia (indigo) -->
+            <div class="flex items-center gap-3 px-4 py-3 hover:bg-slate-50 cursor-pointer">
+              <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-indigo-50 to-indigo-100 ring-1 ring-indigo-200/50 flex items-center justify-center flex-shrink-0">
+                <i data-lucide="repeat" class="w-4 h-4 text-indigo-700"></i>
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-2 mb-0.5">
+                  <span class="text-sm font-bold text-slate-900 truncate">Transferencia interna</span>
+                  <span class="text-[9px] font-bold text-indigo-700 bg-indigo-100 px-1.5 py-0.5 rounded">Transferencia</span>
+                </div>
+                <div class="text-[10px] text-slate-500">7 may · BCP soles → Caja chica</div>
+              </div>
+              <div class="text-right">
+                <div class="text-sm font-bold tabular text-indigo-700">S/ 500</div>
+                <div class="text-[10px] text-slate-500">Caja chica · saldo: S/ 1,200</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <aside class="md:col-span-1 space-y-3">
+          <!-- Resumen del mes · canon -->
+          <div class="bg-white border border-slate-200 rounded-2xl p-4">
+            <div class="text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-3">Mayo 2026 · resumen</div>
+            <div class="space-y-2 text-[11px]">
+              <div class="flex items-center justify-between">
+                <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-emerald-500"></span><span class="text-slate-700">Ingresos</span></span>
+                <span class="font-bold tabular text-emerald-700">+S/ 42,180</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-rose-500"></span><span class="text-slate-700">Egresos</span></span>
+                <span class="font-bold tabular text-rose-700">−S/ 36,650</span>
+              </div>
+              <div class="border-t border-slate-200 pt-2 flex items-center justify-between">
+                <span class="font-bold text-slate-900">Neto</span>
+                <span class="font-bold tabular text-indigo-700">+S/ 5,530</span>
+              </div>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════════════════════════════════════ -->
+  <!-- SECCIÓN 4 · CUENTAS                                                        -->
+  <!-- ═══════════════════════════════════════════════════════════════════════════ -->
+  <div class="section-divider max-w-6xl mx-auto">
+    <span class="section-num">4</span>
+    <h2 class="text-xl font-bold text-slate-900">Cuentas · 1280px</h2>
+    <span class="text-xs text-slate-500 italic">Bancos · billeteras · tarjetas · caja · pool USD</span>
+  </div>
+
+  <div class="viewport-demo vp-desktop">
+    <div class="viewport-label">
+      <span>🖥️ Desktop · /finanzas/cuentas</span>
+      <span>canon v8.0</span>
+    </div>
+    <div class="viewport-content p-6" style="width: 1280px;">
+
+      <div class="text-[11px] text-slate-500 italic mb-3 px-1">
+        🎯 Responde: <span class="font-medium">"¿Dónde tengo mi plata?"</span> · cuentas activas · saldos · tarjetas
+      </div>
+
+      <!-- Tabs sub-grupos: Bancarias · Tarjetas · Caja/Billeteras -->
+      <div class="bg-white rounded-2xl border border-slate-200 px-3 py-2 mb-4 flex items-center gap-1.5 flex-wrap">
+        <button class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-teal-100 text-teal-800 ring-2 ring-teal-300">
+          <i data-lucide="building-2" class="w-3.5 h-3.5"></i> Bancarias · 3
+        </button>
+        <button class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-slate-600 hover:bg-slate-50">
+          <i data-lucide="credit-card" class="w-3.5 h-3.5"></i> Tarjetas · 2
+        </button>
+        <button class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-slate-600 hover:bg-slate-50">
+          <i data-lucide="wallet" class="w-3.5 h-3.5"></i> Caja + billeteras · 2
+        </button>
+        <button class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-slate-600 hover:bg-slate-50">
+          <i data-lucide="dollar-sign" class="w-3.5 h-3.5"></i> Pool USD
+        </button>
+      </div>
+
+      <!-- Grid de cuentas · cards canon v8.0 -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <!-- BCP soles -->
+        <div class="bg-gradient-to-br from-teal-50 to-teal-100/40 ring-1 ring-teal-200/50 rounded-2xl overflow-hidden">
+          <div class="px-4 py-3 border-b border-teal-200/40">
+            <div class="flex items-center justify-between mb-2">
+              <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-lg bg-teal-100 ring-1 ring-teal-200/50 flex items-center justify-center">
+                  <i data-lucide="building-2" class="w-4 h-4 text-teal-700"></i>
+                </div>
+                <span class="text-[11px] uppercase tracking-wider text-teal-700 font-bold">BCP soles</span>
+              </div>
+              <span class="text-[9px] font-bold text-teal-700 bg-white px-1.5 py-0.5 rounded">PEN</span>
+            </div>
+            <div class="text-2xl font-bold tabular text-teal-900">S/ 23,450<span class="text-teal-400">.50</span></div>
+            <div class="text-[11px] text-teal-700 mt-1">●●●● 7821 · cuenta corriente</div>
+          </div>
+          <div class="bg-white/60 px-4 py-3">
+            <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-2">Mayo 2026</div>
+            <div class="space-y-1.5 text-[11px]">
+              <div class="flex items-center justify-between">
+                <span class="text-slate-700">Ingresos</span>
+                <span class="font-bold tabular text-emerald-700">+S/ 32,180</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-slate-700">Egresos</span>
+                <span class="font-bold tabular text-rose-700">−S/ 28,650</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- BCP dólares -->
+        <div class="bg-gradient-to-br from-teal-50 to-teal-100/40 ring-1 ring-teal-200/50 rounded-2xl overflow-hidden">
+          <div class="px-4 py-3 border-b border-teal-200/40">
+            <div class="flex items-center justify-between mb-2">
+              <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-lg bg-teal-100 ring-1 ring-teal-200/50 flex items-center justify-center">
+                  <i data-lucide="dollar-sign" class="w-4 h-4 text-teal-700"></i>
+                </div>
+                <span class="text-[11px] uppercase tracking-wider text-teal-700 font-bold">BCP dólares</span>
+              </div>
+              <span class="text-[9px] font-bold text-teal-700 bg-white px-1.5 py-0.5 rounded">USD</span>
+            </div>
+            <div class="text-2xl font-bold tabular text-teal-900">US$ 4,250<span class="text-teal-400">.00</span></div>
+            <div class="text-[11px] text-teal-700 mt-1">≈ S/ 15,640 · TC 3.68</div>
+          </div>
+          <div class="bg-white/60 px-4 py-3">
+            <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-2">Pool USD · TCPA</div>
+            <div class="text-[11px] text-slate-600 mb-1">Tasa promedio: <span class="font-bold tabular text-teal-900">3.68</span></div>
+            <div class="text-[10px] text-emerald-700">+0.04 vs SBS · ahorro acumulado S/ 142</div>
+          </div>
+        </div>
+
+        <!-- Yape -->
+        <div class="bg-gradient-to-br from-purple-50 to-purple-100/40 ring-1 ring-purple-200/50 rounded-2xl overflow-hidden">
+          <div class="px-4 py-3 border-b border-purple-200/40">
+            <div class="flex items-center justify-between mb-2">
+              <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-lg bg-purple-100 ring-1 ring-purple-200/50 flex items-center justify-center">
+                  <i data-lucide="smartphone" class="w-4 h-4 text-purple-700"></i>
+                </div>
+                <span class="text-[11px] uppercase tracking-wider text-purple-700 font-bold">Yape Empresa</span>
+              </div>
+              <span class="text-[9px] font-bold text-purple-700 bg-white px-1.5 py-0.5 rounded">PEN</span>
+            </div>
+            <div class="text-2xl font-bold tabular text-purple-900">S/ 3,180<span class="text-purple-400">.00</span></div>
+            <div class="text-[11px] text-purple-700 mt-1">●●●● 4521 · billetera digital</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════════════════════════════════════ -->
+  <!-- SECCIÓN 5 · CASH FLOW                                                      -->
+  <!-- ═══════════════════════════════════════════════════════════════════════════ -->
+  <div class="section-divider max-w-6xl mx-auto">
+    <span class="section-num">5</span>
+    <h2 class="text-xl font-bold text-slate-900">Cash flow · 1280px</h2>
+    <span class="text-xs text-slate-500 italic">Análisis ejecutivo · proyección · pipeline</span>
+  </div>
+
+  <div class="viewport-demo vp-desktop">
+    <div class="viewport-label">
+      <span>🖥️ Desktop · /finanzas/cash-flow</span>
+      <span>canon v8.0</span>
+    </div>
+    <div class="viewport-content p-6" style="width: 1280px;">
+
+      <div class="text-[11px] text-slate-500 italic mb-3 px-1">
+        🎯 Responde: <span class="font-medium">"¿Cómo proyecto el mes / trimestre?"</span> · health · proyección · pipeline
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div class="md:col-span-3 space-y-4">
+
+          <!-- Chart cash flow 6 meses + proyección 3 meses -->
+          <div class="bg-white border border-slate-200 rounded-2xl p-4">
+            <div class="flex items-center justify-between mb-3">
+              <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+                <i data-lucide="trending-up" class="w-4 h-4 text-purple-600"></i>
+                Flujo de caja · 6m histórico + 3m proyectado
+              </h3>
+              <select class="text-xs border border-slate-200 rounded-lg px-2 py-1 bg-white">
+                <option>Mensual</option>
+              </select>
+            </div>
+            <!-- Chart simplificado -->
+            <svg viewBox="0 0 600 200" class="w-full h-48">
+              <!-- Grid -->
+              <line x1="0" y1="50" x2="600" y2="50" stroke="#e2e8f0" stroke-dasharray="2,2"/>
+              <line x1="0" y1="100" x2="600" y2="100" stroke="#e2e8f0" stroke-dasharray="2,2"/>
+              <line x1="0" y1="150" x2="600" y2="150" stroke="#e2e8f0" stroke-dasharray="2,2"/>
+              <!-- Histórico (sólido) -->
+              <polyline points="0,140 67,130 133,120 200,110 267,100 333,90" fill="none" stroke="#10b981" stroke-width="2.5" opacity="0.8"/>
+              <polyline points="0,150 67,145 133,135 200,130 267,128 333,120" fill="none" stroke="#f43f5e" stroke-width="2.5" opacity="0.8"/>
+              <!-- Proyectado (dashed) -->
+              <polyline points="333,90 400,80 467,75 533,68 600,60" fill="none" stroke="#10b981" stroke-width="2.5" stroke-dasharray="6,4" opacity="0.6"/>
+              <polyline points="333,120 400,118 467,115 533,112 600,110" fill="none" stroke="#f43f5e" stroke-width="2.5" stroke-dasharray="6,4" opacity="0.6"/>
+              <!-- Línea de hoy -->
+              <line x1="333" y1="40" x2="333" y2="180" stroke="#0f766e" stroke-width="1.5" stroke-dasharray="3,3"/>
+              <text x="338" y="50" font-size="10" fill="#0f766e" font-weight="bold">HOY</text>
+              <!-- Labels eje X -->
+              <text x="0" y="195" font-size="9" fill="#64748b">Dic</text>
+              <text x="67" y="195" font-size="9" fill="#64748b">Ene</text>
+              <text x="133" y="195" font-size="9" fill="#64748b">Feb</text>
+              <text x="200" y="195" font-size="9" fill="#64748b">Mar</text>
+              <text x="267" y="195" font-size="9" fill="#64748b">Abr</text>
+              <text x="333" y="195" font-size="9" fill="#0f766e" font-weight="bold">May</text>
+              <text x="400" y="195" font-size="9" fill="#94a3b8">Jun*</text>
+              <text x="467" y="195" font-size="9" fill="#94a3b8">Jul*</text>
+              <text x="533" y="195" font-size="9" fill="#94a3b8">Ago*</text>
+            </svg>
+            <div class="flex items-center gap-4 text-[10px] mt-2 pt-2 border-t border-slate-100">
+              <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-emerald-500"></span><span class="text-slate-600">Ingresos</span></span>
+              <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-rose-500"></span><span class="text-slate-600">Egresos</span></span>
+              <span class="text-slate-400 italic">* proyectado · basado en pipeline + recurrentes</span>
+            </div>
+          </div>
+
+          <!-- Pipeline proyectado · ingresos esperados + egresos comprometidos -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="bg-gradient-to-br from-emerald-50 to-emerald-100/40 ring-1 ring-emerald-200/50 rounded-2xl p-4">
+              <div class="flex items-center justify-between mb-3">
+                <span class="text-[11px] uppercase tracking-wider text-emerald-700 font-bold">Ingresos esperados · Jun</span>
+                <i data-lucide="arrow-down-circle" class="w-4 h-4 text-emerald-700"></i>
+              </div>
+              <div class="text-2xl font-bold tabular text-emerald-900">S/ 38,420<span class="text-emerald-400">.00</span></div>
+              <div class="text-[11px] text-emerald-700 mt-1">12 cobros pendientes · 4 ventas en pipeline</div>
+            </div>
+            <div class="bg-gradient-to-br from-rose-50 to-rose-100/40 ring-1 ring-rose-200/50 rounded-2xl p-4">
+              <div class="flex items-center justify-between mb-3">
+                <span class="text-[11px] uppercase tracking-wider text-rose-700 font-bold">Egresos comprometidos · Jun</span>
+                <i data-lucide="arrow-up-circle" class="w-4 h-4 text-rose-700"></i>
+              </div>
+              <div class="text-2xl font-bold tabular text-rose-900">S/ 30,180<span class="text-rose-400">.00</span></div>
+              <div class="text-[11px] text-rose-700 mt-1">8 pagos pendientes · sueldos + alquiler</div>
+            </div>
+          </div>
+        </div>
+
+        <aside class="md:col-span-1">
+          <div class="bg-gradient-to-br from-indigo-50 to-white border border-indigo-200 rounded-2xl p-4">
+            <div class="text-[11px] font-bold text-indigo-900 uppercase tracking-wider mb-2">Salud · semáforo</div>
+            <div class="space-y-2 text-[11px]">
+              <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+                <span class="text-slate-700">Liquidez 3m</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
+                <span class="text-slate-700">Cobros vencidos</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+                <span class="text-slate-700">Pool USD reserva</span>
+              </div>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════════════════════════════════════ -->
+  <!-- SECCIÓN 6 · MOBILE 375px · OVERVIEW                                        -->
+  <!-- ═══════════════════════════════════════════════════════════════════════════ -->
+  <div class="section-divider max-w-6xl mx-auto">
+    <span class="section-num">6</span>
+    <h2 class="text-xl font-bold text-slate-900">Mobile · Overview · 375px</h2>
+    <span class="text-xs text-slate-500 italic">Layout stack · KPIs 2-col · tabs scroll horizontal · filtros colapsables</span>
+  </div>
+
+  <div class="viewport-demo vp-mobile">
+    <div class="viewport-label">
+      <span>📱 Mobile 375px · /finanzas</span>
+      <span>canon v8.0</span>
+    </div>
+    <div class="viewport-content" style="width: 375px;">
+
+      <!-- Header móvil compacto -->
+      <div class="bg-white px-4 py-3 border-b border-slate-200">
+        <div class="flex items-center gap-1.5 text-[10px] text-slate-400 mb-1">
+          <span>Finanzas</span>
+          <i data-lucide="chevron-right" class="w-2.5 h-2.5"></i>
+          <span class="text-slate-600 font-medium">Overview</span>
+        </div>
+        <div class="flex items-center justify-between">
+          <h1 class="text-lg font-bold text-slate-900 flex items-center gap-1.5">
+            <div class="w-7 h-7 rounded-lg bg-gradient-to-br from-teal-50 to-teal-100 ring-1 ring-teal-200/50 flex items-center justify-center">
+              <i data-lucide="chart-pie" class="w-4 h-4 text-teal-700"></i>
+            </div>
+            Finanzas
+          </h1>
+          <button class="text-slate-400 active:bg-slate-100 p-2 rounded-lg">
+            <i data-lucide="more-vertical" class="w-5 h-5"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- CTA primary sticky mobile -->
+      <div class="bg-white px-4 py-3 border-b border-slate-200">
+        <button class="w-full bg-teal-600 hover:bg-teal-700 text-white py-2.5 px-4 rounded-lg flex items-center justify-center gap-2 text-sm font-bold shadow-sm">
+          <i data-lucide="plus" class="w-4 h-4"></i>
+          Nuevo movimiento
+        </button>
+      </div>
+
+      <!-- Tabs scroll horizontal -->
+      <div class="bg-white px-4 py-3 border-b border-slate-200">
+        <div class="flex gap-1.5 overflow-x-auto scrollbar-none pb-1 -mx-1 px-1">
+          <button class="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold bg-teal-100 text-teal-800 ring-2 ring-teal-300 whitespace-nowrap">
+            <i data-lucide="chart-pie" class="w-3 h-3"></i> Overview
+          </button>
+          <button class="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold text-slate-600 whitespace-nowrap">
+            <i data-lucide="handshake" class="w-3 h-3"></i> Saldos
+          </button>
+          <button class="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold text-slate-600 whitespace-nowrap">
+            <i data-lucide="arrow-right-left" class="w-3 h-3"></i> Movs
+          </button>
+          <button class="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold text-slate-600 whitespace-nowrap">
+            <i data-lucide="building-2" class="w-3 h-3"></i> Cuentas
+          </button>
+          <button class="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold text-slate-600 whitespace-nowrap">
+            <i data-lucide="trending-up" class="w-3 h-3"></i> Cash
+          </button>
+        </div>
+      </div>
+
+      <!-- KPIs 2-col mobile -->
+      <div class="px-3 py-3 grid grid-cols-2 gap-2">
+        <div class="bg-gradient-to-br from-teal-50 to-teal-100/50 ring-1 ring-teal-200/50 rounded-xl p-3">
+          <div class="flex items-center gap-1 mb-1">
+            <i data-lucide="wallet" class="w-3 h-3 text-teal-700"></i>
+            <span class="text-[9px] uppercase tracking-wider text-teal-700 font-bold">Patrimonio</span>
+          </div>
+          <div class="text-lg font-bold tabular text-teal-900">S/ 87K</div>
+          <div class="text-[9px] text-teal-700 mt-0.5">+12.4%</div>
+        </div>
+        <div class="bg-gradient-to-br from-emerald-50 to-emerald-100/50 ring-1 ring-emerald-200/50 rounded-xl p-3">
+          <div class="flex items-center gap-1 mb-1">
+            <i data-lucide="arrow-down-circle" class="w-3 h-3 text-emerald-700"></i>
+            <span class="text-[9px] uppercase tracking-wider text-emerald-700 font-bold">Por cobrar</span>
+          </div>
+          <div class="text-lg font-bold tabular text-emerald-900">S/ 24K</div>
+          <div class="text-[9px] text-emerald-700 mt-0.5">12 entidades</div>
+        </div>
+        <div class="bg-gradient-to-br from-rose-50 to-rose-100/50 ring-1 ring-rose-200/50 rounded-xl p-3">
+          <div class="flex items-center gap-1 mb-1">
+            <i data-lucide="arrow-up-circle" class="w-3 h-3 text-rose-700"></i>
+            <span class="text-[9px] uppercase tracking-wider text-rose-700 font-bold">Por pagar</span>
+          </div>
+          <div class="text-lg font-bold tabular text-rose-900">S/ 18K</div>
+          <div class="text-[9px] text-rose-700 mt-0.5">8 entidades</div>
+        </div>
+        <div class="bg-gradient-to-br from-indigo-50 to-indigo-100/50 ring-1 ring-indigo-200/50 rounded-xl p-3">
+          <div class="flex items-center gap-1 mb-1">
+            <i data-lucide="trending-up" class="w-3 h-3 text-indigo-700"></i>
+            <span class="text-[9px] uppercase tracking-wider text-indigo-700 font-bold">Flujo mes</span>
+          </div>
+          <div class="text-lg font-bold tabular text-indigo-900">+S/ 5.5K</div>
+          <div class="text-[9px] text-indigo-700 mt-0.5">positivo</div>
+        </div>
+      </div>
+
+      <!-- Acciones urgentes (sidebar embebido en mobile) -->
+      <div class="px-3 mb-3">
+        <div class="bg-gradient-to-br from-rose-50 to-white border border-rose-200 rounded-xl p-3">
+          <div class="flex items-center gap-2 mb-2">
+            <i data-lucide="alert-triangle" class="w-4 h-4 text-rose-600"></i>
+            <span class="text-[10px] font-bold text-rose-900 uppercase tracking-wider">Urgente · 5</span>
+          </div>
+          <div class="text-[10px] text-rose-700">3 cobros vencidos · 2 pagos próximos</div>
+          <button class="mt-2 w-full bg-rose-600 text-white text-[11px] font-bold py-2 rounded-lg">
+            Ver detalle
+          </button>
+        </div>
+      </div>
+
+      <!-- Pipeline compacto · scroll horizontal -->
+      <div class="px-3 mb-3">
+        <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-2 px-1">Pipeline CC</div>
+        <div class="flex gap-2 overflow-x-auto scrollbar-none -mx-1 px-1 pb-1">
+          <button class="flex-shrink-0 bg-gradient-to-br from-emerald-50 to-emerald-100/40 ring-1 ring-emerald-200/50 rounded-lg p-2 text-left w-32">
+            <div class="text-[9px] text-emerald-700 font-bold uppercase">Por cobrar</div>
+            <div class="text-sm font-bold text-emerald-900">12</div>
+            <div class="text-[10px] text-emerald-700">S/ 24K</div>
+          </button>
+          <button class="flex-shrink-0 bg-gradient-to-br from-rose-50 to-rose-100/40 ring-1 ring-rose-200/50 rounded-lg p-2 text-left w-32">
+            <div class="text-[9px] text-rose-700 font-bold uppercase">Por pagar</div>
+            <div class="text-sm font-bold text-rose-900">8</div>
+            <div class="text-[10px] text-rose-700">S/ 18K</div>
+          </button>
+          <button class="flex-shrink-0 bg-gradient-to-br from-rose-100 to-rose-200/40 ring-1 ring-rose-300/50 rounded-lg p-2 text-left w-32">
+            <div class="text-[9px] text-rose-800 font-bold uppercase">Vencidos</div>
+            <div class="text-sm font-bold text-rose-900">5</div>
+            <div class="text-[10px] text-rose-800">S/ 4.8K</div>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════════════════════════════════════ -->
+  <!-- SECCIÓN 7 · DROPDOWN "+ Nuevo movimiento" expandido                       -->
+  <!-- ═══════════════════════════════════════════════════════════════════════════ -->
+  <div class="section-divider max-w-6xl mx-auto">
+    <span class="section-num">7</span>
+    <h2 class="text-xl font-bold text-slate-900">Hub de acciones · dropdown unificado</h2>
+    <span class="text-xs text-slate-500 italic">UN solo entry-point para 6 wizards · canon v8.0 N10</span>
+  </div>
+
+  <div class="max-w-2xl mx-auto bg-white border border-slate-200 rounded-2xl shadow-lg p-3">
+    <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold px-3 py-2">Nuevo movimiento</div>
+    <div class="space-y-1">
+      <!-- Ingreso -->
+      <button class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-emerald-50 transition-colors">
+        <div class="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center flex-shrink-0">
+          <i data-lucide="arrow-down-circle" class="w-4 h-4 text-emerald-700"></i>
+        </div>
+        <div class="text-left flex-1 min-w-0">
+          <div class="text-sm font-bold text-slate-900">Registrar ingreso</div>
+          <div class="text-[11px] text-slate-500">Cobro · venta · capital · otro</div>
+        </div>
+      </button>
+      <!-- Egreso -->
+      <button class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-rose-50 transition-colors">
+        <div class="w-8 h-8 rounded-lg bg-rose-100 flex items-center justify-center flex-shrink-0">
+          <i data-lucide="arrow-up-circle" class="w-4 h-4 text-rose-700"></i>
+        </div>
+        <div class="text-left flex-1 min-w-0">
+          <div class="text-sm font-bold text-slate-900">Registrar egreso</div>
+          <div class="text-[11px] text-slate-500">Pago a proveedor · sueldo · gasto operativo</div>
+        </div>
+      </button>
+      <!-- Cobro/pago distribuido -->
+      <button class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-purple-50 transition-colors">
+        <div class="w-8 h-8 rounded-lg bg-purple-100 flex items-center justify-center flex-shrink-0">
+          <i data-lucide="split" class="w-4 h-4 text-purple-700"></i>
+        </div>
+        <div class="text-left flex-1 min-w-0">
+          <div class="text-sm font-bold text-slate-900">Cobro / pago distribuido</div>
+          <div class="text-[11px] text-slate-500">Abono que aplica a múltiples documentos · PagoAbonoWizard</div>
+        </div>
+      </button>
+      <div class="border-t border-slate-100 my-1"></div>
+      <!-- Conversión -->
+      <button class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-teal-50 transition-colors">
+        <div class="w-8 h-8 rounded-lg bg-teal-100 flex items-center justify-center flex-shrink-0">
+          <i data-lucide="arrow-right-left" class="w-4 h-4 text-teal-700"></i>
+        </div>
+        <div class="text-left flex-1 min-w-0">
+          <div class="text-sm font-bold text-slate-900">Conversión USD ↔ PEN</div>
+          <div class="text-[11px] text-slate-500">Comprar / vender dólares · TCPA</div>
+        </div>
+      </button>
+      <!-- Transferencia -->
+      <button class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-indigo-50 transition-colors">
+        <div class="w-8 h-8 rounded-lg bg-indigo-100 flex items-center justify-center flex-shrink-0">
+          <i data-lucide="repeat" class="w-4 h-4 text-indigo-700"></i>
+        </div>
+        <div class="text-left flex-1 min-w-0">
+          <div class="text-sm font-bold text-slate-900">Transferencia entre cuentas</div>
+          <div class="text-[11px] text-slate-500">Mover dinero entre tus propias cuentas</div>
+        </div>
+      </button>
+      <div class="border-t border-slate-100 my-1"></div>
+      <!-- Cargar tarjeta -->
+      <button class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-amber-50 transition-colors">
+        <div class="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center flex-shrink-0">
+          <i data-lucide="credit-card" class="w-4 h-4 text-amber-700"></i>
+        </div>
+        <div class="text-left flex-1 min-w-0">
+          <div class="text-sm font-bold text-slate-900">Cargar a tarjeta de crédito</div>
+          <div class="text-[11px] text-slate-500">Registrar consumo con TC empresa</div>
+        </div>
+      </button>
+      <!-- Pagar estado tarjeta -->
+      <button class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-amber-50 transition-colors">
+        <div class="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center flex-shrink-0">
+          <i data-lucide="check-circle-2" class="w-4 h-4 text-amber-700"></i>
+        </div>
+        <div class="text-left flex-1 min-w-0">
+          <div class="text-sm font-bold text-slate-900">Pagar estado de cuenta TC</div>
+          <div class="text-[11px] text-slate-500">Pagar cargos seleccionados desde cuenta</div>
+        </div>
+      </button>
+    </div>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════════════════════════════════════ -->
+  <!-- SECCIÓN 8 · TABLA COMPARATIVA ANTES/DESPUÉS                                -->
+  <!-- ═══════════════════════════════════════════════════════════════════════════ -->
+  <div class="section-divider max-w-6xl mx-auto">
+    <span class="section-num">8</span>
+    <h2 class="text-xl font-bold text-slate-900">Comparativa · antes vs después</h2>
+  </div>
+
+  <div class="max-w-6xl mx-auto bg-white border border-slate-200 rounded-2xl overflow-hidden">
+    <table class="w-full text-sm">
+      <thead class="bg-slate-50">
+        <tr>
+          <th class="text-left px-4 py-3 text-xs uppercase tracking-wider text-slate-500 font-bold">Aspecto</th>
+          <th class="text-left px-4 py-3 text-xs uppercase tracking-wider text-rose-700 font-bold">Antes</th>
+          <th class="text-left px-4 py-3 text-xs uppercase tracking-wider text-emerald-700 font-bold">Después · canon v8.0+v9.0</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-100 text-xs">
+        <tr>
+          <td class="px-4 py-3 font-bold">Rutas</td>
+          <td class="px-4 py-3 text-slate-600">2 rutas (<code>/finanzas</code> + <code>/tesoreria</code>) confusas · navegación ambigua</td>
+          <td class="px-4 py-3 text-slate-600"><strong>1 ruta</strong> (<code>/finanzas</code>) · 5 sub-vistas por intent del CFO · <code>/tesoreria</code> → redirect</td>
+        </tr>
+        <tr>
+          <td class="px-4 py-3 font-bold">Sub-vistas/tabs</td>
+          <td class="px-4 py-3 text-slate-600">9-10 (Overview · Saldos · Cash flow · Movimientos · Conversiones · Transferencias · Cuentas · Tarjetas · Pagos masivos · Pipeline · Pendientes)</td>
+          <td class="px-4 py-3 text-slate-600"><strong>5 vistas canon</strong> (Overview · Saldos · Movimientos · Cuentas · Cash flow) · sub-acciones via dropdown</td>
+        </tr>
+        <tr>
+          <td class="px-4 py-3 font-bold">KPI strip</td>
+          <td class="px-4 py-3 text-slate-600">2 KPI bars distintos (uno en /finanzas, otro en /tesoreria) · inconsistente</td>
+          <td class="px-4 py-3 text-slate-600"><strong>1 KPI strip único</strong> compartido entre las 5 vistas · 5 KPIs canon</td>
+        </tr>
+        <tr>
+          <td class="px-4 py-3 font-bold">Color KPIs</td>
+          <td class="px-4 py-3 text-slate-600">Mix de canon viejo + <code>red-*</code>/<code>orange-*</code> (NO canon)</td>
+          <td class="px-4 py-3 text-slate-600">Color semántico canon v8.0 N1: teal/emerald/rose/indigo/amber por intent</td>
+        </tr>
+        <tr>
+          <td class="px-4 py-3 font-bold">Wizards · acceso</td>
+          <td class="px-4 py-3 text-slate-600">6 wizards desperdigados · accesibles desde botones en cada vista (sin patrón)</td>
+          <td class="px-4 py-3 text-slate-600"><strong>1 dropdown unificado</strong> "+Nuevo movimiento" con 7 opciones agrupadas</td>
+        </tr>
+        <tr>
+          <td class="px-4 py-3 font-bold">Sidebar</td>
+          <td class="px-4 py-3 text-slate-600">Solo en /finanzas (AccionesRecomendadasSidebar) · ausente en /tesoreria</td>
+          <td class="px-4 py-3 text-slate-600"><strong>Sidebar persistente</strong> en las 5 vistas (Urgentes · Top entidades · Pool USD · TC venc)</td>
+        </tr>
+        <tr>
+          <td class="px-4 py-3 font-bold">Color cross-módulo</td>
+          <td class="px-4 py-3 text-slate-600">CC tipo entidad sin color sistema · solo bordes neutros</td>
+          <td class="px-4 py-3 text-slate-600">Cliente=emerald · Proveedor=rose · Colaborador=purple · Empleado=indigo · TC=amber (canon N4)</td>
+        </tr>
+        <tr>
+          <td class="px-4 py-3 font-bold">Canon F-Borradores</td>
+          <td class="px-4 py-3 text-slate-600">6 wizards SIN borrador · usuario pierde progreso al cerrar</td>
+          <td class="px-4 py-3 text-slate-600">Los 6 wizards con canon F-Borradores · BorradorBanner page-level</td>
+        </tr>
+        <tr>
+          <td class="px-4 py-3 font-bold">Design-system</td>
+          <td class="px-4 py-3 text-slate-600"><code>PageShell</code> · <code>Card padding</code> · <code>Toolbar</code> · <code>StatCard</code> legacy</td>
+          <td class="px-4 py-3 text-slate-600">Cards canon v8.0 N2 (gradient sutil + ring colored) · cero legacy</td>
+        </tr>
+        <tr>
+          <td class="px-4 py-3 font-bold">Responsive</td>
+          <td class="px-4 py-3 text-slate-600">Inconsistente · sidebar lg+ (1024px) · tabs sin scroll mobile</td>
+          <td class="px-4 py-3 text-slate-600">Canon N5+N6+N7: filtros colapsables sm- · tabs scroll horizontal · sidebar md+ (768px)</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="max-w-6xl mx-auto mt-8 text-center text-xs text-slate-400 italic">
+    Mockup chk5.D-S1 · finanzas unificado v5 · pendiente aprobación del usuario antes de implementación
+  </div>
+
+  <script>lucide.createIcons();</script>
+</body>
+</html>

@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Finanzas · Vista Movimientos · v5.1 canon v8.0+v9.0</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, sans-serif; }
+    .tabular { font-variant-numeric: tabular-nums; font-feature-settings: "tnum"; }
+    .scrollbar-hide::-webkit-scrollbar { display: none; }
+    .scrollbar-hide { scrollbar-width: none; }
+    @keyframes shimmer { 0%{background-position:-200% 0} 100%{background-position:200% 0} }
+    .shimmer { background: linear-gradient(90deg, #f1f5f9 0%, #e2e8f0 50%, #f1f5f9 100%); background-size: 200% 100%; animation: shimmer 1.5s infinite; }
+  </style>
+</head>
+<body class="bg-slate-100 text-slate-900">
+
+<header class="bg-slate-900 text-white sticky top-0 z-50 shadow-lg">
+  <div class="max-w-[1400px] mx-auto px-6 py-3 flex items-center justify-between">
+    <div>
+      <div class="text-[10px] uppercase tracking-wider text-teal-300">chk5.D-S1e · v5.1 cobertura completa · TURNO 3</div>
+      <div class="text-base font-bold">MOCK 7 · Vista Movimientos · ledger transaccional</div>
+    </div>
+    <nav class="hidden md:flex items-center gap-1 text-[11px]">
+      <a href="finanzas-shell-overview-v5.1.html" class="px-2 py-1 hover:bg-slate-700 rounded text-slate-300">1</a>
+      <a href="finanzas-cuentas-completo-v5.1.html" class="px-2 py-1 hover:bg-slate-700 rounded text-slate-300">2</a>
+      <a href="finanzas-wizards-completos-v5.1.html" class="px-2 py-1 hover:bg-slate-700 rounded text-slate-300">3</a>
+      <a href="finanzas-analisis-estrategico-v5.1.html" class="px-2 py-1 hover:bg-slate-700 rounded text-slate-300">4</a>
+      <a href="finanzas-integraciones-crossmodulo-v5.1.html" class="px-2 py-1 hover:bg-slate-700 rounded text-slate-300">5</a>
+      <a href="finanzas-vista-saldos-v5.1.html" class="px-2 py-1 hover:bg-slate-700 rounded text-slate-300">6</a>
+      <span class="px-2 py-1 bg-teal-600 rounded text-white font-semibold">7</span>
+      <a href="finanzas-vista-cc-entidades-v5.1.html" class="px-2 py-1 hover:bg-slate-700 rounded text-slate-300">8</a>
+      <a href="finanzas-vista-cashflow-v5.1.html" class="px-2 py-1 hover:bg-slate-700 rounded text-slate-300">9</a>
+    </nav>
+  </div>
+</header>
+
+<main class="max-w-[1400px] mx-auto px-6 py-8 space-y-12">
+
+<!-- §1 · VISTA MOVIMIENTOS COMPLETA -->
+<section class="space-y-4">
+  <div class="flex items-center gap-2">
+    <span class="text-[10px] uppercase tracking-wider font-bold text-slate-700">§ 1 · Vista Movimientos · ledger con data</span>
+    <div class="flex-1 h-px bg-slate-300"></div>
+  </div>
+
+  <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+    <!-- Top bar -->
+    <div class="border-b border-slate-200 px-6 py-2.5 flex items-center gap-3 bg-slate-50">
+      <div class="flex items-center text-[12px] flex-1">
+        <a class="text-slate-500 hover:text-teal-700">Inicio</a>
+        <i data-lucide="chevron-right" class="w-3 h-3 text-slate-300 mx-1.5"></i>
+        <a class="text-slate-500 hover:text-teal-700">Finanzas</a>
+        <i data-lucide="chevron-right" class="w-3 h-3 text-slate-300 mx-1.5"></i>
+        <span class="text-slate-900 font-semibold">Movimientos</span>
+      </div>
+    </div>
+    <!-- Header -->
+    <div class="px-6 py-5 border-b border-slate-100 flex items-start justify-between">
+      <div class="flex items-start gap-3 flex-1 min-w-[260px]">
+        <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-slate-500 to-slate-700 flex items-center justify-center text-white ring-2 ring-slate-100"><i data-lucide="arrow-left-right" class="w-5 h-5"></i></div>
+        <div>
+          <h1 class="text-2xl font-bold tracking-tight">Movimientos</h1>
+          <p class="text-[13px] text-slate-500">Ledger transaccional · ingresos · egresos · conversiones · transferencias · todos los flujos de caja</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <button class="text-[11px] font-semibold text-slate-600 hover:bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-lg flex items-center gap-1.5"><i data-lucide="download" class="w-3 h-3"></i> Exportar</button>
+        <button class="text-[11px] font-semibold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 px-3 py-1.5 rounded-lg flex items-center gap-1.5"><i data-lucide="upload" class="w-3 h-3"></i> Importar extracto</button>
+        <button class="text-[11px] font-bold text-white bg-teal-600 hover:bg-teal-700 px-3 py-1.5 rounded-lg flex items-center gap-1.5 shadow-sm"><i data-lucide="plus" class="w-3 h-3"></i> Nuevo movimiento <i data-lucide="chevron-down" class="w-3 h-3"></i></button>
+      </div>
+    </div>
+    <!-- KPI strip específico LEDGER -->
+    <div class="px-6 py-4 border-b border-slate-100 grid grid-cols-2 md:grid-cols-5 gap-3">
+      <div class="bg-gradient-to-br from-slate-50 to-slate-100/40 ring-1 ring-slate-200/50 rounded-2xl p-4">
+        <div class="flex items-center justify-between mb-2"><span class="text-[10px] uppercase tracking-wider text-slate-700 font-bold">Movs del mes</span><i data-lucide="layers" class="w-3.5 h-3.5 text-slate-700"></i></div>
+        <div class="text-2xl font-bold tabular text-slate-900">142</div>
+        <div class="text-[11px] text-slate-700 mt-1">vs 128 abril · +11%</div>
+      </div>
+      <div class="bg-gradient-to-br from-emerald-50 to-emerald-100/40 ring-1 ring-emerald-200/50 rounded-2xl p-4">
+        <div class="flex items-center justify-between mb-2"><span class="text-[10px] uppercase tracking-wider text-emerald-700 font-bold">Ingresos</span><i data-lucide="arrow-down-circle" class="w-3.5 h-3.5 text-emerald-700"></i></div>
+        <div class="text-2xl font-bold tabular text-emerald-900">+S/ 32,180</div>
+        <div class="text-[11px] text-emerald-700 mt-1">87 movs · cobros + ventas</div>
+      </div>
+      <div class="bg-gradient-to-br from-rose-50 to-rose-100/40 ring-1 ring-rose-200/50 rounded-2xl p-4">
+        <div class="flex items-center justify-between mb-2"><span class="text-[10px] uppercase tracking-wider text-rose-700 font-bold">Egresos</span><i data-lucide="arrow-up-circle" class="w-3.5 h-3.5 text-rose-700"></i></div>
+        <div class="text-2xl font-bold tabular text-rose-900">−S/ 23,760</div>
+        <div class="text-[11px] text-rose-700 mt-1">52 movs · pagos + gastos</div>
+      </div>
+      <div class="bg-gradient-to-br from-indigo-50 to-indigo-100/40 ring-1 ring-indigo-200/50 rounded-2xl p-4">
+        <div class="flex items-center justify-between mb-2"><span class="text-[10px] uppercase tracking-wider text-indigo-700 font-bold">Flujo neto</span><i data-lucide="activity" class="w-3.5 h-3.5 text-indigo-700"></i></div>
+        <div class="text-2xl font-bold tabular text-indigo-900">+S/ 8,420</div>
+        <div class="text-[11px] text-indigo-700 mt-1">vs −S/ 2,100 prev</div>
+      </div>
+      <div class="bg-gradient-to-br from-amber-50 to-amber-100/40 ring-1 ring-amber-200/50 rounded-2xl p-4">
+        <div class="flex items-center justify-between mb-2"><span class="text-[10px] uppercase tracking-wider text-amber-700 font-bold">Pendientes</span><i data-lucide="clock" class="w-3.5 h-3.5 text-amber-700"></i></div>
+        <div class="text-2xl font-bold tabular text-amber-900">3</div>
+        <div class="text-[11px] text-amber-700 mt-1">Conciliación bancaria</div>
+      </div>
+    </div>
+    <!-- Tabs -->
+    <div class="border-b border-slate-200 px-6 overflow-x-auto scrollbar-hide">
+      <div class="flex items-center gap-1 -mb-px">
+        <button class="px-4 py-3 text-[12px] font-medium border-b-2 border-transparent text-slate-600">Overview</button>
+        <button class="px-4 py-3 text-[12px] font-medium border-b-2 border-transparent text-slate-600">Saldos</button>
+        <button class="px-4 py-3 text-[12px] font-semibold border-b-2 border-teal-600 text-teal-700 flex items-center gap-1.5"><i data-lucide="arrow-left-right" class="w-3.5 h-3.5"></i> Movimientos <span class="text-[10px] bg-teal-100 px-1.5 py-0.5 rounded-full text-teal-700 font-bold">142</span></button>
+        <button class="px-4 py-3 text-[12px] font-medium border-b-2 border-transparent text-slate-600">CC Entidades</button>
+        <button class="px-4 py-3 text-[12px] font-medium border-b-2 border-transparent text-slate-600">Cash flow</button>
+        <button class="px-4 py-3 text-[12px] font-medium border-b-2 border-transparent text-slate-600">Análisis</button>
+      </div>
+    </div>
+    <!-- FILTROS BAR -->
+    <div class="border-b border-slate-200 px-6 py-3 bg-slate-50/50 space-y-2">
+      <div class="flex flex-wrap items-center gap-2">
+        <!-- Búsqueda -->
+        <div class="flex-1 min-w-[200px] relative">
+          <i data-lucide="search" class="w-3.5 h-3.5 text-slate-400 absolute left-3 top-2.5"></i>
+          <input type="text" placeholder="Buscar referencia · tercero · concepto · monto..." class="w-full pl-9 pr-3 py-2 text-[12px] border border-slate-200 rounded-lg bg-white" />
+        </div>
+        <!-- Rango fechas -->
+        <button class="text-[11px] font-medium text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 px-3 py-2 rounded-lg flex items-center gap-1.5"><i data-lucide="calendar" class="w-3 h-3"></i> 01-may al 15-may <i data-lucide="chevron-down" class="w-3 h-3"></i></button>
+        <!-- Cuenta -->
+        <button class="text-[11px] font-medium text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 px-3 py-2 rounded-lg flex items-center gap-1.5"><i data-lucide="wallet" class="w-3 h-3"></i> Cuenta: <strong>Todas</strong> <i data-lucide="chevron-down" class="w-3 h-3"></i></button>
+        <!-- Tipo -->
+        <div class="flex gap-1 bg-white border border-slate-200 rounded-lg p-0.5">
+          <button class="text-[10px] font-bold bg-teal-600 text-white px-2 py-1 rounded">Todos</button>
+          <button class="text-[10px] font-medium text-emerald-700 hover:bg-emerald-50 px-2 py-1 rounded">+ Ingresos</button>
+          <button class="text-[10px] font-medium text-rose-700 hover:bg-rose-50 px-2 py-1 rounded">− Egresos</button>
+        </div>
+      </div>
+      <!-- Chips filtros activos -->
+      <div class="flex items-center gap-1.5 text-[10px]">
+        <span class="text-slate-500">Activos:</span>
+        <span class="bg-teal-100 text-teal-700 px-2 py-0.5 rounded-full font-bold flex items-center gap-1">Mayo 2026 <button><i data-lucide="x" class="w-2.5 h-2.5"></i></button></span>
+        <span class="bg-slate-100 text-slate-700 px-2 py-0.5 rounded-full font-bold flex items-center gap-1">+S/ 8,420 neto <button><i data-lucide="x" class="w-2.5 h-2.5"></i></button></span>
+        <button class="text-rose-600 hover:underline ml-1">Limpiar</button>
+      </div>
+    </div>
+    <!-- Toolbar agrupación -->
+    <div class="border-b border-slate-200 px-6 py-2 flex items-center justify-between bg-white">
+      <div class="flex items-center gap-2 text-[11px]">
+        <span class="text-slate-500">142 movimientos · S/ 32,180 ingresos · S/ 23,760 egresos</span>
+        <span class="text-slate-300">·</span>
+        <span class="text-slate-700">Agrupar:</span>
+        <div class="flex items-center gap-0.5 bg-slate-100 rounded-lg p-0.5">
+          <button class="px-3 py-1 text-[11px] font-bold bg-white text-teal-700 rounded shadow-sm">Día</button>
+          <button class="px-3 py-1 text-[11px] font-medium text-slate-600 hover:bg-slate-50 rounded">Semana</button>
+          <button class="px-3 py-1 text-[11px] font-medium text-slate-600 hover:bg-slate-50 rounded">Mes</button>
+          <button class="px-3 py-1 text-[11px] font-medium text-slate-600 hover:bg-slate-50 rounded">Categoría</button>
+        </div>
+      </div>
+      <div class="flex items-center gap-1 bg-slate-100 rounded-lg p-0.5">
+        <button class="p-1 bg-white text-teal-700 rounded shadow-sm" title="Vista listado"><i data-lucide="list" class="w-3.5 h-3.5"></i></button>
+        <button class="p-1 text-slate-500 hover:bg-white rounded" title="Vista timeline"><i data-lucide="git-commit" class="w-3.5 h-3.5"></i></button>
+        <button class="p-1 text-slate-500 hover:bg-white rounded" title="Vista calendario"><i data-lucide="calendar" class="w-3.5 h-3.5"></i></button>
+      </div>
+    </div>
+    <!-- LEDGER · agrupado por día -->
+    <div class="divide-y divide-slate-200">
+      <!-- HOY · 15 may -->
+      <div>
+        <div class="bg-teal-50/50 px-6 py-2 flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <span class="text-[11px] font-bold text-teal-900">Hoy · jueves 15 may 2026</span>
+            <span class="text-[10px] bg-teal-100 text-teal-700 px-1.5 py-0.5 rounded-full font-bold">7 movs</span>
+          </div>
+          <div class="flex items-center gap-3 text-[10px] tabular">
+            <span class="text-emerald-700 font-bold">+S/ 4,820</span>
+            <span class="text-rose-700 font-bold">−S/ 1,420</span>
+            <span class="text-indigo-700 font-bold">neto +S/ 3,400</span>
+          </div>
+        </div>
+        <div class="divide-y divide-slate-100">
+          <!-- mov 1 -->
+          <button class="w-full px-6 py-2.5 hover:bg-slate-50 flex items-center gap-3 text-left">
+            <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center flex-shrink-0"><i data-lucide="arrow-down-circle" class="w-4 h-4"></i></div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2"><span class="text-[12px] font-bold">Cobro · Cliente Premium SA</span><a class="text-[10px] text-blue-700 hover:underline">F-015 ↗</a></div>
+              <div class="text-[10px] text-slate-500">14:32 · BCP Soles · vía Yape · MOV-2026-0445</div>
+            </div>
+            <div class="text-right"><div class="text-[14px] font-bold tabular text-emerald-700">+S/ 2,500</div><div class="text-[10px] text-emerald-700">Confirmado</div></div>
+          </button>
+          <!-- mov 2 -->
+          <button class="w-full px-6 py-2.5 hover:bg-slate-50 flex items-center gap-3 text-left">
+            <div class="w-8 h-8 rounded-lg bg-rose-100 text-rose-700 flex items-center justify-center flex-shrink-0"><i data-lucide="arrow-up-circle" class="w-4 h-4"></i></div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2"><span class="text-[12px] font-bold">Pago · Proveedor Logística PE</span><a class="text-[10px] text-blue-700 hover:underline">OC-2026-098 ↗</a></div>
+              <div class="text-[10px] text-slate-500">13:05 · BCP Soles · transf · MOV-2026-0444</div>
+            </div>
+            <div class="text-right"><div class="text-[14px] font-bold tabular text-rose-700">−S/ 1,420</div><div class="text-[10px] text-rose-700">Confirmado</div></div>
+          </button>
+          <!-- mov 3 conversión USD -->
+          <button class="w-full px-6 py-2.5 hover:bg-slate-50 flex items-center gap-3 text-left bg-teal-50/20">
+            <div class="w-8 h-8 rounded-lg bg-teal-100 text-teal-700 flex items-center justify-center flex-shrink-0"><i data-lucide="repeat" class="w-4 h-4"></i></div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2"><span class="text-[12px] font-bold">Conversión USD → PEN</span><span class="text-[9px] bg-teal-100 text-teal-700 px-1.5 py-0.5 rounded font-bold">+S/ 21 FX</span></div>
+              <div class="text-[10px] text-slate-500">11:18 · Pool USD → BCP Soles · TC 3.756 · TCPA 3.742 · MOV-2026-0443</div>
+            </div>
+            <div class="text-right"><div class="text-[14px] font-bold tabular text-teal-700">$ 1,500 → S/ 5,634</div><div class="text-[10px] text-emerald-700">+ ganancia FX</div></div>
+          </button>
+          <!-- mov 4 cobro Yape -->
+          <button class="w-full px-6 py-2.5 hover:bg-slate-50 flex items-center gap-3 text-left">
+            <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center flex-shrink-0"><i data-lucide="arrow-down-circle" class="w-4 h-4"></i></div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2"><span class="text-[12px] font-bold">Cobro · Distrib. Lima Norte</span><a class="text-[10px] text-blue-700 hover:underline">V-2026-512 ↗</a><span class="text-[9px] bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded font-bold">via GK</span></div>
+              <div class="text-[10px] text-slate-500">10:42 · Yape GK Xpress (recaudadora) · pendiente liquidar</div>
+            </div>
+            <div class="text-right"><div class="text-[14px] font-bold tabular text-emerald-700">+S/ 820</div><div class="text-[10px] text-purple-700">A liquidar</div></div>
+          </button>
+        </div>
+      </div>
+      <!-- AYER · 14 may -->
+      <div>
+        <div class="bg-slate-50 px-6 py-2 flex items-center justify-between">
+          <div class="flex items-center gap-2"><span class="text-[11px] font-bold">Ayer · miércoles 14 may</span><span class="text-[10px] bg-slate-100 px-1.5 py-0.5 rounded-full font-bold text-slate-600">9 movs</span></div>
+          <div class="flex items-center gap-3 text-[10px] tabular"><span class="text-emerald-700 font-bold">+S/ 3,200</span><span class="text-rose-700 font-bold">−S/ 4,800</span><span class="text-rose-700 font-bold">neto −S/ 1,600</span></div>
+        </div>
+        <div class="divide-y divide-slate-100">
+          <button class="w-full px-6 py-2.5 hover:bg-slate-50 flex items-center gap-3 text-left">
+            <div class="w-8 h-8 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center flex-shrink-0"><i data-lucide="credit-card" class="w-4 h-4"></i></div>
+            <div class="flex-1 min-w-0"><div class="flex items-center gap-2"><span class="text-[12px] font-bold">Cargo TC · Meta Ads</span><a class="text-[10px] text-blue-700 hover:underline">G-2026-180 ↗</a></div><div class="text-[10px] text-slate-500">18:24 · Visa BCP Empresarial · USD · MOV-2026-0438</div></div>
+            <div class="text-right"><div class="text-[14px] font-bold tabular text-amber-700">−$ 480</div><div class="text-[10px] text-amber-700">Cargo TC</div></div>
+          </button>
+          <button class="w-full px-6 py-2.5 hover:bg-slate-50 flex items-center gap-3 text-left">
+            <div class="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center flex-shrink-0"><i data-lucide="arrow-left-right" class="w-4 h-4"></i></div>
+            <div class="flex-1 min-w-0"><div class="flex items-center gap-2"><span class="text-[12px] font-bold">Transferencia interna</span><span class="text-[9px] bg-indigo-100 text-indigo-700 px-1.5 py-0.5 rounded font-bold">Sin diferencial</span></div><div class="text-[10px] text-slate-500">15:00 · BCP Soles → Caja chica · S/ 200 · MOV-2026-0437</div></div>
+            <div class="text-right"><div class="text-[14px] font-bold tabular text-indigo-700">S/ 200</div><div class="text-[10px] text-indigo-700">Interna</div></div>
+          </button>
+          <button class="w-full px-6 py-2.5 hover:bg-slate-50 flex items-center gap-3 text-left">
+            <div class="w-8 h-8 rounded-lg bg-rose-100 text-rose-700 flex items-center justify-center flex-shrink-0"><i data-lucide="arrow-up-circle" class="w-4 h-4"></i></div>
+            <div class="flex-1 min-w-0"><div class="flex items-center gap-2"><span class="text-[12px] font-bold">Pago batch · 4 proveedores</span><span class="text-[9px] bg-indigo-100 text-indigo-700 px-1.5 py-0.5 rounded font-bold">Pagos masivos</span></div><div class="text-[10px] text-slate-500">11:18 · BCP Soles · transf batch · MOV-2026-0436</div></div>
+            <div class="text-right"><div class="text-[14px] font-bold tabular text-rose-700">−S/ 4,600</div><div class="text-[10px] text-rose-700">4 docs cerrados</div></div>
+          </button>
+        </div>
+      </div>
+      <!-- ANTEAYER · 13 may -->
+      <div>
+        <div class="bg-slate-50 px-6 py-2 flex items-center justify-between">
+          <div class="flex items-center gap-2"><span class="text-[11px] font-bold">Martes 13 may</span><span class="text-[10px] bg-slate-100 px-1.5 py-0.5 rounded-full font-bold text-slate-600">6 movs</span></div>
+          <div class="flex items-center gap-3 text-[10px] tabular"><span class="text-emerald-700 font-bold">+S/ 6,400</span><span class="text-rose-700 font-bold">−S/ 820</span></div>
+        </div>
+        <div class="divide-y divide-slate-100">
+          <button class="w-full px-6 py-2.5 hover:bg-slate-50 flex items-center gap-3 text-left">
+            <div class="w-8 h-8 rounded-lg bg-sky-100 text-sky-700 flex items-center justify-center flex-shrink-0"><i data-lucide="smartphone" class="w-4 h-4"></i></div>
+            <div class="flex-1 min-w-0"><div class="font-bold text-[12px]">Settle Stripe → BCP</div><div class="text-[10px] text-slate-500">23:00 · auto · 14 transacciones del día · neto post-comisión</div></div>
+            <div class="text-right"><div class="text-[14px] font-bold tabular text-sky-700">+S/ 2,140</div></div>
+          </button>
+          <button class="w-full px-6 py-2.5 hover:bg-slate-50 flex items-center gap-3 text-left">
+            <div class="w-8 h-8 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center flex-shrink-0"><i data-lucide="truck" class="w-4 h-4"></i></div>
+            <div class="flex-1 min-w-0"><div class="font-bold text-[12px]">Liquidación GK Xpress</div><div class="text-[10px] text-slate-500">17:30 · Yape GK → BCP Soles · 30 cobros liquidados</div></div>
+            <div class="text-right"><div class="text-[14px] font-bold tabular text-purple-700">+S/ 2,840</div></div>
+          </button>
+        </div>
+      </div>
+    </div>
+    <!-- Paginación -->
+    <div class="border-t border-slate-200 px-6 py-3 flex items-center justify-between bg-slate-50">
+      <div class="text-[11px] text-slate-500">Mostrando 22 de 142 · cargado 15.4%</div>
+      <button class="text-[11px] font-semibold text-teal-700 hover:bg-teal-50 px-3 py-1.5 rounded-lg flex items-center gap-1.5"><i data-lucide="chevron-down" class="w-3 h-3"></i> Cargar 30 más</button>
+    </div>
+  </div>
+</section>
+
+<!-- §2 · DRAWER DETALLE MOVIMIENTO (referenciado · ver MOCK 5 completo) -->
+<section class="space-y-4">
+  <div class="flex items-center gap-2">
+    <span class="text-[10px] uppercase tracking-wider font-bold text-teal-700">§ 2 · Drawer detalle movimiento</span>
+    <div class="flex-1 h-px bg-teal-200"></div>
+  </div>
+  <div class="bg-teal-50 ring-1 ring-teal-200 rounded-xl p-4 text-[12px] text-teal-900 flex items-start gap-3">
+    <i data-lucide="info" class="w-4 h-4 text-teal-700 mt-0.5"></i>
+    <div>
+      <strong>Vista detalle completa en MOCK 5</strong> (<code class="bg-white px-1 rounded text-[10px]">finanzas-integraciones-crossmodulo-v5.1.html § 6</code>). Incluye Doc origen prominente · datos técnicos del movimiento · timeline audit trail · acciones (anular · ver historial). Click en cualquier movimiento del ledger abre este drawer.
+    </div>
+  </div>
+</section>
+
+<!-- §3 · VISTA TIMELINE ALTERNATIVA -->
+<section class="space-y-4">
+  <div class="flex items-center gap-2">
+    <span class="text-[10px] uppercase tracking-wider font-bold text-slate-500">§ 3 · Vista alternativa · timeline cronológico</span>
+    <div class="flex-1 h-px bg-slate-200"></div>
+  </div>
+  <div class="bg-white border border-slate-200 rounded-2xl p-5">
+    <div class="text-[11px] text-slate-500 mb-4">Toggle vista activa: <strong class="text-teal-700">Timeline</strong> · útil para ver flujo cronológico denso · agrupado por hora</div>
+    <div class="relative space-y-3">
+      <div class="absolute left-2 top-0 bottom-0 w-px bg-slate-200"></div>
+      <div class="pl-8 relative">
+        <div class="absolute left-0 top-1 w-4 h-4 rounded-full bg-emerald-500 ring-4 ring-emerald-100"></div>
+        <div class="text-[10px] uppercase font-bold text-slate-500">14:32 · hoy</div>
+        <div class="bg-emerald-50 ring-1 ring-emerald-200/50 rounded-lg p-2 mt-1 flex items-center justify-between">
+          <span class="text-[11px] font-bold">Cobro Cliente Premium SA · F-015</span>
+          <span class="text-[11px] font-bold tabular text-emerald-700">+S/ 2,500</span>
+        </div>
+      </div>
+      <div class="pl-8 relative">
+        <div class="absolute left-0 top-1 w-4 h-4 rounded-full bg-rose-500 ring-4 ring-rose-100"></div>
+        <div class="text-[10px] uppercase font-bold text-slate-500">13:05 · hoy</div>
+        <div class="bg-rose-50 ring-1 ring-rose-200/50 rounded-lg p-2 mt-1 flex items-center justify-between">
+          <span class="text-[11px] font-bold">Pago Logística PE · OC-2026-098</span>
+          <span class="text-[11px] font-bold tabular text-rose-700">−S/ 1,420</span>
+        </div>
+      </div>
+      <div class="pl-8 relative">
+        <div class="absolute left-0 top-1 w-4 h-4 rounded-full bg-teal-500 ring-4 ring-teal-100"></div>
+        <div class="text-[10px] uppercase font-bold text-slate-500">11:18 · hoy</div>
+        <div class="bg-teal-50 ring-1 ring-teal-200/50 rounded-lg p-2 mt-1 flex items-center justify-between">
+          <span class="text-[11px] font-bold">Conversión USD → PEN · TCPA</span>
+          <span class="text-[11px] font-bold tabular text-teal-700">$ 1,500 → S/ 5,634 +S/ 21 FX</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- §4 · ESTADOS -->
+<section class="space-y-4">
+  <div class="flex items-center gap-2">
+    <span class="text-[10px] uppercase tracking-wider font-bold text-slate-500">§ 4 · Estados · vacío · loading · error</span>
+    <div class="flex-1 h-px bg-slate-200"></div>
+  </div>
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden">
+      <div class="bg-slate-50 border-b px-4 py-2"><span class="text-[10px] uppercase font-bold text-slate-700">Vacío · cero movimientos</span></div>
+      <div class="p-8 text-center space-y-4">
+        <div class="w-16 h-16 mx-auto rounded-full bg-slate-100 flex items-center justify-center"><i data-lucide="arrow-left-right" class="w-8 h-8 text-slate-600"></i></div>
+        <div>
+          <div class="text-[14px] font-bold">Aún no hay movimientos</div>
+          <div class="text-[11px] text-slate-500 mt-1">Registrá el primer movimiento desde el botón "+ Nuevo movimiento" o importá un extracto bancario.</div>
+        </div>
+        <div class="flex justify-center gap-2">
+          <button class="text-[11px] font-semibold text-indigo-700 bg-indigo-50 border border-indigo-200 px-3 py-1.5 rounded-lg">Importar extracto</button>
+          <button class="text-[11px] font-bold text-white bg-teal-600 px-3 py-1.5 rounded-lg flex items-center gap-1.5"><i data-lucide="plus" class="w-3 h-3"></i> Nuevo movimiento</button>
+        </div>
+      </div>
+    </div>
+    <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden">
+      <div class="bg-slate-50 border-b px-4 py-2"><span class="text-[10px] uppercase font-bold text-sky-700">Loading · skeleton ledger</span></div>
+      <div class="p-4 space-y-1.5">
+        <div class="shimmer h-6 rounded"></div>
+        <div class="shimmer h-10 rounded ml-4"></div>
+        <div class="shimmer h-10 rounded ml-4"></div>
+        <div class="shimmer h-10 rounded ml-4"></div>
+        <div class="shimmer h-6 rounded mt-4"></div>
+        <div class="shimmer h-10 rounded ml-4"></div>
+        <div class="shimmer h-10 rounded ml-4"></div>
+      </div>
+    </div>
+    <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden">
+      <div class="bg-slate-50 border-b px-4 py-2"><span class="text-[10px] uppercase font-bold text-rose-700">Error · filtros sin resultados</span></div>
+      <div class="p-8 text-center space-y-4">
+        <div class="w-16 h-16 mx-auto rounded-full bg-amber-100 flex items-center justify-center"><i data-lucide="filter-x" class="w-8 h-8 text-amber-600"></i></div>
+        <div>
+          <div class="text-[14px] font-bold">Sin movimientos en este rango</div>
+          <div class="text-[11px] text-slate-500 mt-1">Los filtros actuales no devuelven resultados. Ajustá el rango de fechas o limpiá los filtros.</div>
+        </div>
+        <button class="text-[11px] font-bold text-white bg-rose-600 px-3 py-1.5 rounded-lg">Limpiar filtros</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- §5 · MOBILE -->
+<section class="space-y-4">
+  <div class="flex items-center gap-2">
+    <span class="text-[10px] uppercase tracking-wider font-bold text-slate-500">§ 5 · Mobile · cards apiladas · filtros colapsados</span>
+    <div class="flex-1 h-px bg-slate-200"></div>
+  </div>
+  <div class="max-w-sm mx-auto bg-white border-2 border-slate-300 rounded-3xl shadow-xl overflow-hidden">
+    <div class="bg-slate-50 border-b px-3 py-2 flex items-center justify-between"><span class="text-sm font-bold">Movimientos</span><button class="w-7 h-7 bg-teal-600 rounded-lg text-white flex items-center justify-center"><i data-lucide="plus" class="w-3.5 h-3.5"></i></button></div>
+    <button class="w-full px-3 py-2 border-b flex items-center justify-between bg-slate-50"><span class="flex items-center gap-2"><i data-lucide="filter" class="w-3.5 h-3.5"></i><span class="text-xs font-bold">Filtros</span><span class="text-[9px] bg-slate-100 px-1.5 py-0.5 rounded-full">2 activos</span></span><i data-lucide="chevron-down" class="w-3.5 h-3.5"></i></button>
+    <div class="grid grid-cols-3 gap-1 p-2 bg-slate-50">
+      <div class="bg-emerald-50 ring-1 ring-emerald-200 rounded p-1.5 text-center"><div class="text-[8px] font-bold text-emerald-700">Ingresos</div><div class="font-bold tabular text-emerald-900 text-[11px]">S/ 32K</div></div>
+      <div class="bg-rose-50 ring-1 ring-rose-200 rounded p-1.5 text-center"><div class="text-[8px] font-bold text-rose-700">Egresos</div><div class="font-bold tabular text-rose-900 text-[11px]">S/ 24K</div></div>
+      <div class="bg-indigo-50 ring-1 ring-indigo-200 rounded p-1.5 text-center"><div class="text-[8px] font-bold text-indigo-700">Neto</div><div class="font-bold tabular text-indigo-900 text-[11px]">+8K</div></div>
+    </div>
+    <div class="bg-teal-50/50 px-3 py-1.5"><span class="text-[10px] font-bold text-teal-900">Hoy 15-may · 7 movs</span></div>
+    <div class="p-2 space-y-1.5">
+      <div class="bg-emerald-50 ring-1 ring-emerald-200 rounded-lg p-2 flex items-center gap-2"><div class="w-6 h-6 rounded bg-emerald-200 text-emerald-700 flex items-center justify-center"><i data-lucide="arrow-down" class="w-3 h-3"></i></div><div class="flex-1 min-w-0"><div class="font-bold text-[11px] truncate">Premium SA</div><div class="text-[9px] text-slate-500">F-015 · BCP</div></div><div class="text-right"><div class="font-bold tabular text-emerald-700 text-[11px]">+S/ 2,500</div></div></div>
+      <div class="bg-rose-50 ring-1 ring-rose-200 rounded-lg p-2 flex items-center gap-2"><div class="w-6 h-6 rounded bg-rose-200 text-rose-700 flex items-center justify-center"><i data-lucide="arrow-up" class="w-3 h-3"></i></div><div class="flex-1 min-w-0"><div class="font-bold text-[11px] truncate">Logística PE</div><div class="text-[9px] text-slate-500">OC-098 · BCP</div></div><div class="text-right"><div class="font-bold tabular text-rose-700 text-[11px]">−S/ 1,420</div></div></div>
+      <div class="bg-teal-50 ring-1 ring-teal-200 rounded-lg p-2 flex items-center gap-2"><div class="w-6 h-6 rounded bg-teal-200 text-teal-700 flex items-center justify-center"><i data-lucide="repeat" class="w-3 h-3"></i></div><div class="flex-1 min-w-0"><div class="font-bold text-[11px] truncate">Conv USD→PEN</div><div class="text-[9px] text-teal-700">+S/ 21 FX</div></div><div class="text-right"><div class="font-bold tabular text-teal-700 text-[10px]">$1.5K→S/5.6K</div></div></div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="bg-slate-900 text-slate-300 mt-12 py-6">
+  <div class="max-w-[1400px] mx-auto px-6 text-[11px] flex items-center justify-between">
+    <div>MOCK 7 · Vista Movimientos · ledger completo + estados</div>
+    <div>chk5.D-S1e Turno 3</div>
+  </div>
+</footer>
+
+<script>lucide.createIcons();</script>
+</body>
+</html>

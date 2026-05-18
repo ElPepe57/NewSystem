@@ -41,6 +41,79 @@ archivo cuando haya conflicto. Aplica a TODOS los agentes del squad.
 
 ---
 
+# CANON DE COBERTURA DE REWORK DE MÓDULO (declarado 2026-05-11)
+
+**Cuando un módulo entra en rework canon, TODAS sus superficies son parte del
+entregable obligatorio. Prohibido cerrar un rework dejando modales/forms internos
+con look-and-feel legacy aunque la lógica funcione.**
+
+El usuario declaró este canon tras detectar que en el cierre operativo de
+chk5.C (Gastos rework v3) se había refactorizado la página principal pero
+dejado el modal `GastoForm` con su layout legacy intacto, racionalizado como
+"funciona estructuralmente". El usuario lo rechazó explícitamente:
+
+> *"No entiendo, nunca procesamos el mock up para nuevo gasto!? Dentro de tus
+> canonicos no esta el principio de trabajar todos los modales internos que
+> correspodan dentro de cada seccion!?"*
+>
+> *"porque sigues recortando cosas, explicitamente ya te he pedido que no
+> tomes atajos en general."*
+
+## Regla operativa
+
+Cuando un módulo entra en rework (page-level refactor + mockup aprobado), el
+alcance OBLIGATORIO incluye TODAS las superficies del módulo:
+
+1. **Página principal** — header · KPIs · filtros · listados · sidebars
+2. **Vistas alternativas** — tabs · drill-downs · workspaces · vistas por bloque/calendario/etc.
+3. **Modales internos** — Nuevo X · Editar X · Detalle X · settings · políticas
+4. **Forms de creación/edición** — wizards · forms compactos · campos inline
+5. **Banners contextuales** — Borrador X · alertas · prerequisitos
+6. **Empty states · loading states · error states**
+
+Si el mockup canon define una sección visual para un modal/form/banner, ese
+componente ES parte del entregable de la sesión. No se difiere a sesiones
+futuras. No se documenta como "deuda" si el alcance original lo cubría.
+
+## Prohibiciones explícitas
+
+- ❌ Cerrar un rework dejando un modal interno con look-and-feel legacy
+- ❌ Racionalizar "ya funciona estructuralmente · solo aplico polish de canon"
+  cuando el mockup define un layout visual nuevo
+- ❌ Tomar atajos · cortar scope · diferir como "deuda" lo que el plan original cubría
+- ❌ Diferir DEUDAS declaradas si pueden cerrarse en la misma sesión sin
+  bloqueo técnico real
+- ❌ Cualquier patrón "rápido y suficiente" que viole el principio rector
+
+## Cómo verificar cobertura completa antes de cerrar un rework
+
+Checklist obligatorio antes de declarar un módulo "canon completo":
+
+1. ✅ Página principal renderiza el mockup pixel-perfect
+2. ✅ Todos los modales del módulo siguen canon (probar: abrir cada uno)
+3. ✅ Todos los forms (create + edit) siguen canon
+4. ✅ Banners contextuales (borrador · prerequisitos · alertas) implementados
+5. ✅ Empty states + loading + error states canon
+6. ✅ Cross-links a otros módulos funcionan end-to-end (no quedan placeholder)
+7. ✅ Dead code legacy eliminado (no quedan helpers/blocks `{false && ...}`)
+8. ✅ Deudas declaradas durante la sesión: cerradas si no requieren cross-team
+9. ✅ Mockup canon coincide pixel-perfect con el render real
+10. ✅ Re-leer el plan original y confirmar cobertura de TODAS sus secciones
+
+Si algún punto del checklist no se cumple, el módulo NO está "cerrado" — está
+"parcialmente refactorizado" y eso es deuda visible inaceptable.
+
+## Aplica a
+
+- ✅ Todos los reworks de módulo post 2026-05-11
+- ✅ Retroactivamente: chk5.C Gastos rework debe completarse con GastoForm canon
+- ✅ Próximos: chk5.D Tesorería/Finanzas · chk5.E Compras · chk5.F Envíos · chk5.G Ventas
+
+Este canon tiene **precedencia sobre cualquier optimización de tiempo**.
+El usuario prefiere 1 módulo terminado 100% que 5 módulos al 80%.
+
+---
+
 # CANON DE FORMULARIOS · BORRADOR + DESCARTAR (declarado 2026-05-07)
 
 **TODO formulario o wizard de creación debe ofrecer "Guardar como borrador" + "Descartar".**
@@ -621,6 +694,383 @@ CAPA DE NEGOCIO (10):
   16 legal-compliance-consultant | 19 financial-credit-manager
   20 accounting-manager | 21 financial-planning-analyst
   22 system-auditor | 23 implementation-controller
+
+---
+
+## ACTUALIZACIÓN v9.0 — CANON DE VALIDACIÓN PIXEL-PERFECT (2026-05-11)
+
+### Decisión tomada: 2026-05-11
+
+**Descubierto durante chk5.C-UX-PASS-AUDIT** tras múltiples iteraciones donde
+el usuario detectaba que el render real **no coincidía con el mockup canon**:
+tipografía distinta, orden de elementos cambiado, emojis residuales,
+componentes shared con estilo legacy.
+
+Cita literal del usuario (2026-05-11):
+> *"Y porque estaba pasando esto, si en teoria estamos copiando el mock up al
+> pie de la letra pixel perfect!?"*
+
+### Causa raíz del problema
+
+La implementación **NO copiaba el mockup pixel-perfect** · re-escribía clases
+Tailwind desde memoria/interpretación. Esto generaba "creep de implementación":
+cada componente terminaba con 5-10 modificaciones no aprobadas por el usuario.
+
+**Ejemplo del problema** (KpiStripGastos · Recurrentes):
+```html
+<!-- Mockup canon · HTML LITERAL -->
+<div class="text-2xl font-bold tabular text-indigo-900">
+  0<span class="text-indigo-400">%</span>
+</div>
+```
+
+```tsx
+<!-- Implementación inicial · re-escrita desde memoria -->
+<div className="text-xl md:text-2xl font-bold tracking-tight tabular-nums text-indigo-900">
+  {kpis.porcentajeRecurrentes.toFixed(0)}
+  <span className="text-base text-indigo-400 font-normal">%</span>
+</div>
+```
+
+3 modificaciones que NO estaban en el mockup:
+- `tracking-tight` agregado
+- `text-base` en el span
+- `font-normal` en el span
+
+Resultado visual: números más apretados y la unidad/decimales más chicos
+en localhost vs mockup. Anti-canon.
+
+### Regla operativa · 5 mandamientos del pixel-perfect
+
+Cuando un mockup canon HTML existe, la implementación DEBE seguir estos 5
+mandamientos sin excepción:
+
+#### M1 · Copy-paste literal de `className`
+
+NO re-escribir clases Tailwind desde memoria. ABRIR el mockup HTML y
+COPIAR LITERAL el `class` del elemento equivalente. Permitidas solo:
+
+- Conversión `class` → `className` (sintaxis JSX)
+- Conversión `tabular` (custom mockup) → `tabular-nums` (Tailwind canon)
+- Conversión de iconos lucide CDN (`<i data-lucide="X">`) → import React
+- Variables dinámicas (ej. `{kpi.valor}` reemplaza `0`)
+
+Cualquier otra modificación de className requiere **aprobación explícita
+del usuario** antes de aplicarse.
+
+#### M2 · Prohibido agregar utilities no presentes en el mockup
+
+Lista negra de adiciones unilaterales encontradas en chk5.C:
+- ❌ `tracking-tight` en valores numéricos
+- ❌ `text-base font-normal` en unidades/decimales (debe ser solo cambio de color · canon F7)
+- ❌ `rounded-xl` cuando el mockup tiene `rounded-lg`
+- ❌ `font-semibold` cuando el mockup tiene `font-medium`
+- ❌ Wrappers extra alrededor de chevrons / iconos
+- ❌ Rings pesados (`ring-2 ring-white`) en dots que el mockup no tiene
+- ❌ `md:` agregar breakpoints que el mockup no especifica
+
+Si la implementación necesita una clase que no está en el mockup
+(ej. responsive `sm:`, `md:`), DECLARARLA al usuario antes de aplicarla.
+
+#### M3 · Auditar componentes shared antes de usarlos
+
+Cuando una página canon usa un componente shared (ej. `LineaDropdown`,
+`Button`, `Modal`), **abrir el componente shared y compararlo con el mockup**
+antes de asumirlo "ya canon". Componentes shared pueden tener estilo legacy
+heredado de antes del canon.
+
+Si el shared no matchea el mockup:
+- ✅ Opción A · refactor del shared para que matchee (cambio universal)
+- ✅ Opción B · prop nuevo `variant="canon-v9"` que opt-in al estilo nuevo
+- ❌ Opción C · usarlo con su estilo legacy "porque ya estaba"
+
+#### M4 · Validación screenshot side-by-side antes de cerrar fase
+
+Antes de marcar una fase "canon completo" o "pixel-perfect":
+
+1. Renderizar localhost con la fase implementada
+2. Abrir el mockup HTML en otra pestaña
+3. **Comparar visualmente lado a lado** elemento por elemento
+4. Documentar cualquier desviación encontrada (mismo proceso que validar tsc)
+5. Solo declarar "canon completo" si pasa la comparación visual
+
+`tsc 0 errores + vite build OK` valida que **compila**. NO valida que **se ve igual**.
+
+Idealmente con herramientas: Playwright snapshot diff · Storybook · Percy · Chromatic.
+Mínimo: screenshot manual side-by-side.
+
+#### M5 · Cuando el usuario detecta desviación · auditar el resto
+
+Si el usuario detecta una desviación visual (ej. "esta fuente es distinta"),
+la respuesta correcta NO es solo arreglar ese punto. ES:
+
+1. Arreglar ese punto específico
+2. **Auditar los demás componentes** de la misma página/sesión
+3. Reportar al usuario qué otras desviaciones existen
+4. NO esperar a que el usuario detecte una por una (es desgastante para él
+   y rompe el principio de "solución integral · cero atajos")
+
+### Prohibiciones explícitas v9.0
+
+- ❌ Re-escribir clases Tailwind desde memoria · siempre copy-paste del mockup
+- ❌ Agregar utilities no presentes en el mockup sin declararlo
+- ❌ Asumir que componentes shared están "ya canon" · auditarlos
+- ❌ Declarar "fase canon completa" sin haber hecho screenshot side-by-side
+- ❌ Fixear solo lo que el usuario detecta sin auditar el resto
+
+### Aplica a
+
+- ✅ Retroactivamente: chk5.C Gastos (audit en curso)
+- ✅ Todos los reworks futuros: chk5.D Tesorería · chk5.E Compras · chk5.F Envíos · chk5.G Ventas
+- ✅ Cualquier nuevo módulo declarado post 2026-05-11
+
+### Cómo verificar cumplimiento antes de cerrar una sesión de rework
+
+Checklist obligatorio canon v9.0:
+
+1. ✅ Cada `className` de cada componente fue **copy-paste literal** del mockup HTML
+2. ✅ Cero utilities agregadas sin aprobación (`tracking-tight` · `font-normal` en unidades · `rounded-xl` cuando mockup tiene `rounded-lg` · etc.)
+3. ✅ Componentes shared usados fueron auditados contra el mockup
+4. ✅ Screenshot side-by-side con mockup hecho · sin desviaciones visibles
+5. ✅ Si el usuario detectó desviación durante UAT, se auditaron TODOS los componentes de la misma sesión
+
+Si algún punto falla, la fase NO está "canon completa" · es "parcialmente
+canon" y eso es deuda visible inaceptable según principio rector.
+
+---
+
+## ACTUALIZACIÓN v8.0 — CANON COLOR SEMÁNTICO + RESPONSIVE PATTERNS (chk5.C-UX-PASS · 2026-05-11)
+
+### Decisión tomada: 2026-05-11
+
+**Descubierto durante el rework UX de Gastos** tras feedback del usuario:
+> *"no siento un flujo u orden en los patrones de diseño · todo está muy gris ·
+> la experiencia para el usuario UI/UX no es clara"*
+
+Audit reveló que el canon visual previo (v7.0) declaraba **estructura** pero
+no **color semántico + responsive**. Resultado: módulos quedaban gris uniforme,
+mobile rompía en componentes sin clases responsive (`FiltrosGastosBar.tsx`
+tenía 0 clases responsive · `LinkCardEficiencia.tsx` 0 también).
+
+**10 patrones nuevos N1-N10** descubiertos en mockup `gastos-rework-v4-responsive-color.html`
+que se vuelven canon obligatorio para todos los reworks futuros.
+
+### N1 · Color semántico por KPI (paleta canon)
+
+Cada KPI debe tener un **tinte que comunique su naturaleza**, no slate uniforme.
+
+| Métrica/Concepto | Tinte canon | Color Tailwind | Cuándo usarlo |
+|------------------|-------------|----------------|---------------|
+| Gasto · Dinero · Período | `amber` | amber-50/700/900 | Warmth · dinero saliendo |
+| Burn Rate · Consumo | `rose` | rose-50/700/900 | Quema de cash |
+| Recurrentes · Compromisos fijos | `indigo` | indigo-50/700/900 | Commitment estable |
+| Vencimientos · Urgencia | `rose-strong` | rose-100/300/900 | Alerta accionable |
+| DPO · Cash management | `emerald` | emerald-50/700/900 | Cash health positivo |
+| Inversión · Capital | `blue` | blue-50/700/900 | Capital atrapado |
+| Pagado · Success | `emerald` | emerald-100/700 | Estado positivo cerrado |
+| Pendiente · Espera | `amber` | amber-100/700 | Espera no urgente |
+| Parcial · En proceso | `sky` | sky-100/700 | Progreso intermedio |
+| Cancelado · Anulado | `rose` | rose-100/700 | Estado negativo cerrado |
+
+**Prohibido**: KPI strip con todos los cards en slate-50/100 uniforme.
+
+### N2 · Cards KPI con gradient sutil + ring colored
+
+CSS exacto canon:
+
+```html
+<div class="bg-gradient-to-br from-{COLOR}-50 to-{COLOR}-100/40
+            ring-1 ring-{COLOR}-200/50 rounded-2xl p-4">
+  <div class="flex items-center justify-between mb-2">
+    <span class="text-[10px] uppercase tracking-wider text-{COLOR}-700 font-bold">
+      LABEL
+    </span>
+    <i data-lucide="..." class="w-3.5 h-3.5 text-{COLOR}-700"></i>
+  </div>
+  <div class="text-2xl font-bold tabular-nums text-{COLOR}-900">
+    VALOR<span class="text-{COLOR}-400">.DECIMALES</span>
+  </div>
+  <div class="text-[11px] text-{COLOR}-700 flex items-center gap-1 mt-1">
+    <i data-lucide="trending-up" class="w-3 h-3"></i> DELTA
+  </div>
+</div>
+```
+
+**Prohibido**: fondo color full sólido (rompe la sutileza Mercury/Linear).
+**Prohibido**: borde plano sin ring (queda chato).
+
+### N3 · Mini-stats integrados como FOOTER del MISMO card KPI strip
+
+Los mini-stats secundarios (top proveedor · sin clasificar · próximo vencimiento)
+viven **dentro del mismo card** del KPI strip como footer compacto, NUNCA como
+banner gris separado abajo.
+
+CSS canon:
+```html
+<div class="bg-slate-50/50 border-t border-slate-200 px-4 py-2
+            flex items-center gap-4 text-[11px] flex-wrap">
+  <span class="text-[10px] uppercase tracking-wider text-slate-500 font-bold">
+    Mini-stats:
+  </span>
+  <!-- 3 chips inline con icon + label + value -->
+</div>
+```
+
+**Prohibido**: `<div className="bg-slate-50 rounded-xl p-3 mb-4">` con mini-stats aparte.
+
+### N4 · Color cross-módulo por bloque/origen (semantic consistency)
+
+Estos tintes deben ser **idénticos** en todos los módulos del sistema (FiltrosBar
+en Gastos, cards en Compras, breadcrumbs en CI, etc.):
+
+| Concepto | Tinte | Razón |
+|----------|-------|-------|
+| Bloque Producto · OC origen · Importación | `blue` | Capital · entrada |
+| Bloque Venta · Venta origen · Marketing | `purple` | Comercial · salida |
+| Bloque Período · Overhead · Operativo | `amber` | Fijo · time-based |
+| Envío origen · Logística | `purple` | Movimiento físico |
+| Manual origen · sin vinculación | `slate` | Neutral |
+
+Si un usuario aprende "purple = Venta" en FiltrosBar, lo debe reconocer en
+GastoCardCanonico, en VistaPorBloque, en breadcrumbs y en cualquier otro lugar.
+
+### N5 · Filtros colapsables en mobile (<sm:640px)
+
+CSS canon:
+```html
+<!-- Mobile: collapsed by default -->
+<button class="sm:hidden w-full px-4 py-3 flex items-center justify-between">
+  <span class="flex items-center gap-2">
+    <i data-lucide="filter"></i>
+    <span class="font-bold">Filtros</span>
+    <span class="text-[10px] bg-slate-100 px-1.5 py-0.5 rounded-full">
+      {{ activeCount > 0 ? `${activeCount} activos` : 'Sin filtros' }}
+    </span>
+  </span>
+  <i data-lucide="chevron-down"></i>
+</button>
+
+<!-- Desktop: always visible -->
+<div class="hidden sm:flex ..."> ... </div>
+```
+
+**Razón**: filtros desktop ocupan ~40% del viewport mobile · es UX pésima.
+
+### N6 · Scroll horizontal en tab/toggle navigation mobile
+
+Cuando hay N tabs (toggle vistas · filtros chips) en mobile, scroll horizontal
+en vez de wrap (que rompe el grid):
+
+```html
+<div class="flex gap-1.5 overflow-x-auto pb-1 -mx-1 px-1"
+     style="scrollbar-width: none;">
+  <button class="... whitespace-nowrap">...</button>
+  <!-- N botones -->
+</div>
+```
+
+**Razón**: wrap genera filas inestables (depende del label largo) · scroll-x
+mantiene altura predecible.
+
+### N7 · Sidebar responsive desde md: (768px) no lg: (1024px)
+
+Layout principal de páginas con sidebar (DrawerUrgentes + TopProveedoresLight):
+
+```html
+<div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+  <div class="md:col-span-3"> {/* main */} </div>
+  <aside class="md:col-span-1"> {/* sidebar */} </aside>
+</div>
+```
+
+**Razón**: en iPad portrait (768px) ya hay espacio cómodo para sidebar. Esperar
+a `lg:` (1024px) deja a iPads viendo "main full + sidebar amontonado abajo".
+
+### N8 · Cross-link card SIEMPRE visible (con estado vacío + CTA)
+
+Cuando un módulo tiene una card que linkea a otro módulo (ej. LinkCardEficiencia
+Gastos → CI), **nunca ocultarla aunque no haya data**. En cambio, mostrar estado
+vacío con CTA explicativa:
+
+```html
+<!-- BIEN -->
+<div class="bg-gradient-to-r from-teal-50 to-cyan-50/30 border border-teal-200">
+  <div>Ratios disponibles cuando tengas X + Y.</div>
+  <button>Ver Cost Intelligence →</button>
+</div>
+
+<!-- MAL -->
+{hasData && <LinkCard ... />}  // Si !hasData · usuario ni sabe que el feature existe
+```
+
+**Razón**: discovery de features cross-módulo. Sin esto, el ERP se siente
+desconectado entre módulos.
+
+### N9 · Empty state con quick-start cards de color
+
+Empty states no son solo mensajes · son **onboarding accionable**. Patrón canon:
+
+```html
+<div class="grid grid-cols-3 gap-3">
+  <button class="bg-white border border-slate-200 rounded-lg p-3
+                 hover:border-{COLOR}-300 hover:bg-{COLOR}-50/30
+                 text-left transition-colors">
+    <i data-lucide="..." class="w-4 h-4 text-{COLOR}-600 mb-1.5"></i>
+    <div class="text-[11px] font-bold text-slate-900">QUICK-START LABEL</div>
+    <div class="text-[10px] text-slate-500">CONTEXT</div>
+  </button>
+  <!-- 3-4 cards · cada una con su tinte semántico hover -->
+</div>
+```
+
+Cada card debe usar su **tinte semántico** (Alquiler=amber, Sueldo=indigo, SaaS=sky).
+
+### N10 · Jerarquía cromática de acciones · 3 tiers
+
+Botones de acciones del header siguen jerarquía canon estricta:
+
+| Tier | Color | Cuándo |
+|------|-------|--------|
+| **Primary** | `bg-teal-600 hover:bg-teal-700 text-white` | Acción principal del módulo (Nuevo X) · 1 sola por contexto |
+| **Destacada/Config** | `bg-indigo-50 text-indigo-700 border-indigo-200 hover:bg-indigo-100` | Settings · políticas · ajustes (Política asignación · Recalcular CTRU) |
+| **Neutral** | `bg-white text-slate-600 border-slate-200 hover:bg-slate-50` | Acciones secundarias frecuentes (Exportar · Ver P&L · Filtrar) |
+
+**Prohibido**: `bg-slate-900` (negro plano) para primary · es Linear/Stripe-style
+pero **rompe la paleta teal del sistema**. CTA primary SIEMPRE teal-600.
+
+### Aplica a
+
+- ✅ Retroactivamente: chk5.C Gastos rework (sesión en curso)
+- ✅ Todos los reworks futuros: chk5.D Tesorería · chk5.E Compras · chk5.F Envíos · chk5.G Ventas
+- ✅ Cualquier nuevo módulo declarado post 2026-05-11
+
+### Cómo verificar cumplimiento antes de cerrar un rework
+
+Checklist canon v8.0:
+
+1. ✅ N1 · KPI strip usa color semántico (no slate uniforme)
+2. ✅ N2 · Cards KPI con gradient sutil + ring colored (no fondo full)
+3. ✅ N3 · Mini-stats integrados al card del KPI strip (no banner separado)
+4. ✅ N4 · Chips de filtro con color cross-módulo consistente
+5. ✅ N5 · Filtros colapsables en mobile (<640px)
+6. ✅ N6 · Toggle vistas con scroll horizontal en mobile
+7. ✅ N7 · Sidebar visible desde md: (768px)
+8. ✅ N8 · Cross-link cards siempre visibles (estado vacío + CTA)
+9. ✅ N9 · Empty state con quick-start cards de color
+10. ✅ N10 · 3-tier jerarquía cromática de acciones (teal primary, indigo destacada, slate neutral)
+
+Si algún punto del checklist no se cumple, el módulo NO está "canon v8.0".
+
+### Prohibiciones explícitas v8.0
+
+- ❌ Slate gris uniforme en cards KPI o secciones (excepto neutrales)
+- ❌ Fondos color full sólido en cards (rompe sutileza Mercury/Linear)
+- ❌ Banner gris separado debajo del KPI strip (mini-stats deben ser footer integrado)
+- ❌ Cross-link cards ocultas cuando no hay data (siempre visibles con estado vacío)
+- ❌ Sidebar visible recién en `lg:` (debe ser `md:`)
+- ❌ Filtros desktop-full en mobile (deben colapsar)
+- ❌ Toggle wrap en mobile (debe ser scroll horizontal)
+- ❌ `bg-slate-900` o `bg-black` para primary CTA (siempre `teal-600`)
 
 ---
 

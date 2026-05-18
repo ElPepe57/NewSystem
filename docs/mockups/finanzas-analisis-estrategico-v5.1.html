@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Finanzas · Análisis estratégico · v5.1 canon v8.0+v9.0</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, sans-serif; }
+    .tabular { font-variant-numeric: tabular-nums; font-feature-settings: "tnum"; }
+    .scrollbar-hide::-webkit-scrollbar { display: none; }
+    .scrollbar-hide { scrollbar-width: none; }
+    .gauge-arc { transform: rotate(-90deg); transform-origin: center; }
+  </style>
+</head>
+<body class="bg-slate-100 text-slate-900">
+
+<header class="bg-slate-900 text-white sticky top-0 z-50 shadow-lg">
+  <div class="max-w-[1400px] mx-auto px-6 py-3 flex items-center justify-between">
+    <div>
+      <div class="text-[10px] uppercase tracking-wider text-teal-300">chk5.D-S1e · v5.1 canon definitivo</div>
+      <div class="text-base font-bold">MOCK 4 · Análisis estratégico · 10 gráficas canon-level (fusión S58f + G1-G10)</div>
+    </div>
+    <nav class="hidden md:flex items-center gap-1 text-[11px]">
+      <a href="finanzas-shell-overview-v5.1.html" class="px-2 py-1 hover:bg-slate-700 rounded text-slate-300">MOCK 1</a>
+      <a href="finanzas-cuentas-completo-v5.1.html" class="px-2 py-1 hover:bg-slate-700 rounded text-slate-300">MOCK 2</a>
+      <a href="finanzas-wizards-completos-v5.1.html" class="px-2 py-1 hover:bg-slate-700 rounded text-slate-300">MOCK 3</a>
+      <span class="px-2 py-1 bg-teal-600 rounded text-white font-semibold">MOCK 4</span>
+      <span class="px-2 py-1 text-slate-500 line-through">MOCK 5</span>
+    </nav>
+  </div>
+</header>
+
+<main class="max-w-[1400px] mx-auto px-6 py-8 space-y-12">
+
+<!-- §1 · INTRO + MATRIZ 10 GRÁFICAS -->
+<section class="space-y-4">
+  <div class="flex items-center gap-2">
+    <span class="text-[10px] uppercase tracking-wider font-bold text-purple-700">§ 1 · Vista Análisis estratégico · 10 gráficas en 3 tiers</span>
+    <div class="flex-1 h-px bg-purple-200"></div>
+  </div>
+  <h2 class="text-2xl font-bold text-slate-900">10 gráficas canon-level · fusión consolidada S58f + G1-G10</h2>
+  <p class="text-sm text-slate-600 max-w-3xl">Vista 6ta del módulo · responde la pregunta "¿cómo viene el negocio financieramente?". Cada gráfica cuenta una historia específica con color semántico canon v8.0. Patrón Mercury/Pulse · banking grade.</p>
+
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+    <!-- TIER 1 · ESTRATÉGICAS -->
+    <div class="bg-white border border-slate-200 rounded-2xl p-4">
+      <div class="text-[10px] uppercase tracking-wider font-bold text-purple-700 mb-2 flex items-center gap-1.5"><i data-lucide="crown" class="w-3 h-3"></i> Tier 1 · Ejecutivas (default)</div>
+      <ul class="text-[11px] text-slate-700 space-y-1">
+        <li class="flex items-start gap-1.5"><span class="text-purple-600">▶</span><strong>G10 · Pulso financiero</strong> · 4 gauges semáforo</li>
+        <li class="flex items-start gap-1.5"><span class="text-purple-600">▶</span><strong>G1.a · Waterfall margen</strong> · sin impuestos</li>
+        <li class="flex items-start gap-1.5"><span class="text-purple-600">▶</span><strong>G3 · Burn + Runway</strong> · cuánto dura caja</li>
+        <li class="flex items-start gap-1.5"><span class="text-purple-600">▶</span><strong>G2 · Working Capital Cycle</strong> · DSO+DIO−DPO</li>
+        <li class="flex items-start gap-1.5"><span class="text-purple-600">▶</span><strong>G7 · EBITDA Bridge</strong> · variación MoM</li>
+      </ul>
+    </div>
+    <!-- TIER 2 · OPERATIVAS S58f -->
+    <div class="bg-white border border-slate-200 rounded-2xl p-4">
+      <div class="text-[10px] uppercase tracking-wider font-bold text-teal-700 mb-2 flex items-center gap-1.5"><i data-lucide="activity" class="w-3 h-3"></i> Tier 2 · Operativas S58f</div>
+      <ul class="text-[11px] text-slate-700 space-y-1">
+        <li class="flex items-start gap-1.5"><span class="text-teal-600">▶</span><strong>Calendario obligaciones</strong> · heatmap mensual</li>
+        <li class="flex items-start gap-1.5"><span class="text-teal-600">▶</span><strong>G9 · Sankey flujo dinero</strong> · cuentas → categorías</li>
+        <li class="flex items-start gap-1.5"><span class="text-teal-600">▶</span><strong>G5 · Cohort cobro</strong> · DSO por cohorte mensual</li>
+      </ul>
+    </div>
+    <!-- TIER 3 · TÁCTICAS -->
+    <div class="bg-white border border-slate-200 rounded-2xl p-4">
+      <div class="text-[10px] uppercase tracking-wider font-bold text-amber-700 mb-2 flex items-center gap-1.5"><i data-lucide="target" class="w-3 h-3"></i> Tier 3 · Tácticas (drill)</div>
+      <ul class="text-[11px] text-slate-700 space-y-1">
+        <li class="flex items-start gap-1.5"><span class="text-amber-600">▶</span><strong>G4 · ROI por línea/canal</strong> · scatter quadrant</li>
+        <li class="flex items-start gap-1.5"><span class="text-amber-600">▶</span><strong>G6 · Cash flow escenarios</strong> · base/optim/pesim</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- §2 · PULSO FINANCIERO · 4 GAUGES (G10) -->
+<section class="space-y-4">
+  <div class="flex items-center gap-2">
+    <span class="text-[10px] uppercase tracking-wider font-bold text-purple-700">§ 2 · G10 · Pulso financiero · 4 gauges semáforo</span>
+    <div class="flex-1 h-px bg-purple-200"></div>
+  </div>
+  <p class="text-[12px] text-slate-500 max-w-2xl">¿Cómo viene el negocio HOY en 1 vistazo? 4 dimensiones · color semáforo emerald/amber/rose.</p>
+
+  <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-6 grid grid-cols-2 md:grid-cols-4 gap-4">
+    <!-- Liquidez -->
+    <div class="text-center">
+      <div class="relative w-32 h-32 mx-auto mb-2">
+        <svg viewBox="0 0 100 100" class="w-full h-full">
+          <circle cx="50" cy="50" r="40" fill="none" stroke="#e2e8f0" stroke-width="10"/>
+          <circle cx="50" cy="50" r="40" fill="none" stroke="#10b981" stroke-width="10" stroke-dasharray="251" stroke-dashoffset="50" class="gauge-arc"/>
+        </svg>
+        <div class="absolute inset-0 flex flex-col items-center justify-center">
+          <div class="text-2xl font-bold tabular text-emerald-700">80<span class="text-emerald-400">%</span></div>
+          <div class="text-[9px] text-emerald-700 font-bold uppercase">Saludable</div>
+        </div>
+      </div>
+      <div class="text-[11px] font-bold text-slate-900">Liquidez</div>
+      <div class="text-[10px] text-slate-500">Caja / CxP &lt; 30d</div>
+    </div>
+    <!-- Rentabilidad -->
+    <div class="text-center">
+      <div class="relative w-32 h-32 mx-auto mb-2">
+        <svg viewBox="0 0 100 100" class="w-full h-full">
+          <circle cx="50" cy="50" r="40" fill="none" stroke="#e2e8f0" stroke-width="10"/>
+          <circle cx="50" cy="50" r="40" fill="none" stroke="#f59e0b" stroke-width="10" stroke-dasharray="251" stroke-dashoffset="125" class="gauge-arc"/>
+        </svg>
+        <div class="absolute inset-0 flex flex-col items-center justify-center">
+          <div class="text-2xl font-bold tabular text-amber-700">50<span class="text-amber-400">%</span></div>
+          <div class="text-[9px] text-amber-700 font-bold uppercase">Atención</div>
+        </div>
+      </div>
+      <div class="text-[11px] font-bold text-slate-900">Rentabilidad</div>
+      <div class="text-[10px] text-slate-500">Margen EBITDA</div>
+    </div>
+    <!-- Solvencia -->
+    <div class="text-center">
+      <div class="relative w-32 h-32 mx-auto mb-2">
+        <svg viewBox="0 0 100 100" class="w-full h-full">
+          <circle cx="50" cy="50" r="40" fill="none" stroke="#e2e8f0" stroke-width="10"/>
+          <circle cx="50" cy="50" r="40" fill="none" stroke="#10b981" stroke-width="10" stroke-dasharray="251" stroke-dashoffset="75" class="gauge-arc"/>
+        </svg>
+        <div class="absolute inset-0 flex flex-col items-center justify-center">
+          <div class="text-2xl font-bold tabular text-emerald-700">70<span class="text-emerald-400">%</span></div>
+          <div class="text-[9px] text-emerald-700 font-bold uppercase">Sólido</div>
+        </div>
+      </div>
+      <div class="text-[11px] font-bold text-slate-900">Solvencia</div>
+      <div class="text-[10px] text-slate-500">Activos / Pasivos</div>
+    </div>
+    <!-- Eficiencia -->
+    <div class="text-center">
+      <div class="relative w-32 h-32 mx-auto mb-2">
+        <svg viewBox="0 0 100 100" class="w-full h-full">
+          <circle cx="50" cy="50" r="40" fill="none" stroke="#e2e8f0" stroke-width="10"/>
+          <circle cx="50" cy="50" r="40" fill="none" stroke="#f43f5e" stroke-width="10" stroke-dasharray="251" stroke-dashoffset="175" class="gauge-arc"/>
+        </svg>
+        <div class="absolute inset-0 flex flex-col items-center justify-center">
+          <div class="text-2xl font-bold tabular text-rose-700">30<span class="text-rose-400">%</span></div>
+          <div class="text-[9px] text-rose-700 font-bold uppercase">Crítico</div>
+        </div>
+      </div>
+      <div class="text-[11px] font-bold text-slate-900">Eficiencia</div>
+      <div class="text-[10px] text-slate-500">Cash Conv. Cycle</div>
+    </div>
+  </div>
+  <div class="bg-rose-50 ring-1 ring-rose-200 rounded-xl p-3 text-[11px] text-rose-900 flex items-start gap-2">
+    <i data-lucide="alert-triangle" class="w-4 h-4 text-rose-700 mt-0.5"></i>
+    <div>
+      <strong>Alerta de pulso:</strong> Eficiencia en 30% (crítico) · Cash Conversion Cycle alto · estás tardando 56 días en convertir cada sol vendido en caja real. Ver G2 Working Capital Cycle para drill.
+    </div>
+  </div>
+</section>
+
+<!-- §3 · WATERFALL MARGEN G1.a -->
+<section class="space-y-4">
+  <div class="flex items-center gap-2">
+    <span class="text-[10px] uppercase tracking-wider font-bold text-purple-700">§ 3 · G1.a · Waterfall margen · sin impuestos (decisión cerrada)</span>
+    <div class="flex-1 h-px bg-purple-200"></div>
+  </div>
+  <p class="text-[12px] text-slate-500 max-w-2xl">¿De cada S/ 100 que entran, cuánto queda al final? · Ingreso → COGS → Margen bruto → Opex → EBITDA. DEUDA-FISCAL-FUTURO declarada para cuando se active SUNAT.</p>
+
+  <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-6">
+    <div class="flex items-end gap-2 h-64 mb-4">
+      <!-- Ingreso -->
+      <div class="flex-1 flex flex-col items-center">
+        <div class="text-[10px] font-bold text-teal-700 mb-1 tabular">S/ 86,400</div>
+        <div class="bg-gradient-to-t from-teal-600 to-teal-400 w-full rounded-t-lg flex items-end justify-center pb-2" style="height: 100%;">
+          <span class="text-[10px] text-white font-bold">100%</span>
+        </div>
+        <div class="text-[10px] font-bold text-slate-700 mt-1">Ingreso</div>
+      </div>
+      <!-- COGS (resta) -->
+      <div class="flex-1 flex flex-col items-center">
+        <div class="text-[10px] font-bold text-rose-700 mb-1 tabular">−S/ 34,560</div>
+        <div class="w-full" style="height: 100%; display: flex; align-items: flex-end;">
+          <div class="bg-gradient-to-t from-rose-600 to-rose-400 w-full rounded-t-lg flex items-end justify-center pb-2" style="height: 40%;">
+            <span class="text-[10px] text-white font-bold">40%</span>
+          </div>
+        </div>
+        <div class="text-[10px] font-bold text-slate-700 mt-1">− COGS</div>
+      </div>
+      <!-- Margen bruto -->
+      <div class="flex-1 flex flex-col items-center">
+        <div class="text-[10px] font-bold text-emerald-700 mb-1 tabular">S/ 51,840</div>
+        <div class="bg-gradient-to-t from-emerald-600 to-emerald-400 w-full rounded-t-lg flex items-end justify-center pb-2" style="height: 60%;">
+          <span class="text-[10px] text-white font-bold">60%</span>
+        </div>
+        <div class="text-[10px] font-bold text-slate-700 mt-1">Margen bruto</div>
+      </div>
+      <!-- Opex (resta) -->
+      <div class="flex-1 flex flex-col items-center">
+        <div class="text-[10px] font-bold text-rose-700 mb-1 tabular">−S/ 25,920</div>
+        <div class="w-full" style="height: 100%; display: flex; align-items: flex-end;">
+          <div class="bg-gradient-to-t from-rose-500 to-rose-300 w-full rounded-t-lg flex items-end justify-center pb-2" style="height: 30%;">
+            <span class="text-[10px] text-white font-bold">30%</span>
+          </div>
+        </div>
+        <div class="text-[10px] font-bold text-slate-700 mt-1">− Opex</div>
+      </div>
+      <!-- EBITDA final -->
+      <div class="flex-1 flex flex-col items-center">
+        <div class="text-[10px] font-bold text-teal-700 mb-1 tabular">S/ 25,920</div>
+        <div class="bg-gradient-to-t from-teal-700 to-teal-500 w-full rounded-t-lg flex items-end justify-center pb-2 ring-2 ring-teal-300" style="height: 30%;">
+          <span class="text-[10px] text-white font-bold">30%</span>
+        </div>
+        <div class="text-[10px] font-bold text-teal-900 mt-1">= EBITDA</div>
+      </div>
+    </div>
+    <div class="grid grid-cols-3 gap-2 text-[11px]">
+      <div class="bg-slate-50 rounded-lg p-2 text-center"><div class="text-[9px] uppercase font-bold text-slate-600">Margen bruto %</div><div class="text-lg font-bold tabular text-emerald-700">60%</div></div>
+      <div class="bg-slate-50 rounded-lg p-2 text-center"><div class="text-[9px] uppercase font-bold text-slate-600">Opex / Ingreso</div><div class="text-lg font-bold tabular text-amber-700">30%</div></div>
+      <div class="bg-slate-50 rounded-lg p-2 text-center"><div class="text-[9px] uppercase font-bold text-slate-600">Margen EBITDA</div><div class="text-lg font-bold tabular text-teal-700">30%</div></div>
+    </div>
+    <div class="bg-amber-50 ring-1 ring-amber-200 rounded-lg p-2.5 mt-3 text-[10px] text-amber-900 flex items-start gap-2">
+      <i data-lucide="info" class="w-3 h-3 text-amber-700 mt-0.5"></i>
+      <span><strong>DEUDA-FISCAL-FUTURO:</strong> cuando se active módulo SUNAT, este waterfall pasa a versión completa con línea "Provisión IR estimada (29.5%)" después de EBITDA · margen neto bajará a ~21% del ingreso.</span>
+    </div>
+  </div>
+</section>
+
+<!-- §4 · BURN RATE + RUNWAY G3 -->
+<section class="space-y-4">
+  <div class="flex items-center gap-2">
+    <span class="text-[10px] uppercase tracking-wider font-bold text-purple-700">§ 4 · G3 · Burn Rate + Runway · ¿cuántos meses dura la caja?</span>
+    <div class="flex-1 h-px bg-purple-200"></div>
+  </div>
+  <p class="text-[12px] text-slate-500 max-w-2xl">Si paro de vender hoy, ¿cuánto dura la caja con los egresos fijos actuales? · Línea descendente + zona crítica (3 meses · rojo).</p>
+
+  <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-6">
+    <div class="flex items-center justify-between mb-4">
+      <div>
+        <div class="text-[10px] uppercase tracking-wider font-bold text-rose-700">Burn rate mensual</div>
+        <div class="text-2xl font-bold tabular text-rose-900">S/ 12,800<span class="text-rose-400">.00</span></div>
+        <div class="text-[10px] text-slate-500">egresos fijos: sueldos + alquiler + SaaS</div>
+      </div>
+      <div class="text-right">
+        <div class="text-[10px] uppercase tracking-wider font-bold text-emerald-700">Runway actual</div>
+        <div class="text-2xl font-bold tabular text-emerald-900">6.8 meses</div>
+        <div class="text-[10px] text-slate-500">caja S/ 86,420 / burn S/ 12,800</div>
+      </div>
+    </div>
+    <!-- SVG · curva runway -->
+    <svg viewBox="0 0 600 200" class="w-full h-48 border border-slate-100 rounded-lg bg-slate-50">
+      <!-- Zona crítica (3 meses · rojo) -->
+      <rect x="0" y="160" width="600" height="40" fill="#fecaca" opacity="0.4"/>
+      <!-- Zona advertencia (3-6 meses · amarillo) -->
+      <rect x="0" y="80" width="600" height="80" fill="#fef3c7" opacity="0.4"/>
+      <!-- Línea cero -->
+      <line x1="0" y1="200" x2="600" y2="200" stroke="#cbd5e1" stroke-width="1"/>
+      <!-- Etiquetas Y -->
+      <text x="5" y="20" font-size="9" fill="#475569" font-weight="bold">S/ 86,420</text>
+      <text x="5" y="100" font-size="9" fill="#92400e" font-weight="bold">S/ 38,400 (3m)</text>
+      <text x="5" y="195" font-size="9" fill="#991b1b" font-weight="bold">S/ 0</text>
+      <!-- Línea de runway descendente -->
+      <polyline points="50,15 100,40 150,65 200,90 250,115 300,140 350,165 400,190" fill="none" stroke="#f43f5e" stroke-width="2.5"/>
+      <circle cx="50" cy="15" r="4" fill="#0d9488"/>
+      <text x="60" y="11" font-size="9" fill="#0f766e" font-weight="bold">Hoy</text>
+      <circle cx="350" cy="165" r="4" fill="#f59e0b"/>
+      <text x="360" y="161" font-size="9" fill="#92400e" font-weight="bold">Mes 6 · alerta</text>
+      <circle cx="400" cy="190" r="4" fill="#dc2626"/>
+      <text x="410" y="186" font-size="9" fill="#991b1b" font-weight="bold">Mes 7 · crítico</text>
+    </svg>
+    <div class="grid grid-cols-3 gap-2 mt-3 text-[11px]">
+      <div class="bg-emerald-50 ring-1 ring-emerald-200/50 rounded-lg p-2"><div class="text-[9px] uppercase font-bold text-emerald-700">Zona segura (&gt;6m)</div><div class="text-[10px] text-emerald-900">Hoy hasta noviembre</div></div>
+      <div class="bg-amber-50 ring-1 ring-amber-200/50 rounded-lg p-2"><div class="text-[9px] uppercase font-bold text-amber-700">Zona alerta (3-6m)</div><div class="text-[10px] text-amber-900">Nov 2026 a feb 2027</div></div>
+      <div class="bg-rose-50 ring-1 ring-rose-200/50 rounded-lg p-2"><div class="text-[9px] uppercase font-bold text-rose-700">Zona crítica (&lt;3m)</div><div class="text-[10px] text-rose-900">Feb 2027 en adelante</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- §5 · WORKING CAPITAL CYCLE G2 -->
+<section class="space-y-4">
+  <div class="flex items-center gap-2">
+    <span class="text-[10px] uppercase tracking-wider font-bold text-purple-700">§ 5 · G2 · Working Capital Cycle · DSO + DIO − DPO</span>
+    <div class="flex-1 h-px bg-purple-200"></div>
+  </div>
+  <p class="text-[12px] text-slate-500 max-w-2xl">¿En cuántos días convertís cada sol vendido en caja real? · Timeline horizontal con 3 componentes.</p>
+
+  <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-6">
+    <!-- Resumen final -->
+    <div class="bg-gradient-to-br from-amber-50 to-amber-100/40 ring-1 ring-amber-200/50 rounded-xl p-4 mb-4 flex items-center justify-between">
+      <div>
+        <div class="text-[10px] uppercase tracking-wider font-bold text-amber-700">Cash Conversion Cycle</div>
+        <div class="text-3xl font-bold tabular text-amber-900">56 días</div>
+        <div class="text-[10px] text-amber-700">28 (DSO) + 70 (DIO) − 42 (DPO) = 56</div>
+      </div>
+      <div class="text-right">
+        <div class="text-[10px] text-amber-700">Benchmark eCommerce skincare</div>
+        <div class="text-sm font-bold tabular text-amber-900">45-65 días</div>
+        <div class="text-[10px] text-emerald-700 font-bold">✓ Dentro de rango</div>
+      </div>
+    </div>
+    <!-- Timeline horizontal -->
+    <div class="space-y-3">
+      <!-- DSO -->
+      <div>
+        <div class="flex items-center justify-between mb-1">
+          <span class="text-[10px] font-bold text-emerald-700">DSO · Days Sales Outstanding · cuánto tardás en cobrar</span>
+          <span class="text-[11px] font-bold tabular text-emerald-900">+28 días</span>
+        </div>
+        <div class="h-7 bg-slate-100 rounded-lg overflow-hidden relative">
+          <div class="h-full bg-gradient-to-r from-emerald-400 to-emerald-600 rounded-l-lg" style="width: 33%;"></div>
+        </div>
+      </div>
+      <!-- DIO -->
+      <div>
+        <div class="flex items-center justify-between mb-1">
+          <span class="text-[10px] font-bold text-blue-700">DIO · Days Inventory Outstanding · cuánto tarda el stock en venderse</span>
+          <span class="text-[11px] font-bold tabular text-blue-900">+70 días</span>
+        </div>
+        <div class="h-7 bg-slate-100 rounded-lg overflow-hidden relative">
+          <div class="h-full bg-gradient-to-r from-blue-400 to-blue-600 rounded-l-lg" style="width: 82%;"></div>
+        </div>
+      </div>
+      <!-- DPO -->
+      <div>
+        <div class="flex items-center justify-between mb-1">
+          <span class="text-[10px] font-bold text-rose-700">DPO · Days Payable Outstanding · cuánto tardás en pagar proveedores</span>
+          <span class="text-[11px] font-bold tabular text-rose-900">−42 días</span>
+        </div>
+        <div class="h-7 bg-slate-100 rounded-lg overflow-hidden relative">
+          <div class="h-full bg-gradient-to-r from-rose-400 to-rose-600 rounded-l-lg" style="width: 49%;"></div>
+        </div>
+      </div>
+    </div>
+    <div class="bg-indigo-50 ring-1 ring-indigo-200 rounded-lg p-2.5 mt-3 text-[10px] text-indigo-900 flex items-start gap-2">
+      <i data-lucide="lightbulb" class="w-3 h-3 text-indigo-700 mt-0.5"></i>
+      <span><strong>Lectura:</strong> Cobrás en 28d (rápido · cliente cash) pero el stock tarda 70d en rotar (alto · típico skincare). DPO de 42d ayuda a fondear el ciclo. Mejorar DIO sería el mayor lever para bajar CCC.</span>
+    </div>
+  </div>
+</section>
+
+<!-- §6 · EBITDA BRIDGE G7 -->
+<section class="space-y-4">
+  <div class="flex items-center gap-2">
+    <span class="text-[10px] uppercase tracking-wider font-bold text-purple-700">§ 6 · G7 · EBITDA Bridge · variación MoM con drivers</span>
+    <div class="flex-1 h-px bg-purple-200"></div>
+  </div>
+  <p class="text-[12px] text-slate-500 max-w-2xl">¿Por qué este mes el EBITDA cambió S/ X vs el anterior? · Waterfall MoM con drivers identificados (volumen · precio · costos · opex).</p>
+
+  <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-6">
+    <div class="flex items-end gap-2 h-48 mb-3">
+      <!-- EBITDA abril -->
+      <div class="flex-1 flex flex-col items-center">
+        <div class="text-[10px] font-bold text-slate-700 mb-1 tabular">S/ 22,400</div>
+        <div class="bg-slate-400 w-full rounded-t-lg flex items-end justify-center pb-2" style="height: 86%;">
+          <span class="text-[10px] text-white font-bold">100%</span>
+        </div>
+        <div class="text-[10px] font-bold text-slate-700 mt-1">EBITDA Abr</div>
+      </div>
+      <!-- + Volumen -->
+      <div class="flex-1 flex flex-col items-center">
+        <div class="text-[10px] font-bold text-emerald-700 mb-1 tabular">+S/ 4,800</div>
+        <div class="w-full" style="height: 100%; display: flex; align-items: flex-end;">
+          <div class="bg-emerald-500 w-full rounded-t-lg" style="height: 18%; margin-top: 68%;"></div>
+        </div>
+        <div class="text-[10px] font-bold text-emerald-700 mt-1">+Volumen</div>
+      </div>
+      <!-- − Precio -->
+      <div class="flex-1 flex flex-col items-center">
+        <div class="text-[10px] font-bold text-rose-700 mb-1 tabular">−S/ 1,200</div>
+        <div class="w-full" style="height: 100%; display: flex; align-items: flex-end;">
+          <div class="bg-rose-500 w-full rounded-t-lg" style="height: 5%; margin-top: 67%;"></div>
+        </div>
+        <div class="text-[10px] font-bold text-rose-700 mt-1">−Precio</div>
+      </div>
+      <!-- − Costos -->
+      <div class="flex-1 flex flex-col items-center">
+        <div class="text-[10px] font-bold text-rose-700 mb-1 tabular">−S/ 800</div>
+        <div class="w-full" style="height: 100%; display: flex; align-items: flex-end;">
+          <div class="bg-rose-500 w-full rounded-t-lg" style="height: 3%; margin-top: 69%;"></div>
+        </div>
+        <div class="text-[10px] font-bold text-rose-700 mt-1">−Costos</div>
+      </div>
+      <!-- + FX -->
+      <div class="flex-1 flex flex-col items-center">
+        <div class="text-[10px] font-bold text-emerald-700 mb-1 tabular">+S/ 720</div>
+        <div class="w-full" style="height: 100%; display: flex; align-items: flex-end;">
+          <div class="bg-emerald-500 w-full rounded-t-lg" style="height: 3%; margin-top: 81%;"></div>
+        </div>
+        <div class="text-[10px] font-bold text-emerald-700 mt-1">+FX gain</div>
+      </div>
+      <!-- EBITDA mayo -->
+      <div class="flex-1 flex flex-col items-center">
+        <div class="text-[10px] font-bold text-teal-700 mb-1 tabular">S/ 25,920</div>
+        <div class="bg-gradient-to-t from-teal-600 to-teal-500 w-full rounded-t-lg flex items-end justify-center pb-2 ring-2 ring-teal-300" style="height: 100%;">
+          <span class="text-[10px] text-white font-bold">+16%</span>
+        </div>
+        <div class="text-[10px] font-bold text-teal-900 mt-1">EBITDA May</div>
+      </div>
+    </div>
+    <div class="bg-emerald-50 ring-1 ring-emerald-200/50 rounded-lg p-3 text-[11px] text-emerald-900 flex items-start gap-2">
+      <i data-lucide="trending-up" class="w-3.5 h-3.5 text-emerald-700 mt-0.5"></i>
+      <span><strong>EBITDA creció +16% mes a mes (S/ 3,520).</strong> Driver principal: aumento de volumen (+S/ 4,800). Drivers negativos menores: bajaste precio (−S/ 1,200 · descuentos campaña) + costo de importación subió (−S/ 800 · TC alza). Compensado parcialmente por ganancia FX Pool USD (+S/ 720).</span>
+    </div>
+  </div>
+</section>
+
+<!-- §7 · CALENDARIO OBLIGACIONES (S58f) -->
+<section class="space-y-4">
+  <div class="flex items-center gap-2">
+    <span class="text-[10px] uppercase tracking-wider font-bold text-teal-700">§ 7 · Calendario obligaciones · heatmap mensual (joya S58f integrada)</span>
+    <div class="flex-1 h-px bg-teal-200"></div>
+  </div>
+  <p class="text-[12px] text-slate-500 max-w-2xl">Vista glance de TODOS los compromisos del mes en un solo calendario · dots semánticos por tipo (TC · OC · sueldo · gasto · vencido).</p>
+
+  <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-6">
+    <div class="flex items-center justify-between mb-4">
+      <div>
+        <div class="text-[13px] font-bold text-slate-900">Mayo 2026</div>
+        <div class="text-[10px] text-slate-500">22 eventos · S/ 38,420 comprometido</div>
+      </div>
+      <div class="flex items-center gap-3 text-[10px]">
+        <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-rose-500"></span>Vencido</span>
+        <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-amber-500"></span>TC</span>
+        <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-indigo-500"></span>OC</span>
+        <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-purple-500"></span>Sueldo</span>
+        <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-slate-500"></span>Gasto</span>
+      </div>
+    </div>
+    <!-- Grid 7 columnas · 5 filas -->
+    <div class="grid grid-cols-7 gap-1 text-[10px]">
+      <div class="text-center text-[9px] font-bold text-slate-500 uppercase">Dom</div>
+      <div class="text-center text-[9px] font-bold text-slate-500 uppercase">Lun</div>
+      <div class="text-center text-[9px] font-bold text-slate-500 uppercase">Mar</div>
+      <div class="text-center text-[9px] font-bold text-slate-500 uppercase">Mié</div>
+      <div class="text-center text-[9px] font-bold text-slate-500 uppercase">Jue</div>
+      <div class="text-center text-[9px] font-bold text-slate-500 uppercase">Vie</div>
+      <div class="text-center text-[9px] font-bold text-slate-500 uppercase">Sáb</div>
+      <!-- Semana 1 -->
+      <div class="aspect-square bg-slate-50 rounded text-center pt-1 text-slate-400">26</div>
+      <div class="aspect-square bg-slate-50 rounded text-center pt-1 text-slate-400">27</div>
+      <div class="aspect-square bg-slate-50 rounded text-center pt-1 text-slate-400">28</div>
+      <div class="aspect-square bg-slate-50 rounded text-center pt-1 text-slate-400">29</div>
+      <div class="aspect-square bg-slate-50 rounded text-center pt-1 text-slate-400">30</div>
+      <div class="aspect-square bg-white border border-slate-200 rounded text-center pt-1 relative">1<span class="absolute bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-purple-500"></span></div>
+      <div class="aspect-square bg-white border border-slate-200 rounded text-center pt-1">2</div>
+      <!-- Semana 2 -->
+      <div class="aspect-square bg-white border border-slate-200 rounded text-center pt-1">3</div>
+      <div class="aspect-square bg-white border border-slate-200 rounded text-center pt-1 relative">4<span class="absolute bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-slate-500"></span></div>
+      <div class="aspect-square bg-white border border-slate-200 rounded text-center pt-1">5</div>
+      <div class="aspect-square bg-white border border-slate-200 rounded text-center pt-1 relative">6<span class="absolute bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-indigo-500"></span></div>
+      <div class="aspect-square bg-white border border-slate-200 rounded text-center pt-1">7</div>
+      <div class="aspect-square bg-white border border-slate-200 rounded text-center pt-1">8</div>
+      <div class="aspect-square bg-white border border-slate-200 rounded text-center pt-1">9</div>
+      <!-- Semana 3 -->
+      <div class="aspect-square bg-white border border-slate-200 rounded text-center pt-1 relative">10<span class="absolute bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-amber-500"></span></div>
+      <div class="aspect-square bg-white border border-slate-200 rounded text-center pt-1">11</div>
+      <div class="aspect-square bg-white border border-slate-200 rounded text-center pt-1">12</div>
+      <div class="aspect-square bg-white border border-slate-200 rounded text-center pt-1">13</div>
+      <div class="aspect-square bg-white border border-slate-200 rounded text-center pt-1">14</div>
+      <div class="aspect-square bg-teal-100 border-2 border-teal-500 rounded text-center pt-1 text-teal-900 font-bold relative">15<span class="absolute bottom-0.5 left-1/2 -translate-x-1/2 text-[8px]">HOY</span></div>
+      <div class="aspect-square bg-white border border-slate-200 rounded text-center pt-1">16</div>
+      <!-- Semana 4 -->
+      <div class="aspect-square bg-white border border-slate-200 rounded text-center pt-1">17</div>
+      <div class="aspect-square bg-rose-50 border border-rose-300 rounded text-center pt-1 relative">18<span class="absolute bottom-1 left-1/2 -translate-x-1/2 flex gap-0.5"><span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span><span class="w-1.5 h-1.5 rounded-full bg-indigo-500"></span></span></div>
+      <div class="aspect-square bg-white border border-slate-200 rounded text-center pt-1">19</div>
+      <div class="aspect-square bg-white border border-slate-200 rounded text-center pt-1">20</div>
+      <div class="aspect-square bg-white border border-slate-200 rounded text-center pt-1">21</div>
+      <div class="aspect-square bg-white border border-slate-200 rounded text-center pt-1">22</div>
+      <div class="aspect-square bg-white border border-slate-200 rounded text-center pt-1">23</div>
+      <!-- Semana 5 -->
+      <div class="aspect-square bg-white border border-slate-200 rounded text-center pt-1">24</div>
+      <div class="aspect-square bg-amber-50 border-2 border-amber-400 rounded text-center pt-1 font-bold text-amber-900 relative">25<span class="absolute bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-amber-500"></span></div>
+      <div class="aspect-square bg-white border border-slate-200 rounded text-center pt-1">26</div>
+      <div class="aspect-square bg-white border border-slate-200 rounded text-center pt-1">27</div>
+      <div class="aspect-square bg-white border border-slate-200 rounded text-center pt-1">28</div>
+      <div class="aspect-square bg-white border border-slate-200 rounded text-center pt-1 relative">29<span class="absolute bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-purple-500"></span></div>
+      <div class="aspect-square bg-white border border-slate-200 rounded text-center pt-1 relative">30<span class="absolute bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-purple-500"></span></div>
+      <!-- Semana 6 -->
+      <div class="aspect-square bg-white border border-slate-200 rounded text-center pt-1">31</div>
+    </div>
+    <div class="grid grid-cols-3 gap-2 mt-4 text-[11px]">
+      <div class="bg-rose-50 ring-1 ring-rose-200/50 rounded p-2"><div class="text-[9px] uppercase font-bold text-rose-700">Vencimientos críticos</div><div class="font-bold text-rose-900">18-may · F-001234 + ENV-200</div></div>
+      <div class="bg-amber-50 ring-1 ring-amber-200/50 rounded p-2"><div class="text-[9px] uppercase font-bold text-amber-700">TC ciclo cerrado</div><div class="font-bold text-amber-900">25-may · Visa BCP</div></div>
+      <div class="bg-purple-50 ring-1 ring-purple-200/50 rounded p-2"><div class="text-[9px] uppercase font-bold text-purple-700">Nómina</div><div class="font-bold text-purple-900">1-may + 29-30 may</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- §8-10 · OTRAS GRÁFICAS CONDENSADAS -->
+<section class="space-y-4">
+  <div class="flex items-center gap-2">
+    <span class="text-[10px] uppercase tracking-wider font-bold text-slate-500">§ 8-10 · Gráficas restantes · vista condensada</span>
+    <div class="flex-1 h-px bg-slate-200"></div>
+  </div>
+  <p class="text-[12px] text-slate-500 max-w-2xl">Las 4 gráficas restantes (Sankey · Cohort cobro · ROI por línea · Cash flow escenarios) se presentan condensadas con preview · estructura completa en implementación S4.</p>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <!-- G9 Sankey -->
+    <div class="bg-white border border-slate-200 rounded-2xl p-5">
+      <div class="flex items-center gap-2 mb-3">
+        <i data-lucide="git-merge" class="w-4 h-4 text-teal-700"></i>
+        <h3 class="text-[13px] font-bold text-slate-900">G9 · Sankey · flujo de dinero</h3>
+      </div>
+      <p class="text-[10px] text-slate-500 mb-3">¿De dónde entra y a dónde sale cada sol? · cuentas → categorías</p>
+      <svg viewBox="0 0 300 140" class="w-full bg-slate-50 rounded">
+        <!-- Lado izquierdo: cuentas -->
+        <rect x="10" y="10" width="20" height="30" fill="#0d9488"/>
+        <text x="35" y="28" font-size="8" fill="#0f766e" font-weight="bold">BCP Soles</text>
+        <rect x="10" y="55" width="20" height="20" fill="#06b6d4"/>
+        <text x="35" y="68" font-size="8" fill="#0e7490" font-weight="bold">Pool USD</text>
+        <rect x="10" y="90" width="20" height="15" fill="#9333ea"/>
+        <text x="35" y="100" font-size="8" fill="#7e22ce" font-weight="bold">GK Recaud.</text>
+        <rect x="10" y="115" width="20" height="15" fill="#f59e0b"/>
+        <text x="35" y="125" font-size="8" fill="#92400e" font-weight="bold">Visa BCP</text>
+        <!-- Curvas Sankey simuladas -->
+        <path d="M 30 25 Q 150 25 240 30" fill="none" stroke="#10b98140" stroke-width="20"/>
+        <path d="M 30 25 Q 150 55 240 70" fill="none" stroke="#f59e0b40" stroke-width="14"/>
+        <path d="M 30 65 Q 150 90 240 100" fill="none" stroke="#6366f140" stroke-width="10"/>
+        <path d="M 30 97 Q 150 115 240 120" fill="none" stroke="#9333ea40" stroke-width="8"/>
+        <!-- Lado derecho: categorías -->
+        <rect x="240" y="20" width="20" height="25" fill="#10b981"/>
+        <text x="265" y="35" font-size="8" fill="#047857" font-weight="bold">Stock/COGS</text>
+        <rect x="240" y="60" width="20" height="20" fill="#f59e0b"/>
+        <text x="265" y="73" font-size="8" fill="#92400e" font-weight="bold">Marketing</text>
+        <rect x="240" y="90" width="20" height="15" fill="#6366f1"/>
+        <text x="265" y="100" font-size="8" fill="#4338ca" font-weight="bold">Sueldos</text>
+        <rect x="240" y="115" width="20" height="10" fill="#9333ea"/>
+        <text x="265" y="123" font-size="8" fill="#7e22ce" font-weight="bold">Logística</text>
+      </svg>
+      <div class="text-[10px] text-slate-600 mt-2">Mock visual · implementación con d3-sankey o react-flow</div>
+    </div>
+
+    <!-- G5 Cohort cobro -->
+    <div class="bg-white border border-slate-200 rounded-2xl p-5">
+      <div class="flex items-center gap-2 mb-3">
+        <i data-lucide="grid-3x3" class="w-4 h-4 text-emerald-700"></i>
+        <h3 class="text-[13px] font-bold text-slate-900">G5 · Cohort cobro · DSO por cohorte</h3>
+      </div>
+      <p class="text-[10px] text-slate-500 mb-3">¿Los clientes de 2026 pagan mejor que los de 2025? · heatmap</p>
+      <div class="text-[10px] tabular">
+        <div class="grid grid-cols-7 gap-0.5 mb-1">
+          <div class="text-[8px] text-slate-500 font-bold py-1">Cohort</div>
+          <div class="text-[8px] text-slate-500 font-bold text-center py-1">M1</div>
+          <div class="text-[8px] text-slate-500 font-bold text-center py-1">M2</div>
+          <div class="text-[8px] text-slate-500 font-bold text-center py-1">M3</div>
+          <div class="text-[8px] text-slate-500 font-bold text-center py-1">M4</div>
+          <div class="text-[8px] text-slate-500 font-bold text-center py-1">M5</div>
+          <div class="text-[8px] text-slate-500 font-bold text-center py-1">M6</div>
+        </div>
+        <div class="grid grid-cols-7 gap-0.5 mb-0.5"><div class="text-[8px] font-bold py-1">Ene-26</div><div class="bg-emerald-200 rounded text-center text-[8px] py-1">85%</div><div class="bg-emerald-400 rounded text-center text-[8px] py-1 text-white">92%</div><div class="bg-emerald-600 rounded text-center text-[8px] py-1 text-white">98%</div><div class="bg-emerald-700 rounded text-center text-[8px] py-1 text-white">100%</div><div class="bg-emerald-700 rounded text-center text-[8px] py-1 text-white">100%</div><div class="bg-emerald-700 rounded text-center text-[8px] py-1 text-white">100%</div></div>
+        <div class="grid grid-cols-7 gap-0.5 mb-0.5"><div class="text-[8px] font-bold py-1">Feb-26</div><div class="bg-emerald-200 rounded text-center text-[8px] py-1">82%</div><div class="bg-emerald-400 rounded text-center text-[8px] py-1 text-white">90%</div><div class="bg-emerald-600 rounded text-center text-[8px] py-1 text-white">96%</div><div class="bg-emerald-700 rounded text-center text-[8px] py-1 text-white">99%</div><div class="bg-emerald-700 rounded text-center text-[8px] py-1 text-white">100%</div><div class="bg-slate-100 rounded"></div></div>
+        <div class="grid grid-cols-7 gap-0.5 mb-0.5"><div class="text-[8px] font-bold py-1">Mar-26</div><div class="bg-amber-200 rounded text-center text-[8px] py-1">72%</div><div class="bg-amber-400 rounded text-center text-[8px] py-1 text-white">84%</div><div class="bg-emerald-400 rounded text-center text-[8px] py-1 text-white">90%</div><div class="bg-emerald-600 rounded text-center text-[8px] py-1 text-white">95%</div><div class="bg-slate-100 rounded"></div><div class="bg-slate-100 rounded"></div></div>
+        <div class="grid grid-cols-7 gap-0.5 mb-0.5"><div class="text-[8px] font-bold py-1">Abr-26</div><div class="bg-amber-200 rounded text-center text-[8px] py-1">68%</div><div class="bg-amber-400 rounded text-center text-[8px] py-1 text-white">80%</div><div class="bg-emerald-400 rounded text-center text-[8px] py-1 text-white">88%</div><div class="bg-slate-100 rounded"></div><div class="bg-slate-100 rounded"></div><div class="bg-slate-100 rounded"></div></div>
+        <div class="grid grid-cols-7 gap-0.5"><div class="text-[8px] font-bold py-1">May-26</div><div class="bg-rose-200 rounded text-center text-[8px] py-1">62%</div><div class="bg-slate-100 rounded"></div><div class="bg-slate-100 rounded"></div><div class="bg-slate-100 rounded"></div><div class="bg-slate-100 rounded"></div><div class="bg-slate-100 rounded"></div></div>
+      </div>
+      <div class="text-[10px] text-amber-700 mt-2 flex items-start gap-1"><i data-lucide="alert-triangle" class="w-3 h-3 mt-0.5"></i><span>Tendencia atención: cohortes recientes cobran más lento. Revisar política crédito.</span></div>
+    </div>
+
+    <!-- G4 ROI por línea -->
+    <div class="bg-white border border-slate-200 rounded-2xl p-5">
+      <div class="flex items-center gap-2 mb-3">
+        <i data-lucide="scatter-chart" class="w-4 h-4 text-amber-700"></i>
+        <h3 class="text-[13px] font-bold text-slate-900">G4 · ROI por línea/canal · scatter quadrant</h3>
+      </div>
+      <p class="text-[10px] text-slate-500 mb-3">¿Cuál línea de negocio rinde más por sol invertido?</p>
+      <svg viewBox="0 0 280 160" class="w-full bg-slate-50 rounded">
+        <!-- Cuadrantes -->
+        <line x1="140" y1="10" x2="140" y2="150" stroke="#cbd5e1" stroke-dasharray="2"/>
+        <line x1="10" y1="80" x2="270" y2="80" stroke="#cbd5e1" stroke-dasharray="2"/>
+        <!-- Labels cuadrantes -->
+        <text x="15" y="20" font-size="7" fill="#0f766e" font-weight="bold">⭐ STARS</text>
+        <text x="200" y="20" font-size="7" fill="#d97706" font-weight="bold">? PROMESAS</text>
+        <text x="15" y="148" font-size="7" fill="#059669" font-weight="bold">$ VACAS</text>
+        <text x="200" y="148" font-size="7" fill="#dc2626" font-weight="bold">✗ PERROS</text>
+        <!-- Ejes -->
+        <text x="120" y="158" font-size="7" fill="#475569">Inversión →</text>
+        <text x="5" y="80" font-size="7" fill="#475569" transform="rotate(-90 5 80)">Retorno →</text>
+        <!-- Puntos -->
+        <circle cx="70" cy="40" r="14" fill="#10b98180"/>
+        <text x="55" y="42" font-size="8" fill="#047857" font-weight="bold">SUP</text>
+        <circle cx="200" cy="50" r="20" fill="#f59e0b80"/>
+        <text x="190" y="52" font-size="8" fill="#92400e" font-weight="bold">SKC</text>
+        <circle cx="80" cy="110" r="8" fill="#10b98180"/>
+        <text x="70" y="113" font-size="7" fill="#047857" font-weight="bold">APP</text>
+        <circle cx="180" cy="125" r="6" fill="#f43f5e80"/>
+        <text x="170" y="128" font-size="7" fill="#991b1b" font-weight="bold">ALIM</text>
+      </svg>
+      <div class="text-[10px] text-emerald-700 mt-2 flex items-start gap-1"><i data-lucide="trending-up" class="w-3 h-3 mt-0.5"></i><span><strong>SUP</strong> es Star · alto retorno, inversión moderada · escalar.</span></div>
+    </div>
+
+    <!-- G6 Cash flow escenarios -->
+    <div class="bg-white border border-slate-200 rounded-2xl p-5">
+      <div class="flex items-center gap-2 mb-3">
+        <i data-lucide="trending-up" class="w-4 h-4 text-indigo-700"></i>
+        <h3 class="text-[13px] font-bold text-slate-900">G6 · Cash flow escenarios · 30/60/90d</h3>
+      </div>
+      <p class="text-[10px] text-slate-500 mb-3">¿Qué pasa si las ventas caen 20%? · 3 escenarios con bandas</p>
+      <svg viewBox="0 0 280 140" class="w-full bg-slate-50 rounded">
+        <!-- Banda confianza optimista/pesimista -->
+        <polygon points="20,80 60,60 100,40 140,30 180,20 220,10 260,5 260,40 220,50 180,55 140,65 100,75 60,85 20,90" fill="#10b98115"/>
+        <!-- Línea base -->
+        <polyline points="20,85 60,75 100,65 140,55 180,45 220,35 260,25" fill="none" stroke="#6366f1" stroke-width="2"/>
+        <text x="265" y="25" font-size="8" fill="#4338ca" font-weight="bold">Base</text>
+        <!-- Línea optimista -->
+        <polyline points="20,85 60,70 100,55 140,40 180,25 220,15 260,5" fill="none" stroke="#10b981" stroke-width="1.5" stroke-dasharray="3"/>
+        <text x="265" y="5" font-size="8" fill="#047857" font-weight="bold">+15%</text>
+        <!-- Línea pesimista -->
+        <polyline points="20,85 60,82 100,78 140,72 180,65 220,55 260,45" fill="none" stroke="#f43f5e" stroke-width="1.5" stroke-dasharray="3"/>
+        <text x="265" y="45" font-size="8" fill="#991b1b" font-weight="bold">−20%</text>
+        <!-- Ejes -->
+        <text x="20" y="135" font-size="7" fill="#475569">Hoy</text>
+        <text x="100" y="135" font-size="7" fill="#475569">30d</text>
+        <text x="180" y="135" font-size="7" fill="#475569">60d</text>
+        <text x="250" y="135" font-size="7" fill="#475569">90d</text>
+      </svg>
+      <div class="grid grid-cols-3 gap-1 mt-2 text-[10px]">
+        <div class="bg-emerald-50 rounded p-1 text-center"><div class="text-[8px] font-bold text-emerald-700">Optim +15%</div><div class="font-bold tabular text-emerald-900">+S/ 32K</div></div>
+        <div class="bg-indigo-50 rounded p-1 text-center"><div class="text-[8px] font-bold text-indigo-700">Base</div><div class="font-bold tabular text-indigo-900">+S/ 18K</div></div>
+        <div class="bg-rose-50 rounded p-1 text-center"><div class="text-[8px] font-bold text-rose-700">Pesim −20%</div><div class="font-bold tabular text-rose-900">−S/ 4K</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- §11 · CANON + DEUDAS -->
+<section class="space-y-4">
+  <div class="flex items-center gap-2">
+    <span class="text-[10px] uppercase tracking-wider font-bold text-slate-500">§ 11 · Canon aplicado + deudas técnicas declaradas</span>
+    <div class="flex-1 h-px bg-slate-200"></div>
+  </div>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div class="bg-white border border-slate-200 rounded-2xl p-5">
+      <h3 class="text-[12px] font-bold text-slate-900 mb-3">Canon v8.0 aplicado</h3>
+      <div class="grid grid-cols-1 gap-1.5 text-[11px]">
+        <div class="flex items-start gap-2"><span class="text-purple-700 font-bold text-[10px] uppercase">N1</span><span class="text-slate-700">Tinte semántico por gráfica · purple ejecutivas · teal operativas · amber tácticas</span></div>
+        <div class="flex items-start gap-2"><span class="text-purple-700 font-bold text-[10px] uppercase">N2</span><span class="text-slate-700">Cards gradient + ring colored para cada KPI/gauge</span></div>
+        <div class="flex items-start gap-2"><span class="text-purple-700 font-bold text-[10px] uppercase">N8</span><span class="text-slate-700">Cross-link a otras vistas (Pulso → G2 detalle · Calendario → wizard pago)</span></div>
+        <div class="flex items-start gap-2"><span class="text-purple-700 font-bold text-[10px] uppercase">F7</span><span class="text-slate-700">Tabular-nums en TODOS los montos y porcentajes · decimales atenuados</span></div>
+        <div class="flex items-start gap-2"><span class="text-purple-700 font-bold text-[10px] uppercase">F8</span><span class="text-slate-700">Lucide icons en cada header · SVG inline para gráficas custom</span></div>
+        <div class="flex items-start gap-2"><span class="text-purple-700 font-bold text-[10px] uppercase">D8</span><span class="text-slate-700">G1.a sin impuestos respetado (decisión cerrada con DEUDA-FISCAL-FUTURO)</span></div>
+      </div>
+    </div>
+    <div class="bg-white border border-slate-200 rounded-2xl p-5">
+      <h3 class="text-[12px] font-bold text-slate-900 mb-3">Deudas técnicas implementación S4</h3>
+      <div class="space-y-2 text-[11px]">
+        <div class="bg-amber-50 ring-1 ring-amber-200/50 rounded p-2"><strong class="text-amber-900">DEUDA-LIBRERIA-GRAFICA:</strong> decidir Recharts vs Chart.js vs Visx para gráficos complejos (Sankey · Cohort · Bridge). SVG inline ok para gauges simples.</div>
+        <div class="bg-amber-50 ring-1 ring-amber-200/50 rounded p-2"><strong class="text-amber-900">DEUDA-FISCAL-FUTURO:</strong> G1.a sin impuestos · activar G1.c cuando se integre módulo SUNAT.</div>
+        <div class="bg-amber-50 ring-1 ring-amber-200/50 rounded p-2"><strong class="text-amber-900">DEUDA-CALCULO-BURN-RATE:</strong> definir qué cuentas/categorías cuentan como "fijos" para el burn rate (sueldos, alquiler, SaaS recurrentes).</div>
+        <div class="bg-amber-50 ring-1 ring-amber-200/50 rounded p-2"><strong class="text-amber-900">DEUDA-COHORT-DSO:</strong> requiere tracking de fecha-primera-venta por cliente · auditar si ya existe.</div>
+        <div class="bg-amber-50 ring-1 ring-amber-200/50 rounded p-2"><strong class="text-amber-900">DEUDA-EBITDA-DRIVERS:</strong> identificar drivers de variación (volumen vs precio vs costos vs FX) requiere algoritmo · puede simplificarse en MVP.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="bg-slate-900 text-slate-300 mt-12 py-6">
+  <div class="max-w-[1400px] mx-auto px-6 text-[11px] flex items-center justify-between">
+    <div>MOCK 4 · finanzas-analisis-estrategico-v5.1 · 10 gráficas canon-level</div>
+    <div>chk5.D-S1e · fusión S58f + G1-G10 · vista 6ta del módulo</div>
+  </div>
+</footer>
+
+<script>lucide.createIcons();</script>
+</body>
+</html>

@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Finanzas · Wizards multi-step completos · v5.1</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, sans-serif; }
+    .tabular { font-variant-numeric: tabular-nums; font-feature-settings: "tnum"; }
+  </style>
+</head>
+<body class="bg-slate-100 text-slate-900">
+
+<header class="bg-slate-900 text-white sticky top-0 z-50 shadow-lg">
+  <div class="max-w-[1400px] mx-auto px-6 py-3 flex items-center justify-between">
+    <div>
+      <div class="text-[10px] uppercase tracking-wider text-teal-300">chk5.D-S1e · TURNO 4 (cierre)</div>
+      <div class="text-base font-bold">MOCK 12 · Wizards multi-step completos · B.1 + B.2 + B.3 (11 pasos pixel-perfect)</div>
+    </div>
+    <nav class="hidden md:flex items-center gap-1 text-[11px]">
+      <a href="finanzas-shell-overview-v5.1.html" class="px-2 py-1 hover:bg-slate-700 rounded text-slate-300">1-9</a>
+      <a href="finanzas-wizard-nueva-cuenta-v5.1.html" class="px-2 py-1 hover:bg-slate-700 rounded text-slate-300">10</a>
+      <a href="finanzas-wizards-simples-v5.1.html" class="px-2 py-1 hover:bg-slate-700 rounded text-slate-300">11</a>
+      <span class="px-2 py-1 bg-teal-600 rounded text-white font-semibold">12</span>
+    </nav>
+  </div>
+</header>
+
+<main class="max-w-[1400px] mx-auto px-6 py-8 space-y-12">
+
+<!-- §1 · INTRO -->
+<section class="space-y-3">
+  <div class="flex items-center gap-2"><span class="text-[10px] uppercase tracking-wider font-bold text-slate-500">§ 1 · 3 wizards multi-step · F-Borradores OBLIGATORIO en todos</span><div class="flex-1 h-px bg-slate-200"></div></div>
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+    <div class="bg-purple-50 ring-1 ring-purple-200/50 rounded-xl p-3"><div class="text-[11px] font-bold text-purple-900">B.1 PagoAbono distribuido</div><div class="text-[10px] text-purple-700">4 pasos · sidebar vertical · FIFO/LIFO/Manual</div></div>
+    <div class="bg-amber-50 ring-1 ring-amber-200/50 rounded-xl p-3"><div class="text-[11px] font-bold text-amber-900">B.2 Pagar estado TC</div><div class="text-[10px] text-amber-700">3 pasos · stepper horizontal · bimoneda</div></div>
+    <div class="bg-indigo-50 ring-1 ring-indigo-200/50 rounded-xl p-3"><div class="text-[11px] font-bold text-indigo-900">B.3 Pagos masivos</div><div class="text-[10px] text-indigo-700">4 pasos · sidebar · Opción A 1 cta/1 moneda</div></div>
+  </div>
+</section>
+
+<!-- §2 · B.1 PagoAbono · 4 PASOS COMPLETOS -->
+<section class="space-y-4">
+  <div class="flex items-center gap-2"><span class="text-[10px] uppercase tracking-wider font-bold text-purple-700">§ 2 · B.1 PagoAbono distribuido · 4 pasos</span><div class="flex-1 h-px bg-purple-200"></div></div>
+
+  <!-- PASO 1 -->
+  <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+    <div class="bg-purple-50 border-b px-5 py-2"><span class="text-[10px] uppercase font-bold text-purple-700">PASO 1/4 · Entidad + medio de pago</span></div>
+    <div class="grid grid-cols-12 min-h-[480px]">
+      <aside class="col-span-3 bg-slate-50/50 border-r p-4 space-y-1">
+        <div class="text-[10px] uppercase font-bold text-slate-500 mb-3">Pasos · PagoAbono</div>
+        <div class="flex items-center gap-2 p-2 rounded-lg bg-purple-50 ring-1 ring-purple-200"><span class="w-6 h-6 rounded-full bg-purple-600 text-white text-[11px] font-bold flex items-center justify-center">1</span><span class="text-[12px] font-bold">Entidad + medio</span></div>
+        <div class="flex items-center gap-2 p-2 rounded-lg text-slate-500"><span class="w-6 h-6 rounded-full bg-slate-200 text-[11px] font-bold flex items-center justify-center">2</span><span class="text-[12px]">Distribución</span></div>
+        <div class="flex items-center gap-2 p-2 rounded-lg text-slate-500"><span class="w-6 h-6 rounded-full bg-slate-200 text-[11px] font-bold flex items-center justify-center">3</span><span class="text-[12px]">TC (si aplica)</span></div>
+        <div class="flex items-center gap-2 p-2 rounded-lg text-slate-500"><span class="w-6 h-6 rounded-full bg-slate-200 text-[11px] font-bold flex items-center justify-center">4</span><span class="text-[12px]">Confirmar</span></div>
+      </aside>
+      <div class="col-span-9 p-6 space-y-4">
+        <div><h3 class="text-base font-bold text-slate-900">¿De quién es el cobro / pago?</h3><p class="text-[11px] text-slate-500">Selecciona tipo de entidad · luego buscás la entidad específica.</p></div>
+        <!-- Tipo entidad -->
+        <div>
+          <label class="text-[11px] font-bold text-slate-700 uppercase mb-2 block">Tipo de entidad</label>
+          <div class="grid grid-cols-5 gap-2">
+            <button class="p-2.5 bg-emerald-50 ring-2 ring-emerald-500 rounded-lg text-center"><i data-lucide="user-check" class="w-4 h-4 text-emerald-700 mx-auto mb-1"></i><div class="text-[11px] font-bold text-emerald-900">Cliente</div><div class="text-[9px] text-emerald-700">Cobro</div></button>
+            <button class="p-2.5 bg-white border border-slate-200 rounded-lg text-center hover:bg-rose-50/30"><i data-lucide="truck" class="w-4 h-4 text-slate-500 mx-auto mb-1"></i><div class="text-[11px] font-bold">Proveedor</div><div class="text-[9px] text-slate-500">Pago</div></button>
+            <button class="p-2.5 bg-white border border-slate-200 rounded-lg text-center hover:bg-purple-50/30"><i data-lucide="users" class="w-4 h-4 text-slate-500 mx-auto mb-1"></i><div class="text-[11px] font-bold">Colab</div><div class="text-[9px] text-slate-500">Liquidar</div></button>
+            <button class="p-2.5 bg-white border border-slate-200 rounded-lg text-center hover:bg-indigo-50/30"><i data-lucide="user" class="w-4 h-4 text-slate-500 mx-auto mb-1"></i><div class="text-[11px] font-bold">Empleado</div><div class="text-[9px] text-slate-500">Reembolso</div></button>
+            <button class="p-2.5 bg-white border border-slate-200 rounded-lg text-center hover:bg-amber-50/30"><i data-lucide="credit-card" class="w-4 h-4 text-slate-500 mx-auto mb-1"></i><div class="text-[11px] font-bold">TC</div><div class="text-[9px] text-slate-500">Pago TC</div></button>
+          </div>
+        </div>
+        <!-- Selector entidad -->
+        <div>
+          <label class="text-[11px] font-bold text-slate-700 uppercase mb-1.5 block">Buscar cliente</label>
+          <div class="relative">
+            <i data-lucide="search" class="w-3.5 h-3.5 text-slate-400 absolute left-3 top-2.5"></i>
+            <input type="text" value="Premium SA" class="w-full pl-9 pr-3 py-2 text-sm border border-slate-300 rounded-lg" />
+          </div>
+          <div class="bg-emerald-50 ring-1 ring-emerald-200 rounded-lg p-3 mt-2 flex items-center justify-between">
+            <div class="flex items-center gap-2"><div class="w-9 h-9 rounded-full bg-emerald-600 text-white flex items-center justify-center text-[11px] font-bold">PS</div><div><div class="text-[12px] font-bold text-emerald-900">Premium SA · cliente</div><div class="text-[10px] text-emerald-700 tabular">RUC 20567890123 · 4 facturas abiertas</div></div></div>
+            <div class="text-right"><div class="text-[14px] font-bold tabular text-emerald-900">S/ 12,500</div><div class="text-[9px] text-emerald-700">deuda total</div></div>
+          </div>
+        </div>
+        <!-- Cuenta + monto + fecha -->
+        <div class="grid grid-cols-3 gap-3">
+          <div><label class="text-[11px] font-bold text-slate-700 uppercase mb-1.5 block">Cuenta destino</label><select class="w-full text-sm border border-slate-300 rounded-lg px-3 py-2 bg-teal-50"><option>BCP Soles Operativa</option></select></div>
+          <div><label class="text-[11px] font-bold text-slate-700 uppercase mb-1.5 block">Monto recibido</label><div class="relative"><span class="absolute left-3 top-2 text-slate-500 text-sm">S/</span><input type="text" value="8,000.00" class="w-full text-base border border-slate-300 rounded-lg pl-9 pr-3 py-2 tabular text-right font-bold" /></div></div>
+          <div><label class="text-[11px] font-bold text-slate-700 uppercase mb-1.5 block">Fecha</label><input type="date" value="2026-05-15" class="w-full text-sm border border-slate-300 rounded-lg px-3 py-2" /></div>
+        </div>
+        <!-- Método + referencia -->
+        <div class="grid grid-cols-2 gap-3">
+          <div><label class="text-[11px] font-bold text-slate-700 uppercase mb-1.5 block">Método</label><select class="w-full text-sm border border-slate-300 rounded-lg px-3 py-2"><option>Yape (BCP Soles)</option><option>Transferencia</option><option>Efectivo</option></select></div>
+          <div><label class="text-[11px] font-bold text-slate-700 uppercase mb-1.5 block">Referencia</label><input type="text" placeholder="N° operación · voucher" class="w-full text-sm border border-slate-300 rounded-lg px-3 py-2 tabular" /></div>
+        </div>
+      </div>
+    </div>
+    <div class="bg-slate-50 border-t px-5 py-3 flex items-center justify-end gap-2">
+      <button class="text-[11px] font-semibold text-slate-600 hover:bg-slate-100 px-3 py-1.5 rounded-lg">Descartar</button>
+      <button class="text-[11px] font-semibold bg-amber-50 text-amber-700 border border-amber-200 px-3 py-1.5 rounded-lg">Borrador</button>
+      <button class="text-[11px] font-bold text-white bg-purple-600 px-4 py-1.5 rounded-lg">Siguiente <i data-lucide="arrow-right" class="w-3 h-3 inline ml-1"></i></button>
+    </div>
+  </div>
+
+  <!-- PASO 2 (referencia · ya está en MOCK 3 §3 completo) -->
+  <div class="bg-purple-50 ring-1 ring-purple-200 rounded-xl p-4 text-[12px] text-purple-900 flex items-start gap-2">
+    <i data-lucide="info" class="w-4 h-4 text-purple-700 mt-0.5"></i>
+    <div><strong>PASO 2/4 · Distribución completa</strong> ya está en <code class="bg-white px-1 rounded text-[10px]">finanzas-wizards-completos-v5.1.html § 3</code>. Incluye: 3 modos (FIFO/LIFO/Manual) · tabla 4 facturas con aging · running total · resumen (cierra X facturas · parcial en Y · saldo a favor Z).</div>
+  </div>
+
+  <!-- PASO 3 -->
+  <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+    <div class="bg-purple-50 border-b px-5 py-2"><span class="text-[10px] uppercase font-bold text-purple-700">PASO 3/4 · Tipo de cambio (solo aparece si hay mezcla de monedas)</span></div>
+    <div class="grid grid-cols-12 min-h-[460px]">
+      <aside class="col-span-3 bg-slate-50/50 border-r p-4 space-y-1">
+        <div class="text-[10px] uppercase font-bold text-slate-500 mb-3">Pasos · PagoAbono</div>
+        <div class="flex items-center gap-2 p-2 rounded-lg text-emerald-700"><span class="w-6 h-6 rounded-full bg-emerald-100 text-[11px] font-bold flex items-center justify-center"><i data-lucide="check" class="w-3 h-3"></i></span><span class="text-[12px]">Premium SA</span></div>
+        <div class="flex items-center gap-2 p-2 rounded-lg text-emerald-700"><span class="w-6 h-6 rounded-full bg-emerald-100 text-[11px] font-bold flex items-center justify-center"><i data-lucide="check" class="w-3 h-3"></i></span><span class="text-[12px]">FIFO · 2 cierra</span></div>
+        <div class="flex items-center gap-2 p-2 rounded-lg bg-purple-50 ring-1 ring-purple-200"><span class="w-6 h-6 rounded-full bg-purple-600 text-white text-[11px] font-bold flex items-center justify-center">3</span><span class="text-[12px] font-bold">Tipo cambio</span></div>
+        <div class="flex items-center gap-2 p-2 rounded-lg text-slate-500"><span class="w-6 h-6 rounded-full bg-slate-200 text-[11px] font-bold flex items-center justify-center">4</span><span class="text-[12px]">Confirmar</span></div>
+      </aside>
+      <div class="col-span-9 p-6 space-y-4">
+        <div><h3 class="text-base font-bold">TC del día requerido</h3><p class="text-[11px] text-slate-500">Cliente paga PEN pero F-008 estaba emitida en USD · requiere conversión.</p></div>
+        <div class="grid grid-cols-3 gap-3">
+          <div class="bg-teal-50 ring-1 ring-teal-200 rounded-xl p-3"><div class="text-[10px] uppercase font-bold text-teal-700 mb-1">TCPA Pool USD</div><div class="text-[18px] font-bold tabular text-teal-900">3.742</div><div class="text-[9px] text-teal-700">acumulado costo</div></div>
+          <div class="bg-slate-50 ring-2 ring-slate-400 rounded-xl p-3"><div class="text-[10px] uppercase font-bold text-slate-700 mb-1">SBS hoy compra</div><div class="text-[18px] font-bold tabular text-slate-900">3.756</div><div class="text-[9px] text-slate-500">tasa oficial</div></div>
+          <div class="bg-emerald-50 ring-1 ring-emerald-200 rounded-xl p-3"><div class="text-[10px] uppercase font-bold text-emerald-700 mb-1">Diferencial</div><div class="text-[18px] font-bold tabular text-emerald-700">+0.014</div><div class="text-[9px] text-emerald-700">ganancia FX</div></div>
+        </div>
+        <!-- Selector TC con override manual canon (D14) -->
+        <div>
+          <label class="text-[11px] font-bold text-slate-700 uppercase mb-1.5 block">TC a usar · 3 fuentes sistema + override manual</label>
+          <div class="bg-slate-50 ring-1 ring-slate-200 rounded-xl p-3 space-y-2">
+            <div class="flex gap-2">
+              <div class="flex-1 relative"><input type="text" value="3.756" class="w-full text-base border border-slate-300 rounded-lg px-3 py-2 tabular text-right font-bold" /></div>
+              <button class="text-[11px] font-semibold text-indigo-700 bg-indigo-50 border border-indigo-200 px-3 py-1.5 rounded-lg flex items-center gap-1"><i data-lucide="globe" class="w-3 h-3"></i> SBS</button>
+              <button class="text-[11px] font-semibold text-teal-700 bg-teal-50 border border-teal-200 px-3 py-1.5 rounded-lg flex items-center gap-1"><i data-lucide="dollar-sign" class="w-3 h-3"></i> TCPA</button>
+              <button class="text-[11px] font-semibold text-amber-700 bg-amber-50 border-2 border-amber-300 px-3 py-1.5 rounded-lg flex items-center gap-1"><i data-lucide="edit" class="w-3 h-3"></i> Manual</button>
+            </div>
+            <div class="text-[10px] text-slate-600 flex items-center gap-2 flex-wrap">
+              <span class="font-bold">Fuente actual:</span>
+              <span class="bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-full font-bold">SBS oficial · 15-may</span>
+              <span class="text-slate-400">·</span>
+              <span><strong>Freshness:</strong> <span class="text-emerald-700 font-bold">fresh</span> (refrescado hace 12 min)</span>
+            </div>
+          </div>
+        </div>
+        <!-- Override manual condicional · aparece si click Manual -->
+        <div class="bg-amber-50 ring-2 ring-amber-300 rounded-xl p-3 space-y-2">
+          <div class="flex items-center gap-2"><i data-lucide="alert-triangle" class="w-4 h-4 text-amber-700"></i><span class="text-[11px] font-bold text-amber-900">Override manual · justificación obligatoria</span></div>
+          <div class="text-[10px] text-amber-700">El TC manual queda con auditoría completa · quién + cuándo + por qué. NO actualiza TC global del sistema · solo aplica a esta operación específica. Casos: casa de cambio favorable · TC bancario · contrato negociado · fintech (Wise/Binance).</div>
+          <textarea rows="2" placeholder="Ej: Casa de cambio Ocoña ofreció 3.770 hoy · ahorro S/ 14 por $1000 vs SBS · ver foto adjunta del display" class="w-full text-[11px] border border-amber-300 rounded-lg px-3 py-2 bg-white"></textarea>
+        </div>
+        <!-- Histórico TCs últimos 30 días para comparar (D14 nuevo) -->
+        <div>
+          <div class="flex items-center justify-between mb-2"><label class="text-[10px] uppercase font-bold text-slate-700 flex items-center gap-1.5"><i data-lucide="history" class="w-3 h-3"></i> Histórico TCs últimos 30 días</label><button class="text-[10px] text-teal-700 hover:underline">Ver más</button></div>
+          <div class="border border-slate-200 rounded-lg overflow-hidden max-h-32 overflow-y-auto">
+            <table class="w-full text-[10px]">
+              <thead class="bg-slate-50 text-slate-600 uppercase text-[9px] font-bold sticky top-0"><tr><th class="text-left py-1.5 px-2">Fecha</th><th class="text-center py-1.5 px-2">SBS</th><th class="text-center py-1.5 px-2">TCPA</th><th class="text-center py-1.5 px-2">Manual usado</th><th class="text-right py-1.5 px-2">Trend</th></tr></thead>
+              <tbody class="divide-y divide-slate-100 tabular">
+                <tr class="bg-teal-50/30"><td class="py-1.5 px-2 font-bold">15-may HOY</td><td class="py-1.5 px-2 text-center font-bold">3.756</td><td class="py-1.5 px-2 text-center">3.742</td><td class="py-1.5 px-2 text-center text-slate-400">—</td><td class="py-1.5 px-2 text-right text-emerald-700 font-bold">↑ +0.003</td></tr>
+                <tr><td class="py-1.5 px-2">14-may</td><td class="py-1.5 px-2 text-center">3.753</td><td class="py-1.5 px-2 text-center">3.742</td><td class="py-1.5 px-2 text-center text-slate-400">—</td><td class="py-1.5 px-2 text-right text-rose-700">↓ −0.001</td></tr>
+                <tr><td class="py-1.5 px-2">13-may</td><td class="py-1.5 px-2 text-center">3.754</td><td class="py-1.5 px-2 text-center">3.741</td><td class="py-1.5 px-2 text-center font-bold text-amber-700">3.770</td><td class="py-1.5 px-2 text-right text-emerald-700">↑ +0.002</td></tr>
+                <tr><td class="py-1.5 px-2">12-may</td><td class="py-1.5 px-2 text-center">3.752</td><td class="py-1.5 px-2 text-center">3.740</td><td class="py-1.5 px-2 text-center text-slate-400">—</td><td class="py-1.5 px-2 text-right text-rose-700">↓ −0.002</td></tr>
+                <tr><td class="py-1.5 px-2">11-may</td><td class="py-1.5 px-2 text-center">3.754</td><td class="py-1.5 px-2 text-center">3.738</td><td class="py-1.5 px-2 text-center text-slate-400">—</td><td class="py-1.5 px-2 text-right text-emerald-700">↑ +0.001</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="text-[10px] text-slate-500 mt-1 italic">13-may se usó TC manual 3.770 (Casa cambio Ocoña) · ver auditoría completa en MOV-2026-0420</div>
+        </div>
+        <!-- Banner diferencial -->
+        <div class="bg-emerald-50 ring-1 ring-emerald-200 rounded-lg p-3 text-[11px] text-emerald-900 flex items-start gap-2"><i data-lucide="trending-up" class="w-3.5 h-3.5 text-emerald-700 mt-0.5"></i><div>Vas a usar TC <strong class="tabular">3.756 (SBS)</strong> · diferencia vs TCPA Pool: <strong>+0.014 ganancia</strong> · se registrará en cuenta <strong>7601 Ganancia cambiaria</strong>: S/ 21.00 · fuente registrada: <strong>auto · SBS oficial</strong>.</div></div>
+      </div>
+    </div>
+    <div class="bg-slate-50 border-t px-5 py-3 flex items-center justify-end gap-2">
+      <button class="text-[11px] font-semibold text-slate-600 hover:bg-slate-100 px-3 py-1.5 rounded-lg flex items-center gap-1"><i data-lucide="arrow-left" class="w-3 h-3"></i> Atrás</button>
+      <button class="text-[11px] font-semibold bg-amber-50 text-amber-700 border border-amber-200 px-3 py-1.5 rounded-lg">Borrador</button>
+      <button class="text-[11px] font-bold text-white bg-purple-600 px-4 py-1.5 rounded-lg">Siguiente</button>
+    </div>
+  </div>
+
+  <!-- PASO 4 -->
+  <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+    <div class="bg-purple-50 border-b px-5 py-2"><span class="text-[10px] uppercase font-bold text-purple-700">PASO 4/4 · Confirmar · genera asientos + actualiza CC + cierra facturas</span></div>
+    <div class="grid grid-cols-12 min-h-[540px]">
+      <aside class="col-span-3 bg-slate-50/50 border-r p-4 space-y-1">
+        <div class="text-[10px] uppercase font-bold text-slate-500 mb-3">Pasos · PagoAbono</div>
+        <div class="flex items-center gap-2 p-2 rounded-lg text-emerald-700"><span class="w-6 h-6 rounded-full bg-emerald-100 text-[11px] font-bold flex items-center justify-center"><i data-lucide="check" class="w-3 h-3"></i></span><span class="text-[12px]">Premium SA · S/ 8K</span></div>
+        <div class="flex items-center gap-2 p-2 rounded-lg text-emerald-700"><span class="w-6 h-6 rounded-full bg-emerald-100 text-[11px] font-bold flex items-center justify-center"><i data-lucide="check" class="w-3 h-3"></i></span><span class="text-[12px]">FIFO 4 docs</span></div>
+        <div class="flex items-center gap-2 p-2 rounded-lg text-emerald-700"><span class="w-6 h-6 rounded-full bg-emerald-100 text-[11px] font-bold flex items-center justify-center"><i data-lucide="check" class="w-3 h-3"></i></span><span class="text-[12px]">TC 3.756 · +S/21</span></div>
+        <div class="flex items-center gap-2 p-2 rounded-lg bg-purple-50 ring-1 ring-purple-200"><span class="w-6 h-6 rounded-full bg-purple-600 text-white text-[11px] font-bold flex items-center justify-center">4</span><span class="text-[12px] font-bold">Confirmar</span></div>
+      </aside>
+      <div class="col-span-9 p-6 grid grid-cols-2 gap-4">
+        <!-- Resumen -->
+        <div>
+          <h3 class="text-[12px] font-bold mb-2">Resumen ejecutivo</h3>
+          <div class="bg-slate-900 text-white rounded-xl p-4 mb-3">
+            <div class="text-[10px] uppercase text-slate-400">Cobro Premium SA</div>
+            <div class="text-2xl font-bold tabular mt-1">S/ 8,000.00</div>
+            <div class="text-[10px] text-purple-300">vía Yape → BCP Soles · TC 3.756</div>
+          </div>
+          <div class="space-y-1.5 text-[11px]">
+            <div class="flex justify-between p-2 bg-slate-50 rounded"><span class="text-slate-600">Aplicado FIFO</span><span class="font-bold tabular">S/ 8,000</span></div>
+            <div class="flex justify-between p-2 bg-emerald-50 rounded"><span class="text-emerald-700">Cierra F-001 + F-008</span><span class="font-bold text-emerald-900">2 facturas</span></div>
+            <div class="flex justify-between p-2 bg-sky-50 rounded"><span class="text-sky-700">Parcial F-015</span><span class="font-bold tabular text-sky-900">queda S/ 2,500</span></div>
+            <div class="flex justify-between p-2 bg-emerald-50 rounded"><span class="text-emerald-700">Ganancia FX</span><span class="font-bold tabular text-emerald-900">+S/ 21</span></div>
+          </div>
+        </div>
+        <!-- Documentos atómicos -->
+        <div>
+          <h3 class="text-[12px] font-bold mb-2">Documentos generados</h3>
+          <div class="space-y-2 text-[11px]">
+            <div class="bg-teal-50 ring-1 ring-teal-200 rounded-lg p-2"><div class="text-[10px] uppercase font-bold text-teal-700 flex items-center gap-1"><i data-lucide="arrow-left-right" class="w-3 h-3"></i> Movimiento tesorería</div><div class="text-teal-900 mt-1">Ingreso S/ 8,000 a BCP Soles · MOV nuevo</div></div>
+            <div class="bg-indigo-50 ring-1 ring-indigo-200 rounded-lg p-2"><div class="text-[10px] uppercase font-bold text-indigo-700 flex items-center gap-1"><i data-lucide="file-text" class="w-3 h-3"></i> Asiento contable</div><div class="text-indigo-900 mt-1">DR 1041.BCP S/ 8K · CR 1212.Premium S/ 8K · CR 7601.GananciaFX S/ 21</div></div>
+            <div class="bg-emerald-50 ring-1 ring-emerald-200 rounded-lg p-2"><div class="text-[10px] uppercase font-bold text-emerald-700 flex items-center gap-1"><i data-lucide="check-check" class="w-3 h-3"></i> Actualización CC Premium SA</div><div class="text-emerald-900 mt-1">F-001 pagada · F-008 pagada · F-015 parcial · saldo neto</div></div>
+          </div>
+          <div class="mt-3"><label class="text-[10px] uppercase font-bold text-slate-700 mb-1 block">Notas</label><textarea rows="2" placeholder="Justificación · referencia" class="w-full text-[11px] border border-slate-300 rounded-lg px-2 py-1.5"></textarea></div>
+          <label class="flex items-center gap-2 mt-2 text-[11px]"><input type="checkbox" class="rounded text-emerald-600" /><span>Notificar al cliente por email/WhatsApp</span></label>
+        </div>
+      </div>
+    </div>
+    <div class="bg-slate-50 border-t px-5 py-3 flex items-center justify-end gap-2">
+      <button class="text-[11px] font-semibold text-slate-600 hover:bg-slate-100 px-3 py-1.5 rounded-lg flex items-center gap-1"><i data-lucide="arrow-left" class="w-3 h-3"></i> Atrás</button>
+      <button class="text-[11px] font-semibold text-slate-600 hover:bg-slate-100 px-3 py-1.5 rounded-lg">Descartar</button>
+      <button class="text-[11px] font-semibold bg-amber-50 text-amber-700 border border-amber-200 px-3 py-1.5 rounded-lg">Borrador</button>
+      <button class="text-[11px] font-bold text-white bg-purple-600 px-4 py-1.5 rounded-lg flex items-center gap-1.5 shadow-sm"><i data-lucide="check" class="w-3 h-3"></i> Confirmar cobro S/ 8,000</button>
+    </div>
+  </div>
+</section>
+
+<!-- §3 · B.2 PAGAR ESTADO TC · 3 PASOS -->
+<section class="space-y-4">
+  <div class="flex items-center gap-2"><span class="text-[10px] uppercase tracking-wider font-bold text-amber-700">§ 3 · B.2 · Pagar estado de cuenta TC · 3 pasos · stepper horizontal · bimoneda</span><div class="flex-1 h-px bg-amber-200"></div></div>
+
+  <!-- PASO 1 -->
+  <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+    <div class="bg-amber-50 border-b px-5 py-2"><span class="text-[10px] uppercase font-bold text-amber-700">PASO 1/3 · Seleccionar TC + ciclo a pagar</span></div>
+    <!-- Stepper horizontal -->
+    <div class="bg-slate-50 border-b px-5 py-3 flex items-center justify-center gap-4">
+      <div class="flex items-center gap-2"><span class="w-7 h-7 rounded-full bg-amber-600 text-white text-[11px] font-bold flex items-center justify-center">1</span><span class="text-[11px] font-bold text-amber-900">Seleccionar TC</span></div>
+      <div class="h-px w-12 bg-slate-300"></div>
+      <div class="flex items-center gap-2 opacity-50"><span class="w-7 h-7 rounded-full bg-slate-200 text-[11px] font-bold flex items-center justify-center">2</span><span class="text-[11px]">Cargos a pagar</span></div>
+      <div class="h-px w-12 bg-slate-300"></div>
+      <div class="flex items-center gap-2 opacity-50"><span class="w-7 h-7 rounded-full bg-slate-200 text-[11px] font-bold flex items-center justify-center">3</span><span class="text-[11px]">Confirmar</span></div>
+    </div>
+    <div class="p-6 grid grid-cols-2 gap-5">
+      <div class="space-y-4">
+        <div><label class="text-[11px] font-bold text-slate-700 uppercase mb-1.5 block">Tarjeta de crédito</label>
+          <div class="bg-amber-50 ring-2 ring-amber-500 rounded-xl p-3">
+            <div class="flex items-center gap-3"><div class="w-10 h-10 rounded-lg flex items-center justify-center text-white" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);"><i data-lucide="credit-card" class="w-5 h-5"></i></div><div class="flex-1"><div class="text-[12px] font-bold">Visa BCP Empresarial ····6411</div><div class="text-[10px] text-amber-700">Bimoneda · titularidad empresa · día pago 10</div></div></div>
+            <div class="grid grid-cols-2 gap-2 mt-3 pt-3 border-t border-amber-200">
+              <div class="text-center"><div class="text-[9px] uppercase font-bold text-amber-700">Saldo USD</div><div class="text-[14px] font-bold tabular text-amber-900">$ 2,840</div></div>
+              <div class="text-center"><div class="text-[9px] uppercase font-bold text-amber-700">Saldo PEN</div><div class="text-[14px] font-bold tabular text-amber-900">S/ 1,820</div></div>
+            </div>
+          </div>
+        </div>
+        <div><label class="text-[11px] font-bold text-slate-700 uppercase mb-1.5 block">¿Qué ciclo querés pagar?</label>
+          <div class="space-y-2">
+            <button class="w-full p-3 bg-amber-50 ring-2 ring-amber-500 rounded-lg text-left"><div class="flex items-center justify-between"><div><div class="text-[12px] font-bold text-amber-900">Ciclo cerrado · 25-abr al 25-may</div><div class="text-[10px] text-amber-700">Vence 10-jun · 3 días</div></div><span class="text-[10px] bg-rose-100 text-rose-700 px-2 py-0.5 rounded font-bold animate-pulse">Urgente</span></div></button>
+            <button class="w-full p-3 bg-white border border-slate-200 rounded-lg text-left hover:bg-indigo-50"><div class="text-[12px] font-bold">Ciclo abierto actual · 25-may en curso</div><div class="text-[10px] text-slate-500">Pago anticipado · no obligatorio</div></button>
+            <button class="w-full p-3 bg-white border border-slate-200 rounded-lg text-left hover:bg-slate-50"><div class="text-[12px] font-bold">Pago a cuenta · saldo a favor</div><div class="text-[10px] text-slate-500">Pagar más del adeudado · saldo crédito</div></button>
+          </div>
+        </div>
+      </div>
+      <!-- Modo + cuentas -->
+      <div class="space-y-4">
+        <div class="bg-gradient-to-br from-indigo-50 to-indigo-100/40 ring-1 ring-indigo-200/50 rounded-xl p-3">
+          <div class="text-[11px] font-bold text-indigo-900 mb-2">Modo de pago (auto-detectado)</div>
+          <div class="bg-white rounded-lg p-3 ring-2 ring-indigo-500">
+            <div class="text-[11px] font-bold text-indigo-900">Banco emisor (titularidad empresa)</div>
+            <div class="text-[10px] text-indigo-700 mt-1">Empresa paga directo al banco · genera diferencial FX contra TCPA Pool USD</div>
+          </div>
+          <div class="text-[10px] text-slate-500 mt-2 italic">Alternativo: <strong>reembolso titular</strong> (solo para TCs personales de empleados/colaboradores)</div>
+        </div>
+        <div><label class="text-[11px] font-bold text-slate-700 uppercase mb-1.5 block">Cuenta origen para deuda USD</label><select class="w-full text-sm border border-slate-300 rounded-lg px-3 py-2 bg-teal-50"><option>Pool USD · BCP USD · $ 4,820 (default)</option></select></div>
+        <div><label class="text-[11px] font-bold text-slate-700 uppercase mb-1.5 block">Cuenta origen para deuda PEN</label><select class="w-full text-sm border border-slate-300 rounded-lg px-3 py-2 bg-teal-50"><option>BCP Soles Operativa · S/ 42,180 (default)</option></select></div>
+      </div>
+    </div>
+    <div class="bg-slate-50 border-t px-5 py-3 flex items-center justify-end gap-2">
+      <button class="text-[11px] font-semibold text-slate-600 hover:bg-slate-100 px-3 py-1.5 rounded-lg">Descartar</button>
+      <button class="text-[11px] font-semibold bg-amber-50 text-amber-700 border border-amber-200 px-3 py-1.5 rounded-lg">Borrador</button>
+      <button class="text-[11px] font-bold text-white bg-amber-600 px-4 py-1.5 rounded-lg">Siguiente</button>
+    </div>
+  </div>
+
+  <!-- PASO 2 -->
+  <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+    <div class="bg-amber-50 border-b px-5 py-2"><span class="text-[10px] uppercase font-bold text-amber-700">PASO 2/3 · Seleccionar cargos a pagar (selección granular)</span></div>
+    <div class="bg-slate-50 border-b px-5 py-3 flex items-center justify-center gap-4">
+      <div class="flex items-center gap-2"><span class="w-7 h-7 rounded-full bg-emerald-100 text-emerald-700 text-[11px] font-bold flex items-center justify-center"><i data-lucide="check" class="w-3 h-3"></i></span><span class="text-[11px] text-emerald-700">Visa BCP · cerrado</span></div>
+      <div class="h-px w-12 bg-emerald-300"></div>
+      <div class="flex items-center gap-2"><span class="w-7 h-7 rounded-full bg-amber-600 text-white text-[11px] font-bold flex items-center justify-center">2</span><span class="text-[11px] font-bold text-amber-900">Cargos a pagar</span></div>
+      <div class="h-px w-12 bg-slate-300"></div>
+      <div class="flex items-center gap-2 opacity-50"><span class="w-7 h-7 rounded-full bg-slate-200 text-[11px] font-bold flex items-center justify-center">3</span><span class="text-[11px]">Confirmar</span></div>
+    </div>
+    <div class="p-5 space-y-4">
+      <!-- Opciones rápidas -->
+      <div class="flex items-center gap-2">
+        <span class="text-[11px] font-bold text-slate-700">Opciones rápidas:</span>
+        <button class="text-[11px] font-bold text-white bg-emerald-600 hover:bg-emerald-700 px-3 py-1.5 rounded-lg">Pago total · $ 2,840 + S/ 1,820</button>
+        <button class="text-[11px] font-semibold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 px-3 py-1.5 rounded-lg">Pago mínimo · $ 142 + S/ 91</button>
+        <button class="text-[11px] font-semibold text-indigo-700 bg-indigo-50 border border-indigo-200 px-3 py-1.5 rounded-lg">Personalizado · seleccionar cargos</button>
+      </div>
+      <!-- Tabla cargos -->
+      <div class="border border-slate-200 rounded-xl overflow-hidden">
+        <table class="w-full text-[11px]">
+          <thead class="bg-slate-50 text-slate-600 uppercase text-[9px] font-bold">
+            <tr><th class="w-8 px-3 py-2"><input type="checkbox" checked /></th><th class="text-left py-2 px-3">Fecha</th><th class="text-left py-2 px-3">Comercio</th><th class="text-left py-2 px-3">Categoría</th><th class="text-right py-2 px-3">Monto</th><th class="text-center py-2 px-3">Moneda</th><th class="text-center py-2 px-3">Cuota</th></tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 tabular">
+            <tr><td class="px-3"><input type="checkbox" checked /></td><td class="py-2 px-3">02-may</td><td class="py-2 px-3">Meta Ads</td><td class="py-2 px-3"><span class="text-[9px] bg-purple-100 text-purple-700 px-1.5 rounded font-bold">Marketing</span></td><td class="py-2 px-3 text-right font-bold">$ 820</td><td class="py-2 px-3 text-center">USD</td><td class="py-2 px-3 text-center text-slate-500">—</td></tr>
+            <tr><td class="px-3"><input type="checkbox" checked /></td><td class="py-2 px-3">05-may</td><td class="py-2 px-3">AWS</td><td class="py-2 px-3"><span class="text-[9px] bg-sky-100 text-sky-700 px-1.5 rounded font-bold">SaaS</span></td><td class="py-2 px-3 text-right font-bold">$ 420</td><td class="py-2 px-3 text-center">USD</td><td class="py-2 px-3 text-center text-slate-500">—</td></tr>
+            <tr><td class="px-3"><input type="checkbox" checked /></td><td class="py-2 px-3">08-may</td><td class="py-2 px-3">Cena cliente Premium</td><td class="py-2 px-3"><span class="text-[9px] bg-amber-100 text-amber-700 px-1.5 rounded font-bold">Representación</span></td><td class="py-2 px-3 text-right font-bold">S/ 480</td><td class="py-2 px-3 text-center">PEN</td><td class="py-2 px-3 text-center text-slate-500">—</td></tr>
+            <tr class="bg-amber-50/30"><td class="px-3"><input type="checkbox" /></td><td class="py-2 px-3">12-may</td><td class="py-2 px-3">Notebook Lenovo</td><td class="py-2 px-3"><span class="text-[9px] bg-blue-100 text-blue-700 px-1.5 rounded font-bold">Activo fijo</span></td><td class="py-2 px-3 text-right font-bold">S/ 800</td><td class="py-2 px-3 text-center">PEN</td><td class="py-2 px-3 text-center"><span class="text-[9px] bg-amber-100 text-amber-700 px-1.5 rounded font-bold">3/12</span></td></tr>
+          </tbody>
+          <tfoot class="bg-amber-100 font-bold tabular"><tr><td colspan="4" class="px-3 py-2 text-right text-amber-700">Total seleccionado:</td><td class="px-3 py-2 text-right text-amber-900">$ 1,240 + S/ 480</td><td colspan="2"></td></tr></tfoot>
+        </table>
+      </div>
+      <div class="bg-amber-50 ring-1 ring-amber-200 rounded-lg p-2.5 text-[11px] text-amber-900 flex items-start gap-2">
+        <i data-lucide="info" class="w-3.5 h-3.5 text-amber-700 mt-0.5"></i>
+        <div>Pagar este cargo con cuotas <strong>solo aplica la cuota actual</strong> (3/12) · NO cancela las cuotas futuras (4/12 en adelante).</div>
+      </div>
+    </div>
+    <div class="bg-slate-50 border-t px-5 py-3 flex items-center justify-end gap-2">
+      <button class="text-[11px] font-semibold text-slate-600 hover:bg-slate-100 px-3 py-1.5 rounded-lg flex items-center gap-1"><i data-lucide="arrow-left" class="w-3 h-3"></i> Atrás</button>
+      <button class="text-[11px] font-semibold bg-amber-50 text-amber-700 border border-amber-200 px-3 py-1.5 rounded-lg">Borrador</button>
+      <button class="text-[11px] font-bold text-white bg-amber-600 px-4 py-1.5 rounded-lg">Siguiente</button>
+    </div>
+  </div>
+
+  <!-- PASO 3 -->
+  <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+    <div class="bg-amber-50 border-b px-5 py-2"><span class="text-[10px] uppercase font-bold text-amber-700">PASO 3/3 · Confirmar pago + impacto utilización</span></div>
+    <div class="bg-slate-50 border-b px-5 py-3 flex items-center justify-center gap-4">
+      <div class="flex items-center gap-2"><span class="w-7 h-7 rounded-full bg-emerald-100 text-emerald-700 text-[11px] font-bold flex items-center justify-center"><i data-lucide="check" class="w-3 h-3"></i></span><span class="text-[11px] text-emerald-700">Visa BCP</span></div>
+      <div class="h-px w-12 bg-emerald-300"></div>
+      <div class="flex items-center gap-2"><span class="w-7 h-7 rounded-full bg-emerald-100 text-emerald-700 text-[11px] font-bold flex items-center justify-center"><i data-lucide="check" class="w-3 h-3"></i></span><span class="text-[11px] text-emerald-700">3 cargos · $1,240+S/480</span></div>
+      <div class="h-px w-12 bg-emerald-300"></div>
+      <div class="flex items-center gap-2"><span class="w-7 h-7 rounded-full bg-amber-600 text-white text-[11px] font-bold flex items-center justify-center">3</span><span class="text-[11px] font-bold text-amber-900">Confirmar</span></div>
+    </div>
+    <div class="p-6 grid grid-cols-2 gap-4">
+      <div>
+        <h3 class="text-[12px] font-bold mb-2">Resumen del pago</h3>
+        <div class="bg-slate-900 text-white rounded-xl p-4 mb-3">
+          <div class="text-[10px] uppercase text-slate-400">Vas a pagar</div>
+          <div class="text-2xl font-bold tabular mt-1">$ 1,240 + S/ 480</div>
+          <div class="text-[10px] text-amber-300">desde Pool USD + BCP Soles</div>
+        </div>
+        <div class="space-y-1.5 text-[11px]">
+          <div class="flex justify-between p-2 bg-slate-50 rounded"><span class="text-slate-600">Cuenta origen USD</span><span class="font-bold">Pool USD · TCPA 3.742</span></div>
+          <div class="flex justify-between p-2 bg-slate-50 rounded"><span class="text-slate-600">Cuenta origen PEN</span><span class="font-bold">BCP Soles Operativa</span></div>
+          <div class="flex justify-between p-2 bg-emerald-50 rounded"><span class="text-emerald-700">Diferencial FX</span><span class="font-bold tabular text-emerald-900">+S/ 17.36</span></div>
+          <div class="flex justify-between p-2 bg-amber-50 rounded"><span class="text-amber-700">Línea liberada total</span><span class="font-bold tabular text-amber-900">$ 1,240 + S/ 480</span></div>
+        </div>
+      </div>
+      <div>
+        <h3 class="text-[12px] font-bold mb-2">Impacto en utilización (visual)</h3>
+        <!-- Barra utilización USD antes/después -->
+        <div class="bg-amber-50 ring-1 ring-amber-200 rounded-xl p-3 mb-2">
+          <div class="text-[10px] uppercase font-bold text-amber-700 mb-1">USD · antes / después</div>
+          <div class="space-y-1.5">
+            <div><div class="flex justify-between text-[10px] tabular"><span>Antes: 35.5%</span><span>$ 2,840 / $ 8K tope</span></div><div class="h-2 bg-amber-100 rounded-full overflow-hidden"><div class="h-full bg-amber-500" style="width: 35.5%;"></div></div></div>
+            <div><div class="flex justify-between text-[10px] tabular"><span class="text-emerald-700 font-bold">Después: 20.0%</span><span>$ 1,600 / $ 8K tope</span></div><div class="h-2 bg-amber-100 rounded-full overflow-hidden"><div class="h-full bg-emerald-500" style="width: 20%;"></div></div></div>
+          </div>
+        </div>
+        <div class="bg-amber-50 ring-1 ring-amber-200 rounded-xl p-3 mb-2">
+          <div class="text-[10px] uppercase font-bold text-amber-700 mb-1">PEN · antes / después</div>
+          <div class="space-y-1.5">
+            <div><div class="flex justify-between text-[10px] tabular"><span>Antes: 9.1%</span><span>S/ 1,820 / S/ 20K</span></div><div class="h-2 bg-amber-100 rounded-full overflow-hidden"><div class="h-full bg-amber-500" style="width: 9.1%;"></div></div></div>
+            <div><div class="flex justify-between text-[10px] tabular"><span class="text-emerald-700 font-bold">Después: 6.7%</span><span>S/ 1,340 / S/ 20K</span></div><div class="h-2 bg-amber-100 rounded-full overflow-hidden"><div class="h-full bg-emerald-500" style="width: 6.7%;"></div></div></div>
+          </div>
+        </div>
+        <div class="bg-emerald-50 ring-1 ring-emerald-200 rounded-lg p-2 text-[10px] text-emerald-900">Próximo ciclo cierra <strong>25-jun-2026</strong> · vence <strong>10-jul-2026</strong> · saldo nuevo arranca en S/ 1,340 PEN + $ 1,600 USD.</div>
+        <label class="flex items-center gap-2 mt-3 text-[11px]"><input type="checkbox" class="rounded text-amber-600" /><span>Programar recordatorio próximo vencimiento</span></label>
+      </div>
+    </div>
+    <div class="bg-slate-50 border-t px-5 py-3 flex items-center justify-end gap-2">
+      <button class="text-[11px] font-semibold text-slate-600 hover:bg-slate-100 px-3 py-1.5 rounded-lg flex items-center gap-1"><i data-lucide="arrow-left" class="w-3 h-3"></i> Atrás</button>
+      <button class="text-[11px] font-semibold text-slate-600 hover:bg-slate-100 px-3 py-1.5 rounded-lg">Descartar</button>
+      <button class="text-[11px] font-semibold bg-amber-50 text-amber-700 border border-amber-200 px-3 py-1.5 rounded-lg">Borrador</button>
+      <button class="text-[11px] font-bold text-white bg-amber-600 px-4 py-1.5 rounded-lg flex items-center gap-1.5"><i data-lucide="check" class="w-3 h-3"></i> Confirmar pago TC</button>
+    </div>
+  </div>
+</section>
+
+<!-- §4 · B.3 PAGOS MASIVOS · 4 PASOS -->
+<section class="space-y-4">
+  <div class="flex items-center gap-2"><span class="text-[10px] uppercase tracking-wider font-bold text-indigo-700">§ 4 · B.3 · Pagos masivos · 4 pasos · Opción A (1 cta · 1 moneda)</span><div class="flex-1 h-px bg-indigo-200"></div></div>
+
+  <!-- PASO 1 -->
+  <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+    <div class="bg-indigo-50 border-b px-5 py-2"><span class="text-[10px] uppercase font-bold text-indigo-700">PASO 1/4 · Cuenta origen + fecha + descripción del batch</span></div>
+    <div class="grid grid-cols-12 min-h-[460px]">
+      <aside class="col-span-3 bg-slate-50/50 border-r p-4 space-y-1">
+        <div class="text-[10px] uppercase font-bold text-slate-500 mb-3">Pasos · Pagos masivos</div>
+        <div class="flex items-center gap-2 p-2 rounded-lg bg-indigo-50 ring-1 ring-indigo-200"><span class="w-6 h-6 rounded-full bg-indigo-600 text-white text-[11px] font-bold flex items-center justify-center">1</span><span class="text-[12px] font-bold">Cuenta + fecha</span></div>
+        <div class="flex items-center gap-2 p-2 rounded-lg text-slate-500"><span class="w-6 h-6 rounded-full bg-slate-200 text-[11px] font-bold flex items-center justify-center">2</span><span class="text-[12px]">Seleccionar facturas</span></div>
+        <div class="flex items-center gap-2 p-2 rounded-lg text-slate-500"><span class="w-6 h-6 rounded-full bg-slate-200 text-[11px] font-bold flex items-center justify-center">3</span><span class="text-[12px]">TC (si aplica)</span></div>
+        <div class="flex items-center gap-2 p-2 rounded-lg text-slate-500"><span class="w-6 h-6 rounded-full bg-slate-200 text-[11px] font-bold flex items-center justify-center">4</span><span class="text-[12px]">Confirmar batch</span></div>
+      </aside>
+      <div class="col-span-9 p-6 space-y-4">
+        <div class="bg-indigo-50 ring-1 ring-indigo-200 rounded-lg p-3 flex items-start gap-2 text-[11px] text-indigo-900"><i data-lucide="info" class="w-3.5 h-3.5 text-indigo-700 mt-0.5"></i><div><strong>Decisión D7 · Opción A:</strong> 1 batch = 1 cuenta origen = 1 moneda. Para liquidar PEN + USD necesitarás 2 batches separados. Archivos BCP/Interbank limpios · contabilidad sencilla.</div></div>
+        <div class="grid grid-cols-2 gap-4">
+          <div><label class="text-[11px] font-bold text-slate-700 uppercase mb-1.5 block">Cuenta origen (1 sola)</label><select class="w-full text-sm border border-slate-300 rounded-lg px-3 py-2 bg-teal-50"><option>BCP Soles Operativa · S/ 42,180 disponible</option><option>Pool USD · $ 4,820</option></select><div class="text-[10px] text-slate-500 mt-1">Solo se muestran facturas en la moneda de esta cuenta</div></div>
+          <div><label class="text-[11px] font-bold text-slate-700 uppercase mb-1.5 block">Fecha programada</label><input type="date" value="2026-05-15" class="w-full text-sm border border-slate-300 rounded-lg px-3 py-2" /></div>
+          <div class="col-span-2"><label class="text-[11px] font-bold text-slate-700 uppercase mb-1.5 block">Descripción del batch (para identificación)</label><input type="text" value="Planilla 1ra quincena mayo · proveedores PEN" class="w-full text-sm border border-slate-300 rounded-lg px-3 py-2" /></div>
+        </div>
+        <div class="bg-amber-50 ring-1 ring-amber-200 rounded-lg p-3 flex items-start gap-2 text-[11px] text-amber-900"><i data-lucide="alert-triangle" class="w-3.5 h-3.5 text-amber-700 mt-0.5"></i><div>Saldo proyectado al final del batch: <strong class="tabular">se calcula en paso 4</strong>. Si saldo &lt; cero, sistema bloquea con alerta.</div></div>
+      </div>
+    </div>
+    <div class="bg-slate-50 border-t px-5 py-3 flex items-center justify-end gap-2">
+      <button class="text-[11px] font-semibold text-slate-600 hover:bg-slate-100 px-3 py-1.5 rounded-lg">Descartar</button>
+      <button class="text-[11px] font-semibold bg-amber-50 text-amber-700 border border-amber-200 px-3 py-1.5 rounded-lg">Borrador</button>
+      <button class="text-[11px] font-bold text-white bg-indigo-600 px-4 py-1.5 rounded-lg">Siguiente</button>
+    </div>
+  </div>
+
+  <!-- PASO 2 -->
+  <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+    <div class="bg-indigo-50 border-b px-5 py-2"><span class="text-[10px] uppercase font-bold text-indigo-700">PASO 2/4 · Seleccionar facturas a pagar (tabla con checkbox + filtros)</span></div>
+    <div class="grid grid-cols-12 min-h-[600px]">
+      <aside class="col-span-3 bg-slate-50/50 border-r p-4 space-y-1">
+        <div class="text-[10px] uppercase font-bold text-slate-500 mb-3">Pasos · Pagos masivos</div>
+        <div class="flex items-center gap-2 p-2 rounded-lg text-emerald-700"><span class="w-6 h-6 rounded-full bg-emerald-100 text-[11px] font-bold flex items-center justify-center"><i data-lucide="check" class="w-3 h-3"></i></span><span class="text-[12px]">BCP Soles · 15-may</span></div>
+        <div class="flex items-center gap-2 p-2 rounded-lg bg-indigo-50 ring-1 ring-indigo-200"><span class="w-6 h-6 rounded-full bg-indigo-600 text-white text-[11px] font-bold flex items-center justify-center">2</span><span class="text-[12px] font-bold">Seleccionar facturas</span></div>
+        <div class="flex items-center gap-2 p-2 rounded-lg text-slate-500"><span class="w-6 h-6 rounded-full bg-slate-200 text-[11px] font-bold flex items-center justify-center">3</span><span class="text-[12px]">TC (skip · 1 moneda)</span></div>
+        <div class="flex items-center gap-2 p-2 rounded-lg text-slate-500"><span class="w-6 h-6 rounded-full bg-slate-200 text-[11px] font-bold flex items-center justify-center">4</span><span class="text-[12px]">Confirmar batch</span></div>
+        <div class="mt-6 pt-4 border-t border-slate-200">
+          <div class="text-[10px] uppercase font-bold text-slate-500 mb-2">Running total</div>
+          <div class="bg-indigo-50 rounded-lg p-2 text-center"><div class="text-[9px] uppercase font-bold text-indigo-700">Seleccionado</div><div class="text-[18px] font-bold tabular text-indigo-900">S/ 6,420</div><div class="text-[10px] text-indigo-700">8 facturas · 5 proveedores</div></div>
+        </div>
+      </aside>
+      <div class="col-span-9 p-5 space-y-3">
+        <!-- Filtros rápidos -->
+        <div class="flex items-center gap-2 flex-wrap">
+          <button class="text-[10px] font-bold bg-rose-100 text-rose-700 border border-rose-200 px-2 py-1 rounded">⚠️ Solo vencidas</button>
+          <button class="text-[10px] font-medium text-slate-600 bg-white border border-slate-200 px-2 py-1 rounded">Vencen 7d</button>
+          <button class="text-[10px] font-medium text-slate-600 bg-white border border-slate-200 px-2 py-1 rounded">Vencen 15d</button>
+          <button class="text-[10px] font-medium text-slate-600 bg-white border border-slate-200 px-2 py-1 rounded">Por proveedor...</button>
+          <span class="text-slate-300 mx-2">·</span>
+          <button class="text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-1 rounded">Seleccionar todas las vencidas (5)</button>
+        </div>
+        <!-- Tabla facturas -->
+        <div class="border border-slate-200 rounded-xl overflow-hidden max-h-96 overflow-y-auto">
+          <table class="w-full text-[11px]">
+            <thead class="bg-slate-50 text-slate-600 uppercase text-[9px] font-bold sticky top-0">
+              <tr><th class="w-8 px-3 py-2"><input type="checkbox" /></th><th class="text-left py-2 px-3">Proveedor</th><th class="text-left py-2 px-3">Doc</th><th class="text-left py-2 px-3">Fecha</th><th class="text-right py-2 px-3">Saldo</th><th class="text-right py-2 px-3">Aplicar</th><th class="text-center py-2 px-3">Vence</th></tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 tabular">
+              <tr class="bg-rose-50/20"><td class="px-3"><input type="checkbox" checked /></td><td class="py-1.5 px-3 font-bold">Logística PE</td><td class="py-1.5 px-3">F-203</td><td class="py-1.5 px-3">10-abr</td><td class="py-1.5 px-3 text-right font-bold">S/ 1,420</td><td class="py-1.5 px-3 text-right bg-indigo-50 font-bold">S/ 1,420</td><td class="py-1.5 px-3 text-center"><span class="bg-rose-100 text-rose-700 px-1.5 rounded text-[9px] font-bold">35d ⚠️</span></td></tr>
+              <tr class="bg-rose-50/20"><td class="px-3"><input type="checkbox" checked /></td><td class="py-1.5 px-3 font-bold">Logística PE</td><td class="py-1.5 px-3">F-218</td><td class="py-1.5 px-3">02-may</td><td class="py-1.5 px-3 text-right font-bold">S/ 820</td><td class="py-1.5 px-3 text-right bg-indigo-50 font-bold">S/ 820</td><td class="py-1.5 px-3 text-center"><span class="bg-amber-100 text-amber-700 px-1.5 rounded text-[9px] font-bold">13d</span></td></tr>
+              <tr><td class="px-3"><input type="checkbox" checked /></td><td class="py-1.5 px-3 font-bold">Insumos SAC</td><td class="py-1.5 px-3">F-1245</td><td class="py-1.5 px-3">12-abr</td><td class="py-1.5 px-3 text-right font-bold">S/ 2,400</td><td class="py-1.5 px-3 text-right bg-indigo-50 font-bold">S/ 2,400</td><td class="py-1.5 px-3 text-center"><span class="bg-rose-100 text-rose-700 px-1.5 rounded text-[9px] font-bold">33d ⚠️</span></td></tr>
+              <tr><td class="px-3"><input type="checkbox" checked /></td><td class="py-1.5 px-3 font-bold">SaaS Local</td><td class="py-1.5 px-3">F-088</td><td class="py-1.5 px-3">15-abr</td><td class="py-1.5 px-3 text-right font-bold">S/ 380</td><td class="py-1.5 px-3 text-right bg-indigo-50 font-bold">S/ 380</td><td class="py-1.5 px-3 text-center"><span class="bg-rose-100 text-rose-700 px-1.5 rounded text-[9px] font-bold">30d ⚠️</span></td></tr>
+              <tr><td class="px-3"><input type="checkbox" checked /></td><td class="py-1.5 px-3 font-bold">Marketing PE</td><td class="py-1.5 px-3">F-2034</td><td class="py-1.5 px-3">28-abr</td><td class="py-1.5 px-3 text-right font-bold">S/ 1,400</td><td class="py-1.5 px-3 text-right bg-indigo-50 font-bold">S/ 1,400</td><td class="py-1.5 px-3 text-center"><span class="bg-amber-100 text-amber-700 px-1.5 rounded text-[9px] font-bold">17d</span></td></tr>
+              <tr><td class="px-3"><input type="checkbox" /></td><td class="py-1.5 px-3 font-bold">Office Supplies</td><td class="py-1.5 px-3">F-44</td><td class="py-1.5 px-3">08-may</td><td class="py-1.5 px-3 text-right font-bold">S/ 240</td><td class="py-1.5 px-3 text-right text-slate-400">S/ 0</td><td class="py-1.5 px-3 text-center"><span class="bg-slate-100 text-slate-700 px-1.5 rounded text-[9px] font-bold">22d</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="bg-slate-50 border-t px-5 py-3 flex items-center justify-end gap-2">
+      <button class="text-[11px] font-semibold text-slate-600 hover:bg-slate-100 px-3 py-1.5 rounded-lg flex items-center gap-1"><i data-lucide="arrow-left" class="w-3 h-3"></i> Atrás</button>
+      <button class="text-[11px] font-semibold bg-amber-50 text-amber-700 border border-amber-200 px-3 py-1.5 rounded-lg">Borrador</button>
+      <button class="text-[11px] font-bold text-white bg-indigo-600 px-4 py-1.5 rounded-lg">Siguiente</button>
+    </div>
+  </div>
+
+  <!-- PASO 3 condensado -->
+  <div class="bg-indigo-50 ring-1 ring-indigo-200 rounded-xl p-4 text-[12px] text-indigo-900 flex items-start gap-2">
+    <i data-lucide="info" class="w-4 h-4 text-indigo-700 mt-0.5"></i>
+    <div><strong>PASO 3/4 · TC (skip):</strong> según Opción A (D7), todas las facturas seleccionadas son en PEN y cuenta origen es PEN · NO requiere TC. Salta directo al paso 4.</div>
+  </div>
+
+  <!-- PASO 4 -->
+  <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+    <div class="bg-indigo-50 border-b px-5 py-2"><span class="text-[10px] uppercase font-bold text-indigo-700">PASO 4/4 · Confirmar batch + generar archivo BCP</span></div>
+    <div class="grid grid-cols-12 min-h-[560px]">
+      <aside class="col-span-3 bg-slate-50/50 border-r p-4 space-y-1">
+        <div class="text-[10px] uppercase font-bold text-slate-500 mb-3">Pasos · Pagos masivos</div>
+        <div class="flex items-center gap-2 p-2 rounded-lg text-emerald-700"><span class="w-6 h-6 rounded-full bg-emerald-100 text-[11px] font-bold flex items-center justify-center"><i data-lucide="check" class="w-3 h-3"></i></span><span class="text-[12px]">BCP Soles</span></div>
+        <div class="flex items-center gap-2 p-2 rounded-lg text-emerald-700"><span class="w-6 h-6 rounded-full bg-emerald-100 text-[11px] font-bold flex items-center justify-center"><i data-lucide="check" class="w-3 h-3"></i></span><span class="text-[12px]">8 facts · S/ 6,420</span></div>
+        <div class="flex items-center gap-2 p-2 rounded-lg text-emerald-700"><span class="w-6 h-6 rounded-full bg-emerald-100 text-[11px] font-bold flex items-center justify-center"><i data-lucide="skip-forward" class="w-3 h-3"></i></span><span class="text-[12px]">TC skip · 1 moneda</span></div>
+        <div class="flex items-center gap-2 p-2 rounded-lg bg-indigo-50 ring-1 ring-indigo-200"><span class="w-6 h-6 rounded-full bg-indigo-600 text-white text-[11px] font-bold flex items-center justify-center">4</span><span class="text-[12px] font-bold">Confirmar</span></div>
+      </aside>
+      <div class="col-span-9 p-6 grid grid-cols-2 gap-4">
+        <!-- Resumen agrupado -->
+        <div>
+          <h3 class="text-[12px] font-bold mb-2">Tabla agrupada por proveedor</h3>
+          <div class="border border-slate-200 rounded-lg overflow-hidden">
+            <table class="w-full text-[11px]">
+              <thead class="bg-slate-50 text-[9px] uppercase font-bold text-slate-600"><tr><th class="text-left py-1.5 px-2">Proveedor</th><th class="text-center py-1.5 px-2">Facts</th><th class="text-right py-1.5 px-2">Monto</th><th class="text-left py-1.5 px-2">CCI</th></tr></thead>
+              <tbody class="divide-y divide-slate-100 tabular">
+                <tr><td class="py-1.5 px-2 font-bold">Logística PE</td><td class="py-1.5 px-2 text-center">2</td><td class="py-1.5 px-2 text-right font-bold">S/ 2,240</td><td class="py-1.5 px-2 text-[9px] text-emerald-700">✓ CCI registrado</td></tr>
+                <tr><td class="py-1.5 px-2 font-bold">Insumos SAC</td><td class="py-1.5 px-2 text-center">1</td><td class="py-1.5 px-2 text-right font-bold">S/ 2,400</td><td class="py-1.5 px-2 text-[9px] text-emerald-700">✓ CCI registrado</td></tr>
+                <tr><td class="py-1.5 px-2 font-bold">SaaS Local</td><td class="py-1.5 px-2 text-center">1</td><td class="py-1.5 px-2 text-right font-bold">S/ 380</td><td class="py-1.5 px-2 text-[9px] text-emerald-700">✓ CCI registrado</td></tr>
+                <tr><td class="py-1.5 px-2 font-bold">Marketing PE</td><td class="py-1.5 px-2 text-center">1</td><td class="py-1.5 px-2 text-right font-bold">S/ 1,400</td><td class="py-1.5 px-2 text-[9px] text-rose-700">⚠ Falta CCI</td></tr>
+              </tbody>
+              <tfoot class="bg-indigo-100 font-bold tabular"><tr><td colspan="2" class="py-1.5 px-2 text-right text-indigo-700">TOTAL:</td><td class="py-1.5 px-2 text-right text-indigo-900">S/ 6,420</td><td></td></tr></tfoot>
+            </table>
+          </div>
+          <div class="bg-rose-50 ring-1 ring-rose-200 rounded-lg p-2 mt-2 text-[10px] text-rose-900 flex items-start gap-1.5"><i data-lucide="alert-triangle" class="w-3 h-3 text-rose-700 mt-0.5"></i><span>Marketing PE no tiene CCI registrado · será excluido del archivo BCP o tendrás que ingresarlo ahora.</span></div>
+        </div>
+        <!-- Archivo BCP + ejecución -->
+        <div>
+          <h3 class="text-[12px] font-bold mb-2">Archivo BCP + ejecución</h3>
+          <div class="bg-slate-900 text-white rounded-xl p-4 mb-3">
+            <div class="text-[10px] uppercase text-slate-400">Saldo proyectado post-batch</div>
+            <div class="text-2xl font-bold tabular mt-1">S/ 35,760</div>
+            <div class="text-[10px] text-emerald-300">disponible · zona segura ✓</div>
+          </div>
+          <div class="space-y-2 text-[11px]">
+            <button class="w-full text-left p-3 bg-blue-50 ring-1 ring-blue-200 rounded-lg flex items-center gap-2"><i data-lucide="file-text" class="w-4 h-4 text-blue-700"></i><div class="flex-1"><div class="text-[11px] font-bold text-blue-900">Archivo BCP · planilla_15may.txt</div><div class="text-[10px] text-blue-700">Formato Tele-Crédito · 7 transf · listo para subir</div></div><button class="text-[10px] font-bold text-white bg-blue-600 px-2 py-1 rounded">Descargar</button></button>
+            <div class="bg-slate-50 rounded-lg p-2"><div class="text-[10px] uppercase font-bold text-slate-700 mb-1">¿Cuándo ejecutar?</div><div class="grid grid-cols-2 gap-1"><button class="text-[10px] font-bold bg-indigo-600 text-white px-2 py-1.5 rounded">Ejecutar ahora</button><button class="text-[10px] font-medium text-slate-700 bg-white border border-slate-200 px-2 py-1.5 rounded">Programar fecha</button></div></div>
+            <label class="flex items-center gap-2 p-2 text-[11px]"><input type="checkbox" checked class="rounded text-indigo-600" /><span>Notificar proveedores por email al ejecutar</span></label>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="bg-slate-50 border-t px-5 py-3 flex items-center justify-end gap-2">
+      <button class="text-[11px] font-semibold text-slate-600 hover:bg-slate-100 px-3 py-1.5 rounded-lg flex items-center gap-1"><i data-lucide="arrow-left" class="w-3 h-3"></i> Atrás</button>
+      <button class="text-[11px] font-semibold text-slate-600 hover:bg-slate-100 px-3 py-1.5 rounded-lg">Descartar</button>
+      <button class="text-[11px] font-semibold bg-amber-50 text-amber-700 border border-amber-200 px-3 py-1.5 rounded-lg">Borrador</button>
+      <button class="text-[11px] font-bold text-white bg-indigo-600 px-4 py-1.5 rounded-lg flex items-center gap-1.5 shadow-sm"><i data-lucide="check" class="w-3 h-3"></i> Ejecutar batch 8 pagos</button>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="bg-slate-900 text-slate-300 mt-12 py-6"><div class="max-w-[1400px] mx-auto px-6 text-[11px] flex items-center justify-between"><div>MOCK 12 · Wizards multi-step completos · 11 pasos pixel-perfect</div><div>Turno 4 cierre · cobertura ~75%</div></div></footer>
+<script>lucide.createIcons();</script>
+</body>
+</html>

@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Finanzas · Integraciones detalladas · v5.1 (Venta · Envío · Gasto)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, sans-serif; }
+    .tabular { font-variant-numeric: tabular-nums; font-feature-settings: "tnum"; }
+    .cf-arrow::after { content: '→'; position: absolute; right: -14px; top: 50%; transform: translateY(-50%); color: #cbd5e1; font-size: 18px; z-index: 5; }
+  </style>
+</head>
+<body class="bg-slate-100 text-slate-900">
+
+<header class="bg-slate-900 text-white sticky top-0 z-50 shadow-lg">
+  <div class="max-w-[1400px] mx-auto px-6 py-3 flex items-center justify-between">
+    <div>
+      <div class="text-[10px] uppercase tracking-wider text-teal-300">chk5.D-S1e · TURNO 5 cierre</div>
+      <div class="text-base font-bold">MOCK 14 · Integraciones detalladas · Panel Venta + Envío + Gasto pixel-perfect</div>
+    </div>
+    <nav class="hidden md:flex items-center gap-1 text-[11px]">
+      <a href="finanzas-shell-overview-v5.1.html" class="px-2 py-1 hover:bg-slate-700 rounded text-slate-300">1-12</a>
+      <a href="finanzas-pago-unificado-form-4modos-v5.1.html" class="px-2 py-1 hover:bg-slate-700 rounded text-slate-300">13</a>
+      <span class="px-2 py-1 bg-teal-600 rounded text-white font-semibold">14</span>
+    </nav>
+  </div>
+</header>
+
+<main class="max-w-[1400px] mx-auto px-6 py-8 space-y-12">
+
+<!-- §1 · INTRO -->
+<section class="space-y-4">
+  <div class="flex items-center gap-2"><span class="text-[10px] uppercase tracking-wider font-bold text-slate-500">§ 1 · 3 panels embebidos pixel-perfect · OC ya en MOCK 5</span><div class="flex-1 h-px bg-slate-200"></div></div>
+  <p class="text-sm text-slate-600 max-w-3xl">Cada módulo consumidor (Venta · Envío · Gasto) integra <strong>PagoUnificadoForm v3</strong> como panel embebido en una tab interna dedicada. Mantiene contexto del documento padre · evita salto a /finanzas para operaciones de pago/cobro asociadas al doc específico.</p>
+</section>
+
+<!-- §2 · PANEL VENTA -->
+<section class="space-y-4">
+  <div class="flex items-center gap-2"><span class="text-[10px] uppercase tracking-wider font-bold text-fuchsia-700">§ 2 · Panel "Cobros" embebido en detalle Venta · tinte fuchsia</span><div class="flex-1 h-px bg-fuchsia-200"></div></div>
+
+  <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+    <!-- Contexto módulo Venta -->
+    <div class="bg-gradient-to-br from-fuchsia-50 to-fuchsia-100/40 border-b border-fuchsia-200 px-5 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-fuchsia-500 to-fuchsia-700 flex items-center justify-center text-white ring-2 ring-fuchsia-200"><i data-lucide="shopping-cart" class="w-4 h-4"></i></div>
+        <div>
+          <div class="text-[10px] uppercase tracking-wider text-fuchsia-700 font-bold">/ventas/V-2026-512 (módulo Venta · contexto)</div>
+          <div class="text-[15px] font-bold text-slate-900">V-2026-512 · Cliente Premium SA · S/ 2,400</div>
+          <div class="text-[10px] text-slate-500">8 productos · entregado vía GK Xpress · 12-may</div>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <span class="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-bold">Entregada</span>
+        <span class="text-[10px] bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-bold">60% cobrada</span>
+      </div>
+    </div>
+
+    <!-- Pipeline Venta 4 stages -->
+    <div class="px-5 py-3 border-b bg-slate-50/30">
+      <div class="flex items-stretch gap-3">
+        <div class="cf-arrow flex-1 bg-emerald-50 ring-1 ring-emerald-200 rounded-lg p-2 text-center relative"><div class="text-[8px] uppercase font-bold text-emerald-700">Pedido</div><div class="text-[11px] font-bold text-emerald-900">✓ 10-may</div></div>
+        <div class="cf-arrow flex-1 bg-emerald-50 ring-1 ring-emerald-200 rounded-lg p-2 text-center relative"><div class="text-[8px] uppercase font-bold text-emerald-700">Despachado</div><div class="text-[11px] font-bold text-emerald-900">✓ 12-may</div></div>
+        <div class="cf-arrow flex-1 bg-emerald-50 ring-1 ring-emerald-200 rounded-lg p-2 text-center relative"><div class="text-[8px] uppercase font-bold text-emerald-700">Entregado</div><div class="text-[11px] font-bold text-emerald-900">✓ 13-may</div></div>
+        <div class="flex-1 bg-amber-50 ring-2 ring-amber-500 rounded-lg p-2 text-center"><div class="text-[8px] uppercase font-bold text-amber-700">Cobrado</div><div class="text-[11px] font-bold text-amber-900">60% · S/ 1,440</div></div>
+      </div>
+    </div>
+
+    <!-- KPI strip Venta -->
+    <div class="grid grid-cols-4 divide-x divide-slate-200 border-b">
+      <div class="px-4 py-3"><div class="text-[9px] uppercase font-bold text-slate-500">Total venta</div><div class="text-lg font-bold tabular text-slate-900">S/ 2,400</div></div>
+      <div class="px-4 py-3"><div class="text-[9px] uppercase font-bold text-emerald-700">Cobrado</div><div class="text-lg font-bold tabular text-emerald-900">S/ 1,440</div><div class="text-[9px] text-emerald-700">60% · 11-may</div></div>
+      <div class="px-4 py-3"><div class="text-[9px] uppercase font-bold text-purple-700">En tránsito GK</div><div class="text-lg font-bold tabular text-purple-900">S/ 1,440</div><div class="text-[9px] text-purple-700">vía Caja Recaudadora · pendiente liq.</div></div>
+      <div class="px-4 py-3"><div class="text-[9px] uppercase font-bold text-rose-700">Saldo cobrar</div><div class="text-lg font-bold tabular text-rose-900">S/ 960</div><div class="text-[9px] text-rose-700">vence 28-may · 13d</div></div>
+    </div>
+
+    <!-- Tabs internas Venta -->
+    <div class="border-b border-slate-200 px-5">
+      <div class="flex items-center gap-1 -mb-px">
+        <button class="px-4 py-2.5 text-[11px] font-medium border-b-2 border-transparent text-slate-600 hover:text-slate-900">Resumen</button>
+        <button class="px-4 py-2.5 text-[11px] font-medium border-b-2 border-transparent text-slate-600 hover:text-slate-900">Productos</button>
+        <button class="px-4 py-2.5 text-[11px] font-medium border-b-2 border-transparent text-slate-600 hover:text-slate-900">Entrega · GK Xpress</button>
+        <button class="px-4 py-2.5 text-[11px] font-semibold border-b-2 border-fuchsia-600 text-fuchsia-700 flex items-center gap-1.5"><i data-lucide="arrow-down-circle" class="w-3.5 h-3.5"></i> Cobros y Tesorería</button>
+        <button class="px-4 py-2.5 text-[11px] font-medium border-b-2 border-transparent text-slate-600 hover:text-slate-900">Documentos</button>
+      </div>
+    </div>
+
+    <!-- PANEL TESORERÍA EMBEBIDO -->
+    <div class="grid grid-cols-3 gap-5 p-5 bg-slate-50/30">
+      <!-- Col 1 · histórico cobros -->
+      <div class="space-y-3">
+        <div class="text-[10px] uppercase tracking-wider font-bold text-slate-700 flex items-center gap-1.5"><i data-lucide="history" class="w-3.5 h-3.5"></i> Cobros recibidos</div>
+        <div class="bg-white border border-emerald-200 rounded-xl p-3">
+          <div class="flex items-center justify-between mb-2"><span class="text-[11px] font-bold text-emerald-900">Cobro 60% adelanto</span><span class="text-[10px] bg-emerald-100 text-emerald-700 px-1.5 rounded font-bold">Cobrado</span></div>
+          <div class="text-[14px] font-bold tabular text-emerald-900">S/ 1,440</div>
+          <div class="text-[10px] text-slate-500 mt-1 space-y-0.5">
+            <div>11-may · vía Yape GK Xpress</div>
+            <div>Canal: <strong class="text-purple-700">YAPE</strong> · acumulado en Caja Recaudadora</div>
+            <div>Liquidación pendiente al BCP</div>
+          </div>
+          <a class="text-[10px] text-teal-700 hover:underline mt-2 inline-flex items-center gap-0.5"><i data-lucide="external-link" class="w-2.5 h-2.5"></i> Ver MOV-2026-0432 en Finanzas</a>
+        </div>
+        <!-- Cobro pendiente -->
+        <div class="bg-white border border-amber-200 border-dashed rounded-xl p-3">
+          <div class="flex items-center justify-between mb-2"><span class="text-[11px] font-bold text-amber-900">Saldo 40%</span><span class="text-[10px] bg-amber-100 text-amber-700 px-1.5 rounded font-bold">Pendiente</span></div>
+          <div class="text-[14px] font-bold tabular text-amber-900">S/ 960</div>
+          <div class="text-[10px] text-slate-500 mt-1">Vence 28-may · 13 días</div>
+          <button class="text-[10px] font-bold text-white bg-amber-600 hover:bg-amber-700 px-2 py-1 rounded mt-2 inline-flex items-center gap-1"><i data-lucide="bell" class="w-2.5 h-2.5"></i> Recordatorio cliente</button>
+        </div>
+      </div>
+
+      <!-- Col 2-3 · PagoUnificadoForm modo Cobro embebido -->
+      <div class="col-span-2">
+        <div class="text-[10px] uppercase tracking-wider font-bold text-slate-700 mb-2 flex items-center gap-1.5"><i data-lucide="plus-circle" class="w-3.5 h-3.5"></i> Registrar cobro del saldo · PagoUnificadoForm v3 modo Cobro</div>
+        <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden">
+          <div class="bg-gradient-to-br from-emerald-50 to-emerald-100/40 px-4 py-2 border-b border-emerald-200 flex items-center gap-2">
+            <i data-lucide="arrow-down-circle" class="w-3.5 h-3.5 text-emerald-700"></i>
+            <span class="text-[11px] font-bold text-slate-900">Cobro (modo preseleccionado)</span>
+            <span class="text-[9px] bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded ml-auto font-bold">cliente: Premium SA</span>
+          </div>
+          <div class="p-4 space-y-3 text-[11px]">
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <label class="text-[10px] uppercase font-bold text-slate-700 mb-1 block">Origen (cómo paga el cliente)</label>
+                <select class="w-full border border-slate-300 rounded-lg px-2 py-1.5 text-sm bg-emerald-50">
+                  <option>Cliente · Yape GK Xpress (default · cliente prefiere)</option>
+                  <option>Cliente · Transferencia BCP directa</option>
+                  <option>Cliente · POS Niubiz GK Xpress</option>
+                  <option>Cliente · Efectivo (entrega rider)</option>
+                </select>
+              </div>
+              <div>
+                <label class="text-[10px] uppercase font-bold text-slate-700 mb-1 block">Destino (cuenta empresa)</label>
+                <select class="w-full border border-slate-300 rounded-lg px-2 py-1.5 text-sm bg-teal-50">
+                  <option>Caja Recaudadora GK Xpress (si pago vía GK)</option>
+                  <option>BCP Soles Operativa (si transferencia directa)</option>
+                </select>
+              </div>
+              <div>
+                <label class="text-[10px] uppercase font-bold text-slate-700 mb-1 block">Monto</label>
+                <div class="relative"><span class="absolute left-2 top-1.5 text-slate-500 text-sm">S/</span><input type="text" value="960.00" class="w-full border border-slate-300 rounded-lg pl-7 pr-2 py-1.5 text-sm tabular text-right font-bold" /></div>
+              </div>
+              <div>
+                <label class="text-[10px] uppercase font-bold text-slate-700 mb-1 block">Método</label>
+                <select class="w-full border border-slate-300 rounded-lg px-2 py-1.5 text-sm"><option>Yape</option><option>Transferencia</option><option>Efectivo</option></select>
+              </div>
+            </div>
+            <!-- Split auto a saldo venta -->
+            <div class="bg-slate-50 rounded-lg p-2.5">
+              <div class="text-[10px] font-bold text-slate-700 mb-1.5">Aplicar a (auto-pre-cargado)</div>
+              <div class="bg-white rounded border border-slate-200 p-2 flex items-center justify-between">
+                <span class="text-[11px] font-bold">V-2026-512 · saldo 40%</span>
+                <span class="text-[11px] font-bold tabular text-emerald-900">S/ 960</span>
+              </div>
+            </div>
+            <!-- Banner GK Recaudador -->
+            <div class="bg-purple-50 ring-1 ring-purple-200/50 rounded-lg p-2 flex items-start gap-2">
+              <i data-lucide="truck" class="w-3 h-3 text-purple-700 mt-0.5"></i>
+              <div class="text-[10px] text-purple-900"><strong>Si cobra GK Xpress:</strong> entra a Caja Recaudadora · se acumula con otros cobros · se liquida quincenal al BCP.</div>
+            </div>
+          </div>
+          <div class="bg-slate-50 border-t border-slate-200 px-4 py-2 flex items-center justify-between">
+            <button class="text-[10px] font-semibold text-slate-600 hover:bg-slate-100 px-2 py-1 rounded">Cancelar</button>
+            <div class="flex items-center gap-1.5">
+              <button class="text-[10px] font-semibold bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100 px-2 py-1 rounded-lg flex items-center gap-1"><i data-lucide="save" class="w-3 h-3"></i> Borrador</button>
+              <button class="text-[10px] font-bold text-white bg-fuchsia-600 hover:bg-fuchsia-700 px-3 py-1 rounded-lg flex items-center gap-1"><i data-lucide="check" class="w-3 h-3"></i> Registrar cobro</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- §3 · PANEL ENVÍO -->
+<section class="space-y-4">
+  <div class="flex items-center gap-2"><span class="text-[10px] uppercase tracking-wider font-bold text-indigo-700">§ 3 · Panel "Pago a colaborador" embebido en detalle Envío · tinte indigo · cross-link Caja Recaudadora</span><div class="flex-1 h-px bg-indigo-200"></div></div>
+
+  <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+    <div class="bg-gradient-to-br from-indigo-50 to-indigo-100/40 border-b border-indigo-200 px-5 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-700 flex items-center justify-center text-white ring-2 ring-indigo-200"><i data-lucide="package-2" class="w-4 h-4"></i></div>
+        <div>
+          <div class="text-[10px] uppercase tracking-wider text-indigo-700 font-bold">/envios/ENV-2026-127 (módulo Envío · contexto)</div>
+          <div class="text-[15px] font-bold text-slate-900">ENV-2026-127 · Distrib. Lima Norte · 3 paquetes</div>
+          <div class="text-[10px] text-slate-500">Vinculado a V-2026-512 · transportista GK Xpress · entregado 13-may</div>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <span class="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-bold">Entregado</span>
+        <span class="text-[10px] bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-bold">Servicio acumulado en Caja</span>
+      </div>
+    </div>
+
+    <!-- Pipeline Envío 4 stages -->
+    <div class="px-5 py-3 border-b bg-slate-50/30">
+      <div class="flex items-stretch gap-3">
+        <div class="cf-arrow flex-1 bg-emerald-50 ring-1 ring-emerald-200 rounded-lg p-2 text-center relative"><div class="text-[8px] uppercase font-bold text-emerald-700">Asignado</div><div class="text-[11px] font-bold text-emerald-900">✓ 10-may</div></div>
+        <div class="cf-arrow flex-1 bg-emerald-50 ring-1 ring-emerald-200 rounded-lg p-2 text-center relative"><div class="text-[8px] uppercase font-bold text-emerald-700">Recogido</div><div class="text-[11px] font-bold text-emerald-900">✓ 12-may</div></div>
+        <div class="cf-arrow flex-1 bg-emerald-50 ring-1 ring-emerald-200 rounded-lg p-2 text-center relative"><div class="text-[8px] uppercase font-bold text-emerald-700">Entregado</div><div class="text-[11px] font-bold text-emerald-900">✓ 13-may</div></div>
+        <div class="flex-1 bg-amber-50 ring-2 ring-amber-500 rounded-lg p-2 text-center"><div class="text-[8px] uppercase font-bold text-amber-700">Pagado colab</div><div class="text-[11px] font-bold text-amber-900">acumulado en Caja</div></div>
+      </div>
+    </div>
+
+    <!-- KPI strip Envío -->
+    <div class="grid grid-cols-4 divide-x divide-slate-200 border-b">
+      <div class="px-4 py-3"><div class="text-[9px] uppercase font-bold text-slate-500">Flete acordado</div><div class="text-lg font-bold tabular text-slate-900">S/ 25</div><div class="text-[9px] text-slate-500">Tarifa GK · S/ 25 × carrera</div></div>
+      <div class="px-4 py-3"><div class="text-[9px] uppercase font-bold text-purple-700">Pago colab</div><div class="text-lg font-bold tabular text-purple-900">S/ 25</div><div class="text-[9px] text-purple-700">Pendiente en Caja</div></div>
+      <div class="px-4 py-3"><div class="text-[9px] uppercase font-bold text-amber-700">Liquidación</div><div class="text-lg font-bold tabular text-amber-900">31-may</div><div class="text-[9px] text-amber-700">próx quincenal</div></div>
+      <div class="px-4 py-3"><div class="text-[9px] uppercase font-bold text-emerald-700">Cobro venta vinculada</div><div class="text-lg font-bold tabular text-emerald-900">60%</div><div class="text-[9px] text-emerald-700">vía recaudación</div></div>
+    </div>
+
+    <!-- Tabs internas Envío -->
+    <div class="border-b border-slate-200 px-5">
+      <div class="flex items-center gap-1 -mb-px">
+        <button class="px-4 py-2.5 text-[11px] font-medium border-b-2 border-transparent text-slate-600 hover:text-slate-900">Resumen</button>
+        <button class="px-4 py-2.5 text-[11px] font-medium border-b-2 border-transparent text-slate-600 hover:text-slate-900">Paquetes · 3</button>
+        <button class="px-4 py-2.5 text-[11px] font-medium border-b-2 border-transparent text-slate-600 hover:text-slate-900">Tracking</button>
+        <button class="px-4 py-2.5 text-[11px] font-semibold border-b-2 border-indigo-600 text-indigo-700 flex items-center gap-1.5"><i data-lucide="users" class="w-3.5 h-3.5"></i> Pago colaborador</button>
+        <button class="px-4 py-2.5 text-[11px] font-medium border-b-2 border-transparent text-slate-600 hover:text-slate-900">Documentos</button>
+      </div>
+    </div>
+
+    <!-- PANEL TESORERÍA EMBEBIDO -->
+    <div class="grid grid-cols-3 gap-5 p-5 bg-slate-50/30">
+      <!-- Col 1 · contexto del colaborador -->
+      <div class="space-y-3">
+        <div class="text-[10px] uppercase tracking-wider font-bold text-slate-700 flex items-center gap-1.5"><i data-lucide="user" class="w-3.5 h-3.5"></i> Colaborador asignado</div>
+        <div class="bg-purple-50 ring-1 ring-purple-200 rounded-xl p-3">
+          <div class="flex items-center gap-2 mb-2">
+            <div class="w-10 h-10 rounded-full bg-purple-600 text-white flex items-center justify-center text-[11px] font-bold">GK</div>
+            <div class="min-w-0 flex-1"><div class="text-[12px] font-bold text-purple-900">GK Xpress (Carlos M.)</div><div class="text-[10px] text-purple-700">Recaudador · 90% envíos</div></div>
+          </div>
+          <div class="text-[10px] text-purple-700 space-y-0.5">
+            <div><strong>Tarifa:</strong> S/ 25 × carrera</div>
+            <div><strong>Modalidad pago:</strong> acumulado en Caja Recaudadora</div>
+            <div><strong>Liquidación:</strong> quincenal · próxima 31-may</div>
+          </div>
+          <a class="text-[10px] text-purple-800 hover:underline mt-2 inline-flex items-center gap-0.5"><i data-lucide="external-link" class="w-2.5 h-2.5"></i> Ver Caja Recaudadora</a>
+        </div>
+        <!-- Banner CRÍTICO cross-link -->
+        <div class="bg-amber-50 ring-2 ring-amber-300 rounded-xl p-3">
+          <div class="flex items-center gap-2 mb-2">
+            <i data-lucide="alert-circle" class="w-4 h-4 text-amber-700"></i>
+            <span class="text-[11px] font-bold text-amber-900">Atención · pago va a Caja</span>
+          </div>
+          <div class="text-[10px] text-amber-700 mb-2">El flete NO se transfiere ahora · se acumula con otros servicios pendientes en Caja Recaudadora GK Xpress.</div>
+          <div class="bg-white rounded p-2 text-[10px] tabular space-y-0.5">
+            <div class="flex justify-between"><span>Saldo Caja antes:</span><span class="font-bold">S/ 2,840</span></div>
+            <div class="flex justify-between text-rose-700"><span>+ Este servicio:</span><span class="font-bold">+ S/ 25</span></div>
+            <div class="flex justify-between border-t border-amber-200 pt-1 mt-1"><span class="font-bold">Saldo Caja después:</span><span class="font-bold text-amber-900">S/ 2,865</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Col 2-3 · PagoUnificadoForm modo Pago Colaborador -->
+      <div class="col-span-2">
+        <div class="text-[10px] uppercase tracking-wider font-bold text-slate-700 mb-2 flex items-center gap-1.5"><i data-lucide="plus-circle" class="w-3.5 h-3.5"></i> Acumular servicio en Caja · PagoUnificadoForm v3 modo Pago colaborador</div>
+        <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden">
+          <div class="bg-gradient-to-br from-purple-50 to-purple-100/40 px-4 py-2 border-b border-purple-200 flex items-center gap-2">
+            <i data-lucide="users" class="w-3.5 h-3.5 text-purple-700"></i>
+            <span class="text-[11px] font-bold text-slate-900">Pago colaborador (modo preseleccionado)</span>
+            <span class="text-[9px] bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded ml-auto font-bold">colab: GK Xpress</span>
+          </div>
+          <div class="p-4 space-y-3 text-[11px]">
+            <div class="grid grid-cols-3 gap-2">
+              <div>
+                <label class="text-[10px] uppercase font-bold text-slate-700 mb-1 block">Modalidad</label>
+                <select class="w-full border border-slate-300 rounded-lg px-2 py-1.5 text-sm bg-purple-50">
+                  <option>A Caja Recaudadora (default)</option>
+                  <option>Transferencia directa (excepcional)</option>
+                  <option>Efectivo (excepcional)</option>
+                </select>
+              </div>
+              <div>
+                <label class="text-[10px] uppercase font-bold text-slate-700 mb-1 block">Monto</label>
+                <div class="relative"><span class="absolute left-2 top-1.5 text-slate-500 text-sm">S/</span><input type="text" value="25.00" class="w-full border border-slate-300 rounded-lg pl-7 pr-2 py-1.5 text-sm tabular text-right font-bold" /></div>
+              </div>
+              <div>
+                <label class="text-[10px] uppercase font-bold text-slate-700 mb-1 block">Fecha</label>
+                <input type="date" value="2026-05-13" class="w-full border border-slate-300 rounded-lg px-2 py-1.5 text-sm" />
+              </div>
+            </div>
+            <!-- Servicio aplicado -->
+            <div class="bg-slate-50 rounded-lg p-2.5">
+              <div class="text-[10px] font-bold text-slate-700 mb-1.5">Servicio aplicado a envío</div>
+              <div class="bg-white rounded border border-purple-200 p-2 flex items-center justify-between">
+                <span class="text-[11px] font-bold">ENV-2026-127 · 1 carrera</span>
+                <span class="text-[11px] font-bold tabular text-purple-900">S/ 25</span>
+              </div>
+            </div>
+            <!-- Banner -->
+            <div class="bg-amber-50 ring-1 ring-amber-200/50 rounded-lg p-2 flex items-start gap-2">
+              <i data-lucide="info" class="w-3 h-3 text-amber-700 mt-0.5"></i>
+              <div class="text-[10px] text-amber-900"><strong>NO se ejecuta transferencia ahora.</strong> El monto se reconoce como servicio del recaudador · se descuenta en próxima liquidación de Caja Recaudadora GK Xpress (31-may estimado).</div>
+            </div>
+          </div>
+          <div class="bg-slate-50 border-t border-slate-200 px-4 py-2 flex items-center justify-between">
+            <button class="text-[10px] font-semibold text-slate-600 hover:bg-slate-100 px-2 py-1 rounded">Cancelar</button>
+            <div class="flex items-center gap-1.5">
+              <button class="text-[10px] font-semibold bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100 px-2 py-1 rounded-lg flex items-center gap-1"><i data-lucide="save" class="w-3 h-3"></i> Borrador</button>
+              <button class="text-[10px] font-bold text-white bg-indigo-600 hover:bg-indigo-700 px-3 py-1 rounded-lg flex items-center gap-1"><i data-lucide="check" class="w-3 h-3"></i> Acumular en Caja</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- §4 · PANEL GASTO -->
+<section class="space-y-4">
+  <div class="flex items-center gap-2"><span class="text-[10px] uppercase tracking-wider font-bold text-amber-700">§ 4 · Panel "Pago" embebido en detalle Gasto · tinte amber · pipeline simple 3 stages</span><div class="flex-1 h-px bg-amber-200"></div></div>
+
+  <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+    <div class="bg-gradient-to-br from-amber-50 to-amber-100/40 border-b border-amber-200 px-5 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center text-white ring-2 ring-amber-200"><i data-lucide="receipt" class="w-4 h-4"></i></div>
+        <div>
+          <div class="text-[10px] uppercase tracking-wider text-amber-700 font-bold">/gastos/G-2026-200 (módulo Gasto · contexto)</div>
+          <div class="text-[15px] font-bold text-slate-900">G-2026-200 · Movistar mensual · S/ 280</div>
+          <div class="text-[10px] text-slate-500">Plan empresa · recurrente · vencimiento día 18 cada mes</div>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <span class="text-[10px] bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-bold animate-pulse">Vence 3d</span>
+        <span class="text-[10px] bg-slate-100 text-slate-700 px-2 py-0.5 rounded-full font-bold">Recurrente</span>
+      </div>
+    </div>
+
+    <!-- Pipeline simple 3 stages (gasto) -->
+    <div class="px-5 py-3 border-b bg-slate-50/30">
+      <div class="flex items-stretch gap-3">
+        <div class="cf-arrow flex-1 bg-emerald-50 ring-1 ring-emerald-200 rounded-lg p-2 text-center relative"><div class="text-[8px] uppercase font-bold text-emerald-700">Registrado</div><div class="text-[11px] font-bold text-emerald-900">✓ 01-may</div></div>
+        <div class="cf-arrow flex-1 bg-amber-50 ring-2 ring-amber-500 rounded-lg p-2 text-center relative"><div class="text-[8px] uppercase font-bold text-amber-700">Por pagar</div><div class="text-[11px] font-bold text-amber-900">vence 18-may</div></div>
+        <div class="flex-1 bg-slate-50 ring-1 ring-slate-200 rounded-lg p-2 text-center"><div class="text-[8px] uppercase font-bold text-slate-500">Pagado</div><div class="text-[11px] font-bold text-slate-400">—</div></div>
+      </div>
+    </div>
+
+    <!-- KPI strip Gasto (3 cols vs 4 de otros) -->
+    <div class="grid grid-cols-3 divide-x divide-slate-200 border-b">
+      <div class="px-4 py-3"><div class="text-[9px] uppercase font-bold text-slate-500">Total gasto</div><div class="text-lg font-bold tabular text-slate-900">S/ 280</div><div class="text-[9px] text-slate-500">Servicio Telefónico</div></div>
+      <div class="px-4 py-3"><div class="text-[9px] uppercase font-bold text-emerald-700">Pagado</div><div class="text-lg font-bold tabular text-slate-400">S/ 0</div><div class="text-[9px] text-slate-500">Sin pagos aún</div></div>
+      <div class="px-4 py-3"><div class="text-[9px] uppercase font-bold text-rose-700">Vence en</div><div class="text-lg font-bold tabular text-rose-900">3 días</div><div class="text-[9px] text-rose-700">18-may · urgente</div></div>
+    </div>
+
+    <!-- Tabs internas Gasto -->
+    <div class="border-b border-slate-200 px-5">
+      <div class="flex items-center gap-1 -mb-px">
+        <button class="px-4 py-2.5 text-[11px] font-medium border-b-2 border-transparent text-slate-600">Resumen</button>
+        <button class="px-4 py-2.5 text-[11px] font-medium border-b-2 border-transparent text-slate-600">Detalle factura</button>
+        <button class="px-4 py-2.5 text-[11px] font-semibold border-b-2 border-amber-600 text-amber-700 flex items-center gap-1.5"><i data-lucide="banknote" class="w-3.5 h-3.5"></i> Pago</button>
+        <button class="px-4 py-2.5 text-[11px] font-medium border-b-2 border-transparent text-slate-600">Recurrencia</button>
+      </div>
+    </div>
+
+    <!-- PANEL TESORERÍA EMBEBIDO -->
+    <div class="grid grid-cols-3 gap-5 p-5 bg-slate-50/30">
+      <!-- Col 1 · contexto + alerta -->
+      <div class="space-y-3">
+        <div class="bg-rose-50 ring-2 ring-rose-300 rounded-xl p-3">
+          <div class="flex items-center gap-2 mb-2"><i data-lucide="alert-triangle" class="w-4 h-4 text-rose-700"></i><span class="text-[11px] font-bold text-rose-900">Pago urgente</span></div>
+          <div class="text-[10px] text-rose-700 mb-2">Vence en <strong>3 días</strong>. Si no se paga antes del 18-may, Movistar puede suspender el servicio.</div>
+          <div class="bg-white rounded p-2 text-[10px] space-y-0.5">
+            <div class="flex justify-between"><span>Día corte:</span><span class="font-bold tabular">15 cada mes</span></div>
+            <div class="flex justify-between"><span>Día vencimiento:</span><span class="font-bold tabular text-rose-700">18 cada mes</span></div>
+            <div class="flex justify-between"><span>Próximo recibo:</span><span class="font-bold">15-jun-2026</span></div>
+          </div>
+        </div>
+        <!-- Histórico recurrente -->
+        <div class="bg-white border border-slate-200 rounded-xl p-3">
+          <div class="text-[10px] uppercase font-bold text-slate-700 mb-2 flex items-center gap-1.5"><i data-lucide="history" class="w-3.5 h-3.5"></i> Pagos previos · recurrente</div>
+          <div class="space-y-1 text-[10px]">
+            <div class="flex justify-between p-1.5 bg-emerald-50 rounded"><span class="text-slate-700">Abr-26 · 18-abr</span><span class="font-bold tabular text-emerald-700">S/ 280 ✓</span></div>
+            <div class="flex justify-between p-1.5 bg-emerald-50 rounded"><span class="text-slate-700">Mar-26 · 16-mar</span><span class="font-bold tabular text-emerald-700">S/ 280 ✓</span></div>
+            <div class="flex justify-between p-1.5 bg-emerald-50 rounded"><span class="text-slate-700">Feb-26 · 18-feb</span><span class="font-bold tabular text-emerald-700">S/ 280 ✓</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Col 2-3 · PagoUnificadoForm modo Pago Simple -->
+      <div class="col-span-2">
+        <div class="text-[10px] uppercase tracking-wider font-bold text-slate-700 mb-2 flex items-center gap-1.5"><i data-lucide="plus-circle" class="w-3.5 h-3.5"></i> Registrar pago · PagoUnificadoForm v3 modo Pago simple</div>
+        <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden">
+          <div class="bg-gradient-to-br from-rose-50 to-rose-100/40 px-4 py-2 border-b border-rose-200 flex items-center gap-2">
+            <i data-lucide="arrow-up-circle" class="w-3.5 h-3.5 text-rose-700"></i>
+            <span class="text-[11px] font-bold text-slate-900">Pago simple (modo preseleccionado · gasto recurrente sin tercero estructurado)</span>
+          </div>
+          <div class="p-4 space-y-3 text-[11px]">
+            <div>
+              <label class="text-[10px] uppercase font-bold text-slate-700 mb-1 block">Concepto (auto del contexto)</label>
+              <input type="text" value="Movistar mensual · plan empresa · período mayo" class="w-full border border-slate-200 rounded-lg px-2 py-1.5 text-sm bg-slate-50" />
+            </div>
+            <div class="grid grid-cols-3 gap-2">
+              <div>
+                <label class="text-[10px] uppercase font-bold text-slate-700 mb-1 block">Cuenta origen</label>
+                <select class="w-full border border-slate-300 rounded-lg px-2 py-1.5 text-sm bg-rose-50">
+                  <option>BCP Soles Operativa</option>
+                  <option>Caja chica</option>
+                </select>
+              </div>
+              <div>
+                <label class="text-[10px] uppercase font-bold text-slate-700 mb-1 block">Monto</label>
+                <div class="relative"><span class="absolute left-2 top-1.5 text-slate-500 text-sm">S/</span><input type="text" value="280.00" class="w-full border border-slate-300 rounded-lg pl-7 pr-2 py-1.5 text-sm tabular text-right font-bold" /></div>
+              </div>
+              <div>
+                <label class="text-[10px] uppercase font-bold text-slate-700 mb-1 block">Método</label>
+                <select class="w-full border border-slate-300 rounded-lg px-2 py-1.5 text-sm"><option>Débito automático</option><option>Transferencia</option><option>Yape</option></select>
+              </div>
+            </div>
+            <!-- Sin split · auto a gasto -->
+            <div class="bg-slate-50 rounded-lg p-2.5">
+              <div class="text-[10px] font-bold text-slate-700 mb-1.5">Aplica a (auto · sin split en modo simple)</div>
+              <div class="bg-white rounded border border-amber-200 p-2 flex items-center justify-between">
+                <span class="text-[11px] font-bold">G-2026-200 · Movistar mensual</span>
+                <span class="text-[11px] font-bold tabular text-amber-900">S/ 280 ✓ total</span>
+              </div>
+            </div>
+            <!-- Opcional recurrencia -->
+            <label class="flex items-center gap-2 p-2 bg-indigo-50 ring-1 ring-indigo-200 rounded-lg text-[11px]"><input type="checkbox" checked class="rounded text-indigo-600" /><span><strong>Programar recordatorio automático</strong> próximo recibo (15-jun)</span></label>
+          </div>
+          <div class="bg-slate-50 border-t border-slate-200 px-4 py-2 flex items-center justify-between">
+            <button class="text-[10px] font-semibold text-slate-600 hover:bg-slate-100 px-2 py-1 rounded">Cancelar</button>
+            <div class="flex items-center gap-1.5">
+              <button class="text-[10px] font-semibold bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100 px-2 py-1 rounded-lg flex items-center gap-1"><i data-lucide="save" class="w-3 h-3"></i> Borrador</button>
+              <button class="text-[10px] font-bold text-white bg-amber-600 hover:bg-amber-700 px-3 py-1 rounded-lg flex items-center gap-1"><i data-lucide="check" class="w-3 h-3"></i> Registrar pago</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- §5 · TABLA COMPARATIVA + CANON -->
+<section class="space-y-4">
+  <div class="flex items-center gap-2"><span class="text-[10px] uppercase tracking-wider font-bold text-slate-500">§ 5 · Tabla comparativa 4 panels embebidos + canon</span><div class="flex-1 h-px bg-slate-200"></div></div>
+  <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-5">
+    <h3 class="text-sm font-bold text-slate-900 mb-3">Cobertura cross-módulo completa</h3>
+    <table class="w-full text-[11px]">
+      <thead class="bg-slate-50 text-slate-600 uppercase text-[10px] font-bold">
+        <tr><th class="text-left py-2 px-3">Módulo</th><th class="text-left py-2 px-3">Tinte</th><th class="text-left py-2 px-3">Tab activa</th><th class="text-left py-2 px-3">Modo PUF v3</th><th class="text-left py-2 px-3">Pipeline</th><th class="text-left py-2 px-3">Particularidad</th></tr>
+      </thead>
+      <tbody class="divide-y divide-slate-100">
+        <tr><td class="py-2 px-3 font-bold text-blue-700">OC (MOCK 5)</td><td class="py-2 px-3"><span class="bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-[10px] font-bold">blue</span></td><td class="py-2 px-3">Pagos y Tesorería</td><td class="py-2 px-3">Pago proveedor</td><td class="py-2 px-3">5 stages</td><td class="py-2 px-3 text-slate-700">Pool USD multi-cuenta · TCPA · diferencial FX</td></tr>
+        <tr><td class="py-2 px-3 font-bold text-fuchsia-700">Venta</td><td class="py-2 px-3"><span class="bg-fuchsia-100 text-fuchsia-700 px-2 py-0.5 rounded text-[10px] font-bold">fuchsia</span></td><td class="py-2 px-3">Cobros y Tesorería</td><td class="py-2 px-3">Cobro</td><td class="py-2 px-3">4 stages</td><td class="py-2 px-3 text-slate-700">Cobro vía Caja Recaudadora si GK · multi-canal</td></tr>
+        <tr><td class="py-2 px-3 font-bold text-indigo-700">Envío</td><td class="py-2 px-3"><span class="bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded text-[10px] font-bold">indigo</span></td><td class="py-2 px-3">Pago colaborador</td><td class="py-2 px-3">Pago colaborador</td><td class="py-2 px-3">4 stages</td><td class="py-2 px-3 text-slate-700">Acumula en Caja · NO transfiere directo · cross-link</td></tr>
+        <tr><td class="py-2 px-3 font-bold text-amber-700">Gasto</td><td class="py-2 px-3"><span class="bg-amber-100 text-amber-700 px-2 py-0.5 rounded text-[10px] font-bold">amber</span></td><td class="py-2 px-3">Pago</td><td class="py-2 px-3">Pago simple</td><td class="py-2 px-3">3 stages</td><td class="py-2 px-3 text-slate-700">Pipeline simplificado · recurrencia · alerta vencimiento</td></tr>
+      </tbody>
+    </table>
+    <div class="grid grid-cols-2 gap-3 mt-5 text-[11px]">
+      <div class="bg-emerald-50 ring-1 ring-emerald-200 rounded-lg p-3"><div class="text-[10px] uppercase font-bold text-emerald-700 mb-1">DEUDA-CROSS-LINKS · cerrada</div><div class="text-emerald-900">4 panels embebidos (OC + Venta + Envío + Gasto) + vista inversa Movimiento→Doc (MOCK 5 §6) cubren cobertura bidireccional 100%.</div></div>
+      <div class="bg-purple-50 ring-1 ring-purple-200 rounded-lg p-3"><div class="text-[10px] uppercase font-bold text-purple-700 mb-1">Cross-link Caja Recaudadora · canon</div><div class="text-purple-900">Venta + Envío + Gasto detectan automáticamente si el tercero es recaudador y ajustan flujo (acumular en Caja vs transferir directo).</div></div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="bg-slate-900 text-slate-300 mt-12 py-6"><div class="max-w-[1400px] mx-auto px-6 text-[11px] flex items-center justify-between"><div>MOCK 14 · 3 panels embebidos Venta + Envío + Gasto + tabla comparativa</div><div>Turno 5 cierre · cobertura ~85%</div></div></footer>
+<script>lucide.createIcons();</script>
+</body>
+</html>

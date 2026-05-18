@@ -1,0 +1,1525 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Finanzas v5 · Vistas paralelas · Hub + modales + wizards · chk5.D-S1b</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background: #f8fafc; }
+    .tabular { font-variant-numeric: tabular-nums; }
+    .section-divider { display: flex; align-items: center; gap: 12px; margin: 64px 0 24px; padding-bottom: 12px; border-bottom: 2px dashed #cbd5e1; }
+    .section-num { background: #0f766e; color: white; padding: 2px 10px; border-radius: 999px; font-size: 11px; font-weight: bold; }
+    .subsection-divider { margin: 32px 0 16px; padding-bottom: 6px; border-bottom: 1px dashed #e2e8f0; display: flex; align-items: center; gap: 10px; }
+    .subsection-num { background: #14b8a6; color: white; padding: 2px 8px; border-radius: 999px; font-size: 10px; font-weight: bold; }
+    /* Modal preview wrapper */
+    .modal-backdrop { background: rgba(15, 23, 42, 0.4); padding: 32px; border-radius: 12px; }
+    .modal { background: white; border-radius: 16px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); max-width: 600px; margin: 0 auto; overflow: hidden; }
+    .modal-wide { max-width: 900px; }
+    .modal-narrow { max-width: 480px; }
+  </style>
+</head>
+<body class="p-4 lg:p-8">
+
+  <!-- ═══════════════════════════════════════════════════════════════════════════ -->
+  <!-- INTRO                                                                       -->
+  <!-- ═══════════════════════════════════════════════════════════════════════════ -->
+  <div class="max-w-6xl mx-auto mb-8">
+    <h1 class="text-3xl font-bold text-slate-900 mb-2">Finanzas v5 · Vistas paralelas</h1>
+    <p class="text-sm text-slate-600 mb-4">
+      chk5.D-S1b (2026-05-15) · complemento del mockup principal · cubre TODAS las superficies
+      paralelas del módulo: <strong>7 wizards del hub de acciones</strong> +
+      <strong>4 modales de detalle</strong> + <strong>2 wizards mayores</strong>.
+    </p>
+    <p class="text-sm text-slate-600 mb-4">
+      Todo aplica canon v8.0 + v9.0 + F-Borradores (Cancelar / Guardar borrador / Confirmar).
+    </p>
+    <div class="bg-amber-50 border border-amber-200 rounded-xl p-3 text-xs text-amber-900">
+      <strong class="block mb-1">Nota canon:</strong>
+      Los modales/wizards paralelos siguen el mismo patrón visual que las 5 vistas principales.
+      Un usuario que aprende los colores en Saldos (emerald=cobro · rose=pago) los reconoce en el
+      wizard de PagoAbono · en el modal de detalle de CC · en cualquier vista del módulo.
+    </div>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════════════════════════════════════ -->
+  <!-- SECCIÓN A · WIZARDS SIMPLES (4 wizards · 1 modal cada uno)                 -->
+  <!-- ═══════════════════════════════════════════════════════════════════════════ -->
+  <div class="section-divider max-w-6xl mx-auto">
+    <span class="section-num">A</span>
+    <h2 class="text-xl font-bold text-slate-900">Wizards simples · modal único</h2>
+    <span class="text-xs text-slate-500 italic">4 wizards de 1 paso · Ingreso · Egreso · Conversión · Transferencia</span>
+  </div>
+
+  <!-- ─── A.1 · Registrar Ingreso ─────────────────────────────────────────────── -->
+  <div class="max-w-6xl mx-auto subsection-divider">
+    <span class="subsection-num">A.1</span>
+    <h3 class="text-sm font-bold text-slate-900">Registrar ingreso · simple</h3>
+    <span class="text-[11px] text-slate-500 italic">color emerald · ingreso simple sin distribuir</span>
+  </div>
+
+  <div class="modal-backdrop max-w-3xl mx-auto mb-6">
+    <div class="modal">
+      <!-- Header canon v8.0 N10 · icon + título + close -->
+      <div class="flex items-center justify-between px-5 py-4 border-b border-slate-200">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-50 to-emerald-100 ring-1 ring-emerald-200/50 flex items-center justify-center">
+            <i data-lucide="arrow-down-circle" class="w-5 h-5 text-emerald-700"></i>
+          </div>
+          <div>
+            <h2 class="text-base font-bold text-slate-900">Registrar ingreso</h2>
+            <p class="text-[11px] text-slate-500">Cobro · venta · capital · otro</p>
+          </div>
+        </div>
+        <button class="text-slate-400 hover:text-slate-600 p-1">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Body -->
+      <div class="px-5 py-4 space-y-3">
+        <!-- 1 · Tipo de ingreso -->
+        <div>
+          <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1.5">1 · Tipo de ingreso</div>
+          <div class="grid grid-cols-2 gap-2">
+            <button class="px-3 py-2 rounded-lg border-2 border-emerald-300 ring-2 ring-emerald-100 bg-emerald-50 text-emerald-700 text-xs font-bold inline-flex items-center gap-1.5">
+              <i data-lucide="hand-coins" class="w-3.5 h-3.5"></i> Cobro a cliente
+            </button>
+            <button class="px-3 py-2 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-600 text-xs font-medium inline-flex items-center gap-1.5">
+              <i data-lucide="trending-up" class="w-3.5 h-3.5"></i> Aporte capital
+            </button>
+            <button class="px-3 py-2 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-600 text-xs font-medium inline-flex items-center gap-1.5">
+              <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> Devolución
+            </button>
+            <button class="px-3 py-2 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-600 text-xs font-medium inline-flex items-center gap-1.5">
+              <i data-lucide="more-horizontal" class="w-3.5 h-3.5"></i> Otro
+            </button>
+          </div>
+        </div>
+
+        <!-- 2 · Entidad origen (si cobro) -->
+        <div>
+          <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1.5">2 · ¿De quién?</div>
+          <div class="flex items-center gap-2 px-3 py-2 bg-white border border-emerald-300 rounded-lg ring-2 ring-emerald-100">
+            <i data-lucide="user" class="w-3.5 h-3.5 text-emerald-700"></i>
+            <span class="text-sm text-slate-900 font-medium flex-1">Ana Mendoza</span>
+            <span class="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-1.5 py-0.5 rounded">Cliente · debe S/ 4,820</span>
+          </div>
+        </div>
+
+        <!-- 3 · Monto -->
+        <div>
+          <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1.5">3 · Monto</div>
+          <div class="flex items-center gap-1.5 mb-2">
+            <button class="px-2.5 py-1 rounded text-[11px] font-bold bg-slate-900 text-white">PEN · S/</button>
+            <button class="px-2.5 py-1 rounded text-[11px] font-bold bg-white text-slate-600 border border-slate-200">USD · $</button>
+          </div>
+          <div class="flex items-center gap-2 px-3 py-2 bg-white border border-slate-200 rounded-lg">
+            <span class="text-slate-500 font-medium text-sm">S/</span>
+            <input type="text" value="4,820.00" class="text-base flex-1 outline-none tabular text-right font-bold text-slate-900">
+          </div>
+          <p class="text-[10px] text-emerald-700 mt-1 italic">Saldará completamente el adeudo del cliente · saldo final S/ 0</p>
+        </div>
+
+        <!-- 4 · Cuenta destino + método + fecha · grid 2 cols -->
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="text-[10px] text-slate-600 font-medium">Cuenta destino</label>
+            <div class="flex items-center gap-2 px-3 py-2 bg-white border border-slate-200 rounded-lg mt-1">
+              <i data-lucide="building-2" class="w-3.5 h-3.5 text-slate-400"></i>
+              <span class="text-sm text-slate-700 flex-1">BCP soles</span>
+              <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-400"></i>
+            </div>
+          </div>
+          <div>
+            <label class="text-[10px] text-slate-600 font-medium">Método</label>
+            <div class="flex items-center gap-2 px-3 py-2 bg-white border border-slate-200 rounded-lg mt-1">
+              <i data-lucide="smartphone" class="w-3.5 h-3.5 text-slate-400"></i>
+              <span class="text-sm text-slate-700 flex-1">Yape</span>
+              <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-400"></i>
+            </div>
+          </div>
+        </div>
+
+        <!-- 5 · Fecha + referencia -->
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="text-[10px] text-slate-600 font-medium">Fecha</label>
+            <div class="flex items-center gap-2 px-3 py-2 bg-white border border-slate-200 rounded-lg mt-1">
+              <i data-lucide="calendar" class="w-3.5 h-3.5 text-slate-400"></i>
+              <span class="text-sm text-slate-700">15 may 2026</span>
+            </div>
+          </div>
+          <div>
+            <label class="text-[10px] text-slate-600 font-medium">Referencia</label>
+            <input type="text" placeholder="Voucher · Nº op" class="w-full mt-1 px-3 py-2 text-sm border border-slate-200 rounded-lg">
+          </div>
+        </div>
+
+        <!-- 6 · Notas -->
+        <div>
+          <label class="text-[10px] text-slate-600 font-medium">Notas (opcional)</label>
+          <textarea rows="2" placeholder="Contexto adicional" class="w-full mt-1 px-3 py-2 text-sm border border-slate-200 rounded-lg resize-none"></textarea>
+        </div>
+      </div>
+
+      <!-- Footer canon N10 · 3 acciones -->
+      <div class="px-5 py-3 border-t border-slate-100 bg-slate-50 flex items-center gap-2">
+        <button class="text-[11px] font-medium text-slate-700 bg-white border border-slate-200 hover:bg-slate-100 rounded-md px-3 py-1.5">Cancelar</button>
+        <button class="text-[11px] font-medium text-slate-700 bg-white border border-slate-200 hover:bg-slate-100 rounded-md px-3 py-1.5 ml-auto inline-flex items-center gap-1">
+          <i data-lucide="save" class="w-3 h-3"></i> Guardar borrador
+        </button>
+        <button class="text-[11px] font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-md px-4 py-1.5 inline-flex items-center gap-1">
+          <i data-lucide="check" class="w-3 h-3"></i> Confirmar ingreso
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── A.2 · Registrar Egreso ──────────────────────────────────────────────── -->
+  <div class="max-w-6xl mx-auto subsection-divider">
+    <span class="subsection-num">A.2</span>
+    <h3 class="text-sm font-bold text-slate-900">Registrar egreso · simple</h3>
+    <span class="text-[11px] text-slate-500 italic">color rose · pago simple sin distribuir</span>
+  </div>
+
+  <div class="modal-backdrop max-w-3xl mx-auto mb-6">
+    <div class="modal">
+      <div class="flex items-center justify-between px-5 py-4 border-b border-slate-200">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-rose-50 to-rose-100 ring-1 ring-rose-200/50 flex items-center justify-center">
+            <i data-lucide="arrow-up-circle" class="w-5 h-5 text-rose-700"></i>
+          </div>
+          <div>
+            <h2 class="text-base font-bold text-slate-900">Registrar egreso</h2>
+            <p class="text-[11px] text-slate-500">Pago · gasto · sueldo · retiro de capital</p>
+          </div>
+        </div>
+        <button class="text-slate-400 hover:text-slate-600 p-1"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+
+      <div class="px-5 py-4 space-y-3">
+        <div>
+          <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1.5">1 · Tipo de egreso</div>
+          <div class="grid grid-cols-2 gap-2">
+            <button class="px-3 py-2 rounded-lg border-2 border-rose-300 ring-2 ring-rose-100 bg-rose-50 text-rose-700 text-xs font-bold inline-flex items-center gap-1.5">
+              <i data-lucide="banknote" class="w-3.5 h-3.5"></i> Pago a proveedor
+            </button>
+            <button class="px-3 py-2 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-600 text-xs font-medium inline-flex items-center gap-1.5">
+              <i data-lucide="user-check" class="w-3.5 h-3.5"></i> Sueldo / honorario
+            </button>
+            <button class="px-3 py-2 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-600 text-xs font-medium inline-flex items-center gap-1.5">
+              <i data-lucide="receipt" class="w-3.5 h-3.5"></i> Gasto operativo
+            </button>
+            <button class="px-3 py-2 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-600 text-xs font-medium inline-flex items-center gap-1.5">
+              <i data-lucide="minus-circle" class="w-3.5 h-3.5"></i> Retiro capital
+            </button>
+          </div>
+        </div>
+
+        <!-- Banner cross-link a Gastos · canon v8.0 N8 -->
+        <div class="bg-amber-50 border border-amber-200 rounded-lg p-2.5 text-[11px] text-amber-900 flex items-start gap-1.5">
+          <i data-lucide="info" class="w-3.5 h-3.5 flex-shrink-0 mt-0.5"></i>
+          <span>
+            <strong>Tip:</strong> si es un gasto contable (afecta P&L)
+            <a href="#" class="text-amber-700 underline font-medium">creá el gasto en /gastos</a>
+            y registrá el pago desde la lista (botón Pagar). Este flujo es para egresos que NO requieren clasificación contable.
+          </span>
+        </div>
+
+        <div>
+          <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1.5">2 · Beneficiario</div>
+          <div class="flex items-center gap-2 px-3 py-2 bg-white border border-rose-300 rounded-lg ring-2 ring-rose-100">
+            <i data-lucide="briefcase" class="w-3.5 h-3.5 text-rose-700"></i>
+            <span class="text-sm text-slate-900 font-medium flex-1">NOW Foods</span>
+            <span class="text-[10px] font-bold text-rose-700 bg-rose-100 px-1.5 py-0.5 rounded">Proveedor · debes US$ 980</span>
+          </div>
+        </div>
+
+        <div>
+          <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1.5">3 · Monto</div>
+          <div class="flex items-center gap-1.5 mb-2">
+            <button class="px-2.5 py-1 rounded text-[11px] font-bold bg-white text-slate-600 border border-slate-200">PEN · S/</button>
+            <button class="px-2.5 py-1 rounded text-[11px] font-bold bg-slate-900 text-white">USD · $</button>
+          </div>
+          <div class="flex items-center gap-2 px-3 py-2 bg-white border border-slate-200 rounded-lg">
+            <span class="text-slate-500 font-medium text-sm">$</span>
+            <input type="text" value="980.00" class="text-base flex-1 outline-none tabular text-right font-bold text-slate-900">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="text-[10px] text-slate-600 font-medium">Cuenta origen</label>
+            <div class="flex items-center gap-2 px-3 py-2 bg-white border border-slate-200 rounded-lg mt-1">
+              <i data-lucide="dollar-sign" class="w-3.5 h-3.5 text-slate-400"></i>
+              <span class="text-sm text-slate-700 flex-1">BCP dólares</span>
+            </div>
+          </div>
+          <div>
+            <label class="text-[10px] text-slate-600 font-medium">Fecha</label>
+            <div class="flex items-center gap-2 px-3 py-2 bg-white border border-slate-200 rounded-lg mt-1">
+              <span class="text-sm text-slate-700">15 may 2026</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="px-5 py-3 border-t border-slate-100 bg-slate-50 flex items-center gap-2">
+        <button class="text-[11px] font-medium text-slate-700 bg-white border border-slate-200 hover:bg-slate-100 rounded-md px-3 py-1.5">Cancelar</button>
+        <button class="text-[11px] font-medium text-slate-700 bg-white border border-slate-200 hover:bg-slate-100 rounded-md px-3 py-1.5 ml-auto inline-flex items-center gap-1">
+          <i data-lucide="save" class="w-3 h-3"></i> Guardar borrador
+        </button>
+        <button class="text-[11px] font-bold text-white bg-rose-600 hover:bg-rose-700 rounded-md px-4 py-1.5 inline-flex items-center gap-1">
+          <i data-lucide="check" class="w-3 h-3"></i> Confirmar egreso
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── A.3 · Conversión USD↔PEN ────────────────────────────────────────────── -->
+  <div class="max-w-6xl mx-auto subsection-divider">
+    <span class="subsection-num">A.3</span>
+    <h3 class="text-sm font-bold text-slate-900">Conversión USD ↔ PEN · Pool USD + TCPA</h3>
+    <span class="text-[11px] text-slate-500 italic">color teal · trading multi-moneda</span>
+  </div>
+
+  <div class="modal-backdrop max-w-3xl mx-auto mb-6">
+    <div class="modal">
+      <div class="flex items-center justify-between px-5 py-4 border-b border-slate-200">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-teal-50 to-teal-100 ring-1 ring-teal-200/50 flex items-center justify-center">
+            <i data-lucide="arrow-right-left" class="w-5 h-5 text-teal-700"></i>
+          </div>
+          <div>
+            <h2 class="text-base font-bold text-slate-900">Conversión USD ↔ PEN</h2>
+            <p class="text-[11px] text-slate-500">Comprar / vender dólares · actualiza Pool USD</p>
+          </div>
+        </div>
+        <button class="text-slate-400 hover:text-slate-600 p-1"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+
+      <div class="px-5 py-4 space-y-3">
+        <!-- 1 · Dirección -->
+        <div>
+          <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1.5">1 · Dirección</div>
+          <div class="grid grid-cols-2 gap-2">
+            <button class="px-3 py-2 rounded-lg border-2 border-teal-300 ring-2 ring-teal-100 bg-teal-50 text-teal-700 text-xs font-bold inline-flex items-center justify-center gap-1.5">
+              <i data-lucide="trending-down" class="w-3.5 h-3.5"></i> Vender USD → PEN
+            </button>
+            <button class="px-3 py-2 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-600 text-xs font-medium inline-flex items-center justify-center gap-1.5">
+              <i data-lucide="trending-up" class="w-3.5 h-3.5"></i> Comprar USD ← PEN
+            </button>
+          </div>
+        </div>
+
+        <!-- 2 · Monto + TC -->
+        <div class="grid grid-cols-3 gap-2">
+          <div class="col-span-2">
+            <label class="text-[10px] text-slate-600 font-medium">Monto USD</label>
+            <div class="flex items-center gap-2 px-3 py-2 bg-white border border-slate-200 rounded-lg mt-1">
+              <span class="text-slate-500 font-medium text-sm">$</span>
+              <input type="text" value="500.00" class="text-base flex-1 outline-none tabular text-right font-bold text-slate-900">
+            </div>
+          </div>
+          <div>
+            <label class="text-[10px] text-slate-600 font-medium">TC</label>
+            <div class="flex items-center gap-2 px-3 py-2 bg-white border border-slate-200 rounded-lg mt-1">
+              <input type="text" value="3.680" class="text-base flex-1 outline-none tabular text-right font-bold text-slate-900">
+            </div>
+          </div>
+        </div>
+
+        <!-- 3 · Preview equivalencias -->
+        <div class="bg-teal-50 rounded-lg p-3 grid grid-cols-2 gap-3">
+          <div>
+            <div class="text-[10px] uppercase tracking-wider text-teal-700 font-bold">USD sale de</div>
+            <div class="text-sm font-bold text-teal-900 mt-1">Pool USD · BCP dólares</div>
+            <div class="text-[11px] text-teal-700 mt-0.5">−US$ 500.00</div>
+          </div>
+          <div>
+            <div class="text-[10px] uppercase tracking-wider text-teal-700 font-bold">PEN entra a</div>
+            <div class="text-sm font-bold text-teal-900 mt-1">BCP soles</div>
+            <div class="text-[11px] text-teal-700 mt-0.5">+S/ 1,840.00</div>
+          </div>
+        </div>
+
+        <!-- 4 · Comparativa TCPA vs SBS -->
+        <div class="bg-white border border-emerald-200 rounded-lg p-3">
+          <div class="flex items-center justify-between mb-1.5">
+            <div class="text-[10px] uppercase tracking-wider text-emerald-700 font-bold">Análisis TCPA</div>
+            <span class="text-[9px] font-bold text-emerald-700 bg-emerald-100 px-1.5 py-0.5 rounded">+S/ 20 vs SBS</span>
+          </div>
+          <div class="grid grid-cols-3 gap-2 text-[11px]">
+            <div>
+              <div class="text-slate-500">TC actual</div>
+              <div class="font-bold tabular text-slate-900">3.680</div>
+            </div>
+            <div>
+              <div class="text-slate-500">TC SBS</div>
+              <div class="font-bold tabular text-slate-700">3.640</div>
+            </div>
+            <div>
+              <div class="text-slate-500">TCPA</div>
+              <div class="font-bold tabular text-teal-700">3.685</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 5 · Fecha -->
+        <div>
+          <label class="text-[10px] text-slate-600 font-medium">Fecha de la operación</label>
+          <div class="flex items-center gap-2 px-3 py-2 bg-white border border-slate-200 rounded-lg mt-1">
+            <i data-lucide="calendar" class="w-3.5 h-3.5 text-slate-400"></i>
+            <span class="text-sm text-slate-700">15 may 2026</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="px-5 py-3 border-t border-slate-100 bg-slate-50 flex items-center gap-2">
+        <button class="text-[11px] font-medium text-slate-700 bg-white border border-slate-200 hover:bg-slate-100 rounded-md px-3 py-1.5">Cancelar</button>
+        <button class="text-[11px] font-medium text-slate-700 bg-white border border-slate-200 hover:bg-slate-100 rounded-md px-3 py-1.5 ml-auto inline-flex items-center gap-1">
+          <i data-lucide="save" class="w-3 h-3"></i> Guardar borrador
+        </button>
+        <button class="text-[11px] font-bold text-white bg-teal-600 hover:bg-teal-700 rounded-md px-4 py-1.5 inline-flex items-center gap-1">
+          <i data-lucide="arrow-right-left" class="w-3 h-3"></i> Confirmar conversión
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── A.4 · Transferencia entre cuentas ──────────────────────────────────── -->
+  <div class="max-w-6xl mx-auto subsection-divider">
+    <span class="subsection-num">A.4</span>
+    <h3 class="text-sm font-bold text-slate-900">Transferencia entre cuentas · interna</h3>
+    <span class="text-[11px] text-slate-500 italic">color indigo · movimiento interno · no afecta patrimonio</span>
+  </div>
+
+  <div class="modal-backdrop max-w-3xl mx-auto mb-6">
+    <div class="modal modal-narrow">
+      <div class="flex items-center justify-between px-5 py-4 border-b border-slate-200">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-50 to-indigo-100 ring-1 ring-indigo-200/50 flex items-center justify-center">
+            <i data-lucide="repeat" class="w-5 h-5 text-indigo-700"></i>
+          </div>
+          <div>
+            <h2 class="text-base font-bold text-slate-900">Transferencia entre cuentas</h2>
+            <p class="text-[11px] text-slate-500">Mover dinero entre tus propias cuentas</p>
+          </div>
+        </div>
+        <button class="text-slate-400 hover:text-slate-600 p-1"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+
+      <div class="px-5 py-4 space-y-3">
+        <!-- Origen -->
+        <div>
+          <label class="text-[10px] text-slate-600 font-medium">Cuenta origen</label>
+          <div class="flex items-center gap-2 px-3 py-2 bg-white border border-slate-200 rounded-lg mt-1">
+            <i data-lucide="building-2" class="w-3.5 h-3.5 text-slate-400"></i>
+            <div class="flex-1">
+              <div class="text-sm text-slate-900 font-medium">BCP soles</div>
+              <div class="text-[10px] text-slate-500">Saldo: S/ 23,450</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Flecha visual -->
+        <div class="flex justify-center">
+          <div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center">
+            <i data-lucide="arrow-down" class="w-4 h-4 text-indigo-700"></i>
+          </div>
+        </div>
+
+        <!-- Destino -->
+        <div>
+          <label class="text-[10px] text-slate-600 font-medium">Cuenta destino</label>
+          <div class="flex items-center gap-2 px-3 py-2 bg-white border border-indigo-300 rounded-lg ring-2 ring-indigo-100 mt-1">
+            <i data-lucide="wallet" class="w-3.5 h-3.5 text-indigo-700"></i>
+            <div class="flex-1">
+              <div class="text-sm text-slate-900 font-medium">Caja chica</div>
+              <div class="text-[10px] text-indigo-700">Saldo: S/ 700 → S/ 1,200</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Monto -->
+        <div>
+          <label class="text-[10px] text-slate-600 font-medium">Monto a transferir</label>
+          <div class="flex items-center gap-2 px-3 py-2 bg-white border border-slate-200 rounded-lg mt-1">
+            <span class="text-slate-500 font-medium text-sm">S/</span>
+            <input type="text" value="500.00" class="text-base flex-1 outline-none tabular text-right font-bold text-slate-900">
+          </div>
+        </div>
+
+        <!-- Concepto + fecha -->
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="text-[10px] text-slate-600 font-medium">Concepto</label>
+            <input type="text" placeholder="Reposición caja" class="w-full mt-1 px-3 py-2 text-sm border border-slate-200 rounded-lg">
+          </div>
+          <div>
+            <label class="text-[10px] text-slate-600 font-medium">Fecha</label>
+            <div class="flex items-center gap-2 px-3 py-2 bg-white border border-slate-200 rounded-lg mt-1">
+              <span class="text-sm text-slate-700">15 may 2026</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Nota -->
+        <div class="bg-indigo-50 rounded-lg p-2.5 text-[11px] text-indigo-900 flex items-start gap-1.5">
+          <i data-lucide="info" class="w-3.5 h-3.5 flex-shrink-0 mt-0.5"></i>
+          <span>Las transferencias entre cuentas <strong>no afectan el patrimonio total</strong> · solo redistribuyen.</span>
+        </div>
+      </div>
+
+      <div class="px-5 py-3 border-t border-slate-100 bg-slate-50 flex items-center gap-2">
+        <button class="text-[11px] font-medium text-slate-700 bg-white border border-slate-200 hover:bg-slate-100 rounded-md px-3 py-1.5">Cancelar</button>
+        <button class="text-[11px] font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-md px-4 py-1.5 ml-auto inline-flex items-center gap-1">
+          <i data-lucide="repeat" class="w-3 h-3"></i> Transferir
+        </button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════════════════════════════════════ -->
+  <!-- SECCIÓN B · WIZARDS MULTI-PASO                                              -->
+  <!-- ═══════════════════════════════════════════════════════════════════════════ -->
+  <div class="section-divider max-w-6xl mx-auto">
+    <span class="section-num">B</span>
+    <h2 class="text-xl font-bold text-slate-900">Wizards multi-paso · sidebar de pasos</h2>
+    <span class="text-xs text-slate-500 italic">PagoAbonoWizard · PagarEstadoCuentaTC · PagosMasivos · CuentaWizard</span>
+  </div>
+
+  <!-- ─── B.1 · PagoAbonoWizard (4 pasos) ─────────────────────────────────────── -->
+  <div class="max-w-6xl mx-auto subsection-divider">
+    <span class="subsection-num">B.1</span>
+    <h3 class="text-sm font-bold text-slate-900">Pago / cobro distribuido · 4 pasos</h3>
+    <span class="text-[11px] text-slate-500 italic">color purple · abono que aplica a múltiples documentos del mismo proveedor/cliente</span>
+  </div>
+
+  <div class="modal-backdrop max-w-6xl mx-auto mb-6">
+    <div class="modal modal-wide flex" style="min-height: 540px;">
+      <!-- Sidebar pasos (canon F5 wizard layout) -->
+      <div class="w-64 bg-slate-50 border-r border-slate-200 p-5">
+        <div class="flex items-center gap-2 mb-5">
+          <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-purple-50 to-purple-100 ring-1 ring-purple-200/50 flex items-center justify-center">
+            <i data-lucide="split" class="w-4 h-4 text-purple-700"></i>
+          </div>
+          <div>
+            <div class="text-xs font-bold text-slate-900">Cobro distribuido</div>
+            <div class="text-[10px] text-slate-500">Paso 3 de 4</div>
+          </div>
+        </div>
+
+        <div class="space-y-2">
+          <!-- Paso 1 · completado -->
+          <div class="flex items-center gap-2.5">
+            <div class="w-6 h-6 rounded-full bg-purple-600 text-white flex items-center justify-center flex-shrink-0">
+              <i data-lucide="check" class="w-3 h-3"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="text-[11px] font-medium text-slate-700">Entidad</div>
+              <div class="text-[9px] text-purple-700 truncate">Ana Mendoza · cliente</div>
+            </div>
+          </div>
+          <div class="w-px h-3 bg-purple-300 ml-3"></div>
+          <!-- Paso 2 · completado -->
+          <div class="flex items-center gap-2.5">
+            <div class="w-6 h-6 rounded-full bg-purple-600 text-white flex items-center justify-center flex-shrink-0">
+              <i data-lucide="check" class="w-3 h-3"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="text-[11px] font-medium text-slate-700">Abono</div>
+              <div class="text-[9px] text-purple-700 truncate">S/ 5,000 · Yape</div>
+            </div>
+          </div>
+          <div class="w-px h-3 bg-purple-300 ml-3"></div>
+          <!-- Paso 3 · ACTIVO -->
+          <div class="flex items-center gap-2.5">
+            <div class="w-6 h-6 rounded-full bg-purple-600 ring-2 ring-purple-200 text-white flex items-center justify-center flex-shrink-0 font-bold text-[10px]">
+              3
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="text-[11px] font-bold text-purple-700">Distribución</div>
+              <div class="text-[9px] text-slate-500">Aplicar a documentos</div>
+            </div>
+          </div>
+          <div class="w-px h-3 bg-slate-300 ml-3"></div>
+          <!-- Paso 4 · pendiente -->
+          <div class="flex items-center gap-2.5">
+            <div class="w-6 h-6 rounded-full bg-white border border-slate-300 text-slate-500 flex items-center justify-center flex-shrink-0 font-bold text-[10px]">
+              4
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="text-[11px] text-slate-500">Confirmar</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Resumen sticky -->
+        <div class="mt-6 pt-4 border-t border-slate-200">
+          <div class="text-[9px] uppercase tracking-wider text-slate-500 font-bold mb-2">Resumen</div>
+          <div class="space-y-1 text-[11px]">
+            <div class="flex justify-between"><span class="text-slate-600">Abono total</span><span class="font-bold tabular text-slate-900">S/ 5,000</span></div>
+            <div class="flex justify-between"><span class="text-slate-600">Aplicado</span><span class="font-bold tabular text-purple-700">S/ 4,820</span></div>
+            <div class="flex justify-between"><span class="text-slate-600">Excedente</span><span class="font-bold tabular text-amber-700">S/ 180</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Contenido del paso activo -->
+      <div class="flex-1 flex flex-col">
+        <div class="flex items-center justify-between px-5 py-4 border-b border-slate-200">
+          <div>
+            <h2 class="text-base font-bold text-slate-900">Distribuí el abono a los documentos</h2>
+            <p class="text-[11px] text-slate-500">Ana Mendoza · S/ 5,000 a aplicar</p>
+          </div>
+          <button class="text-slate-400 hover:text-slate-600 p-1"><i data-lucide="x" class="w-5 h-5"></i></button>
+        </div>
+
+        <div class="flex-1 px-5 py-4 space-y-3 overflow-y-auto" style="max-height: 420px;">
+          <!-- Auto-distribute toggle -->
+          <div class="bg-purple-50 rounded-lg p-3 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <i data-lucide="zap" class="w-4 h-4 text-purple-700"></i>
+              <div>
+                <div class="text-sm font-bold text-purple-900">Auto-distribuir FIFO</div>
+                <div class="text-[11px] text-purple-700">Aplica a las facturas más antiguas primero</div>
+              </div>
+            </div>
+            <button class="px-3 py-1 rounded text-[11px] font-bold text-white bg-purple-600 hover:bg-purple-700">
+              Auto-aplicar
+            </button>
+          </div>
+
+          <!-- Documentos pendientes -->
+          <div class="space-y-2">
+            <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Facturas pendientes de la entidad</div>
+
+            <!-- Factura 1 · totalmente pagada -->
+            <div class="bg-white border-2 border-emerald-300 rounded-lg p-3">
+              <div class="flex items-center justify-between mb-1">
+                <div class="flex items-center gap-2">
+                  <input type="checkbox" checked class="text-purple-600 rounded">
+                  <span class="text-sm font-bold text-slate-900">Venta V-1024</span>
+                  <span class="text-[9px] font-bold text-rose-700 bg-rose-100 px-1.5 py-0.5 rounded">Vencida 7d</span>
+                </div>
+                <span class="text-[10px] text-slate-500">15 abr · S/ 2,400 total</span>
+              </div>
+              <div class="grid grid-cols-3 gap-2 text-[11px] mt-2">
+                <div>
+                  <div class="text-slate-500">Saldo</div>
+                  <div class="font-bold tabular text-slate-900">S/ 2,400</div>
+                </div>
+                <div>
+                  <div class="text-slate-500">Aplicar</div>
+                  <input type="text" value="2,400" class="w-full font-bold tabular border border-purple-200 rounded px-1 py-0.5 text-right">
+                </div>
+                <div>
+                  <div class="text-slate-500">Nuevo saldo</div>
+                  <div class="font-bold tabular text-emerald-700">S/ 0 ✓</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Factura 2 · pagada parcial -->
+            <div class="bg-white border-2 border-emerald-300 rounded-lg p-3">
+              <div class="flex items-center justify-between mb-1">
+                <div class="flex items-center gap-2">
+                  <input type="checkbox" checked class="text-purple-600 rounded">
+                  <span class="text-sm font-bold text-slate-900">Venta V-1031</span>
+                </div>
+                <span class="text-[10px] text-slate-500">28 abr · S/ 3,200 total</span>
+              </div>
+              <div class="grid grid-cols-3 gap-2 text-[11px] mt-2">
+                <div>
+                  <div class="text-slate-500">Saldo</div>
+                  <div class="font-bold tabular text-slate-900">S/ 2,420</div>
+                </div>
+                <div>
+                  <div class="text-slate-500">Aplicar</div>
+                  <input type="text" value="2,420" class="w-full font-bold tabular border border-purple-200 rounded px-1 py-0.5 text-right">
+                </div>
+                <div>
+                  <div class="text-slate-500">Nuevo saldo</div>
+                  <div class="font-bold tabular text-emerald-700">S/ 0 ✓</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Factura 3 · no aplica -->
+            <div class="bg-white border border-slate-200 rounded-lg p-3 opacity-60">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <input type="checkbox" class="text-purple-600 rounded">
+                  <span class="text-sm font-medium text-slate-700">Venta V-1045</span>
+                </div>
+                <span class="text-[10px] text-slate-500">12 may · S/ 1,500 · saldo S/ 1,500</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Excedente · qué hacer con los S/ 180 restantes -->
+          <div class="bg-amber-50 border border-amber-200 rounded-lg p-3">
+            <div class="flex items-center gap-2 mb-2">
+              <i data-lucide="alert-circle" class="w-4 h-4 text-amber-700"></i>
+              <div class="text-xs font-bold text-amber-900">Excedente: S/ 180</div>
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+              <button class="px-3 py-2 rounded-lg border-2 border-amber-300 ring-2 ring-amber-100 bg-amber-50 text-amber-700 text-xs font-bold">
+                Crear adelanto · saldo a favor
+              </button>
+              <button class="px-3 py-2 rounded-lg border border-slate-200 text-slate-600 text-xs font-medium">
+                Devolver al cliente
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="px-5 py-3 border-t border-slate-100 bg-slate-50 flex items-center gap-2">
+          <button class="text-[11px] font-medium text-slate-700 bg-white border border-slate-200 rounded-md px-3 py-1.5 inline-flex items-center gap-1">
+            <i data-lucide="chevron-left" class="w-3 h-3"></i> Atrás
+          </button>
+          <button class="text-[11px] font-medium text-slate-700 bg-white border border-slate-200 rounded-md px-3 py-1.5 ml-auto inline-flex items-center gap-1">
+            <i data-lucide="save" class="w-3 h-3"></i> Guardar borrador
+          </button>
+          <button class="text-[11px] font-bold text-white bg-purple-600 hover:bg-purple-700 rounded-md px-4 py-1.5 inline-flex items-center gap-1">
+            Siguiente <i data-lucide="chevron-right" class="w-3 h-3"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── B.2 · Pagar estado de cuenta TC (3 pasos · resumido) ───────────────── -->
+  <div class="max-w-6xl mx-auto subsection-divider">
+    <span class="subsection-num">B.2</span>
+    <h3 class="text-sm font-bold text-slate-900">Pagar estado de cuenta TC · 3 pasos</h3>
+    <span class="text-[11px] text-slate-500 italic">color amber · seleccionar cargos · elegir cuenta · confirmar</span>
+  </div>
+
+  <div class="modal-backdrop max-w-3xl mx-auto mb-6">
+    <div class="modal">
+      <!-- Header con stepper horizontal canon F5 -->
+      <div class="px-5 py-4 border-b border-slate-200">
+        <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-50 to-amber-100 ring-1 ring-amber-200/50 flex items-center justify-center">
+              <i data-lucide="credit-card" class="w-4 h-4 text-amber-700"></i>
+            </div>
+            <div>
+              <h2 class="text-base font-bold text-slate-900">Pagar estado de cuenta TC</h2>
+              <p class="text-[11px] text-slate-500">BCP Visa Empresarial · ●●●● 4521 · vence 22 may</p>
+            </div>
+          </div>
+          <button class="text-slate-400 hover:text-slate-600 p-1"><i data-lucide="x" class="w-5 h-5"></i></button>
+        </div>
+        <!-- Stepper horizontal -->
+        <div class="flex items-center gap-1 mt-3">
+          <div class="flex items-center gap-1.5">
+            <div class="w-6 h-6 rounded-full bg-amber-600 text-white flex items-center justify-center text-[10px] font-bold">1</div>
+            <span class="text-[11px] font-bold text-amber-700">Cargos</span>
+          </div>
+          <div class="flex-1 h-px bg-amber-200 mx-2"></div>
+          <div class="flex items-center gap-1.5 opacity-50">
+            <div class="w-6 h-6 rounded-full bg-white border border-slate-300 text-slate-500 flex items-center justify-center text-[10px] font-bold">2</div>
+            <span class="text-[11px] text-slate-500">Cuenta pago</span>
+          </div>
+          <div class="flex-1 h-px bg-slate-200 mx-2"></div>
+          <div class="flex items-center gap-1.5 opacity-50">
+            <div class="w-6 h-6 rounded-full bg-white border border-slate-300 text-slate-500 flex items-center justify-center text-[10px] font-bold">3</div>
+            <span class="text-[11px] text-slate-500">Confirmar</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Body -->
+      <div class="px-5 py-4 space-y-3">
+        <!-- Resumen estado -->
+        <div class="bg-gradient-to-r from-amber-50 to-white border border-amber-200 rounded-lg p-3 flex items-center justify-between">
+          <div>
+            <div class="text-[10px] uppercase tracking-wider text-amber-700 font-bold">Total adeudado</div>
+            <div class="text-xl font-bold tabular text-amber-900">S/ 3,240<span class="text-amber-400">.00</span></div>
+          </div>
+          <div class="text-right">
+            <div class="text-[10px] text-amber-700">12 cargos · 30d</div>
+            <div class="text-[11px] text-amber-700 font-medium">Vence en 7 días</div>
+          </div>
+        </div>
+
+        <!-- Cargos seleccionables -->
+        <div>
+          <div class="flex items-center justify-between mb-2">
+            <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Cargos del periodo</div>
+            <button class="text-[11px] text-amber-700 hover:text-amber-800 font-medium">Seleccionar todos</button>
+          </div>
+          <div class="space-y-1 max-h-48 overflow-y-auto">
+            <div class="flex items-center gap-2 px-3 py-2 bg-white border border-amber-200 rounded-lg">
+              <input type="checkbox" checked class="text-amber-600 rounded">
+              <div class="flex-1 text-[11px]">
+                <div class="font-medium text-slate-900">Suscripción ChatGPT Plus</div>
+                <div class="text-[10px] text-slate-500">2 may · OpenAI</div>
+              </div>
+              <div class="text-[11px] font-bold tabular text-slate-900">S/ 85</div>
+            </div>
+            <div class="flex items-center gap-2 px-3 py-2 bg-white border border-amber-200 rounded-lg">
+              <input type="checkbox" checked class="text-amber-600 rounded">
+              <div class="flex-1 text-[11px]">
+                <div class="font-medium text-slate-900">Hosting AWS</div>
+                <div class="text-[10px] text-slate-500">5 may · Amazon</div>
+              </div>
+              <div class="text-[11px] font-bold tabular text-slate-900">S/ 320</div>
+            </div>
+            <div class="flex items-center gap-2 px-3 py-2 bg-white border border-amber-200 rounded-lg">
+              <input type="checkbox" checked class="text-amber-600 rounded">
+              <div class="flex-1 text-[11px]">
+                <div class="font-medium text-slate-900">Anuncios Meta</div>
+                <div class="text-[10px] text-slate-500">10 may · Facebook</div>
+              </div>
+              <div class="text-[11px] font-bold tabular text-slate-900">S/ 1,200</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Total a pagar -->
+        <div class="bg-emerald-50 border border-emerald-200 rounded-lg p-3 flex items-center justify-between">
+          <div class="text-sm font-bold text-emerald-900">Total a pagar (3 cargos)</div>
+          <div class="text-lg font-bold tabular text-emerald-700">S/ 1,605.00</div>
+        </div>
+      </div>
+
+      <div class="px-5 py-3 border-t border-slate-100 bg-slate-50 flex items-center gap-2">
+        <button class="text-[11px] font-medium text-slate-700 bg-white border border-slate-200 rounded-md px-3 py-1.5">Cancelar</button>
+        <button class="text-[11px] font-medium text-slate-700 bg-white border border-slate-200 rounded-md px-3 py-1.5 ml-auto inline-flex items-center gap-1">
+          <i data-lucide="save" class="w-3 h-3"></i> Guardar borrador
+        </button>
+        <button class="text-[11px] font-bold text-white bg-amber-600 hover:bg-amber-700 rounded-md px-4 py-1.5 inline-flex items-center gap-1">
+          Siguiente <i data-lucide="chevron-right" class="w-3 h-3"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── B.3 · Pagos masivos (sidebar pasos) ─────────────────────────────────── -->
+  <div class="max-w-6xl mx-auto subsection-divider">
+    <span class="subsection-num">B.3</span>
+    <h3 class="text-sm font-bold text-slate-900">Pagos masivos · batch a múltiples proveedores</h3>
+    <span class="text-[11px] text-slate-500 italic">color indigo · acción destacada · operación batch</span>
+  </div>
+
+  <div class="modal-backdrop max-w-6xl mx-auto mb-6">
+    <div class="modal modal-wide flex" style="min-height: 540px;">
+      <!-- Sidebar pasos -->
+      <div class="w-64 bg-slate-50 border-r border-slate-200 p-5">
+        <div class="flex items-center gap-2 mb-5">
+          <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-50 to-indigo-100 ring-1 ring-indigo-200/50 flex items-center justify-center">
+            <i data-lucide="layers" class="w-4 h-4 text-indigo-700"></i>
+          </div>
+          <div>
+            <div class="text-xs font-bold text-slate-900">Pagos masivos</div>
+            <div class="text-[10px] text-slate-500">Paso 2 de 4</div>
+          </div>
+        </div>
+
+        <div class="space-y-2">
+          <div class="flex items-center gap-2.5">
+            <div class="w-6 h-6 rounded-full bg-indigo-600 text-white flex items-center justify-center"><i data-lucide="check" class="w-3 h-3"></i></div>
+            <div class="text-[11px] font-medium text-slate-700">Configuración</div>
+          </div>
+          <div class="w-px h-3 bg-indigo-300 ml-3"></div>
+          <div class="flex items-center gap-2.5">
+            <div class="w-6 h-6 rounded-full bg-indigo-600 ring-2 ring-indigo-200 text-white flex items-center justify-center font-bold text-[10px]">2</div>
+            <div class="text-[11px] font-bold text-indigo-700">Selección documentos</div>
+          </div>
+          <div class="w-px h-3 bg-slate-300 ml-3"></div>
+          <div class="flex items-center gap-2.5 opacity-50">
+            <div class="w-6 h-6 rounded-full bg-white border border-slate-300 text-slate-500 flex items-center justify-center font-bold text-[10px]">3</div>
+            <div class="text-[11px] text-slate-500">Ejecución</div>
+          </div>
+          <div class="w-px h-3 bg-slate-300 ml-3"></div>
+          <div class="flex items-center gap-2.5 opacity-50">
+            <div class="w-6 h-6 rounded-full bg-white border border-slate-300 text-slate-500 flex items-center justify-center font-bold text-[10px]">4</div>
+            <div class="text-[11px] text-slate-500">Resumen</div>
+          </div>
+        </div>
+
+        <!-- Resumen sticky -->
+        <div class="mt-6 pt-4 border-t border-slate-200">
+          <div class="text-[9px] uppercase tracking-wider text-slate-500 font-bold mb-2">Resumen del lote</div>
+          <div class="space-y-1 text-[11px]">
+            <div class="flex justify-between"><span class="text-slate-600">Seleccionados</span><span class="font-bold tabular text-slate-900">8 docs</span></div>
+            <div class="flex justify-between"><span class="text-slate-600">Proveedores</span><span class="font-bold tabular text-slate-900">5</span></div>
+            <div class="flex justify-between"><span class="text-slate-600">Total PEN</span><span class="font-bold tabular text-rose-700">S/ 12,400</span></div>
+            <div class="flex justify-between"><span class="text-slate-600">Total USD</span><span class="font-bold tabular text-rose-700">$ 1,820</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Contenido del paso 2 -->
+      <div class="flex-1 flex flex-col">
+        <div class="flex items-center justify-between px-5 py-4 border-b border-slate-200">
+          <div>
+            <h2 class="text-base font-bold text-slate-900">Seleccioná documentos a pagar</h2>
+            <p class="text-[11px] text-slate-500">Filtrá por proveedor · fecha · monto · estado</p>
+          </div>
+          <button class="text-slate-400 hover:text-slate-600 p-1"><i data-lucide="x" class="w-5 h-5"></i></button>
+        </div>
+
+        <!-- Filtros -->
+        <div class="px-5 py-3 border-b border-slate-100 flex items-center gap-2 flex-wrap">
+          <button class="px-2.5 py-1 rounded-full text-xs font-bold bg-rose-100 text-rose-800 border border-rose-300 ring-1 ring-rose-200 inline-flex items-center gap-1">
+            <i data-lucide="alert-triangle" class="w-3 h-3"></i> Vencidos · 3
+          </button>
+          <button class="px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200 inline-flex items-center gap-1">
+            <i data-lucide="clock" class="w-3 h-3"></i> Por vencer 7d · 5
+          </button>
+          <div class="w-px h-5 bg-slate-200 mx-1"></div>
+          <select class="border border-slate-200 rounded-lg px-2 py-1 text-xs bg-white">
+            <option>Todos los proveedores</option>
+          </select>
+          <div class="ml-auto text-xs text-slate-600">
+            <span class="font-bold text-slate-900">8</span> de 23 seleccionados
+          </div>
+        </div>
+
+        <!-- Tabla de documentos -->
+        <div class="flex-1 overflow-y-auto" style="max-height: 360px;">
+          <table class="w-full text-[11px]">
+            <thead class="bg-slate-50 sticky top-0">
+              <tr>
+                <th class="px-3 py-2 text-left"><input type="checkbox" checked class="text-indigo-600"></th>
+                <th class="px-3 py-2 text-left text-[10px] uppercase tracking-wider text-slate-500 font-bold">Documento</th>
+                <th class="px-3 py-2 text-left text-[10px] uppercase tracking-wider text-slate-500 font-bold">Proveedor</th>
+                <th class="px-3 py-2 text-right text-[10px] uppercase tracking-wider text-slate-500 font-bold">Saldo</th>
+                <th class="px-3 py-2 text-right text-[10px] uppercase tracking-wider text-slate-500 font-bold">Vencimiento</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+              <tr class="hover:bg-slate-50">
+                <td class="px-3 py-2"><input type="checkbox" checked class="text-indigo-600"></td>
+                <td class="px-3 py-2 font-medium text-slate-900">OC-0089</td>
+                <td class="px-3 py-2 text-slate-700">NOW Foods</td>
+                <td class="px-3 py-2 text-right tabular font-bold">US$ 980</td>
+                <td class="px-3 py-2 text-right text-rose-700 font-medium">vencido 12d</td>
+              </tr>
+              <tr class="hover:bg-slate-50">
+                <td class="px-3 py-2"><input type="checkbox" checked class="text-indigo-600"></td>
+                <td class="px-3 py-2 font-medium text-slate-900">OC-0091</td>
+                <td class="px-3 py-2 text-slate-700">DHL Logistics</td>
+                <td class="px-3 py-2 text-right tabular font-bold">S/ 1,225</td>
+                <td class="px-3 py-2 text-right text-amber-700 font-medium">en 3d</td>
+              </tr>
+              <tr class="hover:bg-slate-50">
+                <td class="px-3 py-2"><input type="checkbox" checked class="text-indigo-600"></td>
+                <td class="px-3 py-2 font-medium text-slate-900">Sueldo · mayo</td>
+                <td class="px-3 py-2 text-slate-700">Juan Pérez</td>
+                <td class="px-3 py-2 text-right tabular font-bold">S/ 1,500</td>
+                <td class="px-3 py-2 text-right text-amber-700 font-medium">en 5d</td>
+              </tr>
+              <tr class="hover:bg-slate-50 opacity-60">
+                <td class="px-3 py-2"><input type="checkbox" class="text-indigo-600"></td>
+                <td class="px-3 py-2 font-medium text-slate-700">OC-0094</td>
+                <td class="px-3 py-2 text-slate-600">Mercado Libre</td>
+                <td class="px-3 py-2 text-right tabular text-slate-700">S/ 165</td>
+                <td class="px-3 py-2 text-right text-slate-500">en 14d</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="px-5 py-3 border-t border-slate-100 bg-slate-50 flex items-center gap-2">
+          <button class="text-[11px] font-medium text-slate-700 bg-white border border-slate-200 rounded-md px-3 py-1.5 inline-flex items-center gap-1">
+            <i data-lucide="chevron-left" class="w-3 h-3"></i> Atrás
+          </button>
+          <button class="text-[11px] font-medium text-slate-700 bg-white border border-slate-200 rounded-md px-3 py-1.5 ml-auto inline-flex items-center gap-1">
+            <i data-lucide="save" class="w-3 h-3"></i> Guardar borrador
+          </button>
+          <button class="text-[11px] font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-md px-4 py-1.5 inline-flex items-center gap-1">
+            Continuar a ejecución <i data-lucide="chevron-right" class="w-3 h-3"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════════════════════════════════════ -->
+  <!-- SECCIÓN C · MODALES DE DETALLE (vistas paralelas)                          -->
+  <!-- ═══════════════════════════════════════════════════════════════════════════ -->
+  <div class="section-divider max-w-6xl mx-auto">
+    <span class="section-num">C</span>
+    <h2 class="text-xl font-bold text-slate-900">Modales de detalle</h2>
+    <span class="text-xs text-slate-500 italic">Vistas paralelas accesibles desde click en cards · 4 modales canon</span>
+  </div>
+
+  <!-- ─── C.1 · Detalle de entidad CC ────────────────────────────────────────── -->
+  <div class="max-w-6xl mx-auto subsection-divider">
+    <span class="subsection-num">C.1</span>
+    <h3 class="text-sm font-bold text-slate-900">Detalle de entidad · CC + historial</h3>
+    <span class="text-[11px] text-slate-500 italic">color por tipo (emerald cliente · rose proveedor · etc.)</span>
+  </div>
+
+  <div class="modal-backdrop max-w-6xl mx-auto mb-6">
+    <div class="modal modal-wide">
+      <!-- Header con tabs sticky -->
+      <div class="px-5 py-4 border-b border-slate-200">
+        <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-50 to-emerald-100 ring-1 ring-emerald-200/50 flex items-center justify-center text-emerald-700 font-bold text-base">
+              AM
+            </div>
+            <div>
+              <div class="flex items-center gap-2">
+                <h2 class="text-base font-bold text-slate-900">Ana Mendoza</h2>
+                <span class="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-1.5 py-0.5 rounded">Cliente</span>
+              </div>
+              <p class="text-[11px] text-slate-500">DNI 45678123 · ana@mail.com · 3 ventas activas</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <button class="bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold px-3 py-1.5 rounded-lg inline-flex items-center gap-1 shadow-sm">
+              <i data-lucide="circle-dollar-sign" class="w-3 h-3"></i> Registrar cobro
+            </button>
+            <button class="text-slate-400 hover:text-slate-600 p-1"><i data-lucide="x" class="w-5 h-5"></i></button>
+          </div>
+        </div>
+        <!-- Sub-tabs canon -->
+        <div class="flex items-center gap-1 mt-3">
+          <button class="px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-100 text-emerald-800 ring-2 ring-emerald-300 inline-flex items-center gap-1">
+            <i data-lucide="layout-dashboard" class="w-3 h-3"></i> Resumen
+          </button>
+          <button class="px-3 py-1.5 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-50 inline-flex items-center gap-1">
+            <i data-lucide="list" class="w-3 h-3"></i> Movimientos · 8
+          </button>
+          <button class="px-3 py-1.5 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-50 inline-flex items-center gap-1">
+            <i data-lucide="file-text" class="w-3 h-3"></i> Documentos · 3
+          </button>
+          <button class="px-3 py-1.5 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-50 inline-flex items-center gap-1">
+            <i data-lucide="trending-up" class="w-3 h-3"></i> Análisis 12m
+          </button>
+        </div>
+      </div>
+
+      <!-- Body resumen -->
+      <div class="px-5 py-4 grid grid-cols-1 md:grid-cols-4 gap-3">
+        <!-- KPIs entidad · canon v8.0 -->
+        <div class="bg-gradient-to-br from-emerald-50 to-emerald-100/40 ring-1 ring-emerald-200/50 rounded-xl p-3">
+          <div class="text-[9px] uppercase tracking-wider text-emerald-700 font-bold">Saldo actual</div>
+          <div class="text-xl font-bold tabular text-emerald-900 mt-0.5">S/ 4,820<span class="text-emerald-400">.00</span></div>
+          <div class="text-[10px] text-rose-700 font-medium mt-0.5">Vencido 7d</div>
+        </div>
+        <div class="bg-white border border-slate-200 rounded-xl p-3">
+          <div class="text-[9px] uppercase tracking-wider text-slate-500 font-bold">Ventas 12m</div>
+          <div class="text-xl font-bold tabular text-slate-900 mt-0.5">8</div>
+          <div class="text-[10px] text-slate-500 mt-0.5">S/ 24,300 total</div>
+        </div>
+        <div class="bg-white border border-slate-200 rounded-xl p-3">
+          <div class="text-[9px] uppercase tracking-wider text-slate-500 font-bold">Ticket promedio</div>
+          <div class="text-xl font-bold tabular text-slate-900 mt-0.5">S/ 3,037</div>
+          <div class="text-[10px] text-emerald-700 mt-0.5">+12% últ. 3m</div>
+        </div>
+        <div class="bg-white border border-slate-200 rounded-xl p-3">
+          <div class="text-[9px] uppercase tracking-wider text-slate-500 font-bold">DSO</div>
+          <div class="text-xl font-bold tabular text-amber-700 mt-0.5">28<span class="text-amber-400">d</span></div>
+          <div class="text-[10px] text-amber-700 mt-0.5">+6d vs prom</div>
+        </div>
+      </div>
+
+      <!-- Lista de últimos movimientos · canon F4 cards apiladas -->
+      <div class="px-5 pb-4">
+        <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-2">Últimos movimientos</div>
+        <div class="bg-white border border-slate-200 rounded-xl divide-y divide-slate-100">
+          <div class="flex items-center gap-3 px-3 py-2.5">
+            <div class="w-7 h-7 rounded-lg bg-rose-50 ring-1 ring-rose-200/50 flex items-center justify-center">
+              <i data-lucide="receipt" class="w-3.5 h-3.5 text-rose-700"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="text-[11px] font-bold text-slate-900">Venta V-1024 (cargo)</div>
+              <div class="text-[10px] text-slate-500">15 abr · vencido 7d</div>
+            </div>
+            <div class="text-[11px] font-bold tabular text-rose-700">+S/ 2,400</div>
+          </div>
+          <div class="flex items-center gap-3 px-3 py-2.5">
+            <div class="w-7 h-7 rounded-lg bg-rose-50 ring-1 ring-rose-200/50 flex items-center justify-center">
+              <i data-lucide="receipt" class="w-3.5 h-3.5 text-rose-700"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="text-[11px] font-bold text-slate-900">Venta V-1031 (cargo)</div>
+              <div class="text-[10px] text-slate-500">28 abr</div>
+            </div>
+            <div class="text-[11px] font-bold tabular text-rose-700">+S/ 3,200</div>
+          </div>
+          <div class="flex items-center gap-3 px-3 py-2.5">
+            <div class="w-7 h-7 rounded-lg bg-emerald-50 ring-1 ring-emerald-200/50 flex items-center justify-center">
+              <i data-lucide="arrow-down-circle" class="w-3.5 h-3.5 text-emerald-700"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="text-[11px] font-bold text-slate-900">Cobro parcial</div>
+              <div class="text-[10px] text-slate-500">5 may · Yape Y-12345</div>
+            </div>
+            <div class="text-[11px] font-bold tabular text-emerald-700">−S/ 780</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── C.2 · Detalle de tarjeta de crédito ────────────────────────────────── -->
+  <div class="max-w-6xl mx-auto subsection-divider">
+    <span class="subsection-num">C.2</span>
+    <h3 class="text-sm font-bold text-slate-900">Detalle de tarjeta de crédito</h3>
+    <span class="text-[11px] text-slate-500 italic">color amber · estado de cuenta + alertas + acciones</span>
+  </div>
+
+  <div class="modal-backdrop max-w-6xl mx-auto mb-6">
+    <div class="modal modal-wide">
+      <div class="flex items-center justify-between px-5 py-4 border-b border-slate-200">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-50 to-amber-100 ring-1 ring-amber-200/50 flex items-center justify-center">
+            <i data-lucide="credit-card" class="w-6 h-6 text-amber-700"></i>
+          </div>
+          <div>
+            <h2 class="text-base font-bold text-slate-900">BCP Visa Empresarial</h2>
+            <p class="text-[11px] text-slate-500">●●●● 4521 · titular Vita Skin Peru SAC</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <button class="bg-amber-600 hover:bg-amber-700 text-white text-[11px] font-bold px-3 py-1.5 rounded-lg inline-flex items-center gap-1 shadow-sm">
+            <i data-lucide="check-circle-2" class="w-3 h-3"></i> Pagar estado
+          </button>
+          <button class="text-slate-400 hover:text-slate-600 p-1"><i data-lucide="x" class="w-5 h-5"></i></button>
+        </div>
+      </div>
+
+      <!-- Hero estado de cuenta -->
+      <div class="px-5 py-4 bg-gradient-to-r from-amber-50 to-white border-b border-amber-200">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div class="md:col-span-2">
+            <div class="text-[10px] uppercase tracking-wider text-amber-700 font-bold">Deuda actual</div>
+            <div class="text-3xl font-bold tabular text-amber-900 mt-1">S/ 3,240<span class="text-amber-400">.00</span></div>
+            <div class="text-[11px] text-amber-700 mt-1">de S/ 8,000 disponible · 40% utilización</div>
+            <!-- Barra de utilización -->
+            <div class="w-full bg-amber-200/40 rounded-full h-1.5 mt-2">
+              <div class="bg-amber-500 h-1.5 rounded-full" style="width: 40%"></div>
+            </div>
+          </div>
+          <div>
+            <div class="text-[10px] uppercase tracking-wider text-amber-700 font-bold">Cierre</div>
+            <div class="text-lg font-bold tabular text-amber-900 mt-0.5">15 may</div>
+            <div class="text-[10px] text-amber-700">en 4 días</div>
+          </div>
+          <div>
+            <div class="text-[10px] uppercase tracking-wider text-amber-700 font-bold">Vencimiento</div>
+            <div class="text-lg font-bold tabular text-amber-900 mt-0.5">22 may</div>
+            <div class="text-[10px] text-amber-700">en 11 días</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Cargos del periodo · tabla -->
+      <div class="px-5 py-4">
+        <div class="flex items-center justify-between mb-2">
+          <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Cargos del periodo · 12</div>
+          <button class="text-[11px] text-amber-700 hover:text-amber-800 font-medium">Ver todos →</button>
+        </div>
+        <div class="bg-white border border-slate-200 rounded-xl divide-y divide-slate-100">
+          <div class="flex items-center justify-between px-3 py-2 text-[11px]">
+            <div>
+              <div class="font-medium text-slate-900">Anuncios Meta</div>
+              <div class="text-[10px] text-slate-500">10 may · Marketing</div>
+            </div>
+            <span class="font-bold tabular text-slate-900">S/ 1,200</span>
+          </div>
+          <div class="flex items-center justify-between px-3 py-2 text-[11px]">
+            <div>
+              <div class="font-medium text-slate-900">Hosting AWS</div>
+              <div class="text-[10px] text-slate-500">5 may · SaaS</div>
+            </div>
+            <span class="font-bold tabular text-slate-900">S/ 320</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── C.3 · Detalle de cuenta bancaria ───────────────────────────────────── -->
+  <div class="max-w-6xl mx-auto subsection-divider">
+    <span class="subsection-num">C.3</span>
+    <h3 class="text-sm font-bold text-slate-900">Detalle de cuenta bancaria · saldo + movimientos</h3>
+    <span class="text-[11px] text-slate-500 italic">color teal · KPI + chart + lista movimientos</span>
+  </div>
+
+  <div class="modal-backdrop max-w-6xl mx-auto mb-6">
+    <div class="modal modal-wide">
+      <div class="flex items-center justify-between px-5 py-4 border-b border-slate-200">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-teal-50 to-teal-100 ring-1 ring-teal-200/50 flex items-center justify-center">
+            <i data-lucide="building-2" class="w-6 h-6 text-teal-700"></i>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h2 class="text-base font-bold text-slate-900">BCP soles</h2>
+              <span class="text-[10px] font-bold text-teal-700 bg-teal-100 px-1.5 py-0.5 rounded">Bancaria</span>
+              <span class="text-[10px] font-bold text-teal-700 bg-white border border-teal-200 px-1.5 py-0.5 rounded">PEN</span>
+            </div>
+            <p class="text-[11px] text-slate-500">●●●● 7821 · cuenta corriente · Vita Skin Peru SAC</p>
+          </div>
+        </div>
+        <button class="text-slate-400 hover:text-slate-600 p-1"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+
+      <div class="px-5 py-4 space-y-4">
+        <!-- Hero saldo -->
+        <div class="bg-gradient-to-br from-teal-50 to-teal-100/40 ring-1 ring-teal-200/50 rounded-2xl p-4 grid grid-cols-1 md:grid-cols-3 gap-3">
+          <div class="md:col-span-2">
+            <div class="text-[10px] uppercase tracking-wider text-teal-700 font-bold">Saldo actual</div>
+            <div class="text-3xl font-bold tabular text-teal-900 mt-1">S/ 23,450<span class="text-teal-400">.50</span></div>
+            <div class="text-[11px] text-teal-700 flex items-center gap-1 mt-1">
+              <i data-lucide="trending-up" class="w-3 h-3"></i> +S/ 3,530 últimos 30d
+            </div>
+            <!-- Sparkline 30d -->
+            <svg viewBox="0 0 300 50" class="w-full h-12 mt-2">
+              <polyline points="0,40 30,38 60,35 90,32 120,28 150,30 180,25 210,22 240,20 270,18 300,15" fill="none" stroke="#0d9488" stroke-width="2"/>
+              <circle cx="300" cy="15" r="3" fill="#0d9488"/>
+            </svg>
+          </div>
+          <div class="space-y-2">
+            <div>
+              <div class="text-[9px] uppercase tracking-wider text-emerald-700 font-bold">Ingresos · mayo</div>
+              <div class="text-base font-bold tabular text-emerald-700">+S/ 32,180</div>
+            </div>
+            <div>
+              <div class="text-[9px] uppercase tracking-wider text-rose-700 font-bold">Egresos · mayo</div>
+              <div class="text-base font-bold tabular text-rose-700">−S/ 28,650</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Lista de movimientos compacta -->
+        <div>
+          <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-2">Últimos movimientos</div>
+          <div class="bg-white border border-slate-200 rounded-xl divide-y divide-slate-100">
+            <div class="flex items-center gap-3 px-3 py-2 text-[11px]">
+              <div class="w-7 h-7 rounded-lg bg-emerald-50 ring-1 ring-emerald-200/50 flex items-center justify-center">
+                <i data-lucide="arrow-down-circle" class="w-3.5 h-3.5 text-emerald-700"></i>
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="font-bold text-slate-900 truncate">Cobro Ana Mendoza</div>
+                <div class="text-[10px] text-slate-500">15 may · Yape</div>
+              </div>
+              <div class="text-right">
+                <div class="font-bold tabular text-emerald-700">+S/ 4,820</div>
+                <div class="text-[10px] text-slate-500">Saldo: S/ 23,450</div>
+              </div>
+            </div>
+            <div class="flex items-center gap-3 px-3 py-2 text-[11px]">
+              <div class="w-7 h-7 rounded-lg bg-rose-50 ring-1 ring-rose-200/50 flex items-center justify-center">
+                <i data-lucide="arrow-up-circle" class="w-3.5 h-3.5 text-rose-700"></i>
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="font-bold text-slate-900 truncate">Pago sueldo Juan Pérez</div>
+                <div class="text-[10px] text-slate-500">10 may · transferencia</div>
+              </div>
+              <div class="text-right">
+                <div class="font-bold tabular text-rose-700">−S/ 1,500</div>
+                <div class="text-[10px] text-slate-500">Saldo: S/ 18,630</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── C.4 · Detalle de movimiento individual ─────────────────────────────── -->
+  <div class="max-w-6xl mx-auto subsection-divider">
+    <span class="subsection-num">C.4</span>
+    <h3 class="text-sm font-bold text-slate-900">Drawer · detalle de movimiento individual</h3>
+    <span class="text-[11px] text-slate-500 italic">drawer lateral derecho · canon F6 variante E · click en fila de Movimientos</span>
+  </div>
+
+  <div class="modal-backdrop max-w-6xl mx-auto mb-6">
+    <div class="bg-white rounded-2xl shadow-xl border border-slate-200 ml-auto" style="max-width: 480px;">
+      <div class="flex items-center justify-between px-5 py-4 border-b border-slate-200">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-50 to-emerald-100 ring-1 ring-emerald-200/50 flex items-center justify-center">
+            <i data-lucide="arrow-down-circle" class="w-5 h-5 text-emerald-700"></i>
+          </div>
+          <div>
+            <h2 class="text-sm font-bold text-slate-900">Cobro Ana Mendoza</h2>
+            <p class="text-[10px] text-slate-500">Ingreso · 15 may 2026 · BCP soles</p>
+          </div>
+        </div>
+        <button class="text-slate-400 hover:text-slate-600 p-1"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+
+      <div class="px-5 py-4 space-y-3">
+        <!-- Monto hero -->
+        <div class="text-center py-3 bg-emerald-50 rounded-xl">
+          <div class="text-[10px] uppercase tracking-wider text-emerald-700 font-bold">Monto</div>
+          <div class="text-3xl font-bold tabular text-emerald-700 mt-1">+S/ 4,820<span class="text-emerald-400">.00</span></div>
+          <div class="text-[10px] text-emerald-700 mt-1">Yape · referencia Y-12345</div>
+        </div>
+
+        <!-- Atributos -->
+        <div class="space-y-2 text-xs">
+          <div class="flex items-center justify-between py-1.5 border-b border-slate-100">
+            <span class="text-slate-500">Entidad origen</span>
+            <a href="#" class="text-emerald-700 font-medium hover:underline">Ana Mendoza →</a>
+          </div>
+          <div class="flex items-center justify-between py-1.5 border-b border-slate-100">
+            <span class="text-slate-500">Cuenta destino</span>
+            <a href="#" class="text-teal-700 font-medium hover:underline">BCP soles →</a>
+          </div>
+          <div class="flex items-center justify-between py-1.5 border-b border-slate-100">
+            <span class="text-slate-500">Documento vinculado</span>
+            <a href="#" class="text-purple-700 font-medium hover:underline">Venta V-1024 →</a>
+          </div>
+          <div class="flex items-center justify-between py-1.5 border-b border-slate-100">
+            <span class="text-slate-500">Tipo de ingreso</span>
+            <span class="text-slate-900 font-medium">Cobro a cliente</span>
+          </div>
+          <div class="flex items-center justify-between py-1.5 border-b border-slate-100">
+            <span class="text-slate-500">Línea negocio</span>
+            <span class="text-slate-900 font-medium">Vita Skin (compartido)</span>
+          </div>
+          <div class="flex items-center justify-between py-1.5">
+            <span class="text-slate-500">Estado</span>
+            <span class="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-1.5 py-0.5 rounded">Confirmado</span>
+          </div>
+        </div>
+
+        <!-- Audit trail -->
+        <div class="bg-slate-50 rounded-lg p-2.5 text-[10px] text-slate-600">
+          <div class="font-bold text-slate-700 mb-1">Auditoría</div>
+          <div>Creado por Usuario 2 · 15 may 14:23</div>
+        </div>
+      </div>
+
+      <div class="px-5 py-3 border-t border-slate-100 bg-slate-50 flex items-center gap-2">
+        <button class="text-[11px] font-medium text-rose-700 bg-white border border-rose-200 hover:bg-rose-50 rounded-md px-3 py-1.5 inline-flex items-center gap-1">
+          <i data-lucide="trash-2" class="w-3 h-3"></i> Anular
+        </button>
+        <button class="text-[11px] font-medium text-slate-700 bg-white border border-slate-200 hover:bg-slate-100 rounded-md px-3 py-1.5 ml-auto inline-flex items-center gap-1">
+          <i data-lucide="pencil" class="w-3 h-3"></i> Editar
+        </button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════════════════════════════════════ -->
+  <!-- SECCIÓN D · WIZARD ALTA DE CUENTA NUEVA                                    -->
+  <!-- ═══════════════════════════════════════════════════════════════════════════ -->
+  <div class="section-divider max-w-6xl mx-auto">
+    <span class="section-num">D</span>
+    <h2 class="text-xl font-bold text-slate-900">Wizard nueva cuenta · 4 pasos</h2>
+    <span class="text-xs text-slate-500 italic">CuentaWizard · alta de banco/billetera/caja/tarjeta</span>
+  </div>
+
+  <div class="modal-backdrop max-w-6xl mx-auto mb-6">
+    <div class="modal modal-wide flex" style="min-height: 540px;">
+      <!-- Sidebar pasos -->
+      <div class="w-64 bg-slate-50 border-r border-slate-200 p-5">
+        <div class="flex items-center gap-2 mb-5">
+          <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-teal-50 to-teal-100 ring-1 ring-teal-200/50 flex items-center justify-center">
+            <i data-lucide="plus-circle" class="w-4 h-4 text-teal-700"></i>
+          </div>
+          <div>
+            <div class="text-xs font-bold text-slate-900">Nueva cuenta</div>
+            <div class="text-[10px] text-slate-500">Paso 1 de 4</div>
+          </div>
+        </div>
+        <div class="space-y-2">
+          <div class="flex items-center gap-2.5">
+            <div class="w-6 h-6 rounded-full bg-teal-600 ring-2 ring-teal-200 text-white flex items-center justify-center font-bold text-[10px]">1</div>
+            <div class="text-[11px] font-bold text-teal-700">Tipo de producto</div>
+          </div>
+          <div class="w-px h-3 bg-slate-300 ml-3"></div>
+          <div class="flex items-center gap-2.5 opacity-50">
+            <div class="w-6 h-6 rounded-full bg-white border border-slate-300 text-slate-500 flex items-center justify-center font-bold text-[10px]">2</div>
+            <div class="text-[11px] text-slate-500">Identidad</div>
+          </div>
+          <div class="w-px h-3 bg-slate-300 ml-3"></div>
+          <div class="flex items-center gap-2.5 opacity-50">
+            <div class="w-6 h-6 rounded-full bg-white border border-slate-300 text-slate-500 flex items-center justify-center font-bold text-[10px]">3</div>
+            <div class="text-[11px] text-slate-500">Saldo inicial</div>
+          </div>
+          <div class="w-px h-3 bg-slate-300 ml-3"></div>
+          <div class="flex items-center gap-2.5 opacity-50">
+            <div class="w-6 h-6 rounded-full bg-white border border-slate-300 text-slate-500 flex items-center justify-center font-bold text-[10px]">4</div>
+            <div class="text-[11px] text-slate-500">Métodos / canales</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex-1 flex flex-col">
+        <div class="flex items-center justify-between px-5 py-4 border-b border-slate-200">
+          <div>
+            <h2 class="text-base font-bold text-slate-900">¿Qué tipo de cuenta vas a crear?</h2>
+            <p class="text-[11px] text-slate-500">Selecciona la categoría · luego completarás los detalles</p>
+          </div>
+          <button class="text-slate-400 hover:text-slate-600 p-1"><i data-lucide="x" class="w-5 h-5"></i></button>
+        </div>
+
+        <div class="flex-1 px-5 py-4">
+          <div class="grid grid-cols-2 gap-3">
+            <button class="bg-gradient-to-br from-teal-50 to-teal-100/40 ring-1 ring-teal-200/50 rounded-xl p-4 text-left hover:from-teal-100 hover:to-teal-100 transition-colors">
+              <div class="w-10 h-10 rounded-lg bg-teal-100 flex items-center justify-center mb-2">
+                <i data-lucide="building-2" class="w-5 h-5 text-teal-700"></i>
+              </div>
+              <div class="text-sm font-bold text-slate-900">Cuenta bancaria</div>
+              <div class="text-[11px] text-teal-700 mt-1">BCP · Interbank · BBVA · Scotia · etc.</div>
+            </button>
+            <button class="bg-gradient-to-br from-purple-50 to-purple-100/40 ring-1 ring-purple-200/50 rounded-xl p-4 text-left hover:from-purple-100 hover:to-purple-100 transition-colors">
+              <div class="w-10 h-10 rounded-lg bg-purple-100 flex items-center justify-center mb-2">
+                <i data-lucide="smartphone" class="w-5 h-5 text-purple-700"></i>
+              </div>
+              <div class="text-sm font-bold text-slate-900">Billetera digital</div>
+              <div class="text-[11px] text-purple-700 mt-1">Yape · Plin · Tunki · etc.</div>
+            </button>
+            <button class="bg-gradient-to-br from-amber-50 to-amber-100/40 ring-1 ring-amber-200/50 rounded-xl p-4 text-left hover:from-amber-100 hover:to-amber-100 transition-colors">
+              <div class="w-10 h-10 rounded-lg bg-amber-100 flex items-center justify-center mb-2">
+                <i data-lucide="credit-card" class="w-5 h-5 text-amber-700"></i>
+              </div>
+              <div class="text-sm font-bold text-slate-900">Tarjeta de crédito</div>
+              <div class="text-[11px] text-amber-700 mt-1">Visa · MC · AmEx · Diners</div>
+            </button>
+            <button class="bg-gradient-to-br from-emerald-50 to-emerald-100/40 ring-1 ring-emerald-200/50 rounded-xl p-4 text-left hover:from-emerald-100 hover:to-emerald-100 transition-colors">
+              <div class="w-10 h-10 rounded-lg bg-emerald-100 flex items-center justify-center mb-2">
+                <i data-lucide="wallet" class="w-5 h-5 text-emerald-700"></i>
+              </div>
+              <div class="text-sm font-bold text-slate-900">Caja / efectivo</div>
+              <div class="text-[11px] text-emerald-700 mt-1">Caja chica · caja fuerte · efectivo</div>
+            </button>
+          </div>
+        </div>
+
+        <div class="px-5 py-3 border-t border-slate-100 bg-slate-50 flex items-center gap-2">
+          <button class="text-[11px] font-medium text-slate-700 bg-white border border-slate-200 rounded-md px-3 py-1.5">Cancelar</button>
+          <button class="text-[11px] font-medium text-slate-700 bg-white border border-slate-200 rounded-md px-3 py-1.5 ml-auto inline-flex items-center gap-1">
+            <i data-lucide="save" class="w-3 h-3"></i> Guardar borrador
+          </button>
+          <button class="text-[11px] font-bold text-white bg-teal-600 hover:bg-teal-700 rounded-md px-4 py-1.5 inline-flex items-center gap-1">
+            Siguiente <i data-lucide="chevron-right" class="w-3 h-3"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════════════════════════════════════ -->
+  <!-- SECCIÓN E · RESUMEN VISTAS PARALELAS                                       -->
+  <!-- ═══════════════════════════════════════════════════════════════════════════ -->
+  <div class="section-divider max-w-6xl mx-auto">
+    <span class="section-num">E</span>
+    <h2 class="text-xl font-bold text-slate-900">Resumen · todas las vistas paralelas auditadas</h2>
+  </div>
+
+  <div class="max-w-6xl mx-auto bg-white border border-slate-200 rounded-2xl overflow-hidden">
+    <table class="w-full text-sm">
+      <thead class="bg-slate-50">
+        <tr>
+          <th class="text-left px-4 py-3 text-xs uppercase tracking-wider text-slate-500 font-bold">Vista paralela</th>
+          <th class="text-left px-4 py-3 text-xs uppercase tracking-wider text-slate-500 font-bold">Tipo</th>
+          <th class="text-left px-4 py-3 text-xs uppercase tracking-wider text-slate-500 font-bold">Color canon</th>
+          <th class="text-left px-4 py-3 text-xs uppercase tracking-wider text-slate-500 font-bold">Borrador F-Borradores</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-100 text-xs">
+        <tr>
+          <td class="px-4 py-3 font-bold">A.1 · Registrar ingreso</td>
+          <td class="px-4 py-3 text-slate-600">Modal · 1 paso</td>
+          <td class="px-4 py-3"><span class="bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded text-[10px] font-bold">emerald</span></td>
+          <td class="px-4 py-3 text-slate-600">Sí · tipo='movimiento'</td>
+        </tr>
+        <tr>
+          <td class="px-4 py-3 font-bold">A.2 · Registrar egreso</td>
+          <td class="px-4 py-3 text-slate-600">Modal · 1 paso</td>
+          <td class="px-4 py-3"><span class="bg-rose-100 text-rose-800 px-1.5 py-0.5 rounded text-[10px] font-bold">rose</span></td>
+          <td class="px-4 py-3 text-slate-600">Sí · tipo='movimiento'</td>
+        </tr>
+        <tr>
+          <td class="px-4 py-3 font-bold">A.3 · Conversión USD↔PEN</td>
+          <td class="px-4 py-3 text-slate-600">Modal · 1 paso</td>
+          <td class="px-4 py-3"><span class="bg-teal-100 text-teal-800 px-1.5 py-0.5 rounded text-[10px] font-bold">teal</span></td>
+          <td class="px-4 py-3 text-slate-600">Sí · tipo='conversion'</td>
+        </tr>
+        <tr>
+          <td class="px-4 py-3 font-bold">A.4 · Transferencia interna</td>
+          <td class="px-4 py-3 text-slate-600">Modal · 1 paso</td>
+          <td class="px-4 py-3"><span class="bg-indigo-100 text-indigo-800 px-1.5 py-0.5 rounded text-[10px] font-bold">indigo</span></td>
+          <td class="px-4 py-3 text-slate-600">No (acción simple)</td>
+        </tr>
+        <tr>
+          <td class="px-4 py-3 font-bold">B.1 · PagoAbonoWizard</td>
+          <td class="px-4 py-3 text-slate-600">Wizard · 4 pasos · sidebar</td>
+          <td class="px-4 py-3"><span class="bg-purple-100 text-purple-800 px-1.5 py-0.5 rounded text-[10px] font-bold">purple</span></td>
+          <td class="px-4 py-3 text-slate-600">Sí · tipo='pagoAbonoDistribuido'</td>
+        </tr>
+        <tr>
+          <td class="px-4 py-3 font-bold">B.2 · Pagar estado TC</td>
+          <td class="px-4 py-3 text-slate-600">Wizard · 3 pasos · stepper horizontal</td>
+          <td class="px-4 py-3"><span class="bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded text-[10px] font-bold">amber</span></td>
+          <td class="px-4 py-3 text-slate-600">Sí · tipo='pagoEstadoCuentaTC'</td>
+        </tr>
+        <tr>
+          <td class="px-4 py-3 font-bold">B.3 · Pagos masivos</td>
+          <td class="px-4 py-3 text-slate-600">Wizard · 4 pasos · sidebar</td>
+          <td class="px-4 py-3"><span class="bg-indigo-100 text-indigo-800 px-1.5 py-0.5 rounded text-[10px] font-bold">indigo</span></td>
+          <td class="px-4 py-3 text-slate-600">Sí · tipo='pagoMasivo'</td>
+        </tr>
+        <tr>
+          <td class="px-4 py-3 font-bold">D · Nueva cuenta</td>
+          <td class="px-4 py-3 text-slate-600">Wizard · 4 pasos · sidebar</td>
+          <td class="px-4 py-3"><span class="bg-teal-100 text-teal-800 px-1.5 py-0.5 rounded text-[10px] font-bold">teal</span></td>
+          <td class="px-4 py-3 text-slate-600">Sí · tipo='cuenta'</td>
+        </tr>
+        <tr>
+          <td class="px-4 py-3 font-bold">+ CargarTarjeta</td>
+          <td class="px-4 py-3 text-slate-600">Wizard · 3 pasos · stepper horizontal</td>
+          <td class="px-4 py-3"><span class="bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded text-[10px] font-bold">amber</span></td>
+          <td class="px-4 py-3 text-slate-600">Sí · tipo='cargoTC'</td>
+        </tr>
+        <tr class="bg-slate-50">
+          <td class="px-4 py-3 font-bold" colspan="4">Modales de detalle (vistas paralelas)</td>
+        </tr>
+        <tr>
+          <td class="px-4 py-3 font-bold">C.1 · Detalle entidad CC</td>
+          <td class="px-4 py-3 text-slate-600">Modal grande · 4 tabs internos</td>
+          <td class="px-4 py-3">Por tipo entidad</td>
+          <td class="px-4 py-3 text-slate-600">N/A (lectura)</td>
+        </tr>
+        <tr>
+          <td class="px-4 py-3 font-bold">C.2 · Detalle TC</td>
+          <td class="px-4 py-3 text-slate-600">Modal grande · estado de cuenta</td>
+          <td class="px-4 py-3"><span class="bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded text-[10px] font-bold">amber</span></td>
+          <td class="px-4 py-3 text-slate-600">N/A (lectura)</td>
+        </tr>
+        <tr>
+          <td class="px-4 py-3 font-bold">C.3 · Detalle cuenta</td>
+          <td class="px-4 py-3 text-slate-600">Modal grande · KPI + chart + movs</td>
+          <td class="px-4 py-3"><span class="bg-teal-100 text-teal-800 px-1.5 py-0.5 rounded text-[10px] font-bold">teal</span></td>
+          <td class="px-4 py-3 text-slate-600">N/A (lectura)</td>
+        </tr>
+        <tr>
+          <td class="px-4 py-3 font-bold">C.4 · Drawer movimiento</td>
+          <td class="px-4 py-3 text-slate-600">Drawer lateral · canon F6 E</td>
+          <td class="px-4 py-3">Por tipo movimiento</td>
+          <td class="px-4 py-3 text-slate-600">N/A (lectura/edit)</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="max-w-6xl mx-auto mt-8 text-center text-xs text-slate-400 italic">
+    Mockup chk5.D-S1b · vistas paralelas v5 · pendiente aprobación del usuario antes de implementación
+  </div>
+
+  <script>lucide.createIcons();</script>
+</body>
+</html>

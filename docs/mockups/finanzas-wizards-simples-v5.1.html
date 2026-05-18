@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Finanzas · Wizards simples · v5.1 (A.1 + A.2 + A.4)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, sans-serif; }
+    .tabular { font-variant-numeric: tabular-nums; font-feature-settings: "tnum"; }
+  </style>
+</head>
+<body class="bg-slate-100 text-slate-900">
+
+<header class="bg-slate-900 text-white sticky top-0 z-50 shadow-lg">
+  <div class="max-w-[1400px] mx-auto px-6 py-3 flex items-center justify-between">
+    <div>
+      <div class="text-[10px] uppercase tracking-wider text-teal-300">chk5.D-S1e · TURNO 4</div>
+      <div class="text-base font-bold">MOCK 11 · Wizards simples · A.1 Ingreso + A.2 Egreso + A.4 Transferencia</div>
+    </div>
+    <nav class="hidden md:flex items-center gap-1 text-[11px]">
+      <a href="finanzas-shell-overview-v5.1.html" class="px-2 py-1 hover:bg-slate-700 rounded text-slate-300">1-9</a>
+      <a href="finanzas-wizard-nueva-cuenta-v5.1.html" class="px-2 py-1 hover:bg-slate-700 rounded text-slate-300">10</a>
+      <span class="px-2 py-1 bg-teal-600 rounded text-white font-semibold">11</span>
+    </nav>
+  </div>
+</header>
+
+<main class="max-w-[1400px] mx-auto px-6 py-8 space-y-12">
+
+<!-- §1 · INTRO -->
+<section class="space-y-4">
+  <div class="flex items-center gap-2"><span class="text-[10px] uppercase tracking-wider font-bold text-slate-500">§ 1 · 3 wizards simples (1 modal · 1 paso · sin F-Borradores obligatorio)</span><div class="flex-1 h-px bg-slate-200"></div></div>
+  <p class="text-sm text-slate-600">Wizards de 1 sola pantalla · acción rápida desde dropdown "+ Nuevo movimiento". A.3 Conversión USD↔PEN ya está en MOCK 3.</p>
+</section>
+
+<!-- §2 · A.1 REGISTRAR INGRESO SIMPLE -->
+<section class="space-y-4">
+  <div class="flex items-center gap-2"><span class="text-[10px] uppercase tracking-wider font-bold text-emerald-700">§ 2 · A.1 · Registrar ingreso simple · modal emerald</span><div class="flex-1 h-px bg-emerald-200"></div></div>
+  <p class="text-[12px] text-slate-500">Caso de uso: cobro cash de cliente · aporte de capital · otros ingresos no vinculados a venta. Si es cobro de factura específica → usar B.1 PagoAbono.</p>
+
+  <div class="bg-white border border-slate-200 rounded-2xl shadow-lg max-w-2xl mx-auto overflow-hidden">
+    <div class="bg-gradient-to-br from-emerald-50 to-emerald-100/40 border-b border-emerald-200 px-5 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center text-white"><i data-lucide="arrow-down-circle" class="w-5 h-5"></i></div>
+        <div>
+          <div class="text-[13px] font-bold">Registrar ingreso simple</div>
+          <div class="text-[10px] text-slate-500">Ingreso sin documento vinculado · cash · aporte · otros</div>
+        </div>
+      </div>
+      <button class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-4 h-4"></i></button>
+    </div>
+    <div class="p-5 space-y-4">
+      <!-- Tipo concepto -->
+      <div>
+        <label class="text-[11px] font-bold text-slate-700 uppercase mb-2 block">Tipo de ingreso</label>
+        <div class="grid grid-cols-4 gap-2">
+          <button class="p-3 bg-emerald-50 ring-2 ring-emerald-500 rounded-xl text-left">
+            <i data-lucide="shopping-cart" class="w-4 h-4 text-emerald-700 mb-1"></i>
+            <div class="text-[11px] font-bold text-emerald-900">Venta cash</div>
+            <div class="text-[9px] text-emerald-700">Sin factura formal</div>
+          </button>
+          <button class="p-3 bg-white border border-slate-200 rounded-xl text-left hover:bg-slate-50">
+            <i data-lucide="briefcase" class="w-4 h-4 text-slate-600 mb-1"></i>
+            <div class="text-[11px] font-bold">Aporte capital</div>
+            <div class="text-[9px] text-slate-500">Socio · préstamo</div>
+          </button>
+          <button class="p-3 bg-white border border-slate-200 rounded-xl text-left hover:bg-slate-50">
+            <i data-lucide="rotate-ccw" class="w-4 h-4 text-slate-600 mb-1"></i>
+            <div class="text-[11px] font-bold">Devolución</div>
+            <div class="text-[9px] text-slate-500">Reembolso proveedor</div>
+          </button>
+          <button class="p-3 bg-white border border-slate-200 rounded-xl text-left hover:bg-slate-50">
+            <i data-lucide="more-horizontal" class="w-4 h-4 text-slate-600 mb-1"></i>
+            <div class="text-[11px] font-bold">Otro</div>
+            <div class="text-[9px] text-slate-500">Definir concepto</div>
+          </button>
+        </div>
+      </div>
+      <!-- Origen + destino + monto -->
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="text-[11px] font-bold text-slate-700 uppercase mb-1.5 block">Origen (de quién)</label>
+          <input type="text" placeholder="Nombre cliente · razón social · o 'consumidor final'" class="w-full text-sm border border-slate-300 rounded-lg px-3 py-2" />
+        </div>
+        <div>
+          <label class="text-[11px] font-bold text-slate-700 uppercase mb-1.5 block">Cuenta destino</label>
+          <select class="w-full text-sm border border-slate-300 rounded-lg px-3 py-2 bg-emerald-50">
+            <option>BCP Soles Operativa · S/ 42,180</option>
+            <option>Caja chica oficina · S/ 840</option>
+            <option>Pool USD · $ 4,820</option>
+          </select>
+        </div>
+        <div>
+          <label class="text-[11px] font-bold text-slate-700 uppercase mb-1.5 block">Monto</label>
+          <div class="relative"><span class="absolute left-3 top-2 text-slate-500 text-sm">S/</span><input type="text" value="1,500.00" class="w-full text-base border border-slate-300 rounded-lg pl-9 pr-3 py-2 tabular text-right font-bold" /></div>
+        </div>
+        <div>
+          <label class="text-[11px] font-bold text-slate-700 uppercase mb-1.5 block">Fecha</label>
+          <input type="date" value="2026-05-15" class="w-full text-sm border border-slate-300 rounded-lg px-3 py-2" />
+        </div>
+        <div>
+          <label class="text-[11px] font-bold text-slate-700 uppercase mb-1.5 block">Método</label>
+          <select class="w-full text-sm border border-slate-300 rounded-lg px-3 py-2"><option>Efectivo</option><option>Yape (BCP Soles)</option><option>Transferencia</option></select>
+        </div>
+        <div>
+          <label class="text-[11px] font-bold text-slate-700 uppercase mb-1.5 block">Referencia (opcional)</label>
+          <input type="text" placeholder="N° operación · voucher" class="w-full text-sm border border-slate-300 rounded-lg px-3 py-2 tabular" />
+        </div>
+      </div>
+      <!-- Cross-link a Ventas -->
+      <div class="bg-amber-50 ring-1 ring-amber-200 rounded-lg p-2.5 text-[11px] text-amber-900 flex items-start gap-2">
+        <i data-lucide="info" class="w-3.5 h-3.5 text-amber-700 mt-0.5"></i>
+        <div><strong>¿Es cobro de factura ya emitida?</strong> Mejor usá <a class="underline font-bold cursor-pointer">PagoAbono distribuido</a> para vincular el cobro al documento y cerrar la CC del cliente automáticamente.</div>
+      </div>
+      <div>
+        <label class="text-[11px] font-bold text-slate-700 uppercase mb-1.5 block">Notas (opcional)</label>
+        <textarea rows="2" placeholder="Concepto · justificación · contexto adicional" class="w-full text-[12px] border border-slate-300 rounded-lg px-3 py-2"></textarea>
+      </div>
+    </div>
+    <div class="bg-slate-50 border-t px-5 py-3 flex items-center justify-between">
+      <button class="text-[11px] font-semibold text-slate-600 hover:bg-slate-100 px-3 py-1.5 rounded-lg">Cancelar</button>
+      <div class="flex gap-2">
+        <button class="text-[11px] font-semibold bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100 px-3 py-1.5 rounded-lg">Borrador</button>
+        <button class="text-[11px] font-bold text-white bg-emerald-600 hover:bg-emerald-700 px-4 py-1.5 rounded-lg flex items-center gap-1.5"><i data-lucide="check" class="w-3 h-3"></i> Registrar ingreso</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- §3 · A.2 REGISTRAR EGRESO SIMPLE -->
+<section class="space-y-4">
+  <div class="flex items-center gap-2"><span class="text-[10px] uppercase tracking-wider font-bold text-rose-700">§ 3 · A.2 · Registrar egreso simple · modal rose · cross-link Gastos</span><div class="flex-1 h-px bg-rose-200"></div></div>
+  <p class="text-[12px] text-slate-500">Caso de uso: gasto cash · retiro de socios · otros egresos. Sistema sugiere abrir Gastos para categorización fiscal correcta.</p>
+
+  <div class="bg-white border border-slate-200 rounded-2xl shadow-lg max-w-2xl mx-auto overflow-hidden">
+    <div class="bg-gradient-to-br from-rose-50 to-rose-100/40 border-b border-rose-200 px-5 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-rose-500 to-rose-700 flex items-center justify-center text-white"><i data-lucide="arrow-up-circle" class="w-5 h-5"></i></div>
+        <div><div class="text-[13px] font-bold">Registrar egreso simple</div><div class="text-[10px] text-slate-500">Salida de caja sin documento vinculado</div></div>
+      </div>
+      <button class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-4 h-4"></i></button>
+    </div>
+    <div class="p-5 space-y-4">
+      <!-- Banner cross-link Gastos -->
+      <div class="bg-gradient-to-r from-amber-50 to-amber-100/40 ring-1 ring-amber-300 rounded-xl p-3 flex items-center gap-3">
+        <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-700 flex-shrink-0"></i>
+        <div class="flex-1 text-[11px] text-amber-900"><strong>¿Es un gasto operativo?</strong> Para categorización fiscal correcta (deducción IGV · IR · CTRU), mejor registralo en módulo Gastos. Aquí solo registramos el movimiento de caja sin categorizar.</div>
+        <button class="text-[11px] font-bold text-white bg-amber-600 hover:bg-amber-700 px-3 py-1.5 rounded-lg flex items-center gap-1.5 flex-shrink-0"><i data-lucide="external-link" class="w-3 h-3"></i> Abrir Gastos</button>
+      </div>
+      <!-- Tipo concepto -->
+      <div>
+        <label class="text-[11px] font-bold text-slate-700 uppercase mb-2 block">Tipo de egreso</label>
+        <div class="grid grid-cols-4 gap-2">
+          <button class="p-3 bg-rose-50 ring-2 ring-rose-500 rounded-xl text-left">
+            <i data-lucide="receipt" class="w-4 h-4 text-rose-700 mb-1"></i>
+            <div class="text-[11px] font-bold text-rose-900">Gasto cash</div>
+            <div class="text-[9px] text-rose-700">Sin factura</div>
+          </button>
+          <button class="p-3 bg-white border border-slate-200 rounded-xl text-left hover:bg-slate-50">
+            <i data-lucide="user" class="w-4 h-4 text-slate-600 mb-1"></i>
+            <div class="text-[11px] font-bold">Retiro socio</div>
+            <div class="text-[9px] text-slate-500">Distribución utilidades</div>
+          </button>
+          <button class="p-3 bg-white border border-slate-200 rounded-xl text-left hover:bg-slate-50">
+            <i data-lucide="user-minus" class="w-4 h-4 text-slate-600 mb-1"></i>
+            <div class="text-[11px] font-bold">Préstamo</div>
+            <div class="text-[9px] text-slate-500">A tercero</div>
+          </button>
+          <button class="p-3 bg-white border border-slate-200 rounded-xl text-left hover:bg-slate-50">
+            <i data-lucide="more-horizontal" class="w-4 h-4 text-slate-600 mb-1"></i>
+            <div class="text-[11px] font-bold">Otro</div>
+            <div class="text-[9px] text-slate-500">Definir concepto</div>
+          </button>
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="text-[11px] font-bold text-slate-700 uppercase mb-1.5 block">Destino (a quién)</label>
+          <input type="text" placeholder="Nombre proveedor · persona · concepto" class="w-full text-sm border border-slate-300 rounded-lg px-3 py-2" />
+        </div>
+        <div>
+          <label class="text-[11px] font-bold text-slate-700 uppercase mb-1.5 block">Cuenta origen</label>
+          <select class="w-full text-sm border border-slate-300 rounded-lg px-3 py-2 bg-rose-50">
+            <option>BCP Soles Operativa · S/ 42,180</option>
+            <option>Caja chica oficina · S/ 840</option>
+            <option>Pool USD · $ 4,820</option>
+          </select>
+        </div>
+        <div>
+          <label class="text-[11px] font-bold text-slate-700 uppercase mb-1.5 block">Monto</label>
+          <div class="relative"><span class="absolute left-3 top-2 text-slate-500 text-sm">S/</span><input type="text" value="200.00" class="w-full text-base border border-slate-300 rounded-lg pl-9 pr-3 py-2 tabular text-right font-bold" /></div>
+        </div>
+        <div>
+          <label class="text-[11px] font-bold text-slate-700 uppercase mb-1.5 block">Fecha</label>
+          <input type="date" value="2026-05-15" class="w-full text-sm border border-slate-300 rounded-lg px-3 py-2" />
+        </div>
+        <div>
+          <label class="text-[11px] font-bold text-slate-700 uppercase mb-1.5 block">Método</label>
+          <select class="w-full text-sm border border-slate-300 rounded-lg px-3 py-2"><option>Efectivo</option><option>Yape</option><option>Transferencia</option></select>
+        </div>
+        <div>
+          <label class="text-[11px] font-bold text-slate-700 uppercase mb-1.5 block">Adjuntar voucher (opcional)</label>
+          <button class="w-full border-2 border-dashed border-slate-300 rounded-lg p-2 text-[11px] text-slate-500 hover:border-rose-300 hover:bg-rose-50/30 flex items-center justify-center gap-1.5"><i data-lucide="paperclip" class="w-3 h-3"></i> Adjuntar</button>
+        </div>
+      </div>
+      <div>
+        <label class="text-[11px] font-bold text-slate-700 uppercase mb-1.5 block">Concepto / justificación</label>
+        <textarea rows="2" placeholder="Descripción del egreso · obligatorio para auditoría" class="w-full text-[12px] border border-slate-300 rounded-lg px-3 py-2"></textarea>
+      </div>
+    </div>
+    <div class="bg-slate-50 border-t px-5 py-3 flex items-center justify-between">
+      <button class="text-[11px] font-semibold text-slate-600 hover:bg-slate-100 px-3 py-1.5 rounded-lg">Cancelar</button>
+      <div class="flex gap-2">
+        <button class="text-[11px] font-semibold bg-amber-50 text-amber-700 border border-amber-200 px-3 py-1.5 rounded-lg">Borrador</button>
+        <button class="text-[11px] font-bold text-white bg-rose-600 hover:bg-rose-700 px-4 py-1.5 rounded-lg flex items-center gap-1.5"><i data-lucide="check" class="w-3 h-3"></i> Registrar egreso</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- §4 · A.4 TRANSFERENCIA ENTRE CUENTAS -->
+<section class="space-y-4">
+  <div class="flex items-center gap-2"><span class="text-[10px] uppercase tracking-wider font-bold text-indigo-700">§ 4 · A.4 · Transferencia entre cuentas · modal indigo · sin diferencial FX</span><div class="flex-1 h-px bg-indigo-200"></div></div>
+  <p class="text-[12px] text-slate-500">Caso de uso: mover dinero entre 2 cuentas propias de la empresa · misma moneda · NO genera asiento de pérdida/ganancia. Si hay cambio de moneda → usar A.3 Conversión.</p>
+
+  <div class="bg-white border border-slate-200 rounded-2xl shadow-lg max-w-2xl mx-auto overflow-hidden">
+    <div class="bg-gradient-to-br from-indigo-50 to-indigo-100/40 border-b border-indigo-200 px-5 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-700 flex items-center justify-center text-white"><i data-lucide="arrow-left-right" class="w-5 h-5"></i></div>
+        <div><div class="text-[13px] font-bold">Transferencia entre cuentas</div><div class="text-[10px] text-slate-500">Movimiento interno · misma moneda · sin diferencial cambiario</div></div>
+      </div>
+      <button class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-4 h-4"></i></button>
+    </div>
+    <div class="p-5 space-y-4">
+      <!-- Visual origen → destino -->
+      <div class="bg-gradient-to-br from-indigo-50 to-indigo-100/40 ring-1 ring-indigo-200/50 rounded-xl p-4">
+        <div class="grid grid-cols-5 gap-3 items-center">
+          <!-- Origen card -->
+          <div class="col-span-2 bg-white rounded-lg p-3 ring-1 ring-indigo-200">
+            <div class="text-[9px] uppercase font-bold text-indigo-700 mb-2">Origen (sale)</div>
+            <select class="w-full text-sm border border-slate-300 rounded-lg px-2 py-1.5"><option>BCP Soles Operativa</option><option>Caja chica oficina</option><option>Pool USD</option></select>
+            <div class="text-[10px] text-slate-500 mt-1.5 tabular">Disponible: S/ 42,180</div>
+          </div>
+          <!-- Arrow -->
+          <div class="text-center"><i data-lucide="arrow-right" class="w-8 h-8 text-indigo-600 mx-auto"></i><div class="text-[9px] text-indigo-700 font-bold mt-1">PEN → PEN</div></div>
+          <!-- Destino card -->
+          <div class="col-span-2 bg-white rounded-lg p-3 ring-1 ring-indigo-200">
+            <div class="text-[9px] uppercase font-bold text-indigo-700 mb-2">Destino (entra)</div>
+            <select class="w-full text-sm border border-slate-300 rounded-lg px-2 py-1.5"><option>Caja chica oficina</option><option>BCP Soles Operativa</option></select>
+            <div class="text-[10px] text-slate-500 mt-1.5 tabular">Saldo actual: S/ 840 → S/ 1,040</div>
+          </div>
+        </div>
+      </div>
+      <!-- Monto + fecha -->
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="text-[11px] font-bold text-slate-700 uppercase mb-1.5 block">Monto a transferir</label>
+          <div class="relative"><span class="absolute left-3 top-2 text-slate-500 text-sm">S/</span><input type="text" value="200.00" class="w-full text-base border border-slate-300 rounded-lg pl-9 pr-3 py-2 tabular text-right font-bold" /></div>
+        </div>
+        <div>
+          <label class="text-[11px] font-bold text-slate-700 uppercase mb-1.5 block">Fecha</label>
+          <input type="date" value="2026-05-15" class="w-full text-sm border border-slate-300 rounded-lg px-3 py-2" />
+        </div>
+      </div>
+      <!-- Resumen -->
+      <div class="bg-slate-900 text-white rounded-xl p-4 flex items-center justify-between">
+        <div>
+          <div class="text-[10px] uppercase tracking-wider text-slate-400">Resumen</div>
+          <div class="text-base font-bold mt-1">BCP Soles → Caja chica</div>
+          <div class="text-[11px] text-indigo-300">misma moneda · sin diferencial · NO asiento FX</div>
+        </div>
+        <div class="text-right">
+          <div class="text-[10px] uppercase text-slate-400">Monto</div>
+          <div class="text-2xl font-bold tabular">S/ 200</div>
+        </div>
+      </div>
+      <div class="bg-indigo-50 ring-1 ring-indigo-200 rounded-lg p-2.5 text-[11px] text-indigo-900 flex items-start gap-2">
+        <i data-lucide="info" class="w-3.5 h-3.5 text-indigo-700 mt-0.5"></i>
+        <span><strong>Asiento:</strong> DR 1041.Caja S/ 200 · CR 1041.BCP S/ 200 · sin impacto en resultados.</span>
+      </div>
+      <div>
+        <label class="text-[11px] font-bold text-slate-700 uppercase mb-1.5 block">Notas (opcional)</label>
+        <textarea rows="2" placeholder="Justificación · ej. recarga caja chica" class="w-full text-[12px] border border-slate-300 rounded-lg px-3 py-2"></textarea>
+      </div>
+    </div>
+    <div class="bg-slate-50 border-t px-5 py-3 flex items-center justify-between">
+      <button class="text-[11px] font-semibold text-slate-600 hover:bg-slate-100 px-3 py-1.5 rounded-lg">Cancelar</button>
+      <div class="flex gap-2">
+        <button class="text-[11px] font-semibold bg-amber-50 text-amber-700 border border-amber-200 px-3 py-1.5 rounded-lg">Borrador</button>
+        <button class="text-[11px] font-bold text-white bg-indigo-600 hover:bg-indigo-700 px-4 py-1.5 rounded-lg flex items-center gap-1.5"><i data-lucide="check" class="w-3 h-3"></i> Confirmar transferencia</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="bg-slate-900 text-slate-300 mt-12 py-6"><div class="max-w-[1400px] mx-auto px-6 text-[11px] flex items-center justify-between"><div>MOCK 11 · Wizards simples · A.1 + A.2 + A.4 (A.3 en MOCK 3)</div><div>Turno 4 · 3 modales pixel-perfect</div></div></footer>
+<script>lucide.createIcons();</script>
+</body>
+</html>

@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Finanzas · Wizard EDITAR Cuenta · v5.1</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>body { font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, sans-serif; } .tabular { font-variant-numeric: tabular-nums; font-feature-settings: "tnum"; }</style>
+</head>
+<body class="bg-slate-100 text-slate-900">
+
+<header class="bg-slate-900 text-white sticky top-0 z-50 shadow-lg">
+  <div class="max-w-[1400px] mx-auto px-6 py-3 flex items-center justify-between">
+    <div>
+      <div class="text-[10px] uppercase tracking-wider text-teal-300">chk5.D-S1e · TURNO 8 · cierra gaps reales</div>
+      <div class="text-base font-bold">MOCK 18 · Wizard EDITAR Cuenta · variante edit de los 6 tipos</div>
+    </div>
+    <nav class="hidden md:flex items-center gap-1 text-[11px]">
+      <a href="finanzas-shell-overview-v5.1.html" class="px-2 py-1 hover:bg-slate-700 rounded text-slate-300">1-17</a>
+      <span class="px-2 py-1 bg-teal-600 rounded text-white font-semibold">18</span>
+      <a href="finanzas-subvistas-alternativas-v5.1.html" class="px-2 py-1 hover:bg-slate-700 rounded text-slate-300">19</a>
+      <a href="finanzas-modales-estados-avanzados-v5.1.html" class="px-2 py-1 hover:bg-slate-700 rounded text-slate-300">20</a>
+    </nav>
+  </div>
+</header>
+
+<main class="max-w-[1400px] mx-auto px-6 py-8 space-y-12">
+
+<!-- §1 · INTRO + DIFERENCIAS CREATE vs EDIT -->
+<section class="space-y-4">
+  <div class="flex items-center gap-2"><span class="text-[10px] uppercase tracking-wider font-bold text-slate-500">§ 1 · Diferencias Wizard Crear vs Wizard Editar</span><div class="flex-1 h-px bg-slate-200"></div></div>
+  <h2 class="text-2xl font-bold text-slate-900">Wizard Editar Cuenta · variante edit con datos pre-cargados</h2>
+  <p class="text-sm text-slate-600 max-w-3xl">Mismo wizard del MOCK 10 (4 pasos · 6 tipos) pero pre-poblado con datos de la cuenta existente · con algunos campos bloqueados (tipo · moneda) por integridad referencial · y nueva sección "Histórico cambios" como auditoría.</p>
+
+  <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+    <table class="w-full text-[11px]">
+      <thead class="bg-slate-50 text-slate-600 uppercase text-[10px] font-bold">
+        <tr><th class="text-left py-2 px-3">Aspecto</th><th class="text-left py-2 px-3">Wizard Crear (MOCK 10)</th><th class="text-left py-2 px-3">Wizard Editar (MOCK 18)</th></tr>
+      </thead>
+      <tbody class="divide-y divide-slate-100">
+        <tr><td class="py-2 px-3 font-bold">Trigger</td><td class="py-2 px-3 text-slate-700">Botón "+ Nueva cuenta" o "+ Crear cuenta"</td><td class="py-2 px-3 text-slate-700">Drawer detalle cuenta · botón "Editar" (footer N10 indigo)</td></tr>
+        <tr><td class="py-2 px-3 font-bold">Paso 1 (Tipo)</td><td class="py-2 px-3 text-slate-700">Selector 6 tipos · cambia flujo</td><td class="py-2 px-3 text-slate-700"><strong>BLOQUEADO</strong> · tipo no editable post-creación · solo display</td></tr>
+        <tr><td class="py-2 px-3 font-bold">Paso 2 (Datos básicos)</td><td class="py-2 px-3 text-slate-700">Inputs vacíos</td><td class="py-2 px-3 text-slate-700">Pre-cargados con valores actuales · moneda BLOQUEADA si hay movimientos</td></tr>
+        <tr><td class="py-2 px-3 font-bold">Paso 3 (Saldo / config)</td><td class="py-2 px-3 text-slate-700">Saldo inicial (typ 0)</td><td class="py-2 px-3 text-slate-700">Saldo actual READ-ONLY (deriva de movimientos) · solo edita config canales/cargos</td></tr>
+        <tr><td class="py-2 px-3 font-bold">Paso 4 (Permisos)</td><td class="py-2 px-3 text-slate-700">Defaults sistema</td><td class="py-2 px-3 text-slate-700">Pre-cargado · editable libremente</td></tr>
+        <tr><td class="py-2 px-3 font-bold">NUEVO · Histórico</td><td class="py-2 px-3 text-slate-400">—</td><td class="py-2 px-3 text-slate-700"><strong>Sección visible</strong> con cambios previos (quién · qué · cuándo)</td></tr>
+        <tr><td class="py-2 px-3 font-bold">Botones footer</td><td class="py-2 px-3 text-slate-700">Cancelar · Borrador · Crear</td><td class="py-2 px-3 text-slate-700">Cancelar · Descartar cambios · <strong>Guardar cambios</strong> (primary)</td></tr>
+        <tr><td class="py-2 px-3 font-bold">Acción destructiva</td><td class="py-2 px-3 text-slate-400">—</td><td class="py-2 px-3 text-slate-700">Cross-link footer "Archivar" + "Eliminar" (admin) · abre M2/M3 (MOCK 15)</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- §2 · TIPO 1 BANCARIA EDIT · 4 PASOS -->
+<section class="space-y-4">
+  <div class="flex items-center gap-2"><span class="text-[10px] uppercase tracking-wider font-bold text-teal-700">§ 2 · TIPO 1 Bancaria · editar BCP Soles Operativa · 4 pasos pre-cargados</span><div class="flex-1 h-px bg-teal-200"></div></div>
+
+  <!-- Paso 1 bloqueado -->
+  <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+    <div class="bg-teal-50 border-b px-5 py-2 flex items-center justify-between"><span class="text-[10px] uppercase font-bold text-teal-700">PASO 1/4 · Tipo (BLOQUEADO en edit)</span><span class="text-[9px] bg-rose-100 text-rose-700 px-1.5 py-0.5 rounded font-bold">No editable</span></div>
+    <div class="grid grid-cols-12 min-h-[380px]">
+      <aside class="col-span-3 bg-slate-50/50 border-r p-4 space-y-1">
+        <div class="text-[10px] uppercase font-bold text-slate-500 mb-3">Editar · Bancaria</div>
+        <div class="flex items-center gap-2 p-2 rounded-lg bg-teal-50 ring-1 ring-teal-200"><span class="w-6 h-6 rounded-full bg-teal-600 text-white text-[11px] font-bold flex items-center justify-center">1</span><span class="text-[12px] font-bold">Tipo (read-only)</span></div>
+        <div class="flex items-center gap-2 p-2 rounded-lg text-slate-500"><span class="w-6 h-6 rounded-full bg-slate-200 text-[11px] font-bold flex items-center justify-center">2</span><span class="text-[12px]">Datos básicos</span></div>
+        <div class="flex items-center gap-2 p-2 rounded-lg text-slate-500"><span class="w-6 h-6 rounded-full bg-slate-200 text-[11px] font-bold flex items-center justify-center">3</span><span class="text-[12px]">Config canales</span></div>
+        <div class="flex items-center gap-2 p-2 rounded-lg text-slate-500"><span class="w-6 h-6 rounded-full bg-slate-200 text-[11px] font-bold flex items-center justify-center">4</span><span class="text-[12px]">Permisos + histórico</span></div>
+        <div class="mt-6 pt-4 border-t border-slate-200">
+          <div class="text-[10px] uppercase font-bold text-slate-500 mb-2">Editando</div>
+          <div class="text-[11px] text-slate-700 space-y-1"><div><span class="text-slate-500">ID:</span> <span class="font-mono font-bold">cta_bcp_pen_001</span></div><div><span class="text-slate-500">Movimientos:</span> <span class="font-bold tabular">142</span></div></div>
+        </div>
+      </aside>
+      <div class="col-span-9 p-6 space-y-4">
+        <div class="bg-rose-50 ring-1 ring-rose-200 rounded-lg p-3 flex items-start gap-2"><i data-lucide="lock" class="w-4 h-4 text-rose-700 mt-0.5"></i><div class="text-[11px] text-rose-900"><strong>Tipo bloqueado post-creación.</strong> No se puede cambiar el tipo de una cuenta con movimientos (integridad referencial). Para "cambiar de tipo" debés archivar esta y crear una nueva.</div></div>
+        <div class="bg-teal-50 ring-2 ring-teal-500 rounded-xl p-4 opacity-75">
+          <div class="flex items-center justify-between mb-2"><i data-lucide="building-2" class="w-5 h-5 text-teal-700"></i><i data-lucide="lock" class="w-4 h-4 text-rose-600"></i></div>
+          <div class="text-sm font-bold text-teal-900 mb-1">Cuenta Bancaria</div>
+          <div class="text-[11px] text-teal-700">BCP · Interbank · BBVA · Scotia · con canales digitales</div>
+        </div>
+        <div class="text-[11px] text-slate-500 italic flex items-start gap-2"><i data-lucide="info" class="w-3 h-3 text-slate-500 mt-0.5"></i>Los otros 5 tipos aparecen disabled · solo display informativo.</div>
+      </div>
+    </div>
+    <div class="bg-slate-50 border-t px-5 py-3 flex items-center justify-end gap-2">
+      <button class="text-[11px] font-semibold text-slate-600 hover:bg-slate-100 px-3 py-1.5 rounded-lg">Cancelar</button>
+      <button class="text-[11px] font-bold text-white bg-teal-600 px-4 py-1.5 rounded-lg">Siguiente</button>
+    </div>
+  </div>
+
+  <!-- Paso 2 datos pre-cargados -->
+  <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+    <div class="bg-teal-50 border-b px-5 py-2"><span class="text-[10px] uppercase font-bold text-teal-700">PASO 2/4 · Datos básicos pre-cargados · moneda BLOQUEADA (hay movimientos)</span></div>
+    <div class="grid grid-cols-12 min-h-[440px]">
+      <aside class="col-span-3 bg-slate-50/50 border-r p-4 space-y-1">
+        <div class="flex items-center gap-2 p-2 rounded-lg text-emerald-700"><span class="w-6 h-6 rounded-full bg-emerald-100 text-[11px] font-bold flex items-center justify-center"><i data-lucide="check" class="w-3 h-3"></i></span><span class="text-[12px]">Tipo: Bancaria (lock)</span></div>
+        <div class="flex items-center gap-2 p-2 rounded-lg bg-teal-50 ring-1 ring-teal-200"><span class="w-6 h-6 rounded-full bg-teal-600 text-white text-[11px] font-bold flex items-center justify-center">2</span><span class="text-[12px] font-bold">Datos básicos</span></div>
+        <div class="flex items-center gap-2 p-2 rounded-lg text-slate-500"><span class="w-6 h-6 rounded-full bg-slate-200 text-[11px] font-bold flex items-center justify-center">3</span><span class="text-[12px]">Config canales</span></div>
+        <div class="flex items-center gap-2 p-2 rounded-lg text-slate-500"><span class="w-6 h-6 rounded-full bg-slate-200 text-[11px] font-bold flex items-center justify-center">4</span><span class="text-[12px]">Permisos + hist</span></div>
+      </aside>
+      <div class="col-span-9 p-6 grid grid-cols-2 gap-4">
+        <div><label class="text-[11px] font-bold text-slate-700 uppercase mb-1.5 block">Banco</label><select class="w-full text-sm border border-slate-300 rounded-lg px-3 py-2"><option>BCP (pre-seleccionado)</option><option>Interbank</option></select></div>
+        <div><label class="text-[11px] font-bold text-slate-700 uppercase mb-1.5 block">Producto bancario</label><select class="w-full text-sm border border-slate-300 rounded-lg px-3 py-2"><option>Cuenta corriente (pre-seleccionado)</option></select></div>
+        <div class="col-span-2"><label class="text-[11px] font-bold text-slate-700 uppercase mb-1.5 block">Nombre interno</label><input type="text" value="BCP Soles Operativa" class="w-full text-sm border border-slate-300 rounded-lg px-3 py-2" /></div>
+        <div>
+          <label class="text-[11px] font-bold text-slate-700 uppercase mb-1.5 flex items-center gap-1.5">Moneda <span class="text-[9px] bg-rose-100 text-rose-700 px-1.5 py-0.5 rounded font-bold flex items-center gap-0.5"><i data-lucide="lock" class="w-2.5 h-2.5"></i>Bloqueada</span></label>
+          <div class="flex gap-2 opacity-60 pointer-events-none">
+            <button class="flex-1 px-3 py-2 text-sm font-semibold bg-teal-50 text-teal-700 border-2 border-teal-500 rounded-lg">PEN</button>
+            <button class="flex-1 px-3 py-2 text-sm font-semibold bg-white border border-slate-300 rounded-lg">USD</button>
+          </div>
+          <div class="text-[10px] text-rose-700 mt-1">Hay 142 movimientos en PEN · cambiar moneda romperia integridad</div>
+        </div>
+        <div><label class="text-[11px] font-bold text-slate-700 uppercase mb-1.5 block">Titularidad</label><div class="flex gap-2"><button class="flex-1 px-3 py-2 text-sm font-semibold bg-teal-50 text-teal-700 border-2 border-teal-500 rounded-lg">Empresa</button><button class="flex-1 px-3 py-2 text-sm font-semibold bg-white border border-slate-300 rounded-lg">Personal</button></div></div>
+        <div><label class="text-[11px] font-bold text-slate-700 uppercase mb-1.5 block">N° cuenta</label><input type="text" value="194-1234567-0-12" class="w-full text-sm border border-slate-300 rounded-lg px-3 py-2 tabular" /></div>
+        <div><label class="text-[11px] font-bold text-slate-700 uppercase mb-1.5 block">CCI · 20 dígitos</label><input type="text" value="00219400123456701258" class="w-full text-sm border border-slate-300 rounded-lg px-3 py-2 tabular" /></div>
+        <div class="col-span-2"><label class="text-[11px] font-bold text-slate-700 uppercase mb-1.5 block">Titular</label><input type="text" value="Vita Skin Peru SAC" class="w-full text-sm border border-slate-300 rounded-lg px-3 py-2" /></div>
+        <div class="col-span-2 bg-amber-50 ring-1 ring-amber-200 rounded p-2 text-[10px] text-amber-900 flex items-start gap-1.5"><i data-lucide="info" class="w-3 h-3 text-amber-700 mt-0.5"></i><span>Cambios detectados: <strong>0</strong>. Si modificás algún campo, el botón "Guardar cambios" se habilita.</span></div>
+      </div>
+    </div>
+    <div class="bg-slate-50 border-t px-5 py-3 flex items-center justify-between">
+      <button class="text-[11px] font-semibold text-slate-600 hover:bg-slate-100 px-3 py-1.5 rounded-lg flex items-center gap-1"><i data-lucide="arrow-left" class="w-3 h-3"></i> Atrás</button>
+      <div class="flex gap-2">
+        <button class="text-[11px] font-semibold text-rose-600 hover:bg-rose-50 px-3 py-1.5 rounded-lg">Descartar cambios</button>
+        <button class="text-[11px] font-bold text-white bg-teal-600 px-4 py-1.5 rounded-lg">Siguiente</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Paso 3 saldo READ-ONLY + canales editables -->
+  <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+    <div class="bg-teal-50 border-b px-5 py-2"><span class="text-[10px] uppercase font-bold text-teal-700">PASO 3/4 · Saldo READ-ONLY (deriva de movs) + Canales digitales editables</span></div>
+    <div class="grid grid-cols-12 min-h-[480px]">
+      <aside class="col-span-3 bg-slate-50/50 border-r p-4 space-y-1">
+        <div class="flex items-center gap-2 p-2 rounded-lg text-emerald-700"><span class="w-6 h-6 rounded-full bg-emerald-100 text-[11px] font-bold flex items-center justify-center"><i data-lucide="check" class="w-3 h-3"></i></span><span class="text-[12px]">Tipo (lock)</span></div>
+        <div class="flex items-center gap-2 p-2 rounded-lg text-emerald-700"><span class="w-6 h-6 rounded-full bg-emerald-100 text-[11px] font-bold flex items-center justify-center"><i data-lucide="check" class="w-3 h-3"></i></span><span class="text-[12px]">BCP Soles Operativa</span></div>
+        <div class="flex items-center gap-2 p-2 rounded-lg bg-teal-50 ring-1 ring-teal-200"><span class="w-6 h-6 rounded-full bg-teal-600 text-white text-[11px] font-bold flex items-center justify-center">3</span><span class="text-[12px] font-bold">Config canales</span></div>
+        <div class="flex items-center gap-2 p-2 rounded-lg text-slate-500"><span class="w-6 h-6 rounded-full bg-slate-200 text-[11px] font-bold flex items-center justify-center">4</span><span class="text-[12px]">Permisos + hist</span></div>
+      </aside>
+      <div class="col-span-9 p-6 space-y-5">
+        <!-- Saldo actual read-only -->
+        <div>
+          <h3 class="text-[12px] font-bold mb-2 flex items-center gap-1.5"><i data-lucide="dollar-sign" class="w-3.5 h-3.5 text-emerald-700"></i> Saldo actual (READ-ONLY · deriva de movimientos)</h3>
+          <div class="bg-emerald-50 ring-2 ring-emerald-300 rounded-xl p-4 flex items-center justify-between">
+            <div><div class="text-[10px] uppercase font-bold text-emerald-700">Saldo según sistema</div><div class="text-[22px] font-bold tabular text-emerald-900">S/ 42,180.00</div><div class="text-[10px] text-emerald-700">Calculado de 142 movimientos · NO editable directamente</div></div>
+            <div class="flex flex-col gap-1.5">
+              <button class="text-[10px] font-semibold text-emerald-700 bg-white border border-emerald-300 px-3 py-1.5 rounded-lg hover:bg-emerald-50 flex items-center gap-1"><i data-lucide="external-link" class="w-3 h-3"></i> Ver movimientos</button>
+              <button class="text-[10px] font-semibold text-amber-700 bg-amber-50 border border-amber-300 px-3 py-1.5 rounded-lg flex items-center gap-1"><i data-lucide="wrench" class="w-3 h-3"></i> Ajuste de saldo</button>
+            </div>
+          </div>
+          <div class="text-[10px] text-slate-500 mt-2 italic">Para corregir el saldo necesitás crear un movimiento de "Ajuste de saldo" · NO se permite editar directamente para preservar auditoría.</div>
+        </div>
+        <!-- Canales digitales editables -->
+        <div>
+          <h3 class="text-[12px] font-bold mb-2 flex items-center gap-1.5"><i data-lucide="smartphone" class="w-3.5 h-3.5 text-purple-700"></i> Canales digitales asociados <span class="text-[10px] font-normal text-emerald-700">(editable libremente)</span></h3>
+          <div class="space-y-2">
+            <div class="flex items-center gap-2 p-2 border border-slate-200 rounded-lg bg-slate-50/50">
+              <span class="text-[10px] uppercase font-bold px-2 py-1 rounded border bg-purple-100 text-purple-700 border-purple-200 w-16 text-center">YAPE</span>
+              <input type="text" value="+51 999 888 777" class="flex-1 h-8 px-2.5 text-[12px] border border-slate-300 rounded bg-white tabular" />
+              <button class="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+            </div>
+            <div class="flex items-center gap-2 p-2 border border-slate-200 rounded-lg bg-slate-50/50">
+              <span class="text-[10px] uppercase font-bold px-2 py-1 rounded border bg-cyan-100 text-cyan-700 border-cyan-200 w-16 text-center">PLIN</span>
+              <input type="text" value="+51 999 888 777" class="flex-1 h-8 px-2.5 text-[12px] border border-slate-300 rounded bg-white tabular" />
+              <button class="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+            </div>
+            <div class="flex flex-wrap gap-1.5 pt-1">
+              <button class="text-[10px] px-2 py-1 bg-white border border-dashed border-slate-300 text-slate-600 rounded hover:bg-slate-50 flex items-center gap-1"><i data-lucide="plus" class="w-3 h-3"></i> SIP</button>
+              <button class="text-[10px] px-2 py-1 bg-white border border-dashed border-slate-300 text-slate-600 rounded hover:bg-slate-50 flex items-center gap-1"><i data-lucide="plus" class="w-3 h-3"></i> Ágora</button>
+              <button class="text-[10px] px-2 py-1 bg-white border border-dashed border-slate-300 text-slate-600 rounded hover:bg-slate-50 flex items-center gap-1"><i data-lucide="plus" class="w-3 h-3"></i> BIM</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="bg-slate-50 border-t px-5 py-3 flex items-center justify-end gap-2">
+      <button class="text-[11px] font-semibold text-rose-600 hover:bg-rose-50 px-3 py-1.5 rounded-lg">Descartar cambios</button>
+      <button class="text-[11px] font-bold text-white bg-teal-600 px-4 py-1.5 rounded-lg">Siguiente</button>
+    </div>
+  </div>
+
+  <!-- Paso 4 permisos + HISTÓRICO -->
+  <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+    <div class="bg-teal-50 border-b px-5 py-2"><span class="text-[10px] uppercase font-bold text-teal-700">PASO 4/4 · Permisos + alertas + HISTÓRICO DE CAMBIOS (nuevo en edit)</span></div>
+    <div class="grid grid-cols-12 min-h-[520px]">
+      <aside class="col-span-3 bg-slate-50/50 border-r p-4 space-y-1">
+        <div class="flex items-center gap-2 p-2 rounded-lg text-emerald-700"><span class="w-6 h-6 rounded-full bg-emerald-100 text-[11px] font-bold flex items-center justify-center"><i data-lucide="check" class="w-3 h-3"></i></span><span class="text-[12px]">Tipo</span></div>
+        <div class="flex items-center gap-2 p-2 rounded-lg text-emerald-700"><span class="w-6 h-6 rounded-full bg-emerald-100 text-[11px] font-bold flex items-center justify-center"><i data-lucide="check" class="w-3 h-3"></i></span><span class="text-[12px]">Datos básicos</span></div>
+        <div class="flex items-center gap-2 p-2 rounded-lg text-emerald-700"><span class="w-6 h-6 rounded-full bg-emerald-100 text-[11px] font-bold flex items-center justify-center"><i data-lucide="check" class="w-3 h-3"></i></span><span class="text-[12px]">Canales + Yape</span></div>
+        <div class="flex items-center gap-2 p-2 rounded-lg bg-teal-50 ring-1 ring-teal-200"><span class="w-6 h-6 rounded-full bg-teal-600 text-white text-[11px] font-bold flex items-center justify-center">4</span><span class="text-[12px] font-bold">Permisos + hist</span></div>
+      </aside>
+      <div class="col-span-9 p-6 space-y-4">
+        <!-- Permisos pre-cargados -->
+        <div>
+          <h3 class="text-[12px] font-bold mb-2">Operadores autorizados (pre-cargado)</h3>
+          <div class="border border-slate-300 rounded-lg p-3 space-y-2 bg-white">
+            <label class="flex items-center gap-2"><input type="checkbox" checked disabled class="rounded text-teal-600 opacity-60" /><span class="text-sm">José LP (creador · permanente)</span></label>
+            <label class="flex items-center gap-2"><input type="checkbox" checked class="rounded text-teal-600" /><span class="text-sm">María Pérez · gerencia financiera</span></label>
+            <label class="flex items-center gap-2"><input type="checkbox" class="rounded text-teal-600" /><span class="text-sm">Carlos Ruiz · contador (desactivado actualmente)</span></label>
+          </div>
+        </div>
+        <!-- Histórico cambios (NUEVO en edit) -->
+        <div>
+          <h3 class="text-[12px] font-bold mb-2 flex items-center gap-1.5"><i data-lucide="history" class="w-3.5 h-3.5 text-indigo-700"></i> Histórico de cambios · auditoría completa</h3>
+          <div class="border border-indigo-200 rounded-lg overflow-hidden max-h-48 overflow-y-auto">
+            <table class="w-full text-[10px]">
+              <thead class="bg-indigo-50 text-indigo-700 uppercase text-[9px] font-bold sticky top-0">
+                <tr><th class="text-left py-1.5 px-2">Fecha</th><th class="text-left py-1.5 px-2">Usuario</th><th class="text-left py-1.5 px-2">Campo</th><th class="text-left py-1.5 px-2">Antes</th><th class="text-left py-1.5 px-2">Después</th></tr>
+              </thead>
+              <tbody class="divide-y divide-indigo-100 tabular">
+                <tr><td class="py-1.5 px-2">10-may 14:32</td><td class="py-1.5 px-2">María P.</td><td class="py-1.5 px-2 text-purple-700 font-bold">Alerta saldo bajo</td><td class="py-1.5 px-2">S/ 5,000</td><td class="py-1.5 px-2">S/ 3,000</td></tr>
+                <tr><td class="py-1.5 px-2">05-may 09:15</td><td class="py-1.5 px-2">José LP</td><td class="py-1.5 px-2 text-purple-700 font-bold">Canal Plin agregado</td><td class="py-1.5 px-2 text-slate-400 italic">—</td><td class="py-1.5 px-2">+51 999 888 777</td></tr>
+                <tr><td class="py-1.5 px-2">28-abr 16:20</td><td class="py-1.5 px-2">José LP</td><td class="py-1.5 px-2 text-purple-700 font-bold">Operador agregado</td><td class="py-1.5 px-2 text-slate-400 italic">—</td><td class="py-1.5 px-2">+María P.</td></tr>
+                <tr><td class="py-1.5 px-2">15-feb 10:00</td><td class="py-1.5 px-2">José LP</td><td class="py-1.5 px-2 text-emerald-700 font-bold">Cuenta creada</td><td class="py-1.5 px-2 text-slate-400 italic">—</td><td class="py-1.5 px-2">Sistema</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <!-- Histórico TCs usados en operaciones de esta cuenta (D14 · nuevo) -->
+        <div>
+          <h3 class="text-[12px] font-bold mb-2 flex items-center gap-1.5"><i data-lucide="dollar-sign" class="w-3.5 h-3.5 text-teal-700"></i> Histórico TCs usados en operaciones de esta cuenta</h3>
+          <!-- Filtros mini -->
+          <div class="flex items-center gap-2 mb-2 text-[10px] flex-wrap">
+            <span class="font-bold text-slate-700">Filtros:</span>
+            <button class="px-2 py-1 bg-slate-700 text-white rounded font-bold">Todos (89)</button>
+            <button class="px-2 py-1 bg-indigo-100 text-indigo-700 border border-indigo-200 rounded font-bold">SBS (52)</button>
+            <button class="px-2 py-1 bg-teal-100 text-teal-700 border border-teal-200 rounded font-bold">TCPA (33)</button>
+            <button class="px-2 py-1 bg-amber-100 text-amber-700 border border-amber-200 rounded font-bold">Manual (4)</button>
+            <span class="text-slate-400">·</span>
+            <button class="text-[10px] text-teal-700 hover:underline ml-auto">Últimos 30d ▾</button>
+          </div>
+          <div class="border border-teal-200 rounded-lg overflow-hidden max-h-56 overflow-y-auto">
+            <table class="w-full text-[10px]">
+              <thead class="bg-teal-50 text-teal-700 uppercase text-[9px] font-bold sticky top-0"><tr><th class="text-left py-1.5 px-2">Fecha</th><th class="text-left py-1.5 px-2">Operación</th><th class="text-center py-1.5 px-2">Fuente</th><th class="text-right py-1.5 px-2">TC aplicado</th><th class="text-right py-1.5 px-2">vs SBS</th><th class="text-left py-1.5 px-2">Usuario</th></tr></thead>
+              <tbody class="divide-y divide-teal-100 tabular">
+                <tr><td class="py-1.5 px-2">14-may</td><td class="py-1.5 px-2 text-blue-700"><a class="hover:underline">MOV-0440 · pago Logística</a></td><td class="py-1.5 px-2 text-center"><span class="text-[9px] bg-indigo-100 text-indigo-700 px-1.5 py-0.5 rounded font-bold">SBS</span></td><td class="py-1.5 px-2 text-right font-bold">3.753</td><td class="py-1.5 px-2 text-right text-slate-500">—</td><td class="py-1.5 px-2 text-slate-700">José LP</td></tr>
+                <tr class="bg-teal-50/30"><td class="py-1.5 px-2">13-may</td><td class="py-1.5 px-2 text-blue-700"><a class="hover:underline">MOV-0438 · conversión USD</a></td><td class="py-1.5 px-2 text-center"><span class="text-[9px] bg-teal-100 text-teal-700 px-1.5 py-0.5 rounded font-bold">TCPA</span></td><td class="py-1.5 px-2 text-right font-bold">3.741</td><td class="py-1.5 px-2 text-right text-rose-700">−0.013</td><td class="py-1.5 px-2 text-slate-700">José LP</td></tr>
+                <tr class="bg-amber-50/30 ring-1 ring-amber-200"><td class="py-1.5 px-2 font-bold">13-may</td><td class="py-1.5 px-2 text-blue-700"><a class="hover:underline">MOV-0420 · pago Tech Solutions</a></td><td class="py-1.5 px-2 text-center"><span class="text-[9px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded font-bold">MANUAL</span></td><td class="py-1.5 px-2 text-right font-bold text-amber-900">3.770</td><td class="py-1.5 px-2 text-right text-emerald-700 font-bold">+0.016</td><td class="py-1.5 px-2 text-slate-700">José LP</td></tr>
+                <tr><td class="py-1.5 px-2">12-may</td><td class="py-1.5 px-2 text-blue-700"><a class="hover:underline">MOV-0415 · cobro Premium SA</a></td><td class="py-1.5 px-2 text-center"><span class="text-[9px] bg-indigo-100 text-indigo-700 px-1.5 py-0.5 rounded font-bold">SBS</span></td><td class="py-1.5 px-2 text-right font-bold">3.752</td><td class="py-1.5 px-2 text-right text-slate-500">—</td><td class="py-1.5 px-2 text-slate-700">María P.</td></tr>
+                <tr><td class="py-1.5 px-2">11-may</td><td class="py-1.5 px-2 text-blue-700"><a class="hover:underline">MOV-0410 · pago OC USD</a></td><td class="py-1.5 px-2 text-center"><span class="text-[9px] bg-teal-100 text-teal-700 px-1.5 py-0.5 rounded font-bold">TCPA</span></td><td class="py-1.5 px-2 text-right font-bold">3.740</td><td class="py-1.5 px-2 text-right text-rose-700">−0.014</td><td class="py-1.5 px-2 text-slate-700">José LP</td></tr>
+                <tr class="bg-amber-50/30 ring-1 ring-amber-200"><td class="py-1.5 px-2">08-may</td><td class="py-1.5 px-2 text-blue-700"><a class="hover:underline">MOV-0398 · pago proveedor USD</a></td><td class="py-1.5 px-2 text-center"><span class="text-[9px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded font-bold">MANUAL</span></td><td class="py-1.5 px-2 text-right font-bold text-amber-900">3.765</td><td class="py-1.5 px-2 text-right text-emerald-700 font-bold">+0.011</td><td class="py-1.5 px-2 text-slate-700">José LP</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="grid grid-cols-3 gap-2 mt-2 text-[10px]">
+            <div class="bg-indigo-50 ring-1 ring-indigo-200 rounded p-2 text-center"><div class="text-[8px] uppercase font-bold text-indigo-700">SBS (52 usos)</div><div class="font-bold tabular text-indigo-900">prom 3.748</div></div>
+            <div class="bg-teal-50 ring-1 ring-teal-200 rounded p-2 text-center"><div class="text-[8px] uppercase font-bold text-teal-700">TCPA (33 usos)</div><div class="font-bold tabular text-teal-900">prom 3.740</div></div>
+            <div class="bg-amber-50 ring-1 ring-amber-200 rounded p-2 text-center"><div class="text-[8px] uppercase font-bold text-amber-700">Manual (4 usos)</div><div class="font-bold tabular text-amber-900">prom 3.768</div></div>
+          </div>
+          <div class="bg-emerald-50 ring-1 ring-emerald-200 rounded p-2 mt-2 text-[10px] text-emerald-900 flex items-start gap-1.5">
+            <i data-lucide="lightbulb" class="w-3 h-3 text-emerald-700 mt-0.5"></i>
+            <span><strong>Insight:</strong> los 4 overrides manuales generaron ganancia FX promedio +0.020 vs SBS (S/ 80 acumulado en 30d) · indica que la negociación externa funciona · evaluá repetir patrón.</span>
+          </div>
+        </div>
+        <!-- Acciones destructivas (cross-link M2/M3) -->
+        <div class="bg-rose-50/30 ring-1 ring-rose-200 rounded-lg p-3">
+          <h3 class="text-[11px] font-bold text-rose-900 mb-2">Acciones destructivas</h3>
+          <div class="flex gap-2">
+            <button class="text-[10px] font-semibold text-amber-700 bg-amber-50 border border-amber-200 hover:bg-amber-100 px-3 py-1.5 rounded-lg flex items-center gap-1.5"><i data-lucide="archive" class="w-3 h-3"></i> Archivar cuenta</button>
+            <button class="text-[10px] font-semibold text-rose-700 bg-rose-50 border border-rose-200 hover:bg-rose-100 px-3 py-1.5 rounded-lg flex items-center gap-1.5"><i data-lucide="trash-2" class="w-3 h-3"></i> Eliminar · admin (M3)</button>
+          </div>
+          <div class="text-[10px] text-slate-500 mt-1 italic">Eliminar solo disponible si cuenta tiene 0 movimientos. Para preservar histórico, archivá.</div>
+        </div>
+      </div>
+    </div>
+    <div class="bg-slate-50 border-t px-5 py-3 flex items-center justify-between">
+      <button class="text-[11px] font-semibold text-slate-600 hover:bg-slate-100 px-3 py-1.5 rounded-lg flex items-center gap-1"><i data-lucide="arrow-left" class="w-3 h-3"></i> Atrás</button>
+      <div class="flex gap-2">
+        <button class="text-[11px] font-semibold text-slate-600 hover:bg-slate-100 px-3 py-1.5 rounded-lg">Cancelar</button>
+        <button class="text-[11px] font-semibold text-rose-600 hover:bg-rose-50 px-3 py-1.5 rounded-lg">Descartar cambios</button>
+        <button class="text-[11px] font-bold text-white bg-teal-600 hover:bg-teal-700 px-4 py-1.5 rounded-lg flex items-center gap-1.5"><i data-lucide="save" class="w-3 h-3"></i> Guardar cambios</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- §3 · OTROS 5 TIPOS edit · particularidades específicas condensadas -->
+<section class="space-y-4">
+  <div class="flex items-center gap-2"><span class="text-[10px] uppercase tracking-wider font-bold text-slate-500">§ 3 · Otros 5 tipos editar · particularidades específicas</span><div class="flex-1 h-px bg-slate-200"></div></div>
+  <p class="text-[12px] text-slate-500">Misma estructura de 4 pasos con tipo bloqueado · datos pre-cargados · histórico cambios. Cada tipo tiene campos read-only específicos según riesgo de integridad.</p>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+    <!-- Tipo 2 Wallet -->
+    <div class="bg-white border border-slate-200 rounded-2xl p-4">
+      <div class="flex items-center gap-2 mb-2"><div class="w-8 h-8 rounded-lg bg-gradient-to-br from-sky-500 to-sky-700 text-white flex items-center justify-center"><i data-lucide="smartphone" class="w-4 h-4"></i></div><div><div class="text-[12px] font-bold">Tipo 2 · Wallet digital</div><div class="text-[10px] text-sky-700">Stripe · PayPal · MercadoPago</div></div></div>
+      <div class="text-[11px] text-slate-700 space-y-1 list-disc pl-4"><li><strong>Bloqueado:</strong> Proveedor (Stripe vs PayPal) · merchant ID</li><li><strong>Editable:</strong> Nombre interno · comisión típica (si cambia con el proveedor) · cuenta destino payouts</li><li><strong>Particularidad:</strong> Si cambias cuenta payouts hay alerta · próximo payout va al nuevo destino</li></ul>
+    </div>
+    <!-- Tipo 3 TC débito -->
+    <div class="bg-white border border-slate-200 rounded-2xl p-4">
+      <div class="flex items-center gap-2 mb-2"><div class="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-indigo-700 text-white flex items-center justify-center"><i data-lucide="credit-card" class="w-4 h-4"></i></div><div><div class="text-[12px] font-bold">Tipo 3 · TC débito</div><div class="text-[10px] text-indigo-700">Vinculada a cta ahorros</div></div></div>
+      <ul class="text-[11px] text-slate-700 space-y-1 list-disc pl-4"><li><strong>Bloqueado:</strong> cuenta vinculada (cuentaVinculadaId · cambio rompe histórico de cargos)</li><li><strong>Editable:</strong> Nombre · últimos 4 (si renovación) · alertas</li><li><strong>Particularidad:</strong> Botón "Reportar pérdida" · genera bloqueo automático + nueva tarjeta</li></ul>
+    </div>
+    <!-- Tipo 4 TC crédito -->
+    <div class="bg-white border border-slate-200 rounded-2xl p-4">
+      <div class="flex items-center gap-2 mb-2"><div class="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-500 to-amber-700 text-white flex items-center justify-center"><i data-lucide="credit-card" class="w-4 h-4"></i></div><div><div class="text-[12px] font-bold">Tipo 4 · TC crédito</div><div class="text-[10px] text-amber-700">Bimoneda + titularidad</div></div></div>
+      <ul class="text-[11px] text-slate-700 space-y-1 list-disc pl-4"><li><strong>Bloqueado:</strong> bimoneda toggle (si hay cargos) · marca · titularidad (post-creación)</li><li><strong>Editable:</strong> topeControl USD/PEN · día corte/pago (cuidado: replanifica vencimientos) · cuentaPagoDefault USD+PEN</li><li><strong>Particularidad:</strong> Si cambias día corte/pago aparece alerta · sistema recalcula ciclos abiertos</li></ul>
+    </div>
+    <!-- Tipo 5 Caja efectivo -->
+    <div class="bg-white border border-slate-200 rounded-2xl p-4">
+      <div class="flex items-center gap-2 mb-2"><div class="w-8 h-8 rounded-lg bg-gradient-to-br from-slate-500 to-slate-700 text-white flex items-center justify-center"><i data-lucide="banknote" class="w-4 h-4"></i></div><div><div class="text-[12px] font-bold">Tipo 5 · Caja efectivo</div><div class="text-[10px] text-slate-700">Responsable + arqueo</div></div></div>
+      <ul class="text-[11px] text-slate-700 space-y-1 list-disc pl-4"><li><strong>Bloqueado:</strong> moneda (si hay arqueos firmados)</li><li><strong>Editable:</strong> Responsable (con notif al anterior y nuevo) · ubicación · límite operativo · frecuencia arqueo</li><li><strong>Particularidad:</strong> Cambio de responsable genera arqueo de transferencia obligatorio antes de aplicar</li></ul>
+    </div>
+    <!-- Tipo 6 Caja recaudadora -->
+    <div class="bg-white border border-slate-200 rounded-2xl p-4 ring-2 ring-purple-300 col-span-2">
+      <div class="flex items-center gap-2 mb-2"><div class="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500 to-purple-700 text-white flex items-center justify-center"><i data-lucide="truck" class="w-4 h-4"></i></div><div><div class="text-[12px] font-bold">Tipo 6 ⭐ Caja recaudadora · multi-canal</div><div class="text-[10px] text-purple-700">Responsable tercero · canales aceptados · tarifa servicio</div></div></div>
+      <div class="grid grid-cols-2 gap-3">
+        <ul class="text-[11px] text-slate-700 space-y-1 list-disc pl-4"><li><strong>Bloqueado:</strong> responsable tercero (proveedor) · si cambia es otra recaudadora · cuenta liquidación si hay liquidaciones</li><li><strong>Editable canales:</strong> agregar/desactivar canales aceptados (Yape · Plin · POS · Cash · etc.) · cambiar identificadores</li></ul>
+        <ul class="text-[11px] text-slate-700 space-y-1 list-disc pl-4"><li><strong>Editable tarifa:</strong> ajustar S/X por carrera · histórico tarifas preservado (eventos viejos mantienen tarifa antigua)</li><li><strong>Particularidad:</strong> Toggle "activar canal" sin eliminar · útil cuando temporalmente el rider no usa POS por reparación</li></ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="bg-slate-900 text-slate-300 mt-12 py-6"><div class="max-w-[1400px] mx-auto px-6 text-[11px] flex items-center justify-between"><div>MOCK 18 · Wizard Editar Cuenta · 4 pasos pre-cargados + histórico + 5 tipos particularidades</div><div>Turno 8 · 1 de 3 · cierra gap Wizards</div></div></footer>
+<script>lucide.createIcons();</script>
+</body>
+</html>

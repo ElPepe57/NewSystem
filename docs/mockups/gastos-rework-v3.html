@@ -1,0 +1,2562 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<title>Gastos · Rework V3 · Consolidador VSP</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f1f5f9; color: #0f172a; }
+  .tabular { font-variant-numeric: tabular-nums; }
+  .section-divider {
+    background: #0f172a; color: white;
+    padding: 12px 20px; border-radius: 8px;
+    margin: 32px 0 16px 0; font-weight: 700;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .section-num {
+    background: #14b8a6; color: white;
+    width: 28px; height: 28px;
+    display: inline-flex; align-items: center; justify-content: center;
+    border-radius: 6px; font-size: 13px;
+  }
+  .origen-badge {
+    display: inline-flex; align-items: center; gap: 3px;
+    padding: 2px 6px; border-radius: 4px;
+    font-size: 9px; font-weight: 700;
+  }
+  .agente-avatar {
+    width: 28px; height: 28px;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .lente-card {
+    transition: all 0.15s ease;
+    cursor: pointer;
+  }
+  .lente-card.active {
+    box-shadow: 0 0 0 2px #14b8a6;
+  }
+  .slider {
+    -webkit-appearance: none;
+    width: 100%; height: 4px;
+    background: #e2e8f0; border-radius: 2px; outline: none;
+  }
+  .slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 14px; height: 14px;
+    background: #14b8a6;
+    border-radius: 50%;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body class="px-6 py-8 max-w-7xl mx-auto">
+
+<h1 class="text-2xl font-bold mb-2 text-slate-900">Gastos · Rework V3 · Consolidador VSP</h1>
+<p class="text-sm text-slate-600 mb-6">8 decisiones D-GR-1 a D-GR-8 cerradas · consolidador de gastos manuales + auto OC/Envío/Venta · 5 KPIs primarios + 4 secundarios · Multi-Lente de Rentabilidad · evolución porcentual del costo</p>
+
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+<!-- SECCIÓN 1 · HUB PRINCIPAL · listado consolidado con todas las fuentes -->
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+<div class="section-divider">
+  <span class="section-num">1</span>
+  Hub principal · consolidador · listado todas las fuentes (manual + auto OC/Envío/Venta)
+</div>
+
+<div class="bg-white rounded-2xl shadow-lg p-6">
+
+  <!-- Header canon · breadcrumb + h1 + acciones -->
+  <div class="flex items-start justify-between gap-4 flex-wrap mb-5">
+    <div class="flex-1 min-w-[260px]">
+      <div class="flex items-center gap-1.5 text-xs text-slate-400 mb-1">
+        <span class="hover:text-teal-600 cursor-pointer">Finanzas</span>
+        <i data-lucide="chevron-right" class="w-3 h-3"></i>
+        <span class="text-slate-600 font-medium">Gastos · 47 movimientos este mes</span>
+      </div>
+      <h1 class="text-2xl font-bold text-slate-900 flex items-center gap-2.5">
+        <i data-lucide="receipt" class="w-6 h-6 text-teal-600"></i>
+        Gastos
+      </h1>
+      <p class="text-sm text-slate-500 mt-0.5 max-w-2xl">Consolidador de gastos · manuales + auto-generados por OC/Envío/Venta · multi-lente de rentabilidad.</p>
+    </div>
+    <div class="flex items-center gap-2 flex-wrap flex-shrink-0">
+      <button class="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50">
+        <i data-lucide="settings" class="w-3.5 h-3.5"></i>Política asignación
+      </button>
+      <button class="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50">
+        <i data-lucide="download" class="w-3.5 h-3.5"></i>Exportar
+      </button>
+      <button class="flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-white bg-slate-900 rounded-lg hover:bg-slate-800 shadow-sm">
+        <i data-lucide="plus" class="w-3.5 h-3.5"></i>Nuevo gasto manual
+      </button>
+    </div>
+  </div>
+
+  <!-- KPI strip · 5 primarios visibles -->
+  <div class="bg-white border border-slate-200 rounded-xl grid grid-cols-2 lg:grid-cols-5 divide-y lg:divide-y-0 lg:divide-x divide-slate-200 mb-3">
+    <div class="p-3 lg:p-4">
+      <div class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Gasto del mes</div>
+      <div class="text-xl lg:text-2xl font-bold text-slate-900 tracking-tight tabular">S/ 8,540<span class="text-slate-400">.20</span></div>
+      <div class="text-[11px] text-rose-600 mt-1.5 tabular flex items-center gap-1">
+        <i data-lucide="trending-up" class="w-3 h-3"></i>+6.4% vs abril
+      </div>
+    </div>
+    <div class="p-3 lg:p-4">
+      <div class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Ratio Gasto/Inversión</div>
+      <div class="text-xl lg:text-2xl font-bold text-amber-600 tracking-tight tabular">9.8%</div>
+      <div class="text-[11px] text-amber-600 mt-1.5 tabular flex items-center gap-1">
+        <i data-lucide="trending-up" class="w-3 h-3"></i>+0.4pp vs abril
+      </div>
+    </div>
+    <div class="p-3 lg:p-4">
+      <div class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Ratio Gasto/Ingreso</div>
+      <div class="text-xl lg:text-2xl font-bold text-rose-600 tracking-tight tabular">19.0%</div>
+      <div class="text-[11px] text-rose-600 mt-1.5 tabular flex items-center gap-1">
+        <i data-lucide="trending-up" class="w-3 h-3"></i>+1.0pp vs abril
+      </div>
+    </div>
+    <div class="p-3 lg:p-4">
+      <div class="text-[10px] font-semibold text-amber-700 uppercase tracking-wider mb-1.5">Vencimientos 30d</div>
+      <div class="text-xl lg:text-2xl font-bold text-amber-700 tracking-tight tabular">S/ 3,250</div>
+      <div class="text-[11px] text-amber-700 mt-1.5 tabular flex items-center gap-1">
+        <i data-lucide="clock" class="w-3 h-3"></i>5 gastos · 3 críticos
+      </div>
+    </div>
+    <div class="p-3 lg:p-4">
+      <div class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1.5">DPO · Días Pago</div>
+      <div class="text-xl lg:text-2xl font-bold text-emerald-600 tracking-tight tabular">12<span class="text-base font-normal text-emerald-300">d</span></div>
+      <div class="text-[11px] text-emerald-600 mt-1.5 tabular flex items-center gap-1">
+        <i data-lucide="trending-down" class="w-3 h-3"></i>-2d vs trimestre
+      </div>
+    </div>
+  </div>
+
+  <!-- Mini-stats secundarios · expandible -->
+  <div class="bg-slate-50/50 border border-slate-200 rounded-lg px-3 py-2.5 mb-5">
+    <div class="flex items-center gap-4 text-[11px] flex-wrap">
+      <span class="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">Mini-stats:</span>
+      <span class="flex items-center gap-1.5">
+        <i data-lucide="flame" class="w-3 h-3 text-amber-600"></i>
+        <span class="text-slate-600">Burn Rate 3m:</span>
+        <span class="font-bold tabular text-slate-900">S/ 8,200</span>
+      </span>
+      <span class="text-slate-300">·</span>
+      <span class="flex items-center gap-1.5">
+        <i data-lucide="repeat" class="w-3 h-3 text-sky-600"></i>
+        <span class="text-slate-600">Recurrentes:</span>
+        <span class="font-bold tabular text-slate-900">65%</span>
+      </span>
+      <span class="text-slate-300">·</span>
+      <span class="flex items-center gap-1.5">
+        <i data-lucide="users" class="w-3 h-3 text-purple-600"></i>
+        <span class="text-slate-600">Top proveedor:</span>
+        <span class="font-bold tabular text-slate-900">NOW Foods 22%</span>
+      </span>
+      <span class="text-slate-300">·</span>
+      <span class="flex items-center gap-1.5">
+        <i data-lucide="alert-circle" class="w-3 h-3 text-rose-600"></i>
+        <span class="text-slate-600">Sin clasificar:</span>
+        <span class="font-bold tabular text-rose-600">2 · revisar</span>
+      </span>
+    </div>
+  </div>
+
+  <!-- Banner alerta · ratio crece desproporcional -->
+  <div class="bg-rose-50/50 border border-rose-200 rounded-lg p-3 mb-4 flex items-start gap-2">
+    <i data-lucide="alert-triangle" class="w-4 h-4 text-rose-700 flex-shrink-0 mt-0.5"></i>
+    <div class="flex-1 text-[11px] text-rose-800">
+      <span class="font-bold">⚠ Ratio Gasto/Ingreso subió +1.0pp este mes.</span>
+      Los gastos crecen más rápido que el ingreso · si la tendencia se mantiene 2 meses más,
+      el margen neto caerá del 22% al 18%. Drivers principales: comisiones ML (+$540) y marketing (+$320).
+    </div>
+    <button class="text-[11px] font-medium text-rose-700 hover:text-rose-900 underline whitespace-nowrap">Ver análisis →</button>
+  </div>
+
+  <!-- FILTROS BAR canon F3 · multi-toggle -->
+  <div class="bg-white border border-slate-200 rounded-xl p-3 mb-4">
+    <div class="space-y-2.5">
+      <div class="flex items-center gap-2 flex-wrap">
+        <span class="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">Origen:</span>
+        <button class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-bold bg-slate-100 text-slate-700 ring-2 ring-slate-300">
+          <i data-lucide="edit-3" class="w-2.5 h-2.5"></i>Manual <span class="opacity-60 tabular">14</span>
+        </button>
+        <button class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200">
+          <i data-lucide="package" class="w-2.5 h-2.5"></i>OC <span class="opacity-60 tabular">18</span>
+        </button>
+        <button class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-bold bg-purple-50 text-purple-700 border border-purple-200">
+          <i data-lucide="truck" class="w-2.5 h-2.5"></i>Envío <span class="opacity-60 tabular">8</span>
+        </button>
+        <button class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+          <i data-lucide="shopping-bag" class="w-2.5 h-2.5"></i>Venta <span class="opacity-60 tabular">7</span>
+        </button>
+        <div class="h-5 w-px bg-slate-200"></div>
+        <span class="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">Bloque:</span>
+        <button class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-bold bg-blue-100 text-blue-700 ring-2 ring-blue-300">
+          <i data-lucide="package" class="w-2.5 h-2.5"></i>Producto <span class="opacity-60 tabular">22</span>
+        </button>
+        <button class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-bold bg-violet-50 text-violet-700 border border-violet-200">
+          <i data-lucide="tag" class="w-2.5 h-2.5"></i>Venta <span class="opacity-60 tabular">15</span>
+        </button>
+        <button class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200">
+          <i data-lucide="calendar" class="w-2.5 h-2.5"></i>Período <span class="opacity-60 tabular">10</span>
+        </button>
+        <div class="h-5 w-px bg-slate-200"></div>
+        <span class="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">Estado:</span>
+        <button class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+          <i data-lucide="check" class="w-2.5 h-2.5"></i>Pagado <span class="opacity-60 tabular">35</span>
+        </button>
+        <button class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200">
+          <i data-lucide="clock" class="w-2.5 h-2.5"></i>Pendiente <span class="opacity-60 tabular">10</span>
+        </button>
+        <button class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-bold bg-sky-50 text-sky-700 border border-sky-200">
+          <i data-lucide="hourglass" class="w-2.5 h-2.5"></i>Parcial <span class="opacity-60 tabular">2</span>
+        </button>
+      </div>
+      <div class="border-t border-slate-100"></div>
+      <div class="flex items-center gap-2 flex-wrap">
+        <div class="relative flex-1 min-w-[260px]">
+          <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none"></i>
+          <input type="text" placeholder="Buscar gasto · proveedor · documento..." class="w-full pl-9 pr-9 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500">
+        </div>
+        <span class="text-[10px] uppercase tracking-wider text-slate-400 font-semibold ml-2">Vista:</span>
+        <button class="px-2 py-1 rounded text-[10px] font-bold bg-slate-900 text-white">Lista</button>
+        <button class="px-2 py-1 rounded text-[10px] font-bold bg-white text-slate-600 border border-slate-200">Bloque</button>
+        <button class="px-2 py-1 rounded text-[10px] font-bold bg-white text-slate-600 border border-slate-200">Calendario</button>
+        <button class="px-2 py-1 rounded text-[10px] font-bold bg-white text-slate-600 border border-slate-200">Proveedor</button>
+        <button class="px-2 py-1 rounded text-[10px] font-bold bg-white text-slate-600 border border-slate-200">P&L 3 niveles</button>
+        <button class="ml-1 bg-slate-50 border border-slate-200 text-slate-700 font-medium text-xs px-3 py-2 rounded-lg flex items-center gap-1.5 hover:bg-slate-100">
+          <span class="text-slate-400 font-normal">Ordenar:</span>
+          <span>Fecha ↓</span>
+          <i data-lucide="chevron-down" class="w-3 h-3 text-slate-400"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Layout multi-pane · listado + drawer urgentes -->
+  <div class="grid gap-4" style="grid-template-columns: minmax(0, 1fr) 320px;">
+
+    <!-- Listado consolidado · cards apiladas canon F4 -->
+    <div class="space-y-2">
+
+      <!-- Card gasto manual pendiente -->
+      <div class="bg-white border border-amber-200 rounded-xl p-3 hover:shadow-sm transition-shadow cursor-pointer ring-1 ring-amber-100">
+        <div class="flex items-start gap-3">
+          <div class="agente-avatar bg-gradient-to-br from-slate-50 to-slate-100 ring-1 ring-slate-200">
+            <i data-lucide="building" class="w-4 h-4 text-slate-600"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2 mb-1 flex-wrap">
+              <span class="origen-badge bg-slate-100 text-slate-600">
+                <i data-lucide="edit-3" class="w-2.5 h-2.5"></i>MANUAL
+              </span>
+              <span class="origen-badge bg-amber-50 text-amber-700">PERÍODO</span>
+              <span class="origen-badge bg-amber-100 text-amber-800">
+                <i data-lucide="clock" class="w-2.5 h-2.5"></i>PENDIENTE
+              </span>
+              <span class="text-[10px] text-slate-400 tabular">Vence 15 may · en 4 días</span>
+            </div>
+            <div class="text-sm font-semibold text-slate-900">Alquiler local Lima · mayo 2026</div>
+            <div class="text-[11px] text-slate-500 mt-0.5">
+              <span class="font-medium">Inversiones SAC</span> · Proveedor ·
+              <span class="text-sky-600 font-medium hover:underline cursor-pointer">Servicios > Alquiler</span>
+            </div>
+          </div>
+          <div class="text-right flex-shrink-0">
+            <div class="text-base font-bold text-slate-900 tabular">S/ 1,500<span class="text-slate-400">.00</span></div>
+            <div class="text-[10px] text-slate-500">PEN</div>
+          </div>
+          <button class="flex items-center gap-1 px-3 py-1.5 text-[11px] font-bold text-white bg-teal-600 hover:bg-teal-700 rounded-md flex-shrink-0">
+            <i data-lucide="credit-card" class="w-3 h-3"></i>Pagar
+          </button>
+        </div>
+      </div>
+
+      <!-- Card gasto auto OC -->
+      <div class="bg-white border border-slate-200 rounded-xl p-3 hover:shadow-sm transition-shadow cursor-pointer">
+        <div class="flex items-start gap-3">
+          <div class="agente-avatar bg-gradient-to-br from-indigo-50 to-indigo-100 ring-1 ring-indigo-200">
+            <i data-lucide="pill" class="w-4 h-4 text-indigo-700"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2 mb-1 flex-wrap">
+              <span class="origen-badge bg-blue-50 text-blue-700">
+                <i data-lucide="package" class="w-2.5 h-2.5"></i>AUTO · OC
+              </span>
+              <span class="origen-badge bg-blue-100 text-blue-700">PRODUCTO</span>
+              <span class="origen-badge bg-emerald-50 text-emerald-700">
+                <i data-lucide="check" class="w-2.5 h-2.5"></i>PAGADO
+              </span>
+              <span class="text-[10px] text-slate-400 tabular">14 abr 2026</span>
+              <span class="text-[10px] text-indigo-600 font-mono hover:underline cursor-pointer">→ OC-2026-014</span>
+            </div>
+            <div class="text-sm font-semibold text-slate-900">Flete internacional · NOW Foods USA → Lima</div>
+            <div class="text-[11px] text-slate-500 mt-0.5">
+              <span class="font-medium">NOW Foods</span> · Proveedor ·
+              <span class="text-sky-600 font-medium">Transporte > Flete internacional</span> ·
+              <span class="italic">prorrateado a 100 uds SUP-0078 (S/ 24/u CTRU)</span>
+            </div>
+          </div>
+          <div class="text-right flex-shrink-0">
+            <div class="text-base font-bold text-slate-900 tabular">S/ 2,400<span class="text-slate-400">.00</span></div>
+            <div class="text-[10px] text-slate-500 tabular">$ 657.53 · TC 3.65</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card gasto auto Venta -->
+      <div class="bg-white border border-slate-200 rounded-xl p-3 hover:shadow-sm transition-shadow cursor-pointer">
+        <div class="flex items-start gap-3">
+          <div class="agente-avatar bg-gradient-to-br from-emerald-50 to-emerald-100 ring-1 ring-emerald-200">
+            <i data-lucide="droplets" class="w-4 h-4 text-emerald-700"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2 mb-1 flex-wrap">
+              <span class="origen-badge bg-emerald-50 text-emerald-700">
+                <i data-lucide="shopping-bag" class="w-2.5 h-2.5"></i>AUTO · VENTA
+              </span>
+              <span class="origen-badge bg-violet-50 text-violet-700">VENTA</span>
+              <span class="origen-badge bg-emerald-50 text-emerald-700">
+                <i data-lucide="check" class="w-2.5 h-2.5"></i>PAGADO
+              </span>
+              <span class="text-[10px] text-slate-400 tabular">9 may 2026</span>
+              <span class="text-[10px] text-emerald-600 font-mono hover:underline cursor-pointer">→ VTA-156</span>
+            </div>
+            <div class="text-sm font-semibold text-slate-900">Comisión Mercado Libre · VTA-156</div>
+            <div class="text-[11px] text-slate-500 mt-0.5">
+              <span class="font-medium">Mercado Libre</span> · Proveedor ·
+              <span class="text-sky-600 font-medium">Comisiones > Marketplace ML</span> ·
+              <span class="italic">12% sobre S/ 1,375 venta</span>
+            </div>
+          </div>
+          <div class="text-right flex-shrink-0">
+            <div class="text-base font-bold text-slate-900 tabular">S/ 165<span class="text-slate-400">.00</span></div>
+            <div class="text-[10px] text-slate-500">PEN</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card gasto manual recurrente USD -->
+      <div class="bg-white border border-slate-200 rounded-xl p-3 hover:shadow-sm transition-shadow cursor-pointer">
+        <div class="flex items-start gap-3">
+          <div class="agente-avatar bg-gradient-to-br from-amber-50 to-amber-100 ring-1 ring-amber-200">
+            <i data-lucide="cloud" class="w-4 h-4 text-amber-700"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2 mb-1 flex-wrap">
+              <span class="origen-badge bg-slate-100 text-slate-600">
+                <i data-lucide="edit-3" class="w-2.5 h-2.5"></i>MANUAL
+              </span>
+              <span class="origen-badge bg-amber-50 text-amber-700">PERÍODO</span>
+              <span class="origen-badge bg-amber-100 text-amber-800">
+                <i data-lucide="clock" class="w-2.5 h-2.5"></i>PENDIENTE
+              </span>
+              <span class="origen-badge bg-sky-50 text-sky-700">
+                <i data-lucide="repeat" class="w-2.5 h-2.5"></i>RECURRENTE
+              </span>
+              <span class="text-[10px] text-slate-400 tabular">Vence 14 may · en 3 días</span>
+            </div>
+            <div class="text-sm font-semibold text-slate-900">Suscripción Shopify Plus · mayo</div>
+            <div class="text-[11px] text-slate-500 mt-0.5">
+              <span class="font-medium">Shopify Inc</span> · Proveedor ·
+              <span class="text-sky-600 font-medium">Software > Plataformas eCommerce</span>
+            </div>
+          </div>
+          <div class="text-right flex-shrink-0">
+            <div class="text-base font-bold text-slate-900 tabular">$ 79<span class="text-slate-400">.00</span></div>
+            <div class="text-[10px] text-slate-500 tabular">≈ S/ 309.68 · TC 3.92</div>
+          </div>
+          <button class="flex items-center gap-1 px-3 py-1.5 text-[11px] font-bold text-white bg-teal-600 hover:bg-teal-700 rounded-md flex-shrink-0">
+            <i data-lucide="credit-card" class="w-3 h-3"></i>Pagar
+          </button>
+        </div>
+      </div>
+
+      <!-- Card gasto auto Envío -->
+      <div class="bg-white border border-slate-200 rounded-xl p-3 hover:shadow-sm transition-shadow cursor-pointer">
+        <div class="flex items-start gap-3">
+          <div class="agente-avatar bg-gradient-to-br from-purple-50 to-purple-100 ring-1 ring-purple-200">
+            <i data-lucide="truck" class="w-4 h-4 text-purple-700"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2 mb-1 flex-wrap">
+              <span class="origen-badge bg-purple-50 text-purple-700">
+                <i data-lucide="truck" class="w-2.5 h-2.5"></i>AUTO · ENVÍO
+              </span>
+              <span class="origen-badge bg-blue-100 text-blue-700">PRODUCTO</span>
+              <span class="origen-badge bg-emerald-50 text-emerald-700">
+                <i data-lucide="check" class="w-2.5 h-2.5"></i>PAGADO
+              </span>
+              <span class="text-[10px] text-slate-400 tabular">7 may 2026</span>
+              <span class="text-[10px] text-purple-600 font-mono hover:underline cursor-pointer">→ ENV-2026-08</span>
+            </div>
+            <div class="text-sm font-semibold text-slate-900">Recojo Olva · Aduana → Almacén Lima</div>
+            <div class="text-[11px] text-slate-500 mt-0.5">
+              <span class="font-medium">Olva Courier</span> · <span class="text-purple-700 font-medium">Colaborador · red logística</span> ·
+              <span class="text-sky-600 font-medium">Transporte > Recojo local</span>
+            </div>
+          </div>
+          <div class="text-right flex-shrink-0">
+            <div class="text-base font-bold text-slate-900 tabular">S/ 200<span class="text-slate-400">.00</span></div>
+            <div class="text-[10px] text-slate-500">PEN</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card gasto manual empleado pendiente alto valor -->
+      <div class="bg-white border border-amber-200 rounded-xl p-3 hover:shadow-sm transition-shadow cursor-pointer ring-1 ring-amber-100">
+        <div class="flex items-start gap-3">
+          <div class="agente-avatar bg-gradient-to-br from-teal-50 to-teal-100 ring-1 ring-teal-200">
+            <i data-lucide="user" class="w-4 h-4 text-teal-700"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2 mb-1 flex-wrap">
+              <span class="origen-badge bg-slate-100 text-slate-600">
+                <i data-lucide="edit-3" class="w-2.5 h-2.5"></i>MANUAL
+              </span>
+              <span class="origen-badge bg-amber-50 text-amber-700">PERÍODO</span>
+              <span class="origen-badge bg-amber-100 text-amber-800">
+                <i data-lucide="clock" class="w-2.5 h-2.5"></i>PENDIENTE
+              </span>
+              <span class="origen-badge bg-sky-50 text-sky-700">
+                <i data-lucide="repeat" class="w-2.5 h-2.5"></i>RECURRENTE
+              </span>
+              <span class="text-[10px] text-slate-400 tabular">Vence 30 may · en 19 días</span>
+            </div>
+            <div class="text-sm font-semibold text-slate-900">Sueldo Juan Pérez · mayo</div>
+            <div class="text-[11px] text-slate-500 mt-0.5">
+              <span class="font-medium">Juan Pérez</span> · <span class="text-teal-700 font-medium">Empleado</span> ·
+              <span class="text-sky-600 font-medium">Personal > Sueldos</span>
+            </div>
+          </div>
+          <div class="text-right flex-shrink-0">
+            <div class="text-base font-bold text-slate-900 tabular">S/ 3,000<span class="text-slate-400">.00</span></div>
+            <div class="text-[10px] text-slate-500">PEN</div>
+          </div>
+          <button class="flex items-center gap-1 px-3 py-1.5 text-[11px] font-bold text-white bg-teal-600 hover:bg-teal-700 rounded-md flex-shrink-0">
+            <i data-lucide="credit-card" class="w-3 h-3"></i>Pagar
+          </button>
+        </div>
+      </div>
+
+      <!-- Card gasto venta · pago parcial -->
+      <div class="bg-white border border-sky-200 rounded-xl p-3 hover:shadow-sm transition-shadow cursor-pointer">
+        <div class="flex items-start gap-3">
+          <div class="agente-avatar bg-gradient-to-br from-pink-50 to-pink-100 ring-1 ring-pink-200">
+            <i data-lucide="megaphone" class="w-4 h-4 text-pink-700"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2 mb-1 flex-wrap">
+              <span class="origen-badge bg-slate-100 text-slate-600">
+                <i data-lucide="edit-3" class="w-2.5 h-2.5"></i>MANUAL
+              </span>
+              <span class="origen-badge bg-violet-50 text-violet-700">VENTA</span>
+              <span class="origen-badge bg-sky-100 text-sky-700">
+                <i data-lucide="hourglass" class="w-2.5 h-2.5"></i>PARCIAL 30%
+              </span>
+              <span class="text-[10px] text-slate-400 tabular">3 may 2026</span>
+            </div>
+            <div class="text-sm font-semibold text-slate-900">Campaña Marketing · Q2 producto Skincare</div>
+            <div class="text-[11px] text-slate-500 mt-0.5">
+              <span class="font-medium">Agencia ABC SAC</span> · Proveedor ·
+              <span class="text-sky-600 font-medium">Publicidad > Campañas digitales</span> ·
+              <span class="italic">pagado S/ 720 / pendiente S/ 1,680</span>
+            </div>
+          </div>
+          <div class="text-right flex-shrink-0">
+            <div class="text-base font-bold text-slate-900 tabular">S/ 2,400<span class="text-slate-400">.00</span></div>
+            <div class="text-[10px] text-slate-500 tabular">Saldo S/ 1,680</div>
+          </div>
+          <button class="flex items-center gap-1 px-3 py-1.5 text-[11px] font-bold text-white bg-teal-600 hover:bg-teal-700 rounded-md flex-shrink-0">
+            <i data-lucide="credit-card" class="w-3 h-3"></i>Pagar
+          </button>
+        </div>
+      </div>
+
+      <!-- Card sin clasificar -->
+      <div class="bg-white border border-rose-200 rounded-xl p-3 hover:shadow-sm transition-shadow cursor-pointer ring-1 ring-rose-100">
+        <div class="flex items-start gap-3">
+          <div class="agente-avatar bg-gradient-to-br from-rose-50 to-rose-100 ring-1 ring-rose-200">
+            <i data-lucide="alert-circle" class="w-4 h-4 text-rose-700"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2 mb-1 flex-wrap">
+              <span class="origen-badge bg-slate-100 text-slate-600">
+                <i data-lucide="edit-3" class="w-2.5 h-2.5"></i>MANUAL
+              </span>
+              <span class="origen-badge bg-rose-100 text-rose-700">
+                <i data-lucide="alert-circle" class="w-2.5 h-2.5"></i>SIN CLASIFICAR
+              </span>
+              <span class="text-[10px] text-slate-400 tabular">5 may 2026</span>
+            </div>
+            <div class="text-sm font-semibold text-slate-900">Almuerzo equipo · sin descripción</div>
+            <div class="text-[11px] text-rose-700 mt-0.5 italic">
+              ⚠ Asignar proveedor y categoría · bloquea cálculos del ratio
+            </div>
+          </div>
+          <div class="text-right flex-shrink-0">
+            <div class="text-base font-bold text-slate-900 tabular">S/ 320<span class="text-slate-400">.00</span></div>
+            <div class="text-[10px] text-slate-500">PEN</div>
+          </div>
+          <button class="flex items-center gap-1 px-3 py-1.5 text-[11px] font-bold text-white bg-rose-600 hover:bg-rose-700 rounded-md flex-shrink-0">
+            <i data-lucide="edit" class="w-3 h-3"></i>Clasificar
+          </button>
+        </div>
+      </div>
+
+      <!-- Pagination -->
+      <div class="flex items-center justify-between py-2 text-[10px] text-slate-500 tabular">
+        <span>Mostrando 8 de 47 movimientos del mes · S/ 8,540.20</span>
+        <div class="flex items-center gap-2">
+          <button class="px-2 py-1 bg-white border border-slate-200 rounded text-slate-400">←</button>
+          <span>Página 1 de 6</span>
+          <button class="px-2 py-1 bg-white border border-slate-200 rounded">→</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- DRAWER LATERAL URGENTES · sticky -->
+    <aside class="space-y-3 sticky top-4 self-start">
+      <div class="bg-white border border-amber-200 rounded-xl p-3">
+        <div class="flex items-center gap-2 mb-3">
+          <i data-lucide="zap" class="w-4 h-4 text-amber-700"></i>
+          <span class="text-[11px] font-bold text-amber-800 uppercase tracking-wider">Urgentes · 30d</span>
+          <span class="ml-auto text-[10px] font-bold text-amber-700 tabular bg-amber-100 px-1.5 py-0.5 rounded">S/ 3,250</span>
+        </div>
+        <div class="space-y-2 text-[11px]">
+          <div class="flex items-center justify-between p-2 bg-rose-50/50 border border-rose-200 rounded">
+            <div class="min-w-0">
+              <div class="font-semibold text-slate-900 truncate">Alquiler · 4d</div>
+              <div class="text-[9px] text-rose-600">Inversiones SAC</div>
+            </div>
+            <div class="text-rose-700 font-bold tabular text-[11px] ml-2">S/ 1,500</div>
+          </div>
+          <div class="flex items-center justify-between p-2 bg-amber-50/50 border border-amber-200 rounded">
+            <div class="min-w-0">
+              <div class="font-semibold text-slate-900 truncate">Shopify · 3d</div>
+              <div class="text-[9px] text-amber-700">Suscripción</div>
+            </div>
+            <div class="text-amber-700 font-bold tabular text-[11px] ml-2">S/ 309</div>
+          </div>
+          <div class="flex items-center justify-between p-2 bg-amber-50/50 border border-amber-200 rounded">
+            <div class="min-w-0">
+              <div class="font-semibold text-slate-900 truncate">Agencia ABC · 6d</div>
+              <div class="text-[9px] text-amber-700">Saldo 70%</div>
+            </div>
+            <div class="text-amber-700 font-bold tabular text-[11px] ml-2">S/ 1,680</div>
+          </div>
+          <div class="flex items-center justify-between p-2 bg-slate-50 border border-slate-200 rounded">
+            <div class="min-w-0">
+              <div class="font-semibold text-slate-900 truncate">Sueldo Juan · 19d</div>
+              <div class="text-[9px] text-slate-600">Empleado</div>
+            </div>
+            <div class="text-slate-700 font-bold tabular text-[11px] ml-2">S/ 3,000</div>
+          </div>
+        </div>
+        <button class="w-full mt-3 py-1.5 text-[10px] font-bold text-white bg-amber-600 hover:bg-amber-700 rounded">Pagar urgentes en lote</button>
+      </div>
+
+      <!-- Top proveedores · widget secundario -->
+      <div class="bg-white border border-slate-200 rounded-xl p-3">
+        <div class="flex items-center gap-2 mb-3">
+          <i data-lucide="users" class="w-4 h-4 text-slate-600"></i>
+          <span class="text-[11px] font-bold text-slate-700 uppercase tracking-wider">Top proveedores · mes</span>
+        </div>
+        <div class="space-y-1.5 text-[11px]">
+          <div class="flex items-center justify-between">
+            <span class="text-slate-700">NOW Foods</span>
+            <span class="font-bold tabular text-slate-900">S/ 1,880 <span class="text-slate-400 text-[9px]">22%</span></span>
+          </div>
+          <div class="flex items-center justify-between">
+            <span class="text-slate-700">Juan Pérez</span>
+            <span class="font-bold tabular text-slate-900">S/ 1,500 <span class="text-slate-400 text-[9px]">18%</span></span>
+          </div>
+          <div class="flex items-center justify-between">
+            <span class="text-slate-700">Inversiones SAC</span>
+            <span class="font-bold tabular text-slate-900">S/ 1,500 <span class="text-slate-400 text-[9px]">18%</span></span>
+          </div>
+          <div class="flex items-center justify-between">
+            <span class="text-slate-700">Agencia ABC</span>
+            <span class="font-bold tabular text-slate-900">S/ 720 <span class="text-slate-400 text-[9px]">8%</span></span>
+          </div>
+          <div class="flex items-center justify-between">
+            <span class="text-slate-700">Olva Courier</span>
+            <span class="font-bold tabular text-slate-900">S/ 580 <span class="text-slate-400 text-[9px]">7%</span></span>
+          </div>
+        </div>
+      </div>
+    </aside>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+<!-- SECCIÓN 2 · EVOLUCIÓN PORCENTUAL · 2 ratios superpuestos -->
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+<div class="section-divider">
+  <span class="section-num">2</span>
+  Evolución porcentual del costo · Ratio Gasto/Inversión + Gasto/Ingreso · 6 meses
+</div>
+
+<div class="bg-white rounded-2xl shadow-lg p-6">
+  <div class="flex items-start justify-between gap-4 flex-wrap mb-4">
+    <div>
+      <div class="text-sm font-bold text-slate-900">Eficiencia operativa · evolución 6 meses</div>
+      <div class="text-[11px] text-slate-500">Si los gastos crecen más rápido que la inversión o el ingreso · el negocio pierde eficiencia</div>
+    </div>
+    <div class="flex items-center gap-2 flex-wrap">
+      <span class="text-[10px] text-slate-500">Período:</span>
+      <button class="px-2 py-1 rounded text-[10px] font-bold bg-white text-slate-600 border border-slate-200">3m</button>
+      <button class="px-2 py-1 rounded text-[10px] font-bold bg-slate-900 text-white">6m</button>
+      <button class="px-2 py-1 rounded text-[10px] font-bold bg-white text-slate-600 border border-slate-200">12m</button>
+    </div>
+  </div>
+
+  <!-- Chart 2 líneas -->
+  <div class="bg-slate-50 border border-slate-200 rounded-lg p-4 mb-4">
+    <svg viewBox="0 0 600 240" class="w-full h-56">
+      <!-- Grid horizontal -->
+      <line x1="40" y1="40"  x2="580" y2="40"  stroke="#e2e8f0" stroke-dasharray="2 2"/>
+      <line x1="40" y1="90"  x2="580" y2="90"  stroke="#e2e8f0" stroke-dasharray="2 2"/>
+      <line x1="40" y1="140" x2="580" y2="140" stroke="#e2e8f0" stroke-dasharray="2 2"/>
+      <line x1="40" y1="190" x2="580" y2="190" stroke="#e2e8f0" stroke-dasharray="2 2"/>
+      <line x1="40" y1="40"  x2="40"  y2="190" stroke="#94a3b8"/>
+      <line x1="40" y1="190" x2="580" y2="190" stroke="#94a3b8"/>
+
+      <!-- Y axis labels -->
+      <text x="34" y="44"  font-size="9" fill="#94a3b8" text-anchor="end">30%</text>
+      <text x="34" y="94"  font-size="9" fill="#94a3b8" text-anchor="end">20%</text>
+      <text x="34" y="144" font-size="9" fill="#94a3b8" text-anchor="end">10%</text>
+      <text x="34" y="194" font-size="9" fill="#94a3b8" text-anchor="end">0%</text>
+
+      <!-- Línea Ratio Gasto/Ingreso (rose) -->
+      <polyline points="80,90 170,90 260,107 350,98 440,85 530,80"
+                fill="none" stroke="#e11d48" stroke-width="2.5"/>
+      <circle cx="80"  cy="90"  r="3" fill="#e11d48"/>
+      <circle cx="170" cy="90"  r="3" fill="#e11d48"/>
+      <circle cx="260" cy="107" r="3" fill="#e11d48"/>
+      <circle cx="350" cy="98"  r="3" fill="#e11d48"/>
+      <circle cx="440" cy="85"  r="3" fill="#e11d48"/>
+      <circle cx="530" cy="80"  r="3" fill="#e11d48"/>
+      <text x="540" y="78" font-size="10" fill="#e11d48" font-weight="700">19% G/Ingreso</text>
+
+      <!-- Línea Ratio Gasto/Inversión (amber) -->
+      <polyline points="80,140 170,140 260,151 350,145 440,138 530,139"
+                fill="none" stroke="#f59e0b" stroke-width="2.5"/>
+      <circle cx="80"  cy="140" r="3" fill="#f59e0b"/>
+      <circle cx="170" cy="140" r="3" fill="#f59e0b"/>
+      <circle cx="260" cy="151" r="3" fill="#f59e0b"/>
+      <circle cx="350" cy="145" r="3" fill="#f59e0b"/>
+      <circle cx="440" cy="138" r="3" fill="#f59e0b"/>
+      <circle cx="530" cy="139" r="3" fill="#f59e0b"/>
+      <text x="540" y="143" font-size="10" fill="#f59e0b" font-weight="700">9.8% G/Inversión</text>
+
+      <!-- X labels (meses) -->
+      <text x="80"  y="207" font-size="9" fill="#94a3b8" text-anchor="middle">Dic 25</text>
+      <text x="170" y="207" font-size="9" fill="#94a3b8" text-anchor="middle">Ene 26</text>
+      <text x="260" y="207" font-size="9" fill="#94a3b8" text-anchor="middle">Feb 26</text>
+      <text x="350" y="207" font-size="9" fill="#94a3b8" text-anchor="middle">Mar 26</text>
+      <text x="440" y="207" font-size="9" fill="#94a3b8" text-anchor="middle">Abr 26</text>
+      <text x="530" y="207" font-size="9" fill="#0f172a" text-anchor="middle" font-weight="700">May 26 ▲</text>
+
+      <!-- Highlight may -->
+      <rect x="510" y="35" width="42" height="160" fill="#0f172a" opacity="0.04" rx="3"/>
+    </svg>
+
+    <div class="flex items-center gap-3 mt-2 text-[10px]">
+      <span class="flex items-center gap-1"><span class="w-3 h-1 bg-rose-600 rounded"></span>Ratio Gasto/Ingreso · comercial</span>
+      <span class="flex items-center gap-1"><span class="w-3 h-1 bg-amber-500 rounded"></span>Ratio Gasto/Inversión · operativo</span>
+    </div>
+  </div>
+
+  <!-- Tabla mensual + insight -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+    <div class="lg:col-span-2 bg-white border border-slate-200 rounded-lg p-3">
+      <div class="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">Detalle mensual</div>
+      <table class="w-full text-[11px]">
+        <thead>
+          <tr class="text-left text-[10px] uppercase text-slate-400 border-b border-slate-100">
+            <th class="py-1.5">Mes</th>
+            <th class="py-1.5 text-right">Inversión</th>
+            <th class="py-1.5 text-right">Gastos</th>
+            <th class="py-1.5 text-right">Ingreso</th>
+            <th class="py-1.5 text-right">G/Inv</th>
+            <th class="py-1.5 text-right">G/Ing</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+          <tr><td class="py-1.5">Dic 2025</td><td class="text-right tabular">S/ 50,000</td><td class="text-right tabular">S/ 5,000</td><td class="text-right tabular">S/ 25,000</td><td class="text-right tabular text-amber-600 font-bold">10.0%</td><td class="text-right tabular text-rose-600 font-bold">20.0%</td></tr>
+          <tr><td class="py-1.5">Ene 2026</td><td class="text-right tabular">S/ 60,000</td><td class="text-right tabular">S/ 6,000</td><td class="text-right tabular">S/ 30,000</td><td class="text-right tabular text-amber-600 font-bold">10.0%</td><td class="text-right tabular text-rose-600 font-bold">20.0%</td></tr>
+          <tr><td class="py-1.5">Feb 2026</td><td class="text-right tabular">S/ 75,000</td><td class="text-right tabular">S/ 6,500</td><td class="text-right tabular">S/ 38,000</td><td class="text-right tabular text-emerald-600 font-bold">8.7%</td><td class="text-right tabular text-emerald-600 font-bold">17.1%</td></tr>
+          <tr><td class="py-1.5">Mar 2026</td><td class="text-right tabular">S/ 80,000</td><td class="text-right tabular">S/ 7,200</td><td class="text-right tabular">S/ 40,000</td><td class="text-right tabular text-amber-600 font-bold">9.0%</td><td class="text-right tabular text-amber-600 font-bold">18.0%</td></tr>
+          <tr><td class="py-1.5">Abr 2026</td><td class="text-right tabular">S/ 85,000</td><td class="text-right tabular">S/ 8,000</td><td class="text-right tabular">S/ 44,000</td><td class="text-right tabular text-amber-600 font-bold">9.4%</td><td class="text-right tabular text-rose-600 font-bold">18.2%</td></tr>
+          <tr class="bg-slate-50 font-bold"><td class="py-1.5">May 2026 ▲</td><td class="text-right tabular">S/ 87,234</td><td class="text-right tabular">S/ 8,540</td><td class="text-right tabular">S/ 45,000</td><td class="text-right tabular text-amber-600">9.8%</td><td class="text-right tabular text-rose-600">19.0%</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="bg-rose-50/40 border border-rose-200 rounded-lg p-3">
+      <div class="flex items-center gap-1.5 mb-2">
+        <i data-lucide="alert-triangle" class="w-3.5 h-3.5 text-rose-700"></i>
+        <span class="text-[10px] font-bold text-rose-700 uppercase tracking-wider">Insight automático</span>
+      </div>
+      <div class="text-[11px] text-slate-800 leading-relaxed mb-3">
+        <span class="font-bold">Tendencia a vigilar:</span> el Ratio Gasto/Ingreso pasó de 17.1% (feb)
+        a 19.0% (may) · subida sostenida 4 meses. La inversión también creció pero los gastos
+        crecieron más rápido proporcionalmente.
+      </div>
+      <div class="text-[10px] text-rose-700 italic">
+        Drivers principales del incremento:
+        <ul class="mt-1 space-y-0.5 list-disc list-inside">
+          <li>Comisión ML +S/ 540 (volumen ventas +20%)</li>
+          <li>Marketing campaña Q2 +S/ 320</li>
+          <li>Sueldos aumento + bonificación</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+<!-- SECCIÓN 3 · FORM GASTO BI-MONEDA · modal/drawer · sin tab pago -->
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+<div class="section-divider">
+  <span class="section-num">3</span>
+  Form Gasto manual · bi-moneda · MaestroSelect proveedor · SIN tab pago (separado)
+</div>
+
+<div class="bg-white rounded-2xl shadow-lg p-6">
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <!-- Modal form -->
+    <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-md max-w-[480px]">
+      <div class="flex items-center justify-between mb-4">
+        <div class="text-base font-bold text-slate-900 flex items-center gap-2">
+          <i data-lucide="plus-circle" class="w-5 h-5 text-teal-600"></i>
+          Nuevo gasto manual
+        </div>
+        <button class="text-slate-400 hover:text-slate-700"><i data-lucide="x" class="w-4 h-4"></i></button>
+      </div>
+
+      <div class="space-y-4">
+        <!-- 1 · Clasificación -->
+        <div>
+          <div class="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">1 · Clasificación</div>
+          <div class="space-y-2">
+            <div>
+              <label class="text-[10px] text-slate-600 font-medium">Categoría</label>
+              <div class="flex items-center gap-2 px-3 py-2 bg-white border border-teal-300 rounded-lg cursor-pointer ring-2 ring-teal-100">
+                <i data-lucide="briefcase" class="w-3.5 h-3.5 text-teal-600"></i>
+                <span class="text-sm text-slate-700 flex-1">Personal > Sueldos</span>
+                <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-400"></i>
+              </div>
+              <div class="text-[10px] text-slate-500 mt-1 italic">
+                Bloque derivado: <span class="font-bold text-amber-700">PERÍODO</span> · NO afecta CTRU · va al P&L del mes
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2 · Agente -->
+        <div>
+          <div class="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">2 · Agente del gasto</div>
+          <div class="flex items-center gap-2 mb-2">
+            <button class="px-2 py-1 rounded text-[10px] font-bold bg-white text-slate-600 border border-slate-200">Proveedor</button>
+            <button class="px-2 py-1 rounded text-[10px] font-bold bg-white text-slate-600 border border-slate-200">Colaborador</button>
+            <button class="px-2 py-1 rounded text-[10px] font-bold bg-slate-900 text-white">Empleado</button>
+          </div>
+          <div class="flex items-center gap-2 px-3 py-2 bg-white border border-slate-200 rounded-lg">
+            <i data-lucide="search" class="w-3.5 h-3.5 text-slate-400"></i>
+            <input type="text" value="Juan Pérez" class="text-sm flex-1 outline-none">
+            <span class="text-[9px] text-emerald-600 font-bold">✓ encontrado</span>
+          </div>
+          <button class="text-[10px] text-teal-700 font-medium mt-1 hover:underline">+ Crear nuevo empleado inline</button>
+        </div>
+
+        <!-- 3 · Monto bi-moneda -->
+        <div>
+          <div class="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">3 · Monto</div>
+          <div class="flex items-center gap-2 mb-2">
+            <button class="px-2 py-1 rounded text-[10px] font-bold bg-slate-900 text-white">PEN · S/</button>
+            <button class="px-2 py-1 rounded text-[10px] font-bold bg-white text-slate-600 border border-slate-200">USD · $</button>
+          </div>
+          <div class="flex items-center gap-2 px-3 py-2 bg-white border border-slate-200 rounded-lg">
+            <span class="text-slate-500 font-medium">S/</span>
+            <input type="text" value="3,000.00" class="text-sm flex-1 outline-none tabular text-right font-bold">
+          </div>
+        </div>
+
+        <!-- 4 · Fecha + recurrencia -->
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="text-[10px] text-slate-600 font-medium">Fecha del gasto</label>
+            <div class="flex items-center gap-2 px-3 py-2 bg-white border border-slate-200 rounded-lg">
+              <i data-lucide="calendar" class="w-3.5 h-3.5 text-slate-400"></i>
+              <span class="text-sm text-slate-700">11 may 2026</span>
+            </div>
+          </div>
+          <div>
+            <label class="text-[10px] text-slate-600 font-medium">Recurrencia</label>
+            <div class="flex items-center gap-2 px-3 py-2 bg-sky-50 border border-sky-200 rounded-lg">
+              <i data-lucide="repeat" class="w-3.5 h-3.5 text-sky-700"></i>
+              <span class="text-sm text-sky-800">Mensual · día 30</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 5 · Detalle -->
+        <div>
+          <div class="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">5 · Detalle</div>
+          <input type="text" placeholder="Descripción (ej. Sueldo Juan · mayo 2026)" class="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg mb-2">
+          <button class="flex items-center gap-2 px-3 py-2 text-[11px] text-slate-600 border-2 border-dashed border-slate-300 rounded-lg w-full hover:bg-slate-50">
+            <i data-lucide="paperclip" class="w-3.5 h-3.5"></i>
+            Adjuntar comprobante (PDF/imagen)
+          </button>
+        </div>
+
+        <!-- Banner separación -->
+        <div class="bg-sky-50/50 border border-sky-200 rounded p-2.5 text-[10px] text-sky-800">
+          <span class="font-bold">ℹ Separación canon:</span> este form solo REGISTRA el gasto.
+          El pago se gestiona después desde la lista o el modal canónico <code class="font-mono">PagoUnicoProveedor</code>.
+        </div>
+
+        <!-- Acciones -->
+        <div class="flex items-center gap-2 pt-2 border-t border-slate-100">
+          <button class="text-[11px] font-medium text-slate-700 bg-white border border-slate-200 hover:bg-slate-100 rounded-md px-3 py-1.5">Cancelar</button>
+          <button class="text-[11px] font-medium text-slate-700 bg-white border border-slate-200 hover:bg-slate-100 rounded-md px-3 py-1.5 ml-auto">Guardar borrador</button>
+          <button class="text-[11px] font-bold text-white bg-slate-900 hover:bg-slate-800 rounded-md px-4 py-1.5">Crear gasto</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- PagoUnicoProveedor · canon complementario -->
+    <div class="space-y-4">
+      <div class="bg-emerald-50/30 border border-emerald-200 rounded-xl p-5 max-w-[480px]">
+        <div class="flex items-center justify-between mb-4">
+          <div class="text-base font-bold text-slate-900 flex items-center gap-2">
+            <i data-lucide="credit-card" class="w-5 h-5 text-emerald-600"></i>
+            Pago Único Proveedor
+          </div>
+          <span class="text-[9px] font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded">CANON · YA EXISTE</span>
+        </div>
+
+        <div class="space-y-3">
+          <div class="bg-white border border-slate-200 rounded p-2 text-[11px]">
+            <div class="text-[9px] text-slate-500 uppercase font-bold">Gasto a pagar</div>
+            <div class="font-semibold text-slate-900">Sueldo Juan Pérez · mayo</div>
+            <div class="text-slate-500">S/ 3,000.00 · pendiente</div>
+          </div>
+
+          <div>
+            <label class="text-[10px] text-slate-600 font-medium">Cuenta origen</label>
+            <div class="px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm">BCP cuenta soles · S/ 18,500</div>
+          </div>
+
+          <div>
+            <label class="text-[10px] text-slate-600 font-medium">Método</label>
+            <div class="flex items-center gap-2 mt-1">
+              <button class="px-2 py-1 rounded text-[10px] font-bold bg-slate-900 text-white">Transferencia</button>
+              <button class="px-2 py-1 rounded text-[10px] font-bold bg-white text-slate-600 border border-slate-200">Yape</button>
+              <button class="px-2 py-1 rounded text-[10px] font-bold bg-white text-slate-600 border border-slate-200">Efectivo</button>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="text-[10px] text-slate-600 font-medium">Monto</label>
+              <div class="px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm font-bold tabular text-right">S/ 3,000.00</div>
+            </div>
+            <div>
+              <label class="text-[10px] text-slate-600 font-medium">Fecha pago</label>
+              <div class="px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm">11 may 2026</div>
+            </div>
+          </div>
+
+          <div>
+            <label class="text-[10px] text-slate-600 font-medium">Referencia (opcional)</label>
+            <input type="text" placeholder="Nº operación · voucher · etc." class="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg">
+          </div>
+
+          <div class="flex items-center gap-2 pt-2 border-t border-slate-100">
+            <button class="text-[11px] font-medium text-slate-700 bg-white border border-slate-200 rounded-md px-3 py-1.5">Cancelar</button>
+            <button class="text-[11px] font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-md px-4 py-1.5 ml-auto">Confirmar pago</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-slate-50 border border-slate-200 rounded-lg p-3 text-[11px] text-slate-700">
+        <span class="font-bold">Flujo correcto · separación canon:</span>
+        <ol class="mt-2 space-y-1 list-decimal list-inside text-slate-600">
+          <li>Usuario crea el gasto manual (form izq) · estado: pendiente</li>
+          <li>Gasto aparece en listado con botón [Pagar]</li>
+          <li>Click [Pagar] abre <code class="font-mono">PagoUnicoProveedor</code> (canon · ya existe)</li>
+          <li>Confirma pago · estado pasa a pagado · se crea movimiento tesorería</li>
+          <li>Audit log mantiene trazabilidad completa</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+<!-- SECCIÓN 4 · MULTI-LENTE DE RENTABILIDAD · 5 ESCENARIOS -->
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+<div class="section-divider">
+  <span class="section-num">4</span>
+  Multi-Lente de Rentabilidad · 5 escenarios reales · cómo cada lente reacciona
+</div>
+
+<div class="bg-white rounded-2xl shadow-lg p-6">
+  <div class="bg-sky-50/40 border border-sky-200 rounded-lg p-3 mb-5 text-[11px] text-sky-800">
+    <span class="font-bold">📚 Lectura del Multi-Lente:</span> mismo producto/situación · 3 lentes que cuentan historias distintas.
+    Los 5 escenarios siguientes muestran cómo cada lente reacciona ante diferentes realidades.
+    <span class="font-bold">Notá especialmente cómo el Lente B "miente" en mes flojo y "favorece" en mes excelente · por eso necesitás los 3.</span>
+  </div>
+
+  <!-- ESCENARIO 1 · PRODUCTO ESTRELLA -->
+  <div class="border border-emerald-200 rounded-xl p-4 mb-4 bg-emerald-50/20">
+    <div class="flex items-center gap-2 mb-3">
+      <span class="px-2 py-1 rounded bg-emerald-600 text-white text-[10px] font-bold">ESCENARIO 1</span>
+      <span class="text-sm font-bold text-slate-900">Producto ESTRELLA · margen alto + mes normal</span>
+      <span class="text-[10px] text-slate-500">→ Vitamin D3 NOW · vendiste 20u · overhead $100</span>
+    </div>
+    <div class="grid grid-cols-3 gap-3 text-[11px]">
+      <!-- A -->
+      <div class="bg-white border border-emerald-300 rounded p-3">
+        <div class="text-[10px] font-bold text-emerald-700 uppercase mb-2">A · Contribución</div>
+        <div class="space-y-1">
+          <div class="flex justify-between"><span>Ingreso</span><span class="tabular">$30</span></div>
+          <div class="flex justify-between text-rose-600"><span>− CTRU</span><span class="tabular">$10</span></div>
+          <div class="flex justify-between text-rose-600"><span>− Egresos venta</span><span class="tabular">$3</span></div>
+          <div class="border-t border-slate-200 pt-1 flex justify-between font-bold text-emerald-700"><span>= Margen</span><span class="tabular">$17/u</span></div>
+        </div>
+        <div class="mt-2 text-[10px] text-emerald-700 bg-emerald-50 rounded p-1.5">✅ Vale la pena vender</div>
+      </div>
+      <!-- B -->
+      <div class="bg-white border border-emerald-300 rounded p-3">
+        <div class="text-[10px] font-bold text-amber-700 uppercase mb-2">B · Absorción</div>
+        <div class="space-y-1">
+          <div class="flex justify-between"><span>Margen</span><span class="tabular">$17</span></div>
+          <div class="flex justify-between text-rose-600"><span>− Overhead/u</span><span class="tabular">$5</span></div>
+          <div class="border-t border-slate-200 pt-1 flex justify-between font-bold text-amber-700"><span>= Utilidad</span><span class="tabular">$12/u</span></div>
+          <div class="text-[9px] text-slate-400">($100 ÷ 20 ventas)</div>
+        </div>
+        <div class="mt-2 text-[10px] text-amber-700 bg-amber-50 rounded p-1.5">✅ Cubre costo total</div>
+      </div>
+      <!-- C -->
+      <div class="bg-white border border-emerald-300 rounded p-3">
+        <div class="text-[10px] font-bold text-sky-700 uppercase mb-2">C · Breakeven</div>
+        <div class="space-y-1">
+          <div class="flex justify-between"><span>Overhead</span><span class="tabular">$100</span></div>
+          <div class="flex justify-between"><span>÷ Margen</span><span class="tabular">$17</span></div>
+          <div class="border-t border-slate-200 pt-1 flex justify-between font-bold text-sky-700"><span>= Breakeven</span><span class="tabular">6 uds</span></div>
+          <div class="text-[9px] text-emerald-600 font-bold">Sobrante: +14u · $238 ganancia</div>
+        </div>
+        <div class="mt-2 text-[10px] text-sky-700 bg-sky-50 rounded p-1.5">✅ Sobrepasado · ganancia operativa</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ESCENARIO 2 · PRODUCTO MARGINAL -->
+  <div class="border border-amber-200 rounded-xl p-4 mb-4 bg-amber-50/20">
+    <div class="flex items-center gap-2 mb-3">
+      <span class="px-2 py-1 rounded bg-amber-600 text-white text-[10px] font-bold">ESCENARIO 2</span>
+      <span class="text-sm font-bold text-slate-900">Producto MARGINAL · apenas viable</span>
+      <span class="text-[10px] text-slate-500">→ Suplemento competitivo · CTRU alto · margen ajustado · overhead $100</span>
+    </div>
+    <div class="grid grid-cols-3 gap-3 text-[11px]">
+      <div class="bg-white border border-amber-300 rounded p-3">
+        <div class="text-[10px] font-bold text-emerald-700 uppercase mb-2">A · Contribución</div>
+        <div class="space-y-1">
+          <div class="flex justify-between"><span>Ingreso</span><span class="tabular">$30</span></div>
+          <div class="flex justify-between text-rose-600"><span>− CTRU</span><span class="tabular">$24</span></div>
+          <div class="flex justify-between text-rose-600"><span>− Egresos venta</span><span class="tabular">$3</span></div>
+          <div class="border-t border-slate-200 pt-1 flex justify-between font-bold text-amber-700"><span>= Margen</span><span class="tabular">$3/u</span></div>
+        </div>
+        <div class="mt-2 text-[10px] text-amber-700 bg-amber-50 rounded p-1.5">⚠ Margen bajo · revisar precio</div>
+      </div>
+      <div class="bg-white border border-amber-300 rounded p-3">
+        <div class="text-[10px] font-bold text-amber-700 uppercase mb-2">B · Absorción</div>
+        <div class="space-y-1">
+          <div class="flex justify-between"><span>Margen</span><span class="tabular">$3</span></div>
+          <div class="flex justify-between text-rose-600"><span>− Overhead/u</span><span class="tabular">$5</span></div>
+          <div class="border-t border-slate-200 pt-1 flex justify-between font-bold text-rose-700"><span>= Pérdida</span><span class="tabular">-$2/u</span></div>
+        </div>
+        <div class="mt-2 text-[10px] text-rose-700 bg-rose-50 rounded p-1.5">🚨 No cubre overhead · pérdida</div>
+      </div>
+      <div class="bg-white border border-amber-300 rounded p-3">
+        <div class="text-[10px] font-bold text-sky-700 uppercase mb-2">C · Breakeven</div>
+        <div class="space-y-1">
+          <div class="flex justify-between"><span>Overhead</span><span class="tabular">$100</span></div>
+          <div class="flex justify-between"><span>÷ Margen</span><span class="tabular">$3</span></div>
+          <div class="border-t border-slate-200 pt-1 flex justify-between font-bold text-rose-700"><span>= Breakeven</span><span class="tabular">34 uds</span></div>
+          <div class="text-[9px] text-rose-600 font-bold">Vendiste 20 · faltan 14u</div>
+        </div>
+        <div class="mt-2 text-[10px] text-rose-700 bg-rose-50 rounded p-1.5">🚨 Imposible cubrir overhead</div>
+      </div>
+    </div>
+    <div class="mt-3 px-3 py-2 bg-slate-100 rounded text-[10px] text-slate-700">
+      <span class="font-bold">📊 Lectura:</span> producto contribuye al negocio (Lente A) pero NO cubre overhead (B y C). Decisión: subir precio o discontinuar.
+    </div>
+  </div>
+
+  <!-- ESCENARIO 3 · PRODUCTO PERDEDOR -->
+  <div class="border border-rose-200 rounded-xl p-4 mb-4 bg-rose-50/20">
+    <div class="flex items-center gap-2 mb-3">
+      <span class="px-2 py-1 rounded bg-rose-600 text-white text-[10px] font-bold">ESCENARIO 3</span>
+      <span class="text-sm font-bold text-slate-900">Producto PERDEDOR · margen negativo</span>
+      <span class="text-[10px] text-slate-500">→ Producto importado con costo subió · margen contribución ya negativo</span>
+    </div>
+    <div class="grid grid-cols-3 gap-3 text-[11px]">
+      <div class="bg-white border border-rose-300 rounded p-3">
+        <div class="text-[10px] font-bold text-emerald-700 uppercase mb-2">A · Contribución</div>
+        <div class="space-y-1">
+          <div class="flex justify-between"><span>Ingreso</span><span class="tabular">$30</span></div>
+          <div class="flex justify-between text-rose-600"><span>− CTRU</span><span class="tabular">$32</span></div>
+          <div class="flex justify-between text-rose-600"><span>− Egresos venta</span><span class="tabular">$3</span></div>
+          <div class="border-t border-slate-200 pt-1 flex justify-between font-bold text-rose-700"><span>= Margen</span><span class="tabular">-$5/u</span></div>
+        </div>
+        <div class="mt-2 text-[10px] text-rose-700 bg-rose-50 rounded p-1.5">🚨 Cada venta resta · NO vender</div>
+      </div>
+      <div class="bg-white border border-rose-300 rounded p-3">
+        <div class="text-[10px] font-bold text-amber-700 uppercase mb-2">B · Absorción</div>
+        <div class="space-y-1">
+          <div class="flex justify-between"><span>Margen</span><span class="tabular">-$5</span></div>
+          <div class="flex justify-between text-rose-600"><span>− Overhead/u</span><span class="tabular">$5</span></div>
+          <div class="border-t border-slate-200 pt-1 flex justify-between font-bold text-rose-700"><span>= Pérdida</span><span class="tabular">-$10/u</span></div>
+        </div>
+        <div class="mt-2 text-[10px] text-rose-700 bg-rose-50 rounded p-1.5">🚨 Doble pérdida</div>
+      </div>
+      <div class="bg-white border border-rose-300 rounded p-3">
+        <div class="text-[10px] font-bold text-sky-700 uppercase mb-2">C · Breakeven</div>
+        <div class="space-y-1">
+          <div class="flex justify-between"><span>Overhead</span><span class="tabular">$100</span></div>
+          <div class="flex justify-between"><span>÷ Margen</span><span class="tabular">-$5</span></div>
+          <div class="border-t border-slate-200 pt-1 flex justify-between font-bold text-rose-700"><span>= Breakeven</span><span class="tabular">∞</span></div>
+          <div class="text-[9px] text-rose-600 font-bold">Imposible · margen negativo</div>
+        </div>
+        <div class="mt-2 text-[10px] text-rose-700 bg-rose-50 rounded p-1.5">🚨 Breakeven imposible</div>
+      </div>
+    </div>
+    <div class="mt-3 px-3 py-2 bg-slate-100 rounded text-[10px] text-slate-700">
+      <span class="font-bold">📊 Lectura:</span> producto destruye valor en cada venta. Decisión: subir precio drásticamente, renegociar proveedor o discontinuar.
+    </div>
+  </div>
+
+  <!-- ESCENARIO 4 · MES FLOJO -->
+  <div class="border border-amber-200 rounded-xl p-4 mb-4 bg-amber-50/20">
+    <div class="flex items-center gap-2 mb-3">
+      <span class="px-2 py-1 rounded bg-amber-600 text-white text-[10px] font-bold">ESCENARIO 4</span>
+      <span class="text-sm font-bold text-slate-900">MES FLOJO · mismo producto bueno · poco volumen</span>
+      <span class="text-[10px] text-slate-500">→ Vitamin D3 · solo 5u vendidas (overhead se diluye en menos ventas)</span>
+    </div>
+    <div class="grid grid-cols-3 gap-3 text-[11px]">
+      <div class="bg-white border border-amber-300 rounded p-3">
+        <div class="text-[10px] font-bold text-emerald-700 uppercase mb-2">A · Contribución</div>
+        <div class="space-y-1">
+          <div class="flex justify-between"><span>Ingreso</span><span class="tabular">$30</span></div>
+          <div class="flex justify-between text-rose-600"><span>− CTRU</span><span class="tabular">$10</span></div>
+          <div class="flex justify-between text-rose-600"><span>− Egresos venta</span><span class="tabular">$3</span></div>
+          <div class="border-t border-slate-200 pt-1 flex justify-between font-bold text-emerald-700"><span>= Margen</span><span class="tabular">$17/u</span></div>
+          <div class="text-[9px] text-emerald-600">⚓ ESTABLE · no cambió</div>
+        </div>
+        <div class="mt-2 text-[10px] text-emerald-700 bg-emerald-50 rounded p-1.5">✅ Producto sigue bueno</div>
+      </div>
+      <div class="bg-white border border-amber-300 rounded p-3">
+        <div class="text-[10px] font-bold text-amber-700 uppercase mb-2">B · Absorción</div>
+        <div class="space-y-1">
+          <div class="flex justify-between"><span>Margen</span><span class="tabular">$17</span></div>
+          <div class="flex justify-between text-rose-600"><span>− Overhead/u</span><span class="tabular">$20</span></div>
+          <div class="border-t border-slate-200 pt-1 flex justify-between font-bold text-rose-700"><span>= Pérdida</span><span class="tabular">-$3/u</span></div>
+          <div class="text-[9px] text-rose-500">($100 ÷ 5 ventas · diluye poco)</div>
+        </div>
+        <div class="mt-2 text-[10px] text-rose-700 bg-rose-50 rounded p-1.5">⚠ MIENTE · producto se ve malo</div>
+      </div>
+      <div class="bg-white border border-amber-300 rounded p-3">
+        <div class="text-[10px] font-bold text-sky-700 uppercase mb-2">C · Breakeven</div>
+        <div class="space-y-1">
+          <div class="flex justify-between"><span>Overhead</span><span class="tabular">$100</span></div>
+          <div class="flex justify-between"><span>÷ Margen</span><span class="tabular">$17</span></div>
+          <div class="border-t border-slate-200 pt-1 flex justify-between font-bold text-amber-700"><span>= Breakeven</span><span class="tabular">6 uds</span></div>
+          <div class="text-[9px] text-rose-600 font-bold">Vendiste 5 · falta 1u</div>
+        </div>
+        <div class="mt-2 text-[10px] text-amber-700 bg-amber-50 rounded p-1.5">⚠ A 1 venta del breakeven</div>
+      </div>
+    </div>
+    <div class="mt-3 px-3 py-2 bg-rose-50 border border-rose-200 rounded text-[10px] text-rose-800">
+      <span class="font-bold">🔥 INSIGHT CRÍTICO:</span> el Lente B "miente" en mes flojo · te dice que el producto es malo cuando en realidad lo malo fue el VOLUMEN. <span class="font-bold">Lente A te da la verdad estable · Lente C te dice cuánto falta para no perder.</span> Por eso necesitás los 3 lentes · NO uno solo.
+    </div>
+  </div>
+
+  <!-- ESCENARIO 5 · MES EXCELENTE -->
+  <div class="border border-emerald-300 rounded-xl p-4 mb-4 bg-emerald-50/30">
+    <div class="flex items-center gap-2 mb-3">
+      <span class="px-2 py-1 rounded bg-emerald-700 text-white text-[10px] font-bold">ESCENARIO 5</span>
+      <span class="text-sm font-bold text-slate-900">MES EXCELENTE · mismo producto · alto volumen</span>
+      <span class="text-[10px] text-slate-500">→ Vitamin D3 · 50u vendidas (overhead se diluye mucho)</span>
+    </div>
+    <div class="grid grid-cols-3 gap-3 text-[11px]">
+      <div class="bg-white border border-emerald-400 rounded p-3">
+        <div class="text-[10px] font-bold text-emerald-700 uppercase mb-2">A · Contribución</div>
+        <div class="space-y-1">
+          <div class="flex justify-between"><span>Ingreso</span><span class="tabular">$30</span></div>
+          <div class="flex justify-between text-rose-600"><span>− CTRU</span><span class="tabular">$10</span></div>
+          <div class="flex justify-between text-rose-600"><span>− Egresos venta</span><span class="tabular">$3</span></div>
+          <div class="border-t border-slate-200 pt-1 flex justify-between font-bold text-emerald-700"><span>= Margen</span><span class="tabular">$17/u</span></div>
+          <div class="text-[9px] text-emerald-600">⚓ ESTABLE · no cambió</div>
+        </div>
+        <div class="mt-2 text-[10px] text-emerald-700 bg-emerald-50 rounded p-1.5">✅ Verdad consistente</div>
+      </div>
+      <div class="bg-white border border-emerald-400 rounded p-3">
+        <div class="text-[10px] font-bold text-amber-700 uppercase mb-2">B · Absorción</div>
+        <div class="space-y-1">
+          <div class="flex justify-between"><span>Margen</span><span class="tabular">$17</span></div>
+          <div class="flex justify-between text-rose-600"><span>− Overhead/u</span><span class="tabular">$2</span></div>
+          <div class="border-t border-slate-200 pt-1 flex justify-between font-bold text-emerald-700"><span>= Utilidad</span><span class="tabular">$15/u</span></div>
+          <div class="text-[9px] text-emerald-600">($100 ÷ 50 ventas · diluye mucho)</div>
+        </div>
+        <div class="mt-2 text-[10px] text-emerald-700 bg-emerald-50 rounded p-1.5">✅ FAVORECE · producto se ve mejor</div>
+      </div>
+      <div class="bg-white border border-emerald-400 rounded p-3">
+        <div class="text-[10px] font-bold text-sky-700 uppercase mb-2">C · Breakeven</div>
+        <div class="space-y-1">
+          <div class="flex justify-between"><span>Overhead</span><span class="tabular">$100</span></div>
+          <div class="flex justify-between"><span>÷ Margen</span><span class="tabular">$17</span></div>
+          <div class="border-t border-slate-200 pt-1 flex justify-between font-bold text-emerald-700"><span>= Breakeven</span><span class="tabular">6 uds</span></div>
+          <div class="text-[9px] text-emerald-600 font-bold">Sobrante: 44u · $748 ganancia</div>
+        </div>
+        <div class="mt-2 text-[10px] text-emerald-700 bg-emerald-50 rounded p-1.5">✅ 8x sobre breakeven</div>
+      </div>
+    </div>
+    <div class="mt-3 px-3 py-2 bg-emerald-50 border border-emerald-200 rounded text-[10px] text-emerald-800">
+      <span class="font-bold">🎯 INSIGHT:</span> el Lente B ahora "favorece" porque el overhead se diluye en muchas ventas · pero el producto sigue siendo el mismo de los otros meses. <span class="font-bold">Los 3 lentes te protegen de leer mal la realidad según el ciclo del mes.</span>
+    </div>
+  </div>
+
+  <!-- Tabla resumen 5 escenarios -->
+  <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 mb-5">
+    <div class="text-[11px] font-bold text-slate-700 uppercase mb-3">📋 Resumen comparativo · 5 escenarios</div>
+    <div class="overflow-x-auto">
+      <table class="w-full text-[11px]">
+        <thead>
+          <tr class="text-left text-[10px] uppercase text-slate-500 border-b border-slate-200">
+            <th class="py-2">Escenario</th>
+            <th class="py-2 text-right">Margen A</th>
+            <th class="py-2 text-right">Utilidad B</th>
+            <th class="py-2 text-right">Breakeven C</th>
+            <th class="py-2">Decisión</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-200">
+          <tr>
+            <td class="py-2"><span class="px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-700 text-[10px] font-bold">1 · Estrella</span></td>
+            <td class="py-2 text-right tabular text-emerald-700 font-bold">+$17</td>
+            <td class="py-2 text-right tabular text-emerald-700 font-bold">+$12</td>
+            <td class="py-2 text-right tabular text-emerald-700">6 (✓ 20)</td>
+            <td class="py-2 text-emerald-700">Escalar · subir presupuesto</td>
+          </tr>
+          <tr>
+            <td class="py-2"><span class="px-1.5 py-0.5 rounded bg-amber-100 text-amber-700 text-[10px] font-bold">2 · Marginal</span></td>
+            <td class="py-2 text-right tabular text-amber-700 font-bold">+$3</td>
+            <td class="py-2 text-right tabular text-rose-700 font-bold">-$2</td>
+            <td class="py-2 text-right tabular text-rose-700">34 (✗ 20)</td>
+            <td class="py-2 text-amber-700">Subir precio o renegociar</td>
+          </tr>
+          <tr>
+            <td class="py-2"><span class="px-1.5 py-0.5 rounded bg-rose-100 text-rose-700 text-[10px] font-bold">3 · Perdedor</span></td>
+            <td class="py-2 text-right tabular text-rose-700 font-bold">-$5</td>
+            <td class="py-2 text-right tabular text-rose-700 font-bold">-$10</td>
+            <td class="py-2 text-right tabular text-rose-700">∞</td>
+            <td class="py-2 text-rose-700">Discontinuar / subir 30%+</td>
+          </tr>
+          <tr>
+            <td class="py-2"><span class="px-1.5 py-0.5 rounded bg-amber-100 text-amber-700 text-[10px] font-bold">4 · Mes flojo</span></td>
+            <td class="py-2 text-right tabular text-emerald-700 font-bold">+$17</td>
+            <td class="py-2 text-right tabular text-rose-700 font-bold">-$3 ⚠</td>
+            <td class="py-2 text-right tabular text-amber-700">6 (≈ 5)</td>
+            <td class="py-2 text-amber-700">Aumentar ventas · NO discontinuar</td>
+          </tr>
+          <tr>
+            <td class="py-2"><span class="px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-700 text-[10px] font-bold">5 · Mes excelente</span></td>
+            <td class="py-2 text-right tabular text-emerald-700 font-bold">+$17</td>
+            <td class="py-2 text-right tabular text-emerald-700 font-bold">+$15</td>
+            <td class="py-2 text-right tabular text-emerald-700">6 (✓✓ 50)</td>
+            <td class="py-2 text-emerald-700">Replicar · ¿más volumen aún?</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="mt-3 px-3 py-2 bg-white border border-sky-200 rounded text-[10px] text-slate-700">
+      <span class="font-bold text-sky-700">💡 KEY TAKEAWAY:</span>
+      Lente A es <span class="font-bold">VERDAD ESTABLE del producto</span> ·
+      Lente B es <span class="font-bold">VOLÁTIL · depende del mes</span> ·
+      Lente C es <span class="font-bold">ACCIONABLE · te dice meta de venta</span>.
+      <span class="text-rose-700 font-bold">NUNCA decidas con un solo lente.</span>
+    </div>
+  </div>
+
+  <!-- Allocation Engine config -->
+  <div class="mt-6 bg-slate-50/50 border border-slate-200 rounded-xl p-4">
+    <div class="flex items-center gap-2 mb-3">
+      <i data-lucide="settings" class="w-4 h-4 text-slate-600"></i>
+      <span class="text-[11px] font-bold text-slate-700 uppercase tracking-wider">Allocation Engine · política de asignación overhead</span>
+      <span class="ml-auto text-[10px] font-bold text-teal-700 bg-teal-100 px-2 py-0.5 rounded">Vista calculada · NO se persiste</span>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 text-[11px]">
+      <div>
+        <div class="text-[10px] font-bold text-slate-500 uppercase mb-1.5">Método de asignación</div>
+        <div class="space-y-1">
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input type="radio" name="metodo" class="text-teal-600">
+            <span>Por unidades (simple)</span>
+          </label>
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input type="radio" name="metodo" checked class="text-teal-600">
+            <span class="font-bold">Por ingreso (recomendado) ✓</span>
+          </label>
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input type="radio" name="metodo" class="text-teal-600">
+            <span>Por margen contribución</span>
+          </label>
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input type="radio" name="metodo" class="text-teal-600">
+            <span>Manual por SKU (power-user)</span>
+          </label>
+        </div>
+      </div>
+
+      <div>
+        <div class="text-[10px] font-bold text-slate-500 uppercase mb-1.5">Período base</div>
+        <div class="space-y-1">
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input type="radio" name="periodo" class="text-teal-600">
+            <span>En tiempo real (mes actual)</span>
+          </label>
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input type="radio" name="periodo" checked class="text-teal-600">
+            <span class="font-bold">Mes anterior cerrado ✓</span>
+          </label>
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input type="radio" name="periodo" class="text-teal-600">
+            <span>Promedio móvil 3 meses</span>
+          </label>
+        </div>
+      </div>
+
+      <div>
+        <div class="text-[10px] font-bold text-slate-500 uppercase mb-1.5">Bloques a asignar</div>
+        <div class="space-y-1">
+          <label class="flex items-center gap-2"><input type="checkbox" checked class="text-teal-600"><span>Bloque PERÍODO (overhead)</span></label>
+          <label class="flex items-center gap-2"><input type="checkbox" class="text-teal-600 opacity-50"><span class="text-slate-400">Bloque VENTA (ya cargado · venta especifica)</span></label>
+          <label class="flex items-center gap-2"><input type="checkbox" class="text-teal-600 opacity-50"><span class="text-slate-400">Bloque PRODUCTO (ya cargado · lote)</span></label>
+        </div>
+
+        <div class="bg-emerald-50 border border-emerald-200 rounded p-2 mt-3 text-[10px] text-emerald-800">
+          <span class="font-bold">Ratio actual:</span> $100 / $3,000 = <span class="font-bold tabular">3.33% del ingreso</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+<!-- SECCIÓN 5 · VENDOR INTELLIGENCE · ranking + alertas -->
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+<div class="section-divider">
+  <span class="section-num">5</span>
+  Vendor Intelligence · ranking proveedores + alertas precio + concentración
+</div>
+
+<div class="bg-white rounded-2xl shadow-lg p-6">
+  <div class="flex items-start justify-between gap-4 flex-wrap mb-4">
+    <div>
+      <div class="text-sm font-bold text-slate-900">Top 10 proveedores · año móvil</div>
+      <div class="text-[11px] text-slate-500">Concentración · tendencias · oportunidades de renegociación</div>
+    </div>
+    <div class="flex items-center gap-2">
+      <span class="text-[10px] text-slate-500">Filtrar por tipo:</span>
+      <button class="px-2 py-1 rounded text-[10px] font-bold bg-slate-900 text-white">Todos</button>
+      <button class="px-2 py-1 rounded text-[10px] font-bold bg-white text-slate-600 border border-slate-200">Proveedor</button>
+      <button class="px-2 py-1 rounded text-[10px] font-bold bg-white text-slate-600 border border-slate-200">Colaborador</button>
+      <button class="px-2 py-1 rounded text-[10px] font-bold bg-white text-slate-600 border border-slate-200">Empleado</button>
+    </div>
+  </div>
+
+  <!-- Banner concentración -->
+  <div class="bg-amber-50 border border-amber-200 rounded-lg p-3 mb-4 flex items-start gap-2">
+    <i data-lucide="info" class="w-4 h-4 text-amber-700 flex-shrink-0 mt-0.5"></i>
+    <div class="flex-1 text-[11px] text-amber-800">
+      <span class="font-bold">Concentración top-3 proveedores: 58% del gasto anual.</span>
+      Si NOW Foods (22%) subió 12% costos · impacto directo en CTRU.
+      Evaluar diversificación con iHerb / Vitacost / Pure Encapsulations.
+    </div>
+  </div>
+
+  <div class="overflow-x-auto">
+    <table class="w-full text-[11px]">
+      <thead>
+        <tr class="text-left text-[10px] uppercase text-slate-500 font-semibold border-b border-slate-200">
+          <th class="py-2">Proveedor / Agente</th>
+          <th class="py-2">Tipo</th>
+          <th class="py-2 text-right">Gasto YTD</th>
+          <th class="py-2 text-right">% del total</th>
+          <th class="py-2 text-right">Variación 3m</th>
+          <th class="py-2 text-right">Última factura</th>
+          <th class="py-2">Estado</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-100">
+        <tr class="bg-rose-50/30 hover:bg-rose-50/60">
+          <td class="py-2 font-semibold text-slate-900">NOW Foods</td>
+          <td class="py-2"><span class="origen-badge bg-slate-100 text-slate-700">Proveedor</span></td>
+          <td class="py-2 text-right tabular font-bold">S/ 12,400</td>
+          <td class="py-2 text-right tabular text-rose-700 font-bold">22.0%</td>
+          <td class="py-2 text-right tabular text-rose-700 font-bold">+12% ⬆</td>
+          <td class="py-2 text-right tabular">14 abr 2026</td>
+          <td class="py-2"><span class="origen-badge bg-rose-100 text-rose-700">⚠ Subida precio</span></td>
+        </tr>
+        <tr class="hover:bg-slate-50">
+          <td class="py-2 font-semibold text-slate-900">Juan Pérez</td>
+          <td class="py-2"><span class="origen-badge bg-teal-50 text-teal-700">Empleado</span></td>
+          <td class="py-2 text-right tabular font-bold">S/ 9,000</td>
+          <td class="py-2 text-right tabular">16.0%</td>
+          <td class="py-2 text-right tabular text-slate-500">+5% ⬆</td>
+          <td class="py-2 text-right tabular">30 abr 2026</td>
+          <td class="py-2"><span class="origen-badge bg-emerald-50 text-emerald-700">✓ Activo</span></td>
+        </tr>
+        <tr class="hover:bg-slate-50">
+          <td class="py-2 font-semibold text-slate-900">Inversiones SAC</td>
+          <td class="py-2"><span class="origen-badge bg-slate-100 text-slate-700">Proveedor</span></td>
+          <td class="py-2 text-right tabular font-bold">S/ 7,500</td>
+          <td class="py-2 text-right tabular">13.3%</td>
+          <td class="py-2 text-right tabular text-emerald-600">+0% =</td>
+          <td class="py-2 text-right tabular">1 may 2026</td>
+          <td class="py-2"><span class="origen-badge bg-emerald-50 text-emerald-700">✓ Estable</span></td>
+        </tr>
+        <tr class="hover:bg-slate-50">
+          <td class="py-2 font-semibold text-slate-900">Olva Courier</td>
+          <td class="py-2"><span class="origen-badge bg-purple-50 text-purple-700">Colaborador · RL</span></td>
+          <td class="py-2 text-right tabular font-bold">S/ 4,200</td>
+          <td class="py-2 text-right tabular">7.5%</td>
+          <td class="py-2 text-right tabular text-emerald-600">-3% ⬇</td>
+          <td class="py-2 text-right tabular">7 may 2026</td>
+          <td class="py-2"><span class="origen-badge bg-emerald-50 text-emerald-700">✓ Bajando</span></td>
+        </tr>
+        <tr class="hover:bg-slate-50">
+          <td class="py-2 font-semibold text-slate-900">Mercado Libre</td>
+          <td class="py-2"><span class="origen-badge bg-emerald-50 text-emerald-700">Marketplace</span></td>
+          <td class="py-2 text-right tabular font-bold">S/ 3,900</td>
+          <td class="py-2 text-right tabular">6.9%</td>
+          <td class="py-2 text-right tabular text-rose-600">+18% ⬆</td>
+          <td class="py-2 text-right tabular">9 may 2026</td>
+          <td class="py-2"><span class="origen-badge bg-amber-100 text-amber-700">⚡ Volumen ↑</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+<!-- SECCIÓN 6 · ESTADO SIN DATA · empty state honesto -->
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+<div class="section-divider">
+  <span class="section-num">6</span>
+  Estado · SIN gastos registrados · empty state honesto + onboarding
+</div>
+
+<div class="bg-white rounded-2xl shadow-lg p-6">
+  <div class="bg-white border border-slate-200 rounded-xl p-12">
+    <div class="max-w-lg mx-auto text-center">
+      <div class="w-20 h-20 rounded-2xl bg-gradient-to-br from-teal-50 to-teal-100 ring-1 ring-teal-200/50 flex items-center justify-center mx-auto mb-4">
+        <i data-lucide="receipt" class="w-10 h-10 text-teal-700"></i>
+      </div>
+      <h2 class="text-lg font-bold text-slate-900 mb-2">Sin gastos registrados</h2>
+      <p class="text-sm text-slate-600 mb-6 leading-relaxed max-w-md mx-auto">
+        Gastos consolida los movimientos manuales que registrés acá +
+        los gastos auto-generados por OCs, Envíos y Ventas. Empezá registrando
+        tus primeros gastos fijos para activar los ratios y proyecciones.
+      </p>
+
+      <!-- 3 sugerencias de primer gasto -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-6">
+        <button class="bg-white border border-slate-200 rounded-lg p-3 hover:border-teal-300 hover:bg-teal-50/30 text-left transition-colors">
+          <i data-lucide="building" class="w-4 h-4 text-amber-600 mb-1.5"></i>
+          <div class="text-[11px] font-bold text-slate-900">Alquiler mensual</div>
+          <div class="text-[10px] text-slate-500">Período · recurrente</div>
+        </button>
+        <button class="bg-white border border-slate-200 rounded-lg p-3 hover:border-teal-300 hover:bg-teal-50/30 text-left transition-colors">
+          <i data-lucide="user" class="w-4 h-4 text-teal-600 mb-1.5"></i>
+          <div class="text-[11px] font-bold text-slate-900">Sueldo empleado</div>
+          <div class="text-[10px] text-slate-500">Período · recurrente</div>
+        </button>
+        <button class="bg-white border border-slate-200 rounded-lg p-3 hover:border-teal-300 hover:bg-teal-50/30 text-left transition-colors">
+          <i data-lucide="cloud" class="w-4 h-4 text-sky-600 mb-1.5"></i>
+          <div class="text-[11px] font-bold text-slate-900">Suscripción SaaS</div>
+          <div class="text-[10px] text-slate-500">Período · USD</div>
+        </button>
+      </div>
+
+      <!-- Checklist prerequisitos -->
+      <div class="bg-amber-50/50 border border-amber-200 rounded-lg p-3 mb-6 text-left">
+        <div class="text-[10px] font-bold text-amber-700 uppercase tracking-wider mb-2">Para activar los ratios y proyecciones:</div>
+        <ul class="space-y-1 text-[11px] text-slate-700">
+          <li class="flex items-start gap-1.5">
+            <span class="font-bold text-emerald-600 mt-0.5">✓</span>
+            <span>Categorías canon seeded (64 disponibles)</span>
+          </li>
+          <li class="flex items-start gap-1.5">
+            <span class="font-bold text-amber-700 mt-0.5">1.</span>
+            <span>≥3 gastos registrados manualmente (baseline)</span>
+          </li>
+          <li class="flex items-start gap-1.5">
+            <span class="font-bold text-amber-700 mt-0.5">2.</span>
+            <span>≥1 OC cerrada que genere gastos auto (flete · aduana)</span>
+          </li>
+          <li class="flex items-start gap-1.5">
+            <span class="font-bold text-amber-700 mt-0.5">3.</span>
+            <span>≥1 venta cerrada que genere gastos auto (comisiones)</span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="flex items-center justify-center gap-2 flex-wrap">
+        <button class="flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-white bg-slate-900 rounded-lg hover:bg-slate-800 shadow-sm">
+          <i data-lucide="plus" class="w-3.5 h-3.5"></i>Registrar primer gasto
+        </button>
+        <button class="flex items-center gap-1.5 px-4 py-2 text-xs font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50">
+          Ver módulo Compras
+          <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+<!-- SECCIÓN 7 · MAPPING data sources -->
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+<div class="section-divider">
+  <span class="section-num">7</span>
+  Mapping data sources · de dónde viene cada componente del módulo
+</div>
+
+<div class="bg-white rounded-2xl shadow-lg p-6">
+  <div class="overflow-x-auto">
+    <table class="w-full text-xs">
+      <thead>
+        <tr class="text-left text-[10px] uppercase tracking-wider text-slate-500 font-bold border-b-2 border-slate-200">
+          <th class="px-3 py-2">Componente</th>
+          <th class="px-3 py-2">Data source</th>
+          <th class="px-3 py-2">Cálculo / lógica</th>
+          <th class="px-3 py-2 text-center">Existe hoy</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-100">
+        <tr>
+          <td class="px-3 py-2.5 font-semibold text-slate-900">KPI · Gasto del mes</td>
+          <td class="px-3 py-2.5 text-slate-600 font-mono text-[10px]">gastos[] filter mes actual</td>
+          <td class="px-3 py-2.5 text-slate-600">Σ gasto.montoPEN · todos los origenes</td>
+          <td class="px-3 py-2.5 text-center"><span class="text-[10px] font-bold text-emerald-700">✓</span></td>
+        </tr>
+        <tr class="bg-slate-50">
+          <td class="px-3 py-2.5 font-semibold text-slate-900">KPI · Ratio Gasto/Inversión</td>
+          <td class="px-3 py-2.5 text-slate-600 font-mono text-[10px]">gastos[] + unidades[].costoPEN activo</td>
+          <td class="px-3 py-2.5 text-slate-600">Σ gastos mes / Σ CTRU unidades activas (no vendidas)</td>
+          <td class="px-3 py-2.5 text-center"><span class="text-[10px] font-bold text-amber-700">parcial · agregar</span></td>
+        </tr>
+        <tr>
+          <td class="px-3 py-2.5 font-semibold text-slate-900">KPI · Ratio Gasto/Ingreso</td>
+          <td class="px-3 py-2.5 text-slate-600 font-mono text-[10px]">gastos[] + ventas[].totalPEN</td>
+          <td class="px-3 py-2.5 text-slate-600">Σ gastos mes / Σ ingresos ventas mes</td>
+          <td class="px-3 py-2.5 text-center"><span class="text-[10px] font-bold text-amber-700">parcial · agregar</span></td>
+        </tr>
+        <tr class="bg-slate-50">
+          <td class="px-3 py-2.5 font-semibold text-slate-900">KPI · Vencimientos 30d</td>
+          <td class="px-3 py-2.5 text-slate-600 font-mono text-[10px]">gastos[] estado pendiente · fechaVencimiento</td>
+          <td class="px-3 py-2.5 text-slate-600">filter(g.fechaVenc &lt; hoy + 30d &amp;&amp; g.estado !== 'pagado')</td>
+          <td class="px-3 py-2.5 text-center"><span class="text-[10px] font-bold text-emerald-700">✓</span></td>
+        </tr>
+        <tr>
+          <td class="px-3 py-2.5 font-semibold text-slate-900">KPI · DPO</td>
+          <td class="px-3 py-2.5 text-slate-600 font-mono text-[10px]">gastos[].fechaCreacion vs primer pago</td>
+          <td class="px-3 py-2.5 text-slate-600">avg(fechaPago - fechaCreacion) últimos 90d · días</td>
+          <td class="px-3 py-2.5 text-center"><span class="text-[10px] font-bold text-amber-700">agregar</span></td>
+        </tr>
+        <tr class="bg-slate-50">
+          <td class="px-3 py-2.5 font-semibold text-slate-900">Listado · origen badge</td>
+          <td class="px-3 py-2.5 text-slate-600 font-mono text-[10px]">gasto.ordenCompraId || gasto.envioId || gasto.ventaId || null</td>
+          <td class="px-3 py-2.5 text-slate-600">Si ninguno → "MANUAL" · si OC → "📦 OC" · etc.</td>
+          <td class="px-3 py-2.5 text-center"><span class="text-[10px] font-bold text-emerald-700">✓ vinculaciones existen</span></td>
+        </tr>
+        <tr>
+          <td class="px-3 py-2.5 font-semibold text-slate-900">Multi-Lente B (Absorción)</td>
+          <td class="px-3 py-2.5 text-slate-600 font-mono text-[10px]">gastos[].montoPEN bloque=periodo + ventas[].totalPEN mes anterior</td>
+          <td class="px-3 py-2.5 text-slate-600">Ratio overhead/ingreso · cálculo runtime (NO persiste)</td>
+          <td class="px-3 py-2.5 text-center"><span class="text-[10px] font-bold text-rose-700">crear</span></td>
+        </tr>
+        <tr class="bg-slate-50">
+          <td class="px-3 py-2.5 font-semibold text-slate-900">Lente C (Breakeven)</td>
+          <td class="px-3 py-2.5 text-slate-600 font-mono text-[10px]">gastos bloque=periodo + margen contrib promedio</td>
+          <td class="px-3 py-2.5 text-slate-600">overhead total / margen contrib promedio · cálculo runtime</td>
+          <td class="px-3 py-2.5 text-center"><span class="text-[10px] font-bold text-rose-700">crear</span></td>
+        </tr>
+        <tr>
+          <td class="px-3 py-2.5 font-semibold text-slate-900">Vendor Intelligence</td>
+          <td class="px-3 py-2.5 text-slate-600 font-mono text-[10px]">gastos[].proveedorId · agrupado</td>
+          <td class="px-3 py-2.5 text-slate-600">groupBy proveedor · sumar · trend % vs trimestre anterior</td>
+          <td class="px-3 py-2.5 text-center"><span class="text-[10px] font-bold text-amber-700">parcial · agregar</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="mt-4 px-3 py-2 bg-teal-50 border border-teal-200 rounded text-[11px] text-teal-800">
+    <span class="font-bold">Engine reuse:</span> el modelo de datos canónico (3 niveles + categoriaCostoId)
+    ya está aterrizado desde chk5.A. Solo falta agregar la capa de cálculo runtime para los 2 ratios,
+    DPO, Multi-Lente B/C y vendor intelligence. Cero migración de data.
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+<!-- SECCIÓN 8 · DECISIONES CANON DECLARADAS -->
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+<div class="section-divider">
+  <span class="section-num">8</span>
+  Decisiones canon declaradas · D-GR-1 a D-GR-8 · cierre del criterio
+</div>
+
+<div class="bg-white rounded-2xl shadow-lg p-6">
+  <div class="space-y-3 text-sm">
+    <div class="flex items-start gap-3 bg-emerald-50/30 border border-emerald-200 rounded-lg p-3">
+      <span class="w-8 h-8 rounded bg-emerald-100 text-emerald-700 font-bold flex items-center justify-center flex-shrink-0">1</span>
+      <div>
+        <div class="font-bold text-slate-900">D-GR-1 · Ambos ratios visibles (Gasto/Inversión + Gasto/Ingreso)</div>
+        <div class="text-[11px] text-slate-600">El de Inversión mide eficiencia operativa interna · el de Ingreso mide salud comercial vs mercado. Ambos en el strip principal.</div>
+      </div>
+    </div>
+
+    <div class="flex items-start gap-3 bg-emerald-50/30 border border-emerald-200 rounded-lg p-3">
+      <span class="w-8 h-8 rounded bg-emerald-100 text-emerald-700 font-bold flex items-center justify-center flex-shrink-0">2</span>
+      <div>
+        <div class="font-bold text-slate-900">D-GR-2 · 5 KPIs primarios + 4 secundarios expandibles · DPO en top 5</div>
+        <div class="text-[11px] text-slate-600">Primarios: Gasto mes · Ratio Inversión · Ratio Ingreso · Vencimientos 30d · DPO. Secundarios: Burn rate · % Recurrentes · Top proveedor · Sin clasificar.</div>
+      </div>
+    </div>
+
+    <div class="flex items-start gap-3 bg-emerald-50/30 border border-emerald-200 rounded-lg p-3">
+      <span class="w-8 h-8 rounded bg-emerald-100 text-emerald-700 font-bold flex items-center justify-center flex-shrink-0">3</span>
+      <div>
+        <div class="font-bold text-slate-900">D-GR-3 · Gastos auto-generados editables en monto · propaga al doc origen + audit log</div>
+        <div class="text-[11px] text-slate-600">Editar el monto desde Gastos propaga a OC/Envío/Venta · trigger recálculo CTRU si bloque=producto · banner en doc origen "última edición desde Gastos". Para gastos derivados de fórmula (comisión ML) · marca como "manual override".</div>
+      </div>
+    </div>
+
+    <div class="flex items-start gap-3 bg-emerald-50/30 border border-emerald-200 rounded-lg p-3">
+      <span class="w-8 h-8 rounded bg-emerald-100 text-emerald-700 font-bold flex items-center justify-center flex-shrink-0">4</span>
+      <div>
+        <div class="font-bold text-slate-900">D-GR-4 · 3 tipos de agentes: Proveedor · Colaborador · Empleado</div>
+        <div class="text-[11px] text-slate-600">Énfasis en colaboradores de red logística (viajero · courier · agente aduanal). MaestroSelect canon con creación inline.</div>
+      </div>
+    </div>
+
+    <div class="flex items-start gap-3 bg-emerald-50/30 border border-emerald-200 rounded-lg p-3">
+      <span class="w-8 h-8 rounded bg-emerald-100 text-emerald-700 font-bold flex items-center justify-center flex-shrink-0">5</span>
+      <div>
+        <div class="font-bold text-slate-900">D-GR-5 · Separación gasto/pago · PagoUnicoProveedor canon complementa</div>
+        <div class="text-[11px] text-slate-600">Form de gasto solo REGISTRA · estado pendiente. Pago se gestiona vía modal canon ya existente. Audit trail mantiene trazabilidad.</div>
+      </div>
+    </div>
+
+    <div class="flex items-start gap-3 bg-emerald-50/30 border border-emerald-200 rounded-lg p-3">
+      <span class="w-8 h-8 rounded bg-emerald-100 text-emerald-700 font-bold flex items-center justify-center flex-shrink-0">6</span>
+      <div>
+        <div class="font-bold text-slate-900">D-GR-6 · Multi-Lente Rentabilidad: A Contribución · B Absorción · C Breakeven</div>
+        <div class="text-[11px] text-slate-600">3 lentes visibles · cada uno responde una pregunta operativa distinta. Cálculo runtime (NO se persiste) para evitar el "prorrateo infinito" del modelo viejo.</div>
+      </div>
+    </div>
+
+    <div class="flex items-start gap-3 bg-emerald-50/30 border border-emerald-200 rounded-lg p-3">
+      <span class="w-8 h-8 rounded bg-emerald-100 text-emerald-700 font-bold flex items-center justify-center flex-shrink-0">7</span>
+      <div>
+        <div class="font-bold text-slate-900">D-GR-7 · Método overhead: Por Ingreso + ratio del mes anterior cerrado</div>
+        <div class="text-[11px] text-slate-600">Por Ingreso respeta cantidad y valor · estándar industria · estable durante el mes (ratio se cierra con mes anterior). Power-user puede cambiar método y período base.</div>
+      </div>
+    </div>
+
+    <div class="flex items-start gap-3 bg-emerald-50/30 border border-emerald-200 rounded-lg p-3">
+      <span class="w-8 h-8 rounded bg-emerald-100 text-emerald-700 font-bold flex items-center justify-center flex-shrink-0">8</span>
+      <div>
+        <div class="font-bold text-slate-900">D-GR-8 · Módulo Gastos = CONSOLIDADOR · NO solo creador</div>
+        <div class="text-[11px] text-slate-600">Listado unificado de gastos de las 4 fuentes (manual + OC + Envío + Venta) con badge de origen · filtros por origen/bloque/estado · click navega al doc origen para edición profunda.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-6 px-4 py-3 bg-slate-900 text-white rounded-lg text-[11px] flex items-start gap-2">
+    <i data-lucide="check-circle" class="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5"></i>
+    <div>
+      <span class="font-bold">8/8 decisiones cerradas.</span> Validación holística del mockup pendiente · si OK · paso a plan de implementación (~5-7 sesiones · refactor canon completo).
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+<!-- SECCIÓN 9 · FEATURES RESCATADAS DEL MÓDULO ACTUAL -->
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+<div class="section-divider">
+  <span class="section-num">9</span>
+  Features rescatadas del módulo actual · qué preservar e integrar al rework
+</div>
+
+<div class="bg-white rounded-2xl shadow-lg p-6">
+  <div class="text-[11px] text-slate-600 mb-4">
+    Auditoría rápida de <code class="font-mono bg-slate-100 px-1 rounded">src/pages/Gastos/Gastos.tsx</code>
+    (1562 ln) +
+    <code class="font-mono bg-slate-100 px-1 rounded">GastoForm.tsx</code>
+    (1621 ln) +
+    7 sub-componentes existentes. Lista de features valiosas detectadas:
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+
+    <!-- Card 1 -->
+    <div class="bg-emerald-50/30 border border-emerald-200 rounded-lg p-4">
+      <div class="flex items-center gap-2 mb-2">
+        <i data-lucide="filter" class="w-4 h-4 text-emerald-700"></i>
+        <span class="text-[11px] font-bold text-emerald-700 uppercase tracking-wider">LineaDropdown global</span>
+      </div>
+      <div class="text-[11px] text-slate-700 mb-2">
+        Filtro vertical por línea de negocio (Skincare · Suplementos · Apparel · etc.).
+        Permite ver gastos solo de una línea específica.
+      </div>
+      <div class="text-[10px] text-emerald-700 bg-emerald-100/50 rounded p-1.5">
+        ✅ <span class="font-bold">Integrar:</span> agregar como chip al FiltrosBar canon
+      </div>
+    </div>
+
+    <!-- Card 2 -->
+    <div class="bg-emerald-50/30 border border-emerald-200 rounded-lg p-4">
+      <div class="flex items-center gap-2 mb-2">
+        <i data-lucide="chevron-left" class="w-4 h-4 text-emerald-700"></i>
+        <i data-lucide="chevron-right" class="w-4 h-4 text-emerald-700 -ml-3"></i>
+        <span class="text-[11px] font-bold text-emerald-700 uppercase tracking-wider">Navegación temporal por mes</span>
+      </div>
+      <div class="text-[11px] text-slate-700 mb-2">
+        Flechas <code class="font-mono">←</code> mayo 2026 <code class="font-mono">→</code>
+        para navegar histórico mes a mes. Más fluido que toggle "Este mes / Todos / Pendientes".
+      </div>
+      <div class="text-[10px] text-emerald-700 bg-emerald-100/50 rounded p-1.5">
+        ✅ <span class="font-bold">Integrar:</span> agregar selector mes a la izquierda del FiltrosBar
+      </div>
+    </div>
+
+    <!-- Card 3 -->
+    <div class="bg-emerald-50/30 border border-emerald-200 rounded-lg p-4">
+      <div class="flex items-center gap-2 mb-2">
+        <i data-lucide="credit-card" class="w-4 h-4 text-emerald-700"></i>
+        <span class="text-[11px] font-bold text-emerald-700 uppercase tracking-wider">PagoUnificadoForm canon</span>
+      </div>
+      <div class="text-[11px] text-slate-700 mb-2">
+        El modal de pago se llama <code class="font-mono">PagoUnificadoForm</code> (no PagoUnicoProveedor).
+        Ya existe en <code class="font-mono">/components/modules/pagos/</code> · ya canon · ya integrado en Gastos.
+      </div>
+      <div class="text-[10px] text-emerald-700 bg-emerald-100/50 rounded p-1.5">
+        ✅ <span class="font-bold">Corregir nombre:</span> usar <code class="font-mono">PagoUnificadoForm</code> en mockup y plan
+      </div>
+    </div>
+
+    <!-- Card 4 -->
+    <div class="bg-emerald-50/30 border border-emerald-200 rounded-lg p-4">
+      <div class="flex items-center gap-2 mb-2">
+        <i data-lucide="user-plus" class="w-4 h-4 text-emerald-700"></i>
+        <span class="text-[11px] font-bold text-emerald-700 uppercase tracking-wider">ProveedorForm inline</span>
+      </div>
+      <div class="text-[11px] text-slate-700 mb-2">
+        En GastoForm.tsx ya está integrado <code class="font-mono">ProveedorForm</code> que permite
+        crear proveedor desde el form de gasto sin salir. F2 de TAREA-PROVEEDOR-GASTOS ya cerrada.
+      </div>
+      <div class="text-[10px] text-emerald-700 bg-emerald-100/50 rounded p-1.5">
+        ✅ <span class="font-bold">Preservar:</span> mantener el flow de creación inline al hacer "Crear nuevo"
+      </div>
+    </div>
+
+    <!-- Card 5 -->
+    <div class="bg-emerald-50/30 border border-emerald-200 rounded-lg p-4">
+      <div class="flex items-center gap-2 mb-2">
+        <i data-lucide="git-branch" class="w-4 h-4 text-emerald-700"></i>
+        <span class="text-[11px] font-bold text-emerald-700 uppercase tracking-wider">resolveBreadcrumb 3 niveles</span>
+      </div>
+      <div class="text-[11px] text-slate-700 mb-2">
+        Helper que resuelve <code class="font-mono">categoriaCostoId</code> al breadcrumb
+        Bloque > Padre > Sub (ej. <span class="italic">Periodo > Personal > Sueldos</span>).
+        Útil para mostrar contexto canon en cada card.
+      </div>
+      <div class="text-[10px] text-emerald-700 bg-emerald-100/50 rounded p-1.5">
+        ✅ <span class="font-bold">Integrar:</span> usar en GastoCardCanonico para mostrar jerarquía
+      </div>
+    </div>
+
+    <!-- Card 6 -->
+    <div class="bg-emerald-50/30 border border-emerald-200 rounded-lg p-4">
+      <div class="flex items-center gap-2 mb-2">
+        <i data-lucide="layers" class="w-4 h-4 text-emerald-700"></i>
+        <span class="text-[11px] font-bold text-emerald-700 uppercase tracking-wider">prorrateoTipo (unidad/oc/manual)</span>
+      </div>
+      <div class="text-[11px] text-slate-700 mb-2">
+        Solo aplica cuando el gasto es bloque PRODUCTO y <code class="font-mono">esProrrateable=true</code>.
+        Controla CÓMO se prorratea al CTRU (por unidad, por OC, manual).
+      </div>
+      <div class="text-[10px] text-emerald-700 bg-emerald-100/50 rounded p-1.5">
+        ✅ <span class="font-bold">Preservar:</span> mostrar sólo cuando bloque=PRODUCTO en GastoForm (UI condicional)
+      </div>
+    </div>
+
+    <!-- Card 7 -->
+    <div class="bg-emerald-50/30 border border-emerald-200 rounded-lg p-4">
+      <div class="flex items-center gap-2 mb-2">
+        <i data-lucide="users" class="w-4 h-4 text-emerald-700"></i>
+        <span class="text-[11px] font-bold text-emerald-700 uppercase tracking-wider">useEntidadesPorTipo hook canon</span>
+      </div>
+      <div class="text-[11px] text-slate-700 mb-2">
+        Hook canónico que retorna lista de entidades según tipo seleccionado
+        (proveedor / colaborador / empleado). Ya usado en GastoForm V2.
+      </div>
+      <div class="text-[10px] text-emerald-700 bg-emerald-100/50 rounded p-1.5">
+        ✅ <span class="font-bold">Preservar:</span> backbone del selector MaestroSelect del agente
+      </div>
+    </div>
+
+    <!-- Card 8 -->
+    <div class="bg-emerald-50/30 border border-emerald-200 rounded-lg p-4">
+      <div class="flex items-center gap-2 mb-2">
+        <i data-lucide="download" class="w-4 h-4 text-emerald-700"></i>
+        <span class="text-[11px] font-bold text-emerald-700 uppercase tracking-wider">exportService (Excel/CSV)</span>
+      </div>
+      <div class="text-[11px] text-slate-700 mb-2">
+        Servicio canon de exportación · permite descargar gastos filtrados a Excel/CSV.
+        Ya integrado en Gastos.tsx con botón "Exportar".
+      </div>
+      <div class="text-[10px] text-emerald-700 bg-emerald-100/50 rounded p-1.5">
+        ✅ <span class="font-bold">Preservar:</span> mantener botón "Exportar" en header del hub
+      </div>
+    </div>
+
+    <!-- Card 9 -->
+    <div class="bg-emerald-50/30 border border-emerald-200 rounded-lg p-4">
+      <div class="flex items-center gap-2 mb-2">
+        <i data-lucide="dollar-sign" class="w-4 h-4 text-emerald-700"></i>
+        <span class="text-[11px] font-bold text-emerald-700 uppercase tracking-wider">TC del día automático</span>
+      </div>
+      <div class="text-[11px] text-slate-700 mb-2">
+        Cuando moneda=USD, el form busca automáticamente el TC del día desde
+        <code class="font-mono">useTipoCambioStore.getTCDelDia()</code>. Auto-completa el campo.
+      </div>
+      <div class="text-[10px] text-emerald-700 bg-emerald-100/50 rounded p-1.5">
+        ✅ <span class="font-bold">Preservar:</span> auto-fill canon · ya funciona perfecto
+      </div>
+    </div>
+
+    <!-- Card 10 · BulkActions -->
+    <div class="bg-emerald-50/30 border border-emerald-200 rounded-lg p-4">
+      <div class="flex items-center gap-2 mb-2">
+        <i data-lucide="check-square" class="w-4 h-4 text-emerald-700"></i>
+        <span class="text-[11px] font-bold text-emerald-700 uppercase tracking-wider">Bulk Mode (multi-select)</span>
+      </div>
+      <div class="text-[11px] text-slate-700 mb-2">
+        Toggle <code class="font-mono">bulkMode</code> + Set <code class="font-mono">seleccionados</code>
+        permite seleccionar varios gastos para acciones masivas (eliminar · exportar · pagar lote).
+        F4.a ya cerrada.
+      </div>
+      <div class="text-[10px] text-emerald-700 bg-emerald-100/50 rounded p-1.5">
+        ✅ <span class="font-bold">Preservar:</span> habilitar en cards con checkbox · toolbar sticky bulk
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Resumen integración -->
+  <div class="mt-6 px-4 py-3 bg-emerald-50 border border-emerald-200 rounded-lg text-[11px] text-emerald-900">
+    <span class="font-bold">📦 Conclusión de auditoría:</span> el módulo actual ya tiene mucha infraestructura canon
+    (LineaDropdown · navegación temporal · PagoUnificadoForm · ProveedorForm inline · resolveBreadcrumb · prorrateoTipo
+    · useEntidadesPorTipo · exportService · TC auto · BulkMode). <span class="font-bold">El rework V3 NO empieza de cero ·
+    se construye SOBRE estas piezas validadas</span> · solo refactorizamos shell + listado + lentes + ratios.
+    Aprovechar la inversión existente.
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+<!-- SECCIÓN 10 · 4 VISTAS ALTERNATIVAS DEL HUB · canon adaptado -->
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+<div class="section-divider">
+  <span class="section-num">10</span>
+  4 vistas alternativas del Hub · canon ajustado · Bloque · Calendario · Proveedor · Reportes BI
+</div>
+
+<div class="bg-sky-50/30 border border-sky-200 rounded-lg p-3 mb-4 text-[11px] text-sky-800">
+  <span class="font-bold">ℹ Contexto:</span> el toggle de 5 modos en el FiltrosBar de la Sección 1 (Lista · Bloque · Calendario · Proveedor · P&L 3 niveles) ya existe en el código actual (S58f F3.b cerrada). Estas 4 vistas alternativas se preservan en el rework V3 pero ajustadas al canon visual (HeaderV2 implícito · cards · tabular-nums · banking-grade). Cada una responde una pregunta distinta del negocio.
+</div>
+
+<!-- ─────────────────────────────────────────────────────────────── -->
+<!-- VISTA 10.A · POR BLOQUE · 3 columnas Producto/Venta/Período -->
+<!-- ─────────────────────────────────────────────────────────────── -->
+<div class="bg-white rounded-2xl shadow-lg p-6 mb-4">
+  <div class="flex items-center gap-2 mb-1">
+    <span class="px-2 py-1 rounded bg-slate-900 text-white text-[10px] font-bold">VISTA 10.A</span>
+    <span class="text-sm font-bold text-slate-900">Por Bloque · 3 columnas semánticas</span>
+  </div>
+  <div class="text-[11px] text-slate-500 mb-4">Pregunta: <span class="italic">"¿En qué tipos de costo gasto más este mes?"</span> · cada bloque tiene su propia lógica</div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+
+    <!-- Bloque PRODUCTO -->
+    <div class="bg-gradient-to-br from-blue-50/60 to-white border border-blue-200 rounded-xl p-4">
+      <div class="flex items-center justify-between mb-3">
+        <div class="flex items-center gap-2">
+          <div class="w-7 h-7 rounded-md bg-white border border-blue-300 flex items-center justify-center">
+            <i data-lucide="package" class="w-3.5 h-3.5 text-blue-700"></i>
+          </div>
+          <span class="text-[11px] font-bold text-blue-700 uppercase">Producto</span>
+        </div>
+        <span class="text-[9px] font-bold text-blue-700 bg-blue-100 px-1.5 py-0.5 rounded">CTRU</span>
+      </div>
+      <div class="text-2xl font-bold text-slate-900 tabular">S/ 3,200<span class="text-slate-400">.00</span></div>
+      <div class="text-[11px] text-blue-700 mt-1 flex items-center gap-1">
+        <i data-lucide="trending-up" class="w-3 h-3"></i>+8% vs abril · 22 movimientos
+      </div>
+
+      <!-- Sparkline 6m -->
+      <svg viewBox="0 0 200 40" class="w-full h-10 mt-3">
+        <polyline points="0,30 40,28 80,25 120,20 160,18 200,15" fill="none" stroke="#3b82f6" stroke-width="2"/>
+        <circle cx="200" cy="15" r="3" fill="#3b82f6"/>
+      </svg>
+
+      <div class="text-[10px] font-bold text-slate-500 uppercase mt-3 mb-2">Top 5 categorías</div>
+      <div class="space-y-1.5 text-[11px]">
+        <div class="flex items-center justify-between">
+          <span class="text-slate-700">Flete internacional</span>
+          <span class="tabular font-bold text-slate-900">S/ 2,400 <span class="text-slate-400 text-[9px]">75%</span></span>
+        </div>
+        <div class="flex items-center justify-between">
+          <span class="text-slate-700">Aduana / DUA</span>
+          <span class="tabular font-bold text-slate-900">S/ 580 <span class="text-slate-400 text-[9px]">18%</span></span>
+        </div>
+        <div class="flex items-center justify-between">
+          <span class="text-slate-700">Recojo local</span>
+          <span class="tabular font-bold text-slate-900">S/ 200 <span class="text-slate-400 text-[9px]">6%</span></span>
+        </div>
+        <div class="flex items-center justify-between">
+          <span class="text-slate-700">Almacenaje origen</span>
+          <span class="tabular font-bold text-slate-900">S/ 20 <span class="text-slate-400 text-[9px]">1%</span></span>
+        </div>
+      </div>
+
+      <div class="mt-3 pt-3 border-t border-blue-200">
+        <div class="text-[10px] text-blue-700">
+          <span class="font-bold">📦 Impacto:</span> se carga al CTRU del lote · afecta margen por unidad
+        </div>
+      </div>
+    </div>
+
+    <!-- Bloque VENTA -->
+    <div class="bg-gradient-to-br from-violet-50/60 to-white border border-violet-200 rounded-xl p-4">
+      <div class="flex items-center justify-between mb-3">
+        <div class="flex items-center gap-2">
+          <div class="w-7 h-7 rounded-md bg-white border border-violet-300 flex items-center justify-center">
+            <i data-lucide="shopping-bag" class="w-3.5 h-3.5 text-violet-700"></i>
+          </div>
+          <span class="text-[11px] font-bold text-violet-700 uppercase">Venta</span>
+        </div>
+        <span class="text-[9px] font-bold text-violet-700 bg-violet-100 px-1.5 py-0.5 rounded">Por venta</span>
+      </div>
+      <div class="text-2xl font-bold text-slate-900 tabular">S/ 2,840<span class="text-slate-400">.20</span></div>
+      <div class="text-[11px] text-violet-700 mt-1 flex items-center gap-1">
+        <i data-lucide="trending-up" class="w-3 h-3"></i>+15% vs abril · 15 movimientos
+      </div>
+
+      <svg viewBox="0 0 200 40" class="w-full h-10 mt-3">
+        <polyline points="0,32 40,30 80,28 120,22 160,18 200,12" fill="none" stroke="#8b5cf6" stroke-width="2"/>
+        <circle cx="200" cy="12" r="3" fill="#8b5cf6"/>
+      </svg>
+
+      <div class="text-[10px] font-bold text-slate-500 uppercase mt-3 mb-2">Top 5 categorías</div>
+      <div class="space-y-1.5 text-[11px]">
+        <div class="flex items-center justify-between">
+          <span class="text-slate-700">Marketing</span>
+          <span class="tabular font-bold text-slate-900">S/ 2,400 <span class="text-slate-400 text-[9px]">84%</span></span>
+        </div>
+        <div class="flex items-center justify-between">
+          <span class="text-slate-700">Comisión ML</span>
+          <span class="tabular font-bold text-slate-900">S/ 165 <span class="text-slate-400 text-[9px]">6%</span></span>
+        </div>
+        <div class="flex items-center justify-between">
+          <span class="text-slate-700">Empaque</span>
+          <span class="tabular font-bold text-slate-900">S/ 145 <span class="text-slate-400 text-[9px]">5%</span></span>
+        </div>
+        <div class="flex items-center justify-between">
+          <span class="text-slate-700">Delivery</span>
+          <span class="tabular font-bold text-slate-900">S/ 130 <span class="text-slate-400 text-[9px]">5%</span></span>
+        </div>
+      </div>
+
+      <div class="mt-3 pt-3 border-t border-violet-200">
+        <div class="text-[10px] text-violet-700">
+          <span class="font-bold">🛍️ Impacto:</span> se carga a la venta específica · afecta margen agregado del mes
+        </div>
+      </div>
+    </div>
+
+    <!-- Bloque PERÍODO -->
+    <div class="bg-gradient-to-br from-amber-50/60 to-white border border-amber-200 rounded-xl p-4">
+      <div class="flex items-center justify-between mb-3">
+        <div class="flex items-center gap-2">
+          <div class="w-7 h-7 rounded-md bg-white border border-amber-300 flex items-center justify-center">
+            <i data-lucide="calendar" class="w-3.5 h-3.5 text-amber-700"></i>
+          </div>
+          <span class="text-[11px] font-bold text-amber-700 uppercase">Período</span>
+        </div>
+        <span class="text-[9px] font-bold text-amber-700 bg-amber-100 px-1.5 py-0.5 rounded">Overhead</span>
+      </div>
+      <div class="text-2xl font-bold text-slate-900 tabular">S/ 2,500<span class="text-slate-400">.00</span></div>
+      <div class="text-[11px] text-amber-700 mt-1 flex items-center gap-1">
+        <i data-lucide="minus" class="w-3 h-3"></i>0% vs abril · 10 movimientos
+      </div>
+
+      <svg viewBox="0 0 200 40" class="w-full h-10 mt-3">
+        <polyline points="0,20 40,20 80,22 120,21 160,20 200,20" fill="none" stroke="#f59e0b" stroke-width="2"/>
+        <circle cx="200" cy="20" r="3" fill="#f59e0b"/>
+      </svg>
+
+      <div class="text-[10px] font-bold text-slate-500 uppercase mt-3 mb-2">Top 5 categorías</div>
+      <div class="space-y-1.5 text-[11px]">
+        <div class="flex items-center justify-between">
+          <span class="text-slate-700">Sueldos</span>
+          <span class="tabular font-bold text-slate-900">S/ 1,500 <span class="text-slate-400 text-[9px]">60%</span></span>
+        </div>
+        <div class="flex items-center justify-between">
+          <span class="text-slate-700">Alquiler local</span>
+          <span class="tabular font-bold text-slate-900">S/ 800 <span class="text-slate-400 text-[9px]">32%</span></span>
+        </div>
+        <div class="flex items-center justify-between">
+          <span class="text-slate-700">Software SaaS</span>
+          <span class="tabular font-bold text-slate-900">S/ 130 <span class="text-slate-400 text-[9px]">5%</span></span>
+        </div>
+        <div class="flex items-center justify-between">
+          <span class="text-slate-700">Servicios (luz/agua)</span>
+          <span class="tabular font-bold text-slate-900">S/ 70 <span class="text-slate-400 text-[9px]">3%</span></span>
+        </div>
+      </div>
+
+      <div class="mt-3 pt-3 border-t border-amber-200">
+        <div class="text-[10px] text-amber-700">
+          <span class="font-bold">📅 Impacto:</span> NO toca CTRU · va al P&L del mes · base del overhead allocation
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─────────────────────────────────────────────────────────────── -->
+<!-- VISTA 10.B · CALENDARIO MENSUAL · grid con dots por bloque -->
+<!-- ─────────────────────────────────────────────────────────────── -->
+<div class="bg-white rounded-2xl shadow-lg p-6 mb-4">
+  <div class="flex items-center justify-between mb-1 flex-wrap gap-2">
+    <div class="flex items-center gap-2">
+      <span class="px-2 py-1 rounded bg-slate-900 text-white text-[10px] font-bold">VISTA 10.B</span>
+      <span class="text-sm font-bold text-slate-900">Calendario · grid mensual con dots por bloque</span>
+    </div>
+    <div class="flex items-center gap-2">
+      <button class="px-2 py-1 rounded text-[11px] font-bold bg-white border border-slate-200 text-slate-600 hover:bg-slate-50">
+        <i data-lucide="chevron-left" class="w-3 h-3 inline"></i> Abril
+      </button>
+      <span class="text-[12px] font-bold text-slate-900">Mayo 2026</span>
+      <button class="px-2 py-1 rounded text-[11px] font-bold bg-white border border-slate-200 text-slate-600 hover:bg-slate-50">
+        Junio <i data-lucide="chevron-right" class="w-3 h-3 inline"></i>
+      </button>
+    </div>
+  </div>
+  <div class="text-[11px] text-slate-500 mb-4">Pregunta: <span class="italic">"¿Qué días del mes pago? ¿Hay conflictos de caja?"</span></div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-[1fr,360px] gap-4">
+
+    <!-- Grid calendario -->
+    <div>
+      <!-- Header días -->
+      <div class="grid grid-cols-7 gap-1 mb-1">
+        <div class="text-center text-[10px] font-bold text-slate-400 uppercase py-1">L</div>
+        <div class="text-center text-[10px] font-bold text-slate-400 uppercase py-1">M</div>
+        <div class="text-center text-[10px] font-bold text-slate-400 uppercase py-1">X</div>
+        <div class="text-center text-[10px] font-bold text-slate-400 uppercase py-1">J</div>
+        <div class="text-center text-[10px] font-bold text-slate-400 uppercase py-1">V</div>
+        <div class="text-center text-[10px] font-bold text-slate-400 uppercase py-1">S</div>
+        <div class="text-center text-[10px] font-bold text-slate-400 uppercase py-1">D</div>
+      </div>
+
+      <!-- Grid días · simulado mayo 2026 (1 = viernes) -->
+      <div class="grid grid-cols-7 gap-1">
+        <!-- Semana 1 · días en blanco para alineación + 1, 2, 3 -->
+        <div class="aspect-square bg-slate-50 rounded"></div>
+        <div class="aspect-square bg-slate-50 rounded"></div>
+        <div class="aspect-square bg-slate-50 rounded"></div>
+        <div class="aspect-square bg-slate-50 rounded"></div>
+        <!-- 1 mayo · día con gasto periodo (alquiler) -->
+        <div class="aspect-square bg-white border border-amber-300 rounded p-1 cursor-pointer hover:bg-amber-50 transition">
+          <div class="text-[10px] font-bold text-slate-700">1</div>
+          <div class="flex gap-0.5 mt-0.5"><span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span></div>
+          <div class="text-[8px] tabular text-amber-700">S/ 800</div>
+        </div>
+        <div class="aspect-square bg-white border border-slate-200 rounded p-1 cursor-pointer hover:bg-slate-50 transition">
+          <div class="text-[10px] text-slate-700">2</div>
+        </div>
+        <div class="aspect-square bg-white border border-slate-200 rounded p-1 cursor-pointer hover:bg-slate-50 transition">
+          <div class="text-[10px] text-slate-700">3</div>
+        </div>
+
+        <!-- Semana 2 · 4-10 -->
+        <div class="aspect-square bg-white border border-slate-200 rounded p-1 cursor-pointer hover:bg-slate-50 transition">
+          <div class="text-[10px] text-slate-700">4</div>
+        </div>
+        <div class="aspect-square bg-white border border-violet-300 rounded p-1 cursor-pointer hover:bg-violet-50 transition">
+          <div class="text-[10px] font-bold text-slate-700">5</div>
+          <div class="flex gap-0.5 mt-0.5"><span class="w-1.5 h-1.5 rounded-full bg-violet-500"></span></div>
+          <div class="text-[8px] tabular text-violet-700">S/ 320</div>
+        </div>
+        <div class="aspect-square bg-white border border-blue-300 rounded p-1 cursor-pointer hover:bg-blue-50 transition">
+          <div class="text-[10px] font-bold text-slate-700">6</div>
+          <div class="flex gap-0.5 mt-0.5"><span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span></div>
+          <div class="text-[8px] tabular text-blue-700">S/ 200</div>
+        </div>
+        <div class="aspect-square bg-white border border-blue-300 rounded p-1 cursor-pointer hover:bg-blue-50 transition">
+          <div class="text-[10px] font-bold text-slate-700">7</div>
+          <div class="flex gap-0.5 mt-0.5"><span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span></div>
+          <div class="text-[8px] tabular text-blue-700">S/ 200</div>
+        </div>
+        <div class="aspect-square bg-white border border-slate-200 rounded p-1 cursor-pointer hover:bg-slate-50 transition">
+          <div class="text-[10px] text-slate-700">8</div>
+        </div>
+        <div class="aspect-square bg-white border border-violet-300 rounded p-1 cursor-pointer hover:bg-violet-50 transition">
+          <div class="text-[10px] font-bold text-slate-700">9</div>
+          <div class="flex gap-0.5 mt-0.5"><span class="w-1.5 h-1.5 rounded-full bg-violet-500"></span></div>
+          <div class="text-[8px] tabular text-violet-700">S/ 165</div>
+        </div>
+        <div class="aspect-square bg-white border border-slate-200 rounded p-1 cursor-pointer hover:bg-slate-50 transition">
+          <div class="text-[10px] text-slate-700">10</div>
+        </div>
+
+        <!-- Semana 3 · 11-17 (11 = hoy seleccionado · amber + ring teal) -->
+        <div class="aspect-square bg-amber-50 border-2 border-teal-500 rounded p-1 cursor-pointer ring-2 ring-teal-200">
+          <div class="text-[10px] font-bold text-teal-700">11</div>
+          <div class="flex gap-0.5 mt-0.5"><span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span><span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span></div>
+          <div class="text-[8px] tabular text-slate-700">S/ 1,500</div>
+        </div>
+        <div class="aspect-square bg-white border border-slate-200 rounded p-1 cursor-pointer hover:bg-slate-50 transition">
+          <div class="text-[10px] text-slate-700">12</div>
+        </div>
+        <div class="aspect-square bg-white border border-rose-300 rounded p-1 cursor-pointer hover:bg-rose-50 transition">
+          <div class="text-[10px] font-bold text-rose-700">13</div>
+          <div class="flex gap-0.5 mt-0.5"><span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span></div>
+          <div class="text-[8px] tabular text-rose-700">⚠</div>
+        </div>
+        <div class="aspect-square bg-white border border-amber-300 rounded p-1 cursor-pointer hover:bg-amber-50 transition">
+          <div class="text-[10px] font-bold text-slate-700">14</div>
+          <div class="flex gap-0.5 mt-0.5"><span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span></div>
+          <div class="text-[8px] tabular text-amber-700">S/ 309</div>
+        </div>
+        <div class="aspect-square bg-white border border-amber-300 rounded p-1 cursor-pointer hover:bg-amber-50 transition">
+          <div class="text-[10px] font-bold text-slate-700">15</div>
+          <div class="flex gap-0.5 mt-0.5"><span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span></div>
+          <div class="text-[8px] tabular text-amber-700">S/ 1,500</div>
+        </div>
+        <div class="aspect-square bg-white border border-slate-200 rounded p-1 cursor-pointer hover:bg-slate-50 transition">
+          <div class="text-[10px] text-slate-700">16</div>
+        </div>
+        <div class="aspect-square bg-white border border-slate-200 rounded p-1 cursor-pointer hover:bg-slate-50 transition">
+          <div class="text-[10px] text-slate-700">17</div>
+        </div>
+
+        <!-- Semana 4 · 18-24 -->
+        <div class="aspect-square bg-white border border-blue-300 rounded p-1 cursor-pointer hover:bg-blue-50 transition">
+          <div class="text-[10px] font-bold text-slate-700">18</div>
+          <div class="flex gap-0.5 mt-0.5"><span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span></div>
+          <div class="text-[8px] tabular text-blue-700">S/ 580</div>
+        </div>
+        <div class="aspect-square bg-white border border-slate-200 rounded p-1 cursor-pointer hover:bg-slate-50 transition">
+          <div class="text-[10px] text-slate-700">19</div>
+        </div>
+        <div class="aspect-square bg-white border border-violet-300 rounded p-1 cursor-pointer hover:bg-violet-50 transition">
+          <div class="text-[10px] font-bold text-slate-700">20</div>
+          <div class="flex gap-0.5 mt-0.5"><span class="w-1.5 h-1.5 rounded-full bg-violet-500"></span></div>
+          <div class="text-[8px] tabular text-violet-700">S/ 130</div>
+        </div>
+        <div class="aspect-square bg-white border border-slate-200 rounded p-1 cursor-pointer hover:bg-slate-50 transition">
+          <div class="text-[10px] text-slate-700">21</div>
+        </div>
+        <div class="aspect-square bg-white border border-slate-200 rounded p-1 cursor-pointer hover:bg-slate-50 transition">
+          <div class="text-[10px] text-slate-700">22</div>
+        </div>
+        <div class="aspect-square bg-white border border-slate-200 rounded p-1 cursor-pointer hover:bg-slate-50 transition">
+          <div class="text-[10px] text-slate-700">23</div>
+        </div>
+        <div class="aspect-square bg-white border border-slate-200 rounded p-1 cursor-pointer hover:bg-slate-50 transition">
+          <div class="text-[10px] text-slate-700">24</div>
+        </div>
+
+        <!-- Semana 5 · 25-31 -->
+        <div class="aspect-square bg-white border border-slate-200 rounded p-1 cursor-pointer hover:bg-slate-50 transition">
+          <div class="text-[10px] text-slate-700">25</div>
+        </div>
+        <div class="aspect-square bg-white border border-violet-300 rounded p-1 cursor-pointer hover:bg-violet-50 transition">
+          <div class="text-[10px] font-bold text-slate-700">26</div>
+          <div class="flex gap-0.5 mt-0.5"><span class="w-1.5 h-1.5 rounded-full bg-violet-500"></span></div>
+          <div class="text-[8px] tabular text-violet-700">S/ 145</div>
+        </div>
+        <div class="aspect-square bg-white border border-slate-200 rounded p-1 cursor-pointer hover:bg-slate-50 transition">
+          <div class="text-[10px] text-slate-700">27</div>
+        </div>
+        <div class="aspect-square bg-white border border-blue-300 rounded p-1 cursor-pointer hover:bg-blue-50 transition">
+          <div class="text-[10px] font-bold text-slate-700">28</div>
+          <div class="flex gap-0.5 mt-0.5"><span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span></div>
+          <div class="text-[8px] tabular text-blue-700">S/ 2,400</div>
+        </div>
+        <div class="aspect-square bg-white border border-slate-200 rounded p-1 cursor-pointer hover:bg-slate-50 transition">
+          <div class="text-[10px] text-slate-700">29</div>
+        </div>
+        <div class="aspect-square bg-white border border-amber-300 rounded p-1 cursor-pointer hover:bg-amber-50 transition">
+          <div class="text-[10px] font-bold text-slate-700">30</div>
+          <div class="flex gap-0.5 mt-0.5"><span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span></div>
+          <div class="text-[8px] tabular text-amber-700">S/ 3,000</div>
+        </div>
+        <div class="aspect-square bg-white border border-slate-200 rounded p-1 cursor-pointer hover:bg-slate-50 transition">
+          <div class="text-[10px] text-slate-700">31</div>
+        </div>
+      </div>
+
+      <!-- Leyenda -->
+      <div class="flex items-center gap-3 mt-3 text-[10px]">
+        <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span>Producto</span>
+        <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-violet-500"></span>Venta</span>
+        <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>Período</span>
+        <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span>⚠ Vencido</span>
+        <span class="text-slate-400">·</span>
+        <span class="text-slate-500">Click día para drill-down</span>
+      </div>
+    </div>
+
+    <!-- Panel día seleccionado -->
+    <div class="bg-slate-50/50 border border-slate-200 rounded-xl p-4">
+      <div class="flex items-center justify-between mb-3">
+        <div>
+          <div class="text-[10px] font-bold text-slate-500 uppercase">Día seleccionado</div>
+          <div class="text-base font-bold text-slate-900">Lunes 11 mayo 2026 · hoy</div>
+        </div>
+        <span class="text-base font-bold text-slate-900 tabular">S/ 1,500</span>
+      </div>
+
+      <div class="space-y-2 text-[11px]">
+        <div class="bg-white border border-amber-200 rounded p-2">
+          <div class="flex items-center justify-between mb-1">
+            <span class="origen-badge bg-amber-50 text-amber-700">PERÍODO</span>
+            <span class="text-[10px] font-bold tabular">S/ 1,500</span>
+          </div>
+          <div class="font-semibold text-slate-900">Alquiler local · mayo</div>
+          <div class="text-[10px] text-slate-500">Inversiones SAC · Pendiente</div>
+        </div>
+        <div class="bg-white border border-blue-200 rounded p-2 opacity-50">
+          <div class="text-[10px] text-slate-500 italic">+ 0 gastos producto · sin movimientos</div>
+        </div>
+      </div>
+
+      <div class="mt-3 pt-3 border-t border-slate-200 text-[10px] text-slate-500">
+        <div class="flex justify-between"><span>Próximo evento:</span><span class="font-bold text-amber-700">14 may · Shopify $79</span></div>
+        <div class="flex justify-between mt-1"><span>Acumulado mes:</span><span class="font-bold text-slate-900 tabular">S/ 8,540 / 47 mov.</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─────────────────────────────────────────────────────────────── -->
+<!-- VISTA 10.C · POR PROVEEDOR · agrupado con sparklines 12m -->
+<!-- ─────────────────────────────────────────────────────────────── -->
+<div class="bg-white rounded-2xl shadow-lg p-6 mb-4">
+  <div class="flex items-center gap-2 mb-1">
+    <span class="px-2 py-1 rounded bg-slate-900 text-white text-[10px] font-bold">VISTA 10.C</span>
+    <span class="text-sm font-bold text-slate-900">Por Proveedor · agrupado · drill-down + sparkline 12m</span>
+  </div>
+  <div class="text-[11px] text-slate-500 mb-4">Pregunta: <span class="italic">"¿A quién le compro/pago más? ¿Hay riesgo de concentración?"</span></div>
+
+  <div class="space-y-2">
+
+    <!-- Card proveedor 1 · expandido -->
+    <div class="bg-white border border-rose-200 rounded-xl p-4 ring-1 ring-rose-100">
+      <div class="grid grid-cols-[1fr,140px,140px,180px,80px] gap-4 items-center">
+        <div class="flex items-center gap-3">
+          <div class="agente-avatar bg-gradient-to-br from-indigo-50 to-indigo-100 ring-1 ring-indigo-200">
+            <i data-lucide="pill" class="w-4 h-4 text-indigo-700"></i>
+          </div>
+          <div>
+            <div class="text-sm font-bold text-slate-900">NOW Foods</div>
+            <div class="text-[10px] text-slate-500">Proveedor · USA · 8 gastos YTD</div>
+          </div>
+        </div>
+        <div class="text-right">
+          <div class="text-[10px] font-bold text-slate-500 uppercase">Gasto YTD</div>
+          <div class="text-base font-bold text-slate-900 tabular">S/ 12,400</div>
+        </div>
+        <div class="text-right">
+          <div class="text-[10px] font-bold text-slate-500 uppercase">Concentración</div>
+          <div class="text-base font-bold text-rose-700 tabular">22%</div>
+        </div>
+        <div>
+          <div class="text-[10px] font-bold text-slate-500 uppercase mb-1">Evolución 12m</div>
+          <svg viewBox="0 0 160 30" class="w-full h-7">
+            <polyline points="0,20 14,18 28,16 42,22 56,15 70,18 84,16 98,14 112,12 126,10 140,12 160,5" fill="none" stroke="#e11d48" stroke-width="1.5"/>
+            <circle cx="160" cy="5" r="2.5" fill="#e11d48"/>
+          </svg>
+          <div class="text-[9px] text-rose-700 font-bold">+12% últimos 3m</div>
+        </div>
+        <div class="text-right">
+          <button class="text-[10px] font-medium text-teal-700 hover:text-teal-800 underline">Drill-down →</button>
+        </div>
+      </div>
+      <!-- Detalle expandido (mock) -->
+      <div class="mt-3 pt-3 border-t border-slate-100 grid grid-cols-3 gap-2 text-[11px]">
+        <div class="bg-slate-50 rounded p-2">
+          <div class="text-[9px] text-slate-500 uppercase font-bold">Último gasto</div>
+          <div class="font-bold tabular">14 abr · S/ 2,400</div>
+        </div>
+        <div class="bg-slate-50 rounded p-2">
+          <div class="text-[9px] text-slate-500 uppercase font-bold">Bloque dominante</div>
+          <div class="font-bold text-blue-700">PRODUCTO · 95%</div>
+        </div>
+        <div class="bg-rose-50 rounded p-2">
+          <div class="text-[9px] text-rose-700 uppercase font-bold">⚠ Alerta</div>
+          <div class="font-bold text-rose-700">Subió 12% precios</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cards proveedores 2-4 colapsadas -->
+    <div class="bg-white border border-slate-200 rounded-xl p-3 hover:shadow-sm cursor-pointer">
+      <div class="grid grid-cols-[1fr,140px,140px,180px,80px] gap-4 items-center">
+        <div class="flex items-center gap-3">
+          <div class="agente-avatar bg-gradient-to-br from-teal-50 to-teal-100 ring-1 ring-teal-200">
+            <i data-lucide="user" class="w-4 h-4 text-teal-700"></i>
+          </div>
+          <div>
+            <div class="text-sm font-bold text-slate-900">Juan Pérez</div>
+            <div class="text-[10px] text-slate-500">Empleado · 5 gastos YTD</div>
+          </div>
+        </div>
+        <div class="text-right">
+          <div class="text-[10px] font-bold text-slate-500 uppercase">Gasto YTD</div>
+          <div class="text-base font-bold text-slate-900 tabular">S/ 9,000</div>
+        </div>
+        <div class="text-right">
+          <div class="text-[10px] font-bold text-slate-500 uppercase">Concentración</div>
+          <div class="text-base font-bold text-slate-700 tabular">16%</div>
+        </div>
+        <div>
+          <svg viewBox="0 0 160 30" class="w-full h-7">
+            <polyline points="0,15 14,15 28,15 42,15 56,15 70,15 84,15 98,15 112,15 126,15 140,15 160,15" fill="none" stroke="#475569" stroke-width="1.5"/>
+            <circle cx="160" cy="15" r="2.5" fill="#475569"/>
+          </svg>
+          <div class="text-[9px] text-slate-500">Estable (sueldo)</div>
+        </div>
+        <div class="text-right">
+          <button class="text-[10px] font-medium text-teal-700 hover:text-teal-800 underline">Ver →</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white border border-slate-200 rounded-xl p-3 hover:shadow-sm cursor-pointer">
+      <div class="grid grid-cols-[1fr,140px,140px,180px,80px] gap-4 items-center">
+        <div class="flex items-center gap-3">
+          <div class="agente-avatar bg-gradient-to-br from-slate-50 to-slate-100 ring-1 ring-slate-200">
+            <i data-lucide="building" class="w-4 h-4 text-slate-600"></i>
+          </div>
+          <div>
+            <div class="text-sm font-bold text-slate-900">Inversiones SAC</div>
+            <div class="text-[10px] text-slate-500">Proveedor · Lima · 5 gastos YTD</div>
+          </div>
+        </div>
+        <div class="text-right">
+          <div class="text-[10px] font-bold text-slate-500 uppercase">Gasto YTD</div>
+          <div class="text-base font-bold text-slate-900 tabular">S/ 7,500</div>
+        </div>
+        <div class="text-right">
+          <div class="text-[10px] font-bold text-slate-500 uppercase">Concentración</div>
+          <div class="text-base font-bold text-slate-700 tabular">13.3%</div>
+        </div>
+        <div>
+          <svg viewBox="0 0 160 30" class="w-full h-7">
+            <polyline points="0,15 14,15 28,15 42,15 56,15 70,15 84,15 98,15 112,15 126,15 140,15 160,15" fill="none" stroke="#10b981" stroke-width="1.5"/>
+            <circle cx="160" cy="15" r="2.5" fill="#10b981"/>
+          </svg>
+          <div class="text-[9px] text-emerald-600">Estable (alquiler)</div>
+        </div>
+        <div class="text-right">
+          <button class="text-[10px] font-medium text-teal-700 hover:text-teal-800 underline">Ver →</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white border border-slate-200 rounded-xl p-3 hover:shadow-sm cursor-pointer">
+      <div class="grid grid-cols-[1fr,140px,140px,180px,80px] gap-4 items-center">
+        <div class="flex items-center gap-3">
+          <div class="agente-avatar bg-gradient-to-br from-purple-50 to-purple-100 ring-1 ring-purple-200">
+            <i data-lucide="truck" class="w-4 h-4 text-purple-700"></i>
+          </div>
+          <div>
+            <div class="text-sm font-bold text-slate-900">Olva Courier</div>
+            <div class="text-[10px] text-slate-500">Colaborador · Red Logística · 12 gastos YTD</div>
+          </div>
+        </div>
+        <div class="text-right">
+          <div class="text-[10px] font-bold text-slate-500 uppercase">Gasto YTD</div>
+          <div class="text-base font-bold text-slate-900 tabular">S/ 4,200</div>
+        </div>
+        <div class="text-right">
+          <div class="text-[10px] font-bold text-slate-500 uppercase">Concentración</div>
+          <div class="text-base font-bold text-slate-700 tabular">7.5%</div>
+        </div>
+        <div>
+          <svg viewBox="0 0 160 30" class="w-full h-7">
+            <polyline points="0,10 14,12 28,14 42,12 56,15 70,18 84,16 98,20 112,18 126,22 140,20 160,18" fill="none" stroke="#10b981" stroke-width="1.5"/>
+            <circle cx="160" cy="18" r="2.5" fill="#10b981"/>
+          </svg>
+          <div class="text-[9px] text-emerald-600 font-bold">-3% últimos 3m</div>
+        </div>
+        <div class="text-right">
+          <button class="text-[10px] font-medium text-teal-700 hover:text-teal-800 underline">Ver →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="text-[10px] text-slate-500 tabular px-2 py-2 flex items-center justify-between">
+      <span>Mostrando 4 de 18 proveedores con gastos YTD · Top 4 representan 58.8%</span>
+      <button class="text-teal-700 font-medium hover:underline">Ver todos →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ─────────────────────────────────────────────────────────────── -->
+<!-- VISTA 10.D · REPORTES BI · P&L 3 niveles -->
+<!-- ─────────────────────────────────────────────────────────────── -->
+<div class="bg-white rounded-2xl shadow-lg p-6">
+  <div class="flex items-center gap-2 mb-1">
+    <span class="px-2 py-1 rounded bg-slate-900 text-white text-[10px] font-bold">VISTA 10.D</span>
+    <span class="text-sm font-bold text-slate-900">Reportes BI · P&L 3 niveles · inteligencia agregada</span>
+  </div>
+  <div class="text-[11px] text-slate-500 mb-4">Pregunta: <span class="italic">"¿Cómo se ve la salud financiera estructurada del mes?"</span></div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-[1fr,320px] gap-4">
+
+    <!-- P&L estructurado -->
+    <div class="bg-white border border-slate-200 rounded-xl overflow-hidden">
+      <div class="bg-slate-900 text-white px-4 py-3">
+        <div class="flex items-center justify-between">
+          <div class="text-sm font-bold">P&L · Mayo 2026 · estructura 3 niveles</div>
+          <div class="text-[10px] opacity-70">vs abril 2026</div>
+        </div>
+      </div>
+
+      <table class="w-full text-[12px]">
+        <tbody>
+          <!-- INGRESO -->
+          <tr class="bg-emerald-50/60">
+            <td class="px-4 py-2 font-bold text-slate-900">Ingresos por ventas</td>
+            <td class="px-4 py-2 text-right tabular font-bold text-emerald-700">S/ 45,000</td>
+            <td class="px-4 py-2 text-right tabular text-slate-500">100.0%</td>
+            <td class="px-4 py-2 text-right tabular text-emerald-600">+2.3%</td>
+          </tr>
+
+          <!-- Bloque PRODUCTO -->
+          <tr class="border-t border-slate-200">
+            <td class="px-4 py-2 text-slate-700">
+              <span class="inline-flex items-center gap-1.5">
+                <i data-lucide="package" class="w-3 h-3 text-blue-700"></i>
+                <span class="font-medium">− Bloque Producto (CTRU)</span>
+              </span>
+            </td>
+            <td class="px-4 py-2 text-right tabular text-rose-600">S/ 17,200</td>
+            <td class="px-4 py-2 text-right tabular text-slate-500">38.2%</td>
+            <td class="px-4 py-2 text-right tabular text-rose-500 text-[10px]">+5.1%</td>
+          </tr>
+          <tr class="text-[11px]">
+            <td class="px-8 py-1 text-slate-500">· Compra mercadería</td>
+            <td class="px-4 py-1 text-right tabular text-slate-500">S/ 14,000</td>
+            <td class="px-4 py-1 text-right tabular text-slate-400">31.1%</td>
+            <td class="px-4 py-1"></td>
+          </tr>
+          <tr class="text-[11px]">
+            <td class="px-8 py-1 text-slate-500">· Flete internacional</td>
+            <td class="px-4 py-1 text-right tabular text-slate-500">S/ 2,400</td>
+            <td class="px-4 py-1 text-right tabular text-slate-400">5.3%</td>
+            <td class="px-4 py-1"></td>
+          </tr>
+          <tr class="text-[11px]">
+            <td class="px-8 py-1 text-slate-500">· Recojo local / aduana</td>
+            <td class="px-4 py-1 text-right tabular text-slate-500">S/ 800</td>
+            <td class="px-4 py-1 text-right tabular text-slate-400">1.8%</td>
+            <td class="px-4 py-1"></td>
+          </tr>
+
+          <!-- Bloque VENTA -->
+          <tr class="border-t border-slate-200">
+            <td class="px-4 py-2 text-slate-700">
+              <span class="inline-flex items-center gap-1.5">
+                <i data-lucide="shopping-bag" class="w-3 h-3 text-violet-700"></i>
+                <span class="font-medium">− Bloque Venta</span>
+              </span>
+            </td>
+            <td class="px-4 py-2 text-right tabular text-rose-600">S/ 2,840</td>
+            <td class="px-4 py-2 text-right tabular text-slate-500">6.3%</td>
+            <td class="px-4 py-2 text-right tabular text-rose-500 text-[10px]">+15.0%</td>
+          </tr>
+          <tr class="text-[11px]">
+            <td class="px-8 py-1 text-slate-500">· Marketing</td>
+            <td class="px-4 py-1 text-right tabular text-slate-500">S/ 2,400</td>
+            <td class="px-4 py-1 text-right tabular text-slate-400">5.3%</td>
+            <td class="px-4 py-1"></td>
+          </tr>
+          <tr class="text-[11px]">
+            <td class="px-8 py-1 text-slate-500">· Comisión ML</td>
+            <td class="px-4 py-1 text-right tabular text-slate-500">S/ 165</td>
+            <td class="px-4 py-1 text-right tabular text-slate-400">0.4%</td>
+            <td class="px-4 py-1"></td>
+          </tr>
+          <tr class="text-[11px]">
+            <td class="px-8 py-1 text-slate-500">· Empaque + delivery</td>
+            <td class="px-4 py-1 text-right tabular text-slate-500">S/ 275</td>
+            <td class="px-4 py-1 text-right tabular text-slate-400">0.6%</td>
+            <td class="px-4 py-1"></td>
+          </tr>
+
+          <!-- Margen contribución -->
+          <tr class="bg-emerald-50/40 border-t-2 border-emerald-300">
+            <td class="px-4 py-2 font-bold text-slate-900">= Margen contribución</td>
+            <td class="px-4 py-2 text-right tabular font-bold text-emerald-700">S/ 24,960</td>
+            <td class="px-4 py-2 text-right tabular font-bold text-emerald-700">55.5%</td>
+            <td class="px-4 py-2 text-right tabular text-amber-600">-1.2pp</td>
+          </tr>
+
+          <!-- Bloque PERÍODO -->
+          <tr class="border-t border-slate-200">
+            <td class="px-4 py-2 text-slate-700">
+              <span class="inline-flex items-center gap-1.5">
+                <i data-lucide="calendar" class="w-3 h-3 text-amber-700"></i>
+                <span class="font-medium">− Bloque Período (Overhead)</span>
+              </span>
+            </td>
+            <td class="px-4 py-2 text-right tabular text-rose-600">S/ 2,500</td>
+            <td class="px-4 py-2 text-right tabular text-slate-500">5.6%</td>
+            <td class="px-4 py-2 text-right tabular text-slate-400 text-[10px]">+0.0%</td>
+          </tr>
+          <tr class="text-[11px]">
+            <td class="px-8 py-1 text-slate-500">· Sueldos</td>
+            <td class="px-4 py-1 text-right tabular text-slate-500">S/ 1,500</td>
+            <td class="px-4 py-1 text-right tabular text-slate-400">3.3%</td>
+            <td class="px-4 py-1"></td>
+          </tr>
+          <tr class="text-[11px]">
+            <td class="px-8 py-1 text-slate-500">· Alquiler local</td>
+            <td class="px-4 py-1 text-right tabular text-slate-500">S/ 800</td>
+            <td class="px-4 py-1 text-right tabular text-slate-400">1.8%</td>
+            <td class="px-4 py-1"></td>
+          </tr>
+          <tr class="text-[11px]">
+            <td class="px-8 py-1 text-slate-500">· Software SaaS + servicios</td>
+            <td class="px-4 py-1 text-right tabular text-slate-500">S/ 200</td>
+            <td class="px-4 py-1 text-right tabular text-slate-400">0.4%</td>
+            <td class="px-4 py-1"></td>
+          </tr>
+
+          <!-- Utilidad operativa -->
+          <tr class="bg-slate-900 text-white border-t-2 border-slate-700">
+            <td class="px-4 py-3 font-bold text-base">= UTILIDAD OPERATIVA</td>
+            <td class="px-4 py-3 text-right tabular font-bold text-base">S/ 22,460</td>
+            <td class="px-4 py-3 text-right tabular font-bold text-emerald-300">49.9%</td>
+            <td class="px-4 py-3 text-right tabular text-amber-300">-0.8pp</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Sidebar insights BI -->
+    <div class="space-y-3">
+      <div class="bg-emerald-50/60 border border-emerald-200 rounded-xl p-3">
+        <div class="text-[10px] font-bold text-emerald-700 uppercase mb-2 flex items-center gap-1">
+          <i data-lucide="trending-up" class="w-3 h-3"></i>Insight clave
+        </div>
+        <div class="text-[11px] text-slate-700">
+          <span class="font-bold">Margen contribución 55.5%</span> sigue saludable ·
+          dentro del rango óptimo (50-60%) para distribución health/skincare.
+        </div>
+      </div>
+
+      <div class="bg-amber-50/60 border border-amber-200 rounded-xl p-3">
+        <div class="text-[10px] font-bold text-amber-700 uppercase mb-2 flex items-center gap-1">
+          <i data-lucide="alert-triangle" class="w-3 h-3"></i>Atención
+        </div>
+        <div class="text-[11px] text-slate-700">
+          Bloque Venta <span class="font-bold">+15% vs abril</span> ·
+          principal driver: marketing Q2 (campaña Skincare).
+          Si no se traduce en +ventas, revisar ROI.
+        </div>
+      </div>
+
+      <div class="bg-sky-50/60 border border-sky-200 rounded-xl p-3">
+        <div class="text-[10px] font-bold text-sky-700 uppercase mb-2 flex items-center gap-1">
+          <i data-lucide="info" class="w-3 h-3"></i>Benchmark
+        </div>
+        <div class="text-[11px] text-slate-700">
+          Utilidad operativa <span class="font-bold">49.9%</span> ·
+          benchmark industria health/skincare distribución
+          (40-55%) · <span class="font-bold text-emerald-700">por encima del promedio</span>.
+        </div>
+      </div>
+
+      <div class="bg-slate-50 border border-slate-200 rounded-xl p-3">
+        <div class="text-[10px] font-bold text-slate-700 uppercase mb-2 flex items-center gap-1">
+          <i data-lucide="download" class="w-3 h-3"></i>Acciones
+        </div>
+        <div class="space-y-2">
+          <button class="w-full text-left text-[11px] px-2 py-1.5 bg-white border border-slate-200 rounded hover:bg-slate-50">
+            📥 Exportar P&L Excel
+          </button>
+          <button class="w-full text-left text-[11px] px-2 py-1.5 bg-white border border-slate-200 rounded hover:bg-slate-50">
+            📊 Comparativo 12m móvil
+          </button>
+          <button class="w-full text-left text-[11px] px-2 py-1.5 bg-white border border-slate-200 rounded hover:bg-slate-50">
+            🎯 Proyectar próximo mes
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Nota cierre -->
+  <div class="mt-4 px-3 py-2 bg-slate-50 border border-slate-200 rounded text-[10px] text-slate-600">
+    <span class="font-bold">📊 Coherencia con módulos vecinos:</span>
+    los Ingresos vienen de <code class="font-mono text-teal-700">Ventas</code> ·
+    Bloque Producto se consolida con <code class="font-mono text-teal-700">Cost Intelligence</code> ·
+    el Bloque Periodo es la base del overhead allocation del Multi-Lente (Sección 4).
+  </div>
+</div>
+
+
+<script>
+  lucide.createIcons();
+</script>
+</body>
+</html>

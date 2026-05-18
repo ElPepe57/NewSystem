@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Finanzas · Estados Overview + Análisis · v5.1</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, sans-serif; }
+    .tabular { font-variant-numeric: tabular-nums; font-feature-settings: "tnum"; }
+    @keyframes shimmer { 0%{background-position:-200% 0} 100%{background-position:200% 0} }
+    .shimmer { background: linear-gradient(90deg, #f1f5f9 0%, #e2e8f0 50%, #f1f5f9 100%); background-size: 200% 100%; animation: shimmer 1.5s infinite; }
+  </style>
+</head>
+<body class="bg-slate-100 text-slate-900">
+
+<header class="bg-slate-900 text-white sticky top-0 z-50 shadow-lg">
+  <div class="max-w-[1400px] mx-auto px-6 py-3 flex items-center justify-between">
+    <div>
+      <div class="text-[10px] uppercase tracking-wider text-teal-300">chk5.D-S1e · TURNO 7</div>
+      <div class="text-base font-bold">MOCK 17 · Estados Overview + Análisis · cierra cobertura 100%</div>
+    </div>
+    <nav class="hidden md:flex items-center gap-1 text-[11px]">
+      <a href="finanzas-shell-overview-v5.1.html" class="px-2 py-1 hover:bg-slate-700 rounded text-slate-300">1-16</a>
+      <span class="px-2 py-1 bg-teal-600 rounded text-white font-semibold">17</span>
+    </nav>
+  </div>
+</header>
+
+<main class="max-w-[1400px] mx-auto px-6 py-8 space-y-12">
+
+<!-- §1 · INTRO -->
+<section class="space-y-4">
+  <div class="flex items-center gap-2"><span class="text-[10px] uppercase tracking-wider font-bold text-slate-500">§ 1 · 6 estados faltantes · Overview + Análisis × (vacío, loading, error)</span><div class="flex-1 h-px bg-slate-200"></div></div>
+  <p class="text-sm text-slate-600 max-w-3xl">Última pieza del módulo · estados Overview (vacío/loading/error) + estados Análisis estratégico (vacío/loading/error). Las otras 4 vistas ya tienen sus 3 estados cubiertos en MOCK 6 (Saldos) · MOCK 7 (Movimientos) · MOCK 8 (CC) · MOCK 9 (Cash flow).</p>
+</section>
+
+<!-- §2 · OVERVIEW · 3 ESTADOS -->
+<section class="space-y-4">
+  <div class="flex items-center gap-2"><span class="text-[10px] uppercase tracking-wider font-bold text-teal-700">§ 2 · Vista Overview · 3 estados</span><div class="flex-1 h-px bg-teal-200"></div></div>
+
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <!-- VACÍO OVERVIEW -->
+    <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden">
+      <div class="bg-slate-50 border-b px-4 py-2"><span class="text-[10px] uppercase font-bold text-emerald-700">Overview vacío · primer login</span></div>
+      <div class="p-6 text-center space-y-4">
+        <div class="w-20 h-20 mx-auto rounded-full bg-gradient-to-br from-teal-100 to-emerald-100 flex items-center justify-center"><i data-lucide="landmark" class="w-10 h-10 text-teal-600"></i></div>
+        <div>
+          <div class="text-[15px] font-bold text-slate-900">Bienvenido a Finanzas</div>
+          <div class="text-[11px] text-slate-500 mt-1 max-w-sm mx-auto">Configurá tu primera cuenta y empezá a operar caja viva · cuentas corrientes · cash flow proyectado y análisis estratégico desde un solo módulo.</div>
+        </div>
+        <!-- 4 quick-start cards -->
+        <div class="grid grid-cols-2 gap-2 max-w-xs mx-auto">
+          <button class="text-left p-2.5 bg-white border border-slate-200 hover:border-teal-300 hover:bg-teal-50/30 rounded-lg transition-colors">
+            <i data-lucide="building-2" class="w-4 h-4 text-teal-600 mb-1"></i>
+            <div class="text-[11px] font-bold">Cuenta bancaria</div>
+            <div class="text-[9px] text-slate-500">BCP · IBK · BBVA</div>
+          </button>
+          <button class="text-left p-2.5 bg-white border border-slate-200 hover:border-sky-300 hover:bg-sky-50/30 rounded-lg transition-colors">
+            <i data-lucide="smartphone" class="w-4 h-4 text-sky-600 mb-1"></i>
+            <div class="text-[11px] font-bold">Wallet digital</div>
+            <div class="text-[9px] text-slate-500">Stripe · PayPal · MP</div>
+          </button>
+          <button class="text-left p-2.5 bg-white border border-slate-200 hover:border-amber-300 hover:bg-amber-50/30 rounded-lg transition-colors">
+            <i data-lucide="credit-card" class="w-4 h-4 text-amber-600 mb-1"></i>
+            <div class="text-[11px] font-bold">Tarjeta crédito</div>
+            <div class="text-[9px] text-slate-500">Visa · MC · Amex</div>
+          </button>
+          <button class="text-left p-2.5 bg-white border border-slate-200 hover:border-purple-300 hover:bg-purple-50/30 rounded-lg transition-colors">
+            <i data-lucide="truck" class="w-4 h-4 text-purple-600 mb-1"></i>
+            <div class="text-[11px] font-bold">Caja recaudadora</div>
+            <div class="text-[9px] text-slate-500">GK · cobranza ext</div>
+          </button>
+        </div>
+        <button class="text-[11px] font-bold text-white bg-teal-600 hover:bg-teal-700 px-4 py-2 rounded-lg inline-flex items-center gap-1.5">
+          <i data-lucide="plus" class="w-3 h-3"></i> Crear primera cuenta
+        </button>
+        <div class="text-[10px] text-slate-500">¿Migrás desde otro sistema? · <a class="text-teal-700 hover:underline">Importar extracto bancario</a></div>
+      </div>
+    </div>
+
+    <!-- LOADING OVERVIEW -->
+    <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden">
+      <div class="bg-slate-50 border-b px-4 py-2"><span class="text-[10px] uppercase font-bold text-sky-700">Overview loading · skeleton</span></div>
+      <div class="p-4 space-y-3">
+        <!-- KPI strip skeleton -->
+        <div class="grid grid-cols-2 gap-2">
+          <div class="shimmer h-20 rounded-2xl"></div>
+          <div class="shimmer h-20 rounded-2xl"></div>
+          <div class="shimmer h-20 rounded-2xl"></div>
+          <div class="shimmer h-20 rounded-2xl"></div>
+        </div>
+        <!-- Banner GK skeleton -->
+        <div class="shimmer h-14 rounded-2xl"></div>
+        <!-- Pipeline cashflow skeleton -->
+        <div class="space-y-2">
+          <div class="shimmer h-3 w-32 rounded"></div>
+          <div class="flex gap-2"><div class="shimmer h-20 flex-1 rounded-xl"></div><div class="shimmer h-20 flex-1 rounded-xl"></div><div class="shimmer h-20 flex-1 rounded-xl"></div></div>
+        </div>
+        <!-- Quick cards skeleton -->
+        <div class="grid grid-cols-2 gap-2">
+          <div class="shimmer h-16 rounded-xl"></div>
+          <div class="shimmer h-16 rounded-xl"></div>
+        </div>
+        <div class="text-center text-[10px] text-slate-500 pt-2 flex items-center justify-center gap-1.5"><i data-lucide="loader" class="w-3 h-3 animate-spin"></i> Cargando overview financiero...</div>
+      </div>
+    </div>
+
+    <!-- ERROR OVERVIEW -->
+    <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden">
+      <div class="bg-slate-50 border-b px-4 py-2"><span class="text-[10px] uppercase font-bold text-rose-700">Overview error · conexión perdida</span></div>
+      <div class="p-6 text-center space-y-4">
+        <div class="w-16 h-16 mx-auto rounded-full bg-rose-100 flex items-center justify-center"><i data-lucide="wifi-off" class="w-8 h-8 text-rose-600"></i></div>
+        <div>
+          <div class="text-[14px] font-bold text-slate-900">No pudimos cargar el overview</div>
+          <div class="text-[11px] text-slate-500 mt-1">Error de conexión con el servidor o sin permisos suficientes. Tu trabajo no se pierde · sigue guardado en caché local.</div>
+        </div>
+        <div class="bg-rose-50 ring-1 ring-rose-200 rounded-lg p-2 text-[10px] font-mono text-rose-900 text-left">
+          Error: FETCH_TIMEOUT<br>
+          Endpoint: /api/finanzas/overview<br>
+          Code: 503 Service Unavailable<br>
+          Reintentos: 2/3
+        </div>
+        <div class="flex items-center justify-center gap-2">
+          <button class="text-[11px] font-semibold text-slate-600 hover:bg-slate-100 px-3 py-1.5 rounded-lg">Reportar problema</button>
+          <button class="text-[11px] font-bold text-white bg-rose-600 hover:bg-rose-700 px-3 py-1.5 rounded-lg flex items-center gap-1.5"><i data-lucide="refresh-cw" class="w-3 h-3"></i> Reintentar</button>
+        </div>
+        <div class="text-[10px] text-slate-500">Acceso offline a últimos datos en caché · <a class="text-teal-700 hover:underline">Ver versión cacheada</a></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- §3 · ANÁLISIS · 3 ESTADOS -->
+<section class="space-y-4">
+  <div class="flex items-center gap-2"><span class="text-[10px] uppercase tracking-wider font-bold text-purple-700">§ 3 · Vista Análisis estratégico · 3 estados</span><div class="flex-1 h-px bg-purple-200"></div></div>
+
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <!-- VACÍO ANÁLISIS -->
+    <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden">
+      <div class="bg-slate-50 border-b px-4 py-2"><span class="text-[10px] uppercase font-bold text-purple-700">Análisis vacío · histórico insuficiente</span></div>
+      <div class="p-6 text-center space-y-4">
+        <div class="w-20 h-20 mx-auto rounded-full bg-gradient-to-br from-purple-100 to-indigo-100 flex items-center justify-center"><i data-lucide="line-chart" class="w-10 h-10 text-purple-600"></i></div>
+        <div>
+          <div class="text-[15px] font-bold text-slate-900">Análisis estratégico no disponible aún</div>
+          <div class="text-[11px] text-slate-500 mt-1 max-w-sm mx-auto">Las 10 gráficas canon-level (Waterfall · Burn Rate · Working Capital · EBITDA Bridge · etc.) requieren al menos <strong>30 días de movimientos</strong> + 3 meses de gastos + 2 ciclos contables cerrados.</div>
+        </div>
+        <!-- Progreso -->
+        <div class="bg-amber-50 ring-1 ring-amber-200 rounded-xl p-3 text-left max-w-xs mx-auto space-y-2">
+          <div class="text-[10px] uppercase font-bold text-amber-900 mb-1">Tu progreso · 47% completado</div>
+          <div class="space-y-1.5 text-[10px]">
+            <div class="flex items-center justify-between"><span class="text-slate-700 flex items-center gap-1"><i data-lucide="check-circle-2" class="w-3 h-3 text-emerald-600"></i> Movimientos 30d</span><span class="text-emerald-700 font-bold">12 / 30</span></div>
+            <div class="w-full h-1.5 bg-amber-100 rounded-full overflow-hidden"><div class="h-full bg-amber-500" style="width: 40%;"></div></div>
+            <div class="flex items-center justify-between"><span class="text-slate-700 flex items-center gap-1"><i data-lucide="clock" class="w-3 h-3 text-amber-600"></i> Gastos 3m</span><span class="text-amber-700 font-bold">1 / 3 meses</span></div>
+            <div class="w-full h-1.5 bg-amber-100 rounded-full overflow-hidden"><div class="h-full bg-amber-500" style="width: 33%;"></div></div>
+            <div class="flex items-center justify-between"><span class="text-slate-700 flex items-center gap-1"><i data-lucide="x-circle" class="w-3 h-3 text-rose-600"></i> Cierres contables</span><span class="text-rose-700 font-bold">0 / 2</span></div>
+            <div class="w-full h-1.5 bg-amber-100 rounded-full overflow-hidden"><div class="h-full bg-amber-500" style="width: 0%;"></div></div>
+          </div>
+        </div>
+        <div class="text-[10px] text-slate-500">ETA análisis disponible: <strong class="text-amber-700">02-jun-2026</strong> (18 días más de operación + 1 cierre)</div>
+        <button class="text-[11px] font-bold text-white bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded-lg inline-flex items-center gap-1.5">
+          <i data-lucide="arrow-left" class="w-3 h-3"></i> Volver a Overview
+        </button>
+      </div>
+    </div>
+
+    <!-- LOADING ANÁLISIS -->
+    <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden">
+      <div class="bg-slate-50 border-b px-4 py-2"><span class="text-[10px] uppercase font-bold text-sky-700">Análisis loading · cálculo intensivo</span></div>
+      <div class="p-4 space-y-3">
+        <!-- 4 gauges skeleton -->
+        <div class="grid grid-cols-2 gap-2">
+          <div class="shimmer h-28 rounded-2xl"></div>
+          <div class="shimmer h-28 rounded-2xl"></div>
+          <div class="shimmer h-28 rounded-2xl"></div>
+          <div class="shimmer h-28 rounded-2xl"></div>
+        </div>
+        <!-- Waterfall skeleton -->
+        <div class="space-y-1.5">
+          <div class="shimmer h-3 w-40 rounded"></div>
+          <div class="shimmer h-40 rounded-2xl"></div>
+        </div>
+        <!-- Mini gráficas -->
+        <div class="grid grid-cols-2 gap-2">
+          <div class="shimmer h-20 rounded-xl"></div>
+          <div class="shimmer h-20 rounded-xl"></div>
+        </div>
+        <!-- Status detallado -->
+        <div class="bg-slate-50 rounded-lg p-2.5 space-y-1.5 text-[10px]">
+          <div class="flex items-center justify-between"><span class="text-slate-700 flex items-center gap-1"><i data-lucide="loader" class="w-3 h-3 animate-spin text-sky-600"></i> Calculando Working Capital Cycle...</span><span class="text-sky-700 font-bold">75%</span></div>
+          <div class="flex items-center justify-between"><span class="text-slate-700 flex items-center gap-1"><i data-lucide="loader" class="w-3 h-3 animate-spin text-sky-600"></i> Generando EBITDA Bridge...</span><span class="text-sky-700 font-bold">60%</span></div>
+          <div class="flex items-center justify-between"><span class="text-slate-700 flex items-center gap-1"><i data-lucide="loader" class="w-3 h-3 animate-spin text-sky-600"></i> Procesando 142 movs · 23 ents...</span><span class="text-sky-700 font-bold">42%</span></div>
+        </div>
+        <div class="text-center text-[10px] text-slate-500">Estimado: <strong>30 seg</strong> · operación intensiva</div>
+      </div>
+    </div>
+
+    <!-- ERROR ANÁLISIS -->
+    <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden">
+      <div class="bg-slate-50 border-b px-4 py-2"><span class="text-[10px] uppercase font-bold text-rose-700">Análisis error · cálculo falló</span></div>
+      <div class="p-6 text-center space-y-4">
+        <div class="w-16 h-16 mx-auto rounded-full bg-rose-100 flex items-center justify-center"><i data-lucide="bar-chart-3" class="w-8 h-8 text-rose-600"></i></div>
+        <div>
+          <div class="text-[14px] font-bold text-slate-900">Error al generar análisis estratégico</div>
+          <div class="text-[11px] text-slate-500 mt-1">Inconsistencias detectadas en los datos · revisar antes de reintentar.</div>
+        </div>
+        <!-- Lista de issues detectados -->
+        <div class="bg-rose-50 ring-1 ring-rose-200 rounded-lg p-3 text-left text-[10px] space-y-2">
+          <div class="font-bold text-rose-900">Inconsistencias detectadas:</div>
+          <div class="flex items-start gap-2"><i data-lucide="alert-circle" class="w-3 h-3 text-rose-600 mt-0.5 flex-shrink-0"></i><span class="text-rose-800">3 movimientos sin categoría contable asignada · imposible calcular Waterfall margen</span></div>
+          <div class="flex items-start gap-2"><i data-lucide="alert-circle" class="w-3 h-3 text-rose-600 mt-0.5 flex-shrink-0"></i><span class="text-rose-800">2 conversiones FX sin TC registrado · TCPA del Pool USD no se puede recalcular</span></div>
+          <div class="flex items-start gap-2"><i data-lucide="alert-circle" class="w-3 h-3 text-rose-600 mt-0.5 flex-shrink-0"></i><span class="text-rose-800">CC con saldos negativos sin justificación · revisar CC Premium SA</span></div>
+        </div>
+        <div class="flex items-center justify-center gap-2">
+          <button class="text-[11px] font-semibold text-slate-600 hover:bg-slate-100 px-3 py-1.5 rounded-lg">Ignorar y forzar cálculo</button>
+          <button class="text-[11px] font-bold text-white bg-rose-600 hover:bg-rose-700 px-3 py-1.5 rounded-lg flex items-center gap-1.5"><i data-lucide="wrench" class="w-3 h-3"></i> Resolver issues</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- §4 · COBERTURA ESTADOS FINAL -->
+<section class="space-y-4">
+  <div class="flex items-center gap-2"><span class="text-[10px] uppercase tracking-wider font-bold text-emerald-700">§ 4 · Cobertura estados FINAL · 18/18 ✓</span><div class="flex-1 h-px bg-emerald-200"></div></div>
+  <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-5">
+    <table class="w-full text-[11px]">
+      <thead class="bg-slate-50 text-slate-600 uppercase text-[10px] font-bold">
+        <tr><th class="text-left py-2 px-3">Vista</th><th class="text-center py-2 px-3">Vacío</th><th class="text-center py-2 px-3">Loading</th><th class="text-center py-2 px-3">Error</th><th class="text-left py-2 px-3">Donde</th></tr>
+      </thead>
+      <tbody class="divide-y divide-slate-100">
+        <tr><td class="py-2 px-3 font-bold">Overview</td><td class="py-2 px-3 text-center"><span class="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded text-[10px] font-bold">✓</span></td><td class="py-2 px-3 text-center"><span class="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded text-[10px] font-bold">✓</span></td><td class="py-2 px-3 text-center"><span class="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded text-[10px] font-bold">✓</span></td><td class="py-2 px-3 text-slate-700">MOCK 17 §2</td></tr>
+        <tr><td class="py-2 px-3 font-bold">Saldos</td><td class="py-2 px-3 text-center"><span class="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded text-[10px] font-bold">✓</span></td><td class="py-2 px-3 text-center"><span class="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded text-[10px] font-bold">✓</span></td><td class="py-2 px-3 text-center"><span class="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded text-[10px] font-bold">✓</span></td><td class="py-2 px-3 text-slate-700">MOCK 6 §4</td></tr>
+        <tr><td class="py-2 px-3 font-bold">Movimientos</td><td class="py-2 px-3 text-center"><span class="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded text-[10px] font-bold">✓</span></td><td class="py-2 px-3 text-center"><span class="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded text-[10px] font-bold">✓</span></td><td class="py-2 px-3 text-center"><span class="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded text-[10px] font-bold">✓</span></td><td class="py-2 px-3 text-slate-700">MOCK 7 §4</td></tr>
+        <tr><td class="py-2 px-3 font-bold">CC Entidades</td><td class="py-2 px-3 text-center"><span class="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded text-[10px] font-bold">✓</span></td><td class="py-2 px-3 text-center"><span class="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded text-[10px] font-bold">✓</span></td><td class="py-2 px-3 text-center"><span class="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded text-[10px] font-bold">✓</span></td><td class="py-2 px-3 text-slate-700">MOCK 8 §3</td></tr>
+        <tr><td class="py-2 px-3 font-bold">Cash flow</td><td class="py-2 px-3 text-center"><span class="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded text-[10px] font-bold">✓</span></td><td class="py-2 px-3 text-center"><span class="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded text-[10px] font-bold">✓</span></td><td class="py-2 px-3 text-center"><span class="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded text-[10px] font-bold">✓</span></td><td class="py-2 px-3 text-slate-700">MOCK 9 §3</td></tr>
+        <tr><td class="py-2 px-3 font-bold">Análisis estratégico</td><td class="py-2 px-3 text-center"><span class="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded text-[10px] font-bold">✓</span></td><td class="py-2 px-3 text-center"><span class="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded text-[10px] font-bold">✓</span></td><td class="py-2 px-3 text-center"><span class="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded text-[10px] font-bold">✓</span></td><td class="py-2 px-3 text-slate-700">MOCK 17 §3</td></tr>
+      </tbody>
+      <tfoot class="bg-emerald-50 font-bold"><tr><td colspan="4" class="py-2 px-3 text-right text-emerald-700">TOTAL estados cubiertos · 6 vistas × 3 estados</td><td class="py-2 px-3 text-emerald-900 text-base">18 / 18 ✓ 100%</td></tr></tfoot>
+    </table>
+  </div>
+</section>
+
+<!-- §5 · CANON ESTADOS -->
+<section>
+  <div class="bg-white border border-slate-200 rounded-2xl p-5">
+    <h3 class="text-sm font-bold mb-3">Canon aplicado en TODOS los estados (consistencia 18 estados)</h3>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-[11px]">
+      <div class="flex items-start gap-2"><span class="text-teal-700 font-bold uppercase text-[10px] mt-0.5">N9</span><span class="text-slate-700">Empty states con <strong>quick-start cards</strong> accionables (no solo texto)</span></div>
+      <div class="flex items-start gap-2"><span class="text-teal-700 font-bold uppercase text-[10px] mt-0.5">N1+N2</span><span class="text-slate-700">Tinte semántico por estado (emerald vacío · sky loading · rose error)</span></div>
+      <div class="flex items-start gap-2"><span class="text-teal-700 font-bold uppercase text-[10px] mt-0.5">F8</span><span class="text-slate-700">Lucide icon grande arriba · centro de la card</span></div>
+      <div class="flex items-start gap-2"><span class="text-teal-700 font-bold uppercase text-[10px] mt-0.5">F-Borr</span><span class="text-slate-700">Empty state NO descarta borradores existentes</span></div>
+      <div class="flex items-start gap-2"><span class="text-teal-700 font-bold uppercase text-[10px] mt-0.5">N10</span><span class="text-slate-700">Loading: skeleton + status text · Error: 2-tier botones (Reportar + Reintentar)</span></div>
+      <div class="flex items-start gap-2"><span class="text-teal-700 font-bold uppercase text-[10px] mt-0.5">v9.0 M1</span><span class="text-slate-700">classNames copy-paste literal para implementación</span></div>
+    </div>
+    <div class="bg-emerald-50 ring-2 ring-emerald-300 rounded-xl p-4 mt-4 text-[12px] text-emerald-900 flex items-start gap-2">
+      <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-700 mt-0.5"></i>
+      <div><strong>Cobertura módulo Finanzas v5.1 · 100% completo.</strong> 17 mockups + SUPERSEDED.md + AUDIT-FINAL.md (próximo). Listo para chk5.D-S2 implementación.</div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="bg-slate-900 text-slate-300 mt-12 py-6"><div class="max-w-[1400px] mx-auto px-6 text-[11px] flex items-center justify-between"><div>MOCK 17 · Estados Overview + Análisis · cierra cobertura 100%</div><div>Turno 7 · 1 de 2 · falta AUDIT-FINAL.md</div></div></footer>
+<script>lucide.createIcons();</script>
+</body>
+</html>

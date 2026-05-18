@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Finanzas · Wizards completos · v5.1 canon v8.0+v9.0</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, sans-serif; }
+    .tabular { font-variant-numeric: tabular-nums; font-feature-settings: "tnum"; }
+    .scrollbar-hide::-webkit-scrollbar { display: none; }
+    .scrollbar-hide { scrollbar-width: none; }
+  </style>
+</head>
+<body class="bg-slate-100 text-slate-900">
+
+<header class="bg-slate-900 text-white sticky top-0 z-50 shadow-lg">
+  <div class="max-w-[1400px] mx-auto px-6 py-3 flex items-center justify-between">
+    <div>
+      <div class="text-[10px] uppercase tracking-wider text-teal-300">chk5.D-S1e · v5.1 canon definitivo</div>
+      <div class="text-base font-bold">MOCK 3 · Wizards completos · 8 wizards + PagoUnificadoForm v3</div>
+    </div>
+    <nav class="hidden md:flex items-center gap-1 text-[11px]">
+      <a href="finanzas-shell-overview-v5.1.html" class="px-2 py-1 hover:bg-slate-700 rounded text-slate-300">MOCK 1</a>
+      <a href="finanzas-cuentas-completo-v5.1.html" class="px-2 py-1 hover:bg-slate-700 rounded text-slate-300">MOCK 2</a>
+      <span class="px-2 py-1 bg-teal-600 rounded text-white font-semibold">MOCK 3</span>
+      <span class="px-2 py-1 text-slate-500 line-through">MOCK 4</span>
+      <span class="px-2 py-1 text-slate-500 line-through">MOCK 5</span>
+    </nav>
+  </div>
+</header>
+
+<main class="max-w-[1400px] mx-auto px-6 py-8 space-y-12">
+
+<!-- §1 · INTRO + MATRIZ WIZARDS -->
+<section class="space-y-4">
+  <div class="flex items-center gap-2">
+    <span class="text-[10px] uppercase tracking-wider font-bold text-slate-500">§ 1 · Arquitectura de 8 wizards</span>
+    <div class="flex-1 h-px bg-slate-200"></div>
+  </div>
+  <h2 class="text-2xl font-bold text-slate-900">8 wizards · 4 simples (modal) + 4 multi-step (sidebar/stepper)</h2>
+  <p class="text-sm text-slate-600 max-w-3xl">Todos invocados desde el dropdown "+ Nuevo movimiento" del header. Los 4 simples viven en modal compacto (sin pasos). Los 4 multi-step usan canon F5 con sidebar vertical (4 pasos) o stepper horizontal (3 pasos). <strong>TODOS con F-Borradores obligatorio</strong>.</p>
+
+  <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+    <table class="w-full text-[11px]">
+      <thead class="bg-slate-50 text-slate-600 uppercase tracking-wider text-[10px]">
+        <tr>
+          <th class="text-left py-2 px-3">Wizard</th>
+          <th class="text-left py-2 px-3">Tinte</th>
+          <th class="text-left py-2 px-3">Layout</th>
+          <th class="text-left py-2 px-3">Pasos</th>
+          <th class="text-left py-2 px-3">F-Borradores</th>
+          <th class="text-left py-2 px-3">Particularidad</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-100">
+        <tr class="hover:bg-emerald-50/30">
+          <td class="py-2 px-3 font-bold text-slate-900">A.1 · Registrar ingreso simple</td>
+          <td class="py-2 px-3"><span class="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded text-[10px] font-bold">emerald</span></td>
+          <td class="py-2 px-3 text-slate-700">Modal compacto</td>
+          <td class="py-2 px-3 tabular">1</td>
+          <td class="py-2 px-3 text-slate-500">Opcional (no obligatorio)</td>
+          <td class="py-2 px-3 text-slate-700">Venta cash · aporte · otros</td>
+        </tr>
+        <tr class="hover:bg-rose-50/30">
+          <td class="py-2 px-3 font-bold text-slate-900">A.2 · Registrar egreso simple</td>
+          <td class="py-2 px-3"><span class="bg-rose-100 text-rose-700 px-2 py-0.5 rounded text-[10px] font-bold">rose</span></td>
+          <td class="py-2 px-3 text-slate-700">Modal compacto</td>
+          <td class="py-2 px-3 tabular">1</td>
+          <td class="py-2 px-3 text-slate-500">Opcional</td>
+          <td class="py-2 px-3 text-slate-700">Cross-link a Gastos para categorización</td>
+        </tr>
+        <tr class="hover:bg-teal-50/30">
+          <td class="py-2 px-3 font-bold text-slate-900">A.3 · Conversión USD ↔ PEN</td>
+          <td class="py-2 px-3"><span class="bg-teal-100 text-teal-700 px-2 py-0.5 rounded text-[10px] font-bold">teal</span></td>
+          <td class="py-2 px-3 text-slate-700">Modal compacto</td>
+          <td class="py-2 px-3 tabular">1</td>
+          <td class="py-2 px-3 text-slate-500">Opcional</td>
+          <td class="py-2 px-3 text-slate-700">TCPA vs SBS · entra/sale Pool USD</td>
+        </tr>
+        <tr class="hover:bg-indigo-50/30">
+          <td class="py-2 px-3 font-bold text-slate-900">A.4 · Transferencia entre cuentas</td>
+          <td class="py-2 px-3"><span class="bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded text-[10px] font-bold">indigo</span></td>
+          <td class="py-2 px-3 text-slate-700">Modal compacto</td>
+          <td class="py-2 px-3 tabular">1</td>
+          <td class="py-2 px-3 text-slate-500">Opcional</td>
+          <td class="py-2 px-3 text-slate-700">Sin cambio moneda · sin diferencial</td>
+        </tr>
+        <tr class="hover:bg-purple-50/30 bg-purple-50/20">
+          <td class="py-2 px-3 font-bold text-slate-900">B.1 · PagoAbono distribuido</td>
+          <td class="py-2 px-3"><span class="bg-purple-100 text-purple-700 px-2 py-0.5 rounded text-[10px] font-bold">purple</span></td>
+          <td class="py-2 px-3 text-slate-700">Sidebar vertical</td>
+          <td class="py-2 px-3 tabular">4</td>
+          <td class="py-2 px-3 text-emerald-700 font-bold">OBLIGATORIO</td>
+          <td class="py-2 px-3 text-slate-700">FIFO/LIFO/Manual · TCPA Pool USD</td>
+        </tr>
+        <tr class="hover:bg-amber-50/30 bg-amber-50/20">
+          <td class="py-2 px-3 font-bold text-slate-900">B.2 · Pagar estado de cuenta TC</td>
+          <td class="py-2 px-3"><span class="bg-amber-100 text-amber-700 px-2 py-0.5 rounded text-[10px] font-bold">amber</span></td>
+          <td class="py-2 px-3 text-slate-700">Stepper horizontal</td>
+          <td class="py-2 px-3 tabular">3</td>
+          <td class="py-2 px-3 text-emerald-700 font-bold">OBLIGATORIO</td>
+          <td class="py-2 px-3 text-slate-700">Bimoneda · banco_emisor vs reembolso_titular</td>
+        </tr>
+        <tr class="hover:bg-indigo-50/30 bg-indigo-50/20">
+          <td class="py-2 px-3 font-bold text-slate-900">B.3 · Pagos masivos (batch)</td>
+          <td class="py-2 px-3"><span class="bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded text-[10px] font-bold">indigo</span></td>
+          <td class="py-2 px-3 text-slate-700">Sidebar vertical</td>
+          <td class="py-2 px-3 tabular">4</td>
+          <td class="py-2 px-3 text-emerald-700 font-bold">OBLIGATORIO</td>
+          <td class="py-2 px-3 text-slate-700">Opción A · 1 cta · 1 moneda · archivo BCP</td>
+        </tr>
+        <tr class="hover:bg-purple-50/30 bg-purple-50/30 ring-2 ring-purple-200">
+          <td class="py-2 px-3 font-bold text-purple-900">B.4 · Liquidar Caja Recaudadora ⭐ NUEVO</td>
+          <td class="py-2 px-3"><span class="bg-purple-200 text-purple-800 px-2 py-0.5 rounded text-[10px] font-bold">purple</span></td>
+          <td class="py-2 px-3 text-slate-700">Stepper horizontal</td>
+          <td class="py-2 px-3 tabular">3</td>
+          <td class="py-2 px-3 text-emerald-700 font-bold">OBLIGATORIO</td>
+          <td class="py-2 px-3 text-slate-700">GK Xpress → BCP · concilia CC proveedor · DEUDA-MODELO-RECAUDADOR</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="bg-amber-50 ring-1 ring-amber-200 rounded-xl p-3 text-[11px] text-amber-900 flex items-start gap-2">
+    <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-700 mt-0.5 flex-shrink-0"></i>
+    <div>
+      <strong>Nota chk5.D-S1f:</strong> el wizard B.4 (Liquidar Caja Recaudadora) requiere modelo técnico previo declarado en <code class="bg-white px-1 rounded">DEUDA-MODELO-RECAUDADOR</code> · tipo `caja_recaudadora` + tabla `eventoServicioRecaudador` + servicio `liquidarCajaRecaudadora.service.ts`. Este wizard NO se implementa hasta cerrar S1f. El mockup lo muestra como referencia visual canon.
+    </div>
+  </div>
+</section>
+
+<!-- §2 · ZOOM IN · WIZARD SIMPLE · CONVERSIÓN USD↔PEN (A.3) -->
+<section class="space-y-4">
+  <div class="flex items-center gap-2">
+    <span class="text-[10px] uppercase tracking-wider font-bold text-teal-700">§ 2 · ZOOM IN · A.3 Conversión USD↔PEN · modal simple</span>
+    <div class="flex-1 h-px bg-teal-200"></div>
+  </div>
+  <p class="text-[12px] text-slate-500 max-w-2xl">El más interesante de los 4 simples · captura TCPA + TC mercado + diferencial cambiario realizado. Pieza canon multi-currency.</p>
+
+  <div class="bg-white border border-slate-200 rounded-2xl shadow-lg max-w-2xl mx-auto overflow-hidden">
+    <div class="bg-gradient-to-br from-teal-50 to-teal-100/40 border-b border-teal-200 px-5 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-teal-500 to-teal-700 flex items-center justify-center text-white">
+          <i data-lucide="repeat" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <div class="text-[13px] font-bold text-slate-900">Conversión USD ↔ PEN</div>
+          <div class="text-[10px] text-slate-500">Movimiento entre Pool USD y cuenta PEN · TCPA model</div>
+        </div>
+      </div>
+      <button class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-4 h-4"></i></button>
+    </div>
+    <div class="p-5 space-y-4">
+      <!-- Dirección -->
+      <div>
+        <label class="text-[10px] uppercase tracking-wider font-bold text-slate-700 mb-2 block">Dirección</label>
+        <div class="grid grid-cols-2 gap-2">
+          <button class="p-3 bg-teal-50 ring-2 ring-teal-500 rounded-xl text-left">
+            <div class="text-[11px] font-bold text-teal-900 flex items-center gap-1.5"><i data-lucide="arrow-down" class="w-3 h-3"></i> USD → PEN</div>
+            <div class="text-[10px] text-teal-700">Salir del Pool USD · entrar a cuenta PEN</div>
+          </button>
+          <button class="p-3 bg-white border border-slate-200 rounded-xl text-left hover:bg-slate-50">
+            <div class="text-[11px] font-bold text-slate-700 flex items-center gap-1.5"><i data-lucide="arrow-up" class="w-3 h-3"></i> PEN → USD</div>
+            <div class="text-[10px] text-slate-500">Salir cuenta PEN · entrar al Pool USD</div>
+          </button>
+        </div>
+      </div>
+      <!-- Cuentas origen/destino -->
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="text-[10px] uppercase tracking-wider font-bold text-slate-700 mb-1 block">Origen (Pool USD)</label>
+          <select class="w-full text-sm border border-slate-300 rounded-lg px-3 py-2 bg-teal-50">
+            <optgroup label="── Pool USD · 3 cuentas USD físicas · $6,820 total · TCPA único 3.742 ──">
+              <option>BCP Ahorros USD · $ 4,820 (default · más antigua)</option>
+              <option>IBK Ahorros USD · $ 1,200</option>
+              <option>BBVA Ahorros USD · $ 800</option>
+            </optgroup>
+          </select>
+        </div>
+        <div>
+          <label class="text-[10px] uppercase tracking-wider font-bold text-slate-700 mb-1 block">Destino</label>
+          <select class="w-full text-sm border border-slate-300 rounded-lg px-3 py-2">
+            <option>BCP Soles Operativa · S/ 42,180</option>
+            <option>Caja chica oficina Lima · S/ 840</option>
+          </select>
+        </div>
+      </div>
+      <!-- Monto -->
+      <div>
+        <label class="text-[10px] uppercase tracking-wider font-bold text-slate-700 mb-1 block">Monto a convertir</label>
+        <div class="relative">
+          <span class="absolute left-3 top-2 text-slate-500 text-sm">$</span>
+          <input type="text" value="1,500.00" class="w-full text-base border border-slate-300 rounded-lg pl-9 pr-3 py-2 tabular text-right font-bold" />
+        </div>
+      </div>
+      <!-- TCPA vs SBS -->
+      <div class="bg-gradient-to-br from-teal-50 to-teal-100/40 ring-1 ring-teal-200/50 rounded-xl p-3">
+        <div class="text-[10px] uppercase tracking-wider font-bold text-teal-700 mb-2 flex items-center gap-1.5">
+          <i data-lucide="calculator" class="w-3.5 h-3.5"></i> Análisis cambiario · TCPA vs mercado
+        </div>
+        <div class="grid grid-cols-3 gap-2 text-[11px]">
+          <div class="bg-white rounded p-2 ring-1 ring-teal-200">
+            <div class="text-[9px] uppercase font-bold text-teal-700">TCPA Pool USD</div>
+            <div class="text-[14px] font-bold tabular text-teal-900">3.742</div>
+            <div class="text-[9px] text-teal-700">acumulado costo</div>
+          </div>
+          <div class="bg-white rounded p-2 ring-1 ring-slate-200">
+            <div class="text-[9px] uppercase font-bold text-slate-700">SBS compra hoy</div>
+            <div class="text-[14px] font-bold tabular text-slate-900">3.756</div>
+            <div class="text-[9px] text-slate-500">tasa oficial</div>
+          </div>
+          <div class="bg-white rounded p-2 ring-1 ring-emerald-200">
+            <div class="text-[9px] uppercase font-bold text-emerald-700">Diferencial</div>
+            <div class="text-[14px] font-bold tabular text-emerald-700">+0.014</div>
+            <div class="text-[9px] text-emerald-600">ganancia cambiaria</div>
+          </div>
+        </div>
+        <div class="bg-emerald-50 rounded-lg p-2 mt-2 text-[10px] text-emerald-900 flex items-start gap-1.5">
+          <i data-lucide="trending-up" class="w-3 h-3 text-emerald-700 mt-0.5"></i>
+          <span>Vas a recibir <strong>S/ 5,634</strong> al TC mercado (3.756) · TCPA tus dólares vale 3.742 · generás ganancia cambiaria <strong>S/ 21.00</strong> que se contabiliza en cuenta 7601.</span>
+        </div>
+      </div>
+      <!-- Resultado preview -->
+      <div class="bg-slate-900 text-white rounded-xl p-4 flex items-center justify-between">
+        <div>
+          <div class="text-[10px] uppercase tracking-wider text-slate-400">Monto a recibir</div>
+          <div class="text-2xl font-bold tabular">S/ 5,634.00</div>
+        </div>
+        <div class="text-right">
+          <div class="text-[10px] uppercase tracking-wider text-slate-400">TC usado</div>
+          <div class="text-base font-bold tabular text-teal-300">3.756</div>
+          <div class="text-[9px] text-emerald-400">+S/ 21 ganancia FX</div>
+        </div>
+      </div>
+      <!-- Notas -->
+      <div>
+        <label class="text-[10px] uppercase tracking-wider font-bold text-slate-700 mb-1 block">Notas opcionales</label>
+        <textarea rows="2" placeholder="Justificación · referencia · contexto" class="w-full text-[12px] border border-slate-300 rounded-lg px-3 py-2"></textarea>
+      </div>
+    </div>
+    <!-- Footer N10 -->
+    <div class="bg-slate-50 border-t border-slate-200 px-5 py-3 flex items-center justify-between">
+      <button class="text-[11px] font-semibold text-slate-600 hover:bg-slate-100 px-3 py-1.5 rounded-lg">Cancelar</button>
+      <div class="flex items-center gap-2">
+        <button class="text-[11px] font-semibold bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100 px-3 py-1.5 rounded-lg">Guardar borrador</button>
+        <button class="text-[11px] font-bold text-white bg-teal-600 hover:bg-teal-700 px-4 py-1.5 rounded-lg flex items-center gap-1.5">
+          <i data-lucide="check" class="w-3 h-3"></i> Confirmar conversión
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- §3 · ZOOM IN · WIZARD MULTI-STEP · PAGOABONO DISTRIBUIDO (B.1) -->
+<section class="space-y-4">
+  <div class="flex items-center gap-2">
+    <span class="text-[10px] uppercase tracking-wider font-bold text-purple-700">§ 3 · ZOOM IN · B.1 PagoAbono distribuido · 4 pasos sidebar vertical</span>
+    <div class="flex-1 h-px bg-purple-200"></div>
+  </div>
+  <p class="text-[12px] text-slate-500 max-w-2xl">Distribuye un pago/cobro a múltiples documentos abiertos del mismo tercero · 3 modos (FIFO/LIFO/Manual) · soporta TCPA Pool USD · F-Borradores obligatorio.</p>
+
+  <!-- PASO 2 (CORE) · Distribución -->
+  <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+    <div class="bg-purple-50 border-b border-purple-200 px-5 py-2 flex items-center justify-between">
+      <span class="text-[10px] uppercase tracking-wider font-bold text-purple-700">PASO 2 (core) · Distribución · cobro a Cliente Premium SA · S/ 8,000</span>
+      <span class="text-[10px] text-purple-600">Cliente debe S/ 12,500 en 4 facturas · pagó S/ 8,000 · distribuir</span>
+    </div>
+    <div class="grid grid-cols-12 min-h-[560px]">
+      <aside class="col-span-3 bg-slate-50/50 border-r border-slate-200 p-4 space-y-1">
+        <div class="text-[10px] uppercase tracking-wider font-bold text-slate-500 mb-3">Pasos · PagoAbono</div>
+        <div class="flex items-center gap-2 p-2 rounded-lg text-emerald-700"><span class="w-6 h-6 rounded-full bg-emerald-100 text-emerald-700 text-[11px] font-bold flex items-center justify-center"><i data-lucide="check" class="w-3 h-3"></i></span><span class="text-[12px]">Entidad + medio</span></div>
+        <div class="flex items-center gap-2 p-2 rounded-lg bg-purple-50 ring-1 ring-purple-200"><span class="w-6 h-6 rounded-full bg-purple-600 text-white text-[11px] font-bold flex items-center justify-center">2</span><span class="text-[12px] font-bold text-purple-900">Distribución</span></div>
+        <div class="flex items-center gap-2 p-2 rounded-lg text-slate-500"><span class="w-6 h-6 rounded-full bg-slate-200 text-slate-600 text-[11px] font-bold flex items-center justify-center">3</span><span class="text-[12px]">TC (si aplica)</span></div>
+        <div class="flex items-center gap-2 p-2 rounded-lg text-slate-500"><span class="w-6 h-6 rounded-full bg-slate-200 text-slate-600 text-[11px] font-bold flex items-center justify-center">4</span><span class="text-[12px]">Confirmar</span></div>
+        <div class="mt-6 pt-4 border-t border-slate-200">
+          <div class="text-[10px] uppercase tracking-wider font-bold text-slate-500 mb-2">Contexto</div>
+          <div class="text-[11px] text-slate-700 space-y-1">
+            <div><span class="text-slate-500">Cliente:</span> <span class="font-bold">Premium SA</span></div>
+            <div><span class="text-slate-500">Monto:</span> <span class="font-bold tabular">S/ 8,000</span></div>
+            <div><span class="text-slate-500">Cuenta:</span> <span class="font-bold">BCP Soles</span></div>
+            <div><span class="text-slate-500">Deuda total:</span> <span class="font-bold tabular text-rose-700">S/ 12,500</span></div>
+          </div>
+        </div>
+      </aside>
+      <div class="col-span-9 p-5 space-y-4">
+        <div>
+          <h3 class="text-base font-bold text-slate-900">Distribuí los S/ 8,000 entre las 4 facturas abiertas</h3>
+          <p class="text-[11px] text-slate-500">Elegí modo automático (FIFO/LIFO) o manual · sistema calcula remanente como saldo a favor.</p>
+        </div>
+        <!-- Modos -->
+        <div class="grid grid-cols-3 gap-2">
+          <button class="p-2.5 bg-purple-50 ring-2 ring-purple-500 rounded-lg text-left">
+            <div class="text-[11px] font-bold text-purple-900 flex items-center gap-1.5"><i data-lucide="arrow-down-to-line" class="w-3 h-3"></i> Auto-FIFO</div>
+            <div class="text-[10px] text-purple-700">Más antiguas primero · default</div>
+          </button>
+          <button class="p-2.5 bg-white border border-slate-200 rounded-lg text-left hover:bg-slate-50">
+            <div class="text-[11px] font-bold text-slate-700 flex items-center gap-1.5"><i data-lucide="arrow-up-to-line" class="w-3 h-3"></i> Auto-LIFO</div>
+            <div class="text-[10px] text-slate-500">Más recientes primero</div>
+          </button>
+          <button class="p-2.5 bg-white border border-slate-200 rounded-lg text-left hover:bg-slate-50">
+            <div class="text-[11px] font-bold text-slate-700 flex items-center gap-1.5"><i data-lucide="settings-2" class="w-3 h-3"></i> Manual</div>
+            <div class="text-[10px] text-slate-500">Vos asignás monto por doc</div>
+          </button>
+        </div>
+        <!-- Tabla facturas -->
+        <div class="border border-slate-200 rounded-xl overflow-hidden">
+          <table class="w-full text-[11px]">
+            <thead class="bg-slate-50 text-slate-600 uppercase tracking-wider text-[9px]">
+              <tr>
+                <th class="text-left py-2 px-3">Documento</th>
+                <th class="text-left py-2 px-3">Emisión</th>
+                <th class="text-right py-2 px-3">Monto orig.</th>
+                <th class="text-right py-2 px-3">Saldo</th>
+                <th class="text-right py-2 px-3">Días venc.</th>
+                <th class="text-right py-2 px-3 bg-purple-50">Aplicar</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 tabular">
+              <tr class="bg-emerald-50/30">
+                <td class="py-2 px-3 font-bold text-slate-900">F-001</td>
+                <td class="py-2 px-3 text-slate-700">15-mar</td>
+                <td class="py-2 px-3 text-right">S/ 2,500</td>
+                <td class="py-2 px-3 text-right font-bold">S/ 2,500</td>
+                <td class="py-2 px-3 text-right"><span class="bg-rose-100 text-rose-700 px-1.5 py-0.5 rounded text-[9px] font-bold">61d</span></td>
+                <td class="py-2 px-3 text-right bg-purple-50 font-bold text-purple-900">S/ 2,500 <span class="text-[9px] text-emerald-700">✓ total</span></td>
+              </tr>
+              <tr class="bg-emerald-50/30">
+                <td class="py-2 px-3 font-bold text-slate-900">F-008</td>
+                <td class="py-2 px-3 text-slate-700">02-abr</td>
+                <td class="py-2 px-3 text-right">S/ 3,200</td>
+                <td class="py-2 px-3 text-right font-bold">S/ 3,200</td>
+                <td class="py-2 px-3 text-right"><span class="bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded text-[9px] font-bold">43d</span></td>
+                <td class="py-2 px-3 text-right bg-purple-50 font-bold text-purple-900">S/ 3,200 <span class="text-[9px] text-emerald-700">✓ total</span></td>
+              </tr>
+              <tr class="bg-sky-50/30">
+                <td class="py-2 px-3 font-bold text-slate-900">F-015</td>
+                <td class="py-2 px-3 text-slate-700">18-abr</td>
+                <td class="py-2 px-3 text-right">S/ 4,800</td>
+                <td class="py-2 px-3 text-right font-bold">S/ 4,800</td>
+                <td class="py-2 px-3 text-right"><span class="bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded text-[9px] font-bold">27d</span></td>
+                <td class="py-2 px-3 text-right bg-purple-50 font-bold text-purple-900">S/ 2,300 <span class="text-[9px] text-sky-700">↺ parcial</span></td>
+              </tr>
+              <tr>
+                <td class="py-2 px-3 font-bold text-slate-900">F-022</td>
+                <td class="py-2 px-3 text-slate-700">28-abr</td>
+                <td class="py-2 px-3 text-right">S/ 2,000</td>
+                <td class="py-2 px-3 text-right font-bold">S/ 2,000</td>
+                <td class="py-2 px-3 text-right"><span class="bg-slate-100 text-slate-700 px-1.5 py-0.5 rounded text-[9px] font-bold">17d</span></td>
+                <td class="py-2 px-3 text-right bg-purple-50 text-slate-400">S/ 0</td>
+              </tr>
+            </tbody>
+            <tfoot class="bg-purple-100 font-bold tabular">
+              <tr>
+                <td colspan="3" class="py-2 px-3 text-right text-[10px] uppercase text-purple-700">Total a aplicar</td>
+                <td class="py-2 px-3 text-right text-purple-900">S/ 12,500</td>
+                <td class="py-2 px-3"></td>
+                <td class="py-2 px-3 text-right text-purple-900">S/ 8,000 / S/ 8,000 ✓</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+        <!-- Resumen distribución -->
+        <div class="bg-gradient-to-br from-purple-50 to-purple-100/40 ring-1 ring-purple-200/50 rounded-xl p-3 grid grid-cols-3 gap-2 text-[11px]">
+          <div>
+            <div class="text-[9px] uppercase font-bold text-purple-700">Aplicado</div>
+            <div class="text-[14px] font-bold tabular text-purple-900">S/ 8,000</div>
+          </div>
+          <div>
+            <div class="text-[9px] uppercase font-bold text-emerald-700">Cierra</div>
+            <div class="text-[14px] font-bold tabular text-emerald-900">2 facturas</div>
+            <div class="text-[9px] text-emerald-700">F-001 + F-008</div>
+          </div>
+          <div>
+            <div class="text-[9px] uppercase font-bold text-sky-700">Parcial</div>
+            <div class="text-[14px] font-bold tabular text-sky-900">F-015</div>
+            <div class="text-[9px] text-sky-700">queda S/ 2,500</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="bg-slate-50 border-t border-slate-200 px-5 py-3 flex items-center justify-between">
+      <button class="text-[11px] font-semibold text-slate-600 hover:bg-slate-100 px-3 py-1.5 rounded-lg flex items-center gap-1"><i data-lucide="arrow-left" class="w-3 h-3"></i> Atrás</button>
+      <div class="flex items-center gap-2">
+        <button class="text-[11px] font-semibold text-slate-600 hover:bg-slate-100 px-3 py-1.5 rounded-lg">Descartar</button>
+        <button class="text-[11px] font-semibold bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100 px-3 py-1.5 rounded-lg">Guardar borrador</button>
+        <button class="text-[11px] font-bold text-white bg-purple-600 hover:bg-purple-700 px-4 py-1.5 rounded-lg flex items-center gap-1.5">Siguiente <i data-lucide="arrow-right" class="w-3 h-3"></i></button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- §4 · ZOOM IN · WIZARD CRÍTICO NUEVO · B.4 LIQUIDAR CAJA RECAUDADORA -->
+<section class="space-y-4">
+  <div class="flex items-center gap-2">
+    <span class="text-[10px] uppercase tracking-wider font-bold text-purple-700">§ 4 · ZOOM IN · B.4 ⭐ NUEVO · Liquidar Caja Recaudadora · 3 pasos stepper horizontal</span>
+    <div class="flex-1 h-px bg-purple-200"></div>
+  </div>
+  <p class="text-[12px] text-slate-500 max-w-2xl">Wizard nuevo declarado en chk5.D-S1f · liquida saldo pendiente de Caja recaudadora (ej. GK Xpress) hacia cuenta destino · concilia eventos del periodo · genera CC con el proveedor recaudador.</p>
+
+  <!-- PASO 1 · Selección periodo -->
+  <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+    <div class="bg-purple-50 border-b border-purple-200 px-5 py-2 flex items-center justify-between">
+      <span class="text-[10px] uppercase tracking-wider font-bold text-purple-700">PASO 1 · Selección de caja + periodo a liquidar</span>
+      <span class="text-[10px] text-purple-600">Liquidación mensual típica · puede ser parcial o total</span>
+    </div>
+    <!-- Stepper horizontal canon F5 (3 pasos) -->
+    <div class="bg-slate-50 border-b border-slate-200 px-5 py-3 flex items-center justify-center gap-4">
+      <div class="flex items-center gap-2">
+        <span class="w-7 h-7 rounded-full bg-purple-600 text-white text-[11px] font-bold flex items-center justify-center">1</span>
+        <span class="text-[11px] font-bold text-purple-900">Caja + periodo</span>
+      </div>
+      <div class="h-px w-12 bg-slate-300"></div>
+      <div class="flex items-center gap-2 opacity-50">
+        <span class="w-7 h-7 rounded-full bg-slate-200 text-slate-600 text-[11px] font-bold flex items-center justify-center">2</span>
+        <span class="text-[11px] text-slate-600">Revisión balance</span>
+      </div>
+      <div class="h-px w-12 bg-slate-300"></div>
+      <div class="flex items-center gap-2 opacity-50">
+        <span class="w-7 h-7 rounded-full bg-slate-200 text-slate-600 text-[11px] font-bold flex items-center justify-center">3</span>
+        <span class="text-[11px] text-slate-600">Confirmar liquidación</span>
+      </div>
+    </div>
+    <div class="p-6 grid grid-cols-2 gap-5">
+      <div class="space-y-4">
+        <div>
+          <label class="text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1.5 block">Caja recaudadora</label>
+          <div class="bg-purple-50 ring-2 ring-purple-500 rounded-xl p-3 flex items-center gap-3">
+            <div class="bank-yape w-10 h-10 rounded-lg flex items-center justify-center text-white text-[10px] font-bold" style="background: linear-gradient(135deg, #6a2c7e 0%, #9333ea 100%);">GK</div>
+            <div class="flex-1 min-w-0">
+              <div class="text-[12px] font-bold text-purple-900">Yape · GK Xpress</div>
+              <div class="text-[10px] text-purple-700">Carlos M. · 90% envíos · S/ 25 × carrera</div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <label class="text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1.5 block">Periodo a liquidar</label>
+          <select class="w-full text-sm border border-slate-300 rounded-lg px-3 py-2">
+            <option>Mayo 2026 · 01-may al 15-may (actual)</option>
+            <option>Abril 2026 · cerrado</option>
+            <option>Periodo personalizado</option>
+          </select>
+        </div>
+        <div>
+          <label class="text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1.5 block">Cuenta destino (donde llega el dinero)</label>
+          <select class="w-full text-sm border border-slate-300 rounded-lg px-3 py-2 bg-teal-50">
+            <option>BCP Soles Operativa · default recaudador · S/ 42,180</option>
+            <option>BCP Ahorros PEN · S/ 18,420</option>
+          </select>
+        </div>
+        <div>
+          <label class="text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1.5 block">Fecha de la liquidación</label>
+          <input type="date" value="2026-05-15" class="w-full text-sm border border-slate-300 rounded-lg px-3 py-2" />
+        </div>
+      </div>
+      <!-- Preview balance del periodo -->
+      <div class="bg-gradient-to-br from-purple-50 to-purple-100/40 ring-1 ring-purple-200/50 rounded-xl p-4">
+        <div class="text-[10px] uppercase tracking-wider font-bold text-purple-700 mb-3 flex items-center gap-1.5">
+          <i data-lucide="scale" class="w-3.5 h-3.5"></i> Balance del periodo · preview
+        </div>
+        <div class="space-y-2 text-[11px]">
+          <div class="flex items-center justify-between bg-white rounded-lg p-2.5">
+            <span class="text-emerald-700 flex items-center gap-1.5"><i data-lucide="plus" class="w-3 h-3"></i> Cobros recibidos</span>
+            <span class="font-bold tabular text-emerald-900">+ S/ 18,420</span>
+          </div>
+          <div class="flex items-center justify-between bg-white rounded-lg p-2.5">
+            <span class="text-rose-700 flex items-center gap-1.5"><i data-lucide="minus" class="w-3 h-3"></i> Servicios (128 carreras)</span>
+            <span class="font-bold tabular text-rose-900">− S/ 3,200</span>
+          </div>
+          <div class="flex items-center justify-between bg-white rounded-lg p-2.5">
+            <span class="text-sky-700 flex items-center gap-1.5"><i data-lucide="minus" class="w-3 h-3"></i> Liquidado ya en periodo</span>
+            <span class="font-bold tabular text-sky-900">− S/ 12,380</span>
+          </div>
+          <div class="flex items-center justify-between bg-purple-200/50 ring-2 ring-purple-500 rounded-lg p-3">
+            <span class="text-purple-900 font-bold flex items-center gap-1.5"><i data-lucide="equal" class="w-3.5 h-3.5"></i> Pendiente liquidar</span>
+            <span class="font-bold tabular text-purple-900 text-[15px]">= S/ 2,840</span>
+          </div>
+        </div>
+        <div class="text-[10px] text-purple-700 mt-3 italic flex items-start gap-1.5">
+          <i data-lucide="info" class="w-3 h-3 mt-0.5"></i>
+          <span>Este balance se construye en tiempo real desde la tabla <code class="bg-white px-1 rounded text-[9px]">eventoServicioRecaudador</code> · servicios = 128 carreras × S/ 25 acordado en contrato.</span>
+        </div>
+      </div>
+    </div>
+    <div class="bg-slate-50 border-t border-slate-200 px-5 py-3 flex items-center justify-end gap-2">
+      <button class="text-[11px] font-semibold text-slate-600 hover:bg-slate-100 px-3 py-1.5 rounded-lg">Descartar</button>
+      <button class="text-[11px] font-semibold bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100 px-3 py-1.5 rounded-lg">Guardar borrador</button>
+      <button class="text-[11px] font-bold text-white bg-purple-600 hover:bg-purple-700 px-4 py-1.5 rounded-lg flex items-center gap-1.5">Siguiente <i data-lucide="arrow-right" class="w-3 h-3"></i></button>
+    </div>
+  </div>
+
+  <!-- PASO 2 · Revisión balance · drill por eventos -->
+  <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+    <div class="bg-purple-50 border-b border-purple-200 px-5 py-2 flex items-center justify-between">
+      <span class="text-[10px] uppercase tracking-wider font-bold text-purple-700">PASO 2 · Revisión detallada de eventos del periodo</span>
+      <span class="text-[10px] text-purple-600">Drill por carrera · validar contra reporte GK Xpress · marcar discrepancias</span>
+    </div>
+    <div class="bg-slate-50 border-b border-slate-200 px-5 py-3 flex items-center justify-center gap-4">
+      <div class="flex items-center gap-2">
+        <span class="w-7 h-7 rounded-full bg-emerald-100 text-emerald-700 text-[11px] font-bold flex items-center justify-center"><i data-lucide="check" class="w-3 h-3"></i></span>
+        <span class="text-[11px] text-emerald-700">Caja + periodo</span>
+      </div>
+      <div class="h-px w-12 bg-emerald-300"></div>
+      <div class="flex items-center gap-2">
+        <span class="w-7 h-7 rounded-full bg-purple-600 text-white text-[11px] font-bold flex items-center justify-center">2</span>
+        <span class="text-[11px] font-bold text-purple-900">Revisión balance</span>
+      </div>
+      <div class="h-px w-12 bg-slate-300"></div>
+      <div class="flex items-center gap-2 opacity-50">
+        <span class="w-7 h-7 rounded-full bg-slate-200 text-slate-600 text-[11px] font-bold flex items-center justify-center">3</span>
+        <span class="text-[11px] text-slate-600">Confirmar</span>
+      </div>
+    </div>
+    <div class="p-5 space-y-4">
+      <!-- Tabs cobros / servicios -->
+      <div class="flex gap-2 border-b border-slate-200">
+        <button class="px-4 py-2 text-[11px] font-bold border-b-2 border-emerald-600 text-emerald-700">Cobros · 37 eventos · S/ 18,420</button>
+        <button class="px-4 py-2 text-[11px] font-medium border-b-2 border-transparent text-slate-600 hover:text-slate-900">Servicios · 128 carreras · S/ 3,200</button>
+        <button class="px-4 py-2 text-[11px] font-medium border-b-2 border-transparent text-slate-600 hover:text-slate-900">Liquidaciones previas · 5</button>
+      </div>
+      <!-- Filtro por canal (multi-canal) -->
+      <div class="flex items-center gap-2 flex-wrap mb-2 text-[10px]">
+        <span class="font-bold text-slate-700">Filtrar por canal:</span>
+        <button class="px-2 py-1 bg-slate-700 text-white rounded font-bold">Todos (37)</button>
+        <button class="px-2 py-1 bg-purple-100 text-purple-700 border border-purple-200 rounded font-bold">Yape (15)</button>
+        <button class="px-2 py-1 bg-cyan-100 text-cyan-700 border border-cyan-200 rounded font-bold">Plin (10)</button>
+        <button class="px-2 py-1 bg-amber-100 text-amber-700 border border-amber-200 rounded font-bold">POS (8)</button>
+        <button class="px-2 py-1 bg-emerald-100 text-emerald-700 border border-emerald-200 rounded font-bold">Efectivo (4)</button>
+      </div>
+      <!-- Tabla cobros · NUEVA columna Canal cobro -->
+      <div class="border border-slate-200 rounded-xl overflow-hidden max-h-72 overflow-y-auto">
+        <table class="w-full text-[11px]">
+          <thead class="bg-slate-50 text-slate-600 uppercase tracking-wider text-[9px] sticky top-0">
+            <tr>
+              <th class="text-left py-2 px-3">Fecha</th>
+              <th class="text-left py-2 px-3">Cliente / Envío</th>
+              <th class="text-left py-2 px-3">Doc relacionado</th>
+              <th class="text-center py-2 px-3">Canal</th>
+              <th class="text-right py-2 px-3">Monto cobrado</th>
+              <th class="text-center py-2 px-3">Estado</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 tabular">
+            <tr><td class="py-1.5 px-3">14-may</td><td class="py-1.5 px-3 text-slate-700">Cliente Premium SA</td><td class="py-1.5 px-3 text-teal-700"><a class="hover:underline">ENV-2026-128 ↗</a></td><td class="py-1.5 px-3 text-center"><span class="text-[9px] bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded font-bold">YAPE</span></td><td class="py-1.5 px-3 text-right font-bold">S/ 480</td><td class="py-1.5 px-3 text-center"><span class="bg-emerald-100 text-emerald-700 px-1.5 rounded text-[9px] font-bold">OK</span></td></tr>
+            <tr><td class="py-1.5 px-3">14-may</td><td class="py-1.5 px-3 text-slate-700">Distrib. Lima Norte</td><td class="py-1.5 px-3 text-teal-700"><a class="hover:underline">ENV-2026-127 ↗</a></td><td class="py-1.5 px-3 text-center"><span class="text-[9px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded font-bold">POS</span></td><td class="py-1.5 px-3 text-right font-bold">S/ 820</td><td class="py-1.5 px-3 text-center"><span class="bg-emerald-100 text-emerald-700 px-1.5 rounded text-[9px] font-bold">OK</span></td></tr>
+            <tr><td class="py-1.5 px-3">13-may</td><td class="py-1.5 px-3 text-slate-700">Cliente Premium SA</td><td class="py-1.5 px-3 text-teal-700"><a class="hover:underline">ENV-2026-125 ↗</a></td><td class="py-1.5 px-3 text-center"><span class="text-[9px] bg-cyan-100 text-cyan-700 px-1.5 py-0.5 rounded font-bold">PLIN</span></td><td class="py-1.5 px-3 text-right font-bold">S/ 240</td><td class="py-1.5 px-3 text-center"><span class="bg-emerald-100 text-emerald-700 px-1.5 rounded text-[9px] font-bold">OK</span></td></tr>
+            <tr class="bg-amber-50"><td class="py-1.5 px-3">12-may</td><td class="py-1.5 px-3 text-slate-700">Sin identificar</td><td class="py-1.5 px-3 text-slate-400 italic">—</td><td class="py-1.5 px-3 text-center"><span class="text-[9px] bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded font-bold">CASH</span></td><td class="py-1.5 px-3 text-right font-bold">S/ 180</td><td class="py-1.5 px-3 text-center"><span class="bg-amber-100 text-amber-700 px-1.5 rounded text-[9px] font-bold">Revisar</span></td></tr>
+            <tr><td class="py-1.5 px-3">11-may</td><td class="py-1.5 px-3 text-slate-700">Cliente Premium SA</td><td class="py-1.5 px-3 text-teal-700"><a class="hover:underline">ENV-2026-122 ↗</a></td><td class="py-1.5 px-3 text-center"><span class="text-[9px] bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded font-bold">YAPE</span></td><td class="py-1.5 px-3 text-right font-bold">S/ 360</td><td class="py-1.5 px-3 text-center"><span class="bg-emerald-100 text-emerald-700 px-1.5 rounded text-[9px] font-bold">OK</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <!-- Resumen agrupado por canal -->
+      <div class="grid grid-cols-4 gap-2 mt-3">
+        <div class="bg-purple-50 ring-1 ring-purple-200 rounded-lg p-2 text-center"><div class="text-[8px] uppercase font-bold text-purple-700">Yape</div><div class="text-[13px] font-bold tabular text-purple-900">S/ 8,280</div><div class="text-[9px] text-purple-700">15 cobros</div></div>
+        <div class="bg-cyan-50 ring-1 ring-cyan-200 rounded-lg p-2 text-center"><div class="text-[8px] uppercase font-bold text-cyan-700">Plin</div><div class="text-[13px] font-bold tabular text-cyan-900">S/ 4,420</div><div class="text-[9px] text-cyan-700">10 cobros</div></div>
+        <div class="bg-amber-50 ring-1 ring-amber-200 rounded-lg p-2 text-center"><div class="text-[8px] uppercase font-bold text-amber-700">POS</div><div class="text-[13px] font-bold tabular text-amber-900">S/ 3,500</div><div class="text-[9px] text-amber-700">8 cobros</div></div>
+        <div class="bg-emerald-50 ring-1 ring-emerald-200 rounded-lg p-2 text-center"><div class="text-[8px] uppercase font-bold text-emerald-700">Efectivo</div><div class="text-[13px] font-bold tabular text-emerald-900">S/ 2,220</div><div class="text-[9px] text-emerald-700">4 cobros</div></div>
+      </div>
+      <!-- Banner discrepancia -->
+      <div class="bg-amber-50 ring-1 ring-amber-200/50 rounded-lg p-3 flex items-start gap-2">
+        <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-700 mt-0.5 flex-shrink-0"></i>
+        <div class="flex-1">
+          <div class="text-[11px] font-bold text-amber-900">1 cobro sin identificar · S/ 180</div>
+          <div class="text-[10px] text-amber-700">Carlos M. (GK) cobró pero no asignó al envío. Validar antes de confirmar liquidación o marcar como "no operativo".</div>
+        </div>
+        <button class="text-[10px] font-semibold text-amber-800 bg-white border border-amber-300 px-2 py-1 rounded-lg flex-shrink-0">Asignar</button>
+      </div>
+    </div>
+    <div class="bg-slate-50 border-t border-slate-200 px-5 py-3 flex items-center justify-between">
+      <button class="text-[11px] font-semibold text-slate-600 hover:bg-slate-100 px-3 py-1.5 rounded-lg flex items-center gap-1"><i data-lucide="arrow-left" class="w-3 h-3"></i> Atrás</button>
+      <div class="flex items-center gap-2">
+        <button class="text-[11px] font-semibold text-slate-600 hover:bg-slate-100 px-3 py-1.5 rounded-lg">Descartar</button>
+        <button class="text-[11px] font-semibold bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100 px-3 py-1.5 rounded-lg">Guardar borrador</button>
+        <button class="text-[11px] font-bold text-white bg-purple-600 hover:bg-purple-700 px-4 py-1.5 rounded-lg flex items-center gap-1.5">Siguiente <i data-lucide="arrow-right" class="w-3 h-3"></i></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PASO 3 · Confirmar liquidación -->
+  <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+    <div class="bg-purple-50 border-b border-purple-200 px-5 py-2 flex items-center justify-between">
+      <span class="text-[10px] uppercase tracking-wider font-bold text-purple-700">PASO 3 · Confirmación · genera 4 documentos atómicos</span>
+      <span class="text-[10px] text-purple-600">Movimiento tesorería + asiento contable + CC proveedor + eventos liquidados</span>
+    </div>
+    <div class="bg-slate-50 border-b border-slate-200 px-5 py-3 flex items-center justify-center gap-4">
+      <div class="flex items-center gap-2"><span class="w-7 h-7 rounded-full bg-emerald-100 text-emerald-700 text-[11px] font-bold flex items-center justify-center"><i data-lucide="check" class="w-3 h-3"></i></span><span class="text-[11px] text-emerald-700">Caja + periodo</span></div>
+      <div class="h-px w-12 bg-emerald-300"></div>
+      <div class="flex items-center gap-2"><span class="w-7 h-7 rounded-full bg-emerald-100 text-emerald-700 text-[11px] font-bold flex items-center justify-center"><i data-lucide="check" class="w-3 h-3"></i></span><span class="text-[11px] text-emerald-700">Revisión</span></div>
+      <div class="h-px w-12 bg-emerald-300"></div>
+      <div class="flex items-center gap-2"><span class="w-7 h-7 rounded-full bg-purple-600 text-white text-[11px] font-bold flex items-center justify-center">3</span><span class="text-[11px] font-bold text-purple-900">Confirmar</span></div>
+    </div>
+    <div class="p-5 grid grid-cols-2 gap-5">
+      <!-- Resumen ejecutivo -->
+      <div>
+        <h3 class="text-[12px] font-bold text-slate-900 mb-3">Resumen ejecutivo</h3>
+        <div class="bg-slate-900 text-white rounded-xl p-4 mb-3">
+          <div class="text-[10px] uppercase tracking-wider text-slate-400">Vas a liquidar</div>
+          <div class="text-3xl font-bold tabular my-1">S/ 2,840.00</div>
+          <div class="text-[10px] text-purple-300">desde Yape · GK Xpress → BCP Soles Operativa</div>
+        </div>
+        <div class="space-y-1.5 text-[11px]">
+          <div class="flex items-center justify-between p-2 bg-slate-50 rounded"><span class="text-slate-600">Caja origen</span><span class="font-bold">Yape · GK Xpress</span></div>
+          <div class="flex items-center justify-between p-2 bg-slate-50 rounded"><span class="text-slate-600">Cuenta destino</span><span class="font-bold">BCP Soles Operativa</span></div>
+          <div class="flex items-center justify-between p-2 bg-slate-50 rounded"><span class="text-slate-600">Periodo</span><span class="font-bold">01-15 may 2026</span></div>
+          <div class="flex items-center justify-between p-2 bg-slate-50 rounded"><span class="text-slate-600">Eventos cobro liquidados</span><span class="font-bold">37</span></div>
+          <div class="flex items-center justify-between p-2 bg-slate-50 rounded"><span class="text-slate-600">Servicios reconocidos</span><span class="font-bold">128 carreras · S/ 3,200</span></div>
+        </div>
+      </div>
+      <!-- Documentos generados -->
+      <div>
+        <h3 class="text-[12px] font-bold text-slate-900 mb-3">Documentos atómicos generados</h3>
+        <div class="space-y-2 text-[11px]">
+          <div class="bg-gradient-to-br from-teal-50 to-teal-100/40 ring-1 ring-teal-200/50 rounded-lg p-2.5">
+            <div class="text-[10px] uppercase font-bold text-teal-700 flex items-center gap-1"><i data-lucide="arrow-left-right" class="w-3 h-3"></i> 1 · Movimiento tesorería</div>
+            <div class="text-[11px] text-teal-900 mt-1">Egreso S/ 2,840 desde Yape GK → ingreso a BCP Soles</div>
+          </div>
+          <div class="bg-gradient-to-br from-indigo-50 to-indigo-100/40 ring-1 ring-indigo-200/50 rounded-lg p-2.5">
+            <div class="text-[10px] uppercase font-bold text-indigo-700 flex items-center gap-1"><i data-lucide="file-text" class="w-3 h-3"></i> 2 · Asiento contable</div>
+            <div class="text-[11px] text-indigo-900 mt-1">DR 1041.BCP S/ 2,840 · CR 1043.YapeGK S/ 2,840</div>
+          </div>
+          <div class="bg-gradient-to-br from-rose-50 to-rose-100/40 ring-1 ring-rose-200/50 rounded-lg p-2.5">
+            <div class="text-[10px] uppercase font-bold text-rose-700 flex items-center gap-1"><i data-lucide="receipt" class="w-3 h-3"></i> 3 · CC proveedor GK Xpress</div>
+            <div class="text-[11px] text-rose-900 mt-1">Reconoce S/ 3,200 a pagar por servicios · saldo CC actualizado</div>
+          </div>
+          <div class="bg-gradient-to-br from-purple-50 to-purple-100/40 ring-1 ring-purple-200/50 rounded-lg p-2.5">
+            <div class="text-[10px] uppercase font-bold text-purple-700 flex items-center gap-1"><i data-lucide="check-check" class="w-3 h-3"></i> 4 · Eventos marcados liquidados</div>
+            <div class="text-[11px] text-purple-900 mt-1">37 cobros + 128 servicios → estado "liquidado periodo 2026-05"</div>
+          </div>
+        </div>
+        <div>
+          <label class="text-[10px] uppercase tracking-wider font-bold text-slate-700 mt-3 mb-1 block">Notas opcionales</label>
+          <textarea rows="2" placeholder="Referencia · justificación" class="w-full text-[11px] border border-slate-300 rounded-lg px-2 py-1.5"></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="bg-slate-50 border-t border-slate-200 px-5 py-3 flex items-center justify-between">
+      <button class="text-[11px] font-semibold text-slate-600 hover:bg-slate-100 px-3 py-1.5 rounded-lg flex items-center gap-1"><i data-lucide="arrow-left" class="w-3 h-3"></i> Atrás</button>
+      <div class="flex items-center gap-2">
+        <button class="text-[11px] font-semibold text-slate-600 hover:bg-slate-100 px-3 py-1.5 rounded-lg">Descartar</button>
+        <button class="text-[11px] font-semibold bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100 px-3 py-1.5 rounded-lg">Guardar borrador</button>
+        <button class="text-[11px] font-bold text-white bg-purple-600 hover:bg-purple-700 px-4 py-1.5 rounded-lg flex items-center gap-1.5 shadow-sm">
+          <i data-lucide="check" class="w-3 h-3"></i> Confirmar liquidación S/ 2,840
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- §5 · PAGOUNIFICADOFORM V3 · COMPONENTE SHARED REFACTORIZADO -->
+<section class="space-y-4">
+  <div class="flex items-center gap-2">
+    <span class="text-[10px] uppercase tracking-wider font-bold text-teal-700">§ 5 · PagoUnificadoForm v3 · componente shared embebido</span>
+    <div class="flex-1 h-px bg-teal-200"></div>
+  </div>
+  <p class="text-[12px] text-slate-500 max-w-2xl">Componente shared reutilizable en OC · Venta · Envío · Gasto. 4 modos · split nativo · selector origen-destino contextual. <strong>Refactorizado con F-Borradores</strong> (era fricción detectada en audit S58f). Cobertura cross-módulo se ve en MOCK 5.</p>
+
+  <div class="bg-white border border-slate-200 rounded-2xl shadow-sm max-w-2xl mx-auto overflow-hidden">
+    <div class="bg-gradient-to-br from-teal-50 to-teal-100/40 border-b border-teal-200 px-5 py-3">
+      <div class="flex items-center justify-between mb-2">
+        <div class="flex items-center gap-2">
+          <i data-lucide="banknote" class="w-4 h-4 text-teal-700"></i>
+          <span class="text-[13px] font-bold text-slate-900">PagoUnificadoForm v3</span>
+        </div>
+        <button class="text-[10px] text-slate-500 hover:text-slate-700"><i data-lucide="x" class="w-4 h-4"></i></button>
+      </div>
+      <!-- 4 modos -->
+      <div class="flex gap-1.5">
+        <button class="text-[10px] font-bold bg-emerald-600 text-white px-2.5 py-1 rounded">Cobro</button>
+        <button class="text-[10px] font-medium text-slate-600 bg-white border border-slate-200 px-2.5 py-1 rounded hover:bg-slate-50">Pago simple</button>
+        <button class="text-[10px] font-medium text-slate-600 bg-white border border-slate-200 px-2.5 py-1 rounded hover:bg-slate-50">Pago proveedor</button>
+        <button class="text-[10px] font-medium text-slate-600 bg-white border border-slate-200 px-2.5 py-1 rounded hover:bg-slate-50">Pago colaborador</button>
+      </div>
+    </div>
+    <div class="p-5 space-y-4 text-[11px]">
+      <!-- Tercero -->
+      <div>
+        <label class="text-[10px] uppercase tracking-wider font-bold text-slate-700 mb-1 block">Tercero (cliente)</label>
+        <input type="text" value="Cliente Premium SA" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm" />
+      </div>
+      <!-- Origen + destino -->
+      <div class="grid grid-cols-2 gap-2">
+        <div>
+          <label class="text-[10px] uppercase tracking-wider font-bold text-slate-700 mb-1 block">Origen (de dónde viene)</label>
+          <select class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm bg-emerald-50">
+            <option>Cliente Premium SA · vía Yape +51 999-888-777</option>
+          </select>
+        </div>
+        <div>
+          <label class="text-[10px] uppercase tracking-wider font-bold text-slate-700 mb-1 block">Destino (a dónde llega)</label>
+          <select class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm bg-teal-50">
+            <option>BCP Soles Operativa · S/ 42,180</option>
+          </select>
+        </div>
+      </div>
+      <!-- Monto + método -->
+      <div class="grid grid-cols-2 gap-2">
+        <div>
+          <label class="text-[10px] uppercase tracking-wider font-bold text-slate-700 mb-1 block">Monto</label>
+          <div class="relative">
+            <span class="absolute left-3 top-2 text-slate-500 text-sm">S/</span>
+            <input type="text" value="2,500" class="w-full border border-slate-300 rounded-lg pl-9 pr-3 py-2 text-sm tabular text-right font-bold" />
+          </div>
+        </div>
+        <div>
+          <label class="text-[10px] uppercase tracking-wider font-bold text-slate-700 mb-1 block">Método</label>
+          <select class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm">
+            <option>Yape</option><option>Transferencia</option><option>Efectivo</option>
+          </select>
+        </div>
+      </div>
+      <!-- Split nativo -->
+      <div class="bg-slate-50 rounded-xl p-3">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-[10px] uppercase tracking-wider font-bold text-slate-700 flex items-center gap-1"><i data-lucide="split" class="w-3 h-3"></i> Split a documentos</span>
+          <button class="text-[10px] text-teal-700 hover:underline">+ Agregar línea</button>
+        </div>
+        <div class="space-y-1.5">
+          <div class="bg-white border border-slate-200 rounded-lg p-2 grid grid-cols-3 gap-2 items-center">
+            <div class="text-[10px] font-bold text-slate-700">F-015 · 18-abr</div>
+            <div class="text-[10px] text-slate-500">Saldo S/ 4,800</div>
+            <div class="text-right font-bold tabular text-teal-900">S/ 2,500</div>
+          </div>
+        </div>
+        <div class="text-[10px] text-slate-500 mt-2">Aplicado: <strong class="text-teal-700 tabular">S/ 2,500 / S/ 2,500</strong> ✓</div>
+      </div>
+      <!-- Adjuntos -->
+      <div>
+        <label class="text-[10px] uppercase tracking-wider font-bold text-slate-700 mb-1 block">Adjuntos (opcional)</label>
+        <button class="w-full border-2 border-dashed border-slate-300 rounded-lg p-2.5 text-[10px] text-slate-500 hover:border-teal-300 hover:bg-teal-50/30 flex items-center justify-center gap-1.5">
+          <i data-lucide="paperclip" class="w-3.5 h-3.5"></i> Adjuntar voucher · captura · PDF
+        </button>
+      </div>
+    </div>
+    <!-- Footer N10 + F-Borradores REFACTORIZADO -->
+    <div class="bg-slate-50 border-t border-slate-200 px-5 py-3 flex items-center justify-between">
+      <button class="text-[10px] font-semibold text-slate-600 hover:bg-slate-100 px-2.5 py-1 rounded">Cancelar</button>
+      <div class="flex items-center gap-2">
+        <!-- NUEVO · F-Borradores agregado tras audit S58f -->
+        <button class="text-[10px] font-semibold bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100 px-2.5 py-1 rounded-lg flex items-center gap-1">
+          <i data-lucide="save" class="w-3 h-3"></i> Borrador
+        </button>
+        <button class="text-[10px] font-bold text-white bg-teal-600 hover:bg-teal-700 px-3 py-1 rounded-lg flex items-center gap-1">
+          <i data-lucide="check" class="w-3 h-3"></i> Registrar cobro
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-emerald-50 ring-1 ring-emerald-200 rounded-xl p-3 max-w-2xl mx-auto text-[11px] text-emerald-900 flex items-start gap-2">
+    <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-700 mt-0.5 flex-shrink-0"></i>
+    <div>
+      <strong>Fricción audit S58f CERRADA:</strong> PagoUnificadoForm v3 ahora incluye Guardar borrador (amber tier) + Descartar (slate tier neutral) + Confirmar (teal primary). Cumple canon F-Borradores cuando se invoca embebido en OC/Venta/Envío/Gasto.
+    </div>
+  </div>
+</section>
+
+<!-- §6 · F-BORRADORES BANNER -->
+<section class="space-y-4">
+  <div class="flex items-center gap-2">
+    <span class="text-[10px] uppercase tracking-wider font-bold text-amber-700">§ 6 · F-Borradores · banner persistente en página del módulo</span>
+    <div class="flex-1 h-px bg-amber-200"></div>
+  </div>
+  <p class="text-[12px] text-slate-500 max-w-2xl">Cuando hay borrador pendiente de un wizard, banner amber aparece en la página del módulo (NO dentro del wizard) para máxima visibilidad. Patrón canon ya existente · solo agregar tipos nuevos a <code class="bg-slate-200 px-1 rounded text-[10px]">TipoBorradorWizard</code>.</p>
+
+  <div class="bg-gradient-to-r from-amber-50 to-amber-100/40 ring-1 ring-amber-300 rounded-xl p-3 max-w-3xl mx-auto flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center flex-shrink-0">
+      <i data-lucide="file-text" class="w-5 h-5"></i>
+    </div>
+    <div class="flex-1 min-w-0">
+      <div class="text-[13px] font-bold text-amber-900">Tienes una liquidación de Caja Recaudadora en borrador</div>
+      <div class="text-[11px] text-amber-700 mt-0.5">GK Xpress · periodo mayo 2026 · S/ 2,840 · paso 2 de 3 · guardado hace 12 min</div>
+    </div>
+    <div class="flex items-center gap-2 flex-shrink-0">
+      <button class="text-[11px] font-semibold text-rose-700 hover:bg-rose-50 px-3 py-1.5 rounded-lg flex items-center gap-1.5">
+        <i data-lucide="trash-2" class="w-3 h-3"></i> Descartar
+      </button>
+      <button class="text-[11px] font-bold text-white bg-amber-600 hover:bg-amber-700 px-4 py-1.5 rounded-lg flex items-center gap-1.5">
+        Continuar <i data-lucide="arrow-right" class="w-3 h-3"></i>
+      </button>
+    </div>
+  </div>
+
+  <div class="bg-white border border-slate-200 rounded-xl p-4 max-w-3xl mx-auto text-[11px]">
+    <div class="font-bold text-slate-900 mb-2 flex items-center gap-2"><i data-lucide="list-checks" class="w-3.5 h-3.5 text-teal-700"></i> Tipos nuevos a agregar a TipoBorradorWizard</div>
+    <div class="grid grid-cols-2 gap-1.5 font-mono text-[10px]">
+      <div class="bg-slate-50 rounded px-2 py-1 text-slate-700">'pagoAbono' · ya existe</div>
+      <div class="bg-slate-50 rounded px-2 py-1 text-slate-700">'pagarEstadoTC' · ya existe</div>
+      <div class="bg-emerald-50 rounded px-2 py-1 text-emerald-700">'pagosMasivos' · ✓ existe</div>
+      <div class="bg-rose-50 rounded px-2 py-1 text-rose-700">'nuevaCuenta' · NUEVO</div>
+      <div class="bg-rose-50 rounded px-2 py-1 text-rose-700">'liquidarRecaudadora' · NUEVO · DEUDA-S1f</div>
+      <div class="bg-rose-50 rounded px-2 py-1 text-rose-700">'pagoUnificado' · NUEVO embebido</div>
+    </div>
+  </div>
+</section>
+
+<!-- §7 · MOBILE + CANON -->
+<section class="space-y-4">
+  <div class="flex items-center gap-2">
+    <span class="text-[10px] uppercase tracking-wider font-bold text-slate-500">§ 7 · Mobile + Canon aplicado</span>
+    <div class="flex-1 h-px bg-slate-200"></div>
+  </div>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div class="bg-white border border-slate-200 rounded-2xl p-5">
+      <h3 class="text-[12px] font-bold text-slate-900 mb-3 flex items-center gap-2"><i data-lucide="smartphone" class="w-3.5 h-3.5"></i> Comportamiento mobile</h3>
+      <ul class="text-[11px] text-slate-700 space-y-1.5 list-disc pl-5">
+        <li>Modales simples (A.1-A.4) → full-screen mobile</li>
+        <li>Sidebar pasos (B.1, B.3) → tabs horizontales scroll (N6)</li>
+        <li>Stepper horizontal (B.2, B.4) → vertical apilado mobile</li>
+        <li>Footer botones inline → apilado vertical (Primary top · Borrador medio · Cancelar discreto)</li>
+        <li>Tablas wide (PagoAbono, Pagos masivos) → vista alternativa cards apiladas</li>
+        <li>PagoUnificadoForm embebido → mismo full-screen pattern</li>
+      </ul>
+    </div>
+    <div class="bg-white border border-slate-200 rounded-2xl p-5">
+      <h3 class="text-[12px] font-bold text-slate-900 mb-3 flex items-center gap-2"><i data-lucide="shield-check" class="w-3.5 h-3.5"></i> Canon aplicado en TODOS los wizards</h3>
+      <div class="grid grid-cols-2 gap-1.5 text-[10px]">
+        <div class="flex items-start gap-1"><span class="text-teal-700 font-bold uppercase">N4</span><span class="text-slate-700">Tinte por wizard cross-módulo</span></div>
+        <div class="flex items-start gap-1"><span class="text-teal-700 font-bold uppercase">N10</span><span class="text-slate-700">3-tier Cancelar/Borrador/Confirmar</span></div>
+        <div class="flex items-start gap-1"><span class="text-teal-700 font-bold uppercase">F5</span><span class="text-slate-700">1=modal · 3=stepper · 4+=sidebar</span></div>
+        <div class="flex items-start gap-1"><span class="text-teal-700 font-bold uppercase">F-Borradores</span><span class="text-slate-700">Obligatorio en 4 multi-step</span></div>
+        <div class="flex items-start gap-1"><span class="text-teal-700 font-bold uppercase">F7</span><span class="text-slate-700">Tabular-nums en TODOS los montos</span></div>
+        <div class="flex items-start gap-1"><span class="text-teal-700 font-bold uppercase">F8</span><span class="text-slate-700">Lucide icons únicos · cero emojis</span></div>
+        <div class="flex items-start gap-1"><span class="text-teal-700 font-bold uppercase">v9.0 M1</span><span class="text-slate-700">classNames copy-paste literal</span></div>
+        <div class="flex items-start gap-1"><span class="text-teal-700 font-bold uppercase">D6</span><span class="text-slate-700">Pool USD TCPA visible en wizards</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="bg-slate-900 text-slate-300 mt-12 py-6">
+  <div class="max-w-[1400px] mx-auto px-6 text-[11px] flex items-center justify-between">
+    <div>MOCK 3 · finanzas-wizards-completos-v5.1 · 8 wizards + PagoUnificadoForm v3</div>
+    <div>chk5.D-S1e · canon v8.0+v9.0 + F-Borradores</div>
+  </div>
+</footer>
+
+<script>lucide.createIcons();</script>
+</body>
+</html>

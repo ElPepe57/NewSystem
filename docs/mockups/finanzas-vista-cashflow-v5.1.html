@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Finanzas · Vista Cash flow proyectado · v5.1 canon v8.0+v9.0</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, sans-serif; }
+    .tabular { font-variant-numeric: tabular-nums; font-feature-settings: "tnum"; }
+    .scrollbar-hide::-webkit-scrollbar { display: none; }
+    .scrollbar-hide { scrollbar-width: none; }
+    @keyframes shimmer { 0%{background-position:-200% 0} 100%{background-position:200% 0} }
+    .shimmer { background: linear-gradient(90deg, #f1f5f9 0%, #e2e8f0 50%, #f1f5f9 100%); background-size: 200% 100%; animation: shimmer 1.5s infinite; }
+  </style>
+</head>
+<body class="bg-slate-100 text-slate-900">
+
+<header class="bg-slate-900 text-white sticky top-0 z-50 shadow-lg">
+  <div class="max-w-[1400px] mx-auto px-6 py-3 flex items-center justify-between">
+    <div>
+      <div class="text-[10px] uppercase tracking-wider text-teal-300">chk5.D-S1e · v5.1 cobertura completa · TURNO 3 (cierre)</div>
+      <div class="text-base font-bold">MOCK 9 · Vista Cash flow proyectado · 30/60/90d + escenarios</div>
+    </div>
+    <nav class="hidden md:flex items-center gap-1 text-[11px]">
+      <a href="finanzas-shell-overview-v5.1.html" class="px-2 py-1 hover:bg-slate-700 rounded text-slate-300">1</a>
+      <a href="finanzas-cuentas-completo-v5.1.html" class="px-2 py-1 hover:bg-slate-700 rounded text-slate-300">2</a>
+      <a href="finanzas-wizards-completos-v5.1.html" class="px-2 py-1 hover:bg-slate-700 rounded text-slate-300">3</a>
+      <a href="finanzas-analisis-estrategico-v5.1.html" class="px-2 py-1 hover:bg-slate-700 rounded text-slate-300">4</a>
+      <a href="finanzas-integraciones-crossmodulo-v5.1.html" class="px-2 py-1 hover:bg-slate-700 rounded text-slate-300">5</a>
+      <a href="finanzas-vista-saldos-v5.1.html" class="px-2 py-1 hover:bg-slate-700 rounded text-slate-300">6</a>
+      <a href="finanzas-vista-movimientos-v5.1.html" class="px-2 py-1 hover:bg-slate-700 rounded text-slate-300">7</a>
+      <a href="finanzas-vista-cc-entidades-v5.1.html" class="px-2 py-1 hover:bg-slate-700 rounded text-slate-300">8</a>
+      <span class="px-2 py-1 bg-teal-600 rounded text-white font-semibold">9</span>
+    </nav>
+  </div>
+</header>
+
+<main class="max-w-[1400px] mx-auto px-6 py-8 space-y-12">
+
+<!-- §1 · VISTA CASH FLOW COMPLETA -->
+<section class="space-y-4">
+  <div class="flex items-center gap-2">
+    <span class="text-[10px] uppercase tracking-wider font-bold text-amber-700">§ 1 · Vista Cash flow proyectado · estado con data</span>
+    <div class="flex-1 h-px bg-amber-200"></div>
+  </div>
+
+  <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+    <div class="border-b border-slate-200 px-6 py-2.5 flex items-center bg-slate-50 text-[12px]">
+      <a class="text-slate-500 hover:text-teal-700">Inicio</a><i data-lucide="chevron-right" class="w-3 h-3 text-slate-300 mx-1.5"></i><a class="text-slate-500 hover:text-teal-700">Finanzas</a><i data-lucide="chevron-right" class="w-3 h-3 text-slate-300 mx-1.5"></i><span class="text-slate-900 font-semibold">Cash flow proyectado</span>
+    </div>
+    <div class="px-6 py-5 border-b flex items-start justify-between">
+      <div class="flex items-start gap-3 flex-1 min-w-[260px]">
+        <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center text-white ring-2 ring-amber-100"><i data-lucide="calendar-range" class="w-5 h-5"></i></div>
+        <div>
+          <h1 class="text-2xl font-bold tracking-tight">Cash flow proyectado</h1>
+          <p class="text-[13px] text-slate-500">Proyección 30/60/90 días · escenarios optimista/base/pesimista · drivers identificados · alertas tempranas</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <button class="text-[11px] font-semibold text-slate-600 hover:bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-lg flex items-center gap-1.5"><i data-lucide="download" class="w-3 h-3"></i> Exportar proyección</button>
+        <button class="text-[11px] font-semibold text-indigo-700 bg-indigo-50 border border-indigo-200 px-3 py-1.5 rounded-lg flex items-center gap-1.5"><i data-lucide="settings-2" class="w-3 h-3"></i> Configurar drivers</button>
+        <button class="text-[11px] font-bold text-white bg-teal-600 hover:bg-teal-700 px-3 py-1.5 rounded-lg flex items-center gap-1.5"><i data-lucide="play" class="w-3 h-3"></i> Simular escenario</button>
+      </div>
+    </div>
+    <!-- KPI strip específico Cash flow -->
+    <div class="px-6 py-4 border-b grid grid-cols-2 md:grid-cols-5 gap-3">
+      <div class="bg-gradient-to-br from-teal-50 to-teal-100/40 ring-1 ring-teal-200/50 rounded-2xl p-4">
+        <div class="flex items-center justify-between mb-2"><span class="text-[10px] uppercase font-bold text-teal-700">Posición HOY</span><i data-lucide="landmark" class="w-3.5 h-3.5 text-teal-700"></i></div>
+        <div class="text-2xl font-bold tabular text-teal-900">S/ 86,420</div>
+        <div class="text-[11px] text-teal-700 mt-1">caja consolidada</div>
+      </div>
+      <div class="bg-gradient-to-br from-emerald-50 to-emerald-100/40 ring-1 ring-emerald-200/50 rounded-2xl p-4">
+        <div class="flex items-center justify-between mb-2"><span class="text-[10px] uppercase font-bold text-emerald-700">Proyectado +30d</span><i data-lucide="trending-up" class="w-3.5 h-3.5 text-emerald-700"></i></div>
+        <div class="text-2xl font-bold tabular text-emerald-900">+S/ 14,820</div>
+        <div class="text-[11px] text-emerald-700 mt-1">Cierre 14-jun: S/ 101K</div>
+      </div>
+      <div class="bg-gradient-to-br from-amber-50 to-amber-100/40 ring-1 ring-amber-200/50 rounded-2xl p-4">
+        <div class="flex items-center justify-between mb-2"><span class="text-[10px] uppercase font-bold text-amber-700">Proyectado +60d</span><i data-lucide="trending-up" class="w-3.5 h-3.5 text-amber-700"></i></div>
+        <div class="text-2xl font-bold tabular text-amber-900">+S/ 22,400</div>
+        <div class="text-[11px] text-amber-700 mt-1">Cierre 14-jul: S/ 108K</div>
+      </div>
+      <div class="bg-gradient-to-br from-rose-50 to-rose-100/40 ring-1 ring-rose-200/50 rounded-2xl p-4">
+        <div class="flex items-center justify-between mb-2"><span class="text-[10px] uppercase font-bold text-rose-700">Burn rate</span><i data-lucide="flame" class="w-3.5 h-3.5 text-rose-700"></i></div>
+        <div class="text-2xl font-bold tabular text-rose-900">S/ 12,800/m</div>
+        <div class="text-[11px] text-rose-700 mt-1">Runway: 6.8 meses</div>
+      </div>
+      <div class="bg-gradient-to-br from-indigo-50 to-indigo-100/40 ring-1 ring-indigo-200/50 rounded-2xl p-4">
+        <div class="flex items-center justify-between mb-2"><span class="text-[10px] uppercase font-bold text-indigo-700">Día crítico próx</span><i data-lucide="alert-circle" class="w-3.5 h-3.5 text-indigo-700"></i></div>
+        <div class="text-2xl font-bold tabular text-indigo-900">28-may</div>
+        <div class="text-[11px] text-indigo-700 mt-1">Vence Amex + nómina</div>
+      </div>
+    </div>
+    <!-- Tabs -->
+    <div class="border-b px-6 overflow-x-auto scrollbar-hide">
+      <div class="flex items-center gap-1 -mb-px">
+        <button class="px-4 py-3 text-[12px] font-medium border-b-2 border-transparent text-slate-600">Overview</button>
+        <button class="px-4 py-3 text-[12px] font-medium border-b-2 border-transparent text-slate-600">Saldos</button>
+        <button class="px-4 py-3 text-[12px] font-medium border-b-2 border-transparent text-slate-600">Movimientos</button>
+        <button class="px-4 py-3 text-[12px] font-medium border-b-2 border-transparent text-slate-600">CC Entidades</button>
+        <button class="px-4 py-3 text-[12px] font-semibold border-b-2 border-teal-600 text-teal-700 flex items-center gap-1.5"><i data-lucide="calendar-range" class="w-3.5 h-3.5"></i> Cash flow</button>
+        <button class="px-4 py-3 text-[12px] font-medium border-b-2 border-transparent text-slate-600">Análisis</button>
+      </div>
+    </div>
+    <!-- Filtros + escenarios -->
+    <div class="border-b px-6 py-3 bg-slate-50/50 flex flex-wrap items-center gap-2">
+      <span class="text-[11px] font-bold text-slate-700">Horizonte:</span>
+      <div class="flex items-center gap-0.5 bg-white border border-slate-200 rounded-lg p-0.5">
+        <button class="px-3 py-1 text-[11px] font-medium text-slate-600 hover:bg-slate-50 rounded">30d</button>
+        <button class="px-3 py-1 text-[11px] font-bold bg-teal-600 text-white rounded">60d</button>
+        <button class="px-3 py-1 text-[11px] font-medium text-slate-600 hover:bg-slate-50 rounded">90d</button>
+        <button class="px-3 py-1 text-[11px] font-medium text-slate-600 hover:bg-slate-50 rounded">Personalizado</button>
+      </div>
+      <span class="text-slate-300 mx-2">·</span>
+      <span class="text-[11px] font-bold text-slate-700">Escenarios:</span>
+      <div class="flex items-center gap-1">
+        <label class="flex items-center gap-1 bg-emerald-50 ring-1 ring-emerald-200 px-2 py-1 rounded-lg cursor-pointer"><input type="checkbox" checked class="rounded text-emerald-600" /><span class="text-[10px] font-bold text-emerald-900">Optimista +15%</span></label>
+        <label class="flex items-center gap-1 bg-indigo-50 ring-2 ring-indigo-400 px-2 py-1 rounded-lg cursor-pointer"><input type="checkbox" checked class="rounded text-indigo-600" /><span class="text-[10px] font-bold text-indigo-900">Base</span></label>
+        <label class="flex items-center gap-1 bg-rose-50 ring-1 ring-rose-200 px-2 py-1 rounded-lg cursor-pointer"><input type="checkbox" checked class="rounded text-rose-600" /><span class="text-[10px] font-bold text-rose-900">Pesimista −20%</span></label>
+      </div>
+      <button class="ml-auto text-[11px] font-medium text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 px-3 py-1.5 rounded-lg flex items-center gap-1.5"><i data-lucide="filter" class="w-3 h-3"></i> Filtros avanzados <i data-lucide="chevron-down" class="w-3 h-3"></i></button>
+    </div>
+
+    <!-- BANNER ALERTA (si proyección negativa en algún punto) -->
+    <div class="px-6 py-3 border-b bg-amber-50/40">
+      <div class="bg-gradient-to-r from-amber-50 to-amber-100/40 ring-1 ring-amber-300 rounded-xl p-3 flex items-start gap-3">
+        <div class="w-9 h-9 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center flex-shrink-0"><i data-lucide="alert-triangle" class="w-5 h-5"></i></div>
+        <div class="flex-1">
+          <div class="text-[12px] font-bold text-amber-900">Punto de tensión detectado · 28-may</div>
+          <div class="text-[11px] text-amber-700">En 13 días convergen: vencimiento Amex (S/ 4,700) + nómina (S/ 8,400) + alquiler (S/ 2,800) = S/ 15,900 salida. La caja proyectada ese día baja a S/ 71,400 (zona segura) pero requiere planificar cobranza de Premium SA (S/ 12,400 vencido +60d) antes para holgura.</div>
+        </div>
+        <button class="text-[11px] font-bold text-white bg-amber-600 hover:bg-amber-700 px-3 py-1.5 rounded-lg flex-shrink-0">Plan de acción</button>
+      </div>
+    </div>
+
+    <!-- GRÁFICO PRINCIPAL · proyección con bandas -->
+    <div class="p-6 space-y-4">
+      <div class="flex items-center justify-between">
+        <h3 class="text-[13px] font-bold text-slate-900">Proyección de caja · 60 días</h3>
+        <div class="flex items-center gap-3 text-[10px]">
+          <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-teal-500"></span>Caja real (histórico)</span>
+          <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-indigo-500"></span>Proyección base</span>
+          <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-emerald-300"></span>Optimista</span>
+          <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-rose-300"></span>Pesimista</span>
+        </div>
+      </div>
+      <svg viewBox="0 0 800 280" class="w-full h-64 bg-slate-50 rounded-xl">
+        <!-- Banda confianza optimista/pesimista (degradado) -->
+        <polygon points="40,180 100,170 160,160 220,140 280,120 340,100 400,80 460,60 520,40 580,30 640,20 700,15 760,10
+                          760,210 700,180 640,150 580,130 520,120 460,110 400,100 340,95 280,100 220,110 160,130 100,160 40,180"
+                 fill="#10b98115"/>
+        <!-- Zona segura/crítica horizontal -->
+        <line x1="40" y1="220" x2="760" y2="220" stroke="#fbbf24" stroke-dasharray="4 4" opacity="0.5"/>
+        <text x="45" y="218" font-size="9" fill="#92400e" font-weight="bold">Zona alerta &lt; S/ 30K</text>
+        <line x1="40" y1="255" x2="760" y2="255" stroke="#dc2626" stroke-dasharray="4 4" opacity="0.5"/>
+        <text x="45" y="253" font-size="9" fill="#991b1b" font-weight="bold">Zona crítica &lt; S/ 0</text>
+        <!-- Línea real (histórico) -->
+        <polyline points="40,180 70,178 100,175 130,182 160,180 190,176 220,172 250,165 280,170 310,162 340,160" fill="none" stroke="#0d9488" stroke-width="2.5"/>
+        <text x="40" y="195" font-size="8" fill="#0f766e" font-weight="bold">15-may HOY</text>
+        <line x1="340" y1="20" x2="340" y2="270" stroke="#cbd5e1" stroke-dasharray="2 2"/>
+        <!-- Punto crítico 28-may -->
+        <circle cx="440" cy="110" r="5" fill="#f59e0b" stroke="white" stroke-width="2"/>
+        <text x="445" y="105" font-size="8" fill="#92400e" font-weight="bold">28-may S/ 71.4K</text>
+        <!-- Línea base proyectada -->
+        <polyline points="340,160 380,140 420,120 460,110 500,95 540,85 580,75 620,65 660,55 700,45 760,30" fill="none" stroke="#6366f1" stroke-width="2.5" stroke-dasharray="0"/>
+        <!-- Línea optimista -->
+        <polyline points="340,160 380,130 420,100 460,80 500,60 540,45 580,30 620,20 660,10 700,5 760,3" fill="none" stroke="#10b981" stroke-width="1.5" stroke-dasharray="3"/>
+        <!-- Línea pesimista -->
+        <polyline points="340,160 380,170 420,170 460,175 500,170 540,165 580,160 620,150 660,140 700,130 760,120" fill="none" stroke="#f43f5e" stroke-width="1.5" stroke-dasharray="3"/>
+        <!-- Ejes X (fechas) -->
+        <text x="40" y="278" font-size="8" fill="#475569">1-may</text>
+        <text x="180" y="278" font-size="8" fill="#475569">8-may</text>
+        <text x="340" y="278" font-size="8" fill="#475569" font-weight="bold">15-may</text>
+        <text x="500" y="278" font-size="8" fill="#475569">22-may</text>
+        <text x="640" y="278" font-size="8" fill="#475569">5-jun</text>
+        <text x="760" y="278" font-size="8" fill="#475569">14-jul</text>
+        <!-- Ejes Y -->
+        <text x="5" y="40" font-size="8" fill="#475569">S/ 120K</text>
+        <text x="5" y="120" font-size="8" fill="#475569">S/ 80K</text>
+        <text x="5" y="200" font-size="8" fill="#475569">S/ 40K</text>
+      </svg>
+      <!-- 3 cards escenarios -->
+      <div class="grid grid-cols-3 gap-3">
+        <div class="bg-gradient-to-br from-emerald-50 to-emerald-100/40 ring-1 ring-emerald-200/50 rounded-xl p-3">
+          <div class="text-[10px] uppercase font-bold text-emerald-700 mb-1">Optimista (+15%)</div>
+          <div class="text-[18px] font-bold tabular text-emerald-900">S/ 128K</div>
+          <div class="text-[10px] text-emerald-700 mt-1">cierre 60d · cobranza efectiva + nueva venta · NO retrasos</div>
+        </div>
+        <div class="bg-gradient-to-br from-indigo-50 to-indigo-100/40 ring-2 ring-indigo-500 rounded-xl p-3">
+          <div class="text-[10px] uppercase font-bold text-indigo-700 mb-1">Base (escenario activo)</div>
+          <div class="text-[18px] font-bold tabular text-indigo-900">S/ 108K</div>
+          <div class="text-[10px] text-indigo-700 mt-1">cierre 60d · operativa actual sin sorpresas</div>
+        </div>
+        <div class="bg-gradient-to-br from-rose-50 to-rose-100/40 ring-1 ring-rose-200/50 rounded-xl p-3">
+          <div class="text-[10px] uppercase font-bold text-rose-700 mb-1">Pesimista (−20%)</div>
+          <div class="text-[18px] font-bold tabular text-rose-900">S/ 56K</div>
+          <div class="text-[10px] text-rose-700 mt-1">cierre 60d · ventas caen + Premium SA NO paga · entra zona alerta</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DRIVERS PROYECTADOS · TABLA -->
+    <div class="px-6 pb-6 space-y-3">
+      <h3 class="text-[13px] font-bold text-slate-900">Drivers proyectados próximos 60 días</h3>
+      <div class="border border-slate-200 rounded-xl overflow-hidden">
+        <table class="w-full text-[11px]">
+          <thead class="bg-slate-50 text-slate-600 uppercase text-[9px] font-bold">
+            <tr><th class="text-left py-2 px-3">Fecha</th><th class="text-left py-2 px-3">Evento</th><th class="text-left py-2 px-3">Cuenta</th><th class="text-right py-2 px-3">Monto</th><th class="text-center py-2 px-3">Tipo</th><th class="text-center py-2 px-3">Confianza</th></tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 tabular">
+            <tr class="bg-emerald-50/30"><td class="py-2 px-3 font-bold">18-may</td><td class="py-2 px-3 text-slate-900">Cobro F-015 · Premium SA (parcial)</td><td class="py-2 px-3 text-slate-700">BCP Soles</td><td class="py-2 px-3 text-right font-bold text-emerald-700">+S/ 4,800</td><td class="py-2 px-3 text-center"><span class="bg-emerald-100 text-emerald-700 px-1.5 rounded text-[9px] font-bold">Cobro</span></td><td class="py-2 px-3 text-center"><span class="bg-emerald-100 text-emerald-700 px-1.5 rounded text-[9px] font-bold">Alta · comprometido</span></td></tr>
+            <tr class="bg-rose-50/30"><td class="py-2 px-3 font-bold">25-may</td><td class="py-2 px-3 text-slate-900">Cierre TC Visa BCP</td><td class="py-2 px-3 text-slate-700">Visa BCP Empr</td><td class="py-2 px-3 text-right font-bold text-amber-700">$ 2,840 + S/ 1,820</td><td class="py-2 px-3 text-center"><span class="bg-amber-100 text-amber-700 px-1.5 rounded text-[9px] font-bold">TC corte</span></td><td class="py-2 px-3 text-center"><span class="bg-emerald-100 text-emerald-700 px-1.5 rounded text-[9px] font-bold">Alta · fijo mensual</span></td></tr>
+            <tr class="bg-rose-50/40 ring-2 ring-rose-300"><td class="py-2 px-3 font-bold text-rose-900">28-may ⚠️</td><td class="py-2 px-3 text-slate-900">Vence pago Amex personal Jose + nómina + alquiler</td><td class="py-2 px-3 text-slate-700">BCP Soles</td><td class="py-2 px-3 text-right font-bold text-rose-700">−S/ 15,900</td><td class="py-2 px-3 text-center"><span class="bg-rose-100 text-rose-700 px-1.5 rounded text-[9px] font-bold">Pago crítico</span></td><td class="py-2 px-3 text-center"><span class="bg-emerald-100 text-emerald-700 px-1.5 rounded text-[9px] font-bold">Alta · vencimiento</span></td></tr>
+            <tr><td class="py-2 px-3 font-bold">31-may</td><td class="py-2 px-3 text-slate-900">Liquidación quincenal GK Xpress</td><td class="py-2 px-3 text-slate-700">Yape GK → BCP</td><td class="py-2 px-3 text-right font-bold text-purple-700">+S/ 4,200</td><td class="py-2 px-3 text-center"><span class="bg-purple-100 text-purple-700 px-1.5 rounded text-[9px] font-bold">Recaudador</span></td><td class="py-2 px-3 text-center"><span class="bg-amber-100 text-amber-700 px-1.5 rounded text-[9px] font-bold">Media · estimado</span></td></tr>
+            <tr><td class="py-2 px-3 font-bold">02-jun</td><td class="py-2 px-3 text-slate-900">Stripe settle mensual (3 semanas)</td><td class="py-2 px-3 text-slate-700">Stripe → BCP</td><td class="py-2 px-3 text-right font-bold text-sky-700">+S/ 8,420</td><td class="py-2 px-3 text-center"><span class="bg-sky-100 text-sky-700 px-1.5 rounded text-[9px] font-bold">Wallet payout</span></td><td class="py-2 px-3 text-center"><span class="bg-amber-100 text-amber-700 px-1.5 rounded text-[9px] font-bold">Media · proyección ventas</span></td></tr>
+            <tr><td class="py-2 px-3 font-bold">10-jun</td><td class="py-2 px-3 text-slate-900">Pago saldo OC-2026-128 · Tech Solutions</td><td class="py-2 px-3 text-slate-700">Pool USD</td><td class="py-2 px-3 text-right font-bold text-rose-700">−$ 4,410</td><td class="py-2 px-3 text-center"><span class="bg-rose-100 text-rose-700 px-1.5 rounded text-[9px] font-bold">Pago prov</span></td><td class="py-2 px-3 text-center"><span class="bg-emerald-100 text-emerald-700 px-1.5 rounded text-[9px] font-bold">Alta · contra entrega</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- §2 · DRIVERS DE PROYECCIÓN (configuración) -->
+<section class="space-y-4">
+  <div class="flex items-center gap-2">
+    <span class="text-[10px] uppercase tracking-wider font-bold text-indigo-700">§ 2 · Drivers de proyección · modelo subyacente</span>
+    <div class="flex-1 h-px bg-indigo-200"></div>
+  </div>
+  <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-5">
+    <p class="text-[11px] text-slate-500 mb-4">El cash flow se construye con drivers configurables · cada categoría tiene su propia regla de proyección · vos podés ajustar % o frecuencia.</p>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+      <div class="bg-emerald-50 ring-1 ring-emerald-200/50 rounded-xl p-3"><div class="text-[10px] uppercase font-bold text-emerald-700 mb-1 flex items-center gap-1.5"><i data-lucide="trending-up" class="w-3 h-3"></i> Ingresos por venta</div><div class="text-[11px] text-emerald-900">Promedio últimos 90d · S/ 28K/mes · ajustable por estacionalidad · escenario base usa media móvil 6 sem</div></div>
+      <div class="bg-rose-50 ring-1 ring-rose-200/50 rounded-xl p-3"><div class="text-[10px] uppercase font-bold text-rose-700 mb-1 flex items-center gap-1.5"><i data-lucide="building" class="w-3 h-3"></i> Sueldos + alquiler</div><div class="text-[11px] text-rose-900">Fijo mensual S/ 11,200 · pago día 28 + alquiler S/ 2,800 día 1 · NO ajustable sin reestructuración</div></div>
+      <div class="bg-amber-50 ring-1 ring-amber-200/50 rounded-xl p-3"><div class="text-[10px] uppercase font-bold text-amber-700 mb-1 flex items-center gap-1.5"><i data-lucide="credit-card" class="w-3 h-3"></i> TC ciclo cerrado</div><div class="text-[11px] text-amber-900">Promedio últimos 3 ciclos · S/ 8,420/mes · vence día 10 · marketing variable + SaaS fijos</div></div>
+      <div class="bg-blue-50 ring-1 ring-blue-200/50 rounded-xl p-3"><div class="text-[10px] uppercase font-bold text-blue-700 mb-1 flex items-center gap-1.5"><i data-lucide="package" class="w-3 h-3"></i> Compras OC programadas</div><div class="text-[11px] text-blue-900">OCs abiertas con saldo + estimación reposición · próximas: OC-128 $4,410 (10-jun) · OC-135 S/ 6,800 (25-jun)</div></div>
+      <div class="bg-purple-50 ring-1 ring-purple-200/50 rounded-xl p-3"><div class="text-[10px] uppercase font-bold text-purple-700 mb-1 flex items-center gap-1.5"><i data-lucide="truck" class="w-3 h-3"></i> Liquidación recaudador</div><div class="text-[11px] text-purple-900">Quincenal · promedio S/ 3,500/quincena · cobros − S/25/carrera</div></div>
+      <div class="bg-sky-50 ring-1 ring-sky-200/50 rounded-xl p-3"><div class="text-[10px] uppercase font-bold text-sky-700 mb-1 flex items-center gap-1.5"><i data-lucide="smartphone" class="w-3 h-3"></i> Settles Stripe</div><div class="text-[11px] text-sky-900">Diario auto · estimado S/ 1.2K/día post-comisión 4.5%</div></div>
+    </div>
+    <div class="bg-slate-100 ring-1 ring-slate-200 rounded-xl p-3 mt-3 flex items-start gap-2 text-[11px]">
+      <i data-lucide="info" class="w-4 h-4 text-slate-600 mt-0.5"></i>
+      <div class="text-slate-800"><strong>Configurar drivers:</strong> cada driver se puede editar individualmente · permite reflejar realidad operativa específica (estacionalidad · campañas · nuevos contratos). DEUDA-DRIVERS-CONFIG declarada para implementación S4.</div>
+    </div>
+  </div>
+</section>
+
+<!-- §3 · ESTADOS -->
+<section class="space-y-4">
+  <div class="flex items-center gap-2"><span class="text-[10px] uppercase tracking-wider font-bold text-slate-500">§ 3 · Estados</span><div class="flex-1 h-px bg-slate-200"></div></div>
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden">
+      <div class="bg-slate-50 border-b px-4 py-2"><span class="text-[10px] uppercase font-bold text-amber-700">Vacío · sin histórico suficiente</span></div>
+      <div class="p-8 text-center space-y-3">
+        <div class="w-16 h-16 mx-auto rounded-full bg-amber-100 flex items-center justify-center"><i data-lucide="calendar-range" class="w-8 h-8 text-amber-600"></i></div>
+        <div><div class="text-[14px] font-bold">Aún no podemos proyectar</div><div class="text-[11px] text-slate-500 mt-1">Cash flow proyectado requiere al menos 30 días de movimientos históricos para construir drivers confiables. Llevas 12 días.</div></div>
+        <div class="bg-amber-50 ring-1 ring-amber-200 rounded-lg p-2 text-[10px] text-amber-900">Faltan 18 días más de operación · ETA proyección habilitada: 02-jun-2026</div>
+      </div>
+    </div>
+    <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden">
+      <div class="bg-slate-50 border-b px-4 py-2"><span class="text-[10px] uppercase font-bold text-sky-700">Loading · calculando proyección</span></div>
+      <div class="p-4 space-y-2">
+        <div class="shimmer h-32 rounded-xl"></div>
+        <div class="grid grid-cols-3 gap-2"><div class="shimmer h-16 rounded"></div><div class="shimmer h-16 rounded"></div><div class="shimmer h-16 rounded"></div></div>
+        <div class="text-center text-[10px] text-slate-500 mt-2">Recalculando 142 movs · 23 entidades · 60 días...</div>
+      </div>
+    </div>
+    <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden">
+      <div class="bg-slate-50 border-b px-4 py-2"><span class="text-[10px] uppercase font-bold text-rose-700">Error · escenario inviable</span></div>
+      <div class="p-8 text-center space-y-3">
+        <div class="w-16 h-16 mx-auto rounded-full bg-rose-100 flex items-center justify-center"><i data-lucide="alert-octagon" class="w-8 h-8 text-rose-600"></i></div>
+        <div><div class="text-[14px] font-bold">Proyección entra en zona crítica</div><div class="text-[11px] text-slate-500 mt-1">El escenario pesimista llega a caja negativa el 22-jul. Revisar política de cobranza urgente.</div></div>
+        <button class="text-[11px] font-bold text-white bg-rose-600 px-3 py-1.5 rounded-lg">Ver plan de mitigación</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- §4 · MOBILE -->
+<section class="space-y-4">
+  <div class="flex items-center gap-2"><span class="text-[10px] uppercase tracking-wider font-bold text-slate-500">§ 4 · Mobile · gráfico responsive · drivers en cards</span><div class="flex-1 h-px bg-slate-200"></div></div>
+  <div class="max-w-sm mx-auto bg-white border-2 border-slate-300 rounded-3xl shadow-xl overflow-hidden">
+    <div class="bg-slate-50 border-b px-3 py-2"><span class="text-sm font-bold">Cash flow</span></div>
+    <div class="grid grid-cols-3 gap-1 p-2 bg-slate-50">
+      <div class="bg-teal-50 ring-1 ring-teal-200 rounded p-1.5 text-center"><div class="text-[8px] font-bold text-teal-700">Hoy</div><div class="font-bold tabular text-teal-900 text-[10px]">S/ 86K</div></div>
+      <div class="bg-emerald-50 ring-1 ring-emerald-200 rounded p-1.5 text-center"><div class="text-[8px] font-bold text-emerald-700">+30d</div><div class="font-bold tabular text-emerald-900 text-[10px]">+S/ 15K</div></div>
+      <div class="bg-amber-50 ring-1 ring-amber-200 rounded p-1.5 text-center"><div class="text-[8px] font-bold text-amber-700">+60d</div><div class="font-bold tabular text-amber-900 text-[10px]">+S/ 22K</div></div>
+    </div>
+    <div class="bg-amber-50 ring-1 ring-amber-300 m-2 rounded-lg p-2 flex items-start gap-1.5"><i data-lucide="alert-triangle" class="w-3 h-3 text-amber-700 mt-0.5 flex-shrink-0"></i><div class="text-[10px] text-amber-900"><strong>28-may:</strong> Amex + nómina + alquiler = −S/ 15.9K</div></div>
+    <div class="px-3 pb-3">
+      <svg viewBox="0 0 280 100" class="w-full h-24 bg-slate-50 rounded">
+        <polyline points="0,50 30,52 60,48 90,45 120,40 150,30 180,25 210,18 240,15 270,10 280,8" fill="none" stroke="#6366f1" stroke-width="2"/>
+        <polyline points="0,50 30,40 60,30 90,20 120,12 150,8 180,5 210,3 240,2 270,1 280,1" fill="none" stroke="#10b981" stroke-width="1" stroke-dasharray="2"/>
+        <polyline points="0,50 30,55 60,58 90,55 120,52 150,48 180,45 210,40 240,35 270,32 280,30" fill="none" stroke="#f43f5e" stroke-width="1" stroke-dasharray="2"/>
+      </svg>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="bg-slate-900 text-slate-300 mt-12 py-6">
+  <div class="max-w-[1400px] mx-auto px-6 text-[11px] flex items-center justify-between">
+    <div>MOCK 9 · Vista Cash flow proyectado · cierra Turno 3</div>
+    <div>chk5.D-S1e · 9 mockups v5.1 entregados · cobertura ~50%</div>
+  </div>
+</footer>
+
+<script>lucide.createIcons();</script>
+</body>
+</html>

@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Finanzas · Wizard Nueva Cuenta · v5.1 (6 tipos correctos)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, sans-serif; }
+    .tabular { font-variant-numeric: tabular-nums; font-feature-settings: "tnum"; }
+    .scrollbar-hide::-webkit-scrollbar { display: none; }
+    .bank-bcp { background: linear-gradient(135deg, #003876 0%, #0066b3 100%); }
+    .bank-yape { background: linear-gradient(135deg, #6a2c7e 0%, #9333ea 100%); }
+  </style>
+</head>
+<body class="bg-slate-100 text-slate-900">
+
+<header class="bg-slate-900 text-white sticky top-0 z-50 shadow-lg">
+  <div class="max-w-[1400px] mx-auto px-6 py-3 flex items-center justify-between">
+    <div>
+      <div class="text-[10px] uppercase tracking-wider text-teal-300">chk5.D-S1e · v5.1 TURNO 4 · reemplaza v5 SUPERSEDED</div>
+      <div class="text-base font-bold">MOCK 10 · Wizard Nueva Cuenta · 6 tipos correctos del modelo</div>
+    </div>
+    <nav class="hidden md:flex items-center gap-1 text-[11px]">
+      <a href="finanzas-shell-overview-v5.1.html" class="px-2 py-1 hover:bg-slate-700 rounded text-slate-300">1</a>
+      <a href="finanzas-cuentas-completo-v5.1.html" class="px-2 py-1 hover:bg-slate-700 rounded text-slate-300">2</a>
+      <a href="finanzas-wizards-completos-v5.1.html" class="px-2 py-1 hover:bg-slate-700 rounded text-slate-300">3</a>
+      <a href="finanzas-analisis-estrategico-v5.1.html" class="px-2 py-1 hover:bg-slate-700 rounded text-slate-300">4</a>
+      <a href="finanzas-integraciones-crossmodulo-v5.1.html" class="px-2 py-1 hover:bg-slate-700 rounded text-slate-300">5</a>
+      <a href="finanzas-vista-saldos-v5.1.html" class="px-2 py-1 hover:bg-slate-700 rounded text-slate-300">6</a>
+      <a href="finanzas-vista-movimientos-v5.1.html" class="px-2 py-1 hover:bg-slate-700 rounded text-slate-300">7</a>
+      <a href="finanzas-vista-cc-entidades-v5.1.html" class="px-2 py-1 hover:bg-slate-700 rounded text-slate-300">8</a>
+      <a href="finanzas-vista-cashflow-v5.1.html" class="px-2 py-1 hover:bg-slate-700 rounded text-slate-300">9</a>
+      <span class="px-2 py-1 bg-teal-600 rounded text-white font-semibold">10</span>
+    </nav>
+  </div>
+</header>
+
+<main class="max-w-[1400px] mx-auto px-6 py-8 space-y-12">
+
+<!-- §1 · INTRO + ARQUITECTURA -->
+<section class="space-y-4">
+  <div class="flex items-center gap-2">
+    <span class="text-[10px] uppercase tracking-wider font-bold text-slate-500">§ 1 · Arquitectura · 6 tipos × 4 pasos = 19 pantallas pixel-perfect</span>
+    <div class="flex-1 h-px bg-slate-200"></div>
+  </div>
+  <h2 class="text-2xl font-bold text-slate-900">Wizard Nueva Cuenta · 6 tipos del modelo real</h2>
+  <p class="text-sm text-slate-600 max-w-3xl">Reemplaza el v5 SUPERSEDED que tenía 4 tipos incorrectos. Esta versión respeta 100% el modelo de datos: <code class="bg-slate-200 px-1 rounded text-[11px]">TipoProductoFinanciero</code> + canales digitales vs wallets autónomas + TC bimoneda con titularidad empresa/personal + <strong>6to tipo Caja Recaudadora</strong> declarado en DEUDA-MODELO-RECAUDADOR.</p>
+
+  <div class="grid grid-cols-1 md:grid-cols-6 gap-2">
+    <div class="bg-gradient-to-br from-teal-50 to-teal-100/40 ring-1 ring-teal-200/50 rounded-xl p-3 text-center"><i data-lucide="building-2" class="w-5 h-5 text-teal-700 mx-auto mb-1"></i><div class="text-[11px] font-bold text-teal-900">Bancaria</div><div class="text-[9px] text-teal-700 mt-0.5">+ canales asociados</div></div>
+    <div class="bg-gradient-to-br from-sky-50 to-sky-100/40 ring-1 ring-sky-200/50 rounded-xl p-3 text-center"><i data-lucide="smartphone" class="w-5 h-5 text-sky-700 mx-auto mb-1"></i><div class="text-[11px] font-bold text-sky-900">Wallet</div><div class="text-[9px] text-sky-700 mt-0.5">autónoma con saldo</div></div>
+    <div class="bg-gradient-to-br from-indigo-50 to-indigo-100/40 ring-1 ring-indigo-200/50 rounded-xl p-3 text-center"><i data-lucide="credit-card" class="w-5 h-5 text-indigo-700 mx-auto mb-1"></i><div class="text-[11px] font-bold text-indigo-900">TC Débito</div><div class="text-[9px] text-indigo-700 mt-0.5">vincula a ahorros</div></div>
+    <div class="bg-gradient-to-br from-amber-50 to-amber-100/40 ring-1 ring-amber-200/50 rounded-xl p-3 text-center"><i data-lucide="credit-card" class="w-5 h-5 text-amber-700 mx-auto mb-1"></i><div class="text-[11px] font-bold text-amber-900">TC Crédito</div><div class="text-[9px] text-amber-700 mt-0.5">bimoneda + titular</div></div>
+    <div class="bg-gradient-to-br from-slate-50 to-slate-100/40 ring-1 ring-slate-200/50 rounded-xl p-3 text-center"><i data-lucide="banknote" class="w-5 h-5 text-slate-700 mx-auto mb-1"></i><div class="text-[11px] font-bold text-slate-900">Caja</div><div class="text-[9px] text-slate-700 mt-0.5">responsable + arqueo</div></div>
+    <div class="bg-gradient-to-br from-purple-50 to-purple-100/40 ring-2 ring-purple-400 rounded-xl p-3 text-center"><i data-lucide="truck" class="w-5 h-5 text-purple-700 mx-auto mb-1"></i><div class="text-[11px] font-bold text-purple-900">Recaudadora ⭐</div><div class="text-[9px] text-purple-700 mt-0.5">NUEVO · tercero</div></div>
+  </div>
+</section>
+
+<!-- §2 · PASO 1 COMÚN · SELECTOR DE TIPO -->
+<section class="space-y-4">
+  <div class="flex items-center gap-2">
+    <span class="text-[10px] uppercase tracking-wider font-bold text-slate-700">§ 2 · PASO 1 común · selector de tipo</span>
+    <div class="flex-1 h-px bg-slate-300"></div>
+  </div>
+  <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+    <div class="bg-slate-100 px-5 py-2 border-b"><span class="text-[10px] uppercase font-bold text-slate-700">PASO 1 / 4 · ¿Qué tipo de cuenta vas a crear?</span></div>
+    <div class="grid grid-cols-12 min-h-[480px]">
+      <aside class="col-span-3 bg-slate-50/50 border-r p-4 space-y-1">
+        <div class="text-[10px] uppercase tracking-wider font-bold text-slate-500 mb-3">Pasos · Nueva cuenta</div>
+        <div class="flex items-center gap-2 p-2 rounded-lg bg-slate-200 ring-1 ring-slate-400"><span class="w-6 h-6 rounded-full bg-slate-700 text-white text-[11px] font-bold flex items-center justify-center">1</span><span class="text-[12px] font-bold">Tipo de cuenta</span></div>
+        <div class="flex items-center gap-2 p-2 rounded-lg text-slate-500"><span class="w-6 h-6 rounded-full bg-slate-200 text-slate-600 text-[11px] font-bold flex items-center justify-center">2</span><span class="text-[12px]">Datos básicos</span></div>
+        <div class="flex items-center gap-2 p-2 rounded-lg text-slate-500"><span class="w-6 h-6 rounded-full bg-slate-200 text-slate-600 text-[11px] font-bold flex items-center justify-center">3</span><span class="text-[12px]">Saldo / config</span></div>
+        <div class="flex items-center gap-2 p-2 rounded-lg text-slate-500"><span class="w-6 h-6 rounded-full bg-slate-200 text-slate-600 text-[11px] font-bold flex items-center justify-center">4</span><span class="text-[12px]">Permisos + alertas</span></div>
+      </aside>
+      <div class="col-span-9 p-6 space-y-4">
+        <div><h3 class="text-lg font-bold text-slate-900 mb-1">¿Qué tipo de cuenta vas a crear?</h3><p class="text-[12px] text-slate-500">Cada tipo desbloquea campos específicos en los siguientes pasos.</p></div>
+        <div class="grid grid-cols-2 gap-3">
+          <button class="bg-gradient-to-br from-teal-50 to-teal-100/40 ring-2 ring-teal-500 rounded-xl p-4 text-left"><div class="flex items-center justify-between mb-2"><i data-lucide="building-2" class="w-5 h-5 text-teal-700"></i><i data-lucide="check-circle-2" class="w-4 h-4 text-teal-600"></i></div><div class="text-sm font-bold text-teal-900 mb-1">Cuenta Bancaria</div><div class="text-[11px] text-teal-700">BCP · Interbank · BBVA · Scotia · ahorros · corriente · detracción · CTS · con canales Yape/Plin asociados</div></button>
+          <button class="bg-white border border-slate-200 rounded-xl p-4 text-left hover:border-sky-300 hover:bg-sky-50/30"><i data-lucide="smartphone" class="w-5 h-5 text-slate-500 mb-2"></i><div class="text-sm font-bold text-slate-900 mb-1">Wallet digital autónoma</div><div class="text-[11px] text-slate-500">Stripe · PayPal · MercadoPago · Wise · Zelle · Binance · con balance propio</div></button>
+          <button class="bg-white border border-slate-200 rounded-xl p-4 text-left hover:border-indigo-300 hover:bg-indigo-50/30"><i data-lucide="credit-card" class="w-5 h-5 text-slate-500 mb-2"></i><div class="text-sm font-bold text-slate-900 mb-1">Tarjeta de débito</div><div class="text-[11px] text-slate-500">Visa débito · MasterCard débito · <strong>vinculada a cuenta de ahorros existente</strong> · NO saldo propio</div></button>
+          <button class="bg-white border border-slate-200 rounded-xl p-4 text-left hover:border-amber-300 hover:bg-amber-50/30"><i data-lucide="credit-card" class="w-5 h-5 text-slate-500 mb-2"></i><div class="text-sm font-bold text-slate-900 mb-1">Tarjeta de crédito</div><div class="text-[11px] text-slate-500">Visa · MC · Amex · Diners · bimoneda · empresarial o personal con reembolso titular</div></button>
+          <button class="bg-white border border-slate-200 rounded-xl p-4 text-left hover:border-slate-400 hover:bg-slate-50"><i data-lucide="banknote" class="w-5 h-5 text-slate-500 mb-2"></i><div class="text-sm font-bold text-slate-900 mb-1">Caja efectivo</div><div class="text-[11px] text-slate-500">Caja chica · general · tienda · responsable obligatorio · arqueo periódico</div></button>
+          <button class="bg-gradient-to-br from-purple-50/50 to-white border-2 border-purple-300 rounded-xl p-4 text-left hover:border-purple-500 hover:bg-purple-50"><div class="flex items-center justify-between mb-2"><i data-lucide="truck" class="w-5 h-5 text-purple-700"></i><span class="text-[9px] bg-purple-200 text-purple-800 px-1.5 rounded-full font-bold">⭐ NUEVO</span></div><div class="text-sm font-bold text-purple-900 mb-1">Caja Recaudadora</div><div class="text-[11px] text-purple-700"><strong>Tercero recauda en tu nombre</strong> (GK Xpress · cobranza externa) · cobros − servicios − liquidación · CC con proveedor</div></button>
+        </div>
+      </div>
+    </div>
+    <div class="bg-slate-50 border-t px-5 py-3 flex items-center justify-end gap-2">
+      <button class="text-[11px] font-semibold text-slate-600 hover:bg-slate-100 px-3 py-1.5 rounded-lg">Cancelar</button>
+      <button class="text-[11px] font-bold text-white bg-slate-700 hover:bg-slate-800 px-4 py-1.5 rounded-lg flex items-center gap-1.5">Siguiente <i data-lucide="arrow-right" class="w-3 h-3"></i></button>
+    </div>
+  </div>
+</section>
+
+<!-- §3 · TIPO 1 BANCARIA · pasos 2-4 -->
+<section class="space-y-4">
+  <div class="flex items-center gap-2"><span class="text-[10px] uppercase tracking-wider font-bold text-teal-700">§ 3 · TIPO 1 Bancaria · pasos 2-3-4</span><div class="flex-1 h-px bg-teal-200"></div></div>
+
+  <!-- Paso 2 Bancaria -->
+  <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+    <div class="bg-teal-50 border-b px-5 py-2"><span class="text-[10px] uppercase font-bold text-teal-700">PASO 2/4 · Datos bancarios + CCI</span></div>
+    <div class="grid grid-cols-12 min-h-[520px]">
+      <aside class="col-span-3 bg-slate-50/50 border-r p-4 space-y-1">
+        <div class="text-[10px] uppercase font-bold text-slate-500 mb-3">Pasos · Bancaria</div>
+        <div class="flex items-center gap-2 p-2 rounded-lg text-emerald-700"><span class="w-6 h-6 rounded-full bg-emerald-100 text-emerald-700 text-[11px] font-bold flex items-center justify-center"><i data-lucide="check" class="w-3 h-3"></i></span><span class="text-[12px]">Tipo Bancaria</span></div>
+        <div class="flex items-center gap-2 p-2 rounded-lg bg-teal-50 ring-1 ring-teal-200"><span class="w-6 h-6 rounded-full bg-teal-600 text-white text-[11px] font-bold flex items-center justify-center">2</span><span class="text-[12px] font-bold text-teal-900">Datos básicos</span></div>
+        <div class="flex items-center gap-2 p-2 rounded-lg text-slate-500"><span class="w-6 h-6 rounded-full bg-slate-200 text-slate-600 text-[11px] font-bold flex items-center justify-center">3</span><span class="text-[12px]">Saldo + canales</span></div>
+        <div class="flex items-center gap-2 p-2 rounded-lg text-slate-500"><span class="w-6 h-6 rounded-full bg-slate-200 text-slate-600 text-[11px] font-bold flex items-center justify-center">4</span><span class="text-[12px]">Permisos + alertas</span></div>
+      </aside>
+      <div class="col-span-9 p-6 grid grid-cols-2 gap-4">
+        <div><label class="text-[11px] font-bold text-slate-700 uppercase mb-1.5 block">Banco</label><select class="w-full text-sm border border-slate-300 rounded-lg px-3 py-2"><option>BCP · Banco de Crédito del Perú</option><option>Interbank</option><option>BBVA Perú</option><option>Scotiabank</option><option>Banco de la Nación</option></select></div>
+        <div><label class="text-[11px] font-bold text-slate-700 uppercase mb-1.5 block">Producto bancario</label><select class="w-full text-sm border border-slate-300 rounded-lg px-3 py-2"><option>Cuenta corriente</option><option>Cuenta de ahorros</option><option>Cuenta CTS</option><option>Cuenta detracción</option></select></div>
+        <div class="col-span-2"><label class="text-[11px] font-bold text-slate-700 uppercase mb-1.5 block">Nombre interno</label><input type="text" value="BCP Soles Operativa" class="w-full text-sm border border-slate-300 rounded-lg px-3 py-2" /></div>
+        <div><label class="text-[11px] font-bold text-slate-700 uppercase mb-1.5 block">Moneda</label><div class="flex gap-2"><button class="flex-1 px-3 py-2 text-sm font-semibold bg-teal-50 text-teal-700 border-2 border-teal-500 rounded-lg">PEN</button><button class="flex-1 px-3 py-2 text-sm font-semibold bg-white border border-slate-300 rounded-lg">USD</button></div></div>
+        <div><label class="text-[11px] font-bold text-slate-700 uppercase mb-1.5 block">Titularidad</label><div class="flex gap-2"><button class="flex-1 px-3 py-2 text-sm font-semibold bg-teal-50 text-teal-700 border-2 border-teal-500 rounded-lg">Empresa</button><button class="flex-1 px-3 py-2 text-sm font-semibold bg-white border border-slate-300 rounded-lg">Personal</button></div></div>
+        <div><label class="text-[11px] font-bold text-slate-700 uppercase mb-1.5 block">N° cuenta</label><input type="text" placeholder="194-1234567-0-12" class="w-full text-sm border border-slate-300 rounded-lg px-3 py-2 tabular" /></div>
+        <div><label class="text-[11px] font-bold text-slate-700 uppercase mb-1.5 block">CCI · 20 dígitos</label><input type="text" placeholder="00219400123456701258" class="w-full text-sm border border-slate-300 rounded-lg px-3 py-2 tabular" /></div>
+        <div class="col-span-2"><label class="text-[11px] font-bold text-slate-700 uppercase mb-1.5 block">Titular</label><input type="text" value="Vita Skin Peru SAC" class="w-full text-sm border border-slate-300 rounded-lg px-3 py-2" /></div>
+      </div>
+    </div>
+    <div class="bg-slate-50 border-t px-5 py-3 flex items-center justify-between">
+      <button class="text-[11px] font-semibold text-slate-600 hover:bg-slate-100 px-3 py-1.5 rounded-lg flex items-center gap-1"><i data-lucide="arrow-left" class="w-3 h-3"></i> Atrás</button>
+      <div class="flex gap-2">
+        <button class="text-[11px] font-semibold text-slate-600 hover:bg-slate-100 px-3 py-1.5 rounded-lg">Descartar</button>
+        <button class="text-[11px] font-semibold bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100 px-3 py-1.5 rounded-lg">Borrador</button>
+        <button class="text-[11px] font-bold text-white bg-teal-600 hover:bg-teal-700 px-4 py-1.5 rounded-lg">Siguiente <i data-lucide="arrow-right" class="w-3 h-3 inline ml-1"></i></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Paso 3 Bancaria · saldo + canales digitales -->
+  <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+    <div class="bg-teal-50 border-b px-5 py-2"><span class="text-[10px] uppercase font-bold text-teal-700">PASO 3/4 · Saldo inicial + canales digitales asociados (Yape/Plin/SIP/Ágora/BIM)</span></div>
+    <div class="grid grid-cols-12 min-h-[520px]">
+      <aside class="col-span-3 bg-slate-50/50 border-r p-4 space-y-1">
+        <div class="text-[10px] uppercase font-bold text-slate-500 mb-3">Pasos · Bancaria</div>
+        <div class="flex items-center gap-2 p-2 rounded-lg text-emerald-700"><span class="w-6 h-6 rounded-full bg-emerald-100 text-emerald-700 text-[11px] font-bold flex items-center justify-center"><i data-lucide="check" class="w-3 h-3"></i></span><span class="text-[12px]">Tipo Bancaria</span></div>
+        <div class="flex items-center gap-2 p-2 rounded-lg text-emerald-700"><span class="w-6 h-6 rounded-full bg-emerald-100 text-emerald-700 text-[11px] font-bold flex items-center justify-center"><i data-lucide="check" class="w-3 h-3"></i></span><span class="text-[12px]">BCP Soles Operativa</span></div>
+        <div class="flex items-center gap-2 p-2 rounded-lg bg-teal-50 ring-1 ring-teal-200"><span class="w-6 h-6 rounded-full bg-teal-600 text-white text-[11px] font-bold flex items-center justify-center">3</span><span class="text-[12px] font-bold text-teal-900">Saldo + canales</span></div>
+        <div class="flex items-center gap-2 p-2 rounded-lg text-slate-500"><span class="w-6 h-6 rounded-full bg-slate-200 text-slate-600 text-[11px] font-bold flex items-center justify-center">4</span><span class="text-[12px]">Permisos + alertas</span></div>
+      </aside>
+      <div class="col-span-9 p-6 space-y-5">
+        <!-- Saldo inicial -->
+        <div>
+          <h3 class="text-[12px] font-bold text-slate-900 mb-2 flex items-center gap-1.5"><i data-lucide="dollar-sign" class="w-3.5 h-3.5 text-emerald-700"></i> Saldo inicial al día de apertura</h3>
+          <div class="grid grid-cols-2 gap-3">
+            <div><label class="text-[10px] uppercase font-bold text-slate-700 mb-1 block">Saldo inicial (PEN)</label><div class="relative"><span class="absolute left-3 top-2 text-slate-500 text-sm">S/</span><input type="text" value="0.00" class="w-full text-sm border border-slate-300 rounded-lg pl-9 pr-3 py-2 tabular text-right" /></div></div>
+            <div><label class="text-[10px] uppercase font-bold text-slate-700 mb-1 block">Fecha apertura</label><input type="date" value="2026-05-15" class="w-full text-sm border border-slate-300 rounded-lg px-3 py-2" /></div>
+          </div>
+          <div class="bg-emerald-50 ring-1 ring-emerald-200 rounded-lg p-2 mt-2 text-[10px] text-emerald-900 flex items-start gap-1.5"><i data-lucide="info" class="w-3 h-3 mt-0.5"></i><span>Saldos arrancan en 0 según decisión D9 · simplifica UAT inicial. Capacidad de saldo &gt; 0 preservada para crecimiento.</span></div>
+        </div>
+        <!-- Canales digitales -->
+        <div>
+          <h3 class="text-[12px] font-bold text-slate-900 mb-2 flex items-center gap-1.5"><i data-lucide="smartphone" class="w-3.5 h-3.5 text-purple-700"></i> Canales digitales asociados <span class="text-[10px] font-normal text-slate-500">(opcional)</span></h3>
+          <div class="bg-amber-50 ring-1 ring-amber-200/50 rounded-lg p-2.5 mb-3 text-[11px] text-amber-900 flex items-start gap-2">
+            <i data-lucide="info" class="w-3.5 h-3.5 text-amber-700 mt-0.5"></i>
+            <span><strong>Decisión D1:</strong> Yape/Plin/SIP/Ágora/BIM NO son cuentas separadas · son canales asociados a esta cuenta bancaria. El dinero entra/sale de esta cuenta padre.</span>
+          </div>
+          <div class="space-y-2">
+            <div class="flex items-center gap-2 p-2 border border-slate-200 rounded-lg bg-slate-50/50"><span class="text-[10px] uppercase font-bold px-2 py-1 rounded border bg-purple-100 text-purple-700 border-purple-200 w-16 text-center">YAPE</span><input type="text" placeholder="+51 999 888 777" class="flex-1 h-8 px-2.5 text-[12px] border border-slate-300 rounded bg-white" /><button class="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button></div>
+            <div class="flex items-center gap-2 p-2 border border-slate-200 rounded-lg bg-slate-50/50"><span class="text-[10px] uppercase font-bold px-2 py-1 rounded border bg-cyan-100 text-cyan-700 border-cyan-200 w-16 text-center">PLIN</span><input type="text" placeholder="+51 999 888 777" class="flex-1 h-8 px-2.5 text-[12px] border border-slate-300 rounded bg-white" /><button class="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button></div>
+            <div class="flex flex-wrap gap-1.5 pt-1">
+              <button class="text-[10px] px-2 py-1 bg-white border border-dashed border-slate-300 text-slate-600 rounded hover:bg-slate-50 hover:border-teal-300 flex items-center gap-1"><i data-lucide="plus" class="w-3 h-3"></i> SIP</button>
+              <button class="text-[10px] px-2 py-1 bg-white border border-dashed border-slate-300 text-slate-600 rounded hover:bg-slate-50 hover:border-teal-300 flex items-center gap-1"><i data-lucide="plus" class="w-3 h-3"></i> Ágora</button>
+              <button class="text-[10px] px-2 py-1 bg-white border border-dashed border-slate-300 text-slate-600 rounded hover:bg-slate-50 hover:border-teal-300 flex items-center gap-1"><i data-lucide="plus" class="w-3 h-3"></i> BIM</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="bg-slate-50 border-t px-5 py-3 flex items-center justify-between">
+      <button class="text-[11px] font-semibold text-slate-600 hover:bg-slate-100 px-3 py-1.5 rounded-lg flex items-center gap-1"><i data-lucide="arrow-left" class="w-3 h-3"></i> Atrás</button>
+      <div class="flex gap-2">
+        <button class="text-[11px] font-semibold text-slate-600 hover:bg-slate-100 px-3 py-1.5 rounded-lg">Descartar</button>
+        <button class="text-[11px] font-semibold bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100 px-3 py-1.5 rounded-lg">Borrador</button>
+        <button class="text-[11px] font-bold text-white bg-teal-600 px-4 py-1.5 rounded-lg">Siguiente <i data-lucide="arrow-right" class="w-3 h-3 inline ml-1"></i></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Paso 4 Bancaria · permisos + alertas -->
+  <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+    <div class="bg-teal-50 border-b px-5 py-2"><span class="text-[10px] uppercase font-bold text-teal-700">PASO 4/4 · Permisos operativos + alertas automáticas</span></div>
+    <div class="grid grid-cols-12 min-h-[500px]">
+      <aside class="col-span-3 bg-slate-50/50 border-r p-4 space-y-1">
+        <div class="text-[10px] uppercase font-bold text-slate-500 mb-3">Pasos · Bancaria</div>
+        <div class="flex items-center gap-2 p-2 rounded-lg text-emerald-700"><span class="w-6 h-6 rounded-full bg-emerald-100 text-emerald-700 text-[11px] font-bold flex items-center justify-center"><i data-lucide="check" class="w-3 h-3"></i></span><span class="text-[12px]">Tipo Bancaria</span></div>
+        <div class="flex items-center gap-2 p-2 rounded-lg text-emerald-700"><span class="w-6 h-6 rounded-full bg-emerald-100 text-emerald-700 text-[11px] font-bold flex items-center justify-center"><i data-lucide="check" class="w-3 h-3"></i></span><span class="text-[12px]">BCP Soles</span></div>
+        <div class="flex items-center gap-2 p-2 rounded-lg text-emerald-700"><span class="w-6 h-6 rounded-full bg-emerald-100 text-emerald-700 text-[11px] font-bold flex items-center justify-center"><i data-lucide="check" class="w-3 h-3"></i></span><span class="text-[12px]">Saldo S/ 0 + Yape</span></div>
+        <div class="flex items-center gap-2 p-2 rounded-lg bg-teal-50 ring-1 ring-teal-200"><span class="w-6 h-6 rounded-full bg-teal-600 text-white text-[11px] font-bold flex items-center justify-center">4</span><span class="text-[12px] font-bold">Permisos + alertas</span></div>
+      </aside>
+      <div class="col-span-9 p-6 space-y-4">
+        <div><h3 class="text-[12px] font-bold text-slate-900 mb-2 flex items-center gap-1.5"><i data-lucide="users" class="w-3.5 h-3.5 text-teal-700"></i> Operadores autorizados</h3>
+          <div class="border border-slate-300 rounded-lg p-3 space-y-2 bg-white">
+            <label class="flex items-center gap-2"><input type="checkbox" checked class="rounded text-teal-600" /><span class="text-sm">José LP (creador) · admin</span></label>
+            <label class="flex items-center gap-2"><input type="checkbox" checked class="rounded text-teal-600" /><span class="text-sm">María Pérez · gerencia financiera</span></label>
+            <label class="flex items-center gap-2"><input type="checkbox" class="rounded text-teal-600" /><span class="text-sm">Carlos Ruiz · contador</span></label>
+          </div>
+        </div>
+        <div><h3 class="text-[12px] font-bold text-slate-900 mb-2 flex items-center gap-1.5"><i data-lucide="bell" class="w-3.5 h-3.5 text-amber-700"></i> Alertas automáticas</h3>
+          <div class="space-y-2">
+            <div class="bg-gradient-to-br from-amber-50 to-amber-100/40 ring-1 ring-amber-200/50 rounded-xl p-3 flex items-center gap-3">
+              <input type="checkbox" checked class="rounded text-amber-600" />
+              <div class="flex-1"><div class="text-[12px] font-bold text-amber-900">Saldo bajo</div><div class="text-[10px] text-amber-700">Notificar cuando saldo &lt;</div></div>
+              <div class="relative"><span class="absolute left-2 top-1.5 text-amber-700 text-sm">S/</span><input type="text" value="3,000" class="w-24 text-sm border border-amber-300 rounded-lg pl-7 pr-2 py-1 tabular text-right" /></div>
+            </div>
+            <div class="bg-gradient-to-br from-rose-50 to-rose-100/40 ring-1 ring-rose-200/50 rounded-xl p-3 flex items-center gap-3">
+              <input type="checkbox" class="rounded text-rose-600" />
+              <div class="flex-1"><div class="text-[12px] font-bold text-rose-900">Egresos grandes requieren aprobación</div><div class="text-[10px] text-rose-700">&gt; este monto necesita gerencia</div></div>
+              <div class="relative"><span class="absolute left-2 top-1.5 text-rose-700 text-sm">S/</span><input type="text" value="10,000" class="w-24 text-sm border border-rose-300 rounded-lg pl-7 pr-2 py-1 tabular text-right" /></div>
+            </div>
+            <label class="flex items-center gap-2 p-2"><input type="checkbox" class="rounded text-teal-600" /><span class="text-[11px]">Marcar como cuenta por defecto para PEN</span></label>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="bg-slate-50 border-t px-5 py-3 flex items-center justify-between">
+      <button class="text-[11px] font-semibold text-slate-600 hover:bg-slate-100 px-3 py-1.5 rounded-lg flex items-center gap-1"><i data-lucide="arrow-left" class="w-3 h-3"></i> Atrás</button>
+      <div class="flex gap-2">
+        <button class="text-[11px] font-semibold text-slate-600 hover:bg-slate-100 px-3 py-1.5 rounded-lg">Descartar</button>
+        <button class="text-[11px] font-semibold bg-amber-50 text-amber-700 border border-amber-200 px-3 py-1.5 rounded-lg">Borrador</button>
+        <button class="text-[11px] font-bold text-white bg-teal-600 hover:bg-teal-700 px-4 py-1.5 rounded-lg flex items-center gap-1.5"><i data-lucide="check" class="w-3 h-3"></i> Crear cuenta</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- §4 · TIPO 2 WALLET · pasos 2-4 -->
+<section class="space-y-4">
+  <div class="flex items-center gap-2"><span class="text-[10px] uppercase tracking-wider font-bold text-sky-700">§ 4 · TIPO 2 Wallet digital autónoma · pasos 2-3-4</span><div class="flex-1 h-px bg-sky-200"></div></div>
+  <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+    <div class="bg-sky-50 border-b px-5 py-2"><span class="text-[10px] uppercase font-bold text-sky-700">PASO 2/4 · Datos wallet · proveedor + identificador + comisión</span></div>
+    <div class="grid grid-cols-12 min-h-[520px]">
+      <aside class="col-span-3 bg-slate-50/50 border-r p-4 space-y-1">
+        <div class="text-[10px] uppercase font-bold text-slate-500 mb-3">Pasos · Wallet</div>
+        <div class="flex items-center gap-2 p-2 rounded-lg text-emerald-700"><span class="w-6 h-6 rounded-full bg-emerald-100 text-emerald-700 text-[11px] font-bold flex items-center justify-center"><i data-lucide="check" class="w-3 h-3"></i></span><span class="text-[12px]">Tipo Wallet</span></div>
+        <div class="flex items-center gap-2 p-2 rounded-lg bg-sky-50 ring-1 ring-sky-200"><span class="w-6 h-6 rounded-full bg-sky-600 text-white text-[11px] font-bold flex items-center justify-center">2</span><span class="text-[12px] font-bold">Datos wallet</span></div>
+        <div class="flex items-center gap-2 p-2 rounded-lg text-slate-500"><span class="w-6 h-6 rounded-full bg-slate-200 text-[11px] font-bold flex items-center justify-center">3</span><span class="text-[12px]">Saldo + payout</span></div>
+        <div class="flex items-center gap-2 p-2 rounded-lg text-slate-500"><span class="w-6 h-6 rounded-full bg-slate-200 text-[11px] font-bold flex items-center justify-center">4</span><span class="text-[12px]">Permisos</span></div>
+      </aside>
+      <div class="col-span-9 p-6 grid grid-cols-2 gap-4">
+        <div><label class="text-[11px] font-bold text-slate-700 uppercase mb-1.5 block">Proveedor</label><select class="w-full text-sm border border-slate-300 rounded-lg px-3 py-2"><option>Stripe</option><option>PayPal</option><option>MercadoPago</option><option>Wise</option><option>Zelle</option><option>Binance</option><option>Niubiz</option><option>Izipay</option></select></div>
+        <div><label class="text-[11px] font-bold text-slate-700 uppercase mb-1.5 block">Identificador / Merchant ID</label><input type="text" placeholder="acct_1MerchantID" class="w-full text-sm border border-slate-300 rounded-lg px-3 py-2 font-mono" /></div>
+        <div class="col-span-2"><label class="text-[11px] font-bold text-slate-700 uppercase mb-1.5 block">Nombre interno</label><input type="text" value="Stripe · checkout web" class="w-full text-sm border border-slate-300 rounded-lg px-3 py-2" /></div>
+        <div><label class="text-[11px] font-bold text-slate-700 uppercase mb-1.5 block">Moneda principal</label><div class="flex gap-1"><button class="flex-1 px-2 py-2 text-xs font-bold bg-sky-50 text-sky-700 border-2 border-sky-500 rounded-lg">PEN</button><button class="flex-1 px-2 py-2 text-xs font-bold bg-white border border-slate-300 rounded-lg">USD</button><button class="flex-1 px-2 py-2 text-xs font-bold bg-white border border-slate-300 rounded-lg">Multi</button></div></div>
+        <div><label class="text-[11px] font-bold text-slate-700 uppercase mb-1.5 block">Cuenta destino payouts</label><select class="w-full text-sm border border-slate-300 rounded-lg px-3 py-2 bg-teal-50"><option>BCP Soles Operativa</option></select></div>
+        <!-- Comisión típica -->
+        <div class="col-span-2 bg-gradient-to-br from-sky-50 to-sky-100/40 ring-1 ring-sky-200/50 rounded-xl p-3">
+          <div class="text-[10px] uppercase tracking-wider text-sky-700 font-bold mb-2 flex items-center gap-1.5"><i data-lucide="percent" class="w-3.5 h-3.5"></i> Comisión típica</div>
+          <div class="grid grid-cols-3 gap-3">
+            <div><label class="text-[9px] uppercase text-sky-700 font-semibold mb-1 block">% del monto</label><input type="text" value="4.50" class="w-full text-sm border border-sky-300 rounded-lg px-2 py-1.5 tabular text-right" /></div>
+            <div><label class="text-[9px] uppercase text-sky-700 font-semibold mb-1 block">+ Fijo S/</label><input type="text" value="0.60" class="w-full text-sm border border-sky-300 rounded-lg px-2 py-1.5 tabular text-right" /></div>
+            <div><label class="text-[9px] uppercase text-sky-700 font-semibold mb-1 block">Categoría costo</label><select class="w-full text-sm border border-sky-300 rounded-lg px-2 py-1.5"><option>CC-028 · Comisión pasarela</option></select></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="bg-slate-50 border-t px-5 py-3 flex items-center justify-end gap-2">
+      <button class="text-[11px] font-semibold text-slate-600 hover:bg-slate-100 px-3 py-1.5 rounded-lg">Descartar</button>
+      <button class="text-[11px] font-semibold bg-amber-50 text-amber-700 border border-amber-200 px-3 py-1.5 rounded-lg">Borrador</button>
+      <button class="text-[11px] font-bold text-white bg-sky-600 px-4 py-1.5 rounded-lg">Siguiente</button>
+    </div>
+  </div>
+
+  <!-- Pasos 3+4 Wallet · condensados -->
+  <div class="grid grid-cols-2 gap-3">
+    <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden">
+      <div class="bg-sky-50 border-b px-4 py-2"><span class="text-[10px] uppercase font-bold text-sky-700">PASO 3/4 · Saldo inicial + frecuencia payout</span></div>
+      <div class="p-4 space-y-3 text-[11px]">
+        <div><label class="text-[10px] uppercase font-bold text-slate-700 mb-1 block">Saldo inicial pendiente payout</label><div class="relative"><span class="absolute left-2 top-1.5 text-slate-500 text-sm">S/</span><input type="text" value="0.00" class="w-full text-sm border border-slate-300 rounded-lg pl-7 pr-2 py-1.5 tabular text-right" /></div></div>
+        <div><label class="text-[10px] uppercase font-bold text-slate-700 mb-1 block">Frecuencia payout</label><select class="w-full text-sm border border-slate-300 rounded-lg px-2 py-1.5"><option>Diario · automático</option><option>Semanal</option><option>Manual</option></select></div>
+        <div class="bg-sky-50 ring-1 ring-sky-200 rounded p-2 text-[10px] text-sky-900">Stripe payouts: cobros del día se transfieren al banco al cierre 23:00 PM</div>
+      </div>
+    </div>
+    <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden">
+      <div class="bg-sky-50 border-b px-4 py-2"><span class="text-[10px] uppercase font-bold text-sky-700">PASO 4/4 · Alertas wallet</span></div>
+      <div class="p-4 space-y-2 text-[11px]">
+        <div class="bg-amber-50 ring-1 ring-amber-200 rounded p-2"><div class="font-bold text-amber-900 text-[11px]">Balance &gt; X transferir</div><div class="text-[9px] text-amber-700">Recordar payout si acumulado &gt; S/ 5K</div></div>
+        <div class="bg-rose-50 ring-1 ring-rose-200 rounded p-2"><div class="font-bold text-rose-900 text-[11px]">Comisión alta detectada</div><div class="text-[9px] text-rose-700">Alerta si comisión &gt; 6%</div></div>
+        <div class="bg-indigo-50 ring-1 ring-indigo-200 rounded p-2"><div class="font-bold text-indigo-900 text-[11px]">Webhook payout fallido</div><div class="text-[9px] text-indigo-700">Notificar si payout no se ejecuta</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- §5 · TIPO 3 TC DÉBITO · pasos 2-4 -->
+<section class="space-y-4">
+  <div class="flex items-center gap-2"><span class="text-[10px] uppercase tracking-wider font-bold text-indigo-700">§ 5 · TIPO 3 TC Débito · vinculada a cuenta de ahorros</span><div class="flex-1 h-px bg-indigo-200"></div></div>
+
+  <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+    <div class="bg-indigo-50 border-b px-5 py-2"><span class="text-[10px] uppercase font-bold text-indigo-700">PASO 2/4 · Datos TC débito + selección cuenta ahorros vinculada (cuentaVinculadaId obligatorio)</span></div>
+    <div class="grid grid-cols-12 min-h-[520px]">
+      <aside class="col-span-3 bg-slate-50/50 border-r p-4 space-y-1">
+        <div class="text-[10px] uppercase font-bold text-slate-500 mb-3">Pasos · TC Débito</div>
+        <div class="flex items-center gap-2 p-2 rounded-lg text-emerald-700"><span class="w-6 h-6 rounded-full bg-emerald-100 text-[11px] font-bold flex items-center justify-center"><i data-lucide="check" class="w-3 h-3"></i></span><span class="text-[12px]">Tipo TC Débito</span></div>
+        <div class="flex items-center gap-2 p-2 rounded-lg bg-indigo-50 ring-1 ring-indigo-200"><span class="w-6 h-6 rounded-full bg-indigo-600 text-white text-[11px] font-bold flex items-center justify-center">2</span><span class="text-[12px] font-bold">Datos + vincular</span></div>
+        <div class="flex items-center gap-2 p-2 rounded-lg text-slate-500"><span class="w-6 h-6 rounded-full bg-slate-200 text-[11px] font-bold flex items-center justify-center">3</span><span class="text-[12px]">Sin saldo propio</span></div>
+        <div class="flex items-center gap-2 p-2 rounded-lg text-slate-500"><span class="w-6 h-6 rounded-full bg-slate-200 text-[11px] font-bold flex items-center justify-center">4</span><span class="text-[12px]">Alertas tarjeta</span></div>
+      </aside>
+      <div class="col-span-9 p-6 space-y-4">
+        <div class="bg-amber-50 ring-1 ring-amber-200/50 rounded-lg p-3 flex items-start gap-2"><i data-lucide="link" class="w-4 h-4 text-amber-700 mt-0.5"></i><div class="text-[11px] text-amber-900"><strong>TC débito vinculada:</strong> NO tiene saldo propio · cada compra descuenta directo de la cuenta de ahorros que vincules abajo. Si la cuenta padre no tiene saldo, la tarjeta no opera.</div></div>
+        <div class="grid grid-cols-2 gap-4">
+          <div><label class="text-[11px] font-bold text-slate-700 uppercase mb-1.5 block">Banco emisor</label><select class="w-full text-sm border border-slate-300 rounded-lg px-3 py-2"><option>BCP</option><option>Interbank</option></select></div>
+          <div><label class="text-[11px] font-bold text-slate-700 uppercase mb-1.5 block">Marca</label><div class="grid grid-cols-3 gap-1"><button class="px-2 py-2 text-xs font-bold bg-indigo-50 text-indigo-700 border-2 border-indigo-500 rounded">Visa</button><button class="px-2 py-2 text-xs font-bold bg-white border border-slate-300 rounded">MC</button><button class="px-2 py-2 text-xs font-bold bg-white border border-slate-300 rounded">Otros</button></div></div>
+          <div><label class="text-[11px] font-bold text-slate-700 uppercase mb-1.5 block">Últimos 4</label><input type="text" placeholder="2341" maxlength="4" class="w-full text-sm border border-slate-300 rounded-lg px-3 py-2 tabular text-center" /></div>
+          <div><label class="text-[11px] font-bold text-slate-700 uppercase mb-1.5 block">Nombre interno</label><input type="text" value="Visa Débito BCP ····2341" class="w-full text-sm border border-slate-300 rounded-lg px-3 py-2" /></div>
+        </div>
+        <!-- Vincular cuenta ahorros · CRÍTICO -->
+        <div class="bg-gradient-to-br from-teal-50 to-teal-100/40 ring-2 ring-teal-400 rounded-xl p-4">
+          <h3 class="text-[12px] font-bold text-teal-900 mb-2 flex items-center gap-1.5"><i data-lucide="link" class="w-4 h-4 text-teal-700"></i> Vincular cuenta de ahorros (obligatorio)</h3>
+          <div class="text-[10px] text-teal-700 mb-3">El dinero de las compras saldrá de esta cuenta. Solo se muestran cuentas en la misma moneda que tu TC débito.</div>
+          <div class="space-y-2">
+            <button class="w-full text-left p-3 bg-white ring-2 ring-teal-500 rounded-lg flex items-center gap-3">
+              <div class="bank-bcp w-9 h-9 rounded-lg flex items-center justify-center text-white text-[10px] font-bold">BCP</div>
+              <div class="flex-1 min-w-0"><div class="text-[12px] font-bold text-slate-900">Pool USD · BCP Ahorros USD</div><div class="text-[10px] text-slate-500 tabular">194-7654321-0-43 · TCPA 3.742</div></div>
+              <div class="text-right"><div class="text-[14px] font-bold tabular text-teal-900">$ 4,820</div><div class="text-[9px] text-emerald-700">disponible</div></div>
+              <i data-lucide="check-circle-2" class="w-5 h-5 text-teal-600"></i>
+            </button>
+            <button class="w-full text-left p-3 bg-white border border-slate-200 rounded-lg flex items-center gap-3 hover:border-slate-400 opacity-60">
+              <div class="bank-bcp w-9 h-9 rounded-lg flex items-center justify-center text-white text-[10px] font-bold">BCP</div>
+              <div class="flex-1 min-w-0"><div class="text-[12px] font-bold text-slate-900">BCP Soles Operativa</div><div class="text-[10px] text-slate-500">moneda PEN · NO compatible</div></div>
+              <div class="text-right"><div class="text-[10px] text-slate-400">Disabled</div></div>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="bg-slate-50 border-t px-5 py-3 flex items-center justify-end gap-2">
+      <button class="text-[11px] font-semibold text-slate-600 hover:bg-slate-100 px-3 py-1.5 rounded-lg">Descartar</button>
+      <button class="text-[11px] font-semibold bg-amber-50 text-amber-700 border border-amber-200 px-3 py-1.5 rounded-lg">Borrador</button>
+      <button class="text-[11px] font-bold text-white bg-indigo-600 px-4 py-1.5 rounded-lg">Siguiente</button>
+    </div>
+  </div>
+
+  <!-- Pasos 3+4 TC débito condensados -->
+  <div class="grid grid-cols-2 gap-3">
+    <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden">
+      <div class="bg-indigo-50 border-b px-4 py-2"><span class="text-[10px] uppercase font-bold text-indigo-700">PASO 3/4 · Sin saldo propio · solo confirmar vínculo</span></div>
+      <div class="p-4 text-[11px] text-slate-700 space-y-2">
+        <div class="bg-teal-50 ring-1 ring-teal-200 rounded p-2"><strong class="text-teal-900">Cuenta vinculada confirmada:</strong> Pool USD · BCP Ahorros USD · $4,820</div>
+        <div class="bg-amber-50 ring-1 ring-amber-200 rounded p-2 text-amber-900 text-[10px]">Al ser TC débito, no se ingresa saldo. Los cargos se reflejan en movimientos de la cuenta padre.</div>
+      </div>
+    </div>
+    <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden">
+      <div class="bg-indigo-50 border-b px-4 py-2"><span class="text-[10px] uppercase font-bold text-indigo-700">PASO 4/4 · Alertas tarjeta + límites operativos</span></div>
+      <div class="p-4 space-y-2 text-[11px]">
+        <div class="bg-rose-50 ring-1 ring-rose-200 rounded p-2"><div class="font-bold text-rose-900">Cuenta padre sin saldo</div><div class="text-[9px] text-rose-700">Alerta cuando Pool USD &lt; $100</div></div>
+        <div class="bg-amber-50 ring-1 ring-amber-200 rounded p-2"><div class="font-bold text-amber-900">Cargo grande sospechoso</div><div class="text-[9px] text-amber-700">Notificar cargos &gt; $500</div></div>
+        <div class="bg-slate-50 ring-1 ring-slate-200 rounded p-2"><div class="font-bold text-slate-900">Botón bloqueo emergencia</div><div class="text-[9px] text-slate-700">Disponible en drawer detalle</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- §6 · TIPO 4 TC CRÉDITO · BIMONEDA + TITULARIDAD -->
+<section class="space-y-4">
+  <div class="flex items-center gap-2"><span class="text-[10px] uppercase tracking-wider font-bold text-amber-700">§ 6 · TIPO 4 TC Crédito · bimoneda + titularidad empresa/personal</span><div class="flex-1 h-px bg-amber-200"></div></div>
+
+  <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+    <div class="bg-amber-50 border-b px-5 py-2"><span class="text-[10px] uppercase font-bold text-amber-700">PASO 2/4 · Datos TC crédito + bimoneda + titularidad + topeControl (alerta NO límite)</span></div>
+    <div class="grid grid-cols-12 min-h-[600px]">
+      <aside class="col-span-3 bg-slate-50/50 border-r p-4 space-y-1">
+        <div class="text-[10px] uppercase font-bold text-slate-500 mb-3">Pasos · TC Crédito</div>
+        <div class="flex items-center gap-2 p-2 rounded-lg text-emerald-700"><span class="w-6 h-6 rounded-full bg-emerald-100 text-[11px] font-bold flex items-center justify-center"><i data-lucide="check" class="w-3 h-3"></i></span><span class="text-[12px]">Tipo TC Crédito</span></div>
+        <div class="flex items-center gap-2 p-2 rounded-lg bg-amber-50 ring-1 ring-amber-200"><span class="w-6 h-6 rounded-full bg-amber-600 text-white text-[11px] font-bold flex items-center justify-center">2</span><span class="text-[12px] font-bold">Datos + ciclo</span></div>
+        <div class="flex items-center gap-2 p-2 rounded-lg text-slate-500"><span class="w-6 h-6 rounded-full bg-slate-200 text-[11px] font-bold flex items-center justify-center">3</span><span class="text-[12px]">Cargos previos</span></div>
+        <div class="flex items-center gap-2 p-2 rounded-lg text-slate-500"><span class="w-6 h-6 rounded-full bg-slate-200 text-[11px] font-bold flex items-center justify-center">4</span><span class="text-[12px]">Alertas TC</span></div>
+      </aside>
+      <div class="col-span-9 p-6 space-y-4">
+        <div class="grid grid-cols-2 gap-4">
+          <div><label class="text-[11px] font-bold text-slate-700 uppercase mb-1.5 block">Banco emisor</label><select class="w-full text-sm border border-slate-300 rounded-lg px-3 py-2"><option>BCP</option><option>Interbank</option><option>BBVA</option><option>Amex</option><option>Diners</option></select></div>
+          <div><label class="text-[11px] font-bold text-slate-700 uppercase mb-1.5 block">Marca</label><div class="grid grid-cols-4 gap-1"><button class="px-2 py-2 text-[11px] font-bold bg-amber-50 text-amber-700 border-2 border-amber-500 rounded">Visa</button><button class="px-2 py-2 text-[11px] font-bold bg-white border border-slate-300 rounded">MC</button><button class="px-2 py-2 text-[11px] font-bold bg-white border border-slate-300 rounded">Amex</button><button class="px-2 py-2 text-[11px] font-bold bg-white border border-slate-300 rounded">Diners</button></div></div>
+          <div><label class="text-[11px] font-bold text-slate-700 uppercase mb-1.5 block">Últimos 4</label><input type="text" placeholder="6411" maxlength="4" class="w-full text-sm border border-slate-300 rounded-lg px-3 py-2 tabular text-center" /></div>
+          <div><label class="text-[11px] font-bold text-slate-700 uppercase mb-1.5 block">Nombre interno</label><input type="text" value="Visa BCP Empresarial ····6411" class="w-full text-sm border border-slate-300 rounded-lg px-3 py-2" /></div>
+        </div>
+        <!-- BIMONEDA toggle -->
+        <div class="bg-gradient-to-br from-amber-50 to-amber-100/40 ring-2 ring-amber-400 rounded-xl p-3">
+          <div class="flex items-center justify-between mb-3">
+            <div><div class="text-[11px] font-bold text-amber-900">¿Esta TC es bimoneda?</div><div class="text-[10px] text-amber-700">Acumula USD y PEN simultáneamente · BCP/Interbank/BBVA empresariales típicamente sí</div></div>
+            <div class="flex gap-2"><button class="px-3 py-1.5 text-[11px] font-bold bg-white border border-amber-300 rounded">No</button><button class="px-3 py-1.5 text-[11px] font-bold bg-amber-600 text-white rounded">Sí · Bimoneda</button></div>
+          </div>
+          <div class="grid grid-cols-2 gap-3 mt-2">
+            <div><label class="text-[10px] uppercase font-bold text-amber-700 mb-1 block">TopeControl USD (alerta NO límite)</label><div class="relative"><span class="absolute left-2 top-1.5 text-amber-700 text-sm">$</span><input type="text" value="8,000" class="w-full text-sm border border-amber-300 rounded-lg pl-7 pr-2 py-1.5 tabular text-right" /></div></div>
+            <div><label class="text-[10px] uppercase font-bold text-amber-700 mb-1 block">TopeControl PEN (alerta NO límite)</label><div class="relative"><span class="absolute left-2 top-1.5 text-amber-700 text-sm">S/</span><input type="text" value="20,000" class="w-full text-sm border border-amber-300 rounded-lg pl-7 pr-2 py-1.5 tabular text-right" /></div></div>
+          </div>
+          <div class="text-[10px] text-amber-700 mt-2 italic flex items-start gap-1"><i data-lucide="info" class="w-2.5 h-2.5 mt-0.5"></i><span><strong>Decisión D3:</strong> el topeControl es alerta operativa que vos definís · NO bloquea la TC · respeta líneas "ilimitadas" de Vita Skin Peru.</span></div>
+        </div>
+        <!-- TITULARIDAD -->
+        <div class="bg-gradient-to-br from-indigo-50 to-indigo-100/40 ring-1 ring-indigo-200/50 rounded-xl p-3">
+          <div class="text-[11px] font-bold text-indigo-900 mb-2">Titularidad de la TC</div>
+          <div class="grid grid-cols-2 gap-2">
+            <button class="p-3 bg-white ring-2 ring-indigo-500 rounded-lg text-left"><div class="text-[12px] font-bold text-indigo-900">Empresa</div><div class="text-[10px] text-indigo-700">Vita Skin Peru SAC · pago va al banco emisor · genera diferencial FX</div></button>
+            <button class="p-3 bg-white border border-slate-200 rounded-lg text-left hover:border-indigo-300"><div class="text-[12px] font-bold text-slate-900">Personal (empleado/colaborador)</div><div class="text-[10px] text-slate-500">Titular paga al banco · empresa reembolsa al titular · SIN diferencial FX</div></button>
+          </div>
+        </div>
+        <!-- Ciclo -->
+        <div class="grid grid-cols-2 gap-3">
+          <div><label class="text-[11px] font-bold text-slate-700 uppercase mb-1.5 block">Día corte</label><input type="number" value="25" min="1" max="31" class="w-full text-sm border border-slate-300 rounded-lg px-3 py-2 tabular text-center" /></div>
+          <div><label class="text-[11px] font-bold text-slate-700 uppercase mb-1.5 block">Día pago</label><input type="number" value="10" min="1" max="31" class="w-full text-sm border border-slate-300 rounded-lg px-3 py-2 tabular text-center" /></div>
+        </div>
+        <!-- Cuenta pago default · bimoneda = 2 cuentas separadas (D refinada) -->
+        <div class="bg-gradient-to-br from-teal-50 to-teal-100/40 ring-2 ring-teal-400 rounded-xl p-3">
+          <div class="text-[11px] font-bold text-teal-900 mb-2 flex items-center gap-1.5"><i data-lucide="wallet" class="w-4 h-4 text-teal-700"></i> Cuenta pago default (preselecciona en wizard B.2 al pagar TC)</div>
+          <div class="text-[10px] text-teal-700 mb-3 italic flex items-start gap-1"><i data-lucide="info" class="w-2.5 h-2.5 mt-0.5"></i><span>TC bimoneda · necesitás 2 cuentas separadas. Cada deuda se paga con su cuenta natural · evita conversión innecesaria + diferencial cambiario.</span></div>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="text-[10px] uppercase font-bold text-teal-700 mb-1 block flex items-center gap-1"><span class="bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded text-[9px] font-bold">USD</span> Para deuda USD <span class="text-[8px] text-teal-600 normal-case font-normal">(elegir cuenta USD específica · TCPA único del Pool aplica igual)</span></label>
+              <select class="w-full text-sm border border-teal-300 rounded-lg px-2 py-1.5">
+                <optgroup label="── Pool USD · 3 ctas USD · TCPA 3.742 ──">
+                  <option>BCP Ahorros USD · $ 4,820 (default)</option>
+                  <option>IBK Ahorros USD · $ 1,200</option>
+                  <option>BBVA Ahorros USD · $ 800</option>
+                </optgroup>
+              </select>
+            </div>
+            <div>
+              <label class="text-[10px] uppercase font-bold text-teal-700 mb-1 block flex items-center gap-1"><span class="bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded text-[9px] font-bold">PEN</span> Para deuda PEN</label>
+              <select class="w-full text-sm border border-teal-300 rounded-lg px-2 py-1.5"><option>BCP Soles Operativa · S/ 42,180</option></select>
+            </div>
+          </div>
+          <div class="text-[10px] text-slate-500 mt-2 italic">Si fuera monomoneda · solo 1 cuenta · si fuera personal (reembolso titular) · este campo NO aparece (el destino es el empleado).</div>
+        </div>
+      </div>
+    </div>
+    <div class="bg-slate-50 border-t px-5 py-3 flex items-center justify-end gap-2">
+      <button class="text-[11px] font-semibold text-slate-600 hover:bg-slate-100 px-3 py-1.5 rounded-lg">Descartar</button>
+      <button class="text-[11px] font-semibold bg-amber-50 text-amber-700 border border-amber-200 px-3 py-1.5 rounded-lg">Borrador</button>
+      <button class="text-[11px] font-bold text-white bg-amber-600 px-4 py-1.5 rounded-lg">Siguiente</button>
+    </div>
+  </div>
+
+  <!-- Pasos 3+4 TC crédito · condensados -->
+  <div class="grid grid-cols-2 gap-3">
+    <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden">
+      <div class="bg-amber-50 border-b px-4 py-2"><span class="text-[10px] uppercase font-bold text-amber-700">PASO 3/4 · Cargos previos pendientes (si existían antes del ERP)</span></div>
+      <div class="p-4 space-y-3 text-[11px]">
+        <div class="grid grid-cols-2 gap-2"><div><label class="text-[10px] uppercase font-bold text-slate-700 mb-1 block">Saldo pendiente USD</label><div class="relative"><span class="absolute left-2 top-1.5 text-slate-500 text-sm">$</span><input type="text" value="0.00" class="w-full text-sm border border-slate-300 rounded-lg pl-7 pr-2 py-1.5 tabular text-right" /></div></div><div><label class="text-[10px] uppercase font-bold text-slate-700 mb-1 block">Saldo pendiente PEN</label><div class="relative"><span class="absolute left-2 top-1.5 text-slate-500 text-sm">S/</span><input type="text" value="0.00" class="w-full text-sm border border-slate-300 rounded-lg pl-7 pr-2 py-1.5 tabular text-right" /></div></div></div>
+        <div class="bg-emerald-50 ring-1 ring-emerald-200 rounded p-2 text-[10px] text-emerald-900">D9: saldos en 0 para UAT inicial</div>
+      </div>
+    </div>
+    <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden">
+      <div class="bg-amber-50 border-b px-4 py-2"><span class="text-[10px] uppercase font-bold text-amber-700">PASO 4/4 · Alertas TC (canon S58f)</span></div>
+      <div class="p-4 space-y-2 text-[11px]">
+        <div class="bg-rose-50 ring-1 ring-rose-200 rounded p-2"><div class="font-bold text-rose-900">Tope alerta alcanzado</div><div class="text-[9px] text-rose-700">Cuando USD &gt; 70% o PEN &gt; 70% del tope · NO bloquea operación</div></div>
+        <div class="bg-amber-50 ring-1 ring-amber-200 rounded p-2"><div class="font-bold text-amber-900">Vencimiento próximo</div><div class="text-[9px] text-amber-700">3 días antes del día pago · "Pagar TC urgente"</div></div>
+        <div class="bg-indigo-50 ring-1 ring-indigo-200 rounded p-2"><div class="font-bold text-indigo-900">Cargo grande</div><div class="text-[9px] text-indigo-700">Notificar cargo &gt; X</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- §7 · TIPO 5 CAJA · y §8 TIPO 6 RECAUDADORA · condensados pero completos -->
+<section class="space-y-4">
+  <div class="flex items-center gap-2"><span class="text-[10px] uppercase tracking-wider font-bold text-slate-700">§ 7 · TIPO 5 Caja efectivo · responsable + arqueo</span><div class="flex-1 h-px bg-slate-300"></div></div>
+
+  <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+    <div class="bg-slate-100 border-b px-5 py-2"><span class="text-[10px] uppercase font-bold text-slate-700">PASO 2/4 · Datos caja · responsable obligatorio + ubicación + arqueo</span></div>
+    <div class="p-6 grid grid-cols-2 gap-4">
+      <div class="col-span-2"><label class="text-[11px] font-bold text-slate-700 uppercase mb-1.5 block">Nombre interno</label><input type="text" value="Caja chica oficina Lima" class="w-full text-sm border border-slate-300 rounded-lg px-3 py-2" /></div>
+      <div><label class="text-[11px] font-bold text-slate-700 uppercase mb-1.5 block">Responsable obligatorio</label><select class="w-full text-sm border border-slate-300 rounded-lg px-3 py-2"><option>María Pérez · gerencia financiera</option><option>Carlos Ruiz</option><option>Lucía Torres</option></select></div>
+      <div><label class="text-[11px] font-bold text-slate-700 uppercase mb-1.5 block">Moneda</label><div class="flex gap-2"><button class="flex-1 px-3 py-2 text-sm font-semibold bg-slate-700 text-white border-2 border-slate-700 rounded-lg">PEN</button><button class="flex-1 px-3 py-2 text-sm font-semibold bg-white border border-slate-300 rounded-lg">USD</button></div></div>
+      <div class="col-span-2"><label class="text-[11px] font-bold text-slate-700 uppercase mb-1.5 block">Ubicación física</label><input type="text" value="Oficina principal · Av. Pardo 1234, Miraflores" class="w-full text-sm border border-slate-300 rounded-lg px-3 py-2" /></div>
+      <div><label class="text-[11px] font-bold text-slate-700 uppercase mb-1.5 block">Monto máximo permitido</label><div class="relative"><span class="absolute left-3 top-2 text-slate-500 text-sm">S/</span><input type="text" value="1,000.00" class="w-full text-sm border border-slate-300 rounded-lg pl-9 pr-3 py-2 tabular text-right" /></div></div>
+      <div><label class="text-[11px] font-bold text-slate-700 uppercase mb-1.5 block">Frecuencia de arqueo</label><select class="w-full text-sm border border-slate-300 rounded-lg px-3 py-2"><option>Diario · cierre de día</option><option selected>Semanal · viernes</option><option>Quincenal</option><option>Mensual</option></select></div>
+    </div>
+  </div>
+
+  <div class="flex items-center gap-2 mt-8"><span class="text-[10px] uppercase tracking-wider font-bold text-purple-700">§ 8 · TIPO 6 ⭐ Caja Recaudadora · responsable tercero + tarifa servicio + liquidación</span><div class="flex-1 h-px bg-purple-300"></div></div>
+
+  <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+    <div class="bg-purple-50 border-b px-5 py-2 flex items-center justify-between"><span class="text-[10px] uppercase font-bold text-purple-700">PASO 2/4 · Datos Caja Recaudadora · responsable tercero + tarifa + cuenta liquidación</span><span class="text-[9px] bg-purple-200 text-purple-800 px-1.5 py-0.5 rounded-full font-bold">DEUDA-MODELO-RECAUDADOR</span></div>
+    <div class="grid grid-cols-12 min-h-[620px]">
+      <aside class="col-span-3 bg-slate-50/50 border-r p-4 space-y-1">
+        <div class="text-[10px] uppercase font-bold text-slate-500 mb-3">Pasos · Recaudadora</div>
+        <div class="flex items-center gap-2 p-2 rounded-lg text-emerald-700"><span class="w-6 h-6 rounded-full bg-emerald-100 text-[11px] font-bold flex items-center justify-center"><i data-lucide="check" class="w-3 h-3"></i></span><span class="text-[12px]">Tipo Recaudadora</span></div>
+        <div class="flex items-center gap-2 p-2 rounded-lg bg-purple-50 ring-1 ring-purple-200"><span class="w-6 h-6 rounded-full bg-purple-600 text-white text-[11px] font-bold flex items-center justify-center">2</span><span class="text-[12px] font-bold">Tercero + tarifa</span></div>
+        <div class="flex items-center gap-2 p-2 rounded-lg text-slate-500"><span class="w-6 h-6 rounded-full bg-slate-200 text-[11px] font-bold flex items-center justify-center">3</span><span class="text-[12px]">Cuenta liquidación</span></div>
+        <div class="flex items-center gap-2 p-2 rounded-lg text-slate-500"><span class="w-6 h-6 rounded-full bg-slate-200 text-[11px] font-bold flex items-center justify-center">4</span><span class="text-[12px]">Política + alertas</span></div>
+      </aside>
+      <div class="col-span-9 p-6 space-y-4">
+        <div class="bg-purple-50 ring-1 ring-purple-200/50 rounded-lg p-3 flex items-start gap-2">
+          <i data-lucide="truck" class="w-4 h-4 text-purple-700 mt-0.5"></i>
+          <div class="text-[11px] text-purple-900"><strong>Caja Recaudadora:</strong> un proveedor (logístico, cobranza externa, etc.) cobra dinero en tu nombre · descuenta sus servicios · liquida el saldo a tu cuenta destino. Genera CC con el proveedor. Ejemplo VSP: GK Xpress.</div>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div class="col-span-2"><label class="text-[11px] font-bold text-slate-700 uppercase mb-1.5 block">Nombre interno</label><input type="text" value="GK Xpress · multi-canal" class="w-full text-sm border border-slate-300 rounded-lg px-3 py-2" /></div>
+        </div>
+        <!-- Multi-canal canales aceptados (DEUDA-MODELO-RECAUDADOR refinada) -->
+        <div class="bg-gradient-to-br from-purple-50 to-purple-100/40 ring-2 ring-purple-400 rounded-xl p-3">
+          <div class="text-[11px] font-bold text-purple-900 mb-2 flex items-center gap-1.5"><i data-lucide="layers" class="w-4 h-4 text-purple-700"></i> Canales aceptados (multi-select · al menos 1 obligatorio)</div>
+          <div class="text-[10px] text-purple-700 mb-3 italic flex items-start gap-1"><i data-lucide="info" class="w-2.5 h-2.5 mt-0.5"></i><span>GK Xpress puede cobrar al cliente final con cualquiera de estos medios según conveniencia. Balance consolidado · liquidación única · CC única con el proveedor.</span></div>
+          <div class="space-y-2">
+            <!-- Yape activo -->
+            <div class="flex items-center gap-2 p-2 bg-white ring-1 ring-purple-200 rounded-lg">
+              <input type="checkbox" checked class="rounded text-purple-600" />
+              <span class="text-[10px] uppercase font-bold px-2 py-1 rounded border bg-purple-100 text-purple-700 border-purple-200 w-20 text-center">YAPE</span>
+              <input type="text" placeholder="+51 999-XXX-541" value="+51 999-XXX-541" class="flex-1 h-7 px-2 text-[11px] border border-slate-300 rounded bg-white tabular" />
+              <span class="text-[9px] text-slate-500 w-20">Cel rider</span>
+            </div>
+            <!-- Plin activo -->
+            <div class="flex items-center gap-2 p-2 bg-white ring-1 ring-purple-200 rounded-lg">
+              <input type="checkbox" checked class="rounded text-purple-600" />
+              <span class="text-[10px] uppercase font-bold px-2 py-1 rounded border bg-cyan-100 text-cyan-700 border-cyan-200 w-20 text-center">PLIN</span>
+              <input type="text" placeholder="+51 999-XXX-541" value="+51 999-XXX-541" class="flex-1 h-7 px-2 text-[11px] border border-slate-300 rounded bg-white tabular" />
+              <span class="text-[9px] text-slate-500 w-20">Cel rider</span>
+            </div>
+            <!-- Efectivo activo -->
+            <div class="flex items-center gap-2 p-2 bg-white ring-1 ring-purple-200 rounded-lg">
+              <input type="checkbox" checked class="rounded text-purple-600" />
+              <span class="text-[10px] uppercase font-bold px-2 py-1 rounded border bg-emerald-100 text-emerald-700 border-emerald-200 w-20 text-center">EFECTIVO</span>
+              <input type="text" placeholder="N/A (cash physical)" disabled class="flex-1 h-7 px-2 text-[11px] border border-slate-200 rounded bg-slate-50 italic text-slate-400" />
+              <span class="text-[9px] text-slate-500 w-20">Manual report</span>
+            </div>
+            <!-- POS Niubiz activo -->
+            <div class="flex items-center gap-2 p-2 bg-white ring-1 ring-purple-200 rounded-lg">
+              <input type="checkbox" checked class="rounded text-purple-600" />
+              <span class="text-[10px] uppercase font-bold px-2 py-1 rounded border bg-amber-100 text-amber-700 border-amber-200 w-20 text-center">POS NIUBIZ</span>
+              <input type="text" placeholder="Merchant ID" value="MID-1234567" class="flex-1 h-7 px-2 text-[11px] border border-slate-300 rounded bg-white tabular" />
+              <span class="text-[9px] text-slate-500 w-20">Merchant ID</span>
+            </div>
+            <!-- Canales NO activos -->
+            <div class="flex flex-wrap gap-1.5 pt-2 border-t border-purple-200">
+              <span class="text-[10px] text-purple-700 font-bold mr-1">+ Agregar canal:</span>
+              <button class="text-[10px] px-2 py-1 bg-white border border-dashed border-purple-300 text-purple-700 rounded hover:bg-purple-50 flex items-center gap-1"><i data-lucide="plus" class="w-3 h-3"></i> SIP</button>
+              <button class="text-[10px] px-2 py-1 bg-white border border-dashed border-purple-300 text-purple-700 rounded hover:bg-purple-50 flex items-center gap-1"><i data-lucide="plus" class="w-3 h-3"></i> Ágora</button>
+              <button class="text-[10px] px-2 py-1 bg-white border border-dashed border-purple-300 text-purple-700 rounded hover:bg-purple-50 flex items-center gap-1"><i data-lucide="plus" class="w-3 h-3"></i> BIM</button>
+              <button class="text-[10px] px-2 py-1 bg-white border border-dashed border-purple-300 text-purple-700 rounded hover:bg-purple-50 flex items-center gap-1"><i data-lucide="plus" class="w-3 h-3"></i> POS Izipay</button>
+              <button class="text-[10px] px-2 py-1 bg-white border border-dashed border-purple-300 text-purple-700 rounded hover:bg-purple-50 flex items-center gap-1"><i data-lucide="plus" class="w-3 h-3"></i> POS Visanet</button>
+              <button class="text-[10px] px-2 py-1 bg-white border border-dashed border-purple-300 text-purple-700 rounded hover:bg-purple-50 flex items-center gap-1"><i data-lucide="plus" class="w-3 h-3"></i> Transferencia</button>
+            </div>
+          </div>
+          <div class="bg-purple-100 ring-1 ring-purple-300 rounded p-2 mt-3 text-[10px] text-purple-900 flex items-start gap-1.5">
+            <i data-lucide="lightbulb" class="w-3 h-3 text-purple-700 mt-0.5"></i>
+            <span><strong>Al registrar cobro entrante</strong> sistema pedirá especificar canal usado (Yape/Plin/Efectivo/POS) · balance se consolida · reportes pueden hacer drill por canal.</span>
+          </div>
+        </div>
+        <!-- Responsable tercero -->
+        <div class="bg-gradient-to-br from-purple-50 to-purple-100/40 ring-2 ring-purple-400 rounded-xl p-3">
+          <div class="text-[11px] font-bold text-purple-900 mb-2 flex items-center gap-1.5"><i data-lucide="user" class="w-4 h-4"></i> Responsable tercero (obligatorio)</div>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="text-[10px] uppercase font-bold text-purple-700 mb-1 block">Tipo entidad</label>
+              <div class="grid grid-cols-3 gap-1"><button class="px-2 py-1.5 text-[10px] font-bold bg-purple-600 text-white rounded">Proveedor</button><button class="px-2 py-1.5 text-[10px] font-bold bg-white border border-slate-300 rounded">Colab</button><button class="px-2 py-1.5 text-[10px] font-bold bg-white border border-slate-300 rounded">Cliente</button></div>
+            </div>
+            <div>
+              <label class="text-[10px] uppercase font-bold text-purple-700 mb-1 block">Seleccionar entidad</label>
+              <select class="w-full text-sm border border-purple-300 rounded-lg px-2 py-1.5"><option>GK Xpress (Carlos M.) · RUC 20111222333</option><option>+ Crear nuevo proveedor</option></select>
+            </div>
+          </div>
+        </div>
+        <!-- Tarifa servicio -->
+        <div class="bg-gradient-to-br from-amber-50 to-amber-100/40 ring-1 ring-amber-200/50 rounded-xl p-3">
+          <div class="text-[11px] font-bold text-amber-900 mb-2 flex items-center gap-1.5"><i data-lucide="percent" class="w-4 h-4"></i> Tarifa de servicio (cómo cobra el recaudador)</div>
+          <div class="grid grid-cols-3 gap-3">
+            <div><label class="text-[10px] uppercase font-bold text-amber-700 mb-1 block">Tipo</label><select class="w-full text-sm border border-amber-300 rounded-lg px-2 py-1.5"><option>Fijo por evento</option><option>Porcentaje del cobro</option><option>Mixto · % + fijo</option></select></div>
+            <div><label class="text-[10px] uppercase font-bold text-amber-700 mb-1 block">Valor</label><div class="relative"><span class="absolute left-2 top-1.5 text-amber-700 text-sm">S/</span><input type="text" value="25.00" class="w-full text-sm border border-amber-300 rounded-lg pl-7 pr-2 py-1.5 tabular text-right" /></div></div>
+            <div><label class="text-[10px] uppercase font-bold text-amber-700 mb-1 block">Label evento</label><input type="text" value="por carrera" class="w-full text-sm border border-amber-300 rounded-lg px-2 py-1.5" /></div>
+          </div>
+          <div class="text-[10px] text-amber-700 mt-2 italic">Ej: GK Xpress cobra S/ 25 por cada envío · al liquidar se descuenta automáticamente el total de servicios del periodo.</div>
+        </div>
+      </div>
+    </div>
+    <div class="bg-slate-50 border-t px-5 py-3 flex items-center justify-end gap-2">
+      <button class="text-[11px] font-semibold text-slate-600 hover:bg-slate-100 px-3 py-1.5 rounded-lg">Descartar</button>
+      <button class="text-[11px] font-semibold bg-amber-50 text-amber-700 border border-amber-200 px-3 py-1.5 rounded-lg">Borrador</button>
+      <button class="text-[11px] font-bold text-white bg-purple-600 px-4 py-1.5 rounded-lg">Siguiente</button>
+    </div>
+  </div>
+
+  <!-- Pasos 3+4 Recaudadora -->
+  <div class="grid grid-cols-2 gap-3">
+    <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden">
+      <div class="bg-purple-50 border-b px-4 py-2"><span class="text-[10px] uppercase font-bold text-purple-700">PASO 3/4 · Cuenta de liquidación destino</span></div>
+      <div class="p-4 space-y-3 text-[11px]">
+        <div><label class="text-[10px] uppercase font-bold text-slate-700 mb-1 block">Cuenta destino para liquidación</label><select class="w-full text-sm border border-slate-300 rounded-lg px-3 py-2 bg-teal-50"><option>BCP Soles Operativa (default)</option><option>BCP Ahorros PEN</option></select></div>
+        <div><label class="text-[10px] uppercase font-bold text-slate-700 mb-1 block">Frecuencia liquidación esperada</label><select class="w-full text-sm border border-slate-300 rounded-lg px-3 py-2"><option>Quincenal</option><option>Semanal</option><option>Mensual</option><option>A demanda</option></select></div>
+        <div class="bg-purple-50 ring-1 ring-purple-200 rounded p-2 text-[10px] text-purple-900">Saldo recaudador acumula entre liquidaciones · wizard B.4 lo procesa.</div>
+      </div>
+    </div>
+    <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden">
+      <div class="bg-purple-50 border-b px-4 py-2"><span class="text-[10px] uppercase font-bold text-purple-700">PASO 4/4 · Política + alertas recaudadora</span></div>
+      <div class="p-4 space-y-2 text-[11px]">
+        <div class="bg-amber-50 ring-1 ring-amber-200 rounded p-2"><div class="font-bold text-amber-900">Saldo &gt; X · liquidar</div><div class="text-[9px] text-amber-700">Recordar liquidación cuando pendiente &gt; S/ 5K</div></div>
+        <div class="bg-rose-50 ring-1 ring-rose-200 rounded p-2"><div class="font-bold text-rose-900">Liquidación atrasada</div><div class="text-[9px] text-rose-700">Alerta si pasaron &gt; 15 días sin liquidar</div></div>
+        <div class="bg-indigo-50 ring-1 ring-indigo-200 rounded p-2"><div class="font-bold text-indigo-900">Cobro sin asignar</div><div class="text-[9px] text-indigo-700">Notificar si entra cobro sin envío vinculado</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- §9 · RESUMEN -->
+<section class="space-y-4">
+  <div class="flex items-center gap-2"><span class="text-[10px] uppercase tracking-wider font-bold text-slate-500">§ 9 · Resumen cobertura wizard nueva cuenta</span><div class="flex-1 h-px bg-slate-200"></div></div>
+  <div class="bg-white border border-slate-200 rounded-2xl p-5">
+    <table class="w-full text-[11px]">
+      <thead class="bg-slate-50 text-slate-600 uppercase text-[10px] font-bold"><tr><th class="text-left py-2 px-3">Tipo</th><th class="text-left py-2 px-3">Tinte</th><th class="text-left py-2 px-3">Paso 2 (datos)</th><th class="text-left py-2 px-3">Paso 3 (saldo/config)</th><th class="text-left py-2 px-3">Paso 4 (alertas)</th><th class="text-center py-2 px-3">Pantallas</th></tr></thead>
+      <tbody class="divide-y divide-slate-100">
+        <tr><td class="py-2 px-3 font-bold text-teal-700">Bancaria</td><td class="py-2 px-3"><span class="bg-teal-100 text-teal-700 px-2 py-0.5 rounded text-[10px] font-bold">teal</span></td><td class="py-2 px-3">Banco · producto · N° · CCI</td><td class="py-2 px-3">Saldo + canales Yape/Plin</td><td class="py-2 px-3">Saldo bajo · egresos grandes</td><td class="py-2 px-3 text-center font-bold">4</td></tr>
+        <tr><td class="py-2 px-3 font-bold text-sky-700">Wallet</td><td class="py-2 px-3"><span class="bg-sky-100 text-sky-700 px-2 py-0.5 rounded text-[10px] font-bold">sky</span></td><td class="py-2 px-3">Proveedor · merchant ID · comisión</td><td class="py-2 px-3">Saldo + frecuencia payout</td><td class="py-2 px-3">Balance &gt; X · comisión alta</td><td class="py-2 px-3 text-center font-bold">4</td></tr>
+        <tr><td class="py-2 px-3 font-bold text-indigo-700">TC Débito</td><td class="py-2 px-3"><span class="bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded text-[10px] font-bold">indigo</span></td><td class="py-2 px-3">Banco · marca · vincular cuenta ahorros</td><td class="py-2 px-3">Sin saldo · confirma vínculo</td><td class="py-2 px-3">Cuenta padre sin saldo · cargo grande</td><td class="py-2 px-3 text-center font-bold">4</td></tr>
+        <tr><td class="py-2 px-3 font-bold text-amber-700">TC Crédito</td><td class="py-2 px-3"><span class="bg-amber-100 text-amber-700 px-2 py-0.5 rounded text-[10px] font-bold">amber</span></td><td class="py-2 px-3">Banco · marca · bimoneda · titularidad · ciclo</td><td class="py-2 px-3">Cargos previos USD+PEN</td><td class="py-2 px-3">Tope alerta · vencimiento · cargo grande</td><td class="py-2 px-3 text-center font-bold">4</td></tr>
+        <tr><td class="py-2 px-3 font-bold text-slate-700">Caja efectivo</td><td class="py-2 px-3"><span class="bg-slate-100 text-slate-700 px-2 py-0.5 rounded text-[10px] font-bold">slate</span></td><td class="py-2 px-3">Nombre · responsable · ubicación · arqueo</td><td class="py-2 px-3">Saldo apertura</td><td class="py-2 px-3">Excede límite · arqueo pendiente</td><td class="py-2 px-3 text-center font-bold">4</td></tr>
+        <tr class="bg-purple-50/30"><td class="py-2 px-3 font-bold text-purple-700">⭐ Recaudadora</td><td class="py-2 px-3"><span class="bg-purple-100 text-purple-700 px-2 py-0.5 rounded text-[10px] font-bold">purple</span></td><td class="py-2 px-3">Canal · tercero responsable · tarifa servicio</td><td class="py-2 px-3">Cuenta liquidación · frec esperada</td><td class="py-2 px-3">Saldo &gt; X · liquidación atrasada · sin asignar</td><td class="py-2 px-3 text-center font-bold">4</td></tr>
+      </tbody>
+      <tfoot class="bg-teal-50 font-bold"><tr><td colspan="5" class="py-2 px-3 text-right text-teal-700">TOTAL pantallas pixel-perfect</td><td class="py-2 px-3 text-center text-teal-900 text-base">19 + selector inicial</td></tr></tfoot>
+    </table>
+  </div>
+</section>
+
+</main>
+
+<footer class="bg-slate-900 text-slate-300 mt-12 py-6"><div class="max-w-[1400px] mx-auto px-6 text-[11px] flex items-center justify-between"><div>MOCK 10 · Wizard Nueva Cuenta v5.1 · supersedes wizard-nueva-cuenta-v5</div><div>Turno 4 · 6 tipos × pasos = 19 pantallas</div></div></footer>
+<script>lucide.createIcons();</script>
+</body>
+</html>
