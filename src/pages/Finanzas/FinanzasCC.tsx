@@ -6,7 +6,7 @@
  *
  * Override del shell adaptativo (S3.SF1):
  *   - breadcrumb leaf: "Cuentas Corrientes"
- *   - header: icon Users indigo + "Cuentas Corrientes con Entidades" + subtitle
+ *   - header: icon Users indigo + "Cuentas Corrientes" + subtitle
  *   - actions: [Aging Excel · Enviar recordatorios · Registrar cobro/pago] + dropdown
  *   - kpiSlot: 5 KPIs CC propios (CxC · CxP · Saldo neto · Aging crítico · Top deudor)
  *
@@ -398,7 +398,7 @@ const FinanzasCC: React.FC = () => {
     setSubVistaConfig({
       breadcrumbLeaf: 'Cuentas Corrientes',
       header: {
-        title: 'Cuentas Corrientes con Entidades',
+        title: 'Cuentas Corrientes',
         subtitle:
           'Por cobrar (CxC) · Por pagar (CxP) · agrupado por tipo de entidad · drill por titular con sub-tabs',
         icon: Users,
@@ -573,7 +573,7 @@ const FinanzasCC: React.FC = () => {
                 onClick={() => onSeleccionarAccion('ingreso_simple')}
                 className="text-[11px] font-bold text-white bg-emerald-600 hover:bg-emerald-700 px-3 py-1.5 rounded-lg inline-flex items-center gap-1.5"
               >
-                Registrar 1ra venta/compra
+                Registrar primer movimiento
               </button>
             )}
           </div>

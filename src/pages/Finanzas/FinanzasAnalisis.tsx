@@ -269,7 +269,7 @@ const FinanzasAnalisis: React.FC = () => {
       header: {
         title: 'Análisis estratégico',
         subtitle:
-          '10 gráficas canon-level · fusión S58f + G1-G10 · banking grade · responde "¿cómo viene el negocio financieramente?"',
+          'Pulso financiero · margen · runway · capital de trabajo · EBITDA · calendario de obligaciones · cohort de cobro · ROI por línea · escenarios de cash flow',
         icon: LineChart,
         iconColor: 'purple',
       },
@@ -303,8 +303,9 @@ const FinanzasAnalisis: React.FC = () => {
       {/* ─── INTRO + MATRIZ 3 TIERS ─────────────────────────────────── */}
       <section className="space-y-3">
         <p className="text-sm text-slate-600 max-w-3xl">
-          Vista estratégica del módulo Finanzas · 10 gráficas canon-level con color semántico
-          v8.0. Cada gráfica responde una pregunta específica · patrón Mercury/Pulse banking grade.
+          Vista estratégica del módulo Finanzas. Cada gráfica responde una pregunta clave
+          del negocio · de la salud general (pulso financiero) al detalle de cohortes y
+          escenarios futuros.
         </p>
       </section>
 

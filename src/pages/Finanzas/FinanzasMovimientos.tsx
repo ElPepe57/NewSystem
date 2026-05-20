@@ -46,6 +46,7 @@ import {
   type FiltrosLedgerState,
   type VistaLedger,
 } from './components/FiltrosLedgerBar';
+import { useToastStore } from '../../store/toastStore';
 
 // ═════════════════════════════════════════════════════════════════════════
 // HELPERS
@@ -81,6 +82,7 @@ function contarFiltrosActivos(f: FiltrosLedgerState): number {
 
 const FinanzasMovimientos: React.FC = () => {
   const { cuentas, setSubVistaConfig, onSeleccionarAccion } = useFinanzasShellContext();
+  const toastInfo = useToastStore((s) => s.info);
 
   // Estado local · filtros + fetch
   const [filtros, setFiltros] = useState<FiltrosLedgerState>(defaultFiltros);
@@ -247,15 +249,20 @@ const FinanzasMovimientos: React.FC = () => {
   }, []);
 
   // ─── Handlers wireup ─────────────────────────────────────────────────
+  // chk5.D-S9.D2 · placeholders honestos: toast info en vez de console.info silencioso.
   const handleExportar = useCallback(() => {
-    // TODO chk5.D-S4 · export real CSV/XLSX. Por ahora cross-link a /reportes.
-    console.info('FinanzasMovimientos · exportar', movimientosFiltrados.length, 'movs');
-  }, [movimientosFiltrados.length]);
+    toastInfo(
+      `Exportar ${movimientosFiltrados.length} movimientos a CSV/XLSX llegará en chk5.D-S9 fase de exports reales.`,
+      'Próximamente',
+    );
+  }, [toastInfo, movimientosFiltrados.length]);
 
   const handleImportarExtracto = useCallback(() => {
-    // TODO chk5.D-S4 · modal import bancario. Por ahora placeholder.
-    console.info('FinanzasMovimientos · importar extracto');
-  }, []);
+    toastInfo(
+      'Importar extracto bancario (BCP/IBK/BBVA) con parser automático llegará en chk5.D-S9.',
+      'Próximamente',
+    );
+  }, [toastInfo]);
 
   // ─── Resumen toolbar ─────────────────────────────────────────────────
   const resumenToolbar = useMemo(() => {

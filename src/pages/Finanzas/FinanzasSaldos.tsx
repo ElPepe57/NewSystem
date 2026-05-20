@@ -124,6 +124,7 @@ const FinanzasSaldos: React.FC = () => {
   const [cuentaWizardSubmitting, setCuentaWizardSubmitting] = useState(false);
   const toastSuccess = useToastStore((s) => s.success);
   const toastError = useToastStore((s) => s.error);
+  const toastInfo = useToastStore((s) => s.info);
   const userIdAuth = useAuthStore((s) => s.user?.uid ?? '');
 
   // ─── Fetch extra ─────────────────────────────────────────────────────
@@ -226,13 +227,20 @@ const FinanzasSaldos: React.FC = () => {
   );
 
   // ─── Handlers ────────────────────────────────────────────────────────
+  // chk5.D-S9.D2 · placeholders honestos: toast info en vez de console.info silencioso.
   const handleExportar = useCallback(() => {
-    console.info('FinanzasSaldos · exportar', productosFiltrados.length, 'productos');
-  }, [productosFiltrados.length]);
+    toastInfo(
+      `Exportar ${productosFiltrados.length} cuentas/saldos a CSV/XLSX llegará en chk5.D-S9 fase de exports reales.`,
+      'Próximamente',
+    );
+  }, [toastInfo, productosFiltrados.length]);
 
   const handleConciliar = useCallback(() => {
-    console.info('FinanzasSaldos · conciliar bancos');
-  }, []);
+    toastInfo(
+      'Conciliación masiva contra extractos bancarios llegará en chk5.D-S9. Conecta importar extracto + match automático por monto/fecha.',
+      'Próximamente',
+    );
+  }, [toastInfo]);
 
   const handleNuevaCuenta = useCallback(() => {
     // chk5.D-S6.SF1 · Wire-up directo al CuentaWizard como modal · cero salidas a /tesoreria
@@ -694,14 +702,28 @@ const FinanzasSaldos: React.FC = () => {
           producto={productoSeleccionado}
           onClose={() => setProductoSeleccionado(null)}
           onAccionPrimary={() => {
+            // chk5.D-S9.D2 · acciones drawer · toast info para las que aún no tienen flow propio.
             const kind = kindFinalDe(productoSeleccionado);
             setProductoSeleccionado(null);
             if (kind === 'caja_recaudadora') onSeleccionarAccion('liquidar_recaudadora');
             else if (kind === 'tarjeta_credito') onSeleccionarAccion('pagar_tc');
             else if (kind === 'tarjeta_debito') navigate('/finanzas/saldos');
-            else if (kind === 'wallet_digital') console.info('forzar payout · pendiente S4');
-            else if (kind === 'cuenta_bancaria') console.info('conciliar · pendiente S4');
-            else if (kind === 'caja_efectivo') console.info('nuevo arqueo · pendiente S4');
+            else if (kind === 'wallet_digital') {
+              toastInfo(
+                'Forzar payout de wallet (Stripe/PayPal/MP) llegará en chk5.D-S9 conectado a la API de cada wallet.',
+                'Próximamente',
+              );
+            } else if (kind === 'cuenta_bancaria') {
+              toastInfo(
+                'Conciliar esta cuenta contra el extracto bancario llegará en chk5.D-S9 con import + match automático.',
+                'Próximamente',
+              );
+            } else if (kind === 'caja_efectivo') {
+              toastInfo(
+                'Registrar nuevo arqueo de caja física llegará en chk5.D-S9 con flujo de conteo + diferencia.',
+                'Próximamente',
+              );
+            }
           }}
           onEditar={() => {
             // chk5.D-S6.SF1 · Solo cuentas (CuentaCaja) editables via CuentaWizard.
