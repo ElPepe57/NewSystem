@@ -1184,7 +1184,7 @@ export function Contabilidad() {
       {/* ESTADO DE RESULTADOS */}
       {!loading && tabActiva === 'estado-resultados' && (
         <>
-          <EstadoResultados />
+          <EstadoResultados mes={mes} anio={anio} />
           <ReporteDirectoIndirecto mes={mes} anio={anio} />
         </>
       )}
