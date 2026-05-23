@@ -3,7 +3,7 @@
  * Vista completa con pestañas: Resumen, Balance General, Estado de Resultados, Indicadores, Tendencias, Cierre
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback, type ComponentType } from 'react';
 import {
   TrendingUp,
   TrendingDown,
@@ -33,13 +33,18 @@ import {
   Info,
   Loader2,
   Lock,
+  // chk5.E-S1 · canon banking-grade
+  ChevronRight,
+  ChevronLeft,
+  Download,
+  Settings2,
+  CreditCard,
 } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import {
-  TabNavigation,
   StatDistribution,
-  Button,
 } from '../../components/common';
-import { PageShell, PageHeader, Toolbar, KPIBar, StatCard as DSStatCard, DataTable } from '../../design-system';
+import { DataTable } from '../../design-system';
 import type { DataTableColumn } from '../../design-system';
 import { EstadoResultados, BalanceGeneral, CierreMensual } from '../../components/modules/contabilidad';
 import { ReporteDirectoIndirecto } from '../../components/modules/contabilidad/ReporteDirectoIndirecto';
@@ -88,6 +93,188 @@ const getEstadoIcon = (estado: AnalisisFinanciero['estado']) => {
       return <Info className="w-5 h-5 text-slate-600" />;
   }
 };
+
+// ═════════════════════════════════════════════════════════════════════════
+// SUB-COMPONENTES CANON · chk5.E-S1 · pixel-perfect Finanzas
+// ═════════════════════════════════════════════════════════════════════════
+
+type KpiColor = 'emerald' | 'teal' | 'rose' | 'indigo' | 'amber';
+
+interface KpiContaCardProps {
+  label: string;
+  value: string;
+  color: KpiColor;
+  icon: LucideIcon;
+  delta?: string;
+  deltaPositive?: boolean;
+}
+
+const KPI_CARD_BG: Record<KpiColor, string> = {
+  emerald: 'bg-gradient-to-br from-emerald-50 to-emerald-100/40 ring-1 ring-emerald-200/50',
+  teal: 'bg-gradient-to-br from-teal-50 to-teal-100/40 ring-1 ring-teal-200/50',
+  rose: 'bg-gradient-to-br from-rose-50 to-rose-100/40 ring-1 ring-rose-200/50',
+  indigo: 'bg-gradient-to-br from-indigo-50 to-indigo-100/40 ring-1 ring-indigo-200/50',
+  amber: 'bg-gradient-to-br from-amber-50 to-amber-100/40 ring-1 ring-amber-200/50',
+};
+
+const KPI_LABEL_COLOR: Record<KpiColor, string> = {
+  emerald: 'text-emerald-700',
+  teal: 'text-teal-700',
+  rose: 'text-rose-700',
+  indigo: 'text-indigo-700',
+  amber: 'text-amber-700',
+};
+
+const KPI_VALUE_COLOR: Record<KpiColor, string> = {
+  emerald: 'text-emerald-900',
+  teal: 'text-teal-900',
+  rose: 'text-rose-900',
+  indigo: 'text-indigo-900',
+  amber: 'text-amber-900',
+};
+
+const KpiContaCard: React.FC<KpiContaCardProps> = ({
+  label, value, color, icon: Icon, delta, deltaPositive,
+}) => (
+  <div className={`rounded-2xl p-4 ${KPI_CARD_BG[color]}`}>
+    <div className="flex items-center justify-between mb-2">
+      <span className={`text-[10px] uppercase tracking-wider font-bold ${KPI_LABEL_COLOR[color]}`}>
+        {label}
+      </span>
+      <Icon className={`w-3.5 h-3.5 ${KPI_LABEL_COLOR[color]}`} />
+    </div>
+    <div className={`text-2xl font-bold tabular-nums ${KPI_VALUE_COLOR[color]}`}>
+      {value}
+    </div>
+    {delta && (
+      <div className={`text-[11px] mt-1 flex items-center gap-1 ${
+        deltaPositive === undefined ? KPI_LABEL_COLOR[color]
+        : deltaPositive ? 'text-emerald-700'
+        : 'text-rose-700'
+      }`}>
+        {delta}
+      </div>
+    )}
+  </div>
+);
+
+interface ContaTabConfig {
+  id: string;
+  label: string;
+  mobileLabel?: string;
+  icon: LucideIcon;
+}
+
+interface SubVistaTabsContabilidadProps {
+  tabs: ContaTabConfig[];
+  activeId: string;
+  onTabChange: (id: string) => void;
+}
+
+const SubVistaTabsContabilidad: React.FC<SubVistaTabsContabilidadProps> = ({
+  tabs, activeId, onTabChange,
+}) => {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
+
+  const updateScrollState = useCallback(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const slack = 2;
+    setCanScrollLeft(el.scrollLeft > slack);
+    setCanScrollRight(el.scrollLeft + el.clientWidth < el.scrollWidth - slack);
+  }, []);
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    updateScrollState();
+    el.addEventListener('scroll', updateScrollState, { passive: true });
+    window.addEventListener('resize', updateScrollState);
+    return () => {
+      el.removeEventListener('scroll', updateScrollState);
+      window.removeEventListener('resize', updateScrollState);
+    };
+  }, [updateScrollState]);
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const active = el.querySelector<HTMLElement>('button[aria-current="page"]');
+    if (active) {
+      active.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+    }
+    const t = window.setTimeout(updateScrollState, 350);
+    return () => window.clearTimeout(t);
+  }, [activeId, updateScrollState]);
+
+  const scrollBy = useCallback((dir: 1 | -1) => {
+    const el = scrollRef.current;
+    if (!el) return;
+    el.scrollBy({ left: dir * el.clientWidth * 0.6, behavior: 'smooth' });
+  }, []);
+
+  return (
+    <div className="relative border-b border-slate-200">
+      {canScrollLeft && (
+        <button
+          type="button"
+          onClick={() => scrollBy(-1)}
+          aria-label="Desplazar tabs a la izquierda"
+          className="absolute left-0 top-0 bottom-0 z-20 px-1.5 bg-white/95 hover:bg-slate-50 border-r border-slate-200 flex items-center text-slate-600 hover:text-slate-900 shadow-[2px_0_4px_-2px_rgba(0,0,0,0.06)]"
+        >
+          <ChevronLeft className="w-4 h-4" />
+        </button>
+      )}
+      <div ref={scrollRef} className="px-6 overflow-x-auto scrollbar-hide">
+        <div className="flex items-center gap-1 -mb-px">
+          {tabs.map((tab) => {
+            const Icon = tab.icon;
+            const isActive = tab.id === activeId;
+            return (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => onTabChange(tab.id)}
+                aria-current={isActive ? 'page' : undefined}
+                className={
+                  'px-4 py-3 text-[12px] border-b-2 flex items-center gap-1.5 whitespace-nowrap transition-colors ' +
+                  (isActive
+                    ? 'border-purple-600 text-purple-700 font-semibold'
+                    : 'border-transparent text-slate-600 hover:text-slate-900 hover:border-slate-300 font-medium')
+                }
+              >
+                <Icon className="w-3.5 h-3.5" />
+                {tab.label}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+      {canScrollRight && (
+        <button
+          type="button"
+          onClick={() => scrollBy(1)}
+          aria-label="Desplazar tabs a la derecha"
+          className="absolute right-0 top-0 bottom-0 z-20 px-1.5 bg-white/95 hover:bg-slate-50 border-l border-slate-200 flex items-center text-slate-600 hover:text-slate-900 shadow-[-2px_0_4px_-2px_rgba(0,0,0,0.06)]"
+        >
+          <ChevronRight className="w-4 h-4" />
+        </button>
+      )}
+      {canScrollRight && (
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute top-0 right-8 h-full w-6 bg-gradient-to-l from-white to-transparent"
+        />
+      )}
+    </div>
+  );
+};
+
+// ═════════════════════════════════════════════════════════════════════════
+// COMPONENTE PRINCIPAL
+// ═════════════════════════════════════════════════════════════════════════
 
 export function Contabilidad() {
   const lineaFiltroGlobal = useLineaNegocioStore(state => state.lineaFiltroGlobal);
@@ -197,90 +384,147 @@ export function Contabilidad() {
   const promedioMensual = tendencia.length > 0 ? acumuladoUtilidadNeta / tendencia.length : 0;
 
   return (
-    <PageShell>
-      {/* Header */}
-      <PageHeader
-        title="Contabilidad de Negocio"
-        subtitle={`${MESES[mes - 1]} ${anio} - Estados Financieros`}
-        icon={Calculator}
-       
-        actions={
-          <div className="flex items-center gap-2 sm:space-x-3">
-            {/* Selector de período */}
-            <div className="flex items-center gap-1 sm:gap-2 bg-white/10 rounded-lg px-2 sm:px-3 py-1.5 sm:py-2">
-              <Calendar className="w-4 h-4 text-slate-600 hidden sm:block" />
-              <select
-                value={mes}
-                onChange={(e) => setMes(Number(e.target.value))}
-                className="border-none bg-transparent text-white focus:ring-0 text-xs sm:text-sm"
-              >
-                {MESES.map((m, i) => (
-                  <option key={i} value={i + 1} className="text-slate-900">
-                    {m}
-                  </option>
-                ))}
-              </select>
-              <select
-                value={anio}
-                onChange={(e) => setAnio(Number(e.target.value))}
-                className="border-none bg-transparent text-white focus:ring-0 text-xs sm:text-sm"
-              >
-                {aniosDisponibles.map((a) => (
-                  <option key={a} value={a} className="text-slate-900">
-                    {a}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <Button
-              variant="ghost"
-              onClick={cargarDatos}
-              disabled={loading}
-              className="text-slate-600 hover:text-slate-900 hover:bg-slate-100"
-            >
-              <RefreshCw className={`h-4 w-4 sm:h-5 sm:w-5 ${loading ? 'animate-spin' : ''}`} />
-            </Button>
+    <div className="p-4 lg:p-6">
+      {/* Shell frame banking-grade · canon F1+S9.D1 · pixel-perfect Finanzas */}
+      <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+
+        {/* §A · TOP BAR breadcrumb canon S9.D1 (3 niveles · sin grupo sidebar) */}
+        <div className="border-b border-slate-200 px-6 py-2.5 flex items-center gap-3 bg-slate-50">
+          <div className="flex items-center text-[12px] flex-1">
+            <a className="text-slate-500 hover:text-teal-700 cursor-pointer">Inicio</a>
+            <ChevronRight className="w-3 h-3 text-slate-300 mx-1.5" />
+            <span className="text-slate-900 font-semibold">Contabilidad</span>
           </div>
-        }
-        stats={estado && balance ? [
-          { label: 'Ventas', value: formatCurrency(estado.ventasNetas) },
-          { label: 'Activos', value: formatCurrency(balance.activos.totalActivos) },
-          { label: 'EBIT', value: formatCurrency(estado.utilidadOperativa) },
-          { label: 'Patrimonio', value: formatCurrency(balance.patrimonio.totalPatrimonio) },
-        ] : []}
-      />
-
-      {/* Toolbar */}
-      <Toolbar />
-
-      {/* Tabs */}
-      <TabNavigation
-        tabs={tabs}
-        activeTab={tabActiva}
-        onTabChange={(tabId) => setTabActiva(tabId as TabActiva)}
-        variant="pills"
-      />
-
-      {/* Loading */}
-      {loading && (
-        <div className="flex items-center justify-center h-64">
-          <Loader2 className="w-8 h-8 animate-spin text-teal-600" />
         </div>
-      )}
 
-      {/* RESUMEN */}
+        {/* §B · HEADER BANKING-GRADE · icon purple gradient + h1 + subtitle + 3-tier actions canon N10 */}
+        <div className="px-6 py-5 border-b border-slate-100">
+          <div className="flex items-start justify-between gap-4 flex-wrap">
+            <div className="flex items-start gap-3 flex-1 min-w-[260px]">
+              <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-purple-500 to-purple-700 flex items-center justify-center text-white flex-shrink-0">
+                <Calculator className="w-5 h-5" />
+              </div>
+              <div className="min-w-0">
+                <h1 className="text-2xl font-bold tracking-tight text-slate-900">
+                  Contabilidad
+                </h1>
+                <p className="text-[13px] text-slate-500 leading-snug">
+                  Estados financieros formales · Balance General · P&L · ratios e indicadores · cierre mensual
+                </p>
+              </div>
+            </div>
+            {/* canon S8.D8+D10 · flex-wrap + max-w-full + icon-only mobile */}
+            <div className="flex items-center gap-2 flex-wrap justify-end max-w-full">
+              {/* Selector período · compacto */}
+              <div className="flex items-center gap-1 bg-slate-50 border border-slate-200 rounded-lg px-2 py-1">
+                <Calendar className="w-3 h-3 text-slate-500" />
+                <select
+                  value={mes}
+                  onChange={(e) => setMes(Number(e.target.value))}
+                  className="border-none bg-transparent text-[12px] font-medium text-slate-700 focus:ring-0 focus:outline-none cursor-pointer"
+                >
+                  {MESES.map((m, i) => (
+                    <option key={i} value={i + 1}>{m}</option>
+                  ))}
+                </select>
+                <select
+                  value={anio}
+                  onChange={(e) => setAnio(Number(e.target.value))}
+                  className="border-none bg-transparent text-[12px] font-medium text-slate-700 focus:ring-0 focus:outline-none cursor-pointer"
+                >
+                  {aniosDisponibles.map((a) => (
+                    <option key={a} value={a}>{a}</option>
+                  ))}
+                </select>
+              </div>
+              {/* Tier neutral · Recargar */}
+              <button
+                type="button"
+                onClick={cargarDatos}
+                disabled={loading}
+                aria-label="Recargar datos contables"
+                title="Recargar datos contables"
+                className="text-[11px] font-semibold text-slate-600 hover:bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-lg flex items-center gap-1.5 disabled:opacity-50"
+              >
+                <RefreshCw className={`w-3 h-3 ${loading ? 'animate-spin' : ''}`} />
+                <span className="hidden sm:inline">Recargar</span>
+              </button>
+              {/* Tier destacada · Exportar */}
+              <button
+                type="button"
+                onClick={() => console.info('Exportar Contabilidad · pendiente chk5.E-S2')}
+                aria-label="Exportar reporte contable"
+                title="Exportar reporte contable a PDF/Excel"
+                className="text-[11px] font-semibold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 px-3 py-1.5 rounded-lg flex items-center gap-1.5"
+              >
+                <Download className="w-3 h-3" />
+                <span className="hidden sm:inline">Exportar</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* §C · KPI STRIP canon N1+N2 · 5 KPIs color semántico + gradient + ring */}
+        {estado && balance && (
+          <div className="px-6 py-4 border-b border-slate-100 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+            <KpiContaCard
+              label="VENTAS NETAS"
+              value={formatCurrency(estado.ventasNetas)}
+              color="emerald"
+              icon={DollarSign}
+              delta={varVentas !== null ? `${varVentas >= 0 ? '+' : ''}${varVentas.toFixed(1)}% vs mes ant.` : undefined}
+              deltaPositive={varVentas !== null ? varVentas >= 0 : undefined}
+            />
+            <KpiContaCard
+              label="TOTAL ACTIVOS"
+              value={formatCurrency(balance.activos.totalActivos)}
+              color="teal"
+              icon={Wallet}
+            />
+            <KpiContaCard
+              label="TOTAL PASIVOS"
+              value={formatCurrency(balance.pasivos.totalPasivos)}
+              color="rose"
+              icon={CreditCard}
+            />
+            <KpiContaCard
+              label="PATRIMONIO"
+              value={formatCurrency(balance.patrimonio.totalPatrimonio)}
+              color="indigo"
+              icon={PiggyBank}
+            />
+            <KpiContaCard
+              label="UTILIDAD NETA"
+              value={formatCurrency(estado.utilidadNeta)}
+              color="amber"
+              icon={estado.utilidadNeta >= 0 ? TrendingUp : TrendingDown}
+              delta={varUtilidadNeta !== null ? `${varUtilidadNeta >= 0 ? '+' : ''}${varUtilidadNeta.toFixed(1)}% vs mes ant.` : undefined}
+              deltaPositive={varUtilidadNeta !== null ? varUtilidadNeta >= 0 : undefined}
+            />
+          </div>
+        )}
+
+        {/* §D · Sub-vista TABS canon S9.D11 con chevron buttons (adaptado a tabs internos) */}
+        <SubVistaTabsContabilidad
+          tabs={tabs}
+          activeId={tabActiva}
+          onTabChange={(id) => setTabActiva(id as TabActiva)}
+        />
+
+        {/* §E · BODY · contenido según tab activo */}
+        <div className="p-6 bg-slate-50/30">
+        {/* Loading */}
+        {loading && (
+          <div className="flex items-center justify-center h-64">
+            <Loader2 className="w-8 h-8 animate-spin text-teal-600" />
+          </div>
+        )}
+
+      {/* RESUMEN · KPIs ya viven en el §C shell · acá solo banners + distribuciones + indicadores */}
       {!loading && tabActiva === 'resumen' && estado && balance && (
         <div className="space-y-6">
-          {/* KPIs Principales */}
+          {/* Alerta + secciones secundarias */}
           <div>
-            <KPIBar columns={5}>
-              <DSStatCard label="Ventas Netas" value={formatCurrency(estado.ventasNetas)} icon={DollarSign} variant="info" size="sm" trend={varVentas !== null ? { value: varVentas, label: 'vs mes ant.' } : undefined} />
-              <DSStatCard label="Total Activos" value={formatCurrency(balance.activos.totalActivos)} icon={TrendingUp} variant="success" size="sm" />
-              <DSStatCard label="Total Pasivos" value={formatCurrency(balance.pasivos.totalPasivos)} icon={Wallet} variant="warning" size="sm" />
-              <DSStatCard label="Patrimonio" value={formatCurrency(balance.patrimonio.totalPatrimonio)} icon={PiggyBank} variant="brand" size="sm" />
-              <DSStatCard label="Utilidad Neta" value={formatCurrency(estado.utilidadNeta)} icon={estado.utilidadNeta >= 0 ? TrendingUp : TrendingDown} variant={estado.utilidadNeta >= 0 ? 'success' : 'danger'} size="sm" trend={varUtilidadNeta !== null ? { value: varUtilidadNeta, label: 'vs mes ant.' } : undefined} />
-            </KPIBar>
-
             {/* Alerta de Anticipos Pendientes */}
             {balance.pasivos.corriente.anticiposClientes &&
              balance.pasivos.corriente.anticiposClientes.totalAnticiposPEN > 0 && (
@@ -971,8 +1215,12 @@ export function Contabilidad() {
       {!loading && tabActiva === 'cierre' && (
         <CierreMensual mes={mes} anio={anio} />
       )}
-    </PageShell>
+        </div>
+        {/* fin §E body */}
+      </div>
+      {/* fin shell frame */}
+    </div>
   );
 }
 
-export default Contabilidad;
+// (sub-componentes canon viven ARRIBA · ver línea ~98 antes de la función Contabilidad)
