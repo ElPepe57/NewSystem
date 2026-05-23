@@ -50,6 +50,7 @@ import type { TarjetaCredito } from '../../types/tarjetaCredito.types';
 import type { ProductoFinanciero } from '../../types/productoFinanciero.types';
 import type { CuentaCaja, CuentaCajaFormData } from '../../types/tesoreria.types';
 import { CuentaWizard } from './components/wizards/CuentaWizard/CuentaWizard';
+import { VerificarSaldoModal } from './components/saldos/VerificarSaldoModal';
 import { useToastStore } from '../../store/toastStore';
 import { useAuthStore } from '../../store/authStore';
 import { exportToCsv, fmtMontoCsv } from '../../utils/csvExport';
@@ -124,6 +125,9 @@ const FinanzasSaldos: React.FC = () => {
   const [cuentaWizardOpen, setCuentaWizardOpen] = useState(false);
   const [cuentaWizardEditar, setCuentaWizardEditar] = useState<CuentaCaja | null>(null);
   const [cuentaWizardSubmitting, setCuentaWizardSubmitting] = useState(false);
+
+  // chk5.D-S9.B · Verificación de saldos manual
+  const [verificarSaldoCuenta, setVerificarSaldoCuenta] = useState<CuentaCaja | null>(null);
   const toastSuccess = useToastStore((s) => s.success);
   const toastError = useToastStore((s) => s.error);
   const toastInfo = useToastStore((s) => s.info);
@@ -272,12 +276,23 @@ const FinanzasSaldos: React.FC = () => {
     );
   }, [toastInfo, productosFiltrados]);
 
+  // chk5.D-S9.B · Verificar saldos manual (re-scope de "Conciliar bancos")
+  // Abre el modal apuntando a la primera cuenta bancaria/wallet/caja del listado
+  // como punto de entrada · si no hay cuentas, muestra toast info.
   const handleConciliar = useCallback(() => {
-    toastInfo(
-      'Conciliación masiva contra extractos bancarios llegará en chk5.D-S9. Conecta importar extracto + match automático por monto/fecha.',
-      'Próximamente',
+    const candidatas = productosFiltrados.filter(
+      (p) => p.kind === 'cuenta_bancaria' || p.kind === 'wallet_digital' || p.kind === 'caja_efectivo',
     );
-  }, [toastInfo]);
+    if (candidatas.length === 0) {
+      toastInfo(
+        'No hay cuentas verificables · agregá una cuenta bancaria, wallet o caja primero.',
+        'Sin cuentas',
+      );
+      return;
+    }
+    // Abre el modal con la primera · UX simple para PyME 2-3 socios
+    setVerificarSaldoCuenta(candidatas[0].kindData as CuentaCaja);
+  }, [productosFiltrados, toastInfo]);
 
   const handleNuevaCuenta = useCallback(() => {
     // chk5.D-S6.SF1 · Wire-up directo al CuentaWizard como modal · cero salidas a /tesoreria
@@ -504,12 +519,12 @@ const FinanzasSaldos: React.FC = () => {
         <button
           type="button"
           onClick={handleConciliar}
-          aria-label="Conciliar bancos"
-          title="Conciliar bancos"
+          aria-label="Verificar saldo"
+          title="Verificar saldo contra el banco real (snapshot manual)"
           className="text-[11px] font-semibold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 px-3 py-1.5 rounded-lg flex items-center gap-1.5"
         >
           <RefreshCw className="w-3 h-3" />
-          <span className="hidden sm:inline">Conciliar bancos</span>
+          <span className="hidden sm:inline">Verificar saldo</span>
         </button>
         <button
           type="button"
@@ -634,6 +649,13 @@ const FinanzasSaldos: React.FC = () => {
           onGuardar={handleGuardarCuenta}
           isSubmitting={cuentaWizardSubmitting}
         />
+        {/* chk5.D-S9.B · Modal de verificación (raro que se llegue acá sin cuentas, pero por consistencia) */}
+        <VerificarSaldoModal
+          isOpen={!!verificarSaldoCuenta}
+          onClose={() => setVerificarSaldoCuenta(null)}
+          cuenta={verificarSaldoCuenta}
+          onVerificado={() => cargarExtra()}
+        />
       </>
     );
   }
@@ -740,26 +762,27 @@ const FinanzasSaldos: React.FC = () => {
           onClose={() => setProductoSeleccionado(null)}
           onAccionPrimary={() => {
             // chk5.D-S9.D2 · acciones drawer · toast info para las que aún no tienen flow propio.
+            // chk5.D-S9.B · cuenta_bancaria + wallet + caja → abren modal de verificación de saldo.
             const kind = kindFinalDe(productoSeleccionado);
+            const cuentaCajaData =
+              kind === 'cuenta_bancaria' || kind === 'wallet_digital' || kind === 'caja_efectivo' || kind === 'tarjeta_debito'
+                ? (productoSeleccionado.kindData as CuentaCaja)
+                : null;
             setProductoSeleccionado(null);
             if (kind === 'caja_recaudadora') onSeleccionarAccion('liquidar_recaudadora');
             else if (kind === 'tarjeta_credito') onSeleccionarAccion('pagar_tc');
             else if (kind === 'tarjeta_debito') navigate('/finanzas/saldos');
-            else if (kind === 'wallet_digital') {
-              toastInfo(
-                'Forzar payout de wallet (Stripe/PayPal/MP) llegará en chk5.D-S9 conectado a la API de cada wallet.',
-                'Próximamente',
-              );
-            } else if (kind === 'cuenta_bancaria') {
-              toastInfo(
-                'Conciliar esta cuenta contra el extracto bancario llegará en chk5.D-S9 con import + match automático.',
-                'Próximamente',
-              );
-            } else if (kind === 'caja_efectivo') {
-              toastInfo(
-                'Registrar nuevo arqueo de caja física llegará en chk5.D-S9 con flujo de conteo + diferencia.',
-                'Próximamente',
-              );
+            else if (kind === 'wallet_digital' && cuentaCajaData) {
+              // Para wallets el botón primary es "Verificar saldo" (mismo modal).
+              // "Forzar payout" se difiere hasta tener API real de Stripe/PayPal/MP.
+              setVerificarSaldoCuenta(cuentaCajaData);
+            } else if (kind === 'cuenta_bancaria' && cuentaCajaData) {
+              setVerificarSaldoCuenta(cuentaCajaData);
+            } else if (kind === 'caja_efectivo' && cuentaCajaData) {
+              // Para caja efectivo el primary es también verificar saldo (sin app banco,
+              // el usuario cuenta físicamente el efectivo y lo ingresa). El "arqueo formal
+              // con diferencia automática a cuenta-pérdida/ganancia" llega después.
+              setVerificarSaldoCuenta(cuentaCajaData);
             }
           }}
           onEditar={() => {
@@ -798,6 +821,14 @@ const FinanzasSaldos: React.FC = () => {
         cuentaEditar={cuentaWizardEditar}
         onGuardar={handleGuardarCuenta}
         isSubmitting={cuentaWizardSubmitting}
+      />
+
+      {/* chk5.D-S9.B · Modal de verificación de saldo (snapshot manual contra banco) */}
+      <VerificarSaldoModal
+        isOpen={!!verificarSaldoCuenta}
+        onClose={() => setVerificarSaldoCuenta(null)}
+        cuenta={verificarSaldoCuenta}
+        onVerificado={() => cargarExtra()}
       />
     </>
   );

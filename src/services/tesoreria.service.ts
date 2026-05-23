@@ -96,6 +96,12 @@ import {
   getTotalRetirosCapital
 } from './tesoreria.capital.service';
 
+import {
+  registrarVerificacionSaldo as _registrarVerificacionSaldo,
+  type RegistrarVerificacionInput,
+  type RegistrarVerificacionResult,
+} from './tesoreria.verificaciones.service';
+
 // ─── Facade ───────────────────────────────────────────────────────────────────
 
 /**
@@ -106,6 +112,16 @@ import {
  * that every existing caller continues to work without modification.
  */
 export const tesoreriaService = {
+
+  // ===============================================
+  // VERIFICACIÓN DE SALDOS · chk5.D-S9.B
+  // ===============================================
+
+  async registrarVerificacionSaldo(
+    input: RegistrarVerificacionInput,
+  ): Promise<RegistrarVerificacionResult> {
+    return _registrarVerificacionSaldo(input);
+  },
 
   // ===============================================
   // MOVIMIENTOS DE TESORERÍA

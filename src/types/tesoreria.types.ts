@@ -348,11 +348,63 @@ export interface CuentaCaja {
   // Estado
   activa: boolean;
 
+  // chk5.D-S9.B · VERIFICACIÓN DE SALDOS MANUAL
+  // Snapshot manual del saldo real del banco (que el usuario verifica mirando
+  // el app del banco) + comparación contra el saldo del ERP. Sin parsers, sin
+  // matching automático: el usuario hace el "checkpoint" cuando quiere y deja
+  // registrado si encontró diferencia o no.
+  /** Última verificación de saldo registrada · denormalizada para lectura rápida */
+  ultimaVerificacion?: VerificacionSaldoSnapshot;
+  /** Historial de las últimas 12 verificaciones · para detectar tendencias */
+  historialVerificaciones?: VerificacionSaldoSnapshot[];
+
   // Auditoría
   creadoPor: string;
   fechaCreacion: Timestamp;
   actualizadoPor?: string;
   fechaActualizacion?: Timestamp;
+}
+
+// ═════════════════════════════════════════════════════════════════════════
+// VERIFICACIÓN DE SALDOS · chk5.D-S9.B
+// ═════════════════════════════════════════════════════════════════════════
+
+/**
+ * Snapshot de una verificación manual de saldo.
+ *
+ * El usuario abre el app del banco, lee el saldo real, lo ingresa al ERP.
+ * El sistema compara contra el saldo que el ERP tenía en ese momento y
+ * registra la diferencia (positiva o negativa).
+ *
+ * NO es conciliación bancaria: no importa extractos, no hace matching
+ * automático de transacciones. Es simplemente un "checkpoint" con audit
+ * trail para detectar cuándo el ERP empezó a divergir del banco real.
+ */
+export interface VerificacionSaldoSnapshot {
+  /** Cuándo se hizo la verificación */
+  fecha: Timestamp;
+  /**
+   * Moneda verificada. Para cuentas bi-moneda, la verificación se hace por
+   * moneda (verificar PEN o USD separadamente).
+   */
+  moneda: MonedaTesoreria;
+  /** Saldo que el ERP tenía en ese momento (snapshot · no se recalcula después) */
+  saldoErpEnEseMomento: number;
+  /** Saldo real reportado por el usuario (leído del app del banco) */
+  saldoBancoReportado: number;
+  /**
+   * Diferencia = saldoBancoReportado - saldoErpEnEseMomento.
+   * - 0 = perfecto cuadre
+   * - >0 = banco tiene más que ERP (algún ingreso no registrado en ERP)
+   * - <0 = ERP tiene más que banco (algún egreso no registrado en ERP)
+   */
+  diferencia: number;
+  /** Notas opcionales del usuario explicando la diferencia */
+  notas?: string;
+  /** userId del socio que registró la verificación */
+  verificadoPor: string;
+  /** Nombre desnormalizado para display rápido */
+  verificadoPorNombre?: string;
 }
 
 // ═════════════════════════════════════════════════════════════════════════
