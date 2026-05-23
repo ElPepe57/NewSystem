@@ -1,31 +1,33 @@
 /**
- * CierreMensual — Tab de cierre contable mensual
+ * CierreMensual · canon v5.1 chk5.E-S5
  *
- * Permite ejecutar validaciones pre-cierre, cerrar periodos,
- * ver historial de cierres y reabrir periodos cerrados.
+ * Pixel-perfect contra docs/mockups/contabilidad-tab-cierre-mensual-v5.1.html
+ * - §1 Header período actual + estado (gradient purple)
+ * - §2 Checklist pre-cierre · 6 validaciones con icons OK/warning/danger
+ * - §3 Histórico de cierres · tabla canon con audit trail
+ * - §4 Banner pedagógico explicando consecuencias del cierre
+ * - Confirm dialogs preservados (cerrar + reabrir con motivo obligatorio)
  */
 
-import { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Lock,
   Unlock,
   CheckCircle2,
   XCircle,
+  AlertCircle,
   AlertTriangle,
   Loader2,
-  Shield,
-  Calendar,
-  Clock,
+  ClipboardCheck,
+  History,
   Eye,
-  ChevronUp,
-  ChevronDown,
+  Info,
+  Shield,
 } from 'lucide-react';
-import { Button, ConfirmDialog, Badge } from '../../common';
-import { DataTable } from '../../../design-system';
-import type { DataTableColumn } from '../../../design-system';
+import { ConfirmDialog } from '../../common';
 import { cierreContableService } from '../../../services/cierreContable.service';
 import { useAuthStore } from '../../../store/authStore';
-import { formatCurrencyPEN, formatPercent } from '../../../utils/format';
+import { formatCurrencyPEN } from '../../../utils/format';
 import { logger } from '../../../lib/logger';
 import type {
   CierreContable,
@@ -34,8 +36,18 @@ import type {
 } from '../../../types/cierreContable.types';
 
 const MESES = [
-  'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
-  'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre',
+  'Enero',
+  'Febrero',
+  'Marzo',
+  'Abril',
+  'Mayo',
+  'Junio',
+  'Julio',
+  'Agosto',
+  'Septiembre',
+  'Octubre',
+  'Noviembre',
+  'Diciembre',
 ];
 
 interface CierreMensualProps {
@@ -44,7 +56,7 @@ interface CierreMensualProps {
 }
 
 export default function CierreMensual({ mes, anio }: CierreMensualProps) {
-  const userProfile = useAuthStore(s => s.userProfile);
+  const userProfile = useAuthStore((s) => s.userProfile);
   const isAdmin = userProfile?.role === 'admin';
 
   // Estado
@@ -57,7 +69,6 @@ export default function CierreMensual({ mes, anio }: CierreMensualProps) {
   const [showConfirmCierre, setShowConfirmCierre] = useState(false);
   const [showConfirmReapertura, setShowConfirmReapertura] = useState(false);
   const [motivoReapertura, setMotivoReapertura] = useState('');
-  const [detalleExpandido, setDetalleExpandido] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   // Cargar cierre actual e historial
@@ -71,6 +82,15 @@ export default function CierreMensual({ mes, anio }: CierreMensualProps) {
       ]);
       setCierreActual(cierre);
       setHistorial(hist);
+      // Auto-validar al abrir si el periodo está abierto (mejor UX)
+      if (!cierre || cierre.estado !== 'cerrado') {
+        try {
+          const result = await cierreContableService.validarPreCierre(mes, anio);
+          setValidacionResult(result);
+        } catch (vErr) {
+          logger.error('Error en auto-validacion:', vErr);
+        }
+      }
     } catch (err) {
       logger.error('Error cargando datos de cierre:', err);
       setError('Error al cargar datos del cierre contable');
@@ -81,11 +101,10 @@ export default function CierreMensual({ mes, anio }: CierreMensualProps) {
 
   useEffect(() => {
     cargarDatos();
-    // Limpiar validacion al cambiar periodo
     setValidacionResult(null);
   }, [cargarDatos]);
 
-  // Ejecutar validaciones
+  // Ejecutar validación manual
   const ejecutarValidacion = async () => {
     setValidando(true);
     setError(null);
@@ -125,7 +144,11 @@ export default function CierreMensual({ mes, anio }: CierreMensualProps) {
     if (!cierreActual?.id || !userProfile?.uid || !motivoReapertura.trim()) return;
     setError(null);
     try {
-      await cierreContableService.reabrir(cierreActual.id, motivoReapertura.trim(), userProfile.uid);
+      await cierreContableService.reabrir(
+        cierreActual.id,
+        motivoReapertura.trim(),
+        userProfile.uid,
+      );
       setMotivoReapertura('');
       await cargarDatos();
     } catch (err) {
@@ -137,410 +160,324 @@ export default function CierreMensual({ mes, anio }: CierreMensualProps) {
     }
   };
 
-  // Helpers de render
-  const getValidacionIcon = (v: ValidacionPreCierre) => {
-    if (v.resultado === 'aprobada') return <CheckCircle2 className="w-5 h-5 text-emerald-500" />;
-    if (v.resultado === 'rechazada') return <XCircle className="w-5 h-5 text-red-500" />;
-    return <AlertTriangle className="w-5 h-5 text-amber-500" />;
-  };
-
-  const getValidacionBg = (v: ValidacionPreCierre) => {
-    if (v.resultado === 'aprobada') return 'bg-emerald-50 border-emerald-200';
-    if (v.resultado === 'rechazada') return 'bg-red-50 border-red-200';
-    return 'bg-amber-50 border-amber-200';
-  };
-
-  const periodoCerrado = cierreActual?.estado === 'cerrado';
-
-  const columnasCierre: DataTableColumn<CierreContable>[] = [
-    {
-      key: 'periodo',
-      header: 'Periodo',
-      render: c => (
-        <span className="font-medium text-slate-900">
-          {MESES[c.mes - 1]} {c.anio}
-        </span>
-      ),
-    },
-    {
-      key: 'estado',
-      header: 'Estado',
-      render: c => (
-        <Badge variant={c.estado === 'cerrado' ? 'success' : 'warning'} size="sm">
-          {c.estado === 'cerrado' ? 'Cerrado' : 'Reabierto'}
-        </Badge>
-      ),
-    },
-    {
-      key: 'fechaCierre',
-      header: 'Fecha Cierre',
-      render: c => (
-        <span className="text-sm text-slate-600">
-          {c.fechaCierre instanceof Date ? c.fechaCierre.toLocaleDateString('es-PE') : '-'}
-        </span>
-      ),
-    },
-    {
-      key: 'cerradoPor',
-      header: 'Cerrado por',
-      render: c => <span className="text-sm text-slate-600">{c.cerradoPor}</span>,
-    },
-    {
-      key: 'ventas',
-      header: 'Ventas',
-      align: 'right',
-      render: c => (
-        <span className="text-sm text-slate-700">
-          {c.snapshot ? formatCurrencyPEN(c.snapshot.totalVentas) : '-'}
-        </span>
-      ),
-    },
-    {
-      key: 'utilidadNeta',
-      header: 'Utilidad Neta',
-      align: 'right',
-      render: c => (
-        <span className={`text-sm font-medium ${
-          c.snapshot && c.snapshot.estadoResultados.utilidadNeta >= 0
-            ? 'text-emerald-600'
-            : 'text-red-600'
-        }`}>
-          {c.snapshot ? formatCurrencyPEN(c.snapshot.estadoResultados.utilidadNeta) : '-'}
-        </span>
-      ),
-    },
-  ];
-
+  // ===== LOADING STATE · canon v5.1 spinner purple =====
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-48">
-        <Loader2 className="w-8 h-8 animate-spin text-teal-600" />
+      <div className="bg-white border border-slate-200 rounded-2xl p-12 text-center space-y-4">
+        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-purple-50">
+          <Loader2 className="w-8 h-8 text-purple-600 animate-spin" />
+        </div>
+        <div>
+          <div className="text-[13px] font-semibold text-slate-700">
+            Cargando cierre contable…
+          </div>
+          <div className="text-[11px] text-slate-500 mt-1">
+            Validando · estado · histórico · audit trail
+          </div>
+        </div>
       </div>
     );
   }
 
+  const periodoCerrado = cierreActual?.estado === 'cerrado';
+  const validaciones = validacionResult?.validaciones ?? [];
+  const totalValidaciones = validaciones.length;
+  const validacionesOK = validaciones.filter((v) => v.resultado === 'aprobada').length;
+  const validacionesCriticas = validacionesOK ? validaciones.filter((v) => v.resultado === 'rechazada').length : 0;
+  const validacionesWarning = validaciones.filter(
+    (v) => v.resultado !== 'aprobada' && v.resultado !== 'rechazada',
+  ).length;
+  const puedeCerrar = validacionResult?.puedesCerrar === true && validacionesCriticas === 0;
+
   return (
-    <div className="space-y-6">
-      {/* Error global */}
+    <div className="space-y-4">
+      {/* Error global (banner rose) */}
       {error && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700 text-sm">
-          {error}
+        <div className="bg-rose-50 ring-1 ring-rose-200 rounded-lg p-3 text-[11px] text-rose-900 flex items-start gap-2">
+          <AlertTriangle className="w-4 h-4 text-rose-700 mt-0.5 flex-shrink-0" />
+          <span>{error}</span>
         </div>
       )}
 
-      {/* Estado del periodo */}
-      <div className="bg-white rounded-lg border p-6">
-        <div className="flex items-center justify-between mb-4">
+      {/* §1 · Header período actual + estado */}
+      <section className="bg-gradient-to-r from-purple-50 to-purple-100/30 ring-1 ring-purple-200/50 rounded-2xl p-4">
+        <div className="flex items-center justify-between flex-wrap gap-3">
           <div className="flex items-center gap-3">
             {periodoCerrado ? (
-              <div className="p-2 bg-emerald-100 rounded-lg">
-                <Lock className="w-6 h-6 text-emerald-600" />
-              </div>
+              <Lock className="w-5 h-5 text-purple-700" />
             ) : (
-              <div className="p-2 bg-amber-100 rounded-lg">
-                <Unlock className="w-6 h-6 text-amber-600" />
-              </div>
+              <Unlock className="w-5 h-5 text-purple-700" />
             )}
             <div>
-              <h3 className="text-lg font-semibold text-slate-900">
-                Cierre Contable - {MESES[mes - 1]} {anio}
-              </h3>
-              <p className="text-sm text-slate-500">
-                {periodoCerrado
-                  ? `Cerrado el ${cierreActual?.fechaCierre instanceof Date ? cierreActual.fechaCierre.toLocaleDateString('es-PE') : '-'}`
-                  : cierreActual?.estado === 'reabierto'
-                    ? 'Periodo reabierto - puede cerrarse nuevamente'
-                    : 'Periodo abierto - pendiente de cierre'}
-              </p>
+              <div className="text-[13px] font-bold text-purple-900">Cierre Contable Mensual</div>
+              <div className="text-[11px] text-purple-700">
+                Workflow controlado para certificar y bloquear cada período
+              </div>
             </div>
           </div>
-          <Badge
-            variant={periodoCerrado ? 'success' : cierreActual?.estado === 'reabierto' ? 'warning' : 'default'}
-          >
-            {periodoCerrado ? 'Cerrado' : cierreActual?.estado === 'reabierto' ? 'Reabierto' : 'Abierto'}
-          </Badge>
+          <div className="text-right">
+            <div className="text-[10px] uppercase tracking-wider text-purple-700 font-bold">
+              Mes activo
+            </div>
+            <div className="text-[14px] font-bold text-purple-900">
+              {MESES[mes - 1]} {anio}
+            </div>
+            {periodoCerrado ? (
+              <div className="text-[10px] text-emerald-700 flex items-center gap-1 justify-end">
+                <Lock className="w-3 h-3" /> Cerrado ·{' '}
+                {cierreActual?.fechaCierre instanceof Date
+                  ? cierreActual.fechaCierre.toLocaleDateString('es-PE')
+                  : '—'}
+              </div>
+            ) : (
+              <div className="text-[10px] text-amber-700 flex items-center gap-1 justify-end">
+                <Unlock className="w-3 h-3" /> Abierto · sin cerrar
+              </div>
+            )}
+          </div>
         </div>
+      </section>
 
-        {/* Acciones */}
-        <div className="flex flex-wrap gap-3">
-          {!periodoCerrado && (
-            <>
-              <Button
-                onClick={ejecutarValidacion}
-                disabled={validando}
-                variant="secondary"
-              >
-                {validando ? (
-                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                ) : (
-                  <Shield className="w-4 h-4 mr-2" />
-                )}
-                Ejecutar Validacion
-              </Button>
-              {validacionResult?.puedesCerrar && isAdmin && (
-                <Button
-                  onClick={() => setShowConfirmCierre(true)}
-                  disabled={cerrando}
-                  variant="danger"
+      {/* §2 · Checklist pre-cierre (solo si NO está cerrado) */}
+      {!periodoCerrado && (
+        <section className="bg-white border border-slate-200 rounded-2xl overflow-hidden">
+          <div className="px-5 py-3 border-b border-slate-100 flex items-center justify-between flex-wrap gap-2">
+            <h3 className="text-[13px] font-bold text-slate-900 flex items-center gap-2">
+              <ClipboardCheck className="w-4 h-4 text-emerald-600" />
+              Checklist pre-cierre · {totalValidaciones || '6'} validaciones requeridas
+            </h3>
+            <div className="flex items-center gap-2">
+              {validacionResult && (
+                <span
+                  className={`text-[10px] px-2 py-0.5 rounded font-bold ${
+                    puedeCerrar
+                      ? 'bg-emerald-50 text-emerald-700'
+                      : validacionesCriticas > 0
+                      ? 'bg-rose-50 text-rose-700'
+                      : 'bg-amber-50 text-amber-700'
+                  }`}
                 >
-                  {cerrando ? (
-                    <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                  ) : (
-                    <Lock className="w-4 h-4 mr-2" />
-                  )}
-                  Ejecutar Cierre
-                </Button>
-              )}
-              {validacionResult && !validacionResult.puedesCerrar && (
-                <span className="text-sm text-red-600 flex items-center gap-1">
-                  <XCircle className="w-4 h-4" />
-                  Hay validaciones criticas que impiden el cierre
+                  {validacionesOK} de {totalValidaciones} ✓
                 </span>
               )}
-            </>
-          )}
-          {periodoCerrado && isAdmin && (
-            <Button
-              onClick={() => setShowConfirmReapertura(true)}
-              variant="secondary"
-            >
-              <Unlock className="w-4 h-4 mr-2" />
-              Reabrir Periodo
-            </Button>
-          )}
-          {!isAdmin && periodoCerrado && (
-            <span className="text-sm text-slate-500">Solo administradores pueden reabrir periodos</span>
-          )}
-        </div>
-      </div>
-
-      {/* Snapshot del cierre (si esta cerrado) */}
-      {periodoCerrado && cierreActual?.snapshot && (
-        <div className="bg-white rounded-lg border p-6">
-          <h4 className="font-semibold text-slate-900 mb-4 flex items-center gap-2">
-            <Eye className="w-5 h-5 text-teal-600" />
-            Snapshot del Cierre
-          </h4>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            <div className="bg-slate-50 rounded-lg p-3">
-              <div className="text-xs text-slate-500">Ventas Netas</div>
-              <div className="text-lg font-bold text-slate-900">
-                {formatCurrencyPEN(cierreActual.snapshot.totalVentas)}
-              </div>
-            </div>
-            <div className="bg-slate-50 rounded-lg p-3">
-              <div className="text-xs text-slate-500">Compras</div>
-              <div className="text-lg font-bold text-orange-600">
-                {formatCurrencyPEN(cierreActual.snapshot.totalCompras)}
-              </div>
-            </div>
-            <div className="bg-slate-50 rounded-lg p-3">
-              <div className="text-xs text-slate-500">Gastos Operativos</div>
-              <div className="text-lg font-bold text-slate-600">
-                {formatCurrencyPEN(cierreActual.snapshot.totalGastos)}
-              </div>
-            </div>
-            <div className="bg-slate-50 rounded-lg p-3">
-              <div className="text-xs text-slate-500">Utilidad Neta</div>
-              <div className={`text-lg font-bold ${
-                cierreActual.snapshot.estadoResultados.utilidadNeta >= 0
-                  ? 'text-emerald-600'
-                  : 'text-red-600'
-              }`}>
-                {formatCurrencyPEN(cierreActual.snapshot.estadoResultados.utilidadNeta)}
-              </div>
-            </div>
-          </div>
-          <div className="mt-3 grid grid-cols-2 sm:grid-cols-4 gap-4">
-            <div className="bg-slate-50 rounded-lg p-3">
-              <div className="text-xs text-slate-500">Unidades Vendidas</div>
-              <div className="text-lg font-bold text-slate-900">
-                {cierreActual.snapshot.unidadesVendidas}
-              </div>
-            </div>
-            <div className="bg-slate-50 rounded-lg p-3">
-              <div className="text-xs text-slate-500">Margen Neto</div>
-              <div className="text-lg font-bold text-teal-600">
-                {formatPercent(cierreActual.snapshot.estadoResultados.utilidadNetaPorcentaje)}
-              </div>
-            </div>
-            <div className="bg-slate-50 rounded-lg p-3">
-              <div className="text-xs text-slate-500">TC al Cierre</div>
-              <div className="text-lg font-bold text-slate-900">
-                {cierreActual.snapshot.tipoCambioAlCierre.toFixed(4)}
-              </div>
-            </div>
-            <div className="bg-slate-50 rounded-lg p-3">
-              <div className="text-xs text-slate-500">Total Activos</div>
-              <div className="text-lg font-bold text-sky-600">
-                {formatCurrencyPEN(cierreActual.snapshot.balanceGeneral.activos.totalActivos)}
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Validaciones pre-cierre */}
-      {validacionResult && (
-        <div className="bg-white rounded-lg border p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h4 className="font-semibold text-slate-900 flex items-center gap-2">
-              <Shield className="w-5 h-5 text-teal-600" />
-              Validaciones Pre-Cierre
-            </h4>
-            <div className="flex gap-2">
-              {validacionResult.criticas > 0 && (
-                <Badge variant="danger">{validacionResult.criticas} critica(s)</Badge>
-              )}
-              {validacionResult.advertencias > 0 && (
-                <Badge variant="warning">{validacionResult.advertencias} advertencia(s)</Badge>
-              )}
-              {validacionResult.puedesCerrar && validacionResult.criticas === 0 && (
-                <Badge variant="success">Listo para cerrar</Badge>
-              )}
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            {validacionResult.validaciones.map((v) => (
-              <div
-                key={v.id}
-                className={`rounded-lg border p-3 ${getValidacionBg(v)}`}
+              <button
+                onClick={ejecutarValidacion}
+                disabled={validando}
+                className="text-[10px] font-semibold text-slate-600 hover:bg-slate-100 border border-slate-200 px-2 py-1 rounded inline-flex items-center gap-1 disabled:opacity-50"
+                title="Re-ejecutar validaciones del checklist"
               >
-                <div className="flex items-center gap-3">
-                  {getValidacionIcon(v)}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <span className="font-medium text-sm text-slate-900">{v.nombre}</span>
-                      <span className={`text-xs px-1.5 py-0.5 rounded ${
-                        v.severidad === 'critica'
-                          ? 'bg-red-100 text-red-700'
-                          : 'bg-amber-100 text-amber-700'
-                      }`}>
-                        {v.severidad}
-                      </span>
-                    </div>
-                    <p className="text-xs text-slate-600 mt-0.5">{v.detalle}</p>
-                  </div>
-                </div>
-              </div>
-            ))}
+                {validando ? (
+                  <Loader2 className="w-3 h-3 animate-spin" />
+                ) : (
+                  <Shield className="w-3 h-3" />
+                )}
+                Re-validar
+              </button>
+            </div>
           </div>
-        </div>
+
+          {!validacionResult ? (
+            <div className="px-5 py-8 text-center text-[11px] text-slate-500">
+              {validando ? 'Ejecutando validaciones…' : 'Sin resultado · click en "Re-validar"'}
+            </div>
+          ) : (
+            <div className="divide-y divide-slate-100">
+              {validaciones.length === 0 && (
+                <div className="px-5 py-8 text-center text-[11px] text-slate-500">
+                  Sin validaciones configuradas
+                </div>
+              )}
+              {validaciones.map((v) => (
+                <ChecklistRow key={v.id} validacion={v} />
+              ))}
+            </div>
+          )}
+
+          {/* Footer · acción primary cerrar */}
+          <div className="bg-slate-50 px-5 py-3 flex items-center justify-between border-t border-slate-200 flex-wrap gap-3">
+            <div className="text-[11px] text-slate-600">
+              {puedeCerrar ? (
+                <span>
+                  <strong className="text-emerald-700">Todo OK.</strong> Listo para cerrar el mes.
+                </span>
+              ) : validacionesCriticas > 0 ? (
+                <span>
+                  <strong className="text-rose-700">
+                    {validacionesCriticas} validación{validacionesCriticas > 1 ? 'es' : ''} crítica
+                    {validacionesCriticas > 1 ? 's' : ''}.
+                  </strong>{' '}
+                  Resolvé antes de cerrar.
+                </span>
+              ) : validacionesWarning > 0 ? (
+                <span>
+                  <strong className="text-amber-700">
+                    {validacionesWarning} ítem{validacionesWarning > 1 ? 's' : ''} requiere
+                    {validacionesWarning > 1 ? 'n' : ''} atención.
+                  </strong>{' '}
+                  Revisá antes de cerrar.
+                </span>
+              ) : (
+                <span>Ejecutá las validaciones para verificar el período.</span>
+              )}
+            </div>
+            <button
+              onClick={() => setShowConfirmCierre(true)}
+              disabled={!puedeCerrar || !isAdmin || cerrando}
+              className={`text-[12px] font-bold px-4 py-2 rounded-lg flex items-center gap-2 ${
+                puedeCerrar && isAdmin && !cerrando
+                  ? 'text-white bg-purple-600 hover:bg-purple-700'
+                  : 'text-white bg-slate-300 cursor-not-allowed opacity-70'
+              }`}
+              title={
+                !isAdmin
+                  ? 'Solo administradores pueden cerrar el período'
+                  : !puedeCerrar
+                  ? 'Resolvé las validaciones críticas antes de cerrar'
+                  : 'Cerrar y bloquear el período'
+              }
+            >
+              {cerrando ? (
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+              ) : (
+                <Lock className="w-3.5 h-3.5" />
+              )}
+              Cerrar {MESES[mes - 1]} {anio}
+            </button>
+          </div>
+        </section>
       )}
 
-      {/* Historial de cierres */}
-      <div className="bg-white rounded-lg border overflow-hidden">
-        <div className="px-6 py-4 border-b bg-slate-50">
-          <h4 className="font-semibold text-slate-800 flex items-center gap-2">
-            <Clock className="w-5 h-5 text-slate-600" />
-            Historial de Cierres
-          </h4>
+      {/* Sección reabrir (si está cerrado y es admin) */}
+      {periodoCerrado && isAdmin && (
+        <section className="bg-white border border-slate-200 rounded-2xl p-4">
+          <div className="flex items-center justify-between flex-wrap gap-3">
+            <div className="text-[11px] text-slate-600">
+              Si necesitás corregir movimientos del período cerrado, podés re-abrirlo. La acción
+              queda registrada en el audit trail.
+            </div>
+            <button
+              onClick={() => setShowConfirmReapertura(true)}
+              className="text-[11px] font-bold text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-200 px-3 py-1.5 rounded-lg flex items-center gap-1.5"
+            >
+              <Unlock className="w-3.5 h-3.5" /> Re-abrir {MESES[mes - 1]} {anio}
+            </button>
+          </div>
+        </section>
+      )}
+
+      {/* §3 · Histórico de cierres */}
+      <section className="bg-white border border-slate-200 rounded-2xl overflow-hidden">
+        <div className="px-5 py-3 border-b border-slate-100">
+          <h3 className="text-[13px] font-bold text-slate-900 flex items-center gap-2">
+            <History className="w-4 h-4 text-slate-700" />
+            Histórico de cierres
+          </h3>
         </div>
 
         {historial.length === 0 ? (
-          <div className="p-8 text-center text-slate-500 text-sm">
-            No se han realizado cierres contables aun
+          <div className="px-5 py-8 text-center text-[11px] text-slate-500 italic">
+            Sin cierres registrados aún
           </div>
         ) : (
-          <>
-            {/* Mobile: Cards */}
-            <div className="md:hidden divide-y divide-slate-100">
-              {historial.map((c) => (
-                <div key={c.id} className="p-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="font-medium text-slate-900">
-                      {MESES[c.mes - 1]} {c.anio}
-                    </span>
-                    <Badge variant={c.estado === 'cerrado' ? 'success' : 'warning'}>
-                      {c.estado === 'cerrado' ? 'Cerrado' : 'Reabierto'}
-                    </Badge>
-                  </div>
-                  <div className="text-xs text-slate-500 space-y-1">
-                    <div className="flex items-center gap-1">
-                      <Calendar className="w-3 h-3" />
-                      {c.fechaCierre instanceof Date ? c.fechaCierre.toLocaleDateString('es-PE') : '-'}
-                    </div>
-                    <div>Por: {c.cerradoPor}</div>
-                  </div>
-                  {c.snapshot && (
-                    <button
-                      onClick={() =>
-                        setDetalleExpandido(detalleExpandido === c.id ? null : c.id ?? null)
-                      }
-                      className="mt-2 text-xs text-teal-600 flex items-center gap-1"
-                    >
-                      {detalleExpandido === c.id ? (
-                        <>
-                          <ChevronUp className="w-3 h-3" /> Ocultar detalle
-                        </>
-                      ) : (
-                        <>
-                          <ChevronDown className="w-3 h-3" /> Ver detalle
-                        </>
-                      )}
-                    </button>
-                  )}
-                  {detalleExpandido === c.id && c.snapshot && (
-                    <div className="mt-2 grid grid-cols-2 gap-2 text-xs">
-                      <div>
-                        <span className="text-slate-500">Ventas:</span>{' '}
-                        {formatCurrencyPEN(c.snapshot.totalVentas)}
-                      </div>
-                      <div>
-                        <span className="text-slate-500">U. Neta:</span>{' '}
-                        <span className={c.snapshot.estadoResultados.utilidadNeta >= 0 ? 'text-emerald-600' : 'text-red-600'}>
-                          {formatCurrencyPEN(c.snapshot.estadoResultados.utilidadNeta)}
-                        </span>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-
-            {/* Desktop: Tabla */}
-            <div className="hidden md:block">
-              <DataTable
-                columns={columnasCierre}
-                data={historial}
-                keyExtractor={c => c.id ?? `${c.mes}-${c.anio}`}
-                compact
-              />
-            </div>
-          </>
+          <div className="overflow-x-auto">
+            <table className="w-full text-[12px]">
+              <thead className="bg-slate-50 border-b border-slate-200">
+                <tr>
+                  <th className="px-4 py-2 text-left text-[10px] uppercase tracking-wider font-bold text-slate-700">
+                    Período
+                  </th>
+                  <th className="px-4 py-2 text-left text-[10px] uppercase tracking-wider font-bold text-slate-700">
+                    Estado
+                  </th>
+                  <th className="px-4 py-2 text-left text-[10px] uppercase tracking-wider font-bold text-slate-700">
+                    Cerrado por
+                  </th>
+                  <th className="px-4 py-2 text-left text-[10px] uppercase tracking-wider font-bold text-slate-700">
+                    Fecha cierre
+                  </th>
+                  <th className="px-4 py-2 text-right text-[10px] uppercase tracking-wider font-bold text-slate-700">
+                    Utilidad neta
+                  </th>
+                  <th className="px-4 py-2 text-right text-[10px] uppercase tracking-wider font-bold text-slate-700">
+                    Acciones
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {historial.map((c) => (
+                  <HistorialRow key={c.id ?? `${c.mes}-${c.anio}`} cierre={c} />
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
-      </div>
+      </section>
 
-      {/* Dialog de confirmacion de cierre */}
+      {/* §4 · Banner pedagógico */}
+      <section className="bg-slate-50 ring-1 ring-slate-200 rounded-2xl p-4 text-[11px] text-slate-700">
+        <div className="flex items-start gap-3">
+          <Info className="w-4 h-4 text-slate-600 mt-0.5 flex-shrink-0" />
+          <div className="space-y-1">
+            <div className="font-semibold text-slate-900">¿Qué pasa cuando cerrás un mes?</div>
+            <ul className="list-disc ml-4 space-y-0.5 text-slate-600">
+              <li>
+                Se <strong>bloquean modificaciones</strong> a movimientos del período (ventas ·
+                compras · gastos)
+              </li>
+              <li>
+                Se genera <strong>snapshot inmutable</strong> de Balance General + Estado de
+                Resultados + Indicadores
+              </li>
+              <li>
+                Quedan registrados <strong>quién</strong> cerró y <strong>cuándo</strong> (audit
+                trail completo)
+              </li>
+              <li>
+                Para corregir algo: <strong>re-abrir</strong> el período (acción auditada con
+                motivo obligatorio) · hacer cambios · volver a cerrar
+              </li>
+              <li>
+                La utilidad del período se traslada automáticamente a{' '}
+                <strong>"Utilidades acumuladas"</strong> en el siguiente Balance General
+              </li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      {/* Dialog confirmación cierre */}
       <ConfirmDialog
         isOpen={showConfirmCierre}
         onClose={() => setShowConfirmCierre(false)}
         onConfirm={ejecutarCierre}
         title="Confirmar Cierre Contable"
         message={
-          <div className="space-y-2">
+          <div className="space-y-2 text-sm">
             <p>
-              Se cerrara el periodo <strong>{MESES[mes - 1]} {anio}</strong>.
+              Se cerrará el período{' '}
+              <strong>
+                {MESES[mes - 1]} {anio}
+              </strong>
+              .
             </p>
-            <p className="text-sm text-slate-500">
-              Se generara un snapshot de los estados financieros. No se podran registrar
-              movimientos en este periodo hasta que se reabra.
+            <p className="text-slate-500 text-xs">
+              Se generará un snapshot inmutable de los estados financieros. No se podrán registrar
+              movimientos en este período hasta que se re-abra.
             </p>
             {validacionResult && validacionResult.advertencias > 0 && (
-              <p className="text-sm text-amber-600">
-                Nota: Hay {validacionResult.advertencias} advertencia(s) pendiente(s).
+              <p className="text-amber-600 text-xs">
+                Nota: hay {validacionResult.advertencias} advertencia(s) pendiente(s).
               </p>
             )}
           </div>
         }
-        confirmText="Cerrar Periodo"
-        variant="danger"
+        confirmText="Cerrar período"
+        variant="warning"
         loading={cerrando}
         icon={<Lock className="h-6 w-6" />}
       />
 
-      {/* Dialog de confirmacion de reapertura */}
+      {/* Dialog confirmación reapertura */}
       <ConfirmDialog
         isOpen={showConfirmReapertura}
         onClose={() => {
@@ -548,29 +485,143 @@ export default function CierreMensual({ mes, anio }: CierreMensualProps) {
           setMotivoReapertura('');
         }}
         onConfirm={ejecutarReapertura}
-        title="Reabrir Periodo Contable"
+        title="Re-abrir período contable"
         message={
           <div className="space-y-3">
-            <p>
-              Se reabrira el periodo <strong>{MESES[mes - 1]} {anio}</strong>.
+            <p className="text-sm">
+              Se re-abrirá el período{' '}
+              <strong>
+                {MESES[mes - 1]} {anio}
+              </strong>
+              . La acción queda registrada en el audit trail.
             </p>
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">
-                Motivo de reapertura (obligatorio)
+              <label className="block text-xs font-medium text-slate-700 mb-1">
+                Motivo de re-apertura (obligatorio)
               </label>
               <textarea
                 value={motivoReapertura}
                 onChange={(e) => setMotivoReapertura(e.target.value)}
-                placeholder="Describa el motivo por el cual se reabre este periodo..."
+                placeholder="Describí brevemente por qué reabrís este período…"
                 className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
                 rows={3}
               />
             </div>
           </div>
         }
-        confirmText={motivoReapertura.trim() ? 'Reabrir Periodo' : 'Ingrese un motivo'}
+        confirmText={motivoReapertura.trim() ? 'Re-abrir período' : 'Ingresá un motivo'}
         variant="warning"
       />
     </div>
+  );
+}
+
+// ============================================================================
+// SUB-COMPONENTES
+// ============================================================================
+
+function ChecklistRow({ validacion }: { validacion: ValidacionPreCierre }) {
+  const isOK = validacion.resultado === 'aprobada';
+  const isCritica = validacion.resultado === 'rechazada';
+  // Cualquier otro estado (advertencia, pendiente, no-aplica) lo tratamos como warning visual
+
+  const bg = isCritica ? 'bg-rose-50/40' : !isOK ? 'bg-amber-50/40' : '';
+  const Icon = isOK ? CheckCircle2 : isCritica ? XCircle : AlertCircle;
+  const iconColor = isOK
+    ? 'text-emerald-600'
+    : isCritica
+    ? 'text-rose-600'
+    : 'text-amber-600';
+  const labelColor = isOK
+    ? 'text-slate-900'
+    : isCritica
+    ? 'text-rose-900'
+    : 'text-amber-900';
+  const detalleColor = isOK
+    ? 'text-slate-500'
+    : isCritica
+    ? 'text-rose-700'
+    : 'text-amber-700';
+  const statusLabel = isOK ? 'OK' : isCritica ? 'CRÍTICA' : 'REVISAR';
+  const statusColor = isOK ? 'text-emerald-700' : isCritica ? 'text-rose-700' : 'text-amber-700';
+
+  return (
+    <div className={`px-5 py-3 flex items-center gap-3 ${bg}`}>
+      <Icon className={`w-5 h-5 ${iconColor} flex-shrink-0`} />
+      <div className="flex-1 min-w-0">
+        <div className={`text-[12px] font-semibold ${labelColor}`}>{validacion.nombre}</div>
+        {validacion.detalle && (
+          <div className={`text-[10px] ${detalleColor}`}>{validacion.detalle}</div>
+        )}
+      </div>
+      <span className={`text-[10px] font-bold ${statusColor}`}>{statusLabel}</span>
+    </div>
+  );
+}
+
+function HistorialRow({ cierre }: { cierre: CierreContable }) {
+  const isOpen = cierre.estado !== 'cerrado';
+  const utilidad = cierre.snapshot?.estadoResultados?.utilidadNeta ?? 0;
+  const fechaStr =
+    cierre.fechaCierre instanceof Date
+      ? `${cierre.fechaCierre.toLocaleDateString('es-PE')} · ${cierre.fechaCierre.toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' })}`
+      : '—';
+
+  return (
+    <tr className={isOpen ? 'bg-amber-50/30' : ''}>
+      <td className="px-4 py-2 font-semibold text-slate-900">
+        {MESES[cierre.mes - 1]} {cierre.anio}
+      </td>
+      <td className="px-4 py-2">
+        {isOpen ? (
+          <span className="text-[10px] bg-amber-100 text-amber-700 px-2 py-0.5 rounded font-bold inline-flex items-center gap-1">
+            <Unlock className="w-3 h-3" /> Abierto
+          </span>
+        ) : (
+          <span className="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded font-bold inline-flex items-center gap-1">
+            <Lock className="w-3 h-3" /> Cerrado
+          </span>
+        )}
+      </td>
+      <td className="px-4 py-2 text-slate-700">
+        {isOpen ? <span className="text-slate-500 italic">—</span> : cierre.cerradoPor || '—'}
+      </td>
+      <td className="px-4 py-2 text-slate-700">
+        {isOpen ? <span className="text-slate-500 italic">—</span> : fechaStr}
+      </td>
+      <td className="px-4 py-2 text-right tabular-nums">
+        {cierre.snapshot ? (
+          <span
+            className={
+              utilidad >= 0
+                ? isOpen
+                  ? 'text-slate-600'
+                  : 'font-semibold text-emerald-700'
+                : 'font-semibold text-rose-600'
+            }
+          >
+            {formatCurrencyPEN(utilidad)}
+            {isOpen && ' *'}
+          </span>
+        ) : (
+          <span className="text-slate-400 italic">—</span>
+        )}
+      </td>
+      <td className="px-4 py-2 text-right">
+        {isOpen ? (
+          <span className="text-[10px] text-slate-400 italic">En proceso</span>
+        ) : (
+          <div className="flex justify-end gap-1">
+            <button
+              className="text-[10px] text-slate-600 hover:bg-slate-100 px-2 py-1 rounded inline-flex items-center gap-1"
+              title="Ver snapshot del cierre"
+            >
+              <Eye className="w-3 h-3" /> Ver
+            </button>
+            {/* Botón Re-abrir solo aparece en el cierre activo (que ya tiene su propio bloque arriba) */}
+          </div>
+        )}
+      </td>
+    </tr>
   );
 }

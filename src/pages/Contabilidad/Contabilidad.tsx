@@ -637,6 +637,342 @@ const ConfigurarContableModal: React.FC<ConfigurarContableModalProps> = ({
 type _ConfigContableFormShape = ConfigContableForm;
 
 // ═════════════════════════════════════════════════════════════════════════
+// TENDENCIAS VIEW · canon v5.1 chk5.E-S5
+// ═════════════════════════════════════════════════════════════════════════
+
+type MetricaTendencia = 'utilidadNeta' | 'ventasNetas' | 'utilidadBruta' | 'utilidadOperativa';
+
+interface TendenciasViewProps {
+  tendencia: TendenciaMensual[];
+  mes: number;
+  anio: number;
+  mejorMes: TendenciaMensual | null;
+  peorMes: TendenciaMensual | null;
+  acumuladoVentas: number;
+  acumuladoCompras: number;
+  acumuladoUtilidadNeta: number;
+}
+
+function TendenciasView({
+  tendencia,
+  mes,
+  anio,
+  mejorMes,
+  peorMes,
+  acumuladoVentas,
+  acumuladoCompras,
+  acumuladoUtilidadNeta,
+}: TendenciasViewProps) {
+  const [metrica, setMetrica] = useState<MetricaTendencia>('utilidadNeta');
+
+  const metricaLabel: Record<MetricaTendencia, string> = {
+    utilidadNeta: 'Utilidad Neta',
+    ventasNetas: 'Ventas Netas',
+    utilidadBruta: 'Margen Bruto',
+    utilidadOperativa: 'EBITDA',
+  };
+
+  // Acumulados derivados
+  const acumUtilidadBruta = tendencia.reduce((s, m) => s + m.utilidadBruta, 0);
+  const acumGastosOperativos = tendencia.reduce((s, m) => s + m.gastosOperativos, 0);
+  const acumUtilidadOperativa = tendencia.reduce((s, m) => s + m.utilidadOperativa, 0);
+  const ytdMargen = acumuladoVentas > 0 ? (acumuladoUtilidadNeta / acumuladoVentas) * 100 : 0;
+
+  // Para la gráfica · valor seleccionado y rango
+  const valoresMetrica = tendencia.map((m) => m[metrica]);
+  const maxAbs = Math.max(...valoresMetrica.map((v) => Math.abs(v)), 1);
+
+  // Detectar mes actual
+  const mesActualIdx = tendencia.findIndex((m) => m.mes === mes);
+
+  // Export CSV
+  const handleExportCSV = () => {
+    const headers = ['Mes', 'Ventas', 'Compras', 'EBITDA', 'Utilidad Neta', 'Margen %'];
+    const rows = tendencia.map((m) => [
+      m.nombreMes,
+      m.ventasNetas.toFixed(2),
+      m.compras.toFixed(2),
+      m.utilidadOperativa.toFixed(2),
+      m.utilidadNeta.toFixed(2),
+      m.ventasNetas > 0 ? ((m.utilidadNeta / m.ventasNetas) * 100).toFixed(2) : '0.00',
+    ]);
+    rows.push([
+      'YTD',
+      acumuladoVentas.toFixed(2),
+      acumuladoCompras.toFixed(2),
+      acumUtilidadOperativa.toFixed(2),
+      acumuladoUtilidadNeta.toFixed(2),
+      ytdMargen.toFixed(2),
+    ]);
+    const csv = [headers, ...rows]
+      .map((r) => r.map((c) => `"${c}"`).join(','))
+      .join('\n');
+    const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `tendencias-${anio}-${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  return (
+    <div className="space-y-4">
+      {/* §1 · Header con selector métrica */}
+      <section className="bg-white border border-slate-200 rounded-2xl p-4">
+        <div className="flex items-center justify-between flex-wrap gap-3">
+          <div className="flex items-center gap-3">
+            <LineChart className="w-5 h-5 text-indigo-700" />
+            <div>
+              <div className="text-[13px] font-bold text-slate-900">Tendencias · Año {anio}</div>
+              <div className="text-[11px] text-slate-500">
+                Comparativo mensual · acumulado YTD · {tendencia.length} meses con data
+              </div>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 text-[11px]">
+            <span className="text-slate-500">Métrica:</span>
+            <select
+              value={metrica}
+              onChange={(e) => setMetrica(e.target.value as MetricaTendencia)}
+              className="border border-slate-200 rounded-lg px-2 py-1 text-[11px] font-semibold focus:ring-1 focus:ring-indigo-500"
+            >
+              <option value="utilidadNeta">Utilidad Neta</option>
+              <option value="ventasNetas">Ventas Netas</option>
+              <option value="utilidadBruta">Margen Bruto</option>
+              <option value="utilidadOperativa">EBITDA</option>
+            </select>
+          </div>
+        </div>
+      </section>
+
+      {/* §2 · Gráfica barras horizontales · 12 meses */}
+      <section className="bg-white border border-slate-200 rounded-2xl p-5">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-[13px] font-bold text-slate-900 flex items-center gap-2">
+            <BarChart3 className="w-4 h-4 text-indigo-600" />
+            {metricaLabel[metrica]} · {tendencia.length} meses
+          </h3>
+          <div className="flex items-center gap-2 text-[10px]">
+            <span className="flex items-center gap-1">
+              <div className="w-2 h-2 bg-emerald-500 rounded-full"></div> Positivo
+            </span>
+            <span className="flex items-center gap-1">
+              <div className="w-2 h-2 bg-rose-500 rounded-full"></div> Negativo
+            </span>
+          </div>
+        </div>
+
+        {tendencia.length === 0 ? (
+          <div className="py-8 text-center text-[12px] text-slate-500 italic">
+            Sin meses con data para mostrar tendencia
+          </div>
+        ) : (
+          <div className="space-y-1.5">
+            {tendencia.map((m, idx) => {
+              const valor = m[metrica];
+              const isPositive = valor >= 0;
+              const width = (Math.abs(valor) / maxAbs) * 100;
+              const isCurrent = idx === mesActualIdx;
+
+              const rowBg = isCurrent ? 'bg-purple-50/30 -mx-2 px-2 py-1 rounded' : '';
+              const labelColor = isCurrent ? 'font-bold text-purple-900' : 'text-slate-600';
+              const valueColor = isCurrent
+                ? isPositive
+                  ? 'font-bold text-emerald-700'
+                  : 'font-bold text-rose-700'
+                : isPositive
+                ? 'font-medium text-emerald-600'
+                : 'font-medium text-rose-600';
+              const barColor = isPositive ? 'bg-emerald-500' : 'bg-rose-500';
+
+              return (
+                <div key={idx} className={`flex items-center gap-3 ${rowBg}`}>
+                  <div className={`w-12 text-[11px] shrink-0 ${labelColor}`}>
+                    {m.nombreMes.slice(0, 3)}
+                  </div>
+                  <div className="flex-1 h-6 bg-slate-100 rounded-full overflow-hidden">
+                    <div
+                      className={`h-full rounded-full ${barColor}`}
+                      style={{ width: `${width}%` }}
+                    ></div>
+                  </div>
+                  <div className={`w-28 text-right text-[11px] tabular-nums shrink-0 ${valueColor}`}>
+                    {valor < 0 ? '− ' : ''}
+                    {formatCurrencyPEN(Math.abs(valor))}
+                    {isCurrent && ' ←'}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </section>
+
+      {/* §3 · 3 cards resumen · YTD + mejor + peor */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="bg-emerald-50 ring-1 ring-emerald-200/50 rounded-2xl p-4">
+          <div className="text-[10px] uppercase tracking-wider text-emerald-700 font-bold mb-1">
+            Acumulado {anio} YTD
+          </div>
+          <div className="text-2xl font-bold tabular-nums text-emerald-900">
+            {formatCurrencyPEN(acumuladoUtilidadNeta)}
+          </div>
+          <div className="text-[11px] text-emerald-700 mt-1 flex items-center gap-1">
+            <TrendingUp className="w-3 h-3" />
+            Margen YTD: {ytdMargen.toFixed(1)}%
+          </div>
+        </div>
+
+        <div className="bg-sky-50 ring-1 ring-sky-200/50 rounded-2xl p-4">
+          <div className="text-[10px] uppercase tracking-wider text-sky-700 font-bold mb-1">
+            Mejor mes {anio}
+          </div>
+          <div className="text-2xl font-bold tabular-nums text-sky-900">
+            {mejorMes ? `${mejorMes.nombreMes.slice(0, 3)} · ${formatCurrencyPEN(mejorMes.utilidadNeta)}` : '—'}
+          </div>
+          <div className="text-[11px] text-sky-700 mt-1">
+            {mejorMes && mejorMes.utilidadNeta === Math.max(...tendencia.map((t) => t.utilidadNeta))
+              ? '↑ Récord año'
+              : 'Periodo destacado'}
+          </div>
+        </div>
+
+        <div className="bg-rose-50 ring-1 ring-rose-200/50 rounded-2xl p-4">
+          <div className="text-[10px] uppercase tracking-wider text-rose-700 font-bold mb-1">
+            Peor mes {anio}
+          </div>
+          <div className="text-2xl font-bold tabular-nums text-rose-900">
+            {peorMes ? `${peorMes.nombreMes.slice(0, 3)} · ${formatCurrencyPEN(peorMes.utilidadNeta)}` : '—'}
+          </div>
+          <div className="text-[11px] text-rose-700 mt-1">
+            {peorMes && peorMes.utilidadNeta < 0 ? 'Mes con pérdida' : 'Mes más bajo'}
+          </div>
+        </div>
+      </div>
+
+      {/* §4 · Tabla detallada con tfoot YTD */}
+      <section className="bg-white border border-slate-200 rounded-2xl overflow-hidden">
+        <div className="px-4 py-2.5 border-b border-slate-100 flex items-center justify-between">
+          <h3 className="text-[12px] font-bold text-slate-900 flex items-center gap-2">
+            <BarChart3 className="w-3.5 h-3.5 text-slate-600" />
+            Tabla completa · todos los meses
+          </h3>
+          <button
+            onClick={handleExportCSV}
+            className="text-[10px] text-indigo-700 hover:underline flex items-center gap-1"
+            title="Exportar tabla de tendencias a CSV"
+          >
+            <Download className="w-3 h-3" /> Exportar CSV
+          </button>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full text-[12px]">
+            <thead className="bg-slate-50">
+              <tr>
+                <th className="px-3 py-2 text-left text-[10px] uppercase tracking-wider font-bold text-slate-700">
+                  Mes
+                </th>
+                <th className="px-3 py-2 text-right text-[10px] uppercase tracking-wider font-bold text-slate-700">
+                  Ventas
+                </th>
+                <th className="px-3 py-2 text-right text-[10px] uppercase tracking-wider font-bold text-slate-700">
+                  Compras
+                </th>
+                <th className="px-3 py-2 text-right text-[10px] uppercase tracking-wider font-bold text-slate-700">
+                  EBITDA
+                </th>
+                <th className="px-3 py-2 text-right text-[10px] uppercase tracking-wider font-bold text-slate-700">
+                  Util. Neta
+                </th>
+                <th className="px-3 py-2 text-right text-[10px] uppercase tracking-wider font-bold text-slate-700">
+                  Margen
+                </th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {tendencia.length === 0 && (
+                <tr>
+                  <td colSpan={6} className="px-3 py-6 text-center text-[11px] text-slate-500 italic">
+                    Sin meses con data registrada en {anio}
+                  </td>
+                </tr>
+              )}
+              {tendencia.map((m, idx) => {
+                const isCurrent = m.mes === mes;
+                const isPeor = peorMes && m.mes === peorMes.mes;
+                const margen = m.ventasNetas > 0 ? (m.utilidadNeta / m.ventasNetas) * 100 : 0;
+                const utilColor = m.utilidadNeta >= 0 ? 'text-emerald-700' : 'text-rose-700';
+                const rowBg = isCurrent
+                  ? 'bg-purple-50/30 border-l-4 border-purple-500'
+                  : isPeor
+                  ? 'bg-rose-50/30'
+                  : 'hover:bg-slate-50';
+                const labelCls = isCurrent
+                  ? 'font-bold text-purple-900'
+                  : isPeor
+                  ? 'font-semibold text-rose-700'
+                  : 'font-semibold text-slate-700';
+                const numCls = isCurrent ? 'font-bold text-purple-900' : '';
+
+                return (
+                  <tr key={idx} className={rowBg}>
+                    <td className={`px-3 py-2 ${labelCls}`}>
+                      {m.nombreMes.slice(0, 3)} {isCurrent && '←'}
+                    </td>
+                    <td className={`px-3 py-2 text-right tabular-nums ${numCls}`}>
+                      {formatCurrencyPEN(m.ventasNetas)}
+                    </td>
+                    <td className={`px-3 py-2 text-right tabular-nums ${numCls}`}>
+                      {formatCurrencyPEN(m.compras)}
+                    </td>
+                    <td className={`px-3 py-2 text-right tabular-nums ${numCls || (m.utilidadOperativa < 0 ? 'text-rose-600' : '')}`}>
+                      {formatCurrencyPEN(m.utilidadOperativa)}
+                    </td>
+                    <td className={`px-3 py-2 text-right tabular-nums font-semibold ${isCurrent ? 'font-bold' : ''} ${utilColor}`}>
+                      {formatCurrencyPEN(m.utilidadNeta)}
+                    </td>
+                    <td className={`px-3 py-2 text-right tabular-nums ${isCurrent ? 'font-bold' : ''} ${utilColor}`}>
+                      {margen.toFixed(1)}%
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+            {tendencia.length > 0 && (
+              <tfoot className="bg-slate-100 border-t-2 border-slate-300">
+                <tr>
+                  <td className="px-3 py-2 font-bold text-slate-900">YTD</td>
+                  <td className="px-3 py-2 text-right tabular-nums font-bold text-slate-900">
+                    {formatCurrencyPEN(acumuladoVentas)}
+                  </td>
+                  <td className="px-3 py-2 text-right tabular-nums font-bold text-slate-900">
+                    {formatCurrencyPEN(acumuladoCompras)}
+                  </td>
+                  <td className="px-3 py-2 text-right tabular-nums font-bold text-slate-900">
+                    {formatCurrencyPEN(acumUtilidadOperativa)}
+                  </td>
+                  <td className={`px-3 py-2 text-right tabular-nums font-bold ${
+                    acumuladoUtilidadNeta >= 0 ? 'text-emerald-700' : 'text-rose-700'
+                  }`}>
+                    {formatCurrencyPEN(acumuladoUtilidadNeta)}
+                  </td>
+                  <td className={`px-3 py-2 text-right tabular-nums font-bold ${
+                    ytdMargen >= 0 ? 'text-emerald-700' : 'text-rose-700'
+                  }`}>
+                    {ytdMargen.toFixed(1)}%
+                  </td>
+                </tr>
+              </tfoot>
+            )}
+          </table>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+// ═════════════════════════════════════════════════════════════════════════
 // COMPONENTE PRINCIPAL
 // ═════════════════════════════════════════════════════════════════════════
 
@@ -1410,279 +1746,18 @@ export function Contabilidad() {
       )}
 
       {/* TENDENCIAS */}
+      {/* TENDENCIAS · canon chk5.E-S5 copy-paste literal mockup contabilidad-tab-tendencias-v5.1.html */}
       {!loading && tabActiva === 'tendencias' && (
-        <div className="space-y-6">
-          {/* Resumen de tendencia */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
-            <div className="bg-white rounded-lg border p-4 sm:p-6">
-              <div className="flex items-center gap-3 mb-2 sm:mb-3">
-                <div className="p-2 bg-emerald-100 rounded-lg">
-                  <TrendingUp className="w-5 h-5 text-emerald-600" />
-                </div>
-                <div className="text-sm text-slate-500">Mejor Mes</div>
-              </div>
-              <div className="text-xl sm:text-2xl font-bold text-slate-900">{mejorMes?.nombreMes || '-'}</div>
-              <div className="text-emerald-600 font-medium text-sm sm:text-base">
-                {mejorMes ? formatCurrency(mejorMes.utilidadNeta) : '-'}
-              </div>
-            </div>
-
-            <div className="bg-white rounded-lg border p-4 sm:p-6">
-              <div className="flex items-center gap-3 mb-2 sm:mb-3">
-                <div className="p-2 bg-red-100 rounded-lg">
-                  <TrendingDown className="w-5 h-5 text-red-600" />
-                </div>
-                <div className="text-sm text-slate-500">Peor Mes</div>
-              </div>
-              <div className="text-xl sm:text-2xl font-bold text-slate-900">{peorMes?.nombreMes || '-'}</div>
-              <div className={`font-medium text-sm sm:text-base ${(peorMes?.utilidadNeta || 0) >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
-                {peorMes ? formatCurrency(peorMes.utilidadNeta) : '-'}
-              </div>
-            </div>
-
-            <div className="bg-white rounded-lg border p-4 sm:p-6">
-              <div className="flex items-center gap-3 mb-2 sm:mb-3">
-                <div className="p-2 bg-sky-100 rounded-lg">
-                  <BarChart3 className="w-5 h-5 text-sky-600" />
-                </div>
-                <div className="text-sm text-slate-500">Promedio Mensual</div>
-              </div>
-              <div className="text-xl sm:text-2xl font-bold text-slate-900">
-                {formatCurrency(promedioMensual)}
-              </div>
-              <div className="text-sky-600 font-medium text-sm sm:text-base">
-                {tendencia.length} meses
-              </div>
-            </div>
-          </div>
-
-          {/* Evolución Mensual — Cards en mobile, tabla en desktop */}
-          <div className="bg-white rounded-lg border overflow-hidden">
-            <div className="px-4 sm:px-6 py-4 border-b bg-slate-50">
-              <h3 className="font-semibold text-slate-800">Evolución Mensual {anio}</h3>
-            </div>
-
-            {/* Mobile: Cards */}
-            <div className="md:hidden divide-y divide-slate-100">
-              {tendencia.map((m, idx) => {
-                const margenBruto = m.ventasNetas > 0 ? (m.utilidadBruta / m.ventasNetas) * 100 : 0;
-                const margenNeto = m.ventasNetas > 0 ? (m.utilidadNeta / m.ventasNetas) * 100 : 0;
-                const maxVentas = Math.max(...tendencia.map(t => t.ventasNetas), 1);
-                const barWidth = (m.ventasNetas / maxVentas) * 100;
-
-                return (
-                  <div key={idx} className="px-4 py-4">
-                    <div className="flex items-center justify-between mb-3">
-                      <span className="font-semibold text-slate-900">{m.nombreMes}</span>
-                      <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${
-                        m.utilidadNeta >= 0 ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700'
-                      }`}>
-                        {m.utilidadNeta >= 0 ? '+' : ''}{margenNeto.toFixed(1)}% neto
-                      </span>
-                    </div>
-
-                    {/* Barra de ventas */}
-                    <div className="h-2 bg-slate-100 rounded-full mb-3 overflow-hidden">
-                      <div className="h-full bg-emerald-400 rounded-full" style={{ width: `${barWidth}%` }} />
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
-                      <div className="flex justify-between">
-                        <span className="text-slate-500">Ventas</span>
-                        <span className="font-medium text-slate-900">{formatCurrency(m.ventasNetas)}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-slate-500">Compras</span>
-                        <span className="font-medium text-orange-600">{formatCurrency(m.compras)}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-slate-500">U. Bruta</span>
-                        <span className={`font-medium ${m.utilidadBruta >= 0 ? 'text-sky-600' : 'text-red-600'}`}>
-                          {formatCurrency(m.utilidadBruta)}
-                        </span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-slate-500">Gastos Op.</span>
-                        <span className="font-medium text-slate-600">{formatCurrency(m.gastosOperativos)}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-slate-500">EBIT</span>
-                        <span className="font-medium text-purple-600">{formatCurrency(m.utilidadOperativa)}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-slate-500">U. Neta</span>
-                        <span className={`font-bold ${m.utilidadNeta >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
-                          {formatCurrency(m.utilidadNeta)}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-
-              {/* Totales mobile */}
-              <div className="px-4 py-4 bg-slate-50">
-                <div className="flex items-center justify-between mb-3">
-                  <span className="font-bold text-slate-900">ACUMULADO {anio}</span>
-                  <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${
-                    acumuladoUtilidadNeta >= 0 ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700'
-                  }`}>
-                    {acumuladoUtilidadNeta >= 0 ? '+' : ''}{acumuladoVentas > 0 ? ((acumuladoUtilidadNeta / acumuladoVentas) * 100).toFixed(1) : '0.0'}% neto
-                  </span>
-                </div>
-                <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-slate-500">Ventas</span>
-                    <span className="font-bold text-slate-900">{formatCurrency(acumuladoVentas)}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-slate-500">Compras</span>
-                    <span className="font-bold text-orange-700">{formatCurrency(acumuladoCompras)}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-slate-500">U. Bruta</span>
-                    <span className="font-bold text-sky-700">{formatCurrency(tendencia.reduce((s, m) => s + m.utilidadBruta, 0))}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-slate-500">U. Neta</span>
-                    <span className={`font-bold ${acumuladoUtilidadNeta >= 0 ? 'text-emerald-700' : 'text-red-700'}`}>
-                      {formatCurrency(acumuladoUtilidadNeta)}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Desktop: Tabla */}
-            {(() => {
-              type FilaTendencia = TendenciaMensual & { _esTotal?: boolean };
-              const acumUtilidadBruta = tendencia.reduce((s, m) => s + m.utilidadBruta, 0);
-              const acumGastosOperativos = tendencia.reduce((s, m) => s + m.gastosOperativos, 0);
-              const acumUtilidadOperativa = tendencia.reduce((s, m) => s + m.utilidadOperativa, 0);
-              const filaTotal: FilaTendencia = {
-                mes: 0,
-                anio,
-                nombreMes: 'TOTAL',
-                ventasNetas: acumuladoVentas,
-                compras: acumuladoCompras,
-                utilidadBruta: acumUtilidadBruta,
-                gastosOperativos: acumGastosOperativos,
-                utilidadOperativa: acumUtilidadOperativa,
-                utilidadNeta: acumuladoUtilidadNeta,
-                _esTotal: true,
-              };
-              const filas: FilaTendencia[] = [...tendencia, filaTotal];
-              const columnasTendencia: DataTableColumn<FilaTendencia>[] = [
-                {
-                  key: 'nombreMes',
-                  header: 'Mes',
-                  render: (m) => (
-                    <span className={m._esTotal ? 'font-semibold text-slate-900' : 'font-medium text-slate-900'}>
-                      {m.nombreMes}
-                    </span>
-                  ),
-                },
-                {
-                  key: 'ventasNetas',
-                  header: 'Ventas',
-                  align: 'right',
-                  render: (m) => (
-                    <span className={m._esTotal ? 'font-semibold text-slate-900' : 'text-slate-700'}>
-                      {formatCurrency(m.ventasNetas)}
-                    </span>
-                  ),
-                },
-                {
-                  key: 'compras',
-                  header: 'Compras',
-                  align: 'right',
-                  render: (m) => (
-                    <span className={m._esTotal ? 'font-semibold text-orange-700' : 'text-orange-600'}>
-                      {formatCurrency(m.compras)}
-                    </span>
-                  ),
-                },
-                {
-                  key: 'utilidadBruta',
-                  header: 'U. Bruta',
-                  align: 'right',
-                  render: (m) => (
-                    <span className={m._esTotal ? 'font-semibold text-sky-700' : 'text-sky-600'}>
-                      {formatCurrency(m.utilidadBruta)}
-                    </span>
-                  ),
-                },
-                {
-                  key: 'gastosOperativos',
-                  header: 'Gastos Op.',
-                  align: 'right',
-                  render: (m) => (
-                    <span className={m._esTotal ? 'font-semibold text-slate-700' : 'text-slate-600'}>
-                      {formatCurrency(m.gastosOperativos)}
-                    </span>
-                  ),
-                },
-                {
-                  key: 'utilidadOperativa',
-                  header: 'EBIT',
-                  align: 'right',
-                  render: (m) => (
-                    <span className={m._esTotal ? 'font-semibold text-purple-700' : 'text-purple-600'}>
-                      {formatCurrency(m.utilidadOperativa)}
-                    </span>
-                  ),
-                },
-                {
-                  key: 'utilidadNeta',
-                  header: 'U. Neta',
-                  align: 'right',
-                  render: (m) => (
-                    <span className={`font-semibold ${m.utilidadNeta >= 0 ? (m._esTotal ? 'text-emerald-700' : 'text-emerald-600') : (m._esTotal ? 'text-red-700' : 'text-red-600')}`}>
-                      {formatCurrency(m.utilidadNeta)}
-                    </span>
-                  ),
-                },
-              ];
-              return (
-                <div className="hidden md:block">
-                  <DataTable
-                    data={filas}
-                    columns={columnasTendencia}
-                    keyExtractor={(m) => m._esTotal ? '__total__' : m.nombreMes}
-                    compact
-                  />
-                </div>
-              );
-            })()}
-          </div>
-
-          {/* Gráfico visual — Utilidad Neta por Mes */}
-          <div className="bg-white rounded-lg border p-4 sm:p-6">
-            <h3 className="font-semibold text-slate-800 mb-4">Utilidad Neta por Mes</h3>
-            <div className="space-y-3">
-              {tendencia.map((m, idx) => {
-                const maxVal = Math.max(...tendencia.map(t => Math.abs(t.utilidadNeta)), 1);
-                const width = Math.abs(m.utilidadNeta) / maxVal * 100;
-                const isPositive = m.utilidadNeta >= 0;
-
-                return (
-                  <div key={idx} className="flex items-center gap-2 sm:gap-3">
-                    <div className="w-12 sm:w-20 text-xs sm:text-sm text-slate-600 shrink-0">{m.nombreMes.slice(0, 3)}</div>
-                    <div className="flex-1 h-5 sm:h-6 bg-slate-100 rounded-full overflow-hidden relative">
-                      <div
-                        className={`h-full rounded-full transition-all ${isPositive ? 'bg-emerald-500' : 'bg-red-500'}`}
-                        style={{ width: `${width}%` }}
-                      />
-                    </div>
-                    <div className={`w-20 sm:w-28 text-right text-xs sm:text-sm font-medium shrink-0 ${isPositive ? 'text-emerald-600' : 'text-red-600'}`}>
-                      {formatCurrency(m.utilidadNeta)}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </div>
+        <TendenciasView
+          tendencia={tendencia}
+          mes={mes}
+          anio={anio}
+          mejorMes={mejorMes}
+          peorMes={peorMes}
+          acumuladoVentas={acumuladoVentas}
+          acumuladoCompras={acumuladoCompras}
+          acumuladoUtilidadNeta={acumuladoUtilidadNeta}
+        />
       )}
 
       {/* CIERRE MENSUAL */}
