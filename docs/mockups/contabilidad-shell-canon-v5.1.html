@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Contabilidad · Shell Canon v5.1 · Vita Skin ERP</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<style>
+  body { font-family: 'Inter', sans-serif; font-variant-numeric: tabular-nums; }
+  .tabular { font-variant-numeric: tabular-nums; }
+  /* Lucide icons inline · monospace fallback para preview */
+  .lc { display: inline-block; width: 1em; height: 1em; vertical-align: middle; }
+</style>
+<script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-slate-50 p-6 md:p-10 text-slate-900">
+
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<!-- META · contexto del mockup                                            -->
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<div class="max-w-5xl mx-auto mb-6 bg-amber-50 border-l-4 border-amber-400 p-4 rounded text-[12px] text-amber-900">
+  <strong>📋 Mockup canon v5.1 · Contabilidad shell</strong><br>
+  Producido en chk5.E-S1.mockup (2026-05-23) post-hoc · validación visual del refactor del shell.
+  Si aprobás este mockup, queda como <strong>fuente de verdad visual</strong> para futuros cambios
+  al shell de Contabilidad. Cualquier desviación contra este HTML será deuda visible.
+</div>
+
+<div class="max-w-5xl mx-auto p-4 lg:p-6">
+
+  <!-- ═══════════════════════════════════════════════════════════════════ -->
+  <!-- SHELL FRAME · canon banking-grade · borde + sombra · contiene todo  -->
+  <!-- ═══════════════════════════════════════════════════════════════════ -->
+  <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+
+    <!-- §A · TOP BAR breadcrumb canon S9.D1 ─────────────────────────── -->
+    <div class="border-b border-slate-200 px-6 py-2.5 flex items-center gap-3 bg-slate-50">
+      <div class="flex items-center text-[12px] flex-1">
+        <a class="text-slate-500 hover:text-teal-700 cursor-pointer">Inicio</a>
+        <i data-lucide="chevron-right" class="w-3 h-3 text-slate-300 mx-1.5"></i>
+        <span class="text-slate-900 font-semibold">Contabilidad</span>
+      </div>
+      <div class="flex items-center gap-1.5">
+        <button class="hover:bg-slate-100 text-slate-600 text-[11px] px-2 py-1 rounded inline-flex items-center gap-1">
+          <i data-lucide="keyboard" class="w-3 h-3"></i>
+          <span class="text-[10px] font-mono">⌘K</span>
+        </button>
+        <button class="relative hover:bg-slate-100 p-1.5 rounded">
+          <i data-lucide="bell" class="w-3.5 h-3.5 text-slate-500"></i>
+          <span class="absolute top-0 right-0 w-2 h-2 bg-rose-500 rounded-full"></span>
+        </button>
+      </div>
+    </div>
+
+    <!-- §B · HEADER BANKING-GRADE · F1 canon ─────────────────────────── -->
+    <div class="px-6 py-5 border-b border-slate-100">
+      <div class="flex items-start justify-between gap-4 flex-wrap">
+
+        <!-- Identidad: icon + title + subtitle -->
+        <div class="flex items-start gap-3 flex-1 min-w-[260px]">
+          <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-purple-500 to-purple-700 flex items-center justify-center text-white flex-shrink-0">
+            <i data-lucide="calculator" class="w-5 h-5"></i>
+          </div>
+          <div class="min-w-0">
+            <h1 class="text-2xl font-bold tracking-tight text-slate-900">Contabilidad</h1>
+            <p class="text-[13px] text-slate-500 leading-snug">
+              Estados financieros formales · Balance General · P&L · ratios e indicadores · cierre mensual
+            </p>
+          </div>
+        </div>
+
+        <!-- Acciones: selector período + 3-tier N10 (canon icon-only mobile D10) -->
+        <div class="flex items-center gap-2 flex-wrap justify-end max-w-full">
+          <!-- Selector período · compacto integrado -->
+          <div class="flex items-center gap-1 bg-slate-50 border border-slate-200 rounded-lg px-2 py-1">
+            <i data-lucide="calendar" class="w-3 h-3 text-slate-500"></i>
+            <select class="border-none bg-transparent text-[12px] font-medium text-slate-700 focus:ring-0 focus:outline-none cursor-pointer">
+              <option>Mayo</option>
+            </select>
+            <select class="border-none bg-transparent text-[12px] font-medium text-slate-700 focus:ring-0 focus:outline-none cursor-pointer">
+              <option>2026</option>
+            </select>
+          </div>
+          <!-- Tier neutral · Recargar -->
+          <button class="text-[11px] font-semibold text-slate-600 hover:bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-lg flex items-center gap-1.5">
+            <i data-lucide="refresh-cw" class="w-3 h-3"></i>
+            <span class="hidden sm:inline">Recargar</span>
+          </button>
+          <!-- Tier destacada · Exportar (indigo soft) -->
+          <button class="text-[11px] font-semibold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 px-3 py-1.5 rounded-lg flex items-center gap-1.5">
+            <i data-lucide="download" class="w-3 h-3"></i>
+            <span class="hidden sm:inline">Exportar</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- §C · KPI STRIP CANON N1+N2 · 5 KPIs color semántico ──────────── -->
+    <div class="px-6 py-4 border-b border-slate-100 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+
+      <!-- 1. VENTAS NETAS · emerald · ingreso -->
+      <div class="rounded-2xl p-4 bg-gradient-to-br from-emerald-50 to-emerald-100/40 ring-1 ring-emerald-200/50">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-[10px] uppercase tracking-wider text-emerald-700 font-bold">VENTAS NETAS</span>
+          <i data-lucide="dollar-sign" class="w-3.5 h-3.5 text-emerald-700"></i>
+        </div>
+        <div class="text-2xl font-bold tabular text-emerald-900">S/ 247,500</div>
+        <div class="text-[11px] mt-1 text-emerald-700 flex items-center gap-1">
+          <i data-lucide="trending-up" class="w-3 h-3"></i> +12.5% vs mes ant.
+        </div>
+      </div>
+
+      <!-- 2. TOTAL ACTIVOS · teal · patrimonio -->
+      <div class="rounded-2xl p-4 bg-gradient-to-br from-teal-50 to-teal-100/40 ring-1 ring-teal-200/50">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-[10px] uppercase tracking-wider text-teal-700 font-bold">TOTAL ACTIVOS</span>
+          <i data-lucide="wallet" class="w-3.5 h-3.5 text-teal-700"></i>
+        </div>
+        <div class="text-2xl font-bold tabular text-teal-900">S/ 458,200</div>
+      </div>
+
+      <!-- 3. TOTAL PASIVOS · rose · obligaciones -->
+      <div class="rounded-2xl p-4 bg-gradient-to-br from-rose-50 to-rose-100/40 ring-1 ring-rose-200/50">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-[10px] uppercase tracking-wider text-rose-700 font-bold">TOTAL PASIVOS</span>
+          <i data-lucide="credit-card" class="w-3.5 h-3.5 text-rose-700"></i>
+        </div>
+        <div class="text-2xl font-bold tabular text-rose-900">S/ 142,800</div>
+      </div>
+
+      <!-- 4. PATRIMONIO · indigo · equity -->
+      <div class="rounded-2xl p-4 bg-gradient-to-br from-indigo-50 to-indigo-100/40 ring-1 ring-indigo-200/50">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-[10px] uppercase tracking-wider text-indigo-700 font-bold">PATRIMONIO</span>
+          <i data-lucide="piggy-bank" class="w-3.5 h-3.5 text-indigo-700"></i>
+        </div>
+        <div class="text-2xl font-bold tabular text-indigo-900">S/ 315,400</div>
+      </div>
+
+      <!-- 5. UTILIDAD NETA · amber (warmth dinero) -->
+      <div class="rounded-2xl p-4 bg-gradient-to-br from-amber-50 to-amber-100/40 ring-1 ring-amber-200/50">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-[10px] uppercase tracking-wider text-amber-700 font-bold">UTILIDAD NETA</span>
+          <i data-lucide="trending-up" class="w-3.5 h-3.5 text-amber-700"></i>
+        </div>
+        <div class="text-2xl font-bold tabular text-amber-900">S/ 42,300</div>
+        <div class="text-[11px] mt-1 text-emerald-700 flex items-center gap-1">
+          <i data-lucide="trending-up" class="w-3 h-3"></i> +8.2% vs mes ant.
+        </div>
+      </div>
+
+    </div>
+
+    <!-- §D · SUB-VISTA TABS · canon S9.D11 (chevrons + auto-scroll) ──── -->
+    <div class="relative border-b border-slate-200">
+      <!-- En mockup mostramos sin chevron izq (asume scroll at start) -->
+      <div class="px-6 overflow-x-auto" style="scrollbar-width: none;">
+        <div class="flex items-center gap-1 -mb-px">
+          <!-- Tab activo · Resumen -->
+          <button aria-current="page" class="px-4 py-3 text-[12px] border-b-2 flex items-center gap-1.5 whitespace-nowrap transition-colors border-purple-600 text-purple-700 font-semibold">
+            <i data-lucide="layout-dashboard" class="w-3.5 h-3.5"></i>
+            Resumen
+          </button>
+          <button class="px-4 py-3 text-[12px] border-b-2 flex items-center gap-1.5 whitespace-nowrap transition-colors border-transparent text-slate-600 hover:text-slate-900 hover:border-slate-300 font-medium">
+            <i data-lucide="scale" class="w-3.5 h-3.5"></i>
+            Balance General
+          </button>
+          <button class="px-4 py-3 text-[12px] border-b-2 flex items-center gap-1.5 whitespace-nowrap transition-colors border-transparent text-slate-600 hover:text-slate-900 hover:border-slate-300 font-medium">
+            <i data-lucide="file-text" class="w-3.5 h-3.5"></i>
+            Estado de Resultados
+          </button>
+          <button class="px-4 py-3 text-[12px] border-b-2 flex items-center gap-1.5 whitespace-nowrap transition-colors border-transparent text-slate-600 hover:text-slate-900 hover:border-slate-300 font-medium">
+            <i data-lucide="activity" class="w-3.5 h-3.5"></i>
+            Indicadores
+          </button>
+          <button class="px-4 py-3 text-[12px] border-b-2 flex items-center gap-1.5 whitespace-nowrap transition-colors border-transparent text-slate-600 hover:text-slate-900 hover:border-slate-300 font-medium">
+            <i data-lucide="line-chart" class="w-3.5 h-3.5"></i>
+            Tendencias
+          </button>
+          <button class="px-4 py-3 text-[12px] border-b-2 flex items-center gap-1.5 whitespace-nowrap transition-colors border-transparent text-slate-600 hover:text-slate-900 hover:border-slate-300 font-medium">
+            <i data-lucide="lock" class="w-3.5 h-3.5"></i>
+            Cierre Mensual
+          </button>
+        </div>
+      </div>
+      <!-- Chevron derecho · aparece automático cuando hay overflow -->
+      <button class="absolute right-0 top-0 bottom-0 z-20 px-1.5 bg-white/95 hover:bg-slate-50 border-l border-slate-200 flex items-center text-slate-600 hover:text-slate-900 shadow-[-2px_0_4px_-2px_rgba(0,0,0,0.06)]">
+        <i data-lucide="chevron-right" class="w-4 h-4"></i>
+      </button>
+      <!-- Fade gradient · visual hint scroll-x -->
+      <div aria-hidden="true" class="pointer-events-none absolute top-0 right-8 h-full w-6 bg-gradient-to-l from-white to-transparent"></div>
+    </div>
+
+    <!-- §E · BODY · contenido del tab activo (Resumen mostrado) ──────── -->
+    <div class="p-6 bg-slate-50/30 space-y-6">
+
+      <!-- Banner alerta anticipos (purple · solo si aplica) -->
+      <div class="bg-purple-50 border border-purple-200 rounded-lg p-3 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+        <div class="flex items-center gap-3">
+          <div class="p-2 bg-purple-100 rounded-lg shrink-0">
+            <i data-lucide="circle-dollar-sign" class="w-5 h-5 text-purple-600"></i>
+          </div>
+          <div>
+            <div class="font-semibold text-purple-800 text-sm sm:text-base">Anticipos Pendientes (Pasivo)</div>
+            <div class="text-xs sm:text-sm text-purple-600">12 ventas con anticipo sin entregar — Ingreso diferido</div>
+          </div>
+        </div>
+        <div class="text-xl sm:text-2xl font-bold text-purple-700 sm:text-right pl-12 sm:pl-0">S/ 28,400</div>
+      </div>
+
+      <!-- Distribución (StatDistribution · pendiente canon N2 en Fase 1.b) -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-4">
+
+        <!-- Card placeholder canon · Composición de Activos -->
+        <div class="bg-white border border-slate-200 rounded-2xl p-5">
+          <h3 class="text-[13px] font-bold text-slate-900 mb-3">Composición de Activos</h3>
+          <div class="space-y-2 text-[12px]">
+            <div class="flex justify-between items-center">
+              <div class="flex items-center gap-2"><div class="w-2 h-2 rounded-full bg-emerald-500"></div> Efectivo</div>
+              <span class="tabular font-semibold">S/ 124,800</span>
+            </div>
+            <div class="flex justify-between items-center">
+              <div class="flex items-center gap-2"><div class="w-2 h-2 rounded-full bg-sky-500"></div> CxC</div>
+              <span class="tabular font-semibold">S/ 98,400</span>
+            </div>
+            <div class="flex justify-between items-center">
+              <div class="flex items-center gap-2"><div class="w-2 h-2 rounded-full bg-purple-500"></div> Inventario</div>
+              <span class="tabular font-semibold">S/ 235,000</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card placeholder · Estructura Financiera -->
+        <div class="bg-white border border-slate-200 rounded-2xl p-5">
+          <h3 class="text-[13px] font-bold text-slate-900 mb-3">Estructura Financiera</h3>
+          <div class="space-y-2 text-[12px]">
+            <div class="flex justify-between items-center">
+              <div class="flex items-center gap-2"><div class="w-2 h-2 rounded-full bg-red-500"></div> Pasivos</div>
+              <span class="tabular font-semibold">S/ 142,800</span>
+            </div>
+            <div class="flex justify-between items-center">
+              <div class="flex items-center gap-2"><div class="w-2 h-2 rounded-full bg-sky-500"></div> Patrimonio</div>
+              <span class="tabular font-semibold">S/ 315,400</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card placeholder · Estructura de Costos -->
+        <div class="bg-white border border-slate-200 rounded-2xl p-5">
+          <h3 class="text-[13px] font-bold text-slate-900 mb-3">Estructura de Costos</h3>
+          <div class="space-y-2 text-[12px]">
+            <div class="flex justify-between items-center">
+              <div class="flex items-center gap-2"><div class="w-2 h-2 rounded-full bg-orange-500"></div> Compras</div>
+              <span class="tabular font-semibold">S/ 78,200</span>
+            </div>
+            <div class="flex justify-between items-center">
+              <div class="flex items-center gap-2"><div class="w-2 h-2 rounded-full bg-purple-500"></div> Costos Venta</div>
+              <span class="tabular font-semibold">S/ 24,500</span>
+            </div>
+            <div class="flex justify-between items-center">
+              <div class="flex items-center gap-2"><div class="w-2 h-2 rounded-full bg-amber-500"></div> Gastos Fijos</div>
+              <span class="tabular font-semibold">S/ 38,100</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card placeholder · Inventario por País -->
+        <div class="bg-white border border-slate-200 rounded-2xl p-5">
+          <h3 class="text-[13px] font-bold text-slate-900 mb-3">Inventario por País</h3>
+          <div class="space-y-2 text-[12px]">
+            <div class="flex justify-between items-center">
+              <div class="flex items-center gap-2"><div class="w-2 h-2 rounded-full bg-sky-500"></div> USA</div>
+              <span class="tabular font-semibold">S/ 142,300</span>
+            </div>
+            <div class="flex justify-between items-center">
+              <div class="flex items-center gap-2"><div class="w-2 h-2 rounded-full bg-emerald-500"></div> Perú</div>
+              <span class="tabular font-semibold">S/ 92,700</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Nota pendiente fase 1.b -->
+      <div class="bg-slate-100 border border-slate-200 rounded-lg p-3 text-[11px] text-slate-600 italic">
+        ⏳ Las 4 cards de arriba están con look mínimo viable en Fase 1.
+        En <strong>Fase 1.b</strong> se modernizan a canon N2 con gradient + ring colored
+        + barras de proporción cuando haya data real en BD.
+      </div>
+
+    </div>
+  </div>
+  <!-- fin shell frame -->
+
+  <!-- ════════════════════════════════════════════════════════════════════ -->
+  <!-- DECISIONES DE DISEÑO documentadas                                    -->
+  <!-- ════════════════════════════════════════════════════════════════════ -->
+  <section class="mt-10 max-w-5xl mx-auto bg-white border border-slate-200 rounded-2xl p-6 space-y-4">
+    <h2 class="text-xl font-bold text-slate-900">📐 Decisiones de diseño · Contabilidad shell</h2>
+
+    <div class="space-y-3 text-[13px]">
+      <div class="flex items-start gap-2">
+        <span class="text-purple-700 font-bold mt-0.5 text-[10px] uppercase">F1</span>
+        <span class="text-slate-700">Header banking-grade · icon Calculator gradient <strong>purple-500→700</strong> (diferenciador respecto a Finanzas teal · cada módulo tiene su color signature)</span>
+      </div>
+      <div class="flex items-start gap-2">
+        <span class="text-purple-700 font-bold mt-0.5 text-[10px] uppercase">N1</span>
+        <span class="text-slate-700">KPI strip color semántico · cada métrica con su color cross-módulo: emerald=ingreso · teal=activos · rose=pasivos · indigo=patrimonio · amber=utilidad</span>
+      </div>
+      <div class="flex items-start gap-2">
+        <span class="text-purple-700 font-bold mt-0.5 text-[10px] uppercase">N2</span>
+        <span class="text-slate-700">KPI cards con gradient sutil <code class="text-[11px] bg-slate-100 px-1 rounded">from-COLOR-50 to-COLOR-100/40</code> + ring-1 ring-COLOR-200/50</span>
+      </div>
+      <div class="flex items-start gap-2">
+        <span class="text-purple-700 font-bold mt-0.5 text-[10px] uppercase">N10</span>
+        <span class="text-slate-700">3-tier acciones · neutral (Recargar slate) + destacada (Exportar indigo-50) · sin primary porque Cerrar mes vive dentro del tab Cierre Mensual</span>
+      </div>
+      <div class="flex items-start gap-2">
+        <span class="text-purple-700 font-bold mt-0.5 text-[10px] uppercase">D10</span>
+        <span class="text-slate-700">Icon-only mobile · todos los botones header con <code class="text-[11px] bg-slate-100 px-1 rounded">&lt;span className="hidden sm:inline"&gt;</code></span>
+      </div>
+      <div class="flex items-start gap-2">
+        <span class="text-purple-700 font-bold mt-0.5 text-[10px] uppercase">S9.D1</span>
+        <span class="text-slate-700">Breadcrumb 3 niveles sin grupo sidebar · <code class="text-[11px] bg-slate-100 px-1 rounded">Inicio › Contabilidad</code></span>
+      </div>
+      <div class="flex items-start gap-2">
+        <span class="text-purple-700 font-bold mt-0.5 text-[10px] uppercase">S9.D11</span>
+        <span class="text-slate-700">Sub-vista tabs con chevron buttons ‹ › + auto-scroll del tab activo + fade gradient · color activo <strong>purple-600</strong></span>
+      </div>
+      <div class="flex items-start gap-2">
+        <span class="text-purple-700 font-bold mt-0.5 text-[10px] uppercase">F9</span>
+        <span class="text-slate-700">Separador breadcrumb ChevronRight w-3 h-3 (mismo que Finanzas)</span>
+      </div>
+      <div class="flex items-start gap-2">
+        <span class="text-purple-700 font-bold mt-0.5 text-[10px] uppercase">F7</span>
+        <span class="text-slate-700">Tabular-nums en TODOS los montos · decimales atenuados</span>
+      </div>
+      <div class="flex items-start gap-2">
+        <span class="text-purple-700 font-bold mt-0.5 text-[10px] uppercase">F8</span>
+        <span class="text-slate-700">Lucide icons únicos · cero emojis en chrome UI</span>
+      </div>
+      <div class="flex items-start gap-2">
+        <span class="text-purple-700 font-bold mt-0.5 text-[10px] uppercase">v9.0 M1</span>
+        <span class="text-slate-700">classNames copy-paste literal del mockup al implementar · cero re-escritura desde memoria</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════════════════════ -->
+  <!-- DIFERENCIADORES con Finanzas (canon cross-módulo)                    -->
+  <!-- ════════════════════════════════════════════════════════════════════ -->
+  <section class="mt-6 max-w-5xl mx-auto bg-purple-50 border border-purple-200 rounded-2xl p-6 space-y-4">
+    <h2 class="text-xl font-bold text-purple-900">🎨 Diferenciadores cross-módulo</h2>
+    <p class="text-[13px] text-purple-900">
+      <strong>Finanzas y Contabilidad usan el mismo CANON estructural</strong> (F1 header · N1+N2 KPIs · N10 actions ·
+      S9.D1 breadcrumb · S9.D11 tabs). Lo único que cambia entre módulos es el <strong>color signature</strong>:
+    </p>
+    <table class="w-full text-[12px]">
+      <thead class="bg-purple-100 text-purple-900">
+        <tr>
+          <th class="px-3 py-2 text-left">Módulo</th>
+          <th class="px-3 py-2 text-left">Icon gradient</th>
+          <th class="px-3 py-2 text-left">Tab activo</th>
+          <th class="px-3 py-2 text-left">Foco operativo</th>
+        </tr>
+      </thead>
+      <tbody class="bg-white">
+        <tr class="border-b border-purple-100">
+          <td class="px-3 py-2 font-bold text-teal-700">Finanzas</td>
+          <td class="px-3 py-2">teal-500 → teal-700</td>
+          <td class="px-3 py-2">teal-600 underline</td>
+          <td class="px-3 py-2">Tesorería operativa día a día</td>
+        </tr>
+        <tr>
+          <td class="px-3 py-2 font-bold text-purple-700">Contabilidad</td>
+          <td class="px-3 py-2">purple-500 → purple-700</td>
+          <td class="px-3 py-2">purple-600 underline</td>
+          <td class="px-3 py-2">Estados financieros formales · análisis estratégico</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="text-center text-[11px] text-slate-500 pt-6 mt-6">
+    Mockup canon v5.1 · Contabilidad shell · Vita Skin ERP · chk5.E-S1.mockup · Generado 2026-05-23
+  </footer>
+
+</div>
+
+<script>
+  // Render lucide icons en el DOM
+  if (window.lucide) window.lucide.createIcons();
+</script>
+</body>
+</html>
