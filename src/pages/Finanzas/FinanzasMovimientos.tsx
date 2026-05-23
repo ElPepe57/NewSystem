@@ -47,6 +47,7 @@ import {
   type VistaLedger,
 } from './components/FiltrosLedgerBar';
 import { useToastStore } from '../../store/toastStore';
+import { exportToCsv, fmtFechaCsv, fmtMontoCsv } from '../../utils/csvExport';
 
 // ═════════════════════════════════════════════════════════════════════════
 // HELPERS
@@ -249,13 +250,44 @@ const FinanzasMovimientos: React.FC = () => {
   }, []);
 
   // ─── Handlers wireup ─────────────────────────────────────────────────
-  // chk5.D-S9.D2 · placeholders honestos: toast info en vez de console.info silencioso.
+  // chk5.D-S9.A · export CSV real · cliente-side con js nativo (Blob).
   const handleExportar = useCallback(() => {
+    if (movimientosFiltrados.length === 0) {
+      toastInfo('No hay movimientos para exportar en el rango seleccionado.', 'Export vacío');
+      return;
+    }
+    exportToCsv({
+      filename: 'movimientos_finanzas_{timestamp}',
+      separator: ';',
+      rows: movimientosFiltrados,
+      columns: [
+        { header: 'Nro', get: (m) => m.numeroMovimiento },
+        { header: 'Fecha', get: (m) => fmtFechaCsv(m.fecha) },
+        { header: 'Tipo', get: (m) => m.tipo },
+        { header: 'Estado', get: (m) => m.estado },
+        { header: 'Moneda', get: (m) => m.moneda },
+        { header: 'Monto', get: (m) => fmtMontoCsv(m.monto) },
+        { header: 'TC aplicado', get: (m) => fmtMontoCsv(m.tipoCambio) },
+        { header: 'Monto PEN equiv.', get: (m) => fmtMontoCsv(m.montoEquivalentePEN) },
+        { header: 'Método', get: (m) => m.metodo },
+        { header: 'Referencia', get: (m) => m.referencia ?? '' },
+        { header: 'Cuenta origen', get: (m) => m.cuentaOrigen ?? '' },
+        { header: 'Cuenta destino', get: (m) => m.cuentaDestino ?? '' },
+        {
+          header: 'Documento',
+          get: (m) =>
+            m.ventaNumero ?? m.ordenCompraNumero ?? m.gastoNumero ?? m.cotizacionNumero ?? '',
+        },
+        { header: 'Concepto', get: (m) => m.concepto },
+        { header: 'Notas', get: (m) => m.notas ?? '' },
+        { header: 'Línea negocio', get: (m) => m.lineaNegocioNombre ?? '' },
+      ],
+    });
     toastInfo(
-      `Exportar ${movimientosFiltrados.length} movimientos a CSV/XLSX llegará en chk5.D-S9 fase de exports reales.`,
-      'Próximamente',
+      `${movimientosFiltrados.length} movimientos exportados a CSV.`,
+      'Export listo',
     );
-  }, [toastInfo, movimientosFiltrados.length]);
+  }, [toastInfo, movimientosFiltrados]);
 
   const handleImportarExtracto = useCallback(() => {
     toastInfo(

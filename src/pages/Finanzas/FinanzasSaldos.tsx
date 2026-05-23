@@ -52,6 +52,7 @@ import type { CuentaCaja, CuentaCajaFormData } from '../../types/tesoreria.types
 import { CuentaWizard } from './components/wizards/CuentaWizard/CuentaWizard';
 import { useToastStore } from '../../store/toastStore';
 import { useAuthStore } from '../../store/authStore';
+import { exportToCsv, fmtMontoCsv } from '../../utils/csvExport';
 import {
   ProductoFinancieroRow,
   type ProductoFinancieroBadge,
@@ -81,6 +82,7 @@ import {
   esBiMonedaDe,
   titularGrupoDe,
   saldoUSDDe,
+  nombreDe,
   type ProductoFinancieroUnif,
   type FiltrosSaldosState,
   type GrupoSaldos,
@@ -227,13 +229,48 @@ const FinanzasSaldos: React.FC = () => {
   );
 
   // ─── Handlers ────────────────────────────────────────────────────────
-  // chk5.D-S9.D2 · placeholders honestos: toast info en vez de console.info silencioso.
+  // chk5.D-S9.A · export CSV real · saldos consolidados por producto.
   const handleExportar = useCallback(() => {
+    if (productosFiltrados.length === 0) {
+      toastInfo('No hay cuentas para exportar en el filtro actual.', 'Export vacío');
+      return;
+    }
+    exportToCsv({
+      filename: 'saldos_consolidados_{timestamp}',
+      separator: ';',
+      rows: productosFiltrados,
+      columns: [
+        { header: 'Tipo', get: (p) => kindFinalDe(p) },
+        { header: 'Nombre', get: (p) => nombreDe(p) },
+        { header: 'Moneda principal', get: (p) => monedaPrincipalDe(p) },
+        {
+          header: 'Saldo PEN',
+          get: (p) => {
+            if (p.kind === 'cuenta_bancaria') {
+              return fmtMontoCsv(esBiMonedaDe(p) ? p.kindData.saldoPEN ?? 0 : monedaPrincipalDe(p) === 'PEN' ? p.kindData.saldoActual ?? 0 : 0);
+            }
+            if (p.kind === 'wallet_digital' || p.kind === 'caja_efectivo') {
+              return fmtMontoCsv(monedaPrincipalDe(p) === 'PEN' ? p.kindData.saldoActual ?? 0 : 0);
+            }
+            return '0.00';
+          },
+        },
+        {
+          header: 'Saldo USD',
+          get: (p) => fmtMontoCsv(saldoUSDDe(p)),
+        },
+        {
+          header: 'Estado',
+          get: (p) => (p.kind === 'cuenta_bancaria' || p.kind === 'wallet_digital' || p.kind === 'caja_efectivo' ? (p.kindData.activa ? 'activa' : 'inactiva') : 'activa'),
+        },
+        { header: 'Titular', get: (p) => titularGrupoDe(p) ?? '' },
+      ],
+    });
     toastInfo(
-      `Exportar ${productosFiltrados.length} cuentas/saldos a CSV/XLSX llegará en chk5.D-S9 fase de exports reales.`,
-      'Próximamente',
+      `${productosFiltrados.length} cuentas exportadas a CSV.`,
+      'Export listo',
     );
-  }, [toastInfo, productosFiltrados.length]);
+  }, [toastInfo, productosFiltrados]);
 
   const handleConciliar = useCallback(() => {
     toastInfo(

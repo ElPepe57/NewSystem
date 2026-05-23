@@ -38,6 +38,7 @@ import {
   diasDesde,
   tieneSaldoCero,
   TIPO_ENTIDAD_BADGE,
+  calcularAgingHeuristico,
 } from './components/cc/ccHelpers';
 import {
   EntidadCCCardCanonico,
@@ -53,6 +54,7 @@ import {
 import { DrawerCCEntidadCanonico } from './components/cc/DrawerCCEntidadCanonico';
 import { PagoAbonoWizard } from './components/PagoAbonoWizard';
 import { useToastStore } from '../../store/toastStore';
+import { exportToCsv, fmtFechaCsv, fmtMontoCsv } from '../../utils/csvExport';
 
 // ═════════════════════════════════════════════════════════════════════════
 // HELPERS
@@ -146,13 +148,51 @@ const FinanzasCC: React.FC = () => {
     setFiltros(defaultFiltrosCC());
   }, []);
 
-  // chk5.D-S8.SF3.D2 · placeholders honestos: toast info en vez de console.info silencioso.
+  // chk5.D-S9.A · export Aging real a CSV (compatible Excel ES con sep ;)
   const handleAgingExcel = useCallback(() => {
+    const filas = ccsFiltradas.filter((cc) => !tieneSaldoCero(cc));
+    if (filas.length === 0) {
+      toastInfo('No hay cuentas con saldo para exportar el aging.', 'Export vacío');
+      return;
+    }
+    exportToCsv({
+      filename: 'aging_cuentas_corrientes_{timestamp}',
+      separator: ';',
+      rows: filas,
+      columns: [
+        { header: 'Entidad', get: (cc) => cc.entidadNombre },
+        { header: 'Tipo', get: (cc) => cc.tipo },
+        { header: 'Saldo PEN', get: (cc) => fmtMontoCsv(cc.saldoPEN) },
+        { header: 'Saldo USD', get: (cc) => fmtMontoCsv(cc.saldoUSD) },
+        {
+          header: 'Naturaleza',
+          get: (cc) => {
+            const neto = (cc.saldoPEN ?? 0) + (cc.saldoUSD ?? 0);
+            return neto > 0 ? 'Por cobrar (CxC)' : neto < 0 ? 'Por pagar (CxP)' : 'Saldado';
+          },
+        },
+        { header: 'Último mov.', get: (cc) => fmtFechaCsv(cc.fechaUltimoMovimiento) },
+        { header: 'Días desde último mov.', get: (cc) => diasDesde(cc.fechaUltimoMovimiento) },
+        {
+          header: 'Aging 0-30d (PEN)',
+          get: (cc) => fmtMontoCsv(calcularAgingHeuristico(cc).monto0a30),
+        },
+        {
+          header: 'Aging 31-60d (PEN)',
+          get: (cc) => fmtMontoCsv(calcularAgingHeuristico(cc).monto31a60),
+        },
+        {
+          header: 'Aging +60d (PEN)',
+          get: (cc) => fmtMontoCsv(calcularAgingHeuristico(cc).monto60plus),
+        },
+        { header: 'Movimientos', get: (cc) => cc.cantidadMovimientos ?? 0 },
+      ],
+    });
     toastInfo(
-      `Export aging detallado Excel (${ccsFiltradas.length} entidades) llegará en chk5.D-S9.`,
-      'Próximamente',
+      `${filas.length} cuentas corrientes exportadas al aging.`,
+      'Aging exportado',
     );
-  }, [toastInfo, ccsFiltradas.length]);
+  }, [toastInfo, ccsFiltradas]);
 
   const handleEnviarRecordatorios = useCallback(() => {
     toastInfo(
