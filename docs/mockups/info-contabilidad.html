@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Contabilidad · Qué hace y para qué sirve · Vita Skin ERP</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<style>body { font-family: 'Inter', sans-serif; font-variant-numeric: tabular-nums; }</style>
+<script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-slate-50 text-slate-900 p-6 md:p-10">
+<div class="max-w-5xl mx-auto space-y-8">
+
+  <!-- HERO -->
+  <header class="bg-gradient-to-br from-purple-600 to-purple-800 text-white rounded-2xl p-8 shadow-lg">
+    <div class="flex items-center gap-3 mb-2">
+      <span class="text-[10px] uppercase tracking-wider bg-white/20 px-2 py-0.5 rounded">Mockup informativo · Contabilidad</span>
+    </div>
+    <h1 class="text-3xl font-extrabold tracking-tight">Contabilidad</h1>
+    <p class="text-purple-100 mt-2">
+      Ruta <code class="bg-white/10 px-1.5 py-0.5 rounded">/contabilidad</code> · Estados financieros formales del negocio · complemento de Finanzas
+    </p>
+  </header>
+
+  <!-- §1 · Qué es -->
+  <section class="bg-white border border-slate-200 rounded-2xl p-6 space-y-3">
+    <div class="flex items-center gap-2">
+      <span class="text-[10px] uppercase tracking-wider font-bold text-purple-700">§ 1 · Qué es</span>
+      <div class="flex-1 h-px bg-purple-200"></div>
+    </div>
+    <p class="text-slate-700 leading-relaxed">
+      Es el módulo que produce los <strong>estados financieros formales</strong> del negocio (Balance General · P&L · indicadores) en lenguaje contable estándar.
+    </p>
+    <p class="text-slate-700 leading-relaxed">
+      A diferencia de Finanzas (que es operativo · día a día · tesorería pura), Contabilidad es <strong>formal y retrospectivo</strong> · responde la pregunta <em>"¿cómo cerró el mes? ¿cuál es la foto financiera del negocio a fecha X?"</em> en el formato que entiende un contador externo, un banco o un eventual inversor.
+    </p>
+    <div class="bg-purple-50 border-l-4 border-purple-400 p-3 text-[12px] text-purple-900">
+      <strong>Pregunta que responde:</strong> <em>"¿Cuál es el estado financiero formal del negocio en este momento? ¿Qué tengo · qué debo · cuánto gané · cuánto vale mi patrimonio?"</em>
+    </div>
+  </section>
+
+  <!-- §2 · Finanzas vs Contabilidad · diferenciador -->
+  <section class="bg-white border border-slate-200 rounded-2xl p-6 space-y-3">
+    <div class="flex items-center gap-2">
+      <span class="text-[10px] uppercase tracking-wider font-bold text-purple-700">§ 2 · Finanzas vs Contabilidad · cero duplicidad</span>
+      <div class="flex-1 h-px bg-purple-200"></div>
+    </div>
+    <p class="text-slate-700 text-[13px]">
+      Los dos módulos viven juntos en el grupo "Finanzas y Contabilidad" del sidebar · usan el mismo motor de datos · pero responden preguntas distintas:
+    </p>
+    <table class="w-full text-[12px]">
+      <thead class="bg-slate-50">
+        <tr>
+          <th class="px-3 py-2 text-left">Pregunta</th>
+          <th class="px-3 py-2 text-left">Módulo</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-100">
+        <tr><td class="px-3 py-2">¿Cuánto cash tengo HOY?</td><td class="px-3 py-2 font-bold text-teal-700">Finanzas · Saldos</td></tr>
+        <tr><td class="px-3 py-2">¿Quién me debe · a quién le debo?</td><td class="px-3 py-2 font-bold text-teal-700">Finanzas · Por Cobrar y Pagar</td></tr>
+        <tr><td class="px-3 py-2">¿Voy a tener plata en 60 días?</td><td class="px-3 py-2 font-bold text-teal-700">Finanzas · Cash Flow</td></tr>
+        <tr><td class="px-3 py-2">¿Cómo viene mi negocio en general?</td><td class="px-3 py-2 font-bold text-teal-700">Finanzas · Análisis estratégico</td></tr>
+        <tr class="bg-purple-50"><td class="px-3 py-2 font-semibold">¿Cuánto vale mi negocio (Balance formal)?</td><td class="px-3 py-2 font-bold text-purple-700">Contabilidad · Balance General</td></tr>
+        <tr class="bg-purple-50"><td class="px-3 py-2 font-semibold">¿Cuánto gané o perdí el mes (P&L formal)?</td><td class="px-3 py-2 font-bold text-purple-700">Contabilidad · Estado de Resultados</td></tr>
+        <tr class="bg-purple-50"><td class="px-3 py-2 font-semibold">¿Mis ratios financieros formales (ROE/ROA/etc) están saludables?</td><td class="px-3 py-2 font-bold text-purple-700">Contabilidad · Indicadores</td></tr>
+        <tr class="bg-purple-50"><td class="px-3 py-2 font-semibold">¿Cómo evolucionó el negocio mes a mes (formal)?</td><td class="px-3 py-2 font-bold text-purple-700">Contabilidad · Tendencias</td></tr>
+        <tr class="bg-purple-50"><td class="px-3 py-2 font-semibold">¿Cierro el mes formalmente y bloqueo modificaciones?</td><td class="px-3 py-2 font-bold text-purple-700">Contabilidad · Cierre Mensual</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- §3 · Las 6 vistas internas -->
+  <section class="bg-white border border-slate-200 rounded-2xl p-6 space-y-4">
+    <div class="flex items-center gap-2">
+      <span class="text-[10px] uppercase tracking-wider font-bold text-purple-700">§ 3 · Las 6 vistas internas</span>
+      <div class="flex-1 h-px bg-purple-200"></div>
+    </div>
+
+    <div class="space-y-3">
+      <div class="border-l-4 border-purple-500 pl-4">
+        <div class="font-bold text-purple-900">Resumen · vista ejecutiva 5-segundos</div>
+        <p class="text-[12px] text-slate-700 mt-1">Banner anticipos · 4 cards distribución (Activos · Estructura Financiera · Costos · Inventario por País) · 4 indicadores clave (Razón Corriente · ROE · Endeudamiento · Ciclo Efectivo) · análisis semáforo + tendencia 5 meses preview.</p>
+      </div>
+      <div class="border-l-4 border-purple-500 pl-4">
+        <div class="font-bold text-purple-900">Balance General · ecuación contable formal</div>
+        <p class="text-[12px] text-slate-700 mt-1">3 columnas (Activo · Pasivo · Patrimonio) con sub-secciones colapsables (Corriente / No Corriente) · totales y validación de cuadre · drill por entidad.</p>
+      </div>
+      <div class="border-l-4 border-purple-500 pl-4">
+        <div class="font-bold text-purple-900">Estado de Resultados · P&L cascade</div>
+        <p class="text-[12px] text-slate-700 mt-1">Tabla formal: Ventas → COGS → Margen Bruto → Opex → EBITDA → Utilidad Neta · con % sobre ventas en cada línea · vs mes anterior · métricas operativas (ticket promedio · devoluciones · etc.).</p>
+      </div>
+      <div class="border-l-4 border-purple-500 pl-4">
+        <div class="font-bold text-purple-900">Indicadores · 16 ratios en 4 dimensiones</div>
+        <p class="text-[12px] text-slate-700 mt-1">Liquidez (Razón Corriente · Prueba Ácida · Capital Trabajo · Liquidez Inmediata) · Solvencia (Endeudamiento · Deuda/Patrim · Multipl. Capital · Cobertura Intereses) · Rentabilidad (ROE · ROA · Margen Bruto · Margen EBITDA) · Actividad (DSO · DIO · DPO · Ciclo Efectivo). Cada ratio con benchmark sectorial + semáforo.</p>
+      </div>
+      <div class="border-l-4 border-purple-500 pl-4">
+        <div class="font-bold text-purple-900">Tendencias · serie 12 meses</div>
+        <p class="text-[12px] text-slate-700 mt-1">Gráfica de barras horizontales por mes + tabla detallada con 6 columnas (Mes · Ventas · Compras · EBITDA · Util.Neta · Margen) + acumulado YTD + mejor/peor mes · selector de métrica + export CSV.</p>
+      </div>
+      <div class="border-l-4 border-purple-500 pl-4">
+        <div class="font-bold text-purple-900">Cierre Mensual · workflow controlado</div>
+        <p class="text-[12px] text-slate-700 mt-1">Checklist de 6 validaciones pre-cierre · botón "Cerrar mes" disabled hasta resolver pendientes · histórico de cierres con audit trail (quién + cuándo) · acción re-abrir período (auditada) · banner explicativo de consecuencias.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- §4 · Inputs · de dónde se alimenta -->
+  <section class="bg-white border border-slate-200 rounded-2xl p-6 space-y-3">
+    <div class="flex items-center gap-2">
+      <span class="text-[10px] uppercase tracking-wider font-bold text-purple-700">§ 4 · De dónde se alimenta · inputs reales</span>
+      <div class="flex-1 h-px bg-purple-200"></div>
+    </div>
+    <p class="text-slate-700 text-[13px]">
+      Contabilidad <strong>NO requiere ingreso manual de asientos contables</strong>. El service `contabilidad.service.ts` lee
+      automáticamente de los otros módulos del ERP:
+    </p>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-[12px]">
+      <div class="bg-emerald-50 ring-1 ring-emerald-200 rounded-lg p-3">
+        <div class="font-bold text-emerald-700 mb-1">↗ INGRESOS</div>
+        <ul class="text-slate-700 space-y-0.5 ml-3 list-disc">
+          <li>Ventas confirmadas (collection `ventas`)</li>
+          <li>Devoluciones recibidas</li>
+          <li>Anticipos como pasivo diferido</li>
+        </ul>
+      </div>
+      <div class="bg-rose-50 ring-1 ring-rose-200 rounded-lg p-3">
+        <div class="font-bold text-rose-700 mb-1">↘ COSTOS Y GASTOS</div>
+        <ul class="text-slate-700 space-y-0.5 ml-3 list-disc">
+          <li>OCs recibidas en almacén (collection `ordenesCompra`)</li>
+          <li>Gastos por bloque (venta/producto/período · canon chk5.A14)</li>
+          <li>Envios internacionales (transferencias)</li>
+        </ul>
+      </div>
+      <div class="bg-teal-50 ring-1 ring-teal-200 rounded-lg p-3">
+        <div class="font-bold text-teal-700 mb-1">💰 ACTIVOS</div>
+        <ul class="text-slate-700 space-y-0.5 ml-3 list-disc">
+          <li>Saldos de cuentas (bancarias · wallets · cajas)</li>
+          <li>Inventarios (módulo Stock) · valorizados al costo</li>
+          <li>CxC de clientes (Finanzas / Por Cobrar y Pagar)</li>
+        </ul>
+      </div>
+      <div class="bg-amber-50 ring-1 ring-amber-200 rounded-lg p-3">
+        <div class="font-bold text-amber-700 mb-1">⚙ CONFIGURACIÓN</div>
+        <ul class="text-slate-700 space-y-0.5 ml-3 list-disc">
+          <li>Capital social (editable · default 0)</li>
+          <li>Reserva legal (editable · default 0)</li>
+          <li>% provisión incobrables (editable · default 3%)</li>
+          <li>TC default fallback (editable · default 3.75)</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- §5 · Criterio contable declarado -->
+  <section class="bg-amber-50 ring-1 ring-amber-200 rounded-2xl p-6 space-y-3">
+    <div class="flex items-center gap-2">
+      <span class="text-[10px] uppercase tracking-wider font-bold text-amber-700">§ 5 · Criterio contable declarado</span>
+      <div class="flex-1 h-px bg-amber-300"></div>
+    </div>
+    <p class="text-slate-800 text-[13px]">
+      Vita Skin usa una contabilidad <strong>de flujo de actividad</strong> (no devengado puro). Esto significa:
+    </p>
+    <ul class="text-[12px] text-slate-700 space-y-1.5 ml-4 list-disc">
+      <li><strong>Ventas:</strong> se reconocen cuando la venta es REGISTRADA y confirmada (no cotización pendiente)</li>
+      <li><strong>Compras:</strong> se reconocen cuando la mercadería es RECIBIDA en almacén (no cuando se emite la OC)</li>
+      <li><strong>Gastos:</strong> se reconocen en el mes/año al que corresponden</li>
+      <li><strong>El costo principal del período es COMPRAS,</strong> no el CMV de ventas (apropiado para PyME que aún no tributa)</li>
+    </ul>
+    <p class="text-[11px] text-amber-900 mt-2 italic">
+      Vita Skin <strong>no tributa actualmente</strong>. Cuando se active SUNAT, se ajusta el criterio para incluir provisión IR y devengo puro · es un cambio de configuración, no de motor.
+    </p>
+  </section>
+
+  <!-- §6 · Para qué te sirve operativamente -->
+  <section class="bg-gradient-to-r from-purple-50 to-indigo-50 ring-1 ring-purple-200 rounded-2xl p-6 space-y-3">
+    <div class="flex items-center gap-2">
+      <span class="text-[10px] uppercase tracking-wider font-bold text-purple-700">§ 6 · Para qué te sirve operativamente</span>
+      <div class="flex-1 h-px bg-purple-200"></div>
+    </div>
+    <ul class="space-y-2 text-[13px] text-slate-800">
+      <li class="flex gap-2"><span class="text-purple-600 font-bold">→</span> <span><strong>Mandar al contador externo</strong> el Balance + Estado de Resultados en lenguaje contable estándar · sin que tu contador tenga que entender tu ERP interno</span></li>
+      <li class="flex gap-2"><span class="text-purple-600 font-bold">→</span> <span><strong>Conocer tu patrimonio real</strong> · cuánto vale el negocio según los libros</span></li>
+      <li class="flex gap-2"><span class="text-purple-600 font-bold">→</span> <span><strong>Tomar decisiones gerenciales</strong> con ratios formales · ¿el endeudamiento es seguro? ¿el ciclo de efectivo es eficiente?</span></li>
+      <li class="flex gap-2"><span class="text-purple-600 font-bold">→</span> <span><strong>Presentar al banco</strong> al pedir línea de crédito · te van a pedir Balance + P&L</span></li>
+      <li class="flex gap-2"><span class="text-purple-600 font-bold">→</span> <span><strong>Cerrar mes formalmente</strong> · bloquear modificaciones · audit trail de quién certifica el cierre · base para auditoría futura</span></li>
+      <li class="flex gap-2"><span class="text-purple-600 font-bold">→</span> <span><strong>Monitorear tendencias</strong> reales del negocio · ¿la utilidad neta YTD viene mejor que el año pasado?</span></li>
+      <li class="flex gap-2"><span class="text-purple-600 font-bold">→</span> <span><strong>Cuando empieces a tributar (futuro)</strong> · ya tendrás histórico contable formal sin necesidad de reconstruir años pasados</span></li>
+    </ul>
+  </section>
+
+  <!-- §7 · Limitaciones honestas -->
+  <section class="bg-slate-50 border border-slate-200 rounded-2xl p-6 space-y-3">
+    <div class="flex items-center gap-2">
+      <span class="text-[10px] uppercase tracking-wider font-bold text-slate-700">§ 7 · Limitaciones honestas (qué NO hace)</span>
+      <div class="flex-1 h-px bg-slate-300"></div>
+    </div>
+    <ul class="text-[12px] text-slate-700 space-y-1.5 ml-4 list-disc">
+      <li><strong>No emite facturas electrónicas SUNAT</strong> · cuando se active esa integración, vivirá en módulo separado · Contabilidad sólo registra el ingreso/egreso ya existente</li>
+      <li><strong>No calcula impuestos automáticamente</strong> · Vita Skin no tributa hoy · cuando aplique, se agrega línea "Provisión IR" en el P&L</li>
+      <li><strong>No genera libros PLE (SUNAT)</strong> · libros electrónicos llegan junto con la integración SUNAT</li>
+      <li><strong>No maneja activos fijos formalmente</strong> · placeholder en Balance · módulo dedicado en futuro</li>
+      <li><strong>El COGS es estimado (40% del ingreso · default)</strong> · el COGS real requiere conectar con Cost Intelligence (módulo separado)</li>
+      <li><strong>El DIO está fijo en 70 días</strong> · típico sector skincare · el real requiere integración con módulo Stock</li>
+      <li><strong>No soporta multi-empresa consolidada</strong> · 1 sola entidad legal por instancia · si en el futuro hay holdings, se evalúa</li>
+    </ul>
+  </section>
+
+  <!-- §8 · Cómo usarlo · workflow típico -->
+  <section class="bg-white border border-slate-200 rounded-2xl p-6 space-y-3">
+    <div class="flex items-center gap-2">
+      <span class="text-[10px] uppercase tracking-wider font-bold text-purple-700">§ 8 · Workflow típico mensual</span>
+      <div class="flex-1 h-px bg-purple-200"></div>
+    </div>
+    <ol class="space-y-3 text-[12px]">
+      <li class="flex gap-3">
+        <span class="bg-purple-100 text-purple-700 font-bold rounded-full w-6 h-6 flex items-center justify-center text-[11px] flex-shrink-0">1</span>
+        <div>
+          <div class="font-bold text-slate-900">Durante el mes</div>
+          <div class="text-slate-600">Operás normalmente: registrás ventas en /ventas · OCs en /compras · gastos en /gastos · movimientos en /finanzas. NO tocás Contabilidad.</div>
+        </div>
+      </li>
+      <li class="flex gap-3">
+        <span class="bg-purple-100 text-purple-700 font-bold rounded-full w-6 h-6 flex items-center justify-center text-[11px] flex-shrink-0">2</span>
+        <div>
+          <div class="font-bold text-slate-900">Inicio del mes siguiente · revisión</div>
+          <div class="text-slate-600">Abrís Contabilidad · seleccionás el mes que terminó · revisás Resumen · Balance · P&L. Si algo no cuadra, drill back a Finanzas/Movimientos para corregir.</div>
+        </div>
+      </li>
+      <li class="flex gap-3">
+        <span class="bg-purple-100 text-purple-700 font-bold rounded-full w-6 h-6 flex items-center justify-center text-[11px] flex-shrink-0">3</span>
+        <div>
+          <div class="font-bold text-slate-900">Pre-cierre · checklist</div>
+          <div class="text-slate-600">Vas al tab "Cierre Mensual" · resolvés las 6 validaciones del checklist (balance cuadrado · conciliación · CxC · inventario · movimientos · diferencial cambiario).</div>
+        </div>
+      </li>
+      <li class="flex gap-3">
+        <span class="bg-purple-100 text-purple-700 font-bold rounded-full w-6 h-6 flex items-center justify-center text-[11px] flex-shrink-0">4</span>
+        <div>
+          <div class="font-bold text-slate-900">Cerrar el mes</div>
+          <div class="text-slate-600">Click "Cerrar Mayo 2026" · queda bloqueado · snapshot inmutable · audit trail.</div>
+        </div>
+      </li>
+      <li class="flex gap-3">
+        <span class="bg-purple-100 text-purple-700 font-bold rounded-full w-6 h-6 flex items-center justify-center text-[11px] flex-shrink-0">5</span>
+        <div>
+          <div class="font-bold text-slate-900">Exportar y enviar</div>
+          <div class="text-slate-600">Exportar el Balance + P&L del mes cerrado · enviar al contador externo o presentar al banco / inversor si corresponde.</div>
+        </div>
+      </li>
+    </ol>
+  </section>
+
+  <footer class="text-center text-[11px] text-slate-500 pt-4">
+    Mockup informativo · Vita Skin ERP · chk5.E-S1.full · Generado 2026-05-23
+  </footer>
+
+</div>
+
+<script>if (window.lucide) window.lucide.createIcons();</script>
+</body>
+</html>

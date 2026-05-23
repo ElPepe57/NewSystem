@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Contabilidad · Estados Internos · Canon v5.1</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<style>body { font-family: 'Inter', sans-serif; }</style>
+<script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-slate-50 p-6 md:p-10 text-slate-900">
+
+<div class="max-w-5xl mx-auto mb-6 bg-amber-50 border-l-4 border-amber-400 p-4 rounded text-[12px] text-amber-900">
+  <strong>📋 Mockup canon v5.1 · Contabilidad / ESTADOS INTERNOS</strong> · empty · loading · error states (canon v8.0 N9).
+</div>
+
+<div class="max-w-5xl mx-auto space-y-6">
+
+  <!-- 1. EMPTY STATE -->
+  <section>
+    <h2 class="text-[10px] uppercase tracking-wider font-bold text-slate-500 mb-2">1 · Empty state · cuando no hay data en el período</h2>
+    <div class="bg-white border border-slate-200 rounded-2xl p-12 text-center space-y-4">
+      <div class="w-20 h-20 mx-auto rounded-full bg-purple-100 flex items-center justify-center">
+        <i data-lucide="calculator" class="w-10 h-10 text-purple-600"></i>
+      </div>
+      <div>
+        <div class="text-[16px] font-bold text-slate-900 mb-1">
+          Sin movimientos contables para este período
+        </div>
+        <div class="text-[12px] text-slate-500 max-w-md mx-auto">
+          La Contabilidad se alimenta automáticamente de Ventas, Compras, Gastos y Movimientos del módulo Finanzas.
+          Registrá tu primera operación para ver los Estados Financieros.
+        </div>
+      </div>
+      <!-- Quick-start cards · 4 caminos típicos canon N9 -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-2 max-w-2xl mx-auto pt-4">
+        <a class="text-left p-3 bg-white border border-slate-200 rounded-lg hover:border-emerald-300 hover:bg-emerald-50/30 cursor-pointer">
+          <i data-lucide="dollar-sign" class="w-4 h-4 text-emerald-600 mb-1.5"></i>
+          <div class="text-[11px] font-bold text-slate-900">Registrar venta</div>
+          <div class="text-[10px] text-slate-500">Ingreso</div>
+        </a>
+        <a class="text-left p-3 bg-white border border-slate-200 rounded-lg hover:border-rose-300 hover:bg-rose-50/30 cursor-pointer">
+          <i data-lucide="shopping-cart" class="w-4 h-4 text-rose-600 mb-1.5"></i>
+          <div class="text-[11px] font-bold text-slate-900">Crear OC</div>
+          <div class="text-[10px] text-slate-500">Compra</div>
+        </a>
+        <a class="text-left p-3 bg-white border border-slate-200 rounded-lg hover:border-amber-300 hover:bg-amber-50/30 cursor-pointer">
+          <i data-lucide="receipt" class="w-4 h-4 text-amber-600 mb-1.5"></i>
+          <div class="text-[11px] font-bold text-slate-900">Cargar gasto</div>
+          <div class="text-[10px] text-slate-500">Opex</div>
+        </a>
+        <a class="text-left p-3 bg-white border border-slate-200 rounded-lg hover:border-teal-300 hover:bg-teal-50/30 cursor-pointer">
+          <i data-lucide="arrow-left-right" class="w-4 h-4 text-teal-600 mb-1.5"></i>
+          <div class="text-[11px] font-bold text-slate-900">Nuevo movimiento</div>
+          <div class="text-[10px] text-slate-500">Tesorería</div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. LOADING STATE -->
+  <section>
+    <h2 class="text-[10px] uppercase tracking-wider font-bold text-slate-500 mb-2">2 · Loading state · cargando estados financieros</h2>
+    <div class="bg-white border border-slate-200 rounded-2xl p-12 text-center space-y-4">
+      <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-purple-50">
+        <svg class="animate-spin w-8 h-8 text-purple-600" viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" stroke-dasharray="50 100" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div>
+        <div class="text-[13px] font-semibold text-slate-700">Calculando estados financieros…</div>
+        <div class="text-[11px] text-slate-500 mt-1">Procesando ventas · compras · gastos · saldos · TC</div>
+      </div>
+      <!-- Skeleton bars · placeholder de los KPI cards -->
+      <div class="grid grid-cols-2 md:grid-cols-5 gap-3 max-w-3xl mx-auto pt-2">
+        <div class="h-20 rounded-2xl bg-slate-100 animate-pulse"></div>
+        <div class="h-20 rounded-2xl bg-slate-100 animate-pulse"></div>
+        <div class="h-20 rounded-2xl bg-slate-100 animate-pulse"></div>
+        <div class="h-20 rounded-2xl bg-slate-100 animate-pulse"></div>
+        <div class="h-20 rounded-2xl bg-slate-100 animate-pulse"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. ERROR STATE -->
+  <section>
+    <h2 class="text-[10px] uppercase tracking-wider font-bold text-slate-500 mb-2">3 · Error state · falló la carga del período</h2>
+    <div class="bg-white border border-rose-200 rounded-2xl p-8 text-center space-y-4">
+      <div class="w-16 h-16 mx-auto rounded-full bg-rose-100 flex items-center justify-center">
+        <i data-lucide="alert-triangle" class="w-8 h-8 text-rose-600"></i>
+      </div>
+      <div>
+        <div class="text-[14px] font-bold text-rose-900 mb-1">
+          No se pudieron cargar los Estados Financieros
+        </div>
+        <div class="text-[11px] text-slate-600 max-w-md mx-auto">
+          Error: <code class="bg-slate-100 px-1 rounded text-[10px]">PERMISSION_DENIED · firestore.contabilidad</code>.
+          Verificá que tu usuario tenga permiso "VER_CONTABILIDAD" o contactá al admin.
+        </div>
+      </div>
+      <div class="flex items-center justify-center gap-2">
+        <button class="text-[11px] font-bold text-white bg-rose-600 hover:bg-rose-700 px-4 py-2 rounded-lg inline-flex items-center gap-1.5">
+          <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Reintentar
+        </button>
+        <button class="text-[11px] font-semibold text-slate-600 hover:bg-slate-50 border border-slate-200 px-4 py-2 rounded-lg inline-flex items-center gap-1.5">
+          <i data-lucide="user-cog" class="w-3.5 h-3.5"></i> Solicitar permiso
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Decisiones canon -->
+  <section class="bg-white border border-slate-200 rounded-2xl p-6 space-y-2 text-[12px]">
+    <h2 class="text-base font-bold text-slate-900 mb-2">📐 Decisiones · Estados internos</h2>
+    <div><strong class="text-purple-700">Empty state N9</strong> · NO es solo mensaje · es onboarding accionable con 4 quick-start cards de color semántico (venta · OC · gasto · movimiento)</div>
+    <div><strong class="text-purple-700">Loading state</strong> · spinner purple matching color signature + skeleton bars representando los 5 KPI cards · feedback visual de qué se está procesando</div>
+    <div><strong class="text-purple-700">Error state</strong> · borde rose · icon AlertTriangle · mensaje técnico + sugerencia accionable + 2 botones (Reintentar primary + Solicitar permiso secondary)</div>
+    <div><strong class="text-purple-700">Texto user-facing</strong> · cero jerga técnica visible (excepto error code para soporte) · siempre acción clara</div>
+  </section>
+
+  <footer class="text-center text-[11px] text-slate-500 pt-4">
+    Mockup canon v5.1 · Contabilidad Estados internos · 2026-05-23
+  </footer>
+
+</div>
+
+<script>if (window.lucide) window.lucide.createIcons();</script>
+</body>
+</html>

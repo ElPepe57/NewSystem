@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Contabilidad · Tab Balance General · Canon v5.1</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<style>
+  body { font-family: 'Inter', sans-serif; font-variant-numeric: tabular-nums; }
+  .tabular { font-variant-numeric: tabular-nums; }
+</style>
+<script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-slate-50 p-6 md:p-10 text-slate-900">
+
+<div class="max-w-5xl mx-auto mb-6 bg-amber-50 border-l-4 border-amber-400 p-4 rounded text-[12px] text-amber-900">
+  <strong>📋 Mockup canon v5.1 · Contabilidad / Tab BALANCE GENERAL</strong> · estructura formal contable Activo = Pasivo + Patrimonio · agrupado por sub-secciones colapsables.
+</div>
+
+<div class="max-w-5xl mx-auto space-y-4">
+
+  <!-- §1 · Ecuación contable header · canon banner -->
+  <section class="bg-gradient-to-r from-slate-50 to-slate-100/40 ring-1 ring-slate-200/50 rounded-2xl p-4">
+    <div class="flex items-center justify-between flex-wrap gap-3">
+      <div class="flex items-center gap-3">
+        <i data-lucide="scale" class="w-5 h-5 text-slate-700"></i>
+        <div>
+          <div class="text-[13px] font-bold text-slate-900">Balance General · Mayo 2026</div>
+          <div class="text-[11px] text-slate-500">Ecuación contable: <strong>ACTIVO = PASIVO + PATRIMONIO</strong></div>
+        </div>
+      </div>
+      <div class="flex items-center gap-2 text-[12px]">
+        <div class="text-right">
+          <div class="text-[10px] text-slate-500 uppercase tracking-wider">Cuadre</div>
+          <div class="text-[14px] font-bold tabular text-emerald-700 flex items-center gap-1">
+            <i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i> OK · S/ 0.00
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- §2 · Grid 3 columnas: Activo | Pasivo | Patrimonio (en desktop · stack en mobile) -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+
+    <!-- ACTIVO -->
+    <section class="bg-white border border-teal-200 rounded-2xl overflow-hidden">
+      <div class="bg-gradient-to-r from-teal-500 to-teal-700 text-white px-4 py-3">
+        <div class="flex items-center justify-between">
+          <h2 class="text-[14px] font-bold flex items-center gap-2">
+            <i data-lucide="wallet" class="w-4 h-4"></i> ACTIVO
+          </h2>
+          <span class="text-[16px] font-bold tabular">S/ 458,200</span>
+        </div>
+      </div>
+      <div class="divide-y divide-slate-100">
+
+        <!-- Activo Corriente · colapsable -->
+        <div class="px-4 py-3">
+          <button class="w-full flex items-center justify-between text-left">
+            <div class="flex items-center gap-2">
+              <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-400"></i>
+              <span class="text-[11px] uppercase tracking-wider font-bold text-teal-700">Activo Corriente</span>
+            </div>
+            <span class="text-[13px] font-bold tabular text-teal-900">S/ 458,200</span>
+          </button>
+          <div class="mt-2 ml-5 space-y-1 text-[12px]">
+            <div class="flex justify-between">
+              <span class="text-slate-600">Efectivo y equivalentes</span>
+              <span class="tabular font-medium text-slate-900">S/ 124,800</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-slate-600">Cuentas por cobrar · clientes</span>
+              <span class="tabular font-medium text-slate-900">S/ 98,400</span>
+            </div>
+            <div class="flex justify-between ml-3 text-[11px] text-slate-500">
+              <span>(−) Provisión incobrables 3%</span>
+              <span class="tabular">−S/ 2,952</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-slate-600">Inventarios</span>
+              <span class="tabular font-medium text-slate-900">S/ 235,000</span>
+            </div>
+            <div class="flex justify-between ml-3 text-[11px] text-slate-500">
+              <span>· USA · S/ 142,300 (61%)</span>
+              <span></span>
+            </div>
+            <div class="flex justify-between ml-3 text-[11px] text-slate-500">
+              <span>· Perú · S/ 92,700 (39%)</span>
+              <span></span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-slate-600">Pagos viajeros pendientes</span>
+              <span class="tabular font-medium text-slate-900">S/ 2,952</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Activo No Corriente -->
+        <div class="px-4 py-3">
+          <button class="w-full flex items-center justify-between text-left">
+            <div class="flex items-center gap-2">
+              <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-slate-400"></i>
+              <span class="text-[11px] uppercase tracking-wider font-bold text-teal-700">Activo No Corriente</span>
+            </div>
+            <span class="text-[13px] font-bold tabular text-teal-900">S/ 0</span>
+          </button>
+          <div class="ml-5 mt-1 text-[10px] text-slate-500 italic">
+            (Activos fijos en módulo futuro · placeholder)
+          </div>
+        </div>
+
+      </div>
+      <!-- Total Activo · footer -->
+      <div class="bg-teal-50 px-4 py-2 flex justify-between items-center border-t border-teal-200">
+        <span class="text-[11px] uppercase tracking-wider font-bold text-teal-900">TOTAL ACTIVO</span>
+        <span class="text-[16px] font-bold tabular text-teal-900">S/ 458,200</span>
+      </div>
+    </section>
+
+    <!-- PASIVO -->
+    <section class="bg-white border border-rose-200 rounded-2xl overflow-hidden">
+      <div class="bg-gradient-to-r from-rose-500 to-rose-700 text-white px-4 py-3">
+        <div class="flex items-center justify-between">
+          <h2 class="text-[14px] font-bold flex items-center gap-2">
+            <i data-lucide="credit-card" class="w-4 h-4"></i> PASIVO
+          </h2>
+          <span class="text-[16px] font-bold tabular">S/ 142,800</span>
+        </div>
+      </div>
+      <div class="divide-y divide-slate-100">
+        <div class="px-4 py-3">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-[11px] uppercase tracking-wider font-bold text-rose-700">Pasivo Corriente</span>
+            <span class="text-[13px] font-bold tabular text-rose-900">S/ 142,800</span>
+          </div>
+          <div class="ml-2 space-y-1 text-[12px]">
+            <div class="flex justify-between">
+              <span class="text-slate-600">CxP proveedores</span>
+              <span class="tabular font-medium text-slate-900">S/ 84,200</span>
+            </div>
+            <div class="flex justify-between ml-3 text-[11px] text-slate-500">
+              <span>· OCs recibidas sin pagar (8)</span>
+              <span></span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-slate-600">Otras CxP</span>
+              <span class="tabular font-medium text-slate-900">S/ 12,400</span>
+            </div>
+            <div class="flex justify-between ml-3 text-[11px] text-slate-500">
+              <span>· Comisiones · Sueldos próx</span>
+              <span></span>
+            </div>
+            <div class="flex justify-between bg-purple-50 -mx-2 px-2 py-1 rounded mt-1">
+              <span class="text-purple-700 font-medium">Anticipos clientes</span>
+              <span class="tabular font-bold text-purple-700">S/ 28,400</span>
+            </div>
+            <div class="flex justify-between ml-3 text-[11px] text-purple-600">
+              <span>· 12 ventas sin entregar · pasivo</span>
+              <span></span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-slate-600">Deudas TC bancos</span>
+              <span class="tabular font-medium text-slate-900">S/ 17,800</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="px-4 py-3">
+          <div class="flex items-center justify-between">
+            <span class="text-[11px] uppercase tracking-wider font-bold text-rose-700">Pasivo No Corriente</span>
+            <span class="text-[13px] font-bold tabular text-rose-900">S/ 0</span>
+          </div>
+          <div class="ml-2 mt-1 text-[10px] text-slate-500 italic">
+            Sin deudas a largo plazo
+          </div>
+        </div>
+      </div>
+      <div class="bg-rose-50 px-4 py-2 flex justify-between items-center border-t border-rose-200">
+        <span class="text-[11px] uppercase tracking-wider font-bold text-rose-900">TOTAL PASIVO</span>
+        <span class="text-[16px] font-bold tabular text-rose-900">S/ 142,800</span>
+      </div>
+    </section>
+
+    <!-- PATRIMONIO -->
+    <section class="bg-white border border-indigo-200 rounded-2xl overflow-hidden">
+      <div class="bg-gradient-to-r from-indigo-500 to-indigo-700 text-white px-4 py-3">
+        <div class="flex items-center justify-between">
+          <h2 class="text-[14px] font-bold flex items-center gap-2">
+            <i data-lucide="piggy-bank" class="w-4 h-4"></i> PATRIMONIO
+          </h2>
+          <span class="text-[16px] font-bold tabular">S/ 315,400</span>
+        </div>
+      </div>
+      <div class="divide-y divide-slate-100">
+        <div class="px-4 py-3 space-y-1 text-[12px]">
+          <div class="flex justify-between">
+            <span class="text-slate-600">Capital social</span>
+            <span class="tabular font-medium text-slate-900">S/ 200,000</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-slate-600">Reserva legal</span>
+            <span class="tabular font-medium text-slate-900">S/ 20,000</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-slate-600">Utilidades acumuladas</span>
+            <span class="tabular font-medium text-slate-900">S/ 53,100</span>
+          </div>
+          <div class="flex justify-between ml-3 text-[11px] text-slate-500">
+            <span>· Ene a Abr 2026</span>
+            <span></span>
+          </div>
+          <div class="flex justify-between bg-amber-50 -mx-2 px-2 py-1 rounded mt-1">
+            <span class="text-amber-700 font-medium">Utilidad del período</span>
+            <span class="tabular font-bold text-amber-700">S/ 42,300</span>
+          </div>
+        </div>
+      </div>
+      <div class="bg-indigo-50 px-4 py-2 flex justify-between items-center border-t border-indigo-200">
+        <span class="text-[11px] uppercase tracking-wider font-bold text-indigo-900">TOTAL PATRIMONIO</span>
+        <span class="text-[16px] font-bold tabular text-indigo-900">S/ 315,400</span>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- §3 · Validación de cuadre -->
+  <section class="bg-emerald-50 ring-1 ring-emerald-200 rounded-2xl p-4">
+    <div class="flex items-center justify-between text-[12px]">
+      <div class="flex items-center gap-3">
+        <i data-lucide="check-circle-2" class="w-5 h-5 text-emerald-600"></i>
+        <div>
+          <div class="font-bold text-emerald-900">Balance cuadrado ✓</div>
+          <div class="text-emerald-700 text-[10px]">
+            Activo S/ 458,200 = Pasivo S/ 142,800 + Patrimonio S/ 315,400
+          </div>
+        </div>
+      </div>
+      <span class="text-[10px] tabular bg-emerald-100 text-emerald-800 px-2 py-1 rounded">Diferencia: S/ 0.00</span>
+    </div>
+  </section>
+
+  <!-- Decisiones canon -->
+  <section class="bg-white border border-slate-200 rounded-2xl p-6 mt-4 space-y-2 text-[12px]">
+    <h2 class="text-base font-bold text-slate-900 mb-2">📐 Decisiones · Tab Balance General</h2>
+    <div><strong class="text-purple-700">Estructura</strong> · 3 columnas (Activo · Pasivo · Patrimonio) cada una con su color signature (teal · rose · indigo) coincidente con KPIs del shell</div>
+    <div><strong class="text-purple-700">Headers de columna</strong> · gradient fuerte FROM-500 TO-700 + ícono blanco · diferencia "secciones primarias" del resto</div>
+    <div><strong class="text-purple-700">Colapsables</strong> · ChevronDown/Right en sub-secciones (Activo Corriente expandido default · No Corriente colapsado)</div>
+    <div><strong class="text-purple-700">Items hijos</strong> · indentados con ml-5 para jerarquía visual · sub-items adicionales con ml-3 e italics</div>
+    <div><strong class="text-purple-700">Anticipos · cross-cutting purple</strong> · destacado dentro de Pasivo Corriente como cross-link a Ventas pendientes de entrega</div>
+    <div><strong class="text-purple-700">Utilidad período · cross-cutting amber</strong> · destacada dentro de Patrimonio con color matching KPI utilidad del shell</div>
+    <div><strong class="text-purple-700">Footer cada columna</strong> · banda color-50 con TOTAL en bold tabular · espejando el header</div>
+    <div><strong class="text-purple-700">Cuadre</strong> · banner emerald al final validando Activo = Pasivo + Patrimonio · si NO cuadra debe ser banner rose con alert</div>
+    <div><strong class="text-purple-700">F7</strong> · tabular-nums en TODOS los montos · alineación derecha consistente</div>
+  </section>
+
+  <footer class="text-center text-[11px] text-slate-500 pt-4">
+    Mockup canon v5.1 · Contabilidad Tab Balance General · 2026-05-23
+  </footer>
+
+</div>
+
+<script>if (window.lucide) window.lucide.createIcons();</script>
+</body>
+</html>

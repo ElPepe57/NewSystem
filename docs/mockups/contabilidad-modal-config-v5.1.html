@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Contabilidad · Modal Configurar · Canon v5.1</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<style>body { font-family: 'Inter', sans-serif; font-variant-numeric: tabular-nums; }</style>
+<script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-slate-200 p-6 md:p-10 text-slate-900 min-h-screen">
+
+<div class="max-w-5xl mx-auto mb-6 bg-amber-50 border-l-4 border-amber-400 p-4 rounded text-[12px] text-amber-900">
+  <strong>📋 Mockup canon v5.1 · Contabilidad / MODAL CONFIGURAR CONTABLE</strong> ·
+  configuración global del módulo (capital social · reserva legal · provisión incobrables · TC default).
+  Hoy estos valores se editan vía service sin UI · este modal cierra ese gap.
+</div>
+
+<!-- Backdrop simulado -->
+<div class="bg-slate-900/40 rounded-2xl p-12">
+
+  <!-- Modal usa el FormModalV2 canon del design-system -->
+  <div class="bg-white border border-slate-200 rounded-2xl shadow-2xl max-w-md mx-auto overflow-hidden">
+
+    <!-- Header del modal canon FormModalV2 -->
+    <div class="p-5 border-b border-slate-100">
+      <div class="flex items-start gap-3">
+        <div class="w-10 h-10 rounded-xl bg-purple-50 border border-purple-200 flex items-center justify-center text-purple-700 flex-shrink-0">
+          <i data-lucide="settings-2" class="w-5 h-5"></i>
+        </div>
+        <div class="flex-1 min-w-0">
+          <h2 class="text-lg font-bold text-slate-900">Configuración contable</h2>
+          <p class="text-[12px] text-slate-500 leading-snug">Parámetros que afectan el cálculo de Balance General y Estado de Resultados</p>
+        </div>
+        <button class="text-slate-400 hover:text-slate-700 p-1">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Body con los 4 campos de config -->
+    <div class="p-5 space-y-4">
+
+      <div>
+        <label class="block text-[11px] uppercase tracking-wider font-bold text-slate-500 mb-1.5">
+          Capital Social
+        </label>
+        <div class="relative">
+          <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 font-bold text-sm">S/</span>
+          <input type="number" value="200000" class="w-full pl-10 pr-3 py-2.5 border border-slate-300 rounded-lg text-sm tabular-nums focus:border-purple-500 focus:ring-1 focus:ring-purple-500" />
+        </div>
+        <p class="text-[10px] text-slate-500 mt-1">Aporte inicial de los socios · figura en Patrimonio del Balance General</p>
+      </div>
+
+      <div>
+        <label class="block text-[11px] uppercase tracking-wider font-bold text-slate-500 mb-1.5">
+          Reserva Legal
+        </label>
+        <div class="relative">
+          <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 font-bold text-sm">S/</span>
+          <input type="number" value="20000" class="w-full pl-10 pr-3 py-2.5 border border-slate-300 rounded-lg text-sm tabular-nums focus:border-purple-500 focus:ring-1 focus:ring-purple-500" />
+        </div>
+        <p class="text-[10px] text-slate-500 mt-1">Reserva obligatoria · típicamente 10% del capital social hasta alcanzarlo</p>
+      </div>
+
+      <div>
+        <label class="block text-[11px] uppercase tracking-wider font-bold text-slate-500 mb-1.5">
+          Provisión Incobrables
+        </label>
+        <div class="relative">
+          <input type="number" value="3" step="0.5" class="w-full pl-3 pr-10 py-2.5 border border-slate-300 rounded-lg text-sm tabular-nums focus:border-purple-500 focus:ring-1 focus:ring-purple-500" />
+          <span class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 font-bold text-sm">%</span>
+        </div>
+        <p class="text-[10px] text-slate-500 mt-1">% de las CxC que se considera incobrable · se resta del activo CxC en el Balance</p>
+      </div>
+
+      <div>
+        <label class="block text-[11px] uppercase tracking-wider font-bold text-slate-500 mb-1.5">
+          Tipo de Cambio · default fallback
+        </label>
+        <div class="relative">
+          <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 font-bold text-sm">USD/PEN</span>
+          <input type="number" value="3.75" step="0.001" class="w-full pl-20 pr-3 py-2.5 border border-slate-300 rounded-lg text-sm tabular-nums focus:border-purple-500 focus:ring-1 focus:ring-purple-500" />
+        </div>
+        <p class="text-[10px] text-slate-500 mt-1">Si no hay TC del día en el servicio · se usa este valor de fallback</p>
+      </div>
+
+      <!-- Info banner sobre impacto -->
+      <div class="bg-amber-50 border border-amber-200 rounded-lg p-3 flex items-start gap-2 text-[11px] text-amber-900">
+        <i data-lucide="alert-circle" class="w-4 h-4 text-amber-700 mt-0.5 flex-shrink-0"></i>
+        <div>
+          <strong>Cambiar estos valores afecta los Estados Financieros retroactivamente.</strong>
+          Si modificás Provisión Incobrables · todos los Balances anteriores se recalculan · queda registro de auditoría.
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Footer del modal -->
+    <div class="px-5 py-3 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
+      <div class="text-[10px] text-slate-500 flex items-center gap-2">
+        <kbd class="bg-white border border-slate-300 px-1.5 py-0.5 rounded text-[9px] font-mono">Esc</kbd>
+        cancelar
+        <kbd class="bg-white border border-slate-300 px-1.5 py-0.5 rounded text-[9px] font-mono">⌘ Enter</kbd>
+        guardar
+      </div>
+      <div class="flex items-center gap-2">
+        <button class="text-[11px] font-semibold text-slate-600 hover:bg-slate-100 px-3 py-1.5 rounded-lg">Cancelar</button>
+        <button class="text-[11px] font-bold text-white bg-purple-600 hover:bg-purple-700 px-4 py-1.5 rounded-lg inline-flex items-center gap-1.5">
+          <i data-lucide="check" class="w-3.5 h-3.5"></i>
+          Guardar configuración
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- Decisiones canon fuera del backdrop -->
+<div class="max-w-5xl mx-auto mt-8 bg-white border border-slate-200 rounded-2xl p-6 space-y-2 text-[12px]">
+  <h2 class="text-base font-bold text-slate-900 mb-2">📐 Decisiones · Modal Configurar contable</h2>
+  <div><strong class="text-purple-700">Componente base</strong> · FormModalV2 canon del design-system (mismo que CuentaWizard · VerificarSaldoModal · etc.)</div>
+  <div><strong class="text-purple-700">Icon tone</strong> · purple matching color signature del módulo Contabilidad</div>
+  <div><strong class="text-purple-700">4 campos</strong> · Capital Social · Reserva Legal · Provisión Incobrables · TC default fallback</div>
+  <div><strong class="text-purple-700">Inputs canon</strong> · prefijo "S/" o sufijo "%" según corresponda · borde focus purple · tabular-nums</div>
+  <div><strong class="text-purple-700">Ayuda inline</strong> · cada campo con caption explicativo de qué impacta · transparencia con usuario sobre consecuencia del cambio</div>
+  <div><strong class="text-purple-700">Banner amber</strong> · alerta sobre impacto retroactivo · cambiar Provisión Incobrables recalcula Balances anteriores</div>
+  <div><strong class="text-purple-700">Atajos teclado</strong> · Esc cancelar · Cmd/Ctrl+Enter guardar · visible en footer del modal</div>
+  <div><strong class="text-purple-700">Accedido desde</strong> · futura iteración del header de Contabilidad podría tener botón "Configurar" (tier destacada indigo) que abra este modal</div>
+</div>
+
+<script>if (window.lucide) window.lucide.createIcons();</script>
+</body>
+</html>
