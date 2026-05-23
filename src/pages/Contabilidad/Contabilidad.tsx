@@ -45,6 +45,7 @@ import {
   StatDistribution,
 } from '../../components/common';
 import { DataTable } from '../../design-system';
+import { FormModalV2 } from '../../design-system/components/FormModalV2';
 import type { DataTableColumn } from '../../design-system';
 import { EstadoResultados, BalanceGeneral, CierreMensual } from '../../components/modules/contabilidad';
 import { ReporteDirectoIndirecto } from '../../components/modules/contabilidad/ReporteDirectoIndirecto';
@@ -338,6 +339,303 @@ const DistributionCard: React.FC<DistributionCardProps> = ({
   );
 };
 
+// ─── IndicadoresCard (chk5.E-S2 · 1 card por dimensión Liquidez/Solvencia/Rentab/Activ)
+// Header gradient FROM-500 TO-700 + body con divide-y de items.
+
+const KPI_GRADIENT_HEAD: Record<KpiColor, string> = {
+  emerald: 'bg-gradient-to-r from-emerald-500 to-emerald-700',
+  teal: 'bg-gradient-to-r from-teal-500 to-teal-700',
+  rose: 'bg-gradient-to-r from-rose-500 to-rose-700',
+  indigo: 'bg-gradient-to-r from-indigo-500 to-indigo-700',
+  amber: 'bg-gradient-to-r from-amber-500 to-amber-700',
+  sky: 'bg-gradient-to-r from-sky-500 to-sky-700',
+  purple: 'bg-gradient-to-r from-purple-500 to-purple-700',
+};
+
+const KPI_BORDER_LIGHT: Record<KpiColor, string> = {
+  emerald: 'border-emerald-200',
+  teal: 'border-teal-200',
+  rose: 'border-rose-200',
+  indigo: 'border-indigo-200',
+  amber: 'border-amber-200',
+  sky: 'border-sky-200',
+  purple: 'border-purple-200',
+};
+
+interface IndicadoresCardProps {
+  color: KpiColor;
+  icon: LucideIcon;
+  title: string;
+  children: React.ReactNode;
+}
+
+const IndicadoresCard: React.FC<IndicadoresCardProps> = ({ color, icon: Icon, title, children }) => (
+  <section className={`bg-white border rounded-2xl overflow-hidden ${KPI_BORDER_LIGHT[color]}`}>
+    <div className={`text-white px-4 py-2.5 ${KPI_GRADIENT_HEAD[color]}`}>
+      <h3 className="text-[13px] font-bold flex items-center gap-2">
+        <Icon className="w-4 h-4" />
+        {title}
+      </h3>
+    </div>
+    <div className="divide-y divide-slate-100 text-[12px]">
+      {children}
+    </div>
+  </section>
+);
+
+// ─── IndicadorRow (chk5.E-S2 · 1 ratio dentro de IndicadoresCard)
+
+type Semaforo = 'excelente' | 'bueno' | 'regular' | 'atencion' | 'critico';
+
+const SEMAFORO_COLOR: Record<Semaforo, { text: string; label: string; icon: string }> = {
+  excelente: { text: 'text-emerald-700', label: 'Excelente', icon: 'text-emerald-600' },
+  bueno: { text: 'text-emerald-700', label: 'Bueno', icon: 'text-emerald-600' },
+  regular: { text: 'text-amber-700', label: 'Regular', icon: 'text-amber-600' },
+  atencion: { text: 'text-orange-700', label: 'Atención', icon: 'text-orange-600' },
+  critico: { text: 'text-rose-700', label: 'Crítico', icon: 'text-rose-600' },
+};
+
+interface IndicadorRowProps {
+  nombre: string;
+  formula: string;
+  valor: string;
+  semaforo: Semaforo;
+  /** Override del label del semáforo · ej "Sobreliquidez" */
+  semaforoLabel?: string;
+  /** Si true · bg purple-50/40 (ratio destacado tipo Ciclo Conversión) */
+  destacado?: boolean;
+}
+
+const IndicadorRow: React.FC<IndicadorRowProps> = ({
+  nombre, formula, valor, semaforo, semaforoLabel, destacado,
+}) => {
+  const sem = SEMAFORO_COLOR[semaforo];
+  const isAlert = semaforo === 'regular' || semaforo === 'atencion' || semaforo === 'critico';
+  return (
+    <div className={`px-4 py-2.5 flex items-center justify-between ${destacado ? 'bg-purple-50/40' : ''}`}>
+      <div className="flex-1 min-w-0 pr-2">
+        <div className="font-semibold text-slate-900">{nombre}</div>
+        <div className="text-[10px] text-slate-500">{formula}</div>
+      </div>
+      <div className="text-right flex-shrink-0">
+        <div className={`text-[16px] font-bold tabular-nums ${sem.text}`}>{valor}</div>
+        <div className={`text-[10px] ${sem.text} flex items-center gap-1 justify-end`}>
+          {isAlert
+            ? <AlertCircle className={`w-3 h-3 ${sem.icon}`} />
+            : <CheckCircle2 className={`w-3 h-3 ${sem.icon}`} />
+          }
+          {semaforoLabel ?? sem.label}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ─── ConfigurarContableModal (chk5.E-S2) ─────────────────────────────────
+// Modal canon FormModalV2 con 4 campos:
+//   · Capital Social
+//   · Reserva Legal
+//   · Provisión Incobrables (%)
+//   · TC default fallback
+
+interface ConfigContableForm {
+  capitalSocial: number;
+  reservaLegal: number;
+  tcPorDefecto: number;
+  provisionIncobrablesPct: number;
+}
+
+interface ConfigurarContableModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onSaved: () => void;
+}
+
+const ConfigurarContableModal: React.FC<ConfigurarContableModalProps> = ({
+  isOpen, onClose, onSaved,
+}) => {
+  const [capitalStr, setCapitalStr] = useState('0');
+  const [reservaStr, setReservaStr] = useState('0');
+  const [provisionStr, setProvisionStr] = useState('5');
+  const [tcStr, setTcStr] = useState('0');
+  const [loading, setLoading] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  // Cargar config al abrir
+  useEffect(() => {
+    if (!isOpen) return;
+    setLoading(true);
+    setErrorMsg(null);
+    contabilidadService.getConfiguracionContable()
+      .then((cfg) => {
+        setCapitalStr(String(cfg.capitalSocial ?? 0));
+        setReservaStr(String(cfg.reservaLegal ?? 0));
+        setProvisionStr(String(cfg.provisionIncobrablesPct ?? 5));
+        setTcStr(String(cfg.tcPorDefecto ?? 0));
+      })
+      .catch((err) => {
+        setErrorMsg(err instanceof Error ? err.message : 'Error desconocido');
+      })
+      .finally(() => setLoading(false));
+  }, [isOpen]);
+
+  // Parse + validación
+  const cap = parseFloat(capitalStr.replace(',', '.'));
+  const res = parseFloat(reservaStr.replace(',', '.'));
+  const prov = parseFloat(provisionStr.replace(',', '.'));
+  const tcN = parseFloat(tcStr.replace(',', '.'));
+  const valido = Number.isFinite(cap) && Number.isFinite(res)
+    && Number.isFinite(prov) && prov >= 0 && prov <= 100
+    && Number.isFinite(tcN) && tcN >= 0;
+
+  // Submit
+  const handleSubmit = async () => {
+    if (!valido) return;
+    setSubmitting(true);
+    setErrorMsg(null);
+    try {
+      await contabilidadService.actualizarConfiguracionContable({
+        capitalSocial: cap,
+        reservaLegal: res,
+        provisionIncobrablesPct: prov,
+        tcPorDefecto: tcN,
+      });
+      onSaved();
+    } catch (err) {
+      setErrorMsg(err instanceof Error ? err.message : 'Error al guardar');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <FormModalV2
+      isOpen={isOpen}
+      onClose={onClose}
+      onSubmit={handleSubmit}
+      title="Configuración contable"
+      subtitle="Parámetros que afectan el cálculo de Balance General y Estado de Resultados"
+      icon={Settings2}
+      iconTone="purple"
+      submitLabel={submitting ? 'Guardando…' : 'Guardar configuración'}
+      submitVariant="primary"
+      submitIcon={CheckCircle2}
+      cancelLabel="Cancelar"
+      loading={submitting}
+      disabled={!valido || submitting || loading}
+      size="md"
+    >
+      <div className="space-y-4">
+        {loading ? (
+          <div className="text-center py-8">
+            <Loader2 className="w-6 h-6 animate-spin text-purple-600 mx-auto mb-2" />
+            <div className="text-[11px] text-slate-500">Cargando configuración actual…</div>
+          </div>
+        ) : (
+          <>
+            {errorMsg && (
+              <div className="bg-rose-50 border border-rose-200 rounded-lg p-3 text-[11px] text-rose-900 flex items-start gap-2">
+                <AlertCircle className="w-4 h-4 text-rose-700 mt-0.5 flex-shrink-0" />
+                <span>{errorMsg}</span>
+              </div>
+            )}
+
+            <div>
+              <label className="block text-[11px] uppercase tracking-wider font-bold text-slate-500 mb-1.5">
+                Capital Social
+              </label>
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 font-bold text-sm">S/</span>
+                <input
+                  type="number"
+                  step="0.01"
+                  value={capitalStr}
+                  onChange={(e) => setCapitalStr(e.target.value)}
+                  className="w-full pl-10 pr-3 py-2.5 border border-slate-300 rounded-lg text-sm tabular-nums focus:border-purple-500 focus:ring-1 focus:ring-purple-500"
+                />
+              </div>
+              <p className="text-[10px] text-slate-500 mt-1">
+                Aporte inicial de los socios · figura en Patrimonio del Balance General
+              </p>
+            </div>
+
+            <div>
+              <label className="block text-[11px] uppercase tracking-wider font-bold text-slate-500 mb-1.5">
+                Reserva Legal
+              </label>
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 font-bold text-sm">S/</span>
+                <input
+                  type="number"
+                  step="0.01"
+                  value={reservaStr}
+                  onChange={(e) => setReservaStr(e.target.value)}
+                  className="w-full pl-10 pr-3 py-2.5 border border-slate-300 rounded-lg text-sm tabular-nums focus:border-purple-500 focus:ring-1 focus:ring-purple-500"
+                />
+              </div>
+              <p className="text-[10px] text-slate-500 mt-1">
+                Reserva obligatoria · típicamente 10% del capital social hasta alcanzarlo
+              </p>
+            </div>
+
+            <div>
+              <label className="block text-[11px] uppercase tracking-wider font-bold text-slate-500 mb-1.5">
+                Provisión Incobrables
+              </label>
+              <div className="relative">
+                <input
+                  type="number"
+                  step="0.5"
+                  min="0"
+                  max="100"
+                  value={provisionStr}
+                  onChange={(e) => setProvisionStr(e.target.value)}
+                  className="w-full pl-3 pr-10 py-2.5 border border-slate-300 rounded-lg text-sm tabular-nums focus:border-purple-500 focus:ring-1 focus:ring-purple-500"
+                />
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 font-bold text-sm">%</span>
+              </div>
+              <p className="text-[10px] text-slate-500 mt-1">
+                % de CxC que se considera incobrable · se resta del activo CxC en el Balance
+              </p>
+            </div>
+
+            <div>
+              <label className="block text-[11px] uppercase tracking-wider font-bold text-slate-500 mb-1.5">
+                Tipo de Cambio · default fallback
+              </label>
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 font-bold text-sm">USD/PEN</span>
+                <input
+                  type="number"
+                  step="0.001"
+                  min="0"
+                  value={tcStr}
+                  onChange={(e) => setTcStr(e.target.value)}
+                  className="w-full pl-20 pr-3 py-2.5 border border-slate-300 rounded-lg text-sm tabular-nums focus:border-purple-500 focus:ring-1 focus:ring-purple-500"
+                />
+              </div>
+              <p className="text-[10px] text-slate-500 mt-1">
+                Si no hay TC del día disponible en el servicio · se usa este valor de fallback. 0 = usar siempre el TC dinámico.
+              </p>
+            </div>
+
+            <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 flex items-start gap-2 text-[11px] text-amber-900">
+              <AlertCircle className="w-4 h-4 text-amber-700 mt-0.5 flex-shrink-0" />
+              <div>
+                <strong>Cambiar estos valores afecta los Estados Financieros retroactivamente.</strong>
+                {' '}Si modificás Provisión Incobrables, los Balances anteriores se recalculan al volver a abrirlos.
+              </div>
+            </div>
+          </>
+        )}
+      </div>
+    </FormModalV2>
+  );
+};
+// Use type import locally · no se exporta del service
+type _ConfigContableFormShape = ConfigContableForm;
+
 // ═════════════════════════════════════════════════════════════════════════
 // COMPONENTE PRINCIPAL
 // ═════════════════════════════════════════════════════════════════════════
@@ -361,9 +659,15 @@ export function Contabilidad() {
     'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
   ];
 
+  // chk5.E-S2 · estado de error para mostrar error-state canon
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  // chk5.E-S2 · modal Configurar contable
+  const [configModalOpen, setConfigModalOpen] = useState(false);
+
   // Cargar datos
   const cargarDatos = async () => {
     setLoading(true);
+    setErrorMsg(null);
     try {
       const [estadoData, tendenciaData, balanceData, indicadoresData] = await Promise.all([
         contabilidadService.generarEstadoResultados(mes, anio, lineaFiltroGlobal),
@@ -400,7 +704,9 @@ export function Contabilidad() {
         setMesAnterior(null);
       }
     } catch (err) {
-      console.error('Error cargando datos:', err);
+      const msg = err instanceof Error ? err.message : 'Error desconocido';
+      console.error('Error cargando datos contables:', err);
+      setErrorMsg(msg);
     } finally {
       setLoading(false);
     }
@@ -515,13 +821,24 @@ export function Contabilidad() {
                 <RefreshCw className={`w-3 h-3 ${loading ? 'animate-spin' : ''}`} />
                 <span className="hidden sm:inline">Recargar</span>
               </button>
-              {/* Tier destacada · Exportar */}
+              {/* Tier destacada · Configurar (S2 nuevo) */}
               <button
                 type="button"
-                onClick={() => console.info('Exportar Contabilidad · pendiente chk5.E-S2')}
+                onClick={() => setConfigModalOpen(true)}
+                aria-label="Configurar parámetros contables"
+                title="Configurar capital · reserva legal · provisión incobrables · TC default"
+                className="text-[11px] font-semibold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 px-3 py-1.5 rounded-lg flex items-center gap-1.5"
+              >
+                <Settings2 className="w-3 h-3" />
+                <span className="hidden sm:inline">Configurar</span>
+              </button>
+              {/* Tier neutral · Exportar */}
+              <button
+                type="button"
+                onClick={() => console.info('Exportar Contabilidad · pendiente chk5.E-S6')}
                 aria-label="Exportar reporte contable"
                 title="Exportar reporte contable a PDF/Excel"
-                className="text-[11px] font-semibold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 px-3 py-1.5 rounded-lg flex items-center gap-1.5"
+                className="text-[11px] font-semibold text-slate-600 hover:bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-lg flex items-center gap-1.5"
               >
                 <Download className="w-3 h-3" />
                 <span className="hidden sm:inline">Exportar</span>
@@ -579,10 +896,109 @@ export function Contabilidad() {
 
         {/* §E · BODY · contenido según tab activo */}
         <div className="p-6 bg-slate-50/30">
-        {/* Loading */}
-        {loading && (
-          <div className="flex items-center justify-center h-64">
-            <Loader2 className="w-8 h-8 animate-spin text-teal-600" />
+
+        {/* chk5.E-S2 · ERROR STATE canon · botones Reintentar + Solicitar permiso */}
+        {!loading && errorMsg && (
+          <div className="bg-white border border-rose-200 rounded-2xl p-8 text-center space-y-4">
+            <div className="w-16 h-16 mx-auto rounded-full bg-rose-100 flex items-center justify-center">
+              <AlertTriangle className="w-8 h-8 text-rose-600" />
+            </div>
+            <div>
+              <div className="text-[14px] font-bold text-rose-900 mb-1">
+                No se pudieron cargar los Estados Financieros
+              </div>
+              <div className="text-[11px] text-slate-600 max-w-md mx-auto">
+                Error: <code className="bg-slate-100 px-1 rounded text-[10px]">{errorMsg}</code>.
+                Verificá que tu usuario tenga permiso sobre el módulo Contabilidad o contactá al admin.
+              </div>
+            </div>
+            <div className="flex items-center justify-center gap-2">
+              <button
+                type="button"
+                onClick={cargarDatos}
+                className="text-[11px] font-bold text-white bg-rose-600 hover:bg-rose-700 px-4 py-2 rounded-lg inline-flex items-center gap-1.5"
+              >
+                <RefreshCw className="w-3.5 h-3.5" /> Reintentar
+              </button>
+              <button
+                type="button"
+                className="text-[11px] font-semibold text-slate-600 hover:bg-slate-50 border border-slate-200 px-4 py-2 rounded-lg inline-flex items-center gap-1.5"
+              >
+                <Info className="w-3.5 h-3.5" /> Solicitar permiso
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* chk5.E-S2 · LOADING STATE canon · spinner purple + skeleton bars */}
+        {loading && !errorMsg && (
+          <div className="bg-white border border-slate-200 rounded-2xl p-12 text-center space-y-4">
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-purple-50">
+              <Loader2 className="w-8 h-8 animate-spin text-purple-600" />
+            </div>
+            <div>
+              <div className="text-[13px] font-semibold text-slate-700">Calculando estados financieros…</div>
+              <div className="text-[11px] text-slate-500 mt-1">Procesando ventas · compras · gastos · saldos · TC</div>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-3 max-w-3xl mx-auto pt-2">
+              <div className="h-20 rounded-2xl bg-slate-100 animate-pulse"></div>
+              <div className="h-20 rounded-2xl bg-slate-100 animate-pulse"></div>
+              <div className="h-20 rounded-2xl bg-slate-100 animate-pulse"></div>
+              <div className="h-20 rounded-2xl bg-slate-100 animate-pulse"></div>
+              <div className="h-20 rounded-2xl bg-slate-100 animate-pulse"></div>
+            </div>
+          </div>
+        )}
+
+        {/* chk5.E-S2 · EMPTY STATE canon N9 · 4 quick-start cards */}
+        {!loading && !errorMsg && (!estado || estado.ventasNetas === 0) && tabActiva === 'resumen' && (
+          <div className="bg-white border border-slate-200 rounded-2xl p-12 text-center space-y-4">
+            <div className="w-20 h-20 mx-auto rounded-full bg-purple-100 flex items-center justify-center">
+              <Calculator className="w-10 h-10 text-purple-600" />
+            </div>
+            <div>
+              <div className="text-[16px] font-bold text-slate-900 mb-1">
+                Sin movimientos contables para este período
+              </div>
+              <div className="text-[12px] text-slate-500 max-w-md mx-auto">
+                La Contabilidad se alimenta automáticamente de Ventas, Compras, Gastos y Movimientos
+                del módulo Finanzas. Registrá tu primera operación para ver los Estados Financieros.
+              </div>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 max-w-2xl mx-auto pt-4">
+              <a
+                href="/ventas"
+                className="text-left p-3 bg-white border border-slate-200 rounded-lg hover:border-emerald-300 hover:bg-emerald-50/30 cursor-pointer no-underline"
+              >
+                <DollarSign className="w-4 h-4 text-emerald-600 mb-1.5" />
+                <div className="text-[11px] font-bold text-slate-900">Registrar venta</div>
+                <div className="text-[10px] text-slate-500">Ingreso</div>
+              </a>
+              <a
+                href="/compras"
+                className="text-left p-3 bg-white border border-slate-200 rounded-lg hover:border-rose-300 hover:bg-rose-50/30 cursor-pointer no-underline"
+              >
+                <ShoppingCart className="w-4 h-4 text-rose-600 mb-1.5" />
+                <div className="text-[11px] font-bold text-slate-900">Crear OC</div>
+                <div className="text-[10px] text-slate-500">Compra</div>
+              </a>
+              <a
+                href="/gastos"
+                className="text-left p-3 bg-white border border-slate-200 rounded-lg hover:border-amber-300 hover:bg-amber-50/30 cursor-pointer no-underline"
+              >
+                <FileText className="w-4 h-4 text-amber-600 mb-1.5" />
+                <div className="text-[11px] font-bold text-slate-900">Cargar gasto</div>
+                <div className="text-[10px] text-slate-500">Opex</div>
+              </a>
+              <a
+                href="/finanzas"
+                className="text-left p-3 bg-white border border-slate-200 rounded-lg hover:border-teal-300 hover:bg-teal-50/30 cursor-pointer no-underline"
+              >
+                <BarChart3 className="w-4 h-4 text-teal-600 mb-1.5" />
+                <div className="text-[11px] font-bold text-slate-900">Nuevo movimiento</div>
+                <div className="text-[10px] text-slate-500">Tesorería</div>
+              </a>
+            </div>
           </div>
         )}
 
@@ -774,235 +1190,222 @@ export function Contabilidad() {
       )}
 
       {/* INDICADORES FINANCIEROS */}
+      {/* INDICADORES · canon chk5.E-S2 copy-paste literal mockup contabilidad-tab-indicadores-v5.1.html */}
       {!loading && tabActiva === 'indicadores' && indicadores && (
-        <div className="space-y-6">
-          {/* Ratios por categoría */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Liquidez */}
-            <div className="bg-white rounded-lg border p-4 sm:p-6">
-              <h3 className="text-base sm:text-lg font-bold text-sky-800 mb-3 sm:mb-4 flex items-center gap-2">
-                <Wallet className="w-5 h-5" />
-                Ratios de Liquidez
-              </h3>
-              <p className="text-sm text-slate-500 mb-4">Miden la capacidad de pago a corto plazo</p>
-              <div className="space-y-4">
-                <div className="flex justify-between items-center border-b pb-2">
-                  <div>
-                    <div className="font-medium">Razón Corriente</div>
-                    <div className="text-xs text-slate-500">Activo Corriente / Pasivo Corriente</div>
-                  </div>
-                  <div className={`text-xl sm:text-2xl font-bold ${indicadores.liquidez.razonCorriente >= 1.5 ? 'text-emerald-600' : 'text-amber-600'}`}>
-                    {indicadores.liquidez.razonCorriente.toFixed(2)}
-                  </div>
-                </div>
-                <div className="flex justify-between items-center border-b pb-2">
-                  <div>
-                    <div className="font-medium">Prueba Ácida</div>
-                    <div className="text-xs text-slate-500">(Act. Corr. - Inventarios) / Pas. Corr.</div>
-                  </div>
-                  <div className={`text-2xl font-bold ${indicadores.liquidez.pruebaAcida >= 1 ? 'text-emerald-600' : 'text-amber-600'}`}>
-                    {indicadores.liquidez.pruebaAcida.toFixed(2)}
-                  </div>
-                </div>
-                <div className="flex justify-between items-center border-b pb-2">
-                  <div>
-                    <div className="font-medium">Capital de Trabajo</div>
-                    <div className="text-xs text-slate-500">Activo Corriente - Pasivo Corriente</div>
-                  </div>
-                  <div className={`text-2xl font-bold ${indicadores.liquidez.capitalTrabajo >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
-                    {formatCurrency(indicadores.liquidez.capitalTrabajo)}
-                  </div>
-                </div>
-                <div className="flex justify-between items-center">
-                  <div>
-                    <div className="font-medium">Razón de Efectivo</div>
-                    <div className="text-xs text-slate-500">Efectivo / Pasivo Corriente</div>
-                  </div>
-                  <div className={`text-2xl font-bold ${indicadores.liquidez.razonEfectivo >= 0.3 ? 'text-emerald-600' : 'text-amber-600'}`}>
-                    {indicadores.liquidez.razonEfectivo.toFixed(2)}
-                  </div>
-                </div>
-              </div>
-            </div>
+        <div className="space-y-4">
 
-            {/* Solvencia */}
-            <div className="bg-white rounded-lg border p-4 sm:p-6">
-              <h3 className="text-base sm:text-lg font-bold text-purple-800 mb-3 sm:mb-4 flex items-center gap-2">
-                <Scale className="w-5 h-5" />
-                Ratios de Solvencia
-              </h3>
-              <p className="text-sm text-slate-500 mb-4">Miden la estructura de financiamiento</p>
-              <div className="space-y-4">
-                <div className="flex justify-between items-center border-b pb-2">
-                  <div>
-                    <div className="font-medium">Endeudamiento Total</div>
-                    <div className="text-xs text-slate-500">Pasivos / Activos</div>
-                  </div>
-                  <div className={`text-2xl font-bold ${indicadores.solvencia.endeudamientoTotal <= 50 ? 'text-emerald-600' : 'text-amber-600'}`}>
-                    {formatPercent(indicadores.solvencia.endeudamientoTotal)}
-                  </div>
-                </div>
-                <div className="flex justify-between items-center border-b pb-2">
-                  <div>
-                    <div className="font-medium">Endeudamiento Patrimonio</div>
-                    <div className="text-xs text-slate-500">Pasivos / Patrimonio</div>
-                  </div>
-                  <div className={`text-2xl font-bold ${indicadores.solvencia.endeudamientoPatrimonio <= 100 ? 'text-emerald-600' : 'text-amber-600'}`}>
-                    {formatPercent(indicadores.solvencia.endeudamientoPatrimonio)}
-                  </div>
-                </div>
-                <div className="flex justify-between items-center border-b pb-2">
-                  <div>
-                    <div className="font-medium">Autonomía</div>
-                    <div className="text-xs text-slate-500">Patrimonio / Activos</div>
-                  </div>
-                  <div className={`text-2xl font-bold ${indicadores.solvencia.autonomia >= 50 ? 'text-emerald-600' : 'text-amber-600'}`}>
-                    {formatPercent(indicadores.solvencia.autonomia)}
-                  </div>
-                </div>
-                <div className="flex justify-between items-center">
-                  <div>
-                    <div className="font-medium">Apalancamiento</div>
-                    <div className="text-xs text-slate-500">Activos / Patrimonio</div>
-                  </div>
-                  <div className="text-2xl font-bold text-purple-600">
-                    {indicadores.solvencia.apalancamiento.toFixed(2)}x
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Rentabilidad */}
-            <div className="bg-white rounded-lg border p-4 sm:p-6">
-              <h3 className="text-base sm:text-lg font-bold text-emerald-800 mb-3 sm:mb-4 flex items-center gap-2">
-                <TrendingUp className="w-5 h-5" />
-                Ratios de Rentabilidad
-              </h3>
-              <p className="text-sm text-slate-500 mb-4">Miden la capacidad de generar utilidades</p>
-              <div className="space-y-4">
-                <div className="flex justify-between items-center border-b pb-2">
-                  <div>
-                    <div className="font-medium">ROA (Return on Assets)</div>
-                    <div className="text-xs text-slate-500">Utilidad Neta / Activos</div>
-                  </div>
-                  <div className={`text-2xl font-bold ${indicadores.rentabilidad.roa >= 5 ? 'text-emerald-600' : 'text-amber-600'}`}>
-                    {formatPercent(indicadores.rentabilidad.roa)}
-                  </div>
-                </div>
-                <div className="flex justify-between items-center border-b pb-2">
-                  <div>
-                    <div className="font-medium">ROE (Return on Equity)</div>
-                    <div className="text-xs text-slate-500">Utilidad Neta / Patrimonio</div>
-                  </div>
-                  <div className={`text-2xl font-bold ${indicadores.rentabilidad.roe >= 10 ? 'text-emerald-600' : 'text-amber-600'}`}>
-                    {formatPercent(indicadores.rentabilidad.roe)}
-                  </div>
-                </div>
-                <div className="flex justify-between items-center border-b pb-2">
-                  <div>
-                    <div className="font-medium">Margen Bruto</div>
-                    <div className="text-xs text-slate-500">Utilidad Bruta / Ventas</div>
-                  </div>
-                  <div className={`text-2xl font-bold ${indicadores.rentabilidad.margenBruto >= 30 ? 'text-emerald-600' : 'text-amber-600'}`}>
-                    {formatPercent(indicadores.rentabilidad.margenBruto)}
-                  </div>
-                </div>
-                <div className="flex justify-between items-center">
-                  <div>
-                    <div className="font-medium">Margen Neto</div>
-                    <div className="text-xs text-slate-500">Utilidad Neta / Ventas</div>
-                  </div>
-                  <div className={`text-2xl font-bold ${indicadores.rentabilidad.margenNeto >= 10 ? 'text-emerald-600' : 'text-amber-600'}`}>
-                    {formatPercent(indicadores.rentabilidad.margenNeto)}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Actividad */}
-            <div className="bg-white rounded-lg border p-4 sm:p-6">
-              <h3 className="text-base sm:text-lg font-bold text-amber-800 mb-3 sm:mb-4 flex items-center gap-2">
-                <Activity className="w-5 h-5" />
-                Ratios de Actividad
-              </h3>
-              <p className="text-sm text-slate-500 mb-4">Miden la eficiencia operativa</p>
-              <div className="space-y-4">
-                <div className="flex justify-between items-center border-b pb-2">
-                  <div>
-                    <div className="font-medium">Rotación de Inventarios</div>
-                    <div className="text-xs text-slate-500">Compras / Inventario</div>
-                  </div>
-                  <div className="text-2xl font-bold text-amber-600">
-                    {indicadores.actividad.rotacionInventarios.toFixed(1)}x
-                  </div>
-                </div>
-                <div className="flex justify-between items-center border-b pb-2">
-                  <div>
-                    <div className="font-medium">Días de Inventario</div>
-                    <div className="text-xs text-slate-500">365 / Rotación</div>
-                  </div>
-                  <div className={`text-2xl font-bold ${indicadores.actividad.diasInventario <= 60 ? 'text-emerald-600' : 'text-amber-600'}`}>
-                    {indicadores.actividad.diasInventario.toFixed(0)} días
-                  </div>
-                </div>
-                <div className="flex justify-between items-center border-b pb-2">
-                  <div>
-                    <div className="font-medium">Días de Cobro</div>
-                    <div className="text-xs text-slate-500">CxC / (Ventas/365)</div>
-                  </div>
-                  <div className={`text-2xl font-bold ${indicadores.actividad.diasCobro <= 30 ? 'text-emerald-600' : 'text-amber-600'}`}>
-                    {indicadores.actividad.diasCobro.toFixed(0)} días
-                  </div>
-                </div>
-                <div className="flex justify-between items-center border-b pb-2">
-                  <div>
-                    <div className="font-medium">Días de Pago</div>
-                    <div className="text-xs text-slate-500">CxP / (Compras/365)</div>
-                  </div>
-                  <div className="text-2xl font-bold text-sky-600">
-                    {indicadores.actividad.diasPago.toFixed(0)} días
-                  </div>
-                </div>
-                <div className="flex justify-between items-center bg-purple-50 rounded-lg p-3 -mx-3">
-                  <div>
-                    <div className="font-medium text-purple-800">Ciclo de Conversión</div>
-                    <div className="text-xs text-purple-600">Días Inv + Cobro - Pago</div>
-                  </div>
-                  <div className={`text-2xl font-bold ${indicadores.actividad.cicloConversionEfectivo <= 45 ? 'text-emerald-600' : 'text-amber-600'}`}>
-                    {indicadores.actividad.cicloConversionEfectivo.toFixed(0)} días
-                  </div>
-                </div>
+          {/* Header informativo */}
+          <div className="bg-gradient-to-r from-purple-50 to-purple-100/30 ring-1 ring-purple-200/50 rounded-2xl p-4">
+            <div className="flex items-center gap-3">
+              <Activity className="w-5 h-5 text-purple-700" />
+              <div>
+                <div className="text-[13px] font-bold text-purple-900">Indicadores Financieros · {MESES[mes - 1]} {anio}</div>
+                <div className="text-[11px] text-purple-700">16 ratios agrupados en 4 dimensiones · cada ratio contra benchmark sectorial · semáforo verde/ámbar/rojo</div>
               </div>
             </div>
           </div>
 
-          {/* Análisis completo con semáforo */}
-          <div className="bg-white rounded-lg border p-4 sm:p-6">
-            <h3 className="text-base sm:text-lg font-bold text-slate-800 mb-3 sm:mb-4 flex items-center gap-2">
-              <Target className="w-5 h-5 text-amber-600" />
-              Diagnóstico Financiero Completo
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {analisis.map((item, idx) => (
-                <div
-                  key={idx}
-                  className={`p-4 rounded-lg border ${getEstadoColor(item.estado)}`}
-                >
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-2">
-                      {getEstadoIcon(item.estado)}
-                      <span className="font-semibold">{item.indicador}</span>
+          {/* 4 cards por dimensión (grid 2x2) */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+            {/* LIQUIDEZ · sky */}
+            <IndicadoresCard color="sky" icon={Wallet} title="LIQUIDEZ">
+              <IndicadorRow
+                nombre="Razón Corriente"
+                formula="Act.Corr / Pas.Corr · Benchmark ≥ 2.0"
+                valor={indicadores.liquidez.razonCorriente.toFixed(2)}
+                semaforo={
+                  indicadores.liquidez.razonCorriente >= 2.0 ? 'excelente'
+                  : indicadores.liquidez.razonCorriente >= 1.5 ? 'bueno'
+                  : indicadores.liquidez.razonCorriente >= 1.0 ? 'regular' : 'atencion'
+                }
+              />
+              <IndicadorRow
+                nombre="Prueba Ácida"
+                formula="(Act.Corr − Inventario) / Pas.Corr · ≥ 1.0"
+                valor={indicadores.liquidez.pruebaAcida.toFixed(2)}
+                semaforo={
+                  indicadores.liquidez.pruebaAcida >= 1.0 ? 'excelente'
+                  : indicadores.liquidez.pruebaAcida >= 0.7 ? 'bueno' : 'atencion'
+                }
+              />
+              <IndicadorRow
+                nombre="Capital de Trabajo"
+                formula="Act.Corr − Pas.Corr · > 0"
+                valor={formatCurrency(indicadores.liquidez.capitalTrabajo)}
+                semaforo={indicadores.liquidez.capitalTrabajo >= 0 ? 'excelente' : 'critico'}
+              />
+              <IndicadorRow
+                nombre="Razón de Efectivo"
+                formula="Efectivo / Pas.Corr · ≥ 0.3"
+                valor={indicadores.liquidez.razonEfectivo.toFixed(2)}
+                semaforo={
+                  indicadores.liquidez.razonEfectivo >= 0.3 && indicadores.liquidez.razonEfectivo <= 1.0 ? 'excelente'
+                  : indicadores.liquidez.razonEfectivo > 1.0 ? 'atencion'
+                  : 'bueno'
+                }
+                semaforoLabel={indicadores.liquidez.razonEfectivo > 1.0 ? 'Sobreliquidez' : undefined}
+              />
+            </IndicadoresCard>
+
+            {/* SOLVENCIA · indigo */}
+            <IndicadoresCard color="indigo" icon={Scale} title="SOLVENCIA">
+              <IndicadorRow
+                nombre="Endeudamiento Total"
+                formula="Pasivos / Activos · ≤ 50%"
+                valor={formatPercent(indicadores.solvencia.endeudamientoTotal)}
+                semaforo={
+                  indicadores.solvencia.endeudamientoTotal <= 40 ? 'excelente'
+                  : indicadores.solvencia.endeudamientoTotal <= 60 ? 'bueno' : 'atencion'
+                }
+              />
+              <IndicadorRow
+                nombre="Endeudamiento Patrimonio"
+                formula="Pasivos / Patrimonio · ≤ 100%"
+                valor={formatPercent(indicadores.solvencia.endeudamientoPatrimonio)}
+                semaforo={
+                  indicadores.solvencia.endeudamientoPatrimonio <= 80 ? 'excelente'
+                  : indicadores.solvencia.endeudamientoPatrimonio <= 120 ? 'bueno' : 'atencion'
+                }
+              />
+              <IndicadorRow
+                nombre="Autonomía Financiera"
+                formula="Patrimonio / Activos · ≥ 50%"
+                valor={formatPercent(indicadores.solvencia.autonomia)}
+                semaforo={
+                  indicadores.solvencia.autonomia >= 60 ? 'excelente'
+                  : indicadores.solvencia.autonomia >= 40 ? 'bueno' : 'atencion'
+                }
+              />
+              <IndicadorRow
+                nombre="Apalancamiento"
+                formula="Activos / Patrimonio · ≤ 2.0x"
+                valor={`${indicadores.solvencia.apalancamiento.toFixed(2)}x`}
+                semaforo={
+                  indicadores.solvencia.apalancamiento <= 1.7 ? 'excelente'
+                  : indicadores.solvencia.apalancamiento <= 2.5 ? 'bueno' : 'atencion'
+                }
+              />
+            </IndicadoresCard>
+
+            {/* RENTABILIDAD · emerald */}
+            <IndicadoresCard color="emerald" icon={TrendingUp} title="RENTABILIDAD">
+              <IndicadorRow
+                nombre="ROA · Return on Assets"
+                formula="Util.Neta / Activos · ≥ 10%"
+                valor={formatPercent(indicadores.rentabilidad.roa)}
+                semaforo={
+                  indicadores.rentabilidad.roa >= 10 ? 'excelente'
+                  : indicadores.rentabilidad.roa >= 5 ? 'regular' : 'atencion'
+                }
+              />
+              <IndicadorRow
+                nombre="ROE · Return on Equity"
+                formula="Util.Neta / Patrimonio · ≥ 18%"
+                valor={formatPercent(indicadores.rentabilidad.roe)}
+                semaforo={
+                  indicadores.rentabilidad.roe >= 18 ? 'excelente'
+                  : indicadores.rentabilidad.roe >= 12 ? 'regular' : 'atencion'
+                }
+              />
+              <IndicadorRow
+                nombre="Margen Bruto"
+                formula="Util.Bruta / Ventas · ≥ 55%"
+                valor={formatPercent(indicadores.rentabilidad.margenBruto)}
+                semaforo={
+                  indicadores.rentabilidad.margenBruto >= 55 ? 'excelente'
+                  : indicadores.rentabilidad.margenBruto >= 35 ? 'bueno' : 'atencion'
+                }
+              />
+              <IndicadorRow
+                nombre="Margen Neto"
+                formula="Util.Neta / Ventas · ≥ 15%"
+                valor={formatPercent(indicadores.rentabilidad.margenNeto)}
+                semaforo={
+                  indicadores.rentabilidad.margenNeto >= 15 ? 'excelente'
+                  : indicadores.rentabilidad.margenNeto >= 8 ? 'regular' : 'atencion'
+                }
+              />
+            </IndicadoresCard>
+
+            {/* ACTIVIDAD · purple */}
+            <IndicadoresCard color="purple" icon={Activity} title="ACTIVIDAD">
+              <IndicadorRow
+                nombre="Rotación Inventarios"
+                formula="COGS / Inventario · ≥ 6x/año"
+                valor={`${indicadores.actividad.rotacionInventarios.toFixed(1)}x`}
+                semaforo={
+                  indicadores.actividad.rotacionInventarios >= 6 ? 'excelente'
+                  : indicadores.actividad.rotacionInventarios >= 4 ? 'bueno' : 'atencion'
+                }
+              />
+              <IndicadorRow
+                nombre="DIO · Días Inventario"
+                formula="Inv × 365 / COGS · Meta ≤ 60d"
+                valor={`${indicadores.actividad.diasInventario.toFixed(0)} días`}
+                semaforo={
+                  indicadores.actividad.diasInventario <= 60 ? 'excelente'
+                  : indicadores.actividad.diasInventario <= 90 ? 'regular' : 'atencion'
+                }
+              />
+              <IndicadorRow
+                nombre="DSO · Días Cobranza"
+                formula="CxC × 365 / Ventas · Meta ≤ 30d"
+                valor={`${indicadores.actividad.diasCobro.toFixed(0)} días`}
+                semaforo={
+                  indicadores.actividad.diasCobro <= 30 ? 'excelente'
+                  : indicadores.actividad.diasCobro <= 50 ? 'regular' : 'atencion'
+                }
+              />
+              <IndicadorRow
+                nombre="DPO · Días Pago"
+                formula="CxP × 365 / Compras · Mejor ≥ 45d"
+                valor={`${indicadores.actividad.diasPago.toFixed(0)} días`}
+                semaforo={
+                  indicadores.actividad.diasPago >= 45 ? 'excelente'
+                  : indicadores.actividad.diasPago >= 30 ? 'bueno' : 'regular'
+                }
+              />
+              <IndicadorRow
+                nombre="Ciclo Conversión Efectivo"
+                formula="DSO + DIO − DPO · Meta ≤ 45d"
+                valor={`${indicadores.actividad.cicloConversionEfectivo.toFixed(0)} días`}
+                semaforo={
+                  indicadores.actividad.cicloConversionEfectivo <= 45 ? 'excelente'
+                  : indicadores.actividad.cicloConversionEfectivo <= 75 ? 'regular' : 'atencion'
+                }
+                destacado
+              />
+            </IndicadoresCard>
+
+          </div>
+
+          {/* Diagnóstico semáforo (mantiene el analisis array generado por el service) */}
+          {analisis.length > 0 && (
+            <div className="bg-white border border-slate-200 rounded-2xl p-5">
+              <h3 className="text-[13px] font-bold text-slate-900 mb-3 flex items-center gap-2">
+                <Target className="w-4 h-4 text-amber-600" />
+                Diagnóstico Financiero · análisis dimensional
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                {analisis.map((item, idx) => (
+                  <div key={idx} className={`p-3 rounded-lg border ${getEstadoColor(item.estado)} flex items-start gap-2`}>
+                    <div className="flex-shrink-0 mt-0.5">{getEstadoIcon(item.estado)}</div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-[12px] font-bold">{item.indicador}</span>
+                        <span className="text-[11px] font-mono font-bold tabular-nums">{item.valorFormateado}</span>
+                      </div>
+                      <p className="text-[10px] opacity-80 mt-0.5">{item.descripcion}</p>
+                      {item.recomendacion && (
+                        <p className="text-[10px] mt-1 opacity-70 italic">💡 {item.recomendacion}</p>
+                      )}
                     </div>
-                    <span className="font-mono font-bold text-lg">{item.valorFormateado}</span>
                   </div>
-                  <p className="text-sm opacity-80">{item.descripcion}</p>
-                  {item.recomendacion && (
-                    <p className="text-xs mt-2 opacity-70 italic">{item.recomendacion}</p>
-                  )}
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
-          </div>
+          )}
         </div>
       )}
 
@@ -1290,6 +1693,16 @@ export function Contabilidad() {
         {/* fin §E body */}
       </div>
       {/* fin shell frame */}
+
+      {/* chk5.E-S2 · Modal Configurar contable */}
+      <ConfigurarContableModal
+        isOpen={configModalOpen}
+        onClose={() => setConfigModalOpen(false)}
+        onSaved={() => {
+          setConfigModalOpen(false);
+          cargarDatos(); // refresh para que se reflejen los cambios en KPIs
+        }}
+      />
     </div>
   );
 }
