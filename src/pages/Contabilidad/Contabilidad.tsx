@@ -3,7 +3,7 @@
  * Vista completa con pestañas: Resumen, Balance General, Estado de Resultados, Indicadores, Tendencias, Cierre
  */
 
-import { useState, useEffect, useRef, useCallback, type ComponentType } from 'react';
+import React, { useState, useEffect, useRef, useCallback, type ComponentType } from 'react';
 import {
   TrendingUp,
   TrendingDown,
@@ -98,7 +98,7 @@ const getEstadoIcon = (estado: AnalisisFinanciero['estado']) => {
 // SUB-COMPONENTES CANON · chk5.E-S1 · pixel-perfect Finanzas
 // ═════════════════════════════════════════════════════════════════════════
 
-type KpiColor = 'emerald' | 'teal' | 'rose' | 'indigo' | 'amber';
+type KpiColor = 'emerald' | 'teal' | 'rose' | 'indigo' | 'amber' | 'sky' | 'purple';
 
 interface KpiContaCardProps {
   label: string;
@@ -115,6 +115,8 @@ const KPI_CARD_BG: Record<KpiColor, string> = {
   rose: 'bg-gradient-to-br from-rose-50 to-rose-100/40 ring-1 ring-rose-200/50',
   indigo: 'bg-gradient-to-br from-indigo-50 to-indigo-100/40 ring-1 ring-indigo-200/50',
   amber: 'bg-gradient-to-br from-amber-50 to-amber-100/40 ring-1 ring-amber-200/50',
+  sky: 'bg-gradient-to-br from-sky-50 to-sky-100/40 ring-1 ring-sky-200/50',
+  purple: 'bg-gradient-to-br from-purple-50 to-purple-100/40 ring-1 ring-purple-200/50',
 };
 
 const KPI_LABEL_COLOR: Record<KpiColor, string> = {
@@ -123,6 +125,8 @@ const KPI_LABEL_COLOR: Record<KpiColor, string> = {
   rose: 'text-rose-700',
   indigo: 'text-indigo-700',
   amber: 'text-amber-700',
+  sky: 'text-sky-700',
+  purple: 'text-purple-700',
 };
 
 const KPI_VALUE_COLOR: Record<KpiColor, string> = {
@@ -131,6 +135,8 @@ const KPI_VALUE_COLOR: Record<KpiColor, string> = {
   rose: 'text-rose-900',
   indigo: 'text-indigo-900',
   amber: 'text-amber-900',
+  sky: 'text-sky-900',
+  purple: 'text-purple-900',
 };
 
 const KpiContaCard: React.FC<KpiContaCardProps> = ({
@@ -268,6 +274,66 @@ const SubVistaTabsContabilidad: React.FC<SubVistaTabsContabilidadProps> = ({
           className="pointer-events-none absolute top-0 right-8 h-full w-6 bg-gradient-to-l from-white to-transparent"
         />
       )}
+    </div>
+  );
+};
+
+// ─── DistributionCard (chk5.E-S2 · canon N2 reusable) ───────────────────
+// Card de distribución con gradient sutil + ring + items con dot + barra
+// de proporción. Reemplaza al <StatDistribution> legacy del design-system.
+
+interface DistributionCardItem {
+  label: string;
+  value: number;
+  /** Clase Tailwind del color del dot · ej "bg-emerald-500" */
+  dotColor: string;
+}
+
+interface DistributionCardProps {
+  color: KpiColor;
+  icon: LucideIcon;
+  title: string;
+  items: DistributionCardItem[];
+}
+
+const DistributionCard: React.FC<DistributionCardProps> = ({
+  color, icon: Icon, title, items,
+}) => {
+  // Color signature card (mismo mapeo que KpiContaCard)
+  const bg = KPI_CARD_BG[color];
+  const labelColor = KPI_LABEL_COLOR[color];
+  const valueColor = KPI_VALUE_COLOR[color];
+  // Calcular total para % de cada barra
+  const total = items.reduce((s, i) => s + Math.abs(i.value), 0);
+  return (
+    <div className={`rounded-2xl p-4 ${bg}`}>
+      <div className="flex items-center gap-2 mb-3">
+        <Icon className={`w-3.5 h-3.5 ${labelColor}`} />
+        <span className={`text-[10px] uppercase tracking-wider font-bold ${labelColor}`}>
+          {title}
+        </span>
+      </div>
+      <div className="space-y-2 text-[11px]">
+        {items.map((item, idx) => {
+          const pct = total > 0 ? (Math.abs(item.value) / total) * 100 : 0;
+          return (
+            <React.Fragment key={`${item.label}-${idx}`}>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-1.5">
+                  <div className={`w-2 h-2 rounded-full ${item.dotColor}`}></div>
+                  <span className={valueColor}>{item.label}</span>
+                </div>
+                <span className={`tabular-nums font-bold ${valueColor}`}>
+                  {item.value.toLocaleString('es-PE', { style: 'currency', currency: 'PEN', minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                </span>
+              </div>
+              <div className={`h-1 rounded-full overflow-hidden ${bg.split(' ')[1]?.replace('to-', 'bg-').replace('100/40', '100') ?? 'bg-slate-100'}`}>
+                <div className={`h-full ${item.dotColor}`} style={{ width: `${pct}%` }}></div>
+              </div>
+            </React.Fragment>
+          );
+        })}
+      </div>
     </div>
   );
 };
@@ -523,66 +589,71 @@ export function Contabilidad() {
       {/* RESUMEN · KPIs ya viven en el §C shell · acá solo banners + distribuciones + indicadores */}
       {!loading && tabActiva === 'resumen' && estado && balance && (
         <div className="space-y-6">
-          {/* Alerta + secciones secundarias */}
-          <div>
-            {/* Alerta de Anticipos Pendientes */}
-            {balance.pasivos.corriente.anticiposClientes &&
-             balance.pasivos.corriente.anticiposClientes.totalAnticiposPEN > 0 && (
-              <div className="mt-3 bg-purple-50 border border-purple-200 rounded-lg p-3 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-purple-100 rounded-lg shrink-0">
-                    <CircleDollarSign className="w-5 h-5 text-purple-600" />
-                  </div>
-                  <div>
-                    <div className="font-semibold text-purple-800 text-sm sm:text-base">
-                      Anticipos Pendientes (Pasivo)
-                    </div>
-                    <div className="text-xs sm:text-sm text-purple-600">
-                      {balance.pasivos.corriente.anticiposClientes.cantidadVentas} ventas con anticipo sin entregar — Ingreso diferido
-                    </div>
-                  </div>
+          {/* §1 · Banner Anticipos · canon N4 cross-cutting purple (chk5.E-S2 copy-paste literal mockup) */}
+          {balance.pasivos.corriente.anticiposClientes &&
+           balance.pasivos.corriente.anticiposClientes.totalAnticiposPEN > 0 && (
+            <div className="bg-gradient-to-r from-purple-50 to-purple-100/30 ring-1 ring-purple-200/50 rounded-2xl p-4 flex items-center justify-between gap-3 flex-wrap">
+              <div className="flex items-start gap-3 flex-1 min-w-[260px]">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-purple-700 flex items-center justify-center text-white ring-2 ring-purple-200 flex-shrink-0">
+                  <CircleDollarSign className="w-5 h-5" />
                 </div>
-                <div className="text-xl sm:text-2xl font-bold text-purple-700 sm:text-right pl-12 sm:pl-0">
-                  {formatCurrency(balance.pasivos.corriente.anticiposClientes.totalAnticiposPEN)}
+                <div>
+                  <div className="text-[13px] font-bold text-purple-900">Anticipos Pendientes · Pasivo</div>
+                  <div className="text-[11px] text-purple-700 mt-0.5">
+                    {balance.pasivos.corriente.anticiposClientes.cantidadVentas} ventas con anticipo sin entregar · son ingreso DIFERIDO hasta entrega real.
+                    Total: <span className="font-bold tabular-nums">{formatCurrency(balance.pasivos.corriente.anticiposClientes.totalAnticiposPEN)}</span>
+                  </div>
                 </div>
               </div>
-            )}
-          </div>
+            </div>
+          )}
 
-          {/* Distribución */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-4">
-            <StatDistribution
-              title="Composición de Activos"
-              valueFormat="currency"
-              data={[
-                { label: 'Efectivo', value: balance.activos.corriente.efectivo.total, color: 'bg-emerald-500' },
-                { label: 'CxC', value: balance.activos.corriente.cuentasPorCobrar.neto, color: 'bg-sky-500' },
-                { label: 'Inventario', value: balance.activos.corriente.inventarios.totalValorPEN, color: 'bg-purple-500' },
+          {/* §2 · Distribución · 4 cards canon N2 (gradient + ring colored) */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+
+            {/* Composición de Activos · teal */}
+            <DistributionCard
+              color="teal"
+              icon={Wallet}
+              title="Composición Activos"
+              items={[
+                { label: 'Efectivo', value: balance.activos.corriente.efectivo.total, dotColor: 'bg-emerald-500' },
+                { label: 'CxC', value: balance.activos.corriente.cuentasPorCobrar.neto, dotColor: 'bg-sky-500' },
+                { label: 'Inventario', value: balance.activos.corriente.inventarios.totalValorPEN, dotColor: 'bg-purple-500' },
               ]}
             />
-            <StatDistribution
+
+            {/* Estructura Financiera · indigo */}
+            <DistributionCard
+              color="indigo"
+              icon={Scale}
               title="Estructura Financiera"
-              valueFormat="currency"
-              data={[
-                { label: 'Pasivos', value: balance.pasivos.totalPasivos, color: 'bg-red-500' },
-                { label: 'Patrimonio', value: balance.patrimonio.totalPatrimonio, color: 'bg-sky-500' },
+              items={[
+                { label: 'Pasivos', value: balance.pasivos.totalPasivos, dotColor: 'bg-rose-500' },
+                { label: 'Patrimonio', value: balance.patrimonio.totalPatrimonio, dotColor: 'bg-sky-500' },
               ]}
             />
-            <StatDistribution
-              title="Estructura de Costos"
-              valueFormat="currency"
-              data={[
-                { label: 'Compras', value: estado.compras.total, color: 'bg-orange-500' },
-                { label: 'Costos Venta', value: estado.costosVariables.total, color: 'bg-purple-500' },
-                { label: 'Gastos Fijos', value: estado.costosFijos.total, color: 'bg-amber-500' },
+
+            {/* Estructura de Costos · amber */}
+            <DistributionCard
+              color="amber"
+              icon={BarChart3}
+              title="Estructura Costos"
+              items={[
+                { label: 'Compras', value: estado.compras.total, dotColor: 'bg-orange-500' },
+                { label: 'Costos venta', value: estado.costosVariables.total, dotColor: 'bg-purple-500' },
+                { label: 'Gastos fijos', value: estado.costosFijos.total, dotColor: 'bg-amber-500' },
               ]}
             />
-            <StatDistribution
-              title="Inventario por País"
-              valueFormat="currency"
-              data={[
-                { label: 'USA', value: balance.activos.corriente.inventarios.inventarioUSA.valorPEN, color: 'bg-sky-500' },
-                { label: 'Perú', value: balance.activos.corriente.inventarios.inventarioPeru.valorPEN, color: 'bg-emerald-500' },
+
+            {/* Inventario por País · sky */}
+            <DistributionCard
+              color="sky"
+              icon={Package}
+              title="Inventario · País"
+              items={[
+                { label: 'USA', value: balance.activos.corriente.inventarios.inventarioUSA.valorPEN, dotColor: 'bg-sky-500' },
+                { label: 'Perú', value: balance.activos.corriente.inventarios.inventarioPeru.valorPEN, dotColor: 'bg-emerald-500' },
               ]}
             />
           </div>
