@@ -1,103 +1,191 @@
 /**
- * Componente Balance General
- * Vista del Balance Sheet: Activos, Pasivos, Patrimonio
+ * Componente Balance General · canon v5.1 chk5.E-S3
+ *
+ * Pixel-perfect contra docs/mockups/contabilidad-tab-balance-general-v5.1.html
+ * - Sin header interno (el shell de Contabilidad ya lo provee)
+ * - §1 Ecuación contable header banner
+ * - §2 Grid 3 columnas: Activo (teal) | Pasivo (rose) | Patrimonio (indigo)
+ * - Headers gradient FROM-500 TO-700 por columna
+ * - Sub-secciones colapsables (Corriente vs No Corriente)
+ * - Anticipos cross-cutting purple · Utilidad período cross-cutting amber
+ * - Footer cada columna color-50 con TOTAL bold tabular
+ * - §3 Banner cuadre emerald al final
  */
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
-  RefreshCw,
   Wallet,
   CreditCard,
-  Package,
-  Building2,
-  Receipt,
-  Users,
   PiggyBank,
-  TrendingUp,
   CheckCircle2,
   AlertTriangle,
   ChevronDown,
-  ChevronUp,
-  DollarSign,
-  Banknote,
+  ChevronRight,
+  Scale,
+  Loader2,
 } from 'lucide-react';
 import { contabilidadService } from '../../../services/contabilidad.service';
 import type { BalanceGeneral as BalanceGeneralType } from '../../../types/contabilidad.types';
-import { formatCurrencyPEN, formatCurrency as formatCurrencyUtil } from '../../../utils/format';
+import { formatCurrencyPEN } from '../../../utils/format';
 
-// Delegados a utilidad central
 const formatCurrency = (value: number): string => formatCurrencyPEN(value);
-const formatCurrencyUSD = (value: number): string => formatCurrencyUtil(value, 'USD');
 
-// Componente para sección expandible
-interface SeccionBalanceProps {
+// ============================================================================
+// SUB-COMPONENTES (hoist arriba del default export)
+// ============================================================================
+
+interface SubSeccionColapsableProps {
   titulo: string;
   total: number;
-  children: React.ReactNode;
+  color: 'teal' | 'rose' | 'indigo';
   defaultOpen?: boolean;
-  colorHeader?: string;
-  icon?: React.ReactNode;
+  emptyMsg?: string;
+  children?: React.ReactNode;
 }
 
-function SeccionBalance({
+function SubSeccionColapsable({
   titulo,
   total,
-  children,
+  color,
   defaultOpen = true,
-  colorHeader = 'bg-slate-100',
-  icon,
-}: SeccionBalanceProps) {
+  emptyMsg,
+  children,
+}: SubSeccionColapsableProps) {
   const [isOpen, setIsOpen] = useState(defaultOpen);
 
+  const labelColor =
+    color === 'teal'
+      ? 'text-teal-700'
+      : color === 'rose'
+      ? 'text-rose-700'
+      : 'text-indigo-700';
+  const valueColor =
+    color === 'teal'
+      ? 'text-teal-900'
+      : color === 'rose'
+      ? 'text-rose-900'
+      : 'text-indigo-900';
+
   return (
-    <div className="border rounded-lg overflow-hidden mb-3">
+    <div className="px-4 py-3">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className={`w-full flex justify-between items-center py-3 px-4 ${colorHeader} hover:bg-opacity-80 transition-colors`}
+        className="w-full flex items-center justify-between text-left"
       >
         <div className="flex items-center gap-2">
           {isOpen ? (
-            <ChevronUp className="w-4 h-4 text-slate-500" />
+            <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
           ) : (
-            <ChevronDown className="w-4 h-4 text-slate-500" />
+            <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
           )}
-          {icon}
-          <span className="font-semibold text-slate-800">{titulo}</span>
+          <span className={`text-[11px] uppercase tracking-wider font-bold ${labelColor}`}>
+            {titulo}
+          </span>
         </div>
-        <span className="font-mono font-bold text-slate-900">{formatCurrency(total)}</span>
+        <span className={`text-[13px] font-bold tabular-nums ${valueColor}`}>
+          {formatCurrency(total)}
+        </span>
       </button>
-      {isOpen && <div className="bg-white border-t">{children}</div>}
+      {isOpen && (
+        <div className="mt-2 ml-5 space-y-1 text-[12px]">
+          {children || (
+            <div className="text-[10px] text-slate-500 italic">{emptyMsg || 'Sin movimientos'}</div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
 
-// Línea del balance
-interface LineaBalanceProps {
+interface LineaItemProps {
   label: string;
   valor: number;
-  indent?: number;
-  esSubtotal?: boolean;
-  detalle?: string;
+  detalleMl3?: string;
 }
 
-function LineaBalance({ label, valor, indent = 0, esSubtotal, detalle }: LineaBalanceProps) {
-  const paddingLeft = indent * 20;
-
+function LineaItem({ label, valor, detalleMl3 }: LineaItemProps) {
   return (
-    <div
-      className={`flex justify-between items-center py-2 px-4 ${
-        esSubtotal ? 'bg-slate-50 font-semibold border-t' : 'hover:bg-slate-50'
-      }`}
-      style={{ paddingLeft: `${16 + paddingLeft}px` }}
-    >
-      <div>
-        <span className={`${esSubtotal ? 'text-slate-800' : 'text-slate-600'}`}>{label}</span>
-        {detalle && <span className="text-xs text-slate-400 ml-2">{detalle}</span>}
+    <>
+      <div className="flex justify-between">
+        <span className="text-slate-600">{label}</span>
+        <span className="tabular-nums font-medium text-slate-900">{formatCurrency(valor)}</span>
       </div>
-      <span className="font-mono">{formatCurrency(valor)}</span>
-    </div>
+      {detalleMl3 && (
+        <div className="flex justify-between ml-3 text-[11px] text-slate-500">
+          <span>{detalleMl3}</span>
+          <span></span>
+        </div>
+      )}
+    </>
   );
 }
+
+interface ColumnaBalanceProps {
+  titulo: string;
+  icon: React.ReactNode;
+  total: number;
+  color: 'teal' | 'rose' | 'indigo';
+  children: React.ReactNode;
+}
+
+function ColumnaBalance({ titulo, icon, total, color, children }: ColumnaBalanceProps) {
+  const borderCls =
+    color === 'teal'
+      ? 'border-teal-200'
+      : color === 'rose'
+      ? 'border-rose-200'
+      : 'border-indigo-200';
+  const gradientCls =
+    color === 'teal'
+      ? 'from-teal-500 to-teal-700'
+      : color === 'rose'
+      ? 'from-rose-500 to-rose-700'
+      : 'from-indigo-500 to-indigo-700';
+  const footerBgCls =
+    color === 'teal'
+      ? 'bg-teal-50 border-teal-200'
+      : color === 'rose'
+      ? 'bg-rose-50 border-rose-200'
+      : 'bg-indigo-50 border-indigo-200';
+  const footerTextCls =
+    color === 'teal'
+      ? 'text-teal-900'
+      : color === 'rose'
+      ? 'text-rose-900'
+      : 'text-indigo-900';
+
+  return (
+    <section className={`bg-white border ${borderCls} rounded-2xl overflow-hidden`}>
+      {/* Header gradient FROM-500 TO-700 */}
+      <div className={`bg-gradient-to-r ${gradientCls} text-white px-4 py-3`}>
+        <div className="flex items-center justify-between">
+          <h2 className="text-[14px] font-bold flex items-center gap-2">
+            {icon}
+            {titulo}
+          </h2>
+          <span className="text-[16px] font-bold tabular-nums">{formatCurrency(total)}</span>
+        </div>
+      </div>
+
+      {/* Cuerpo dividido */}
+      <div className="divide-y divide-slate-100">{children}</div>
+
+      {/* Footer TOTAL */}
+      <div className={`${footerBgCls} px-4 py-2 flex justify-between items-center border-t`}>
+        <span className={`text-[11px] uppercase tracking-wider font-bold ${footerTextCls}`}>
+          TOTAL {titulo}
+        </span>
+        <span className={`text-[16px] font-bold tabular-nums ${footerTextCls}`}>
+          {formatCurrency(total)}
+        </span>
+      </div>
+    </section>
+  );
+}
+
+// ============================================================================
+// MAIN COMPONENT
+// ============================================================================
 
 interface Props {
   mes: number;
@@ -107,14 +195,17 @@ interface Props {
 export default function BalanceGeneral({ mes, anio }: Props) {
   const [loading, setLoading] = useState(true);
   const [balance, setBalance] = useState<BalanceGeneralType | null>(null);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const cargarDatos = async () => {
     setLoading(true);
+    setErrorMsg(null);
     try {
       const data = await contabilidadService.generarBalanceGeneral(mes, anio);
       setBalance(data);
     } catch (err) {
       console.error('Error cargando balance:', err);
+      setErrorMsg(err instanceof Error ? err.message : 'Error desconocido al cargar el balance');
     } finally {
       setLoading(false);
     }
@@ -124,480 +215,330 @@ export default function BalanceGeneral({ mes, anio }: Props) {
     cargarDatos();
   }, [mes, anio]);
 
+  // ===== LOADING STATE · canon v5.1 spinner purple + skeleton =====
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <RefreshCw className="w-8 h-8 animate-spin text-sky-500" />
+      <div className="bg-white border border-slate-200 rounded-2xl p-12 text-center space-y-4">
+        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-purple-50">
+          <Loader2 className="w-8 h-8 text-purple-600 animate-spin" />
+        </div>
+        <div>
+          <div className="text-[13px] font-semibold text-slate-700">Calculando Balance General…</div>
+          <div className="text-[11px] text-slate-500 mt-1">
+            Procesando activos · pasivos · patrimonio · TC
+          </div>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 max-w-3xl mx-auto pt-2">
+          <div className="h-48 rounded-2xl bg-slate-100 animate-pulse"></div>
+          <div className="h-48 rounded-2xl bg-slate-100 animate-pulse"></div>
+          <div className="h-48 rounded-2xl bg-slate-100 animate-pulse"></div>
+        </div>
       </div>
     );
   }
 
-  if (!balance) {
+  // ===== ERROR STATE · canon v5.1 borde rose =====
+  if (errorMsg || !balance) {
     return (
-      <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700">
-        No se pudo cargar el Balance General
+      <div className="bg-white border border-rose-200 rounded-2xl p-8 text-center space-y-4">
+        <div className="w-16 h-16 mx-auto rounded-full bg-rose-100 flex items-center justify-center">
+          <AlertTriangle className="w-8 h-8 text-rose-600" />
+        </div>
+        <div>
+          <div className="text-[14px] font-bold text-rose-900 mb-1">
+            No se pudo cargar el Balance General
+          </div>
+          <div className="text-[11px] text-slate-600 max-w-md mx-auto">
+            {errorMsg || 'Verificá que tengas movimientos registrados para este período'}
+          </div>
+        </div>
+        <button
+          onClick={cargarDatos}
+          className="text-[11px] font-bold text-white bg-rose-600 hover:bg-rose-700 px-4 py-2 rounded-lg inline-flex items-center gap-1.5"
+        >
+          Reintentar
+        </button>
       </div>
     );
   }
 
   const { activos, pasivos, patrimonio } = balance;
+  const totalCuadrado = activos.totalActivos - balance.totalPasivosPatrimonio;
+  const balanceCuadra = balance.balanceCuadra;
 
   return (
-    <div className="space-y-6">
-      {/* Header del Balance */}
-      <div className="bg-teal-600 text-white rounded-lg p-4 sm:p-6">
-        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 sm:gap-0">
-          <div>
-            <h2 className="text-xl sm:text-2xl font-bold">BALANCE GENERAL</h2>
-            <p className="text-teal-100 text-sm sm:text-base">
-              Al {balance.fechaCorte.toLocaleDateString('es-PE', {
-                day: 'numeric',
-                month: 'long',
-                year: 'numeric'
-              })}
-            </p>
-            <p className="text-xs sm:text-sm text-teal-200 mt-1">TC: {balance.tipoCambio.toFixed(2)}</p>
+    <div className="space-y-4">
+      {/* §1 · Ecuación contable header banner */}
+      <section className="bg-gradient-to-r from-slate-50 to-slate-100/40 ring-1 ring-slate-200/50 rounded-2xl p-4">
+        <div className="flex items-center justify-between flex-wrap gap-3">
+          <div className="flex items-center gap-3">
+            <Scale className="w-5 h-5 text-slate-700" />
+            <div>
+              <div className="text-[13px] font-bold text-slate-900">
+                Balance General · {balance.periodo.nombreMes} {balance.periodo.anio}
+              </div>
+              <div className="text-[11px] text-slate-500">
+                Ecuación contable: <strong>ACTIVO = PASIVO + PATRIMONIO</strong>
+                <span className="ml-2 text-slate-400">· TC: S/ {balance.tipoCambio.toFixed(2)}</span>
+              </div>
+            </div>
           </div>
-          <div className="sm:text-right">
-            {balance.balanceCuadra ? (
-              <div className="flex items-center gap-2 text-emerald-300 text-sm sm:text-base">
-                <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5" />
-                <span>Balance cuadrado</span>
-              </div>
-            ) : (
-              <div className="flex items-center gap-2 text-amber-300 text-sm sm:text-base">
-                <AlertTriangle className="w-4 h-4 sm:w-5 sm:h-5" />
-                <span>Diferencia: {formatCurrency(balance.diferencia)}</span>
-              </div>
-            )}
+          <div className="flex items-center gap-2 text-[12px]">
+            <div className="text-right">
+              <div className="text-[10px] text-slate-500 uppercase tracking-wider">Cuadre</div>
+              {balanceCuadra ? (
+                <div className="text-[14px] font-bold tabular-nums text-emerald-700 flex items-center gap-1">
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                  OK · S/ 0.00
+                </div>
+              ) : (
+                <div className="text-[14px] font-bold tabular-nums text-rose-700 flex items-center gap-1">
+                  <AlertTriangle className="w-3.5 h-3.5" />
+                  {formatCurrency(Math.abs(balance.diferencia))}
+                </div>
+              )}
+            </div>
           </div>
         </div>
+      </section>
 
-        {/* Resumen rápido */}
-        <div className="grid grid-cols-3 gap-2 sm:gap-4 mt-4 sm:mt-6">
-          <div className="bg-white/10 rounded-lg p-2.5 sm:p-4">
-            <div className="text-teal-200 text-xs sm:text-sm">Total Activos</div>
-            <div className="text-base sm:text-2xl font-bold">{formatCurrency(activos.totalActivos)}</div>
-          </div>
-          <div className="bg-white/10 rounded-lg p-2.5 sm:p-4">
-            <div className="text-teal-200 text-xs sm:text-sm">Total Pasivos</div>
-            <div className="text-base sm:text-2xl font-bold">{formatCurrency(pasivos.totalPasivos)}</div>
-          </div>
-          <div className="bg-white/10 rounded-lg p-2.5 sm:p-4">
-            <div className="text-teal-200 text-xs sm:text-sm">Patrimonio</div>
-            <div className="text-base sm:text-2xl font-bold">{formatCurrency(patrimonio.totalPatrimonio)}</div>
-          </div>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* ACTIVOS */}
-        <div className="bg-white rounded-lg border shadow-sm p-3 sm:p-6">
-          <h3 className="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2 border-b pb-3">
-            <TrendingUp className="w-6 h-6 text-emerald-600" />
-            ACTIVOS
-          </h3>
-
-          {/* Activo Corriente */}
-          <SeccionBalance
+      {/* §2 · Grid 3 columnas: Activo | Pasivo | Patrimonio */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        {/* ===== ACTIVO ===== */}
+        <ColumnaBalance
+          titulo="ACTIVO"
+          icon={<Wallet className="w-4 h-4" />}
+          total={activos.totalActivos}
+          color="teal"
+        >
+          {/* Activo Corriente · expandido default */}
+          <SubSeccionColapsable
             titulo="Activo Corriente"
             total={activos.corriente.total}
-            colorHeader="bg-emerald-50"
-            icon={<Wallet className="w-5 h-5 text-emerald-600" />}
+            color="teal"
+            defaultOpen
           >
-            {/* Efectivo */}
-            <div className="border-b">
-              <div className="px-4 py-2 bg-slate-50 font-medium text-slate-700 flex items-center gap-2">
-                <Banknote className="w-4 h-4" />
-                Efectivo y Equivalentes
-              </div>
-              <LineaBalance
-                label="Caja Efectivo"
-                valor={activos.corriente.efectivo.cajaEfectivo}
-                indent={1}
-              />
-              <LineaBalance
-                label="Bancos (PEN)"
-                valor={activos.corriente.efectivo.bancosPEN}
-                indent={1}
-              />
-              <LineaBalance
-                label="Bancos (USD)"
-                valor={activos.corriente.efectivo.bancosUSD}
-                indent={1}
-                detalle={`${formatCurrencyUSD(activos.corriente.efectivo.bancosUSDOriginal)}`}
-              />
-              {activos.corriente.efectivo.billeterasDigitales > 0 && (
-                <LineaBalance
-                  label="Billeteras Digitales"
-                  valor={activos.corriente.efectivo.billeterasDigitales}
-                  indent={1}
-                />
-              )}
-              <LineaBalance
-                label="Total Efectivo"
-                valor={activos.corriente.efectivo.total}
-                esSubtotal
-              />
-            </div>
-
-            {/* Cuentas por Cobrar */}
-            <div className="border-b">
-              <div className="px-4 py-2 bg-slate-50 font-medium text-slate-700 flex items-center gap-2">
-                <Receipt className="w-4 h-4" />
-                Cuentas por Cobrar
-              </div>
-              <LineaBalance
-                label="Ventas Pendientes"
-                valor={activos.corriente.cuentasPorCobrar.ventasPendientes}
-                indent={1}
-                detalle={`${activos.corriente.cuentasPorCobrar.cantidadVentas} ventas`}
-              />
-              {activos.corriente.cuentasPorCobrar.provisionIncobrables > 0 && (
-                <LineaBalance
-                  label="(-) Provisión Incobrables"
-                  valor={-activos.corriente.cuentasPorCobrar.provisionIncobrables}
-                  indent={1}
-                />
-              )}
-              <LineaBalance
-                label="Cuentas por Cobrar (Neto)"
-                valor={activos.corriente.cuentasPorCobrar.neto}
-                esSubtotal
-              />
-              {/* Antigüedad */}
-              <div className="px-4 sm:px-6 py-2 text-xs text-slate-500 grid grid-cols-2 sm:grid-cols-4 gap-1.5 sm:gap-2">
-                <div>0-7d: {formatCurrency(activos.corriente.cuentasPorCobrar.antiguedad.de0a7dias)}</div>
-                <div>8-15d: {formatCurrency(activos.corriente.cuentasPorCobrar.antiguedad.de8a15dias)}</div>
-                <div>16-30d: {formatCurrency(activos.corriente.cuentasPorCobrar.antiguedad.de16a30dias)}</div>
-                <div className="text-amber-600">&gt;30d: {formatCurrency(activos.corriente.cuentasPorCobrar.antiguedad.mayor30dias)}</div>
-              </div>
-            </div>
-
-            {/* Inventarios */}
-            <div>
-              <div className="px-4 py-2 bg-slate-50 font-medium text-slate-700 flex items-center gap-2">
-                <Package className="w-4 h-4" />
-                Inventarios ({activos.corriente.inventarios.metodoValorizacion})
-              </div>
-              <div className="px-4 py-2 text-xs text-slate-500">
-                CTRU Promedio: {formatCurrency(activos.corriente.inventarios.ctruPromedio)}
-              </div>
-              <LineaBalance
-                label="Inventario USA"
-                valor={activos.corriente.inventarios.inventarioUSA.valorPEN}
-                indent={1}
-                detalle={`${activos.corriente.inventarios.inventarioUSA.unidades} uds (${formatCurrencyUSD(activos.corriente.inventarios.inventarioUSA.valorUSD)})`}
-              />
-              <div className="px-8 text-xs text-slate-500 pb-1">
-                En almacenes: {activos.corriente.inventarios.inventarioUSA.enAlmacenes} |
-                En tránsito: {activos.corriente.inventarios.inventarioUSA.enTransito}
-              </div>
-              <LineaBalance
-                label="Inventario Perú"
-                valor={activos.corriente.inventarios.inventarioPeru.valorPEN}
-                indent={1}
-                detalle={`${activos.corriente.inventarios.inventarioPeru.unidades} uds`}
-              />
-              <div className="px-8 text-xs text-slate-500 pb-1">
-                Disponible: {activos.corriente.inventarios.inventarioPeru.disponible} |
-                Reservado: {activos.corriente.inventarios.inventarioPeru.reservado}
-              </div>
-              {pasivos.corriente.anticiposClientes &&
-               pasivos.corriente.anticiposClientes.cantidadVentas > 0 &&
-               activos.corriente.inventarios.inventarioPeru.reservado > 0 && (
-                <div className="px-8 py-1 text-xs text-purple-600 italic">
-                  ↳ {activos.corriente.inventarios.inventarioPeru.reservado} uds comprometidas por anticipos de clientes (ver Pasivos)
-                </div>
-              )}
-              <LineaBalance
-                label="Total Inventarios"
-                valor={activos.corriente.inventarios.totalValorPEN}
-                esSubtotal
-              />
-            </div>
-
-            <LineaBalance
-              label="TOTAL ACTIVO CORRIENTE"
-              valor={activos.corriente.total}
-              esSubtotal
+            <LineaItem
+              label="Efectivo y equivalentes"
+              valor={activos.corriente.efectivo.total}
             />
-          </SeccionBalance>
-
-          {/* Activo No Corriente */}
-          {activos.noCorriente.total > 0 && (
-            <SeccionBalance
-              titulo="Activo No Corriente"
-              total={activos.noCorriente.total}
-              colorHeader="bg-slate-100"
-              icon={<Building2 className="w-5 h-5 text-slate-600" />}
-              defaultOpen={false}
-            >
-              {activos.noCorriente.propiedadPlantaEquipo && (
-                <LineaBalance
-                  label="Propiedad, Planta y Equipo"
-                  valor={activos.noCorriente.propiedadPlantaEquipo}
-                  indent={1}
-                />
-              )}
-              <LineaBalance
-                label="TOTAL ACTIVO NO CORRIENTE"
-                valor={activos.noCorriente.total}
-                esSubtotal
-              />
-            </SeccionBalance>
-          )}
-
-          {/* Total Activos */}
-          <div className="bg-emerald-100 rounded-lg p-3 sm:p-4 flex justify-between items-center">
-            <span className="font-bold text-emerald-800 text-sm sm:text-lg">TOTAL ACTIVOS</span>
-            <span className="font-mono font-bold text-emerald-800 text-base sm:text-xl">
-              {formatCurrency(activos.totalActivos)}
-            </span>
-          </div>
-        </div>
-
-        {/* PASIVOS Y PATRIMONIO */}
-        <div className="space-y-6">
-          {/* PASIVOS */}
-          <div className="bg-white rounded-lg border shadow-sm p-3 sm:p-6">
-            <h3 className="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2 border-b pb-3">
-              <CreditCard className="w-6 h-6 text-red-600" />
-              PASIVOS
-            </h3>
-
-            {/* Pasivo Corriente */}
-            <SeccionBalance
-              titulo="Pasivo Corriente"
-              total={pasivos.corriente.total}
-              colorHeader="bg-red-50"
-              icon={<Receipt className="w-5 h-5 text-red-600" />}
-            >
-              {/* Cuentas por Pagar Proveedores */}
-              <div className="border-b">
-                <div className="px-4 py-2 bg-slate-50 font-medium text-slate-700">
-                  Cuentas por Pagar (Proveedores)
-                </div>
-                <LineaBalance
-                  label="OCs Pendientes"
-                  valor={pasivos.corriente.cuentasPorPagarProveedores.ordenesCompraPendientes}
-                  indent={1}
-                  detalle={`${pasivos.corriente.cuentasPorPagarProveedores.cantidadOCs} OCs (${formatCurrencyUSD(pasivos.corriente.cuentasPorPagarProveedores.ordenesCompraUSD)})`}
-                />
-                {/* Antigüedad */}
-                <div className="px-4 sm:px-6 py-2 text-xs text-slate-500 grid grid-cols-2 sm:grid-cols-4 gap-1.5 sm:gap-2">
-                  <div>0-7d: {formatCurrency(pasivos.corriente.cuentasPorPagarProveedores.antiguedad.de0a7dias)}</div>
-                  <div>8-15d: {formatCurrency(pasivos.corriente.cuentasPorPagarProveedores.antiguedad.de8a15dias)}</div>
-                  <div>16-30d: {formatCurrency(pasivos.corriente.cuentasPorPagarProveedores.antiguedad.de16a30dias)}</div>
-                  <div className="text-red-600">&gt;30d: {formatCurrency(pasivos.corriente.cuentasPorPagarProveedores.antiguedad.mayor30dias)}</div>
-                </div>
+            <LineaItem
+              label="Cuentas por cobrar · clientes"
+              valor={activos.corriente.cuentasPorCobrar.ventasPendientes}
+              detalleMl3={`· ${activos.corriente.cuentasPorCobrar.cantidadVentas} ventas pendientes`}
+            />
+            {activos.corriente.cuentasPorCobrar.provisionIncobrables > 0 && (
+              <div className="flex justify-between ml-3 text-[11px] text-slate-500">
+                <span>(−) Provisión incobrables</span>
+                <span className="tabular-nums">
+                  −{formatCurrency(activos.corriente.cuentasPorCobrar.provisionIncobrables)}
+                </span>
               </div>
-
-              {/* Otras Cuentas por Pagar */}
-              <div>
-                <div className="px-4 py-2 bg-slate-50 font-medium text-slate-700">
-                  Otras Cuentas por Pagar
-                </div>
-                {pasivos.corriente.otrasCuentasPorPagar.gastosPendientes > 0 && (
-                  <LineaBalance
-                    label="Gastos Pendientes"
-                    valor={pasivos.corriente.otrasCuentasPorPagar.gastosPendientes}
-                    indent={1}
-                  />
-                )}
-                {pasivos.corriente.otrasCuentasPorPagar.pagosViajerosPendientes > 0 && (
-                  <LineaBalance
-                    label="Pagos a Viajeros"
-                    valor={pasivos.corriente.otrasCuentasPorPagar.pagosViajerosPendientes}
-                    indent={1}
-                  />
-                )}
-                <LineaBalance
-                  label="Total Otras CxP"
-                  valor={pasivos.corriente.otrasCuentasPorPagar.total}
-                  esSubtotal
-                />
-              </div>
-
-              {/* Anticipos de Clientes */}
-              {pasivos.corriente.anticiposClientes &&
-               pasivos.corriente.anticiposClientes.totalAnticiposPEN > 0 && (
-                <div className="border-b">
-                  <div className="px-4 py-2 bg-slate-50 font-medium text-slate-700 flex items-center gap-2">
-                    <DollarSign className="w-4 h-4" />
-                    Anticipos de Clientes (Ingresos Diferidos)
-                  </div>
-                  <LineaBalance
-                    label="Anticipos Pendientes de Entrega"
-                    valor={pasivos.corriente.anticiposClientes.totalAnticiposPEN}
-                    indent={1}
-                    detalle={`${pasivos.corriente.anticiposClientes.cantidadVentas} ventas`}
-                  />
-                  <div className="px-6 py-2 text-xs text-purple-600 bg-purple-50">
-                    Respaldado por {activos.corriente.inventarios.inventarioPeru.reservado} uds de inventario reservado (ver Activos)
-                  </div>
-                </div>
-              )}
-
-              {/* Deudas Financieras */}
-              {pasivos.corriente.deudasFinancieras &&
-               pasivos.corriente.deudasFinancieras.total > 0 && (
-                <div className="border-b">
-                  <div className="px-4 py-2 bg-red-50 font-medium text-red-700 flex items-center gap-2">
-                    <CreditCard className="w-4 h-4" />
-                    Deudas Financieras (Corto Plazo)
-                  </div>
-                  {pasivos.corriente.deudasFinancieras.tarjetasCredito > 0 && (
-                    <LineaBalance
-                      label="Tarjetas de Crédito"
-                      valor={pasivos.corriente.deudasFinancieras.tarjetasCredito}
-                      indent={1}
-                    />
-                  )}
-                  {pasivos.corriente.deudasFinancieras.prestamosViajeros > 0 && (
-                    <LineaBalance
-                      label="Préstamos Viajeros"
-                      valor={pasivos.corriente.deudasFinancieras.prestamosViajeros}
-                      indent={1}
-                    />
-                  )}
-                  {pasivos.corriente.deudasFinancieras.otrasDeudas > 0 && (
-                    <LineaBalance
-                      label="Otras Líneas de Crédito"
-                      valor={pasivos.corriente.deudasFinancieras.otrasDeudas}
-                      indent={1}
-                    />
-                  )}
-                  {pasivos.corriente.deudasFinancieras.detalle.length > 0 &&
-                    pasivos.corriente.deudasFinancieras.detalle.map((d) => (
-                      <div key={d.cuentaId} className="px-8 py-1 text-xs text-slate-500 flex justify-between">
-                        <span>{d.nombreCuenta} {d.banco ? `(${d.banco})` : ''}</span>
-                        <span className="font-mono">{formatCurrency(d.montoPEN)}</span>
-                      </div>
-                    ))
-                  }
-                  <LineaBalance
-                    label="Total Deudas Financieras"
-                    valor={pasivos.corriente.deudasFinancieras.total}
-                    esSubtotal
-                  />
-                </div>
-              )}
-
-              <LineaBalance
-                label="TOTAL PASIVO CORRIENTE"
-                valor={pasivos.corriente.total}
-                esSubtotal
-              />
-            </SeccionBalance>
-
-            {/* Pasivo No Corriente */}
-            {pasivos.noCorriente.total > 0 && (
-              <SeccionBalance
-                titulo="Pasivo No Corriente"
-                total={pasivos.noCorriente.total}
-                colorHeader="bg-slate-100"
-                defaultOpen={false}
-              >
-                <LineaBalance
-                  label="TOTAL PASIVO NO CORRIENTE"
-                  valor={pasivos.noCorriente.total}
-                  esSubtotal
-                />
-              </SeccionBalance>
             )}
+            <LineaItem
+              label="Inventarios"
+              valor={activos.corriente.inventarios.totalValorPEN}
+            />
+            {activos.corriente.inventarios.inventarioUSA.valorPEN > 0 && (
+              <div className="flex justify-between ml-3 text-[11px] text-slate-500">
+                <span>
+                  · USA · {formatCurrency(activos.corriente.inventarios.inventarioUSA.valorPEN)}
+                  {activos.corriente.inventarios.totalValorPEN > 0 &&
+                    ` (${Math.round(
+                      (activos.corriente.inventarios.inventarioUSA.valorPEN /
+                        activos.corriente.inventarios.totalValorPEN) *
+                        100,
+                    )}%)`}
+                </span>
+                <span></span>
+              </div>
+            )}
+            {activos.corriente.inventarios.inventarioPeru.valorPEN > 0 && (
+              <div className="flex justify-between ml-3 text-[11px] text-slate-500">
+                <span>
+                  · Perú · {formatCurrency(activos.corriente.inventarios.inventarioPeru.valorPEN)}
+                  {activos.corriente.inventarios.totalValorPEN > 0 &&
+                    ` (${Math.round(
+                      (activos.corriente.inventarios.inventarioPeru.valorPEN /
+                        activos.corriente.inventarios.totalValorPEN) *
+                        100,
+                    )}%)`}
+                </span>
+                <span></span>
+              </div>
+            )}
+          </SubSeccionColapsable>
 
-            {/* Total Pasivos */}
-            <div className="bg-red-100 rounded-lg p-3 sm:p-4 flex justify-between items-center">
-              <span className="font-bold text-red-800 text-sm sm:text-lg">TOTAL PASIVOS</span>
-              <span className="font-mono font-bold text-red-800 text-base sm:text-xl">
-                {formatCurrency(pasivos.totalPasivos)}
-              </span>
-            </div>
-          </div>
-
-          {/* PATRIMONIO */}
-          <div className="bg-white rounded-lg border shadow-sm p-3 sm:p-6">
-            <h3 className="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2 border-b pb-3">
-              <PiggyBank className="w-6 h-6 text-sky-600" />
-              PATRIMONIO
-            </h3>
-
-            <SeccionBalance
-              titulo="Capital y Resultados"
-              total={patrimonio.totalPatrimonio}
-              colorHeader="bg-sky-50"
-              icon={<Users className="w-5 h-5 text-sky-600" />}
-            >
-              <LineaBalance
-                label="Capital Social"
-                valor={patrimonio.capitalSocial}
-                indent={1}
-              />
-              {patrimonio.reservas && patrimonio.reservas > 0 && (
-                <LineaBalance
-                  label="Reservas"
-                  valor={patrimonio.reservas}
-                  indent={1}
+          {/* Activo No Corriente · colapsado default */}
+          <SubSeccionColapsable
+            titulo="Activo No Corriente"
+            total={activos.noCorriente.total}
+            color="teal"
+            defaultOpen={false}
+            emptyMsg="(Activos fijos en módulo futuro · placeholder)"
+          >
+            {activos.noCorriente.propiedadPlantaEquipo &&
+              activos.noCorriente.propiedadPlantaEquipo > 0 && (
+                <LineaItem
+                  label="Propiedad · planta y equipo"
+                  valor={activos.noCorriente.propiedadPlantaEquipo}
                 />
               )}
-              <LineaBalance
-                label="Utilidades Acumuladas"
-                valor={patrimonio.utilidadesAcumuladas}
-                indent={1}
-                detalle="años anteriores"
-              />
-              <LineaBalance
-                label="Utilidad del Ejercicio"
-                valor={patrimonio.utilidadEjercicio}
-                indent={1}
-                detalle={`${balance.periodo.nombreMes} ${balance.periodo.anio}`}
-              />
-              <LineaBalance
-                label="TOTAL PATRIMONIO"
-                valor={patrimonio.totalPatrimonio}
-                esSubtotal
-              />
-            </SeccionBalance>
+          </SubSeccionColapsable>
+        </ColumnaBalance>
 
-            {/* Total Patrimonio */}
-            <div className="bg-sky-100 rounded-lg p-3 sm:p-4 flex justify-between items-center">
-              <span className="font-bold text-sky-800 text-sm sm:text-lg">TOTAL PATRIMONIO</span>
-              <span className="font-mono font-bold text-sky-800 text-base sm:text-xl">
-                {formatCurrency(patrimonio.totalPatrimonio)}
+        {/* ===== PASIVO ===== */}
+        <ColumnaBalance
+          titulo="PASIVO"
+          icon={<CreditCard className="w-4 h-4" />}
+          total={pasivos.totalPasivos}
+          color="rose"
+        >
+          {/* Pasivo Corriente · expandido default */}
+          <div className="px-4 py-3">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-[11px] uppercase tracking-wider font-bold text-rose-700">
+                Pasivo Corriente
               </span>
+              <span className="text-[13px] font-bold tabular-nums text-rose-900">
+                {formatCurrency(pasivos.corriente.total)}
+              </span>
+            </div>
+            <div className="ml-2 space-y-1 text-[12px]">
+              <LineaItem
+                label="CxP proveedores"
+                valor={pasivos.corriente.cuentasPorPagarProveedores.ordenesCompraPendientes}
+                detalleMl3={`· OCs recibidas sin pagar (${pasivos.corriente.cuentasPorPagarProveedores.cantidadOCs})`}
+              />
+              <LineaItem
+                label="Otras CxP"
+                valor={pasivos.corriente.otrasCuentasPorPagar.total}
+                detalleMl3="· Gastos · pagos viajeros pendientes"
+              />
+
+              {/* Anticipos clientes · cross-cutting purple */}
+              {pasivos.corriente.anticiposClientes &&
+                pasivos.corriente.anticiposClientes.totalAnticiposPEN > 0 && (
+                  <>
+                    <div className="flex justify-between bg-purple-50 -mx-2 px-2 py-1 rounded mt-1">
+                      <span className="text-purple-700 font-medium">Anticipos clientes</span>
+                      <span className="tabular-nums font-bold text-purple-700">
+                        {formatCurrency(pasivos.corriente.anticiposClientes.totalAnticiposPEN)}
+                      </span>
+                    </div>
+                    <div className="flex justify-between ml-3 text-[11px] text-purple-600">
+                      <span>
+                        · {pasivos.corriente.anticiposClientes.cantidadVentas} ventas sin entregar
+                        · pasivo
+                      </span>
+                      <span></span>
+                    </div>
+                  </>
+                )}
+
+              {pasivos.corriente.deudasFinancieras &&
+                pasivos.corriente.deudasFinancieras.total > 0 && (
+                  <LineaItem
+                    label="Deudas TC bancos"
+                    valor={pasivos.corriente.deudasFinancieras.total}
+                  />
+                )}
             </div>
           </div>
 
-          {/* VERIFICACIÓN */}
-          <div className={`rounded-lg p-3 sm:p-4 flex justify-between items-center ${
-            balance.balanceCuadra ? 'bg-emerald-100' : 'bg-amber-100'
-          }`}>
-            <span className={`font-bold text-sm sm:text-lg ${
-              balance.balanceCuadra ? 'text-emerald-800' : 'text-amber-800'
-            }`}>
-              PASIVOS + PATRIMONIO
-            </span>
-            <span className={`font-mono font-bold text-base sm:text-xl ${
-              balance.balanceCuadra ? 'text-emerald-800' : 'text-amber-800'
-            }`}>
-              {formatCurrency(balance.totalPasivosPatrimonio)}
-            </span>
+          {/* Pasivo No Corriente */}
+          <div className="px-4 py-3">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] uppercase tracking-wider font-bold text-rose-700">
+                Pasivo No Corriente
+              </span>
+              <span className="text-[13px] font-bold tabular-nums text-rose-900">
+                {formatCurrency(pasivos.noCorriente.total)}
+              </span>
+            </div>
+            <div className="ml-2 mt-1 text-[10px] text-slate-500 italic">
+              {pasivos.noCorriente.total === 0
+                ? 'Sin deudas a largo plazo'
+                : 'Deudas financieras a largo plazo'}
+            </div>
           </div>
-        </div>
+        </ColumnaBalance>
+
+        {/* ===== PATRIMONIO ===== */}
+        <ColumnaBalance
+          titulo="PATRIMONIO"
+          icon={<PiggyBank className="w-4 h-4" />}
+          total={patrimonio.totalPatrimonio}
+          color="indigo"
+        >
+          <div className="px-4 py-3 space-y-1 text-[12px]">
+            <LineaItem label="Capital social" valor={patrimonio.capitalSocial} />
+            {patrimonio.reservas !== undefined && patrimonio.reservas > 0 && (
+              <LineaItem label="Reserva legal" valor={patrimonio.reservas} />
+            )}
+            <LineaItem
+              label="Utilidades acumuladas"
+              valor={patrimonio.utilidadesAcumuladas}
+              detalleMl3="· años anteriores"
+            />
+
+            {/* Utilidad del período · cross-cutting amber */}
+            <div className="flex justify-between bg-amber-50 -mx-2 px-2 py-1 rounded mt-1">
+              <span className="text-amber-700 font-medium">Utilidad del período</span>
+              <span className="tabular-nums font-bold text-amber-700">
+                {formatCurrency(patrimonio.utilidadEjercicio)}
+              </span>
+            </div>
+            <div className="flex justify-between ml-3 text-[11px] text-amber-600">
+              <span>
+                · {balance.periodo.nombreMes} {balance.periodo.anio}
+              </span>
+              <span></span>
+            </div>
+          </div>
+        </ColumnaBalance>
       </div>
 
-      {/* Nota contable */}
-      <div className="bg-sky-50 border border-sky-200 rounded-lg p-3 sm:p-4 text-xs sm:text-sm text-sky-800">
-        <strong>Notas:</strong>
-        <ul className="mt-2 space-y-1 text-sky-700">
-          <li>• El inventario está valorizado usando el método CTRU (Costo Total Real Unitario)</li>
-          <li>• Las cuentas en USD se convierten al tipo de cambio vigente: S/ {balance.tipoCambio.toFixed(2)}</li>
-          <li>• La provisión para incobrables es el 5% de cartera mayor a 30 días</li>
-          <li>• Los anticipos de clientes representan ingresos diferidos: pagos recibidos por ventas cuyo producto aún no ha sido entregado. Al completar la entrega, se reclasifican automáticamente como ingreso realizado</li>
-          <li>• Este reporte es para uso interno de gestión</li>
-        </ul>
-      </div>
+      {/* §3 · Validación de cuadre */}
+      {balanceCuadra ? (
+        <section className="bg-emerald-50 ring-1 ring-emerald-200 rounded-2xl p-4">
+          <div className="flex items-center justify-between flex-wrap gap-3 text-[12px]">
+            <div className="flex items-center gap-3">
+              <CheckCircle2 className="w-5 h-5 text-emerald-600" />
+              <div>
+                <div className="font-bold text-emerald-900">Balance cuadrado ✓</div>
+                <div className="text-emerald-700 text-[10px]">
+                  Activo {formatCurrency(activos.totalActivos)} = Pasivo{' '}
+                  {formatCurrency(pasivos.totalPasivos)} + Patrimonio{' '}
+                  {formatCurrency(patrimonio.totalPatrimonio)}
+                </div>
+              </div>
+            </div>
+            <span className="text-[10px] tabular-nums bg-emerald-100 text-emerald-800 px-2 py-1 rounded">
+              Diferencia: S/ 0.00
+            </span>
+          </div>
+        </section>
+      ) : (
+        <section className="bg-rose-50 ring-1 ring-rose-200 rounded-2xl p-4">
+          <div className="flex items-center justify-between flex-wrap gap-3 text-[12px]">
+            <div className="flex items-center gap-3">
+              <AlertTriangle className="w-5 h-5 text-rose-600" />
+              <div>
+                <div className="font-bold text-rose-900">Balance NO cuadra · revisar</div>
+                <div className="text-rose-700 text-[10px]">
+                  Activo {formatCurrency(activos.totalActivos)} ≠ Pasivo{' '}
+                  {formatCurrency(pasivos.totalPasivos)} + Patrimonio{' '}
+                  {formatCurrency(patrimonio.totalPatrimonio)}
+                </div>
+              </div>
+            </div>
+            <span className="text-[10px] tabular-nums bg-rose-100 text-rose-800 px-2 py-1 rounded font-bold">
+              Diferencia: {formatCurrency(Math.abs(totalCuadrado))}
+            </span>
+          </div>
+        </section>
+      )}
     </div>
   );
 }
