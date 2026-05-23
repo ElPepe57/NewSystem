@@ -24,7 +24,7 @@
  */
 
 import React from 'react';
-import { ChevronRight, CreditCard, Banknote } from 'lucide-react';
+import { ChevronRight, CreditCard, Banknote, ShieldCheck, ShieldAlert } from 'lucide-react';
 import type { ProductoFinancieroUnif, KindProductoSaldo } from './saldosHelpers';
 import {
   bancoCortoDe,
@@ -226,6 +226,9 @@ export const ProductoFinancieroRow: React.FC<ProductoFinancieroRowProps> = ({
   const _color = KIND_COLOR[kind];
   void _color; // reservado para futuro
 
+  // chk5.D-S9.D2 · chip de verificación de saldo (null si no aplica)
+  const verifChip = getVerifChip(producto);
+
   // Highlight bg para sub-grupo Pool USD (cuenta_bancaria USD en titular Empresa)
   const highlightBg = highlight ? 'bg-teal-50/10' : '';
 
@@ -256,6 +259,23 @@ export const ProductoFinancieroRow: React.FC<ProductoFinancieroRowProps> = ({
               {b.label}
             </span>
           ))}
+          {verifChip && (
+            <span
+              className={`text-[9px] px-1.5 py-0.5 rounded-full font-bold whitespace-nowrap inline-flex items-center gap-1 ${VERIF_CHIP_BG[verifChip.color]}`}
+              title={
+                verifChip.alert
+                  ? 'Saldo no verificado contra el banco recientemente · click para verificar'
+                  : 'Saldo verificado recientemente contra el banco real'
+              }
+            >
+              {verifChip.alert ? (
+                <ShieldAlert className="w-2.5 h-2.5" />
+              ) : (
+                <ShieldCheck className="w-2.5 h-2.5" />
+              )}
+              {verifChip.label}
+            </span>
+          )}
         </div>
         {metaFinal && (
           <div className="text-[11px] text-slate-500 truncate tabular-nums">{metaFinal}</div>
@@ -282,6 +302,70 @@ export const ProductoFinancieroRow: React.FC<ProductoFinancieroRowProps> = ({
       <ChevronRight className="w-4 h-4 text-slate-400 flex-shrink-0" />
     </button>
   );
+};
+
+// ═════════════════════════════════════════════════════════════════════════
+// HELPER · CHIP DE VERIFICACIÓN (chk5.D-S9.D2)
+// Muestra el estado de la última verificación de saldo manual en la card
+// del listado · sin tener que abrir el drawer.
+// ═════════════════════════════════════════════════════════════════════════
+
+interface VerifChip {
+  /** Label corto · "Verif al día" · "Hace 12 días" · "Sin verificar" · etc. */
+  label: string;
+  /** Color del chip · semáforo según antigüedad */
+  color: 'emerald' | 'slate' | 'amber' | 'rose';
+  /** Si true · usar ShieldAlert (rosa) en vez de ShieldCheck */
+  alert: boolean;
+}
+
+/**
+ * Devuelve el chip de verificación si aplica al producto · null si no.
+ *
+ * Solo aplica a cuentas verificables (cuenta_bancaria · wallet_digital ·
+ * caja_efectivo). Las TC y recaudadoras no se verifican contra banco real.
+ *
+ * Reglas de color:
+ *   - emerald (verde) · verificada hace <= 7 días · "Verif al día"
+ *   - slate (neutro)  · verificada entre 8 y 30 días · "Hace X días"
+ *   - amber (alerta moderada) · verificada hace > 30 días · "Verif vieja · X días"
+ *   - rose (alerta) · sin verificar nunca · "Sin verificar"
+ */
+function getVerifChip(p: ProductoFinancieroUnif): VerifChip | null {
+  const kind = kindFinalDe(p);
+  // Tipos no verificables (TC y recaudadora tienen sus propios flujos)
+  if (kind !== 'cuenta_bancaria' && kind !== 'wallet_digital' && kind !== 'caja_efectivo') {
+    return null;
+  }
+  const c = p.kindData as CuentaCaja;
+  const u = c.ultimaVerificacion;
+
+  if (!u || !u.fecha) {
+    // Sin verificar nunca · alerta rosa
+    return { label: 'Sin verificar', color: 'rose', alert: true };
+  }
+
+  const ms = u.fecha.toMillis?.() ?? 0;
+  if (!Number.isFinite(ms) || ms <= 0) {
+    return { label: 'Sin verificar', color: 'rose', alert: true };
+  }
+
+  const dias = Math.floor((Date.now() - ms) / (1000 * 60 * 60 * 24));
+
+  if (dias <= 7) {
+    return { label: 'Verif al día', color: 'emerald', alert: false };
+  }
+  if (dias <= 30) {
+    return { label: `Verif hace ${dias}d`, color: 'slate', alert: false };
+  }
+  return { label: `Verif vieja · ${dias}d`, color: 'amber', alert: true };
+}
+
+const VERIF_CHIP_BG: Record<VerifChip['color'], string> = {
+  emerald: 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200',
+  slate: 'bg-slate-50 text-slate-600 ring-1 ring-slate-200',
+  amber: 'bg-amber-50 text-amber-700 ring-1 ring-amber-200',
+  rose: 'bg-rose-50 text-rose-700 ring-1 ring-rose-200',
 };
 
 // ═════════════════════════════════════════════════════════════════════════

@@ -128,6 +128,9 @@ const FinanzasSaldos: React.FC = () => {
 
   // chk5.D-S9.B · Verificación de saldos manual
   const [verificarSaldoCuenta, setVerificarSaldoCuenta] = useState<CuentaCaja | null>(null);
+
+  // chk5.D-S9.D1 · Tipo pre-seleccionado para abrir CuentaWizard desde quick-start cards
+  const [tipoInicialWizard, setTipoInicialWizard] = useState<'banco' | 'digital' | 'credito' | 'efectivo' | undefined>(undefined);
   const toastSuccess = useToastStore((s) => s.success);
   const toastError = useToastStore((s) => s.error);
   const toastInfo = useToastStore((s) => s.info);
@@ -294,11 +297,17 @@ const FinanzasSaldos: React.FC = () => {
     setVerificarSaldoCuenta(candidatas[0].kindData as CuentaCaja);
   }, [productosFiltrados, toastInfo]);
 
-  const handleNuevaCuenta = useCallback(() => {
-    // chk5.D-S6.SF1 · Wire-up directo al CuentaWizard como modal · cero salidas a /tesoreria
-    setCuentaWizardEditar(null);
-    setCuentaWizardOpen(true);
-  }, []);
+  const handleNuevaCuenta = useCallback(
+    (tipoInicial?: 'banco' | 'digital' | 'credito' | 'efectivo') => {
+      // chk5.D-S6.SF1 · Wire-up directo al CuentaWizard como modal · cero salidas a /tesoreria
+      // chk5.D-S9.D1 · tipoInicial opcional · usado por quick-start cards del empty state
+      // para pre-seleccionar el tipo en Paso 1 (Bancaria→banco · Wallet→digital · etc.).
+      setCuentaWizardEditar(null);
+      setTipoInicialWizard(tipoInicial);
+      setCuentaWizardOpen(true);
+    },
+    [],
+  );
 
   const handleEditarCuenta = useCallback((cuenta: CuentaCaja) => {
     // chk5.D-S6.SF1 · Edit mode del wizard inline
@@ -323,6 +332,7 @@ const FinanzasSaldos: React.FC = () => {
         }
         setCuentaWizardOpen(false);
         setCuentaWizardEditar(null);
+        setTipoInicialWizard(undefined);
         // Refresh data del shell · trigger refetch
         cargarExtra();
       } catch (e: any) {
@@ -528,7 +538,7 @@ const FinanzasSaldos: React.FC = () => {
         </button>
         <button
           type="button"
-          onClick={handleNuevaCuenta}
+          onClick={() => handleNuevaCuenta()}
           aria-label="Nueva cuenta"
           title="Nueva cuenta"
           className="text-[11px] font-bold text-white bg-teal-600 hover:bg-teal-700 px-3 py-1.5 rounded-lg inline-flex items-center gap-1.5 shadow-sm"
@@ -644,8 +654,10 @@ const FinanzasSaldos: React.FC = () => {
           onClose={() => {
             setCuentaWizardOpen(false);
             setCuentaWizardEditar(null);
+            setTipoInicialWizard(undefined);
           }}
           cuentaEditar={cuentaWizardEditar}
+          tipoInicial={tipoInicialWizard}
           onGuardar={handleGuardarCuenta}
           isSubmitting={cuentaWizardSubmitting}
         />
@@ -819,6 +831,7 @@ const FinanzasSaldos: React.FC = () => {
           setCuentaWizardEditar(null);
         }}
         cuentaEditar={cuentaWizardEditar}
+        tipoInicial={tipoInicialWizard}
         onGuardar={handleGuardarCuenta}
         isSubmitting={cuentaWizardSubmitting}
       />
@@ -883,7 +896,13 @@ const KpiSaldoCard: React.FC<KpiSaldoCardProps> = ({ color, icon: Icon, label, v
 );
 
 interface EmptyStateProps {
-  onNuevaCuenta: () => void;
+  /**
+   * chk5.D-S9.D1 · acepta tipo opcional para pre-seleccionar en el wizard.
+   * Cada quick-start card lo dispara con su tipo correspondiente:
+   *   Bancaria → 'banco' · Wallet → 'digital' · Tarjeta → 'credito' · Caja → 'efectivo'
+   * El botón "+ Nueva cuenta" genérico no pasa tipo (default 'banco').
+   */
+  onNuevaCuenta: (tipo?: 'banco' | 'digital' | 'credito' | 'efectivo') => void;
 }
 
 const EmptyStateSaldos: React.FC<EmptyStateProps> = ({ onNuevaCuenta }) => (
@@ -901,14 +920,14 @@ const EmptyStateSaldos: React.FC<EmptyStateProps> = ({ onNuevaCuenta }) => (
       </div>
     </div>
     <div className="grid grid-cols-2 gap-2 max-w-xs mx-auto">
-      <QuickStartCard icon={Building2} label="Bancaria" hint="BCP · IBK · BBVA" color="teal" onClick={onNuevaCuenta} />
-      <QuickStartCard icon={Smartphone} label="Wallet" hint="Stripe · PayPal · MP" color="sky" onClick={onNuevaCuenta} />
-      <QuickStartCard icon={CreditCard} label="Tarjeta" hint="Visa · MC · Amex" color="amber" onClick={onNuevaCuenta} />
-      <QuickStartCard icon={Banknote} label="Caja" hint="Efectivo + arqueo" color="slate" onClick={onNuevaCuenta} />
+      <QuickStartCard icon={Building2} label="Bancaria" hint="BCP · IBK · BBVA" color="teal" onClick={() => onNuevaCuenta('banco')} />
+      <QuickStartCard icon={Smartphone} label="Wallet" hint="Stripe · PayPal · MP" color="sky" onClick={() => onNuevaCuenta('digital')} />
+      <QuickStartCard icon={CreditCard} label="Tarjeta" hint="Visa · MC · Amex" color="amber" onClick={() => onNuevaCuenta('credito')} />
+      <QuickStartCard icon={Banknote} label="Caja" hint="Efectivo + arqueo" color="slate" onClick={() => onNuevaCuenta('efectivo')} />
     </div>
     <button
       type="button"
-      onClick={onNuevaCuenta}
+      onClick={() => onNuevaCuenta()}
       className="text-[11px] font-bold text-white bg-teal-600 hover:bg-teal-700 px-4 py-2 rounded-lg inline-flex items-center gap-1.5"
     >
       + Nueva cuenta

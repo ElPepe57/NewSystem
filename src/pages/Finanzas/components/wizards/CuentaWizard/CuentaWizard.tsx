@@ -83,6 +83,14 @@ export interface CuentaWizardProps {
   onSuccess?: (cuentaId: string) => void;
   /** Indicador de submit del padre (cuando hay onGuardar). */
   isSubmitting?: boolean;
+  /**
+   * chk5.D-S9.D1 · Tipo pre-seleccionado para modo creación.
+   * Útil para los quick-start cards del empty state de Saldos
+   * (Bancaria → 'banco' · Wallet → 'digital' · Tarjeta → 'credito' · Caja → 'efectivo').
+   * Si está presente y NO hay cuentaEditar, el wizard arranca en Paso 1
+   * con este tipo ya seleccionado en vez del default 'banco'.
+   */
+  tipoInicial?: CuentaWizardState['tipo'];
 }
 
 // ═════════════════════════════════════════════════════════════════════════
@@ -147,6 +155,7 @@ export const CuentaWizard: React.FC<CuentaWizardProps> = ({
   onGuardar,
   onSuccess,
   isSubmitting,
+  tipoInicial,
 }) => {
   const userId = useAuthStore((s) => s.user?.uid ?? '');
   const toastSuccess = useToastStore((s) => s.success);
@@ -171,7 +180,9 @@ export const CuentaWizard: React.FC<CuentaWizardProps> = ({
     setInternalLoading(false);
 
     if (!cuentaEditar) {
-      setState(INITIAL_STATE);
+      // chk5.D-S9.D1 · si viene tipoInicial, aplicarlo sobre el INITIAL_STATE
+      // para que el wizard arranque pre-seleccionado en Paso 1.
+      setState(tipoInicial ? { ...INITIAL_STATE, tipo: tipoInicial } : INITIAL_STATE);
       return;
     }
 
@@ -184,7 +195,7 @@ export const CuentaWizard: React.FC<CuentaWizardProps> = ({
         setState(hidratarStateDesdeProductoFinanciero(pf));
       }
     });
-  }, [isOpen, cuentaEditar]);
+  }, [isOpen, cuentaEditar, tipoInicial]);
 
   // ── Validación del paso actual ──
   const validacion = useMemo(() => validarPaso(paso, state), [paso, state]);
