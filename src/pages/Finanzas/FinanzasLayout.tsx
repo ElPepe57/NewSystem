@@ -105,7 +105,7 @@ const TABS: TabConfig[] = [
   },
   {
     path: '/finanzas/cc',
-    label: 'Cuentas Corrientes',
+    label: 'Por Cobrar y Pagar',
     icon: Users,
     end: false,
   },

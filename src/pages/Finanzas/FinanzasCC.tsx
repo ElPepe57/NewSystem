@@ -5,8 +5,11 @@
  * Vista relacional por entidad (CxC + CxP + colaboradores + empleados + TC).
  *
  * Override del shell adaptativo (S3.SF1):
- *   - breadcrumb leaf: "Cuentas Corrientes"
- *   - header: icon Users indigo + "Cuentas Corrientes" + subtitle
+ *   - breadcrumb leaf: "Por Cobrar y Pagar" (chk5.D-S9.C rename · 2026-05-21)
+ *   - header: icon Users indigo + "Por Cobrar y Pagar" + subtitle
+ *     Antes "Cuentas Corrientes" · el término técnico/legal era válido pero
+ *     confundía con "cuenta corriente bancaria" en Perú · rename a label
+ *     intuitivo · path URL `/finanzas/cc` se mantiene por compat.
  *   - actions: [Aging Excel · Enviar recordatorios · Registrar cobro/pago] + dropdown
  *   - kpiSlot: 5 KPIs CC propios (CxC · CxP · Saldo neto · Aging crítico · Top deudor)
  *
@@ -436,11 +439,11 @@ const FinanzasCC: React.FC = () => {
 
   useEffect(() => {
     setSubVistaConfig({
-      breadcrumbLeaf: 'Cuentas Corrientes',
+      breadcrumbLeaf: 'Por Cobrar y Pagar',
       header: {
-        title: 'Cuentas Corrientes',
+        title: 'Por Cobrar y Pagar',
         subtitle:
-          'Por cobrar (CxC) · Por pagar (CxP) · agrupado por tipo de entidad · drill por titular con sub-tabs',
+          'Lo que te deben los clientes y lo que le debés a proveedores · agrupado por persona o empresa',
         icon: Users,
         iconColor: 'indigo',
       },
@@ -590,13 +593,13 @@ const FinanzasCC: React.FC = () => {
             <div>
               <div className="text-[14px] font-bold text-slate-900">
                 {activeCount > 0
-                  ? 'Sin CC para los filtros seleccionados'
-                  : 'Aún no hay CC con entidades'}
+                  ? 'Sin saldos para los filtros seleccionados'
+                  : 'Aún no hay saldos por cobrar ni por pagar'}
               </div>
               <div className="text-[11px] text-slate-500 mt-1 max-w-md mx-auto">
                 {activeCount > 0
-                  ? 'Ajustá los filtros o limpiá para ver todas las CC.'
-                  : 'Las cuentas corrientes se crean automáticamente cuando registras una venta a cliente, una compra a proveedor o un pago a colaborador.'}
+                  ? 'Ajustá los filtros o limpiá para ver todas las personas y empresas.'
+                  : 'Los saldos por cobrar y pagar se crean automáticamente cuando registrás una venta a cliente, una compra a proveedor o un pago a colaborador.'}
               </div>
             </div>
             {activeCount > 0 ? (

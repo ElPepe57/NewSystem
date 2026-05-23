@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Cuentas Corrientes · Qué hace y para qué sirve · Vita Skin ERP</title>
+<title>Por Cobrar y Pagar · Qué hace y para qué sirve · Vita Skin ERP</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
 <style>
@@ -18,10 +18,14 @@
     <div class="flex items-center gap-3 mb-2">
       <span class="text-[10px] uppercase tracking-wider bg-white/20 px-2 py-0.5 rounded">Mockup informativo · Finanzas</span>
     </div>
-    <h1 class="text-3xl font-extrabold tracking-tight">Cuentas Corrientes</h1>
+    <h1 class="text-3xl font-extrabold tracking-tight">Por Cobrar y Pagar</h1>
     <p class="text-indigo-100 mt-2">
-      Sub-vista <code class="bg-white/10 px-1.5 py-0.5 rounded">/finanzas/cc</code> · vista relacional por
-      <strong>entidad</strong> (cliente, proveedor, colaborador, empleado, tarjeta de crédito)
+      Sub-vista <code class="bg-white/10 px-1.5 py-0.5 rounded">/finanzas/cc</code> ·
+      <strong>lo que te deben</strong> los clientes y <strong>lo que le debés</strong> a proveedores,
+      empleados, colaboradores y tarjetas · agrupado por persona o empresa
+    </p>
+    <p class="text-indigo-200 text-[11px] mt-2 italic">
+      Antes: "Cuentas Corrientes" · término técnico-legal que en Perú se confundía con cuenta bancaria · renombrado a label intuitivo en chk5.D-S9.C (2026-05-21)
     </p>
   </header>
 
@@ -100,7 +104,7 @@
       </div>
       <div class="border border-slate-200 rounded-lg p-3 md:col-span-2">
         <div class="font-bold text-amber-700 mb-1">💳 Tarjeta de Crédito</div>
-        <div class="text-slate-600">CC espejo de cada TC corporativa. Cada cargo = débito · cada pago de estado de cuenta = crédito. Saldo − = deuda con el banco emisor (o reembolso pendiente al titular si es TC personal usada por la empresa).</div>
+        <div class="text-slate-600">Saldo espejo de cada TC corporativa. Cada cargo = débito · cada pago de estado de cuenta = crédito. Saldo − = deuda con el banco emisor (o reembolso pendiente al titular si es TC personal usada por la empresa).</div>
       </div>
     </div>
     <div class="bg-slate-50 border border-slate-200 rounded-lg p-3 text-[12px] text-slate-700">
@@ -321,7 +325,7 @@
       </tr></thead>
       <tbody class="divide-y divide-slate-100">
         <tr><td class="px-3 py-2 font-bold text-emerald-700">Saldos</td><td class="px-3 py-2">Cuánto dinero TENGO (caja+bancos+wallets+TC)</td><td class="px-3 py-2">"¿Cuánto efectivo hay disponible hoy?"</td></tr>
-        <tr><td class="px-3 py-2 font-bold text-indigo-700">CC</td><td class="px-3 py-2">Cuánto me DEBEN / DEBO con cada entidad</td><td class="px-3 py-2">"¿Quién me debe? ¿A quién le debo?"</td></tr>
+        <tr><td class="px-3 py-2 font-bold text-indigo-700">Por Cobrar y Pagar</td><td class="px-3 py-2">Cuánto me DEBEN / DEBO con cada persona o empresa</td><td class="px-3 py-2">"¿Quién me debe? ¿A quién le debo?"</td></tr>
         <tr><td class="px-3 py-2 font-bold text-slate-700">Movimientos</td><td class="px-3 py-2">Ledger transaccional crudo · línea por línea</td><td class="px-3 py-2">"¿Qué pasó el 15 de mayo a las 14:30?"</td></tr>
         <tr><td class="px-3 py-2 font-bold text-amber-700">Cash Flow</td><td class="px-3 py-2">Proyección futura 30/60/90 días</td><td class="px-3 py-2">"¿Voy a tener plata para pagar todo el mes próximo?"</td></tr>
         <tr><td class="px-3 py-2 font-bold text-purple-700">Análisis</td><td class="px-3 py-2">Salud financiera estratégica · 10 gráficas</td><td class="px-3 py-2">"¿Cómo viene el negocio en general?"</td></tr>
