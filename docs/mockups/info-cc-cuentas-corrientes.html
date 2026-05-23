@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Cuentas Corrientes · Qué hace y para qué sirve · Vita Skin ERP</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<style>
+  body { font-family: 'Inter', sans-serif; }
+  .tabular { font-variant-numeric: tabular-nums; }
+</style>
+</head>
+<body class="bg-slate-50 text-slate-900 p-6 md:p-10">
+<div class="max-w-5xl mx-auto space-y-8">
+
+  <!-- HERO -->
+  <header class="bg-gradient-to-br from-indigo-600 to-indigo-800 text-white rounded-2xl p-8 shadow-lg">
+    <div class="flex items-center gap-3 mb-2">
+      <span class="text-[10px] uppercase tracking-wider bg-white/20 px-2 py-0.5 rounded">Mockup informativo · Finanzas</span>
+    </div>
+    <h1 class="text-3xl font-extrabold tracking-tight">Cuentas Corrientes</h1>
+    <p class="text-indigo-100 mt-2">
+      Sub-vista <code class="bg-white/10 px-1.5 py-0.5 rounded">/finanzas/cc</code> · vista relacional por
+      <strong>entidad</strong> (cliente, proveedor, colaborador, empleado, tarjeta de crédito)
+    </p>
+  </header>
+
+  <!-- §1 · QUÉ ES (definición operativa) -->
+  <section class="bg-white border border-slate-200 rounded-2xl p-6 space-y-3">
+    <div class="flex items-center gap-2">
+      <span class="text-[10px] uppercase tracking-wider font-bold text-indigo-700">§ 1 · Qué es</span>
+      <div class="flex-1 h-px bg-indigo-200"></div>
+    </div>
+    <p class="text-slate-700 leading-relaxed">
+      Es el <strong>libro de cuentas</strong> que lleva, para cada persona o empresa con la que
+      Vita Skin tiene una relación financiera, el resumen de
+      <strong>cuánto te deben</strong> o <strong>cuánto les debés</strong>.
+    </p>
+    <p class="text-slate-700 leading-relaxed">
+      A diferencia de mirar venta por venta o factura por factura, acá ves el
+      <strong>saldo neto consolidado</strong> con cada entidad — incluyendo todas sus
+      operaciones (ventas, OCs, pagos, devoluciones, ajustes) en una sola cifra por moneda.
+    </p>
+  </section>
+
+  <!-- §2 · CÓMO SE LEE EL SALDO (la regla mnemotécnica) -->
+  <section class="bg-white border border-slate-200 rounded-2xl p-6 space-y-4">
+    <div class="flex items-center gap-2">
+      <span class="text-[10px] uppercase tracking-wider font-bold text-indigo-700">§ 2 · Cómo se lee el saldo</span>
+      <div class="flex-1 h-px bg-indigo-200"></div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+      <div class="bg-emerald-50 ring-1 ring-emerald-200 rounded-xl p-4">
+        <div class="text-[10px] uppercase tracking-wider font-bold text-emerald-700 mb-1">Saldo positivo (+)</div>
+        <div class="text-2xl font-bold tabular text-emerald-900 mb-1">+ S/ 1.200</div>
+        <div class="text-[11px] text-emerald-800">La entidad <strong>nos debe</strong> · es cuenta por cobrar (CxC)</div>
+      </div>
+      <div class="bg-rose-50 ring-1 ring-rose-200 rounded-xl p-4">
+        <div class="text-[10px] uppercase tracking-wider font-bold text-rose-700 mb-1">Saldo negativo (−)</div>
+        <div class="text-2xl font-bold tabular text-rose-900 mb-1">− S/ 8.400</div>
+        <div class="text-[11px] text-rose-800"><strong>Le debemos</strong> a la entidad · es cuenta por pagar (CxP)</div>
+      </div>
+      <div class="bg-slate-50 ring-1 ring-slate-200 rounded-xl p-4">
+        <div class="text-[10px] uppercase tracking-wider font-bold text-slate-700 mb-1">Saldo cero</div>
+        <div class="text-2xl font-bold tabular text-slate-700 mb-1">S/ 0.00</div>
+        <div class="text-[11px] text-slate-700">Cuenta saldada · sin deudas en ningún sentido</div>
+      </div>
+    </div>
+
+    <div class="bg-amber-50 border-l-4 border-amber-400 p-3 text-[12px] text-amber-900">
+      <strong>USD y PEN viven separados.</strong> Un proveedor puede tener saldoUSD −3.500 (le debés US$)
+      Y saldoPEN +200 (te dejó sobrante por devolución). El sistema NO los suma ni netea
+      entre sí · cada moneda es su propio libro.
+    </div>
+  </section>
+
+  <!-- §3 · LAS 5 ENTIDADES -->
+  <section class="bg-white border border-slate-200 rounded-2xl p-6 space-y-4">
+    <div class="flex items-center gap-2">
+      <span class="text-[10px] uppercase tracking-wider font-bold text-indigo-700">§ 3 · Las 5 entidades con CC</span>
+      <div class="flex-1 h-px bg-indigo-200"></div>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-[13px]">
+      <div class="border border-slate-200 rounded-lg p-3">
+        <div class="font-bold text-emerald-700 mb-1">👤 Cliente</div>
+        <div class="text-slate-600">Persona/empresa que te compra. Saldo + significa que te debe (cobranza pendiente).</div>
+      </div>
+      <div class="border border-slate-200 rounded-lg p-3">
+        <div class="font-bold text-rose-700 mb-1">🏭 Proveedor</div>
+        <div class="text-slate-600">A quién le compras insumos/productos. Saldo − significa que le debes (pago pendiente).</div>
+      </div>
+      <div class="border border-slate-200 rounded-lg p-3">
+        <div class="font-bold text-purple-700 mb-1">🤝 Colaborador</div>
+        <div class="text-slate-600">Servicio externo puntual (envíos, freelance, etc.). Saldo − = comisión devengada sin pagar.</div>
+      </div>
+      <div class="border border-slate-200 rounded-lg p-3">
+        <div class="font-bold text-blue-700 mb-1">👷 Empleado</div>
+        <div class="text-slate-600">Personal en planilla. Saldo − = sueldo/boleta pendiente. Saldo + = adelantos por descontar.</div>
+      </div>
+      <div class="border border-slate-200 rounded-lg p-3 md:col-span-2">
+        <div class="font-bold text-amber-700 mb-1">💳 Tarjeta de Crédito</div>
+        <div class="text-slate-600">CC espejo de cada TC corporativa. Cada cargo = débito · cada pago de estado de cuenta = crédito. Saldo − = deuda con el banco emisor (o reembolso pendiente al titular si es TC personal usada por la empresa).</div>
+      </div>
+    </div>
+    <div class="bg-slate-50 border border-slate-200 rounded-lg p-3 text-[12px] text-slate-700">
+      <strong>Una misma persona puede tener varias CC.</strong> Ej: Carlos Pérez puede ser cliente
+      (CC cliente_carlos123) + empleado (CC empleado_carlos123) + colaborador puntual
+      (CC colaborador_carlos123) — 3 libros separados que la UI agrupa en su ficha de Maestros.
+    </div>
+  </section>
+
+  <!-- §4 · QUÉ INFO PRESENTA LA VISTA -->
+  <section class="bg-white border border-slate-200 rounded-2xl p-6 space-y-4">
+    <div class="flex items-center gap-2">
+      <span class="text-[10px] uppercase tracking-wider font-bold text-indigo-700">§ 4 · Info que presenta en /finanzas/cc</span>
+      <div class="flex-1 h-px bg-indigo-200"></div>
+    </div>
+
+    <div class="space-y-3">
+      <!-- KPI strip -->
+      <div>
+        <div class="text-[11px] uppercase tracking-wider font-bold text-slate-500 mb-2">A · KPI strip (5 indicadores)</div>
+        <div class="grid grid-cols-2 md:grid-cols-5 gap-2 text-[11px]">
+          <div class="bg-emerald-50 ring-1 ring-emerald-200 rounded-lg p-2">
+            <div class="font-bold text-emerald-700">CXC TOTAL</div>
+            <div class="text-emerald-900 text-base font-bold tabular">S/ 15.200</div>
+            <div class="text-emerald-700 text-[10px]">8 clientes</div>
+          </div>
+          <div class="bg-rose-50 ring-1 ring-rose-200 rounded-lg p-2">
+            <div class="font-bold text-rose-700">CXP TOTAL</div>
+            <div class="text-rose-900 text-base font-bold tabular">S/ 22.800</div>
+            <div class="text-rose-700 text-[10px]">5 proveedores</div>
+          </div>
+          <div class="bg-indigo-50 ring-1 ring-indigo-200 rounded-lg p-2">
+            <div class="font-bold text-indigo-700">SALDO NETO</div>
+            <div class="text-indigo-900 text-base font-bold tabular">− S/ 7.600</div>
+            <div class="text-indigo-700 text-[10px]">debe el negocio</div>
+          </div>
+          <div class="bg-rose-100 ring-1 ring-rose-300 rounded-lg p-2">
+            <div class="font-bold text-rose-700">AGING CRÍTICO</div>
+            <div class="text-rose-900 text-base font-bold tabular">2</div>
+            <div class="text-rose-700 text-[10px]">+60 días</div>
+          </div>
+          <div class="bg-purple-50 ring-1 ring-purple-200 rounded-lg p-2">
+            <div class="font-bold text-purple-700">TOP DEUDOR</div>
+            <div class="text-purple-900 text-base font-bold tabular">Juan P.</div>
+            <div class="text-purple-700 text-[10px]">S/ 4.200 · 47% CxC</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filtros -->
+      <div>
+        <div class="text-[11px] uppercase tracking-wider font-bold text-slate-500 mb-2">B · Filtros disponibles</div>
+        <div class="flex flex-wrap gap-1.5 text-[11px]">
+          <span class="px-2 py-1 bg-slate-100 rounded">Todas las entidades</span>
+          <span class="px-2 py-1 bg-emerald-100 text-emerald-700">Solo Clientes</span>
+          <span class="px-2 py-1 bg-rose-100 text-rose-700">Solo Proveedores</span>
+          <span class="px-2 py-1 bg-purple-100 text-purple-700">Solo Colab</span>
+          <span class="px-2 py-1 bg-blue-100 text-blue-700">Solo Empleados</span>
+          <span class="px-2 py-1 bg-amber-100 text-amber-700">Solo TC</span>
+          <span class="px-2 py-1 bg-slate-100 rounded">+ Búsqueda · + Aging · + Solo con saldo</span>
+        </div>
+      </div>
+
+      <!-- Listado -->
+      <div>
+        <div class="text-[11px] uppercase tracking-wider font-bold text-slate-500 mb-2">C · Listado · cards agrupadas por tipo</div>
+        <div class="space-y-2 text-[12px]">
+          <div class="border border-emerald-200 rounded-lg p-3 bg-gradient-to-r from-emerald-50/50 to-white">
+            <div class="flex justify-between items-start">
+              <div>
+                <div class="font-bold">Juan Pérez <span class="text-[10px] bg-emerald-100 text-emerald-700 px-1.5 rounded ml-1">Cliente</span></div>
+                <div class="text-slate-500 text-[11px]">3 ventas pendientes · último mov hace 45 días</div>
+              </div>
+              <div class="text-right">
+                <div class="text-emerald-700 font-bold tabular">+ S/ 4.200</div>
+                <div class="text-[10px] text-rose-600">Aging crítico</div>
+              </div>
+            </div>
+          </div>
+          <div class="border border-rose-200 rounded-lg p-3 bg-gradient-to-r from-rose-50/50 to-white">
+            <div class="flex justify-between items-start">
+              <div>
+                <div class="font-bold">MicroIngredients Inc. <span class="text-[10px] bg-rose-100 text-rose-700 px-1.5 rounded ml-1">Proveedor</span></div>
+                <div class="text-slate-500 text-[11px]">OC-2026-005 pendiente · último mov hace 15 días</div>
+              </div>
+              <div class="text-right">
+                <div class="text-rose-700 font-bold tabular">− US$ 3.500</div>
+                <div class="text-[10px] text-slate-500">PEN equiv: S/ 13.125</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="text-[10px] text-slate-500 italic mt-2">
+          Click en cualquier card → abre Drawer con drill-down: lista de movimientos, opción de
+          registrar cobro/pago, ver historial completo de la entidad.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- §5 · LOS 19 TIPOS DE MOVIMIENTO -->
+  <section class="bg-white border border-slate-200 rounded-2xl p-6 space-y-4">
+    <div class="flex items-center gap-2">
+      <span class="text-[10px] uppercase tracking-wider font-bold text-indigo-700">§ 5 · Cómo se mueve el saldo · 19 tipos de movimiento</span>
+      <div class="flex-1 h-px bg-indigo-200"></div>
+    </div>
+    <p class="text-slate-600 text-[13px]">
+      Cada operación del ERP que toca una entidad genera <strong>automáticamente</strong> un
+      MovimientoCC. No se llena a mano · se dispara desde el documento origen.
+    </p>
+
+    <div class="overflow-x-auto">
+      <table class="w-full text-[12px]">
+        <thead>
+          <tr class="bg-slate-50 text-left">
+            <th class="px-3 py-2 font-semibold">Operación ERP (origen)</th>
+            <th class="px-3 py-2 font-semibold">Tipo movimiento CC</th>
+            <th class="px-3 py-2 font-semibold">Efecto en saldo</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+          <tr><td class="px-3 py-2">Emitís OC a proveedor</td><td class="px-3 py-2 text-rose-700 font-mono text-[11px]">debito_oc</td><td class="px-3 py-2">+ deuda con proveedor</td></tr>
+          <tr><td class="px-3 py-2">Le pagás al proveedor</td><td class="px-3 py-2 text-emerald-700 font-mono text-[11px]">credito_pago_oc</td><td class="px-3 py-2">− deuda con proveedor</td></tr>
+          <tr><td class="px-3 py-2">Emitís venta al cliente</td><td class="px-3 py-2 text-emerald-700 font-mono text-[11px]">debito_venta</td><td class="px-3 py-2">+ saldo a cobrar</td></tr>
+          <tr><td class="px-3 py-2">Cliente paga</td><td class="px-3 py-2 text-emerald-700 font-mono text-[11px]">credito_cobro_venta</td><td class="px-3 py-2">− saldo a cobrar</td></tr>
+          <tr><td class="px-3 py-2">Cargo en TC corporativa</td><td class="px-3 py-2 text-amber-700 font-mono text-[11px]">debito_cargo_tc</td><td class="px-3 py-2">+ deuda con banco TC</td></tr>
+          <tr><td class="px-3 py-2">Pagás estado de cuenta TC</td><td class="px-3 py-2 text-emerald-700 font-mono text-[11px]">credito_pago_estado_cuenta_tc</td><td class="px-3 py-2">− deuda con banco TC</td></tr>
+          <tr><td class="px-3 py-2">Pagás boleta empleado</td><td class="px-3 py-2 text-emerald-700 font-mono text-[11px]">credito_pago_boleta</td><td class="px-3 py-2">Sueldo cancelado</td></tr>
+          <tr><td class="px-3 py-2">Adelanto a empleado</td><td class="px-3 py-2 text-rose-700 font-mono text-[11px]">debito_adelanto_empleado</td><td class="px-3 py-2">Empleado debe descontar</td></tr>
+          <tr><td class="px-3 py-2">Reclamo aceptado proveedor</td><td class="px-3 py-2 text-emerald-700 font-mono text-[11px]">credito_reclamo</td><td class="px-3 py-2">− deuda con proveedor</td></tr>
+          <tr><td class="px-3 py-2">Cliente devuelve mercadería</td><td class="px-3 py-2 text-emerald-700 font-mono text-[11px]">credito_devolucion_cliente</td><td class="px-3 py-2">− saldo a cobrar</td></tr>
+          <tr><td class="px-3 py-2">Comisión devengada</td><td class="px-3 py-2 text-rose-700 font-mono text-[11px]">debito_comision</td><td class="px-3 py-2">+ deuda con comisionista</td></tr>
+          <tr><td class="px-3 py-2">Aplicación saldo a favor</td><td class="px-3 py-2 text-slate-700 font-mono text-[11px]">aplicacion_saldo</td><td class="px-3 py-2">Mueve saldo entre docs</td></tr>
+          <tr><td class="px-3 py-2">Devolución dinero al cliente</td><td class="px-3 py-2 text-slate-700 font-mono text-[11px]">devolucion_cash</td><td class="px-3 py-2">Reembolso efectivo</td></tr>
+          <tr><td class="px-3 py-2">Ajuste manual</td><td class="px-3 py-2 text-slate-700 font-mono text-[11px]">ajuste_manual</td><td class="px-3 py-2">Corrección con motivo obligatorio</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- §6 · SUB-PROCESOS / WORKFLOW -->
+  <section class="bg-white border border-slate-200 rounded-2xl p-6 space-y-4">
+    <div class="flex items-center gap-2">
+      <span class="text-[10px] uppercase tracking-wider font-bold text-indigo-700">§ 6 · Sub-procesos disponibles en la vista</span>
+      <div class="flex-1 h-px bg-indigo-200"></div>
+    </div>
+
+    <div class="space-y-3">
+      <div class="border-l-4 border-indigo-400 bg-indigo-50/40 p-3">
+        <div class="font-bold text-indigo-800 text-[13px]">P1 · Registrar cobro/pago distribuido</div>
+        <div class="text-[12px] text-indigo-900 mt-1">
+          Botón "+ Nuevo movimiento" → "Cobrar distribuido" (TX-2 wizard 4 pasos).
+          Permite recibir <strong>un cobro grande</strong> que cubre varias facturas del mismo
+          cliente · distribuye el monto FIFO automático o manual entre los docs abiertos.
+        </div>
+      </div>
+      <div class="border-l-4 border-rose-400 bg-rose-50/40 p-3">
+        <div class="font-bold text-rose-800 text-[13px]">P2 · Pagos masivos a proveedores</div>
+        <div class="text-[12px] text-rose-900 mt-1">
+          Dropdown "+ Nuevo mov" → "Pagos masivos (batch)". Seleccionás N facturas de
+          proveedores · una sola transferencia bancaria · sistema reparte los créditos
+          automáticamente en cada CC.
+        </div>
+      </div>
+      <div class="border-l-4 border-emerald-400 bg-emerald-50/40 p-3">
+        <div class="font-bold text-emerald-800 text-[13px]">P3 · Exportar Aging Excel</div>
+        <div class="text-[12px] text-emerald-900 mt-1">
+          Botón "Aging Excel" del header → genera CSV con saldo por entidad, días desde
+          último mov, distribución 0-30/31-60/+60 días. Para mandar al contador externo
+          o al cobrador.
+        </div>
+      </div>
+      <div class="border-l-4 border-amber-400 bg-amber-50/40 p-3">
+        <div class="font-bold text-amber-800 text-[13px]">P4 · Enviar recordatorios masivos</div>
+        <div class="text-[12px] text-amber-900 mt-1">
+          Botón "Recordatorios" del header → email automático a entidades con aging crítico
+          recordando que tienen saldo pendiente. <em>Próxima implementación.</em>
+        </div>
+      </div>
+      <div class="border-l-4 border-purple-400 bg-purple-50/40 p-3">
+        <div class="font-bold text-purple-800 text-[13px]">P5 · Drill por entidad (drawer)</div>
+        <div class="text-[12px] text-purple-900 mt-1">
+          Click sobre cualquier card → drawer lateral con: cronología completa de movimientos,
+          totales por tipo, opción de registrar cobro/pago directo, ver historial.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- §7 · PARA QUÉ TE SIRVE -->
+  <section class="bg-gradient-to-r from-indigo-50 to-purple-50 ring-1 ring-indigo-200 rounded-2xl p-6 space-y-3">
+    <div class="flex items-center gap-2">
+      <span class="text-[10px] uppercase tracking-wider font-bold text-indigo-700">§ 7 · Para qué te sirve operativamente</span>
+      <div class="flex-1 h-px bg-indigo-200"></div>
+    </div>
+    <ul class="space-y-2 text-[13px] text-slate-800">
+      <li class="flex gap-2"><span class="text-indigo-600 font-bold">→</span> <span><strong>Identificar tu top deudor</strong> y bloquear nuevo crédito hasta que pague (KPI dedicado en header)</span></li>
+      <li class="flex gap-2"><span class="text-indigo-600 font-bold">→</span> <span><strong>Detectar aging crítico</strong> (cuentas con +90 días vencidas) antes de que se vuelvan incobrables</span></li>
+      <li class="flex gap-2"><span class="text-indigo-600 font-bold">→</span> <span><strong>Registrar cobros parciales</strong> que cubren varias facturas del mismo cliente sin tener que ir factura por factura</span></li>
+      <li class="flex gap-2"><span class="text-indigo-600 font-bold">→</span> <span><strong>Aplicar saldos a favor</strong> (cliente que pagó de más por error) automáticamente a la próxima venta</span></li>
+      <li class="flex gap-2"><span class="text-indigo-600 font-bold">→</span> <span><strong>Cuadrar contabilidad fin de mes</strong> sin sumar a mano docs sueltos · todo está consolidado por entidad</span></li>
+      <li class="flex gap-2"><span class="text-indigo-600 font-bold">→</span> <span><strong>Generar el aging para enviar al contador externo</strong> o al cobrador (CSV exportable)</span></li>
+      <li class="flex gap-2"><span class="text-indigo-600 font-bold">→</span> <span><strong>Tener historial inmutable</strong> de toda relación financiera con cada persona/empresa (audit trail contable)</span></li>
+    </ul>
+  </section>
+
+  <!-- §8 · DIFERENCIAS CON OTRAS SUB-VISTAS -->
+  <section class="bg-white border border-slate-200 rounded-2xl p-6 space-y-3">
+    <div class="flex items-center gap-2">
+      <span class="text-[10px] uppercase tracking-wider font-bold text-indigo-700">§ 8 · CC vs otras sub-vistas Finanzas (cero duplicidad)</span>
+      <div class="flex-1 h-px bg-indigo-200"></div>
+    </div>
+    <table class="w-full text-[12px]">
+      <thead><tr class="bg-slate-50 text-left">
+        <th class="px-3 py-2">Sub-vista</th>
+        <th class="px-3 py-2">Foco</th>
+        <th class="px-3 py-2">Cuándo abrirla</th>
+      </tr></thead>
+      <tbody class="divide-y divide-slate-100">
+        <tr><td class="px-3 py-2 font-bold text-emerald-700">Saldos</td><td class="px-3 py-2">Cuánto dinero TENGO (caja+bancos+wallets+TC)</td><td class="px-3 py-2">"¿Cuánto efectivo hay disponible hoy?"</td></tr>
+        <tr><td class="px-3 py-2 font-bold text-indigo-700">CC</td><td class="px-3 py-2">Cuánto me DEBEN / DEBO con cada entidad</td><td class="px-3 py-2">"¿Quién me debe? ¿A quién le debo?"</td></tr>
+        <tr><td class="px-3 py-2 font-bold text-slate-700">Movimientos</td><td class="px-3 py-2">Ledger transaccional crudo · línea por línea</td><td class="px-3 py-2">"¿Qué pasó el 15 de mayo a las 14:30?"</td></tr>
+        <tr><td class="px-3 py-2 font-bold text-amber-700">Cash Flow</td><td class="px-3 py-2">Proyección futura 30/60/90 días</td><td class="px-3 py-2">"¿Voy a tener plata para pagar todo el mes próximo?"</td></tr>
+        <tr><td class="px-3 py-2 font-bold text-purple-700">Análisis</td><td class="px-3 py-2">Salud financiera estratégica · 10 gráficas</td><td class="px-3 py-2">"¿Cómo viene el negocio en general?"</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="text-center text-[11px] text-slate-500 pt-4">
+    Mockup informativo · Vita Skin ERP · chk5.D-S9 · Generado 2026-05-21
+  </footer>
+
+</div>
+</body>
+</html>

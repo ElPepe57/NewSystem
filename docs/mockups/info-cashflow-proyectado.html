@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Cash Flow Proyectado · Qué hace y para qué sirve · Vita Skin ERP</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<style>
+  body { font-family: 'Inter', sans-serif; }
+  .tabular { font-variant-numeric: tabular-nums; }
+</style>
+</head>
+<body class="bg-slate-50 text-slate-900 p-6 md:p-10">
+<div class="max-w-5xl mx-auto space-y-8">
+
+  <!-- HERO -->
+  <header class="bg-gradient-to-br from-amber-600 to-amber-800 text-white rounded-2xl p-8 shadow-lg">
+    <div class="flex items-center gap-3 mb-2">
+      <span class="text-[10px] uppercase tracking-wider bg-white/20 px-2 py-0.5 rounded">Mockup informativo · Finanzas</span>
+    </div>
+    <h1 class="text-3xl font-extrabold tracking-tight">Cash Flow Proyectado</h1>
+    <p class="text-amber-100 mt-2">
+      Sub-vista <code class="bg-white/10 px-1.5 py-0.5 rounded">/finanzas/cash-flow</code> · proyección
+      de <strong>cuánto efectivo vas a tener</strong> en los próximos 30/60/90 días
+    </p>
+  </header>
+
+  <!-- §1 · QUÉ ES -->
+  <section class="bg-white border border-slate-200 rounded-2xl p-6 space-y-3">
+    <div class="flex items-center gap-2">
+      <span class="text-[10px] uppercase tracking-wider font-bold text-amber-700">§ 1 · Qué es</span>
+      <div class="flex-1 h-px bg-amber-200"></div>
+    </div>
+    <p class="text-slate-700 leading-relaxed">
+      Es la <strong>bola de cristal financiera</strong>. El sistema toma tu situación actual
+      (saldo en cuentas + facturas por cobrar + facturas por pagar + tarjetas + comisiones pendientes)
+      y la <strong>proyecta hacia adelante</strong> en una línea de tiempo de 30, 60 o 90 días.
+    </p>
+    <p class="text-slate-700 leading-relaxed">
+      El objetivo NO es predecir el futuro exacto · es <strong>detectar puntos de tensión</strong>
+      antes de que ocurran. Si en el día 47 la caja se va a poner negativa con la cobranza
+      esperada, querés saberlo HOY · no el día 47.
+    </p>
+    <div class="bg-amber-50 border-l-4 border-amber-400 p-3 text-[12px] text-amber-900">
+      <strong>Pregunta que esta vista responde:</strong> <em>"Si todo sigue como viene, ¿en qué momento del mes próximo voy a tener problemas de caja, y por cuánto?"</em>
+    </div>
+  </section>
+
+  <!-- §2 · CÓMO CALCULA -->
+  <section class="bg-white border border-slate-200 rounded-2xl p-6 space-y-4">
+    <div class="flex items-center gap-2">
+      <span class="text-[10px] uppercase tracking-wider font-bold text-amber-700">§ 2 · Cómo proyecta (los "drivers")</span>
+      <div class="flex-1 h-px bg-amber-200"></div>
+    </div>
+    <p class="text-slate-600 text-[13px]">
+      El sistema arma la proyección con <strong>drivers</strong> · cada driver es una fuente
+      conocida de entrada o salida de dinero con su fecha esperada.
+    </p>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+      <div class="border border-emerald-200 rounded-xl p-3 bg-emerald-50/40">
+        <div class="font-bold text-emerald-700 text-[13px] mb-2">↗ INGRESOS proyectados</div>
+        <ul class="text-[12px] text-slate-700 space-y-1">
+          <li>• <strong>Cobranzas CxC abiertas</strong> · facturas a clientes con fecha vencimiento</li>
+          <li>• <strong>Saldo en cajas recaudadoras</strong> (Yape/Plin/MP) pendiente de liquidar</li>
+          <li>• <strong>Adelantos esperados</strong> de cotizaciones pre-vendidas</li>
+          <li>• <strong>Promedio histórico</strong> ventas cash de últimos 90d (ajustado por estacionalidad básica)</li>
+        </ul>
+      </div>
+      <div class="border border-rose-200 rounded-xl p-3 bg-rose-50/40">
+        <div class="font-bold text-rose-700 text-[13px] mb-2">↘ EGRESOS proyectados</div>
+        <ul class="text-[12px] text-slate-700 space-y-1">
+          <li>• <strong>OCs a pagar</strong> · facturas de proveedores con vencimiento futuro</li>
+          <li>• <strong>Boletas planilla próx</strong> · sueldos del mes en curso/próximo</li>
+          <li>• <strong>Cierres de TC</strong> · fechas conocidas + monto estado de cuenta</li>
+          <li>• <strong>Comisiones devengadas</strong> · colaboradores sin pagar</li>
+          <li>• <strong>Gastos fijos recurrentes</strong> (alquiler, SaaS, servicios)</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- §3 · KPI strip -->
+  <section class="bg-white border border-slate-200 rounded-2xl p-6 space-y-4">
+    <div class="flex items-center gap-2">
+      <span class="text-[10px] uppercase tracking-wider font-bold text-amber-700">§ 3 · KPI strip (5 indicadores)</span>
+      <div class="flex-1 h-px bg-amber-200"></div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-5 gap-2 text-[12px]">
+      <div class="bg-teal-50 ring-1 ring-teal-200 rounded-lg p-3">
+        <div class="font-bold text-teal-700 mb-1">POSICIÓN HOY</div>
+        <div class="text-teal-900 text-lg font-bold tabular">S/ 12.400</div>
+        <div class="text-teal-700 text-[10px] mt-1">caja + bancos + recaudadoras hoy</div>
+      </div>
+      <div class="bg-emerald-50 ring-1 ring-emerald-200 rounded-lg p-3">
+        <div class="font-bold text-emerald-700 mb-1">PROYECTADO +30D</div>
+        <div class="text-emerald-900 text-lg font-bold tabular">+ S/ 8.200</div>
+        <div class="text-emerald-700 text-[10px] mt-1">posición prevista al día 30</div>
+      </div>
+      <div class="bg-amber-50 ring-1 ring-amber-200 rounded-lg p-3">
+        <div class="font-bold text-amber-700 mb-1">PROYECTADO +60D</div>
+        <div class="text-amber-900 text-lg font-bold tabular">+ S/ 2.100</div>
+        <div class="text-amber-700 text-[10px] mt-1">tensión moderada</div>
+      </div>
+      <div class="bg-rose-50 ring-1 ring-rose-200 rounded-lg p-3">
+        <div class="font-bold text-rose-700 mb-1">BURN RATE</div>
+        <div class="text-rose-900 text-lg font-bold tabular">S/ 18.500/m</div>
+        <div class="text-rose-700 text-[10px] mt-1">egresos prom últimos 90d</div>
+      </div>
+      <div class="bg-indigo-50 ring-1 ring-indigo-200 rounded-lg p-3">
+        <div class="font-bold text-indigo-700 mb-1">DÍA CRÍTICO PRÓX</div>
+        <div class="text-indigo-900 text-lg font-bold tabular">Día 47</div>
+        <div class="text-indigo-700 text-[10px] mt-1">cierre TC BCP + sueldos</div>
+      </div>
+    </div>
+
+    <div class="bg-slate-50 border border-slate-200 rounded-lg p-3 text-[12px] text-slate-700">
+      <strong>Lectura rápida:</strong> hoy tenés S/ 12.400 · al día 30 vas a +S/ 8.200 · al día 60
+      vas a +S/ 2.100 · si seguís quemando S/ 18.500/mes el sistema te marca el día 47 como
+      crítico (probable cierre TC + sueldos juntos). <strong>Necesitás acelerar cobranza</strong>
+      antes del día 47 o postergar 1-2 pagos.
+    </div>
+  </section>
+
+  <!-- §4 · LOS 3 ESCENARIOS -->
+  <section class="bg-white border border-slate-200 rounded-2xl p-6 space-y-4">
+    <div class="flex items-center gap-2">
+      <span class="text-[10px] uppercase tracking-wider font-bold text-amber-700">§ 4 · 3 escenarios automáticos</span>
+      <div class="flex-1 h-px bg-amber-200"></div>
+    </div>
+    <p class="text-slate-600 text-[13px]">
+      El sistema NO te da UN solo número proyectado · te da una banda con 3 escenarios para
+      que sepas <strong>el mejor caso, el caso base y el peor caso</strong>.
+    </p>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+      <div class="bg-emerald-50 ring-1 ring-emerald-300 rounded-xl p-4">
+        <div class="font-bold text-emerald-800 text-[13px] mb-1">🌤 OPTIMISTA</div>
+        <div class="text-[12px] text-emerald-900">
+          Todas las CxC se cobran en término · ventas cash crecen 15% · proveedores aceptan
+          extender pago 1 semana.
+        </div>
+        <div class="mt-2 text-lg font-bold tabular text-emerald-900">+ S/ 14.300 al día 60</div>
+      </div>
+      <div class="bg-slate-50 ring-1 ring-slate-300 rounded-xl p-4">
+        <div class="font-bold text-slate-800 text-[13px] mb-1">⛅ BASE</div>
+        <div class="text-[12px] text-slate-900">
+          Todo sigue como viene · CxC se cobran en fechas históricas · ventas siguen el
+          promedio · pagos en fecha.
+        </div>
+        <div class="mt-2 text-lg font-bold tabular text-slate-900">+ S/ 2.100 al día 60</div>
+      </div>
+      <div class="bg-rose-50 ring-1 ring-rose-300 rounded-xl p-4">
+        <div class="font-bold text-rose-800 text-[13px] mb-1">🌧 PESIMISTA</div>
+        <div class="text-[12px] text-rose-900">
+          CxC se atrasan 20% · ventas cash caen 15% · proveedores piden adelanto.
+        </div>
+        <div class="mt-2 text-lg font-bold tabular text-rose-900">− S/ 5.800 al día 60</div>
+      </div>
+    </div>
+
+    <div class="bg-amber-50 border-l-4 border-amber-400 p-3 text-[12px] text-amber-900">
+      <strong>Tu decisión gerencial:</strong> ¿podés vivir con el escenario pesimista? Si la
+      respuesta es no, hay que actuar HOY para no llegar a ese punto (acelerar cobranza,
+      renegociar plazos, asegurar líneas de emergencia).
+    </div>
+  </section>
+
+  <!-- §5 · QUÉ INFO PRESENTA -->
+  <section class="bg-white border border-slate-200 rounded-2xl p-6 space-y-4">
+    <div class="flex items-center gap-2">
+      <span class="text-[10px] uppercase tracking-wider font-bold text-amber-700">§ 5 · Layout completo de la vista</span>
+      <div class="flex-1 h-px bg-amber-200"></div>
+    </div>
+
+    <ol class="space-y-3 text-[12px]">
+      <li class="flex gap-3">
+        <span class="bg-amber-100 text-amber-700 font-bold rounded-full w-6 h-6 flex items-center justify-center text-[11px] flex-shrink-0">1</span>
+        <div>
+          <div class="font-bold text-slate-900">KPI strip (5 cards arriba)</div>
+          <div class="text-slate-600">Posición hoy · +30d · +60d · burn rate · día crítico próximo</div>
+        </div>
+      </li>
+      <li class="flex gap-3">
+        <span class="bg-amber-100 text-amber-700 font-bold rounded-full w-6 h-6 flex items-center justify-center text-[11px] flex-shrink-0">2</span>
+        <div>
+          <div class="font-bold text-slate-900">Gráfica SVG · curva proyectada con 3 escenarios</div>
+          <div class="text-slate-600">Eje X = días (0 a 90) · Eje Y = saldo PEN · 3 líneas (optimista/base/pesimista) + marcadores de puntos críticos</div>
+        </div>
+      </li>
+      <li class="flex gap-3">
+        <span class="bg-amber-100 text-amber-700 font-bold rounded-full w-6 h-6 flex items-center justify-center text-[11px] flex-shrink-0">3</span>
+        <div>
+          <div class="font-bold text-slate-900">Cards de los 3 escenarios</div>
+          <div class="text-slate-600">Resumen visual con monto final esperado en cada escenario</div>
+        </div>
+      </li>
+      <li class="flex gap-3">
+        <span class="bg-amber-100 text-amber-700 font-bold rounded-full w-6 h-6 flex items-center justify-center text-[11px] flex-shrink-0">4</span>
+        <div>
+          <div class="font-bold text-slate-900">Banner de tensión (si aplica)</div>
+          <div class="text-slate-600">Alerta visible si en algún día de la proyección la caja va a estar negativa o por debajo del mínimo de seguridad</div>
+        </div>
+      </li>
+      <li class="flex gap-3">
+        <span class="bg-amber-100 text-amber-700 font-bold rounded-full w-6 h-6 flex items-center justify-center text-[11px] flex-shrink-0">5</span>
+        <div>
+          <div class="font-bold text-slate-900">Tabla de drivers</div>
+          <div class="text-slate-600">Lista de cada movimiento esperado (cobranza X cliente día 12 +S/ 800 · pago Y proveedor día 18 −S/ 1.500 · etc.) ordenada cronológicamente · contribución al saldo acumulado</div>
+        </div>
+      </li>
+      <li class="flex gap-3">
+        <span class="bg-amber-100 text-amber-700 font-bold rounded-full w-6 h-6 flex items-center justify-center text-[11px] flex-shrink-0">6</span>
+        <div>
+          <div class="font-bold text-slate-900">Sección "Drivers de proyección · modelo subyacente"</div>
+          <div class="text-slate-600">Cards explicando cada categoría de driver (cobros · pagos · gastos fijos · etc.) · qué % aporta · qué fuente de datos usa</div>
+        </div>
+      </li>
+    </ol>
+  </section>
+
+  <!-- §6 · SUB-PROCESOS / ACCIONES -->
+  <section class="bg-white border border-slate-200 rounded-2xl p-6 space-y-3">
+    <div class="flex items-center gap-2">
+      <span class="text-[10px] uppercase tracking-wider font-bold text-amber-700">§ 6 · Acciones disponibles</span>
+      <div class="flex-1 h-px bg-amber-200"></div>
+    </div>
+
+    <div class="space-y-2">
+      <div class="border-l-4 border-amber-400 bg-amber-50/30 p-3 text-[12px]">
+        <strong class="text-amber-800">Filtros temporales:</strong>
+        <span class="text-slate-700">Horizonte 30d / 60d / 90d · escenarios visibles (mostrar/ocultar cada uno)</span>
+      </div>
+      <div class="border-l-4 border-amber-400 bg-amber-50/30 p-3 text-[12px]">
+        <strong class="text-amber-800">Exportar proyección:</strong>
+        <span class="text-slate-700">Genera PDF con gráfica + tabla drivers (próximamente)</span>
+      </div>
+      <div class="border-l-4 border-amber-400 bg-amber-50/30 p-3 text-[12px]">
+        <strong class="text-amber-800">Configurar drivers:</strong>
+        <span class="text-slate-700">Ajustar manualmente % por categoría (ej. "asumir que ventas cash van a crecer 20% próximo mes") · permite simular escenarios propios además de los 3 automáticos. (Próximamente)</span>
+      </div>
+      <div class="border-l-4 border-amber-400 bg-amber-50/30 p-3 text-[12px]">
+        <strong class="text-amber-800">Simular escenario what-if:</strong>
+        <span class="text-slate-700">"¿Qué pasa si pierdo al cliente Top X?" o "¿Qué pasa si retraso el pago a MicroIngredients 30 días?" (Próximamente)</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- §7 · LIMITACIONES HONESTAS -->
+  <section class="bg-slate-50 border border-slate-200 rounded-2xl p-6 space-y-3">
+    <div class="flex items-center gap-2">
+      <span class="text-[10px] uppercase tracking-wider font-bold text-slate-700">§ 7 · Limitaciones honestas (qué NO hace)</span>
+      <div class="flex-1 h-px bg-slate-300"></div>
+    </div>
+    <ul class="text-[12px] text-slate-700 space-y-1.5">
+      <li>• <strong>No predice ventas nuevas</strong> que aún no están en el sistema · usa promedio histórico simple, no machine learning</li>
+      <li>• <strong>No considera estacionalidad fina</strong> · si vendés mucho más en diciembre, eso lo tenés que ajustar manualmente con "Configurar drivers"</li>
+      <li>• <strong>Asume que los plazos de pago se cumplen</strong> en el escenario base · si un cliente típicamente paga +30 días tarde, eso se ajusta en su límite/política de crédito</li>
+      <li>• <strong>No incluye inversiones financieras</strong> (CDs · depósitos a plazo) porque Vita Skin no las tiene aún · si las tuviera, se agregarían como driver dedicado</li>
+      <li>• <strong>Es una herramienta de alerta, no una promesa</strong> · si el sistema dice "+S/ 8.200" no significa que vas a tener exactamente eso · significa que con la información actual eso es razonable esperar</li>
+    </ul>
+  </section>
+
+  <!-- §8 · PARA QUÉ TE SIRVE -->
+  <section class="bg-gradient-to-r from-amber-50 to-rose-50 ring-1 ring-amber-200 rounded-2xl p-6 space-y-3">
+    <div class="flex items-center gap-2">
+      <span class="text-[10px] uppercase tracking-wider font-bold text-amber-700">§ 8 · Para qué te sirve operativamente</span>
+      <div class="flex-1 h-px bg-amber-200"></div>
+    </div>
+    <ul class="space-y-2 text-[13px] text-slate-800">
+      <li class="flex gap-2"><span class="text-amber-600 font-bold">→</span> <span><strong>Anticipar cuándo necesitarás capital</strong> · si el día crítico próximo está a 30 días, podés gestionar línea de crédito ahora, no cuando ya estés ahogado</span></li>
+      <li class="flex gap-2"><span class="text-amber-600 font-bold">→</span> <span><strong>Decidir si podés tomar una compra grande HOY</strong> · si la proyección a 60d es +S/ 2K, no tomes un compromiso de S/ 15K sin antes asegurar otra fuente</span></li>
+      <li class="flex gap-2"><span class="text-amber-600 font-bold">→</span> <span><strong>Priorizar qué cobranzas perseguir</strong> · si tu día crítico es el 47 y hay un cobro de S/ 5K esperado el 45, ese es prioridad absoluta</span></li>
+      <li class="flex gap-2"><span class="text-amber-600 font-bold">→</span> <span><strong>Negociar plazos con proveedores</strong> con data dura · "muéstrame tu cash flow proyectado" se contesta exportando esta vista</span></li>
+      <li class="flex gap-2"><span class="text-amber-600 font-bold">→</span> <span><strong>Identificar tu burn rate real</strong> y compararlo con tu ingreso mensual · si quemás más de lo que ingresás, lo ves en el primer KPI</span></li>
+    </ul>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="text-center text-[11px] text-slate-500 pt-4">
+    Mockup informativo · Vita Skin ERP · chk5.D-S9 · Generado 2026-05-21
+  </footer>
+
+</div>
+</body>
+</html>
