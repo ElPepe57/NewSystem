@@ -39,8 +39,11 @@ import {
   Download,
   Settings2,
   CreditCard,
+  // chk5.E-S6 · panel "Alimentado por"
+  Receipt,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import {
   StatDistribution,
 } from '../../components/common';
@@ -637,6 +640,111 @@ const ConfigurarContableModal: React.FC<ConfigurarContableModalProps> = ({
 type _ConfigContableFormShape = ConfigContableForm;
 
 // ═════════════════════════════════════════════════════════════════════════
+// ALIMENTADO POR PANEL · canon v5.1 chk5.E-S6
+// Transparencia cross-módulo + S6.1 cross-links a módulos fuente
+// ═════════════════════════════════════════════════════════════════════════
+
+function AlimentadoPorPanel() {
+  const navigate = useNavigate();
+
+  const fuentes: Array<{
+    label: string;
+    descripcion: string;
+    color: 'emerald' | 'rose' | 'amber' | 'teal' | 'purple';
+    icon: LucideIcon;
+    ruta: string;
+  }> = [
+    {
+      label: 'Ventas',
+      descripcion: 'ventas confirmadas + devoluciones · alimenta P&L · CxC',
+      color: 'emerald',
+      icon: DollarSign,
+      ruta: '/ventas',
+    },
+    {
+      label: 'Compras',
+      descripcion: 'OCs recibidas · alimenta COGS · inventario · CxP',
+      color: 'rose',
+      icon: ShoppingCart,
+      ruta: '/compras',
+    },
+    {
+      label: 'Gastos',
+      descripcion: 'gastos del período · alimenta opex · margen neto',
+      color: 'amber',
+      icon: Receipt,
+      ruta: '/gastos',
+    },
+    {
+      label: 'Finanzas',
+      descripcion: 'movimientos · saldos · TC · alimenta caja · diferencial',
+      color: 'teal',
+      icon: Wallet,
+      ruta: '/finanzas',
+    },
+    {
+      label: 'Stock',
+      descripcion: 'unidades · valorización · alimenta inventario en Balance',
+      color: 'purple',
+      icon: Package,
+      ruta: '/stock',
+    },
+  ];
+
+  const colorMap = {
+    emerald: { bg: 'bg-emerald-50', text: 'text-emerald-700', textHover: 'hover:text-emerald-900', border: 'hover:border-emerald-300', iconBg: 'bg-emerald-100', iconText: 'text-emerald-700' },
+    rose: { bg: 'bg-rose-50', text: 'text-rose-700', textHover: 'hover:text-rose-900', border: 'hover:border-rose-300', iconBg: 'bg-rose-100', iconText: 'text-rose-700' },
+    amber: { bg: 'bg-amber-50', text: 'text-amber-700', textHover: 'hover:text-amber-900', border: 'hover:border-amber-300', iconBg: 'bg-amber-100', iconText: 'text-amber-700' },
+    teal: { bg: 'bg-teal-50', text: 'text-teal-700', textHover: 'hover:text-teal-900', border: 'hover:border-teal-300', iconBg: 'bg-teal-100', iconText: 'text-teal-700' },
+    purple: { bg: 'bg-purple-50', text: 'text-purple-700', textHover: 'hover:text-purple-900', border: 'hover:border-purple-300', iconBg: 'bg-purple-100', iconText: 'text-purple-700' },
+  };
+
+  return (
+    <section className="bg-white border border-slate-200 rounded-2xl p-5">
+      <div className="flex items-start gap-3 mb-4">
+        <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center flex-shrink-0">
+          <Info className="w-4 h-4 text-slate-600" />
+        </div>
+        <div className="flex-1">
+          <h3 className="text-[13px] font-bold text-slate-900">
+            Alimentado por · 5 módulos del sistema
+          </h3>
+          <p className="text-[11px] text-slate-500 leading-snug">
+            Contabilidad agrega y reconcilia data de estos módulos. Click en cada chip para ir a la
+            fuente y verificar/ajustar movimientos · cero captura manual en este módulo.
+          </p>
+        </div>
+      </div>
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
+        {fuentes.map((f) => {
+          const c = colorMap[f.color];
+          const Icon = f.icon;
+          return (
+            <button
+              key={f.label}
+              onClick={() => navigate(f.ruta)}
+              className={`text-left p-3 bg-white border border-slate-200 rounded-lg ${c.border} hover:bg-slate-50 transition-colors group`}
+              title={`Ir a ${f.label}`}
+            >
+              <div className="flex items-center gap-2 mb-1.5">
+                <div className={`w-6 h-6 rounded ${c.iconBg} flex items-center justify-center`}>
+                  <Icon className={`w-3.5 h-3.5 ${c.iconText}`} />
+                </div>
+                <span className={`text-[12px] font-bold text-slate-900 ${c.textHover}`}>
+                  {f.label}
+                </span>
+                <ChevronRight className="w-3 h-3 text-slate-300 group-hover:text-slate-500 ml-auto" />
+              </div>
+              <div className="text-[10px] text-slate-500 leading-snug">{f.descripcion}</div>
+            </button>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
+// ═════════════════════════════════════════════════════════════════════════
 // TENDENCIAS VIEW · canon v5.1 chk5.E-S5
 // ═════════════════════════════════════════════════════════════════════════
 
@@ -1091,6 +1199,107 @@ export function Contabilidad() {
   const acumuladoUtilidadNeta = tendencia.reduce((sum, m) => sum + m.utilidadNeta, 0);
   const promedioMensual = tendencia.length > 0 ? acumuladoUtilidadNeta / tendencia.length : 0;
 
+  // ===== chk5.E-S6 · Export CSV contextual al tab activo =====
+  const downloadCSV = (filename: string, headers: string[], rows: (string | number)[][]) => {
+    const csvLines = [headers, ...rows].map((r) =>
+      r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(','),
+    );
+    const csv = csvLines.join('\n');
+    const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${filename}-${anio}-${String(mes).padStart(2, '0')}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleExportContextual = () => {
+    const mesNombre = estado?.periodo.nombreMes || `Mes ${mes}`;
+
+    if (tabActiva === 'balance' && balance) {
+      const headers = ['Sección', 'Concepto', 'Monto PEN'];
+      const rows: (string | number)[][] = [
+        ['ACTIVO', 'Efectivo y equivalentes', balance.activos.corriente.efectivo.total.toFixed(2)],
+        ['ACTIVO', 'CxC · clientes', balance.activos.corriente.cuentasPorCobrar.ventasPendientes.toFixed(2)],
+        ['ACTIVO', '(−) Provisión incobrables', (-balance.activos.corriente.cuentasPorCobrar.provisionIncobrables).toFixed(2)],
+        ['ACTIVO', 'Inventarios', balance.activos.corriente.inventarios.totalValorPEN.toFixed(2)],
+        ['ACTIVO', 'TOTAL ACTIVO CORRIENTE', balance.activos.corriente.total.toFixed(2)],
+        ['ACTIVO', 'TOTAL ACTIVO NO CORRIENTE', balance.activos.noCorriente.total.toFixed(2)],
+        ['ACTIVO', 'TOTAL ACTIVO', balance.activos.totalActivos.toFixed(2)],
+        ['PASIVO', 'CxP proveedores', balance.pasivos.corriente.cuentasPorPagarProveedores.ordenesCompraPendientes.toFixed(2)],
+        ['PASIVO', 'Otras CxP', balance.pasivos.corriente.otrasCuentasPorPagar.total.toFixed(2)],
+        ['PASIVO', 'Anticipos clientes', (balance.pasivos.corriente.anticiposClientes?.totalAnticiposPEN || 0).toFixed(2)],
+        ['PASIVO', 'Deudas TC bancos', (balance.pasivos.corriente.deudasFinancieras?.total || 0).toFixed(2)],
+        ['PASIVO', 'TOTAL PASIVO CORRIENTE', balance.pasivos.corriente.total.toFixed(2)],
+        ['PASIVO', 'TOTAL PASIVO NO CORRIENTE', balance.pasivos.noCorriente.total.toFixed(2)],
+        ['PASIVO', 'TOTAL PASIVO', balance.pasivos.totalPasivos.toFixed(2)],
+        ['PATRIMONIO', 'Capital social', balance.patrimonio.capitalSocial.toFixed(2)],
+        ['PATRIMONIO', 'Reserva legal', (balance.patrimonio.reservas || 0).toFixed(2)],
+        ['PATRIMONIO', 'Utilidades acumuladas', balance.patrimonio.utilidadesAcumuladas.toFixed(2)],
+        ['PATRIMONIO', `Utilidad del período (${mesNombre} ${anio})`, balance.patrimonio.utilidadEjercicio.toFixed(2)],
+        ['PATRIMONIO', 'TOTAL PATRIMONIO', balance.patrimonio.totalPatrimonio.toFixed(2)],
+        ['CUADRE', 'Total Pasivo + Patrimonio', balance.totalPasivosPatrimonio.toFixed(2)],
+        ['CUADRE', 'Diferencia', balance.diferencia.toFixed(2)],
+        ['CUADRE', 'Balance cuadra', balance.balanceCuadra ? 'SÍ' : 'NO'],
+      ];
+      downloadCSV('balance-general', headers, rows);
+      return;
+    }
+
+    if (tabActiva === 'estado-resultados' && estado) {
+      const headers = ['Bloque', 'Concepto', 'Monto PEN', '% Ventas'];
+      const v = estado.ventasNetas;
+      const pctOf = (x: number) => (v > 0 ? ((x / v) * 100).toFixed(1) : '0.0');
+      const rows: (string | number)[][] = [
+        ['VENTAS NETAS', 'Ventas confirmadas', estado.ventasBrutas.toFixed(2), pctOf(estado.ventasBrutas)],
+        ['VENTAS NETAS', '(−) Descuentos y devoluciones', (-(estado.descuentos + estado.devoluciones)).toFixed(2), `-${pctOf(estado.descuentos + estado.devoluciones)}`],
+        ['VENTAS NETAS', 'TOTAL VENTAS NETAS', estado.ventasNetas.toFixed(2), '100.0'],
+        ['COGS', 'Costo de productos', estado.compras.costoProductos.toFixed(2), pctOf(estado.compras.costoProductos)],
+        ['COGS', 'Flete intl + impuestos importación', (estado.compras.fleteInternacional + estado.compras.impuestos + estado.compras.otrosGastosImportacion).toFixed(2), pctOf(estado.compras.fleteInternacional + estado.compras.impuestos + estado.compras.otrosGastosImportacion)],
+        ['COGS', 'TOTAL COGS', (-estado.compras.total).toFixed(2), pctOf(estado.compras.total)],
+        ['MARGEN BRUTO', 'MARGEN BRUTO', estado.utilidadBruta.toFixed(2), estado.utilidadBrutaPorcentaje.toFixed(1)],
+        ['GASTOS OPERATIVOS', 'Gastos de venta', estado.costosVariables.gv.total.toFixed(2), pctOf(estado.costosVariables.gv.total)],
+        ['GASTOS OPERATIVOS', 'Gastos administrativos', estado.costosFijos.ga.total.toFixed(2), pctOf(estado.costosFijos.ga.total)],
+        ['GASTOS OPERATIVOS', 'Gastos de distribución', estado.costosVariables.gd.total.toFixed(2), pctOf(estado.costosVariables.gd.total)],
+        ['GASTOS OPERATIVOS', 'Gastos fijos', estado.costosFijos.go.total.toFixed(2), pctOf(estado.costosFijos.go.total)],
+        ['GASTOS OPERATIVOS', 'TOTAL GASTOS OPERATIVOS', (-estado.totalGastosOperativos).toFixed(2), pctOf(estado.totalGastosOperativos)],
+        ['EBITDA', 'EBITDA', estado.utilidadOperativa.toFixed(2), estado.utilidadOperativaPorcentaje.toFixed(1)],
+        ['OTROS', 'Diferencial cambiario neto', estado.otrosIngresosGastos.diferenciaCambiariaNeta.toFixed(2), pctOf(Math.abs(estado.otrosIngresosGastos.diferenciaCambiariaNeta))],
+        ['OTROS', 'Otros ingresos', estado.otrosIngresosGastos.otrosIngresos.toFixed(2), pctOf(estado.otrosIngresosGastos.otrosIngresos)],
+        ['UTILIDAD NETA', 'UTILIDAD NETA DEL PERÍODO', estado.utilidadNeta.toFixed(2), estado.utilidadNetaPorcentaje.toFixed(1)],
+      ];
+      downloadCSV('estado-resultados', headers, rows);
+      return;
+    }
+
+    if (tabActiva === 'resumen' && estado && balance) {
+      const headers = ['Métrica', 'Valor PEN'];
+      const rows: (string | number)[][] = [
+        ['Período', `${mesNombre} ${anio}`],
+        ['VENTAS NETAS', estado.ventasNetas.toFixed(2)],
+        ['Compras del período', estado.compras.total.toFixed(2)],
+        ['Margen bruto', estado.utilidadBruta.toFixed(2)],
+        ['% Margen bruto', estado.utilidadBrutaPorcentaje.toFixed(2)],
+        ['Gastos operativos', estado.totalGastosOperativos.toFixed(2)],
+        ['EBITDA', estado.utilidadOperativa.toFixed(2)],
+        ['UTILIDAD NETA', estado.utilidadNeta.toFixed(2)],
+        ['% Margen neto', estado.utilidadNetaPorcentaje.toFixed(2)],
+        ['Total Activos', balance.activos.totalActivos.toFixed(2)],
+        ['Total Pasivos', balance.pasivos.totalPasivos.toFixed(2)],
+        ['Total Patrimonio', balance.patrimonio.totalPatrimonio.toFixed(2)],
+        ['Tipo de cambio', balance.tipoCambio.toFixed(4)],
+      ];
+      downloadCSV('resumen-contable', headers, rows);
+      return;
+    }
+
+    // Fallback genérico
+    alert(
+      'Para exportar usá el botón "Exportar CSV" del tab activo · disponible en: Resumen · Balance · Estado de Resultados · Tendencias',
+    );
+  };
+
   return (
     <div className="p-4 lg:p-6">
       {/* Shell frame banking-grade · canon F1+S9.D1 · pixel-perfect Finanzas */}
@@ -1168,12 +1377,12 @@ export function Contabilidad() {
                 <Settings2 className="w-3 h-3" />
                 <span className="hidden sm:inline">Configurar</span>
               </button>
-              {/* Tier neutral · Exportar */}
+              {/* chk5.E-S6 · Tier neutral · Exportar (contextual al tab activo) */}
               <button
                 type="button"
-                onClick={() => console.info('Exportar Contabilidad · pendiente chk5.E-S6')}
-                aria-label="Exportar reporte contable"
-                title="Exportar reporte contable a PDF/Excel"
+                onClick={handleExportContextual}
+                aria-label="Exportar reporte contable del tab activo"
+                title="Exporta a CSV el reporte del tab activo (Resumen · Balance · P&L · Tendencias)"
                 className="text-[11px] font-semibold text-slate-600 hover:bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-lg flex items-center gap-1.5"
               >
                 <Download className="w-3 h-3" />
@@ -1509,6 +1718,9 @@ export function Contabilidad() {
               </div>
             </div>
           )}
+
+          {/* chk5.E-S6 · Panel "Alimentado por" · transparencia cross-módulo */}
+          <AlimentadoPorPanel />
         </div>
       )}
 
