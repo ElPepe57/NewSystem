@@ -1305,12 +1305,35 @@ export function Contabilidad() {
       {/* Shell frame banking-grade · canon F1+S9.D1 · pixel-perfect Finanzas */}
       <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
 
-        {/* §A · TOP BAR breadcrumb canon S9.D1 (3 niveles · sin grupo sidebar) */}
+        {/* §A · TOP BAR breadcrumb canon S9.D1 · 3 niveles · alineado con Finanzas
+              - Resumen      → Inicio › Contabilidad (default · sin leaf)
+              - Sub-vistas   → Inicio › Contabilidad › <leaf>
+              Razón: el grupo "Finanzas y Contabilidad" ya está visible siempre en
+              el sidebar izquierdo · no aporta repetirlo en breadcrumb. */}
         <div className="border-b border-slate-200 px-6 py-2.5 flex items-center gap-3 bg-slate-50">
           <div className="flex items-center text-[12px] flex-1">
             <a className="text-slate-500 hover:text-teal-700 cursor-pointer">Inicio</a>
             <ChevronRight className="w-3 h-3 text-slate-300 mx-1.5" />
-            <span className="text-slate-900 font-semibold">Contabilidad</span>
+            {tabActiva === 'resumen' ? (
+              <span className="text-slate-900 font-semibold">Contabilidad</span>
+            ) : (
+              <>
+                <a
+                  className="text-slate-500 hover:text-teal-700 cursor-pointer"
+                  onClick={() => setTabActiva('resumen')}
+                >
+                  Contabilidad
+                </a>
+                <ChevronRight className="w-3 h-3 text-slate-300 mx-1.5" />
+                <span className="text-slate-900 font-semibold">
+                  {tabActiva === 'balance' && 'Balance General'}
+                  {tabActiva === 'estado-resultados' && 'Estado de Resultados'}
+                  {tabActiva === 'indicadores' && 'Indicadores'}
+                  {tabActiva === 'tendencias' && 'Tendencias'}
+                  {tabActiva === 'cierre' && 'Cierre Mensual'}
+                </span>
+              </>
+            )}
           </div>
         </div>
 
