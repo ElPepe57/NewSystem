@@ -68,11 +68,45 @@ import { logger } from '../lib/logger';
 // CONFIGURACIÓN CONTABLE
 // ============================================================================
 
+/**
+ * Umbrales de salud · canon v5.2 chk5.E-A · Sprint A
+ * Controlan el banner "Estado del negocio" + insights automáticos (Sprint C)
+ * Defaults derivados de benchmarks PyME ecommerce skincare Perú
+ */
+export interface UmbralesSalud {
+  /** Margen Bruto saludable ≥ % (default 40%) */
+  margenBrutoMin: number;
+  /** Margen Neto saludable ≥ % (default 10%) */
+  margenNetoMin: number;
+  /** Crecimiento ventas mes a mes saludable ≥ % (default 0%) */
+  crecimientoVentasMin: number;
+  /** Días de caja libre saludable ≥ días (default 60) */
+  diasCajaMin: number;
+  /** Liquidez corriente saludable ≥ x (default 1.5x) */
+  liquidezCorrienteMin: number;
+  /** Días de inventario máx ≤ días (default 90) */
+  diasInventarioMax: number;
+  /** DSO · Días de cobro máx ≤ días (default 30) */
+  dsoMax: number;
+}
+
+export const DEFAULT_UMBRALES: UmbralesSalud = {
+  margenBrutoMin: 40,
+  margenNetoMin: 10,
+  crecimientoVentasMin: 0,
+  diasCajaMin: 60,
+  liquidezCorrienteMin: 1.5,
+  diasInventarioMax: 90,
+  dsoMax: 30,
+};
+
 interface ConfiguracionContable {
   capitalSocial: number;
   reservaLegal: number;
   tcPorDefecto: number;
   provisionIncobrablesPct: number;
+  /** chk5.E-A · Umbrales de salud para banner estado + insights · opcional (default DEFAULT_UMBRALES) */
+  umbrales?: UmbralesSalud;
   fechaActualizacion?: Timestamp;
 }
 
@@ -82,6 +116,7 @@ const DEFAULT_CONFIG: ConfiguracionContable = {
   reservaLegal: 0,
   tcPorDefecto: 0, // Se resuelve dinámicamente via tipoCambioService.resolverTCVenta()
   provisionIncobrablesPct: 5,
+  umbrales: DEFAULT_UMBRALES,
 };
 
 /**

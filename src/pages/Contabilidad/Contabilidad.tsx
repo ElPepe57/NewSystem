@@ -41,18 +41,25 @@ import {
   CreditCard,
   // chk5.E-S6 · panel "Alimentado por"
   Receipt,
+  // chk5.E-A · Sprint A · botón Glosario
+  BookOpen,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import {
   StatDistribution,
+  Sparkline,
+  TooltipPedagogico,
 } from '../../components/common';
+import type { SparklineColor } from '../../components/common';
+import { getTermino } from '../../data/glosarioContable';
 import { DataTable } from '../../design-system';
 import { FormModalV2 } from '../../design-system/components/FormModalV2';
 import type { DataTableColumn } from '../../design-system';
-import { EstadoResultados, BalanceGeneral, CierreMensual } from '../../components/modules/contabilidad';
+import { EstadoResultados, BalanceGeneral, CierreMensual, GlosarioModal } from '../../components/modules/contabilidad';
 import { ReporteDirectoIndirecto } from '../../components/modules/contabilidad/ReporteDirectoIndirecto';
 import { contabilidadService } from '../../services/contabilidad.service';
+import { DEFAULT_UMBRALES } from '../../services/contabilidad.service';
 import { useLineaNegocioStore } from '../../store/lineaNegocioStore';
 import type {
   EstadoResultados as EstadoResultadosType,
@@ -111,6 +118,10 @@ interface KpiContaCardProps {
   icon: LucideIcon;
   delta?: string;
   deltaPositive?: boolean;
+  /** chk5.E-A · ID del término en glosarioContable para tooltip pedagógico */
+  tooltipId?: string;
+  /** chk5.E-A · array de valores históricos para sparkline (6 meses recomendado) */
+  sparklineData?: number[];
 }
 
 const KPI_CARD_BG: Record<KpiColor, string> = {
@@ -144,29 +155,58 @@ const KPI_VALUE_COLOR: Record<KpiColor, string> = {
 };
 
 const KpiContaCard: React.FC<KpiContaCardProps> = ({
-  label, value, color, icon: Icon, delta, deltaPositive,
-}) => (
-  <div className={`rounded-2xl p-4 ${KPI_CARD_BG[color]}`}>
-    <div className="flex items-center justify-between mb-2">
-      <span className={`text-[10px] uppercase tracking-wider font-bold ${KPI_LABEL_COLOR[color]}`}>
-        {label}
-      </span>
-      <Icon className={`w-3.5 h-3.5 ${KPI_LABEL_COLOR[color]}`} />
-    </div>
-    <div className={`text-2xl font-bold tabular-nums ${KPI_VALUE_COLOR[color]}`}>
-      {value}
-    </div>
-    {delta && (
-      <div className={`text-[11px] mt-1 flex items-center gap-1 ${
-        deltaPositive === undefined ? KPI_LABEL_COLOR[color]
-        : deltaPositive ? 'text-emerald-700'
-        : 'text-rose-700'
-      }`}>
-        {delta}
+  label, value, color, icon: Icon, delta, deltaPositive, tooltipId, sparklineData,
+}) => {
+  // Resolver término del glosario para tooltip pedagógico
+  const termino = tooltipId ? getTermino(tooltipId) : undefined;
+  // Validar sparkline · necesita ≥2 valores finitos
+  const validSparkData = sparklineData?.filter((v) => Number.isFinite(v)) ?? [];
+  const showSparkline = validSparkData.length >= 2;
+
+  // Mapeo color KPI → color sparkline
+  const sparklineColor: SparklineColor =
+    color === 'purple' ? 'purple' : (color as SparklineColor);
+
+  return (
+    <div className={`rounded-2xl p-4 ${KPI_CARD_BG[color]}`}>
+      <div className="flex items-center justify-between mb-2">
+        <span className={`text-[10px] uppercase tracking-wider font-bold ${KPI_LABEL_COLOR[color]} flex items-center gap-1`}>
+          {label}
+          {termino && (
+            <TooltipPedagogico
+              titulo={termino.titulo}
+              definicion={termino.definicion}
+              calculo={termino.calculo}
+              saludable={termino.saludable}
+            />
+          )}
+        </span>
+        <Icon className={`w-3.5 h-3.5 ${KPI_LABEL_COLOR[color]}`} />
       </div>
-    )}
-  </div>
-);
+      <div className={`text-2xl font-bold tabular-nums ${KPI_VALUE_COLOR[color]}`}>
+        {value}
+      </div>
+      {showSparkline && (
+        <div className="mt-1.5">
+          <Sparkline
+            data={validSparkData}
+            color={sparklineColor}
+            ariaLabel={`Tendencia ${label.toLowerCase()} últimos ${validSparkData.length} meses`}
+          />
+        </div>
+      )}
+      {delta && (
+        <div className={`text-[11px] mt-1 flex items-center gap-1 ${
+          deltaPositive === undefined ? KPI_LABEL_COLOR[color]
+          : deltaPositive ? 'text-emerald-700'
+          : 'text-rose-700'
+        }`}>
+          {delta}
+        </div>
+      )}
+    </div>
+  );
+};
 
 interface ContaTabConfig {
   id: string;
@@ -461,6 +501,14 @@ const ConfigurarContableModal: React.FC<ConfigurarContableModalProps> = ({
   const [reservaStr, setReservaStr] = useState('0');
   const [provisionStr, setProvisionStr] = useState('5');
   const [tcStr, setTcStr] = useState('0');
+  // chk5.E-A · Umbrales de salud (Sprint A nuevo)
+  const [umbMargenBruto, setUmbMargenBruto] = useState('40');
+  const [umbMargenNeto, setUmbMargenNeto] = useState('10');
+  const [umbCrecimiento, setUmbCrecimiento] = useState('0');
+  const [umbDiasCaja, setUmbDiasCaja] = useState('60');
+  const [umbLiquidez, setUmbLiquidez] = useState('1.5');
+  const [umbDiasInv, setUmbDiasInv] = useState('90');
+  const [umbDso, setUmbDso] = useState('30');
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -476,6 +524,15 @@ const ConfigurarContableModal: React.FC<ConfigurarContableModalProps> = ({
         setReservaStr(String(cfg.reservaLegal ?? 0));
         setProvisionStr(String(cfg.provisionIncobrablesPct ?? 5));
         setTcStr(String(cfg.tcPorDefecto ?? 0));
+        // Umbrales · fallback a defaults si no existen
+        const u = cfg.umbrales ?? DEFAULT_UMBRALES;
+        setUmbMargenBruto(String(u.margenBrutoMin ?? 40));
+        setUmbMargenNeto(String(u.margenNetoMin ?? 10));
+        setUmbCrecimiento(String(u.crecimientoVentasMin ?? 0));
+        setUmbDiasCaja(String(u.diasCajaMin ?? 60));
+        setUmbLiquidez(String(u.liquidezCorrienteMin ?? 1.5));
+        setUmbDiasInv(String(u.diasInventarioMax ?? 90));
+        setUmbDso(String(u.dsoMax ?? 30));
       })
       .catch((err) => {
         setErrorMsg(err instanceof Error ? err.message : 'Error desconocido');
@@ -488,9 +545,26 @@ const ConfigurarContableModal: React.FC<ConfigurarContableModalProps> = ({
   const res = parseFloat(reservaStr.replace(',', '.'));
   const prov = parseFloat(provisionStr.replace(',', '.'));
   const tcN = parseFloat(tcStr.replace(',', '.'));
+  // Parse umbrales
+  const uMB = parseFloat(umbMargenBruto.replace(',', '.'));
+  const uMN = parseFloat(umbMargenNeto.replace(',', '.'));
+  const uCV = parseFloat(umbCrecimiento.replace(',', '.'));
+  const uDC = parseFloat(umbDiasCaja.replace(',', '.'));
+  const uLC = parseFloat(umbLiquidez.replace(',', '.'));
+  const uDI = parseFloat(umbDiasInv.replace(',', '.'));
+  const uDSO = parseFloat(umbDso.replace(',', '.'));
+  const umbralesValidos =
+    Number.isFinite(uMB) && uMB >= 0 && uMB <= 100 &&
+    Number.isFinite(uMN) && uMN >= 0 && uMN <= 100 &&
+    Number.isFinite(uCV) &&
+    Number.isFinite(uDC) && uDC >= 0 &&
+    Number.isFinite(uLC) && uLC >= 0 &&
+    Number.isFinite(uDI) && uDI >= 0 &&
+    Number.isFinite(uDSO) && uDSO >= 0;
   const valido = Number.isFinite(cap) && Number.isFinite(res)
     && Number.isFinite(prov) && prov >= 0 && prov <= 100
-    && Number.isFinite(tcN) && tcN >= 0;
+    && Number.isFinite(tcN) && tcN >= 0
+    && umbralesValidos;
 
   // Submit
   const handleSubmit = async () => {
@@ -503,6 +577,15 @@ const ConfigurarContableModal: React.FC<ConfigurarContableModalProps> = ({
         reservaLegal: res,
         provisionIncobrablesPct: prov,
         tcPorDefecto: tcN,
+        umbrales: {
+          margenBrutoMin: uMB,
+          margenNetoMin: uMN,
+          crecimientoVentasMin: uCV,
+          diasCajaMin: uDC,
+          liquidezCorrienteMin: uLC,
+          diasInventarioMax: uDI,
+          dsoMax: uDSO,
+        },
       });
       onSaved();
     } catch (err) {
@@ -623,11 +706,165 @@ const ConfigurarContableModal: React.FC<ConfigurarContableModalProps> = ({
               </p>
             </div>
 
+            {/* chk5.E-A · Sub-sección NUEVO · Umbrales de salud */}
+            <div className="pt-4 border-t border-slate-200">
+              <div className="flex items-center gap-2 mb-3">
+                <Activity className="w-4 h-4 text-emerald-600" />
+                <h3 className="text-[12px] uppercase tracking-wider font-bold text-emerald-700">Umbrales de salud</h3>
+                <span className="text-[9px] bg-emerald-50 text-emerald-700 px-1.5 py-0.5 rounded font-bold ml-auto">NUEVO</span>
+              </div>
+              <p className="text-[11px] text-slate-500 mb-3">
+                Valores "saludables" para tu negocio. Controlan el banner Estado del negocio y los insights automáticos.
+              </p>
+
+              {/* Bloque Rentabilidad · emerald */}
+              <div className="bg-emerald-50/30 border border-emerald-200/50 rounded-lg p-3 space-y-3 mb-3">
+                <div className="text-[10px] uppercase tracking-wider font-bold text-emerald-700">Rentabilidad</div>
+
+                <div>
+                  <label className="block text-[11px] font-semibold text-slate-700 mb-1">
+                    Margen Bruto saludable ≥
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="number"
+                      step="1"
+                      min="0"
+                      max="100"
+                      value={umbMargenBruto}
+                      onChange={(e) => setUmbMargenBruto(e.target.value)}
+                      className="w-full pl-3 pr-10 py-2 border border-slate-300 rounded-lg text-[12px] tabular-nums focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
+                    />
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 font-bold text-[12px]">%</span>
+                  </div>
+                  <p className="text-[10px] text-slate-500 mt-0.5">Skincare retail: 50-65% · default 40% = piso saludable</p>
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-semibold text-slate-700 mb-1">
+                    Margen Neto saludable ≥
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="number"
+                      step="1"
+                      min="0"
+                      max="100"
+                      value={umbMargenNeto}
+                      onChange={(e) => setUmbMargenNeto(e.target.value)}
+                      className="w-full pl-3 pr-10 py-2 border border-slate-300 rounded-lg text-[12px] tabular-nums focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
+                    />
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 font-bold text-[12px]">%</span>
+                  </div>
+                  <p className="text-[10px] text-slate-500 mt-0.5">PyME ecommerce sustentable necesita ≥10% para crecer</p>
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-semibold text-slate-700 mb-1">
+                    Crecimiento ventas mes a mes ≥
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="number"
+                      step="1"
+                      value={umbCrecimiento}
+                      onChange={(e) => setUmbCrecimiento(e.target.value)}
+                      className="w-full pl-3 pr-10 py-2 border border-slate-300 rounded-lg text-[12px] tabular-nums focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
+                    />
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 font-bold text-[12px]">%</span>
+                  </div>
+                  <p className="text-[10px] text-slate-500 mt-0.5">Negativo = alerta · ajustar según meta de crecimiento</p>
+                </div>
+              </div>
+
+              {/* Bloque Liquidez · sky */}
+              <div className="bg-sky-50/30 border border-sky-200/50 rounded-lg p-3 space-y-3 mb-3">
+                <div className="text-[10px] uppercase tracking-wider font-bold text-sky-700">Liquidez</div>
+
+                <div>
+                  <label className="block text-[11px] font-semibold text-slate-700 mb-1">
+                    Días de caja libre ≥
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="number"
+                      step="5"
+                      min="0"
+                      value={umbDiasCaja}
+                      onChange={(e) => setUmbDiasCaja(e.target.value)}
+                      className="w-full pl-3 pr-12 py-2 border border-slate-300 rounded-lg text-[12px] tabular-nums focus:border-sky-500 focus:ring-1 focus:ring-sky-500"
+                    />
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 font-bold text-[12px]">días</span>
+                  </div>
+                  <p className="text-[10px] text-slate-500 mt-0.5">2 meses de buffer ante shock externo (default)</p>
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-semibold text-slate-700 mb-1">
+                    Liquidez corriente ≥
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="number"
+                      step="0.1"
+                      min="0"
+                      value={umbLiquidez}
+                      onChange={(e) => setUmbLiquidez(e.target.value)}
+                      className="w-full pl-3 pr-8 py-2 border border-slate-300 rounded-lg text-[12px] tabular-nums focus:border-sky-500 focus:ring-1 focus:ring-sky-500"
+                    />
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 font-bold text-[12px]">x</span>
+                  </div>
+                  <p className="text-[10px] text-slate-500 mt-0.5">Convención contable: 1.5x mínimo</p>
+                </div>
+              </div>
+
+              {/* Bloque Eficiencia · amber */}
+              <div className="bg-amber-50/30 border border-amber-200/50 rounded-lg p-3 space-y-3">
+                <div className="text-[10px] uppercase tracking-wider font-bold text-amber-700">Eficiencia operativa</div>
+
+                <div>
+                  <label className="block text-[11px] font-semibold text-slate-700 mb-1">
+                    Días de Inventario máx ≤
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="number"
+                      step="5"
+                      min="0"
+                      value={umbDiasInv}
+                      onChange={(e) => setUmbDiasInv(e.target.value)}
+                      className="w-full pl-3 pr-12 py-2 border border-slate-300 rounded-lg text-[12px] tabular-nums focus:border-amber-500 focus:ring-1 focus:ring-amber-500"
+                    />
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 font-bold text-[12px]">días</span>
+                  </div>
+                  <p className="text-[10px] text-slate-500 mt-0.5">Skincare importado · pasarse genera capital atrapado</p>
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-semibold text-slate-700 mb-1">
+                    DSO · Días de Cobro máx ≤
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="number"
+                      step="5"
+                      min="0"
+                      value={umbDso}
+                      onChange={(e) => setUmbDso(e.target.value)}
+                      className="w-full pl-3 pr-12 py-2 border border-slate-300 rounded-lg text-[12px] tabular-nums focus:border-amber-500 focus:ring-1 focus:ring-amber-500"
+                    />
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 font-bold text-[12px]">días</span>
+                  </div>
+                  <p className="text-[10px] text-slate-500 mt-0.5">Ecommerce con pago al confirmar: 15-30 días</p>
+                </div>
+              </div>
+            </div>
+
             <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 flex items-start gap-2 text-[11px] text-amber-900">
               <AlertCircle className="w-4 h-4 text-amber-700 mt-0.5 flex-shrink-0" />
               <div>
                 <strong>Cambiar estos valores afecta los Estados Financieros retroactivamente.</strong>
-                {' '}Si modificás Provisión Incobrables, los Balances anteriores se recalculan al volver a abrirlos.
+                {' '}Si modificás Provisión Incobrables o umbrales, los reportes anteriores se recalculan al volver a abrirlos.
               </div>
             </div>
           </>
@@ -1107,6 +1344,8 @@ export function Contabilidad() {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   // chk5.E-S2 · modal Configurar contable
   const [configModalOpen, setConfigModalOpen] = useState(false);
+  // chk5.E-A · modal Glosario contable (Sprint A · alfabetización)
+  const [glosarioModalOpen, setGlosarioModalOpen] = useState(false);
 
   // Cargar datos
   const cargarDatos = async () => {
@@ -1389,6 +1628,17 @@ export function Contabilidad() {
                 <RefreshCw className={`w-3 h-3 ${loading ? 'animate-spin' : ''}`} />
                 <span className="hidden sm:inline">Recargar</span>
               </button>
+              {/* chk5.E-A · Tier neutral · Glosario (Sprint A nuevo) */}
+              <button
+                type="button"
+                onClick={() => setGlosarioModalOpen(true)}
+                aria-label="Abrir glosario de términos contables"
+                title="Glosario A-Z de términos contables explicados en lenguaje claro"
+                className="text-[11px] font-semibold text-slate-600 hover:bg-slate-50 border border-slate-200 px-2.5 py-1.5 rounded-lg flex items-center gap-1.5"
+              >
+                <BookOpen className="w-3 h-3" />
+                <span className="hidden md:inline">Glosario</span>
+              </button>
               {/* Tier destacada · Configurar (S2 nuevo) */}
               <button
                 type="button"
@@ -1425,24 +1675,29 @@ export function Contabilidad() {
               icon={DollarSign}
               delta={varVentas !== null ? `${varVentas >= 0 ? '+' : ''}${varVentas.toFixed(1)}% vs mes ant.` : undefined}
               deltaPositive={varVentas !== null ? varVentas >= 0 : undefined}
+              tooltipId="ventas-netas"
+              sparklineData={tendencia.map((m) => m.ventasNetas)}
             />
             <KpiContaCard
               label="TOTAL ACTIVOS"
               value={formatCurrency(balance.activos.totalActivos)}
               color="teal"
               icon={Wallet}
+              tooltipId="activo-corriente"
             />
             <KpiContaCard
               label="TOTAL PASIVOS"
               value={formatCurrency(balance.pasivos.totalPasivos)}
               color="rose"
               icon={CreditCard}
+              tooltipId="pasivo-corriente"
             />
             <KpiContaCard
               label="PATRIMONIO"
               value={formatCurrency(balance.patrimonio.totalPatrimonio)}
               color="indigo"
               icon={PiggyBank}
+              tooltipId="patrimonio"
             />
             <KpiContaCard
               label="UTILIDAD NETA"
@@ -1451,6 +1706,8 @@ export function Contabilidad() {
               icon={estado.utilidadNeta >= 0 ? TrendingUp : TrendingDown}
               delta={varUtilidadNeta !== null ? `${varUtilidadNeta >= 0 ? '+' : ''}${varUtilidadNeta.toFixed(1)}% vs mes ant.` : undefined}
               deltaPositive={varUtilidadNeta !== null ? varUtilidadNeta >= 0 : undefined}
+              tooltipId="utilidad-neta"
+              sparklineData={tendencia.map((m) => m.utilidadNeta)}
             />
           </div>
         )}
@@ -2012,6 +2269,12 @@ export function Contabilidad() {
           setConfigModalOpen(false);
           cargarDatos(); // refresh para que se reflejen los cambios en KPIs
         }}
+      />
+
+      {/* chk5.E-A · Sprint A · Modal Glosario contable */}
+      <GlosarioModal
+        isOpen={glosarioModalOpen}
+        onClose={() => setGlosarioModalOpen(false)}
       />
     </div>
   );

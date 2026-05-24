@@ -50,6 +50,14 @@ export type { Tab, TabsProps, TabPanelProps } from './Tabs';
 export { Tooltip, TooltipSimple, TooltipInfo, HelpTooltip } from './Tooltip';
 export type { TooltipProps, TooltipPosition } from './Tooltip';
 
+// Sparkline · canon v5.2 chk5.E-A
+export { Sparkline } from './Sparkline';
+export type { SparklineProps, SparklineColor } from './Sparkline';
+
+// TooltipPedagogico · canon v5.2 chk5.E-A (especializado contabilidad/finanzas)
+export { TooltipPedagogico } from './TooltipPedagogico';
+export type { TooltipPedagogicoProps } from './TooltipPedagogico';
+
 // Dropdown
 export { Dropdown, DropdownSelect, ActionsDropdown } from './Dropdown';
 export type { DropdownProps, DropdownItem, DropdownSelectProps } from './Dropdown';
