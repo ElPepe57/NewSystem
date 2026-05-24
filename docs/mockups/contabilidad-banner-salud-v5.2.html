@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Contabilidad · Banner Estado del Negocio · Canon v5.2</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<style>body { font-family: 'Inter', sans-serif; font-variant-numeric: tabular-nums; }</style>
+<script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-slate-50 p-6 md:p-10 text-slate-900">
+
+<div class="max-w-5xl mx-auto mb-6 bg-amber-50 border-l-4 border-amber-400 p-4 rounded text-[12px] text-amber-900">
+  <strong>📋 Mockup canon v5.2 · Contabilidad / BANNER ESTADO DEL NEGOCIO</strong> · al tope del tab Resumen ·
+  diagnóstico holístico del negocio en 1 sola mirada con 3 estados (Saludable / Atención / Crítico) +
+  3-4 razones objetivas + acciones sugeridas.
+</div>
+
+<div class="max-w-5xl mx-auto space-y-6">
+
+  <!-- §1 · Variante SALUDABLE (estado óptimo) -->
+  <section>
+    <div class="text-[10px] uppercase tracking-wider font-bold text-slate-500 mb-2">VARIANTE 1 · ESTADO SALUDABLE (default si ≥5 indicadores OK)</div>
+
+    <div class="bg-gradient-to-r from-emerald-50 via-emerald-100/40 to-emerald-50 ring-2 ring-emerald-200 rounded-2xl p-5">
+      <div class="flex items-start gap-4 flex-wrap">
+
+        <!-- Icon + estado -->
+        <div class="flex items-center gap-3 flex-1 min-w-[260px]">
+          <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center text-white flex-shrink-0 shadow-lg shadow-emerald-200">
+            <i data-lucide="check-circle-2" class="w-7 h-7"></i>
+          </div>
+          <div>
+            <div class="text-[11px] uppercase tracking-wider text-emerald-700 font-bold">Estado del negocio</div>
+            <div class="text-[22px] font-bold text-emerald-900 leading-tight">Saludable</div>
+            <div class="text-[11px] text-emerald-700">Mayo 2026 · 6 de 7 señales positivas</div>
+          </div>
+        </div>
+
+        <!-- Acciones rápidas -->
+        <div class="flex items-center gap-2">
+          <button class="text-[10px] font-semibold text-emerald-700 hover:bg-emerald-100 border border-emerald-300 px-3 py-1.5 rounded-lg flex items-center gap-1">
+            <i data-lucide="bar-chart-3" class="w-3 h-3"></i> Ver indicadores
+          </button>
+          <button class="text-[10px] font-semibold text-slate-600 hover:bg-white border border-slate-300 px-3 py-1.5 rounded-lg flex items-center gap-1">
+            <i data-lucide="download" class="w-3 h-3"></i> Exportar
+          </button>
+        </div>
+      </div>
+
+      <!-- Razones objetivas · grid 4 -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-2 mt-4">
+        <div class="bg-white/80 ring-1 ring-emerald-200/60 rounded-lg p-2.5">
+          <div class="text-[10px] text-emerald-700 font-bold flex items-center gap-1 mb-0.5">
+            <i data-lucide="check" class="w-3 h-3"></i> Margen bruto sano
+          </div>
+          <div class="text-[12px] font-bold text-slate-900">58.5%</div>
+          <div class="text-[9px] text-slate-500">meta ≥40% · +18pp</div>
+        </div>
+        <div class="bg-white/80 ring-1 ring-emerald-200/60 rounded-lg p-2.5">
+          <div class="text-[10px] text-emerald-700 font-bold flex items-center gap-1 mb-0.5">
+            <i data-lucide="check" class="w-3 h-3"></i> Crecimiento ventas
+          </div>
+          <div class="text-[12px] font-bold text-slate-900">+12.5%</div>
+          <div class="text-[9px] text-slate-500">vs Abril · sostenido</div>
+        </div>
+        <div class="bg-white/80 ring-1 ring-emerald-200/60 rounded-lg p-2.5">
+          <div class="text-[10px] text-emerald-700 font-bold flex items-center gap-1 mb-0.5">
+            <i data-lucide="check" class="w-3 h-3"></i> Caja con buffer
+          </div>
+          <div class="text-[12px] font-bold text-slate-900">72 días</div>
+          <div class="text-[9px] text-slate-500">meta ≥60 · holgado</div>
+        </div>
+        <div class="bg-white/80 ring-1 ring-amber-200/60 rounded-lg p-2.5">
+          <div class="text-[10px] text-amber-700 font-bold flex items-center gap-1 mb-0.5">
+            <i data-lucide="alert-circle" class="w-3 h-3"></i> Rotación inventario
+          </div>
+          <div class="text-[12px] font-bold text-slate-900">5.4x</div>
+          <div class="text-[9px] text-amber-700">meta ≥6x · bajando</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- §2 · Variante ATENCIÓN -->
+  <section>
+    <div class="text-[10px] uppercase tracking-wider font-bold text-slate-500 mb-2">VARIANTE 2 · ESTADO ATENCIÓN (2-3 indicadores fuera de meta)</div>
+
+    <div class="bg-gradient-to-r from-amber-50 via-amber-100/40 to-amber-50 ring-2 ring-amber-200 rounded-2xl p-5">
+      <div class="flex items-start gap-4 flex-wrap">
+
+        <div class="flex items-center gap-3 flex-1 min-w-[260px]">
+          <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center text-white flex-shrink-0 shadow-lg shadow-amber-200">
+            <i data-lucide="alert-triangle" class="w-7 h-7"></i>
+          </div>
+          <div>
+            <div class="text-[11px] uppercase tracking-wider text-amber-700 font-bold">Estado del negocio</div>
+            <div class="text-[22px] font-bold text-amber-900 leading-tight">Atención</div>
+            <div class="text-[11px] text-amber-700">Mayo 2026 · 4 de 7 señales positivas · 3 requieren acción</div>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <button class="text-[10px] font-bold text-white bg-amber-600 hover:bg-amber-700 px-3 py-1.5 rounded-lg flex items-center gap-1">
+            <i data-lucide="alert-circle" class="w-3 h-3"></i> Ver alertas (3)
+          </button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-2 mt-4">
+        <div class="bg-white/80 ring-1 ring-emerald-200/60 rounded-lg p-2.5">
+          <div class="text-[10px] text-emerald-700 font-bold flex items-center gap-1 mb-0.5">
+            <i data-lucide="check" class="w-3 h-3"></i> Liquidez OK
+          </div>
+          <div class="text-[12px] font-bold text-slate-900">2.1x</div>
+        </div>
+        <div class="bg-white/80 ring-1 ring-amber-300/80 rounded-lg p-2.5">
+          <div class="text-[10px] text-amber-700 font-bold flex items-center gap-1 mb-0.5">
+            <i data-lucide="alert-circle" class="w-3 h-3"></i> Margen neto bajo
+          </div>
+          <div class="text-[12px] font-bold text-slate-900">7.2%</div>
+          <div class="text-[9px] text-amber-700">meta ≥10% · revisar</div>
+        </div>
+        <div class="bg-white/80 ring-1 ring-amber-300/80 rounded-lg p-2.5">
+          <div class="text-[10px] text-amber-700 font-bold flex items-center gap-1 mb-0.5">
+            <i data-lucide="alert-circle" class="w-3 h-3"></i> Caja ajustada
+          </div>
+          <div class="text-[12px] font-bold text-slate-900">42 días</div>
+          <div class="text-[9px] text-amber-700">meta ≥60 · vigilar</div>
+        </div>
+        <div class="bg-white/80 ring-1 ring-amber-300/80 rounded-lg p-2.5">
+          <div class="text-[10px] text-amber-700 font-bold flex items-center gap-1 mb-0.5">
+            <i data-lucide="alert-circle" class="w-3 h-3"></i> Inventario lento
+          </div>
+          <div class="text-[12px] font-bold text-slate-900">125 días</div>
+          <div class="text-[9px] text-amber-700">meta ≤90 · stock muerto?</div>
+        </div>
+      </div>
+
+      <!-- Recomendaciones automáticas -->
+      <div class="mt-4 pt-3 border-t border-amber-200/60 bg-amber-50/50 -mx-5 -mb-5 px-5 py-3 rounded-b-2xl">
+        <div class="text-[10px] uppercase tracking-wider font-bold text-amber-700 mb-1.5">Acciones sugeridas</div>
+        <ul class="text-[11px] text-amber-900 space-y-1 list-disc ml-4">
+          <li>Revisar productos con baja rotación · considerar promociones para liquidar stock viejo</li>
+          <li>Margen neto bajo 7.2% · revisar gastos operativos (cuál subió más este mes)</li>
+          <li>Caja en 42 días · evitar compras grandes hasta tener 60+ días de buffer</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- §3 · Variante CRÍTICO -->
+  <section>
+    <div class="text-[10px] uppercase tracking-wider font-bold text-slate-500 mb-2">VARIANTE 3 · ESTADO CRÍTICO (≥4 indicadores fuera o resultado neto negativo)</div>
+
+    <div class="bg-gradient-to-r from-rose-50 via-rose-100/40 to-rose-50 ring-2 ring-rose-300 rounded-2xl p-5">
+      <div class="flex items-start gap-4 flex-wrap">
+
+        <div class="flex items-center gap-3 flex-1 min-w-[260px]">
+          <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-rose-600 to-rose-800 flex items-center justify-center text-white flex-shrink-0 shadow-lg shadow-rose-200">
+            <i data-lucide="alert-octagon" class="w-7 h-7"></i>
+          </div>
+          <div>
+            <div class="text-[11px] uppercase tracking-wider text-rose-700 font-bold">Estado del negocio</div>
+            <div class="text-[22px] font-bold text-rose-900 leading-tight">Crítico</div>
+            <div class="text-[11px] text-rose-700">Marzo 2026 · 2 de 7 señales positivas · pérdida del mes</div>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <button class="text-[10px] font-bold text-white bg-rose-600 hover:bg-rose-700 px-3 py-1.5 rounded-lg flex items-center gap-1">
+            <i data-lucide="alert-triangle" class="w-3 h-3"></i> Ver alertas críticas (4)
+          </button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-2 mt-4">
+        <div class="bg-white/80 ring-1 ring-rose-300/80 rounded-lg p-2.5">
+          <div class="text-[10px] text-rose-700 font-bold flex items-center gap-1 mb-0.5">
+            <i data-lucide="trending-down" class="w-3 h-3"></i> Utilidad NEGATIVA
+          </div>
+          <div class="text-[12px] font-bold text-rose-900">−S/ 12,500</div>
+          <div class="text-[9px] text-rose-700">−8.8% · mes con pérdida</div>
+        </div>
+        <div class="bg-white/80 ring-1 ring-rose-300/80 rounded-lg p-2.5">
+          <div class="text-[10px] text-rose-700 font-bold flex items-center gap-1 mb-0.5">
+            <i data-lucide="trending-down" class="w-3 h-3"></i> Ventas cayeron
+          </div>
+          <div class="text-[12px] font-bold text-rose-900">−35%</div>
+          <div class="text-[9px] text-rose-700">vs Febrero · alerta</div>
+        </div>
+        <div class="bg-white/80 ring-1 ring-rose-300/80 rounded-lg p-2.5">
+          <div class="text-[10px] text-rose-700 font-bold flex items-center gap-1 mb-0.5">
+            <i data-lucide="alert-triangle" class="w-3 h-3"></i> Caja muy baja
+          </div>
+          <div class="text-[12px] font-bold text-rose-900">18 días</div>
+          <div class="text-[9px] text-rose-700">meta ≥60 · riesgo alto</div>
+        </div>
+        <div class="bg-white/80 ring-1 ring-rose-300/80 rounded-lg p-2.5">
+          <div class="text-[10px] text-rose-700 font-bold flex items-center gap-1 mb-0.5">
+            <i data-lucide="alert-circle" class="w-3 h-3"></i> Devoluciones altas
+          </div>
+          <div class="text-[12px] font-bold text-rose-900">18.5%</div>
+          <div class="text-[9px] text-rose-700">vs target 4% · investigar</div>
+        </div>
+      </div>
+
+      <div class="mt-4 pt-3 border-t border-rose-200/60 bg-rose-50/50 -mx-5 -mb-5 px-5 py-3 rounded-b-2xl">
+        <div class="text-[10px] uppercase tracking-wider font-bold text-rose-700 mb-1.5">Acciones urgentes</div>
+        <ul class="text-[11px] text-rose-900 space-y-1 list-disc ml-4">
+          <li><strong>URGENTE:</strong> revisar por qué las devoluciones llegaron a 18.5% · contactar QA del último lote</li>
+          <li><strong>URGENTE:</strong> congelar compras no críticas hasta recuperar buffer de caja (objetivo: 30 días)</li>
+          <li>Investigar caída de ventas 35% · cambio de canal, competidor nuevo o estacionalidad?</li>
+          <li>Considerar plan de contención: corte gastos discrecionales · negociar plazos con proveedores</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- §4 · Lógica del cálculo del estado -->
+  <section class="bg-white border border-slate-200 rounded-2xl p-6">
+    <h3 class="text-[13px] font-bold text-slate-900 mb-3 flex items-center gap-2">
+      <i data-lucide="cpu" class="w-4 h-4 text-purple-600"></i>
+      Lógica de cálculo del estado · transparente
+    </h3>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-[11px]">
+      <div class="border-2 border-emerald-200 rounded-xl p-3 bg-emerald-50/30">
+        <div class="text-[12px] font-bold text-emerald-900 mb-2 flex items-center gap-1">
+          <i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i>
+          SALUDABLE
+        </div>
+        <ul class="text-slate-700 space-y-1 list-disc ml-4">
+          <li>≥5 de 7 indicadores en meta</li>
+          <li>Utilidad neta > 0</li>
+          <li>Sin caída &gt;20% en ventas vs mes anterior</li>
+          <li>Caja libre ≥ umbral configurado</li>
+        </ul>
+      </div>
+
+      <div class="border-2 border-amber-200 rounded-xl p-3 bg-amber-50/30">
+        <div class="text-[12px] font-bold text-amber-900 mb-2 flex items-center gap-1">
+          <i data-lucide="alert-triangle" class="w-3.5 h-3.5"></i>
+          ATENCIÓN
+        </div>
+        <ul class="text-slate-700 space-y-1 list-disc ml-4">
+          <li>2-3 indicadores fuera de meta</li>
+          <li>Utilidad neta &gt;0 pero margen &lt; objetivo</li>
+          <li>Caja entre 30-60 días</li>
+          <li>1 KPI cayendo significativamente</li>
+        </ul>
+      </div>
+
+      <div class="border-2 border-rose-200 rounded-xl p-3 bg-rose-50/30">
+        <div class="text-[12px] font-bold text-rose-900 mb-2 flex items-center gap-1">
+          <i data-lucide="alert-octagon" class="w-3.5 h-3.5"></i>
+          CRÍTICO
+        </div>
+        <ul class="text-slate-700 space-y-1 list-disc ml-4">
+          <li>Utilidad neta &lt; 0 (mes con pérdida)</li>
+          <li>≥4 indicadores fuera de meta</li>
+          <li>Caja &lt; 30 días</li>
+          <li>Caída de ventas &gt;20%</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="mt-4 text-[10px] text-slate-500 italic flex items-start gap-2">
+      <i data-lucide="info" class="w-3 h-3 mt-0.5"></i>
+      <div>
+        Umbrales editables en <strong>Configurar → Umbrales de salud</strong> (mockup config-v5.2).
+        Estados se recalculan al guardar cambios.
+      </div>
+    </div>
+  </section>
+
+  <!-- Decisiones canon -->
+  <section class="bg-white border border-slate-200 rounded-2xl p-6 space-y-2 text-[12px]">
+    <h2 class="text-base font-bold text-slate-900 mb-2">📐 Decisiones · Banner Estado del Negocio canon v5.2</h2>
+    <div><strong class="text-purple-700">Ubicación canon</strong> · al TOPE del tab Resumen · antes de cualquier KPI · primer elemento que ve el usuario al abrir el módulo</div>
+    <div><strong class="text-purple-700">3 estados</strong> · Saludable emerald · Atención amber · Crítico rose · cada uno con gradient-to-r + ring 2 colored + sombra suave en icon</div>
+    <div><strong class="text-purple-700">Estructura constante</strong> · icon grande + estado + subtítulo conteo + acciones rápidas + grid 4 razones objetivas + (opcional) acciones sugeridas</div>
+    <div><strong class="text-purple-700">Acciones contextuales</strong>:
+      <ul class="ml-4 mt-1 text-[11px] text-slate-600 space-y-0.5">
+        <li>Saludable → "Ver indicadores" (neutral) + "Exportar" (neutral)</li>
+        <li>Atención → "Ver alertas (3)" (primary amber)</li>
+        <li>Crítico → "Ver alertas críticas (4)" (primary rose · más urgente)</li>
+      </ul>
+    </div>
+    <div><strong class="text-purple-700">Acciones sugeridas</strong> · sub-card al pie con bullet points · NO aparece en Saludable (no hay acciones requeridas) · sí en Atención y Crítico</div>
+    <div><strong class="text-purple-700">Razones objetivas mixtas</strong> · si estado=Saludable pero hay 1 indicador en atención, mostrarlo como amber dentro del banner emerald (transparencia · no ocultar)</div>
+    <div><strong class="text-purple-700">Lógica determinista</strong> · sección §4 expone las reglas · usuario sabe cómo se calcula su estado · NO black box</div>
+    <div><strong class="text-purple-700">Service extension</strong> · agregar `calcularEstadoNegocio(mes, anio): {estado, razones, acciones, indicadoresOK, indicadoresTotal}` en `contabilidad.service`</div>
+  </section>
+
+  <footer class="text-center text-[11px] text-slate-500 pt-4">
+    Mockup canon v5.2 · Contabilidad Banner Estado del Negocio · Sprint C · 2026-05-23
+  </footer>
+
+</div>
+
+<script>if (window.lucide) window.lucide.createIcons();</script>
+</body>
+</html>

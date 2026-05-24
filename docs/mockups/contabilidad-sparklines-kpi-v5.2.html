@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Contabilidad · Sparklines en KPIs · Canon v5.2</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<style>body { font-family: 'Inter', sans-serif; font-variant-numeric: tabular-nums; }</style>
+<script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-slate-50 p-6 md:p-10 text-slate-900">
+
+<div class="max-w-5xl mx-auto mb-6 bg-amber-50 border-l-4 border-amber-400 p-4 rounded text-[12px] text-amber-900">
+  <strong>📋 Mockup canon v5.2 · Contabilidad / SPARKLINES en KPI strip</strong> · mini-gráfica de
+  tendencia 6 meses inline en cada KPI · permite ver patrón histórico sin abandonar el shell · SVG nativo sin biblioteca.
+</div>
+
+<div class="max-w-5xl mx-auto space-y-6">
+
+  <!-- §1 · KPI strip canon v5.2 con sparklines -->
+  <section class="bg-white border border-slate-200 rounded-2xl p-6">
+    <h3 class="text-[13px] font-bold text-slate-900 mb-1 flex items-center gap-2">
+      <i data-lucide="line-chart" class="w-4 h-4 text-purple-600"></i>
+      KPI strip con sparkline de tendencia 6 meses
+    </h3>
+    <p class="text-[11px] text-slate-500 mb-4">Cada KPI muestra cómo evolucionó en los últimos 6 meses · color emerald si tendencia positiva · rose si negativa · slate si plana.</p>
+
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+
+      <!-- KPI Ventas Netas con sparkline emerald -->
+      <div class="bg-gradient-to-br from-emerald-50 to-emerald-100/40 ring-1 ring-emerald-200/50 rounded-2xl p-4">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-[10px] uppercase tracking-wider text-emerald-700 font-bold">VENTAS NETAS</span>
+          <i data-lucide="dollar-sign" class="w-3.5 h-3.5 text-emerald-700"></i>
+        </div>
+        <div class="text-2xl font-bold tabular text-emerald-900">S/ 247,500</div>
+        <!-- Sparkline -->
+        <svg viewBox="0 0 100 24" class="w-full h-6 mt-1.5" preserveAspectRatio="none">
+          <!-- Línea trend ascendente -->
+          <polyline points="0,18 20,16 40,17 60,12 80,9 100,5"
+                    fill="none" stroke="rgb(5 150 105)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <!-- Área debajo -->
+          <polyline points="0,18 20,16 40,17 60,12 80,9 100,5 100,24 0,24"
+                    fill="rgba(5,150,105,0.1)"/>
+          <!-- Punto final destacado -->
+          <circle cx="100" cy="5" r="2" fill="rgb(5 150 105)"/>
+        </svg>
+        <div class="text-[11px] text-emerald-700 flex items-center gap-1 mt-1">
+          <i data-lucide="trending-up" class="w-3 h-3"></i> +12.5% vs mes ant.
+        </div>
+      </div>
+
+      <!-- KPI Total Activos · sparkline teal flat-up -->
+      <div class="bg-gradient-to-br from-teal-50 to-teal-100/40 ring-1 ring-teal-200/50 rounded-2xl p-4">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-[10px] uppercase tracking-wider text-teal-700 font-bold">TOTAL ACTIVOS</span>
+          <i data-lucide="wallet" class="w-3.5 h-3.5 text-teal-700"></i>
+        </div>
+        <div class="text-2xl font-bold tabular text-teal-900">S/ 458,200</div>
+        <svg viewBox="0 0 100 24" class="w-full h-6 mt-1.5" preserveAspectRatio="none">
+          <polyline points="0,15 20,14 40,13 60,12 80,11 100,10"
+                    fill="none" stroke="rgb(13 148 136)" stroke-width="2" stroke-linecap="round"/>
+          <polyline points="0,15 20,14 40,13 60,12 80,11 100,10 100,24 0,24"
+                    fill="rgba(13,148,136,0.1)"/>
+          <circle cx="100" cy="10" r="2" fill="rgb(13 148 136)"/>
+        </svg>
+        <div class="text-[11px] text-teal-700 mt-1">Crecimiento sostenido</div>
+      </div>
+
+      <!-- KPI Total Pasivos · sparkline rose con bajada (positiva: bajar deudas) -->
+      <div class="bg-gradient-to-br from-rose-50 to-rose-100/40 ring-1 ring-rose-200/50 rounded-2xl p-4">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-[10px] uppercase tracking-wider text-rose-700 font-bold">TOTAL PASIVOS</span>
+          <i data-lucide="credit-card" class="w-3.5 h-3.5 text-rose-700"></i>
+        </div>
+        <div class="text-2xl font-bold tabular text-rose-900">S/ 142,800</div>
+        <svg viewBox="0 0 100 24" class="w-full h-6 mt-1.5" preserveAspectRatio="none">
+          <polyline points="0,8 20,9 40,11 60,13 80,15 100,17"
+                    fill="none" stroke="rgb(225 29 72)" stroke-width="2" stroke-linecap="round"/>
+          <polyline points="0,8 20,9 40,11 60,13 80,15 100,17 100,24 0,24"
+                    fill="rgba(225,29,72,0.1)"/>
+          <circle cx="100" cy="17" r="2" fill="rgb(225 29 72)"/>
+        </svg>
+        <div class="text-[11px] text-emerald-700 flex items-center gap-1 mt-1">
+          <i data-lucide="trending-down" class="w-3 h-3"></i> Bajando · saludable
+        </div>
+      </div>
+
+      <!-- KPI Patrimonio · sparkline indigo ascendente -->
+      <div class="bg-gradient-to-br from-indigo-50 to-indigo-100/40 ring-1 ring-indigo-200/50 rounded-2xl p-4">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-[10px] uppercase tracking-wider text-indigo-700 font-bold">PATRIMONIO</span>
+          <i data-lucide="piggy-bank" class="w-3.5 h-3.5 text-indigo-700"></i>
+        </div>
+        <div class="text-2xl font-bold tabular text-indigo-900">S/ 315,400</div>
+        <svg viewBox="0 0 100 24" class="w-full h-6 mt-1.5" preserveAspectRatio="none">
+          <polyline points="0,20 20,18 40,15 60,12 80,8 100,4"
+                    fill="none" stroke="rgb(79 70 229)" stroke-width="2" stroke-linecap="round"/>
+          <polyline points="0,20 20,18 40,15 60,12 80,8 100,4 100,24 0,24"
+                    fill="rgba(79,70,229,0.1)"/>
+          <circle cx="100" cy="4" r="2" fill="rgb(79 70 229)"/>
+        </svg>
+        <div class="text-[11px] text-indigo-700 mt-1">+S/ 42,300 este mes</div>
+      </div>
+
+      <!-- KPI Utilidad Neta · sparkline con caída intermedia (Mar fue mal mes) -->
+      <div class="bg-gradient-to-br from-amber-50 to-amber-100/40 ring-1 ring-amber-200/50 rounded-2xl p-4">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-[10px] uppercase tracking-wider text-amber-700 font-bold">UTILIDAD NETA</span>
+          <i data-lucide="trending-up" class="w-3.5 h-3.5 text-amber-700"></i>
+        </div>
+        <div class="text-2xl font-bold tabular text-amber-900">S/ 42,300</div>
+        <svg viewBox="0 0 100 24" class="w-full h-6 mt-1.5" preserveAspectRatio="none">
+          <!-- Caída en posición 40 (Mar) · recovery después -->
+          <polyline points="0,12 20,10 40,22 60,8 80,6 100,4"
+                    fill="none" stroke="rgb(217 119 6)" stroke-width="2" stroke-linecap="round"/>
+          <polyline points="0,12 20,10 40,22 60,8 80,6 100,4 100,24 0,24"
+                    fill="rgba(217,119,6,0.1)"/>
+          <circle cx="100" cy="4" r="2" fill="rgb(217 119 6)"/>
+          <!-- Marker rojo en mes peor (Mar) -->
+          <circle cx="40" cy="22" r="1.5" fill="rgb(225 29 72)"/>
+        </svg>
+        <div class="text-[11px] text-amber-700 flex items-center gap-1 mt-1">
+          <i data-lucide="trending-up" class="w-3 h-3"></i> Récord año
+        </div>
+      </div>
+
+    </div>
+
+    <div class="mt-4 text-[10px] text-slate-500 italic flex items-center gap-2">
+      <i data-lucide="info" class="w-3 h-3"></i>
+      Sparklines muestran tendencia mensual: 6 meses anteriores + mes actual (punto destacado al final).
+      Marker rojo en mes con resultado anómalo (ej. Marzo 2026 · pérdida).
+    </div>
+  </section>
+
+  <!-- §2 · Variantes sparkline · positiva · negativa · plana · mixta -->
+  <section class="bg-white border border-slate-200 rounded-2xl p-6">
+    <h3 class="text-[13px] font-bold text-slate-900 mb-4">📐 Variantes canon del sparkline</h3>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+
+      <!-- Positiva -->
+      <div class="border border-slate-200 rounded-xl p-3">
+        <div class="text-[10px] uppercase tracking-wider font-bold text-emerald-700 mb-1">POSITIVA · ascendente</div>
+        <svg viewBox="0 0 100 24" class="w-full h-8" preserveAspectRatio="none">
+          <polyline points="0,18 20,15 40,16 60,11 80,7 100,4"
+                    fill="none" stroke="rgb(5 150 105)" stroke-width="2" stroke-linecap="round"/>
+          <polyline points="0,18 20,15 40,16 60,11 80,7 100,4 100,24 0,24"
+                    fill="rgba(5,150,105,0.1)"/>
+          <circle cx="100" cy="4" r="2" fill="rgb(5 150 105)"/>
+        </svg>
+        <div class="text-[10px] text-slate-500 mt-1">Trend positivo claro · color emerald (text-emerald-600/700)</div>
+      </div>
+
+      <!-- Negativa -->
+      <div class="border border-slate-200 rounded-xl p-3">
+        <div class="text-[10px] uppercase tracking-wider font-bold text-rose-700 mb-1">NEGATIVA · descendente</div>
+        <svg viewBox="0 0 100 24" class="w-full h-8" preserveAspectRatio="none">
+          <polyline points="0,4 20,7 40,8 60,12 80,16 100,19"
+                    fill="none" stroke="rgb(225 29 72)" stroke-width="2" stroke-linecap="round"/>
+          <polyline points="0,4 20,7 40,8 60,12 80,16 100,19 100,24 0,24"
+                    fill="rgba(225,29,72,0.1)"/>
+          <circle cx="100" cy="19" r="2" fill="rgb(225 29 72)"/>
+        </svg>
+        <div class="text-[10px] text-slate-500 mt-1">Trend negativo claro · color rose (text-rose-600/700)</div>
+      </div>
+
+      <!-- Plana -->
+      <div class="border border-slate-200 rounded-xl p-3">
+        <div class="text-[10px] uppercase tracking-wider font-bold text-slate-700 mb-1">PLANA · sin cambios</div>
+        <svg viewBox="0 0 100 24" class="w-full h-8" preserveAspectRatio="none">
+          <polyline points="0,12 20,11 40,13 60,12 80,12 100,11"
+                    fill="none" stroke="rgb(100 116 139)" stroke-width="2" stroke-linecap="round"/>
+          <polyline points="0,12 20,11 40,13 60,12 80,12 100,11 100,24 0,24"
+                    fill="rgba(100,116,139,0.1)"/>
+          <circle cx="100" cy="11" r="2" fill="rgb(100 116 139)"/>
+        </svg>
+        <div class="text-[10px] text-slate-500 mt-1">Trend plano (var <5%) · color slate (text-slate-600)</div>
+      </div>
+
+      <!-- Volátil -->
+      <div class="border border-slate-200 rounded-xl p-3">
+        <div class="text-[10px] uppercase tracking-wider font-bold text-amber-700 mb-1">VOLÁTIL · con outliers</div>
+        <svg viewBox="0 0 100 24" class="w-full h-8" preserveAspectRatio="none">
+          <polyline points="0,12 20,5 40,20 60,8 80,18 100,7"
+                    fill="none" stroke="rgb(217 119 6)" stroke-width="2" stroke-linecap="round"/>
+          <polyline points="0,12 20,5 40,20 60,8 80,18 100,7 100,24 0,24"
+                    fill="rgba(217,119,6,0.1)"/>
+          <circle cx="100" cy="7" r="2" fill="rgb(217 119 6)"/>
+          <!-- Markers outliers -->
+          <circle cx="40" cy="20" r="1.5" fill="rgb(225 29 72)"/>
+          <circle cx="20" cy="5" r="1.5" fill="rgb(5 150 105)"/>
+        </svg>
+        <div class="text-[10px] text-slate-500 mt-1">Volatilidad alta · color amber + markers en outliers (rose-low / emerald-high)</div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- §3 · Especificación técnica del sparkline -->
+  <section class="bg-white border border-slate-200 rounded-2xl p-6">
+    <h3 class="text-[13px] font-bold text-slate-900 mb-3">⚙️ Especificación técnica</h3>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-[11px]">
+      <div class="space-y-2">
+        <div><strong class="text-purple-700">SVG nativo</strong> · sin biblioteca · cero peso bundle</div>
+        <div><strong class="text-purple-700">viewBox</strong> · `0 0 100 24` · escalable infinito · responsive natural</div>
+        <div><strong class="text-purple-700">preserveAspectRatio</strong> · `none` · estira para llenar contenedor</div>
+        <div><strong class="text-purple-700">Data points</strong> · 6 valores históricos + 1 actual (7 puntos en eje X cada 16.67%)</div>
+        <div><strong class="text-purple-700">Stroke</strong> · width 2 · linecap+linejoin round · hex matching color signature</div>
+      </div>
+      <div class="space-y-2">
+        <div><strong class="text-purple-700">Área debajo</strong> · fill rgba(color, 0.1) · sutil · refuerza línea</div>
+        <div><strong class="text-purple-700">Punto final</strong> · circle r=2 al último valor · destacado</div>
+        <div><strong class="text-purple-700">Outlier markers</strong> · circle r=1.5 · rose (mes anómalo bajo) o emerald (mes récord)</div>
+        <div><strong class="text-purple-700">Normalización Y</strong> · valor max=4 · valor min=20 (invertido por SVG · 0 arriba)</div>
+        <div><strong class="text-purple-700">Color rule</strong> · emerald si var ≥+5% · rose si ≤-5% · slate si entre · amber si volátil (max-min > 50%)</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Decisiones canon -->
+  <section class="bg-white border border-slate-200 rounded-2xl p-6 space-y-2 text-[12px]">
+    <h2 class="text-base font-bold text-slate-900 mb-2">📐 Decisiones · Sparklines KPI canon v5.2</h2>
+    <div><strong class="text-purple-700">Ubicación</strong> · debajo del valor del KPI · antes del delta · w-full h-6 (24px alto · ocupa todo el ancho disponible)</div>
+    <div><strong class="text-purple-700">React component</strong> · `<Sparkline>` reutilizable con props `{data: number[], color, markers?}` · centraliza patrón cross-tab</div>
+    <div><strong class="text-purple-700">Data source</strong> · re-usar `tendencia` array que ya carga el shell · slice últimos 6 meses · 1 sparkline por KPI con su métrica relevante</div>
+    <div><strong class="text-purple-700">Mapeo KPI → métrica sparkline</strong>:
+      <ul class="ml-4 mt-1 text-[11px] text-slate-600 space-y-0.5">
+        <li>VENTAS NETAS → tendencia.ventasNetas[]</li>
+        <li>TOTAL ACTIVOS → tendencia.totalActivos[] (extender service)</li>
+        <li>TOTAL PASIVOS → tendencia.totalPasivos[] (extender service)</li>
+        <li>PATRIMONIO → tendencia.patrimonio[] (extender service)</li>
+        <li>UTILIDAD NETA → tendencia.utilidadNeta[]</li>
+      </ul>
+    </div>
+    <div><strong class="text-purple-700">Performance</strong> · render directo en JSX · sin animaciones · sin re-render onHover · zero overhead</div>
+    <div><strong class="text-purple-700">Accesibilidad</strong> · agregar `<title>` SVG con resumen textual: "Tendencia 6 meses: +12.5% (S/ 220k → S/ 247k)"</div>
+    <div><strong class="text-purple-700">Cobertura aplicable</strong> · KPI strip del shell (5 KPIs) + KPIs de Resumen body si los hubiera · NO en tablas (mucho ruido visual)</div>
+  </section>
+
+  <footer class="text-center text-[11px] text-slate-500 pt-4">
+    Mockup canon v5.2 · Contabilidad Sparklines KPI · Sprint A · 2026-05-23
+  </footer>
+
+</div>
+
+<script>if (window.lucide) window.lucide.createIcons();</script>
+</body>
+</html>

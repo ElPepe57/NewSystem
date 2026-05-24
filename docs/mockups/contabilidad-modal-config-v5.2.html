@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Contabilidad · Modal Configurar v5.2 · Umbrales de Salud</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<style>body { font-family: 'Inter', sans-serif; font-variant-numeric: tabular-nums; }</style>
+<script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-slate-200 p-6 md:p-10 text-slate-900 min-h-screen">
+
+<div class="max-w-5xl mx-auto mb-6 bg-amber-50 border-l-4 border-amber-400 p-4 rounded text-[12px] text-amber-900">
+  <strong>📋 Mockup canon v5.2 · Contabilidad / MODAL CONFIGURAR v5.2</strong> · Extiende modal v5.1
+  (capital · reserva · provisión · TC) agregando sub-sección <strong>"Umbrales de salud"</strong> con 7 parámetros que controlan
+  el banner Estado del negocio + insights automáticos (Sprint C).
+</div>
+
+<!-- Backdrop simulado -->
+<div class="bg-slate-900/40 rounded-2xl p-8">
+
+  <!-- Modal · ahora más alto por sub-sección extra -->
+  <div class="bg-white border border-slate-200 rounded-2xl shadow-2xl max-w-md mx-auto overflow-hidden">
+
+    <!-- Header -->
+    <div class="p-5 border-b border-slate-100">
+      <div class="flex items-start gap-3">
+        <div class="w-10 h-10 rounded-xl bg-purple-50 border border-purple-200 flex items-center justify-center text-purple-700 flex-shrink-0">
+          <i data-lucide="settings-2" class="w-5 h-5"></i>
+        </div>
+        <div class="flex-1 min-w-0">
+          <h2 class="text-lg font-bold text-slate-900">Configuración contable</h2>
+          <p class="text-[12px] text-slate-500 leading-snug">Parámetros del módulo + umbrales de salud del negocio</p>
+        </div>
+        <button class="text-slate-400 hover:text-slate-700 p-1">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Body con sub-secciones · scrollable -->
+    <div class="max-h-[600px] overflow-y-auto">
+
+      <!-- Sub-sección 1 · Parámetros contables (de v5.1 · sin cambios) -->
+      <div class="p-5 space-y-4 border-b border-slate-100">
+        <div class="flex items-center gap-2 mb-1">
+          <i data-lucide="book-open" class="w-4 h-4 text-purple-600"></i>
+          <h3 class="text-[12px] uppercase tracking-wider font-bold text-purple-700">Parámetros contables</h3>
+        </div>
+
+        <div>
+          <label class="block text-[11px] uppercase tracking-wider font-bold text-slate-500 mb-1.5">
+            Capital Social
+          </label>
+          <div class="relative">
+            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 font-bold text-sm">S/</span>
+            <input type="number" value="200000" class="w-full pl-10 pr-3 py-2.5 border border-slate-300 rounded-lg text-sm tabular-nums focus:border-purple-500 focus:ring-1 focus:ring-purple-500" />
+          </div>
+          <p class="text-[10px] text-slate-500 mt-1">Aporte inicial de los socios</p>
+        </div>
+
+        <div>
+          <label class="block text-[11px] uppercase tracking-wider font-bold text-slate-500 mb-1.5">
+            Reserva Legal
+          </label>
+          <div class="relative">
+            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 font-bold text-sm">S/</span>
+            <input type="number" value="20000" class="w-full pl-10 pr-3 py-2.5 border border-slate-300 rounded-lg text-sm tabular-nums focus:border-purple-500 focus:ring-1 focus:ring-purple-500" />
+          </div>
+          <p class="text-[10px] text-slate-500 mt-1">Típicamente 10% del capital social</p>
+        </div>
+
+        <div>
+          <label class="block text-[11px] uppercase tracking-wider font-bold text-slate-500 mb-1.5">
+            Provisión Incobrables
+          </label>
+          <div class="relative">
+            <input type="number" value="3" step="0.5" class="w-full pl-3 pr-10 py-2.5 border border-slate-300 rounded-lg text-sm tabular-nums focus:border-purple-500 focus:ring-1 focus:ring-purple-500" />
+            <span class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 font-bold text-sm">%</span>
+          </div>
+          <p class="text-[10px] text-slate-500 mt-1">% de CxC considerado incobrable</p>
+        </div>
+
+        <div>
+          <label class="block text-[11px] uppercase tracking-wider font-bold text-slate-500 mb-1.5">
+            Tipo de Cambio · fallback
+          </label>
+          <div class="relative">
+            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 font-bold text-sm">USD/PEN</span>
+            <input type="number" value="3.75" step="0.001" class="w-full pl-20 pr-3 py-2.5 border border-slate-300 rounded-lg text-sm tabular-nums focus:border-purple-500 focus:ring-1 focus:ring-purple-500" />
+          </div>
+          <p class="text-[10px] text-slate-500 mt-1">Si no hay TC del día · se usa este fallback</p>
+        </div>
+      </div>
+
+      <!-- Sub-sección 2 · NUEVO · Umbrales de salud -->
+      <div class="p-5 space-y-4">
+        <div class="flex items-center gap-2 mb-1">
+          <i data-lucide="activity" class="w-4 h-4 text-emerald-600"></i>
+          <h3 class="text-[12px] uppercase tracking-wider font-bold text-emerald-700">Umbrales de salud</h3>
+          <span class="text-[9px] bg-emerald-50 text-emerald-700 px-1.5 py-0.5 rounded font-bold ml-auto">NUEVO v5.2</span>
+        </div>
+        <p class="text-[11px] text-slate-500 -mt-2">
+          Definí qué valores consideras "saludables" para tu negocio. Estos umbrales controlan el banner
+          "Estado del negocio" y las alertas automáticas en el módulo.
+        </p>
+
+        <!-- 7 inputs de umbrales · agrupados por categoría -->
+
+        <!-- Rentabilidad -->
+        <div class="bg-emerald-50/30 border border-emerald-200/50 rounded-lg p-3 space-y-3">
+          <div class="text-[10px] uppercase tracking-wider font-bold text-emerald-700">Rentabilidad</div>
+
+          <div>
+            <label class="block text-[11px] font-semibold text-slate-700 mb-1">
+              Margen Bruto saludable ≥
+              <span class="inline-flex" title="Si tu margen bruto está por encima de este %, el sistema lo considera saludable">
+                <i data-lucide="info" class="w-3 h-3 text-slate-400 inline ml-0.5"></i>
+              </span>
+            </label>
+            <div class="relative">
+              <input type="number" value="40" step="1" class="w-full pl-3 pr-10 py-2 border border-slate-300 rounded-lg text-[12px] tabular-nums focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500" />
+              <span class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 font-bold text-[12px]">%</span>
+            </div>
+            <p class="text-[10px] text-slate-500 mt-0.5">Skincare retail típico: 50-65% · default 40% = piso saludable</p>
+          </div>
+
+          <div>
+            <label class="block text-[11px] font-semibold text-slate-700 mb-1">
+              Margen Neto saludable ≥
+            </label>
+            <div class="relative">
+              <input type="number" value="10" step="1" class="w-full pl-3 pr-10 py-2 border border-slate-300 rounded-lg text-[12px] tabular-nums focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500" />
+              <span class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 font-bold text-[12px]">%</span>
+            </div>
+            <p class="text-[10px] text-slate-500 mt-0.5">PyME ecommerce sustentable necesita ≥10% para crecer</p>
+          </div>
+
+          <div>
+            <label class="block text-[11px] font-semibold text-slate-700 mb-1">
+              Crecimiento ventas mes a mes ≥
+            </label>
+            <div class="relative">
+              <input type="number" value="0" step="1" class="w-full pl-3 pr-10 py-2 border border-slate-300 rounded-lg text-[12px] tabular-nums focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500" />
+              <span class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 font-bold text-[12px]">%</span>
+            </div>
+            <p class="text-[10px] text-slate-500 mt-0.5">Negativo = alerta · subir según meta de crecimiento</p>
+          </div>
+        </div>
+
+        <!-- Liquidez -->
+        <div class="bg-sky-50/30 border border-sky-200/50 rounded-lg p-3 space-y-3">
+          <div class="text-[10px] uppercase tracking-wider font-bold text-sky-700">Liquidez</div>
+
+          <div>
+            <label class="block text-[11px] font-semibold text-slate-700 mb-1">
+              Días de caja libre ≥
+            </label>
+            <div class="relative">
+              <input type="number" value="60" step="5" class="w-full pl-3 pr-10 py-2 border border-slate-300 rounded-lg text-[12px] tabular-nums focus:border-sky-500 focus:ring-1 focus:ring-sky-500" />
+              <span class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 font-bold text-[12px]">días</span>
+            </div>
+            <p class="text-[10px] text-slate-500 mt-0.5">2 meses de buffer ante shock externo (default)</p>
+          </div>
+
+          <div>
+            <label class="block text-[11px] font-semibold text-slate-700 mb-1">
+              Ratio Liquidez Corriente ≥
+            </label>
+            <div class="relative">
+              <input type="number" value="1.5" step="0.1" class="w-full pl-3 pr-10 py-2 border border-slate-300 rounded-lg text-[12px] tabular-nums focus:border-sky-500 focus:ring-1 focus:ring-sky-500" />
+              <span class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 font-bold text-[12px]">x</span>
+            </div>
+            <p class="text-[10px] text-slate-500 mt-0.5">Convención contable internacional: 1.5x mínimo</p>
+          </div>
+        </div>
+
+        <!-- Eficiencia -->
+        <div class="bg-amber-50/30 border border-amber-200/50 rounded-lg p-3 space-y-3">
+          <div class="text-[10px] uppercase tracking-wider font-bold text-amber-700">Eficiencia operativa</div>
+
+          <div>
+            <label class="block text-[11px] font-semibold text-slate-700 mb-1">
+              Días de Inventario máx ≤
+            </label>
+            <div class="relative">
+              <input type="number" value="90" step="5" class="w-full pl-3 pr-10 py-2 border border-slate-300 rounded-lg text-[12px] tabular-nums focus:border-amber-500 focus:ring-1 focus:ring-amber-500" />
+              <span class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 font-bold text-[12px]">días</span>
+            </div>
+            <p class="text-[10px] text-slate-500 mt-0.5">Skincare importado: pasarse genera capital atrapado + riesgo obsolescencia</p>
+          </div>
+
+          <div>
+            <label class="block text-[11px] font-semibold text-slate-700 mb-1">
+              DSO · Días de Cobro máx ≤
+            </label>
+            <div class="relative">
+              <input type="number" value="30" step="5" class="w-full pl-3 pr-10 py-2 border border-slate-300 rounded-lg text-[12px] tabular-nums focus:border-amber-500 focus:ring-1 focus:ring-amber-500" />
+              <span class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 font-bold text-[12px]">días</span>
+            </div>
+            <p class="text-[10px] text-slate-500 mt-0.5">Ecommerce con pago al confirmar: típicamente ≤15-30 días</p>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Info banner -->
+      <div class="mx-5 mb-5 bg-amber-50 border border-amber-200 rounded-lg p-3 flex items-start gap-2 text-[11px] text-amber-900">
+        <i data-lucide="alert-circle" class="w-4 h-4 text-amber-700 mt-0.5 flex-shrink-0"></i>
+        <div>
+          <strong>Cambios afectan los estados de salud retroactivamente.</strong>
+          Si bajás el umbral de Margen Bruto de 40 a 30%, períodos que antes salían "atención" pasarán a "saludable".
+          Queda registro de auditoría.
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Footer del modal -->
+    <div class="px-5 py-3 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
+      <div class="text-[10px] text-slate-500 flex items-center gap-2">
+        <kbd class="bg-white border border-slate-300 px-1.5 py-0.5 rounded text-[9px] font-mono">Esc</kbd>
+        cancelar
+        <kbd class="bg-white border border-slate-300 px-1.5 py-0.5 rounded text-[9px] font-mono">⌘ Enter</kbd>
+        guardar
+      </div>
+      <div class="flex items-center gap-2">
+        <button class="text-[11px] font-semibold text-slate-600 hover:bg-slate-100 px-3 py-1.5 rounded-lg">Cancelar</button>
+        <button class="text-[11px] font-bold text-white bg-purple-600 hover:bg-purple-700 px-4 py-1.5 rounded-lg inline-flex items-center gap-1.5">
+          <i data-lucide="check" class="w-3.5 h-3.5"></i>
+          Guardar configuración
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- Decisiones canon -->
+<div class="max-w-5xl mx-auto mt-8 bg-white border border-slate-200 rounded-2xl p-6 space-y-2 text-[12px]">
+  <h2 class="text-base font-bold text-slate-900 mb-2">📐 Decisiones · Modal Configurar v5.2</h2>
+  <div><strong class="text-purple-700">Backward compatible</strong> · Sub-sección 1 (parámetros contables) idéntica a v5.1 · no se pierde nada</div>
+  <div><strong class="text-purple-700">Sub-sección 2 · NUEVO</strong> · "Umbrales de salud" agrupada en 3 bloques de color (Rentabilidad emerald · Liquidez sky · Eficiencia amber)</div>
+  <div><strong class="text-purple-700">7 umbrales configurables</strong>:
+    <ul class="ml-4 mt-1 text-[11px] text-slate-600 space-y-0.5">
+      <li>Margen Bruto saludable ≥ % (default 40%)</li>
+      <li>Margen Neto saludable ≥ % (default 10%)</li>
+      <li>Crecimiento ventas MoM ≥ % (default 0%)</li>
+      <li>Días de caja libre ≥ días (default 60)</li>
+      <li>Liquidez corriente ≥ x (default 1.5x)</li>
+      <li>Días de inventario máx ≤ días (default 90)</li>
+      <li>DSO máx ≤ días (default 30)</li>
+    </ul>
+  </div>
+  <div><strong class="text-purple-700">Operador comparativo claro</strong> · cada label indica ≥ (mínimo saludable) o ≤ (máximo aceptable)</div>
+  <div><strong class="text-purple-700">Defaults razonables</strong> · derivados de benchmarks PyME ecommerce skincare · usuario puede ajustar a su realidad</div>
+  <div><strong class="text-purple-700">Help text por umbral</strong> · explicación corta de POR QUÉ ese default + cuándo cambiarlo</div>
+  <div><strong class="text-purple-700">Banner alerta retroactividad</strong> · transparencia que cambiar umbrales afecta estados de salud históricos (queda auditado)</div>
+  <div><strong class="text-purple-700">Modal alto</strong> · max-h-600px + overflow-y-auto · scroll interno · no rompe responsive</div>
+  <div><strong class="text-purple-700">Persistencia</strong> · extender `contabilidad.service.actualizarConfiguracionContable` con campos `umbrales: { margenBruto, margenNeto, ... }` · type `ConfiguracionContable` extiende</div>
+</div>
+
+<script>if (window.lucide) window.lucide.createIcons();</script>
+</body>
+</html>

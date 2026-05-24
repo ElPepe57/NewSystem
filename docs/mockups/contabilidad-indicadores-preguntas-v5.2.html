@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Contabilidad · Indicadores con Preguntas · Canon v5.2</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<style>body { font-family: 'Inter', sans-serif; font-variant-numeric: tabular-nums; }</style>
+<script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-slate-50 p-6 md:p-10 text-slate-900">
+
+<div class="max-w-5xl mx-auto mb-6 bg-amber-50 border-l-4 border-amber-400 p-4 rounded text-[12px] text-amber-900">
+  <strong>📋 Mockup canon v5.2 · Contabilidad / INDICADORES con preguntas user-friendly</strong> ·
+  reorganiza las 4 categorías técnicas (Liquidez/Rentabilidad/Eficiencia/Endeudamiento) como
+  PREGUNTAS QUE EL USUARIO SE HACE (¿Cuánto ganás? · ¿Tenés plata? · ¿Sos eficiente? · ¿Estás endeudado?).
+  Mismo contenido, lenguaje completamente distinto.
+</div>
+
+<div class="max-w-5xl mx-auto space-y-4">
+
+  <!-- §1 · Header con toggle "técnico / user-friendly" -->
+  <section class="bg-white border border-slate-200 rounded-2xl p-4">
+    <div class="flex items-center justify-between flex-wrap gap-3">
+      <div class="flex items-center gap-3">
+        <i data-lucide="message-circle-question" class="w-5 h-5 text-purple-600"></i>
+        <div>
+          <div class="text-[13px] font-bold text-slate-900">Indicadores · 13 ratios respondiendo 4 preguntas clave</div>
+          <div class="text-[11px] text-slate-500">Hover sobre cada pregunta para ver explicación + ratios técnicos relacionados</div>
+        </div>
+      </div>
+      <!-- Toggle: Preguntas / Técnico -->
+      <div class="flex items-center gap-1 bg-slate-50 border border-slate-200 rounded-lg p-0.5">
+        <button class="text-[10px] font-bold px-2.5 py-1 rounded bg-purple-600 text-white">
+          Preguntas (default)
+        </button>
+        <button class="text-[10px] font-semibold px-2.5 py-1 rounded text-slate-600 hover:bg-white">
+          Técnico
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- §2 · 4 cards de preguntas -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+    <!-- Pregunta 1 · ¿Cuánto ganás? · Rentabilidad emerald -->
+    <div class="bg-white border border-emerald-200 rounded-2xl overflow-hidden">
+      <div class="bg-gradient-to-r from-emerald-50 to-emerald-100/40 px-5 py-4 border-b border-emerald-200/50">
+        <div class="flex items-start gap-3">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center text-white flex-shrink-0">
+            <i data-lucide="trending-up" class="w-5 h-5"></i>
+          </div>
+          <div class="flex-1">
+            <h3 class="text-[15px] font-bold text-emerald-900">¿Cuánto estás ganando?</h3>
+            <p class="text-[11px] text-emerald-700 leading-snug">Mide rentabilidad · qué tan eficiente convertís ventas en ganancias</p>
+          </div>
+          <span class="text-[10px] bg-emerald-200 text-emerald-800 px-2 py-0.5 rounded font-bold">4 OK</span>
+        </div>
+      </div>
+
+      <div class="divide-y divide-slate-100">
+        <!-- Sub-respuesta 1 -->
+        <div class="px-5 py-3">
+          <div class="flex items-start justify-between gap-2 mb-1">
+            <div>
+              <div class="text-[12px] font-semibold text-slate-900">De cada S/100 vendidos · te quedan limpios:</div>
+              <div class="text-[10px] text-slate-500 italic">técnicamente: Margen Neto</div>
+            </div>
+            <div class="text-[20px] font-bold tabular text-emerald-700 whitespace-nowrap">S/ 17.40</div>
+          </div>
+          <div class="flex items-center justify-between text-[10px]">
+            <span class="text-emerald-700 flex items-center gap-1">
+              <i data-lucide="check-circle-2" class="w-3 h-3"></i> meta ≥ S/10
+            </span>
+            <svg viewBox="0 0 60 12" class="w-15 h-3" preserveAspectRatio="none">
+              <polyline points="0,8 12,7 24,9 36,5 48,4 60,3"
+                        fill="none" stroke="rgb(5 150 105)" stroke-width="1.5"/>
+              <circle cx="60" cy="3" r="1.5" fill="rgb(5 150 105)"/>
+            </svg>
+          </div>
+        </div>
+
+        <!-- Sub-respuesta 2 -->
+        <div class="px-5 py-3">
+          <div class="flex items-start justify-between gap-2 mb-1">
+            <div>
+              <div class="text-[12px] font-semibold text-slate-900">Después de pagar el producto · te queda:</div>
+              <div class="text-[10px] text-slate-500 italic">técnicamente: Margen Bruto</div>
+            </div>
+            <div class="text-[20px] font-bold tabular text-emerald-700 whitespace-nowrap">58.5%</div>
+          </div>
+          <div class="flex items-center justify-between text-[10px]">
+            <span class="text-emerald-700 flex items-center gap-1">
+              <i data-lucide="check-circle-2" class="w-3 h-3"></i> meta ≥ 40%
+            </span>
+            <svg viewBox="0 0 60 12" class="w-15 h-3" preserveAspectRatio="none">
+              <polyline points="0,6 12,7 24,8 36,9 48,6 60,4"
+                        fill="none" stroke="rgb(5 150 105)" stroke-width="1.5"/>
+              <circle cx="60" cy="4" r="1.5" fill="rgb(5 150 105)"/>
+            </svg>
+          </div>
+        </div>
+
+        <!-- Sub-respuesta 3 · destacada -->
+        <div class="px-5 py-3 bg-emerald-50/50">
+          <div class="flex items-start justify-between gap-2 mb-1">
+            <div>
+              <div class="text-[12px] font-semibold text-slate-900 flex items-center gap-1">
+                Ganancia operativa del corazón del negocio:
+                <span class="text-[8px] bg-purple-100 text-purple-700 px-1 rounded">★ KEY</span>
+              </div>
+              <div class="text-[10px] text-slate-500 italic">técnicamente: EBITDA / Ventas</div>
+            </div>
+            <div class="text-[20px] font-bold tabular text-emerald-700 whitespace-nowrap">17.1%</div>
+          </div>
+          <div class="flex items-center justify-between text-[10px]">
+            <span class="text-emerald-700 flex items-center gap-1">
+              <i data-lucide="check-circle-2" class="w-3 h-3"></i> meta ≥ 15%
+            </span>
+            <svg viewBox="0 0 60 12" class="w-15 h-3" preserveAspectRatio="none">
+              <polyline points="0,9 12,7 24,10 36,6 48,5 60,3"
+                        fill="none" stroke="rgb(5 150 105)" stroke-width="1.5"/>
+              <circle cx="60" cy="3" r="1.5" fill="rgb(5 150 105)"/>
+            </svg>
+          </div>
+        </div>
+
+        <!-- Sub-respuesta 4 -->
+        <div class="px-5 py-3">
+          <div class="flex items-start justify-between gap-2 mb-1">
+            <div>
+              <div class="text-[12px] font-semibold text-slate-900">Por cada S/100 que socios invirtieron · generás:</div>
+              <div class="text-[10px] text-slate-500 italic">técnicamente: ROE anualizado</div>
+            </div>
+            <div class="text-[20px] font-bold tabular text-emerald-700 whitespace-nowrap">S/ 16.10</div>
+          </div>
+          <div class="flex items-center justify-between text-[10px]">
+            <span class="text-emerald-700 flex items-center gap-1">
+              <i data-lucide="check-circle-2" class="w-3 h-3"></i> mejor que plazo fijo
+            </span>
+            <svg viewBox="0 0 60 12" class="w-15 h-3" preserveAspectRatio="none">
+              <polyline points="0,9 12,8 24,9 36,6 48,5 60,4"
+                        fill="none" stroke="rgb(5 150 105)" stroke-width="1.5"/>
+              <circle cx="60" cy="4" r="1.5" fill="rgb(5 150 105)"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pregunta 2 · ¿Tenés plata para pagar? · Liquidez sky -->
+    <div class="bg-white border border-sky-200 rounded-2xl overflow-hidden">
+      <div class="bg-gradient-to-r from-sky-50 to-sky-100/40 px-5 py-4 border-b border-sky-200/50">
+        <div class="flex items-start gap-3">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-sky-500 to-sky-700 flex items-center justify-center text-white flex-shrink-0">
+            <i data-lucide="droplet" class="w-5 h-5"></i>
+          </div>
+          <div class="flex-1">
+            <h3 class="text-[15px] font-bold text-sky-900">¿Tenés plata para pagar?</h3>
+            <p class="text-[11px] text-sky-700 leading-snug">Mide liquidez · si podés cumplir compromisos a corto plazo</p>
+          </div>
+          <span class="text-[10px] bg-emerald-200 text-emerald-800 px-2 py-0.5 rounded font-bold">3 OK</span>
+        </div>
+      </div>
+
+      <div class="divide-y divide-slate-100">
+        <div class="px-5 py-3">
+          <div class="flex items-start justify-between gap-2 mb-1">
+            <div>
+              <div class="text-[12px] font-semibold text-slate-900">Días que podés operar sin vender nada:</div>
+              <div class="text-[10px] text-slate-500 italic">técnicamente: Días de caja libre</div>
+            </div>
+            <div class="text-[20px] font-bold tabular text-emerald-700 whitespace-nowrap">72 días</div>
+          </div>
+          <div class="flex items-center justify-between text-[10px]">
+            <span class="text-emerald-700 flex items-center gap-1">
+              <i data-lucide="check-circle-2" class="w-3 h-3"></i> meta ≥ 60 días
+            </span>
+          </div>
+        </div>
+
+        <div class="px-5 py-3 bg-sky-50/50">
+          <div class="flex items-start justify-between gap-2 mb-1">
+            <div>
+              <div class="text-[12px] font-semibold text-slate-900 flex items-center gap-1">
+                Por cada S/1 de deuda corta · tenés activos por:
+                <span class="text-[8px] bg-purple-100 text-purple-700 px-1 rounded">★ KEY</span>
+              </div>
+              <div class="text-[10px] text-slate-500 italic">técnicamente: Liquidez Corriente</div>
+            </div>
+            <div class="text-[20px] font-bold tabular text-emerald-700 whitespace-nowrap">S/ 3.21</div>
+          </div>
+          <div class="flex items-center justify-between text-[10px]">
+            <span class="text-emerald-700 flex items-center gap-1">
+              <i data-lucide="check-circle-2" class="w-3 h-3"></i> meta ≥ S/1.50 · holgado
+            </span>
+          </div>
+        </div>
+
+        <div class="px-5 py-3">
+          <div class="flex items-start justify-between gap-2 mb-1">
+            <div>
+              <div class="text-[12px] font-semibold text-slate-900">Sin contar inventario · te queda en efectivo:</div>
+              <div class="text-[10px] text-slate-500 italic">técnicamente: Liquidez Ácida</div>
+            </div>
+            <div class="text-[20px] font-bold tabular text-emerald-700 whitespace-nowrap">S/ 1.56</div>
+          </div>
+          <div class="flex items-center justify-between text-[10px]">
+            <span class="text-emerald-700 flex items-center gap-1">
+              <i data-lucide="check-circle-2" class="w-3 h-3"></i> meta ≥ S/1.00
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pregunta 3 · ¿Qué tan eficiente sos? · Eficiencia amber -->
+    <div class="bg-white border border-amber-200 rounded-2xl overflow-hidden">
+      <div class="bg-gradient-to-r from-amber-50 to-amber-100/40 px-5 py-4 border-b border-amber-200/50">
+        <div class="flex items-start gap-3">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center text-white flex-shrink-0">
+            <i data-lucide="zap" class="w-5 h-5"></i>
+          </div>
+          <div class="flex-1">
+            <h3 class="text-[15px] font-bold text-amber-900">¿Qué tan eficiente sos?</h3>
+            <p class="text-[11px] text-amber-700 leading-snug">Mide cómo mover el capital · rotación de inventario y cobranzas</p>
+          </div>
+          <span class="text-[10px] bg-amber-200 text-amber-800 px-2 py-0.5 rounded font-bold">3 OK · 1 ⚠</span>
+        </div>
+      </div>
+
+      <div class="divide-y divide-slate-100">
+        <div class="px-5 py-3">
+          <div class="flex items-start justify-between gap-2 mb-1">
+            <div>
+              <div class="text-[12px] font-semibold text-slate-900">Tardás en cobrar a clientes:</div>
+              <div class="text-[10px] text-slate-500 italic">técnicamente: DSO · Days Sales Outstanding</div>
+            </div>
+            <div class="text-[20px] font-bold tabular text-emerald-700 whitespace-nowrap">12 días</div>
+          </div>
+          <div class="flex items-center justify-between text-[10px]">
+            <span class="text-emerald-700 flex items-center gap-1">
+              <i data-lucide="check-circle-2" class="w-3 h-3"></i> meta ≤ 30 días · excelente
+            </span>
+          </div>
+        </div>
+
+        <div class="px-5 py-3">
+          <div class="flex items-start justify-between gap-2 mb-1">
+            <div>
+              <div class="text-[12px] font-semibold text-slate-900">Días que te dura el inventario:</div>
+              <div class="text-[10px] text-slate-500 italic">técnicamente: Días de Inventario</div>
+            </div>
+            <div class="text-[20px] font-bold tabular text-amber-700 whitespace-nowrap">68 días</div>
+          </div>
+          <div class="flex items-center justify-between text-[10px]">
+            <span class="text-emerald-700 flex items-center gap-1">
+              <i data-lucide="check-circle-2" class="w-3 h-3"></i> meta ≤ 90 días
+            </span>
+          </div>
+        </div>
+
+        <div class="px-5 py-3">
+          <div class="flex items-start justify-between gap-2 mb-1">
+            <div>
+              <div class="text-[12px] font-semibold text-slate-900">Tardás en pagar a proveedores:</div>
+              <div class="text-[10px] text-slate-500 italic">técnicamente: DPO · Days Payable Outstanding</div>
+            </div>
+            <div class="text-[20px] font-bold tabular text-slate-700 whitespace-nowrap">28 días</div>
+          </div>
+          <div class="text-[10px] text-slate-500">normal · equilibrio con proveedores</div>
+        </div>
+
+        <div class="px-5 py-3 bg-rose-50/30">
+          <div class="flex items-start justify-between gap-2 mb-1">
+            <div>
+              <div class="text-[12px] font-semibold text-slate-900">Veces que rotás tu inventario al año:</div>
+              <div class="text-[10px] text-slate-500 italic">técnicamente: Rotación Inventario</div>
+            </div>
+            <div class="text-[20px] font-bold tabular text-rose-700 whitespace-nowrap">5.4x</div>
+          </div>
+          <div class="flex items-center justify-between text-[10px]">
+            <span class="text-rose-700 flex items-center gap-1">
+              <i data-lucide="alert-triangle" class="w-3 h-3"></i> meta ≥ 6x · revisar stock muerto
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pregunta 4 · ¿Estás muy endeudado? · Endeudamiento rose -->
+    <div class="bg-white border border-rose-200 rounded-2xl overflow-hidden">
+      <div class="bg-gradient-to-r from-rose-50 to-rose-100/40 px-5 py-4 border-b border-rose-200/50">
+        <div class="flex items-start gap-3">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-rose-500 to-rose-700 flex items-center justify-center text-white flex-shrink-0">
+            <i data-lucide="credit-card" class="w-5 h-5"></i>
+          </div>
+          <div class="flex-1">
+            <h3 class="text-[15px] font-bold text-rose-900">¿Estás muy endeudado?</h3>
+            <p class="text-[11px] text-rose-700 leading-snug">Mide tu dependencia financiera · cuánto debés vs cuánto tenés</p>
+          </div>
+          <span class="text-[10px] bg-emerald-200 text-emerald-800 px-2 py-0.5 rounded font-bold">2 OK</span>
+        </div>
+      </div>
+
+      <div class="divide-y divide-slate-100">
+        <div class="px-5 py-3">
+          <div class="flex items-start justify-between gap-2 mb-1">
+            <div>
+              <div class="text-[12px] font-semibold text-slate-900">De cada S/100 que tenés · debés:</div>
+              <div class="text-[10px] text-slate-500 italic">técnicamente: Ratio Endeudamiento</div>
+            </div>
+            <div class="text-[20px] font-bold tabular text-emerald-700 whitespace-nowrap">S/ 31</div>
+          </div>
+          <div class="flex items-center justify-between text-[10px]">
+            <span class="text-emerald-700 flex items-center gap-1">
+              <i data-lucide="check-circle-2" class="w-3 h-3"></i> meta ≤ S/50 · bajando
+            </span>
+          </div>
+        </div>
+
+        <div class="px-5 py-3 bg-rose-50/50">
+          <div class="flex items-start justify-between gap-2 mb-1">
+            <div>
+              <div class="text-[12px] font-semibold text-slate-900 flex items-center gap-1">
+                Por cada S/1 que socios pusieron · debés:
+                <span class="text-[8px] bg-purple-100 text-purple-700 px-1 rounded">★ KEY</span>
+              </div>
+              <div class="text-[10px] text-slate-500 italic">técnicamente: Deuda / Patrimonio</div>
+            </div>
+            <div class="text-[20px] font-bold tabular text-emerald-700 whitespace-nowrap">S/ 0.45</div>
+          </div>
+          <div class="flex items-center justify-between text-[10px]">
+            <span class="text-emerald-700 flex items-center gap-1">
+              <i data-lucide="check-circle-2" class="w-3 h-3"></i> meta ≤ S/1.00 · cómodo
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Decisiones canon -->
+  <section class="bg-white border border-slate-200 rounded-2xl p-6 space-y-2 text-[12px]">
+    <h2 class="text-base font-bold text-slate-900 mb-2">📐 Decisiones · Indicadores con Preguntas canon v5.2</h2>
+    <div><strong class="text-purple-700">Toggle de vista</strong> · "Preguntas (default)" purple primary / "Técnico" neutral · usuario power puede cambiar a vista técnica · regresa fácil</div>
+    <div><strong class="text-purple-700">4 cards · una por pregunta clave</strong>:
+      <ul class="ml-4 mt-1 text-[11px] text-slate-600 space-y-0.5">
+        <li>¿Cuánto estás ganando? → Rentabilidad (emerald · 4 ratios)</li>
+        <li>¿Tenés plata para pagar? → Liquidez (sky · 3 ratios)</li>
+        <li>¿Qué tan eficiente sos? → Eficiencia (amber · 4 ratios)</li>
+        <li>¿Estás muy endeudado? → Endeudamiento (rose · 2 ratios)</li>
+      </ul>
+    </div>
+    <div><strong class="text-purple-700">Estructura cada respuesta</strong>:
+      <ul class="ml-4 mt-1 text-[11px] text-slate-600 space-y-0.5">
+        <li>Sub-pregunta concreta arriba (lenguaje plano)</li>
+        <li>Nombre técnico abajo en italic chico ("técnicamente: ...")</li>
+        <li>Valor grande a la derecha · expresado en S/ cuando es importe · % cuando es ratio</li>
+        <li>Estado + meta + sparkline mini en footer</li>
+      </ul>
+    </div>
+    <div><strong class="text-purple-700">Valores con unidades user-friendly</strong>:
+      <ul class="ml-4 mt-1 text-[11px] text-slate-600 space-y-0.5">
+        <li>Margen Neto 17.4% → "te quedan limpios S/17.40 por cada S/100"</li>
+        <li>Liquidez 3.21x → "tenés S/3.21 por cada S/1 de deuda corta"</li>
+        <li>ROE 16.1% → "generás S/16.10 por cada S/100 invertido"</li>
+        <li>Endeudamiento 31% → "debés S/31 por cada S/100"</li>
+      </ul>
+    </div>
+    <div><strong class="text-purple-700">★ KEY badge</strong> · 1 ratio destacado por card (el más relevante de los 2-4) · bg-purple-50/50 + badge purple "★ KEY"</div>
+    <div><strong class="text-purple-700">Reuso de IndicadoresFinancieros</strong> · mismos cálculos del service · solo cambia la PRESENTACIÓN visual y verbal · cero cambios en lógica de negocio</div>
+    <div><strong class="text-purple-700">Backward compat</strong> · toggle a "Técnico" muestra el mockup v5.1 original con nombres técnicos · usuario nunca pierde acceso al lenguaje técnico</div>
+  </section>
+
+  <footer class="text-center text-[11px] text-slate-500 pt-4">
+    Mockup canon v5.2 · Contabilidad Indicadores Preguntas · Sprint C · 2026-05-23
+  </footer>
+
+</div>
+
+<script>if (window.lucide) window.lucide.createIcons();</script>
+</body>
+</html>

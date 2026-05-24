@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Contabilidad · Insights del Mes · Canon v5.2</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<style>body { font-family: 'Inter', sans-serif; font-variant-numeric: tabular-nums; }</style>
+<script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-slate-50 p-6 md:p-10 text-slate-900">
+
+<div class="max-w-5xl mx-auto mb-6 bg-amber-50 border-l-4 border-amber-400 p-4 rounded text-[12px] text-amber-900">
+  <strong>📋 Mockup canon v5.2 · Contabilidad / INSIGHTS DEL MES</strong> · card que genera
+  automáticamente 4-6 frases concisas explicando QUÉ pasó en el mes y POR QUÉ. Reemplaza el "leer
+  números" por "leer historia". Va después del banner Estado del Negocio en tab Resumen.
+</div>
+
+<div class="max-w-5xl mx-auto space-y-4">
+
+  <!-- §1 · Card principal Insights del mes -->
+  <section class="bg-white border border-slate-200 rounded-2xl overflow-hidden">
+    <div class="px-5 py-3 border-b border-slate-100 flex items-center justify-between flex-wrap gap-2">
+      <h3 class="text-[13px] font-bold text-slate-900 flex items-center gap-2">
+        <i data-lucide="sparkles" class="w-4 h-4 text-purple-600"></i>
+        Insights del mes · Mayo 2026
+      </h3>
+      <div class="flex items-center gap-2">
+        <span class="text-[10px] text-slate-500">Generado automáticamente · 6 hallazgos</span>
+        <button class="text-[10px] font-semibold text-slate-600 hover:bg-slate-50 border border-slate-200 px-2 py-1 rounded inline-flex items-center gap-1">
+          <i data-lucide="refresh-cw" class="w-2.5 h-2.5"></i> Recalcular
+        </button>
+      </div>
+    </div>
+
+    <div class="divide-y divide-slate-100">
+
+      <!-- Insight 1 · POSITIVO · Ventas crecieron -->
+      <div class="px-5 py-3 flex items-start gap-3 hover:bg-emerald-50/20 transition-colors">
+        <div class="w-8 h-8 rounded-lg bg-emerald-50 border border-emerald-200 flex items-center justify-center flex-shrink-0">
+          <i data-lucide="trending-up" class="w-4 h-4 text-emerald-700"></i>
+        </div>
+        <div class="flex-1">
+          <div class="text-[12px] font-semibold text-slate-900 mb-0.5">
+            Récord de ventas del año · S/ 247,500 (+12.5% vs abril)
+          </div>
+          <p class="text-[11px] text-slate-600 leading-snug">
+            El mejor mes en lo que va de 2026. Crecimiento sostenido desde marzo (+74% en 2 meses).
+            Sumaron 247 transacciones · ticket promedio S/487 estable.
+          </p>
+        </div>
+        <span class="text-[9px] bg-emerald-50 text-emerald-700 px-1.5 py-0.5 rounded font-bold whitespace-nowrap">POSITIVO</span>
+      </div>
+
+      <!-- Insight 2 · POSITIVO · Margen mejoró -->
+      <div class="px-5 py-3 flex items-start gap-3 hover:bg-emerald-50/20 transition-colors">
+        <div class="w-8 h-8 rounded-lg bg-emerald-50 border border-emerald-200 flex items-center justify-center flex-shrink-0">
+          <i data-lucide="zap" class="w-4 h-4 text-emerald-700"></i>
+        </div>
+        <div class="flex-1">
+          <div class="text-[12px] font-semibold text-slate-900 mb-0.5">
+            Margen bruto subió 0.8pp · de 57.7% a 58.5%
+          </div>
+          <p class="text-[11px] text-slate-600 leading-snug">
+            Buen control sobre costo de producto. Posible explicación: el TC bajó de 3.78 a 3.75 ·
+            tus compras USD costaron menos en soles.
+          </p>
+        </div>
+        <span class="text-[9px] bg-emerald-50 text-emerald-700 px-1.5 py-0.5 rounded font-bold whitespace-nowrap">POSITIVO</span>
+      </div>
+
+      <!-- Insight 3 · NEUTRAL · cambio en mix -->
+      <div class="px-5 py-3 flex items-start gap-3 hover:bg-slate-50/40 transition-colors">
+        <div class="w-8 h-8 rounded-lg bg-sky-50 border border-sky-200 flex items-center justify-center flex-shrink-0">
+          <i data-lucide="repeat" class="w-4 h-4 text-sky-700"></i>
+        </div>
+        <div class="flex-1">
+          <div class="text-[12px] font-semibold text-slate-900 mb-0.5">
+            Inventario Perú/USA cambió a 39/61 desde 35/65 en abril
+          </div>
+          <p class="text-[11px] text-slate-600 leading-snug">
+            Más stock en Perú es bueno para entregas rápidas, pero asegurate de que no se quede
+            inmovilizado. Días-inventario subió de 65 a 68 días.
+          </p>
+        </div>
+        <span class="text-[9px] bg-sky-50 text-sky-700 px-1.5 py-0.5 rounded font-bold whitespace-nowrap">NEUTRAL</span>
+      </div>
+
+      <!-- Insight 4 · ATENCIÓN · gastos crecen más que ventas -->
+      <div class="px-5 py-3 flex items-start gap-3 hover:bg-amber-50/30 transition-colors bg-amber-50/20">
+        <div class="w-8 h-8 rounded-lg bg-amber-50 border border-amber-300 flex items-center justify-center flex-shrink-0">
+          <i data-lucide="alert-circle" class="w-4 h-4 text-amber-700"></i>
+        </div>
+        <div class="flex-1">
+          <div class="text-[12px] font-semibold text-amber-900 mb-0.5">
+            Gastos operativos crecen más rápido que las ventas · +14% vs +12.5% ventas
+          </div>
+          <p class="text-[11px] text-slate-700 leading-snug">
+            Vigilá el ratio gastos/ventas. Si los gastos siguen subiendo más rápido, el margen neto
+            empezará a bajar el próximo mes. Componente que más subió: <strong>Gastos administrativos +S/4,200</strong>.
+          </p>
+          <button class="text-[10px] text-amber-700 hover:underline font-bold mt-1.5 flex items-center gap-1">
+            Ver detalle en Gastos <i data-lucide="arrow-right" class="w-3 h-3"></i>
+          </button>
+        </div>
+        <span class="text-[9px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded font-bold whitespace-nowrap">ATENCIÓN</span>
+      </div>
+
+      <!-- Insight 5 · POSITIVO · pago de deudas -->
+      <div class="px-5 py-3 flex items-start gap-3 hover:bg-emerald-50/20 transition-colors">
+        <div class="w-8 h-8 rounded-lg bg-emerald-50 border border-emerald-200 flex items-center justify-center flex-shrink-0">
+          <i data-lucide="credit-card" class="w-4 h-4 text-emerald-700"></i>
+        </div>
+        <div class="flex-1">
+          <div class="text-[12px] font-semibold text-slate-900 mb-0.5">
+            Deudas bancarias bajaron S/3,200 vs abril
+          </div>
+          <p class="text-[11px] text-slate-600 leading-snug">
+            Sano. Pasaste el ratio de endeudamiento de 33% a 31%. Vas en buen camino para terminar
+            el año con &lt;30% si mantenés el ritmo.
+          </p>
+        </div>
+        <span class="text-[9px] bg-emerald-50 text-emerald-700 px-1.5 py-0.5 rounded font-bold whitespace-nowrap">POSITIVO</span>
+      </div>
+
+      <!-- Insight 6 · ATENCIÓN · anticipos altos -->
+      <div class="px-5 py-3 flex items-start gap-3 hover:bg-amber-50/30 transition-colors bg-amber-50/20">
+        <div class="w-8 h-8 rounded-lg bg-purple-50 border border-purple-200 flex items-center justify-center flex-shrink-0">
+          <i data-lucide="clock" class="w-4 h-4 text-purple-700"></i>
+        </div>
+        <div class="flex-1">
+          <div class="text-[12px] font-semibold text-amber-900 mb-0.5">
+            12 ventas con anticipo sin entregar · S/ 28,400 pendientes
+          </div>
+          <p class="text-[11px] text-slate-700 leading-snug">
+            Clientes ya pagaron · falta entregar. Asegurate de tener stock para cumplir antes de
+            generar nuevos anticipos. Hay 18 uds reservadas en inventario Perú para este propósito.
+          </p>
+          <button class="text-[10px] text-purple-700 hover:underline font-bold mt-1.5 flex items-center gap-1">
+            Ver ventas pendientes <i data-lucide="arrow-right" class="w-3 h-3"></i>
+          </button>
+        </div>
+        <span class="text-[9px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded font-bold whitespace-nowrap">ATENCIÓN</span>
+      </div>
+
+    </div>
+
+    <!-- Footer · resumen -->
+    <div class="bg-slate-50 px-5 py-3 border-t border-slate-200 flex items-center justify-between text-[10px] flex-wrap gap-2">
+      <div class="flex items-center gap-3">
+        <span class="text-emerald-700 font-bold">3 positivos</span>
+        <span class="text-sky-700 font-bold">1 neutral</span>
+        <span class="text-amber-700 font-bold">2 atención</span>
+        <span class="text-rose-700 font-bold">0 críticos</span>
+      </div>
+      <button class="text-[10px] font-semibold text-slate-600 hover:bg-white border border-slate-200 px-2.5 py-1 rounded inline-flex items-center gap-1">
+        <i data-lucide="download" class="w-2.5 h-2.5"></i> Exportar insights
+      </button>
+    </div>
+  </section>
+
+  <!-- §2 · Tipos de insights · canon de generación -->
+  <section class="bg-white border border-slate-200 rounded-2xl p-6">
+    <h3 class="text-[13px] font-bold text-slate-900 mb-3">🧠 Lógica de generación de insights</h3>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-[11px]">
+      <div class="border border-emerald-200 rounded-lg p-3 bg-emerald-50/30">
+        <div class="text-[10px] font-bold text-emerald-700 uppercase tracking-wider mb-1">POSITIVO (verde)</div>
+        <ul class="text-slate-600 space-y-1 list-disc ml-4">
+          <li>Crecimiento ventas vs mes anterior</li>
+          <li>Margen bruto mejora ≥0.5pp</li>
+          <li>Récord mensual de KPI</li>
+          <li>Reducción de deuda</li>
+          <li>Mejora en ratio de eficiencia</li>
+        </ul>
+      </div>
+      <div class="border border-sky-200 rounded-lg p-3 bg-sky-50/30">
+        <div class="text-[10px] font-bold text-sky-700 uppercase tracking-wider mb-1">NEUTRAL (azul)</div>
+        <ul class="text-slate-600 space-y-1 list-disc ml-4">
+          <li>Cambio en mix de productos/líneas</li>
+          <li>Cambio significativo en distribución</li>
+          <li>Eventos contables relevantes (anticipos, FX)</li>
+          <li>Informativo sin polaridad clara</li>
+        </ul>
+      </div>
+      <div class="border border-amber-200 rounded-lg p-3 bg-amber-50/30">
+        <div class="text-[10px] font-bold text-amber-700 uppercase tracking-wider mb-1">ATENCIÓN (amber)</div>
+        <ul class="text-slate-600 space-y-1 list-disc ml-4">
+          <li>Gastos crecen más que ventas</li>
+          <li>Margen neto entre 80-100% de meta</li>
+          <li>Anticipos &gt;10% del pasivo corriente</li>
+          <li>Inventario lento &gt;90 días</li>
+          <li>1 KPI cayendo significativamente</li>
+        </ul>
+      </div>
+      <div class="border border-rose-200 rounded-lg p-3 bg-rose-50/30">
+        <div class="text-[10px] font-bold text-rose-700 uppercase tracking-wider mb-1">CRÍTICO (rose)</div>
+        <ul class="text-slate-600 space-y-1 list-disc ml-4">
+          <li>Mes con pérdida (utilidad neta &lt;0)</li>
+          <li>Caída ventas &gt;20% vs mes ant</li>
+          <li>Caja &lt;30 días</li>
+          <li>Devoluciones &gt;10% (problema producto)</li>
+          <li>Liquidez corriente &lt;1.0x</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- Decisiones canon -->
+  <section class="bg-white border border-slate-200 rounded-2xl p-6 space-y-2 text-[12px]">
+    <h2 class="text-base font-bold text-slate-900 mb-2">📐 Decisiones · Insights del Mes canon v5.2</h2>
+    <div><strong class="text-purple-700">Ubicación canon</strong> · tab Resumen · después del Banner Estado del Negocio · antes de KPI strip · es el "lead text" del módulo</div>
+    <div><strong class="text-purple-700">Cantidad insights</strong> · 4-6 por mes · sortear por relevancia (positivos primeros si hay paridad) · evitar saturar (más de 6 satura)</div>
+    <div><strong class="text-purple-700">Estructura cada insight</strong> · icon polaridad (8x8 con bg color-50) + título declarativo + descripción 1-2 líneas + (opcional) link a otra vista · badge POLARIDAD a la derecha</div>
+    <div><strong class="text-purple-700">4 polaridades</strong> · POSITIVO emerald · NEUTRAL sky · ATENCIÓN amber · CRÍTICO rose · cada uno con bg-row sutil al hover</div>
+    <div><strong class="text-purple-700">Reglas determinísticas</strong> · NO IA · son reglas hardcoded comparando umbrales (configurables en modal Config v5.2)</div>
+    <div><strong class="text-purple-700">Cross-link contextual</strong> · si insight refiere a otro módulo (Gastos, Ventas, Stock), agregar botón "Ver detalle en X →"</div>
+    <div><strong class="text-purple-700">Footer resumen</strong> · conteo por polaridad + botón "Exportar insights" (TXT/PDF mensual para reuniones de directorio)</div>
+    <div><strong class="text-purple-700">Service extension</strong> · `generarInsightsMes(mes, anio): Insight[]` · cada Insight con `{polaridad, icon, titulo, descripcion, crossLink?}`</div>
+    <div><strong class="text-purple-700">Recalcular manual</strong> · botón en header de la card · regenera si usuario cambió umbrales</div>
+  </section>
+
+  <footer class="text-center text-[11px] text-slate-500 pt-4">
+    Mockup canon v5.2 · Contabilidad Insights del Mes · Sprint C · 2026-05-23
+  </footer>
+
+</div>
+
+<script>if (window.lucide) window.lucide.createIcons();</script>
+</body>
+</html>

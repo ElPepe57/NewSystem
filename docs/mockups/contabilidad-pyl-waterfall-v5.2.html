@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Contabilidad · P&L Waterfall · Canon v5.2</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<style>body { font-family: 'Inter', sans-serif; font-variant-numeric: tabular-nums; }</style>
+<script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-slate-50 p-6 md:p-10 text-slate-900">
+
+<div class="max-w-5xl mx-auto mb-6 bg-amber-50 border-l-4 border-amber-400 p-4 rounded text-[12px] text-amber-900">
+  <strong>📋 Mockup canon v5.2 · Contabilidad / P&L WATERFALL INTERNO</strong> · agrega gráfica
+  cascade visual al tab Estado de Resultados. Reemplaza el botón cross-link a Finanzas/Análisis
+  por una visualización propia del P&L. Se inserta como §1.5 entre header y tabla cascade formal.
+</div>
+
+<div class="max-w-5xl mx-auto space-y-4">
+
+  <!-- §1 · Header existente (con waterfall toggle) -->
+  <section class="bg-gradient-to-r from-slate-50 to-slate-100/40 ring-1 ring-slate-200/50 rounded-2xl p-4">
+    <div class="flex items-center justify-between flex-wrap gap-3">
+      <div class="flex items-center gap-3">
+        <i data-lucide="file-text" class="w-5 h-5 text-slate-700"></i>
+        <div>
+          <div class="text-[13px] font-bold text-slate-900">Estado de Resultados · Mayo 2026</div>
+          <div class="text-[11px] text-slate-500">P&amp;L formal · vista visual + tabla cascade</div>
+        </div>
+      </div>
+      <!-- Toggle vista: Waterfall / Tabla -->
+      <div class="flex items-center gap-1 bg-white border border-slate-200 rounded-lg p-0.5">
+        <button class="text-[10px] font-bold px-2.5 py-1 rounded bg-indigo-600 text-white flex items-center gap-1">
+          <i data-lucide="bar-chart-3" class="w-3 h-3"></i>
+          Waterfall
+        </button>
+        <button class="text-[10px] font-semibold px-2.5 py-1 rounded text-slate-600 hover:bg-slate-50 flex items-center gap-1">
+          <i data-lucide="list" class="w-3 h-3"></i>
+          Tabla
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- §1.5 · NUEVO · Waterfall chart -->
+  <section class="bg-white border border-slate-200 rounded-2xl p-5">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="text-[13px] font-bold text-slate-900 flex items-center gap-2">
+        <i data-lucide="bar-chart-3" class="w-4 h-4 text-indigo-600"></i>
+        Cascada P&L · cómo se forma la Utilidad Neta
+      </h3>
+      <span class="text-[10px] text-slate-500">de S/ 247,500 ventas → S/ 43,150 utilidad neta</span>
+    </div>
+
+    <!-- Waterfall · 7 barras horizontales con valores y % -->
+    <div class="space-y-2.5">
+
+      <!-- Ventas Netas (base · 100%) -->
+      <div class="flex items-center gap-3">
+        <div class="w-32 text-[11px] font-bold text-emerald-900 shrink-0">VENTAS NETAS</div>
+        <div class="flex-1 h-8 bg-slate-50 rounded-md relative overflow-hidden">
+          <div class="h-full rounded-md bg-emerald-500 flex items-center justify-end pr-2"
+               style="width: 100%">
+            <span class="text-[11px] font-bold text-white tabular">S/ 247,500</span>
+          </div>
+        </div>
+        <div class="w-16 text-right text-[11px] font-bold text-emerald-700 tabular shrink-0">100.0%</div>
+      </div>
+
+      <!-- COGS (resta · rose · barra desde la derecha) -->
+      <div class="flex items-center gap-3">
+        <div class="w-32 text-[11px] text-slate-600 shrink-0">(−) COGS</div>
+        <div class="flex-1 h-8 bg-slate-50 rounded-md relative overflow-hidden">
+          <!-- Indicador desde donde "baja" -->
+          <div class="absolute right-0 top-0 h-full bg-rose-400/30" style="width: 41.5%"></div>
+          <div class="absolute right-0 top-0 h-full bg-rose-500 flex items-center justify-start pl-2 border-l-2 border-rose-700"
+               style="width: 41.5%">
+            <span class="text-[11px] font-bold text-white tabular">−S/ 102,700</span>
+          </div>
+        </div>
+        <div class="w-16 text-right text-[11px] text-rose-700 tabular shrink-0">−41.5%</div>
+      </div>
+
+      <!-- MARGEN BRUTO (subtotal · destacado) -->
+      <div class="flex items-center gap-3 bg-emerald-50/50 -mx-2 px-2 py-1.5 rounded">
+        <div class="w-32 text-[11px] font-bold text-emerald-900 shrink-0 flex items-center gap-1">
+          <i data-lucide="trending-up" class="w-3 h-3"></i>
+          MARGEN BRUTO
+        </div>
+        <div class="flex-1 h-8 bg-slate-50 rounded-md relative overflow-hidden border-2 border-emerald-300">
+          <div class="h-full rounded-md bg-emerald-600 flex items-center justify-end pr-2"
+               style="width: 58.5%">
+            <span class="text-[11px] font-bold text-white tabular">S/ 144,800</span>
+          </div>
+        </div>
+        <div class="w-16 text-right text-[12px] font-bold text-emerald-700 tabular shrink-0">58.5%</div>
+      </div>
+
+      <!-- Gastos Operativos (resta amber) -->
+      <div class="flex items-center gap-3">
+        <div class="w-32 text-[11px] text-slate-600 shrink-0">(−) Gastos Op.</div>
+        <div class="flex-1 h-8 bg-slate-50 rounded-md relative overflow-hidden">
+          <div class="absolute h-full bg-amber-500 flex items-center justify-start pl-2 border-l-2 border-amber-700"
+               style="left: 17.1%; width: 41.4%">
+            <span class="text-[11px] font-bold text-white tabular">−S/ 102,500</span>
+          </div>
+        </div>
+        <div class="w-16 text-right text-[11px] text-amber-700 tabular shrink-0">−41.4%</div>
+      </div>
+
+      <!-- EBITDA (subtotal teal · destacado) -->
+      <div class="flex items-center gap-3 bg-teal-50/50 -mx-2 px-2 py-1.5 rounded">
+        <div class="w-32 text-[11px] font-bold text-teal-900 shrink-0 flex items-center gap-1">
+          <i data-lucide="zap" class="w-3 h-3"></i>
+          EBITDA
+        </div>
+        <div class="flex-1 h-8 bg-slate-50 rounded-md relative overflow-hidden border-2 border-teal-300">
+          <div class="h-full rounded-md bg-teal-600 flex items-center justify-end pr-2"
+               style="width: 17.1%">
+            <span class="text-[11px] font-bold text-white tabular">S/ 42,300</span>
+          </div>
+        </div>
+        <div class="w-16 text-right text-[12px] font-bold text-teal-700 tabular shrink-0">17.1%</div>
+      </div>
+
+      <!-- Diferencial cambiario (suma + emerald) -->
+      <div class="flex items-center gap-3">
+        <div class="w-32 text-[11px] text-slate-600 shrink-0">(+) Dif. cambiario</div>
+        <div class="flex-1 h-8 bg-slate-50 rounded-md relative overflow-hidden">
+          <div class="absolute h-full bg-emerald-400/70 flex items-center justify-start pl-2"
+               style="left: 17.1%; width: 0.3%; min-width: 4px">
+          </div>
+          <span class="absolute left-[19%] top-1/2 -translate-y-1/2 text-[11px] font-bold text-emerald-700 tabular">+S/ 850</span>
+        </div>
+        <div class="w-16 text-right text-[11px] text-emerald-700 tabular shrink-0">+0.3%</div>
+      </div>
+
+      <!-- UTILIDAD NETA (final · indigo · destacado más fuerte) -->
+      <div class="flex items-center gap-3 bg-indigo-50 -mx-2 px-2 py-2 rounded ring-2 ring-indigo-200">
+        <div class="w-32 text-[12px] font-bold text-indigo-900 shrink-0 flex items-center gap-1">
+          <i data-lucide="trophy" class="w-3.5 h-3.5"></i>
+          UTILIDAD NETA
+        </div>
+        <div class="flex-1 h-10 bg-slate-50 rounded-md relative overflow-hidden border-2 border-indigo-400">
+          <div class="h-full rounded-md bg-indigo-600 flex items-center justify-end pr-3"
+               style="width: 17.4%">
+            <span class="text-[12px] font-bold text-white tabular">S/ 43,150</span>
+          </div>
+        </div>
+        <div class="w-16 text-right text-[13px] font-bold text-indigo-700 tabular shrink-0">17.4%</div>
+      </div>
+
+    </div>
+
+    <!-- Leyenda -->
+    <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-center gap-4 text-[10px] flex-wrap">
+      <span class="flex items-center gap-1">
+        <div class="w-3 h-3 bg-emerald-500 rounded"></div> Ingresos / Margen
+      </span>
+      <span class="flex items-center gap-1">
+        <div class="w-3 h-3 bg-rose-500 rounded"></div> COGS
+      </span>
+      <span class="flex items-center gap-1">
+        <div class="w-3 h-3 bg-amber-500 rounded"></div> Gastos Op.
+      </span>
+      <span class="flex items-center gap-1">
+        <div class="w-3 h-3 bg-teal-600 rounded"></div> EBITDA
+      </span>
+      <span class="flex items-center gap-1">
+        <div class="w-3 h-3 bg-indigo-600 rounded"></div> Utilidad Neta
+      </span>
+    </div>
+
+    <!-- Insight automático -->
+    <div class="mt-3 pt-3 border-t border-slate-100 bg-emerald-50/30 -mx-5 px-5 py-2.5 text-[11px] text-emerald-900 flex items-start gap-2">
+      <i data-lucide="lightbulb" class="w-3.5 h-3.5 text-emerald-700 mt-0.5"></i>
+      <div>
+        <strong>Lectura rápida:</strong> de cada S/100 que vendiste, te quedaste con <strong>S/17.40</strong> de utilidad limpia.
+        El factor que más quitó fue COGS (41.5%). El margen bruto 58.5% es saludable para retail skincare.
+      </div>
+    </div>
+  </section>
+
+  <!-- §2 · Tabla cascade formal (sin cambios · queda visible si toggle == "Tabla") -->
+  <section class="bg-white border border-slate-200 rounded-2xl p-4 text-center text-[11px] text-slate-500 italic">
+    ⤵ Acá iría la tabla cascade formal canon v5.1 sin cambios · alternable con toggle del header
+  </section>
+
+  <!-- Decisiones canon -->
+  <section class="bg-white border border-slate-200 rounded-2xl p-6 space-y-2 text-[12px]">
+    <h2 class="text-base font-bold text-slate-900 mb-2">📐 Decisiones · P&L Waterfall canon v5.2</h2>
+    <div><strong class="text-purple-700">Ubicación canon</strong> · §1.5 entre header y tabla · NO reemplaza la tabla · toggle del header alterna entre ambas vistas</div>
+    <div><strong class="text-purple-700">Toggle vista canon</strong> · `Waterfall` (default) / `Tabla` · pill blanco con border · primario indigo cuando activo · neutral slate cuando inactivo</div>
+    <div><strong class="text-purple-700">7 barras secuenciales</strong> · Ventas Netas (100% base) → COGS (resta) → Margen Bruto (subtotal destacado) → Gastos Op (resta) → EBITDA (subtotal destacado) → Dif Cambiario → Utilidad Neta (final destacada más fuerte)</div>
+    <div><strong class="text-purple-700">Color signature por bloque</strong> · emerald (ingreso/margen) · rose (COGS) · amber (gastos op) · teal (EBITDA) · indigo (utilidad neta) · coincidente con tabla cascade + KPIs del shell</div>
+    <div><strong class="text-purple-700">Subtotales destacados</strong> · bg-color-50/50 · border-color-300 · 2px · icon · text-bold · cards "mini-elevadas" sobre el flujo</div>
+    <div><strong class="text-purple-700">Barras de resta</strong> · posicionadas en `left: %` del valor previo · barra contigua entre subtotal y subtotal (visual cascade)</div>
+    <div><strong class="text-purple-700">Labels en barra</strong> · valor PEN dentro de barra (si cabe) · % al final fuera · tabular-nums</div>
+    <div><strong class="text-purple-700">Leyenda</strong> · 5 chips inline al final · color-coded matching</div>
+    <div><strong class="text-purple-700">Insight bottom</strong> · frase "Lectura rápida" con icon lightbulb · interpreta proporcionalmente</div>
+    <div><strong class="text-purple-700">Elimina cross-link externo</strong> · botón "Vista cascada Waterfall" del v5.1 deja de tener sentido · el waterfall vive ACÁ ahora</div>
+  </section>
+
+  <footer class="text-center text-[11px] text-slate-500 pt-4">
+    Mockup canon v5.2 · Contabilidad P&L Waterfall · Sprint B · 2026-05-23
+  </footer>
+
+</div>
+
+<script>if (window.lucide) window.lucide.createIcons();</script>
+</body>
+</html>

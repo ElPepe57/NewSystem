@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Contabilidad · Modal Glosario · Canon v5.2</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<style>body { font-family: 'Inter', sans-serif; font-variant-numeric: tabular-nums; }</style>
+<script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-slate-200 p-6 md:p-10 text-slate-900 min-h-screen">
+
+<div class="max-w-5xl mx-auto mb-6 bg-amber-50 border-l-4 border-amber-400 p-4 rounded text-[12px] text-amber-900">
+  <strong>📋 Mockup canon v5.2 · Contabilidad / MODAL GLOSARIO</strong> · acceso desde botón `?` en
+  header del módulo · diccionario A-Z de todos los términos técnicos · cada entry con definición coloquial · cómo se calcula · ejemplo del negocio.
+</div>
+
+<!-- Backdrop simulado -->
+<div class="bg-slate-900/40 rounded-2xl p-12">
+
+  <!-- Modal canon FormModalV2 · purple signature -->
+  <div class="bg-white border border-slate-200 rounded-2xl shadow-2xl max-w-2xl mx-auto overflow-hidden">
+
+    <!-- Header del modal -->
+    <div class="p-5 border-b border-slate-100">
+      <div class="flex items-start gap-3">
+        <div class="w-10 h-10 rounded-xl bg-purple-50 border border-purple-200 flex items-center justify-center text-purple-700 flex-shrink-0">
+          <i data-lucide="book-open" class="w-5 h-5"></i>
+        </div>
+        <div class="flex-1 min-w-0">
+          <h2 class="text-lg font-bold text-slate-900">Glosario contable</h2>
+          <p class="text-[12px] text-slate-500 leading-snug">Todos los términos técnicos del módulo explicados en lenguaje claro</p>
+        </div>
+        <button class="text-slate-400 hover:text-slate-700 p-1">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Buscador + filtros chips -->
+    <div class="p-5 border-b border-slate-100 space-y-3">
+      <div class="relative">
+        <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
+        <input type="text" placeholder="Buscar término · ej. EBITDA, margen, liquidez..."
+               class="w-full pl-9 pr-3 py-2 border border-slate-300 rounded-lg text-sm focus:border-purple-500 focus:ring-1 focus:ring-purple-500" />
+      </div>
+      <!-- Chips de filtro por categoría -->
+      <div class="flex items-center gap-1.5 overflow-x-auto pb-1 -mx-1 px-1" style="scrollbar-width: none;">
+        <button class="text-[10px] font-bold whitespace-nowrap px-2.5 py-1 rounded-full bg-purple-600 text-white">
+          Todos · 25
+        </button>
+        <button class="text-[10px] font-semibold whitespace-nowrap px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+          Rentabilidad · 6
+        </button>
+        <button class="text-[10px] font-semibold whitespace-nowrap px-2.5 py-1 rounded-full bg-sky-50 text-sky-700 border border-sky-200">
+          Liquidez · 4
+        </button>
+        <button class="text-[10px] font-semibold whitespace-nowrap px-2.5 py-1 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
+          Eficiencia · 5
+        </button>
+        <button class="text-[10px] font-semibold whitespace-nowrap px-2.5 py-1 rounded-full bg-rose-50 text-rose-700 border border-rose-200">
+          Balance · 7
+        </button>
+        <button class="text-[10px] font-semibold whitespace-nowrap px-2.5 py-1 rounded-full bg-slate-50 text-slate-700 border border-slate-200">
+          Otros · 3
+        </button>
+      </div>
+    </div>
+
+    <!-- Lista A-Z scrollable -->
+    <div class="max-h-[500px] overflow-y-auto p-5 space-y-4">
+
+      <!-- Letra A -->
+      <div>
+        <div class="text-[11px] uppercase tracking-wider font-bold text-purple-700 mb-2">A</div>
+        <div class="space-y-3">
+
+          <!-- Entry: Activo Corriente -->
+          <div class="border border-slate-200 rounded-xl p-3 hover:border-purple-300 transition-colors">
+            <div class="flex items-start justify-between gap-2 mb-1">
+              <div class="flex items-baseline gap-2">
+                <span class="text-[13px] font-bold text-slate-900">Activo Corriente</span>
+                <span class="text-[10px] bg-rose-50 text-rose-700 px-1.5 py-0.5 rounded font-bold">Balance</span>
+              </div>
+            </div>
+            <p class="text-[11px] text-slate-600 leading-relaxed">
+              Todo lo que tu empresa POSEE y va a usar/convertir en plata <strong>en menos de 1 año</strong>:
+              efectivo en caja y bancos, lo que te deben los clientes (CxC), e inventario.
+            </p>
+            <div class="text-[10px] text-slate-500 mt-1.5 flex items-center gap-1.5">
+              <i data-lucide="calculator" class="w-3 h-3"></i>
+              Efectivo + CxC neto + Inventarios
+            </div>
+          </div>
+
+          <!-- Entry: Anticipos clientes -->
+          <div class="border border-slate-200 rounded-xl p-3 hover:border-purple-300 transition-colors">
+            <div class="flex items-start justify-between gap-2 mb-1">
+              <span class="text-[13px] font-bold text-slate-900">Anticipos de Clientes</span>
+              <span class="text-[10px] bg-rose-50 text-rose-700 px-1.5 py-0.5 rounded font-bold">Balance</span>
+            </div>
+            <p class="text-[11px] text-slate-600 leading-relaxed">
+              Plata que clientes te <strong>pagaron por adelantado</strong> por productos que aún NO entregaste.
+              Aunque "ya tenés la plata", contablemente es DEUDA: si no entregás, hay que devolver.
+            </p>
+            <div class="text-[10px] text-slate-500 mt-1.5">
+              <strong>Ejemplo:</strong> Cliente pagó S/300 por kit que enviás la próxima semana → S/300 anticipo.
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Letra C -->
+      <div>
+        <div class="text-[11px] uppercase tracking-wider font-bold text-purple-700 mb-2">C</div>
+        <div class="space-y-3">
+
+          <!-- Entry: Capital Social -->
+          <div class="border border-slate-200 rounded-xl p-3">
+            <div class="flex items-start justify-between gap-2 mb-1">
+              <div class="flex items-baseline gap-2">
+                <span class="text-[13px] font-bold text-slate-900">Capital Social</span>
+                <span class="text-[10px] bg-rose-50 text-rose-700 px-1.5 py-0.5 rounded font-bold">Balance</span>
+              </div>
+            </div>
+            <p class="text-[11px] text-slate-600 leading-relaxed">
+              Plata que los <strong>socios pusieron al iniciar</strong> la empresa. Es el "aporte fundador".
+              No cambia salvo que entren/salgan socios o se aumente capital con nuevos aportes.
+            </p>
+          </div>
+
+          <!-- Entry: COGS -->
+          <div class="border border-purple-200 bg-purple-50/30 rounded-xl p-3 ring-2 ring-purple-100">
+            <div class="flex items-start justify-between gap-2 mb-1">
+              <div class="flex items-baseline gap-2">
+                <span class="text-[13px] font-bold text-slate-900">COGS · Costo de Venta</span>
+                <span class="text-[10px] bg-emerald-50 text-emerald-700 px-1.5 py-0.5 rounded font-bold">Rentabilidad</span>
+              </div>
+              <span class="text-[9px] text-purple-600 italic">⭐ término clave</span>
+            </div>
+            <p class="text-[11px] text-slate-600 leading-relaxed">
+              <em>"Cost of Goods Sold"</em> · Cuánto te costó <strong>comprar/producir lo que vendiste</strong>.
+              Es la materia prima del negocio.
+            </p>
+            <div class="text-[10px] text-slate-500 mt-1.5 flex items-center gap-1.5">
+              <i data-lucide="calculator" class="w-3 h-3"></i>
+              Compras recibidas + Flete internacional + Impuestos importación
+            </div>
+            <div class="text-[10px] mt-1.5 px-2 py-1 bg-emerald-50 text-emerald-700 rounded inline-block">
+              ✓ Saludable: entre 40-55% de las ventas
+            </div>
+          </div>
+
+          <!-- Entry: CxC -->
+          <div class="border border-slate-200 rounded-xl p-3">
+            <div class="flex items-start justify-between gap-2 mb-1">
+              <span class="text-[13px] font-bold text-slate-900">CxC · Cuentas por Cobrar</span>
+              <span class="text-[10px] bg-rose-50 text-rose-700 px-1.5 py-0.5 rounded font-bold">Balance</span>
+            </div>
+            <p class="text-[11px] text-slate-600 leading-relaxed">
+              Plata que <strong>TE DEBEN tus clientes</strong> por ventas que ya hiciste pero aún no te pagaron.
+            </p>
+            <div class="text-[10px] text-slate-500 mt-1.5">
+              <strong>Saludable:</strong> que no crezca más rápido que las ventas. Si crece mucho, tu cobranza está lenta.
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Letra D -->
+      <div>
+        <div class="text-[11px] uppercase tracking-wider font-bold text-purple-700 mb-2">D</div>
+        <div class="space-y-3">
+
+          <div class="border border-purple-200 bg-purple-50/30 rounded-xl p-3 ring-2 ring-purple-100">
+            <div class="flex items-start justify-between gap-2 mb-1">
+              <div class="flex items-baseline gap-2">
+                <span class="text-[13px] font-bold text-slate-900">DSO · Días de Cobro</span>
+                <span class="text-[10px] bg-amber-50 text-amber-700 px-1.5 py-0.5 rounded font-bold">Eficiencia</span>
+              </div>
+              <span class="text-[9px] text-purple-600 italic">⭐ término clave</span>
+            </div>
+            <p class="text-[11px] text-slate-600 leading-relaxed">
+              <em>"Days Sales Outstanding"</em> · Cuántos días en promedio <strong>tardás en cobrar</strong>
+              después de vender.
+            </p>
+            <div class="text-[10px] text-slate-500 mt-1.5 flex items-center gap-1.5">
+              <i data-lucide="calculator" class="w-3 h-3"></i>
+              (CxC ÷ Ventas Netas) × 30
+            </div>
+            <div class="text-[10px] mt-1.5 px-2 py-1 bg-emerald-50 text-emerald-700 rounded inline-block">
+              ✓ Saludable: ≤30 días para ecommerce
+            </div>
+          </div>
+
+          <div class="border border-slate-200 rounded-xl p-3">
+            <div class="flex items-start justify-between gap-2 mb-1">
+              <span class="text-[13px] font-bold text-slate-900">DPO · Días de Pago</span>
+              <span class="text-[10px] bg-amber-50 text-amber-700 px-1.5 py-0.5 rounded font-bold">Eficiencia</span>
+            </div>
+            <p class="text-[11px] text-slate-600 leading-relaxed">
+              <em>"Days Payable Outstanding"</em> · Cuántos días en promedio <strong>tardás en pagar</strong> a tus proveedores después de recibir mercadería.
+            </p>
+            <div class="text-[10px] text-slate-500 mt-1.5">
+              <strong>Trade-off:</strong> más alto = mejor para tu caja · pero relaciones con proveedores se tensan.
+            </div>
+          </div>
+
+          <div class="border border-slate-200 rounded-xl p-3">
+            <div class="flex items-start justify-between gap-2 mb-1">
+              <span class="text-[13px] font-bold text-slate-900">Diferencial Cambiario</span>
+              <span class="text-[10px] bg-slate-100 text-slate-700 px-1.5 py-0.5 rounded font-bold">Otros</span>
+            </div>
+            <p class="text-[11px] text-slate-600 leading-relaxed">
+              Ganancia o pérdida por <strong>variación del tipo de cambio</strong> entre el momento que registrás una compra/venta en USD y el momento que pagás/cobrás.
+            </p>
+            <div class="text-[10px] text-slate-500 mt-1.5">
+              <strong>Ejemplo:</strong> Comprás S/100 USD a TC 3.75 → S/375. Pagás cuando TC subió a 3.80 → te cuesta S/380. Pérdida cambiaria S/5.
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Letra E -->
+      <div>
+        <div class="text-[11px] uppercase tracking-wider font-bold text-purple-700 mb-2">E</div>
+        <div class="border border-purple-200 bg-purple-50/30 rounded-xl p-3 ring-2 ring-purple-100">
+          <div class="flex items-start justify-between gap-2 mb-1">
+            <div class="flex items-baseline gap-2">
+              <span class="text-[13px] font-bold text-slate-900">EBITDA</span>
+              <span class="text-[10px] bg-emerald-50 text-emerald-700 px-1.5 py-0.5 rounded font-bold">Rentabilidad</span>
+            </div>
+            <span class="text-[9px] text-purple-600 italic">⭐ término clave</span>
+          </div>
+          <p class="text-[11px] text-slate-600 leading-relaxed">
+            Ganancia <strong>OPERATIVA real</strong> del negocio. Sin contar diferencias cambiarias, intereses ni impuestos. Mide qué tan rentable es el corazón del negocio puro.
+          </p>
+          <div class="text-[10px] text-slate-500 mt-1.5 flex items-center gap-1.5">
+            <i data-lucide="calculator" class="w-3 h-3"></i>
+            Margen Bruto − Gastos Operativos
+          </div>
+          <div class="text-[10px] mt-1.5 px-2 py-1 bg-emerald-50 text-emerald-700 rounded inline-block">
+            ✓ Saludable: ≥15% sobre las ventas
+          </div>
+        </div>
+      </div>
+
+      <!-- Letra L -->
+      <div>
+        <div class="text-[11px] uppercase tracking-wider font-bold text-purple-700 mb-2">L</div>
+        <div class="space-y-3">
+          <div class="border border-slate-200 rounded-xl p-3">
+            <div class="flex items-start justify-between gap-2 mb-1">
+              <span class="text-[13px] font-bold text-slate-900">Liquidez Corriente</span>
+              <span class="text-[10px] bg-sky-50 text-sky-700 px-1.5 py-0.5 rounded font-bold">Liquidez</span>
+            </div>
+            <p class="text-[11px] text-slate-600 leading-relaxed">
+              ¿Tenés <strong>activos a corto plazo suficientes</strong> para pagar tus deudas a corto plazo?
+            </p>
+            <div class="text-[10px] text-slate-500 mt-1.5 flex items-center gap-1.5">
+              <i data-lucide="calculator" class="w-3 h-3"></i>
+              Activo Corriente ÷ Pasivo Corriente
+            </div>
+          </div>
+
+          <div class="border border-slate-200 rounded-xl p-3">
+            <div class="flex items-start justify-between gap-2 mb-1">
+              <span class="text-[13px] font-bold text-slate-900">Liquidez Ácida</span>
+              <span class="text-[10px] bg-sky-50 text-sky-700 px-1.5 py-0.5 rounded font-bold">Liquidez</span>
+            </div>
+            <p class="text-[11px] text-slate-600 leading-relaxed">
+              Versión <strong>más estricta</strong> de liquidez: ignora el inventario (puede no convertirse en plata rápido).
+            </p>
+            <div class="text-[10px] text-slate-500 mt-1.5 flex items-center gap-1.5">
+              <i data-lucide="calculator" class="w-3 h-3"></i>
+              (Activo Corriente − Inventarios) ÷ Pasivo Corriente
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Letra M -->
+      <div>
+        <div class="text-[11px] uppercase tracking-wider font-bold text-purple-700 mb-2">M</div>
+        <div class="border border-purple-200 bg-purple-50/30 rounded-xl p-3 ring-2 ring-purple-100">
+          <div class="flex items-start justify-between gap-2 mb-1">
+            <div class="flex items-baseline gap-2">
+              <span class="text-[13px] font-bold text-slate-900">Margen Bruto</span>
+              <span class="text-[10px] bg-emerald-50 text-emerald-700 px-1.5 py-0.5 rounded font-bold">Rentabilidad</span>
+            </div>
+            <span class="text-[9px] text-purple-600 italic">⭐ término clave</span>
+          </div>
+          <p class="text-[11px] text-slate-600 leading-relaxed">
+            Cuánto te queda de cada venta <strong>DESPUÉS de pagar lo que costó el producto</strong>. Antes de gastos operativos.
+          </p>
+          <div class="text-[10px] text-slate-500 mt-1.5 flex items-center gap-1.5">
+            <i data-lucide="calculator" class="w-3 h-3"></i>
+            Ventas Netas − COGS
+          </div>
+          <div class="text-[10px] mt-1.5 px-2 py-1 bg-emerald-50 text-emerald-700 rounded inline-block">
+            ✓ Saludable: ≥40% en retail/ecommerce
+          </div>
+        </div>
+      </div>
+
+      <!-- Texto "... y más términos" -->
+      <div class="text-center py-4 text-[11px] text-slate-400 italic">
+        + 18 términos más en el glosario completo · usá el buscador para encontrar cualquiera
+      </div>
+
+    </div>
+
+    <!-- Footer del modal -->
+    <div class="px-5 py-3 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
+      <div class="text-[10px] text-slate-500">
+        25 términos · actualizado periódicamente
+      </div>
+      <button class="text-[11px] font-bold text-white bg-purple-600 hover:bg-purple-700 px-4 py-1.5 rounded-lg">
+        Cerrar
+      </button>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- Decisiones canon -->
+<div class="max-w-5xl mx-auto mt-8 bg-white border border-slate-200 rounded-2xl p-6 space-y-2 text-[12px]">
+  <h2 class="text-base font-bold text-slate-900 mb-2">📐 Decisiones · Modal Glosario canon v5.2</h2>
+  <div><strong class="text-purple-700">Acceso</strong> · botón circular `?` en header del módulo Contabilidad (entre Configurar y Exportar) · tier slate neutral</div>
+  <div><strong class="text-purple-700">Componente base</strong> · FormModalV2 canon · color signature purple matching módulo · size max-w-2xl (más grande que Configurar)</div>
+  <div><strong class="text-purple-700">Buscador</strong> · input filter en tiempo real · placeholder con ejemplos · filtra título + body del término</div>
+  <div><strong class="text-purple-700">Chips categoría</strong> · scroll horizontal mobile · 6 categorías color-coded: Rentabilidad emerald · Liquidez sky · Eficiencia amber · Balance rose · Otros slate · Todos purple primary</div>
+  <div><strong class="text-purple-700">Layout entrada</strong> · border-slate-200 rounded-xl · término + badge categoría + definición coloquial + cómo se calcula (con icon calculator) + ejemplo del negocio + saludable chip cuando aplica</div>
+  <div><strong class="text-purple-700">Términos clave destacados</strong> · ring purple + bg purple-50/30 + estrella ⭐ "término clave" (EBITDA · Margen Bruto · COGS · DSO · etc.)</div>
+  <div><strong class="text-purple-700">Organización</strong> · A-Z con headers de letra purple bold · scrollable max-h-500px · evita modal gigante</div>
+  <div><strong class="text-purple-700">Mobile</strong> · max-w-2xl + max-w-90vw automático · scroll vertical natural · chips horizontales scrollables</div>
+  <div><strong class="text-purple-700">Cobertura</strong> · 25 términos identificados en módulo · cubrir 100% · actualizar cuando se agreguen indicadores nuevos</div>
+</div>
+
+<script>if (window.lucide) window.lucide.createIcons();</script>
+</body>
+</html>

@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Contabilidad · Indicadores Sparklines · Canon v5.2</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<style>body { font-family: 'Inter', sans-serif; font-variant-numeric: tabular-nums; }</style>
+<script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-slate-50 p-6 md:p-10 text-slate-900">
+
+<div class="max-w-5xl mx-auto mb-6 bg-amber-50 border-l-4 border-amber-400 p-4 rounded text-[12px] text-amber-900">
+  <strong>📋 Mockup canon v5.2 · Contabilidad / INDICADORES con sparkline trend</strong> · cada ratio
+  ahora muestra su evolución 6 meses inline + tooltip pedagógico + frase explicativa user-friendly.
+  Transformación de "16 números sueltos" a "16 historias visualizadas".
+</div>
+
+<div class="max-w-5xl mx-auto space-y-4">
+
+  <!-- §1 · 4 categorías de indicadores -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+    <!-- LIQUIDEZ -->
+    <div class="bg-white border border-sky-200 rounded-2xl overflow-hidden">
+      <div class="bg-gradient-to-r from-sky-50 to-sky-100/40 px-4 py-3 border-b border-sky-200/50 flex items-center justify-between">
+        <h3 class="text-[12px] font-bold text-sky-900 flex items-center gap-2">
+          <i data-lucide="droplet" class="w-3.5 h-3.5"></i>
+          LIQUIDEZ
+        </h3>
+        <span class="text-[10px] bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded font-bold">3 de 3 ✓</span>
+      </div>
+
+      <div class="divide-y divide-slate-100">
+
+        <!-- Ratio · Liquidez Corriente -->
+        <div class="px-4 py-3">
+          <div class="flex items-center justify-between mb-1">
+            <div class="text-[12px] font-semibold text-slate-700 flex items-center gap-1">
+              Liquidez Corriente
+              <span class="tip-wrap"><i data-lucide="info" class="w-3 h-3 text-slate-400 hover:text-slate-600 cursor-help"></i></span>
+            </div>
+            <div class="flex items-center gap-2">
+              <!-- Sparkline -->
+              <svg viewBox="0 0 60 16" class="w-15 h-4" preserveAspectRatio="none">
+                <polyline points="0,12 12,10 24,11 36,9 48,7 60,5"
+                          fill="none" stroke="rgb(2 132 199)" stroke-width="1.5" stroke-linecap="round"/>
+                <circle cx="60" cy="5" r="1.5" fill="rgb(2 132 199)"/>
+              </svg>
+              <span class="text-[14px] font-bold tabular text-emerald-700">3.21x</span>
+            </div>
+          </div>
+          <p class="text-[10px] text-slate-500 leading-snug">
+            Tenés <strong>S/3.21 en activos corto plazo</strong> por cada S/1 que debés a corto plazo. Saludable.
+          </p>
+          <div class="text-[9px] text-emerald-700 flex items-center gap-1 mt-1">
+            <i data-lucide="check-circle-2" class="w-2.5 h-2.5"></i>
+            Saludable · meta ≥ 1.5x
+          </div>
+        </div>
+
+        <!-- Ratio · Liquidez Ácida -->
+        <div class="px-4 py-3">
+          <div class="flex items-center justify-between mb-1">
+            <div class="text-[12px] font-semibold text-slate-700 flex items-center gap-1">
+              Liquidez Ácida
+              <span class="tip-wrap"><i data-lucide="info" class="w-3 h-3 text-slate-400 hover:text-slate-600 cursor-help"></i></span>
+            </div>
+            <div class="flex items-center gap-2">
+              <svg viewBox="0 0 60 16" class="w-15 h-4" preserveAspectRatio="none">
+                <polyline points="0,11 12,10 24,9 36,9 48,8 60,7"
+                          fill="none" stroke="rgb(2 132 199)" stroke-width="1.5" stroke-linecap="round"/>
+                <circle cx="60" cy="7" r="1.5" fill="rgb(2 132 199)"/>
+              </svg>
+              <span class="text-[14px] font-bold tabular text-emerald-700">1.56x</span>
+            </div>
+          </div>
+          <p class="text-[10px] text-slate-500 leading-snug">
+            Aún sin contar el inventario, tenés <strong>S/1.56</strong> por cada S/1 de deuda corta. Saludable.
+          </p>
+          <div class="text-[9px] text-emerald-700 flex items-center gap-1 mt-1">
+            <i data-lucide="check-circle-2" class="w-2.5 h-2.5"></i>
+            Saludable · meta ≥ 1.0x
+          </div>
+        </div>
+
+        <!-- Ratio · Días de Caja Libre -->
+        <div class="px-4 py-3">
+          <div class="flex items-center justify-between mb-1">
+            <div class="text-[12px] font-semibold text-slate-700 flex items-center gap-1">
+              Días de Caja Libre
+              <span class="tip-wrap"><i data-lucide="info" class="w-3 h-3 text-slate-400 hover:text-slate-600 cursor-help"></i></span>
+            </div>
+            <div class="flex items-center gap-2">
+              <svg viewBox="0 0 60 16" class="w-15 h-4" preserveAspectRatio="none">
+                <polyline points="0,10 12,8 24,9 36,7 48,5 60,4"
+                          fill="none" stroke="rgb(2 132 199)" stroke-width="1.5" stroke-linecap="round"/>
+                <circle cx="60" cy="4" r="1.5" fill="rgb(2 132 199)"/>
+              </svg>
+              <span class="text-[14px] font-bold tabular text-emerald-700">72 días</span>
+            </div>
+          </div>
+          <p class="text-[10px] text-slate-500 leading-snug">
+            Con tu caja actual y ritmo de gastos, podés operar <strong>72 días sin vender un peso</strong>. Muy bien.
+          </p>
+          <div class="text-[9px] text-emerald-700 flex items-center gap-1 mt-1">
+            <i data-lucide="check-circle-2" class="w-2.5 h-2.5"></i>
+            Saludable · meta ≥ 60 días
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- RENTABILIDAD -->
+    <div class="bg-white border border-emerald-200 rounded-2xl overflow-hidden">
+      <div class="bg-gradient-to-r from-emerald-50 to-emerald-100/40 px-4 py-3 border-b border-emerald-200/50 flex items-center justify-between">
+        <h3 class="text-[12px] font-bold text-emerald-900 flex items-center gap-2">
+          <i data-lucide="trending-up" class="w-3.5 h-3.5"></i>
+          RENTABILIDAD
+        </h3>
+        <span class="text-[10px] bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded font-bold">4 de 4 ✓</span>
+      </div>
+
+      <div class="divide-y divide-slate-100">
+
+        <div class="px-4 py-3">
+          <div class="flex items-center justify-between mb-1">
+            <div class="text-[12px] font-semibold text-slate-700 flex items-center gap-1">
+              Margen Bruto
+              <span class="tip-wrap"><i data-lucide="info" class="w-3 h-3 text-slate-400 hover:text-slate-600 cursor-help"></i></span>
+            </div>
+            <div class="flex items-center gap-2">
+              <svg viewBox="0 0 60 16" class="w-15 h-4" preserveAspectRatio="none">
+                <polyline points="0,8 12,9 24,10 36,11 48,8 60,6"
+                          fill="none" stroke="rgb(5 150 105)" stroke-width="1.5" stroke-linecap="round"/>
+                <circle cx="60" cy="6" r="1.5" fill="rgb(5 150 105)"/>
+              </svg>
+              <span class="text-[14px] font-bold tabular text-emerald-700">58.5%</span>
+            </div>
+          </div>
+          <p class="text-[10px] text-slate-500 leading-snug">
+            De cada S/100 que vendés, te quedan <strong>S/58.50</strong> después de pagar el producto.
+          </p>
+          <div class="text-[9px] text-emerald-700 flex items-center gap-1 mt-1">
+            <i data-lucide="check-circle-2" class="w-2.5 h-2.5"></i>
+            Saludable · meta ≥ 40%
+          </div>
+        </div>
+
+        <div class="px-4 py-3 bg-emerald-50/30">
+          <div class="flex items-center justify-between mb-1">
+            <div class="text-[12px] font-semibold text-slate-700 flex items-center gap-1">
+              EBITDA %
+              <span class="tip-wrap"><i data-lucide="info" class="w-3 h-3 text-slate-400 hover:text-slate-600 cursor-help"></i></span>
+              <span class="text-[8px] text-purple-600 italic">★</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <svg viewBox="0 0 60 16" class="w-15 h-4" preserveAspectRatio="none">
+                <polyline points="0,11 12,9 24,12 36,8 48,7 60,5"
+                          fill="none" stroke="rgb(5 150 105)" stroke-width="1.5" stroke-linecap="round"/>
+                <circle cx="60" cy="5" r="1.5" fill="rgb(5 150 105)"/>
+              </svg>
+              <span class="text-[14px] font-bold tabular text-emerald-700">17.1%</span>
+            </div>
+          </div>
+          <p class="text-[10px] text-slate-500 leading-snug">
+            Ganancia operativa pura. Por cada S/100 de venta, <strong>S/17.10 son rentables del corazón del negocio</strong>.
+          </p>
+          <div class="text-[9px] text-emerald-700 flex items-center gap-1 mt-1">
+            <i data-lucide="check-circle-2" class="w-2.5 h-2.5"></i>
+            Saludable · meta ≥ 15%
+          </div>
+        </div>
+
+        <div class="px-4 py-3">
+          <div class="flex items-center justify-between mb-1">
+            <div class="text-[12px] font-semibold text-slate-700 flex items-center gap-1">
+              Margen Neto
+              <span class="tip-wrap"><i data-lucide="info" class="w-3 h-3 text-slate-400 hover:text-slate-600 cursor-help"></i></span>
+            </div>
+            <div class="flex items-center gap-2">
+              <svg viewBox="0 0 60 16" class="w-15 h-4" preserveAspectRatio="none">
+                <polyline points="0,11 12,10 24,13 36,9 48,7 60,5"
+                          fill="none" stroke="rgb(5 150 105)" stroke-width="1.5" stroke-linecap="round"/>
+                <circle cx="60" cy="5" r="1.5" fill="rgb(5 150 105)"/>
+                <circle cx="24" cy="13" r="1" fill="rgb(225 29 72)"/>
+              </svg>
+              <span class="text-[14px] font-bold tabular text-emerald-700">17.4%</span>
+            </div>
+          </div>
+          <p class="text-[10px] text-slate-500 leading-snug">
+            Lo que <strong>realmente te queda limpio</strong> después de TODOS los gastos. Muy bueno.
+          </p>
+          <div class="text-[9px] text-emerald-700 flex items-center gap-1 mt-1">
+            <i data-lucide="check-circle-2" class="w-2.5 h-2.5"></i>
+            Saludable · meta ≥ 10%
+          </div>
+        </div>
+
+        <div class="px-4 py-3">
+          <div class="flex items-center justify-between mb-1">
+            <div class="text-[12px] font-semibold text-slate-700 flex items-center gap-1">
+              ROE · Retorno Patrimonio
+              <span class="tip-wrap"><i data-lucide="info" class="w-3 h-3 text-slate-400 hover:text-slate-600 cursor-help"></i></span>
+            </div>
+            <div class="flex items-center gap-2">
+              <svg viewBox="0 0 60 16" class="w-15 h-4" preserveAspectRatio="none">
+                <polyline points="0,12 12,11 24,12 36,9 48,7 60,6"
+                          fill="none" stroke="rgb(5 150 105)" stroke-width="1.5" stroke-linecap="round"/>
+                <circle cx="60" cy="6" r="1.5" fill="rgb(5 150 105)"/>
+              </svg>
+              <span class="text-[14px] font-bold tabular text-emerald-700">16.1%</span>
+            </div>
+          </div>
+          <p class="text-[10px] text-slate-500 leading-snug">
+            Por cada S/100 invertido por los socios, la empresa genera <strong>S/16.10 al año</strong>.
+          </p>
+          <div class="text-[9px] text-emerald-700 flex items-center gap-1 mt-1">
+            <i data-lucide="check-circle-2" class="w-2.5 h-2.5"></i>
+            Saludable · meta ≥ 15%
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- EFICIENCIA -->
+    <div class="bg-white border border-amber-200 rounded-2xl overflow-hidden">
+      <div class="bg-gradient-to-r from-amber-50 to-amber-100/40 px-4 py-3 border-b border-amber-200/50 flex items-center justify-between">
+        <h3 class="text-[12px] font-bold text-amber-900 flex items-center gap-2">
+          <i data-lucide="zap" class="w-3.5 h-3.5"></i>
+          EFICIENCIA OPERATIVA
+        </h3>
+        <span class="text-[10px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded font-bold">3 de 4 ⚠</span>
+      </div>
+
+      <div class="divide-y divide-slate-100">
+
+        <div class="px-4 py-3">
+          <div class="flex items-center justify-between mb-1">
+            <div class="text-[12px] font-semibold text-slate-700 flex items-center gap-1">
+              DSO · Días de Cobro
+              <span class="tip-wrap"><i data-lucide="info" class="w-3 h-3 text-slate-400 hover:text-slate-600 cursor-help"></i></span>
+            </div>
+            <div class="flex items-center gap-2">
+              <svg viewBox="0 0 60 16" class="w-15 h-4" preserveAspectRatio="none">
+                <polyline points="0,4 12,5 24,4 36,6 48,5 60,4"
+                          fill="none" stroke="rgb(217 119 6)" stroke-width="1.5" stroke-linecap="round"/>
+                <circle cx="60" cy="4" r="1.5" fill="rgb(217 119 6)"/>
+              </svg>
+              <span class="text-[14px] font-bold tabular text-emerald-700">12 días</span>
+            </div>
+          </div>
+          <p class="text-[10px] text-slate-500 leading-snug">
+            Cobrás muy rápido a clientes (<strong>12 días promedio</strong>). Excelente.
+          </p>
+          <div class="text-[9px] text-emerald-700 flex items-center gap-1 mt-1">
+            <i data-lucide="check-circle-2" class="w-2.5 h-2.5"></i>
+            Saludable · meta ≤ 30 días
+          </div>
+        </div>
+
+        <div class="px-4 py-3 bg-amber-50/30">
+          <div class="flex items-center justify-between mb-1">
+            <div class="text-[12px] font-semibold text-slate-700 flex items-center gap-1">
+              Días de Inventario
+              <span class="tip-wrap"><i data-lucide="info" class="w-3 h-3 text-slate-400 hover:text-slate-600 cursor-help"></i></span>
+            </div>
+            <div class="flex items-center gap-2">
+              <svg viewBox="0 0 60 16" class="w-15 h-4" preserveAspectRatio="none">
+                <polyline points="0,9 12,7 24,8 36,6 48,5 60,4"
+                          fill="none" stroke="rgb(217 119 6)" stroke-width="1.5" stroke-linecap="round"/>
+                <circle cx="60" cy="4" r="1.5" fill="rgb(217 119 6)"/>
+              </svg>
+              <span class="text-[14px] font-bold tabular text-amber-700">68 días</span>
+            </div>
+          </div>
+          <p class="text-[10px] text-slate-500 leading-snug">
+            El inventario te dura <strong>68 días</strong>. Está creciendo · mantenelo bajo control.
+          </p>
+          <div class="text-[9px] text-emerald-700 flex items-center gap-1 mt-1">
+            <i data-lucide="check-circle-2" class="w-2.5 h-2.5"></i>
+            OK · meta ≤ 90 días
+          </div>
+        </div>
+
+        <div class="px-4 py-3">
+          <div class="flex items-center justify-between mb-1">
+            <div class="text-[12px] font-semibold text-slate-700 flex items-center gap-1">
+              DPO · Días de Pago
+              <span class="tip-wrap"><i data-lucide="info" class="w-3 h-3 text-slate-400 hover:text-slate-600 cursor-help"></i></span>
+            </div>
+            <div class="flex items-center gap-2">
+              <svg viewBox="0 0 60 16" class="w-15 h-4" preserveAspectRatio="none">
+                <polyline points="0,10 12,10 24,9 36,8 48,8 60,7"
+                          fill="none" stroke="rgb(217 119 6)" stroke-width="1.5" stroke-linecap="round"/>
+                <circle cx="60" cy="7" r="1.5" fill="rgb(217 119 6)"/>
+              </svg>
+              <span class="text-[14px] font-bold tabular text-slate-700">28 días</span>
+            </div>
+          </div>
+          <p class="text-[10px] text-slate-500 leading-snug">
+            Pagás a proveedores en <strong>28 días</strong> promedio. Relación equilibrada.
+          </p>
+          <div class="text-[9px] text-slate-600 flex items-center gap-1 mt-1">
+            <i data-lucide="circle" class="w-2.5 h-2.5"></i>
+            Normal · sin meta estricta
+          </div>
+        </div>
+
+        <div class="px-4 py-3 bg-rose-50/30">
+          <div class="flex items-center justify-between mb-1">
+            <div class="text-[12px] font-semibold text-slate-700 flex items-center gap-1">
+              Rotación Inventario
+              <span class="tip-wrap"><i data-lucide="info" class="w-3 h-3 text-slate-400 hover:text-slate-600 cursor-help"></i></span>
+            </div>
+            <div class="flex items-center gap-2">
+              <svg viewBox="0 0 60 16" class="w-15 h-4" preserveAspectRatio="none">
+                <polyline points="0,5 12,7 24,8 36,9 48,11 60,12"
+                          fill="none" stroke="rgb(225 29 72)" stroke-width="1.5" stroke-linecap="round"/>
+                <circle cx="60" cy="12" r="1.5" fill="rgb(225 29 72)"/>
+              </svg>
+              <span class="text-[14px] font-bold tabular text-rose-700">5.4x</span>
+            </div>
+          </div>
+          <p class="text-[10px] text-slate-500 leading-snug">
+            Rotás tu inventario <strong>5.4 veces al año</strong>. Bajando · revisar stock muerto.
+          </p>
+          <div class="text-[9px] text-rose-700 flex items-center gap-1 mt-1">
+            <i data-lucide="alert-triangle" class="w-2.5 h-2.5"></i>
+            Atención · meta ≥ 6x
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ENDEUDAMIENTO -->
+    <div class="bg-white border border-rose-200 rounded-2xl overflow-hidden">
+      <div class="bg-gradient-to-r from-rose-50 to-rose-100/40 px-4 py-3 border-b border-rose-200/50 flex items-center justify-between">
+        <h3 class="text-[12px] font-bold text-rose-900 flex items-center gap-2">
+          <i data-lucide="credit-card" class="w-3.5 h-3.5"></i>
+          ENDEUDAMIENTO
+        </h3>
+        <span class="text-[10px] bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded font-bold">2 de 2 ✓</span>
+      </div>
+
+      <div class="divide-y divide-slate-100">
+
+        <div class="px-4 py-3">
+          <div class="flex items-center justify-between mb-1">
+            <div class="text-[12px] font-semibold text-slate-700 flex items-center gap-1">
+              Ratio Endeudamiento
+              <span class="tip-wrap"><i data-lucide="info" class="w-3 h-3 text-slate-400 hover:text-slate-600 cursor-help"></i></span>
+            </div>
+            <div class="flex items-center gap-2">
+              <svg viewBox="0 0 60 16" class="w-15 h-4" preserveAspectRatio="none">
+                <polyline points="0,6 12,7 24,8 36,9 48,10 60,11"
+                          fill="none" stroke="rgb(225 29 72)" stroke-width="1.5" stroke-linecap="round"/>
+                <circle cx="60" cy="11" r="1.5" fill="rgb(225 29 72)"/>
+              </svg>
+              <span class="text-[14px] font-bold tabular text-emerald-700">31%</span>
+            </div>
+          </div>
+          <p class="text-[10px] text-slate-500 leading-snug">
+            Por cada S/100 que tenés, <strong>S/31 los debés</strong>. Bajando · saludable.
+          </p>
+          <div class="text-[9px] text-emerald-700 flex items-center gap-1 mt-1">
+            <i data-lucide="check-circle-2" class="w-2.5 h-2.5"></i>
+            Saludable · meta ≤ 50%
+          </div>
+        </div>
+
+        <div class="px-4 py-3">
+          <div class="flex items-center justify-between mb-1">
+            <div class="text-[12px] font-semibold text-slate-700 flex items-center gap-1">
+              Deuda / Patrimonio
+              <span class="tip-wrap"><i data-lucide="info" class="w-3 h-3 text-slate-400 hover:text-slate-600 cursor-help"></i></span>
+            </div>
+            <div class="flex items-center gap-2">
+              <svg viewBox="0 0 60 16" class="w-15 h-4" preserveAspectRatio="none">
+                <polyline points="0,7 12,8 24,9 36,10 48,11 60,11"
+                          fill="none" stroke="rgb(225 29 72)" stroke-width="1.5" stroke-linecap="round"/>
+                <circle cx="60" cy="11" r="1.5" fill="rgb(225 29 72)"/>
+              </svg>
+              <span class="text-[14px] font-bold tabular text-emerald-700">0.45x</span>
+            </div>
+          </div>
+          <p class="text-[10px] text-slate-500 leading-snug">
+            Tus deudas son <strong>45% del patrimonio</strong>. Nivel cómodo.
+          </p>
+          <div class="text-[9px] text-emerald-700 flex items-center gap-1 mt-1">
+            <i data-lucide="check-circle-2" class="w-2.5 h-2.5"></i>
+            Saludable · meta ≤ 1.0x
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Diagnóstico global automático -->
+  <section class="bg-gradient-to-r from-emerald-50 to-emerald-100/30 ring-1 ring-emerald-200 rounded-2xl p-4 flex items-start gap-3">
+    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center text-white flex-shrink-0">
+      <i data-lucide="thumbs-up" class="w-5 h-5"></i>
+    </div>
+    <div class="flex-1">
+      <div class="text-[13px] font-bold text-emerald-900 mb-1">Diagnóstico global · SALUDABLE</div>
+      <p class="text-[11px] text-emerald-800 leading-snug">
+        <strong>12 de 13 indicadores OK</strong> · 1 en atención (Rotación Inventario bajando).
+        Tu negocio está sano financieramente: rentable, líquido, poco endeudado. Atención solo a la
+        rotación del inventario · podría haber stock muerto.
+      </p>
+    </div>
+  </section>
+
+  <!-- Decisiones canon -->
+  <section class="bg-white border border-slate-200 rounded-2xl p-6 space-y-2 text-[12px]">
+    <h2 class="text-base font-bold text-slate-900 mb-2">📐 Decisiones · Indicadores Sparklines canon v5.2</h2>
+    <div><strong class="text-purple-700">4 categorías · grid 2 cols</strong> · Liquidez sky + Rentabilidad emerald + Eficiencia amber + Endeudamiento rose</div>
+    <div><strong class="text-purple-700">Cada ratio · estructura canon</strong>:
+      <ul class="ml-4 mt-1 text-[11px] text-slate-600 space-y-0.5">
+        <li>Label + tooltip (Info icon)</li>
+        <li>Sparkline 6 meses inline (60x16px · color por categoría)</li>
+        <li>Valor numérico bold con color por estado (emerald/amber/rose)</li>
+        <li>Frase user-friendly · interpreta el valor en lenguaje claro</li>
+        <li>Chip estado: Saludable / Atención / Crítico + meta configurada</li>
+      </ul>
+    </div>
+    <div><strong class="text-purple-700">Indicador clave destacado</strong> · bg-color-50/30 + ★ purple (ej. EBITDA · DSO clave para PyME)</div>
+    <div><strong class="text-purple-700">Diagnóstico global</strong> · banner final emerald/amber/rose con conteo "X de Y indicadores OK" + frase resumen</div>
+    <div><strong class="text-purple-700">React component</strong> · `<IndicadorRow>` reutilizable con props `{label, valor, sparkData, status, frase, meta, key, tooltip}` · centraliza patrón</div>
+    <div><strong class="text-purple-700">Service extension</strong> · agregar campo `historicoMes[]` por cada ratio del `IndicadoresFinancieros` para alimentar sparklines · backward compatible</div>
+  </section>
+
+  <footer class="text-center text-[11px] text-slate-500 pt-4">
+    Mockup canon v5.2 · Contabilidad Indicadores Sparklines · Sprint B · 2026-05-23
+  </footer>
+
+</div>
+
+<script>if (window.lucide) window.lucide.createIcons();</script>
+</body>
+</html>

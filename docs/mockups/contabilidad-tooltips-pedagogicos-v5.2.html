@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Contabilidad · Tooltips Pedagógicos · Canon v5.2</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<style>
+  body { font-family: 'Inter', sans-serif; font-variant-numeric: tabular-nums; }
+  .tabular { font-variant-numeric: tabular-nums; }
+  /* Tooltip canon · stripe/linear style */
+  .tip { position: relative; display: inline-flex; align-items: center; }
+  .tip > .tip-content {
+    display: none;
+    position: absolute; bottom: calc(100% + 6px); left: 50%; transform: translateX(-50%);
+    z-index: 50;
+    background: rgb(15 23 42); color: white;
+    padding: 10px 12px; border-radius: 8px;
+    font-size: 11px; line-height: 1.5;
+    width: 280px; max-width: 90vw;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+  }
+  .tip > .tip-content::after {
+    content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
+    border: 5px solid transparent; border-top-color: rgb(15 23 42);
+  }
+  .tip:hover > .tip-content, .tip:focus-within > .tip-content { display: block; }
+  .tip > svg { cursor: help; }
+</style>
+<script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-slate-50 p-6 md:p-10 text-slate-900">
+
+<div class="max-w-5xl mx-auto mb-6 bg-amber-50 border-l-4 border-amber-400 p-4 rounded text-[12px] text-amber-900">
+  <strong>📋 Mockup canon v5.2 · Contabilidad / TOOLTIPS PEDAGÓGICOS</strong> · Catálogo del patrón
+  canon para tooltips. Aplicable a TODOS los términos técnicos del módulo (EBITDA · Margen Bruto ·
+  COGS · Patrimonio · DSO · ROE · etc.). Hover sobre cualquier (i) para ver tooltip.
+</div>
+
+<div class="max-w-5xl mx-auto space-y-6">
+
+  <!-- §1 · Patrón canon del tooltip -->
+  <section class="bg-white border border-slate-200 rounded-2xl p-6">
+    <h2 class="text-base font-bold text-slate-900 mb-2 flex items-center gap-2">
+      <i data-lucide="info" class="w-4 h-4 text-purple-600"></i>
+      Patrón canon · estructura de un tooltip
+    </h2>
+    <div class="text-[12px] text-slate-600 mb-4">
+      Cada tooltip tiene 3 partes en orden: <strong>(1) qué es</strong> en lenguaje coloquial ·
+      <strong>(2) cómo se calcula</strong> · <strong>(3) qué significa "alto" o "bajo"</strong> con ejemplo del negocio.
+    </div>
+
+    <div class="bg-slate-100 rounded-lg p-4 grid grid-cols-1 md:grid-cols-3 gap-4 text-[11px]">
+      <div>
+        <div class="font-bold text-slate-700 mb-1">Icon canon</div>
+        <code class="bg-white px-2 py-1 rounded text-[10px]">&lt;Info class="w-3 h-3 text-slate-400 hover:text-slate-600"/&gt;</code>
+      </div>
+      <div>
+        <div class="font-bold text-slate-700 mb-1">Tooltip fondo</div>
+        <code class="bg-white px-2 py-1 rounded text-[10px]">bg-slate-900 text-white</code>
+      </div>
+      <div>
+        <div class="font-bold text-slate-700 mb-1">Tipografía tip</div>
+        <code class="bg-white px-2 py-1 rounded text-[10px]">text-[11px] leading-relaxed</code>
+      </div>
+    </div>
+  </section>
+
+  <!-- §2 · KPI strip del shell con tooltips -->
+  <section class="bg-white border border-slate-200 rounded-2xl p-6">
+    <h3 class="text-[13px] font-bold text-slate-900 mb-3">📍 Ejemplo · KPI strip del header</h3>
+    <p class="text-[11px] text-slate-500 mb-4">Cada label del KPI ahora tiene un (i) discreto al lado. Hover muestra explicación.</p>
+
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+
+      <!-- KPI Ventas Netas con tooltip -->
+      <div class="bg-gradient-to-br from-emerald-50 to-emerald-100/40 ring-1 ring-emerald-200/50 rounded-2xl p-4">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-[10px] uppercase tracking-wider text-emerald-700 font-bold flex items-center gap-1">
+            VENTAS NETAS
+            <span class="tip">
+              <i data-lucide="info" class="w-3 h-3 text-slate-400 hover:text-slate-600"></i>
+              <span class="tip-content">
+                <strong class="block mb-1">Ventas netas</strong>
+                Plata que entró por ventas, después de restar devoluciones y descuentos.<br/><br/>
+                <strong>Cálculo:</strong> Ventas brutas − Devoluciones − Descuentos<br/><br/>
+                <strong>Saludable:</strong> que crezca mes a mes. Si baja, revisar canal o producto.
+              </span>
+            </span>
+          </span>
+          <i data-lucide="dollar-sign" class="w-3.5 h-3.5 text-emerald-700"></i>
+        </div>
+        <div class="text-2xl font-bold tabular text-emerald-900">S/ 247,500</div>
+        <div class="text-[11px] text-emerald-700 flex items-center gap-1 mt-1">
+          <i data-lucide="trending-up" class="w-3 h-3"></i> +12.5%
+        </div>
+      </div>
+
+      <!-- KPI Total Activos -->
+      <div class="bg-gradient-to-br from-teal-50 to-teal-100/40 ring-1 ring-teal-200/50 rounded-2xl p-4">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-[10px] uppercase tracking-wider text-teal-700 font-bold flex items-center gap-1">
+            TOTAL ACTIVOS
+            <span class="tip">
+              <i data-lucide="info" class="w-3 h-3 text-slate-400 hover:text-slate-600"></i>
+              <span class="tip-content">
+                <strong class="block mb-1">Total Activos</strong>
+                Todo lo que tu empresa POSEE: caja, lo que te deben (CxC), inventario, equipos.<br/><br/>
+                <strong>Cálculo:</strong> Activos corrientes + Activos no corrientes<br/><br/>
+                <strong>Saludable:</strong> que crezca proporcional a las ventas. Si crece sin que crezcan las ventas, hay capital atrapado.
+              </span>
+            </span>
+          </span>
+          <i data-lucide="wallet" class="w-3.5 h-3.5 text-teal-700"></i>
+        </div>
+        <div class="text-2xl font-bold tabular text-teal-900">S/ 458,200</div>
+      </div>
+
+      <!-- KPI Total Pasivos -->
+      <div class="bg-gradient-to-br from-rose-50 to-rose-100/40 ring-1 ring-rose-200/50 rounded-2xl p-4">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-[10px] uppercase tracking-wider text-rose-700 font-bold flex items-center gap-1">
+            TOTAL PASIVOS
+            <span class="tip">
+              <i data-lucide="info" class="w-3 h-3 text-slate-400 hover:text-slate-600"></i>
+              <span class="tip-content">
+                <strong class="block mb-1">Total Pasivos</strong>
+                Todo lo que tu empresa DEBE: a proveedores, a clientes (anticipos), a bancos, etc.<br/><br/>
+                <strong>Cálculo:</strong> Pasivos corrientes (≤1 año) + Pasivos no corrientes (>1 año)<br/><br/>
+                <strong>Saludable:</strong> que no supere 50% del activo. Más es mucha deuda.
+              </span>
+            </span>
+          </span>
+          <i data-lucide="credit-card" class="w-3.5 h-3.5 text-rose-700"></i>
+        </div>
+        <div class="text-2xl font-bold tabular text-rose-900">S/ 142,800</div>
+      </div>
+
+      <!-- KPI Patrimonio -->
+      <div class="bg-gradient-to-br from-indigo-50 to-indigo-100/40 ring-1 ring-indigo-200/50 rounded-2xl p-4">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-[10px] uppercase tracking-wider text-indigo-700 font-bold flex items-center gap-1">
+            PATRIMONIO
+            <span class="tip">
+              <i data-lucide="info" class="w-3 h-3 text-slate-400 hover:text-slate-600"></i>
+              <span class="tip-content">
+                <strong class="block mb-1">Patrimonio</strong>
+                Lo que REALMENTE es de los socios. La parte de la empresa que NO se le debe a nadie.<br/><br/>
+                <strong>Cálculo:</strong> Capital aportado + Utilidades acumuladas + Utilidad del período<br/><br/>
+                <strong>Saludable:</strong> que crezca por utilidades retenidas. Es el "patrimonio real" de los dueños.
+              </span>
+            </span>
+          </span>
+          <i data-lucide="piggy-bank" class="w-3.5 h-3.5 text-indigo-700"></i>
+        </div>
+        <div class="text-2xl font-bold tabular text-indigo-900">S/ 315,400</div>
+      </div>
+
+      <!-- KPI Utilidad Neta -->
+      <div class="bg-gradient-to-br from-amber-50 to-amber-100/40 ring-1 ring-amber-200/50 rounded-2xl p-4">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-[10px] uppercase tracking-wider text-amber-700 font-bold flex items-center gap-1">
+            UTILIDAD NETA
+            <span class="tip">
+              <i data-lucide="info" class="w-3 h-3 text-slate-400 hover:text-slate-600"></i>
+              <span class="tip-content">
+                <strong class="block mb-1">Utilidad Neta</strong>
+                Lo que te quedó limpio al final del mes, después de pagar TODO (compras, gastos, comisiones, etc).<br/><br/>
+                <strong>Cálculo:</strong> Ventas − COGS − Gastos operativos − Otros gastos<br/><br/>
+                <strong>Saludable:</strong> >10% sobre las ventas para una PyME ecommerce. Si es <0% perdiste plata el mes.
+              </span>
+            </span>
+          </span>
+          <i data-lucide="trending-up" class="w-3.5 h-3.5 text-amber-700"></i>
+        </div>
+        <div class="text-2xl font-bold tabular text-amber-900">S/ 42,300</div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- §3 · Tooltips en términos del Estado de Resultados (P&L) -->
+  <section class="bg-white border border-slate-200 rounded-2xl p-6">
+    <h3 class="text-[13px] font-bold text-slate-900 mb-3">📍 Ejemplo · términos de Estado de Resultados</h3>
+
+    <table class="w-full text-[13px]">
+      <tbody class="divide-y divide-slate-100">
+
+        <tr class="bg-rose-50">
+          <td class="px-4 py-2.5 font-bold text-rose-900">
+            <span class="flex items-center gap-2">
+              <i data-lucide="minus-circle" class="w-3.5 h-3.5"></i>
+              COSTO DE VENTA (COGS)
+              <span class="tip">
+                <i data-lucide="info" class="w-3 h-3 text-slate-400 hover:text-slate-600"></i>
+                <span class="tip-content">
+                  <strong class="block mb-1">COGS · Cost of Goods Sold</strong>
+                  Cuánto te costó comprar/producir lo que vendiste. Es la materia prima del negocio.<br/><br/>
+                  <strong>Cálculo:</strong> Compras recibidas + Flete internacional + Impuestos importación<br/><br/>
+                  <strong>Saludable:</strong> que represente entre 40-55% de tus ventas. Si sube sin razón, revisar proveedores o TC.
+                </span>
+              </span>
+            </span>
+          </td>
+          <td class="px-4 py-2.5 text-right font-bold tabular text-rose-900">−S/ 102,700</td>
+          <td class="px-4 py-2.5 text-right text-[11px] text-rose-700">41.5%</td>
+        </tr>
+
+        <tr class="bg-emerald-100 border-y-2 border-emerald-300">
+          <td class="px-4 py-3 font-bold text-emerald-900">
+            <span class="flex items-center gap-2">
+              <i data-lucide="trending-up" class="w-4 h-4"></i>
+              MARGEN BRUTO
+              <span class="tip">
+                <i data-lucide="info" class="w-3 h-3 text-slate-400 hover:text-slate-600"></i>
+                <span class="tip-content">
+                  <strong class="block mb-1">Margen Bruto</strong>
+                  Cuánto te queda de cada venta DESPUÉS de pagar lo que costó el producto. Antes de gastos operativos.<br/><br/>
+                  <strong>Cálculo:</strong> Ventas Netas − COGS<br/><br/>
+                  <strong>Saludable:</strong> ≥40% en retail e-commerce. Es tu "capacidad bruta" de generar valor.
+                </span>
+              </span>
+            </span>
+          </td>
+          <td class="px-4 py-3 text-right font-bold text-[15px] tabular text-emerald-900">S/ 144,800</td>
+          <td class="px-4 py-3 text-right text-[12px] font-bold text-emerald-700">58.5%</td>
+        </tr>
+
+        <tr class="bg-teal-100 border-y-2 border-teal-300">
+          <td class="px-4 py-3 font-bold text-teal-900">
+            <span class="flex items-center gap-2">
+              <i data-lucide="zap" class="w-4 h-4"></i>
+              EBITDA
+              <span class="tip">
+                <i data-lucide="info" class="w-3 h-3 text-slate-400 hover:text-slate-600"></i>
+                <span class="tip-content">
+                  <strong class="block mb-1">EBITDA</strong>
+                  Ganancia OPERATIVA real del negocio. Sin contar diferencias cambiarias, intereses ni impuestos.<br/><br/>
+                  <strong>Cálculo:</strong> Margen Bruto − Gastos Operativos<br/><br/>
+                  <strong>Saludable:</strong> ≥15% para PyME. Mide qué tan rentable es el corazón de tu negocio puro.
+                </span>
+              </span>
+            </span>
+          </td>
+          <td class="px-4 py-3 text-right font-bold text-[15px] tabular text-teal-900">S/ 42,300</td>
+          <td class="px-4 py-3 text-right text-[12px] font-bold text-teal-700">17.1%</td>
+        </tr>
+
+      </tbody>
+    </table>
+  </section>
+
+  <!-- §4 · Tooltips en Balance General -->
+  <section class="bg-white border border-slate-200 rounded-2xl p-6">
+    <h3 class="text-[13px] font-bold text-slate-900 mb-3">📍 Ejemplo · términos de Balance General</h3>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+      <div class="border border-teal-200 rounded-2xl overflow-hidden">
+        <div class="bg-gradient-to-r from-teal-500 to-teal-700 text-white px-4 py-3 text-[14px] font-bold flex items-center gap-2">
+          <i data-lucide="wallet" class="w-4 h-4"></i>
+          ACTIVO
+          <span class="tip ml-1">
+            <i data-lucide="info" class="w-3 h-3 text-white/70 hover:text-white"></i>
+            <span class="tip-content">
+              <strong class="block mb-1">Activo</strong>
+              Todo lo que tu empresa POSEE y tiene VALOR.<br/><br/>
+              Se divide en CORRIENTE (uso ≤ 1 año: caja, CxC, inventario) y NO CORRIENTE (uso >1 año: equipos, locales).
+            </span>
+          </span>
+        </div>
+        <div class="p-4 text-[12px] space-y-2">
+          <div class="flex justify-between">
+            <span class="text-slate-600 flex items-center gap-1">
+              CxC
+              <span class="tip">
+                <i data-lucide="info" class="w-3 h-3 text-slate-400 hover:text-slate-600"></i>
+                <span class="tip-content">
+                  <strong class="block mb-1">Cuentas por Cobrar</strong>
+                  Plata que TE DEBEN tus clientes por ventas que ya hiciste pero aún no te pagaron.<br/><br/>
+                  <strong>Saludable:</strong> que no crezca más rápido que las ventas. Si crece mucho = no estás cobrando bien.
+                </span>
+              </span>
+            </span>
+            <span class="tabular text-slate-900">S/ 98,400</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-slate-600 flex items-center gap-1">
+              Provisión incobrables
+              <span class="tip">
+                <i data-lucide="info" class="w-3 h-3 text-slate-400 hover:text-slate-600"></i>
+                <span class="tip-content">
+                  <strong class="block mb-1">Provisión Incobrables</strong>
+                  Ajuste contable que reconoce que parte de las CxC probablemente NO se cobrarán.<br/><br/>
+                  <strong>Cálculo:</strong> CxC × % configurado (3% por defecto)<br/><br/>
+                  Reduce el valor "real" de tu activo CxC. Es prudencia contable.
+                </span>
+              </span>
+            </span>
+            <span class="tabular text-slate-500">−S/ 2,952</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="border border-rose-200 rounded-2xl overflow-hidden">
+        <div class="bg-gradient-to-r from-rose-500 to-rose-700 text-white px-4 py-3 text-[14px] font-bold flex items-center gap-2">
+          <i data-lucide="credit-card" class="w-4 h-4"></i>
+          PASIVO
+          <span class="tip ml-1">
+            <i data-lucide="info" class="w-3 h-3 text-white/70 hover:text-white"></i>
+            <span class="tip-content">
+              <strong class="block mb-1">Pasivo</strong>
+              Todo lo que tu empresa DEBE.<br/><br/>
+              Corriente (a pagar ≤1 año: CxP, anticipos clientes, deudas TC) o No Corriente (>1 año: préstamos largos).
+            </span>
+          </span>
+        </div>
+        <div class="p-4 text-[12px] space-y-2">
+          <div class="flex justify-between">
+            <span class="text-slate-600 flex items-center gap-1">
+              Anticipos clientes
+              <span class="tip">
+                <i data-lucide="info" class="w-3 h-3 text-slate-400 hover:text-slate-600"></i>
+                <span class="tip-content">
+                  <strong class="block mb-1">Anticipos de Clientes</strong>
+                  Plata que clientes te PAGARON por adelantado por productos que aún NO entregaste.<br/><br/>
+                  Aunque "ya tenés la plata", contablemente es DEUDA: si no entregás, tenés que devolver.
+                </span>
+              </span>
+            </span>
+            <span class="tabular text-purple-700 font-bold">S/ 28,400</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="border border-indigo-200 rounded-2xl overflow-hidden">
+        <div class="bg-gradient-to-r from-indigo-500 to-indigo-700 text-white px-4 py-3 text-[14px] font-bold flex items-center gap-2">
+          <i data-lucide="piggy-bank" class="w-4 h-4"></i>
+          PATRIMONIO
+        </div>
+        <div class="p-4 text-[12px] space-y-2">
+          <div class="flex justify-between">
+            <span class="text-slate-600 flex items-center gap-1">
+              Capital social
+              <span class="tip">
+                <i data-lucide="info" class="w-3 h-3 text-slate-400 hover:text-slate-600"></i>
+                <span class="tip-content">
+                  <strong class="block mb-1">Capital Social</strong>
+                  Plata que los socios PUSIERON al iniciar la empresa. Es el "aporte fundador".<br/><br/>
+                  No cambia salvo que entren/salgan socios o se aumente capital con nuevos aportes.
+                </span>
+              </span>
+            </span>
+            <span class="tabular text-slate-900">S/ 200,000</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-slate-600 flex items-center gap-1">
+              Reserva legal
+              <span class="tip">
+                <i data-lucide="info" class="w-3 h-3 text-slate-400 hover:text-slate-600"></i>
+                <span class="tip-content">
+                  <strong class="block mb-1">Reserva Legal</strong>
+                  Porcentaje de las utilidades que se "reserva" obligatoriamente (típicamente 10% del capital social).<br/><br/>
+                  Es un colchón para la empresa. No se reparte como dividendo.
+                </span>
+              </span>
+            </span>
+            <span class="tabular text-slate-900">S/ 20,000</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- §5 · Tooltips en Indicadores -->
+  <section class="bg-white border border-slate-200 rounded-2xl p-6">
+    <h3 class="text-[13px] font-bold text-slate-900 mb-3">📍 Ejemplo · términos de Indicadores</h3>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-[12px]">
+
+      <div class="border border-slate-200 rounded-xl p-3 space-y-2">
+        <div class="flex justify-between items-center">
+          <span class="text-slate-700 font-semibold flex items-center gap-1">
+            Liquidez Corriente
+            <span class="tip">
+              <i data-lucide="info" class="w-3 h-3 text-slate-400 hover:text-slate-600"></i>
+              <span class="tip-content">
+                <strong class="block mb-1">Liquidez Corriente</strong>
+                ¿Tenés activos a corto plazo suficientes para pagar tus deudas a corto plazo?<br/><br/>
+                <strong>Cálculo:</strong> Activo Corriente ÷ Pasivo Corriente<br/><br/>
+                <strong>Saludable:</strong> ≥1.5x. Si es <1, podés tener problemas para pagar a tiempo.
+              </span>
+            </span>
+          </span>
+          <span class="tabular font-bold text-emerald-700">3.21x</span>
+        </div>
+        <div class="text-[10px] text-emerald-600 flex items-center gap-1">
+          <i data-lucide="check-circle-2" class="w-3 h-3"></i> Saludable
+        </div>
+      </div>
+
+      <div class="border border-slate-200 rounded-xl p-3 space-y-2">
+        <div class="flex justify-between items-center">
+          <span class="text-slate-700 font-semibold flex items-center gap-1">
+            DSO · Días de Cobro
+            <span class="tip">
+              <i data-lucide="info" class="w-3 h-3 text-slate-400 hover:text-slate-600"></i>
+              <span class="tip-content">
+                <strong class="block mb-1">DSO · Days Sales Outstanding</strong>
+                Cuántos días en promedio tardás en cobrar a tus clientes después de vender.<br/><br/>
+                <strong>Cálculo:</strong> (CxC ÷ Ventas Netas) × 30<br/><br/>
+                <strong>Saludable:</strong> ≤30 días para ecommerce. Si es mayor, tu cobranza está lenta.
+              </span>
+            </span>
+          </span>
+          <span class="tabular font-bold text-emerald-700">12 días</span>
+        </div>
+        <div class="text-[10px] text-emerald-600 flex items-center gap-1">
+          <i data-lucide="check-circle-2" class="w-3 h-3"></i> Cobranza ágil
+        </div>
+      </div>
+
+      <div class="border border-slate-200 rounded-xl p-3 space-y-2">
+        <div class="flex justify-between items-center">
+          <span class="text-slate-700 font-semibold flex items-center gap-1">
+            ROE · Retorno Patrimonio
+            <span class="tip">
+              <i data-lucide="info" class="w-3 h-3 text-slate-400 hover:text-slate-600"></i>
+              <span class="tip-content">
+                <strong class="block mb-1">ROE · Return on Equity</strong>
+                Por cada S/100 que los socios tienen invertido en la empresa, ¿cuánto generan al año?<br/><br/>
+                <strong>Cálculo:</strong> (Utilidad Neta × 12 ÷ Patrimonio) × 100<br/><br/>
+                <strong>Saludable:</strong> ≥15% anualizado. Compará contra "qué pasaría si esa plata estuviera en un plazo fijo".
+              </span>
+            </span>
+          </span>
+          <span class="tabular font-bold text-emerald-700">16.1%</span>
+        </div>
+      </div>
+
+      <div class="border border-slate-200 rounded-xl p-3 space-y-2">
+        <div class="flex justify-between items-center">
+          <span class="text-slate-700 font-semibold flex items-center gap-1">
+            Días de Inventario
+            <span class="tip">
+              <i data-lucide="info" class="w-3 h-3 text-slate-400 hover:text-slate-600"></i>
+              <span class="tip-content">
+                <strong class="block mb-1">Días de Inventario</strong>
+                Cuántos días te dura el inventario al ritmo actual de ventas. "Cuánto stock acumulás".<br/><br/>
+                <strong>Cálculo:</strong> (Inventario ÷ COGS) × 30<br/><br/>
+                <strong>Saludable:</strong> ≤90 días para skincare. Más alto = capital atrapado, riesgo de obsolescencia.
+              </span>
+            </span>
+          </span>
+          <span class="tabular font-bold text-amber-700">68 días</span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Decisiones canon -->
+  <section class="bg-white border border-slate-200 rounded-2xl p-6 space-y-2 text-[12px]">
+    <h2 class="text-base font-bold text-slate-900 mb-2">📐 Decisiones · Tooltips Pedagógicos canon v5.2</h2>
+    <div><strong class="text-purple-700">Icon canon</strong> · `Info` lucide w-3 h-3 · color slate-400 default + hover slate-600 (sutil, no llama atención)</div>
+    <div><strong class="text-purple-700">Tooltip canon</strong> · bg-slate-900 + text-white + text-[11px] · width 280px (responsive max-w-90vw) · sombra suave · triángulo apuntador</div>
+    <div><strong class="text-purple-700">Estructura contenido</strong> · 3 secciones en orden: (1) Qué es coloquial · (2) Cómo se calcula · (3) Qué significa "alto/bajo" + ejemplo del negocio</div>
+    <div><strong class="text-purple-700">Activación</strong> · hover desktop + focus-within keyboard (accesible) · cursor: help</div>
+    <div><strong class="text-purple-700">Posición</strong> · siempre arriba del icon (`bottom: calc(100% + 6px)`) · centrado horizontalmente al elemento</div>
+    <div><strong class="text-purple-700">Cobertura aplicable</strong> · TODOS los términos técnicos del módulo Contabilidad: KPIs · Balance · P&L · Indicadores · Tendencias · Cierre Mensual</div>
+    <div><strong class="text-purple-700">Términos identificados (~25)</strong>:
+      <div class="text-[11px] text-slate-600 ml-4 mt-1">
+        Ventas Netas · Total Activos · Total Pasivos · Patrimonio · Utilidad Neta · COGS · Margen Bruto · EBITDA · Activo Corriente · Activo No Corriente · CxC · CxP · Anticipos Clientes · Provisión Incobrables · Capital Social · Reserva Legal · Liquidez Corriente · Liquidez Ácida · ROE · ROA · DSO · DPO · Días Inventario · Rotación Inventario · Ratio Endeudamiento · Punto Equilibrio · Margen Seguridad · Diferencial Cambiario
+      </div>
+    </div>
+    <div><strong class="text-purple-700">React component</strong> · `<TooltipInfo>` reutilizable que recibe `{titulo, definicion, calculo, saludable}` · centraliza el patrón</div>
+  </section>
+
+  <footer class="text-center text-[11px] text-slate-500 pt-4">
+    Mockup canon v5.2 · Contabilidad Tooltips Pedagógicos · Sprint A · 2026-05-23
+  </footer>
+
+</div>
+
+<script>if (window.lucide) window.lucide.createIcons();</script>
+</body>
+</html>
