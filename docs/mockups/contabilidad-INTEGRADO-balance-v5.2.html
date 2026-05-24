@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Contabilidad · TAB BALANCE GENERAL INTEGRADO v5.2</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<style>
+  body { font-family: 'Inter', sans-serif; font-variant-numeric: tabular-nums; }
+  .tabular { font-variant-numeric: tabular-nums; }
+  .tip { position: relative; display: inline-flex; align-items: center; }
+  .tip > .tip-content {
+    display: none; position: absolute; bottom: calc(100% + 6px); left: 50%; transform: translateX(-50%);
+    z-index: 50; background: rgb(15 23 42); color: white; padding: 10px 12px; border-radius: 8px;
+    font-size: 11px; line-height: 1.5; width: 280px; max-width: 90vw;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+  }
+  .tip > .tip-content::after {
+    content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
+    border: 5px solid transparent; border-top-color: rgb(15 23 42);
+  }
+  .tip:hover > .tip-content { display: block; }
+  .tip > svg { cursor: help; }
+</style>
+<script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-slate-50 p-6 md:p-10 text-slate-900">
+
+<div class="max-w-6xl mx-auto mb-6 bg-purple-50 border-l-4 border-purple-500 p-4 rounded text-[12px] text-purple-900">
+  <strong>🎬 Mockup INTEGRADO v5.2 · Tab BALANCE GENERAL</strong> · vista completa del tab Balance con todos los cambios v5.2:
+  donuts de composición + tooltips pedagógicos + cross-links. Resto del shell idéntico v5.1.
+</div>
+
+<div class="max-w-6xl mx-auto bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+
+  <!-- BREADCRUMB 3 niveles -->
+  <div class="border-b border-slate-200 px-6 py-2.5 flex items-center gap-3 bg-slate-50">
+    <div class="flex items-center text-[12px] flex-1">
+      <a class="text-slate-500 hover:text-teal-700 cursor-pointer">Inicio</a>
+      <i data-lucide="chevron-right" class="w-3 h-3 text-slate-300 mx-1.5"></i>
+      <a class="text-slate-500 hover:text-teal-700 cursor-pointer">Contabilidad</a>
+      <i data-lucide="chevron-right" class="w-3 h-3 text-slate-300 mx-1.5"></i>
+      <span class="text-slate-900 font-semibold">Balance General</span>
+    </div>
+  </div>
+
+  <!-- HEADER (idéntico v5.1 · solo agregamos botón Glosario en acciones) -->
+  <div class="px-6 py-5 border-b border-slate-100">
+    <div class="flex items-start justify-between gap-4 flex-wrap">
+      <div class="flex items-start gap-3 flex-1 min-w-[260px]">
+        <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-purple-500 to-purple-700 flex items-center justify-center text-white">
+          <i data-lucide="calculator" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <h1 class="text-2xl font-bold tracking-tight text-slate-900">Contabilidad</h1>
+          <p class="text-[13px] text-slate-500">Estados financieros formales · Balance General · P&L · ratios · cierre mensual</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-1.5 flex-wrap justify-end">
+        <div class="inline-flex items-center gap-1.5 bg-white border border-slate-200 rounded-lg px-2 py-1.5">
+          <i data-lucide="calendar" class="w-3.5 h-3.5 text-slate-500"></i>
+          <span class="text-[11px] font-semibold">Mayo</span>
+          <span class="text-[11px] font-semibold">2026</span>
+        </div>
+        <button class="text-[11px] font-semibold text-slate-600 hover:bg-slate-50 border border-slate-200 px-2.5 py-1.5 rounded-lg flex items-center gap-1.5">
+          <i data-lucide="book-open" class="w-3 h-3"></i>
+          <span class="hidden md:inline">Glosario</span>
+        </button>
+        <button class="text-[11px] font-semibold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 px-3 py-1.5 rounded-lg flex items-center gap-1.5">
+          <i data-lucide="settings-2" class="w-3 h-3"></i>
+          <span class="hidden sm:inline">Configurar</span>
+        </button>
+        <button class="text-[11px] font-semibold text-slate-600 hover:bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-lg flex items-center gap-1.5">
+          <i data-lucide="download" class="w-3 h-3"></i>
+          <span class="hidden sm:inline">Exportar</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- KPI strip con sparklines · idéntico INTEGRADO-resumen -->
+  <div class="px-6 py-4 border-b border-slate-100 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+    <div class="bg-gradient-to-br from-emerald-50 to-emerald-100/40 ring-1 ring-emerald-200/50 rounded-2xl p-3">
+      <div class="text-[10px] uppercase tracking-wider text-emerald-700 font-bold">VENTAS NETAS</div>
+      <div class="text-xl font-bold tabular text-emerald-900">S/ 247,500</div>
+      <svg viewBox="0 0 100 20" class="w-full h-5 mt-1" preserveAspectRatio="none">
+        <polyline points="0,15 20,13 40,14 60,10 80,7 100,4" fill="none" stroke="rgb(5 150 105)" stroke-width="2"/>
+        <circle cx="100" cy="4" r="2" fill="rgb(5 150 105)"/>
+      </svg>
+    </div>
+    <div class="bg-gradient-to-br from-teal-50 to-teal-100/40 ring-1 ring-teal-200/50 rounded-2xl p-3">
+      <div class="text-[10px] uppercase tracking-wider text-teal-700 font-bold">TOTAL ACTIVOS</div>
+      <div class="text-xl font-bold tabular text-teal-900">S/ 458,200</div>
+      <svg viewBox="0 0 100 20" class="w-full h-5 mt-1" preserveAspectRatio="none">
+        <polyline points="0,13 20,12 40,11 60,10 80,9 100,8" fill="none" stroke="rgb(13 148 136)" stroke-width="2"/>
+        <circle cx="100" cy="8" r="2" fill="rgb(13 148 136)"/>
+      </svg>
+    </div>
+    <div class="bg-gradient-to-br from-rose-50 to-rose-100/40 ring-1 ring-rose-200/50 rounded-2xl p-3">
+      <div class="text-[10px] uppercase tracking-wider text-rose-700 font-bold">TOTAL PASIVOS</div>
+      <div class="text-xl font-bold tabular text-rose-900">S/ 142,800</div>
+      <svg viewBox="0 0 100 20" class="w-full h-5 mt-1" preserveAspectRatio="none">
+        <polyline points="0,6 20,7 40,9 60,11 80,13 100,15" fill="none" stroke="rgb(225 29 72)" stroke-width="2"/>
+        <circle cx="100" cy="15" r="2" fill="rgb(225 29 72)"/>
+      </svg>
+    </div>
+    <div class="bg-gradient-to-br from-indigo-50 to-indigo-100/40 ring-1 ring-indigo-200/50 rounded-2xl p-3">
+      <div class="text-[10px] uppercase tracking-wider text-indigo-700 font-bold">PATRIMONIO</div>
+      <div class="text-xl font-bold tabular text-indigo-900">S/ 315,400</div>
+      <svg viewBox="0 0 100 20" class="w-full h-5 mt-1" preserveAspectRatio="none">
+        <polyline points="0,17 20,15 40,12 60,9 80,6 100,3" fill="none" stroke="rgb(79 70 229)" stroke-width="2"/>
+        <circle cx="100" cy="3" r="2" fill="rgb(79 70 229)"/>
+      </svg>
+    </div>
+    <div class="bg-gradient-to-br from-amber-50 to-amber-100/40 ring-1 ring-amber-200/50 rounded-2xl p-3">
+      <div class="text-[10px] uppercase tracking-wider text-amber-700 font-bold">UTILIDAD NETA</div>
+      <div class="text-xl font-bold tabular text-amber-900">S/ 42,300</div>
+      <svg viewBox="0 0 100 20" class="w-full h-5 mt-1" preserveAspectRatio="none">
+        <polyline points="0,10 20,8 40,18 60,6 80,5 100,3" fill="none" stroke="rgb(217 119 6)" stroke-width="2"/>
+        <circle cx="100" cy="3" r="2" fill="rgb(217 119 6)"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- TABS · Balance General activo -->
+  <div class="px-6 overflow-x-auto" style="scrollbar-width: none;">
+    <div class="flex items-center gap-1 border-b border-slate-200">
+      <button class="text-[12px] font-semibold px-3 py-2.5 text-slate-500 hover:text-slate-700 inline-flex items-center gap-1.5"><i data-lucide="layout-dashboard" class="w-3.5 h-3.5"></i> Resumen</button>
+      <button class="text-[12px] font-bold px-3 py-2.5 text-purple-700 border-b-2 border-purple-600 inline-flex items-center gap-1.5"><i data-lucide="scale" class="w-3.5 h-3.5"></i> Balance General</button>
+      <button class="text-[12px] font-semibold px-3 py-2.5 text-slate-500 hover:text-slate-700 inline-flex items-center gap-1.5"><i data-lucide="file-text" class="w-3.5 h-3.5"></i> Estado de Resultados</button>
+      <button class="text-[12px] font-semibold px-3 py-2.5 text-slate-500 hover:text-slate-700 inline-flex items-center gap-1.5"><i data-lucide="activity" class="w-3.5 h-3.5"></i> Indicadores</button>
+      <button class="text-[12px] font-semibold px-3 py-2.5 text-slate-500 hover:text-slate-700 inline-flex items-center gap-1.5"><i data-lucide="line-chart" class="w-3.5 h-3.5"></i> Tendencias</button>
+      <button class="text-[12px] font-semibold px-3 py-2.5 text-slate-500 hover:text-slate-700 inline-flex items-center gap-1.5"><i data-lucide="lock" class="w-3.5 h-3.5"></i> Cierre Mensual</button>
+    </div>
+  </div>
+
+  <!-- BODY · Balance General con cambios v5.2 -->
+  <div class="p-6 space-y-4">
+
+    <!-- §1 · Banner ecuación contable (v5.1 + tooltip nuevo en TC) -->
+    <section class="bg-gradient-to-r from-slate-50 to-slate-100/40 ring-1 ring-slate-200/50 rounded-2xl p-4">
+      <div class="flex items-center justify-between flex-wrap gap-3">
+        <div class="flex items-center gap-3">
+          <i data-lucide="scale" class="w-5 h-5 text-slate-700"></i>
+          <div>
+            <div class="text-[13px] font-bold text-slate-900">Balance General · Mayo 2026</div>
+            <div class="text-[11px] text-slate-500">
+              Ecuación contable: <strong>ACTIVO = PASIVO + PATRIMONIO</strong>
+              <span class="ml-2 text-slate-400">·
+                TC: S/ 3.43
+                <span class="tip"><i data-lucide="info" class="w-3 h-3 text-slate-400"></i>
+                  <span class="tip-content"><strong class="block mb-1">Tipo de Cambio</strong>USD/PEN del día del balance · usado para convertir todas las cuentas USD a soles.</span>
+                </span>
+              </span>
+            </div>
+          </div>
+        </div>
+        <div class="text-right">
+          <div class="text-[10px] uppercase font-bold text-slate-500">Cuadre</div>
+          <div class="text-[14px] font-bold tabular text-emerald-700 flex items-center gap-1">
+            <i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i> OK · S/ 0.00
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 🟡 SPRINT B · §1.5 NUEVO · DONUTS COMPOSICIÓN -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+      <div class="bg-white border border-teal-200 rounded-2xl p-4">
+        <div class="flex items-center justify-between mb-3">
+          <div>
+            <div class="text-[10px] uppercase tracking-wider text-teal-700 font-bold">ACTIVO · composición</div>
+            <div class="text-[16px] font-bold tabular text-teal-900">S/ 458,200</div>
+          </div>
+          <i data-lucide="wallet" class="w-4 h-4 text-teal-700"></i>
+        </div>
+        <div class="flex items-center gap-3">
+          <svg viewBox="0 0 100 100" class="w-20 h-20 flex-shrink-0 -rotate-90">
+            <circle cx="50" cy="50" r="40" fill="none" stroke="rgb(241 245 249)" stroke-width="16"/>
+            <circle cx="50" cy="50" r="40" fill="none" stroke="rgb(59 130 246)" stroke-width="16" stroke-dasharray="128.2 251.3" stroke-dashoffset="0"/>
+            <circle cx="50" cy="50" r="40" fill="none" stroke="rgb(168 85 247)" stroke-width="16" stroke-dasharray="52.8 251.3" stroke-dashoffset="-128.2"/>
+            <circle cx="50" cy="50" r="40" fill="none" stroke="rgb(20 184 166)" stroke-width="16" stroke-dasharray="67.9 251.3" stroke-dashoffset="-181"/>
+          </svg>
+          <div class="flex-1 text-[10px] space-y-0.5">
+            <div class="flex items-center gap-1.5"><div class="w-2 h-2 rounded-full bg-blue-500"></div><span class="text-slate-700">Inventarios</span><span class="ml-auto tabular font-bold">51%</span></div>
+            <div class="flex items-center gap-1.5"><div class="w-2 h-2 rounded-full bg-teal-500"></div><span class="text-slate-700">Efectivo</span><span class="ml-auto tabular font-bold">27%</span></div>
+            <div class="flex items-center gap-1.5"><div class="w-2 h-2 rounded-full bg-purple-500"></div><span class="text-slate-700">CxC</span><span class="ml-auto tabular font-bold">21%</span></div>
+          </div>
+        </div>
+        <div class="mt-2 pt-2 border-t border-teal-100 text-[10px] text-teal-700 flex items-start gap-1">
+          <i data-lucide="lightbulb" class="w-3 h-3 mt-0.5 flex-shrink-0"></i>
+          <span>Tu activo más grande es <strong>Inventarios (51%)</strong>. Normal en retail.</span>
+        </div>
+      </div>
+
+      <div class="bg-white border border-rose-200 rounded-2xl p-4">
+        <div class="flex items-center justify-between mb-3">
+          <div>
+            <div class="text-[10px] uppercase tracking-wider text-rose-700 font-bold">PASIVO · composición</div>
+            <div class="text-[16px] font-bold tabular text-rose-900">S/ 142,800</div>
+          </div>
+          <i data-lucide="credit-card" class="w-4 h-4 text-rose-700"></i>
+        </div>
+        <div class="flex items-center gap-3">
+          <svg viewBox="0 0 100 100" class="w-20 h-20 flex-shrink-0 -rotate-90">
+            <circle cx="50" cy="50" r="40" fill="none" stroke="rgb(241 245 249)" stroke-width="16"/>
+            <circle cx="50" cy="50" r="40" fill="none" stroke="rgb(225 29 72)" stroke-width="16" stroke-dasharray="148.3 251.3"/>
+            <circle cx="50" cy="50" r="40" fill="none" stroke="rgb(168 85 247)" stroke-width="16" stroke-dasharray="50.3 251.3" stroke-dashoffset="-148.3"/>
+            <circle cx="50" cy="50" r="40" fill="none" stroke="rgb(245 158 11)" stroke-width="16" stroke-dasharray="30.2 251.3" stroke-dashoffset="-198.6"/>
+          </svg>
+          <div class="flex-1 text-[10px] space-y-0.5">
+            <div class="flex items-center gap-1.5"><div class="w-2 h-2 rounded-full bg-rose-600"></div><span class="text-slate-700">CxP prov.</span><span class="ml-auto tabular font-bold">59%</span></div>
+            <div class="flex items-center gap-1.5"><div class="w-2 h-2 rounded-full bg-purple-500"></div><span class="text-slate-700">Anticipos</span><span class="ml-auto tabular font-bold">20%</span></div>
+            <div class="flex items-center gap-1.5"><div class="w-2 h-2 rounded-full bg-amber-500"></div><span class="text-slate-700">Deudas TC</span><span class="ml-auto tabular font-bold">12%</span></div>
+          </div>
+        </div>
+        <div class="mt-2 pt-2 border-t border-rose-100 text-[10px] text-rose-700 flex items-start gap-1">
+          <i data-lucide="lightbulb" class="w-3 h-3 mt-0.5 flex-shrink-0"></i>
+          <span>El <strong>20% son anticipos</strong>: ventas ya cobradas sin entregar.</span>
+        </div>
+      </div>
+
+      <div class="bg-white border border-indigo-200 rounded-2xl p-4">
+        <div class="flex items-center justify-between mb-3">
+          <div>
+            <div class="text-[10px] uppercase tracking-wider text-indigo-700 font-bold">PATRIMONIO · composición</div>
+            <div class="text-[16px] font-bold tabular text-indigo-900">S/ 315,400</div>
+          </div>
+          <i data-lucide="piggy-bank" class="w-4 h-4 text-indigo-700"></i>
+        </div>
+        <div class="flex items-center gap-3">
+          <svg viewBox="0 0 100 100" class="w-20 h-20 flex-shrink-0 -rotate-90">
+            <circle cx="50" cy="50" r="40" fill="none" stroke="rgb(241 245 249)" stroke-width="16"/>
+            <circle cx="50" cy="50" r="40" fill="none" stroke="rgb(79 70 229)" stroke-width="16" stroke-dasharray="158.3 251.3"/>
+            <circle cx="50" cy="50" r="40" fill="none" stroke="rgb(99 102 241)" stroke-width="16" stroke-dasharray="42.7 251.3" stroke-dashoffset="-158.3"/>
+            <circle cx="50" cy="50" r="40" fill="none" stroke="rgb(245 158 11)" stroke-width="16" stroke-dasharray="32.7 251.3" stroke-dashoffset="-201"/>
+          </svg>
+          <div class="flex-1 text-[10px] space-y-0.5">
+            <div class="flex items-center gap-1.5"><div class="w-2 h-2 rounded-full bg-indigo-600"></div><span class="text-slate-700">Capital social</span><span class="ml-auto tabular font-bold">63%</span></div>
+            <div class="flex items-center gap-1.5"><div class="w-2 h-2 rounded-full bg-indigo-400"></div><span class="text-slate-700">Utilid. acum.</span><span class="ml-auto tabular font-bold">17%</span></div>
+            <div class="flex items-center gap-1.5"><div class="w-2 h-2 rounded-full bg-amber-500"></div><span class="text-slate-700">Util. período</span><span class="ml-auto tabular font-bold">13%</span></div>
+          </div>
+        </div>
+        <div class="mt-2 pt-2 border-t border-indigo-100 text-[10px] text-indigo-700 flex items-start gap-1">
+          <i data-lucide="lightbulb" class="w-3 h-3 mt-0.5 flex-shrink-0"></i>
+          <span>Utilidades acumuladas + período son <strong>30%</strong>. Empresa rentable.</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- §2 · 3 columnas detalladas v5.1 con tooltips agregados v5.2 -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+
+      <section class="bg-white border border-teal-200 rounded-2xl overflow-hidden">
+        <div class="bg-gradient-to-r from-teal-500 to-teal-700 text-white px-4 py-3">
+          <div class="flex items-center justify-between">
+            <h2 class="text-[14px] font-bold flex items-center gap-2">
+              <i data-lucide="wallet" class="w-4 h-4"></i> ACTIVO
+              <span class="tip"><i data-lucide="info" class="w-3 h-3 text-white/70 hover:text-white"></i>
+                <span class="tip-content"><strong class="block mb-1">Activo</strong>Todo lo que tu empresa POSEE. Se divide en CORRIENTE (≤1 año) y NO CORRIENTE (>1 año).</span>
+              </span>
+            </h2>
+            <span class="text-[16px] font-bold tabular">S/ 458,200</span>
+          </div>
+        </div>
+        <div class="divide-y divide-slate-100">
+          <div class="px-4 py-3">
+            <div class="flex items-center justify-between">
+              <span class="text-[11px] uppercase tracking-wider font-bold text-teal-700">Activo Corriente</span>
+              <span class="text-[13px] font-bold tabular text-teal-900">S/ 458,200</span>
+            </div>
+            <div class="mt-2 ml-5 space-y-1 text-[12px]">
+              <div class="flex justify-between">
+                <span class="text-slate-600 flex items-center gap-1">Efectivo y equivalentes
+                  <span class="tip"><i data-lucide="info" class="w-3 h-3 text-slate-400"></i>
+                    <span class="tip-content"><strong>Efectivo</strong> Plata en caja, bancos PEN, bancos USD, billeteras digitales · listo para usar.</span>
+                  </span>
+                </span>
+                <span class="tabular font-medium text-slate-900">S/ 124,800</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-slate-600 flex items-center gap-1">CxC · clientes
+                  <span class="tip"><i data-lucide="info" class="w-3 h-3 text-slate-400"></i>
+                    <span class="tip-content"><strong>Cuentas por Cobrar</strong> Plata que te deben los clientes por ventas hechas pero aún no cobradas.</span>
+                  </span>
+                </span>
+                <span class="tabular font-medium text-slate-900">S/ 98,400</span>
+              </div>
+              <div class="flex justify-between ml-3 text-[11px] text-slate-500">
+                <span>(−) Provisión incobrables 3%</span>
+                <span class="tabular">−S/ 2,952</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-slate-600 flex items-center gap-1">Inventarios
+                  <span class="tip"><i data-lucide="info" class="w-3 h-3 text-slate-400"></i>
+                    <span class="tip-content"><strong>Inventarios</strong> Stock disponible en USA + Perú · valorizado con método CTRU (Costo Total Real Unitario).</span>
+                  </span>
+                </span>
+                <span class="tabular font-medium text-slate-900">S/ 235,000</span>
+              </div>
+              <div class="flex justify-between ml-3 text-[11px] text-slate-500"><span>· USA · S/ 142,300 (61%)</span></div>
+              <div class="flex justify-between ml-3 text-[11px] text-slate-500"><span>· Perú · S/ 92,700 (39%)</span></div>
+            </div>
+          </div>
+          <div class="px-4 py-3">
+            <div class="flex items-center justify-between">
+              <span class="text-[11px] uppercase tracking-wider font-bold text-teal-700">Activo No Corriente</span>
+              <span class="text-[13px] font-bold tabular text-teal-900">S/ 0</span>
+            </div>
+            <div class="ml-5 mt-1 text-[10px] text-slate-500 italic">(Activos fijos en módulo futuro)</div>
+          </div>
+        </div>
+        <div class="bg-teal-50 px-4 py-2 flex justify-between items-center border-t border-teal-200">
+          <span class="text-[11px] uppercase font-bold text-teal-900">TOTAL ACTIVO</span>
+          <span class="text-[16px] font-bold tabular text-teal-900">S/ 458,200</span>
+        </div>
+      </section>
+
+      <section class="bg-white border border-rose-200 rounded-2xl overflow-hidden">
+        <div class="bg-gradient-to-r from-rose-500 to-rose-700 text-white px-4 py-3">
+          <div class="flex items-center justify-between">
+            <h2 class="text-[14px] font-bold flex items-center gap-2">
+              <i data-lucide="credit-card" class="w-4 h-4"></i> PASIVO
+              <span class="tip"><i data-lucide="info" class="w-3 h-3 text-white/70 hover:text-white"></i>
+                <span class="tip-content"><strong class="block mb-1">Pasivo</strong>Todo lo que tu empresa DEBE. Corriente (≤1 año) o No Corriente (>1 año).</span>
+              </span>
+            </h2>
+            <span class="text-[16px] font-bold tabular">S/ 142,800</span>
+          </div>
+        </div>
+        <div class="divide-y divide-slate-100">
+          <div class="px-4 py-3">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-[11px] uppercase tracking-wider font-bold text-rose-700">Pasivo Corriente</span>
+              <span class="text-[13px] font-bold tabular text-rose-900">S/ 142,800</span>
+            </div>
+            <div class="ml-2 space-y-1 text-[12px]">
+              <div class="flex justify-between">
+                <span class="text-slate-600 flex items-center gap-1">CxP proveedores
+                  <span class="tip"><i data-lucide="info" class="w-3 h-3 text-slate-400"></i>
+                    <span class="tip-content"><strong>CxP</strong> Cuentas por Pagar a proveedores · OCs recibidas pendientes de pago.</span>
+                  </span>
+                </span>
+                <span class="tabular font-medium text-slate-900">S/ 84,200</span>
+              </div>
+              <div class="flex justify-between bg-purple-50 -mx-2 px-2 py-1 rounded mt-1">
+                <span class="text-purple-700 font-medium flex items-center gap-1">Anticipos clientes
+                  <span class="tip"><i data-lucide="info" class="w-3 h-3 text-purple-400"></i>
+                    <span class="tip-content"><strong>Anticipos</strong> Pagos recibidos por ventas no entregadas. Es deuda hasta cumplir entrega.</span>
+                  </span>
+                </span>
+                <span class="tabular font-bold text-purple-700">S/ 28,400</span>
+              </div>
+              <div class="flex justify-between ml-3 text-[11px] text-purple-600"><span>· 12 ventas sin entregar</span></div>
+              <div class="flex justify-between"><span class="text-slate-600">Deudas TC bancos</span><span class="tabular font-medium text-slate-900">S/ 17,800</span></div>
+              <div class="flex justify-between"><span class="text-slate-600">Otras CxP</span><span class="tabular font-medium text-slate-900">S/ 12,400</span></div>
+            </div>
+          </div>
+          <div class="px-4 py-3">
+            <div class="flex items-center justify-between">
+              <span class="text-[11px] uppercase font-bold text-rose-700">Pasivo No Corriente</span>
+              <span class="text-[13px] font-bold tabular text-rose-900">S/ 0</span>
+            </div>
+            <div class="ml-2 mt-1 text-[10px] text-slate-500 italic">Sin deudas a largo plazo</div>
+          </div>
+        </div>
+        <div class="bg-rose-50 px-4 py-2 flex justify-between items-center border-t border-rose-200">
+          <span class="text-[11px] uppercase font-bold text-rose-900">TOTAL PASIVO</span>
+          <span class="text-[16px] font-bold tabular text-rose-900">S/ 142,800</span>
+        </div>
+      </section>
+
+      <section class="bg-white border border-indigo-200 rounded-2xl overflow-hidden">
+        <div class="bg-gradient-to-r from-indigo-500 to-indigo-700 text-white px-4 py-3">
+          <div class="flex items-center justify-between">
+            <h2 class="text-[14px] font-bold flex items-center gap-2"><i data-lucide="piggy-bank" class="w-4 h-4"></i> PATRIMONIO</h2>
+            <span class="text-[16px] font-bold tabular">S/ 315,400</span>
+          </div>
+        </div>
+        <div class="divide-y divide-slate-100">
+          <div class="px-4 py-3 space-y-1 text-[12px]">
+            <div class="flex justify-between">
+              <span class="text-slate-600 flex items-center gap-1">Capital social
+                <span class="tip"><i data-lucide="info" class="w-3 h-3 text-slate-400"></i>
+                  <span class="tip-content"><strong>Capital social</strong> Plata que pusieron los socios al iniciar la empresa.</span>
+                </span>
+              </span>
+              <span class="tabular font-medium text-slate-900">S/ 200,000</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-slate-600 flex items-center gap-1">Reserva legal
+                <span class="tip"><i data-lucide="info" class="w-3 h-3 text-slate-400"></i>
+                  <span class="tip-content"><strong>Reserva Legal</strong> Colchón obligatorio (típicamente 10% del capital). No se reparte.</span>
+                </span>
+              </span>
+              <span class="tabular font-medium text-slate-900">S/ 20,000</span>
+            </div>
+            <div class="flex justify-between"><span class="text-slate-600">Utilidades acumuladas</span><span class="tabular font-medium text-slate-900">S/ 53,100</span></div>
+            <div class="flex justify-between bg-amber-50 -mx-2 px-2 py-1 rounded mt-1">
+              <span class="text-amber-700 font-medium">Utilidad del período</span>
+              <span class="tabular font-bold text-amber-700">S/ 42,300</span>
+            </div>
+          </div>
+        </div>
+        <div class="bg-indigo-50 px-4 py-2 flex justify-between items-center border-t border-indigo-200">
+          <span class="text-[11px] uppercase font-bold text-indigo-900">TOTAL PATRIMONIO</span>
+          <span class="text-[16px] font-bold tabular text-indigo-900">S/ 315,400</span>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- §3 · Banner cuadre (v5.1 sin cambios) -->
+    <section class="bg-emerald-50 ring-1 ring-emerald-200 rounded-2xl p-4 flex items-center justify-between flex-wrap gap-3 text-[12px]">
+      <div class="flex items-center gap-3">
+        <i data-lucide="check-circle-2" class="w-5 h-5 text-emerald-600"></i>
+        <div>
+          <div class="font-bold text-emerald-900">Balance cuadrado ✓</div>
+          <div class="text-emerald-700 text-[10px]">Activo S/ 458,200 = Pasivo S/ 142,800 + Patrimonio S/ 315,400</div>
+        </div>
+      </div>
+      <span class="text-[10px] tabular bg-emerald-100 text-emerald-800 px-2 py-1 rounded">Diferencia: S/ 0.00</span>
+    </section>
+
+  </div>
+</div>
+
+<!-- Resumen cambios -->
+<div class="max-w-6xl mx-auto mt-8 bg-white border border-slate-200 rounded-2xl p-6">
+  <h2 class="text-base font-bold text-slate-900 mb-3 flex items-center gap-2">
+    <i data-lucide="check-circle-2" class="w-4 h-4 text-purple-600"></i>
+    Cambios v5.2 en este tab (Balance General)
+  </h2>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-[12px]">
+    <div>
+      <div class="text-[10px] uppercase font-bold text-emerald-700 mb-1">🟢 Sprint A · Tooltips</div>
+      <ul class="space-y-1 text-slate-700 list-disc ml-4">
+        <li>Tooltip en TC del banner ecuación</li>
+        <li>Tooltips en headers Activo/Pasivo (en gradient blanco)</li>
+        <li>Tooltips en términos: Efectivo · CxC · Inventarios · CxP · Anticipos · Capital social · Reserva legal</li>
+        <li>9+ tooltips agregados en Balance solo</li>
+      </ul>
+    </div>
+    <div>
+      <div class="text-[10px] uppercase font-bold text-amber-700 mb-1">🟡 Sprint B · Donuts composición</div>
+      <ul class="space-y-1 text-slate-700 list-disc ml-4">
+        <li>3 nuevos donuts SVG entre banner ecuación y columnas detalladas</li>
+        <li>Cada uno con leyenda lateral + insight automático con lightbulb</li>
+        <li>Color signature matching: teal Activo · rose Pasivo · indigo Patrimonio</li>
+        <li>Cross-cutting purple (anticipos) + amber (utilidad período)</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<script>if (window.lucide) window.lucide.createIcons();</script>
+</body>
+</html>
