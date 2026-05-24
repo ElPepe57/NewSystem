@@ -447,19 +447,52 @@ interface IndicadorRowProps {
   semaforoLabel?: string;
   /** Si true · bg purple-50/40 (ratio destacado tipo Ciclo Conversión) */
   destacado?: boolean;
+  /** chk5.E-B · sparkline data tendencia 6m (opcional · solo en ratios derivables) */
+  sparkData?: number[];
+  /** chk5.E-B · color sparkline · default 'auto' */
+  sparkColor?: SparklineColor;
+  /** chk5.E-B · ID del glosario para tooltip pedagógico (opcional) */
+  tooltipId?: string;
 }
 
 const IndicadorRow: React.FC<IndicadorRowProps> = ({
-  nombre, formula, valor, semaforo, semaforoLabel, destacado,
+  nombre, formula, valor, semaforo, semaforoLabel, destacado, sparkData, sparkColor, tooltipId,
 }) => {
   const sem = SEMAFORO_COLOR[semaforo];
   const isAlert = semaforo === 'regular' || semaforo === 'atencion' || semaforo === 'critico';
+  // chk5.E-B · resolver término del glosario si tooltipId pasado
+  const termino = tooltipId ? getTermino(tooltipId) : undefined;
+  // chk5.E-B · validar sparkline data
+  const validSparkData = sparkData?.filter((v) => Number.isFinite(v)) ?? [];
+  const showSparkline = validSparkData.length >= 2;
+
   return (
-    <div className={`px-4 py-2.5 flex items-center justify-between ${destacado ? 'bg-purple-50/40' : ''}`}>
+    <div className={`px-4 py-2.5 flex items-center justify-between gap-2 ${destacado ? 'bg-purple-50/40' : ''}`}>
       <div className="flex-1 min-w-0 pr-2">
-        <div className="font-semibold text-slate-900">{nombre}</div>
+        <div className="font-semibold text-slate-900 flex items-center gap-1">
+          {nombre}
+          {termino && (
+            <TooltipPedagogico
+              titulo={termino.titulo}
+              definicion={termino.definicion}
+              calculo={termino.calculo}
+              saludable={termino.saludable}
+            />
+          )}
+        </div>
         <div className="text-[10px] text-slate-500">{formula}</div>
       </div>
+      {showSparkline && (
+        <div className="hidden sm:block">
+          <Sparkline
+            data={validSparkData}
+            color={sparkColor ?? 'auto'}
+            widthClass="w-14"
+            heightClass="h-4"
+            ariaLabel={`Tendencia ${nombre} últimos ${validSparkData.length} meses`}
+          />
+        </div>
+      )}
       <div className="text-right flex-shrink-0">
         <div className={`text-[16px] font-bold tabular-nums ${sem.text}`}>{valor}</div>
         <div className={`text-[10px] ${sem.text} flex items-center gap-1 justify-end`}>
@@ -1438,6 +1471,15 @@ export function Contabilidad() {
   const acumuladoUtilidadNeta = tendencia.reduce((sum, m) => sum + m.utilidadNeta, 0);
   const promedioMensual = tendencia.length > 0 ? acumuladoUtilidadNeta / tendencia.length : 0;
 
+  // chk5.E-B · sparklines para indicadores · % derivados desde tendencia
+  // Solo hasta el mes actual · filter ventas > 0 para evitar división por cero
+  const tendenciaIndic = tendencia.filter((m) => m.mes <= mes && m.ventasNetas > 0);
+  const sparkMargenBrutoPct = tendenciaIndic.map((m) => (m.utilidadBruta / m.ventasNetas) * 100);
+  const sparkMargenNetoPct = tendenciaIndic.map((m) => (m.utilidadNeta / m.ventasNetas) * 100);
+  const sparkMargenOperPct = tendenciaIndic.map(
+    (m) => (m.utilidadOperativa / m.ventasNetas) * 100,
+  );
+
   // ===== chk5.E-S6 · Export CSV contextual al tab activo =====
   const downloadCSV = (filename: string, headers: string[], rows: (string | number)[][]) => {
     const csvLines = [headers, ...rows].map((r) =>
@@ -2047,6 +2089,7 @@ export function Contabilidad() {
                   : indicadores.liquidez.razonCorriente >= 1.5 ? 'bueno'
                   : indicadores.liquidez.razonCorriente >= 1.0 ? 'regular' : 'atencion'
                 }
+                tooltipId="liquidez-corriente"
               />
               <IndicadorRow
                 nombre="Prueba Ácida"
@@ -2056,6 +2099,7 @@ export function Contabilidad() {
                   indicadores.liquidez.pruebaAcida >= 1.0 ? 'excelente'
                   : indicadores.liquidez.pruebaAcida >= 0.7 ? 'bueno' : 'atencion'
                 }
+                tooltipId="liquidez-acida"
               />
               <IndicadorRow
                 nombre="Capital de Trabajo"
@@ -2116,7 +2160,7 @@ export function Contabilidad() {
               />
             </IndicadoresCard>
 
-            {/* RENTABILIDAD · emerald */}
+            {/* RENTABILIDAD · emerald · chk5.E-B con sparklines + tooltips */}
             <IndicadoresCard color="emerald" icon={TrendingUp} title="RENTABILIDAD">
               <IndicadorRow
                 nombre="ROA · Return on Assets"
@@ -2135,6 +2179,7 @@ export function Contabilidad() {
                   indicadores.rentabilidad.roe >= 18 ? 'excelente'
                   : indicadores.rentabilidad.roe >= 12 ? 'regular' : 'atencion'
                 }
+                tooltipId="roe"
               />
               <IndicadorRow
                 nombre="Margen Bruto"
@@ -2144,6 +2189,9 @@ export function Contabilidad() {
                   indicadores.rentabilidad.margenBruto >= 55 ? 'excelente'
                   : indicadores.rentabilidad.margenBruto >= 35 ? 'bueno' : 'atencion'
                 }
+                tooltipId="margen-bruto"
+                sparkData={sparkMargenBrutoPct}
+                sparkColor="emerald"
               />
               <IndicadorRow
                 nombre="Margen Neto"
@@ -2153,6 +2201,8 @@ export function Contabilidad() {
                   indicadores.rentabilidad.margenNeto >= 15 ? 'excelente'
                   : indicadores.rentabilidad.margenNeto >= 8 ? 'regular' : 'atencion'
                 }
+                tooltipId="margen-neto"
+                sparkData={sparkMargenNetoPct}
               />
             </IndicadoresCard>
 
@@ -2184,6 +2234,7 @@ export function Contabilidad() {
                   indicadores.actividad.diasCobro <= 30 ? 'excelente'
                   : indicadores.actividad.diasCobro <= 50 ? 'regular' : 'atencion'
                 }
+                tooltipId="dso"
               />
               <IndicadorRow
                 nombre="DPO · Días Pago"
@@ -2193,6 +2244,7 @@ export function Contabilidad() {
                   indicadores.actividad.diasPago >= 45 ? 'excelente'
                   : indicadores.actividad.diasPago >= 30 ? 'bueno' : 'regular'
                 }
+                tooltipId="dpo"
               />
               <IndicadorRow
                 nombre="Ciclo Conversión Efectivo"

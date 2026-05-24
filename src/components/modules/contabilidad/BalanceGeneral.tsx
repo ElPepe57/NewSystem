@@ -23,10 +23,14 @@ import {
   ChevronRight,
   Scale,
   Loader2,
+  Lightbulb,
 } from 'lucide-react';
 import { contabilidadService } from '../../../services/contabilidad.service';
 import type { BalanceGeneral as BalanceGeneralType } from '../../../types/contabilidad.types';
 import { formatCurrencyPEN } from '../../../utils/format';
+// chk5.E-B · Sprint B · donuts composición + tooltips
+import { DonutChartCanon, TooltipPedagogico } from '../../common';
+import type { DonutSegment } from '../../common';
 
 const formatCurrency = (value: number): string => formatCurrencyPEN(value);
 
@@ -302,6 +306,9 @@ export default function BalanceGeneral({ mes, anio }: Props) {
         </div>
       </section>
 
+      {/* §1.5 · chk5.E-B · 3 donuts composición · NUEVO Sprint B */}
+      <DonutsComposicion balance={balance} />
+
       {/* §2 · Grid 3 columnas: Activo | Pasivo | Patrimonio */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {/* ===== ACTIVO ===== */}
@@ -541,4 +548,216 @@ export default function BalanceGeneral({ mes, anio }: Props) {
       )}
     </div>
   );
+}
+
+// ============================================================================
+// chk5.E-B · Sprint B · DonutsComposicion · 3 donuts (Activo · Pasivo · Patrimonio)
+// ============================================================================
+
+interface DonutsComposicionProps {
+  balance: BalanceGeneralType;
+}
+
+function DonutsComposicion({ balance }: DonutsComposicionProps) {
+  const { activos, pasivos, patrimonio } = balance;
+
+  // === ACTIVO segments ===
+  const activoSegments: DonutSegment[] = [];
+  if (activos.corriente.efectivo.total > 0) {
+    activoSegments.push({
+      label: 'Efectivo + bancos',
+      value: activos.corriente.efectivo.total,
+      color: 'teal',
+    });
+  }
+  if (activos.corriente.cuentasPorCobrar.neto > 0) {
+    activoSegments.push({
+      label: 'CxC clientes',
+      value: activos.corriente.cuentasPorCobrar.neto,
+      color: 'purple',
+    });
+  }
+  if (activos.corriente.inventarios.totalValorPEN > 0) {
+    activoSegments.push({
+      label: 'Inventarios',
+      value: activos.corriente.inventarios.totalValorPEN,
+      color: 'blue',
+    });
+  }
+  if (activos.noCorriente.total > 0) {
+    activoSegments.push({
+      label: 'Activo no corriente',
+      value: activos.noCorriente.total,
+      color: 'slate',
+    });
+  }
+
+  // === PASIVO segments ===
+  const pasivoSegments: DonutSegment[] = [];
+  const cxpProv = pasivos.corriente.cuentasPorPagarProveedores.ordenesCompraPendientes;
+  if (cxpProv > 0) {
+    pasivoSegments.push({ label: 'CxP proveedores', value: cxpProv, color: 'rose' });
+  }
+  const anticipos = pasivos.corriente.anticiposClientes?.totalAnticiposPEN ?? 0;
+  if (anticipos > 0) {
+    pasivoSegments.push({ label: 'Anticipos clientes', value: anticipos, color: 'purple' });
+  }
+  const deudasFin = pasivos.corriente.deudasFinancieras?.total ?? 0;
+  if (deudasFin > 0) {
+    pasivoSegments.push({ label: 'Deudas TC bancos', value: deudasFin, color: 'amber' });
+  }
+  if (pasivos.corriente.otrasCuentasPorPagar.total > 0) {
+    pasivoSegments.push({
+      label: 'Otras CxP',
+      value: pasivos.corriente.otrasCuentasPorPagar.total,
+      color: 'slate',
+    });
+  }
+
+  // === PATRIMONIO segments ===
+  const patrSegments: DonutSegment[] = [];
+  if (patrimonio.capitalSocial > 0) {
+    patrSegments.push({ label: 'Capital social', value: patrimonio.capitalSocial, color: 'indigo' });
+  }
+  if ((patrimonio.reservas ?? 0) > 0) {
+    patrSegments.push({ label: 'Reserva legal', value: patrimonio.reservas!, color: 'sky' });
+  }
+  if (patrimonio.utilidadesAcumuladas > 0) {
+    patrSegments.push({
+      label: 'Utilidades acumuladas',
+      value: patrimonio.utilidadesAcumuladas,
+      color: 'indigo',
+    });
+  }
+  if (patrimonio.utilidadEjercicio > 0) {
+    patrSegments.push({
+      label: 'Utilidad del período',
+      value: patrimonio.utilidadEjercicio,
+      color: 'amber',
+    });
+  }
+
+  // Insights automáticos · derivados del % de cada segmento principal
+  const insightActivo = generarInsightActivo(activoSegments, activos.totalActivos);
+  const insightPasivo = generarInsightPasivo(pasivoSegments, pasivos.totalPasivos);
+  const insightPatrimonio = generarInsightPatrimonio(patrSegments, patrimonio.totalPatrimonio);
+
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      {/* ACTIVO */}
+      <div className="bg-white border border-teal-200 rounded-2xl p-4">
+        <div className="flex items-center justify-between mb-3">
+          <div>
+            <div className="text-[10px] uppercase tracking-wider text-teal-700 font-bold">
+              ACTIVO · composición
+            </div>
+            <div className="text-[16px] font-bold tabular-nums text-teal-900">
+              {formatCurrency(activos.totalActivos)}
+            </div>
+          </div>
+          <Wallet className="w-4 h-4 text-teal-700" />
+        </div>
+        <DonutChartCanon
+          segments={activoSegments}
+          total={activos.totalActivos}
+          sizeClass="w-20 h-20"
+          formatValue={formatCurrency}
+        />
+        {insightActivo && (
+          <div className="mt-3 pt-2 border-t border-teal-100 text-[10px] text-teal-700 flex items-start gap-1.5">
+            <Lightbulb className="w-3 h-3 mt-0.5 flex-shrink-0" />
+            <span dangerouslySetInnerHTML={{ __html: insightActivo }} />
+          </div>
+        )}
+      </div>
+
+      {/* PASIVO */}
+      <div className="bg-white border border-rose-200 rounded-2xl p-4">
+        <div className="flex items-center justify-between mb-3">
+          <div>
+            <div className="text-[10px] uppercase tracking-wider text-rose-700 font-bold">
+              PASIVO · composición
+            </div>
+            <div className="text-[16px] font-bold tabular-nums text-rose-900">
+              {formatCurrency(pasivos.totalPasivos)}
+            </div>
+          </div>
+          <CreditCard className="w-4 h-4 text-rose-700" />
+        </div>
+        <DonutChartCanon
+          segments={pasivoSegments}
+          total={pasivos.totalPasivos}
+          sizeClass="w-20 h-20"
+          formatValue={formatCurrency}
+        />
+        {insightPasivo && (
+          <div className="mt-3 pt-2 border-t border-rose-100 text-[10px] text-rose-700 flex items-start gap-1.5">
+            <Lightbulb className="w-3 h-3 mt-0.5 flex-shrink-0" />
+            <span dangerouslySetInnerHTML={{ __html: insightPasivo }} />
+          </div>
+        )}
+      </div>
+
+      {/* PATRIMONIO */}
+      <div className="bg-white border border-indigo-200 rounded-2xl p-4">
+        <div className="flex items-center justify-between mb-3">
+          <div>
+            <div className="text-[10px] uppercase tracking-wider text-indigo-700 font-bold">
+              PATRIMONIO · composición
+            </div>
+            <div className="text-[16px] font-bold tabular-nums text-indigo-900">
+              {formatCurrency(patrimonio.totalPatrimonio)}
+            </div>
+          </div>
+          <PiggyBank className="w-4 h-4 text-indigo-700" />
+        </div>
+        <DonutChartCanon
+          segments={patrSegments}
+          total={patrimonio.totalPatrimonio}
+          sizeClass="w-20 h-20"
+          formatValue={formatCurrency}
+        />
+        {insightPatrimonio && (
+          <div className="mt-3 pt-2 border-t border-indigo-100 text-[10px] text-indigo-700 flex items-start gap-1.5">
+            <Lightbulb className="w-3 h-3 mt-0.5 flex-shrink-0" />
+            <span dangerouslySetInnerHTML={{ __html: insightPatrimonio }} />
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ===== Helpers de insights =====
+function generarInsightActivo(segments: DonutSegment[], total: number): string | null {
+  if (total === 0 || segments.length === 0) return null;
+  const sorted = [...segments].sort((a, b) => b.value - a.value);
+  const top = sorted[0];
+  const pct = ((top.value / total) * 100).toFixed(0);
+  return `Tu activo más grande es <strong>${top.label} (${pct}%)</strong>.`;
+}
+
+function generarInsightPasivo(segments: DonutSegment[], total: number): string | null {
+  if (total === 0 || segments.length === 0) return null;
+  const anticipos = segments.find((s) => s.label.includes('Anticipos'));
+  if (anticipos) {
+    const pct = ((anticipos.value / total) * 100).toFixed(0);
+    return `El <strong>${pct}% son anticipos</strong> · ventas ya cobradas sin entregar.`;
+  }
+  const sorted = [...segments].sort((a, b) => b.value - a.value);
+  const top = sorted[0];
+  const pct = ((top.value / total) * 100).toFixed(0);
+  return `Tu deuda principal es <strong>${top.label} (${pct}%)</strong>.`;
+}
+
+function generarInsightPatrimonio(segments: DonutSegment[], total: number): string | null {
+  if (total === 0 || segments.length === 0) return null;
+  const utilAcum = segments.find((s) => s.label.includes('Utilidades acumuladas'));
+  const utilPer = segments.find((s) => s.label.includes('Utilidad del período'));
+  const utilTotal = (utilAcum?.value ?? 0) + (utilPer?.value ?? 0);
+  if (utilTotal > 0) {
+    const pct = ((utilTotal / total) * 100).toFixed(0);
+    return `Utilidades acumuladas + período son <strong>${pct}%</strong> · empresa rentable.`;
+  }
+  return `Capital social representa <strong>${(((segments[0]?.value ?? 0) / total) * 100).toFixed(0)}%</strong> · faltan utilidades retenidas.`;
 }

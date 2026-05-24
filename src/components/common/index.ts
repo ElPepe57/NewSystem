@@ -58,6 +58,10 @@ export type { SparklineProps, SparklineColor } from './Sparkline';
 export { TooltipPedagogico } from './TooltipPedagogico';
 export type { TooltipPedagogicoProps } from './TooltipPedagogico';
 
+// DonutChartCanon · canon v5.2 chk5.E-B (composición SVG nativo · NO confundir con DonutChart de Charts.tsx que es Recharts wrapper)
+export { DonutChartCanon } from './DonutChart';
+export type { DonutChartProps, DonutSegment, DonutSegmentColor } from './DonutChart';
+
 // Dropdown
 export { Dropdown, DropdownSelect, ActionsDropdown } from './Dropdown';
 export type { DropdownProps, DropdownItem, DropdownSelectProps } from './Dropdown';
