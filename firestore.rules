@@ -446,10 +446,33 @@ service cloud.firestore {
 
     // ============================================================
     // CIERRES CONTABLES (solo admin escribe, roles financieros leen)
+    // @deprecated chk5.E-RM · reemplazado por revisionesMensuales
     // ============================================================
     match /cierresContables/{docId} {
       allow read: if hasAnyRole(['admin', 'gerente', 'finanzas', 'supervisor']);
       allow write: if isAdmin();
+    }
+
+    // ============================================================
+    // chk5.E-RM · REVISIONES MENSUALES (informal · sin bloqueo · audit trail)
+    // Reemplaza cierresContables. Mismo perfil de permisos: roles
+    // financieros leen, admin/gerente/finanzas pueden marcar revisión.
+    // ============================================================
+    match /revisionesMensuales/{docId} {
+      allow read: if hasAnyRole(['admin', 'gerente', 'finanzas', 'supervisor']);
+      allow write: if hasAnyRole(['admin', 'gerente', 'finanzas']);
+    }
+
+    // ============================================================
+    // chk5.E-INV · SOCIOS / INVERSIONISTAS
+    // Catálogo de socios del negocio. Acceso restringido: solo admin
+    // y gerente leen/escriben. Los socios individuales (cuando existan
+    // como usuarios con permiso VER_INVERSIONISTAS) verán los datos
+    // agregados desde el módulo /inversionistas, no escriben directo.
+    // ============================================================
+    match /socios/{docId} {
+      allow read: if hasAnyRole(['admin', 'gerente']);
+      allow write: if hasAnyRole(['admin', 'gerente']);
     }
 
     // ============================================================
