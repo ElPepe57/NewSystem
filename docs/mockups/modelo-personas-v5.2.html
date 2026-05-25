@@ -709,8 +709,251 @@
         <div class="bg-violet-50 border border-violet-200 rounded p-2.5 text-[11px] text-violet-900 flex items-start gap-2">
           <i data-lucide="zap" class="w-4 h-4 text-violet-700 mt-0.5"></i>
           <div>
-            <strong>Vista en módulo Inversionistas:</strong> Capital comprometido S/ 45,000 (TC) + aportes cash.
+            <strong>Vista en módulo Inversionistas:</strong> Capital comprometido S/ 45,000 (TC) + aportes cash + valor estimado.
             <a href="#" class="text-violet-700 underline">Ver ficha 360 →</a>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="px-5 py-3 bg-slate-50 border-t border-slate-200 flex items-center justify-between">
+        <button class="text-[11px] font-medium text-slate-600">Cancelar</button>
+        <button class="text-[12px] font-bold text-white bg-purple-600 hover:bg-purple-700 px-4 py-1.5 rounded-lg">Guardar cambios</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="step-arrow"></div>
+
+<!-- ╔══════════════════════════════════════════════════════════════╗ -->
+<!-- ESTADO A2.3 · TAB DATOS DE SOCIO EXTENDIDA · participación de valor -->
+<!-- ╚══════════════════════════════════════════════════════════════╝ -->
+<div class="max-w-5xl mx-auto mb-2">
+  <div class="bg-violet-100 text-violet-900 px-3 py-1.5 rounded-t-lg inline-block text-[11px] font-bold">
+    📍 ESTADO A2.3 · scroll abajo en tab "Datos de socio" · participación NO solo es cash · también valor
+  </div>
+</div>
+<div class="max-w-5xl mx-auto mb-2">
+  <div class="bg-slate-900/10 rounded-2xl p-6 sm:p-8">
+    <div class="bg-white border border-purple-200 rounded-2xl shadow-2xl overflow-hidden max-w-2xl mx-auto">
+
+      <!-- Header (mismo) -->
+      <div class="px-5 py-4 border-b border-slate-100 flex items-center gap-3">
+        <div class="w-11 h-11 rounded-full bg-gradient-to-br from-purple-500 to-purple-700 flex items-center justify-center text-white font-bold text-[15px]">JL</div>
+        <div class="flex-1">
+          <div class="text-[10px] uppercase tracking-wider text-purple-700 font-bold">Editar usuario</div>
+          <h3 class="text-[15px] font-bold text-slate-900">Jose Luis Lopez Paz</h3>
+        </div>
+      </div>
+
+      <div class="px-5 py-2 bg-slate-50 border-b border-slate-100 flex items-center gap-1 text-[11px] overflow-x-auto">
+        <button class="px-2.5 py-1 border-b-2 border-transparent text-slate-600 whitespace-nowrap">Datos básicos</button>
+        <button class="px-2.5 py-1 border-b-2 border-transparent text-slate-600 whitespace-nowrap">Roles + accesos</button>
+        <button class="px-2.5 py-1 border-b-2 border-transparent text-slate-600 whitespace-nowrap">Datos laborales</button>
+        <button class="px-2.5 py-1 border-b-2 border-violet-600 text-violet-700 font-bold whitespace-nowrap">
+          <i data-lucide="landmark" class="w-3 h-3 inline mr-1"></i> Datos de socio
+        </button>
+      </div>
+
+      <div class="p-5 space-y-3">
+
+        <!-- Banner pedagógico de la sección -->
+        <div class="bg-amber-50 border border-amber-200 rounded-lg p-3 flex items-start gap-2">
+          <i data-lucide="lightbulb" class="w-4 h-4 text-amber-700 mt-0.5 flex-shrink-0"></i>
+          <div class="text-[11px] text-amber-900">
+            <strong>La participación no se mide solo en dinero · también en VALOR aportado.</strong><br>
+            Ejemplo: un socio puede tener 30% del negocio aunque NO haya puesto cash, porque trae cartera de clientes,
+            know-how o gestión full-time sin sueldo. Acá capturamos ambos lados.
+          </div>
+        </div>
+
+        <!-- Naturaleza de la participación · radio cards -->
+        <div>
+          <label class="text-[10px] uppercase tracking-wider text-slate-500 font-bold block mb-2">
+            ¿Cómo se compone tu participación? *
+          </label>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+
+            <!-- Cash puro -->
+            <label class="flex items-start gap-2 p-2.5 bg-white border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50">
+              <input type="radio" name="tipo_participacion" class="mt-0.5 accent-emerald-600">
+              <div>
+                <div class="text-[11px] font-bold text-emerald-900 flex items-center gap-1">
+                  <i data-lucide="banknote" class="w-3 h-3 text-emerald-700"></i>
+                  Cash puro
+                </div>
+                <div class="text-[10px] text-slate-500">Todo lo que aporté es dinero</div>
+              </div>
+            </label>
+
+            <!-- Mixta · seleccionado -->
+            <label class="flex items-start gap-2 p-2.5 bg-amber-50 border-2 border-amber-400 rounded-lg cursor-pointer">
+              <input type="radio" name="tipo_participacion" checked class="mt-0.5 accent-amber-600">
+              <div>
+                <div class="text-[11px] font-bold text-amber-900 flex items-center gap-1">
+                  <i data-lucide="puzzle" class="w-3 h-3 text-amber-700"></i>
+                  Mixta
+                </div>
+                <div class="text-[10px] text-slate-500">Cash + valor (lo más común)</div>
+              </div>
+            </label>
+
+            <!-- Valor puro -->
+            <label class="flex items-start gap-2 p-2.5 bg-white border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50">
+              <input type="radio" name="tipo_participacion" class="mt-0.5 accent-violet-600">
+              <div>
+                <div class="text-[11px] font-bold text-violet-900 flex items-center gap-1">
+                  <i data-lucide="sparkles" class="w-3 h-3 text-violet-700"></i>
+                  Valor puro
+                </div>
+                <div class="text-[10px] text-slate-500">No puse cash, traigo otro valor</div>
+              </div>
+            </label>
+
+          </div>
+        </div>
+
+        <!-- Tipos de valor · multi-select -->
+        <div>
+          <label class="text-[10px] uppercase tracking-wider text-slate-500 font-bold block mb-2">
+            ¿Qué tipo de valor aportás? · multi-select
+          </label>
+          <div class="grid grid-cols-2 gap-1.5">
+
+            <!-- Know-how · marcado -->
+            <label class="flex items-center gap-2 p-2 bg-amber-50/40 border-2 border-amber-300 rounded cursor-pointer text-[11px]">
+              <input type="checkbox" checked class="w-3.5 h-3.5 accent-amber-600">
+              <i data-lucide="brain" class="w-3.5 h-3.5 text-amber-700"></i>
+              <span class="font-semibold text-amber-900">Know-how técnico</span>
+            </label>
+
+            <!-- Gestión CEO · marcado -->
+            <label class="flex items-center gap-2 p-2 bg-amber-50/40 border-2 border-amber-300 rounded cursor-pointer text-[11px]">
+              <input type="checkbox" checked class="w-3.5 h-3.5 accent-amber-600">
+              <i data-lucide="crown" class="w-3.5 h-3.5 text-amber-700"></i>
+              <span class="font-semibold text-amber-900">Gestión / CEO</span>
+            </label>
+
+            <!-- Networking / cartera -->
+            <label class="flex items-center gap-2 p-2 bg-white border-2 border-slate-200 rounded cursor-pointer text-[11px] hover:bg-slate-50">
+              <input type="checkbox" class="w-3.5 h-3.5 accent-amber-600">
+              <i data-lucide="network" class="w-3.5 h-3.5 text-slate-500"></i>
+              <span class="font-semibold text-slate-700">Networking · cartera clientes</span>
+            </label>
+
+            <!-- Marca personal -->
+            <label class="flex items-center gap-2 p-2 bg-white border-2 border-slate-200 rounded cursor-pointer text-[11px] hover:bg-slate-50">
+              <input type="checkbox" class="w-3.5 h-3.5 accent-amber-600">
+              <i data-lucide="megaphone" class="w-3.5 h-3.5 text-slate-500"></i>
+              <span class="font-semibold text-slate-700">Marca personal · followers</span>
+            </label>
+
+            <!-- Idea original / IP -->
+            <label class="flex items-center gap-2 p-2 bg-white border-2 border-slate-200 rounded cursor-pointer text-[11px] hover:bg-slate-50">
+              <input type="checkbox" class="w-3.5 h-3.5 accent-amber-600">
+              <i data-lucide="light-bulb" class="w-3.5 h-3.5 text-slate-500"></i>
+              <span class="font-semibold text-slate-700">Idea original / IP</span>
+            </label>
+
+            <!-- Tiempo dedicación -->
+            <label class="flex items-center gap-2 p-2 bg-white border-2 border-slate-200 rounded cursor-pointer text-[11px] hover:bg-slate-50">
+              <input type="checkbox" class="w-3.5 h-3.5 accent-amber-600">
+              <i data-lucide="clock" class="w-3.5 h-3.5 text-slate-500"></i>
+              <span class="font-semibold text-slate-700">Tiempo · sweat equity</span>
+            </label>
+
+            <!-- Activos no monetarios -->
+            <label class="flex items-center gap-2 p-2 bg-white border-2 border-slate-200 rounded cursor-pointer text-[11px] hover:bg-slate-50">
+              <input type="checkbox" class="w-3.5 h-3.5 accent-amber-600">
+              <i data-lucide="building" class="w-3.5 h-3.5 text-slate-500"></i>
+              <span class="font-semibold text-slate-700">Activos no monetarios</span>
+            </label>
+
+            <!-- Otro -->
+            <label class="flex items-center gap-2 p-2 bg-white border-2 border-slate-200 rounded cursor-pointer text-[11px] hover:bg-slate-50">
+              <input type="checkbox" class="w-3.5 h-3.5 accent-amber-600">
+              <i data-lucide="more-horizontal" class="w-3.5 h-3.5 text-slate-500"></i>
+              <span class="font-semibold text-slate-700">Otro</span>
+            </label>
+
+          </div>
+        </div>
+
+        <!-- Descripción libre -->
+        <div>
+          <label class="text-[10px] uppercase tracking-wider text-slate-500 font-bold block mb-1">
+            Describí el aporte de valor *
+          </label>
+          <textarea rows="2" class="w-full px-3 py-2 text-[12px] border border-slate-300 rounded-lg focus:border-amber-500 focus:outline-none">20 años en industria skincare · CEO full-time sin sueldo de mercado desde Ene 2024</textarea>
+        </div>
+
+        <!-- Valuación opcional -->
+        <div>
+          <label class="text-[10px] uppercase tracking-wider text-slate-500 font-bold block mb-1 inline-flex items-center gap-1">
+            Valuación estimada del valor aportado
+            <span class="text-[9px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded">opcional</span>
+          </label>
+          <div class="relative">
+            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-[12px] font-bold text-slate-400">S/</span>
+            <input type="number" value="200000" class="w-full pl-10 pr-3 py-2 text-[14px] tabular border border-slate-300 rounded-lg focus:border-amber-500 focus:outline-none">
+          </div>
+          <div class="text-[10px] text-slate-500 mt-0.5">
+            Si tu contador o el acuerdo de socios valuó el aporte de valor, ingresalo. Permite calcular ROI ajustado.
+          </div>
+        </div>
+
+        <!-- Vesting · colapsable -->
+        <details class="text-[11px]">
+          <summary class="cursor-pointer text-violet-700 hover:text-violet-900 inline-flex items-center gap-1 font-semibold">
+            <i data-lucide="calendar-clock" class="w-3 h-3"></i>
+            ¿Vesting? · materialización del aporte con el tiempo · avanzado
+          </summary>
+          <div class="mt-2 p-3 bg-slate-50 rounded-lg space-y-2">
+            <div class="grid grid-cols-3 gap-1.5">
+              <label class="flex items-center gap-1.5 text-[10px] cursor-pointer">
+                <input type="radio" name="vesting" class="accent-violet-600">
+                <span>Inmediato</span>
+              </label>
+              <label class="flex items-center gap-1.5 text-[10px] cursor-pointer">
+                <input type="radio" name="vesting" checked class="accent-violet-600">
+                <span>Lineal mensual</span>
+              </label>
+              <label class="flex items-center gap-1.5 text-[10px] cursor-pointer">
+                <input type="radio" name="vesting" class="accent-violet-600">
+                <span>Con cliff</span>
+              </label>
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <label class="text-[9px] uppercase font-bold text-slate-500 block">Meses vesting</label>
+                <input type="number" value="36" class="w-full px-2 py-1 text-[11px] border border-slate-300 rounded">
+              </div>
+              <div>
+                <label class="text-[9px] uppercase font-bold text-slate-500 block">Meses cliff</label>
+                <input type="number" value="12" class="w-full px-2 py-1 text-[11px] border border-slate-300 rounded">
+              </div>
+            </div>
+            <div class="text-[10px] text-slate-600">
+              Tu 60% se materializa lineal en 36 meses · primer año (12m) acumula y vesteo recién después.
+            </div>
+          </div>
+        </details>
+
+        <!-- Preview · cómo va a verse en Inversionistas -->
+        <div class="bg-violet-50/40 border border-violet-200 rounded-lg p-3">
+          <div class="text-[10px] uppercase tracking-wider text-violet-700 font-bold mb-1.5 flex items-center gap-1.5">
+            <i data-lucide="eye" class="w-3 h-3"></i> Vista previa · módulo Inversionistas
+          </div>
+          <div class="bg-white border border-violet-100 rounded p-2 text-[11px]">
+            <div class="font-bold text-violet-900 mb-1">José LP · 60% participación · <span class="text-amber-700">🧩 Mixta</span></div>
+            <div class="text-[10px] space-y-0.5 text-slate-700">
+              <div class="flex justify-between"><span>Cash aportado neto</span><span class="tabular font-semibold text-emerald-700">S/ 100,000</span></div>
+              <div class="flex justify-between"><span>TC personal vigente</span><span class="tabular font-semibold text-rose-700">S/ 45,000</span></div>
+              <div class="flex justify-between"><span>Valor aportado (est.)</span><span class="tabular font-semibold text-amber-700">S/ 200,000</span></div>
+              <div class="flex justify-between border-t border-violet-100 pt-1 font-bold"><span>Capital total comprometido</span><span class="tabular text-violet-900">S/ 345,000</span></div>
+            </div>
           </div>
         </div>
 
@@ -1051,51 +1294,221 @@
       </div>
     </div>
 
-    <!-- Lista de socios · derivada de /users -->
+    <!-- KPI strip · composición del cap table del negocio -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+      <div class="bg-gradient-to-br from-emerald-50 to-emerald-100/40 ring-1 ring-emerald-200/50 rounded-2xl p-4">
+        <div class="flex items-center justify-between mb-1">
+          <span class="text-[10px] uppercase tracking-wider text-emerald-700 font-bold">CASH NETO INVERTIDO</span>
+          <i data-lucide="banknote" class="w-3.5 h-3.5 text-emerald-700"></i>
+        </div>
+        <div class="text-[22px] font-bold tabular text-emerald-900">S/ 100,000</div>
+        <div class="text-[10px] text-emerald-700">29% del valor monetario total</div>
+      </div>
+      <div class="bg-gradient-to-br from-rose-50 to-rose-100/40 ring-1 ring-rose-200/50 rounded-2xl p-4">
+        <div class="flex items-center justify-between mb-1">
+          <span class="text-[10px] uppercase tracking-wider text-rose-700 font-bold">TC PERSONAL ASUMIDA</span>
+          <i data-lucide="credit-card" class="w-3.5 h-3.5 text-rose-700"></i>
+        </div>
+        <div class="text-[22px] font-bold tabular text-rose-900">S/ 45,000</div>
+        <div class="text-[10px] text-rose-700">13% · solo José LP</div>
+      </div>
+      <div class="bg-gradient-to-br from-amber-50 to-amber-100/40 ring-1 ring-amber-200/50 rounded-2xl p-4">
+        <div class="flex items-center justify-between mb-1">
+          <span class="text-[10px] uppercase tracking-wider text-amber-700 font-bold">VALOR APORTADO (est.)</span>
+          <i data-lucide="sparkles" class="w-3.5 h-3.5 text-amber-700"></i>
+        </div>
+        <div class="text-[22px] font-bold tabular text-amber-900">S/ 200,000</div>
+        <div class="text-[10px] text-amber-700">58% · know-how + gestión + IP</div>
+      </div>
+    </div>
+
+    <!-- Lista de socios · derivada de /users · con breakdown extendido -->
     <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden">
       <div class="bg-gradient-to-r from-violet-50 to-violet-100/40 px-4 py-2.5 border-b border-violet-200/50 flex items-center justify-between">
         <h3 class="text-[12px] font-bold text-violet-900 flex items-center gap-2">
           <i data-lucide="users" class="w-3.5 h-3.5"></i>
-          Socios del negocio
+          Socios del negocio · breakdown completo
         </h3>
         <a href="#" class="text-[10px] text-violet-700 font-bold hover:underline inline-flex items-center gap-1">
           <i data-lucide="settings" class="w-3 h-3"></i> Gestionar en Usuarios
         </a>
       </div>
+
       <div class="divide-y divide-slate-100">
-        <div class="px-4 py-3 flex items-center gap-3">
-          <div class="w-9 h-9 rounded-full bg-gradient-to-br from-purple-500 to-purple-700 flex items-center justify-center text-white text-[11px] font-bold">JL</div>
-          <div class="flex-1 min-w-0">
-            <div class="text-[12px] font-bold text-slate-900">Jose Luis Lopez Paz</div>
-            <div class="text-[10px] text-slate-500">Co-fundador · CEO · desde Ene 2024</div>
+
+        <!-- José LP · MIXTA · cash + TC + valor -->
+        <div class="p-4">
+          <div class="flex items-start gap-3 mb-3">
+            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-purple-700 flex items-center justify-center text-white text-[13px] font-bold flex-shrink-0">JL</div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2 flex-wrap">
+                <div class="text-[13px] font-bold text-slate-900">Jose Luis Lopez Paz</div>
+                <span class="text-[9px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded font-bold inline-flex items-center gap-1">
+                  <i data-lucide="puzzle" class="w-2.5 h-2.5"></i> Mixta
+                </span>
+              </div>
+              <div class="text-[10px] text-slate-500">Co-fundador · CEO · desde Ene 2024</div>
+            </div>
+            <div class="text-right flex-shrink-0">
+              <div class="text-[18px] font-bold tabular text-violet-900">60%</div>
+              <div class="text-[9px] text-slate-500">participación acordada</div>
+            </div>
           </div>
-          <div class="text-right">
-            <div class="text-[14px] font-bold tabular text-violet-900">60%</div>
-            <div class="text-[9px] text-slate-500">Cash S/ 60k · TC S/ 45k</div>
+
+          <!-- Breakdown del aporte · 3 chips -->
+          <div class="grid grid-cols-3 gap-1.5 text-[10px]">
+            <div class="bg-emerald-50/40 border border-emerald-200 rounded p-2">
+              <div class="uppercase font-bold text-emerald-700 text-[9px]">Cash</div>
+              <div class="tabular font-bold text-emerald-900">S/ 100,000</div>
+              <div class="text-[9px] text-emerald-700">3 aportes</div>
+            </div>
+            <div class="bg-rose-50/40 border border-rose-200 rounded p-2">
+              <div class="uppercase font-bold text-rose-700 text-[9px]">TC personal</div>
+              <div class="tabular font-bold text-rose-900">S/ 45,000</div>
+              <div class="text-[9px] text-rose-700">2 TCs</div>
+            </div>
+            <div class="bg-amber-50/40 border border-amber-200 rounded p-2">
+              <div class="uppercase font-bold text-amber-700 text-[9px]">Valor estimado</div>
+              <div class="tabular font-bold text-amber-900">S/ 200,000</div>
+              <div class="text-[9px] text-amber-700">know-how + CEO</div>
+            </div>
+          </div>
+
+          <!-- Tags del valor aportado -->
+          <div class="mt-2 flex items-center gap-1 flex-wrap text-[9px]">
+            <span class="text-slate-500 uppercase font-bold tracking-wider">Valor:</span>
+            <span class="bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded font-semibold inline-flex items-center gap-1">
+              <i data-lucide="brain" class="w-2.5 h-2.5"></i> Know-how técnico
+            </span>
+            <span class="bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded font-semibold inline-flex items-center gap-1">
+              <i data-lucide="crown" class="w-2.5 h-2.5"></i> Gestión / CEO
+            </span>
+            <span class="bg-violet-100 text-violet-700 px-1.5 py-0.5 rounded font-semibold inline-flex items-center gap-1" title="Vesting 36m con 12m cliff">
+              <i data-lucide="calendar-clock" class="w-2.5 h-2.5"></i> Vesting 36m
+            </span>
           </div>
         </div>
-        <div class="px-4 py-3 flex items-center gap-3">
-          <div class="w-9 h-9 rounded-full bg-gradient-to-br from-violet-400 to-violet-600 flex items-center justify-center text-white text-[11px] font-bold">MG</div>
-          <div class="flex-1 min-w-0">
-            <div class="text-[12px] font-bold text-slate-900">María González</div>
-            <div class="text-[10px] text-slate-500">Silent partner · desde Mar 2024</div>
+
+        <!-- María González · VALOR PURO · sin cash · trae cartera -->
+        <div class="p-4 bg-amber-50/20">
+          <div class="flex items-start gap-3 mb-3">
+            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-violet-400 to-violet-600 flex items-center justify-center text-white text-[13px] font-bold flex-shrink-0">MG</div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2 flex-wrap">
+                <div class="text-[13px] font-bold text-slate-900">María González</div>
+                <span class="text-[9px] bg-violet-100 text-violet-700 px-1.5 py-0.5 rounded font-bold inline-flex items-center gap-1">
+                  <i data-lucide="sparkles" class="w-2.5 h-2.5"></i> Valor puro
+                </span>
+                <span class="text-[9px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded font-bold">silent partner</span>
+              </div>
+              <div class="text-[10px] text-slate-500">Co-fundadora · responsable comercial · desde Mar 2024</div>
+            </div>
+            <div class="text-right flex-shrink-0">
+              <div class="text-[18px] font-bold tabular text-violet-900">30%</div>
+              <div class="text-[9px] text-slate-500">participación acordada</div>
+            </div>
           </div>
-          <div class="text-right">
-            <div class="text-[14px] font-bold tabular text-violet-900">30%</div>
-            <div class="text-[9px] text-slate-500">Cash S/ 30k · TC S/ 0</div>
+
+          <div class="grid grid-cols-3 gap-1.5 text-[10px]">
+            <div class="bg-slate-50 border border-slate-200 rounded p-2">
+              <div class="uppercase font-bold text-slate-500 text-[9px]">Cash</div>
+              <div class="tabular font-bold text-slate-400">S/ 0</div>
+              <div class="text-[9px] text-slate-400">no aportó cash</div>
+            </div>
+            <div class="bg-slate-50 border border-slate-200 rounded p-2">
+              <div class="uppercase font-bold text-slate-500 text-[9px]">TC personal</div>
+              <div class="tabular font-bold text-slate-400">S/ 0</div>
+              <div class="text-[9px] text-slate-400">sin TCs</div>
+            </div>
+            <div class="bg-amber-50/40 border border-amber-200 rounded p-2">
+              <div class="uppercase font-bold text-amber-700 text-[9px]">Valor estimado</div>
+              <div class="tabular font-bold text-amber-900">S/ 150,000</div>
+              <div class="text-[9px] text-amber-700">cartera 500 clientes</div>
+            </div>
+          </div>
+
+          <div class="mt-2 flex items-center gap-1 flex-wrap text-[9px]">
+            <span class="text-slate-500 uppercase font-bold tracking-wider">Valor:</span>
+            <span class="bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded font-semibold inline-flex items-center gap-1">
+              <i data-lucide="network" class="w-2.5 h-2.5"></i> Networking · 500 clientes
+            </span>
+            <span class="bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded font-semibold inline-flex items-center gap-1">
+              <i data-lucide="megaphone" class="w-2.5 h-2.5"></i> Marca personal
+            </span>
           </div>
         </div>
-        <div class="px-4 py-3 flex items-center gap-3">
-          <div class="w-9 h-9 rounded-full bg-gradient-to-br from-slate-400 to-slate-600 flex items-center justify-center text-white text-[11px] font-bold">CM</div>
-          <div class="flex-1 min-w-0">
-            <div class="text-[12px] font-bold text-slate-900">Carlos Mendoza</div>
-            <div class="text-[10px] text-slate-500">Socio menor · desde May 2024</div>
+
+        <!-- Carlos Mendoza · CASH PURO · 10% por aporte económico -->
+        <div class="p-4">
+          <div class="flex items-start gap-3 mb-3">
+            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-slate-400 to-slate-600 flex items-center justify-center text-white text-[13px] font-bold flex-shrink-0">CM</div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2 flex-wrap">
+                <div class="text-[13px] font-bold text-slate-900">Carlos Mendoza</div>
+                <span class="text-[9px] bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded font-bold inline-flex items-center gap-1">
+                  <i data-lucide="banknote" class="w-2.5 h-2.5"></i> Cash puro
+                </span>
+              </div>
+              <div class="text-[10px] text-slate-500">Socio inversor · desde May 2024</div>
+            </div>
+            <div class="text-right flex-shrink-0">
+              <div class="text-[18px] font-bold tabular text-violet-900">10%</div>
+              <div class="text-[9px] text-slate-500">participación acordada</div>
+            </div>
           </div>
-          <div class="text-right">
-            <div class="text-[14px] font-bold tabular text-violet-900">10%</div>
-            <div class="text-[9px] text-slate-500">Cash S/ 10k</div>
+
+          <div class="grid grid-cols-3 gap-1.5 text-[10px]">
+            <div class="bg-emerald-50/40 border border-emerald-200 rounded p-2">
+              <div class="uppercase font-bold text-emerald-700 text-[9px]">Cash</div>
+              <div class="tabular font-bold text-emerald-900">S/ 10,000</div>
+              <div class="text-[9px] text-emerald-700">1 aporte único</div>
+            </div>
+            <div class="bg-slate-50 border border-slate-200 rounded p-2">
+              <div class="uppercase font-bold text-slate-500 text-[9px]">TC personal</div>
+              <div class="tabular font-bold text-slate-400">S/ 0</div>
+              <div class="text-[9px] text-slate-400">sin TCs</div>
+            </div>
+            <div class="bg-slate-50 border border-slate-200 rounded p-2">
+              <div class="uppercase font-bold text-slate-500 text-[9px]">Valor estimado</div>
+              <div class="tabular font-bold text-slate-400">—</div>
+              <div class="text-[9px] text-slate-400">solo inversor</div>
+            </div>
           </div>
         </div>
+
+      </div>
+
+      <!-- Footer · totales -->
+      <div class="bg-violet-50/30 px-4 py-2.5 border-t border-violet-200 grid grid-cols-4 gap-2 text-[10px]">
+        <div>
+          <div class="uppercase font-bold text-violet-700 text-[9px]">Suma %</div>
+          <div class="tabular font-bold text-violet-900">100% ✓</div>
+        </div>
+        <div>
+          <div class="uppercase font-bold text-emerald-700 text-[9px]">Total Cash</div>
+          <div class="tabular font-bold text-emerald-900">S/ 110,000</div>
+        </div>
+        <div>
+          <div class="uppercase font-bold text-rose-700 text-[9px]">Total TC</div>
+          <div class="tabular font-bold text-rose-900">S/ 45,000</div>
+        </div>
+        <div>
+          <div class="uppercase font-bold text-amber-700 text-[9px]">Total Valor est.</div>
+          <div class="tabular font-bold text-amber-900">S/ 350,000</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Banner pedagógico · qué significa todo esto -->
+    <div class="bg-amber-50/50 border border-amber-200 rounded-lg p-3 flex items-start gap-2">
+      <i data-lucide="lightbulb" class="w-4 h-4 text-amber-700 mt-0.5"></i>
+      <div class="text-[11px] text-amber-900">
+        <strong>Importante:</strong> el % de participación NO es necesariamente proporcional al cash.
+        María tiene 30% sin haber puesto cash · trae cartera de clientes valuada en S/ 150k.
+        Carlos tiene 10% solo por su aporte económico. José tiene 60% por la combinación cash + TC + valor + gestión CEO.
+        <br>
+        <strong>Capital Comprometido</strong> (KPI principal) sigue siendo cash + TC · porque es lo medible en dinero efectivo.
+        El "valor" aporta a la composición del cap table pero NO se incluye en el patrimonio contable (no es liquidable).
       </div>
     </div>
 
@@ -1260,6 +1673,19 @@
         <li>Setup en 1 click (admin único · 80% PyMEs)</li>
         <li>"Tengo varios socios" → lleva a Usuarios para crearlos</li>
         <li>Sub-perfil datosSocio se crea automáticamente</li>
+      </ul>
+    </div>
+
+    <div class="md:col-span-2 bg-amber-50/30 border border-amber-200 rounded-lg p-3">
+      <strong class="text-amber-700 block mb-1">D7 · Participación = Cash + TC + VALOR · NO solo dinero</strong>
+      <ul class="ml-4 list-disc text-slate-600 space-y-0.5">
+        <li><strong>3 tipos de participación:</strong> cash puro · valor puro · mixta (lo más común)</li>
+        <li><strong>7 tipos de valor:</strong> know-how · gestión/CEO · networking/cartera · marca personal · idea original/IP · tiempo (sweat equity) · activos no monetarios · otro</li>
+        <li><strong>% participación NO es proporcional al cash</strong> · puede haber socios con cero cash y 30% (silent partners que traen cartera/marca/etc)</li>
+        <li><strong>Valuación del valor</strong> · opcional · si el contador o acuerdo de socios lo valuó (ej. "cartera vale S/200k")</li>
+        <li><strong>Vesting</strong> · opcional · materialización con el tiempo (lineal · cliff · inmediato)</li>
+        <li><strong>Capital Comprometido (KPI principal)</strong> sigue siendo cash + TC (lo medible en dinero) · el valor aporta a la composición del cap table pero no al patrimonio contable</li>
+        <li><strong>Vista en Inversionistas:</strong> KPI strip de cap table del negocio (cash · TC · valor) + breakdown por socio con 3 chips de aporte y tags de tipos de valor</li>
       </ul>
     </div>
   </div>
