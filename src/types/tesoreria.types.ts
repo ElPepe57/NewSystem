@@ -405,6 +405,23 @@ export interface VerificacionSaldoSnapshot {
   verificadoPor: string;
   /** Nombre desnormalizado para display rápido */
   verificadoPorNombre?: string;
+  /**
+   * chk5.E-RM · audit trail del ajuste de caja aplicado · si el usuario decidió
+   * cuadrar el sistema con la realidad usando "Aplicar ajuste", queda registrado
+   * acá. Si está vacío, la verificación fue solo informativa.
+   */
+  ajusteAplicado?: {
+    /** Fecha en que se aplicó el ajuste */
+    fecha: Timestamp;
+    /** ID del MovimientoFinanciero generado · audit trail */
+    movimientoId: string;
+    /** Monto del ajuste · positivo = sumar al ERP · negativo = restar */
+    montoAjuste: number;
+    /** Razón opcional del ajuste */
+    razon?: string;
+    /** userId que aplicó */
+    aplicadoPor: string;
+  };
 }
 
 // ═════════════════════════════════════════════════════════════════════════

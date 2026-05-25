@@ -33,6 +33,8 @@ import {
   Info,
   Loader2,
   Lock,
+  // chk5.E-RM · icon nuevo para Revisión Mensual (reemplaza Lock)
+  ClipboardCheck,
   // chk5.E-S1 · canon banking-grade
   ChevronRight,
   ChevronLeft,
@@ -59,7 +61,6 @@ import type { DataTableColumn } from '../../design-system';
 import {
   EstadoResultados,
   BalanceGeneral,
-  CierreMensual,
   GlosarioModal,
   BannerEstadoNegocio,
   InsightsDelMes,
@@ -67,6 +68,8 @@ import {
   CapitalAtrapadoCard,
   IndicadoresPreguntasView,
 } from '../../components/modules/contabilidad';
+// chk5.E-RM · RevisionMensual reemplaza a CierreMensual (deprecated)
+import RevisionMensual from '../../components/modules/contabilidad/RevisionMensual';
 import { ReporteDirectoIndirecto } from '../../components/modules/contabilidad/ReporteDirectoIndirecto';
 import {
   calcularEstadoNegocio,
@@ -85,7 +88,7 @@ import type {
 } from '../../types/contabilidad.types';
 import { formatCurrencyPEN, formatPercent } from '../../utils/format';
 
-type TabActiva = 'resumen' | 'balance' | 'estado-resultados' | 'indicadores' | 'tendencias' | 'cierre';
+type TabActiva = 'resumen' | 'balance' | 'estado-resultados' | 'indicadores' | 'tendencias' | 'revision';
 
 // Alias local para mantener llamadas existentes sin alterar (PEN, 0 decimales no soportado
 // en format.ts — se usa formatCurrencyPEN que produce 2 decimales; la diferencia visual
@@ -1475,7 +1478,7 @@ export function Contabilidad() {
     { id: 'estado-resultados', label: 'Estado de Resultados', mobileLabel: 'Resultados', icon: FileText },
     { id: 'indicadores', label: 'Indicadores', mobileLabel: 'KPIs', icon: Activity },
     { id: 'tendencias', label: 'Tendencias', icon: LineChart },
-    { id: 'cierre', label: 'Cierre Mensual', mobileLabel: 'Cierre', icon: Lock },
+    { id: 'revision', label: 'Revisión Mensual', mobileLabel: 'Revisión', icon: ClipboardCheck },
   ];
 
   // Años disponibles
@@ -1637,7 +1640,7 @@ export function Contabilidad() {
                   {tabActiva === 'estado-resultados' && 'Estado de Resultados'}
                   {tabActiva === 'indicadores' && 'Indicadores'}
                   {tabActiva === 'tendencias' && 'Tendencias'}
-                  {tabActiva === 'cierre' && 'Cierre Mensual'}
+                  {tabActiva === 'revision' && 'Revisión Mensual'}
                 </span>
               </>
             )}
@@ -2385,8 +2388,8 @@ export function Contabilidad() {
       )}
 
       {/* CIERRE MENSUAL */}
-      {!loading && tabActiva === 'cierre' && (
-        <CierreMensual mes={mes} anio={anio} />
+      {!loading && tabActiva === 'revision' && (
+        <RevisionMensual mes={mes} anio={anio} balance={balance} estado={estado} />
       )}
         </div>
         {/* fin §E body */}

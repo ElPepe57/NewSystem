@@ -113,7 +113,8 @@ export const COLLECTIONS = {
   ADELANTOS_NOMINA: 'adelantosNomina',
 
   // === Contabilidad ===
-  CIERRES_CONTABLES: 'cierresContables',
+  CIERRES_CONTABLES: 'cierresContables', // @deprecated · reemplazado por REVISIONES_MENSUALES (chk5.E-RM)
+  REVISIONES_MENSUALES: 'revisionesMensuales', // chk5.E-RM · revisión informal sin bloqueo
 
   // === WhatsApp ===
   WHATSAPP_SESSIONS: 'whatsapp_sessions',
