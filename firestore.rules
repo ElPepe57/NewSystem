@@ -516,11 +516,21 @@ service cloud.firestore {
     }
 
     // ============================================================
-    // PLANILLA — Datos laborales privados (subcoleccion de users)
-    // Solo admin y gerente pueden leer/escribir datos laborales.
+    // PLANILLA + SUB-PERFILES — Datos privados del user (subcoleccion)
+    // chk5.F2-SUB-PERFILES (2026-05-24) · agregados:
+    //   - private/datosLaborales (reemplaza /empleados a partir de Fase 2)
+    //   - private/datosSocio (reemplaza /socios a partir de Fase 2)
+    //   - private/* otros docs legacy
+    //
+    // Acceso:
+    //   - admin · gerente · siempre (gestión RRHH y socios)
+    //   - finanzas · datosLaborales (para procesar nómina) · NO datosSocio
+    //   - El propio usuario · puede leer sus propios sub-perfiles (NO escribir)
     // ============================================================
     match /users/{userId}/private/{docId} {
-      allow read: if hasAnyRole(['admin', 'gerente']);
+      allow read: if hasAnyRole(['admin', 'gerente'])
+                  || (docId == 'datosLaborales' && hasRole('finanzas'))
+                  || (request.auth != null && request.auth.uid == userId);
       allow write: if hasAnyRole(['admin', 'gerente']);
     }
 
