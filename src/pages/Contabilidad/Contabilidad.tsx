@@ -56,8 +56,22 @@ import { getTermino } from '../../data/glosarioContable';
 import { DataTable } from '../../design-system';
 import { FormModalV2 } from '../../design-system/components/FormModalV2';
 import type { DataTableColumn } from '../../design-system';
-import { EstadoResultados, BalanceGeneral, CierreMensual, GlosarioModal } from '../../components/modules/contabilidad';
+import {
+  EstadoResultados,
+  BalanceGeneral,
+  CierreMensual,
+  GlosarioModal,
+  BannerEstadoNegocio,
+  InsightsDelMes,
+  PuntoEquilibrioCard,
+  CapitalAtrapadoCard,
+  IndicadoresPreguntasView,
+} from '../../components/modules/contabilidad';
 import { ReporteDirectoIndirecto } from '../../components/modules/contabilidad/ReporteDirectoIndirecto';
+import {
+  calcularEstadoNegocio,
+  generarInsightsMes,
+} from '../../utils/contabilidadInsights';
 import { contabilidadService } from '../../services/contabilidad.service';
 import { DEFAULT_UMBRALES } from '../../services/contabilidad.service';
 import { useLineaNegocioStore } from '../../store/lineaNegocioStore';
@@ -1379,6 +1393,10 @@ export function Contabilidad() {
   const [configModalOpen, setConfigModalOpen] = useState(false);
   // chk5.E-A · modal Glosario contable (Sprint A · alfabetización)
   const [glosarioModalOpen, setGlosarioModalOpen] = useState(false);
+  // chk5.E-C · Sprint C · umbrales cargados desde config (default si no hay)
+  const [umbrales, setUmbrales] = useState(DEFAULT_UMBRALES);
+  // chk5.E-C · Sprint C · toggle vista Indicadores · Preguntas (default) o Técnico
+  const [vistaIndicadores, setVistaIndicadores] = useState<'preguntas' | 'tecnico'>('preguntas');
 
   // Cargar datos
   const cargarDatos = async () => {
@@ -1397,6 +1415,14 @@ export function Contabilidad() {
       setBalance(balanceData);
       setIndicadores(indicadoresData);
       setAnalisis(contabilidadService.generarAnalisisFinanciero(indicadoresData));
+
+      // chk5.E-C · cargar umbrales desde config (fallback DEFAULT_UMBRALES)
+      try {
+        const cfg = await contabilidadService.getConfiguracionContable();
+        setUmbrales(cfg.umbrales ?? DEFAULT_UMBRALES);
+      } catch {
+        setUmbrales(DEFAULT_UMBRALES);
+      }
 
       // Crear resumen desde estado
       setResumen({
@@ -1872,6 +1898,23 @@ export function Contabilidad() {
       {/* RESUMEN · KPIs ya viven en el §C shell · acá solo banners + distribuciones + indicadores */}
       {!loading && tabActiva === 'resumen' && estado && balance && (
         <div className="space-y-6">
+          {/* chk5.E-C · Sprint C · Storytelling al tope · banner salud + insights del mes */}
+          <BannerEstadoNegocio
+            resultado={calcularEstadoNegocio(estado, balance, mesAnterior, umbrales)}
+            periodo={`${MESES[mes - 1]} ${anio}`}
+            onVerIndicadores={() => setTabActiva('indicadores')}
+          />
+          <InsightsDelMes
+            insights={generarInsightsMes(estado, balance, mesAnterior, tendencia, umbrales)}
+            periodo={`${MESES[mes - 1]} ${anio}`}
+          />
+
+          {/* chk5.E-C · Sprint C · 2 vistas nuevas en grid 2 cols · Punto Equilibrio + Capital Atrapado */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <PuntoEquilibrioCard estado={estado} />
+            <CapitalAtrapadoCard balance={balance} />
+          </div>
+
           {/* §1 · Banner Anticipos · canon N4 cross-cutting purple (chk5.E-S2 copy-paste literal mockup) */}
           {balance.pasivos.corriente.anticiposClientes &&
            balance.pasivos.corriente.anticiposClientes.totalAnticiposPEN > 0 && (
@@ -2064,18 +2107,53 @@ export function Contabilidad() {
       {!loading && tabActiva === 'indicadores' && indicadores && (
         <div className="space-y-4">
 
-          {/* Header informativo */}
+          {/* Header informativo · chk5.E-C · toggle Preguntas/Técnico */}
           <div className="bg-gradient-to-r from-purple-50 to-purple-100/30 ring-1 ring-purple-200/50 rounded-2xl p-4">
-            <div className="flex items-center gap-3">
-              <Activity className="w-5 h-5 text-purple-700" />
-              <div>
-                <div className="text-[13px] font-bold text-purple-900">Indicadores Financieros · {MESES[mes - 1]} {anio}</div>
-                <div className="text-[11px] text-purple-700">16 ratios agrupados en 4 dimensiones · cada ratio contra benchmark sectorial · semáforo verde/ámbar/rojo</div>
+            <div className="flex items-center justify-between flex-wrap gap-3">
+              <div className="flex items-center gap-3">
+                <Activity className="w-5 h-5 text-purple-700" />
+                <div>
+                  <div className="text-[13px] font-bold text-purple-900">Indicadores Financieros · {MESES[mes - 1]} {anio}</div>
+                  <div className="text-[11px] text-purple-700">
+                    {vistaIndicadores === 'preguntas'
+                      ? '4 preguntas clave del negocio · cada una con ratios técnicos detrás'
+                      : '16 ratios técnicos en 4 dimensiones · semáforo verde/ámbar/rojo'}
+                  </div>
+                </div>
+              </div>
+              {/* Toggle Preguntas/Técnico · chk5.E-C Sprint C */}
+              <div className="flex items-center gap-1 bg-white border border-slate-200 rounded-lg p-0.5">
+                <button
+                  type="button"
+                  onClick={() => setVistaIndicadores('preguntas')}
+                  className={`text-[10px] font-bold px-2.5 py-1 rounded transition-colors ${
+                    vistaIndicadores === 'preguntas'
+                      ? 'bg-purple-600 text-white'
+                      : 'text-slate-600 hover:bg-slate-50'
+                  }`}
+                >
+                  Preguntas
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setVistaIndicadores('tecnico')}
+                  className={`text-[10px] font-bold px-2.5 py-1 rounded transition-colors ${
+                    vistaIndicadores === 'tecnico'
+                      ? 'bg-slate-700 text-white'
+                      : 'text-slate-600 hover:bg-slate-50'
+                  }`}
+                >
+                  Técnico
+                </button>
               </div>
             </div>
           </div>
 
-          {/* 4 cards por dimensión (grid 2x2) */}
+          {/* chk5.E-C · render según toggle · default Preguntas user-friendly */}
+          {vistaIndicadores === 'preguntas' ? (
+            <IndicadoresPreguntasView indicadores={indicadores} />
+          ) : (
+          /* 4 cards por dimensión (grid 2x2) · vista TÉCNICA original */
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
             {/* LIQUIDEZ · sky */}
@@ -2259,6 +2337,8 @@ export function Contabilidad() {
             </IndicadoresCard>
 
           </div>
+          )}
+          {/* fin condicional vista Preguntas/Técnico · chk5.E-C */}
 
           {/* Diagnóstico semáforo (mantiene el analisis array generado por el service) */}
           {analisis.length > 0 && (
