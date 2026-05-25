@@ -26,6 +26,7 @@ import {
   type UserProfile,
   type UserRole,
   ROLE_LABELS,
+  PERMISOS,
   getUserRoles,
   hasRole,
   hasAnyRole,
@@ -135,7 +136,16 @@ export default function Ficha360() {
   }
 
   const roles = getUserRoles(profile);
-  const totalPermisos = profile.permisos?.length ?? 0;
+  // chk5.F3-FIX-FICHA · admin tiene acceso total · cuenta TODOS los permisos del sistema
+  // (porque DEFAULT_PERMISOS.admin = Object.values(PERMISOS) · puede tener .permisos
+  // vacío si nunca fue actualizado · pero ESO no es "0 permisos" sino "todos heredados")
+  const totalPermisosDelSistema = Object.values(PERMISOS).length;
+  const totalPermisos = hasRole(profile, 'admin')
+    ? totalPermisosDelSistema
+    : (profile.permisos?.length ?? 0);
+  // Etiquetas pedagógicas para cada estado
+  const tieneRolPlanilla = hasAnyRole(profile, ['vendedor', 'gerente', 'comprador', 'almacenero', 'finanzas', 'supervisor']);
+  const tieneRolSocio = hasRole(profile, 'socio');
   const ultimaConexion = profile.ultimaConexion?.toDate();
   const hoy = new Date();
   const diasDesdeConexion = ultimaConexion
@@ -227,88 +237,112 @@ export default function Ficha360() {
           </div>
         </div>
 
-        {/* 4 cards de resumen · acceso rápido a cada faceta */}
+        {/* 4 cards de resumen · SIEMPRE visibles · canon mockup A3 · responsive grid */}
         <div className="p-4 sm:p-6 space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
-            {/* Permisos */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+            {/* 1 · Permisos · siempre */}
             <div className="bg-white border border-purple-200 rounded-xl p-3">
               <div className="flex items-center gap-2 mb-1">
-                <div className="w-8 h-8 rounded-lg bg-purple-100 flex items-center justify-center">
+                <div className="w-8 h-8 rounded-lg bg-purple-100 flex items-center justify-center flex-shrink-0">
                   <Key className="w-4 h-4 text-purple-700" />
                 </div>
                 <span className="text-[10px] uppercase tracking-wider text-purple-700 font-bold">PERMISOS</span>
               </div>
               <div className="text-[20px] font-bold tabular-nums text-purple-900">{totalPermisos}</div>
               <div className="text-[10px] text-slate-500">
-                {hasRole(profile, 'admin') ? 'Admin total' : `${roles.length} rol${roles.length === 1 ? '' : 'es'}`}
+                {hasRole(profile, 'admin')
+                  ? `de ${totalPermisosDelSistema} · admin total`
+                  : `${roles.length} rol${roles.length === 1 ? '' : 'es'} · ${roles.map((r) => ROLE_LABELS[r]).join(' · ')}`}
               </div>
             </div>
 
-            {/* Datos laborales */}
+            {/* 2 · Datos laborales · siempre · 3 estados: tiene datos · rol pero sin completar · no aplica */}
             {datosLab ? (
               <div className="bg-white border border-sky-200 rounded-xl p-3">
                 <div className="flex items-center gap-2 mb-1">
-                  <div className="w-8 h-8 rounded-lg bg-sky-100 flex items-center justify-center">
+                  <div className="w-8 h-8 rounded-lg bg-sky-100 flex items-center justify-center flex-shrink-0">
                     <Briefcase className="w-4 h-4 text-sky-700" />
                   </div>
                   <span className="text-[10px] uppercase tracking-wider text-sky-700 font-bold">PLANILLA</span>
                 </div>
-                <div className="text-[16px] font-bold text-sky-900">{profile.cargo || datosLab.area || 'Empleado'}</div>
-                <div className="text-[10px] text-slate-500">
-                  desde {datosLab.fechaIngreso.toDate().toLocaleDateString('es-PE')} ·{' '}
-                  {datosLab.salarioBase ? formatCurrencyPEN(datosLab.salarioBase) + '/mes' : 'sin sueldo fijo'}
+                <div className="text-[14px] font-bold text-sky-900 truncate">{profile.cargo || datosLab.area || 'Empleado'}</div>
+                <div className="text-[10px] text-slate-500 truncate">
+                  desde {datosLab.fechaIngreso.toDate().toLocaleDateString('es-PE')}
+                  {datosLab.salarioBase && ` · ${formatCurrencyPEN(datosLab.salarioBase)}/mes`}
                 </div>
               </div>
-            ) : hasAnyRole(profile, ['vendedor', 'gerente', 'comprador', 'almacenero', 'finanzas', 'supervisor']) ? (
-              <div className="bg-white border border-amber-200 rounded-xl p-3 opacity-70">
+            ) : tieneRolPlanilla ? (
+              <div className="bg-white border border-amber-200 rounded-xl p-3">
                 <div className="flex items-center gap-2 mb-1">
-                  <div className="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center">
+                  <div className="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center flex-shrink-0">
                     <Briefcase className="w-4 h-4 text-amber-700" />
                   </div>
                   <span className="text-[10px] uppercase tracking-wider text-amber-700 font-bold">PLANILLA</span>
                 </div>
                 <div className="text-[14px] font-bold text-amber-900">Pendiente</div>
-                <div className="text-[10px] text-slate-500">Completar datos laborales</div>
+                <div className="text-[10px] text-amber-600">Completar datos laborales</div>
               </div>
-            ) : null}
+            ) : (
+              <div className="bg-slate-50 border border-slate-200 rounded-xl p-3">
+                <div className="flex items-center gap-2 mb-1">
+                  <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center flex-shrink-0">
+                    <Briefcase className="w-4 h-4 text-slate-400" />
+                  </div>
+                  <span className="text-[10px] uppercase tracking-wider text-slate-500 font-bold">PLANILLA</span>
+                </div>
+                <div className="text-[14px] font-bold text-slate-400">N/A</div>
+                <div className="text-[10px] text-slate-400">Sin rol de planilla</div>
+              </div>
+            )}
 
-            {/* Datos socio */}
+            {/* 3 · Datos socio · siempre · 3 estados */}
             {datosSoc ? (
               <div className="bg-white border border-violet-200 rounded-xl p-3">
                 <div className="flex items-center gap-2 mb-1">
-                  <div className="w-8 h-8 rounded-lg bg-violet-100 flex items-center justify-center">
+                  <div className="w-8 h-8 rounded-lg bg-violet-100 flex items-center justify-center flex-shrink-0">
                     <Landmark className="w-4 h-4 text-violet-700" />
                   </div>
                   <span className="text-[10px] uppercase tracking-wider text-violet-700 font-bold">SOCIO</span>
                 </div>
                 <div className="text-[20px] font-bold tabular-nums text-violet-900">{datosSoc.porcentajeParticipacion}%</div>
-                <div className="text-[10px] text-slate-500">
+                <div className="text-[10px] text-slate-500 truncate">
                   {datosSoc.rolEnNegocio || 'Socio'} · {TIPO_PARTICIPACION_LABEL[datosSoc.tipoParticipacion].split(' ·')[0]}
                 </div>
               </div>
-            ) : hasRole(profile, 'socio') ? (
-              <div className="bg-white border border-amber-200 rounded-xl p-3 opacity-70">
+            ) : tieneRolSocio ? (
+              <div className="bg-white border border-amber-200 rounded-xl p-3">
                 <div className="flex items-center gap-2 mb-1">
-                  <div className="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center">
+                  <div className="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center flex-shrink-0">
                     <Landmark className="w-4 h-4 text-amber-700" />
                   </div>
                   <span className="text-[10px] uppercase tracking-wider text-amber-700 font-bold">SOCIO</span>
                 </div>
                 <div className="text-[14px] font-bold text-amber-900">Pendiente</div>
-                <div className="text-[10px] text-slate-500">Completar datos de socio</div>
+                <div className="text-[10px] text-amber-600">Completar datos de socio</div>
               </div>
-            ) : null}
+            ) : (
+              <div className="bg-slate-50 border border-slate-200 rounded-xl p-3">
+                <div className="flex items-center gap-2 mb-1">
+                  <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center flex-shrink-0">
+                    <Landmark className="w-4 h-4 text-slate-400" />
+                  </div>
+                  <span className="text-[10px] uppercase tracking-wider text-slate-500 font-bold">SOCIO</span>
+                </div>
+                <div className="text-[14px] font-bold text-slate-400">N/A</div>
+                <div className="text-[10px] text-slate-400">No es socio del negocio</div>
+              </div>
+            )}
 
-            {/* Actividad */}
+            {/* 4 · Actividad · siempre */}
             <div className="bg-white border border-emerald-200 rounded-xl p-3">
               <div className="flex items-center gap-2 mb-1">
-                <div className="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center">
+                <div className="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center flex-shrink-0">
                   <Activity className="w-4 h-4 text-emerald-700" />
                 </div>
-                <span className="text-[10px] uppercase tracking-wider text-emerald-700 font-bold">ÚLTIMA CONEXIÓN</span>
+                <span className="text-[10px] uppercase tracking-wider text-emerald-700 font-bold">CONEXIÓN</span>
               </div>
-              <div className="text-[16px] font-bold text-emerald-900">{conexionLabel}</div>
-              <div className="text-[10px] text-slate-500">
+              <div className="text-[14px] font-bold text-emerald-900 truncate">{conexionLabel}</div>
+              <div className="text-[10px] text-slate-500 truncate">
                 {ultimaConexion ? ultimaConexion.toLocaleDateString('es-PE') : 'Sin registro'}
               </div>
             </div>
