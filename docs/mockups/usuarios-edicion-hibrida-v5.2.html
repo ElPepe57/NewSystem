@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Edición de usuario · canon v5.2 · Camino 3 híbrido modal+drill</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<style>
+  body { font-family: 'Inter', sans-serif; font-variant-numeric: tabular-nums; background: rgb(248 250 252); }
+  .tabular { font-variant-numeric: tabular-nums; }
+</style>
+<script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="p-4 md:p-8 text-slate-900">
+
+<!-- INTRO -->
+<div class="max-w-5xl mx-auto mb-8">
+  <div class="bg-purple-50 border-l-4 border-purple-500 p-5 rounded text-[13px] text-purple-900 mb-6">
+    <strong>🎬 Edición de usuario · Camino 3 híbrido · canon F6 v7.0</strong><br>
+    Edición rápida (datos básicos · roles) → <strong>MODAL flotante</strong> · variant A canon.<br>
+    Sub-perfiles ricos (datosLaborales · datosSocio) → <strong>DRILL FULL-PAGE</strong> · variant B canon.<br>
+    Cada faceta usa su patrón correcto según peso del contenido.
+  </div>
+
+  <!-- Flujo visual -->
+  <div class="bg-white border border-slate-200 rounded-2xl p-5 mb-6">
+    <h2 class="text-[14px] font-bold text-slate-900 mb-3 flex items-center gap-2">
+      <i data-lucide="route" class="w-4 h-4 text-purple-600"></i>
+      Flujo de navegación
+    </h2>
+    <div class="space-y-2 text-[12px] text-slate-700">
+      <div class="flex items-start gap-2">
+        <span class="w-5 h-5 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center font-bold text-[10px] flex-shrink-0">1</span>
+        <span>
+          <strong>/usuarios</strong> → click <code class="bg-slate-100 px-1 rounded">✎ Editar</code>
+          → <strong class="text-purple-700">abre MODAL flotante</strong> con 2 tabs (datos básicos + roles)
+        </span>
+      </div>
+      <div class="flex items-start gap-2">
+        <span class="w-5 h-5 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center font-bold text-[10px] flex-shrink-0">2</span>
+        <span>
+          Si el user tiene rol planilla o socio · en el modal aparecen <strong>cards de acceso</strong> a los sub-perfiles
+        </span>
+      </div>
+      <div class="flex items-start gap-2">
+        <span class="w-5 h-5 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center font-bold text-[10px] flex-shrink-0">3</span>
+        <span>
+          Click en card "Editar datos laborales →" · <strong>NAVEGA a drill page</strong>
+          <code class="bg-slate-100 px-1 rounded">/usuarios/:uid/editar/laborales</code>
+        </span>
+      </div>
+      <div class="flex items-start gap-2">
+        <span class="w-5 h-5 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center font-bold text-[10px] flex-shrink-0">4</span>
+        <span>
+          Click en card "Editar datos de socio →" · navega a
+          <code class="bg-slate-100 px-1 rounded">/usuarios/:uid/editar/socio</code>
+        </span>
+      </div>
+      <div class="flex items-start gap-2">
+        <span class="w-5 h-5 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center font-bold text-[10px] flex-shrink-0">5</span>
+        <span>
+          Guardar en drill page · vuelve a Ficha 360 con success banner (canon)
+        </span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ╔══════════════════════════════════════════════════════════════╗ -->
+<!-- ESTADO A · MODAL EDITAR USUARIO · datos básicos + roles únicamente -->
+<!-- ╚══════════════════════════════════════════════════════════════╝ -->
+<div class="max-w-5xl mx-auto mb-2">
+  <div class="bg-purple-100 text-purple-900 px-3 py-1.5 rounded-t-lg inline-block text-[11px] font-bold">
+    📍 ESTADO A · MODAL flotante · /usuarios → click ✎ Editar · solo 2 tabs (compacto)
+  </div>
+</div>
+<div class="max-w-5xl mx-auto mb-2">
+  <!-- Backdrop simulado -->
+  <div class="bg-slate-900/30 rounded-2xl p-6 sm:p-10">
+    <!-- Modal flotante centrado · FormModalV2 canon · max-w-2xl -->
+    <div class="bg-white border border-purple-200 rounded-2xl shadow-2xl overflow-hidden max-w-2xl mx-auto">
+
+      <!-- Header del modal -->
+      <div class="px-5 py-4 border-b border-slate-100 flex items-center gap-3 bg-purple-50/30">
+        <div class="w-11 h-11 rounded-full bg-gradient-to-br from-purple-500 to-purple-700 flex items-center justify-center text-white font-bold text-[15px]">JL</div>
+        <div class="flex-1">
+          <div class="text-[10px] uppercase tracking-wider text-purple-700 font-bold">Editar usuario</div>
+          <h3 class="text-[15px] font-bold text-slate-900">Jose Luis Lopez Paz</h3>
+        </div>
+        <button class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+
+      <!-- Tabs · SOLO 2: básicos + roles · canon F6 compacto -->
+      <div class="px-5 py-2 bg-slate-50 border-b border-slate-100 flex items-center gap-1 text-[11px]">
+        <button class="px-2.5 py-1 border-b-2 border-purple-600 text-purple-700 font-bold whitespace-nowrap">
+          <i data-lucide="user" class="w-3 h-3 inline mr-1"></i> Datos básicos
+        </button>
+        <button class="px-2.5 py-1 border-b-2 border-transparent text-slate-600 hover:text-slate-900 whitespace-nowrap">
+          <i data-lucide="key" class="w-3 h-3 inline mr-1"></i> Roles + accesos
+        </button>
+      </div>
+
+      <!-- Body del modal · datos básicos -->
+      <div class="p-5 space-y-3">
+
+        <!-- Foto -->
+        <div class="flex items-center gap-3">
+          <div class="w-16 h-16 rounded-full bg-gradient-to-br from-purple-500 to-purple-700 flex items-center justify-center text-white font-bold text-[20px]">JL</div>
+          <div>
+            <button class="text-[11px] text-purple-700 hover:underline">Cambiar foto</button>
+            <div class="text-[10px] text-slate-500">PNG/JPG · max 2MB</div>
+          </div>
+        </div>
+
+        <!-- Nombre -->
+        <div>
+          <label class="text-[10px] uppercase tracking-wider text-slate-500 font-bold block mb-1">Nombre completo *</label>
+          <input type="text" value="Jose Luis Lopez Paz" class="w-full px-3 py-2 text-[12px] border border-slate-300 rounded-lg bg-white focus:border-purple-500 focus:outline-none">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="text-[10px] uppercase tracking-wider text-slate-500 font-bold block mb-1">Email · login *</label>
+            <input type="email" value="jose.lp9205@gmail.com" disabled class="w-full px-3 py-2 text-[12px] border border-slate-300 rounded-lg bg-slate-50 text-slate-500 cursor-not-allowed">
+            <div class="text-[10px] text-slate-500 mt-0.5">El email no se puede cambiar · es el ID de login.</div>
+          </div>
+          <div>
+            <label class="text-[10px] uppercase tracking-wider text-slate-500 font-bold block mb-1">DNI / RUC</label>
+            <input type="text" value="12345678" class="w-full px-3 py-2 text-[12px] border border-slate-300 rounded-lg bg-white focus:border-purple-500 focus:outline-none">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="text-[10px] uppercase tracking-wider text-slate-500 font-bold block mb-1">Teléfono</label>
+            <input type="tel" value="+51 987 654 321" class="w-full px-3 py-2 text-[12px] border border-slate-300 rounded-lg bg-white focus:border-purple-500 focus:outline-none">
+          </div>
+          <div>
+            <label class="text-[10px] uppercase tracking-wider text-slate-500 font-bold block mb-1">Estado</label>
+            <select class="w-full px-3 py-2 text-[12px] border border-slate-300 rounded-lg bg-white">
+              <option>Activo</option>
+              <option>Inactivo</option>
+            </select>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Footer -->
+      <div class="px-5 py-3 bg-slate-50 border-t border-slate-200 flex items-center justify-between">
+        <button class="text-[11px] font-medium text-slate-600">Cancelar</button>
+        <button class="text-[12px] font-bold text-white bg-purple-600 hover:bg-purple-700 px-4 py-1.5 rounded-lg inline-flex items-center gap-1.5">
+          <i data-lucide="check" class="w-3.5 h-3.5"></i> Guardar cambios
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ╔══════════════════════════════════════════════════════════════╗ -->
+<!-- ESTADO B · MODAL TAB "ROLES + ACCESOS" con CARDS DE ACCESO a drill -->
+<!-- ╚══════════════════════════════════════════════════════════════╝ -->
+<div class="max-w-5xl mx-auto mb-2 mt-8">
+  <div class="bg-purple-100 text-purple-900 px-3 py-1.5 rounded-t-lg inline-block text-[11px] font-bold">
+    📍 ESTADO B · click tab "Roles + accesos" · multi-select + cards de acceso a drill pages
+  </div>
+</div>
+<div class="max-w-5xl mx-auto mb-2">
+  <div class="bg-slate-900/30 rounded-2xl p-6 sm:p-10">
+    <div class="bg-white border border-purple-200 rounded-2xl shadow-2xl overflow-hidden max-w-2xl mx-auto">
+
+      <!-- Header (mismo) -->
+      <div class="px-5 py-4 border-b border-slate-100 flex items-center gap-3 bg-purple-50/30">
+        <div class="w-11 h-11 rounded-full bg-gradient-to-br from-purple-500 to-purple-700 flex items-center justify-center text-white font-bold text-[15px]">JL</div>
+        <div class="flex-1">
+          <div class="text-[10px] uppercase tracking-wider text-purple-700 font-bold">Editar usuario</div>
+          <h3 class="text-[15px] font-bold text-slate-900">Jose Luis Lopez Paz</h3>
+        </div>
+        <button class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+
+      <!-- Tabs · Roles activo -->
+      <div class="px-5 py-2 bg-slate-50 border-b border-slate-100 flex items-center gap-1 text-[11px]">
+        <button class="px-2.5 py-1 border-b-2 border-transparent text-slate-600 whitespace-nowrap">Datos básicos</button>
+        <button class="px-2.5 py-1 border-b-2 border-purple-600 text-purple-700 font-bold whitespace-nowrap">
+          <i data-lucide="key" class="w-3 h-3 inline mr-1"></i> Roles + accesos
+        </button>
+      </div>
+
+      <!-- Body · roles + cards de acceso -->
+      <div class="p-5 space-y-3">
+
+        <!-- Multi-select roles (compacto · ya hecho como component) -->
+        <div>
+          <label class="text-[10px] uppercase tracking-wider text-slate-500 font-bold block mb-2">Roles asignados *</label>
+          <p class="text-[11px] text-slate-600 mb-2">Una persona puede tener uno o varios roles. Los permisos se acumulan.</p>
+          <div class="grid grid-cols-3 gap-1.5">
+            <label class="flex items-center gap-1.5 p-1.5 bg-purple-50 border-2 border-purple-400 rounded text-[10px]">
+              <input type="checkbox" checked class="w-3 h-3 accent-purple-600">
+              <i data-lucide="shield" class="w-3 h-3 text-purple-700"></i>
+              <span class="font-bold text-purple-900">Admin</span>
+            </label>
+            <label class="flex items-center gap-1.5 p-1.5 bg-white border-2 border-slate-200 rounded text-[10px]">
+              <input type="checkbox" class="w-3 h-3 accent-purple-600">
+              <i data-lucide="user-check" class="w-3 h-3 text-slate-500"></i>
+              <span class="font-bold text-slate-700">Gerente</span>
+            </label>
+            <label class="flex items-center gap-1.5 p-1.5 bg-sky-50 border-2 border-sky-400 rounded text-[10px]">
+              <input type="checkbox" checked class="w-3 h-3 accent-sky-600">
+              <i data-lucide="briefcase" class="w-3 h-3 text-sky-700"></i>
+              <span class="font-bold text-sky-900">Vendedor</span>
+            </label>
+            <label class="flex items-center gap-1.5 p-1.5 bg-white border-2 border-slate-200 rounded text-[10px]">
+              <input type="checkbox" class="w-3 h-3 accent-purple-600">
+              <i data-lucide="shopping-cart" class="w-3 h-3 text-slate-500"></i>
+              <span class="font-bold text-slate-700">Comprador</span>
+            </label>
+            <label class="flex items-center gap-1.5 p-1.5 bg-white border-2 border-slate-200 rounded text-[10px]">
+              <input type="checkbox" class="w-3 h-3 accent-purple-600">
+              <i data-lucide="package" class="w-3 h-3 text-slate-500"></i>
+              <span class="font-bold text-slate-700">Almacenero</span>
+            </label>
+            <label class="flex items-center gap-1.5 p-1.5 bg-teal-50 border-2 border-teal-400 rounded text-[10px]">
+              <input type="checkbox" checked class="w-3 h-3 accent-teal-600">
+              <i data-lucide="wallet" class="w-3 h-3 text-teal-700"></i>
+              <span class="font-bold text-teal-900">Finanzas</span>
+            </label>
+            <label class="flex items-center gap-1.5 p-1.5 bg-white border-2 border-slate-200 rounded text-[10px]">
+              <input type="checkbox" class="w-3 h-3 accent-purple-600">
+              <i data-lucide="eye" class="w-3 h-3 text-slate-500"></i>
+              <span class="font-bold text-slate-700">Supervisor</span>
+            </label>
+            <label class="flex items-center gap-1.5 p-1.5 bg-violet-50 border-2 border-violet-400 rounded text-[10px]">
+              <input type="checkbox" checked class="w-3 h-3 accent-violet-600">
+              <i data-lucide="landmark" class="w-3 h-3 text-violet-700"></i>
+              <span class="font-bold text-violet-900">Socio</span>
+            </label>
+            <label class="flex items-center gap-1.5 p-1.5 bg-white border-2 border-slate-200 rounded text-[10px]">
+              <input type="checkbox" class="w-3 h-3 accent-purple-600">
+              <i data-lucide="user" class="w-3 h-3 text-slate-500"></i>
+              <span class="font-bold text-slate-700">Invitado</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Permisos resumen -->
+        <div class="bg-emerald-50 border border-emerald-200 rounded-lg p-2.5">
+          <div class="text-[10px] uppercase tracking-wider text-emerald-700 font-bold mb-1 flex items-center gap-1">
+            <i data-lucide="check-circle-2" class="w-3 h-3"></i> Permisos calculados · 32
+          </div>
+          <p class="text-[11px] text-emerald-900">
+            4 roles seleccionados (admin · vendedor · finanzas · socio) · acceso total al sistema.
+          </p>
+        </div>
+
+        <!-- CARDS DE ACCESO A SUB-PERFILES · NUEVO PATRÓN -->
+        <div class="space-y-2 pt-2 border-t border-slate-100">
+          <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Sub-perfiles requeridos</div>
+
+          <!-- Card Datos laborales · porque tiene rol planilla -->
+          <a class="block bg-white border-2 border-sky-200 hover:border-sky-400 rounded-xl p-3 transition-colors cursor-pointer">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-lg bg-sky-100 flex items-center justify-center flex-shrink-0">
+                <i data-lucide="briefcase" class="w-5 h-5 text-sky-700"></i>
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="text-[12px] font-bold text-sky-900">Datos laborales</div>
+                <div class="text-[10px] text-slate-500">CEO · S/ 5,000/mes · desde Ene 2024 · contrato indefinido</div>
+              </div>
+              <div class="flex items-center gap-1 flex-shrink-0">
+                <span class="text-[10px] bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded font-bold">completo</span>
+                <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i>
+              </div>
+            </div>
+            <div class="text-[10px] text-sky-700 mt-1.5 ml-13">
+              Click para editar en página completa →
+            </div>
+          </a>
+
+          <!-- Card Datos socio · porque tiene rol socio -->
+          <a class="block bg-white border-2 border-violet-200 hover:border-violet-400 rounded-xl p-3 transition-colors cursor-pointer">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-lg bg-violet-100 flex items-center justify-center flex-shrink-0">
+                <i data-lucide="landmark" class="w-5 h-5 text-violet-700"></i>
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="text-[12px] font-bold text-violet-900">Datos de socio</div>
+                <div class="text-[10px] text-slate-500">60% participación · Mixta · valor estimado S/ 200,000 · vesting 36m</div>
+              </div>
+              <div class="flex items-center gap-1 flex-shrink-0">
+                <span class="text-[10px] bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded font-bold">completo</span>
+                <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i>
+              </div>
+            </div>
+            <div class="text-[10px] text-violet-700 mt-1.5 ml-13">
+              Click para editar % · tipo participación · aporte de valor →
+            </div>
+          </a>
+
+          <!-- Si NO está completo · variant amber -->
+          <!-- En este ejemplo asumimos que está completo · pero el patrón pendiente sería:
+            <a class="block bg-amber-50/40 border-2 border-amber-300 hover:border-amber-400">
+              <span class="bg-amber-100 text-amber-700">pendiente</span>
+              <div class="text-amber-700">Completá los datos requeridos →</div>
+            </a>
+          -->
+        </div>
+
+      </div>
+
+      <!-- Footer -->
+      <div class="px-5 py-3 bg-slate-50 border-t border-slate-200 flex items-center justify-between">
+        <button class="text-[11px] font-medium text-slate-600">Cancelar</button>
+        <button class="text-[12px] font-bold text-white bg-purple-600 hover:bg-purple-700 px-4 py-1.5 rounded-lg inline-flex items-center gap-1.5">
+          <i data-lucide="check" class="w-3.5 h-3.5"></i> Guardar cambios
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ╔══════════════════════════════════════════════════════════════╗ -->
+<!-- ESTADO C · DRILL PAGE · datos laborales · full-page canon -->
+<!-- ╚══════════════════════════════════════════════════════════════╝ -->
+<div class="max-w-5xl mx-auto mb-2 mt-8">
+  <div class="bg-sky-100 text-sky-900 px-3 py-1.5 rounded-t-lg inline-block text-[11px] font-bold">
+    📍 ESTADO C · DRILL PAGE · click "Editar datos laborales →" · /usuarios/{uid}/editar/laborales
+  </div>
+</div>
+<div class="max-w-5xl mx-auto bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden mb-2">
+
+  <!-- Breadcrumb 4 niveles -->
+  <div class="border-b border-slate-200 px-4 sm:px-6 py-2.5 flex items-center gap-3 bg-slate-50">
+    <div class="flex items-center text-[12px] flex-1">
+      <a class="text-slate-500 hover:text-purple-700 cursor-pointer">Inicio</a>
+      <i data-lucide="chevron-right" class="w-3 h-3 text-slate-300 mx-1.5"></i>
+      <a class="text-slate-500 hover:text-purple-700 cursor-pointer">Usuarios</a>
+      <i data-lucide="chevron-right" class="w-3 h-3 text-slate-300 mx-1.5"></i>
+      <a class="text-slate-500 hover:text-purple-700 cursor-pointer">Jose Luis Lopez Paz</a>
+      <i data-lucide="chevron-right" class="w-3 h-3 text-slate-300 mx-1.5"></i>
+      <span class="text-slate-900 font-semibold">Datos laborales</span>
+    </div>
+    <button class="text-[11px] font-semibold text-slate-600 hover:bg-white border border-slate-200 px-2 py-1 rounded inline-flex items-center gap-1">
+      <i data-lucide="arrow-left" class="w-3 h-3"></i> Volver
+    </button>
+  </div>
+
+  <!-- Header banking-grade · color sky (signature de planilla) -->
+  <div class="px-4 sm:px-6 py-4 sm:py-5 border-b border-slate-100">
+    <div class="flex items-start justify-between gap-3 flex-wrap">
+      <div class="flex items-start gap-3 flex-1 min-w-[260px]">
+        <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-sky-500 to-sky-700 flex items-center justify-center text-white flex-shrink-0">
+          <i data-lucide="briefcase" class="w-5 h-5"></i>
+        </div>
+        <div class="min-w-0">
+          <h1 class="text-2xl font-bold tracking-tight text-slate-900">Datos laborales</h1>
+          <p class="text-[13px] text-slate-500 leading-snug">
+            Jose Luis Lopez Paz · sub-perfil que aparece en módulo Planilla
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Body · form completo del DatosLaboralesForm (con todo el espacio) -->
+  <div class="p-4 sm:p-6 space-y-4">
+
+    <!-- Banner pedagógico -->
+    <div class="bg-sky-50 border border-sky-200 rounded-lg p-3 flex items-start gap-2">
+      <i data-lucide="info" class="w-4 h-4 text-sky-700 mt-0.5"></i>
+      <div class="text-[11px] text-sky-900">
+        Estos datos viven en <strong>/users/{`{uid}`}/private/datosLaborales</strong>. Solo aparecen
+        si el usuario tiene un rol de planilla. Se consultan automáticamente desde el módulo Planilla.
+      </div>
+    </div>
+
+    <div class="grid grid-cols-2 gap-3">
+      <div>
+        <label class="text-[10px] uppercase tracking-wider text-slate-500 font-bold block mb-1">Tipo</label>
+        <select class="w-full px-3 py-2 text-[12px] border border-slate-300 rounded-lg bg-white">
+          <option>Empleado · sueldo fijo</option>
+          <option>Comisionista · sin sueldo fijo</option>
+          <option>Externo · honorarios</option>
+        </select>
+      </div>
+      <div>
+        <label class="text-[10px] uppercase tracking-wider text-slate-500 font-bold block mb-1">Estado</label>
+        <select class="w-full px-3 py-2 text-[12px] border border-slate-300 rounded-lg bg-white">
+          <option>Activo</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-3 gap-3">
+      <div class="col-span-2">
+        <label class="text-[10px] uppercase tracking-wider text-slate-500 font-bold block mb-1">Salario base mensual *</label>
+        <input type="number" value="5000" class="w-full px-3 py-2 text-[12px] tabular border border-slate-300 rounded-lg">
+      </div>
+      <div>
+        <label class="text-[10px] uppercase tracking-wider text-slate-500 font-bold block mb-1">Moneda</label>
+        <select class="w-full px-3 py-2 text-[12px] border border-slate-300 rounded-lg bg-white">
+          <option>PEN</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-2 gap-3">
+      <div>
+        <label class="text-[10px] uppercase tracking-wider text-slate-500 font-bold block mb-1">Fecha de ingreso *</label>
+        <input type="date" value="2024-01-15" class="w-full px-3 py-2 text-[12px] border border-slate-300 rounded-lg">
+      </div>
+      <div>
+        <label class="text-[10px] uppercase tracking-wider text-slate-500 font-bold block mb-1">Tipo de contrato</label>
+        <select class="w-full px-3 py-2 text-[12px] border border-slate-300 rounded-lg bg-white">
+          <option>Indefinido</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-3 gap-3">
+      <div>
+        <label class="text-[10px] uppercase tracking-wider text-slate-500 font-bold block mb-1">Modalidad</label>
+        <select class="w-full px-3 py-2 text-[12px] border border-slate-300 rounded-lg bg-white">
+          <option>Híbrido</option>
+        </select>
+      </div>
+      <div>
+        <label class="text-[10px] uppercase tracking-wider text-slate-500 font-bold block mb-1">Área</label>
+        <input type="text" value="Ejecutivo" class="w-full px-3 py-2 text-[12px] border border-slate-300 rounded-lg">
+      </div>
+      <div>
+        <label class="text-[10px] uppercase tracking-wider text-slate-500 font-bold block mb-1">Vacaciones disponibles</label>
+        <input type="number" value="30" class="w-full px-3 py-2 text-[12px] tabular border border-slate-300 rounded-lg">
+      </div>
+    </div>
+
+    <div>
+      <label class="text-[10px] uppercase tracking-wider text-slate-500 font-bold block mb-1">Notas internas</label>
+      <textarea rows="3" class="w-full px-3 py-2 text-[12px] border border-slate-300 rounded-lg">CEO fundador · sin contrato formal · esquema accionario</textarea>
+    </div>
+
+  </div>
+
+  <!-- Sticky footer · canon F6 drill page -->
+  <div class="sticky bottom-0 px-4 sm:px-6 py-3 bg-slate-50 border-t border-slate-200 flex items-center justify-between flex-wrap gap-2">
+    <button class="text-[11px] font-medium text-slate-600 inline-flex items-center gap-1">
+      <i data-lucide="arrow-left" class="w-3 h-3"></i> Volver sin guardar
+    </button>
+    <div class="flex items-center gap-2">
+      <button class="text-[11px] font-semibold text-rose-700 hover:bg-rose-50 border border-rose-200 px-3 py-1.5 rounded inline-flex items-center gap-1">
+        <i data-lucide="trash-2" class="w-3 h-3"></i> Eliminar sub-perfil
+      </button>
+      <button class="text-[12px] font-bold text-white bg-sky-600 hover:bg-sky-700 px-4 py-1.5 rounded-lg inline-flex items-center gap-1.5">
+        <i data-lucide="check" class="w-3.5 h-3.5"></i> Guardar cambios
+      </button>
+    </div>
+  </div>
+
+</div>
+
+<!-- ╔══════════════════════════════════════════════════════════════╗ -->
+<!-- ESTADO D · DRILL PAGE · datos de socio · full-page con D7 -->
+<!-- ╚══════════════════════════════════════════════════════════════╝ -->
+<div class="max-w-5xl mx-auto mb-2 mt-8">
+  <div class="bg-violet-100 text-violet-900 px-3 py-1.5 rounded-t-lg inline-block text-[11px] font-bold">
+    📍 ESTADO D · DRILL PAGE · click "Editar datos de socio →" · /usuarios/{uid}/editar/socio
+  </div>
+</div>
+<div class="max-w-5xl mx-auto bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden mb-2">
+
+  <!-- Breadcrumb 4 niveles -->
+  <div class="border-b border-slate-200 px-4 sm:px-6 py-2.5 flex items-center gap-3 bg-slate-50">
+    <div class="flex items-center text-[12px] flex-1">
+      <a class="text-slate-500 hover:text-purple-700 cursor-pointer">Inicio</a>
+      <i data-lucide="chevron-right" class="w-3 h-3 text-slate-300 mx-1.5"></i>
+      <a class="text-slate-500 hover:text-purple-700 cursor-pointer">Usuarios</a>
+      <i data-lucide="chevron-right" class="w-3 h-3 text-slate-300 mx-1.5"></i>
+      <a class="text-slate-500 hover:text-purple-700 cursor-pointer">Jose Luis Lopez Paz</a>
+      <i data-lucide="chevron-right" class="w-3 h-3 text-slate-300 mx-1.5"></i>
+      <span class="text-slate-900 font-semibold">Datos de socio</span>
+    </div>
+    <button class="text-[11px] font-semibold text-slate-600 hover:bg-white border border-slate-200 px-2 py-1 rounded inline-flex items-center gap-1">
+      <i data-lucide="arrow-left" class="w-3 h-3"></i> Volver
+    </button>
+  </div>
+
+  <!-- Header banking-grade · color violet -->
+  <div class="px-4 sm:px-6 py-4 sm:py-5 border-b border-slate-100">
+    <div class="flex items-start gap-3 flex-wrap">
+      <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-violet-500 to-violet-700 flex items-center justify-center text-white flex-shrink-0">
+        <i data-lucide="landmark" class="w-5 h-5"></i>
+      </div>
+      <div class="min-w-0">
+        <h1 class="text-2xl font-bold tracking-tight text-slate-900">Datos de socio · participación</h1>
+        <p class="text-[13px] text-slate-500 leading-snug">
+          Jose Luis Lopez Paz · canon D7 · cash + valor (modelo mixto)
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Body · form completo D7 con espacio para vesting · valor · etc -->
+  <div class="p-4 sm:p-6 space-y-4">
+
+    <!-- Banner D7 -->
+    <div class="bg-amber-50 border border-amber-200 rounded-lg p-3 flex items-start gap-2">
+      <i data-lucide="lightbulb" class="w-4 h-4 text-amber-700 mt-0.5"></i>
+      <div class="text-[11px] text-amber-900">
+        <strong>La participación no se mide solo en dinero · también en VALOR aportado.</strong><br>
+        Captura ambas dimensiones: cash · TC personal · know-how · gestión · IP · etc.
+      </div>
+    </div>
+
+    <!-- Datos básicos -->
+    <div class="grid grid-cols-2 gap-3">
+      <div>
+        <label class="text-[10px] uppercase tracking-wider text-slate-500 font-bold block mb-1">% Participación *</label>
+        <input type="number" value="60" class="w-full px-3 py-2 text-[12px] border border-slate-300 rounded-lg">
+      </div>
+      <div>
+        <label class="text-[10px] uppercase tracking-wider text-slate-500 font-bold block mb-1">Fecha ingreso negocio *</label>
+        <input type="date" value="2024-01-15" class="w-full px-3 py-2 text-[12px] border border-slate-300 rounded-lg">
+      </div>
+    </div>
+
+    <div>
+      <label class="text-[10px] uppercase tracking-wider text-slate-500 font-bold block mb-1">Rol descriptivo en negocio</label>
+      <input type="text" value="Co-fundador · CEO" class="w-full px-3 py-2 text-[12px] border border-slate-300 rounded-lg">
+    </div>
+
+    <!-- Tipo participación · 3 cards más grandes porque hay espacio -->
+    <div>
+      <label class="text-[10px] uppercase tracking-wider text-slate-500 font-bold block mb-2">¿Cómo se compone tu participación? *</label>
+      <div class="grid grid-cols-3 gap-3">
+        <label class="flex flex-col items-start gap-2 p-3 bg-white border-2 border-slate-200 rounded-lg cursor-pointer">
+          <input type="radio" name="tipo" class="accent-emerald-600">
+          <div class="flex items-center gap-2">
+            <i data-lucide="banknote" class="w-4 h-4 text-emerald-700"></i>
+            <div class="text-[12px] font-bold text-emerald-900">Cash puro</div>
+          </div>
+          <div class="text-[10px] text-slate-500">Todo aporte es dinero</div>
+        </label>
+        <label class="flex flex-col items-start gap-2 p-3 bg-amber-50 border-2 border-amber-400 rounded-lg cursor-pointer">
+          <input type="radio" name="tipo" checked class="accent-amber-600">
+          <div class="flex items-center gap-2">
+            <i data-lucide="puzzle" class="w-4 h-4 text-amber-700"></i>
+            <div class="text-[12px] font-bold text-amber-900">Mixta</div>
+          </div>
+          <div class="text-[10px] text-slate-500">Cash + valor (lo más común)</div>
+        </label>
+        <label class="flex flex-col items-start gap-2 p-3 bg-white border-2 border-slate-200 rounded-lg cursor-pointer">
+          <input type="radio" name="tipo" class="accent-violet-600">
+          <div class="flex items-center gap-2">
+            <i data-lucide="sparkles" class="w-4 h-4 text-violet-700"></i>
+            <div class="text-[12px] font-bold text-violet-900">Valor puro</div>
+          </div>
+          <div class="text-[10px] text-slate-500">Sin cash · solo valor</div>
+        </label>
+      </div>
+    </div>
+
+    <!-- Tipos de valor · más grid en drill -->
+    <div>
+      <label class="text-[10px] uppercase tracking-wider text-slate-500 font-bold block mb-2">¿Qué tipo de valor aportás? · multi-select *</label>
+      <div class="grid grid-cols-4 gap-2">
+        <label class="flex items-center gap-1.5 p-2 bg-amber-50/40 border-2 border-amber-300 rounded text-[10px]">
+          <input type="checkbox" checked class="w-3 h-3 accent-amber-600">
+          <i data-lucide="brain" class="w-3 h-3 text-amber-700"></i>
+          <span class="font-semibold text-amber-900">Know-how</span>
+        </label>
+        <label class="flex items-center gap-1.5 p-2 bg-amber-50/40 border-2 border-amber-300 rounded text-[10px]">
+          <input type="checkbox" checked class="w-3 h-3 accent-amber-600">
+          <i data-lucide="crown" class="w-3 h-3 text-amber-700"></i>
+          <span class="font-semibold text-amber-900">Gestión / CEO</span>
+        </label>
+        <label class="flex items-center gap-1.5 p-2 bg-white border-2 border-slate-200 rounded text-[10px]">
+          <input type="checkbox" class="w-3 h-3 accent-amber-600">
+          <i data-lucide="network" class="w-3 h-3 text-slate-500"></i>
+          <span class="font-semibold text-slate-700">Networking</span>
+        </label>
+        <label class="flex items-center gap-1.5 p-2 bg-white border-2 border-slate-200 rounded text-[10px]">
+          <input type="checkbox" class="w-3 h-3 accent-amber-600">
+          <i data-lucide="megaphone" class="w-3 h-3 text-slate-500"></i>
+          <span class="font-semibold text-slate-700">Marca personal</span>
+        </label>
+        <label class="flex items-center gap-1.5 p-2 bg-white border-2 border-slate-200 rounded text-[10px]">
+          <input type="checkbox" class="w-3 h-3 accent-amber-600">
+          <i data-lucide="lightbulb" class="w-3 h-3 text-slate-500"></i>
+          <span class="font-semibold text-slate-700">Idea/IP</span>
+        </label>
+        <label class="flex items-center gap-1.5 p-2 bg-white border-2 border-slate-200 rounded text-[10px]">
+          <input type="checkbox" class="w-3 h-3 accent-amber-600">
+          <i data-lucide="clock" class="w-3 h-3 text-slate-500"></i>
+          <span class="font-semibold text-slate-700">Tiempo</span>
+        </label>
+        <label class="flex items-center gap-1.5 p-2 bg-white border-2 border-slate-200 rounded text-[10px]">
+          <input type="checkbox" class="w-3 h-3 accent-amber-600">
+          <i data-lucide="building" class="w-3 h-3 text-slate-500"></i>
+          <span class="font-semibold text-slate-700">Activos</span>
+        </label>
+        <label class="flex items-center gap-1.5 p-2 bg-white border-2 border-slate-200 rounded text-[10px]">
+          <input type="checkbox" class="w-3 h-3 accent-amber-600">
+          <i data-lucide="more-horizontal" class="w-3 h-3 text-slate-500"></i>
+          <span class="font-semibold text-slate-700">Otro</span>
+        </label>
+      </div>
+    </div>
+
+    <div>
+      <label class="text-[10px] uppercase tracking-wider text-slate-500 font-bold block mb-1">Describí el aporte de valor *</label>
+      <textarea rows="3" class="w-full px-3 py-2 text-[12px] border border-slate-300 rounded-lg">20 años en industria skincare · CEO full-time sin sueldo de mercado desde Ene 2024 · cartera personal de 500 clientes premium aportada al negocio</textarea>
+    </div>
+
+    <div class="grid grid-cols-2 gap-3">
+      <div>
+        <label class="text-[10px] uppercase tracking-wider text-slate-500 font-bold block mb-1 inline-flex items-center gap-1">
+          Valuación estimada
+          <span class="text-[9px] bg-slate-100 px-1 rounded">opcional</span>
+        </label>
+        <div class="relative">
+          <span class="absolute left-3 top-1/2 -translate-y-1/2 text-[12px] font-bold text-slate-400">S/</span>
+          <input type="number" value="200000" class="w-full pl-10 pr-3 py-2 text-[14px] tabular border border-slate-300 rounded-lg">
+        </div>
+      </div>
+      <div>
+        <label class="text-[10px] uppercase tracking-wider text-slate-500 font-bold block mb-1">Vesting · tipo</label>
+        <select class="w-full px-3 py-2 text-[12px] border border-slate-300 rounded-lg bg-white">
+          <option>Lineal mensual</option>
+          <option>Inmediato</option>
+          <option>Con cliff</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Preview · cap table contribution -->
+    <div class="bg-violet-50/40 border border-violet-200 rounded-lg p-3">
+      <div class="text-[10px] uppercase tracking-wider text-violet-700 font-bold mb-1.5 flex items-center gap-1.5">
+        <i data-lucide="eye" class="w-3 h-3"></i> Preview · cap table del negocio (José aporta)
+      </div>
+      <div class="bg-white border border-violet-100 rounded p-2 text-[11px] space-y-1">
+        <div class="flex justify-between"><span class="text-slate-700">Cash aportado neto</span><span class="tabular font-semibold text-emerald-700">S/ 100,000</span></div>
+        <div class="flex justify-between"><span class="text-slate-700">TC personal vigente</span><span class="tabular font-semibold text-rose-700">S/ 45,000</span></div>
+        <div class="flex justify-between"><span class="text-slate-700">Valor aportado (est.)</span><span class="tabular font-semibold text-amber-700">S/ 200,000</span></div>
+        <div class="flex justify-between border-t border-violet-100 pt-1 font-bold"><span class="text-violet-900">Total comprometido</span><span class="tabular text-violet-900">S/ 345,000</span></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Sticky footer -->
+  <div class="sticky bottom-0 px-4 sm:px-6 py-3 bg-slate-50 border-t border-slate-200 flex items-center justify-between flex-wrap gap-2">
+    <button class="text-[11px] font-medium text-slate-600 inline-flex items-center gap-1">
+      <i data-lucide="arrow-left" class="w-3 h-3"></i> Volver sin guardar
+    </button>
+    <div class="flex items-center gap-2">
+      <button class="text-[11px] font-semibold text-rose-700 hover:bg-rose-50 border border-rose-200 px-3 py-1.5 rounded inline-flex items-center gap-1">
+        <i data-lucide="trash-2" class="w-3 h-3"></i> Eliminar sub-perfil
+      </button>
+      <button class="text-[12px] font-bold text-white bg-violet-600 hover:bg-violet-700 px-4 py-1.5 rounded-lg inline-flex items-center gap-1.5">
+        <i data-lucide="check" class="w-3.5 h-3.5"></i> Guardar cambios
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- DECISIONES CANON -->
+<div class="max-w-5xl mx-auto mt-12 bg-white border border-slate-200 rounded-2xl p-6 space-y-3 text-[12px]">
+  <h2 class="text-[16px] font-bold text-slate-900 flex items-center gap-2">
+    <i data-lucide="check-circle" class="w-5 h-5 text-emerald-600"></i>
+    Decisiones canon · Camino 3 híbrido
+  </h2>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-[11px]">
+    <div>
+      <strong class="text-purple-700 block mb-1">D1 · Modal compacto (variant A · canon F6)</strong>
+      <ul class="ml-4 list-disc text-slate-600 space-y-0.5">
+        <li>FormModalV2 en portal (NO Modal legacy) · backdrop slate-900/30</li>
+        <li>max-w-2xl · shadow-2xl · centrado en viewport</li>
+        <li>SOLO 2 tabs: Datos básicos + Roles + accesos</li>
+        <li>Forms cortos · 1 pantalla sin scroll</li>
+      </ul>
+    </div>
+    <div>
+      <strong class="text-purple-700 block mb-1">D2 · Cards de acceso a drill (NUEVO patrón)</strong>
+      <ul class="ml-4 list-disc text-slate-600 space-y-0.5">
+        <li>Aparecen al pie del tab "Roles + accesos"</li>
+        <li>Solo si el user tiene roles que requieren sub-perfil</li>
+        <li>Border colorido (sky/violet) según faceta</li>
+        <li>Estado completo (emerald) o pendiente (amber)</li>
+        <li>Click → navigate a drill page · sin perder modal</li>
+      </ul>
+    </div>
+    <div>
+      <strong class="text-purple-700 block mb-1">D3 · Drill page sub-perfil (variant B · canon F6)</strong>
+      <ul class="ml-4 list-disc text-slate-600 space-y-0.5">
+        <li>Ruta nueva /usuarios/:uid/editar/laborales o /socio</li>
+        <li>Breadcrumb 4 niveles · Inicio › Usuarios › Jose › Datos X</li>
+        <li>Header banking-grade con color signature del sub-perfil</li>
+        <li>Body con espacio para todos los campos · grid 2-3 cols</li>
+        <li>Sticky footer canon F6 con Guardar+Eliminar+Volver</li>
+      </ul>
+    </div>
+    <div>
+      <strong class="text-purple-700 block mb-1">D4 · Color signature por nivel</strong>
+      <ul class="ml-4 list-disc text-slate-600 space-y-0.5">
+        <li>Modal Usuario · purple (consistente con módulo)</li>
+        <li>Drill laborales · sky (planilla)</li>
+        <li>Drill socio · violet (inversionistas)</li>
+        <li>Avatar gradient mantiene el rol principal del user</li>
+      </ul>
+    </div>
+    <div class="md:col-span-2">
+      <strong class="text-purple-700 block mb-1">D5 · Navegación · flujo natural</strong>
+      <ul class="ml-4 list-disc text-slate-600 space-y-0.5">
+        <li>Click "Volver" en drill → vuelve a /usuarios (NO al modal · pierde stack)</li>
+        <li>Si querés editar varias facetas: 1 viaje al modal · luego navegar a drills · cada uno guarda independientemente</li>
+        <li>Después de guardar en drill · banner success "Datos guardados" + breadcrumb back</li>
+        <li>Esto evita modal-dentro-de-modal · canon estricto</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3 class="text-[14px] font-bold text-slate-900 mt-4 pt-3 border-t border-slate-100">
+    🛠 Cambios técnicos para implementar (si aprobás)
+  </h3>
+  <ol class="list-decimal ml-4 text-[11px] text-slate-700 space-y-1">
+    <li><strong>Usuarios.tsx modal</strong> · cambiar <code class="bg-slate-100 px-1 rounded">&lt;Modal&gt;</code> legacy por <code class="bg-slate-100 px-1 rounded">&lt;FormModalV2&gt;</code> canon · eliminar tabs Datos laborales y Datos socio · mantener Datos básicos + Roles</li>
+    <li><strong>Cards de acceso</strong> nuevo bloque en tab "Roles + accesos" · 1 card por sub-perfil aplicable · estado completo/pendiente · href a drill</li>
+    <li><strong>Nueva ruta</strong> <code class="bg-slate-100 px-1 rounded">/usuarios/:uid/editar/laborales</code> · página propia · usa <code class="bg-slate-100 px-1 rounded">DatosLaboralesForm</code> ya creado</li>
+    <li><strong>Nueva ruta</strong> <code class="bg-slate-100 px-1 rounded">/usuarios/:uid/editar/socio</code> · usa <code class="bg-slate-100 px-1 rounded">DatosSocioForm</code> ya creado</li>
+    <li><strong>Sticky footer</strong> en drill pages · Volver + Eliminar sub-perfil + Guardar (color signature de la faceta)</li>
+    <li><strong>Color sky-600</strong> para botón Guardar en drill laborales · <strong>violet-600</strong> para Guardar en drill socio · purple-600 para modal Usuario</li>
+  </ol>
+
+  <div class="bg-emerald-50 border border-emerald-200 rounded p-3 mt-3 text-[11px] text-emerald-900">
+    <strong>Estimación:</strong> ~6-8 horas · 2 páginas nuevas + refactor del modal · servicios ya están listos (datosLaborales · datosSocio · Fase 2 completa).
+  </div>
+</div>
+
+<footer class="text-center text-[11px] text-slate-500 pt-8 max-w-5xl mx-auto">
+  Mockup canon v5.2 · Edición de usuario híbrida modal+drill · 2026-05-25
+</footer>
+
+<script>if (window.lucide) window.lucide.createIcons();</script>
+</body>
+</html>
