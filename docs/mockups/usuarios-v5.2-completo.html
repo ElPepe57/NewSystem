@@ -1,0 +1,1546 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Usuarios v5.2 · mockup INTEGRAL · canon completo</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<style>
+  body { font-family: 'Inter', sans-serif; font-variant-numeric: tabular-nums; background: rgb(248 250 252); }
+  .tabular { font-variant-numeric: tabular-nums; }
+  .step-arrow::after {
+    content: '↓';
+    display: block;
+    text-align: center;
+    font-size: 24px;
+    color: rgb(139 92 246);
+    margin: 12px 0;
+  }
+</style>
+<script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="p-4 md:p-8 text-slate-900">
+
+<!-- ╔══════════════════════════════════════════════════════════════╗ -->
+<!-- ÍNDICE                                                            -->
+<!-- ╚══════════════════════════════════════════════════════════════╝ -->
+<div class="max-w-5xl mx-auto mb-8">
+  <div class="bg-purple-50 border-l-4 border-purple-500 p-5 rounded text-[13px] text-purple-900 mb-6">
+    <strong>🎬 Mockup INTEGRAL · módulo /usuarios · canon v5.2 completo</strong><br>
+    Storyboard cohesionado de TODO el módulo · 6 actos · 25+ estados. Diseño antes de codear ·
+    cero parches · solución integral 360. Color signature <strong>purple</strong> (consistencia
+    con el módulo de personas).
+  </div>
+
+  <!-- Índice navegable -->
+  <div class="bg-white border border-slate-200 rounded-2xl p-5">
+    <h2 class="text-[14px] font-bold text-slate-900 mb-3 flex items-center gap-2">
+      <i data-lucide="list" class="w-4 h-4 text-purple-600"></i>
+      Índice del storyboard
+    </h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-[11px]">
+      <div>
+        <strong class="text-purple-700">ACTO 1 · Listado principal</strong>
+        <ul class="ml-3 mt-1 list-disc text-slate-600 space-y-0.5">
+          <li>1.1 Shell con 5 tabs internas</li>
+          <li>1.2 Tab Resumen (default)</li>
+          <li>1.3 Tab Socios · cap table</li>
+          <li>1.4 Tab Planilla</li>
+          <li>1.5 Tab Accesos · seguridad</li>
+          <li>1.6 Tab Configuración (NUEVO)</li>
+          <li>1.7 Estado vacío + loading</li>
+        </ul>
+      </div>
+      <div>
+        <strong class="text-purple-700">ACTO 2 · Creación</strong>
+        <ul class="ml-3 mt-1 list-disc text-slate-600 space-y-0.5">
+          <li>2.1 Modal "Nuevo usuario"</li>
+          <li>2.2 Modal "Invitar por email" (NUEVO)</li>
+        </ul>
+        <strong class="text-purple-700 block mt-3">ACTO 3 · Edición híbrida</strong>
+        <ul class="ml-3 mt-1 list-disc text-slate-600 space-y-0.5">
+          <li>3.1 Modal Editar · básicos</li>
+          <li>3.2 Modal Editar · roles + cards drill</li>
+          <li>3.3 Drill page · Datos laborales</li>
+          <li>3.4 Drill page · Datos de socio</li>
+        </ul>
+      </div>
+      <div>
+        <strong class="text-purple-700">ACTO 4 · Detalle</strong>
+        <ul class="ml-3 mt-1 list-disc text-slate-600 space-y-0.5">
+          <li>4.1 Ficha 360 (refinada)</li>
+        </ul>
+        <strong class="text-purple-700 block mt-3">ACTO 5 · Acciones operativas</strong>
+        <ul class="ml-3 mt-1 list-disc text-slate-600 space-y-0.5">
+          <li>5.1 Aprobar invitado</li>
+          <li>5.2 Reset password</li>
+          <li>5.3 Desconectar sesión</li>
+          <li>5.4 Eliminar usuario</li>
+          <li>5.5 Desconectar todas</li>
+        </ul>
+      </div>
+      <div>
+        <strong class="text-purple-700">ACTO 6 · Mobile responsive</strong>
+        <ul class="ml-3 mt-1 list-disc text-slate-600 space-y-0.5">
+          <li>6.1 Listado mobile (cards stack)</li>
+          <li>6.2 Tabs scroll-x mobile</li>
+          <li>6.3 Drill pages responsive</li>
+        </ul>
+        <strong class="text-purple-700 block mt-3">📋 Decisiones canon</strong>
+        <ul class="ml-3 mt-1 list-disc text-slate-600 space-y-0.5">
+          <li>D1-D12 al final del documento</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ╔══════════════════════════════════════════════════════════════╗ -->
+<!-- ACTO 1 · LISTADO PRINCIPAL                                       -->
+<!-- ╚══════════════════════════════════════════════════════════════╝ -->
+<div class="max-w-5xl mx-auto my-12">
+  <div class="border-t border-slate-300 relative">
+    <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-slate-50 px-4">
+      <h2 class="text-[18px] font-bold text-slate-900 flex items-center gap-2">
+        <i data-lucide="film" class="w-5 h-5 text-purple-600"></i>
+        ACTO 1 · Listado principal
+      </h2>
+    </div>
+  </div>
+  <p class="text-[12px] text-slate-600 text-center mt-6">
+    Shell completo del módulo · 5 tabs internas según necesidad del admin.
+  </p>
+</div>
+
+<!-- ESTADO 1.2 · TAB RESUMEN (default) -->
+<div class="max-w-5xl mx-auto mb-2">
+  <div class="bg-purple-100 text-purple-900 px-3 py-1.5 rounded-t-lg inline-block text-[11px] font-bold">
+    📍 ESTADO 1.2 · Tab "Resumen" (default) · vista global con KPIs + filtros + lista cards
+  </div>
+</div>
+<div class="max-w-5xl mx-auto bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden mb-2">
+
+  <!-- Breadcrumb canon S9.D1 -->
+  <div class="border-b border-slate-200 px-4 sm:px-6 py-2.5 flex items-center gap-3 bg-slate-50">
+    <div class="flex items-center text-[12px] flex-1">
+      <a class="text-slate-500 hover:text-purple-700 cursor-pointer">Inicio</a>
+      <i data-lucide="chevron-right" class="w-3 h-3 text-slate-300 mx-1.5"></i>
+      <span class="text-slate-900 font-semibold">Usuarios</span>
+    </div>
+  </div>
+
+  <!-- Header banking-grade · icon purple + 3-tier actions -->
+  <div class="px-4 sm:px-6 py-4 sm:py-5 border-b border-slate-100">
+    <div class="flex items-start justify-between gap-3 flex-wrap">
+      <div class="flex items-start gap-3 flex-1 min-w-[260px]">
+        <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-purple-500 to-purple-700 flex items-center justify-center text-white flex-shrink-0">
+          <i data-lucide="users" class="w-5 h-5"></i>
+        </div>
+        <div class="min-w-0">
+          <h1 class="text-2xl font-bold tracking-tight text-slate-900">Usuarios</h1>
+          <p class="text-[13px] text-slate-500 leading-snug">
+            Personas internas del negocio · multi-rol + sub-perfiles dinámicos
+          </p>
+        </div>
+      </div>
+      <div class="flex items-center gap-1.5 flex-wrap justify-end">
+        <button class="text-[11px] font-semibold text-slate-600 hover:bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-lg flex items-center gap-1.5">
+          <i data-lucide="refresh-cw" class="w-3 h-3"></i>
+          <span class="hidden sm:inline">Actualizar</span>
+        </button>
+        <button class="text-[11px] font-semibold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 px-3 py-1.5 rounded-lg flex items-center gap-1.5">
+          <i data-lucide="mail" class="w-3 h-3"></i>
+          <span class="hidden md:inline">Invitar por email</span>
+        </button>
+        <button class="text-[11px] font-bold text-white bg-purple-600 hover:bg-purple-700 px-3 py-1.5 rounded-lg flex items-center gap-1.5">
+          <i data-lucide="user-plus" class="w-3 h-3"></i>
+          Nuevo usuario
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- KPI STRIP · 4 cards canon N1+N2 -->
+  <div class="px-4 sm:px-6 py-3 sm:py-4 border-b border-slate-100 grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-3">
+    <div class="bg-gradient-to-br from-purple-50 to-purple-100/40 ring-1 ring-purple-200/50 rounded-2xl p-3 sm:p-4">
+      <div class="flex items-center justify-between mb-1.5">
+        <span class="text-[9px] uppercase tracking-wider text-purple-700 font-bold">TOTAL USUARIOS</span>
+        <i data-lucide="users" class="w-3.5 h-3.5 text-purple-700"></i>
+      </div>
+      <div class="text-2xl font-bold tabular text-purple-900">5</div>
+      <div class="text-[10px] text-purple-700">4 activos · 1 inactivo</div>
+    </div>
+    <div class="bg-gradient-to-br from-emerald-50 to-emerald-100/40 ring-1 ring-emerald-200/50 rounded-2xl p-3 sm:p-4">
+      <div class="flex items-center justify-between mb-1.5">
+        <span class="text-[9px] uppercase tracking-wider text-emerald-700 font-bold">ACTIVOS</span>
+        <i data-lucide="user-check" class="w-3.5 h-3.5 text-emerald-700"></i>
+      </div>
+      <div class="text-2xl font-bold tabular text-emerald-900">4</div>
+      <div class="text-[10px] text-emerald-700">80% del total</div>
+    </div>
+    <div class="bg-gradient-to-br from-violet-50 to-violet-100/40 ring-1 ring-violet-200/50 rounded-2xl p-3 sm:p-4">
+      <div class="flex items-center justify-between mb-1.5">
+        <span class="text-[9px] uppercase tracking-wider text-violet-700 font-bold">SOCIOS</span>
+        <i data-lucide="landmark" class="w-3.5 h-3.5 text-violet-700"></i>
+      </div>
+      <div class="text-2xl font-bold tabular text-violet-900">2</div>
+      <div class="text-[10px] text-violet-700">100% participación cuadrada</div>
+    </div>
+    <div class="bg-gradient-to-br from-amber-50 to-amber-100/40 ring-1 ring-amber-200/50 rounded-2xl p-3 sm:p-4">
+      <div class="flex items-center justify-between mb-1.5">
+        <span class="text-[9px] uppercase tracking-wider text-amber-700 font-bold">MULTI-ROL</span>
+        <i data-lucide="key" class="w-3.5 h-3.5 text-amber-700"></i>
+      </div>
+      <div class="text-2xl font-bold tabular text-amber-900">2</div>
+      <div class="text-[10px] text-amber-700">tienen 2+ roles</div>
+    </div>
+  </div>
+
+  <!-- BANNER solicitudes pendientes -->
+  <div class="bg-amber-50 border-b border-amber-200 px-4 sm:px-6 py-3 flex items-center justify-between gap-3 flex-wrap">
+    <div class="flex items-center gap-3 min-w-0">
+      <div class="p-2 bg-amber-100 rounded-xl flex-shrink-0">
+        <i data-lucide="clock" class="h-4 w-4 text-amber-600"></i>
+      </div>
+      <div class="min-w-0">
+        <p class="text-[12px] font-semibold text-amber-800">1 solicitud pendiente de aprobación</p>
+        <p class="text-[10px] text-amber-600 truncate">Pedro Sánchez · pedro@vitaskin.pe</p>
+      </div>
+    </div>
+    <button class="text-[11px] font-bold text-white bg-amber-600 hover:bg-amber-700 px-3 py-1.5 rounded-lg inline-flex items-center gap-1.5">
+      <i data-lucide="user-check" class="h-3 w-3"></i>
+      Revisar
+    </button>
+  </div>
+
+  <!-- TABS INTERNAS · canon F1 · 5 tabs según necesidad -->
+  <div class="border-b border-slate-200 px-3 sm:px-6 flex items-center gap-1 overflow-x-auto bg-white" style="scrollbar-width: none;">
+    <button class="px-3 sm:px-4 py-3 text-[12px] border-b-2 border-purple-600 text-purple-700 font-semibold flex items-center gap-1.5 whitespace-nowrap">
+      <i data-lucide="home" class="w-3.5 h-3.5"></i> Resumen
+    </button>
+    <button class="px-3 sm:px-4 py-3 text-[12px] border-b-2 border-transparent text-slate-600 font-medium hover:text-slate-900 flex items-center gap-1.5 whitespace-nowrap">
+      <i data-lucide="landmark" class="w-3.5 h-3.5"></i> Socios <span class="text-[9px] bg-violet-100 text-violet-700 px-1.5 py-0.5 rounded font-bold">2</span>
+    </button>
+    <button class="px-3 sm:px-4 py-3 text-[12px] border-b-2 border-transparent text-slate-600 font-medium hover:text-slate-900 flex items-center gap-1.5 whitespace-nowrap">
+      <i data-lucide="briefcase" class="w-3.5 h-3.5"></i> Planilla <span class="text-[9px] bg-sky-100 text-sky-700 px-1.5 py-0.5 rounded font-bold">3</span>
+    </button>
+    <button class="px-3 sm:px-4 py-3 text-[12px] border-b-2 border-transparent text-slate-600 font-medium hover:text-slate-900 flex items-center gap-1.5 whitespace-nowrap">
+      <i data-lucide="shield" class="w-3.5 h-3.5"></i> Accesos
+    </button>
+    <button class="px-3 sm:px-4 py-3 text-[12px] border-b-2 border-transparent text-slate-600 font-medium hover:text-slate-900 flex items-center gap-1.5 whitespace-nowrap">
+      <i data-lucide="settings-2" class="w-3.5 h-3.5"></i> Configuración
+    </button>
+  </div>
+
+  <!-- BODY · filtros + lista -->
+  <div class="p-4 sm:p-6 space-y-4">
+
+    <!-- Filtros canon -->
+    <div class="space-y-2">
+      <div class="flex items-center gap-2 flex-wrap">
+        <div class="flex-1 min-w-[200px] flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5">
+          <i data-lucide="search" class="w-3.5 h-3.5 text-slate-500 flex-shrink-0"></i>
+          <input type="text" placeholder="Buscar por nombre · email · DNI" class="flex-1 bg-transparent border-none text-[12px] focus:outline-none">
+        </div>
+        <select class="text-[11px] border border-slate-200 rounded-lg px-2 py-1.5 bg-white">
+          <option>Todos los estados</option>
+          <option>Solo activos</option>
+          <option>Solo inactivos</option>
+        </select>
+      </div>
+      <div class="flex items-center gap-1.5 overflow-x-auto pb-1 -mx-1 px-1" style="scrollbar-width: none;">
+        <span class="text-[10px] text-slate-500 font-semibold uppercase tracking-wider flex-shrink-0">Rol:</span>
+        <button class="text-[10px] px-2 py-1 rounded font-bold bg-purple-100 text-purple-700 whitespace-nowrap">Todos · 5</button>
+        <button class="text-[10px] px-2 py-1 rounded font-bold bg-white border border-slate-200 text-slate-600 whitespace-nowrap inline-flex items-center gap-1">Admin <span class="text-[9px] bg-slate-100 px-1 rounded">1</span></button>
+        <button class="text-[10px] px-2 py-1 rounded font-bold bg-white border border-slate-200 text-slate-600 whitespace-nowrap inline-flex items-center gap-1">Socio <span class="text-[9px] bg-slate-100 px-1 rounded">2</span></button>
+        <button class="text-[10px] px-2 py-1 rounded font-bold bg-white border border-slate-200 text-slate-600 whitespace-nowrap inline-flex items-center gap-1">Vendedor <span class="text-[9px] bg-slate-100 px-1 rounded">2</span></button>
+        <button class="text-[10px] px-2 py-1 rounded font-bold bg-white border border-slate-200 text-slate-600 whitespace-nowrap inline-flex items-center gap-1">Finanzas <span class="text-[9px] bg-slate-100 px-1 rounded">1</span></button>
+        <button class="text-[10px] px-2 py-1 rounded font-bold bg-white border border-slate-200 text-slate-600 whitespace-nowrap inline-flex items-center gap-1">Otros · 3</button>
+      </div>
+      <div class="text-[10px] text-slate-500">Mostrando <strong>5</strong> de 5 usuarios</div>
+    </div>
+
+    <!-- Lista de usuarios · cards apiladas canon F4 -->
+    <div class="divide-y divide-slate-100 border-t border-slate-100">
+
+      <!-- User 1 · José LP · multi-rol -->
+      <div class="py-3 sm:py-4 hover:bg-slate-50/50">
+        <div class="flex items-start gap-3 sm:gap-4 flex-wrap">
+          <div class="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-purple-500 to-purple-700 flex items-center justify-center text-white font-bold text-[14px] sm:text-[16px] flex-shrink-0">JL</div>
+          <div class="flex-1 min-w-[200px]">
+            <div class="flex items-center gap-2 flex-wrap mb-0.5">
+              <div class="text-[14px] sm:text-[15px] font-bold text-slate-900">Jose Luis Lopez Paz <span class="ml-1.5 text-[10px] text-purple-700 font-semibold">(tú)</span></div>
+              <span class="text-[9px] bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded font-bold">activo</span>
+            </div>
+            <div class="text-[11px] sm:text-[12px] text-slate-500 truncate">jose.lp9205@gmail.com · DNI 12345678</div>
+            <div class="flex items-center gap-1 flex-wrap mt-1.5">
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-100 text-purple-700"><i data-lucide="shield" class="w-2.5 h-2.5"></i>Admin</span>
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-violet-100 text-violet-700"><i data-lucide="landmark" class="w-2.5 h-2.5"></i>Socio · 60%</span>
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-sky-100 text-sky-700"><i data-lucide="briefcase" class="w-2.5 h-2.5"></i>CEO · planilla</span>
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-teal-100 text-teal-700"><i data-lucide="wallet" class="w-2.5 h-2.5"></i>Finanzas</span>
+            </div>
+          </div>
+          <div class="flex items-center gap-1 flex-shrink-0 flex-wrap">
+            <button class="inline-flex items-center gap-1 px-2.5 py-1.5 text-[11px] font-semibold text-slate-600 hover:text-purple-700 hover:bg-purple-50 rounded"><i data-lucide="eye" class="w-3 h-3"></i>Ficha 360</button>
+            <button class="inline-flex items-center gap-1 px-2.5 py-1.5 text-[11px] font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded"><i data-lucide="edit-2" class="w-3 h-3"></i>Editar</button>
+            <button class="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded"><i data-lucide="more-horizontal" class="w-3.5 h-3.5"></i></button>
+          </div>
+        </div>
+      </div>
+
+      <!-- User 2 · María González · silent partner -->
+      <div class="py-3 sm:py-4 hover:bg-slate-50/50">
+        <div class="flex items-start gap-3 sm:gap-4 flex-wrap">
+          <div class="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-violet-400 to-violet-600 flex items-center justify-center text-white font-bold text-[14px] sm:text-[16px] flex-shrink-0">MG</div>
+          <div class="flex-1 min-w-[200px]">
+            <div class="flex items-center gap-2 flex-wrap mb-0.5">
+              <div class="text-[14px] sm:text-[15px] font-bold text-slate-900">María González</div>
+              <span class="text-[9px] bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded font-bold">activo</span>
+              <span class="text-[9px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded font-bold inline-flex items-center gap-1"><i data-lucide="moon" class="w-2.5 h-2.5"></i>silent partner</span>
+            </div>
+            <div class="text-[11px] sm:text-[12px] text-slate-500 truncate">maria@vitaskin.pe · sin DNI</div>
+            <div class="flex items-center gap-1 flex-wrap mt-1.5">
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-violet-100 text-violet-700"><i data-lucide="landmark" class="w-2.5 h-2.5"></i>Socio · 30% · valor puro</span>
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-600"><i data-lucide="user" class="w-2.5 h-2.5"></i>Invitado</span>
+            </div>
+          </div>
+          <div class="flex items-center gap-1 flex-shrink-0 flex-wrap">
+            <button class="inline-flex items-center gap-1 px-2.5 py-1.5 text-[11px] font-semibold text-slate-600 hover:text-purple-700 hover:bg-purple-50 rounded"><i data-lucide="eye" class="w-3 h-3"></i>Ficha 360</button>
+            <button class="inline-flex items-center gap-1 px-2.5 py-1.5 text-[11px] font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded"><i data-lucide="edit-2" class="w-3 h-3"></i>Editar</button>
+            <button class="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded"><i data-lucide="more-horizontal" class="w-3.5 h-3.5"></i></button>
+          </div>
+        </div>
+      </div>
+
+      <!-- User 3 · Carlos Mendoza · solo vendedor -->
+      <div class="py-3 sm:py-4 hover:bg-slate-50/50">
+        <div class="flex items-start gap-3 sm:gap-4 flex-wrap">
+          <div class="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-sky-400 to-sky-600 flex items-center justify-center text-white font-bold text-[14px] sm:text-[16px] flex-shrink-0">CM</div>
+          <div class="flex-1 min-w-[200px]">
+            <div class="flex items-center gap-2 flex-wrap mb-0.5">
+              <div class="text-[14px] sm:text-[15px] font-bold text-slate-900">Carlos Mendoza</div>
+              <span class="text-[9px] bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded font-bold">activo</span>
+            </div>
+            <div class="text-[11px] sm:text-[12px] text-slate-500 truncate">carlos.m@vitaskin.pe · DNI 87654321</div>
+            <div class="flex items-center gap-1 flex-wrap mt-1.5">
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-sky-100 text-sky-700"><i data-lucide="briefcase" class="w-2.5 h-2.5"></i>Vendedor · planilla</span>
+            </div>
+          </div>
+          <div class="flex items-center gap-1 flex-shrink-0 flex-wrap">
+            <button class="inline-flex items-center gap-1 px-2.5 py-1.5 text-[11px] font-semibold text-slate-600 hover:text-purple-700 hover:bg-purple-50 rounded"><i data-lucide="eye" class="w-3 h-3"></i>Ficha 360</button>
+            <button class="inline-flex items-center gap-1 px-2.5 py-1.5 text-[11px] font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded"><i data-lucide="edit-2" class="w-3 h-3"></i>Editar</button>
+            <button class="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded"><i data-lucide="more-horizontal" class="w-3.5 h-3.5"></i></button>
+          </div>
+        </div>
+      </div>
+
+      <!-- User 4 · Carmen · multi-rol no socia -->
+      <div class="py-3 sm:py-4 hover:bg-slate-50/50">
+        <div class="flex items-start gap-3 sm:gap-4 flex-wrap">
+          <div class="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-white font-bold text-[14px] sm:text-[16px] flex-shrink-0">CR</div>
+          <div class="flex-1 min-w-[200px]">
+            <div class="flex items-center gap-2 flex-wrap mb-0.5">
+              <div class="text-[14px] sm:text-[15px] font-bold text-slate-900">Carmen Rodríguez</div>
+              <span class="text-[9px] bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded font-bold">activo</span>
+            </div>
+            <div class="text-[11px] sm:text-[12px] text-slate-500 truncate">carmen.r@vitaskin.pe</div>
+            <div class="flex items-center gap-1 flex-wrap mt-1.5">
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-sky-100 text-sky-700"><i data-lucide="briefcase" class="w-2.5 h-2.5"></i>Vendedor</span>
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-orange-100 text-orange-700"><i data-lucide="package" class="w-2.5 h-2.5"></i>Almacenero</span>
+            </div>
+          </div>
+          <div class="flex items-center gap-1 flex-shrink-0 flex-wrap">
+            <button class="inline-flex items-center gap-1 px-2.5 py-1.5 text-[11px] font-semibold text-slate-600 hover:text-purple-700 hover:bg-purple-50 rounded"><i data-lucide="eye" class="w-3 h-3"></i>Ficha 360</button>
+            <button class="inline-flex items-center gap-1 px-2.5 py-1.5 text-[11px] font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded"><i data-lucide="edit-2" class="w-3 h-3"></i>Editar</button>
+            <button class="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded"><i data-lucide="more-horizontal" class="w-3.5 h-3.5"></i></button>
+          </div>
+        </div>
+      </div>
+
+      <!-- User 5 · Pedro · pending invitado -->
+      <div class="py-3 sm:py-4 hover:bg-slate-50/50 opacity-70">
+        <div class="flex items-start gap-3 sm:gap-4 flex-wrap">
+          <div class="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-slate-300 flex items-center justify-center text-white font-bold text-[14px] sm:text-[16px] flex-shrink-0">PS</div>
+          <div class="flex-1 min-w-[200px]">
+            <div class="flex items-center gap-2 flex-wrap mb-0.5">
+              <div class="text-[14px] sm:text-[15px] font-bold text-slate-700">Pedro Sánchez</div>
+              <span class="text-[9px] bg-slate-200 text-slate-600 px-1.5 py-0.5 rounded font-bold">inactivo</span>
+              <span class="text-[9px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded font-bold">solicitud pending</span>
+            </div>
+            <div class="text-[11px] sm:text-[12px] text-slate-500 truncate">pedro@vitaskin.pe · pendiente aprobación</div>
+            <div class="flex items-center gap-1 flex-wrap mt-1.5">
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-600"><i data-lucide="user" class="w-2.5 h-2.5"></i>Invitado</span>
+            </div>
+          </div>
+          <div class="flex items-center gap-1 flex-shrink-0 flex-wrap">
+            <button class="inline-flex items-center gap-1 px-2.5 py-1.5 text-[11px] font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded"><i data-lucide="check-circle" class="w-3 h-3"></i>Aprobar</button>
+            <button class="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded"><i data-lucide="more-horizontal" class="w-3.5 h-3.5"></i></button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+<div class="step-arrow"></div>
+
+<!-- ESTADO 1.3 · TAB SOCIOS -->
+<div class="max-w-5xl mx-auto mb-2">
+  <div class="bg-violet-100 text-violet-900 px-3 py-1.5 rounded-t-lg inline-block text-[11px] font-bold">
+    📍 ESTADO 1.3 · Tab "Socios" · vista económica · cap table + cross-link Inversionistas
+  </div>
+</div>
+<div class="max-w-5xl mx-auto bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden mb-2">
+  <!-- Shell igual (breadcrumb · header · KPI strip · tabs) -->
+  <div class="border-b border-slate-200 px-4 sm:px-6 py-2.5 bg-slate-50 text-[12px]">
+    <a class="text-slate-500">Inicio</a> <i data-lucide="chevron-right" class="w-3 h-3 inline text-slate-300 mx-1.5"></i>
+    <a class="text-slate-500">Usuarios</a> <i data-lucide="chevron-right" class="w-3 h-3 inline text-slate-300 mx-1.5"></i>
+    <span class="text-slate-900 font-semibold">Socios</span>
+  </div>
+  <!-- Tabs · Socios activo -->
+  <div class="border-b border-slate-200 px-3 sm:px-6 flex items-center gap-1 overflow-x-auto bg-white" style="scrollbar-width: none;">
+    <button class="px-3 sm:px-4 py-3 text-[12px] border-b-2 border-transparent text-slate-600 font-medium hover:text-slate-900 flex items-center gap-1.5 whitespace-nowrap"><i data-lucide="home" class="w-3.5 h-3.5"></i> Resumen</button>
+    <button class="px-3 sm:px-4 py-3 text-[12px] border-b-2 border-violet-600 text-violet-700 font-semibold flex items-center gap-1.5 whitespace-nowrap"><i data-lucide="landmark" class="w-3.5 h-3.5"></i> Socios <span class="text-[9px] bg-violet-100 text-violet-700 px-1.5 py-0.5 rounded font-bold">2</span></button>
+    <button class="px-3 sm:px-4 py-3 text-[12px] border-b-2 border-transparent text-slate-600 font-medium hover:text-slate-900 flex items-center gap-1.5 whitespace-nowrap"><i data-lucide="briefcase" class="w-3.5 h-3.5"></i> Planilla <span class="text-[9px] bg-sky-100 text-sky-700 px-1.5 py-0.5 rounded font-bold">3</span></button>
+    <button class="px-3 sm:px-4 py-3 text-[12px] border-b-2 border-transparent text-slate-600 font-medium hover:text-slate-900 flex items-center gap-1.5 whitespace-nowrap"><i data-lucide="shield" class="w-3.5 h-3.5"></i> Accesos</button>
+    <button class="px-3 sm:px-4 py-3 text-[12px] border-b-2 border-transparent text-slate-600 font-medium hover:text-slate-900 flex items-center gap-1.5 whitespace-nowrap"><i data-lucide="settings-2" class="w-3.5 h-3.5"></i> Configuración</button>
+  </div>
+
+  <div class="p-4 sm:p-6 space-y-4">
+    <!-- Sub-KPI strip · cap table -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+      <div class="bg-gradient-to-br from-violet-50 to-violet-100/40 ring-1 ring-violet-200/50 rounded-2xl p-4">
+        <div class="text-[10px] uppercase tracking-wider text-violet-700 font-bold">% PARTICIPACIÓN ACUMULADO</div>
+        <div class="text-2xl font-bold tabular text-violet-900 mt-1">100%</div>
+        <div class="text-[10px] text-violet-700">✓ cuadra · cap table sano</div>
+      </div>
+      <div class="bg-gradient-to-br from-emerald-50 to-emerald-100/40 ring-1 ring-emerald-200/50 rounded-2xl p-4">
+        <div class="text-[10px] uppercase tracking-wider text-emerald-700 font-bold">CASH NETO INVERTIDO</div>
+        <div class="text-2xl font-bold tabular text-emerald-900 mt-1">S/ 100,000</div>
+        <div class="text-[10px] text-emerald-700">aportes lifetime · 2 socios</div>
+      </div>
+      <div class="bg-gradient-to-br from-amber-50 to-amber-100/40 ring-1 ring-amber-200/50 rounded-2xl p-4">
+        <div class="text-[10px] uppercase tracking-wider text-amber-700 font-bold">VALOR APORTADO (est.)</div>
+        <div class="text-2xl font-bold tabular text-amber-900 mt-1">S/ 350,000</div>
+        <div class="text-[10px] text-amber-700">D7 · know-how + cartera + IP</div>
+      </div>
+    </div>
+
+    <!-- Cross-link al módulo Inversionistas -->
+    <a class="block bg-violet-50/30 border border-violet-200 rounded-lg p-3 hover:bg-violet-50">
+      <div class="flex items-center justify-between gap-2">
+        <div class="flex items-center gap-2">
+          <i data-lucide="trending-up" class="w-4 h-4 text-violet-700"></i>
+          <span class="text-[12px] text-violet-900"><strong>Ver vista ejecutiva completa</strong> · módulo Inversionistas · ROI · trayectoria · soberanía</span>
+        </div>
+        <i data-lucide="arrow-right" class="w-4 h-4 text-violet-700"></i>
+      </div>
+    </a>
+
+    <!-- Lista de socios con breakdown completo -->
+    <div class="bg-white border border-violet-200 rounded-2xl overflow-hidden">
+      <div class="bg-gradient-to-r from-violet-50 to-violet-100/40 px-4 py-2.5 border-b border-violet-200/50">
+        <h3 class="text-[12px] font-bold text-violet-900 flex items-center gap-2">
+          <i data-lucide="users" class="w-3.5 h-3.5"></i>
+          Socios del negocio
+        </h3>
+      </div>
+      <div class="divide-y divide-slate-100">
+        <!-- Socio 1 · José LP · Mixta -->
+        <div class="p-4">
+          <div class="flex items-start gap-3 mb-3">
+            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-purple-700 flex items-center justify-center text-white text-[13px] font-bold flex-shrink-0">JL</div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2 flex-wrap">
+                <div class="text-[13px] font-bold text-slate-900">Jose Luis Lopez Paz</div>
+                <span class="text-[9px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded font-bold inline-flex items-center gap-1"><i data-lucide="puzzle" class="w-2.5 h-2.5"></i>Mixta</span>
+              </div>
+              <div class="text-[10px] text-slate-500">Co-fundador · CEO · desde Ene 2024</div>
+            </div>
+            <div class="text-right flex-shrink-0">
+              <div class="text-[18px] font-bold tabular text-violet-900">60%</div>
+              <div class="text-[9px] text-slate-500">participación</div>
+            </div>
+          </div>
+          <div class="grid grid-cols-3 gap-1.5 text-[10px]">
+            <div class="bg-emerald-50/40 border border-emerald-200 rounded p-2">
+              <div class="uppercase font-bold text-emerald-700 text-[9px]">Cash</div>
+              <div class="tabular font-bold text-emerald-900">S/ 100,000</div>
+            </div>
+            <div class="bg-rose-50/40 border border-rose-200 rounded p-2">
+              <div class="uppercase font-bold text-rose-700 text-[9px]">TC personal</div>
+              <div class="tabular font-bold text-rose-900">S/ 45,000</div>
+            </div>
+            <div class="bg-amber-50/40 border border-amber-200 rounded p-2">
+              <div class="uppercase font-bold text-amber-700 text-[9px]">Valor est.</div>
+              <div class="tabular font-bold text-amber-900">S/ 200,000</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Socio 2 · María González · Valor puro -->
+        <div class="p-4 bg-amber-50/20">
+          <div class="flex items-start gap-3 mb-3">
+            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-violet-400 to-violet-600 flex items-center justify-center text-white text-[13px] font-bold flex-shrink-0">MG</div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2 flex-wrap">
+                <div class="text-[13px] font-bold text-slate-900">María González</div>
+                <span class="text-[9px] bg-violet-100 text-violet-700 px-1.5 py-0.5 rounded font-bold inline-flex items-center gap-1"><i data-lucide="sparkles" class="w-2.5 h-2.5"></i>Valor puro</span>
+                <span class="text-[9px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded font-bold">silent partner</span>
+              </div>
+              <div class="text-[10px] text-slate-500">Co-fundadora · cartera comercial · desde Mar 2024</div>
+            </div>
+            <div class="text-right flex-shrink-0">
+              <div class="text-[18px] font-bold tabular text-violet-900">30%</div>
+              <div class="text-[9px] text-slate-500">participación</div>
+            </div>
+          </div>
+          <div class="grid grid-cols-3 gap-1.5 text-[10px]">
+            <div class="bg-slate-50 border border-slate-200 rounded p-2">
+              <div class="uppercase font-bold text-slate-500 text-[9px]">Cash</div>
+              <div class="tabular font-bold text-slate-400">—</div>
+            </div>
+            <div class="bg-slate-50 border border-slate-200 rounded p-2">
+              <div class="uppercase font-bold text-slate-500 text-[9px]">TC personal</div>
+              <div class="tabular font-bold text-slate-400">—</div>
+            </div>
+            <div class="bg-amber-50/40 border border-amber-200 rounded p-2">
+              <div class="uppercase font-bold text-amber-700 text-[9px]">Valor est.</div>
+              <div class="tabular font-bold text-amber-900">S/ 150,000</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="step-arrow"></div>
+
+<!-- ESTADO 1.4 · TAB PLANILLA -->
+<div class="max-w-5xl mx-auto mb-2">
+  <div class="bg-sky-100 text-sky-900 px-3 py-1.5 rounded-t-lg inline-block text-[11px] font-bold">
+    📍 ESTADO 1.4 · Tab "Planilla" · vista laboral · cargos · sueldos · cross-link Planilla
+  </div>
+</div>
+<div class="max-w-5xl mx-auto bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden mb-2">
+  <div class="border-b border-slate-200 px-4 sm:px-6 py-2.5 bg-slate-50 text-[12px]">
+    <a class="text-slate-500">Inicio</a> <i data-lucide="chevron-right" class="w-3 h-3 inline text-slate-300 mx-1.5"></i>
+    <a class="text-slate-500">Usuarios</a> <i data-lucide="chevron-right" class="w-3 h-3 inline text-slate-300 mx-1.5"></i>
+    <span class="text-slate-900 font-semibold">Planilla</span>
+  </div>
+  <div class="border-b border-slate-200 px-3 sm:px-6 flex items-center gap-1 overflow-x-auto bg-white" style="scrollbar-width: none;">
+    <button class="px-3 sm:px-4 py-3 text-[12px] border-b-2 border-transparent text-slate-600 font-medium flex items-center gap-1.5 whitespace-nowrap"><i data-lucide="home" class="w-3.5 h-3.5"></i>Resumen</button>
+    <button class="px-3 sm:px-4 py-3 text-[12px] border-b-2 border-transparent text-slate-600 font-medium flex items-center gap-1.5 whitespace-nowrap"><i data-lucide="landmark" class="w-3.5 h-3.5"></i>Socios</button>
+    <button class="px-3 sm:px-4 py-3 text-[12px] border-b-2 border-sky-600 text-sky-700 font-semibold flex items-center gap-1.5 whitespace-nowrap"><i data-lucide="briefcase" class="w-3.5 h-3.5"></i>Planilla <span class="text-[9px] bg-sky-100 text-sky-700 px-1.5 py-0.5 rounded font-bold">3</span></button>
+    <button class="px-3 sm:px-4 py-3 text-[12px] border-b-2 border-transparent text-slate-600 font-medium flex items-center gap-1.5 whitespace-nowrap"><i data-lucide="shield" class="w-3.5 h-3.5"></i>Accesos</button>
+    <button class="px-3 sm:px-4 py-3 text-[12px] border-b-2 border-transparent text-slate-600 font-medium flex items-center gap-1.5 whitespace-nowrap"><i data-lucide="settings-2" class="w-3.5 h-3.5"></i>Configuración</button>
+  </div>
+
+  <div class="p-4 sm:p-6 space-y-4">
+    <!-- Sub-KPI strip · planilla -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+      <div class="bg-gradient-to-br from-sky-50 to-sky-100/40 ring-1 ring-sky-200/50 rounded-2xl p-4">
+        <div class="text-[10px] uppercase tracking-wider text-sky-700 font-bold">EN PLANILLA</div>
+        <div class="text-2xl font-bold tabular text-sky-900 mt-1">3</div>
+        <div class="text-[10px] text-sky-700">con datos laborales activos</div>
+      </div>
+      <div class="bg-gradient-to-br from-emerald-50 to-emerald-100/40 ring-1 ring-emerald-200/50 rounded-2xl p-4">
+        <div class="text-[10px] uppercase tracking-wider text-emerald-700 font-bold">SUMA SUELDOS MES</div>
+        <div class="text-2xl font-bold tabular text-emerald-900 mt-1">S/ 8,300</div>
+        <div class="text-[10px] text-emerald-700">próximo pago · día 30</div>
+      </div>
+      <div class="bg-gradient-to-br from-amber-50 to-amber-100/40 ring-1 ring-amber-200/50 rounded-2xl p-4">
+        <div class="text-[10px] uppercase tracking-wider text-amber-700 font-bold">VACACIONES DISP.</div>
+        <div class="text-2xl font-bold tabular text-amber-900 mt-1">45</div>
+        <div class="text-[10px] text-amber-700">días acumulados · 3 empleados</div>
+      </div>
+    </div>
+
+    <a class="block bg-sky-50/30 border border-sky-200 rounded-lg p-3 hover:bg-sky-50">
+      <div class="flex items-center justify-between gap-2">
+        <div class="flex items-center gap-2">
+          <i data-lucide="briefcase" class="w-4 h-4 text-sky-700"></i>
+          <span class="text-[12px] text-sky-900"><strong>Ver módulo Planilla completo</strong> · boletas · adelantos · comisiones</span>
+        </div>
+        <i data-lucide="arrow-right" class="w-4 h-4 text-sky-700"></i>
+      </div>
+    </a>
+
+    <!-- Tabla planilla · desktop / cards mobile -->
+    <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden">
+      <table class="w-full text-[12px] hidden md:table">
+        <thead class="bg-slate-50 border-b border-slate-200">
+          <tr>
+            <th class="px-3 py-2 text-left text-[10px] uppercase tracking-wider font-bold text-slate-700">Empleado</th>
+            <th class="px-3 py-2 text-left text-[10px] uppercase tracking-wider font-bold text-slate-700">Cargo</th>
+            <th class="px-3 py-2 text-left text-[10px] uppercase tracking-wider font-bold text-slate-700">Contrato</th>
+            <th class="px-3 py-2 text-right text-[10px] uppercase tracking-wider font-bold text-slate-700">Sueldo</th>
+            <th class="px-3 py-2 text-center text-[10px] uppercase tracking-wider font-bold text-slate-700">Desde</th>
+            <th class="px-3 py-2 text-center text-[10px] uppercase tracking-wider font-bold text-slate-700">Vacaciones</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+          <tr>
+            <td class="px-3 py-2"><div class="flex items-center gap-2"><div class="w-7 h-7 rounded-full bg-gradient-to-br from-purple-500 to-purple-700 flex items-center justify-center text-white text-[10px] font-bold">JL</div><div><div class="font-semibold">José LP</div><div class="text-[9px] text-slate-500">jose.lp@gmail.com</div></div></div></td>
+            <td class="px-3 py-2 font-semibold text-sky-900">CEO</td>
+            <td class="px-3 py-2 text-slate-600">Indefinido</td>
+            <td class="px-3 py-2 text-right tabular font-semibold">S/ 5,000</td>
+            <td class="px-3 py-2 text-center text-slate-600">Ene 2024</td>
+            <td class="px-3 py-2 text-center text-slate-600">30 días</td>
+          </tr>
+          <tr>
+            <td class="px-3 py-2"><div class="flex items-center gap-2"><div class="w-7 h-7 rounded-full bg-gradient-to-br from-sky-400 to-sky-600 flex items-center justify-center text-white text-[10px] font-bold">CM</div><div><div class="font-semibold">Carlos M.</div><div class="text-[9px] text-slate-500">carlos.m@vitaskin.pe</div></div></div></td>
+            <td class="px-3 py-2 font-semibold text-sky-900">Vendedor</td>
+            <td class="px-3 py-2 text-slate-600">Plazo fijo</td>
+            <td class="px-3 py-2 text-right tabular font-semibold">S/ 1,800</td>
+            <td class="px-3 py-2 text-center text-slate-600">Mar 2024</td>
+            <td class="px-3 py-2 text-center text-slate-600">10 días</td>
+          </tr>
+          <tr>
+            <td class="px-3 py-2"><div class="flex items-center gap-2"><div class="w-7 h-7 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-white text-[10px] font-bold">CR</div><div><div class="font-semibold">Carmen R.</div><div class="text-[9px] text-slate-500">carmen.r@vitaskin.pe</div></div></div></td>
+            <td class="px-3 py-2 font-semibold text-sky-900">Vendedora · almacén backup</td>
+            <td class="px-3 py-2 text-slate-600">Indefinido</td>
+            <td class="px-3 py-2 text-right tabular font-semibold">S/ 1,500</td>
+            <td class="px-3 py-2 text-center text-slate-600">Mar 2024</td>
+            <td class="px-3 py-2 text-center text-slate-600">5 días</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="step-arrow"></div>
+
+<!-- ESTADO 1.5 · TAB ACCESOS -->
+<div class="max-w-5xl mx-auto mb-2">
+  <div class="bg-slate-200 text-slate-900 px-3 py-1.5 rounded-t-lg inline-block text-[11px] font-bold">
+    📍 ESTADO 1.5 · Tab "Accesos" · seguridad · sesiones · última conexión
+  </div>
+</div>
+<div class="max-w-5xl mx-auto bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden mb-2">
+  <div class="border-b border-slate-200 px-4 sm:px-6 py-2.5 bg-slate-50 text-[12px]">
+    <a class="text-slate-500">Inicio</a> <i data-lucide="chevron-right" class="w-3 h-3 inline text-slate-300 mx-1.5"></i>
+    <a class="text-slate-500">Usuarios</a> <i data-lucide="chevron-right" class="w-3 h-3 inline text-slate-300 mx-1.5"></i>
+    <span class="text-slate-900 font-semibold">Accesos</span>
+  </div>
+  <div class="border-b border-slate-200 px-3 sm:px-6 flex items-center gap-1 overflow-x-auto bg-white" style="scrollbar-width: none;">
+    <button class="px-3 sm:px-4 py-3 text-[12px] border-b-2 border-transparent text-slate-600 font-medium flex items-center gap-1.5 whitespace-nowrap"><i data-lucide="home" class="w-3.5 h-3.5"></i>Resumen</button>
+    <button class="px-3 sm:px-4 py-3 text-[12px] border-b-2 border-transparent text-slate-600 font-medium flex items-center gap-1.5 whitespace-nowrap"><i data-lucide="landmark" class="w-3.5 h-3.5"></i>Socios</button>
+    <button class="px-3 sm:px-4 py-3 text-[12px] border-b-2 border-transparent text-slate-600 font-medium flex items-center gap-1.5 whitespace-nowrap"><i data-lucide="briefcase" class="w-3.5 h-3.5"></i>Planilla</button>
+    <button class="px-3 sm:px-4 py-3 text-[12px] border-b-2 border-slate-700 text-slate-900 font-semibold flex items-center gap-1.5 whitespace-nowrap"><i data-lucide="shield" class="w-3.5 h-3.5"></i>Accesos</button>
+    <button class="px-3 sm:px-4 py-3 text-[12px] border-b-2 border-transparent text-slate-600 font-medium flex items-center gap-1.5 whitespace-nowrap"><i data-lucide="settings-2" class="w-3.5 h-3.5"></i>Configuración</button>
+  </div>
+
+  <div class="p-4 sm:p-6 space-y-4">
+    <!-- KPIs seguridad -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+      <div class="bg-gradient-to-br from-emerald-50 to-emerald-100/40 ring-1 ring-emerald-200/50 rounded-2xl p-4">
+        <div class="text-[10px] uppercase tracking-wider text-emerald-700 font-bold">SESIONES ACTIVAS</div>
+        <div class="text-2xl font-bold tabular text-emerald-900 mt-1">3</div>
+        <div class="text-[10px] text-emerald-700">conectados ahora</div>
+      </div>
+      <div class="bg-gradient-to-br from-amber-50 to-amber-100/40 ring-1 ring-amber-200/50 rounded-2xl p-4">
+        <div class="text-[10px] uppercase tracking-wider text-amber-700 font-bold">INACTIVOS +30D</div>
+        <div class="text-2xl font-bold tabular text-amber-900 mt-1">1</div>
+        <div class="text-[10px] text-amber-700">Pedro Sánchez · hace 9 sem</div>
+      </div>
+      <div class="bg-gradient-to-br from-rose-50 to-rose-100/40 ring-1 ring-rose-200/50 rounded-2xl p-4">
+        <div class="text-[10px] uppercase tracking-wider text-rose-700 font-bold">PASSWORD ANTIGUO</div>
+        <div class="text-2xl font-bold tabular text-rose-900 mt-1">2</div>
+        <div class="text-[10px] text-rose-700">+90 días sin cambio</div>
+      </div>
+    </div>
+
+    <a class="block bg-slate-100 border border-slate-200 rounded-lg p-3 hover:bg-slate-200/50">
+      <div class="flex items-center justify-between gap-2">
+        <div class="flex items-center gap-2">
+          <i data-lucide="activity" class="w-4 h-4 text-slate-700"></i>
+          <span class="text-[12px] text-slate-900"><strong>Ver Auditoría completa</strong> · log de actividad · cambios de permisos</span>
+        </div>
+        <i data-lucide="arrow-right" class="w-4 h-4 text-slate-700"></i>
+      </div>
+    </a>
+
+    <!-- Acciones globales -->
+    <div class="bg-rose-50/30 border border-rose-200 rounded-lg p-3 flex items-center justify-between gap-2 flex-wrap">
+      <div class="text-[11px] text-rose-900">
+        <strong>Acción global:</strong> desconectar TODAS las sesiones activas (excepto la tuya)
+      </div>
+      <button class="text-[11px] font-bold text-white bg-rose-600 hover:bg-rose-700 px-3 py-1.5 rounded-lg inline-flex items-center gap-1.5">
+        <i data-lucide="wifi-off" class="w-3 h-3"></i> Desconectar todas
+      </button>
+    </div>
+
+    <!-- Tabla accesos -->
+    <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden">
+      <table class="w-full text-[12px] hidden md:table">
+        <thead class="bg-slate-50 border-b border-slate-200">
+          <tr>
+            <th class="px-3 py-2 text-left text-[10px] uppercase font-bold text-slate-700">Usuario</th>
+            <th class="px-3 py-2 text-left text-[10px] uppercase font-bold text-slate-700">Última conexión</th>
+            <th class="px-3 py-2 text-left text-[10px] uppercase font-bold text-slate-700">Sesiones activas</th>
+            <th class="px-3 py-2 text-left text-[10px] uppercase font-bold text-slate-700">Password</th>
+            <th class="px-3 py-2 text-right text-[10px] uppercase font-bold text-slate-700">Acciones</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+          <tr>
+            <td class="px-3 py-2 font-semibold">José LP</td>
+            <td class="px-3 py-2"><span class="text-[10px] bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded font-bold">Ahora</span></td>
+            <td class="px-3 py-2"><span class="text-[10px] bg-emerald-50 text-emerald-700 px-1.5 py-0.5 rounded">2 sesiones</span></td>
+            <td class="px-3 py-2 text-slate-600">Hace 45 días</td>
+            <td class="px-3 py-2 text-right">
+              <button class="text-[10px] text-amber-700 hover:underline">Reset password</button>
+            </td>
+          </tr>
+          <tr>
+            <td class="px-3 py-2 font-semibold">Carlos M.</td>
+            <td class="px-3 py-2 text-slate-600">Hace 2h</td>
+            <td class="px-3 py-2"><span class="text-[10px] bg-emerald-50 text-emerald-700 px-1.5 py-0.5 rounded">1 sesión</span></td>
+            <td class="px-3 py-2 text-slate-600">Hace 95 días <span class="text-[9px] text-rose-700">⚠</span></td>
+            <td class="px-3 py-2 text-right">
+              <button class="text-[10px] text-rose-700 hover:underline mr-2">Desconectar</button>
+              <button class="text-[10px] text-amber-700 hover:underline">Reset</button>
+            </td>
+          </tr>
+          <tr>
+            <td class="px-3 py-2 font-semibold">Carmen R.</td>
+            <td class="px-3 py-2 text-slate-600">Hace 1d</td>
+            <td class="px-3 py-2 text-slate-500">Sin sesiones</td>
+            <td class="px-3 py-2 text-slate-600">Hace 30 días</td>
+            <td class="px-3 py-2 text-right">
+              <button class="text-[10px] text-amber-700 hover:underline">Reset</button>
+            </td>
+          </tr>
+          <tr class="opacity-60">
+            <td class="px-3 py-2 font-semibold text-slate-600">Pedro S.</td>
+            <td class="px-3 py-2"><span class="text-[10px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded font-bold">Hace 9 sem</span></td>
+            <td class="px-3 py-2 text-slate-500">—</td>
+            <td class="px-3 py-2 text-slate-500">—</td>
+            <td class="px-3 py-2 text-right text-[10px] text-slate-400">(inactivo)</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="step-arrow"></div>
+
+<!-- ESTADO 1.6 · TAB CONFIGURACIÓN (NUEVO) -->
+<div class="max-w-5xl mx-auto mb-2">
+  <div class="bg-indigo-100 text-indigo-900 px-3 py-1.5 rounded-t-lg inline-block text-[11px] font-bold">
+    📍 ESTADO 1.6 · Tab "Configuración" NUEVO · políticas + plantillas + permisos custom
+  </div>
+</div>
+<div class="max-w-5xl mx-auto bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden mb-2">
+  <div class="border-b border-slate-200 px-4 sm:px-6 py-2.5 bg-slate-50 text-[12px]">
+    <a class="text-slate-500">Inicio</a> <i data-lucide="chevron-right" class="w-3 h-3 inline text-slate-300 mx-1.5"></i>
+    <a class="text-slate-500">Usuarios</a> <i data-lucide="chevron-right" class="w-3 h-3 inline text-slate-300 mx-1.5"></i>
+    <span class="text-slate-900 font-semibold">Configuración</span>
+  </div>
+  <div class="border-b border-slate-200 px-3 sm:px-6 flex items-center gap-1 overflow-x-auto bg-white" style="scrollbar-width: none;">
+    <button class="px-3 sm:px-4 py-3 text-[12px] border-b-2 border-transparent text-slate-600 font-medium flex items-center gap-1.5 whitespace-nowrap"><i data-lucide="home" class="w-3.5 h-3.5"></i>Resumen</button>
+    <button class="px-3 sm:px-4 py-3 text-[12px] border-b-2 border-transparent text-slate-600 font-medium flex items-center gap-1.5 whitespace-nowrap"><i data-lucide="landmark" class="w-3.5 h-3.5"></i>Socios</button>
+    <button class="px-3 sm:px-4 py-3 text-[12px] border-b-2 border-transparent text-slate-600 font-medium flex items-center gap-1.5 whitespace-nowrap"><i data-lucide="briefcase" class="w-3.5 h-3.5"></i>Planilla</button>
+    <button class="px-3 sm:px-4 py-3 text-[12px] border-b-2 border-transparent text-slate-600 font-medium flex items-center gap-1.5 whitespace-nowrap"><i data-lucide="shield" class="w-3.5 h-3.5"></i>Accesos</button>
+    <button class="px-3 sm:px-4 py-3 text-[12px] border-b-2 border-indigo-600 text-indigo-700 font-semibold flex items-center gap-1.5 whitespace-nowrap"><i data-lucide="settings-2" class="w-3.5 h-3.5"></i>Configuración</button>
+  </div>
+
+  <div class="p-4 sm:p-6 space-y-4">
+    <!-- §1 · Política de password -->
+    <div class="bg-white border border-slate-200 rounded-2xl p-4">
+      <h3 class="text-[13px] font-bold text-slate-900 mb-3 flex items-center gap-2">
+        <i data-lucide="lock" class="w-4 h-4 text-indigo-700"></i>
+        Política de password
+      </h3>
+      <div class="grid grid-cols-2 gap-3 text-[11px]">
+        <div>
+          <label class="text-[10px] uppercase font-bold text-slate-500 block mb-1">Longitud mínima</label>
+          <input type="number" value="8" class="w-full px-3 py-2 text-[12px] border border-slate-300 rounded-lg tabular">
+        </div>
+        <div>
+          <label class="text-[10px] uppercase font-bold text-slate-500 block mb-1">Caducidad (días)</label>
+          <input type="number" value="90" class="w-full px-3 py-2 text-[12px] border border-slate-300 rounded-lg tabular">
+        </div>
+      </div>
+      <div class="mt-3 space-y-1.5 text-[11px]">
+        <label class="flex items-center gap-2"><input type="checkbox" checked class="accent-indigo-600"> Requerir mayúsculas</label>
+        <label class="flex items-center gap-2"><input type="checkbox" checked class="accent-indigo-600"> Requerir números</label>
+        <label class="flex items-center gap-2"><input type="checkbox" class="accent-indigo-600"> Requerir caracteres especiales</label>
+        <label class="flex items-center gap-2"><input type="checkbox" checked class="accent-indigo-600"> Bloquear reutilización de últimos 3 passwords</label>
+      </div>
+    </div>
+
+    <!-- §2 · Plantillas de roles (combinaciones predefinidas) -->
+    <div class="bg-white border border-slate-200 rounded-2xl p-4">
+      <div class="flex items-center justify-between mb-3 flex-wrap gap-2">
+        <h3 class="text-[13px] font-bold text-slate-900 flex items-center gap-2">
+          <i data-lucide="layers" class="w-4 h-4 text-indigo-700"></i>
+          Plantillas de roles · combinaciones predefinidas
+        </h3>
+        <button class="text-[10px] text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 px-2 py-1 rounded inline-flex items-center gap-1"><i data-lucide="plus" class="w-3 h-3"></i>Nueva plantilla</button>
+      </div>
+      <p class="text-[10px] text-slate-500 mb-3">Plantillas de combinaciones de roles que usás frecuentemente al crear usuarios.</p>
+      <div class="space-y-2">
+        <div class="border border-slate-200 rounded-lg p-3 flex items-center justify-between gap-2">
+          <div class="flex-1 min-w-0">
+            <div class="text-[12px] font-bold text-slate-900">Co-fundador completo</div>
+            <div class="flex items-center gap-1 mt-1 flex-wrap">
+              <span class="text-[9px] bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded font-bold">admin</span>
+              <span class="text-[9px] bg-violet-100 text-violet-700 px-1.5 py-0.5 rounded font-bold">socio</span>
+              <span class="text-[9px] bg-teal-100 text-teal-700 px-1.5 py-0.5 rounded font-bold">finanzas</span>
+            </div>
+          </div>
+          <button class="text-[10px] text-slate-500 hover:text-slate-900">Editar</button>
+        </div>
+        <div class="border border-slate-200 rounded-lg p-3 flex items-center justify-between gap-2">
+          <div class="flex-1 min-w-0">
+            <div class="text-[12px] font-bold text-slate-900">Vendedor + Almacén</div>
+            <div class="flex items-center gap-1 mt-1 flex-wrap">
+              <span class="text-[9px] bg-sky-100 text-sky-700 px-1.5 py-0.5 rounded font-bold">vendedor</span>
+              <span class="text-[9px] bg-orange-100 text-orange-700 px-1.5 py-0.5 rounded font-bold">almacenero</span>
+            </div>
+          </div>
+          <button class="text-[10px] text-slate-500 hover:text-slate-900">Editar</button>
+        </div>
+        <div class="border border-slate-200 rounded-lg p-3 flex items-center justify-between gap-2">
+          <div class="flex-1 min-w-0">
+            <div class="text-[12px] font-bold text-slate-900">Solo lectura</div>
+            <div class="flex items-center gap-1 mt-1 flex-wrap">
+              <span class="text-[9px] bg-slate-100 text-slate-700 px-1.5 py-0.5 rounded font-bold">supervisor</span>
+            </div>
+          </div>
+          <button class="text-[10px] text-slate-500 hover:text-slate-900">Editar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- §3 · Invitaciones · plantilla email -->
+    <div class="bg-white border border-slate-200 rounded-2xl p-4">
+      <h3 class="text-[13px] font-bold text-slate-900 mb-3 flex items-center gap-2">
+        <i data-lucide="mail" class="w-4 h-4 text-indigo-700"></i>
+        Plantilla de email de invitación
+      </h3>
+      <p class="text-[10px] text-slate-500 mb-3">Mensaje que recibe el invitado · placeholders {`{nombre}`}, {`{empresa}`}, {`{link_aceptacion}`}.</p>
+      <div class="bg-slate-50 border border-slate-200 rounded p-3 text-[11px] text-slate-700">
+        <strong>Asunto:</strong> Te invitamos a unirte a {`{empresa}`}<br><br>
+        Hola {`{nombre}`} ·<br><br>
+        Te invitamos a unirte como usuario del sistema ERP de {`{empresa}`}. Hacé click en el siguiente
+        link para configurar tu password y completar tu perfil:<br><br>
+        {`{link_aceptacion}`}<br><br>
+        El link caduca en 7 días.
+      </div>
+      <div class="flex items-center gap-2 mt-2">
+        <button class="text-[10px] text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 px-2 py-1 rounded inline-flex items-center gap-1"><i data-lucide="edit-2" class="w-3 h-3"></i>Editar plantilla</button>
+        <button class="text-[10px] text-slate-600 hover:bg-slate-50 border border-slate-200 px-2 py-1 rounded">Vista previa</button>
+      </div>
+    </div>
+
+    <!-- §4 · Auto-asignación de permisos custom -->
+    <div class="bg-white border border-slate-200 rounded-2xl p-4">
+      <h3 class="text-[13px] font-bold text-slate-900 mb-3 flex items-center gap-2">
+        <i data-lucide="key" class="w-4 h-4 text-indigo-700"></i>
+        Permisos custom (overrides)
+      </h3>
+      <p class="text-[10px] text-slate-500 mb-3">Permisos extras que se asignan automáticamente al rol indicado · cero a los DEFAULT_PERMISOS.</p>
+      <div class="text-center py-6 text-[11px] text-slate-500">
+        <i data-lucide="zap-off" class="w-8 h-8 text-slate-300 mx-auto mb-2"></i>
+        Sin permisos custom configurados.
+        <div class="text-[10px] text-slate-400 mt-1">Click "Agregar override" cuando necesites afinar accesos.</div>
+        <button class="mt-2 text-[10px] text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 px-2 py-1 rounded inline-flex items-center gap-1"><i data-lucide="plus" class="w-3 h-3"></i>Agregar override</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ╔══════════════════════════════════════════════════════════════╗ -->
+<!-- ACTO 2 · CREACIÓN                                                -->
+<!-- ╚══════════════════════════════════════════════════════════════╝ -->
+<div class="max-w-5xl mx-auto my-12">
+  <div class="border-t border-slate-300 relative">
+    <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-slate-50 px-4">
+      <h2 class="text-[18px] font-bold text-slate-900 flex items-center gap-2">
+        <i data-lucide="film" class="w-5 h-5 text-purple-600"></i>
+        ACTO 2 · Creación
+      </h2>
+    </div>
+  </div>
+  <p class="text-[12px] text-slate-600 text-center mt-6">
+    Dos caminos · creación directa (admin pone password) o invitación por email (user crea password).
+  </p>
+</div>
+
+<!-- ESTADO 2.1 · MODAL NUEVO USUARIO directo -->
+<div class="max-w-5xl mx-auto mb-2">
+  <div class="bg-purple-100 text-purple-900 px-3 py-1.5 rounded-t-lg inline-block text-[11px] font-bold">
+    📍 ESTADO 2.1 · Modal "Nuevo usuario" · creación directa (admin asigna password)
+  </div>
+</div>
+<div class="max-w-5xl mx-auto mb-2">
+  <div class="bg-slate-900/30 rounded-2xl p-6 sm:p-10">
+    <div class="bg-white border border-purple-200 rounded-2xl shadow-2xl overflow-hidden max-w-xl mx-auto">
+      <div class="px-5 py-4 border-b border-slate-100 flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-purple-50 border border-purple-200 flex items-center justify-center"><i data-lucide="user-plus" class="w-5 h-5 text-purple-700"></i></div>
+        <div class="flex-1">
+          <div class="text-[10px] uppercase tracking-wider text-purple-700 font-bold">Nuevo usuario</div>
+          <h3 class="text-[15px] font-bold text-slate-900">Crear con email y password</h3>
+        </div>
+        <button class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+      <div class="p-5 space-y-3">
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="text-[10px] uppercase font-bold text-slate-500 block mb-1">Nombre completo *</label>
+            <input type="text" placeholder="ej: María González" class="w-full px-3 py-2 text-[12px] border border-slate-300 rounded-lg">
+          </div>
+          <div>
+            <label class="text-[10px] uppercase font-bold text-slate-500 block mb-1">DNI / RUC</label>
+            <input type="text" placeholder="opcional" class="w-full px-3 py-2 text-[12px] border border-slate-300 rounded-lg">
+          </div>
+        </div>
+        <div>
+          <label class="text-[10px] uppercase font-bold text-slate-500 block mb-1">Email · login *</label>
+          <input type="email" placeholder="ej: maria@vitaskin.pe" class="w-full px-3 py-2 text-[12px] border border-slate-300 rounded-lg">
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="text-[10px] uppercase font-bold text-slate-500 block mb-1">Password inicial *</label>
+            <input type="password" placeholder="mínimo 8 caracteres" class="w-full px-3 py-2 text-[12px] border border-slate-300 rounded-lg">
+          </div>
+          <div>
+            <label class="text-[10px] uppercase font-bold text-slate-500 block mb-1">Cambio en primer login</label>
+            <select class="w-full px-3 py-2 text-[12px] border border-slate-300 rounded-lg bg-white">
+              <option>Sí · obligatorio (recomendado)</option>
+              <option>No</option>
+            </select>
+          </div>
+        </div>
+        <!-- Plantilla rápida + roles -->
+        <div>
+          <label class="text-[10px] uppercase font-bold text-slate-500 block mb-1">Aplicar plantilla (opcional)</label>
+          <select class="w-full px-3 py-2 text-[12px] border border-slate-300 rounded-lg bg-white">
+            <option>— sin plantilla —</option>
+            <option>Co-fundador completo (admin · socio · finanzas)</option>
+            <option>Vendedor + Almacén</option>
+            <option>Solo lectura (supervisor)</option>
+          </select>
+          <div class="text-[10px] text-slate-500 mt-0.5">Configurás roles individuales después si la plantilla no aplica.</div>
+        </div>
+        <div>
+          <label class="text-[10px] uppercase font-bold text-slate-500 block mb-2">Roles iniciales *</label>
+          <div class="grid grid-cols-3 gap-1.5">
+            <label class="flex items-center gap-1.5 p-1.5 bg-white border border-slate-200 rounded text-[10px]">
+              <input type="checkbox" class="w-3 h-3 accent-purple-600">Admin
+            </label>
+            <label class="flex items-center gap-1.5 p-1.5 bg-sky-50 border-2 border-sky-400 rounded text-[10px]">
+              <input type="checkbox" checked class="w-3 h-3 accent-sky-600">Vendedor
+            </label>
+            <label class="flex items-center gap-1.5 p-1.5 bg-white border border-slate-200 rounded text-[10px]">
+              <input type="checkbox" class="w-3 h-3 accent-purple-600">Comprador
+            </label>
+            <label class="flex items-center gap-1.5 p-1.5 bg-white border border-slate-200 rounded text-[10px]">
+              <input type="checkbox" class="w-3 h-3 accent-purple-600">Finanzas
+            </label>
+            <label class="flex items-center gap-1.5 p-1.5 bg-white border border-slate-200 rounded text-[10px]">
+              <input type="checkbox" class="w-3 h-3 accent-purple-600">Socio
+            </label>
+            <label class="flex items-center gap-1.5 p-1.5 bg-white border border-slate-200 rounded text-[10px]">
+              <input type="checkbox" class="w-3 h-3 accent-purple-600">Otros…
+            </label>
+          </div>
+        </div>
+      </div>
+      <div class="px-5 py-3 bg-slate-50 border-t border-slate-200 flex items-center justify-between">
+        <button class="text-[11px] font-medium text-slate-600">Cancelar</button>
+        <button class="text-[12px] font-bold text-white bg-purple-600 hover:bg-purple-700 px-4 py-1.5 rounded-lg inline-flex items-center gap-1.5">
+          <i data-lucide="user-plus" class="w-3.5 h-3.5"></i>Crear usuario
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ESTADO 2.2 · MODAL INVITAR POR EMAIL (NUEVO) -->
+<div class="max-w-5xl mx-auto mb-2 mt-8">
+  <div class="bg-indigo-100 text-indigo-900 px-3 py-1.5 rounded-t-lg inline-block text-[11px] font-bold">
+    📍 ESTADO 2.2 · Modal "Invitar por email" · NUEVO · user crea su propio password
+  </div>
+</div>
+<div class="max-w-5xl mx-auto mb-2">
+  <div class="bg-slate-900/30 rounded-2xl p-6 sm:p-10">
+    <div class="bg-white border border-indigo-200 rounded-2xl shadow-2xl overflow-hidden max-w-xl mx-auto">
+      <div class="px-5 py-4 border-b border-slate-100 flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-indigo-50 border border-indigo-200 flex items-center justify-center"><i data-lucide="mail" class="w-5 h-5 text-indigo-700"></i></div>
+        <div class="flex-1">
+          <div class="text-[10px] uppercase tracking-wider text-indigo-700 font-bold">Invitar por email</div>
+          <h3 class="text-[15px] font-bold text-slate-900">Enviar invitación · usuario crea su password</h3>
+        </div>
+        <button class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+      <div class="p-5 space-y-3">
+        <div class="bg-indigo-50/40 border border-indigo-200 rounded-lg p-2.5 flex items-start gap-2">
+          <i data-lucide="info" class="w-4 h-4 text-indigo-700 mt-0.5 flex-shrink-0"></i>
+          <div class="text-[11px] text-indigo-900">
+            El invitado recibe un email con link de aceptación · al hacer click, configura su password
+            y completa su perfil. <strong>El link caduca en 7 días.</strong>
+          </div>
+        </div>
+
+        <div>
+          <label class="text-[10px] uppercase font-bold text-slate-500 block mb-1">Email del invitado *</label>
+          <input type="email" placeholder="ej: nuevo.colega@empresa.com" class="w-full px-3 py-2 text-[12px] border border-slate-300 rounded-lg">
+        </div>
+        <div>
+          <label class="text-[10px] uppercase font-bold text-slate-500 block mb-1">Nombre (opcional · para personalizar email)</label>
+          <input type="text" placeholder="ej: Juan Pérez" class="w-full px-3 py-2 text-[12px] border border-slate-300 rounded-lg">
+        </div>
+        <div>
+          <label class="text-[10px] uppercase font-bold text-slate-500 block mb-1">Aplicar plantilla (opcional)</label>
+          <select class="w-full px-3 py-2 text-[12px] border border-slate-300 rounded-lg bg-white">
+            <option>— sin plantilla · solo invitado —</option>
+            <option>Co-fundador completo</option>
+            <option>Vendedor + Almacén</option>
+            <option>Solo lectura</option>
+          </select>
+        </div>
+        <div>
+          <label class="text-[10px] uppercase font-bold text-slate-500 block mb-2">Roles que tendrá al aceptar *</label>
+          <div class="grid grid-cols-3 gap-1.5">
+            <label class="flex items-center gap-1.5 p-1.5 bg-sky-50 border-2 border-sky-400 rounded text-[10px]">
+              <input type="checkbox" checked class="w-3 h-3 accent-sky-600">Vendedor
+            </label>
+            <label class="flex items-center gap-1.5 p-1.5 bg-white border border-slate-200 rounded text-[10px]">
+              <input type="checkbox" class="w-3 h-3 accent-purple-600">Comprador
+            </label>
+            <label class="flex items-center gap-1.5 p-1.5 bg-white border border-slate-200 rounded text-[10px]">
+              <input type="checkbox" class="w-3 h-3 accent-purple-600">Otros…
+            </label>
+          </div>
+        </div>
+        <div>
+          <label class="text-[10px] uppercase font-bold text-slate-500 block mb-1">Mensaje personal (opcional)</label>
+          <textarea rows="2" placeholder="ej: Bienvenido al equipo · cualquier duda preguntame" class="w-full px-3 py-2 text-[12px] border border-slate-300 rounded-lg"></textarea>
+        </div>
+
+        <div class="bg-slate-50 border border-slate-200 rounded p-2.5 text-[10px] text-slate-600">
+          <strong>Preview email:</strong> Usás la plantilla actual (ver Configuración · §3). Para editarla, abrí
+          <span class="text-indigo-700 underline cursor-pointer">Configuración → Plantilla de invitación</span>.
+        </div>
+      </div>
+      <div class="px-5 py-3 bg-slate-50 border-t border-slate-200 flex items-center justify-between">
+        <button class="text-[11px] font-medium text-slate-600">Cancelar</button>
+        <button class="text-[12px] font-bold text-white bg-indigo-600 hover:bg-indigo-700 px-4 py-1.5 rounded-lg inline-flex items-center gap-1.5">
+          <i data-lucide="send" class="w-3.5 h-3.5"></i>Enviar invitación
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ╔══════════════════════════════════════════════════════════════╗ -->
+<!-- ACTO 3 · EDICIÓN HÍBRIDA · referencia mockup separado            -->
+<!-- ╚══════════════════════════════════════════════════════════════╝ -->
+<div class="max-w-5xl mx-auto my-12">
+  <div class="border-t border-slate-300 relative">
+    <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-slate-50 px-4">
+      <h2 class="text-[18px] font-bold text-slate-900 flex items-center gap-2">
+        <i data-lucide="film" class="w-5 h-5 text-purple-600"></i>
+        ACTO 3 · Edición híbrida (modal + drill)
+      </h2>
+    </div>
+  </div>
+  <p class="text-[12px] text-slate-600 text-center mt-6">
+    Modal compacto (básicos + roles) + drill pages para sub-perfiles ricos · ya validado en mockup
+    <code class="bg-slate-100 px-1 rounded">usuarios-edicion-hibrida-v5.2.html</code>.
+  </p>
+  <div class="bg-amber-50 border border-amber-200 rounded p-3 mt-3 text-[11px] text-amber-900">
+    <strong>Referencia:</strong> los 4 estados de edición (A · B · C · D) están en el mockup
+    <code class="bg-white px-1 rounded">usuarios-edicion-hibrida-v5.2.html</code> ya commiteado
+    · este mockup INTEGRAL los considera como anexo · el comportamiento es idéntico al ya validado.
+  </div>
+</div>
+
+<!-- ╔══════════════════════════════════════════════════════════════╗ -->
+<!-- ACTO 4 · FICHA 360                                               -->
+<!-- ╚══════════════════════════════════════════════════════════════╝ -->
+<div class="max-w-5xl mx-auto my-12">
+  <div class="border-t border-slate-300 relative">
+    <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-slate-50 px-4">
+      <h2 class="text-[18px] font-bold text-slate-900 flex items-center gap-2">
+        <i data-lucide="film" class="w-5 h-5 text-purple-600"></i>
+        ACTO 4 · Ficha 360
+      </h2>
+    </div>
+  </div>
+  <p class="text-[12px] text-slate-600 text-center mt-6">
+    Vista completa de TODO lo que es una persona · página drill propia.
+  </p>
+  <div class="bg-amber-50 border border-amber-200 rounded p-3 mt-3 text-[11px] text-amber-900">
+    <strong>Referencia:</strong> ESTADO A3 del mockup <code class="bg-white px-1 rounded">modelo-personas-v5.2.html</code>.
+    Ya implementado en <code class="bg-white px-1 rounded">/usuarios/:uid/ficha</code>. Sin cambios mayores en este mockup integral.
+  </div>
+</div>
+
+<!-- ╔══════════════════════════════════════════════════════════════╗ -->
+<!-- ACTO 5 · ACCIONES OPERATIVAS · 5 modales chicos canon A         -->
+<!-- ╚══════════════════════════════════════════════════════════════╝ -->
+<div class="max-w-5xl mx-auto my-12">
+  <div class="border-t border-slate-300 relative">
+    <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-slate-50 px-4">
+      <h2 class="text-[18px] font-bold text-slate-900 flex items-center gap-2">
+        <i data-lucide="film" class="w-5 h-5 text-purple-600"></i>
+        ACTO 5 · Acciones operativas
+      </h2>
+    </div>
+  </div>
+  <p class="text-[12px] text-slate-600 text-center mt-6">
+    5 modales chicos canon variant A · cada uno responde 1 pregunta específica.
+  </p>
+</div>
+
+<!-- ESTADO 5.1 · APROBAR INVITADO -->
+<div class="max-w-5xl mx-auto mb-2">
+  <div class="bg-emerald-100 text-emerald-900 px-3 py-1.5 rounded-t-lg inline-block text-[11px] font-bold">
+    📍 ESTADO 5.1 · Aprobar invitado · click "Aprobar" en lista o banner
+  </div>
+</div>
+<div class="max-w-5xl mx-auto mb-2">
+  <div class="bg-slate-900/30 rounded-2xl p-6 sm:p-10">
+    <div class="bg-white border border-emerald-200 rounded-2xl shadow-2xl overflow-hidden max-w-md mx-auto">
+      <div class="px-5 py-4 border-b border-slate-100 flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center"><i data-lucide="user-check" class="w-5 h-5 text-emerald-700"></i></div>
+        <div class="flex-1">
+          <div class="text-[10px] uppercase font-bold text-emerald-700">Aprobar invitado</div>
+          <h3 class="text-[15px] font-bold text-slate-900">Pedro Sánchez</h3>
+        </div>
+      </div>
+      <div class="p-5 space-y-3">
+        <div class="text-[12px] text-slate-700">
+          <strong>pedro@vitaskin.pe</strong> creó su cuenta esperando aprobación. Asignale roles para
+          activarla.
+        </div>
+        <div>
+          <label class="text-[10px] uppercase font-bold text-slate-500 block mb-2">Asignar roles *</label>
+          <div class="grid grid-cols-3 gap-1.5">
+            <label class="flex items-center gap-1.5 p-1.5 bg-sky-50 border-2 border-sky-400 rounded text-[10px]"><input type="checkbox" checked class="w-3 h-3">Vendedor</label>
+            <label class="flex items-center gap-1.5 p-1.5 bg-white border border-slate-200 rounded text-[10px]"><input type="checkbox" class="w-3 h-3">Otros…</label>
+          </div>
+        </div>
+      </div>
+      <div class="px-5 py-3 bg-slate-50 border-t border-slate-200 flex items-center justify-between">
+        <button class="text-[11px] font-medium text-slate-600">Cancelar</button>
+        <div class="flex gap-2">
+          <button class="text-[11px] font-semibold text-rose-700 hover:bg-rose-50 border border-rose-200 px-3 py-1.5 rounded">Rechazar</button>
+          <button class="text-[12px] font-bold text-white bg-emerald-600 hover:bg-emerald-700 px-4 py-1.5 rounded-lg inline-flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5"></i>Aprobar y activar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ESTADO 5.2 · RESET PASSWORD -->
+<div class="max-w-5xl mx-auto mb-2 mt-6">
+  <div class="bg-amber-100 text-amber-900 px-3 py-1.5 rounded-t-lg inline-block text-[11px] font-bold">
+    📍 ESTADO 5.2 · Reset password
+  </div>
+</div>
+<div class="max-w-5xl mx-auto mb-2">
+  <div class="bg-slate-900/30 rounded-2xl p-6 sm:p-10">
+    <div class="bg-white border border-amber-200 rounded-2xl shadow-2xl overflow-hidden max-w-md mx-auto">
+      <div class="px-5 py-4 border-b border-slate-100 flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-amber-50 border border-amber-200 flex items-center justify-center"><i data-lucide="key" class="w-5 h-5 text-amber-700"></i></div>
+        <div class="flex-1">
+          <div class="text-[10px] uppercase font-bold text-amber-700">Reset password</div>
+          <h3 class="text-[15px] font-bold text-slate-900">Carlos Mendoza</h3>
+        </div>
+      </div>
+      <div class="p-5 space-y-3">
+        <div class="text-[12px] text-slate-700">
+          Vas a resetear el password de <strong>carlos.m@vitaskin.pe</strong>. Elegí cómo:
+        </div>
+        <div class="space-y-2">
+          <label class="flex items-start gap-2 p-3 border-2 border-emerald-400 bg-emerald-50/40 rounded-lg cursor-pointer">
+            <input type="radio" name="reset" checked class="mt-0.5 accent-emerald-600">
+            <div>
+              <div class="text-[11px] font-bold text-emerald-900">Enviar email de reset (recomendado)</div>
+              <div class="text-[10px] text-slate-600">El user recibe link · crea su nuevo password.</div>
+            </div>
+          </label>
+          <label class="flex items-start gap-2 p-3 border-2 border-slate-200 rounded-lg cursor-pointer">
+            <input type="radio" name="reset" class="mt-0.5 accent-amber-600">
+            <div>
+              <div class="text-[11px] font-bold text-slate-700">Asignar password manual</div>
+              <div class="text-[10px] text-slate-500">Vos ponés un password temporal · obligar cambio en primer login.</div>
+            </div>
+          </label>
+        </div>
+      </div>
+      <div class="px-5 py-3 bg-slate-50 border-t border-slate-200 flex items-center justify-between">
+        <button class="text-[11px] font-medium text-slate-600">Cancelar</button>
+        <button class="text-[12px] font-bold text-white bg-amber-600 hover:bg-amber-700 px-4 py-1.5 rounded-lg inline-flex items-center gap-1.5"><i data-lucide="send" class="w-3.5 h-3.5"></i>Enviar email reset</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ESTADO 5.3 · DESCONECTAR SESIÓN -->
+<div class="max-w-5xl mx-auto mb-2 mt-6">
+  <div class="bg-amber-100 text-amber-900 px-3 py-1.5 rounded-t-lg inline-block text-[11px] font-bold">
+    📍 ESTADO 5.3 · Desconectar sesión activa
+  </div>
+</div>
+<div class="max-w-5xl mx-auto mb-2">
+  <div class="bg-slate-900/30 rounded-2xl p-6 sm:p-10">
+    <div class="bg-white border border-amber-200 rounded-2xl shadow-2xl overflow-hidden max-w-md mx-auto">
+      <div class="p-5 space-y-2 text-center">
+        <i data-lucide="wifi-off" class="w-10 h-10 text-amber-600 mx-auto"></i>
+        <h3 class="text-[15px] font-bold text-slate-900">¿Desconectar sesiones de Carlos?</h3>
+        <p class="text-[12px] text-slate-600">
+          Cerrar todas las sesiones activas de <strong>carlos.m@vitaskin.pe</strong> · tendrá que
+          volver a iniciar sesión.
+        </p>
+      </div>
+      <div class="px-5 py-3 bg-slate-50 border-t border-slate-200 flex items-center justify-between">
+        <button class="text-[11px] font-medium text-slate-600">Cancelar</button>
+        <button class="text-[12px] font-bold text-white bg-amber-600 hover:bg-amber-700 px-4 py-1.5 rounded-lg">Desconectar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ESTADO 5.4 · ELIMINAR USUARIO -->
+<div class="max-w-5xl mx-auto mb-2 mt-6">
+  <div class="bg-rose-100 text-rose-900 px-3 py-1.5 rounded-t-lg inline-block text-[11px] font-bold">
+    📍 ESTADO 5.4 · Eliminar usuario · acción destructiva con confirmación typed
+  </div>
+</div>
+<div class="max-w-5xl mx-auto mb-2">
+  <div class="bg-slate-900/30 rounded-2xl p-6 sm:p-10">
+    <div class="bg-white border border-rose-200 rounded-2xl shadow-2xl overflow-hidden max-w-md mx-auto">
+      <div class="p-5 space-y-3">
+        <div class="flex items-start gap-3">
+          <i data-lucide="alert-triangle" class="w-6 h-6 text-rose-600 flex-shrink-0"></i>
+          <div>
+            <h3 class="text-[15px] font-bold text-rose-900">Eliminar usuario permanentemente</h3>
+            <p class="text-[11px] text-slate-600 mt-1">
+              Vas a eliminar a <strong>Carlos Mendoza</strong> (carlos.m@vitaskin.pe). Esta acción NO se puede deshacer.
+            </p>
+          </div>
+        </div>
+        <div class="bg-rose-50 border border-rose-200 rounded p-2.5 text-[10px] text-rose-900">
+          <strong>Qué pasa:</strong>
+          <ul class="ml-3 mt-1 list-disc space-y-0.5">
+            <li>Se borra el UserProfile y todos los sub-perfiles privados (datosLaborales · datosSocio)</li>
+            <li>Las acciones históricas (ventas · gastos · etc) quedan con referencia uid huérfana</li>
+            <li>Si tiene rol socio · el cap table del negocio queda inconsistente</li>
+          </ul>
+        </div>
+        <div>
+          <label class="text-[10px] uppercase font-bold text-slate-500 block mb-1">Escribí <code class="bg-slate-100 px-1 rounded">ELIMINAR</code> para confirmar</label>
+          <input type="text" placeholder="ELIMINAR" class="w-full px-3 py-2 text-[12px] border border-slate-300 rounded-lg font-mono">
+        </div>
+      </div>
+      <div class="px-5 py-3 bg-slate-50 border-t border-slate-200 flex items-center justify-between">
+        <button class="text-[11px] font-medium text-slate-600">Cancelar</button>
+        <button class="text-[12px] font-bold text-white bg-rose-600 hover:bg-rose-700 px-4 py-1.5 rounded-lg inline-flex items-center gap-1.5" disabled>
+          <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>Eliminar permanentemente
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ESTADO 5.5 · DESCONECTAR TODAS LAS SESIONES -->
+<div class="max-w-5xl mx-auto mb-2 mt-6">
+  <div class="bg-rose-100 text-rose-900 px-3 py-1.5 rounded-t-lg inline-block text-[11px] font-bold">
+    📍 ESTADO 5.5 · Desconectar TODAS las sesiones · botón de seguridad global
+  </div>
+</div>
+<div class="max-w-5xl mx-auto mb-2">
+  <div class="bg-slate-900/30 rounded-2xl p-6 sm:p-10">
+    <div class="bg-white border border-rose-200 rounded-2xl shadow-2xl overflow-hidden max-w-md mx-auto">
+      <div class="p-5 space-y-3 text-center">
+        <i data-lucide="shield-alert" class="w-10 h-10 text-rose-600 mx-auto"></i>
+        <h3 class="text-[15px] font-bold text-rose-900">Desconectar TODAS las sesiones</h3>
+        <p class="text-[12px] text-slate-600">
+          Vas a cerrar las sesiones activas de TODOS los usuarios (excepto la tuya). Útil ante
+          sospecha de brecha de seguridad.
+        </p>
+        <div class="bg-rose-50 border border-rose-200 rounded p-2.5 text-[10px] text-rose-900 text-left">
+          <strong>3 sesiones serán cerradas:</strong> José LP · Carlos M · Carmen R
+        </div>
+      </div>
+      <div class="px-5 py-3 bg-slate-50 border-t border-slate-200 flex items-center justify-between">
+        <button class="text-[11px] font-medium text-slate-600">Cancelar</button>
+        <button class="text-[12px] font-bold text-white bg-rose-600 hover:bg-rose-700 px-4 py-1.5 rounded-lg inline-flex items-center gap-1.5"><i data-lucide="wifi-off" class="w-3.5 h-3.5"></i>Desconectar todas</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ╔══════════════════════════════════════════════════════════════╗ -->
+<!-- ACTO 6 · MOBILE                                                  -->
+<!-- ╚══════════════════════════════════════════════════════════════╝ -->
+<div class="max-w-5xl mx-auto my-12">
+  <div class="border-t border-slate-300 relative">
+    <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-slate-50 px-4">
+      <h2 class="text-[18px] font-bold text-slate-900 flex items-center gap-2">
+        <i data-lucide="smartphone" class="w-5 h-5 text-purple-600"></i>
+        ACTO 6 · Mobile responsive
+      </h2>
+    </div>
+  </div>
+  <p class="text-[12px] text-slate-600 text-center mt-6">
+    Cómo se ve el módulo en viewport &lt;640px · canon N5/N6 v8.0.
+  </p>
+</div>
+
+<div class="max-w-5xl mx-auto mb-2">
+  <div class="bg-slate-100 px-3 py-1.5 rounded-t-lg inline-block text-[11px] font-bold text-slate-700">
+    📍 ESTADO 6.1 · Listado mobile · 375px viewport
+  </div>
+</div>
+<div class="max-w-[380px] mx-auto bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden mb-8">
+  <!-- Mobile shell -->
+  <div class="border-b border-slate-200 px-3 py-2 bg-slate-50 text-[11px]">
+    <a class="text-slate-500">Inicio</a> › <span class="text-slate-900 font-semibold">Usuarios</span>
+  </div>
+  <div class="px-3 py-3 border-b border-slate-100">
+    <div class="flex items-center gap-2 mb-1">
+      <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-purple-500 to-purple-700 flex items-center justify-center text-white"><i data-lucide="users" class="w-4 h-4"></i></div>
+      <div class="flex-1 min-w-0">
+        <h1 class="text-[16px] font-bold tracking-tight text-slate-900">Usuarios</h1>
+      </div>
+      <button class="text-[10px] font-bold text-white bg-purple-600 px-2 py-1 rounded inline-flex items-center gap-1"><i data-lucide="plus" class="w-3 h-3"></i></button>
+    </div>
+  </div>
+  <!-- KPI strip 2×2 -->
+  <div class="px-3 py-2 border-b border-slate-100 grid grid-cols-2 gap-1.5">
+    <div class="bg-gradient-to-br from-purple-50 to-purple-100/40 ring-1 ring-purple-200/50 rounded-xl p-2">
+      <div class="text-[8px] uppercase text-purple-700 font-bold">TOTAL</div>
+      <div class="text-[18px] font-bold tabular text-purple-900">5</div>
+    </div>
+    <div class="bg-gradient-to-br from-emerald-50 to-emerald-100/40 ring-1 ring-emerald-200/50 rounded-xl p-2">
+      <div class="text-[8px] uppercase text-emerald-700 font-bold">ACTIVOS</div>
+      <div class="text-[18px] font-bold tabular text-emerald-900">4</div>
+    </div>
+    <div class="bg-gradient-to-br from-violet-50 to-violet-100/40 ring-1 ring-violet-200/50 rounded-xl p-2">
+      <div class="text-[8px] uppercase text-violet-700 font-bold">SOCIOS</div>
+      <div class="text-[18px] font-bold tabular text-violet-900">2</div>
+    </div>
+    <div class="bg-gradient-to-br from-amber-50 to-amber-100/40 ring-1 ring-amber-200/50 rounded-xl p-2">
+      <div class="text-[8px] uppercase text-amber-700 font-bold">MULTI-ROL</div>
+      <div class="text-[18px] font-bold tabular text-amber-900">2</div>
+    </div>
+  </div>
+  <!-- Tabs · scroll-x mobile -->
+  <div class="border-b border-slate-200 px-2 flex items-center gap-1 overflow-x-auto" style="scrollbar-width: none;">
+    <button class="px-2 py-2 text-[10px] border-b-2 border-purple-600 text-purple-700 font-bold whitespace-nowrap">Resumen</button>
+    <button class="px-2 py-2 text-[10px] border-b-2 border-transparent text-slate-600 whitespace-nowrap">Socios</button>
+    <button class="px-2 py-2 text-[10px] border-b-2 border-transparent text-slate-600 whitespace-nowrap">Planilla</button>
+    <button class="px-2 py-2 text-[10px] border-b-2 border-transparent text-slate-600 whitespace-nowrap">Accesos</button>
+    <button class="px-2 py-2 text-[10px] border-b-2 border-transparent text-slate-600 whitespace-nowrap">Config</button>
+  </div>
+  <!-- Lista mobile · cards apiladas verticalmente -->
+  <div class="divide-y divide-slate-100">
+    <div class="p-3">
+      <div class="flex items-start gap-2">
+        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-purple-700 flex items-center justify-center text-white text-[12px] font-bold flex-shrink-0">JL</div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-1 flex-wrap">
+            <div class="text-[12px] font-bold text-slate-900 truncate">Jose Luis Lopez Paz</div>
+            <span class="text-[8px] bg-emerald-100 text-emerald-700 px-1 rounded font-bold">activo</span>
+          </div>
+          <div class="text-[9px] text-slate-500 truncate">jose.lp9205@gmail.com</div>
+          <div class="flex items-center gap-1 flex-wrap mt-1">
+            <span class="text-[8px] bg-purple-100 text-purple-700 px-1 rounded font-bold">Admin</span>
+            <span class="text-[8px] bg-violet-100 text-violet-700 px-1 rounded font-bold">Socio·60%</span>
+            <span class="text-[8px] bg-sky-100 text-sky-700 px-1 rounded font-bold">CEO</span>
+            <span class="text-[8px] bg-teal-100 text-teal-700 px-1 rounded font-bold">Finanzas</span>
+          </div>
+        </div>
+        <button class="p-1.5 text-slate-400 flex-shrink-0"><i data-lucide="more-horizontal" class="w-3.5 h-3.5"></i></button>
+      </div>
+    </div>
+    <div class="p-3">
+      <div class="flex items-start gap-2">
+        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-violet-400 to-violet-600 flex items-center justify-center text-white text-[12px] font-bold flex-shrink-0">MG</div>
+        <div class="flex-1 min-w-0">
+          <div class="text-[12px] font-bold text-slate-900 truncate">María González</div>
+          <div class="text-[9px] text-slate-500 truncate">maria@vitaskin.pe</div>
+          <div class="flex items-center gap-1 flex-wrap mt-1">
+            <span class="text-[8px] bg-violet-100 text-violet-700 px-1 rounded font-bold">Socio·30%</span>
+            <span class="text-[8px] bg-slate-100 text-slate-600 px-1 rounded font-bold">silent</span>
+          </div>
+        </div>
+        <button class="p-1.5 text-slate-400 flex-shrink-0"><i data-lucide="more-horizontal" class="w-3.5 h-3.5"></i></button>
+      </div>
+    </div>
+    <div class="p-3">
+      <div class="flex items-start gap-2">
+        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-sky-400 to-sky-600 flex items-center justify-center text-white text-[12px] font-bold flex-shrink-0">CM</div>
+        <div class="flex-1 min-w-0">
+          <div class="text-[12px] font-bold text-slate-900 truncate">Carlos Mendoza</div>
+          <div class="text-[9px] text-slate-500 truncate">carlos.m@vitaskin.pe</div>
+          <div class="flex items-center gap-1 flex-wrap mt-1">
+            <span class="text-[8px] bg-sky-100 text-sky-700 px-1 rounded font-bold">Vendedor</span>
+          </div>
+        </div>
+        <button class="p-1.5 text-slate-400 flex-shrink-0"><i data-lucide="more-horizontal" class="w-3.5 h-3.5"></i></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ╔══════════════════════════════════════════════════════════════╗ -->
+<!-- DECISIONES CANON                                                 -->
+<!-- ╚══════════════════════════════════════════════════════════════╝ -->
+<div class="max-w-5xl mx-auto mt-12 bg-white border border-slate-200 rounded-2xl p-6 space-y-4 text-[12px]">
+  <h2 class="text-[18px] font-bold text-slate-900 flex items-center gap-2">
+    <i data-lucide="check-circle" class="w-5 h-5 text-emerald-600"></i>
+    Decisiones canon · Mockup INTEGRAL /usuarios v5.2
+  </h2>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-[11px]">
+    <div>
+      <strong class="text-purple-700 block mb-1">D1 · Shell canon v5.2 banking-grade</strong>
+      <ul class="ml-4 list-disc text-slate-600 space-y-0.5">
+        <li>Breadcrumb S9.D1 · Header purple gradient · KPI strip 4 cards N1+N2</li>
+        <li>3-tier acciones · Actualizar (neutral) · Invitar (indigo) · Nuevo (primary purple)</li>
+      </ul>
+    </div>
+    <div>
+      <strong class="text-purple-700 block mb-1">D2 · 5 TABS internas según necesidad</strong>
+      <ul class="ml-4 list-disc text-slate-600 space-y-0.5">
+        <li>Resumen (default) · Socios · Planilla · Accesos · Configuración</li>
+        <li>Cada tab tiene sub-KPI strip contextual + cross-link a módulo dueño</li>
+        <li>Patrón consistente con Finanzas/Contabilidad/Inversionistas</li>
+      </ul>
+    </div>
+    <div>
+      <strong class="text-purple-700 block mb-1">D3 · Lista cards apiladas canon F4</strong>
+      <ul class="ml-4 list-disc text-slate-600 space-y-0.5">
+        <li>Avatar gradient color por rol principal (44-48px)</li>
+        <li>Chips de rol con iconos lucide · color signature</li>
+        <li>"Silent partner" automático si socio inactivo</li>
+        <li>Acciones derecha · Ficha 360 + Editar + menú "..."</li>
+      </ul>
+    </div>
+    <div>
+      <strong class="text-purple-700 block mb-1">D4 · Filtros canon · chips scroll-x</strong>
+      <ul class="ml-4 list-disc text-slate-600 space-y-0.5">
+        <li>Search bar canon · estado select compacto</li>
+        <li>Chips de rol con count · solo aparecen si > 0</li>
+        <li>Active state usa color signature del rol</li>
+      </ul>
+    </div>
+    <div>
+      <strong class="text-purple-700 block mb-1">D5 · Creación · DOS caminos</strong>
+      <ul class="ml-4 list-disc text-slate-600 space-y-0.5">
+        <li>"Nuevo usuario" · creación directa con password (admin)</li>
+        <li>"Invitar por email" NUEVO · user crea su propio password (7d caducidad)</li>
+        <li>Ambos soportan plantillas pre-configuradas</li>
+      </ul>
+    </div>
+    <div>
+      <strong class="text-purple-700 block mb-1">D6 · Edición híbrida Camino 3</strong>
+      <ul class="ml-4 list-disc text-slate-600 space-y-0.5">
+        <li>Modal compacto (datos básicos + roles + cards acceso)</li>
+        <li>Drill pages para sub-perfiles ricos (laborales · socio)</li>
+        <li>Anexo: mockup separado usuarios-edicion-hibrida-v5.2.html</li>
+      </ul>
+    </div>
+    <div>
+      <strong class="text-purple-700 block mb-1">D7 · Configuración avanzada NUEVA</strong>
+      <ul class="ml-4 list-disc text-slate-600 space-y-0.5">
+        <li>§1 Política de password · longitud · caducidad · requisitos</li>
+        <li>§2 Plantillas de roles · combinaciones predefinidas reutilizables</li>
+        <li>§3 Plantilla de email de invitación · editable</li>
+        <li>§4 Permisos custom · overrides sobre DEFAULT_PERMISOS</li>
+      </ul>
+    </div>
+    <div>
+      <strong class="text-purple-700 block mb-1">D8 · Acciones operativas · 5 modales canon A</strong>
+      <ul class="ml-4 list-disc text-slate-600 space-y-0.5">
+        <li>Aprobar invitado · asignar roles + activar</li>
+        <li>Reset password · email recommend o manual</li>
+        <li>Desconectar sesión · confirmación simple</li>
+        <li>Eliminar usuario · confirmación typed "ELIMINAR"</li>
+        <li>Desconectar TODAS · acción global de seguridad</li>
+      </ul>
+    </div>
+    <div>
+      <strong class="text-purple-700 block mb-1">D9 · Mobile responsive · canon N5+N6</strong>
+      <ul class="ml-4 list-disc text-slate-600 space-y-0.5">
+        <li>KPI strip 2×2 grid en mobile</li>
+        <li>Tabs scroll-x · labels cortos</li>
+        <li>Lista cards apiladas verticalmente · chips compactos</li>
+        <li>Menú "..." para acciones secundarias</li>
+      </ul>
+    </div>
+    <div>
+      <strong class="text-purple-700 block mb-1">D10 · Color signature por contexto</strong>
+      <ul class="ml-4 list-disc text-slate-600 space-y-0.5">
+        <li>Módulo Usuarios · purple (general)</li>
+        <li>Tab Socios · violet (alinea con módulo Inversionistas)</li>
+        <li>Tab Planilla · sky (alinea con módulo Planilla)</li>
+        <li>Tab Accesos · slate (seguridad neutral)</li>
+        <li>Tab Configuración · indigo (settings/avanzado)</li>
+      </ul>
+    </div>
+    <div>
+      <strong class="text-purple-700 block mb-1">D11 · Cross-links naturales</strong>
+      <ul class="ml-4 list-disc text-slate-600 space-y-0.5">
+        <li>Tab Socios → "Ver módulo Inversionistas →"</li>
+        <li>Tab Planilla → "Ver módulo Planilla →"</li>
+        <li>Tab Accesos → "Ver Auditoría completa →"</li>
+        <li>Ficha 360 → cross-link a módulos del user</li>
+      </ul>
+    </div>
+    <div>
+      <strong class="text-purple-700 block mb-1">D12 · Sin parches en futuras iteraciones</strong>
+      <ul class="ml-4 list-disc text-slate-600 space-y-0.5">
+        <li>Cualquier cambio futuro al módulo · update primero este mockup</li>
+        <li>Luego implementación 1-to-1</li>
+        <li>Mockup es la fuente única de verdad visual</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3 class="text-[14px] font-bold text-slate-900 mt-4 pt-3 border-t border-slate-100">
+    🛠 Plan técnico de implementación · 1 sola sesión grande
+  </h3>
+  <ol class="list-decimal ml-4 text-[11px] text-slate-700 space-y-1">
+    <li><strong>Refactor Usuarios.tsx</strong> · agregar state <code class="bg-slate-100 px-1 rounded">tabActiva</code> · TabsRow canon · render condicional por tab</li>
+    <li><strong>4 sub-componentes por tab</strong>:
+      <code class="bg-slate-100 px-1 rounded">TabResumen.tsx</code> ·
+      <code class="bg-slate-100 px-1 rounded">TabSocios.tsx</code> ·
+      <code class="bg-slate-100 px-1 rounded">TabPlanilla.tsx</code> ·
+      <code class="bg-slate-100 px-1 rounded">TabAccesos.tsx</code> ·
+      <code class="bg-slate-100 px-1 rounded">TabConfiguracion.tsx</code>
+    </li>
+    <li><strong>Modal "Invitar por email"</strong> · componente nuevo · usa Cloud Function inviteUser (no existe · TODO)</li>
+    <li><strong>Reemplazar Modal legacy</strong> por FormModalV2 en TODOS los modales del módulo (aprobar · reset · desconectar · eliminar · invitar)</li>
+    <li><strong>Drill pages</strong> · /usuarios/:uid/editar/laborales · /usuarios/:uid/editar/socio · canon mockup separado</li>
+    <li><strong>Tab Configuración</strong> · service nuevo <code class="bg-slate-100 px-1 rounded">configUsuariosService</code> para password policy · plantillas · email template · overrides</li>
+    <li><strong>Validación side-by-side</strong> · screenshot cada estado vs mockup · cero desviaciones</li>
+  </ol>
+
+  <div class="bg-emerald-50 border border-emerald-200 rounded p-3 mt-3 text-[11px] text-emerald-900">
+    <strong>Estimación:</strong> ~10-14 horas en 1 sesión dedicada · cero parches · cero shell legacy
+    al final · 100% canon v5.2.
+  </div>
+</div>
+
+<footer class="text-center text-[11px] text-slate-500 pt-8 max-w-5xl mx-auto">
+  Mockup canon v5.2 · Módulo /usuarios INTEGRAL · 2026-05-25
+</footer>
+
+<script>if (window.lucide) window.lucide.createIcons();</script>
+</body>
+</html>
