@@ -7,7 +7,15 @@ import type { DataTableColumn } from '../../design-system';
 import { userService, PERMISOS_INFO } from '../../services/user.service';
 import { useAuthStore } from '../../store/authStore';
 import type { UserProfile, UserRole } from '../../types/auth.types';
-import { DEFAULT_PERMISOS, PERMISOS, ROLE_LABELS, ROLE_DESCRIPTIONS, hasRole, getRolPrincipal } from '../../types/auth.types';
+import { DEFAULT_PERMISOS, PERMISOS, ROLE_LABELS, ROLE_DESCRIPTIONS, hasRole, getRolPrincipal, getUserRoles, calcularPermisosDeRoles, hasAnyRole } from '../../types/auth.types';
+// chk5.F3-ADAPT · sub-fase 3.3 · wire-up modal multi-rol + sub-perfiles
+import RolesMultiSelect from '../../components/modules/usuarios/RolesMultiSelect';
+import DatosLaboralesForm from '../../components/modules/usuarios/DatosLaboralesForm';
+import DatosSocioForm from '../../components/modules/usuarios/DatosSocioForm';
+import { datosLaboralesService } from '../../services/datosLaborales.service';
+import { datosSocioService } from '../../services/datosSocio.service';
+import type { DatosLaborales, DatosLaboralesFormData } from '../../types/datosLaborales.types';
+import type { DatosSocio, DatosSocioFormData } from '../../types/datosSocio.types';
 
 type ModalType = 'none' | 'create' | 'edit-permisos' | 'view-permisos' | 'delete-confirm' | 'reset-password' | 'disconnect-confirm' | 'disconnect-all-confirm' | 'approve-user';
 
@@ -35,6 +43,16 @@ export const Usuarios: React.FC = () => {
   // Estado para editar permisos
   const [editPermisos, setEditPermisos] = useState<string[]>([]);
   const [editRole, setEditRole] = useState<UserRole>('vendedor');
+  // chk5.F3-ADAPT · sub-fase 3.3 · multi-rol + sub-perfiles
+  const [editRoles, setEditRoles] = useState<UserRole[]>([]);
+  const [editActiveTab, setEditActiveTab] = useState<'roles' | 'laborales' | 'socio'>('roles');
+  const [editDatosLab, setEditDatosLab] = useState<DatosLaborales | null>(null);
+  const [editDatosSoc, setEditDatosSoc] = useState<DatosSocio | null>(null);
+  // Pending form data (lo que el user editó · puede ser null si invalido)
+  const [pendingDatosLab, setPendingDatosLab] = useState<DatosLaboralesFormData | null>(null);
+  const [pendingDatosSoc, setPendingDatosSoc] = useState<DatosSocioFormData | null>(null);
+  const [datosLabValid, setDatosLabValid] = useState(true);
+  const [datosSocValid, setDatosSocValid] = useState(true);
 
   // Estado para búsqueda y filtros
   const [searchTerm, setSearchTerm] = useState('');
@@ -132,26 +150,95 @@ export const Usuarios: React.FC = () => {
     }
   };
 
-  const handleOpenEditPermisos = (usuario: UserProfile) => {
+  const handleOpenEditPermisos = async (usuario: UserProfile) => {
     setSelectedUser(usuario);
-    setEditRole(usuario.role);
+    const roles = getUserRoles(usuario);
+    setEditRoles(roles.length > 0 ? roles : ['invitado']);
+    setEditRole(usuario.role);   // legacy compat
     setEditPermisos([...usuario.permisos]);
+    setEditActiveTab('roles');
+    setPendingDatosLab(null);
+    setPendingDatosSoc(null);
+    setDatosLabValid(true);
+    setDatosSocValid(true);
+    setEditDatosLab(null);
+    setEditDatosSoc(null);
     setModalType('edit-permisos');
+
+    // chk5.F3-ADAPT · cargar sub-perfiles existentes en paralelo
+    try {
+      const [datosLab, datosSoc] = await Promise.all([
+        datosLaboralesService.get(usuario.uid).catch(() => null),
+        datosSocioService.get(usuario.uid).catch(() => null),
+      ]);
+      setEditDatosLab(datosLab);
+      setEditDatosSoc(datosSoc);
+    } catch (err) {
+      console.warn('No se pudieron cargar sub-perfiles:', err);
+    }
   };
 
   const handleSavePermisos = async () => {
-    if (!selectedUser) return;
+    if (!selectedUser || !currentUser) return;
 
-    // Si es auto-edición, forzar que el rol no cambie
+    // Si es auto-edición · forzar que los roles NO cambien (no se puede degradar)
     const isSelf = selectedUser.uid === currentUser?.uid;
-    const roleToSave = isSelf ? selectedUser.role : editRole;
+    const rolesToSave = isSelf ? getUserRoles(selectedUser) : editRoles;
+
+    if (rolesToSave.length === 0) {
+      setError('Seleccioná al menos un rol · el usuario quedaría sin permisos.');
+      return;
+    }
+    if (editActiveTab === 'laborales' && !datosLabValid) {
+      setError('Completá los datos laborales · faltan campos obligatorios.');
+      return;
+    }
+    if (editActiveTab === 'socio' && !datosSocValid) {
+      setError('Completá los datos de socio · faltan campos obligatorios.');
+      return;
+    }
 
     setSaving(true);
     setError(null);
 
     try {
-      await userService.updateRoleAndPermisos(selectedUser.uid, roleToSave, editPermisos);
-      setSuccess('Permisos actualizados correctamente');
+      // chk5.F3-ADAPT · escribir roles[] + permisos calculados de los roles
+      // Como la Cloud Function solo soporta role singular, pasamos el rol principal
+      // y luego complementamos con roles[] desde el cliente (updateRoleAndPermisos
+      // ya hace ese paso adicional de updateDoc({roles: [role]}).
+      const rolPrincipalToSave: UserRole = rolesToSave[0];
+      const permisosCalculados = calcularPermisosDeRoles(rolesToSave);
+
+      // Guardar el rol principal vía Cloud Function (compat)
+      await userService.updateRoleAndPermisos(
+        selectedUser.uid,
+        rolPrincipalToSave,
+        permisosCalculados,
+      );
+
+      // Sobrescribir el campo roles[] con TODOS los roles del array completo
+      // (la Cloud Function solo escribió rolPrincipal · acá complementamos)
+      if (rolesToSave.length > 1) {
+        const { doc, updateDoc } = await import('firebase/firestore');
+        const { db } = await import('../../lib/firebase');
+        await updateDoc(doc(db, 'users', selectedUser.uid), {
+          roles: rolesToSave,
+        });
+      }
+
+      // chk5.F3-ADAPT · guardar sub-perfiles si hay cambios pendientes
+      if (pendingDatosLab && datosLabValid) {
+        await datosLaboralesService.set(selectedUser.uid, pendingDatosLab, currentUser.uid);
+      }
+      if (pendingDatosSoc && datosSocValid) {
+        await datosSocioService.set(selectedUser.uid, pendingDatosSoc, currentUser.uid);
+      }
+
+      // Si quitamos rol planilla pero existe datosLaborales · podríamos limpiarlo
+      // (DEUDA · por ahora dejamos los datos como historial · prevención de pérdida)
+      // Si quitamos rol socio pero existe datosSocio · igual
+
+      setSuccess('Usuario actualizado correctamente');
       setModalType('none');
       await fetchUsuarios();
     } catch (err: any) {
@@ -790,109 +877,145 @@ export const Usuarios: React.FC = () => {
               </form>
       </Modal>
 
-      {/* Modal Editar Permisos */}
+      {/* chk5.F3-ADAPT · Modal Editar Usuario · multi-rol + tabs dinámicas para sub-perfiles */}
       <Modal
         isOpen={modalType === 'edit-permisos' && !!selectedUser}
         onClose={() => setModalType('none')}
-        title={`Editar Permisos: ${selectedUser?.displayName ?? ''}`}
+        title={`Editar usuario: ${selectedUser?.displayName ?? ''}`}
         subtitle={selectedUser?.email}
         size="lg"
       >
-              {/* Selector de Rol */}
-              <div className="mb-6">
-                <label className="block text-sm font-medium text-slate-700 mb-2">
-                  Rol del usuario
-                </label>
-                {selectedUser?.uid === currentUser?.uid ? (
-                  <div>
-                    <span className={`inline-block px-3 py-2 rounded-lg text-sm font-medium bg-teal-600 text-white`}>
-                      {ROLE_LABELS[editRole]}
-                    </span>
-                    <p className="text-xs text-amber-600 mt-2">
-                      No puedes cambiar tu propio rol por seguridad.
-                    </p>
-                  </div>
-                ) : (
-                  <>
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                      {(Object.entries(ROLE_LABELS) as [UserRole, string][]).map(([role, label]) => (
-                        <button
-                          key={role}
-                          type="button"
-                          onClick={() => handleRoleChange(role)}
-                          className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                            editRole === role
-                              ? 'bg-teal-600 text-white shadow-sm'
-                              : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-                          }`}
-                        >
-                          {label}
-                        </button>
-                      ))}
-                    </div>
-                    <p className="text-xs text-slate-500 mt-2">
-                      {ROLE_DESCRIPTIONS[editRole]}
-                    </p>
-                    <p className="text-xs text-amber-600 mt-1">
-                      Al cambiar el rol, los permisos se resetean a los predeterminados.
-                    </p>
-                  </>
+        {(() => {
+          if (!selectedUser) return null;
+          const isSelf = selectedUser.uid === currentUser?.uid;
+          const tieneSocio = editRoles.includes('socio');
+          const tieneRolPlanilla = editRoles.some((r) =>
+            (['gerente', 'vendedor', 'comprador', 'almacenero', 'finanzas', 'supervisor'] as UserRole[]).includes(r)
+          );
+
+          return (
+            <div>
+              {/* Tabs internas · dinámicas según roles asignados */}
+              <div className="border-b border-slate-200 mb-4 flex items-center gap-1 overflow-x-auto">
+                <button
+                  type="button"
+                  onClick={() => setEditActiveTab('roles')}
+                  className={`px-3 py-2 text-[12px] border-b-2 whitespace-nowrap font-semibold ${
+                    editActiveTab === 'roles'
+                      ? 'border-purple-600 text-purple-700'
+                      : 'border-transparent text-slate-600 hover:text-slate-900'
+                  }`}
+                >
+                  <Shield className="w-3 h-3 inline mr-1" /> Roles + accesos
+                </button>
+                {tieneRolPlanilla && (
+                  <button
+                    type="button"
+                    onClick={() => setEditActiveTab('laborales')}
+                    className={`px-3 py-2 text-[12px] border-b-2 whitespace-nowrap font-semibold ${
+                      editActiveTab === 'laborales'
+                        ? 'border-sky-600 text-sky-700'
+                        : 'border-transparent text-slate-600 hover:text-slate-900'
+                    }`}
+                  >
+                    💼 Datos laborales
+                    {!editDatosLab && (
+                      <span className="ml-1 inline-block w-1.5 h-1.5 bg-amber-500 rounded-full" title="Sin completar"></span>
+                    )}
+                  </button>
+                )}
+                {tieneSocio && (
+                  <button
+                    type="button"
+                    onClick={() => setEditActiveTab('socio')}
+                    className={`px-3 py-2 text-[12px] border-b-2 whitespace-nowrap font-semibold ${
+                      editActiveTab === 'socio'
+                        ? 'border-violet-600 text-violet-700'
+                        : 'border-transparent text-slate-600 hover:text-slate-900'
+                    }`}
+                  >
+                    🏛 Datos de socio
+                    {!editDatosSoc && (
+                      <span className="ml-1 inline-block w-1.5 h-1.5 bg-amber-500 rounded-full" title="Sin completar"></span>
+                    )}
+                  </button>
                 )}
               </div>
 
-              {/* Permisos por grupo */}
-              <div className="space-y-4 max-h-96 overflow-y-auto">
-                <label className="block text-sm font-medium text-slate-700">
-                  Permisos específicos
-                </label>
-
-                {Object.entries(permisosAgrupados).map(([grupo, permisos]) => (
-                  <div key={grupo} className="border rounded-lg p-4">
-                    <h4 className="font-medium text-slate-800 mb-3">{grupo}</h4>
-                    <div className="space-y-2">
-                      {permisos.map(({ permiso, info }) => (
-                        <label
-                          key={permiso}
-                          className="flex items-start gap-3 cursor-pointer hover:bg-slate-50 p-2 rounded"
-                        >
-                          <input
-                            type="checkbox"
-                            checked={editPermisos.includes(permiso)}
-                            onChange={() => handleTogglePermiso(permiso)}
-                            className="mt-1 h-4 w-4 text-teal-600 rounded border-slate-300 focus:ring-teal-500"
-                          />
-                          <div>
-                            <p className="font-medium text-slate-700">{info.label}</p>
-                            <p className="text-xs text-slate-500">{info.descripcion}</p>
-                          </div>
-                        </label>
-                      ))}
-                    </div>
+              {/* Body por tab · max-h con scroll · botón "Ver ficha 360" pegado abajo */}
+              <div className="max-h-[60vh] overflow-y-auto pr-1">
+                {/* Tab Roles + accesos */}
+                {editActiveTab === 'roles' && (
+                  <div className="space-y-4">
+                    {isSelf && (
+                      <div className="bg-amber-50 border border-amber-200 rounded-lg p-2.5 text-[11px] text-amber-900">
+                        ⚠ No podés cambiar tus propios roles por seguridad · solo otro admin puede modificarlos.
+                      </div>
+                    )}
+                    <RolesMultiSelect
+                      value={editRoles}
+                      onChange={setEditRoles}
+                      disabled={isSelf}
+                    />
                   </div>
-                ))}
+                )}
+
+                {/* Tab Datos laborales · solo si tiene rol planilla */}
+                {editActiveTab === 'laborales' && tieneRolPlanilla && (
+                  <DatosLaboralesForm
+                    initialData={editDatosLab ?? undefined}
+                    onChange={(data, valid) => {
+                      setPendingDatosLab(data);
+                      setDatosLabValid(valid);
+                    }}
+                  />
+                )}
+
+                {/* Tab Datos de socio · solo si tiene rol socio */}
+                {editActiveTab === 'socio' && tieneSocio && (
+                  <DatosSocioForm
+                    initialData={editDatosSoc ?? undefined}
+                    onChange={(data, valid) => {
+                      setPendingDatosSoc(data);
+                      setDatosSocValid(valid);
+                    }}
+                  />
+                )}
               </div>
 
-              <div className="flex justify-end gap-2 pt-6 border-t mt-6">
+              {/* Footer · cancelar + guardar + ficha 360 */}
+              <div className="flex justify-between items-center gap-2 pt-4 border-t mt-4">
                 <button
                   type="button"
-                  onClick={() => setModalType('none')}
-                  className="px-4 py-2 text-slate-600 hover:text-slate-800"
+                  onClick={() => {
+                    setModalType('none');
+                    navigate(`/usuarios/${selectedUser.uid}/ficha`);
+                  }}
+                  className="text-[11px] font-semibold text-purple-700 hover:bg-purple-50 border border-purple-200 px-3 py-1.5 rounded inline-flex items-center gap-1.5"
                 >
-                  Cancelar
+                  <Eye className="w-3 h-3" /> Ver ficha 360
                 </button>
-                <button
-                  onClick={handleSavePermisos}
-                  disabled={saving}
-                  className="flex items-center gap-2 px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 disabled:opacity-50"
-                >
-                  {saving ? (
-                    <RefreshCw className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <Save className="h-4 w-4" />
-                  )}
-                  Guardar Cambios
-                </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setModalType('none')}
+                    className="px-4 py-2 text-slate-600 hover:text-slate-800 text-[12px]"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    onClick={handleSavePermisos}
+                    disabled={saving}
+                    className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 text-[12px] font-bold"
+                  >
+                    {saving ? <RefreshCw className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                    Guardar cambios
+                  </button>
+                </div>
               </div>
+            </div>
+          );
+        })()}
       </Modal>
 
       {/* Modal Confirmar Eliminación */}
