@@ -59,6 +59,8 @@ const Auditoria = React.lazy(() => import('./pages/Auditoria/Auditoria').then(m 
 const Contabilidad = React.lazy(() => import('./pages/Contabilidad/Contabilidad').then(m => ({ default: m.Contabilidad })));
 // chk5.E-INV · Inversionistas · vista ejecutiva canon v5.2 (modelo mixto)
 const Inversionistas = React.lazy(() => import('./pages/Inversionistas/Inversionistas'));
+// chk5.F2-SUB-PERFILES · Ficha 360 de usuario · vista completa multi-rol + sub-perfiles
+const Ficha360 = React.lazy(() => import('./pages/Usuarios/Ficha360/Ficha360'));
 const ProductosIntel = React.lazy(() => import('./pages/ProductosIntel/ProductosIntel').then(m => ({ default: m.ProductosIntel })));
 const IntelProductosPage = React.lazy(() => import('./pages/IntelProductos').then(m => ({ default: m.IntelProductosPage })));
 const MiPerfil = React.lazy(() => import('./pages/Perfil/MiPerfil').then(m => ({ default: m.MiPerfil })));
@@ -227,6 +229,8 @@ function App() {
               {/* chk5.E-INV · vista ejecutiva para socios/inversionistas (canon v5.2 violet) */}
               <Route path="inversionistas" element={<Inversionistas />} />
               <Route path="usuarios" element={<Usuarios />} />
+              {/* chk5.F2-SUB-PERFILES · Ficha 360 página propia · una persona, todas sus facetas */}
+              <Route path="usuarios/:uid/ficha" element={<Ficha360 />} />
               <Route path="auditoria" element={<Auditoria />} />
               <Route path="configuracion" element={<Configuracion />} />
               <Route path="configuracion/borradores" element={<BorradoresWizardPanel />} />

@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Users, Shield, UserCheck, UserX, RefreshCw, Plus, Edit2, X, Save, Eye, EyeOff, Search, Filter, Trash2, Key, AlertTriangle, LogOut, Wifi, WifiOff, Clock, CheckCircle, Loader2 } from 'lucide-react';
 import { Modal } from '../../components/common/Modal';
 import { PageShell, PageHeader, Toolbar, DataTable } from '../../design-system';
@@ -11,6 +12,7 @@ import { DEFAULT_PERMISOS, PERMISOS, ROLE_LABELS, ROLE_DESCRIPTIONS, hasRole, ge
 type ModalType = 'none' | 'create' | 'edit-permisos' | 'view-permisos' | 'delete-confirm' | 'reset-password' | 'disconnect-confirm' | 'disconnect-all-confirm' | 'approve-user';
 
 export const Usuarios: React.FC = () => {
+  const navigate = useNavigate();
   const [usuarios, setUsuarios] = useState<UserProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -641,6 +643,8 @@ export const Usuarios: React.FC = () => {
                       <CheckCircle className="h-3.5 w-3.5" /><span className="text-xs font-medium">Aprobar</span>
                     </button>
                   )}
+                  {/* chk5.F2-SUB-PERFILES · acceso a Ficha 360 (vista completa multi-rol + sub-perfiles) */}
+                  <button onClick={() => navigate(`/usuarios/${u.uid}/ficha`)} className="p-2 text-purple-600 hover:text-purple-900 hover:bg-purple-50 rounded-lg" title="Ver ficha 360"><Eye className="h-4 w-4" /></button>
                   <button onClick={() => handleOpenEditPermisos(u)} className="p-2 text-teal-600 hover:text-teal-900 hover:bg-teal-50 rounded-lg" title="Editar permisos"><Edit2 className="h-4 w-4" /></button>
                   <button onClick={() => handleOpenDisconnect(u)} disabled={u.uid === currentUser?.uid} className="p-2 text-orange-600 hover:text-orange-900 hover:bg-orange-50 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed" title="Desconectar"><LogOut className="h-4 w-4" /></button>
                   <button onClick={() => handleOpenResetPassword(u)} disabled={u.uid === currentUser?.uid} className="p-2 text-amber-600 hover:text-amber-900 hover:bg-amber-50 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed" title="Reset password"><Key className="h-4 w-4" /></button>
