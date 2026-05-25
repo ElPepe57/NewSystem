@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Inversionistas · canon v5.2 · vista mixta (cash + TC personal)</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<style>
+  body { font-family: 'Inter', sans-serif; font-variant-numeric: tabular-nums; }
+  .tabular { font-variant-numeric: tabular-nums; }
+</style>
+<script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-slate-50 p-6 md:p-10 text-slate-900">
+
+<div class="max-w-6xl mx-auto mb-6 bg-violet-50 border-l-4 border-violet-500 p-4 rounded text-[12px] text-violet-900">
+  <strong>🏛️ Mockup canon v5.2 · MÓDULO INVERSIONISTAS · modelo mixto</strong> · Vista ejecutiva estratégica
+  para PyME emprendedora · soporta inversión MIXTA (cash propio + apalancamiento TC personal asumida)
+  · 7 secciones · color signature <strong class="text-violet-700">violet</strong> (distinto a purple Contabilidad y teal Finanzas).
+</div>
+
+<!-- ╔══════════════════════════════════════════════════════════════╗ -->
+<!-- SHELL del nuevo módulo · pixel-perfect canon                    -->
+<!-- ╚══════════════════════════════════════════════════════════════╝ -->
+<div class="max-w-6xl mx-auto bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+
+  <!-- §A · BREADCRUMB canon S9.D1 -->
+  <div class="border-b border-slate-200 px-6 py-2.5 flex items-center gap-3 bg-slate-50">
+    <div class="flex items-center text-[12px] flex-1">
+      <a class="text-slate-500 hover:text-violet-700 cursor-pointer">Inicio</a>
+      <i data-lucide="chevron-right" class="w-3 h-3 text-slate-300 mx-1.5"></i>
+      <span class="text-slate-900 font-semibold">Inversionistas</span>
+    </div>
+    <span class="text-[10px] bg-violet-50 text-violet-700 px-2 py-0.5 rounded font-bold inline-flex items-center gap-1">
+      <i data-lucide="shield" class="w-3 h-3"></i>
+      Acceso restringido · solo socios
+    </span>
+  </div>
+
+  <!-- §B · HEADER banking-grade · canon F1 · icon violet -->
+  <div class="px-6 py-5 border-b border-slate-100">
+    <div class="flex items-start justify-between gap-4 flex-wrap">
+      <div class="flex items-start gap-3 flex-1 min-w-[260px]">
+        <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-violet-500 to-violet-700 flex items-center justify-center text-white flex-shrink-0">
+          <i data-lucide="landmark" class="w-5 h-5"></i>
+        </div>
+        <div class="min-w-0">
+          <h1 class="text-2xl font-bold tracking-tight text-slate-900">Inversionistas</h1>
+          <p class="text-[13px] text-slate-500 leading-snug">
+            Vista estratégica · capital comprometido · retorno sobre inversión · trayectoria del negocio · sin operativos día a día
+          </p>
+        </div>
+      </div>
+      <!-- Acciones header · 3-tier canon -->
+      <div class="flex items-center gap-1.5 flex-wrap justify-end">
+        <div class="inline-flex items-center gap-1.5 bg-white border border-slate-200 rounded-lg px-2 py-1.5">
+          <i data-lucide="calendar" class="w-3.5 h-3.5 text-slate-500"></i>
+          <select class="text-[11px] font-semibold bg-transparent focus:outline-none">
+            <option>YTD 2026</option>
+          </select>
+        </div>
+        <button class="text-[11px] font-semibold text-slate-600 hover:bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-lg flex items-center gap-1.5">
+          <i data-lucide="refresh-cw" class="w-3 h-3"></i>
+          <span class="hidden sm:inline">Recargar</span>
+        </button>
+        <button class="text-[11px] font-semibold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 px-3 py-1.5 rounded-lg flex items-center gap-1.5">
+          <i data-lucide="user-cog" class="w-3 h-3"></i>
+          <span class="hidden sm:inline">Configurar socios</span>
+        </button>
+        <button class="text-[11px] font-bold text-white bg-violet-600 hover:bg-violet-700 px-3 py-1.5 rounded-lg flex items-center gap-1.5">
+          <i data-lucide="file-text" class="w-3 h-3"></i>
+          <span class="hidden sm:inline">Reporte directorio</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- §C · KPI STRIP canon N1+N2 · 5 cards inversionista -->
+  <div class="px-6 py-4 border-b border-slate-100 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+
+    <!-- KPI 1 · Capital Comprometido Total -->
+    <div class="bg-gradient-to-br from-violet-50 to-violet-100/40 ring-1 ring-violet-200/50 rounded-2xl p-4">
+      <div class="flex items-center justify-between mb-2">
+        <span class="text-[10px] uppercase tracking-wider text-violet-700 font-bold flex items-center gap-1">
+          CAPITAL COMPROMETIDO
+          <i data-lucide="info" class="w-3 h-3 text-slate-400" title="Cash propio aportado + TC personal asumida"></i>
+        </span>
+        <i data-lucide="wallet" class="w-3.5 h-3.5 text-violet-700"></i>
+      </div>
+      <div class="text-2xl font-bold tabular text-violet-900">S/ 145,000</div>
+      <div class="text-[11px] text-violet-700 mt-1">
+        S/ 100k propio · S/ 45k TC
+      </div>
+    </div>
+
+    <!-- KPI 2 · Patrimonio Actual -->
+    <div class="bg-gradient-to-br from-indigo-50 to-indigo-100/40 ring-1 ring-indigo-200/50 rounded-2xl p-4">
+      <div class="flex items-center justify-between mb-2">
+        <span class="text-[10px] uppercase tracking-wider text-indigo-700 font-bold">PATRIMONIO ACTUAL</span>
+        <i data-lucide="piggy-bank" class="w-3.5 h-3.5 text-indigo-700"></i>
+      </div>
+      <div class="text-2xl font-bold tabular text-indigo-900">S/ 315,400</div>
+      <div class="text-[11px] text-indigo-700 flex items-center gap-1 mt-1">
+        <i data-lucide="trending-up" class="w-3 h-3"></i> +119% vs Ene 2025
+      </div>
+    </div>
+
+    <!-- KPI 3 · Equity Ratio -->
+    <div class="bg-gradient-to-br from-emerald-50 to-emerald-100/40 ring-1 ring-emerald-200/50 rounded-2xl p-4">
+      <div class="flex items-center justify-between mb-2">
+        <span class="text-[10px] uppercase tracking-wider text-emerald-700 font-bold flex items-center gap-1">
+          EQUITY RATIO
+          <i data-lucide="info" class="w-3 h-3 text-slate-400" title="% del activo que es REALMENTE tuyo · libre de deuda"></i>
+        </span>
+        <i data-lucide="shield-check" class="w-3.5 h-3.5 text-emerald-700"></i>
+      </div>
+      <div class="text-2xl font-bold tabular text-emerald-900">69%</div>
+      <div class="text-[11px] text-emerald-700 mt-1">
+        S/ 316k libre · S/ 142k deuda
+      </div>
+    </div>
+
+    <!-- KPI 4 · ROI Anualizado -->
+    <div class="bg-gradient-to-br from-amber-50 to-amber-100/40 ring-1 ring-amber-200/50 rounded-2xl p-4">
+      <div class="flex items-center justify-between mb-2">
+        <span class="text-[10px] uppercase tracking-wider text-amber-700 font-bold flex items-center gap-1">
+          ROI ANUALIZADO
+          <i data-lucide="info" class="w-3 h-3 text-slate-400" title="Sobre capital comprometido total"></i>
+        </span>
+        <i data-lucide="trending-up" class="w-3.5 h-3.5 text-amber-700"></i>
+      </div>
+      <div class="text-2xl font-bold tabular text-amber-900">29%</div>
+      <div class="text-[11px] text-amber-700 mt-1">
+        vs ~5% plazo fijo · 6x mejor
+      </div>
+    </div>
+
+    <!-- KPI 5 · Multiplicador Patrimonio -->
+    <div class="bg-gradient-to-br from-violet-50 to-purple-100/40 ring-1 ring-purple-200/50 rounded-2xl p-4">
+      <div class="flex items-center justify-between mb-2">
+        <span class="text-[10px] uppercase tracking-wider text-purple-700 font-bold flex items-center gap-1">
+          MULTIPLICADOR
+          <i data-lucide="info" class="w-3 h-3 text-slate-400" title="Patrimonio actual / Capital aportado original"></i>
+        </span>
+        <i data-lucide="zap" class="w-3.5 h-3.5 text-purple-700"></i>
+      </div>
+      <div class="text-2xl font-bold tabular text-purple-900">3.15x</div>
+      <div class="text-[11px] text-purple-700 mt-1">
+        Por cada S/1 puesto · valen S/3.15
+      </div>
+    </div>
+
+  </div>
+
+  <!-- §D · BODY · 7 secciones -->
+  <div class="p-6 space-y-6">
+
+    <!-- ╔══════════════════════════════════════╗ -->
+    <!-- §1 · RESUMEN EJECUTIVO                 -->
+    <!-- ╚══════════════════════════════════════╝ -->
+    <section>
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-7 h-7 rounded-lg bg-violet-100 flex items-center justify-center text-violet-700 font-bold text-[11px]">1</div>
+        <h2 class="text-[14px] font-bold text-slate-900">Resumen ejecutivo</h2>
+        <span class="text-[10px] text-slate-500">Estado del negocio desde lente inversionista</span>
+      </div>
+
+      <!-- Banner Estado del Negocio (reutiliza componente Contabilidad) -->
+      <div class="bg-gradient-to-r from-emerald-50 via-emerald-100/40 to-emerald-50 ring-2 ring-emerald-200 rounded-2xl p-5 mb-4">
+        <div class="flex items-start gap-4 flex-wrap">
+          <div class="flex items-center gap-3 flex-1 min-w-[260px]">
+            <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center text-white flex-shrink-0 shadow-lg shadow-emerald-200">
+              <i data-lucide="check-circle-2" class="w-7 h-7"></i>
+            </div>
+            <div>
+              <div class="text-[11px] uppercase tracking-wider text-emerald-700 font-bold">Estado del negocio</div>
+              <div class="text-[22px] font-bold text-emerald-900 leading-tight">Saludable · creciendo</div>
+              <div class="text-[11px] text-emerald-700">Apalancamiento bajando · ROI supera el costo TC · sostenible</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3 cards · capital comprometido + composición + estado de apalancamiento -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+
+        <!-- Card 1 · Cash propio -->
+        <div class="bg-white border border-emerald-200 rounded-2xl p-4">
+          <div class="flex items-center gap-2 mb-1">
+            <div class="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center">
+              <i data-lucide="wallet" class="w-4 h-4 text-emerald-700"></i>
+            </div>
+            <span class="text-[10px] uppercase tracking-wider font-bold text-emerald-700">CASH PROPIO APORTADO</span>
+          </div>
+          <div class="text-[22px] font-bold tabular text-emerald-900">S/ 100,000</div>
+          <div class="text-[10px] text-slate-500">69% del capital comprometido</div>
+          <div class="mt-2 pt-2 border-t border-emerald-100 text-[11px] text-emerald-700 flex items-center gap-1">
+            <i data-lucide="trending-up" class="w-3 h-3"></i>
+            3 aportes · último: Mar 2026
+          </div>
+        </div>
+
+        <!-- Card 2 · TC personal asumida (apalancamiento) -->
+        <div class="bg-white border border-rose-200 rounded-2xl p-4">
+          <div class="flex items-center gap-2 mb-1">
+            <div class="w-8 h-8 rounded-lg bg-rose-100 flex items-center justify-center">
+              <i data-lucide="credit-card" class="w-4 h-4 text-rose-700"></i>
+            </div>
+            <span class="text-[10px] uppercase tracking-wider font-bold text-rose-700">TC PERSONAL ASUMIDA</span>
+          </div>
+          <div class="text-[22px] font-bold tabular text-rose-900">S/ 45,000</div>
+          <div class="text-[10px] text-slate-500">31% del capital comprometido</div>
+          <div class="mt-2 pt-2 border-t border-rose-100 text-[11px] text-rose-700 flex items-center gap-1">
+            <i data-lucide="trending-down" class="w-3 h-3"></i>
+            Saldo TC bajando S/3,500/mes
+          </div>
+        </div>
+
+        <!-- Card 3 · Soberanía financiera -->
+        <div class="bg-white border border-amber-200 rounded-2xl p-4">
+          <div class="flex items-center gap-2 mb-1">
+            <div class="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center">
+              <i data-lucide="flag" class="w-4 h-4 text-amber-700"></i>
+            </div>
+            <span class="text-[10px] uppercase tracking-wider font-bold text-amber-700">SOBERANÍA FINANCIERA</span>
+          </div>
+          <div class="text-[22px] font-bold tabular text-amber-900">~5 meses</div>
+          <div class="text-[10px] text-slate-500">Faltan para "liberar" la TC</div>
+          <div class="mt-2 pt-2 border-t border-amber-100 text-[11px] text-amber-700 flex items-center gap-1">
+            <i data-lucide="clock" class="w-3 h-3"></i>
+            Octubre 2026 · sin deuda personal
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ╔══════════════════════════════════════╗ -->
+    <!-- §2 · MI CAPITAL · HISTÓRICO            -->
+    <!-- ╚══════════════════════════════════════╝ -->
+    <section>
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-7 h-7 rounded-lg bg-violet-100 flex items-center justify-center text-violet-700 font-bold text-[11px]">2</div>
+        <h2 class="text-[14px] font-bold text-slate-900">Mi capital · histórico y composición</h2>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+
+        <!-- Sub-A · Timeline de aportes propios (cash) -->
+        <div class="lg:col-span-2 bg-white border border-slate-200 rounded-2xl overflow-hidden">
+          <div class="bg-gradient-to-r from-emerald-50 to-emerald-100/40 px-4 py-2.5 border-b border-emerald-200/50 flex items-center justify-between">
+            <h3 class="text-[12px] font-bold text-emerald-900 flex items-center gap-2">
+              <i data-lucide="wallet" class="w-3.5 h-3.5"></i>
+              Aportes propios · cash
+            </h3>
+            <button class="text-[10px] text-emerald-700 hover:bg-emerald-100 border border-emerald-300 px-2 py-1 rounded inline-flex items-center gap-1">
+              <i data-lucide="plus" class="w-3 h-3"></i> Nuevo aporte
+            </button>
+          </div>
+          <table class="w-full text-[12px]">
+            <thead class="bg-slate-50 border-b border-slate-100">
+              <tr>
+                <th class="px-3 py-2 text-left text-[10px] uppercase tracking-wider font-bold text-slate-700">Fecha</th>
+                <th class="px-3 py-2 text-left text-[10px] uppercase tracking-wider font-bold text-slate-700">Socio</th>
+                <th class="px-3 py-2 text-left text-[10px] uppercase tracking-wider font-bold text-slate-700">Concepto</th>
+                <th class="px-3 py-2 text-right text-[10px] uppercase tracking-wider font-bold text-slate-700">Monto</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+              <tr>
+                <td class="px-3 py-2 text-slate-600">15/Ene/2024</td>
+                <td class="px-3 py-2 font-semibold text-slate-900">José LP</td>
+                <td class="px-3 py-2 text-slate-500">Aporte inicial · constitución</td>
+                <td class="px-3 py-2 text-right tabular font-semibold text-emerald-700">S/ 60,000</td>
+              </tr>
+              <tr>
+                <td class="px-3 py-2 text-slate-600">08/Jun/2024</td>
+                <td class="px-3 py-2 font-semibold text-slate-900">José LP</td>
+                <td class="px-3 py-2 text-slate-500">Refuerzo inventario USA</td>
+                <td class="px-3 py-2 text-right tabular font-semibold text-emerald-700">S/ 25,000</td>
+              </tr>
+              <tr>
+                <td class="px-3 py-2 text-slate-600">14/Mar/2026</td>
+                <td class="px-3 py-2 font-semibold text-slate-900">José LP</td>
+                <td class="px-3 py-2 text-slate-500">Capital de trabajo · campaña Q2</td>
+                <td class="px-3 py-2 text-right tabular font-semibold text-emerald-700">S/ 15,000</td>
+              </tr>
+            </tbody>
+            <tfoot class="bg-emerald-50 border-t-2 border-emerald-200">
+              <tr>
+                <td colspan="3" class="px-3 py-2 font-bold text-emerald-900">Total aportes propios</td>
+                <td class="px-3 py-2 text-right tabular font-bold text-emerald-900">S/ 100,000</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+
+        <!-- Sub-B · Donut composición -->
+        <div class="bg-white border border-violet-200 rounded-2xl p-4">
+          <h3 class="text-[12px] font-bold text-violet-900 mb-3 flex items-center gap-2">
+            <i data-lucide="pie-chart" class="w-3.5 h-3.5"></i>
+            Composición del capital comprometido
+          </h3>
+          <div class="flex items-center gap-3">
+            <svg viewBox="0 0 100 100" class="w-28 h-28 flex-shrink-0 -rotate-90">
+              <circle cx="50" cy="50" r="40" fill="none" stroke="rgb(241 245 249)" stroke-width="16"/>
+              <!-- Cash propio 69% -->
+              <circle cx="50" cy="50" r="40" fill="none" stroke="rgb(5 150 105)" stroke-width="16"
+                      stroke-dasharray="173.4 251.3"/>
+              <!-- TC personal 31% -->
+              <circle cx="50" cy="50" r="40" fill="none" stroke="rgb(225 29 72)" stroke-width="16"
+                      stroke-dasharray="77.9 251.3" stroke-dashoffset="-173.4"/>
+            </svg>
+            <div class="flex-1 text-[11px] space-y-1.5">
+              <div class="flex items-center gap-1.5">
+                <div class="w-2 h-2 rounded-full bg-emerald-500"></div>
+                <span class="text-slate-700">Cash propio</span>
+                <span class="ml-auto tabular font-bold text-emerald-900">69%</span>
+              </div>
+              <div class="flex items-center gap-1.5">
+                <div class="w-2 h-2 rounded-full bg-rose-600"></div>
+                <span class="text-slate-700">TC personal</span>
+                <span class="ml-auto tabular font-bold text-rose-900">31%</span>
+              </div>
+            </div>
+          </div>
+          <div class="mt-3 pt-3 border-t border-violet-100 text-[10px] text-violet-700 flex items-start gap-1">
+            <i data-lucide="lightbulb" class="w-3 h-3 mt-0.5 flex-shrink-0"></i>
+            <span>Tu apalancamiento es <strong>moderado</strong> (31%). Mientras siga bajando, vas en buen camino.</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Sub-C · Saldos TC actuales (apalancamiento) -->
+      <div class="mt-4 bg-white border border-rose-200 rounded-2xl overflow-hidden">
+        <div class="bg-gradient-to-r from-rose-50 to-rose-100/40 px-4 py-2.5 border-b border-rose-200/50">
+          <h3 class="text-[12px] font-bold text-rose-900 flex items-center gap-2">
+            <i data-lucide="credit-card" class="w-3.5 h-3.5"></i>
+            Apalancamiento · TC personal asumida por el negocio
+          </h3>
+        </div>
+        <div class="divide-y divide-slate-100">
+          <div class="px-4 py-2.5 flex items-center gap-3">
+            <div class="w-8 h-8 rounded-lg bg-rose-50 border border-rose-200 flex items-center justify-center flex-shrink-0">
+              <i data-lucide="credit-card" class="w-4 h-4 text-rose-600"></i>
+            </div>
+            <div class="flex-1">
+              <div class="text-[12px] font-semibold text-slate-900">TC BCP Visa · José LP</div>
+              <div class="text-[10px] text-slate-500">Garantía personal · negocio paga · interés 39% TEA</div>
+            </div>
+            <div class="text-right">
+              <div class="text-[14px] font-bold tabular text-rose-900">S/ 32,500</div>
+              <div class="text-[9px] text-emerald-700">−S/ 2,500 vs mes anterior</div>
+            </div>
+          </div>
+          <div class="px-4 py-2.5 flex items-center gap-3">
+            <div class="w-8 h-8 rounded-lg bg-rose-50 border border-rose-200 flex items-center justify-center flex-shrink-0">
+              <i data-lucide="credit-card" class="w-4 h-4 text-rose-600"></i>
+            </div>
+            <div class="flex-1">
+              <div class="text-[12px] font-semibold text-slate-900">TC Interbank Mastercard · José LP</div>
+              <div class="text-[10px] text-slate-500">Garantía personal · negocio paga · interés 42% TEA</div>
+            </div>
+            <div class="text-right">
+              <div class="text-[14px] font-bold tabular text-rose-900">S/ 12,500</div>
+              <div class="text-[9px] text-emerald-700">−S/ 1,000 vs mes anterior</div>
+            </div>
+          </div>
+        </div>
+        <div class="bg-rose-50 px-4 py-2 flex justify-between border-t border-rose-200">
+          <span class="text-[11px] uppercase font-bold text-rose-900">TOTAL TC PERSONAL</span>
+          <span class="text-[14px] font-bold tabular text-rose-900">S/ 45,000</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ╔══════════════════════════════════════╗ -->
+    <!-- §3 · TRAYECTORIA DEL NEGOCIO 24M       -->
+    <!-- ╚══════════════════════════════════════╝ -->
+    <section>
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-7 h-7 rounded-lg bg-violet-100 flex items-center justify-center text-violet-700 font-bold text-[11px]">3</div>
+        <h2 class="text-[14px] font-bold text-slate-900">Trayectoria del negocio · últimos 24 meses</h2>
+      </div>
+
+      <div class="bg-white border border-slate-200 rounded-2xl p-5">
+        <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
+          <h3 class="text-[12px] font-bold text-slate-900 flex items-center gap-2">
+            <i data-lucide="line-chart" class="w-4 h-4 text-violet-600"></i>
+            Activos · Patrimonio · TC · Equity Ratio
+          </h3>
+          <div class="flex items-center gap-2 text-[10px]">
+            <span class="flex items-center gap-1"><div class="w-2 h-2 bg-teal-500 rounded-full"></div> Activos</span>
+            <span class="flex items-center gap-1"><div class="w-2 h-2 bg-rose-500 rounded-full"></div> Deuda TC</span>
+            <span class="flex items-center gap-1"><div class="w-2 h-2 bg-indigo-500 rounded-full"></div> Patrimonio</span>
+            <span class="flex items-center gap-1"><div class="w-2 h-2 bg-emerald-500 rounded-full"></div> Equity Ratio</span>
+          </div>
+        </div>
+
+        <!-- Gráfica longitudinal · SVG mock con 4 líneas -->
+        <div class="bg-slate-50 rounded-xl p-4 h-64 relative">
+          <svg viewBox="0 0 400 200" class="w-full h-full" preserveAspectRatio="none">
+            <!-- Grid -->
+            <line x1="0" y1="50" x2="400" y2="50" stroke="rgb(226 232 240)" stroke-width="0.5"/>
+            <line x1="0" y1="100" x2="400" y2="100" stroke="rgb(226 232 240)" stroke-width="0.5"/>
+            <line x1="0" y1="150" x2="400" y2="150" stroke="rgb(226 232 240)" stroke-width="0.5"/>
+            <!-- Activos (teal · ascendente desde 150 a 25) -->
+            <polyline points="0,170 33,165 67,158 100,148 133,140 167,135 200,128 233,118 267,108 300,95 333,82 367,68 400,55"
+                      fill="none" stroke="rgb(20 184 166)" stroke-width="2.5"/>
+            <!-- Deuda TC (rose · descendente desde 130 a 175) -->
+            <polyline points="0,130 33,135 67,140 100,145 133,150 167,153 200,155 233,158 267,160 300,165 333,170 367,173 400,175"
+                      fill="none" stroke="rgb(225 29 72)" stroke-width="2.5"/>
+            <!-- Patrimonio (indigo · ascendente desde 165 a 60) -->
+            <polyline points="0,180 33,178 67,170 100,160 133,148 167,138 200,128 233,115 267,100 300,88 333,78 367,68 400,60"
+                      fill="none" stroke="rgb(79 70 229)" stroke-width="2.5"/>
+            <!-- Equity Ratio (emerald · ascendente desde 130 a 50) -->
+            <polyline points="0,140 33,135 67,128 100,118 133,108 167,98 200,90 233,80 267,72 300,65 333,58 367,52 400,48"
+                      fill="none" stroke="rgb(5 150 105)" stroke-width="2.5" stroke-dasharray="3 2"/>
+
+            <!-- Punto destacado al final -->
+            <circle cx="400" cy="55" r="3" fill="rgb(20 184 166)"/>
+            <circle cx="400" cy="175" r="3" fill="rgb(225 29 72)"/>
+            <circle cx="400" cy="60" r="3" fill="rgb(79 70 229)"/>
+            <circle cx="400" cy="48" r="3" fill="rgb(5 150 105)"/>
+          </svg>
+
+          <!-- Etiquetas eje X -->
+          <div class="flex justify-between text-[9px] text-slate-500 mt-1">
+            <span>Ene/24</span>
+            <span>Jul/24</span>
+            <span>Ene/25</span>
+            <span>Jul/25</span>
+            <span>Ene/26</span>
+            <span>Hoy</span>
+          </div>
+        </div>
+
+        <!-- Hitos del año -->
+        <div class="mt-4 pt-3 border-t border-slate-100">
+          <div class="text-[10px] uppercase tracking-wider font-bold text-slate-700 mb-2">Hitos clave</div>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-2 text-[11px]">
+            <div class="flex items-start gap-2">
+              <div class="w-2 h-2 rounded-full bg-emerald-500 mt-1.5 flex-shrink-0"></div>
+              <span><strong class="text-emerald-700">Mayo 2026</strong> · récord ventas S/247k · mejor mes</span>
+            </div>
+            <div class="flex items-start gap-2">
+              <div class="w-2 h-2 rounded-full bg-indigo-500 mt-1.5 flex-shrink-0"></div>
+              <span><strong class="text-indigo-700">Mar 2026</strong> · 3er aporte +S/15k</span>
+            </div>
+            <div class="flex items-start gap-2">
+              <div class="w-2 h-2 rounded-full bg-rose-500 mt-1.5 flex-shrink-0"></div>
+              <span><strong class="text-rose-700">Mar 2026</strong> · mes con pérdida (devoluciones)</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Insight automático -->
+        <div class="mt-4 pt-3 border-t border-slate-100 bg-emerald-50/30 -mx-5 px-5 py-2.5 text-[11px] text-emerald-900 flex items-start gap-2">
+          <i data-lucide="lightbulb" class="w-3.5 h-3.5 text-emerald-700 mt-0.5"></i>
+          <div>
+            <strong>Lectura ejecutiva:</strong> Equity ratio creció de 42% (Ene 2024) a 69% (hoy) ·
+            estás <strong>cada vez menos apalancado</strong> · patrimonio se duplicó 2.1x en 24 meses
+            mientras la TC bajó 47%.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ╔══════════════════════════════════════╗ -->
+    <!-- §4 · RETORNO DE INVERSIÓN              -->
+    <!-- ╚══════════════════════════════════════╝ -->
+    <section>
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-7 h-7 rounded-lg bg-violet-100 flex items-center justify-center text-violet-700 font-bold text-[11px]">4</div>
+        <h2 class="text-[14px] font-bold text-slate-900">Retorno de inversión · ROI dual</h2>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+        <!-- ROI sobre capital propio -->
+        <div class="bg-white border border-emerald-200 rounded-2xl p-4">
+          <div class="flex items-center gap-2 mb-2">
+            <i data-lucide="trending-up" class="w-4 h-4 text-emerald-700"></i>
+            <h3 class="text-[12px] font-bold text-emerald-900">ROI sobre capital PROPIO</h3>
+          </div>
+          <div class="text-[28px] font-bold tabular text-emerald-700">42.3%</div>
+          <div class="text-[11px] text-emerald-700">anualizado · sobre S/ 100k propios</div>
+          <div class="mt-3 pt-3 border-t border-emerald-100 space-y-1.5 text-[11px]">
+            <div class="flex justify-between">
+              <span class="text-slate-600">Utilidad neta YTD</span>
+              <span class="tabular font-semibold">S/ 42,300</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-slate-600">Anualizado (×12/mes)</span>
+              <span class="tabular font-semibold">S/ 42,300</span>
+            </div>
+            <div class="flex justify-between font-bold border-t border-emerald-100 pt-1">
+              <span class="text-emerald-900">Capital propio</span>
+              <span class="tabular text-emerald-900">S/ 100,000</span>
+            </div>
+          </div>
+          <div class="mt-2 text-[10px] text-emerald-700 bg-emerald-50 rounded p-1.5">
+            ✓ ROI saludable · meta ≥15%
+          </div>
+        </div>
+
+        <!-- ROI sobre capital comprometido -->
+        <div class="bg-white border border-violet-200 rounded-2xl p-4">
+          <div class="flex items-center gap-2 mb-2">
+            <i data-lucide="layers" class="w-4 h-4 text-violet-700"></i>
+            <h3 class="text-[12px] font-bold text-violet-900">ROI sobre capital COMPROMETIDO</h3>
+          </div>
+          <div class="text-[28px] font-bold tabular text-violet-700">29.2%</div>
+          <div class="text-[11px] text-violet-700">anualizado · sobre S/ 145k total (incluye TC)</div>
+          <div class="mt-3 pt-3 border-t border-violet-100 space-y-1.5 text-[11px]">
+            <div class="flex justify-between">
+              <span class="text-slate-600">Utilidad neta YTD</span>
+              <span class="tabular font-semibold">S/ 42,300</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-slate-600">Capital propio</span>
+              <span class="tabular text-slate-700">S/ 100,000</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-slate-600">+ TC personal</span>
+              <span class="tabular text-slate-700">S/ 45,000</span>
+            </div>
+            <div class="flex justify-between font-bold border-t border-violet-100 pt-1">
+              <span class="text-violet-900">Capital comprometido</span>
+              <span class="tabular text-violet-900">S/ 145,000</span>
+            </div>
+          </div>
+          <div class="mt-2 text-[10px] text-violet-700 bg-violet-50 rounded p-1.5">
+            ✓ Apalancamiento te conviene · ROI &gt; costo TC
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Costo financiero del negocio -->
+      <div class="mt-3 bg-white border border-amber-200 rounded-2xl p-4">
+        <div class="flex items-center gap-2 mb-3">
+          <i data-lucide="alert-circle" class="w-4 h-4 text-amber-700"></i>
+          <h3 class="text-[12px] font-bold text-amber-900">Costo financiero del negocio</h3>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <div class="bg-amber-50/40 rounded-lg p-3">
+            <div class="text-[10px] uppercase font-bold text-amber-700 mb-0.5">INTERESES TC PAGADOS YTD</div>
+            <div class="text-[18px] font-bold tabular text-amber-900">S/ 3,500</div>
+            <div class="text-[10px] text-amber-700">~39-42% TEA promedio</div>
+          </div>
+          <div class="bg-amber-50/40 rounded-lg p-3">
+            <div class="text-[10px] uppercase font-bold text-amber-700 mb-0.5">% DEL MARGEN BRUTO</div>
+            <div class="text-[18px] font-bold tabular text-amber-900">2.4%</div>
+            <div class="text-[10px] text-amber-700">de cada S/100 ganados, S/2.40 va a intereses</div>
+          </div>
+          <div class="bg-emerald-50/40 border border-emerald-200 rounded-lg p-3">
+            <div class="text-[10px] uppercase font-bold text-emerald-700 mb-0.5">VEREDICTO</div>
+            <div class="text-[14px] font-bold text-emerald-900">Apalancamiento positivo ✓</div>
+            <div class="text-[10px] text-emerald-700">ROI 29% &gt; costo 39% TC sobre S/45k = ahorras al pagar TC con utilidad</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ╔══════════════════════════════════════╗ -->
+    <!-- §5 · DISTRIBUCIÓN · REINVERTIDO/REPARTIDO -->
+    <!-- ╚══════════════════════════════════════╝ -->
+    <section>
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-7 h-7 rounded-lg bg-violet-100 flex items-center justify-center text-violet-700 font-bold text-[11px]">5</div>
+        <h2 class="text-[14px] font-bold text-slate-900">Distribución · qué se hizo con la utilidad</h2>
+      </div>
+
+      <div class="bg-white border border-slate-200 rounded-2xl p-5">
+        <!-- Utilidades generadas histórico -->
+        <div class="mb-4">
+          <div class="text-[10px] uppercase tracking-wider font-bold text-slate-700 mb-2">UTILIDADES GENERADAS · 2024-2026</div>
+          <div class="flex items-end gap-1.5 h-20 mb-1">
+            <div class="flex-1 bg-emerald-500 rounded-t" style="height: 25%" title="2024: S/85k"></div>
+            <div class="flex-1 bg-emerald-500 rounded-t" style="height: 45%" title="2025: S/153k"></div>
+            <div class="flex-1 bg-emerald-600 rounded-t" style="height: 65%" title="2026 YTD: S/220k"></div>
+            <div class="flex-1 bg-emerald-300 rounded-t opacity-60" style="height: 92%" title="2026 proyectado: S/315k"></div>
+          </div>
+          <div class="flex gap-1.5 text-[10px] text-slate-500">
+            <span class="flex-1 text-center">2024 · S/85k</span>
+            <span class="flex-1 text-center">2025 · S/153k</span>
+            <span class="flex-1 text-center">2026 YTD · S/220k</span>
+            <span class="flex-1 text-center">2026 prox · ~S/315k</span>
+          </div>
+        </div>
+
+        <!-- Reinvertido vs distribuido vs TC -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 pt-3 border-t border-slate-100">
+          <div class="bg-emerald-50/40 border border-emerald-200 rounded-lg p-3">
+            <div class="text-[10px] uppercase font-bold text-emerald-700 mb-0.5">REINVERTIDO EN NEGOCIO</div>
+            <div class="text-[18px] font-bold tabular text-emerald-900">S/ 100,000</div>
+            <div class="text-[10px] text-emerald-700">22% retenido en capital + reserva legal</div>
+          </div>
+          <div class="bg-rose-50/40 border border-rose-200 rounded-lg p-3">
+            <div class="text-[10px] uppercase font-bold text-rose-700 mb-0.5">PAGADO A TC PERSONAL</div>
+            <div class="text-[18px] font-bold tabular text-rose-900">S/ 28,000</div>
+            <div class="text-[10px] text-rose-700">6% liberando apalancamiento</div>
+          </div>
+          <div class="bg-amber-50/40 border border-amber-200 rounded-lg p-3">
+            <div class="text-[10px] uppercase font-bold text-amber-700 mb-0.5">DISTRIBUIDO A SOCIOS</div>
+            <div class="text-[18px] font-bold tabular text-amber-900">S/ 12,000</div>
+            <div class="text-[10px] text-amber-700">3% retiros · resto pendiente</div>
+          </div>
+        </div>
+
+        <!-- Retiros de socios -->
+        <div class="mt-4 pt-3 border-t border-slate-100">
+          <div class="text-[10px] uppercase tracking-wider font-bold text-slate-700 mb-2">RETIROS DE SOCIOS · histórico</div>
+          <table class="w-full text-[11px]">
+            <thead>
+              <tr class="text-[10px] text-slate-500">
+                <th class="text-left py-1 font-semibold">Fecha</th>
+                <th class="text-left py-1 font-semibold">Socio</th>
+                <th class="text-left py-1 font-semibold">Concepto</th>
+                <th class="text-right py-1 font-semibold">Monto</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+              <tr>
+                <td class="py-1.5 text-slate-600">15/Dic/2024</td>
+                <td class="py-1.5 font-semibold">José LP</td>
+                <td class="py-1.5 text-slate-500">Distribución utilidades 2024</td>
+                <td class="py-1.5 text-right tabular text-rose-700">−S/ 6,000</td>
+              </tr>
+              <tr>
+                <td class="py-1.5 text-slate-600">20/Dic/2025</td>
+                <td class="py-1.5 font-semibold">José LP</td>
+                <td class="py-1.5 text-slate-500">Distribución utilidades 2025</td>
+                <td class="py-1.5 text-right tabular text-rose-700">−S/ 6,000</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Banner pedagógico -->
+        <div class="mt-4 pt-3 border-t border-slate-100 bg-violet-50/30 -mx-5 px-5 py-2.5 text-[11px] text-violet-900 flex items-start gap-2">
+          <i data-lucide="info" class="w-3.5 h-3.5 text-violet-700 mt-0.5"></i>
+          <div>
+            <strong>Política de distribución:</strong> de cada S/100 ganados, <strong>S/71 se reinvierten</strong>
+            (negocio + pago TC) y <strong>S/29 se distribuyen</strong>. Estás priorizando crecimiento sobre dividendos · típico en PyME en expansión.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ╔══════════════════════════════════════╗ -->
+    <!-- §6 · SALUD FINANCIERA INVERSIONISTA    -->
+    <!-- ╚══════════════════════════════════════╝ -->
+    <section>
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-7 h-7 rounded-lg bg-violet-100 flex items-center justify-center text-violet-700 font-bold text-[11px]">6</div>
+        <h2 class="text-[14px] font-bold text-slate-900">Salud financiera · perspectiva inversionista</h2>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+        <!-- Card · Soberanía financiera -->
+        <div class="bg-white border border-amber-200 rounded-2xl p-4">
+          <div class="flex items-center gap-2 mb-2">
+            <i data-lucide="flag" class="w-4 h-4 text-amber-700"></i>
+            <h3 class="text-[12px] font-bold text-amber-900">¿Cuándo el negocio camina solo?</h3>
+          </div>
+          <p class="text-[11px] text-slate-600 mb-3">
+            Si seguís pagando S/3,500/mes de TC con la utilidad, llegás a S/0 de deuda personal en:
+          </p>
+          <div class="text-[24px] font-bold tabular text-amber-900">~5 meses</div>
+          <div class="text-[11px] text-amber-700 mb-3">Octubre 2026 · soberanía financiera 100%</div>
+
+          <!-- Barra de progreso -->
+          <div class="h-6 bg-slate-100 rounded-lg overflow-hidden relative">
+            <div class="absolute left-0 top-0 h-full bg-gradient-to-r from-emerald-400 to-emerald-600" style="width: 70%"></div>
+            <div class="absolute inset-0 flex items-center justify-center text-[10px] font-bold text-white">
+              70% del camino · S/ 45k de S/ 145k restantes
+            </div>
+          </div>
+        </div>
+
+        <!-- Card · Runway -->
+        <div class="bg-white border border-teal-200 rounded-2xl p-4">
+          <div class="flex items-center gap-2 mb-2">
+            <i data-lucide="zap" class="w-4 h-4 text-teal-700"></i>
+            <h3 class="text-[12px] font-bold text-teal-900">Runway · días sin vender un peso</h3>
+          </div>
+          <p class="text-[11px] text-slate-600 mb-3">
+            Con tu caja actual S/124,800 y gastos S/102,500/mes:
+          </p>
+          <div class="text-[24px] font-bold tabular text-teal-900">~37 días</div>
+          <div class="text-[11px] text-teal-700 mb-3">de operación sin ingresos · meta ≥60</div>
+
+          <div class="bg-amber-50 rounded p-2 text-[10px] text-amber-700 flex items-start gap-1">
+            <i data-lucide="alert-circle" class="w-3 h-3 mt-0.5"></i>
+            <span>Runway por debajo de meta · considerá conservar más caja antes de retirar dividendos.</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Múltiplos financieros -->
+      <div class="mt-3 bg-white border border-slate-200 rounded-2xl p-4">
+        <h3 class="text-[12px] font-bold text-slate-900 mb-3 flex items-center gap-2">
+          <i data-lucide="bar-chart-3" class="w-4 h-4 text-slate-600"></i>
+          Múltiplos financieros · valuación aproximada
+        </h3>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-2 text-[11px]">
+          <div class="bg-slate-50 rounded-lg p-2.5">
+            <div class="text-[9px] uppercase font-bold text-slate-500 mb-0.5">Patrimonio / Ventas</div>
+            <div class="text-[14px] font-bold tabular text-slate-900">0.13x</div>
+            <div class="text-[9px] text-slate-500">capital trabajo eficiente</div>
+          </div>
+          <div class="bg-slate-50 rounded-lg p-2.5">
+            <div class="text-[9px] uppercase font-bold text-slate-500 mb-0.5">EBITDA YTD</div>
+            <div class="text-[14px] font-bold tabular text-slate-900">17.1%</div>
+            <div class="text-[9px] text-slate-500">de ventas</div>
+          </div>
+          <div class="bg-slate-50 rounded-lg p-2.5">
+            <div class="text-[9px] uppercase font-bold text-slate-500 mb-0.5">Valuación aprox.</div>
+            <div class="text-[14px] font-bold tabular text-slate-900">S/ 600k-900k</div>
+            <div class="text-[9px] text-slate-500">2-3x EBITDA anual</div>
+          </div>
+          <div class="bg-emerald-50 rounded-lg p-2.5">
+            <div class="text-[9px] uppercase font-bold text-emerald-700 mb-0.5">Tu participación</div>
+            <div class="text-[14px] font-bold tabular text-emerald-900">100%</div>
+            <div class="text-[9px] text-emerald-700">socio único</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ╔══════════════════════════════════════╗ -->
+    <!-- §7 · REPORTES EJECUTIVOS               -->
+    <!-- ╚══════════════════════════════════════╝ -->
+    <section>
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-7 h-7 rounded-lg bg-violet-100 flex items-center justify-center text-violet-700 font-bold text-[11px]">7</div>
+        <h2 class="text-[14px] font-bold text-slate-900">Reportes ejecutivos · exportables</h2>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <button class="bg-white border-2 border-violet-200 hover:border-violet-400 rounded-2xl p-4 text-left transition-colors">
+          <div class="w-10 h-10 rounded-xl bg-violet-100 flex items-center justify-center mb-2">
+            <i data-lucide="file-text" class="w-5 h-5 text-violet-700"></i>
+          </div>
+          <div class="text-[12px] font-bold text-violet-900 mb-0.5">Reporte directorio · PDF</div>
+          <div class="text-[10px] text-slate-500">1 página · todas las secciones · listo para imprimir</div>
+        </button>
+        <button class="bg-white border-2 border-emerald-200 hover:border-emerald-400 rounded-2xl p-4 text-left transition-colors">
+          <div class="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center mb-2">
+            <i data-lucide="file-spreadsheet" class="w-5 h-5 text-emerald-700"></i>
+          </div>
+          <div class="text-[12px] font-bold text-emerald-900 mb-0.5">Exportar para socios · CSV</div>
+          <div class="text-[10px] text-slate-500">métricas clave + aportes + retiros</div>
+        </button>
+        <button class="bg-white border-2 border-amber-200 hover:border-amber-400 rounded-2xl p-4 text-left transition-colors">
+          <div class="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center mb-2">
+            <i data-lucide="presentation" class="w-5 h-5 text-amber-700"></i>
+          </div>
+          <div class="text-[12px] font-bold text-amber-900 mb-0.5">Presentación junta · PPTX</div>
+          <div class="text-[10px] text-slate-500">próximamente · slides ejecutivas</div>
+        </button>
+      </div>
+
+      <!-- Histórico de reportes generados -->
+      <div class="mt-3 bg-white border border-slate-200 rounded-2xl overflow-hidden">
+        <div class="px-4 py-2.5 border-b border-slate-100">
+          <h3 class="text-[12px] font-bold text-slate-900 flex items-center gap-2">
+            <i data-lucide="history" class="w-3.5 h-3.5 text-slate-600"></i>
+            Histórico de reportes generados
+          </h3>
+        </div>
+        <table class="w-full text-[11px]">
+          <thead class="bg-slate-50 border-b border-slate-100">
+            <tr>
+              <th class="px-3 py-2 text-left text-[10px] uppercase font-bold text-slate-700">Tipo</th>
+              <th class="px-3 py-2 text-left text-[10px] uppercase font-bold text-slate-700">Período</th>
+              <th class="px-3 py-2 text-left text-[10px] uppercase font-bold text-slate-700">Generado</th>
+              <th class="px-3 py-2 text-left text-[10px] uppercase font-bold text-slate-700">Por</th>
+              <th class="px-3 py-2 text-right text-[10px] uppercase font-bold text-slate-700">Acciones</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100">
+            <tr>
+              <td class="px-3 py-2"><span class="text-[10px] bg-violet-50 text-violet-700 px-1.5 py-0.5 rounded font-bold">PDF Directorio</span></td>
+              <td class="px-3 py-2 text-slate-700">YTD Mayo 2026</td>
+              <td class="px-3 py-2 text-slate-700">23/05/2026 · 14:32</td>
+              <td class="px-3 py-2 text-slate-700">José LP</td>
+              <td class="px-3 py-2 text-right">
+                <button class="text-[10px] text-violet-700 hover:underline">Descargar</button>
+              </td>
+            </tr>
+            <tr>
+              <td class="px-3 py-2"><span class="text-[10px] bg-emerald-50 text-emerald-700 px-1.5 py-0.5 rounded font-bold">CSV Socios</span></td>
+              <td class="px-3 py-2 text-slate-700">Q1 2026</td>
+              <td class="px-3 py-2 text-slate-700">10/04/2026 · 09:15</td>
+              <td class="px-3 py-2 text-slate-700">José LP</td>
+              <td class="px-3 py-2 text-right">
+                <button class="text-[10px] text-emerald-700 hover:underline">Descargar</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </div>
+
+</div>
+
+<!-- ╔══════════════════════════════════════════════════════════════╗ -->
+<!-- DECISIONES CANON                                                 -->
+<!-- ╚══════════════════════════════════════════════════════════════╝ -->
+<div class="max-w-6xl mx-auto mt-8 bg-white border border-slate-200 rounded-2xl p-6 space-y-2 text-[12px]">
+  <h2 class="text-base font-bold text-slate-900 mb-2">📐 Decisiones · Módulo Inversionistas canon v5.2</h2>
+
+  <div><strong class="text-violet-700">Ubicación</strong> · nuevo módulo top-level `/inversionistas` · entrada propia en sidebar (grupo "Administración" o "Ejecutivo")</div>
+  <div><strong class="text-violet-700">Acceso</strong> · permiso especial `VER_INVERSIONISTAS` · admin + socios · banner "Acceso restringido · solo socios" en breadcrumb</div>
+  <div><strong class="text-violet-700">Color signature</strong> · violet (distinto a purple Contabilidad, teal Finanzas) · señaliza "ejecutivo · directorio"</div>
+  <div><strong class="text-violet-700">Modelo MIXTO canon</strong>:
+    <ul class="ml-6 mt-1 list-disc text-[11px] text-slate-600">
+      <li>Capital comprometido = Cash propio aportado + TC personal asumida</li>
+      <li>ROI dual · sobre propio + sobre comprometido</li>
+      <li>Equity Ratio como métrica clave de soberanía financiera</li>
+      <li>Tracking de "des-apalancamiento" mes a mes</li>
+    </ul>
+  </div>
+  <div><strong class="text-violet-700">7 secciones</strong> · Resumen ejecutivo · Mi capital histórico · Trayectoria 24m · ROI dual · Distribución · Salud · Reportes</div>
+  <div><strong class="text-violet-700">Cross-link a otros módulos</strong>:
+    <ul class="ml-6 mt-1 list-disc text-[11px] text-slate-600">
+      <li>Aportes propios · lee de `aportesCapital` (Finanzas) · vincula a movimientos</li>
+      <li>Retiros · lee de movimientos `retiro_socio` (Finanzas)</li>
+      <li>TC personal · lee de cuentas `tipo: credito` con flag `garantizadaPorSocioId`</li>
+      <li>Patrimonio · lee de Balance General (Contabilidad)</li>
+      <li>Utilidad · lee de Estado de Resultados (Contabilidad)</li>
+    </ul>
+  </div>
+  <div><strong class="text-violet-700">Datos nuevos a registrar</strong>:
+    <ul class="ml-6 mt-1 list-disc text-[11px] text-slate-600">
+      <li>Campo `garantizadaPorSocioId` en `CuentaCaja` para TC personales (opcional · default vacío = corporativa)</li>
+      <li>Cobertura `aportesCapital` existente · expandir formulario para capturar socio + concepto</li>
+      <li>Tabla `socios` opcional · si se complejiza (varios socios con %)</li>
+    </ul>
+  </div>
+  <div><strong class="text-violet-700">Cero duplicación</strong> · NO repite operativo (Compras/Ventas/Gastos) · NO repite KPIs operativos (eso vive en Contabilidad) · enfoque puro estratégico</div>
+  <div><strong class="text-violet-700">Reportes ejecutivos · PDF/CSV/PPTX</strong> · 1 página resumen para junta de socios · PPTX como `próximamente`</div>
+  <div><strong class="text-violet-700">F7 canon</strong> · tabular-nums obligatorio en todo número · lucide únicos · sin emojis chrome (excepción contextual: emojis 🚀 en multiplicador si &gt;5x)</div>
+
+  <div class="mt-3 pt-3 border-t border-slate-100">
+    <div class="font-bold text-emerald-700 mb-1">✓ Cambios técnicos para implementar</div>
+    <ul class="list-disc ml-4 mt-1 text-[11px] text-slate-600 space-y-0.5">
+      <li>Nueva ruta `/inversionistas` en App.tsx con ProtectedRoute + permiso `VER_INVERSIONISTAS`</li>
+      <li>Entrada sidebar grupo "Administración" (después de Maestros · antes de Usuarios)</li>
+      <li>Service nuevo · `inversionistaService` con agregaciones (aportes + retiros + TC + patrimonio)</li>
+      <li>Extender `CuentaCaja` con campo `garantizadaPorSocioId?: string`</li>
+      <li>Component `Inversionistas.tsx` con 7 secciones hoisteadas</li>
+      <li>Permiso nuevo `VER_INVERSIONISTAS` en `auth.types.ts`</li>
+      <li>Sub-componentes nuevos: `KPIInversionistaCard` · `TimelineAportesPanel` · `TrayectoriaChart` · `RoiDualCard` · `DistribucionPanel` · `SaludInversionistaPanel` · `ReportesEjecutivosPanel`</li>
+      <li>Service PDF · usar `jsPDF` o similar para reporte directorio (~2h adicional)</li>
+    </ul>
+  </div>
+</div>
+
+<footer class="text-center text-[11px] text-slate-500 pt-4 max-w-6xl mx-auto">
+  Mockup canon v5.2 · Inversionistas modelo mixto · 2026-05-23
+</footer>
+
+<script>if (window.lucide) window.lucide.createIcons();</script>
+</body>
+</html>
