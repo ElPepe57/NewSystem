@@ -435,13 +435,13 @@ export default function Inversionistas() {
               {/* Tier destacada · Configurar socios */}
               <button
                 type="button"
-                onClick={() => navigate('/maestros?tab=socios')}
+                onClick={() => navigate('/usuarios?filterRole=socio')}
                 aria-label="Configurar socios"
-                title="Gestionar catálogo de socios y porcentajes de participación · abre Maestros · Socios"
+                title="Gestionar socios desde Usuarios · agregá rol 'socio' a usuarios existentes o creá nuevos"
                 className="text-[11px] font-semibold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 px-3 py-1.5 rounded-lg flex items-center gap-1.5"
               >
                 <UserCog className="w-3 h-3" />
-                <span className="hidden md:inline">Configurar socios</span>
+                <span className="hidden md:inline">Gestionar socios</span>
               </button>
               {/* Tier primary · Reporte directorio */}
               <button

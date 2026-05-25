@@ -1,11 +1,15 @@
 /**
  * socioStore · chk5.E-INV-SOC (2026-05-24)
+ * Refactor F3-ADAPT (2026-05-24) · ahora compone Socio[] desde users con rol 'socio'
+ * + sub-perfil datosSocio. El catálogo /socios separado queda deprecado.
  *
- * Store Zustand de socios · mismo patrón que clienteStore, proveedorStore,
- * colaboradorStore. Consumido por:
+ * Consumido por:
  *  - useEntidadesPorTipo (cuando tipo='socio')
- *  - Maestros · sub-tab Socios
  *  - inversionistaService (agregaciones por socio)
+ *  - IngresoSimpleModal / EgresoSimpleModal (combobox de socios en aporte/retiro)
+ *
+ * `crearSocio` queda deprecado (el modelo unificado requiere crear UserProfile
+ * primero · luego agregar rol 'socio' + datosSocio · todo desde /usuarios).
  */
 
 import { create } from 'zustand';
@@ -19,7 +23,8 @@ interface SocioState {
 
   // Actions
   fetchSocios: () => Promise<void>;
-  crearSocio: (data: SocioFormData, userId: string) => Promise<string>;
+  /** @deprecated F3-ADAPT · usar /usuarios para crear users con rol 'socio' + datosSocio */
+  crearSocio: (data: SocioFormData & { uid?: string }, userId: string) => Promise<string>;
   actualizarSocio: (id: string, data: Partial<SocioFormData>, userId: string) => Promise<void>;
   eliminarSocio: (id: string) => Promise<void>;
 }
