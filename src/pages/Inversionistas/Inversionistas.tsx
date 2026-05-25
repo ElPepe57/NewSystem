@@ -45,7 +45,10 @@ import {
 import type { LucideIcon } from 'lucide-react';
 
 import { inversionistaService } from '../../services/inversionista.service';
-import type { ResumenInversionista } from '../../types/inversionista.types';
+import type {
+  ResumenInversionista,
+  TrayectoriaMensual,
+} from '../../types/inversionista.types';
 import { formatCurrencyPEN } from '../../utils/format';
 import { useAuthStore } from '../../store/authStore';
 
@@ -122,6 +125,22 @@ function KpiCard({ label, valor, delta, tooltip, tinte, icon }: KpiCardProps) {
       </div>
       <div className={`text-xl sm:text-2xl font-bold tabular-nums ${t.valor}`}>{valor}</div>
       {delta && <div className={`text-[10px] sm:text-[11px] ${t.delta} mt-1 truncate`}>{delta}</div>}
+    </div>
+  );
+}
+
+// ═════════════════════════════════════════════════════════════════════════
+// Loading state · usado en lazy load de trayectoria 24m
+// ═════════════════════════════════════════════════════════════════════════
+
+function TrayectoriaLoadingState() {
+  return (
+    <div className="bg-white border border-slate-200 rounded-2xl p-8 text-center">
+      <RefreshCw className="w-6 h-6 text-violet-500 animate-spin mx-auto mb-3" />
+      <p className="text-[13px] text-slate-600 font-semibold">Calculando trayectoria 24 meses...</p>
+      <p className="text-[11px] text-slate-400 mt-1">
+        Cruzando Balance + P&L de cada mes · solo se calcula la primera vez
+      </p>
     </div>
   );
 }
@@ -246,6 +265,13 @@ export default function Inversionistas() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // chk5.E-INV-PERF · lazy load de trayectoria 24m
+  // El resumen inicial NO incluye trayectoria (load rápido ~1-2s).
+  // La trayectoria se carga la primera vez que entran a tab Trayectoria o
+  // Distribución (lazy), y luego queda cacheada para futuras navegaciones.
+  const [trayectoriaCargada, setTrayectoriaCargada] = useState(false);
+  const [trayectoriaCargando, setTrayectoriaCargando] = useState(false);
+
   // Canon "admin ve todo" · banner contextual
   const userProfile = useAuthStore((s) => s.userProfile);
   const esAdmin = userProfile?.role === 'admin';
@@ -259,6 +285,7 @@ export default function Inversionistas() {
   const cargarDatos = async () => {
     setLoading(true);
     setError(null);
+    setTrayectoriaCargada(false);   // reset · cambio de período fuerza recargar trayectoria
     try {
       const resumen = await inversionistaService.calcularResumenInversionista(mes, anio);
       setData(resumen);
@@ -270,10 +297,53 @@ export default function Inversionistas() {
     }
   };
 
+  /**
+   * chk5.E-INV-PERF · lazy load de trayectoria 24m.
+   *
+   * Solo se ejecuta la primera vez que el user entra a un tab que la necesita
+   * (Trayectoria o Distribución). Una vez cargada, queda cacheada en `data`
+   * hasta que cambie el período (mes/anio).
+   *
+   * Una vez cargada, recalculamos la salud con la tendencia patrimonio real
+   * (ahora sí tenemos 6m de historia para derivar pendiente).
+   */
+  const cargarTrayectoria = async () => {
+    if (!data || trayectoriaCargada || trayectoriaCargando) return;
+    setTrayectoriaCargando(true);
+    try {
+      const trayectoria: TrayectoriaMensual[] =
+        await inversionistaService.calcularTrayectoria24Meses(mes, anio);
+
+      // Recalcular salud con la tendencia real ahora que tenemos historia
+      const config = await inversionistaService.getConfiguracionInversionistas();
+      const saludRecalculada = inversionistaService.recalcularSaludConTendencia(
+        data,
+        trayectoria,
+        config.umbralEquityRatio
+      );
+
+      setData({ ...data, trayectoria, salud: saludRecalculada });
+      setTrayectoriaCargada(true);
+    } catch (err) {
+      console.error('Error cargando trayectoria:', err);
+      // No bloqueamos el módulo · solo mostramos chart vacío en el tab.
+    } finally {
+      setTrayectoriaCargando(false);
+    }
+  };
+
   useEffect(() => {
     cargarDatos();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mes, anio]);
+
+  // chk5.E-INV-PERF · disparar lazy load cuando entra a tabs que necesitan trayectoria
+  useEffect(() => {
+    if ((tabActiva === 'trayectoria' || tabActiva === 'distribucion') && !trayectoriaCargada) {
+      cargarTrayectoria();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tabActiva, trayectoriaCargada, data]);
 
   const tabActivaCfg = TABS.find((t) => t.id === tabActiva)!;
 
@@ -439,7 +509,7 @@ export default function Inversionistas() {
             <div className="text-center py-12">
               <RefreshCw className="w-8 h-8 text-violet-500 animate-spin mx-auto mb-3" />
               <p className="text-[13px] text-slate-600">Cargando vista ejecutiva...</p>
-              <p className="text-[11px] text-slate-400 mt-1">Agregando aportes · TC personales · trayectoria 24m</p>
+              <p className="text-[11px] text-slate-400 mt-1">Capital · patrimonio · ROI · soberanía</p>
             </div>
           )}
 
@@ -457,9 +527,21 @@ export default function Inversionistas() {
             <>
               {tabActiva === 'resumen' && <InversionistasResumen data={data} />}
               {tabActiva === 'capital' && <InversionistasCapital data={data} />}
-              {tabActiva === 'trayectoria' && <InversionistasTrayectoria data={data} />}
+              {tabActiva === 'trayectoria' && (
+                trayectoriaCargando ? (
+                  <TrayectoriaLoadingState />
+                ) : (
+                  <InversionistasTrayectoria data={data} />
+                )
+              )}
               {tabActiva === 'roi' && <InversionistasROI data={data} />}
-              {tabActiva === 'distribucion' && <InversionistasDistribucion data={data} />}
+              {tabActiva === 'distribucion' && (
+                trayectoriaCargando ? (
+                  <TrayectoriaLoadingState />
+                ) : (
+                  <InversionistasDistribucion data={data} />
+                )
+              )}
               {tabActiva === 'salud' && <InversionistasSalud data={data} />}
               {tabActiva === 'reportes' && <InversionistasReportes data={data} mes={mes} anio={anio} />}
             </>

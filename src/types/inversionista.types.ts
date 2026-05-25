@@ -306,8 +306,15 @@ export interface TrayectoriaMensual {
  *  - ROI sobre capital comprometido
  */
 export interface SaludInversionista {
-  /** Estado general · drives color del banner */
-  estado: 'saludable' | 'atencion' | 'critico';
+  /**
+   * Estado general · drives color del banner.
+   *
+   * `sin_data` (chk5.E-INV-PERF 2026-05-24) · negocio sin ningún registro
+   * (activos=0, patrimonio=0, UN acum=0, capital comprometido=0). NO se
+   * deriva score · banner pedagógico violet para guiar al setup inicial.
+   * Distingue "esperando setup" de "data mala".
+   */
+  estado: 'sin_data' | 'saludable' | 'atencion' | 'critico';
   /** Score combinado 0-100 · ponderación de las 4 dimensiones */
   score: number;
   /** Lectura ejecutiva · 1-2 frases para el banner */

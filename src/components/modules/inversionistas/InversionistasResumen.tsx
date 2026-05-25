@@ -14,6 +14,7 @@ import {
   CreditCard,
   Flag,
   Clock,
+  Sparkles,
 } from 'lucide-react';
 import { formatCurrencyPEN } from '../../../utils/format';
 import type { ResumenInversionista } from '../../../types/inversionista.types';
@@ -23,7 +24,18 @@ interface Props {
 }
 
 export default function InversionistasResumen({ data }: Props) {
+  // 4 variantes de banner Estado del Negocio · canon "sin data" pedagógico
   const saludMap = {
+    sin_data: {
+      grad: 'from-violet-50 via-violet-100/40 to-violet-50',
+      ring: 'ring-violet-200',
+      icon: <Sparkles className="w-7 h-7" />,
+      iconBg: 'from-violet-500 to-violet-700',
+      iconShadow: 'shadow-violet-200',
+      label: 'text-violet-700',
+      valor: 'text-violet-900',
+      titulo: 'Empezá tu vista ejecutiva',
+    },
     saludable: {
       grad: 'from-emerald-50 via-emerald-100/40 to-emerald-50',
       ring: 'ring-emerald-200',
@@ -56,6 +68,8 @@ export default function InversionistasResumen({ data }: Props) {
     },
   }[data.salud.estado];
 
+  const sinData = data.salud.estado === 'sin_data';
+
   const cashPropio = data.capitalComprometido.cashAportadoPEN;
   const tcPersonal = data.capitalComprometido.deudaTCPersonalPEN;
   const total = data.capitalComprometido.totalPEN;
@@ -80,16 +94,19 @@ export default function InversionistasResumen({ data }: Props) {
               <div className={`text-[11px] ${saludMap.label} mt-0.5`}>{data.salud.resumen}</div>
             </div>
           </div>
-          {/* Score chip · solo desktop */}
-          <div className={`hidden sm:flex flex-col items-end ${saludMap.label}`}>
-            <div className="text-[9px] uppercase tracking-wider font-bold">Score</div>
-            <div className={`text-[24px] font-bold tabular-nums ${saludMap.valor}`}>{data.salud.score}</div>
-            <div className="text-[9px]">/ 100</div>
-          </div>
+          {/* Score chip · solo desktop · NO se muestra si estado=sin_data (no aplica) */}
+          {!sinData && (
+            <div className={`hidden sm:flex flex-col items-end ${saludMap.label}`}>
+              <div className="text-[9px] uppercase tracking-wider font-bold">Score</div>
+              <div className={`text-[24px] font-bold tabular-nums ${saludMap.valor}`}>{data.salud.score}</div>
+              <div className="text-[9px]">/ 100</div>
+            </div>
+          )}
         </div>
       </div>
 
       {/* 3 cards · cash propio + TC personal + soberanía · stack mobile, 3 cols desktop */}
+      {/* En estado sin_data, mostramos empty states pedagógicos en vez de S/0 */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
         {/* Cash propio */}
         <div className="bg-white border border-emerald-200 rounded-2xl p-4">
@@ -99,12 +116,24 @@ export default function InversionistasResumen({ data }: Props) {
             </div>
             <span className="text-[10px] uppercase tracking-wider font-bold text-emerald-700">CASH PROPIO APORTADO</span>
           </div>
-          <div className="text-[22px] font-bold tabular-nums text-emerald-900">{formatCurrencyPEN(cashPropio)}</div>
-          <div className="text-[10px] text-slate-500">{pctCash.toFixed(0)}% del capital comprometido</div>
-          <div className="mt-2 pt-2 border-t border-emerald-100 text-[11px] text-emerald-700 flex items-center gap-1">
-            <TrendingUp className="w-3 h-3" />
-            {totalAportes} aporte{totalAportes === 1 ? '' : 's'} registrado{totalAportes === 1 ? '' : 's'}
-          </div>
+          {sinData ? (
+            <>
+              <div className="text-[22px] font-bold tabular-nums text-slate-400">—</div>
+              <div className="text-[10px] text-slate-500">Sin aportes registrados aún</div>
+              <div className="mt-2 pt-2 border-t border-emerald-100 text-[11px] text-emerald-700">
+                Registralos en Finanzas → Movimientos
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="text-[22px] font-bold tabular-nums text-emerald-900">{formatCurrencyPEN(cashPropio)}</div>
+              <div className="text-[10px] text-slate-500">{pctCash.toFixed(0)}% del capital comprometido</div>
+              <div className="mt-2 pt-2 border-t border-emerald-100 text-[11px] text-emerald-700 flex items-center gap-1">
+                <TrendingUp className="w-3 h-3" />
+                {totalAportes} aporte{totalAportes === 1 ? '' : 's'} registrado{totalAportes === 1 ? '' : 's'}
+              </div>
+            </>
+          )}
         </div>
 
         {/* TC personal */}
@@ -115,12 +144,24 @@ export default function InversionistasResumen({ data }: Props) {
             </div>
             <span className="text-[10px] uppercase tracking-wider font-bold text-rose-700">TC PERSONAL ASUMIDA</span>
           </div>
-          <div className="text-[22px] font-bold tabular-nums text-rose-900">{formatCurrencyPEN(tcPersonal)}</div>
-          <div className="text-[10px] text-slate-500">{pctTC.toFixed(0)}% del capital comprometido</div>
-          <div className="mt-2 pt-2 border-t border-rose-100 text-[11px] text-rose-700 flex items-center gap-1">
-            <CreditCard className="w-3 h-3" />
-            {totalTCs} TC{totalTCs === 1 ? '' : 's'} personal{totalTCs === 1 ? '' : 'es'} activa{totalTCs === 1 ? '' : 's'}
-          </div>
+          {sinData ? (
+            <>
+              <div className="text-[22px] font-bold tabular-nums text-slate-400">—</div>
+              <div className="text-[10px] text-slate-500">Sin TCs personales marcadas</div>
+              <div className="mt-2 pt-2 border-t border-rose-100 text-[11px] text-rose-700">
+                Marcalas en Finanzas → Cuentas
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="text-[22px] font-bold tabular-nums text-rose-900">{formatCurrencyPEN(tcPersonal)}</div>
+              <div className="text-[10px] text-slate-500">{pctTC.toFixed(0)}% del capital comprometido</div>
+              <div className="mt-2 pt-2 border-t border-rose-100 text-[11px] text-rose-700 flex items-center gap-1">
+                <CreditCard className="w-3 h-3" />
+                {totalTCs} TC{totalTCs === 1 ? '' : 's'} personal{totalTCs === 1 ? '' : 'es'} activa{totalTCs === 1 ? '' : 's'}
+              </div>
+            </>
+          )}
         </div>
 
         {/* Soberanía financiera */}
@@ -131,21 +172,33 @@ export default function InversionistasResumen({ data }: Props) {
             </div>
             <span className="text-[10px] uppercase tracking-wider font-bold text-amber-700">SOBERANÍA FINANCIERA</span>
           </div>
-          <div className="text-[22px] font-bold tabular-nums text-amber-900">
-            {data.soberania.deudaTCPersonalVigentePEN === 0
-              ? '✓ Liberado'
-              : Number.isFinite(data.soberania.mesesParaSoberania) && data.soberania.mesesParaSoberania > 0
-                ? `~${Math.ceil(data.soberania.mesesParaSoberania)}m`
-                : '—'}
-          </div>
-          <div className="text-[10px] text-slate-500">Faltan para "liberar" la TC</div>
-          <div className="mt-2 pt-2 border-t border-amber-100 text-[11px] text-amber-700 flex items-center gap-1">
-            <Clock className="w-3 h-3" />
-            {data.soberania.estado === 'cerca' && 'Cerca de soberanía'}
-            {data.soberania.estado === 'camino_claro' && 'Camino claro'}
-            {data.soberania.estado === 'largo_plazo' && 'Largo plazo'}
-            {data.soberania.estado === 'revision' && 'Revisión estratégica'}
-          </div>
+          {sinData ? (
+            <>
+              <div className="text-[22px] font-bold tabular-nums text-slate-400">—</div>
+              <div className="text-[10px] text-slate-500">Métrica disponible al cargar data</div>
+              <div className="mt-2 pt-2 border-t border-amber-100 text-[11px] text-amber-700">
+                Pendiente · necesitás aportes + utilidad recurrente
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="text-[22px] font-bold tabular-nums text-amber-900">
+                {data.soberania.deudaTCPersonalVigentePEN === 0
+                  ? '✓ Liberado'
+                  : Number.isFinite(data.soberania.mesesParaSoberania) && data.soberania.mesesParaSoberania > 0
+                    ? `~${Math.ceil(data.soberania.mesesParaSoberania)}m`
+                    : '—'}
+              </div>
+              <div className="text-[10px] text-slate-500">Faltan para "liberar" la TC</div>
+              <div className="mt-2 pt-2 border-t border-amber-100 text-[11px] text-amber-700 flex items-center gap-1">
+                <Clock className="w-3 h-3" />
+                {data.soberania.estado === 'cerca' && 'Cerca de soberanía'}
+                {data.soberania.estado === 'camino_claro' && 'Camino claro'}
+                {data.soberania.estado === 'largo_plazo' && 'Largo plazo'}
+                {data.soberania.estado === 'revision' && 'Revisión estratégica'}
+              </div>
+            </>
+          )}
         </div>
       </div>
     </div>
