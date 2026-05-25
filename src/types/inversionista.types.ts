@@ -37,7 +37,7 @@
  */
 
 import { Timestamp } from 'firebase/firestore';
-import { MonedaTesoreria } from './tesoreria.types';
+import type { MonedaTesoreria } from './tesoreria.types';
 
 // ===============================================
 // SOCIO · ENTIDAD MAESTRO
