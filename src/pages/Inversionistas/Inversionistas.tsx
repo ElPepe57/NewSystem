@@ -58,6 +58,7 @@ import type {
 } from '../../types/inversionista.types';
 import { formatCurrencyPEN, formatPercent } from '../../utils/format';
 import { Timestamp } from 'firebase/firestore';
+import { useAuthStore } from '../../store/authStore';
 
 const MESES_NOMBRES = [
   'Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun',
@@ -1068,6 +1069,11 @@ export default function Inversionistas() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Canon "admin ve todo" (CLAUDE.md 2026-05-24) · banner contextual al rol.
+  // Admin = root absoluto · texto neutro "vista ejecutiva", NO "acceso restringido".
+  const userProfile = useAuthStore((s) => s.userProfile);
+  const esAdmin = userProfile?.role === 'admin';
+
   const aniosDisponibles = useMemo(() => {
     const out: number[] = [];
     for (let y = ahora.getFullYear(); y >= ahora.getFullYear() - 3; y--) out.push(y);
@@ -1102,9 +1108,10 @@ export default function Inversionistas() {
             <ChevronRight className="w-3 h-3 text-slate-300 mx-1.5" />
             <span className="text-slate-900 font-semibold">Inversionistas</span>
           </div>
+          {/* Banner contextual al rol · canon "admin ve todo" (CLAUDE.md 2026-05-24) */}
           <span className="text-[10px] bg-violet-50 text-violet-700 px-2 py-0.5 rounded font-bold inline-flex items-center gap-1">
             <Shield className="w-3 h-3" />
-            Acceso restringido · solo socios
+            {esAdmin ? 'Vista ejecutiva · acceso administrativo total' : 'Acceso restringido · solo socios'}
           </span>
         </div>
 

@@ -41,6 +41,59 @@ archivo cuando haya conflicto. Aplica a TODOS los agentes del squad.
 
 ---
 
+# PRINCIPIO DE ACCESO ADMIN · "ADMIN VE TODO" (declarado 2026-05-24)
+
+**El rol `admin` es el rol-root del sistema. Por definición y sin excepción,
+admin debe poder ver TODO, acceder a TODO, y operar sobre TODO el ERP.**
+
+Cita literal del usuario (2026-05-24):
+*"Quiero que recuerdes mi perfil de admin le deberia permitir ver todo.
+incluso hasta socios."*
+
+## Implementación canónica vigente (NO se reinventa por módulo)
+
+1. **Permisos del rol** · `auth.types.ts` declara `admin: Object.values(PERMISOS)`
+   → admin recibe automáticamente CUALQUIER nuevo permiso que se agregue
+   al sistema. **Prohibido crear permisos que el admin NO tenga.**
+
+2. **Firestore rules** · cualquier colección nueva debe incluir `admin` en
+   sus reglas de read+write. La regla catch-all del final del archivo niega
+   por defecto · es obligación del agente agregar la regla explícita y
+   asegurar que admin esté en los roles permitidos.
+
+3. **Componentes UI** · si una vista tiene "acceso restringido" o gating
+   por permiso especial (ej. VER_INVERSIONISTAS, VER_PLANILLA), el admin
+   debe verla SIEMPRE porque ya hereda el permiso. Cualquier mensaje visual
+   de "acceso restringido" debe ser **contextual al rol** — no se muestra
+   el mismo texto a un admin que a un usuario de rol restringido.
+
+4. **Sub-módulos sensibles** (datos personales, planilla, socios, finanzas
+   personales, auditoría) · siguen el mismo principio: admin ve todo. La
+   restricción se aplica a OTROS roles, nunca al admin.
+
+## Verificación obligatoria antes de cerrar un módulo nuevo
+
+Checklist para cada módulo:
+
+1. ✅ ¿Admin tiene permiso por `Object.values(PERMISOS)`? (sí · automático)
+2. ✅ ¿La(s) colección(es) Firestore incluyen `admin` en read+write?
+3. ✅ ¿La entrada en sidebar es visible para admin?
+4. ✅ ¿Cualquier banner de "acceso restringido" es contextual al rol del user
+      activo? (si admin → texto neutro o "vista ejecutiva", si rol-gated → "solo X")
+5. ✅ ¿Cualquier subentity privada (datos de socio, sueldo, deuda personal)
+      es legible por admin sin requerir flag extra?
+
+Aplica a:
+- ✅ Todos los módulos existentes (auditar retroactivamente si hay gating
+  que excluya admin involuntariamente)
+- ✅ Todos los módulos nuevos a partir de chk5.E-INV (2026-05-24)
+
+Excepción única declarada: si en el futuro se requiere "admin SUPER" vs
+"admin estándar" para escalación a multi-tenant, se documenta cambio
+explícito de este principio · hasta entonces, admin = root absoluto.
+
+---
+
 # CANON DE COBERTURA DE REWORK DE MÓDULO (declarado 2026-05-11)
 
 **Cuando un módulo entra en rework canon, TODAS sus superficies son parte del
