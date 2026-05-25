@@ -63,6 +63,7 @@ import type { CuentaCaja, MonedaTesoreria } from '../types/tesoreria.types';
 import { contabilidadService } from './contabilidad.service';
 import { tesoreriaService } from './tesoreria.service';
 import { tipoCambioService } from './tipoCambio.service';
+import { socioService } from './socio.service';
 
 // ===============================================
 // CONSTANTES
@@ -72,55 +73,27 @@ const SOCIOS_COLLECTION = COLLECTIONS.SOCIOS;
 const CONFIG_DOC_PATH = 'configuracion/inversionistas';
 
 // ===============================================
-// CRUD SOCIOS
+// CRUD SOCIOS · delegado a socio.service.ts (chk5.E-INV-SOC)
 // ===============================================
-
-/** Doc id determinístico · snake_case del nombre · "Jose Lopez" → "jose_lopez" */
-function generarIdSocio(nombre: string): string {
-  return nombre
-    .trim()
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[̀-ͯ]/g, '') // quitar acentos
-    .replace(/[^a-z0-9]+/g, '_')
-    .replace(/^_+|_+$/g, '')
-    .slice(0, 50);
-}
+//
+// El CRUD de socios vive en `socio.service.ts` para tratarlo como entidad
+// canon (igual que Clientes, Proveedores, Colaboradores, Empleados). Acá
+// solo se re-exporta para mantener backward compat con consumidores que
+// importan desde `inversionista.service.ts`.
 
 export async function listarSocios(): Promise<Socio[]> {
-  const snapshot = await getDocs(collection(db, SOCIOS_COLLECTION));
-  return snapshot.docs.map((d) => ({
-    id: d.id,
-    ...d.data(),
-  })) as Socio[];
+  return socioService.getAll();
 }
 
 export async function getSocio(id: string): Promise<Socio | null> {
-  const snap = await getDoc(doc(db, SOCIOS_COLLECTION, id));
-  if (!snap.exists()) return null;
-  return { id: snap.id, ...snap.data() } as Socio;
+  return socioService.getById(id);
 }
 
 export async function crearSocio(
   data: SocioFormData,
   userId: string
 ): Promise<string> {
-  const id = generarIdSocio(data.nombre);
-  const docData: Omit<Socio, 'id'> = {
-    nombre: data.nombre.trim(),
-    porcentajeParticipacion: data.porcentajeParticipacion,
-    fechaIngreso: Timestamp.fromDate(data.fechaIngreso),
-    activo: data.activo,
-    creadoPor: userId,
-    fechaCreacion: Timestamp.now(),
-  };
-  if (data.email) (docData as any).email = data.email;
-  if (data.rol) (docData as any).rol = data.rol;
-  if (data.notas) (docData as any).notas = data.notas;
-
-  await setDoc(doc(db, SOCIOS_COLLECTION, id), docData);
-  logger.success(`Socio creado: ${data.nombre} (id: ${id})`);
-  return id;
+  return socioService.crear(data, userId);
 }
 
 export async function actualizarSocio(
@@ -128,27 +101,11 @@ export async function actualizarSocio(
   data: Partial<SocioFormData>,
   userId: string
 ): Promise<void> {
-  const updates: Record<string, any> = {
-    actualizadoPor: userId,
-    fechaActualizacion: Timestamp.now(),
-  };
-  if (data.nombre !== undefined) updates.nombre = data.nombre.trim();
-  if (data.email !== undefined) updates.email = data.email;
-  if (data.porcentajeParticipacion !== undefined)
-    updates.porcentajeParticipacion = data.porcentajeParticipacion;
-  if (data.rol !== undefined) updates.rol = data.rol;
-  if (data.fechaIngreso !== undefined)
-    updates.fechaIngreso = Timestamp.fromDate(data.fechaIngreso);
-  if (data.activo !== undefined) updates.activo = data.activo;
-  if (data.notas !== undefined) updates.notas = data.notas;
-
-  await updateDoc(doc(db, SOCIOS_COLLECTION, id), updates);
-  logger.success(`Socio actualizado: ${id}`);
+  return socioService.actualizar(id, data, userId);
 }
 
 export async function eliminarSocio(id: string): Promise<void> {
-  await deleteDoc(doc(db, SOCIOS_COLLECTION, id));
-  logger.success(`Socio eliminado: ${id}`);
+  return socioService.eliminar(id);
 }
 
 // ===============================================
@@ -309,10 +266,15 @@ export async function getTCPersonalesPorSocio(
   porSocio: TCPersonalSocioResumen[];
   totalDeudaPEN: number;
 }> {
+  // chk5.E-INV-SOC (2026-05-24) · refactor canon · query usa
+  // titularEntidadTipo='socio' (sistema de titularidad estándar) en vez del
+  // campo legacy `garantizadaPorSocioId`. Reusa la infraestructura de
+  // titularidad personal del wizard de cuentas.
   const q = query(
     collection(db, COLLECTIONS.CUENTAS_CAJA),
     where('tipo', '==', 'credito'),
-    where('titularidad', '==', 'personal')
+    where('titularidad', '==', 'personal'),
+    where('titularEntidadTipo', '==', 'socio')
   );
   const snapshot = await getDocs(q);
   const acum = new Map<string, TCPersonalSocioResumen>();
@@ -320,9 +282,10 @@ export async function getTCPersonalesPorSocio(
 
   snapshot.forEach((d) => {
     const cuenta = { id: d.id, ...d.data() } as CuentaCaja;
-    // Solo si está marcada como garantizada por socio
-    if (!cuenta.garantizadaPorSocioId) return;
     if (!cuenta.activa) return;
+    // El socioId ahora viene del titularEntidadId (modelo canon)
+    const socioId = cuenta.titularEntidadId;
+    if (!socioId) return;
 
     const utilizado = cuenta.lineaCredito?.utilizado || 0;
     const limite = cuenta.lineaCredito?.limiteTotal || 0;
@@ -333,7 +296,6 @@ export async function getTCPersonalesPorSocio(
 
     totalDeudaPEN += utilizadoPEN;
 
-    const socioId = cuenta.garantizadaPorSocioId;
     const existing = acum.get(socioId);
     const detalleTarjeta = {
       cuentaCajaId: cuenta.id,

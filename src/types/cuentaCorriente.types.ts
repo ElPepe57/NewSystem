@@ -43,7 +43,10 @@ export type TipoEntidadCC =
   | 'proveedor'
   | 'colaborador'
   | 'empleado'
-  | 'tarjeta_credito';
+  | 'tarjeta_credito'
+  // chk5.E-INV-SOC (2026-05-24) · socio del negocio · puede ser titular de
+  // cuentas personales (TC asumida por el negocio) · vinculable a UserProfile.
+  | 'socio';
 
 /**
  * Tipo de movimiento del libro de la CC.

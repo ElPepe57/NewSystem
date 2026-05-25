@@ -25,6 +25,7 @@ import { useProveedorStore } from '../store/proveedorStore';
 import { useClienteStore } from '../store/clienteStore';
 import { useColaboradorStore } from '../store/colaboradorStore';
 import { usePlanillaStore } from '../store/planillaStore';
+import { useSocioStore } from '../store/socioStore';
 import type { TipoEntidadCC } from '../types/cuentaCorriente.types';
 
 // ═════════════════════════════════════════════════════════════════════════
@@ -84,6 +85,11 @@ export function useEntidadesPorTipo(
   const empleadosLoading = usePlanillaStore((s) => s.loadingEmpleados);
   const fetchEmpleados = usePlanillaStore((s) => s.fetchEmpleados);
 
+  // chk5.E-INV-SOC · socios
+  const socios = useSocioStore((s) => s.socios);
+  const sociosLoading = useSocioStore((s) => s.loading);
+  const fetchSocios = useSocioStore((s) => s.fetchSocios);
+
   // ── Auto-cargar el store correspondiente ──
   useEffect(() => {
     if (!tipo) return;
@@ -98,6 +104,9 @@ export function useEntidadesPorTipo(
     }
     if (tipo === 'empleado' && empleados.length === 0 && !empleadosLoading) {
       void fetchEmpleados();
+    }
+    if (tipo === 'socio' && socios.length === 0 && !sociosLoading) {
+      void fetchSocios();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tipo]);
@@ -161,6 +170,19 @@ export function useEntidadesPorTipo(
         entidades = [];
         loading = false;
         break;
+
+      case 'socio':
+        entidades = socios.map((s) => ({
+          id: s.id,
+          nombre: s.nombre,
+          subLabel:
+            (s.rol ? s.rol : 'Socio') +
+            (s.porcentajeParticipacion > 0 ? ` · ${s.porcentajeParticipacion}%` : '') +
+            (s.userId ? ' · 👤 Usuario' : ''),
+          activa: s.activo,
+        }));
+        loading = sociosLoading;
+        break;
     }
 
     // Ordenar alfabético por nombre
@@ -186,6 +208,8 @@ export function useEntidadesPorTipo(
     colaboradoresLoading,
     empleados,
     empleadosLoading,
+    socios,
+    sociosLoading,
   ]);
 
   return result;

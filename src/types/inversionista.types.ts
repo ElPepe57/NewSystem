@@ -56,8 +56,25 @@ import type { MonedaTesoreria } from './tesoreria.types';
 export interface Socio {
   id: string;
   nombre: string;
-  /** Email opcional · para futuros reportes ejecutivos auto-enviados */
+  /**
+   * Email del socio · canal de contacto + vínculo opcional con UserProfile.
+   * Si coincide con el email de un usuario en `/users`, ese socio puede
+   * vincularse vía `userId`.
+   */
   email?: string;
+  /**
+   * chk5.E-INV-SOC (2026-05-24) · vínculo OPCIONAL con UserProfile del sistema.
+   *
+   * - Si el socio TAMBIÉN es usuario del ERP (típicamente admin) → userId =
+   *   UID de Firebase Auth · permite vista personalizada, reportes por email,
+   *   trazabilidad de aprobaciones.
+   * - Si el socio es "silent partner" (invirtió pero no opera el sistema) →
+   *   userId queda undefined · solo email para contacto.
+   *
+   * NO confundir con el `role` del UserProfile · el role es 'admin'/'gerente'/
+   * etc · `rol` del Socio es descriptivo del negocio ("Co-fundador · CEO").
+   */
+  userId?: string;
   /** Porcentaje de participación (suma de todos los socios = 100) */
   porcentajeParticipacion: number;
   /** Rol/cargo descriptivo · ej. "Co-fundador · CEO" */
@@ -392,6 +409,8 @@ export interface ResumenInversionista {
 export interface SocioFormData {
   nombre: string;
   email?: string;
+  /** UID del UserProfile vinculado · opcional · si email matchea un usuario */
+  userId?: string;
   porcentajeParticipacion: number;
   rol?: string;
   fechaIngreso: Date;

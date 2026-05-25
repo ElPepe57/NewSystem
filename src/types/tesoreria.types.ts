@@ -306,7 +306,7 @@ export interface CuentaCaja {
   // Permite agrupar cuentas por persona/entidad en /finanzas/cash-flow y soporta
   // cajas chicas de viajeros y agentes recaudadores (proveedores con caja).
   titularEntidadId?: string;
-  titularEntidadTipo?: 'empleado' | 'colaborador' | 'proveedor' | 'cliente';
+  titularEntidadTipo?: 'empleado' | 'colaborador' | 'proveedor' | 'cliente' | 'socio';
   titularNombre?: string;        // Desnormalizado para display rápido (espejo de `titular`)
 
   cuentaVinculadaId?: string;    // Para tarjeta débito: la cuenta de ahorros de donde sale el dinero
@@ -360,13 +360,19 @@ export interface CuentaCaja {
 
   // chk5.E-INV · INVERSIÓN MIXTA · TC PERSONAL GARANTIZANDO DEUDA DEL NEGOCIO
   /**
-   * Cuando la cuenta es una tarjeta de crédito personal de un socio usada para
-   * comprar inventario del negocio (modelo mixto · emprendedor apalancado), este
-   * campo apunta al `Socio.id` que garantiza la deuda. El sistema lo trata como
-   * "Capital Comprometido" del socio en el módulo de Inversionistas.
+   * @deprecated chk5.E-INV-SOC (2026-05-24) · Reemplazado por el modelo canon
+   * de "titularidad personal vinculada a entidad". Una TC personal de socio
+   * ahora se modela vía `titularidad='personal' + titularEntidadTipo='socio' +
+   * titularEntidadId=<id_socio>` · reusa el sistema de titularidad existente
+   * en vez de inventar un campo paralelo.
    *
-   * Default empty/undefined = cuenta corporativa estándar.
-   * Si tiene valor = TC personal de socio (deuda personal asumida por el negocio).
+   * Las queries del módulo Inversionistas ya leen via titularEntidadTipo='socio'.
+   * Este campo se mantiene SOLO por backward compat de documentos antiguos
+   * que pudieron haberse creado con `garantizadaPorSocioId`. Será eliminado
+   * en chk5.E-INV-CLEANUP cuando se confirme que no hay docs en producción
+   * con este campo (probablemente 0 · era reciente y sin UI).
+   *
+   * NO usar en código nuevo · NO usar al crear cuentas.
    */
   garantizadaPorSocioId?: string;
 
@@ -664,7 +670,7 @@ export interface CuentaCajaFormData {
 
   // S58c v2 — Vinculación estructurada del titular
   titularEntidadId?: string;
-  titularEntidadTipo?: 'empleado' | 'colaborador' | 'proveedor' | 'cliente';
+  titularEntidadTipo?: 'empleado' | 'colaborador' | 'proveedor' | 'cliente' | 'socio';
   titularNombre?: string;
 
   cuentaVinculadaId?: string;    // Para tarjeta débito → cuenta de ahorros

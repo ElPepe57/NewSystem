@@ -138,7 +138,7 @@ export interface CuentaWizardState {
   // ── Titularidad (intercalado en Paso 2 cuando aplica) ──
   titularidad: 'empresa' | 'personal';
   titularEntidadId: string;
-  titularEntidadTipo: 'empleado' | 'colaborador' | 'proveedor' | 'cliente' | undefined;
+  titularEntidadTipo: 'empleado' | 'colaborador' | 'proveedor' | 'cliente' | 'socio' | undefined;
   titularNombre: string;          // Display del titular (auto desde entidad o manual)
 
   // ── Paso 3 ──

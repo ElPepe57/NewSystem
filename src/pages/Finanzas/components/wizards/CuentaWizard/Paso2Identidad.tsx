@@ -10,7 +10,7 @@
  */
 
 import React, { useEffect, useMemo, useState } from 'react';
-import { Building, User, Truck, IdCard, Users as UsersIcon } from 'lucide-react';
+import { Building, User, Truck, IdCard, Users as UsersIcon, Landmark } from 'lucide-react';
 import { TextField } from '../../../../../design-system/components/forms/TextField';
 import { Combobox } from '../../../../../design-system/components/forms/Combobox';
 import { ToggleGroup } from '../../../../../design-system/components/forms/ToggleGroup';
@@ -49,6 +49,14 @@ const TIPO_ENTIDAD_OPTIONS = [
     label: 'Cliente',
     icon: User,
     color: 'teal',
+  },
+  // chk5.E-INV-SOC (2026-05-24) · Socio del negocio · típico caso: TC personal
+  // de socio asumida por el negocio (modelo mixto · emprendedor apalancado).
+  {
+    value: 'socio',
+    label: 'Socio',
+    icon: Landmark,
+    color: 'violet',
   },
 ] as const;
 

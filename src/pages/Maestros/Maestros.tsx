@@ -12,7 +12,8 @@ import {
   LayoutDashboard,
   Zap,
   Boxes,
-  Package
+  Package,
+  Landmark
 } from 'lucide-react';
 import {
   Button,
@@ -54,6 +55,8 @@ const CanalesVentaAnalytics = lazy(() => import('../../components/Maestros/Canal
 const CategoriasCostos = lazy(() => import('../../components/Maestros/CategoriasCostos').then(m => ({ default: m.CategoriasCostos })));
 const InsumosEmpaque = lazy(() => import('../../components/Maestros/InsumosEmpaque').then(m => ({ default: m.InsumosEmpaque })));
 const KitsEmpaque = lazy(() => import('../../components/Maestros/KitsEmpaque').then(m => ({ default: m.KitsEmpaque })));
+// chk5.E-INV-SOC · Socios del negocio · entidad canon vinculable a UserProfile
+const SociosMaestros = lazy(() => import('../../components/Maestros/SociosMaestros'));
 
 const TabFallback = (
   <div className="flex justify-center items-center py-12">
@@ -61,9 +64,9 @@ const TabFallback = (
   </div>
 );
 
-type TabActiva = 'resumen' | 'clientes' | 'marcas' | 'proveedores' | 'competidores' | 'canales' | 'clasificacion' | 'categorias_costos' | 'insumos' | 'kits';
+type TabActiva = 'resumen' | 'clientes' | 'marcas' | 'proveedores' | 'competidores' | 'canales' | 'clasificacion' | 'categorias_costos' | 'insumos' | 'kits' | 'socios';
 
-const VALID_TABS: TabActiva[] = ['resumen', 'clientes', 'marcas', 'proveedores', 'competidores', 'canales', 'clasificacion'];
+const VALID_TABS: TabActiva[] = ['resumen', 'clientes', 'marcas', 'proveedores', 'competidores', 'canales', 'clasificacion', 'socios'];
 
 export const Maestros: React.FC = () => {
   const user = useAuthStore(state => state.user);
@@ -531,6 +534,8 @@ export const Maestros: React.FC = () => {
     { id: 'proveedores', label: 'Proveedores', icon: Truck, count: proveedores.length },
     { id: 'competidores', label: 'Competidores', icon: Shield, count: competidores.length },
     { id: 'canales', label: 'Canales', icon: Store },
+    // chk5.E-INV-SOC · Socios del negocio · catálogo del modelo mixto inversionistas
+    { id: 'socios', label: 'Socios', icon: Landmark },
     { id: 'categorias_costos', label: 'Costos', icon: Boxes },
     { id: 'insumos', label: 'Insumos', icon: Package },
     { id: 'kits', label: 'Kits', icon: Package },
@@ -738,6 +743,13 @@ export const Maestros: React.FC = () => {
           {tabActiva === 'clasificacion' && (
             <Suspense fallback={TabFallback}>
               <TabClasificacion />
+            </Suspense>
+          )}
+
+          {/* chk5.E-INV-SOC · Catálogo de socios del negocio */}
+          {tabActiva === 'socios' && (
+            <Suspense fallback={TabFallback}>
+              <SociosMaestros />
             </Suspense>
           )}
         </>

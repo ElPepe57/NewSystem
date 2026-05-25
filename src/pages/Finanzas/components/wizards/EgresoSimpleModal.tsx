@@ -19,18 +19,20 @@
  */
 
 import React, { useEffect, useMemo, useState } from 'react';
-import { ArrowUpCircle, AlertCircle, ExternalLink } from 'lucide-react';
+import { ArrowUpCircle, AlertCircle, ExternalLink, Landmark } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { FormModalV2 } from '../../../../design-system/components/FormModalV2';
 import { tesoreriaService } from '../../../../services/tesoreria.service';
 import { useTipoCambio } from '../../../../hooks/useTipoCambio';
 import { useAuthStore } from '../../../../store/authStore';
+import { useSocioStore } from '../../../../store/socioStore';
 import type {
   CuentaCaja,
   MetodoTesoreria,
   MonedaTesoreria,
   TipoMovimientoTesoreria,
   MovimientoTesoreriaFormData,
+  RetiroCapitalFormData,
 } from '../../../../types/tesoreria.types';
 
 // ═════════════════════════════════════════════════════════════════════════
@@ -125,6 +127,10 @@ export const EgresoSimpleModal: React.FC<EgresoSimpleModalProps> = ({
   const { tc: tcSistema } = useTipoCambio();
   const userProfile = useAuthStore((s) => s.userProfile);
 
+  // chk5.E-INV-SOC · catálogo de socios para retiro_socio
+  const socios = useSocioStore((s) => s.socios);
+  const fetchSocios = useSocioStore((s) => s.fetchSocios);
+
   const [tipo, setTipo] = useState<TipoEgresoOption>('gasto_operativo');
   const [cuentaOrigenId, setCuentaOrigenId] = useState('');
   const [monto, setMonto] = useState('');
@@ -137,6 +143,10 @@ export const EgresoSimpleModal: React.FC<EgresoSimpleModalProps> = ({
   const [fecha, setFecha] = useState(() => fechaHoyInputValue());
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // chk5.E-INV-SOC · socio que retira (solo para tipo='retiro_socio')
+  const [socioId, setSocioId] = useState('');
+  // tipoRetiro · qué naturaleza tiene el retiro
+  const [tipoRetiro, setTipoRetiro] = useState<'utilidades' | 'capital' | 'prestamo'>('utilidades');
 
   useEffect(() => {
     if (isOpen) {
@@ -150,9 +160,22 @@ export const EgresoSimpleModal: React.FC<EgresoSimpleModalProps> = ({
       setConcepto('');
       setNotas('');
       setFecha(fechaHoyInputValue());
+      setSocioId('');
+      setTipoRetiro('utilidades');
       setError(null);
+      // chk5.E-INV-SOC · cargar catálogo de socios la primera vez
+      if (socios.length === 0) {
+        void fetchSocios();
+      }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, cuentas]);
+
+  // Lista de socios activos para el combobox
+  const sociosActivos = useMemo(
+    () => socios.filter((s) => s.activo).sort((a, b) => a.nombre.localeCompare(b.nombre, 'es')),
+    [socios],
+  );
 
   const cuentasFiltradas = useMemo(
     () => cuentas.filter((c) => c.activa && (c.esBiMoneda || c.moneda === moneda)),
@@ -182,6 +205,8 @@ export const EgresoSimpleModal: React.FC<EgresoSimpleModalProps> = ({
     if (montoNum <= 0) return 'El monto debe ser mayor a 0.';
     if (!concepto.trim()) return 'El concepto es obligatorio.';
     if (moneda === 'USD' && tcEfectivo <= 0) return 'El tipo de cambio debe ser mayor a 0 para USD.';
+    // chk5.E-INV-SOC · retiro_socio requiere socio del catálogo
+    if (tipo === 'retiro_socio' && !socioId) return 'Seleccioná el socio que retira.';
     return null;
   };
 
@@ -198,6 +223,35 @@ export const EgresoSimpleModal: React.FC<EgresoSimpleModalProps> = ({
     setSubmitting(true);
     setError(null);
     try {
+      // chk5.E-INV-SOC · retiro_socio usa service especializado · queda en
+      // retirosCapital con socioId · aparece en módulo Inversionistas como
+      // distribución por socio.
+      if (tipo === 'retiro_socio') {
+        const socioElegido = sociosActivos.find((s) => s.id === socioId);
+        if (!socioElegido) {
+          throw new Error('Socio no encontrado en el catálogo · recargá la página.');
+        }
+        const retiroData: RetiroCapitalFormData = {
+          monto: montoNum,
+          moneda,
+          tipoCambio: tcEfectivo,
+          cuentaOrigenId,
+          socioId: socioElegido.id,
+          socioNombre: socioElegido.nombre,
+          tipoRetiro,
+          metodo,
+          fecha: parseDateInput(fecha),
+        };
+        if (concepto.trim()) retiroData.concepto = concepto.trim();
+        if (referencia.trim()) retiroData.referencia = referencia.trim();
+        if (notas.trim()) retiroData.notas = notas.trim();
+
+        const id = await tesoreriaService.registrarRetiroCapital(retiroData, userProfile.uid);
+        onSuccess?.(id);
+        onClose();
+        return;
+      }
+
       const data: MovimientoTesoreriaFormData = {
         tipo,
         moneda,
@@ -278,6 +332,66 @@ export const EgresoSimpleModal: React.FC<EgresoSimpleModalProps> = ({
               >
                 Ir a Gastos →
               </button>
+            </div>
+          </div>
+        )}
+
+        {/* chk5.E-INV-SOC · Selector de socio + tipo de retiro · solo para retiro_socio */}
+        {tipo === 'retiro_socio' && (
+          <div className="bg-violet-50/40 border border-violet-200 rounded-lg p-3 space-y-2">
+            <label className="text-[10px] uppercase tracking-wider text-violet-700 font-bold mb-1.5 flex items-center gap-1.5">
+              <Landmark className="w-3 h-3" /> Socio que retira *
+            </label>
+            {sociosActivos.length === 0 ? (
+              <div className="text-[11px] text-slate-600">
+                Sin socios registrados. Creá uno primero en{' '}
+                <a href="/maestros?tab=socios" className="text-violet-700 font-semibold underline">
+                  Maestros · Socios
+                </a>
+                .
+              </div>
+            ) : (
+              <>
+                <select
+                  value={socioId}
+                  onChange={(e) => setSocioId(e.target.value)}
+                  className="w-full px-3 py-2 text-[12px] border border-violet-300 rounded-lg bg-white focus:outline-none focus:border-violet-500"
+                >
+                  <option value="">Elegir socio...</option>
+                  {sociosActivos.map((s) => (
+                    <option key={s.id} value={s.id}>
+                      {s.nombre}
+                      {s.rol ? ` · ${s.rol}` : ''}
+                      {s.porcentajeParticipacion > 0 ? ` · ${s.porcentajeParticipacion}%` : ''}
+                    </option>
+                  ))}
+                </select>
+                <div>
+                  <label className="text-[10px] uppercase tracking-wider text-violet-700 font-bold mb-1 block">
+                    Tipo de retiro
+                  </label>
+                  <div className="grid grid-cols-3 gap-1.5">
+                    {(['utilidades', 'capital', 'prestamo'] as const).map((tipoOpt) => (
+                      <button
+                        key={tipoOpt}
+                        type="button"
+                        onClick={() => setTipoRetiro(tipoOpt)}
+                        className={`text-[11px] py-1.5 rounded font-semibold border transition-colors ${
+                          tipoRetiro === tipoOpt
+                            ? 'bg-violet-100 border-violet-400 text-violet-900'
+                            : 'bg-white border-violet-200 text-slate-600 hover:bg-violet-50'
+                        }`}
+                      >
+                        {tipoOpt === 'utilidades' ? 'Utilidades' : tipoOpt === 'capital' ? 'Capital' : 'Préstamo'}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </>
+            )}
+            <div className="text-[10px] text-violet-700 mt-1.5">
+              El retiro queda atribuido al socio · aparece en el módulo Inversionistas en
+              "Distribución" según el tipo.
             </div>
           </div>
         )}

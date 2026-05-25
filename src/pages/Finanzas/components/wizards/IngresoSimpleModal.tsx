@@ -15,17 +15,19 @@
  */
 
 import React, { useEffect, useMemo, useState } from 'react';
-import { ArrowDownCircle, AlertCircle } from 'lucide-react';
+import { ArrowDownCircle, AlertCircle, Landmark } from 'lucide-react';
 import { FormModalV2 } from '../../../../design-system/components/FormModalV2';
 import { tesoreriaService } from '../../../../services/tesoreria.service';
 import { useTipoCambio } from '../../../../hooks/useTipoCambio';
 import { useAuthStore } from '../../../../store/authStore';
+import { useSocioStore } from '../../../../store/socioStore';
 import type {
   CuentaCaja,
   MetodoTesoreria,
   MonedaTesoreria,
   TipoMovimientoTesoreria,
   MovimientoTesoreriaFormData,
+  AporteCapitalFormData,
 } from '../../../../types/tesoreria.types';
 
 // ═════════════════════════════════════════════════════════════════════════
@@ -86,6 +88,10 @@ export const IngresoSimpleModal: React.FC<IngresoSimpleModalProps> = ({
   const { tc: tcSistema } = useTipoCambio();
   const userProfile = useAuthStore((s) => s.userProfile);
 
+  // chk5.E-INV-SOC · catálogo de socios para aporte_capital
+  const socios = useSocioStore((s) => s.socios);
+  const fetchSocios = useSocioStore((s) => s.fetchSocios);
+
   // Estado del formulario
   const [tipo, setTipo] = useState<TipoIngresoOption>('ingreso_venta');
   const [cuentaDestinoId, setCuentaDestinoId] = useState('');
@@ -99,6 +105,8 @@ export const IngresoSimpleModal: React.FC<IngresoSimpleModalProps> = ({
   const [fecha, setFecha] = useState(() => fechaHoyInputValue());
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // chk5.E-INV-SOC · campo socio · obligatorio cuando tipo='aporte_capital'
+  const [socioId, setSocioId] = useState('');
 
   // Reset cuando se abre
   useEffect(() => {
@@ -113,8 +121,14 @@ export const IngresoSimpleModal: React.FC<IngresoSimpleModalProps> = ({
       setConcepto('');
       setNotas('');
       setFecha(fechaHoyInputValue());
+      setSocioId('');
       setError(null);
+      // chk5.E-INV-SOC · cargar catálogo de socios la primera vez por si elige aporte_capital
+      if (socios.length === 0) {
+        void fetchSocios();
+      }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, cuentas]);
 
   // Cuentas filtradas · activas · matchean la moneda elegida
@@ -152,8 +166,16 @@ export const IngresoSimpleModal: React.FC<IngresoSimpleModalProps> = ({
     if (montoNum <= 0) return 'El monto debe ser mayor a 0.';
     if (!concepto.trim()) return 'El concepto es obligatorio.';
     if (moneda === 'USD' && tcEfectivo <= 0) return 'El tipo de cambio debe ser mayor a 0 para USD.';
+    // chk5.E-INV-SOC · aporte_capital requiere socio del catálogo
+    if (tipo === 'aporte_capital' && !socioId) return 'Seleccioná el socio que realiza el aporte.';
     return null;
   };
+
+  // Lista de socios activos para el combobox
+  const sociosActivos = useMemo(
+    () => socios.filter((s) => s.activo).sort((a, b) => a.nombre.localeCompare(b.nombre, 'es')),
+    [socios],
+  );
 
   // Submit
   const handleSubmit = async () => {
@@ -170,6 +192,34 @@ export const IngresoSimpleModal: React.FC<IngresoSimpleModalProps> = ({
     setSubmitting(true);
     setError(null);
     try {
+      // chk5.E-INV-SOC · aporte_capital usa el service especializado que atribuye
+      // el aporte al socio (queda en aportesCapital con socioId) · el resto usa
+      // registrarMovimiento genérico.
+      if (tipo === 'aporte_capital') {
+        const socioElegido = sociosActivos.find((s) => s.id === socioId);
+        if (!socioElegido) {
+          throw new Error('Socio no encontrado en el catálogo · recargá la página.');
+        }
+        const aporteData: AporteCapitalFormData = {
+          monto: montoNum,
+          moneda,
+          tipoCambio: tcEfectivo,
+          cuentaDestinoId,
+          socioId: socioElegido.id,
+          socioNombre: socioElegido.nombre,
+          metodo,
+          fecha: parseDateInput(fecha),
+        };
+        if (concepto.trim()) aporteData.concepto = concepto.trim();
+        if (referencia.trim()) aporteData.referencia = referencia.trim();
+        if (notas.trim()) aporteData.notas = notas.trim();
+
+        const id = await tesoreriaService.registrarAporteCapital(aporteData, userProfile.uid);
+        onSuccess?.(id);
+        onClose();
+        return;
+      }
+
       const data: MovimientoTesoreriaFormData = {
         tipo,
         moneda,
@@ -233,6 +283,43 @@ export const IngresoSimpleModal: React.FC<IngresoSimpleModalProps> = ({
             ))}
           </div>
         </div>
+
+        {/* chk5.E-INV-SOC · Selector de socio · solo para aporte_capital */}
+        {tipo === 'aporte_capital' && (
+          <div className="bg-violet-50/40 border border-violet-200 rounded-lg p-3">
+            <label className="text-[10px] uppercase tracking-wider text-violet-700 font-bold mb-1.5 flex items-center gap-1.5">
+              <Landmark className="w-3 h-3" /> Socio que aporta *
+            </label>
+            {sociosActivos.length === 0 ? (
+              <div className="text-[11px] text-slate-600">
+                Sin socios registrados. Creá uno primero en{' '}
+                <a href="/maestros?tab=socios" className="text-violet-700 font-semibold underline">
+                  Maestros · Socios
+                </a>
+                .
+              </div>
+            ) : (
+              <select
+                value={socioId}
+                onChange={(e) => setSocioId(e.target.value)}
+                className="w-full px-3 py-2 text-[12px] border border-violet-300 rounded-lg bg-white focus:outline-none focus:border-violet-500"
+              >
+                <option value="">Elegir socio...</option>
+                {sociosActivos.map((s) => (
+                  <option key={s.id} value={s.id}>
+                    {s.nombre}
+                    {s.rol ? ` · ${s.rol}` : ''}
+                    {s.porcentajeParticipacion > 0 ? ` · ${s.porcentajeParticipacion}%` : ''}
+                  </option>
+                ))}
+              </select>
+            )}
+            <div className="text-[10px] text-violet-700 mt-1.5">
+              El aporte queda atribuido al socio · aparece en el módulo Inversionistas como
+              "Cash propio aportado".
+            </div>
+          </div>
+        )}
 
         {/* Cuenta destino */}
         <div>

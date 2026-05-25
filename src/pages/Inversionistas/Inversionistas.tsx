@@ -44,6 +44,7 @@ import {
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
+import { useNavigate } from 'react-router-dom';
 import { inversionistaService } from '../../services/inversionista.service';
 import type {
   ResumenInversionista,
@@ -257,6 +258,7 @@ function TabsRow({ tabs, activeId, onChange }: TabsRowProps) {
 // ═════════════════════════════════════════════════════════════════════════
 
 export default function Inversionistas() {
+  const navigate = useNavigate();
   const ahora = new Date();
   const [mes, setMes] = useState<number>(ahora.getMonth() + 1);
   const [anio, setAnio] = useState<number>(ahora.getFullYear());
@@ -432,9 +434,9 @@ export default function Inversionistas() {
               {/* Tier destacada · Configurar socios */}
               <button
                 type="button"
-                onClick={() => alert('Próximamente · gestión de socios y participaciones')}
+                onClick={() => navigate('/maestros?tab=socios')}
                 aria-label="Configurar socios"
-                title="Gestionar catálogo de socios y porcentajes de participación"
+                title="Gestionar catálogo de socios y porcentajes de participación · abre Maestros · Socios"
                 className="text-[11px] font-semibold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 px-3 py-1.5 rounded-lg flex items-center gap-1.5"
               >
                 <UserCog className="w-3 h-3" />
