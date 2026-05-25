@@ -175,24 +175,38 @@ export interface TCPersonalSocioResumen {
  * negocio. Suma:
  *  - Cash aportado (`totalAportadoPEN` de aportes)
  *  - Deuda personal vigente (`totalComprometidoPEN` de TC personales)
+ *  - **Valor estimado aportado** (chk5.F3 · D7 · suma de valuaciones del sub-perfil datosSocio)
  *
- * Se diferencia del "Patrimonio" contable porque incluye la deuda asumida.
+ * El campo `totalPEN` sigue siendo cash + TC (lo MEDIBLE en dinero) · el
+ * `valorEstimadoTotalPEN` se reporta APARTE en el cap table (no se incluye
+ * en patrimonio contable porque no es liquidable).
  */
 export interface CapitalComprometido {
   /** Total cash aportado (lifetime · sin descontar retiros de capital) */
   cashAportadoPEN: number;
   /** Deuda personal TC vigente · asumida por el negocio */
   deudaTCPersonalPEN: number;
-  /** TOTAL = cash + deuda · la cifra que aparece en el KPI strip */
+  /** TOTAL = cash + deuda · la cifra que aparece en el KPI strip principal */
   totalPEN: number;
+  /**
+   * chk5.F3-ADAPT · D7 canon · suma de las valuaciones estimadas del valor
+   * aportado por los socios (sub-perfil datosSocio.aporteDeValor.valuacionEstimadaPEN).
+   * Se reporta SEPARADAMENTE en KPI strip cap table · NO se incluye en totalPEN.
+   * Si ningún socio tiene valuación declarada, este campo es 0.
+   */
+  valorEstimadoTotalPEN: number;
   /** Desglose por socio (si hay >1) */
   porSocio?: Array<{
     socioId: string;
     socioNombre: string;
     cash: number;
     deudaTC: number;
+    /** chk5.F3-ADAPT · D7 · valor estimado del aporte no-monetario del socio */
+    valorEstimado: number;
     total: number;
     porcentajeDelTotal: number;
+    /** chk5.F3-ADAPT · D7 · tipo de participación · solo informativo */
+    tipoParticipacion?: 'cash_puro' | 'mixta' | 'valor_puro';
   }>;
 }
 

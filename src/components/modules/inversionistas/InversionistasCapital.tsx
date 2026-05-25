@@ -11,6 +11,8 @@ import {
   PieChart,
   Lightbulb,
   CreditCard,
+  Sparkles,
+  Banknote,
 } from 'lucide-react';
 import { formatCurrencyPEN } from '../../../utils/format';
 import { formatFechaCorta } from './shared';
@@ -24,9 +26,16 @@ export default function InversionistasCapital({ data }: Props) {
   const totalAportes = data.aportesPorSocio.reduce((a, b) => a + b.totalAportadoPEN, 0);
   const cash = data.capitalComprometido.cashAportadoPEN;
   const tc = data.capitalComprometido.deudaTCPersonalPEN;
+  const valor = data.capitalComprometido.valorEstimadoTotalPEN;
   const total = cash + tc;
   const pctCash = total > 0 ? (cash / total) * 100 : 0;
   const pctTC = total > 0 ? (tc / total) * 100 : 0;
+
+  // chk5.F3-ADAPT · D7 · cap table del negocio · cash + TC + valor estimado
+  const capTableTotal = cash + tc + valor;
+  const pctCapCash = capTableTotal > 0 ? (cash / capTableTotal) * 100 : 0;
+  const pctCapTC = capTableTotal > 0 ? (tc / capTableTotal) * 100 : 0;
+  const pctCapValor = capTableTotal > 0 ? (valor / capTableTotal) * 100 : 0;
 
   // Donut SVG
   const radius = 40;
@@ -39,6 +48,44 @@ export default function InversionistasCapital({ data }: Props) {
 
   return (
     <div className="space-y-4">
+      {/* chk5.F3-ADAPT · D7 · KPI strip cap table del negocio (3 cards) */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <div className="bg-gradient-to-br from-emerald-50 to-emerald-100/40 ring-1 ring-emerald-200/50 rounded-2xl p-4">
+          <div className="flex items-center justify-between mb-1">
+            <span className="text-[10px] uppercase tracking-wider text-emerald-700 font-bold">CASH NETO INVERTIDO</span>
+            <Banknote className="w-3.5 h-3.5 text-emerald-700" />
+          </div>
+          <div className="text-[22px] font-bold tabular-nums text-emerald-900">{formatCurrencyPEN(cash)}</div>
+          <div className="text-[10px] text-emerald-700">
+            {capTableTotal > 0 ? `${pctCapCash.toFixed(0)}% del valor monetario` : 'Sin aportes registrados'}
+          </div>
+        </div>
+        <div className="bg-gradient-to-br from-rose-50 to-rose-100/40 ring-1 ring-rose-200/50 rounded-2xl p-4">
+          <div className="flex items-center justify-between mb-1">
+            <span className="text-[10px] uppercase tracking-wider text-rose-700 font-bold">TC PERSONAL ASUMIDA</span>
+            <CreditCard className="w-3.5 h-3.5 text-rose-700" />
+          </div>
+          <div className="text-[22px] font-bold tabular-nums text-rose-900">{formatCurrencyPEN(tc)}</div>
+          <div className="text-[10px] text-rose-700">
+            {capTableTotal > 0 ? `${pctCapTC.toFixed(0)}% · deuda asumida` : 'Sin TCs vinculadas'}
+          </div>
+        </div>
+        <div className="bg-gradient-to-br from-amber-50 to-amber-100/40 ring-1 ring-amber-200/50 rounded-2xl p-4">
+          <div className="flex items-center justify-between mb-1">
+            <span className="text-[10px] uppercase tracking-wider text-amber-700 font-bold">VALOR APORTADO (est.)</span>
+            <Sparkles className="w-3.5 h-3.5 text-amber-700" />
+          </div>
+          <div className="text-[22px] font-bold tabular-nums text-amber-900">
+            {valor > 0 ? formatCurrencyPEN(valor) : '—'}
+          </div>
+          <div className="text-[10px] text-amber-700">
+            {valor > 0
+              ? `${pctCapValor.toFixed(0)}% · know-how + IP + gestión`
+              : 'Sin valuación declarada · ver datosSocio'}
+          </div>
+        </div>
+      </div>
+
       {/* Layout grid · stack en mobile (<lg), 2:1 desktop */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {/* Aportes propios · ocupa 2 cols desktop */}

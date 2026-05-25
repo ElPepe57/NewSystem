@@ -343,19 +343,29 @@ export function calcularCapitalComprometido(
 ): CapitalComprometido {
   const totalPEN = cashAportadoPEN + deudaTCPersonalPEN;
 
+  // chk5.F3-ADAPT · D7 canon · acumular el valor estimado del aporte no-monetario
+  // declarado en el sub-perfil datosSocio de cada socio.
+  let valorEstimadoTotalPEN = 0;
+
   const porSocio = socios.map((s) => {
     const aporte = aportesPorSocio.find((a) => a.socioId === s.id);
     const tcs = tcsPorSocio.find((t) => t.socioId === s.id);
     const cash = aporte?.totalAportadoPEN || 0;
     const deudaTC = tcs?.totalComprometidoPEN || 0;
+    // Acceso al sub-perfil compuesto (datosSocioCompleto inyectado por socio.service.componerSocio)
+    const datosCompleto = (s as any).datosSocioCompleto;
+    const valorEstimado = datosCompleto?.aporteDeValor?.valuacionEstimadaPEN || 0;
+    valorEstimadoTotalPEN += valorEstimado;
     const total = cash + deudaTC;
     return {
       socioId: s.id,
       socioNombre: s.nombre,
       cash,
       deudaTC,
+      valorEstimado,
       total,
       porcentajeDelTotal: totalPEN > 0 ? (total / totalPEN) * 100 : 0,
+      tipoParticipacion: datosCompleto?.tipoParticipacion,
     };
   });
 
@@ -363,6 +373,7 @@ export function calcularCapitalComprometido(
     cashAportadoPEN,
     deudaTCPersonalPEN,
     totalPEN,
+    valorEstimadoTotalPEN,
     porSocio,
   };
 }
