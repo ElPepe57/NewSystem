@@ -1,0 +1,1160 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Inversionistas · flujo UX · canon v5.2 (onboarding + operación)</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<style>
+  body { font-family: 'Inter', sans-serif; font-variant-numeric: tabular-nums; background: rgb(248 250 252); }
+  .tabular { font-variant-numeric: tabular-nums; }
+  .step-arrow::after {
+    content: '↓';
+    display: block;
+    text-align: center;
+    font-size: 24px;
+    color: rgb(139 92 246);
+    margin: 12px 0;
+  }
+</style>
+<script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="p-4 md:p-8 text-slate-900">
+
+<!-- ╔══════════════════════════════════════════════════════════════╗ -->
+<!-- INTRO · DIAGNÓSTICO                                              -->
+<!-- ╚══════════════════════════════════════════════════════════════╝ -->
+<div class="max-w-5xl mx-auto mb-8">
+  <div class="bg-violet-50 border-l-4 border-violet-500 p-5 rounded text-[13px] text-violet-900 mb-6">
+    <strong>🎬 Storyboard · Inversionistas · canon v5.2</strong><br>
+    Película completa del flujo de usuario · desde el primer login vacío hasta operación día a día.
+    Color signature <strong class="text-violet-700">violet</strong>.
+    Mobile-first. Cero fricción de setup.
+  </div>
+
+  <!-- Comparativa antes vs ahora -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+    <div class="bg-white border-2 border-rose-200 rounded-2xl p-5">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-rose-100 flex items-center justify-center">
+          <i data-lucide="x-circle" class="w-5 h-5 text-rose-600"></i>
+        </div>
+        <h3 class="text-[13px] font-bold text-rose-900">ANTES · 10 minutos · 3 módulos</h3>
+      </div>
+      <ol class="text-[11px] text-slate-700 space-y-1.5 list-decimal ml-4">
+        <li>Ir a Maestros · Socios → crear socio (5 campos)</li>
+        <li>Ir a Finanzas · Saldos → editar TC (wizard 5 pasos)</li>
+        <li>Marcar titularidad personal · tipo socio</li>
+        <li>Volver a Finanzas → + Nuevo movimiento → aporte_capital (5 campos)</li>
+        <li>Finalmente abrir /inversionistas para ver dato</li>
+      </ol>
+      <div class="mt-3 pt-2 border-t border-rose-100 text-[10px] text-rose-700">
+        El user actúa como contador/sysadmin antes de poder ver su vista ejecutiva.
+      </div>
+    </div>
+    <div class="bg-white border-2 border-emerald-200 rounded-2xl p-5">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center">
+          <i data-lucide="check-circle" class="w-5 h-5 text-emerald-600"></i>
+        </div>
+        <h3 class="text-[13px] font-bold text-emerald-900">AHORA · 30 segundos · 1 módulo</h3>
+      </div>
+      <ol class="text-[11px] text-slate-700 space-y-1.5 list-decimal ml-4">
+        <li>Abrís /inversionistas → banner "Setup 30s"</li>
+        <li>Confirmás identidad (todo pre-llenado del UserProfile)</li>
+        <li>Marcás TCs personales (checkbox multi-select · opcional)</li>
+        <li>Listo · ya ves datos reales</li>
+        <li>Aportes/retiros con botones inline desde Mi Capital</li>
+      </ol>
+      <div class="mt-3 pt-2 border-t border-emerald-100 text-[10px] text-emerald-700">
+        El user opera desde donde necesita, sin saltos.
+      </div>
+    </div>
+  </div>
+
+  <h2 class="text-[18px] font-bold text-slate-900 mb-3 flex items-center gap-2">
+    <i data-lucide="film" class="w-5 h-5 text-violet-600"></i>
+    ACTO 1 · ONBOARDING · primera vez (30 segundos)
+  </h2>
+  <p class="text-[12px] text-slate-600 mb-4">
+    Lo que el user ve cuando entra por primera vez al módulo, sin socios ni TCs marcadas.
+  </p>
+</div>
+
+<!-- ╔══════════════════════════════════════════════════════════════╗ -->
+<!-- ESTADO 1 · LLEGADA AL MÓDULO VACÍO                              -->
+<!-- ╚══════════════════════════════════════════════════════════════╝ -->
+<div class="max-w-5xl mx-auto mb-2">
+  <div class="bg-violet-100 text-violet-900 px-3 py-1.5 rounded-t-lg inline-block text-[11px] font-bold">
+    📍 ESTADO 1 · usuario admin entra a /inversionistas por primera vez
+  </div>
+</div>
+<div class="max-w-5xl mx-auto bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden mb-2">
+
+  <!-- Breadcrumb -->
+  <div class="border-b border-slate-200 px-4 sm:px-6 py-2.5 flex items-center gap-3 bg-slate-50">
+    <div class="flex items-center text-[12px] flex-1">
+      <a class="text-slate-500 hover:text-violet-700">Inicio</a>
+      <i data-lucide="chevron-right" class="w-3 h-3 text-slate-300 mx-1.5"></i>
+      <span class="text-slate-900 font-semibold">Inversionistas</span>
+    </div>
+    <span class="text-[10px] bg-violet-50 text-violet-700 px-2 py-0.5 rounded font-bold hidden sm:inline-flex items-center gap-1">
+      <i data-lucide="shield" class="w-3 h-3"></i>
+      Vista ejecutiva · admin
+    </span>
+  </div>
+
+  <!-- Header -->
+  <div class="px-4 sm:px-6 py-4 sm:py-5 border-b border-slate-100">
+    <div class="flex items-start gap-3">
+      <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-violet-500 to-violet-700 flex items-center justify-center text-white">
+        <i data-lucide="landmark" class="w-5 h-5"></i>
+      </div>
+      <div>
+        <h1 class="text-2xl font-bold tracking-tight text-slate-900">Inversionistas</h1>
+        <p class="text-[13px] text-slate-500">Vista estratégica · capital comprometido · retorno · trayectoria</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- KPI strip vacío · todos en — -->
+  <div class="px-4 sm:px-6 py-3 sm:py-4 border-b border-slate-100 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 sm:gap-3">
+    <div class="bg-slate-50 ring-1 ring-slate-200 rounded-2xl p-3 opacity-50">
+      <div class="text-[9px] uppercase tracking-wider text-slate-500 font-bold">CAPITAL COMPROMETIDO</div>
+      <div class="text-2xl font-bold tabular text-slate-400 mt-1">—</div>
+      <div class="text-[10px] text-slate-400 mt-1">Sin data</div>
+    </div>
+    <div class="bg-slate-50 ring-1 ring-slate-200 rounded-2xl p-3 opacity-50">
+      <div class="text-[9px] uppercase tracking-wider text-slate-500 font-bold">PATRIMONIO</div>
+      <div class="text-2xl font-bold tabular text-slate-400 mt-1">—</div>
+    </div>
+    <div class="bg-slate-50 ring-1 ring-slate-200 rounded-2xl p-3 opacity-50">
+      <div class="text-[9px] uppercase tracking-wider text-slate-500 font-bold">EQUITY RATIO</div>
+      <div class="text-2xl font-bold tabular text-slate-400 mt-1">—</div>
+    </div>
+    <div class="bg-slate-50 ring-1 ring-slate-200 rounded-2xl p-3 opacity-50">
+      <div class="text-[9px] uppercase tracking-wider text-slate-500 font-bold">ROI ANUAL</div>
+      <div class="text-2xl font-bold tabular text-slate-400 mt-1">—</div>
+    </div>
+    <div class="bg-slate-50 ring-1 ring-slate-200 rounded-2xl p-3 opacity-50">
+      <div class="text-[9px] uppercase tracking-wider text-slate-500 font-bold">MULTIPLICADOR</div>
+      <div class="text-2xl font-bold tabular text-slate-400 mt-1">—</div>
+    </div>
+  </div>
+
+  <!-- Body · gran banner de bienvenida -->
+  <div class="p-4 sm:p-6">
+
+    <!-- BANNER ONBOARDING · super destacado · canon "sin data" mejorado -->
+    <div class="bg-gradient-to-br from-violet-50 via-violet-100/60 to-violet-50 ring-2 ring-violet-300 rounded-2xl p-6 mb-4">
+      <div class="flex items-start gap-4 flex-wrap">
+        <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-violet-500 to-violet-700 flex items-center justify-center text-white flex-shrink-0 shadow-lg shadow-violet-300">
+          <i data-lucide="sparkles" class="w-8 h-8"></i>
+        </div>
+        <div class="flex-1 min-w-[260px]">
+          <div class="text-[10px] uppercase tracking-wider text-violet-700 font-bold mb-1">Bienvenido al módulo Inversionistas</div>
+          <h2 class="text-[22px] font-bold text-violet-900 leading-tight mb-2">
+            Configurá tu negocio en 30 segundos
+          </h2>
+          <p class="text-[13px] text-violet-800 mb-4">
+            Detectamos que sos <strong>admin del sistema</strong>. Si sos también el único socio de Vita Skin Peru,
+            lo configuramos automáticamente vinculado a tu cuenta de usuario.
+          </p>
+          <!-- 2 CTAs · primary + secondary -->
+          <div class="flex items-center gap-2 flex-wrap">
+            <button class="bg-violet-600 hover:bg-violet-700 text-white text-[13px] font-bold px-4 py-2 rounded-lg inline-flex items-center gap-2 shadow-md shadow-violet-200">
+              <i data-lucide="zap" class="w-4 h-4"></i>
+              Setup automático · 30s
+            </button>
+            <button class="text-[12px] font-semibold text-violet-700 hover:bg-violet-100 border border-violet-300 px-3 py-2 rounded-lg inline-flex items-center gap-1.5">
+              <i data-lucide="users" class="w-3.5 h-3.5"></i>
+              Tengo varios socios
+            </button>
+            <button class="text-[11px] font-medium text-slate-500 hover:text-slate-700 px-2 py-2">
+              Más tarde
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Beneficios del setup · 3 chips pedagógicos -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
+      <div class="bg-white border border-emerald-200 rounded-2xl p-3">
+        <div class="flex items-center gap-2 mb-1">
+          <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-600"></i>
+          <span class="text-[11px] font-bold text-emerald-900">Cero forms manuales</span>
+        </div>
+        <p class="text-[10px] text-slate-600">Pre-llenamos todo desde tu cuenta de usuario</p>
+      </div>
+      <div class="bg-white border border-emerald-200 rounded-2xl p-3">
+        <div class="flex items-center gap-2 mb-1">
+          <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-600"></i>
+          <span class="text-[11px] font-bold text-emerald-900">Vinculación automática</span>
+        </div>
+        <p class="text-[10px] text-slate-600">Tu user admin queda vinculado al socio</p>
+      </div>
+      <div class="bg-white border border-emerald-200 rounded-2xl p-3">
+        <div class="flex items-center gap-2 mb-1">
+          <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-600"></i>
+          <span class="text-[11px] font-bold text-emerald-900">Editable después</span>
+        </div>
+        <p class="text-[10px] text-slate-600">Podés ajustar todo desde Maestros · Socios cuando quieras</p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="step-arrow text-center text-violet-600"></div>
+
+<!-- ╔══════════════════════════════════════════════════════════════╗ -->
+<!-- ESTADO 2 · WIZARD PASO 1/2 · CONFIRMAR IDENTIDAD                -->
+<!-- ╚══════════════════════════════════════════════════════════════╝ -->
+<div class="max-w-5xl mx-auto mb-2">
+  <div class="bg-violet-100 text-violet-900 px-3 py-1.5 rounded-t-lg inline-block text-[11px] font-bold">
+    📍 ESTADO 2 · click "Setup automático" → wizard modal abre · paso 1/2
+  </div>
+</div>
+<div class="max-w-5xl mx-auto mb-2 relative">
+  <!-- Backdrop simulado -->
+  <div class="bg-slate-900/10 rounded-2xl p-6 sm:p-10">
+
+    <!-- Modal -->
+    <div class="bg-white border border-violet-200 rounded-2xl shadow-2xl overflow-hidden max-w-2xl mx-auto">
+
+      <!-- Header del modal -->
+      <div class="px-5 py-4 border-b border-slate-100 flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-violet-50 border border-violet-200 flex items-center justify-center">
+          <i data-lucide="landmark" class="w-5 h-5 text-violet-700"></i>
+        </div>
+        <div class="flex-1">
+          <div class="text-[10px] uppercase tracking-wider text-violet-700 font-bold">Onboarding Inversionistas · paso 1 de 2</div>
+          <h3 class="text-[16px] font-bold text-slate-900">Confirmá tu identidad como socio</h3>
+        </div>
+        <button class="text-slate-400 hover:text-slate-600">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Stepper visual · 2 pasos -->
+      <div class="px-5 py-3 bg-slate-50 border-b border-slate-100 flex items-center gap-2 text-[11px]">
+        <span class="flex items-center gap-1.5 text-violet-700 font-bold">
+          <span class="w-5 h-5 rounded-full bg-violet-600 text-white flex items-center justify-center text-[10px]">1</span>
+          Identidad
+        </span>
+        <span class="text-slate-300">———</span>
+        <span class="flex items-center gap-1.5 text-slate-400">
+          <span class="w-5 h-5 rounded-full bg-slate-200 text-slate-500 flex items-center justify-center text-[10px]">2</span>
+          TCs personales
+        </span>
+      </div>
+
+      <!-- Body del modal -->
+      <div class="p-5 space-y-4">
+
+        <!-- Card · "Esto detectamos de vos" -->
+        <div class="bg-indigo-50/50 border border-indigo-200 rounded-xl p-3 flex items-start gap-3">
+          <div class="w-9 h-9 rounded-lg bg-indigo-100 flex items-center justify-center flex-shrink-0">
+            <i data-lucide="user-check" class="w-4 h-4 text-indigo-700"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="text-[11px] font-bold text-indigo-900 mb-0.5">Detectamos esto de tu sesión actual</div>
+            <div class="text-[11px] text-slate-700 space-y-0.5">
+              <div><strong>Nombre:</strong> Jose Luis Lopez Paz <span class="text-[9px] text-slate-500">(de tu UserProfile)</span></div>
+              <div><strong>Email:</strong> jose.lp9205@gmail.com <span class="text-[9px] text-slate-500">(de tu cuenta)</span></div>
+              <div><strong>Rol del sistema:</strong> <span class="text-[10px] bg-indigo-100 px-1.5 py-0.5 rounded font-bold">admin</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Form · pre-llenado pero editable -->
+        <div class="space-y-3">
+          <div>
+            <label class="text-[10px] uppercase tracking-wider text-slate-500 font-bold block mb-1">Nombre para el catálogo de socios *</label>
+            <input type="text" value="Jose Luis Lopez Paz" class="w-full px-3 py-2 text-[12px] border border-slate-300 rounded-lg bg-white focus:border-violet-500 focus:outline-none">
+            <div class="text-[10px] text-slate-500 mt-0.5">Podés editar · si no te gusta el display largo, ponele "José LP" por ejemplo.</div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="text-[10px] uppercase tracking-wider text-slate-500 font-bold block mb-1">Rol descriptivo</label>
+              <input type="text" value="Socio fundador · CEO" class="w-full px-3 py-2 text-[12px] border border-slate-300 rounded-lg bg-white focus:border-violet-500 focus:outline-none">
+              <div class="text-[10px] text-slate-500 mt-0.5">Cargo en el negocio</div>
+            </div>
+            <div>
+              <label class="text-[10px] uppercase tracking-wider text-slate-500 font-bold block mb-1">% Participación *</label>
+              <input type="number" value="100" class="w-full px-3 py-2 text-[12px] border border-slate-300 rounded-lg bg-white focus:border-violet-500 focus:outline-none">
+              <div class="text-[10px] text-emerald-700 mt-0.5">100% · sos el único socio</div>
+            </div>
+          </div>
+
+          <!-- Chip · "Vinculado a usuario del sistema" -->
+          <div class="bg-emerald-50 border border-emerald-200 rounded-lg p-2.5 flex items-center gap-2">
+            <i data-lucide="link" class="w-4 h-4 text-emerald-700"></i>
+            <div class="flex-1 min-w-0">
+              <div class="text-[11px] font-bold text-emerald-900">Vinculado a tu cuenta de usuario</div>
+              <div class="text-[10px] text-emerald-700">jose.lp9205@gmail.com · rol admin · podrás recibir reportes ejecutivos por email en el futuro</div>
+            </div>
+            <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-600"></i>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Footer del modal -->
+      <div class="px-5 py-3 bg-slate-50 border-t border-slate-200 flex items-center justify-between">
+        <button class="text-[11px] font-medium text-slate-600 hover:text-slate-900">
+          Cancelar
+        </button>
+        <div class="flex items-center gap-2">
+          <button class="text-[11px] font-semibold text-slate-600 hover:bg-white border border-slate-300 px-3 py-1.5 rounded-lg">
+            Saltar TCs · solo crear socio
+          </button>
+          <button class="text-[12px] font-bold text-white bg-violet-600 hover:bg-violet-700 px-4 py-1.5 rounded-lg inline-flex items-center gap-1.5 shadow-md">
+            Siguiente · TCs personales
+            <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="step-arrow"></div>
+
+<!-- ╔══════════════════════════════════════════════════════════════╗ -->
+<!-- ESTADO 3 · WIZARD PASO 2/2 · TCs PERSONALES                    -->
+<!-- ╚══════════════════════════════════════════════════════════════╝ -->
+<div class="max-w-5xl mx-auto mb-2">
+  <div class="bg-violet-100 text-violet-900 px-3 py-1.5 rounded-t-lg inline-block text-[11px] font-bold">
+    📍 ESTADO 3 · click "Siguiente" → paso 2/2 · marcá las TCs que son personales tuyas
+  </div>
+</div>
+<div class="max-w-5xl mx-auto mb-2">
+  <div class="bg-slate-900/10 rounded-2xl p-6 sm:p-10">
+    <div class="bg-white border border-violet-200 rounded-2xl shadow-2xl overflow-hidden max-w-2xl mx-auto">
+
+      <!-- Header -->
+      <div class="px-5 py-4 border-b border-slate-100 flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-violet-50 border border-violet-200 flex items-center justify-center">
+          <i data-lucide="credit-card" class="w-5 h-5 text-violet-700"></i>
+        </div>
+        <div class="flex-1">
+          <div class="text-[10px] uppercase tracking-wider text-violet-700 font-bold">Onboarding Inversionistas · paso 2 de 2</div>
+          <h3 class="text-[16px] font-bold text-slate-900">¿Tenés TCs personales que usás para el negocio?</h3>
+        </div>
+        <button class="text-slate-400 hover:text-slate-600">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Stepper -->
+      <div class="px-5 py-3 bg-slate-50 border-b border-slate-100 flex items-center gap-2 text-[11px]">
+        <span class="flex items-center gap-1.5 text-emerald-700">
+          <span class="w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center">
+            <i data-lucide="check" class="w-3 h-3"></i>
+          </span>
+          Identidad
+        </span>
+        <span class="text-slate-300">———</span>
+        <span class="flex items-center gap-1.5 text-violet-700 font-bold">
+          <span class="w-5 h-5 rounded-full bg-violet-600 text-white flex items-center justify-center text-[10px]">2</span>
+          TCs personales
+        </span>
+      </div>
+
+      <!-- Body -->
+      <div class="p-5 space-y-4">
+
+        <p class="text-[12px] text-slate-600">
+          Encontramos <strong class="text-rose-700">3 tarjetas de crédito</strong> en tu sistema.
+          Marcá las que son <strong>personales tuyas</strong> (las usás como financiamiento del negocio · "modelo mixto").
+        </p>
+
+        <!-- Lista de TCs · multi-select checkbox -->
+        <div class="space-y-2">
+
+          <!-- Card TC 1 · MARCADA -->
+          <label class="flex items-center gap-3 p-3 bg-violet-50/40 border-2 border-violet-300 rounded-xl cursor-pointer hover:bg-violet-50">
+            <input type="checkbox" checked class="w-4 h-4 accent-violet-600">
+            <div class="w-9 h-9 rounded-lg bg-rose-100 flex items-center justify-center flex-shrink-0">
+              <i data-lucide="credit-card" class="w-4 h-4 text-rose-700"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="text-[12px] font-bold text-slate-900">TC BCP Visa Signature</div>
+              <div class="text-[10px] text-slate-500">Crédito · PEN · titular: Jose Lopez Paz</div>
+              <div class="text-[10px] text-violet-700 font-semibold">→ vincular como TC personal tuya</div>
+            </div>
+            <div class="text-right flex-shrink-0">
+              <div class="text-[11px] font-bold tabular text-rose-700">S/ 32,500</div>
+              <div class="text-[9px] text-slate-500">de S/ 300k límite</div>
+            </div>
+          </label>
+
+          <!-- Card TC 2 · MARCADA -->
+          <label class="flex items-center gap-3 p-3 bg-violet-50/40 border-2 border-violet-300 rounded-xl cursor-pointer hover:bg-violet-50">
+            <input type="checkbox" checked class="w-4 h-4 accent-violet-600">
+            <div class="w-9 h-9 rounded-lg bg-rose-100 flex items-center justify-center flex-shrink-0">
+              <i data-lucide="credit-card" class="w-4 h-4 text-rose-700"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="text-[12px] font-bold text-slate-900">TC Interbank Mastercard</div>
+              <div class="text-[10px] text-slate-500">Crédito · PEN · titular: Jose Lopez Paz</div>
+              <div class="text-[10px] text-violet-700 font-semibold">→ vincular como TC personal tuya</div>
+            </div>
+            <div class="text-right flex-shrink-0">
+              <div class="text-[11px] font-bold tabular text-rose-700">S/ 12,500</div>
+              <div class="text-[9px] text-slate-500">de S/ 80k límite</div>
+            </div>
+          </label>
+
+          <!-- Card TC 3 · NO marcada (es de la empresa) -->
+          <label class="flex items-center gap-3 p-3 bg-white border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50">
+            <input type="checkbox" class="w-4 h-4 accent-violet-600">
+            <div class="w-9 h-9 rounded-lg bg-slate-100 flex items-center justify-center flex-shrink-0">
+              <i data-lucide="credit-card" class="w-4 h-4 text-slate-500"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="text-[12px] font-bold text-slate-900">TC Corporativa Vita Skin</div>
+              <div class="text-[10px] text-slate-500">Crédito · PEN · titular: Vita Skin Peru SAC</div>
+              <div class="text-[10px] text-slate-400">Esta parece ser de la empresa · dejala sin marcar</div>
+            </div>
+            <div class="text-right flex-shrink-0">
+              <div class="text-[11px] font-bold tabular text-slate-700">S/ 5,200</div>
+              <div class="text-[9px] text-slate-500">de S/ 50k límite</div>
+            </div>
+          </label>
+        </div>
+
+        <!-- Resumen -->
+        <div class="bg-emerald-50 border border-emerald-200 rounded-lg p-3 flex items-start gap-2">
+          <i data-lucide="info" class="w-4 h-4 text-emerald-700 mt-0.5"></i>
+          <div class="text-[11px] text-emerald-900">
+            <strong>2 TCs marcadas como personales · S/ 45,000 en uso</strong><br>
+            <span class="text-[10px] text-emerald-700">Aparecerán en el módulo Inversionistas como "TC personal asumida por el negocio" · parte del capital comprometido.</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Footer -->
+      <div class="px-5 py-3 bg-slate-50 border-t border-slate-200 flex items-center justify-between">
+        <button class="text-[11px] font-medium text-slate-600 hover:text-slate-900 inline-flex items-center gap-1">
+          <i data-lucide="arrow-left" class="w-3 h-3"></i>
+          Atrás
+        </button>
+        <div class="flex items-center gap-2">
+          <button class="text-[11px] font-semibold text-slate-600 hover:bg-white border border-slate-300 px-3 py-1.5 rounded-lg">
+            No tengo · saltar
+          </button>
+          <button class="text-[12px] font-bold text-white bg-violet-600 hover:bg-violet-700 px-4 py-1.5 rounded-lg inline-flex items-center gap-1.5 shadow-md">
+            Finalizar setup
+            <i data-lucide="check" class="w-3.5 h-3.5"></i>
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="step-arrow"></div>
+
+<!-- ╔══════════════════════════════════════════════════════════════╗ -->
+<!-- ESTADO 4 · POST-ONBOARDING · MÓDULO CON DATA REAL              -->
+<!-- ╚══════════════════════════════════════════════════════════════╝ -->
+<div class="max-w-5xl mx-auto mb-2">
+  <div class="bg-emerald-100 text-emerald-900 px-3 py-1.5 rounded-t-lg inline-block text-[11px] font-bold">
+    🎉 ESTADO 4 · setup terminado · módulo con datos reales en 30 segundos
+  </div>
+</div>
+<div class="max-w-5xl mx-auto bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden mb-2">
+
+  <!-- Breadcrumb -->
+  <div class="border-b border-slate-200 px-4 sm:px-6 py-2.5 flex items-center gap-3 bg-slate-50">
+    <div class="flex items-center text-[12px] flex-1">
+      <a class="text-slate-500 hover:text-violet-700">Inicio</a>
+      <i data-lucide="chevron-right" class="w-3 h-3 text-slate-300 mx-1.5"></i>
+      <span class="text-slate-900 font-semibold">Inversionistas</span>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <div class="px-4 sm:px-6 py-4 sm:py-5 border-b border-slate-100">
+    <div class="flex items-start gap-3">
+      <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-violet-500 to-violet-700 flex items-center justify-center text-white">
+        <i data-lucide="landmark" class="w-5 h-5"></i>
+      </div>
+      <div>
+        <h1 class="text-2xl font-bold tracking-tight text-slate-900">Inversionistas</h1>
+        <p class="text-[13px] text-slate-500">Vista estratégica · capital comprometido · retorno · trayectoria</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- KPI strip con data real -->
+  <div class="px-4 sm:px-6 py-3 sm:py-4 border-b border-slate-100 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 sm:gap-3">
+    <div class="bg-gradient-to-br from-violet-50 to-violet-100/40 ring-1 ring-violet-200/50 rounded-2xl p-3">
+      <div class="flex items-center justify-between mb-1.5">
+        <span class="text-[9px] uppercase tracking-wider text-violet-700 font-bold">CAPITAL COMPROMETIDO</span>
+        <i data-lucide="wallet" class="w-3.5 h-3.5 text-violet-700"></i>
+      </div>
+      <div class="text-xl sm:text-2xl font-bold tabular text-violet-900">S/ 45,000</div>
+      <div class="text-[10px] text-violet-700 mt-1 truncate">Solo TC personal · sin cash aportado aún</div>
+    </div>
+    <div class="bg-gradient-to-br from-indigo-50 to-indigo-100/40 ring-1 ring-indigo-200/50 rounded-2xl p-3">
+      <div class="flex items-center justify-between mb-1.5">
+        <span class="text-[9px] uppercase tracking-wider text-indigo-700 font-bold">PATRIMONIO</span>
+        <i data-lucide="piggy-bank" class="w-3.5 h-3.5 text-indigo-700"></i>
+      </div>
+      <div class="text-xl sm:text-2xl font-bold tabular text-indigo-900">S/ 0</div>
+      <div class="text-[10px] text-indigo-700 mt-1">Sin operación todavía</div>
+    </div>
+    <div class="bg-gradient-to-br from-emerald-50 to-emerald-100/40 ring-1 ring-emerald-200/50 rounded-2xl p-3">
+      <div class="flex items-center justify-between mb-1.5">
+        <span class="text-[9px] uppercase tracking-wider text-emerald-700 font-bold">EQUITY RATIO</span>
+        <i data-lucide="shield-check" class="w-3.5 h-3.5 text-emerald-700"></i>
+      </div>
+      <div class="text-xl sm:text-2xl font-bold tabular text-emerald-900">—</div>
+      <div class="text-[10px] text-emerald-700 mt-1">Aparece con ventas</div>
+    </div>
+    <div class="bg-gradient-to-br from-amber-50 to-amber-100/40 ring-1 ring-amber-200/50 rounded-2xl p-3">
+      <div class="flex items-center justify-between mb-1.5">
+        <span class="text-[9px] uppercase tracking-wider text-amber-700 font-bold">ROI ANUAL</span>
+        <i data-lucide="trending-up" class="w-3.5 h-3.5 text-amber-700"></i>
+      </div>
+      <div class="text-xl sm:text-2xl font-bold tabular text-amber-900">—</div>
+      <div class="text-[10px] text-amber-700 mt-1">Aparece con utilidad</div>
+    </div>
+    <div class="bg-gradient-to-br from-violet-50 to-purple-100/40 ring-1 ring-purple-200/50 rounded-2xl p-3">
+      <div class="flex items-center justify-between mb-1.5">
+        <span class="text-[9px] uppercase tracking-wider text-purple-700 font-bold">MULTIPLICADOR</span>
+        <i data-lucide="zap" class="w-3.5 h-3.5 text-purple-700"></i>
+      </div>
+      <div class="text-xl sm:text-2xl font-bold tabular text-purple-900">—</div>
+      <div class="text-[10px] text-purple-700 mt-1">Aparece con patrimonio</div>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="border-b border-slate-200 px-3 sm:px-6 flex items-center gap-1 overflow-x-auto">
+    <button class="px-3 sm:px-4 py-3 text-[12px] border-b-2 border-violet-600 text-violet-700 font-semibold flex items-center gap-1.5 whitespace-nowrap">
+      <i data-lucide="home" class="w-3.5 h-3.5"></i> Resumen
+    </button>
+    <button class="px-3 sm:px-4 py-3 text-[12px] border-b-2 border-transparent text-slate-600 font-medium flex items-center gap-1.5 whitespace-nowrap">
+      <i data-lucide="coins" class="w-3.5 h-3.5"></i> Mi Capital
+    </button>
+    <button class="px-3 sm:px-4 py-3 text-[12px] border-b-2 border-transparent text-slate-600 font-medium flex items-center gap-1.5 whitespace-nowrap">
+      <i data-lucide="line-chart" class="w-3.5 h-3.5"></i> Trayectoria
+    </button>
+    <button class="px-3 sm:px-4 py-3 text-[12px] border-b-2 border-transparent text-slate-600 font-medium flex items-center gap-1.5 whitespace-nowrap">
+      <i data-lucide="layers" class="w-3.5 h-3.5"></i> ROI Dual
+    </button>
+    <button class="px-3 sm:px-4 py-3 text-[12px] border-b-2 border-transparent text-slate-600 font-medium flex items-center gap-1.5 whitespace-nowrap">
+      <i data-lucide="banknote" class="w-3.5 h-3.5"></i> Distribución
+    </button>
+  </div>
+
+  <!-- Body -->
+  <div class="p-4 sm:p-6 space-y-4">
+
+    <!-- Banner Salud · "atención · sin operación todavía" -->
+    <div class="bg-gradient-to-r from-amber-50 via-amber-100/40 to-amber-50 ring-2 ring-amber-200 rounded-2xl p-4 sm:p-5">
+      <div class="flex items-start gap-3 sm:gap-4">
+        <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center text-white flex-shrink-0 shadow-lg shadow-amber-200">
+          <i data-lucide="rocket" class="w-7 h-7"></i>
+        </div>
+        <div class="min-w-0">
+          <div class="text-[10px] uppercase tracking-wider text-amber-700 font-bold">Estado del negocio</div>
+          <div class="text-[18px] sm:text-[22px] font-bold text-amber-900 leading-tight">Listo para operar</div>
+          <div class="text-[11px] text-amber-700 mt-0.5">Configuración completa. Empezá a registrar ventas/compras y los KPIs se llenarán automáticamente.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3 cards · siguiente paso pedagógico -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+      <div class="bg-white border border-emerald-200 rounded-2xl p-4">
+        <div class="flex items-center gap-2 mb-1">
+          <div class="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center">
+            <i data-lucide="wallet" class="w-4 h-4 text-emerald-700"></i>
+          </div>
+          <span class="text-[10px] uppercase tracking-wider font-bold text-emerald-700">CASH APORTADO</span>
+        </div>
+        <div class="text-[22px] font-bold tabular text-slate-400">—</div>
+        <div class="text-[10px] text-slate-500">Sin aportes registrados</div>
+        <button class="mt-2 pt-2 border-t border-emerald-100 w-full text-[11px] text-emerald-700 font-semibold flex items-center justify-center gap-1 hover:bg-emerald-50 -mx-4 -mb-4 py-2 rounded-b-2xl">
+          <i data-lucide="plus" class="w-3 h-3"></i> + Registrar aporte
+        </button>
+      </div>
+      <div class="bg-white border border-rose-200 rounded-2xl p-4">
+        <div class="flex items-center gap-2 mb-1">
+          <div class="w-8 h-8 rounded-lg bg-rose-100 flex items-center justify-center">
+            <i data-lucide="credit-card" class="w-4 h-4 text-rose-700"></i>
+          </div>
+          <span class="text-[10px] uppercase tracking-wider font-bold text-rose-700">TC PERSONAL</span>
+        </div>
+        <div class="text-[22px] font-bold tabular text-rose-900">S/ 45,000</div>
+        <div class="text-[10px] text-slate-500">2 TCs vinculadas</div>
+        <div class="mt-2 pt-2 border-t border-rose-100 text-[10px] text-rose-700 flex items-center gap-1">
+          <i data-lucide="link" class="w-3 h-3"></i> BCP Signature + Interbank
+        </div>
+      </div>
+      <div class="bg-white border border-amber-200 rounded-2xl p-4">
+        <div class="flex items-center gap-2 mb-1">
+          <div class="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center">
+            <i data-lucide="flag" class="w-4 h-4 text-amber-700"></i>
+          </div>
+          <span class="text-[10px] uppercase tracking-wider font-bold text-amber-700">SOBERANÍA FINANCIERA</span>
+        </div>
+        <div class="text-[22px] font-bold tabular text-slate-400">—</div>
+        <div class="text-[10px] text-slate-500">Aparece con utilidad mensual</div>
+        <div class="mt-2 pt-2 border-t border-amber-100 text-[10px] text-amber-700">Empezá a vender para calcular</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ╔══════════════════════════════════════════════════════════════╗ -->
+<!-- DIVIDER ENTRE ACTOS                                              -->
+<!-- ╚══════════════════════════════════════════════════════════════╝ -->
+<div class="max-w-5xl mx-auto my-12">
+  <div class="border-t border-slate-300 relative">
+    <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-slate-50 px-4">
+      <h2 class="text-[18px] font-bold text-slate-900 flex items-center gap-2">
+        <i data-lucide="film" class="w-5 h-5 text-violet-600"></i>
+        ACTO 2 · OPERACIÓN DÍA A DÍA
+      </h2>
+    </div>
+  </div>
+  <p class="text-[12px] text-slate-600 text-center mt-6">
+    Cuando ya tenés el setup hecho · estos son los flujos del día a día desde el módulo Inversionistas.
+  </p>
+</div>
+
+<!-- ╔══════════════════════════════════════════════════════════════╗ -->
+<!-- ESTADO 5 · TAB MI CAPITAL · BOTONES INLINE                       -->
+<!-- ╚══════════════════════════════════════════════════════════════╝ -->
+<div class="max-w-5xl mx-auto mb-2">
+  <div class="bg-violet-100 text-violet-900 px-3 py-1.5 rounded-t-lg inline-block text-[11px] font-bold">
+    📍 ESTADO 5 · Tab "Mi Capital" con botones inline para aportes/retiros · sin ir a Finanzas
+  </div>
+</div>
+<div class="max-w-5xl mx-auto bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden mb-2">
+
+  <!-- Header simplificado -->
+  <div class="border-b border-slate-200 px-4 sm:px-6 py-2.5 flex items-center gap-3 bg-slate-50">
+    <div class="flex items-center text-[12px]">
+      <a class="text-slate-500">Inicio</a>
+      <i data-lucide="chevron-right" class="w-3 h-3 text-slate-300 mx-1.5"></i>
+      <a class="text-slate-500">Inversionistas</a>
+      <i data-lucide="chevron-right" class="w-3 h-3 text-slate-300 mx-1.5"></i>
+      <span class="text-slate-900 font-semibold">Mi capital</span>
+    </div>
+  </div>
+
+  <!-- Tabs · Mi Capital activa -->
+  <div class="border-b border-slate-200 px-3 sm:px-6 flex items-center gap-1 overflow-x-auto bg-white">
+    <button class="px-3 sm:px-4 py-3 text-[12px] border-b-2 border-transparent text-slate-600 font-medium flex items-center gap-1.5 whitespace-nowrap">
+      <i data-lucide="home" class="w-3.5 h-3.5"></i> Resumen
+    </button>
+    <button class="px-3 sm:px-4 py-3 text-[12px] border-b-2 border-violet-600 text-violet-700 font-semibold flex items-center gap-1.5 whitespace-nowrap">
+      <i data-lucide="coins" class="w-3.5 h-3.5"></i> Mi Capital
+    </button>
+    <button class="px-3 sm:px-4 py-3 text-[12px] border-b-2 border-transparent text-slate-600 font-medium flex items-center gap-1.5 whitespace-nowrap">
+      <i data-lucide="line-chart" class="w-3.5 h-3.5"></i> Trayectoria
+    </button>
+    <button class="px-3 sm:px-4 py-3 text-[12px] border-b-2 border-transparent text-slate-600 font-medium flex items-center gap-1.5 whitespace-nowrap">
+      <i data-lucide="layers" class="w-3.5 h-3.5"></i> ROI Dual
+    </button>
+  </div>
+
+  <!-- Body -->
+  <div class="p-4 sm:p-6 space-y-4">
+
+    <!-- Quick actions bar · botones inline · ACCIÓN PRINCIPAL del tab -->
+    <div class="bg-violet-50/40 border border-violet-200 rounded-xl p-3 flex items-center gap-2 flex-wrap">
+      <div class="flex-1 min-w-0">
+        <div class="text-[10px] uppercase tracking-wider text-violet-700 font-bold">Acciones rápidas · Mi Capital</div>
+        <div class="text-[10px] text-violet-700/80 mt-0.5">Operá directo desde acá · no necesitás ir a Finanzas</div>
+      </div>
+      <div class="flex items-center gap-1.5 flex-wrap">
+        <button class="text-[11px] font-bold text-white bg-emerald-600 hover:bg-emerald-700 px-3 py-1.5 rounded-lg inline-flex items-center gap-1.5 shadow-sm">
+          <i data-lucide="plus" class="w-3.5 h-3.5"></i> + Aporte
+        </button>
+        <button class="text-[11px] font-bold text-white bg-rose-600 hover:bg-rose-700 px-3 py-1.5 rounded-lg inline-flex items-center gap-1.5 shadow-sm">
+          <i data-lucide="minus" class="w-3.5 h-3.5"></i> − Retiro
+        </button>
+        <button class="text-[11px] font-semibold text-violet-700 bg-white hover:bg-violet-50 border border-violet-300 px-3 py-1.5 rounded-lg inline-flex items-center gap-1.5">
+          <i data-lucide="link" class="w-3.5 h-3.5"></i> Vincular TCs
+        </button>
+      </div>
+    </div>
+
+    <!-- Aportes propios · sub-componente -->
+    <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden">
+      <div class="bg-gradient-to-r from-emerald-50 to-emerald-100/40 px-4 py-2.5 border-b border-emerald-200/50 flex items-center justify-between">
+        <h3 class="text-[12px] font-bold text-emerald-900 flex items-center gap-2">
+          <i data-lucide="wallet" class="w-3.5 h-3.5"></i>
+          Aportes propios · cash
+        </h3>
+      </div>
+      <div class="p-6 text-center text-[12px] text-slate-500">
+        <i data-lucide="inbox" class="w-8 h-8 text-slate-300 mx-auto mb-2"></i>
+        Sin aportes registrados aún.
+        <div class="text-[11px] text-slate-400 mt-1">Usá el botón "+ Aporte" arriba para registrar el primero.</div>
+      </div>
+    </div>
+
+    <!-- TC personales · ya vinculadas -->
+    <div class="bg-white border border-rose-200 rounded-2xl overflow-hidden">
+      <div class="bg-gradient-to-r from-rose-50 to-rose-100/40 px-4 py-2.5 border-b border-rose-200/50 flex items-center justify-between">
+        <h3 class="text-[12px] font-bold text-rose-900 flex items-center gap-2">
+          <i data-lucide="credit-card" class="w-3.5 h-3.5"></i>
+          Apalancamiento · TC personal
+        </h3>
+        <span class="text-[10px] bg-white text-rose-700 px-2 py-0.5 rounded font-bold">2 vinculadas</span>
+      </div>
+      <div class="divide-y divide-slate-100">
+        <div class="px-4 py-2.5 flex items-center gap-3">
+          <div class="w-8 h-8 rounded-lg bg-rose-50 border border-rose-200 flex items-center justify-center flex-shrink-0">
+            <i data-lucide="credit-card" class="w-4 h-4 text-rose-600"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="text-[12px] font-semibold text-slate-900">TC BCP Visa Signature · José LP</div>
+            <div class="text-[10px] text-slate-500">Garantía personal · negocio paga</div>
+          </div>
+          <div class="text-right">
+            <div class="text-[14px] font-bold tabular text-rose-900">S/ 32,500</div>
+            <div class="text-[9px] text-slate-500">11% del límite</div>
+          </div>
+        </div>
+        <div class="px-4 py-2.5 flex items-center gap-3">
+          <div class="w-8 h-8 rounded-lg bg-rose-50 border border-rose-200 flex items-center justify-center flex-shrink-0">
+            <i data-lucide="credit-card" class="w-4 h-4 text-rose-600"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="text-[12px] font-semibold text-slate-900">TC Interbank Mastercard · José LP</div>
+            <div class="text-[10px] text-slate-500">Garantía personal · negocio paga</div>
+          </div>
+          <div class="text-right">
+            <div class="text-[14px] font-bold tabular text-rose-900">S/ 12,500</div>
+            <div class="text-[9px] text-slate-500">16% del límite</div>
+          </div>
+        </div>
+      </div>
+      <div class="bg-rose-50 px-4 py-2 flex justify-between border-t border-rose-200">
+        <span class="text-[11px] uppercase font-bold text-rose-900">TOTAL TC PERSONAL</span>
+        <span class="text-[14px] font-bold tabular text-rose-900">S/ 45,000</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="step-arrow"></div>
+
+<!-- ╔══════════════════════════════════════════════════════════════╗ -->
+<!-- ESTADO 6 · MODAL MINI APORTE                                    -->
+<!-- ╚══════════════════════════════════════════════════════════════╝ -->
+<div class="max-w-5xl mx-auto mb-2">
+  <div class="bg-violet-100 text-violet-900 px-3 py-1.5 rounded-t-lg inline-block text-[11px] font-bold">
+    📍 ESTADO 6 · click "+ Aporte" · modal MINI · 3 campos · socio pre-seleccionado
+  </div>
+</div>
+<div class="max-w-5xl mx-auto mb-2">
+  <div class="bg-slate-900/10 rounded-2xl p-6 sm:p-10">
+    <div class="bg-white border border-emerald-200 rounded-2xl shadow-2xl overflow-hidden max-w-md mx-auto">
+
+      <!-- Header del modal -->
+      <div class="px-5 py-4 border-b border-slate-100 flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center">
+          <i data-lucide="plus-circle" class="w-5 h-5 text-emerald-700"></i>
+        </div>
+        <div class="flex-1">
+          <div class="text-[10px] uppercase tracking-wider text-emerald-700 font-bold">Inversionistas · Mi capital</div>
+          <h3 class="text-[15px] font-bold text-slate-900">Registrar aporte de capital</h3>
+        </div>
+        <button class="text-slate-400 hover:text-slate-600">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Body -->
+      <div class="p-5 space-y-3">
+
+        <!-- Chip · socio pre-seleccionado -->
+        <div class="bg-violet-50 border border-violet-200 rounded-lg p-2.5 flex items-center gap-2">
+          <div class="w-7 h-7 rounded-lg bg-violet-100 flex items-center justify-center flex-shrink-0">
+            <i data-lucide="landmark" class="w-3.5 h-3.5 text-violet-700"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="text-[10px] text-violet-700 uppercase tracking-wider font-bold">Socio que aporta</div>
+            <div class="text-[12px] font-bold text-violet-900">José LP · Socio fundador · 100%</div>
+          </div>
+          <span class="text-[9px] bg-violet-100 text-violet-700 px-1.5 py-0.5 rounded font-bold flex-shrink-0">Auto</span>
+        </div>
+
+        <!-- Monto · campo grande -->
+        <div>
+          <label class="text-[10px] uppercase tracking-wider text-slate-500 font-bold block mb-1">Monto *</label>
+          <div class="relative">
+            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-[16px] font-bold text-slate-400">S/</span>
+            <input type="text" value="15,000" class="w-full pl-10 pr-3 py-3 text-[18px] font-bold tabular border border-slate-300 rounded-lg bg-white focus:border-emerald-500 focus:outline-none">
+          </div>
+        </div>
+
+        <!-- Cuenta destino -->
+        <div>
+          <label class="text-[10px] uppercase tracking-wider text-slate-500 font-bold block mb-1">Cuenta destino *</label>
+          <select class="w-full px-3 py-2 text-[12px] border border-slate-300 rounded-lg bg-white focus:border-emerald-500 focus:outline-none">
+            <option>BCP Cuenta Corriente · PEN · S/ 124,800 saldo</option>
+            <option>Interbank Ahorros · PEN · S/ 8,500</option>
+            <option>BCP USD · USD · $ 2,300</option>
+          </select>
+        </div>
+
+        <!-- Método -->
+        <div>
+          <label class="text-[10px] uppercase tracking-wider text-slate-500 font-bold block mb-1">Método</label>
+          <div class="grid grid-cols-3 gap-1.5">
+            <button class="text-[11px] py-2 px-2 bg-emerald-50 border-2 border-emerald-400 text-emerald-900 font-bold rounded inline-flex items-center justify-center gap-1">
+              <i data-lucide="building-2" class="w-3 h-3"></i> Transferencia
+            </button>
+            <button class="text-[11px] py-2 px-2 bg-white border border-slate-200 text-slate-600 font-medium rounded inline-flex items-center justify-center gap-1">
+              <i data-lucide="banknote" class="w-3 h-3"></i> Efectivo
+            </button>
+            <button class="text-[11px] py-2 px-2 bg-white border border-slate-200 text-slate-600 font-medium rounded inline-flex items-center justify-center gap-1">
+              <i data-lucide="more-horizontal" class="w-3 h-3"></i> Otro
+            </button>
+          </div>
+        </div>
+
+        <!-- Concepto opcional · colapsable -->
+        <details class="text-[11px]">
+          <summary class="cursor-pointer text-slate-500 hover:text-slate-700 inline-flex items-center gap-1">
+            <i data-lucide="plus" class="w-3 h-3"></i>
+            Agregar concepto / nota · opcional
+          </summary>
+          <input type="text" placeholder="ej: Refuerzo inventario campaña Q2" class="mt-1 w-full px-3 py-1.5 border border-slate-300 rounded text-[11px] focus:outline-none focus:border-emerald-500">
+        </details>
+
+      </div>
+
+      <!-- Footer -->
+      <div class="px-5 py-3 bg-slate-50 border-t border-slate-200 flex items-center justify-between">
+        <button class="text-[11px] font-medium text-slate-600 hover:text-slate-900">Cancelar</button>
+        <button class="text-[12px] font-bold text-white bg-emerald-600 hover:bg-emerald-700 px-4 py-1.5 rounded-lg inline-flex items-center gap-1.5 shadow-md">
+          <i data-lucide="check" class="w-3.5 h-3.5"></i>
+          Registrar aporte
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="step-arrow"></div>
+
+<!-- ╔══════════════════════════════════════════════════════════════╗ -->
+<!-- ESTADO 7 · MODAL VINCULAR TCs ADICIONALES                       -->
+<!-- ╚══════════════════════════════════════════════════════════════╝ -->
+<div class="max-w-5xl mx-auto mb-2">
+  <div class="bg-violet-100 text-violet-900 px-3 py-1.5 rounded-t-lg inline-block text-[11px] font-bold">
+    📍 ESTADO 7 · click "Vincular TCs" · útil cuando agregás cuenta nueva en Finanzas y querés marcarla
+  </div>
+</div>
+<div class="max-w-5xl mx-auto mb-2">
+  <div class="bg-slate-900/10 rounded-2xl p-6 sm:p-10">
+    <div class="bg-white border border-violet-200 rounded-2xl shadow-2xl overflow-hidden max-w-lg mx-auto">
+
+      <!-- Header -->
+      <div class="px-5 py-4 border-b border-slate-100 flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-violet-50 border border-violet-200 flex items-center justify-center">
+          <i data-lucide="link" class="w-5 h-5 text-violet-700"></i>
+        </div>
+        <div class="flex-1">
+          <div class="text-[10px] uppercase tracking-wider text-violet-700 font-bold">Inversionistas · Mi capital</div>
+          <h3 class="text-[15px] font-bold text-slate-900">Vincular TCs personales</h3>
+        </div>
+        <button class="text-slate-400 hover:text-slate-600">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Body -->
+      <div class="p-5 space-y-3">
+
+        <!-- Resumen del estado actual -->
+        <div class="bg-emerald-50/50 border border-emerald-200 rounded-lg p-2.5 flex items-center gap-2">
+          <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-700"></i>
+          <div class="text-[11px] text-emerald-900">
+            <strong>2 TCs ya vinculadas a José LP</strong> · S/ 45,000 comprometidos
+          </div>
+        </div>
+
+        <p class="text-[11px] text-slate-600">
+          Encontramos <strong class="text-violet-700">1 TC más</strong> en tu sistema sin vincular.
+          Marcala si también es personal tuya.
+        </p>
+
+        <!-- Lista de TCs sin vincular -->
+        <div class="space-y-2">
+          <label class="flex items-center gap-3 p-3 bg-violet-50/40 border-2 border-violet-300 rounded-xl cursor-pointer hover:bg-violet-50">
+            <input type="checkbox" class="w-4 h-4 accent-violet-600">
+            <div class="w-9 h-9 rounded-lg bg-rose-100 flex items-center justify-center flex-shrink-0">
+              <i data-lucide="credit-card" class="w-4 h-4 text-rose-700"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="text-[12px] font-bold text-slate-900">TC BBVA Premium · José LP</div>
+              <div class="text-[10px] text-slate-500">Crédito · PEN · personal · sin socio asignado</div>
+            </div>
+            <div class="text-right flex-shrink-0">
+              <div class="text-[11px] font-bold tabular text-rose-700">S/ 8,200</div>
+              <div class="text-[9px] text-slate-500">de S/ 60k</div>
+            </div>
+          </label>
+        </div>
+
+        <!-- TCs ya vinculadas · readonly -->
+        <details class="text-[11px]">
+          <summary class="cursor-pointer text-slate-500 hover:text-slate-700 inline-flex items-center gap-1">
+            <i data-lucide="check" class="w-3 h-3"></i>
+            Ver las 2 ya vinculadas
+          </summary>
+          <div class="mt-2 space-y-1">
+            <div class="flex items-center gap-2 p-2 bg-slate-50 rounded">
+              <i data-lucide="check-circle-2" class="w-3 h-3 text-emerald-600"></i>
+              <span class="text-[10px] text-slate-700">TC BCP Visa Signature · S/ 32,500</span>
+              <button class="ml-auto text-[9px] text-rose-700 hover:underline">Desvincular</button>
+            </div>
+            <div class="flex items-center gap-2 p-2 bg-slate-50 rounded">
+              <i data-lucide="check-circle-2" class="w-3 h-3 text-emerald-600"></i>
+              <span class="text-[10px] text-slate-700">TC Interbank Mastercard · S/ 12,500</span>
+              <button class="ml-auto text-[9px] text-rose-700 hover:underline">Desvincular</button>
+            </div>
+          </div>
+        </details>
+
+      </div>
+
+      <!-- Footer -->
+      <div class="px-5 py-3 bg-slate-50 border-t border-slate-200 flex items-center justify-between">
+        <button class="text-[11px] font-medium text-slate-600 hover:text-slate-900">Cerrar</button>
+        <button class="text-[12px] font-bold text-white bg-violet-600 hover:bg-violet-700 px-4 py-1.5 rounded-lg inline-flex items-center gap-1.5 shadow-md">
+          <i data-lucide="check" class="w-3.5 h-3.5"></i>
+          Vincular seleccionadas
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ╔══════════════════════════════════════════════════════════════╗ -->
+<!-- DIVIDER ACTO 3                                                   -->
+<!-- ╚══════════════════════════════════════════════════════════════╝ -->
+<div class="max-w-5xl mx-auto my-12">
+  <div class="border-t border-slate-300 relative">
+    <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-slate-50 px-4">
+      <h2 class="text-[18px] font-bold text-slate-900 flex items-center gap-2">
+        <i data-lucide="film" class="w-5 h-5 text-violet-600"></i>
+        ACTO 3 · CASOS AVANZADOS
+      </h2>
+    </div>
+  </div>
+  <p class="text-[12px] text-slate-600 text-center mt-6">
+    Cuando tenés varios socios o querés editar configuraciones avanzadas.
+  </p>
+</div>
+
+<!-- ╔══════════════════════════════════════════════════════════════╗ -->
+<!-- ESTADO 8 · CASO B · "TENGO VARIOS SOCIOS"                       -->
+<!-- ╚══════════════════════════════════════════════════════════════╝ -->
+<div class="max-w-5xl mx-auto mb-2">
+  <div class="bg-violet-100 text-violet-900 px-3 py-1.5 rounded-t-lg inline-block text-[11px] font-bold">
+    📍 ESTADO 8 · click "Tengo varios socios" en lugar de setup automático
+  </div>
+</div>
+<div class="max-w-5xl mx-auto mb-2">
+  <div class="bg-slate-900/10 rounded-2xl p-6 sm:p-10">
+    <div class="bg-white border border-violet-200 rounded-2xl shadow-2xl overflow-hidden max-w-2xl mx-auto">
+
+      <!-- Header -->
+      <div class="px-5 py-4 border-b border-slate-100 flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-violet-50 border border-violet-200 flex items-center justify-center">
+          <i data-lucide="users" class="w-5 h-5 text-violet-700"></i>
+        </div>
+        <div class="flex-1">
+          <div class="text-[10px] uppercase tracking-wider text-violet-700 font-bold">Onboarding · varios socios</div>
+          <h3 class="text-[16px] font-bold text-slate-900">¿Quiénes son los socios?</h3>
+        </div>
+      </div>
+
+      <!-- Body -->
+      <div class="p-5 space-y-3">
+
+        <p class="text-[12px] text-slate-600">
+          Agregá un socio por fila. Si alguno también es usuario del sistema, ponele su email para vincularlo.
+        </p>
+
+        <!-- Tabla simple inline de socios -->
+        <div class="space-y-2">
+
+          <!-- Socio 1 · vos · pre-llenado -->
+          <div class="bg-emerald-50/40 border-2 border-emerald-300 rounded-lg p-3">
+            <div class="grid grid-cols-12 gap-2 items-center">
+              <input type="text" value="Jose Luis Lopez Paz" class="col-span-5 px-2 py-1.5 text-[12px] border border-slate-300 rounded">
+              <input type="email" value="jose.lp9205@gmail.com" class="col-span-5 px-2 py-1.5 text-[12px] border border-slate-300 rounded">
+              <input type="number" value="60" class="col-span-2 px-2 py-1.5 text-[12px] border border-slate-300 rounded text-right">
+            </div>
+            <div class="flex items-center justify-between mt-1.5 text-[10px]">
+              <span class="text-emerald-700 inline-flex items-center gap-1"><i data-lucide="check-circle-2" class="w-3 h-3"></i> Vinculado a tu usuario admin</span>
+              <span class="text-slate-500">% participación</span>
+            </div>
+          </div>
+
+          <!-- Socio 2 -->
+          <div class="bg-white border border-slate-200 rounded-lg p-3">
+            <div class="grid grid-cols-12 gap-2 items-center">
+              <input type="text" value="María González" placeholder="Nombre socio" class="col-span-5 px-2 py-1.5 text-[12px] border border-slate-300 rounded">
+              <input type="email" value="maria@vitaskin.pe" placeholder="Email · opcional" class="col-span-5 px-2 py-1.5 text-[12px] border border-slate-300 rounded">
+              <input type="number" value="30" class="col-span-2 px-2 py-1.5 text-[12px] border border-slate-300 rounded text-right">
+            </div>
+            <div class="flex items-center justify-between mt-1.5 text-[10px]">
+              <span class="text-slate-500 inline-flex items-center gap-1"><i data-lucide="alert-circle" class="w-3 h-3"></i> Sin usuario · silent partner</span>
+              <button class="text-rose-700 hover:underline"><i data-lucide="x" class="w-3 h-3 inline"></i> Quitar</button>
+            </div>
+          </div>
+
+          <!-- Socio 3 -->
+          <div class="bg-white border border-slate-200 rounded-lg p-3">
+            <div class="grid grid-cols-12 gap-2 items-center">
+              <input type="text" value="Carlos Mendoza" placeholder="Nombre socio" class="col-span-5 px-2 py-1.5 text-[12px] border border-slate-300 rounded">
+              <input type="email" value="" placeholder="Email · opcional" class="col-span-5 px-2 py-1.5 text-[12px] border border-slate-300 rounded">
+              <input type="number" value="10" class="col-span-2 px-2 py-1.5 text-[12px] border border-slate-300 rounded text-right">
+            </div>
+            <div class="flex items-center justify-end mt-1.5 text-[10px]">
+              <button class="text-rose-700 hover:underline"><i data-lucide="x" class="w-3 h-3 inline"></i> Quitar</button>
+            </div>
+          </div>
+
+          <!-- Agregar otro -->
+          <button class="w-full py-2 border-2 border-dashed border-slate-300 rounded-lg text-[11px] text-slate-500 hover:bg-slate-50 inline-flex items-center justify-center gap-1.5">
+            <i data-lucide="plus" class="w-3 h-3"></i> Agregar otro socio
+          </button>
+        </div>
+
+        <!-- Validación de suma -->
+        <div class="bg-emerald-50 border border-emerald-200 rounded p-2.5 text-[11px] text-emerald-900 flex items-center gap-2">
+          <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-700"></i>
+          <strong>Suma 100% · cuadra ✓</strong>
+        </div>
+
+      </div>
+
+      <!-- Footer -->
+      <div class="px-5 py-3 bg-slate-50 border-t border-slate-200 flex items-center justify-between">
+        <button class="text-[11px] font-medium text-slate-600 hover:text-slate-900 inline-flex items-center gap-1">
+          <i data-lucide="arrow-left" class="w-3 h-3"></i> Atrás
+        </button>
+        <button class="text-[12px] font-bold text-white bg-violet-600 hover:bg-violet-700 px-4 py-1.5 rounded-lg inline-flex items-center gap-1.5 shadow-md">
+          Siguiente · TCs personales
+          <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ╔══════════════════════════════════════════════════════════════╗ -->
+<!-- CONCLUSIÓN · COMPARATIVA + DECISIONES                            -->
+<!-- ╚══════════════════════════════════════════════════════════════╝ -->
+<div class="max-w-5xl mx-auto mt-12 bg-white border border-slate-200 rounded-2xl p-6 space-y-3 text-[12px]">
+  <h2 class="text-[18px] font-bold text-slate-900 mb-2 flex items-center gap-2">
+    <i data-lucide="check-circle" class="w-5 h-5 text-emerald-600"></i>
+    Decisiones canon · flujo Inversionistas v5.2
+  </h2>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-[11px]">
+    <div>
+      <strong class="text-violet-700 block mb-1">D1 · Onboarding wizard</strong>
+      <ul class="ml-4 list-disc text-slate-600 space-y-0.5">
+        <li>Detecta automáticamente "sin socios" al entrar</li>
+        <li>Banner pedagógico violet (no rojo · no alarma)</li>
+        <li>3 CTAs: setup automático · varios socios · más tarde</li>
+        <li>Caso A (1 socio · 80% PyMEs): 1 click → setup completo</li>
+        <li>Caso B (varios socios): tabla inline en wizard</li>
+      </ul>
+    </div>
+    <div>
+      <strong class="text-violet-700 block mb-1">D2 · Acciones inline desde Mi Capital</strong>
+      <ul class="ml-4 list-disc text-slate-600 space-y-0.5">
+        <li>Botones "+ Aporte" / "− Retiro" · sin ir a Finanzas</li>
+        <li>Botón "Vincular TCs" · acción rápida multi-select</li>
+        <li>Quick actions bar violet · siempre visible en Mi Capital</li>
+      </ul>
+    </div>
+    <div>
+      <strong class="text-violet-700 block mb-1">D3 · Modal mini · 3 campos máximo</strong>
+      <ul class="ml-4 list-disc text-slate-600 space-y-0.5">
+        <li>Socio pre-seleccionado si solo hay 1 · chip violet "Auto"</li>
+        <li>Monto · campo grande tipográfico</li>
+        <li>Cuenta destino + método (3 opciones rápidas)</li>
+        <li>Concepto y notas · colapsable</li>
+      </ul>
+    </div>
+    <div>
+      <strong class="text-violet-700 block mb-1">D4 · Modal Vincular TCs</strong>
+      <ul class="ml-4 list-disc text-slate-600 space-y-0.5">
+        <li>Lista solo TCs SIN vincular (no abruma)</li>
+        <li>Multi-select checkbox</li>
+        <li>Ya vinculadas visibles en details colapsable</li>
+        <li>Botón "Desvincular" por TC para corregir errores</li>
+      </ul>
+    </div>
+    <div>
+      <strong class="text-violet-700 block mb-1">D5 · Mantengo Maestros · Socios</strong>
+      <ul class="ml-4 list-disc text-slate-600 space-y-0.5">
+        <li>Para edición avanzada (cambiar %, retirar socio)</li>
+        <li>Acceso secundario · NO obligatorio para el flujo happy path</li>
+        <li>Botón "Configurar socios" del header sigue linkeando ahí</li>
+      </ul>
+    </div>
+    <div>
+      <strong class="text-violet-700 block mb-1">D6 · Visual canon v5.2</strong>
+      <ul class="ml-4 list-disc text-slate-600 space-y-0.5">
+        <li>Color violet · firma del módulo</li>
+        <li>Banner pedagógico · sin rojo cuando estado=sin_data</li>
+        <li>FormModalV2 patron · mismos pesos tipográficos</li>
+        <li>Mobile-first · stack vertical &lt;md · grid en desktop</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="mt-3 pt-3 border-t border-slate-100">
+    <div class="text-[12px] font-bold text-emerald-700 mb-2">✓ Cambios técnicos para implementar (si aprobás el flujo)</div>
+    <ol class="list-decimal ml-4 text-[11px] text-slate-700 space-y-1">
+      <li><strong>OnboardingInversionistasWizard.tsx</strong> · componente nuevo · ~350 líneas · stepper 2 pasos · detección automática del UserProfile · multi-select de TCs existentes</li>
+      <li><strong>AporteRapidoModal.tsx</strong> · componente nuevo · ~180 líneas · 3 campos · socio pre-seleccionado · usa registrarAporteCapital existente</li>
+      <li><strong>RetiroRapidoModal.tsx</strong> · componente nuevo · ~190 líneas · similar a aporte · agrega tipo de retiro · usa registrarRetiroCapital</li>
+      <li><strong>VincularTCsModal.tsx</strong> · componente nuevo · ~200 líneas · lista TCs sin titularEntidadTipo · acción multi-select · escribe titularEntidadId/Tipo</li>
+      <li><strong>Quick actions bar</strong> en InversionistasCapital.tsx · ~50 líneas · botones inline arriba del tab</li>
+      <li><strong>Detección onboarding</strong> en Inversionistas.tsx · banner mejorado para sin_data · trigger del wizard</li>
+      <li><strong>IngresoSimpleModal/EgresoSimpleModal</strong> · pre-seleccionar socio cuando hay 1 solo (5-10 líneas cada uno)</li>
+    </ol>
+    <div class="text-[11px] text-slate-500 mt-2">Total: <strong>~970 líneas</strong> · 4 componentes nuevos · 3 archivos modificados · TS + build clean + validación side-by-side.</div>
+  </div>
+</div>
+
+<footer class="text-center text-[11px] text-slate-500 pt-8 max-w-5xl mx-auto">
+  Storyboard canon v5.2 · Inversionistas onboarding + operación · 2026-05-24
+</footer>
+
+<script>if (window.lucide) window.lucide.createIcons();</script>
+</body>
+</html>
