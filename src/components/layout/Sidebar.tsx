@@ -108,6 +108,8 @@ const menuGroups: MenuGroup[] = [
       { icon: Receipt, label: 'Gastos Fijos', path: '/gastos', permiso: PERMISOS.VER_GASTOS },
       { icon: BookOpen, label: 'Contabilidad', path: '/contabilidad', permiso: PERMISOS.VER_TESORERIA },
       { icon: Banknote, label: 'Planilla', path: '/planilla', permiso: PERMISOS.VER_PLANILLA },
+      // chk5.E-INV-RF · vista ejecutiva canon v5.2 violet · módulo financiero estratégico
+      { icon: Landmark, label: 'Inversionistas', path: '/inversionistas', permiso: PERMISOS.VER_INVERSIONISTAS },
     ]
   },
   {
@@ -143,8 +145,6 @@ const menuGroups: MenuGroup[] = [
     items: [
       { icon: Palette, label: 'Líneas de Negocio', path: '/lineas-negocio', permiso: PERMISOS.GESTIONAR_CONFIGURACION },
       { icon: Database, label: 'Maestros', path: '/maestros', permiso: PERMISOS.GESTIONAR_CONFIGURACION },
-      // chk5.E-INV · vista ejecutiva canon v5.2 violet · acceso restringido a socios
-      { icon: Landmark, label: 'Inversionistas', path: '/inversionistas', permiso: PERMISOS.VER_INVERSIONISTAS },
       { icon: Users, label: 'Usuarios', path: '/usuarios', permiso: PERMISOS.GESTIONAR_USUARIOS },
       { icon: Activity, label: 'Auditoría', path: '/auditoria', permiso: PERMISOS.VER_AUDITORIA },
       { icon: Settings, label: 'Configuración', path: '/configuracion', permiso: PERMISOS.GESTIONAR_CONFIGURACION },
