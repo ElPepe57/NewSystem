@@ -57,6 +57,8 @@ const Maestros = React.lazy(() => import('./pages/Maestros/Maestros').then(m => 
 const Usuarios = React.lazy(() => import('./pages/Usuarios/Usuarios').then(m => ({ default: m.Usuarios })));
 const Auditoria = React.lazy(() => import('./pages/Auditoria/Auditoria').then(m => ({ default: m.Auditoria })));
 const Contabilidad = React.lazy(() => import('./pages/Contabilidad/Contabilidad').then(m => ({ default: m.Contabilidad })));
+// chk5.E-INV · Inversionistas · vista ejecutiva canon v5.2 (modelo mixto)
+const Inversionistas = React.lazy(() => import('./pages/Inversionistas/Inversionistas'));
 const ProductosIntel = React.lazy(() => import('./pages/ProductosIntel/ProductosIntel').then(m => ({ default: m.ProductosIntel })));
 const IntelProductosPage = React.lazy(() => import('./pages/IntelProductos').then(m => ({ default: m.IntelProductosPage })));
 const MiPerfil = React.lazy(() => import('./pages/Perfil/MiPerfil').then(m => ({ default: m.MiPerfil })));
@@ -222,6 +224,8 @@ function App() {
               {/* Administración */}
               <Route path="lineas-negocio" element={<LineaNegocio />} />
               <Route path="maestros" element={<Maestros />} />
+              {/* chk5.E-INV · vista ejecutiva para socios/inversionistas (canon v5.2 violet) */}
+              <Route path="inversionistas" element={<Inversionistas />} />
               <Route path="usuarios" element={<Usuarios />} />
               <Route path="auditoria" element={<Auditoria />} />
               <Route path="configuracion" element={<Configuracion />} />

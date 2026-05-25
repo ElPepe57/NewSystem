@@ -83,6 +83,12 @@ export const PERMISOS = {
   GESTIONAR_CONFIGURACION: 'gestionar_configuracion',
   VER_AUDITORIA: 'ver_auditoria',
   ADMIN_TOTAL: 'admin_total',
+
+  // === Inversionistas · chk5.E-INV ===
+  /** Acceso al módulo de vista ejecutiva para socios/inversionistas */
+  VER_INVERSIONISTAS: 'ver_inversionistas',
+  /** Capacidad de configurar socios y porcentajes de participación */
+  GESTIONAR_SOCIOS: 'gestionar_socios',
 } as const;
 
 // 4. Permisos predeterminados por rol

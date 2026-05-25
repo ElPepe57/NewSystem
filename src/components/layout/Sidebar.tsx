@@ -36,7 +36,8 @@ import {
   MapPin,
   Banknote,
   Network,
-  Coins
+  Coins,
+  Landmark
 } from 'lucide-react';
 
 import { useAuthStore } from '../../store/authStore';
@@ -142,6 +143,8 @@ const menuGroups: MenuGroup[] = [
     items: [
       { icon: Palette, label: 'Líneas de Negocio', path: '/lineas-negocio', permiso: PERMISOS.GESTIONAR_CONFIGURACION },
       { icon: Database, label: 'Maestros', path: '/maestros', permiso: PERMISOS.GESTIONAR_CONFIGURACION },
+      // chk5.E-INV · vista ejecutiva canon v5.2 violet · acceso restringido a socios
+      { icon: Landmark, label: 'Inversionistas', path: '/inversionistas', permiso: PERMISOS.VER_INVERSIONISTAS },
       { icon: Users, label: 'Usuarios', path: '/usuarios', permiso: PERMISOS.GESTIONAR_USUARIOS },
       { icon: Activity, label: 'Auditoría', path: '/auditoria', permiso: PERMISOS.VER_AUDITORIA },
       { icon: Settings, label: 'Configuración', path: '/configuracion', permiso: PERMISOS.GESTIONAR_CONFIGURACION },

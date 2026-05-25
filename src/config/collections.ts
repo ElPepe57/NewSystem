@@ -116,6 +116,10 @@ export const COLLECTIONS = {
   CIERRES_CONTABLES: 'cierresContables', // @deprecated · reemplazado por REVISIONES_MENSUALES (chk5.E-RM)
   REVISIONES_MENSUALES: 'revisionesMensuales', // chk5.E-RM · revisión informal sin bloqueo
 
+  // === chk5.E-INV · Inversionistas ===
+  /** Catálogo de socios/inversionistas · doc id determinístico snake_case del nombre */
+  SOCIOS: 'socios',
+
   // === WhatsApp ===
   WHATSAPP_SESSIONS: 'whatsapp_sessions',
   WHATSAPP_CONFIG: 'whatsapp_config',

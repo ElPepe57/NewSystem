@@ -358,6 +358,18 @@ export interface CuentaCaja {
   /** Historial de las últimas 12 verificaciones · para detectar tendencias */
   historialVerificaciones?: VerificacionSaldoSnapshot[];
 
+  // chk5.E-INV · INVERSIÓN MIXTA · TC PERSONAL GARANTIZANDO DEUDA DEL NEGOCIO
+  /**
+   * Cuando la cuenta es una tarjeta de crédito personal de un socio usada para
+   * comprar inventario del negocio (modelo mixto · emprendedor apalancado), este
+   * campo apunta al `Socio.id` que garantiza la deuda. El sistema lo trata como
+   * "Capital Comprometido" del socio en el módulo de Inversionistas.
+   *
+   * Default empty/undefined = cuenta corporativa estándar.
+   * Si tiene valor = TC personal de socio (deuda personal asumida por el negocio).
+   */
+  garantizadaPorSocioId?: string;
+
   // Auditoría
   creadoPor: string;
   fechaCreacion: Timestamp;
