@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Users, Shield, UserCheck, UserX, RefreshCw, Plus, Edit2, X, Save, Eye, EyeOff, Search, Filter, Trash2, Key, AlertTriangle, LogOut, Wifi, WifiOff, Clock, CheckCircle, Loader2 } from 'lucide-react';
+import { Users, Shield, UserCheck, UserX, RefreshCw, Plus, Edit2, X, Save, Eye, EyeOff, Search, Filter, Trash2, Key, AlertTriangle, LogOut, Wifi, WifiOff, Clock, CheckCircle, Loader2, Briefcase, ShoppingCart, Package, Wallet, Landmark, User as UserIcon, Moon, MoreHorizontal } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import { Modal } from '../../components/common/Modal';
 import { PageShell, PageHeader, Toolbar, DataTable } from '../../design-system';
 import type { DataTableColumn } from '../../design-system';
@@ -411,15 +412,41 @@ export const Usuarios: React.FC = () => {
   }, [usuarios, searchTerm, filterRole, filterStatus]);
 
   const roleBadgeColor: Record<UserRole, string> = {
-    admin: 'bg-red-100 text-red-800',
-    gerente: 'bg-purple-100 text-purple-800',
+    admin: 'bg-purple-100 text-purple-800',
+    gerente: 'bg-indigo-100 text-indigo-800',
     vendedor: 'bg-sky-100 text-sky-800',
     comprador: 'bg-amber-100 text-amber-800',
-    almacenero: 'bg-emerald-100 text-emerald-800',
+    almacenero: 'bg-orange-100 text-orange-800',
     finanzas: 'bg-teal-100 text-teal-800',
-    supervisor: 'bg-teal-100 text-teal-800',
-    invitado: 'bg-slate-100 text-slate-800',
-    socio: 'bg-violet-100 text-violet-800',    // chk5.F1-MULTI-ROL
+    supervisor: 'bg-slate-100 text-slate-700',
+    invitado: 'bg-slate-100 text-slate-600',
+    socio: 'bg-violet-100 text-violet-800',
+  };
+
+  // chk5.F3-FIX-USUARIOS · iconos lucide por rol (chips de roles con icono pequeño)
+  const ROLE_ICON: Record<UserRole, LucideIcon> = {
+    admin: Shield,
+    gerente: UserCheck,
+    vendedor: Briefcase,
+    comprador: ShoppingCart,
+    almacenero: Package,
+    finanzas: Wallet,
+    supervisor: Eye,
+    invitado: UserIcon,
+    socio: Landmark,
+  };
+
+  // chk5.F3-FIX-USUARIOS · gradient color del avatar circular por rol principal
+  const ROLE_AVATAR_GRADIENT: Record<UserRole, string> = {
+    admin: 'from-purple-500 to-purple-700',
+    gerente: 'from-indigo-500 to-indigo-700',
+    vendedor: 'from-sky-400 to-sky-600',
+    comprador: 'from-amber-400 to-amber-600',
+    almacenero: 'from-orange-400 to-orange-600',
+    finanzas: 'from-teal-400 to-teal-600',
+    supervisor: 'from-slate-400 to-slate-600',
+    invitado: 'from-slate-300 to-slate-500',
+    socio: 'from-violet-500 to-violet-700',
   };
 
   // Estadísticas
@@ -680,94 +707,160 @@ export const Usuarios: React.FC = () => {
             </div>
           </div>
 
-      {/* §G · TABLA USUARIOS · DataTable existente envuelto en el shell canon */}
-      <div className="px-4 sm:px-6 py-4">
-        <DataTable<UserProfile>
-          columns={[
-            {
-              key: 'usuario', header: 'Usuario',
-              render: u => (
-                <div className="flex items-center">
-                  <div className="h-10 w-10 rounded-full bg-slate-200 flex items-center justify-center flex-shrink-0">
-                    {u.photoURL ? (
-                      <img src={u.photoURL} alt={u.displayName} className="h-10 w-10 rounded-full" />
-                    ) : (
-                      <span className="text-slate-600 font-medium">{u.displayName?.charAt(0).toUpperCase() || 'U'}</span>
-                    )}
+      {/* §G · LISTADO DE USUARIOS · cards apiladas canon F4 v7.0 · mockup A1 pixel-perfect */}
+      <div className="divide-y divide-slate-100">
+        {filteredUsuarios.length === 0 ? (
+          <div className="px-6 py-12 text-center text-slate-500">
+            <Users className="h-12 w-12 mx-auto mb-4 text-slate-300" />
+            <p className="text-[14px] font-medium">No se encontraron usuarios</p>
+            <p className="text-[12px]">Intenta ajustar los filtros de búsqueda</p>
+          </div>
+        ) : (
+          filteredUsuarios.map((u) => {
+            const rolesU = getUserRoles(u);
+            const inactive = !u.activo;
+            const isSelf = u.uid === currentUser?.uid;
+            const isInvitadoPending = inactive && hasRole(u, 'invitado');
+            // Iniciales para avatar
+            const iniciales = (u.displayName || u.email)
+              .split(' ')
+              .slice(0, 2)
+              .map((n) => n[0]?.toUpperCase() ?? '')
+              .join('') || 'U';
+            // Avatar gradient color · derivado del rol principal
+            const rolP = getRolPrincipal(u) ?? 'invitado';
+            const avatarGradient = ROLE_AVATAR_GRADIENT[rolP] ?? 'from-slate-400 to-slate-600';
+
+            return (
+              <div
+                key={u.uid}
+                className={`px-4 sm:px-6 py-3 sm:py-4 hover:bg-slate-50/50 ${inactive ? 'opacity-70' : ''}`}
+              >
+                <div className="flex items-start gap-3 sm:gap-4 flex-wrap">
+                  {/* Avatar circular grande con gradient */}
+                  <div className={`w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br ${avatarGradient} flex items-center justify-center text-white font-bold text-[14px] sm:text-[16px] flex-shrink-0`}>
+                    {u.photoURL ? <img src={u.photoURL} alt={u.displayName} className="w-full h-full rounded-full" /> : iniciales}
                   </div>
-                  <div className="ml-4">
-                    <div className="text-sm font-medium text-slate-900">
-                      {u.displayName}
-                      {u.uid === currentUser?.uid && <span className="ml-2 text-xs text-teal-600">(Tú)</span>}
+
+                  {/* Bloque info principal */}
+                  <div className="flex-1 min-w-[200px]">
+                    {/* Nombre + chips estado */}
+                    <div className="flex items-center gap-2 flex-wrap mb-0.5">
+                      <div className="text-[14px] sm:text-[15px] font-bold text-slate-900">
+                        {u.displayName}
+                        {isSelf && <span className="ml-1.5 text-[10px] text-purple-700 font-semibold">(tú)</span>}
+                      </div>
+                      {u.activo ? (
+                        <span className="text-[9px] bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded font-bold">activo</span>
+                      ) : (
+                        <span className="text-[9px] bg-slate-200 text-slate-600 px-1.5 py-0.5 rounded font-bold">inactivo</span>
+                      )}
+                      {/* Indicador silent partner: socio sin DNI = típico silent partner */}
+                      {hasRole(u, 'socio') && !u.activo && (
+                        <span className="text-[9px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded font-bold inline-flex items-center gap-1">
+                          <Moon className="w-2.5 h-2.5" /> silent partner
+                        </span>
+                      )}
                     </div>
-                    {u.cargo && <div className="text-xs text-slate-500">{u.cargo}</div>}
+
+                    {/* Email + DNI */}
+                    <div className="text-[11px] sm:text-[12px] text-slate-500 truncate">
+                      {u.email}
+                      {/* Si tuviéramos campo dni en el UserProfile sería: u.dni ? ` · DNI ${u.dni}` : ' · sin DNI registrado' */}
+                    </div>
+
+                    {/* Chips de roles con iconos */}
+                    <div className="flex items-center gap-1 flex-wrap mt-1.5">
+                      {rolesU.length === 0 ? (
+                        <span className="text-[10px] text-rose-700 font-semibold">⚠ Sin roles asignados</span>
+                      ) : (
+                        rolesU.map((r) => {
+                          const Icon = ROLE_ICON[r];
+                          return (
+                            <span
+                              key={r}
+                              className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold ${roleBadgeColor[r]}`}
+                            >
+                              <Icon className="w-2.5 h-2.5" />
+                              {ROLE_LABELS[r]}
+                            </span>
+                          );
+                        })
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Acciones derecha */}
+                  <div className="flex items-center gap-1 flex-shrink-0 flex-wrap" onClick={(e) => e.stopPropagation()}>
+                    {isInvitadoPending && (
+                      <button
+                        onClick={() => handleOpenApprove(u)}
+                        className="inline-flex items-center gap-1 px-2.5 py-1.5 text-[11px] font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded"
+                        title="Aprobar usuario"
+                      >
+                        <CheckCircle className="w-3 h-3" />
+                        Aprobar
+                      </button>
+                    )}
+                    <button
+                      onClick={() => navigate(`/usuarios/${u.uid}/ficha`)}
+                      className="inline-flex items-center gap-1 px-2.5 py-1.5 text-[11px] font-semibold text-slate-600 hover:text-purple-700 hover:bg-purple-50 rounded"
+                      title="Ver ficha 360"
+                    >
+                      <Eye className="w-3 h-3" />
+                      <span className="hidden sm:inline">Ficha 360</span>
+                    </button>
+                    <button
+                      onClick={() => handleOpenEditPermisos(u)}
+                      className="inline-flex items-center gap-1 px-2.5 py-1.5 text-[11px] font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded"
+                      title="Editar usuario"
+                    >
+                      <Edit2 className="w-3 h-3" />
+                      <span className="hidden sm:inline">Editar</span>
+                    </button>
+                    {/* Menú "..." para acciones secundarias */}
+                    <details className="relative">
+                      <summary className="cursor-pointer list-none p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded" title="Más acciones">
+                        <MoreHorizontal className="w-3.5 h-3.5" />
+                      </summary>
+                      <div className="absolute right-0 top-full mt-1 z-10 bg-white border border-slate-200 rounded-lg shadow-lg py-1 min-w-[160px]">
+                        <button
+                          onClick={() => handleOpenDisconnect(u)}
+                          disabled={isSelf}
+                          className="w-full text-left px-3 py-1.5 text-[11px] text-slate-700 hover:bg-amber-50 disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center gap-2"
+                        >
+                          <LogOut className="w-3 h-3 text-amber-600" /> Desconectar sesión
+                        </button>
+                        <button
+                          onClick={() => handleOpenResetPassword(u)}
+                          disabled={isSelf}
+                          className="w-full text-left px-3 py-1.5 text-[11px] text-slate-700 hover:bg-amber-50 disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center gap-2"
+                        >
+                          <Key className="w-3 h-3 text-amber-600" /> Reset password
+                        </button>
+                        <div className="border-t border-slate-100 my-1"></div>
+                        <button
+                          onClick={() => handleToggleActivo(u.uid, !u.activo)}
+                          disabled={isSelf}
+                          className="w-full text-left px-3 py-1.5 text-[11px] text-slate-700 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center gap-2"
+                        >
+                          {u.activo ? <><UserX className="w-3 h-3 text-rose-600" /> Desactivar</> : <><UserCheck className="w-3 h-3 text-emerald-600" /> Activar</>}
+                        </button>
+                        <button
+                          onClick={() => handleOpenDeleteConfirm(u)}
+                          disabled={isSelf}
+                          className="w-full text-left px-3 py-1.5 text-[11px] text-rose-700 hover:bg-rose-50 disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center gap-2"
+                        >
+                          <Trash2 className="w-3 h-3" /> Eliminar usuario
+                        </button>
+                      </div>
+                    </details>
                   </div>
                 </div>
-              ),
-            },
-            {
-              key: 'email', header: 'Email', hideOnMobile: true,
-              render: u => <span className="text-slate-500">{u.email}</span>,
-            },
-            {
-              key: 'rol', header: 'Rol',
-              render: u => {
-                // chk5.F1-MULTI-ROL · mostrar el rol principal con chip + indicador "+N" si tiene más
-                const rolP = getRolPrincipal(u) ?? 'invitado';
-                const extras = (u.roles?.length ?? 0) - 1;
-                return (
-                  <span className="inline-flex items-center gap-1">
-                    <span className={`text-sm rounded-full px-3 py-1 font-medium ${roleBadgeColor[rolP]}`}>{ROLE_LABELS[rolP]}</span>
-                    {extras > 0 && <span className="text-[10px] bg-violet-100 text-violet-700 px-1.5 py-0.5 rounded font-bold" title={`+${extras} roles más`}>+{extras}</span>}
-                  </span>
-                );
-              },
-            },
-            {
-              key: 'estado', header: 'Estado',
-              render: u => (
-                <button
-                  onClick={() => handleToggleActivo(u.uid, !u.activo)}
-                  disabled={u.uid === currentUser?.uid}
-                  className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${u.activo ? 'bg-emerald-100 text-emerald-800 hover:bg-emerald-200' : 'bg-red-100 text-red-800 hover:bg-red-200'} disabled:cursor-not-allowed disabled:opacity-50`}
-                >
-                  {u.activo ? <><UserCheck className="h-3 w-3" /> Activo</> : <><UserX className="h-3 w-3" /> Inactivo</>}
-                </button>
-              ),
-            },
-            {
-              key: 'ultima', header: 'Última Conexión', hideOnMobile: true,
-              render: u => <span className="text-slate-500">{u.ultimaConexion ? new Date(u.ultimaConexion.toDate()).toLocaleDateString('es-PE', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) : 'Nunca'}</span>,
-            },
-            {
-              key: 'acciones', header: 'Acciones', align: 'right',
-              render: u => (
-                <div className="flex justify-end gap-1" onClick={e => e.stopPropagation()}>
-                  {!u.activo && hasRole(u, 'invitado') && (
-                    <button onClick={() => handleOpenApprove(u)} className="flex items-center gap-1 px-2.5 py-1.5 text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-lg transition-colors" title="Aprobar">
-                      <CheckCircle className="h-3.5 w-3.5" /><span className="text-xs font-medium">Aprobar</span>
-                    </button>
-                  )}
-                  {/* chk5.F2-SUB-PERFILES · acceso a Ficha 360 (vista completa multi-rol + sub-perfiles) */}
-                  <button onClick={() => navigate(`/usuarios/${u.uid}/ficha`)} className="p-2 text-purple-600 hover:text-purple-900 hover:bg-purple-50 rounded-lg" title="Ver ficha 360"><Eye className="h-4 w-4" /></button>
-                  <button onClick={() => handleOpenEditPermisos(u)} className="p-2 text-teal-600 hover:text-teal-900 hover:bg-teal-50 rounded-lg" title="Editar permisos"><Edit2 className="h-4 w-4" /></button>
-                  <button onClick={() => handleOpenDisconnect(u)} disabled={u.uid === currentUser?.uid} className="p-2 text-orange-600 hover:text-orange-900 hover:bg-orange-50 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed" title="Desconectar"><LogOut className="h-4 w-4" /></button>
-                  <button onClick={() => handleOpenResetPassword(u)} disabled={u.uid === currentUser?.uid} className="p-2 text-amber-600 hover:text-amber-900 hover:bg-amber-50 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed" title="Reset password"><Key className="h-4 w-4" /></button>
-                  <button onClick={() => handleOpenDeleteConfirm(u)} disabled={u.uid === currentUser?.uid} className="p-2 text-red-600 hover:text-red-900 hover:bg-red-50 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed" title="Eliminar"><Trash2 className="h-4 w-4" /></button>
-                </div>
-              ),
-            },
-          ]}
-          data={filteredUsuarios}
-          keyExtractor={u => u.uid}
-          emptyState={
-            <div className="px-6 py-12 text-center text-slate-500">
-              <Users className="h-12 w-12 mx-auto mb-4 text-slate-300" />
-              <p className="text-lg font-medium">No se encontraron usuarios</p>
-              <p className="text-sm">Intenta ajustar los filtros de búsqueda</p>
-            </div>
-          }
-        />
+              </div>
+            );
+          })
+        )}
       </div>
 
           {/* Cierra el shell card canon */}
