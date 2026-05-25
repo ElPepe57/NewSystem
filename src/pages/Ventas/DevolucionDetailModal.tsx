@@ -26,6 +26,7 @@ import { Modal, Button, useConfirmDialog, ConfirmDialog } from '../../components
 import { DataTable } from '../../design-system';
 import type { DataTableColumn } from '../../design-system';
 import { useAuthStore } from '../../store/authStore';
+import { hasAnyRole } from '../../types/auth.types';
 import { useToastStore } from '../../store/toastStore';
 import { devolucionService } from '../../services/devolucion.service';
 import { logger } from '../../lib/logger';
@@ -156,8 +157,7 @@ export const DevolucionDetailModal: React.FC<Props> = ({
   const [notasPago, setNotasPago] = useState('');
 
   // Roles que pueden aprobar/rechazar
-  const esAdminOGerente =
-    userProfile?.role === 'admin' || userProfile?.role === 'gerente';
+  const esAdminOGerente = hasAnyRole(userProfile, ['admin', 'gerente']);
 
   // ---------------------------------------------------------------
   // APROBAR

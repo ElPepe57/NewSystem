@@ -1,7 +1,13 @@
 import { useMemo } from 'react';
 import { useAuthStore } from '../store/authStore';
 import { userService } from '../services/user.service';
-import { PERMISOS, type UserRole } from '../types/auth.types';
+import {
+  PERMISOS,
+  hasRole,
+  getRolPrincipal,
+  getUserRoles,
+  type UserRole,
+} from '../types/auth.types';
 
 export function usePermissions() {
   const userProfile = useAuthStore(state => state.userProfile);
@@ -10,17 +16,24 @@ export function usePermissions() {
     // Estado del usuario
     isAuthenticated: !!userProfile,
     isActive: userProfile?.activo ?? false,
-    role: userProfile?.role as UserRole | null,
+    /**
+     * Rol principal para display · prioriza admin > gerente > resto.
+     * Usar para chip único / avatar. Para chequear permisos usar isAdmin, hasRole, etc.
+     */
+    role: getRolPrincipal(userProfile) as UserRole | null,
+    /** chk5.F1-MULTI-ROL · array de TODOS los roles del usuario */
+    roles: getUserRoles(userProfile),
 
-    // Verificaciones de rol (8 roles)
-    isAdmin: userProfile?.role === 'admin',
-    isGerente: userProfile?.role === 'gerente',
-    isVendedor: userProfile?.role === 'vendedor',
-    isComprador: userProfile?.role === 'comprador',
-    isAlmacenero: userProfile?.role === 'almacenero',
-    isFinanzas: userProfile?.role === 'finanzas',
-    isSupervisor: userProfile?.role === 'supervisor',
-    isInvitado: userProfile?.role === 'invitado',
+    // Verificaciones de rol · ahora soporta multi-rol via hasRole helper
+    isAdmin: hasRole(userProfile, 'admin'),
+    isGerente: hasRole(userProfile, 'gerente'),
+    isVendedor: hasRole(userProfile, 'vendedor'),
+    isComprador: hasRole(userProfile, 'comprador'),
+    isAlmacenero: hasRole(userProfile, 'almacenero'),
+    isFinanzas: hasRole(userProfile, 'finanzas'),
+    isSupervisor: hasRole(userProfile, 'supervisor'),
+    isInvitado: hasRole(userProfile, 'invitado'),
+    isSocio: hasRole(userProfile, 'socio'),    // chk5.F1-MULTI-ROL nuevo
 
     // Verificar permiso específico
     hasPermiso: (permiso: string) => userService.hasPermiso(userProfile, permiso),
@@ -94,11 +107,11 @@ export function useHasPermiso(permiso: string): boolean {
   );
 }
 
-// Hook para verificar rol
+// Hook para verificar rol · soporta multi-rol via helper hasRole
 export function useIsRole(role: UserRole): boolean {
   const userProfile = useAuthStore(state => state.userProfile);
   return useMemo(
-    () => userProfile?.role === role,
+    () => hasRole(userProfile, role),
     [userProfile, role]
   );
 }

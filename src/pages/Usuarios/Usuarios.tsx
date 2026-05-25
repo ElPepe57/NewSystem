@@ -6,7 +6,7 @@ import type { DataTableColumn } from '../../design-system';
 import { userService, PERMISOS_INFO } from '../../services/user.service';
 import { useAuthStore } from '../../store/authStore';
 import type { UserProfile, UserRole } from '../../types/auth.types';
-import { DEFAULT_PERMISOS, PERMISOS, ROLE_LABELS, ROLE_DESCRIPTIONS } from '../../types/auth.types';
+import { DEFAULT_PERMISOS, PERMISOS, ROLE_LABELS, ROLE_DESCRIPTIONS, hasRole, getRolPrincipal } from '../../types/auth.types';
 
 type ModalType = 'none' | 'create' | 'edit-permisos' | 'view-permisos' | 'delete-confirm' | 'reset-password' | 'disconnect-confirm' | 'disconnect-all-confirm' | 'approve-user';
 
@@ -329,12 +329,13 @@ export const Usuarios: React.FC = () => {
     almacenero: 'bg-emerald-100 text-emerald-800',
     finanzas: 'bg-teal-100 text-teal-800',
     supervisor: 'bg-teal-100 text-teal-800',
-    invitado: 'bg-slate-100 text-slate-800'
+    invitado: 'bg-slate-100 text-slate-800',
+    socio: 'bg-violet-100 text-violet-800',    // chk5.F1-MULTI-ROL
   };
 
   // Estadísticas
   const pendientes = useMemo(() =>
-    usuarios.filter(u => !u.activo && u.role === 'invitado'),
+    usuarios.filter(u => !u.activo && hasRole(u, 'invitado')),
     [usuarios]
   );
   const stats = {
@@ -347,9 +348,9 @@ export const Usuarios: React.FC = () => {
   // Conteo por rol (dinámico)
   const roleStats = useMemo(() => {
     const counts: Partial<Record<UserRole, number>> = {};
-    const allRoles: UserRole[] = ['admin', 'gerente', 'vendedor', 'comprador', 'almacenero', 'finanzas', 'supervisor', 'invitado'];
+    const allRoles: UserRole[] = ['admin', 'gerente', 'vendedor', 'comprador', 'almacenero', 'finanzas', 'supervisor', 'invitado', 'socio'];
     allRoles.forEach(role => {
-      const count = usuarios.filter(u => u.role === role).length;
+      const count = usuarios.filter(u => hasRole(u, role)).length;
       if (count > 0) counts[role] = count;
     });
     return counts;
@@ -603,7 +604,17 @@ export const Usuarios: React.FC = () => {
             },
             {
               key: 'rol', header: 'Rol',
-              render: u => <span className={`text-sm rounded-full px-3 py-1 font-medium ${roleBadgeColor[u.role]}`}>{ROLE_LABELS[u.role]}</span>,
+              render: u => {
+                // chk5.F1-MULTI-ROL · mostrar el rol principal con chip + indicador "+N" si tiene más
+                const rolP = getRolPrincipal(u) ?? 'invitado';
+                const extras = (u.roles?.length ?? 0) - 1;
+                return (
+                  <span className="inline-flex items-center gap-1">
+                    <span className={`text-sm rounded-full px-3 py-1 font-medium ${roleBadgeColor[rolP]}`}>{ROLE_LABELS[rolP]}</span>
+                    {extras > 0 && <span className="text-[10px] bg-violet-100 text-violet-700 px-1.5 py-0.5 rounded font-bold" title={`+${extras} roles más`}>+{extras}</span>}
+                  </span>
+                );
+              },
             },
             {
               key: 'estado', header: 'Estado',
@@ -625,7 +636,7 @@ export const Usuarios: React.FC = () => {
               key: 'acciones', header: 'Acciones', align: 'right',
               render: u => (
                 <div className="flex justify-end gap-1" onClick={e => e.stopPropagation()}>
-                  {!u.activo && u.role === 'invitado' && (
+                  {!u.activo && hasRole(u, 'invitado') && (
                     <button onClick={() => handleOpenApprove(u)} className="flex items-center gap-1 px-2.5 py-1.5 text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-lg transition-colors" title="Aprobar">
                       <CheckCircle className="h-3.5 w-3.5" /><span className="text-xs font-medium">Aprobar</span>
                     </button>

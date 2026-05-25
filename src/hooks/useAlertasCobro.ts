@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { useAuthStore } from '../store/authStore';
+import { hasAnyRole, type UserRole } from '../types/auth.types';
 import { cuentasPendientesService } from '../services/cuentasPendientes.service';
 import { NotificationService } from '../services/notification.service';
 import { tipoCambioService } from '../services/tipoCambio.service';
@@ -71,8 +72,8 @@ export const useAlertasCobro = () => {
   const ejecutando = useRef<boolean>(false);
 
   useEffect(() => {
-    const rolesHabilitados = ['admin', 'gerente', 'finanzas'];
-    if (!userProfile?.role || !rolesHabilitados.includes(userProfile.role)) return;
+    const rolesHabilitados: UserRole[] = ['admin', 'gerente', 'finanzas'];
+    if (!hasAnyRole(userProfile, rolesHabilitados)) return;
 
     // Guard: maximo una ejecucion cada 60 minutos
     const ahora = Date.now();

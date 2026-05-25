@@ -11,6 +11,7 @@ import { tesoreriaService } from '../../../services/tesoreria.service';
 import { clienteService } from '../../../services/cliente.service';
 import { useProductoStore } from '../../../store/productoStore';
 import { useAuthStore } from '../../../store/authStore';
+import { hasRole, hasAnyRole } from '../../../types/auth.types';
 import { useClienteStore } from '../../../store/clienteStore';
 import { useToastStore } from '../../../store/toastStore';
 import { useCanalVentaStore } from '../../../store/canalVentaStore';
@@ -301,7 +302,7 @@ export const VentaForm: React.FC<VentaFormProps> = ({
   const hayVentaBajoCosto = productosBajoCosto.length > 0;
   const [aprobacionBajoCosto, setAprobacionBajoCosto] = useState(false);
   const { userProfile } = useAuthStore();
-  const esAdminOGerente = userProfile?.role === 'admin' || userProfile?.role === 'gerente';
+  const esAdminOGerente = hasAnyRole(userProfile, ['admin', 'gerente']);
 
   // Venta a socio
   const [esVentaSocio, setEsVentaSocio] = useState(false);
@@ -1382,7 +1383,7 @@ export const VentaForm: React.FC<VentaFormProps> = ({
                     className="w-4 h-4 text-red-600 border-red-300 rounded focus:ring-red-500"
                   />
                   <span className="text-sm font-medium text-red-800">
-                    Apruebo esta venta bajo costo como {userProfile?.role === 'admin' ? 'Administrador' : 'Gerente'}
+                    Apruebo esta venta bajo costo como {hasRole(userProfile, 'admin') ? 'Administrador' : 'Gerente'}
                   </span>
                 </label>
               ) : (

@@ -28,6 +28,7 @@ import type {
   EstadoTarea,
 } from '../../types/llamadaIntel.types';
 import type { UserProfile } from '../../types/auth.types';
+import { hasAnyRole } from '../../types/auth.types';
 import { llamadaIntelService } from '../../services/llamadaIntel.service';
 import { PageShell, PageHeader, Toolbar } from '../../design-system';
 import { CallNotesModal } from '../../components/modules/llamadaIntel/CallNotesModal';
@@ -66,7 +67,7 @@ export const NotasIA: React.FC = () => {
   const [expandedCall, setExpandedCall] = useState<string | null>(null);
 
   const currentUser = useAuthStore(s => s.userProfile);
-  const isAdmin = currentUser?.role === 'admin' || currentUser?.role === 'gerente';
+  const isAdmin = hasAnyRole(currentUser, ['admin', 'gerente']);
 
   // Cargar historial de llamadas
   useEffect(() => {

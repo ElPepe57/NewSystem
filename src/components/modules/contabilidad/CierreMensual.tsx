@@ -27,6 +27,7 @@ import {
 import { ConfirmDialog } from '../../common';
 import { cierreContableService } from '../../../services/cierreContable.service';
 import { useAuthStore } from '../../../store/authStore';
+import { hasRole } from '../../../types/auth.types';
 import { formatCurrencyPEN } from '../../../utils/format';
 import { logger } from '../../../lib/logger';
 import type {
@@ -57,7 +58,7 @@ interface CierreMensualProps {
 
 export default function CierreMensual({ mes, anio }: CierreMensualProps) {
   const userProfile = useAuthStore((s) => s.userProfile);
-  const isAdmin = userProfile?.role === 'admin';
+  const isAdmin = hasRole(userProfile, 'admin');
 
   // Estado
   const [validacionResult, setValidacionResult] = useState<ResultadoValidacion | null>(null);

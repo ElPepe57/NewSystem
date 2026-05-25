@@ -52,6 +52,7 @@ import type {
 } from '../../types/inversionista.types';
 import { formatCurrencyPEN } from '../../utils/format';
 import { useAuthStore } from '../../store/authStore';
+import { hasRole } from '../../types/auth.types';
 
 import {
   InversionistasResumen,
@@ -276,7 +277,7 @@ export default function Inversionistas() {
 
   // Canon "admin ve todo" · banner contextual
   const userProfile = useAuthStore((s) => s.userProfile);
-  const esAdmin = userProfile?.role === 'admin';
+  const esAdmin = hasRole(userProfile, 'admin');
 
   const aniosDisponibles = useMemo(() => {
     const out: number[] = [];

@@ -6,6 +6,7 @@ import { db } from '../../lib/firebase';
 import { Button, Card } from '../../components/common';
 import { AuthService } from '../../services/auth.service';
 import { useAuthStore } from '../../store/authStore';
+import { hasRole } from '../../types/auth.types';
 import { VitaSkinLogo, AuthPageWrapper, DropletDivider } from './AuthDecorations';
 
 export const PendingApproval: React.FC = () => {
@@ -15,8 +16,8 @@ export const PendingApproval: React.FC = () => {
   const setUserProfile = useAuthStore(state => state.setUserProfile);
   const fetchUserProfile = useAuthStore(state => state.fetchUserProfile);
 
-  const isPendingNew = userProfile?.role === 'invitado' && !userProfile?.activo;
-  const isDeactivated = userProfile?.role !== 'invitado' && !userProfile?.activo;
+  const isPendingNew = hasRole(userProfile, 'invitado') && !userProfile?.activo;
+  const isDeactivated = !hasRole(userProfile, 'invitado') && !!userProfile && !userProfile.activo;
 
   // Listener en tiempo real para detectar aprobación del admin
   // IMPORTANTE: debe estar ANTES de los guards para respetar las reglas de hooks

@@ -1,7 +1,9 @@
 // src/types/auth.types.ts
 import { Timestamp } from 'firebase/firestore';
 
-// 1. Definición estricta de los Roles posibles (8 roles)
+// 1. Definición estricta de los Roles posibles
+// chk5.F1-MULTI-ROL (2026-05-24) · agregado 'socio' como rol del modelo de personas unificado.
+// UserProfile.roles[] ahora puede contener múltiples roles (una persona = N funciones reales).
 export type UserRole =
   | 'admin'
   | 'gerente'
@@ -10,9 +12,15 @@ export type UserRole =
   | 'almacenero'
   | 'finanzas'
   | 'supervisor'
-  | 'invitado';
+  | 'invitado'
+  | 'socio';      // NUEVO · da acceso al módulo Inversionistas + sub-perfil datosSocio
 
 // 2. Definición del Perfil de Usuario (Lo que se guarda en Firestore /users)
+//
+// chk5.F1-MULTI-ROL · ahora soporta multi-rol vía `roles: UserRole[]`. Para backward
+// compatibility con datos existentes (que tienen `role: "admin"` singular), el campo
+// `role` legacy se mantiene como deprecado · helpers `getUserRoles()` / `hasRole()`
+// hacen fallback automático. NO leer `role` directamente en código nuevo · usar helpers.
 export interface UserProfile {
   uid: string;
   email: string;
@@ -20,14 +28,99 @@ export interface UserProfile {
   photoURL?: string; // Opcional, pero útil para el avatar
   cargo?: string; // Puesto/posición: "Socio fundador", "Gerente comercial", etc.
 
+  /**
+   * Array de roles del usuario. Una persona puede tener múltiples roles
+   * simultáneamente (ej: admin + socio + vendedor).
+   *
+   * Documentos viejos pueden tener solo `role` singular · helpers de lectura
+   * hacen fallback: `roles ?? [role]`. Documentos nuevos siempre escriben `roles`.
+   */
+  roles?: UserRole[];
+
+  /**
+   * @deprecated chk5.F1-MULTI-ROL · usar `roles[]` en código nuevo.
+   * Se mantiene para backward compat con documentos viejos del sistema.
+   * Los helpers `getUserRoles()` y `hasRole()` priorizan `roles` y caen a
+   * `role` si no existe.
+   */
   role: UserRole;
-  permisos: string[]; // Lista de capacidades específicas
+
+  permisos: string[]; // Lista de capacidades específicas (unión de los roles)
 
   activo: boolean; // Para poder bloquear acceso sin borrar el usuario
 
   // Usamos Timestamp de Firebase, no 'any' ni 'Date'
   fechaCreacion: Timestamp;
   ultimaConexion?: Timestamp;
+}
+
+// ═════════════════════════════════════════════════════════════════════════
+// HELPERS · multi-rol con backward compat
+// chk5.F1-MULTI-ROL (2026-05-24)
+// ═════════════════════════════════════════════════════════════════════════
+
+/**
+ * Retorna los roles del usuario · prioriza `roles[]` nuevo · fallback a `role`.
+ * SIEMPRE usar este helper en lugar de leer `userProfile.role` directamente.
+ */
+export function getUserRoles(user: Pick<UserProfile, 'role' | 'roles'> | null | undefined): UserRole[] {
+  if (!user) return [];
+  if (user.roles && user.roles.length > 0) return user.roles;
+  if (user.role) return [user.role];
+  return [];
+}
+
+/**
+ * Chequea si el usuario tiene un rol específico (en cualquier posición del array).
+ * Reemplazo seguro de `userProfile.role === 'admin'`.
+ */
+export function hasRole(
+  user: Pick<UserProfile, 'role' | 'roles'> | null | undefined,
+  role: UserRole,
+): boolean {
+  return getUserRoles(user).includes(role);
+}
+
+/**
+ * Chequea si el usuario tiene al menos uno de los roles dados.
+ * Reemplazo de los `['admin', 'gerente'].includes(userProfile.role)`.
+ */
+export function hasAnyRole(
+  user: Pick<UserProfile, 'role' | 'roles'> | null | undefined,
+  rolesPermitidos: UserRole[],
+): boolean {
+  const myRoles = getUserRoles(user);
+  return rolesPermitidos.some((r) => myRoles.includes(r));
+}
+
+/**
+ * Retorna el rol "principal" para display (avatar · chip único).
+ * Prioriza admin > gerente > resto.
+ */
+export function getRolPrincipal(
+  user: Pick<UserProfile, 'role' | 'roles'> | null | undefined,
+): UserRole | null {
+  const roles = getUserRoles(user);
+  if (roles.length === 0) return null;
+  // Prioridad: admin > gerente > resto en orden del enum
+  const prioridad: UserRole[] = ['admin', 'gerente', 'socio', 'finanzas', 'vendedor', 'comprador', 'almacenero', 'supervisor', 'invitado'];
+  for (const r of prioridad) {
+    if (roles.includes(r)) return r;
+  }
+  return roles[0];
+}
+
+/**
+ * Calcula el array de permisos union de los roles dados.
+ * Usado al guardar UserProfile · escribe `permisos: calcularPermisos(roles)`.
+ */
+export function calcularPermisosDeRoles(roles: UserRole[]): string[] {
+  const set = new Set<string>();
+  for (const r of roles) {
+    const perms = DEFAULT_PERMISOS[r] || [];
+    for (const p of perms) set.add(p);
+  }
+  return Array.from(set);
 }
 
 // 3. Constantes de Permisos (30 permisos granulares por módulo)
@@ -184,6 +277,16 @@ export const DEFAULT_PERMISOS: Record<UserRole, string[]> = {
 
   // Invitado: sin permisos
   invitado: [],
+
+  // Socio · chk5.F1-MULTI-ROL · acceso al módulo Inversionistas + dashboard básico
+  // No es un rol operativo · es un "rol de propietario" · permisos limitados al
+  // dominio de inversión. Si la persona también opera el sistema (admin/gerente/
+  // vendedor/etc), tiene esos roles ADICIONALMENTE.
+  socio: [
+    PERMISOS.VER_DASHBOARD,
+    PERMISOS.VER_INVERSIONISTAS,
+    PERMISOS.VER_REPORTES,
+  ],
 };
 
 // 5. Labels para mostrar en la UI
@@ -196,6 +299,7 @@ export const ROLE_LABELS: Record<UserRole, string> = {
   finanzas: 'Finanzas',
   supervisor: 'Supervisor',
   invitado: 'Invitado',
+  socio: 'Socio',          // chk5.F1-MULTI-ROL
 };
 
 // 6. Descripciones cortas de cada rol
@@ -208,4 +312,5 @@ export const ROLE_DESCRIPTIONS: Record<UserRole, string> = {
   finanzas: 'Gestiona gastos, tesorería, reportes financieros y CTRU. Ve ventas y compras como referencia.',
   supervisor: 'Acceso de solo lectura a todos los módulos. No puede crear ni modificar registros.',
   invitado: 'Sin acceso al sistema. Cuenta pendiente de asignación de rol.',
+  socio: 'Propietario del negocio · acceso a módulo Inversionistas (vista ejecutiva · capital · ROI). Sub-perfil datosSocio con % participación y aportes.',
 };

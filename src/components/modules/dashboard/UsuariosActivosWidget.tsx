@@ -4,6 +4,7 @@ import { Users, UserCheck, UserX, Shield, ShoppingBag, Warehouse, User } from 'l
 import { Card, Badge } from '../../common';
 import { userService } from '../../../services/user.service';
 import type { UserProfile, UserRole } from '../../../types/auth.types';
+import { hasRole } from '../../../types/auth.types';
 
 interface UsuariosActivosWidgetProps {
   showDetailed?: boolean;
@@ -77,10 +78,10 @@ export const UsuariosActivosWidget: React.FC<UsuariosActivosWidgetProps> = ({
     activos: usuarios.filter(u => u.activo).length,
     inactivos: usuarios.filter(u => !u.activo).length,
     porRol: {
-      admin: usuarios.filter(u => u.role === 'admin').length,
-      vendedor: usuarios.filter(u => u.role === 'vendedor').length,
-      almacenero: usuarios.filter(u => u.role === 'almacenero').length,
-      invitado: usuarios.filter(u => u.role === 'invitado').length
+      admin: usuarios.filter(u => hasRole(u, 'admin')).length,
+      vendedor: usuarios.filter(u => hasRole(u, 'vendedor')).length,
+      almacenero: usuarios.filter(u => hasRole(u, 'almacenero')).length,
+      invitado: usuarios.filter(u => hasRole(u, 'invitado')).length
     }
   };
 

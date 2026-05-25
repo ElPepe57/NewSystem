@@ -13,7 +13,7 @@ import { getFunctions, httpsCallable } from 'firebase/functions';
 import { db } from '../lib/firebase';
 import { logger } from '../lib/logger';
 import type { UserProfile, UserRole } from '../types/auth.types';
-import { DEFAULT_PERMISOS, PERMISOS } from '../types/auth.types';
+import { DEFAULT_PERMISOS, PERMISOS, hasRole, calcularPermisosDeRoles } from '../types/auth.types';
 import { auditoriaService } from './auditoria.service';
 import { presenciaService } from './presencia.service';
 import { COLLECTIONS } from '../config/collections';
@@ -262,12 +262,13 @@ export const userService = {
   },
 
   /**
-   * Verificar si un usuario tiene un permiso específico
+   * Verificar si un usuario tiene un permiso específico.
+   * chk5.F1-MULTI-ROL · usa helper hasRole para soportar `roles[]` array.
    */
   hasPermiso(userProfile: UserProfile | null, permiso: string): boolean {
     if (!userProfile) return false;
     if (!userProfile.activo) return false;
-    if (userProfile.role === 'admin') return true;
+    if (hasRole(userProfile, 'admin')) return true;
     return userProfile.permisos.includes(permiso);
   },
 
@@ -277,7 +278,7 @@ export const userService = {
   hasAnyPermiso(userProfile: UserProfile | null, permisos: string[]): boolean {
     if (!userProfile) return false;
     if (!userProfile.activo) return false;
-    if (userProfile.role === 'admin') return true;
+    if (hasRole(userProfile, 'admin')) return true;
     return permisos.some(p => userProfile.permisos.includes(p));
   },
 
@@ -287,7 +288,7 @@ export const userService = {
   hasAllPermisos(userProfile: UserProfile | null, permisos: string[]): boolean {
     if (!userProfile) return false;
     if (!userProfile.activo) return false;
-    if (userProfile.role === 'admin') return true;
+    if (hasRole(userProfile, 'admin')) return true;
     return permisos.every(p => userProfile.permisos.includes(p));
   },
 
@@ -390,6 +391,18 @@ export const userService = {
 
       if (!result.data.success) {
         throw new Error('Error al actualizar rol y permisos');
+      }
+
+      // chk5.F1-MULTI-ROL · escribir también el campo nuevo `roles: [role]` para
+      // que el doc quede en formato canon. La Cloud Function escribe `role` legacy
+      // (compat) · acá complementamos con el array. En Fase 2 se refactoriza la
+      // Cloud Function para escribir multi-rol directamente.
+      try {
+        await updateDoc(doc(db, COLLECTIONS.USERS, uid), {
+          roles: [role],
+        });
+      } catch (err) {
+        logger.warn('No se pudo actualizar campo roles[] (no bloquea):', err);
       }
 
       // Registrar en auditoría

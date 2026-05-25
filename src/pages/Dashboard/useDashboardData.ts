@@ -6,6 +6,7 @@ import { useOrdenCompraStore } from '../../store/ordenCompraStore';
 import { useGastoStore } from '../../store/gastoStore';
 import { useTipoCambioStore } from '../../store/tipoCambioStore';
 import { useAuthStore } from '../../store/authStore';
+import { hasRole } from '../../types/auth.types';
 import { useLineaNegocioStore } from '../../store/lineaNegocioStore';
 import { useLineaFilter } from '../../hooks/useLineaFilter';
 import { cuentasPendientesService } from '../../services/cuentasPendientes.service';
@@ -350,7 +351,7 @@ export function useDashboardData(): DashboardData {
   const lineaFiltroGlobal = useLineaNegocioStore(state => state.lineaFiltroGlobal);
   const setLineaFiltroGlobal = useLineaNegocioStore(state => state.setLineaFiltroGlobal);
 
-  const isAdmin = userProfile?.role === 'admin';
+  const isAdmin = hasRole(userProfile, 'admin');
 
   useEffect(() => {
     const now = Date.now();
