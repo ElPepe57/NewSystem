@@ -456,214 +456,232 @@ export const Usuarios: React.FC = () => {
     );
   }
 
+  // chk5.F3-FIX · KPIs canon v5.2 · TOTAL · ACTIVOS · SOCIOS · MULTI-ROL
+  const sociosCount = roleStats['socio'] ?? 0;
+  const multiRolCount = usuarios.filter((u) => getUserRoles(u).length > 1).length;
+
   return (
     <PageShell>
-      <PageHeader
-        title="Usuarios"
-        subtitle="Administra roles y permisos de los usuarios del sistema"
-        icon={Users}
-        actions={
-          <div className="flex gap-2 flex-wrap">
-            <button
-              onClick={() => setModalType('disconnect-all-confirm')}
-              className="flex items-center gap-2 px-4 py-2 bg-red-50 text-red-700 border border-red-200 rounded-lg hover:bg-red-100 transition-colors"
-              title="Desconectar todas las sesiones"
-            >
-              <WifiOff className="h-4 w-4" />
-              <span className="hidden sm:inline">Desconectar Todos</span>
-            </button>
-            <button
-              onClick={fetchUsuarios}
-              className="flex items-center gap-2 px-4 py-2 bg-slate-100 rounded-lg hover:bg-slate-200"
-            >
-              <RefreshCw className="h-4 w-4" />
-              <span className="hidden sm:inline">Actualizar</span>
-            </button>
-            <button
-              onClick={() => setModalType('create')}
-              className="flex items-center gap-2 px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700"
-            >
-              <Plus className="h-4 w-4" />
-              Nuevo Usuario
-            </button>
-          </div>
-        }
-      />
-      <Toolbar />
+      <div className="max-w-6xl mx-auto p-3 sm:p-4 md:p-6">
+        <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
 
-      {/* Mensajes */}
-      {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg flex justify-between items-center">
-          {error}
-          <button onClick={() => setError(null)} className="text-red-500 hover:text-red-700">
-            <X className="h-4 w-4" />
-          </button>
-        </div>
-      )}
-
-      {success && (
-        <div className="bg-emerald-50 border border-emerald-200 text-emerald-700 px-4 py-3 rounded-lg flex justify-between items-center">
-          {success}
-          <button onClick={() => setSuccess(null)} className="text-emerald-500 hover:text-emerald-700">
-            <X className="h-4 w-4" />
-          </button>
-        </div>
-      )}
-
-      {/* Banner de Solicitudes Pendientes */}
-      {stats.pendientes > 0 && (
-        <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-          <div className="flex items-center gap-3">
-            <div className="p-2.5 bg-amber-100 rounded-xl">
-              <Clock className="h-5 w-5 text-amber-600" />
-            </div>
-            <div>
-              <p className="font-semibold text-amber-800">
-                {stats.pendientes} solicitud{stats.pendientes > 1 ? 'es' : ''} pendiente{stats.pendientes > 1 ? 's' : ''} de aprobación
-              </p>
-              <p className="text-sm text-amber-600">
-                {pendientes.map(u => u.displayName || u.email).join(', ')}
-              </p>
+          {/* §A · BREADCRUMB canon S9.D1 */}
+          <div className="border-b border-slate-200 px-4 sm:px-6 py-2.5 flex items-center gap-3 bg-slate-50">
+            <div className="flex items-center text-[12px] flex-1">
+              <a className="text-slate-500 hover:text-purple-700 cursor-pointer">Inicio</a>
+              <span className="mx-1.5 text-slate-300">›</span>
+              <span className="text-slate-900 font-semibold">Usuarios</span>
             </div>
           </div>
-          <button
-            onClick={() => { setFilterStatus('inactive'); setFilterRole('invitado'); }}
-            className="flex items-center gap-2 px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors text-sm font-medium whitespace-nowrap"
-          >
-            <UserCheck className="h-4 w-4" />
-            Revisar Solicitudes
-          </button>
-        </div>
-      )}
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-white rounded-lg shadow p-4">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-teal-100 rounded-lg">
-              <Users className="h-5 w-5 text-teal-600" />
-            </div>
-            <div>
-              <p className="text-sm text-slate-600">Total Usuarios</p>
-              <p className="text-xl font-bold">{stats.total}</p>
+          {/* §B · HEADER banking-grade · icon purple gradient + h1 + 3-tier acciones */}
+          <div className="px-4 sm:px-6 py-4 sm:py-5 border-b border-slate-100">
+            <div className="flex items-start justify-between gap-3 sm:gap-4 flex-wrap">
+              <div className="flex items-start gap-3 flex-1 min-w-[260px]">
+                <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-br from-purple-500 to-purple-700 flex items-center justify-center text-white flex-shrink-0">
+                  <Users className="w-5 h-5" />
+                </div>
+                <div className="min-w-0">
+                  <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">Usuarios</h1>
+                  <p className="text-[12px] sm:text-[13px] text-slate-500 leading-snug">
+                    Personas internas del negocio · multi-rol + sub-perfiles dinámicos
+                  </p>
+                </div>
+              </div>
+              {/* Acciones 3-tier canon · primary purple + neutral + danger */}
+              <div className="flex items-center gap-1.5 flex-wrap justify-end">
+                <button
+                  type="button"
+                  onClick={fetchUsuarios}
+                  aria-label="Actualizar"
+                  className="text-[11px] font-semibold text-slate-600 hover:bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-lg flex items-center gap-1.5"
+                >
+                  <RefreshCw className="w-3 h-3" />
+                  <span className="hidden sm:inline">Actualizar</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setModalType('disconnect-all-confirm')}
+                  aria-label="Desconectar todas las sesiones"
+                  title="Desconectar todas las sesiones"
+                  className="text-[11px] font-semibold text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 px-3 py-1.5 rounded-lg flex items-center gap-1.5"
+                >
+                  <WifiOff className="w-3 h-3" />
+                  <span className="hidden md:inline">Desconectar Todos</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setModalType('create')}
+                  className="text-[11px] font-bold text-white bg-purple-600 hover:bg-purple-700 px-3 py-1.5 rounded-lg flex items-center gap-1.5"
+                >
+                  <Plus className="w-3 h-3" />
+                  <span className="hidden sm:inline">Nuevo usuario</span>
+                </button>
+              </div>
             </div>
           </div>
-        </div>
 
-        <div className="bg-white rounded-lg shadow p-4">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-emerald-100 rounded-lg">
-              <UserCheck className="h-5 w-5 text-emerald-600" />
+          {/* §C · KPI STRIP canon N1+N2 · 4 cards con gradient + ring colored */}
+          <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-slate-100 grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-3">
+            <div className="bg-gradient-to-br from-purple-50 to-purple-100/40 ring-1 ring-purple-200/50 rounded-2xl p-3 sm:p-4">
+              <div className="flex items-center justify-between mb-1.5">
+                <span className="text-[9px] sm:text-[10px] uppercase tracking-wider text-purple-700 font-bold">TOTAL USUARIOS</span>
+                <Users className="w-3.5 h-3.5 text-purple-700" />
+              </div>
+              <div className="text-xl sm:text-2xl font-bold tabular-nums text-purple-900">{stats.total}</div>
+              <div className="text-[10px] text-purple-700 truncate">
+                {stats.activos} activos · {stats.inactivos} inactivos
+              </div>
             </div>
-            <div>
-              <p className="text-sm text-slate-600">Activos</p>
-              <p className="text-xl font-bold text-emerald-600">{stats.activos}</p>
+            <div className="bg-gradient-to-br from-emerald-50 to-emerald-100/40 ring-1 ring-emerald-200/50 rounded-2xl p-3 sm:p-4">
+              <div className="flex items-center justify-between mb-1.5">
+                <span className="text-[9px] sm:text-[10px] uppercase tracking-wider text-emerald-700 font-bold">ACTIVOS</span>
+                <UserCheck className="w-3.5 h-3.5 text-emerald-700" />
+              </div>
+              <div className="text-xl sm:text-2xl font-bold tabular-nums text-emerald-900">{stats.activos}</div>
+              <div className="text-[10px] text-emerald-700 truncate">
+                {stats.total > 0 ? `${Math.round((stats.activos / stats.total) * 100)}% del total` : '—'}
+              </div>
+            </div>
+            <div className="bg-gradient-to-br from-violet-50 to-violet-100/40 ring-1 ring-violet-200/50 rounded-2xl p-3 sm:p-4">
+              <div className="flex items-center justify-between mb-1.5">
+                <span className="text-[9px] sm:text-[10px] uppercase tracking-wider text-violet-700 font-bold">SOCIOS</span>
+                <Shield className="w-3.5 h-3.5 text-violet-700" />
+              </div>
+              <div className="text-xl sm:text-2xl font-bold tabular-nums text-violet-900">{sociosCount}</div>
+              <div className="text-[10px] text-violet-700 truncate">
+                {sociosCount > 0 ? 'con acceso a módulo Inversionistas' : 'ningún user es socio aún'}
+              </div>
+            </div>
+            <div className="bg-gradient-to-br from-amber-50 to-amber-100/40 ring-1 ring-amber-200/50 rounded-2xl p-3 sm:p-4">
+              <div className="flex items-center justify-between mb-1.5">
+                <span className="text-[9px] sm:text-[10px] uppercase tracking-wider text-amber-700 font-bold">MULTI-ROL</span>
+                <Key className="w-3.5 h-3.5 text-amber-700" />
+              </div>
+              <div className="text-xl sm:text-2xl font-bold tabular-nums text-amber-900">{multiRolCount}</div>
+              <div className="text-[10px] text-amber-700 truncate">
+                {multiRolCount > 0 ? `de ${stats.total} tienen 2+ roles` : 'todos con 1 solo rol'}
+              </div>
             </div>
           </div>
-        </div>
 
-        <div className="bg-white rounded-lg shadow p-4">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-red-100 rounded-lg">
-              <UserX className="h-5 w-5 text-red-600" />
-            </div>
-            <div>
-              <p className="text-sm text-slate-600">Inactivos</p>
-              <p className="text-xl font-bold text-red-600">{stats.inactivos}</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Distribución por Rol */}
-      {Object.keys(roleStats).length > 0 && (
-        <div className="bg-white rounded-lg shadow p-4">
-          <h3 className="text-sm font-medium text-slate-600 mb-3">Distribución por Rol</h3>
-          <div className="flex flex-wrap gap-2">
-            {(Object.entries(roleStats) as [UserRole, number][]).map(([role, count]) => (
-              <span
-                key={role}
-                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium ${roleBadgeColor[role]}`}
+          {/* §D · BANNER · solicitudes pendientes (si las hay) */}
+          {stats.pendientes > 0 && (
+            <div className="bg-amber-50 border-b border-amber-200 px-4 sm:px-6 py-3 flex items-center justify-between gap-3 flex-wrap">
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="p-2 bg-amber-100 rounded-xl flex-shrink-0">
+                  <Clock className="h-4 w-4 text-amber-600" />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-[12px] font-semibold text-amber-800">
+                    {stats.pendientes} solicitud{stats.pendientes > 1 ? 'es' : ''} pendiente{stats.pendientes > 1 ? 's' : ''} de aprobación
+                  </p>
+                  <p className="text-[10px] text-amber-600 truncate">
+                    {pendientes.map((u) => u.displayName || u.email).join(', ')}
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => { setFilterStatus('inactive'); setFilterRole('invitado'); }}
+                className="text-[11px] font-bold text-white bg-amber-600 hover:bg-amber-700 px-3 py-1.5 rounded-lg inline-flex items-center gap-1.5"
               >
-                {ROLE_LABELS[role]}
-                <span className="bg-white/60 px-1.5 py-0.5 rounded-full text-xs font-bold">{count}</span>
-              </span>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Búsqueda y Filtros */}
-      <div className="bg-white rounded-lg shadow p-4">
-        <div className="flex flex-col md:flex-row gap-4">
-          {/* Búsqueda */}
-          <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-            <input
-              type="text"
-              placeholder="Buscar por nombre o email..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
-            />
-          </div>
-
-          {/* Filtro por rol */}
-          <div className="flex items-center gap-2">
-            <Filter className="h-4 w-4 text-slate-400" />
-            <select
-              value={filterRole}
-              onChange={(e) => setFilterRole(e.target.value as UserRole | 'all')}
-              className="px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
-            >
-              <option value="all">Todos los roles</option>
-              <option value="admin">Administradores</option>
-              <option value="gerente">Gerentes</option>
-              <option value="vendedor">Vendedores</option>
-              <option value="comprador">Compradores</option>
-              <option value="almacenero">Almaceneros</option>
-              <option value="finanzas">Finanzas</option>
-              <option value="supervisor">Supervisores</option>
-              <option value="invitado">Invitados</option>
-            </select>
-          </div>
-
-          {/* Filtro por estado */}
-          <div>
-            <select
-              value={filterStatus}
-              onChange={(e) => setFilterStatus(e.target.value as 'all' | 'active' | 'inactive')}
-              className="px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
-            >
-              <option value="all">Todos los estados</option>
-              <option value="active">Activos</option>
-              <option value="inactive">Inactivos</option>
-            </select>
-          </div>
-
-          {/* Limpiar filtros */}
-          {(searchTerm || filterRole !== 'all' || filterStatus !== 'all') && (
-            <button
-              onClick={() => {
-                setSearchTerm('');
-                setFilterRole('all');
-                setFilterStatus('all');
-              }}
-              className="px-3 py-2 text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded-lg"
-            >
-              Limpiar
-            </button>
+                <UserCheck className="h-3 w-3" />
+                Revisar
+              </button>
+            </div>
           )}
-        </div>
 
-        {/* Resultados */}
-        <div className="mt-3 text-sm text-slate-500">
-          Mostrando {filteredUsuarios.length} de {usuarios.length} usuarios
-        </div>
-      </div>
+          {/* §E · MENSAJES error/success */}
+          {error && (
+            <div className="bg-rose-50 border-b border-rose-200 px-4 sm:px-6 py-2.5 flex items-center justify-between gap-2 text-[12px] text-rose-700">
+              <span>{error}</span>
+              <button onClick={() => setError(null)} className="text-rose-500 hover:text-rose-700">
+                <X className="h-3 w-3" />
+              </button>
+            </div>
+          )}
+          {success && (
+            <div className="bg-emerald-50 border-b border-emerald-200 px-4 sm:px-6 py-2.5 flex items-center justify-between gap-2 text-[12px] text-emerald-700">
+              <span>{success}</span>
+              <button onClick={() => setSuccess(null)} className="text-emerald-500 hover:text-emerald-700">
+                <X className="h-3 w-3" />
+              </button>
+            </div>
+          )}
 
-      {/* Users Table */}
-      <div className="bg-white rounded-lg shadow overflow-hidden">
+          {/* §F · BÚSQUEDA + FILTROS canon · chips multi-rol */}
+          <div className="px-4 sm:px-6 py-3 border-b border-slate-100 space-y-2">
+            <div className="flex items-center gap-2 flex-wrap">
+              <div className="flex-1 min-w-[200px] flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5">
+                <Search className="w-3.5 h-3.5 text-slate-500 flex-shrink-0" />
+                <input
+                  type="text"
+                  placeholder="Buscar por nombre · email · DNI"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="flex-1 bg-transparent border-none text-[12px] focus:outline-none"
+                />
+              </div>
+              <select
+                value={filterStatus}
+                onChange={(e) => setFilterStatus(e.target.value as 'all' | 'active' | 'inactive')}
+                className="text-[11px] border border-slate-200 rounded-lg px-2 py-1.5 bg-white focus:outline-none"
+              >
+                <option value="all">Todos los estados</option>
+                <option value="active">Solo activos</option>
+                <option value="inactive">Solo inactivos</option>
+              </select>
+              {(searchTerm || filterRole !== 'all' || filterStatus !== 'all') && (
+                <button
+                  onClick={() => {
+                    setSearchTerm('');
+                    setFilterRole('all');
+                    setFilterStatus('all');
+                  }}
+                  className="text-[11px] text-slate-500 hover:text-slate-900 underline"
+                >
+                  Limpiar
+                </button>
+              )}
+            </div>
+            {/* Chips de rol · scroll-x mobile · canon N6 */}
+            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 -mx-1 px-1" style={{ scrollbarWidth: 'none' }}>
+              <span className="text-[10px] text-slate-500 font-semibold uppercase tracking-wider flex-shrink-0">Rol:</span>
+              <button
+                onClick={() => setFilterRole('all')}
+                className={`text-[10px] px-2 py-1 rounded font-bold whitespace-nowrap transition-colors ${
+                  filterRole === 'all' ? 'bg-purple-100 text-purple-700' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
+                }`}
+              >
+                Todos · {stats.total}
+              </button>
+              {(['admin', 'gerente', 'vendedor', 'comprador', 'almacenero', 'finanzas', 'supervisor', 'socio', 'invitado'] as UserRole[]).map((r) => {
+                const count = roleStats[r] ?? 0;
+                if (count === 0 && filterRole !== r) return null;
+                const isActive = filterRole === r;
+                return (
+                  <button
+                    key={r}
+                    onClick={() => setFilterRole(r)}
+                    className={`text-[10px] px-2 py-1 rounded font-bold whitespace-nowrap transition-colors inline-flex items-center gap-1 ${
+                      isActive ? roleBadgeColor[r] : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
+                    }`}
+                  >
+                    {ROLE_LABELS[r]}
+                    {count > 0 && (
+                      <span className={`text-[9px] ${isActive ? 'bg-white/70' : 'bg-slate-100'} px-1 rounded`}>{count}</span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+            <div className="text-[10px] text-slate-500">
+              Mostrando <strong>{filteredUsuarios.length}</strong> de {usuarios.length} usuarios
+            </div>
+          </div>
+
+      {/* §G · TABLA USUARIOS · DataTable existente envuelto en el shell canon */}
+      <div className="px-4 sm:px-6 py-4">
         <DataTable<UserProfile>
           columns={[
             {
@@ -750,6 +768,10 @@ export const Usuarios: React.FC = () => {
             </div>
           }
         />
+      </div>
+
+          {/* Cierra el shell card canon */}
+        </div>
       </div>
 
       {/* Modal Crear Usuario */}
