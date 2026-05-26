@@ -21,11 +21,15 @@ import { esquemaIncentivoService } from '../../../services/esquemaIncentivo.serv
 import { calculoIncentivoService } from '../../../services/calculoIncentivo.service';
 import { planillaService } from '../../../services/planilla.service';
 import { calcularBonosDelMes, empleadosAplicables } from '../../../utils/incentivoCalculadores';
+import type { DatosFuenteMes } from '../../../utils/incentivoCalculadores';
 import type {
   EsquemaIncentivo,
   EmpleadoConPerfil,
 } from '../../../types/planilla.types';
 import { TIPO_INCENTIVO_LABELS } from '../../../types/planilla.types';
+import { VentaService } from '../../../services/venta.service';
+import { envioCrudService } from '../../../services/envio.crud.service';
+import { OrdenCompraService } from '../../../services/ordenCompra.service';
 import { useAuthStore } from '../../../store/authStore';
 
 interface Props {
@@ -56,6 +60,12 @@ export const CalcularBonosMesModal: React.FC<Props> = ({
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [yaExistenCalculos, setYaExistenCalculos] = useState(false);
+  // chk5.PERSONAS-v5.4 · F7 · pre-load fuentes para motor de cálculo real
+  const [datosFuente, setDatosFuente] = useState<DatosFuenteMes>({
+    ventas: [],
+    envios: [],
+    ordenesCompra: [],
+  });
 
   useEffect(() => {
     if (!isOpen) return;
@@ -63,14 +73,20 @@ export const CalcularBonosMesModal: React.FC<Props> = ({
     (async () => {
       try {
         const fecha = new Date(anio, mes - 1, 15);
-        const [esqVigentes, emps, calculosExistentes] = await Promise.all([
+        const [esqVigentes, emps, calculosExistentes, ventas, envios, ocs] = await Promise.all([
           esquemaIncentivoService.listVigentesEn(fecha),
           planillaService.getEmpleadosActivos(),
           calculoIncentivoService.listMes(mes, anio),
+          // F7: cargar fuentes del mes para motor real (límite generoso · 1 mes
+          // realista no excede 500 docs en cada categoría para Vita Skin)
+          VentaService.getAll(500),
+          envioCrudService.getAll(),
+          OrdenCompraService.getAll(),
         ]);
         setEsquemas(esqVigentes);
         setEmpleados(emps);
         setYaExistenCalculos(calculosExistentes.length > 0);
+        setDatosFuente({ ventas, envios, ordenesCompra: ocs });
       } catch (err) {
         console.error('[CalcularBonosMesModal] error:', err);
       } finally {
@@ -99,10 +115,12 @@ export const CalcularBonosMesModal: React.FC<Props> = ({
     }
     setSubmitting(true);
     try {
-      const calculos = calcularBonosDelMes(esquemas, empleados, mes, anio, userProfile.uid);
+      // F7: pasar datos pre-cargados al motor para cálculos reales
+      const calculos = calcularBonosDelMes(esquemas, empleados, mes, anio, userProfile.uid, datosFuente);
       await calculoIncentivoService.guardarBatch(calculos);
+      const totalPagar = calculos.reduce((s, c) => s + c.bonoCalculado, 0);
       onSuccess?.(
-        `${calculos.length} cálculo${calculos.length === 1 ? '' : 's'} de incentivo generado${calculos.length === 1 ? '' : 's'} para ${MES_NOMBRE[mes - 1]} ${anio}. Pendientes de aprobación gerencial. NOTA: F5 usa motor stub · F7 implementará la lógica real de los 4 tipos.`,
+        `${calculos.length} cálculo${calculos.length === 1 ? '' : 's'} de incentivo generado${calculos.length === 1 ? '' : 's'} para ${MES_NOMBRE[mes - 1]} ${anio} · total estimado S/ ${totalPagar.toLocaleString('es-PE', { minimumFractionDigits: 2 })}. Pendientes de aprobación gerencial.`,
       );
       onClose();
     } catch (err) {
@@ -134,14 +152,14 @@ export const CalcularBonosMesModal: React.FC<Props> = ({
       loading={submitting}
       disabled={totalCalculosAGenerar === 0 || loading}
     >
-      {/* Banner stub F7 */}
-      <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mb-4 flex items-start gap-2">
-        <Info className="w-4 h-4 text-amber-700 flex-shrink-0 mt-0.5" />
-        <div className="text-[11px] text-amber-900">
-          <strong>Motor de cálculo · STUB v5.4 (F5).</strong> Los cálculos se generan con
-          valor S/ 0 hasta que F7 implemente la lógica real de los 4 tipos (comisión sobre
-          ventas · bono por meta logística · bono por KPI finanzas · bono fijo gerencia).
-          Esto te permite probar el workflow completo end-to-end ya.
+      {/* F7: motor de cálculo REAL · pre-carga ventas/envíos/OCs del mes */}
+      <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-3 mb-4 flex items-start gap-2">
+        <Info className="w-4 h-4 text-emerald-700 flex-shrink-0 mt-0.5" />
+        <div className="text-[11px] text-emerald-900">
+          <strong>Motor de cálculo activo.</strong> Comisiones se calculan sobre ventas del mes
+          (creadoPor=empleado). Bonos meta sobre envíos/OCs reales del mes. Bonos KPI requieren
+          validación gerencial manual (devuelve S/ 0 + nota). Bonos fijos aplican según
+          frecuencia (mensual/trimestral/semestral/anual).
         </div>
       </div>
 
