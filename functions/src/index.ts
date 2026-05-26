@@ -75,6 +75,25 @@ export { geocodificaCoordenadasVenta } from "./geocoding.functions";
 // ============================================================
 export { generarDescripcionProducto } from "./productos/generarDescripcionProducto";
 
+// ============================================================
+// chk5.F4-USERS (2026-05-25) · MÓDULO /usuarios completo
+// 10 Cloud Functions · invitaciones · signup · aprobación · sesiones · cron
+// ============================================================
+export {
+  inviteUser,
+  cancelInvitation,
+  resendInvitation,
+  approveUser,
+  rejectUser,
+  acceptInvitation,
+  validateSelfSignup,
+  completarSelfSignup,
+  desconectarSesion,
+  desconectarTodasSesiones,
+  desconectarTodasSistema,
+  scheduledAutoRejectExpired,
+} from "./users";
+
 const db = admin.firestore();
 
 // ============================================================
