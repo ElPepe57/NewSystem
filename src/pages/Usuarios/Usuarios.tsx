@@ -22,7 +22,9 @@ import TabSocios from '../../components/modules/usuarios/TabSocios';
 import TabPlanilla from '../../components/modules/usuarios/TabPlanilla';
 import TabAccesos from '../../components/modules/usuarios/TabAccesos';
 import TabConfiguracion from '../../components/modules/usuarios/TabConfiguracion';
-import { Briefcase as BriefcaseIcon, BriefcaseBusiness, ShieldCheck, Settings as SettingsIcon, LayoutDashboard } from 'lucide-react';
+import InvitarPorEmailModal from '../../components/modules/usuarios/InvitarPorEmailModal';
+import Ficha360Modal from './Ficha360/Ficha360Modal';
+import { Briefcase as BriefcaseIcon, BriefcaseBusiness, ShieldCheck, Settings as SettingsIcon, LayoutDashboard, MailPlus } from 'lucide-react';
 
 type TabActiva = 'resumen' | 'socios' | 'planilla' | 'accesos' | 'configuracion';
 
@@ -77,6 +79,9 @@ export const Usuarios: React.FC = () => {
 
   // chk5.F4-USERS · tabActiva canon mockup integral
   const [tabActiva, setTabActiva] = useState<TabActiva>('resumen');
+  // chk5.F4-USERS · modal Invitar por email + Ficha 360 modal
+  const [invitarOpen, setInvitarOpen] = useState(false);
+  const [fichaModalUid, setFichaModalUid] = useState<string | null>(null);
 
   const fetchUsuarios = async () => {
     setLoading(true);
@@ -549,6 +554,15 @@ export const Usuarios: React.FC = () => {
                 </button>
                 <button
                   type="button"
+                  onClick={() => setInvitarOpen(true)}
+                  className="text-[11px] font-semibold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 px-3 py-1.5 rounded-lg flex items-center gap-1.5"
+                  title="Invitar por email · canon mockup ACTO 2.2"
+                >
+                  <MailPlus className="w-3 h-3" />
+                  <span className="hidden sm:inline">Invitar por email</span>
+                </button>
+                <button
+                  type="button"
                   onClick={() => setModalType('create')}
                   className="text-[11px] font-bold text-white bg-purple-600 hover:bg-purple-700 px-3 py-1.5 rounded-lg flex items-center gap-1.5"
                 >
@@ -854,9 +868,9 @@ export const Usuarios: React.FC = () => {
                       </button>
                     )}
                     <button
-                      onClick={() => navigate(`/usuarios/${u.uid}/ficha`)}
+                      onClick={() => setFichaModalUid(u.uid)}
                       className="inline-flex items-center gap-1 px-2.5 py-1.5 text-[11px] font-semibold text-slate-600 hover:text-purple-700 hover:bg-purple-50 rounded"
-                      title="Ver ficha 360"
+                      title="Ver ficha 360 (modal · canon F6.A)"
                     >
                       <Eye className="w-3 h-3" />
                       <span className="hidden sm:inline">Ficha 360</span>
@@ -1193,8 +1207,9 @@ export const Usuarios: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => {
+                    const uid = selectedUser.uid;
                     setModalType('none');
-                    navigate(`/usuarios/${selectedUser.uid}/ficha`);
+                    setFichaModalUid(uid);
                   }}
                   className="text-[11px] font-semibold text-purple-700 hover:bg-purple-50 border border-purple-200 px-3 py-1.5 rounded inline-flex items-center gap-1.5"
                 >
@@ -1561,6 +1576,32 @@ export const Usuarios: React.FC = () => {
           ))}
         </div>
       </div>
+
+      {/* chk5.F4-USERS · Modal "Invitar por email" (canon ACTO 2.2 mockup integral) */}
+      <InvitarPorEmailModal
+        isOpen={invitarOpen}
+        onClose={() => setInvitarOpen(false)}
+        onSuccess={() => {
+          setSuccess('Invitación enviada · ver tracking en Configuración → Invitaciones');
+          fetchUsuarios();
+        }}
+      />
+
+      {/* chk5.F4-USERS · Ficha 360 como MODAL (canon ACTO 4 mockup · F6.A) */}
+      <Ficha360Modal
+        isOpen={fichaModalUid !== null}
+        onClose={() => setFichaModalUid(null)}
+        uid={fichaModalUid}
+        onRequestEdit={(p) => {
+          setFichaModalUid(null);
+          handleOpenEditPermisos(p);
+        }}
+        onRequestDisconnectAll={(p) => {
+          setSelectedUser(p);
+          setFichaModalUid(null);
+          setModalType('disconnect-all-confirm');
+        }}
+      />
     </PageShell>
   );
 };
