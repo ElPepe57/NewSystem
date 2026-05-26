@@ -589,6 +589,54 @@ service cloud.firestore {
     }
 
     // ============================================================
+    // chk5.PERSONAS-v5.4 · F3 · PLANILLA v5.4 (2026-05-26)
+    // 5 colecciones nuevas · todas con permisos consistentes:
+    //  - read: admin · gerente · finanzas
+    //  - write (create/update): admin · gerente
+    //  - delete: solo admin (audit trail · soft delete preferido)
+    // ============================================================
+
+    /** Historial de variaciones salariales · trazabilidad ajustes/promociones */
+    match /historialSalarial/{docId} {
+      allow read: if hasAnyRole(['admin', 'gerente', 'finanzas']);
+      allow create: if hasAnyRole(['admin', 'gerente']);
+      allow update: if hasAnyRole(['admin', 'gerente']);
+      allow delete: if isAdmin();
+    }
+
+    /** Esquemas de incentivo (templates) · 4 tipos canon */
+    match /esquemasIncentivo/{docId} {
+      allow read: if hasAnyRole(['admin', 'gerente', 'finanzas']);
+      allow create: if hasAnyRole(['admin', 'gerente']);
+      allow update: if hasAnyRole(['admin', 'gerente']);
+      allow delete: if isAdmin();
+    }
+
+    /** Cálculos mensuales de incentivos · workflow calculado→aprobado→en_boleta */
+    match /calculosIncentivo/{docId} {
+      allow read: if hasAnyRole(['admin', 'gerente', 'finanzas']);
+      allow create: if hasAnyRole(['admin', 'gerente']);
+      allow update: if hasAnyRole(['admin', 'gerente']);
+      allow delete: if isAdmin();
+    }
+
+    /** Liquidaciones por baja de empleado · workflow borrador→aprobada→pagada */
+    match /liquidacionesEmpleado/{docId} {
+      allow read: if hasAnyRole(['admin', 'gerente', 'finanzas']);
+      allow create: if hasAnyRole(['admin', 'gerente']);
+      allow update: if hasAnyRole(['admin', 'gerente']);
+      allow delete: if isAdmin();
+    }
+
+    /** Gratificaciones jul/dic · Vita Skin NO paga CTS */
+    match /gratificaciones/{docId} {
+      allow read: if hasAnyRole(['admin', 'gerente', 'finanzas']);
+      allow create: if hasAnyRole(['admin', 'gerente']);
+      allow update: if hasAnyRole(['admin', 'gerente']);
+      allow delete: if isAdmin();
+    }
+
+    // ============================================================
     // S55 · CUENTA CORRIENTE UNIFICADA
     // ============================================================
     // Doc raíz por entidad (cliente/proveedor/colaborador/empleado).

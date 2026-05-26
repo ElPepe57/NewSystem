@@ -112,6 +112,38 @@ export const COLLECTIONS = {
   BOLETAS: 'boletas',
   ADELANTOS_NOMINA: 'adelantosNomina',
 
+  // === chk5.PERSONAS-v5.4 · F3 · Planilla v5.4 (2026-05-26) ===
+  /**
+   * Historial salarial · variaciones de sueldo por empleado.
+   * Doc id auto-generado. FK userId. Trazabilidad de promociones, ajustes,
+   * méritos. Lectura para timeline en Ficha 360. Ver planilla.types.ts::HistorialSalarial.
+   */
+  HISTORIAL_SALARIAL: 'historialSalarial',
+  /**
+   * Esquemas de incentivo (templates) · 4 tipos (comisión · bono_meta ·
+   * bono_kpi · bono_fijo). Configurables por rol o lista de usuarios.
+   * Doc id auto-generado. Ver planilla.types.ts::EsquemaIncentivo.
+   */
+  ESQUEMAS_INCENTIVO: 'esquemasIncentivo',
+  /**
+   * Cálculos mensuales de incentivos · resultado de aplicar un esquema a
+   * un usuario en un mes específico. Workflow: calculado → aprobado/rechazado
+   * → incluido_en_boleta. Ver planilla.types.ts::CalculoIncentivoMes.
+   */
+  CALCULOS_INCENTIVO: 'calculosIncentivo',
+  /**
+   * Liquidaciones por baja de empleado · conceptos + neto + estado.
+   * Workflow: borrador → aprobada → pagada (genera movimiento tesorería).
+   * Ver planilla.types.ts::LiquidacionEmpleado.
+   */
+  LIQUIDACIONES_EMPLEADO: 'liquidacionesEmpleado',
+  /**
+   * Gratificaciones · solo Julio y Diciembre (Perú · Vita Skin NO paga CTS).
+   * Doc id `GRAT-{anio}-{mes}-{seq}`. Genera boleta + gasto + movimiento
+   * cuando se aprueba. Ver planilla.types.ts::Gratificacion.
+   */
+  GRATIFICACIONES: 'gratificaciones',
+
   // === Contabilidad ===
   CIERRES_CONTABLES: 'cierresContables', // @deprecated · reemplazado por REVISIONES_MENSUALES (chk5.E-RM)
   REVISIONES_MENSUALES: 'revisionesMensuales', // chk5.E-RM · revisión informal sin bloqueo
