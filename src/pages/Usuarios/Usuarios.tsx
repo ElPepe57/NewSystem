@@ -24,11 +24,21 @@ import TabAccesos from '../../components/modules/usuarios/TabAccesos';
 import TabConfiguracion from '../../components/modules/usuarios/TabConfiguracion';
 import InvitarPorEmailModal from '../../components/modules/usuarios/InvitarPorEmailModal';
 import Ficha360Modal from './Ficha360/Ficha360Modal';
+// chk5.F4-USERS · 2026-05-26 · Fase 5-BIS · 8 modales operativos canon FormModalV2
+import NuevoUsuarioModal from '../../components/modules/usuarios/NuevoUsuarioModal';
+import EditarUsuarioModal from '../../components/modules/usuarios/EditarUsuarioModal';
+import AprobarUsuarioModal from '../../components/modules/usuarios/AprobarUsuarioModal';
+import RechazarUsuarioModal from '../../components/modules/usuarios/RechazarUsuarioModal';
+import ResetPasswordModal from '../../components/modules/usuarios/ResetPasswordModal';
+import EliminarUsuarioModal from '../../components/modules/usuarios/EliminarUsuarioModal';
+import DesconectarSesionModal from '../../components/modules/usuarios/DesconectarSesionModal';
+import DesconectarTodasModal from '../../components/modules/usuarios/DesconectarTodasModal';
 import { Briefcase as BriefcaseIcon, BriefcaseBusiness, ShieldCheck, Settings as SettingsIcon, LayoutDashboard, MailPlus } from 'lucide-react';
 
 type TabActiva = 'resumen' | 'socios' | 'planilla' | 'accesos' | 'configuracion';
 
-type ModalType = 'none' | 'create' | 'edit-permisos' | 'view-permisos' | 'delete-confirm' | 'reset-password' | 'disconnect-confirm' | 'disconnect-all-confirm' | 'approve-user';
+// chk5.F4-USERS · 2026-05-26 · agregado 'reject-user' para canon ACTO 5.2
+type ModalType = 'none' | 'create' | 'edit-permisos' | 'view-permisos' | 'delete-confirm' | 'reset-password' | 'disconnect-confirm' | 'disconnect-all-confirm' | 'approve-user' | 'reject-user';
 
 export const Usuarios: React.FC = () => {
   const navigate = useNavigate();
@@ -971,591 +981,83 @@ export const Usuarios: React.FC = () => {
         </div>
       </div>
 
-      {/* Modal Crear Usuario */}
-      <Modal
+      {/* ════════════════════════════════════════════════════════════════
+           chk5.F4-USERS · 2026-05-26 · Fase 5-BIS · 8 MODALES CANON FormModalV2
+           Reemplazo del JSX legacy · cada modal es un componente propio en
+           components/modules/usuarios/ · canon ACTO 2.1/3.1/5.1-5.6 v2.
+           ════════════════════════════════════════════════════════════════ */}
+
+      {/* 2.1 · Nuevo usuario directo */}
+      <NuevoUsuarioModal
         isOpen={modalType === 'create'}
         onClose={() => setModalType('none')}
-        title="Crear Nuevo Usuario"
-        subtitle="Ingresa los datos del nuevo usuario"
-        size="md"
-      >
-              <form onSubmit={handleCreateUser} className="space-y-4">
-                <div>
-                  <label htmlFor="usuario-nombre" className="block text-sm font-medium text-slate-700 mb-1">
-                    Nombre completo
-                  </label>
-                  <input
-                    id="usuario-nombre"
-                    type="text"
-                    value={newUser.displayName}
-                    onChange={(e) => setNewUser({ ...newUser, displayName: e.target.value })}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
-                    required
-                  />
-                </div>
+        onSuccess={(msg) => { setSuccess(msg); fetchUsuarios(); }}
+        onError={setError}
+      />
 
-                <div>
-                  <label htmlFor="usuario-cargo" className="block text-sm font-medium text-slate-700 mb-1">
-                    Cargo / Puesto
-                  </label>
-                  <input
-                    id="usuario-cargo"
-                    type="text"
-                    value={newUser.cargo}
-                    onChange={(e) => setNewUser({ ...newUser, cargo: e.target.value })}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
-                    placeholder="Ej: Socio fundador, Gerente comercial, Asistente"
-                  />
-                </div>
-
-                <div>
-                  <label htmlFor="usuario-email" className="block text-sm font-medium text-slate-700 mb-1">
-                    Email
-                  </label>
-                  <input
-                    id="usuario-email"
-                    type="email"
-                    value={newUser.email}
-                    onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label htmlFor="usuario-password" className="block text-sm font-medium text-slate-700 mb-1">
-                    Contraseña
-                  </label>
-                  <div className="relative">
-                    <input
-                      id="usuario-password"
-                      type={showPassword ? 'text' : 'password'}
-                      value={newUser.password}
-                      onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
-                      className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 pr-10"
-                      required
-                      minLength={6}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
-                      aria-label={showPassword ? 'Ocultar contrasena' : 'Mostrar contrasena'}
-                    >
-                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                    </button>
-                  </div>
-                  <p className="text-xs text-slate-500 mt-1">Mínimo 6 caracteres</p>
-                </div>
-
-                <div>
-                  <label htmlFor="usuario-rol" className="block text-sm font-medium text-slate-700 mb-1">
-                    Rol
-                  </label>
-                  <select
-                    id="usuario-rol"
-                    value={newUser.role}
-                    onChange={(e) => setNewUser({ ...newUser, role: e.target.value as UserRole })}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
-                  >
-                    {(Object.entries(ROLE_LABELS) as [UserRole, string][]).map(([role, label]) => (
-                      <option key={role} value={role}>{label}</option>
-                    ))}
-                  </select>
-                  {newUser.role && (
-                    <p className="text-xs text-slate-500 mt-1">{ROLE_DESCRIPTIONS[newUser.role]}</p>
-                  )}
-                </div>
-
-                <div className="bg-sky-50 border border-sky-200 rounded-lg p-3 text-sm text-sky-800">
-                  <strong>Info:</strong> El usuario recibirá acceso con los permisos predeterminados del rol seleccionado.
-                  Puedes personalizar los permisos después desde la opción "Editar permisos".
-                </div>
-
-                <div className="flex justify-end gap-2 pt-4">
-                  <button
-                    type="button"
-                    onClick={() => setModalType('none')}
-                    className="px-4 py-2 text-slate-600 hover:text-slate-800"
-                  >
-                    Cancelar
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={saving}
-                    className="flex items-center gap-2 px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 disabled:opacity-50"
-                  >
-                    {saving ? (
-                      <RefreshCw className="h-4 w-4 animate-spin" />
-                    ) : (
-                      <Plus className="h-4 w-4" />
-                    )}
-                    Crear Usuario
-                  </button>
-                </div>
-              </form>
-      </Modal>
-
-      {/* chk5.F3-ADAPT · Modal Editar Usuario · multi-rol + tabs dinámicas para sub-perfiles */}
-      <Modal
+      {/* 3.1 · Editar usuario (Camino 3 híbrido) */}
+      <EditarUsuarioModal
         isOpen={modalType === 'edit-permisos' && !!selectedUser}
         onClose={() => setModalType('none')}
-        title={`Editar usuario: ${selectedUser?.displayName ?? ''}`}
-        subtitle={selectedUser?.email}
-        size="lg"
-      >
-        {(() => {
-          if (!selectedUser) return null;
-          const isSelf = selectedUser.uid === currentUser?.uid;
-          const tieneSocio = editRoles.includes('socio');
-          const tieneRolPlanilla = editRoles.some((r) =>
-            (['gerente', 'vendedor', 'comprador', 'almacenero', 'finanzas', 'supervisor'] as UserRole[]).includes(r)
-          );
+        user={selectedUser}
+        onSuccess={(msg) => { setSuccess(msg); fetchUsuarios(); }}
+        onError={setError}
+        onRequestDelete={(u) => { setSelectedUser(u); setModalType('delete-confirm'); }}
+      />
 
-          return (
-            <div>
-              {/* Tabs internas · dinámicas según roles asignados */}
-              <div className="border-b border-slate-200 mb-4 flex items-center gap-1 overflow-x-auto">
-                <button
-                  type="button"
-                  onClick={() => setEditActiveTab('roles')}
-                  className={`px-3 py-2 text-[12px] border-b-2 whitespace-nowrap font-semibold ${
-                    editActiveTab === 'roles'
-                      ? 'border-purple-600 text-purple-700'
-                      : 'border-transparent text-slate-600 hover:text-slate-900'
-                  }`}
-                >
-                  <Shield className="w-3 h-3 inline mr-1" /> Roles + accesos
-                </button>
-                {tieneRolPlanilla && (
-                  <button
-                    type="button"
-                    onClick={() => setEditActiveTab('laborales')}
-                    className={`px-3 py-2 text-[12px] border-b-2 whitespace-nowrap font-semibold ${
-                      editActiveTab === 'laborales'
-                        ? 'border-sky-600 text-sky-700'
-                        : 'border-transparent text-slate-600 hover:text-slate-900'
-                    }`}
-                  >
-                    💼 Datos laborales
-                    {!editDatosLab && (
-                      <span className="ml-1 inline-block w-1.5 h-1.5 bg-amber-500 rounded-full" title="Sin completar"></span>
-                    )}
-                  </button>
-                )}
-                {tieneSocio && (
-                  <button
-                    type="button"
-                    onClick={() => setEditActiveTab('socio')}
-                    className={`px-3 py-2 text-[12px] border-b-2 whitespace-nowrap font-semibold ${
-                      editActiveTab === 'socio'
-                        ? 'border-violet-600 text-violet-700'
-                        : 'border-transparent text-slate-600 hover:text-slate-900'
-                    }`}
-                  >
-                    🏛 Datos de socio
-                    {!editDatosSoc && (
-                      <span className="ml-1 inline-block w-1.5 h-1.5 bg-amber-500 rounded-full" title="Sin completar"></span>
-                    )}
-                  </button>
-                )}
-              </div>
-
-              {/* Body por tab · max-h con scroll · botón "Ver ficha 360" pegado abajo */}
-              <div className="max-h-[60vh] overflow-y-auto pr-1">
-                {/* Tab Roles + accesos */}
-                {editActiveTab === 'roles' && (
-                  <div className="space-y-4">
-                    {isSelf && (
-                      <div className="bg-amber-50 border border-amber-200 rounded-lg p-2.5 text-[11px] text-amber-900">
-                        ⚠ No podés cambiar tus propios roles por seguridad · solo otro admin puede modificarlos.
-                      </div>
-                    )}
-                    <RolesMultiSelect
-                      value={editRoles}
-                      onChange={setEditRoles}
-                      disabled={isSelf}
-                    />
-                  </div>
-                )}
-
-                {/* Tab Datos laborales · solo si tiene rol planilla */}
-                {editActiveTab === 'laborales' && tieneRolPlanilla && (
-                  <DatosLaboralesForm
-                    initialData={editDatosLab ?? undefined}
-                    onChange={(data, valid) => {
-                      setPendingDatosLab(data);
-                      setDatosLabValid(valid);
-                    }}
-                  />
-                )}
-
-                {/* Tab Datos de socio · solo si tiene rol socio */}
-                {editActiveTab === 'socio' && tieneSocio && (
-                  <DatosSocioForm
-                    initialData={editDatosSoc ?? undefined}
-                    onChange={(data, valid) => {
-                      setPendingDatosSoc(data);
-                      setDatosSocValid(valid);
-                    }}
-                  />
-                )}
-              </div>
-
-              {/* Footer · cancelar + guardar + ficha 360 */}
-              <div className="flex justify-between items-center gap-2 pt-4 border-t mt-4">
-                <button
-                  type="button"
-                  onClick={() => {
-                    const uid = selectedUser.uid;
-                    setModalType('none');
-                    setFichaModalUid(uid);
-                  }}
-                  className="text-[11px] font-semibold text-purple-700 hover:bg-purple-50 border border-purple-200 px-3 py-1.5 rounded inline-flex items-center gap-1.5"
-                >
-                  <Eye className="w-3 h-3" /> Ver ficha 360
-                </button>
-                <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setModalType('none')}
-                    className="px-4 py-2 text-slate-600 hover:text-slate-800 text-[12px]"
-                  >
-                    Cancelar
-                  </button>
-                  <button
-                    onClick={handleSavePermisos}
-                    disabled={saving}
-                    className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 text-[12px] font-bold"
-                  >
-                    {saving ? <RefreshCw className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-                    Guardar cambios
-                  </button>
-                </div>
-              </div>
-            </div>
-          );
-        })()}
-      </Modal>
-
-      {/* Modal Confirmar Eliminación */}
-      <Modal
-        isOpen={modalType === 'delete-confirm' && !!selectedUser}
-        onClose={() => setModalType('none')}
-        title="Eliminar Usuario"
-        subtitle="Esta accion no se puede deshacer"
-        size="md"
-      >
-              <div className="flex items-center gap-4 mb-4">
-                <div className="p-3 bg-red-100 rounded-full">
-                  <AlertTriangle className="h-6 w-6 text-red-600" />
-                </div>
-                <div>
-                  <h3 className="text-lg font-bold text-slate-900">Eliminar Usuario</h3>
-                  <p className="text-sm text-slate-500">Esta accion no se puede deshacer</p>
-                </div>
-              </div>
-
-              <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
-                <p className="text-sm text-red-800">
-                  Estás a punto de eliminar permanentemente al usuario:
-                </p>
-                <p className="font-medium text-red-900 mt-2">
-                  {selectedUser?.displayName} ({selectedUser?.email})
-                </p>
-                <p className="text-xs text-red-700 mt-2">
-                  Se eliminará de Firebase Auth y todos sus datos de Firestore.
-                </p>
-              </div>
-
-              <div className="flex justify-end gap-2">
-                <button
-                  type="button"
-                  onClick={() => setModalType('none')}
-                  className="px-4 py-2 text-slate-600 hover:text-slate-800"
-                >
-                  Cancelar
-                </button>
-                <button
-                  onClick={handleDeleteUser}
-                  disabled={saving}
-                  className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50"
-                >
-                  {saving ? (
-                    <RefreshCw className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <Trash2 className="h-4 w-4" />
-                  )}
-                  Eliminar Usuario
-                </button>
-              </div>
-      </Modal>
-
-      {/* Modal Resetear Contraseña */}
-      <Modal
-        isOpen={modalType === 'reset-password' && !!selectedUser}
-        onClose={() => setModalType('none')}
-        title="Resetear Contrasena"
-        subtitle={selectedUser?.displayName}
-        size="md"
-      >
-              <div className="space-y-4">
-                <div>
-                  <label htmlFor="reset-nueva-password" className="block text-sm font-medium text-slate-700 mb-1">
-                    Nueva contraseña
-                  </label>
-                  <div className="relative">
-                    <input
-                      id="reset-nueva-password"
-                      type={showPassword ? 'text' : 'password'}
-                      value={newPassword}
-                      onChange={(e) => setNewPassword(e.target.value)}
-                      className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 pr-10"
-                      placeholder="Mínimo 6 caracteres"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
-                      aria-label={showPassword ? 'Ocultar contrasena' : 'Mostrar contrasena'}
-                    >
-                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                    </button>
-                  </div>
-                </div>
-
-                <div>
-                  <label htmlFor="reset-confirmar-password" className="block text-sm font-medium text-slate-700 mb-1">
-                    Confirmar contraseña
-                  </label>
-                  <input
-                    id="reset-confirmar-password"
-                    type={showPassword ? 'text' : 'password'}
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
-                    placeholder="Repite la contraseña"
-                  />
-                </div>
-
-                {newPassword && confirmPassword && newPassword !== confirmPassword && (
-                  <p className="text-sm text-red-600">Las contraseñas no coinciden</p>
-                )}
-              </div>
-
-              <div className="flex justify-end gap-2 pt-6">
-                <button
-                  type="button"
-                  onClick={() => setModalType('none')}
-                  className="px-4 py-2 text-slate-600 hover:text-slate-800"
-                >
-                  Cancelar
-                </button>
-                <button
-                  onClick={handleResetPassword}
-                  disabled={saving || !newPassword || newPassword !== confirmPassword || newPassword.length < 6}
-                  className="flex items-center gap-2 px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 disabled:opacity-50"
-                >
-                  {saving ? (
-                    <RefreshCw className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <Key className="h-4 w-4" />
-                  )}
-                  Cambiar Contraseña
-                </button>
-              </div>
-      </Modal>
-
-      {/* Modal Confirmar Desconexion Individual */}
-      <Modal
-        isOpen={modalType === 'disconnect-confirm' && !!selectedUser}
-        onClose={() => setModalType('none')}
-        title="Desconectar Usuario"
-        subtitle="Terminara la sesion activa del usuario"
-        size="md"
-      >
-              <div className="flex items-center gap-4 mb-4">
-                <div className="p-3 bg-orange-100 rounded-full">
-                  <LogOut className="h-6 w-6 text-orange-600" />
-                </div>
-              </div>
-
-              <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 mb-6">
-                <p className="text-sm text-orange-800">
-                  Se cerrará la sesión activa de:
-                </p>
-                <p className="font-medium text-orange-900 mt-2">
-                  {selectedUser?.displayName} ({selectedUser?.email})
-                </p>
-                <p className="text-xs text-orange-700 mt-2">
-                  El usuario deberá iniciar sesión nuevamente para acceder al sistema.
-                </p>
-              </div>
-
-              <div className="flex justify-end gap-2">
-                <button
-                  type="button"
-                  onClick={() => setModalType('none')}
-                  className="px-4 py-2 text-slate-600 hover:text-slate-800"
-                >
-                  Cancelar
-                </button>
-                <button
-                  onClick={handleDisconnectUser}
-                  disabled={saving}
-                  className="flex items-center gap-2 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 disabled:opacity-50"
-                >
-                  {saving ? (
-                    <RefreshCw className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <LogOut className="h-4 w-4" />
-                  )}
-                  Desconectar
-                </button>
-              </div>
-      </Modal>
-
-      {/* Modal Confirmar Desconexion de TODOS */}
-      <Modal
-        isOpen={modalType === 'disconnect-all-confirm'}
-        onClose={() => setModalType('none')}
-        title="Desconectar Todos"
-        subtitle="Terminara todas las sesiones activas"
-        size="md"
-      >
-              <div className="flex items-center gap-4 mb-4">
-                <div className="p-3 bg-red-100 rounded-full">
-                  <WifiOff className="h-6 w-6 text-red-600" />
-                </div>
-              </div>
-
-              <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
-                <p className="text-sm text-red-800">
-                  Se cerrarán las sesiones de <strong>todos los usuarios</strong> excepto la tuya.
-                </p>
-                <p className="text-xs text-red-700 mt-2">
-                  Cada usuario deberá iniciar sesión nuevamente. Tu sesión no se verá afectada.
-                </p>
-              </div>
-
-              <div className="flex justify-end gap-2">
-                <button
-                  type="button"
-                  onClick={() => setModalType('none')}
-                  className="px-4 py-2 text-slate-600 hover:text-slate-800"
-                >
-                  Cancelar
-                </button>
-                <button
-                  onClick={handleDisconnectAll}
-                  disabled={saving}
-                  className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50"
-                >
-                  {saving ? (
-                    <RefreshCw className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <WifiOff className="h-4 w-4" />
-                  )}
-                  Desconectar Todos
-                </button>
-              </div>
-      </Modal>
-
-      {/* Modal Aprobar Usuario */}
-      <Modal
+      {/* 5.1 · Aprobar usuario · multi-rol enriquecido */}
+      <AprobarUsuarioModal
         isOpen={modalType === 'approve-user' && !!selectedUser}
         onClose={() => setModalType('none')}
-        title="Aprobar Solicitud de Acceso"
-        subtitle="Asigna un rol para activar la cuenta"
-        size="md"
-      >
-              <div className="flex items-center gap-3 mb-6">
-                <div className="p-3 bg-emerald-100 rounded-xl">
-                  <UserCheck className="h-6 w-6 text-emerald-600" />
-                </div>
-              </div>
+        user={selectedUser}
+        onSuccess={(msg) => { setSuccess(msg); fetchUsuarios(); }}
+        onError={setError}
+      />
 
-              {/* Info del usuario */}
-              <div className="bg-slate-50 rounded-lg p-4 mb-6">
-                <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-full bg-amber-100 flex items-center justify-center">
-                    <span className="text-amber-700 font-bold">
-                      {selectedUser?.displayName?.charAt(0).toUpperCase() || 'U'}
-                    </span>
-                  </div>
-                  <div>
-                    <p className="font-medium text-slate-900">{selectedUser?.displayName}</p>
-                    <p className="text-sm text-slate-500">{selectedUser?.email}</p>
-                  </div>
-                </div>
-                {selectedUser?.fechaCreacion && (
-                  <p className="text-xs text-slate-400 mt-3">
-                    Registrado el {new Date(selectedUser.fechaCreacion.toDate()).toLocaleDateString('es-PE', {
-                      day: '2-digit',
-                      month: 'long',
-                      year: 'numeric',
-                      hour: '2-digit',
-                      minute: '2-digit'
-                    })}
-                  </p>
-                )}
-              </div>
+      {/* 5.2 · Rechazar usuario · typed-confirm + motivo */}
+      <RechazarUsuarioModal
+        isOpen={modalType === 'reject-user' && !!selectedUser}
+        onClose={() => setModalType('none')}
+        user={selectedUser}
+        onSuccess={(msg) => { setSuccess(msg); fetchUsuarios(); }}
+        onError={setError}
+      />
 
-              {/* Selector de Rol */}
-              <div className="mb-6">
-                <label className="block text-sm font-medium text-slate-700 mb-3">
-                  Asignar Rol
-                </label>
-                <div className="grid grid-cols-2 gap-2">
-                  {(Object.entries(ROLE_LABELS) as [UserRole, string][])
-                    .filter(([role]) => role !== 'invitado' && role !== 'admin')
-                    .map(([role, label]) => (
-                      <button
-                        key={role}
-                        type="button"
-                        onClick={() => setApproveRole(role)}
-                        className={`px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
-                          approveRole === role
-                            ? 'bg-teal-600 text-white shadow-md ring-2 ring-teal-300'
-                            : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-                        }`}
-                      >
-                        {label}
-                      </button>
-                    ))}
-                </div>
-                <div className="mt-3 bg-sky-50 border border-sky-200 rounded-lg p-3">
-                  <p className="text-xs text-sky-800">
-                    <strong>{ROLE_LABELS[approveRole]}:</strong> {ROLE_DESCRIPTIONS[approveRole]}
-                  </p>
-                  <p className="text-[10px] text-sky-600 mt-1">
-                    {DEFAULT_PERMISOS[approveRole].length} permisos predeterminados
-                  </p>
-                </div>
-              </div>
+      {/* 5.3 · Reset password manual */}
+      <ResetPasswordModal
+        isOpen={modalType === 'reset-password' && !!selectedUser}
+        onClose={() => setModalType('none')}
+        user={selectedUser}
+        onSuccess={setSuccess}
+        onError={setError}
+      />
 
-              <div className="flex justify-end gap-2 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setModalType('none')}
-                  className="px-4 py-2 text-slate-600 hover:text-slate-800 rounded-lg"
-                >
-                  Cancelar
-                </button>
-                <button
-                  onClick={handleApproveUser}
-                  disabled={saving}
-                  className="flex items-center gap-2 px-5 py-2.5 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 disabled:opacity-50 font-medium transition-colors"
-                >
-                  {saving ? (
-                    <RefreshCw className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <CheckCircle className="h-4 w-4" />
-                  )}
-                  Aprobar y Activar
-                </button>
-              </div>
-      </Modal>
+      {/* 5.4 · Desconectar todas las sesiones del usuario */}
+      <DesconectarSesionModal
+        isOpen={modalType === 'disconnect-confirm' && !!selectedUser}
+        onClose={() => setModalType('none')}
+        user={selectedUser}
+        onSuccess={setSuccess}
+        onError={setError}
+      />
+
+      {/* 5.5 · Eliminar usuario · typed-confirm email */}
+      <EliminarUsuarioModal
+        isOpen={modalType === 'delete-confirm' && !!selectedUser}
+        onClose={() => setModalType('none')}
+        user={selectedUser}
+        onSuccess={(msg) => { setSuccess(msg); fetchUsuarios(); }}
+        onError={setError}
+      />
+
+      {/* 5.6 · Desconectar TODAS las sesiones del SISTEMA · emergencia */}
+      <DesconectarTodasModal
+        isOpen={modalType === 'disconnect-all-confirm'}
+        onClose={() => setModalType('none')}
+        onSuccess={setSuccess}
+        onError={setError}
+      />
+
 
       {/* Info sobre roles */}
       <div className="bg-sky-50 border border-sky-200 rounded-lg p-4">

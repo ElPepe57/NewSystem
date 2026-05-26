@@ -315,7 +315,9 @@
       "Bash(echo \"EXIT_CODE=$?\")",
       "PowerShell(Get-NetTCPConnection -LocalPort 5173,5174,5175,5176,5177,5178 -ErrorAction SilentlyContinue)",
       "Bash(git restore *)",
-      "Bash(npx tsc *)"
+      "Bash(npx tsc *)",
+      "Bash(chmod +x /c/Users/josel/businessmn-v2/scripts/deploy-chk5-F4-USERS.sh)",
+      "Bash(awk 'NR==983 || NR==1568 || NR==1569 || NR==1570' /c/Users/josel/businessmn-v2/src/pages/Usuarios/Usuarios.tsx)"
     ],
     "deny": [],
     "ask": []
