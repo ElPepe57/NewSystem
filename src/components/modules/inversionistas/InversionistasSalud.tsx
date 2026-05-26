@@ -11,6 +11,8 @@ import React from 'react';
 import { Flag, Zap, ShieldCheck, BarChart3, AlertCircle } from 'lucide-react';
 import { formatCurrencyPEN } from '../../../utils/format';
 import type { ResumenInversionista } from '../../../types/inversionista.types';
+// chk5.PERSONAS-v5.4 · F6 · cross-link 360° desde Salud financiera hacia Planilla
+import { BannerImpactoPlanilla } from '../planilla/BannerImpactoPlanilla';
 
 interface Props {
   data: ResumenInversionista;
@@ -36,6 +38,11 @@ export default function InversionistasSalud({ data }: Props) {
 
   return (
     <div className="space-y-3">
+      {/* chk5.PERSONAS-v5.4 · F6 · cross-link 360° → Planilla
+          Banner violet con costo laboral del mes · impacto en margen operativo
+          (color cross-módulo canon N4) */}
+      <BannerImpactoPlanilla variante="salud" ocultarSiVacio={false} />
+
       {/* 2 cards · Soberanía + Runway · stack mobile */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Soberanía financiera */}

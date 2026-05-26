@@ -63,6 +63,8 @@ import { EscenariosCards, BannerPuntoTension } from './components/cashflow/Escen
 import { TablaDriversProyectados } from './components/cashflow/TablaDriversProyectados';
 import { DriversConfigSection } from './components/cashflow/DriversConfigSection';
 import { FiltrosCashFlowBar } from './components/cashflow/FiltrosCashFlowBar';
+// chk5.PERSONAS-v5.4 · F6 · cross-link 360° desde Cash Flow hacia Planilla
+import { BannerImpactoPlanilla } from '../../components/modules/planilla/BannerImpactoPlanilla';
 import { useToastStore } from '../../store/toastStore';
 
 // ═════════════════════════════════════════════════════════════════════════
@@ -436,6 +438,12 @@ const FinanzasCashFlow: React.FC = () => {
         onChange={setFiltros}
         onFiltrosAvanzados={() => console.info('filtros avanzados · S4')}
       />
+
+      {/* chk5.PERSONAS-v5.4 · F6 · cross-link 360° → Planilla
+          Banner rose con próximo pago de planilla programado · color cross-módulo N4 */}
+      <div className="px-6 pt-3">
+        <BannerImpactoPlanilla variante="cashflow" ocultarSiVacio={false} />
+      </div>
 
       {puntoTension && puntoTension.zona !== 'segura' && (
         <BannerPuntoTension punto={puntoTension} onPlanAccion={handlePlanAccion} />

@@ -96,8 +96,20 @@ function mesNombreCorto(m: number) {
 export const Planilla: React.FC = () => {
   const navigate = useNavigate();
   const ahora = new Date();
-  const [mes, setMes] = useState<number>(ahora.getMonth() + 1);
-  const [anio, setAnio] = useState<number>(ahora.getFullYear());
+  // chk5.PERSONAS-v5.4 · F6 · deep-link reading desde cross-links 360°
+  // ?mes=X&anio=Y pre-selecciona el período al entrar desde /gastos · /finanzas/cash-flow · etc
+  const queryParams = useMemo(() => {
+    if (typeof window === 'undefined') return { mes: null, anio: null };
+    const sp = new URLSearchParams(window.location.search);
+    const m = Number(sp.get('mes'));
+    const a = Number(sp.get('anio'));
+    return {
+      mes: Number.isFinite(m) && m >= 1 && m <= 12 ? m : null,
+      anio: Number.isFinite(a) && a >= 2020 && a <= 2100 ? a : null,
+    };
+  }, []);
+  const [mes, setMes] = useState<number>(queryParams.mes ?? ahora.getMonth() + 1);
+  const [anio, setAnio] = useState<number>(queryParams.anio ?? ahora.getFullYear());
   const [tabActiva, setTabActiva] = useState<TabId>('boletas');
 
   // Data del shell · KPIs

@@ -39,6 +39,8 @@ import type {
 import { formatCurrencyPEN } from '../../../utils/format';
 // chk5.E-B · Sprint B · Sparkline + Tooltips
 import { Sparkline, TooltipPedagogico } from '../../common';
+// chk5.PERSONAS-v5.4 · F6 · cross-link 360° desde P&L hacia Planilla
+import { BannerImpactoPlanilla } from '../planilla/BannerImpactoPlanilla';
 
 const formatCurrency = (v: number): string => formatCurrencyPEN(v);
 const pct = (v: number, base: number): number => (base !== 0 ? (v / base) * 100 : 0);
@@ -255,6 +257,14 @@ export default function EstadoResultados({ mes: mesProp, anio: anioProp }: Props
           </button>
         </div>
       </section>
+
+      {/* chk5.PERSONAS-v5.4 · F6 · cross-link 360° → Planilla
+          Banner sky con gastos de personal del período (color cross-módulo canon N4) */}
+      <BannerImpactoPlanilla
+        variante="pyl"
+        mes={estado.periodo.mes}
+        anio={estado.periodo.anio}
+      />
 
       {/* §2 · Tabla P&L cascade formal */}
       <section className="bg-white border border-slate-200 rounded-2xl overflow-hidden">

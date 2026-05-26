@@ -45,6 +45,8 @@ import { KpiStripGastos, type KpiGastosData, type MiniStatsData } from './compon
 import { NavegacionTemporal } from './components/NavegacionTemporal';
 // chk5.C2 · link-card cross-módulo
 import { LinkCardEficiencia } from './components/LinkCardEficiencia';
+// chk5.PERSONAS-v5.4 · F6 · cross-link 360° desde Gastos hacia Planilla
+import { BannerImpactoPlanilla } from '../../components/modules/planilla/BannerImpactoPlanilla';
 import { useUnidadStore } from '../../store/unidadStore';
 import { useVentaStore } from '../../store/ventaStore';
 
@@ -848,6 +850,14 @@ export const Gastos: React.FC = () => {
       {stats && (
         <KpiStripGastos kpis={kpiData} miniStats={miniStatsData} />
       )}
+
+      {/* chk5.PERSONAS-v5.4 · F6 · cross-link 360° → Planilla
+          Banner amber con costo de planilla del mes (color cross-módulo canon N4) */}
+      <BannerImpactoPlanilla
+        variante="gastos"
+        mes={selectedMonth}
+        anio={selectedYear}
+      />
 
       {/* chk5.C-UX-PASS · canon v8.0 N8 · Link-card cross-módulo SIEMPRE visible
           (con estado vacío + CTA si no hay data · discovery de feature) */}
