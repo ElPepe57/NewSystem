@@ -264,6 +264,14 @@ export const Usuarios: React.FC = () => {
     return counts;
   }, [usuarios]);
 
+  // chk5.PERSONAS-v5.3 · F2 · conteos agregados para chips canon (Planilla=empleados · Otros=invitados)
+  // IMPORTANTE: este useMemo debe estar ANTES del early return `if (loading)` para no
+  // violar la regla de orden de hooks de React.
+  const planillaCount = useMemo(
+    () => usuarios.filter((u) => ROLES_PLANILLA.some((r) => hasRole(u, r))).length,
+    [usuarios]
+  );
+
   // Agrupar permisos
   const permisosAgrupados = userService.getPermisosAgrupados();
 
@@ -278,12 +286,6 @@ export const Usuarios: React.FC = () => {
   // chk5.F3-FIX · KPIs canon v5.2 · TOTAL · ACTIVOS · SOCIOS · MULTI-ROL
   const sociosCount = roleStats['socio'] ?? 0;
   const multiRolCount = usuarios.filter((u) => getUserRoles(u).length > 1).length;
-
-  // chk5.PERSONAS-v5.3 · F2 · conteos agregados para chips canon
-  const planillaCount = useMemo(
-    () => usuarios.filter((u) => ROLES_PLANILLA.some((r) => hasRole(u, r))).length,
-    [usuarios]
-  );
   const otrosCount = roleStats['invitado'] ?? 0;
 
   return (
