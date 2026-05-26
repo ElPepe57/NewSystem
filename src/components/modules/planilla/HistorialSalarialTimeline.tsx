@@ -1,18 +1,22 @@
 /**
  * HistorialSalarialTimeline.tsx
  *
- * chk5.PERSONAS-v5.4 · F8 · 2026-05-26
+ * chk5.PERSONAS-v5.4 · F10.B · 2026-05-26 (refactor canon pixel-perfect ACTO 6)
  *
  * Timeline cronológico de variaciones salariales del empleado.
- * Diseño canon mockup planilla-v5.4-completo.html ACTO 6.
+ * Pixel-perfect mockup planilla-v5.4-completo.html ACTO 6 (líneas 490-548).
  *
- * Visual: stack vertical · dots sky (variaciones normales) + amber
- * (excepcionales · corrección/otro). Línea vertical conecta dots.
+ * Visual canon:
+ *  - Header descriptivo (N cambios · sueldo actual · variación total desde alta)
+ *  - Dots: emerald (vigente · más reciente) · sky (variaciones intermedias) ·
+ *    slate (salario inicial · "SALARIO ALTA")
+ *  - Por cada item: monto + chip VIGENTE/razón + delta % + motivo + notas
+ *  - Footer 3 KPI cards: SUELDO ACTUAL · VARIACIÓN TOTAL · AÑOS EN EMPRESA
  *
  * Usado en /usuarios Ficha 360 → tab Sub-perfiles → bloque Datos Laborales.
  */
-import React, { useEffect, useState } from 'react';
-import { TrendingUp, TrendingDown, ArrowRight, Info } from 'lucide-react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { TrendingUp, TrendingDown, Info } from 'lucide-react';
 import { historialSalarialService } from '../../../services/historialSalarial.service';
 import type {
   HistorialSalarial,
@@ -25,11 +29,13 @@ interface Props {
   userId: string;
   /** Compact ‧ no muestra detalle de notas · solo deltas */
   compact?: boolean;
-  /** Max items a mostrar · default 5 */
+  /** Max items a mostrar · default 10 (mostramos histórico completo en ficha) */
   maxItems?: number;
+  /** Mostrar footer con 3 KPIs (default true · canon ACTO 6) */
+  mostrarFooterKPIs?: boolean;
 }
 
-/** Razones excepcionales · usan dot amber */
+/** Razones excepcionales · dot amber */
 const RAZONES_EXCEPCIONALES: RazonVariacionSalarial[] = ['correccion', 'otro'];
 
 function formatFechaCorta(d: Date): string {
@@ -37,17 +43,21 @@ function formatFechaCorta(d: Date): string {
 }
 
 function formatFechaLarga(d: Date): string {
-  return d.toLocaleDateString('es-PE', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-  });
+  return d.toLocaleDateString('es-PE', { day: 'numeric', month: 'long', year: 'numeric' });
+}
+
+/** Calcula años entre dos fechas · 1 decimal */
+function aniosDesde(fecha: Date): number {
+  const diffMs = Date.now() - fecha.getTime();
+  const diffYears = diffMs / (365.25 * 24 * 60 * 60 * 1000);
+  return Math.round(diffYears * 10) / 10;
 }
 
 export const HistorialSalarialTimeline: React.FC<Props> = ({
   userId,
   compact = false,
-  maxItems = 5,
+  maxItems = 10,
+  mostrarFooterKPIs = true,
 }) => {
   const [historial, setHistorial] = useState<HistorialSalarial[]>([]);
   const [loading, setLoading] = useState(true);
@@ -67,10 +77,28 @@ export const HistorialSalarialTimeline: React.FC<Props> = ({
     })();
   }, [userId]);
 
+  // Stats derivadas
+  const stats = useMemo(() => {
+    if (historial.length === 0) {
+      return { sueldoActual: 0, variacionTotalPct: 0, aniosEmpresa: 0, salarioInicial: 0 };
+    }
+    // historial viene ordenado DESC por efectivoDesde
+    const ultimo = historial[0];
+    const primero = historial[historial.length - 1];
+    const salarioInicial = primero.salarioAnterior > 0 ? primero.salarioAnterior : primero.salarioNuevo;
+    const variacionPct =
+      salarioInicial > 0 ? ((ultimo.salarioNuevo - salarioInicial) / salarioInicial) * 100 : 0;
+    const fechaIngreso = primero.efectivoDesde.toDate();
+    return {
+      sueldoActual: ultimo.salarioNuevo,
+      variacionTotalPct: variacionPct,
+      aniosEmpresa: aniosDesde(fechaIngreso),
+      salarioInicial,
+    };
+  }, [historial]);
+
   if (loading) {
-    return (
-      <div className="text-[11px] text-slate-500 py-2">Cargando histórico salarial...</div>
-    );
+    return <div className="text-[11px] text-slate-500 py-2">Cargando histórico salarial...</div>;
   }
 
   if (historial.length === 0) {
@@ -89,42 +117,81 @@ export const HistorialSalarialTimeline: React.FC<Props> = ({
   const hayMas = historial.length > maxItems;
 
   return (
-    <div className="space-y-0">
-      <div className="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-2">
-        HISTORIAL DE VARIACIONES
+    <div>
+      {/* §A · Header descriptivo · canon ACTO 6 línea 502 */}
+      <div className="flex items-center justify-between flex-wrap gap-2 mb-3">
+        <div>
+          <div className="text-[12px] font-bold text-slate-900">
+            Historial de salario · {historial.length} cambio{historial.length === 1 ? '' : 's'} registrado{historial.length === 1 ? '' : 's'}
+          </div>
+          <div className="text-[10px] text-slate-500">
+            Sueldo actual {formatCurrencyPEN(stats.sueldoActual)}
+            {stats.variacionTotalPct !== 0 && (
+              <>
+                {' '}
+                <span className={stats.variacionTotalPct > 0 ? 'text-emerald-700 font-bold' : 'text-rose-700 font-bold'}>
+                  ({stats.variacionTotalPct > 0 ? '+' : ''}
+                  {stats.variacionTotalPct.toFixed(1)}% desde alta)
+                </span>
+              </>
+            )}
+          </div>
+        </div>
       </div>
 
-      <div className="relative">
-        {/* Línea vertical conectora (solo si hay 2+ items) */}
-        {items.length > 1 && (
-          <div className="absolute left-[5px] top-3 bottom-3 w-px bg-slate-200" aria-hidden="true" />
-        )}
+      {/* §B · Timeline con dots canon · emerald (vigente) · sky (variación) · slate (alta) */}
+      <div className="space-y-3">
+        {items.map((h, idx) => {
+          const esVigente = idx === 0; // primer item · más reciente
+          const esSalarioAlta = idx === items.length - 1 && !hayMas && h.salarioAnterior === 0; // último y es el primer registro
+          const esExcepcional = RAZONES_EXCEPCIONALES.includes(h.razon);
+          const subio = h.delta > 0;
+          const fecha = h.efectivoDesde.toDate();
 
-        <ul className="space-y-3">
-          {items.map((h) => {
-            const esExcepcional = RAZONES_EXCEPCIONALES.includes(h.razon);
-            const subio = h.delta > 0;
-            const fecha = h.efectivoDesde.toDate();
-            return (
-              <li key={h.id} className="relative flex items-start gap-3">
-                {/* Dot · sky normal · amber excepcional */}
+          // Dot color canon
+          let dotBg = 'bg-sky-500';
+          let dotRing = 'ring-sky-100';
+          if (esVigente) {
+            dotBg = 'bg-emerald-500';
+            dotRing = 'ring-emerald-100';
+          } else if (esSalarioAlta) {
+            dotBg = 'bg-slate-400';
+            dotRing = 'ring-slate-100';
+          } else if (esExcepcional) {
+            dotBg = 'bg-amber-500';
+            dotRing = 'ring-amber-100';
+          } else if (!subio) {
+            dotBg = 'bg-rose-500';
+            dotRing = 'ring-rose-100';
+          }
+
+          const conectorVisible = idx < items.length - 1;
+
+          return (
+            <div key={h.id} className="flex gap-3">
+              <div className="flex flex-col items-center">
                 <div
-                  className={`relative z-10 w-3 h-3 mt-1 rounded-full ring-4 flex-shrink-0 ${
-                    esExcepcional
-                      ? 'bg-amber-500 ring-amber-100'
-                      : subio
-                        ? 'bg-sky-500 ring-sky-100'
-                        : 'bg-rose-500 ring-rose-100'
-                  }`}
+                  className={`w-3 h-3 rounded-full ring-4 flex-shrink-0 ${dotBg} ${dotRing}`}
                   aria-hidden="true"
                 />
-
-                <div className="flex-1 min-w-0 pb-1">
-                  {/* Fila 1: monto + delta */}
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className="text-[13px] font-bold text-slate-900 tabular-nums">
-                      {formatCurrencyPEN(h.salarioNuevo)}
+                {conectorVisible && <div className="w-0.5 flex-1 bg-slate-200 mt-2" aria-hidden="true" />}
+              </div>
+              <div className="flex-1 pb-3">
+                <div className="flex items-center gap-2 mb-1 flex-wrap">
+                  <span className={`text-[13px] font-bold ${esVigente ? 'text-slate-900' : 'text-slate-700'} tabular-nums`}>
+                    {formatCurrencyPEN(h.salarioNuevo)}
+                  </span>
+                  {esVigente && (
+                    <span className="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-1.5 py-0.5 rounded uppercase">
+                      VIGENTE
                     </span>
+                  )}
+                  {esSalarioAlta && (
+                    <span className="bg-slate-100 text-slate-600 text-[10px] font-bold px-1.5 py-0.5 rounded uppercase">
+                      SALARIO ALTA
+                    </span>
+                  )}
+                  {!esSalarioAlta && h.salarioAnterior > 0 && (
                     <span
                       className={`text-[10px] inline-flex items-center gap-0.5 font-bold tabular-nums ${
                         subio ? 'text-emerald-700' : 'text-rose-700'
@@ -132,51 +199,68 @@ export const HistorialSalarialTimeline: React.FC<Props> = ({
                     >
                       {subio ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
                       {subio ? '+' : ''}
-                      {formatCurrencyPEN(h.delta)}
-                      <span className="text-slate-500 font-normal">
-                        ({h.porcentajeVariacion > 0 ? '+' : ''}
-                        {h.porcentajeVariacion.toFixed(1)}%)
-                      </span>
+                      {h.porcentajeVariacion.toFixed(1)}% vs anterior
                     </span>
-                  </div>
-
-                  {/* Fila 2: razón + fecha */}
-                  <div className="flex items-center gap-2 text-[10px] text-slate-500 mt-0.5">
-                    <span
-                      className={`px-1.5 py-0.5 rounded font-bold uppercase tracking-wider ${
-                        esExcepcional ? 'bg-amber-100 text-amber-800' : 'bg-sky-100 text-sky-800'
-                      }`}
-                    >
+                  )}
+                  {esExcepcional && !esVigente && (
+                    <span className="bg-amber-100 text-amber-800 text-[9px] font-bold px-1.5 py-0.5 rounded uppercase">
                       {RAZON_VARIACION_LABELS[h.razon]}
                     </span>
-                    <span title={formatFechaLarga(fecha)}>{formatFechaCorta(fecha)}</span>
-                  </div>
-
-                  {/* Fila 3: notas (solo si no es compact) */}
-                  {!compact && h.notas && (
-                    <div className="text-[10px] text-slate-600 mt-1 italic line-clamp-2">
-                      {h.notas}
-                    </div>
-                  )}
-
-                  {/* Fila 4: previous → next visual */}
-                  {!compact && h.salarioAnterior > 0 && (
-                    <div className="text-[10px] text-slate-400 mt-0.5 flex items-center gap-1 tabular-nums">
-                      {formatCurrencyPEN(h.salarioAnterior)}
-                      <ArrowRight className="w-2.5 h-2.5" />
-                      {formatCurrencyPEN(h.salarioNuevo)}
-                    </div>
                   )}
                 </div>
-              </li>
-            );
-          })}
-        </ul>
+
+                <div className="text-[11px] text-slate-600">
+                  Motivo: <strong>{RAZON_VARIACION_LABELS[h.razon].toLowerCase()}</strong> ·
+                  efectivo {formatFechaLarga(fecha)}
+                </div>
+
+                {!compact && h.notas && (
+                  <div className="text-[10px] text-slate-500 mt-1 italic line-clamp-2">
+                    Notas: "{h.notas}"
+                  </div>
+                )}
+              </div>
+            </div>
+          );
+        })}
       </div>
 
       {hayMas && (
-        <div className="text-[10px] text-slate-500 mt-2 italic">
+        <div className="text-[10px] text-slate-500 mt-2 italic text-center">
           + {historial.length - maxItems} variaciones más en el historial completo
+        </div>
+      )}
+
+      {/* §C · Footer 3 KPIs · canon ACTO 6 línea 544-547 */}
+      {mostrarFooterKPIs && historial.length > 0 && (
+        <div className="mt-5 pt-4 border-t border-slate-200 grid grid-cols-3 gap-3 text-[12px]">
+          <div>
+            <div className="text-[10px] uppercase font-bold text-slate-500">SUELDO ACTUAL</div>
+            <div className="font-bold tabular-nums text-teal-700">
+              {formatCurrencyPEN(stats.sueldoActual)}
+            </div>
+          </div>
+          <div>
+            <div className="text-[10px] uppercase font-bold text-slate-500">VARIACIÓN TOTAL</div>
+            <div
+              className={`font-bold tabular-nums ${
+                stats.variacionTotalPct > 0
+                  ? 'text-emerald-700'
+                  : stats.variacionTotalPct < 0
+                    ? 'text-rose-700'
+                    : 'text-slate-700'
+              }`}
+            >
+              {stats.variacionTotalPct > 0 ? '+' : ''}
+              {stats.variacionTotalPct.toFixed(1)}%
+            </div>
+          </div>
+          <div>
+            <div className="text-[10px] uppercase font-bold text-slate-500">AÑOS EN EMPRESA</div>
+            <div className="font-bold tabular-nums text-slate-700">
+              {stats.aniosEmpresa} años
+            </div>
+          </div>
         </div>
       )}
     </div>
