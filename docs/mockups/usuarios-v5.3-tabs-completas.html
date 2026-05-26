@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Usuarios v5.3 · tab Accesos + Configuración completas</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<style>
+  body { font-family: 'Inter', sans-serif; font-variant-numeric: tabular-nums; background: rgb(248 250 252); }
+  .tabular { font-variant-numeric: tabular-nums; }
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { scrollbar-width: none; }
+</style>
+<script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="p-4 md:p-8 text-slate-900">
+
+<!-- Header -->
+<div class="max-w-6xl mx-auto mb-10">
+  <div class="bg-gradient-to-br from-purple-600 to-purple-800 text-white rounded-3xl p-8">
+    <div class="flex items-center gap-3 mb-3">
+      <div class="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center"><i data-lucide="users" class="w-6 h-6 text-white"></i></div>
+      <div>
+        <div class="text-[11px] uppercase tracking-wider text-purple-200 font-bold">MOCKUP v5.3 · TABS INTERNAS COMPLETAS</div>
+        <h1 class="text-2xl font-bold">/usuarios · tab Accesos + tab Configuración</h1>
+      </div>
+    </div>
+    <p class="text-[14px] text-purple-100 leading-relaxed max-w-3xl">
+      Cobertura completa de las 2 tabs internas que el mockup hub solo enumeró.
+      <strong class="text-white">Tab "Accesos & Seguridad"</strong> con sesiones globales · auditoría reciente · intentos fallidos.
+      <strong class="text-white">Tab "Configuración"</strong> con 5 secciones (política registro · invitaciones · password · roles · email · overrides).
+    </p>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<!-- TAB · ACCESOS & SEGURIDAD                                              -->
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<section class="my-12">
+  <div class="max-w-6xl mx-auto">
+    <div class="bg-gradient-to-r from-rose-100 to-rose-50 ring-1 ring-rose-200 rounded-3xl p-6 mb-6">
+      <div class="flex items-center gap-3">
+        <div class="w-14 h-14 bg-rose-600 rounded-2xl flex items-center justify-center text-white font-bold text-xl">A</div>
+        <div class="flex-1">
+          <div class="text-[11px] uppercase tracking-wider text-rose-700 font-bold">TAB · Accesos & Seguridad</div>
+          <h2 class="text-xl font-bold text-rose-900">Vista en VIVO de la seguridad del sistema</h2>
+          <p class="text-[13px] text-rose-700 mt-1">Sesiones activas globales · intentos fallidos · auditoría reciente · cross-link a módulo Auditoría completa</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-2xl ring-1 ring-slate-200 overflow-hidden">
+      <!-- Shell igual que v5.3 hub (resumido) -->
+      <div class="px-6 py-4 bg-slate-50 border-b border-slate-200 text-[11px] text-slate-500">
+        <i data-lucide="info" class="w-3 h-3 inline"></i> Breadcrumb + Header F1 + 3 sub-tabs (Resumen activo · <strong>Accesos ACTIVO</strong> · Configuración)
+      </div>
+
+      <!-- KPI strip rose · seguridad -->
+      <div class="px-6 py-4 grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div class="bg-gradient-to-br from-emerald-50 to-emerald-100/40 ring-1 ring-emerald-200/50 rounded-2xl p-4">
+          <div class="flex items-center justify-between mb-2"><span class="text-[10px] uppercase tracking-wider text-emerald-700 font-bold">SESIONES ACTIVAS</span><i data-lucide="monitor" class="w-3.5 h-3.5 text-emerald-700"></i></div>
+          <div class="text-2xl font-bold tabular text-emerald-900">9</div>
+          <div class="text-[10px] text-emerald-700 mt-1">de 11 usuarios activos · 82%</div>
+        </div>
+        <div class="bg-gradient-to-br from-amber-50 to-amber-100/40 ring-1 ring-amber-200/50 rounded-2xl p-4">
+          <div class="flex items-center justify-between mb-2"><span class="text-[10px] uppercase tracking-wider text-amber-700 font-bold">INTENTOS FALLIDOS 24H</span><i data-lucide="alert-triangle" class="w-3.5 h-3.5 text-amber-700"></i></div>
+          <div class="text-2xl font-bold tabular text-amber-900">3</div>
+          <div class="text-[10px] text-amber-700 mt-1">2 IPs distintas · validar</div>
+        </div>
+        <div class="bg-gradient-to-br from-rose-50 to-rose-100/40 ring-1 ring-rose-200/50 rounded-2xl p-4">
+          <div class="flex items-center justify-between mb-2"><span class="text-[10px] uppercase tracking-wider text-rose-700 font-bold">IPS SOSPECHOSAS</span><i data-lucide="shield-alert" class="w-3.5 h-3.5 text-rose-700"></i></div>
+          <div class="text-2xl font-bold tabular text-rose-900">1</div>
+          <div class="text-[10px] text-rose-700 mt-1">primer login geo-anómalo</div>
+        </div>
+        <div class="bg-gradient-to-br from-sky-50 to-sky-100/40 ring-1 ring-sky-200/50 rounded-2xl p-4">
+          <div class="flex items-center justify-between mb-2"><span class="text-[10px] uppercase tracking-wider text-sky-700 font-bold">EVENTOS 7D</span><i data-lucide="activity" class="w-3.5 h-3.5 text-sky-700"></i></div>
+          <div class="text-2xl font-bold tabular text-sky-900">187</div>
+          <div class="text-[10px] text-sky-700 mt-1">acciones registradas</div>
+        </div>
+      </div>
+
+      <!-- Acción emergencia · rose card -->
+      <div class="mx-6 my-2 bg-gradient-to-r from-rose-50 to-pink-50 ring-1 ring-rose-200 rounded-2xl p-4 flex items-start gap-3">
+        <div class="w-10 h-10 bg-rose-100 rounded-xl flex items-center justify-center flex-shrink-0"><i data-lucide="shield-alert" class="w-5 h-5 text-rose-700"></i></div>
+        <div class="flex-1">
+          <h3 class="text-[13px] font-bold text-slate-900 mb-1">Acción de emergencia · "Desconectar TODAS"</h3>
+          <p class="text-[11px] text-slate-600 leading-relaxed">Cierra todas las sesiones activas del sistema (9 usuarios) · todos deben re-loguearse. Usar solo en caso de incidente de seguridad (compromise de credenciales · acceso no autorizado · etc.)</p>
+        </div>
+        <button class="bg-rose-600 hover:bg-rose-700 text-white text-[11px] font-bold px-3 py-1.5 rounded-lg whitespace-nowrap">Desconectar todas</button>
+      </div>
+
+      <!-- Grid 2 columnas: Sesiones + Auditoría -->
+      <div class="px-6 py-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Sesiones activas globales -->
+        <div class="bg-white border border-slate-200 rounded-2xl p-4">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="text-[13px] font-bold text-slate-900 flex items-center gap-2"><i data-lucide="monitor" class="w-4 h-4 text-emerald-600"></i>Sesiones activas globales</h3>
+            <span class="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded font-bold">9 activas</span>
+          </div>
+          <div class="space-y-2 text-[11px]">
+            <div class="bg-emerald-50/40 border border-emerald-200 rounded-lg p-2.5">
+              <div class="flex items-center gap-2 mb-1"><i data-lucide="monitor" class="w-3 h-3 text-emerald-600"></i><span class="font-bold text-slate-900">José LP</span><span class="text-[9px] bg-emerald-200 text-emerald-900 font-bold px-1.5 py-0.5 rounded">ACTUAL</span></div>
+              <div class="text-[10px] text-slate-600">Chrome · Win10 · 190.x.x.x · Lima · hace 5 min</div>
+            </div>
+            <div class="bg-white border border-slate-200 rounded-lg p-2.5">
+              <div class="flex items-center gap-2 mb-1"><i data-lucide="smartphone" class="w-3 h-3 text-slate-500"></i><span class="font-bold text-slate-900">Ana Rodríguez</span></div>
+              <div class="text-[10px] text-slate-600">Safari · iOS · 190.x.x.x · Lima · hace 2h</div>
+            </div>
+            <div class="bg-white border border-slate-200 rounded-lg p-2.5">
+              <div class="flex items-center gap-2 mb-1"><i data-lucide="monitor" class="w-3 h-3 text-slate-500"></i><span class="font-bold text-slate-900">Diego López</span></div>
+              <div class="text-[10px] text-slate-600">Edge · Win11 · 200.x.x.x · Lima · hace 4h</div>
+            </div>
+            <div class="text-center text-[10px] text-slate-500 pt-1">+ 6 sesiones más</div>
+          </div>
+        </div>
+
+        <!-- Auditoría reciente -->
+        <div class="bg-white border border-slate-200 rounded-2xl p-4">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="text-[13px] font-bold text-slate-900 flex items-center gap-2"><i data-lucide="history" class="w-4 h-4 text-sky-600"></i>Eventos recientes</h3>
+            <a class="text-[10px] text-sky-600 font-bold cursor-pointer">Ver auditoría completa →</a>
+          </div>
+          <div class="space-y-1.5 text-[11px]">
+            <div class="flex items-start gap-2 p-2 bg-slate-50 rounded">
+              <div class="w-1.5 h-1.5 bg-emerald-500 rounded-full mt-1.5"></div>
+              <div class="flex-1">
+                <div class="font-medium text-slate-900">Login exitoso · José LP</div>
+                <div class="text-[9px] text-slate-500">Chrome/Win · hace 5 min</div>
+              </div>
+            </div>
+            <div class="flex items-start gap-2 p-2 bg-amber-50 rounded border border-amber-200">
+              <div class="w-1.5 h-1.5 bg-amber-500 rounded-full mt-1.5"></div>
+              <div class="flex-1">
+                <div class="font-medium text-slate-900">Intento fallido · ana.r@vitaskin.pe</div>
+                <div class="text-[9px] text-amber-700">IP 200.x.x.x · 3 intentos · hace 1h</div>
+              </div>
+            </div>
+            <div class="flex items-start gap-2 p-2 bg-slate-50 rounded">
+              <div class="w-1.5 h-1.5 bg-violet-500 rounded-full mt-1.5"></div>
+              <div class="flex-1">
+                <div class="font-medium text-slate-900">Rol cambiado · Carlos Silva</div>
+                <div class="text-[9px] text-slate-500">+socio · por José LP · hace 3h</div>
+              </div>
+            </div>
+            <div class="flex items-start gap-2 p-2 bg-slate-50 rounded">
+              <div class="w-1.5 h-1.5 bg-sky-500 rounded-full mt-1.5"></div>
+              <div class="flex-1">
+                <div class="font-medium text-slate-900">Usuario aprobado · María García</div>
+                <div class="text-[9px] text-slate-500">aprobada por José LP · hace 5h</div>
+              </div>
+            </div>
+            <div class="text-center text-[10px] text-slate-500 pt-1">+ 183 eventos · ver módulo Auditoría</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- IPs sospechosas · si las hay -->
+      <div class="mx-6 my-4 bg-amber-50 border border-amber-200 rounded-2xl p-4">
+        <div class="flex items-start gap-3">
+          <i data-lucide="alert-triangle" class="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5"></i>
+          <div class="flex-1">
+            <h3 class="text-[13px] font-bold text-amber-900 mb-1">1 IP sospechosa detectada</h3>
+            <p class="text-[11px] text-amber-800 mb-2">Login exitoso desde <code class="bg-amber-100 px-1 rounded">200.110.45.x</code> · ubicación geo-anómala (Madrid · España) para <strong>Diego López</strong> que normalmente loguea desde Lima.</p>
+            <div class="flex gap-2">
+              <button class="bg-amber-600 hover:bg-amber-700 text-white text-[10px] font-bold px-3 py-1.5 rounded-lg">Marcar como sospechoso</button>
+              <button class="bg-white border border-amber-300 text-amber-700 text-[10px] font-medium px-3 py-1.5 rounded-lg">Ignorar (viajando)</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Cross-link Auditoría -->
+      <div class="mx-6 mb-6 bg-gradient-to-r from-rose-50 to-pink-50 ring-1 ring-rose-200 rounded-2xl p-4 flex items-start gap-3">
+        <div class="w-10 h-10 bg-rose-100 rounded-xl flex items-center justify-center flex-shrink-0"><i data-lucide="shield-check" class="w-5 h-5 text-rose-700"></i></div>
+        <div class="flex-1">
+          <div class="text-[12px] font-bold text-slate-900 mb-0.5">Auditoría completa del sistema</div>
+          <div class="text-[11px] text-slate-600">Timeline detallada de TODOS los eventos · filtros por módulo · exports CSV · análisis histórico</div>
+        </div>
+        <button class="bg-rose-600 hover:bg-rose-700 text-white text-[11px] font-bold px-3 py-1.5 rounded-lg whitespace-nowrap flex items-center gap-1">
+          Abrir Auditoría
+          <i data-lucide="arrow-right" class="w-3 h-3"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<!-- TAB · CONFIGURACIÓN                                                    -->
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<section class="my-16">
+  <div class="max-w-6xl mx-auto">
+    <div class="bg-gradient-to-r from-indigo-100 to-indigo-50 ring-1 ring-indigo-200 rounded-3xl p-6 mb-6">
+      <div class="flex items-center gap-3">
+        <div class="w-14 h-14 bg-indigo-600 rounded-2xl flex items-center justify-center text-white font-bold text-xl">C</div>
+        <div class="flex-1">
+          <div class="text-[11px] uppercase tracking-wider text-indigo-700 font-bold">TAB · Configuración · 5 secciones</div>
+          <h2 class="text-xl font-bold text-indigo-900">Gobierno del módulo · política · plantillas · permisos</h2>
+          <p class="text-[13px] text-indigo-700 mt-1">Política registro (DUAL) · Invitaciones activas · Password · Plantillas roles · Email template · Permisos custom</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-2xl ring-1 ring-slate-200 overflow-hidden">
+      <div class="px-6 py-4 bg-slate-50 border-b border-slate-200 text-[11px] text-slate-500">
+        <i data-lucide="info" class="w-3 h-3 inline"></i> Shell completo · 3 sub-tabs (Resumen · Accesos · <strong>Configuración ACTIVO</strong>)
+      </div>
+
+      <!-- 5.1 · Política de registro -->
+      <div class="px-6 py-4">
+        <div class="bg-white rounded-2xl ring-1 ring-indigo-200 p-5 mb-4">
+          <div class="flex items-center gap-2 mb-4">
+            <i data-lucide="user-check" class="w-5 h-5 text-indigo-600"></i>
+            <h3 class="text-[14px] font-bold text-slate-900">5.1 · Política de registro</h3>
+          </div>
+          <!-- Tri-state -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-5">
+            <label class="p-4 border-2 border-slate-200 rounded-xl cursor-pointer hover:border-indigo-300">
+              <div class="flex items-center gap-2 mb-2"><input type="radio"><i data-lucide="lock" class="w-4 h-4 text-slate-600"></i><span class="text-[12px] font-bold">Solo invitación</span></div>
+              <p class="text-[10px] text-slate-600">Admin invita · /signup deshabilitado</p>
+            </label>
+            <label class="p-4 border-2 border-slate-200 rounded-xl cursor-pointer hover:border-indigo-300">
+              <div class="flex items-center gap-2 mb-2"><input type="radio"><i data-lucide="globe" class="w-4 h-4 text-slate-600"></i><span class="text-[12px] font-bold">Solo self-signup</span></div>
+              <p class="text-[10px] text-slate-600">/signup público · admin aprueba</p>
+            </label>
+            <label class="p-4 border-2 border-emerald-400 bg-emerald-50/40 rounded-xl cursor-pointer">
+              <div class="flex items-center gap-2 mb-2"><input type="radio" checked><i data-lucide="repeat" class="w-4 h-4 text-emerald-600"></i><span class="text-[12px] font-bold text-emerald-900">Dual (default)</span><span class="ml-auto bg-emerald-600 text-white text-[9px] font-bold px-1.5 py-0.5 rounded">ACTIVO</span></div>
+              <p class="text-[10px] text-emerald-800">Ambos coexisten · flexibilidad</p>
+            </label>
+          </div>
+          <!-- Whitelist + Rate-limit + Captcha + Auto-rechazo -->
+          <div class="grid grid-cols-2 gap-4 pt-4 border-t border-slate-200">
+            <div>
+              <div class="text-[11px] font-bold text-slate-700 mb-2">Whitelist dominios</div>
+              <div class="flex gap-2 mb-2">
+                <input placeholder="@dominio.com" class="flex-1 px-3 py-1.5 border border-slate-300 rounded-lg text-[11px]">
+                <button class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-bold rounded-lg">+</button>
+              </div>
+              <div class="text-[10px] text-amber-700 bg-amber-50 border border-amber-200 rounded p-2"><i data-lucide="info" class="w-3 h-3 inline"></i>Lista vacía · cualquier dominio</div>
+            </div>
+            <div>
+              <div class="text-[11px] font-bold text-slate-700 mb-2">Rate-limit por IP</div>
+              <div class="flex items-center gap-2 text-[11px]">
+                <input type="number" value="3" class="w-16 px-2 py-1.5 border border-slate-300 rounded text-[11px]">
+                <span class="text-slate-600">cada</span>
+                <input type="number" value="24" class="w-16 px-2 py-1.5 border border-slate-300 rounded text-[11px]">
+                <span class="text-slate-600">horas</span>
+              </div>
+            </div>
+            <div>
+              <div class="text-[11px] font-bold text-slate-700 mb-2">Captcha en /signup</div>
+              <div class="flex items-center justify-between bg-slate-50 border border-slate-200 rounded-lg p-2.5">
+                <span class="text-[11px]">Cloudflare Turnstile</span>
+                <div class="w-9 h-5 bg-emerald-500 rounded-full p-0.5"><div class="w-4 h-4 bg-white rounded-full ml-auto"></div></div>
+              </div>
+            </div>
+            <div>
+              <div class="text-[11px] font-bold text-slate-700 mb-2">Auto-rechazo</div>
+              <div class="flex items-center gap-2 text-[11px]">
+                <div class="w-9 h-5 bg-emerald-500 rounded-full p-0.5"><div class="w-4 h-4 bg-white rounded-full ml-auto"></div></div>
+                <span class="text-slate-600">después</span>
+                <input type="number" value="7" class="w-14 px-2 py-1.5 border border-slate-300 rounded text-[11px]">
+                <span class="text-slate-600">días</span>
+              </div>
+            </div>
+          </div>
+          <div class="flex justify-end mt-4 pt-4 border-t border-slate-200">
+            <button class="bg-indigo-600 hover:bg-indigo-700 text-white text-[12px] font-bold px-4 py-1.5 rounded-lg">Guardar política</button>
+          </div>
+        </div>
+
+        <!-- 5.2 · Invitaciones activas -->
+        <div class="bg-white rounded-2xl ring-1 ring-indigo-200 p-5 mb-4">
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-2">
+              <i data-lucide="mail" class="w-5 h-5 text-indigo-600"></i>
+              <h3 class="text-[14px] font-bold text-slate-900">5.2 · Invitaciones activas <span class="ml-2 text-[10px] bg-amber-100 text-amber-700 px-2 py-0.5 rounded font-bold">3</span></h3>
+            </div>
+          </div>
+          <div class="space-y-2">
+            <div class="bg-slate-50 border border-slate-200 rounded-lg p-3 flex items-center gap-3 text-[11px]">
+              <i data-lucide="mail" class="w-4 h-4 text-indigo-600"></i>
+              <div class="flex-1"><div class="font-bold">maria@vitaskin.pe</div><div class="text-slate-600">Rol: planilla · expira en 6d 21h</div></div>
+              <span class="bg-amber-100 text-amber-700 font-bold text-[10px] px-2 py-0.5 rounded">esperando registro</span>
+              <button class="text-[10px] text-indigo-600 font-bold">Re-enviar</button>
+              <button class="text-[10px] text-rose-600 font-medium">Cancelar</button>
+            </div>
+            <div class="bg-amber-50/30 border border-amber-300 rounded-lg p-3 flex items-center gap-3 text-[11px]">
+              <i data-lucide="clock-alert" class="w-4 h-4 text-amber-600"></i>
+              <div class="flex-1"><div class="font-bold">freelance@external.com</div><div class="text-amber-700">Sin rol · <strong>expira en 22h</strong></div></div>
+              <span class="bg-amber-200 text-amber-900 font-bold text-[10px] px-2 py-0.5 rounded">por expirar</span>
+              <button class="text-[10px] text-indigo-600 font-bold">Re-enviar</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 5.3-5.6 · 4 cards grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <!-- Password -->
+          <div class="bg-white rounded-2xl ring-1 ring-indigo-200 p-5">
+            <div class="flex items-center gap-2 mb-3"><i data-lucide="key" class="w-5 h-5 text-indigo-600"></i><h3 class="text-[14px] font-bold text-slate-900">5.3 · Política password</h3></div>
+            <div class="space-y-2 text-[11px]">
+              <div class="flex justify-between"><span>Longitud mínima</span><span class="font-bold tabular">8 chars</span></div>
+              <div class="flex justify-between"><span>Mayúsculas</span><span class="text-emerald-700 font-bold">Sí</span></div>
+              <div class="flex justify-between"><span>Números</span><span class="text-emerald-700 font-bold">Sí</span></div>
+              <div class="flex justify-between"><span>Especiales</span><span class="text-slate-400">No</span></div>
+              <div class="flex justify-between"><span>Bloquear comunes</span><span class="text-emerald-700 font-bold">Sí</span></div>
+            </div>
+            <button class="mt-4 w-full bg-indigo-50 text-indigo-700 text-[11px] font-bold py-2 rounded-lg">Editar política</button>
+          </div>
+
+          <!-- Roles -->
+          <div class="bg-white rounded-2xl ring-1 ring-indigo-200 p-5">
+            <div class="flex items-center justify-between mb-3">
+              <div class="flex items-center gap-2"><i data-lucide="layers" class="w-5 h-5 text-indigo-600"></i><h3 class="text-[14px] font-bold text-slate-900">5.4 · Plantillas roles</h3></div>
+              <button class="text-[10px] text-indigo-600 font-bold">+ Custom</button>
+            </div>
+            <div class="space-y-1.5 text-[11px]">
+              <div class="flex items-center justify-between p-2 bg-purple-50/50 rounded"><span class="font-bold">Admin</span><span class="text-[10px] text-purple-700">42 perms</span></div>
+              <div class="flex items-center justify-between p-2 bg-emerald-50/50 rounded"><span class="font-bold">Gerente</span><span class="text-[10px] text-emerald-700">28 perms</span></div>
+              <div class="flex items-center justify-between p-2 bg-violet-50/50 rounded"><span class="font-bold">Socio</span><span class="text-[10px] text-violet-700">12 perms</span></div>
+              <div class="text-center text-[10px] text-slate-500 pt-1">+ 6 roles más · 9 totales</div>
+            </div>
+          </div>
+
+          <!-- Email template -->
+          <div class="bg-white rounded-2xl ring-1 ring-indigo-200 p-5">
+            <div class="flex items-center gap-2 mb-3"><i data-lucide="mail" class="w-5 h-5 text-indigo-600"></i><h3 class="text-[14px] font-bold text-slate-900">5.5 · Email invitación</h3></div>
+            <div class="text-[10px] text-slate-500 mb-1">Asunto</div>
+            <div class="bg-slate-50 rounded p-2 font-mono text-[10px] mb-3 text-slate-700">Te invitamos a unirte a BusinessMN</div>
+            <div class="text-[10px] text-slate-500 mb-1">Variables disponibles</div>
+            <div class="flex flex-wrap gap-1">
+              <code class="bg-indigo-100 text-indigo-700 px-1.5 py-0.5 rounded text-[10px]">{nombre}</code>
+              <code class="bg-indigo-100 text-indigo-700 px-1.5 py-0.5 rounded text-[10px]">{invitedBy}</code>
+              <code class="bg-indigo-100 text-indigo-700 px-1.5 py-0.5 rounded text-[10px]">{link}</code>
+              <code class="bg-indigo-100 text-indigo-700 px-1.5 py-0.5 rounded text-[10px]">{expiraEn}</code>
+            </div>
+            <button class="mt-4 w-full bg-indigo-50 text-indigo-700 text-[11px] font-bold py-2 rounded-lg">Preview HTML</button>
+          </div>
+
+          <!-- Permisos custom -->
+          <div class="bg-white rounded-2xl ring-1 ring-indigo-200 p-5">
+            <div class="flex items-center justify-between mb-3">
+              <div class="flex items-center gap-2"><i data-lucide="sliders" class="w-5 h-5 text-indigo-600"></i><h3 class="text-[14px] font-bold text-slate-900">5.6 · Permisos custom</h3></div>
+              <button class="text-[10px] text-indigo-600 font-bold">+ Override</button>
+            </div>
+            <div class="space-y-1.5 text-[11px]">
+              <div class="bg-emerald-50 border border-emerald-200 rounded p-2">
+                <div class="flex items-center justify-between"><span class="font-bold text-emerald-900">Diego López</span><span class="text-[10px] bg-emerald-200 text-emerald-900 px-1.5 py-0.5 rounded">+1 perm</span></div>
+                <div class="text-[10px] text-emerald-800">+ VER_FINANZAS · review jul-2026</div>
+              </div>
+              <div class="bg-rose-50 border border-rose-200 rounded p-2">
+                <div class="flex items-center justify-between"><span class="font-bold text-rose-900">Carlos Silva</span><span class="text-[10px] bg-rose-200 text-rose-900 px-1.5 py-0.5 rounded">-1 perm</span></div>
+                <div class="text-[10px] text-rose-800">- ELIMINAR_GASTOS · separación funciones</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Modales internos canon de Configuración -->
+<section class="my-16">
+  <div class="max-w-6xl mx-auto">
+    <div class="bg-gradient-to-r from-indigo-100 to-indigo-50 ring-1 ring-indigo-200 rounded-3xl p-6 mb-6">
+      <h2 class="text-lg font-bold text-indigo-900">Modales adicionales · Configuración</h2>
+      <p class="text-[12px] text-indigo-700">3 modales canon que abren las sub-secciones del tab</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <!-- Modal · Editar política password -->
+      <div class="bg-white rounded-2xl ring-1 ring-slate-200 overflow-hidden">
+        <div class="px-4 py-3 border-b border-slate-200 bg-indigo-50/40">
+          <h3 class="text-[12px] font-bold text-indigo-900">Editar política password</h3>
+          <p class="text-[10px] text-indigo-700">FormModalV2 · iconTone amber</p>
+        </div>
+        <div class="p-4 space-y-2 text-[11px]">
+          <div class="flex justify-between items-center"><span>Longitud mínima</span><select class="border border-slate-300 rounded text-[10px] px-1 py-0.5"><option>8</option></select></div>
+          <label class="flex justify-between items-center"><span>Requiere mayúsculas</span><input type="checkbox" checked></label>
+          <label class="flex justify-between items-center"><span>Requiere números</span><input type="checkbox" checked></label>
+          <label class="flex justify-between items-center"><span>Requiere especiales</span><input type="checkbox"></label>
+          <label class="flex justify-between items-center"><span>Bloquear comunes</span><input type="checkbox" checked></label>
+          <div class="flex justify-between items-center"><span>Expira cada</span><select class="border border-slate-300 rounded text-[10px] px-1 py-0.5"><option>Nunca</option><option>90d</option></select></div>
+        </div>
+      </div>
+
+      <!-- Modal · Crear rol custom -->
+      <div class="bg-white rounded-2xl ring-1 ring-slate-200 overflow-hidden">
+        <div class="px-4 py-3 border-b border-slate-200 bg-indigo-50/40">
+          <h3 class="text-[12px] font-bold text-indigo-900">Crear rol custom</h3>
+          <p class="text-[10px] text-indigo-700">FormModalV2 · multi-select permisos</p>
+        </div>
+        <div class="p-4 space-y-2 text-[11px]">
+          <div><label class="text-[10px] uppercase font-bold text-slate-700">Nombre</label><input placeholder="ej. supervisor-ventas" class="w-full px-2 py-1.5 border border-slate-300 rounded text-[11px] mt-1"></div>
+          <div><label class="text-[10px] uppercase font-bold text-slate-700">Permisos (multi-select)</label><div class="bg-slate-50 border border-slate-200 rounded p-2 mt-1 max-h-20 overflow-y-auto space-y-1">
+            <label class="flex items-center gap-1 text-[10px]"><input type="checkbox" checked> VER_VENTAS</label>
+            <label class="flex items-center gap-1 text-[10px]"><input type="checkbox" checked> VALIDAR_COTIZACION</label>
+            <label class="flex items-center gap-1 text-[10px]"><input type="checkbox"> CREAR_VENTA</label>
+            <div class="text-center text-[9px] text-slate-500">+ 27 más</div>
+          </div></div>
+        </div>
+      </div>
+
+      <!-- Modal · Nuevo override -->
+      <div class="bg-white rounded-2xl ring-1 ring-slate-200 overflow-hidden">
+        <div class="px-4 py-3 border-b border-slate-200 bg-indigo-50/40">
+          <h3 class="text-[12px] font-bold text-indigo-900">Nuevo override permiso</h3>
+          <p class="text-[10px] text-indigo-700">FormModalV2 · usuario + permiso + acción</p>
+        </div>
+        <div class="p-4 space-y-2 text-[11px]">
+          <div><label class="text-[10px] uppercase font-bold text-slate-700">Usuario</label><select class="w-full px-2 py-1.5 border border-slate-300 rounded text-[11px] mt-1"><option>Diego López</option></select></div>
+          <div><label class="text-[10px] uppercase font-bold text-slate-700">Tipo override</label><div class="grid grid-cols-2 gap-1 mt-1"><label class="p-1.5 border-2 border-emerald-400 bg-emerald-50 rounded text-[10px] text-center font-bold text-emerald-700"><input type="radio" checked> Otorgar</label><label class="p-1.5 border border-slate-200 rounded text-[10px] text-center"><input type="radio"> Revocar</label></div></div>
+          <div><label class="text-[10px] uppercase font-bold text-slate-700">Permiso</label><select class="w-full px-2 py-1.5 border border-slate-300 rounded text-[11px] mt-1"><option>VER_FINANZAS</option></select></div>
+          <div><label class="text-[10px] uppercase font-bold text-slate-700">Motivo</label><input placeholder="Review jul-2026" class="w-full px-2 py-1.5 border border-slate-300 rounded text-[11px] mt-1"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Resumen final -->
+<section class="my-16">
+  <div class="max-w-6xl mx-auto bg-white rounded-2xl ring-1 ring-slate-200 p-6">
+    <h2 class="text-[16px] font-bold text-slate-900 mb-4 flex items-center gap-2"><i data-lucide="check-circle-2" class="w-5 h-5 text-purple-600"></i>Cobertura · tabs internas /usuarios v5.3</h2>
+    <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-4 mb-4">
+      <div class="text-[11px] uppercase tracking-wider font-bold text-emerald-700 mb-2">CANON DE COBERTURA · ahora completo</div>
+      <p class="text-[12px] text-slate-700">El mockup v5.3 hub mostraba solo la tab Resumen + chips filtro. Este mockup completa con tab Accesos & Seguridad y tab Configuración · cada una con TODOS sus modales canon FormModalV2.</p>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-[11px]">
+      <div class="bg-rose-50 rounded p-3"><strong class="text-rose-700">TAB ACCESOS</strong> · KPIs sesiones · auditoría reciente · IPs sospechosas · cross-link módulo Auditoría</div>
+      <div class="bg-indigo-50 rounded p-3"><strong class="text-indigo-700">TAB CONFIGURACIÓN</strong> · 6 secciones (registro · invitaciones · password · roles · email · overrides)</div>
+      <div class="bg-indigo-50 rounded p-3"><strong>Modal</strong> · Editar política password</div>
+      <div class="bg-indigo-50 rounded p-3"><strong>Modal</strong> · Crear rol custom</div>
+      <div class="bg-indigo-50 rounded p-3"><strong>Modal</strong> · Nuevo override permiso</div>
+      <div class="bg-rose-50 rounded p-3"><strong>Acción emergencia</strong> · Desconectar todas las sesiones</div>
+    </div>
+  </div>
+</section>
+
+<footer class="text-center text-[11px] text-slate-500 pt-8 max-w-5xl mx-auto pb-12">Mockup canon v5.3 · /usuarios tabs internas completas · 2026-05-26</footer>
+<script>if (window.lucide) window.lucide.createIcons();</script>
+</body>
+</html>
