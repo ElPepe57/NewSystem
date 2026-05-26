@@ -47,9 +47,13 @@ import { planillaService } from '../../services/planilla.service';
 import { calculoIncentivoService } from '../../services/calculoIncentivo.service';
 import type { Boleta, AdelantoNomina, MesGratificacion } from '../../types/planilla.types';
 import { formatCurrencyPEN } from '../../utils/format';
-// chk5.PERSONAS-v5.4 · F5 · modales operativos canon FormModalV2 sky
+// chk5.PERSONAS-v5.4 · F5 · modales operativos canon FormModalV2
 import { ProcesarGratificacionModal } from '../../components/modules/planilla/ProcesarGratificacionModal';
 import { ProgramarVacacionesModal } from '../../components/modules/planilla/ProgramarVacacionesModal';
+import { CalcularBonosMesModal } from '../../components/modules/planilla/CalcularBonosMesModal';
+import { AprobarBonoModal } from '../../components/modules/planilla/AprobarBonoModal';
+import { RechazarBonoModal } from '../../components/modules/planilla/RechazarBonoModal';
+import type { CalculoIncentivoMes } from '../../types/planilla.types';
 
 // ═════════════════════════════════════════════════════════════════════════
 // TIPOS
@@ -102,6 +106,9 @@ export const Planilla: React.FC = () => {
     | { kind: 'none' }
     | { kind: 'procesarGratif'; mes: MesGratificacion }
     | { kind: 'programarVacaciones' }
+    | { kind: 'calcularBonos' }
+    | { kind: 'aprobarBono'; calculo: CalculoIncentivoMes }
+    | { kind: 'rechazarBono'; calculo: CalculoIncentivoMes }
   >({ kind: 'none' });
   const [toast, setToast] = useState<{ kind: 'success' | 'error'; msg: string } | null>(null);
 
@@ -428,11 +435,11 @@ export const Planilla: React.FC = () => {
             <TabIncentivos
               mes={mes}
               anio={anio}
-              onNuevoEsquema={() => { /* F5: NuevoEsquemaIncentivoModal */ }}
-              onEditarEsquema={(_esq) => { /* F5: EditarEsquemaIncentivoModal */ }}
-              onCalcularMes={(_m, _a) => { /* F5: CalcularBonosMesModal */ }}
-              onAprobarCalculo={(_c) => { /* F5: AprobarBonoModal */ }}
-              onRechazarCalculo={(_c) => { /* F5: RechazarBonoModal */ }}
+              onNuevoEsquema={() => { /* F5.B: NuevoEsquemaIncentivoModal */ }}
+              onEditarEsquema={(_esq) => { /* F5.B: EditarEsquemaIncentivoModal */ }}
+              onCalcularMes={() => setModal({ kind: 'calcularBonos' })}
+              onAprobarCalculo={(c) => setModal({ kind: 'aprobarBono', calculo: c })}
+              onRechazarCalculo={(c) => setModal({ kind: 'rechazarBono', calculo: c })}
             />
           )}
           {tabActiva === 'vacaciones' && (
@@ -481,6 +488,40 @@ export const Planilla: React.FC = () => {
         isOpen={modal.kind === 'programarVacaciones'}
         onClose={() => setModal({ kind: 'none' })}
         onSuccess={(msg) => setToast({ kind: 'success', msg })}
+        onError={(msg) => setToast({ kind: 'error', msg })}
+      />
+
+      <CalcularBonosMesModal
+        isOpen={modal.kind === 'calcularBonos'}
+        onClose={() => setModal({ kind: 'none' })}
+        mes={mes}
+        anio={anio}
+        onSuccess={(msg) => {
+          setToast({ kind: 'success', msg });
+          cargarShellData();
+        }}
+        onError={(msg) => setToast({ kind: 'error', msg })}
+      />
+
+      <AprobarBonoModal
+        isOpen={modal.kind === 'aprobarBono'}
+        onClose={() => setModal({ kind: 'none' })}
+        calculo={modal.kind === 'aprobarBono' ? modal.calculo : null}
+        onSuccess={(msg) => {
+          setToast({ kind: 'success', msg });
+          cargarShellData();
+        }}
+        onError={(msg) => setToast({ kind: 'error', msg })}
+      />
+
+      <RechazarBonoModal
+        isOpen={modal.kind === 'rechazarBono'}
+        onClose={() => setModal({ kind: 'none' })}
+        calculo={modal.kind === 'rechazarBono' ? modal.calculo : null}
+        onSuccess={(msg) => {
+          setToast({ kind: 'success', msg });
+          cargarShellData();
+        }}
         onError={(msg) => setToast({ kind: 'error', msg })}
       />
     </div>
