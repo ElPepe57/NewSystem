@@ -567,11 +567,11 @@ export default NuevoEsquemaIncentivoModal;
 // SUB-FORMS · uno por cada tipo de incentivo
 // ═════════════════════════════════════════════════════════════════════════
 
-interface ConfigComisionFormProps {
+export interface ConfigComisionFormProps {
   config: ConfigComision;
   onChange: (c: ConfigComision) => void;
 }
-const ConfigComisionForm: React.FC<ConfigComisionFormProps> = ({ config, onChange }) => {
+export const ConfigComisionForm: React.FC<ConfigComisionFormProps> = ({ config, onChange }) => {
   return (
     <div className="space-y-3">
       <div className="bg-emerald-50 border border-emerald-200 rounded p-2 flex items-start gap-2">
@@ -720,11 +720,11 @@ const EscalasEditor: React.FC<{ escalas: EscalaComision[]; onChange: (e: EscalaC
   );
 };
 
-interface ConfigBonoMetaFormProps {
+export interface ConfigBonoMetaFormProps {
   config: ConfigBonoMeta;
   onChange: (c: ConfigBonoMeta) => void;
 }
-const ConfigBonoMetaForm: React.FC<ConfigBonoMetaFormProps> = ({ config, onChange }) => {
+export const ConfigBonoMetaForm: React.FC<ConfigBonoMetaFormProps> = ({ config, onChange }) => {
   return (
     <div className="space-y-3">
       <div className="bg-sky-50 border border-sky-200 rounded p-2 flex items-start gap-2">
@@ -853,11 +853,11 @@ const ConfigBonoMetaForm: React.FC<ConfigBonoMetaFormProps> = ({ config, onChang
   );
 };
 
-interface ConfigBonoKPIFormProps {
+export interface ConfigBonoKPIFormProps {
   config: ConfigBonoKPI;
   onChange: (c: ConfigBonoKPI) => void;
 }
-const ConfigBonoKPIForm: React.FC<ConfigBonoKPIFormProps> = ({ config, onChange }) => {
+export const ConfigBonoKPIForm: React.FC<ConfigBonoKPIFormProps> = ({ config, onChange }) => {
   return (
     <div className="space-y-3">
       <div className="bg-teal-50 border border-teal-200 rounded p-2 flex items-start gap-2">
@@ -923,11 +923,11 @@ const ConfigBonoKPIForm: React.FC<ConfigBonoKPIFormProps> = ({ config, onChange 
   );
 };
 
-interface ConfigBonoFijoFormProps {
+export interface ConfigBonoFijoFormProps {
   config: ConfigBonoFijo;
   onChange: (c: ConfigBonoFijo) => void;
 }
-const ConfigBonoFijoForm: React.FC<ConfigBonoFijoFormProps> = ({ config, onChange }) => {
+export const ConfigBonoFijoForm: React.FC<ConfigBonoFijoFormProps> = ({ config, onChange }) => {
   return (
     <div className="space-y-3">
       <div className="bg-indigo-50 border border-indigo-200 rounded p-2 flex items-start gap-2">
