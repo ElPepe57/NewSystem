@@ -17,6 +17,14 @@ import { datosLaboralesService } from '../../services/datosLaborales.service';
 import { datosSocioService } from '../../services/datosSocio.service';
 import type { DatosLaborales, DatosLaboralesFormData } from '../../types/datosLaborales.types';
 import type { DatosSocio, DatosSocioFormData } from '../../types/datosSocio.types';
+// chk5.F4-USERS · 2026-05-25 · 5 sub-tabs canon mockup integral v2
+import TabSocios from '../../components/modules/usuarios/TabSocios';
+import TabPlanilla from '../../components/modules/usuarios/TabPlanilla';
+import TabAccesos from '../../components/modules/usuarios/TabAccesos';
+import TabConfiguracion from '../../components/modules/usuarios/TabConfiguracion';
+import { Briefcase as BriefcaseIcon, BriefcaseBusiness, ShieldCheck, Settings as SettingsIcon, LayoutDashboard } from 'lucide-react';
+
+type TabActiva = 'resumen' | 'socios' | 'planilla' | 'accesos' | 'configuracion';
 
 type ModalType = 'none' | 'create' | 'edit-permisos' | 'view-permisos' | 'delete-confirm' | 'reset-password' | 'disconnect-confirm' | 'disconnect-all-confirm' | 'approve-user';
 
@@ -66,6 +74,9 @@ export const Usuarios: React.FC = () => {
   // Estado para resetear contraseña
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+
+  // chk5.F4-USERS · tabActiva canon mockup integral
+  const [tabActiva, setTabActiva] = useState<TabActiva>('resumen');
 
   const fetchUsuarios = async () => {
     setLoading(true);
@@ -548,6 +559,46 @@ export const Usuarios: React.FC = () => {
             </div>
           </div>
 
+          {/* §B-bis · TABS internas · canon F4-USERS 5 sub-tabs · scroll-x mobile N6 */}
+          <div className="border-b border-slate-200 px-3 sm:px-6 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
+            <div className="flex gap-1 whitespace-nowrap">
+              {([
+                { id: 'resumen' as TabActiva, label: 'Resumen', Icon: LayoutDashboard, badge: null },
+                { id: 'socios' as TabActiva, label: 'Socios', Icon: BriefcaseIcon, badge: sociosCount > 0 ? sociosCount : null },
+                { id: 'planilla' as TabActiva, label: 'Planilla', Icon: BriefcaseBusiness, badge: null },
+                { id: 'accesos' as TabActiva, label: 'Accesos', Icon: ShieldCheck, badge: null },
+                { id: 'configuracion' as TabActiva, label: 'Configuración', Icon: SettingsIcon, badge: null },
+              ]).map(({ id, label, Icon, badge }) => {
+                const isActive = tabActiva === id;
+                return (
+                  <button
+                    key={id}
+                    type="button"
+                    onClick={() => setTabActiva(id)}
+                    className={`px-3 sm:px-4 py-2.5 text-[12px] font-${isActive ? 'bold' : 'medium'} border-b-2 transition-colors flex items-center gap-1.5 ${
+                      isActive
+                        ? 'border-purple-600 text-purple-700'
+                        : 'border-transparent text-slate-600 hover:text-purple-600'
+                    }`}
+                  >
+                    <Icon className="w-3.5 h-3.5" />
+                    {label}
+                    {badge !== null && (
+                      <span className="bg-violet-100 text-violet-700 px-1.5 py-0.5 rounded text-[10px] font-bold">
+                        {badge}
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* ════════════════════════════════════════════════════════════ */}
+          {/* TAB · RESUMEN (default · contenido legacy con banner+KPIs+lista) */}
+          {/* ════════════════════════════════════════════════════════════ */}
+          {tabActiva === 'resumen' && (<>
+
           {/* §C · KPI STRIP canon N1+N2 · 4 cards con gradient + ring colored */}
           <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-slate-100 grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-3">
             <div className="bg-gradient-to-br from-purple-50 to-purple-100/40 ring-1 ring-purple-200/50 rounded-2xl p-3 sm:p-4">
@@ -862,6 +913,45 @@ export const Usuarios: React.FC = () => {
           })
         )}
       </div>
+
+          {/* Cierra TAB · RESUMEN */}
+          </>)}
+
+          {/* ════════════════════════════════════════════════════════════ */}
+          {/* TAB · SOCIOS · cross-link a /inversionistas                     */}
+          {/* ════════════════════════════════════════════════════════════ */}
+          {tabActiva === 'socios' && (
+            <div className="px-4 sm:px-6 py-4">
+              <TabSocios usuarios={usuarios} />
+            </div>
+          )}
+
+          {/* ════════════════════════════════════════════════════════════ */}
+          {/* TAB · PLANILLA · cross-link a /planilla                         */}
+          {/* ════════════════════════════════════════════════════════════ */}
+          {tabActiva === 'planilla' && (
+            <div className="px-4 sm:px-6 py-4">
+              <TabPlanilla usuarios={usuarios} />
+            </div>
+          )}
+
+          {/* ════════════════════════════════════════════════════════════ */}
+          {/* TAB · ACCESOS · seguridad + cross-link a /auditoria             */}
+          {/* ════════════════════════════════════════════════════════════ */}
+          {tabActiva === 'accesos' && (
+            <div className="px-4 sm:px-6 py-4">
+              <TabAccesos onRequestDisconnectAll={() => setModalType('disconnect-all-confirm')} />
+            </div>
+          )}
+
+          {/* ════════════════════════════════════════════════════════════ */}
+          {/* TAB · CONFIGURACIÓN · 5 secciones (política · password · ...)   */}
+          {/* ════════════════════════════════════════════════════════════ */}
+          {tabActiva === 'configuracion' && (
+            <div className="px-4 sm:px-6 py-4">
+              <TabConfiguracion />
+            </div>
+          )}
 
           {/* Cierra el shell card canon */}
         </div>
