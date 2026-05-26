@@ -55,6 +55,10 @@ import { AprobarBonoModal } from '../../components/modules/planilla/AprobarBonoM
 import { RechazarBonoModal } from '../../components/modules/planilla/RechazarBonoModal';
 import { NuevoEsquemaIncentivoModal } from '../../components/modules/planilla/NuevoEsquemaIncentivoModal';
 import { EditarEsquemaIncentivoModal } from '../../components/modules/planilla/EditarEsquemaIncentivoModal';
+import { GenerarBoletasModal } from '../../components/modules/planilla/GenerarBoletasModal';
+import { CerrarMesModal } from '../../components/modules/planilla/CerrarMesModal';
+import { ExportPayrollModal } from '../../components/modules/planilla/ExportPayrollModal';
+import { WizardBajaEmpleadoModal } from '../../components/modules/planilla/WizardBajaEmpleadoModal';
 import type { CalculoIncentivoMes, EsquemaIncentivo } from '../../types/planilla.types';
 
 // ═════════════════════════════════════════════════════════════════════════
@@ -113,6 +117,10 @@ export const Planilla: React.FC = () => {
     | { kind: 'rechazarBono'; calculo: CalculoIncentivoMes }
     | { kind: 'nuevoEsquema' }
     | { kind: 'editarEsquema'; esquema: EsquemaIncentivo }
+    | { kind: 'generarBoletas' }
+    | { kind: 'cerrarMes' }
+    | { kind: 'exportPayroll' }
+    | { kind: 'bajaEmpleado' }
   >({ kind: 'none' });
   const [toast, setToast] = useState<{ kind: 'success' | 'error'; msg: string } | null>(null);
 
@@ -298,8 +306,9 @@ export const Planilla: React.FC = () => {
               {/* Tier neutral · Exportar */}
               <button
                 type="button"
+                onClick={() => setModal({ kind: 'exportPayroll' })}
                 aria-label="Exportar payroll"
-                title="Exportar payroll del mes"
+                title="Exportar payroll del mes a CSV"
                 className="text-[11px] font-semibold text-slate-600 hover:bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-lg flex items-center gap-1.5"
               >
                 <Download className="w-3 h-3" />
@@ -308,22 +317,35 @@ export const Planilla: React.FC = () => {
               {/* Tier destacada · Cerrar mes */}
               <button
                 type="button"
+                onClick={() => setModal({ kind: 'cerrarMes' })}
                 aria-label="Cerrar mes"
-                title="Cerrar el mes de planilla (consolidar boletas + bonos)"
+                title="Cerrar el mes de planilla (marcar revisado · sin bloqueo Vita Skin)"
                 className="text-[11px] font-semibold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 px-3 py-1.5 rounded-lg flex items-center gap-1.5"
               >
                 <Lock className="w-3 h-3" />
                 <span className="hidden md:inline">Cerrar mes</span>
               </button>
-              {/* Tier primary · Nueva boleta */}
+              {/* Tier destacada · Dar de baja */}
               <button
                 type="button"
-                aria-label="Nueva boleta"
-                title="Crear boleta manual"
+                onClick={() => setModal({ kind: 'bajaEmpleado' })}
+                aria-label="Dar de baja a empleado"
+                title="Iniciar liquidación de baja · wizard 4 pasos"
+                className="text-[11px] font-semibold text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 px-3 py-1.5 rounded-lg flex items-center gap-1.5"
+              >
+                <Plus className="w-3 h-3 rotate-45" />
+                <span className="hidden lg:inline">Dar de baja</span>
+              </button>
+              {/* Tier primary · Generar boletas (CTA principal del mes) */}
+              <button
+                type="button"
+                onClick={() => setModal({ kind: 'generarBoletas' })}
+                aria-label="Generar boletas del mes"
+                title="Genera boletas borrador para todos los empleados activos"
                 className="text-[11px] font-bold text-white bg-sky-600 hover:bg-sky-700 px-3 py-1.5 rounded-lg flex items-center gap-1.5"
               >
                 <Plus className="w-3 h-3" />
-                <span className="hidden sm:inline">Nueva boleta</span>
+                <span className="hidden sm:inline">Generar boletas</span>
               </button>
             </div>
           </div>
@@ -543,6 +565,46 @@ export const Planilla: React.FC = () => {
         isOpen={modal.kind === 'editarEsquema'}
         onClose={() => setModal({ kind: 'none' })}
         esquema={modal.kind === 'editarEsquema' ? modal.esquema : null}
+        onSuccess={(msg) => {
+          setToast({ kind: 'success', msg });
+          cargarShellData();
+        }}
+        onError={(msg) => setToast({ kind: 'error', msg })}
+      />
+
+      <GenerarBoletasModal
+        isOpen={modal.kind === 'generarBoletas'}
+        onClose={() => setModal({ kind: 'none' })}
+        mes={mes}
+        anio={anio}
+        onSuccess={(msg) => {
+          setToast({ kind: 'success', msg });
+          cargarShellData();
+        }}
+        onError={(msg) => setToast({ kind: 'error', msg })}
+      />
+
+      <CerrarMesModal
+        isOpen={modal.kind === 'cerrarMes'}
+        onClose={() => setModal({ kind: 'none' })}
+        mes={mes}
+        anio={anio}
+        onSuccess={(msg) => setToast({ kind: 'success', msg })}
+        onError={(msg) => setToast({ kind: 'error', msg })}
+      />
+
+      <ExportPayrollModal
+        isOpen={modal.kind === 'exportPayroll'}
+        onClose={() => setModal({ kind: 'none' })}
+        mes={mes}
+        anio={anio}
+        onSuccess={(msg) => setToast({ kind: 'success', msg })}
+        onError={(msg) => setToast({ kind: 'error', msg })}
+      />
+
+      <WizardBajaEmpleadoModal
+        isOpen={modal.kind === 'bajaEmpleado'}
+        onClose={() => setModal({ kind: 'none' })}
         onSuccess={(msg) => {
           setToast({ kind: 'success', msg });
           cargarShellData();

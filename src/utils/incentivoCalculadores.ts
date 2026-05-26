@@ -26,21 +26,22 @@ export function empleadosAplicables(
   esquema: EsquemaIncentivo,
   empleados: EmpleadoConPerfil[],
 ): EmpleadoConPerfil[] {
-  switch (esquema.aplicableA.modo) {
+  // Narrow el aplicableA en una const local para que TypeScript pueda hacer
+  // el discriminator correctamente dentro de los filtros.
+  const ap = esquema.aplicableA;
+  switch (ap.modo) {
     case 'todos':
       return empleados.filter((e) => e.activo);
     case 'rol':
       return empleados.filter(
-        (e) => e.activo && (e.role === esquema.aplicableA.rol ||
-          // si el user tiene roles array, lo mira (multi-rol-aware)
-          ((e as any).roles && Array.isArray((e as any).roles) &&
-            (e as any).roles.includes(esquema.aplicableA.rol))),
+        (e) =>
+          e.activo &&
+          (e.role === ap.rol ||
+            // multi-rol-aware: si el user tiene roles[], chequear ahí también
+            ((e as { roles?: string[] }).roles?.includes(ap.rol) ?? false)),
       );
     case 'usuarios':
-      return empleados.filter(
-        (e) => e.activo && esquema.aplicableA.modo === 'usuarios' &&
-          esquema.aplicableA.userIds.includes(e.uid),
-      );
+      return empleados.filter((e) => e.activo && ap.userIds.includes(e.uid));
     default:
       return [];
   }

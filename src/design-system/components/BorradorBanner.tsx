@@ -77,6 +77,18 @@ const LABELS: Record<TipoBorradorWizard, {
     resumenFallback: 'Liquidación sin terminar',
     totalPasos: 3,
   },
+  // chk5.PERSONAS-v5.4 · F5 · wizard 3 pasos NuevoEsquemaIncentivo
+  esquema_incentivo: {
+    titulo: 'Tienes un esquema de incentivo en borrador',
+    resumenFallback: 'Esquema sin terminar',
+    totalPasos: 3,
+  },
+  // chk5.PERSONAS-v5.4 · F5 · wizard 4 pasos WizardBajaEmpleado
+  baja_empleado: {
+    titulo: 'Tienes una baja de empleado en borrador',
+    resumenFallback: 'Baja sin terminar',
+    totalPasos: 4,
+  },
 };
 
 interface BorradorBannerProps {
