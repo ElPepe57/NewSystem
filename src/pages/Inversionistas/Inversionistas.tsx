@@ -357,19 +357,15 @@ export default function Inversionistas() {
   return (
     <div className="max-w-6xl mx-auto p-3 sm:p-4 md:p-6">
       <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
-        {/* §A · BREADCRUMB canon S9.D1 + mockup inversionistas-v5.3-tweaks.html línea 56-60
-            3 niveles base: Inicio › Finanzas y Contabilidad › Inversionistas
-            Cuando tab !== resumen · 4 niveles con tab dinámico al final */}
+        {/* §A · BREADCRUMB canon S9.D1 · 2-3 niveles dinámicos (REVERT F10.D)
+            Canon explícito en Contabilidad.tsx línea 1618-1622:
+              "Razón: el grupo 'Finanzas y Contabilidad' ya está visible siempre
+              en el sidebar izquierdo · no aporta repetirlo en breadcrumb."
+            Default (resumen): Inicio › Inversionistas
+            Sub-tab activa:    Inicio › Inversionistas › {tab.breadcrumb} */}
         <div className="border-b border-slate-200 px-4 sm:px-6 py-2.5 flex items-center gap-3 bg-slate-50">
           <div className="flex items-center text-[12px] flex-1 min-w-0">
             <a className="text-slate-500 hover:text-violet-700 cursor-pointer flex-shrink-0">Inicio</a>
-            <ChevronRight className="w-3 h-3 text-slate-300 mx-1.5 flex-shrink-0" />
-            <a
-              className="text-slate-500 hover:text-violet-700 cursor-pointer flex-shrink-0"
-              onClick={() => navigate('/contabilidad')}
-            >
-              Finanzas y Contabilidad
-            </a>
             <ChevronRight className="w-3 h-3 text-slate-300 mx-1.5 flex-shrink-0" />
             {tabActiva === 'resumen' ? (
               <span className="text-slate-900 font-semibold truncate">Inversionistas</span>
@@ -401,7 +397,7 @@ export default function Inversionistas() {
                 <Landmark className="w-5 h-5" />
               </div>
               <div className="min-w-0">
-                <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">Inversionistas</h1>
+                <h1 className="text-2xl font-bold tracking-tight text-slate-900">Inversionistas</h1>
                 <p className="text-[12px] sm:text-[13px] text-slate-500 leading-snug">
                   Vista estratégica · capital comprometido · retorno · trayectoria
                 </p>

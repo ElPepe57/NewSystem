@@ -37,12 +37,15 @@ import {
   Wallet,
   Users,
   CalendarDays,
+  LayoutDashboard,
 } from 'lucide-react';
 import { TabBoletas } from './components/TabBoletas';
 import { TabAdelantos } from './components/TabAdelantos';
 import { TabIncentivos } from './components/TabIncentivos';
 import { TabVacacionesGratificaciones } from './components/TabVacacionesGratificaciones';
 import { TabAnalisisReportes } from './components/TabAnalisisReportes';
+// chk5.PERSONAS-v5.4 · F10.E · Tab Resumen estratégico (alineado con Contabilidad/Finanzas/Inversionistas)
+import { TabResumenPlanilla } from './components/TabResumenPlanilla';
 import { planillaService } from '../../services/planilla.service';
 import { calculoIncentivoService } from '../../services/calculoIncentivo.service';
 import type { Boleta, AdelantoNomina, MesGratificacion } from '../../types/planilla.types';
@@ -65,7 +68,10 @@ import type { CalculoIncentivoMes, EsquemaIncentivo } from '../../types/planilla
 // TIPOS
 // ═════════════════════════════════════════════════════════════════════════
 
+// chk5.PERSONAS-v5.4 · F10.E · agregado 'resumen' como first tab estratégico
+// (alineado con Contabilidad · Finanzas Overview · Inversionistas Resumen ejecutivo)
 type TabId =
+  | 'resumen'
   | 'boletas'
   | 'adelantos'
   | 'incentivos'
@@ -76,6 +82,8 @@ interface TabConfig {
   id: TabId;
   label: string;
   labelSm?: string;
+  /** Leaf canon S9.D1 para breadcrumb · undefined si es default (sin leaf) */
+  breadcrumbLeaf?: string;
   Icon: React.ComponentType<{ className?: string }>;
   badge?: { label: string; tinte: 'sky' | 'amber' | 'violet' };
 }
@@ -110,7 +118,9 @@ export const Planilla: React.FC = () => {
   }, []);
   const [mes, setMes] = useState<number>(queryParams.mes ?? ahora.getMonth() + 1);
   const [anio, setAnio] = useState<number>(queryParams.anio ?? ahora.getFullYear());
-  const [tabActiva, setTabActiva] = useState<TabId>('boletas');
+  // chk5.PERSONAS-v5.4 · F10.E · default 'resumen' alineado con Contabilidad/Finanzas/Inversionistas
+  // (vista estratégica al entrar · operación táctica vive en otras tabs)
+  const [tabActiva, setTabActiva] = useState<TabId>('resumen');
 
   // Data del shell · KPIs
   const [boletasMes, setBoletasMes] = useState<Boleta[]>([]);
@@ -195,13 +205,21 @@ export const Planilla: React.FC = () => {
     return out;
   }, []);
 
-  // Tabs config canon
+  // Tabs config canon · F10.E agregó 'resumen' como first tab + breadcrumbLeaf canon S9.D1
   const TABS: TabConfig[] = useMemo(
     () => [
+      {
+        id: 'resumen',
+        label: 'Resumen',
+        labelSm: 'Resumen',
+        breadcrumbLeaf: undefined, // default · sin leaf en breadcrumb (canon S9.D1)
+        Icon: LayoutDashboard,
+      },
       {
         id: 'boletas',
         label: 'Boletas del mes',
         labelSm: 'Boletas',
+        breadcrumbLeaf: 'Boletas del mes',
         Icon: FileText,
         badge:
           boletasMes.length > 0
@@ -211,6 +229,7 @@ export const Planilla: React.FC = () => {
       {
         id: 'adelantos',
         label: 'Adelantos',
+        breadcrumbLeaf: 'Adelantos',
         Icon: ArrowDownCircle,
         badge:
           adelantosPendientes.length > 0
@@ -221,6 +240,7 @@ export const Planilla: React.FC = () => {
         id: 'incentivos',
         label: 'Incentivos & Comisiones',
         labelSm: 'Incentivos',
+        breadcrumbLeaf: 'Incentivos & Comisiones',
         Icon: Trophy,
         badge: { label: 'NUEVO', tinte: 'violet' },
       },
@@ -228,12 +248,14 @@ export const Planilla: React.FC = () => {
         id: 'vacaciones',
         label: 'Vacaciones & Gratificaciones',
         labelSm: 'Vac.+Grat.',
+        breadcrumbLeaf: 'Vacaciones & Gratificaciones',
         Icon: Palmtree,
       },
       {
         id: 'analisis',
         label: 'Análisis & Reportes',
         labelSm: 'Análisis',
+        breadcrumbLeaf: 'Análisis & Reportes',
         Icon: BarChart3,
         badge: { label: 'NUEVO', tinte: 'violet' },
       },
@@ -241,22 +263,34 @@ export const Planilla: React.FC = () => {
     [boletasMes.length, adelantosPendientes.length],
   );
 
+  // chk5.PERSONAS-v5.4 · F10.E · breadcrumbLeaf dinámico según tab activa
+  const tabActivaCfg = TABS.find((t) => t.id === tabActiva)!;
+
   return (
     <div className="max-w-6xl mx-auto p-3 sm:p-4 md:p-6">
       <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
-        {/* §A · BREADCRUMB canon S9.D1 · 3 niveles */}
+        {/* §A · BREADCRUMB canon S9.D1 · 2-3 niveles dinámicos · F10.E
+            Canon explícito Contabilidad.tsx línea 1618-1622: NO repetir grupo del sidebar.
+            Default (resumen): Inicio › Planilla
+            Sub-tab activa:    Inicio › Planilla › {tab.breadcrumbLeaf} */}
         <div className="border-b border-slate-200 px-4 sm:px-6 py-2.5 flex items-center gap-3 bg-slate-50">
           <div className="flex items-center text-[12px] flex-1 min-w-0">
             <a className="text-slate-500 hover:text-sky-700 cursor-pointer flex-shrink-0">Inicio</a>
             <ChevronRight className="w-3 h-3 text-slate-300 mx-1.5 flex-shrink-0" />
-            <a
-              className="text-slate-500 hover:text-sky-700 cursor-pointer flex-shrink-0"
-              onClick={() => navigate('/contabilidad')}
-            >
-              Finanzas y Contabilidad
-            </a>
-            <ChevronRight className="w-3 h-3 text-slate-300 mx-1.5 flex-shrink-0" />
-            <span className="text-slate-900 font-semibold truncate">Planilla</span>
+            {tabActivaCfg.breadcrumbLeaf ? (
+              <>
+                <a
+                  className="text-slate-500 hover:text-sky-700 cursor-pointer flex-shrink-0"
+                  onClick={() => setTabActiva('resumen')}
+                >
+                  Planilla
+                </a>
+                <ChevronRight className="w-3 h-3 text-slate-300 mx-1.5 flex-shrink-0" />
+                <span className="text-slate-900 font-semibold truncate">{tabActivaCfg.breadcrumbLeaf}</span>
+              </>
+            ) : (
+              <span className="text-slate-900 font-semibold truncate">Planilla</span>
+            )}
           </div>
         </div>
 
@@ -268,7 +302,7 @@ export const Planilla: React.FC = () => {
                 <BriefcaseBusiness className="w-5 h-5" />
               </div>
               <div className="min-w-0">
-                <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">Planilla</h1>
+                <h1 className="text-2xl font-bold tracking-tight text-slate-900">Planilla</h1>
                 <p className="text-[12px] sm:text-[13px] text-slate-500 leading-snug">
                   Operación mensual · nómina · adelantos · incentivos · vacaciones · gratificaciones
                 </p>
@@ -467,6 +501,22 @@ export const Planilla: React.FC = () => {
 
         {/* §F · BODY del tab activo */}
         <div>
+          {tabActiva === 'resumen' && (
+            <TabResumenPlanilla
+              mes={mes}
+              anio={anio}
+              onGenerarBoletas={() => setModal({ kind: 'generarBoletas' })}
+              onCalcularBonos={() => setModal({ kind: 'calcularBonos' })}
+              onProcesarGratificacion={() =>
+                setModal({
+                  kind: 'procesarGratif',
+                  mes: ([7, 12].includes(mes) ? mes : 7) as MesGratificacion,
+                })
+              }
+              onBajaEmpleado={() => setModal({ kind: 'bajaEmpleado' })}
+              onIrATab={(t) => setTabActiva(t)}
+            />
+          )}
           {tabActiva === 'boletas' && <TabBoletas />}
           {tabActiva === 'adelantos' && <TabAdelantos />}
           {tabActiva === 'incentivos' && (
