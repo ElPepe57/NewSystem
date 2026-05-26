@@ -28,7 +28,8 @@ export type TipoEntidadTitularPF =
   | 'empleado'
   | 'colaborador'
   | 'proveedor'
-  | 'cliente';
+  | 'cliente'
+  | 'socio';   // chk5.F4-USERS · 2026-05-25 · alineado con TipoEntidadCC + UserRole
 
 // ═════════════════════════════════════════════════════════════════════════
 // RELACION BANCARIA

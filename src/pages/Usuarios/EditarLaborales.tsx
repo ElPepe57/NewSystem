@@ -63,11 +63,8 @@ export default function EditarLaborales() {
     setSaving(true);
     setError(null);
     try {
-      if (datosLab) {
-        await datosLaboralesService.update(uid, pending, currentUser.uid);
-      } else {
-        await datosLaboralesService.create(uid, pending, currentUser.uid);
-      }
+      // service.set es idempotente · maneja create + update internamente
+      await datosLaboralesService.set(uid, pending, currentUser.uid);
       navigate(-1);  // Vuelve al listado
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error al guardar');

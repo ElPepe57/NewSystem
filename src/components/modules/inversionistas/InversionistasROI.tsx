@@ -45,7 +45,7 @@ export default function InversionistasROI({ data }: Props) {
             <h3 className="text-[12px] font-bold text-emerald-900">ROI sobre capital PROPIO</h3>
           </div>
           <div className="text-[28px] font-bold tabular-nums text-emerald-700">
-            {formatPercent(roiPropio, { decimals: 1 })}
+            {formatPercent(roiPropio, 1)}
           </div>
           <div className="text-[11px] text-emerald-700">
             sobre {formatCurrencyPEN(data.capitalComprometido.cashAportadoPEN)} propios
@@ -76,7 +76,7 @@ export default function InversionistasROI({ data }: Props) {
             <h3 className="text-[12px] font-bold text-violet-900">ROI sobre capital COMPROMETIDO</h3>
           </div>
           <div className="text-[28px] font-bold tabular-nums text-violet-700">
-            {formatPercent(roiComprometido, { decimals: 1 })}
+            {formatPercent(roiComprometido, 1)}
           </div>
           <div className="text-[11px] text-violet-700">
             sobre {formatCurrencyPEN(data.capitalComprometido.totalPEN)} (incluye TC)

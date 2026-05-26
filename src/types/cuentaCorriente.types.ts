@@ -411,6 +411,7 @@ export const TIPO_ENTIDAD_CC_LABELS: Record<TipoEntidadCC, string> = {
   colaborador: 'Colaborador',
   empleado: 'Empleado',
   tarjeta_credito: 'Tarjeta de crédito',
+  socio: 'Socio',  // chk5.F4-USERS · 2026-05-25
 };
 
 export const TIPO_MOVIMIENTO_CC_LABELS: Record<TipoMovimientoCC, string> = {

@@ -41,6 +41,7 @@ const ICON_BY_TIPO: Record<TipoEntidadCC, React.ComponentType<{ className?: stri
   colaborador: Users,
   empleado: User,
   tarjeta_credito: CreditCard,
+  socio: User,  // chk5.F4-USERS · 2026-05-25
 };
 
 const BG_GRADIENT: Record<ReturnType<typeof colorTipo>, string> = {

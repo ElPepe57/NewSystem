@@ -666,7 +666,7 @@ export const Gastos: React.FC = () => {
     // Ingreso mes seleccionado
     const ingresoMesPEN = ventas
       .filter(v => {
-        const f = v.fecha?.toDate?.();
+        const f = (v.fechaConfirmacion ?? v.fechaCreacion)?.toDate?.();
         return f && f.getMonth() + 1 === selectedMonth && f.getFullYear() === selectedYear;
       })
       .reduce((s, v) => s + (v.totalPEN || 0), 0);
@@ -676,7 +676,7 @@ export const Gastos: React.FC = () => {
     const anioAnt = selectedMonth === 1 ? selectedYear - 1 : selectedYear;
     const ingresoMesAntPEN = ventas
       .filter(v => {
-        const f = v.fecha?.toDate?.();
+        const f = (v.fechaConfirmacion ?? v.fechaCreacion)?.toDate?.();
         return f && f.getMonth() + 1 === mesAnt && f.getFullYear() === anioAnt;
       })
       .reduce((s, v) => s + (v.totalPEN || 0), 0);

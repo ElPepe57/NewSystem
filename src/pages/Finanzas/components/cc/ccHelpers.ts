@@ -454,6 +454,7 @@ export const TIPO_ENTIDAD_LABEL: Record<TipoEntidadCC, string> = {
   colaborador: 'Colaboradores',
   empleado: 'Empleados',
   tarjeta_credito: 'Tarjetas de Crédito',
+  socio: 'Socios',  // chk5.F4-USERS · 2026-05-25
 };
 
 /** Color semántico por tipo · canon N4 cross-módulo */
@@ -465,6 +466,7 @@ export const TIPO_ENTIDAD_COLOR: Record<
   proveedor: 'rose',
   colaborador: 'purple',
   empleado: 'indigo',
+  socio: 'purple',  // chk5.F4-USERS · 2026-05-25
   tarjeta_credito: 'amber',
 };
 
@@ -475,6 +477,7 @@ export const TIPO_ENTIDAD_BADGE: Record<TipoEntidadCC, 'CxC' | 'CxP' | 'CC' | nu
   colaborador: null,
   empleado: null,
   tarjeta_credito: null,
+  socio: null,  // chk5.F4-USERS · 2026-05-25
 };
 
 /** Icon name para lucide (mapeo) · canon mockup */
@@ -484,4 +487,5 @@ export const TIPO_ENTIDAD_ICON: Record<TipoEntidadCC, 'user-check' | 'truck' | '
   colaborador: 'users',
   empleado: 'user',
   tarjeta_credito: 'credit-card',
+  socio: 'user',  // chk5.F4-USERS · placeholder icon
 };

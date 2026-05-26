@@ -42,6 +42,7 @@ const TIPO_TONO: Record<TipoEntidadCC, string> = {
   empleado: 'bg-sky-100 text-sky-700',
   cliente: 'bg-teal-100 text-teal-700',
   tarjeta_credito: 'bg-rose-100 text-rose-700',
+  socio: 'bg-violet-100 text-violet-700',  // chk5.F4-USERS · 2026-05-25
 };
 
 // ═════════════════════════════════════════════════════════════════════════

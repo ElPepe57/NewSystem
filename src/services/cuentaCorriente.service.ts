@@ -281,6 +281,7 @@ export const cuentaCorrienteService = {
       colaborador: { cantidadEntidades: 0, debenAEmpresa: { PEN: 0, USD: 0 }, empresaDebe: { PEN: 0, USD: 0 } },
       empleado: { cantidadEntidades: 0, debenAEmpresa: { PEN: 0, USD: 0 }, empresaDebe: { PEN: 0, USD: 0 } },
       tarjeta_credito: { cantidadEntidades: 0, debenAEmpresa: { PEN: 0, USD: 0 }, empresaDebe: { PEN: 0, USD: 0 } },
+      socio: { cantidadEntidades: 0, debenAEmpresa: { PEN: 0, USD: 0 }, empresaDebe: { PEN: 0, USD: 0 } },  // chk5.F4-USERS · 2026-05-25
     };
 
     for (const cc of ccs) {

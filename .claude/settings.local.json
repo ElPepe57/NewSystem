@@ -309,7 +309,13 @@
       "Bash(head -n 386 functions/src/mercadolibre/ml.diagnostics.ts)",
       "Bash(mv /tmp/ml.diagnostics.tmp functions/src/mercadolibre/ml.diagnostics.ts)",
       "Bash(mkdir -p src/pages/Tesoreria/components/pagosMasivos && mv src/pages/PagosMasivos/components/*.tsx src/pages/Tesoreria/components/pagosMasivos/ && ls src/pages/Tesoreria/components/pagosMasivos/)",
-      "Bash(git mv *)"
+      "Bash(git mv *)",
+      "Bash(tee /tmp/seed-perdidas-dryrun.log)",
+      "Bash(tee /tmp/seed-completo-dryrun.log)",
+      "Bash(echo \"EXIT_CODE=$?\")",
+      "PowerShell(Get-NetTCPConnection -LocalPort 5173,5174,5175,5176,5177,5178 -ErrorAction SilentlyContinue)",
+      "Bash(git restore *)",
+      "Bash(npx tsc *)"
     ],
     "deny": [],
     "ask": []

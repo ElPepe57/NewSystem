@@ -60,6 +60,7 @@ const CATEGORIAS_POR_ROL: Record<UserRole, CategoriaTarea[]> = {
     'transferencia_por_recibir',
   ],
   invitado: [],
+  socio: [],  // chk5.F4-USERS · 2026-05-25 · socios no tienen tareas operativas (vista ejecutiva)
 };
 
 // ============================================================

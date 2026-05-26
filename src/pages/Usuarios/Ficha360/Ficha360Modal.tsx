@@ -410,7 +410,7 @@ function TabSubPerfiles({ profile, datosLab, datosSoc, navigate, onClose }: { pr
             <div className="flex justify-between"><span className="text-slate-600">Área</span><span className="font-bold text-sky-900">{datosLab.area || '—'}</span></div>
             <div className="flex justify-between"><span className="text-slate-600">Contrato</span><span className="font-bold text-sky-900">{datosLab.tipoContrato || '—'}</span></div>
             <div className="flex justify-between"><span className="text-slate-600">Modalidad</span><span className="font-bold text-sky-900">{datosLab.modalidad || '—'}</span></div>
-            <div className="flex justify-between"><span className="text-slate-600">Sueldo</span><span className="font-bold text-sky-900 tabular-nums">{formatCurrencyPEN(datosLab.sueldoBruto || 0)}</span></div>
+            <div className="flex justify-between"><span className="text-slate-600">Sueldo</span><span className="font-bold text-sky-900 tabular-nums">{formatCurrencyPEN(datosLab.salarioBase || 0)}</span></div>
           </div>
         </div>
       ) : (

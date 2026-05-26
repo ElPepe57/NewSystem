@@ -63,11 +63,8 @@ export default function EditarSocio() {
     setSaving(true);
     setError(null);
     try {
-      if (datosSoc) {
-        await datosSocioService.update(uid, pending, currentUser.uid);
-      } else {
-        await datosSocioService.create(uid, pending, currentUser.uid);
-      }
+      // service.set es idempotente · maneja create + update internamente
+      await datosSocioService.set(uid, pending, currentUser.uid);
       navigate(-1);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error al guardar');

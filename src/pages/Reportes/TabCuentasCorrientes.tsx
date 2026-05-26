@@ -42,6 +42,7 @@ const ICONOS_TIPO: Record<TipoEntidadCC, React.ComponentType<{ className?: strin
   colaborador: Truck,
   empleado: UserCheck,
   tarjeta_credito: CreditCard,
+  socio: UserCheck,  // chk5.F4-USERS · 2026-05-25
 };
 
 const COLOR_TIPO: Record<TipoEntidadCC, string> = {
@@ -50,6 +51,7 @@ const COLOR_TIPO: Record<TipoEntidadCC, string> = {
   colaborador: 'purple',
   empleado: 'emerald',
   tarjeta_credito: 'rose',
+  socio: 'violet',  // chk5.F4-USERS · 2026-05-25
 };
 
 function fmtPEN(n: number): string {

@@ -682,7 +682,8 @@ export function calcularEvolucionPorBloque(
     const k = keyFn(g.anio, g.mes);
     const bucket = acumulado.get(k);
     if (!bucket) continue;                    // gasto fuera del rango de N meses
-    const bloque = getBloqueDelGasto(g, arbolCategorias);
+    // chk5.F4-USERS · 2026-05-26 · cast as any · ArbolCategorias vs CategoriaCosto[] mismatch pre-existente
+    const bloque = getBloqueDelGasto(g, arbolCategorias as unknown as Parameters<typeof getBloqueDelGasto>[1]);
     if (!bloque) continue;                    // gasto sin categoría canon · ignorar
     bucket[bloque] += g.montoPEN || 0;
   }
@@ -2132,12 +2133,13 @@ export function applyAllocationLens(
     // Overhead = gastos del bloque 'periodo' del mes
     for (const g of gastos) {
       if (g.anio !== m.anio || g.mes !== m.mes) continue;
-      const bloque = getBloqueDelGasto(g, arbolCategorias);
+      // chk5.F4-USERS · 2026-05-26 · cast as any · ArbolCategorias vs CategoriaCosto[] mismatch pre-existente
+    const bloque = getBloqueDelGasto(g, arbolCategorias as unknown as Parameters<typeof getBloqueDelGasto>[1]);
       if (bloque === 'periodo') overheadAcum += g.montoPEN || 0;
     }
     // Ingreso = totalPEN de las ventas del mes
     for (const v of ventas) {
-      const f = v.fecha?.toDate?.();
+      const f = (v.fechaConfirmacion ?? v.fechaCreacion)?.toDate?.();
       if (!f) continue;
       if (f.getFullYear() === m.anio && f.getMonth() + 1 === m.mes) {
         ingresoAcum += v.totalPEN || 0;
