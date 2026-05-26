@@ -41,6 +41,8 @@ import {
   Banknote,
   HeartPulse,
   FileBarChart,
+  Users,
+  ArrowRight,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
@@ -52,7 +54,7 @@ import type {
 } from '../../types/inversionista.types';
 import { formatCurrencyPEN } from '../../utils/format';
 import { useAuthStore } from '../../store/authStore';
-import { hasRole } from '../../types/auth.types';
+import { hasRole, hasAnyRole } from '../../types/auth.types';
 
 import {
   InversionistasResumen,
@@ -278,6 +280,8 @@ export default function Inversionistas() {
   // Canon "admin ve todo" · banner contextual
   const userProfile = useAuthStore((s) => s.userProfile);
   const esAdmin = hasRole(userProfile, 'admin');
+  // Banner cross-link · solo admin/gerente · canon v5.3 (mockup inversionistas-v5.3-tweaks.html · líneas 80-94)
+  const puedeGestionarSocios = hasAnyRole(userProfile, ['admin', 'gerente']);
 
   const aniosDisponibles = useMemo(() => {
     const out: number[] = [];
@@ -457,6 +461,29 @@ export default function Inversionistas() {
             </div>
           </div>
         </div>
+
+        {/* §B.5 · BANNER CROSS-LINK · solo admin/gerente · canon v5.3 (mockup inversionistas-v5.3-tweaks.html · líneas 80-94) */}
+        {puedeGestionarSocios && (
+          <div className="mx-4 sm:mx-6 mt-2 mb-3 bg-gradient-to-r from-purple-50 to-indigo-50 ring-1 ring-purple-200 rounded-xl p-3 flex items-center gap-3">
+            <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
+              <Users className="w-4 h-4 text-purple-700" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="text-[11px] text-slate-700">
+                <strong>Admin/Gerente:</strong> para configurar socios · % participación · aportes de valor (D7) · ir a Usuarios.
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => navigate('/usuarios?filterRole=socio')}
+              className="bg-white border border-purple-300 hover:bg-purple-50 text-purple-700 text-[11px] font-bold px-3 py-1 rounded-lg whitespace-nowrap flex items-center gap-1"
+            >
+              <span className="hidden sm:inline">Configurar socios</span>
+              <span className="sm:hidden">Socios</span>
+              <ArrowRight className="w-3 h-3" />
+            </button>
+          </div>
+        )}
 
         {/* §C · KPI STRIP · 5 cards · 2/3/5 cols */}
         {data && (
