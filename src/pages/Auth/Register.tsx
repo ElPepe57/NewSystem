@@ -1,29 +1,48 @@
 import React, { useState } from 'react';
 import { useNavigate, Link, Navigate } from 'react-router-dom';
-import { UserPlus, Eye, EyeOff } from 'lucide-react';
+import { UserPlus, Eye, EyeOff, AlertCircle } from 'lucide-react';
+import { getFunctions, httpsCallable } from 'firebase/functions';
 import { Button, Input, Card } from '../../components/common';
+import { TurnstileWidget } from '../../components/common/TurnstileWidget';
 import { AuthService } from '../../services/auth.service';
-import { userService } from '../../services/user.service';
 import { useAuthStore } from '../../store/authStore';
 import { VitaSkinLogo, AuthPageWrapper, DropletDivider } from './AuthDecorations';
+import {
+  evaluatePasswordStrength,
+  strengthBarColor,
+  strengthTextColor,
+} from '../../utils/passwordStrength';
+
+const functions = getFunctions();
+
+interface ValidateSignupResponse {
+  success: boolean;
+  message: string;
+}
+
+interface CompletarSignupResponse {
+  success: boolean;
+}
 
 export const Register: React.FC = () => {
   const navigate = useNavigate();
   const user = useAuthStore(state => state.user);
   const userProfile = useAuthStore(state => state.userProfile);
   const setUser = useAuthStore(state => state.setUser);
-  const setUserProfile = useAuthStore(state => state.setUserProfile);
 
   const [displayName, setDisplayName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [captchaToken, setCaptchaToken] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // Guards: si ya está autenticado, redirigir
+  const passwordStrength = evaluatePasswordStrength(password);
+
+  // Guards · si ya está autenticado, redirigir
   if (user && userProfile?.activo) {
     return <Navigate to="/dashboard" replace />;
   }
@@ -35,8 +54,12 @@ export const Register: React.FC = () => {
     if (!displayName.trim()) return 'El nombre completo es requerido';
     if (displayName.trim().length < 3) return 'El nombre debe tener al menos 3 caracteres';
     if (!email.trim()) return 'El email es requerido';
-    if (password.length < 6) return 'La contraseña debe tener al menos 6 caracteres';
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return 'Email inválido';
+    if (passwordStrength.level === 'muy_debil' || passwordStrength.level === 'debil') {
+      return 'La contraseña no cumple la política mínima';
+    }
     if (password !== confirmPassword) return 'Las contraseñas no coinciden';
+    if (!captchaToken) return 'Completa el captcha antes de continuar';
     return null;
   };
 
@@ -52,27 +75,35 @@ export const Register: React.FC = () => {
 
     setLoading(true);
     try {
-      // 1. Crear cuenta en Firebase Auth
-      const firebaseUser = await AuthService.register(email, password);
-
-      // 2. Crear perfil en Firestore con activo: false (pendiente de aprobación)
-      const profile = await userService.createProfile(
-        firebaseUser.uid,
-        email,
-        displayName.trim(),
-        'invitado',
-        undefined,
-        false // activo: false
+      // 1. Pre-validación server-side · captcha + whitelist + rate-limit + duplicado
+      const validateFn = httpsCallable<{ email: string; captchaToken: string }, ValidateSignupResponse>(
+        functions,
+        'validateSelfSignup',
       );
+      await validateFn({ email: email.trim().toLowerCase(), captchaToken });
 
-      // 3. Actualizar store
+      // 2. Crear cuenta en Firebase Auth
+      const firebaseUser = await AuthService.register(email.trim().toLowerCase(), password);
+
+      // 3. Completar perfil server-side (estado: pendiente_aprobacion + notif admins)
+      const completarFn = httpsCallable<
+        { uid: string; email: string; displayName: string; userAgent?: string },
+        CompletarSignupResponse
+      >(functions, 'completarSelfSignup');
+      await completarFn({
+        uid: firebaseUser.uid,
+        email: email.trim().toLowerCase(),
+        displayName: displayName.trim(),
+        userAgent: navigator.userAgent,
+      });
+
+      // 4. Setear user en store · redirige a /pending-approval automáticamente
       setUser(firebaseUser);
-      setUserProfile(profile);
-
-      // 4. Redirigir a pantalla de espera
       navigate('/pending-approval');
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err) {
+      // HttpsError llega con err.code (functions/...) y err.message
+      const msg = err instanceof Error ? err.message : 'Error inesperado';
+      setError(msg);
     } finally {
       setLoading(false);
     }
@@ -85,10 +116,12 @@ export const Register: React.FC = () => {
     try {
       const firebaseUser = await AuthService.loginWithGoogle();
       setUser(firebaseUser);
-      // fetchUserProfile en App.tsx se encargará de crear el perfil con activo: false
-      navigate('/dashboard'); // ProtectedRoute redirigirá a /pending-approval si no está activo
-    } catch (err: any) {
-      setError(err.message);
+      // fetchUserProfile en App.tsx creará el perfil con activo: false
+      // El usuario será redirigido a /pending-approval vía ProtectedRoute
+      navigate('/dashboard');
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Error al registrarse con Google';
+      setError(msg);
     } finally {
       setGoogleLoading(false);
     }
@@ -102,9 +135,7 @@ export const Register: React.FC = () => {
           <div className="flex justify-center mb-3">
             <VitaSkinLogo className="h-16 w-16 drop-shadow-lg" />
           </div>
-          <h1 className="text-2xl font-bold text-slate-900">
-            Crear Cuenta
-          </h1>
+          <h1 className="text-2xl font-bold text-slate-900">Crear Cuenta</h1>
           <p className="text-slate-500 mt-1 text-sm">
             Completa tus datos para solicitar acceso al sistema
           </p>
@@ -137,7 +168,7 @@ export const Register: React.FC = () => {
               type={showPassword ? 'text' : 'password'}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="Mínimo 6 caracteres"
+              placeholder="Mínimo 8 caracteres"
               required
             />
             <button
@@ -148,6 +179,33 @@ export const Register: React.FC = () => {
             >
               {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
             </button>
+            {/* Password strength indicator */}
+            {password.length > 0 && (
+              <>
+                <div className="mt-1.5 flex gap-1">
+                  {[1, 2, 3, 4].map((seg) => (
+                    <div
+                      key={seg}
+                      className={`h-1 flex-1 rounded-full transition-colors ${
+                        seg <= passwordStrength.filled
+                          ? strengthBarColor(passwordStrength.color)
+                          : 'bg-slate-200'
+                      }`}
+                    />
+                  ))}
+                </div>
+                <div className={`mt-1 text-[10px] ${strengthTextColor(passwordStrength.color)}`}>
+                  {passwordStrength.message}
+                </div>
+                {passwordStrength.hints.length > 0 && (
+                  <ul className="mt-1 text-[10px] text-slate-500 space-y-0.5">
+                    {passwordStrength.hints.slice(0, 2).map((hint, i) => (
+                      <li key={i}>· {hint}</li>
+                    ))}
+                  </ul>
+                )}
+              </>
+            )}
           </div>
 
           <Input
@@ -159,9 +217,19 @@ export const Register: React.FC = () => {
             required
           />
 
+          {/* Cloudflare Turnstile captcha */}
+          <div className="pt-1">
+            <TurnstileWidget
+              onSuccess={(token) => setCaptchaToken(token)}
+              onError={() => setCaptchaToken('')}
+              onExpired={() => setCaptchaToken('')}
+            />
+          </div>
+
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg text-sm">
-              {error}
+            <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg text-sm flex items-start gap-2">
+              <AlertCircle className="h-4 w-4 flex-shrink-0 mt-0.5" />
+              <span>{error}</span>
             </div>
           )}
 
@@ -170,6 +238,7 @@ export const Register: React.FC = () => {
             variant="primary"
             className="w-full"
             loading={loading}
+            disabled={!captchaToken}
           >
             Crear Cuenta
           </Button>

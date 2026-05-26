@@ -5,6 +5,9 @@ import { MainLayout } from './components/layout/MainLayout';
 import { Login } from './pages/Auth/Login';
 import { Register } from './pages/Auth/Register';
 import { PendingApproval } from './pages/Auth/PendingApproval';
+// chk5.F4-USERS · 2026-05-25 · nuevas auth pages
+import { ForgotPassword } from './pages/Auth/ForgotPassword';
+import { SetupPassword } from './pages/Auth/SetupPassword';
 
 // Páginas lazy-loaded (se cargan bajo demanda al navegar)
 const Dashboard = React.lazy(() => import('./pages/Dashboard').then(m => ({ default: m.Dashboard })));
@@ -155,7 +158,11 @@ function App() {
             {/* Rutas Públicas */}
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/signup" element={<Navigate to="/register" replace />} />
             <Route path="/pending-approval" element={<PendingApproval />} />
+            {/* chk5.F4-USERS · 2026-05-25 · auth pages nuevas */}
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/setup-password/:invitacionId" element={<SetupPassword />} />
 
             {/* Rutas Protegidas */}
             <Route

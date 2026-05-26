@@ -143,9 +143,9 @@ export const Login: React.FC = () => {
         </button>
 
         <div className="mt-6 text-center">
-          <a href="#" className="text-sm text-teal-600 hover:text-teal-700">
+          <Link to="/forgot-password" className="text-sm text-teal-600 hover:text-teal-700 font-medium">
             ¿Olvidaste tu contraseña?
-          </a>
+          </Link>
         </div>
 
         {/* Link a registro */}
