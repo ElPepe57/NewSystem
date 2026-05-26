@@ -6,18 +6,19 @@ import {
   // chk5.F4-USERS · iconos de roles (avatares + chips)
   Briefcase, ShoppingCart, Package, Wallet, Landmark, User as UserIcon, Moon,
   // chk5.F4-USERS · iconos de tabs internas
-  Briefcase as BriefcaseIcon, BriefcaseBusiness, ShieldCheck,
+  BriefcaseBusiness, ShieldCheck,
   Settings as SettingsIcon, LayoutDashboard, MailPlus,
+  // chk5.PERSONAS-v5.3 · F2 · banners cross-link
+  ArrowRight,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { PageShell } from '../../design-system';
 import { userService } from '../../services/user.service';
 import { useAuthStore } from '../../store/authStore';
 import type { UserProfile, UserRole } from '../../types/auth.types';
-import { DEFAULT_PERMISOS, ROLE_LABELS, ROLE_DESCRIPTIONS, hasRole, getRolPrincipal, getUserRoles, hasAnyRole } from '../../types/auth.types';
-// chk5.F4-USERS · 2026-05-25 · 5 sub-tabs canon mockup integral v2
-import TabSocios from '../../components/modules/usuarios/TabSocios';
-import TabPlanilla from '../../components/modules/usuarios/TabPlanilla';
+import { ROLE_LABELS, hasRole, getRolPrincipal, getUserRoles, hasAnyRole } from '../../types/auth.types';
+// chk5.PERSONAS-v5.3 · 2026-05-26 · F2 · 3 sub-tabs (Directorio + Accesos + Configuración)
+// TabSocios y TabPlanilla ELIMINADOS · reemplazados por chips filtro + banners cross-link
 import TabAccesos from '../../components/modules/usuarios/TabAccesos';
 import TabConfiguracion from '../../components/modules/usuarios/TabConfiguracion';
 import InvitarPorEmailModal from '../../components/modules/usuarios/InvitarPorEmailModal';
@@ -32,7 +33,16 @@ import EliminarUsuarioModal from '../../components/modules/usuarios/EliminarUsua
 import DesconectarSesionModal from '../../components/modules/usuarios/DesconectarSesionModal';
 import DesconectarTodasModal from '../../components/modules/usuarios/DesconectarTodasModal';
 
-type TabActiva = 'resumen' | 'socios' | 'planilla' | 'accesos' | 'configuracion';
+// chk5.PERSONAS-v5.3 · 2026-05-26 · F2 · 3 tabs (Directorio + Accesos + Configuración)
+// 'directorio' reemplaza 'resumen' · 'socios' y 'planilla' eliminados (ahora son chips filtro)
+type TabActiva = 'directorio' | 'accesos' | 'configuracion';
+
+// Filtro de rol extendido: soporta valores agregados 'planilla' (todos los empleados)
+// y 'otros' (invitados). Canon mockup usuarios-v5.3-hub.html (chips filtro).
+type FiltroRol = UserRole | 'all' | 'planilla' | 'otros';
+
+// Roles considerados "Planilla" (empleados con boleta de pago)
+const ROLES_PLANILLA: UserRole[] = ['vendedor', 'comprador', 'almacenero', 'finanzas', 'supervisor', 'gerente'];
 
 // chk5.F4-USERS · 2026-05-26 · ModalType final · 10 estados operativos canon
 type ModalType =
@@ -59,11 +69,11 @@ export const Usuarios: React.FC = () => {
 
   // ─── Búsqueda y filtros ───────────────────────────────────────────────
   const [searchTerm, setSearchTerm] = useState('');
-  const [filterRole, setFilterRole] = useState<UserRole | 'all'>('all');
+  const [filterRole, setFilterRole] = useState<FiltroRol>('all');
   const [filterStatus, setFilterStatus] = useState<'all' | 'active' | 'inactive'>('all');
 
-  // ─── chk5.F4-USERS · navegación interna ──────────────────────────────
-  const [tabActiva, setTabActiva] = useState<TabActiva>('resumen');
+  // ─── chk5.PERSONAS-v5.3 · F2 · navegación interna (3 tabs) ───────────
+  const [tabActiva, setTabActiva] = useState<TabActiva>('directorio');
   const [invitarOpen, setInvitarOpen] = useState(false);
   const [fichaModalUid, setFichaModalUid] = useState<string | null>(null);
   // Cleanup chk5.F4-USERS · 2026-05-26 · state legacy (newUser · editPermisos ·
@@ -85,6 +95,18 @@ export const Usuarios: React.FC = () => {
 
   useEffect(() => {
     fetchUsuarios();
+  }, []);
+
+  // chk5.PERSONAS-v5.3 · F2 · deep-link reading: ?filterRole=socio activa chip
+  // automáticamente al entrar desde /inversionistas o /planilla
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const rawFilter = params.get('filterRole');
+    if (!rawFilter) return;
+    const valid: FiltroRol[] = ['all', 'planilla', 'otros', 'admin', 'gerente', 'vendedor', 'comprador', 'almacenero', 'finanzas', 'supervisor', 'socio', 'invitado'];
+    if (valid.includes(rawFilter as FiltroRol)) {
+      setFilterRole(rawFilter as FiltroRol);
+    }
   }, []);
 
   // Auto-hide success message
@@ -146,6 +168,8 @@ export const Usuarios: React.FC = () => {
   };
 
   // Filtrar usuarios (con validación segura)
+  // chk5.PERSONAS-v5.3 · F2 · filtro extendido para soportar 'planilla' (agregado)
+  // y 'otros' (invitados) además de UserRole individual.
   const filteredUsuarios = useMemo(() => {
     const usuariosArr = Array.isArray(usuarios) ? usuarios : [];
     const term = searchTerm.toLowerCase();
@@ -157,8 +181,18 @@ export const Usuarios: React.FC = () => {
         displayName.includes(term) ||
         email.includes(term);
 
-      // Filtro de rol
-      const matchesRole = filterRole === 'all' || usuario.role === filterRole;
+      // Filtro de rol · usa hasRole para multi-rol-aware
+      let matchesRole = false;
+      if (filterRole === 'all') {
+        matchesRole = true;
+      } else if (filterRole === 'planilla') {
+        // Agregado: cualquiera con un rol de empleado (canon mockup chip "Planilla")
+        matchesRole = ROLES_PLANILLA.some((r) => hasRole(usuario, r));
+      } else if (filterRole === 'otros') {
+        matchesRole = hasRole(usuario, 'invitado');
+      } else {
+        matchesRole = hasRole(usuario, filterRole);
+      }
 
       // Filtro de estado
       const matchesStatus = filterStatus === 'all' ||
@@ -245,6 +279,13 @@ export const Usuarios: React.FC = () => {
   const sociosCount = roleStats['socio'] ?? 0;
   const multiRolCount = usuarios.filter((u) => getUserRoles(u).length > 1).length;
 
+  // chk5.PERSONAS-v5.3 · F2 · conteos agregados para chips canon
+  const planillaCount = useMemo(
+    () => usuarios.filter((u) => ROLES_PLANILLA.some((r) => hasRole(u, r))).length,
+    [usuarios]
+  );
+  const otrosCount = roleStats['invitado'] ?? 0;
+
   return (
     <PageShell>
       <div className="max-w-6xl mx-auto p-3 sm:p-4 md:p-6">
@@ -315,13 +356,11 @@ export const Usuarios: React.FC = () => {
             </div>
           </div>
 
-          {/* §B-bis · TABS internas · canon F4-USERS 5 sub-tabs · scroll-x mobile N6 */}
+          {/* §B-bis · TABS internas · chk5.PERSONAS-v5.3 · F2 · 3 sub-tabs · scroll-x mobile N6 */}
           <div className="border-b border-slate-200 px-3 sm:px-6 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
             <div className="flex gap-1 whitespace-nowrap">
               {([
-                { id: 'resumen' as TabActiva, label: 'Resumen', Icon: LayoutDashboard, badge: null },
-                { id: 'socios' as TabActiva, label: 'Socios', Icon: BriefcaseIcon, badge: sociosCount > 0 ? sociosCount : null },
-                { id: 'planilla' as TabActiva, label: 'Planilla', Icon: BriefcaseBusiness, badge: null },
+                { id: 'directorio' as TabActiva, label: 'Directorio', Icon: LayoutDashboard, badge: null },
                 { id: 'accesos' as TabActiva, label: 'Accesos', Icon: ShieldCheck, badge: null },
                 { id: 'configuracion' as TabActiva, label: 'Configuración', Icon: SettingsIcon, badge: null },
               ]).map(({ id, label, Icon, badge }) => {
@@ -351,9 +390,10 @@ export const Usuarios: React.FC = () => {
           </div>
 
           {/* ════════════════════════════════════════════════════════════ */}
-          {/* TAB · RESUMEN (default · contenido legacy con banner+KPIs+lista) */}
+          {/* TAB · DIRECTORIO · KPIs + chips filtro multi-rol + banners      */}
+          {/* cross-link dinámicos + listado · canon F2 v5.3                  */}
           {/* ════════════════════════════════════════════════════════════ */}
-          {tabActiva === 'resumen' && (<>
+          {tabActiva === 'directorio' && (<>
 
           {/* §C · KPI STRIP canon N1+N2 · 4 cards con gradient + ring colored */}
           <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-slate-100 grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-3">
@@ -478,7 +518,8 @@ export const Usuarios: React.FC = () => {
                 </button>
               )}
             </div>
-            {/* Chips de rol · scroll-x mobile · canon N6 */}
+            {/* Chips de rol · scroll-x mobile · canon N6 · chk5.PERSONAS-v5.3 F2 ·
+                incluye chips agregados Socio + Planilla + Otros (mockup canon) */}
             <div className="flex items-center gap-1.5 overflow-x-auto pb-1 -mx-1 px-1" style={{ scrollbarWidth: 'none' }}>
               <span className="text-[10px] text-slate-500 font-semibold uppercase tracking-wider flex-shrink-0">Rol:</span>
               <button
@@ -489,7 +530,34 @@ export const Usuarios: React.FC = () => {
               >
                 Todos · {stats.total}
               </button>
-              {(['admin', 'gerente', 'vendedor', 'comprador', 'almacenero', 'finanzas', 'supervisor', 'socio', 'invitado'] as UserRole[]).map((r) => {
+              {/* Chip agregado: Socio (violet) · cross-link → /inversionistas */}
+              <button
+                onClick={() => setFilterRole('socio')}
+                className={`text-[10px] px-2 py-1 rounded font-bold whitespace-nowrap transition-colors inline-flex items-center gap-1 ${
+                  filterRole === 'socio' ? 'bg-violet-100 text-violet-800 ring-2 ring-violet-300' : 'bg-white border border-violet-200 text-violet-700 hover:bg-violet-50'
+                }`}
+              >
+                <Landmark className="w-2.5 h-2.5" />
+                Socio
+                {sociosCount > 0 && (
+                  <span className={`text-[9px] ${filterRole === 'socio' ? 'bg-white/70' : 'bg-violet-50'} px-1 rounded`}>{sociosCount}</span>
+                )}
+              </button>
+              {/* Chip agregado: Planilla (sky) · cross-link → /planilla */}
+              <button
+                onClick={() => setFilterRole('planilla')}
+                className={`text-[10px] px-2 py-1 rounded font-bold whitespace-nowrap transition-colors inline-flex items-center gap-1 ${
+                  filterRole === 'planilla' ? 'bg-sky-100 text-sky-800 ring-2 ring-sky-300' : 'bg-white border border-sky-200 text-sky-700 hover:bg-sky-50'
+                }`}
+              >
+                <BriefcaseBusiness className="w-2.5 h-2.5" />
+                Planilla
+                {planillaCount > 0 && (
+                  <span className={`text-[9px] ${filterRole === 'planilla' ? 'bg-white/70' : 'bg-sky-50'} px-1 rounded`}>{planillaCount}</span>
+                )}
+              </button>
+              {/* Chips individuales por rol específico · todos los UserRole con count > 0 */}
+              {(['admin', 'gerente', 'vendedor', 'comprador', 'almacenero', 'finanzas', 'supervisor'] as UserRole[]).map((r) => {
                 const count = roleStats[r] ?? 0;
                 if (count === 0 && filterRole !== r) return null;
                 const isActive = filterRole === r;
@@ -508,11 +576,76 @@ export const Usuarios: React.FC = () => {
                   </button>
                 );
               })}
+              {/* Chip agregado: Otros (invitados) */}
+              {(otrosCount > 0 || filterRole === 'otros') && (
+                <button
+                  onClick={() => setFilterRole('otros')}
+                  className={`text-[10px] px-2 py-1 rounded font-bold whitespace-nowrap transition-colors inline-flex items-center gap-1 ${
+                    filterRole === 'otros' ? 'bg-slate-200 text-slate-800' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
+                  }`}
+                >
+                  Otros
+                  {otrosCount > 0 && (
+                    <span className={`text-[9px] ${filterRole === 'otros' ? 'bg-white/70' : 'bg-slate-100'} px-1 rounded`}>{otrosCount}</span>
+                  )}
+                </button>
+              )}
             </div>
             <div className="text-[10px] text-slate-500">
               Mostrando <strong>{filteredUsuarios.length}</strong> de {usuarios.length} usuarios
             </div>
           </div>
+
+          {/* §F-bis · BANNER CROSS-LINK DINÁMICO · canon F2 v5.3 · mockup usuarios-v5.3-hub.html
+              Aparece solo cuando filterRole = 'socio' o 'planilla' · pixel-perfect copy-paste literal */}
+          {filterRole === 'socio' && (
+            <div className="mx-4 sm:mx-6 mt-3 bg-gradient-to-r from-violet-50 to-purple-50 ring-1 ring-violet-200 rounded-xl p-4 flex items-start gap-3">
+              <div className="w-10 h-10 bg-violet-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                <Landmark className="w-5 h-5 text-violet-700" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="text-[12px] font-bold text-slate-900 mb-0.5">
+                  Estás filtrando {sociosCount} socio{sociosCount === 1 ? '' : 's'} del negocio
+                </div>
+                <div className="text-[11px] text-slate-600">
+                  Para ver cap table completa · ROI · trayectoria histórica · distribución de utilidades · usá el módulo dedicado.
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => navigate('/inversionistas')}
+                className="bg-violet-600 hover:bg-violet-700 text-white text-[11px] font-bold px-3 py-1.5 rounded-lg whitespace-nowrap flex items-center gap-1 flex-shrink-0"
+              >
+                <span className="hidden sm:inline">Ver Inversionistas</span>
+                <span className="sm:hidden">Inversionistas</span>
+                <ArrowRight className="w-3 h-3" />
+              </button>
+            </div>
+          )}
+          {filterRole === 'planilla' && (
+            <div className="mx-4 sm:mx-6 mt-3 bg-gradient-to-r from-sky-50 to-cyan-50 ring-1 ring-sky-200 rounded-xl p-4 flex items-start gap-3">
+              <div className="w-10 h-10 bg-sky-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                <BriefcaseBusiness className="w-5 h-5 text-sky-700" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="text-[12px] font-bold text-slate-900 mb-0.5">
+                  Estás filtrando {planillaCount} persona{planillaCount === 1 ? '' : 's'} en planilla
+                </div>
+                <div className="text-[11px] text-slate-600">
+                  Para boletas mensuales · adelantos · vacaciones · gratificaciones · incentivos · reportes payroll · usá el módulo dedicado.
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => navigate('/planilla')}
+                className="bg-sky-600 hover:bg-sky-700 text-white text-[11px] font-bold px-3 py-1.5 rounded-lg whitespace-nowrap flex items-center gap-1 flex-shrink-0"
+              >
+                <span className="hidden sm:inline">Ver Planilla</span>
+                <span className="sm:hidden">Planilla</span>
+                <ArrowRight className="w-3 h-3" />
+              </button>
+            </div>
+          )}
 
       {/* §G · LISTADO DE USUARIOS · cards apiladas canon F4 v7.0 · mockup A1 pixel-perfect */}
       <div className="divide-y divide-slate-100">
@@ -680,26 +813,8 @@ export const Usuarios: React.FC = () => {
         )}
       </div>
 
-          {/* Cierra TAB · RESUMEN */}
+          {/* Cierra TAB · DIRECTORIO */}
           </>)}
-
-          {/* ════════════════════════════════════════════════════════════ */}
-          {/* TAB · SOCIOS · cross-link a /inversionistas                     */}
-          {/* ════════════════════════════════════════════════════════════ */}
-          {tabActiva === 'socios' && (
-            <div className="px-4 sm:px-6 py-4">
-              <TabSocios usuarios={usuarios} />
-            </div>
-          )}
-
-          {/* ════════════════════════════════════════════════════════════ */}
-          {/* TAB · PLANILLA · cross-link a /planilla                         */}
-          {/* ════════════════════════════════════════════════════════════ */}
-          {tabActiva === 'planilla' && (
-            <div className="px-4 sm:px-6 py-4">
-              <TabPlanilla usuarios={usuarios} />
-            </div>
-          )}
 
           {/* ════════════════════════════════════════════════════════════ */}
           {/* TAB · ACCESOS · seguridad + cross-link a /auditoria             */}
@@ -800,26 +915,9 @@ export const Usuarios: React.FC = () => {
         onError={setError}
       />
 
-
-      {/* Info sobre roles */}
-      <div className="bg-sky-50 border border-sky-200 rounded-lg p-4">
-        <h3 className="font-medium text-sky-800 mb-3">Información sobre Roles</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 text-sm">
-          {(Object.entries(ROLE_LABELS) as [UserRole, string][]).map(([role, label]) => (
-            <div key={role} className="bg-white/60 rounded-lg p-3">
-              <div className="flex items-center gap-2 mb-1">
-                <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${roleBadgeColor[role]}`}>
-                  {label}
-                </span>
-              </div>
-              <p className="text-xs text-slate-600">{ROLE_DESCRIPTIONS[role]}</p>
-              <p className="text-[10px] text-slate-400 mt-1">
-                {DEFAULT_PERMISOS[role].length} permisos
-              </p>
-            </div>
-          ))}
-        </div>
-      </div>
+      {/* chk5.PERSONAS-v5.3 · F2 · 2026-05-26 · Bloque legacy "Info sobre roles"
+          ELIMINADO. Estaba fuera del shell card (rendering huérfano post-modales).
+          La información de permisos por rol ya vive en tab Configuración. */}
 
       {/* chk5.F4-USERS · Modal "Invitar por email" (canon ACTO 2.2 mockup integral) */}
       <InvitarPorEmailModal
