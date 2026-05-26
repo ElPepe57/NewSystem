@@ -8,7 +8,16 @@ import type { Timestamp } from 'firebase/firestore';
 // (referencias canon: oc · envio · producto · ahora también gasto)
 // chk5.D-S1f · F5 · agregado 'liquidar_recaudadora' para LiquidarRecaudadoraWizard
 // (DEUDA-MODELO-RECAUDADOR · D5 + D12 · F-Borradores obligatorio en wizards multi-step)
-export type TipoBorradorWizard = 'oc' | 'envio' | 'producto' | 'gasto' | 'liquidar_recaudadora';
+// chk5.PERSONAS-v5.4 · F5 · agregados 'esquema_incentivo' (wizard 3 pasos) y
+// 'baja_empleado' (wizard 4 pasos) · ambos con autoguardado obligatorio.
+export type TipoBorradorWizard =
+  | 'oc'
+  | 'envio'
+  | 'producto'
+  | 'gasto'
+  | 'liquidar_recaudadora'
+  | 'esquema_incentivo'
+  | 'baja_empleado';
 
 /**
  * Documento de borrador de wizard almacenado en Firestore.

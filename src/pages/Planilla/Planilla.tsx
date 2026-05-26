@@ -45,8 +45,11 @@ import { TabVacacionesGratificaciones } from './components/TabVacacionesGratific
 import { TabAnalisisReportes } from './components/TabAnalisisReportes';
 import { planillaService } from '../../services/planilla.service';
 import { calculoIncentivoService } from '../../services/calculoIncentivo.service';
-import type { Boleta, AdelantoNomina } from '../../types/planilla.types';
+import type { Boleta, AdelantoNomina, MesGratificacion } from '../../types/planilla.types';
 import { formatCurrencyPEN } from '../../utils/format';
+// chk5.PERSONAS-v5.4 · F5 · modales operativos canon FormModalV2 sky
+import { ProcesarGratificacionModal } from '../../components/modules/planilla/ProcesarGratificacionModal';
+import { ProgramarVacacionesModal } from '../../components/modules/planilla/ProgramarVacacionesModal';
 
 // ═════════════════════════════════════════════════════════════════════════
 // TIPOS
@@ -93,6 +96,21 @@ export const Planilla: React.FC = () => {
   const [bonosMesPEN, setBonosMesPEN] = useState(0);
   const [adelantosPendientes, setAdelantosPendientes] = useState<AdelantoNomina[]>([]);
   const [loadingShell, setLoadingShell] = useState(true);
+
+  // chk5.PERSONAS-v5.4 · F5 · modales operativos
+  const [modal, setModal] = useState<
+    | { kind: 'none' }
+    | { kind: 'procesarGratif'; mes: MesGratificacion }
+    | { kind: 'programarVacaciones' }
+  >({ kind: 'none' });
+  const [toast, setToast] = useState<{ kind: 'success' | 'error'; msg: string } | null>(null);
+
+  // Auto-hide toast
+  useEffect(() => {
+    if (!toast) return;
+    const t = window.setTimeout(() => setToast(null), 4000);
+    return () => window.clearTimeout(t);
+  }, [toast]);
 
   const cargarShellData = useCallback(async () => {
     setLoadingShell(true);
@@ -421,13 +439,50 @@ export const Planilla: React.FC = () => {
             <TabVacacionesGratificaciones
               mes={mes}
               anio={anio}
-              onProcesarGratificacion={(_m, _a) => { /* F5: ProcesarGratificacionModal */ }}
-              onProgramarVacaciones={() => { /* F5: ProgramarVacacionesModal */ }}
+              onProcesarGratificacion={(m) => setModal({ kind: 'procesarGratif', mes: m })}
+              onProgramarVacaciones={() => setModal({ kind: 'programarVacaciones' })}
             />
           )}
           {tabActiva === 'analisis' && <TabAnalisisReportes mes={mes} anio={anio} />}
         </div>
       </div>
+
+      {/* ═════════════════════════════════════════════════════════════════ */}
+      {/* TOAST notificaciones canon · auto-hide 4s                          */}
+      {/* ═════════════════════════════════════════════════════════════════ */}
+      {toast && (
+        <div
+          className={`fixed bottom-4 right-4 z-50 max-w-md rounded-lg shadow-lg border px-4 py-3 ${
+            toast.kind === 'success'
+              ? 'bg-emerald-50 border-emerald-300 text-emerald-900'
+              : 'bg-rose-50 border-rose-300 text-rose-900'
+          }`}
+        >
+          <div className="text-[12px] font-semibold">{toast.msg}</div>
+        </div>
+      )}
+
+      {/* ═════════════════════════════════════════════════════════════════ */}
+      {/* MODALES F5 · canon FormModalV2 sky/indigo/purple                    */}
+      {/* ═════════════════════════════════════════════════════════════════ */}
+      <ProcesarGratificacionModal
+        isOpen={modal.kind === 'procesarGratif'}
+        onClose={() => setModal({ kind: 'none' })}
+        mes={modal.kind === 'procesarGratif' ? modal.mes : 7}
+        anio={anio}
+        onSuccess={(msg) => {
+          setToast({ kind: 'success', msg });
+          cargarShellData();
+        }}
+        onError={(msg) => setToast({ kind: 'error', msg })}
+      />
+
+      <ProgramarVacacionesModal
+        isOpen={modal.kind === 'programarVacaciones'}
+        onClose={() => setModal({ kind: 'none' })}
+        onSuccess={(msg) => setToast({ kind: 'success', msg })}
+        onError={(msg) => setToast({ kind: 'error', msg })}
+      />
     </div>
   );
 };
