@@ -63,7 +63,12 @@ const Contabilidad = React.lazy(() => import('./pages/Contabilidad/Contabilidad'
 // chk5.E-INV · Inversionistas · vista ejecutiva canon v5.2 (modelo mixto)
 const Inversionistas = React.lazy(() => import('./pages/Inversionistas/Inversionistas'));
 // chk5.F2-SUB-PERFILES · Ficha 360 de usuario · vista completa multi-rol + sub-perfiles
+// chk5.F4-USERS · DEPRECATED · Ficha 360 ahora vive como modal in-place desde /usuarios
+// (Ficha360Modal · canon F6.A). Esta página queda como fallback hasta deprecación final.
 const Ficha360 = React.lazy(() => import('./pages/Usuarios/Ficha360/Ficha360'));
+// chk5.F4-USERS · 2026-05-25 · drill pages para sub-perfiles (canon F6.B)
+const EditarLaborales = React.lazy(() => import('./pages/Usuarios/EditarLaborales'));
+const EditarSocio = React.lazy(() => import('./pages/Usuarios/EditarSocio'));
 const ProductosIntel = React.lazy(() => import('./pages/ProductosIntel/ProductosIntel').then(m => ({ default: m.ProductosIntel })));
 const IntelProductosPage = React.lazy(() => import('./pages/IntelProductos').then(m => ({ default: m.IntelProductosPage })));
 const MiPerfil = React.lazy(() => import('./pages/Perfil/MiPerfil').then(m => ({ default: m.MiPerfil })));
@@ -236,8 +241,12 @@ function App() {
               {/* chk5.E-INV · vista ejecutiva para socios/inversionistas (canon v5.2 violet) */}
               <Route path="inversionistas" element={<Inversionistas />} />
               <Route path="usuarios" element={<Usuarios />} />
-              {/* chk5.F2-SUB-PERFILES · Ficha 360 página propia · una persona, todas sus facetas */}
+              {/* chk5.F2-SUB-PERFILES · Ficha 360 página propia (DEPRECATED · fallback)
+                   chk5.F4-USERS · 2026-05-25 · uso preferido: modal in-place desde /usuarios */}
               <Route path="usuarios/:uid/ficha" element={<Ficha360 />} />
+              {/* chk5.F4-USERS · drill pages canon F6.B para sub-perfiles ricos */}
+              <Route path="usuarios/:uid/editar/laborales" element={<EditarLaborales />} />
+              <Route path="usuarios/:uid/editar/socio" element={<EditarSocio />} />
               <Route path="auditoria" element={<Auditoria />} />
               <Route path="configuracion" element={<Configuracion />} />
               <Route path="configuracion/borradores" element={<BorradoresWizardPanel />} />
