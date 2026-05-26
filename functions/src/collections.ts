@@ -104,6 +104,20 @@ export const COLLECTIONS = {
   // === Contabilidad ===
   CIERRES_CONTABLES: "cierresContables",
 
+  // === Red Logística (mirror del frontend) ===
+  ENVIOS: "envios",
+
+  // === Planilla (mirror del frontend) ===
+  BOLETAS: "boletas",
+  ADELANTOS_NOMINA: "adelantosNomina",
+
+  // === chk5.PERSONAS-v5.4 · F3 · Planilla v5.4 (mirror del frontend · 2026-05-26) ===
+  HISTORIAL_SALARIAL: "historialSalarial",
+  ESQUEMAS_INCENTIVO: "esquemasIncentivo",
+  CALCULOS_INCENTIVO: "calculosIncentivo",
+  LIQUIDACIONES_EMPLEADO: "liquidacionesEmpleado",
+  GRATIFICACIONES: "gratificaciones",
+
   // === Contadores (Cloud Functions) — MUST match frontend 'contadores' ===
   COUNTERS: "contadores",
 

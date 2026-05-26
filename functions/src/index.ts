@@ -2358,3 +2358,16 @@ export const marcarUnidadesVencidas = functions.pubsub
       return null;
     }
   });
+
+// ============================================================
+// chk5.PERSONAS-v5.4 · F9 · PLANILLA v5.4 Cloud Functions (2026-05-26)
+// ============================================================
+// scheduledCalcularBonosMes · cron día 1 de cada mes · calcula bonos mes anterior
+// onLiquidacionAprobada · trigger · desactiva perfil + descuenta adelantos
+// onGratificacionAprobada · trigger · audit log
+// ============================================================
+export {
+  scheduledCalcularBonosMes,
+  onLiquidacionAprobada,
+  onGratificacionAprobada,
+} from "./planilla.functions";
