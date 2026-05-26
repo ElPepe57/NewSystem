@@ -50,7 +50,7 @@
       <a href="#acto1" class="block p-3 rounded-xl bg-purple-50 hover:bg-purple-100 transition"><strong class="text-purple-700 block mb-1">ACTO 1 · Listado + 5 sub-tabs</strong><span class="text-slate-600">Resumen · Socios · Planilla · Accesos · Config</span></a>
       <a href="#acto2" class="block p-3 rounded-xl bg-purple-50 hover:bg-purple-100 transition"><strong class="text-purple-700 block mb-1">ACTO 2 · Creación dual</strong><span class="text-slate-600">Nuevo directo + Invitar por email</span></a>
       <a href="#acto3" class="block p-3 rounded-xl bg-purple-50 hover:bg-purple-100 transition"><strong class="text-purple-700 block mb-1">ACTO 3 · Edición híbrida</strong><span class="text-slate-600">modal + drill sub-perfiles</span></a>
-      <a href="#acto4" class="block p-3 rounded-xl bg-purple-50 hover:bg-purple-100 transition"><strong class="text-purple-700 block mb-1">ACTO 4 · Ficha 360</strong><span class="text-slate-600">read-only · 4 cards siempre</span></a>
+      <a href="#acto4" class="block p-3 rounded-xl bg-purple-50 hover:bg-purple-100 transition"><strong class="text-purple-700 block mb-1">ACTO 4 · Ficha 360 · MODAL + tabs</strong><span class="text-slate-600">read-only · 5 tabs internos · canon F6.A</span></a>
       <a href="#acto5" class="block p-3 rounded-xl bg-purple-50 hover:bg-purple-100 transition"><strong class="text-purple-700 block mb-1">ACTO 5 · 6 modales operativos</strong><span class="text-slate-600">Aprobar · Reset · Desconectar · Eliminar</span></a>
       <a href="#acto6" class="block p-3 rounded-xl bg-purple-50 hover:bg-purple-100 transition"><strong class="text-purple-700 block mb-1">ACTO 6 · Mobile 375px</strong><span class="text-slate-600">Listado + filtros colapsables</span></a>
       <a href="#acto7" class="block p-3 rounded-xl bg-purple-50 hover:bg-purple-100 transition"><strong class="text-purple-700 block mb-1">ACTO 7 · Config · 5 secciones</strong><span class="text-slate-600">Política · Invitaciones · Password · Roles · Email</span></a>
@@ -819,7 +819,7 @@
 </section>
 
 <!-- ════════════════════════════════════════════════════════════════════ -->
-<!-- ACTO 4 · FICHA 360                                                     -->
+<!-- ACTO 4 · FICHA 360 · MODAL FLOTANTE CON TABS (CANON F6.A v7.0)         -->
 <!-- ════════════════════════════════════════════════════════════════════ -->
 <section id="acto4" class="my-16">
   <div class="max-w-6xl mx-auto">
@@ -827,67 +827,199 @@
       <div class="flex items-center gap-4">
         <div class="w-14 h-14 bg-purple-600 rounded-2xl flex items-center justify-center text-white font-bold text-xl">4</div>
         <div class="flex-1">
-          <div class="text-[11px] uppercase tracking-wider text-purple-700 font-bold">ACTO 4 · 1 estado</div>
-          <h2 class="text-xl font-bold text-purple-900">Ficha 360 · read-only · 4 cards siempre</h2>
-          <p class="text-[13px] text-purple-700 mt-1">/usuarios/:uid/ficha · vista ejecutiva de la persona · ya implementada (commit e099251)</p>
+          <div class="text-[11px] uppercase tracking-wider text-purple-700 font-bold">ACTO 4 · 5 tabs internos</div>
+          <h2 class="text-xl font-bold text-purple-900">Ficha 360 · MODAL flotante grande · canon F6.A</h2>
+          <p class="text-[13px] text-purple-700 mt-1">Opción A · modal max-w-4xl con tabs internos · NO sale del listado · click backdrop cierra · read-only</p>
+        </div>
+      </div>
+      <div class="mt-4 text-[11px] text-amber-900 bg-amber-50/80 border border-amber-200 p-3 rounded-lg">
+        <strong>⚠ CAMBIO CANON · 2026-05-25 ·</strong> Ficha 360 deja de ser página drill (<code>/usuarios/:uid/ficha</code>) y se convierte en modal flotante.
+        Decisión del user: consistencia con el resto del módulo · no perder el contexto del listado · canon F6.A read-only con tabs sticky.
+      </div>
+    </div>
+
+    <!-- 4.1 Modal Ficha 360 · tab Resumen activo (default) -->
+    <div class="mb-8">
+      <div class="text-[12px] font-bold text-slate-900 mb-3 flex items-center gap-2"><span class="px-2 py-0.5 bg-purple-600 text-white rounded-md text-[10px]">4.1</span><span>Modal Ficha 360 · tab "Resumen" activo (default)</span></div>
+      <div class="device-desktop bg-slate-900/30 rounded-2xl p-8 flex items-center justify-center min-h-[720px]">
+        <div class="bg-white rounded-2xl ring-1 ring-slate-200 w-full max-w-4xl overflow-hidden" style="max-height: 88vh;">
+          <!-- HEADER STICKY · avatar grande + estado + acciones -->
+          <div class="px-6 py-4 border-b border-slate-200 flex items-start gap-4 bg-white sticky top-0 z-10">
+            <div class="w-14 h-14 bg-gradient-to-br from-purple-500 to-purple-700 rounded-2xl flex items-center justify-center text-white font-bold text-xl">JL</div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2 mb-0.5 flex-wrap">
+                <h1 class="text-[18px] font-bold text-slate-900">José LP</h1>
+                <span class="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded">ACTIVO</span>
+                <span class="bg-indigo-100 text-indigo-700 text-[10px] font-bold px-2 py-0.5 rounded">MULTI-ROL</span>
+              </div>
+              <p class="text-[11px] text-slate-500">jose.lp9205@gmail.com · última conexión hace 5 min · ingreso 12 ene 2024</p>
+              <div class="flex gap-1 mt-1.5"><span class="bg-purple-100 text-purple-700 text-[10px] font-medium px-2 py-0.5 rounded flex items-center gap-1"><i data-lucide="shield" class="w-2.5 h-2.5"></i>admin</span><span class="bg-violet-100 text-violet-700 text-[10px] font-medium px-2 py-0.5 rounded flex items-center gap-1"><i data-lucide="briefcase" class="w-2.5 h-2.5"></i>socio</span></div>
+            </div>
+            <div class="flex items-center gap-2">
+              <button class="bg-white border border-slate-200 hover:bg-slate-50 text-slate-600 text-[12px] font-medium px-3 py-1.5 rounded-lg flex items-center gap-1.5"><i data-lucide="pencil" class="w-3.5 h-3.5"></i>Editar</button>
+              <button class="text-slate-400 hover:text-slate-600 p-1"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+          </div>
+
+          <!-- TABS internos sticky · canon N6 scroll-x -->
+          <div class="border-b border-slate-200 bg-white sticky top-[88px] z-10">
+            <div class="px-6 flex gap-1 overflow-x-auto no-scrollbar">
+              <button class="px-4 py-2.5 text-[12px] font-bold border-b-2 border-purple-600 text-purple-700 whitespace-nowrap flex items-center gap-1.5"><i data-lucide="layout-dashboard" class="w-3.5 h-3.5"></i>Resumen</button>
+              <button class="px-4 py-2.5 text-[12px] font-medium border-b-2 border-transparent text-slate-600 hover:text-purple-600 whitespace-nowrap flex items-center gap-1.5"><i data-lucide="briefcase" class="w-3.5 h-3.5"></i>Sub-perfiles</button>
+              <button class="px-4 py-2.5 text-[12px] font-medium border-b-2 border-transparent text-slate-600 hover:text-purple-600 whitespace-nowrap flex items-center gap-1.5"><i data-lucide="monitor" class="w-3.5 h-3.5"></i>Sesiones <span class="bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded text-[10px]">2</span></button>
+              <button class="px-4 py-2.5 text-[12px] font-medium border-b-2 border-transparent text-slate-600 hover:text-purple-600 whitespace-nowrap flex items-center gap-1.5"><i data-lucide="activity" class="w-3.5 h-3.5"></i>Auditoría</button>
+              <button class="px-4 py-2.5 text-[12px] font-medium border-b-2 border-transparent text-slate-600 hover:text-purple-600 whitespace-nowrap flex items-center gap-1.5"><i data-lucide="shield-check" class="w-3.5 h-3.5"></i>Accesos</button>
+            </div>
+          </div>
+
+          <!-- CONTENIDO · tab Resumen · scroll vertical -->
+          <div class="px-6 py-5 overflow-y-auto" style="max-height: calc(88vh - 230px);">
+            <!-- 4 cards KPI -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-3 mb-5">
+              <div class="bg-purple-50/40 ring-1 ring-purple-200 rounded-2xl p-4">
+                <div class="flex items-center gap-2 mb-2"><i data-lucide="shield" class="w-4 h-4 text-purple-600"></i><span class="text-[11px] uppercase font-bold text-purple-700">PERMISOS</span></div>
+                <div class="text-2xl font-bold text-purple-900 tabular">42 / 42</div>
+                <div class="text-[11px] text-purple-700 mt-1">Admin · TODOS los permisos del sistema</div>
+              </div>
+              <div class="bg-violet-50/40 ring-1 ring-violet-200 rounded-2xl p-4">
+                <div class="flex items-center gap-2 mb-2"><i data-lucide="briefcase" class="w-4 h-4 text-violet-600"></i><span class="text-[11px] uppercase font-bold text-violet-700">SOCIO</span></div>
+                <div class="text-2xl font-bold text-violet-900 tabular">45%</div>
+                <div class="text-[11px] text-violet-700 mt-1">Mixta · cash + valor · vesting OK</div>
+              </div>
+              <div class="bg-slate-50 ring-1 ring-slate-200 rounded-2xl p-4">
+                <div class="flex items-center gap-2 mb-2"><i data-lucide="briefcase-business" class="w-4 h-4 text-slate-400"></i><span class="text-[11px] uppercase font-bold text-slate-500">PLANILLA</span></div>
+                <div class="text-2xl font-bold text-slate-400 tabular">N/A</div>
+                <div class="text-[11px] text-slate-500 mt-1">Sin rol planilla asignado</div>
+              </div>
+              <div class="bg-emerald-50/40 ring-1 ring-emerald-200 rounded-2xl p-4">
+                <div class="flex items-center gap-2 mb-2"><i data-lucide="activity" class="w-4 h-4 text-emerald-600"></i><span class="text-[11px] uppercase font-bold text-emerald-700">ACTIVIDAD 7D</span></div>
+                <div class="text-2xl font-bold text-emerald-900 tabular">187</div>
+                <div class="text-[11px] text-emerald-700 mt-1">Acciones · ver tab Auditoría →</div>
+              </div>
+            </div>
+
+            <!-- Datos básicos + origen -->
+            <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 mb-5">
+              <div class="text-[10px] uppercase tracking-wider text-slate-700 font-bold mb-3">Datos básicos</div>
+              <div class="grid grid-cols-2 gap-x-6 gap-y-2 text-[12px]">
+                <div class="flex justify-between"><span class="text-slate-600">Email</span><span class="font-medium text-slate-900 tabular">jose.lp9205@gmail.com</span></div>
+                <div class="flex justify-between"><span class="text-slate-600">Teléfono</span><span class="font-medium text-slate-900 tabular">+51 999 888 777</span></div>
+                <div class="flex justify-between"><span class="text-slate-600">Estado</span><span class="font-bold text-emerald-700">activo</span></div>
+                <div class="flex justify-between"><span class="text-slate-600">Origen</span><span class="font-medium text-purple-700">creación directa (admin)</span></div>
+                <div class="flex justify-between"><span class="text-slate-600">Fecha alta</span><span class="font-medium text-slate-900">12 ene 2024</span></div>
+                <div class="flex justify-between"><span class="text-slate-600">Creado por</span><span class="font-medium text-slate-900">sistema</span></div>
+              </div>
+            </div>
+
+            <!-- Cross-links rápidos -->
+            <div class="text-[10px] uppercase tracking-wider text-slate-700 font-bold mb-3">Accesos rápidos</div>
+            <div class="grid grid-cols-3 gap-3">
+              <a class="bg-white border border-violet-200 hover:border-violet-300 hover:bg-violet-50/30 rounded-xl p-3 transition cursor-pointer"><div class="flex items-center gap-2 mb-1"><i data-lucide="briefcase" class="w-4 h-4 text-violet-600"></i><span class="text-[12px] font-bold text-slate-900">Cap table</span></div><div class="text-[10px] text-violet-700">Ver en Inversionistas →</div></a>
+              <a class="bg-white border border-slate-200 rounded-xl p-3 opacity-50 cursor-not-allowed"><div class="flex items-center gap-2 mb-1"><i data-lucide="briefcase-business" class="w-4 h-4 text-slate-400"></i><span class="text-[12px] font-bold text-slate-500">Planilla</span></div><div class="text-[10px] text-slate-400">No aplica</div></a>
+              <a class="bg-white border border-rose-200 hover:border-rose-300 hover:bg-rose-50/30 rounded-xl p-3 transition cursor-pointer"><div class="flex items-center gap-2 mb-1"><i data-lucide="shield-check" class="w-4 h-4 text-rose-600"></i><span class="text-[12px] font-bold text-slate-900">Auditoría completa</span></div><div class="text-[10px] text-rose-700">Ver en módulo Auditoría →</div></a>
+            </div>
+          </div>
+
+          <!-- FOOTER STICKY -->
+          <div class="px-6 py-3 border-t border-slate-200 bg-slate-50 flex items-center justify-between sticky bottom-0">
+            <button class="text-[11px] text-rose-600 font-bold flex items-center gap-1"><i data-lucide="log-out" class="w-3.5 h-3.5"></i>Desconectar todas las sesiones</button>
+            <div class="flex items-center gap-2">
+              <button class="text-[12px] text-slate-600 font-medium px-3 py-1.5">Cerrar</button>
+              <button class="bg-purple-600 hover:bg-purple-700 text-white text-[12px] font-bold px-4 py-1.5 rounded-lg flex items-center gap-1.5"><i data-lucide="pencil" class="w-3.5 h-3.5"></i>Editar usuario</button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
 
-    <div class="device-desktop bg-white rounded-2xl ring-1 ring-slate-200 overflow-hidden">
-      <!-- Breadcrumb -->
-      <div class="px-6 pt-5 pb-2 flex items-center gap-1.5 text-[11px] text-slate-500"><i data-lucide="home" class="w-3 h-3"></i><a>Dashboard</a><i data-lucide="chevron-right" class="w-3 h-3"></i><a>Usuarios</a><i data-lucide="chevron-right" class="w-3 h-3"></i><span class="text-slate-900 font-semibold">Ficha · José LP</span></div>
-      <!-- Header con avatar grande -->
-      <div class="px-6 py-5 border-b border-slate-200 flex items-start gap-4">
-        <div class="w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-700 rounded-2xl flex items-center justify-center text-white font-bold text-2xl">JL</div>
-        <div class="flex-1">
-          <div class="flex items-center gap-2 mb-1"><h1 class="text-[20px] font-bold text-slate-900">José LP</h1><span class="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded">ACTIVO</span><span class="bg-indigo-100 text-indigo-700 text-[10px] font-bold px-2 py-0.5 rounded">MULTI-ROL</span></div>
-          <p class="text-[12px] text-slate-500">jose.lp9205@gmail.com · última conexión hace 5 min · ingreso 12 ene 2024</p>
-          <div class="flex gap-1 mt-2"><span class="bg-purple-100 text-purple-700 text-[10px] font-medium px-2 py-0.5 rounded flex items-center gap-1"><i data-lucide="shield" class="w-2.5 h-2.5"></i>admin</span><span class="bg-violet-100 text-violet-700 text-[10px] font-medium px-2 py-0.5 rounded flex items-center gap-1"><i data-lucide="briefcase" class="w-2.5 h-2.5"></i>socio</span></div>
-        </div>
-        <div class="flex items-center gap-2">
-          <button class="bg-white border border-slate-200 text-slate-600 text-[12px] font-medium px-3 py-1.5 rounded-lg flex items-center gap-1.5"><i data-lucide="pencil" class="w-3.5 h-3.5"></i>Editar</button>
-          <button class="bg-rose-50 text-rose-700 border border-rose-200 text-[12px] font-medium px-3 py-1.5 rounded-lg flex items-center gap-1.5"><i data-lucide="log-out" class="w-3.5 h-3.5"></i>Desconectar sesión</button>
+    <!-- 4.2 / 4.3 / 4.4 · grid 3 tabs alternativas -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+
+      <!-- Tab Sub-perfiles -->
+      <div>
+        <div class="text-[12px] font-bold text-slate-900 mb-2 flex items-center gap-2"><span class="px-2 py-0.5 bg-violet-600 text-white rounded-md text-[10px]">4.2</span><span>Tab "Sub-perfiles"</span></div>
+        <div class="bg-white rounded-2xl ring-1 ring-slate-200 p-4">
+          <!-- Datos socio rich -->
+          <div class="bg-violet-50/40 border border-violet-200 rounded-xl p-3 mb-3">
+            <div class="flex items-center justify-between mb-2"><div class="flex items-center gap-2"><i data-lucide="briefcase" class="w-3.5 h-3.5 text-violet-600"></i><span class="text-[12px] font-bold text-slate-900">Datos de socio (D7)</span></div><span class="text-[9px] bg-emerald-100 text-emerald-700 font-bold px-1.5 py-0.5 rounded">CONFIGURADO</span></div>
+            <div class="space-y-1.5 text-[11px]">
+              <div class="flex justify-between"><span class="text-slate-600">Tipo</span><span class="font-bold text-violet-900">Mixta</span></div>
+              <div class="flex justify-between"><span class="text-slate-600">% participación</span><span class="font-bold text-violet-900 tabular">45%</span></div>
+              <div class="flex justify-between"><span class="text-slate-600">Capital cash</span><span class="font-bold text-violet-900 tabular">S/ 40,000</span></div>
+              <div class="flex justify-between"><span class="text-slate-600">Aporte valor</span><span class="font-bold text-violet-900 tabular">S/ 30,000</span></div>
+              <div class="pt-2 border-t border-violet-100"><span class="text-[10px] text-violet-700">Tipos de valor:</span><div class="flex flex-wrap gap-1 mt-1"><span class="bg-violet-100 text-violet-700 text-[9px] px-1.5 py-0.5 rounded">Know-how</span><span class="bg-violet-100 text-violet-700 text-[9px] px-1.5 py-0.5 rounded">Gestión/CEO</span></div></div>
+            </div>
+          </div>
+          <!-- Planilla N/A -->
+          <div class="bg-slate-50 border border-dashed border-slate-300 rounded-xl p-3">
+            <div class="flex items-center justify-between"><div class="flex items-center gap-2"><i data-lucide="briefcase-business" class="w-3.5 h-3.5 text-slate-400"></i><span class="text-[12px] font-bold text-slate-500">Datos laborales</span></div><span class="text-[9px] bg-slate-200 text-slate-600 font-bold px-1.5 py-0.5 rounded">N/A</span></div>
+            <div class="text-[10px] text-slate-500 mt-1">No aplica · sin rol planilla asignado</div>
+          </div>
         </div>
       </div>
 
-      <!-- 4 cards siempre visibles -->
-      <div class="px-6 py-5 grid grid-cols-1 md:grid-cols-4 gap-3">
-        <!-- Card 1 · Permisos -->
-        <div class="bg-purple-50/40 ring-1 ring-purple-200 rounded-2xl p-4">
-          <div class="flex items-center gap-2 mb-2"><i data-lucide="shield" class="w-4 h-4 text-purple-600"></i><span class="text-[11px] uppercase font-bold text-purple-700">PERMISOS</span></div>
-          <div class="text-2xl font-bold text-purple-900 tabular">42 / 42</div>
-          <div class="text-[11px] text-purple-700 mt-1">Admin · todos los permisos del sistema</div>
-        </div>
-        <!-- Card 2 · Socio -->
-        <div class="bg-violet-50/40 ring-1 ring-violet-200 rounded-2xl p-4">
-          <div class="flex items-center gap-2 mb-2"><i data-lucide="briefcase" class="w-4 h-4 text-violet-600"></i><span class="text-[11px] uppercase font-bold text-violet-700">SOCIO</span></div>
-          <div class="text-2xl font-bold text-violet-900 tabular">45%</div>
-          <div class="text-[11px] text-violet-700 mt-1">Mixta · cash + valor · vesting OK</div>
-        </div>
-        <!-- Card 3 · Planilla N/A -->
-        <div class="bg-slate-50 ring-1 ring-slate-200 rounded-2xl p-4">
-          <div class="flex items-center gap-2 mb-2"><i data-lucide="briefcase-business" class="w-4 h-4 text-slate-400"></i><span class="text-[11px] uppercase font-bold text-slate-500">PLANILLA</span></div>
-          <div class="text-2xl font-bold text-slate-400 tabular">N/A</div>
-          <div class="text-[11px] text-slate-500 mt-1">Sin rol planilla asignado</div>
-        </div>
-        <!-- Card 4 · Actividad -->
-        <div class="bg-emerald-50/40 ring-1 ring-emerald-200 rounded-2xl p-4">
-          <div class="flex items-center gap-2 mb-2"><i data-lucide="activity" class="w-4 h-4 text-emerald-600"></i><span class="text-[11px] uppercase font-bold text-emerald-700">ACTIVIDAD 7D</span></div>
-          <div class="text-2xl font-bold text-emerald-900 tabular">187</div>
-          <div class="text-[11px] text-emerald-700 mt-1">Acciones · ver auditoría →</div>
+      <!-- Tab Sesiones -->
+      <div>
+        <div class="text-[12px] font-bold text-slate-900 mb-2 flex items-center gap-2"><span class="px-2 py-0.5 bg-emerald-600 text-white rounded-md text-[10px]">4.3</span><span>Tab "Sesiones"</span></div>
+        <div class="bg-white rounded-2xl ring-1 ring-slate-200 p-4">
+          <div class="flex items-center justify-between mb-3 text-[11px]"><span class="font-bold text-slate-900">2 sesiones activas</span><button class="text-rose-600 font-bold text-[10px]">Cerrar todas</button></div>
+          <div class="space-y-2">
+            <div class="bg-emerald-50/40 border border-emerald-200 rounded-lg p-3 text-[11px]">
+              <div class="flex items-center gap-2 mb-1"><i data-lucide="monitor" class="w-3.5 h-3.5 text-emerald-600"></i><span class="font-bold text-slate-900">Chrome · Windows 10</span><span class="ml-auto text-[9px] bg-emerald-200 text-emerald-900 font-bold px-1.5 py-0.5 rounded">ACTUAL</span></div>
+              <div class="text-[10px] text-emerald-800">IP 190.x.x.x · Lima, Perú · hace 5 min</div>
+            </div>
+            <div class="bg-white border border-slate-200 rounded-lg p-3 text-[11px]">
+              <div class="flex items-center gap-2 mb-1"><i data-lucide="smartphone" class="w-3.5 h-3.5 text-slate-400"></i><span class="font-bold text-slate-900">Safari · iOS</span><button class="ml-auto text-rose-600 font-bold text-[9px]">Desconectar</button></div>
+              <div class="text-[10px] text-slate-500">IP 190.x.x.x · Lima · hace 2h</div>
+            </div>
+          </div>
+          <div class="mt-3 pt-3 border-t border-slate-200 text-[10px] text-slate-500">Última actividad sospechosa: ninguna en 30 días ✓</div>
         </div>
       </div>
 
-      <!-- Sección Sesiones -->
-      <div class="px-6 pb-6">
-        <div class="text-[11px] uppercase tracking-wider font-bold text-slate-700 mb-3">Sesiones activas (2)</div>
-        <div class="space-y-2">
-          <div class="bg-white border border-slate-200 rounded-lg p-3 flex items-center gap-3 text-[11px]"><i data-lucide="monitor" class="w-4 h-4 text-slate-400"></i><div class="flex-1"><div class="font-bold text-slate-900">Chrome · Windows 10</div><div class="text-slate-500">IP 190.x.x.x · Lima, Perú · hace 5 min</div></div><span class="text-emerald-700 font-bold text-[10px]">ACTUAL</span></div>
-          <div class="bg-white border border-slate-200 rounded-lg p-3 flex items-center gap-3 text-[11px]"><i data-lucide="smartphone" class="w-4 h-4 text-slate-400"></i><div class="flex-1"><div class="font-bold text-slate-900">Safari · iOS</div><div class="text-slate-500">IP 190.x.x.x · Lima · hace 2h</div></div><button class="text-rose-600 font-bold text-[10px]">Desconectar</button></div>
+      <!-- Tab Auditoría -->
+      <div>
+        <div class="text-[12px] font-bold text-slate-900 mb-2 flex items-center gap-2"><span class="px-2 py-0.5 bg-rose-600 text-white rounded-md text-[10px]">4.4</span><span>Tab "Auditoría"</span></div>
+        <div class="bg-white rounded-2xl ring-1 ring-slate-200 p-4">
+          <div class="flex items-center justify-between mb-3 text-[11px]"><span class="font-bold text-slate-900">Últimas 187 acciones (7d)</span><a class="text-rose-600 font-bold text-[10px]">Ver completo →</a></div>
+          <div class="space-y-1.5 text-[10px]">
+            <div class="p-2 bg-slate-50 rounded flex items-center gap-2"><span class="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span><div class="flex-1"><span class="font-bold">Aprobó usuario</span> · María García</div><span class="text-slate-400">hace 3h</span></div>
+            <div class="p-2 bg-slate-50 rounded flex items-center gap-2"><span class="w-1.5 h-1.5 bg-sky-500 rounded-full"></span><div class="flex-1"><span class="font-bold">Login</span> · Chrome/Win</div><span class="text-slate-400">hace 5h</span></div>
+            <div class="p-2 bg-slate-50 rounded flex items-center gap-2"><span class="w-1.5 h-1.5 bg-amber-500 rounded-full"></span><div class="flex-1"><span class="font-bold">Modificó configuración</span></div><span class="text-slate-400">ayer</span></div>
+            <div class="p-2 bg-slate-50 rounded flex items-center gap-2"><span class="w-1.5 h-1.5 bg-violet-500 rounded-full"></span><div class="flex-1"><span class="font-bold">Aprobó gasto</span> · S/ 1,200</div><span class="text-slate-400">ayer</span></div>
+            <div class="text-center text-[10px] text-slate-400 pt-2">+ 183 más</div>
+          </div>
         </div>
       </div>
     </div>
+
+    <!-- 4.5 Tab Accesos · permisos detalle -->
+    <div>
+      <div class="text-[12px] font-bold text-slate-900 mb-2 flex items-center gap-2"><span class="px-2 py-0.5 bg-indigo-600 text-white rounded-md text-[10px]">4.5</span><span>Tab "Accesos" · permisos efectivos del usuario</span></div>
+      <div class="bg-white rounded-2xl ring-1 ring-slate-200 p-5">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <div class="text-[10px] uppercase font-bold text-purple-700 mb-2">Por rol · 42 permisos</div>
+            <div class="space-y-1 text-[11px]">
+              <div class="flex items-center justify-between p-2 bg-purple-50/40 rounded"><span class="flex items-center gap-1"><i data-lucide="shield" class="w-3 h-3 text-purple-600"></i>admin</span><span class="text-purple-700 font-bold">42 perm.</span></div>
+              <div class="flex items-center justify-between p-2 bg-violet-50/40 rounded"><span class="flex items-center gap-1"><i data-lucide="briefcase" class="w-3 h-3 text-violet-600"></i>socio</span><span class="text-violet-700 font-bold">12 perm.</span></div>
+            </div>
+          </div>
+          <div>
+            <div class="text-[10px] uppercase font-bold text-emerald-700 mb-2">Overrides otorgados</div>
+            <div class="text-[11px] text-slate-500 p-3 bg-slate-50 rounded">Ninguno · usa solo permisos por rol</div>
+          </div>
+          <div>
+            <div class="text-[10px] uppercase font-bold text-rose-700 mb-2">Overrides revocados</div>
+            <div class="text-[11px] text-slate-500 p-3 bg-slate-50 rounded">Ninguno · admin tiene todos los permisos</div>
+          </div>
+        </div>
+        <div class="mt-4 pt-4 border-t border-slate-200 text-[10px] text-slate-600">
+          Configurable en <code class="bg-slate-100 px-1 rounded">Tab Configuración → Permisos custom (overrides)</code>
+        </div>
+      </div>
+    </div>
+
   </div>
 </section>
 
@@ -1682,16 +1814,19 @@ interface DatosSocio {
           <li><code class="bg-slate-100 px-1 rounded">ResetPasswordModal</code> · checkboxes opcionales</li>
           <li><code class="bg-slate-100 px-1 rounded">DesconectarSesionModal</code> + <code class="bg-slate-100 px-1 rounded">DesconectarTodasModal</code></li>
           <li><code class="bg-slate-100 px-1 rounded">EliminarUsuarioModal</code> · typed-confirm email</li>
+          <li><code class="bg-slate-100 px-1 rounded">Ficha360Modal</code> · <strong>NUEVO</strong> · convierte la página drill en modal grande max-w-4xl · 5 tabs internos sticky · header avatar XL · footer acciones (Editar + Cerrar). Reusa lógica de carga de Ficha360.tsx</li>
         </ul>
       </div>
 
       <!-- Fase 6 -->
       <div class="bg-white rounded-2xl ring-1 ring-slate-200 p-5">
-        <div class="flex items-center gap-3 mb-3"><div class="w-8 h-8 bg-purple-600 rounded-lg flex items-center justify-center text-white font-bold text-[12px]">6</div><div><h3 class="text-[14px] font-bold text-slate-900">Fase 6 · Drill pages sub-perfiles</h3><p class="text-[11px] text-slate-500">~1-2h</p></div></div>
+        <div class="flex items-center gap-3 mb-3"><div class="w-8 h-8 bg-purple-600 rounded-lg flex items-center justify-center text-white font-bold text-[12px]">6</div><div><h3 class="text-[14px] font-bold text-slate-900">Fase 6 · Drill pages sub-perfiles + deprecación ruta /ficha</h3><p class="text-[11px] text-slate-500">~1-2h</p></div></div>
         <ul class="text-[11px] text-slate-700 space-y-1.5 ml-11 list-disc">
           <li><code class="bg-slate-100 px-1 rounded">/usuarios/:uid/editar/laborales</code> · form datos laborales · sticky footer canon</li>
           <li><code class="bg-slate-100 px-1 rounded">/usuarios/:uid/editar/socio</code> · form D7 · radio cards + multi-select valor + vesting</li>
           <li>Auto-continuación · post-aprobación · redirect a drill si rol=planilla o socio</li>
+          <li><strong>Deprecar ruta</strong> <code class="bg-rose-100 text-rose-900 px-1 rounded">/usuarios/:uid/ficha</code> · Ficha 360 ahora vive como modal in-place desde el listado</li>
+          <li>Migrar tests/links que apuntaban a la ruta → abrir <code class="bg-slate-100 px-1 rounded">Ficha360Modal</code> con state local</li>
         </ul>
       </div>
 
@@ -1718,7 +1853,7 @@ interface DatosSocio {
         <div class="bg-purple-50 rounded p-2"><strong>D5</strong> · filtros scroll-x mobile + chips toggle</div>
         <div class="bg-purple-50 rounded p-2"><strong>D6</strong> · creación dual (directo + invitar email)</div>
         <div class="bg-purple-50 rounded p-2"><strong>D7</strong> · edición Camino 3 híbrido (modal + drill)</div>
-        <div class="bg-purple-50 rounded p-2"><strong>D8</strong> · Ficha 360 read-only · 4 cards SIEMPRE</div>
+        <div class="bg-purple-50 rounded p-2"><strong>D8</strong> · Ficha 360 = MODAL canon F6.A · 5 tabs internos (no más página drill)</div>
         <div class="bg-purple-50 rounded p-2"><strong>D9</strong> · 6 modales canon FormModalV2</div>
         <div class="bg-purple-50 rounded p-2"><strong>D10</strong> · tab Config · 5 secciones · política registro DUAL</div>
         <div class="bg-purple-50 rounded p-2"><strong>D11</strong> · cross-links Socios/Planilla/Auditoría</div>
