@@ -120,6 +120,21 @@ export const COLLECTIONS = {
   /** Catálogo de socios/inversionistas · doc id determinístico snake_case del nombre */
   SOCIOS: 'socios',
 
+  // === chk5.F4-USERS · Módulo /usuarios completo (2026-05-25) ===
+  /**
+   * Invitaciones por email enviadas por admin · doc id auto-generado.
+   * Estado del ciclo: enviada → link_abierto → aceptada / expirada / cancelada.
+   * Ver invitacion.types.ts
+   */
+  INVITACIONES: 'invitaciones',
+  /**
+   * Sesiones activas del sistema · tracking custom porque Firebase Auth no
+   * tiene listado nativo. Permite UI "Sesiones activas" en Ficha 360 y
+   * "Desconectar todas" desde admin. Ver sesion.types.ts.
+   * Doc id: sessionId UUID generado al login.
+   */
+  SESSIONS: 'sessions',
+
   // === WhatsApp ===
   WHATSAPP_SESSIONS: 'whatsapp_sessions',
   WHATSAPP_CONFIG: 'whatsapp_config',

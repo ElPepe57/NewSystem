@@ -16,28 +16,49 @@ service cloud.firestore {
       return getUserData().role;
     }
 
+    // chk5.F4-USERS · helper multi-rol · soporta documentos con roles[] (nuevo)
+    // y role singular (legacy). Verifica si user tiene un rol específico.
+    function userHasRole(role) {
+      let data = getUserData();
+      // Prefer roles[] (nuevo) · fallback a role singular (legacy)
+      return ('roles' in data && data.roles is list && role in data.roles)
+          || ('role' in data && data.role == role);
+    }
+
+    // chk5.F4-USERS · check si user tiene CUALQUIERA de los roles dados.
+    function userHasAnyRole(rolesPermitidos) {
+      let data = getUserData();
+      return (
+        ('roles' in data && data.roles is list && data.roles.hasAny(rolesPermitidos))
+        || ('role' in data && data.role in rolesPermitidos)
+      );
+    }
+
     function isActive() {
       return getUserData().activo == true;
     }
 
     function isAdmin() {
-      return request.auth != null && isActive() && getUserRole() == 'admin';
+      return request.auth != null && isActive() && userHasRole('admin');
     }
 
     function isActiveUser() {
       return request.auth != null && isActive();
     }
 
+    // LEGACY · sigue funcionando para reglas existentes que comparan role singular
+    // NO usar en reglas nuevas · usar userHasRole / userHasAnyRole
     function hasRole(role) {
-      return isActiveUser() && getUserRole() == role;
+      return isActiveUser() && userHasRole(role);
     }
 
     function hasAnyRole(roles) {
-      return isActiveUser() && (getUserRole() in roles);
+      return isActiveUser() && userHasAnyRole(roles);
     }
 
     // ============================================================
     // USUARIOS
+    // chk5.F4-USERS (2026-05-25) · ampliado para multi-rol + estado + audit
     // ============================================================
     match /users/{userId} {
       // Cualquier autenticado puede leer su propio perfil; admin y gerente leen todos
@@ -45,16 +66,28 @@ service cloud.firestore {
         (request.auth.uid == userId || hasAnyRole(['admin', 'gerente']));
 
       // Un usuario puede crear su propio perfil (fallback si Cloud Function no lo creó)
-      // SEC-007 FIX: solo puede crear con role='invitado' y activo=false para evitar auto-escalación
+      // SEC-007 FIX: solo puede crear con role='invitado'/'invitado' y NO activo
+      // Validación coherente con el nuevo modelo: estado='pendiente_aprobacion' permitido
       allow create: if request.auth != null && request.auth.uid == userId
         && request.resource.data.get('role', 'invitado') == 'invitado'
-        && request.resource.data.get('activo', false) == false;
+        && request.resource.data.get('activo', false) == false
+        && (
+          !('estado' in request.resource.data)
+          || request.resource.data.estado in ['pendiente_aprobacion', 'invitado_no_registrado']
+        );
 
-      // Usuario puede actualizar su perfil EXCEPTO role, permisos, activo (eso solo admin)
+      // Usuario puede actualizar su perfil EXCEPTO role, roles, permisos, activo,
+      // estado, permisosCustom, audit fields (todos esos solo admin).
+      // chk5.F4-USERS · ampliada la blacklist con campos nuevos.
       allow update: if request.auth != null && (
         isAdmin() ||
         (request.auth.uid == userId &&
-         !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role', 'permisos', 'activo']))
+         !request.resource.data.diff(resource.data).affectedKeys().hasAny([
+           'role', 'roles', 'permisos', 'permisosCustom', 'activo', 'estado',
+           'origen', 'invitadoPor', 'fechaInvitacion', 'fechaAprobacion',
+           'aprobadoPor', 'fechaSuspension', 'suspendidoPor', 'motivoSuspension',
+           'fechaArchivado', 'archivadoPor'
+         ]))
       );
 
       allow delete: if isAdmin();
@@ -630,6 +663,44 @@ service cloud.firestore {
       allow create: if hasAnyRole(['admin', 'gerente', 'finanzas']);
       allow update: if hasAnyRole(['admin', 'gerente', 'finanzas']);
       allow delete: if false;
+    }
+
+    // ============================================================
+    // chk5.F4-USERS (2026-05-25) · INVITACIONES
+    // Admin/gerente leen y crean (vía Cloud Function); user normal NO accede.
+    // Las CF usan admin SDK (bypassa rules); las rules cubren acceso UI.
+    // ============================================================
+    match /invitaciones/{docId} {
+      allow read: if hasAnyRole(['admin', 'gerente']);
+      // Crear/update/delete debe ir por Cloud Function (admin SDK)
+      // para validar token JWT, enviar email, audit log. Bloqueamos UI directa.
+      allow write: if false;
+    }
+
+    // ============================================================
+    // chk5.F4-USERS (2026-05-25) · SESIONES ACTIVAS
+    // El propio user puede crear/leer/actualizar SUS sesiones.
+    // Admin lee todas. Cerrar sesiones forzado va por Cloud Function.
+    // ============================================================
+    match /sessions/{sessionId} {
+      allow read: if request.auth != null && (
+        hasAnyRole(['admin', 'gerente']) ||
+        (resource != null && resource.data.uid == request.auth.uid)
+      );
+      // User puede crear su propia sesión (en login) y actualizar lastActive
+      allow create: if request.auth != null
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.estado == 'activa';
+      allow update: if request.auth != null && (
+        // El propio user actualiza lastActive o cierra su sesión
+        (resource != null && resource.data.uid == request.auth.uid
+         && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+           'lastActive', 'estado', 'fechaCierre', 'motivoCierre'
+         ]))
+        // O admin (vía CF generalmente, pero admin puede directo)
+        || hasAnyRole(['admin', 'gerente'])
+      );
+      allow delete: if isAdmin();
     }
 
     // ============================================================

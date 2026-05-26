@@ -15,18 +15,77 @@ export type UserRole =
   | 'invitado'
   | 'socio';      // NUEVO · da acceso al módulo Inversionistas + sub-perfil datosSocio
 
+// ═════════════════════════════════════════════════════════════════════════
+// chk5.F4-USERS (2026-05-25) · ESTADOS Y ORÍGENES DEL CICLO DE VIDA
+// ═════════════════════════════════════════════════════════════════════════
+
+/**
+ * Estados posibles del ciclo de vida de un usuario en el sistema.
+ *
+ * Transiciones válidas:
+ *   invitado_no_registrado → activo            (admin invitó · user clickeó setup-password)
+ *   self_signup            → pendiente_aprobacion → activo  (admin aprueba)
+ *   activo                 ↔ suspendido         (admin bloquea/reactiva)
+ *   activo|suspendido      → archivado          (soft-delete · audit 90d)
+ *
+ * Backward compat: documentos viejos solo tienen `activo: boolean`.
+ *   - `activo: true`  → estado: 'activo'
+ *   - `activo: false` + role 'invitado' → estado: 'pendiente_aprobacion'
+ *   - `activo: false` + otro role → estado: 'suspendido'
+ *
+ * Helper `getUserEstado()` deriva el estado automáticamente con fallback.
+ */
+export type UserEstado =
+  | 'invitado_no_registrado'  // Admin envió email · user no clickeó link aún
+  | 'pendiente_aprobacion'    // User completó signup · espera aprobación admin
+  | 'activo'                  // User operando normalmente
+  | 'suspendido'              // Admin bloqueó temporalmente · puede reactivarse
+  | 'archivado';              // Soft-delete · audit trail 90 días
+
+/**
+ * Origen del usuario · de dónde vino su registro.
+ * Útil para auditoría y para diferenciar nivel de confianza inicial.
+ */
+export type UserOrigen =
+  | 'invitacion_admin'   // Admin envió email de invitación · trust alto
+  | 'self_signup'        // User entró por /signup público · trust bajo · validar
+  | 'creacion_directa';  // Admin creó user con todos los datos · trust máximo
+
+/**
+ * Permisos custom (overrides) por usuario individual · fuera de su rol base.
+ * - `otorgados`: permisos extra que el user tiene además de los de su(s) rol(es)
+ * - `revocados`: permisos del rol base que se le quitan a este user específico
+ *
+ * Caso de uso: Diego (rol 'planilla') con override `+VER_FINANZAS` para período
+ * de prueba. O Carlos (rol 'socio') con `-ELIMINAR_GASTOS` por separación de funciones.
+ */
+export interface PermisosCustom {
+  otorgados: string[];
+  revocados: string[];
+  motivoOtorgados?: string;
+  motivoRevocados?: string;
+  vigenteHasta?: Timestamp;
+  configuradoPor?: string;  // uid del admin
+  fechaConfiguracion?: Timestamp;
+}
+
+// ═════════════════════════════════════════════════════════════════════════
 // 2. Definición del Perfil de Usuario (Lo que se guarda en Firestore /users)
 //
-// chk5.F1-MULTI-ROL · ahora soporta multi-rol vía `roles: UserRole[]`. Para backward
-// compatibility con datos existentes (que tienen `role: "admin"` singular), el campo
-// `role` legacy se mantiene como deprecado · helpers `getUserRoles()` / `hasRole()`
-// hacen fallback automático. NO leer `role` directamente en código nuevo · usar helpers.
+// chk5.F1-MULTI-ROL · multi-rol vía `roles: UserRole[]`.
+// chk5.F4-USERS · agregados estado · origen · permisosCustom · audit fields.
+// Backward compat con documentos legacy:
+//   - `role` singular → fallback a `roles[]`
+//   - `activo: boolean` → fallback a `estado`
+// Helpers `getUserRoles()`, `hasRole()`, `getUserEstado()` manejan ambos casos.
+// ═════════════════════════════════════════════════════════════════════════
 export interface UserProfile {
   uid: string;
   email: string;
   displayName: string;
-  photoURL?: string; // Opcional, pero útil para el avatar
-  cargo?: string; // Puesto/posición: "Socio fundador", "Gerente comercial", etc.
+  photoURL?: string;
+  cargo?: string;
+  telefono?: string;  // chk5.F4-USERS · útil para contacto operativo
 
   /**
    * Array de roles del usuario. Una persona puede tener múltiples roles
@@ -45,13 +104,157 @@ export interface UserProfile {
    */
   role: UserRole;
 
-  permisos: string[]; // Lista de capacidades específicas (unión de los roles)
+  permisos: string[];
 
-  activo: boolean; // Para poder bloquear acceso sin borrar el usuario
+  /**
+   * chk5.F4-USERS · permisos custom (overrides) específicos por usuario.
+   * Opcional · si no existe · permisos efectivos = permisos por rol.
+   * Permisos efectivos = (permisos por rol + otorgados) - revocados.
+   */
+  permisosCustom?: PermisosCustom;
 
-  // Usamos Timestamp de Firebase, no 'any' ni 'Date'
+  /**
+   * @deprecated chk5.F4-USERS · usar `estado` en código nuevo.
+   * Se mantiene para backward compat con documentos viejos.
+   * Helper `getUserEstado()` deriva automáticamente:
+   *   activo: true → 'activo'
+   *   activo: false + role 'invitado' → 'pendiente_aprobacion'
+   *   activo: false + otro role → 'suspendido'
+   */
+  activo: boolean;
+
+  /**
+   * chk5.F4-USERS · estado del ciclo de vida del usuario.
+   * Opcional para retrocompatibilidad · docs viejos derivan de `activo`.
+   * Docs nuevos SIEMPRE escriben este campo + activo (sincronizados).
+   */
+  estado?: UserEstado;
+
+  /**
+   * chk5.F4-USERS · cómo entró este usuario al sistema.
+   * Opcional para retrocompatibilidad · docs viejos asumen 'creacion_directa'.
+   */
+  origen?: UserOrigen;
+
   fechaCreacion: Timestamp;
   ultimaConexion?: Timestamp;
+
+  // ── Audit fields · chk5.F4-USERS ──────────────────────────────────────
+  /** uid del admin que invitó · solo si origen === 'invitacion_admin' */
+  invitadoPor?: string;
+  /** Cuándo el admin envió la invitación · solo si origen === 'invitacion_admin' */
+  fechaInvitacion?: Timestamp;
+  /** Cuándo el user completó el formulario (signup o setup-password) */
+  fechaRegistro?: Timestamp;
+  /** Cuándo el admin aprobó la cuenta · transición a 'activo' */
+  fechaAprobacion?: Timestamp;
+  /** uid del admin que aprobó */
+  aprobadoPor?: string;
+  /** Cuándo se suspendió la cuenta · solo si estado === 'suspendido' */
+  fechaSuspension?: Timestamp;
+  /** uid del admin que suspendió */
+  suspendidoPor?: string;
+  /** Motivo de suspensión (visible al user) */
+  motivoSuspension?: string;
+  /** Cuándo se archivó (soft-delete) */
+  fechaArchivado?: Timestamp;
+  /** uid del admin que archivó */
+  archivadoPor?: string;
+
+  // ── Tracking del registro · self-signup ────────────────────────────────
+  /** IP desde donde se registró · útil para detección de bots/abuse */
+  ipRegistro?: string;
+  /** User-Agent del navegador al registrarse · auditoría */
+  userAgentRegistro?: string;
+  /** Si el email del user fue verificado (Firebase Auth `emailVerified`) */
+  emailVerificado?: boolean;
+}
+
+// ═════════════════════════════════════════════════════════════════════════
+// HELPERS · estado del ciclo de vida (con backward compat)
+// chk5.F4-USERS (2026-05-25)
+// ═════════════════════════════════════════════════════════════════════════
+
+/**
+ * Retorna el estado efectivo del usuario · prioriza `estado` nuevo · fallback
+ * derivado de `activo` + `role` para documentos legacy.
+ * SIEMPRE usar este helper en lugar de leer `userProfile.estado` o `activo` directamente.
+ */
+export function getUserEstado(
+  user: Pick<UserProfile, 'estado' | 'activo' | 'role' | 'roles'> | null | undefined
+): UserEstado {
+  if (!user) return 'archivado';
+  if (user.estado) return user.estado;
+  // Fallback legacy: derivar de activo + role
+  if (user.activo === true) return 'activo';
+  // activo: false → puede ser pendiente o suspendido según el rol
+  const roles = getUserRoles(user);
+  if (roles.length === 0 || roles.includes('invitado')) return 'pendiente_aprobacion';
+  return 'suspendido';
+}
+
+/**
+ * Atajo para chequear si el usuario está activo (puede operar el sistema).
+ * Reemplaza `userProfile.activo === true` con check del nuevo modelo.
+ */
+export function isUserActivo(
+  user: Pick<UserProfile, 'estado' | 'activo' | 'role' | 'roles'> | null | undefined
+): boolean {
+  return getUserEstado(user) === 'activo';
+}
+
+/**
+ * Atajo para chequear si el usuario está pendiente de aprobación.
+ * Útil en guards de routing · redirect a /pending-approval.
+ */
+export function isUserPendiente(
+  user: Pick<UserProfile, 'estado' | 'activo' | 'role' | 'roles'> | null | undefined
+): boolean {
+  const estado = getUserEstado(user);
+  return estado === 'pendiente_aprobacion' || estado === 'invitado_no_registrado';
+}
+
+/**
+ * Labels en español para mostrar el estado en la UI.
+ */
+export const ESTADO_LABELS: Record<UserEstado, string> = {
+  invitado_no_registrado: 'Invitado · esperando registro',
+  pendiente_aprobacion: 'Pendiente de aprobación',
+  activo: 'Activo',
+  suspendido: 'Suspendido',
+  archivado: 'Archivado',
+};
+
+/**
+ * Colors canon por estado (Tailwind classes) · para chips y badges.
+ */
+export const ESTADO_COLORS: Record<UserEstado, { bg: string; text: string; border: string }> = {
+  invitado_no_registrado: { bg: 'bg-sky-100', text: 'text-sky-700', border: 'border-sky-200' },
+  pendiente_aprobacion: { bg: 'bg-amber-100', text: 'text-amber-700', border: 'border-amber-200' },
+  activo: { bg: 'bg-emerald-100', text: 'text-emerald-700', border: 'border-emerald-200' },
+  suspendido: { bg: 'bg-orange-100', text: 'text-orange-700', border: 'border-orange-200' },
+  archivado: { bg: 'bg-slate-100', text: 'text-slate-600', border: 'border-slate-200' },
+};
+
+/**
+ * Calcula permisos EFECTIVOS del usuario aplicando overrides.
+ * Permisos efectivos = (permisos por rol + otorgados) - revocados.
+ *
+ * Usar este helper en lugar de leer `userProfile.permisos` cuando sea crítico
+ * (ej. validar acceso a una acción sensible).
+ */
+export function calcularPermisosEfectivos(
+  user: Pick<UserProfile, 'role' | 'roles' | 'permisosCustom'> | null | undefined
+): string[] {
+  if (!user) return [];
+  const roles = getUserRoles(user);
+  const base = new Set(calcularPermisosDeRoles(roles));
+  // Aplicar overrides
+  if (user.permisosCustom) {
+    for (const p of user.permisosCustom.otorgados || []) base.add(p);
+    for (const p of user.permisosCustom.revocados || []) base.delete(p);
+  }
+  return Array.from(base);
 }
 
 // ═════════════════════════════════════════════════════════════════════════
