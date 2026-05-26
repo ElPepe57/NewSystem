@@ -34,6 +34,10 @@ import type { DatosSocio } from '../../../types/datosSocio.types';
 import type { SesionActiva } from '../../../types/sesion.types';
 import { TIPO_PARTICIPACION_LABEL, TIPO_VALOR_LABEL } from '../../../types/datosSocio.types';
 import { formatCurrencyPEN } from '../../../utils/format';
+// chk5.PERSONAS-v5.4 · F8 · histórico salarial + ajustar salario en Ficha 360
+import { HistorialSalarialTimeline } from '../../../components/modules/planilla/HistorialSalarialTimeline';
+import { AjustarSalarioModal } from '../../../components/modules/planilla/AjustarSalarioModal';
+import { TrendingUp } from 'lucide-react';
 
 type TabFicha = 'resumen' | 'sub-perfiles' | 'sesiones' | 'auditoria' | 'accesos';
 
@@ -80,6 +84,16 @@ export default function Ficha360Modal({ isOpen, onClose, uid, onRequestEdit, onR
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [tab, setTab] = useState<TabFicha>('resumen');
+  // chk5.PERSONAS-v5.4 · F8 · estado para AjustarSalarioModal + refresh del timeline
+  const [ajustarSalarioOpen, setAjustarSalarioOpen] = useState(false);
+  const [salarioRefreshKey, setSalarioRefreshKey] = useState(0);
+  const [salarioToast, setSalarioToast] = useState<{ kind: 'success' | 'error'; msg: string } | null>(null);
+
+  useEffect(() => {
+    if (!salarioToast) return;
+    const t = window.setTimeout(() => setSalarioToast(null), 4000);
+    return () => window.clearTimeout(t);
+  }, [salarioToast]);
 
   useEffect(() => {
     if (!isOpen || !uid) {
@@ -230,7 +244,17 @@ export default function Ficha360Modal({ isOpen, onClose, uid, onRequestEdit, onR
             {/* ─── BODY SCROLLABLE ─── */}
             <div className="flex-1 overflow-y-auto px-5 sm:px-6 py-5">
               {tab === 'resumen' && <TabResumen profile={profile} datosLab={datosLab} datosSoc={datosSoc} />}
-              {tab === 'sub-perfiles' && <TabSubPerfiles profile={profile} datosLab={datosLab} datosSoc={datosSoc} navigate={navigate} onClose={onClose} />}
+              {tab === 'sub-perfiles' && (
+                <TabSubPerfiles
+                  profile={profile}
+                  datosLab={datosLab}
+                  datosSoc={datosSoc}
+                  navigate={navigate}
+                  onClose={onClose}
+                  onAjustarSalario={() => setAjustarSalarioOpen(true)}
+                  salarioRefreshKey={salarioRefreshKey}
+                />
+              )}
               {tab === 'sesiones' && <TabSesiones sesiones={sesiones} onClose={onClose} />}
               {tab === 'auditoria' && <TabAuditoria navigate={navigate} onClose={onClose} />}
               {tab === 'accesos' && <TabAccesos profile={profile} />}
@@ -265,6 +289,35 @@ export default function Ficha360Modal({ isOpen, onClose, uid, onRequestEdit, onR
           </>
         )}
       </div>
+
+      {/* chk5.PERSONAS-v5.4 · F8 · Toast de feedback ajuste salarial */}
+      {salarioToast && (
+        <div
+          className={`fixed bottom-4 right-4 z-[60] max-w-md rounded-lg shadow-lg border px-4 py-3 ${
+            salarioToast.kind === 'success'
+              ? 'bg-emerald-50 border-emerald-300 text-emerald-900'
+              : 'bg-rose-50 border-rose-300 text-rose-900'
+          }`}
+        >
+          <div className="text-[12px] font-semibold">{salarioToast.msg}</div>
+        </div>
+      )}
+
+      {/* chk5.PERSONAS-v5.4 · F8 · Modal AjustarSalario · canon FormModalV2 sky */}
+      {profile && (
+        <AjustarSalarioModal
+          isOpen={ajustarSalarioOpen}
+          onClose={() => setAjustarSalarioOpen(false)}
+          userId={profile.uid}
+          empleadoNombre={profile.displayName ?? profile.email ?? ''}
+          onSuccess={(msg) => {
+            setSalarioToast({ kind: 'success', msg });
+            // Refresh del timeline para que muestre la nueva variación
+            setSalarioRefreshKey((k) => k + 1);
+          }}
+          onError={(msg) => setSalarioToast({ kind: 'error', msg })}
+        />
+      )}
     </div>
   );
 }
@@ -353,7 +406,23 @@ function TabResumen({ profile, datosLab, datosSoc }: { profile: UserProfile; dat
   );
 }
 
-function TabSubPerfiles({ profile, datosLab, datosSoc, navigate, onClose }: { profile: UserProfile; datosLab: DatosLaborales | null; datosSoc: DatosSocio | null; navigate: (path: string) => void; onClose: () => void }) {
+function TabSubPerfiles({
+  profile,
+  datosLab,
+  datosSoc,
+  navigate,
+  onClose,
+  onAjustarSalario,
+  salarioRefreshKey,
+}: {
+  profile: UserProfile;
+  datosLab: DatosLaborales | null;
+  datosSoc: DatosSocio | null;
+  navigate: (path: string) => void;
+  onClose: () => void;
+  onAjustarSalario?: () => void;
+  salarioRefreshKey?: number;
+}) {
   return (
     <div className="space-y-4">
       {/* Datos socio · si existe o si tiene rol socio */}
@@ -398,19 +467,42 @@ function TabSubPerfiles({ profile, datosLab, datosSoc, navigate, onClose }: { pr
 
       {/* Datos laborales */}
       {datosLab ? (
-        <div className="bg-sky-50/40 border border-sky-200 rounded-xl p-4">
-          <div className="flex items-center justify-between mb-3">
+        <div className="bg-sky-50/40 border border-sky-200 rounded-xl p-4 space-y-3">
+          <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <BriefcaseBusiness className="w-4 h-4 text-sky-600" />
               <h3 className="text-[13px] font-bold text-slate-900">Datos laborales</h3>
             </div>
-            <span className="text-[10px] bg-emerald-100 text-emerald-700 font-bold px-2 py-0.5 rounded">CONFIGURADO</span>
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] bg-emerald-100 text-emerald-700 font-bold px-2 py-0.5 rounded">CONFIGURADO</span>
+              {/* chk5.PERSONAS-v5.4 · F8 · botón Ajustar salario */}
+              {onAjustarSalario && (
+                <button
+                  type="button"
+                  onClick={onAjustarSalario}
+                  className="text-[11px] font-bold text-sky-700 bg-white border border-sky-300 hover:bg-sky-50 px-2 py-1 rounded inline-flex items-center gap-1"
+                  title="Registrar variación salarial · queda en el historial"
+                >
+                  <TrendingUp className="w-3 h-3" />
+                  Ajustar salario
+                </button>
+              )}
+            </div>
           </div>
           <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 text-[12px]">
             <div className="flex justify-between"><span className="text-slate-600">Área</span><span className="font-bold text-sky-900">{datosLab.area || '—'}</span></div>
             <div className="flex justify-between"><span className="text-slate-600">Contrato</span><span className="font-bold text-sky-900">{datosLab.tipoContrato || '—'}</span></div>
             <div className="flex justify-between"><span className="text-slate-600">Modalidad</span><span className="font-bold text-sky-900">{datosLab.modalidad || '—'}</span></div>
             <div className="flex justify-between"><span className="text-slate-600">Sueldo</span><span className="font-bold text-sky-900 tabular-nums">{formatCurrencyPEN(datosLab.salarioBase || 0)}</span></div>
+          </div>
+
+          {/* chk5.PERSONAS-v5.4 · F8 · timeline histórico salarial · refresh tras ajuste */}
+          <div className="pt-3 border-t border-sky-200">
+            <HistorialSalarialTimeline
+              key={salarioRefreshKey ?? 0}
+              userId={profile.uid}
+              maxItems={5}
+            />
           </div>
         </div>
       ) : (
