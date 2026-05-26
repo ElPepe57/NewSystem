@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Inversionistas v5.3 · ajustes menores · banner cross-link</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<style>
+  body { font-family: 'Inter', sans-serif; font-variant-numeric: tabular-nums; background: rgb(248 250 252); }
+  .tabular { font-variant-numeric: tabular-nums; }
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { scrollbar-width: none; }
+  .device-desktop { box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.12); }
+</style>
+<script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="p-4 md:p-8 text-slate-900">
+
+<div class="max-w-6xl mx-auto mb-10">
+  <div class="bg-gradient-to-br from-violet-600 to-violet-800 text-white rounded-3xl p-8">
+    <div class="flex items-center gap-3 mb-3">
+      <div class="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center">
+        <i data-lucide="briefcase" class="w-6 h-6 text-white"></i>
+      </div>
+      <div>
+        <div class="text-[11px] uppercase tracking-wider text-violet-200 font-bold">MOCKUP v5.3 · AJUSTES MENORES</div>
+        <h1 class="text-2xl font-bold">/inversionistas · "Mi Capital" vista del socio</h1>
+      </div>
+    </div>
+    <p class="text-[14px] text-violet-100 leading-relaxed max-w-3xl">
+      Módulo ya MADURO (canon v5.2 violet · 7 sub-tabs · 556L). Solo se agrega
+      <strong class="text-white">banner cross-link sutil</strong> para admin/gerente · CTA a /usuarios para
+      gestionar socios. Las 7 tabs internas NO se tocan · son la operación correcta.
+    </p>
+  </div>
+</div>
+
+<!-- VISTA 1 · Estado actual (intacto) -->
+<section class="my-16">
+  <div class="max-w-6xl mx-auto">
+    <div class="bg-gradient-to-r from-violet-100 via-violet-50 to-violet-100/40 ring-1 ring-violet-200 rounded-3xl p-6 mb-8">
+      <div class="flex items-center gap-4">
+        <div class="w-14 h-14 bg-violet-600 rounded-2xl flex items-center justify-center text-white font-bold text-xl">1</div>
+        <div class="flex-1">
+          <div class="text-[11px] uppercase tracking-wider text-violet-700 font-bold">VISTA 1 · módulo intacto</div>
+          <h2 class="text-xl font-bold text-violet-900">Shell actual · 7 sub-tabs · vista del socio logueado</h2>
+          <p class="text-[13px] text-violet-700 mt-1">"Mi Capital" personal · NO directorio · cero duplicación con /usuarios</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="device-desktop bg-white rounded-2xl ring-1 ring-slate-200 overflow-hidden">
+      <!-- Breadcrumb canon -->
+      <div class="px-6 pt-5 pb-2 border-b border-slate-100 flex items-center gap-1.5 text-[11px] text-slate-500">
+        <i data-lucide="home" class="w-3 h-3"></i>
+        <a class="hover:text-violet-600 cursor-pointer">Dashboard</a>
+        <i data-lucide="chevron-right" class="w-3 h-3"></i>
+        <a class="hover:text-violet-600 cursor-pointer">Finanzas y Contabilidad</a>
+        <i data-lucide="chevron-right" class="w-3 h-3"></i>
+        <span class="text-slate-900 font-semibold">Inversionistas</span>
+      </div>
+
+      <!-- Header F1 -->
+      <div class="px-6 py-5 flex items-start justify-between">
+        <div class="flex items-start gap-3">
+          <div class="w-10 h-10 bg-gradient-to-br from-violet-500 to-violet-700 rounded-xl flex items-center justify-center text-white">
+            <i data-lucide="briefcase" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h1 class="text-[20px] font-bold text-slate-900">Inversionistas</h1>
+            <p class="text-[12px] text-slate-500">Mi capital · ROI · trayectoria · distribución de utilidades</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <button class="bg-white border border-slate-200 hover:bg-slate-50 text-slate-600 text-[12px] font-medium px-3 py-1.5 rounded-lg flex items-center gap-1.5"><i data-lucide="download" class="w-3.5 h-3.5"></i>Exportar</button>
+          <button class="bg-violet-600 hover:bg-violet-700 text-white text-[12px] font-bold px-3 py-1.5 rounded-lg flex items-center gap-1.5"><i data-lucide="bar-chart-3" class="w-3.5 h-3.5"></i>Ver reporte</button>
+        </div>
+      </div>
+
+      <!-- ⭐ NUEVO BANNER CROSS-LINK · solo para admin/gerente -->
+      <div class="mx-6 mt-2 mb-3 bg-gradient-to-r from-purple-50 to-indigo-50 ring-1 ring-purple-200 rounded-xl p-3 flex items-center gap-3">
+        <div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
+          <i data-lucide="users" class="w-4 h-4 text-purple-700"></i>
+        </div>
+        <div class="flex-1">
+          <div class="text-[11px] text-slate-700">
+            <strong>Admin/Gerente:</strong> para configurar socios · % participación · aportes de valor (D7) · ir a Usuarios.
+          </div>
+        </div>
+        <button class="bg-white border border-purple-300 hover:bg-purple-50 text-purple-700 text-[11px] font-bold px-3 py-1 rounded-lg whitespace-nowrap flex items-center gap-1">
+          Configurar socios
+          <i data-lucide="arrow-right" class="w-3 h-3"></i>
+        </button>
+      </div>
+
+      <!-- KPI strip 5 cards violet (canon N1+N2 · intacto v5.2) -->
+      <div class="px-6 grid grid-cols-2 md:grid-cols-5 gap-3 mb-3">
+        <div class="bg-gradient-to-br from-violet-50 to-violet-100/40 ring-1 ring-violet-200/50 rounded-2xl p-3">
+          <div class="flex items-center justify-between mb-1"><span class="text-[10px] uppercase tracking-wider text-violet-700 font-bold">MI CAPITAL</span><i data-lucide="wallet" class="w-3.5 h-3.5 text-violet-700"></i></div>
+          <div class="text-xl font-bold tabular text-violet-900">S/ 70K</div>
+          <div class="text-[10px] text-violet-700">cash + valor</div>
+        </div>
+        <div class="bg-gradient-to-br from-emerald-50 to-emerald-100/40 ring-1 ring-emerald-200/50 rounded-2xl p-3">
+          <div class="flex items-center justify-between mb-1"><span class="text-[10px] uppercase tracking-wider text-emerald-700 font-bold">MI %</span><i data-lucide="pie-chart" class="w-3.5 h-3.5 text-emerald-700"></i></div>
+          <div class="text-xl font-bold tabular text-emerald-900">45%</div>
+          <div class="text-[10px] text-emerald-700">de S/ 156K total</div>
+        </div>
+        <div class="bg-gradient-to-br from-sky-50 to-sky-100/40 ring-1 ring-sky-200/50 rounded-2xl p-3">
+          <div class="flex items-center justify-between mb-1"><span class="text-[10px] uppercase tracking-wider text-sky-700 font-bold">ROI YTD</span><i data-lucide="trending-up" class="w-3.5 h-3.5 text-sky-700"></i></div>
+          <div class="text-xl font-bold tabular text-sky-900">+12.4%</div>
+          <div class="text-[10px] text-sky-700">utilidad acum.</div>
+        </div>
+        <div class="bg-gradient-to-br from-amber-50 to-amber-100/40 ring-1 ring-amber-200/50 rounded-2xl p-3">
+          <div class="flex items-center justify-between mb-1"><span class="text-[10px] uppercase tracking-wider text-amber-700 font-bold">PRÓX. DIST.</span><i data-lucide="banknote" class="w-3.5 h-3.5 text-amber-700"></i></div>
+          <div class="text-xl font-bold tabular text-amber-900">S/ 8K</div>
+          <div class="text-[10px] text-amber-700">jun 2026</div>
+        </div>
+        <div class="bg-gradient-to-br from-indigo-50 to-indigo-100/40 ring-1 ring-indigo-200/50 rounded-2xl p-3">
+          <div class="flex items-center justify-between mb-1"><span class="text-[10px] uppercase tracking-wider text-indigo-700 font-bold">SALUD FIN.</span><i data-lucide="heart-pulse" class="w-3.5 h-3.5 text-indigo-700"></i></div>
+          <div class="text-xl font-bold tabular text-indigo-900">8.5/10</div>
+          <div class="text-[10px] text-indigo-700">score saludable</div>
+        </div>
+      </div>
+
+      <!-- 7 sub-tabs INTACTOS (canon v5.2 violet) -->
+      <div class="px-6 border-b border-slate-200">
+        <div class="flex gap-1 overflow-x-auto no-scrollbar">
+          <button class="px-4 py-2.5 text-[12px] font-bold border-b-2 border-violet-600 text-violet-700 whitespace-nowrap flex items-center gap-1.5"><i data-lucide="home" class="w-3.5 h-3.5"></i>Resumen</button>
+          <button class="px-4 py-2.5 text-[12px] font-medium border-b-2 border-transparent text-slate-600 hover:text-violet-600 whitespace-nowrap flex items-center gap-1.5"><i data-lucide="coins" class="w-3.5 h-3.5"></i>Mi Capital</button>
+          <button class="px-4 py-2.5 text-[12px] font-medium border-b-2 border-transparent text-slate-600 hover:text-violet-600 whitespace-nowrap flex items-center gap-1.5"><i data-lucide="line-chart" class="w-3.5 h-3.5"></i>Trayectoria</button>
+          <button class="px-4 py-2.5 text-[12px] font-medium border-b-2 border-transparent text-slate-600 hover:text-violet-600 whitespace-nowrap flex items-center gap-1.5"><i data-lucide="layers" class="w-3.5 h-3.5"></i>ROI Dual</button>
+          <button class="px-4 py-2.5 text-[12px] font-medium border-b-2 border-transparent text-slate-600 hover:text-violet-600 whitespace-nowrap flex items-center gap-1.5"><i data-lucide="banknote" class="w-3.5 h-3.5"></i>Distribución</button>
+          <button class="px-4 py-2.5 text-[12px] font-medium border-b-2 border-transparent text-slate-600 hover:text-violet-600 whitespace-nowrap flex items-center gap-1.5"><i data-lucide="heart-pulse" class="w-3.5 h-3.5"></i>Salud</button>
+          <button class="px-4 py-2.5 text-[12px] font-medium border-b-2 border-transparent text-slate-600 hover:text-violet-600 whitespace-nowrap flex items-center gap-1.5"><i data-lucide="file-bar-chart" class="w-3.5 h-3.5"></i>Reportes</button>
+        </div>
+      </div>
+
+      <!-- Body placeholder · contenido del tab Resumen (no se toca) -->
+      <div class="px-6 py-8 text-center text-slate-500">
+        <div class="text-[12px] font-bold mb-2 text-slate-700">📦 Contenido de las 7 tabs INTACTO · canon v5.2 ya implementado</div>
+        <p class="text-[11px] mb-4">Sub-componentes existentes (NO se modifican):</p>
+        <div class="inline-grid grid-cols-2 gap-2 text-[11px] text-left">
+          <div class="bg-violet-50 px-3 py-1.5 rounded">📊 InversionistasResumen.tsx</div>
+          <div class="bg-violet-50 px-3 py-1.5 rounded">💰 InversionistasCapital.tsx</div>
+          <div class="bg-violet-50 px-3 py-1.5 rounded">📈 InversionistasTrayectoria.tsx</div>
+          <div class="bg-violet-50 px-3 py-1.5 rounded">🎯 InversionistasROI.tsx</div>
+          <div class="bg-violet-50 px-3 py-1.5 rounded">💵 InversionistasDistribucion.tsx</div>
+          <div class="bg-violet-50 px-3 py-1.5 rounded">❤️ InversionistasSalud.tsx</div>
+          <div class="bg-violet-50 px-3 py-1.5 rounded col-span-2">📋 InversionistasReportes.tsx</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- VISTA 2 · Detalle del banner cross-link · cómo se ve para socio normal (sin banner) -->
+<section class="my-16">
+  <div class="max-w-6xl mx-auto">
+    <div class="bg-gradient-to-r from-emerald-100 via-emerald-50 to-emerald-100/40 ring-1 ring-emerald-200 rounded-3xl p-6 mb-8">
+      <div class="flex items-center gap-4">
+        <div class="w-14 h-14 bg-emerald-600 rounded-2xl flex items-center justify-center text-white font-bold text-xl">2</div>
+        <div class="flex-1">
+          <div class="text-[11px] uppercase tracking-wider text-emerald-700 font-bold">VISTA 2 · vista para socio normal</div>
+          <h2 class="text-xl font-bold text-emerald-900">Sin banner cross-link · solo admin/gerente lo ven</h2>
+          <p class="text-[13px] text-emerald-700 mt-1">El banner aparece SOLO si <code>hasAnyRole(user, ['admin', 'gerente'])</code> · socios normales no necesitan ese acceso</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="device-desktop bg-white rounded-2xl ring-1 ring-slate-200 overflow-hidden p-6">
+      <div class="text-[11px] text-slate-500 mb-3"><i data-lucide="info" class="w-3 h-3 inline"></i> Estado para socio normal (sin rol admin/gerente)</div>
+      <div class="bg-emerald-50 border border-emerald-200 rounded-lg p-3 text-[11px] text-emerald-900">
+        <strong>✓ Banner OCULTO</strong> · el socio Carlos (rol único 'socio') NO ve el banner cross-link · porque
+        no tiene permisos para ir a /usuarios y configurar socios. Su vista es 100% "Mi Capital" personal.
+      </div>
+      <div class="mt-3 text-[11px] text-slate-600">
+        Lógica condicional en código:
+        <code class="block bg-slate-100 rounded p-2 mt-1 text-[10px]">{hasAnyRole(currentUser, ['admin', 'gerente']) &amp;&amp; &lt;BannerCrossLink /&gt;}</code>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- VISTA 3 · Justificación · por qué NO mostrar lista de socios acá -->
+<section class="my-16">
+  <div class="max-w-6xl mx-auto">
+    <div class="bg-gradient-to-r from-slate-100 via-slate-50 to-slate-100/40 ring-1 ring-slate-200 rounded-3xl p-6 mb-8">
+      <div class="flex items-center gap-4">
+        <div class="w-14 h-14 bg-slate-600 rounded-2xl flex items-center justify-center text-white font-bold text-xl">?</div>
+        <div class="flex-1">
+          <div class="text-[11px] uppercase tracking-wider text-slate-700 font-bold">JUSTIFICACIÓN</div>
+          <h2 class="text-xl font-bold text-slate-900">¿Por qué NO duplicar lista de socios acá?</h2>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-2xl ring-1 ring-slate-200 p-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="bg-rose-50 border border-rose-200 rounded-xl p-4">
+          <div class="text-[11px] font-bold text-rose-700 uppercase mb-2">❌ Anti-pattern</div>
+          <div class="text-[12px] text-slate-700 mb-2 font-bold">Listar socios acá también</div>
+          <ul class="text-[11px] text-slate-600 space-y-1 list-disc ml-4">
+            <li>Duplica directorio de /usuarios filtrado por rol socio</li>
+            <li>Confusión "¿dónde edito el % de Carlos?"</li>
+            <li>2 lugares de verdad · síncrono peligroso</li>
+            <li>Cognitive load para admin</li>
+          </ul>
+        </div>
+        <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-4">
+          <div class="text-[11px] font-bold text-emerald-700 uppercase mb-2">✅ Patrón ganador</div>
+          <div class="text-[12px] text-slate-700 mb-2 font-bold">Cross-link al directorio único</div>
+          <ul class="text-[11px] text-slate-600 space-y-1 list-disc ml-4">
+            <li>/inversionistas = "Mi Capital · ROI · Trayectoria" (operación)</li>
+            <li>/usuarios filtro=socio = directorio de socios</li>
+            <li>1 lugar de verdad · cero confusión</li>
+            <li>Benchmark Rippling/Gusto/Brex hacen lo mismo</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Resumen decisiones inversionistas v5.3 -->
+<section class="my-16">
+  <div class="max-w-6xl mx-auto bg-white rounded-2xl ring-1 ring-slate-200 p-6">
+    <h2 class="text-[16px] font-bold text-slate-900 mb-4 flex items-center gap-2">
+      <i data-lucide="check-circle-2" class="w-5 h-5 text-violet-600"></i>
+      Resumen · decisiones canon /inversionistas v5.3
+    </h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-[12px]">
+      <div class="bg-violet-50 rounded p-3"><strong>D-P7</strong> · /inversionistas se mantiene como vista PERSONAL "Mi Capital" del socio logueado</div>
+      <div class="bg-violet-50 rounded p-3"><strong>D-P8</strong> · Banner cross-link sutil "Configurar socios en Usuarios →" · solo visible admin/gerente</div>
+      <div class="bg-violet-50 rounded p-3"><strong>7 sub-tabs INTACTOS</strong> · Resumen · Capital · Trayectoria · ROI · Distribución · Salud · Reportes</div>
+      <div class="bg-violet-50 rounded p-3"><strong>CERO duplicación</strong> · NO se lista directorio de socios acá · vive en /usuarios filtrado</div>
+    </div>
+
+    <div class="mt-5 bg-amber-50 border border-amber-200 rounded-xl p-4">
+      <div class="text-[11px] uppercase tracking-wider font-bold text-amber-700 mb-2">CAMBIO MÍNIMO</div>
+      <ul class="text-[12px] text-slate-700 space-y-1">
+        <li>📌 Solo se agrega <strong>1 banner cross-link</strong> entre header y KPI strip</li>
+        <li>📌 Visible solo para admin/gerente · condicional <code>hasAnyRole(['admin','gerente'])</code></li>
+        <li>📌 7 tabs internas <strong>NO se tocan</strong> · son la operación correcta</li>
+        <li>📌 Tiempo estimado: <strong>~30 minutos</strong> · refactor menor</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<footer class="text-center text-[11px] text-slate-500 pt-8 max-w-5xl mx-auto pb-12">
+  Mockup canon v5.3 · /inversionistas ajustes menores · 2026-05-26
+</footer>
+
+<script>if (window.lucide) window.lucide.createIcons();</script>
+</body>
+</html>

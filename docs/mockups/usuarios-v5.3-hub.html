@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Usuarios v5.3 · HUB simplificado · 3 tabs + filtros chip</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<style>
+  body { font-family: 'Inter', sans-serif; font-variant-numeric: tabular-nums; background: rgb(248 250 252); }
+  .tabular { font-variant-numeric: tabular-nums; }
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { scrollbar-width: none; }
+  .device-desktop { box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.12); }
+</style>
+<script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="p-4 md:p-8 text-slate-900">
+
+<!-- Header -->
+<div class="max-w-6xl mx-auto mb-10">
+  <div class="bg-gradient-to-br from-purple-600 to-purple-800 text-white rounded-3xl p-8">
+    <div class="flex items-center gap-3 mb-3">
+      <div class="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center">
+        <i data-lucide="users" class="w-6 h-6 text-white"></i>
+      </div>
+      <div>
+        <div class="text-[11px] uppercase tracking-wider text-purple-200 font-bold">MOCKUP v5.3 · REARQUITECTURA PERSONAS</div>
+        <h1 class="text-2xl font-bold">/usuarios · HUB simplificado</h1>
+      </div>
+    </div>
+    <p class="text-[14px] text-purple-100 leading-relaxed max-w-3xl">
+      Reducción de 5 a <strong class="text-white">3 sub-tabs</strong>. Las tabs Socios y Planilla se eliminan ·
+      su función se reemplaza por <strong class="text-white">chips filtro por rol</strong> en tab Resumen
+      + banner cross-link sutil al módulo operativo correspondiente. Cero duplicación · UX consistente con
+      Rippling/Gusto/Brex.
+    </p>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<!-- VISTA PRINCIPAL · Tab Resumen (default) · TODOS los usuarios          -->
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<section class="my-16">
+  <div class="max-w-6xl mx-auto">
+    <div class="bg-gradient-to-r from-purple-100 via-purple-50 to-purple-100/40 ring-1 ring-purple-200 rounded-3xl p-6 mb-8">
+      <div class="flex items-center gap-4">
+        <div class="w-14 h-14 bg-purple-600 rounded-2xl flex items-center justify-center text-white font-bold text-xl">1</div>
+        <div class="flex-1">
+          <div class="text-[11px] uppercase tracking-wider text-purple-700 font-bold">VISTA 1 · default</div>
+          <h2 class="text-xl font-bold text-purple-900">Tab Resumen · filtro "Todos" activo</h2>
+          <p class="text-[13px] text-purple-700 mt-1">14 usuarios totales · chips filtro horizontales · sin banners cross-link (filtro general)</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="device-desktop bg-white rounded-2xl ring-1 ring-slate-200 overflow-hidden">
+      <!-- Breadcrumb -->
+      <div class="px-6 pt-5 pb-2 border-b border-slate-100 flex items-center gap-1.5 text-[11px] text-slate-500">
+        <i data-lucide="home" class="w-3 h-3"></i>
+        <a class="hover:text-purple-600 cursor-pointer">Dashboard</a>
+        <i data-lucide="chevron-right" class="w-3 h-3"></i>
+        <a class="hover:text-purple-600 cursor-pointer">Administración</a>
+        <i data-lucide="chevron-right" class="w-3 h-3"></i>
+        <span class="text-slate-900 font-semibold">Usuarios</span>
+      </div>
+
+      <!-- Header F1 -->
+      <div class="px-6 py-5 flex items-start justify-between">
+        <div class="flex items-start gap-3">
+          <div class="w-10 h-10 bg-purple-100 rounded-xl flex items-center justify-center"><i data-lucide="users" class="w-5 h-5 text-purple-600"></i></div>
+          <div>
+            <h1 class="text-[20px] font-bold text-slate-900">Usuarios</h1>
+            <p class="text-[12px] text-slate-500">Directorio central de personas · roles · accesos · configuración del sistema</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <button class="bg-white border border-slate-200 hover:bg-slate-50 text-slate-600 text-[12px] font-medium px-3 py-1.5 rounded-lg flex items-center gap-1.5"><i data-lucide="download" class="w-3.5 h-3.5"></i>Exportar</button>
+          <button class="bg-indigo-50 text-indigo-700 border border-indigo-200 hover:bg-indigo-100 text-[12px] font-medium px-3 py-1.5 rounded-lg flex items-center gap-1.5"><i data-lucide="mail-plus" class="w-3.5 h-3.5"></i>Invitar por email</button>
+          <button class="bg-purple-600 hover:bg-purple-700 text-white text-[12px] font-bold px-3 py-1.5 rounded-lg flex items-center gap-1.5"><i data-lucide="user-plus" class="w-3.5 h-3.5"></i>Nuevo usuario</button>
+        </div>
+      </div>
+
+      <!-- 3 SUB-TABS (reducido de 5) -->
+      <div class="px-6 border-b border-slate-200">
+        <div class="flex gap-1 overflow-x-auto no-scrollbar">
+          <button class="px-4 py-2.5 text-[12px] font-bold border-b-2 border-purple-600 text-purple-700 whitespace-nowrap flex items-center gap-1.5">
+            <i data-lucide="layout-dashboard" class="w-3.5 h-3.5"></i>Resumen
+          </button>
+          <button class="px-4 py-2.5 text-[12px] font-medium border-b-2 border-transparent text-slate-600 hover:text-purple-600 whitespace-nowrap flex items-center gap-1.5">
+            <i data-lucide="shield" class="w-3.5 h-3.5"></i>Accesos & seguridad
+          </button>
+          <button class="px-4 py-2.5 text-[12px] font-medium border-b-2 border-transparent text-slate-600 hover:text-purple-600 whitespace-nowrap flex items-center gap-1.5">
+            <i data-lucide="settings" class="w-3.5 h-3.5"></i>Configuración
+          </button>
+        </div>
+      </div>
+
+      <!-- Banner pendientes (igual que v5.2) -->
+      <div class="mx-6 mt-5 bg-gradient-to-r from-amber-50 to-orange-50 ring-1 ring-amber-300 rounded-xl p-4 flex items-start gap-3">
+        <div class="w-9 h-9 bg-amber-100 rounded-xl flex items-center justify-center flex-shrink-0"><i data-lucide="clock-alert" class="w-4 h-4 text-amber-700"></i></div>
+        <div class="flex-1">
+          <div class="text-[12px] font-bold text-amber-900 mb-0.5">2 usuarios esperan aprobación</div>
+          <div class="text-[11px] text-amber-800">María García (invitada · hace 3h) · Juan Pérez (auto-registrado · hace 1h)</div>
+        </div>
+        <button class="bg-amber-600 hover:bg-amber-700 text-white text-[11px] font-bold px-3 py-1.5 rounded-lg whitespace-nowrap">Ver pendientes →</button>
+      </div>
+
+      <!-- KPI strip (5 cards) -->
+      <div class="px-6 mt-5 grid grid-cols-2 md:grid-cols-5 gap-3">
+        <div class="bg-gradient-to-br from-purple-50 to-purple-100/40 ring-1 ring-purple-200/50 rounded-2xl p-3">
+          <div class="flex items-center justify-between mb-1"><span class="text-[10px] uppercase tracking-wider text-purple-700 font-bold">TOTAL</span><i data-lucide="users" class="w-3.5 h-3.5 text-purple-700"></i></div>
+          <div class="text-2xl font-bold tabular text-purple-900">14</div>
+          <div class="text-[10px] text-purple-700">+2 este mes</div>
+        </div>
+        <div class="bg-gradient-to-br from-emerald-50 to-emerald-100/40 ring-1 ring-emerald-200/50 rounded-2xl p-3">
+          <div class="flex items-center justify-between mb-1"><span class="text-[10px] uppercase tracking-wider text-emerald-700 font-bold">ACTIVOS</span><i data-lucide="check-circle" class="w-3.5 h-3.5 text-emerald-700"></i></div>
+          <div class="text-2xl font-bold tabular text-emerald-900">11</div>
+          <div class="text-[10px] text-emerald-700">79% del total</div>
+        </div>
+        <div class="bg-gradient-to-br from-amber-50 to-amber-100/40 ring-1 ring-amber-200/50 rounded-2xl p-3">
+          <div class="flex items-center justify-between mb-1"><span class="text-[10px] uppercase tracking-wider text-amber-700 font-bold">PENDIENTES</span><i data-lucide="clock" class="w-3.5 h-3.5 text-amber-700"></i></div>
+          <div class="text-2xl font-bold tabular text-amber-900">2</div>
+          <div class="text-[10px] text-amber-700">requieren aprobación</div>
+        </div>
+        <div class="bg-gradient-to-br from-violet-50 to-violet-100/40 ring-1 ring-violet-200/50 rounded-2xl p-3">
+          <div class="flex items-center justify-between mb-1"><span class="text-[10px] uppercase tracking-wider text-violet-700 font-bold">SOCIOS</span><i data-lucide="briefcase" class="w-3.5 h-3.5 text-violet-700"></i></div>
+          <div class="text-2xl font-bold tabular text-violet-900">3</div>
+          <div class="text-[10px] text-violet-700">cap table activa</div>
+        </div>
+        <div class="bg-gradient-to-br from-indigo-50 to-indigo-100/40 ring-1 ring-indigo-200/50 rounded-2xl p-3">
+          <div class="flex items-center justify-between mb-1"><span class="text-[10px] uppercase tracking-wider text-indigo-700 font-bold">MULTI-ROL</span><i data-lucide="layers" class="w-3.5 h-3.5 text-indigo-700"></i></div>
+          <div class="text-2xl font-bold tabular text-indigo-900">4</div>
+          <div class="text-[10px] text-indigo-700">2+ roles asignados</div>
+        </div>
+      </div>
+
+      <!-- ⚡ FILTROS CHIP POR ROL (NUEVO · reemplaza tabs Socios/Planilla) -->
+      <div class="px-6 mt-5">
+        <div class="text-[10px] uppercase tracking-wider font-bold text-slate-700 mb-2">⚡ Filtrar por rol · ahora con chip multi-rol (canon N6)</div>
+        <div class="flex items-center gap-1.5 overflow-x-auto pb-1 -mx-1 px-1 no-scrollbar">
+          <button class="bg-purple-600 text-white text-[11px] font-bold px-2.5 py-1.5 rounded-lg whitespace-nowrap flex items-center gap-1.5"><i data-lucide="users" class="w-3 h-3"></i>Todos · 14</button>
+          <button class="bg-white text-slate-700 border border-slate-300 hover:bg-slate-50 text-[11px] font-medium px-2.5 py-1.5 rounded-lg whitespace-nowrap flex items-center gap-1.5"><i data-lucide="shield" class="w-3 h-3 text-purple-600"></i>Admin · 1</button>
+          <button class="bg-white text-slate-700 border border-slate-300 hover:bg-slate-50 text-[11px] font-medium px-2.5 py-1.5 rounded-lg whitespace-nowrap flex items-center gap-1.5"><i data-lucide="user-check" class="w-3 h-3 text-emerald-600"></i>Gerente · 2</button>
+          <button class="bg-white text-violet-700 border border-violet-300 hover:bg-violet-50 text-[11px] font-medium px-2.5 py-1.5 rounded-lg whitespace-nowrap flex items-center gap-1.5"><i data-lucide="briefcase" class="w-3 h-3"></i>Socio · 3</button>
+          <button class="bg-white text-sky-700 border border-sky-300 hover:bg-sky-50 text-[11px] font-medium px-2.5 py-1.5 rounded-lg whitespace-nowrap flex items-center gap-1.5"><i data-lucide="briefcase-business" class="w-3 h-3"></i>Planilla · 8</button>
+          <button class="bg-white text-slate-700 border border-slate-300 hover:bg-slate-50 text-[11px] font-medium px-2.5 py-1.5 rounded-lg whitespace-nowrap flex items-center gap-1.5"><i data-lucide="user" class="w-3 h-3 text-slate-500"></i>Otros · 1</button>
+          <span class="mx-1 text-slate-300">|</span>
+          <button class="bg-amber-50 text-amber-700 border border-amber-300 hover:bg-amber-100 text-[11px] font-bold px-2.5 py-1.5 rounded-lg whitespace-nowrap flex items-center gap-1.5"><i data-lucide="clock" class="w-3 h-3"></i>⏳ Pendientes · 2</button>
+          <button class="bg-rose-50 text-rose-700 border border-rose-300 hover:bg-rose-100 text-[11px] font-medium px-2.5 py-1.5 rounded-lg whitespace-nowrap flex items-center gap-1.5"><i data-lucide="ban" class="w-3 h-3"></i>Suspendidos · 0</button>
+        </div>
+      </div>
+
+      <!-- Búsqueda + filtros adicionales (mismo canon que v5.2) -->
+      <div class="px-6 mt-3 flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
+        <div class="relative flex-shrink-0">
+          <i data-lucide="search" class="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+          <input type="text" placeholder="Buscar por nombre o email..." class="pl-8 pr-3 py-1.5 border border-slate-300 rounded-lg text-[12px] w-56">
+        </div>
+        <select class="text-[11px] border border-slate-300 rounded-lg px-2 py-1.5 flex-shrink-0">
+          <option>Todos los estados</option>
+          <option>Solo activos</option>
+          <option>Solo suspendidos</option>
+        </select>
+      </div>
+
+      <!-- LISTA DE CARDS · TODOS los users sin filtrar (default) -->
+      <div class="px-6 mt-4 pb-6 space-y-2">
+        <!-- 3 cards de ejemplo -->
+        <div class="bg-white border border-slate-200 hover:border-purple-300 hover:shadow-sm rounded-xl p-3 flex items-center gap-3 transition cursor-pointer">
+          <div class="w-10 h-10 bg-gradient-to-br from-purple-500 to-purple-700 rounded-full flex items-center justify-center text-white font-bold text-[13px]">JL</div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2 mb-0.5"><span class="text-[13px] font-bold text-slate-900 truncate">José LP</span><span class="bg-emerald-100 text-emerald-700 text-[9px] font-bold px-1.5 py-0.5 rounded uppercase">ACTIVO</span><span class="bg-indigo-100 text-indigo-700 text-[9px] font-bold px-1.5 py-0.5 rounded uppercase">MULTI-ROL</span></div>
+            <div class="text-[11px] text-slate-500 truncate">jose.lp9205@gmail.com · última conexión hace 5 min</div>
+            <div class="flex gap-1 mt-1.5"><span class="bg-purple-100 text-purple-700 text-[10px] font-medium px-1.5 py-0.5 rounded">admin</span><span class="bg-violet-100 text-violet-700 text-[10px] font-medium px-1.5 py-0.5 rounded">socio</span></div>
+          </div>
+          <button class="text-[11px] text-purple-600 font-bold px-2 py-1 hover:bg-purple-50 rounded">Ficha 360</button>
+          <button class="text-[11px] text-slate-600 font-medium px-2 py-1 hover:bg-slate-100 rounded">Editar</button>
+        </div>
+
+        <div class="bg-white border border-slate-200 hover:border-purple-300 rounded-xl p-3 flex items-center gap-3 cursor-pointer">
+          <div class="w-10 h-10 bg-gradient-to-br from-sky-500 to-sky-700 rounded-full flex items-center justify-center text-white font-bold text-[13px]">AR</div>
+          <div class="flex-1"><div class="flex items-center gap-2"><span class="text-[13px] font-bold text-slate-900">Ana Rodríguez</span><span class="bg-emerald-100 text-emerald-700 text-[9px] font-bold px-1.5 py-0.5 rounded uppercase">ACTIVO</span></div><div class="text-[11px] text-slate-500">ana.r@vitaskin.pe · hace 2h</div><div class="flex gap-1 mt-1.5"><span class="bg-sky-100 text-sky-700 text-[10px] px-1.5 py-0.5 rounded">planilla</span></div></div>
+          <button class="text-[11px] text-purple-600 font-bold px-2 py-1">Ficha 360</button>
+        </div>
+
+        <div class="bg-white border border-slate-200 hover:border-purple-300 rounded-xl p-3 flex items-center gap-3 cursor-pointer">
+          <div class="w-10 h-10 bg-gradient-to-br from-violet-500 to-violet-700 rounded-full flex items-center justify-center text-white font-bold text-[13px]">CS</div>
+          <div class="flex-1"><div class="flex items-center gap-2"><span class="text-[13px] font-bold text-slate-900">Carlos Silva</span><span class="bg-emerald-100 text-emerald-700 text-[9px] font-bold px-1.5 py-0.5 rounded uppercase">ACTIVO</span></div><div class="text-[11px] text-slate-500">carlos@vitaskin.pe · hace 6h</div><div class="flex gap-1 mt-1.5"><span class="bg-violet-100 text-violet-700 text-[10px] px-1.5 py-0.5 rounded">socio</span></div></div>
+          <button class="text-[11px] text-purple-600 font-bold px-2 py-1">Ficha 360</button>
+        </div>
+
+        <div class="text-center text-[11px] text-slate-500 py-2">+ 11 usuarios más · 1-14 de 14</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<!-- VISTA 2 · Filtro "Socio" activo · banner cross-link a Inversionistas  -->
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<section class="my-16">
+  <div class="max-w-6xl mx-auto">
+    <div class="bg-gradient-to-r from-violet-100 via-violet-50 to-violet-100/40 ring-1 ring-violet-200 rounded-3xl p-6 mb-8">
+      <div class="flex items-center gap-4">
+        <div class="w-14 h-14 bg-violet-600 rounded-2xl flex items-center justify-center text-white font-bold text-xl">2</div>
+        <div class="flex-1">
+          <div class="text-[11px] uppercase tracking-wider text-violet-700 font-bold">VISTA 2 · filtro activo</div>
+          <h2 class="text-xl font-bold text-violet-900">Filtro "Socio" · banner cross-link a /inversionistas</h2>
+          <p class="text-[13px] text-violet-700 mt-1">Reemplaza la antigua tab "Socios" · 1 click en chip filtra · banner sutil aparece con CTA a módulo</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="device-desktop bg-white rounded-2xl ring-1 ring-slate-200 overflow-hidden">
+      <!-- Reusar header + tabs (no muestro de nuevo para concisión) -->
+      <div class="px-6 py-4 bg-slate-50 border-b border-slate-200 text-[11px] text-slate-500">
+        <i data-lucide="info" class="w-3 h-3 inline"></i> Estructura igual a vista 1 (breadcrumb · header · 3 tabs · banner pendientes · KPI strip)
+      </div>
+
+      <!-- Filtros chip · Socio activo -->
+      <div class="px-6 mt-5">
+        <div class="text-[10px] uppercase tracking-wider font-bold text-slate-700 mb-2">⚡ Filtrar por rol · "Socio" ACTIVO</div>
+        <div class="flex items-center gap-1.5 overflow-x-auto pb-1 -mx-1 px-1 no-scrollbar">
+          <button class="bg-white text-slate-700 border border-slate-300 text-[11px] font-medium px-2.5 py-1.5 rounded-lg whitespace-nowrap flex items-center gap-1.5">Todos · 14</button>
+          <button class="bg-white text-slate-700 border border-slate-300 text-[11px] font-medium px-2.5 py-1.5 rounded-lg whitespace-nowrap flex items-center gap-1.5"><i data-lucide="shield" class="w-3 h-3 text-purple-600"></i>Admin · 1</button>
+          <button class="bg-white text-slate-700 border border-slate-300 text-[11px] font-medium px-2.5 py-1.5 rounded-lg whitespace-nowrap flex items-center gap-1.5"><i data-lucide="user-check" class="w-3 h-3 text-emerald-600"></i>Gerente · 2</button>
+          <button class="bg-violet-600 text-white text-[11px] font-bold px-2.5 py-1.5 rounded-lg whitespace-nowrap flex items-center gap-1.5 ring-2 ring-violet-300"><i data-lucide="briefcase" class="w-3 h-3"></i>Socio · 3 ✓</button>
+          <button class="bg-white text-slate-700 border border-slate-300 text-[11px] font-medium px-2.5 py-1.5 rounded-lg whitespace-nowrap flex items-center gap-1.5"><i data-lucide="briefcase-business" class="w-3 h-3 text-sky-600"></i>Planilla · 8</button>
+          <button class="bg-white text-slate-700 border border-slate-300 text-[11px] font-medium px-2.5 py-1.5 rounded-lg whitespace-nowrap flex items-center gap-1.5"><i data-lucide="user" class="w-3 h-3 text-slate-500"></i>Otros · 1</button>
+        </div>
+      </div>
+
+      <!-- BANNER CROSS-LINK violet · APARECE cuando filtro = socio (NUEVO) -->
+      <div class="mx-6 mt-3 bg-gradient-to-r from-violet-50 to-purple-50 ring-1 ring-violet-200 rounded-xl p-4 flex items-start gap-3">
+        <div class="w-10 h-10 bg-violet-100 rounded-xl flex items-center justify-center flex-shrink-0">
+          <i data-lucide="briefcase" class="w-5 h-5 text-violet-700"></i>
+        </div>
+        <div class="flex-1">
+          <div class="text-[12px] font-bold text-slate-900 mb-0.5">Estás filtrando 3 socios del negocio</div>
+          <div class="text-[11px] text-slate-600">Para ver cap table completa · ROI · trayectoria histórica · distribución de utilidades · usá el módulo dedicado.</div>
+        </div>
+        <button class="bg-violet-600 hover:bg-violet-700 text-white text-[11px] font-bold px-3 py-1.5 rounded-lg whitespace-nowrap flex items-center gap-1">
+          Ver Inversionistas
+          <i data-lucide="arrow-right" class="w-3 h-3"></i>
+        </button>
+      </div>
+
+      <!-- Lista filtrada · solo socios -->
+      <div class="px-6 mt-4 pb-6 space-y-2">
+        <div class="bg-white border border-slate-200 hover:border-violet-300 rounded-xl p-3 flex items-center gap-3 cursor-pointer">
+          <div class="w-10 h-10 bg-gradient-to-br from-violet-500 to-violet-700 rounded-full flex items-center justify-center text-white font-bold text-[13px]">JL</div>
+          <div class="flex-1"><div class="flex items-center gap-2"><span class="text-[13px] font-bold text-slate-900">José LP</span><span class="bg-emerald-100 text-emerald-700 text-[9px] font-bold px-1.5 py-0.5 rounded uppercase">ACTIVO</span></div><div class="text-[11px] text-slate-500">jose.lp9205@gmail.com · 45% participación · cash + valor</div><div class="flex gap-1 mt-1.5"><span class="bg-purple-100 text-purple-700 text-[10px] px-1.5 py-0.5 rounded">admin</span><span class="bg-violet-100 text-violet-700 text-[10px] px-1.5 py-0.5 rounded">socio</span></div></div>
+          <button class="text-[11px] text-purple-600 font-bold px-2 py-1">Ficha 360</button>
+        </div>
+        <div class="bg-white border border-slate-200 hover:border-violet-300 rounded-xl p-3 flex items-center gap-3 cursor-pointer">
+          <div class="w-10 h-10 bg-gradient-to-br from-violet-500 to-violet-700 rounded-full flex items-center justify-center text-white font-bold text-[13px]">CS</div>
+          <div class="flex-1"><div class="flex items-center gap-2"><span class="text-[13px] font-bold text-slate-900">Carlos Silva</span><span class="bg-emerald-100 text-emerald-700 text-[9px] font-bold px-1.5 py-0.5 rounded uppercase">ACTIVO</span></div><div class="text-[11px] text-slate-500">carlos@vitaskin.pe · 35% participación · cash puro</div><div class="flex gap-1 mt-1.5"><span class="bg-violet-100 text-violet-700 text-[10px] px-1.5 py-0.5 rounded">socio</span></div></div>
+          <button class="text-[11px] text-purple-600 font-bold px-2 py-1">Ficha 360</button>
+        </div>
+        <div class="bg-white border border-slate-200 hover:border-violet-300 rounded-xl p-3 flex items-center gap-3 cursor-pointer">
+          <div class="w-10 h-10 bg-gradient-to-br from-violet-500 to-violet-700 rounded-full flex items-center justify-center text-white font-bold text-[13px]">PM</div>
+          <div class="flex-1"><div class="flex items-center gap-2"><span class="text-[13px] font-bold text-slate-900">Pedro Martínez</span><span class="bg-emerald-100 text-emerald-700 text-[9px] font-bold px-1.5 py-0.5 rounded uppercase">ACTIVO</span></div><div class="text-[11px] text-slate-500">pedro@vitaskin.pe · 20% participación · valor puro · know-how</div><div class="flex gap-1 mt-1.5"><span class="bg-violet-100 text-violet-700 text-[10px] px-1.5 py-0.5 rounded">socio</span></div></div>
+          <button class="text-[11px] text-purple-600 font-bold px-2 py-1">Ficha 360</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<!-- VISTA 3 · Filtro "Planilla" activo · banner cross-link a Planilla     -->
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<section class="my-16">
+  <div class="max-w-6xl mx-auto">
+    <div class="bg-gradient-to-r from-sky-100 via-sky-50 to-sky-100/40 ring-1 ring-sky-200 rounded-3xl p-6 mb-8">
+      <div class="flex items-center gap-4">
+        <div class="w-14 h-14 bg-sky-600 rounded-2xl flex items-center justify-center text-white font-bold text-xl">3</div>
+        <div class="flex-1">
+          <div class="text-[11px] uppercase tracking-wider text-sky-700 font-bold">VISTA 3 · filtro activo</div>
+          <h2 class="text-xl font-bold text-sky-900">Filtro "Planilla" · banner cross-link a /planilla</h2>
+          <p class="text-[13px] text-sky-700 mt-1">Reemplaza la antigua tab "Planilla" · mismo patrón que Socios pero con color sky · CTA al módulo operativo</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="device-desktop bg-white rounded-2xl ring-1 ring-slate-200 overflow-hidden">
+      <div class="px-6 py-4 bg-slate-50 border-b border-slate-200 text-[11px] text-slate-500">
+        <i data-lucide="info" class="w-3 h-3 inline"></i> Estructura igual · solo chip "Planilla" activo + banner sky abajo
+      </div>
+
+      <!-- Filtros chip · Planilla activo -->
+      <div class="px-6 mt-5">
+        <div class="flex items-center gap-1.5 overflow-x-auto pb-1 -mx-1 px-1 no-scrollbar">
+          <button class="bg-white text-slate-700 border border-slate-300 text-[11px] font-medium px-2.5 py-1.5 rounded-lg whitespace-nowrap">Todos · 14</button>
+          <button class="bg-white text-slate-700 border border-slate-300 text-[11px] font-medium px-2.5 py-1.5 rounded-lg whitespace-nowrap flex items-center gap-1.5"><i data-lucide="shield" class="w-3 h-3 text-purple-600"></i>Admin · 1</button>
+          <button class="bg-white text-slate-700 border border-slate-300 text-[11px] font-medium px-2.5 py-1.5 rounded-lg whitespace-nowrap flex items-center gap-1.5"><i data-lucide="user-check" class="w-3 h-3 text-emerald-600"></i>Gerente · 2</button>
+          <button class="bg-white text-slate-700 border border-slate-300 text-[11px] font-medium px-2.5 py-1.5 rounded-lg whitespace-nowrap flex items-center gap-1.5"><i data-lucide="briefcase" class="w-3 h-3 text-violet-600"></i>Socio · 3</button>
+          <button class="bg-sky-600 text-white text-[11px] font-bold px-2.5 py-1.5 rounded-lg whitespace-nowrap flex items-center gap-1.5 ring-2 ring-sky-300"><i data-lucide="briefcase-business" class="w-3 h-3"></i>Planilla · 8 ✓</button>
+          <button class="bg-white text-slate-700 border border-slate-300 text-[11px] font-medium px-2.5 py-1.5 rounded-lg whitespace-nowrap">Otros · 1</button>
+        </div>
+      </div>
+
+      <!-- BANNER CROSS-LINK sky -->
+      <div class="mx-6 mt-3 bg-gradient-to-r from-sky-50 to-cyan-50 ring-1 ring-sky-200 rounded-xl p-4 flex items-start gap-3">
+        <div class="w-10 h-10 bg-sky-100 rounded-xl flex items-center justify-center flex-shrink-0">
+          <i data-lucide="briefcase-business" class="w-5 h-5 text-sky-700"></i>
+        </div>
+        <div class="flex-1">
+          <div class="text-[12px] font-bold text-slate-900 mb-0.5">Estás filtrando 8 personas en planilla</div>
+          <div class="text-[11px] text-slate-600">Para boletas mensuales · adelantos · vacaciones · CTS · gratificaciones · reportes payroll · usá el módulo dedicado.</div>
+        </div>
+        <button class="bg-sky-600 hover:bg-sky-700 text-white text-[11px] font-bold px-3 py-1.5 rounded-lg whitespace-nowrap flex items-center gap-1">
+          Ver Planilla
+          <i data-lucide="arrow-right" class="w-3 h-3"></i>
+        </button>
+      </div>
+
+      <!-- Lista filtrada · solo planilla -->
+      <div class="px-6 mt-4 pb-6 space-y-2">
+        <div class="bg-white border border-slate-200 hover:border-sky-300 rounded-xl p-3 flex items-center gap-3 cursor-pointer">
+          <div class="w-10 h-10 bg-gradient-to-br from-sky-400 to-sky-600 rounded-full flex items-center justify-center text-white font-bold text-[13px]">AR</div>
+          <div class="flex-1"><div class="flex items-center gap-2"><span class="text-[13px] font-bold text-slate-900">Ana Rodríguez</span><span class="bg-emerald-100 text-emerald-700 text-[9px] font-bold px-1.5 py-0.5 rounded uppercase">ACTIVO</span></div><div class="text-[11px] text-slate-500">ana.r@vitaskin.pe · Ventas · presencial · S/4,500</div><div class="flex gap-1 mt-1.5"><span class="bg-sky-100 text-sky-700 text-[10px] px-1.5 py-0.5 rounded">planilla · vendedor</span></div></div>
+          <button class="text-[11px] text-purple-600 font-bold px-2 py-1">Ficha 360</button>
+        </div>
+        <div class="bg-white border border-slate-200 hover:border-sky-300 rounded-xl p-3 flex items-center gap-3 cursor-pointer">
+          <div class="w-10 h-10 bg-gradient-to-br from-sky-400 to-sky-600 rounded-full flex items-center justify-center text-white font-bold text-[13px]">DL</div>
+          <div class="flex-1"><div class="flex items-center gap-2"><span class="text-[13px] font-bold text-slate-900">Diego López</span><span class="bg-emerald-100 text-emerald-700 text-[9px] font-bold px-1.5 py-0.5 rounded uppercase">ACTIVO</span></div><div class="text-[11px] text-slate-500">diego@vitaskin.pe · Marketing · remoto · S/3,800</div><div class="flex gap-1 mt-1.5"><span class="bg-sky-100 text-sky-700 text-[10px] px-1.5 py-0.5 rounded">planilla · vendedor</span></div></div>
+          <button class="text-[11px] text-purple-600 font-bold px-2 py-1">Ficha 360</button>
+        </div>
+        <div class="text-center text-[11px] text-slate-500 py-2">+ 6 personas más · 1-8 de 8</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Resumen de decisiones D-PERSONAS-v5.3 -->
+<section class="my-16">
+  <div class="max-w-6xl mx-auto bg-white rounded-2xl ring-1 ring-slate-200 p-6">
+    <h2 class="text-[16px] font-bold text-slate-900 mb-4 flex items-center gap-2">
+      <i data-lucide="check-circle-2" class="w-5 h-5 text-purple-600"></i>
+      Resumen · decisiones canon /usuarios v5.3
+    </h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-[12px]">
+      <div class="bg-purple-50 rounded p-3"><strong>D-P1</strong> · /usuarios es la fuente única de personas · gestión completa CRUD</div>
+      <div class="bg-purple-50 rounded p-3"><strong>D-P2</strong> · Reducción de 5 a 3 sub-tabs · Resumen + Accesos + Configuración</div>
+      <div class="bg-purple-50 rounded p-3"><strong>D-P3</strong> · Sub-tabs Socios y Planilla ELIMINADOS · reemplazados por chips filtro</div>
+      <div class="bg-purple-50 rounded p-3"><strong>D-P4</strong> · Banners cross-link aparecen DINÁMICAMENTE al filtrar (violet · sky · etc)</div>
+      <div class="bg-purple-50 rounded p-3"><strong>D-P9</strong> · Cross-links siempre claros y prominentes (canon N8)</div>
+      <div class="bg-purple-50 rounded p-3"><strong>D-P10</strong> · Chips con counts dinámicos + scroll-x mobile (canon N6)</div>
+    </div>
+
+    <div class="mt-5 bg-emerald-50 border border-emerald-200 rounded-xl p-4">
+      <div class="text-[11px] uppercase tracking-wider font-bold text-emerald-700 mb-2">VENTAJAS</div>
+      <ul class="text-[12px] text-slate-700 space-y-1">
+        <li>✅ Cero duplicación · cada superficie con foco claro</li>
+        <li>✅ 1 click filtra vs cambio de tab · más rápido</li>
+        <li>✅ Coherente con Rippling/Gusto/Brex/Ramp · empresas top SaaS</li>
+        <li>✅ Menos cognitive overload · 3 tabs vs 5</li>
+        <li>✅ Cross-links siempre visibles cuando relevantes</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<footer class="text-center text-[11px] text-slate-500 pt-8 max-w-5xl mx-auto pb-12">
+  Mockup canon v5.3 · /usuarios HUB · rearquitectura personas · 2026-05-26
+</footer>
+
+<script>if (window.lucide) window.lucide.createIcons();</script>
+</body>
+</html>

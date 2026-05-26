@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Planilla v5.3 · canon sky banking-grade · operación mensual</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<style>
+  body { font-family: 'Inter', sans-serif; font-variant-numeric: tabular-nums; background: rgb(248 250 252); }
+  .tabular { font-variant-numeric: tabular-nums; }
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { scrollbar-width: none; }
+  .device-desktop { box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.12); }
+</style>
+<script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="p-4 md:p-8 text-slate-900">
+
+<!-- Header del mockup -->
+<div class="max-w-6xl mx-auto mb-10">
+  <div class="bg-gradient-to-br from-sky-600 to-sky-800 text-white rounded-3xl p-8">
+    <div class="flex items-center gap-3 mb-3">
+      <div class="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center">
+        <i data-lucide="briefcase-business" class="w-6 h-6 text-white"></i>
+      </div>
+      <div>
+        <div class="text-[11px] uppercase tracking-wider text-sky-200 font-bold">MOCKUP v5.3 · CANON BANKING-GRADE</div>
+        <h1 class="text-2xl font-bold">/planilla · operación mensual de RRHH</h1>
+      </div>
+    </div>
+    <p class="text-[14px] text-sky-100 leading-relaxed max-w-3xl">
+      Rewrite completo del módulo · canon sky banking-grade v5.2. <strong class="text-white">Foco: operación del mes</strong>
+      (boletas · adelantos · vacaciones · CTS · reportes). Se ELIMINA tab "Empleados" · gestión de personas vive
+      en /usuarios con filtro chip "planilla". Cross-link sutil al final.
+    </p>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<!-- VISTA 1 · Shell completo · tab "Boletas del mes" activa (default)     -->
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<section class="my-16">
+  <div class="max-w-6xl mx-auto">
+    <div class="bg-gradient-to-r from-sky-100 via-sky-50 to-sky-100/40 ring-1 ring-sky-200 rounded-3xl p-6 mb-8">
+      <div class="flex items-center gap-4">
+        <div class="w-14 h-14 bg-sky-600 rounded-2xl flex items-center justify-center text-white font-bold text-xl">1</div>
+        <div class="flex-1">
+          <div class="text-[11px] uppercase tracking-wider text-sky-700 font-bold">VISTA 1 · default</div>
+          <h2 class="text-xl font-bold text-sky-900">Shell completo · tab "Boletas del mes" activa</h2>
+          <p class="text-[13px] text-sky-700 mt-1">Breadcrumb + header F1 + KPI strip + 4 tabs operativos + body con lista de boletas + banner cross-link</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="device-desktop bg-white rounded-2xl ring-1 ring-slate-200 overflow-hidden">
+      <!-- Breadcrumb canon S9.D1 · 3 niveles -->
+      <div class="px-6 pt-5 pb-2 border-b border-slate-100 flex items-center gap-1.5 text-[11px] text-slate-500">
+        <i data-lucide="home" class="w-3 h-3"></i>
+        <a class="hover:text-sky-600 cursor-pointer">Dashboard</a>
+        <i data-lucide="chevron-right" class="w-3 h-3"></i>
+        <a class="hover:text-sky-600 cursor-pointer">Finanzas y Contabilidad</a>
+        <i data-lucide="chevron-right" class="w-3 h-3"></i>
+        <span class="text-slate-900 font-semibold">Planilla</span>
+      </div>
+
+      <!-- Header canon F1 · icon sky gradient + h1 + 3-tier acciones -->
+      <div class="px-6 py-5 flex items-start justify-between">
+        <div class="flex items-start gap-3">
+          <div class="w-10 h-10 bg-gradient-to-br from-sky-500 to-sky-700 rounded-xl flex items-center justify-center text-white">
+            <i data-lucide="briefcase-business" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h1 class="text-[20px] font-bold text-slate-900">Planilla</h1>
+            <p class="text-[12px] text-slate-500">Operación mensual · nómina · adelantos · vacaciones · CTS</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <button class="bg-white border border-slate-200 hover:bg-slate-50 text-slate-600 text-[12px] font-medium px-3 py-1.5 rounded-lg flex items-center gap-1.5"><i data-lucide="download" class="w-3.5 h-3.5"></i>Exportar</button>
+          <button class="bg-indigo-50 text-indigo-700 border border-indigo-200 hover:bg-indigo-100 text-[12px] font-medium px-3 py-1.5 rounded-lg flex items-center gap-1.5"><i data-lucide="lock" class="w-3.5 h-3.5"></i>Cerrar mes</button>
+          <button class="bg-sky-600 hover:bg-sky-700 text-white text-[12px] font-bold px-3 py-1.5 rounded-lg flex items-center gap-1.5"><i data-lucide="plus" class="w-3.5 h-3.5"></i>Nueva boleta</button>
+        </div>
+      </div>
+
+      <!-- KPI strip 4 cards canon N1+N2 sky -->
+      <div class="px-6 py-3 border-b border-slate-100 grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div class="bg-gradient-to-br from-sky-50 to-sky-100/40 ring-1 ring-sky-200/50 rounded-2xl p-4">
+          <div class="flex items-center justify-between mb-2"><span class="text-[10px] uppercase tracking-wider text-sky-700 font-bold">PAYROLL MAYO</span><i data-lucide="wallet" class="w-3.5 h-3.5 text-sky-700"></i></div>
+          <div class="text-2xl font-bold tabular text-sky-900">S/ 32,400</div>
+          <div class="text-[10px] text-sky-700 mt-1 flex items-center gap-1"><i data-lucide="trending-up" class="w-3 h-3"></i>+5% vs abril</div>
+        </div>
+        <div class="bg-gradient-to-br from-emerald-50 to-emerald-100/40 ring-1 ring-emerald-200/50 rounded-2xl p-4">
+          <div class="flex items-center justify-between mb-2"><span class="text-[10px] uppercase tracking-wider text-emerald-700 font-bold">PERSONAL ACTIVO</span><i data-lucide="users" class="w-3.5 h-3.5 text-emerald-700"></i></div>
+          <div class="text-2xl font-bold tabular text-emerald-900">8</div>
+          <div class="text-[10px] text-emerald-700 mt-1">5 presencial · 3 remoto</div>
+        </div>
+        <div class="bg-gradient-to-br from-amber-50 to-amber-100/40 ring-1 ring-amber-200/50 rounded-2xl p-4">
+          <div class="flex items-center justify-between mb-2"><span class="text-[10px] uppercase tracking-wider text-amber-700 font-bold">ADELANTOS PEND.</span><i data-lucide="arrow-down-circle" class="w-3.5 h-3.5 text-amber-700"></i></div>
+          <div class="text-2xl font-bold tabular text-amber-900">S/ 1,200</div>
+          <div class="text-[10px] text-amber-700 mt-1">3 solicitudes esperando</div>
+        </div>
+        <div class="bg-gradient-to-br from-indigo-50 to-indigo-100/40 ring-1 ring-indigo-200/50 rounded-2xl p-4">
+          <div class="flex items-center justify-between mb-2"><span class="text-[10px] uppercase tracking-wider text-indigo-700 font-bold">PRÓXIMA NÓMINA</span><i data-lucide="calendar" class="w-3.5 h-3.5 text-indigo-700"></i></div>
+          <div class="text-2xl font-bold tabular text-indigo-900">12d</div>
+          <div class="text-[10px] text-indigo-700 mt-1">31 mayo · 2026</div>
+        </div>
+      </div>
+
+      <!-- 4 sub-tabs operativos · canon N6 -->
+      <div class="px-6 border-b border-slate-200">
+        <div class="flex gap-1 overflow-x-auto no-scrollbar">
+          <button class="px-4 py-2.5 text-[12px] font-bold border-b-2 border-sky-600 text-sky-700 whitespace-nowrap flex items-center gap-1.5">
+            <i data-lucide="file-text" class="w-3.5 h-3.5"></i>Boletas del mes
+            <span class="bg-sky-100 text-sky-700 px-1.5 py-0.5 rounded text-[10px]">8</span>
+          </button>
+          <button class="px-4 py-2.5 text-[12px] font-medium border-b-2 border-transparent text-slate-600 hover:text-sky-600 whitespace-nowrap flex items-center gap-1.5">
+            <i data-lucide="arrow-down-circle" class="w-3.5 h-3.5"></i>Adelantos
+            <span class="bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded text-[10px]">3</span>
+          </button>
+          <button class="px-4 py-2.5 text-[12px] font-medium border-b-2 border-transparent text-slate-600 hover:text-sky-600 whitespace-nowrap flex items-center gap-1.5">
+            <i data-lucide="palmtree" class="w-3.5 h-3.5"></i>Vacaciones & CTS
+            <span class="bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded text-[10px]">NUEVO</span>
+          </button>
+          <button class="px-4 py-2.5 text-[12px] font-medium border-b-2 border-transparent text-slate-600 hover:text-sky-600 whitespace-nowrap flex items-center gap-1.5">
+            <i data-lucide="bar-chart-3" class="w-3.5 h-3.5"></i>Reportes
+            <span class="bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded text-[10px]">NUEVO</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Sub-header tab activo · controles del mes -->
+      <div class="px-6 py-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between gap-3 flex-wrap">
+        <div class="flex items-center gap-3">
+          <div class="flex items-center gap-2">
+            <button class="p-1.5 hover:bg-slate-200 rounded"><i data-lucide="chevron-left" class="w-4 h-4 text-slate-600"></i></button>
+            <span class="text-[14px] font-bold text-slate-900 tabular">Mayo 2026</span>
+            <button class="p-1.5 hover:bg-slate-200 rounded"><i data-lucide="chevron-right" class="w-4 h-4 text-slate-600"></i></button>
+          </div>
+          <span class="text-[11px] text-slate-500 px-2 py-0.5 bg-amber-100 text-amber-700 rounded">Mes abierto · pendiente cerrar</span>
+        </div>
+        <button class="bg-sky-600 hover:bg-sky-700 text-white text-[12px] font-bold px-4 py-1.5 rounded-lg flex items-center gap-1.5">
+          <i data-lucide="zap" class="w-3.5 h-3.5"></i>
+          Generar boletas del mes
+        </button>
+      </div>
+
+      <!-- Lista de boletas · tabla densa Stripe-style -->
+      <div class="px-6 py-4">
+        <table class="w-full text-[12px]">
+          <thead>
+            <tr class="border-b border-slate-200 text-[10px] uppercase tracking-wider text-slate-500 font-bold">
+              <th class="text-left pb-2">Empleado</th>
+              <th class="text-right pb-2">Sueldo base</th>
+              <th class="text-right pb-2">Bonificaciones</th>
+              <th class="text-right pb-2">Descuentos</th>
+              <th class="text-right pb-2">Neto a pagar</th>
+              <th class="text-center pb-2">Estado</th>
+              <th class="text-right pb-2"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="border-b border-slate-100 hover:bg-slate-50 cursor-pointer">
+              <td class="py-3">
+                <div class="flex items-center gap-2">
+                  <div class="w-7 h-7 bg-gradient-to-br from-sky-400 to-sky-600 rounded-full flex items-center justify-center text-white text-[11px] font-bold">AR</div>
+                  <div>
+                    <div class="font-bold text-slate-900">Ana Rodríguez</div>
+                    <div class="text-[10px] text-slate-500">Ventas · presencial</div>
+                  </div>
+                </div>
+              </td>
+              <td class="text-right tabular text-slate-900">S/ 4,500.00</td>
+              <td class="text-right tabular text-emerald-700">+ 500.00</td>
+              <td class="text-right tabular text-rose-700">- 200.00</td>
+              <td class="text-right tabular font-bold text-slate-900">S/ 4,800.00</td>
+              <td class="text-center"><span class="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded">PAGADA</span></td>
+              <td class="text-right"><button class="text-sky-600 hover:bg-sky-50 p-1 rounded"><i data-lucide="more-horizontal" class="w-4 h-4"></i></button></td>
+            </tr>
+            <tr class="border-b border-slate-100 hover:bg-slate-50 cursor-pointer">
+              <td class="py-3">
+                <div class="flex items-center gap-2">
+                  <div class="w-7 h-7 bg-gradient-to-br from-sky-400 to-sky-600 rounded-full flex items-center justify-center text-white text-[11px] font-bold">DL</div>
+                  <div>
+                    <div class="font-bold text-slate-900">Diego López</div>
+                    <div class="text-[10px] text-slate-500">Marketing · remoto</div>
+                  </div>
+                </div>
+              </td>
+              <td class="text-right tabular text-slate-900">S/ 3,800.00</td>
+              <td class="text-right tabular text-emerald-700">+ 0.00</td>
+              <td class="text-right tabular text-rose-700">- 300.00</td>
+              <td class="text-right tabular font-bold text-slate-900">S/ 3,500.00</td>
+              <td class="text-center"><span class="bg-amber-100 text-amber-700 text-[10px] font-bold px-2 py-0.5 rounded">PENDIENTE</span></td>
+              <td class="text-right"><button class="text-sky-600 hover:bg-sky-50 p-1 rounded"><i data-lucide="more-horizontal" class="w-4 h-4"></i></button></td>
+            </tr>
+            <tr class="border-b border-slate-100 hover:bg-slate-50 cursor-pointer">
+              <td class="py-3">
+                <div class="flex items-center gap-2">
+                  <div class="w-7 h-7 bg-gradient-to-br from-sky-400 to-sky-600 rounded-full flex items-center justify-center text-white text-[11px] font-bold">MG</div>
+                  <div>
+                    <div class="font-bold text-slate-900">María García</div>
+                    <div class="text-[10px] text-slate-500">Operaciones · híbrido</div>
+                  </div>
+                </div>
+              </td>
+              <td class="text-right tabular text-slate-900">S/ 3,200.00</td>
+              <td class="text-right tabular text-emerald-700">+ 200.00</td>
+              <td class="text-right tabular text-rose-700">- 150.00</td>
+              <td class="text-right tabular font-bold text-slate-900">S/ 3,250.00</td>
+              <td class="text-center"><span class="bg-slate-100 text-slate-600 text-[10px] font-bold px-2 py-0.5 rounded">BORRADOR</span></td>
+              <td class="text-right"><button class="text-sky-600 hover:bg-sky-50 p-1 rounded"><i data-lucide="more-horizontal" class="w-4 h-4"></i></button></td>
+            </tr>
+            <tr>
+              <td colspan="7" class="text-center text-[11px] text-slate-500 py-3">+ 5 boletas más · 1-8 de 8</td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr class="border-t-2 border-slate-300 font-bold">
+              <td colspan="4" class="py-3 text-right text-[11px] text-slate-500 uppercase tracking-wider">Total nómina mayo</td>
+              <td class="text-right tabular text-slate-900 text-[15px]">S/ 32,400.00</td>
+              <td></td>
+              <td></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+
+      <!-- BANNER CROSS-LINK · /usuarios filtrado planilla -->
+      <div class="mx-6 mb-6 bg-gradient-to-r from-slate-50 to-slate-100/30 ring-1 ring-slate-200 rounded-xl p-4 flex items-start gap-3">
+        <div class="w-10 h-10 bg-purple-100 rounded-xl flex items-center justify-center flex-shrink-0">
+          <i data-lucide="users" class="w-5 h-5 text-purple-700"></i>
+        </div>
+        <div class="flex-1">
+          <div class="text-[12px] font-bold text-slate-900 mb-0.5">¿Necesitás agregar/editar personal en planilla?</div>
+          <div class="text-[11px] text-slate-600">La gestión de personas (roles · datos personales · contratos) vive en el directorio central de Usuarios. Acá solo se opera la nómina.</div>
+        </div>
+        <button class="bg-white border border-purple-200 hover:bg-purple-50 text-purple-700 text-[11px] font-bold px-3 py-1.5 rounded-lg whitespace-nowrap flex items-center gap-1">
+          Ir a Usuarios filtrado
+          <i data-lucide="arrow-right" class="w-3 h-3"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- VISTA 2 · Tab Adelantos -->
+<section class="my-16">
+  <div class="max-w-6xl mx-auto">
+    <div class="bg-gradient-to-r from-amber-100 via-amber-50 to-amber-100/40 ring-1 ring-amber-200 rounded-3xl p-6 mb-8">
+      <div class="flex items-center gap-4">
+        <div class="w-14 h-14 bg-amber-600 rounded-2xl flex items-center justify-center text-white font-bold text-xl">2</div>
+        <div class="flex-1">
+          <div class="text-[11px] uppercase tracking-wider text-amber-700 font-bold">VISTA 2 · sub-tab</div>
+          <h2 class="text-xl font-bold text-amber-900">Tab "Adelantos" · 3 solicitudes pendientes</h2>
+          <p class="text-[13px] text-amber-700 mt-1">Aprobar/rechazar adelantos · descuento automático en próxima boleta</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="device-desktop bg-white rounded-2xl ring-1 ring-slate-200 overflow-hidden p-6">
+      <div class="text-[11px] text-slate-500 mb-4"><i data-lucide="info" class="w-3 h-3 inline"></i> Shell completo · solo cambia el body por tab activa</div>
+      <div class="space-y-2">
+        <div class="bg-amber-50/30 border border-amber-200 rounded-lg p-3 flex items-center gap-3">
+          <div class="w-9 h-9 bg-gradient-to-br from-sky-400 to-sky-600 rounded-full flex items-center justify-center text-white text-[11px] font-bold">AR</div>
+          <div class="flex-1">
+            <div class="flex items-center gap-2"><span class="text-[12px] font-bold text-slate-900">Ana Rodríguez</span><span class="bg-amber-200 text-amber-900 text-[9px] font-bold px-1.5 py-0.5 rounded">PENDIENTE</span></div>
+            <div class="text-[11px] text-slate-600">Solicitado S/ 500 · 23 mayo 2026 · "Gastos médicos urgentes"</div>
+          </div>
+          <button class="bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold px-3 py-1.5 rounded-lg flex items-center gap-1"><i data-lucide="check" class="w-3 h-3"></i>Aprobar</button>
+          <button class="bg-white border border-rose-200 text-rose-600 text-[11px] font-medium px-3 py-1.5 rounded-lg">Rechazar</button>
+        </div>
+        <div class="bg-amber-50/30 border border-amber-200 rounded-lg p-3 flex items-center gap-3">
+          <div class="w-9 h-9 bg-gradient-to-br from-sky-400 to-sky-600 rounded-full flex items-center justify-center text-white text-[11px] font-bold">DL</div>
+          <div class="flex-1">
+            <div class="flex items-center gap-2"><span class="text-[12px] font-bold text-slate-900">Diego López</span><span class="bg-amber-200 text-amber-900 text-[9px] font-bold px-1.5 py-0.5 rounded">PENDIENTE</span></div>
+            <div class="text-[11px] text-slate-600">Solicitado S/ 300 · 22 mayo 2026</div>
+          </div>
+          <button class="bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold px-3 py-1.5 rounded-lg flex items-center gap-1"><i data-lucide="check" class="w-3 h-3"></i>Aprobar</button>
+          <button class="bg-white border border-rose-200 text-rose-600 text-[11px] font-medium px-3 py-1.5 rounded-lg">Rechazar</button>
+        </div>
+        <div class="bg-amber-50/30 border border-amber-200 rounded-lg p-3 flex items-center gap-3">
+          <div class="w-9 h-9 bg-gradient-to-br from-sky-400 to-sky-600 rounded-full flex items-center justify-center text-white text-[11px] font-bold">MG</div>
+          <div class="flex-1">
+            <div class="flex items-center gap-2"><span class="text-[12px] font-bold text-slate-900">María García</span><span class="bg-amber-200 text-amber-900 text-[9px] font-bold px-1.5 py-0.5 rounded">PENDIENTE</span></div>
+            <div class="text-[11px] text-slate-600">Solicitado S/ 400 · 20 mayo 2026</div>
+          </div>
+          <button class="bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold px-3 py-1.5 rounded-lg flex items-center gap-1"><i data-lucide="check" class="w-3 h-3"></i>Aprobar</button>
+          <button class="bg-white border border-rose-200 text-rose-600 text-[11px] font-medium px-3 py-1.5 rounded-lg">Rechazar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- VISTA 3 · Tab Vacaciones & CTS (NUEVO) -->
+<section class="my-16">
+  <div class="max-w-6xl mx-auto">
+    <div class="bg-gradient-to-r from-emerald-100 via-emerald-50 to-emerald-100/40 ring-1 ring-emerald-200 rounded-3xl p-6 mb-8">
+      <div class="flex items-center gap-4">
+        <div class="w-14 h-14 bg-emerald-600 rounded-2xl flex items-center justify-center text-white font-bold text-xl">3</div>
+        <div class="flex-1">
+          <div class="text-[11px] uppercase tracking-wider text-emerald-700 font-bold">VISTA 3 · NUEVO</div>
+          <h2 class="text-xl font-bold text-emerald-900">Tab "Vacaciones & CTS" · módulo no existía</h2>
+          <p class="text-[13px] text-emerald-700 mt-1">Acumulación · días disponibles · solicitudes · cálculo CTS automático</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="device-desktop bg-white rounded-2xl ring-1 ring-slate-200 overflow-hidden p-6">
+      <!-- KPI strip mini · vacaciones y CTS -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-5">
+        <div class="bg-gradient-to-br from-emerald-50 to-emerald-100/40 ring-1 ring-emerald-200/50 rounded-xl p-3">
+          <div class="text-[10px] uppercase font-bold text-emerald-700 mb-1">DÍAS VACACIONES PEND.</div>
+          <div class="text-xl font-bold tabular text-emerald-900">73 días</div>
+          <div class="text-[10px] text-emerald-700">acumulado total 8 personas</div>
+        </div>
+        <div class="bg-gradient-to-br from-sky-50 to-sky-100/40 ring-1 ring-sky-200/50 rounded-xl p-3">
+          <div class="text-[10px] uppercase font-bold text-sky-700 mb-1">CTS ACUMULADO</div>
+          <div class="text-xl font-bold tabular text-sky-900">S/ 18,200</div>
+          <div class="text-[10px] text-sky-700">próximo depósito 15 nov</div>
+        </div>
+        <div class="bg-gradient-to-br from-amber-50 to-amber-100/40 ring-1 ring-amber-200/50 rounded-xl p-3">
+          <div class="text-[10px] uppercase font-bold text-amber-700 mb-1">SOLICITUDES PEND.</div>
+          <div class="text-xl font-bold tabular text-amber-900">2</div>
+          <div class="text-[10px] text-amber-700">requieren aprobación</div>
+        </div>
+      </div>
+
+      <!-- Tabla compacta vacaciones por empleado -->
+      <table class="w-full text-[12px]">
+        <thead>
+          <tr class="border-b border-slate-200 text-[10px] uppercase tracking-wider text-slate-500 font-bold">
+            <th class="text-left pb-2">Empleado</th>
+            <th class="text-right pb-2">Disponibles</th>
+            <th class="text-right pb-2">Tomadas YTD</th>
+            <th class="text-right pb-2">CTS acumulado</th>
+            <th class="text-right pb-2"></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="border-b border-slate-100">
+            <td class="py-2"><div class="flex items-center gap-2"><div class="w-7 h-7 bg-gradient-to-br from-sky-400 to-sky-600 rounded-full flex items-center justify-center text-white text-[10px] font-bold">AR</div><span class="font-bold">Ana Rodríguez</span></div></td>
+            <td class="text-right tabular">15 días</td>
+            <td class="text-right tabular text-slate-500">5 días</td>
+            <td class="text-right tabular text-sky-700 font-bold">S/ 2,400</td>
+            <td class="text-right"><button class="text-[11px] text-emerald-600 font-bold">Programar →</button></td>
+          </tr>
+          <tr class="border-b border-slate-100">
+            <td class="py-2"><div class="flex items-center gap-2"><div class="w-7 h-7 bg-gradient-to-br from-sky-400 to-sky-600 rounded-full flex items-center justify-center text-white text-[10px] font-bold">DL</div><span class="font-bold">Diego López</span></div></td>
+            <td class="text-right tabular">8 días</td>
+            <td class="text-right tabular text-slate-500">12 días</td>
+            <td class="text-right tabular text-sky-700 font-bold">S/ 1,900</td>
+            <td class="text-right"><button class="text-[11px] text-emerald-600 font-bold">Programar →</button></td>
+          </tr>
+          <tr><td colspan="5" class="text-center text-[11px] text-slate-500 py-2">+ 6 empleados más</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- VISTA 4 · Tab Reportes (NUEVO) -->
+<section class="my-16">
+  <div class="max-w-6xl mx-auto">
+    <div class="bg-gradient-to-r from-indigo-100 via-indigo-50 to-indigo-100/40 ring-1 ring-indigo-200 rounded-3xl p-6 mb-8">
+      <div class="flex items-center gap-4">
+        <div class="w-14 h-14 bg-indigo-600 rounded-2xl flex items-center justify-center text-white font-bold text-xl">4</div>
+        <div class="flex-1">
+          <div class="text-[11px] uppercase tracking-wider text-indigo-700 font-bold">VISTA 4 · NUEVO</div>
+          <h2 class="text-xl font-bold text-indigo-900">Tab "Reportes" · payroll YTD · tendencias · costo total</h2>
+          <p class="text-[13px] text-indigo-700 mt-1">Vista ejecutiva · evolución mensual · breakdown por área · exports CSV/PDF</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="device-desktop bg-white rounded-2xl ring-1 ring-slate-200 overflow-hidden p-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+        <div class="bg-slate-50 border border-slate-200 rounded-xl p-4">
+          <div class="text-[11px] uppercase font-bold text-slate-700 mb-3">PAYROLL YTD (ene → mayo)</div>
+          <div class="text-2xl font-bold tabular text-slate-900 mb-1">S/ 158,200</div>
+          <div class="text-[11px] text-slate-500">+S/ 12K vs mismo periodo año anterior · +8.2%</div>
+          <!-- Sparkline placeholder -->
+          <div class="mt-3 h-12 flex items-end gap-1">
+            <div class="bg-sky-400 rounded-t" style="width:8%;height:50%;"></div>
+            <div class="bg-sky-400 rounded-t" style="width:8%;height:55%;"></div>
+            <div class="bg-sky-400 rounded-t" style="width:8%;height:60%;"></div>
+            <div class="bg-sky-400 rounded-t" style="width:8%;height:65%;"></div>
+            <div class="bg-sky-500 rounded-t" style="width:8%;height:80%;"></div>
+          </div>
+        </div>
+        <div class="bg-slate-50 border border-slate-200 rounded-xl p-4">
+          <div class="text-[11px] uppercase font-bold text-slate-700 mb-3">BREAKDOWN POR ÁREA</div>
+          <div class="space-y-1.5 text-[11px]">
+            <div class="flex justify-between"><span>Ventas</span><span class="tabular font-bold">S/ 12,800 · 39%</span></div>
+            <div class="flex justify-between"><span>Marketing</span><span class="tabular font-bold">S/ 7,300 · 23%</span></div>
+            <div class="flex justify-between"><span>Operaciones</span><span class="tabular font-bold">S/ 6,500 · 20%</span></div>
+            <div class="flex justify-between"><span>Finanzas</span><span class="tabular font-bold">S/ 4,200 · 13%</span></div>
+            <div class="flex justify-between"><span>Otros</span><span class="tabular font-bold">S/ 1,600 · 5%</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="flex gap-2">
+        <button class="bg-indigo-600 hover:bg-indigo-700 text-white text-[12px] font-bold px-4 py-2 rounded-lg flex items-center gap-1.5"><i data-lucide="file-spreadsheet" class="w-3.5 h-3.5"></i>Export CSV</button>
+        <button class="bg-white border border-indigo-300 text-indigo-700 hover:bg-indigo-50 text-[12px] font-bold px-4 py-2 rounded-lg flex items-center gap-1.5"><i data-lucide="file-text" class="w-3.5 h-3.5"></i>Export PDF</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Resumen de decisiones planilla v5.3 -->
+<section class="my-16">
+  <div class="max-w-6xl mx-auto bg-white rounded-2xl ring-1 ring-slate-200 p-6">
+    <h2 class="text-[16px] font-bold text-slate-900 mb-4 flex items-center gap-2">
+      <i data-lucide="check-circle-2" class="w-5 h-5 text-sky-600"></i>
+      Resumen · decisiones canon /planilla v5.3
+    </h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-[12px]">
+      <div class="bg-sky-50 rounded p-3"><strong>D-P5</strong> · /planilla se centra en OPERACIÓN mensual · NO incluye tab "Empleados"</div>
+      <div class="bg-sky-50 rounded p-3"><strong>D-P6</strong> · Canon v5.2 sky banking-grade · breadcrumb 3 niveles + header F1 + KPI N1+N2</div>
+      <div class="bg-sky-50 rounded p-3"><strong>4 sub-tabs</strong> · Boletas del mes · Adelantos · Vacaciones & CTS · Reportes</div>
+      <div class="bg-sky-50 rounded p-3"><strong>NUEVO</strong> · Vacaciones & CTS + Reportes · funcionalidad faltante se agrega</div>
+      <div class="bg-sky-50 rounded p-3"><strong>Selector de mes</strong> · navegación por períodos en sub-header sticky</div>
+      <div class="bg-sky-50 rounded p-3"><strong>Cross-link a Usuarios</strong> · banner sutil al final · "agregar/editar personal → Usuarios"</div>
+    </div>
+
+    <div class="mt-5 bg-emerald-50 border border-emerald-200 rounded-xl p-4">
+      <div class="text-[11px] uppercase tracking-wider font-bold text-emerald-700 mb-2">VENTAJAS vs estado actual</div>
+      <ul class="text-[12px] text-slate-700 space-y-1">
+        <li>✅ Canon v5.2 banking-grade (antes era simple sin canon)</li>
+        <li>✅ 4 tabs operativos vs 3 antiguos · agrega Vacaciones & CTS + Reportes</li>
+        <li>✅ Eliminada duplicación con /usuarios (tab Empleados ELIMINADO)</li>
+        <li>✅ KPI strip claro · "Próxima nómina en 12d" · "Adelantos pendientes" prominent</li>
+        <li>✅ CTA primary "Generar boletas del mes" visible · acción central del módulo</li>
+        <li>✅ Cross-link al directorio · zero confusión sobre dónde editar perfiles</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<footer class="text-center text-[11px] text-slate-500 pt-8 max-w-5xl mx-auto pb-12">
+  Mockup canon v5.3 · /planilla rewrite · canon sky banking-grade · 2026-05-26
+</footer>
+
+<script>if (window.lucide) window.lucide.createIcons();</script>
+</body>
+</html>
