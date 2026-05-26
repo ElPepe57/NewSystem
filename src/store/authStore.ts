@@ -3,6 +3,7 @@ import type { User } from 'firebase/auth';
 import type { UserProfile } from '../types/auth.types';
 import { userService } from '../services/user.service';
 import { auditoriaService } from '../services/auditoria.service';
+import { sesionService } from '../services/sesion.service';
 
 interface AuthState {
   user: User | null;
@@ -66,6 +67,8 @@ export const useAuthStore = create<AuthState>((set) => ({
       // Solo registrar login en auditoría para usuarios activos
       if (profile?.activo) {
         await auditoriaService.logLogin(true);
+        // chk5.F4-USERS · 2026-05-26 · iniciar tracking de sesión (no bloquea login)
+        sesionService.iniciar(uid).catch(() => { /* fail silently */ });
       }
     } catch (error: any) {
       console.error('Error al obtener perfil de usuario:', error);
@@ -76,6 +79,8 @@ export const useAuthStore = create<AuthState>((set) => ({
   logout: async () => {
     // Registrar logout en auditoría ANTES de limpiar el estado
     await auditoriaService.logLogout();
+    // chk5.F4-USERS · 2026-05-26 · cerrar sesión tracking server-side
+    await sesionService.cerrarActual('logout_user').catch(() => { /* fail silently */ });
     set({
       user: null,
       userProfile: null,
