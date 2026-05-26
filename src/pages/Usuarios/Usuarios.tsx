@@ -1,22 +1,20 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Users, Shield, UserCheck, UserX, RefreshCw, Plus, Edit2, X, Save, Eye, EyeOff, Search, Filter, Trash2, Key, AlertTriangle, LogOut, Wifi, WifiOff, Clock, CheckCircle, Loader2, Briefcase, ShoppingCart, Package, Wallet, Landmark, User as UserIcon, Moon, MoreHorizontal } from 'lucide-react';
+import {
+  Users, Shield, UserCheck, UserX, RefreshCw, Plus, Edit2, X, Eye, Search,
+  Key, WifiOff, LogOut, Trash2, Clock, CheckCircle, Loader2, MoreHorizontal,
+  // chk5.F4-USERS · iconos de roles (avatares + chips)
+  Briefcase, ShoppingCart, Package, Wallet, Landmark, User as UserIcon, Moon,
+  // chk5.F4-USERS · iconos de tabs internas
+  Briefcase as BriefcaseIcon, BriefcaseBusiness, ShieldCheck,
+  Settings as SettingsIcon, LayoutDashboard, MailPlus,
+} from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
-import { Modal } from '../../components/common/Modal';
-import { PageShell, PageHeader, Toolbar, DataTable } from '../../design-system';
-import type { DataTableColumn } from '../../design-system';
-import { userService, PERMISOS_INFO } from '../../services/user.service';
+import { PageShell } from '../../design-system';
+import { userService } from '../../services/user.service';
 import { useAuthStore } from '../../store/authStore';
 import type { UserProfile, UserRole } from '../../types/auth.types';
-import { DEFAULT_PERMISOS, PERMISOS, ROLE_LABELS, ROLE_DESCRIPTIONS, hasRole, getRolPrincipal, getUserRoles, calcularPermisosDeRoles, hasAnyRole } from '../../types/auth.types';
-// chk5.F3-ADAPT · sub-fase 3.3 · wire-up modal multi-rol + sub-perfiles
-import RolesMultiSelect from '../../components/modules/usuarios/RolesMultiSelect';
-import DatosLaboralesForm from '../../components/modules/usuarios/DatosLaboralesForm';
-import DatosSocioForm from '../../components/modules/usuarios/DatosSocioForm';
-import { datosLaboralesService } from '../../services/datosLaborales.service';
-import { datosSocioService } from '../../services/datosSocio.service';
-import type { DatosLaborales, DatosLaboralesFormData } from '../../types/datosLaborales.types';
-import type { DatosSocio, DatosSocioFormData } from '../../types/datosSocio.types';
+import { DEFAULT_PERMISOS, ROLE_LABELS, ROLE_DESCRIPTIONS, hasRole, getRolPrincipal, getUserRoles, hasAnyRole } from '../../types/auth.types';
 // chk5.F4-USERS · 2026-05-25 · 5 sub-tabs canon mockup integral v2
 import TabSocios from '../../components/modules/usuarios/TabSocios';
 import TabPlanilla from '../../components/modules/usuarios/TabPlanilla';
@@ -33,65 +31,44 @@ import ResetPasswordModal from '../../components/modules/usuarios/ResetPasswordM
 import EliminarUsuarioModal from '../../components/modules/usuarios/EliminarUsuarioModal';
 import DesconectarSesionModal from '../../components/modules/usuarios/DesconectarSesionModal';
 import DesconectarTodasModal from '../../components/modules/usuarios/DesconectarTodasModal';
-import { Briefcase as BriefcaseIcon, BriefcaseBusiness, ShieldCheck, Settings as SettingsIcon, LayoutDashboard, MailPlus } from 'lucide-react';
 
 type TabActiva = 'resumen' | 'socios' | 'planilla' | 'accesos' | 'configuracion';
 
-// chk5.F4-USERS · 2026-05-26 · agregado 'reject-user' para canon ACTO 5.2
-type ModalType = 'none' | 'create' | 'edit-permisos' | 'view-permisos' | 'delete-confirm' | 'reset-password' | 'disconnect-confirm' | 'disconnect-all-confirm' | 'approve-user' | 'reject-user';
+// chk5.F4-USERS · 2026-05-26 · ModalType final · 10 estados operativos canon
+type ModalType =
+  | 'none'
+  | 'create'                  // canon ACTO 2.1 · NuevoUsuarioModal
+  | 'edit-permisos'           // canon ACTO 3.1 · EditarUsuarioModal
+  | 'delete-confirm'          // canon ACTO 5.5 · EliminarUsuarioModal
+  | 'reset-password'          // canon ACTO 5.3 · ResetPasswordModal
+  | 'disconnect-confirm'      // canon ACTO 5.4 · DesconectarSesionModal
+  | 'disconnect-all-confirm'  // canon ACTO 5.6 · DesconectarTodasModal
+  | 'approve-user'            // canon ACTO 5.1 · AprobarUsuarioModal
+  | 'reject-user';            // canon ACTO 5.2 · RechazarUsuarioModal
 
 export const Usuarios: React.FC = () => {
   const navigate = useNavigate();
+  // ─── Estado del shell ─────────────────────────────────────────────────
   const [usuarios, setUsuarios] = useState<UserProfile[]>([]);
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [selectedUser, setSelectedUser] = useState<UserProfile | null>(null);
   const [modalType, setModalType] = useState<ModalType>('none');
   const currentUser = useAuthStore(state => state.userProfile);
 
-  // Estado para crear usuario
-  const [newUser, setNewUser] = useState({
-    email: '',
-    password: '',
-    displayName: '',
-    cargo: '',
-    role: 'vendedor' as UserRole
-  });
-  const [showPassword, setShowPassword] = useState(false);
-
-  // Estado para editar permisos
-  const [editPermisos, setEditPermisos] = useState<string[]>([]);
-  const [editRole, setEditRole] = useState<UserRole>('vendedor');
-  // chk5.F3-ADAPT · sub-fase 3.3 · multi-rol + sub-perfiles
-  const [editRoles, setEditRoles] = useState<UserRole[]>([]);
-  const [editActiveTab, setEditActiveTab] = useState<'roles' | 'laborales' | 'socio'>('roles');
-  const [editDatosLab, setEditDatosLab] = useState<DatosLaborales | null>(null);
-  const [editDatosSoc, setEditDatosSoc] = useState<DatosSocio | null>(null);
-  // Pending form data (lo que el user editó · puede ser null si invalido)
-  const [pendingDatosLab, setPendingDatosLab] = useState<DatosLaboralesFormData | null>(null);
-  const [pendingDatosSoc, setPendingDatosSoc] = useState<DatosSocioFormData | null>(null);
-  const [datosLabValid, setDatosLabValid] = useState(true);
-  const [datosSocValid, setDatosSocValid] = useState(true);
-
-  // Estado para búsqueda y filtros
+  // ─── Búsqueda y filtros ───────────────────────────────────────────────
   const [searchTerm, setSearchTerm] = useState('');
   const [filterRole, setFilterRole] = useState<UserRole | 'all'>('all');
   const [filterStatus, setFilterStatus] = useState<'all' | 'active' | 'inactive'>('all');
 
-  // Estado para aprobar usuario
-  const [approveRole, setApproveRole] = useState<UserRole>('vendedor');
-
-  // Estado para resetear contraseña
-  const [newPassword, setNewPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-
-  // chk5.F4-USERS · tabActiva canon mockup integral
+  // ─── chk5.F4-USERS · navegación interna ──────────────────────────────
   const [tabActiva, setTabActiva] = useState<TabActiva>('resumen');
-  // chk5.F4-USERS · modal Invitar por email + Ficha 360 modal
   const [invitarOpen, setInvitarOpen] = useState(false);
   const [fichaModalUid, setFichaModalUid] = useState<string | null>(null);
+  // Cleanup chk5.F4-USERS · 2026-05-26 · state legacy (newUser · editPermisos ·
+  // editRoles · editDatosLab/Soc · approveRole · newPassword · etc) eliminado ·
+  // cada modal canon FormModalV2 maneja su propio estado internamente.
 
   const fetchUsuarios = async () => {
     setLoading(true);
@@ -118,304 +95,53 @@ export const Usuarios: React.FC = () => {
     }
   }, [success]);
 
-  const handleChangeRole = async (uid: string, newRole: UserRole) => {
-    if (uid === currentUser?.uid) {
-      setError('No puedes cambiar tu propio rol');
-      return;
-    }
+  // ═══════════════════════════════════════════════════════════════════════
+  // HANDLERS · solo apertura de modales (su lógica vive dentro de cada modal)
+  // chk5.F4-USERS · 2026-05-26 · post-cleanup · ~250 líneas legacy eliminadas
+  // ═══════════════════════════════════════════════════════════════════════
 
-    try {
-      await userService.updateRole(uid, newRole);
-      await fetchUsuarios();
-      setSuccess('Rol actualizado correctamente');
-    } catch (err: any) {
-      setError(err.message);
-    }
-  };
-
-  const handleToggleActivo = async (uid: string, activo: boolean) => {
-    if (uid === currentUser?.uid) {
-      setError('No puedes desactivar tu propia cuenta');
-      return;
-    }
-
-    try {
-      await userService.setActivo(uid, activo);
-      await fetchUsuarios();
-      setSuccess(activo ? 'Usuario activado' : 'Usuario desactivado');
-    } catch (err: any) {
-      setError(err.message);
-    }
-  };
-
-  const handleCreateUser = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSaving(true);
-    setError(null);
-
-    try {
-      const createdUser = await userService.createUser(
-        newUser.email,
-        newUser.password,
-        newUser.displayName,
-        newUser.role
-      );
-
-      // Guardar cargo si se proporcionó
-      if (newUser.cargo.trim() && createdUser.uid) {
-        await userService.updateProfile(createdUser.uid, { cargo: newUser.cargo.trim() });
-      }
-
-      setSuccess('Usuario creado correctamente');
-      setModalType('none');
-      setNewUser({ email: '', password: '', displayName: '', cargo: '', role: 'vendedor' });
-      await fetchUsuarios();
-    } catch (err: any) {
-      setError(err.message);
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const handleOpenEditPermisos = async (usuario: UserProfile) => {
+  const handleOpenEditPermisos = (usuario: UserProfile) => {
     setSelectedUser(usuario);
-    const roles = getUserRoles(usuario);
-    setEditRoles(roles.length > 0 ? roles : ['invitado']);
-    setEditRole(usuario.role);   // legacy compat
-    setEditPermisos([...usuario.permisos]);
-    setEditActiveTab('roles');
-    setPendingDatosLab(null);
-    setPendingDatosSoc(null);
-    setDatosLabValid(true);
-    setDatosSocValid(true);
-    setEditDatosLab(null);
-    setEditDatosSoc(null);
     setModalType('edit-permisos');
-
-    // chk5.F3-ADAPT · cargar sub-perfiles existentes en paralelo
-    try {
-      const [datosLab, datosSoc] = await Promise.all([
-        datosLaboralesService.get(usuario.uid).catch(() => null),
-        datosSocioService.get(usuario.uid).catch(() => null),
-      ]);
-      setEditDatosLab(datosLab);
-      setEditDatosSoc(datosSoc);
-    } catch (err) {
-      console.warn('No se pudieron cargar sub-perfiles:', err);
-    }
   };
 
-  const handleSavePermisos = async () => {
-    if (!selectedUser || !currentUser) return;
-
-    // Si es auto-edición · forzar que los roles NO cambien (no se puede degradar)
-    const isSelf = selectedUser.uid === currentUser?.uid;
-    const rolesToSave = isSelf ? getUserRoles(selectedUser) : editRoles;
-
-    if (rolesToSave.length === 0) {
-      setError('Seleccioná al menos un rol · el usuario quedaría sin permisos.');
-      return;
-    }
-    if (editActiveTab === 'laborales' && !datosLabValid) {
-      setError('Completá los datos laborales · faltan campos obligatorios.');
-      return;
-    }
-    if (editActiveTab === 'socio' && !datosSocValid) {
-      setError('Completá los datos de socio · faltan campos obligatorios.');
-      return;
-    }
-
-    setSaving(true);
-    setError(null);
-
-    try {
-      // chk5.F3-ADAPT · escribir roles[] + permisos calculados de los roles
-      // Como la Cloud Function solo soporta role singular, pasamos el rol principal
-      // y luego complementamos con roles[] desde el cliente (updateRoleAndPermisos
-      // ya hace ese paso adicional de updateDoc({roles: [role]}).
-      const rolPrincipalToSave: UserRole = rolesToSave[0];
-      const permisosCalculados = calcularPermisosDeRoles(rolesToSave);
-
-      // Guardar el rol principal vía Cloud Function (compat)
-      await userService.updateRoleAndPermisos(
-        selectedUser.uid,
-        rolPrincipalToSave,
-        permisosCalculados,
-      );
-
-      // Sobrescribir el campo roles[] con TODOS los roles del array completo
-      // (la Cloud Function solo escribió rolPrincipal · acá complementamos)
-      if (rolesToSave.length > 1) {
-        const { doc, updateDoc } = await import('firebase/firestore');
-        const { db } = await import('../../lib/firebase');
-        await updateDoc(doc(db, 'users', selectedUser.uid), {
-          roles: rolesToSave,
-        });
-      }
-
-      // chk5.F3-ADAPT · guardar sub-perfiles si hay cambios pendientes
-      if (pendingDatosLab && datosLabValid) {
-        await datosLaboralesService.set(selectedUser.uid, pendingDatosLab, currentUser.uid);
-      }
-      if (pendingDatosSoc && datosSocValid) {
-        await datosSocioService.set(selectedUser.uid, pendingDatosSoc, currentUser.uid);
-      }
-
-      // Si quitamos rol planilla pero existe datosLaborales · podríamos limpiarlo
-      // (DEUDA · por ahora dejamos los datos como historial · prevención de pérdida)
-      // Si quitamos rol socio pero existe datosSocio · igual
-
-      setSuccess('Usuario actualizado correctamente');
-      setModalType('none');
-      await fetchUsuarios();
-    } catch (err: any) {
-      setError(err.message);
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const handleTogglePermiso = (permiso: string) => {
-    setEditPermisos(prev =>
-      prev.includes(permiso)
-        ? prev.filter(p => p !== permiso)
-        : [...prev, permiso]
-    );
-  };
-
-  const handleRoleChange = (role: UserRole) => {
-    setEditRole(role);
-    // Opcionalmente resetear permisos a los default del rol
-    setEditPermisos(DEFAULT_PERMISOS[role]);
-  };
-
-  // Función para abrir modal de eliminar
   const handleOpenDeleteConfirm = (usuario: UserProfile) => {
     setSelectedUser(usuario);
     setModalType('delete-confirm');
   };
 
-  // Función para eliminar usuario
-  const handleDeleteUser = async () => {
-    if (!selectedUser) return;
-
-    setSaving(true);
-    setError(null);
-
-    try {
-      await userService.deleteUser(selectedUser.uid);
-      setSuccess(`Usuario "${selectedUser.displayName}" eliminado correctamente`);
-      setModalType('none');
-      await fetchUsuarios();
-    } catch (err: any) {
-      setError(err.message);
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  // Función para abrir modal de reset contraseña
   const handleOpenResetPassword = (usuario: UserProfile) => {
     setSelectedUser(usuario);
-    setNewPassword('');
-    setConfirmPassword('');
     setModalType('reset-password');
   };
 
-  // Función para resetear contraseña
-  const handleResetPassword = async () => {
-    if (!selectedUser) return;
-
-    if (newPassword !== confirmPassword) {
-      setError('Las contraseñas no coinciden');
-      return;
-    }
-
-    if (newPassword.length < 6) {
-      setError('La contraseña debe tener al menos 6 caracteres');
-      return;
-    }
-
-    setSaving(true);
-    setError(null);
-
-    try {
-      await userService.resetUserPassword(selectedUser.uid, newPassword);
-      setSuccess(`Contraseña de "${selectedUser.displayName}" actualizada correctamente`);
-      setModalType('none');
-    } catch (err: any) {
-      setError(err.message);
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  // Función para desconectar un usuario
   const handleOpenDisconnect = (usuario: UserProfile) => {
     setSelectedUser(usuario);
     setModalType('disconnect-confirm');
   };
 
-  const handleDisconnectUser = async () => {
-    if (!selectedUser) return;
-    setSaving(true);
-    setError(null);
-
-    try {
-      await userService.forceDisconnectUser(selectedUser.uid);
-      setSuccess(`"${selectedUser.displayName}" ha sido desconectado`);
-      setModalType('none');
-    } catch (err: any) {
-      setError(err.message);
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  // Función para desconectar a TODOS
-  const handleDisconnectAll = async () => {
-    setSaving(true);
-    setError(null);
-
-    try {
-      const count = await userService.forceDisconnectAll();
-      setSuccess(`${count} usuarios han sido desconectados`);
-      setModalType('none');
-    } catch (err: any) {
-      setError(err.message);
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  // Aprobar usuario pendiente
   const handleOpenApprove = (usuario: UserProfile) => {
     setSelectedUser(usuario);
-    setApproveRole('vendedor');
     setModalType('approve-user');
   };
 
-  // chk5.F4-USERS · 2026-05-26 · Rechazar usuario pendiente (canon ACTO 5.2)
   const handleOpenReject = (usuario: UserProfile) => {
     setSelectedUser(usuario);
     setModalType('reject-user');
   };
 
-  const handleApproveUser = async () => {
-    if (!selectedUser) return;
-
-    setSaving(true);
-    setError(null);
-
+  // Toggle simple activo/inactivo (sin modal · llama service directo)
+  const handleToggleActivo = async (uid: string, activo: boolean) => {
+    if (uid === currentUser?.uid) {
+      setError('No puedes desactivar tu propia cuenta');
+      return;
+    }
     try {
-      await userService.aprobarUsuario(selectedUser.uid, approveRole);
-      setSuccess(`"${selectedUser.displayName}" aprobado como ${ROLE_LABELS[approveRole]}`);
-      setModalType('none');
+      await userService.setActivo(uid, activo);
       await fetchUsuarios();
-    } catch (err: any) {
-      setError(err.message);
-    } finally {
-      setSaving(false);
+      setSuccess(activo ? 'Usuario activado' : 'Usuario desactivado');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Error al togglear');
     }
   };
 
