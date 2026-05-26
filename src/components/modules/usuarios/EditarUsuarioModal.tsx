@@ -9,7 +9,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  Pencil, Briefcase, BriefcaseBusiness, ChevronRight, Trash2,
+  Pencil, Briefcase, BriefcaseBusiness, ChevronRight, Trash2, AlertTriangle,
 } from 'lucide-react';
 import { FormModalV2 } from '../../../design-system/components/FormModalV2';
 import RolesMultiSelect from './RolesMultiSelect';
@@ -83,11 +83,26 @@ export default function EditarUsuarioModal({
 
   const handleSave = async () => {
     if (saving) return;
-    const rolesAGuardar = isSelf ? getUserRoles(user) : roles;
+    const rolesAGuardar = roles;
     if (rolesAGuardar.length === 0) {
       onError?.('Seleccioná al menos un rol · el usuario quedaría sin permisos.');
       return;
     }
+
+    // chk5.F4-USERS · 2026-05-26 · auto-protección admin
+    // Si admin se está auto-editando · NO puede quitarse el rol admin
+    // (perdería acceso al sistema · no podría volver a entrar).
+    // SÍ puede agregar/quitar cualquier otro rol (socio · planilla · etc.).
+    // Si quiere ser degradado · pedile a OTRO admin que lo edite a él.
+    if (isSelf) {
+      const wasAdmin = getUserRoles(user).includes('admin');
+      const willBeAdmin = rolesAGuardar.includes('admin');
+      if (wasAdmin && !willBeAdmin) {
+        onError?.('No podés quitarte el rol admin a vos mismo · perderías acceso al sistema. Pedile a otro admin que te lo quite.');
+        return;
+      }
+    }
+
     setSaving(true);
     try {
       const rolPrincipal = rolesAGuardar[0];
@@ -198,10 +213,25 @@ export default function EditarUsuarioModal({
         <section>
           <div className="flex items-center justify-between mb-2">
             <div className="text-[10px] uppercase tracking-wider text-slate-700 font-bold">
-              Roles asignados {isSelf && <span className="text-amber-700 font-normal">· auto-edición · no editable</span>}
+              Roles asignados
+              {isSelf && (
+                <span className="text-amber-700 font-normal">
+                  {' '}· auto-edición · el rol admin no se puede quitar
+                </span>
+              )}
             </div>
           </div>
-          <RolesMultiSelect value={roles} onChange={setRoles} disabled={isSelf} />
+          <RolesMultiSelect value={roles} onChange={setRoles} />
+          {isSelf && (
+            <div className="mt-2 text-[10px] text-amber-800 bg-amber-50 border border-amber-200 rounded p-2 flex items-start gap-1.5">
+              <AlertTriangle className="w-3 h-3 flex-shrink-0 mt-0.5" />
+              <span>
+                Te estás editando a vos mismo · podés agregar/quitar roles (socio · planilla · etc) ·
+                pero <strong>no podés quitarte el rol admin</strong> · perderías acceso al sistema.
+                Si querés ser degradado · pedile a otro admin que te lo quite.
+              </span>
+            </div>
+          )}
         </section>
 
         {/* ─── SUB-PERFILES · drill cards ─── */}
