@@ -46,7 +46,7 @@
       Índice del storyboard
     </h2>
     <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-[11px]">
-      <a href="#acto0" class="block p-3 rounded-xl bg-purple-50 hover:bg-purple-100 transition"><strong class="text-purple-700 block mb-1">ACTO 0 · Entrada al sistema</strong><span class="text-slate-600">signup · login · forgot · waiting · set-pw</span></a>
+      <a href="#acto0" class="block p-3 rounded-xl bg-teal-50 hover:bg-teal-100 transition"><strong class="text-teal-700 block mb-1">ACTO 0 · Entrada · brand TEAL</strong><span class="text-slate-600">signup · login · forgot · pending · set-pw (Vita Skin)</span></a>
       <a href="#acto1" class="block p-3 rounded-xl bg-purple-50 hover:bg-purple-100 transition"><strong class="text-purple-700 block mb-1">ACTO 1 · Listado + 5 sub-tabs</strong><span class="text-slate-600">Resumen · Socios · Planilla · Accesos · Config</span></a>
       <a href="#acto2" class="block p-3 rounded-xl bg-purple-50 hover:bg-purple-100 transition"><strong class="text-purple-700 block mb-1">ACTO 2 · Creación dual</strong><span class="text-slate-600">Nuevo directo + Invitar por email</span></a>
       <a href="#acto3" class="block p-3 rounded-xl bg-purple-50 hover:bg-purple-100 transition"><strong class="text-purple-700 block mb-1">ACTO 3 · Edición híbrida</strong><span class="text-slate-600">modal + drill sub-perfiles</span></a>
@@ -68,68 +68,99 @@
 </div>
 
 <!-- ════════════════════════════════════════════════════════════════════ -->
-<!-- ACTO 0 · ENTRADA AL SISTEMA                                            -->
+<!-- ACTO 0 · ENTRADA AL SISTEMA · BRAND VITA SKIN PERU (TEAL)             -->
 <!-- ════════════════════════════════════════════════════════════════════ -->
 <section id="acto0" class="my-16">
   <div class="max-w-6xl mx-auto">
-    <div class="bg-gradient-to-r from-purple-100 via-purple-50 to-purple-100/40 ring-1 ring-purple-200 rounded-3xl p-6 mb-8">
+    <div class="bg-gradient-to-r from-teal-100 via-teal-50 to-teal-100/40 ring-1 ring-teal-200 rounded-3xl p-6 mb-8">
       <div class="flex items-center gap-4">
-        <div class="w-14 h-14 bg-purple-600 rounded-2xl flex items-center justify-center text-white font-bold text-xl">0</div>
+        <div class="w-14 h-14 bg-teal-600 rounded-2xl flex items-center justify-center text-white font-bold text-xl">0</div>
         <div class="flex-1">
-          <div class="text-[11px] uppercase tracking-wider text-purple-700 font-bold">ACTO 0 · 5 pantallas</div>
-          <h2 class="text-xl font-bold text-purple-900">Entrada al sistema · flujo primario</h2>
-          <p class="text-[13px] text-purple-700 mt-1">/signup · /login · /forgot-password · pantalla "esperando aprobación" · set-password (post-invitación)</p>
+          <div class="text-[11px] uppercase tracking-wider text-teal-700 font-bold">ACTO 0 · 5 pantallas · brand Vita Skin Peru</div>
+          <h2 class="text-xl font-bold text-teal-900">Entrada al sistema · flujo primario</h2>
+          <p class="text-[13px] text-teal-700 mt-1">Color TEAL del brand (NO purple del módulo) · ya existe Login.tsx + Register.tsx + PendingApproval.tsx con VitaSkinLogo + AuthPageWrapper + DropletDivider</p>
         </div>
+      </div>
+      <div class="mt-4 text-[11px] text-amber-900 bg-amber-50/80 border border-amber-200 p-3 rounded-lg">
+        <strong>⚠ CANON BRAND vs MÓDULO ·</strong> Auth pages (públicas) = TEAL Vita Skin · Módulo /usuarios (interno) = PURPLE.
+        Razón: el usuario ve el brand ANTES de saber que existe un módulo. Login.tsx y Register.tsx ya están en teal · solo refactorizar para enriquecerlos con captcha + password strength + canon.
       </div>
     </div>
 
-    <!-- 0.1 SIGNUP -->
+    <!-- 0.1 SIGNUP (= /register) -->
     <div class="mb-10">
       <div class="text-[12px] font-bold text-slate-900 mb-3 flex items-center gap-2">
-        <span class="px-2 py-0.5 bg-purple-600 text-white rounded-md text-[10px]">0.1</span>
-        <span>/signup · registro público (flujo PRIMARIO · accesible sin auth)</span>
+        <span class="px-2 py-0.5 bg-teal-600 text-white rounded-md text-[10px]">0.1</span>
+        <span>/signup (=/register) · registro público (flujo PRIMARIO · ya existe · enriquecer)</span>
       </div>
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div class="md:col-span-2 device-desktop bg-gradient-to-br from-slate-100 to-purple-50 rounded-2xl p-8 min-h-[520px] flex items-center justify-center">
-          <div class="bg-white rounded-2xl p-8 w-full max-w-md ring-1 ring-slate-200">
-            <div class="text-center mb-6">
-              <div class="w-14 h-14 bg-gradient-to-br from-purple-500 to-purple-700 rounded-2xl flex items-center justify-center text-white font-bold text-2xl mx-auto mb-3">B</div>
-              <h3 class="text-lg font-bold text-slate-900">Creá tu cuenta</h3>
-              <p class="text-[12px] text-slate-500 mt-1">Te uniremos al sistema · esperarás aprobación del admin</p>
+        <div class="md:col-span-2 device-desktop bg-gradient-to-br from-teal-50 via-slate-50 to-cyan-50 rounded-2xl p-8 min-h-[540px] flex items-center justify-center">
+          <div class="bg-white rounded-2xl p-8 w-full max-w-md ring-1 ring-teal-100 shadow-xl shadow-teal-900/10">
+            <!-- VitaSkinLogo placeholder · gota teal -->
+            <div class="text-center mb-5">
+              <div class="w-16 h-16 mx-auto mb-3 relative">
+                <svg viewBox="0 0 64 64" class="w-full h-full drop-shadow-lg">
+                  <defs>
+                    <linearGradient id="vsg0_1" x1="0%" y1="0%" x2="0%" y2="100%">
+                      <stop offset="0%" stop-color="#14b8a6"/>
+                      <stop offset="100%" stop-color="#0d9488"/>
+                    </linearGradient>
+                  </defs>
+                  <path d="M32 4 C 32 4, 50 28, 50 42 C 50 53, 41 60, 32 60 C 23 60, 14 53, 14 42 C 14 28, 32 4, 32 4 Z" fill="url(#vsg0_1)"/>
+                  <ellipse cx="26" cy="28" rx="4" ry="6" fill="white" opacity="0.4"/>
+                </svg>
+              </div>
+              <h3 class="text-[18px] font-bold text-slate-900">Crear Cuenta</h3>
+              <p class="text-[11px] text-slate-500 mt-1">Vita Skin Peru · Vitaminas, Skincare y Bienestar</p>
+              <!-- DropletDivider -->
+              <div class="flex items-center justify-center gap-2 mt-3">
+                <div class="h-px w-12 bg-gradient-to-r from-transparent to-teal-200"></div>
+                <div class="w-1.5 h-1.5 bg-teal-400 rounded-full"></div>
+                <div class="h-px w-12 bg-gradient-to-l from-transparent to-teal-200"></div>
+              </div>
             </div>
             <form class="space-y-3">
-              <div><label class="text-[11px] font-bold text-slate-700 uppercase tracking-wider">Email</label><input type="email" placeholder="tunombre@empresa.com" class="mt-1 w-full px-3 py-2 rounded-lg border border-slate-300 text-[13px] focus:ring-2 focus:ring-purple-500 focus:border-purple-500"></div>
-              <div><label class="text-[11px] font-bold text-slate-700 uppercase tracking-wider">Nombre completo</label><input type="text" placeholder="Juan Pérez" class="mt-1 w-full px-3 py-2 rounded-lg border border-slate-300 text-[13px]"></div>
+              <div><label class="text-[11px] font-bold text-slate-700 uppercase tracking-wider">Nombre completo *</label><input type="text" placeholder="Juan Pérez" class="mt-1 w-full px-3 py-2 rounded-lg border border-slate-300 text-[13px] focus:ring-2 focus:ring-teal-500 focus:border-teal-500"></div>
+              <div><label class="text-[11px] font-bold text-slate-700 uppercase tracking-wider">Email *</label><input type="email" placeholder="tu@email.com" class="mt-1 w-full px-3 py-2 rounded-lg border border-slate-300 text-[13px] focus:ring-2 focus:ring-teal-500 focus:border-teal-500"></div>
               <div>
-                <label class="text-[11px] font-bold text-slate-700 uppercase tracking-wider">Contraseña</label>
-                <input type="password" placeholder="••••••••" class="mt-1 w-full px-3 py-2 rounded-lg border border-slate-300 text-[13px]">
+                <label class="text-[11px] font-bold text-slate-700 uppercase tracking-wider">Contraseña *</label>
+                <input type="password" placeholder="Mínimo 8 caracteres" class="mt-1 w-full px-3 py-2 rounded-lg border border-slate-300 text-[13px]">
                 <div class="mt-1.5 flex gap-1"><div class="h-1 flex-1 rounded-full bg-emerald-400"></div><div class="h-1 flex-1 rounded-full bg-emerald-400"></div><div class="h-1 flex-1 rounded-full bg-emerald-400"></div><div class="h-1 flex-1 rounded-full bg-slate-200"></div></div>
                 <div class="mt-1 text-[10px] text-emerald-700">Fuerte · cumple política</div>
               </div>
-              <div><label class="text-[11px] font-bold text-slate-700 uppercase tracking-wider">Confirmar contraseña</label><input type="password" placeholder="••••••••" class="mt-1 w-full px-3 py-2 rounded-lg border border-slate-300 text-[13px]"></div>
+              <div><label class="text-[11px] font-bold text-slate-700 uppercase tracking-wider">Confirmar contraseña *</label><input type="password" placeholder="Repite tu contraseña" class="mt-1 w-full px-3 py-2 rounded-lg border border-slate-300 text-[13px]"></div>
+              <!-- Captcha · Turnstile -->
               <div class="bg-slate-50 border border-slate-200 rounded-lg p-3 flex items-center gap-3">
                 <input type="checkbox" class="w-4 h-4">
                 <div class="flex-1"><div class="text-[12px] text-slate-900 font-medium">No soy un robot</div><div class="text-[10px] text-slate-500">Cloudflare Turnstile</div></div>
                 <i data-lucide="shield-check" class="w-5 h-5 text-emerald-600"></i>
               </div>
-              <label class="flex items-start gap-2 text-[11px] text-slate-600"><input type="checkbox" class="mt-0.5"><span>Acepto los <a class="text-purple-600 underline">términos</a> y la <a class="text-purple-600 underline">política de privacidad</a></span></label>
-              <button class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-2.5 rounded-lg text-[13px] flex items-center justify-center gap-2"><i data-lucide="user-plus" class="w-4 h-4"></i>Crear cuenta</button>
-              <div class="text-center text-[11px] text-slate-600 pt-2">¿Ya tenés cuenta? <a class="text-purple-600 font-bold">Ingresar</a></div>
+              <label class="flex items-start gap-2 text-[11px] text-slate-600"><input type="checkbox" class="mt-0.5"><span>Acepto los <a class="text-teal-600 underline">términos</a> y la <a class="text-teal-600 underline">política de privacidad</a></span></label>
+              <button class="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-2.5 rounded-lg text-[13px] flex items-center justify-center gap-2"><i data-lucide="user-plus" class="w-4 h-4"></i>Crear Cuenta</button>
+
+              <!-- Separador o -->
+              <div class="relative my-3"><div class="absolute inset-0 flex items-center"><div class="w-full border-t border-slate-200"></div></div><div class="relative flex justify-center text-[10px]"><span class="bg-white px-2 text-slate-500 uppercase tracking-wider">o regístrate con</span></div></div>
+              <!-- Google -->
+              <button class="w-full bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 font-medium py-2.5 rounded-lg text-[13px] flex items-center justify-center gap-2"><svg class="w-4 h-4" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>Registrarse con Google</button>
+
+              <!-- Info aprobación · canon existente -->
+              <div class="mt-3 bg-amber-50 border border-amber-200 rounded-lg p-3 text-center"><p class="text-[10px] text-amber-800 leading-relaxed">Después de registrarte · un administrador revisará y aprobará tu solicitud de acceso al sistema.</p></div>
+              <div class="text-center text-[11px] text-slate-500 pt-2">¿Ya tenés cuenta? <a class="text-teal-600 font-bold">Iniciar Sesión</a></div>
             </form>
           </div>
         </div>
-        <aside class="bg-white border border-purple-200 rounded-2xl p-5 ring-1 ring-purple-100">
-          <div class="text-[10px] uppercase tracking-wider text-purple-700 font-bold mb-2">CANON aplicado</div>
+        <aside class="bg-white border border-teal-200 rounded-2xl p-5 ring-1 ring-teal-100">
+          <div class="text-[10px] uppercase tracking-wider text-teal-700 font-bold mb-2">CANON aplicado</div>
           <ul class="text-[11px] text-slate-700 space-y-2">
-            <li class="flex items-start gap-2"><i data-lucide="check" class="w-3 h-3 text-emerald-600 mt-1 flex-shrink-0"></i><span><strong>D1</strong> · shell purple banking-grade</span></li>
-            <li class="flex items-start gap-2"><i data-lucide="check" class="w-3 h-3 text-emerald-600 mt-1 flex-shrink-0"></i><span><strong>D13</strong> · /signup flujo PRIMARIO (no opcional)</span></li>
-            <li class="flex items-start gap-2"><i data-lucide="check" class="w-3 h-3 text-emerald-600 mt-1 flex-shrink-0"></i><span>Captcha Cloudflare Turnstile (gratis)</span></li>
-            <li class="flex items-start gap-2"><i data-lucide="check" class="w-3 h-3 text-emerald-600 mt-1 flex-shrink-0"></i><span>Password strength · 4 niveles</span></li>
-            <li class="flex items-start gap-2"><i data-lucide="check" class="w-3 h-3 text-emerald-600 mt-1 flex-shrink-0"></i><span>Rate-limit 3/IP/24h server-side</span></li>
+            <li class="flex items-start gap-2"><i data-lucide="check" class="w-3 h-3 text-emerald-600 mt-1 flex-shrink-0"></i><span><strong>BRAND teal</strong> · VitaSkinLogo + AuthPageWrapper + DropletDivider (ya existen)</span></li>
+            <li class="flex items-start gap-2"><i data-lucide="check" class="w-3 h-3 text-emerald-600 mt-1 flex-shrink-0"></i><span><strong>D13</strong> · /signup flujo PRIMARIO del sistema</span></li>
+            <li class="flex items-start gap-2"><i data-lucide="check" class="w-3 h-3 text-emerald-600 mt-1 flex-shrink-0"></i><span>+ Captcha Cloudflare Turnstile (NUEVO)</span></li>
+            <li class="flex items-start gap-2"><i data-lucide="check" class="w-3 h-3 text-emerald-600 mt-1 flex-shrink-0"></i><span>+ Password strength · 4 niveles (NUEVO)</span></li>
+            <li class="flex items-start gap-2"><i data-lucide="check" class="w-3 h-3 text-emerald-600 mt-1 flex-shrink-0"></i><span>+ Rate-limit 3/IP/24h server-side (NUEVO)</span></li>
           </ul>
-          <div class="mt-4 pt-4 border-t border-purple-100">
+          <div class="mt-4 pt-4 border-t border-teal-100">
             <div class="text-[10px] uppercase tracking-wider text-rose-700 font-bold mb-2">Post-submit</div>
-            <p class="text-[11px] text-slate-600">User pasa a <code class="bg-amber-100 px-1 rounded text-amber-900 text-[10px]">pendiente_aprobacion</code> · admin recibe notif · user ve pantalla 0.4</p>
+            <p class="text-[11px] text-slate-600">User pasa a <code class="bg-amber-100 px-1 rounded text-amber-900 text-[10px]">pendiente_aprobacion</code> · admin recibe email + notif · user redirect a pantalla 0.4 (PendingApproval.tsx · ya existe con onSnapshot listener en tiempo real)</p>
           </div>
         </aside>
       </div>
@@ -137,35 +168,52 @@
 
     <!-- 0.2 LOGIN -->
     <div class="mb-10">
-      <div class="text-[12px] font-bold text-slate-900 mb-3 flex items-center gap-2"><span class="px-2 py-0.5 bg-purple-600 text-white rounded-md text-[10px]">0.2</span><span>/login · ingreso usuarios existentes</span></div>
+      <div class="text-[12px] font-bold text-slate-900 mb-3 flex items-center gap-2"><span class="px-2 py-0.5 bg-teal-600 text-white rounded-md text-[10px]">0.2</span><span>/login · ingreso usuarios existentes · YA EXISTE Login.tsx (refactor mínimo)</span></div>
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div class="md:col-span-2 device-desktop bg-gradient-to-br from-slate-100 to-purple-50 rounded-2xl p-8 min-h-[420px] flex items-center justify-center">
-          <div class="bg-white rounded-2xl p-8 w-full max-w-md ring-1 ring-slate-200">
+        <div class="md:col-span-2 device-desktop bg-gradient-to-br from-teal-50 via-slate-50 to-cyan-50 rounded-2xl p-8 min-h-[460px] flex items-center justify-center">
+          <div class="bg-white rounded-2xl p-8 w-full max-w-md ring-1 ring-teal-100 shadow-xl shadow-teal-900/10">
             <div class="text-center mb-6">
-              <div class="w-14 h-14 bg-gradient-to-br from-purple-500 to-purple-700 rounded-2xl flex items-center justify-center text-white font-bold text-2xl mx-auto mb-3">B</div>
-              <h3 class="text-lg font-bold text-slate-900">Ingresá al sistema</h3>
-              <p class="text-[12px] text-slate-500 mt-1">BusinessMN · Vita Skin Peru</p>
+              <div class="w-20 h-20 mx-auto mb-3 relative">
+                <svg viewBox="0 0 64 64" class="w-full h-full drop-shadow-lg">
+                  <defs>
+                    <linearGradient id="vsg0_2" x1="0%" y1="0%" x2="0%" y2="100%">
+                      <stop offset="0%" stop-color="#14b8a6"/>
+                      <stop offset="100%" stop-color="#0d9488"/>
+                    </linearGradient>
+                  </defs>
+                  <path d="M32 4 C 32 4, 50 28, 50 42 C 50 53, 41 60, 32 60 C 23 60, 14 53, 14 42 C 14 28, 32 4, 32 4 Z" fill="url(#vsg0_2)"/>
+                  <ellipse cx="26" cy="28" rx="4" ry="6" fill="white" opacity="0.4"/>
+                </svg>
+              </div>
+              <h3 class="text-[22px] font-bold text-slate-900">Vita Skin Peru</h3>
+              <p class="text-[12px] text-slate-500 mt-1 font-medium">Vitaminas, Skincare y Bienestar</p>
+              <div class="flex items-center justify-center gap-2 mt-3">
+                <div class="h-px w-12 bg-gradient-to-r from-transparent to-teal-200"></div>
+                <div class="w-1.5 h-1.5 bg-teal-400 rounded-full"></div>
+                <div class="h-px w-12 bg-gradient-to-l from-transparent to-teal-200"></div>
+              </div>
             </div>
             <form class="space-y-3">
-              <div><label class="text-[11px] font-bold text-slate-700 uppercase tracking-wider">Email</label><input type="email" placeholder="tunombre@empresa.com" class="mt-1 w-full px-3 py-2 rounded-lg border border-slate-300 text-[13px]"></div>
-              <div><div class="flex items-center justify-between"><label class="text-[11px] font-bold text-slate-700 uppercase tracking-wider">Contraseña</label><a class="text-[11px] text-purple-600 font-medium">¿Olvidaste?</a></div><input type="password" placeholder="••••••••" class="mt-1 w-full px-3 py-2 rounded-lg border border-slate-300 text-[13px]"></div>
-              <label class="flex items-center gap-2 text-[11px] text-slate-600"><input type="checkbox" class="w-3.5 h-3.5"><span>Mantenerme conectado</span></label>
-              <button class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-2.5 rounded-lg text-[13px] flex items-center justify-center gap-2"><i data-lucide="log-in" class="w-4 h-4"></i>Ingresar</button>
-              <div class="relative my-4"><div class="absolute inset-0 flex items-center"><div class="w-full border-t border-slate-200"></div></div><div class="relative flex justify-center text-[10px]"><span class="bg-white px-2 text-slate-500 uppercase tracking-wider">o</span></div></div>
-              <button class="w-full bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 font-medium py-2.5 rounded-lg text-[13px] flex items-center justify-center gap-2"><svg class="w-4 h-4" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>Continuar con Google</button>
-              <div class="text-center text-[11px] text-slate-600 pt-3">¿Sin cuenta? <a class="text-purple-600 font-bold">Registrate</a></div>
+              <div><label class="text-[11px] font-bold text-slate-700 uppercase tracking-wider">Email</label><input type="email" placeholder="tu@email.com" class="mt-1 w-full px-3 py-2 rounded-lg border border-slate-300 text-[13px] focus:ring-2 focus:ring-teal-500 focus:border-teal-500"></div>
+              <div><label class="text-[11px] font-bold text-slate-700 uppercase tracking-wider">Contraseña</label><input type="password" placeholder="••••••••" class="mt-1 w-full px-3 py-2 rounded-lg border border-slate-300 text-[13px]"></div>
+              <button class="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-2.5 rounded-lg text-[13px]">Iniciar Sesión</button>
+              <div class="relative my-3"><div class="absolute inset-0 flex items-center"><div class="w-full border-t border-slate-200"></div></div><div class="relative flex justify-center text-[10px]"><span class="bg-white px-2 text-slate-500 uppercase tracking-wider">o continúa con</span></div></div>
+              <button class="w-full bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 font-medium py-2.5 rounded-lg text-[13px] flex items-center justify-center gap-2"><svg class="w-4 h-4" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>Iniciar con Google</button>
+              <div class="text-center pt-3"><a class="text-[12px] text-teal-600 hover:text-teal-700 font-medium">¿Olvidaste tu contraseña?</a></div>
+              <div class="text-center text-[11px] text-slate-500 border-t border-slate-100 pt-3">¿No tenés cuenta? <a class="text-teal-600 font-bold">Crear Cuenta</a></div>
+              <div class="text-center text-[10px] text-slate-400 pt-1">Productos importados para tu cuidado</div>
             </form>
           </div>
         </div>
-        <aside class="bg-white border border-purple-200 rounded-2xl p-5 ring-1 ring-purple-100">
-          <div class="text-[10px] uppercase tracking-wider text-purple-700 font-bold mb-2">FUNCIÓN</div>
-          <p class="text-[11px] text-slate-700 mb-3">Punto de entrada para usuarios <code class="bg-emerald-100 px-1 rounded text-emerald-900 text-[10px]">activo</code>. Si la cuenta está pendiente_aprobacion o suspendido · muestra alerta inline.</p>
+        <aside class="bg-white border border-teal-200 rounded-2xl p-5 ring-1 ring-teal-100">
+          <div class="text-[10px] uppercase tracking-wider text-teal-700 font-bold mb-2">YA EXISTE · Login.tsx</div>
+          <p class="text-[11px] text-slate-700 mb-3">Punto de entrada · email/pass + Google OAuth funcionales. Refactor mínimo: <strong>activar link "¿Olvidaste?"</strong> que hoy es <code class="bg-slate-100 px-1 rounded">href="#"</code> placeholder.</p>
           <div class="text-[10px] uppercase tracking-wider text-rose-700 font-bold mb-2">Estados de error</div>
           <ul class="text-[11px] text-slate-700 space-y-1.5">
-            <li class="flex items-start gap-2"><i data-lucide="x" class="w-3 h-3 text-rose-600 mt-1 flex-shrink-0"></i><span>Credenciales inválidas</span></li>
-            <li class="flex items-start gap-2"><i data-lucide="clock" class="w-3 h-3 text-amber-600 mt-1 flex-shrink-0"></i><span>Cuenta espera aprobación</span></li>
-            <li class="flex items-start gap-2"><i data-lucide="ban" class="w-3 h-3 text-rose-600 mt-1 flex-shrink-0"></i><span>Cuenta suspendida</span></li>
-            <li class="flex items-start gap-2"><i data-lucide="alert-triangle" class="w-3 h-3 text-amber-600 mt-1 flex-shrink-0"></i><span>Rate-limit · 5 intentos</span></li>
+            <li class="flex items-start gap-2"><i data-lucide="x" class="w-3 h-3 text-rose-600 mt-1 flex-shrink-0"></i><span>Credenciales inválidas (unified · SEC-004 anti-enumeration)</span></li>
+            <li class="flex items-start gap-2"><i data-lucide="clock" class="w-3 h-3 text-amber-600 mt-1 flex-shrink-0"></i><span>Cuenta espera aprobación → /pending-approval</span></li>
+            <li class="flex items-start gap-2"><i data-lucide="ban" class="w-3 h-3 text-rose-600 mt-1 flex-shrink-0"></i><span>Cuenta suspendida → /pending-approval (variant deactivated)</span></li>
+            <li class="flex items-start gap-2"><i data-lucide="alert-triangle" class="w-3 h-3 text-amber-600 mt-1 flex-shrink-0"></i><span>Rate-limit Firebase Auth · 5 intentos</span></li>
           </ul>
         </aside>
       </div>
@@ -174,50 +222,79 @@
     <!-- 0.3 / 0.4 / 0.5 -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
       <div>
-        <div class="text-[12px] font-bold text-slate-900 mb-3 flex items-center gap-2"><span class="px-2 py-0.5 bg-purple-600 text-white rounded-md text-[10px]">0.3</span><span>/forgot-password</span></div>
-        <div class="device-desktop bg-gradient-to-br from-slate-100 to-purple-50 rounded-2xl p-5 min-h-[420px] flex items-center justify-center">
-          <div class="bg-white rounded-2xl p-6 w-full ring-1 ring-slate-200">
-            <div class="flex items-center gap-2 mb-4"><i data-lucide="key-round" class="w-4 h-4 text-purple-600"></i><h3 class="text-[14px] font-bold text-slate-900">Recuperar contraseña</h3></div>
-            <p class="text-[11px] text-slate-600 mb-4">Ingresá el email asociado a tu cuenta · te enviaremos un link para restablecer.</p>
-            <input type="email" placeholder="tu@email.com" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-[12px] mb-3">
-            <button class="w-full bg-purple-600 text-white font-bold py-2 rounded-lg text-[12px]">Enviar link</button>
-            <div class="mt-3 bg-emerald-50 border border-emerald-200 rounded-lg p-3 text-[11px] text-emerald-900"><i data-lucide="mail-check" class="w-3.5 h-3.5 inline mr-1"></i>Email enviado · revisá inbox (link 60min)</div>
-            <a class="block text-center text-[11px] text-purple-600 font-bold mt-3">← Volver a login</a>
-          </div>
-        </div>
-      </div>
-      <div>
-        <div class="text-[12px] font-bold text-slate-900 mb-3 flex items-center gap-2"><span class="px-2 py-0.5 bg-purple-600 text-white rounded-md text-[10px]">0.4</span><span>Esperando aprobación</span></div>
-        <div class="device-desktop bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl p-5 min-h-[420px] flex items-center justify-center">
-          <div class="bg-white rounded-2xl p-6 w-full ring-1 ring-amber-200 text-center">
-            <div class="w-16 h-16 bg-gradient-to-br from-amber-100 to-amber-200 rounded-full flex items-center justify-center mx-auto mb-4"><i data-lucide="clock" class="w-8 h-8 text-amber-600"></i></div>
-            <h3 class="text-[14px] font-bold text-slate-900 mb-2">Cuenta creada · esperando aprobación</h3>
-            <p class="text-[11px] text-slate-600 mb-4 leading-relaxed">Un administrador debe aprobar tu cuenta antes de que puedas operar. Recibirás un email cuando esté lista.</p>
-            <div class="bg-amber-50 border border-amber-200 rounded-lg p-3 text-left text-[10px] text-amber-900 mb-4">
-              <div class="font-bold mb-1">Datos enviados:</div>
-              <div>juan.perez@gmail.com</div>
-              <div>Juan Pérez</div>
-              <div class="text-amber-700 mt-1">Solicitud · hace 2 min</div>
+        <div class="text-[12px] font-bold text-slate-900 mb-3 flex items-center gap-2"><span class="px-2 py-0.5 bg-teal-600 text-white rounded-md text-[10px]">0.3</span><span>/forgot-password · NUEVA · service ya existe</span></div>
+        <div class="device-desktop bg-gradient-to-br from-teal-50 via-slate-50 to-cyan-50 rounded-2xl p-5 min-h-[460px] flex items-center justify-center">
+          <div class="bg-white rounded-2xl p-6 w-full ring-1 ring-teal-100 shadow-xl shadow-teal-900/10">
+            <div class="text-center mb-4">
+              <div class="w-12 h-12 mx-auto mb-2">
+                <svg viewBox="0 0 64 64" class="w-full h-full"><defs><linearGradient id="vsg0_3" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#14b8a6"/><stop offset="100%" stop-color="#0d9488"/></linearGradient></defs><path d="M32 4 C 32 4, 50 28, 50 42 C 50 53, 41 60, 32 60 C 23 60, 14 53, 14 42 C 14 28, 32 4, 32 4 Z" fill="url(#vsg0_3)"/></svg>
+              </div>
+              <h3 class="text-[14px] font-bold text-slate-900">Recuperar contraseña</h3>
             </div>
-            <button class="w-full bg-slate-100 text-slate-700 font-bold py-2 rounded-lg text-[11px] mb-2"><i data-lucide="refresh-cw" class="w-3 h-3 inline mr-1"></i>Refrescar estado</button>
-            <button class="text-[11px] text-slate-500">Cerrar sesión</button>
+            <p class="text-[11px] text-slate-600 mb-4 text-center">Ingresá el email asociado a tu cuenta · te enviaremos un link para restablecer.</p>
+            <input type="email" placeholder="tu@email.com" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-[12px] mb-3 focus:ring-2 focus:ring-teal-500 focus:border-teal-500">
+            <button class="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 rounded-lg text-[12px]">Enviar link</button>
+            <div class="mt-3 bg-emerald-50 border border-emerald-200 rounded-lg p-3 text-[11px] text-emerald-900"><i data-lucide="mail-check" class="w-3.5 h-3.5 inline mr-1"></i>Email enviado · revisá inbox (link 60min)</div>
+            <a class="block text-center text-[11px] text-teal-600 font-bold mt-3">← Volver a Iniciar Sesión</a>
           </div>
         </div>
       </div>
       <div>
-        <div class="text-[12px] font-bold text-slate-900 mb-3 flex items-center gap-2"><span class="px-2 py-0.5 bg-purple-600 text-white rounded-md text-[10px]">0.5</span><span>Set password (invitación)</span></div>
-        <div class="device-desktop bg-gradient-to-br from-slate-100 to-purple-50 rounded-2xl p-5 min-h-[420px] flex items-center justify-center">
-          <div class="bg-white rounded-2xl p-6 w-full ring-1 ring-slate-200">
-            <div class="bg-purple-50 border border-purple-200 rounded-lg p-3 mb-4 text-[10px] text-purple-900"><i data-lucide="mail" class="w-3.5 h-3.5 inline mr-1"></i><strong>Invitación válida</strong> · enviada por José LP · hace 1 día</div>
-            <h3 class="text-[14px] font-bold text-slate-900 mb-2">Bienvenida, María</h3>
-            <p class="text-[11px] text-slate-600 mb-4">Definí tu contraseña para activar tu cuenta. Tu rol pre-asignado: <strong class="text-purple-700">planilla</strong></p>
+        <div class="text-[12px] font-bold text-slate-900 mb-3 flex items-center gap-2"><span class="px-2 py-0.5 bg-amber-600 text-white rounded-md text-[10px]">0.4</span><span>/pending-approval · YA EXISTE · onSnapshot listener</span></div>
+        <div class="device-desktop bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl p-5 min-h-[460px] flex items-center justify-center">
+          <div class="bg-white rounded-2xl p-6 w-full ring-1 ring-teal-100 shadow-xl shadow-teal-900/10 text-center">
+            <div class="w-12 h-12 mx-auto mb-2">
+              <svg viewBox="0 0 64 64" class="w-full h-full"><defs><linearGradient id="vsg0_4" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#14b8a6"/><stop offset="100%" stop-color="#0d9488"/></linearGradient></defs><path d="M32 4 C 32 4, 50 28, 50 42 C 50 53, 41 60, 32 60 C 23 60, 14 53, 14 42 C 14 28, 32 4, 32 4 Z" fill="url(#vsg0_4)"/></svg>
+            </div>
+            <div class="flex items-center justify-center gap-2 mb-3">
+              <div class="h-px w-8 bg-gradient-to-r from-transparent to-teal-200"></div>
+              <div class="w-1.5 h-1.5 bg-teal-400 rounded-full"></div>
+              <div class="h-px w-8 bg-gradient-to-l from-transparent to-teal-200"></div>
+            </div>
+            <div class="w-16 h-16 bg-gradient-to-br from-amber-100 to-amber-200 rounded-full flex items-center justify-center mx-auto mb-3 relative">
+              <i data-lucide="shield" class="w-7 h-7 text-amber-500"></i>
+              <div class="absolute -bottom-1 -right-1 p-1 rounded-full bg-amber-200"><i data-lucide="clock" class="w-3 h-3 text-amber-700"></i></div>
+            </div>
+            <h3 class="text-[14px] font-bold text-slate-900 mb-1">Cuenta Pendiente de Autorización</h3>
+            <p class="text-[10px] text-slate-500 mb-3 leading-relaxed">Tu cuenta ha sido creada exitosamente. Un administrador revisará tu solicitud y activará tu acceso.</p>
+            <div class="bg-slate-50 rounded-xl p-3 mb-3 text-left text-[10px]">
+              <div class="flex items-center gap-2 mb-1.5"><i data-lucide="user" class="w-3 h-3 text-slate-400"></i><div><div class="text-[9px] uppercase tracking-wider text-slate-400">Nombre</div><div class="font-medium text-slate-800">Juan Pérez</div></div></div>
+              <div class="flex items-center gap-2"><i data-lucide="mail" class="w-3 h-3 text-slate-400"></i><div><div class="text-[9px] uppercase tracking-wider text-slate-400">Email</div><div class="font-medium text-slate-800">juan.perez@gmail.com</div></div></div>
+            </div>
+            <div class="bg-amber-50 border border-amber-200 rounded-lg p-2.5 mb-3"><div class="flex items-start gap-2"><div class="h-1.5 w-1.5 rounded-full bg-amber-400 animate-pulse mt-1.5"></div><div class="text-left"><div class="text-[11px] font-medium text-amber-800">Esperando aprobación</div><div class="text-[9px] text-amber-600 leading-relaxed">Serás redirigido automáticamente cuando aprueben tu acceso.</div></div></div></div>
+            <div class="flex justify-center gap-1 mb-3"><div class="h-1.5 w-1.5 rounded-full bg-teal-400 animate-bounce"></div><div class="h-1.5 w-1.5 rounded-full bg-teal-400 animate-bounce" style="animation-delay: 150ms;"></div><div class="h-1.5 w-1.5 rounded-full bg-teal-400 animate-bounce" style="animation-delay: 300ms;"></div></div>
+            <button class="text-[11px] text-slate-500 hover:text-slate-700"><i data-lucide="log-out" class="w-3 h-3 inline mr-1"></i>Cerrar Sesión</button>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="text-[12px] font-bold text-slate-900 mb-3 flex items-center gap-2"><span class="px-2 py-0.5 bg-teal-600 text-white rounded-md text-[10px]">0.5</span><span>/setup-password/:token · NUEVA · post-invitación admin</span></div>
+        <div class="device-desktop bg-gradient-to-br from-teal-50 via-slate-50 to-cyan-50 rounded-2xl p-5 min-h-[460px] flex items-center justify-center">
+          <div class="bg-white rounded-2xl p-6 w-full ring-1 ring-teal-100 shadow-xl shadow-teal-900/10">
+            <div class="text-center mb-3">
+              <div class="w-12 h-12 mx-auto mb-2">
+                <svg viewBox="0 0 64 64" class="w-full h-full"><defs><linearGradient id="vsg0_5" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#14b8a6"/><stop offset="100%" stop-color="#0d9488"/></linearGradient></defs><path d="M32 4 C 32 4, 50 28, 50 42 C 50 53, 41 60, 32 60 C 23 60, 14 53, 14 42 C 14 28, 32 4, 32 4 Z" fill="url(#vsg0_5)"/></svg>
+              </div>
+            </div>
+            <div class="bg-teal-50 border border-teal-200 rounded-lg p-3 mb-4 text-[10px] text-teal-900 text-center"><i data-lucide="mail" class="w-3.5 h-3.5 inline mr-1"></i><strong>Invitación válida</strong> · enviada por José LP · hace 1 día</div>
+            <h3 class="text-[14px] font-bold text-slate-900 mb-1 text-center">Bienvenida, María</h3>
+            <p class="text-[11px] text-slate-600 mb-4 text-center">Definí tu contraseña para activar tu cuenta. Tu rol pre-asignado: <strong class="text-teal-700">planilla</strong></p>
             <div class="space-y-3">
               <div><label class="text-[10px] font-bold text-slate-700 uppercase tracking-wider">Contraseña</label><input type="password" placeholder="••••••••" class="mt-1 w-full px-3 py-2 rounded-lg border border-slate-300 text-[12px]"><div class="mt-1.5 flex gap-1"><div class="h-1 flex-1 rounded-full bg-emerald-400"></div><div class="h-1 flex-1 rounded-full bg-emerald-400"></div><div class="h-1 flex-1 rounded-full bg-emerald-400"></div><div class="h-1 flex-1 rounded-full bg-emerald-400"></div></div></div>
               <div><label class="text-[10px] font-bold text-slate-700 uppercase tracking-wider">Confirmar</label><input type="password" placeholder="••••••••" class="mt-1 w-full px-3 py-2 rounded-lg border border-slate-300 text-[12px]"></div>
-              <button class="w-full bg-purple-600 text-white font-bold py-2 rounded-lg text-[12px]">Activar cuenta</button>
+              <button class="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 rounded-lg text-[12px]">Activar cuenta</button>
             </div>
           </div>
         </div>
+      </div>
+    </div>
+
+    <!-- Resumen brand vs módulo -->
+    <div class="mt-8 bg-gradient-to-r from-teal-50 via-slate-50 to-purple-50 ring-1 ring-slate-200 rounded-2xl p-5">
+      <div class="text-[12px] font-bold text-slate-900 mb-3 flex items-center gap-2"><i data-lucide="palette" class="w-4 h-4 text-slate-600"></i>Canon de color · brand vs módulo</div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-[11px]">
+        <div class="bg-white border border-teal-200 rounded-xl p-3"><div class="flex items-center gap-2 mb-1"><div class="w-3 h-3 rounded-full bg-teal-500"></div><strong class="text-teal-900">TEAL · brand Vita Skin Peru</strong></div><div class="text-slate-600">Páginas públicas (login · signup · forgot · pending · set-password) · VitaSkinLogo + DropletDivider · es lo que el usuario ve antes de entrar al ERP</div></div>
+        <div class="bg-white border border-purple-200 rounded-xl p-3"><div class="flex items-center gap-2 mb-1"><div class="w-3 h-3 rounded-full bg-purple-500"></div><strong class="text-purple-900">PURPLE · módulo /usuarios</strong></div><div class="text-slate-600">Listado · sub-tabs · creación · edición · Ficha 360 · modales operativos · configuración · es el color del módulo interno (consistencia con Inversionistas violet · Planilla sky · Finanzas teal · Config indigo)</div></div>
       </div>
     </div>
   </div>
