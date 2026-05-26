@@ -53,7 +53,9 @@ import { ProgramarVacacionesModal } from '../../components/modules/planilla/Prog
 import { CalcularBonosMesModal } from '../../components/modules/planilla/CalcularBonosMesModal';
 import { AprobarBonoModal } from '../../components/modules/planilla/AprobarBonoModal';
 import { RechazarBonoModal } from '../../components/modules/planilla/RechazarBonoModal';
-import type { CalculoIncentivoMes } from '../../types/planilla.types';
+import { NuevoEsquemaIncentivoModal } from '../../components/modules/planilla/NuevoEsquemaIncentivoModal';
+import { EditarEsquemaIncentivoModal } from '../../components/modules/planilla/EditarEsquemaIncentivoModal';
+import type { CalculoIncentivoMes, EsquemaIncentivo } from '../../types/planilla.types';
 
 // ═════════════════════════════════════════════════════════════════════════
 // TIPOS
@@ -109,6 +111,8 @@ export const Planilla: React.FC = () => {
     | { kind: 'calcularBonos' }
     | { kind: 'aprobarBono'; calculo: CalculoIncentivoMes }
     | { kind: 'rechazarBono'; calculo: CalculoIncentivoMes }
+    | { kind: 'nuevoEsquema' }
+    | { kind: 'editarEsquema'; esquema: EsquemaIncentivo }
   >({ kind: 'none' });
   const [toast, setToast] = useState<{ kind: 'success' | 'error'; msg: string } | null>(null);
 
@@ -435,8 +439,8 @@ export const Planilla: React.FC = () => {
             <TabIncentivos
               mes={mes}
               anio={anio}
-              onNuevoEsquema={() => { /* F5.B: NuevoEsquemaIncentivoModal */ }}
-              onEditarEsquema={(_esq) => { /* F5.B: EditarEsquemaIncentivoModal */ }}
+              onNuevoEsquema={() => setModal({ kind: 'nuevoEsquema' })}
+              onEditarEsquema={(esq) => setModal({ kind: 'editarEsquema', esquema: esq })}
               onCalcularMes={() => setModal({ kind: 'calcularBonos' })}
               onAprobarCalculo={(c) => setModal({ kind: 'aprobarBono', calculo: c })}
               onRechazarCalculo={(c) => setModal({ kind: 'rechazarBono', calculo: c })}
@@ -518,6 +522,27 @@ export const Planilla: React.FC = () => {
         isOpen={modal.kind === 'rechazarBono'}
         onClose={() => setModal({ kind: 'none' })}
         calculo={modal.kind === 'rechazarBono' ? modal.calculo : null}
+        onSuccess={(msg) => {
+          setToast({ kind: 'success', msg });
+          cargarShellData();
+        }}
+        onError={(msg) => setToast({ kind: 'error', msg })}
+      />
+
+      <NuevoEsquemaIncentivoModal
+        isOpen={modal.kind === 'nuevoEsquema'}
+        onClose={() => setModal({ kind: 'none' })}
+        onSuccess={(msg) => {
+          setToast({ kind: 'success', msg });
+          cargarShellData();
+        }}
+        onError={(msg) => setToast({ kind: 'error', msg })}
+      />
+
+      <EditarEsquemaIncentivoModal
+        isOpen={modal.kind === 'editarEsquema'}
+        onClose={() => setModal({ kind: 'none' })}
+        esquema={modal.kind === 'editarEsquema' ? modal.esquema : null}
         onSuccess={(msg) => {
           setToast({ kind: 'success', msg });
           cargarShellData();
