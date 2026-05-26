@@ -1,7 +1,7 @@
 # 🏁 CIERRE · ROADMAP Personas v5.x
 
 **Fecha cierre:** 2026-05-26
-**Estado:** ✅ 10/10 fases + F10.A · F10.B · F10.C completadas (pixel-perfect canon)
+**Estado:** ✅ 10/10 fases + F10.A · F10.B · F10.C · F10.D completadas (pixel-perfect canon · chrome incluido)
 **Alcance entregado:** Usuarios v5.3 · Planilla v5.4 · Inversionistas v5.3 + integración 360°
 
 > 🔁 **REVISIÓN POST-CIERRE (2026-05-26):** El user cuestionó cobertura pixel-perfect
@@ -343,6 +343,36 @@ HistorialSalarialTimeline.tsx · gaps cerrados vs ACTO 6:
 - + Footer 3 KPIs (Sueldo actual · Variación total · Años en empresa)
 
 TabConfiguracion verificado · 6 secciones alineadas con mockup (no requiere cambio).
+
+### F10.D · Chrome canon · breadcrumbs + headers + tabs labels (post-revisión)
+
+**Brecha:** Tras la pregunta del user *"y los encabezados, y las correciones
+de inicio/planilla/etc"* · detectados 5 categorías de gaps de chrome.
+
+**Gaps cerrados en Usuarios.tsx:**
+- Breadcrumb 2 niveles → 3 niveles canon S9.D1 (Inicio › Administración › Usuarios)
+- `›` literal → `<ChevronRight>` icon canon
+- Header icon: gradient purple-500/700 → chip plano bg-purple-100 (canon mockup línea 70)
+- h1: text-xl sm:text-2xl → text-[20px] canon
+- Subtítulo nuevo: "Directorio central de personas · roles · accesos · configuración del sistema"
+- Acciones: 4 (Recargar/DesconectarTodos/Invitar/Nuevo) → 3 canon (Exportar/Invitar/Nuevo)
+  · "Recargar" eliminado (no canon · UX extra innecesaria)
+  · "Desconectar Todos" eliminado del header (vive en tab Accesos canon)
+  · "Exportar" agregado · CSV download nativo (handleExportarUsuarios)
+- Tab labels:
+  · "Directorio" → "Resumen" (alinear canon mockup línea 87)
+  · "Accesos" → "Accesos & seguridad" (canon mockup línea 90)
+- Banner pendientes ABAJO del KPI strip → ARRIBA (canon mockup línea 98-106)
+- KPI strip 4 cards → 5 cards canon (agregada "Pendientes" amber con icon Clock)
+  · Card Socio: icon Shield → Briefcase canon (canon mockup línea 126)
+  · Card Multi-rol: tinte amber → indigo canon (canon mockup línea 130)
+
+**Gaps cerrados en Inversionistas.tsx:**
+- Breadcrumb 2-3 niveles → 3-4 niveles canon mockup línea 56-60
+  · Agregado nivel "Finanzas y Contabilidad" entre Inicio e Inversionistas
+  · Click navega a /contabilidad (consistente con sidebar)
+
+**Planilla.tsx:** Ya tenía breadcrumb canon (Inicio › Finanzas y Contabilidad › Planilla) · no requirió cambios.
 
 ### F10.C · EditarEsquemaIncentivoModal canon (`04e4a83`)
 

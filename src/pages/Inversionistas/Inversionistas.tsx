@@ -357,10 +357,19 @@ export default function Inversionistas() {
   return (
     <div className="max-w-6xl mx-auto p-3 sm:p-4 md:p-6">
       <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
-        {/* §A · BREADCRUMB canon S9.D1 · 3 niveles dinámicos */}
+        {/* §A · BREADCRUMB canon S9.D1 + mockup inversionistas-v5.3-tweaks.html línea 56-60
+            3 niveles base: Inicio › Finanzas y Contabilidad › Inversionistas
+            Cuando tab !== resumen · 4 niveles con tab dinámico al final */}
         <div className="border-b border-slate-200 px-4 sm:px-6 py-2.5 flex items-center gap-3 bg-slate-50">
           <div className="flex items-center text-[12px] flex-1 min-w-0">
             <a className="text-slate-500 hover:text-violet-700 cursor-pointer flex-shrink-0">Inicio</a>
+            <ChevronRight className="w-3 h-3 text-slate-300 mx-1.5 flex-shrink-0" />
+            <a
+              className="text-slate-500 hover:text-violet-700 cursor-pointer flex-shrink-0"
+              onClick={() => navigate('/contabilidad')}
+            >
+              Finanzas y Contabilidad
+            </a>
             <ChevronRight className="w-3 h-3 text-slate-300 mx-1.5 flex-shrink-0" />
             {tabActiva === 'resumen' ? (
               <span className="text-slate-900 font-semibold truncate">Inversionistas</span>

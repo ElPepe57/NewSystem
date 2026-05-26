@@ -1,8 +1,8 @@
 import { useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  Users, Shield, UserCheck, UserX, RefreshCw, Plus, Edit2, X, Eye, Search,
-  Key, WifiOff, LogOut, Trash2, Clock, CheckCircle, Loader2, MoreHorizontal,
+  Users, Shield, UserCheck, UserX, Plus, Edit2, X, Eye, Search,
+  Key, LogOut, Trash2, Clock, CheckCircle, Loader2, MoreHorizontal,
   // chk5.F4-USERS · iconos de roles (avatares + chips)
   Briefcase, ShoppingCart, Package, Wallet, Landmark, User as UserIcon, Moon,
   // chk5.F4-USERS · iconos de tabs internas
@@ -10,6 +10,8 @@ import {
   Settings as SettingsIcon, LayoutDashboard, MailPlus,
   // chk5.PERSONAS-v5.3 · F2 · banners cross-link
   ArrowRight,
+  // chk5.PERSONAS-v5.4 · F10.D · breadcrumb canon S9.D1 + exportar
+  ChevronRight, Download,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { PageShell } from '../../design-system';
@@ -150,6 +152,34 @@ export const Usuarios: React.FC = () => {
   const handleOpenReject = (usuario: UserProfile) => {
     setSelectedUser(usuario);
     setModalType('reject-user');
+  };
+
+  // chk5.PERSONAS-v5.4 · F10.D · Exportar usuarios a CSV canon header
+  const handleExportarUsuarios = () => {
+    if (usuarios.length === 0) {
+      setError('No hay usuarios para exportar');
+      return;
+    }
+    const headers = ['UID', 'Nombre', 'Email', 'Roles', 'Activo', 'Origen'];
+    const rows = usuarios.map((u) => [
+      u.uid,
+      `"${(u.displayName ?? '').replace(/"/g, '""')}"`,
+      u.email ?? '',
+      `"${getUserRoles(u).join(', ')}"`,
+      u.activo ? 'sí' : 'no',
+      u.origen ?? '',
+    ]);
+    const csv = [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `usuarios-${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    setSuccess(`${usuarios.length} usuarios exportados a CSV`);
   };
 
   // Toggle simple activo/inactivo (sin modal · llama service directo)
@@ -293,77 +323,72 @@ export const Usuarios: React.FC = () => {
       <div className="max-w-6xl mx-auto p-3 sm:p-4 md:p-6">
         <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
 
-          {/* §A · BREADCRUMB canon S9.D1 */}
+          {/* §A · BREADCRUMB canon S9.D1 · 3 niveles · Inicio › Administración › Usuarios */}
           <div className="border-b border-slate-200 px-4 sm:px-6 py-2.5 flex items-center gap-3 bg-slate-50">
-            <div className="flex items-center text-[12px] flex-1">
-              <a className="text-slate-500 hover:text-purple-700 cursor-pointer">Inicio</a>
-              <span className="mx-1.5 text-slate-300">›</span>
-              <span className="text-slate-900 font-semibold">Usuarios</span>
+            <div className="flex items-center text-[12px] flex-1 min-w-0">
+              <a className="text-slate-500 hover:text-purple-700 cursor-pointer flex-shrink-0">Inicio</a>
+              <ChevronRight className="w-3 h-3 text-slate-300 mx-1.5 flex-shrink-0" />
+              <span className="text-slate-500 flex-shrink-0">Administración</span>
+              <ChevronRight className="w-3 h-3 text-slate-300 mx-1.5 flex-shrink-0" />
+              <span className="text-slate-900 font-semibold truncate">Usuarios</span>
             </div>
           </div>
 
-          {/* §B · HEADER banking-grade · icon purple gradient + h1 + 3-tier acciones */}
+          {/* §B · HEADER canon mockup usuarios-v5.3-hub.html línea 67-81
+              Icon chip plano · h1 text-[20px] · subtítulo canon · 3 acciones (Exportar · Invitar · Nuevo) */}
           <div className="px-4 sm:px-6 py-4 sm:py-5 border-b border-slate-100">
             <div className="flex items-start justify-between gap-3 sm:gap-4 flex-wrap">
               <div className="flex items-start gap-3 flex-1 min-w-[260px]">
-                <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-br from-purple-500 to-purple-700 flex items-center justify-center text-white flex-shrink-0">
-                  <Users className="w-5 h-5" />
+                <div className="w-10 h-10 rounded-xl bg-purple-100 flex items-center justify-center flex-shrink-0">
+                  <Users className="w-5 h-5 text-purple-600" />
                 </div>
                 <div className="min-w-0">
-                  <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">Usuarios</h1>
-                  <p className="text-[12px] sm:text-[13px] text-slate-500 leading-snug">
-                    Personas internas del negocio · multi-rol + sub-perfiles dinámicos
+                  <h1 className="text-[20px] font-bold text-slate-900">Usuarios</h1>
+                  <p className="text-[12px] text-slate-500 leading-snug">
+                    Directorio central de personas · roles · accesos · configuración del sistema
                   </p>
                 </div>
               </div>
-              {/* Acciones 3-tier canon · primary purple + neutral + danger */}
+              {/* Acciones canon mockup · Exportar (neutral) · Invitar email (indigo) · Nuevo usuario (purple primary) */}
               <div className="flex items-center gap-1.5 flex-wrap justify-end">
                 <button
                   type="button"
-                  onClick={fetchUsuarios}
-                  aria-label="Actualizar"
-                  className="text-[11px] font-semibold text-slate-600 hover:bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-lg flex items-center gap-1.5"
+                  onClick={handleExportarUsuarios}
+                  aria-label="Exportar usuarios a CSV"
+                  title="Exportar usuarios a CSV"
+                  className="text-[12px] font-medium text-slate-600 hover:bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-lg flex items-center gap-1.5"
                 >
-                  <RefreshCw className="w-3 h-3" />
-                  <span className="hidden sm:inline">Actualizar</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setModalType('disconnect-all-confirm')}
-                  aria-label="Desconectar todas las sesiones"
-                  title="Desconectar todas las sesiones"
-                  className="text-[11px] font-semibold text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 px-3 py-1.5 rounded-lg flex items-center gap-1.5"
-                >
-                  <WifiOff className="w-3 h-3" />
-                  <span className="hidden md:inline">Desconectar Todos</span>
+                  <Download className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">Exportar</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => setInvitarOpen(true)}
-                  className="text-[11px] font-semibold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 px-3 py-1.5 rounded-lg flex items-center gap-1.5"
+                  className="text-[12px] font-medium text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 px-3 py-1.5 rounded-lg flex items-center gap-1.5"
                   title="Invitar por email · canon mockup ACTO 2.2"
                 >
-                  <MailPlus className="w-3 h-3" />
+                  <MailPlus className="w-3.5 h-3.5" />
                   <span className="hidden sm:inline">Invitar por email</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => setModalType('create')}
-                  className="text-[11px] font-bold text-white bg-purple-600 hover:bg-purple-700 px-3 py-1.5 rounded-lg flex items-center gap-1.5"
+                  className="text-[12px] font-bold text-white bg-purple-600 hover:bg-purple-700 px-3 py-1.5 rounded-lg flex items-center gap-1.5"
                 >
-                  <Plus className="w-3 h-3" />
+                  <Plus className="w-3.5 h-3.5" />
                   <span className="hidden sm:inline">Nuevo usuario</span>
                 </button>
               </div>
             </div>
           </div>
 
-          {/* §B-bis · TABS internas · chk5.PERSONAS-v5.3 · F2 · 3 sub-tabs · scroll-x mobile N6 */}
+          {/* §B-bis · TABS internas · canon mockup usuarios-v5.3-hub.html línea 83-96
+              3 sub-tabs: Resumen · Accesos & seguridad · Configuración · scroll-x mobile N6 */}
           <div className="border-b border-slate-200 px-3 sm:px-6 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
             <div className="flex gap-1 whitespace-nowrap">
               {([
-                { id: 'directorio' as TabActiva, label: 'Directorio', Icon: LayoutDashboard, badge: null },
-                { id: 'accesos' as TabActiva, label: 'Accesos', Icon: ShieldCheck, badge: null },
+                { id: 'directorio' as TabActiva, label: 'Resumen', Icon: LayoutDashboard, badge: null },
+                { id: 'accesos' as TabActiva, label: 'Accesos & seguridad', Icon: ShieldCheck, badge: null },
                 { id: 'configuracion' as TabActiva, label: 'Configuración', Icon: SettingsIcon, badge: null },
               ]).map(({ id, label, Icon, badge }) => {
                 const isActive = tabActiva === id;
@@ -392,80 +417,89 @@ export const Usuarios: React.FC = () => {
           </div>
 
           {/* ════════════════════════════════════════════════════════════ */}
-          {/* TAB · DIRECTORIO · KPIs + chips filtro multi-rol + banners      */}
-          {/* cross-link dinámicos + listado · canon F2 v5.3                  */}
+          {/* TAB · RESUMEN · banner pendientes + KPIs + chips filtro + listado */}
+          {/* Canon mockup usuarios-v5.3-hub.html línea 97-135                  */}
           {/* ════════════════════════════════════════════════════════════ */}
           {tabActiva === 'directorio' && (<>
 
-          {/* §C · KPI STRIP canon N1+N2 · 4 cards con gradient + ring colored */}
-          <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-slate-100 grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-3">
-            <div className="bg-gradient-to-br from-purple-50 to-purple-100/40 ring-1 ring-purple-200/50 rounded-2xl p-3 sm:p-4">
-              <div className="flex items-center justify-between mb-1.5">
-                <span className="text-[9px] sm:text-[10px] uppercase tracking-wider text-purple-700 font-bold">TOTAL USUARIOS</span>
+          {/* §C · BANNER pendientes · canon mockup línea 98-106 · ARRIBA del KPI strip */}
+          {stats.pendientes > 0 && (
+            <div className="mx-4 sm:mx-6 mt-5 bg-gradient-to-r from-amber-50 to-orange-50 ring-1 ring-amber-300 rounded-xl p-4 flex items-start gap-3">
+              <div className="w-9 h-9 bg-amber-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                <Clock className="w-4 h-4 text-amber-700" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="text-[12px] font-bold text-amber-900 mb-0.5">
+                  {stats.pendientes} usuario{stats.pendientes > 1 ? 's' : ''} esperan aprobación
+                </div>
+                <div className="text-[11px] text-amber-800 truncate">
+                  {pendientes.map((u) => u.displayName || u.email).join(' · ')}
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => { setFilterStatus('inactive'); setFilterRole('invitado'); }}
+                className="bg-amber-600 hover:bg-amber-700 text-white text-[11px] font-bold px-3 py-1.5 rounded-lg whitespace-nowrap flex-shrink-0"
+              >
+                Ver pendientes →
+              </button>
+            </div>
+          )}
+
+          {/* §D · KPI STRIP canon N1+N2 · 5 cards mockup línea 109-135
+              (Total · Activos · Pendientes · Socios · Multi-rol) */}
+          <div className="px-4 sm:px-6 mt-5 grid grid-cols-2 md:grid-cols-5 gap-2 sm:gap-3">
+            <div className="bg-gradient-to-br from-purple-50 to-purple-100/40 ring-1 ring-purple-200/50 rounded-2xl p-3">
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-[10px] uppercase tracking-wider text-purple-700 font-bold">TOTAL</span>
                 <Users className="w-3.5 h-3.5 text-purple-700" />
               </div>
-              <div className="text-xl sm:text-2xl font-bold tabular-nums text-purple-900">{stats.total}</div>
+              <div className="text-2xl font-bold tabular-nums text-purple-900">{stats.total}</div>
               <div className="text-[10px] text-purple-700 truncate">
                 {stats.activos} activos · {stats.inactivos} inactivos
               </div>
             </div>
-            <div className="bg-gradient-to-br from-emerald-50 to-emerald-100/40 ring-1 ring-emerald-200/50 rounded-2xl p-3 sm:p-4">
-              <div className="flex items-center justify-between mb-1.5">
-                <span className="text-[9px] sm:text-[10px] uppercase tracking-wider text-emerald-700 font-bold">ACTIVOS</span>
-                <UserCheck className="w-3.5 h-3.5 text-emerald-700" />
+            <div className="bg-gradient-to-br from-emerald-50 to-emerald-100/40 ring-1 ring-emerald-200/50 rounded-2xl p-3">
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-[10px] uppercase tracking-wider text-emerald-700 font-bold">ACTIVOS</span>
+                <CheckCircle className="w-3.5 h-3.5 text-emerald-700" />
               </div>
-              <div className="text-xl sm:text-2xl font-bold tabular-nums text-emerald-900">{stats.activos}</div>
+              <div className="text-2xl font-bold tabular-nums text-emerald-900">{stats.activos}</div>
               <div className="text-[10px] text-emerald-700 truncate">
                 {stats.total > 0 ? `${Math.round((stats.activos / stats.total) * 100)}% del total` : '—'}
               </div>
             </div>
-            <div className="bg-gradient-to-br from-violet-50 to-violet-100/40 ring-1 ring-violet-200/50 rounded-2xl p-3 sm:p-4">
-              <div className="flex items-center justify-between mb-1.5">
-                <span className="text-[9px] sm:text-[10px] uppercase tracking-wider text-violet-700 font-bold">SOCIOS</span>
-                <Shield className="w-3.5 h-3.5 text-violet-700" />
+            <div className="bg-gradient-to-br from-amber-50 to-amber-100/40 ring-1 ring-amber-200/50 rounded-2xl p-3">
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-[10px] uppercase tracking-wider text-amber-700 font-bold">PENDIENTES</span>
+                <Clock className="w-3.5 h-3.5 text-amber-700" />
               </div>
-              <div className="text-xl sm:text-2xl font-bold tabular-nums text-violet-900">{sociosCount}</div>
-              <div className="text-[10px] text-violet-700 truncate">
-                {sociosCount > 0 ? 'con acceso a módulo Inversionistas' : 'ningún user es socio aún'}
+              <div className="text-2xl font-bold tabular-nums text-amber-900">{stats.pendientes}</div>
+              <div className="text-[10px] text-amber-700 truncate">
+                {stats.pendientes > 0 ? 'requieren aprobación' : 'sin pendientes'}
               </div>
             </div>
-            <div className="bg-gradient-to-br from-amber-50 to-amber-100/40 ring-1 ring-amber-200/50 rounded-2xl p-3 sm:p-4">
-              <div className="flex items-center justify-between mb-1.5">
-                <span className="text-[9px] sm:text-[10px] uppercase tracking-wider text-amber-700 font-bold">MULTI-ROL</span>
-                <Key className="w-3.5 h-3.5 text-amber-700" />
+            <div className="bg-gradient-to-br from-violet-50 to-violet-100/40 ring-1 ring-violet-200/50 rounded-2xl p-3">
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-[10px] uppercase tracking-wider text-violet-700 font-bold">SOCIOS</span>
+                <Briefcase className="w-3.5 h-3.5 text-violet-700" />
               </div>
-              <div className="text-xl sm:text-2xl font-bold tabular-nums text-amber-900">{multiRolCount}</div>
-              <div className="text-[10px] text-amber-700 truncate">
-                {multiRolCount > 0 ? `de ${stats.total} tienen 2+ roles` : 'todos con 1 solo rol'}
+              <div className="text-2xl font-bold tabular-nums text-violet-900">{sociosCount}</div>
+              <div className="text-[10px] text-violet-700 truncate">
+                {sociosCount > 0 ? 'cap table activa' : 'ningún user es socio'}
+              </div>
+            </div>
+            <div className="bg-gradient-to-br from-indigo-50 to-indigo-100/40 ring-1 ring-indigo-200/50 rounded-2xl p-3">
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-[10px] uppercase tracking-wider text-indigo-700 font-bold">MULTI-ROL</span>
+                <Key className="w-3.5 h-3.5 text-indigo-700" />
+              </div>
+              <div className="text-2xl font-bold tabular-nums text-indigo-900">{multiRolCount}</div>
+              <div className="text-[10px] text-indigo-700 truncate">
+                {multiRolCount > 0 ? '2+ roles asignados' : 'todos con 1 rol'}
               </div>
             </div>
           </div>
-
-          {/* §D · BANNER · solicitudes pendientes (si las hay) */}
-          {stats.pendientes > 0 && (
-            <div className="bg-amber-50 border-b border-amber-200 px-4 sm:px-6 py-3 flex items-center justify-between gap-3 flex-wrap">
-              <div className="flex items-center gap-3 min-w-0">
-                <div className="p-2 bg-amber-100 rounded-xl flex-shrink-0">
-                  <Clock className="h-4 w-4 text-amber-600" />
-                </div>
-                <div className="min-w-0">
-                  <p className="text-[12px] font-semibold text-amber-800">
-                    {stats.pendientes} solicitud{stats.pendientes > 1 ? 'es' : ''} pendiente{stats.pendientes > 1 ? 's' : ''} de aprobación
-                  </p>
-                  <p className="text-[10px] text-amber-600 truncate">
-                    {pendientes.map((u) => u.displayName || u.email).join(', ')}
-                  </p>
-                </div>
-              </div>
-              <button
-                onClick={() => { setFilterStatus('inactive'); setFilterRole('invitado'); }}
-                className="text-[11px] font-bold text-white bg-amber-600 hover:bg-amber-700 px-3 py-1.5 rounded-lg inline-flex items-center gap-1.5"
-              >
-                <UserCheck className="h-3 w-3" />
-                Revisar
-              </button>
-            </div>
-          )}
 
           {/* §E · MENSAJES error/success */}
           {error && (
