@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Planilla v5.4 · incentivos + baja + cost analytics 360</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<style>
+  body { font-family: 'Inter', sans-serif; font-variant-numeric: tabular-nums; background: rgb(248 250 252); }
+  .tabular { font-variant-numeric: tabular-nums; }
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { scrollbar-width: none; }
+</style>
+<script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="p-4 md:p-8 text-slate-900">
+
+<!-- HEADER -->
+<div class="max-w-6xl mx-auto mb-10">
+  <div class="bg-gradient-to-br from-sky-600 to-sky-800 text-white rounded-3xl p-8">
+    <div class="flex items-center gap-3 mb-3">
+      <div class="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center"><i data-lucide="briefcase-business" class="w-6 h-6 text-white"></i></div>
+      <div>
+        <div class="text-[11px] uppercase tracking-wider text-sky-200 font-bold">MOCKUP v5.4 · INCENTIVOS + CICLO COMPLETO + 360°</div>
+        <h1 class="text-2xl font-bold">/planilla · operación + incentivos + cost analytics</h1>
+      </div>
+    </div>
+    <p class="text-[14px] text-sky-100 leading-relaxed max-w-3xl">
+      Cambios sobre v5.3: <strong class="text-white">elimina CTS</strong> (Vita Skin no paga) ·
+      <strong class="text-white">agrega gratificaciones</strong> (jul/dic legales Perú) ·
+      <strong class="text-white">baja de empleado</strong> con liquidación automática ·
+      <strong class="text-white">histórico salarial</strong> · <strong class="text-white">sistema de incentivos por rol</strong> (4 tipos) ·
+      <strong class="text-white">cost analytics 360</strong> con cross-links a Gastos · Finanzas · Contabilidad · Inversionistas.
+    </p>
+  </div>
+
+  <!-- Índice -->
+  <div class="bg-white rounded-2xl ring-1 ring-sky-100 p-6 mt-6">
+    <h2 class="text-[13px] font-bold text-slate-900 mb-3 uppercase tracking-wider">Índice del rediseño v5.4</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-[11px]">
+      <a href="#a1" class="block p-2 rounded bg-sky-50 hover:bg-sky-100"><strong>ACTO 1</strong> · Shell v5.4 · 5 sub-tabs operativos</a>
+      <a href="#a2" class="block p-2 rounded bg-sky-50 hover:bg-sky-100"><strong>ACTO 2</strong> · Tab Incentivos · sistema completo (4 tipos)</a>
+      <a href="#a3" class="block p-2 rounded bg-sky-50 hover:bg-sky-100"><strong>ACTO 3</strong> · Tab Vacaciones & Gratificaciones (sin CTS)</a>
+      <a href="#a4" class="block p-2 rounded bg-sky-50 hover:bg-sky-100"><strong>ACTO 4</strong> · Tab Análisis & Cost Analytics 360</a>
+      <a href="#a5" class="block p-2 rounded bg-sky-50 hover:bg-sky-100"><strong>ACTO 5</strong> · Baja de empleado · wizard 4 pasos</a>
+      <a href="#a6" class="block p-2 rounded bg-sky-50 hover:bg-sky-100"><strong>ACTO 6</strong> · Histórico salarial · drill desde Ficha 360</a>
+      <a href="#a7" class="block p-2 rounded bg-sky-50 hover:bg-sky-100"><strong>ACTO 7</strong> · 4 esquemas de incentivo · ejemplos visuales</a>
+      <a href="#a8" class="block p-2 rounded bg-sky-50 hover:bg-sky-100"><strong>ACTO 8</strong> · Diagrama 360 · cómo se conecta todo</a>
+    </div>
+  </div>
+</div>
+
+<!-- ACTO 1 · Shell v5.4 -->
+<section id="a1" class="my-12">
+  <div class="max-w-6xl mx-auto">
+    <div class="bg-gradient-to-r from-sky-100 to-sky-50 ring-1 ring-sky-200 rounded-3xl p-5 mb-6">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 bg-sky-600 rounded-2xl flex items-center justify-center text-white font-bold text-xl">1</div>
+        <div><h2 class="text-lg font-bold text-sky-900">Shell v5.4 · 5 sub-tabs</h2><p class="text-[11px] text-sky-700">Cambios: ❌CTS · ✅Incentivos NUEVO · ✅Análisis NUEVO</p></div>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-2xl ring-1 ring-slate-200 overflow-hidden">
+      <!-- Breadcrumb + header (resumido · igual que v5.3) -->
+      <div class="px-6 pt-5 pb-2 flex items-center gap-1.5 text-[11px] text-slate-500"><i data-lucide="home" class="w-3 h-3"></i><a>Dashboard</a><i data-lucide="chevron-right" class="w-3 h-3"></i><a>Finanzas y Contabilidad</a><i data-lucide="chevron-right" class="w-3 h-3"></i><span class="text-slate-900 font-semibold">Planilla</span></div>
+      <div class="px-6 py-5 flex items-start justify-between border-b border-slate-100">
+        <div class="flex items-start gap-3">
+          <div class="w-10 h-10 bg-gradient-to-br from-sky-500 to-sky-700 rounded-xl flex items-center justify-center text-white"><i data-lucide="briefcase-business" class="w-5 h-5"></i></div>
+          <div><h1 class="text-[20px] font-bold text-slate-900">Planilla</h1><p class="text-[12px] text-slate-500">Operación mensual · nómina · adelantos · incentivos · vacaciones · gratificaciones</p></div>
+        </div>
+        <div class="flex items-center gap-2">
+          <button class="bg-white border border-slate-200 text-slate-600 text-[12px] font-medium px-3 py-1.5 rounded-lg flex items-center gap-1.5"><i data-lucide="download" class="w-3.5 h-3.5"></i>Exportar</button>
+          <button class="bg-indigo-50 text-indigo-700 border border-indigo-200 text-[12px] font-medium px-3 py-1.5 rounded-lg flex items-center gap-1.5"><i data-lucide="lock" class="w-3.5 h-3.5"></i>Cerrar mes</button>
+          <button class="bg-sky-600 hover:bg-sky-700 text-white text-[12px] font-bold px-3 py-1.5 rounded-lg flex items-center gap-1.5"><i data-lucide="plus" class="w-3.5 h-3.5"></i>Nueva boleta</button>
+        </div>
+      </div>
+
+      <!-- KPI strip 4 cards · sin CTS -->
+      <div class="px-6 py-3 grid grid-cols-2 md:grid-cols-4 gap-3 border-b border-slate-100">
+        <div class="bg-gradient-to-br from-sky-50 to-sky-100/40 ring-1 ring-sky-200/50 rounded-2xl p-4"><div class="flex items-center justify-between mb-2"><span class="text-[10px] uppercase tracking-wider text-sky-700 font-bold">PAYROLL MAYO</span><i data-lucide="wallet" class="w-3.5 h-3.5 text-sky-700"></i></div><div class="text-2xl font-bold tabular text-sky-900">S/ 34,000</div><div class="text-[10px] text-sky-700 mt-1">+5% MoM · incluye S/ 1,600 bonos</div></div>
+        <div class="bg-gradient-to-br from-emerald-50 to-emerald-100/40 ring-1 ring-emerald-200/50 rounded-2xl p-4"><div class="flex items-center justify-between mb-2"><span class="text-[10px] uppercase tracking-wider text-emerald-700 font-bold">PERSONAL ACTIVO</span><i data-lucide="users" class="w-3.5 h-3.5 text-emerald-700"></i></div><div class="text-2xl font-bold tabular text-emerald-900">8</div><div class="text-[10px] text-emerald-700 mt-1">5 presencial · 3 remoto · 0 bajas mes</div></div>
+        <div class="bg-gradient-to-br from-violet-50 to-violet-100/40 ring-1 ring-violet-200/50 rounded-2xl p-4"><div class="flex items-center justify-between mb-2"><span class="text-[10px] uppercase tracking-wider text-violet-700 font-bold">INCENTIVOS MES</span><i data-lucide="trophy" class="w-3.5 h-3.5 text-violet-700"></i></div><div class="text-2xl font-bold tabular text-violet-900">S/ 2,500</div><div class="text-[10px] text-violet-700 mt-1">3 esquemas activos · 4 cálculos</div></div>
+        <div class="bg-gradient-to-br from-indigo-50 to-indigo-100/40 ring-1 ring-indigo-200/50 rounded-2xl p-4"><div class="flex items-center justify-between mb-2"><span class="text-[10px] uppercase tracking-wider text-indigo-700 font-bold">PRÓXIMA GRATIF.</span><i data-lucide="calendar" class="w-3.5 h-3.5 text-indigo-700"></i></div><div class="text-2xl font-bold tabular text-indigo-900">jul · 15d</div><div class="text-[10px] text-indigo-700 mt-1">~ S/ 32K · 8 empleados</div></div>
+      </div>
+
+      <!-- 5 sub-tabs · canon N6 scroll-x -->
+      <div class="px-6 border-b border-slate-200">
+        <div class="flex gap-1 overflow-x-auto no-scrollbar">
+          <button class="px-4 py-2.5 text-[12px] font-bold border-b-2 border-sky-600 text-sky-700 whitespace-nowrap flex items-center gap-1.5"><i data-lucide="file-text" class="w-3.5 h-3.5"></i>Boletas del mes<span class="bg-sky-100 text-sky-700 px-1.5 py-0.5 rounded text-[10px]">8</span></button>
+          <button class="px-4 py-2.5 text-[12px] font-medium border-b-2 border-transparent text-slate-600 hover:text-sky-600 whitespace-nowrap flex items-center gap-1.5"><i data-lucide="arrow-down-circle" class="w-3.5 h-3.5"></i>Adelantos<span class="bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded text-[10px]">3</span></button>
+          <button class="px-4 py-2.5 text-[12px] font-medium border-b-2 border-transparent text-slate-600 hover:text-sky-600 whitespace-nowrap flex items-center gap-1.5"><i data-lucide="trophy" class="w-3.5 h-3.5"></i>Incentivos & Comisiones<span class="bg-violet-100 text-violet-700 px-1.5 py-0.5 rounded text-[10px]">NUEVO</span></button>
+          <button class="px-4 py-2.5 text-[12px] font-medium border-b-2 border-transparent text-slate-600 hover:text-sky-600 whitespace-nowrap flex items-center gap-1.5"><i data-lucide="palmtree" class="w-3.5 h-3.5"></i>Vacaciones & Gratificaciones</button>
+          <button class="px-4 py-2.5 text-[12px] font-medium border-b-2 border-transparent text-slate-600 hover:text-sky-600 whitespace-nowrap flex items-center gap-1.5"><i data-lucide="bar-chart-3" class="w-3.5 h-3.5"></i>Análisis & Reportes<span class="bg-violet-100 text-violet-700 px-1.5 py-0.5 rounded text-[10px]">NUEVO</span></button>
+        </div>
+      </div>
+
+      <div class="px-6 py-8 text-center text-slate-500">
+        <div class="text-[12px] font-bold mb-1 text-slate-700">Body · contenido del tab activo</div>
+        <p class="text-[11px]">Cada tab tiene su propio body · explorá los siguientes actos.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ACTO 2 · Tab Incentivos · sistema completo -->
+<section id="a2" class="my-12">
+  <div class="max-w-6xl mx-auto">
+    <div class="bg-gradient-to-r from-violet-100 to-violet-50 ring-1 ring-violet-200 rounded-3xl p-5 mb-6">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 bg-violet-600 rounded-2xl flex items-center justify-center text-white font-bold text-xl">2</div>
+        <div><h2 class="text-lg font-bold text-violet-900">Tab Incentivos & Comisiones · sistema flexible 4 tipos</h2><p class="text-[11px] text-violet-700">Esquemas por rol o usuario · cálculo automático mensual · auditoría completa</p></div>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-2xl ring-1 ring-slate-200 overflow-hidden p-6">
+      <!-- KPI mini -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5">
+        <div class="bg-violet-50 ring-1 ring-violet-200 rounded-xl p-3"><div class="text-[10px] uppercase font-bold text-violet-700">BONOS YTD</div><div class="text-lg font-bold tabular text-violet-900">S/ 12,400</div><div class="text-[10px] text-violet-700">8.5% del payroll</div></div>
+        <div class="bg-emerald-50 ring-1 ring-emerald-200 rounded-xl p-3"><div class="text-[10px] uppercase font-bold text-emerald-700">ESQUEMAS ACTIVOS</div><div class="text-lg font-bold tabular text-emerald-900">3</div><div class="text-[10px] text-emerald-700">de 5 totales</div></div>
+        <div class="bg-sky-50 ring-1 ring-sky-200 rounded-xl p-3"><div class="text-[10px] uppercase font-bold text-sky-700">COBERTURA</div><div class="text-lg font-bold tabular text-sky-900">6/8</div><div class="text-[10px] text-sky-700">75% del equipo</div></div>
+        <div class="bg-amber-50 ring-1 ring-amber-200 rounded-xl p-3"><div class="text-[10px] uppercase font-bold text-amber-700">CÁLCULO MAYO</div><div class="text-lg font-bold tabular text-amber-900">PENDIENTE</div><div class="text-[10px] text-amber-700">aprobar 4 bonos</div></div>
+      </div>
+
+      <!-- Lista de esquemas + acción primary -->
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="text-[14px] font-bold text-slate-900">Esquemas de incentivo (3 activos · 2 pausados)</h3>
+        <div class="flex items-center gap-2">
+          <button class="bg-violet-600 hover:bg-violet-700 text-white text-[12px] font-bold px-3 py-1.5 rounded-lg flex items-center gap-1.5"><i data-lucide="zap" class="w-3.5 h-3.5"></i>Calcular bonos mayo</button>
+          <button class="bg-white border border-violet-300 text-violet-700 text-[12px] font-bold px-3 py-1.5 rounded-lg flex items-center gap-1.5"><i data-lucide="plus" class="w-3.5 h-3.5"></i>Nuevo esquema</button>
+        </div>
+      </div>
+
+      <!-- Cards de esquemas -->
+      <div class="space-y-2 mb-5">
+        <!-- Esquema 1 · Comisión vendedor -->
+        <div class="bg-white border border-violet-200 rounded-xl p-4 hover:shadow-sm transition">
+          <div class="flex items-start gap-3">
+            <div class="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center"><i data-lucide="dollar-sign" class="w-5 h-5 text-emerald-700"></i></div>
+            <div class="flex-1">
+              <div class="flex items-center gap-2 mb-1">
+                <span class="text-[13px] font-bold text-slate-900">Comisión vendedor · escalonada</span>
+                <span class="bg-emerald-100 text-emerald-700 text-[9px] font-bold px-1.5 py-0.5 rounded uppercase">ACTIVO</span>
+                <span class="bg-emerald-50 text-emerald-700 border border-emerald-200 text-[9px] font-bold px-1.5 py-0.5 rounded uppercase">TIPO A · COMISIÓN</span>
+              </div>
+              <div class="text-[11px] text-slate-600">Aplica a: rol <strong>vendedor</strong> (1 empleado · Ana R.)</div>
+              <div class="text-[11px] text-slate-600">Config: 2% hasta S/ 50K · 4% S/ 50-100K · 6% sobre 100K</div>
+              <div class="text-[10px] text-emerald-700 mt-1">Cálculo mayo: <strong>S/ 1,600</strong> (Ana facturó S/ 65K)</div>
+            </div>
+            <div class="flex items-center gap-1">
+              <button class="text-[11px] text-violet-600 font-bold px-2 py-1 hover:bg-violet-50 rounded">Editar</button>
+              <button class="text-[11px] text-slate-600 font-medium px-2 py-1 hover:bg-slate-100 rounded">Pausar</button>
+              <button class="p-1 hover:bg-slate-100 rounded"><i data-lucide="more-horizontal" class="w-4 h-4 text-slate-400"></i></button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Esquema 2 · Meta logística -->
+        <div class="bg-white border border-violet-200 rounded-xl p-4 hover:shadow-sm transition">
+          <div class="flex items-start gap-3">
+            <div class="w-10 h-10 bg-sky-100 rounded-xl flex items-center justify-center"><i data-lucide="target" class="w-5 h-5 text-sky-700"></i></div>
+            <div class="flex-1">
+              <div class="flex items-center gap-2 mb-1">
+                <span class="text-[13px] font-bold text-slate-900">Meta logística · OC en tiempo</span>
+                <span class="bg-emerald-100 text-emerald-700 text-[9px] font-bold px-1.5 py-0.5 rounded uppercase">ACTIVO</span>
+                <span class="bg-sky-50 text-sky-700 border border-sky-200 text-[9px] font-bold px-1.5 py-0.5 rounded uppercase">TIPO B · BONO META</span>
+              </div>
+              <div class="text-[11px] text-slate-600">Aplica a: rol <strong>comprador + almacenero</strong> (2 empleados)</div>
+              <div class="text-[11px] text-slate-600">Métrica: % OC recibidas en tiempo · Objetivo: >95% · Bono: S/ 800 dividido</div>
+              <div class="text-[10px] text-emerald-700 mt-1">Cálculo mayo: <strong>96% cumplido · S/ 400 c/u</strong> (Diego + Pedro)</div>
+            </div>
+            <div class="flex items-center gap-1">
+              <button class="text-[11px] text-violet-600 font-bold px-2 py-1">Editar</button>
+              <button class="text-[11px] text-slate-600 font-medium px-2 py-1">Pausar</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Esquema 3 · KPI Finanzas -->
+        <div class="bg-white border border-violet-200 rounded-xl p-4 hover:shadow-sm transition">
+          <div class="flex items-start gap-3">
+            <div class="w-10 h-10 bg-teal-100 rounded-xl flex items-center justify-center"><i data-lucide="trending-up" class="w-5 h-5 text-teal-700"></i></div>
+            <div class="flex-1">
+              <div class="flex items-center gap-2 mb-1">
+                <span class="text-[13px] font-bold text-slate-900">Control cartera vencida · Finanzas</span>
+                <span class="bg-emerald-100 text-emerald-700 text-[9px] font-bold px-1.5 py-0.5 rounded uppercase">ACTIVO</span>
+                <span class="bg-teal-50 text-teal-700 border border-teal-200 text-[9px] font-bold px-1.5 py-0.5 rounded uppercase">TIPO C · KPI</span>
+              </div>
+              <div class="text-[11px] text-slate-600">Aplica a: rol <strong>finanzas</strong> (1 empleada · María G.)</div>
+              <div class="text-[11px] text-slate-600">Métrica: cartera vencida / total · Objetivo: <5% · Bono: S/ 500 mensual</div>
+              <div class="text-[10px] text-emerald-700 mt-1">Cálculo mayo: <strong>3.5% · cumple · S/ 500</strong></div>
+            </div>
+            <div class="flex items-center gap-1">
+              <button class="text-[11px] text-violet-600 font-bold px-2 py-1">Editar</button>
+              <button class="text-[11px] text-slate-600 font-medium px-2 py-1">Pausar</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Esquema 4 · Bono navidad (PAUSADO) -->
+        <div class="bg-slate-50/50 border border-slate-200 rounded-xl p-4 opacity-75">
+          <div class="flex items-start gap-3">
+            <div class="w-10 h-10 bg-amber-100 rounded-xl flex items-center justify-center"><i data-lucide="gift" class="w-5 h-5 text-amber-700"></i></div>
+            <div class="flex-1">
+              <div class="flex items-center gap-2 mb-1">
+                <span class="text-[13px] font-bold text-slate-600">Bono navidad · Gerencia</span>
+                <span class="bg-slate-200 text-slate-600 text-[9px] font-bold px-1.5 py-0.5 rounded uppercase">PAUSADO</span>
+                <span class="bg-amber-50 text-amber-700 border border-amber-200 text-[9px] font-bold px-1.5 py-0.5 rounded uppercase">TIPO D · FIJO</span>
+              </div>
+              <div class="text-[11px] text-slate-500">Aplica a: usuarios específicos (José LP · gerente)</div>
+              <div class="text-[11px] text-slate-500">Config: S/ 5,000 pago anual diciembre</div>
+              <div class="text-[10px] text-slate-500 mt-1">Activación automática 15 dic</div>
+            </div>
+            <button class="text-[11px] text-emerald-700 font-bold px-2 py-1 hover:bg-emerald-50 rounded">Activar</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Cálculos del mes pendientes -->
+      <div class="border-t border-slate-200 pt-4">
+        <h3 class="text-[13px] font-bold text-slate-900 mb-3">Cálculos pendientes · mayo 2026 · 4 bonos a aprobar</h3>
+        <div class="bg-amber-50 border border-amber-200 rounded-lg p-3 text-[11px] text-amber-900 mb-3">
+          <i data-lucide="alert-triangle" class="w-3.5 h-3.5 inline"></i> Estos bonos se sumarán a las boletas de mayo si los aprobás. Podés ajustar montos manualmente con justificación.
+        </div>
+        <table class="w-full text-[12px]">
+          <thead><tr class="border-b border-slate-200 text-[10px] uppercase tracking-wider text-slate-500 font-bold"><th class="text-left pb-2">Empleado</th><th class="text-left pb-2">Esquema</th><th class="text-right pb-2">Métrica</th><th class="text-right pb-2">Bono calculado</th><th class="text-center pb-2">Acción</th></tr></thead>
+          <tbody>
+            <tr class="border-b border-slate-100"><td class="py-2">Ana Rodríguez</td><td class="text-[11px] text-emerald-700">Comisión vendedor</td><td class="text-right tabular">Venta S/ 65,000</td><td class="text-right tabular font-bold text-emerald-700">S/ 1,600</td><td class="text-center"><button class="text-[11px] text-emerald-700 font-bold mr-2">Aprobar</button><button class="text-[11px] text-rose-600 font-medium">Rechazar</button></td></tr>
+            <tr class="border-b border-slate-100"><td class="py-2">Diego López</td><td class="text-[11px] text-sky-700">Meta logística</td><td class="text-right tabular">96% en tiempo</td><td class="text-right tabular font-bold text-sky-700">S/ 400</td><td class="text-center"><button class="text-[11px] text-emerald-700 font-bold mr-2">Aprobar</button><button class="text-[11px] text-rose-600 font-medium">Rechazar</button></td></tr>
+            <tr class="border-b border-slate-100"><td class="py-2">Pedro Martínez</td><td class="text-[11px] text-sky-700">Meta logística</td><td class="text-right tabular">96% en tiempo</td><td class="text-right tabular font-bold text-sky-700">S/ 400</td><td class="text-center"><button class="text-[11px] text-emerald-700 font-bold mr-2">Aprobar</button><button class="text-[11px] text-rose-600 font-medium">Rechazar</button></td></tr>
+            <tr><td class="py-2">María García</td><td class="text-[11px] text-teal-700">Control cartera</td><td class="text-right tabular">3.5% vencido</td><td class="text-right tabular font-bold text-teal-700">S/ 500</td><td class="text-center"><button class="text-[11px] text-emerald-700 font-bold mr-2">Aprobar</button><button class="text-[11px] text-rose-600 font-medium">Rechazar</button></td></tr>
+          </tbody>
+          <tfoot><tr class="border-t-2 border-slate-300 font-bold"><td colspan="3" class="py-3 text-right text-[11px] text-slate-500 uppercase tracking-wider">TOTAL BONOS MAYO</td><td class="text-right tabular text-slate-900 text-[14px]">S/ 2,900</td><td class="text-center"><button class="bg-emerald-600 text-white text-[11px] font-bold px-3 py-1.5 rounded-lg">Aprobar todos</button></td></tr></tfoot>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ACTO 3 · Vacaciones & Gratificaciones (sin CTS) -->
+<section id="a3" class="my-12">
+  <div class="max-w-6xl mx-auto">
+    <div class="bg-gradient-to-r from-emerald-100 to-emerald-50 ring-1 ring-emerald-200 rounded-3xl p-5 mb-6">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 bg-emerald-600 rounded-2xl flex items-center justify-center text-white font-bold text-xl">3</div>
+        <div><h2 class="text-lg font-bold text-emerald-900">Tab Vacaciones & Gratificaciones (SIN CTS)</h2><p class="text-[11px] text-emerald-700">Solo lo que Vita Skin paga · vacaciones + gratificaciones jul/dic</p></div>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-2xl ring-1 ring-slate-200 overflow-hidden p-6">
+      <!-- KPI -->
+      <div class="grid grid-cols-3 gap-3 mb-5">
+        <div class="bg-emerald-50 rounded-xl p-3"><div class="text-[10px] uppercase font-bold text-emerald-700 mb-1">DÍAS VACACIONES PEND.</div><div class="text-xl font-bold tabular text-emerald-900">73 días</div><div class="text-[10px] text-emerald-700">acumulado 8 personas</div></div>
+        <div class="bg-amber-50 rounded-xl p-3"><div class="text-[10px] uppercase font-bold text-amber-700 mb-1">PRÓX. GRATIFICACIÓN</div><div class="text-xl font-bold tabular text-amber-900">jul 2026</div><div class="text-[10px] text-amber-700">~ S/ 32K · 8 empleados</div></div>
+        <div class="bg-slate-50 rounded-xl p-3"><div class="text-[10px] uppercase font-bold text-slate-700 mb-1">SOLICITUDES PEND.</div><div class="text-xl font-bold tabular text-slate-900">2</div><div class="text-[10px] text-slate-700">requieren aprobación</div></div>
+      </div>
+
+      <!-- Sección 1 · Vacaciones -->
+      <div class="mb-6">
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="text-[13px] font-bold text-slate-900 flex items-center gap-2"><i data-lucide="palmtree" class="w-4 h-4 text-emerald-600"></i>Vacaciones · saldo por empleado</h3>
+          <button class="bg-emerald-600 hover:bg-emerald-700 text-white text-[12px] font-bold px-3 py-1.5 rounded-lg flex items-center gap-1.5"><i data-lucide="calendar-plus" class="w-3.5 h-3.5"></i>Programar vacación</button>
+        </div>
+        <table class="w-full text-[12px]">
+          <thead><tr class="border-b border-slate-200 text-[10px] uppercase tracking-wider text-slate-500 font-bold"><th class="text-left pb-2">Empleado</th><th class="text-right pb-2">Días disponibles</th><th class="text-right pb-2">Tomados YTD</th><th class="text-right pb-2">Próxima vacación</th><th class="text-right pb-2"></th></tr></thead>
+          <tbody>
+            <tr class="border-b border-slate-100"><td class="py-2">Ana Rodríguez</td><td class="text-right tabular">15 días</td><td class="text-right tabular text-slate-500">5 días</td><td class="text-right text-[11px] text-emerald-700">15-21 jul (7d)</td><td class="text-right"><button class="text-[11px] text-emerald-600 font-bold">Ver detalle</button></td></tr>
+            <tr class="border-b border-slate-100"><td class="py-2">Diego López</td><td class="text-right tabular">8 días</td><td class="text-right tabular text-slate-500">12 días</td><td class="text-right text-[11px] text-slate-400">Sin programar</td><td class="text-right"><button class="text-[11px] text-emerald-600 font-bold">Programar</button></td></tr>
+            <tr><td colspan="5" class="text-center text-[11px] text-slate-500 py-2">+ 6 empleados</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Sección 2 · Gratificaciones -->
+      <div class="border-t border-slate-200 pt-5">
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="text-[13px] font-bold text-slate-900 flex items-center gap-2"><i data-lucide="gift" class="w-4 h-4 text-amber-600"></i>Gratificaciones legales (Perú · julio y diciembre)</h3>
+        </div>
+        <div class="bg-gradient-to-r from-amber-50 to-orange-50 ring-1 ring-amber-200 rounded-xl p-4 mb-3">
+          <div class="flex items-start gap-3">
+            <div class="w-10 h-10 bg-amber-100 rounded-xl flex items-center justify-center"><i data-lucide="calendar-clock" class="w-5 h-5 text-amber-700"></i></div>
+            <div class="flex-1">
+              <div class="flex items-center gap-2 mb-1">
+                <h4 class="text-[13px] font-bold text-slate-900">Gratificación Fiestas Patrias · julio 2026</h4>
+                <span class="bg-amber-100 text-amber-700 text-[9px] font-bold px-1.5 py-0.5 rounded">EN 15 DÍAS</span>
+              </div>
+              <div class="text-[11px] text-slate-700">Por ley · pago hasta el 15 de julio · 1 sueldo bruto a cada empleado</div>
+              <div class="grid grid-cols-3 gap-3 mt-3 text-[11px]">
+                <div><div class="text-[10px] uppercase font-bold text-slate-500">EMPLEADOS</div><div class="font-bold tabular">8 elegibles</div></div>
+                <div><div class="text-[10px] uppercase font-bold text-slate-500">PROPORCIONALES</div><div class="font-bold tabular">2 (María · &lt;6 meses)</div></div>
+                <div><div class="text-[10px] uppercase font-bold text-slate-500">MONTO ESTIMADO</div><div class="font-bold tabular text-amber-700">S/ 32,400</div></div>
+              </div>
+            </div>
+            <button class="bg-amber-600 hover:bg-amber-700 text-white text-[12px] font-bold px-3 py-1.5 rounded-lg whitespace-nowrap">Procesar gratificación</button>
+          </div>
+        </div>
+        <div class="bg-slate-50/50 border border-slate-200 rounded-xl p-4 opacity-75">
+          <div class="flex items-start gap-3">
+            <div class="w-10 h-10 bg-slate-200 rounded-xl flex items-center justify-center"><i data-lucide="gift" class="w-5 h-5 text-slate-600"></i></div>
+            <div class="flex-1">
+              <div class="flex items-center gap-2 mb-1">
+                <h4 class="text-[13px] font-bold text-slate-700">Gratificación Navidad · diciembre 2026</h4>
+                <span class="bg-slate-200 text-slate-600 text-[9px] font-bold px-1.5 py-0.5 rounded">PROYECTADO</span>
+              </div>
+              <div class="text-[11px] text-slate-500">Pago hasta 15 diciembre · monto estimado S/ 34K (incluye aumentos esperados)</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Banner · NO CTS -->
+      <div class="mt-4 bg-slate-50 border border-dashed border-slate-300 rounded-xl p-3 text-[11px] text-slate-600">
+        <strong>ℹ Nota canon v5.4:</strong> Vita Skin NO paga CTS (Compensación por Tiempo de Servicios). Solo gratificaciones legales y vacaciones. Decisión del negocio · simplificación operativa.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ACTO 4 · Tab Análisis & Cost Analytics 360 -->
+<section id="a4" class="my-12">
+  <div class="max-w-6xl mx-auto">
+    <div class="bg-gradient-to-r from-indigo-100 to-indigo-50 ring-1 ring-indigo-200 rounded-3xl p-5 mb-6">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center text-white font-bold text-xl">4</div>
+        <div><h2 class="text-lg font-bold text-indigo-900">Tab Análisis & Cost Analytics 360°</h2><p class="text-[11px] text-indigo-700">Cost dashboard · breakdown · tendencia · CROSS-LINKS a Gastos · Finanzas · Contabilidad · Inversionistas</p></div>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-2xl ring-1 ring-slate-200 overflow-hidden p-6">
+      <!-- Sección 1 · KPIs ejecutivos -->
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-3 mb-5">
+        <div class="bg-gradient-to-br from-sky-50 to-sky-100/40 ring-1 ring-sky-200 rounded-2xl p-4"><div class="text-[10px] uppercase font-bold text-sky-700 mb-1">PAYROLL YTD</div><div class="text-2xl font-bold tabular text-sky-900">S/ 158K</div><div class="text-[10px] text-sky-700">+12K vs año anterior · +8.2%</div></div>
+        <div class="bg-gradient-to-br from-emerald-50 to-emerald-100/40 ring-1 ring-emerald-200 rounded-2xl p-4"><div class="text-[10px] uppercase font-bold text-emerald-700 mb-1">% SOBRE INGRESOS</div><div class="text-2xl font-bold tabular text-emerald-900">23.4%</div><div class="text-[10px] text-emerald-700">saludable · objetivo &lt;30%</div></div>
+        <div class="bg-gradient-to-br from-amber-50 to-amber-100/40 ring-1 ring-amber-200 rounded-2xl p-4"><div class="text-[10px] uppercase font-bold text-amber-700 mb-1">INCENTIVOS YTD</div><div class="text-2xl font-bold tabular text-amber-900">S/ 12.4K</div><div class="text-[10px] text-amber-700">8.5% del payroll · creciente</div></div>
+        <div class="bg-gradient-to-br from-rose-50 to-rose-100/40 ring-1 ring-rose-200 rounded-2xl p-4"><div class="text-[10px] uppercase font-bold text-rose-700 mb-1">COSTO PROMEDIO/EMPLEADO</div><div class="text-2xl font-bold tabular text-rose-900">S/ 3,950</div><div class="text-[10px] text-rose-700">incluye benefits + bonos</div></div>
+      </div>
+
+      <!-- Sección 2 · Breakdown -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
+        <div class="bg-slate-50 border border-slate-200 rounded-xl p-4">
+          <h4 class="text-[12px] font-bold text-slate-900 mb-3">Breakdown por área (mayo 2026)</h4>
+          <div class="space-y-1.5 text-[11px]">
+            <div class="flex justify-between items-center"><span>Ventas</span><span class="tabular font-bold">S/ 12,800 · 38%</span></div>
+            <div class="bg-slate-200 h-1.5 rounded"><div class="bg-sky-500 h-1.5 rounded" style="width:38%"></div></div>
+            <div class="flex justify-between items-center"><span>Marketing</span><span class="tabular font-bold">S/ 7,300 · 21%</span></div>
+            <div class="bg-slate-200 h-1.5 rounded"><div class="bg-emerald-500 h-1.5 rounded" style="width:21%"></div></div>
+            <div class="flex justify-between items-center"><span>Operaciones</span><span class="tabular font-bold">S/ 6,500 · 19%</span></div>
+            <div class="bg-slate-200 h-1.5 rounded"><div class="bg-amber-500 h-1.5 rounded" style="width:19%"></div></div>
+            <div class="flex justify-between items-center"><span>Finanzas</span><span class="tabular font-bold">S/ 4,200 · 12%</span></div>
+            <div class="bg-slate-200 h-1.5 rounded"><div class="bg-teal-500 h-1.5 rounded" style="width:12%"></div></div>
+            <div class="flex justify-between items-center"><span>Otros</span><span class="tabular font-bold">S/ 3,200 · 10%</span></div>
+            <div class="bg-slate-200 h-1.5 rounded"><div class="bg-slate-400 h-1.5 rounded" style="width:10%"></div></div>
+          </div>
+        </div>
+        <div class="bg-slate-50 border border-slate-200 rounded-xl p-4">
+          <h4 class="text-[12px] font-bold text-slate-900 mb-3">Breakdown por tipo de pago</h4>
+          <div class="space-y-1.5 text-[11px]">
+            <div class="flex justify-between"><span>Sueldo base</span><span class="tabular font-bold">S/ 27,500 · 81%</span></div>
+            <div class="flex justify-between"><span>Bonificaciones (incentivos)</span><span class="tabular font-bold">S/ 2,900 · 9%</span></div>
+            <div class="flex justify-between"><span>Comisiones</span><span class="tabular font-bold">S/ 1,600 · 5%</span></div>
+            <div class="flex justify-between"><span>Otras (sobretiempo · etc)</span><span class="tabular font-bold">S/ 2,000 · 5%</span></div>
+            <div class="border-t border-slate-300 pt-2 mt-2 flex justify-between font-bold"><span>TOTAL MAYO</span><span class="tabular text-sky-900">S/ 34,000</span></div>
+          </div>
+          <div class="mt-3 pt-3 border-t border-slate-200 text-[10px] text-slate-600">Tendencia 12m: <span class="text-emerald-700 font-bold">+8% YoY</span> · principalmente por aumento de incentivos</div>
+        </div>
+      </div>
+
+      <!-- Sección 3 · CROSS-LINKS 360 (LO MÁS IMPORTANTE) -->
+      <div class="border-t border-slate-200 pt-5">
+        <h3 class="text-[13px] font-bold text-slate-900 mb-3 flex items-center gap-2"><i data-lucide="link-2" class="w-4 h-4 text-indigo-600"></i>Análisis 360° · impacto en otros módulos del sistema</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <!-- Cross-link 1 · Gastos -->
+          <div class="bg-gradient-to-r from-amber-50 to-orange-50 ring-1 ring-amber-200 rounded-xl p-4">
+            <div class="flex items-center gap-2 mb-2"><i data-lucide="receipt" class="w-5 h-5 text-amber-700"></i><h4 class="text-[13px] font-bold text-slate-900">En Gastos</h4></div>
+            <p class="text-[11px] text-slate-700 mb-3">Cada boleta pagada crea un gasto categorizado <code class="bg-amber-100 px-1 rounded text-[10px]">gasto_planilla</code> · subcategoría por área.</p>
+            <div class="text-[11px] mb-3">YTD: <strong class="tabular">S/ 158,200 · 87 gastos creados</strong></div>
+            <button class="w-full bg-amber-600 text-white text-[11px] font-bold py-1.5 rounded-lg flex items-center justify-center gap-1.5">Ver en /gastos →</button>
+          </div>
+
+          <!-- Cross-link 2 · Cash Flow -->
+          <div class="bg-gradient-to-r from-teal-50 to-cyan-50 ring-1 ring-teal-200 rounded-xl p-4">
+            <div class="flex items-center gap-2 mb-2"><i data-lucide="trending-up" class="w-5 h-5 text-teal-700"></i><h4 class="text-[13px] font-bold text-slate-900">En Cash Flow · Tesorería</h4></div>
+            <p class="text-[11px] text-slate-700 mb-3">Egresos mensuales proyectados a 12m · incluye gratificaciones jul/dic.</p>
+            <div class="text-[11px] mb-3">Próximos 12m: <strong class="tabular">S/ 396K proyectado</strong></div>
+            <button class="w-full bg-teal-600 text-white text-[11px] font-bold py-1.5 rounded-lg flex items-center justify-center gap-1.5">Ver en /finanzas/cash-flow →</button>
+          </div>
+
+          <!-- Cross-link 3 · Contabilidad -->
+          <div class="bg-gradient-to-r from-purple-50 to-indigo-50 ring-1 ring-purple-200 rounded-xl p-4">
+            <div class="flex items-center gap-2 mb-2"><i data-lucide="bar-chart-3" class="w-5 h-5 text-purple-700"></i><h4 class="text-[13px] font-bold text-slate-900">En Contabilidad · P&L</h4></div>
+            <p class="text-[11px] text-slate-700 mb-3">Aparece como línea "Gastos de personal" en Estado de Resultados · separado por área.</p>
+            <div class="text-[11px] mb-3">Margen operativo: <strong>impacto ~23% en costo</strong></div>
+            <button class="w-full bg-purple-600 text-white text-[11px] font-bold py-1.5 rounded-lg flex items-center justify-center gap-1.5">Ver en /contabilidad → P&L →</button>
+          </div>
+
+          <!-- Cross-link 4 · Inversionistas -->
+          <div class="bg-gradient-to-r from-violet-50 to-pink-50 ring-1 ring-violet-200 rounded-xl p-4">
+            <div class="flex items-center gap-2 mb-2"><i data-lucide="briefcase" class="w-5 h-5 text-violet-700"></i><h4 class="text-[13px] font-bold text-slate-900">En Inversionistas · Salud ROI</h4></div>
+            <p class="text-[11px] text-slate-700 mb-3">El payroll impacta el margen neto · y por ende el ROI de los socios.</p>
+            <div class="text-[11px] mb-3">Score salud financiera: <strong>8.5/10 saludable</strong></div>
+            <button class="w-full bg-violet-600 text-white text-[11px] font-bold py-1.5 rounded-lg flex items-center justify-center gap-1.5">Ver en /inversionistas → Salud →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sección 4 · Exports -->
+      <div class="mt-5 flex gap-2 border-t border-slate-200 pt-4">
+        <button class="bg-indigo-600 text-white text-[12px] font-bold px-4 py-2 rounded-lg flex items-center gap-1.5"><i data-lucide="file-spreadsheet" class="w-3.5 h-3.5"></i>Export CSV payroll</button>
+        <button class="bg-white border border-indigo-300 text-indigo-700 text-[12px] font-bold px-4 py-2 rounded-lg flex items-center gap-1.5"><i data-lucide="file-text" class="w-3.5 h-3.5"></i>Export PDF ejecutivo</button>
+        <button class="bg-white border border-slate-300 text-slate-700 text-[12px] font-bold px-4 py-2 rounded-lg flex items-center gap-1.5"><i data-lucide="file-bar-chart" class="w-3.5 h-3.5"></i>Reporte por área</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ACTO 5 · Baja de empleado · wizard 4 pasos -->
+<section id="a5" class="my-12">
+  <div class="max-w-6xl mx-auto">
+    <div class="bg-gradient-to-r from-rose-100 to-rose-50 ring-1 ring-rose-200 rounded-3xl p-5 mb-6">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 bg-rose-600 rounded-2xl flex items-center justify-center text-white font-bold text-xl">5</div>
+        <div><h2 class="text-lg font-bold text-rose-900">Baja de empleado · wizard 4 pasos</h2><p class="text-[11px] text-rose-700">Liquidación automática · 7 tipos de baja · genera boleta especial + carta + asiento</p></div>
+      </div>
+    </div>
+
+    <div class="bg-slate-900/30 rounded-2xl p-8 flex items-center justify-center min-h-[600px]">
+      <div class="bg-white rounded-2xl ring-1 ring-rose-200 w-full max-w-2xl overflow-hidden">
+        <!-- Header con stepper -->
+        <div class="px-5 py-4 border-b border-slate-200">
+          <div class="flex items-center justify-between mb-3">
+            <div class="flex items-center gap-3"><div class="w-9 h-9 bg-rose-100 rounded-xl flex items-center justify-center"><i data-lucide="user-minus" class="w-4 h-4 text-rose-600"></i></div><div><h3 class="text-[14px] font-bold text-slate-900">Baja de empleado · Ana Rodríguez</h3><p class="text-[11px] text-slate-500">Liquidación automática · 4 pasos</p></div></div>
+            <button class="text-slate-400"><i data-lucide="x" class="w-5 h-5"></i></button>
+          </div>
+          <!-- Stepper -->
+          <div class="flex items-center gap-2">
+            <div class="flex items-center gap-1.5"><div class="w-6 h-6 bg-emerald-600 rounded-full flex items-center justify-center text-white text-[10px] font-bold">✓</div><span class="text-[11px] font-bold text-emerald-700">Motivo</span></div>
+            <div class="flex-1 h-0.5 bg-emerald-500"></div>
+            <div class="flex items-center gap-1.5"><div class="w-6 h-6 bg-rose-600 rounded-full flex items-center justify-center text-white text-[10px] font-bold">2</div><span class="text-[11px] font-bold text-rose-700">Liquidación</span></div>
+            <div class="flex-1 h-0.5 bg-slate-200"></div>
+            <div class="flex items-center gap-1.5"><div class="w-6 h-6 bg-slate-200 rounded-full flex items-center justify-center text-slate-500 text-[10px] font-bold">3</div><span class="text-[11px] text-slate-500">Revisión</span></div>
+            <div class="flex-1 h-0.5 bg-slate-200"></div>
+            <div class="flex items-center gap-1.5"><div class="w-6 h-6 bg-slate-200 rounded-full flex items-center justify-center text-slate-500 text-[10px] font-bold">4</div><span class="text-[11px] text-slate-500">Confirmar</span></div>
+          </div>
+        </div>
+
+        <!-- Paso 2 activo · Liquidación automática -->
+        <div class="px-5 py-4 space-y-3">
+          <div class="bg-rose-50 border border-rose-200 rounded-lg p-3 text-[11px] text-rose-900"><strong>Motivo seleccionado:</strong> Renuncia voluntaria · fecha efectiva: 31 mayo 2026</div>
+
+          <h4 class="text-[12px] font-bold text-slate-900">Liquidación automática · cálculo sistema</h4>
+          <table class="w-full text-[12px]">
+            <tbody>
+              <tr class="border-b border-slate-100"><td class="py-1.5">Sueldo proporcional (31 días)</td><td class="text-right tabular font-bold text-emerald-700">+ S/ 4,500.00</td></tr>
+              <tr class="border-b border-slate-100"><td class="py-1.5">Vacaciones no gozadas (10 días)</td><td class="text-right tabular font-bold text-emerald-700">+ S/ 1,500.00</td></tr>
+              <tr class="border-b border-slate-100"><td class="py-1.5">Gratificación julio proporcional (5/6 = 83%)</td><td class="text-right tabular font-bold text-emerald-700">+ S/ 3,750.00</td></tr>
+              <tr class="border-b border-slate-100"><td class="py-1.5">Comisiones pendientes mayo</td><td class="text-right tabular font-bold text-emerald-700">+ S/ 1,600.00</td></tr>
+              <tr class="border-b border-slate-100"><td class="py-1.5 text-rose-700">Adelantos pendientes a descontar</td><td class="text-right tabular font-bold text-rose-700">- S/ 200.00</td></tr>
+              <tr class="border-b border-slate-100"><td class="py-1.5 text-slate-500">Indemnización despido</td><td class="text-right tabular text-slate-500">S/ 0 (renuncia · no aplica)</td></tr>
+            </tbody>
+            <tfoot><tr class="border-t-2 border-slate-300 font-bold"><td class="py-3">NETO A LIQUIDAR</td><td class="text-right tabular text-emerald-900 text-[16px]">S/ 11,150.00</td></tr></tfoot>
+          </table>
+
+          <div class="bg-amber-50 border border-amber-200 rounded-lg p-3 text-[11px] text-amber-900">
+            <i data-lucide="info" class="w-3.5 h-3.5 inline"></i> En el siguiente paso podés <strong>ajustar montos manualmente</strong> con justificación si hay acuerdos especiales (ej. bonificación de salida).
+          </div>
+        </div>
+
+        <div class="px-5 py-3 border-t border-slate-200 bg-slate-50 flex items-center justify-between">
+          <button class="text-[11px] text-slate-600 font-medium flex items-center gap-1"><i data-lucide="chevron-left" class="w-3 h-3"></i>Atrás</button>
+          <button class="bg-rose-600 hover:bg-rose-700 text-white text-[12px] font-bold px-4 py-1.5 rounded-lg flex items-center gap-1.5">Continuar a revisión<i data-lucide="chevron-right" class="w-3.5 h-3.5"></i></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tipos de baja disponibles -->
+    <div class="mt-6 bg-white rounded-2xl ring-1 ring-slate-200 p-4">
+      <h3 class="text-[12px] font-bold text-slate-900 mb-3">7 tipos de baja soportados</h3>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-2 text-[11px]">
+        <div class="bg-slate-50 rounded p-2"><strong>Renuncia voluntaria</strong> · empleado decide · sin indemnización</div>
+        <div class="bg-slate-50 rounded p-2"><strong>Despido justificado</strong> · falta grave · sin indemnización</div>
+        <div class="bg-slate-50 rounded p-2"><strong>Despido arbitrario</strong> · con indemnización legal</div>
+        <div class="bg-slate-50 rounded p-2"><strong>Término contrato plazo fijo</strong> · cumplimiento natural</div>
+        <div class="bg-slate-50 rounded p-2"><strong>Jubilación</strong> · edad/aportes · sistema previsional</div>
+        <div class="bg-slate-50 rounded p-2"><strong>Cese acuerdo mutuo</strong> · ambas partes · puede tener indemnización pactada</div>
+        <div class="bg-slate-50 rounded p-2"><strong>Fallecimiento</strong> · liquidación a herederos</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ACTO 6 · Histórico salarial -->
+<section id="a6" class="my-12">
+  <div class="max-w-6xl mx-auto">
+    <div class="bg-gradient-to-r from-teal-100 to-teal-50 ring-1 ring-teal-200 rounded-3xl p-5 mb-6">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 bg-teal-600 rounded-2xl flex items-center justify-center text-white font-bold text-xl">6</div>
+        <div><h2 class="text-lg font-bold text-teal-900">Histórico salarial · drill desde Ficha 360</h2><p class="text-[11px] text-teal-700">Timeline de cambios · auditoría aumentos · ajustes salariales con motivo</p></div>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-2xl ring-1 ring-slate-200 overflow-hidden p-6">
+      <div class="flex items-center justify-between mb-4">
+        <div><h3 class="text-[13px] font-bold text-slate-900">Ana Rodríguez · Historial de salario</h3><p class="text-[11px] text-slate-500">3 cambios registrados · sueldo actual S/ 4,500 (+18% desde alta)</p></div>
+        <button class="bg-teal-600 text-white text-[12px] font-bold px-3 py-1.5 rounded-lg flex items-center gap-1.5"><i data-lucide="edit-2" class="w-3.5 h-3.5"></i>Ajustar salario</button>
+      </div>
+
+      <!-- Timeline -->
+      <div class="space-y-3">
+        <div class="flex gap-3">
+          <div class="flex flex-col items-center">
+            <div class="w-3 h-3 bg-emerald-500 rounded-full ring-4 ring-emerald-100"></div>
+            <div class="w-0.5 flex-1 bg-slate-200 mt-2"></div>
+          </div>
+          <div class="flex-1 pb-3">
+            <div class="flex items-center gap-2 mb-1">
+              <span class="text-[13px] font-bold text-slate-900">S/ 4,500</span>
+              <span class="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-1.5 py-0.5 rounded">VIGENTE</span>
+              <span class="text-[10px] text-emerald-700">+12.5% vs anterior</span>
+            </div>
+            <div class="text-[11px] text-slate-600">Motivo: <strong>aumento por desempeño</strong> · aprobado por José LP · efectivo 1 ene 2026</div>
+            <div class="text-[10px] text-slate-500 mt-1">Notas: "Mejor performance Q4 2025 · ROI ventas +15%"</div>
+          </div>
+        </div>
+        <div class="flex gap-3">
+          <div class="flex flex-col items-center">
+            <div class="w-3 h-3 bg-sky-500 rounded-full ring-4 ring-sky-100"></div>
+            <div class="w-0.5 flex-1 bg-slate-200 mt-2"></div>
+          </div>
+          <div class="flex-1 pb-3">
+            <div class="flex items-center gap-2 mb-1"><span class="text-[13px] font-bold text-slate-700">S/ 4,000</span><span class="text-[10px] text-sky-700">+5% vs anterior</span></div>
+            <div class="text-[11px] text-slate-600">Motivo: <strong>aumento periódico anual</strong> · aprobado por José LP · efectivo 1 ene 2025</div>
+          </div>
+        </div>
+        <div class="flex gap-3">
+          <div class="flex flex-col items-center">
+            <div class="w-3 h-3 bg-slate-400 rounded-full ring-4 ring-slate-100"></div>
+          </div>
+          <div class="flex-1">
+            <div class="flex items-center gap-2 mb-1"><span class="text-[13px] font-bold text-slate-700">S/ 3,800</span><span class="bg-slate-100 text-slate-600 text-[10px] font-bold px-1.5 py-0.5 rounded">SALARIO ALTA</span></div>
+            <div class="text-[11px] text-slate-600">Alta como vendedora · efectivo 15 mar 2024 · contrato indefinido</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-5 pt-4 border-t border-slate-200 grid grid-cols-3 gap-3 text-[12px]">
+        <div><div class="text-[10px] uppercase font-bold text-slate-500">SUELDO ACTUAL</div><div class="font-bold tabular text-teal-700">S/ 4,500</div></div>
+        <div><div class="text-[10px] uppercase font-bold text-slate-500">VARIACIÓN TOTAL</div><div class="font-bold tabular text-emerald-700">+18.4%</div></div>
+        <div><div class="text-[10px] uppercase font-bold text-slate-500">AÑOS EN EMPRESA</div><div class="font-bold tabular text-slate-700">2.2 años</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ACTO 7 · 4 esquemas de incentivo · ejemplos detallados -->
+<section id="a7" class="my-12">
+  <div class="max-w-6xl mx-auto">
+    <div class="bg-gradient-to-r from-violet-100 to-pink-50 ring-1 ring-violet-200 rounded-3xl p-5 mb-6">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 bg-violet-600 rounded-2xl flex items-center justify-center text-white font-bold text-xl">7</div>
+        <div><h2 class="text-lg font-bold text-violet-900">4 tipos de esquema · ejemplos visuales con configuración</h2><p class="text-[11px] text-violet-700">Casos reales para Vita Skin · cómo se configura cada uno</p></div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <!-- Tipo A · Comisión -->
+      <div class="bg-white rounded-2xl ring-1 ring-emerald-200 p-5">
+        <div class="flex items-center gap-2 mb-3"><div class="w-8 h-8 bg-emerald-100 rounded-lg flex items-center justify-center text-emerald-700 font-bold text-[14px]">A</div><h3 class="text-[14px] font-bold text-slate-900">TIPO A · Comisión sobre ventas</h3></div>
+        <p class="text-[11px] text-slate-600 mb-3">Vendedor recibe % sobre lo facturado. Puede ser lineal (% fijo) o escalonado (% sube con monto).</p>
+        <div class="bg-emerald-50 rounded-lg p-3 text-[11px] mb-3">
+          <strong class="text-emerald-900">Ejemplo: Comisión escalonada</strong>
+          <div class="mt-2 space-y-1 text-[10px]">
+            <div>· Hasta S/ 50K: 2% comisión</div>
+            <div>· S/ 50-100K: 4% comisión</div>
+            <div>· Sobre 100K: 6% comisión</div>
+          </div>
+        </div>
+        <div class="text-[10px] text-slate-600">Pull data de: <code class="bg-slate-100 px-1 rounded">/ventas</code> · filtro <code class="bg-slate-100 px-1 rounded">vendedorId === uid</code></div>
+      </div>
+
+      <!-- Tipo B · Bono meta -->
+      <div class="bg-white rounded-2xl ring-1 ring-sky-200 p-5">
+        <div class="flex items-center gap-2 mb-3"><div class="w-8 h-8 bg-sky-100 rounded-lg flex items-center justify-center text-sky-700 font-bold text-[14px]">B</div><h3 class="text-[14px] font-bold text-slate-900">TIPO B · Bono por meta</h3></div>
+        <p class="text-[11px] text-slate-600 mb-3">Equipos logística/compras reciben bono si cumplen métrica grupal del período.</p>
+        <div class="bg-sky-50 rounded-lg p-3 text-[11px] mb-3">
+          <strong class="text-sky-900">Ejemplo: OC en tiempo</strong>
+          <div class="mt-2 space-y-1 text-[10px]">
+            <div>· Métrica: OC recibidas a tiempo · meta &gt;95%</div>
+            <div>· Bono base: S/ 800 dividido equipo</div>
+            <div>· Bonus: +50% si &gt;98%</div>
+          </div>
+        </div>
+        <div class="text-[10px] text-slate-600">Pull data de: <code class="bg-slate-100 px-1 rounded">/ordenesCompra</code> · estado · fechaRecepcion vs esperada</div>
+      </div>
+
+      <!-- Tipo C · Bono KPI -->
+      <div class="bg-white rounded-2xl ring-1 ring-teal-200 p-5">
+        <div class="flex items-center gap-2 mb-3"><div class="w-8 h-8 bg-teal-100 rounded-lg flex items-center justify-center text-teal-700 font-bold text-[14px]">C</div><h3 class="text-[14px] font-bold text-slate-900">TIPO C · Bono por KPI</h3></div>
+        <p class="text-[11px] text-slate-600 mb-3">Roles funcionales (finanzas · gerente) reciben bono si KPI específico se mantiene saludable.</p>
+        <div class="bg-teal-50 rounded-lg p-3 text-[11px] mb-3">
+          <strong class="text-teal-900">Ejemplo: Cartera vencida &lt; 5%</strong>
+          <div class="mt-2 space-y-1 text-[10px]">
+            <div>· Aplica: rol finanzas</div>
+            <div>· Métrica: % cartera vencida vs total</div>
+            <div>· Bono mensual si cumple: S/ 500</div>
+          </div>
+        </div>
+        <div class="text-[10px] text-slate-600">Pull data de: <code class="bg-slate-100 px-1 rounded">/finanzas/cuentasCorrientes</code> · aging buckets</div>
+      </div>
+
+      <!-- Tipo D · Bono fijo -->
+      <div class="bg-white rounded-2xl ring-1 ring-amber-200 p-5">
+        <div class="flex items-center gap-2 mb-3"><div class="w-8 h-8 bg-amber-100 rounded-lg flex items-center justify-center text-amber-700 font-bold text-[14px]">D</div><h3 class="text-[14px] font-bold text-slate-900">TIPO D · Bono fijo</h3></div>
+        <p class="text-[11px] text-slate-600 mb-3">Pago puntual o recurrente sin métrica calculada. Bono navidad · bono performance anual · etc.</p>
+        <div class="bg-amber-50 rounded-lg p-3 text-[11px] mb-3">
+          <strong class="text-amber-900">Ejemplo: Bono navidad gerencia</strong>
+          <div class="mt-2 space-y-1 text-[10px]">
+            <div>· Aplica: usuarios específicos (gerente)</div>
+            <div>· Monto: S/ 5,000</div>
+            <div>· Frecuencia: anual · diciembre</div>
+          </div>
+        </div>
+        <div class="text-[10px] text-slate-600">No requiere pull · monto fijo configurado</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ACTO 8 · Diagrama 360 -->
+<section id="a8" class="my-12">
+  <div class="max-w-6xl mx-auto">
+    <div class="bg-gradient-to-r from-slate-100 to-slate-50 ring-1 ring-slate-200 rounded-3xl p-5 mb-6">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 bg-slate-700 rounded-2xl flex items-center justify-center text-white font-bold text-xl">8</div>
+        <div><h2 class="text-lg font-bold text-slate-900">Diagrama 360° · cómo planilla se conecta con todo el sistema</h2><p class="text-[11px] text-slate-700">INPUTS · OUTPUTS · cross-flows entre módulos</p></div>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-2xl ring-1 ring-slate-200 p-6">
+      <div class="bg-slate-50 rounded-xl p-6 font-mono text-[10px] text-slate-700 leading-relaxed">
+        <pre>
+                      ┌────────────────────┐
+                      │   /USUARIOS        │
+                      │  (directorio       │ ← personas + roles + datosLaborales
+                      │   personas)        │
+                      └────────┬───────────┘
+                               │
+                               │ rol = planilla
+                               ▼
+              ┌──────────────────────────────────┐
+              │   /PLANILLA · operación mensual  │
+              │ ┌──────────────────────────────┐ │      ┌──────────────────────┐
+              │ │ Boletas (incluye incentivos) │ │ ◄─── │ /VENTAS              │
+              │ │ Adelantos                    │ │      │ → comisiones TIPO A  │
+              │ │ Incentivos (4 tipos)         │ │      └──────────────────────┘
+              │ │ Vacaciones & Gratificaciones │ │
+              │ │ Análisis & Cost Analytics    │ │      ┌──────────────────────┐
+              │ │ Histórico salarial           │ │ ◄─── │ /ORDENES-COMPRA      │
+              │ │ Baja de empleado             │ │      │ → bonos meta TIPO B  │
+              │ └──────────────────────────────┘ │      └──────────────────────┘
+              └────┬─────────┬─────────┬─────────┘
+                   │         │         │                ┌──────────────────────┐
+                   ▼         ▼         ▼          ◄─── │ /FINANZAS/CC         │
+          ┌──────────┐ ┌─────────┐ ┌──────────────┐    │ → KPI cartera TIPO C │
+          │ /GASTOS  │ │ /FINAN- │ │/CONTABILIDAD │    └──────────────────────┘
+          │ gasto_   │ │ ZAS     │ │ P&L · gastos │
+          │ planilla │ │ cashflow│ │ de personal  │    ┌──────────────────────┐
+          │ por área │ │ egresos │ │ por área     │ ◄─ │ /ENVIOS              │
+          └──────────┘ └─────────┘ └──────────────┘    │ → entregas a tiempo  │
+                              │                        └──────────────────────┘
+                              ▼
+                     ┌─────────────────┐
+                     │ /INVERSIONISTAS │
+                     │ impacto ROI +   │
+                     │ margen + salud  │
+                     └─────────────────┘
+        </pre>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-5">
+        <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-4">
+          <h4 class="text-[12px] font-bold text-emerald-900 mb-2 flex items-center gap-1"><i data-lucide="arrow-down" class="w-3.5 h-3.5"></i>INPUTS a /planilla</h4>
+          <ul class="text-[11px] text-slate-700 space-y-1">
+            <li>· <code class="bg-emerald-100 px-1 rounded text-[10px]">/users</code> + <code class="bg-emerald-100 px-1 rounded text-[10px]">datosLaborales</code> · quién está</li>
+            <li>· <code class="bg-emerald-100 px-1 rounded text-[10px]">/ventas</code> · comisiones TIPO A</li>
+            <li>· <code class="bg-emerald-100 px-1 rounded text-[10px]">/ordenesCompra</code> · bonos meta TIPO B</li>
+            <li>· <code class="bg-emerald-100 px-1 rounded text-[10px]">/finanzas/cc</code> · KPI cartera TIPO C</li>
+            <li>· <code class="bg-emerald-100 px-1 rounded text-[10px]">/envios</code> · entregas a tiempo</li>
+          </ul>
+        </div>
+        <div class="bg-sky-50 border border-sky-200 rounded-xl p-4">
+          <h4 class="text-[12px] font-bold text-sky-900 mb-2 flex items-center gap-1"><i data-lucide="arrow-up" class="w-3.5 h-3.5"></i>OUTPUTS de /planilla</h4>
+          <ul class="text-[11px] text-slate-700 space-y-1">
+            <li>· <code class="bg-sky-100 px-1 rounded text-[10px]">/gastos</code> · cada boleta → gasto categorizado</li>
+            <li>· <code class="bg-sky-100 px-1 rounded text-[10px]">/movimientosFinancieros</code> · cada pago</li>
+            <li>· <code class="bg-sky-100 px-1 rounded text-[10px]">/audit_logs</code> · todas las acciones</li>
+            <li>· <code class="bg-sky-100 px-1 rounded text-[10px]">/historialSalarial</code> · cambios sueldos</li>
+            <li>· <code class="bg-sky-100 px-1 rounded text-[10px]">/calculosIncentivoMes</code> · cálculos</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 mt-4">
+        <h4 class="text-[12px] font-bold text-amber-900 mb-2">Principio: NO se duplica data</h4>
+        <p class="text-[11px] text-slate-700">Planilla siempre <strong>pulls fresh</strong> de los módulos cuando necesita métricas (comisiones · bonos meta). Esto garantiza consistencia · zero divergencia · y al cambiar una venta · el cálculo siguiente refleja el cambio.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Resumen final decisiones -->
+<section class="my-12">
+  <div class="max-w-6xl mx-auto bg-white rounded-2xl ring-1 ring-slate-200 p-6">
+    <h2 class="text-[16px] font-bold text-slate-900 mb-4 flex items-center gap-2"><i data-lucide="check-circle-2" class="w-5 h-5 text-sky-600"></i>10 decisiones canon · D-PLANILLA-v5.4</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-[11px]">
+      <div class="bg-sky-50 rounded p-3"><strong>D-PL1</strong> · Vita Skin NO paga CTS · solo gratificaciones (jul/dic)</div>
+      <div class="bg-sky-50 rounded p-3"><strong>D-PL2</strong> · 5 sub-tabs · Boletas · Adelantos · Incentivos · Vacaciones&Gratificaciones · Análisis</div>
+      <div class="bg-sky-50 rounded p-3"><strong>D-PL3</strong> · Sistema de incentivos con 4 tipos: comisión · bono_meta · bono_kpi · bono_fijo</div>
+      <div class="bg-sky-50 rounded p-3"><strong>D-PL4</strong> · Esquemas aplicables por rol o por usuario específico (override individual)</div>
+      <div class="bg-sky-50 rounded p-3"><strong>D-PL5</strong> · Cálculo de incentivos pulls data fresh de otros módulos · NO duplica</div>
+      <div class="bg-sky-50 rounded p-3"><strong>D-PL6</strong> · Baja de empleado · wizard 4 pasos · liquidación automática · 7 tipos</div>
+      <div class="bg-sky-50 rounded p-3"><strong>D-PL7</strong> · Histórico salarial · timeline de cambios · drill desde Ficha 360</div>
+      <div class="bg-sky-50 rounded p-3"><strong>D-PL8</strong> · Tab Análisis con cross-links 360 a Gastos · Finanzas · Contabilidad · Inversionistas</div>
+      <div class="bg-sky-50 rounded p-3"><strong>D-PL9</strong> · Cada boleta paga genera gasto en /gastos automáticamente</div>
+      <div class="bg-sky-50 rounded p-3"><strong>D-PL10</strong> · Cash flow proyecta payroll mensual + gratificaciones 12m</div>
+    </div>
+
+    <div class="mt-5 bg-emerald-50 border border-emerald-200 rounded-xl p-4">
+      <div class="text-[11px] uppercase tracking-wider font-bold text-emerald-700 mb-2">VENTAJAS vs v5.3</div>
+      <ul class="text-[12px] text-slate-700 space-y-1">
+        <li>✅ Sistema de incentivos REAL · no solo "bono manual"</li>
+        <li>✅ Ciclo de vida completo · alta + cambio + baja + liquidación</li>
+        <li>✅ Histórico salarial · auditoría aumentos · compliance</li>
+        <li>✅ Cost analytics 360° · cross-links a TODOS los módulos relevantes</li>
+        <li>✅ SIN CTS · simplificación real al negocio Vita Skin</li>
+        <li>✅ Gratificaciones automáticas julio/diciembre</li>
+        <li>✅ Cero duplicación · planilla pulls fresh · única fuente de verdad por dominio</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<footer class="text-center text-[11px] text-slate-500 pt-8 max-w-5xl mx-auto pb-12">Mockup canon v5.4 · /planilla integral · incentivos + 360 · 2026-05-26</footer>
+<script>if (window.lucide) window.lucide.createIcons();</script>
+</body>
+</html>
