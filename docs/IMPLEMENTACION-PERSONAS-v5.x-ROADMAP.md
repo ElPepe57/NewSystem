@@ -8,6 +8,127 @@
 
 ---
 
+## 🎯 CANON DE EJECUCIÓN · OBLIGATORIO · LEER ANTES DE CADA FASE
+
+> **Este roadmap se ejecuta bajo canon v9.0 + canon de cobertura de rework (CLAUDE.md). Cada fase debe cumplir TODOS los puntos abajo antes de cerrarse · cero excepciones · cero atajos.**
+
+### Regla 1 · PIXEL-PERFECT estricto (canon v9.0 · M1-M5)
+
+Cada componente que tiene un mockup HTML correspondiente debe ser **copy-paste literal** del mockup · NO reescritura desde memoria.
+
+**Permitidas solo:**
+- Conversión `class` → `className` (sintaxis JSX)
+- Conversión `tabular` (custom mockup) → `tabular-nums` (Tailwind canon)
+- Conversión `<i data-lucide="X">` → import `<X />` de lucide-react
+- Variables dinámicas (ej. `{kpi.valor}` reemplaza `0` hardcoded)
+
+**PROHIBIDO sin aprobación explícita:**
+- ❌ Agregar `tracking-tight` no presente en el mockup
+- ❌ Cambiar `rounded-lg` por `rounded-xl`
+- ❌ Cambiar `font-medium` por `font-semibold`
+- ❌ Agregar wrappers extra alrededor de chevrons / iconos
+- ❌ Agregar `md:` breakpoints no especificados
+- ❌ Cualquier modificación de className "creep" no autorizada
+
+### Regla 2 · COBERTURA TOTAL del módulo (canon de cobertura)
+
+Cuando una fase entra en rework canon · **TODAS las superficies** del módulo son entregable obligatorio:
+
+| Superficie | ¿Cubierta? |
+|---|---|
+| Shell de la página (header · breadcrumb · tabs) | ✅ Obligatorio |
+| Sub-tabs (vistas alternativas) | ✅ Obligatorio |
+| **Modales** (Nuevo X · Editar X · Detalle X · Confirmar X · etc) | ✅ Obligatorio |
+| **Forms de creación/edición** | ✅ Obligatorio |
+| **Cards** del listado · cards drill · cards informativos | ✅ Obligatorio |
+| **Banners contextuales** (pendientes · alertas · cross-links) | ✅ Obligatorio |
+| **Empty states** (sin data · primer uso) | ✅ Obligatorio |
+| **Loading states** (skeleton · spinner) | ✅ Obligatorio |
+| **Error states** (timeout · permiso denegado · 404) | ✅ Obligatorio |
+| **Mobile responsive** (todos los flujos en 375px) | ✅ Obligatorio |
+
+**PROHIBIDO:**
+- ❌ Cerrar fase dejando algún modal con look-and-feel legacy
+- ❌ "Funciona estructuralmente · luego ajusto el polish" · no se acepta
+- ❌ Saltar cards · empty states · loading states · porque "ya casi funciona"
+- ❌ Diferir mobile responsive a "próxima sesión"
+
+### Regla 3 · VALIDACIÓN screenshot side-by-side (canon v9.0 · M4)
+
+Antes de marcar una fase "completa":
+
+1. Renderizar localhost con la fase implementada
+2. Abrir el mockup HTML correspondiente en otra pestaña
+3. **Comparar visualmente lado a lado** elemento por elemento
+4. Documentar cualquier desviación encontrada
+5. Solo declarar "fase completa" si pasa la comparación visual
+
+`tsc 0 errores + vite build OK` valida que **compila**. NO valida que **se ve igual**.
+
+### Regla 4 · AUDITAR COMPONENTES SHARED antes de usarlos
+
+Cuando una fase usa un componente shared (ej. `LineaDropdown` · `Button` · `Modal`):
+
+- ✅ Abrir el componente shared y compararlo con el mockup ANTES de usarlo
+- ✅ Si no matchea el mockup · refactor del shared O prop `variant="canon-v5.4"` opt-in
+- ❌ NO usarlo con su estilo legacy "porque ya estaba"
+
+### Regla 5 · CUANDO USER DETECTA DESVIACIÓN · auditar el RESTO
+
+Si durante UAT el user detecta una desviación visual:
+
+1. Arreglar ese punto específico
+2. **Auditar los demás componentes de la misma fase**
+3. Reportar al user qué otras desviaciones existen
+4. NO esperar a que el user detecte una por una
+
+---
+
+## 📋 CHECKLIST UNIVERSAL POR FASE · obligatorio
+
+Antes de hacer commit + push de cualquier fase:
+
+### ⬜ COMPILACIÓN
+- [ ] `npx tsc --noEmit` · 0 errores
+- [ ] `npm run build` · exit 0 · `vite build` exitoso
+- [ ] Cero warnings nuevos (los pre-existentes de bundle size se mantienen)
+
+### ⬜ PIXEL-PERFECT (canon v9.0)
+- [ ] Cada className es copy-paste literal del mockup HTML
+- [ ] Cero utilities agregadas sin aprobación
+- [ ] Iconos lucide convertidos correctamente
+- [ ] Tabular-nums en todos los números
+- [ ] Componentes shared usados fueron auditados contra mockup
+- [ ] Screenshot side-by-side mockup vs render hecho · sin desviaciones
+
+### ⬜ COBERTURA TOTAL
+- [ ] Shell de la página actualizado
+- [ ] TODOS los sub-tabs implementados (no quedó "TODO" en ningún tab)
+- [ ] TODOS los modales canon FormModalV2 (no Modal base legacy)
+- [ ] TODOS los forms migrados
+- [ ] TODOS los cards canon (gradient + ring · tabular-nums · etc)
+- [ ] TODOS los banners contextuales (pendientes · alertas · cross-links)
+- [ ] Empty state diseñado para listas vacías
+- [ ] Loading state (skeleton o spinner) en carga de datos
+- [ ] Error state si una operación falla
+- [ ] Mobile 375px responsive verificado
+
+### ⬜ DEUDAS DECLARADAS
+- [ ] Si quedó alguna deuda · declararla EXPLÍCITAMENTE en commit
+- [ ] No declarar "luego lo arreglo" sin documentar exactamente qué falta
+
+### ⬜ FUNCIONALIDAD
+- [ ] Smoke test manual del feature de la fase pasa
+- [ ] Edge cases verificados (sin data · usuario sin permiso · etc)
+- [ ] Cross-links funcionan (navigate con query params correctos)
+
+### ⬜ GIT
+- [ ] Commit canon con mensaje detallado de TODOS los cambios
+- [ ] Push a `origin/main`
+- [ ] Tasks correspondientes marcadas como completed
+
+---
+
 ## 📊 Resumen ejecutivo · 10 fases
 
 | Fase | Tema | Horas | Riesgo |
@@ -85,6 +206,8 @@ git checkout -b chk5.PERSONAS-v5x-impl
 
 **Objetivo:** agregar banner cross-link sutil entre header y KPI strip · visible solo para admin/gerente.
 
+> 🎨 **PIXEL-PERFECT obligatorio (canon v9.0):** referencia mockup `docs/mockups/inversionistas-v5.3-tweaks.html`. Copy-paste literal de classNames del banner. Color signature violet. Cross-link → `/usuarios?filtro=Socio`.
+
 ### 1.1 · Modificar `src/pages/Inversionistas/Inversionistas.tsx` (15 min)
 
 **Cambio:** insertar componente `BannerCrossLinkAdmin` entre `<PageHeader>` y `<KpiStripCanon>`.
@@ -138,6 +261,8 @@ git push origin main
 ## FASE 2 · `/usuarios` v5.3 · refactor a 3 tabs + chips filtro (2h)
 
 **Objetivo:** eliminar tabs Socios y Planilla · reemplazar por filtros chip multi-rol con banner cross-link dinámico.
+
+> 🎨 **PIXEL-PERFECT obligatorio (canon v9.0):** referencias mockups `docs/mockups/usuarios-v5.3-hub.html` (shell + tab Directorio) + `docs/mockups/usuarios-v5.3-tabs-completas.html` (tabs Accesos + Configuración). Color signature purple. Copy-paste literal de chips · cards · banners · tabla accesos · cards de configuración. **Eliminar TabSocios.tsx y TabPlanilla.tsx y TabEmpleados.tsx legacy** · NO dejar `{false && ...}` ni dead code.
 
 ### 2.1 · Modificar `src/pages/Usuarios/Usuarios.tsx` · state (15 min)
 
@@ -590,6 +715,14 @@ git push origin main
 
 **Objetivo:** refactor completo de la página /planilla a canon v5.2 banking-grade sky.
 
+> 🎨 **PIXEL-PERFECT obligatorio (canon v9.0 + cobertura total):** referencia mockup `docs/mockups/planilla-v5.4-completo.html`. Color signature sky. Copy-paste literal de:
+> - Shell (header sky · KPI strip 5 cards gradient + ring · banner estado mes)
+> - **TODOS** los 5 tabs (Boletas · Adelantos · Incentivos · Vacaciones+Gratificaciones · Análisis y Reportes)
+> - **TODOS** los cards (BoletaCard · AdelantoCard · EsquemaIncentivoCard · CalculoIncentivoMesCard · VacacionCard · GratificacionCard · 4 cards Análisis)
+> - **Banners contextuales** (Adelantos pendientes rose · Bonos pendientes amber · Cierre mes pendiente rose · Borradores wizard)
+> - Empty states + Loading states + Error states · todos con CTA accionable (canon N9 quick-start cards)
+> - Mobile responsive · tabs scroll-x · cards stack en 375px
+
 ### 4.1 · Refactor `src/pages/Planilla/Planilla.tsx` · shell completo (45 min)
 
 - Reemplazar `<PageHeader>` simple por shell banking-grade canon F1
@@ -668,6 +801,17 @@ git push origin main
 ## FASE 5 · `/planilla` v5.4 · 15 modales canon FormModalV2 (6h)
 
 **Objetivo:** todos los modales internos del módulo canon banking-grade sky.
+
+> 🎨 **PIXEL-PERFECT obligatorio (canon v9.0 + cobertura total):** referencia mockup `docs/mockups/planilla-v5.3-modales-internos.html` (10 modales base) + `planilla-v5.4-completo.html` (modales adicionales v5.4: WizardBajaEmpleado · AjustarSalario · ProcesarGratificacion · NuevoEsquemaIncentivo wizard 3 pasos).
+>
+> **Reglas estrictas:**
+> - Todos los modales usan `FormModalV2` con `color="sky"` (signature Planilla)
+> - Wizards multi-paso DEBEN tener `BorradorWizard` integrado (canon Borrador + Descartar 2026-05-07): NuevoEsquemaIncentivo · WizardBajaEmpleado · GenerarBoletas
+> - Copy-paste literal de classNames del mockup · NO reescribir desde memoria
+> - Cada modal debe tener: header sky · cuerpo · footer con primary sky + cancelar neutral
+> - Validaciones inline (campos requeridos · formato · límites)
+> - Loading state durante submit (botón disabled + spinner)
+> - Error state si submit falla (mensaje claro · retry)
 
 ### 5.1 · GenerarBoletasModal · CTA principal (30 min)
 
@@ -924,6 +1068,8 @@ git push origin main
 ## FASE 8 · `/usuarios` ajuste · Histórico salarial en Ficha 360 (1h)
 
 **Objetivo:** mostrar histórico salarial en Ficha 360 modal · agregar acción "Ajustar salario".
+
+> 🎨 **PIXEL-PERFECT obligatorio (canon v9.0):** referencia sección "Ficha 360" en `docs/mockups/usuarios-v5.3-tabs-completas.html` + `planilla-v5.4-completo.html` (AjustarSalarioModal). Timeline histórico con dots indigo (variaciones) + amber (ajustes excepcionales). Modal AjustarSalario canon FormModalV2 con color signature purple (es modal de /usuarios) pero el dato afecta planilla · cross-link sky al final.
 
 ### 8.1 · Modificar `Ficha360Modal.tsx` · tab Sub-perfiles (30 min)
 
@@ -1242,5 +1388,218 @@ Cada fase está completa cuando:
 
 ---
 
+## 📋 CHECKLIST DE VALIDACIÓN POR SUPERFICIE · pixel-perfect obligatorio
+
+> **Toda superficie listada abajo es entregable obligatorio. Mockup correspondiente debe ser implementado pixel-perfect (canon v9.0 · M1-M5). Cero superficies legacy al cerrar la fase.**
+
+### 📦 MÓDULO INVERSIONISTAS · mockup `inversionistas-v5.3-tweaks.html`
+
+#### Shell (Fase 1)
+- [ ] Header canon (breadcrumb · h1 violet · subtítulo · acciones)
+- [ ] KPI strip (Capital · Aportes · Retornos · ROI · Salud) · gradient + ring violet · tabular-nums
+- [ ] Banner cross-link sutil → Usuarios (filtro chip Socio)
+- [ ] Tabs: Resumen · Socios · Movimientos · Aportes · Distribuciones · Salud
+
+#### Cards
+- [ ] SocioCard (avatar · nombre · % participación · capital · ROI personal)
+- [ ] MovimientoCard (tipo · monto · fecha · estado)
+- [ ] AporteCard (socio · monto · fecha · razón)
+- [ ] DistribucionCard (período · monto total · estado)
+
+#### Modales (FormModalV2 violet)
+- [ ] NuevoSocioModal
+- [ ] EditarSocioModal
+- [ ] RegistrarAporteModal
+- [ ] RegistrarDistribucionModal
+- [ ] DetalleSocioModal
+
+#### Estados
+- [ ] Empty state (sin socios · primer uso)
+- [ ] Loading state (skeleton cards)
+- [ ] Error state (timeout · permiso)
+- [ ] Mobile 375px responsive · sidebar colapsable
+
+---
+
+### 👥 MÓDULO USUARIOS · mockups `usuarios-v5.3-hub.html` + `usuarios-v5.3-tabs-completas.html`
+
+#### Shell (Fase 2)
+- [ ] Header canon (breadcrumb · h1 purple · subtítulo · acciones primary purple)
+- [ ] KPI strip (Total · Activos · Socios · Empleados · Pendientes) · gradient + ring purple
+- [ ] Filtro chips por rol (Todos · Admin · Socios · Empleados · Clientes · Proveedores)
+- [ ] **3 tabs** (eliminados Socios + Planilla legacy)
+  - [ ] Tab Directorio
+  - [ ] Tab Accesos
+  - [ ] Tab Configuración
+
+#### Cards (Tab Directorio)
+- [ ] UserCard universal (avatar · nombre · email · multi-rol badges · estado)
+- [ ] Chips multi-rol clickeables (Admin badge purple · Socio violet · Empleado sky · etc)
+- [ ] Banner cross-link dinámico (cuando filtro = Socio → "Ver Inversionistas")
+- [ ] Banner cross-link dinámico (cuando filtro = Empleado → "Ver Planilla")
+
+#### Tab Accesos
+- [ ] Tabla de roles asignados por usuario
+- [ ] Filtros por rol específico
+- [ ] Card de permisos por rol (catálogo PERMISOS)
+
+#### Tab Configuración
+- [ ] Sección "Invitaciones pendientes" (con Cloud Functions Turnstile)
+- [ ] Sección "Plantillas de rol" (admin/socio/empleado/cliente · permisos heredables)
+- [ ] Sección "Auditoría de accesos" (último login · sesiones activas)
+
+#### Modales (FormModalV2 purple)
+- [ ] NuevoUsuarioModal (multi-rol selector)
+- [ ] EditarUsuarioModal
+- [ ] InvitarUsuarioModal (envía email Resend + Turnstile)
+- [ ] AsignarRolesModal (multi-select roles + permisos derivados)
+- [ ] DesactivarUsuarioModal (confirm + razón)
+- [ ] **Ficha360Modal** extendido con:
+  - [ ] Sub-perfil datosLaborales (si rol = Empleado)
+  - [ ] Sub-perfil datosSocio (si rol = Socio)
+  - [ ] **HistorialSalarialTimeline** (si rol = Empleado · Fase 8)
+  - [ ] Botón "Ajustar salario" → AjustarSalarioModal
+
+#### Estados
+- [ ] Empty state (sin usuarios · invitar primer usuario)
+- [ ] Loading state (skeleton tabla)
+- [ ] Error state (sin permisos · admin-only secciones)
+- [ ] Mobile 375px responsive · chips scroll horizontal
+
+---
+
+### 💰 MÓDULO PLANILLA · mockups `planilla-v5.4-completo.html` + `planilla-v5.3-modales-internos.html`
+
+#### Shell (Fase 4)
+- [ ] Header canon (breadcrumb · h1 sky · subtítulo · acciones · estado mes)
+- [ ] KPI strip mes actual (Empleados activos · Costo total · Promedio · Pendientes pago · Estado cierre) · gradient + ring sky
+- [ ] Banner contextual (mes abierto · cierre pendiente · alertas)
+- [ ] **5 tabs**:
+  - [ ] Tab Boletas
+  - [ ] Tab Adelantos
+  - [ ] Tab Incentivos
+  - [ ] Tab Vacaciones y Gratificaciones
+  - [ ] Tab Análisis y Reportes
+
+#### Cards (Tab Boletas)
+- [ ] BoletaCard (empleado · período · sueldo base · bonos · descuentos · neto · estado)
+- [ ] Sub-card desglose conceptos
+- [ ] Filtros por estado (Borrador · Aprobada · Pagada · Anulada)
+- [ ] Chip filtros por departamento
+
+#### Cards (Tab Adelantos)
+- [ ] AdelantoCard (empleado · monto · razón · cuotas · estado)
+- [ ] Banner "Adelantos pendientes de aprobación" (rose contextual)
+
+#### Cards (Tab Incentivos)
+- [ ] EsquemaIncentivoCard (nombre · tipo · aplicableA · configuración resumen)
+- [ ] CalculoIncentivoMesCard (empleado · esquema · métrica · bono calculado · estado)
+- [ ] Banner "Bonos pendientes de aprobación"
+
+#### Cards (Tab Vacaciones y Gratificaciones)
+- [ ] VacacionCard (empleado · período · días · estado)
+- [ ] GratificacionCard (empleado · mes · monto · estado) · solo jul/dic Perú law
+
+#### Cards (Tab Análisis y Reportes)
+- [ ] AnálisisCostoLaboralCard (gráfica evolución mensual)
+- [ ] ImpactoCashFlowCard (cross-link → /finanzas/cash-flow)
+- [ ] DistribucionDepartamentoCard (donut chart)
+- [ ] TopBonosCard (ranking empleados)
+
+#### Modales (FormModalV2 sky · Fase 5 · **16 modales**)
+- [ ] GenerarBoletasModal (mes · departamento · preview)
+- [ ] NuevaBoletaModal (manual · empleado + conceptos)
+- [ ] BoletaDetalleModal (drill-down · todos los conceptos)
+- [ ] CerrarMesModal (confirm · checklist pre-cierre)
+- [ ] AprobarAdelantoModal (aprobar · agregar comentario)
+- [ ] RechazarAdelantoModal (razón obligatoria)
+- [ ] NuevoEsquemaIncentivoModal (wizard 3 pasos · tipo + aplicableA + config)
+- [ ] EditarEsquemaIncentivoModal
+- [ ] CalcularBonosMesModal (mes · preview cálculo automático)
+- [ ] AprobarBonoModal (calculo · empleado · ajuste opcional)
+- [ ] RechazarBonoModal (razón)
+- [ ] ProgramarVacacionesModal (fechas · días · suplencia)
+- [ ] ProcesarGratificacionModal (mes jul/dic · empleados afectados · monto)
+- [ ] **WizardBajaEmpleadoModal** (wizard 4 pasos: motivo · fecha · liquidación · confirm)
+- [ ] ExportPayrollModal (formato · período · destino)
+- [ ] **AjustarSalarioModal** (variación · nuevo monto · razón · efectiva desde)
+
+#### Cross-links 360 (Fase 6)
+- [ ] Banner en Gastos → "Costo planilla del mes registrado: S/X"
+- [ ] Banner en Finanzas/CashFlow → "Próximo pago planilla: S/X el día Y"
+- [ ] Banner en Contabilidad/P&L → "Gastos de personal del período: S/X"
+- [ ] Banner en Inversionistas/Salud → "Costo laboral mes vs presupuesto: ±%"
+
+#### Banners contextuales internos
+- [ ] Borrador GenerarBoletas (BorradorWizard canon)
+- [ ] Borrador NuevoEsquemaIncentivo (BorradorWizard canon)
+- [ ] Borrador WizardBajaEmpleado (BorradorWizard canon)
+- [ ] Alerta "Adelantos pendientes" si count > 0
+- [ ] Alerta "Bonos pendientes aprobación" si count > 0
+- [ ] Alerta "Cierre de mes pendiente" si día > 25
+
+#### Estados
+- [ ] Empty state Boletas (sin boletas · primer mes · CTA generar)
+- [ ] Empty state Adelantos (sin adelantos)
+- [ ] Empty state Incentivos (sin esquemas · CTA crear primero esquema)
+- [ ] Empty state Vacaciones (sin solicitudes)
+- [ ] Empty state Análisis (sin data histórica · ≥3 meses requerido)
+- [ ] Loading states en TODOS los tabs
+- [ ] Error states (timeout · permiso planilla denegado)
+- [ ] Mobile 375px responsive · tabs scroll horizontal · cards stack
+
+---
+
+### 🔁 CROSS-MÓDULO · 360 análisis (Fase 6)
+
+Cada cross-link debe respetar el canon de **color cross-módulo consistente** (canon v8.0 · N4):
+
+| Origen | Banner en | Color tinte | Cross-link |
+|---|---|---|---|
+| Planilla cierre mes | /gastos | amber (Overhead) | "Ver gasto planilla del mes" |
+| Planilla próximo pago | /finanzas/cash-flow | rose (urgencia) | "Programar pago" |
+| Planilla acumulado | /contabilidad/p&l | sky (operativo) | "Ver P&L del período" |
+| Planilla costo laboral | /inversionistas/salud | violet (capital) | "Ver impacto en salud" |
+| Usuarios filtro Socio | /inversionistas | violet | "Ver portafolio" |
+| Usuarios filtro Empleado | /planilla | sky | "Ver planilla del empleado" |
+
+---
+
+### 🚫 ANTI-PATTERNS · explícitamente prohibidos en esta implementación
+
+- ❌ Modal base legacy (todos deben ser FormModalV2 con color signature del módulo)
+- ❌ KPI strip slate gris uniforme (debe seguir N1 · color semántico por KPI)
+- ❌ Fondos color full sólido (debe ser gradient sutil + ring · N2)
+- ❌ Mini-stats en banner separado (deben integrarse al card · N3)
+- ❌ Sidebar visible recién en `lg:` (debe ser `md:` · N7)
+- ❌ Filtros desktop-full en mobile (deben colapsar · N5)
+- ❌ Toggle wrap en mobile (debe ser scroll horizontal · N6)
+- ❌ `bg-slate-900` o `bg-black` para primary CTA (siempre `teal-600` o color signature del módulo)
+- ❌ Emojis en chrome de UI (lucide-react únicos · F8)
+- ❌ Re-escribir classNames desde memoria (copy-paste literal del mockup · M1)
+- ❌ Diferir cualquier modal/card/estado a "próxima sesión" (cobertura total obligatoria)
+- ❌ Empty states sin CTA accionable (deben tener quick-start cards · N9)
+- ❌ Banner "acceso restringido" para admin (admin ve TODO · principio admin)
+- ❌ Forms multi-paso sin BorradorWizard (canon de formularios · borrador + descartar)
+
+---
+
+### ✅ DEFINITION OF DONE · por fase
+
+Una fase NO está completa hasta que:
+
+1. ✅ TODAS las superficies del módulo de la fase están implementadas (lista arriba)
+2. ✅ TODAS pasan checklist universal (compilación + pixel-perfect + cobertura + funcionalidad)
+3. ✅ Screenshot side-by-side mockup vs render hecho · documentado en commit message
+4. ✅ Cross-links 360 funcionan end-to-end (navegación + filtros + query params)
+5. ✅ Mobile 375px verificado · sidebar/filtros/tabs responsivos
+6. ✅ Empty + Loading + Error states implementados (no quedan placeholders)
+7. ✅ TODAS las tasks correspondientes marcadas completed en TodoWrite
+8. ✅ Commit canon + push origin/main
+9. ✅ Deudas declaradas (si las hay) documentadas EXPLÍCITAMENTE en commit
+10. ✅ User confirmó visualmente la fase antes de pasar a la siguiente
+
+---
+
 **Autor:** Claude · 2026-05-26  
-**Versión:** v1.0 · primer roadmap minucioso de personas v5.x
+**Versión:** v1.1 · roadmap minucioso de personas v5.x · canon pixel-perfect reforzado
