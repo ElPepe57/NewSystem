@@ -1,0 +1,1393 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Perfil v5.6 · Sidebar Mi Espacio · Variante A · canon 2026-05-27</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+  .tabular { font-variant-numeric: tabular-nums; font-feature-settings: "tnum"; }
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { scrollbar-width: none; }
+  .device-desktop { max-width: 1200px; margin: 0 auto; }
+  .iphone-frame {
+    background: #1e293b;
+    padding: 8px;
+    border-radius: 40px;
+    max-width: 391px;
+    margin: 0 auto;
+  }
+  .iphone-frame > * {
+    border-radius: 32px;
+    overflow: hidden;
+  }
+  /* Mock sidebar items */
+  .sidebar-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 7px 12px; border-radius: 8px;
+    font-size: 12px; color: rgb(71 85 105);
+    cursor: pointer;
+  }
+  .sidebar-item:hover { background: rgb(248 250 252); }
+  .sidebar-item.active {
+    background: rgb(243 232 255);
+    color: rgb(126 34 206);
+    font-weight: 600;
+  }
+  .sidebar-item.active i { color: rgb(126 34 206); }
+  .sidebar-group-label {
+    font-size: 10px; font-weight: 700; text-transform: uppercase;
+    color: rgb(100 116 139); letter-spacing: 0.05em;
+    padding: 10px 12px 4px;
+  }
+</style>
+</head>
+<body class="bg-slate-50 text-slate-900 py-8">
+
+<!-- HERO -->
+<section class="max-w-6xl mx-auto mb-8 px-4">
+  <div class="bg-gradient-to-r from-purple-600 via-violet-600 to-purple-700 text-white rounded-3xl p-6 shadow-xl">
+    <div class="flex items-start gap-4 flex-wrap">
+      <div class="w-14 h-14 bg-white/20 rounded-2xl flex items-center justify-center flex-shrink-0">
+        <i data-lucide="sidebar" class="w-7 h-7"></i>
+      </div>
+      <div class="flex-1 min-w-[280px]">
+        <div class="text-[11px] uppercase tracking-wider font-bold opacity-90">Mockup · Variante A aprobada</div>
+        <h1 class="text-2xl font-bold mt-0.5">Perfil v5.6 · Sidebar "Mi espacio"</h1>
+        <p class="text-[13px] opacity-90 mt-1">
+          Cada usuario ve su propio grupo "Mi espacio" al final del sidebar con items condicionales por rol ·
+          combinado con sub-páginas dedicadas /perfil/mi-X (Opción C drill-down) · cero rutas en el aire.
+        </p>
+        <div class="text-[11px] opacity-80 mt-2">
+          Canon 2026-05-27 · cobertura total + mobile-included · 13 actos
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ÍNDICE -->
+<section class="max-w-6xl mx-auto mb-8 px-4">
+  <div class="bg-white rounded-2xl ring-1 ring-slate-200 p-5">
+    <h2 class="text-[13px] font-bold text-slate-900 mb-4 uppercase tracking-wider">Índice · 13 actos (10 desktop + 3 mobile)</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-[12px]">
+      <a href="#a1" class="block p-2 rounded bg-purple-50 hover:bg-purple-100"><strong class="text-purple-700">ACTO 1</strong> · Concepto · sidebar antes/después</a>
+      <a href="#a2" class="block p-2 rounded bg-purple-50 hover:bg-purple-100"><strong class="text-purple-700">ACTO 2</strong> · Items dinámicos · matriz por rol</a>
+      <a href="#a3" class="block p-2 rounded bg-sky-50 hover:bg-sky-100"><strong class="text-sky-700">ACTO 3</strong> · Empleado puro · Diego López</a>
+      <a href="#a4" class="block p-2 rounded bg-purple-50 hover:bg-purple-100"><strong class="text-purple-700">ACTO 4</strong> · Admin puro · "Mi bandeja" centro de mando</a>
+      <a href="#a5" class="block p-2 rounded bg-violet-50 hover:bg-violet-100"><strong class="text-violet-700">ACTO 5</strong> · Socio puro · Carlos Silva</a>
+      <a href="#a6" class="block p-2 rounded bg-emerald-50 hover:bg-emerald-100"><strong class="text-emerald-700">ACTO 6</strong> · Multi-rol · José admin+socio+gerente</a>
+      <a href="#a7" class="block p-2 rounded bg-amber-50 hover:bg-amber-100"><strong class="text-amber-700">ACTO 7</strong> · Avatar dropdown · convivencia</a>
+      <a href="#a8" class="block p-2 rounded bg-sky-50 hover:bg-sky-100"><strong class="text-sky-700">ACTO 8</strong> · Click flow empleado · sidebar→sub-página</a>
+      <a href="#a9" class="block p-2 rounded bg-slate-50 hover:bg-slate-100"><strong class="text-slate-700">ACTO 9</strong> · Estados activos · navegación contextual</a>
+      <a href="#a10" class="block p-2 rounded bg-slate-50 hover:bg-slate-100"><strong class="text-slate-700">ACTO 10</strong> · Sidebar colapsado · solo iconos</a>
+      <a href="#a11" class="block p-2 rounded bg-sky-100 hover:bg-sky-200"><strong class="text-sky-800">ACTO 11</strong> · Mobile drawer abierto · scroll a Mi espacio</a>
+      <a href="#a12" class="block p-2 rounded bg-sky-100 hover:bg-sky-200"><strong class="text-sky-800">ACTO 12</strong> · Mobile · avatar header atajo</a>
+      <a href="#a13" class="block p-2 rounded bg-sky-100 hover:bg-sky-200"><strong class="text-sky-800">ACTO 13</strong> · Mobile · sticky bottom nav (alternativa)</a>
+    </div>
+  </div>
+</section>
+
+<!-- ACTO 1 · CONCEPTO -->
+<section id="a1" class="my-12">
+  <div class="max-w-6xl mx-auto px-4">
+    <div class="bg-gradient-to-r from-purple-100 to-purple-50 ring-1 ring-purple-200 rounded-3xl p-5 mb-6">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 bg-purple-600 rounded-2xl flex items-center justify-center text-white font-bold">1</div>
+        <div>
+          <h2 class="text-lg font-bold text-purple-900">Concepto · sidebar antes / después</h2>
+          <p class="text-[11px] text-purple-700">"Mi espacio" como último grupo · paralelo a "Administración" pero personal</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="device-desktop bg-white rounded-2xl ring-1 ring-slate-200 overflow-hidden p-6">
+      <div class="grid grid-cols-2 gap-6">
+        <!-- ANTES -->
+        <div>
+          <h3 class="text-[12px] font-bold text-slate-700 mb-3 inline-flex items-center gap-1.5 uppercase tracking-wider">
+            <i data-lucide="x-circle" class="w-4 h-4 text-rose-500"></i>
+            v5.5 (sin sidebar personalizado)
+          </h3>
+          <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 w-64">
+            <div class="sidebar-item active">
+              <i data-lucide="layout-dashboard" class="w-4 h-4"></i>Dashboard
+            </div>
+            <div class="sidebar-group-label">Operaciones</div>
+            <div class="sidebar-item"><i data-lucide="trending-up" class="w-4 h-4"></i>Ventas</div>
+            <div class="sidebar-item"><i data-lucide="shopping-cart" class="w-4 h-4"></i>Compras</div>
+            <div class="sidebar-item"><i data-lucide="truck" class="w-4 h-4"></i>Envíos</div>
+            <div class="sidebar-group-label">Almacén</div>
+            <div class="sidebar-item"><i data-lucide="package" class="w-4 h-4"></i>Inventario</div>
+            <div class="sidebar-item"><i data-lucide="boxes" class="w-4 h-4"></i>Productos</div>
+            <div class="sidebar-group-label">Finanzas y Contabilidad</div>
+            <div class="sidebar-item"><i data-lucide="wallet" class="w-4 h-4"></i>Gastos</div>
+            <div class="sidebar-item"><i data-lucide="banknote" class="w-4 h-4"></i>Tesorería</div>
+            <div class="sidebar-item"><i data-lucide="briefcase-business" class="w-4 h-4"></i>Planilla</div>
+            <div class="sidebar-item"><i data-lucide="landmark" class="w-4 h-4"></i>Inversionistas</div>
+            <div class="sidebar-group-label">Administración</div>
+            <div class="sidebar-item"><i data-lucide="users" class="w-4 h-4"></i>Usuarios</div>
+            <div class="sidebar-item"><i data-lucide="settings" class="w-4 h-4"></i>Configuración</div>
+          </div>
+          <div class="mt-4 p-3 bg-rose-50 border border-rose-200 rounded-lg text-[11px] text-rose-800">
+            <strong>Problemas:</strong>
+            <ul class="list-disc list-inside mt-1 space-y-0.5">
+              <li>Vista personal del empleado oculta en avatar dropdown</li>
+              <li>Empleado tiene que ir a Planilla (módulo admin) para ver sus boletas</li>
+              <li>Cero discoverability de /perfil/mi-X</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- DESPUÉS -->
+        <div>
+          <h3 class="text-[12px] font-bold text-slate-700 mb-3 inline-flex items-center gap-1.5 uppercase tracking-wider">
+            <i data-lucide="check-circle" class="w-4 h-4 text-emerald-500"></i>
+            v5.6 · sidebar Mi Espacio (esta variante)
+          </h3>
+          <div class="bg-slate-50 border-2 border-purple-300 rounded-xl p-3 w-64 relative">
+            <div class="sidebar-item">
+              <i data-lucide="layout-dashboard" class="w-4 h-4"></i>Dashboard
+            </div>
+            <div class="sidebar-group-label">Operaciones</div>
+            <div class="sidebar-item"><i data-lucide="trending-up" class="w-4 h-4"></i>Ventas</div>
+            <div class="sidebar-item"><i data-lucide="shopping-cart" class="w-4 h-4"></i>Compras</div>
+            <div class="sidebar-item"><i data-lucide="truck" class="w-4 h-4"></i>Envíos</div>
+            <div class="sidebar-group-label">Almacén</div>
+            <div class="sidebar-item"><i data-lucide="package" class="w-4 h-4"></i>Inventario</div>
+            <div class="sidebar-item"><i data-lucide="boxes" class="w-4 h-4"></i>Productos</div>
+            <div class="sidebar-group-label">Finanzas y Contabilidad</div>
+            <div class="sidebar-item"><i data-lucide="wallet" class="w-4 h-4"></i>Gastos</div>
+            <div class="sidebar-item"><i data-lucide="banknote" class="w-4 h-4"></i>Tesorería</div>
+            <div class="sidebar-item"><i data-lucide="briefcase-business" class="w-4 h-4"></i>Planilla</div>
+            <div class="sidebar-item"><i data-lucide="landmark" class="w-4 h-4"></i>Inversionistas</div>
+            <div class="sidebar-group-label">Administración</div>
+            <div class="sidebar-item"><i data-lucide="users" class="w-4 h-4"></i>Usuarios</div>
+            <div class="sidebar-item"><i data-lucide="settings" class="w-4 h-4"></i>Configuración</div>
+            <!-- NUEVO -->
+            <div class="border-t border-purple-200 mt-3 pt-2 -mx-3 px-3">
+              <div class="sidebar-group-label" style="color: rgb(126 34 206)">⭐ Mi espacio</div>
+              <div class="sidebar-item active"><i data-lucide="user" class="w-4 h-4"></i>Mi perfil</div>
+              <div class="sidebar-item"><i data-lucide="briefcase" class="w-4 h-4"></i>Mi planilla</div>
+              <div class="sidebar-item"><i data-lucide="trending-up" class="w-4 h-4"></i>Mi histórico</div>
+            </div>
+            <div class="absolute -top-3 right-3 bg-purple-600 text-white text-[9px] font-bold px-2 py-0.5 rounded-full uppercase">NUEVO</div>
+          </div>
+          <div class="mt-4 p-3 bg-emerald-50 border border-emerald-200 rounded-lg text-[11px] text-emerald-800">
+            <strong>Beneficios:</strong>
+            <ul class="list-disc list-inside mt-1 space-y-0.5">
+              <li>Acceso 1-click a vista personal del rol</li>
+              <li>Empleado NO entra a Planilla (admin) · va a su Mi planilla</li>
+              <li>Items dinámicos · cada user ve solo lo suyo</li>
+              <li>Avatar dropdown sigue como atajo cross-page</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ACTO 2 · MATRIZ DE ITEMS POR ROL -->
+<section id="a2" class="my-12">
+  <div class="max-w-6xl mx-auto px-4">
+    <div class="bg-gradient-to-r from-purple-100 to-purple-50 ring-1 ring-purple-200 rounded-3xl p-5 mb-6">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 bg-purple-600 rounded-2xl flex items-center justify-center text-white font-bold">2</div>
+        <div>
+          <h2 class="text-lg font-bold text-purple-900">Items dinámicos · matriz por rol</h2>
+          <p class="text-[11px] text-purple-700">Cada item aparece solo si el user tiene el sub-perfil/rol correspondiente</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="device-desktop bg-white rounded-2xl ring-1 ring-slate-200 overflow-hidden p-6">
+      <table class="w-full text-[12px]">
+        <thead>
+          <tr class="border-b-2 border-slate-200 text-left text-[10px] uppercase tracking-wider text-slate-500 font-bold">
+            <th class="py-2 pr-4">Item</th>
+            <th class="text-center">Empleado</th>
+            <th class="text-center">Admin/Gerente</th>
+            <th class="text-center">Socio</th>
+            <th class="text-center">Mixto (José)</th>
+            <th class="pl-4">Condición técnica</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+          <tr>
+            <td class="py-3 pr-4">
+              <div class="inline-flex items-center gap-2 font-bold text-slate-900">
+                <i data-lucide="user" class="w-4 h-4 text-purple-700"></i>Mi perfil
+              </div>
+              <div class="text-[10px] text-slate-500 ml-6">/perfil</div>
+            </td>
+            <td class="text-center"><i data-lucide="check" class="w-4 h-4 text-emerald-600 inline"></i></td>
+            <td class="text-center"><i data-lucide="check" class="w-4 h-4 text-emerald-600 inline"></i></td>
+            <td class="text-center"><i data-lucide="check" class="w-4 h-4 text-emerald-600 inline"></i></td>
+            <td class="text-center"><i data-lucide="check" class="w-4 h-4 text-emerald-600 inline"></i></td>
+            <td class="pl-4 text-[11px] text-slate-600">Siempre · todos los users autenticados</td>
+          </tr>
+          <tr>
+            <td class="py-3 pr-4">
+              <div class="inline-flex items-center gap-2 font-bold text-slate-900">
+                <i data-lucide="briefcase" class="w-4 h-4 text-sky-700"></i>Mi planilla
+              </div>
+              <div class="text-[10px] text-slate-500 ml-6">/perfil/mi-planilla</div>
+            </td>
+            <td class="text-center"><i data-lucide="check" class="w-4 h-4 text-emerald-600 inline"></i></td>
+            <td class="text-center"><i data-lucide="x" class="w-4 h-4 text-slate-300 inline"></i></td>
+            <td class="text-center"><i data-lucide="x" class="w-4 h-4 text-slate-300 inline"></i></td>
+            <td class="text-center"><i data-lucide="x" class="w-4 h-4 text-slate-300 inline"></i></td>
+            <td class="pl-4 text-[11px] text-slate-600"><code class="bg-slate-100 px-1 rounded">datosLaborales !== null</code></td>
+          </tr>
+          <tr>
+            <td class="py-3 pr-4">
+              <div class="inline-flex items-center gap-2 font-bold text-slate-900">
+                <i data-lucide="trending-up" class="w-4 h-4 text-emerald-700"></i>Mi histórico
+              </div>
+              <div class="text-[10px] text-slate-500 ml-6">/perfil/mi-historial</div>
+            </td>
+            <td class="text-center"><i data-lucide="check" class="w-4 h-4 text-emerald-600 inline"></i></td>
+            <td class="text-center"><i data-lucide="x" class="w-4 h-4 text-slate-300 inline"></i></td>
+            <td class="text-center"><i data-lucide="x" class="w-4 h-4 text-slate-300 inline"></i></td>
+            <td class="text-center"><i data-lucide="x" class="w-4 h-4 text-slate-300 inline"></i></td>
+            <td class="pl-4 text-[11px] text-slate-600"><code class="bg-slate-100 px-1 rounded">datosLaborales !== null</code></td>
+          </tr>
+          <tr>
+            <td class="py-3 pr-4">
+              <div class="inline-flex items-center gap-2 font-bold text-slate-900">
+                <i data-lucide="coins" class="w-4 h-4 text-violet-700"></i>Mi capital
+              </div>
+              <div class="text-[10px] text-slate-500 ml-6">/perfil/mi-capital</div>
+            </td>
+            <td class="text-center"><i data-lucide="x" class="w-4 h-4 text-slate-300 inline"></i></td>
+            <td class="text-center"><i data-lucide="x" class="w-4 h-4 text-slate-300 inline"></i></td>
+            <td class="text-center"><i data-lucide="check" class="w-4 h-4 text-emerald-600 inline"></i></td>
+            <td class="text-center"><i data-lucide="check" class="w-4 h-4 text-emerald-600 inline"></i></td>
+            <td class="pl-4 text-[11px] text-slate-600"><code class="bg-slate-100 px-1 rounded">isSocio === true</code></td>
+          </tr>
+          <tr>
+            <td class="py-3 pr-4">
+              <div class="inline-flex items-center gap-2 font-bold text-slate-900">
+                <i data-lucide="shield-check" class="w-4 h-4 text-amber-700"></i>Mi bandeja
+                <span class="text-[9px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-full font-bold">7</span>
+              </div>
+              <div class="text-[10px] text-slate-500 ml-6">/perfil/mi-bandeja</div>
+            </td>
+            <td class="text-center"><i data-lucide="x" class="w-4 h-4 text-slate-300 inline"></i></td>
+            <td class="text-center"><i data-lucide="check" class="w-4 h-4 text-emerald-600 inline"></i></td>
+            <td class="text-center"><i data-lucide="x" class="w-4 h-4 text-slate-300 inline"></i></td>
+            <td class="text-center"><i data-lucide="check" class="w-4 h-4 text-emerald-600 inline"></i></td>
+            <td class="pl-4 text-[11px] text-slate-600"><code class="bg-slate-100 px-1 rounded">canManageUsers === true</code></td>
+          </tr>
+          <tr class="bg-purple-50/30">
+            <td class="py-3 pr-4">
+              <div class="inline-flex items-center gap-2 font-bold text-slate-900">
+                <i data-lucide="log-out" class="w-4 h-4 text-rose-700"></i>Cerrar sesión
+              </div>
+              <div class="text-[10px] text-slate-500 ml-6">action · NO ruta</div>
+            </td>
+            <td class="text-center"><i data-lucide="check" class="w-4 h-4 text-emerald-600 inline"></i></td>
+            <td class="text-center"><i data-lucide="check" class="w-4 h-4 text-emerald-600 inline"></i></td>
+            <td class="text-center"><i data-lucide="check" class="w-4 h-4 text-emerald-600 inline"></i></td>
+            <td class="text-center"><i data-lucide="check" class="w-4 h-4 text-emerald-600 inline"></i></td>
+            <td class="pl-4 text-[11px] text-slate-600">Siempre · botón al final · separado por divider</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="mt-5 grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div class="bg-emerald-50 border border-emerald-200 rounded-lg p-3">
+          <div class="text-[12px] font-bold text-emerald-900 mb-1 inline-flex items-center gap-1.5">
+            <i data-lucide="info" class="w-4 h-4"></i>Multi-rol = items concatenados
+          </div>
+          <div class="text-[11px] text-emerald-800">
+            José (admin+socio+gerente) ve: Mi perfil · Mi capital · Mi bandeja · Cerrar sesión.
+            NO ve Mi planilla porque no tiene datosLaborales. Si RRHH le configura un cargo, automáticamente aparece.
+          </div>
+        </div>
+        <div class="bg-sky-50 border border-sky-200 rounded-lg p-3">
+          <div class="text-[12px] font-bold text-sky-900 mb-1 inline-flex items-center gap-1.5">
+            <i data-lucide="zap" class="w-4 h-4"></i>Badge contadores en items
+          </div>
+          <div class="text-[11px] text-sky-800">
+            "Mi bandeja" muestra badge con cantidad de aprobaciones pendientes (ej. "7").
+            Si llega a 0 desaparece el badge. Auto-actualiza al aprobar/rechazar.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ACTO 3 · EMPLEADO PURO -->
+<section id="a3" class="my-12">
+  <div class="max-w-6xl mx-auto px-4">
+    <div class="bg-gradient-to-r from-sky-100 to-sky-50 ring-1 ring-sky-200 rounded-3xl p-5 mb-6">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 bg-sky-600 rounded-2xl flex items-center justify-center text-white font-bold">3</div>
+        <div>
+          <h2 class="text-lg font-bold text-sky-900">Empleado puro · Diego López</h2>
+          <p class="text-[11px] text-sky-700">Vendedor sr. con datosLaborales · 3 items en Mi espacio</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="device-desktop bg-white rounded-2xl ring-1 ring-slate-200 overflow-hidden">
+      <!-- Top bar -->
+      <div class="bg-white border-b border-slate-200 px-4 py-2.5 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <button class="w-7 h-7 hover:bg-slate-100 rounded flex items-center justify-center"><i data-lucide="menu" class="w-4 h-4 text-slate-600"></i></button>
+          <span class="text-[13px] font-semibold text-slate-700">miércoles, 27 de mayo de 2026</span>
+        </div>
+        <div class="flex items-center gap-3">
+          <button class="w-7 h-7 hover:bg-slate-100 rounded flex items-center justify-center"><i data-lucide="bell" class="w-4 h-4 text-slate-600"></i></button>
+          <!-- Avatar dropdown -->
+          <button class="flex items-center gap-2 hover:bg-slate-50 px-2 py-1 rounded-lg">
+            <div class="w-9 h-9 rounded-full bg-gradient-to-br from-purple-500 to-purple-700 flex items-center justify-center text-white font-bold text-[12px]">DL</div>
+            <div class="text-left hidden md:block">
+              <div class="text-[12px] font-bold text-slate-900">Diego López</div>
+              <div class="text-[10px] text-slate-500">Vendedor</div>
+            </div>
+            <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-400"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="flex" style="height: 600px">
+        <!-- Sidebar -->
+        <aside class="w-64 bg-slate-50/60 border-r border-slate-200 p-3 overflow-y-auto">
+          <div class="sidebar-item"><i data-lucide="layout-dashboard" class="w-4 h-4"></i>Dashboard</div>
+          <div class="sidebar-group-label">Operaciones</div>
+          <div class="sidebar-item active"><i data-lucide="trending-up" class="w-4 h-4"></i>Ventas</div>
+          <div class="sidebar-item"><i data-lucide="quote" class="w-4 h-4"></i>Cotizaciones</div>
+          <div class="sidebar-item"><i data-lucide="package-check" class="w-4 h-4"></i>Entregas</div>
+          <div class="sidebar-item"><i data-lucide="clipboard-list" class="w-4 h-4"></i>Requerimientos</div>
+          <div class="sidebar-group-label">Almacén</div>
+          <div class="sidebar-item"><i data-lucide="package" class="w-4 h-4"></i>Inventario</div>
+
+          <!-- ⭐ MI ESPACIO · al final -->
+          <div class="border-t border-slate-200 mt-3 pt-2 -mx-3 px-3 bg-purple-50/20">
+            <div class="sidebar-group-label" style="color: rgb(126 34 206)">Mi espacio</div>
+            <div class="sidebar-item"><i data-lucide="user" class="w-4 h-4"></i>Mi perfil</div>
+            <div class="sidebar-item"><i data-lucide="briefcase" class="w-4 h-4"></i>Mi planilla</div>
+            <div class="sidebar-item"><i data-lucide="trending-up" class="w-4 h-4"></i>Mi histórico salarial</div>
+            <!-- Divider sutil -->
+            <div class="border-t border-slate-200 my-2"></div>
+            <div class="sidebar-item" style="color: rgb(190 18 60)">
+              <i data-lucide="log-out" class="w-4 h-4"></i>Cerrar sesión
+            </div>
+          </div>
+        </aside>
+
+        <!-- Main canvas placeholder -->
+        <main class="flex-1 p-6 bg-slate-50/30 text-center">
+          <div class="bg-white border border-slate-200 rounded-2xl p-8 max-w-md mx-auto mt-12">
+            <i data-lucide="trending-up" class="w-12 h-12 text-sky-300 mx-auto mb-3"></i>
+            <div class="text-[14px] font-bold text-slate-900">Ventas</div>
+            <div class="text-[11px] text-slate-500 mt-1">Módulo actualmente activo</div>
+            <div class="mt-4 p-3 bg-purple-50 border border-purple-200 rounded-lg text-left">
+              <div class="text-[11px] font-bold text-purple-900 mb-1 inline-flex items-center gap-1">
+                <i data-lucide="info" class="w-3 h-3"></i>Diego ve en su Mi espacio:
+              </div>
+              <ul class="text-[11px] text-purple-800 list-disc list-inside space-y-0.5">
+                <li><strong>Mi perfil</strong> · cuenta personal</li>
+                <li><strong>Mi planilla</strong> · 5 boletas · 12 días vac.</li>
+                <li><strong>Mi histórico salarial</strong> · 3 cambios documentados</li>
+              </ul>
+              <div class="text-[10px] text-purple-700 mt-2 italic">No ve "Mi capital" (no es socio) · no ve "Mi bandeja" (no es admin)</div>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ACTO 4 · ADMIN PURO -->
+<section id="a4" class="my-12">
+  <div class="max-w-6xl mx-auto px-4">
+    <div class="bg-gradient-to-r from-purple-100 to-purple-50 ring-1 ring-purple-200 rounded-3xl p-5 mb-6">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 bg-purple-600 rounded-2xl flex items-center justify-center text-white font-bold">4</div>
+        <div>
+          <h2 class="text-lg font-bold text-purple-900">Admin puro · "Mi bandeja" centro de mando</h2>
+          <p class="text-[11px] text-purple-700">Admin sin datosLaborales ni socio · ve Mi perfil + Mi bandeja con badge</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="device-desktop bg-white rounded-2xl ring-1 ring-slate-200 overflow-hidden">
+      <div class="bg-white border-b border-slate-200 px-4 py-2.5 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <button class="w-7 h-7 hover:bg-slate-100 rounded flex items-center justify-center"><i data-lucide="menu" class="w-4 h-4 text-slate-600"></i></button>
+          <span class="text-[13px] font-semibold text-slate-700">miércoles, 27 de mayo de 2026</span>
+        </div>
+        <button class="flex items-center gap-2 hover:bg-slate-50 px-2 py-1 rounded-lg">
+          <div class="w-9 h-9 rounded-full bg-gradient-to-br from-purple-500 to-purple-700 flex items-center justify-center text-white font-bold text-[12px]">MS</div>
+          <div class="text-left hidden md:block">
+            <div class="text-[12px] font-bold text-slate-900">María Soto</div>
+            <div class="text-[10px] text-slate-500">Administrador</div>
+          </div>
+          <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-400"></i>
+        </button>
+      </div>
+
+      <div class="flex" style="height: 600px">
+        <aside class="w-64 bg-slate-50/60 border-r border-slate-200 p-3 overflow-y-auto">
+          <div class="sidebar-item"><i data-lucide="layout-dashboard" class="w-4 h-4"></i>Dashboard</div>
+          <div class="sidebar-group-label">Operaciones</div>
+          <div class="sidebar-item"><i data-lucide="trending-up" class="w-4 h-4"></i>Ventas</div>
+          <div class="sidebar-item"><i data-lucide="shopping-cart" class="w-4 h-4"></i>Compras</div>
+          <div class="sidebar-item"><i data-lucide="truck" class="w-4 h-4"></i>Envíos</div>
+          <div class="sidebar-group-label">Almacén</div>
+          <div class="sidebar-item"><i data-lucide="package" class="w-4 h-4"></i>Inventario</div>
+          <div class="sidebar-group-label">Finanzas y Contabilidad</div>
+          <div class="sidebar-item"><i data-lucide="wallet" class="w-4 h-4"></i>Gastos</div>
+          <div class="sidebar-item"><i data-lucide="briefcase-business" class="w-4 h-4"></i>Planilla</div>
+          <div class="sidebar-item"><i data-lucide="landmark" class="w-4 h-4"></i>Inversionistas</div>
+          <div class="sidebar-group-label">Administración</div>
+          <div class="sidebar-item"><i data-lucide="users" class="w-4 h-4"></i>Usuarios</div>
+          <div class="sidebar-item"><i data-lucide="settings" class="w-4 h-4"></i>Configuración</div>
+
+          <!-- MI ESPACIO admin -->
+          <div class="border-t border-slate-200 mt-3 pt-2 -mx-3 px-3 bg-purple-50/20">
+            <div class="sidebar-group-label" style="color: rgb(126 34 206)">Mi espacio</div>
+            <div class="sidebar-item"><i data-lucide="user" class="w-4 h-4"></i>Mi perfil</div>
+            <div class="sidebar-item active justify-between">
+              <span class="inline-flex items-center gap-2.5"><i data-lucide="shield-check" class="w-4 h-4"></i>Mi bandeja</span>
+              <span class="text-[9px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-full font-bold tabular">7</span>
+            </div>
+            <div class="border-t border-slate-200 my-2"></div>
+            <div class="sidebar-item" style="color: rgb(190 18 60)">
+              <i data-lucide="log-out" class="w-4 h-4"></i>Cerrar sesión
+            </div>
+          </div>
+        </aside>
+
+        <main class="flex-1 bg-slate-50/30 overflow-y-auto">
+          <!-- Preview de /perfil/mi-bandeja -->
+          <div class="px-6 py-3 border-b border-slate-200 bg-slate-50 flex items-center text-[12px]">
+            <a class="text-slate-500">Inicio</a>
+            <i data-lucide="chevron-right" class="w-3 h-3 text-slate-300 mx-1.5"></i>
+            <a class="text-slate-500">Mi perfil</a>
+            <i data-lucide="chevron-right" class="w-3 h-3 text-slate-300 mx-1.5"></i>
+            <span class="text-slate-900 font-semibold">Mi bandeja</span>
+          </div>
+          <div class="px-6 py-4 border-b border-slate-100 flex items-center gap-4">
+            <button class="w-9 h-9 bg-slate-100 rounded-lg flex items-center justify-center"><i data-lucide="arrow-left" class="w-4 h-4 text-slate-700"></i></button>
+            <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center text-white">
+              <i data-lucide="shield-check" class="w-5 h-5"></i>
+            </div>
+            <div class="flex-1">
+              <h1 class="text-lg font-bold text-slate-900">Mi bandeja · Centro de mando</h1>
+              <p class="text-[12px] text-slate-500">7 aprobaciones esperando tu acción</p>
+            </div>
+            <button class="text-[11px] font-bold text-white bg-emerald-600 hover:bg-emerald-700 px-3 py-1.5 rounded-lg inline-flex items-center gap-1.5">
+              <i data-lucide="check-square" class="w-3.5 h-3.5"></i>Aprobar todo
+            </button>
+          </div>
+          <div class="p-4 space-y-2">
+            <!-- KPIs mini -->
+            <div class="grid grid-cols-4 gap-2 mb-3">
+              <div class="bg-amber-50 border border-amber-200 rounded-lg p-2">
+                <div class="text-[9px] uppercase text-amber-700 font-bold">PEND. APROBAR</div>
+                <div class="text-xl font-bold tabular text-amber-900">7</div>
+              </div>
+              <div class="bg-sky-50 border border-sky-200 rounded-lg p-2">
+                <div class="text-[9px] uppercase text-sky-700 font-bold">USUARIOS</div>
+                <div class="text-xl font-bold tabular text-sky-900">2</div>
+              </div>
+              <div class="bg-emerald-50 border border-emerald-200 rounded-lg p-2">
+                <div class="text-[9px] uppercase text-emerald-700 font-bold">CIERRE MES</div>
+                <div class="text-xl font-bold tabular text-emerald-900">3d</div>
+              </div>
+              <div class="bg-rose-50 border border-rose-200 rounded-lg p-2">
+                <div class="text-[9px] uppercase text-rose-700 font-bold">LIQUIDAC.</div>
+                <div class="text-xl font-bold tabular text-rose-900">1</div>
+              </div>
+            </div>
+            <!-- Lista de aprobaciones -->
+            <button class="w-full bg-white border border-amber-200 rounded-lg p-2.5 flex items-center justify-between text-left">
+              <div class="flex items-center gap-2">
+                <i data-lucide="user-plus" class="w-4 h-4 text-amber-700"></i>
+                <div>
+                  <div class="text-[12px] font-semibold text-slate-900">2 usuarios esperan aprobación</div>
+                  <div class="text-[10px] text-slate-600">María García · Juan Pérez</div>
+                </div>
+              </div>
+              <i data-lucide="arrow-right" class="w-4 h-4 text-amber-700"></i>
+            </button>
+            <button class="w-full bg-white border border-amber-200 rounded-lg p-2.5 flex items-center justify-between text-left">
+              <div class="flex items-center gap-2">
+                <i data-lucide="arrow-down-circle" class="w-4 h-4 text-amber-700"></i>
+                <div>
+                  <div class="text-[12px] font-semibold text-slate-900">3 adelantos pendientes · S/ 1,800</div>
+                  <div class="text-[10px] text-slate-600">Ana R · Diego L · Pedro M</div>
+                </div>
+              </div>
+              <i data-lucide="arrow-right" class="w-4 h-4 text-amber-700"></i>
+            </button>
+            <button class="w-full bg-white border border-violet-200 rounded-lg p-2.5 flex items-center justify-between text-left">
+              <div class="flex items-center gap-2">
+                <i data-lucide="trophy" class="w-4 h-4 text-violet-700"></i>
+                <div>
+                  <div class="text-[12px] font-semibold text-slate-900">1 bono calculado · S/ 1,600</div>
+                  <div class="text-[10px] text-slate-600">Ana R · comisión mayo</div>
+                </div>
+              </div>
+              <i data-lucide="arrow-right" class="w-4 h-4 text-violet-700"></i>
+            </button>
+          </div>
+        </main>
+      </div>
+    </div>
+
+    <div class="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-lg max-w-2xl">
+      <div class="text-[11px] text-amber-900">
+        <strong>"Mi bandeja" es NUEVO</strong> · vive en `/perfil/mi-bandeja` · centro personal de gestión del admin
+        donde se consolidan TODAS las aprobaciones que le toca a él (vs el ResumenAdmin actual que muestra el total del sistema).
+        Pensado para admins que rotan responsabilidades en futuro.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ACTO 5 · SOCIO PURO -->
+<section id="a5" class="my-12">
+  <div class="max-w-6xl mx-auto px-4">
+    <div class="bg-gradient-to-r from-violet-100 to-violet-50 ring-1 ring-violet-200 rounded-3xl p-5 mb-6">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 bg-violet-600 rounded-2xl flex items-center justify-center text-white font-bold">5</div>
+        <div>
+          <h2 class="text-lg font-bold text-violet-900">Socio puro · Carlos Silva</h2>
+          <p class="text-[11px] text-violet-700">Inversor sin rol operativo · ve Mi perfil + Mi capital</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="device-desktop bg-white rounded-2xl ring-1 ring-slate-200 overflow-hidden">
+      <div class="bg-white border-b border-slate-200 px-4 py-2.5 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <button class="w-7 h-7 hover:bg-slate-100 rounded flex items-center justify-center"><i data-lucide="menu" class="w-4 h-4 text-slate-600"></i></button>
+          <span class="text-[13px] font-semibold text-slate-700">miércoles, 27 de mayo de 2026</span>
+        </div>
+        <button class="flex items-center gap-2 hover:bg-slate-50 px-2 py-1 rounded-lg">
+          <div class="w-9 h-9 rounded-full bg-gradient-to-br from-violet-500 to-violet-700 flex items-center justify-center text-white font-bold text-[12px]">CS</div>
+          <div class="text-left hidden md:block">
+            <div class="text-[12px] font-bold text-slate-900">Carlos Silva</div>
+            <div class="text-[10px] text-slate-500">Socio · 35%</div>
+          </div>
+          <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-400"></i>
+        </button>
+      </div>
+
+      <div class="flex" style="height: 600px">
+        <aside class="w-64 bg-slate-50/60 border-r border-slate-200 p-3 overflow-y-auto">
+          <div class="sidebar-item"><i data-lucide="layout-dashboard" class="w-4 h-4"></i>Dashboard</div>
+          <div class="sidebar-group-label">Finanzas y Contabilidad</div>
+          <div class="sidebar-item"><i data-lucide="landmark" class="w-4 h-4"></i>Inversionistas</div>
+          <div class="sidebar-item"><i data-lucide="file-bar-chart" class="w-4 h-4"></i>Reportes</div>
+
+          <!-- MI ESPACIO socio -->
+          <div class="border-t border-slate-200 mt-3 pt-2 -mx-3 px-3 bg-purple-50/20">
+            <div class="sidebar-group-label" style="color: rgb(126 34 206)">Mi espacio</div>
+            <div class="sidebar-item"><i data-lucide="user" class="w-4 h-4"></i>Mi perfil</div>
+            <div class="sidebar-item active"><i data-lucide="coins" class="w-4 h-4"></i>Mi capital</div>
+            <div class="border-t border-slate-200 my-2"></div>
+            <div class="sidebar-item" style="color: rgb(190 18 60)">
+              <i data-lucide="log-out" class="w-4 h-4"></i>Cerrar sesión
+            </div>
+          </div>
+        </aside>
+
+        <main class="flex-1 bg-slate-50/30 overflow-y-auto">
+          <div class="px-6 py-3 border-b border-slate-200 bg-slate-50 flex items-center text-[12px]">
+            <a class="text-slate-500">Inicio</a>
+            <i data-lucide="chevron-right" class="w-3 h-3 text-slate-300 mx-1.5"></i>
+            <a class="text-slate-500">Mi perfil</a>
+            <i data-lucide="chevron-right" class="w-3 h-3 text-slate-300 mx-1.5"></i>
+            <span class="text-slate-900 font-semibold">Mi capital</span>
+          </div>
+          <div class="px-6 py-4 border-b border-slate-100 flex items-center gap-4">
+            <button class="w-9 h-9 bg-slate-100 rounded-lg flex items-center justify-center"><i data-lucide="arrow-left" class="w-4 h-4 text-slate-700"></i></button>
+            <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-violet-500 to-violet-700 flex items-center justify-center text-white">
+              <i data-lucide="coins" class="w-5 h-5"></i>
+            </div>
+            <div class="flex-1">
+              <h1 class="text-lg font-bold text-slate-900">Mi capital · Carlos Silva</h1>
+              <p class="text-[12px] text-slate-500">35% · S/ 35K cash + valor · ROI YTD +10.2%</p>
+            </div>
+          </div>
+          <div class="p-4">
+            <div class="bg-gradient-to-br from-violet-50 to-purple-50 border-2 border-violet-200 rounded-2xl p-5">
+              <div class="grid grid-cols-3 gap-4">
+                <div>
+                  <div class="text-[10px] uppercase tracking-wider text-violet-700 font-bold mb-1">MI PARTICIPACIÓN</div>
+                  <div class="text-3xl font-bold tabular text-violet-900">35<span class="text-violet-400">%</span></div>
+                </div>
+                <div class="border-l border-violet-200 pl-4">
+                  <div class="text-[10px] uppercase tracking-wider text-violet-700 font-bold mb-1">MI CAPITAL</div>
+                  <div class="text-3xl font-bold tabular text-violet-900">S/ 35K</div>
+                </div>
+                <div class="border-l border-violet-200 pl-4">
+                  <div class="text-[10px] uppercase tracking-wider text-violet-700 font-bold mb-1">ROI YTD</div>
+                  <div class="text-3xl font-bold tabular text-emerald-700">+10.2%</div>
+                </div>
+              </div>
+            </div>
+            <div class="mt-3 p-3 bg-sky-50 border border-sky-200 rounded-lg">
+              <div class="text-[11px] text-sky-900">
+                <strong>Vista personal del socio.</strong> Carlos NO ve la planilla (no es empleado) ni la bandeja admin (no es admin).
+                Para ver el cap table completo con todos los socios va a Inversionistas (módulo en sidebar grupo Finanzas).
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ACTO 6 · MULTI-ROL JOSÉ -->
+<section id="a6" class="my-12">
+  <div class="max-w-6xl mx-auto px-4">
+    <div class="bg-gradient-to-r from-emerald-100 to-emerald-50 ring-1 ring-emerald-200 rounded-3xl p-5 mb-6">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 bg-emerald-600 rounded-2xl flex items-center justify-center text-white font-bold">6</div>
+        <div>
+          <h2 class="text-lg font-bold text-emerald-900">Multi-rol · José Pinto (admin + socio + gerente)</h2>
+          <p class="text-[11px] text-emerald-700">Mi espacio se llena automáticamente con todas las vistas correspondientes</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="device-desktop bg-white rounded-2xl ring-1 ring-slate-200 overflow-hidden">
+      <div class="bg-white border-b border-slate-200 px-4 py-2.5 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <button class="w-7 h-7 hover:bg-slate-100 rounded flex items-center justify-center"><i data-lucide="menu" class="w-4 h-4 text-slate-600"></i></button>
+          <span class="text-[13px] font-semibold text-slate-700">miércoles, 27 de mayo de 2026</span>
+        </div>
+        <button class="flex items-center gap-2 hover:bg-slate-50 px-2 py-1 rounded-lg">
+          <div class="w-9 h-9 rounded-full bg-gradient-to-br from-purple-500 to-purple-700 flex items-center justify-center text-white font-bold text-[12px]">JP</div>
+          <div class="text-left hidden md:block">
+            <div class="text-[12px] font-bold text-slate-900">José Pinto</div>
+            <div class="text-[10px] text-slate-500">Admin · Socio · Gerente</div>
+          </div>
+          <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-400"></i>
+        </button>
+      </div>
+
+      <div class="flex" style="height: 700px">
+        <aside class="w-64 bg-slate-50/60 border-r border-slate-200 p-3 overflow-y-auto">
+          <div class="sidebar-item"><i data-lucide="layout-dashboard" class="w-4 h-4"></i>Dashboard</div>
+          <div class="sidebar-group-label">Operaciones</div>
+          <div class="sidebar-item"><i data-lucide="trending-up" class="w-4 h-4"></i>Ventas</div>
+          <div class="sidebar-item"><i data-lucide="shopping-cart" class="w-4 h-4"></i>Compras</div>
+          <div class="sidebar-item"><i data-lucide="truck" class="w-4 h-4"></i>Envíos</div>
+          <div class="sidebar-group-label">Almacén</div>
+          <div class="sidebar-item"><i data-lucide="package" class="w-4 h-4"></i>Inventario</div>
+          <div class="sidebar-item"><i data-lucide="boxes" class="w-4 h-4"></i>Productos</div>
+          <div class="sidebar-group-label">Finanzas y Contabilidad</div>
+          <div class="sidebar-item"><i data-lucide="wallet" class="w-4 h-4"></i>Gastos</div>
+          <div class="sidebar-item"><i data-lucide="banknote" class="w-4 h-4"></i>Tesorería</div>
+          <div class="sidebar-item"><i data-lucide="briefcase-business" class="w-4 h-4"></i>Planilla</div>
+          <div class="sidebar-item"><i data-lucide="landmark" class="w-4 h-4"></i>Inversionistas</div>
+          <div class="sidebar-item"><i data-lucide="calculator" class="w-4 h-4"></i>Contabilidad</div>
+          <div class="sidebar-group-label">Administración</div>
+          <div class="sidebar-item"><i data-lucide="users" class="w-4 h-4"></i>Usuarios</div>
+          <div class="sidebar-item"><i data-lucide="settings" class="w-4 h-4"></i>Configuración</div>
+
+          <!-- MI ESPACIO multi-rol -->
+          <div class="border-t-2 border-purple-300 mt-3 pt-2 -mx-3 px-3 bg-purple-50/40">
+            <div class="sidebar-group-label" style="color: rgb(126 34 206)">⭐ Mi espacio · 4 items</div>
+            <div class="sidebar-item active"><i data-lucide="user" class="w-4 h-4"></i>Mi perfil</div>
+            <div class="sidebar-item justify-between">
+              <span class="inline-flex items-center gap-2.5"><i data-lucide="shield-check" class="w-4 h-4"></i>Mi bandeja</span>
+              <span class="text-[9px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-full font-bold tabular">7</span>
+            </div>
+            <div class="sidebar-item"><i data-lucide="coins" class="w-4 h-4"></i>Mi capital</div>
+            <div class="sidebar-item text-slate-400 cursor-not-allowed" title="No tiene datosLaborales · contactar RRHH">
+              <i data-lucide="briefcase" class="w-4 h-4"></i>
+              <span class="line-through">Mi planilla</span>
+              <span class="text-[8px] ml-auto">sin data</span>
+            </div>
+            <div class="border-t border-slate-200 my-2"></div>
+            <div class="sidebar-item" style="color: rgb(190 18 60)">
+              <i data-lucide="log-out" class="w-4 h-4"></i>Cerrar sesión
+            </div>
+          </div>
+        </aside>
+
+        <main class="flex-1 bg-slate-50/30 overflow-y-auto p-6">
+          <div class="bg-white rounded-2xl ring-1 ring-slate-200 p-6">
+            <h2 class="text-lg font-bold text-slate-900 mb-3 inline-flex items-center gap-2">
+              <i data-lucide="user" class="w-5 h-5 text-purple-700"></i>
+              Mi perfil · José Pinto
+            </h2>
+            <p class="text-[12px] text-slate-600 mb-4">Tab Resumen del perfil · concatena los 3 bloques (admin + socio + empleado si tuviera datosLaborales).</p>
+            <div class="grid grid-cols-3 gap-3">
+              <div class="bg-purple-50 border border-purple-200 rounded-xl p-3">
+                <div class="text-[10px] uppercase text-purple-700 font-bold">Bloque admin</div>
+                <div class="text-[12px] font-bold text-purple-900 mt-1">7 aprobaciones pendientes</div>
+                <div class="text-[10px] text-purple-700 mt-1">Tu bandeja · 4 categorías</div>
+              </div>
+              <div class="bg-violet-50 border border-violet-200 rounded-xl p-3">
+                <div class="text-[10px] uppercase text-violet-700 font-bold">Bloque socio</div>
+                <div class="text-[12px] font-bold text-violet-900 mt-1">45% · S/ 70K capital</div>
+                <div class="text-[10px] text-violet-700 mt-1">ROI YTD +12.4%</div>
+              </div>
+              <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 opacity-60">
+                <div class="text-[10px] uppercase text-slate-500 font-bold">Bloque empleado</div>
+                <div class="text-[12px] font-bold text-slate-700 mt-1">— sin datos</div>
+                <div class="text-[10px] text-slate-500 mt-1">No tiene datosLaborales</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-4 p-3 bg-emerald-50 border border-emerald-200 rounded-lg">
+            <div class="text-[11px] text-emerald-900">
+              <strong>"Mi planilla" se muestra deshabilitado</strong> con texto tachado y "sin data" para que José sepa que existe la opción
+              pero requiere configuración de RRHH. Una vez configurado, automáticamente se activa.
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ACTO 7 · AVATAR DROPDOWN -->
+<section id="a7" class="my-12">
+  <div class="max-w-6xl mx-auto px-4">
+    <div class="bg-gradient-to-r from-amber-100 to-amber-50 ring-1 ring-amber-200 rounded-3xl p-5 mb-6">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 bg-amber-600 rounded-2xl flex items-center justify-center text-white font-bold">7</div>
+        <div>
+          <h2 class="text-lg font-bold text-amber-900">Avatar dropdown · convivencia con sidebar</h2>
+          <p class="text-[11px] text-amber-700">Avatar header sigue funcionando como atajo rápido cross-page</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="device-desktop bg-white rounded-2xl ring-1 ring-slate-200 overflow-hidden p-6">
+      <div class="grid grid-cols-2 gap-6">
+        <div>
+          <h3 class="text-[12px] font-bold text-slate-700 mb-3 uppercase tracking-wider">Click avatar → dropdown</h3>
+          <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 relative">
+            <!-- Avatar -->
+            <div class="flex justify-end mb-2">
+              <div class="flex items-center gap-2 bg-slate-100 px-2 py-1 rounded-lg">
+                <div class="w-9 h-9 rounded-full bg-gradient-to-br from-purple-500 to-purple-700 flex items-center justify-center text-white font-bold text-[12px]">JP</div>
+                <div class="text-left">
+                  <div class="text-[12px] font-bold text-slate-900">José Pinto</div>
+                  <div class="text-[10px] text-slate-500">Admin · Socio</div>
+                </div>
+                <i data-lucide="chevron-up" class="w-3.5 h-3.5 text-slate-400"></i>
+              </div>
+            </div>
+            <!-- Dropdown -->
+            <div class="bg-white border border-slate-200 rounded-xl shadow-lg w-64 mx-auto p-1.5">
+              <div class="px-3 py-2 border-b border-slate-100 mb-1">
+                <div class="text-[11px] text-slate-500">Sesión activa</div>
+                <div class="text-[12px] font-bold text-slate-900">jose.pinto@vita-skin.pe</div>
+              </div>
+              <a class="flex items-center gap-2.5 px-3 py-2 hover:bg-slate-50 rounded-lg text-[12px] text-slate-700 cursor-pointer">
+                <i data-lucide="user" class="w-4 h-4 text-purple-700"></i>Mi perfil
+              </a>
+              <a class="flex items-center gap-2.5 px-3 py-2 hover:bg-slate-50 rounded-lg text-[12px] text-slate-700 cursor-pointer">
+                <i data-lucide="shield-check" class="w-4 h-4 text-amber-700"></i>Mi bandeja
+                <span class="ml-auto text-[9px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-full font-bold">7</span>
+              </a>
+              <a class="flex items-center gap-2.5 px-3 py-2 hover:bg-slate-50 rounded-lg text-[12px] text-slate-700 cursor-pointer">
+                <i data-lucide="coins" class="w-4 h-4 text-violet-700"></i>Mi capital
+              </a>
+              <div class="border-t border-slate-100 my-1"></div>
+              <a class="flex items-center gap-2.5 px-3 py-2 hover:bg-slate-50 rounded-lg text-[12px] text-slate-700 cursor-pointer">
+                <i data-lucide="moon" class="w-4 h-4 text-slate-500"></i>Tema oscuro
+                <span class="ml-auto text-[10px] text-slate-400">próximamente</span>
+              </a>
+              <a class="flex items-center gap-2.5 px-3 py-2 hover:bg-rose-50 rounded-lg text-[12px] text-rose-700 cursor-pointer">
+                <i data-lucide="log-out" class="w-4 h-4"></i>Cerrar sesión
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <div class="text-[12px] space-y-3">
+          <div class="bg-emerald-50 border border-emerald-200 rounded-lg p-3">
+            <div class="font-bold text-emerald-900 mb-1 inline-flex items-center gap-1.5">
+              <i data-lucide="check" class="w-4 h-4"></i>Por qué se mantiene el avatar dropdown
+            </div>
+            <ul class="text-[11px] text-emerald-800 list-disc list-inside space-y-1">
+              <li>Atajo rápido cuando el sidebar está colapsado (modo icon-only)</li>
+              <li>Acceso cross-page · siempre visible en topbar</li>
+              <li>Convención web universal · users esperan encontrarlo ahí</li>
+              <li>Espacio natural para "Cerrar sesión" y configuraciones de cuenta</li>
+            </ul>
+          </div>
+
+          <div class="bg-sky-50 border border-sky-200 rounded-lg p-3">
+            <div class="font-bold text-sky-900 mb-1 inline-flex items-center gap-1.5">
+              <i data-lucide="layers" class="w-4 h-4"></i>Diferencia funcional vs sidebar
+            </div>
+            <table class="text-[11px] w-full">
+              <tbody>
+                <tr class="border-b border-sky-100">
+                  <td class="py-1 font-bold text-sky-900">Sidebar Mi espacio</td>
+                  <td class="py-1 text-slate-700">Navegación principal · siempre visible · grupo completo</td>
+                </tr>
+                <tr>
+                  <td class="py-1 font-bold text-sky-900">Avatar dropdown</td>
+                  <td class="py-1 text-slate-700">Atajo + session info + acciones de cuenta + logout</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="bg-amber-50 border border-amber-200 rounded-lg p-3">
+            <div class="font-bold text-amber-900 mb-1 inline-flex items-center gap-1.5">
+              <i data-lucide="alert-circle" class="w-4 h-4"></i>Decisión clave
+            </div>
+            <div class="text-[11px] text-amber-800">
+              "Cerrar sesión" vive en <strong>ambos lugares</strong> · sidebar (Mi espacio bottom) y dropdown.
+              Es la acción más buscada y NO hay riesgo de duplicación (logout es idempotente).
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ACTO 8 · CLICK FLOW EMPLEADO -->
+<section id="a8" class="my-12">
+  <div class="max-w-6xl mx-auto px-4">
+    <div class="bg-gradient-to-r from-sky-100 to-sky-50 ring-1 ring-sky-200 rounded-3xl p-5 mb-6">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 bg-sky-600 rounded-2xl flex items-center justify-center text-white font-bold">8</div>
+        <div>
+          <h2 class="text-lg font-bold text-sky-900">Click flow · sidebar → /perfil/mi-planilla</h2>
+          <p class="text-[11px] text-sky-700">Diego hace click en "Mi planilla" del sidebar · navega directo · 1 click</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="device-desktop bg-white rounded-2xl ring-1 ring-slate-200 overflow-hidden p-6">
+      <div class="flex items-center gap-3 mb-4">
+        <div class="bg-sky-100 text-sky-700 px-3 py-1 rounded-full text-[11px] font-bold">FLOW EN 3 PASOS</div>
+        <div class="flex-1 text-[11px] text-slate-600">Diego está en Ventas · quiere ver su última boleta</div>
+      </div>
+
+      <div class="space-y-4">
+        <!-- Paso 1 -->
+        <div class="flex gap-4 items-start">
+          <div class="w-8 h-8 bg-sky-600 text-white rounded-full flex items-center justify-center font-bold text-[13px] flex-shrink-0">1</div>
+          <div class="flex-1 bg-slate-50 border border-slate-200 rounded-xl p-4">
+            <div class="text-[12px] font-bold text-slate-900 mb-2">Diego en Ventas · sidebar lateral muestra Mi espacio al final</div>
+            <div class="bg-white border border-slate-200 rounded-lg p-3 inline-flex items-center gap-3">
+              <div class="w-32 bg-slate-50 border-r border-slate-200 px-2 py-2 text-[10px] text-slate-600">
+                <div class="font-bold text-slate-900">Ventas</div>
+                <div class="text-slate-400">(activo)</div>
+              </div>
+              <i data-lucide="arrow-right" class="w-4 h-4 text-slate-400"></i>
+              <div class="text-[10px] text-slate-600">
+                Click en <strong class="text-sky-700">Mi planilla</strong> (sidebar bottom)
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Paso 2 -->
+        <div class="flex gap-4 items-start">
+          <div class="w-8 h-8 bg-sky-600 text-white rounded-full flex items-center justify-center font-bold text-[13px] flex-shrink-0">2</div>
+          <div class="flex-1 bg-slate-50 border border-slate-200 rounded-xl p-4">
+            <div class="text-[12px] font-bold text-slate-900 mb-2">Navega a /perfil/mi-planilla · sub-página dedicada se abre</div>
+            <div class="bg-white border border-slate-200 rounded-lg p-3">
+              <div class="text-[10px] text-slate-600 mb-1">Breadcrumb canon S9.D1:</div>
+              <div class="text-[11px]">
+                <span class="text-slate-500">Inicio</span>
+                <i data-lucide="chevron-right" class="w-2.5 h-2.5 inline mx-1 text-slate-300"></i>
+                <span class="text-slate-500">Mi perfil</span>
+                <i data-lucide="chevron-right" class="w-2.5 h-2.5 inline mx-1 text-slate-300"></i>
+                <span class="text-slate-900 font-semibold">Mi planilla</span>
+              </div>
+              <div class="text-[10px] text-slate-500 mt-2">+ sidebar mantiene "Mi planilla" highlighted</div>
+              <div class="text-[10px] text-slate-500">+ scroll resetea a top</div>
+              <div class="text-[10px] text-slate-500">+ transición slide-from-right en mobile</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Paso 3 -->
+        <div class="flex gap-4 items-start">
+          <div class="w-8 h-8 bg-emerald-600 text-white rounded-full flex items-center justify-center font-bold text-[13px] flex-shrink-0">
+            <i data-lucide="check" class="w-4 h-4"></i>
+          </div>
+          <div class="flex-1 bg-emerald-50 border border-emerald-200 rounded-xl p-4">
+            <div class="text-[12px] font-bold text-emerald-900 mb-2">Diego ve directo su planilla personal · sin pasar por Resumen del perfil</div>
+            <div class="bg-white border border-emerald-200 rounded-lg p-3">
+              <div class="grid grid-cols-2 gap-2 text-[11px]">
+                <div>
+                  <div class="text-[10px] uppercase text-slate-500 font-bold">5 boletas YTD</div>
+                  <div class="text-slate-700">Última: may 2026 · S/ 4,800 pendiente</div>
+                </div>
+                <div>
+                  <div class="text-[10px] uppercase text-slate-500 font-bold">3 adelantos</div>
+                  <div class="text-slate-700">1 pendiente · S/ 500</div>
+                </div>
+                <div>
+                  <div class="text-[10px] uppercase text-slate-500 font-bold">Esquemas activos</div>
+                  <div class="text-slate-700">Comisión escalonada</div>
+                </div>
+                <div>
+                  <div class="text-[10px] uppercase text-slate-500 font-bold">Vacaciones</div>
+                  <div class="text-slate-700">12 días disponibles</div>
+                </div>
+              </div>
+            </div>
+            <div class="text-[10px] text-emerald-700 mt-2">⏱️ Time-to-info: ~1 segundo · 1 click · vs 3 clicks antes (avatar → perfil → resumen tab → cross-link)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ACTO 9 · ESTADOS ACTIVOS -->
+<section id="a9" class="my-12">
+  <div class="max-w-6xl mx-auto px-4">
+    <div class="bg-gradient-to-r from-slate-100 to-slate-50 ring-1 ring-slate-200 rounded-3xl p-5 mb-6">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 bg-slate-700 rounded-2xl flex items-center justify-center text-white font-bold">9</div>
+        <div>
+          <h2 class="text-lg font-bold text-slate-900">Estados activos · navegación contextual</h2>
+          <p class="text-[11px] text-slate-700">Cómo se ve el sidebar según ruta activa · canon visual</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="device-desktop bg-white rounded-2xl ring-1 ring-slate-200 overflow-hidden p-6">
+      <div class="grid grid-cols-3 gap-4">
+        <!-- Estado en /perfil -->
+        <div>
+          <h3 class="text-[11px] font-bold text-slate-700 mb-2 uppercase">/perfil · tab Resumen</h3>
+          <div class="bg-slate-50 border border-slate-200 rounded-xl p-2 text-[11px]">
+            <div class="sidebar-item"><i data-lucide="trending-up" class="w-4 h-4"></i>Ventas</div>
+            <div class="border-t border-slate-200 my-1.5 pt-1">
+              <div class="sidebar-group-label">Mi espacio</div>
+              <div class="sidebar-item active"><i data-lucide="user" class="w-4 h-4"></i>Mi perfil</div>
+              <div class="sidebar-item"><i data-lucide="briefcase" class="w-4 h-4"></i>Mi planilla</div>
+              <div class="sidebar-item"><i data-lucide="trending-up" class="w-4 h-4"></i>Mi histórico</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Estado en /perfil/mi-planilla -->
+        <div>
+          <h3 class="text-[11px] font-bold text-slate-700 mb-2 uppercase">/perfil/mi-planilla</h3>
+          <div class="bg-slate-50 border border-slate-200 rounded-xl p-2 text-[11px]">
+            <div class="sidebar-item"><i data-lucide="trending-up" class="w-4 h-4"></i>Ventas</div>
+            <div class="border-t border-slate-200 my-1.5 pt-1">
+              <div class="sidebar-group-label">Mi espacio</div>
+              <div class="sidebar-item"><i data-lucide="user" class="w-4 h-4"></i>Mi perfil</div>
+              <div class="sidebar-item active"><i data-lucide="briefcase" class="w-4 h-4"></i>Mi planilla</div>
+              <div class="sidebar-item"><i data-lucide="trending-up" class="w-4 h-4"></i>Mi histórico</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Estado en /planilla (módulo gestión) -->
+        <div>
+          <h3 class="text-[11px] font-bold text-slate-700 mb-2 uppercase">/planilla (módulo)</h3>
+          <div class="bg-slate-50 border border-slate-200 rounded-xl p-2 text-[11px]">
+            <div class="sidebar-group-label">Finanzas y Contabilidad</div>
+            <div class="sidebar-item active"><i data-lucide="briefcase-business" class="w-4 h-4"></i>Planilla</div>
+            <div class="border-t border-slate-200 my-1.5 pt-1">
+              <div class="sidebar-group-label">Mi espacio</div>
+              <div class="sidebar-item"><i data-lucide="user" class="w-4 h-4"></i>Mi perfil</div>
+              <div class="sidebar-item"><i data-lucide="briefcase" class="w-4 h-4"></i>Mi planilla</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-5 p-4 bg-slate-50 border border-slate-200 rounded-lg">
+        <div class="text-[12px] font-bold text-slate-900 mb-2 inline-flex items-center gap-1.5">
+          <i data-lucide="info" class="w-4 h-4"></i>
+          Reglas de active state
+        </div>
+        <ul class="text-[11px] text-slate-700 space-y-1 list-disc list-inside">
+          <li><strong>1 solo item activo a la vez</strong> · siempre el que matchea la ruta actual</li>
+          <li><strong>/perfil</strong> → "Mi perfil" activo (NO los sub-items)</li>
+          <li><strong>/perfil/mi-X</strong> → "Mi X" activo (NO "Mi perfil")</li>
+          <li><strong>/planilla</strong> → "Planilla" activo del grupo Finanzas (NO "Mi planilla" personal)</li>
+          <li><strong>Visual</strong>: bg purple-50 + text purple-700 + font-semibold + icon purple-700</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ACTO 10 · SIDEBAR COLAPSADO -->
+<section id="a10" class="my-12">
+  <div class="max-w-6xl mx-auto px-4">
+    <div class="bg-gradient-to-r from-slate-100 to-slate-50 ring-1 ring-slate-200 rounded-3xl p-5 mb-6">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 bg-slate-700 rounded-2xl flex items-center justify-center text-white font-bold">10</div>
+        <div>
+          <h2 class="text-lg font-bold text-slate-900">Sidebar colapsado · solo iconos</h2>
+          <p class="text-[11px] text-slate-700">Modo compacto para usuarios power · más espacio para canvas</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="device-desktop bg-white rounded-2xl ring-1 ring-slate-200 overflow-hidden">
+      <div class="flex" style="height: 480px">
+        <!-- Sidebar colapsado -->
+        <aside class="w-16 bg-slate-50/60 border-r border-slate-200 py-3 flex flex-col items-center gap-1.5 overflow-y-auto">
+          <div class="w-10 h-10 hover:bg-slate-100 rounded-lg flex items-center justify-center" title="Dashboard"><i data-lucide="layout-dashboard" class="w-4 h-4 text-slate-600"></i></div>
+          <div class="border-t border-slate-200 w-8 my-1"></div>
+          <div class="w-10 h-10 hover:bg-slate-100 rounded-lg flex items-center justify-center" title="Ventas"><i data-lucide="trending-up" class="w-4 h-4 text-slate-600"></i></div>
+          <div class="w-10 h-10 hover:bg-slate-100 rounded-lg flex items-center justify-center" title="Compras"><i data-lucide="shopping-cart" class="w-4 h-4 text-slate-600"></i></div>
+          <div class="w-10 h-10 hover:bg-slate-100 rounded-lg flex items-center justify-center" title="Inventario"><i data-lucide="package" class="w-4 h-4 text-slate-600"></i></div>
+          <div class="w-10 h-10 hover:bg-slate-100 rounded-lg flex items-center justify-center" title="Gastos"><i data-lucide="wallet" class="w-4 h-4 text-slate-600"></i></div>
+          <div class="w-10 h-10 hover:bg-slate-100 rounded-lg flex items-center justify-center" title="Tesorería"><i data-lucide="banknote" class="w-4 h-4 text-slate-600"></i></div>
+          <div class="w-10 h-10 hover:bg-slate-100 rounded-lg flex items-center justify-center" title="Planilla"><i data-lucide="briefcase-business" class="w-4 h-4 text-slate-600"></i></div>
+          <div class="w-10 h-10 hover:bg-slate-100 rounded-lg flex items-center justify-center" title="Inversionistas"><i data-lucide="landmark" class="w-4 h-4 text-slate-600"></i></div>
+          <div class="w-10 h-10 hover:bg-slate-100 rounded-lg flex items-center justify-center" title="Usuarios"><i data-lucide="users" class="w-4 h-4 text-slate-600"></i></div>
+          <div class="w-10 h-10 hover:bg-slate-100 rounded-lg flex items-center justify-center" title="Configuración"><i data-lucide="settings" class="w-4 h-4 text-slate-600"></i></div>
+
+          <!-- MI ESPACIO colapsado · separador purple sutil -->
+          <div class="border-t-2 border-purple-200 w-8 my-1"></div>
+          <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center" title="Mi perfil"><i data-lucide="user" class="w-4 h-4 text-purple-700"></i></div>
+          <div class="w-10 h-10 hover:bg-slate-100 rounded-lg flex items-center justify-center relative" title="Mi bandeja · 7 pendientes">
+            <i data-lucide="shield-check" class="w-4 h-4 text-slate-600"></i>
+            <span class="absolute -top-1 -right-1 w-4 h-4 bg-amber-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center">7</span>
+          </div>
+          <div class="w-10 h-10 hover:bg-slate-100 rounded-lg flex items-center justify-center" title="Mi capital"><i data-lucide="coins" class="w-4 h-4 text-slate-600"></i></div>
+          <div class="border-t border-slate-200 w-8 my-1"></div>
+          <div class="w-10 h-10 hover:bg-rose-50 rounded-lg flex items-center justify-center" title="Cerrar sesión"><i data-lucide="log-out" class="w-4 h-4 text-rose-600"></i></div>
+        </aside>
+
+        <main class="flex-1 bg-slate-50/30 p-6 text-center text-slate-400 text-[12px]">
+          Canvas con más espacio horizontal · útil para tablas anchas y dashboards
+        </main>
+      </div>
+    </div>
+
+    <div class="mt-4 p-3 bg-slate-50 border border-slate-200 rounded-lg max-w-2xl">
+      <div class="text-[11px] text-slate-700">
+        <strong>Detalles del modo colapsado:</strong>
+        <ul class="list-disc list-inside mt-1 space-y-0.5">
+          <li>Hover sobre item muestra <strong>tooltip nativo</strong> con label completo</li>
+          <li><strong>Badges</strong> se mantienen (badge "7" en Mi bandeja con dot rojo)</li>
+          <li><strong>Separadores sutiles</strong> entre grupos · purple-200 para Mi espacio</li>
+          <li>Toggle entre colapsado/expandido persiste en localStorage</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DIVISOR MOBILE -->
+<section class="my-16 max-w-6xl mx-auto px-4">
+  <div class="bg-gradient-to-r from-sky-600 to-sky-700 text-white rounded-3xl p-6 shadow-xl">
+    <div class="flex items-center gap-4">
+      <div class="w-14 h-14 bg-white/20 rounded-2xl flex items-center justify-center flex-shrink-0">
+        <i data-lucide="smartphone" class="w-7 h-7"></i>
+      </div>
+      <div>
+        <h2 class="text-2xl font-bold">Vista mobile · 3 actos · canon 2026-05-27</h2>
+        <p class="text-[13px] opacity-90 mt-1">Drawer + avatar topbar + bottom nav opcional · 375px</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ACTO 11 · MOBILE DRAWER -->
+<section id="a11" class="my-12">
+  <div class="max-w-6xl mx-auto px-4">
+    <div class="bg-gradient-to-r from-sky-100 to-sky-50 ring-1 ring-sky-200 rounded-3xl p-5 mb-6">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 bg-sky-600 rounded-2xl flex items-center justify-center text-white font-bold">11</div>
+        <div>
+          <h2 class="text-lg font-bold text-sky-900">Mobile drawer abierto · Mi espacio al final</h2>
+          <p class="text-[11px] text-sky-700">Scroll natural · al hacer scroll-down el user llega a Mi espacio</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="iphone-frame">
+      <div class="bg-white relative" style="height: 700px">
+        <!-- Status bar -->
+        <div class="bg-slate-50 px-4 py-1 text-[10px] text-slate-600 flex justify-between">
+          <span>9:41</span><span>BusinessMN</span><span>100%</span>
+        </div>
+        <!-- Topbar -->
+        <div class="bg-white border-b border-slate-200 px-3 py-2 flex items-center justify-between">
+          <button class="w-9 h-9 bg-slate-100 rounded-lg flex items-center justify-center"><i data-lucide="x" class="w-4 h-4 text-slate-600"></i></button>
+          <span class="text-[12px] font-bold text-slate-700">BusinessMN</span>
+          <div class="w-9 h-9 rounded-full bg-gradient-to-br from-purple-500 to-purple-700 flex items-center justify-center text-white font-bold text-[11px]">DL</div>
+        </div>
+
+        <!-- Sidebar mobile (full drawer) -->
+        <div class="bg-white" style="height: calc(100% - 56px); overflow-y: auto">
+          <div class="px-3 py-2">
+            <div class="sidebar-item" style="min-height: 44px"><i data-lucide="layout-dashboard" class="w-4 h-4"></i>Dashboard</div>
+            <div class="sidebar-group-label">Operaciones</div>
+            <div class="sidebar-item active" style="min-height: 44px"><i data-lucide="trending-up" class="w-4 h-4"></i>Ventas</div>
+            <div class="sidebar-item" style="min-height: 44px"><i data-lucide="quote" class="w-4 h-4"></i>Cotizaciones</div>
+            <div class="sidebar-item" style="min-height: 44px"><i data-lucide="package-check" class="w-4 h-4"></i>Entregas</div>
+            <div class="sidebar-group-label">Almacén</div>
+            <div class="sidebar-item" style="min-height: 44px"><i data-lucide="package" class="w-4 h-4"></i>Inventario</div>
+
+            <!-- MI ESPACIO al final · scroll a este punto -->
+            <div class="border-t-2 border-purple-300 mt-4 pt-2 -mx-3 px-3 bg-purple-50/30">
+              <div class="sidebar-group-label" style="color: rgb(126 34 206)">⭐ Mi espacio</div>
+              <div class="sidebar-item" style="min-height: 48px">
+                <i data-lucide="user" class="w-5 h-5"></i>
+                <span class="text-[13px]">Mi perfil</span>
+              </div>
+              <div class="sidebar-item" style="min-height: 48px">
+                <i data-lucide="briefcase" class="w-5 h-5"></i>
+                <span class="text-[13px]">Mi planilla</span>
+                <span class="ml-auto text-[10px] text-slate-500">5 boletas</span>
+              </div>
+              <div class="sidebar-item" style="min-height: 48px">
+                <i data-lucide="trending-up" class="w-5 h-5"></i>
+                <span class="text-[13px]">Mi histórico</span>
+                <span class="ml-auto text-[10px] text-emerald-700 font-bold">+12.5%</span>
+              </div>
+              <div class="border-t border-slate-200 my-2"></div>
+              <div class="sidebar-item" style="min-height: 48px; color: rgb(190 18 60)">
+                <i data-lucide="log-out" class="w-5 h-5"></i>
+                <span class="text-[13px]">Cerrar sesión</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-4 p-3 bg-sky-50 border border-sky-200 rounded-lg max-w-md mx-auto">
+      <div class="text-[11px] text-sky-900">
+        <strong>Mobile drawer specifics:</strong>
+        <ul class="list-disc list-inside mt-1 space-y-0.5">
+          <li>Items con <code class="bg-white px-1 rounded">min-height: 48px</code> en Mi espacio (vs 44px en otros) · más prominencia</li>
+          <li>Preview data inline ("5 boletas", "+12.5%") aprovecha el espacio disponible</li>
+          <li>Separador <code class="bg-white px-1 rounded">border-t-2 border-purple-300</code> destaca el grupo</li>
+          <li>Avatar topbar derecha permite logout sin scrollear el drawer completo</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ACTO 12 · MOBILE AVATAR HEADER ATAJO -->
+<section id="a12" class="my-12">
+  <div class="max-w-6xl mx-auto px-4">
+    <div class="bg-gradient-to-r from-amber-100 to-amber-50 ring-1 ring-amber-200 rounded-3xl p-5 mb-6">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 bg-amber-600 rounded-2xl flex items-center justify-center text-white font-bold">12</div>
+        <div>
+          <h2 class="text-lg font-bold text-amber-900">Mobile · avatar header como atajo</h2>
+          <p class="text-[11px] text-amber-700">Bottom-sheet desde avatar cuando el drawer está cerrado</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="iphone-frame">
+      <div class="bg-white relative" style="height: 700px; overflow: hidden">
+        <div class="bg-slate-50 px-4 py-1 text-[10px] text-slate-600 flex justify-between">
+          <span>9:41</span><span>BusinessMN</span><span>100%</span>
+        </div>
+        <div class="bg-white border-b border-slate-200 px-3 py-2 flex items-center justify-between">
+          <button class="w-9 h-9 bg-slate-100 rounded-lg flex items-center justify-center"><i data-lucide="menu" class="w-4 h-4 text-slate-600"></i></button>
+          <span class="text-[12px] font-bold text-slate-700">Ventas</span>
+          <div class="w-9 h-9 rounded-full bg-gradient-to-br from-purple-500 to-purple-700 flex items-center justify-center text-white font-bold text-[11px] ring-2 ring-purple-300">DL</div>
+        </div>
+
+        <!-- Backdrop -->
+        <div class="absolute inset-0 bg-slate-900/30" style="top: 80px"></div>
+
+        <!-- Bottom sheet desde avatar -->
+        <div class="absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl shadow-2xl pt-2 pb-6 px-4">
+          <div class="w-10 h-1 bg-slate-300 rounded-full mx-auto mb-3"></div>
+          <div class="text-center mb-3">
+            <div class="w-14 h-14 rounded-full bg-gradient-to-br from-purple-500 to-purple-700 flex items-center justify-center text-white font-bold text-[16px] mx-auto mb-1">DL</div>
+            <div class="text-[14px] font-bold text-slate-900">Diego López</div>
+            <div class="text-[11px] text-slate-500">Vendedor sr.</div>
+          </div>
+          <div class="space-y-1">
+            <a class="flex items-center gap-3 px-3 py-3 hover:bg-slate-50 rounded-lg" style="min-height: 48px">
+              <i data-lucide="user" class="w-5 h-5 text-purple-700"></i>
+              <span class="text-[13px] font-semibold text-slate-900">Mi perfil</span>
+              <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400 ml-auto"></i>
+            </a>
+            <a class="flex items-center gap-3 px-3 py-3 hover:bg-slate-50 rounded-lg" style="min-height: 48px">
+              <i data-lucide="briefcase" class="w-5 h-5 text-sky-700"></i>
+              <span class="text-[13px] font-semibold text-slate-900">Mi planilla</span>
+              <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400 ml-auto"></i>
+            </a>
+            <a class="flex items-center gap-3 px-3 py-3 hover:bg-slate-50 rounded-lg" style="min-height: 48px">
+              <i data-lucide="trending-up" class="w-5 h-5 text-emerald-700"></i>
+              <span class="text-[13px] font-semibold text-slate-900">Mi histórico</span>
+              <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400 ml-auto"></i>
+            </a>
+            <div class="border-t border-slate-200 my-2"></div>
+            <a class="flex items-center gap-3 px-3 py-3 hover:bg-rose-50 rounded-lg" style="min-height: 48px; color: rgb(190 18 60)">
+              <i data-lucide="log-out" class="w-5 h-5"></i>
+              <span class="text-[13px] font-semibold">Cerrar sesión</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-lg max-w-md mx-auto">
+      <div class="text-[11px] text-amber-900">
+        <strong>Tap en avatar en mobile</strong> abre bottom-sheet con SOLO los items de Mi espacio · acceso rápido
+        sin abrir el drawer lateral completo. Touch targets 48px · drag handle visible · safe-area inset bottom.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ACTO 13 · MOBILE BOTTOM NAV ALTERNATIVA -->
+<section id="a13" class="my-12">
+  <div class="max-w-6xl mx-auto px-4">
+    <div class="bg-gradient-to-r from-sky-100 to-sky-50 ring-1 ring-sky-200 rounded-3xl p-5 mb-6">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 bg-sky-600 rounded-2xl flex items-center justify-center text-white font-bold">13</div>
+        <div>
+          <h2 class="text-lg font-bold text-sky-900">Mobile · sticky bottom nav (alternativa futura)</h2>
+          <p class="text-[11px] text-sky-700">Opcional · 4 items principales del usuario siempre accesibles</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="iphone-frame">
+      <div class="bg-white relative" style="height: 700px; overflow: hidden">
+        <div class="bg-slate-50 px-4 py-1 text-[10px] text-slate-600 flex justify-between">
+          <span>9:41</span><span>BusinessMN</span><span>100%</span>
+        </div>
+        <div class="bg-white border-b border-slate-200 px-3 py-2 flex items-center justify-between">
+          <button class="w-9 h-9 bg-slate-100 rounded-lg flex items-center justify-center"><i data-lucide="menu" class="w-4 h-4 text-slate-600"></i></button>
+          <span class="text-[12px] font-bold text-slate-700">Mi planilla</span>
+          <div class="w-9 h-9 rounded-full bg-gradient-to-br from-purple-500 to-purple-700 flex items-center justify-center text-white font-bold text-[11px]">DL</div>
+        </div>
+
+        <!-- Main content placeholder -->
+        <div class="p-4 text-center text-slate-400 text-[11px]" style="height: calc(100% - 130px); overflow-y: auto">
+          Body de la página /perfil/mi-planilla
+        </div>
+
+        <!-- Bottom nav sticky -->
+        <div class="absolute bottom-0 left-0 right-0 bg-white border-t border-slate-200 grid grid-cols-4 shadow-lg" style="padding-bottom: env(safe-area-inset-bottom, 0)">
+          <button class="py-2 flex flex-col items-center gap-0.5" style="min-height: 56px">
+            <i data-lucide="layout-dashboard" class="w-5 h-5 text-slate-400"></i>
+            <span class="text-[9px] font-medium text-slate-400">Inicio</span>
+          </button>
+          <button class="py-2 flex flex-col items-center gap-0.5" style="min-height: 56px">
+            <i data-lucide="trending-up" class="w-5 h-5 text-slate-400"></i>
+            <span class="text-[9px] font-medium text-slate-400">Ventas</span>
+          </button>
+          <button class="py-2 flex flex-col items-center gap-0.5 bg-purple-50" style="min-height: 56px">
+            <i data-lucide="briefcase" class="w-5 h-5 text-purple-700"></i>
+            <span class="text-[9px] font-bold text-purple-700">Mi planilla</span>
+          </button>
+          <button class="py-2 flex flex-col items-center gap-0.5 relative" style="min-height: 56px">
+            <i data-lucide="user" class="w-5 h-5 text-slate-400"></i>
+            <span class="text-[9px] font-medium text-slate-400">Mi perfil</span>
+            <span class="absolute top-1 right-4 w-2 h-2 bg-amber-500 rounded-full"></span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-4 p-3 bg-sky-50 border border-sky-200 rounded-lg max-w-md mx-auto">
+      <div class="text-[11px] text-sky-900">
+        <strong>Bottom nav · IMPLEMENTACIÓN FUTURA</strong> · esta alternativa NO viene en F10.F.1.J-SIDEBAR · es una iteración
+        posterior si validamos que el drawer es muy lento de abrir en mobile. Pros: acceso 1-tap a 4 destinos clave.
+        Cons: ocupa 56px del viewport siempre.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER · CHECKLIST -->
+<section class="max-w-6xl mx-auto mt-16 mb-8 px-4">
+  <div class="bg-white rounded-2xl ring-1 ring-slate-200 p-6">
+    <h2 class="text-[16px] font-bold text-slate-900 mb-4 inline-flex items-center gap-2">
+      <i data-lucide="check-square" class="w-5 h-5 text-emerald-600"></i>
+      Checklist canon · cobertura del mockup
+    </h2>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-[12px]">
+      <div>
+        <h3 class="font-bold text-slate-700 mb-2 uppercase tracking-wider text-[11px]">Bloque A · cobertura desktop (10 actos)</h3>
+        <ul class="space-y-1 text-slate-600">
+          <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600 flex-shrink-0"></i>Concepto · antes/después</li>
+          <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600 flex-shrink-0"></i>Matriz items por rol</li>
+          <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600 flex-shrink-0"></i>4 perfiles · empleado/admin/socio/mixto</li>
+          <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600 flex-shrink-0"></i>Avatar dropdown convivencia</li>
+          <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600 flex-shrink-0"></i>Click flow sidebar→sub-página</li>
+          <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600 flex-shrink-0"></i>Estados activos contextual</li>
+          <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600 flex-shrink-0"></i>Sidebar colapsado · solo iconos</li>
+        </ul>
+      </div>
+      <div>
+        <h3 class="font-bold text-slate-700 mb-2 uppercase tracking-wider text-[11px]">Bloque B · mobile-included (3 actos)</h3>
+        <ul class="space-y-1 text-slate-600">
+          <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600 flex-shrink-0"></i>Mobile drawer · Mi espacio al final 375px</li>
+          <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600 flex-shrink-0"></i>Mobile avatar tap → bottom sheet</li>
+          <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600 flex-shrink-0"></i>Bottom nav alternativa futura</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="mt-6 pt-4 border-t border-slate-200">
+      <h3 class="font-bold text-slate-700 mb-2 uppercase tracking-wider text-[11px]">Plan de implementación combinado</h3>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-[11px]">
+        <div class="bg-purple-50 border border-purple-200 rounded p-3">
+          <div class="font-bold text-purple-900 mb-1">📦 F10.F.1.J-SIDEBAR (~5h)</div>
+          <ol class="list-decimal list-inside text-slate-700 space-y-1">
+            <li>Sub-páginas /perfil/mi-{planilla,capital,historial,bandeja}</li>
+            <li>Routes + lazy loading + 404</li>
+            <li>BackArrowHeader component reusable</li>
+            <li>Sidebar config con items dinámicos por rol</li>
+            <li>Active state contextual (sub-rutas)</li>
+            <li>Avatar dropdown header simplificado</li>
+            <li>Mobile drawer con Mi espacio al final</li>
+            <li>Bottom sheet desde avatar mobile</li>
+            <li>Sidebar colapsable con tooltips</li>
+          </ol>
+        </div>
+        <div class="bg-emerald-50 border border-emerald-200 rounded p-3">
+          <div class="font-bold text-emerald-900 mb-1">✅ Resultado neto</div>
+          <ul class="list-disc list-inside text-slate-700 space-y-1">
+            <li>Cada user tiene su espacio personal en el sidebar</li>
+            <li>Acceso 1-click a vista personal vs 3 clicks antes</li>
+            <li>Multi-rol escala bien (José ve 4 items)</li>
+            <li>Avatar dropdown se mantiene como atajo</li>
+            <li>Separación clara vista personal vs módulo</li>
+            <li>Empty states pedagógicos (Mi planilla disabled si no hay datosLaborales)</li>
+            <li>Badges dinámicos (Mi bandeja · 7)</li>
+            <li>Canon de ubicación cumplido · cero rutas en el aire</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-4 text-[10px] text-slate-400 italic">
+      Mockup canon · perfil-v5.6-sidebar-personalizado.html · 13 actos · canon 2026-05-27 · F10.F.1.J-SIDEBAR
+    </div>
+  </div>
+</section>
+
+<script>lucide.createIcons();</script>
+</body>
+</html>
