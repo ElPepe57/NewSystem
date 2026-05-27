@@ -447,25 +447,25 @@ export const MiPerfil: React.FC = () => {
             <div className="min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
                 {editingName ? (
-                  <div className="flex items-center gap-2 flex-wrap">
+                  <div className="inline-flex items-center gap-2 flex-wrap">
                     <input
                       type="text"
                       value={newName}
                       onChange={(e) => setNewName(e.target.value)}
-                      className="px-3 py-1.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-2xl font-bold tracking-tight"
+                      className="w-full max-w-[260px] px-3 py-1.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-2xl font-bold tracking-tight"
                       autoFocus
                     />
                     <button
                       onClick={handleSaveName}
                       disabled={savingName || !newName.trim()}
-                      className="p-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 disabled:opacity-50"
+                      className="p-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 disabled:opacity-50 flex-shrink-0"
                       aria-label="Guardar nombre"
                     >
                       {savingName ? <RefreshCw className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
                     </button>
                     <button
                       onClick={() => setEditingName(false)}
-                      className="p-2 bg-slate-200 text-slate-600 rounded-lg hover:bg-slate-300"
+                      className="p-2 bg-slate-200 text-slate-600 rounded-lg hover:bg-slate-300 flex-shrink-0"
                       aria-label="Cancelar edición"
                     >
                       <X className="h-4 w-4" />
@@ -473,10 +473,10 @@ export const MiPerfil: React.FC = () => {
                   </div>
                 ) : (
                   <>
-                    <h1 className="text-2xl font-bold tracking-tight text-slate-900">{displayName}</h1>
+                    <h1 className="text-2xl font-bold tracking-tight text-slate-900 truncate">{displayName}</h1>
                     <button
                       onClick={handleStartEditName}
-                      className="p-1 text-slate-400 hover:text-purple-600 rounded transition-colors"
+                      className="p-1 text-slate-400 hover:text-purple-600 rounded transition-colors flex-shrink-0"
                       title="Editar nombre"
                       aria-label="Editar nombre"
                     >
@@ -517,7 +517,9 @@ export const MiPerfil: React.FC = () => {
             </div>
           </div>
 
-          {/* Acciones header · canon 3-tier · canon mockup línea 129-136 */}
+          {/* Acciones header · canon 3-tier · canon mockup línea 129-136
+              Ocultas durante edición de nombre · evita competir por espacio con el input. */}
+          {!editingName && (
           <div className="flex items-center gap-1.5 flex-wrap justify-end">
             <button
               type="button"
@@ -539,6 +541,7 @@ export const MiPerfil: React.FC = () => {
               Editar perfil
             </button>
           </div>
+          )}
         </div>
 
         {/* ═══════════════════════════════════════════════════════════════
