@@ -1,0 +1,1860 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Perfil v5.5 · Variante Drill-down (Opción C) · canon 2026-05-27</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+  .tabular { font-variant-numeric: tabular-nums; font-feature-settings: "tnum"; }
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { scrollbar-width: none; }
+  .device-mobile { max-width: 375px; margin: 0 auto; }
+  .device-desktop { max-width: 1100px; margin: 0 auto; }
+  .iphone-frame {
+    background: #1e293b;
+    padding: 8px;
+    border-radius: 40px;
+    max-width: 391px;
+    margin: 0 auto;
+  }
+  .iphone-frame > * {
+    border-radius: 32px;
+    overflow: hidden;
+  }
+</style>
+</head>
+<body class="bg-slate-50 text-slate-900 py-8">
+
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<!-- HERO                                                                  -->
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<section class="max-w-6xl mx-auto mb-8 px-4">
+  <div class="bg-gradient-to-r from-purple-600 via-violet-600 to-purple-700 text-white rounded-3xl p-6 shadow-xl">
+    <div class="flex items-start gap-4 flex-wrap">
+      <div class="w-14 h-14 bg-white/20 rounded-2xl flex items-center justify-center flex-shrink-0">
+        <i data-lucide="layers" class="w-7 h-7"></i>
+      </div>
+      <div class="flex-1 min-w-[280px]">
+        <div class="text-[11px] uppercase tracking-wider font-bold opacity-90">Mockup · Variante de arquitectura</div>
+        <h1 class="text-2xl font-bold mt-0.5">Perfil v5.5 · Drill-down (Opción C)</h1>
+        <p class="text-[13px] opacity-90 mt-1">
+          Mantiene 3 tabs fijos del v5.4 · agrega sub-páginas dedicadas `/perfil/{seccion}` para
+          drill profundo · cross-links diferenciados según destino (sub-página propia vs módulo completo).
+        </p>
+        <div class="text-[11px] opacity-80 mt-2">
+          Canon 2026-05-27 · cobertura total + mobile-included · 14 actos (8 desktop + 6 mobile)
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<!-- ÍNDICE                                                                -->
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<section class="max-w-6xl mx-auto mb-8 px-4">
+  <div class="bg-white rounded-2xl ring-1 ring-slate-200 p-5">
+    <h2 class="text-[13px] font-bold text-slate-900 mb-4 uppercase tracking-wider">Índice · 14 actos (8 desktop + 6 mobile)</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-[12px]">
+      <a href="#a1" class="block p-2 rounded bg-purple-50 hover:bg-purple-100"><strong class="text-purple-700">ACTO 1</strong> · Concepto · qué cambia vs v5.4</a>
+      <a href="#a2" class="block p-2 rounded bg-purple-50 hover:bg-purple-100"><strong class="text-purple-700">ACTO 2</strong> · Mapa de rutas · /perfil/* nuevas</a>
+      <a href="#a3" class="block p-2 rounded bg-purple-50 hover:bg-purple-100"><strong class="text-purple-700">ACTO 3</strong> · Tab Resumen empleado · cross-links destacados</a>
+      <a href="#a4" class="block p-2 rounded bg-purple-50 hover:bg-purple-100"><strong class="text-purple-700">ACTO 4</strong> · Drill /perfil/mi-planilla · página dedicada</a>
+      <a href="#a5" class="block p-2 rounded bg-purple-50 hover:bg-purple-100"><strong class="text-purple-700">ACTO 5</strong> · Drill /perfil/mi-capital · vista socio personal</a>
+      <a href="#a6" class="block p-2 rounded bg-purple-50 hover:bg-purple-100"><strong class="text-purple-700">ACTO 6</strong> · Drill /perfil/mi-historial · timeline salarial</a>
+      <a href="#a7" class="block p-2 rounded bg-purple-50 hover:bg-purple-100"><strong class="text-purple-700">ACTO 7</strong> · Patrón cross-links · 3 tipos visuales</a>
+      <a href="#a8" class="block p-2 rounded bg-purple-50 hover:bg-purple-100"><strong class="text-purple-700">ACTO 8</strong> · Back link sticky · pattern de retorno</a>
+      <a href="#a9" class="block p-2 rounded bg-sky-50 hover:bg-sky-100"><strong class="text-sky-700">ACTO 9</strong> · Mobile · Tab Resumen empleado</a>
+      <a href="#a10" class="block p-2 rounded bg-sky-50 hover:bg-sky-100"><strong class="text-sky-700">ACTO 10</strong> · Mobile · /perfil/mi-planilla 375px</a>
+      <a href="#a11" class="block p-2 rounded bg-sky-50 hover:bg-sky-100"><strong class="text-sky-700">ACTO 11</strong> · Mobile · /perfil/mi-capital 375px</a>
+      <a href="#a12" class="block p-2 rounded bg-sky-50 hover:bg-sky-100"><strong class="text-sky-700">ACTO 12</strong> · Mobile · sticky back header</a>
+      <a href="#a13" class="block p-2 rounded bg-sky-50 hover:bg-sky-100"><strong class="text-sky-700">ACTO 13</strong> · Mobile · swipe-back gesture</a>
+      <a href="#a14" class="block p-2 rounded bg-sky-50 hover:bg-sky-100"><strong class="text-sky-700">ACTO 14</strong> · Mobile · UX patterns + transitions</a>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<!-- ACTO 1 · CONCEPTO                                                     -->
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<section id="a1" class="my-12">
+  <div class="max-w-6xl mx-auto px-4">
+    <div class="bg-gradient-to-r from-purple-100 to-purple-50 ring-1 ring-purple-200 rounded-3xl p-5 mb-6">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 bg-purple-600 rounded-2xl flex items-center justify-center text-white font-bold">1</div>
+        <div>
+          <h2 class="text-lg font-bold text-purple-900">Concepto · qué cambia vs v5.4</h2>
+          <p class="text-[11px] text-purple-700">Diferencia clave entre las 3 opciones que evaluamos</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="device-desktop bg-white rounded-2xl ring-1 ring-slate-200 overflow-hidden p-6">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <!-- Opción A · actual -->
+        <div class="border border-slate-300 rounded-xl p-4">
+          <div class="flex items-center gap-2 mb-2">
+            <span class="text-[10px] bg-slate-100 text-slate-700 font-bold px-2 py-0.5 rounded uppercase">v5.4 actual</span>
+            <span class="text-[14px] font-bold text-slate-900">Opción A · 3 tabs fijos</span>
+          </div>
+          <p class="text-[11px] text-slate-600 mb-3">Todo el contenido vive en los 3 tabs · empleado tiene mucho material amontonado en Resumen.</p>
+          <div class="space-y-1 text-[11px]">
+            <div class="flex items-center gap-1.5"><i data-lucide="check" class="w-3 h-3 text-emerald-600"></i><span>Navegación simple</span></div>
+            <div class="flex items-center gap-1.5"><i data-lucide="check" class="w-3 h-3 text-emerald-600"></i><span>Consistente entre users</span></div>
+            <div class="flex items-center gap-1.5"><i data-lucide="x" class="w-3 h-3 text-rose-600"></i><span>Resumen sobrecargado</span></div>
+            <div class="flex items-center gap-1.5"><i data-lucide="x" class="w-3 h-3 text-rose-600"></i><span>Difícil drill profundo</span></div>
+          </div>
+        </div>
+
+        <!-- Opción B · descartada -->
+        <div class="border border-slate-300 rounded-xl p-4 opacity-60">
+          <div class="flex items-center gap-2 mb-2">
+            <span class="text-[10px] bg-rose-100 text-rose-700 font-bold px-2 py-0.5 rounded uppercase">descartada</span>
+            <span class="text-[14px] font-bold text-slate-700">Opción B · tabs dinámicos</span>
+          </div>
+          <p class="text-[11px] text-slate-600 mb-3">Tabs aparecen/desaparecen según rol · empleado ve "Mi planilla" tab nuevo.</p>
+          <div class="space-y-1 text-[11px]">
+            <div class="flex items-center gap-1.5"><i data-lucide="check" class="w-3 h-3 text-emerald-600"></i><span>Cada cosa en su lugar</span></div>
+            <div class="flex items-center gap-1.5"><i data-lucide="x" class="w-3 h-3 text-rose-600"></i><span>Inconsistencia user a user</span></div>
+            <div class="flex items-center gap-1.5"><i data-lucide="x" class="w-3 h-3 text-rose-600"></i><span>Multi-rol = 5+ tabs</span></div>
+          </div>
+        </div>
+
+        <!-- Opción C · recomendada -->
+        <div class="border-2 border-purple-500 rounded-xl p-4 bg-purple-50/40 relative">
+          <span class="absolute -top-2 right-3 text-[10px] bg-purple-600 text-white font-bold px-2 py-0.5 rounded-full uppercase">Recomendada</span>
+          <div class="flex items-center gap-2 mb-2">
+            <span class="text-[10px] bg-purple-100 text-purple-700 font-bold px-2 py-0.5 rounded uppercase">v5.5 esta variante</span>
+            <span class="text-[14px] font-bold text-purple-900">Opción C · drill-down</span>
+          </div>
+          <p class="text-[11px] text-slate-600 mb-3">3 tabs fijos · pero quick actions abren sub-páginas dedicadas `/perfil/{seccion}` con back link.</p>
+          <div class="space-y-1 text-[11px]">
+            <div class="flex items-center gap-1.5"><i data-lucide="check" class="w-3 h-3 text-emerald-600"></i><span>Resumen limpio · sin overflow</span></div>
+            <div class="flex items-center gap-1.5"><i data-lucide="check" class="w-3 h-3 text-emerald-600"></i><span>Drill profundo cuando se necesita</span></div>
+            <div class="flex items-center gap-1.5"><i data-lucide="check" class="w-3 h-3 text-emerald-600"></i><span>Tabs fijos · consistencia</span></div>
+            <div class="flex items-center gap-1.5"><i data-lucide="check" class="w-3 h-3 text-emerald-600"></i><span>Multi-rol escala bien</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-6 p-4 bg-amber-50 border border-amber-200 rounded-lg flex items-start gap-3">
+        <i data-lucide="lightbulb" class="w-4 h-4 text-amber-700 flex-shrink-0 mt-0.5"></i>
+        <div class="text-[12px] text-amber-900">
+          <strong>Insight clave Opción C:</strong> diferencia <strong>"vista PERSONAL del dato"</strong> (vive en `/perfil/mi-planilla`)
+          de <strong>"módulo de gestión"</strong> (vive en `/planilla`). Un empleado nunca debería entrar a `/planilla` directamente
+          porque es la vista admin de la nómina de todos. Su vista PERSONAL vive en `/perfil/mi-planilla`.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<!-- ACTO 2 · MAPA DE RUTAS                                               -->
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<section id="a2" class="my-12">
+  <div class="max-w-6xl mx-auto px-4">
+    <div class="bg-gradient-to-r from-purple-100 to-purple-50 ring-1 ring-purple-200 rounded-3xl p-5 mb-6">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 bg-purple-600 rounded-2xl flex items-center justify-center text-white font-bold">2</div>
+        <div>
+          <h2 class="text-lg font-bold text-purple-900">Mapa de rutas · /perfil/* nuevas + cross-links a módulos</h2>
+          <p class="text-[11px] text-purple-700">Separación clara entre vista personal y módulo de gestión</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="device-desktop bg-white rounded-2xl ring-1 ring-slate-200 overflow-hidden p-6">
+      <table class="w-full text-[12px]">
+        <thead>
+          <tr class="border-b border-slate-200 text-left text-[10px] uppercase tracking-wider text-slate-500 font-bold">
+            <th class="py-2">Ruta</th>
+            <th>Para quién</th>
+            <th>Qué muestra</th>
+            <th>Acceso desde</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+          <tr>
+            <td class="py-2 font-mono font-bold text-purple-700">/perfil</td>
+            <td>todos</td>
+            <td>Shell con 3 tabs · Resumen · Mi info · Actividad</td>
+            <td>Avatar header dropdown</td>
+          </tr>
+          <tr class="bg-sky-50/30">
+            <td class="py-2 font-mono font-bold text-sky-700">/perfil/mi-planilla</td>
+            <td>empleado</td>
+            <td>Vista PERSONAL de su planilla · boletas · adelantos · incentivos · histórico salarial · vacaciones</td>
+            <td>Quick action "Ver mi planilla" del Resumen</td>
+          </tr>
+          <tr class="bg-violet-50/30">
+            <td class="py-2 font-mono font-bold text-violet-700">/perfil/mi-capital</td>
+            <td>socio</td>
+            <td>Vista PERSONAL de su capital · aportes · % participación · ROI · distribuciones · vesting</td>
+            <td>Quick action "Ver mi capital" del Resumen</td>
+          </tr>
+          <tr class="bg-emerald-50/30">
+            <td class="py-2 font-mono font-bold text-emerald-700">/perfil/mi-historial</td>
+            <td>empleado</td>
+            <td>Timeline salarial completo · ajustes anuales · promociones · variaciones documentadas</td>
+            <td>Quick action "Mi histórico salarial" del Resumen</td>
+          </tr>
+          <tr class="bg-amber-50/30">
+            <td class="py-2 font-mono font-bold text-amber-700">/perfil/mi-bandeja</td>
+            <td>admin/gerente</td>
+            <td>Centro de mando personal · todas las aprobaciones pendientes en una pantalla · bulk approve</td>
+            <td>Banner gestión del Resumen admin</td>
+          </tr>
+          <tr class="border-t-2 border-slate-300">
+            <td class="py-2 font-mono font-bold text-slate-700">/planilla</td>
+            <td>admin/gerente/finanzas</td>
+            <td>MÓDULO completo · vista admin de TODA la nómina · todos los empleados</td>
+            <td>Sidebar grupo "Finanzas y Contabilidad"</td>
+          </tr>
+          <tr>
+            <td class="py-2 font-mono font-bold text-slate-700">/inversionistas</td>
+            <td>admin/socio</td>
+            <td>MÓDULO completo · vista ejecutiva del capital · cap table · todos los socios</td>
+            <td>Sidebar grupo "Finanzas y Contabilidad"</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="mt-5 p-4 bg-slate-50 border border-slate-200 rounded-lg">
+        <div class="text-[12px] font-bold text-slate-900 mb-2 inline-flex items-center gap-1.5">
+          <i data-lucide="git-branch" class="w-4 h-4 text-slate-700"></i>
+          Cross-link routing canon
+        </div>
+        <div class="text-[11px] text-slate-700 space-y-1">
+          <div>• <strong>Quick action card</strong> (verde · sky · violet) → navega a <code class="bg-white px-1 py-0.5 rounded">/perfil/mi-X</code> (sub-página propia)</div>
+          <div>• <strong>Cross-link CTA grande</strong> (banner gradient) → navega al MÓDULO completo (<code class="bg-white px-1 py-0.5 rounded">/planilla</code>, <code class="bg-white px-1 py-0.5 rounded">/inversionistas</code>)</div>
+          <div>• <strong>Back link</strong> en sub-página → vuelve a <code class="bg-white px-1 py-0.5 rounded">/perfil?tab=resumen</code></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<!-- ACTO 3 · TAB RESUMEN EMPLEADO · cross-links destacados               -->
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<section id="a3" class="my-12">
+  <div class="max-w-6xl mx-auto px-4">
+    <div class="bg-gradient-to-r from-sky-100 to-sky-50 ring-1 ring-sky-200 rounded-3xl p-5 mb-6">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 bg-sky-600 rounded-2xl flex items-center justify-center text-white font-bold">3</div>
+        <div>
+          <h2 class="text-lg font-bold text-sky-900">Tab Resumen empleado · cross-links destacados (3 tipos)</h2>
+          <p class="text-[11px] text-sky-700">Mismo layout que v5.4 · pero quick actions ahora son entradas claras a sub-páginas dedicadas</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="device-desktop bg-white rounded-2xl ring-1 ring-slate-200 overflow-hidden">
+      <!-- Breadcrumb -->
+      <div class="px-6 py-2.5 border-b border-slate-200 bg-slate-50 flex items-center gap-3">
+        <div class="flex items-center text-[12px]">
+          <a class="text-slate-500 cursor-pointer">Inicio</a>
+          <i data-lucide="chevron-right" class="w-3 h-3 text-slate-300 mx-1.5"></i>
+          <span class="text-slate-900 font-semibold">Mi perfil</span>
+        </div>
+      </div>
+
+      <!-- Header compacto · solo para contexto -->
+      <div class="px-6 py-3 border-b border-slate-100 flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-purple-700 flex items-center justify-center text-white font-bold text-[14px]">DL</div>
+        <div class="flex-1">
+          <h1 class="text-[15px] font-bold text-slate-900">Diego López</h1>
+          <p class="text-[11px] text-slate-500">vendedor · activo desde mar 2024</p>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="px-6 border-b border-slate-200">
+        <div class="flex gap-1">
+          <button class="px-4 py-2.5 text-[12px] font-bold border-b-2 border-purple-600 text-purple-700 flex items-center gap-1.5">
+            <i data-lucide="layout-dashboard" class="w-3.5 h-3.5"></i>Resumen
+          </button>
+          <button class="px-4 py-2.5 text-[12px] font-medium border-b-2 border-transparent text-slate-600 flex items-center gap-1.5">
+            <i data-lucide="user" class="w-3.5 h-3.5"></i>Mi información
+          </button>
+          <button class="px-4 py-2.5 text-[12px] font-medium border-b-2 border-transparent text-slate-600 flex items-center gap-1.5">
+            <i data-lucide="activity" class="w-3.5 h-3.5"></i>Actividad & seguridad
+          </button>
+        </div>
+      </div>
+
+      <!-- Body -->
+      <div class="p-6 space-y-5 bg-slate-50/30">
+        <!-- Banner pendientes -->
+        <div class="bg-gradient-to-r from-amber-50 to-orange-50 ring-1 ring-amber-300 rounded-xl p-4 flex items-start gap-3">
+          <div class="w-9 h-9 bg-amber-100 rounded-xl flex items-center justify-center flex-shrink-0">
+            <i data-lucide="alert-circle" class="w-4 h-4 text-amber-700"></i>
+          </div>
+          <div class="flex-1">
+            <div class="text-[12px] font-bold text-amber-900">Tenés 2 pendientes que requieren tu atención</div>
+            <div class="text-[11px] text-amber-800">1 adelanto solicitado · próxima gratificación en 15 días</div>
+          </div>
+        </div>
+
+        <!-- KPI strip empleado · 4 cards -->
+        <div class="grid grid-cols-4 gap-3">
+          <div class="bg-gradient-to-br from-sky-50 to-sky-100/40 ring-1 ring-sky-200/50 rounded-2xl p-3">
+            <div class="flex items-center justify-between mb-1">
+              <span class="text-[10px] uppercase tracking-wider text-sky-700 font-bold">MI SUELDO</span>
+              <i data-lucide="wallet" class="w-3.5 h-3.5 text-sky-700"></i>
+            </div>
+            <div class="text-2xl font-bold tabular text-sky-900">S/ 4,500</div>
+            <div class="text-[10px] text-sky-700">PEN/mes bruto</div>
+          </div>
+          <div class="bg-gradient-to-br from-emerald-50 to-emerald-100/40 ring-1 ring-emerald-200/50 rounded-2xl p-3">
+            <div class="flex items-center justify-between mb-1">
+              <span class="text-[10px] uppercase tracking-wider text-emerald-700 font-bold">PRÓX. BOLETA</span>
+              <i data-lucide="file-text" class="w-3.5 h-3.5 text-emerald-700"></i>
+            </div>
+            <div class="text-2xl font-bold tabular text-emerald-900">5d</div>
+            <div class="text-[10px] text-emerald-700">~ S/ 4,800 neto</div>
+          </div>
+          <div class="bg-gradient-to-br from-violet-50 to-violet-100/40 ring-1 ring-violet-200/50 rounded-2xl p-3">
+            <div class="flex items-center justify-between mb-1">
+              <span class="text-[10px] uppercase tracking-wider text-violet-700 font-bold">MIS BONOS YTD</span>
+              <i data-lucide="trophy" class="w-3.5 h-3.5 text-violet-700"></i>
+            </div>
+            <div class="text-2xl font-bold tabular text-violet-900">S/ 2,400</div>
+            <div class="text-[10px] text-violet-700">5 esquemas activos</div>
+          </div>
+          <div class="bg-gradient-to-br from-indigo-50 to-indigo-100/40 ring-1 ring-indigo-200/50 rounded-2xl p-3">
+            <div class="flex items-center justify-between mb-1">
+              <span class="text-[10px] uppercase tracking-wider text-indigo-700 font-bold">PRÓX. GRATIF.</span>
+              <i data-lucide="gift" class="w-3.5 h-3.5 text-indigo-700"></i>
+            </div>
+            <div class="text-2xl font-bold tabular text-indigo-900">jul · 15d</div>
+            <div class="text-[10px] text-indigo-700">~ S/ 4,500</div>
+          </div>
+        </div>
+
+        <!-- ⭐ NUEVO PATRÓN · Quick actions DESTACADAS como entradas a sub-páginas -->
+        <div>
+          <div class="flex items-baseline justify-between mb-3">
+            <h3 class="text-[13px] font-bold text-slate-900 inline-flex items-center gap-1.5">
+              <i data-lucide="navigation" class="w-4 h-4 text-sky-700"></i>
+              Mis vistas detalladas
+            </h3>
+            <span class="text-[10px] text-slate-500 font-medium">Cada vista abre una sub-página dedicada con tu información completa</span>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <!-- Card "Mi planilla" · entrada destacada sky -->
+            <button class="bg-gradient-to-br from-sky-50 to-sky-100/40 ring-1 ring-sky-200 hover:ring-sky-400 hover:from-sky-100 rounded-xl p-4 text-left transition-all group">
+              <div class="flex items-start justify-between mb-2">
+                <div class="w-10 h-10 bg-sky-600 rounded-xl flex items-center justify-center shadow-md">
+                  <i data-lucide="briefcase-business" class="w-5 h-5 text-white"></i>
+                </div>
+                <i data-lucide="arrow-up-right" class="w-4 h-4 text-sky-700 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform"></i>
+              </div>
+              <div class="text-[13px] font-bold text-sky-900 mb-0.5">Mi planilla</div>
+              <div class="text-[11px] text-sky-700 leading-snug mb-2">Boletas · adelantos · incentivos · vacaciones</div>
+              <div class="flex items-center gap-2 text-[10px] text-slate-600 pt-2 border-t border-sky-200">
+                <span class="inline-flex items-center gap-1"><i data-lucide="file-text" class="w-3 h-3"></i>5 boletas</span>
+                <span>·</span>
+                <span class="inline-flex items-center gap-1"><i data-lucide="palmtree" class="w-3 h-3"></i>12 días vac.</span>
+              </div>
+              <div class="text-[10px] text-sky-600 font-bold mt-2 font-mono">/perfil/mi-planilla</div>
+            </button>
+
+            <!-- Card "Mi histórico salarial" -->
+            <button class="bg-gradient-to-br from-emerald-50 to-emerald-100/40 ring-1 ring-emerald-200 hover:ring-emerald-400 hover:from-emerald-100 rounded-xl p-4 text-left transition-all group">
+              <div class="flex items-start justify-between mb-2">
+                <div class="w-10 h-10 bg-emerald-600 rounded-xl flex items-center justify-center shadow-md">
+                  <i data-lucide="trending-up" class="w-5 h-5 text-white"></i>
+                </div>
+                <i data-lucide="arrow-up-right" class="w-4 h-4 text-emerald-700 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform"></i>
+              </div>
+              <div class="text-[13px] font-bold text-emerald-900 mb-0.5">Mi histórico salarial</div>
+              <div class="text-[11px] text-emerald-700 leading-snug mb-2">Timeline de variaciones · ajustes · promociones</div>
+              <div class="flex items-center gap-2 text-[10px] text-slate-600 pt-2 border-t border-emerald-200">
+                <span class="inline-flex items-center gap-1"><i data-lucide="git-branch" class="w-3 h-3"></i>3 cambios</span>
+                <span>·</span>
+                <span class="inline-flex items-center gap-1 text-emerald-700 font-bold">+12.5% acum</span>
+              </div>
+              <div class="text-[10px] text-emerald-600 font-bold mt-2 font-mono">/perfil/mi-historial</div>
+            </button>
+
+            <!-- Card "Solicitar adelanto" · acción rápida -->
+            <button class="bg-gradient-to-br from-amber-50 to-amber-100/40 ring-1 ring-amber-200 hover:ring-amber-400 hover:from-amber-100 rounded-xl p-4 text-left transition-all group">
+              <div class="flex items-start justify-between mb-2">
+                <div class="w-10 h-10 bg-amber-600 rounded-xl flex items-center justify-center shadow-md">
+                  <i data-lucide="arrow-down-circle" class="w-5 h-5 text-white"></i>
+                </div>
+                <i data-lucide="plus" class="w-4 h-4 text-amber-700"></i>
+              </div>
+              <div class="text-[13px] font-bold text-amber-900 mb-0.5">Solicitar adelanto</div>
+              <div class="text-[11px] text-amber-700 leading-snug mb-2">Pedí adelanto de tu próxima boleta</div>
+              <div class="flex items-center gap-2 text-[10px] text-slate-600 pt-2 border-t border-amber-200">
+                <span class="inline-flex items-center gap-1"><i data-lucide="info" class="w-3 h-3"></i>requiere aprobación</span>
+              </div>
+              <div class="text-[10px] text-amber-600 font-bold mt-2 inline-flex items-center gap-1">
+                <i data-lucide="layers" class="w-3 h-3"></i>Abre modal canon
+              </div>
+            </button>
+          </div>
+        </div>
+
+        <!-- Cross-link a MÓDULO completo · banner gradient · solo si admin/gerente puede acceder -->
+        <div class="bg-gradient-to-r from-slate-100 to-slate-50 ring-1 ring-slate-300 rounded-xl p-3 flex items-center gap-3 opacity-90">
+          <div class="w-9 h-9 bg-slate-200 rounded-lg flex items-center justify-center flex-shrink-0">
+            <i data-lucide="external-link" class="w-4 h-4 text-slate-600"></i>
+          </div>
+          <div class="flex-1">
+            <div class="text-[12px] font-semibold text-slate-700">¿Sos admin de planilla?</div>
+            <div class="text-[10px] text-slate-500">Acá ves SOLO tu información personal · para gestión de toda la nómina:</div>
+          </div>
+          <button class="text-[11px] text-slate-700 font-bold border border-slate-300 hover:bg-slate-100 px-2.5 py-1 rounded inline-flex items-center gap-1">
+            Ir a /planilla<i data-lucide="arrow-right" class="w-3 h-3"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-4 max-w-6xl mx-auto p-4 bg-purple-50 border border-purple-200 rounded-lg">
+      <div class="text-[12px] font-bold text-purple-900 mb-2 inline-flex items-center gap-1.5">
+        <i data-lucide="sparkles" class="w-4 h-4"></i>
+        Diferencia clave con v5.4
+      </div>
+      <div class="text-[11px] text-purple-800 space-y-1">
+        <div>✅ Las quick actions ahora son <strong>cards grandes con preview de data</strong> (5 boletas · 12 días vac · 3 cambios salariales) · NO solo botones</div>
+        <div>✅ Cada card muestra <strong>la ruta destino</strong> en mono small abajo · usuarios entienden a dónde van antes de click</div>
+        <div>✅ Diferenciación visual entre <strong>"navega a sub-página propia"</strong> (sky/emerald · grande) y <strong>"abre modal"</strong> (amber · plus icon)</div>
+        <div>✅ Cross-link al módulo completo es un banner pequeño slate · solo aparece si tenés permisos</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<!-- ACTO 4 · DRILL /perfil/mi-planilla                                   -->
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<section id="a4" class="my-12">
+  <div class="max-w-6xl mx-auto px-4">
+    <div class="bg-gradient-to-r from-sky-100 to-sky-50 ring-1 ring-sky-200 rounded-3xl p-5 mb-6">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 bg-sky-600 rounded-2xl flex items-center justify-center text-white font-bold">4</div>
+        <div>
+          <h2 class="text-lg font-bold text-sky-900">Drill · /perfil/mi-planilla · página dedicada</h2>
+          <p class="text-[11px] text-sky-700">Vista PERSONAL completa del empleado · NO el módulo de gestión</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="device-desktop bg-white rounded-2xl ring-1 ring-slate-200 overflow-hidden">
+      <!-- Breadcrumb 3 niveles canon -->
+      <div class="px-6 py-2.5 border-b border-slate-200 bg-slate-50 flex items-center gap-3">
+        <div class="flex items-center text-[12px]">
+          <a class="text-slate-500 cursor-pointer">Inicio</a>
+          <i data-lucide="chevron-right" class="w-3 h-3 text-slate-300 mx-1.5"></i>
+          <a class="text-slate-500 cursor-pointer">Mi perfil</a>
+          <i data-lucide="chevron-right" class="w-3 h-3 text-slate-300 mx-1.5"></i>
+          <span class="text-slate-900 font-semibold">Mi planilla</span>
+        </div>
+      </div>
+
+      <!-- Header con back link + título grande -->
+      <div class="px-6 py-4 border-b border-slate-100 flex items-center gap-4">
+        <button class="w-9 h-9 bg-slate-100 hover:bg-slate-200 rounded-lg flex items-center justify-center transition-colors" title="Volver al perfil">
+          <i data-lucide="arrow-left" class="w-4 h-4 text-slate-700"></i>
+        </button>
+        <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-sky-500 to-sky-700 flex items-center justify-center text-white">
+          <i data-lucide="briefcase-business" class="w-5 h-5"></i>
+        </div>
+        <div class="flex-1">
+          <h1 class="text-xl font-bold text-slate-900">Mi planilla</h1>
+          <p class="text-[12px] text-slate-500">Vista personal · boletas · adelantos · incentivos · vacaciones · gratificaciones</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <button class="text-[11px] font-medium text-slate-600 hover:bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-lg inline-flex items-center gap-1.5">
+            <i data-lucide="download" class="w-3.5 h-3.5"></i>Exportar PDF
+          </button>
+          <button class="text-[11px] font-bold text-white bg-sky-600 hover:bg-sky-700 px-3 py-1.5 rounded-lg inline-flex items-center gap-1.5">
+            <i data-lucide="plus" class="w-3.5 h-3.5"></i>Solicitar adelanto
+          </button>
+        </div>
+      </div>
+
+      <!-- Sub-tabs internos · canon scroll-x mobile -->
+      <div class="px-6 border-b border-slate-200">
+        <div class="flex gap-1">
+          <button class="px-4 py-2.5 text-[12px] font-bold border-b-2 border-sky-600 text-sky-700 flex items-center gap-1.5">
+            <i data-lucide="file-text" class="w-3.5 h-3.5"></i>Boletas
+            <span class="text-[10px] bg-sky-100 px-1.5 py-0.5 rounded-full font-bold">12</span>
+          </button>
+          <button class="px-4 py-2.5 text-[12px] font-medium border-b-2 border-transparent text-slate-600 flex items-center gap-1.5">
+            <i data-lucide="arrow-down-circle" class="w-3.5 h-3.5"></i>Adelantos
+            <span class="text-[10px] bg-slate-100 px-1.5 py-0.5 rounded-full font-bold">3</span>
+          </button>
+          <button class="px-4 py-2.5 text-[12px] font-medium border-b-2 border-transparent text-slate-600 flex items-center gap-1.5">
+            <i data-lucide="trophy" class="w-3.5 h-3.5"></i>Incentivos
+          </button>
+          <button class="px-4 py-2.5 text-[12px] font-medium border-b-2 border-transparent text-slate-600 flex items-center gap-1.5">
+            <i data-lucide="palmtree" class="w-3.5 h-3.5"></i>Vacaciones
+          </button>
+          <button class="px-4 py-2.5 text-[12px] font-medium border-b-2 border-transparent text-slate-600 flex items-center gap-1.5">
+            <i data-lucide="gift" class="w-3.5 h-3.5"></i>Gratificaciones
+          </button>
+        </div>
+      </div>
+
+      <!-- Body · sub-tab activo Boletas -->
+      <div class="p-6 space-y-4 bg-slate-50/30">
+        <!-- KPI strip específico del sub-módulo -->
+        <div class="grid grid-cols-4 gap-3">
+          <div class="bg-white border border-slate-200 rounded-xl p-3">
+            <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1">BOLETAS YTD</div>
+            <div class="text-xl font-bold tabular text-slate-900">5</div>
+            <div class="text-[10px] text-slate-500">de 12 esperadas</div>
+          </div>
+          <div class="bg-white border border-slate-200 rounded-xl p-3">
+            <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1">TOTAL NETO YTD</div>
+            <div class="text-xl font-bold tabular text-emerald-700">S/ 23,650</div>
+            <div class="text-[10px] text-slate-500">5 boletas pagadas</div>
+          </div>
+          <div class="bg-white border border-slate-200 rounded-xl p-3">
+            <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1">PROMEDIO MENSUAL</div>
+            <div class="text-xl font-bold tabular text-slate-900">S/ 4,730</div>
+            <div class="text-[10px] text-emerald-700">+5% vs último año</div>
+          </div>
+          <div class="bg-white border border-slate-200 rounded-xl p-3">
+            <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1">PRÓX. BOLETA</div>
+            <div class="text-xl font-bold tabular text-slate-900">5d</div>
+            <div class="text-[10px] text-slate-500">cierre 31-may</div>
+          </div>
+        </div>
+
+        <!-- Filtros chip + tabla -->
+        <div class="bg-white border border-slate-200 rounded-xl overflow-hidden">
+          <div class="px-4 py-3 border-b border-slate-100 flex items-center gap-2 flex-wrap">
+            <span class="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Año:</span>
+            <button class="bg-slate-900 text-white text-[10px] font-bold px-2 py-1 rounded">2026</button>
+            <button class="bg-white text-slate-700 border border-slate-200 text-[10px] font-bold px-2 py-1 rounded">2025</button>
+            <button class="bg-white text-slate-700 border border-slate-200 text-[10px] font-bold px-2 py-1 rounded">2024</button>
+            <div class="ml-auto inline-flex items-center gap-1.5">
+              <span class="text-[10px] text-slate-500">5 resultados</span>
+              <button class="text-[11px] text-slate-700 font-bold hover:bg-slate-50 border border-slate-200 px-2 py-1 rounded inline-flex items-center gap-1">
+                <i data-lucide="download" class="w-3 h-3"></i>CSV
+              </button>
+            </div>
+          </div>
+          <table class="w-full text-[12px]">
+            <thead>
+              <tr class="border-b border-slate-200 text-left text-[10px] uppercase tracking-wider text-slate-500 font-bold bg-slate-50/50">
+                <th class="py-2 px-4">Período</th>
+                <th class="text-right px-4">Sueldo</th>
+                <th class="text-right px-4">Bonos</th>
+                <th class="text-right px-4">Descuentos</th>
+                <th class="text-right px-4">Neto</th>
+                <th class="text-right px-4">Estado</th>
+                <th class="text-right px-4 pr-4">Acción</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+              <tr class="hover:bg-sky-50/40 cursor-pointer">
+                <td class="py-2.5 px-4 font-semibold">may 2026</td>
+                <td class="text-right px-4 tabular">4,500</td>
+                <td class="text-right px-4 tabular text-emerald-700">+500</td>
+                <td class="text-right px-4 tabular text-rose-700">-200</td>
+                <td class="text-right px-4 tabular font-bold">4,800</td>
+                <td class="text-right px-4"><span class="bg-amber-100 text-amber-700 text-[9px] font-bold px-1.5 py-0.5 rounded uppercase">PEND.</span></td>
+                <td class="text-right px-4 pr-4">
+                  <button class="text-sky-700 font-bold text-[11px]"><i data-lucide="eye" class="w-3.5 h-3.5"></i></button>
+                </td>
+              </tr>
+              <tr class="hover:bg-sky-50/40 cursor-pointer">
+                <td class="py-2.5 px-4 font-semibold">abr 2026</td>
+                <td class="text-right px-4 tabular">4,500</td>
+                <td class="text-right px-4 tabular text-emerald-700">+650</td>
+                <td class="text-right px-4 tabular">0</td>
+                <td class="text-right px-4 tabular font-bold">5,150</td>
+                <td class="text-right px-4"><span class="bg-emerald-100 text-emerald-700 text-[9px] font-bold px-1.5 py-0.5 rounded uppercase">PAGADA</span></td>
+                <td class="text-right px-4 pr-4">
+                  <button class="text-sky-700 font-bold text-[11px]"><i data-lucide="download" class="w-3.5 h-3.5"></i></button>
+                </td>
+              </tr>
+              <tr class="hover:bg-sky-50/40 cursor-pointer">
+                <td class="py-2.5 px-4 font-semibold">mar 2026</td>
+                <td class="text-right px-4 tabular">4,300</td>
+                <td class="text-right px-4 tabular text-emerald-700">+400</td>
+                <td class="text-right px-4 tabular">0</td>
+                <td class="text-right px-4 tabular font-bold">4,700</td>
+                <td class="text-right px-4"><span class="bg-emerald-100 text-emerald-700 text-[9px] font-bold px-1.5 py-0.5 rounded uppercase">PAGADA</span></td>
+                <td class="text-right px-4 pr-4">
+                  <button class="text-sky-700 font-bold text-[11px]"><i data-lucide="download" class="w-3.5 h-3.5"></i></button>
+                </td>
+              </tr>
+              <tr class="hover:bg-sky-50/40 cursor-pointer">
+                <td class="py-2.5 px-4 font-semibold">feb 2026</td>
+                <td class="text-right px-4 tabular">4,300</td>
+                <td class="text-right px-4 tabular text-emerald-700">+350</td>
+                <td class="text-right px-4 tabular">0</td>
+                <td class="text-right px-4 tabular font-bold">4,650</td>
+                <td class="text-right px-4"><span class="bg-emerald-100 text-emerald-700 text-[9px] font-bold px-1.5 py-0.5 rounded uppercase">PAGADA</span></td>
+                <td class="text-right px-4 pr-4">
+                  <button class="text-sky-700 font-bold text-[11px]"><i data-lucide="download" class="w-3.5 h-3.5"></i></button>
+                </td>
+              </tr>
+              <tr class="hover:bg-sky-50/40 cursor-pointer">
+                <td class="py-2.5 px-4 font-semibold">ene 2026</td>
+                <td class="text-right px-4 tabular">4,300</td>
+                <td class="text-right px-4 tabular text-emerald-700">+500</td>
+                <td class="text-right px-4 tabular">0</td>
+                <td class="text-right px-4 tabular font-bold">4,800</td>
+                <td class="text-right px-4"><span class="bg-emerald-100 text-emerald-700 text-[9px] font-bold px-1.5 py-0.5 rounded uppercase">PAGADA</span></td>
+                <td class="text-right px-4 pr-4">
+                  <button class="text-sky-700 font-bold text-[11px]"><i data-lucide="download" class="w-3.5 h-3.5"></i></button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-4 max-w-6xl mx-auto p-4 bg-emerald-50 border border-emerald-200 rounded-lg">
+      <div class="text-[12px] font-bold text-emerald-900 mb-2 inline-flex items-center gap-1.5">
+        <i data-lucide="check-circle" class="w-4 h-4"></i>
+        Beneficios de esta sub-página dedicada
+      </div>
+      <div class="text-[11px] text-emerald-800 space-y-1">
+        <div>• Diego ve TODA su data laboral en un solo lugar · sin distracciones del Resumen</div>
+        <div>• Sub-tabs internos permiten profundizar por dimensión sin perder contexto</div>
+        <div>• Header tiene back-arrow + breadcrumb 3 niveles · siempre sabe cómo volver</div>
+        <div>• La data es <strong>SOLO la suya</strong> · seguridad mejorada (no ve nómina de otros)</div>
+        <div>• Si necesita gestionar la nómina general (admin), va a /planilla (separación clara)</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<!-- ACTO 5 · DRILL /perfil/mi-capital                                    -->
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<section id="a5" class="my-12">
+  <div class="max-w-6xl mx-auto px-4">
+    <div class="bg-gradient-to-r from-violet-100 to-violet-50 ring-1 ring-violet-200 rounded-3xl p-5 mb-6">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 bg-violet-600 rounded-2xl flex items-center justify-center text-white font-bold">5</div>
+        <div>
+          <h2 class="text-lg font-bold text-violet-900">Drill · /perfil/mi-capital · vista socio personal</h2>
+          <p class="text-[11px] text-violet-700">Capital aportado · ROI · distribuciones · vesting · solo MIS números</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="device-desktop bg-white rounded-2xl ring-1 ring-slate-200 overflow-hidden">
+      <!-- Breadcrumb -->
+      <div class="px-6 py-2.5 border-b border-slate-200 bg-slate-50 flex items-center gap-3">
+        <div class="flex items-center text-[12px]">
+          <a class="text-slate-500 cursor-pointer">Inicio</a>
+          <i data-lucide="chevron-right" class="w-3 h-3 text-slate-300 mx-1.5"></i>
+          <a class="text-slate-500 cursor-pointer">Mi perfil</a>
+          <i data-lucide="chevron-right" class="w-3 h-3 text-slate-300 mx-1.5"></i>
+          <span class="text-slate-900 font-semibold">Mi capital</span>
+        </div>
+      </div>
+
+      <!-- Header con back link -->
+      <div class="px-6 py-4 border-b border-slate-100 flex items-center gap-4">
+        <button class="w-9 h-9 bg-slate-100 hover:bg-slate-200 rounded-lg flex items-center justify-center transition-colors">
+          <i data-lucide="arrow-left" class="w-4 h-4 text-slate-700"></i>
+        </button>
+        <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-violet-500 to-violet-700 flex items-center justify-center text-white">
+          <i data-lucide="coins" class="w-5 h-5"></i>
+        </div>
+        <div class="flex-1">
+          <h1 class="text-xl font-bold text-slate-900">Mi capital</h1>
+          <p class="text-[12px] text-slate-500">Mi participación · aportes · ROI · distribuciones</p>
+        </div>
+        <button class="text-[11px] font-medium text-slate-600 hover:bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-lg inline-flex items-center gap-1.5">
+          <i data-lucide="external-link" class="w-3.5 h-3.5"></i>Ver cap table en /inversionistas
+        </button>
+      </div>
+
+      <!-- Body -->
+      <div class="p-6 space-y-5 bg-slate-50/30">
+        <!-- Hero · monto principal -->
+        <div class="bg-gradient-to-br from-violet-50 to-purple-50 border-2 border-violet-200 rounded-2xl p-6">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <div class="text-[11px] uppercase tracking-wider text-violet-700 font-bold mb-1">MI PARTICIPACIÓN</div>
+              <div class="text-4xl font-bold tabular text-violet-900">45<span class="text-violet-400">%</span></div>
+              <div class="text-[11px] text-violet-700 mt-1">Co-fundador · CEO</div>
+            </div>
+            <div class="border-l border-violet-200 pl-4">
+              <div class="text-[11px] uppercase tracking-wider text-violet-700 font-bold mb-1">MI CAPITAL TOTAL</div>
+              <div class="text-3xl font-bold tabular text-violet-900">S/ 70K</div>
+              <div class="text-[11px] text-violet-700 mt-1">S/ 45K cash · S/ 25K valor</div>
+            </div>
+            <div class="border-l border-violet-200 pl-4">
+              <div class="text-[11px] uppercase tracking-wider text-violet-700 font-bold mb-1">ROI YTD</div>
+              <div class="text-3xl font-bold tabular text-emerald-700">+12.4%</div>
+              <div class="text-[11px] text-emerald-700 mt-1 inline-flex items-center gap-1">
+                <i data-lucide="trending-up" class="w-3 h-3"></i>S/ 8,700 utilidades acum.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2 columnas · Aportes históricos + Distribuciones -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <!-- Mis aportes -->
+          <div class="bg-white border border-slate-200 rounded-xl p-5">
+            <div class="flex items-center justify-between mb-3">
+              <h3 class="text-[14px] font-bold text-slate-900 inline-flex items-center gap-1.5">
+                <i data-lucide="arrow-up-circle" class="w-4 h-4 text-violet-700"></i>
+                Mis aportes
+              </h3>
+              <span class="text-[10px] text-slate-500">4 operaciones · lifetime</span>
+            </div>
+            <div class="space-y-2">
+              <div class="flex items-center justify-between py-2 border-b border-slate-100">
+                <div>
+                  <div class="text-[12px] font-semibold text-slate-900">Aporte fundacional · ene 2024</div>
+                  <div class="text-[10px] text-slate-500">cash inicial · cuenta BCP</div>
+                </div>
+                <div class="text-right tabular text-violet-900 font-bold">S/ 30,000</div>
+              </div>
+              <div class="flex items-center justify-between py-2 border-b border-slate-100">
+                <div>
+                  <div class="text-[12px] font-semibold text-slate-900">Aporte expansión · jun 2024</div>
+                  <div class="text-[10px] text-slate-500">cash · ronda interna</div>
+                </div>
+                <div class="text-right tabular text-violet-900 font-bold">S/ 15,000</div>
+              </div>
+              <div class="flex items-center justify-between py-2 border-b border-slate-100">
+                <div>
+                  <div class="text-[12px] font-semibold text-slate-900">Aporte valor · know-how</div>
+                  <div class="text-[10px] text-slate-500">valuación: experiencia + cartera</div>
+                </div>
+                <div class="text-right tabular text-violet-900 font-bold">S/ 25,000</div>
+              </div>
+              <div class="flex items-center justify-between pt-2 border-t-2 border-slate-200">
+                <div class="text-[11px] uppercase tracking-wider text-slate-500 font-bold">Total</div>
+                <div class="text-right tabular text-violet-900 font-bold text-[14px]">S/ 70,000</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Mis distribuciones -->
+          <div class="bg-white border border-slate-200 rounded-xl p-5">
+            <div class="flex items-center justify-between mb-3">
+              <h3 class="text-[14px] font-bold text-slate-900 inline-flex items-center gap-1.5">
+                <i data-lucide="banknote" class="w-4 h-4 text-emerald-700"></i>
+                Mis distribuciones
+              </h3>
+              <span class="text-[10px] text-slate-500">2 pagadas · 1 programada</span>
+            </div>
+            <div class="space-y-2">
+              <div class="flex items-center justify-between py-2 border-b border-slate-100">
+                <div>
+                  <div class="text-[12px] font-semibold text-slate-900">Distribución · jun 2026</div>
+                  <div class="text-[10px] text-slate-500">programada · 45%</div>
+                </div>
+                <div class="text-right">
+                  <div class="tabular text-violet-900 font-bold">S/ 8,400</div>
+                  <span class="text-[9px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded font-bold uppercase">PROGRAMADA</span>
+                </div>
+              </div>
+              <div class="flex items-center justify-between py-2 border-b border-slate-100">
+                <div>
+                  <div class="text-[12px] font-semibold text-slate-900">Distribución · mar 2026</div>
+                  <div class="text-[10px] text-slate-500">pagada 15-mar · cuenta BCP</div>
+                </div>
+                <div class="text-right">
+                  <div class="tabular text-violet-900 font-bold">S/ 6,750</div>
+                  <span class="text-[9px] bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded font-bold uppercase">PAGADA</span>
+                </div>
+              </div>
+              <div class="flex items-center justify-between py-2">
+                <div>
+                  <div class="text-[12px] font-semibold text-slate-900">Distribución · dic 2025</div>
+                  <div class="text-[10px] text-slate-500">pagada 28-dic · cuenta BCP</div>
+                </div>
+                <div class="text-right">
+                  <div class="tabular text-violet-900 font-bold">S/ 5,200</div>
+                  <span class="text-[9px] bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded font-bold uppercase">PAGADA</span>
+                </div>
+              </div>
+              <div class="pt-3 border-t-2 border-slate-200 flex items-center justify-between text-[11px]">
+                <span class="text-slate-500 font-bold uppercase">YTD pagado</span>
+                <span class="tabular text-emerald-700 font-bold">S/ 6,750</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Cross-link al módulo completo · si tiene permiso ver cap table -->
+        <div class="bg-gradient-to-r from-violet-50 to-purple-50 ring-1 ring-violet-200 rounded-xl p-4 flex items-center gap-3">
+          <div class="w-10 h-10 bg-violet-100 rounded-xl flex items-center justify-center flex-shrink-0">
+            <i data-lucide="landmark" class="w-5 h-5 text-violet-700"></i>
+          </div>
+          <div class="flex-1">
+            <div class="text-[12px] font-bold text-slate-900">Cap table completo · ROI dual · trayectoria 24m</div>
+            <div class="text-[11px] text-slate-600">Vista ejecutiva del módulo Inversionistas · con todos los socios y análisis profundo</div>
+          </div>
+          <button class="bg-violet-600 hover:bg-violet-700 text-white text-[11px] font-bold px-3 py-1.5 rounded-lg flex items-center gap-1 flex-shrink-0">
+            Ir a Inversionistas<i data-lucide="arrow-right" class="w-3 h-3"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<!-- ACTO 6 · DRILL /perfil/mi-historial                                  -->
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<section id="a6" class="my-12">
+  <div class="max-w-6xl mx-auto px-4">
+    <div class="bg-gradient-to-r from-emerald-100 to-emerald-50 ring-1 ring-emerald-200 rounded-3xl p-5 mb-6">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 bg-emerald-600 rounded-2xl flex items-center justify-center text-white font-bold">6</div>
+        <div>
+          <h2 class="text-lg font-bold text-emerald-900">Drill · /perfil/mi-historial · timeline salarial</h2>
+          <p class="text-[11px] text-emerald-700">Vista detallada de variaciones de sueldo · documentación · razón de cambio</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="device-desktop bg-white rounded-2xl ring-1 ring-slate-200 overflow-hidden">
+      <div class="px-6 py-2.5 border-b border-slate-200 bg-slate-50 flex items-center gap-3">
+        <div class="flex items-center text-[12px]">
+          <a class="text-slate-500 cursor-pointer">Inicio</a>
+          <i data-lucide="chevron-right" class="w-3 h-3 text-slate-300 mx-1.5"></i>
+          <a class="text-slate-500 cursor-pointer">Mi perfil</a>
+          <i data-lucide="chevron-right" class="w-3 h-3 text-slate-300 mx-1.5"></i>
+          <span class="text-slate-900 font-semibold">Mi histórico salarial</span>
+        </div>
+      </div>
+
+      <div class="px-6 py-4 border-b border-slate-100 flex items-center gap-4">
+        <button class="w-9 h-9 bg-slate-100 hover:bg-slate-200 rounded-lg flex items-center justify-center transition-colors">
+          <i data-lucide="arrow-left" class="w-4 h-4 text-slate-700"></i>
+        </button>
+        <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center text-white">
+          <i data-lucide="trending-up" class="w-5 h-5"></i>
+        </div>
+        <div class="flex-1">
+          <h1 class="text-xl font-bold text-slate-900">Mi histórico salarial</h1>
+          <p class="text-[12px] text-slate-500">3 cambios documentados · +12.5% acumulado desde alta</p>
+        </div>
+      </div>
+
+      <div class="p-6 space-y-5 bg-slate-50/30">
+        <!-- KPIs del histórico -->
+        <div class="grid grid-cols-4 gap-3">
+          <div class="bg-gradient-to-br from-emerald-50 to-emerald-100/40 ring-1 ring-emerald-200/50 rounded-2xl p-3">
+            <div class="text-[10px] uppercase tracking-wider text-emerald-700 font-bold mb-1">SUELDO ALTA</div>
+            <div class="text-xl font-bold tabular text-emerald-900">S/ 4,000</div>
+            <div class="text-[10px] text-emerald-700">mar 2024</div>
+          </div>
+          <div class="bg-gradient-to-br from-emerald-50 to-emerald-100/40 ring-1 ring-emerald-200/50 rounded-2xl p-3">
+            <div class="text-[10px] uppercase tracking-wider text-emerald-700 font-bold mb-1">SUELDO ACTUAL</div>
+            <div class="text-xl font-bold tabular text-emerald-900">S/ 4,500</div>
+            <div class="text-[10px] text-emerald-700">vigente ene 2026</div>
+          </div>
+          <div class="bg-gradient-to-br from-emerald-50 to-emerald-100/40 ring-1 ring-emerald-200/50 rounded-2xl p-3">
+            <div class="text-[10px] uppercase tracking-wider text-emerald-700 font-bold mb-1">ACUMULADO</div>
+            <div class="text-xl font-bold tabular text-emerald-900">+12.5%</div>
+            <div class="text-[10px] text-emerald-700">22 meses</div>
+          </div>
+          <div class="bg-gradient-to-br from-emerald-50 to-emerald-100/40 ring-1 ring-emerald-200/50 rounded-2xl p-3">
+            <div class="text-[10px] uppercase tracking-wider text-emerald-700 font-bold mb-1">PRÓX. REVISIÓN</div>
+            <div class="text-xl font-bold tabular text-emerald-900">ene 2027</div>
+            <div class="text-[10px] text-emerald-700">en 8 meses</div>
+          </div>
+        </div>
+
+        <!-- Timeline detallado canon dot pattern -->
+        <div class="bg-white border border-slate-200 rounded-xl p-5">
+          <h3 class="text-[14px] font-bold text-slate-900 mb-4 inline-flex items-center gap-1.5">
+            <i data-lucide="git-commit" class="w-4 h-4 text-emerald-700"></i>
+            Timeline de variaciones · 3 eventos
+          </h3>
+          <div class="space-y-4">
+            <!-- Vigente -->
+            <div class="flex gap-3">
+              <div class="flex flex-col items-center">
+                <div class="w-4 h-4 rounded-full bg-emerald-500 ring-4 ring-emerald-100 flex-shrink-0"></div>
+                <div class="w-0.5 flex-1 bg-slate-200 mt-2"></div>
+              </div>
+              <div class="flex-1 pb-3">
+                <div class="flex items-center gap-2 mb-1 flex-wrap">
+                  <span class="text-[15px] font-bold tabular text-slate-900">S/ 4,500.00</span>
+                  <span class="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded uppercase">VIGENTE</span>
+                  <span class="bg-sky-100 text-sky-700 text-[10px] font-bold px-2 py-0.5 rounded uppercase">PROMOCIÓN</span>
+                </div>
+                <div class="text-[12px] text-slate-600 mb-1">ene 2026 · <span class="text-emerald-700 font-bold">+5% vs anterior</span></div>
+                <div class="text-[11px] text-slate-500 italic mb-2">"Promoción a vendedor sr. tras alcanzar 130% de meta YTD 2025"</div>
+                <div class="text-[10px] text-slate-400 inline-flex items-center gap-1">
+                  <i data-lucide="user" class="w-3 h-3"></i>aprobado por José LP (admin) · <i data-lucide="file-text" class="w-3 h-3 ml-1"></i>contrato anexo VAR-2026-003
+                </div>
+              </div>
+            </div>
+            <!-- Intermedio -->
+            <div class="flex gap-3">
+              <div class="flex flex-col items-center">
+                <div class="w-4 h-4 rounded-full bg-sky-500 ring-4 ring-sky-100 flex-shrink-0"></div>
+                <div class="w-0.5 flex-1 bg-slate-200 mt-2"></div>
+              </div>
+              <div class="flex-1 pb-3">
+                <div class="flex items-center gap-2 mb-1 flex-wrap">
+                  <span class="text-[15px] font-bold tabular text-slate-700">S/ 4,300.00</span>
+                  <span class="bg-sky-100 text-sky-700 text-[10px] font-bold px-2 py-0.5 rounded uppercase">AJUSTE ANUAL</span>
+                </div>
+                <div class="text-[12px] text-slate-600 mb-1">ene 2025 · <span class="text-emerald-700 font-bold">+7.5% vs anterior</span></div>
+                <div class="text-[11px] text-slate-500 italic mb-2">"Ajuste anual por inflación + revisión de desempeño positiva"</div>
+                <div class="text-[10px] text-slate-400 inline-flex items-center gap-1">
+                  <i data-lucide="user" class="w-3 h-3"></i>aprobado por José LP (admin) · <i data-lucide="file-text" class="w-3 h-3 ml-1"></i>contrato anexo VAR-2025-008
+                </div>
+              </div>
+            </div>
+            <!-- Alta -->
+            <div class="flex gap-3">
+              <div class="flex flex-col items-center">
+                <div class="w-4 h-4 rounded-full bg-slate-400 ring-4 ring-slate-100 flex-shrink-0"></div>
+              </div>
+              <div class="flex-1 pb-0">
+                <div class="flex items-center gap-2 mb-1 flex-wrap">
+                  <span class="text-[15px] font-bold tabular text-slate-700">S/ 4,000.00</span>
+                  <span class="bg-slate-200 text-slate-700 text-[10px] font-bold px-2 py-0.5 rounded uppercase">SALARIO ALTA</span>
+                </div>
+                <div class="text-[12px] text-slate-600 mb-1">mar 2024 · alta inicial</div>
+                <div class="text-[11px] text-slate-500 italic mb-2">"Contratación como vendedor · contrato indefinido"</div>
+                <div class="text-[10px] text-slate-400 inline-flex items-center gap-1">
+                  <i data-lucide="file-text" class="w-3 h-3"></i>contrato original 2024-001
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<!-- ACTO 7 · PATRÓN CROSS-LINKS · 3 TIPOS                                 -->
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<section id="a7" class="my-12">
+  <div class="max-w-6xl mx-auto px-4">
+    <div class="bg-gradient-to-r from-purple-100 to-purple-50 ring-1 ring-purple-200 rounded-3xl p-5 mb-6">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 bg-purple-600 rounded-2xl flex items-center justify-center text-white font-bold">7</div>
+        <div>
+          <h2 class="text-lg font-bold text-purple-900">Patrón cross-links · 3 tipos visuales · diferenciados por destino</h2>
+          <p class="text-[11px] text-purple-700">Catálogo canon para que el user entienda a dónde va antes de click</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="device-desktop bg-white rounded-2xl ring-1 ring-slate-200 overflow-hidden p-6 space-y-6">
+      <!-- Tipo 1: Card grande sub-página propia -->
+      <div>
+        <div class="flex items-center gap-2 mb-2">
+          <span class="text-[10px] bg-sky-100 text-sky-700 font-bold px-2 py-0.5 rounded uppercase">TIPO 1</span>
+          <span class="text-[14px] font-bold text-slate-900">Card destacada · navega a sub-página /perfil/{seccion}</span>
+        </div>
+        <p class="text-[11px] text-slate-600 mb-3">Usar cuando: quick action principal con preview de data · entrada a vista personal completa.</p>
+        <button class="w-full max-w-md bg-gradient-to-br from-sky-50 to-sky-100/40 ring-1 ring-sky-200 hover:ring-sky-400 rounded-xl p-4 text-left transition-all group">
+          <div class="flex items-start justify-between mb-2">
+            <div class="w-10 h-10 bg-sky-600 rounded-xl flex items-center justify-center shadow-md">
+              <i data-lucide="briefcase-business" class="w-5 h-5 text-white"></i>
+            </div>
+            <i data-lucide="arrow-up-right" class="w-4 h-4 text-sky-700"></i>
+          </div>
+          <div class="text-[13px] font-bold text-sky-900 mb-0.5">Mi planilla</div>
+          <div class="text-[11px] text-sky-700 mb-2">Boletas · adelantos · incentivos</div>
+          <div class="text-[10px] text-slate-600 pt-2 border-t border-sky-200">5 boletas · 12 días vac.</div>
+          <div class="text-[10px] text-sky-600 font-bold mt-1 font-mono">/perfil/mi-planilla</div>
+        </button>
+      </div>
+
+      <!-- Tipo 2: Banner gradient grande módulo completo -->
+      <div>
+        <div class="flex items-center gap-2 mb-2">
+          <span class="text-[10px] bg-violet-100 text-violet-700 font-bold px-2 py-0.5 rounded uppercase">TIPO 2</span>
+          <span class="text-[14px] font-bold text-slate-900">Banner gradient · navega al MÓDULO completo</span>
+        </div>
+        <p class="text-[11px] text-slate-600 mb-3">Usar cuando: el user quiere salir de su vista personal e ir al módulo · vista admin/ejecutiva.</p>
+        <div class="bg-gradient-to-r from-violet-50 to-purple-50 ring-1 ring-violet-200 rounded-xl p-4 flex items-center gap-3 max-w-2xl">
+          <div class="w-10 h-10 bg-violet-100 rounded-xl flex items-center justify-center flex-shrink-0">
+            <i data-lucide="landmark" class="w-5 h-5 text-violet-700"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="text-[12px] font-bold text-slate-900">Cap table completo · ROI dual · trayectoria 24m</div>
+            <div class="text-[11px] text-slate-600">Vista ejecutiva del módulo · todos los socios</div>
+          </div>
+          <button class="bg-violet-600 hover:bg-violet-700 text-white text-[11px] font-bold px-3 py-1.5 rounded-lg flex items-center gap-1 flex-shrink-0">
+            Ir a Inversionistas<i data-lucide="arrow-right" class="w-3 h-3"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Tipo 3: Banner slate sutil · cross-link admin -->
+      <div>
+        <div class="flex items-center gap-2 mb-2">
+          <span class="text-[10px] bg-slate-100 text-slate-700 font-bold px-2 py-0.5 rounded uppercase">TIPO 3</span>
+          <span class="text-[14px] font-bold text-slate-900">Banner sutil slate · cross-link condicional (solo si tiene permisos)</span>
+        </div>
+        <p class="text-[11px] text-slate-600 mb-3">Usar cuando: ofrecer atajo a admin del módulo · NO interrumpe el flujo personal.</p>
+        <div class="bg-gradient-to-r from-slate-100 to-slate-50 ring-1 ring-slate-300 rounded-xl p-3 flex items-center gap-3 max-w-2xl opacity-90">
+          <div class="w-9 h-9 bg-slate-200 rounded-lg flex items-center justify-center flex-shrink-0">
+            <i data-lucide="external-link" class="w-4 h-4 text-slate-600"></i>
+          </div>
+          <div class="flex-1">
+            <div class="text-[12px] font-semibold text-slate-700">¿Sos admin de planilla?</div>
+            <div class="text-[10px] text-slate-500">Acá ves SOLO tu información · para gestionar toda la nómina:</div>
+          </div>
+          <button class="text-[11px] text-slate-700 font-bold border border-slate-300 hover:bg-slate-100 px-2.5 py-1 rounded inline-flex items-center gap-1">
+            Ir a /planilla<i data-lucide="arrow-right" class="w-3 h-3"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<!-- ACTO 8 · BACK LINK STICKY                                            -->
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<section id="a8" class="my-12">
+  <div class="max-w-6xl mx-auto px-4">
+    <div class="bg-gradient-to-r from-slate-100 to-slate-50 ring-1 ring-slate-200 rounded-3xl p-5 mb-6">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 bg-slate-700 rounded-2xl flex items-center justify-center text-white font-bold">8</div>
+        <div>
+          <h2 class="text-lg font-bold text-slate-900">Back link sticky · pattern de retorno al perfil</h2>
+          <p class="text-[11px] text-slate-700">Canon de navegación · siempre poder volver con un click</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="device-desktop bg-white rounded-2xl ring-1 ring-slate-200 overflow-hidden p-6">
+      <div class="bg-slate-50 rounded-xl p-4 space-y-3">
+        <!-- 3 niveles canon -->
+        <div class="bg-white border border-slate-200 rounded-lg p-3 space-y-2">
+          <div class="text-[11px] uppercase tracking-wider text-slate-500 font-bold">3 affordances de retorno · todas siempre presentes</div>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-2 text-[11px]">
+            <div class="bg-purple-50 border border-purple-200 rounded p-2">
+              <div class="font-bold text-purple-900 mb-1">① Breadcrumb (clickable)</div>
+              <div class="text-slate-600">Click en "Mi perfil" del breadcrumb → vuelve al perfil tab Resumen</div>
+            </div>
+            <div class="bg-purple-50 border border-purple-200 rounded p-2">
+              <div class="font-bold text-purple-900 mb-1">② Back arrow (header)</div>
+              <div class="text-slate-600">Botón ← en header de la sub-página · siempre primer elemento visible</div>
+            </div>
+            <div class="bg-purple-50 border border-purple-200 rounded p-2">
+              <div class="font-bold text-purple-900 mb-1">③ Browser back</div>
+              <div class="text-slate-600">Botón nativo navegador · scroll restoration al perfil</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Detalle del back arrow header -->
+        <div class="bg-white border border-slate-200 rounded-lg p-4">
+          <div class="text-[11px] uppercase tracking-wider text-slate-500 font-bold mb-3">Detalle visual del back arrow</div>
+          <div class="bg-white border border-slate-200 rounded-lg p-4 flex items-center gap-4">
+            <button class="w-9 h-9 bg-slate-100 hover:bg-slate-200 rounded-lg flex items-center justify-center transition-colors group">
+              <i data-lucide="arrow-left" class="w-4 h-4 text-slate-700 group-hover:-translate-x-0.5 transition-transform"></i>
+            </button>
+            <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-sky-500 to-sky-700 flex items-center justify-center text-white">
+              <i data-lucide="briefcase-business" class="w-5 h-5"></i>
+            </div>
+            <div class="flex-1">
+              <h1 class="text-lg font-bold text-slate-900">Mi planilla</h1>
+              <p class="text-[11px] text-slate-500">Vista personal · 5 boletas · 3 adelantos · 12 días vacaciones</p>
+            </div>
+          </div>
+          <div class="mt-3 text-[10px] text-slate-500 space-y-1">
+            <div>• Botón ← <code class="bg-slate-100 px-1 rounded">w-9 h-9 bg-slate-100 hover:bg-slate-200 rounded-lg</code></div>
+            <div>• Hover: <code class="bg-slate-100 px-1 rounded">-translate-x-0.5</code> · feedback visual sutil</div>
+            <div>• onClick: <code class="bg-slate-100 px-1 rounded">navigate('/perfil?tab=resumen')</code> · preserva tab activo</div>
+            <div>• tooltip: "Volver al perfil"</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<!-- DIVISOR MOBILE                                                        -->
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<section class="my-16 max-w-6xl mx-auto px-4">
+  <div class="bg-gradient-to-r from-sky-600 to-sky-700 text-white rounded-3xl p-6 shadow-xl">
+    <div class="flex items-center gap-4">
+      <div class="w-14 h-14 bg-white/20 rounded-2xl flex items-center justify-center flex-shrink-0">
+        <i data-lucide="smartphone" class="w-7 h-7"></i>
+      </div>
+      <div>
+        <h2 class="text-2xl font-bold">Vista mobile · 6 actos dedicados · canon 2026-05-27</h2>
+        <p class="text-[13px] opacity-90 mt-1">Cobertura responsive total · 375px frame iPhone · touch ≥44px · sticky back · swipe</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<!-- ACTO 9 · MOBILE · TAB RESUMEN EMPLEADO                                -->
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<section id="a9" class="my-12">
+  <div class="max-w-6xl mx-auto px-4">
+    <div class="bg-gradient-to-r from-sky-100 to-sky-50 ring-1 ring-sky-200 rounded-3xl p-5 mb-6">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 bg-sky-600 rounded-2xl flex items-center justify-center text-white font-bold">9</div>
+        <div>
+          <h2 class="text-lg font-bold text-sky-900">Mobile · Tab Resumen empleado · 375px</h2>
+          <p class="text-[11px] text-sky-700">Cards full-width · touch ≥44px · cross-link cards apiladas</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="iphone-frame">
+      <div class="bg-white">
+        <!-- Status bar -->
+        <div class="bg-slate-50 px-4 py-1 text-[10px] text-slate-600 flex justify-between">
+          <span>9:41</span>
+          <span>BusinessMN</span>
+          <span>100%</span>
+        </div>
+
+        <!-- Breadcrumb -->
+        <div class="px-4 py-2.5 border-b border-slate-200 bg-slate-50 flex items-center text-[11px]">
+          <a class="text-slate-500">Inicio</a>
+          <i data-lucide="chevron-right" class="w-3 h-3 text-slate-300 mx-1.5"></i>
+          <span class="text-slate-900 font-semibold">Mi perfil</span>
+        </div>
+
+        <!-- Header compacto mobile -->
+        <div class="px-4 py-3 border-b border-slate-100 flex items-center gap-3">
+          <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-purple-700 flex items-center justify-center text-white font-bold">DL</div>
+          <div class="flex-1 min-w-0">
+            <h1 class="text-[14px] font-bold text-slate-900 truncate">Diego López</h1>
+            <p class="text-[10px] text-slate-500">vendedor · activo mar 2024</p>
+          </div>
+          <button class="w-9 h-9 bg-slate-100 rounded-lg flex items-center justify-center">
+            <i data-lucide="more-horizontal" class="w-4 h-4 text-slate-600"></i>
+          </button>
+        </div>
+
+        <!-- Tabs scroll-x -->
+        <div class="border-b border-slate-200 overflow-x-auto no-scrollbar">
+          <div class="flex gap-1 px-2 whitespace-nowrap" style="min-height: 44px">
+            <button class="px-3 py-2.5 text-[12px] font-bold border-b-2 border-purple-600 text-purple-700 flex items-center gap-1">
+              <i data-lucide="layout-dashboard" class="w-3.5 h-3.5"></i>Resumen
+            </button>
+            <button class="px-3 py-2.5 text-[12px] font-medium border-b-2 border-transparent text-slate-600 flex items-center gap-1">
+              <i data-lucide="user" class="w-3.5 h-3.5"></i>Info
+            </button>
+            <button class="px-3 py-2.5 text-[12px] font-medium border-b-2 border-transparent text-slate-600 flex items-center gap-1">
+              <i data-lucide="activity" class="w-3.5 h-3.5"></i>Actividad
+            </button>
+          </div>
+        </div>
+
+        <!-- Body mobile · stack 1-col -->
+        <div class="p-3 space-y-3 bg-slate-50/30">
+          <!-- Banner -->
+          <div class="bg-gradient-to-r from-amber-50 to-orange-50 ring-1 ring-amber-300 rounded-lg p-3 flex items-start gap-2">
+            <i data-lucide="alert-circle" class="w-4 h-4 text-amber-700 flex-shrink-0 mt-0.5"></i>
+            <div class="flex-1 min-w-0">
+              <div class="text-[11px] font-bold text-amber-900">2 pendientes</div>
+              <div class="text-[10px] text-amber-800">próxima gratificación en 15d</div>
+            </div>
+          </div>
+
+          <!-- KPI 2x2 grid -->
+          <div class="grid grid-cols-2 gap-2">
+            <div class="bg-gradient-to-br from-sky-50 to-sky-100/40 ring-1 ring-sky-200/50 rounded-xl p-2.5">
+              <div class="flex items-center justify-between mb-0.5">
+                <span class="text-[9px] uppercase text-sky-700 font-bold">MI SUELDO</span>
+                <i data-lucide="wallet" class="w-3 h-3 text-sky-700"></i>
+              </div>
+              <div class="text-lg font-bold tabular text-sky-900">S/ 4,500</div>
+              <div class="text-[9px] text-sky-700">PEN/mes</div>
+            </div>
+            <div class="bg-gradient-to-br from-emerald-50 to-emerald-100/40 ring-1 ring-emerald-200/50 rounded-xl p-2.5">
+              <div class="flex items-center justify-between mb-0.5">
+                <span class="text-[9px] uppercase text-emerald-700 font-bold">PRÓX. BOLETA</span>
+                <i data-lucide="file-text" class="w-3 h-3 text-emerald-700"></i>
+              </div>
+              <div class="text-lg font-bold tabular text-emerald-900">5d</div>
+              <div class="text-[9px] text-emerald-700">~S/ 4,800</div>
+            </div>
+            <div class="bg-gradient-to-br from-violet-50 to-violet-100/40 ring-1 ring-violet-200/50 rounded-xl p-2.5">
+              <div class="flex items-center justify-between mb-0.5">
+                <span class="text-[9px] uppercase text-violet-700 font-bold">BONOS YTD</span>
+                <i data-lucide="trophy" class="w-3 h-3 text-violet-700"></i>
+              </div>
+              <div class="text-lg font-bold tabular text-violet-900">S/ 2,400</div>
+              <div class="text-[9px] text-violet-700">5 activos</div>
+            </div>
+            <div class="bg-gradient-to-br from-indigo-50 to-indigo-100/40 ring-1 ring-indigo-200/50 rounded-xl p-2.5">
+              <div class="flex items-center justify-between mb-0.5">
+                <span class="text-[9px] uppercase text-indigo-700 font-bold">PRÓX. GRATIF.</span>
+                <i data-lucide="gift" class="w-3 h-3 text-indigo-700"></i>
+              </div>
+              <div class="text-lg font-bold tabular text-indigo-900">jul · 15d</div>
+              <div class="text-[9px] text-indigo-700">~S/ 4,500</div>
+            </div>
+          </div>
+
+          <!-- Cross-link cards mobile · stack 1-col full-width -->
+          <div>
+            <h3 class="text-[12px] font-bold text-slate-900 mb-2 inline-flex items-center gap-1">
+              <i data-lucide="navigation" class="w-3.5 h-3.5 text-sky-700"></i>
+              Mis vistas detalladas
+            </h3>
+            <div class="space-y-2">
+              <button class="w-full bg-gradient-to-br from-sky-50 to-sky-100/40 ring-1 ring-sky-200 rounded-xl p-3 text-left" style="min-height: 76px">
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 bg-sky-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md">
+                    <i data-lucide="briefcase-business" class="w-5 h-5 text-white"></i>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <div class="text-[12px] font-bold text-sky-900">Mi planilla</div>
+                    <div class="text-[10px] text-sky-700">5 boletas · 12 días vac.</div>
+                  </div>
+                  <i data-lucide="arrow-up-right" class="w-4 h-4 text-sky-700 flex-shrink-0"></i>
+                </div>
+              </button>
+              <button class="w-full bg-gradient-to-br from-emerald-50 to-emerald-100/40 ring-1 ring-emerald-200 rounded-xl p-3 text-left" style="min-height: 76px">
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 bg-emerald-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md">
+                    <i data-lucide="trending-up" class="w-5 h-5 text-white"></i>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <div class="text-[12px] font-bold text-emerald-900">Mi histórico salarial</div>
+                    <div class="text-[10px] text-emerald-700">3 cambios · +12.5%</div>
+                  </div>
+                  <i data-lucide="arrow-up-right" class="w-4 h-4 text-emerald-700 flex-shrink-0"></i>
+                </div>
+              </button>
+              <button class="w-full bg-gradient-to-br from-amber-50 to-amber-100/40 ring-1 ring-amber-200 rounded-xl p-3 text-left" style="min-height: 76px">
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 bg-amber-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md">
+                    <i data-lucide="arrow-down-circle" class="w-5 h-5 text-white"></i>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <div class="text-[12px] font-bold text-amber-900">Solicitar adelanto</div>
+                    <div class="text-[10px] text-amber-700">requiere aprobación</div>
+                  </div>
+                  <i data-lucide="plus" class="w-4 h-4 text-amber-700 flex-shrink-0"></i>
+                </div>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<!-- ACTO 10 · MOBILE · /perfil/mi-planilla                                -->
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<section id="a10" class="my-12">
+  <div class="max-w-6xl mx-auto px-4">
+    <div class="bg-gradient-to-r from-sky-100 to-sky-50 ring-1 ring-sky-200 rounded-3xl p-5 mb-6">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 bg-sky-600 rounded-2xl flex items-center justify-center text-white font-bold">10</div>
+        <div>
+          <h2 class="text-lg font-bold text-sky-900">Mobile · /perfil/mi-planilla · sub-página 375px</h2>
+          <p class="text-[11px] text-sky-700">Header sticky · sub-tabs scroll-x · stack 1-col · cards full-width</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="iphone-frame">
+      <div class="bg-white">
+        <div class="bg-slate-50 px-4 py-1 text-[10px] text-slate-600 flex justify-between">
+          <span>9:41</span>
+          <span>BusinessMN</span>
+          <span>100%</span>
+        </div>
+
+        <!-- Breadcrumb -->
+        <div class="px-4 py-2 border-b border-slate-200 bg-slate-50 flex items-center text-[10px] overflow-x-auto no-scrollbar">
+          <a class="text-slate-500 flex-shrink-0">Inicio</a>
+          <i data-lucide="chevron-right" class="w-2.5 h-2.5 text-slate-300 mx-1 flex-shrink-0"></i>
+          <a class="text-slate-500 flex-shrink-0">Mi perfil</a>
+          <i data-lucide="chevron-right" class="w-2.5 h-2.5 text-slate-300 mx-1 flex-shrink-0"></i>
+          <span class="text-slate-900 font-semibold flex-shrink-0">Mi planilla</span>
+        </div>
+
+        <!-- Header con back -->
+        <div class="px-3 py-3 border-b border-slate-100 flex items-center gap-2">
+          <button class="w-11 h-11 bg-slate-100 rounded-lg flex items-center justify-center flex-shrink-0">
+            <i data-lucide="arrow-left" class="w-5 h-5 text-slate-700"></i>
+          </button>
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-sky-500 to-sky-700 flex items-center justify-center text-white flex-shrink-0">
+            <i data-lucide="briefcase-business" class="w-5 h-5"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <h1 class="text-[14px] font-bold text-slate-900 truncate">Mi planilla</h1>
+            <p class="text-[10px] text-slate-500 truncate">Boletas · adelantos · incentivos</p>
+          </div>
+        </div>
+
+        <!-- Sub-tabs scroll-x -->
+        <div class="border-b border-slate-200 overflow-x-auto no-scrollbar">
+          <div class="flex gap-1 px-2 whitespace-nowrap" style="min-height: 44px">
+            <button class="px-3 py-2.5 text-[11px] font-bold border-b-2 border-sky-600 text-sky-700 flex items-center gap-1">
+              <i data-lucide="file-text" class="w-3 h-3"></i>Boletas<span class="text-[9px] bg-sky-100 px-1 rounded-full font-bold">12</span>
+            </button>
+            <button class="px-3 py-2.5 text-[11px] font-medium border-b-2 border-transparent text-slate-600 flex items-center gap-1">
+              <i data-lucide="arrow-down-circle" class="w-3 h-3"></i>Adelantos<span class="text-[9px] bg-slate-100 px-1 rounded-full font-bold">3</span>
+            </button>
+            <button class="px-3 py-2.5 text-[11px] font-medium border-b-2 border-transparent text-slate-600 flex items-center gap-1">
+              <i data-lucide="trophy" class="w-3 h-3"></i>Incentivos
+            </button>
+            <button class="px-3 py-2.5 text-[11px] font-medium border-b-2 border-transparent text-slate-600 flex items-center gap-1">
+              <i data-lucide="palmtree" class="w-3 h-3"></i>Vacaciones
+            </button>
+            <button class="px-3 py-2.5 text-[11px] font-medium border-b-2 border-transparent text-slate-600 flex items-center gap-1">
+              <i data-lucide="gift" class="w-3 h-3"></i>Gratif.
+            </button>
+          </div>
+        </div>
+
+        <!-- Body mobile -->
+        <div class="p-3 space-y-3 bg-slate-50/30">
+          <!-- KPI 2x2 mobile -->
+          <div class="grid grid-cols-2 gap-2">
+            <div class="bg-white border border-slate-200 rounded-xl p-2.5">
+              <div class="text-[9px] uppercase text-slate-500 font-bold">BOLETAS YTD</div>
+              <div class="text-lg font-bold tabular text-slate-900">5</div>
+              <div class="text-[9px] text-slate-500">de 12</div>
+            </div>
+            <div class="bg-white border border-slate-200 rounded-xl p-2.5">
+              <div class="text-[9px] uppercase text-slate-500 font-bold">NETO YTD</div>
+              <div class="text-lg font-bold tabular text-emerald-700">S/ 23.6K</div>
+              <div class="text-[9px] text-slate-500">5 pagadas</div>
+            </div>
+            <div class="bg-white border border-slate-200 rounded-xl p-2.5">
+              <div class="text-[9px] uppercase text-slate-500 font-bold">PROMEDIO</div>
+              <div class="text-lg font-bold tabular text-slate-900">S/ 4.7K</div>
+              <div class="text-[9px] text-emerald-700">+5% YoY</div>
+            </div>
+            <div class="bg-white border border-slate-200 rounded-xl p-2.5">
+              <div class="text-[9px] uppercase text-slate-500 font-bold">PRÓX.</div>
+              <div class="text-lg font-bold tabular text-slate-900">5d</div>
+              <div class="text-[9px] text-slate-500">31-may</div>
+            </div>
+          </div>
+
+          <!-- Boletas stack mobile -->
+          <div class="bg-white border border-slate-200 rounded-xl overflow-hidden">
+            <div class="px-3 py-2 border-b border-slate-100 flex items-center gap-1 overflow-x-auto no-scrollbar">
+              <span class="text-[9px] uppercase text-slate-500 font-bold flex-shrink-0">Año:</span>
+              <button class="bg-slate-900 text-white text-[9px] font-bold px-1.5 py-0.5 rounded flex-shrink-0">2026</button>
+              <button class="bg-white text-slate-700 border border-slate-200 text-[9px] font-bold px-1.5 py-0.5 rounded flex-shrink-0">2025</button>
+              <button class="bg-white text-slate-700 border border-slate-200 text-[9px] font-bold px-1.5 py-0.5 rounded flex-shrink-0">2024</button>
+            </div>
+            <div class="divide-y divide-slate-100">
+              <div class="px-3 py-2 flex items-center justify-between" style="min-height: 56px">
+                <div>
+                  <div class="text-[12px] font-semibold text-slate-900">may 2026</div>
+                  <div class="text-[10px] text-slate-500 tabular">Neto: S/ 4,800</div>
+                </div>
+                <span class="bg-amber-100 text-amber-700 text-[9px] font-bold px-1.5 py-0.5 rounded uppercase">PEND.</span>
+              </div>
+              <div class="px-3 py-2 flex items-center justify-between" style="min-height: 56px">
+                <div>
+                  <div class="text-[12px] font-semibold text-slate-900">abr 2026</div>
+                  <div class="text-[10px] text-slate-500 tabular">Neto: S/ 5,150</div>
+                </div>
+                <span class="bg-emerald-100 text-emerald-700 text-[9px] font-bold px-1.5 py-0.5 rounded uppercase">PAG.</span>
+              </div>
+              <div class="px-3 py-2 flex items-center justify-between" style="min-height: 56px">
+                <div>
+                  <div class="text-[12px] font-semibold text-slate-900">mar 2026</div>
+                  <div class="text-[10px] text-slate-500 tabular">Neto: S/ 4,700</div>
+                </div>
+                <span class="bg-emerald-100 text-emerald-700 text-[9px] font-bold px-1.5 py-0.5 rounded uppercase">PAG.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<!-- ACTO 11 · MOBILE · /perfil/mi-capital                                 -->
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<section id="a11" class="my-12">
+  <div class="max-w-6xl mx-auto px-4">
+    <div class="bg-gradient-to-r from-violet-100 to-violet-50 ring-1 ring-violet-200 rounded-3xl p-5 mb-6">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 bg-violet-600 rounded-2xl flex items-center justify-center text-white font-bold">11</div>
+        <div>
+          <h2 class="text-lg font-bold text-violet-900">Mobile · /perfil/mi-capital · sub-página 375px</h2>
+          <p class="text-[11px] text-violet-700">Hero violet protagonista · aportes y distribuciones colapsables</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="iphone-frame">
+      <div class="bg-white">
+        <div class="bg-slate-50 px-4 py-1 text-[10px] text-slate-600 flex justify-between">
+          <span>9:41</span>
+          <span>BusinessMN</span>
+          <span>100%</span>
+        </div>
+
+        <div class="px-4 py-2 border-b border-slate-200 bg-slate-50 flex items-center text-[10px]">
+          <a class="text-slate-500">Inicio</a>
+          <i data-lucide="chevron-right" class="w-2.5 h-2.5 text-slate-300 mx-1"></i>
+          <a class="text-slate-500">Mi perfil</a>
+          <i data-lucide="chevron-right" class="w-2.5 h-2.5 text-slate-300 mx-1"></i>
+          <span class="text-slate-900 font-semibold">Mi capital</span>
+        </div>
+
+        <div class="px-3 py-3 border-b border-slate-100 flex items-center gap-2">
+          <button class="w-11 h-11 bg-slate-100 rounded-lg flex items-center justify-center flex-shrink-0">
+            <i data-lucide="arrow-left" class="w-5 h-5 text-slate-700"></i>
+          </button>
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-violet-700 flex items-center justify-center text-white flex-shrink-0">
+            <i data-lucide="coins" class="w-5 h-5"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <h1 class="text-[14px] font-bold text-slate-900 truncate">Mi capital</h1>
+            <p class="text-[10px] text-slate-500 truncate">Mi participación · aportes · ROI</p>
+          </div>
+        </div>
+
+        <div class="p-3 space-y-3 bg-slate-50/30">
+          <!-- Hero stack vertical -->
+          <div class="bg-gradient-to-br from-violet-50 to-purple-50 border-2 border-violet-200 rounded-2xl p-4 space-y-3">
+            <div class="text-center">
+              <div class="text-[10px] uppercase tracking-wider text-violet-700 font-bold">MI PARTICIPACIÓN</div>
+              <div class="text-5xl font-bold tabular text-violet-900 mt-1">45<span class="text-violet-400">%</span></div>
+              <div class="text-[11px] text-violet-700 mt-0.5">Co-fundador · CEO</div>
+            </div>
+            <div class="grid grid-cols-2 gap-2 pt-3 border-t border-violet-200">
+              <div class="text-center">
+                <div class="text-[9px] uppercase text-violet-700 font-bold">MI CAPITAL</div>
+                <div class="text-xl font-bold tabular text-violet-900">S/ 70K</div>
+                <div class="text-[9px] text-violet-700">cash + valor</div>
+              </div>
+              <div class="text-center border-l border-violet-200">
+                <div class="text-[9px] uppercase text-emerald-700 font-bold">ROI YTD</div>
+                <div class="text-xl font-bold tabular text-emerald-700">+12.4%</div>
+                <div class="text-[9px] text-emerald-700">S/ 8.7K acum.</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Aportes accordion -->
+          <button class="w-full bg-white border border-slate-200 rounded-xl p-3 flex items-center justify-between" style="min-height: 52px">
+            <div class="flex items-center gap-2">
+              <i data-lucide="arrow-up-circle" class="w-4 h-4 text-violet-700"></i>
+              <span class="text-[12px] font-bold text-slate-900">Mis aportes</span>
+              <span class="text-[10px] text-slate-500">· 4 ops · S/ 70K</span>
+            </div>
+            <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400"></i>
+          </button>
+
+          <!-- Distribuciones accordion (abierto) -->
+          <div class="bg-white border border-slate-200 rounded-xl overflow-hidden">
+            <button class="w-full p-3 flex items-center justify-between" style="min-height: 52px">
+              <div class="flex items-center gap-2">
+                <i data-lucide="banknote" class="w-4 h-4 text-emerald-700"></i>
+                <span class="text-[12px] font-bold text-slate-900">Distribuciones</span>
+                <span class="text-[10px] text-slate-500">· 3</span>
+              </div>
+              <i data-lucide="chevron-up" class="w-4 h-4 text-slate-400"></i>
+            </button>
+            <div class="border-t border-slate-100 divide-y divide-slate-100">
+              <div class="px-3 py-2.5 flex items-center justify-between">
+                <div class="min-w-0">
+                  <div class="text-[11px] font-semibold text-slate-900 truncate">jun 2026 · programada</div>
+                  <div class="text-[9px] text-slate-500">45%</div>
+                </div>
+                <div class="text-right flex-shrink-0">
+                  <div class="text-[12px] font-bold tabular text-violet-900">S/ 8.4K</div>
+                  <span class="text-[9px] bg-amber-100 text-amber-700 px-1 py-0.5 rounded font-bold uppercase">PROG.</span>
+                </div>
+              </div>
+              <div class="px-3 py-2.5 flex items-center justify-between">
+                <div class="min-w-0">
+                  <div class="text-[11px] font-semibold text-slate-900 truncate">mar 2026</div>
+                  <div class="text-[9px] text-slate-500">pagada 15-mar</div>
+                </div>
+                <div class="text-right flex-shrink-0">
+                  <div class="text-[12px] font-bold tabular text-violet-900">S/ 6.75K</div>
+                  <span class="text-[9px] bg-emerald-100 text-emerald-700 px-1 py-0.5 rounded font-bold uppercase">PAG.</span>
+                </div>
+              </div>
+              <div class="px-3 py-2.5 flex items-center justify-between">
+                <div class="min-w-0">
+                  <div class="text-[11px] font-semibold text-slate-900 truncate">dic 2025</div>
+                  <div class="text-[9px] text-slate-500">pagada 28-dic</div>
+                </div>
+                <div class="text-right flex-shrink-0">
+                  <div class="text-[12px] font-bold tabular text-violet-900">S/ 5.2K</div>
+                  <span class="text-[9px] bg-emerald-100 text-emerald-700 px-1 py-0.5 rounded font-bold uppercase">PAG.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Cross-link full-width -->
+          <button class="w-full bg-gradient-to-r from-violet-50 to-purple-50 ring-1 ring-violet-200 rounded-xl p-3 flex items-center gap-2" style="min-height: 56px">
+            <i data-lucide="landmark" class="w-5 h-5 text-violet-700 flex-shrink-0"></i>
+            <div class="flex-1 min-w-0 text-left">
+              <div class="text-[11px] font-bold text-slate-900">Ver cap table completo</div>
+              <div class="text-[9px] text-slate-600">/inversionistas</div>
+            </div>
+            <i data-lucide="arrow-right" class="w-4 h-4 text-violet-700 flex-shrink-0"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<!-- ACTO 12 · STICKY BACK HEADER                                          -->
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<section id="a12" class="my-12">
+  <div class="max-w-6xl mx-auto px-4">
+    <div class="bg-gradient-to-r from-slate-100 to-slate-50 ring-1 ring-slate-200 rounded-3xl p-5 mb-6">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 bg-slate-700 rounded-2xl flex items-center justify-center text-white font-bold">12</div>
+        <div>
+          <h2 class="text-lg font-bold text-slate-900">Mobile · sticky back header al scroll</h2>
+          <p class="text-[11px] text-slate-700">Header colapsa a 56px en scroll · back arrow siempre accesible</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <!-- Estado expandido -->
+      <div>
+        <h3 class="text-[12px] font-bold text-slate-700 mb-2">① Estado inicial · scroll=0 · header completo</h3>
+        <div class="iphone-frame">
+          <div class="bg-white">
+            <div class="bg-slate-50 px-4 py-1 text-[10px] text-slate-600 flex justify-between">
+              <span>9:41</span><span>BusinessMN</span><span>100%</span>
+            </div>
+            <div class="px-3 py-3 border-b border-slate-100 flex items-center gap-2">
+              <button class="w-11 h-11 bg-slate-100 rounded-lg flex items-center justify-center">
+                <i data-lucide="arrow-left" class="w-5 h-5 text-slate-700"></i>
+              </button>
+              <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-sky-500 to-sky-700 flex items-center justify-center text-white">
+                <i data-lucide="briefcase-business" class="w-5 h-5"></i>
+              </div>
+              <div class="flex-1 min-w-0">
+                <h1 class="text-[14px] font-bold text-slate-900">Mi planilla</h1>
+                <p class="text-[10px] text-slate-500">Boletas · adelantos</p>
+              </div>
+            </div>
+            <div class="px-3 py-12 text-center text-slate-400 text-[11px]">
+              Body de la página
+              <br />(scroll-able)
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Estado sticky compact -->
+      <div>
+        <h3 class="text-[12px] font-bold text-slate-700 mb-2">② Estado scroll &gt; 80px · sticky compact</h3>
+        <div class="iphone-frame">
+          <div class="bg-white">
+            <div class="bg-slate-50 px-4 py-1 text-[10px] text-slate-600 flex justify-between">
+              <span>9:41</span><span>BusinessMN</span><span>100%</span>
+            </div>
+            <!-- Sticky header compact 56px -->
+            <div class="px-3 py-2 border-b border-slate-200 bg-white/95 backdrop-blur flex items-center gap-2 shadow-sm" style="min-height: 56px">
+              <button class="w-9 h-9 bg-slate-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                <i data-lucide="arrow-left" class="w-4 h-4 text-slate-700"></i>
+              </button>
+              <div class="flex-1 min-w-0">
+                <h1 class="text-[12px] font-bold text-slate-900 truncate">Mi planilla</h1>
+              </div>
+              <div class="w-7 h-7 rounded-lg bg-sky-100 flex items-center justify-center flex-shrink-0">
+                <i data-lucide="briefcase-business" class="w-3.5 h-3.5 text-sky-700"></i>
+              </div>
+            </div>
+            <div class="px-3 py-12 text-center text-slate-400 text-[11px]">
+              Body de la página
+              <br />(scrolled down)
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-6 max-w-4xl mx-auto p-4 bg-slate-50 border border-slate-200 rounded-lg">
+      <div class="text-[12px] font-bold text-slate-900 mb-2 inline-flex items-center gap-1.5">
+        <i data-lucide="code" class="w-4 h-4"></i>
+        Comportamiento
+      </div>
+      <div class="text-[11px] text-slate-700 space-y-1">
+        <div>• <code class="bg-white px-1 py-0.5 rounded">scroll === 0</code> · header normal · 76px · avatar full + subtítulo</div>
+        <div>• <code class="bg-white px-1 py-0.5 rounded">scroll &gt; 80</code> · transición a sticky · 56px · solo back + título + icon mini</div>
+        <div>• <code class="bg-white px-1 py-0.5 rounded">bg-white/95 backdrop-blur</code> · shadow-sm cuando sticky · feedback visual</div>
+        <div>• Tap back con touch ≥44px en ambos estados</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<!-- ACTO 13 · SWIPE BACK GESTURE                                          -->
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<section id="a13" class="my-12">
+  <div class="max-w-6xl mx-auto px-4">
+    <div class="bg-gradient-to-r from-sky-100 to-sky-50 ring-1 ring-sky-200 rounded-3xl p-5 mb-6">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 bg-sky-600 rounded-2xl flex items-center justify-center text-white font-bold">13</div>
+        <div>
+          <h2 class="text-lg font-bold text-sky-900">Mobile · swipe-back gesture (iOS pattern)</h2>
+          <p class="text-[11px] text-sky-700">Edge swipe desde izquierda · 50% threshold para confirmar</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <!-- Estado 1: gesture starts -->
+      <div>
+        <h3 class="text-[12px] font-bold text-slate-700 mb-2">① Swipe desde edge izquierda</h3>
+        <div class="iphone-frame">
+          <div class="bg-white relative">
+            <div class="bg-slate-50 px-4 py-1 text-[10px] text-slate-600 flex justify-between">
+              <span>9:41</span><span>BusinessMN</span><span>100%</span>
+            </div>
+            <div class="relative overflow-hidden" style="height: 280px">
+              <div class="absolute inset-0 bg-white p-3 text-[10px] text-slate-400 text-center pt-20">
+                Página actual<br />/perfil/mi-planilla
+              </div>
+              <!-- Edge swipe indicator -->
+              <div class="absolute top-0 left-0 bottom-0 w-12 bg-gradient-to-r from-sky-200/60 to-transparent flex items-center justify-start pl-1">
+                <i data-lucide="chevron-right" class="w-6 h-6 text-sky-700"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Estado 2: gesture mid -->
+      <div>
+        <h3 class="text-[12px] font-bold text-slate-700 mb-2">② Drag 50% · ver vista anterior</h3>
+        <div class="iphone-frame">
+          <div class="bg-white relative">
+            <div class="bg-slate-50 px-4 py-1 text-[10px] text-slate-600 flex justify-between">
+              <span>9:41</span><span>BusinessMN</span><span>100%</span>
+            </div>
+            <div class="relative overflow-hidden" style="height: 280px">
+              <!-- Vista anterior (perfil) detrás -->
+              <div class="absolute inset-0 bg-slate-100 p-3 text-[10px] text-slate-500 text-center pt-20">
+                Vista anterior<br />/perfil (visible)
+              </div>
+              <!-- Página actual desplazada 50% -->
+              <div class="absolute inset-y-0 left-1/2 right-0 bg-white shadow-2xl p-3 text-[10px] text-slate-400 text-center pt-20">
+                /perfil/mi-planilla<br />(desplazada)
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Estado 3: completed -->
+      <div>
+        <h3 class="text-[12px] font-bold text-slate-700 mb-2">③ Suelta · navegación back</h3>
+        <div class="iphone-frame">
+          <div class="bg-white relative">
+            <div class="bg-slate-50 px-4 py-1 text-[10px] text-slate-600 flex justify-between">
+              <span>9:41</span><span>BusinessMN</span><span>100%</span>
+            </div>
+            <div class="relative overflow-hidden bg-white" style="height: 280px">
+              <div class="absolute inset-0 p-3 text-[10px] text-slate-600 text-center pt-20">
+                <i data-lucide="check-circle" class="w-8 h-8 mx-auto text-emerald-500 mb-2"></i>
+                Volvió al perfil<br />tab Resumen restaurado
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-6 max-w-4xl mx-auto p-4 bg-sky-50 border border-sky-200 rounded-lg">
+      <div class="text-[12px] font-bold text-sky-900 mb-2 inline-flex items-center gap-1.5">
+        <i data-lucide="hand" class="w-4 h-4"></i>
+        Implementación
+      </div>
+      <div class="text-[11px] text-sky-800 space-y-1">
+        <div>• <strong>iOS Safari</strong>: gesture nativo del navegador · funciona out-of-the-box con History API</div>
+        <div>• <strong>Android Chrome</strong>: usar polyfill o JS listener para reproducir el feel</div>
+        <div>• Si el swipe es &lt;50% del viewport · cancela y vuelve · si es ≥50% · completa la navegación</div>
+        <div>• Scroll position se restaura en la página anterior (Resumen del perfil)</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<!-- ACTO 14 · MOBILE UX PATTERNS                                          -->
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<section id="a14" class="my-12">
+  <div class="max-w-6xl mx-auto px-4">
+    <div class="bg-gradient-to-r from-purple-100 to-purple-50 ring-1 ring-purple-200 rounded-3xl p-5 mb-6">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 bg-purple-600 rounded-2xl flex items-center justify-center text-white font-bold">14</div>
+        <div>
+          <h2 class="text-lg font-bold text-purple-900">Mobile · UX patterns catalog · transitions + accessibility</h2>
+          <p class="text-[11px] text-purple-700">Detalles que hacen la experiencia banking-grade en mobile</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="device-desktop bg-white rounded-2xl ring-1 ring-slate-200 overflow-hidden p-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Touch targets -->
+        <div class="bg-slate-50 border border-slate-200 rounded-xl p-4">
+          <div class="text-[12px] font-bold text-slate-900 mb-2 inline-flex items-center gap-1.5">
+            <i data-lucide="hand" class="w-4 h-4 text-purple-700"></i>
+            Touch targets ≥44×44px
+          </div>
+          <p class="text-[11px] text-slate-600 mb-3">Apple HIG · Material Design · todos los buttons y cards clickables.</p>
+          <div class="bg-white border border-slate-200 rounded p-3 space-y-2">
+            <code class="text-[10px] text-slate-700 block">w-11 h-11 (back arrow)</code>
+            <code class="text-[10px] text-slate-700 block">min-h-[44px] (tabs scroll-x)</code>
+            <code class="text-[10px] text-slate-700 block">min-h-[56px] (cross-link cards)</code>
+            <code class="text-[10px] text-slate-700 block">min-h-[76px] (quick action cards)</code>
+          </div>
+        </div>
+
+        <!-- Page transitions -->
+        <div class="bg-slate-50 border border-slate-200 rounded-xl p-4">
+          <div class="text-[12px] font-bold text-slate-900 mb-2 inline-flex items-center gap-1.5">
+            <i data-lucide="film" class="w-4 h-4 text-purple-700"></i>
+            Page transitions
+          </div>
+          <p class="text-[11px] text-slate-600 mb-3">Slide-from-right cuando navega a sub-página · slide-to-right en back.</p>
+          <div class="bg-white border border-slate-200 rounded p-3">
+            <code class="text-[10px] text-slate-700 block">transition: transform 250ms cubic-bezier(0.4, 0, 0.2, 1)</code>
+            <code class="text-[10px] text-slate-700 block">forward: translateX(100% → 0)</code>
+            <code class="text-[10px] text-slate-700 block">back: translateX(0 → 100%)</code>
+          </div>
+        </div>
+
+        <!-- Scroll restoration -->
+        <div class="bg-slate-50 border border-slate-200 rounded-xl p-4">
+          <div class="text-[12px] font-bold text-slate-900 mb-2 inline-flex items-center gap-1.5">
+            <i data-lucide="anchor" class="w-4 h-4 text-purple-700"></i>
+            Scroll restoration
+          </div>
+          <p class="text-[11px] text-slate-600 mb-3">Volver al perfil restaura el scroll exacto donde estaba.</p>
+          <div class="bg-white border border-slate-200 rounded p-3">
+            <code class="text-[10px] text-slate-700 block">React Router scroll restoration plugin</code>
+            <code class="text-[10px] text-slate-700 block">+ Browser History API</code>
+            <code class="text-[10px] text-slate-700 block">+ scrollY saved en sessionStorage</code>
+          </div>
+        </div>
+
+        <!-- Safe area inset -->
+        <div class="bg-slate-50 border border-slate-200 rounded-xl p-4">
+          <div class="text-[12px] font-bold text-slate-900 mb-2 inline-flex items-center gap-1.5">
+            <i data-lucide="layout" class="w-4 h-4 text-purple-700"></i>
+            Safe area inset (notch + home indicator)
+          </div>
+          <p class="text-[11px] text-slate-600 mb-3">Respeto del área segura · header + footer bottom-sheet.</p>
+          <div class="bg-white border border-slate-200 rounded p-3">
+            <code class="text-[10px] text-slate-700 block">padding-top: env(safe-area-inset-top)</code>
+            <code class="text-[10px] text-slate-700 block">padding-bottom: env(safe-area-inset-bottom)</code>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<!-- FOOTER · CHECKLIST CANON                                              -->
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<section class="max-w-6xl mx-auto mt-16 mb-8 px-4">
+  <div class="bg-white rounded-2xl ring-1 ring-slate-200 p-6">
+    <h2 class="text-[16px] font-bold text-slate-900 mb-4 inline-flex items-center gap-2">
+      <i data-lucide="check-square" class="w-5 h-5 text-emerald-600"></i>
+      Checklist canon · cobertura del mockup
+    </h2>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-[12px]">
+      <div>
+        <h3 class="font-bold text-slate-700 mb-2 uppercase tracking-wider text-[11px]">Bloque A · cobertura desktop (8 actos)</h3>
+        <ul class="space-y-1 text-slate-600">
+          <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600 flex-shrink-0"></i>Concepto + comparación 3 opciones</li>
+          <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600 flex-shrink-0"></i>Mapa de rutas /perfil/* nuevas</li>
+          <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600 flex-shrink-0"></i>Tab Resumen empleado · cross-links destacados</li>
+          <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600 flex-shrink-0"></i>Drill /perfil/mi-planilla página completa</li>
+          <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600 flex-shrink-0"></i>Drill /perfil/mi-capital página completa</li>
+          <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600 flex-shrink-0"></i>Drill /perfil/mi-historial timeline</li>
+          <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600 flex-shrink-0"></i>Patrón cross-links 3 tipos visuales</li>
+          <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600 flex-shrink-0"></i>Back link sticky pattern</li>
+        </ul>
+      </div>
+      <div>
+        <h3 class="font-bold text-slate-700 mb-2 uppercase tracking-wider text-[11px]">Bloque B · mobile-included (6 actos)</h3>
+        <ul class="space-y-1 text-slate-600">
+          <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600 flex-shrink-0"></i>Mobile Tab Resumen empleado 375px</li>
+          <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600 flex-shrink-0"></i>Mobile /perfil/mi-planilla 375px</li>
+          <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600 flex-shrink-0"></i>Mobile /perfil/mi-capital 375px</li>
+          <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600 flex-shrink-0"></i>Sticky back header al scroll</li>
+          <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600 flex-shrink-0"></i>Swipe-back gesture pattern</li>
+          <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600 flex-shrink-0"></i>UX patterns + transitions catalog</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="mt-6 pt-4 border-t border-slate-200">
+      <h3 class="font-bold text-slate-700 mb-2 uppercase tracking-wider text-[11px]">Decisión pendiente del user</h3>
+      <p class="text-[12px] text-slate-600 mb-3">
+        Si aprobás esta variante, el plan de implementación sería:
+      </p>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-[11px]">
+        <div class="bg-purple-50 border border-purple-200 rounded p-3">
+          <div class="font-bold text-purple-900 mb-1">📦 Implementación (~3-4h)</div>
+          <ol class="list-decimal list-inside text-slate-700 space-y-1">
+            <li>Crear sub-páginas /perfil/mi-planilla · /perfil/mi-capital · /perfil/mi-historial</li>
+            <li>Routes nuevas + lazy loading</li>
+            <li>Componente back-arrow + breadcrumb 3-niveles reusable</li>
+            <li>Wire-up quick action cards (Tab Resumen) → navegación</li>
+            <li>Sticky scroll behavior + mobile transitions</li>
+          </ol>
+        </div>
+        <div class="bg-emerald-50 border border-emerald-200 rounded p-3">
+          <div class="font-bold text-emerald-900 mb-1">✅ Beneficio neto</div>
+          <ul class="list-disc list-inside text-slate-700 space-y-1">
+            <li>Resumen actual queda limpio · sin sobrecarga</li>
+            <li>Empleado tiene vista completa de SU planilla sin entrar a /planilla admin</li>
+            <li>Multi-rol (admin+socio+empleado) escala bien</li>
+            <li>Separación clara vista personal vs módulo gestión</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-4 text-[10px] text-slate-400 italic">
+      Mockup canon · perfil-v5.5-variante-drill.html · 14 actos · canon 2026-05-27 · F10.F.1.J-EXTRA
+    </div>
+  </div>
+</section>
+
+<script>lucide.createIcons();</script>
+</body>
+</html>
