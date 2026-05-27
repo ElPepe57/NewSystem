@@ -143,6 +143,37 @@ export const planillaService = {
   },
 
   /**
+   * F10.F.1 · Lista boletas de UN empleado · ordenadas desc por (anio, mes).
+   * Caso uso: /perfil del empleado · MisBoletasRecientes card.
+   * @param userId · uid del empleado dueño
+   * @param maxResults · default 5 últimas boletas
+   */
+  async getBoletasPorEmpleado(userId: string, maxResults: number = 5): Promise<Boleta[]> {
+    try {
+      const ref = collection(db, COLLECTIONS.BOLETAS);
+      // Nota: orderBy compuesto (anio desc, mes desc) requiere índice compuesto Firestore.
+      // Estrategia liviana: filtrar por userId + ordenar por anio desc + limit ampliado · sort en memoria.
+      const q = query(
+        ref,
+        where('userId', '==', userId),
+        orderBy('anio', 'desc'),
+        limit(maxResults * 3), // buffer para reordenar por mes en memoria
+      );
+      const snap = await getDocs(q);
+      const boletas = snap.docs.map(d => d.data() as Boleta);
+      // Reordenar por (anio desc, mes desc) en memoria y limitar
+      boletas.sort((a, b) => {
+        if (a.anio !== b.anio) return b.anio - a.anio;
+        return b.mes - a.mes;
+      });
+      return boletas.slice(0, maxResults);
+    } catch (error) {
+      logger.error('[planillaService] getBoletasPorEmpleado:', error);
+      return [];
+    }
+  },
+
+  /**
    * Genera boletas borrador para todos los empleados activos del periodo.
    */
   async generarBoletasMes(
