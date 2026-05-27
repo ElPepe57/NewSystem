@@ -167,6 +167,119 @@ El usuario prefiere 1 módulo terminado 100% que 5 módulos al 80%.
 
 ---
 
+# CANON DE MOCKUPS DE DISEÑO · COBERTURA TOTAL + MOBILE-INCLUDED (declarado 2026-05-27)
+
+**Todo mockup HTML producido en `docs/mockups/` debe cubrir DESDE EL INICIO las
+TODAS las superficies del módulo Y la vista mobile (375px). Prohibido entregar
+mockups que solo muestren el shell/desktop y que el usuario tenga que pedir
+explícitamente las superficies internas o el mobile.**
+
+El usuario declaró este canon tras detectar que sistemáticamente los mockups
+producidos se enfocan en el shell desktop · y que las superficies internas
+(cards · formularios · modales · banners · estados) y la vista mobile (375px)
+quedan como "afterthought" que el usuario debe pedir explícitamente sesión
+tras sesión. Cita literal (2026-05-27):
+
+> *"Tambien estas considerando la implementacion en mobile cierto!?"*
+>
+> *"Y puedes poner lo de mobile como canonico, porque siempre tengo que darte
+> ese feedback y tambien lo de presentar todos los formularios, cards, etc...
+> internos de la seccion."*
+
+Este canon es la **EXTENSIÓN AL DOMINIO DE MOCKUPS** del canon de cobertura
+de rework (declarado 2026-05-11). El canon de cobertura aplicaba al CÓDIGO ·
+este canon aplica al MOCKUP que precede al código.
+
+## Regla operativa
+
+Cuando se produce un mockup HTML de un módulo/feature/refactor, el alcance
+OBLIGATORIO incluye DESDE EL INICIO (sin esperar a que el usuario lo pida):
+
+### Bloque A · Cobertura total de superficies (mismas que el canon de rework)
+
+1. **Shell del módulo** — breadcrumb · header · acciones · tabs (desktop view)
+2. **Cada tab/sub-vista** del módulo · vista propia
+3. **Variantes por rol/contexto** si aplican (ej. vista empleado · admin · socio)
+4. **Cards y bloques internos** — cada card con sus datos + acciones
+5. **Forms inline + wizards** — todos los formularios de creación/edición
+6. **Modales internos** — Nuevo X · Editar X · Detalle X · confirm · typed-confirm
+7. **Banners contextuales** — pendientes · alertas · borrador · cross-link
+8. **Empty states** — sin data + CTA accionable (canon N9 quick-start)
+9. **Loading states** — skeleton del tab/card
+10. **Error states** — con CTA de retry
+
+### Bloque B · Mobile-included (375px) · OBLIGATORIO desde inicio
+
+11. **Mobile shell** — vista 375px del shell completo (avatar + header + tabs)
+12. **Mobile cada tab** — vista 375px de cada sub-vista crítica
+13. **Mobile modales** — bottom-sheet pattern vs centered (decisión por modal)
+14. **Mobile cards** — layout 1-col + touch targets ≥44px
+15. **Mobile filtros chip** — scroll-x mobile canon N6
+16. **Mobile UX patterns** — touch targets · safe-area inset · sticky behaviors
+
+Si el mockup omite alguno de estos 16 puntos cuando el módulo los necesita ·
+NO está canon completo · es entregable parcial inaceptable.
+
+## Prohibiciones explícitas
+
+- ❌ Entregar mockup con solo shell desktop esperando que user pida más
+- ❌ Diferir mobile views a "iteración siguiente" o "deuda menor"
+- ❌ Diferir modales/forms internos a un archivo de mockup separado
+- ❌ Decir "el mockup principal está · los modales se diseñan en código"
+- ❌ Renderizar solo `max-width: 1100px` sin contraparte 375px
+- ❌ Mostrar 1 variante por rol cuando el módulo tiene N roles distintos
+- ❌ Omitir empty/loading/error states "porque son obvios"
+- ❌ Cualquier patrón "rápido y suficiente" que requiera al usuario pedir
+  superficies que el canon ya declara como obligatorias
+
+## Estructura recomendada del mockup HTML
+
+Para módulos con N tabs y M roles, estructurar en ACTOS numerados:
+
+```
+HERO + ÍNDICE
+ACTO 1     · Shell desktop
+ACTO 2-N   · Cada tab desktop (con variantes por rol si aplica)
+ACTO N+1   · Sub-perfiles / cards complejas
+ACTO N+2   · Modales internos (uno por modal)
+ACTO N+3   · Banners contextuales catálogo
+ACTO N+4   · Empty/loading/error states
+ACTO N+5+  · Mobile breakdowns (mínimo 4-6 actos mobile dedicados)
+FOOTER     · Checklist canon
+```
+
+## Cómo verificar cobertura completa antes de aprobar un mockup
+
+Checklist obligatorio antes de marcar un mockup "listo para implementación":
+
+1. ✅ ¿Cubre TODAS las superficies del Bloque A (10 puntos)?
+2. ✅ ¿Tiene vista mobile (375px) del shell?
+3. ✅ ¿Tiene vista mobile de cada tab crítico?
+4. ✅ ¿Tiene vista mobile de modales (bottom-sheet o centered según el caso)?
+5. ✅ ¿Declara touch targets ≥44px?
+6. ✅ ¿Muestra todas las variantes por rol si aplica?
+7. ✅ ¿Muestra empty/loading/error?
+8. ✅ ¿Cards con sus datos + acciones · no genéricos?
+9. ✅ ¿Modales canon FormModalV2 con header + body + footer?
+10. ✅ ¿Footer checklist con cobertura declarada?
+
+Si algún punto falla, el mockup NO está canon completo · solo es draft.
+
+## Aplica a
+
+- ✅ Todos los mockups producidos post 2026-05-27
+- ✅ Retroactivamente: mockup perfil-v5.4-personalizado.html debe extenderse
+  con vista mobile (6 actos mobile adicionales) antes de pasar a implementación
+- ✅ Próximos mockups: aplicar este canon como check obligatorio antes de
+  declarar el mockup "listo"
+
+Este canon tiene **precedencia sobre cualquier optimización de tiempo del
+mockup**. El usuario prefiere 1 mockup completo que cubre todo desde el inicio
+que 3 mockups parciales que requieren múltiples rondas de feedback para llegar
+a la misma cobertura.
+
+---
+
 # CANON DE FORMULARIOS · BORRADOR + DESCARTAR (declarado 2026-05-07)
 
 **TODO formulario o wizard de creación debe ofrecer "Guardar como borrador" + "Descartar".**
