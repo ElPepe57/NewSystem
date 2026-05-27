@@ -62,6 +62,10 @@ export type { TooltipPedagogicoProps } from './TooltipPedagogico';
 export { DonutChartCanon } from './DonutChart';
 export type { DonutChartProps, DonutSegment, DonutSegmentColor } from './DonutChart';
 
+// BackArrowHeader · F10.F.1.J-SIDEBAR (canon 2026-05-27) · header reusable de sub-páginas /perfil/*
+export { BackArrowHeader } from './BackArrowHeader';
+export type { BackArrowHeaderColorTone } from './BackArrowHeader';
+
 // Dropdown
 export { Dropdown, DropdownSelect, ActionsDropdown } from './Dropdown';
 export type { DropdownProps, DropdownItem, DropdownSelectProps } from './Dropdown';

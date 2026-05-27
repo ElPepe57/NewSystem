@@ -45,6 +45,8 @@ import { AuthService } from '../../services/auth.service';
 import { usePermissions } from '../../hooks/usePermissions';
 import { PERMISOS } from '../../types/auth.types';
 import { LineaNegocioSelector } from '../modules/lineaNegocio/LineaNegocioSelector';
+// F10.F.1.J-SIDEBAR · Grupo "Mi espacio" al final del sidebar · items dinámicos por rol
+import { MiEspacioGroup } from './MiEspacioGroup';
 
 interface MenuItem {
   icon: React.FC<{ className?: string }>;
@@ -367,6 +369,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
             </div>
           );
         })}
+
+        {/* F10.F.1.J-SIDEBAR · Grupo "Mi espacio" al FINAL · canon v5.6
+            Items dinámicos por rol/sub-perfiles del user · separador purple */}
+        <MiEspacioGroup />
       </nav>
 
       {/* Logout */}
