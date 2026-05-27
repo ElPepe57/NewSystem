@@ -1,0 +1,1200 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Perfil v5.7 · /perfil/mi-bandeja · canon 2026-05-27</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+  .tabular { font-variant-numeric: tabular-nums; font-feature-settings: "tnum"; }
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { scrollbar-width: none; }
+  .device-desktop { max-width: 1100px; margin: 0 auto; }
+  .iphone-frame {
+    background: #1e293b;
+    padding: 8px;
+    border-radius: 40px;
+    max-width: 391px;
+    margin: 0 auto;
+  }
+  .iphone-frame > * {
+    border-radius: 32px;
+    overflow: hidden;
+  }
+</style>
+</head>
+<body class="bg-slate-50 text-slate-900 py-8">
+
+<!-- HERO -->
+<section class="max-w-6xl mx-auto mb-8 px-4">
+  <div class="bg-gradient-to-r from-amber-600 via-amber-500 to-orange-600 text-white rounded-3xl p-6 shadow-xl">
+    <div class="flex items-start gap-4 flex-wrap">
+      <div class="w-14 h-14 bg-white/20 rounded-2xl flex items-center justify-center flex-shrink-0">
+        <i data-lucide="shield-check" class="w-7 h-7"></i>
+      </div>
+      <div class="flex-1 min-w-[280px]">
+        <div class="text-[11px] uppercase tracking-wider font-bold opacity-90">Mockup pixel-perfect</div>
+        <h1 class="text-2xl font-bold mt-0.5">/perfil/mi-bandeja · Centro de mando admin</h1>
+        <p class="text-[13px] opacity-90 mt-1">
+          Sub-página dedicada de Mi espacio para admin/gerente · consolida TODAS las aprobaciones
+          pendientes en un solo lugar con bulk actions · 4 sub-tabs internas · modales canon.
+        </p>
+        <div class="text-[11px] opacity-80 mt-2">
+          Canon 2026-05-27 · 10 actos (7 desktop + 3 mobile) · F10.F.1.J-MI-BANDEJA
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ÍNDICE -->
+<section class="max-w-6xl mx-auto mb-8 px-4">
+  <div class="bg-white rounded-2xl ring-1 ring-slate-200 p-5">
+    <h2 class="text-[13px] font-bold text-slate-900 mb-4 uppercase tracking-wider">Índice · 10 actos</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-[12px]">
+      <a href="#a1" class="block p-2 rounded bg-amber-50 hover:bg-amber-100"><strong class="text-amber-700">ACTO 1</strong> · Shell completo · 4 sub-tabs + KPIs</a>
+      <a href="#a2" class="block p-2 rounded bg-amber-50 hover:bg-amber-100"><strong class="text-amber-700">ACTO 2</strong> · Sub-tab Usuarios pendientes</a>
+      <a href="#a3" class="block p-2 rounded bg-amber-50 hover:bg-amber-100"><strong class="text-amber-700">ACTO 3</strong> · Sub-tab Adelantos pendientes</a>
+      <a href="#a4" class="block p-2 rounded bg-amber-50 hover:bg-amber-100"><strong class="text-amber-700">ACTO 4</strong> · Sub-tab Bonos calculados</a>
+      <a href="#a5" class="block p-2 rounded bg-amber-50 hover:bg-amber-100"><strong class="text-amber-700">ACTO 5</strong> · Sub-tab Liquidaciones</a>
+      <a href="#a6" class="block p-2 rounded bg-amber-50 hover:bg-amber-100"><strong class="text-amber-700">ACTO 6</strong> · Modales aprobar / rechazar</a>
+      <a href="#a7" class="block p-2 rounded bg-amber-50 hover:bg-amber-100"><strong class="text-amber-700">ACTO 7</strong> · Bulk action "Aprobar todo" + Empty states</a>
+      <a href="#a8" class="block p-2 rounded bg-sky-50 hover:bg-sky-100"><strong class="text-sky-700">ACTO 8</strong> · Mobile shell + sub-tabs scroll-x</a>
+      <a href="#a9" class="block p-2 rounded bg-sky-50 hover:bg-sky-100"><strong class="text-sky-700">ACTO 9</strong> · Mobile cards stack + swipe actions</a>
+      <a href="#a10" class="block p-2 rounded bg-sky-50 hover:bg-sky-100"><strong class="text-sky-700">ACTO 10</strong> · Mobile modal bottom-sheet</a>
+    </div>
+  </div>
+</section>
+
+<!-- ACTO 1 · SHELL COMPLETO -->
+<section id="a1" class="my-12">
+  <div class="max-w-6xl mx-auto px-4">
+    <div class="bg-gradient-to-r from-amber-100 to-amber-50 ring-1 ring-amber-200 rounded-3xl p-5 mb-6">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 bg-amber-600 rounded-2xl flex items-center justify-center text-white font-bold">1</div>
+        <div>
+          <h2 class="text-lg font-bold text-amber-900">Shell completo · 4 sub-tabs + KPIs</h2>
+          <p class="text-[11px] text-amber-700">Centro de mando consolidado · accesible desde sidebar Mi espacio</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="device-desktop bg-white rounded-2xl ring-1 ring-slate-200 overflow-hidden">
+      <!-- Breadcrumb -->
+      <div class="px-6 py-2.5 border-b border-slate-200 bg-slate-50 flex items-center gap-3">
+        <div class="flex items-center text-[12px]">
+          <a class="text-slate-500 cursor-pointer">Inicio</a>
+          <i data-lucide="chevron-right" class="w-3 h-3 text-slate-300 mx-1.5"></i>
+          <a class="text-slate-500 cursor-pointer">Mi perfil</a>
+          <i data-lucide="chevron-right" class="w-3 h-3 text-slate-300 mx-1.5"></i>
+          <span class="text-slate-900 font-semibold">Mi bandeja</span>
+        </div>
+      </div>
+
+      <!-- Header con back + acciones bulk -->
+      <div class="px-6 py-4 border-b border-slate-100 flex items-center gap-4 flex-wrap">
+        <button class="w-9 h-9 bg-slate-100 hover:bg-slate-200 rounded-lg flex items-center justify-center transition-colors">
+          <i data-lucide="arrow-left" class="w-4 h-4 text-slate-700"></i>
+        </button>
+        <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center text-white">
+          <i data-lucide="shield-check" class="w-5 h-5"></i>
+        </div>
+        <div class="flex-1 min-w-[200px]">
+          <h1 class="text-xl font-bold text-slate-900">Mi bandeja · Centro de mando</h1>
+          <p class="text-[12px] text-slate-500">7 aprobaciones esperando tu acción · revisar antes del cierre del mes</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <button class="text-[11px] font-medium text-slate-600 hover:bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-lg inline-flex items-center gap-1.5">
+            <i data-lucide="download" class="w-3.5 h-3.5"></i>Exportar pendientes
+          </button>
+          <button class="text-[11px] font-bold text-white bg-emerald-600 hover:bg-emerald-700 px-3 py-1.5 rounded-lg inline-flex items-center gap-1.5">
+            <i data-lucide="check-square" class="w-3.5 h-3.5"></i>Aprobar todo (7)
+          </button>
+        </div>
+      </div>
+
+      <!-- KPI strip · 4 cards -->
+      <div class="px-6 py-4 border-b border-slate-100 grid grid-cols-2 md:grid-cols-4 gap-3 bg-slate-50/30">
+        <div class="bg-gradient-to-br from-amber-50 to-amber-100/40 ring-1 ring-amber-200/50 rounded-2xl p-3">
+          <div class="flex items-center justify-between mb-1">
+            <span class="text-[10px] uppercase tracking-wider text-amber-700 font-bold">USUARIOS</span>
+            <i data-lucide="user-plus" class="w-3.5 h-3.5 text-amber-700"></i>
+          </div>
+          <div class="text-2xl font-bold tabular text-amber-900">2</div>
+          <div class="text-[10px] text-amber-700">esperan alta</div>
+        </div>
+        <div class="bg-gradient-to-br from-amber-50 to-amber-100/40 ring-1 ring-amber-200/50 rounded-2xl p-3">
+          <div class="flex items-center justify-between mb-1">
+            <span class="text-[10px] uppercase tracking-wider text-amber-700 font-bold">ADELANTOS</span>
+            <i data-lucide="arrow-down-circle" class="w-3.5 h-3.5 text-amber-700"></i>
+          </div>
+          <div class="text-2xl font-bold tabular text-amber-900">3</div>
+          <div class="text-[10px] text-amber-700">S/ 1,800 total</div>
+        </div>
+        <div class="bg-gradient-to-br from-violet-50 to-violet-100/40 ring-1 ring-violet-200/50 rounded-2xl p-3">
+          <div class="flex items-center justify-between mb-1">
+            <span class="text-[10px] uppercase tracking-wider text-violet-700 font-bold">BONOS</span>
+            <i data-lucide="trophy" class="w-3.5 h-3.5 text-violet-700"></i>
+          </div>
+          <div class="text-2xl font-bold tabular text-violet-900">1</div>
+          <div class="text-[10px] text-violet-700">S/ 1,600 calculado</div>
+        </div>
+        <div class="bg-gradient-to-br from-rose-50 to-rose-100/40 ring-1 ring-rose-200/50 rounded-2xl p-3">
+          <div class="flex items-center justify-between mb-1">
+            <span class="text-[10px] uppercase tracking-wider text-rose-700 font-bold">LIQUIDACIONES</span>
+            <i data-lucide="user-minus" class="w-3.5 h-3.5 text-rose-700"></i>
+          </div>
+          <div class="text-2xl font-bold tabular text-rose-900">1</div>
+          <div class="text-[10px] text-rose-700">S/ 8,200 a pagar</div>
+        </div>
+      </div>
+
+      <!-- Sub-tabs internas -->
+      <div class="px-6 border-b border-slate-200">
+        <div class="flex gap-1">
+          <button class="px-4 py-2.5 text-[12px] font-bold border-b-2 border-amber-600 text-amber-700 flex items-center gap-1.5">
+            <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i>Todos
+            <span class="text-[10px] bg-amber-100 px-1.5 py-0.5 rounded-full font-bold">7</span>
+          </button>
+          <button class="px-4 py-2.5 text-[12px] font-medium border-b-2 border-transparent text-slate-600 hover:text-amber-600 flex items-center gap-1.5">
+            <i data-lucide="user-plus" class="w-3.5 h-3.5"></i>Usuarios
+            <span class="text-[10px] bg-slate-100 px-1.5 py-0.5 rounded-full font-bold">2</span>
+          </button>
+          <button class="px-4 py-2.5 text-[12px] font-medium border-b-2 border-transparent text-slate-600 hover:text-amber-600 flex items-center gap-1.5">
+            <i data-lucide="arrow-down-circle" class="w-3.5 h-3.5"></i>Adelantos
+            <span class="text-[10px] bg-slate-100 px-1.5 py-0.5 rounded-full font-bold">3</span>
+          </button>
+          <button class="px-4 py-2.5 text-[12px] font-medium border-b-2 border-transparent text-slate-600 hover:text-amber-600 flex items-center gap-1.5">
+            <i data-lucide="trophy" class="w-3.5 h-3.5"></i>Bonos
+            <span class="text-[10px] bg-slate-100 px-1.5 py-0.5 rounded-full font-bold">1</span>
+          </button>
+          <button class="px-4 py-2.5 text-[12px] font-medium border-b-2 border-transparent text-slate-600 hover:text-amber-600 flex items-center gap-1.5">
+            <i data-lucide="user-minus" class="w-3.5 h-3.5"></i>Liquidaciones
+            <span class="text-[10px] bg-slate-100 px-1.5 py-0.5 rounded-full font-bold">1</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Body · vista "Todos" -->
+      <div class="p-6 space-y-3 bg-slate-50/30">
+        <!-- Filtros -->
+        <div class="flex items-center gap-2 flex-wrap">
+          <span class="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Ordenar:</span>
+          <button class="bg-slate-900 text-white text-[10px] font-bold px-2 py-1 rounded">Más antiguos</button>
+          <button class="bg-white text-slate-700 border border-slate-200 text-[10px] font-bold px-2 py-1 rounded">Más recientes</button>
+          <button class="bg-white text-slate-700 border border-slate-200 text-[10px] font-bold px-2 py-1 rounded">Mayor monto</button>
+          <div class="ml-auto inline-flex items-center gap-2">
+            <input type="search" placeholder="Buscar..." class="text-[11px] border border-slate-200 rounded px-2 py-1 w-40" />
+          </div>
+        </div>
+
+        <!-- Lista mixta -->
+        <div class="space-y-2">
+          <!-- Usuarios -->
+          <button class="w-full bg-white border border-amber-200 hover:bg-amber-50/40 rounded-lg p-3 flex items-center justify-between text-left transition-colors">
+            <div class="flex items-center gap-3">
+              <div class="w-9 h-9 bg-amber-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                <i data-lucide="user-plus" class="w-4 h-4 text-amber-700"></i>
+              </div>
+              <div>
+                <div class="flex items-center gap-2">
+                  <span class="text-[12px] font-bold text-slate-900">2 usuarios esperan aprobación</span>
+                  <span class="text-[9px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded font-bold uppercase">USUARIOS</span>
+                </div>
+                <div class="text-[10px] text-slate-600">María García (invitada · hace 3h) · Juan Pérez (self-signup · 1h)</div>
+              </div>
+            </div>
+            <i data-lucide="arrow-right" class="w-4 h-4 text-amber-700"></i>
+          </button>
+
+          <!-- Adelantos -->
+          <button class="w-full bg-white border border-amber-200 hover:bg-amber-50/40 rounded-lg p-3 flex items-center justify-between text-left transition-colors">
+            <div class="flex items-center gap-3">
+              <div class="w-9 h-9 bg-amber-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                <i data-lucide="arrow-down-circle" class="w-4 h-4 text-amber-700"></i>
+              </div>
+              <div>
+                <div class="flex items-center gap-2">
+                  <span class="text-[12px] font-bold text-slate-900">3 adelantos pendientes · S/ 1,800 total</span>
+                  <span class="text-[9px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded font-bold uppercase">ADELANTOS</span>
+                </div>
+                <div class="text-[10px] text-slate-600">Ana R (S/ 500) · Diego L (S/ 800) · Pedro M (S/ 500)</div>
+              </div>
+            </div>
+            <i data-lucide="arrow-right" class="w-4 h-4 text-amber-700"></i>
+          </button>
+
+          <!-- Bonos -->
+          <button class="w-full bg-white border border-violet-200 hover:bg-violet-50/40 rounded-lg p-3 flex items-center justify-between text-left transition-colors">
+            <div class="flex items-center gap-3">
+              <div class="w-9 h-9 bg-violet-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                <i data-lucide="trophy" class="w-4 h-4 text-violet-700"></i>
+              </div>
+              <div>
+                <div class="flex items-center gap-2">
+                  <span class="text-[12px] font-bold text-slate-900">1 bono calculado · S/ 1,600</span>
+                  <span class="text-[9px] bg-violet-100 text-violet-700 px-1.5 py-0.5 rounded font-bold uppercase">BONOS</span>
+                </div>
+                <div class="text-[10px] text-slate-600">Ana R · comisión mayo · esquema "vendedor escalonado"</div>
+              </div>
+            </div>
+            <i data-lucide="arrow-right" class="w-4 h-4 text-violet-700"></i>
+          </button>
+
+          <!-- Liquidaciones -->
+          <button class="w-full bg-white border border-rose-200 hover:bg-rose-50/40 rounded-lg p-3 flex items-center justify-between text-left transition-colors">
+            <div class="flex items-center gap-3">
+              <div class="w-9 h-9 bg-rose-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                <i data-lucide="user-minus" class="w-4 h-4 text-rose-700"></i>
+              </div>
+              <div>
+                <div class="flex items-center gap-2">
+                  <span class="text-[12px] font-bold text-slate-900">1 liquidación aprobada · S/ 8,200 a pagar</span>
+                  <span class="text-[9px] bg-rose-100 text-rose-700 px-1.5 py-0.5 rounded font-bold uppercase">LIQUIDACIÓN</span>
+                </div>
+                <div class="text-[10px] text-slate-600">Carlos S · renuncia · hace 5 días · <strong class="text-rose-700">evitar +7d</strong></div>
+              </div>
+            </div>
+            <i data-lucide="arrow-right" class="w-4 h-4 text-rose-700"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ACTO 2 · SUB-TAB USUARIOS -->
+<section id="a2" class="my-12">
+  <div class="max-w-6xl mx-auto px-4">
+    <div class="bg-gradient-to-r from-amber-100 to-amber-50 ring-1 ring-amber-200 rounded-3xl p-5 mb-6">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 bg-amber-600 rounded-2xl flex items-center justify-center text-white font-bold">2</div>
+        <div>
+          <h2 class="text-lg font-bold text-amber-900">Sub-tab Usuarios pendientes · cards detalladas</h2>
+          <p class="text-[11px] text-amber-700">Cada user con info completa · acciones Aprobar / Rechazar inline</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="device-desktop bg-white rounded-2xl ring-1 ring-slate-200 overflow-hidden p-6 space-y-3">
+      <!-- Sub-tab active indicator -->
+      <div class="flex items-center justify-between mb-2">
+        <h3 class="text-[14px] font-bold text-slate-900 inline-flex items-center gap-1.5">
+          <i data-lucide="user-plus" class="w-4 h-4 text-amber-700"></i>
+          Usuarios esperando aprobación
+        </h3>
+        <button class="text-[11px] font-bold text-white bg-emerald-600 hover:bg-emerald-700 px-3 py-1.5 rounded-lg inline-flex items-center gap-1.5">
+          <i data-lucide="check-square" class="w-3.5 h-3.5"></i>Aprobar todos (2)
+        </button>
+      </div>
+
+      <!-- Card user 1 -->
+      <div class="bg-white border border-amber-200 rounded-xl p-4">
+        <div class="flex items-start gap-3">
+          <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-purple-500 to-purple-700 flex items-center justify-center text-white font-bold text-[13px] flex-shrink-0">MG</div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2 flex-wrap mb-1">
+              <span class="text-[13px] font-bold text-slate-900">María García</span>
+              <span class="text-[9px] bg-sky-100 text-sky-700 px-1.5 py-0.5 rounded font-bold uppercase">INVITADA</span>
+              <span class="text-[10px] text-slate-500">hace 3h</span>
+            </div>
+            <div class="text-[11px] text-slate-600 mb-1">maria.garcia@vita-skin.pe · solicitó rol: <strong>Vendedor</strong></div>
+            <div class="text-[10px] text-slate-500 italic">"Invitada por José LP (admin) · token enviado por email"</div>
+          </div>
+          <div class="flex items-center gap-1.5 flex-shrink-0">
+            <button class="text-[11px] font-medium text-rose-700 hover:bg-rose-50 border border-rose-200 px-3 py-1.5 rounded inline-flex items-center gap-1">
+              <i data-lucide="x" class="w-3 h-3"></i>Rechazar
+            </button>
+            <button class="text-[11px] font-bold text-white bg-emerald-600 hover:bg-emerald-700 px-3 py-1.5 rounded inline-flex items-center gap-1">
+              <i data-lucide="check" class="w-3 h-3"></i>Aprobar
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card user 2 -->
+      <div class="bg-white border border-amber-200 rounded-xl p-4">
+        <div class="flex items-start gap-3">
+          <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center text-white font-bold text-[13px] flex-shrink-0">JP</div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2 flex-wrap mb-1">
+              <span class="text-[13px] font-bold text-slate-900">Juan Pérez</span>
+              <span class="text-[9px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded font-bold uppercase">SELF-SIGNUP</span>
+              <span class="text-[10px] text-slate-500">hace 1h</span>
+            </div>
+            <div class="text-[11px] text-slate-600 mb-1">juan.perez@gmail.com · solicitó rol: <strong>Comprador</strong></div>
+            <div class="text-[10px] text-slate-500 italic">"Registro abierto · IP 190.123.45.67 · Lima, Perú · validar identidad"</div>
+            <div class="mt-2 inline-flex items-center gap-1 text-[10px] text-amber-700 bg-amber-50 px-2 py-1 rounded border border-amber-200">
+              <i data-lucide="alert-triangle" class="w-3 h-3"></i>
+              Trust bajo · verificar antes de aprobar
+            </div>
+          </div>
+          <div class="flex items-center gap-1.5 flex-shrink-0">
+            <button class="text-[11px] font-medium text-rose-700 hover:bg-rose-50 border border-rose-200 px-3 py-1.5 rounded inline-flex items-center gap-1">
+              <i data-lucide="x" class="w-3 h-3"></i>Rechazar
+            </button>
+            <button class="text-[11px] font-bold text-white bg-emerald-600 hover:bg-emerald-700 px-3 py-1.5 rounded inline-flex items-center gap-1">
+              <i data-lucide="check" class="w-3 h-3"></i>Aprobar
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ACTO 3 · SUB-TAB ADELANTOS -->
+<section id="a3" class="my-12">
+  <div class="max-w-6xl mx-auto px-4">
+    <div class="bg-gradient-to-r from-amber-100 to-amber-50 ring-1 ring-amber-200 rounded-3xl p-5 mb-6">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 bg-amber-600 rounded-2xl flex items-center justify-center text-white font-bold">3</div>
+        <div>
+          <h2 class="text-lg font-bold text-amber-900">Sub-tab Adelantos pendientes · tabla detallada</h2>
+          <p class="text-[11px] text-amber-700">Vista tabular con monto / razón / fecha / antigüedad / acción</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="device-desktop bg-white rounded-2xl ring-1 ring-slate-200 overflow-hidden">
+      <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+        <h3 class="text-[14px] font-bold text-slate-900 inline-flex items-center gap-1.5">
+          <i data-lucide="arrow-down-circle" class="w-4 h-4 text-amber-700"></i>
+          Adelantos pendientes · 3 solicitudes · S/ 1,800 total
+        </h3>
+        <div class="flex items-center gap-2">
+          <button class="text-[11px] font-medium text-slate-600 hover:bg-slate-50 border border-slate-200 px-3 py-1.5 rounded inline-flex items-center gap-1">
+            <i data-lucide="download" class="w-3 h-3"></i>CSV
+          </button>
+          <button class="text-[11px] font-bold text-white bg-emerald-600 hover:bg-emerald-700 px-3 py-1.5 rounded inline-flex items-center gap-1">
+            <i data-lucide="check-square" class="w-3 h-3"></i>Aprobar todos
+          </button>
+        </div>
+      </div>
+
+      <table class="w-full text-[12px]">
+        <thead>
+          <tr class="border-b border-slate-200 text-left text-[10px] uppercase tracking-wider text-slate-500 font-bold bg-slate-50/50">
+            <th class="py-2 px-4"><input type="checkbox" class="rounded" /></th>
+            <th class="py-2">Empleado</th>
+            <th class="text-right px-4">Monto</th>
+            <th class="px-4">Razón</th>
+            <th class="px-4">Solicitado</th>
+            <th class="px-4">Antigüedad</th>
+            <th class="text-right px-4 pr-4">Acción</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+          <tr class="hover:bg-amber-50/30">
+            <td class="py-3 px-4"><input type="checkbox" class="rounded" /></td>
+            <td class="py-3">
+              <div class="flex items-center gap-2">
+                <div class="w-7 h-7 rounded-lg bg-gradient-to-br from-sky-500 to-sky-700 flex items-center justify-center text-white font-bold text-[11px]">AR</div>
+                <div>
+                  <div class="text-[12px] font-bold text-slate-900">Ana Rodríguez</div>
+                  <div class="text-[10px] text-slate-500">Vendedora</div>
+                </div>
+              </div>
+            </td>
+            <td class="py-3 px-4 text-right tabular font-bold text-amber-900">S/ 500</td>
+            <td class="py-3 px-4 text-slate-600">"Gastos médicos urgentes"</td>
+            <td class="py-3 px-4 text-slate-600 text-[11px]">27-may · 11:42</td>
+            <td class="py-3 px-4 text-amber-700 text-[11px] font-bold">hace 2h</td>
+            <td class="py-3 px-4 pr-4 text-right">
+              <div class="inline-flex items-center gap-1.5">
+                <button class="text-[11px] font-medium text-rose-700 hover:bg-rose-50 border border-rose-200 px-2 py-1 rounded">Rechazar</button>
+                <button class="text-[11px] font-bold text-white bg-emerald-600 hover:bg-emerald-700 px-2 py-1 rounded">Aprobar</button>
+              </div>
+            </td>
+          </tr>
+          <tr class="hover:bg-amber-50/30">
+            <td class="py-3 px-4"><input type="checkbox" class="rounded" /></td>
+            <td class="py-3">
+              <div class="flex items-center gap-2">
+                <div class="w-7 h-7 rounded-lg bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center text-white font-bold text-[11px]">DL</div>
+                <div>
+                  <div class="text-[12px] font-bold text-slate-900">Diego López</div>
+                  <div class="text-[10px] text-slate-500">Vendedor sr.</div>
+                </div>
+              </div>
+            </td>
+            <td class="py-3 px-4 text-right tabular font-bold text-amber-900">S/ 800</td>
+            <td class="py-3 px-4 text-slate-600">"Adelanto vacaciones programadas"</td>
+            <td class="py-3 px-4 text-slate-600 text-[11px]">26-may · 09:30</td>
+            <td class="py-3 px-4 text-amber-700 text-[11px] font-bold">hace 1d</td>
+            <td class="py-3 px-4 pr-4 text-right">
+              <div class="inline-flex items-center gap-1.5">
+                <button class="text-[11px] font-medium text-rose-700 hover:bg-rose-50 border border-rose-200 px-2 py-1 rounded">Rechazar</button>
+                <button class="text-[11px] font-bold text-white bg-emerald-600 hover:bg-emerald-700 px-2 py-1 rounded">Aprobar</button>
+              </div>
+            </td>
+          </tr>
+          <tr class="hover:bg-amber-50/30 bg-rose-50/30">
+            <td class="py-3 px-4"><input type="checkbox" class="rounded" /></td>
+            <td class="py-3">
+              <div class="flex items-center gap-2">
+                <div class="w-7 h-7 rounded-lg bg-gradient-to-br from-violet-500 to-violet-700 flex items-center justify-center text-white font-bold text-[11px]">PM</div>
+                <div>
+                  <div class="text-[12px] font-bold text-slate-900">Pedro Martínez</div>
+                  <div class="text-[10px] text-slate-500">Almacenero</div>
+                </div>
+              </div>
+            </td>
+            <td class="py-3 px-4 text-right tabular font-bold text-amber-900">S/ 500</td>
+            <td class="py-3 px-4 text-slate-600">"Emergencia familiar"</td>
+            <td class="py-3 px-4 text-slate-600 text-[11px]">23-may · 14:15</td>
+            <td class="py-3 px-4 text-rose-700 text-[11px] font-bold">hace 4d <i data-lucide="alert-triangle" class="w-2.5 h-2.5 inline"></i></td>
+            <td class="py-3 px-4 pr-4 text-right">
+              <div class="inline-flex items-center gap-1.5">
+                <button class="text-[11px] font-medium text-rose-700 hover:bg-rose-50 border border-rose-200 px-2 py-1 rounded">Rechazar</button>
+                <button class="text-[11px] font-bold text-white bg-emerald-600 hover:bg-emerald-700 px-2 py-1 rounded">Aprobar</button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="px-6 py-3 border-t border-slate-200 bg-slate-50 flex items-center justify-between">
+        <div class="text-[11px] text-slate-600">
+          0 seleccionados · <button class="text-amber-700 font-bold hover:underline">Seleccionar todos</button>
+        </div>
+        <div class="text-[11px] text-slate-600 tabular">
+          Total seleccionado: <span class="font-bold text-slate-900">S/ 0</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ACTO 4 · SUB-TAB BONOS -->
+<section id="a4" class="my-12">
+  <div class="max-w-6xl mx-auto px-4">
+    <div class="bg-gradient-to-r from-violet-100 to-violet-50 ring-1 ring-violet-200 rounded-3xl p-5 mb-6">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 bg-violet-600 rounded-2xl flex items-center justify-center text-white font-bold">4</div>
+        <div>
+          <h2 class="text-lg font-bold text-violet-900">Sub-tab Bonos calculados · cards con métrica</h2>
+          <p class="text-[11px] text-violet-700">Cada bono muestra breakdown de cálculo + meta cumplida</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="device-desktop bg-white rounded-2xl ring-1 ring-slate-200 overflow-hidden p-6 space-y-3">
+      <div class="flex items-center justify-between mb-2">
+        <h3 class="text-[14px] font-bold text-slate-900 inline-flex items-center gap-1.5">
+          <i data-lucide="trophy" class="w-4 h-4 text-violet-700"></i>
+          Bonos calculados · 1 esperando aprobación
+        </h3>
+      </div>
+
+      <div class="bg-violet-50/40 border border-violet-200 rounded-xl p-4">
+        <div class="flex items-start gap-3 mb-3">
+          <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-violet-500 to-violet-700 flex items-center justify-center text-white">
+            <i data-lucide="trophy" class="w-5 h-5"></i>
+          </div>
+          <div class="flex-1">
+            <div class="flex items-center gap-2 mb-1">
+              <span class="text-[14px] font-bold text-slate-900">Ana Rodríguez · Comisión mayo 2026</span>
+              <span class="text-[9px] bg-violet-100 text-violet-700 px-1.5 py-0.5 rounded font-bold uppercase">COMISIÓN</span>
+            </div>
+            <div class="text-[11px] text-slate-600">Esquema: <strong>Vendedor escalonado</strong> · 2% hasta S/ 50K · 4% S/ 50-100K · 6% sobre 100K</div>
+          </div>
+          <div class="text-right">
+            <div class="text-[10px] uppercase tracking-wider text-violet-700 font-bold">BONO CALCULADO</div>
+            <div class="text-2xl font-bold tabular text-violet-900">S/ 1,600</div>
+          </div>
+        </div>
+
+        <!-- Breakdown -->
+        <div class="bg-white border border-violet-100 rounded-lg p-3 mb-3">
+          <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-2">Breakdown del cálculo</div>
+          <div class="space-y-1 text-[11px]">
+            <div class="flex justify-between">
+              <span class="text-slate-600">Ventas medidas en mayo:</span>
+              <span class="font-bold tabular">S/ 60,000</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-slate-600">Tramo 1 (S/ 50K × 2%):</span>
+              <span class="font-bold tabular">S/ 1,000</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-slate-600">Tramo 2 (S/ 10K × 4%):</span>
+              <span class="font-bold tabular">S/ 400</span>
+            </div>
+            <div class="flex justify-between border-t border-slate-100 pt-1 mt-1">
+              <span class="text-slate-600">+ Bono cumplimiento (110% meta):</span>
+              <span class="font-bold tabular text-emerald-700">S/ 200</span>
+            </div>
+            <div class="flex justify-between border-t-2 border-violet-200 pt-1.5 mt-1">
+              <span class="font-bold text-violet-900">TOTAL bono mayo:</span>
+              <span class="font-bold tabular text-violet-900 text-[13px]">S/ 1,600</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Acciones -->
+        <div class="flex items-center justify-between flex-wrap gap-2">
+          <div class="text-[10px] text-slate-500 italic inline-flex items-center gap-1">
+            <i data-lucide="info" class="w-3 h-3"></i>
+            Una vez aprobado · se incluye automáticamente en la próxima boleta de Ana
+          </div>
+          <div class="flex items-center gap-2">
+            <button class="text-[11px] font-medium text-rose-700 hover:bg-rose-50 border border-rose-200 px-3 py-1.5 rounded inline-flex items-center gap-1">
+              <i data-lucide="x" class="w-3 h-3"></i>Rechazar
+            </button>
+            <button class="text-[11px] font-medium text-amber-700 hover:bg-amber-50 border border-amber-200 px-3 py-1.5 rounded inline-flex items-center gap-1">
+              <i data-lucide="edit-2" class="w-3 h-3"></i>Ajustar
+            </button>
+            <button class="text-[11px] font-bold text-white bg-emerald-600 hover:bg-emerald-700 px-3 py-1.5 rounded inline-flex items-center gap-1">
+              <i data-lucide="check" class="w-3 h-3"></i>Aprobar
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ACTO 5 · SUB-TAB LIQUIDACIONES -->
+<section id="a5" class="my-12">
+  <div class="max-w-6xl mx-auto px-4">
+    <div class="bg-gradient-to-r from-rose-100 to-rose-50 ring-1 ring-rose-200 rounded-3xl p-5 mb-6">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 bg-rose-600 rounded-2xl flex items-center justify-center text-white font-bold">5</div>
+        <div>
+          <h2 class="text-lg font-bold text-rose-900">Sub-tab Liquidaciones · pago pendiente</h2>
+          <p class="text-[11px] text-rose-700">Liquidación aprobada · pendiente de ejecutar pago · alta prioridad</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="device-desktop bg-white rounded-2xl ring-1 ring-slate-200 overflow-hidden p-6 space-y-3">
+      <h3 class="text-[14px] font-bold text-slate-900 inline-flex items-center gap-1.5 mb-2">
+        <i data-lucide="user-minus" class="w-4 h-4 text-rose-700"></i>
+        Liquidaciones · 1 pendiente de pago
+      </h3>
+
+      <div class="bg-rose-50/40 border-2 border-rose-300 rounded-xl p-4">
+        <div class="flex items-start gap-3 mb-3">
+          <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-rose-500 to-rose-700 flex items-center justify-center text-white">
+            <i data-lucide="user-minus" class="w-5 h-5"></i>
+          </div>
+          <div class="flex-1">
+            <div class="flex items-center gap-2 mb-1 flex-wrap">
+              <span class="text-[14px] font-bold text-slate-900">Carlos Sánchez</span>
+              <span class="text-[9px] bg-rose-100 text-rose-700 px-1.5 py-0.5 rounded font-bold uppercase">RENUNCIA</span>
+              <span class="text-[10px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded font-bold uppercase">URGENTE · 5d</span>
+            </div>
+            <div class="text-[11px] text-slate-600">Ex-vendedor · ingresó mar 2024 · salió 22-may-2026</div>
+          </div>
+          <div class="text-right">
+            <div class="text-[10px] uppercase tracking-wider text-rose-700 font-bold">TOTAL A PAGAR</div>
+            <div class="text-2xl font-bold tabular text-rose-900">S/ 8,200</div>
+          </div>
+        </div>
+
+        <div class="bg-white border border-rose-100 rounded-lg p-3 mb-3">
+          <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-2">Desglose liquidación</div>
+          <div class="grid grid-cols-2 gap-x-6 gap-y-1 text-[11px]">
+            <div class="flex justify-between border-b border-slate-100 pb-1">
+              <span class="text-slate-600">Sueldo proporcional may:</span>
+              <span class="font-bold tabular">S/ 3,500</span>
+            </div>
+            <div class="flex justify-between border-b border-slate-100 pb-1">
+              <span class="text-slate-600">Comisiones mayo:</span>
+              <span class="font-bold tabular">S/ 1,200</span>
+            </div>
+            <div class="flex justify-between border-b border-slate-100 pb-1">
+              <span class="text-slate-600">Vacaciones no gozadas:</span>
+              <span class="font-bold tabular">S/ 2,800</span>
+            </div>
+            <div class="flex justify-between border-b border-slate-100 pb-1">
+              <span class="text-slate-600">Gratificación proporcional:</span>
+              <span class="font-bold tabular">S/ 1,200</span>
+            </div>
+            <div class="flex justify-between border-b border-slate-100 pb-1">
+              <span class="text-slate-600">Adelantos pendientes:</span>
+              <span class="font-bold tabular text-rose-700">−S/ 500</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-amber-50 border border-amber-200 rounded-lg p-2.5 mb-3 inline-flex items-start gap-2">
+          <i data-lucide="alert-triangle" class="w-3.5 h-3.5 text-amber-700 flex-shrink-0 mt-0.5"></i>
+          <div class="text-[11px] text-amber-800">
+            <strong>Atención:</strong> liquidación aprobada hace 5 días · evitar quedar +7 días para no exponer a riesgo laboral
+          </div>
+        </div>
+
+        <div class="flex items-center justify-end gap-2">
+          <button class="text-[11px] font-medium text-slate-600 hover:bg-slate-50 border border-slate-200 px-3 py-1.5 rounded inline-flex items-center gap-1">
+            <i data-lucide="file-text" class="w-3 h-3"></i>Ver acta
+          </button>
+          <button class="text-[11px] font-bold text-white bg-rose-600 hover:bg-rose-700 px-3 py-1.5 rounded inline-flex items-center gap-1">
+            <i data-lucide="banknote" class="w-3 h-3"></i>Registrar pago
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ACTO 6 · MODALES APROBAR / RECHAZAR -->
+<section id="a6" class="my-12">
+  <div class="max-w-6xl mx-auto px-4">
+    <div class="bg-gradient-to-r from-purple-100 to-purple-50 ring-1 ring-purple-200 rounded-3xl p-5 mb-6">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 bg-purple-600 rounded-2xl flex items-center justify-center text-white font-bold">6</div>
+        <div>
+          <h2 class="text-lg font-bold text-purple-900">Modales Aprobar / Rechazar · canon FormModalV2</h2>
+          <p class="text-[11px] text-purple-700">Confirmaciones con razón · audit trail asegurado</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <!-- Modal Aprobar -->
+      <div class="bg-slate-900/30 rounded-2xl p-6 flex items-center justify-center min-h-[420px]">
+        <div class="bg-white rounded-2xl ring-1 ring-slate-200 w-full max-w-md overflow-hidden">
+          <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 bg-gradient-to-br from-emerald-500 to-emerald-700 rounded-xl flex items-center justify-center text-white">
+                <i data-lucide="check" class="w-5 h-5"></i>
+              </div>
+              <div>
+                <h3 class="text-[14px] font-bold text-slate-900">Aprobar adelanto</h3>
+                <p class="text-[11px] text-slate-500">Ana Rodríguez · S/ 500</p>
+              </div>
+            </div>
+            <button class="w-8 h-8 hover:bg-slate-100 rounded flex items-center justify-center">
+              <i data-lucide="x" class="w-4 h-4 text-slate-500"></i>
+            </button>
+          </div>
+          <div class="p-5 space-y-3">
+            <div class="bg-emerald-50 border border-emerald-200 rounded-lg p-3 text-[11px] text-emerald-800 inline-flex items-start gap-2">
+              <i data-lucide="info" class="w-3.5 h-3.5 flex-shrink-0 mt-0.5"></i>
+              <span>Al aprobar, el adelanto se descuenta automáticamente de la próxima boleta del empleado.</span>
+            </div>
+            <div>
+              <label class="text-[11px] uppercase tracking-wider font-bold text-slate-700 mb-1.5 block">Nota opcional</label>
+              <textarea class="w-full px-3 py-2 border border-slate-300 rounded-lg text-[12px]" rows="2" placeholder="Ej: aprobado por circunstancia médica documentada"></textarea>
+            </div>
+          </div>
+          <div class="px-5 py-3 border-t border-slate-100 bg-slate-50 grid grid-cols-2 gap-2">
+            <button class="text-[12px] font-medium text-slate-600 hover:bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg">Cancelar</button>
+            <button class="text-[12px] font-bold text-white bg-emerald-600 hover:bg-emerald-700 px-3 py-2 rounded-lg inline-flex items-center justify-center gap-1.5">
+              <i data-lucide="check" class="w-3.5 h-3.5"></i>Confirmar aprobación
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal Rechazar -->
+      <div class="bg-slate-900/30 rounded-2xl p-6 flex items-center justify-center min-h-[420px]">
+        <div class="bg-white rounded-2xl ring-1 ring-slate-200 w-full max-w-md overflow-hidden">
+          <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 bg-gradient-to-br from-rose-500 to-rose-700 rounded-xl flex items-center justify-center text-white">
+                <i data-lucide="x" class="w-5 h-5"></i>
+              </div>
+              <div>
+                <h3 class="text-[14px] font-bold text-slate-900">Rechazar adelanto</h3>
+                <p class="text-[11px] text-slate-500">Pedro Martínez · S/ 500</p>
+              </div>
+            </div>
+            <button class="w-8 h-8 hover:bg-slate-100 rounded flex items-center justify-center">
+              <i data-lucide="x" class="w-4 h-4 text-slate-500"></i>
+            </button>
+          </div>
+          <div class="p-5 space-y-3">
+            <div class="bg-rose-50 border border-rose-200 rounded-lg p-3 text-[11px] text-rose-800 inline-flex items-start gap-2">
+              <i data-lucide="alert-triangle" class="w-3.5 h-3.5 flex-shrink-0 mt-0.5"></i>
+              <span>El rechazo se notifica automáticamente al empleado por email con la razón indicada. Asegurate que sea clara y profesional.</span>
+            </div>
+            <div>
+              <label class="text-[11px] uppercase tracking-wider font-bold text-slate-700 mb-1.5 block">
+                Razón del rechazo <span class="text-rose-600">*</span>
+              </label>
+              <textarea class="w-full px-3 py-2 border border-rose-300 rounded-lg text-[12px]" rows="3" placeholder="Obligatorio · será visible al empleado"></textarea>
+              <div class="text-[10px] text-slate-500 mt-1">Mínimo 10 caracteres · 0/300</div>
+            </div>
+          </div>
+          <div class="px-5 py-3 border-t border-slate-100 bg-slate-50 grid grid-cols-2 gap-2">
+            <button class="text-[12px] font-medium text-slate-600 hover:bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg">Cancelar</button>
+            <button class="text-[12px] font-bold text-white bg-rose-600 hover:bg-rose-700 px-3 py-2 rounded-lg inline-flex items-center justify-center gap-1.5">
+              <i data-lucide="x" class="w-3.5 h-3.5"></i>Confirmar rechazo
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ACTO 7 · BULK + EMPTY STATES -->
+<section id="a7" class="my-12">
+  <div class="max-w-6xl mx-auto px-4">
+    <div class="bg-gradient-to-r from-emerald-100 to-emerald-50 ring-1 ring-emerald-200 rounded-3xl p-5 mb-6">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 bg-emerald-600 rounded-2xl flex items-center justify-center text-white font-bold">7</div>
+        <div>
+          <h2 class="text-lg font-bold text-emerald-900">Bulk action "Aprobar todo" + Empty states canon</h2>
+          <p class="text-[11px] text-emerald-700">Acción masiva con confirmación + estado vacío celebratorio</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <!-- Modal "Aprobar todo" -->
+      <div>
+        <h3 class="text-[12px] font-bold text-slate-700 mb-2 uppercase tracking-wider">Modal "Aprobar todo" · typed confirm</h3>
+        <div class="bg-slate-900/30 rounded-2xl p-6 flex items-center justify-center min-h-[400px]">
+          <div class="bg-white rounded-2xl ring-1 ring-slate-200 w-full max-w-md overflow-hidden">
+            <div class="px-5 py-4 border-b border-slate-100">
+              <div class="flex items-center gap-3 mb-2">
+                <div class="w-10 h-10 bg-gradient-to-br from-emerald-500 to-emerald-700 rounded-xl flex items-center justify-center text-white">
+                  <i data-lucide="check-square" class="w-5 h-5"></i>
+                </div>
+                <div>
+                  <h3 class="text-[14px] font-bold text-slate-900">Aprobar TODOS los pendientes</h3>
+                  <p class="text-[11px] text-slate-500">Esta acción afecta 7 ítems en simultáneo</p>
+                </div>
+              </div>
+            </div>
+            <div class="p-5 space-y-3">
+              <div class="bg-amber-50 border border-amber-200 rounded-lg p-3 text-[11px] text-amber-800">
+                <strong>Esto aprobará:</strong>
+                <ul class="list-disc list-inside mt-1 space-y-0.5">
+                  <li>2 usuarios pendientes de alta</li>
+                  <li>3 adelantos · S/ 1,800 total</li>
+                  <li>1 bono calculado · S/ 1,600</li>
+                  <li>1 liquidación · S/ 8,200 (solo aprobación · NO pago)</li>
+                </ul>
+              </div>
+              <div>
+                <label class="text-[11px] uppercase tracking-wider font-bold text-slate-700 mb-1.5 block">
+                  Escribí <strong class="text-emerald-700">APROBAR</strong> para confirmar
+                </label>
+                <input class="w-full px-3 py-2 border border-emerald-300 rounded-lg text-[12px] uppercase" placeholder="APROBAR" />
+              </div>
+            </div>
+            <div class="px-5 py-3 border-t border-slate-100 bg-slate-50 grid grid-cols-2 gap-2">
+              <button class="text-[12px] font-medium text-slate-600 hover:bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg">Cancelar</button>
+              <button disabled class="text-[12px] font-bold text-white bg-emerald-600 disabled:opacity-50 px-3 py-2 rounded-lg">Aprobar 7 ítems</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Empty state -->
+      <div>
+        <h3 class="text-[12px] font-bold text-slate-700 mb-2 uppercase tracking-wider">Empty state · todo al día</h3>
+        <div class="bg-white rounded-2xl ring-1 ring-slate-200 p-8 min-h-[400px] flex items-center justify-center">
+          <div class="text-center max-w-sm">
+            <div class="w-20 h-20 bg-gradient-to-br from-emerald-100 to-emerald-200 rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <i data-lucide="check-circle-2" class="w-10 h-10 text-emerald-600"></i>
+            </div>
+            <h3 class="text-[16px] font-bold text-slate-900 mb-1">¡Todo al día!</h3>
+            <p class="text-[12px] text-slate-600 mb-4">No hay aprobaciones pendientes en tu bandeja. Excelente trabajo manteniendo el ritmo del equipo.</p>
+            <div class="bg-emerald-50 border border-emerald-200 rounded-lg p-3 text-left">
+              <div class="text-[11px] font-bold text-emerald-900 mb-1">📊 Resumen del mes</div>
+              <div class="text-[10px] text-emerald-800 space-y-0.5">
+                <div>• 24 adelantos aprobados · 2 rechazados</div>
+                <div>• 12 bonos pagados · S/ 18,400</div>
+                <div>• 8 usuarios nuevos</div>
+                <div>• 1 liquidación procesada</div>
+              </div>
+            </div>
+            <div class="flex items-center gap-2 mt-4 justify-center">
+              <button class="text-[11px] font-medium text-slate-600 hover:bg-slate-50 border border-slate-200 px-3 py-1.5 rounded inline-flex items-center gap-1">
+                <i data-lucide="bar-chart-3" class="w-3 h-3"></i>Ver histórico
+              </button>
+              <button class="text-[11px] font-bold text-white bg-emerald-600 hover:bg-emerald-700 px-3 py-1.5 rounded inline-flex items-center gap-1">
+                <i data-lucide="arrow-right" class="w-3 h-3"></i>Volver al perfil
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DIVISOR MOBILE -->
+<section class="my-16 max-w-6xl mx-auto px-4">
+  <div class="bg-gradient-to-r from-sky-600 to-sky-700 text-white rounded-3xl p-6 shadow-xl">
+    <div class="flex items-center gap-4">
+      <div class="w-14 h-14 bg-white/20 rounded-2xl flex items-center justify-center flex-shrink-0">
+        <i data-lucide="smartphone" class="w-7 h-7"></i>
+      </div>
+      <div>
+        <h2 class="text-2xl font-bold">Vista mobile · 3 actos · canon 2026-05-27</h2>
+        <p class="text-[13px] opacity-90 mt-1">Sub-tabs scroll-x · cards stack · bottom-sheet modal · safe-area inset</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ACTO 8 · MOBILE SHELL -->
+<section id="a8" class="my-12">
+  <div class="max-w-6xl mx-auto px-4">
+    <div class="bg-gradient-to-r from-sky-100 to-sky-50 ring-1 ring-sky-200 rounded-3xl p-5 mb-6">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 bg-sky-600 rounded-2xl flex items-center justify-center text-white font-bold">8</div>
+        <div>
+          <h2 class="text-lg font-bold text-sky-900">Mobile · shell + sub-tabs scroll-x</h2>
+          <p class="text-[11px] text-sky-700">Sticky header con back + título + acción bulk · KPIs 2×2</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="iphone-frame">
+      <div class="bg-white">
+        <div class="bg-slate-50 px-4 py-1 text-[10px] text-slate-600 flex justify-between">
+          <span>9:41</span><span>BusinessMN</span><span>100%</span>
+        </div>
+
+        <div class="px-4 py-2 border-b border-slate-200 bg-slate-50 flex items-center text-[10px]">
+          <a class="text-slate-500">Inicio</a>
+          <i data-lucide="chevron-right" class="w-2.5 h-2.5 text-slate-300 mx-1"></i>
+          <a class="text-slate-500">Mi perfil</a>
+          <i data-lucide="chevron-right" class="w-2.5 h-2.5 text-slate-300 mx-1"></i>
+          <span class="text-slate-900 font-semibold">Mi bandeja</span>
+        </div>
+
+        <div class="px-3 py-3 border-b border-slate-100 flex items-center gap-2">
+          <button class="w-11 h-11 bg-slate-100 rounded-lg flex items-center justify-center flex-shrink-0">
+            <i data-lucide="arrow-left" class="w-5 h-5 text-slate-700"></i>
+          </button>
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center text-white flex-shrink-0">
+            <i data-lucide="shield-check" class="w-5 h-5"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <h1 class="text-[14px] font-bold text-slate-900 truncate">Mi bandeja · 7</h1>
+            <p class="text-[10px] text-slate-500 truncate">esperan tu aprobación</p>
+          </div>
+        </div>
+
+        <!-- KPIs 2x2 mobile -->
+        <div class="p-3 grid grid-cols-2 gap-2">
+          <div class="bg-gradient-to-br from-amber-50 to-amber-100/40 ring-1 ring-amber-200/50 rounded-xl p-2.5">
+            <div class="flex items-center justify-between mb-0.5">
+              <span class="text-[9px] uppercase text-amber-700 font-bold">USUARIOS</span>
+              <i data-lucide="user-plus" class="w-3 h-3 text-amber-700"></i>
+            </div>
+            <div class="text-lg font-bold tabular text-amber-900">2</div>
+          </div>
+          <div class="bg-gradient-to-br from-amber-50 to-amber-100/40 ring-1 ring-amber-200/50 rounded-xl p-2.5">
+            <div class="flex items-center justify-between mb-0.5">
+              <span class="text-[9px] uppercase text-amber-700 font-bold">ADELANTOS</span>
+              <i data-lucide="arrow-down-circle" class="w-3 h-3 text-amber-700"></i>
+            </div>
+            <div class="text-lg font-bold tabular text-amber-900">3 · S/ 1.8K</div>
+          </div>
+          <div class="bg-gradient-to-br from-violet-50 to-violet-100/40 ring-1 ring-violet-200/50 rounded-xl p-2.5">
+            <div class="flex items-center justify-between mb-0.5">
+              <span class="text-[9px] uppercase text-violet-700 font-bold">BONOS</span>
+              <i data-lucide="trophy" class="w-3 h-3 text-violet-700"></i>
+            </div>
+            <div class="text-lg font-bold tabular text-violet-900">1 · S/ 1.6K</div>
+          </div>
+          <div class="bg-gradient-to-br from-rose-50 to-rose-100/40 ring-1 ring-rose-200/50 rounded-xl p-2.5">
+            <div class="flex items-center justify-between mb-0.5">
+              <span class="text-[9px] uppercase text-rose-700 font-bold">LIQUIDAC.</span>
+              <i data-lucide="user-minus" class="w-3 h-3 text-rose-700"></i>
+            </div>
+            <div class="text-lg font-bold tabular text-rose-900">1 · S/ 8.2K</div>
+          </div>
+        </div>
+
+        <!-- Sub-tabs scroll-x -->
+        <div class="border-b border-slate-200 overflow-x-auto no-scrollbar">
+          <div class="flex gap-1 px-2 whitespace-nowrap" style="min-height: 44px">
+            <button class="px-3 py-2.5 text-[11px] font-bold border-b-2 border-amber-600 text-amber-700 flex items-center gap-1">
+              <i data-lucide="layout-grid" class="w-3 h-3"></i>Todos<span class="text-[9px] bg-amber-100 px-1 rounded-full font-bold">7</span>
+            </button>
+            <button class="px-3 py-2.5 text-[11px] font-medium border-b-2 border-transparent text-slate-600 flex items-center gap-1">
+              <i data-lucide="user-plus" class="w-3 h-3"></i>Usuarios<span class="text-[9px] bg-slate-100 px-1 rounded-full font-bold">2</span>
+            </button>
+            <button class="px-3 py-2.5 text-[11px] font-medium border-b-2 border-transparent text-slate-600 flex items-center gap-1">
+              <i data-lucide="arrow-down-circle" class="w-3 h-3"></i>Adelant.<span class="text-[9px] bg-slate-100 px-1 rounded-full font-bold">3</span>
+            </button>
+            <button class="px-3 py-2.5 text-[11px] font-medium border-b-2 border-transparent text-slate-600 flex items-center gap-1">
+              <i data-lucide="trophy" class="w-3 h-3"></i>Bonos<span class="text-[9px] bg-slate-100 px-1 rounded-full font-bold">1</span>
+            </button>
+            <button class="px-3 py-2.5 text-[11px] font-medium border-b-2 border-transparent text-slate-600 flex items-center gap-1">
+              <i data-lucide="user-minus" class="w-3 h-3"></i>Liquidac.<span class="text-[9px] bg-slate-100 px-1 rounded-full font-bold">1</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Lista cards stack -->
+        <div class="p-3 space-y-2">
+          <div class="bg-white border border-amber-200 rounded-lg p-3">
+            <div class="flex items-center gap-2 mb-1">
+              <i data-lucide="user-plus" class="w-3.5 h-3.5 text-amber-700"></i>
+              <span class="text-[11px] font-bold text-slate-900">2 usuarios pendientes</span>
+            </div>
+            <div class="text-[10px] text-slate-600 mb-2">María García · Juan Pérez</div>
+            <div class="text-right">
+              <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-amber-700 inline"></i>
+            </div>
+          </div>
+          <div class="bg-white border border-amber-200 rounded-lg p-3">
+            <div class="flex items-center gap-2 mb-1">
+              <i data-lucide="arrow-down-circle" class="w-3.5 h-3.5 text-amber-700"></i>
+              <span class="text-[11px] font-bold text-slate-900">3 adelantos · S/ 1,800</span>
+            </div>
+            <div class="text-[10px] text-slate-600 mb-2">Ana · Diego · Pedro</div>
+            <div class="text-right">
+              <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-amber-700 inline"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ACTO 9 · MOBILE SWIPE ACTIONS -->
+<section id="a9" class="my-12">
+  <div class="max-w-6xl mx-auto px-4">
+    <div class="bg-gradient-to-r from-sky-100 to-sky-50 ring-1 ring-sky-200 rounded-3xl p-5 mb-6">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 bg-sky-600 rounded-2xl flex items-center justify-center text-white font-bold">9</div>
+        <div>
+          <h2 class="text-lg font-bold text-sky-900">Mobile · swipe actions sobre card</h2>
+          <p class="text-[11px] text-sky-700">Swipe-left revela acciones Aprobar (emerald) y Rechazar (rose)</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="iphone-frame">
+      <div class="bg-white">
+        <div class="bg-slate-50 px-4 py-1 text-[10px] text-slate-600 flex justify-between">
+          <span>9:41</span><span>BusinessMN</span><span>100%</span>
+        </div>
+        <div class="px-3 py-3 border-b border-slate-100 flex items-center gap-2">
+          <button class="w-11 h-11 bg-slate-100 rounded-lg flex items-center justify-center"><i data-lucide="arrow-left" class="w-5 h-5 text-slate-700"></i></button>
+          <div class="flex-1">
+            <h1 class="text-[14px] font-bold text-slate-900">Adelantos · 3</h1>
+            <p class="text-[10px] text-slate-500">S/ 1,800 total</p>
+          </div>
+        </div>
+
+        <!-- Lista con un card swipeado -->
+        <div class="p-3 space-y-2">
+          <!-- Card normal -->
+          <div class="bg-white border border-amber-200 rounded-lg p-3">
+            <div class="flex items-center gap-2">
+              <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-sky-500 to-sky-700 flex items-center justify-center text-white font-bold text-[12px]">AR</div>
+              <div class="flex-1 min-w-0">
+                <div class="text-[12px] font-bold text-slate-900">Ana Rodríguez</div>
+                <div class="text-[10px] text-slate-500">S/ 500 · "Gastos médicos"</div>
+              </div>
+              <span class="text-[10px] text-amber-700 font-bold">2h</span>
+            </div>
+          </div>
+
+          <!-- Card swipeada (mostrando acciones) -->
+          <div class="relative" style="height: 64px">
+            <!-- Acciones detrás -->
+            <div class="absolute inset-y-0 right-0 flex">
+              <button class="bg-rose-600 text-white px-4 flex flex-col items-center justify-center" style="width: 64px">
+                <i data-lucide="x" class="w-5 h-5"></i>
+                <span class="text-[9px] font-bold mt-0.5">Rechazar</span>
+              </button>
+              <button class="bg-emerald-600 text-white px-4 flex flex-col items-center justify-center" style="width: 64px">
+                <i data-lucide="check" class="w-5 h-5"></i>
+                <span class="text-[9px] font-bold mt-0.5">Aprobar</span>
+              </button>
+            </div>
+            <!-- Card desplazada -->
+            <div class="absolute inset-y-0 left-0 bg-white border border-amber-200 rounded-lg p-3 shadow-md" style="right: 128px">
+              <div class="flex items-center gap-2">
+                <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center text-white font-bold text-[12px]">DL</div>
+                <div class="flex-1 min-w-0">
+                  <div class="text-[12px] font-bold text-slate-900">Diego López</div>
+                  <div class="text-[10px] text-slate-500">S/ 800 · "Vacaciones"</div>
+                </div>
+                <span class="text-[10px] text-amber-700 font-bold">1d</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card normal otro -->
+          <div class="bg-white border border-rose-200 rounded-lg p-3">
+            <div class="flex items-center gap-2">
+              <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-violet-500 to-violet-700 flex items-center justify-center text-white font-bold text-[12px]">PM</div>
+              <div class="flex-1 min-w-0">
+                <div class="text-[12px] font-bold text-slate-900">Pedro Martínez</div>
+                <div class="text-[10px] text-slate-500">S/ 500 · "Emergencia"</div>
+              </div>
+              <span class="text-[10px] text-rose-700 font-bold inline-flex items-center gap-0.5">
+                <i data-lucide="alert-triangle" class="w-2.5 h-2.5"></i>4d
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-4 p-3 bg-sky-50 border border-sky-200 rounded-lg max-w-md mx-auto">
+      <div class="text-[11px] text-sky-900">
+        <strong>Swipe-left</strong> sobre cualquier card en mobile revela las 2 acciones · tap rápido sobre la acción
+        ejecuta directamente · si necesita razón (rechazo) abre bottom-sheet con textarea.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ACTO 10 · MOBILE BOTTOM SHEET MODAL -->
+<section id="a10" class="my-12">
+  <div class="max-w-6xl mx-auto px-4">
+    <div class="bg-gradient-to-r from-sky-100 to-sky-50 ring-1 ring-sky-200 rounded-3xl p-5 mb-6">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 bg-sky-600 rounded-2xl flex items-center justify-center text-white font-bold">10</div>
+        <div>
+          <h2 class="text-lg font-bold text-sky-900">Mobile · modal bottom-sheet · rechazar con razón</h2>
+          <p class="text-[11px] text-sky-700">Drag handle · textarea full-width · safe-area inset</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="iphone-frame">
+      <div class="bg-white relative" style="height: 680px; overflow: hidden">
+        <div class="bg-slate-50 px-4 py-1 text-[10px] text-slate-600 flex justify-between">
+          <span>9:41</span><span>BusinessMN</span><span>100%</span>
+        </div>
+        <!-- Backdrop -->
+        <div class="absolute inset-0 bg-slate-900/50" style="top: 24px"></div>
+
+        <!-- Bottom sheet -->
+        <div class="absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl shadow-2xl pt-2 px-4" style="padding-bottom: calc(env(safe-area-inset-bottom, 16px) + 16px)">
+          <div class="w-10 h-1 bg-slate-300 rounded-full mx-auto mb-3"></div>
+
+          <!-- Header -->
+          <div class="flex items-center gap-3 pb-3 border-b border-slate-100">
+            <div class="w-10 h-10 bg-gradient-to-br from-rose-500 to-rose-700 rounded-xl flex items-center justify-center text-white">
+              <i data-lucide="x" class="w-5 h-5"></i>
+            </div>
+            <div>
+              <h3 class="text-[14px] font-bold text-slate-900">Rechazar adelanto</h3>
+              <p class="text-[10px] text-slate-500">Pedro Martínez · S/ 500</p>
+            </div>
+          </div>
+
+          <!-- Body -->
+          <div class="py-4 space-y-3">
+            <div class="bg-rose-50 border border-rose-200 rounded-lg p-2.5 text-[11px] text-rose-800 inline-flex items-start gap-2">
+              <i data-lucide="alert-triangle" class="w-3.5 h-3.5 flex-shrink-0 mt-0.5"></i>
+              <span>El rechazo se notifica al empleado por email con la razón. Sé claro y profesional.</span>
+            </div>
+
+            <div>
+              <label class="text-[10px] uppercase tracking-wider font-bold text-slate-700 mb-1.5 block">
+                Razón del rechazo <span class="text-rose-600">*</span>
+              </label>
+              <textarea class="w-full px-3 py-2 border border-rose-300 rounded-lg text-[13px]" rows="3" placeholder="Será visible al empleado..." style="min-height: 88px"></textarea>
+              <div class="text-[10px] text-slate-500 mt-1">Mínimo 10 caracteres · 0/300</div>
+            </div>
+          </div>
+
+          <!-- Footer · acciones full-width grid 2 -->
+          <div class="grid grid-cols-2 gap-2 pt-3 border-t border-slate-100">
+            <button class="text-[12px] font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg" style="min-height: 44px">
+              Cancelar
+            </button>
+            <button class="text-[12px] font-bold text-white bg-rose-600 hover:bg-rose-700 rounded-lg inline-flex items-center justify-center gap-1.5" style="min-height: 44px">
+              <i data-lucide="x" class="w-3.5 h-3.5"></i>Rechazar
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-4 p-3 bg-sky-50 border border-sky-200 rounded-lg max-w-md mx-auto">
+      <div class="text-[11px] text-sky-900">
+        <strong>Bottom-sheet pattern canon:</strong> drag handle 40×4px arriba · padding-bottom respeta safe-area inset ·
+        textarea con min-height 88px · botones footer grid-cols-2 con min-height 44px (touch target).
+        Tap backdrop o swipe-down cierra.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER · CHECKLIST -->
+<section class="max-w-6xl mx-auto mt-16 mb-8 px-4">
+  <div class="bg-white rounded-2xl ring-1 ring-slate-200 p-6">
+    <h2 class="text-[16px] font-bold text-slate-900 mb-4 inline-flex items-center gap-2">
+      <i data-lucide="check-square" class="w-5 h-5 text-emerald-600"></i>
+      Checklist canon · cobertura del mockup mi-bandeja
+    </h2>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-[12px]">
+      <div>
+        <h3 class="font-bold text-slate-700 mb-2 uppercase tracking-wider text-[11px]">Bloque A · desktop (7 actos)</h3>
+        <ul class="space-y-1 text-slate-600">
+          <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600 flex-shrink-0"></i>Shell completo · breadcrumb + back + KPIs + 5 sub-tabs</li>
+          <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600 flex-shrink-0"></i>Sub-tab Usuarios · cards con avatar + info + acciones</li>
+          <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600 flex-shrink-0"></i>Sub-tab Adelantos · tabla con checkbox + monto + razón + acciones</li>
+          <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600 flex-shrink-0"></i>Sub-tab Bonos · card con breakdown de cálculo</li>
+          <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600 flex-shrink-0"></i>Sub-tab Liquidaciones · card con desglose + urgencia</li>
+          <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600 flex-shrink-0"></i>Modales Aprobar / Rechazar · canon FormModalV2</li>
+          <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600 flex-shrink-0"></i>Bulk "Aprobar todo" typed-confirm + Empty state canon</li>
+        </ul>
+      </div>
+      <div>
+        <h3 class="font-bold text-slate-700 mb-2 uppercase tracking-wider text-[11px]">Bloque B · mobile (3 actos)</h3>
+        <ul class="space-y-1 text-slate-600">
+          <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600 flex-shrink-0"></i>Shell mobile · sub-tabs scroll-x + KPI 2x2</li>
+          <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600 flex-shrink-0"></i>Swipe-left actions sobre card</li>
+          <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600 flex-shrink-0"></i>Bottom-sheet modal rechazar con razón</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="mt-6 pt-4 border-t border-slate-200">
+      <h3 class="font-bold text-slate-700 mb-2 uppercase tracking-wider text-[11px]">Mockups del módulo perfil · estado completo</h3>
+      <div class="space-y-1 text-[11px] text-slate-700">
+        <div>✅ <strong>v5.4</strong> perfil-personalizado.html (22 actos) · shell del perfil + 3 tabs + 16 desktop + 6 mobile</div>
+        <div>✅ <strong>v5.5</strong> perfil-variante-drill.html (14 actos) · sub-páginas mi-planilla · mi-capital · mi-historial</div>
+        <div>✅ <strong>v5.6</strong> perfil-sidebar-personalizado.html (13 actos) · sidebar Mi espacio + 4 perfiles + mobile drawer</div>
+        <div>✅ <strong>v5.7</strong> perfil-mi-bandeja.html (10 actos) · ESTE mockup · centro de mando admin completo</div>
+      </div>
+    </div>
+
+    <div class="mt-4 p-4 bg-purple-50 border border-purple-200 rounded-lg">
+      <div class="text-[12px] font-bold text-purple-900 mb-2 inline-flex items-center gap-1.5">
+        <i data-lucide="play-circle" class="w-4 h-4"></i>
+        Próximo paso · F10.F.1.J-SIDEBAR (~5h impl)
+      </div>
+      <div class="text-[11px] text-purple-800 space-y-1">
+        <strong>Etapa 1 · Sidebar Mi espacio (~1.5h):</strong>
+        <ul class="list-disc list-inside ml-2 mb-2">
+          <li>Sidebar config con items dinámicos por rol</li>
+          <li>BackArrowHeader component reusable con breadcrumb 3 niveles</li>
+          <li>Active state contextual (sub-rutas)</li>
+        </ul>
+        <strong>Etapa 2 · 4 sub-páginas dedicadas (~3h):</strong>
+        <ul class="list-disc list-inside ml-2 mb-2">
+          <li>/perfil/mi-planilla (canon v5.5 ACTO 4)</li>
+          <li>/perfil/mi-capital (canon v5.5 ACTO 5)</li>
+          <li>/perfil/mi-historial (canon v5.5 ACTO 6)</li>
+          <li>/perfil/mi-bandeja (canon v5.7 · ESTE mockup)</li>
+        </ul>
+        <strong>Etapa 3 · Validación + mobile + commit (~0.5h)</strong>
+      </div>
+    </div>
+
+    <div class="mt-4 text-[10px] text-slate-400 italic">
+      Mockup canon · perfil-v5.7-mi-bandeja.html · 10 actos · F10.F.1.J-MI-BANDEJA.mockup
+    </div>
+  </div>
+</section>
+
+<script>lucide.createIcons();</script>
+</body>
+</html>
