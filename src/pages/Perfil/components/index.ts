@@ -9,3 +9,8 @@ export { default as MisBoletasRecientes } from './MisBoletasRecientes';
 export { default as MisIncentivos } from './MisIncentivos';
 export { default as MiCapitalSocio } from './MiCapitalSocio';
 export { default as MisSesionesActivas } from './MisSesionesActivas';
+
+// F10.F.1.J · Resumenes contextuales por rol
+export { default as ResumenEmpleado } from './ResumenEmpleado';
+export { default as ResumenAdmin } from './ResumenAdmin';
+export { default as ResumenSocio } from './ResumenSocio';

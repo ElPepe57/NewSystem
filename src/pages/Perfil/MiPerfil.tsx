@@ -65,6 +65,9 @@ import {
   MisIncentivos,
   MiCapitalSocio,
   MisSesionesActivas,
+  ResumenEmpleado,
+  ResumenAdmin,
+  ResumenSocio,
   type PendienteItem,
 } from './components';
 
@@ -610,32 +613,53 @@ export const MiPerfil: React.FC = () => {
             </div>
           )}
 
-          {/* ───── TAB · RESUMEN ───── */}
+          {/* ───── TAB · RESUMEN · contextual por rol ─────
+              Renderiza los 3 wrappers en orden según los roles del usuario:
+                1. ResumenAdmin · si tiene permiso gestionar usuarios (admin/gerente)
+                2. ResumenEmpleado · si tiene datosLaborales configurados
+                3. ResumenSocio · si tiene rol socio
+              Un user multi-rol (ej. admin+socio) ve los 3 bloques concatenados. */}
           {tabActiva === 'resumen' && (
             <div className="space-y-5">
+              {/* Pendientes accionables · siempre que haya alguno */}
               <PendientesAccionables pendientes={pendientes} />
 
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                {tieneRolEmpleado && (
-                  <>
+              {/* Vista admin · contadores de bandeja + KPI strip admin + quick actions */}
+              {canManageUsers && <ResumenAdmin />}
+
+              {/* Vista empleado · banner + KPI strip empleado + quick actions + cross-link */}
+              {tieneRolEmpleado && (
+                <ResumenEmpleado
+                  datosLaborales={datosLaborales}
+                  boletas={boletas}
+                  calculosIncentivo={calculosIncentivo}
+                  contadorPendientes={pendientes.length}
+                />
+              )}
+
+              {/* Vista socio · banner ROI + KPI strip socio + distribuciones + cross-link */}
+              {isSocio && <ResumenSocio uid={profile.uid} datosSocio={datosSocio} />}
+
+              {/* Cards detalle (empleado) · datos laborales + incentivos lado a lado + boletas full */}
+              {tieneRolEmpleado && (
+                <>
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                     <MisDatosLaboralesCard datos={datosLaborales} mostrarSueldo />
                     <MisIncentivos calculos={calculosIncentivo} loading={loadingDatos} />
-                  </>
-                )}
-                {isSocio && <MiCapitalSocio datos={datosSocio} />}
-                {isAdmin && !tieneRolEmpleado && !isSocio && (
-                  <div className="bg-white border border-slate-200 rounded-xl p-5 text-center text-slate-500 text-[13px]">
-                    <Shield className="w-8 h-8 mx-auto mb-2 text-purple-300" />
-                    <div className="font-semibold text-slate-700">Vista de admin</div>
-                    <div className="text-[11px] mt-1">
-                      Tu cuenta es 100% administrativa · sin datos laborales o de socio.
-                    </div>
                   </div>
-                )}
-              </div>
+                  <MisBoletasRecientes boletas={boletas} loading={loadingDatos} />
+                </>
+              )}
 
-              {tieneRolEmpleado && (
-                <MisBoletasRecientes boletas={boletas} loading={loadingDatos} />
+              {/* Empty state · admin puro sin laboral ni socio */}
+              {!canManageUsers && !tieneRolEmpleado && !isSocio && (
+                <div className="bg-white border border-slate-200 rounded-xl p-5 text-center text-slate-500 text-[13px]">
+                  <Shield className="w-8 h-8 mx-auto mb-2 text-purple-300" />
+                  <div className="font-semibold text-slate-700">Sin sub-perfiles configurados</div>
+                  <div className="text-[11px] mt-1">
+                    Tu cuenta aún no tiene datos laborales ni de socio · contactá al admin si corresponde.
+                  </div>
+                </div>
               )}
             </div>
           )}
