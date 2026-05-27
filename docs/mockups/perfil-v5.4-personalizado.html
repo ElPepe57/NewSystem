@@ -1,0 +1,1611 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mi Perfil v5.4 · personalizado por rol · canon purple cálido</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  body { font-family: 'Inter', sans-serif; font-variant-numeric: tabular-nums; background: rgb(248 250 252); }
+  .tabular { font-variant-numeric: tabular-nums; }
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  .device-desktop { max-width: 1100px; margin: 0 auto; }
+</style>
+</head>
+<body class="p-6 md:p-10">
+
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<!-- HERO INTRODUCTORIO                                                   -->
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<section class="max-w-6xl mx-auto mb-12">
+  <div class="bg-gradient-to-br from-purple-600 to-purple-800 text-white rounded-3xl p-8">
+    <div class="flex items-start gap-4 mb-4">
+      <div class="w-14 h-14 bg-white/20 rounded-2xl flex items-center justify-center">
+        <i data-lucide="user-circle" class="w-7 h-7"></i>
+      </div>
+      <div class="flex-1">
+        <div class="text-[11px] uppercase tracking-wider text-purple-200 font-bold">MOCKUP v5.4 · MÓDULO MI PERFIL · COBERTURA TOTAL</div>
+        <h1 class="text-2xl font-bold">/perfil · cockpit personal del usuario · 16 actos pixel-perfect</h1>
+      </div>
+    </div>
+    <p class="text-[14px] text-purple-100 leading-relaxed max-w-3xl">
+      Refactor canon banking-grade <strong class="text-white">purple cálido</strong> del módulo Mi Perfil ·
+      adaptado a las necesidades de vista personal (avatar XL · inputs editables inline · tono cálido)
+      manteniendo canon S9.D1 (breadcrumb · h1 · tabs) y N2 (cards con gradient + ring).
+      Personalizado por rol (empleado · admin/gerente · socio) con <strong class="text-white">sub-perfiles dinámicos</strong>
+      y <strong class="text-white">pendientes accionables</strong> propios.
+    </p>
+  </div>
+
+  <!-- Índice -->
+  <div class="bg-white rounded-2xl ring-1 ring-purple-100 p-6 mt-6">
+    <h2 class="text-[13px] font-bold text-slate-900 mb-4 uppercase tracking-wider">Índice · 16 actos</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-[12px]">
+      <a href="#a1" class="block p-2 rounded bg-purple-50 hover:bg-purple-100"><strong class="text-purple-700">ACTO 1</strong> · Shell base · breadcrumb + header avatar XL + 3 tabs</a>
+      <a href="#a2" class="block p-2 rounded bg-purple-50 hover:bg-purple-100"><strong class="text-purple-700">ACTO 2</strong> · Tab Resumen · vista EMPLEADO</a>
+      <a href="#a3" class="block p-2 rounded bg-purple-50 hover:bg-purple-100"><strong class="text-purple-700">ACTO 3</strong> · Tab Resumen · vista ADMIN/GERENTE</a>
+      <a href="#a4" class="block p-2 rounded bg-purple-50 hover:bg-purple-100"><strong class="text-purple-700">ACTO 4</strong> · Tab Resumen · vista SOCIO</a>
+      <a href="#a5" class="block p-2 rounded bg-purple-50 hover:bg-purple-100"><strong class="text-purple-700">ACTO 5</strong> · Tab Mi información · identidad personal</a>
+      <a href="#a6" class="block p-2 rounded bg-purple-50 hover:bg-purple-100"><strong class="text-purple-700">ACTO 6</strong> · Mi información · sub-perfil planilla (empleado)</a>
+      <a href="#a7" class="block p-2 rounded bg-purple-50 hover:bg-purple-100"><strong class="text-purple-700">ACTO 7</strong> · Mi información · sub-perfil socio</a>
+      <a href="#a8" class="block p-2 rounded bg-purple-50 hover:bg-purple-100"><strong class="text-purple-700">ACTO 8</strong> · Mi información · permisos efectivos</a>
+      <a href="#a9" class="block p-2 rounded bg-purple-50 hover:bg-purple-100"><strong class="text-purple-700">ACTO 9</strong> · Tab Actividad · cambio password + sesiones</a>
+      <a href="#a10" class="block p-2 rounded bg-purple-50 hover:bg-purple-100"><strong class="text-purple-700">ACTO 10</strong> · Tab Actividad · timeline de actividad reciente</a>
+      <a href="#a11" class="block p-2 rounded bg-purple-50 hover:bg-purple-100"><strong class="text-purple-700">ACTO 11</strong> · Modal cambiar contraseña</a>
+      <a href="#a12" class="block p-2 rounded bg-purple-50 hover:bg-purple-100"><strong class="text-purple-700">ACTO 12</strong> · Modal editar avatar/foto</a>
+      <a href="#a13" class="block p-2 rounded bg-purple-50 hover:bg-purple-100"><strong class="text-purple-700">ACTO 13</strong> · Modal desconectar sesión individual</a>
+      <a href="#a14" class="block p-2 rounded bg-purple-50 hover:bg-purple-100"><strong class="text-purple-700">ACTO 14</strong> · Modal solicitar adelanto (empleado)</a>
+      <a href="#a15" class="block p-2 rounded bg-purple-50 hover:bg-purple-100"><strong class="text-purple-700">ACTO 15</strong> · Banners contextuales</a>
+      <a href="#a16" class="block p-2 rounded bg-purple-50 hover:bg-purple-100"><strong class="text-purple-700">ACTO 16</strong> · Empty / loading / error states</a>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<!-- ACTO 1 · Shell base · breadcrumb + header avatar XL + 3 tabs        -->
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<section id="a1" class="my-12">
+  <div class="max-w-6xl mx-auto">
+    <div class="bg-gradient-to-r from-purple-100 to-purple-50 ring-1 ring-purple-200 rounded-3xl p-5 mb-6">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 bg-purple-600 rounded-2xl flex items-center justify-center text-white font-bold">1</div>
+        <div>
+          <h2 class="text-lg font-bold text-purple-900">Shell base · breadcrumb + header avatar XL + 3 tabs</h2>
+          <p class="text-[11px] text-purple-700">Adaptación canon · avatar grande protagonista (vs icon chip ejecutivo) · color purple cálido</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="device-desktop bg-white rounded-2xl ring-1 ring-slate-200 overflow-hidden">
+      <!-- Breadcrumb canon S9.D1 · 2 niveles default · Inicio › Mi perfil -->
+      <div class="px-6 py-2.5 border-b border-slate-200 bg-slate-50 flex items-center gap-3">
+        <div class="flex items-center text-[12px] flex-1">
+          <a class="text-slate-500 hover:text-purple-700 cursor-pointer">Inicio</a>
+          <i data-lucide="chevron-right" class="w-3 h-3 text-slate-300 mx-1.5"></i>
+          <span class="text-slate-900 font-semibold">Mi perfil</span>
+        </div>
+      </div>
+
+      <!-- Header banking-grade adaptado · avatar XL protagonista -->
+      <div class="px-6 py-5 border-b border-slate-100 flex items-start justify-between gap-4 flex-wrap">
+        <div class="flex items-center gap-4 flex-1 min-w-[280px]">
+          <!-- Avatar XL · 80px · clickable para editar -->
+          <div class="relative group flex-shrink-0">
+            <div class="w-20 h-20 rounded-2xl bg-gradient-to-br from-purple-500 to-purple-700 flex items-center justify-center text-white font-bold text-[28px] shadow-md">
+              JL
+            </div>
+            <button class="absolute -bottom-1 -right-1 w-7 h-7 bg-white border border-slate-200 rounded-lg flex items-center justify-center shadow-sm hover:bg-slate-50">
+              <i data-lucide="camera" class="w-3.5 h-3.5 text-slate-600"></i>
+            </button>
+          </div>
+          <div class="min-w-0">
+            <h1 class="text-2xl font-bold tracking-tight text-slate-900">José LP</h1>
+            <p class="text-[12px] text-slate-500 mt-0.5">jose.lp9205@gmail.com · activo desde mar 2024</p>
+            <!-- Multi-rol badges -->
+            <div class="flex items-center gap-1 mt-2 flex-wrap">
+              <span class="bg-purple-100 text-purple-700 text-[10px] font-bold px-2 py-0.5 rounded-full inline-flex items-center gap-1">
+                <i data-lucide="shield" class="w-2.5 h-2.5"></i>Admin
+              </span>
+              <span class="bg-violet-100 text-violet-700 text-[10px] font-bold px-2 py-0.5 rounded-full inline-flex items-center gap-1">
+                <i data-lucide="briefcase" class="w-2.5 h-2.5"></i>Socio
+              </span>
+              <span class="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-1.5 py-0.5 rounded uppercase">ACTIVO</span>
+            </div>
+          </div>
+        </div>
+        <!-- Acciones header · canon 3-tier -->
+        <div class="flex items-center gap-1.5 flex-wrap justify-end">
+          <button class="text-[12px] font-medium text-slate-600 hover:bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-lg flex items-center gap-1.5">
+            <i data-lucide="lock" class="w-3.5 h-3.5"></i>Cambiar contraseña
+          </button>
+          <button class="text-[12px] font-bold text-white bg-purple-600 hover:bg-purple-700 px-3 py-1.5 rounded-lg flex items-center gap-1.5">
+            <i data-lucide="edit-2" class="w-3.5 h-3.5"></i>Editar perfil
+          </button>
+        </div>
+      </div>
+
+      <!-- 3 sub-tabs canon scroll-x mobile -->
+      <div class="px-6 border-b border-slate-200 overflow-x-auto no-scrollbar">
+        <div class="flex gap-1 whitespace-nowrap">
+          <button class="px-4 py-2.5 text-[12px] font-bold border-b-2 border-purple-600 text-purple-700 flex items-center gap-1.5">
+            <i data-lucide="layout-dashboard" class="w-3.5 h-3.5"></i>Resumen
+          </button>
+          <button class="px-4 py-2.5 text-[12px] font-medium border-b-2 border-transparent text-slate-600 hover:text-purple-600 flex items-center gap-1.5">
+            <i data-lucide="user" class="w-3.5 h-3.5"></i>Mi información
+          </button>
+          <button class="px-4 py-2.5 text-[12px] font-medium border-b-2 border-transparent text-slate-600 hover:text-purple-600 flex items-center gap-1.5">
+            <i data-lucide="activity" class="w-3.5 h-3.5"></i>Actividad & seguridad
+          </button>
+        </div>
+      </div>
+
+      <!-- Body placeholder -->
+      <div class="px-6 py-8 text-center text-slate-500">
+        <div class="text-[12px] font-bold mb-1 text-slate-700">📦 Body · contenido contextual por rol y tab activo</div>
+        <p class="text-[11px]">Cada tab cambia el contenido · explorar los siguientes actos.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<!-- ACTO 2 · Tab Resumen vista EMPLEADO                                 -->
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<section id="a2" class="my-12">
+  <div class="max-w-6xl mx-auto">
+    <div class="bg-gradient-to-r from-sky-100 to-sky-50 ring-1 ring-sky-200 rounded-3xl p-5 mb-6">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 bg-sky-600 rounded-2xl flex items-center justify-center text-white font-bold">2</div>
+        <div>
+          <h2 class="text-lg font-bold text-sky-900">Resumen vista EMPLEADO · pendientes propios + quick actions</h2>
+          <p class="text-[11px] text-sky-700">Lo que el empleado ve al entrar · datos personales operativos · acciones rápidas suyas</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="device-desktop bg-white rounded-2xl ring-1 ring-slate-200 overflow-hidden p-6 space-y-5">
+      <!-- Banner pendientes contextual -->
+      <div class="bg-gradient-to-r from-amber-50 to-orange-50 ring-1 ring-amber-300 rounded-xl p-4 flex items-start gap-3">
+        <div class="w-9 h-9 bg-amber-100 rounded-xl flex items-center justify-center flex-shrink-0">
+          <i data-lucide="alert-circle" class="w-4 h-4 text-amber-700"></i>
+        </div>
+        <div class="flex-1">
+          <div class="text-[12px] font-bold text-amber-900 mb-0.5">Tienes 2 pendientes que requieren tu atención</div>
+          <div class="text-[11px] text-amber-800">1 adelanto pendiente de aprobación · próxima gratificación en 15 días</div>
+        </div>
+      </div>
+
+      <!-- KPI mini strip · canon banking · cards personales (no agregadas) -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div class="bg-gradient-to-br from-sky-50 to-sky-100/40 ring-1 ring-sky-200/50 rounded-2xl p-3">
+          <div class="flex items-center justify-between mb-1">
+            <span class="text-[10px] uppercase tracking-wider text-sky-700 font-bold">MI SUELDO</span>
+            <i data-lucide="wallet" class="w-3.5 h-3.5 text-sky-700"></i>
+          </div>
+          <div class="text-2xl font-bold tabular text-sky-900">S/ 4,500</div>
+          <div class="text-[10px] text-sky-700">+5% desde alta</div>
+        </div>
+        <div class="bg-gradient-to-br from-emerald-50 to-emerald-100/40 ring-1 ring-emerald-200/50 rounded-2xl p-3">
+          <div class="flex items-center justify-between mb-1">
+            <span class="text-[10px] uppercase tracking-wider text-emerald-700 font-bold">PRÓX. BOLETA</span>
+            <i data-lucide="file-text" class="w-3.5 h-3.5 text-emerald-700"></i>
+          </div>
+          <div class="text-2xl font-bold tabular text-emerald-900">5d</div>
+          <div class="text-[10px] text-emerald-700">~ S/ 4,300 neto</div>
+        </div>
+        <div class="bg-gradient-to-br from-violet-50 to-violet-100/40 ring-1 ring-violet-200/50 rounded-2xl p-3">
+          <div class="flex items-center justify-between mb-1">
+            <span class="text-[10px] uppercase tracking-wider text-violet-700 font-bold">MIS BONOS YTD</span>
+            <i data-lucide="trophy" class="w-3.5 h-3.5 text-violet-700"></i>
+          </div>
+          <div class="text-2xl font-bold tabular text-violet-900">S/ 2,400</div>
+          <div class="text-[10px] text-violet-700">5 esquemas activos</div>
+        </div>
+        <div class="bg-gradient-to-br from-indigo-50 to-indigo-100/40 ring-1 ring-indigo-200/50 rounded-2xl p-3">
+          <div class="flex items-center justify-between mb-1">
+            <span class="text-[10px] uppercase tracking-wider text-indigo-700 font-bold">PRÓX. GRATIF.</span>
+            <i data-lucide="gift" class="w-3.5 h-3.5 text-indigo-700"></i>
+          </div>
+          <div class="text-2xl font-bold tabular text-indigo-900">jul · 15d</div>
+          <div class="text-[10px] text-indigo-700">~ S/ 4,500</div>
+        </div>
+      </div>
+
+      <!-- Mis pendientes accionables · cards apiladas -->
+      <div>
+        <h3 class="text-[13px] font-bold text-slate-900 mb-2 inline-flex items-center gap-1.5">
+          <i data-lucide="list-checks" class="w-4 h-4 text-amber-700"></i>
+          Mis pendientes accionables
+        </h3>
+        <div class="space-y-2">
+          <div class="bg-amber-50 border border-amber-200 rounded-lg p-3 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <i data-lucide="arrow-down-circle" class="w-4 h-4 text-amber-700"></i>
+              <div>
+                <div class="text-[12px] font-semibold text-amber-900">Adelanto solicitado · S/ 500</div>
+                <div class="text-[10px] text-amber-700">"Gastos médicos urgentes" · hace 2h · esperando aprobación</div>
+              </div>
+            </div>
+            <span class="text-[10px] bg-amber-200 text-amber-900 px-2 py-0.5 rounded-full font-bold uppercase">PENDIENTE</span>
+          </div>
+          <div class="bg-violet-50 border border-violet-200 rounded-lg p-3 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <i data-lucide="trophy" class="w-4 h-4 text-violet-700"></i>
+              <div>
+                <div class="text-[12px] font-semibold text-violet-900">Comisión mayo · S/ 1,600 calculado</div>
+                <div class="text-[10px] text-violet-700">Esquema "Comisión vendedor escalonada" · esperando aprobación gerencial</div>
+              </div>
+            </div>
+            <span class="text-[10px] bg-violet-200 text-violet-900 px-2 py-0.5 rounded-full font-bold uppercase">CALCULADO</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick actions personales -->
+      <div>
+        <h3 class="text-[13px] font-bold text-slate-900 mb-2">Acciones rápidas</h3>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+          <button class="bg-white border border-sky-200 hover:bg-sky-50/30 rounded-lg p-3 text-left transition-colors">
+            <div class="w-8 h-8 bg-sky-100 rounded-lg flex items-center justify-center mb-1.5">
+              <i data-lucide="file-text" class="w-4 h-4 text-sky-700"></i>
+            </div>
+            <div class="text-[11px] font-bold text-slate-900">Ver mis boletas</div>
+            <div class="text-[10px] text-slate-500">historial completo</div>
+          </button>
+          <button class="bg-white border border-amber-200 hover:bg-amber-50/30 rounded-lg p-3 text-left transition-colors">
+            <div class="w-8 h-8 bg-amber-100 rounded-lg flex items-center justify-center mb-1.5">
+              <i data-lucide="arrow-down-circle" class="w-4 h-4 text-amber-700"></i>
+            </div>
+            <div class="text-[11px] font-bold text-slate-900">Solicitar adelanto</div>
+            <div class="text-[10px] text-slate-500">requiere aprobación</div>
+          </button>
+          <button class="bg-white border border-emerald-200 hover:bg-emerald-50/30 rounded-lg p-3 text-left transition-colors">
+            <div class="w-8 h-8 bg-emerald-100 rounded-lg flex items-center justify-center mb-1.5">
+              <i data-lucide="trending-up" class="w-4 h-4 text-emerald-700"></i>
+            </div>
+            <div class="text-[11px] font-bold text-slate-900">Mi histórico salarial</div>
+            <div class="text-[10px] text-slate-500">timeline variaciones</div>
+          </button>
+          <button class="bg-white border border-sky-200 hover:bg-sky-50/30 rounded-lg p-3 text-left transition-colors">
+            <div class="w-8 h-8 bg-sky-100 rounded-lg flex items-center justify-center mb-1.5">
+              <i data-lucide="palmtree" class="w-4 h-4 text-sky-700"></i>
+            </div>
+            <div class="text-[11px] font-bold text-slate-900">Vacaciones</div>
+            <div class="text-[10px] text-slate-500">programar / ver</div>
+          </button>
+        </div>
+      </div>
+
+      <!-- Cross-link contextual a Planilla -->
+      <div class="bg-gradient-to-r from-sky-50 to-cyan-50 ring-1 ring-sky-200 rounded-xl p-4 flex items-center gap-3">
+        <div class="w-10 h-10 bg-sky-100 rounded-xl flex items-center justify-center flex-shrink-0">
+          <i data-lucide="briefcase-business" class="w-5 h-5 text-sky-700"></i>
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="text-[12px] font-bold text-slate-900 mb-0.5">Ver toda mi información laboral</div>
+          <div class="text-[11px] text-slate-600">Boletas · adelantos · incentivos · vacaciones · gratificaciones</div>
+        </div>
+        <button class="bg-sky-600 hover:bg-sky-700 text-white text-[11px] font-bold px-3 py-1.5 rounded-lg flex items-center gap-1">
+          Ir a planilla<i data-lucide="arrow-right" class="w-3 h-3"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<!-- ACTO 3 · Tab Resumen vista ADMIN/GERENTE                            -->
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<section id="a3" class="my-12">
+  <div class="max-w-6xl mx-auto">
+    <div class="bg-gradient-to-r from-purple-100 to-purple-50 ring-1 ring-purple-200 rounded-3xl p-5 mb-6">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 bg-purple-600 rounded-2xl flex items-center justify-center text-white font-bold">3</div>
+        <div>
+          <h2 class="text-lg font-bold text-purple-900">Resumen vista ADMIN/GERENTE · "lo que TE toca aprobar"</h2>
+          <p class="text-[11px] text-purple-700">Pendientes que requieren TU acción · centro de mando personal de gestión</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="device-desktop bg-white rounded-2xl ring-1 ring-slate-200 overflow-hidden p-6 space-y-5">
+      <!-- Banner gestión -->
+      <div class="bg-gradient-to-r from-purple-50 to-violet-50 ring-1 ring-purple-300 rounded-xl p-4 flex items-start gap-3">
+        <div class="w-9 h-9 bg-purple-100 rounded-xl flex items-center justify-center flex-shrink-0">
+          <i data-lucide="shield-check" class="w-4 h-4 text-purple-700"></i>
+        </div>
+        <div class="flex-1">
+          <div class="text-[12px] font-bold text-purple-900 mb-0.5">Tienes 7 acciones esperando tu aprobación</div>
+          <div class="text-[11px] text-purple-800">2 usuarios · 3 adelantos · 1 bono · 1 liquidación · revisar antes del cierre</div>
+        </div>
+      </div>
+
+      <!-- KPI mini strip · gestión -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div class="bg-gradient-to-br from-amber-50 to-amber-100/40 ring-1 ring-amber-200/50 rounded-2xl p-3">
+          <div class="flex items-center justify-between mb-1">
+            <span class="text-[10px] uppercase tracking-wider text-amber-700 font-bold">PEND. APROBAR</span>
+            <i data-lucide="alert-triangle" class="w-3.5 h-3.5 text-amber-700"></i>
+          </div>
+          <div class="text-2xl font-bold tabular text-amber-900">7</div>
+          <div class="text-[10px] text-amber-700">requieren mi acción</div>
+        </div>
+        <div class="bg-gradient-to-br from-sky-50 to-sky-100/40 ring-1 ring-sky-200/50 rounded-2xl p-3">
+          <div class="flex items-center justify-between mb-1">
+            <span class="text-[10px] uppercase tracking-wider text-sky-700 font-bold">USUARIOS</span>
+            <i data-lucide="users" class="w-3.5 h-3.5 text-sky-700"></i>
+          </div>
+          <div class="text-2xl font-bold tabular text-sky-900">14</div>
+          <div class="text-[10px] text-sky-700">2 pendientes alta</div>
+        </div>
+        <div class="bg-gradient-to-br from-emerald-50 to-emerald-100/40 ring-1 ring-emerald-200/50 rounded-2xl p-3">
+          <div class="flex items-center justify-between mb-1">
+            <span class="text-[10px] uppercase tracking-wider text-emerald-700 font-bold">CIERRE MES</span>
+            <i data-lucide="calendar-check" class="w-3.5 h-3.5 text-emerald-700"></i>
+          </div>
+          <div class="text-2xl font-bold tabular text-emerald-900">3d</div>
+          <div class="text-[10px] text-emerald-700">de mayo 2026</div>
+        </div>
+        <div class="bg-gradient-to-br from-rose-50 to-rose-100/40 ring-1 ring-rose-200/50 rounded-2xl p-3">
+          <div class="flex items-center justify-between mb-1">
+            <span class="text-[10px] uppercase tracking-wider text-rose-700 font-bold">LIQUIDACIONES</span>
+            <i data-lucide="user-minus" class="w-3.5 h-3.5 text-rose-700"></i>
+          </div>
+          <div class="text-2xl font-bold tabular text-rose-900">1</div>
+          <div class="text-[10px] text-rose-700">aprob. pend. pago</div>
+        </div>
+      </div>
+
+      <!-- Pendientes que ME toca aprobar · cards apiladas -->
+      <div>
+        <h3 class="text-[13px] font-bold text-slate-900 mb-2 inline-flex items-center gap-1.5">
+          <i data-lucide="list-checks" class="w-4 h-4 text-purple-700"></i>
+          Tu bandeja de aprobaciones
+        </h3>
+        <div class="space-y-2">
+          <button class="w-full bg-white border border-amber-200 hover:bg-amber-50/40 rounded-lg p-3 flex items-center justify-between text-left">
+            <div class="flex items-center gap-2">
+              <i data-lucide="user-plus" class="w-4 h-4 text-amber-700"></i>
+              <div>
+                <div class="text-[12px] font-semibold text-slate-900">2 usuarios esperan aprobación</div>
+                <div class="text-[10px] text-slate-600">María García (invitada · hace 3h) · Juan Pérez (self-signup · 1h)</div>
+              </div>
+            </div>
+            <i data-lucide="arrow-right" class="w-4 h-4 text-amber-700"></i>
+          </button>
+          <button class="w-full bg-white border border-amber-200 hover:bg-amber-50/40 rounded-lg p-3 flex items-center justify-between text-left">
+            <div class="flex items-center gap-2">
+              <i data-lucide="arrow-down-circle" class="w-4 h-4 text-amber-700"></i>
+              <div>
+                <div class="text-[12px] font-semibold text-slate-900">3 adelantos pendientes · S/ 1,800 total</div>
+                <div class="text-[10px] text-slate-600">Ana R · Diego L · Pedro M · revisar antes de fin de mes</div>
+              </div>
+            </div>
+            <i data-lucide="arrow-right" class="w-4 h-4 text-amber-700"></i>
+          </button>
+          <button class="w-full bg-white border border-violet-200 hover:bg-violet-50/40 rounded-lg p-3 flex items-center justify-between text-left">
+            <div class="flex items-center gap-2">
+              <i data-lucide="trophy" class="w-4 h-4 text-violet-700"></i>
+              <div>
+                <div class="text-[12px] font-semibold text-slate-900">1 bono calculado · S/ 1,600</div>
+                <div class="text-[10px] text-slate-600">Ana R · comisión mayo · esquema "vendedor escalonado"</div>
+              </div>
+            </div>
+            <i data-lucide="arrow-right" class="w-4 h-4 text-violet-700"></i>
+          </button>
+          <button class="w-full bg-white border border-rose-200 hover:bg-rose-50/40 rounded-lg p-3 flex items-center justify-between text-left">
+            <div class="flex items-center gap-2">
+              <i data-lucide="user-minus" class="w-4 h-4 text-rose-700"></i>
+              <div>
+                <div class="text-[12px] font-semibold text-slate-900">1 liquidación aprobada · S/ 8,200 a pagar</div>
+                <div class="text-[10px] text-slate-600">Carlos S · renuncia · hace 5 días · evitar quedar +7d</div>
+              </div>
+            </div>
+            <i data-lucide="arrow-right" class="w-4 h-4 text-rose-700"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Quick actions admin -->
+      <div>
+        <h3 class="text-[13px] font-bold text-slate-900 mb-2">Accesos rápidos de gestión</h3>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+          <button class="bg-white border border-purple-200 hover:bg-purple-50/30 rounded-lg p-3 text-left">
+            <div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center mb-1.5">
+              <i data-lucide="users" class="w-4 h-4 text-purple-700"></i>
+            </div>
+            <div class="text-[11px] font-bold text-slate-900">Ir a /usuarios</div>
+            <div class="text-[10px] text-slate-500">directorio completo</div>
+          </button>
+          <button class="bg-white border border-sky-200 hover:bg-sky-50/30 rounded-lg p-3 text-left">
+            <div class="w-8 h-8 bg-sky-100 rounded-lg flex items-center justify-center mb-1.5">
+              <i data-lucide="briefcase-business" class="w-4 h-4 text-sky-700"></i>
+            </div>
+            <div class="text-[11px] font-bold text-slate-900">Cerrar mes planilla</div>
+            <div class="text-[10px] text-slate-500">en 3 días</div>
+          </button>
+          <button class="bg-white border border-emerald-200 hover:bg-emerald-50/30 rounded-lg p-3 text-left">
+            <div class="w-8 h-8 bg-emerald-100 rounded-lg flex items-center justify-center mb-1.5">
+              <i data-lucide="check-square" class="w-4 h-4 text-emerald-700"></i>
+            </div>
+            <div class="text-[11px] font-bold text-slate-900">Aprobar todo</div>
+            <div class="text-[10px] text-slate-500">batch aprobaciones</div>
+          </button>
+          <button class="bg-white border border-slate-200 hover:bg-slate-50 rounded-lg p-3 text-left">
+            <div class="w-8 h-8 bg-slate-100 rounded-lg flex items-center justify-center mb-1.5">
+              <i data-lucide="shield" class="w-4 h-4 text-slate-700"></i>
+            </div>
+            <div class="text-[11px] font-bold text-slate-900">Ver auditoría</div>
+            <div class="text-[10px] text-slate-500">log de cambios</div>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<!-- ACTO 4 · Tab Resumen vista SOCIO                                    -->
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<section id="a4" class="my-12">
+  <div class="max-w-6xl mx-auto">
+    <div class="bg-gradient-to-r from-violet-100 to-violet-50 ring-1 ring-violet-200 rounded-3xl p-5 mb-6">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 bg-violet-600 rounded-2xl flex items-center justify-center text-white font-bold">4</div>
+        <div>
+          <h2 class="text-lg font-bold text-violet-900">Resumen vista SOCIO · capital + ROI + distribuciones</h2>
+          <p class="text-[11px] text-violet-700">Vista personal del inversionista · mini-dashboard de su capital · cross-link a inversionistas</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="device-desktop bg-white rounded-2xl ring-1 ring-slate-200 overflow-hidden p-6 space-y-5">
+      <!-- Banner socio -->
+      <div class="bg-gradient-to-r from-violet-50 to-purple-50 ring-1 ring-violet-300 rounded-xl p-4 flex items-start gap-3">
+        <div class="w-9 h-9 bg-violet-100 rounded-xl flex items-center justify-center flex-shrink-0">
+          <i data-lucide="trending-up" class="w-4 h-4 text-violet-700"></i>
+        </div>
+        <div class="flex-1">
+          <div class="text-[12px] font-bold text-violet-900 mb-0.5">Tu capital está rindiendo +12.4% YTD</div>
+          <div class="text-[11px] text-violet-800">Próxima distribución programada para junio 2026 · ~ S/ 8,400</div>
+        </div>
+      </div>
+
+      <!-- KPI mini strip · socio -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div class="bg-gradient-to-br from-violet-50 to-violet-100/40 ring-1 ring-violet-200/50 rounded-2xl p-3">
+          <div class="flex items-center justify-between mb-1">
+            <span class="text-[10px] uppercase tracking-wider text-violet-700 font-bold">MI CAPITAL</span>
+            <i data-lucide="wallet" class="w-3.5 h-3.5 text-violet-700"></i>
+          </div>
+          <div class="text-2xl font-bold tabular text-violet-900">S/ 70K</div>
+          <div class="text-[10px] text-violet-700">cash + valor</div>
+        </div>
+        <div class="bg-gradient-to-br from-emerald-50 to-emerald-100/40 ring-1 ring-emerald-200/50 rounded-2xl p-3">
+          <div class="flex items-center justify-between mb-1">
+            <span class="text-[10px] uppercase tracking-wider text-emerald-700 font-bold">MI %</span>
+            <i data-lucide="pie-chart" class="w-3.5 h-3.5 text-emerald-700"></i>
+          </div>
+          <div class="text-2xl font-bold tabular text-emerald-900">45%</div>
+          <div class="text-[10px] text-emerald-700">de S/ 156K total</div>
+        </div>
+        <div class="bg-gradient-to-br from-sky-50 to-sky-100/40 ring-1 ring-sky-200/50 rounded-2xl p-3">
+          <div class="flex items-center justify-between mb-1">
+            <span class="text-[10px] uppercase tracking-wider text-sky-700 font-bold">ROI YTD</span>
+            <i data-lucide="trending-up" class="w-3.5 h-3.5 text-sky-700"></i>
+          </div>
+          <div class="text-2xl font-bold tabular text-sky-900">+12.4%</div>
+          <div class="text-[10px] text-sky-700">utilidad acum.</div>
+        </div>
+        <div class="bg-gradient-to-br from-amber-50 to-amber-100/40 ring-1 ring-amber-200/50 rounded-2xl p-3">
+          <div class="flex items-center justify-between mb-1">
+            <span class="text-[10px] uppercase tracking-wider text-amber-700 font-bold">PRÓX. DIST.</span>
+            <i data-lucide="banknote" class="w-3.5 h-3.5 text-amber-700"></i>
+          </div>
+          <div class="text-2xl font-bold tabular text-amber-900">S/ 8.4K</div>
+          <div class="text-[10px] text-amber-700">jun 2026</div>
+        </div>
+      </div>
+
+      <!-- Mis distribuciones recientes · timeline -->
+      <div>
+        <h3 class="text-[13px] font-bold text-slate-900 mb-2 inline-flex items-center gap-1.5">
+          <i data-lucide="banknote" class="w-4 h-4 text-amber-700"></i>
+          Mis distribuciones recientes
+        </h3>
+        <div class="bg-white border border-slate-200 rounded-lg divide-y divide-slate-100">
+          <div class="px-4 py-2.5 flex items-center justify-between">
+            <div>
+              <div class="text-[12px] font-semibold text-slate-900">Distribución de utilidad · jun 2026</div>
+              <div class="text-[10px] text-slate-500">programada · 45% participación</div>
+            </div>
+            <div class="text-right">
+              <div class="text-[13px] font-bold tabular text-violet-900">S/ 8,400</div>
+              <span class="text-[9px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded font-bold uppercase">PROGRAMADA</span>
+            </div>
+          </div>
+          <div class="px-4 py-2.5 flex items-center justify-between">
+            <div>
+              <div class="text-[12px] font-semibold text-slate-900">Distribución · mar 2026</div>
+              <div class="text-[10px] text-slate-500">pagada el 15-mar</div>
+            </div>
+            <div class="text-right">
+              <div class="text-[13px] font-bold tabular text-violet-900">S/ 6,750</div>
+              <span class="text-[9px] bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded font-bold uppercase">PAGADA</span>
+            </div>
+          </div>
+          <div class="px-4 py-2.5 flex items-center justify-between">
+            <div>
+              <div class="text-[12px] font-semibold text-slate-900">Distribución · dic 2025</div>
+              <div class="text-[10px] text-slate-500">pagada el 28-dic</div>
+            </div>
+            <div class="text-right">
+              <div class="text-[13px] font-bold tabular text-violet-900">S/ 5,200</div>
+              <span class="text-[9px] bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded font-bold uppercase">PAGADA</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Cross-link a Inversionistas · CTA grande -->
+      <div class="bg-gradient-to-r from-violet-50 to-purple-50 ring-1 ring-violet-200 rounded-xl p-4 flex items-center gap-3">
+        <div class="w-10 h-10 bg-violet-100 rounded-xl flex items-center justify-center flex-shrink-0">
+          <i data-lucide="landmark" class="w-5 h-5 text-violet-700"></i>
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="text-[12px] font-bold text-slate-900 mb-0.5">Ver mi capital completo · trayectoria · ROI dual</div>
+          <div class="text-[11px] text-slate-600">Cap table · soberanía financiera · multiplicador · análisis 24 meses</div>
+        </div>
+        <button class="bg-violet-600 hover:bg-violet-700 text-white text-[11px] font-bold px-3 py-1.5 rounded-lg flex items-center gap-1">
+          Ir a Inversionistas<i data-lucide="arrow-right" class="w-3 h-3"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<!-- ACTO 5 · Tab Mi información · identidad personal                    -->
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<section id="a5" class="my-12">
+  <div class="max-w-6xl mx-auto">
+    <div class="bg-gradient-to-r from-purple-100 to-purple-50 ring-1 ring-purple-200 rounded-3xl p-5 mb-6">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 bg-purple-600 rounded-2xl flex items-center justify-center text-white font-bold">5</div>
+        <div>
+          <h2 class="text-lg font-bold text-purple-900">Mi información · identidad personal · inputs editables inline</h2>
+          <p class="text-[11px] text-purple-700">Canon Notion-style profile · click en valor para editar · save inline · sin modales para campos simples</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="device-desktop bg-white rounded-2xl ring-1 ring-slate-200 overflow-hidden p-6 space-y-5">
+      <!-- Card identidad · campos editables inline -->
+      <div class="bg-white border border-slate-200 rounded-xl p-5">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-[14px] font-bold text-slate-900 inline-flex items-center gap-1.5">
+            <i data-lucide="user" class="w-4 h-4 text-purple-700"></i>
+            Datos de identidad
+          </h3>
+          <span class="text-[10px] bg-emerald-100 text-emerald-700 font-bold px-2 py-0.5 rounded uppercase">VERIFICADO</span>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3 text-[12px]">
+          <!-- Nombre · editable inline -->
+          <div class="flex items-center justify-between border-b border-slate-100 pb-2 group cursor-pointer">
+            <span class="text-slate-500">Nombre completo</span>
+            <div class="flex items-center gap-1.5">
+              <span class="font-semibold text-slate-900">José LP</span>
+              <i data-lucide="edit-2" class="w-3 h-3 text-slate-400 opacity-0 group-hover:opacity-100"></i>
+            </div>
+          </div>
+          <!-- Email · read-only con verificación -->
+          <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+            <span class="text-slate-500">Email</span>
+            <div class="flex items-center gap-1.5">
+              <span class="font-semibold text-slate-900">jose.lp9205@gmail.com</span>
+              <i data-lucide="check-circle" class="w-3 h-3 text-emerald-600"></i>
+            </div>
+          </div>
+          <!-- DNI · editable -->
+          <div class="flex items-center justify-between border-b border-slate-100 pb-2 group cursor-pointer">
+            <span class="text-slate-500">DNI</span>
+            <div class="flex items-center gap-1.5">
+              <span class="font-semibold text-slate-900 tabular">42189765</span>
+              <i data-lucide="edit-2" class="w-3 h-3 text-slate-400 opacity-0 group-hover:opacity-100"></i>
+            </div>
+          </div>
+          <!-- Teléfono -->
+          <div class="flex items-center justify-between border-b border-slate-100 pb-2 group cursor-pointer">
+            <span class="text-slate-500">Teléfono</span>
+            <div class="flex items-center gap-1.5">
+              <span class="font-semibold text-slate-900 tabular">+51 987 654 321</span>
+              <i data-lucide="edit-2" class="w-3 h-3 text-slate-400 opacity-0 group-hover:opacity-100"></i>
+            </div>
+          </div>
+          <!-- Activo desde · read-only -->
+          <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+            <span class="text-slate-500">Activo desde</span>
+            <span class="font-semibold text-slate-900">15 marzo 2024</span>
+          </div>
+          <!-- Último login · read-only -->
+          <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+            <span class="text-slate-500">Último acceso</span>
+            <span class="font-semibold text-slate-900">hace 2 minutos</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card multi-rol con descripción -->
+      <div class="bg-white border border-slate-200 rounded-xl p-5">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-[14px] font-bold text-slate-900 inline-flex items-center gap-1.5">
+            <i data-lucide="shield" class="w-4 h-4 text-purple-700"></i>
+            Mis roles asignados
+          </h3>
+          <span class="text-[10px] text-slate-500 font-medium">2 roles · permisos heredados</span>
+        </div>
+        <div class="space-y-2">
+          <div class="flex items-start gap-3 bg-purple-50/40 border border-purple-200 rounded-lg p-3">
+            <div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
+              <i data-lucide="shield" class="w-4 h-4 text-purple-700"></i>
+            </div>
+            <div class="flex-1">
+              <div class="text-[12px] font-bold text-slate-900">Administrador</div>
+              <div class="text-[11px] text-slate-600">Acceso completo al sistema · 42 permisos · gestión usuarios y configuración</div>
+            </div>
+            <span class="text-[10px] bg-purple-200 text-purple-900 px-2 py-0.5 rounded font-bold">ROOT</span>
+          </div>
+          <div class="flex items-start gap-3 bg-violet-50/40 border border-violet-200 rounded-lg p-3">
+            <div class="w-8 h-8 bg-violet-100 rounded-lg flex items-center justify-center flex-shrink-0">
+              <i data-lucide="briefcase" class="w-4 h-4 text-violet-700"></i>
+            </div>
+            <div class="flex-1">
+              <div class="text-[12px] font-bold text-slate-900">Socio</div>
+              <div class="text-[11px] text-slate-600">Acceso al módulo Inversionistas · cap table · 45% participación</div>
+            </div>
+            <span class="text-[10px] bg-violet-200 text-violet-900 px-2 py-0.5 rounded font-bold">CAPITAL</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<!-- ACTO 6 · Mi información · sub-perfil planilla (empleado)            -->
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<section id="a6" class="my-12">
+  <div class="max-w-6xl mx-auto">
+    <div class="bg-gradient-to-r from-sky-100 to-sky-50 ring-1 ring-sky-200 rounded-3xl p-5 mb-6">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 bg-sky-600 rounded-2xl flex items-center justify-center text-white font-bold">6</div>
+        <div>
+          <h2 class="text-lg font-bold text-sky-900">Sub-perfil PLANILLA · datos laborales + histórico + boletas + incentivos</h2>
+          <p class="text-[11px] text-sky-700">Solo visible si el usuario tiene rol planilla · vista personal de sus datos laborales</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="device-desktop bg-white rounded-2xl ring-1 ring-slate-200 overflow-hidden p-6 space-y-5">
+      <!-- Datos laborales card -->
+      <div class="bg-sky-50/40 border border-sky-200 rounded-xl p-5">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-[14px] font-bold text-slate-900 inline-flex items-center gap-1.5">
+            <i data-lucide="briefcase-business" class="w-4 h-4 text-sky-700"></i>
+            Mis datos laborales
+          </h3>
+          <span class="text-[10px] bg-emerald-100 text-emerald-700 font-bold px-2 py-0.5 rounded uppercase">ACTIVO</span>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2 text-[12px]">
+          <div class="flex justify-between border-b border-sky-100 pb-1.5"><span class="text-slate-600">Área</span><span class="font-bold text-sky-900">Ventas</span></div>
+          <div class="flex justify-between border-b border-sky-100 pb-1.5"><span class="text-slate-600">Cargo</span><span class="font-bold text-sky-900">Vendedor sr.</span></div>
+          <div class="flex justify-between border-b border-sky-100 pb-1.5"><span class="text-slate-600">Modalidad</span><span class="font-bold text-sky-900">Presencial</span></div>
+          <div class="flex justify-between border-b border-sky-100 pb-1.5"><span class="text-slate-600">Tipo contrato</span><span class="font-bold text-sky-900">Indefinido</span></div>
+          <div class="flex justify-between border-b border-sky-100 pb-1.5"><span class="text-slate-600">Sueldo actual</span><span class="font-bold text-sky-900 tabular">S/ 4,500.00</span></div>
+          <div class="flex justify-between border-b border-sky-100 pb-1.5"><span class="text-slate-600">Banco</span><span class="font-bold text-sky-900">BCP ****0123</span></div>
+        </div>
+      </div>
+
+      <!-- Histórico salarial · timeline canon ACTO 6 mockup planilla v5.4 -->
+      <div class="bg-white border border-slate-200 rounded-xl p-5">
+        <h3 class="text-[14px] font-bold text-slate-900 mb-3 inline-flex items-center gap-1.5">
+          <i data-lucide="trending-up" class="w-4 h-4 text-emerald-700"></i>
+          Mi histórico salarial
+        </h3>
+        <!-- Header descriptivo -->
+        <div class="mb-3">
+          <div class="text-[12px] font-bold text-slate-900">3 cambios registrados</div>
+          <div class="text-[10px] text-slate-500">Sueldo actual <span class="font-bold tabular">S/ 4,500</span> <span class="text-emerald-700 font-bold">(+12.5% desde alta)</span></div>
+        </div>
+        <!-- Timeline · dots canon -->
+        <div class="space-y-3">
+          <!-- Vigente -->
+          <div class="flex gap-3">
+            <div class="flex flex-col items-center">
+              <div class="w-3 h-3 rounded-full ring-4 bg-emerald-500 ring-emerald-100 flex-shrink-0"></div>
+              <div class="w-0.5 flex-1 bg-slate-200 mt-2"></div>
+            </div>
+            <div class="flex-1 pb-3">
+              <div class="flex items-center gap-2 mb-1 flex-wrap">
+                <span class="text-[13px] font-bold text-slate-900 tabular">S/ 4,500.00</span>
+                <span class="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-1.5 py-0.5 rounded uppercase">VIGENTE</span>
+                <span class="bg-sky-100 text-sky-700 text-[10px] font-bold px-1.5 py-0.5 rounded uppercase">PROMOCIÓN</span>
+              </div>
+              <div class="text-[10px] text-slate-500">ene 2026 · +5% vs anterior · "Promoción a vendedor sr."</div>
+            </div>
+          </div>
+          <!-- Variación intermedia -->
+          <div class="flex gap-3">
+            <div class="flex flex-col items-center">
+              <div class="w-3 h-3 rounded-full ring-4 bg-sky-500 ring-sky-100 flex-shrink-0"></div>
+              <div class="w-0.5 flex-1 bg-slate-200 mt-2"></div>
+            </div>
+            <div class="flex-1 pb-3">
+              <div class="flex items-center gap-2 mb-1 flex-wrap">
+                <span class="text-[13px] font-bold text-slate-700 tabular">S/ 4,300.00</span>
+                <span class="bg-sky-100 text-sky-700 text-[10px] font-bold px-1.5 py-0.5 rounded uppercase">AJUSTE ANUAL</span>
+              </div>
+              <div class="text-[10px] text-slate-500">ene 2025 · +7.5% vs anterior · "Ajuste anual de inflación"</div>
+            </div>
+          </div>
+          <!-- Salario alta -->
+          <div class="flex gap-3">
+            <div class="flex flex-col items-center">
+              <div class="w-3 h-3 rounded-full ring-4 bg-slate-400 ring-slate-100 flex-shrink-0"></div>
+            </div>
+            <div class="flex-1 pb-3">
+              <div class="flex items-center gap-2 mb-1 flex-wrap">
+                <span class="text-[13px] font-bold text-slate-700 tabular">S/ 4,000.00</span>
+                <span class="bg-slate-100 text-slate-600 text-[10px] font-bold px-1.5 py-0.5 rounded uppercase">SALARIO ALTA</span>
+              </div>
+              <div class="text-[10px] text-slate-500">mar 2024 · alta inicial</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mis boletas recientes -->
+      <div class="bg-white border border-slate-200 rounded-xl p-5">
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="text-[14px] font-bold text-slate-900 inline-flex items-center gap-1.5">
+            <i data-lucide="file-text" class="w-4 h-4 text-sky-700"></i>
+            Mis boletas recientes
+          </h3>
+          <button class="text-[11px] text-sky-700 font-bold hover:underline inline-flex items-center gap-1">
+            Ver todas<i data-lucide="arrow-right" class="w-3 h-3"></i>
+          </button>
+        </div>
+        <table class="w-full text-[11px]">
+          <thead>
+            <tr class="border-b border-slate-200 text-left text-[10px] uppercase tracking-wider text-slate-500 font-bold">
+              <th class="py-2">Período</th>
+              <th class="text-right">Sueldo</th>
+              <th class="text-right">Bonos</th>
+              <th class="text-right">Descuentos</th>
+              <th class="text-right">Neto</th>
+              <th class="text-right">Estado</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100">
+            <tr><td class="py-1.5">may 2026</td><td class="text-right tabular">4,500</td><td class="text-right tabular text-emerald-700">+500</td><td class="text-right tabular text-rose-700">-200</td><td class="text-right tabular font-bold">4,800</td><td class="text-right"><span class="bg-amber-100 text-amber-700 text-[9px] font-bold px-1.5 py-0.5 rounded uppercase">PEND.</span></td></tr>
+            <tr><td class="py-1.5">abr 2026</td><td class="text-right tabular">4,500</td><td class="text-right tabular text-emerald-700">+650</td><td class="text-right tabular">0</td><td class="text-right tabular font-bold">5,150</td><td class="text-right"><span class="bg-emerald-100 text-emerald-700 text-[9px] font-bold px-1.5 py-0.5 rounded uppercase">PAGADA</span></td></tr>
+            <tr><td class="py-1.5">mar 2026</td><td class="text-right tabular">4,300</td><td class="text-right tabular text-emerald-700">+400</td><td class="text-right tabular">0</td><td class="text-right tabular font-bold">4,700</td><td class="text-right"><span class="bg-emerald-100 text-emerald-700 text-[9px] font-bold px-1.5 py-0.5 rounded uppercase">PAGADA</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Mis incentivos aplicables -->
+      <div class="bg-white border border-slate-200 rounded-xl p-5">
+        <h3 class="text-[14px] font-bold text-slate-900 mb-3 inline-flex items-center gap-1.5">
+          <i data-lucide="trophy" class="w-4 h-4 text-violet-700"></i>
+          Mis esquemas de incentivo aplicables
+        </h3>
+        <div class="space-y-2">
+          <div class="bg-violet-50/40 border border-violet-200 rounded-lg p-3 flex items-center gap-3">
+            <div class="w-8 h-8 bg-emerald-100 rounded-lg flex items-center justify-center">
+              <i data-lucide="dollar-sign" class="w-4 h-4 text-emerald-700"></i>
+            </div>
+            <div class="flex-1">
+              <div class="text-[12px] font-bold text-slate-900">Comisión vendedor escalonada</div>
+              <div class="text-[11px] text-slate-600">2% hasta S/ 50K · 4% S/ 50-100K · 6% sobre 100K</div>
+              <div class="text-[10px] text-emerald-700 mt-0.5">Acumulado mayo: <span class="font-bold tabular">S/ 1,600</span></div>
+            </div>
+            <span class="text-[9px] bg-emerald-100 text-emerald-700 font-bold px-1.5 py-0.5 rounded uppercase">ACTIVO</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<!-- ACTO 7 · Mi información · sub-perfil socio                          -->
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<section id="a7" class="my-12">
+  <div class="max-w-6xl mx-auto">
+    <div class="bg-gradient-to-r from-violet-100 to-violet-50 ring-1 ring-violet-200 rounded-3xl p-5 mb-6">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 bg-violet-600 rounded-2xl flex items-center justify-center text-white font-bold">7</div>
+        <div>
+          <h2 class="text-lg font-bold text-violet-900">Sub-perfil SOCIO · capital aportado + tipo + cross-link</h2>
+          <p class="text-[11px] text-violet-700">Solo visible si el usuario tiene rol socio · vista personal de su participación</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="device-desktop bg-white rounded-2xl ring-1 ring-slate-200 overflow-hidden p-6 space-y-5">
+      <!-- Card datos socio · canon violet -->
+      <div class="bg-violet-50/40 border border-violet-200 rounded-xl p-5">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-[14px] font-bold text-slate-900 inline-flex items-center gap-1.5">
+            <i data-lucide="briefcase" class="w-4 h-4 text-violet-700"></i>
+            Mis datos como socio
+          </h3>
+          <span class="text-[10px] bg-violet-100 text-violet-700 font-bold px-2 py-0.5 rounded uppercase">FOUNDER</span>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2 text-[12px]">
+          <div class="flex justify-between border-b border-violet-100 pb-1.5"><span class="text-slate-600">Tipo de participación</span><span class="font-bold text-violet-900">Cash + Valor</span></div>
+          <div class="flex justify-between border-b border-violet-100 pb-1.5"><span class="text-slate-600">% participación</span><span class="font-bold text-violet-900 tabular">45%</span></div>
+          <div class="flex justify-between border-b border-violet-100 pb-1.5"><span class="text-slate-600">Capital aportado (cash)</span><span class="font-bold text-violet-900 tabular">S/ 45,000</span></div>
+          <div class="flex justify-between border-b border-violet-100 pb-1.5"><span class="text-slate-600">Capital aportado (valor)</span><span class="font-bold text-violet-900 tabular">S/ 25,000</span></div>
+          <div class="flex justify-between border-b border-violet-100 pb-1.5"><span class="text-slate-600">Fecha de alta</span><span class="font-bold text-violet-900">15 marzo 2024</span></div>
+          <div class="flex justify-between border-b border-violet-100 pb-1.5"><span class="text-slate-600">Tipo de socio</span><span class="font-bold text-violet-900">Activo · operativo</span></div>
+        </div>
+      </div>
+
+      <!-- Mini cap table · contexto -->
+      <div class="bg-white border border-slate-200 rounded-xl p-5">
+        <h3 class="text-[14px] font-bold text-slate-900 mb-3 inline-flex items-center gap-1.5">
+          <i data-lucide="pie-chart" class="w-4 h-4 text-violet-700"></i>
+          Cap table actual
+        </h3>
+        <ul class="space-y-2">
+          <li>
+            <div class="flex items-center justify-between text-[12px] mb-0.5">
+              <span class="font-semibold text-slate-700">José LP <span class="text-[10px] bg-violet-100 text-violet-700 px-1 py-0.5 rounded font-bold ml-1">TÚ</span></span>
+              <span class="tabular text-violet-900 font-bold">45%</span>
+            </div>
+            <div class="h-1.5 bg-slate-100 rounded"><div class="h-1.5 bg-violet-500 rounded" style="width:45%"></div></div>
+          </li>
+          <li>
+            <div class="flex items-center justify-between text-[12px] mb-0.5">
+              <span class="font-semibold text-slate-700">Carlos Silva</span>
+              <span class="tabular text-slate-700 font-bold">35%</span>
+            </div>
+            <div class="h-1.5 bg-slate-100 rounded"><div class="h-1.5 bg-slate-400 rounded" style="width:35%"></div></div>
+          </li>
+          <li>
+            <div class="flex items-center justify-between text-[12px] mb-0.5">
+              <span class="font-semibold text-slate-700">Pedro Martínez</span>
+              <span class="tabular text-slate-700 font-bold">20%</span>
+            </div>
+            <div class="h-1.5 bg-slate-100 rounded"><div class="h-1.5 bg-slate-400 rounded" style="width:20%"></div></div>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Cross-link CTA grande -->
+      <div class="bg-gradient-to-r from-violet-50 to-purple-50 ring-1 ring-violet-200 rounded-xl p-4 flex items-center gap-3">
+        <div class="w-10 h-10 bg-violet-100 rounded-xl flex items-center justify-center flex-shrink-0">
+          <i data-lucide="landmark" class="w-5 h-5 text-violet-700"></i>
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="text-[12px] font-bold text-slate-900 mb-0.5">Análisis completo de tu inversión</div>
+          <div class="text-[11px] text-slate-600">ROI dual · trayectoria 24m · distribuciones · soberanía financiera</div>
+        </div>
+        <button class="bg-violet-600 hover:bg-violet-700 text-white text-[11px] font-bold px-3 py-1.5 rounded-lg flex items-center gap-1">
+          Ir a Inversionistas<i data-lucide="arrow-right" class="w-3 h-3"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<!-- ACTO 8 · Mi información · permisos efectivos                        -->
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<section id="a8" class="my-12">
+  <div class="max-w-6xl mx-auto">
+    <div class="bg-gradient-to-r from-slate-100 to-slate-50 ring-1 ring-slate-200 rounded-3xl p-5 mb-6">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 bg-slate-700 rounded-2xl flex items-center justify-center text-white font-bold">8</div>
+        <div>
+          <h2 class="text-lg font-bold text-slate-900">Permisos efectivos · qué puedo hacer en cada módulo</h2>
+          <p class="text-[11px] text-slate-700">Transparencia · usuario ve exactamente qué acceso tiene · breakdown por módulo</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="device-desktop bg-white rounded-2xl ring-1 ring-slate-200 overflow-hidden p-6 space-y-3">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="text-[14px] font-bold text-slate-900 inline-flex items-center gap-1.5">
+          <i data-lucide="key" class="w-4 h-4 text-slate-700"></i>
+          Mis permisos efectivos
+        </h3>
+        <span class="text-[10px] text-slate-500 font-medium">42 de 42 permisos (admin)</span>
+      </div>
+
+      <!-- Grid de módulos con permisos · cards apiladas -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+        <div class="bg-emerald-50/40 border border-emerald-200 rounded-lg p-3">
+          <div class="flex items-center justify-between mb-1">
+            <span class="text-[12px] font-bold text-slate-900 inline-flex items-center gap-1"><i data-lucide="trending-up" class="w-3.5 h-3.5"></i>Ventas</span>
+            <span class="text-[10px] text-emerald-700 font-bold">5/5</span>
+          </div>
+          <div class="text-[10px] text-slate-600">Ver · crear · editar · confirmar · cancelar</div>
+        </div>
+        <div class="bg-emerald-50/40 border border-emerald-200 rounded-lg p-3">
+          <div class="flex items-center justify-between mb-1">
+            <span class="text-[12px] font-bold text-slate-900 inline-flex items-center gap-1"><i data-lucide="package" class="w-3.5 h-3.5"></i>Inventario</span>
+            <span class="text-[10px] text-emerald-700 font-bold">4/4</span>
+          </div>
+          <div class="text-[10px] text-slate-600">Ver · gestionar · transferir · recibir OC</div>
+        </div>
+        <div class="bg-emerald-50/40 border border-emerald-200 rounded-lg p-3">
+          <div class="flex items-center justify-between mb-1">
+            <span class="text-[12px] font-bold text-slate-900 inline-flex items-center gap-1"><i data-lucide="wallet" class="w-3.5 h-3.5"></i>Finanzas</span>
+            <span class="text-[10px] text-emerald-700 font-bold">3/3</span>
+          </div>
+          <div class="text-[10px] text-slate-600">Ver tesorería · gestionar · ver gastos</div>
+        </div>
+        <div class="bg-emerald-50/40 border border-emerald-200 rounded-lg p-3">
+          <div class="flex items-center justify-between mb-1">
+            <span class="text-[12px] font-bold text-slate-900 inline-flex items-center gap-1"><i data-lucide="briefcase-business" class="w-3.5 h-3.5"></i>Planilla</span>
+            <span class="text-[10px] text-emerald-700 font-bold">2/2</span>
+          </div>
+          <div class="text-[10px] text-slate-600">Ver · gestionar boletas / adelantos</div>
+        </div>
+        <div class="bg-emerald-50/40 border border-emerald-200 rounded-lg p-3">
+          <div class="flex items-center justify-between mb-1">
+            <span class="text-[12px] font-bold text-slate-900 inline-flex items-center gap-1"><i data-lucide="users" class="w-3.5 h-3.5"></i>Usuarios</span>
+            <span class="text-[10px] text-emerald-700 font-bold">1/1</span>
+          </div>
+          <div class="text-[10px] text-slate-600">Gestionar usuarios + invitaciones</div>
+        </div>
+        <div class="bg-emerald-50/40 border border-emerald-200 rounded-lg p-3">
+          <div class="flex items-center justify-between mb-1">
+            <span class="text-[12px] font-bold text-slate-900 inline-flex items-center gap-1"><i data-lucide="activity" class="w-3.5 h-3.5"></i>Auditoría</span>
+            <span class="text-[10px] text-emerald-700 font-bold">1/1</span>
+          </div>
+          <div class="text-[10px] text-slate-600">Ver log de cambios del sistema</div>
+        </div>
+      </div>
+
+      <div class="text-[10px] text-slate-500 italic">
+        Los permisos se derivan automáticamente de tus roles asignados. Para modificarlos, contactá al admin del sistema.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<!-- ACTO 9 · Tab Actividad · cambio password + sesiones                 -->
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<section id="a9" class="my-12">
+  <div class="max-w-6xl mx-auto">
+    <div class="bg-gradient-to-r from-rose-100 to-rose-50 ring-1 ring-rose-200 rounded-3xl p-5 mb-6">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 bg-rose-600 rounded-2xl flex items-center justify-center text-white font-bold">9</div>
+        <div>
+          <h2 class="text-lg font-bold text-rose-900">Tab Actividad & seguridad · contraseña + sesiones activas</h2>
+          <p class="text-[11px] text-rose-700">Centro de seguridad personal · gestionar accesos · desconectar dispositivos</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="device-desktop bg-white rounded-2xl ring-1 ring-slate-200 overflow-hidden p-6 space-y-5">
+      <!-- Card contraseña -->
+      <div class="bg-white border border-slate-200 rounded-xl p-5">
+        <div class="flex items-center justify-between mb-2">
+          <h3 class="text-[14px] font-bold text-slate-900 inline-flex items-center gap-1.5">
+            <i data-lucide="lock" class="w-4 h-4 text-rose-700"></i>
+            Contraseña
+          </h3>
+          <button class="bg-rose-600 hover:bg-rose-700 text-white text-[11px] font-bold px-3 py-1.5 rounded-lg inline-flex items-center gap-1.5">
+            <i data-lucide="key" class="w-3 h-3"></i>Cambiar contraseña
+          </button>
+        </div>
+        <div class="text-[11px] text-slate-600">Última actualización: <strong>15 marzo 2026</strong> · hace 73 días</div>
+        <div class="text-[10px] text-amber-700 mt-1 inline-flex items-center gap-1">
+          <i data-lucide="alert-triangle" class="w-3 h-3"></i>
+          Recomendado actualizar cada 90 días
+        </div>
+      </div>
+
+      <!-- Card sesiones activas -->
+      <div class="bg-white border border-slate-200 rounded-xl p-5">
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="text-[14px] font-bold text-slate-900 inline-flex items-center gap-1.5">
+            <i data-lucide="monitor" class="w-4 h-4 text-rose-700"></i>
+            Sesiones activas
+            <span class="text-[10px] text-slate-500 font-medium">· 3 dispositivos</span>
+          </h3>
+          <button class="text-[11px] text-rose-600 font-bold hover:bg-rose-50 px-2 py-1 rounded">
+            Desconectar todas
+          </button>
+        </div>
+        <div class="space-y-2">
+          <!-- Sesión actual · este dispositivo -->
+          <div class="bg-emerald-50/40 border border-emerald-200 rounded-lg p-3 flex items-start justify-between gap-3">
+            <div class="flex items-start gap-3">
+              <div class="w-9 h-9 bg-emerald-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                <i data-lucide="monitor" class="w-4 h-4 text-emerald-700"></i>
+              </div>
+              <div>
+                <div class="flex items-center gap-2 flex-wrap">
+                  <span class="text-[12px] font-bold text-slate-900">MacBook Pro · Chrome</span>
+                  <span class="text-[10px] bg-emerald-200 text-emerald-900 font-bold px-1.5 py-0.5 rounded uppercase">ESTE DISPOSITIVO</span>
+                </div>
+                <div class="text-[10px] text-slate-600">IP 200.123.45.67 · Lima, Perú · activa ahora</div>
+              </div>
+            </div>
+            <span class="text-[10px] text-slate-400">—</span>
+          </div>
+          <!-- Sesión móvil -->
+          <div class="bg-white border border-slate-200 rounded-lg p-3 flex items-start justify-between gap-3">
+            <div class="flex items-start gap-3">
+              <div class="w-9 h-9 bg-slate-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                <i data-lucide="smartphone" class="w-4 h-4 text-slate-600"></i>
+              </div>
+              <div>
+                <div class="text-[12px] font-bold text-slate-900">iPhone · Safari</div>
+                <div class="text-[10px] text-slate-600">IP 190.234.56.78 · Lima, Perú · hace 1h</div>
+              </div>
+            </div>
+            <button class="text-[11px] text-rose-600 font-bold hover:bg-rose-50 px-2 py-1 rounded inline-flex items-center gap-1">
+              <i data-lucide="log-out" class="w-3 h-3"></i>Desconectar
+            </button>
+          </div>
+          <!-- Sesión vieja -->
+          <div class="bg-white border border-slate-200 rounded-lg p-3 flex items-start justify-between gap-3">
+            <div class="flex items-start gap-3">
+              <div class="w-9 h-9 bg-slate-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                <i data-lucide="monitor" class="w-4 h-4 text-slate-600"></i>
+              </div>
+              <div>
+                <div class="text-[12px] font-bold text-slate-900">Windows · Firefox</div>
+                <div class="text-[10px] text-slate-600">IP 181.122.33.44 · Lima, Perú · hace 3d</div>
+              </div>
+            </div>
+            <button class="text-[11px] text-rose-600 font-bold hover:bg-rose-50 px-2 py-1 rounded inline-flex items-center gap-1">
+              <i data-lucide="log-out" class="w-3 h-3"></i>Desconectar
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<!-- ACTO 10 · Tab Actividad · timeline de actividad reciente            -->
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<section id="a10" class="my-12">
+  <div class="max-w-6xl mx-auto">
+    <div class="bg-gradient-to-r from-slate-100 to-slate-50 ring-1 ring-slate-200 rounded-3xl p-5 mb-6">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 bg-slate-700 rounded-2xl flex items-center justify-center text-white font-bold">10</div>
+        <div>
+          <h2 class="text-lg font-bold text-slate-900">Tab Actividad · timeline cronológico de mis acciones</h2>
+          <p class="text-[11px] text-slate-700">Audit trail personal · qué hice · cuándo · en qué módulo · filtrable</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="device-desktop bg-white rounded-2xl ring-1 ring-slate-200 overflow-hidden p-6 space-y-4">
+      <!-- Filtros chip -->
+      <div class="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar">
+        <span class="text-[10px] text-slate-500 font-semibold uppercase tracking-wider flex-shrink-0">Módulo:</span>
+        <button class="bg-slate-900 text-white text-[10px] font-bold px-2 py-1 rounded whitespace-nowrap">Todos · 27</button>
+        <button class="bg-white text-slate-700 border border-slate-200 text-[10px] font-bold px-2 py-1 rounded whitespace-nowrap">Ventas · 8</button>
+        <button class="bg-white text-slate-700 border border-slate-200 text-[10px] font-bold px-2 py-1 rounded whitespace-nowrap">Compras · 5</button>
+        <button class="bg-white text-slate-700 border border-slate-200 text-[10px] font-bold px-2 py-1 rounded whitespace-nowrap">Planilla · 4</button>
+        <button class="bg-white text-slate-700 border border-slate-200 text-[10px] font-bold px-2 py-1 rounded whitespace-nowrap">Usuarios · 6</button>
+        <button class="bg-white text-slate-700 border border-slate-200 text-[10px] font-bold px-2 py-1 rounded whitespace-nowrap">Configuración · 4</button>
+      </div>
+
+      <!-- Timeline -->
+      <div class="space-y-0">
+        <div class="flex gap-3 pb-3 border-b border-slate-100">
+          <div class="w-9 h-9 bg-emerald-100 rounded-lg flex items-center justify-center flex-shrink-0">
+            <i data-lucide="check-circle" class="w-4 h-4 text-emerald-700"></i>
+          </div>
+          <div class="flex-1">
+            <div class="text-[12px] font-bold text-slate-900">Aprobaste adelanto ADL-2026-018</div>
+            <div class="text-[11px] text-slate-600">Ana Rodríguez · S/ 500 · "Gastos médicos"</div>
+            <div class="text-[10px] text-slate-400 mt-0.5 inline-flex items-center gap-1"><i data-lucide="clock" class="w-3 h-3"></i>hace 5 min · /planilla</div>
+          </div>
+        </div>
+        <div class="flex gap-3 py-3 border-b border-slate-100">
+          <div class="w-9 h-9 bg-sky-100 rounded-lg flex items-center justify-center flex-shrink-0">
+            <i data-lucide="trending-up" class="w-4 h-4 text-sky-700"></i>
+          </div>
+          <div class="flex-1">
+            <div class="text-[12px] font-bold text-slate-900">Registraste venta V-2026-1234</div>
+            <div class="text-[11px] text-slate-600">Cliente: Constructora ABC · S/ 12,400</div>
+            <div class="text-[10px] text-slate-400 mt-0.5 inline-flex items-center gap-1"><i data-lucide="clock" class="w-3 h-3"></i>hace 23 min · /ventas</div>
+          </div>
+        </div>
+        <div class="flex gap-3 py-3 border-b border-slate-100">
+          <div class="w-9 h-9 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
+            <i data-lucide="user-plus" class="w-4 h-4 text-purple-700"></i>
+          </div>
+          <div class="flex-1">
+            <div class="text-[12px] font-bold text-slate-900">Aprobaste usuario "María García"</div>
+            <div class="text-[11px] text-slate-600">Roles asignados: vendedor</div>
+            <div class="text-[10px] text-slate-400 mt-0.5 inline-flex items-center gap-1"><i data-lucide="clock" class="w-3 h-3"></i>hace 2h · /usuarios</div>
+          </div>
+        </div>
+        <div class="flex gap-3 py-3 border-b border-slate-100">
+          <div class="w-9 h-9 bg-amber-100 rounded-lg flex items-center justify-center flex-shrink-0">
+            <i data-lucide="edit-2" class="w-4 h-4 text-amber-700"></i>
+          </div>
+          <div class="flex-1">
+            <div class="text-[12px] font-bold text-slate-900">Ajustaste salario de Diego López</div>
+            <div class="text-[11px] text-slate-600">S/ 3,800 → S/ 4,000 (+5.3%) · razón: "Ajuste anual"</div>
+            <div class="text-[10px] text-slate-400 mt-0.5 inline-flex items-center gap-1"><i data-lucide="clock" class="w-3 h-3"></i>hace 4h · /usuarios</div>
+          </div>
+        </div>
+        <div class="flex gap-3 py-3 border-b border-slate-100">
+          <div class="w-9 h-9 bg-sky-100 rounded-lg flex items-center justify-center flex-shrink-0">
+            <i data-lucide="file-text" class="w-4 h-4 text-sky-700"></i>
+          </div>
+          <div class="flex-1">
+            <div class="text-[12px] font-bold text-slate-900">Generaste boletas de mayo 2026</div>
+            <div class="text-[11px] text-slate-600">8 boletas creadas · total S/ 32,400</div>
+            <div class="text-[10px] text-slate-400 mt-0.5 inline-flex items-center gap-1"><i data-lucide="clock" class="w-3 h-3"></i>ayer · /planilla</div>
+          </div>
+        </div>
+        <div class="flex gap-3 pt-3">
+          <div class="w-9 h-9 bg-slate-100 rounded-lg flex items-center justify-center flex-shrink-0">
+            <i data-lucide="log-in" class="w-4 h-4 text-slate-600"></i>
+          </div>
+          <div class="flex-1">
+            <div class="text-[12px] font-bold text-slate-900">Inicio de sesión</div>
+            <div class="text-[11px] text-slate-600">Desde MacBook Pro · Chrome · IP 200.123.45.67</div>
+            <div class="text-[10px] text-slate-400 mt-0.5 inline-flex items-center gap-1"><i data-lucide="clock" class="w-3 h-3"></i>hace 8h</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="text-center pt-2">
+        <button class="text-[11px] text-slate-600 font-bold hover:bg-slate-100 px-3 py-1.5 rounded">Cargar más actividad</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<!-- ACTO 11 · Modal cambiar contraseña                                  -->
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<section id="a11" class="my-12">
+  <div class="max-w-6xl mx-auto">
+    <div class="bg-gradient-to-r from-rose-100 to-rose-50 ring-1 ring-rose-200 rounded-3xl p-5 mb-6">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 bg-rose-600 rounded-2xl flex items-center justify-center text-white font-bold">11</div>
+        <div>
+          <h2 class="text-lg font-bold text-rose-900">Modal cambiar contraseña · FormModalV2 red</h2>
+          <p class="text-[11px] text-rose-700">Canon FormModalV2 · validación de fuerza · current + new + confirm</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-slate-900/30 rounded-2xl p-8 flex items-center justify-center min-h-[520px]">
+      <div class="bg-white rounded-2xl ring-1 ring-slate-200 w-full max-w-md overflow-hidden">
+        <div class="px-5 py-4 border-b border-slate-200 flex items-start justify-between">
+          <div class="flex items-center gap-3">
+            <div class="w-9 h-9 bg-rose-100 rounded-xl flex items-center justify-center">
+              <i data-lucide="lock" class="w-4 h-4 text-rose-700"></i>
+            </div>
+            <div>
+              <h3 class="text-[14px] font-bold text-slate-900">Cambiar contraseña</h3>
+              <p class="text-[11px] text-slate-500">Última actualización hace 73 días</p>
+            </div>
+          </div>
+          <button class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
+        </div>
+        <div class="px-5 py-4 space-y-3">
+          <div>
+            <label class="text-[10px] uppercase font-bold text-slate-700 tracking-wider">Contraseña actual *</label>
+            <input type="password" class="mt-1 w-full px-3 py-2 rounded-lg border border-slate-300 text-[12px]" placeholder="••••••••">
+          </div>
+          <div>
+            <label class="text-[10px] uppercase font-bold text-slate-700 tracking-wider">Nueva contraseña *</label>
+            <input type="password" class="mt-1 w-full px-3 py-2 rounded-lg border border-slate-300 text-[12px]" placeholder="Mínimo 8 caracteres">
+            <!-- Fuerza visual -->
+            <div class="flex gap-1 mt-2">
+              <div class="h-1 flex-1 bg-emerald-500 rounded"></div>
+              <div class="h-1 flex-1 bg-emerald-500 rounded"></div>
+              <div class="h-1 flex-1 bg-emerald-500 rounded"></div>
+              <div class="h-1 flex-1 bg-slate-200 rounded"></div>
+            </div>
+            <div class="text-[10px] text-emerald-700 mt-0.5 font-bold">Fuerte · agregá un símbolo para máxima</div>
+          </div>
+          <div>
+            <label class="text-[10px] uppercase font-bold text-slate-700 tracking-wider">Confirmar nueva contraseña *</label>
+            <input type="password" class="mt-1 w-full px-3 py-2 rounded-lg border border-slate-300 text-[12px]" placeholder="Repetir">
+          </div>
+          <div class="bg-amber-50 border border-amber-200 rounded-lg p-2.5 text-[10px] text-amber-900 flex items-start gap-1.5">
+            <i data-lucide="info" class="w-3 h-3 flex-shrink-0 mt-0.5"></i>
+            <span>Al cambiar la contraseña · todas tus sesiones se desconectarán excepto este dispositivo. Deberás iniciar sesión de nuevo en otros dispositivos.</span>
+          </div>
+        </div>
+        <div class="px-5 py-3 border-t border-slate-200 bg-slate-50 flex justify-end gap-2">
+          <button class="px-3 py-1.5 text-[12px] text-slate-600 font-medium">Cancelar</button>
+          <button class="bg-rose-600 text-white text-[12px] font-bold px-4 py-1.5 rounded-lg inline-flex items-center gap-1.5">
+            <i data-lucide="lock" class="w-3.5 h-3.5"></i>Actualizar contraseña
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<!-- ACTO 12 · Modal editar avatar/foto                                  -->
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<section id="a12" class="my-12">
+  <div class="max-w-6xl mx-auto">
+    <div class="bg-gradient-to-r from-purple-100 to-purple-50 ring-1 ring-purple-200 rounded-3xl p-5 mb-6">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 bg-purple-600 rounded-2xl flex items-center justify-center text-white font-bold">12</div>
+        <div>
+          <h2 class="text-lg font-bold text-purple-900">Modal editar avatar · subir foto + crop</h2>
+          <p class="text-[11px] text-purple-700">Upload + preview circular + opciones (subir nueva · usar iniciales · eliminar)</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-slate-900/30 rounded-2xl p-8 flex items-center justify-center min-h-[480px]">
+      <div class="bg-white rounded-2xl ring-1 ring-slate-200 w-full max-w-md overflow-hidden">
+        <div class="px-5 py-4 border-b border-slate-200 flex items-start justify-between">
+          <div class="flex items-center gap-3">
+            <div class="w-9 h-9 bg-purple-100 rounded-xl flex items-center justify-center">
+              <i data-lucide="camera" class="w-4 h-4 text-purple-700"></i>
+            </div>
+            <div>
+              <h3 class="text-[14px] font-bold text-slate-900">Editar foto de perfil</h3>
+              <p class="text-[11px] text-slate-500">JPG · PNG · máx 2MB · 200x200px+</p>
+            </div>
+          </div>
+          <button class="text-slate-400"><i data-lucide="x" class="w-5 h-5"></i></button>
+        </div>
+        <div class="px-5 py-6 text-center">
+          <!-- Preview circular -->
+          <div class="w-32 h-32 mx-auto rounded-full bg-gradient-to-br from-purple-500 to-purple-700 flex items-center justify-center text-white font-bold text-[44px] shadow-md mb-4">JL</div>
+          <p class="text-[11px] text-slate-500 mb-4">Vista previa · cómo se verá en el sistema</p>
+          <!-- Acciones -->
+          <div class="grid grid-cols-3 gap-2">
+            <button class="bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 rounded-lg p-2.5 text-[11px] font-bold flex flex-col items-center gap-1">
+              <i data-lucide="upload" class="w-4 h-4"></i>Subir foto
+            </button>
+            <button class="bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-lg p-2.5 text-[11px] font-bold flex flex-col items-center gap-1">
+              <i data-lucide="type" class="w-4 h-4"></i>Iniciales
+            </button>
+            <button class="bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-lg p-2.5 text-[11px] font-bold flex flex-col items-center gap-1">
+              <i data-lucide="trash-2" class="w-4 h-4"></i>Eliminar
+            </button>
+          </div>
+        </div>
+        <div class="px-5 py-3 border-t border-slate-200 bg-slate-50 flex justify-end gap-2">
+          <button class="px-3 py-1.5 text-[12px] text-slate-600">Cancelar</button>
+          <button class="bg-purple-600 text-white text-[12px] font-bold px-4 py-1.5 rounded-lg">Guardar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<!-- ACTO 13 · Modal desconectar sesión individual                       -->
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<section id="a13" class="my-12">
+  <div class="max-w-6xl mx-auto">
+    <div class="bg-gradient-to-r from-rose-100 to-rose-50 ring-1 ring-rose-200 rounded-3xl p-5 mb-6">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 bg-rose-600 rounded-2xl flex items-center justify-center text-white font-bold">13</div>
+        <div>
+          <h2 class="text-lg font-bold text-rose-900">Modal desconectar sesión individual · confirm + info</h2>
+          <p class="text-[11px] text-rose-700">Modal compacto · información del dispositivo + IP + última actividad + confirm</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-slate-900/30 rounded-2xl p-8 flex items-center justify-center min-h-[380px]">
+      <div class="bg-white rounded-2xl ring-1 ring-slate-200 w-full max-w-md overflow-hidden">
+        <div class="px-5 py-4 border-b border-slate-200 flex items-center gap-3">
+          <div class="w-9 h-9 bg-rose-100 rounded-xl flex items-center justify-center">
+            <i data-lucide="log-out" class="w-4 h-4 text-rose-700"></i>
+          </div>
+          <div>
+            <h3 class="text-[14px] font-bold text-slate-900">Desconectar sesión</h3>
+            <p class="text-[11px] text-slate-500">El dispositivo deberá iniciar sesión nuevamente</p>
+          </div>
+        </div>
+        <div class="px-5 py-4 space-y-3">
+          <div class="bg-slate-50 border border-slate-200 rounded-lg p-3">
+            <div class="flex items-start gap-3">
+              <div class="w-10 h-10 bg-white border border-slate-200 rounded-lg flex items-center justify-center flex-shrink-0">
+                <i data-lucide="smartphone" class="w-5 h-5 text-slate-700"></i>
+              </div>
+              <div class="flex-1">
+                <div class="text-[12px] font-bold text-slate-900">iPhone · Safari</div>
+                <div class="text-[10px] text-slate-600 mt-0.5">IP 190.234.56.78 · Lima, Perú</div>
+                <div class="text-[10px] text-slate-500 mt-0.5">Última actividad: hace 1 hora</div>
+              </div>
+            </div>
+          </div>
+          <div class="bg-rose-50 border border-rose-200 rounded-lg p-2.5 text-[10px] text-rose-900 flex items-start gap-1.5">
+            <i data-lucide="alert-triangle" class="w-3 h-3 flex-shrink-0 mt-0.5"></i>
+            <span>Si no reconocés este dispositivo · es posible que tu cuenta esté comprometida. Considerá cambiar tu contraseña.</span>
+          </div>
+        </div>
+        <div class="px-5 py-3 border-t border-slate-200 bg-slate-50 flex justify-end gap-2">
+          <button class="px-3 py-1.5 text-[12px] text-slate-600">Cancelar</button>
+          <button class="bg-rose-600 text-white text-[12px] font-bold px-4 py-1.5 rounded-lg inline-flex items-center gap-1.5">
+            <i data-lucide="log-out" class="w-3.5 h-3.5"></i>Desconectar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<!-- ACTO 14 · Modal solicitar adelanto (empleado · shortcut)            -->
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<section id="a14" class="my-12">
+  <div class="max-w-6xl mx-auto">
+    <div class="bg-gradient-to-r from-amber-100 to-amber-50 ring-1 ring-amber-200 rounded-3xl p-5 mb-6">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 bg-amber-600 rounded-2xl flex items-center justify-center text-white font-bold">14</div>
+        <div>
+          <h2 class="text-lg font-bold text-amber-900">Modal solicitar adelanto (empleado · shortcut)</h2>
+          <p class="text-[11px] text-amber-700">Pre-llenado con MI userId · evita ir a /planilla · canon amber</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-slate-900/30 rounded-2xl p-8 flex items-center justify-center min-h-[480px]">
+      <div class="bg-white rounded-2xl ring-1 ring-slate-200 w-full max-w-md overflow-hidden">
+        <div class="px-5 py-4 border-b border-slate-200 flex items-center gap-3">
+          <div class="w-9 h-9 bg-amber-100 rounded-xl flex items-center justify-center">
+            <i data-lucide="arrow-down-circle" class="w-4 h-4 text-amber-700"></i>
+          </div>
+          <div>
+            <h3 class="text-[14px] font-bold text-slate-900">Solicitar adelanto</h3>
+            <p class="text-[11px] text-slate-500">Se descontará en tu próxima boleta</p>
+          </div>
+        </div>
+        <div class="px-5 py-4 space-y-3">
+          <!-- Empleado pre-llenado · disabled -->
+          <div>
+            <label class="text-[10px] uppercase font-bold text-slate-700 tracking-wider">Empleado</label>
+            <div class="mt-1 w-full px-3 py-2 rounded-lg border border-slate-200 bg-slate-50 text-[12px] text-slate-700 inline-flex items-center gap-2">
+              <i data-lucide="user" class="w-3.5 h-3.5 text-slate-500"></i>
+              José LP <span class="text-[10px] text-slate-500">(tú)</span>
+            </div>
+          </div>
+          <!-- Tipo radio -->
+          <div>
+            <label class="text-[10px] uppercase font-bold text-slate-700 tracking-wider">Tipo</label>
+            <div class="grid grid-cols-2 gap-1.5 mt-1">
+              <label class="p-2 border-2 border-amber-400 bg-amber-50/40 rounded text-[11px] text-center font-bold text-amber-700 cursor-pointer">
+                Adelanto sueldo
+              </label>
+              <label class="p-2 border border-slate-200 rounded text-[11px] text-center text-slate-600 cursor-pointer">
+                Préstamo
+              </label>
+            </div>
+          </div>
+          <!-- Monto + moneda -->
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="text-[10px] uppercase font-bold text-slate-700 tracking-wider">Monto *</label>
+              <input class="mt-1 w-full px-3 py-2 rounded-lg border border-slate-300 text-[12px] tabular" placeholder="500.00">
+            </div>
+            <div>
+              <label class="text-[10px] uppercase font-bold text-slate-700 tracking-wider">Moneda</label>
+              <select class="mt-1 w-full px-3 py-2 rounded-lg border border-slate-300 text-[12px]">
+                <option>PEN</option><option>USD</option>
+              </select>
+            </div>
+          </div>
+          <!-- Razón -->
+          <div>
+            <label class="text-[10px] uppercase font-bold text-slate-700 tracking-wider">Razón *</label>
+            <textarea rows="2" class="mt-1 w-full px-3 py-2 rounded-lg border border-slate-300 text-[11px] resize-none" placeholder="Gastos médicos · razón laboral..."></textarea>
+          </div>
+          <div class="bg-amber-50 border border-amber-200 rounded-lg p-2.5 text-[10px] text-amber-900 flex items-start gap-1.5">
+            <i data-lucide="info" class="w-3 h-3 flex-shrink-0 mt-0.5"></i>
+            <span>Quedará en estado <strong>pendiente</strong> hasta que admin/gerente lo apruebe. Te avisaremos por email.</span>
+          </div>
+        </div>
+        <div class="px-5 py-3 border-t border-slate-200 bg-slate-50 flex justify-end gap-2">
+          <button class="px-3 py-1.5 text-[12px] text-slate-600">Cancelar</button>
+          <button class="bg-amber-600 text-white text-[12px] font-bold px-4 py-1.5 rounded-lg inline-flex items-center gap-1.5">
+            <i data-lucide="send" class="w-3.5 h-3.5"></i>Enviar solicitud
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<!-- ACTO 15 · Banners contextuales                                      -->
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<section id="a15" class="my-12">
+  <div class="max-w-6xl mx-auto">
+    <div class="bg-gradient-to-r from-amber-100 to-amber-50 ring-1 ring-amber-200 rounded-3xl p-5 mb-6">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 bg-amber-600 rounded-2xl flex items-center justify-center text-white font-bold">15</div>
+        <div>
+          <h2 class="text-lg font-bold text-amber-900">Banners contextuales · catálogo completo</h2>
+          <p class="text-[11px] text-amber-700">4 banners principales · aparecen según contexto del user · canon N4 colores semánticos</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="device-desktop bg-white rounded-2xl ring-1 ring-slate-200 overflow-hidden p-6 space-y-3">
+      <!-- Banner #1 · pendientes accionables · amber -->
+      <div class="bg-gradient-to-r from-amber-50 to-orange-50 ring-1 ring-amber-300 rounded-xl p-4 flex items-start gap-3">
+        <div class="w-9 h-9 bg-amber-100 rounded-xl flex items-center justify-center flex-shrink-0">
+          <i data-lucide="alert-circle" class="w-4 h-4 text-amber-700"></i>
+        </div>
+        <div class="flex-1">
+          <div class="text-[12px] font-bold text-amber-900 mb-0.5">Tienes 3 pendientes accionables</div>
+          <div class="text-[11px] text-amber-800">1 adelanto pendiente · 2 bonos esperando · gratificación próxima</div>
+        </div>
+        <button class="bg-amber-600 hover:bg-amber-700 text-white text-[11px] font-bold px-3 py-1.5 rounded-lg whitespace-nowrap">Ver pendientes →</button>
+      </div>
+
+      <!-- Banner #2 · gratificación próxima · indigo -->
+      <div class="bg-gradient-to-r from-indigo-50 to-purple-50 ring-1 ring-indigo-300 rounded-xl p-4 flex items-start gap-3">
+        <div class="w-9 h-9 bg-indigo-100 rounded-xl flex items-center justify-center flex-shrink-0">
+          <i data-lucide="gift" class="w-4 h-4 text-indigo-700"></i>
+        </div>
+        <div class="flex-1">
+          <div class="text-[12px] font-bold text-indigo-900 mb-0.5">Tu gratificación de julio en 15 días</div>
+          <div class="text-[11px] text-indigo-800">Estimado: <span class="font-bold tabular">S/ 4,500</span> · 180/180 días efectivos en el semestre</div>
+        </div>
+      </div>
+
+      <!-- Banner #3 · password expira · rose -->
+      <div class="bg-gradient-to-r from-rose-50 to-rose-100/40 ring-1 ring-rose-300 rounded-xl p-4 flex items-start gap-3">
+        <div class="w-9 h-9 bg-rose-100 rounded-xl flex items-center justify-center flex-shrink-0">
+          <i data-lucide="key" class="w-4 h-4 text-rose-700"></i>
+        </div>
+        <div class="flex-1">
+          <div class="text-[12px] font-bold text-rose-900 mb-0.5">Tu contraseña expira en 17 días</div>
+          <div class="text-[11px] text-rose-800">Última actualización: hace 73 días · cambiarla cada 90 días por seguridad</div>
+        </div>
+        <button class="bg-rose-600 hover:bg-rose-700 text-white text-[11px] font-bold px-3 py-1.5 rounded-lg whitespace-nowrap">Cambiar ahora →</button>
+      </div>
+
+      <!-- Banner #4 · sesión actual · sky -->
+      <div class="bg-gradient-to-r from-sky-50 to-cyan-50 ring-1 ring-sky-200 rounded-xl p-4 flex items-start gap-3">
+        <div class="w-9 h-9 bg-sky-100 rounded-xl flex items-center justify-center flex-shrink-0">
+          <i data-lucide="info" class="w-4 h-4 text-sky-700"></i>
+        </div>
+        <div class="flex-1">
+          <div class="text-[12px] font-bold text-sky-900 mb-0.5">Estás conectado desde MacBook Pro · Chrome</div>
+          <div class="text-[11px] text-sky-800">IP 200.123.45.67 · Lima, Perú · Si no reconocés esta sesión · cambiá la contraseña</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<!-- ACTO 16 · Empty / loading / error states                            -->
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<section id="a16" class="my-12">
+  <div class="max-w-6xl mx-auto">
+    <div class="bg-gradient-to-r from-slate-100 to-slate-50 ring-1 ring-slate-200 rounded-3xl p-5 mb-6">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 bg-slate-700 rounded-2xl flex items-center justify-center text-white font-bold">16</div>
+        <div>
+          <h2 class="text-lg font-bold text-slate-900">Empty / loading / error states · canon</h2>
+          <p class="text-[11px] text-slate-700">Cobertura total · empty/loading/error con CTAs accionables · canon N8/N9</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <!-- Empty · sin pendientes -->
+      <div class="bg-white rounded-2xl ring-1 ring-slate-200 p-5 text-center">
+        <div class="w-12 h-12 mx-auto bg-emerald-100 rounded-xl flex items-center justify-center mb-3">
+          <i data-lucide="check-circle" class="w-6 h-6 text-emerald-700"></i>
+        </div>
+        <div class="text-[12px] font-bold text-slate-900 mb-1">Todo al día</div>
+        <p class="text-[11px] text-slate-500 mb-3">No tenés pendientes accionables. Operación impecable este mes.</p>
+        <span class="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded font-bold uppercase">EMPTY STATE</span>
+      </div>
+      <!-- Loading · skeleton del tab -->
+      <div class="bg-white rounded-2xl ring-1 ring-slate-200 p-5">
+        <div class="space-y-3 mb-3">
+          <div class="h-6 bg-slate-200 rounded animate-pulse"></div>
+          <div class="grid grid-cols-2 gap-2">
+            <div class="h-16 bg-slate-200 rounded-2xl animate-pulse"></div>
+            <div class="h-16 bg-slate-200 rounded-2xl animate-pulse"></div>
+          </div>
+          <div class="h-12 bg-slate-200 rounded animate-pulse"></div>
+        </div>
+        <div class="text-center text-[10px] bg-sky-100 text-sky-700 px-2 py-0.5 rounded font-bold uppercase inline-block">LOADING STATE</div>
+      </div>
+      <!-- Error con retry -->
+      <div class="bg-white rounded-2xl ring-1 ring-rose-200 p-5 text-center">
+        <div class="w-12 h-12 mx-auto bg-rose-100 rounded-xl flex items-center justify-center mb-3">
+          <i data-lucide="alert-triangle" class="w-6 h-6 text-rose-700"></i>
+        </div>
+        <div class="text-[12px] font-bold text-slate-900 mb-1">Error cargando tu perfil</div>
+        <p class="text-[11px] text-slate-500 mb-3">No pudimos cargar tu información. Intentalo otra vez.</p>
+        <button class="bg-rose-600 hover:bg-rose-700 text-white text-[11px] font-bold px-3 py-1.5 rounded-lg inline-flex items-center gap-1 mb-2">
+          <i data-lucide="refresh-cw" class="w-3 h-3"></i>Reintentar
+        </button>
+        <div><span class="text-[10px] bg-rose-100 text-rose-700 px-2 py-0.5 rounded font-bold uppercase">ERROR STATE</span></div>
+      </div>
+    </div>
+
+    <!-- Empty contextual: empleado sin boletas -->
+    <div class="bg-white rounded-2xl ring-1 ring-slate-200 p-6 mt-4 text-center">
+      <div class="max-w-md mx-auto">
+        <div class="w-14 h-14 mx-auto bg-sky-100 rounded-2xl flex items-center justify-center mb-3">
+          <i data-lucide="file-text" class="w-7 h-7 text-sky-700"></i>
+        </div>
+        <div class="text-[14px] font-bold text-slate-900 mb-1">Aún no tenés boletas históricas</div>
+        <p class="text-[12px] text-slate-600 mb-4">Cuando se genere la primera boleta de tu período actual, la verás listada acá con su detalle de comisiones · bonos · descuentos · neto.</p>
+        <div class="grid grid-cols-2 gap-2 max-w-xs mx-auto">
+          <button class="bg-white border border-sky-300 text-sky-700 text-[11px] font-bold px-3 py-1.5 rounded-lg inline-flex items-center justify-center gap-1">
+            <i data-lucide="briefcase-business" class="w-3 h-3"></i>Ir a planilla
+          </button>
+          <button class="bg-sky-600 text-white text-[11px] font-bold px-3 py-1.5 rounded-lg inline-flex items-center justify-center gap-1">
+            <i data-lucide="arrow-down-circle" class="w-3 h-3"></i>Solicitar adelanto
+          </button>
+        </div>
+        <div class="mt-3 text-[10px] bg-amber-100 text-amber-700 px-2 py-0.5 rounded font-bold uppercase inline-block">EMPTY · CONTEXTUAL EMPLEADO</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<!-- FOOTER · CHECKLIST CANON                                            -->
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<section class="my-16">
+  <div class="max-w-6xl mx-auto bg-white rounded-2xl ring-1 ring-slate-200 p-6">
+    <h2 class="text-[16px] font-bold text-slate-900 mb-4 inline-flex items-center gap-2">
+      <i data-lucide="check-circle-2" class="w-5 h-5 text-purple-600"></i>
+      Cobertura canon · checklist
+    </h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-[12px]">
+      <div class="space-y-1.5">
+        <div class="inline-flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i>16 ACTOS cobertura total</div>
+        <div class="inline-flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i>Breadcrumb canon S9.D1 (Inicio › Mi perfil)</div>
+        <div class="inline-flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i>Header avatar XL adaptado (vs icon chip ejecutivo)</div>
+        <div class="inline-flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i>3 tabs canon (Resumen · Mi información · Actividad)</div>
+        <div class="inline-flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i>3 variantes Resumen por rol (empleado · admin · socio)</div>
+        <div class="inline-flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i>Sub-perfiles dinámicos por rol (planilla · socio)</div>
+        <div class="inline-flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i>HistorialSalarialTimeline integrado (empleado)</div>
+        <div class="inline-flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i>Permisos efectivos breakdown</div>
+      </div>
+      <div class="space-y-1.5">
+        <div class="inline-flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i>4 modales canon FormModalV2 (pwd · avatar · desconectar · adelanto)</div>
+        <div class="inline-flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i>4 banners contextuales (pendientes · gratif · pwd · sesión)</div>
+        <div class="inline-flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i>Inputs editables inline canon Notion/Linear</div>
+        <div class="inline-flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i>Multi-rol badges con descripción</div>
+        <div class="inline-flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i>Cross-links 360° (→ /planilla · → /inversionistas)</div>
+        <div class="inline-flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i>Cards canon N2 (gradient + ring)</div>
+        <div class="inline-flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i>Empty + Loading + Error states</div>
+        <div class="inline-flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i>Tabular-nums en montos · Lucide icons únicos</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>lucide.createIcons();</script>
+</body>
+</html>
