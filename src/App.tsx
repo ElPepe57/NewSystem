@@ -72,6 +72,11 @@ const EditarSocio = React.lazy(() => import('./pages/Usuarios/EditarSocio'));
 const ProductosIntel = React.lazy(() => import('./pages/ProductosIntel/ProductosIntel').then(m => ({ default: m.ProductosIntel })));
 const IntelProductosPage = React.lazy(() => import('./pages/IntelProductos').then(m => ({ default: m.IntelProductosPage })));
 const MiPerfil = React.lazy(() => import('./pages/Perfil/MiPerfil').then(m => ({ default: m.MiPerfil })));
+// F10.F.1.J-SIDEBAR · sub-páginas dedicadas /perfil/mi-{seccion} · canon Opción C drill-down
+const MiPlanillaPersonal = React.lazy(() => import('./pages/Perfil/sub/MiPlanillaPersonal').then(m => ({ default: m.MiPlanillaPersonal })));
+const MiCapitalPersonal = React.lazy(() => import('./pages/Perfil/sub/MiCapitalPersonal').then(m => ({ default: m.MiCapitalPersonal })));
+const MiHistorialPersonal = React.lazy(() => import('./pages/Perfil/sub/MiHistorialPersonal').then(m => ({ default: m.MiHistorialPersonal })));
+const MiBandejaPersonal = React.lazy(() => import('./pages/Perfil/sub/MiBandejaPersonal').then(m => ({ default: m.MiBandejaPersonal })));
 const Escaner = React.lazy(() => import('./pages/Escaner/Escaner').then(m => ({ default: m.Escaner })));
 const MercadoLibre = React.lazy(() => import('./pages/MercadoLibre/MercadoLibre').then(m => ({ default: m.MercadoLibre })));
 const NotasIA = React.lazy(() => import('./pages/NotasIA/NotasIA').then(m => ({ default: m.NotasIA })));
@@ -259,6 +264,11 @@ function App() {
 
               {/* Perfil */}
               <Route path="perfil" element={<MiPerfil />} />
+              {/* F10.F.1.J-SIDEBAR · sub-páginas dedicadas /perfil/mi-{seccion} · vista personal del user logueado */}
+              <Route path="perfil/mi-planilla" element={<MiPlanillaPersonal />} />
+              <Route path="perfil/mi-capital" element={<MiCapitalPersonal />} />
+              <Route path="perfil/mi-historial" element={<MiHistorialPersonal />} />
+              <Route path="perfil/mi-bandeja" element={<MiBandejaPersonal />} />
 
               {/* Utilidades */}
             </Route>
