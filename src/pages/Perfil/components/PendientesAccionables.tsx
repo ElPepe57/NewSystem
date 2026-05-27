@@ -1,22 +1,33 @@
 /**
- * PendientesAccionables · F10.F.1.C · 2026-05-27
+ * PendientesAccionables · F10.F.1.I-FIX · 2026-05-27
  *
- * Card amber con pendientes accionables del usuario contextual al rol.
- * Aparece al tope del tab Resumen (cuando hay >=1 pendiente).
+ * PIXEL-PERFECT REWRITE · canon v9.0 M1 · copy-paste literal del mockup
+ * perfil-v5.4-personalizado.html ACTO 2 (líneas 226-254).
  *
- * Tipos de pendiente:
- *  - password_expirado     · todos los roles
- *  - boleta_sin_firmar     · solo empleados con datosLaborales
- *  - vacaciones_pendientes · solo empleados con datosLaborales
- *  - adelanto_aprobar      · solo admin con permisos GESTIONAR_PLANILLA
- *  - bono_sin_aprobar      · solo admin
- *  - datos_socio_incompleto · solo socios sin datosSocio configurado
+ * Patrón canon mockup:
+ *   - h3 text-[13px] font-bold text-slate-900 mb-2 con icon list-checks amber-700
+ *   - cada pendiente: bg-{tinte}-50 border border-{tinte}-200 rounded-lg p-3
+ *   - flex items-center justify-between
+ *   - flex items-center gap-2 (icon + texto)
+ *   - texto: text-[12px] font-semibold + text-[10px] descripción
+ *   - chip estado: text-[10px] bg-{tinte}-200 text-{tinte}-900 px-2 py-0.5 rounded-full font-bold uppercase
  *
- * Canon v8.0 N1 · color semántico amber (urgencia · pendiente)
- * Canon v8.0 N9 · empty state quick-start (cuando NO hay pendientes)
+ * Tintes por tipo (canon N4 cross-módulo):
+ *   - amber  · adelantos pendientes · urgencia financiera
+ *   - violet · bonos calculados pendiente aprobación
+ *   - rose   · password expirado · datos críticos faltantes
+ *   - sky    · boletas borrador (operacional)
  */
 import React from 'react';
-import { AlertTriangle, FileText, Calendar, DollarSign, Sparkles, Coins, ChevronRight, CheckCircle2 } from 'lucide-react';
+import {
+  ListChecks,
+  ArrowDownCircle,
+  Trophy,
+  AlertTriangle,
+  FileText,
+  Calendar,
+  Coins,
+} from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
 export interface PendienteItem {
@@ -27,96 +38,110 @@ export interface PendienteItem {
     | 'vacaciones_pendientes'
     | 'adelanto_aprobar'
     | 'bono_sin_aprobar'
-    | 'datos_socio_incompleto';
+    | 'datos_socio_incompleto'
+    | 'adelanto_solicitado'
+    | 'comision_calculada';
   titulo: string;
   descripcion: string;
-  /** Texto del CTA · ej: "Cambiar password" · "Ver boleta" */
-  ctaLabel: string;
-  /** Acción al click del CTA · puede ser navegar o abrir modal */
-  onAction: () => void;
-  /** Severidad · controla el color del icon · default 'media' */
-  severidad?: 'alta' | 'media' | 'baja';
+  /** Texto del chip top-right · ej: "PENDIENTE" · "CALCULADO" · uppercase */
+  chipLabel: string;
+  /** Tinte semántico · controla bg/border/chip color */
+  tinte: 'amber' | 'violet' | 'rose' | 'sky';
+  /** Acción al click del card */
+  onAction?: () => void;
 }
 
 interface Props {
   pendientes: PendienteItem[];
-  /** Si true, muestra empty state celebrating (default false · solo se renderiza si hay pendientes) */
-  mostrarEmptyState?: boolean;
 }
 
 const ICON_POR_TIPO: Record<PendienteItem['tipo'], LucideIcon> = {
   password_expirado: AlertTriangle,
   boleta_sin_firmar: FileText,
   vacaciones_pendientes: Calendar,
-  adelanto_aprobar: DollarSign,
-  bono_sin_aprobar: Sparkles,
+  adelanto_aprobar: ArrowDownCircle,
+  bono_sin_aprobar: Trophy,
   datos_socio_incompleto: Coins,
+  adelanto_solicitado: ArrowDownCircle,
+  comision_calculada: Trophy,
 };
 
-const SEVERIDAD_COLOR: Record<NonNullable<PendienteItem['severidad']>, string> = {
-  alta: 'bg-rose-100 text-rose-700 ring-1 ring-rose-200',
-  media: 'bg-amber-100 text-amber-700 ring-1 ring-amber-200',
-  baja: 'bg-sky-100 text-sky-700 ring-1 ring-sky-200',
+const TINTE_CLASSES: Record<
+  PendienteItem['tinte'],
+  { bg: string; border: string; icon: string; titulo: string; desc: string; chip: string }
+> = {
+  amber: {
+    bg: 'bg-amber-50',
+    border: 'border-amber-200',
+    icon: 'text-amber-700',
+    titulo: 'text-amber-900',
+    desc: 'text-amber-700',
+    chip: 'bg-amber-200 text-amber-900',
+  },
+  violet: {
+    bg: 'bg-violet-50',
+    border: 'border-violet-200',
+    icon: 'text-violet-700',
+    titulo: 'text-violet-900',
+    desc: 'text-violet-700',
+    chip: 'bg-violet-200 text-violet-900',
+  },
+  rose: {
+    bg: 'bg-rose-50',
+    border: 'border-rose-200',
+    icon: 'text-rose-700',
+    titulo: 'text-rose-900',
+    desc: 'text-rose-700',
+    chip: 'bg-rose-200 text-rose-900',
+  },
+  sky: {
+    bg: 'bg-sky-50',
+    border: 'border-sky-200',
+    icon: 'text-sky-700',
+    titulo: 'text-sky-900',
+    desc: 'text-sky-700',
+    chip: 'bg-sky-200 text-sky-900',
+  },
 };
 
-export const PendientesAccionables: React.FC<Props> = ({ pendientes, mostrarEmptyState = false }) => {
-  // Empty state celebratorio · solo si se pidió explicitamente
-  if (pendientes.length === 0) {
-    if (!mostrarEmptyState) return null;
-    return (
-      <div className="bg-gradient-to-br from-emerald-50 to-emerald-100/40 ring-1 ring-emerald-200/50 rounded-2xl p-4">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center flex-shrink-0">
-            <CheckCircle2 className="w-5 h-5 text-emerald-700" />
-          </div>
-          <div className="min-w-0 flex-1">
-            <div className="text-[11px] uppercase tracking-wider text-emerald-700 font-bold">Pendientes</div>
-            <div className="text-[14px] text-emerald-900 font-semibold leading-tight">
-              Todo al día · sin pendientes accionables
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
+export const PendientesAccionables: React.FC<Props> = ({ pendientes }) => {
+  if (pendientes.length === 0) return null;
 
   return (
-    <div className="bg-gradient-to-br from-amber-50 to-amber-100/40 ring-1 ring-amber-200/50 rounded-2xl overflow-hidden">
-      {/* Header card */}
-      <div className="px-4 py-3 border-b border-amber-200/60 flex items-center gap-2">
-        <AlertTriangle className="w-4 h-4 text-amber-700 flex-shrink-0" />
-        <span className="text-[11px] uppercase tracking-wider text-amber-700 font-bold">
-          Pendientes accionables
-        </span>
-        <span className="ml-auto inline-flex items-center justify-center min-w-5 h-5 px-1.5 rounded-full bg-amber-200 text-amber-800 text-[10px] font-bold tabular-nums">
-          {pendientes.length}
-        </span>
-      </div>
-
-      {/* Lista de pendientes · stack 1-col mobile · 2-col desktop */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-px bg-amber-200/60">
+    // Canon mockup ACTO 2 · líneas 226-254 · copy-paste literal
+    <div>
+      <h3 className="text-[13px] font-bold text-slate-900 mb-2 inline-flex items-center gap-1.5">
+        <ListChecks className="w-4 h-4 text-amber-700" />
+        Mis pendientes accionables
+      </h3>
+      <div className="space-y-2">
         {pendientes.map((p) => {
           const Icon = ICON_POR_TIPO[p.tipo];
-          const severidad = p.severidad ?? 'media';
+          const c = TINTE_CLASSES[p.tinte];
+          const isClickable = !!p.onAction;
+          const Cmp: any = isClickable ? 'button' : 'div';
           return (
-            <button
+            <Cmp
               key={p.id}
-              type="button"
+              type={isClickable ? 'button' : undefined}
               onClick={p.onAction}
-              className="bg-white hover:bg-amber-50/50 transition-colors text-left p-3 sm:p-4 flex items-start gap-3 group min-h-[64px]"
+              className={`${c.bg} ${c.border} border rounded-lg p-3 flex items-center justify-between w-full text-left ${
+                isClickable ? 'hover:opacity-90 transition-opacity cursor-pointer' : ''
+              }`}
             >
-              <div className={`w-9 h-9 rounded-lg ${SEVERIDAD_COLOR[severidad]} flex items-center justify-center flex-shrink-0`}>
-                <Icon className="w-4 h-4" />
-              </div>
-              <div className="min-w-0 flex-1">
-                <div className="text-[13px] font-semibold text-slate-900 leading-tight">{p.titulo}</div>
-                <div className="text-[12px] text-slate-500 mt-0.5 leading-snug">{p.descripcion}</div>
-                <div className="mt-2 inline-flex items-center gap-1 text-[11px] font-semibold text-amber-700 group-hover:text-amber-800">
-                  {p.ctaLabel}
-                  <ChevronRight className="w-3 h-3 transition-transform group-hover:translate-x-0.5" />
+              <div className="flex items-center gap-2">
+                <Icon className={`w-4 h-4 ${c.icon} flex-shrink-0`} />
+                <div className="min-w-0">
+                  <div className={`text-[12px] font-semibold ${c.titulo}`}>{p.titulo}</div>
+                  <div className={`text-[10px] ${c.desc}`}>{p.descripcion}</div>
                 </div>
               </div>
-            </button>
+              <span
+                className={`text-[10px] ${c.chip} px-2 py-0.5 rounded-full font-bold uppercase flex-shrink-0`}
+              >
+                {p.chipLabel}
+              </span>
+            </Cmp>
           );
         })}
       </div>

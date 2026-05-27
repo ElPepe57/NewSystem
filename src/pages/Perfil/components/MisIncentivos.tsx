@@ -1,191 +1,164 @@
 /**
- * MisIncentivos · F10.F.1.F · 2026-05-27
+ * MisIncentivos · F10.F.1.I-FIX · 2026-05-27
  *
- * Card emerald con resumen de bonos/incentivos del mes para el empleado.
- * Muestra:
- *   - Bono del mes en curso (calculado / aprobado / pagado)
- *   - Histórico últimos 3 meses (tabla mini)
- *   - Cross-link a /planilla?tab=incentivos
+ * PIXEL-PERFECT REWRITE · canon v9.0 M1 · copy-paste literal del mockup
+ * perfil-v5.4-personalizado.html ACTO 6 (líneas 810-828).
  *
- * Canon v8.0 N1 · color semántico emerald (success · ganancia)
- * Solo aparece si el user tiene calculos en historial.
+ * El mockup lo llama "Mis esquemas de incentivo aplicables".
+ * Patrón canon:
+ *   - bg-white border border-slate-200 rounded-xl p-5
+ *   - h3 text-[14px] font-bold con icon trophy text-violet-700
+ *   - cards internos: bg-violet-50/40 border border-violet-200 rounded-lg p-3 flex
+ *   - icon container w-8 h-8 bg-emerald-100 rounded-lg
+ *   - text-[12px] font-bold título · text-[11px] text-slate-600 descripción
+ *   - text-[10px] text-emerald-700 "Acumulado mayo: <font-bold tabular>"
+ *   - chip text-[9px] bg-emerald-100 ACTIVO uppercase
  */
 import React from 'react';
-import { Sparkles, TrendingUp, ExternalLink, Trophy } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import { formatCurrencyPEN } from '../../../utils/format';
+import { Trophy, DollarSign, Target, Award, Gift } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import type { CalculoIncentivoMes } from '../../../types/planilla.types';
 
 interface Props {
   calculos: CalculoIncentivoMes[];
   loading?: boolean;
+  /** Esquemas aplicables del empleado · si NO se pasa, derivado de los calculos */
+  esquemasAplicables?: Array<{
+    id: string;
+    nombre: string;
+    tipo: 'comision' | 'bono_meta' | 'bono_kpi' | 'bono_fijo';
+    descripcion: string;
+    activo: boolean;
+  }>;
 }
 
-const MES_LABEL = ['', 'Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
-
-const ESTADO_COLOR: Record<CalculoIncentivoMes['estado'], { bg: string; text: string; label: string }> = {
-  calculado: { bg: 'bg-amber-100', text: 'text-amber-700', label: 'Por aprobar' },
-  aprobado: { bg: 'bg-sky-100', text: 'text-sky-700', label: 'Aprobado' },
-  rechazado: { bg: 'bg-rose-100', text: 'text-rose-700', label: 'Rechazado' },
-  incluido_en_boleta: { bg: 'bg-emerald-100', text: 'text-emerald-700', label: 'En boleta' },
+const TIPO_ICON: Record<string, LucideIcon> = {
+  comision: DollarSign,
+  bono_meta: Target,
+  bono_kpi: Award,
+  bono_fijo: Gift,
 };
 
-export const MisIncentivos: React.FC<Props> = ({ calculos, loading = false }) => {
-  const navigate = useNavigate();
+const TIPO_ICON_BG: Record<string, string> = {
+  comision: 'bg-emerald-100',
+  bono_meta: 'bg-sky-100',
+  bono_kpi: 'bg-violet-100',
+  bono_fijo: 'bg-amber-100',
+};
 
-  if (loading) {
-    return (
-      <div className="bg-gradient-to-br from-emerald-50 to-emerald-100/40 ring-1 ring-emerald-200/50 rounded-2xl p-5 text-center">
-        <Sparkles className="w-6 h-6 mx-auto mb-2 text-emerald-300 animate-pulse" />
-        <div className="text-[12px] text-slate-500">Cargando incentivos...</div>
-      </div>
-    );
-  }
+const TIPO_ICON_COLOR: Record<string, string> = {
+  comision: 'text-emerald-700',
+  bono_meta: 'text-sky-700',
+  bono_kpi: 'text-violet-700',
+  bono_fijo: 'text-amber-700',
+};
 
-  if (calculos.length === 0) {
-    // Empty state pedagógico · NO ocultar la card · canon N8
-    return (
-      <div className="bg-gradient-to-br from-emerald-50 to-emerald-100/40 ring-1 ring-emerald-200/50 rounded-2xl p-5">
-        <div className="flex items-start gap-3">
-          <div className="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center flex-shrink-0">
-            <Sparkles className="w-5 h-5 text-emerald-700" />
-          </div>
-          <div className="min-w-0 flex-1">
-            <div className="text-[11px] uppercase tracking-wider text-emerald-700 font-bold">Mis incentivos</div>
-            <div className="text-[14px] font-semibold text-emerald-900 leading-tight">Aún sin bonos calculados</div>
-            <div className="text-[11px] text-slate-600 mt-1">
-              Cuando tu esquema de incentivos genere el primer cálculo, aparecerá aquí.
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
+const MES_LABEL = ['', 'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
 
-  // Cálculo del mes en curso · si existe
+const fmtTabular = (n: number): string =>
+  n.toLocaleString('es-PE', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+
+export const MisIncentivos: React.FC<Props> = ({ calculos, loading = false, esquemasAplicables }) => {
+  // Derivar esquemas únicos desde los calculos · si no se pasaron esquemasAplicables
+  const esquemas = esquemasAplicables ?? (() => {
+    const map = new Map<string, { id: string; nombre: string; tipo: any; descripcion: string; activo: boolean }>();
+    for (const c of calculos) {
+      if (!map.has(c.esquemaId)) {
+        map.set(c.esquemaId, {
+          id: c.esquemaId,
+          nombre: c.esquemaNombre,
+          tipo: c.esquemaTipo,
+          descripcion: c.metricaCalculada.detalle?.descripcion || '',
+          activo: true,
+        });
+      }
+    }
+    return Array.from(map.values());
+  })();
+
+  // Acumulado del mes actual por esquema
   const ahora = new Date();
   const mesActual = ahora.getMonth() + 1;
   const anioActual = ahora.getFullYear();
-  const calculoMesActual = calculos.find((c) => c.mes === mesActual && c.anio === anioActual);
+  const acumuladoPorEsquema = new Map<string, number>();
+  for (const c of calculos) {
+    if (c.mes === mesActual && c.anio === anioActual) {
+      acumuladoPorEsquema.set(c.esquemaId, (acumuladoPorEsquema.get(c.esquemaId) || 0) + c.bonoCalculado);
+    }
+  }
+  const mesActualLabel = MES_LABEL[mesActual];
 
-  // Histórico · ordenado desc · excluyendo el mes actual
-  const historico = calculos
-    .filter((c) => !(c.mes === mesActual && c.anio === anioActual))
-    .slice(0, 3);
-
-  // Total proyectado · suma del último mes con histórico de 3m
-  const totalUltimos3m = historico.reduce((sum, c) => sum + c.bonoCalculado, 0);
-
-  return (
-    <div className="bg-gradient-to-br from-emerald-50 to-emerald-100/40 ring-1 ring-emerald-200/50 rounded-2xl overflow-hidden">
-      {/* Header card */}
-      <div className="px-4 py-3 border-b border-emerald-200/60 flex items-center gap-2">
-        <Sparkles className="w-4 h-4 text-emerald-700 flex-shrink-0" />
-        <span className="text-[11px] uppercase tracking-wider text-emerald-700 font-bold">
-          Mis incentivos
-        </span>
-        <button
-          type="button"
-          onClick={() => navigate('/planilla?tab=incentivos')}
-          className="ml-auto text-[11px] font-semibold text-emerald-700 hover:text-emerald-800 inline-flex items-center gap-1"
-        >
-          Ver detalle
-          <ExternalLink className="w-3 h-3" />
-        </button>
+  if (loading) {
+    return (
+      <div className="bg-white border border-slate-200 rounded-xl p-5">
+        <div className="text-center text-slate-400 text-[11px] py-3">Cargando incentivos...</div>
       </div>
+    );
+  }
 
-      {/* Mes actual · destacado */}
-      <div className="bg-white p-4 sm:p-5">
-        {calculoMesActual ? (
-          <>
-            <div className="flex items-end justify-between gap-3 flex-wrap">
-              <div className="min-w-0">
-                <div className="text-[10px] uppercase tracking-wider text-emerald-700 font-bold">
-                  Bono · {MES_LABEL[mesActual]} {anioActual}
-                </div>
-                <div className="text-[28px] sm:text-[32px] font-bold tabular-nums text-emerald-900 leading-none mt-1">
-                  {formatCurrencyPEN(calculoMesActual.bonoCalculado)}
-                </div>
-                <div className="text-[11px] text-slate-500 mt-1">
-                  {calculoMesActual.esquemaNombre} ·{' '}
-                  {calculoMesActual.metricaCalculada.unidad === 'S/'
-                    ? formatCurrencyPEN(calculoMesActual.metricaCalculada.valorMedido)
-                    : `${calculoMesActual.metricaCalculada.valorMedido} ${calculoMesActual.metricaCalculada.unidad}`}
-                </div>
-              </div>
-              <span
-                className={`inline-flex items-center text-[10px] px-2 py-1 rounded font-bold ${
-                  ESTADO_COLOR[calculoMesActual.estado].bg
-                } ${ESTADO_COLOR[calculoMesActual.estado].text}`}
-              >
-                {ESTADO_COLOR[calculoMesActual.estado].label}
-              </span>
-            </div>
-
-            {/* Barra cumplimiento · si hay objetivo */}
-            {typeof calculoMesActual.metricaCalculada.cumplePct === 'number' && (
-              <div className="mt-3">
-                <div className="flex items-center justify-between text-[10px] text-slate-500 mb-1">
-                  <span>Cumplimiento</span>
-                  <span className="tabular-nums font-bold text-emerald-700">
-                    {calculoMesActual.metricaCalculada.cumplePct.toFixed(0)}%
-                  </span>
-                </div>
-                <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-emerald-500 rounded-full transition-all"
-                    style={{
-                      width: `${Math.min(100, calculoMesActual.metricaCalculada.cumplePct)}%`,
-                    }}
-                  />
-                </div>
-              </div>
-            )}
-          </>
-        ) : (
-          <div className="flex items-center gap-3">
-            <Trophy className="w-8 h-8 text-emerald-300 flex-shrink-0" />
-            <div className="min-w-0">
-              <div className="text-[13px] font-semibold text-slate-700">
-                Sin cálculo aún para {MES_LABEL[mesActual]} {anioActual}
-              </div>
-              <div className="text-[11px] text-slate-500">
-                El cálculo se ejecuta automáticamente el día 1 del mes siguiente.
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Histórico mini · 3 últimos meses */}
-      {historico.length > 0 && (
-        <div className="bg-slate-50/60 border-t border-emerald-200/60 px-4 py-3">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-[10px] uppercase tracking-wider text-slate-500 font-bold">
-              Histórico 3 meses
-            </span>
-            <span className="text-[11px] tabular-nums font-bold text-slate-700 flex items-center gap-1">
-              <TrendingUp className="w-3 h-3 text-emerald-600" />
-              {formatCurrencyPEN(totalUltimos3m)}
-            </span>
-          </div>
-          <div className="grid grid-cols-3 gap-2">
-            {historico.map((c) => (
-              <div
-                key={c.id}
-                className="bg-white border border-slate-100 rounded-lg p-2 text-center"
-              >
-                <div className="text-[9px] uppercase tracking-wider text-slate-400 font-bold">
-                  {MES_LABEL[c.mes]} {String(c.anio).slice(-2)}
-                </div>
-                <div className="text-[13px] font-bold text-slate-900 tabular-nums mt-0.5">
-                  {formatCurrencyPEN(c.bonoCalculado)}
-                </div>
-              </div>
-            ))}
+  if (esquemas.length === 0) {
+    // Empty state canon · NO ocultar la card
+    return (
+      <div className="bg-white border border-slate-200 rounded-xl p-5">
+        <h3 className="text-[14px] font-bold text-slate-900 mb-3 inline-flex items-center gap-1.5">
+          <Trophy className="w-4 h-4 text-violet-700" />
+          Mis esquemas de incentivo aplicables
+        </h3>
+        <div className="text-center py-3">
+          <Trophy className="w-7 h-7 mx-auto mb-1.5 text-slate-300" />
+          <div className="text-[12px] font-semibold text-slate-700">Sin esquemas activos</div>
+          <div className="text-[10px] text-slate-500 mt-0.5">
+            Cuando RRHH te asigne un esquema · aparecerá aquí.
           </div>
         </div>
-      )}
+      </div>
+    );
+  }
+
+  return (
+    // Canon mockup ACTO 6 · líneas 810-828 · copy-paste literal
+    <div className="bg-white border border-slate-200 rounded-xl p-5">
+      <h3 className="text-[14px] font-bold text-slate-900 mb-3 inline-flex items-center gap-1.5">
+        <Trophy className="w-4 h-4 text-violet-700" />
+        Mis esquemas de incentivo aplicables
+      </h3>
+      <div className="space-y-2">
+        {esquemas.map((esq) => {
+          const Icon = TIPO_ICON[esq.tipo] || DollarSign;
+          const bgIcon = TIPO_ICON_BG[esq.tipo] || 'bg-emerald-100';
+          const colorIcon = TIPO_ICON_COLOR[esq.tipo] || 'text-emerald-700';
+          const acumulado = acumuladoPorEsquema.get(esq.id) || 0;
+          return (
+            <div
+              key={esq.id}
+              className="bg-violet-50/40 border border-violet-200 rounded-lg p-3 flex items-center gap-3"
+            >
+              <div className={`w-8 h-8 ${bgIcon} rounded-lg flex items-center justify-center flex-shrink-0`}>
+                <Icon className={`w-4 h-4 ${colorIcon}`} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="text-[12px] font-bold text-slate-900">{esq.nombre}</div>
+                {esq.descripcion && (
+                  <div className="text-[11px] text-slate-600 truncate">{esq.descripcion}</div>
+                )}
+                {acumulado > 0 && (
+                  <div className="text-[10px] text-emerald-700 mt-0.5">
+                    Acumulado {mesActualLabel}:{' '}
+                    <span className="font-bold tabular-nums">S/ {fmtTabular(acumulado)}</span>
+                  </div>
+                )}
+              </div>
+              <span
+                className={`text-[9px] font-bold px-1.5 py-0.5 rounded uppercase flex-shrink-0 ${
+                  esq.activo ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-600'
+                }`}
+              >
+                {esq.activo ? 'Activo' : 'Pausado'}
+              </span>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 };

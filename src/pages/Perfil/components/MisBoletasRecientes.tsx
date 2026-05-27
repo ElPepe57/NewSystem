@@ -1,176 +1,118 @@
 /**
- * MisBoletasRecientes · F10.F.1.E · 2026-05-27
+ * MisBoletasRecientes · F10.F.1.I-FIX · 2026-05-27
  *
- * Card sky con tabla de últimas 5 boletas del empleado · vista propia.
- * Solo aparece si el user tiene boletas registradas.
+ * PIXEL-PERFECT REWRITE · canon v9.0 M1 · copy-paste literal del mockup
+ * perfil-v5.4-personalizado.html ACTO 6 (líneas 779-808).
  *
- * Canon v8.0 N1 · color semántico sky (operacional)
- * Canon v9.0 · pixel-perfect del mockup perfil-v5.4-personalizado.html ACTO 5
- *
- * Cross-link footer · "Ver todas en Planilla" · /planilla?tab=boletas
+ * Patrón canon mockup: card blanco simple con tabla compacta
+ *   - bg-white border border-slate-200 rounded-xl p-5
+ *   - h3 text-[14px] font-bold con icon w-4 h-4 text-sky-700
+ *   - "Ver todas" arrow-right text-[11px] text-sky-700 font-bold
+ *   - table w-full text-[11px]
+ *   - thead: border-b border-slate-200 text-left text-[10px] uppercase tracking-wider text-slate-500 font-bold
+ *   - tbody: divide-y divide-slate-100 · ítems text-right tabular · neto font-bold
+ *   - estado chip text-[9px] bg-emerald-100 px-1.5 py-0.5 rounded uppercase
  */
 import React from 'react';
-import { Receipt, Download, FileText, ExternalLink, ChevronRight } from 'lucide-react';
+import { FileText, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { formatCurrencyPEN } from '../../../utils/format';
 import type { Boleta } from '../../../types/planilla.types';
 
 interface Props {
   boletas: Boleta[];
   loading?: boolean;
-  /** Callback al click en una boleta · si NO se pasa, navega al detalle de planilla */
   onClickBoleta?: (boleta: Boleta) => void;
-  /** Callback al click en Descargar PDF · si NO se pasa, oculta el botón */
-  onDescargarPdf?: (boleta: Boleta) => void;
 }
 
-const MES_LABEL = ['', 'Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+const MES_LABEL = ['', 'ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
 
-const ESTADO_COLOR: Record<Boleta['estado'], { bg: string; text: string; label: string }> = {
-  borrador: { bg: 'bg-slate-100', text: 'text-slate-700', label: 'Borrador' },
-  aprobada: { bg: 'bg-sky-100', text: 'text-sky-700', label: 'Aprobada' },
-  pagada: { bg: 'bg-emerald-100', text: 'text-emerald-700', label: 'Pagada' },
-  anulada: { bg: 'bg-rose-100', text: 'text-rose-700', label: 'Anulada' },
+const ESTADO_CHIP: Record<Boleta['estado'], { bg: string; text: string; label: string }> = {
+  borrador: { bg: 'bg-slate-100', text: 'text-slate-700', label: 'BORRADOR' },
+  aprobada: { bg: 'bg-amber-100', text: 'text-amber-700', label: 'PEND.' },
+  pagada: { bg: 'bg-emerald-100', text: 'text-emerald-700', label: 'PAGADA' },
+  anulada: { bg: 'bg-rose-100', text: 'text-rose-700', label: 'ANULADA' },
 };
 
-export const MisBoletasRecientes: React.FC<Props> = ({ boletas, loading = false, onClickBoleta, onDescargarPdf }) => {
+const fmtTabular = (n: number): string =>
+  n.toLocaleString('es-PE', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+
+export const MisBoletasRecientes: React.FC<Props> = ({ boletas, loading = false, onClickBoleta }) => {
   const navigate = useNavigate();
 
-  const handleClick = (b: Boleta) => {
-    if (onClickBoleta) {
-      onClickBoleta(b);
-    } else {
-      navigate(`/planilla?tab=boletas&boletaId=${b.id}`);
-    }
-  };
-
   return (
-    <div className="bg-gradient-to-br from-sky-50 to-sky-100/40 ring-1 ring-sky-200/50 rounded-2xl overflow-hidden">
-      {/* Header card */}
-      <div className="px-4 py-3 border-b border-sky-200/60 flex items-center gap-2">
-        <Receipt className="w-4 h-4 text-sky-700 flex-shrink-0" />
-        <span className="text-[11px] uppercase tracking-wider text-sky-700 font-bold">
+    // Canon mockup ACTO 6 · líneas 779-808 · copy-paste literal
+    <div className="bg-white border border-slate-200 rounded-xl p-5">
+      <div className="flex items-center justify-between mb-3">
+        <h3 className="text-[14px] font-bold text-slate-900 inline-flex items-center gap-1.5">
+          <FileText className="w-4 h-4 text-sky-700" />
           Mis boletas recientes
-        </span>
+        </h3>
         <button
           type="button"
           onClick={() => navigate('/planilla?tab=boletas')}
-          className="ml-auto text-[11px] font-semibold text-sky-700 hover:text-sky-800 inline-flex items-center gap-1"
+          className="text-[11px] text-sky-700 font-bold hover:underline inline-flex items-center gap-1"
         >
           Ver todas
-          <ExternalLink className="w-3 h-3" />
+          <ArrowRight className="w-3 h-3" />
         </button>
       </div>
 
-      {/* Body */}
-      <div className="bg-white">
-        {loading ? (
-          <div className="p-6 text-center text-slate-400 text-[12px]">Cargando boletas...</div>
-        ) : boletas.length === 0 ? (
-          // Empty state canon v8.0 N9 · quick-start pedagógico
-          <div className="p-6 text-center">
-            <FileText className="w-8 h-8 mx-auto mb-2 text-slate-300" />
-            <div className="text-[13px] font-semibold text-slate-700">Aún sin boletas registradas</div>
-            <div className="text-[11px] text-slate-500 mt-1">
-              Tu primera boleta se generará al cierre del mes en curso.
-            </div>
+      {loading ? (
+        <div className="py-6 text-center text-slate-400 text-[11px]">Cargando boletas...</div>
+      ) : boletas.length === 0 ? (
+        <div className="py-6 text-center">
+          <FileText className="w-7 h-7 mx-auto mb-1.5 text-slate-300" />
+          <div className="text-[12px] font-semibold text-slate-700">Aún sin boletas</div>
+          <div className="text-[10px] text-slate-500 mt-0.5">
+            Tu primera boleta se generará al cierre del mes.
           </div>
-        ) : (
-          <>
-            {/* Mobile · stack 1-col touch targets ≥44px */}
-            <div className="sm:hidden divide-y divide-slate-100">
-              {boletas.map((b) => {
-                const estado = ESTADO_COLOR[b.estado];
-                return (
-                  <button
-                    key={b.id}
-                    type="button"
-                    onClick={() => handleClick(b)}
-                    className="w-full text-left p-3 flex items-center gap-3 min-h-[56px] hover:bg-sky-50/40 transition-colors"
-                  >
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-2">
-                        <span className="text-[13px] font-semibold text-slate-900">
-                          {MES_LABEL[b.mes]} {b.anio}
-                        </span>
-                        <span className={`text-[10px] px-1.5 py-0.5 rounded font-bold ${estado.bg} ${estado.text}`}>
-                          {estado.label}
-                        </span>
-                      </div>
-                      <div className="text-[12px] text-slate-500 tabular-nums mt-0.5">
-                        Neto: <span className="font-bold text-slate-900">{formatCurrencyPEN(b.totalNeto)}</span>
-                      </div>
-                    </div>
-                    <ChevronRight className="w-4 h-4 text-slate-400 flex-shrink-0" />
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* Desktop · tabla compacta */}
-            <table className="hidden sm:table w-full text-[13px]">
-              <thead>
-                <tr className="border-b border-slate-100 bg-slate-50/50">
-                  <th className="text-left py-2 px-4 text-[10px] uppercase tracking-wider text-slate-500 font-bold">Período</th>
-                  <th className="text-right py-2 px-4 text-[10px] uppercase tracking-wider text-slate-500 font-bold">Bruto</th>
-                  <th className="text-right py-2 px-4 text-[10px] uppercase tracking-wider text-slate-500 font-bold">Descuentos</th>
-                  <th className="text-right py-2 px-4 text-[10px] uppercase tracking-wider text-slate-500 font-bold">Neto</th>
-                  <th className="text-center py-2 px-4 text-[10px] uppercase tracking-wider text-slate-500 font-bold">Estado</th>
-                  <th className="text-right py-2 px-4 text-[10px] uppercase tracking-wider text-slate-500 font-bold">Acción</th>
-                </tr>
-              </thead>
-              <tbody>
-                {boletas.map((b) => {
-                  const estado = ESTADO_COLOR[b.estado];
-                  return (
-                    <tr
-                      key={b.id}
-                      className="border-b border-slate-50 last:border-0 hover:bg-sky-50/40 transition-colors cursor-pointer"
-                      onClick={() => handleClick(b)}
+        </div>
+      ) : (
+        <table className="w-full text-[11px]">
+          <thead>
+            <tr className="border-b border-slate-200 text-left text-[10px] uppercase tracking-wider text-slate-500 font-bold">
+              <th className="py-2">Período</th>
+              <th className="text-right">Sueldo</th>
+              <th className="text-right">Bonos</th>
+              <th className="text-right">Descuentos</th>
+              <th className="text-right">Neto</th>
+              <th className="text-right">Estado</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-slate-100">
+            {boletas.map((b) => {
+              const estado = ESTADO_CHIP[b.estado];
+              const bonos = (b.comisionesVentas || 0) + (b.bonificaciones || 0) + (b.otrosIngresos || 0);
+              return (
+                <tr
+                  key={b.id}
+                  className="cursor-pointer hover:bg-slate-50/50 transition-colors"
+                  onClick={() => onClickBoleta?.(b) ?? navigate(`/planilla?tab=boletas&boletaId=${b.id}`)}
+                >
+                  <td className="py-1.5">
+                    {MES_LABEL[b.mes]} {b.anio}
+                  </td>
+                  <td className="text-right tabular-nums">{fmtTabular(b.salarioBase)}</td>
+                  <td className="text-right tabular-nums text-emerald-700">
+                    {bonos > 0 ? `+${fmtTabular(bonos)}` : '0'}
+                  </td>
+                  <td className="text-right tabular-nums text-rose-700">
+                    {b.totalDescuentos > 0 ? `-${fmtTabular(b.totalDescuentos)}` : '0'}
+                  </td>
+                  <td className="text-right tabular-nums font-bold">{fmtTabular(b.totalNeto)}</td>
+                  <td className="text-right">
+                    <span
+                      className={`${estado.bg} ${estado.text} text-[9px] font-bold px-1.5 py-0.5 rounded uppercase`}
                     >
-                      <td className="py-3 px-4 font-semibold text-slate-900">
-                        {MES_LABEL[b.mes]} {b.anio}
-                      </td>
-                      <td className="py-3 px-4 text-right tabular-nums text-slate-700">
-                        {formatCurrencyPEN(b.totalBruto)}
-                      </td>
-                      <td className="py-3 px-4 text-right tabular-nums text-rose-600">
-                        −{formatCurrencyPEN(b.totalDescuentos)}
-                      </td>
-                      <td className="py-3 px-4 text-right tabular-nums font-bold text-sky-900">
-                        {formatCurrencyPEN(b.totalNeto)}
-                      </td>
-                      <td className="py-3 px-4 text-center">
-                        <span className={`inline-block text-[10px] px-2 py-0.5 rounded font-bold ${estado.bg} ${estado.text}`}>
-                          {estado.label}
-                        </span>
-                      </td>
-                      <td className="py-3 px-4 text-right">
-                        {onDescargarPdf ? (
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              onDescargarPdf(b);
-                            }}
-                            className="inline-flex items-center gap-1 text-[11px] font-semibold text-sky-700 hover:text-sky-800"
-                            title="Descargar PDF"
-                          >
-                            <Download className="w-3.5 h-3.5" />
-                            <span className="hidden lg:inline">PDF</span>
-                          </button>
-                        ) : (
-                          <ChevronRight className="w-4 h-4 text-slate-400 inline" />
-                        )}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </>
-        )}
-      </div>
+                      {estado.label}
+                    </span>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      )}
     </div>
   );
 };
