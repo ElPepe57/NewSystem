@@ -14,3 +14,8 @@ export { default as MisSesionesActivas } from './MisSesionesActivas';
 export { default as ResumenEmpleado } from './ResumenEmpleado';
 export { default as ResumenAdmin } from './ResumenAdmin';
 export { default as ResumenSocio } from './ResumenSocio';
+
+// F10.F.1.J-SIDEBAR.3 · Etapa 3 · Tab Mi Información ACTO 5
+export { default as InlineEditField } from './InlineEditField';
+export { default as CardIdentidadEditable } from './CardIdentidadEditable';
+export { default as CardMultiRolRica } from './CardMultiRolRica';

@@ -362,9 +362,10 @@ export const userService = {
   },
 
   /**
-   * Actualizar perfil de usuario (nombre, foto)
+   * Actualizar perfil de usuario · campos editables por el propio user
+   * F10.F.1.J-SIDEBAR.3 · agregado telefono (canon v5.4 ACTO 5)
    */
-  async updateProfile(uid: string, data: { displayName?: string; photoURL?: string; cargo?: string }): Promise<void> {
+  async updateProfile(uid: string, data: { displayName?: string; photoURL?: string; cargo?: string; telefono?: string }): Promise<void> {
     try {
       const docRef = doc(db, COLLECTION_NAME, uid);
       await updateDoc(docRef, data);

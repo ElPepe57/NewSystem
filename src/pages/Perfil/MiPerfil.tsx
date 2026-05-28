@@ -68,6 +68,8 @@ import {
   ResumenEmpleado,
   ResumenAdmin,
   ResumenSocio,
+  CardIdentidadEditable,
+  CardMultiRolRica,
   type PendienteItem,
 } from './components';
 
@@ -664,9 +666,19 @@ export const MiPerfil: React.FC = () => {
             </div>
           )}
 
-          {/* ───── TAB · MI INFORMACIÓN ───── */}
+          {/* ───── TAB · MI INFORMACIÓN ─────
+              Canon v5.4 ACTO 5 · Identidad editable inline + Multi-rol rica + Permisos efectivos
+              Sub-perfiles detallados (datos laborales · capital socio) viven en sub-páginas
+              dedicadas (/perfil/mi-planilla · /perfil/mi-capital) accesibles desde sidebar. */}
           {tabActiva === 'info' && (
             <div className="space-y-5">
+              {/* F10.F.1.J-SIDEBAR.3 · Card identidad editable inline · canon mockup v5.4 línea 595 */}
+              <CardIdentidadEditable />
+
+              {/* F10.F.1.J-SIDEBAR.3 · Card multi-rol rica · canon mockup v5.4 línea 651 */}
+              <CardMultiRolRica />
+
+              {/* Sub-perfiles · vista resumida (drill profundo vive en sub-páginas /perfil/mi-X) */}
               {tieneRolEmpleado && <MisDatosLaboralesCard datos={datosLaborales} mostrarSueldo />}
               {isSocio && <MiCapitalSocio datos={datosSocio} />}
 
