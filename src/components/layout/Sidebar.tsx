@@ -63,7 +63,24 @@ interface MenuGroup {
   defaultOpen?: boolean;
 }
 
-// Grupos de menú reorganizados — Comercial primero, Análisis como grupo propio
+// Grupos de menú reorganizados.
+//
+// chk5.PERSONAS-v5.7 ACTO 1 (2026-05-28) · Reorganización canónica:
+//   · Grupo "Equipo" posicionado entre Inventario y Finanzas · agrupa todo
+//     lo relacionado con PERSONAS del negocio (patrón Linear/Notion/Stripe).
+//   · Usuarios = hub maestro (catálogo único · modelo v5.6 multi-relación)
+//   · Planilla = vista operativa filtrada por relacion.tipo='empleado'
+//   · Inversionistas = vista operativa para relacion.tipo='socio'
+//   · MOVIDOS desde grupos anteriores:
+//     - Usuarios: Administración → Equipo
+//     - Planilla: Finanzas y Contabilidad → Equipo
+//     - Inversionistas: Finanzas y Contabilidad → Equipo
+//   · Maestros queda en Administración (canon v5.8 ACTO 0 · es catálogo
+//     comercial del negocio · NO personas).
+//   · /honorarios y /socios como rutas dedicadas: NO se agregan aún · no
+//     existen las rutas (v5.7 las propone como features futuras vinculadas
+//     a relacion.tipo · se incorporan en E4+ cuando se implemente el shell
+//     /usuarios completo con vistas filtradas por tipo de relación).
 const menuGroups: MenuGroup[] = [
   {
     id: 'comercial',
@@ -87,9 +104,27 @@ const menuGroups: MenuGroup[] = [
       { icon: Package, label: 'Productos', path: '/productos', permiso: PERMISOS.VER_INVENTARIO },
       { icon: Warehouse, label: 'Stock', path: '/inventario', permiso: PERMISOS.VER_INVENTARIO },
       { icon: Box, label: 'Unidades', path: '/inventario?modo=unidades', permiso: PERMISOS.GESTIONAR_INVENTARIO },
-      { icon: ArrowRightLeft, label: 'Env\u00edos', path: '/envios', permiso: PERMISOS.TRANSFERIR_UNIDADES },
-      { icon: Network, label: 'Red Log\u00edstica', path: '/red-logistica', permiso: PERMISOS.VER_INVENTARIO },
+      { icon: ArrowRightLeft, label: 'Envíos', path: '/envios', permiso: PERMISOS.TRANSFERIR_UNIDADES },
+      { icon: Network, label: 'Red Logística', path: '/red-logistica', permiso: PERMISOS.VER_INVENTARIO },
       { icon: ScanLine, label: 'Escaner', path: '/escaner', permiso: PERMISOS.VER_INVENTARIO },
+    ]
+  },
+  {
+    // chk5.PERSONAS-v5.7 ACTO 1 · NUEVO grupo "Equipo" agrupando personas.
+    // Reemplaza el grupo "Equipo" huérfano anterior (que solo tenía "Notas IA").
+    id: 'equipo',
+    label: 'Equipo',
+    icon: Users,
+    defaultOpen: true,
+    items: [
+      // Usuarios · HUB MAESTRO · catálogo único de identidades + relaciones
+      { icon: Users, label: 'Usuarios', path: '/usuarios', permiso: PERMISOS.GESTIONAR_USUARIOS },
+      // Planilla · vista operativa filtrada por relacion.tipo='empleado'
+      { icon: Banknote, label: 'Planilla', path: '/planilla', permiso: PERMISOS.VER_PLANILLA },
+      // Inversionistas · vista operativa para socios (cap table · distribuciones)
+      { icon: Landmark, label: 'Inversionistas', path: '/inversionistas', permiso: PERMISOS.VER_INVERSIONISTAS },
+      // Notas IA · herramienta de equipo (queda acá por ser transversal a personas)
+      { icon: BrainCircuit, label: 'Notas IA', path: '/notas-ia', permiso: PERMISOS.VER_DASHBOARD },
     ]
   },
   {
@@ -99,6 +134,10 @@ const menuGroups: MenuGroup[] = [
     // Los sub-items Saldos y Cash flow se accedían también vía sidebar pero
     // duplicaban la navegación de las tabs internas del FinanzasLayout.
     // Patrón Stripe/Linear: el sidebar lleva al hub, las tabs hacen sub-nav.
+    //
+    // chk5.PERSONAS-v5.7 (2026-05-28) · Planilla e Inversionistas SALIERON
+    // de este grupo y viven en "Equipo" · son operaciones de PERSONAS.
+    // Acá quedan los módulos puramente financieros/contables.
     id: 'finanzas',
     label: 'Finanzas y Contabilidad',
     icon: Wallet,
@@ -109,9 +148,6 @@ const menuGroups: MenuGroup[] = [
       { icon: DollarSign, label: 'Tipo de Cambio', path: '/tipo-cambio', permiso: PERMISOS.VER_TESORERIA },
       { icon: Receipt, label: 'Gastos Fijos', path: '/gastos', permiso: PERMISOS.VER_GASTOS },
       { icon: BookOpen, label: 'Contabilidad', path: '/contabilidad', permiso: PERMISOS.VER_TESORERIA },
-      { icon: Banknote, label: 'Planilla', path: '/planilla', permiso: PERMISOS.VER_PLANILLA },
-      // chk5.E-INV-RF · vista ejecutiva canon v5.2 violet · módulo financiero estratégico
-      { icon: Landmark, label: 'Inversionistas', path: '/inversionistas', permiso: PERMISOS.VER_INVERSIONISTAS },
     ]
   },
   {
@@ -131,15 +167,9 @@ const menuGroups: MenuGroup[] = [
     ]
   },
   {
-    id: 'equipo',
-    label: 'Equipo',
-    icon: Users,
-    defaultOpen: false,
-    items: [
-      { icon: BrainCircuit, label: 'Notas IA', path: '/notas-ia', permiso: PERMISOS.VER_DASHBOARD },
-    ]
-  },
-  {
+    // chk5.PERSONAS-v5.7 (2026-05-28) · Usuarios SALIÓ de este grupo · vive
+    // en "Equipo". Administración queda para configuración técnica del sistema
+    // y catálogos comerciales del negocio (Maestros).
     id: 'admin',
     label: 'Administración',
     icon: Shield,
@@ -147,7 +177,6 @@ const menuGroups: MenuGroup[] = [
     items: [
       { icon: Palette, label: 'Líneas de Negocio', path: '/lineas-negocio', permiso: PERMISOS.GESTIONAR_CONFIGURACION },
       { icon: Database, label: 'Maestros', path: '/maestros', permiso: PERMISOS.GESTIONAR_CONFIGURACION },
-      { icon: Users, label: 'Usuarios', path: '/usuarios', permiso: PERMISOS.GESTIONAR_USUARIOS },
       { icon: Activity, label: 'Auditoría', path: '/auditoria', permiso: PERMISOS.VER_AUDITORIA },
       { icon: Settings, label: 'Configuración', path: '/configuracion', permiso: PERMISOS.GESTIONAR_CONFIGURACION },
     ]
