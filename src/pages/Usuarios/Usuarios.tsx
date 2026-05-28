@@ -438,22 +438,12 @@ export const Usuarios: React.FC = () => {
   // Agrupar permisos
   const permisosAgrupados = userService.getPermisosAgrupados();
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <Loader2 className="h-8 w-8 animate-spin text-teal-600" />
-      </div>
-    );
-  }
-
-  // chk5.F3-FIX · KPIs canon v5.2 · TOTAL · ACTIVOS · SOCIOS · MULTI-ROL
-  const sociosCount = roleStats['socio'] ?? 0;
-  const multiRolCount = usuarios.filter((u) => getUserRoles(u).length > 1).length;
-  const otrosCount = roleStats['invitado'] ?? 0;
-
   // chk5.PERSONAS-v5.7 · E4.2 · Stats por TIPO DE RELACIÓN (modelo v5.6)
   // Cuenta users que tienen al menos 1 relación vigente del tipo X.
   // Un user puede contar en múltiples (empleado + socio).
+  // IMPORTANTE · debe estar ANTES del early return `if (loading)` · misma regla
+  // que el resto de useMemo del componente (canon React hooks order · evita
+  // "Rendered more hooks than during the previous render").
   const relacionStats = useMemo(() => {
     const counts = { empleado: 0, honorarios: 0, socio: 0, externo: 0, multiRelacion: 0 };
     Object.values(relacionesByUid).forEach((rels) => {
@@ -468,8 +458,22 @@ export const Usuarios: React.FC = () => {
     return counts;
   }, [relacionesByUid]);
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="h-8 w-8 animate-spin text-teal-600" />
+      </div>
+    );
+  }
+
+  // chk5.F3-FIX · KPIs canon v5.2 · TOTAL · ACTIVOS · SOCIOS · MULTI-ROL
+  const sociosCount = roleStats['socio'] ?? 0;
+  const multiRolCount = usuarios.filter((u) => getUserRoles(u).length > 1).length;
+  const otrosCount = roleStats['invitado'] ?? 0;
+
   // chk5.PERSONAS-v5.7 · E4.2 · Indica si ya hay data de relaciones cargada
   // (para mostrar "—" en KPIs mientras cargan en background)
+  // No es hook · es derivada simple · puede vivir después del early return.
   const relacionesCargadas = Object.keys(relacionesByUid).length > 0;
 
   return (
