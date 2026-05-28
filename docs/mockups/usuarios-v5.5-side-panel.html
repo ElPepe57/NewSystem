@@ -1,0 +1,1851 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Usuarios v5.5 · Side Panel + Wizard + tipoRelacion · canon 2026-05-28</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+  .tabular { font-variant-numeric: tabular-nums; font-feature-settings: "tnum"; }
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { scrollbar-width: none; }
+  .device-desktop { max-width: 1200px; margin: 0 auto; }
+  .iphone-frame {
+    background: #1e293b;
+    padding: 8px;
+    border-radius: 40px;
+    max-width: 391px;
+    margin: 0 auto;
+  }
+  .iphone-frame > * { border-radius: 32px; overflow: hidden; }
+</style>
+</head>
+<body class="bg-slate-50 text-slate-900 py-8">
+
+<!-- HERO -->
+<section class="max-w-6xl mx-auto mb-8 px-4">
+  <div class="bg-gradient-to-r from-purple-600 via-violet-600 to-purple-700 text-white rounded-3xl p-6 shadow-xl">
+    <div class="flex items-start gap-4 flex-wrap">
+      <div class="w-14 h-14 bg-white/20 rounded-2xl flex items-center justify-center flex-shrink-0">
+        <i data-lucide="users-round" class="w-7 h-7"></i>
+      </div>
+      <div class="flex-1 min-w-[280px]">
+        <div class="text-[11px] uppercase tracking-wider font-bold opacity-90">Mockup · Reorganización arquitectónica</div>
+        <h1 class="text-2xl font-bold mt-0.5">Usuarios v5.5 · Side Panel + Wizard + tipoRelacion</h1>
+        <p class="text-[13px] opacity-90 mt-1">
+          Repensado canon empresa moderna · cero drill pages · cero clicks extras · captura
+          completa al crear · 4 tipos de relación explícitos que determinan UI contextual.
+        </p>
+        <div class="text-[11px] opacity-80 mt-2">
+          Canon 2026-05-27 · 16 actos (12 desktop + 4 mobile) · resuelve bug "Mi planilla no se activa"
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ÍNDICE -->
+<section class="max-w-6xl mx-auto mb-8 px-4">
+  <div class="bg-white rounded-2xl ring-1 ring-slate-200 p-5">
+    <h2 class="text-[13px] font-bold text-slate-900 mb-4 uppercase tracking-wider">Índice · 16 actos</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-[12px]">
+      <a href="#a1" class="block p-2 rounded bg-purple-50 hover:bg-purple-100"><strong class="text-purple-700">ACTO 1</strong> · Diagnóstico problemas actuales vs solución</a>
+      <a href="#a2" class="block p-2 rounded bg-purple-50 hover:bg-purple-100"><strong class="text-purple-700">ACTO 2</strong> · Matriz tipoRelacion · 4 valores canon</a>
+      <a href="#a3" class="block p-2 rounded bg-purple-50 hover:bg-purple-100"><strong class="text-purple-700">ACTO 3</strong> · Lista /usuarios · cards con tipoRelacion chip</a>
+      <a href="#a4" class="block p-2 rounded bg-sky-50 hover:bg-sky-100"><strong class="text-sky-700">ACTO 4</strong> · Side Panel empleado · tab Identidad</a>
+      <a href="#a5" class="block p-2 rounded bg-sky-50 hover:bg-sky-100"><strong class="text-sky-700">ACTO 5</strong> · Side Panel empleado · tab Laboral inline-edit</a>
+      <a href="#a6" class="block p-2 rounded bg-violet-50 hover:bg-violet-100"><strong class="text-violet-700">ACTO 6</strong> · Side Panel socio · tab Capital inline-edit</a>
+      <a href="#a7" class="block p-2 rounded bg-emerald-50 hover:bg-emerald-100"><strong class="text-emerald-700">ACTO 7</strong> · Side Panel mixto empleado+socio</a>
+      <a href="#a8" class="block p-2 rounded bg-slate-50 hover:bg-slate-100"><strong class="text-slate-700">ACTO 8</strong> · Side Panel externo · tabs reducidos</a>
+      <a href="#a9" class="block p-2 rounded bg-amber-50 hover:bg-amber-100"><strong class="text-amber-700">ACTO 9</strong> · Wizard crear · paso 1 Básicos</a>
+      <a href="#a10" class="block p-2 rounded bg-amber-50 hover:bg-amber-100"><strong class="text-amber-700">ACTO 10</strong> · Wizard crear · paso 2 Tipo de relación</a>
+      <a href="#a11" class="block p-2 rounded bg-amber-50 hover:bg-amber-100"><strong class="text-amber-700">ACTO 11</strong> · Wizard crear · paso 3 Roles</a>
+      <a href="#a12" class="block p-2 rounded bg-amber-50 hover:bg-amber-100"><strong class="text-amber-700">ACTO 12</strong> · Wizard crear · paso 4 Detalles contextuales</a>
+      <a href="#a13" class="block p-2 rounded bg-rose-50 hover:bg-rose-100"><strong class="text-rose-700">ACTO 13</strong> · Mobile · side panel full-screen</a>
+      <a href="#a14" class="block p-2 rounded bg-rose-50 hover:bg-rose-100"><strong class="text-rose-700">ACTO 14</strong> · Mobile · wizard 375px</a>
+      <a href="#a15" class="block p-2 rounded bg-rose-50 hover:bg-rose-100"><strong class="text-rose-700">ACTO 15</strong> · Mobile · lista cards stack</a>
+      <a href="#a16" class="block p-2 rounded bg-slate-50 hover:bg-slate-100"><strong class="text-slate-700">ACTO 16</strong> · Plan migración · cleanup drill pages</a>
+    </div>
+  </div>
+</section>
+
+<!-- ACTO 1 · DIAGNÓSTICO -->
+<section id="a1" class="my-12">
+  <div class="max-w-6xl mx-auto px-4">
+    <div class="bg-gradient-to-r from-purple-100 to-purple-50 ring-1 ring-purple-200 rounded-3xl p-5 mb-6">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 bg-purple-600 rounded-2xl flex items-center justify-center text-white font-bold">1</div>
+        <div>
+          <h2 class="text-lg font-bold text-purple-900">Diagnóstico · problemas actuales vs solución</h2>
+          <p class="text-[11px] text-purple-700">Cita user (2026-05-28): "esta sección está muy escondida · debería ser parte de la creación · siento que no están siguiendo los patrones · están creando demasiados movimientos extras"</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="device-desktop bg-white rounded-2xl ring-1 ring-slate-200 overflow-hidden p-6">
+      <table class="w-full text-[12px]">
+        <thead>
+          <tr class="border-b-2 border-slate-200 text-left text-[10px] uppercase tracking-wider text-slate-500 font-bold">
+            <th class="py-2">Problema actual</th>
+            <th>Síntoma</th>
+            <th>Solución v5.5</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+          <tr>
+            <td class="py-3 font-bold text-rose-700">Datos laborales escondidos</td>
+            <td class="text-slate-700">3 clicks: usuario → Ficha 360 → buscar editar → navega a /editar/laborales</td>
+            <td class="text-emerald-700 font-semibold">1 click: usuario → side panel abre con tab Laboral inline</td>
+          </tr>
+          <tr>
+            <td class="py-3 font-bold text-rose-700">Sin clasificación de relación</td>
+            <td class="text-slate-700">No existe `tipoRelacion` · cliente y empleado tratados igual</td>
+            <td class="text-emerald-700 font-semibold">Nuevo campo · 4 valores canon · tabs contextuales</td>
+          </tr>
+          <tr>
+            <td class="py-3 font-bold text-rose-700">Drill pages rompen flujo</td>
+            <td class="text-slate-700">/usuarios/uid/editar/laborales · /editar/socio · navegación full-page · context loss</td>
+            <td class="text-emerald-700 font-semibold">ELIMINAR drill pages · todo en side panel</td>
+          </tr>
+          <tr>
+            <td class="py-3 font-bold text-rose-700">Inconsistencia con /perfil</td>
+            <td class="text-slate-700">/perfil Mi info usa InlineEditField Notion-style · /usuarios usa drill pages</td>
+            <td class="text-emerald-700 font-semibold">Mismo patrón inline-edit en ambos módulos</td>
+          </tr>
+          <tr>
+            <td class="py-3 font-bold text-rose-700">Creación pobre · datos pendientes</td>
+            <td class="text-slate-700">Crear user solo pide email/nombre/rol · datos laborales quedan vacíos · "Mi planilla" no se activa</td>
+            <td class="text-emerald-700 font-semibold">Wizard 4 pasos · captura completa según tipoRelacion · cero usuarios incompletos</td>
+          </tr>
+          <tr>
+            <td class="py-3 font-bold text-rose-700">Permission boundary confusa</td>
+            <td class="text-slate-700">Permisos heredados de rol · pero no de tipo de relación · cliente con rol vendedor ve planilla</td>
+            <td class="text-emerald-700 font-semibold">requiereDatosLaborales(user) helper · tipoRelacion determina visibilidad</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="mt-5 p-4 bg-emerald-50 border border-emerald-200 rounded-lg">
+        <div class="text-[12px] font-bold text-emerald-900 mb-2 inline-flex items-center gap-1.5">
+          <i data-lucide="lightbulb" class="w-4 h-4"></i>
+          Inspiración · empresas modernas
+        </div>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-[11px]">
+          <div class="bg-white border border-emerald-100 rounded p-2">
+            <div class="font-bold text-emerald-900">Mercury</div>
+            <div class="text-slate-600">1 modal grande con tabs · auto-save</div>
+          </div>
+          <div class="bg-white border border-emerald-100 rounded p-2">
+            <div class="font-bold text-emerald-900">Notion</div>
+            <div class="text-slate-600">Side panel deslizable · inline-edit todo</div>
+          </div>
+          <div class="bg-white border border-emerald-100 rounded p-2">
+            <div class="font-bold text-emerald-900">Linear</div>
+            <div class="text-slate-600">Modal con tabs · cero drill pages</div>
+          </div>
+          <div class="bg-white border border-emerald-100 rounded p-2">
+            <div class="font-bold text-emerald-900">Stripe Atlas</div>
+            <div class="text-slate-600">Wizard al crear · side sheet al editar</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ACTO 2 · MATRIZ TIPORELACION -->
+<section id="a2" class="my-12">
+  <div class="max-w-6xl mx-auto px-4">
+    <div class="bg-gradient-to-r from-purple-100 to-purple-50 ring-1 ring-purple-200 rounded-3xl p-5 mb-6">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 bg-purple-600 rounded-2xl flex items-center justify-center text-white font-bold">2</div>
+        <div>
+          <h2 class="text-lg font-bold text-purple-900">Matriz tipoRelacion · 4 valores canon</h2>
+          <p class="text-[11px] text-purple-700">Nuevo campo en UserProfile · determina UI contextual + permission boundary</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="device-desktop bg-white rounded-2xl ring-1 ring-slate-200 overflow-hidden p-6">
+      <table class="w-full text-[12px]">
+        <thead>
+          <tr class="border-b-2 border-slate-200 text-left text-[10px] uppercase tracking-wider text-slate-500 font-bold">
+            <th class="py-2 pr-4">Tipo</th>
+            <th class="px-3">Definición</th>
+            <th class="text-center px-3">datosLaborales</th>
+            <th class="text-center px-3">datosSocio</th>
+            <th class="text-center px-3">Ve Mi planilla</th>
+            <th class="text-center px-3">Ve Mi capital</th>
+            <th class="text-center px-3">Cobra</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+          <tr class="bg-sky-50/30">
+            <td class="py-3 pr-4">
+              <div class="inline-flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-sky-500"></span>
+                <span class="text-[10px] bg-sky-100 text-sky-700 font-bold px-2 py-0.5 rounded uppercase">EMPLEADO</span>
+              </div>
+            </td>
+            <td class="px-3 text-slate-700">Sueldo fijo · planilla mensual · boletas · adelantos · vacaciones · gratificaciones</td>
+            <td class="text-center px-3"><i data-lucide="check" class="w-4 h-4 text-emerald-600 inline"></i></td>
+            <td class="text-center px-3 text-slate-300">—</td>
+            <td class="text-center px-3"><i data-lucide="check" class="w-4 h-4 text-emerald-600 inline"></i></td>
+            <td class="text-center px-3 text-slate-300">—</td>
+            <td class="text-center px-3 text-[11px] text-slate-700">sueldo fijo</td>
+          </tr>
+          <tr class="bg-emerald-50/30">
+            <td class="py-3 pr-4">
+              <div class="inline-flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                <span class="text-[10px] bg-emerald-100 text-emerald-700 font-bold px-2 py-0.5 rounded uppercase">HONORARIOS</span>
+              </div>
+            </td>
+            <td class="px-3 text-slate-700">Recibos por honorarios · sin sueldo fijo · pagos por servicio · sin vacaciones</td>
+            <td class="text-center px-3"><i data-lucide="check" class="w-4 h-4 text-emerald-600 inline"></i></td>
+            <td class="text-center px-3 text-slate-300">—</td>
+            <td class="text-center px-3"><i data-lucide="check" class="w-4 h-4 text-emerald-600 inline"></i></td>
+            <td class="text-center px-3 text-slate-300">—</td>
+            <td class="text-center px-3 text-[11px] text-slate-700">recibos honor.</td>
+          </tr>
+          <tr class="bg-violet-50/30">
+            <td class="py-3 pr-4">
+              <div class="inline-flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-violet-500"></span>
+                <span class="text-[10px] bg-violet-100 text-violet-700 font-bold px-2 py-0.5 rounded uppercase">SOCIO</span>
+              </div>
+            </td>
+            <td class="px-3 text-slate-700">Capital invertido · puede o no trabajar · distribuciones de utilidades · sin sueldo</td>
+            <td class="text-center px-3 text-slate-300">—</td>
+            <td class="text-center px-3"><i data-lucide="check" class="w-4 h-4 text-emerald-600 inline"></i></td>
+            <td class="text-center px-3 text-slate-300">—</td>
+            <td class="text-center px-3"><i data-lucide="check" class="w-4 h-4 text-emerald-600 inline"></i></td>
+            <td class="text-center px-3 text-[11px] text-slate-700">distribuciones</td>
+          </tr>
+          <tr class="bg-slate-50/30">
+            <td class="py-3 pr-4">
+              <div class="inline-flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-slate-400"></span>
+                <span class="text-[10px] bg-slate-100 text-slate-600 font-bold px-2 py-0.5 rounded uppercase">EXTERNO</span>
+              </div>
+            </td>
+            <td class="px-3 text-slate-700">Cliente · proveedor · colaborador puntual · acceso limitado · sin pagos del negocio</td>
+            <td class="text-center px-3 text-slate-300">—</td>
+            <td class="text-center px-3 text-slate-300">—</td>
+            <td class="text-center px-3 text-slate-300">—</td>
+            <td class="text-center px-3 text-slate-300">—</td>
+            <td class="text-center px-3 text-[11px] text-slate-400">N/A</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="mt-5 grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div class="bg-amber-50 border border-amber-200 rounded-lg p-3">
+          <div class="text-[12px] font-bold text-amber-900 mb-1 inline-flex items-center gap-1.5">
+            <i data-lucide="users" class="w-4 h-4"></i>Caso multi · empleado + socio
+          </div>
+          <div class="text-[11px] text-amber-800">
+            Si una persona es empleado Y socio (caso José admin+socio que cobra sueldo):
+            tipoRelacion='empleado' · pero también tiene datosSocio configurado.
+            El side panel muestra AMBOS tabs (Laboral + Socio). En el sidebar /perfil
+            ve "Mi planilla" Y "Mi capital".
+          </div>
+        </div>
+        <div class="bg-sky-50 border border-sky-200 rounded-lg p-3">
+          <div class="text-[12px] font-bold text-sky-900 mb-1 inline-flex items-center gap-1.5">
+            <i data-lucide="lock" class="w-4 h-4"></i>Permission boundary
+          </div>
+          <div class="text-[11px] text-sky-800">
+            <code class="bg-white px-1 rounded">requiereDatosLaborales(user)</code> = empleado | honorarios
+            <br />
+            <code class="bg-white px-1 rounded">requiereDatosSocio(user)</code> = socio | (empleado + rol socio)
+            <br />
+            tipoRelacion='externo' NUNCA ve módulos internos · independiente del rol.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ACTO 3 · LISTA USUARIOS -->
+<section id="a3" class="my-12">
+  <div class="max-w-6xl mx-auto px-4">
+    <div class="bg-gradient-to-r from-purple-100 to-purple-50 ring-1 ring-purple-200 rounded-3xl p-5 mb-6">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 bg-purple-600 rounded-2xl flex items-center justify-center text-white font-bold">3</div>
+        <div>
+          <h2 class="text-lg font-bold text-purple-900">Lista /usuarios · cards con tipoRelacion chip</h2>
+          <p class="text-[11px] text-purple-700">Chip semántico al lado del avatar · click en cualquier row abre side panel deslizable</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="device-desktop bg-white rounded-2xl ring-1 ring-slate-200 overflow-hidden">
+      <!-- Header -->
+      <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between flex-wrap gap-3">
+        <div class="flex items-center gap-3">
+          <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-purple-500 to-purple-700 flex items-center justify-center text-white">
+            <i data-lucide="users-round" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h1 class="text-xl font-bold tracking-tight text-slate-900">Usuarios</h1>
+            <p class="text-[12px] text-slate-500">14 personas · 5 empleados · 2 honorarios · 3 socios · 4 externos</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <button class="text-[11px] font-medium text-slate-600 hover:bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-lg inline-flex items-center gap-1.5">
+            <i data-lucide="download" class="w-3.5 h-3.5"></i>Exportar
+          </button>
+          <button class="text-[11px] font-bold text-white bg-purple-600 hover:bg-purple-700 px-3 py-1.5 rounded-lg inline-flex items-center gap-1.5">
+            <i data-lucide="user-plus" class="w-3.5 h-3.5"></i>Nuevo usuario
+          </button>
+        </div>
+      </div>
+
+      <!-- Filtros chip por tipoRelacion -->
+      <div class="px-6 py-3 border-b border-slate-100 flex items-center gap-1.5 overflow-x-auto no-scrollbar">
+        <span class="text-[10px] text-slate-500 font-semibold uppercase tracking-wider flex-shrink-0">Tipo:</span>
+        <button class="bg-slate-900 text-white text-[10px] font-bold px-2 py-1 rounded whitespace-nowrap">Todos · 14</button>
+        <button class="bg-sky-50 text-sky-700 border border-sky-200 text-[10px] font-bold px-2 py-1 rounded whitespace-nowrap">Empleado · 5</button>
+        <button class="bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-bold px-2 py-1 rounded whitespace-nowrap">Honorarios · 2</button>
+        <button class="bg-violet-50 text-violet-700 border border-violet-200 text-[10px] font-bold px-2 py-1 rounded whitespace-nowrap">Socio · 3</button>
+        <button class="bg-slate-50 text-slate-700 border border-slate-200 text-[10px] font-bold px-2 py-1 rounded whitespace-nowrap">Externo · 4</button>
+      </div>
+
+      <!-- Lista cards -->
+      <div class="divide-y divide-slate-100">
+        <!-- Row 1 · José Pinto · empleado + socio -->
+        <div class="px-6 py-3 hover:bg-purple-50/40 cursor-pointer flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-purple-700 flex items-center justify-center text-white font-bold text-[12px]">JP</div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2 flex-wrap">
+              <span class="text-[13px] font-bold text-slate-900">José Pinto</span>
+              <span class="text-[10px] bg-sky-100 text-sky-700 font-bold px-1.5 py-0.5 rounded uppercase">EMPLEADO</span>
+              <span class="text-[10px] bg-violet-100 text-violet-700 font-bold px-1.5 py-0.5 rounded uppercase">+ SOCIO</span>
+              <span class="text-[10px] bg-red-100 text-red-700 font-bold px-1.5 py-0.5 rounded uppercase">ADMIN</span>
+            </div>
+            <div class="text-[11px] text-slate-500">jose.pinto@vita-skin.pe · CEO · Dirección</div>
+          </div>
+          <span class="text-[10px] bg-emerald-100 text-emerald-700 font-bold px-1.5 py-0.5 rounded uppercase">ACTIVO</span>
+          <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i>
+        </div>
+
+        <!-- Row 2 · Diego López · empleado puro -->
+        <div class="px-6 py-3 hover:bg-purple-50/40 cursor-pointer flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-sky-500 to-sky-700 flex items-center justify-center text-white font-bold text-[12px]">DL</div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2 flex-wrap">
+              <span class="text-[13px] font-bold text-slate-900">Diego López</span>
+              <span class="text-[10px] bg-sky-100 text-sky-700 font-bold px-1.5 py-0.5 rounded uppercase">EMPLEADO</span>
+              <span class="text-[10px] bg-sky-100 text-sky-700 font-bold px-1.5 py-0.5 rounded uppercase">VENDEDOR</span>
+            </div>
+            <div class="text-[11px] text-slate-500">diego.lopez@vita-skin.pe · Vendedor sr. · Ventas</div>
+          </div>
+          <span class="text-[10px] bg-emerald-100 text-emerald-700 font-bold px-1.5 py-0.5 rounded uppercase">ACTIVO</span>
+          <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i>
+        </div>
+
+        <!-- Row 3 · Ana Rodríguez · honorarios -->
+        <div class="px-6 py-3 hover:bg-purple-50/40 cursor-pointer flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center text-white font-bold text-[12px]">AR</div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2 flex-wrap">
+              <span class="text-[13px] font-bold text-slate-900">Ana Rodríguez</span>
+              <span class="text-[10px] bg-emerald-100 text-emerald-700 font-bold px-1.5 py-0.5 rounded uppercase">HONORARIOS</span>
+              <span class="text-[10px] bg-sky-100 text-sky-700 font-bold px-1.5 py-0.5 rounded uppercase">VENDEDOR</span>
+            </div>
+            <div class="text-[11px] text-slate-500">ana@gmail.com · Vendedor freelance · Recibos por honorarios</div>
+          </div>
+          <span class="text-[10px] bg-emerald-100 text-emerald-700 font-bold px-1.5 py-0.5 rounded uppercase">ACTIVO</span>
+          <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i>
+        </div>
+
+        <!-- Row 4 · Carlos Silva · socio puro -->
+        <div class="px-6 py-3 hover:bg-purple-50/40 cursor-pointer flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-violet-700 flex items-center justify-center text-white font-bold text-[12px]">CS</div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2 flex-wrap">
+              <span class="text-[13px] font-bold text-slate-900">Carlos Silva</span>
+              <span class="text-[10px] bg-violet-100 text-violet-700 font-bold px-1.5 py-0.5 rounded uppercase">SOCIO</span>
+            </div>
+            <div class="text-[11px] text-slate-500">carlos.silva@gmail.com · 35% participación · sin rol operativo</div>
+          </div>
+          <span class="text-[10px] bg-emerald-100 text-emerald-700 font-bold px-1.5 py-0.5 rounded uppercase">ACTIVO</span>
+          <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i>
+        </div>
+
+        <!-- Row 5 · Externo cliente -->
+        <div class="px-6 py-3 hover:bg-purple-50/40 cursor-pointer flex items-center gap-3 opacity-80">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-slate-400 to-slate-600 flex items-center justify-center text-white font-bold text-[12px]">MC</div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2 flex-wrap">
+              <span class="text-[13px] font-bold text-slate-900">María Castro</span>
+              <span class="text-[10px] bg-slate-100 text-slate-700 font-bold px-1.5 py-0.5 rounded uppercase">EXTERNO</span>
+              <span class="text-[10px] bg-slate-50 text-slate-600 font-bold px-1.5 py-0.5 rounded uppercase">Cliente VIP</span>
+            </div>
+            <div class="text-[11px] text-slate-500">maria@constructora-abc.com · Acceso lectura ventas suyas · sin pagos del negocio</div>
+          </div>
+          <span class="text-[10px] bg-emerald-100 text-emerald-700 font-bold px-1.5 py-0.5 rounded uppercase">ACTIVO</span>
+          <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-4 max-w-6xl mx-auto p-3 bg-purple-50 border border-purple-200 rounded-lg">
+      <div class="text-[11px] text-purple-900">
+        <strong>Cambios clave en la lista:</strong>
+      </div>
+      <ul class="list-disc list-inside text-[11px] text-purple-800 mt-1 space-y-0.5">
+        <li>Chips de <strong>tipoRelacion</strong> visibles inmediatamente (sky/emerald/violet/slate)</li>
+        <li>Multi-rol se muestra como chip adicional (ej. José: EMPLEADO + SOCIO + ADMIN)</li>
+        <li>Filtros chip por tipoRelacion arriba · contador por tipo en header</li>
+        <li>Click en cualquier row → <strong>side panel se desliza desde la derecha</strong> (NO drill page)</li>
+        <li>Externos visualmente más discretos (opacity-80 · color slate)</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ACTO 4 · SIDE PANEL EMPLEADO · TAB IDENTIDAD -->
+<section id="a4" class="my-12">
+  <div class="max-w-6xl mx-auto px-4">
+    <div class="bg-gradient-to-r from-sky-100 to-sky-50 ring-1 ring-sky-200 rounded-3xl p-5 mb-6">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 bg-sky-600 rounded-2xl flex items-center justify-center text-white font-bold">4</div>
+        <div>
+          <h2 class="text-lg font-bold text-sky-900">Side Panel empleado · tab Identidad</h2>
+          <p class="text-[11px] text-sky-700">Panel deslizable 480px desde derecha · header sticky · tabs internos · inline-edit Notion-style</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="device-desktop bg-white rounded-2xl ring-1 ring-slate-200 overflow-hidden p-4">
+      <div class="flex gap-3" style="height: 720px">
+        <!-- Background lista atenuada -->
+        <div class="flex-1 bg-slate-100/60 rounded-xl p-4 text-[10px] text-slate-400 text-center pt-20">
+          Lista /usuarios atenuada<br/>(backdrop opaco · click cierra panel)
+        </div>
+
+        <!-- Side panel 480px -->
+        <div class="bg-white border-2 border-purple-300 rounded-2xl shadow-2xl overflow-hidden flex flex-col" style="width: 480px">
+          <!-- Header sticky -->
+          <div class="px-5 py-4 border-b border-slate-200 flex items-start gap-3 bg-white">
+            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-sky-500 to-sky-700 flex items-center justify-center text-white font-bold text-[14px] flex-shrink-0">DL</div>
+            <div class="flex-1 min-w-0">
+              <h2 class="text-[15px] font-bold text-slate-900">Diego López</h2>
+              <p class="text-[11px] text-slate-500">diego.lopez@vita-skin.pe</p>
+              <div class="flex items-center gap-1 mt-1.5 flex-wrap">
+                <span class="text-[9px] bg-sky-100 text-sky-700 font-bold px-1.5 py-0.5 rounded uppercase">EMPLEADO</span>
+                <span class="text-[9px] bg-sky-100 text-sky-700 font-bold px-1.5 py-0.5 rounded uppercase">VENDEDOR</span>
+                <span class="text-[9px] bg-emerald-100 text-emerald-700 font-bold px-1.5 py-0.5 rounded uppercase">ACTIVO</span>
+              </div>
+            </div>
+            <button class="w-7 h-7 hover:bg-slate-100 rounded flex items-center justify-center flex-shrink-0">
+              <i data-lucide="x" class="w-4 h-4 text-slate-600"></i>
+            </button>
+          </div>
+
+          <!-- Tabs internos -->
+          <div class="border-b border-slate-200 px-2 overflow-x-auto no-scrollbar">
+            <div class="flex gap-1 whitespace-nowrap">
+              <button class="px-3 py-2 text-[11px] font-bold border-b-2 border-sky-600 text-sky-700 flex items-center gap-1">
+                <i data-lucide="user" class="w-3 h-3"></i>Identidad
+              </button>
+              <button class="px-3 py-2 text-[11px] font-medium border-b-2 border-transparent text-slate-600 hover:text-sky-600 flex items-center gap-1">
+                <i data-lucide="shield" class="w-3 h-3"></i>Roles
+              </button>
+              <button class="px-3 py-2 text-[11px] font-medium border-b-2 border-transparent text-slate-600 hover:text-sky-600 flex items-center gap-1">
+                <i data-lucide="briefcase" class="w-3 h-3"></i>Laboral
+              </button>
+              <button class="px-3 py-2 text-[11px] font-medium border-b-2 border-transparent text-slate-600 hover:text-sky-600 flex items-center gap-1">
+                <i data-lucide="key" class="w-3 h-3"></i>Permisos
+              </button>
+              <button class="px-3 py-2 text-[11px] font-medium border-b-2 border-transparent text-slate-600 hover:text-sky-600 flex items-center gap-1">
+                <i data-lucide="monitor" class="w-3 h-3"></i>Sesiones
+              </button>
+            </div>
+          </div>
+
+          <!-- Body scrollable -->
+          <div class="flex-1 overflow-y-auto p-5 space-y-4">
+            <!-- Auto-save indicator -->
+            <div class="text-[10px] text-emerald-700 inline-flex items-center gap-1">
+              <i data-lucide="check-circle" class="w-3 h-3"></i>
+              Cambios se guardan automáticamente · al perder foco del campo
+            </div>
+
+            <!-- Identidad inline edit -->
+            <div class="bg-white border border-slate-200 rounded-xl p-4">
+              <h3 class="text-[13px] font-bold text-slate-900 mb-3 inline-flex items-center gap-1.5">
+                <i data-lucide="user" class="w-4 h-4 text-purple-700"></i>
+                Datos personales
+              </h3>
+              <div class="space-y-2 text-[11px]">
+                <div class="flex justify-between items-center border-b border-slate-100 pb-1.5 group cursor-pointer">
+                  <span class="text-slate-500">Nombre completo</span>
+                  <div class="flex items-center gap-1">
+                    <span class="font-bold text-slate-900">Diego López Salazar</span>
+                    <i data-lucide="edit-2" class="w-3 h-3 text-slate-400 opacity-0 group-hover:opacity-100"></i>
+                  </div>
+                </div>
+                <div class="flex justify-between items-center border-b border-slate-100 pb-1.5">
+                  <span class="text-slate-500">Email</span>
+                  <div class="flex items-center gap-1">
+                    <span class="font-bold text-slate-900">diego.lopez@vita-skin.pe</span>
+                    <i data-lucide="check-circle" class="w-3 h-3 text-emerald-600"></i>
+                  </div>
+                </div>
+                <div class="flex justify-between items-center border-b border-slate-100 pb-1.5 group cursor-pointer">
+                  <span class="text-slate-500">DNI</span>
+                  <div class="flex items-center gap-1">
+                    <span class="font-bold text-slate-900 tabular">42189765</span>
+                    <i data-lucide="edit-2" class="w-3 h-3 text-slate-400 opacity-0 group-hover:opacity-100"></i>
+                  </div>
+                </div>
+                <div class="flex justify-between items-center border-b border-slate-100 pb-1.5 group cursor-pointer">
+                  <span class="text-slate-500">Teléfono</span>
+                  <div class="flex items-center gap-1">
+                    <span class="font-bold text-slate-900 tabular">+51 987 654 321</span>
+                    <i data-lucide="edit-2" class="w-3 h-3 text-slate-400 opacity-0 group-hover:opacity-100"></i>
+                  </div>
+                </div>
+                <div class="flex justify-between items-center border-b border-slate-100 pb-1.5">
+                  <span class="text-slate-500">Fecha de creación</span>
+                  <span class="font-bold text-slate-900">15 mar 2024</span>
+                </div>
+                <div class="flex justify-between items-center pb-1.5">
+                  <span class="text-slate-500">Último acceso</span>
+                  <span class="font-bold text-slate-900">hace 2 min</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Tipo de relación · inline editable -->
+            <div class="bg-sky-50/40 border border-sky-200 rounded-xl p-4">
+              <h3 class="text-[13px] font-bold text-slate-900 mb-3 inline-flex items-center gap-1.5">
+                <i data-lucide="briefcase" class="w-4 h-4 text-sky-700"></i>
+                Tipo de relación con el negocio
+              </h3>
+              <div class="text-[11px] text-slate-600 mb-3">Determina qué módulos ve · permisos de planilla · capital · etc.</div>
+              <select class="w-full px-3 py-2 text-[12px] border border-sky-300 rounded-lg bg-white font-semibold">
+                <option>● Empleado · sueldo fijo · planilla mensual</option>
+                <option>● Honorarios · recibos por honorarios</option>
+                <option>● Socio · capital invertido</option>
+                <option>● Externo · cliente/proveedor/colab</option>
+              </select>
+              <div class="mt-2 text-[10px] text-sky-700 italic">Cambiar este valor habilita o oculta tabs · ej. cambiar a "Externo" oculta el tab Laboral.</div>
+            </div>
+
+            <!-- Footer info -->
+            <div class="text-[10px] text-slate-400 italic text-center pt-2">
+              ID: 0CqU58bx... · creado por José Pinto · 15 mar 2024
+            </div>
+          </div>
+
+          <!-- Footer sticky · acciones -->
+          <div class="px-5 py-3 border-t border-slate-200 bg-slate-50 flex items-center justify-between">
+            <button class="text-[11px] font-medium text-rose-600 hover:bg-rose-50 px-3 py-1.5 rounded inline-flex items-center gap-1">
+              <i data-lucide="user-x" class="w-3.5 h-3.5"></i>Suspender
+            </button>
+            <div class="flex items-center gap-2">
+              <button class="text-[11px] font-medium text-slate-600 hover:bg-white border border-slate-200 px-3 py-1.5 rounded inline-flex items-center gap-1">
+                <i data-lucide="external-link" class="w-3.5 h-3.5"></i>Ver perfil
+              </button>
+              <button class="text-[11px] font-bold text-white bg-purple-600 hover:bg-purple-700 px-3 py-1.5 rounded inline-flex items-center gap-1">
+                <i data-lucide="check" class="w-3.5 h-3.5"></i>Listo
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ACTO 5 · SIDE PANEL EMPLEADO · TAB LABORAL -->
+<section id="a5" class="my-12">
+  <div class="max-w-6xl mx-auto px-4">
+    <div class="bg-gradient-to-r from-sky-100 to-sky-50 ring-1 ring-sky-200 rounded-3xl p-5 mb-6">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 bg-sky-600 rounded-2xl flex items-center justify-center text-white font-bold">5</div>
+        <div>
+          <h2 class="text-lg font-bold text-sky-900">Side Panel · tab Laboral inline-edit</h2>
+          <p class="text-[11px] text-sky-700">Reemplaza /usuarios/uid/editar/laborales · cero drill · auto-save por campo</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="device-desktop bg-white rounded-2xl ring-1 ring-slate-200 overflow-hidden p-4">
+      <div class="flex gap-3" style="height: 720px">
+        <div class="flex-1 bg-slate-100/60 rounded-xl p-4 text-[10px] text-slate-400 text-center pt-20">
+          Lista atenuada<br/>(backdrop)
+        </div>
+
+        <div class="bg-white border-2 border-purple-300 rounded-2xl shadow-2xl overflow-hidden flex flex-col" style="width: 480px">
+          <div class="px-5 py-4 border-b border-slate-200 flex items-start gap-3">
+            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-sky-500 to-sky-700 flex items-center justify-center text-white font-bold text-[14px]">DL</div>
+            <div class="flex-1">
+              <h2 class="text-[15px] font-bold text-slate-900">Diego López</h2>
+              <p class="text-[11px] text-slate-500">Empleado · Vendedor sr.</p>
+            </div>
+            <button class="w-7 h-7 hover:bg-slate-100 rounded flex items-center justify-center"><i data-lucide="x" class="w-4 h-4 text-slate-600"></i></button>
+          </div>
+
+          <div class="border-b border-slate-200 px-2 overflow-x-auto no-scrollbar">
+            <div class="flex gap-1 whitespace-nowrap">
+              <button class="px-3 py-2 text-[11px] font-medium border-b-2 border-transparent text-slate-600 flex items-center gap-1"><i data-lucide="user" class="w-3 h-3"></i>Identidad</button>
+              <button class="px-3 py-2 text-[11px] font-medium border-b-2 border-transparent text-slate-600 flex items-center gap-1"><i data-lucide="shield" class="w-3 h-3"></i>Roles</button>
+              <button class="px-3 py-2 text-[11px] font-bold border-b-2 border-sky-600 text-sky-700 flex items-center gap-1"><i data-lucide="briefcase" class="w-3 h-3"></i>Laboral</button>
+              <button class="px-3 py-2 text-[11px] font-medium border-b-2 border-transparent text-slate-600 flex items-center gap-1"><i data-lucide="key" class="w-3 h-3"></i>Permisos</button>
+              <button class="px-3 py-2 text-[11px] font-medium border-b-2 border-transparent text-slate-600 flex items-center gap-1"><i data-lucide="monitor" class="w-3 h-3"></i>Sesiones</button>
+            </div>
+          </div>
+
+          <div class="flex-1 overflow-y-auto p-5 space-y-4">
+            <div class="text-[10px] text-emerald-700 inline-flex items-center gap-1">
+              <i data-lucide="check-circle" class="w-3 h-3"></i>
+              Última guardado · hace 3 segundos
+            </div>
+
+            <div class="bg-white border border-slate-200 rounded-xl p-4 space-y-2 text-[11px]">
+              <h3 class="text-[13px] font-bold text-slate-900 mb-2 inline-flex items-center gap-1.5">
+                <i data-lucide="briefcase" class="w-4 h-4 text-sky-700"></i>
+                Configuración laboral
+              </h3>
+
+              <div class="flex justify-between items-center border-b border-slate-100 pb-1.5 group cursor-pointer">
+                <span class="text-slate-500">Cargo</span>
+                <div class="flex items-center gap-1">
+                  <span class="font-bold text-sky-900">Vendedor sr.</span>
+                  <i data-lucide="edit-2" class="w-3 h-3 text-slate-400 opacity-0 group-hover:opacity-100"></i>
+                </div>
+              </div>
+              <div class="flex justify-between items-center border-b border-slate-100 pb-1.5 group cursor-pointer">
+                <span class="text-slate-500">Área</span>
+                <div class="flex items-center gap-1">
+                  <span class="font-bold text-sky-900">Ventas</span>
+                  <i data-lucide="edit-2" class="w-3 h-3 text-slate-400 opacity-0 group-hover:opacity-100"></i>
+                </div>
+              </div>
+              <div class="flex justify-between items-center border-b border-slate-100 pb-1.5 group cursor-pointer">
+                <span class="text-slate-500">Sueldo base mensual</span>
+                <div class="flex items-center gap-1">
+                  <span class="font-bold text-sky-900 tabular">S/ 4,500</span>
+                  <i data-lucide="edit-2" class="w-3 h-3 text-slate-400 opacity-0 group-hover:opacity-100"></i>
+                </div>
+              </div>
+              <div class="flex justify-between items-center border-b border-slate-100 pb-1.5 group cursor-pointer">
+                <span class="text-slate-500">Moneda</span>
+                <span class="font-bold text-sky-900">PEN</span>
+              </div>
+              <div class="flex justify-between items-center border-b border-slate-100 pb-1.5 group cursor-pointer">
+                <span class="text-slate-500">Tipo de contrato</span>
+                <span class="font-bold text-sky-900">Indefinido</span>
+              </div>
+              <div class="flex justify-between items-center border-b border-slate-100 pb-1.5 group cursor-pointer">
+                <span class="text-slate-500">Modalidad</span>
+                <span class="font-bold text-sky-900">Presencial</span>
+              </div>
+              <div class="flex justify-between items-center border-b border-slate-100 pb-1.5 group cursor-pointer">
+                <span class="text-slate-500">Fecha de ingreso</span>
+                <span class="font-bold text-sky-900">15 mar 2024</span>
+              </div>
+              <div class="flex justify-between items-center border-b border-slate-100 pb-1.5 group cursor-pointer">
+                <span class="text-slate-500">Vacaciones disponibles</span>
+                <span class="font-bold text-sky-900 tabular">12 días</span>
+              </div>
+            </div>
+
+            <div class="bg-white border border-slate-200 rounded-xl p-4 space-y-2 text-[11px]">
+              <h3 class="text-[13px] font-bold text-slate-900 mb-2 inline-flex items-center gap-1.5">
+                <i data-lucide="banknote" class="w-4 h-4 text-emerald-700"></i>
+                Cuenta bancaria para pagos
+              </h3>
+              <div class="flex justify-between items-center border-b border-slate-100 pb-1.5 group cursor-pointer">
+                <span class="text-slate-500">Banco</span>
+                <span class="font-bold text-slate-900">BCP</span>
+              </div>
+              <div class="flex justify-between items-center border-b border-slate-100 pb-1.5 group cursor-pointer">
+                <span class="text-slate-500">Número de cuenta</span>
+                <span class="font-bold text-slate-900 tabular">****0123</span>
+              </div>
+              <div class="flex justify-between items-center pb-1.5 group cursor-pointer">
+                <span class="text-slate-500">CCI</span>
+                <span class="font-bold text-slate-900 tabular">****4567</span>
+              </div>
+            </div>
+
+            <!-- Esquema de incentivo · solo informativo · navega a Planilla para configurar -->
+            <div class="bg-violet-50/40 border border-violet-200 rounded-xl p-3 flex items-start gap-2">
+              <i data-lucide="info" class="w-3.5 h-3.5 text-violet-700 mt-0.5"></i>
+              <div class="text-[11px] text-violet-900">
+                <strong>Esquemas de incentivo</strong> se configuran en el módulo Planilla (no acá) ·
+                <a class="underline cursor-pointer">Ver esquemas activos →</a>
+              </div>
+            </div>
+          </div>
+
+          <div class="px-5 py-3 border-t border-slate-200 bg-slate-50 flex items-center justify-between">
+            <button class="text-[11px] font-medium text-rose-600 hover:bg-rose-50 px-3 py-1.5 rounded">Suspender</button>
+            <button class="text-[11px] font-bold text-white bg-purple-600 hover:bg-purple-700 px-3 py-1.5 rounded">Listo</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-4 max-w-6xl mx-auto p-3 bg-emerald-50 border border-emerald-200 rounded-lg">
+      <div class="text-[12px] text-emerald-900">
+        <strong>Beneficio clave:</strong> Si querés cambiar el sueldo de Diego, hacés:
+        <ol class="list-decimal list-inside mt-1 space-y-0.5">
+          <li>Click en Diego en la lista (1 click)</li>
+          <li>Click en tab "Laboral" (1 click)</li>
+          <li>Click en valor "Sueldo base" · escribís nuevo monto · Enter (auto-save)</li>
+        </ol>
+        <span class="block mt-2"><strong>Total: 2 clicks + edit inline</strong> · vs 4 clicks + navegación full-page actualmente</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ACTO 6 · SIDE PANEL SOCIO -->
+<section id="a6" class="my-12">
+  <div class="max-w-6xl mx-auto px-4">
+    <div class="bg-gradient-to-r from-violet-100 to-violet-50 ring-1 ring-violet-200 rounded-3xl p-5 mb-6">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 bg-violet-600 rounded-2xl flex items-center justify-center text-white font-bold">6</div>
+        <div>
+          <h2 class="text-lg font-bold text-violet-900">Side Panel socio · tab Capital inline-edit</h2>
+          <p class="text-[11px] text-violet-700">Reemplaza /usuarios/uid/editar/socio · mismo patrón Notion-style canon</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="device-desktop bg-white rounded-2xl ring-1 ring-slate-200 overflow-hidden p-4">
+      <div class="flex gap-3" style="height: 700px">
+        <div class="flex-1 bg-slate-100/60 rounded-xl p-4 text-[10px] text-slate-400 text-center pt-20">Lista atenuada</div>
+        <div class="bg-white border-2 border-purple-300 rounded-2xl shadow-2xl overflow-hidden flex flex-col" style="width: 480px">
+          <div class="px-5 py-4 border-b border-slate-200 flex items-start gap-3">
+            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-violet-500 to-violet-700 flex items-center justify-center text-white font-bold text-[14px]">CS</div>
+            <div class="flex-1">
+              <h2 class="text-[15px] font-bold text-slate-900">Carlos Silva</h2>
+              <p class="text-[11px] text-slate-500">Socio · 35% participación · sin rol operativo</p>
+            </div>
+            <button class="w-7 h-7 hover:bg-slate-100 rounded flex items-center justify-center"><i data-lucide="x" class="w-4 h-4 text-slate-600"></i></button>
+          </div>
+
+          <div class="border-b border-slate-200 px-2 overflow-x-auto no-scrollbar">
+            <div class="flex gap-1 whitespace-nowrap">
+              <button class="px-3 py-2 text-[11px] font-medium border-b-2 border-transparent text-slate-600 flex items-center gap-1"><i data-lucide="user" class="w-3 h-3"></i>Identidad</button>
+              <button class="px-3 py-2 text-[11px] font-medium border-b-2 border-transparent text-slate-600 flex items-center gap-1"><i data-lucide="shield" class="w-3 h-3"></i>Roles</button>
+              <!-- NO tab Laboral · porque tipoRelacion='socio' -->
+              <button class="px-3 py-2 text-[11px] font-bold border-b-2 border-violet-600 text-violet-700 flex items-center gap-1"><i data-lucide="coins" class="w-3 h-3"></i>Capital</button>
+              <button class="px-3 py-2 text-[11px] font-medium border-b-2 border-transparent text-slate-600 flex items-center gap-1"><i data-lucide="key" class="w-3 h-3"></i>Permisos</button>
+              <button class="px-3 py-2 text-[11px] font-medium border-b-2 border-transparent text-slate-600 flex items-center gap-1"><i data-lucide="monitor" class="w-3 h-3"></i>Sesiones</button>
+            </div>
+          </div>
+
+          <div class="flex-1 overflow-y-auto p-5 space-y-4">
+            <div class="text-[10px] text-emerald-700 inline-flex items-center gap-1">
+              <i data-lucide="check-circle" class="w-3 h-3"></i>
+              Guardado automático
+            </div>
+
+            <!-- Hero · participación -->
+            <div class="bg-gradient-to-br from-violet-50 to-purple-50 border-2 border-violet-200 rounded-2xl p-4 text-center">
+              <div class="text-[10px] uppercase tracking-wider text-violet-700 font-bold">PARTICIPACIÓN</div>
+              <div class="text-3xl font-bold tabular text-violet-900 mt-1">35<span class="text-violet-400">%</span></div>
+            </div>
+
+            <div class="bg-white border border-slate-200 rounded-xl p-4 space-y-2 text-[11px]">
+              <h3 class="text-[13px] font-bold text-slate-900 mb-2 inline-flex items-center gap-1.5">
+                <i data-lucide="coins" class="w-4 h-4 text-violet-700"></i>
+                Configuración como socio
+              </h3>
+              <div class="flex justify-between items-center border-b border-slate-100 pb-1.5 group cursor-pointer">
+                <span class="text-slate-500">% participación</span>
+                <div class="flex items-center gap-1">
+                  <span class="font-bold text-violet-900 tabular">35%</span>
+                  <i data-lucide="edit-2" class="w-3 h-3 text-slate-400 opacity-0 group-hover:opacity-100"></i>
+                </div>
+              </div>
+              <div class="flex justify-between items-center border-b border-slate-100 pb-1.5 group cursor-pointer">
+                <span class="text-slate-500">Tipo de participación</span>
+                <span class="font-bold text-violet-900">Cash + Valor</span>
+              </div>
+              <div class="flex justify-between items-center border-b border-slate-100 pb-1.5 group cursor-pointer">
+                <span class="text-slate-500">Capital cash</span>
+                <span class="font-bold text-violet-900 tabular">S/ 25,000</span>
+              </div>
+              <div class="flex justify-between items-center border-b border-slate-100 pb-1.5 group cursor-pointer">
+                <span class="text-slate-500">Capital valor</span>
+                <span class="font-bold text-violet-900 tabular">S/ 10,000</span>
+              </div>
+              <div class="flex justify-between items-center border-b border-slate-100 pb-1.5 group cursor-pointer">
+                <span class="text-slate-500">Fecha alta</span>
+                <span class="font-bold text-violet-900">15 mar 2024</span>
+              </div>
+              <div class="flex justify-between items-center pb-1.5 group cursor-pointer">
+                <span class="text-slate-500">Rol en negocio</span>
+                <span class="font-bold text-violet-900">Co-fundador</span>
+              </div>
+            </div>
+
+            <div class="bg-violet-50/40 border border-violet-200 rounded-xl p-3 flex items-start gap-2">
+              <i data-lucide="info" class="w-3.5 h-3.5 text-violet-700 mt-0.5"></i>
+              <div class="text-[11px] text-violet-900">
+                Para ver <strong>cap table completo · trayectoria 24m · ROI dual</strong> · ir al módulo
+                <a class="underline cursor-pointer font-semibold">Inversionistas →</a>
+              </div>
+            </div>
+          </div>
+
+          <div class="px-5 py-3 border-t border-slate-200 bg-slate-50 flex items-center justify-between">
+            <button class="text-[11px] font-medium text-rose-600 hover:bg-rose-50 px-3 py-1.5 rounded">Suspender</button>
+            <button class="text-[11px] font-bold text-white bg-purple-600 hover:bg-purple-700 px-3 py-1.5 rounded">Listo</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ACTO 7 · MIXTO -->
+<section id="a7" class="my-12">
+  <div class="max-w-6xl mx-auto px-4">
+    <div class="bg-gradient-to-r from-emerald-100 to-emerald-50 ring-1 ring-emerald-200 rounded-3xl p-5 mb-6">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 bg-emerald-600 rounded-2xl flex items-center justify-center text-white font-bold">7</div>
+        <div>
+          <h2 class="text-lg font-bold text-emerald-900">Side Panel mixto · empleado + socio (caso José)</h2>
+          <p class="text-[11px] text-emerald-700">Ambos tabs visibles · tipoRelacion='empleado' + datosSocio configurado</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="device-desktop bg-white rounded-2xl ring-1 ring-slate-200 overflow-hidden p-4">
+      <div class="flex gap-3" style="height: 580px">
+        <div class="flex-1 bg-slate-100/60 rounded-xl p-4 text-[10px] text-slate-400 text-center pt-16">Lista atenuada</div>
+        <div class="bg-white border-2 border-purple-300 rounded-2xl shadow-2xl overflow-hidden flex flex-col" style="width: 480px">
+          <div class="px-5 py-4 border-b border-slate-200 flex items-start gap-3">
+            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-purple-700 flex items-center justify-center text-white font-bold text-[14px]">JP</div>
+            <div class="flex-1">
+              <h2 class="text-[15px] font-bold text-slate-900">José Pinto</h2>
+              <p class="text-[11px] text-slate-500">Empleado + Socio · CEO · Co-fundador</p>
+              <div class="flex items-center gap-1 mt-1 flex-wrap">
+                <span class="text-[9px] bg-sky-100 text-sky-700 font-bold px-1.5 py-0.5 rounded uppercase">EMPLEADO</span>
+                <span class="text-[9px] bg-violet-100 text-violet-700 font-bold px-1.5 py-0.5 rounded uppercase">SOCIO 45%</span>
+                <span class="text-[9px] bg-red-100 text-red-700 font-bold px-1.5 py-0.5 rounded uppercase">ADMIN</span>
+              </div>
+            </div>
+            <button class="w-7 h-7 hover:bg-slate-100 rounded flex items-center justify-center"><i data-lucide="x" class="w-4 h-4 text-slate-600"></i></button>
+          </div>
+
+          <!-- Tabs · NOTA: ambos tabs Laboral Y Capital visibles -->
+          <div class="border-b border-slate-200 px-2 overflow-x-auto no-scrollbar">
+            <div class="flex gap-1 whitespace-nowrap">
+              <button class="px-3 py-2 text-[11px] font-bold border-b-2 border-purple-600 text-purple-700 flex items-center gap-1"><i data-lucide="user" class="w-3 h-3"></i>Identidad</button>
+              <button class="px-3 py-2 text-[11px] font-medium border-b-2 border-transparent text-slate-600 flex items-center gap-1"><i data-lucide="shield" class="w-3 h-3"></i>Roles<span class="bg-slate-100 px-1 rounded-full text-[9px] ml-0.5">3</span></button>
+              <button class="px-3 py-2 text-[11px] font-medium border-b-2 border-transparent text-slate-600 flex items-center gap-1"><i data-lucide="briefcase" class="w-3 h-3 text-sky-700"></i>Laboral</button>
+              <button class="px-3 py-2 text-[11px] font-medium border-b-2 border-transparent text-slate-600 flex items-center gap-1"><i data-lucide="coins" class="w-3 h-3 text-violet-700"></i>Capital</button>
+              <button class="px-3 py-2 text-[11px] font-medium border-b-2 border-transparent text-slate-600 flex items-center gap-1"><i data-lucide="key" class="w-3 h-3"></i>Permisos</button>
+            </div>
+          </div>
+
+          <div class="flex-1 overflow-y-auto p-5">
+            <div class="bg-purple-50 border border-purple-200 rounded-xl p-3 mb-4 inline-flex items-start gap-2">
+              <i data-lucide="users" class="w-3.5 h-3.5 text-purple-700 mt-0.5"></i>
+              <div class="text-[11px] text-purple-900">
+                <strong>Caso multi-rol:</strong> José es empleado (cobra sueldo) Y socio (capital). El side panel
+                muestra ambos tabs · podés gestionar ambos perfiles desde el mismo lugar.
+              </div>
+            </div>
+
+            <!-- Datos personales sintetizados -->
+            <div class="bg-white border border-slate-200 rounded-xl p-4 text-[11px]">
+              <h3 class="text-[12px] font-bold text-slate-900 mb-2">Resumen del usuario</h3>
+              <div class="grid grid-cols-2 gap-x-4 gap-y-2">
+                <div class="border-b border-slate-100 pb-1.5">
+                  <div class="text-slate-500 text-[10px]">Sueldo mensual</div>
+                  <div class="font-bold text-sky-900 tabular">S/ 8,000</div>
+                </div>
+                <div class="border-b border-slate-100 pb-1.5">
+                  <div class="text-slate-500 text-[10px]">Capital comprometido</div>
+                  <div class="font-bold text-violet-900 tabular">S/ 70,000</div>
+                </div>
+                <div class="border-b border-slate-100 pb-1.5">
+                  <div class="text-slate-500 text-[10px]">% participación</div>
+                  <div class="font-bold text-violet-900 tabular">45%</div>
+                </div>
+                <div class="border-b border-slate-100 pb-1.5">
+                  <div class="text-slate-500 text-[10px]">Rol principal</div>
+                  <div class="font-bold text-red-900">Administrador</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="px-5 py-3 border-t border-slate-200 bg-slate-50 flex items-center justify-between">
+            <button class="text-[11px] font-medium text-rose-600 hover:bg-rose-50 px-3 py-1.5 rounded">Suspender</button>
+            <button class="text-[11px] font-bold text-white bg-purple-600 hover:bg-purple-700 px-3 py-1.5 rounded">Listo</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ACTO 8 · EXTERNO -->
+<section id="a8" class="my-12">
+  <div class="max-w-6xl mx-auto px-4">
+    <div class="bg-gradient-to-r from-slate-100 to-slate-50 ring-1 ring-slate-200 rounded-3xl p-5 mb-6">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 bg-slate-700 rounded-2xl flex items-center justify-center text-white font-bold">8</div>
+        <div>
+          <h2 class="text-lg font-bold text-slate-900">Side Panel externo · tabs reducidos</h2>
+          <p class="text-[11px] text-slate-700">Cliente/proveedor · NO tabs Laboral/Capital · acceso limitado</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="device-desktop bg-white rounded-2xl ring-1 ring-slate-200 overflow-hidden p-4">
+      <div class="flex gap-3" style="height: 580px">
+        <div class="flex-1 bg-slate-100/60 rounded-xl p-4 text-[10px] text-slate-400 text-center pt-16">Lista atenuada</div>
+        <div class="bg-white border-2 border-slate-300 rounded-2xl shadow-2xl overflow-hidden flex flex-col" style="width: 480px">
+          <div class="px-5 py-4 border-b border-slate-200 flex items-start gap-3">
+            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-slate-400 to-slate-600 flex items-center justify-center text-white font-bold text-[14px]">MC</div>
+            <div class="flex-1">
+              <h2 class="text-[15px] font-bold text-slate-900">María Castro</h2>
+              <p class="text-[11px] text-slate-500">Externo · Cliente VIP de Constructora ABC</p>
+              <div class="flex items-center gap-1 mt-1 flex-wrap">
+                <span class="text-[9px] bg-slate-100 text-slate-700 font-bold px-1.5 py-0.5 rounded uppercase">EXTERNO</span>
+                <span class="text-[9px] bg-slate-50 text-slate-600 font-bold px-1.5 py-0.5 rounded">Cliente</span>
+              </div>
+            </div>
+            <button class="w-7 h-7 hover:bg-slate-100 rounded flex items-center justify-center"><i data-lucide="x" class="w-4 h-4 text-slate-600"></i></button>
+          </div>
+
+          <!-- Tabs REDUCIDOS · sin Laboral · sin Capital -->
+          <div class="border-b border-slate-200 px-2 overflow-x-auto no-scrollbar">
+            <div class="flex gap-1 whitespace-nowrap">
+              <button class="px-3 py-2 text-[11px] font-bold border-b-2 border-slate-700 text-slate-900 flex items-center gap-1"><i data-lucide="user" class="w-3 h-3"></i>Identidad</button>
+              <button class="px-3 py-2 text-[11px] font-medium border-b-2 border-transparent text-slate-600 flex items-center gap-1"><i data-lucide="shield" class="w-3 h-3"></i>Acceso</button>
+              <button class="px-3 py-2 text-[11px] font-medium border-b-2 border-transparent text-slate-600 flex items-center gap-1"><i data-lucide="monitor" class="w-3 h-3"></i>Sesiones</button>
+              <!-- NO Laboral · NO Capital · NO Permisos detallados -->
+            </div>
+          </div>
+
+          <div class="flex-1 overflow-y-auto p-5 space-y-4">
+            <div class="bg-slate-100 border border-slate-200 rounded-lg p-3 text-[11px] text-slate-700 inline-flex items-start gap-2">
+              <i data-lucide="lock" class="w-3.5 h-3.5 mt-0.5"></i>
+              <span><strong>Usuario externo:</strong> sin tabs Laboral · Capital · Permisos detallados.
+              Acceso limitado a información específica acordada.</span>
+            </div>
+
+            <div class="bg-white border border-slate-200 rounded-xl p-4 space-y-2 text-[11px]">
+              <h3 class="text-[12px] font-bold text-slate-900 mb-2">Datos básicos del externo</h3>
+              <div class="flex justify-between border-b border-slate-100 pb-1.5">
+                <span class="text-slate-500">Nombre</span>
+                <span class="font-bold text-slate-900">María Castro</span>
+              </div>
+              <div class="flex justify-between border-b border-slate-100 pb-1.5">
+                <span class="text-slate-500">Email</span>
+                <span class="font-bold text-slate-900">maria@constructora-abc.com</span>
+              </div>
+              <div class="flex justify-between border-b border-slate-100 pb-1.5">
+                <span class="text-slate-500">Subtipo</span>
+                <span class="font-bold text-slate-900">Cliente VIP</span>
+              </div>
+              <div class="flex justify-between border-b border-slate-100 pb-1.5">
+                <span class="text-slate-500">Empresa/Entidad</span>
+                <span class="font-bold text-slate-900">Constructora ABC</span>
+              </div>
+              <div class="flex justify-between pb-1.5">
+                <span class="text-slate-500">Acceso vigente hasta</span>
+                <span class="font-bold text-slate-900">31 dic 2026</span>
+              </div>
+            </div>
+
+            <div class="bg-amber-50 border border-amber-200 rounded-lg p-3 text-[11px] text-amber-900">
+              <strong>Permisos limitados:</strong> solo lectura de sus propias ventas/cotizaciones · sin acceso a planilla · sin acceso a otros usuarios.
+            </div>
+          </div>
+
+          <div class="px-5 py-3 border-t border-slate-200 bg-slate-50 flex items-center justify-between">
+            <button class="text-[11px] font-medium text-rose-600 hover:bg-rose-50 px-3 py-1.5 rounded">Revocar acceso</button>
+            <button class="text-[11px] font-bold text-white bg-slate-700 hover:bg-slate-800 px-3 py-1.5 rounded">Listo</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DIVISOR WIZARD -->
+<section class="my-16 max-w-6xl mx-auto px-4">
+  <div class="bg-gradient-to-r from-amber-600 to-amber-700 text-white rounded-3xl p-6 shadow-xl">
+    <div class="flex items-center gap-4">
+      <div class="w-14 h-14 bg-white/20 rounded-2xl flex items-center justify-center flex-shrink-0">
+        <i data-lucide="sparkles" class="w-7 h-7"></i>
+      </div>
+      <div>
+        <h2 class="text-2xl font-bold">Wizard "Nuevo usuario" · 4 pasos · captura completa</h2>
+        <p class="text-[13px] opacity-90 mt-1">Resuelve la causa raíz del bug "Mi planilla no se activa" · datos correctos desde el alta</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ACTO 9 · WIZARD PASO 1 -->
+<section id="a9" class="my-12">
+  <div class="max-w-6xl mx-auto px-4">
+    <div class="bg-gradient-to-r from-amber-100 to-amber-50 ring-1 ring-amber-200 rounded-3xl p-5 mb-6">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 bg-amber-600 rounded-2xl flex items-center justify-center text-white font-bold">9</div>
+        <div>
+          <h2 class="text-lg font-bold text-amber-900">Wizard · paso 1 · Básicos</h2>
+          <p class="text-[11px] text-amber-700">Email · nombre · foto · DNI · teléfono</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="device-desktop bg-white rounded-2xl ring-1 ring-slate-200 overflow-hidden">
+      <!-- Stepper -->
+      <div class="px-6 py-4 border-b border-slate-200 bg-slate-50 flex items-center gap-3 overflow-x-auto no-scrollbar">
+        <div class="flex items-center gap-2 text-[11px] flex-shrink-0">
+          <div class="w-6 h-6 rounded-full bg-purple-600 text-white font-bold flex items-center justify-center text-[11px]">1</div>
+          <span class="font-bold text-purple-700">Básicos</span>
+        </div>
+        <div class="flex-1 h-px bg-slate-300 min-w-[40px]"></div>
+        <div class="flex items-center gap-2 text-[11px] text-slate-500 flex-shrink-0">
+          <div class="w-6 h-6 rounded-full bg-slate-200 font-bold flex items-center justify-center text-[11px]">2</div>
+          <span>Tipo de relación</span>
+        </div>
+        <div class="flex-1 h-px bg-slate-300 min-w-[40px]"></div>
+        <div class="flex items-center gap-2 text-[11px] text-slate-500 flex-shrink-0">
+          <div class="w-6 h-6 rounded-full bg-slate-200 font-bold flex items-center justify-center text-[11px]">3</div>
+          <span>Roles</span>
+        </div>
+        <div class="flex-1 h-px bg-slate-300 min-w-[40px]"></div>
+        <div class="flex items-center gap-2 text-[11px] text-slate-500 flex-shrink-0">
+          <div class="w-6 h-6 rounded-full bg-slate-200 font-bold flex items-center justify-center text-[11px]">4</div>
+          <span>Detalles</span>
+        </div>
+      </div>
+
+      <div class="px-6 py-6 max-w-2xl mx-auto space-y-4">
+        <div class="text-center mb-4">
+          <h1 class="text-[20px] font-bold text-slate-900">Nuevo usuario · datos básicos</h1>
+          <p class="text-[12px] text-slate-500 mt-1">Email + nombre son obligatorios · el resto se puede completar después</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div>
+            <label class="text-[11px] font-bold uppercase tracking-wider text-slate-700 block mb-1">Email <span class="text-rose-600">*</span></label>
+            <input type="email" placeholder="ej. nuevo.colaborador@vita-skin.pe" class="w-full px-3 py-2 text-[13px] border border-slate-300 rounded-lg focus:border-purple-500 focus:outline-none" />
+            <div class="text-[10px] text-slate-500 mt-0.5">Se enviará link de invitación para configurar contraseña</div>
+          </div>
+          <div>
+            <label class="text-[11px] font-bold uppercase tracking-wider text-slate-700 block mb-1">Nombre completo <span class="text-rose-600">*</span></label>
+            <input type="text" placeholder="ej. Ana Rodríguez Salazar" class="w-full px-3 py-2 text-[13px] border border-slate-300 rounded-lg focus:border-purple-500 focus:outline-none" />
+          </div>
+          <div>
+            <label class="text-[11px] font-bold uppercase tracking-wider text-slate-700 block mb-1">DNI</label>
+            <input type="text" placeholder="12345678" maxlength="12" class="w-full px-3 py-2 text-[13px] tabular border border-slate-300 rounded-lg focus:border-purple-500 focus:outline-none" />
+          </div>
+          <div>
+            <label class="text-[11px] font-bold uppercase tracking-wider text-slate-700 block mb-1">Teléfono</label>
+            <input type="tel" placeholder="+51 987 654 321" class="w-full px-3 py-2 text-[13px] tabular border border-slate-300 rounded-lg focus:border-purple-500 focus:outline-none" />
+          </div>
+        </div>
+
+        <div class="bg-sky-50 border border-sky-200 rounded-lg p-3 text-[11px] text-sky-900 inline-flex items-start gap-2">
+          <i data-lucide="info" class="w-3.5 h-3.5 mt-0.5 flex-shrink-0"></i>
+          <span>El user recibirá un email con link para activar su cuenta y elegir contraseña · expira en 7 días.</span>
+        </div>
+      </div>
+
+      <div class="px-6 py-3 border-t border-slate-200 bg-slate-50 flex items-center justify-between">
+        <button class="text-[12px] font-medium text-slate-600 hover:bg-white border border-slate-200 px-3 py-1.5 rounded">Cancelar</button>
+        <button class="text-[12px] font-bold text-white bg-purple-600 hover:bg-purple-700 px-4 py-1.5 rounded inline-flex items-center gap-1.5">Siguiente · Tipo de relación<i data-lucide="arrow-right" class="w-3.5 h-3.5"></i></button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ACTO 10 · WIZARD PASO 2 · TIPO DE RELACIÓN -->
+<section id="a10" class="my-12">
+  <div class="max-w-6xl mx-auto px-4">
+    <div class="bg-gradient-to-r from-amber-100 to-amber-50 ring-1 ring-amber-200 rounded-3xl p-5 mb-6">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 bg-amber-600 rounded-2xl flex items-center justify-center text-white font-bold">10</div>
+        <div>
+          <h2 class="text-lg font-bold text-amber-900">Wizard · paso 2 · Tipo de relación</h2>
+          <p class="text-[11px] text-amber-700">El paso más importante · determina toda la UX siguiente · 4 opciones radio cards</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="device-desktop bg-white rounded-2xl ring-1 ring-slate-200 overflow-hidden">
+      <div class="px-6 py-4 border-b border-slate-200 bg-slate-50 flex items-center gap-3 overflow-x-auto no-scrollbar">
+        <div class="flex items-center gap-2 text-[11px] flex-shrink-0">
+          <div class="w-6 h-6 rounded-full bg-emerald-500 text-white font-bold flex items-center justify-center"><i data-lucide="check" class="w-3 h-3"></i></div>
+          <span class="text-slate-700">Básicos</span>
+        </div>
+        <div class="flex-1 h-px bg-purple-300 min-w-[40px]"></div>
+        <div class="flex items-center gap-2 text-[11px] flex-shrink-0">
+          <div class="w-6 h-6 rounded-full bg-purple-600 text-white font-bold flex items-center justify-center text-[11px]">2</div>
+          <span class="font-bold text-purple-700">Tipo de relación</span>
+        </div>
+        <div class="flex-1 h-px bg-slate-300 min-w-[40px]"></div>
+        <div class="flex items-center gap-2 text-[11px] text-slate-500 flex-shrink-0">
+          <div class="w-6 h-6 rounded-full bg-slate-200 font-bold flex items-center justify-center text-[11px]">3</div>
+          <span>Roles</span>
+        </div>
+        <div class="flex-1 h-px bg-slate-300 min-w-[40px]"></div>
+        <div class="flex items-center gap-2 text-[11px] text-slate-500 flex-shrink-0">
+          <div class="w-6 h-6 rounded-full bg-slate-200 font-bold flex items-center justify-center text-[11px]">4</div>
+          <span>Detalles</span>
+        </div>
+      </div>
+
+      <div class="px-6 py-6 max-w-3xl mx-auto">
+        <div class="text-center mb-4">
+          <h1 class="text-[20px] font-bold text-slate-900">¿Qué tipo de relación tendrá Ana Rodríguez con el negocio?</h1>
+          <p class="text-[12px] text-slate-500 mt-1">Esta elección determina cómo paga el negocio · qué módulos accede · qué tabs aparecen</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <!-- Card empleado · seleccionada -->
+          <button class="bg-sky-50 ring-2 ring-sky-500 rounded-xl p-4 text-left transition-all">
+            <div class="flex items-start gap-3 mb-2">
+              <div class="w-10 h-10 bg-sky-600 rounded-xl flex items-center justify-center text-white">
+                <i data-lucide="briefcase" class="w-5 h-5"></i>
+              </div>
+              <div class="flex-1">
+                <div class="flex items-center gap-2">
+                  <span class="text-[13px] font-bold text-sky-900">Empleado</span>
+                  <span class="text-[9px] bg-sky-200 text-sky-900 font-bold px-1.5 py-0.5 rounded">SELECCIONADO</span>
+                </div>
+                <div class="text-[11px] text-slate-600">Sueldo fijo · planilla mensual</div>
+              </div>
+            </div>
+            <ul class="text-[10px] text-slate-700 space-y-0.5 mt-2 ml-1">
+              <li>• Recibe sueldo mensual fijo</li>
+              <li>• Boletas · adelantos · vacaciones</li>
+              <li>• Gratificaciones jul/dic Perú</li>
+              <li>• Esquemas de incentivo opcionales</li>
+            </ul>
+          </button>
+
+          <!-- Card honorarios -->
+          <button class="bg-white border border-slate-200 hover:border-emerald-300 hover:bg-emerald-50/30 rounded-xl p-4 text-left transition-all">
+            <div class="flex items-start gap-3 mb-2">
+              <div class="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center">
+                <i data-lucide="file-text" class="w-5 h-5 text-emerald-700"></i>
+              </div>
+              <div class="flex-1">
+                <span class="text-[13px] font-bold text-slate-900">Honorarios</span>
+                <div class="text-[11px] text-slate-600">Recibos por honorarios · sin sueldo fijo</div>
+              </div>
+            </div>
+            <ul class="text-[10px] text-slate-700 space-y-0.5 mt-2 ml-1">
+              <li>• Pago por servicios prestados</li>
+              <li>• Sin sueldo fijo · sin vacaciones</li>
+              <li>• Adelantos sí permitidos</li>
+              <li>• Útil para freelancers o consultores</li>
+            </ul>
+          </button>
+
+          <!-- Card socio -->
+          <button class="bg-white border border-slate-200 hover:border-violet-300 hover:bg-violet-50/30 rounded-xl p-4 text-left transition-all">
+            <div class="flex items-start gap-3 mb-2">
+              <div class="w-10 h-10 bg-violet-100 rounded-xl flex items-center justify-center">
+                <i data-lucide="coins" class="w-5 h-5 text-violet-700"></i>
+              </div>
+              <div class="flex-1">
+                <span class="text-[13px] font-bold text-slate-900">Socio</span>
+                <div class="text-[11px] text-slate-600">Capital invertido · distribuciones</div>
+              </div>
+            </div>
+            <ul class="text-[10px] text-slate-700 space-y-0.5 mt-2 ml-1">
+              <li>• % participación + capital aportado</li>
+              <li>• Distribuciones de utilidad</li>
+              <li>• Puede o no trabajar en el negocio</li>
+              <li>• Acceso al módulo Inversionistas</li>
+            </ul>
+          </button>
+
+          <!-- Card externo -->
+          <button class="bg-white border border-slate-200 hover:border-slate-400 hover:bg-slate-100 rounded-xl p-4 text-left transition-all">
+            <div class="flex items-start gap-3 mb-2">
+              <div class="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center">
+                <i data-lucide="external-link" class="w-5 h-5 text-slate-600"></i>
+              </div>
+              <div class="flex-1">
+                <span class="text-[13px] font-bold text-slate-900">Externo</span>
+                <div class="text-[11px] text-slate-600">Cliente · proveedor · colab puntual</div>
+              </div>
+            </div>
+            <ul class="text-[10px] text-slate-700 space-y-0.5 mt-2 ml-1">
+              <li>• Sin pagos del negocio</li>
+              <li>• Acceso limitado a info acordada</li>
+              <li>• Útil para clientes VIP · proveedores · auditores</li>
+              <li>• Sin tabs Laboral/Capital · sin planilla</li>
+            </ul>
+          </button>
+        </div>
+
+        <div class="mt-4 bg-amber-50 border border-amber-200 rounded-lg p-3 text-[11px] text-amber-900 inline-flex items-start gap-2">
+          <i data-lucide="lightbulb" class="w-3.5 h-3.5 mt-0.5 flex-shrink-0"></i>
+          <span><strong>Multi-rol viene después:</strong> si Ana también es socia · podés asignarle datos
+          de socio luego en su side panel · el wizard captura solo el tipo principal.</span>
+        </div>
+      </div>
+
+      <div class="px-6 py-3 border-t border-slate-200 bg-slate-50 flex items-center justify-between">
+        <button class="text-[12px] font-medium text-slate-600 hover:bg-white border border-slate-200 px-3 py-1.5 rounded inline-flex items-center gap-1"><i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>Atrás</button>
+        <button class="text-[12px] font-bold text-white bg-purple-600 hover:bg-purple-700 px-4 py-1.5 rounded inline-flex items-center gap-1.5">Siguiente · Roles<i data-lucide="arrow-right" class="w-3.5 h-3.5"></i></button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ACTO 11 · WIZARD PASO 3 ROLES -->
+<section id="a11" class="my-12">
+  <div class="max-w-6xl mx-auto px-4">
+    <div class="bg-gradient-to-r from-amber-100 to-amber-50 ring-1 ring-amber-200 rounded-3xl p-5 mb-6">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 bg-amber-600 rounded-2xl flex items-center justify-center text-white font-bold">11</div>
+        <div>
+          <h2 class="text-lg font-bold text-amber-900">Wizard · paso 3 · Roles del sistema</h2>
+          <p class="text-[11px] text-amber-700">Multi-select checkboxes · roles filtrados según tipoRelacion (externo solo ve 'invitado')</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="device-desktop bg-white rounded-2xl ring-1 ring-slate-200 overflow-hidden">
+      <div class="px-6 py-4 border-b border-slate-200 bg-slate-50 flex items-center gap-3 overflow-x-auto no-scrollbar">
+        <div class="flex items-center gap-2 text-[11px] flex-shrink-0">
+          <div class="w-6 h-6 rounded-full bg-emerald-500 text-white font-bold flex items-center justify-center"><i data-lucide="check" class="w-3 h-3"></i></div>
+          <span class="text-slate-700">Básicos</span>
+        </div>
+        <div class="flex-1 h-px bg-emerald-300 min-w-[40px]"></div>
+        <div class="flex items-center gap-2 text-[11px] flex-shrink-0">
+          <div class="w-6 h-6 rounded-full bg-emerald-500 text-white font-bold flex items-center justify-center"><i data-lucide="check" class="w-3 h-3"></i></div>
+          <span class="text-slate-700">Tipo</span>
+        </div>
+        <div class="flex-1 h-px bg-purple-300 min-w-[40px]"></div>
+        <div class="flex items-center gap-2 text-[11px] flex-shrink-0">
+          <div class="w-6 h-6 rounded-full bg-purple-600 text-white font-bold flex items-center justify-center text-[11px]">3</div>
+          <span class="font-bold text-purple-700">Roles</span>
+        </div>
+        <div class="flex-1 h-px bg-slate-300 min-w-[40px]"></div>
+        <div class="flex items-center gap-2 text-[11px] text-slate-500 flex-shrink-0">
+          <div class="w-6 h-6 rounded-full bg-slate-200 font-bold flex items-center justify-center text-[11px]">4</div>
+          <span>Detalles</span>
+        </div>
+      </div>
+
+      <div class="px-6 py-6 max-w-3xl mx-auto">
+        <div class="text-center mb-4">
+          <h1 class="text-[20px] font-bold text-slate-900">¿Qué roles del sistema tendrá?</h1>
+          <p class="text-[12px] text-slate-500 mt-1">Podés elegir más de uno · cada rol da acceso a distintos módulos</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-2 max-w-2xl mx-auto">
+          <label class="flex items-start gap-3 p-3 border border-sky-200 bg-sky-50 rounded-lg cursor-pointer">
+            <input type="checkbox" checked class="mt-1" />
+            <div class="flex-1">
+              <div class="text-[12px] font-bold text-sky-900">Vendedor</div>
+              <div class="text-[10px] text-slate-600">Ventas · cotizaciones · clientes</div>
+            </div>
+          </label>
+          <label class="flex items-start gap-3 p-3 border border-slate-200 hover:border-slate-300 rounded-lg cursor-pointer">
+            <input type="checkbox" class="mt-1" />
+            <div class="flex-1">
+              <div class="text-[12px] font-bold text-slate-900">Comprador</div>
+              <div class="text-[10px] text-slate-600">OC · proveedores · requerimientos</div>
+            </div>
+          </label>
+          <label class="flex items-start gap-3 p-3 border border-slate-200 hover:border-slate-300 rounded-lg cursor-pointer">
+            <input type="checkbox" class="mt-1" />
+            <div class="flex-1">
+              <div class="text-[12px] font-bold text-slate-900">Almacenero</div>
+              <div class="text-[10px] text-slate-600">Inventario · transferencias · stock</div>
+            </div>
+          </label>
+          <label class="flex items-start gap-3 p-3 border border-slate-200 hover:border-slate-300 rounded-lg cursor-pointer">
+            <input type="checkbox" class="mt-1" />
+            <div class="flex-1">
+              <div class="text-[12px] font-bold text-slate-900">Finanzas</div>
+              <div class="text-[10px] text-slate-600">Tesorería · gastos · planilla</div>
+            </div>
+          </label>
+          <label class="flex items-start gap-3 p-3 border border-slate-200 hover:border-slate-300 rounded-lg cursor-pointer">
+            <input type="checkbox" class="mt-1" />
+            <div class="flex-1">
+              <div class="text-[12px] font-bold text-slate-900">Gerente</div>
+              <div class="text-[10px] text-slate-600">Vista cross-módulos · gestión</div>
+            </div>
+          </label>
+          <label class="flex items-start gap-3 p-3 border border-slate-200 hover:border-slate-300 rounded-lg cursor-pointer opacity-60">
+            <input type="checkbox" disabled class="mt-1" />
+            <div class="flex-1">
+              <div class="text-[12px] font-bold text-slate-900">Administrador <span class="text-[9px] bg-red-100 text-red-700 px-1 rounded">ROOT</span></div>
+              <div class="text-[10px] text-slate-600">Solo asignable por admin existente</div>
+            </div>
+          </label>
+        </div>
+
+        <div class="mt-4 bg-emerald-50 border border-emerald-200 rounded-lg p-3 text-[11px] text-emerald-900 inline-flex items-start gap-2">
+          <i data-lucide="check-circle" class="w-3.5 h-3.5 mt-0.5 flex-shrink-0"></i>
+          <span><strong>1 rol seleccionado:</strong> Vendedor · 12 permisos heredados (ver/crear/editar ventas · cotizaciones · entregas · etc)</span>
+        </div>
+      </div>
+
+      <div class="px-6 py-3 border-t border-slate-200 bg-slate-50 flex items-center justify-between">
+        <button class="text-[12px] font-medium text-slate-600 hover:bg-white border border-slate-200 px-3 py-1.5 rounded inline-flex items-center gap-1"><i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>Atrás</button>
+        <button class="text-[12px] font-bold text-white bg-purple-600 hover:bg-purple-700 px-4 py-1.5 rounded inline-flex items-center gap-1.5">Siguiente · Detalles<i data-lucide="arrow-right" class="w-3.5 h-3.5"></i></button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ACTO 12 · WIZARD PASO 4 -->
+<section id="a12" class="my-12">
+  <div class="max-w-6xl mx-auto px-4">
+    <div class="bg-gradient-to-r from-amber-100 to-amber-50 ring-1 ring-amber-200 rounded-3xl p-5 mb-6">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 bg-amber-600 rounded-2xl flex items-center justify-center text-white font-bold">12</div>
+        <div>
+          <h2 class="text-lg font-bold text-amber-900">Wizard · paso 4 · Detalles contextuales</h2>
+          <p class="text-[11px] text-amber-700">Campos según tipoRelacion · empleado pide laboral · socio pide capital · externo skip</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="device-desktop bg-white rounded-2xl ring-1 ring-slate-200 overflow-hidden">
+      <div class="px-6 py-4 border-b border-slate-200 bg-slate-50 flex items-center gap-3 overflow-x-auto no-scrollbar">
+        <div class="flex items-center gap-2 text-[11px] flex-shrink-0">
+          <div class="w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center"><i data-lucide="check" class="w-3 h-3"></i></div>
+          <span class="text-slate-700">Básicos</span>
+        </div>
+        <div class="flex-1 h-px bg-emerald-300"></div>
+        <div class="flex items-center gap-2 text-[11px] flex-shrink-0">
+          <div class="w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center"><i data-lucide="check" class="w-3 h-3"></i></div>
+          <span class="text-slate-700">Tipo</span>
+        </div>
+        <div class="flex-1 h-px bg-emerald-300"></div>
+        <div class="flex items-center gap-2 text-[11px] flex-shrink-0">
+          <div class="w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center"><i data-lucide="check" class="w-3 h-3"></i></div>
+          <span class="text-slate-700">Roles</span>
+        </div>
+        <div class="flex-1 h-px bg-purple-300"></div>
+        <div class="flex items-center gap-2 text-[11px] flex-shrink-0">
+          <div class="w-6 h-6 rounded-full bg-purple-600 text-white font-bold flex items-center justify-center text-[11px]">4</div>
+          <span class="font-bold text-purple-700">Detalles</span>
+        </div>
+      </div>
+
+      <div class="px-6 py-6 max-w-3xl mx-auto space-y-4">
+        <div class="text-center mb-4">
+          <h1 class="text-[20px] font-bold text-slate-900">Detalles laborales · paso final</h1>
+          <p class="text-[12px] text-slate-500 mt-1">Como elegiste "Empleado" necesitamos cargo · área · sueldo · contrato</p>
+        </div>
+
+        <!-- Contextual: empleado · campos laborales -->
+        <div class="bg-sky-50/40 border border-sky-200 rounded-xl p-4 space-y-3">
+          <h3 class="text-[13px] font-bold text-slate-900 inline-flex items-center gap-1.5">
+            <i data-lucide="briefcase" class="w-4 h-4 text-sky-700"></i>
+            Datos laborales
+          </h3>
+          <div class="grid grid-cols-2 gap-3 text-[11px]">
+            <div>
+              <label class="font-bold text-slate-700 block mb-1">Cargo <span class="text-rose-600">*</span></label>
+              <input type="text" placeholder="ej. Vendedor sr." class="w-full px-3 py-2 text-[12px] border border-slate-300 rounded-lg" />
+            </div>
+            <div>
+              <label class="font-bold text-slate-700 block mb-1">Área <span class="text-rose-600">*</span></label>
+              <select class="w-full px-3 py-2 text-[12px] border border-slate-300 rounded-lg bg-white">
+                <option>Ventas</option><option>Compras</option><option>Almacén</option><option>Finanzas</option><option>Dirección</option>
+              </select>
+            </div>
+            <div>
+              <label class="font-bold text-slate-700 block mb-1">Sueldo base mensual <span class="text-rose-600">*</span></label>
+              <div class="flex">
+                <select class="px-2 py-2 text-[12px] border border-slate-300 rounded-l-lg bg-white border-r-0">
+                  <option>PEN · S/</option><option>USD · $</option>
+                </select>
+                <input type="number" min="0" placeholder="4500" class="w-full px-3 py-2 text-[12px] tabular border border-slate-300 rounded-r-lg" />
+              </div>
+            </div>
+            <div>
+              <label class="font-bold text-slate-700 block mb-1">Tipo de contrato</label>
+              <select class="w-full px-3 py-2 text-[12px] border border-slate-300 rounded-lg bg-white">
+                <option>Indefinido</option><option>Plazo fijo</option><option>Locación servicios</option><option>Prácticas</option>
+              </select>
+            </div>
+            <div>
+              <label class="font-bold text-slate-700 block mb-1">Modalidad</label>
+              <select class="w-full px-3 py-2 text-[12px] border border-slate-300 rounded-lg bg-white">
+                <option>Presencial</option><option>Híbrido</option><option>Remoto</option>
+              </select>
+            </div>
+            <div>
+              <label class="font-bold text-slate-700 block mb-1">Fecha de ingreso</label>
+              <input type="date" value="2026-05-28" class="w-full px-3 py-2 text-[12px] border border-slate-300 rounded-lg" />
+            </div>
+            <div>
+              <label class="font-bold text-slate-700 block mb-1">Vacaciones anuales</label>
+              <input type="number" min="0" placeholder="30" class="w-full px-3 py-2 text-[12px] tabular border border-slate-300 rounded-lg" />
+            </div>
+            <div>
+              <label class="font-bold text-slate-700 block mb-1">Banco</label>
+              <input type="text" placeholder="BCP" class="w-full px-3 py-2 text-[12px] border border-slate-300 rounded-lg" />
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-emerald-50 border border-emerald-200 rounded-lg p-3 text-[11px] text-emerald-900 inline-flex items-start gap-2">
+          <i data-lucide="check-circle" class="w-3.5 h-3.5 mt-0.5 flex-shrink-0"></i>
+          <span><strong>Al confirmar:</strong> se crea el user en Firestore · email de invitación enviado · datos laborales asentados · cuando active su cuenta verá "Mi planilla" funcional desde el primer día.</span>
+        </div>
+      </div>
+
+      <div class="px-6 py-3 border-t border-slate-200 bg-slate-50 flex items-center justify-between">
+        <button class="text-[12px] font-medium text-slate-600 hover:bg-white border border-slate-200 px-3 py-1.5 rounded inline-flex items-center gap-1"><i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>Atrás</button>
+        <button class="text-[12px] font-bold text-white bg-emerald-600 hover:bg-emerald-700 px-4 py-1.5 rounded inline-flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5"></i>Crear usuario</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DIVISOR MOBILE -->
+<section class="my-16 max-w-6xl mx-auto px-4">
+  <div class="bg-gradient-to-r from-rose-600 to-rose-700 text-white rounded-3xl p-6 shadow-xl">
+    <div class="flex items-center gap-4">
+      <div class="w-14 h-14 bg-white/20 rounded-2xl flex items-center justify-center flex-shrink-0">
+        <i data-lucide="smartphone" class="w-7 h-7"></i>
+      </div>
+      <div>
+        <h2 class="text-2xl font-bold">Vista mobile · 3 actos · canon 2026-05-27</h2>
+        <p class="text-[13px] opacity-90 mt-1">Side panel full-screen · wizard stack · lista cards 1-col</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ACTO 13 · MOBILE SIDE PANEL -->
+<section id="a13" class="my-12">
+  <div class="max-w-6xl mx-auto px-4">
+    <div class="bg-gradient-to-r from-rose-100 to-rose-50 ring-1 ring-rose-200 rounded-3xl p-5 mb-6">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 bg-rose-600 rounded-2xl flex items-center justify-center text-white font-bold">13</div>
+        <div>
+          <h2 class="text-lg font-bold text-rose-900">Mobile · side panel full-screen</h2>
+          <p class="text-[11px] text-rose-700">375px · ocupa pantalla completa · sub-tabs scroll-x · inline-edit con tap</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="iphone-frame">
+      <div class="bg-white" style="min-height: 700px">
+        <div class="bg-slate-50 px-4 py-1 text-[10px] text-slate-600 flex justify-between">
+          <span>9:41</span><span>BusinessMN</span><span>100%</span>
+        </div>
+        <div class="px-3 py-3 border-b border-slate-100 flex items-center gap-2">
+          <button class="w-11 h-11 bg-slate-100 rounded-lg flex items-center justify-center flex-shrink-0">
+            <i data-lucide="arrow-left" class="w-5 h-5 text-slate-700"></i>
+          </button>
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-sky-500 to-sky-700 flex items-center justify-center text-white font-bold text-[12px]">DL</div>
+          <div class="flex-1 min-w-0">
+            <h1 class="text-[14px] font-bold text-slate-900 truncate">Diego López</h1>
+            <p class="text-[10px] text-slate-500 truncate">Empleado · Vendedor sr.</p>
+          </div>
+          <button class="w-11 h-11 hover:bg-slate-100 rounded-lg flex items-center justify-center flex-shrink-0">
+            <i data-lucide="more-vertical" class="w-4 h-4 text-slate-600"></i>
+          </button>
+        </div>
+
+        <div class="border-b border-slate-200 overflow-x-auto no-scrollbar">
+          <div class="flex gap-1 px-2 whitespace-nowrap" style="min-height: 44px">
+            <button class="px-3 py-2.5 text-[11px] font-medium border-b-2 border-transparent text-slate-600 flex items-center gap-1"><i data-lucide="user" class="w-3 h-3"></i>Identidad</button>
+            <button class="px-3 py-2.5 text-[11px] font-medium border-b-2 border-transparent text-slate-600 flex items-center gap-1"><i data-lucide="shield" class="w-3 h-3"></i>Roles</button>
+            <button class="px-3 py-2.5 text-[11px] font-bold border-b-2 border-sky-600 text-sky-700 flex items-center gap-1"><i data-lucide="briefcase" class="w-3 h-3"></i>Laboral</button>
+            <button class="px-3 py-2.5 text-[11px] font-medium border-b-2 border-transparent text-slate-600 flex items-center gap-1"><i data-lucide="key" class="w-3 h-3"></i>Permisos</button>
+            <button class="px-3 py-2.5 text-[11px] font-medium border-b-2 border-transparent text-slate-600 flex items-center gap-1"><i data-lucide="monitor" class="w-3 h-3"></i>Sesiones</button>
+          </div>
+        </div>
+
+        <div class="p-3 space-y-3">
+          <div class="text-[10px] text-emerald-700 inline-flex items-center gap-1">
+            <i data-lucide="check-circle" class="w-3 h-3"></i>Guardado hace 3s
+          </div>
+
+          <div class="bg-white border border-slate-200 rounded-xl p-3 space-y-2 text-[11px]">
+            <h3 class="text-[12px] font-bold text-slate-900 mb-1.5 inline-flex items-center gap-1.5">
+              <i data-lucide="briefcase" class="w-3.5 h-3.5 text-sky-700"></i>
+              Configuración laboral
+            </h3>
+            <div class="flex justify-between border-b border-slate-100 pb-1.5" style="min-height: 36px"><span class="text-slate-500">Cargo</span><span class="font-bold text-sky-900">Vendedor sr.</span></div>
+            <div class="flex justify-between border-b border-slate-100 pb-1.5" style="min-height: 36px"><span class="text-slate-500">Área</span><span class="font-bold text-sky-900">Ventas</span></div>
+            <div class="flex justify-between border-b border-slate-100 pb-1.5" style="min-height: 36px"><span class="text-slate-500">Sueldo</span><span class="font-bold text-sky-900 tabular">S/ 4,500</span></div>
+            <div class="flex justify-between border-b border-slate-100 pb-1.5" style="min-height: 36px"><span class="text-slate-500">Contrato</span><span class="font-bold text-sky-900">Indefinido</span></div>
+            <div class="flex justify-between border-b border-slate-100 pb-1.5" style="min-height: 36px"><span class="text-slate-500">Modalidad</span><span class="font-bold text-sky-900">Presencial</span></div>
+            <div class="flex justify-between pb-1.5" style="min-height: 36px"><span class="text-slate-500">Vacaciones</span><span class="font-bold text-sky-900 tabular">12 d</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ACTO 14 · MOBILE WIZARD -->
+<section id="a14" class="my-12">
+  <div class="max-w-6xl mx-auto px-4">
+    <div class="bg-gradient-to-r from-rose-100 to-rose-50 ring-1 ring-rose-200 rounded-3xl p-5 mb-6">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 bg-rose-600 rounded-2xl flex items-center justify-center text-white font-bold">14</div>
+        <div>
+          <h2 class="text-lg font-bold text-rose-900">Mobile · wizard 4 pasos · paso 2</h2>
+          <p class="text-[11px] text-rose-700">Stepper compacto top · radio cards stack 1-col · scroll vertical</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="iphone-frame">
+      <div class="bg-white" style="min-height: 700px">
+        <div class="bg-slate-50 px-4 py-1 text-[10px] text-slate-600 flex justify-between">
+          <span>9:41</span><span>BusinessMN</span><span>100%</span>
+        </div>
+        <div class="px-3 py-3 border-b border-slate-100 flex items-center gap-2">
+          <button class="w-11 h-11 bg-slate-100 rounded-lg flex items-center justify-center"><i data-lucide="x" class="w-5 h-5 text-slate-700"></i></button>
+          <div class="flex-1">
+            <h1 class="text-[14px] font-bold text-slate-900">Nuevo usuario · paso 2 de 4</h1>
+          </div>
+        </div>
+
+        <!-- Stepper compacto -->
+        <div class="px-3 py-3 border-b border-slate-200 bg-slate-50 flex items-center gap-1.5">
+          <div class="w-5 h-5 rounded-full bg-emerald-500 flex items-center justify-center"><i data-lucide="check" class="w-2.5 h-2.5 text-white"></i></div>
+          <div class="flex-1 h-0.5 bg-emerald-300"></div>
+          <div class="w-5 h-5 rounded-full bg-purple-600 text-white text-[9px] font-bold flex items-center justify-center">2</div>
+          <div class="flex-1 h-0.5 bg-slate-300"></div>
+          <div class="w-5 h-5 rounded-full bg-slate-200 text-slate-500 text-[9px] font-bold flex items-center justify-center">3</div>
+          <div class="flex-1 h-0.5 bg-slate-300"></div>
+          <div class="w-5 h-5 rounded-full bg-slate-200 text-slate-500 text-[9px] font-bold flex items-center justify-center">4</div>
+        </div>
+
+        <div class="p-3 space-y-3">
+          <div class="text-center mb-2">
+            <h2 class="text-[14px] font-bold text-slate-900">¿Tipo de relación?</h2>
+            <p class="text-[10px] text-slate-500 mt-0.5">Determina UX siguiente</p>
+          </div>
+
+          <button class="w-full bg-sky-50 ring-2 ring-sky-500 rounded-xl p-3 text-left">
+            <div class="flex items-center gap-2">
+              <div class="w-9 h-9 bg-sky-600 rounded-lg flex items-center justify-center text-white">
+                <i data-lucide="briefcase" class="w-4 h-4"></i>
+              </div>
+              <div class="flex-1">
+                <div class="text-[12px] font-bold text-sky-900">Empleado</div>
+                <div class="text-[10px] text-slate-600">Sueldo fijo · planilla</div>
+              </div>
+              <i data-lucide="check-circle" class="w-4 h-4 text-sky-700"></i>
+            </div>
+          </button>
+
+          <button class="w-full bg-white border border-slate-200 rounded-xl p-3 text-left">
+            <div class="flex items-center gap-2">
+              <div class="w-9 h-9 bg-emerald-100 rounded-lg flex items-center justify-center">
+                <i data-lucide="file-text" class="w-4 h-4 text-emerald-700"></i>
+              </div>
+              <div class="flex-1">
+                <div class="text-[12px] font-bold text-slate-900">Honorarios</div>
+                <div class="text-[10px] text-slate-600">Recibos por servicio</div>
+              </div>
+            </div>
+          </button>
+
+          <button class="w-full bg-white border border-slate-200 rounded-xl p-3 text-left">
+            <div class="flex items-center gap-2">
+              <div class="w-9 h-9 bg-violet-100 rounded-lg flex items-center justify-center">
+                <i data-lucide="coins" class="w-4 h-4 text-violet-700"></i>
+              </div>
+              <div class="flex-1">
+                <div class="text-[12px] font-bold text-slate-900">Socio</div>
+                <div class="text-[10px] text-slate-600">Capital · distribuciones</div>
+              </div>
+            </div>
+          </button>
+
+          <button class="w-full bg-white border border-slate-200 rounded-xl p-3 text-left">
+            <div class="flex items-center gap-2">
+              <div class="w-9 h-9 bg-slate-100 rounded-lg flex items-center justify-center">
+                <i data-lucide="external-link" class="w-4 h-4 text-slate-600"></i>
+              </div>
+              <div class="flex-1">
+                <div class="text-[12px] font-bold text-slate-900">Externo</div>
+                <div class="text-[10px] text-slate-600">Cliente · proveedor</div>
+              </div>
+            </div>
+          </button>
+        </div>
+
+        <!-- Sticky bottom nav -->
+        <div class="border-t border-slate-200 px-3 py-2.5 flex items-center gap-2 bg-white">
+          <button class="flex-1 text-[11px] font-medium text-slate-600 border border-slate-200 px-3 py-2 rounded inline-flex items-center justify-center gap-1" style="min-height: 44px">
+            <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>Atrás
+          </button>
+          <button class="flex-1 text-[11px] font-bold text-white bg-purple-600 px-3 py-2 rounded inline-flex items-center justify-center gap-1" style="min-height: 44px">
+            Siguiente<i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ACTO 15 · MOBILE LISTA -->
+<section id="a15" class="my-12">
+  <div class="max-w-6xl mx-auto px-4">
+    <div class="bg-gradient-to-r from-rose-100 to-rose-50 ring-1 ring-rose-200 rounded-3xl p-5 mb-6">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 bg-rose-600 rounded-2xl flex items-center justify-center text-white font-bold">15</div>
+        <div>
+          <h2 class="text-lg font-bold text-rose-900">Mobile · lista cards stack + FAB</h2>
+          <p class="text-[11px] text-rose-700">Cards apiladas 1-col · filtros chip scroll-x · FAB "Nuevo usuario" bottom-right</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="iphone-frame">
+      <div class="bg-white relative" style="min-height: 700px">
+        <div class="bg-slate-50 px-4 py-1 text-[10px] text-slate-600 flex justify-between">
+          <span>9:41</span><span>BusinessMN</span><span>100%</span>
+        </div>
+        <div class="px-3 py-3 border-b border-slate-100 flex items-center gap-2">
+          <button class="w-11 h-11 bg-slate-100 rounded-lg flex items-center justify-center"><i data-lucide="menu" class="w-5 h-5 text-slate-700"></i></button>
+          <div class="flex-1">
+            <h1 class="text-[14px] font-bold text-slate-900">Usuarios · 14</h1>
+            <p class="text-[10px] text-slate-500">5 emp · 2 hon · 3 soc · 4 ext</p>
+          </div>
+          <button class="w-11 h-11 bg-slate-100 rounded-lg flex items-center justify-center"><i data-lucide="search" class="w-4 h-4 text-slate-600"></i></button>
+        </div>
+
+        <!-- Filtros scroll-x -->
+        <div class="border-b border-slate-100 overflow-x-auto no-scrollbar px-2 py-2">
+          <div class="flex gap-1.5 whitespace-nowrap">
+            <button class="bg-slate-900 text-white text-[10px] font-bold px-2 py-1 rounded">Todos · 14</button>
+            <button class="bg-sky-50 text-sky-700 border border-sky-200 text-[10px] font-bold px-2 py-1 rounded">Empl · 5</button>
+            <button class="bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-bold px-2 py-1 rounded">Hon · 2</button>
+            <button class="bg-violet-50 text-violet-700 border border-violet-200 text-[10px] font-bold px-2 py-1 rounded">Socio · 3</button>
+            <button class="bg-slate-50 text-slate-700 border border-slate-200 text-[10px] font-bold px-2 py-1 rounded">Ext · 4</button>
+          </div>
+        </div>
+
+        <!-- Cards mobile -->
+        <div class="divide-y divide-slate-100">
+          <div class="p-3 flex items-center gap-2 hover:bg-slate-50">
+            <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-purple-500 to-purple-700 flex items-center justify-center text-white font-bold text-[11px]">JP</div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-1 flex-wrap">
+                <span class="text-[12px] font-bold text-slate-900">José Pinto</span>
+                <span class="text-[8px] bg-sky-100 text-sky-700 font-bold px-1 py-0.5 rounded">EMP</span>
+                <span class="text-[8px] bg-violet-100 text-violet-700 font-bold px-1 py-0.5 rounded">SOC</span>
+              </div>
+              <div class="text-[10px] text-slate-500 truncate">CEO · Dirección</div>
+            </div>
+            <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i>
+          </div>
+          <div class="p-3 flex items-center gap-2">
+            <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-sky-500 to-sky-700 flex items-center justify-center text-white font-bold text-[11px]">DL</div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-1 flex-wrap">
+                <span class="text-[12px] font-bold text-slate-900">Diego López</span>
+                <span class="text-[8px] bg-sky-100 text-sky-700 font-bold px-1 py-0.5 rounded">EMP</span>
+              </div>
+              <div class="text-[10px] text-slate-500 truncate">Vendedor sr.</div>
+            </div>
+            <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i>
+          </div>
+          <div class="p-3 flex items-center gap-2">
+            <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center text-white font-bold text-[11px]">AR</div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-1 flex-wrap">
+                <span class="text-[12px] font-bold text-slate-900">Ana Rodríguez</span>
+                <span class="text-[8px] bg-emerald-100 text-emerald-700 font-bold px-1 py-0.5 rounded">HON</span>
+              </div>
+              <div class="text-[10px] text-slate-500 truncate">Vendedor freelance</div>
+            </div>
+            <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i>
+          </div>
+          <div class="p-3 flex items-center gap-2">
+            <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-violet-500 to-violet-700 flex items-center justify-center text-white font-bold text-[11px]">CS</div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-1 flex-wrap">
+                <span class="text-[12px] font-bold text-slate-900">Carlos Silva</span>
+                <span class="text-[8px] bg-violet-100 text-violet-700 font-bold px-1 py-0.5 rounded">SOC 35%</span>
+              </div>
+              <div class="text-[10px] text-slate-500 truncate">Co-fundador</div>
+            </div>
+            <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i>
+          </div>
+        </div>
+
+        <!-- FAB · Floating Action Button -->
+        <button class="absolute bottom-4 right-4 w-14 h-14 bg-purple-600 hover:bg-purple-700 text-white rounded-full shadow-2xl flex items-center justify-center">
+          <i data-lucide="user-plus" class="w-6 h-6"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ACTO 16 · PLAN DE MIGRACIÓN -->
+<section id="a16" class="my-12">
+  <div class="max-w-6xl mx-auto px-4">
+    <div class="bg-gradient-to-r from-slate-100 to-slate-50 ring-1 ring-slate-200 rounded-3xl p-5 mb-6">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 bg-slate-700 rounded-2xl flex items-center justify-center text-white font-bold">16</div>
+        <div>
+          <h2 class="text-lg font-bold text-slate-900">Plan de migración · cleanup drill pages</h2>
+          <p class="text-[11px] text-slate-700">Eliminación de páginas drill legacy + migración de users existentes a tipoRelacion</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="device-desktop bg-white rounded-2xl ring-1 ring-slate-200 overflow-hidden p-6 space-y-4">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="bg-rose-50 border border-rose-200 rounded-xl p-4">
+          <h3 class="text-[13px] font-bold text-rose-900 mb-2 inline-flex items-center gap-1.5">
+            <i data-lucide="trash-2" class="w-4 h-4"></i>
+            Eliminar · drill pages legacy
+          </h3>
+          <ul class="text-[11px] text-rose-800 space-y-1 list-disc list-inside">
+            <li><code class="bg-white px-1 rounded">src/pages/Usuarios/EditarLaborales.tsx</code> · borrar</li>
+            <li><code class="bg-white px-1 rounded">src/pages/Usuarios/EditarSocio.tsx</code> · borrar</li>
+            <li>Routes <code class="bg-white px-1 rounded">/usuarios/:uid/editar/laborales</code> · redirect a <code>/usuarios</code></li>
+            <li>Routes <code class="bg-white px-1 rounded">/usuarios/:uid/editar/socio</code> · redirect a <code>/usuarios</code></li>
+            <li><code class="bg-white px-1 rounded">src/pages/DiagnosticoPerfil.tsx</code> · cleanup post-fix</li>
+            <li>Logs temporales en <code class="bg-white px-1 rounded">useMiEspacioItems.ts</code> · remover</li>
+          </ul>
+        </div>
+        <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-4">
+          <h3 class="text-[13px] font-bold text-emerald-900 mb-2 inline-flex items-center gap-1.5">
+            <i data-lucide="plus-square" class="w-4 h-4"></i>
+            Crear · arquitectura nueva
+          </h3>
+          <ul class="text-[11px] text-emerald-800 space-y-1 list-disc list-inside">
+            <li><code class="bg-white px-1 rounded">src/types/auth.types.ts</code> · agregar <code>TipoRelacion</code></li>
+            <li><code class="bg-white px-1 rounded">helpers requiereDatosLaborales/Socio</code></li>
+            <li><code class="bg-white px-1 rounded">src/components/modules/usuarios/UserPanel/</code> · side panel</li>
+            <li><code class="bg-white px-1 rounded">src/components/modules/usuarios/CrearUsuarioWizard/</code> · wizard 4 pasos</li>
+            <li>Script migración · derivar tipoRelacion de users existentes</li>
+            <li><code class="bg-white px-1 rounded">Usuarios.tsx</code> · wire-up con side panel</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="bg-purple-50 border border-purple-200 rounded-xl p-4">
+        <h3 class="text-[13px] font-bold text-purple-900 mb-3 inline-flex items-center gap-1.5">
+          <i data-lucide="layers" class="w-4 h-4"></i>
+          Etapas de implementación · ~9h total
+        </h3>
+        <div class="grid grid-cols-1 md:grid-cols-5 gap-2 text-[11px]">
+          <div class="bg-white border border-purple-200 rounded p-2">
+            <div class="font-bold text-purple-900">Etapa 1</div>
+            <div class="text-slate-600 mt-1">Tipos + migración tipoRelacion · ~1.5h</div>
+          </div>
+          <div class="bg-white border border-purple-200 rounded p-2">
+            <div class="font-bold text-purple-900">Etapa 2</div>
+            <div class="text-slate-600 mt-1">Side Panel UserPanel · ~3h</div>
+          </div>
+          <div class="bg-white border border-purple-200 rounded p-2">
+            <div class="font-bold text-purple-900">Etapa 3</div>
+            <div class="text-slate-600 mt-1">Wizard CrearUsuarioWizard · ~2h</div>
+          </div>
+          <div class="bg-white border border-purple-200 rounded p-2">
+            <div class="font-bold text-purple-900">Etapa 4</div>
+            <div class="text-slate-600 mt-1">Wire-up + cleanup legacy · ~1.5h</div>
+          </div>
+          <div class="bg-white border border-purple-200 rounded p-2">
+            <div class="font-bold text-purple-900">Etapa 5</div>
+            <div class="text-slate-600 mt-1">Validación + diag cleanup · ~1h</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-sky-50 border border-sky-200 rounded-xl p-4">
+        <h3 class="text-[13px] font-bold text-sky-900 mb-2 inline-flex items-center gap-1.5">
+          <i data-lucide="alert-triangle" class="w-4 h-4"></i>
+          Riesgos · mitigaciones
+        </h3>
+        <ul class="text-[11px] text-sky-800 space-y-1">
+          <li>⚠️ <strong>Users existentes sin tipoRelacion</strong> · script migración asume default según presencia de datosLaborales/datosSocio · roles</li>
+          <li>⚠️ <strong>Firestore rules</strong> · revisar si necesitan update para externos · permission boundary nueva</li>
+          <li>⚠️ <strong>Bug "Mi planilla no se activa" actual</strong> · resuelto AUTOMÁTICAMENTE porque al crear users con el wizard nunca quedan datos laborales pendientes</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER · checklist canon -->
+<section class="max-w-6xl mx-auto mt-16 mb-8 px-4">
+  <div class="bg-white rounded-2xl ring-1 ring-slate-200 p-6">
+    <h2 class="text-[16px] font-bold text-slate-900 mb-4 inline-flex items-center gap-2">
+      <i data-lucide="check-square" class="w-5 h-5 text-emerald-600"></i>
+      Checklist canon · cobertura del mockup
+    </h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-[12px]">
+      <div>
+        <h3 class="font-bold text-slate-700 mb-2 uppercase tracking-wider text-[11px]">Bloque A · desktop (12 actos)</h3>
+        <ul class="space-y-1 text-slate-600">
+          <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600 flex-shrink-0"></i>Diagnóstico problemas vs solución</li>
+          <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600 flex-shrink-0"></i>Matriz tipoRelacion · 4 valores</li>
+          <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600 flex-shrink-0"></i>Lista /usuarios · cards + chips</li>
+          <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600 flex-shrink-0"></i>Side Panel empleado · Identidad + Laboral</li>
+          <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600 flex-shrink-0"></i>Side Panel socio · tab Capital</li>
+          <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600 flex-shrink-0"></i>Side Panel mixto + Side Panel externo</li>
+          <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600 flex-shrink-0"></i>Wizard 4 pasos completo (Básicos · Tipo · Roles · Detalles)</li>
+        </ul>
+      </div>
+      <div>
+        <h3 class="font-bold text-slate-700 mb-2 uppercase tracking-wider text-[11px]">Bloque B · mobile (4 actos) + plan</h3>
+        <ul class="space-y-1 text-slate-600">
+          <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600 flex-shrink-0"></i>Mobile side panel full-screen 375px</li>
+          <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600 flex-shrink-0"></i>Mobile wizard · stepper compacto</li>
+          <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600 flex-shrink-0"></i>Mobile lista · cards + FAB</li>
+          <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600 flex-shrink-0"></i>Plan migración · cleanup drill pages</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="mt-6 p-4 bg-emerald-50 border border-emerald-200 rounded-lg">
+      <div class="text-[12px] font-bold text-emerald-900 mb-1 inline-flex items-center gap-1.5">
+        <i data-lucide="award" class="w-4 h-4"></i>
+        Resultado neto al implementar
+      </div>
+      <ul class="text-[11px] text-emerald-800 list-disc list-inside space-y-0.5">
+        <li>Cero drill pages · cero context loss · navegación lineal canon Mercury</li>
+        <li>Datos laborales se capturan al CREAR user · ya no se "olvidan"</li>
+        <li>Bug "Mi planilla no se activa" resuelto desde la raíz (sin parches)</li>
+        <li>tipoRelacion explícito · clasificación clara para futuro CRM (clientes/proveedores)</li>
+        <li>Patrón Notion-style consistente con el módulo /perfil</li>
+        <li>~9 horas de impl · valor inmenso · canon empresa moderna</li>
+      </ul>
+    </div>
+
+    <div class="mt-4 text-[10px] text-slate-400 italic">
+      Mockup canon · usuarios-v5.5-side-panel.html · 16 actos · canon 2026-05-28
+    </div>
+  </div>
+</section>
+
+<script>lucide.createIcons();</script>
+</body>
+</html>
