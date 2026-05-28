@@ -54,7 +54,7 @@ import { relacionesLaboralesService } from '../../services/relacionesLaborales.s
 import { borradorWizardService } from '../../services/borradorWizard.service';
 import { useAuthStore } from '../../store/authStore';
 import { Timestamp } from 'firebase/firestore';
-import type { UserRole } from '../../types/auth.types';
+import type { UserRole, UserProfile } from '../../types/auth.types';
 import { ROLE_LABELS } from '../../types/auth.types';
 import type {
   TipoRelacion,
@@ -298,12 +298,47 @@ export const CrearUsuarioWizard: React.FC<CrearUsuarioWizardProps> = ({
 
     try {
       // 1. Crear UserProfile via Cloud Function (Firebase Auth + Firestore)
-      const newUser = await userService.createUser(
-        state.email.trim().toLowerCase(),
-        state.password,
-        state.displayName.trim(),
-        state.rol,
-      );
+      // chk5.PERSONAS-v5.7 · E10-fix (2026-05-28) · idempotente:
+      // si el email ya existe (User huérfano de un intento fallido anterior),
+      // reutilizamos ese uid y sólo creamos la RelacionLaboral. Esto resuelve
+      // el caso típico donde la primera vez falló por rules NO deployadas y
+      // el User quedó creado en Auth pero sin relación laboral.
+      let newUser: UserProfile;
+      try {
+        newUser = await userService.createUser(
+          state.email.trim().toLowerCase(),
+          state.password,
+          state.displayName.trim(),
+          state.rol,
+        );
+      } catch (createErr) {
+        const msg = createErr instanceof Error ? createErr.message : String(createErr);
+        const yaExiste = /ya está registrado|already exists|already-exists/i.test(msg);
+        if (!yaExiste) {
+          throw createErr; // otro tipo de error · propagar
+        }
+        // Email ya existe · buscar el User huérfano
+        const existing = await userService.getByEmail(state.email.trim().toLowerCase());
+        if (!existing) {
+          throw new Error(
+            'El email ya está en Firebase Auth pero no hay UserProfile en Firestore. ' +
+            'Contactá al administrador del sistema para limpiar manualmente.',
+          );
+        }
+        // Reutilizar el User existente · pero verificar si ya tiene una relación
+        // VIGENTE del mismo tipo (si la tiene · es duplicado real, no orphan recovery)
+        const relacionesExistentes = await relacionesLaboralesService.listVigentesByUser(existing.uid);
+        const yaConRelacionDelTipo = relacionesExistentes.some((r) => r.tipo === state.tipoRelacion);
+        if (yaConRelacionDelTipo) {
+          throw new Error(
+            `El usuario "${existing.displayName}" ya existe y tiene una relación ` +
+            `vigente tipo "${state.tipoRelacion}". Si querés agregar OTRA relación, ` +
+            `cerrá este wizard y usá "+ Agregar relación" desde el UserPanel de ese usuario.`,
+          );
+        }
+        // Orphan recovery · reutilizamos el User existente
+        newUser = existing;
+      }
 
       // 2. Crear RelacionLaboral inicial
       const relacionInput: CrearRelacionInput = {

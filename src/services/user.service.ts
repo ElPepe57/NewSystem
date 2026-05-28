@@ -222,6 +222,28 @@ export const userService = {
   },
 
   /**
+   * chk5.PERSONAS-v5.7 · E10-fix (2026-05-28) · Busca User por email exacto.
+   * Usado para recuperar Users huérfanos (existen en Auth pero el flow de
+   * creación falló a mitad de camino · ej. RelacionLaboral falló por rules).
+   * Devuelve el primer match o null si no existe.
+   */
+  async getByEmail(email: string): Promise<UserProfile | null> {
+    try {
+      const q = query(
+        collection(db, COLLECTION_NAME),
+        where('email', '==', email.toLowerCase().trim()),
+      );
+      const snap = await getDocs(q);
+      if (snap.empty) return null;
+      const doc = snap.docs[0];
+      return { uid: doc.id, ...doc.data() } as UserProfile;
+    } catch (error) {
+      logger.error('Error al buscar usuario por email:', error);
+      return null;
+    }
+  },
+
+  /**
    * Obtener usuarios por rol
    */
   async getByRole(role: UserRole): Promise<UserProfile[]> {
