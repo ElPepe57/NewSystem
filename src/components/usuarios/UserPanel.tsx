@@ -41,8 +41,10 @@ import {
   getRelacionesActivas,
   esMultiRelacion,
 } from '../../types/relacionLaboral.types';
-// E3.2 · TabResumen real (resto de tabs siguen como placeholder hasta E3.3-E3.4)
+// E3.2 · TabResumen real
 import { TabResumen } from './userPanel/TabResumen';
+// E3.3 · TabRelaciones PROTAGONISTA (canon v5.6 multi-relación)
+import { TabRelaciones } from './userPanel/TabRelaciones';
 
 // ═════════════════════════════════════════════════════════════════════════
 // TIPOS DE TABS
@@ -78,6 +80,19 @@ export interface UserPanelProps {
   tabInicial?: TabId;
   /** Tabs contextuales del módulo padre (ej. /planilla agrega 'boletas' · 'pagos' · 'incentivos') */
   tabsContextuales?: TabContextual[];
+  // ── Callbacks de acciones sobre relaciones · E5 conecta modales reales ─────
+  /** Click "+ Agregar relación" desde el tab Relaciones */
+  onAgregarRelacion?: (userId: string) => void;
+  /** Click "Editar" en una RelacionCard */
+  onEditarRelacion?: (r: import('../../types/relacionLaboral.types').RelacionLaboral) => void;
+  /** Click "Pausar" · vigente → pausada */
+  onPausarRelacion?: (r: import('../../types/relacionLaboral.types').RelacionLaboral) => void;
+  /** Click "Reanudar" · pausada → vigente */
+  onReanudarRelacion?: (r: import('../../types/relacionLaboral.types').RelacionLaboral) => void;
+  /** Click "Reclasificar" · transición atómica */
+  onReclasificarRelacion?: (r: import('../../types/relacionLaboral.types').RelacionLaboral) => void;
+  /** Click "Finalizar" · vigente → finalizada (snapshot) */
+  onFinalizarRelacion?: (r: import('../../types/relacionLaboral.types').RelacionLaboral) => void;
 }
 
 // ═════════════════════════════════════════════════════════════════════════
@@ -111,6 +126,12 @@ export const UserPanel: React.FC<UserPanelProps> = ({
   onClose,
   tabInicial = 'resumen',
   tabsContextuales = [],
+  onAgregarRelacion,
+  onEditarRelacion,
+  onPausarRelacion,
+  onReanudarRelacion,
+  onReclasificarRelacion,
+  onFinalizarRelacion,
 }) => {
   // ── Data loading state ─────────────────────────────────────────────────
   const [user, setUser] = useState<UserProfile | null>(null);
@@ -397,6 +418,13 @@ export const UserPanel: React.FC<UserPanelProps> = ({
               relaciones={relaciones}
               tabsContextuales={tabsContextuales}
               onClose={onClose}
+              onChangeTab={setActiveTab}
+              onAgregarRelacion={onAgregarRelacion}
+              onEditarRelacion={onEditarRelacion}
+              onPausarRelacion={onPausarRelacion}
+              onReanudarRelacion={onReanudarRelacion}
+              onReclasificarRelacion={onReclasificarRelacion}
+              onFinalizarRelacion={onFinalizarRelacion}
             />
           )}
         </div>
@@ -462,9 +490,29 @@ interface TabContentProps {
   relaciones: RelacionLaboral[];
   tabsContextuales: TabContextual[];
   onClose: () => void;
+  onChangeTab: (tabId: TabId) => void;
+  onAgregarRelacion?: (userId: string) => void;
+  onEditarRelacion?: (r: RelacionLaboral) => void;
+  onPausarRelacion?: (r: RelacionLaboral) => void;
+  onReanudarRelacion?: (r: RelacionLaboral) => void;
+  onReclasificarRelacion?: (r: RelacionLaboral) => void;
+  onFinalizarRelacion?: (r: RelacionLaboral) => void;
 }
 
-const TabContent: React.FC<TabContentProps> = ({ activeTab, user, relaciones, tabsContextuales, onClose }) => {
+const TabContent: React.FC<TabContentProps> = ({
+  activeTab,
+  user,
+  relaciones,
+  tabsContextuales,
+  onClose,
+  onChangeTab,
+  onAgregarRelacion,
+  onEditarRelacion,
+  onPausarRelacion,
+  onReanudarRelacion,
+  onReclasificarRelacion,
+  onFinalizarRelacion,
+}) => {
   // Tabs contextuales del padre · lazy render
   const contextual = tabsContextuales.find((t) => t.id === activeTab);
   if (contextual) {
@@ -475,7 +523,19 @@ const TabContent: React.FC<TabContentProps> = ({ activeTab, user, relaciones, ta
     case 'resumen':
       return <TabResumen user={user} relaciones={relaciones} onAfterNavigate={onClose} />;
     case 'relaciones':
-      return <PlaceholderTab label="Relaciones" subtitle="PROTAGONISTA · multi-relación · E3.3 en progreso" />;
+      return (
+        <TabRelaciones
+          userId={user.uid}
+          relaciones={relaciones}
+          onAgregarRelacion={onAgregarRelacion}
+          onEditarRelacion={onEditarRelacion}
+          onPausarRelacion={onPausarRelacion}
+          onReanudarRelacion={onReanudarRelacion}
+          onReclasificarRelacion={onReclasificarRelacion}
+          onFinalizarRelacion={onFinalizarRelacion}
+          onVerVinculacion={() => onChangeTab('vinculacion')}
+        />
+      );
     case 'datos':
       return <PlaceholderTab label="Datos personales" subtitle="Inline-edit Notion-style · E3.4" />;
     case 'permisos':
