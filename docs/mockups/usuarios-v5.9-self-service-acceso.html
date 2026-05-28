@@ -1,0 +1,1532 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Usuarios v5.9 · Self-service de Acceso · Mockup Integral · 2026-05-28</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; }
+    .tabular-nums { font-variant-numeric: tabular-nums; }
+    .acto-shell { max-width: 1280px; margin: 0 auto; }
+    .mobile-shell { max-width: 375px; margin: 0 auto; }
+    .scroll-hide::-webkit-scrollbar { display: none; }
+  </style>
+</head>
+<body class="bg-slate-50">
+
+<!-- HERO -->
+<header class="bg-gradient-to-br from-emerald-900 via-teal-900 to-slate-900 text-white py-16 px-8">
+  <div class="acto-shell">
+    <div class="flex items-center gap-3 mb-4 flex-wrap">
+      <span class="text-[10px] uppercase tracking-wider font-bold bg-emerald-500/20 text-emerald-300 px-2 py-1 rounded-full">v5.9 · 2026-05-28</span>
+      <span class="text-[10px] uppercase tracking-wider font-bold bg-teal-500/20 text-teal-300 px-2 py-1 rounded-full">4ª capa · self-service</span>
+      <span class="text-[10px] uppercase tracking-wider font-bold bg-amber-500/20 text-amber-300 px-2 py-1 rounded-full">B1+B2 · solicitud + aprobación</span>
+    </div>
+    <h1 class="text-4xl font-bold mb-3">"Quiero acceso al sistema"</h1>
+    <p class="text-lg text-slate-300 max-w-3xl mb-2">
+      Cuando un externo (sales rep · cliente VIP · transportista) solicita registro,
+      <strong>cómo lo procesa el sistema</strong> sin abrir auto-signup público.
+    </p>
+    <p class="text-sm text-slate-400 max-w-3xl">
+      Aprovecha infra existente (Invitacion type · approveUser CF · SetupPassword · Resend) ·
+      extiende con página pública /solicitar-acceso + buscador Maestros + pre-vinculación.
+    </p>
+
+    <!-- Índice -->
+    <div class="mt-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 text-sm">
+      <div class="bg-white/5 ring-1 ring-white/10 rounded-lg p-3">
+        <div class="text-[10px] uppercase tracking-wider font-bold text-emerald-300 mb-2">Bloque A · Diagnóstico</div>
+        <ul class="space-y-1 text-slate-300">
+          <li>0 · Auditoría auth · qué existe HOY</li>
+          <li>1 · Gap analysis para externos</li>
+          <li>2 · Flujo end-to-end conceptual</li>
+        </ul>
+      </div>
+      <div class="bg-white/5 ring-1 ring-white/10 rounded-lg p-3">
+        <div class="text-[10px] uppercase tracking-wider font-bold text-teal-300 mb-2">Bloque B · UX</div>
+        <ul class="space-y-1 text-slate-300">
+          <li>3 · Página pública /solicitar-acceso</li>
+          <li>4 · Modelo de datos solicitud</li>
+          <li>5 · Bandeja admin · AprobarUsuarioModal ext.</li>
+          <li>6 · Emails Resend templates</li>
+          <li>7 · Botón "Invitar" en UserPanel (Caso A)</li>
+        </ul>
+      </div>
+      <div class="bg-white/5 ring-1 ring-white/10 rounded-lg p-3">
+        <div class="text-[10px] uppercase tracking-wider font-bold text-rose-300 mb-2">Bloque C · Mobile + Plan</div>
+        <ul class="space-y-1 text-slate-300">
+          <li>8 · Mobile 3 vistas</li>
+          <li>9 · Plan integración v5.6+5.7+5.8+5.9</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ============================================================ -->
+<!-- ACTO 0 · AUDITORÍA · QUÉ AUTH EXISTE HOY                       -->
+<!-- ============================================================ -->
+<section class="py-12 px-6 bg-amber-50/30 border-b border-amber-100">
+  <div class="acto-shell">
+    <div class="mb-6">
+      <span class="text-[11px] uppercase tracking-wider font-bold text-amber-700">ACTO 0 · Bloque A</span>
+      <h2 class="text-2xl font-bold text-slate-900 mt-1">Auditoría · qué sistema de auth existe HOY</h2>
+      <p class="text-sm text-slate-600 mt-1">Lectura del código real · NO inventar. Buena noticia: ya hay mucho construido.</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <!-- Lo que SÍ existe -->
+      <div class="bg-emerald-50 ring-1 ring-emerald-200 rounded-2xl p-5">
+        <div class="text-[10px] uppercase tracking-wider font-bold text-emerald-700 mb-3">✅ Lo que YA está construido</div>
+        <ul class="space-y-2 text-sm">
+          <li class="flex items-start gap-2">
+            <i data-lucide="check" class="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0"></i>
+            <div>
+              <strong class="text-slate-900">Invitacion type completo</strong>
+              <p class="text-xs text-slate-700">5 estados · token hash · caducidad 7d · re-envíos · tracking link_abierto</p>
+              <code class="text-[10px] text-slate-500">src/types/invitacion.types.ts</code>
+            </div>
+          </li>
+          <li class="flex items-start gap-2">
+            <i data-lucide="check" class="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0"></i>
+            <div>
+              <strong class="text-slate-900">approveUser Cloud Function</strong>
+              <p class="text-xs text-slate-700">Aprueba con roles · valida server-side · roles sensibles protegidos</p>
+            </div>
+          </li>
+          <li class="flex items-start gap-2">
+            <i data-lucide="check" class="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0"></i>
+            <div>
+              <strong class="text-slate-900">AprobarUsuarioModal canon</strong>
+              <p class="text-xs text-slate-700">Detecta origen self_signup vs invitado · IP/UA si self · RolesMultiSelect</p>
+              <code class="text-[10px] text-slate-500">src/components/modules/usuarios/AprobarUsuarioModal.tsx</code>
+            </div>
+          </li>
+          <li class="flex items-start gap-2">
+            <i data-lucide="check" class="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0"></i>
+            <div>
+              <strong class="text-slate-900">Campo UserProfile.origen</strong>
+              <p class="text-xs text-slate-700">'self_signup' | 'invitado' · ya distingue origen</p>
+            </div>
+          </li>
+          <li class="flex items-start gap-2">
+            <i data-lucide="check" class="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0"></i>
+            <div>
+              <strong class="text-slate-900">Resend integration</strong>
+              <p class="text-xs text-slate-700">FASE 7 · emails transaccionales operativos</p>
+            </div>
+          </li>
+          <li class="flex items-start gap-2">
+            <i data-lucide="check" class="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0"></i>
+            <div>
+              <strong class="text-slate-900">/setup-password page</strong>
+              <p class="text-xs text-slate-700">Acepta token + crea password · activa user</p>
+              <code class="text-[10px] text-slate-500">src/pages/Auth/SetupPassword.tsx</code>
+            </div>
+          </li>
+          <li class="flex items-start gap-2">
+            <i data-lucide="check" class="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0"></i>
+            <div>
+              <strong class="text-slate-900">configUsuarios · policyInvitacion</strong>
+              <p class="text-xs text-slate-700">Política configurable de caducidad · roles permitidos</p>
+            </div>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Lo que NO existe -->
+      <div class="bg-rose-50 ring-1 ring-rose-200 rounded-2xl p-5">
+        <div class="text-[10px] uppercase tracking-wider font-bold text-rose-700 mb-3">❌ Lo que FALTA para externos</div>
+        <ul class="space-y-2 text-sm">
+          <li class="flex items-start gap-2">
+            <i data-lucide="x" class="w-4 h-4 text-rose-600 mt-0.5 flex-shrink-0"></i>
+            <div>
+              <strong class="text-slate-900">Página pública /solicitar-acceso</strong>
+              <p class="text-xs text-slate-700">Distinta del /signup interno · orientada al externo · con buscador Maestros</p>
+            </div>
+          </li>
+          <li class="flex items-start gap-2">
+            <i data-lucide="x" class="w-4 h-4 text-rose-600 mt-0.5 flex-shrink-0"></i>
+            <div>
+              <strong class="text-slate-900">Modelo SolicitudAccesoExterno</strong>
+              <p class="text-xs text-slate-700">Hoy approveUser opera sobre UserProfile · necesitamos pre-stage de solicitudes con Maestro pre-vinculado</p>
+            </div>
+          </li>
+          <li class="flex items-start gap-2">
+            <i data-lucide="x" class="w-4 h-4 text-rose-600 mt-0.5 flex-shrink-0"></i>
+            <div>
+              <strong class="text-slate-900">Buscador de Maestros en form</strong>
+              <p class="text-xs text-slate-700">Para pre-vincular al proveedor/cliente antes de admin aprobar</p>
+            </div>
+          </li>
+          <li class="flex items-start gap-2">
+            <i data-lucide="x" class="w-4 h-4 text-rose-600 mt-0.5 flex-shrink-0"></i>
+            <div>
+              <strong class="text-slate-900">Extensión AprobarUsuarioModal</strong>
+              <p class="text-xs text-slate-700">Mostrar Maestro pre-vinculado · permitir editar antes de aprobar · crear con entidadMaestroRef</p>
+            </div>
+          </li>
+          <li class="flex items-start gap-2">
+            <i data-lucide="x" class="w-4 h-4 text-rose-600 mt-0.5 flex-shrink-0"></i>
+            <div>
+              <strong class="text-slate-900">Bandeja con badge en /usuarios</strong>
+              <p class="text-xs text-slate-700">"🔔 3 solicitudes pendientes" visible al admin · drill-down</p>
+            </div>
+          </li>
+          <li class="flex items-start gap-2">
+            <i data-lucide="x" class="w-4 h-4 text-rose-600 mt-0.5 flex-shrink-0"></i>
+            <div>
+              <strong class="text-slate-900">3 Email templates nuevos</strong>
+              <p class="text-xs text-slate-700">Solicitud recibida · solicitud aprobada · solicitud rechazada</p>
+            </div>
+          </li>
+          <li class="flex items-start gap-2">
+            <i data-lucide="x" class="w-4 h-4 text-rose-600 mt-0.5 flex-shrink-0"></i>
+            <div>
+              <strong class="text-slate-900">Rate limit + reCAPTCHA</strong>
+              <p class="text-xs text-slate-700">Página pública necesita protección anti-bot · IP throttling</p>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Conclusión -->
+    <div class="mt-6 bg-white ring-1 ring-slate-200 rounded-2xl p-5">
+      <div class="text-[10px] uppercase tracking-wider font-bold text-slate-700 mb-2">Conclusión de la auditoría</div>
+      <p class="text-sm text-slate-700">
+        <strong class="text-emerald-700">70% del stack auth ya existe.</strong> v5.9 NO reinventa · solo
+        agrega la <strong>capa de solicitud pública</strong> orientada a externos + extiende el
+        AprobarUsuarioModal para considerar la vinculación con Maestros (v5.8).
+        <strong>Esto reduce significativamente el alcance:</strong> de implementar todo el flujo
+        de cero (~10h) pasamos a solo agregar las piezas faltantes (~3.5h).
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- ACTO 1 · GAP ANALYSIS ESPECÍFICO PARA EXTERNOS                 -->
+<!-- ============================================================ -->
+<section class="py-12 px-6 bg-white border-b border-slate-100">
+  <div class="acto-shell">
+    <div class="mb-6">
+      <span class="text-[11px] uppercase tracking-wider font-bold text-emerald-700">ACTO 1 · Bloque A</span>
+      <h2 class="text-2xl font-bold text-slate-900 mt-1">Gap analysis · /signup actual vs lo que necesitamos para externos</h2>
+      <p class="text-sm text-slate-600 mt-1">/signup existe pero está orientado al STAFF interno · externos necesitan flujo separado.</p>
+    </div>
+
+    <div class="bg-white rounded-2xl ring-1 ring-slate-200 overflow-hidden">
+      <table class="w-full text-sm">
+        <thead class="bg-slate-50">
+          <tr>
+            <th class="text-left px-4 py-3 text-[10px] uppercase tracking-wider font-bold text-slate-700">Aspecto</th>
+            <th class="text-left px-4 py-3 text-[10px] uppercase tracking-wider font-bold text-blue-700">/signup actual (staff)</th>
+            <th class="text-left px-4 py-3 text-[10px] uppercase tracking-wider font-bold text-emerald-700">/solicitar-acceso (externos · NUEVO)</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100 text-sm">
+          <tr>
+            <td class="px-4 py-3 font-medium text-slate-700">Audiencia</td>
+            <td class="px-4 py-3 text-slate-700">Staff interno · empleados nuevos</td>
+            <td class="px-4 py-3 text-slate-700">Contactos de proveedores · clientes B2B · transportistas · colaboradores</td>
+          </tr>
+          <tr>
+            <td class="px-4 py-3 font-medium text-slate-700">Campos</td>
+            <td class="px-4 py-3 text-slate-700">Nombre · email · password</td>
+            <td class="px-4 py-3 text-slate-700">+ Empresa · cargo · motivo · buscador Maestros · referencia</td>
+          </tr>
+          <tr>
+            <td class="px-4 py-3 font-medium text-slate-700">Vinculación previa</td>
+            <td class="px-4 py-3 text-slate-400">— (no aplica)</td>
+            <td class="px-4 py-3 text-slate-700">Sugerencia auto-match dominio email → Maestro</td>
+          </tr>
+          <tr>
+            <td class="px-4 py-3 font-medium text-slate-700">Estado post-submit</td>
+            <td class="px-4 py-3 text-slate-700">UserProfile.estado='pendiente_aprobacion'</td>
+            <td class="px-4 py-3 text-slate-700">SolicitudAcceso.estado='pendiente' · NO crea User aún</td>
+          </tr>
+          <tr>
+            <td class="px-4 py-3 font-medium text-slate-700">Visibilidad admin</td>
+            <td class="px-4 py-3 text-slate-700">Lista usuarios filtro=pendiente</td>
+            <td class="px-4 py-3 text-slate-700">Bandeja propia con badge "🔔 N solicitudes"</td>
+          </tr>
+          <tr>
+            <td class="px-4 py-3 font-medium text-slate-700">Aprobación</td>
+            <td class="px-4 py-3 text-slate-700">AprobarUsuarioModal · 1 click</td>
+            <td class="px-4 py-3 text-slate-700">AprobarUsuarioModal extendido · revisa Maestro vinculado + roles</td>
+          </tr>
+          <tr>
+            <td class="px-4 py-3 font-medium text-slate-700">Roles sugeridos</td>
+            <td class="px-4 py-3 text-slate-700">Vendedor · comprador · almacenero · etc</td>
+            <td class="px-4 py-3 text-slate-700">Solo "invitado" (rol limitado · solo ve lo que admin habilita)</td>
+          </tr>
+          <tr>
+            <td class="px-4 py-3 font-medium text-slate-700">Protección anti-spam</td>
+            <td class="px-4 py-3 text-slate-700">Asumida internal · sin reCAPTCHA</td>
+            <td class="px-4 py-3 text-slate-700">reCAPTCHA v3 + rate limit por IP (es público en internet)</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="mt-4 bg-amber-50 ring-1 ring-amber-200 rounded-lg p-4 text-sm">
+      <div class="font-bold text-amber-900 mb-1">⚠️ Decisión arquitectónica</div>
+      <p class="text-amber-800">Las dos rutas <strong>NO se fusionan</strong> · son flujos distintos para audiencias distintas. /signup queda para staff (admin lo usa pocas veces · prefiere invitar). /solicitar-acceso es para externos auto-anunciándose · admin lo procesa con más controles.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- ACTO 2 · FLUJO END-TO-END CONCEPTUAL                           -->
+<!-- ============================================================ -->
+<section class="py-12 px-6 bg-emerald-50/30 border-b border-emerald-100">
+  <div class="acto-shell">
+    <div class="mb-6">
+      <span class="text-[11px] uppercase tracking-wider font-bold text-emerald-700">ACTO 2 · Bloque A</span>
+      <h2 class="text-2xl font-bold text-slate-900 mt-1">Flujo end-to-end · Ricardo pide acceso</h2>
+      <p class="text-sm text-slate-600 mt-1">Caso completo: desde "necesito acceso" hasta "ya entré al sistema".</p>
+    </div>
+
+    <div class="bg-white rounded-2xl ring-1 ring-slate-200 p-6">
+      <!-- Timeline horizontal de pasos -->
+      <div class="relative">
+        <div class="grid grid-cols-1 md:grid-cols-6 gap-2">
+          <!-- Paso 1 · Ricardo -->
+          <div class="bg-amber-50 ring-1 ring-amber-200 rounded-xl p-4 relative">
+            <div class="absolute -top-3 left-4 bg-amber-600 text-white text-[10px] font-bold rounded-full px-2 py-0.5">1 · RICARDO</div>
+            <div class="text-xs text-amber-700 mt-2 mb-1">Va a /solicitar-acceso</div>
+            <p class="text-[10px] text-amber-900">Llena form · pre-vincula a Skin Labs (buscador) · explica motivo · submit</p>
+          </div>
+
+          <!-- Paso 2 · Sistema -->
+          <div class="bg-sky-50 ring-1 ring-sky-200 rounded-xl p-4 relative">
+            <div class="absolute -top-3 left-4 bg-sky-600 text-white text-[10px] font-bold rounded-full px-2 py-0.5">2 · SISTEMA</div>
+            <div class="text-xs text-sky-700 mt-2 mb-1">Valida + persiste</div>
+            <p class="text-[10px] text-sky-900">reCAPTCHA OK · email no existe · crea SolicitudAcceso pendiente · email recibida a Ricardo · notif a admin</p>
+          </div>
+
+          <!-- Paso 3 · Admin -->
+          <div class="bg-purple-50 ring-1 ring-purple-200 rounded-xl p-4 relative">
+            <div class="absolute -top-3 left-4 bg-purple-600 text-white text-[10px] font-bold rounded-full px-2 py-0.5">3 · ADMIN</div>
+            <div class="text-xs text-purple-700 mt-2 mb-1">Ve bandeja</div>
+            <p class="text-[10px] text-purple-900">Login · entra a /usuarios · ve badge "🔔 3 solicitudes" · click drill bandeja</p>
+          </div>
+
+          <!-- Paso 4 · Admin -->
+          <div class="bg-purple-50 ring-1 ring-purple-200 rounded-xl p-4 relative">
+            <div class="absolute -top-3 left-4 bg-purple-600 text-white text-[10px] font-bold rounded-full px-2 py-0.5">4 · ADMIN</div>
+            <div class="text-xs text-purple-700 mt-2 mb-1">Procesa solicitud</div>
+            <p class="text-[10px] text-purple-900">Click "Ricardo Castro" · ve datos · Maestro Skin Labs ya vinculado · revisa motivo · click Aprobar</p>
+          </div>
+
+          <!-- Paso 5 · Sistema -->
+          <div class="bg-teal-50 ring-1 ring-teal-200 rounded-xl p-4 relative">
+            <div class="absolute -top-3 left-4 bg-teal-600 text-white text-[10px] font-bold rounded-full px-2 py-0.5">5 · SISTEMA</div>
+            <div class="text-xs text-teal-700 mt-2 mb-1">Crea User</div>
+            <p class="text-[10px] text-teal-900">approveUser CF · crea UserProfile + RelacionLaboral externa + entidadMaestroRef → Skin Labs · envía Invitacion (Resend)</p>
+          </div>
+
+          <!-- Paso 6 · Ricardo -->
+          <div class="bg-emerald-50 ring-1 ring-emerald-200 rounded-xl p-4 relative">
+            <div class="absolute -top-3 left-4 bg-emerald-600 text-white text-[10px] font-bold rounded-full px-2 py-0.5">6 · RICARDO</div>
+            <div class="text-xs text-emerald-700 mt-2 mb-1">Setup + entra</div>
+            <p class="text-[10px] text-emerald-900">Email "Aprobada" + link · click → /setup-password/:token · crea password · ve dashboard externo</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Estados de SolicitudAcceso -->
+      <div class="mt-8 bg-slate-50 rounded-xl p-4">
+        <div class="text-[10px] uppercase tracking-wider font-bold text-slate-700 mb-2">Estados posibles de SolicitudAcceso</div>
+        <div class="grid grid-cols-2 md:grid-cols-5 gap-2 text-xs">
+          <div class="bg-white ring-1 ring-amber-200 rounded p-2">
+            <div class="font-bold text-amber-700">📥 Pendiente</div>
+            <div class="text-[10px] text-slate-600">Esperando admin</div>
+          </div>
+          <div class="bg-white ring-1 ring-blue-200 rounded p-2">
+            <div class="font-bold text-blue-700">❓ Info Solicitada</div>
+            <div class="text-[10px] text-slate-600">Admin pidió aclaración</div>
+          </div>
+          <div class="bg-white ring-1 ring-emerald-200 rounded p-2">
+            <div class="font-bold text-emerald-700">✅ Aprobada</div>
+            <div class="text-[10px] text-slate-600">User creado · invitación enviada</div>
+          </div>
+          <div class="bg-white ring-1 ring-rose-200 rounded p-2">
+            <div class="font-bold text-rose-700">❌ Rechazada</div>
+            <div class="text-[10px] text-slate-600">Admin no autoriza</div>
+          </div>
+          <div class="bg-white ring-1 ring-slate-200 rounded p-2">
+            <div class="font-bold text-slate-700">⏱️ Caducada</div>
+            <div class="text-[10px] text-slate-600">30d sin procesar</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- ACTO 3 · PÁGINA PÚBLICA /solicitar-acceso                      -->
+<!-- ============================================================ -->
+<section class="py-12 px-6 bg-white border-b border-slate-100">
+  <div class="acto-shell">
+    <div class="mb-6">
+      <span class="text-[11px] uppercase tracking-wider font-bold text-teal-700">ACTO 3 · Bloque B</span>
+      <h2 class="text-2xl font-bold text-slate-900 mt-1">Página pública /solicitar-acceso · form completo</h2>
+      <p class="text-sm text-slate-600 mt-1">Diseño claro · brand Vita Skin · buscador Maestros inline · reCAPTCHA invisible.</p>
+    </div>
+
+    <div class="bg-gradient-to-br from-slate-100 to-slate-200 rounded-2xl p-6">
+      <!-- Mock de página pública -->
+      <div class="bg-white rounded-2xl shadow-xl overflow-hidden max-w-2xl mx-auto">
+        <!-- Header brand -->
+        <div class="bg-gradient-to-r from-teal-600 to-teal-700 text-white px-8 py-5 flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center font-bold text-lg">V</div>
+          <div>
+            <div class="font-bold">Vita Skin Perú</div>
+            <div class="text-[11px] text-teal-100">Portal de Aliados</div>
+          </div>
+        </div>
+
+        <!-- Content -->
+        <div class="p-8">
+          <div class="mb-6">
+            <h1 class="text-2xl font-bold text-slate-900 mb-2">Solicitar acceso al portal</h1>
+            <p class="text-sm text-slate-600">
+              ¿Trabajás con Vita Skin como proveedor · cliente · transportista · colaborador?
+              Solicitá acceso para ver el estado de tus operaciones · documentos · pagos.
+            </p>
+            <div class="mt-3 bg-amber-50 ring-1 ring-amber-200 rounded-lg p-3 flex items-start gap-2 text-xs">
+              <i data-lucide="info" class="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5"></i>
+              <p class="text-amber-900">Toda solicitud es revisada manualmente por nuestro equipo · el acceso no es automático. Te notificaremos por email cuando esté aprobada.</p>
+            </div>
+          </div>
+
+          <form class="space-y-4">
+            <!-- Identidad -->
+            <div>
+              <label class="text-[11px] uppercase tracking-wider font-bold text-slate-700 mb-1.5 block">Tu nombre completo *</label>
+              <input type="text" class="w-full px-3 py-2.5 bg-white border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-500 focus:border-transparent" placeholder="Ej. Ricardo Castro" value="Ricardo Castro">
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="text-[11px] uppercase tracking-wider font-bold text-slate-700 mb-1.5 block">Email corporativo *</label>
+                <input type="email" class="w-full px-3 py-2.5 bg-white border border-slate-300 rounded-lg text-sm" placeholder="tu@empresa.com" value="ricardo@skinlabs.pe">
+              </div>
+              <div>
+                <label class="text-[11px] uppercase tracking-wider font-bold text-slate-700 mb-1.5 block">Teléfono / WhatsApp</label>
+                <input type="tel" class="w-full px-3 py-2.5 bg-white border border-slate-300 rounded-lg text-sm tabular-nums" placeholder="+51 ..." value="+51 987 654 321">
+              </div>
+            </div>
+
+            <!-- Tipo de relación -->
+            <div>
+              <label class="text-[11px] uppercase tracking-wider font-bold text-slate-700 mb-1.5 block">¿Qué tipo de relación tenés con Vita Skin? *</label>
+              <div class="grid grid-cols-2 gap-2">
+                <button type="button" class="text-left p-3 bg-amber-50 ring-2 ring-amber-500 rounded-lg">
+                  <div class="flex items-center gap-2">
+                    <span class="text-base">🛒</span>
+                    <div class="flex-1">
+                      <div class="text-xs font-bold text-amber-900">Soy proveedor</div>
+                      <div class="text-[10px] text-amber-700">Vendo a Vita Skin</div>
+                    </div>
+                    <i data-lucide="check-circle" class="w-4 h-4 text-amber-600"></i>
+                  </div>
+                </button>
+                <button type="button" class="text-left p-3 bg-white ring-1 ring-slate-200 hover:ring-amber-300 rounded-lg">
+                  <div class="flex items-center gap-2">
+                    <span class="text-base">💼</span>
+                    <div class="flex-1">
+                      <div class="text-xs font-bold text-slate-900">Soy cliente</div>
+                      <div class="text-[10px] text-slate-500">Compro a Vita Skin</div>
+                    </div>
+                  </div>
+                </button>
+                <button type="button" class="text-left p-3 bg-white ring-1 ring-slate-200 hover:ring-amber-300 rounded-lg">
+                  <div class="flex items-center gap-2">
+                    <span class="text-base">🚚</span>
+                    <div class="flex-1">
+                      <div class="text-xs font-bold text-slate-900">Soy transportista</div>
+                      <div class="text-[10px] text-slate-500">Despacho envíos</div>
+                    </div>
+                  </div>
+                </button>
+                <button type="button" class="text-left p-3 bg-white ring-1 ring-slate-200 hover:ring-amber-300 rounded-lg">
+                  <div class="flex items-center gap-2">
+                    <span class="text-base">🤝</span>
+                    <div class="flex-1">
+                      <div class="text-xs font-bold text-slate-900">Otro / colaborador</div>
+                      <div class="text-[10px] text-slate-500">Influencer · marca aliada</div>
+                    </div>
+                  </div>
+                </button>
+              </div>
+            </div>
+
+            <!-- Buscador Maestros · contextual -->
+            <div class="bg-gradient-to-br from-indigo-50 to-purple-50 ring-1 ring-indigo-200 rounded-xl p-4">
+              <label class="text-[11px] uppercase tracking-wider font-bold text-indigo-700 mb-1.5 block flex items-center gap-1">
+                <i data-lucide="link" class="w-3.5 h-3.5"></i> Empresa proveedora donde trabajás *
+              </label>
+              <p class="text-[11px] text-indigo-700 mb-2">Buscá la empresa para ayudar al admin a procesar tu solicitud más rápido.</p>
+
+              <div class="relative mb-2">
+                <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
+                <input class="w-full pl-10 pr-3 py-2.5 bg-white border border-indigo-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500" placeholder="Buscar por nombre o RUC..." value="Skin Labs">
+              </div>
+
+              <div class="bg-white rounded-lg ring-1 ring-slate-200 overflow-hidden">
+                <button type="button" class="w-full text-left px-3 py-2.5 bg-indigo-50 ring-1 ring-indigo-300 flex items-center gap-3">
+                  <div class="w-8 h-8 rounded-lg bg-indigo-600 text-white flex items-center justify-center flex-shrink-0">
+                    <i data-lucide="building-2" class="w-4 h-4"></i>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <div class="text-sm font-bold text-slate-900">Skin Labs SAC</div>
+                    <div class="text-[10px] text-slate-500">RUC 20512345678</div>
+                  </div>
+                  <i data-lucide="check-circle" class="w-5 h-5 text-emerald-600"></i>
+                </button>
+                <button type="button" class="w-full text-left px-3 py-2.5 hover:bg-slate-50 border-t border-slate-100 flex items-center gap-3">
+                  <div class="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center flex-shrink-0">
+                    <i data-lucide="building-2" class="w-4 h-4 text-slate-600"></i>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <div class="text-sm font-semibold text-slate-900">Skin & Body Imports SA</div>
+                    <div class="text-[10px] text-slate-500">RUC 20987654321</div>
+                  </div>
+                </button>
+              </div>
+
+              <div class="mt-3">
+                <label class="text-[10px] uppercase tracking-wider font-bold text-indigo-700 mb-1 block">Tu cargo en Skin Labs</label>
+                <input class="w-full px-3 py-2 bg-white border border-indigo-200 rounded-lg text-sm" placeholder="Ej. Sales Rep · Account Mgr..." value="Sales Representative">
+              </div>
+
+              <p class="mt-3 text-[10px] text-slate-500">
+                ¿No encontrás tu empresa? <button type="button" class="text-indigo-700 hover:underline font-semibold">Continuá sin vincular</button>
+                · el admin la creará al aprobar.
+              </p>
+            </div>
+
+            <!-- Motivo -->
+            <div>
+              <label class="text-[11px] uppercase tracking-wider font-bold text-slate-700 mb-1.5 block">¿Por qué necesitás acceso? *</label>
+              <textarea class="w-full px-3 py-2.5 bg-white border border-slate-300 rounded-lg text-sm" rows="3" placeholder="Ej. Quiero ver el estado de las OC pendientes y consultar facturas vencidas..."></textarea>
+              <div class="text-[10px] text-slate-500 mt-1">Mínimo 20 caracteres · ayuda al admin a entender tu necesidad</div>
+            </div>
+
+            <!-- Referencia opcional -->
+            <div>
+              <label class="text-[11px] uppercase tracking-wider font-bold text-slate-700 mb-1.5 block">¿Te recomendó alguien de Vita Skin? <span class="text-slate-500 font-normal normal-case text-[10px]">(opcional)</span></label>
+              <input class="w-full px-3 py-2.5 bg-white border border-slate-300 rounded-lg text-sm" placeholder="Nombre del contacto interno">
+            </div>
+
+            <!-- Términos -->
+            <div class="flex items-start gap-2 text-xs">
+              <input type="checkbox" class="mt-0.5" checked>
+              <span class="text-slate-700">Acepto la <a href="#" class="text-teal-700 underline font-semibold">política de privacidad</a> y los <a href="#" class="text-teal-700 underline font-semibold">términos de uso del portal</a>.</span>
+            </div>
+
+            <!-- reCAPTCHA notice -->
+            <div class="text-[10px] text-slate-500 text-center pt-2 border-t border-slate-100">
+              Protegido por reCAPTCHA · <a href="#" class="underline">Privacidad</a> · <a href="#" class="underline">Términos</a>
+            </div>
+
+            <!-- Submit -->
+            <button type="submit" class="w-full py-3 bg-teal-600 hover:bg-teal-700 text-white rounded-lg font-semibold text-sm flex items-center justify-center gap-2 shadow-md">
+              <i data-lucide="send" class="w-4 h-4"></i> Enviar solicitud
+            </button>
+
+            <p class="text-[10px] text-slate-500 text-center">
+              Tiempo estimado de respuesta · 1-2 días hábiles
+            </p>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Notas UX -->
+    <div class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
+      <div class="bg-emerald-50 ring-1 ring-emerald-200 rounded-lg p-3">
+        <strong class="text-emerald-900">🎯 Pre-vinculación inteligente</strong>
+        <p class="text-emerald-800 mt-1">Buscador de Maestros reduce trabajo del admin · Ricardo le dice exactamente con quién trabaja.</p>
+      </div>
+      <div class="bg-emerald-50 ring-1 ring-emerald-200 rounded-lg p-3">
+        <strong class="text-emerald-900">🛡️ Seguridad</strong>
+        <p class="text-emerald-800 mt-1">reCAPTCHA v3 invisible + rate limit por IP (5 solicitudes/hora) + validación email server-side.</p>
+      </div>
+      <div class="bg-emerald-50 ring-1 ring-emerald-200 rounded-lg p-3">
+        <strong class="text-emerald-900">💬 Expectativa clara</strong>
+        <p class="text-emerald-800 mt-1">Banner inicial + footer SLA "1-2 días hábiles" · evita reclamos por demora.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- ACTO 4 · MODELO DE DATOS · SOLICITUDACCESO                     -->
+<!-- ============================================================ -->
+<section class="py-12 px-6 bg-purple-50/20 border-b border-purple-100">
+  <div class="acto-shell">
+    <div class="mb-6">
+      <span class="text-[11px] uppercase tracking-wider font-bold text-teal-700">ACTO 4 · Bloque B</span>
+      <h2 class="text-2xl font-bold text-slate-900 mt-1">Modelo de datos · SolicitudAccesoExterno</h2>
+      <p class="text-sm text-slate-600 mt-1">Pre-stage antes de crear UserProfile · permite revisar sin contaminar la colección users/.</p>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div>
+        <div class="text-[10px] uppercase tracking-wider font-bold text-slate-500 mb-2">Nueva colección</div>
+        <div class="bg-slate-900 text-white rounded-2xl p-4 text-xs font-mono">
+<pre>// solicitudesAccesoExterno/{id}
+interface SolicitudAccesoExterno {
+  id: string;
+  fechaCreacion: Timestamp;
+  estado: 'pendiente'
+        | 'info_solicitada'
+        | 'aprobada'
+        | 'rechazada'
+        | 'caducada';
+
+  // Datos del solicitante
+  nombreCompleto: string;
+  email: string;
+  telefono?: string;
+
+  // Tipo de relación declarado
+  tipoRelacion: 'proveedor'
+              | 'cliente'
+              | 'transportista'
+              | 'otro';
+
+  // Pre-vinculación con Maestro (opcional)
+  entidadMaestroRefSugerida?: {
+    tipo: 'cliente' | 'proveedor'
+        | 'marca';
+    id: string;
+    nombreCachedSnapshot: string;
+  };
+  cargoEnEntidad?: string;
+
+  // Motivo + referencia
+  motivo: string;
+  recomendadoPor?: string;
+
+  // Tracking IP/UA (anti-fraude)
+  ipAddress: string;
+  userAgent: string;
+  reCaptchaScore: number;
+
+  // Resolución (cuando admin actúa)
+  procesadaPor?: string;       // uid admin
+  fechaProcesamiento?: Timestamp;
+  motivoDecision?: string;
+  uidUsuarioCreado?: string;
+  invitacionId?: string;
+
+  // Histórico de cambios de estado
+  historialEstados: Array<{
+    estado: string;
+    fecha: Timestamp;
+    porUid?: string;
+    nota?: string;
+  }>;
+}</pre>
+        </div>
+      </div>
+
+      <div>
+        <div class="text-[10px] uppercase tracking-wider font-bold text-emerald-600 mb-2">Extensión approveUser CF · acepta solicitud</div>
+        <div class="bg-slate-900 text-white rounded-2xl p-4 text-xs font-mono">
+<pre>// CF: aprobarSolicitudAcceso
+// (extensión de approveUser actual)
+interface AprobarSolicitudInput {
+  solicitudId: string;
+  rolesAsignados: UserRole[];
+
+  <span class="text-emerald-300">// ✨ NUEVO · vinculación Maestro</span>
+  <span class="text-emerald-300">entidadMaestroRef?: {</span>
+  <span class="text-emerald-300">  tipo: 'cliente' | 'proveedor'</span>
+  <span class="text-emerald-300">      | 'marca';</span>
+  <span class="text-emerald-300">  id: string;</span>
+  <span class="text-emerald-300">  rolEnEntidad?: string;</span>
+  <span class="text-emerald-300">};</span>
+
+  // Mensaje opcional para el invitado
+  mensajePersonalizado?: string;
+}
+
+// Server logic atómico (Firestore txn):
+async function aprobarSolicitudAcceso(input) {
+  // 1. Lee solicitud
+  const sol = await getSolicitud(input.id);
+  if (sol.estado !== 'pendiente') throw;
+
+  // 2. Crea UserProfile (estado='pendiente_activacion')
+  const uid = await createUser({
+    email: sol.email,
+    displayName: sol.nombreCompleto,
+    origen: 'self_signup',
+    rolesAsignados: input.rolesAsignados,
+  });
+
+  <span class="text-emerald-300">// 3. Crea RelacionLaboral con vinculación</span>
+  <span class="text-emerald-300">await createRelacion({</span>
+  <span class="text-emerald-300">  userId: uid,</span>
+  <span class="text-emerald-300">  tipo: 'externo',</span>
+  <span class="text-emerald-300">  estado: 'vigente',</span>
+  <span class="text-emerald-300">  subTipo: derivarSubTipo(sol.tipoRelacion),</span>
+  <span class="text-emerald-300">  entidadMaestroRef: input.entidadMaestroRef,</span>
+  <span class="text-emerald-300">});</span>
+
+  // 4. Crea Invitacion (token + email Resend)
+  const inv = await crearInvitacion(uid);
+
+  // 5. Update solicitud
+  await updateSolicitud(input.id, {
+    estado: 'aprobada',
+    uidUsuarioCreado: uid,
+    invitacionId: inv.id,
+  });
+
+  return { uid, invitacionId: inv.id };
+}</pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- Reusar lo existente -->
+    <div class="mt-6 bg-emerald-50 ring-1 ring-emerald-200 rounded-2xl p-5">
+      <div class="text-[10px] uppercase tracking-wider font-bold text-emerald-700 mb-2">✅ Lo que reutilizamos vs lo NUEVO</div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+        <div>
+          <div class="font-bold text-emerald-900 mb-1">REUSADO de v5.6+5.7+5.8</div>
+          <ul class="space-y-0.5 text-emerald-800">
+            <li>· UserProfile types (auth.types.ts)</li>
+            <li>· RelacionLaboral con entidadMaestroRef (v5.8)</li>
+            <li>· Invitacion type + tokens hash</li>
+            <li>· approveUser CF (extensión)</li>
+            <li>· AprobarUsuarioModal (extensión)</li>
+            <li>· SetupPassword page</li>
+            <li>· Resend templates engine</li>
+          </ul>
+        </div>
+        <div>
+          <div class="font-bold text-emerald-900 mb-1">NUEVO en v5.9</div>
+          <ul class="space-y-0.5 text-emerald-800">
+            <li>· solicitudesAccesoExterno/{id} colección</li>
+            <li>· /solicitar-acceso page pública</li>
+            <li>· aprobarSolicitudAcceso CF (wrapper)</li>
+            <li>· Bandeja en /usuarios con badge</li>
+            <li>· 3 email templates (recibida · aprobada · rechazada)</li>
+            <li>· Rate limit + reCAPTCHA wiring</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- ACTO 5 · BANDEJA ADMIN · AprobarUsuarioModal EXTENDIDO         -->
+<!-- ============================================================ -->
+<section class="py-12 px-6 bg-white border-b border-slate-100">
+  <div class="acto-shell">
+    <div class="mb-6">
+      <span class="text-[11px] uppercase tracking-wider font-bold text-teal-700">ACTO 5 · Bloque B</span>
+      <h2 class="text-2xl font-bold text-slate-900 mt-1">Bandeja en /usuarios + AprobarUsuarioModal extendido</h2>
+      <p class="text-sm text-slate-600 mt-1">Badge visible · drill a lista de solicitudes · modal canon FormModalV2 ya existente extendido con Maestro.</p>
+    </div>
+
+    <!-- Mock /usuarios con bandeja activa -->
+    <div class="bg-slate-100 rounded-2xl p-4 mb-4">
+      <div class="bg-white rounded-xl ring-1 ring-slate-200 overflow-hidden">
+        <!-- Header con badge -->
+        <div class="px-6 py-5 border-b border-slate-100 flex items-start justify-between">
+          <div>
+            <div class="text-xs text-slate-500 mb-1">Equipo › Usuarios</div>
+            <h1 class="text-2xl font-bold text-slate-900 flex items-center gap-3">
+              Usuarios
+              <button class="text-[11px] font-semibold bg-amber-100 text-amber-700 px-2.5 py-1 rounded-full hover:bg-amber-200 flex items-center gap-1.5 ring-2 ring-amber-300 animate-pulse">
+                <i data-lucide="bell" class="w-3.5 h-3.5"></i>
+                3 solicitudes pendientes
+              </button>
+            </h1>
+          </div>
+          <button class="px-4 py-2 bg-teal-600 text-white rounded-lg text-sm font-semibold flex items-center gap-1.5">
+            <i data-lucide="plus" class="w-4 h-4"></i> Nuevo colaborador
+          </button>
+        </div>
+
+        <!-- Tabs · incluyendo Solicitudes -->
+        <div class="px-6 border-b border-slate-100 flex items-center gap-1 overflow-x-auto scroll-hide">
+          <button class="px-3 py-3 text-sm font-medium text-slate-500 whitespace-nowrap">Todos · 23</button>
+          <button class="px-3 py-3 text-sm font-medium text-slate-500 whitespace-nowrap">Empleados · 12</button>
+          <button class="px-3 py-3 text-sm font-medium text-slate-500 whitespace-nowrap">Externos · 6</button>
+          <button class="px-3 py-3 text-sm font-medium text-slate-500 whitespace-nowrap">Socios · 3</button>
+          <span class="w-px h-5 bg-slate-300 mx-1"></span>
+          <button class="px-3 py-3 text-sm font-semibold text-amber-900 border-b-2 border-amber-500 whitespace-nowrap flex items-center gap-1.5">
+            <i data-lucide="inbox" class="w-3.5 h-3.5"></i> Solicitudes
+            <span class="bg-amber-500 text-white text-[9px] font-bold rounded-full px-1.5 py-0.5">3</span>
+          </button>
+          <button class="px-3 py-3 text-sm font-medium text-slate-500 whitespace-nowrap">Invitaciones</button>
+        </div>
+
+        <!-- Lista de solicitudes -->
+        <div class="divide-y divide-slate-100">
+          <!-- Solicitud 1 · Ricardo -->
+          <div class="px-6 py-4 flex items-center gap-4 hover:bg-amber-50/30 cursor-pointer">
+            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-amber-400 to-orange-600 text-white flex items-center justify-center font-bold text-sm">RC</div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2">
+                <span class="font-semibold text-slate-900">Ricardo Castro</span>
+                <span class="text-[9px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-full font-bold">📥 PENDIENTE</span>
+              </div>
+              <div class="text-xs text-slate-500 mt-0.5">ricardo@skinlabs.pe · Sales Rep @ Skin Labs SAC</div>
+              <div class="text-[11px] text-slate-600 mt-1 line-clamp-1">"Quiero ver el estado de las OC pendientes y consultar facturas vencidas..."</div>
+            </div>
+            <div class="hidden md:flex items-center gap-2">
+              <span class="text-[10px] bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-full font-semibold flex items-center gap-1">
+                <i data-lucide="link" class="w-3 h-3"></i> Skin Labs SAC
+              </span>
+            </div>
+            <div class="text-xs text-slate-400 hidden md:block min-w-[80px] text-right">Hace 2h</div>
+            <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i>
+          </div>
+
+          <!-- Solicitud 2 · Cliente VIP -->
+          <div class="px-6 py-4 flex items-center gap-4 hover:bg-amber-50/30 cursor-pointer">
+            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-pink-400 to-rose-600 text-white flex items-center justify-center font-bold text-sm">VL</div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2">
+                <span class="font-semibold text-slate-900">Valeria Llanos</span>
+                <span class="text-[9px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-full font-bold">📥 PENDIENTE</span>
+              </div>
+              <div class="text-xs text-slate-500 mt-0.5">valeria.llanos@gmail.com · Cliente VIP persona natural</div>
+              <div class="text-[11px] text-slate-600 mt-1 line-clamp-1">"Quiero ver mis pedidos y poder agendar mis compras recurrentes..."</div>
+            </div>
+            <div class="hidden md:flex items-center gap-2">
+              <span class="text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full font-medium">Sin vincular</span>
+            </div>
+            <div class="text-xs text-slate-400 hidden md:block min-w-[80px] text-right">Hace 5h</div>
+            <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i>
+          </div>
+
+          <!-- Solicitud 3 · Info solicitada -->
+          <div class="px-6 py-4 flex items-center gap-4 hover:bg-amber-50/30 cursor-pointer">
+            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-sky-400 to-blue-600 text-white flex items-center justify-center font-bold text-sm">LP</div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2">
+                <span class="font-semibold text-slate-900">Luis Pérez</span>
+                <span class="text-[9px] bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded-full font-bold">❓ INFO SOLICITADA</span>
+              </div>
+              <div class="text-xs text-slate-500 mt-0.5">luis@bloom-mkt.pe · Account exec @ Bloom Marketing</div>
+              <div class="text-[11px] text-blue-600 mt-1">⏳ Esperando que confirme RUC de la agencia · pediste ayer</div>
+            </div>
+            <div class="hidden md:flex items-center gap-2">
+              <span class="text-[10px] bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-full font-semibold flex items-center gap-1">
+                <i data-lucide="link" class="w-3 h-3"></i> Bloom Mkt
+              </span>
+            </div>
+            <div class="text-xs text-slate-400 hidden md:block min-w-[80px] text-right">Hace 1d</div>
+            <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i>
+          </div>
+        </div>
+
+        <!-- Footer info -->
+        <div class="px-6 py-3 bg-slate-50/50 text-xs text-slate-500 flex items-center justify-between">
+          <span>SLA actual: 1.4 días promedio · 0 caducadas en 30d</span>
+          <button class="text-purple-700 hover:underline font-semibold">Ver histórico de solicitudes →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal AprobarUsuarioModal EXTENDIDO -->
+    <div class="text-[10px] uppercase tracking-wider font-bold text-slate-500 mb-2">Click en solicitud · abre AprobarUsuarioModal extendido</div>
+    <div class="bg-slate-900/50 rounded-2xl p-6 flex justify-center">
+      <div class="bg-white rounded-2xl shadow-2xl overflow-hidden max-w-2xl w-full">
+        <!-- Header modal -->
+        <div class="bg-emerald-50 border-b border-emerald-200 px-6 py-4 flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="w-11 h-11 rounded-xl bg-emerald-100 flex items-center justify-center">
+              <i data-lucide="user-check" class="w-5 h-5 text-emerald-700"></i>
+            </div>
+            <div>
+              <h3 class="text-lg font-bold text-slate-900">Procesar solicitud · Ricardo Castro</h3>
+              <p class="text-xs text-slate-600">Revisá los datos, asigná roles y confirmá la vinculación</p>
+            </div>
+          </div>
+          <button class="w-8 h-8 hover:bg-emerald-100 rounded-lg flex items-center justify-center">
+            <i data-lucide="x" class="w-4 h-4 text-slate-500"></i>
+          </button>
+        </div>
+
+        <!-- Body -->
+        <div class="p-6 space-y-4 max-h-[60vh] overflow-y-auto">
+          <!-- Datos solicitante -->
+          <div class="bg-slate-50 ring-1 ring-slate-200 rounded-xl p-4">
+            <div class="text-[10px] uppercase tracking-wider font-bold text-slate-700 mb-2">Datos del solicitante</div>
+            <div class="grid grid-cols-2 gap-2 text-sm">
+              <div>
+                <div class="text-[10px] text-slate-500">Nombre</div>
+                <div class="font-semibold text-slate-900">Ricardo Castro</div>
+              </div>
+              <div>
+                <div class="text-[10px] text-slate-500">Email</div>
+                <div class="font-semibold text-slate-900">ricardo@skinlabs.pe</div>
+              </div>
+              <div>
+                <div class="text-[10px] text-slate-500">Teléfono</div>
+                <div class="font-semibold text-slate-900 tabular-nums">+51 987 654 321</div>
+              </div>
+              <div>
+                <div class="text-[10px] text-slate-500">IP / origen</div>
+                <div class="font-semibold text-slate-700 text-xs">200.45.67.x · Lima · reCAPTCHA 0.9</div>
+              </div>
+            </div>
+            <div class="mt-3 pt-3 border-t border-slate-200">
+              <div class="text-[10px] text-slate-500 mb-1">Motivo declarado</div>
+              <p class="text-xs text-slate-700 italic">"Quiero ver el estado de las OC pendientes y consultar facturas vencidas. Soy el sales rep que negocia con Marta y Diego de Vita Skin."</p>
+            </div>
+          </div>
+
+          <!-- Maestro vinculado -->
+          <div class="bg-gradient-to-br from-indigo-50 to-purple-50 ring-2 ring-indigo-300 rounded-xl p-4">
+            <div class="flex items-center justify-between mb-2">
+              <div class="text-[10px] uppercase tracking-wider font-bold text-indigo-700">✨ Vinculación con Maestros</div>
+              <button class="text-[11px] text-indigo-700 underline">Cambiar</button>
+            </div>
+            <div class="bg-white rounded-lg p-3 flex items-center gap-3">
+              <div class="w-10 h-10 rounded-lg bg-indigo-600 text-white flex items-center justify-center">
+                <i data-lucide="building-2" class="w-5 h-5"></i>
+              </div>
+              <div class="flex-1">
+                <div class="font-bold text-slate-900">Skin Labs SAC</div>
+                <div class="text-[10px] text-slate-500">Proveedor · RUC 20512345678 · 14 OC históricas</div>
+                <div class="text-[10px] text-indigo-700 mt-0.5">Ricardo será: <strong>Sales Representative</strong></div>
+              </div>
+              <i data-lucide="check-circle" class="w-5 h-5 text-emerald-600"></i>
+            </div>
+          </div>
+
+          <!-- Roles -->
+          <div>
+            <div class="text-[10px] uppercase tracking-wider font-bold text-slate-700 mb-2">Roles a asignar *</div>
+            <div class="grid grid-cols-3 gap-2">
+              <label class="text-xs flex items-center gap-2 px-2 py-1.5 bg-emerald-50 ring-1 ring-emerald-300 rounded-lg">
+                <input type="checkbox" checked> <span class="font-semibold text-emerald-900">invitado</span>
+              </label>
+              <label class="text-xs flex items-center gap-2 px-2 py-1.5 bg-white ring-1 ring-slate-200 rounded-lg">
+                <input type="checkbox"> <span class="text-slate-700">vendedor</span>
+              </label>
+              <label class="text-xs flex items-center gap-2 px-2 py-1.5 bg-white ring-1 ring-slate-200 rounded-lg">
+                <input type="checkbox"> <span class="text-slate-700">comprador</span>
+              </label>
+            </div>
+            <p class="text-[10px] text-slate-500 mt-2">Para externos, "invitado" suele ser suficiente · solo ve lo vinculado a su Maestro.</p>
+          </div>
+
+          <!-- Mensaje personalizado -->
+          <div>
+            <div class="text-[10px] uppercase tracking-wider font-bold text-slate-700 mb-1.5">Mensaje personalizado <span class="text-slate-500 font-normal normal-case">(opcional)</span></div>
+            <textarea class="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs" rows="2" placeholder="Mensaje que verá Ricardo en el email de bienvenida..."></textarea>
+          </div>
+        </div>
+
+        <!-- Footer · 3 acciones -->
+        <div class="bg-slate-50 border-t border-slate-200 px-6 py-3 flex items-center gap-2">
+          <button class="px-3 py-2 bg-white text-rose-700 border border-rose-200 rounded-lg hover:bg-rose-50 text-sm font-medium flex items-center gap-1.5">
+            <i data-lucide="x" class="w-3.5 h-3.5"></i> Rechazar
+          </button>
+          <button class="px-3 py-2 bg-white text-blue-700 border border-blue-200 rounded-lg hover:bg-blue-50 text-sm font-medium flex items-center gap-1.5">
+            <i data-lucide="help-circle" class="w-3.5 h-3.5"></i> Pedir info
+          </button>
+          <div class="ml-auto flex items-center gap-2">
+            <button class="px-3 py-2 text-sm text-slate-600 hover:bg-slate-100 rounded-lg">Cancelar</button>
+            <button class="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 text-sm font-semibold flex items-center gap-1.5">
+              <i data-lucide="check" class="w-3.5 h-3.5"></i> Aprobar y enviar invitación
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- ACTO 6 · EMAILS RESEND TEMPLATES                               -->
+<!-- ============================================================ -->
+<section class="py-12 px-6 bg-amber-50/20 border-b border-amber-100">
+  <div class="acto-shell">
+    <div class="mb-6">
+      <span class="text-[11px] uppercase tracking-wider font-bold text-teal-700">ACTO 6 · Bloque B</span>
+      <h2 class="text-2xl font-bold text-slate-900 mt-1">3 emails Resend · templates de la solicitud</h2>
+      <p class="text-sm text-slate-600 mt-1">Templates HTML con brand Vita Skin · enviados por Cloud Functions vía Resend API.</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <!-- Email 1 · Recibida -->
+      <div>
+        <div class="text-[10px] uppercase tracking-wider font-bold text-amber-700 mb-2">📥 EMAIL 1 · Solicitud recibida</div>
+        <div class="bg-white ring-1 ring-slate-200 rounded-2xl overflow-hidden shadow-md">
+          <div class="bg-gradient-to-r from-teal-600 to-teal-700 text-white px-4 py-3 text-xs">
+            <div class="font-bold">Vita Skin Perú</div>
+            <div class="text-[10px] text-teal-100">noreply@vitaskin.pe</div>
+          </div>
+          <div class="p-4 text-xs space-y-3">
+            <div>Hola Ricardo,</div>
+            <p class="text-slate-700">Recibimos tu solicitud de acceso al portal de aliados. Nuestro equipo la revisará y te notificaremos pronto.</p>
+            <div class="bg-slate-50 rounded-lg p-2.5 text-[11px]">
+              <div class="font-semibold text-slate-900 mb-1">Tu solicitud</div>
+              <div class="text-slate-600">📥 Estado: <strong>Pendiente</strong></div>
+              <div class="text-slate-600">🏢 Empresa: Skin Labs SAC</div>
+              <div class="text-slate-600">⏱ Tiempo estimado: 1-2 días hábiles</div>
+            </div>
+            <div class="text-[10px] text-slate-500">Si tenés alguna duda, podés responder a este email.</div>
+            <div class="pt-2 border-t border-slate-100 text-[10px] text-slate-400">— Equipo Vita Skin Perú</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Email 2 · Aprobada -->
+      <div>
+        <div class="text-[10px] uppercase tracking-wider font-bold text-emerald-700 mb-2">✅ EMAIL 2 · Solicitud aprobada</div>
+        <div class="bg-white ring-1 ring-slate-200 rounded-2xl overflow-hidden shadow-md">
+          <div class="bg-gradient-to-r from-emerald-600 to-teal-700 text-white px-4 py-3 text-xs">
+            <div class="font-bold">¡Tu acceso está listo!</div>
+            <div class="text-[10px] text-emerald-100">noreply@vitaskin.pe</div>
+          </div>
+          <div class="p-4 text-xs space-y-3">
+            <div>Hola Ricardo,</div>
+            <p class="text-slate-700">¡Excelente noticia! Tu solicitud de acceso fue aprobada. Activá tu cuenta haciendo click en el botón.</p>
+            <div class="bg-emerald-50 ring-1 ring-emerald-200 rounded-lg p-2.5 text-[11px]">
+              <div class="text-emerald-800">Acceso configurado:</div>
+              <div class="text-emerald-700 mt-0.5">🏢 Vinculado a Skin Labs SAC</div>
+              <div class="text-emerald-700">👤 Rol: Invitado</div>
+              <div class="text-emerald-700">⏰ Link válido por 7 días</div>
+            </div>
+            <a class="block w-full bg-teal-600 text-white text-center py-2.5 rounded-lg font-bold text-xs">Activar mi cuenta →</a>
+            <div class="text-[10px] text-slate-500">El admin agregó: "Bienvenido Ricardo, cualquier consulta ya sabés cómo encontrarme · Marta"</div>
+            <div class="pt-2 border-t border-slate-100 text-[10px] text-slate-400">— Equipo Vita Skin Perú</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Email 3 · Rechazada -->
+      <div>
+        <div class="text-[10px] uppercase tracking-wider font-bold text-rose-700 mb-2">❌ EMAIL 3 · Solicitud rechazada</div>
+        <div class="bg-white ring-1 ring-slate-200 rounded-2xl overflow-hidden shadow-md">
+          <div class="bg-gradient-to-r from-slate-700 to-slate-800 text-white px-4 py-3 text-xs">
+            <div class="font-bold">Sobre tu solicitud</div>
+            <div class="text-[10px] text-slate-300">noreply@vitaskin.pe</div>
+          </div>
+          <div class="p-4 text-xs space-y-3">
+            <div>Hola Ricardo,</div>
+            <p class="text-slate-700">Lamentamos informarte que en este momento no podemos aprobar tu solicitud de acceso al portal.</p>
+            <div class="bg-rose-50 ring-1 ring-rose-200 rounded-lg p-2.5 text-[11px]">
+              <div class="font-semibold text-rose-900 mb-1">Motivo</div>
+              <div class="text-rose-700 italic">"No identificamos OC activas con tu empresa este año. Si esto cambia, podés volver a solicitar acceso."</div>
+            </div>
+            <p class="text-slate-700">Si creés que esto es un error o tenés información adicional, podés responder a este email o llamarnos al +51 1 234 5678.</p>
+            <div class="pt-2 border-t border-slate-100 text-[10px] text-slate-400">— Equipo Vita Skin Perú</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- ACTO 7 · BOTÓN "INVITAR" EN USERPANEL (Caso A · ya existe)     -->
+<!-- ============================================================ -->
+<section class="py-12 px-6 bg-purple-50/20 border-b border-purple-100">
+  <div class="acto-shell">
+    <div class="mb-6">
+      <span class="text-[11px] uppercase tracking-wider font-bold text-teal-700">ACTO 7 · Bloque B</span>
+      <h2 class="text-2xl font-bold text-slate-900 mt-1">Caso A · admin invita a User externo que YA existe</h2>
+      <p class="text-sm text-slate-600 mt-1">Cuando el externo ya está creado (sin acceso aún), el admin lo invita desde UserPanel tab Permisos.</p>
+    </div>
+
+    <div class="bg-slate-100 rounded-2xl p-4">
+      <div class="bg-white rounded-xl ring-1 ring-slate-200 overflow-hidden">
+        <!-- Side panel · Tab Permisos -->
+        <div class="p-6">
+          <div class="flex items-center gap-3 mb-4 pb-4 border-b border-slate-100">
+            <div class="w-12 h-12 rounded-full bg-gradient-to-br from-amber-400 to-orange-600 text-white flex items-center justify-center font-bold">RC</div>
+            <div class="flex-1">
+              <div class="text-base font-bold text-slate-900">Ricardo Castro</div>
+              <div class="text-xs text-slate-500">Externo · vinculado a Skin Labs SAC</div>
+            </div>
+          </div>
+
+          <!-- Tabs -->
+          <div class="border-b border-slate-100 flex items-center gap-1 mb-5">
+            <button class="px-3 py-2 text-sm font-medium text-slate-500">Resumen</button>
+            <button class="px-3 py-2 text-sm font-medium text-slate-500">Relaciones · 1</button>
+            <button class="px-3 py-2 text-sm font-medium text-slate-500">Datos</button>
+            <button class="px-3 py-2 text-sm font-medium text-slate-500">Vinculación</button>
+            <button class="px-3 py-2 text-sm font-semibold text-slate-900 border-b-2 border-purple-600">Permisos</button>
+            <button class="px-3 py-2 text-sm font-medium text-slate-500">Histórico</button>
+          </div>
+
+          <!-- Estado de acceso -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <div class="text-[10px] uppercase tracking-wider font-bold text-slate-700 mb-2">Acceso al sistema</div>
+              <div class="bg-amber-50 ring-1 ring-amber-200 rounded-xl p-4">
+                <div class="flex items-center gap-2 mb-2">
+                  <i data-lucide="user-x" class="w-5 h-5 text-amber-700"></i>
+                  <span class="font-bold text-amber-900">Sin acceso aún</span>
+                </div>
+                <p class="text-xs text-amber-800 mb-3">Ricardo está registrado como contacto de Skin Labs pero NO tiene credenciales del sistema.</p>
+                <button class="w-full bg-teal-600 text-white py-2.5 rounded-lg text-sm font-semibold flex items-center justify-center gap-1.5">
+                  <i data-lucide="send" class="w-4 h-4"></i> Invitar al sistema
+                </button>
+                <p class="text-[10px] text-slate-500 text-center mt-2">Enviará email con link de setup de password (7 días)</p>
+              </div>
+            </div>
+            <div>
+              <div class="text-[10px] uppercase tracking-wider font-bold text-slate-700 mb-2">Si tuviera acceso vería</div>
+              <div class="bg-slate-50 ring-1 ring-slate-200 rounded-xl p-4 text-xs">
+                <ul class="space-y-1.5 text-slate-700">
+                  <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i> Estado de OC pendientes (Skin Labs)</li>
+                  <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i> Facturas emitidas + estado pago</li>
+                  <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i> Catálogos de Vita Skin</li>
+                  <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i> Sus datos personales</li>
+                  <li class="flex items-center gap-2"><i data-lucide="x" class="w-3.5 h-3.5 text-rose-600"></i> NO ve otros proveedores</li>
+                  <li class="flex items-center gap-2"><i data-lucide="x" class="w-3.5 h-3.5 text-rose-600"></i> NO ve contabilidad ni planilla</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-4 bg-emerald-50 ring-1 ring-emerald-200 rounded-lg p-3 text-xs text-emerald-900">
+      <strong>⚡ Cero código nuevo:</strong> el botón "Invitar al sistema" reusa <code class="bg-white px-1 rounded">CrearInvitacionInput</code> + <code class="bg-white px-1 rounded">inviteUser CF</code> que ya existen. El email es el mismo que el flujo /signup actual.
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- ACTO 8 · MOBILE 375px · 3 VISTAS                               -->
+<!-- ============================================================ -->
+<section class="py-12 px-6 bg-rose-50/20 border-b border-rose-100">
+  <div class="acto-shell">
+    <div class="mb-8 text-center">
+      <span class="text-[11px] uppercase tracking-wider font-bold text-rose-700">ACTO 8 · Bloque C</span>
+      <h2 class="text-2xl font-bold text-slate-900 mt-1">Mobile 375px · canon cobertura total</h2>
+      <p class="text-sm text-slate-600 mt-1">3 vistas críticas: form solicitud · bandeja admin · modal aprobar.</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <!-- M1 · Form solicitud mobile -->
+      <div>
+        <div class="text-[10px] uppercase tracking-wider font-bold text-rose-700 mb-2">M1 · /solicitar-acceso</div>
+        <div class="mobile-shell mx-auto bg-slate-900 rounded-[2rem] p-2 shadow-2xl">
+          <div class="bg-white rounded-[1.5rem] overflow-hidden h-[700px] flex flex-col">
+            <div class="px-5 py-2 flex items-center justify-between text-[11px] font-bold text-slate-900">
+              <span>9:41</span><span>📶 📡 🔋</span>
+            </div>
+            <div class="bg-gradient-to-r from-teal-600 to-teal-700 text-white px-4 py-3 flex items-center gap-2">
+              <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center font-bold text-sm">V</div>
+              <div>
+                <div class="text-xs font-bold">Vita Skin Perú</div>
+                <div class="text-[9px] text-teal-100">Portal de Aliados</div>
+              </div>
+            </div>
+            <div class="flex-1 overflow-y-auto p-4 space-y-3">
+              <div>
+                <h1 class="text-base font-bold text-slate-900">Solicitar acceso</h1>
+                <p class="text-[10px] text-slate-600 mt-1">¿Trabajás con Vita Skin? Pedí acceso al portal.</p>
+              </div>
+
+              <div class="bg-amber-50 ring-1 ring-amber-200 rounded p-2 text-[10px] text-amber-900">
+                ⏱ Revisión 1-2 días hábiles
+              </div>
+
+              <div>
+                <label class="text-[9px] uppercase font-bold text-slate-700 mb-1 block">Nombre completo *</label>
+                <input class="w-full px-2.5 py-2 bg-white border border-slate-300 rounded text-xs" value="Ricardo Castro">
+              </div>
+              <div>
+                <label class="text-[9px] uppercase font-bold text-slate-700 mb-1 block">Email corporativo *</label>
+                <input class="w-full px-2.5 py-2 bg-white border border-slate-300 rounded text-xs" value="ricardo@skinlabs.pe">
+              </div>
+              <div>
+                <label class="text-[9px] uppercase font-bold text-slate-700 mb-1 block">Tipo de relación *</label>
+                <div class="grid grid-cols-2 gap-1.5">
+                  <button class="p-2 bg-amber-50 ring-2 ring-amber-500 rounded text-left">
+                    <div class="text-base">🛒</div>
+                    <div class="text-[10px] font-bold text-amber-900">Proveedor</div>
+                  </button>
+                  <button class="p-2 bg-white ring-1 ring-slate-200 rounded text-left">
+                    <div class="text-base">💼</div>
+                    <div class="text-[10px] font-bold text-slate-900">Cliente</div>
+                  </button>
+                  <button class="p-2 bg-white ring-1 ring-slate-200 rounded text-left">
+                    <div class="text-base">🚚</div>
+                    <div class="text-[10px] font-bold text-slate-900">Transp.</div>
+                  </button>
+                  <button class="p-2 bg-white ring-1 ring-slate-200 rounded text-left">
+                    <div class="text-base">🤝</div>
+                    <div class="text-[10px] font-bold text-slate-900">Otro</div>
+                  </button>
+                </div>
+              </div>
+
+              <div class="bg-gradient-to-br from-indigo-50 to-purple-50 ring-1 ring-indigo-200 rounded-lg p-3">
+                <div class="text-[10px] font-bold text-indigo-900 mb-1">🔗 Empresa proveedora *</div>
+                <div class="relative mb-1.5">
+                  <i data-lucide="search" class="w-3 h-3 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2"></i>
+                  <input class="w-full pl-7 pr-2 py-1.5 bg-white border border-indigo-200 rounded text-xs" value="Skin Labs">
+                </div>
+                <div class="bg-white rounded ring-1 ring-indigo-300 p-2 flex items-center gap-2">
+                  <div class="w-6 h-6 rounded bg-indigo-600 text-white flex items-center justify-center">
+                    <i data-lucide="building-2" class="w-3 h-3"></i>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <div class="text-[10px] font-bold text-slate-900">Skin Labs SAC</div>
+                  </div>
+                  <i data-lucide="check-circle" class="w-3.5 h-3.5 text-emerald-600 flex-shrink-0"></i>
+                </div>
+              </div>
+
+              <div>
+                <label class="text-[9px] uppercase font-bold text-slate-700 mb-1 block">Motivo *</label>
+                <textarea class="w-full px-2.5 py-2 bg-white border border-slate-300 rounded text-xs" rows="2" placeholder="Ver OC pendientes..."></textarea>
+              </div>
+            </div>
+            <div class="px-4 py-3 border-t border-slate-200 bg-white">
+              <button class="w-full py-2.5 bg-teal-600 text-white rounded-lg font-semibold text-xs flex items-center justify-center gap-1.5">
+                <i data-lucide="send" class="w-3.5 h-3.5"></i> Enviar solicitud
+              </button>
+            </div>
+            <div class="h-6 bg-slate-50"></div>
+          </div>
+        </div>
+        <div class="mt-2 text-[10px] text-slate-500 text-center">Form 1-col · sticky CTA bottom · buscador inline · safe-area inset</div>
+      </div>
+
+      <!-- M2 · Bandeja mobile -->
+      <div>
+        <div class="text-[10px] uppercase tracking-wider font-bold text-rose-700 mb-2">M2 · Bandeja admin</div>
+        <div class="mobile-shell mx-auto bg-slate-900 rounded-[2rem] p-2 shadow-2xl">
+          <div class="bg-white rounded-[1.5rem] overflow-hidden h-[700px] flex flex-col">
+            <div class="px-5 py-2 flex items-center justify-between text-[11px] font-bold text-slate-900">
+              <span>9:41</span><span>📶 📡 🔋</span>
+            </div>
+            <div class="px-4 py-3 border-b border-slate-100 flex items-center gap-2">
+              <button class="w-9 h-9 rounded-lg hover:bg-slate-100 flex items-center justify-center">
+                <i data-lucide="menu" class="w-5 h-5 text-slate-700"></i>
+              </button>
+              <h1 class="text-base font-bold text-slate-900 flex items-center gap-1.5 flex-1">
+                Usuarios
+                <span class="text-[9px] bg-amber-500 text-white px-1.5 py-0.5 rounded-full font-bold animate-pulse">🔔 3</span>
+              </h1>
+            </div>
+            <div class="px-4 py-2 flex items-center gap-1 overflow-x-auto scroll-hide border-b border-slate-100">
+              <button class="px-2.5 py-1.5 text-[10px] text-slate-500 whitespace-nowrap">Todos</button>
+              <button class="px-2.5 py-1.5 text-[10px] text-slate-500 whitespace-nowrap">Empl.</button>
+              <button class="px-2.5 py-1.5 text-[10px] text-slate-500 whitespace-nowrap">Externos</button>
+              <button class="px-2.5 py-1.5 text-[10px] font-semibold text-amber-900 border-b-2 border-amber-500 whitespace-nowrap flex items-center gap-1">
+                <i data-lucide="inbox" class="w-3 h-3"></i> Solic. · 3
+              </button>
+            </div>
+            <div class="flex-1 overflow-y-auto divide-y divide-slate-100">
+              <div class="px-4 py-3 flex items-center gap-2.5 active:bg-amber-50/30">
+                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-amber-400 to-orange-600 text-white flex items-center justify-center font-bold text-xs">RC</div>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-1">
+                    <span class="text-xs font-semibold text-slate-900 truncate">Ricardo Castro</span>
+                    <span class="text-[8px] bg-amber-100 text-amber-700 px-1 py-0.5 rounded-full font-bold">📥 PEND</span>
+                  </div>
+                  <div class="text-[10px] text-slate-500 truncate">Sales Rep · Skin Labs</div>
+                  <div class="text-[9px] text-indigo-700 flex items-center gap-0.5 mt-0.5">
+                    <i data-lucide="link" class="w-2.5 h-2.5"></i> Skin Labs SAC
+                  </div>
+                </div>
+                <div class="text-[9px] text-slate-400 flex-shrink-0">2h</div>
+              </div>
+              <div class="px-4 py-3 flex items-center gap-2.5">
+                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-pink-400 to-rose-600 text-white flex items-center justify-center font-bold text-xs">VL</div>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-1">
+                    <span class="text-xs font-semibold text-slate-900 truncate">Valeria Llanos</span>
+                    <span class="text-[8px] bg-amber-100 text-amber-700 px-1 py-0.5 rounded-full font-bold">📥</span>
+                  </div>
+                  <div class="text-[10px] text-slate-500 truncate">Cliente VIP</div>
+                </div>
+                <div class="text-[9px] text-slate-400">5h</div>
+              </div>
+              <div class="px-4 py-3 flex items-center gap-2.5">
+                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-sky-400 to-blue-600 text-white flex items-center justify-center font-bold text-xs">LP</div>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-1">
+                    <span class="text-xs font-semibold text-slate-900 truncate">Luis Pérez</span>
+                    <span class="text-[8px] bg-blue-100 text-blue-700 px-1 py-0.5 rounded-full font-bold">❓</span>
+                  </div>
+                  <div class="text-[10px] text-slate-500 truncate">Bloom Mkt · esperando RUC</div>
+                </div>
+                <div class="text-[9px] text-slate-400">1d</div>
+              </div>
+            </div>
+            <div class="h-6 bg-slate-50"></div>
+          </div>
+        </div>
+        <div class="mt-2 text-[10px] text-slate-500 text-center">Tab Solicitudes con badge · cards 1-col · scroll-x tabs · estado visible</div>
+      </div>
+
+      <!-- M3 · Modal aprobar mobile -->
+      <div>
+        <div class="text-[10px] uppercase tracking-wider font-bold text-rose-700 mb-2">M3 · Aprobar mobile</div>
+        <div class="mobile-shell mx-auto bg-slate-900 rounded-[2rem] p-2 shadow-2xl">
+          <div class="bg-white rounded-[1.5rem] overflow-hidden h-[700px] flex flex-col">
+            <div class="px-5 py-2 flex items-center justify-between text-[11px] font-bold text-slate-900">
+              <span>9:41</span><span>📶 📡 🔋</span>
+            </div>
+            <div class="bg-emerald-50 border-b border-emerald-200 px-4 py-3 flex items-center gap-2">
+              <button class="w-9 h-9 rounded-lg hover:bg-emerald-100 flex items-center justify-center">
+                <i data-lucide="arrow-left" class="w-5 h-5 text-slate-700"></i>
+              </button>
+              <div class="flex-1 min-w-0">
+                <div class="text-sm font-bold text-slate-900 truncate">Procesar solicitud</div>
+                <div class="text-[10px] text-slate-600 truncate">Ricardo Castro</div>
+              </div>
+            </div>
+            <div class="flex-1 overflow-y-auto p-4 space-y-3">
+              <div class="bg-slate-50 ring-1 ring-slate-200 rounded-lg p-3 text-[11px]">
+                <div class="text-[9px] uppercase font-bold text-slate-700 mb-1">SOLICITANTE</div>
+                <div class="font-semibold text-slate-900">Ricardo Castro</div>
+                <div class="text-slate-600">ricardo@skinlabs.pe</div>
+                <div class="text-slate-600 tabular-nums">+51 987 654 321</div>
+              </div>
+
+              <div class="bg-gradient-to-br from-indigo-50 to-purple-50 ring-2 ring-indigo-300 rounded-lg p-3">
+                <div class="text-[9px] uppercase font-bold text-indigo-700 mb-2">✨ MAESTRO VINCULADO</div>
+                <div class="bg-white rounded p-2 flex items-center gap-2">
+                  <div class="w-8 h-8 rounded bg-indigo-600 text-white flex items-center justify-center flex-shrink-0">
+                    <i data-lucide="building-2" class="w-4 h-4"></i>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <div class="text-xs font-bold text-slate-900 truncate">Skin Labs SAC</div>
+                    <div class="text-[9px] text-slate-500">Sales Representative</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="bg-slate-50 rounded-lg p-3 text-[10px]">
+                <div class="text-[9px] uppercase font-bold text-slate-700 mb-1">MOTIVO</div>
+                <p class="text-slate-700 italic">"Quiero ver el estado de las OC pendientes..."</p>
+              </div>
+
+              <div>
+                <div class="text-[9px] uppercase font-bold text-slate-700 mb-1.5">ROLES</div>
+                <label class="flex items-center gap-2 px-2.5 py-2 bg-emerald-50 ring-1 ring-emerald-300 rounded">
+                  <input type="checkbox" checked>
+                  <span class="text-xs font-semibold text-emerald-900">invitado</span>
+                </label>
+              </div>
+            </div>
+            <div class="px-4 py-3 border-t border-slate-200 bg-white space-y-2">
+              <button class="w-full py-2.5 bg-emerald-600 text-white rounded-lg text-sm font-semibold flex items-center justify-center gap-1.5">
+                <i data-lucide="check" class="w-3.5 h-3.5"></i> Aprobar e invitar
+              </button>
+              <div class="flex gap-2">
+                <button class="flex-1 py-2 text-xs text-blue-700 border border-blue-200 rounded-lg">❓ Pedir info</button>
+                <button class="flex-1 py-2 text-xs text-rose-700 border border-rose-200 rounded-lg">✗ Rechazar</button>
+              </div>
+            </div>
+            <div class="h-6 bg-slate-50"></div>
+          </div>
+        </div>
+        <div class="mt-2 text-[10px] text-slate-500 text-center">Modal sheet fullscreen · 3 acciones bottom · CTA primary destacada</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- ACTO 9 · PLAN INTEGRACIÓN v5.6 + v5.7 + v5.8 + v5.9            -->
+<!-- ============================================================ -->
+<section class="py-12 px-6 bg-emerald-50/30 border-b border-emerald-100">
+  <div class="acto-shell">
+    <div class="mb-6">
+      <span class="text-[11px] uppercase tracking-wider font-bold text-emerald-700">ACTO 9 · Bloque C</span>
+      <h2 class="text-2xl font-bold text-slate-900 mt-1">Plan integrado · suite completa v5.6→v5.9</h2>
+      <p class="text-sm text-slate-600 mt-1">v5.9 agrega solo 1 etapa nueva + extiende E3 y E5. Aprovecha 70% del stack existente.</p>
+    </div>
+
+    <!-- Las 4 capas -->
+    <div class="bg-white rounded-2xl ring-1 ring-slate-200 p-5 mb-6">
+      <div class="text-[10px] uppercase tracking-wider font-bold text-slate-700 mb-3">4 capas · 1 implementación coordinada</div>
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+        <div class="bg-purple-50 ring-1 ring-purple-200 rounded-xl p-3">
+          <div class="text-xs font-bold text-purple-900">📘 v5.6</div>
+          <div class="text-[10px] text-purple-700 mt-1">Modelo datos multi-relación</div>
+        </div>
+        <div class="bg-teal-50 ring-1 ring-teal-200 rounded-xl p-3">
+          <div class="text-xs font-bold text-teal-900">📗 v5.7</div>
+          <div class="text-[10px] text-teal-700 mt-1">Contexto end-to-end · sidebar</div>
+        </div>
+        <div class="bg-indigo-50 ring-1 ring-indigo-200 rounded-xl p-3">
+          <div class="text-xs font-bold text-indigo-900">📙 v5.8</div>
+          <div class="text-[10px] text-indigo-700 mt-1">Vinculación Maestros</div>
+        </div>
+        <div class="bg-emerald-50 ring-1 ring-emerald-200 rounded-xl p-3">
+          <div class="text-xs font-bold text-emerald-900">📕 v5.9</div>
+          <div class="text-[10px] text-emerald-700 mt-1">Self-service acceso</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Plan etapas -->
+    <div class="bg-white rounded-2xl ring-1 ring-slate-200 overflow-hidden">
+      <div class="bg-slate-900 text-white px-5 py-4">
+        <div class="text-[10px] uppercase tracking-wider font-bold text-emerald-300">Plan suite completo · 10 etapas · ~20h totales</div>
+        <h3 class="text-lg font-bold mt-1">v5.6 + v5.7 + v5.8 + v5.9 · 4 capas coordinadas</h3>
+      </div>
+      <div class="divide-y divide-slate-100">
+        <div class="px-5 py-3 flex items-start gap-3">
+          <div class="w-9 h-9 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center font-bold text-xs flex-shrink-0">E1</div>
+          <div class="flex-1 text-sm">
+            <span class="font-bold text-slate-900">Tipos + Service + Migración + Rules</span>
+            <span class="text-[10px] bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded-full font-semibold ml-2">v5.6+5.8 · 2.5h</span>
+          </div>
+        </div>
+        <div class="px-5 py-3 flex items-start gap-3">
+          <div class="w-9 h-9 rounded-full bg-teal-100 text-teal-700 flex items-center justify-center font-bold text-xs flex-shrink-0">E2</div>
+          <div class="flex-1 text-sm">
+            <span class="font-bold text-slate-900">Reorganizar sidebar · grupo Equipo</span>
+            <span class="text-[10px] bg-teal-100 text-teal-700 px-1.5 py-0.5 rounded-full font-semibold ml-2">v5.7 · 0.5h</span>
+          </div>
+        </div>
+        <div class="px-5 py-3 flex items-start gap-3">
+          <div class="w-9 h-9 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center font-bold text-xs flex-shrink-0">E3</div>
+          <div class="flex-1 text-sm">
+            <span class="font-bold text-slate-900">UserPanel · 5 tabs core + Vinculación + Permisos extendido</span>
+            <span class="text-[10px] bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded-full font-semibold ml-2">v5.6+5.7+5.8 · 5h</span>
+            <span class="text-[10px] bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded-full font-semibold ml-1">+ v5.9 · 0.5h</span>
+            <p class="text-xs text-slate-600 mt-1">+ Botón "Invitar al sistema" en tab Permisos (Caso A · reusa inviteUser CF).</p>
+          </div>
+        </div>
+        <div class="px-5 py-3 flex items-start gap-3">
+          <div class="w-9 h-9 rounded-full bg-teal-100 text-teal-700 flex items-center justify-center font-bold text-xs flex-shrink-0">E4</div>
+          <div class="flex-1 text-sm">
+            <span class="font-bold text-slate-900">/usuarios shell + Wizard 4 pasos + buscador Maestros</span>
+            <span class="text-[10px] bg-teal-100 text-teal-700 px-1.5 py-0.5 rounded-full font-semibold ml-2">v5.7+5.8 · 4.5h</span>
+          </div>
+        </div>
+        <div class="px-5 py-3 flex items-start gap-3">
+          <div class="w-9 h-9 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center font-bold text-xs flex-shrink-0">E5</div>
+          <div class="flex-1 text-sm">
+            <span class="font-bold text-slate-900">Wizards/Modals operativos + bandeja Solicitudes</span>
+            <span class="text-[10px] bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded-full font-semibold ml-2">v5.6 · 2.5h</span>
+            <span class="text-[10px] bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded-full font-semibold ml-1">+ v5.9 · 1h</span>
+            <p class="text-xs text-slate-600 mt-1">+ Tab "Solicitudes" con badge + AprobarUsuarioModal extendido con Maestro pre-vinculado.</p>
+          </div>
+        </div>
+        <div class="px-5 py-3 flex items-start gap-3">
+          <div class="w-9 h-9 rounded-full bg-teal-100 text-teal-700 flex items-center justify-center font-bold text-xs flex-shrink-0">E6</div>
+          <div class="flex-1 text-sm">
+            <span class="font-bold text-slate-900">Cross-links · Planilla/Hon/Soc usan UserPanel</span>
+            <span class="text-[10px] bg-teal-100 text-teal-700 px-1.5 py-0.5 rounded-full font-semibold ml-2">v5.7 · 2h</span>
+          </div>
+        </div>
+        <div class="px-5 py-3 flex items-start gap-3 bg-indigo-50/30">
+          <div class="w-9 h-9 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-xs flex-shrink-0">E7</div>
+          <div class="flex-1 text-sm">
+            <span class="font-bold text-slate-900">Sub-sección "Contactos" en Maestros</span>
+            <span class="text-[10px] bg-indigo-100 text-indigo-700 px-1.5 py-0.5 rounded-full font-bold ml-2">v5.8 · 1.5h</span>
+          </div>
+        </div>
+        <div class="px-5 py-3 flex items-start gap-3 bg-indigo-50/30">
+          <div class="w-9 h-9 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-xs flex-shrink-0">E8</div>
+          <div class="flex-1 text-sm">
+            <span class="font-bold text-slate-900">Cross-link OC → contacto vinculado</span>
+            <span class="text-[10px] bg-indigo-100 text-indigo-700 px-1.5 py-0.5 rounded-full font-bold ml-2">v5.8 · 0.5h</span>
+          </div>
+        </div>
+        <!-- E9 NUEVO v5.9 -->
+        <div class="px-5 py-3 flex items-start gap-3 bg-emerald-50/30">
+          <div class="w-9 h-9 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-xs flex-shrink-0">E9</div>
+          <div class="flex-1 text-sm">
+            <span class="font-bold text-slate-900">Página pública /solicitar-acceso + CF aprobarSolicitud + emails Resend</span>
+            <span class="text-[10px] bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded-full font-bold ml-2">v5.9 NUEVO · 2h</span>
+            <p class="text-xs text-slate-600 mt-1">Página + reCAPTCHA + rate limit + colección solicitudesAccesoExterno + 3 templates email + Cloud Function que crea User+Relacion+Invitacion atómicamente.</p>
+          </div>
+        </div>
+        <div class="px-5 py-3 flex items-start gap-3">
+          <div class="w-9 h-9 rounded-full bg-slate-200 text-slate-700 flex items-center justify-center font-bold text-xs flex-shrink-0">E10</div>
+          <div class="flex-1 text-sm">
+            <span class="font-bold text-slate-900">Cleanup + Mobile + TS + commit final</span>
+            <span class="text-[10px] bg-slate-100 text-slate-700 px-1.5 py-0.5 rounded-full font-semibold ml-2">combinado · 1h</span>
+          </div>
+        </div>
+      </div>
+      <div class="bg-slate-50 px-5 py-3 flex items-center justify-between">
+        <span class="text-xs text-slate-600">10 etapas · v5.6 (modelo) + v5.7 (contexto) + v5.8 (vinculación) + v5.9 (self-service)</span>
+        <span class="text-sm font-bold tabular-nums text-slate-900">≈ 20h total</span>
+      </div>
+    </div>
+
+    <!-- Decisión -->
+    <div class="mt-6 bg-gradient-to-br from-emerald-600 to-teal-700 text-white rounded-2xl p-6">
+      <div class="text-[10px] uppercase tracking-wider font-bold text-emerald-100 mb-2">DECISIÓN FINAL · admin valida suite v5.6→v5.9</div>
+      <h3 class="text-xl font-bold mb-3">¿Apruebas las 4 capas combinadas y arrancamos Etapa 1?</h3>
+      <p class="text-sm text-emerald-50">Suite coherente: modelo · contexto · vinculación · self-service. 10 etapas · ~20h. v5.9 agrega solo +3.5h sobre v5.8 (gran parte ya existe: Invitacion · approveUser · Resend · SetupPassword).</p>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="py-12 px-6 bg-slate-900 text-white">
+  <div class="acto-shell">
+    <div class="text-center mb-8">
+      <div class="text-[10px] uppercase tracking-wider font-bold text-emerald-300 mb-2">FOOTER · Validación canon</div>
+      <h3 class="text-2xl font-bold">Checklist v5.9 · Self-service de Acceso</h3>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+      <div>
+        <div class="text-[10px] uppercase tracking-wider font-bold text-emerald-300 mb-3">Cobertura conceptual</div>
+        <ul class="space-y-1.5 text-sm">
+          <li class="flex items-center gap-2"><span class="text-emerald-400">✓</span> Auditoría auth existente (ACTO 0)</li>
+          <li class="flex items-center gap-2"><span class="text-emerald-400">✓</span> Gap analysis /signup vs /solicitar-acceso (ACTO 1)</li>
+          <li class="flex items-center gap-2"><span class="text-emerald-400">✓</span> Flujo end-to-end 6 pasos (ACTO 2)</li>
+          <li class="flex items-center gap-2"><span class="text-emerald-400">✓</span> Modelo de datos SolicitudAccesoExterno (ACTO 4)</li>
+          <li class="flex items-center gap-2"><span class="text-emerald-400">✓</span> 5 estados de solicitud + transiciones</li>
+          <li class="flex items-center gap-2"><span class="text-emerald-400">✓</span> Reusa 70% de infra existente</li>
+        </ul>
+      </div>
+      <div>
+        <div class="text-[10px] uppercase tracking-wider font-bold text-rose-300 mb-3">Cobertura UX</div>
+        <ul class="space-y-1.5 text-sm">
+          <li class="flex items-center gap-2"><span class="text-emerald-400">✓</span> Página pública /solicitar-acceso (ACTO 3)</li>
+          <li class="flex items-center gap-2"><span class="text-emerald-400">✓</span> Bandeja admin con badge (ACTO 5)</li>
+          <li class="flex items-center gap-2"><span class="text-emerald-400">✓</span> AprobarUsuarioModal extendido con Maestro</li>
+          <li class="flex items-center gap-2"><span class="text-emerald-400">✓</span> 3 templates email Resend (ACTO 6)</li>
+          <li class="flex items-center gap-2"><span class="text-emerald-400">✓</span> Botón "Invitar" Caso A (ACTO 7)</li>
+          <li class="flex items-center gap-2"><span class="text-emerald-400">✓</span> Mobile 3 vistas (ACTO 8)</li>
+          <li class="flex items-center gap-2"><span class="text-emerald-400">✓</span> Plan integrado 10 etapas (ACTO 9)</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="text-center text-xs text-slate-400 pt-4 border-t border-white/10">
+      <div class="mb-1">usuarios-v5.9-self-service-acceso.html · 2026-05-28</div>
+      <div>9 actos · 7 desktop + mobile 3 vistas + 1 plan · 4ª capa self-service</div>
+      <div class="mt-2">Suite completa: v5.6 (modelo) + v5.7 (contexto) + v5.8 (vinculación) + v5.9 (self-service) · ~20h impl</div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
