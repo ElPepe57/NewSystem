@@ -39,6 +39,8 @@ import {
 } from '../../components/usuarios/RelacionModals';
 // chk5.PERSONAS-v5.7 · E5.2 · ReclasificarRelacionModal · transición atómica
 import { ReclasificarRelacionModal } from '../../components/usuarios/ReclasificarRelacionModal';
+// chk5.PERSONAS-v5.7 · E5.3 · AgregarRelacionWizard · 2 pasos · 2ª/Nª relación
+import { AgregarRelacionWizard } from '../../components/usuarios/AgregarRelacionWizard';
 import type { LucideIcon } from 'lucide-react';
 import { PageShell } from '../../design-system';
 import { userService } from '../../services/user.service';
@@ -124,6 +126,8 @@ export const Usuarios: React.FC = () => {
   const [editarRel, setEditarRel] = useState<RelacionLaboral | null>(null);
   // chk5.PERSONAS-v5.7 · E5.2 · Reclasificar relación (atómico)
   const [reclasificarRel, setReclasificarRel] = useState<RelacionLaboral | null>(null);
+  // chk5.PERSONAS-v5.7 · E5.3 · Agregar nueva relación a user existente · uid del user
+  const [agregarRelUid, setAgregarRelUid] = useState<string | null>(null);
 
   /**
    * chk5.PERSONAS-v5.7 · E5.1 · Refresca el cache de relaciones de un usuario
@@ -1291,7 +1295,7 @@ export const Usuarios: React.FC = () => {
         onFinalizarRelacion={setFinalizarRel}
         onEditarRelacion={setEditarRel}
         onReclasificarRelacion={setReclasificarRel}
-        // E5.3 · onAgregarRelacion
+        onAgregarRelacion={setAgregarRelUid}
       />
 
       {/* chk5.PERSONAS-v5.7 · E5.1 · 4 modales operativos del UserPanel
@@ -1349,6 +1353,26 @@ export const Usuarios: React.FC = () => {
         onSuccess={(msg) => {
           setSuccess(msg);
           if (reclasificarRel?.userId) void refrescarRelacionesUser(reclasificarRel.userId);
+        }}
+        onError={setError}
+      />
+
+      {/* chk5.PERSONAS-v5.7 · E5.3 · AgregarRelacionWizard · 2 pasos canon v5.6
+          Permite agregar 2ª/Nª relación a un user existente (multi-relación).
+          Tipos ya vigentes se deshabilitan · 1 vigente por tipo. */}
+      <AgregarRelacionWizard
+        isOpen={agregarRelUid !== null}
+        userId={agregarRelUid}
+        userDisplayName={
+          agregarRelUid
+            ? usuarios.find((u) => u.uid === agregarRelUid)?.displayName ?? undefined
+            : undefined
+        }
+        relacionesVigentes={agregarRelUid ? (relacionesByUid[agregarRelUid] ?? []) : []}
+        onClose={() => setAgregarRelUid(null)}
+        onSuccess={(msg) => {
+          setSuccess(msg);
+          if (agregarRelUid) void refrescarRelacionesUser(agregarRelUid);
         }}
         onError={setError}
       />
