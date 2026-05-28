@@ -13,6 +13,12 @@ import {
   // chk5.PERSONAS-v5.4 · F10.D · breadcrumb canon S9.D1 + exportar
   ChevronRight, Download,
 } from 'lucide-react';
+// chk5.PERSONAS-v5.7 · E4.1 (2026-05-28) · UserPanel reemplaza Ficha360Modal
+// como camino canon para ver el detalle de un usuario. Ficha360Modal queda
+// en deprecation soft · se elimina en E10.
+import { UserPanel } from '../../components/usuarios/UserPanel';
+import { relacionesLaboralesService } from '../../services/relacionesLaborales.service';
+import type { RelacionLaboral } from '../../types/relacionLaboral.types';
 import type { LucideIcon } from 'lucide-react';
 import { PageShell } from '../../design-system';
 import { userService } from '../../services/user.service';
@@ -24,7 +30,10 @@ import { ROLE_LABELS, hasRole, getRolPrincipal, getUserRoles, hasAnyRole } from 
 import TabAccesos from '../../components/modules/usuarios/TabAccesos';
 import TabConfiguracion from '../../components/modules/usuarios/TabConfiguracion';
 import InvitarPorEmailModal from '../../components/modules/usuarios/InvitarPorEmailModal';
-import Ficha360Modal from './Ficha360/Ficha360Modal';
+// chk5.PERSONAS-v5.7 · E4.1 · Ficha360Modal reemplazado por UserPanel canon F6-E
+// El componente Ficha360Modal sigue exportado para retrocompatibilidad pero NO se
+// invoca desde acá. Se elimina en E10 cuando todos los consumidores hayan migrado.
+// import Ficha360Modal from './Ficha360/Ficha360Modal'; // @deprecated chk5.PERSONAS-v5.7
 // chk5.F4-USERS · 2026-05-26 · Fase 5-BIS · 8 modales operativos canon FormModalV2
 import NuevoUsuarioModal from '../../components/modules/usuarios/NuevoUsuarioModal';
 import EditarUsuarioModal from '../../components/modules/usuarios/EditarUsuarioModal';
@@ -77,7 +86,12 @@ export const Usuarios: React.FC = () => {
   // ─── chk5.PERSONAS-v5.3 · F2 · navegación interna (3 tabs) ───────────
   const [tabActiva, setTabActiva] = useState<TabActiva>('directorio');
   const [invitarOpen, setInvitarOpen] = useState(false);
-  const [fichaModalUid, setFichaModalUid] = useState<string | null>(null);
+  // chk5.PERSONAS-v5.7 · E4.1 · UserPanel reemplaza Ficha360Modal como detalle canon
+  // El state legacy fichaModalUid queda como fallback comentado · se elimina en E10.
+  const [panelUid, setPanelUid] = useState<string | null>(null);
+  // chk5.PERSONAS-v5.7 · E4.1 · cache de relaciones por uid · usado para chips
+  // multi-relación en las cards y para multi-rol stats. Bulk fetch al cargar users.
+  const [relacionesByUid, setRelacionesByUid] = useState<Record<string, RelacionLaboral[]>>({});
   // Cleanup chk5.F4-USERS · 2026-05-26 · state legacy (newUser · editPermisos ·
   // editRoles · editDatosLab/Soc · approveRole · newPassword · etc) eliminado ·
   // cada modal canon FormModalV2 maneja su propio estado internamente.
@@ -88,10 +102,43 @@ export const Usuarios: React.FC = () => {
     try {
       const data = await userService.getAll();
       setUsuarios(data);
+      // chk5.PERSONAS-v5.7 · E4.1 · bulk fetch de relaciones por user
+      // No bloquea el render principal · se carga en background
+      void fetchRelacionesBulk(data.map((u) => u.uid));
     } catch (err: any) {
       setError(err.message);
     } finally {
       setLoading(false);
+    }
+  };
+
+  /**
+   * chk5.PERSONAS-v5.7 · E4.1 · Carga relaciones de TODOS los users en paralelo
+   * y construye el mapa { uid → RelacionLaboral[] } usado para chips multi-relación.
+   * Sin bloqueo · permite que el shell renderice mientras se cargan.
+   */
+  const fetchRelacionesBulk = async (uids: string[]) => {
+    if (uids.length === 0) return;
+    const results = await Promise.allSettled(
+      uids.map((uid) => relacionesesLaboralesPorUid(uid)),
+    );
+    const map: Record<string, RelacionLaboral[]> = {};
+    results.forEach((res, i) => {
+      if (res.status === 'fulfilled') {
+        map[uids[i]] = res.value;
+      } else {
+        map[uids[i]] = [];
+      }
+    });
+    setRelacionesByUid(map);
+  };
+
+  /** Helper · wrapper para llamada · tipado seguro */
+  const relacionesesLaboralesPorUid = async (uid: string): Promise<RelacionLaboral[]> => {
+    try {
+      return await relacionesLaboralesService.listByUser(uid);
+    } catch {
+      return [];
     }
   };
 
@@ -789,12 +836,12 @@ export const Usuarios: React.FC = () => {
                       </>
                     )}
                     <button
-                      onClick={() => setFichaModalUid(u.uid)}
+                      onClick={() => setPanelUid(u.uid)}
                       className="inline-flex items-center gap-1 px-2.5 py-1.5 text-[11px] font-semibold text-slate-600 hover:text-purple-700 hover:bg-purple-50 rounded"
-                      title="Ver ficha 360 (modal · canon F6.A)"
+                      title="Ver perfil 360 (UserPanel canon F6-E · v5.7)"
                     >
                       <Eye className="w-3 h-3" />
-                      <span className="hidden sm:inline">Ficha 360</span>
+                      <span className="hidden sm:inline">Ver perfil</span>
                     </button>
                     <button
                       onClick={() => handleOpenEditPermisos(u)}
@@ -965,20 +1012,15 @@ export const Usuarios: React.FC = () => {
         }}
       />
 
-      {/* chk5.F4-USERS · Ficha 360 como MODAL (canon ACTO 4 mockup · F6.A) */}
-      <Ficha360Modal
-        isOpen={fichaModalUid !== null}
-        onClose={() => setFichaModalUid(null)}
-        uid={fichaModalUid}
-        onRequestEdit={(p) => {
-          setFichaModalUid(null);
-          handleOpenEditPermisos(p);
-        }}
-        onRequestDisconnectAll={(p) => {
-          setSelectedUser(p);
-          setFichaModalUid(null);
-          setModalType('disconnect-all-confirm');
-        }}
+      {/* chk5.PERSONAS-v5.7 · E4.1 · UserPanel canon F6-E (reemplaza Ficha360Modal)
+          Drawer lateral con 5+1 tabs (Resumen · Relaciones · Datos · Permisos ·
+          Histórico · Vinculación condicional). E5 conecta los callbacks de
+          acciones operativas con wizards/modales reales (Agregar relación ·
+          Reclasificar · Pausar · Finalizar). */}
+      <UserPanel
+        userId={panelUid}
+        onClose={() => setPanelUid(null)}
+        // E5 wirea los callbacks · por ahora UI ready sin lógica
       />
     </PageShell>
   );
