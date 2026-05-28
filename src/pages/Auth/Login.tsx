@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link, Navigate } from 'react-router-dom';
 import { Button, Input, Card } from '../../components/common';
-import { AuthService } from '../../services/auth.service';
+import { AuthService, AccountExistsError } from '../../services/auth.service';
 import { useAuthStore } from '../../store/authStore';
 import { VitaSkinLogo, AuthPageWrapper, DropletDivider } from './AuthDecorations';
 
@@ -17,6 +17,8 @@ export const Login: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [error, setLocalError] = useState('');
+  // chk5.AUTH-LINK · banner especial cuando Google login falla por account-exists
+  const [linkingHint, setLinkingHint] = useState<{ email: string; methods: string[] } | null>(null);
 
   // Si ya está autenticado, redirigir
   if (user && userProfile?.activo) {
@@ -45,6 +47,7 @@ export const Login: React.FC = () => {
 
   const handleGoogleLogin = async () => {
     setLocalError('');
+    setLinkingHint(null);
     setGoogleLoading(true);
 
     try {
@@ -52,8 +55,16 @@ export const Login: React.FC = () => {
       setUser(user);
       navigate('/dashboard');
     } catch (err: any) {
-      setLocalError(err.message);
-      setError(err.message);
+      // chk5.AUTH-LINK · UX especial cuando el email ya tiene otro provider
+      if (err instanceof AccountExistsError) {
+        setLinkingHint({ email: err.email, methods: err.existingMethods });
+        // Auto-rellenar el email para que el user solo escriba password
+        setEmail(err.email);
+        setLocalError('');
+      } else {
+        setLocalError(err.message);
+        setError(err.message);
+      }
     } finally {
       setGoogleLoading(false);
     }
@@ -94,6 +105,31 @@ export const Login: React.FC = () => {
             placeholder="••••••••"
             required
           />
+
+          {/* chk5.AUTH-LINK · banner especial cuando Google login falla porque
+              el email ya está registrado con password. UX clara · auto-llena email. */}
+          {linkingHint && (
+            <div className="bg-amber-50 border border-amber-300 text-amber-900 px-4 py-3 rounded-lg text-sm space-y-1.5">
+              <div className="font-bold flex items-center gap-1.5">
+                <span>⚠️</span>
+                <span>Ya tenés cuenta con este email</span>
+              </div>
+              <p className="text-xs">
+                <strong>{linkingHint.email}</strong> está registrado con{' '}
+                {linkingHint.methods.includes('password') ? 'contraseña' : 'otro método'}.
+                Ingresá tu contraseña abajo · desde tu perfil podés vincular Google después.
+              </p>
+              {!linkingHint.methods.includes('password') && (
+                <p className="text-xs">
+                  Si no recordás tu contraseña ·{' '}
+                  <Link to="/forgot-password" className="underline font-semibold">
+                    resetearla acá
+                  </Link>
+                  .
+                </p>
+              )}
+            </div>
+          )}
 
           {error && (
             <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg">

@@ -86,6 +86,8 @@ import {
   SolicitarAdelantoModal,
 } from './modals';
 import type { SesionActiva } from '../../types/sesion.types';
+// chk5.AUTH-LINK (2026-05-28) · sección Métodos de inicio de sesión
+import { MetodosInicioSesion } from '../../components/auth/MetodosInicioSesion';
 
 interface ActividadReciente {
   id: string;
@@ -782,6 +784,10 @@ export const MiPerfil: React.FC = () => {
                   Recomendado actualizar cada 90 días
                 </div>
               </div>
+
+              {/* chk5.AUTH-LINK (2026-05-28) · Métodos de inicio de sesión
+                  Permite vincular/desvincular Google + email-password. */}
+              <MetodosInicioSesion />
 
               {/* Sesiones activas · con callbacks a modales canon F10.F.1.N */}
               <MisSesionesActivas
