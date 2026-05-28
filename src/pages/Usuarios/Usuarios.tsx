@@ -30,6 +30,13 @@ import { CrearUsuarioWizard } from '../../components/usuarios/CrearUsuarioWizard
 // chk5.PERSONAS-v5.7 · E4.4 · Borrador canon (banner de continuar/descartar)
 import { borradorWizardService } from '../../services/borradorWizard.service';
 import type { BorradorWizard } from '../../types/borradorWizard.types';
+// chk5.PERSONAS-v5.7 · E5.1 · Modales operativos del UserPanel (Pausar · Reanudar · Finalizar · Editar)
+import {
+  PausarRelacionModal,
+  ReanudarRelacionModal,
+  FinalizarRelacionModal,
+  EditarRelacionModal,
+} from '../../components/usuarios/RelacionModals';
 import type { LucideIcon } from 'lucide-react';
 import { PageShell } from '../../design-system';
 import { userService } from '../../services/user.service';
@@ -107,6 +114,26 @@ export const Usuarios: React.FC = () => {
   const [wizardOpen, setWizardOpen] = useState(false);
   // chk5.PERSONAS-v5.7 · E4.4 · Borrador del wizard (banner Continuar/Descartar)
   const [borradorColaborador, setBorradorColaborador] = useState<BorradorWizard | null>(null);
+  // chk5.PERSONAS-v5.7 · E5.1 · Modales operativos de RelacionLaboral
+  // Cada modal mantiene la relacion seleccionada · al cerrar la libera
+  const [pausarRel, setPausarRel] = useState<RelacionLaboral | null>(null);
+  const [reanudarRel, setReanudarRel] = useState<RelacionLaboral | null>(null);
+  const [finalizarRel, setFinalizarRel] = useState<RelacionLaboral | null>(null);
+  const [editarRel, setEditarRel] = useState<RelacionLaboral | null>(null);
+
+  /**
+   * chk5.PERSONAS-v5.7 · E5.1 · Refresca el cache de relaciones de un usuario
+   * después de una mutación (pausar/reanudar/finalizar/editar). Re-fetch
+   * solo del usuario afectado · no del bulk completo.
+   */
+  const refrescarRelacionesUser = async (userId: string) => {
+    try {
+      const rels = await relacionesLaboralesService.listByUser(userId);
+      setRelacionesByUid((prev) => ({ ...prev, [userId]: rels }));
+    } catch (err) {
+      console.warn('[Usuarios] error refrescando relaciones de user:', userId, err);
+    }
+  };
   // Cleanup chk5.F4-USERS · 2026-05-26 · state legacy (newUser · editPermisos ·
   // editRoles · editDatosLab/Soc · approveRole · newPassword · etc) eliminado ·
   // cada modal canon FormModalV2 maneja su propio estado internamente.
@@ -1249,13 +1276,63 @@ export const Usuarios: React.FC = () => {
 
       {/* chk5.PERSONAS-v5.7 · E4.1 · UserPanel canon F6-E (reemplaza Ficha360Modal)
           Drawer lateral con 5+1 tabs (Resumen · Relaciones · Datos · Permisos ·
-          Histórico · Vinculación condicional). E5 conecta los callbacks de
-          acciones operativas con wizards/modales reales (Agregar relación ·
-          Reclasificar · Pausar · Finalizar). */}
+          Histórico · Vinculación condicional).
+          E5.1 · callbacks de Pausar/Reanudar/Finalizar/Editar conectados a modales.
+          E5.2 conectará Reclasificar (atómico). E5.3 conectará Agregar (wizard 2 pasos). */}
       <UserPanel
         userId={panelUid}
         onClose={() => setPanelUid(null)}
-        // E5 wirea los callbacks · por ahora UI ready sin lógica
+        onPausarRelacion={setPausarRel}
+        onReanudarRelacion={setReanudarRel}
+        onFinalizarRelacion={setFinalizarRel}
+        onEditarRelacion={setEditarRel}
+        // E5.2 · onReclasificarRelacion
+        // E5.3 · onAgregarRelacion
+      />
+
+      {/* chk5.PERSONAS-v5.7 · E5.1 · 4 modales operativos del UserPanel
+          Cada modal recibe la RelacionLaboral seleccionada + callbacks de
+          success/error. Al cerrarse libera el state · al success refresca
+          el cache del user afectado. */}
+      <PausarRelacionModal
+        isOpen={pausarRel !== null}
+        relacion={pausarRel}
+        onClose={() => setPausarRel(null)}
+        onSuccess={(msg) => {
+          setSuccess(msg);
+          if (pausarRel?.userId) void refrescarRelacionesUser(pausarRel.userId);
+        }}
+        onError={setError}
+      />
+      <ReanudarRelacionModal
+        isOpen={reanudarRel !== null}
+        relacion={reanudarRel}
+        onClose={() => setReanudarRel(null)}
+        onSuccess={(msg) => {
+          setSuccess(msg);
+          if (reanudarRel?.userId) void refrescarRelacionesUser(reanudarRel.userId);
+        }}
+        onError={setError}
+      />
+      <FinalizarRelacionModal
+        isOpen={finalizarRel !== null}
+        relacion={finalizarRel}
+        onClose={() => setFinalizarRel(null)}
+        onSuccess={(msg) => {
+          setSuccess(msg);
+          if (finalizarRel?.userId) void refrescarRelacionesUser(finalizarRel.userId);
+        }}
+        onError={setError}
+      />
+      <EditarRelacionModal
+        isOpen={editarRel !== null}
+        relacion={editarRel}
+        onClose={() => setEditarRel(null)}
+        onSuccess={(msg) => {
+          setSuccess(msg);
+          if (editarRel?.userId) void refrescarRelacionesUser(editarRel.userId);
+        }}
+        onError={setError}
       />
     </PageShell>
   );
