@@ -37,6 +37,8 @@ import {
   FinalizarRelacionModal,
   EditarRelacionModal,
 } from '../../components/usuarios/RelacionModals';
+// chk5.PERSONAS-v5.7 · E5.2 · ReclasificarRelacionModal · transición atómica
+import { ReclasificarRelacionModal } from '../../components/usuarios/ReclasificarRelacionModal';
 import type { LucideIcon } from 'lucide-react';
 import { PageShell } from '../../design-system';
 import { userService } from '../../services/user.service';
@@ -120,6 +122,8 @@ export const Usuarios: React.FC = () => {
   const [reanudarRel, setReanudarRel] = useState<RelacionLaboral | null>(null);
   const [finalizarRel, setFinalizarRel] = useState<RelacionLaboral | null>(null);
   const [editarRel, setEditarRel] = useState<RelacionLaboral | null>(null);
+  // chk5.PERSONAS-v5.7 · E5.2 · Reclasificar relación (atómico)
+  const [reclasificarRel, setReclasificarRel] = useState<RelacionLaboral | null>(null);
 
   /**
    * chk5.PERSONAS-v5.7 · E5.1 · Refresca el cache de relaciones de un usuario
@@ -1286,7 +1290,7 @@ export const Usuarios: React.FC = () => {
         onReanudarRelacion={setReanudarRel}
         onFinalizarRelacion={setFinalizarRel}
         onEditarRelacion={setEditarRel}
-        // E5.2 · onReclasificarRelacion
+        onReclasificarRelacion={setReclasificarRel}
         // E5.3 · onAgregarRelacion
       />
 
@@ -1331,6 +1335,20 @@ export const Usuarios: React.FC = () => {
         onSuccess={(msg) => {
           setSuccess(msg);
           if (editarRel?.userId) void refrescarRelacionesUser(editarRel.userId);
+        }}
+        onError={setError}
+      />
+
+      {/* chk5.PERSONAS-v5.7 · E5.2 · ReclasificarRelacionModal · transición atómica
+          Cierra A (motivoFin=reclasificacion) + crea B con relacionAnteriorId.
+          Usa relacionesLaboralesService.reclasificar() con writeBatch (canon E1). */}
+      <ReclasificarRelacionModal
+        isOpen={reclasificarRel !== null}
+        relacion={reclasificarRel}
+        onClose={() => setReclasificarRel(null)}
+        onSuccess={(msg) => {
+          setSuccess(msg);
+          if (reclasificarRel?.userId) void refrescarRelacionesUser(reclasificarRel.userId);
         }}
         onError={setError}
       />
