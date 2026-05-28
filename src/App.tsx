@@ -77,6 +77,8 @@ const MiPlanillaPersonal = React.lazy(() => import('./pages/Perfil/sub/MiPlanill
 const MiCapitalPersonal = React.lazy(() => import('./pages/Perfil/sub/MiCapitalPersonal').then(m => ({ default: m.MiCapitalPersonal })));
 const MiHistorialPersonal = React.lazy(() => import('./pages/Perfil/sub/MiHistorialPersonal').then(m => ({ default: m.MiHistorialPersonal })));
 const MiBandejaPersonal = React.lazy(() => import('./pages/Perfil/sub/MiBandejaPersonal').then(m => ({ default: m.MiBandejaPersonal })));
+// F10.F.1.J-SIDEBAR.diag · Página temporal de diagnóstico · REMOVER después
+const DiagnosticoPerfil = React.lazy(() => import('./pages/DiagnosticoPerfil').then(m => ({ default: m.DiagnosticoPerfil })));
 const Escaner = React.lazy(() => import('./pages/Escaner/Escaner').then(m => ({ default: m.Escaner })));
 const MercadoLibre = React.lazy(() => import('./pages/MercadoLibre/MercadoLibre').then(m => ({ default: m.MercadoLibre })));
 const NotasIA = React.lazy(() => import('./pages/NotasIA/NotasIA').then(m => ({ default: m.NotasIA })));
@@ -269,6 +271,8 @@ function App() {
               <Route path="perfil/mi-capital" element={<MiCapitalPersonal />} />
               <Route path="perfil/mi-historial" element={<MiHistorialPersonal />} />
               <Route path="perfil/mi-bandeja" element={<MiBandejaPersonal />} />
+              {/* F10.F.1.J-SIDEBAR.diag · página temporal de diagnóstico · REMOVER después */}
+              <Route path="diagnostico-perfil" element={<DiagnosticoPerfil />} />
 
               {/* Utilidades */}
             </Route>
