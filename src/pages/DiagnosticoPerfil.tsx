@@ -18,6 +18,7 @@
  * REMOVER después del diagnóstico.
  */
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { doc, getDoc, onSnapshot } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { COLLECTIONS } from '../config/collections';
@@ -32,6 +33,9 @@ import {
   Database,
   ShieldCheck,
   FileText,
+  Briefcase,
+  ArrowRight,
+  Copy,
 } from 'lucide-react';
 
 interface DocState {
@@ -49,8 +53,22 @@ const StatusIcon: React.FC<{ exists: boolean | null }> = ({ exists }) => {
 };
 
 export const DiagnosticoPerfil: React.FC = () => {
+  const navigate = useNavigate();
   const { profile, roles, isSocio, canManageUsers, isAdmin } = usePermissions();
   const { items, loading } = useMiEspacioItems();
+  const [copied, setCopied] = useState(false);
+
+  const handleCopyUid = () => {
+    if (!profile?.uid) return;
+    navigator.clipboard.writeText(profile.uid);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleEditarLaborales = () => {
+    if (!profile?.uid) return;
+    navigate(`/usuarios/${profile.uid}/editar/laborales`);
+  };
 
   const [docCanon, setDocCanon] = useState<DocState>(initialDoc);
   const [docLegacy, setDocLegacy] = useState<DocState>(initialDoc);
@@ -120,6 +138,40 @@ export const DiagnosticoPerfil: React.FC = () => {
               Esta página muestra el estado real de Firestore + el hook. Sacale screenshot y envialo
               para identificar el problema raíz.
             </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Panel de acciones rápidas · usa el UID REAL del user logueado · evita typos */}
+      <div className="bg-gradient-to-r from-sky-50 to-cyan-50 ring-1 ring-sky-200 rounded-xl p-4">
+        <div className="flex items-start gap-3 flex-wrap">
+          <div className="w-10 h-10 bg-sky-100 rounded-xl flex items-center justify-center flex-shrink-0">
+            <Briefcase className="w-5 h-5 text-sky-700" />
+          </div>
+          <div className="flex-1 min-w-[200px]">
+            <div className="text-[13px] font-bold text-slate-900 mb-0.5">Acciones rápidas</div>
+            <div className="text-[11px] text-slate-600">
+              Estos botones usan tu UID real del store · sin riesgo de typos (letra O vs cero · etc).
+            </div>
+          </div>
+          <div className="flex items-center gap-2 flex-wrap">
+            <button
+              type="button"
+              onClick={handleCopyUid}
+              className="text-[11px] font-medium text-slate-600 hover:bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-lg inline-flex items-center gap-1.5"
+              title="Copiar UID al portapapeles"
+            >
+              <Copy className="w-3.5 h-3.5" />
+              {copied ? 'Copiado ✓' : 'Copiar UID'}
+            </button>
+            <button
+              type="button"
+              onClick={handleEditarLaborales}
+              className="text-[11px] font-bold text-white bg-sky-600 hover:bg-sky-700 px-3 py-1.5 rounded-lg inline-flex items-center gap-1.5"
+            >
+              Editar mis datos laborales
+              <ArrowRight className="w-3.5 h-3.5" />
+            </button>
           </div>
         </div>
       </div>
