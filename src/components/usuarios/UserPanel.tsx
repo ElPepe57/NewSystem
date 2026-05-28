@@ -45,6 +45,11 @@ import {
 import { TabResumen } from './userPanel/TabResumen';
 // E3.3 · TabRelaciones PROTAGONISTA (canon v5.6 multi-relación)
 import { TabRelaciones } from './userPanel/TabRelaciones';
+// E3.4 · Tabs restantes
+import { TabDatos } from './userPanel/TabDatos';
+import { TabPermisos } from './userPanel/TabPermisos';
+import { TabHistorico } from './userPanel/TabHistorico';
+import { TabVinculacion } from './userPanel/TabVinculacion';
 
 // ═════════════════════════════════════════════════════════════════════════
 // TIPOS DE TABS
@@ -537,13 +542,13 @@ const TabContent: React.FC<TabContentProps> = ({
         />
       );
     case 'datos':
-      return <PlaceholderTab label="Datos personales" subtitle="Inline-edit Notion-style · E3.4" />;
+      return <TabDatos user={user} />;
     case 'permisos':
-      return <PlaceholderTab label="Permisos" subtitle="Rol + permisos custom + sesiones · E3.4" />;
+      return <TabPermisos user={user} />;
     case 'historico':
-      return <PlaceholderTab label="Histórico" subtitle="Timeline cronológico inmutable · E3.4" />;
+      return <TabHistorico user={user} relaciones={relaciones} />;
     case 'vinculacion':
-      return <PlaceholderTab label="Vinculación" subtitle="v5.8 · Maestros vinculado · E3.4" />;
+      return <TabVinculacion relaciones={relaciones} onAfterNavigate={onClose} />;
     default:
       return <PlaceholderTab label="Tab desconocido" subtitle={String(activeTab)} />;
   }
