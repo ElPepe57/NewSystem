@@ -32,7 +32,15 @@ import { dirname, resolve } from 'path';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-const SERVICE_ACCOUNT_PATH = resolve(__dirname, '../firebase-admin-key.json');
+
+// chk5.AUTH-GUARD · soporta múltiples nombres canónicos del archivo de
+// credenciales (proyecto usó históricamente serviceAccountKey.json · ahora
+// también acepta firebase-admin-key.json para alinear con otros scripts).
+const CANDIDATE_PATHS = [
+  resolve(__dirname, '../firebase-admin-key.json'),
+  resolve(__dirname, '../serviceAccountKey.json'),
+  resolve(__dirname, '../firebase-service-account.json'),
+];
 
 // ─────────────────────────────────────────────────────────────────────────
 // INIT
@@ -43,14 +51,27 @@ console.log(`  AUDITORÍA DE IDENTIDAD · Firebase Auth ↔ Firestore users/`);
 console.log(`  Fecha: ${new Date().toISOString()}`);
 console.log(`${'═'.repeat(72)}\n`);
 
-let serviceAccount;
-try {
-  serviceAccount = JSON.parse(readFileSync(SERVICE_ACCOUNT_PATH, 'utf8'));
-} catch {
-  console.error(`❌ No se encontró firebase-admin-key.json`);
-  console.error(`   Ruta esperada: ${SERVICE_ACCOUNT_PATH}`);
+let serviceAccount = null;
+let usedPath = null;
+for (const path of CANDIDATE_PATHS) {
+  try {
+    serviceAccount = JSON.parse(readFileSync(path, 'utf8'));
+    usedPath = path;
+    break;
+  } catch {
+    // intentar siguiente
+  }
+}
+if (!serviceAccount) {
+  console.error(`❌ No se encontró el archivo de credenciales de Firebase Admin.`);
+  console.error(`   Rutas probadas:`);
+  CANDIDATE_PATHS.forEach((p) => console.error(`     - ${p}`));
+  console.error(`   Descargá la service account key desde:`);
+  console.error(`     Firebase Console → Project Settings → Service accounts → Generate new private key`);
+  console.error(`   Guardala en raíz del proyecto con cualquiera de los nombres listados arriba.`);
   process.exit(1);
 }
+console.log(`✓ Credenciales cargadas desde ${usedPath}\n`);
 
 initializeApp({ credential: cert(serviceAccount) });
 const auth = getAuth();

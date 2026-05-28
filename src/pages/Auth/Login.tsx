@@ -11,6 +11,9 @@ export const Login: React.FC = () => {
   const userProfile = useAuthStore(state => state.userProfile);
   const setUser = useAuthStore(state => state.setUser);
   const setError = useAuthStore(state => state.setError);
+  // chk5.AUTH-GUARD.fix (2026-05-28) · leer error del store (ej. cruce de identidad
+  // detectado por el guard de authStore que fuerza logout y nos devuelve aquí).
+  const storeError = useAuthStore(state => state.error);
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -131,9 +134,9 @@ export const Login: React.FC = () => {
             </div>
           )}
 
-          {error && (
+          {(error || storeError) && (
             <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg">
-              {error}
+              {error || storeError}
             </div>
           )}
 

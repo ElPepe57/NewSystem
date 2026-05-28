@@ -26,11 +26,15 @@ export const useAuthStore = create<AuthState>((set) => ({
   loading: true,
   error: null,
 
-  setUser: (user) => set({
+  setUser: (user) => set((state) => ({
     user,
     isAuthenticated: !!user,
-    error: null
-  }),
+    // chk5.AUTH-GUARD.fix (2026-05-28) · NO limpiar error cuando se setea user=null.
+    // Si el guard detectó cruce de identidad, hizo signOut → onAuthChange dispara
+    // setUser(null) · sin este check, el error del guard se perdía y /login mostraba
+    // form vacío sin explicación. Solo limpiar error cuando se setea un user válido.
+    error: user ? null : state.error,
+  })),
 
   setUserProfile: (userProfile) => set({ userProfile }),
 
@@ -74,6 +78,7 @@ export const useAuthStore = create<AuthState>((set) => ({
           );
           set({
             userProfile: null,
+            loading: false, // chk5.AUTH-GUARD.fix (2026-05-28) · destrabar loading
             error:
               `Cruce de identidad detectado. La cuenta de Firebase Auth (${authEmail}) ` +
               `no coincide con el UserProfile en Firestore (${profileEmail}). ` +
@@ -107,7 +112,8 @@ export const useAuthStore = create<AuthState>((set) => ({
       }
     } catch (error: any) {
       console.error('Error al obtener perfil de usuario:', error);
-      set({ error: error.message });
+      // chk5.AUTH-GUARD.fix (2026-05-28) · destrabar loading aun si falla la carga
+      set({ error: error.message, loading: false });
     }
   },
 
