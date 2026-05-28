@@ -217,16 +217,20 @@ export const UserPanel: React.FC<UserPanelProps> = ({
   // Panel cerrado · no renderizar nada
   if (!userId) return null;
 
+  // chk5.AUTH-LINK-FIX (2026-05-28) · cambio de patrón visual:
+  //   ANTES: drawer slide-in derecha (canon F6-E) · se apilaba con sidebar de navegación
+  //   AHORA: modal centrado flotante (canon F6-A) · cleaner · menos overlap visual
+  // Mobile (<sm): mantiene bottom-sheet fullscreen · sigue siendo óptimo para touch
   return (
     <div
-      className="fixed inset-0 bg-slate-900/50 z-50 flex items-end sm:items-stretch sm:justify-end"
+      className="fixed inset-0 bg-slate-900/60 z-50 flex items-end sm:items-center sm:justify-center sm:p-4"
       onClick={onClose}
       role="dialog"
       aria-modal="true"
       aria-labelledby="user-panel-title"
     >
       <aside
-        className="bg-white rounded-t-2xl sm:rounded-none sm:max-w-[600px] w-full sm:h-full flex flex-col overflow-hidden shadow-2xl"
+        className="bg-white rounded-t-2xl sm:rounded-2xl w-full sm:max-w-3xl sm:max-h-[92vh] sm:h-auto flex flex-col overflow-hidden shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         {/* ═══ HEADER ═══ */}
