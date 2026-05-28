@@ -17,13 +17,11 @@
  *    icons: layout-dashboard · user · activity
  *  - Body: contextual por rol y tab activo
  */
-import React, { useState, useRef, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   Camera,
   Save,
   Lock,
-  Eye,
-  EyeOff,
   Shield,
   CheckCircle2,
   XCircle,
@@ -72,6 +70,14 @@ import {
   CardMultiRolRica,
   type PendienteItem,
 } from './components';
+// F10.F.1.N · 4 modales canon FormModalV2
+import {
+  CambiarPasswordModal,
+  EditarAvatarModal,
+  DesconectarSesionConfirmModal,
+  SolicitarAdelantoModal,
+} from './modals';
+import type { SesionActiva } from '../../types/sesion.types';
 
 interface ActividadReciente {
   id: string;
@@ -126,16 +132,13 @@ export const MiPerfil: React.FC = () => {
   const [newName, setNewName] = useState('');
   const [savingName, setSavingName] = useState(false);
 
-  // Cambiar contraseña (inline · F10.F.1.N migrará a modal canon)
-  const [showPasswordSection, setShowPasswordSection] = useState(false);
-  const [newPassword, setNewPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
-  const [savingPassword, setSavingPassword] = useState(false);
-
-  // Foto
-  const [uploadingPhoto, setUploadingPhoto] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  // F10.F.1.N · Modales canon FormModalV2
+  const [showCambiarPassword, setShowCambiarPassword] = useState(false);
+  const [showEditarAvatar, setShowEditarAvatar] = useState(false);
+  const [showSolicitarAdelanto, setShowSolicitarAdelanto] = useState(false);
+  const [sesionADesconectar, setSesionADesconectar] = useState<SesionActiva | null>(null);
+  const [showDesconectarTodas, setShowDesconectarTodas] = useState(false);
+  const [sesionesCount, setSesionesCount] = useState(0);
 
   // Mensajes generales
   const [success, setSuccess] = useState<string | null>(null);
@@ -311,53 +314,9 @@ export const MiPerfil: React.FC = () => {
     }
   };
 
-  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file || !profile?.uid) return;
-    if (!file.type.startsWith('image/')) {
-      setError('Solo se permiten archivos de imagen');
-      return;
-    }
-    if (file.size > 2 * 1024 * 1024) {
-      setError('La imagen no puede superar 2MB');
-      return;
-    }
-    setUploadingPhoto(true);
-    setError(null);
-    try {
-      await userService.uploadProfilePhoto(profile.uid, file);
-      await fetchUserProfile(profile.uid);
-      setSuccess('Foto de perfil actualizada');
-    } catch (err: any) {
-      setError(err.message || 'Error al subir foto');
-    } finally {
-      setUploadingPhoto(false);
-    }
-  };
-
-  const handleChangePassword = async () => {
-    if (newPassword !== confirmPassword) {
-      setError('Las contraseñas no coinciden');
-      return;
-    }
-    if (newPassword.length < 6) {
-      setError('La contraseña debe tener al menos 6 caracteres');
-      return;
-    }
-    setSavingPassword(true);
-    setError(null);
-    try {
-      await userService.changeOwnPassword(newPassword);
-      setSuccess('Contraseña cambiada · sesiones cerradas en otros dispositivos');
-      setShowPasswordSection(false);
-      setNewPassword('');
-      setConfirmPassword('');
-    } catch (err: any) {
-      setError(err.message || 'Error al cambiar contraseña');
-    } finally {
-      setSavingPassword(false);
-    }
-  };
+  // F10.F.1.N · La lógica de upload de foto + cambio de password vive ahora
+  // dentro de los modales canon EditarAvatarModal y CambiarPasswordModal.
+  // Ver src/pages/Perfil/modals/* para los handlers
 
   // Permisos agrupados
   const permisosAgrupados = userService.getPermisosAgrupados();
@@ -428,25 +387,13 @@ export const MiPerfil: React.FC = () => {
                 )}
               </div>
               <button
-                onClick={() => fileInputRef.current?.click()}
-                disabled={uploadingPhoto}
-                className="absolute -bottom-1 -right-1 w-7 h-7 bg-white border border-slate-200 rounded-lg flex items-center justify-center shadow-sm hover:bg-slate-50 disabled:opacity-50"
+                onClick={() => setShowEditarAvatar(true)}
+                className="absolute -bottom-1 -right-1 w-7 h-7 bg-white border border-slate-200 rounded-lg flex items-center justify-center shadow-sm hover:bg-slate-50"
                 title="Cambiar foto"
                 aria-label="Cambiar foto de perfil"
               >
-                {uploadingPhoto ? (
-                  <RefreshCw className="w-3.5 h-3.5 animate-spin text-slate-600" />
-                ) : (
-                  <Camera className="w-3.5 h-3.5 text-slate-600" />
-                )}
+                <Camera className="w-3.5 h-3.5 text-slate-600" />
               </button>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                onChange={handlePhotoUpload}
-                className="hidden"
-              />
             </div>
 
             <div className="min-w-0">
@@ -528,10 +475,7 @@ export const MiPerfil: React.FC = () => {
           <div className="flex items-center gap-1.5 flex-wrap justify-end">
             <button
               type="button"
-              onClick={() => {
-                setTabActiva('actividad');
-                setShowPasswordSection(true);
-              }}
+              onClick={() => setShowCambiarPassword(true)}
               className="text-[12px] font-medium text-slate-600 hover:bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-lg flex items-center gap-1.5"
             >
               <Lock className="w-3.5 h-3.5" />
@@ -742,115 +686,44 @@ export const MiPerfil: React.FC = () => {
           {/* ───── TAB · ACTIVIDAD & SEGURIDAD ───── */}
           {tabActiva === 'actividad' && (
             <div className="space-y-5">
-              {/* Card contraseña · canon mockup ACTO 9 · líneas 1010-1025 */}
+              {/* Card contraseña · canon mockup ACTO 9 · líneas 1010-1025
+                  F10.F.1.N · ahora abre modal canon CambiarPasswordModal */}
               <div className="bg-white border border-slate-200 rounded-xl p-5">
                 <div className="flex items-center justify-between mb-2">
                   <h3 className="text-[14px] font-bold text-slate-900 inline-flex items-center gap-1.5">
                     <Lock className="w-4 h-4 text-rose-700" />
                     Contraseña
                   </h3>
-                  {!showPasswordSection && (
-                    <button
-                      type="button"
-                      onClick={() => setShowPasswordSection(true)}
-                      className="bg-rose-600 hover:bg-rose-700 text-white text-[11px] font-bold px-3 py-1.5 rounded-lg inline-flex items-center gap-1.5"
-                    >
-                      <Lock className="w-3 h-3" />
-                      Cambiar contraseña
-                    </button>
-                  )}
+                  <button
+                    type="button"
+                    onClick={() => setShowCambiarPassword(true)}
+                    className="bg-rose-600 hover:bg-rose-700 text-white text-[11px] font-bold px-3 py-1.5 rounded-lg inline-flex items-center gap-1.5"
+                  >
+                    <Lock className="w-3 h-3" />
+                    Cambiar contraseña
+                  </button>
                 </div>
-                {!showPasswordSection ? (
-                  <>
-                    <div className="text-[11px] text-slate-600">
-                      Última actualización: <strong>—</strong>
-                    </div>
-                    <div className="text-[10px] text-amber-700 mt-1 inline-flex items-center gap-1">
-                      <AlertTriangle className="w-3 h-3" />
-                      Recomendado actualizar cada 90 días
-                    </div>
-                  </>
-                ) : (
-                  <div className="space-y-3 max-w-md">
-                    <div>
-                      <label className="block text-[11px] uppercase tracking-wider font-bold text-slate-700 mb-1.5">
-                        Nueva contraseña
-                      </label>
-                      <div className="relative">
-                        <input
-                          type={showPassword ? 'text' : 'password'}
-                          value={newPassword}
-                          onChange={(e) => setNewPassword(e.target.value)}
-                          className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-rose-500 pr-10 text-[13px]"
-                          placeholder="Mínimo 6 caracteres"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setShowPassword(!showPassword)}
-                          className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
-                          aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
-                        >
-                          {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                        </button>
-                      </div>
-                    </div>
-                    <div>
-                      <label className="block text-[11px] uppercase tracking-wider font-bold text-slate-700 mb-1.5">
-                        Confirmar contraseña
-                      </label>
-                      <input
-                        type={showPassword ? 'text' : 'password'}
-                        value={confirmPassword}
-                        onChange={(e) => setConfirmPassword(e.target.value)}
-                        className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-rose-500 text-[13px]"
-                        placeholder="Repetí la contraseña"
-                      />
-                    </div>
-                    {newPassword && confirmPassword && newPassword !== confirmPassword && (
-                      <p className="text-[12px] text-rose-600 flex items-center gap-1">
-                        <AlertTriangle className="w-3 h-3" />
-                        Las contraseñas no coinciden
-                      </p>
-                    )}
-                    <div className="bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 text-[11px] text-amber-700 flex items-start gap-2">
-                      <AlertTriangle className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" />
-                      <span>Al cambiar tu contraseña, las sesiones en otros dispositivos se cerrarán.</span>
-                    </div>
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => {
-                          setShowPasswordSection(false);
-                          setNewPassword('');
-                          setConfirmPassword('');
-                        }}
-                        className="text-[11px] font-medium text-slate-600 hover:bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-lg"
-                      >
-                        Cancelar
-                      </button>
-                      <button
-                        onClick={handleChangePassword}
-                        disabled={
-                          savingPassword ||
-                          !newPassword ||
-                          newPassword !== confirmPassword ||
-                          newPassword.length < 6
-                        }
-                        className="text-[11px] font-bold text-white bg-rose-600 hover:bg-rose-700 disabled:opacity-50 px-3 py-1.5 rounded-lg inline-flex items-center gap-1.5"
-                      >
-                        {savingPassword ? (
-                          <RefreshCw className="h-3 w-3 animate-spin" />
-                        ) : (
-                          <Lock className="h-3 w-3" />
-                        )}
-                        Guardar
-                      </button>
-                    </div>
-                  </div>
-                )}
+                <div className="text-[11px] text-slate-600">
+                  Última actualización: <strong>—</strong>
+                </div>
+                <div className="text-[10px] text-amber-700 mt-1 inline-flex items-center gap-1">
+                  <AlertTriangle className="w-3 h-3" />
+                  Recomendado actualizar cada 90 días
+                </div>
               </div>
 
-              {/* Sesiones activas */}
-              <MisSesionesActivas uid={profile.uid} />
+              {/* Sesiones activas · con callbacks a modales canon F10.F.1.N */}
+              <MisSesionesActivas
+                uid={profile.uid}
+                onSolicitarDesconectar={(s) => setSesionADesconectar(s)}
+                onSolicitarDesconectarTodas={() => {
+                  // sesionesCount se actualiza via callback de MisSesionesActivas (próx iteración)
+                  // Por ahora · pasar count=1 como placeholder seguro · el modal verifica internamente
+                  setSesionesCount(Math.max(1, sesionesCount));
+                  setShowDesconectarTodas(true);
+                }}
+                onSesionCerrada={() => setSuccess('Sesión cerrada correctamente')}
+              />
 
               {/* Timeline actividad reciente · canon mockup ACTO 10 · líneas 1107-1186 */}
               <div className="bg-white border border-slate-200 rounded-xl p-5 space-y-4">
@@ -912,6 +785,45 @@ export const MiPerfil: React.FC = () => {
           )}
         </div>
       </div>
+
+      {/* ═══════════════════════════════════════════════════════════════
+          F10.F.1.N · Modales canon FormModalV2
+          Renderizados a nivel root para evitar issues de stacking context
+          ═══════════════════════════════════════════════════════════════ */}
+      <CambiarPasswordModal
+        isOpen={showCambiarPassword}
+        onClose={() => setShowCambiarPassword(false)}
+        onSuccess={() => setSuccess('Contraseña cambiada · sesiones en otros dispositivos cerradas')}
+      />
+      <EditarAvatarModal
+        isOpen={showEditarAvatar}
+        onClose={() => setShowEditarAvatar(false)}
+        onSuccess={() => setSuccess('Foto de perfil actualizada')}
+      />
+      <SolicitarAdelantoModal
+        isOpen={showSolicitarAdelanto}
+        onClose={() => setShowSolicitarAdelanto(false)}
+        onSuccess={(id) => setSuccess(`Adelanto ${id} solicitado · esperando aprobación admin`)}
+      />
+      {sesionADesconectar && (
+        <DesconectarSesionConfirmModal
+          mode="individual"
+          isOpen={!!sesionADesconectar}
+          sesion={sesionADesconectar}
+          onClose={() => setSesionADesconectar(null)}
+          onSuccess={() => setSuccess('Sesión desconectada correctamente')}
+        />
+      )}
+      {showDesconectarTodas && (
+        <DesconectarSesionConfirmModal
+          mode="all"
+          isOpen={showDesconectarTodas}
+          uid={profile.uid}
+          cantidad={Math.max(1, sesionesCount)}
+          onClose={() => setShowDesconectarTodas(false)}
+          onSuccess={() => setSuccess('Otras sesiones desconectadas correctamente')}
+        />
+      )}
     </div>
   );
 };

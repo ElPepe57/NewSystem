@@ -38,6 +38,8 @@ import {
   MisBoletasRecientes,
   MisIncentivos,
 } from '../components';
+// F10.F.1.N · modal canon FormModalV2
+import { SolicitarAdelantoModal } from '../modals';
 
 type SubTab = 'boletas' | 'adelantos' | 'incentivos' | 'vacaciones' | 'gratificaciones';
 
@@ -60,6 +62,9 @@ export const MiPlanillaPersonal: React.FC = () => {
   const [boletas, setBoletas] = useState<Boleta[]>([]);
   const [calculos, setCalculos] = useState<CalculoIncentivoMes[]>([]);
   const [loading, setLoading] = useState(true);
+  // F10.F.1.N · modal solicitar adelanto
+  const [showSolicitarAdelanto, setShowSolicitarAdelanto] = useState(false);
+  const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
   useEffect(() => {
     if (!profile?.uid) return;
@@ -156,7 +161,7 @@ export const MiPlanillaPersonal: React.FC = () => {
               </button>
               <button
                 type="button"
-                onClick={() => navigate('/planilla?tab=adelantos&action=solicitar')}
+                onClick={() => setShowSolicitarAdelanto(true)}
                 className="text-[11px] font-bold text-white bg-sky-600 hover:bg-sky-700 px-3 py-1.5 rounded-lg inline-flex items-center gap-1.5"
               >
                 <Plus className="w-3.5 h-3.5" />
@@ -309,6 +314,23 @@ export const MiPlanillaPersonal: React.FC = () => {
           )}
         </div>
       </div>
+
+      {/* F10.F.1.N · Modal solicitar adelanto canon */}
+      <SolicitarAdelantoModal
+        isOpen={showSolicitarAdelanto}
+        onClose={() => setShowSolicitarAdelanto(false)}
+        onSuccess={(id) => setSuccessMsg(`Adelanto ${id} solicitado · esperando aprobación admin`)}
+      />
+
+      {/* Success toast simple */}
+      {successMsg && (
+        <div className="fixed bottom-6 right-6 bg-emerald-600 text-white px-4 py-3 rounded-lg shadow-lg text-[12px] font-semibold inline-flex items-center gap-2 z-50">
+          {successMsg}
+          <button onClick={() => setSuccessMsg(null)} className="ml-2 hover:bg-emerald-700 rounded p-0.5">
+            ✕
+          </button>
+        </div>
+      )}
     </div>
   );
 };
