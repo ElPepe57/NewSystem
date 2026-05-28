@@ -8,6 +8,8 @@ import { PendingApproval } from './pages/Auth/PendingApproval';
 // chk5.F4-USERS · 2026-05-25 · nuevas auth pages
 import { ForgotPassword } from './pages/Auth/ForgotPassword';
 import { SetupPassword } from './pages/Auth/SetupPassword';
+// chk5.PERSONAS-v5.9 · E9.1 (2026-05-28) · Página pública para externos
+import { SolicitarAcceso } from './pages/public/SolicitarAcceso';
 
 // Páginas lazy-loaded (se cargan bajo demanda al navegar)
 const Dashboard = React.lazy(() => import('./pages/Dashboard').then(m => ({ default: m.Dashboard })));
@@ -175,6 +177,8 @@ function App() {
             {/* chk5.F4-USERS · 2026-05-25 · auth pages nuevas */}
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/setup-password/:invitacionId" element={<SetupPassword />} />
+            {/* chk5.PERSONAS-v5.9 · E9.1 · self-service para externos · sin auth */}
+            <Route path="/solicitar-acceso" element={<SolicitarAcceso />} />
 
             {/* Rutas Protegidas */}
             <Route
