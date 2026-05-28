@@ -29,12 +29,13 @@ import {
   ShieldCheck,
 } from 'lucide-react';
 import { usePermissions } from './usePermissions';
-import { datosLaboralesService } from '../services/datosLaborales.service';
 import {
   collection,
+  doc,
   query,
   where,
   getCountFromServer,
+  onSnapshot,
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { COLLECTIONS } from '../config/collections';
@@ -70,30 +71,33 @@ export function useMiEspacioItems(): {
   const [bandejaCount, setBandejaCount] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(true);
 
-  // Fetch datosLaborales · una vez por sesión del user
+  // F10.F.1.J-SIDEBAR.fix · onSnapshot listener en tiempo real (vs getDoc 1-shot)
+  // Razón: cuando el admin configura datosLaborales DESPUÉS de loguearse
+  // (vía /usuarios → Ficha 360 → Editar Laborales), el sidebar debe activar
+  // "Mi planilla" automáticamente sin requerir F5 manual.
   useEffect(() => {
     if (!profile?.uid) {
       setHasDatosLaborales(null);
       setLoading(false);
       return;
     }
-    let cancelled = false;
     setLoading(true);
-    datosLaboralesService
-      .get(profile.uid)
-      .then((dl) => {
-        if (cancelled) return;
-        setHasDatosLaborales(dl !== null);
-      })
-      .catch(() => {
-        if (cancelled) return;
+    // Subscribe al doc /users/{uid}/private/datosLaborales · canon F2 path
+    const ref = doc(db, COLLECTIONS.USERS, profile.uid, 'private', 'datosLaborales');
+    const unsubscribe = onSnapshot(
+      ref,
+      (snap) => {
+        setHasDatosLaborales(snap.exists());
+        setLoading(false);
+      },
+      (err) => {
+        console.error('[useMiEspacioItems] error onSnapshot datosLaborales:', err);
         setHasDatosLaborales(false);
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false);
-      });
+        setLoading(false);
+      },
+    );
     return () => {
-      cancelled = true;
+      unsubscribe();
     };
   }, [profile?.uid]);
 
