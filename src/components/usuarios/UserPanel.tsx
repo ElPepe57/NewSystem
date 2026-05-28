@@ -28,13 +28,12 @@
 
 import React, { useEffect, useState, useMemo } from 'react';
 import { X, User, Briefcase, FileText, Shield, History, Link as LinkIcon, Loader2, AlertCircle } from 'lucide-react';
-import { useAuthStore } from '../../store/authStore';
 import { db } from '../../firebase/config';
 import { doc, getDoc } from 'firebase/firestore';
 import { COLLECTIONS } from '../../config/collections';
 import { relacionesLaboralesService } from '../../services/relacionesLaborales.service';
 import type { UserProfile } from '../../types/auth.types';
-import type { RelacionLaboral, TipoRelacion } from '../../types/relacionLaboral.types';
+import type { RelacionLaboral } from '../../types/relacionLaboral.types';
 import {
   TIPO_RELACION_LABELS,
   TIPO_RELACION_ICONS,
@@ -42,6 +41,8 @@ import {
   getRelacionesActivas,
   esMultiRelacion,
 } from '../../types/relacionLaboral.types';
+// E3.2 · TabResumen real (resto de tabs siguen como placeholder hasta E3.3-E3.4)
+import { TabResumen } from './userPanel/TabResumen';
 
 // ═════════════════════════════════════════════════════════════════════════
 // TIPOS DE TABS
@@ -395,6 +396,7 @@ export const UserPanel: React.FC<UserPanelProps> = ({
               user={user}
               relaciones={relaciones}
               tabsContextuales={tabsContextuales}
+              onClose={onClose}
             />
           )}
         </div>
@@ -459,9 +461,10 @@ interface TabContentProps {
   user: UserProfile;
   relaciones: RelacionLaboral[];
   tabsContextuales: TabContextual[];
+  onClose: () => void;
 }
 
-const TabContent: React.FC<TabContentProps> = ({ activeTab, user, relaciones, tabsContextuales }) => {
+const TabContent: React.FC<TabContentProps> = ({ activeTab, user, relaciones, tabsContextuales, onClose }) => {
   // Tabs contextuales del padre · lazy render
   const contextual = tabsContextuales.find((t) => t.id === activeTab);
   if (contextual) {
@@ -470,7 +473,7 @@ const TabContent: React.FC<TabContentProps> = ({ activeTab, user, relaciones, ta
 
   switch (activeTab) {
     case 'resumen':
-      return <PlaceholderTab label="Resumen" subtitle="Vista 360 · KPIs + cross-links · E3.2 en progreso" />;
+      return <TabResumen user={user} relaciones={relaciones} onAfterNavigate={onClose} />;
     case 'relaciones':
       return <PlaceholderTab label="Relaciones" subtitle="PROTAGONISTA · multi-relación · E3.3 en progreso" />;
     case 'datos':
