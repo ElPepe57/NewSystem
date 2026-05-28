@@ -36,6 +36,7 @@ import {
   TrendingUp as ChartLine,
   Wallet,
   Banknote,
+  Users as UsersIcon,
 } from 'lucide-react';
 import { Button, Card, Badge } from '../common';
 import { registerModalOpen, unregisterModalOpen, getModalCount } from '../common/Modal';
@@ -51,6 +52,8 @@ import type { DatoBancarioPasivo } from '../../types/tesoreria.types';
 import { ReclamosDeEntidadTab } from '../modules/envio/ReclamosDeEntidadTab';
 // S55 Fase 7 — Tab "Cuenta Corriente" en ficha de proveedor.
 import { CuentaCorrienteTab } from '../modules/cuentaCorriente';
+// chk5.PERSONAS-v5.8 · E7/E8 (2026-05-28) — Tab "Contactos" en ficha de proveedor.
+import { MaestroContactosTab } from './MaestroContactosTab';
 // F-DatosBanc · S58c — Panel de cuentas bancarias pasivas
 import { DatosBancariosPanel } from '../finanzas/DatosBancarios';
 import { doc, updateDoc, Timestamp as FsTimestamp } from 'firebase/firestore';
@@ -63,7 +66,7 @@ interface ProveedorDetailViewProps {
   onEdit?: () => void;
 }
 
-type TabType = 'resumen' | 'historial' | 'productos' | 'comparativo' | 'predicciones' | 'reclamos' | 'cuenta_corriente' | 'datos_bancarios';
+type TabType = 'resumen' | 'historial' | 'productos' | 'comparativo' | 'predicciones' | 'reclamos' | 'cuenta_corriente' | 'datos_bancarios' | 'contactos';
 
 export const ProveedorDetailView: React.FC<ProveedorDetailViewProps> = ({
   proveedor,
@@ -198,6 +201,8 @@ export const ProveedorDetailView: React.FC<ProveedorDetailViewProps> = ({
     { id: 'cuenta_corriente', label: 'Cuenta Corriente', icon: Wallet },
     // F-DatosBanc · S58c — datos bancarios pasivos del proveedor
     { id: 'datos_bancarios', label: 'Cuentas bancarias', icon: Banknote },
+    // chk5.PERSONAS-v5.8 · E7/E8 (2026-05-28) — Contactos humanos del proveedor
+    { id: 'contactos', label: 'Contactos', icon: UsersIcon },
   ];
 
   const clasificacionConfig = getClasificacionConfig(proveedor.evaluacion?.clasificacion);
@@ -918,6 +923,17 @@ export const ProveedorDetailView: React.FC<ProveedorDetailViewProps> = ({
               entidadTipo="proveedor"
               userId={userId}
               subtitle={`Cuentas/billeteras de ${proveedor.nombre} para hacer pagos. Datos pasivos sin saldo trackeado.`}
+            />
+          )}
+
+          {/* TAB: CONTACTOS — chk5.PERSONAS-v5.8 · E7/E8
+              Sub-sección de contactos humanos del proveedor (Users externos
+              vinculados via RelacionLaboral.entidadMaestroRef). */}
+          {activeTab === 'contactos' && (
+            <MaestroContactosTab
+              maestroTipo="proveedor"
+              maestroId={proveedor.id}
+              maestroNombre={proveedor.nombre}
             />
           )}
         </div>
