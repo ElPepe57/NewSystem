@@ -18,6 +18,7 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useMiEspacioItems } from '../../hooks/useMiEspacioItems';
+import { usePermissions } from '../../hooks/usePermissions';
 
 const BADGE_COLORS: Record<string, string> = {
   amber: 'bg-amber-100 text-amber-700',
@@ -28,11 +29,19 @@ const BADGE_COLORS: Record<string, string> = {
 
 export const MiEspacioGroup: React.FC = () => {
   const location = useLocation();
-  const { items } = useMiEspacioItems();
+  const { items, loading } = useMiEspacioItems();
+  const { profile, isSocio, canManageUsers } = usePermissions();
 
   // Si NO hay items (solo Mi perfil que siempre está) · igual mostrar
   // porque al menos "Mi perfil" debería verse para todos los usuarios autenticados.
   if (items.length === 0) return null;
+
+  // DEBUG temporal · F10.F.1.J-SIDEBAR.diag · ver state en sidebar
+  const hasMiPlanilla = items.some((i) => i.id === 'mi-planilla');
+  const hasMiPlanillaDisabled = items.some((i) => i.id === 'mi-planilla-disabled');
+  const debugEnabled =
+    typeof window !== 'undefined' &&
+    new URLSearchParams(window.location.search).get('debug') === 'sidebar';
 
   return (
     <div className="border-t-2 border-purple-200 mt-2 pt-2 px-3">
@@ -40,6 +49,21 @@ export const MiEspacioGroup: React.FC = () => {
       <div className="px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-purple-700">
         Mi espacio
       </div>
+
+      {/* DEBUG widget · activar con ?debug=sidebar en la URL */}
+      {debugEnabled && (
+        <div className="mx-3 mb-2 p-2 bg-amber-50 border border-amber-300 rounded text-[9px] text-amber-900 leading-tight font-mono">
+          <div className="font-bold">🔍 DEBUG sidebar</div>
+          <div>uid: {profile?.uid?.slice(0, 8) || '—'}…</div>
+          <div>isSocio: {String(isSocio)}</div>
+          <div>canManage: {String(canManageUsers)}</div>
+          <div>loading: {String(loading)}</div>
+          <div>items: {items.length}</div>
+          <div className={hasMiPlanilla ? 'text-emerald-700' : 'text-rose-700'}>
+            miPlanilla: {hasMiPlanilla ? '✅ enabled' : hasMiPlanillaDisabled ? '⚠️ disabled' : '❌ ausente'}
+          </div>
+        </div>
+      )}
 
       {/* Items */}
       <div className="space-y-0.5">
