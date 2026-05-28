@@ -1,0 +1,1811 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Usuarios v5.8 · Vinculación con Maestros · Mockup Integral · 2026-05-28</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; }
+    .tabular-nums { font-variant-numeric: tabular-nums; }
+    .acto-shell { max-width: 1280px; margin: 0 auto; }
+    .mobile-shell { max-width: 375px; margin: 0 auto; }
+    .scroll-hide::-webkit-scrollbar { display: none; }
+  </style>
+</head>
+<body class="bg-slate-50">
+
+<!-- HERO -->
+<header class="bg-gradient-to-br from-slate-900 via-indigo-900 to-slate-900 text-white py-16 px-8">
+  <div class="acto-shell">
+    <div class="flex items-center gap-3 mb-4 flex-wrap">
+      <span class="text-[10px] uppercase tracking-wider font-bold bg-teal-500/20 text-teal-300 px-2 py-1 rounded-full">v5.8 · 2026-05-28</span>
+      <span class="text-[10px] uppercase tracking-wider font-bold bg-indigo-500/20 text-indigo-300 px-2 py-1 rounded-full">Vinculación Maestros↔Usuarios</span>
+      <span class="text-[10px] uppercase tracking-wider font-bold bg-amber-500/20 text-amber-300 px-2 py-1 rounded-full">3ª capa · cierra 360</span>
+    </div>
+    <h1 class="text-4xl font-bold mb-3">Maestros ↔ Usuarios · Vinculación canónica</h1>
+    <p class="text-lg text-slate-300 max-w-3xl mb-2">
+      Cómo se relacionan las <strong>entidades comerciales</strong> (proveedores · clientes · marcas)
+      con las <strong>personas físicas</strong> (contactos · representantes · colaboradores).
+    </p>
+    <p class="text-sm text-slate-400 max-w-3xl">
+      v5.6 = modelo multi-relación · v5.7 = contexto end-to-end · v5.8 = cierre 360 vinculando
+      con el módulo Maestros existente · sin duplicar · sin inventar entidades nuevas.
+    </p>
+
+    <!-- Índice -->
+    <div class="mt-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 text-sm">
+      <div class="bg-white/5 ring-1 ring-white/10 rounded-lg p-3">
+        <div class="text-[10px] uppercase tracking-wider font-bold text-teal-300 mb-2">Bloque A · Diagnóstico</div>
+        <ul class="space-y-1 text-slate-300">
+          <li>0 · Auditoría · qué hay HOY en Maestros</li>
+          <li>1 · Modelo conceptual dual</li>
+          <li>2 · 3 reglas de oro + matriz casos</li>
+          <li>3 · Modelo de datos · vinculación</li>
+        </ul>
+      </div>
+      <div class="bg-white/5 ring-1 ring-white/10 rounded-lg p-3">
+        <div class="text-[10px] uppercase tracking-wider font-bold text-purple-300 mb-2">Bloque B · UX</div>
+        <ul class="space-y-1 text-slate-300">
+          <li>4 · Tab "Vinculación" en UserPanel</li>
+          <li>5 · Sub-sección "Contactos" en Maestros</li>
+          <li>6 · Wizard externo · paso 3 buscador</li>
+          <li>7 · Cross-link desde /compras OC</li>
+        </ul>
+      </div>
+      <div class="bg-white/5 ring-1 ring-white/10 rounded-lg p-3">
+        <div class="text-[10px] uppercase tracking-wider font-bold text-rose-300 mb-2">Bloque C · Mobile + Plan</div>
+        <ul class="space-y-1 text-slate-300">
+          <li>8 · Mobile 375px · 3 vistas</li>
+          <li>9 · Plan integración v5.6+v5.7+v5.8</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ============================================================ -->
+<!-- ACTO 0 · AUDITORÍA · QUÉ HAY HOY EN MAESTROS                  -->
+<!-- ============================================================ -->
+<section class="py-12 px-6 bg-amber-50/30 border-b border-amber-100">
+  <div class="acto-shell">
+    <div class="mb-6">
+      <span class="text-[11px] uppercase tracking-wider font-bold text-amber-700">ACTO 0 · Bloque A</span>
+      <h2 class="text-2xl font-bold text-slate-900 mt-1">Auditoría · qué entidades existen HOY en Maestros</h2>
+      <p class="text-sm text-slate-600 mt-1">Antes de proponer vinculación, mapear qué hay para NO inventar. Lectura del código actual (Maestros.tsx).</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+      <div class="bg-white rounded-2xl ring-1 ring-slate-200 p-4">
+        <div class="flex items-center gap-2 mb-2">
+          <div class="w-9 h-9 rounded-lg bg-blue-100 flex items-center justify-center"><i data-lucide="users" class="w-5 h-5 text-blue-700"></i></div>
+          <div class="font-bold text-slate-900">Clientes</div>
+        </div>
+        <p class="text-xs text-slate-600">CRM con ABC + RFM · segmentación VIP/premium/frecuente/regular · direcciones múltiples · historial clasif.</p>
+        <div class="mt-2 text-[10px] text-emerald-700 font-semibold">✓ Existe · maduro</div>
+      </div>
+      <div class="bg-white rounded-2xl ring-1 ring-slate-200 p-4">
+        <div class="flex items-center gap-2 mb-2">
+          <div class="w-9 h-9 rounded-lg bg-purple-100 flex items-center justify-center"><i data-lucide="store" class="w-5 h-5 text-purple-700"></i></div>
+          <div class="font-bold text-slate-900">Proveedores</div>
+        </div>
+        <p class="text-xs text-slate-600">SRM (Supplier Relationship Mgmt) · vinculado a OC · ratings · términos comerciales.</p>
+        <div class="mt-2 text-[10px] text-emerald-700 font-semibold">✓ Existe · maduro</div>
+      </div>
+      <div class="bg-white rounded-2xl ring-1 ring-slate-200 p-4">
+        <div class="flex items-center gap-2 mb-2">
+          <div class="w-9 h-9 rounded-lg bg-pink-100 flex items-center justify-center"><i data-lucide="tag" class="w-5 h-5 text-pink-700"></i></div>
+          <div class="font-bold text-slate-900">Marcas</div>
+        </div>
+        <p class="text-xs text-slate-600">Analytics por marca · vinculado a productos.</p>
+        <div class="mt-2 text-[10px] text-emerald-700 font-semibold">✓ Existe</div>
+      </div>
+      <div class="bg-white rounded-2xl ring-1 ring-slate-200 p-4">
+        <div class="flex items-center gap-2 mb-2">
+          <div class="w-9 h-9 rounded-lg bg-rose-100 flex items-center justify-center"><i data-lucide="crown" class="w-5 h-5 text-rose-700"></i></div>
+          <div class="font-bold text-slate-900">Competidores</div>
+        </div>
+        <p class="text-xs text-slate-600">Competitive intel · plataformas · precios · benchmarks.</p>
+        <div class="mt-2 text-[10px] text-emerald-700 font-semibold">✓ Existe</div>
+      </div>
+      <div class="bg-white rounded-2xl ring-1 ring-slate-200 p-4">
+        <div class="flex items-center gap-2 mb-2">
+          <div class="w-9 h-9 rounded-lg bg-emerald-100 flex items-center justify-center"><i data-lucide="zap" class="w-5 h-5 text-emerald-700"></i></div>
+          <div class="font-bold text-slate-900">Canales de venta</div>
+        </div>
+        <p class="text-xs text-slate-600">Marketplace · web · WhatsApp · tienda física · IG/TikTok · attribution.</p>
+        <div class="mt-2 text-[10px] text-emerald-700 font-semibold">✓ Existe</div>
+      </div>
+      <div class="bg-white rounded-2xl ring-1 ring-slate-200 p-4">
+        <div class="flex items-center gap-2 mb-2">
+          <div class="w-9 h-9 rounded-lg bg-indigo-100 flex items-center justify-center"><i data-lucide="layout-dashboard" class="w-5 h-5 text-indigo-700"></i></div>
+          <div class="font-bold text-slate-900">Cat. de costos</div>
+        </div>
+        <p class="text-xs text-slate-600">Taxonomía de tipos de gasto · vinculado a Gastos y CI.</p>
+        <div class="mt-2 text-[10px] text-emerald-700 font-semibold">✓ Existe</div>
+      </div>
+      <div class="bg-white rounded-2xl ring-1 ring-slate-200 p-4">
+        <div class="flex items-center gap-2 mb-2">
+          <div class="w-9 h-9 rounded-lg bg-amber-100 flex items-center justify-center"><i data-lucide="boxes" class="w-5 h-5 text-amber-700"></i></div>
+          <div class="font-bold text-slate-900">Insumos</div>
+        </div>
+        <p class="text-xs text-slate-600">Materiales de empaque · etiquetas · cajas.</p>
+        <div class="mt-2 text-[10px] text-emerald-700 font-semibold">✓ Existe</div>
+      </div>
+      <div class="bg-white rounded-2xl ring-1 ring-slate-200 p-4">
+        <div class="flex items-center gap-2 mb-2">
+          <div class="w-9 h-9 rounded-lg bg-teal-100 flex items-center justify-center"><i data-lucide="package" class="w-5 h-5 text-teal-700"></i></div>
+          <div class="font-bold text-slate-900">Kits empaque</div>
+        </div>
+        <p class="text-xs text-slate-600">Combinaciones predefinidas de insumos.</p>
+        <div class="mt-2 text-[10px] text-emerald-700 font-semibold">✓ Existe</div>
+      </div>
+    </div>
+
+    <!-- Lo que SÍ tiene relación con personas -->
+    <div class="mt-6 bg-white rounded-2xl ring-1 ring-slate-200 p-5">
+      <div class="text-[10px] uppercase tracking-wider font-bold text-slate-700 mb-3">¿Cuáles tienen "persona detrás"? · candidatos a vinculación con Usuarios</div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
+        <div class="bg-blue-50 ring-1 ring-blue-200 rounded-lg p-3">
+          <div class="font-bold text-blue-900 mb-1">✅ Clientes</div>
+          <p class="text-blue-800 text-xs">Si es <strong>persona natural</strong> (no empresa) · vincula con User externo subTipo=cliente_vip. Si es empresa B2B · vincula con su contacto humano.</p>
+        </div>
+        <div class="bg-purple-50 ring-1 ring-purple-200 rounded-lg p-3">
+          <div class="font-bold text-purple-900 mb-1">✅ Proveedores</div>
+          <p class="text-purple-800 text-xs">Cada proveedor tiene 0..N contactos (sales rep · contacto admin · contacto logístico). Cada contacto = User externo subTipo=contacto_proveedor.</p>
+        </div>
+        <div class="bg-amber-50 ring-1 ring-amber-200 rounded-lg p-3">
+          <div class="font-bold text-amber-900 mb-1">⚠️ Marcas/Competidores</div>
+          <p class="text-amber-800 text-xs">Si son empresas representadas por personas (ej. brand manager) · opcional. Por defecto NO vincular · es analytics no operacional.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Lo que NO está pero podría aparecer -->
+    <div class="mt-4 bg-rose-50 ring-1 ring-rose-200 rounded-2xl p-5">
+      <div class="text-[10px] uppercase tracking-wider font-bold text-rose-700 mb-3">⚠️ Lo que NO existe hoy en Maestros (decisión consciente)</div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
+        <div>
+          <div class="font-bold text-rose-900 mb-1">❌ Transportistas</div>
+          <p class="text-rose-800 text-xs">Olva · Shalom · couriers · motorizados freelance. Hoy se manejan ad-hoc en Envíos sin maestro. <strong>v5.8 propone:</strong> agregar como Maestro nuevo si se requiere · separado de esta vinculación.</p>
+        </div>
+        <div>
+          <div class="font-bold text-rose-900 mb-1">❌ Instituciones financieras</div>
+          <p class="text-rose-800 text-xs">BCP · BBVA · Mibanco. Hoy se manejan como CuentaCaja en Tesorería. <strong>Decisión:</strong> NO crear maestro · ya están como cuentas.</p>
+        </div>
+        <div>
+          <div class="font-bold text-rose-900 mb-1">❌ Colaboradores marketing</div>
+          <p class="text-rose-800 text-xs">Influencers · agencias. Hoy NO existen como maestro. <strong>v5.8 propone:</strong> viven SOLO en Users como externo · sin crear maestro propio.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- ACTO 1 · MODELO CONCEPTUAL · DOS DOMINIOS                      -->
+<!-- ============================================================ -->
+<section class="py-12 px-6 bg-white border-b border-slate-100">
+  <div class="acto-shell">
+    <div class="mb-6">
+      <span class="text-[11px] uppercase tracking-wider font-bold text-teal-700">ACTO 1 · Bloque A</span>
+      <h2 class="text-2xl font-bold text-slate-900 mt-1">Modelo conceptual · Maestros (entidad) ↔ Usuarios (persona)</h2>
+      <p class="text-sm text-slate-600 mt-1">Dos dominios distintos · vinculados por relación opcional. NO se fusionan · cada uno mantiene su rol.</p>
+    </div>
+
+    <div class="bg-slate-50 rounded-2xl p-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- MAESTROS -->
+        <div class="bg-white rounded-2xl ring-2 ring-indigo-300 p-5">
+          <div class="flex items-center gap-2 mb-3">
+            <div class="w-12 h-12 rounded-xl bg-indigo-100 flex items-center justify-center">
+              <i data-lucide="building-2" class="w-6 h-6 text-indigo-700"></i>
+            </div>
+            <div>
+              <div class="text-[10px] uppercase tracking-wider font-bold text-indigo-700">DOMINIO 1</div>
+              <div class="text-xl font-bold text-slate-900">Maestros</div>
+            </div>
+          </div>
+          <div class="text-sm font-semibold text-slate-900 mb-2">Entidades comerciales / catálogos del negocio</div>
+          <p class="text-xs text-slate-600 mb-3">Cosas con las que se opera · facturan · contabilizan. Empresas o personas naturales con RUC/DNI para documentos formales.</p>
+
+          <div class="bg-indigo-50 ring-1 ring-indigo-200 rounded-lg p-3 mb-3">
+            <div class="text-[10px] uppercase tracking-wider font-bold text-indigo-700 mb-2">Características</div>
+            <ul class="text-xs text-slate-700 space-y-1">
+              <li>· Documento legal: RUC · DNI · razón social</li>
+              <li>· Términos comerciales (crédito · pago)</li>
+              <li>· Historial transaccional (compras · ventas · OC)</li>
+              <li>· Sin acceso al sistema (no login)</li>
+              <li>· Vive en `/maestros`</li>
+            </ul>
+          </div>
+
+          <div class="bg-slate-50 rounded-lg p-3 text-[10px] font-mono text-slate-700">
+            clientes/{id}<br>
+            proveedores/{id}<br>
+            marcas/{id} · canalesVenta/{id}
+          </div>
+        </div>
+
+        <!-- USUARIOS -->
+        <div class="bg-white rounded-2xl ring-2 ring-teal-300 p-5">
+          <div class="flex items-center gap-2 mb-3">
+            <div class="w-12 h-12 rounded-xl bg-teal-100 flex items-center justify-center">
+              <i data-lucide="user-circle" class="w-6 h-6 text-teal-700"></i>
+            </div>
+            <div>
+              <div class="text-[10px] uppercase tracking-wider font-bold text-teal-700">DOMINIO 2</div>
+              <div class="text-xl font-bold text-slate-900">Usuarios</div>
+            </div>
+          </div>
+          <div class="text-sm font-semibold text-slate-900 mb-2">Personas físicas del ecosistema del negocio</div>
+          <p class="text-xs text-slate-600 mb-3">Humanos con identidad · email · teléfono. Pueden tener acceso al sistema o no.</p>
+
+          <div class="bg-teal-50 ring-1 ring-teal-200 rounded-lg p-3 mb-3">
+            <div class="text-[10px] uppercase tracking-wider font-bold text-teal-700 mb-2">Características</div>
+            <ul class="text-xs text-slate-700 space-y-1">
+              <li>· Documento personal: DNI · CE · pasaporte</li>
+              <li>· Email · teléfono · whatsapp</li>
+              <li>· Relación con el negocio (empleado · socio · honorarios · externo)</li>
+              <li>· Posible acceso al sistema (login)</li>
+              <li>· Vive en `/usuarios`</li>
+            </ul>
+          </div>
+
+          <div class="bg-slate-50 rounded-lg p-3 text-[10px] font-mono text-slate-700">
+            users/{uid}<br>
+            relacionesLaborales/{id}<br>
+            (modelo v5.6)
+          </div>
+        </div>
+      </div>
+
+      <!-- Puente · relación opcional -->
+      <div class="mt-6 bg-gradient-to-r from-indigo-50 via-purple-50 to-teal-50 ring-2 ring-purple-200 rounded-2xl p-5">
+        <div class="text-[10px] uppercase tracking-wider font-bold text-purple-700 mb-2">PUENTE · vinculación opcional bidireccional</div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+          <div class="text-right">
+            <div class="font-bold text-indigo-900">Maestro</div>
+            <div class="text-xs text-indigo-700">ej. proveedor Skin Labs SAC</div>
+            <div class="text-[10px] font-mono text-indigo-600 mt-1">proveedor.id</div>
+          </div>
+          <div class="text-center">
+            <div class="bg-purple-100 rounded-full px-3 py-1.5 inline-flex items-center gap-1 text-xs font-semibold text-purple-700">
+              <i data-lucide="arrow-left-right" class="w-3.5 h-3.5"></i> vinculado a
+            </div>
+            <div class="text-[10px] text-purple-700 mt-1.5">via campo entidadMaestroRef</div>
+          </div>
+          <div>
+            <div class="font-bold text-teal-900">Usuario · Externo</div>
+            <div class="text-xs text-teal-700">ej. Ricardo Castro · sales rep</div>
+            <div class="text-[10px] font-mono text-teal-600 mt-1">relacion.tipo='externo'</div>
+          </div>
+        </div>
+        <div class="mt-4 bg-white rounded-lg p-3 text-xs text-slate-700">
+          <strong class="text-purple-900">Regla:</strong> la vinculación es <strong>1..N</strong> · un Maestro puede tener N Users vinculados (contactos múltiples) · pero un User externo apunta a 0 o 1 Maestro (su empresa madre · si aplica).
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- ACTO 2 · 3 REGLAS DE ORO + MATRIZ DE CASOS                     -->
+<!-- ============================================================ -->
+<section class="py-12 px-6 bg-purple-50/20 border-b border-purple-100">
+  <div class="acto-shell">
+    <div class="mb-6">
+      <span class="text-[11px] uppercase tracking-wider font-bold text-teal-700">ACTO 2 · Bloque A</span>
+      <h2 class="text-2xl font-bold text-slate-900 mt-1">Las 3 reglas de oro · cuándo crear qué</h2>
+      <p class="text-sm text-slate-600 mt-1">Matriz de decisión clara · evita duplicaciones · cada caso del negocio tiene UN patrón canónico.</p>
+    </div>
+
+    <!-- 3 reglas -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+      <div class="bg-white rounded-2xl ring-2 ring-indigo-300 p-5">
+        <div class="text-3xl mb-2">📋</div>
+        <div class="text-[10px] uppercase tracking-wider font-bold text-indigo-700 mb-1">REGLA 1</div>
+        <h3 class="text-lg font-bold text-slate-900 mb-2">Solo Maestro</h3>
+        <p class="text-xs text-slate-700 mb-3">Entidad comercial sin contacto humano recurrente que necesite gestión personalizada.</p>
+        <div class="bg-indigo-50 rounded-lg p-2.5 text-[11px] text-indigo-900">
+          <strong>Cuándo:</strong>
+          <ul class="mt-1 space-y-0.5">
+            <li>· Proveedores transaccionales sin relación cercana</li>
+            <li>· Clientes de venta única / esporádicos</li>
+            <li>· Empresas grandes sin contacto único</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-2xl ring-2 ring-teal-300 p-5">
+        <div class="text-3xl mb-2">👤</div>
+        <div class="text-[10px] uppercase tracking-wider font-bold text-teal-700 mb-1">REGLA 2</div>
+        <h3 class="text-lg font-bold text-slate-900 mb-2">Solo Usuario</h3>
+        <p class="text-xs text-slate-700 mb-3">Persona del staff o externo sin facturación formal vinculada a entidad comercial existente.</p>
+        <div class="bg-teal-50 rounded-lg p-2.5 text-[11px] text-teal-900">
+          <strong>Cuándo:</strong>
+          <ul class="mt-1 space-y-0.5">
+            <li>· Empleado · socio · honorarios interno</li>
+            <li>· Colaborador puntual sin RUC</li>
+            <li>· Influencer marketing por canje</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-2xl ring-2 ring-purple-300 p-5">
+        <div class="text-3xl mb-2">🔗</div>
+        <div class="text-[10px] uppercase tracking-wider font-bold text-purple-700 mb-1">REGLA 3</div>
+        <h3 class="text-lg font-bold text-slate-900 mb-2">Ambos vinculados</h3>
+        <p class="text-xs text-slate-700 mb-3">Cuando la persona física Y la entidad comercial son ambas relevantes para operar.</p>
+        <div class="bg-purple-50 rounded-lg p-2.5 text-[11px] text-purple-900">
+          <strong>Cuándo:</strong>
+          <ul class="mt-1 space-y-0.5">
+            <li>· Sales rep de proveedor recurrente</li>
+            <li>· Cliente VIP persona natural</li>
+            <li>· Brand manager de marca aliada</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Matriz de casos reales -->
+    <div class="bg-white rounded-2xl ring-1 ring-slate-200 overflow-hidden">
+      <div class="px-5 py-3 border-b border-slate-100">
+        <div class="text-[10px] uppercase tracking-wider font-bold text-slate-700">Matriz · 12 casos reales del negocio</div>
+        <h3 class="text-base font-bold text-slate-900">Cómo se mapea cada situación</h3>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead class="bg-slate-50 border-b border-slate-200">
+            <tr>
+              <th class="text-left px-3 py-2 text-[10px] uppercase tracking-wider font-bold text-slate-700">Caso</th>
+              <th class="text-center px-3 py-2 text-[10px] uppercase tracking-wider font-bold text-indigo-700">Maestro</th>
+              <th class="text-center px-3 py-2 text-[10px] uppercase tracking-wider font-bold text-teal-700">Usuario</th>
+              <th class="text-left px-3 py-2 text-[10px] uppercase tracking-wider font-bold text-purple-700">Vinculación</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 text-xs">
+            <tr class="bg-slate-50/30">
+              <td colspan="4" class="px-3 py-1.5 text-[10px] uppercase font-bold text-slate-600">🛒 Proveedores</td>
+            </tr>
+            <tr>
+              <td class="px-3 py-2 text-slate-700"><strong>Skin Labs SAC</strong> · empresa proveedora recurrente con sales rep Ricardo</td>
+              <td class="text-center text-indigo-700 font-bold">✓ Proveedor</td>
+              <td class="text-center text-teal-700 font-bold">✓ Externo · Ricardo</td>
+              <td class="text-purple-700 text-[11px]">Ricardo.entidadMaestroRef → Skin Labs.id</td>
+            </tr>
+            <tr>
+              <td class="px-3 py-2 text-slate-700"><strong>FedEx Perú</strong> · empresa logística sin contacto humano fijo</td>
+              <td class="text-center text-indigo-700 font-bold">✓ Proveedor</td>
+              <td class="text-center text-slate-400">—</td>
+              <td class="text-slate-500 text-[11px]">Sin vinculación · solo entidad</td>
+            </tr>
+            <tr>
+              <td class="px-3 py-2 text-slate-700"><strong>Juan motorizado</strong> · freelance sin RUC, trabaja recurrente</td>
+              <td class="text-center text-slate-400">—</td>
+              <td class="text-center text-teal-700 font-bold">✓ Externo · subTipo=tercerizado_logistico</td>
+              <td class="text-slate-500 text-[11px]">Sin vinculación · solo persona</td>
+            </tr>
+            <tr>
+              <td class="px-3 py-2 text-slate-700"><strong>Diseñador autónomo Pedro</strong> · emite RxH por cada trabajo</td>
+              <td class="text-center text-indigo-700 font-bold">✓ Proveedor (RUC 10...)</td>
+              <td class="text-center text-teal-700 font-bold">✓ Honorarios · Pedro</td>
+              <td class="text-purple-700 text-[11px]">Pedro.entidadMaestroRef → Pedro Proveedor.id</td>
+            </tr>
+
+            <tr class="bg-slate-50/30">
+              <td colspan="4" class="px-3 py-1.5 text-[10px] uppercase font-bold text-slate-600">💰 Clientes</td>
+            </tr>
+            <tr>
+              <td class="px-3 py-2 text-slate-700"><strong>Ana Pérez VIP</strong> · cliente persona natural con compras recurrentes</td>
+              <td class="text-center text-indigo-700 font-bold">✓ Cliente · tipo=persona</td>
+              <td class="text-center text-teal-700 font-bold">✓ Externo · subTipo=cliente_vip</td>
+              <td class="text-purple-700 text-[11px]">Ana.entidadMaestroRef → Ana Cliente.id</td>
+            </tr>
+            <tr>
+              <td class="px-3 py-2 text-slate-700"><strong>Distribuidora Andina B2B</strong> · empresa con contacto María (compradora)</td>
+              <td class="text-center text-indigo-700 font-bold">✓ Cliente · tipo=empresa</td>
+              <td class="text-center text-teal-700 font-bold">✓ Externo · subTipo=contacto_cliente</td>
+              <td class="text-purple-700 text-[11px]">María.entidadMaestroRef → Andina.id</td>
+            </tr>
+            <tr>
+              <td class="px-3 py-2 text-slate-700"><strong>Carlos · compra única</strong> · cliente esporádico sin seguimiento</td>
+              <td class="text-center text-indigo-700 font-bold">✓ Cliente · ocasional</td>
+              <td class="text-center text-slate-400">—</td>
+              <td class="text-slate-500 text-[11px]">Solo en CRM · no entra a Usuarios</td>
+            </tr>
+
+            <tr class="bg-slate-50/30">
+              <td colspan="4" class="px-3 py-1.5 text-[10px] uppercase font-bold text-slate-600">👥 Red logística / colaboradores</td>
+            </tr>
+            <tr>
+              <td class="px-3 py-2 text-slate-700"><strong>Olva Courier</strong> · empresa logística (potencial maestro nuevo)</td>
+              <td class="text-center text-amber-700 font-bold">⚠️ Crear Transportista (nuevo)</td>
+              <td class="text-center text-slate-400">—</td>
+              <td class="text-amber-700 text-[11px]">Requiere agregar tipo "Transportista" a Maestros</td>
+            </tr>
+            <tr>
+              <td class="px-3 py-2 text-slate-700"><strong>Marta · influencer skincare</strong> · canje + comisión</td>
+              <td class="text-center text-slate-400">—</td>
+              <td class="text-center text-teal-700 font-bold">✓ Externo · subTipo=colaborador_marketing</td>
+              <td class="text-slate-500 text-[11px]">Solo persona · sin entidad</td>
+            </tr>
+            <tr>
+              <td class="px-3 py-2 text-slate-700"><strong>Agencia Bloom Marketing</strong> · agencia con cuenta key Laura</td>
+              <td class="text-center text-indigo-700 font-bold">✓ Proveedor</td>
+              <td class="text-center text-teal-700 font-bold">✓ Externo · Laura</td>
+              <td class="text-purple-700 text-[11px]">Laura.entidadMaestroRef → Bloom.id</td>
+            </tr>
+
+            <tr class="bg-slate-50/30">
+              <td colspan="4" class="px-3 py-1.5 text-[10px] uppercase font-bold text-slate-600">🤝 Aliados / marcas</td>
+            </tr>
+            <tr>
+              <td class="px-3 py-2 text-slate-700"><strong>Marca aliada NIVEA</strong> · co-marketing · sin contacto humano fijo</td>
+              <td class="text-center text-indigo-700 font-bold">✓ Marca</td>
+              <td class="text-center text-slate-400">—</td>
+              <td class="text-slate-500 text-[11px]">Solo analytics · sin persona</td>
+            </tr>
+            <tr>
+              <td class="px-3 py-2 text-slate-700"><strong>Brand manager Diana de NIVEA</strong> · contacto recurrente</td>
+              <td class="text-center text-indigo-700 font-bold">✓ Marca (NIVEA)</td>
+              <td class="text-center text-teal-700 font-bold">✓ Externo · subTipo=contacto_marca</td>
+              <td class="text-purple-700 text-[11px]">Diana.entidadMaestroRef → NIVEA.id (tipo=marca)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Resumen estadístico de la matriz -->
+    <div class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
+      <div class="bg-indigo-50 ring-1 ring-indigo-200 rounded-lg p-3">
+        <div class="font-bold text-indigo-900">📋 Solo Maestro · 3 casos</div>
+        <p class="text-indigo-800 mt-1">FedEx · Carlos compra única · NIVEA sin contacto. Entidad transaccional sin humano gestionable.</p>
+      </div>
+      <div class="bg-teal-50 ring-1 ring-teal-200 rounded-lg p-3">
+        <div class="font-bold text-teal-900">👤 Solo Usuario · 2 casos</div>
+        <p class="text-teal-800 mt-1">Juan motorizado · Marta influencer. Personas sin entidad comercial formal.</p>
+      </div>
+      <div class="bg-purple-50 ring-1 ring-purple-200 rounded-lg p-3">
+        <div class="font-bold text-purple-900">🔗 Ambos vinculados · 6 casos</div>
+        <p class="text-purple-800 mt-1">Ricardo (Skin Labs) · Pedro (autónomo) · Ana VIP · María (Andina) · Laura (Bloom) · Diana (NIVEA). El patrón más común.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- ACTO 3 · MODELO DE DATOS · VINCULACIÓN BIDIRECCIONAL           -->
+<!-- ============================================================ -->
+<section class="py-12 px-6 bg-white border-b border-slate-100">
+  <div class="acto-shell">
+    <div class="mb-6">
+      <span class="text-[11px] uppercase tracking-wider font-bold text-teal-700">ACTO 3 · Bloque A</span>
+      <h2 class="text-2xl font-bold text-slate-900 mt-1">Modelo de datos · vinculación bidireccional</h2>
+      <p class="text-sm text-slate-600 mt-1">Extensión mínima a v5.6 · agrega 1 campo opcional · NO modifica Maestros · NO duplica data.</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <!-- v5.6 actual -->
+      <div>
+        <div class="text-[10px] uppercase tracking-wider font-bold text-slate-500 mb-2">v5.6 actual · RelacionLaboral</div>
+        <div class="bg-slate-900 text-white rounded-2xl p-4 text-xs font-mono">
+<pre>interface RelacionLaboral {
+  id: string;
+  userId: string;
+  tipo: 'empleado' | 'honorarios'
+      | 'socio' | 'externo';
+  estado: 'vigente' | 'pausada'
+        | 'prueba' | 'finalizada';
+  fechaInicio: Timestamp;
+  fechaFin?: Timestamp;
+  motivoFin?: ...;
+  datosLaboralesSnapshot?: ...;
+  datosSocioSnapshot?: ...;
+  datosExternoSnapshot?: ...;
+  subTipo?: ...;
+  creadoPor: string;
+  fechaCreacion: Timestamp;
+  notas?: string;
+}</pre>
+        </div>
+      </div>
+
+      <!-- v5.8 extendido -->
+      <div>
+        <div class="text-[10px] uppercase tracking-wider font-bold text-emerald-600 mb-2">v5.8 extendido · +1 campo</div>
+        <div class="bg-slate-900 text-white rounded-2xl p-4 text-xs font-mono">
+<pre>interface RelacionLaboral {
+  id: string;
+  userId: string;
+  tipo: 'empleado' | 'honorarios'
+      | 'socio' | 'externo';
+  estado: ...;
+  fechaInicio: Timestamp;
+  fechaFin?: Timestamp;
+  motivoFin?: ...;
+  datosLaboralesSnapshot?: ...;
+  datosSocioSnapshot?: ...;
+  datosExternoSnapshot?: ...;
+  subTipo?: ...;
+  creadoPor: string;
+  fechaCreacion: Timestamp;
+  notas?: string;
+
+  <span class="text-emerald-300">// ✨ NUEVO v5.8 · solo para tipo='externo'</span>
+  <span class="text-emerald-300">entidadMaestroRef?: {</span>
+  <span class="text-emerald-300">  tipo: 'cliente' | 'proveedor'</span>
+  <span class="text-emerald-300">      | 'marca' | 'transportista';</span>
+  <span class="text-emerald-300">  id: string;</span>
+  <span class="text-emerald-300">  rolEnEntidad?: string;</span>
+  <span class="text-emerald-300">};</span>
+}</pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- Side: Maestro recibe contactos[] derivado -->
+    <div class="mt-6 bg-slate-50 rounded-2xl ring-1 ring-slate-200 p-5">
+      <div class="text-[10px] uppercase tracking-wider font-bold text-slate-700 mb-3">Lado Maestros · query derivado (NO se duplica data)</div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <div class="text-xs font-semibold text-slate-900 mb-2">Cómo obtener los contactos de un Maestro:</div>
+          <div class="bg-white rounded-lg p-3 text-[11px] font-mono text-slate-700">
+<pre>// service · proveedoresService.getContactos(proveedorId)
+const q = query(
+  collection(db, 'relacionesLaborales'),
+  where('tipo', '==', 'externo'),
+  where('estado', '==', 'vigente'),
+  where('entidadMaestroRef.tipo', '==', 'proveedor'),
+  where('entidadMaestroRef.id', '==', proveedorId)
+);
+const snap = await getDocs(q);
+const contactos = await Promise.all(
+  snap.docs.map(d => userService.getUser(d.data().userId))
+);</pre>
+          </div>
+        </div>
+        <div>
+          <div class="text-xs font-semibold text-slate-900 mb-2">Ventaja del diseño:</div>
+          <ul class="text-xs text-slate-700 space-y-1.5">
+            <li class="flex items-start gap-1.5"><span class="text-emerald-600">✓</span> <strong>1 fuente de verdad:</strong> el vínculo vive en RelacionLaboral · NO se replica en Maestro</li>
+            <li class="flex items-start gap-1.5"><span class="text-emerald-600">✓</span> <strong>Sin migración brusca:</strong> campo opcional · viejos datos siguen siendo válidos</li>
+            <li class="flex items-start gap-1.5"><span class="text-emerald-600">✓</span> <strong>Reactivo:</strong> agregar/quitar contacto desde Maestros o Usuarios actualiza ambos lados</li>
+            <li class="flex items-start gap-1.5"><span class="text-emerald-600">✓</span> <strong>Cross-tipo:</strong> mismo modelo sirve para proveedor · cliente · marca · transportista</li>
+            <li class="flex items-start gap-1.5"><span class="text-emerald-600">✓</span> <strong>Validación Firestore:</strong> rules pueden verificar que entidadMaestroRef.id existe</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Ejemplo concreto -->
+    <div class="mt-6 bg-gradient-to-br from-purple-50 to-indigo-50 ring-1 ring-purple-200 rounded-2xl p-5">
+      <div class="text-[10px] uppercase tracking-wider font-bold text-purple-700 mb-3">Ejemplo concreto · Ricardo Castro (sales rep de Skin Labs SAC)</div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs font-mono">
+        <div class="bg-white rounded-lg p-3">
+          <div class="text-[10px] font-sans uppercase tracking-wider font-bold text-indigo-700 mb-1">proveedores/abc123</div>
+<pre class="text-slate-800">{
+  id: 'abc123',
+  razonSocial: 'Skin Labs SAC',
+  ruc: '20512345678',
+  // ... resto del Maestro
+}</pre>
+        </div>
+        <div class="bg-white rounded-lg p-3">
+          <div class="text-[10px] font-sans uppercase tracking-wider font-bold text-teal-700 mb-1">users/xyz789</div>
+<pre class="text-slate-800">{
+  uid: 'xyz789',
+  nombre: 'Ricardo Castro',
+  email: 'ricardo@skinlabs.pe',
+  // ... sin RUC porque NO factura
+}</pre>
+        </div>
+        <div class="bg-white rounded-lg p-3 md:col-span-2 ring-2 ring-emerald-300">
+          <div class="text-[10px] font-sans uppercase tracking-wider font-bold text-emerald-700 mb-1">relacionesLaborales/rel456 ← AQUÍ vive el vínculo</div>
+<pre class="text-slate-800">{
+  id: 'rel456',
+  userId: 'xyz789',                    // ← Ricardo
+  tipo: 'externo',
+  estado: 'vigente',
+  fechaInicio: 2024-01-15,
+  subTipo: 'contacto_proveedor',
+  <span class="text-emerald-700">entidadMaestroRef: {                 // ← VÍNCULO</span>
+  <span class="text-emerald-700">  tipo: 'proveedor',</span>
+  <span class="text-emerald-700">  id: 'abc123',                      // ← Skin Labs</span>
+  <span class="text-emerald-700">  rolEnEntidad: 'Sales Representative'</span>
+  <span class="text-emerald-700">}</span>
+}</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- ACTO 4 · TAB "VINCULACIÓN" EN USERPANEL (extensión v5.7)       -->
+<!-- ============================================================ -->
+<section class="py-12 px-6 bg-teal-50/30 border-b border-teal-100">
+  <div class="acto-shell">
+    <div class="mb-6">
+      <span class="text-[11px] uppercase tracking-wider font-bold text-purple-700">ACTO 4 · Bloque B</span>
+      <h2 class="text-2xl font-bold text-slate-900 mt-1">UserPanel · nuevo tab "Vinculación" (solo si User es externo)</h2>
+      <p class="text-sm text-slate-600 mt-1">Extensión del UserPanel de v5.7 · agrega 6º tab condicional cuando hay tipo='externo'.</p>
+    </div>
+
+    <div class="bg-slate-100 rounded-2xl p-4">
+      <div class="bg-white rounded-xl ring-1 ring-slate-200 overflow-hidden flex">
+        <!-- Lista compacta -->
+        <div class="flex-1 border-r border-slate-200 max-w-sm">
+          <div class="px-5 py-3 border-b border-slate-100 text-xs text-slate-500 flex items-center gap-1.5">
+            <span>Equipo</span><i data-lucide="chevron-right" class="w-3 h-3"></i><span class="text-slate-900 font-semibold">Usuarios</span>
+          </div>
+          <div class="px-5 py-4 border-b border-slate-100">
+            <h2 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+              <i data-lucide="users" class="w-5 h-5 text-teal-700"></i> Externos
+              <span class="text-xs font-normal text-slate-500">· 6</span>
+            </h2>
+          </div>
+          <div class="divide-y divide-slate-100">
+            <div class="px-5 py-3 bg-amber-50/30 ring-1 ring-amber-200 flex items-center gap-3 cursor-pointer">
+              <div class="w-9 h-9 rounded-full bg-gradient-to-br from-amber-400 to-orange-600 text-white flex items-center justify-center font-bold text-xs">RC</div>
+              <div class="flex-1 min-w-0">
+                <div class="text-sm font-semibold text-slate-900">Ricardo Castro</div>
+                <div class="text-[11px] text-slate-500">Sales rep · Skin Labs</div>
+              </div>
+              <span class="text-[10px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-full font-semibold">👤 Externo</span>
+            </div>
+            <div class="px-5 py-3 flex items-center gap-3 hover:bg-slate-50 cursor-pointer">
+              <div class="w-9 h-9 rounded-full bg-gradient-to-br from-pink-400 to-rose-600 text-white flex items-center justify-center font-bold text-xs">AP</div>
+              <div class="flex-1 min-w-0">
+                <div class="text-sm font-semibold text-slate-900">Ana Pérez</div>
+                <div class="text-[11px] text-slate-500">Cliente VIP</div>
+              </div>
+              <span class="text-[10px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-full font-semibold">👤 Externo</span>
+            </div>
+            <div class="px-5 py-3 flex items-center gap-3 hover:bg-slate-50 cursor-pointer">
+              <div class="w-9 h-9 rounded-full bg-gradient-to-br from-purple-400 to-pink-600 text-white flex items-center justify-center font-bold text-xs">DM</div>
+              <div class="flex-1 min-w-0">
+                <div class="text-sm font-semibold text-slate-900">Diana Mendez</div>
+                <div class="text-[11px] text-slate-500">Brand mgr NIVEA</div>
+              </div>
+              <span class="text-[10px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-full font-semibold">👤 Externo</span>
+            </div>
+            <div class="px-5 py-3 flex items-center gap-3 hover:bg-slate-50 cursor-pointer">
+              <div class="w-9 h-9 rounded-full bg-gradient-to-br from-slate-400 to-slate-600 text-white flex items-center justify-center font-bold text-xs">JM</div>
+              <div class="flex-1 min-w-0">
+                <div class="text-sm font-semibold text-slate-900">Juan Mendoza</div>
+                <div class="text-[11px] text-slate-500">Motorizado freelance</div>
+              </div>
+              <span class="text-[10px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-full font-semibold">👤 Externo</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Side panel · Ricardo con tab Vinculación abierto -->
+        <aside class="flex-1 bg-white">
+          <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div class="w-12 h-12 rounded-full bg-gradient-to-br from-amber-400 to-orange-600 text-white flex items-center justify-center font-bold">RC</div>
+              <div>
+                <div class="text-base font-bold text-slate-900">Ricardo Castro</div>
+                <div class="text-xs text-slate-500">Externo · contacto_proveedor desde ene 2024</div>
+              </div>
+            </div>
+            <button class="w-8 h-8 hover:bg-slate-100 rounded-lg flex items-center justify-center">
+              <i data-lucide="x" class="w-4 h-4 text-slate-500"></i>
+            </button>
+          </div>
+
+          <!-- Tabs · 6 tabs incluyendo Vinculación nuevo -->
+          <div class="px-5 border-b border-slate-100 flex items-center gap-1 overflow-x-auto scroll-hide">
+            <button class="px-3 py-3 text-sm font-medium text-slate-500 whitespace-nowrap">Resumen</button>
+            <button class="px-3 py-3 text-sm font-medium text-slate-500 whitespace-nowrap">Relaciones · 1</button>
+            <button class="px-3 py-3 text-sm font-medium text-slate-500 whitespace-nowrap">Datos</button>
+            <button class="px-3 py-3 text-sm font-semibold text-slate-900 border-b-2 border-purple-600 whitespace-nowrap flex items-center gap-1">
+              <i data-lucide="link" class="w-3.5 h-3.5"></i> Vinculación
+              <span class="text-[9px] bg-emerald-100 text-emerald-700 px-1 py-0.5 rounded-full font-bold ml-0.5">NUEVO</span>
+            </button>
+            <button class="px-3 py-3 text-sm font-medium text-slate-500 whitespace-nowrap">Permisos</button>
+            <button class="px-3 py-3 text-sm font-medium text-slate-500 whitespace-nowrap">Histórico</button>
+          </div>
+
+          <!-- Tab Vinculación contenido -->
+          <div class="p-5 space-y-4">
+            <!-- Card entidad vinculada -->
+            <div class="bg-gradient-to-br from-indigo-50 to-purple-50 ring-1 ring-indigo-200 rounded-2xl p-5">
+              <div class="flex items-start justify-between mb-3">
+                <div class="flex items-center gap-3">
+                  <div class="w-14 h-14 rounded-xl bg-indigo-600 text-white flex items-center justify-center">
+                    <i data-lucide="building-2" class="w-7 h-7"></i>
+                  </div>
+                  <div>
+                    <div class="text-[10px] uppercase tracking-wider font-bold text-indigo-700">VINCULADO A</div>
+                    <div class="text-lg font-bold text-indigo-900">Skin Labs SAC</div>
+                    <div class="text-xs text-indigo-700">RUC 20512345678 · Proveedor</div>
+                  </div>
+                </div>
+                <button class="px-2.5 py-1.5 bg-white border border-indigo-200 rounded-lg hover:bg-indigo-50 text-xs font-medium text-indigo-700 flex items-center gap-1">
+                  <i data-lucide="external-link" class="w-3 h-3"></i> Abrir en Maestros
+                </button>
+              </div>
+
+              <div class="grid grid-cols-2 md:grid-cols-3 gap-2 text-xs">
+                <div class="bg-white rounded-lg p-2.5">
+                  <div class="text-[10px] uppercase font-bold text-indigo-700">ROL DE RICARDO</div>
+                  <div class="font-semibold text-slate-900 mt-0.5">Sales Representative</div>
+                </div>
+                <div class="bg-white rounded-lg p-2.5">
+                  <div class="text-[10px] uppercase font-bold text-indigo-700">DESDE</div>
+                  <div class="font-semibold text-slate-900 mt-0.5">Ene 2024 · 2 años</div>
+                </div>
+                <div class="bg-white rounded-lg p-2.5">
+                  <div class="text-[10px] uppercase font-bold text-indigo-700">COMPRAS A SKIN LABS</div>
+                  <div class="font-semibold text-slate-900 mt-0.5 tabular-nums">S/48,200 (2026)</div>
+                </div>
+              </div>
+
+              <!-- Acciones -->
+              <div class="mt-4 flex items-center gap-2">
+                <button class="px-3 py-1.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 text-xs font-semibold flex items-center gap-1.5">
+                  <i data-lucide="edit-2" class="w-3 h-3"></i> Editar vínculo
+                </button>
+                <button class="px-3 py-1.5 bg-white text-rose-700 border border-rose-200 rounded-lg hover:bg-rose-50 text-xs font-medium flex items-center gap-1.5">
+                  <i data-lucide="unlink" class="w-3 h-3"></i> Desvincular
+                </button>
+                <span class="ml-auto text-[10px] text-slate-500">Última edición · admin · hace 2 meses</span>
+              </div>
+            </div>
+
+            <!-- Cross-links operativos -->
+            <div>
+              <div class="text-[10px] uppercase tracking-wider font-bold text-slate-700 mb-2">Operaciones recientes con Skin Labs</div>
+              <div class="space-y-1.5">
+                <div class="bg-white ring-1 ring-slate-200 rounded-lg p-3 flex items-center gap-3 hover:bg-slate-50 cursor-pointer">
+                  <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center">
+                    <i data-lucide="shopping-cart" class="w-4 h-4 text-blue-600"></i>
+                  </div>
+                  <div class="flex-1">
+                    <div class="text-sm font-semibold text-slate-900">OC-2026-042 · abril</div>
+                    <div class="text-[11px] text-slate-500">Compra de skincare actives · 12 SKUs</div>
+                  </div>
+                  <div class="text-right">
+                    <div class="text-sm font-bold tabular-nums text-slate-900">S/12,800</div>
+                    <div class="text-[10px] text-emerald-600">✓ Recibida</div>
+                  </div>
+                  <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i>
+                </div>
+                <div class="bg-white ring-1 ring-slate-200 rounded-lg p-3 flex items-center gap-3 hover:bg-slate-50 cursor-pointer">
+                  <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center">
+                    <i data-lucide="shopping-cart" class="w-4 h-4 text-blue-600"></i>
+                  </div>
+                  <div class="flex-1">
+                    <div class="text-sm font-semibold text-slate-900">OC-2026-037 · marzo</div>
+                    <div class="text-[11px] text-slate-500">Insumos empaque · 8 SKUs</div>
+                  </div>
+                  <div class="text-right">
+                    <div class="text-sm font-bold tabular-nums text-slate-900">S/8,540</div>
+                    <div class="text-[10px] text-emerald-600">✓ Pagada</div>
+                  </div>
+                  <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i>
+                </div>
+              </div>
+              <button class="mt-2 text-xs text-purple-700 hover:underline flex items-center gap-1">
+                Ver las 14 OC totales con Skin Labs <i data-lucide="arrow-right" class="w-3 h-3"></i>
+              </button>
+            </div>
+
+            <!-- Otros contactos del mismo Maestro -->
+            <div>
+              <div class="text-[10px] uppercase tracking-wider font-bold text-slate-700 mb-2">Otros contactos de Skin Labs SAC</div>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+                <div class="bg-slate-50 ring-1 ring-slate-200 rounded-lg p-2.5 flex items-center gap-2.5 hover:bg-white cursor-pointer">
+                  <div class="w-8 h-8 rounded-full bg-gradient-to-br from-slate-400 to-slate-600 text-white flex items-center justify-center font-bold text-[10px]">MA</div>
+                  <div class="flex-1 min-w-0">
+                    <div class="text-xs font-semibold text-slate-900 truncate">Mariana Aguirre</div>
+                    <div class="text-[10px] text-slate-500">Account Mgr · contacto_proveedor</div>
+                  </div>
+                </div>
+                <button class="bg-white ring-1 ring-slate-200 border-dashed rounded-lg p-2.5 hover:bg-slate-50 text-slate-500 hover:text-slate-900 text-xs flex items-center justify-center gap-1.5">
+                  <i data-lucide="plus" class="w-3.5 h-3.5"></i> Agregar otro contacto
+                </button>
+              </div>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </div>
+
+    <!-- Anotaciones -->
+    <div class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
+      <div class="bg-emerald-50 ring-1 ring-emerald-200 rounded-lg p-3">
+        <strong class="text-emerald-900">🎯 Tab condicional</strong>
+        <p class="text-emerald-800 mt-1">Solo aparece si user tiene al menos 1 relación tipo='externo' con entidadMaestroRef set. Empleados/socios no lo ven.</p>
+      </div>
+      <div class="bg-emerald-50 ring-1 ring-emerald-200 rounded-lg p-3">
+        <strong class="text-emerald-900">🔗 Cross-link 360</strong>
+        <p class="text-emerald-800 mt-1">"Abrir en Maestros" lleva al detalle del proveedor · OC recientes son drill-down al detalle de compra.</p>
+      </div>
+      <div class="bg-emerald-50 ring-1 ring-emerald-200 rounded-lg p-3">
+        <strong class="text-emerald-900">👥 Discoverabilidad</strong>
+        <p class="text-emerald-800 mt-1">"Otros contactos del Maestro" expone toda la red humana del proveedor · admin no se pierde.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- ACTO 5 · SUB-SECCIÓN "CONTACTOS" EN MAESTROS                   -->
+<!-- ============================================================ -->
+<section class="py-12 px-6 bg-indigo-50/20 border-b border-indigo-100">
+  <div class="acto-shell">
+    <div class="mb-6">
+      <span class="text-[11px] uppercase tracking-wider font-bold text-purple-700">ACTO 5 · Bloque B</span>
+      <h2 class="text-2xl font-bold text-slate-900 mt-1">Detalle de Maestro · nueva sub-sección "Contactos"</h2>
+      <p class="text-sm text-slate-600 mt-1">Lado simétrico · desde el detalle de un proveedor/cliente, ver los Users vinculados como contactos humanos.</p>
+    </div>
+
+    <!-- Mock /maestros con tab Proveedores · drill a Skin Labs -->
+    <div class="bg-slate-100 rounded-2xl p-4">
+      <div class="bg-white rounded-xl ring-1 ring-slate-200 overflow-hidden">
+        <!-- Breadcrumb -->
+        <div class="px-6 py-3 border-b border-slate-100 flex items-center gap-1.5 text-xs text-slate-500">
+          <span>Vita Skin</span>
+          <i data-lucide="chevron-right" class="w-3 h-3"></i>
+          <span>Maestros</span>
+          <i data-lucide="chevron-right" class="w-3 h-3"></i>
+          <span>Proveedores</span>
+          <i data-lucide="chevron-right" class="w-3 h-3"></i>
+          <span class="text-slate-900 font-semibold">Skin Labs SAC</span>
+        </div>
+
+        <!-- Header del proveedor -->
+        <div class="px-6 py-5 border-b border-slate-100 flex items-start justify-between">
+          <div class="flex items-start gap-4">
+            <div class="w-14 h-14 rounded-xl bg-indigo-100 flex items-center justify-center">
+              <i data-lucide="building-2" class="w-7 h-7 text-indigo-700"></i>
+            </div>
+            <div>
+              <h1 class="text-2xl font-bold text-slate-900">Skin Labs SAC</h1>
+              <div class="text-sm text-slate-500 mt-0.5">Proveedor · RUC 20512345678 · desde feb 2023</div>
+              <div class="mt-2 flex items-center gap-2">
+                <span class="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-semibold">⭐ Premium</span>
+                <span class="text-[10px] bg-slate-100 text-slate-700 px-2 py-0.5 rounded-full font-medium">Crédito 30 días</span>
+              </div>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <button class="px-3 py-2 bg-white text-slate-600 border border-slate-200 rounded-lg hover:bg-slate-50 text-sm font-medium">Editar</button>
+            <button class="px-3 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 text-sm font-semibold flex items-center gap-1.5">
+              <i data-lucide="shopping-cart" class="w-4 h-4"></i> Nueva OC
+            </button>
+          </div>
+        </div>
+
+        <!-- Tabs del Maestro -->
+        <div class="px-6 border-b border-slate-100 flex items-center gap-1 overflow-x-auto scroll-hide">
+          <button class="px-3 py-3 text-sm font-medium text-slate-500 whitespace-nowrap">Resumen</button>
+          <button class="px-3 py-3 text-sm font-medium text-slate-500 whitespace-nowrap">Términos comerciales</button>
+          <button class="px-3 py-3 text-sm font-medium text-slate-500 whitespace-nowrap">Historial OC · 14</button>
+          <button class="px-3 py-3 text-sm font-semibold text-slate-900 border-b-2 border-purple-600 whitespace-nowrap flex items-center gap-1.5">
+            <i data-lucide="users" class="w-3.5 h-3.5"></i> Contactos · 2
+            <span class="text-[9px] bg-emerald-100 text-emerald-700 px-1 py-0.5 rounded-full font-bold ml-0.5">NUEVO</span>
+          </button>
+          <button class="px-3 py-3 text-sm font-medium text-slate-500 whitespace-nowrap">Documentos</button>
+          <button class="px-3 py-3 text-sm font-medium text-slate-500 whitespace-nowrap">Performance</button>
+        </div>
+
+        <!-- Contenido tab Contactos -->
+        <div class="p-6">
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <h3 class="text-base font-bold text-slate-900">Personas que trabajan en Skin Labs SAC</h3>
+              <p class="text-xs text-slate-500">Contactos humanos del proveedor · vinculados como Users externos.</p>
+            </div>
+            <button class="px-3 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 text-sm font-semibold flex items-center gap-1.5">
+              <i data-lucide="user-plus" class="w-4 h-4"></i> Agregar contacto
+            </button>
+          </div>
+
+          <!-- Lista de contactos -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <!-- Contacto 1 -->
+            <div class="bg-white ring-1 ring-slate-200 rounded-2xl p-4 hover:ring-purple-300 hover:shadow-md transition cursor-pointer">
+              <div class="flex items-start gap-3 mb-3">
+                <div class="w-11 h-11 rounded-full bg-gradient-to-br from-amber-400 to-orange-600 text-white flex items-center justify-center font-bold">RC</div>
+                <div class="flex-1">
+                  <div class="flex items-center gap-1.5">
+                    <span class="font-bold text-slate-900">Ricardo Castro</span>
+                    <span class="text-[9px] bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded-full font-bold">PRIMARIO</span>
+                  </div>
+                  <div class="text-xs text-slate-500">Sales Representative</div>
+                </div>
+              </div>
+              <div class="space-y-1.5 text-xs">
+                <div class="flex items-center gap-2 text-slate-700">
+                  <i data-lucide="mail" class="w-3 h-3 text-slate-400"></i>
+                  <span>ricardo@skinlabs.pe</span>
+                </div>
+                <div class="flex items-center gap-2 text-slate-700">
+                  <i data-lucide="phone" class="w-3 h-3 text-slate-400"></i>
+                  <span class="tabular-nums">+51 987 654 321</span>
+                </div>
+                <div class="flex items-center gap-2 text-slate-700">
+                  <i data-lucide="calendar" class="w-3 h-3 text-slate-400"></i>
+                  <span>Vinculado desde ene 2024 · 2 años</span>
+                </div>
+              </div>
+              <div class="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between">
+                <button class="text-[11px] text-purple-700 hover:underline font-semibold flex items-center gap-1">
+                  Ver perfil completo <i data-lucide="external-link" class="w-3 h-3"></i>
+                </button>
+                <div class="flex items-center gap-1">
+                  <button class="p-1.5 hover:bg-slate-100 rounded text-slate-600" title="Email"><i data-lucide="mail" class="w-3.5 h-3.5"></i></button>
+                  <button class="p-1.5 hover:bg-slate-100 rounded text-slate-600" title="WhatsApp"><i data-lucide="message-circle" class="w-3.5 h-3.5"></i></button>
+                  <button class="p-1.5 hover:bg-slate-100 rounded text-slate-600" title="Más"><i data-lucide="more-horizontal" class="w-3.5 h-3.5"></i></button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Contacto 2 -->
+            <div class="bg-white ring-1 ring-slate-200 rounded-2xl p-4 hover:ring-purple-300 hover:shadow-md transition cursor-pointer">
+              <div class="flex items-start gap-3 mb-3">
+                <div class="w-11 h-11 rounded-full bg-gradient-to-br from-slate-400 to-slate-600 text-white flex items-center justify-center font-bold">MA</div>
+                <div class="flex-1">
+                  <span class="font-bold text-slate-900">Mariana Aguirre</span>
+                  <div class="text-xs text-slate-500">Account Manager</div>
+                </div>
+              </div>
+              <div class="space-y-1.5 text-xs">
+                <div class="flex items-center gap-2 text-slate-700">
+                  <i data-lucide="mail" class="w-3 h-3 text-slate-400"></i>
+                  <span>mariana@skinlabs.pe</span>
+                </div>
+                <div class="flex items-center gap-2 text-slate-700">
+                  <i data-lucide="phone" class="w-3 h-3 text-slate-400"></i>
+                  <span class="tabular-nums">+51 998 765 432</span>
+                </div>
+                <div class="flex items-center gap-2 text-slate-700">
+                  <i data-lucide="calendar" class="w-3 h-3 text-slate-400"></i>
+                  <span>Vinculada desde jun 2024 · 11 meses</span>
+                </div>
+              </div>
+              <div class="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between">
+                <button class="text-[11px] text-purple-700 hover:underline font-semibold flex items-center gap-1">
+                  Ver perfil completo <i data-lucide="external-link" class="w-3 h-3"></i>
+                </button>
+                <div class="flex items-center gap-1">
+                  <button class="p-1.5 hover:bg-slate-100 rounded text-slate-600"><i data-lucide="mail" class="w-3.5 h-3.5"></i></button>
+                  <button class="p-1.5 hover:bg-slate-100 rounded text-slate-600"><i data-lucide="message-circle" class="w-3.5 h-3.5"></i></button>
+                  <button class="p-1.5 hover:bg-slate-100 rounded text-slate-600"><i data-lucide="more-horizontal" class="w-3.5 h-3.5"></i></button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Empty state ejemplo si no hubiera contactos -->
+          <div class="mt-6 bg-slate-50 ring-1 ring-dashed ring-slate-300 rounded-xl p-5 text-center">
+            <div class="text-[10px] uppercase tracking-wider font-bold text-slate-500 mb-1">Ejemplo · empty state</div>
+            <i data-lucide="user-plus" class="w-8 h-8 text-slate-400 mx-auto mb-2"></i>
+            <div class="text-sm font-semibold text-slate-700">Sin contactos vinculados aún</div>
+            <p class="text-xs text-slate-500 mt-1 max-w-md mx-auto">Si Skin Labs tiene un sales rep o account manager que te atiende, agregalo como contacto para tener su contacto a mano y trazar la relación.</p>
+            <button class="mt-3 px-3 py-1.5 bg-teal-600 text-white rounded-lg hover:bg-teal-700 text-xs font-semibold inline-flex items-center gap-1.5">
+              <i data-lucide="user-plus" class="w-3.5 h-3.5"></i> Agregar primer contacto
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- ACTO 6 · WIZARD EXTERNO · PASO 3 CON BUSCADOR MAESTROS         -->
+<!-- ============================================================ -->
+<section class="py-12 px-6 bg-amber-50/20 border-b border-amber-100">
+  <div class="acto-shell">
+    <div class="mb-6">
+      <span class="text-[11px] uppercase tracking-wider font-bold text-purple-700">ACTO 6 · Bloque B</span>
+      <h2 class="text-2xl font-bold text-slate-900 mt-1">Wizard "Nuevo colaborador" tipo=externo · paso 3 con buscador</h2>
+      <p class="text-sm text-slate-600 mt-1">Extensión del wizard v5.7 ACTO 4 · cuando elegís Externo, el paso 3 pregunta vinculación con Maestro.</p>
+    </div>
+
+    <!-- Mock wizard -->
+    <div class="bg-slate-900/50 rounded-2xl p-6 flex justify-center items-start">
+      <div class="bg-white rounded-2xl shadow-2xl overflow-hidden max-w-5xl w-full flex">
+        <!-- Sidebar pasos -->
+        <aside class="bg-slate-50 border-r border-slate-200 p-5 w-64 flex-shrink-0">
+          <div class="text-[10px] uppercase tracking-wider font-bold text-slate-500 mb-4">Nuevo colaborador</div>
+          <ol class="space-y-3">
+            <li class="flex items-start gap-3">
+              <div class="w-7 h-7 rounded-full bg-teal-600 text-white flex items-center justify-center text-xs font-bold flex-shrink-0">✓</div>
+              <div>
+                <div class="text-sm font-semibold text-slate-900">Identidad</div>
+                <div class="text-xs text-slate-500">Ricardo Castro</div>
+              </div>
+            </li>
+            <li class="flex items-start gap-3">
+              <div class="w-7 h-7 rounded-full bg-teal-600 text-white flex items-center justify-center text-xs font-bold flex-shrink-0">✓</div>
+              <div>
+                <div class="text-sm font-semibold text-slate-900">Tipo de relación</div>
+                <div class="text-xs text-slate-500">👤 Externo</div>
+              </div>
+            </li>
+            <li class="flex items-start gap-3">
+              <div class="w-7 h-7 rounded-full bg-teal-600 text-white flex items-center justify-center text-xs font-bold flex-shrink-0 ring-4 ring-teal-100">3</div>
+              <div>
+                <div class="text-sm font-semibold text-slate-900">Datos del externo</div>
+                <div class="text-xs text-slate-500">SubTipo + vinculación</div>
+              </div>
+            </li>
+            <li class="flex items-start gap-3">
+              <div class="w-7 h-7 rounded-full bg-slate-200 text-slate-500 flex items-center justify-center text-xs font-bold flex-shrink-0">4</div>
+              <div>
+                <div class="text-sm font-semibold text-slate-400">Permisos + invitación</div>
+              </div>
+            </li>
+          </ol>
+        </aside>
+
+        <!-- Contenido paso 3 · datos externo + vinculación -->
+        <div class="flex-1 p-8">
+          <div class="mb-6">
+            <div class="text-[10px] uppercase tracking-wider font-bold text-amber-700 mb-1">PASO 3 DE 4 · DATOS DEL EXTERNO</div>
+            <h3 class="text-xl font-bold text-slate-900">¿Qué tipo de externo es Ricardo?</h3>
+            <p class="text-sm text-slate-500 mt-1">Y opcionalmente, ¿con qué entidad de Maestros está vinculado?</p>
+          </div>
+
+          <!-- SubTipo -->
+          <div class="mb-5">
+            <label class="text-[10px] uppercase tracking-wider font-bold text-slate-700 mb-2 block">SubTipo · qué tipo de externo</label>
+            <div class="grid grid-cols-2 gap-2">
+              <button class="text-left p-3 bg-amber-50 ring-2 ring-amber-500 rounded-lg">
+                <div class="flex items-center gap-2">
+                  <span class="text-base">🛒</span>
+                  <div>
+                    <div class="text-sm font-bold text-amber-900">Contacto de proveedor</div>
+                    <div class="text-[10px] text-amber-700">Sales rep · account mgr</div>
+                  </div>
+                  <i data-lucide="check-circle" class="w-4 h-4 text-amber-600 ml-auto"></i>
+                </div>
+              </button>
+              <button class="text-left p-3 bg-white ring-1 ring-slate-200 hover:ring-amber-300 rounded-lg">
+                <div class="flex items-center gap-2">
+                  <span class="text-base">💼</span>
+                  <div>
+                    <div class="text-sm font-bold text-slate-900">Contacto de cliente</div>
+                    <div class="text-[10px] text-slate-500">B2B · comprador empresa</div>
+                  </div>
+                </div>
+              </button>
+              <button class="text-left p-3 bg-white ring-1 ring-slate-200 hover:ring-amber-300 rounded-lg">
+                <div class="flex items-center gap-2">
+                  <span class="text-base">⭐</span>
+                  <div>
+                    <div class="text-sm font-bold text-slate-900">Cliente VIP</div>
+                    <div class="text-[10px] text-slate-500">Persona natural recurrente</div>
+                  </div>
+                </div>
+              </button>
+              <button class="text-left p-3 bg-white ring-1 ring-slate-200 hover:ring-amber-300 rounded-lg">
+                <div class="flex items-center gap-2">
+                  <span class="text-base">🚚</span>
+                  <div>
+                    <div class="text-sm font-bold text-slate-900">Tercerizado logístico</div>
+                    <div class="text-[10px] text-slate-500">Motorizado · courier freelance</div>
+                  </div>
+                </div>
+              </button>
+              <button class="text-left p-3 bg-white ring-1 ring-slate-200 hover:ring-amber-300 rounded-lg">
+                <div class="flex items-center gap-2">
+                  <span class="text-base">📸</span>
+                  <div>
+                    <div class="text-sm font-bold text-slate-900">Colaborador marketing</div>
+                    <div class="text-[10px] text-slate-500">Influencer · creador</div>
+                  </div>
+                </div>
+              </button>
+              <button class="text-left p-3 bg-white ring-1 ring-slate-200 hover:ring-amber-300 rounded-lg">
+                <div class="flex items-center gap-2">
+                  <span class="text-base">🤝</span>
+                  <div>
+                    <div class="text-sm font-bold text-slate-900">Contacto de marca</div>
+                    <div class="text-[10px] text-slate-500">Brand mgr aliados</div>
+                  </div>
+                </div>
+              </button>
+            </div>
+          </div>
+
+          <!-- Vinculación con Maestro -->
+          <div class="mb-5 bg-gradient-to-br from-indigo-50 to-purple-50 ring-1 ring-indigo-200 rounded-xl p-4">
+            <div class="flex items-center gap-2 mb-2">
+              <i data-lucide="link" class="w-4 h-4 text-indigo-700"></i>
+              <span class="text-sm font-bold text-indigo-900">Vinculación con Maestros · opcional pero recomendada</span>
+            </div>
+            <p class="text-xs text-indigo-700 mb-3">Para "contacto_proveedor" tiene sentido vincular con el proveedor de Maestros. Si no existe, podés crearlo en este paso o saltar y vincular después.</p>
+
+            <!-- Buscador -->
+            <div class="relative mb-2">
+              <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
+              <input
+                class="w-full pl-10 pr-3 py-2.5 bg-white border border-indigo-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                placeholder="Buscar proveedor por nombre o RUC..."
+                value="Skin"
+              />
+            </div>
+
+            <!-- Resultados del buscador -->
+            <div class="bg-white rounded-lg ring-1 ring-slate-200 overflow-hidden">
+              <button class="w-full text-left px-3 py-2.5 bg-indigo-50 ring-1 ring-indigo-300 flex items-center gap-3">
+                <div class="w-9 h-9 rounded-lg bg-indigo-600 text-white flex items-center justify-center">
+                  <i data-lucide="building-2" class="w-4 h-4"></i>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="text-sm font-bold text-slate-900">Skin Labs SAC</div>
+                  <div class="text-xs text-slate-500">RUC 20512345678 · 14 OC · ⭐ Premium</div>
+                </div>
+                <i data-lucide="check-circle" class="w-5 h-5 text-emerald-600"></i>
+              </button>
+              <button class="w-full text-left px-3 py-2.5 hover:bg-slate-50 flex items-center gap-3 border-t border-slate-100">
+                <div class="w-9 h-9 rounded-lg bg-slate-100 flex items-center justify-center">
+                  <i data-lucide="building-2" class="w-4 h-4 text-slate-600"></i>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="text-sm font-semibold text-slate-900">Skin & Body Imports SA</div>
+                  <div class="text-xs text-slate-500">RUC 20987654321 · 3 OC</div>
+                </div>
+              </button>
+              <button class="w-full text-left px-3 py-2.5 border-t border-slate-100 flex items-center gap-3 bg-emerald-50/30 hover:bg-emerald-50/50">
+                <div class="w-9 h-9 rounded-lg bg-emerald-100 flex items-center justify-center">
+                  <i data-lucide="plus" class="w-4 h-4 text-emerald-700"></i>
+                </div>
+                <div class="flex-1">
+                  <div class="text-sm font-semibold text-emerald-900">Crear nuevo proveedor "Skin..."</div>
+                  <div class="text-xs text-emerald-700">Abrir wizard de Maestros en paralelo</div>
+                </div>
+              </button>
+            </div>
+
+            <!-- Rol dentro de la entidad -->
+            <div class="mt-3">
+              <label class="text-[10px] uppercase tracking-wider font-bold text-indigo-700 mb-1 block">Rol de Ricardo en Skin Labs (opcional)</label>
+              <input
+                class="w-full px-3 py-2 bg-white border border-indigo-200 rounded-lg text-sm"
+                placeholder="Ej. Sales Rep · Account Mgr · Logística..."
+                value="Sales Representative"
+              />
+            </div>
+
+            <button class="mt-3 text-xs text-slate-500 hover:text-slate-700 underline">Saltar vinculación · agregar después</button>
+          </div>
+
+          <!-- Botones -->
+          <div class="flex items-center justify-between pt-5 border-t border-slate-200">
+            <button class="px-4 py-2 text-sm text-slate-600 hover:bg-slate-100 rounded-lg flex items-center gap-1.5">
+              <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Descartar
+            </button>
+            <div class="flex items-center gap-2">
+              <button class="px-4 py-2 text-sm text-slate-600 hover:bg-slate-100 rounded-lg">← Anterior</button>
+              <button class="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 text-sm font-semibold flex items-center gap-1.5">
+                Siguiente <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- ACTO 7 · CROSS-LINK DESDE /compras OC                          -->
+<!-- ============================================================ -->
+<section class="py-12 px-6 bg-blue-50/30 border-b border-blue-100">
+  <div class="acto-shell">
+    <div class="mb-6">
+      <span class="text-[11px] uppercase tracking-wider font-bold text-purple-700">ACTO 7 · Bloque B</span>
+      <h2 class="text-2xl font-bold text-slate-900 mt-1">Cross-link · /compras OC → ver contacto del proveedor</h2>
+      <p class="text-sm text-slate-600 mt-1">Desde una OC, click en el contacto del proveedor abre el UserPanel de la persona vinculada.</p>
+    </div>
+
+    <div class="bg-slate-100 rounded-2xl p-4">
+      <div class="bg-white rounded-xl ring-1 ring-slate-200 overflow-hidden">
+        <!-- Header de OC -->
+        <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+          <div>
+            <div class="text-xs text-slate-500 mb-1">Compras · Órdenes de Compra</div>
+            <h1 class="text-xl font-bold text-slate-900">OC-2026-042 · Skin Labs SAC</h1>
+          </div>
+          <span class="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-1 rounded-full font-bold">✓ RECIBIDA · ABRIL</span>
+        </div>
+
+        <!-- Card del proveedor con contacto -->
+        <div class="p-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+          <!-- Datos del proveedor (Maestro) -->
+          <div class="bg-indigo-50 ring-1 ring-indigo-200 rounded-2xl p-4">
+            <div class="flex items-center gap-2 mb-2">
+              <i data-lucide="building-2" class="w-4 h-4 text-indigo-700"></i>
+              <span class="text-[10px] uppercase tracking-wider font-bold text-indigo-700">PROVEEDOR (Maestro)</span>
+            </div>
+            <div class="font-bold text-slate-900">Skin Labs SAC</div>
+            <div class="text-xs text-slate-600 mt-0.5">RUC 20512345678</div>
+            <button class="mt-2 text-[11px] text-indigo-700 hover:underline font-semibold flex items-center gap-1">
+              Ver perfil del proveedor <i data-lucide="external-link" class="w-3 h-3"></i>
+            </button>
+          </div>
+
+          <!-- Contacto vinculado (User externo) · DESTACADO -->
+          <div class="bg-gradient-to-br from-purple-50 to-pink-50 ring-2 ring-purple-300 rounded-2xl p-4 relative">
+            <div class="absolute -top-2 right-3 text-[9px] bg-purple-600 text-white px-2 py-0.5 rounded-full font-bold">✨ VINCULADO</div>
+            <div class="flex items-center gap-2 mb-2">
+              <i data-lucide="user" class="w-4 h-4 text-purple-700"></i>
+              <span class="text-[10px] uppercase tracking-wider font-bold text-purple-700">CONTACTO (Usuario)</span>
+            </div>
+            <div class="flex items-center gap-2.5">
+              <div class="w-10 h-10 rounded-full bg-gradient-to-br from-amber-400 to-orange-600 text-white flex items-center justify-center font-bold text-sm">RC</div>
+              <div class="flex-1 min-w-0">
+                <div class="font-bold text-slate-900">Ricardo Castro</div>
+                <div class="text-[10px] text-slate-500">Sales Representative</div>
+              </div>
+            </div>
+            <div class="mt-2 flex items-center gap-1.5 text-[11px]">
+              <button class="px-2 py-1 bg-white border border-slate-200 rounded text-slate-700 hover:bg-slate-50 flex items-center gap-1">
+                <i data-lucide="mail" class="w-3 h-3"></i> Email
+              </button>
+              <button class="px-2 py-1 bg-white border border-slate-200 rounded text-slate-700 hover:bg-slate-50 flex items-center gap-1">
+                <i data-lucide="message-circle" class="w-3 h-3"></i> WA
+              </button>
+              <button class="px-2 py-1 bg-purple-600 text-white rounded hover:bg-purple-700 flex items-center gap-1 font-semibold ml-auto">
+                Ver perfil <i data-lucide="chevron-right" class="w-3 h-3"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Datos de la OC -->
+          <div class="bg-slate-50 ring-1 ring-slate-200 rounded-2xl p-4">
+            <div class="text-[10px] uppercase tracking-wider font-bold text-slate-700 mb-2">MONTO DE LA OC</div>
+            <div class="text-2xl font-bold tabular-nums text-slate-900">S/12,800</div>
+            <div class="text-xs text-slate-500 mt-1">12 SKUs · skincare actives</div>
+            <div class="mt-2 pt-2 border-t border-slate-200 text-[11px] text-slate-600">
+              Emitida · 12/abr<br>
+              Recibida · 18/abr · 6 días
+            </div>
+          </div>
+        </div>
+
+        <!-- Footer con quick action -->
+        <div class="px-6 py-3 bg-slate-50 border-t border-slate-100 text-xs text-slate-600 flex items-center justify-between">
+          <span>💡 Para escalar un problema con esta OC, contactá a <strong>Ricardo</strong> directamente.</span>
+          <button class="text-purple-700 hover:underline font-semibold flex items-center gap-1">
+            Ver historial de OC con Ricardo · 14 <i data-lucide="arrow-right" class="w-3 h-3"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
+      <div class="bg-emerald-50 ring-1 ring-emerald-200 rounded-lg p-3">
+        <strong class="text-emerald-900">🎯 Identidad humana</strong>
+        <p class="text-emerald-800 mt-1">La OC ya no es "con Skin Labs" abstracto · es "con Ricardo de Skin Labs" · accountability personal.</p>
+      </div>
+      <div class="bg-emerald-50 ring-1 ring-emerald-200 rounded-lg p-3">
+        <strong class="text-emerald-900">⚡ Acciones inline</strong>
+        <p class="text-emerald-800 mt-1">Email · WhatsApp · "Ver perfil" → UserPanel del externo · todo en 1 click desde la OC.</p>
+      </div>
+      <div class="bg-emerald-50 ring-1 ring-emerald-200 rounded-lg p-3">
+        <strong class="text-emerald-900">📊 Trazabilidad</strong>
+        <p class="text-emerald-800 mt-1">Footer: "14 OC con Ricardo" → mide la relación con la persona, no solo la empresa.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- ACTO 8 · MOBILE 375px · 3 VISTAS                               -->
+<!-- ============================================================ -->
+<section class="py-12 px-6 bg-rose-50/20 border-b border-rose-100">
+  <div class="acto-shell">
+    <div class="mb-8 text-center">
+      <span class="text-[11px] uppercase tracking-wider font-bold text-rose-700">ACTO 8 · Bloque C</span>
+      <h2 class="text-2xl font-bold text-slate-900 mt-1">Vista mobile · canon cobertura total + mobile-included</h2>
+      <p class="text-sm text-slate-600 mt-1">3 vistas críticas: tab Vinculación en UserPanel · contactos en Maestro · buscador en wizard.</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <!-- Mobile 1 · Tab Vinculación -->
+      <div>
+        <div class="text-[10px] uppercase tracking-wider font-bold text-rose-700 mb-2">M1 · Tab Vinculación</div>
+        <div class="mobile-shell mx-auto bg-slate-900 rounded-[2rem] p-2 shadow-2xl">
+          <div class="bg-white rounded-[1.5rem] overflow-hidden h-[700px] flex flex-col">
+            <div class="px-5 py-2 flex items-center justify-between text-[11px] font-bold text-slate-900">
+              <span>9:41</span><span>📶 📡 🔋</span>
+            </div>
+            <div class="px-4 py-3 border-b border-slate-100 flex items-center gap-3">
+              <button class="w-9 h-9 rounded-lg hover:bg-slate-100 flex items-center justify-center">
+                <i data-lucide="arrow-left" class="w-5 h-5 text-slate-700"></i>
+              </button>
+              <div class="w-9 h-9 rounded-full bg-gradient-to-br from-amber-400 to-orange-600 text-white flex items-center justify-center font-bold text-xs">RC</div>
+              <div class="flex-1 min-w-0">
+                <div class="text-sm font-bold text-slate-900">Ricardo Castro</div>
+                <div class="text-[10px] text-slate-500">Externo · contacto proveedor</div>
+              </div>
+            </div>
+            <div class="px-4 py-2 flex items-center gap-1 overflow-x-auto scroll-hide border-b border-slate-100">
+              <button class="px-2.5 py-2 text-[11px] text-slate-500 whitespace-nowrap">Resumen</button>
+              <button class="px-2.5 py-2 text-[11px] text-slate-500 whitespace-nowrap">Relac.</button>
+              <button class="px-2.5 py-2 text-[11px] text-slate-500 whitespace-nowrap">Datos</button>
+              <button class="px-2.5 py-2 text-[11px] font-semibold text-slate-900 border-b-2 border-purple-600 whitespace-nowrap">🔗 Vinculación</button>
+              <button class="px-2.5 py-2 text-[11px] text-slate-500 whitespace-nowrap">Permisos</button>
+            </div>
+            <div class="flex-1 overflow-y-auto p-4 space-y-3">
+              <div class="bg-gradient-to-br from-indigo-50 to-purple-50 ring-1 ring-indigo-200 rounded-xl p-3.5">
+                <div class="flex items-center gap-2 mb-2">
+                  <div class="w-10 h-10 rounded-lg bg-indigo-600 text-white flex items-center justify-center">
+                    <i data-lucide="building-2" class="w-5 h-5"></i>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <div class="text-[9px] uppercase font-bold text-indigo-700">VINCULADO A</div>
+                    <div class="font-bold text-indigo-900 text-sm">Skin Labs SAC</div>
+                  </div>
+                </div>
+                <div class="text-[10px] text-indigo-700 mb-2">RUC 20512345678 · Proveedor</div>
+                <div class="space-y-1.5 text-[10px]">
+                  <div class="bg-white rounded p-1.5">
+                    <span class="text-slate-500">Rol:</span> <strong class="text-slate-900">Sales Representative</strong>
+                  </div>
+                  <div class="bg-white rounded p-1.5">
+                    <span class="text-slate-500">Desde:</span> <strong class="text-slate-900">Ene 2024 · 2 años</strong>
+                  </div>
+                  <div class="bg-white rounded p-1.5">
+                    <span class="text-slate-500">OC 2026:</span> <strong class="tabular-nums text-slate-900">S/48,200</strong>
+                  </div>
+                </div>
+                <button class="mt-2 w-full bg-indigo-600 text-white py-2 rounded-lg text-[11px] font-semibold flex items-center justify-center gap-1">
+                  <i data-lucide="external-link" class="w-3 h-3"></i> Abrir en Maestros
+                </button>
+              </div>
+
+              <div>
+                <div class="text-[9px] uppercase tracking-wider font-bold text-slate-700 mb-1.5">OC recientes</div>
+                <div class="space-y-1.5">
+                  <div class="bg-white ring-1 ring-slate-200 rounded-lg p-2.5 flex items-center justify-between">
+                    <div>
+                      <div class="text-xs font-bold text-slate-900">OC-2026-042</div>
+                      <div class="text-[10px] text-slate-500">12 SKUs · abr</div>
+                    </div>
+                    <div class="text-right">
+                      <div class="text-sm font-bold tabular-nums text-slate-900">S/12,800</div>
+                      <div class="text-[9px] text-emerald-600">✓ Recibida</div>
+                    </div>
+                  </div>
+                  <div class="bg-white ring-1 ring-slate-200 rounded-lg p-2.5 flex items-center justify-between">
+                    <div>
+                      <div class="text-xs font-bold text-slate-900">OC-2026-037</div>
+                      <div class="text-[10px] text-slate-500">8 SKUs · mar</div>
+                    </div>
+                    <div class="text-right">
+                      <div class="text-sm font-bold tabular-nums text-slate-900">S/8,540</div>
+                      <div class="text-[9px] text-emerald-600">✓ Pagada</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <div class="text-[9px] uppercase tracking-wider font-bold text-slate-700 mb-1.5">Otros contactos</div>
+                <div class="bg-slate-50 ring-1 ring-slate-200 rounded-lg p-2.5 flex items-center gap-2">
+                  <div class="w-8 h-8 rounded-full bg-gradient-to-br from-slate-400 to-slate-600 text-white flex items-center justify-center font-bold text-[10px]">MA</div>
+                  <div class="flex-1 min-w-0">
+                    <div class="text-xs font-semibold text-slate-900">Mariana Aguirre</div>
+                    <div class="text-[9px] text-slate-500">Account Mgr</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="h-6 bg-slate-50"></div>
+          </div>
+        </div>
+        <div class="mt-2 text-[10px] text-slate-500 text-center">Tab "Vinculación" sheet · card maestro + OC recientes + contactos relacionados</div>
+      </div>
+
+      <!-- Mobile 2 · Contactos del Maestro -->
+      <div>
+        <div class="text-[10px] uppercase tracking-wider font-bold text-rose-700 mb-2">M2 · Contactos del Maestro</div>
+        <div class="mobile-shell mx-auto bg-slate-900 rounded-[2rem] p-2 shadow-2xl">
+          <div class="bg-white rounded-[1.5rem] overflow-hidden h-[700px] flex flex-col">
+            <div class="px-5 py-2 flex items-center justify-between text-[11px] font-bold text-slate-900">
+              <span>9:41</span><span>📶 📡 🔋</span>
+            </div>
+            <div class="px-4 py-3 border-b border-slate-100 flex items-center gap-3">
+              <button class="w-9 h-9 rounded-lg hover:bg-slate-100 flex items-center justify-center">
+                <i data-lucide="arrow-left" class="w-5 h-5 text-slate-700"></i>
+              </button>
+              <div class="w-9 h-9 rounded-lg bg-indigo-600 text-white flex items-center justify-center">
+                <i data-lucide="building-2" class="w-4 h-4"></i>
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="text-sm font-bold text-slate-900">Skin Labs SAC</div>
+                <div class="text-[10px] text-slate-500">Proveedor · RUC 20512345678</div>
+              </div>
+            </div>
+            <div class="px-4 py-2 flex items-center gap-1 overflow-x-auto scroll-hide border-b border-slate-100">
+              <button class="px-2 py-2 text-[11px] text-slate-500 whitespace-nowrap">Resumen</button>
+              <button class="px-2 py-2 text-[11px] text-slate-500 whitespace-nowrap">OC · 14</button>
+              <button class="px-2 py-2 text-[11px] font-semibold text-slate-900 border-b-2 border-purple-600 whitespace-nowrap">👥 Contactos · 2</button>
+              <button class="px-2 py-2 text-[11px] text-slate-500 whitespace-nowrap">Docs</button>
+            </div>
+            <div class="flex-1 overflow-y-auto p-4 space-y-2.5">
+              <button class="w-full bg-teal-600 text-white py-2.5 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5">
+                <i data-lucide="user-plus" class="w-3.5 h-3.5"></i> Agregar contacto
+              </button>
+
+              <div class="bg-white ring-1 ring-slate-200 rounded-xl p-3">
+                <div class="flex items-center gap-2.5 mb-2">
+                  <div class="w-11 h-11 rounded-full bg-gradient-to-br from-amber-400 to-orange-600 text-white flex items-center justify-center font-bold text-sm">RC</div>
+                  <div class="flex-1 min-w-0">
+                    <div class="flex items-center gap-1">
+                      <span class="text-sm font-bold text-slate-900 truncate">Ricardo Castro</span>
+                      <span class="text-[8px] bg-emerald-100 text-emerald-700 px-1 py-0.5 rounded-full font-bold flex-shrink-0">PRIM</span>
+                    </div>
+                    <div class="text-[10px] text-slate-500">Sales Representative</div>
+                  </div>
+                </div>
+                <div class="space-y-1 text-[10px] text-slate-700 mb-2">
+                  <div class="flex items-center gap-1.5">
+                    <i data-lucide="mail" class="w-3 h-3 text-slate-400"></i>
+                    <span>ricardo@skinlabs.pe</span>
+                  </div>
+                  <div class="flex items-center gap-1.5">
+                    <i data-lucide="phone" class="w-3 h-3 text-slate-400"></i>
+                    <span class="tabular-nums">+51 987 654 321</span>
+                  </div>
+                </div>
+                <div class="flex items-center gap-1">
+                  <button class="flex-1 py-1.5 bg-slate-50 border border-slate-200 rounded text-[10px] text-slate-700 flex items-center justify-center gap-1">
+                    <i data-lucide="mail" class="w-3 h-3"></i> Email
+                  </button>
+                  <button class="flex-1 py-1.5 bg-emerald-50 border border-emerald-200 rounded text-[10px] text-emerald-700 flex items-center justify-center gap-1">
+                    <i data-lucide="message-circle" class="w-3 h-3"></i> WhatsApp
+                  </button>
+                </div>
+                <button class="mt-1.5 w-full py-1.5 text-[10px] text-purple-700 font-semibold">
+                  Ver perfil completo →
+                </button>
+              </div>
+
+              <div class="bg-white ring-1 ring-slate-200 rounded-xl p-3">
+                <div class="flex items-center gap-2.5 mb-2">
+                  <div class="w-11 h-11 rounded-full bg-gradient-to-br from-slate-400 to-slate-600 text-white flex items-center justify-center font-bold text-sm">MA</div>
+                  <div class="flex-1 min-w-0">
+                    <div class="text-sm font-bold text-slate-900">Mariana Aguirre</div>
+                    <div class="text-[10px] text-slate-500">Account Manager</div>
+                  </div>
+                </div>
+                <div class="space-y-1 text-[10px] text-slate-700">
+                  <div class="flex items-center gap-1.5">
+                    <i data-lucide="mail" class="w-3 h-3 text-slate-400"></i>
+                    <span>mariana@skinlabs.pe</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="h-6 bg-slate-50"></div>
+          </div>
+        </div>
+        <div class="mt-2 text-[10px] text-slate-500 text-center">Tab Contactos en Maestro · cards 1-col · acciones email/WhatsApp inline · CTA agregar sticky</div>
+      </div>
+
+      <!-- Mobile 3 · Wizard con buscador -->
+      <div>
+        <div class="text-[10px] uppercase tracking-wider font-bold text-rose-700 mb-2">M3 · Wizard buscador</div>
+        <div class="mobile-shell mx-auto bg-slate-900 rounded-[2rem] p-2 shadow-2xl">
+          <div class="bg-white rounded-[1.5rem] overflow-hidden h-[700px] flex flex-col">
+            <div class="px-5 py-2 flex items-center justify-between text-[11px] font-bold text-slate-900">
+              <span>9:41</span><span>📶 📡 🔋</span>
+            </div>
+            <div class="px-4 py-2 border-b border-slate-100 flex items-center gap-2">
+              <button class="w-9 h-9 rounded-lg hover:bg-slate-100 flex items-center justify-center">
+                <i data-lucide="x" class="w-5 h-5 text-slate-700"></i>
+              </button>
+              <div class="flex-1">
+                <div class="text-[10px] text-slate-500">Paso 3 de 4 · Externo</div>
+                <h1 class="text-sm font-bold text-slate-900">Vinculación</h1>
+              </div>
+            </div>
+            <div class="px-4 py-2 border-b border-slate-100">
+              <div class="h-1 bg-slate-200 rounded-full overflow-hidden">
+                <div class="h-1 bg-teal-600 rounded-full" style="width: 75%"></div>
+              </div>
+            </div>
+            <div class="flex-1 overflow-y-auto p-4 space-y-3">
+              <div>
+                <label class="text-[9px] uppercase tracking-wider font-bold text-slate-700 mb-1.5 block">SubTipo seleccionado</label>
+                <div class="bg-amber-50 ring-1 ring-amber-300 rounded-lg p-2.5 flex items-center gap-2">
+                  <span class="text-lg">🛒</span>
+                  <span class="text-xs font-bold text-amber-900">Contacto de proveedor</span>
+                  <button class="ml-auto text-[10px] text-amber-700 hover:underline">Cambiar</button>
+                </div>
+              </div>
+
+              <div class="bg-gradient-to-br from-indigo-50 to-purple-50 ring-1 ring-indigo-200 rounded-xl p-3">
+                <div class="flex items-center gap-1.5 mb-1.5">
+                  <i data-lucide="link" class="w-3.5 h-3.5 text-indigo-700"></i>
+                  <span class="text-xs font-bold text-indigo-900">Buscar proveedor</span>
+                </div>
+                <div class="relative">
+                  <i data-lucide="search" class="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
+                  <input class="w-full pl-9 pr-3 py-2 bg-white border border-indigo-200 rounded-lg text-xs" value="Skin" />
+                </div>
+
+                <div class="mt-2 bg-white rounded-lg ring-1 ring-slate-200 overflow-hidden">
+                  <button class="w-full text-left px-2.5 py-2 bg-indigo-50 ring-1 ring-indigo-300 flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-lg bg-indigo-600 text-white flex items-center justify-center flex-shrink-0">
+                      <i data-lucide="building-2" class="w-3.5 h-3.5"></i>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                      <div class="text-xs font-bold text-slate-900 truncate">Skin Labs SAC</div>
+                      <div class="text-[9px] text-slate-500 truncate">RUC 20512345678 · 14 OC</div>
+                    </div>
+                    <i data-lucide="check-circle" class="w-4 h-4 text-emerald-600 flex-shrink-0"></i>
+                  </button>
+                  <button class="w-full text-left px-2.5 py-2 border-t border-slate-100 flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center flex-shrink-0">
+                      <i data-lucide="building-2" class="w-3.5 h-3.5 text-slate-600"></i>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                      <div class="text-xs font-semibold text-slate-900 truncate">Skin & Body Imports</div>
+                      <div class="text-[9px] text-slate-500 truncate">RUC 20987654321 · 3 OC</div>
+                    </div>
+                  </button>
+                  <button class="w-full text-left px-2.5 py-2 border-t border-slate-100 bg-emerald-50/30 flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center flex-shrink-0">
+                      <i data-lucide="plus" class="w-3.5 h-3.5 text-emerald-700"></i>
+                    </div>
+                    <div class="flex-1">
+                      <div class="text-xs font-semibold text-emerald-900">Crear nuevo proveedor</div>
+                    </div>
+                  </button>
+                </div>
+
+                <div class="mt-2.5">
+                  <label class="text-[9px] uppercase tracking-wider font-bold text-indigo-700 mb-1 block">Rol en Skin Labs</label>
+                  <input class="w-full px-2.5 py-1.5 bg-white border border-indigo-200 rounded text-xs" placeholder="Ej. Sales Rep" value="Sales Representative" />
+                </div>
+              </div>
+
+              <button class="text-[10px] text-slate-500 underline w-full text-center">Saltar vinculación</button>
+            </div>
+            <div class="px-4 py-3 border-t border-slate-200 flex items-center gap-2 bg-white">
+              <button class="px-3 py-2.5 text-xs text-slate-600 hover:bg-slate-100 rounded-lg">←</button>
+              <button class="flex-1 py-2.5 bg-teal-600 text-white rounded-lg text-sm font-semibold">
+                Siguiente
+              </button>
+            </div>
+            <div class="h-6 bg-slate-50"></div>
+          </div>
+        </div>
+        <div class="mt-2 text-[10px] text-slate-500 text-center">Wizard mobile · buscador inline · resultados scroll · opción "crear nuevo" + skip</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- ACTO 9 · PLAN DE INTEGRACIÓN v5.6 + v5.7 + v5.8                -->
+<!-- ============================================================ -->
+<section class="py-12 px-6 bg-emerald-50/30 border-b border-emerald-100">
+  <div class="acto-shell">
+    <div class="mb-6">
+      <span class="text-[11px] uppercase tracking-wider font-bold text-emerald-700">ACTO 9 · Bloque C</span>
+      <h2 class="text-2xl font-bold text-slate-900 mt-1">Plan integrado · v5.6 + v5.7 + v5.8 · una sola implementación</h2>
+      <p class="text-sm text-slate-600 mt-1">v5.8 agrega 2 etapas + extensiones a etapas existentes. Total combinado: ~17h.</p>
+    </div>
+
+    <!-- Relación entre las 3 versiones -->
+    <div class="bg-white rounded-2xl ring-1 ring-slate-200 p-5 mb-6">
+      <div class="text-[10px] uppercase tracking-wider font-bold text-slate-700 mb-3">Las 3 capas trabajan juntas</div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="bg-purple-50 ring-1 ring-purple-200 rounded-xl p-4">
+          <div class="text-sm font-bold text-purple-900 mb-2">📘 v5.6 · Modelo datos</div>
+          <ul class="text-[11px] text-purple-800 space-y-0.5">
+            <li>· relacionesLaborales/{id}</li>
+            <li>· Multi-relación + histórico</li>
+            <li>· Snapshots inmutables</li>
+            <li>· 11 casos del negocio</li>
+          </ul>
+        </div>
+        <div class="bg-teal-50 ring-1 ring-teal-200 rounded-xl p-4">
+          <div class="text-sm font-bold text-teal-900 mb-2">📗 v5.7 · Contexto end-to-end</div>
+          <ul class="text-[11px] text-teal-800 space-y-0.5">
+            <li>· Sidebar grupo "Equipo"</li>
+            <li>· Shell /usuarios + wizard</li>
+            <li>· UserPanel 5 tabs</li>
+            <li>· Cross-links Planilla/Hon/Soc</li>
+          </ul>
+        </div>
+        <div class="bg-indigo-50 ring-1 ring-indigo-200 rounded-xl p-4">
+          <div class="text-sm font-bold text-indigo-900 mb-2">📙 v5.8 · Vinculación Maestros</div>
+          <ul class="text-[11px] text-indigo-800 space-y-0.5">
+            <li>· entidadMaestroRef en relación</li>
+            <li>· Tab "Vinculación" en UserPanel</li>
+            <li>· Sub-sección "Contactos" en Maestros</li>
+            <li>· Buscador + cross-link OC</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Plan etapas extendido -->
+    <div class="bg-white rounded-2xl ring-1 ring-slate-200 overflow-hidden">
+      <div class="bg-slate-900 text-white px-5 py-4">
+        <div class="text-[10px] uppercase tracking-wider font-bold text-emerald-300">Plan combinado · 9 etapas · ~17h totales</div>
+        <h3 class="text-lg font-bold mt-1">v5.6 + v5.7 + v5.8 · implementación coordinada</h3>
+      </div>
+      <div class="divide-y divide-slate-100">
+        <!-- E1 extendido con campo v5.8 -->
+        <div class="px-5 py-4 flex items-start gap-3">
+          <div class="w-10 h-10 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center font-bold text-sm flex-shrink-0">E1</div>
+          <div class="flex-1">
+            <div class="flex items-center gap-2 mb-1 flex-wrap">
+              <span class="font-bold text-slate-900">Tipos + Service + Migración + Rules</span>
+              <span class="text-[10px] bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded-full font-semibold">v5.6 · 2h</span>
+              <span class="text-[10px] bg-indigo-100 text-indigo-700 px-1.5 py-0.5 rounded-full font-semibold">+ v5.8 · 0.5h</span>
+            </div>
+            <p class="text-xs text-slate-600">+ Campo opcional <code class="bg-slate-100 px-1 rounded text-[10px]">entidadMaestroRef</code> en RelacionLaboral · service helpers <code class="bg-slate-100 px-1 rounded text-[10px]">getContactosByMaestro(tipo, id)</code> + <code class="bg-slate-100 px-1 rounded text-[10px]">vincularUserToMaestro()</code>.</p>
+          </div>
+        </div>
+        <div class="px-5 py-4 flex items-start gap-3">
+          <div class="w-10 h-10 rounded-full bg-teal-100 text-teal-700 flex items-center justify-center font-bold text-sm flex-shrink-0">E2</div>
+          <div class="flex-1">
+            <span class="font-bold text-slate-900">Reorganizar sidebar · grupo Equipo</span>
+            <span class="text-[10px] bg-teal-100 text-teal-700 px-1.5 py-0.5 rounded-full font-semibold ml-2">v5.7 · 0.5h</span>
+            <p class="text-xs text-slate-600 mt-1">Sidebar.tsx con grupo "Equipo" agrupando Usuarios + Planilla + Honorarios + Socios.</p>
+          </div>
+        </div>
+        <div class="px-5 py-4 flex items-start gap-3">
+          <div class="w-10 h-10 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center font-bold text-sm flex-shrink-0">E3</div>
+          <div class="flex-1">
+            <div class="flex items-center gap-2 mb-1 flex-wrap">
+              <span class="font-bold text-slate-900">UserPanel · 5 tabs core + Vinculación condicional</span>
+              <span class="text-[10px] bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded-full font-semibold">v5.6+v5.7 · 4h</span>
+              <span class="text-[10px] bg-indigo-100 text-indigo-700 px-1.5 py-0.5 rounded-full font-semibold">+ v5.8 · 1h</span>
+            </div>
+            <p class="text-xs text-slate-600">+ Tab "Vinculación" condicional (solo si tipo='externo' con entidadMaestroRef) · card del Maestro + OC recientes + otros contactos.</p>
+          </div>
+        </div>
+        <div class="px-5 py-4 flex items-start gap-3">
+          <div class="w-10 h-10 rounded-full bg-teal-100 text-teal-700 flex items-center justify-center font-bold text-sm flex-shrink-0">E4</div>
+          <div class="flex-1">
+            <div class="flex items-center gap-2 mb-1 flex-wrap">
+              <span class="font-bold text-slate-900">/usuarios shell + Wizard 4 pasos</span>
+              <span class="text-[10px] bg-teal-100 text-teal-700 px-1.5 py-0.5 rounded-full font-semibold">v5.7 · 3h</span>
+              <span class="text-[10px] bg-indigo-100 text-indigo-700 px-1.5 py-0.5 rounded-full font-semibold">+ v5.8 · 1.5h</span>
+            </div>
+            <p class="text-xs text-slate-600">+ Paso 3 del wizard con buscador de Maestros (autocomplete) + opción "crear nuevo proveedor inline" + skip vinculación.</p>
+          </div>
+        </div>
+        <div class="px-5 py-4 flex items-start gap-3">
+          <div class="w-10 h-10 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center font-bold text-sm flex-shrink-0">E5</div>
+          <div class="flex-1">
+            <span class="font-bold text-slate-900">Wizards/Modals operativos (Agregar/Reclasif/Pausar)</span>
+            <span class="text-[10px] bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded-full font-semibold ml-2">v5.6 · 2.5h</span>
+          </div>
+        </div>
+        <div class="px-5 py-4 flex items-start gap-3">
+          <div class="w-10 h-10 rounded-full bg-teal-100 text-teal-700 flex items-center justify-center font-bold text-sm flex-shrink-0">E6</div>
+          <div class="flex-1">
+            <span class="font-bold text-slate-900">Cross-links · Planilla/Hon/Socios usan UserPanel</span>
+            <span class="text-[10px] bg-teal-100 text-teal-700 px-1.5 py-0.5 rounded-full font-semibold ml-2">v5.7 · 2h</span>
+          </div>
+        </div>
+        <!-- E7 NUEVO v5.8 -->
+        <div class="px-5 py-4 flex items-start gap-3 bg-indigo-50/30">
+          <div class="w-10 h-10 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-sm flex-shrink-0">E7</div>
+          <div class="flex-1">
+            <div class="flex items-center gap-2 mb-1 flex-wrap">
+              <span class="font-bold text-slate-900">Sub-sección "Contactos" en Maestros (Proveedores/Clientes/Marcas)</span>
+              <span class="text-[10px] bg-indigo-100 text-indigo-700 px-1.5 py-0.5 rounded-full font-bold">v5.8 NUEVO · 1.5h</span>
+            </div>
+            <p class="text-xs text-slate-600">Agregar tab "Contactos" al detalle de cada proveedor/cliente/marca · grid de cards con avatar + acciones email/WhatsApp · empty state con CTA + botón agregar.</p>
+          </div>
+        </div>
+        <!-- E8 NUEVO v5.8 -->
+        <div class="px-5 py-4 flex items-start gap-3 bg-indigo-50/30">
+          <div class="w-10 h-10 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-sm flex-shrink-0">E8</div>
+          <div class="flex-1">
+            <div class="flex items-center gap-2 mb-1 flex-wrap">
+              <span class="font-bold text-slate-900">Cross-link OC → contacto · refactor OrdenCompraCard</span>
+              <span class="text-[10px] bg-indigo-100 text-indigo-700 px-1.5 py-0.5 rounded-full font-bold">v5.8 NUEVO · 0.5h</span>
+            </div>
+            <p class="text-xs text-slate-600">En OC detail · agregar card de contacto vinculado al proveedor (si existe) · acciones email/WhatsApp inline · link a UserPanel.</p>
+          </div>
+        </div>
+        <!-- E9 -->
+        <div class="px-5 py-4 flex items-start gap-3">
+          <div class="w-10 h-10 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-sm flex-shrink-0">E9</div>
+          <div class="flex-1">
+            <span class="font-bold text-slate-900">Cleanup + Mobile + TS + commit final</span>
+            <span class="text-[10px] bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded-full font-semibold ml-2">v5.6+v5.7+v5.8 · 1h</span>
+            <p class="text-xs text-slate-600 mt-1">Eliminar drill pages legacy · redirects · validación viewport 375px · TS 0 errores · commit.</p>
+          </div>
+        </div>
+      </div>
+      <!-- Total -->
+      <div class="bg-slate-50 px-5 py-3 flex items-center justify-between">
+        <span class="text-xs text-slate-600">9 etapas · v5.6 (modelo) + v5.7 (contexto) + v5.8 (vinculación)</span>
+        <span class="text-sm font-bold tabular-nums text-slate-900">≈ 17h total</span>
+      </div>
+    </div>
+
+    <!-- Riesgos -->
+    <div class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-3">
+      <div class="bg-amber-50 ring-1 ring-amber-200 rounded-xl p-4">
+        <div class="text-[10px] uppercase tracking-wider font-bold text-amber-700 mb-2">⚠️ Riesgo · referencias colgadas</div>
+        <p class="text-xs text-amber-900">Si se borra un Proveedor desde Maestros mientras tiene Users vinculados, queda <code class="bg-white px-1 rounded">entidadMaestroRef</code> apuntando a id inexistente. <strong>Mitigación:</strong> Firestore rule + Cloud Function que verifica y permite o re-asigna · soft delete recomendado.</p>
+      </div>
+      <div class="bg-amber-50 ring-1 ring-amber-200 rounded-xl p-4">
+        <div class="text-[10px] uppercase tracking-wider font-bold text-amber-700 mb-2">⚠️ Riesgo · doble entrada</div>
+        <p class="text-xs text-amber-900">Admin podría crear un User externo y un Cliente por separado sin vincular. <strong>Mitigación:</strong> al crear User externo (subTipo cliente_vip), wizard sugiere buscar/crear en Maestros · al crear Cliente persona, ofrecer vinculación a User si existe.</p>
+      </div>
+      <div class="bg-amber-50 ring-1 ring-amber-200 rounded-xl p-4">
+        <div class="text-[10px] uppercase tracking-wider font-bold text-amber-700 mb-2">⚠️ Riesgo · alcance creep</div>
+        <p class="text-xs text-amber-900">v5.8 puede tentar a agregar "Transportistas" como nuevo Maestro · feature creep. <strong>Mitigación:</strong> mantener alcance solo a Proveedores/Clientes/Marcas existentes · agregar Transportistas en sesión separada si se justifica.</p>
+      </div>
+    </div>
+
+    <!-- Decisión final -->
+    <div class="mt-6 bg-gradient-to-br from-indigo-600 to-purple-700 text-white rounded-2xl p-6">
+      <div class="text-[10px] uppercase tracking-wider font-bold text-indigo-100 mb-2">DECISIÓN FINAL · admin valida v5.6 + v5.7 + v5.8</div>
+      <h3 class="text-xl font-bold mb-3">¿Apruebas las 3 capas combinadas y arrancamos Etapa 1?</h3>
+      <p class="text-sm text-indigo-50 mb-4">Las 3 capas son coherentes: v5.6 modelo · v5.7 contexto end-to-end · v5.8 cierra 360 con Maestros. Total 9 etapas ~17h coordinadas en una sola implementación · sin parches · sin duplicaciones.</p>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="py-12 px-6 bg-slate-900 text-white">
+  <div class="acto-shell">
+    <div class="text-center mb-8">
+      <div class="text-[10px] uppercase tracking-wider font-bold text-indigo-300 mb-2">FOOTER · Validación canon</div>
+      <h3 class="text-2xl font-bold">Checklist v5.8 · Vinculación Maestros↔Usuarios</h3>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+      <div>
+        <div class="text-[10px] uppercase tracking-wider font-bold text-indigo-300 mb-3">Cobertura conceptual</div>
+        <ul class="space-y-1.5 text-sm">
+          <li class="flex items-center gap-2"><span class="text-emerald-400">✓</span> Auditoría Maestros actual (ACTO 0)</li>
+          <li class="flex items-center gap-2"><span class="text-emerald-400">✓</span> Modelo conceptual dual (ACTO 1)</li>
+          <li class="flex items-center gap-2"><span class="text-emerald-400">✓</span> 3 reglas de oro + 12 casos reales (ACTO 2)</li>
+          <li class="flex items-center gap-2"><span class="text-emerald-400">✓</span> Modelo de datos extendido (ACTO 3)</li>
+          <li class="flex items-center gap-2"><span class="text-emerald-400">✓</span> NO duplica entidades existentes</li>
+          <li class="flex items-center gap-2"><span class="text-emerald-400">✓</span> 1 campo opcional · backward compat</li>
+        </ul>
+      </div>
+      <div>
+        <div class="text-[10px] uppercase tracking-wider font-bold text-rose-300 mb-3">Cobertura UX</div>
+        <ul class="space-y-1.5 text-sm">
+          <li class="flex items-center gap-2"><span class="text-emerald-400">✓</span> Tab Vinculación en UserPanel (ACTO 4)</li>
+          <li class="flex items-center gap-2"><span class="text-emerald-400">✓</span> Sub-sección Contactos en Maestros (ACTO 5)</li>
+          <li class="flex items-center gap-2"><span class="text-emerald-400">✓</span> Wizard externo · buscador (ACTO 6)</li>
+          <li class="flex items-center gap-2"><span class="text-emerald-400">✓</span> Cross-link desde OC (ACTO 7)</li>
+          <li class="flex items-center gap-2"><span class="text-emerald-400">✓</span> Mobile 3 vistas críticas (ACTO 8)</li>
+          <li class="flex items-center gap-2"><span class="text-emerald-400">✓</span> Plan integrado 9 etapas (ACTO 9)</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="text-center text-xs text-slate-400 pt-4 border-t border-white/10">
+      <div class="mb-1">usuarios-v5.8-vinculacion-maestros.html · 2026-05-28</div>
+      <div>9 actos · 7 desktop + mobile 3 vistas + 1 plan · 3ª capa que cierra 360 con Maestros</div>
+      <div class="mt-2">Suite completa: v5.6 (modelo) + v5.7 (contexto) + v5.8 (vinculación) · ~17h impl combinada</div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
