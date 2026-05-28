@@ -164,10 +164,20 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
   const { hasPermiso, profile, role, displayName } = usePermissions();
 
   // Estado para grupos expandidos/colapsados
+  // F10.F.1.O+ · si el grupo tiene items visibles para el user (permisos OK),
+  // se abre por default. Antes solo se abría si defaultOpen=true en config.
+  // Razón canon: usuarios no deberían tener que hacer click para descubrir
+  // los módulos a los que tienen acceso. La colapsabilidad sigue funcional
+  // para que el user CIERRE manualmente lo que no quiere ver.
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(() => {
     const initial = new Set<string>();
     menuGroups.forEach(group => {
-      if (group.defaultOpen) initial.add(group.id);
+      const tieneItemsVisibles = group.items.some(
+        item => !item.permiso || hasPermiso(item.permiso),
+      );
+      if (group.defaultOpen || tieneItemsVisibles) {
+        initial.add(group.id);
+      }
     });
     return initial;
   });
