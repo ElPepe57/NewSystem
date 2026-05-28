@@ -17,7 +17,10 @@ export type TipoBorradorWizard =
   | 'gasto'
   | 'liquidar_recaudadora'
   | 'esquema_incentivo'
-  | 'baja_empleado';
+  | 'baja_empleado'
+  // chk5.PERSONAS-v5.7 · E4.4 (2026-05-28) · Wizard "Nuevo colaborador" 4 pasos
+  // Crea User + RelacionLaboral inicial · ver CrearUsuarioWizard.tsx
+  | 'colaborador';
 
 /**
  * Documento de borrador de wizard almacenado en Firestore.

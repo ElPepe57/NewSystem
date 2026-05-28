@@ -27,6 +27,9 @@ import {
 } from '../../types/relacionLaboral.types';
 // chk5.PERSONAS-v5.7 · E4.3 · Wizard "Nuevo colaborador" 4 pasos canon v5.7
 import { CrearUsuarioWizard } from '../../components/usuarios/CrearUsuarioWizard';
+// chk5.PERSONAS-v5.7 · E4.4 · Borrador canon (banner de continuar/descartar)
+import { borradorWizardService } from '../../services/borradorWizard.service';
+import type { BorradorWizard } from '../../types/borradorWizard.types';
 import type { LucideIcon } from 'lucide-react';
 import { PageShell } from '../../design-system';
 import { userService } from '../../services/user.service';
@@ -102,6 +105,8 @@ export const Usuarios: React.FC = () => {
   const [relacionesByUid, setRelacionesByUid] = useState<Record<string, RelacionLaboral[]>>({});
   // chk5.PERSONAS-v5.7 · E4.3 · Wizard "Nuevo colaborador" 4 pasos
   const [wizardOpen, setWizardOpen] = useState(false);
+  // chk5.PERSONAS-v5.7 · E4.4 · Borrador del wizard (banner Continuar/Descartar)
+  const [borradorColaborador, setBorradorColaborador] = useState<BorradorWizard | null>(null);
   // Cleanup chk5.F4-USERS · 2026-05-26 · state legacy (newUser · editPermisos ·
   // editRoles · editDatosLab/Soc · approveRole · newPassword · etc) eliminado ·
   // cada modal canon FormModalV2 maneja su propio estado internamente.
@@ -154,7 +159,43 @@ export const Usuarios: React.FC = () => {
 
   useEffect(() => {
     fetchUsuarios();
-  }, []);
+    // chk5.PERSONAS-v5.7 · E4.4 · cargar borrador del wizard si existe
+    if (currentUser?.uid) {
+      void borradorWizardService
+        .get(currentUser.uid, 'colaborador')
+        .then(setBorradorColaborador)
+        .catch(() => setBorradorColaborador(null));
+    }
+  }, [currentUser?.uid]);
+
+  /**
+   * chk5.PERSONAS-v5.7 · E4.4 · Refresca el state del borrador.
+   * Usado al cerrar el wizard (pueden haber quedado cambios) o al descartar.
+   */
+  const refreshBorrador = async () => {
+    if (!currentUser?.uid) return;
+    try {
+      const b = await borradorWizardService.get(currentUser.uid, 'colaborador');
+      setBorradorColaborador(b);
+    } catch {
+      setBorradorColaborador(null);
+    }
+  };
+
+  /**
+   * chk5.PERSONAS-v5.7 · E4.4 · Descarta el borrador desde el banner sin abrir el wizard.
+   */
+  const handleDescartarBorrador = async () => {
+    if (!currentUser?.uid) return;
+    if (!confirm('¿Descartar el borrador del nuevo colaborador? Los datos se perderán.')) return;
+    try {
+      await borradorWizardService.delete(currentUser.uid, 'colaborador');
+      setBorradorColaborador(null);
+      setSuccess('Borrador descartado');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Error al descartar el borrador');
+    }
+  };
 
   // chk5.PERSONAS-v5.3 · F2 · deep-link reading: ?filterRole=socio activa chip
   // automáticamente al entrar desde /inversionistas o /planilla
@@ -638,6 +679,46 @@ export const Usuarios: React.FC = () => {
               </div>
             </div>
           </div>
+
+          {/* chk5.PERSONAS-v5.7 · E4.4 · BANNER BORRADOR del wizard
+              Canon 2026-05-07 · "todo wizard de creación debe ofrecer
+              borrador + descartar". Se muestra si el user tiene un borrador
+              pendiente del wizard CrearUsuarioWizard. */}
+          {borradorColaborador && !wizardOpen && (
+            <div className="mx-4 sm:mx-6 mt-3 bg-amber-50 ring-1 ring-amber-300 rounded-xl p-3 flex items-center gap-3 flex-wrap">
+              <div className="w-9 h-9 rounded-lg bg-amber-100 flex items-center justify-center flex-shrink-0">
+                <FileText className="w-4 h-4 text-amber-700" />
+              </div>
+              <div className="flex-1 min-w-[200px]">
+                <div className="text-sm font-bold text-amber-900">
+                  Tenés un colaborador en borrador
+                </div>
+                <div className="text-xs text-amber-800">
+                  {borradorColaborador.resumen || 'Sin nombre'} · paso {borradorColaborador.pasoActual} de 4
+                </div>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <button
+                  type="button"
+                  onClick={handleDescartarBorrador}
+                  className="text-[11px] font-medium text-amber-700 hover:bg-amber-100 px-2.5 py-1.5 rounded-lg flex items-center gap-1"
+                  title="Descartar borrador"
+                >
+                  <Trash2 className="w-3 h-3" />
+                  Descartar
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setWizardOpen(true)}
+                  className="text-[11px] font-bold text-white bg-teal-600 hover:bg-teal-700 px-2.5 py-1.5 rounded-lg flex items-center gap-1"
+                  title="Continuar con el wizard"
+                >
+                  Continuar
+                  <ArrowRight className="w-3 h-3" />
+                </button>
+              </div>
+            </div>
+          )}
 
           {/* §E · MENSAJES error/success */}
           {error && (
@@ -1148,9 +1229,15 @@ export const Usuarios: React.FC = () => {
           onSuccess auto-abre el UserPanel del user recién creado. */}
       <CrearUsuarioWizard
         isOpen={wizardOpen}
-        onClose={() => setWizardOpen(false)}
+        onClose={() => {
+          setWizardOpen(false);
+          // chk5.PERSONAS-v5.7 · E4.4 · refresca el state del borrador al cerrar
+          // (puede que el user haya editado y ahora exista borrador donde antes no había)
+          void refreshBorrador();
+        }}
         onSuccess={(uid) => {
           setWizardOpen(false);
+          setBorradorColaborador(null); // borrador eliminado en el submit
           setSuccess(`Colaborador creado correctamente · abriendo perfil...`);
           // Auto-abre el UserPanel del recién creado
           setPanelUid(uid);

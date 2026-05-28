@@ -51,6 +51,7 @@ import {
 } from 'lucide-react';
 import { userService } from '../../services/user.service';
 import { relacionesLaboralesService } from '../../services/relacionesLaborales.service';
+import { borradorWizardService } from '../../services/borradorWizard.service';
 import { useAuthStore } from '../../store/authStore';
 import { Timestamp } from 'firebase/firestore';
 import type { UserRole } from '../../types/auth.types';
@@ -143,10 +144,74 @@ export const CrearUsuarioWizard: React.FC<CrearUsuarioWizardProps> = ({
   const [state, setState] = useState<WizardState>(INITIAL_STATE);
   const [submitting, setSubmitting] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
+  // chk5.PERSONAS-v5.7 · E4.4 · borrador canon
+  const [borradorRestaurado, setBorradorRestaurado] = useState(false);
 
   const set = <K extends keyof WizardState>(key: K, value: WizardState[K]) => {
     setState((prev) => ({ ...prev, [key]: value }));
     setValidationError(null);
+  };
+
+  // ─── chk5.PERSONAS-v5.7 · E4.4 · BORRADOR canon 2026-05-07 ─────────────
+  // Al abrir el wizard: si hay borrador del user logueado, lo restaura.
+  // ID determinístico: ${userId}_colaborador · max 1 borrador por user.
+  React.useEffect(() => {
+    if (!isOpen || !currentUser?.uid || borradorRestaurado) return;
+    void (async () => {
+      try {
+        const borrador = await borradorWizardService.get(currentUser.uid, 'colaborador');
+        if (borrador && borrador.estado) {
+          // Restauramos sólo si el state es del shape esperado
+          const restored = borrador.estado as Partial<WizardState>;
+          setState((prev) => ({ ...prev, ...restored }));
+          if (typeof borrador.pasoActual === 'number' && borrador.pasoActual >= 1 && borrador.pasoActual <= 4) {
+            setPaso(borrador.pasoActual as 1 | 2 | 3 | 4);
+          }
+        }
+      } catch (err) {
+        console.warn('[CrearUsuarioWizard] error restaurando borrador:', err);
+      } finally {
+        setBorradorRestaurado(true);
+      }
+    })();
+  }, [isOpen, currentUser?.uid, borradorRestaurado]);
+
+  // Auto-save · cada vez que cambia state significativamente (debounce simple via depEffect)
+  React.useEffect(() => {
+    if (!isOpen || !currentUser?.uid || !borradorRestaurado) return;
+    // Solo guardar si hay algún dato meaningful (evita guardar el INITIAL_STATE vacío)
+    const hayDatos = state.displayName.trim() || state.email.trim() || state.tipoRelacion;
+    if (!hayDatos) return;
+
+    const timer = setTimeout(() => {
+      const resumen = state.displayName
+        ? `${state.displayName}${state.tipoRelacion ? ` · ${state.tipoRelacion}` : ''}`
+        : `Borrador sin nombre · paso ${paso}`;
+      void borradorWizardService
+        .save({
+          tipo: 'colaborador',
+          userId: currentUser.uid,
+          pasoActual: paso,
+          estado: state as unknown as Record<string, unknown>,
+          resumen,
+          montoEstimado: state.montoMensualReferencia ?? undefined,
+        })
+        .catch((err) => console.warn('[CrearUsuarioWizard] error guardando borrador:', err));
+    }, 800);
+
+    return () => clearTimeout(timer);
+  }, [state, paso, isOpen, currentUser?.uid, borradorRestaurado]);
+
+  // Limpia borrador al cerrar el wizard sin haber confirmado (estado INITIAL)
+  // NOTA: NO limpia cuando el user cierra X · solo cuando descarta explícito o crea.
+  const limpiarBorrador = async () => {
+    if (currentUser?.uid) {
+      try {
+        await borradorWizardService.delete(currentUser.uid, 'colaborador');
+      } catch (err) {
+        console.warn('[CrearUsuarioWizard] error limpiando borrador:', err);
+      }
+    }
   };
 
   // ── Validación por paso ────────────────────────────────────────────────
@@ -196,12 +261,24 @@ export const CrearUsuarioWizard: React.FC<CrearUsuarioWizardProps> = ({
     setValidationError(null);
   };
 
-  const handleDescartar = () => {
+  const handleDescartar = async () => {
     if (confirm('¿Descartar el wizard? Los datos ingresados se perderán.')) {
+      await limpiarBorrador();
       setState(INITIAL_STATE);
       setPaso(1);
+      setBorradorRestaurado(false);
       onClose();
     }
+  };
+
+  /**
+   * Cerrar sin descartar · preserva el borrador.
+   * Usado cuando el user hace ESC o click overlay · pero sin confirmar destrucción.
+   * El borrador queda en BD · banner en /usuarios permite continuarlo después.
+   */
+  const handleCerrarPreservandoBorrador = () => {
+    setBorradorRestaurado(false);
+    onClose();
   };
 
   // ── Submit · crea User + Relación atómicamente ────────────────────────
@@ -264,9 +341,13 @@ export const CrearUsuarioWizard: React.FC<CrearUsuarioWizardProps> = ({
       const creadoPor = currentUser?.uid ?? 'system';
       await relacionesLaboralesService.create(relacionInput, creadoPor);
 
-      // 3. Reset + cerrar + notificar
+      // 3. Limpiar borrador (canon E4.4) · ya creó el user · borrador obsoleto
+      await limpiarBorrador();
+
+      // 4. Reset + cerrar + notificar
       setState(INITIAL_STATE);
       setPaso(1);
+      setBorradorRestaurado(false);
       onSuccess(newUser.uid);
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Error desconocido al crear usuario';
@@ -277,11 +358,12 @@ export const CrearUsuarioWizard: React.FC<CrearUsuarioWizardProps> = ({
     }
   };
 
-  // ESC para cerrar
+  // ESC para cerrar · canon E4.4 · preserva borrador (NO descarta)
+  // Para descartar explícitamente · botón "Descartar"
   React.useEffect(() => {
     if (!isOpen) return;
     const handler = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') handleDescartar();
+      if (e.key === 'Escape') handleCerrarPreservandoBorrador();
     };
     document.addEventListener('keydown', handler);
     return () => document.removeEventListener('keydown', handler);
@@ -327,14 +409,15 @@ export const CrearUsuarioWizard: React.FC<CrearUsuarioWizardProps> = ({
             />
           </ol>
 
-          {/* Banner borrador placeholder · E4.4 lo conecta */}
+          {/* Banner borrador canon E4.4 · auto-save activo */}
           <div className="mt-6 bg-amber-50 ring-1 ring-amber-200 rounded-lg p-3 hidden sm:block">
             <div className="flex items-center gap-1.5 text-amber-900 text-xs font-semibold mb-1">
               <Save className="w-3 h-3" />
-              Borrador (E4.4)
+              Borrador automático
             </div>
             <p className="text-[10px] text-amber-800">
-              Auto-save y "Continuar más tarde" se conectan en E4.4.
+              Tus cambios se guardan solos. Podés cerrar (X) y continuar después
+              desde el banner en /usuarios.
             </p>
           </div>
         </aside>
@@ -355,9 +438,10 @@ export const CrearUsuarioWizard: React.FC<CrearUsuarioWizardProps> = ({
               </h2>
             </div>
             <button
-              onClick={handleDescartar}
+              onClick={handleCerrarPreservandoBorrador}
               className="w-8 h-8 hover:bg-slate-100 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-700"
-              aria-label="Cerrar wizard"
+              aria-label="Cerrar wizard (preserva borrador)"
+              title="Cerrar · el borrador se conserva para continuar después"
             >
               <X className="w-4 h-4" />
             </button>
