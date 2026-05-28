@@ -104,6 +104,12 @@ export interface Socio {
 export interface AporteSocioResumen {
   socioId: string;
   socioNombre: string;
+  /**
+   * chk5.PERSONAS-v5.7 · E6.2 (2026-05-28) · uid del UserProfile vinculado
+   * (si el socio tiene cuenta en el sistema · ver Socio.userId).
+   * Permite cross-link a UserPanel desde la tabla "Aportes por socio".
+   */
+  userId?: string;
   /** Total aportado convertido a PEN para comparación */
   totalAportadoPEN: number;
   /** Total aportado en USD (si hubo aportes en USD) */

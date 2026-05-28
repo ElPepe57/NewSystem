@@ -4,7 +4,7 @@
  * Canon F4 v7.0: tabla en desktop, cards apiladas en mobile (<md).
  * Donut composición: stack vertical en mobile, lado-a-lado en desktop.
  */
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   Wallet,
   Plus,
@@ -13,16 +13,32 @@ import {
   CreditCard,
   Sparkles,
   Banknote,
+  ExternalLink,
 } from 'lucide-react';
 import { formatCurrencyPEN } from '../../../utils/format';
 import { formatFechaCorta } from './shared';
 import type { ResumenInversionista } from '../../../types/inversionista.types';
+// chk5.PERSONAS-v5.7 · E6.2 (2026-05-28) · Click en socio → UserPanel canon F6-E
+import { UserPanel } from '../../usuarios/UserPanel';
+import { useSocioStore } from '../../../store/socioStore';
 
 interface Props {
   data: ResumenInversionista;
 }
 
 export default function InversionistasCapital({ data }: Props) {
+  // chk5.PERSONAS-v5.7 · E6.2 · UserPanel state + lookup de userId por socioId
+  const [panelUid, setPanelUid] = useState<string | null>(null);
+  const socios = useSocioStore((s) => s.socios);
+
+  // Map { socioId → userId } para lookup rápido en el render
+  const userIdBySocioId = useMemo(() => {
+    const m: Record<string, string> = {};
+    socios.forEach((s) => {
+      if (s.userId) m[s.id] = s.userId;
+    });
+    return m;
+  }, [socios]);
   const totalAportes = data.aportesPorSocio.reduce((a, b) => a + b.totalAportadoPEN, 0);
   const cash = data.capitalComprometido.cashAportadoPEN;
   const tc = data.capitalComprometido.deudaTCPersonalPEN;
@@ -118,19 +134,38 @@ export default function InversionistasCapital({ data }: Props) {
                     <th className="px-3 py-2 text-left text-[10px] uppercase tracking-wider font-bold text-slate-700">Aportes</th>
                     <th className="px-3 py-2 text-left text-[10px] uppercase tracking-wider font-bold text-slate-700">Último</th>
                     <th className="px-3 py-2 text-right text-[10px] uppercase tracking-wider font-bold text-slate-700">Total</th>
+                    <th className="px-3 py-2 text-right text-[10px] uppercase tracking-wider font-bold text-slate-700"></th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
-                  {data.aportesPorSocio.map((a) => (
-                    <tr key={a.socioId}>
-                      <td className="px-3 py-2 font-semibold text-slate-900">{a.socioNombre}</td>
-                      <td className="px-3 py-2 text-slate-500">{a.cantidadAportes} aporte{a.cantidadAportes === 1 ? '' : 's'}</td>
-                      <td className="px-3 py-2 text-slate-600">{formatFechaCorta(a.fechaUltimoAporte)}</td>
-                      <td className="px-3 py-2 text-right tabular-nums font-semibold text-emerald-700">
-                        {formatCurrencyPEN(a.totalAportadoPEN)}
-                      </td>
-                    </tr>
-                  ))}
+                  {data.aportesPorSocio.map((a) => {
+                    const uid = userIdBySocioId[a.socioId];
+                    return (
+                      <tr key={a.socioId}>
+                        <td className="px-3 py-2 font-semibold text-slate-900">{a.socioNombre}</td>
+                        <td className="px-3 py-2 text-slate-500">{a.cantidadAportes} aporte{a.cantidadAportes === 1 ? '' : 's'}</td>
+                        <td className="px-3 py-2 text-slate-600">{formatFechaCorta(a.fechaUltimoAporte)}</td>
+                        <td className="px-3 py-2 text-right tabular-nums font-semibold text-emerald-700">
+                          {formatCurrencyPEN(a.totalAportadoPEN)}
+                        </td>
+                        <td className="px-3 py-2 text-right">
+                          {uid ? (
+                            <button
+                              type="button"
+                              onClick={() => setPanelUid(uid)}
+                              className="text-[10px] text-purple-700 hover:text-purple-900 hover:bg-purple-50 px-2 py-1 rounded inline-flex items-center gap-1"
+                              title="Ver perfil del socio"
+                            >
+                              <ExternalLink className="w-3 h-3" />
+                              Perfil
+                            </button>
+                          ) : (
+                            <span className="text-[10px] text-slate-300" title="Socio sin cuenta de usuario en el sistema">—</span>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
                 <tfoot className="bg-emerald-50 border-t-2 border-emerald-200">
                   <tr>
@@ -138,16 +173,31 @@ export default function InversionistasCapital({ data }: Props) {
                     <td className="px-3 py-2 text-right tabular-nums font-bold text-emerald-900">
                       {formatCurrencyPEN(totalAportes)}
                     </td>
+                    <td></td>
                   </tr>
                 </tfoot>
               </table>
 
               {/* Cards stack · solo mobile <md · canon F4 */}
               <div className="md:hidden divide-y divide-slate-100">
-                {data.aportesPorSocio.map((a) => (
+                {data.aportesPorSocio.map((a) => {
+                  const uid = userIdBySocioId[a.socioId];
+                  return (
                   <div key={a.socioId} className="px-4 py-3">
                     <div className="flex items-center justify-between gap-2">
-                      <div className="font-semibold text-slate-900 text-[13px]">{a.socioNombre}</div>
+                      <div className="font-semibold text-slate-900 text-[13px] flex items-center gap-2">
+                        <span>{a.socioNombre}</span>
+                        {uid && (
+                          <button
+                            type="button"
+                            onClick={() => setPanelUid(uid)}
+                            className="text-[10px] text-purple-700 hover:bg-purple-50 px-1.5 py-0.5 rounded inline-flex items-center gap-0.5"
+                            title="Ver perfil"
+                          >
+                            <ExternalLink className="w-2.5 h-2.5" />
+                          </button>
+                        )}
+                      </div>
                       <div className="tabular-nums font-bold text-emerald-700 text-[14px]">
                         {formatCurrencyPEN(a.totalAportadoPEN)}
                       </div>
@@ -157,7 +207,8 @@ export default function InversionistasCapital({ data }: Props) {
                       <span>Último: {formatFechaCorta(a.fechaUltimoAporte)}</span>
                     </div>
                   </div>
-                ))}
+                  );
+                })}
                 <div className="px-4 py-3 bg-emerald-50 flex justify-between border-t border-emerald-200">
                   <span className="text-[11px] uppercase font-bold text-emerald-900">Total aportes</span>
                   <span className="text-[14px] font-bold tabular-nums text-emerald-900">
@@ -263,6 +314,15 @@ export default function InversionistasCapital({ data }: Props) {
           </div>
         </div>
       )}
+
+      {/* chk5.PERSONAS-v5.7 · E6.2 · UserPanel canon F6-E
+          Aparece cuando se hace click en "Perfil" en alguna fila/card de socio
+          que tiene userId asociado (Socio.userId). Reusa el mismo UserPanel
+          que /usuarios y /planilla · 5+1 tabs canon. */}
+      <UserPanel
+        userId={panelUid}
+        onClose={() => setPanelUid(null)}
+      />
     </div>
   );
 }
