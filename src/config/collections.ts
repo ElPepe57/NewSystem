@@ -159,6 +159,25 @@ export const COLLECTIONS = {
    * Ver invitacion.types.ts
    */
   INVITACIONES: 'invitaciones',
+
+  // === chk5.PERSONAS-v5.6 / v5.8 / v5.9 (2026-05-28) ===
+  /**
+   * Relaciones laborales · una persona puede tener N relaciones simultáneas
+   * (empleado + socio) y M históricas (reclasificadas · finalizadas). Reemplaza
+   * en código nuevo a users/{uid}/private/datosLaborales y datosSocio.
+   * Doc id auto-generado · FK userId. Ver relacionLaboral.types.ts.
+   * Campos clave: tipo · estado · subTipo · entidadMaestroRef (v5.8 vinculación
+   * con Maestros) · snapshots inmutables al finalizar.
+   */
+  RELACIONES_LABORALES: 'relacionesLaborales',
+  /**
+   * Solicitudes de acceso externas · pre-stage antes de crear UserProfile.
+   * Externos (proveedores · clientes · transportistas) solicitan acceso vía
+   * página pública /solicitar-acceso. Admin las procesa desde bandeja en
+   * /usuarios. Workflow: pendiente → info_solicitada / aprobada / rechazada /
+   * caducada. Ver solicitudAccesoExterno.types.ts.
+   */
+  SOLICITUDES_ACCESO_EXTERNO: 'solicitudesAccesoExterno',
   /**
    * Sesiones activas del sistema · tracking custom porque Firebase Auth no
    * tiene listado nativo. Permite UI "Sesiones activas" en Ficha 360 y

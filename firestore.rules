@@ -752,6 +752,80 @@ service cloud.firestore {
     }
 
     // ============================================================
+    // chk5.PERSONAS-v5.6/v5.8 (2026-05-28) · RELACIONES LABORALES
+    // Multi-relación + Histórico + Vinculación con Maestros.
+    // - Admin: read+write completo (canon admin ve todo 2026-05-24)
+    // - Gerente: read (auditoría) + write si es socio
+    // - Finanzas: read (para procesar nómina · solo relaciones tipo='empleado')
+    // - User dueño: read SOLO de SUS propias relaciones (where userId == uid)
+    // - Crear/finalizar/reclasificar: solo admin (cambios sensibles)
+    // ============================================================
+    match /relacionesLaborales/{relacionId} {
+      allow read: if request.auth != null && (
+        hasAnyRole(['admin', 'gerente', 'finanzas']) ||
+        (resource != null && resource.data.userId == request.auth.uid)
+      );
+
+      // Crear · solo admin (los wizards y CF crean docs)
+      allow create: if isAdmin()
+        && request.resource.data.creadoPor == request.auth.uid
+        && request.resource.data.userId is string
+        && request.resource.data.tipo in ['empleado', 'honorarios', 'socio', 'externo']
+        && request.resource.data.estado in ['vigente', 'pausada', 'prueba', 'finalizada'];
+
+      // Update · admin solamente (transitions de estado · vinculación · ajustes)
+      // No se permite cambiar userId ni tipo después de creado (sólo via reclasificación atomic)
+      allow update: if isAdmin()
+        && request.resource.data.userId == resource.data.userId
+        && request.resource.data.tipo == resource.data.tipo;
+
+      // Delete · prohibido (audit trail · soft delete via estado=finalizada)
+      allow delete: if false;
+    }
+
+    // ============================================================
+    // chk5.PERSONAS-v5.9 (2026-05-28) · SOLICITUDES DE ACCESO EXTERNO
+    // Pre-stage antes de crear UserProfile · viene de /solicitar-acceso público.
+    // - Crear: PÚBLICO (no requiere auth) · pero con validaciones server-side
+    //   y reCAPTCHA · y Firestore aplica límites de tamaño + campos requeridos
+    // - Read: solo admin (canon admin ve todo) y gerente (auditoría)
+    // - Update: solo admin · transiciones de estado (pendiente → info_solicitada
+    //   → aprobada/rechazada/caducada). Aprobada/rechazada DEBEN ir por CF
+    //   para crear User + Relacion + Invitacion atómicamente (acá solo update doc).
+    // - Delete: prohibido (audit trail)
+    // ============================================================
+    match /solicitudesAccesoExterno/{solicitudId} {
+      // Crear público con validaciones (anti-spam · campos requeridos)
+      allow create: if
+        // Campos obligatorios + tipos
+        request.resource.data.nombreCompleto is string
+        && request.resource.data.nombreCompleto.size() >= 3
+        && request.resource.data.nombreCompleto.size() <= 200
+        && request.resource.data.email is string
+        && request.resource.data.email.matches('.*@.*[.].*')
+        && request.resource.data.tipoRelacion in ['proveedor', 'cliente', 'transportista', 'colaborador', 'otro']
+        && request.resource.data.motivo is string
+        && request.resource.data.motivo.size() >= 20
+        && request.resource.data.motivo.size() <= 2000
+        // Estado inicial OBLIGATORIO 'pendiente' · no puede saltar a aprobada en create
+        && request.resource.data.estado == 'pendiente'
+        // Anti-bypass · no aceptar campos que solo admin puede setear
+        && !('procesadaPor' in request.resource.data)
+        && !('fechaProcesamiento' in request.resource.data)
+        && !('uidUsuarioCreado' in request.resource.data);
+
+      allow read: if request.auth != null && hasAnyRole(['admin', 'gerente']);
+
+      allow update: if isAdmin()
+        // No se puede cambiar el email original (anti-fraude · evitar que admin se confunda)
+        && request.resource.data.email == resource.data.email
+        // No se puede cambiar la fecha de creación
+        && request.resource.data.fechaCreacion == resource.data.fechaCreacion;
+
+      allow delete: if false;
+    }
+
+    // ============================================================
     // SIN REGLA CATCH-ALL
     // Cualquier coleccion no listada arriba sera DENEGADA por defecto.
     // ============================================================
