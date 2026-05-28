@@ -36,7 +36,7 @@ import {
   UserPlus,
   AlertCircle,
 } from 'lucide-react';
-import { db } from '../../firebase/config';
+import { db } from '../../lib/firebase';
 import { doc, getDoc } from 'firebase/firestore';
 import { COLLECTIONS } from '../../config/collections';
 import { relacionesLaboralesService } from '../../services/relacionesLaborales.service';

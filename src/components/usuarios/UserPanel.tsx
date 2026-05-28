@@ -28,7 +28,7 @@
 
 import React, { useEffect, useState, useMemo } from 'react';
 import { X, User, Briefcase, FileText, Shield, History, Link as LinkIcon, Loader2, AlertCircle } from 'lucide-react';
-import { db } from '../../firebase/config';
+import { db } from '../../lib/firebase';
 import { doc, getDoc } from 'firebase/firestore';
 import { COLLECTIONS } from '../../config/collections';
 import { relacionesLaboralesService } from '../../services/relacionesLaborales.service';

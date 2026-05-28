@@ -27,7 +27,7 @@ import {
   writeBatch,
   type DocumentData,
 } from 'firebase/firestore';
-import { db } from '../firebase/config';
+import { db } from '../lib/firebase';
 import { COLLECTIONS } from '../config/collections';
 import type {
   RelacionLaboral,
