@@ -35,6 +35,8 @@ import {
   User,
   Briefcase,
   AlertTriangle,
+  Gift,
+  Key,
 } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { usePermissions } from '../../hooks/usePermissions';
@@ -68,6 +70,12 @@ import {
   ResumenSocio,
   CardIdentidadEditable,
   CardMultiRolRica,
+  // F10.F.1.O · Etapa 5 · Banners + Empty/Loading/Error + filtros timeline
+  BannerContextual,
+  EmptyStateCanon,
+  LoadingSkeletonCanon,
+  ErrorStateCanon,
+  TimelineActividadFiltros,
   type PendienteItem,
 } from './components';
 // F10.F.1.N · 4 modales canon FormModalV2
@@ -139,6 +147,10 @@ export const MiPerfil: React.FC = () => {
   const [sesionADesconectar, setSesionADesconectar] = useState<SesionActiva | null>(null);
   const [showDesconectarTodas, setShowDesconectarTodas] = useState(false);
   const [sesionesCount, setSesionesCount] = useState(0);
+
+  // F10.F.1.O · Etapa 5 · filtro chip del timeline actividad + error state
+  const [filtroModulo, setFiltroModulo] = useState<string>('');
+  const [errorActividades, setErrorActividades] = useState<string | null>(null);
 
   // Mensajes generales
   const [success, setSuccess] = useState<string | null>(null);
@@ -213,6 +225,7 @@ export const MiPerfil: React.FC = () => {
     let cancelled = false;
     const cargar = async () => {
       setLoadingActividades(true);
+      setErrorActividades(null);
       try {
         const q = query(
           collection(db, 'audit_logs'),
@@ -233,8 +246,9 @@ export const MiPerfil: React.FC = () => {
           };
         });
         setActividades(items);
-      } catch (err) {
+      } catch (err: any) {
         console.error('Error cargando actividades:', err);
+        if (!cancelled) setErrorActividades(err?.message || 'No pudimos cargar el historial de actividad');
       } finally {
         if (!cancelled) setLoadingActividades(false);
       }
@@ -567,6 +581,63 @@ export const MiPerfil: React.FC = () => {
               Un user multi-rol (ej. admin+socio) ve los 3 bloques concatenados. */}
           {tabActiva === 'resumen' && (
             <div className="space-y-5">
+              {/* F10.F.1.O · Banners contextuales canon ACTO 15
+                  Aparecen según contexto · auto-detectados sin config manual */}
+              {(() => {
+                const banners: React.ReactNode[] = [];
+
+                // Banner gratificación · solo si tiene datosLaborales
+                if (tieneRolEmpleado) {
+                  const hoy = new Date();
+                  const jul15 = new Date(hoy.getFullYear(), 6, 15);
+                  const dic15 = new Date(hoy.getFullYear(), 11, 15);
+                  const julProx = jul15 > hoy ? jul15 : new Date(hoy.getFullYear() + 1, 6, 15);
+                  const dicProx = dic15 > hoy ? dic15 : new Date(hoy.getFullYear() + 1, 11, 15);
+                  const proxima = julProx < dicProx ? julProx : dicProx;
+                  const dias = Math.ceil((proxima.getTime() - hoy.getTime()) / (1000 * 60 * 60 * 24));
+                  // Solo mostrar si la próxima gratif está en <=30 días
+                  if (dias <= 30 && datosLaborales?.salarioBase) {
+                    const mesGratif = proxima.getMonth() === 6 ? 'julio' : 'diciembre';
+                    banners.push(
+                      <BannerContextual
+                        key="gratif"
+                        tone="indigo"
+                        icon={Gift}
+                        titulo={`Tu gratificación de ${mesGratif} en ${dias} día${dias !== 1 ? 's' : ''}`}
+                        descripcion={
+                          <>
+                            Estimado: <span className="font-bold tabular-nums">S/ {datosLaborales.salarioBase.toLocaleString('es-PE', { maximumFractionDigits: 0 })}</span>
+                          </>
+                        }
+                      />,
+                    );
+                  }
+                }
+
+                // Banner password expira · si fechaCreacion existe y han pasado >70 días
+                // (Heurística simple sin campo fechaUltimoCambioPassword)
+                const fechaCreacion = profile.fechaCreacion?.toDate?.();
+                if (fechaCreacion) {
+                  const diasDesdeCreacion = Math.floor((Date.now() - fechaCreacion.getTime()) / (1000 * 60 * 60 * 24));
+                  const diasParaExpirar = 90 - diasDesdeCreacion;
+                  if (diasDesdeCreacion >= 70 && diasParaExpirar <= 20 && diasParaExpirar > 0) {
+                    banners.push(
+                      <BannerContextual
+                        key="password"
+                        tone="rose"
+                        icon={Key}
+                        titulo={`Tu contraseña expira en ${diasParaExpirar} día${diasParaExpirar !== 1 ? 's' : ''}`}
+                        descripcion={`Última actualización: hace ${diasDesdeCreacion} días · cambiarla cada 90 días por seguridad`}
+                        accionLabel="Cambiar ahora"
+                        onAction={() => setShowCambiarPassword(true)}
+                      />,
+                    );
+                  }
+                }
+
+                return banners.length > 0 ? <div className="space-y-2">{banners}</div> : null;
+              })()}
+
               {/* Pendientes accionables · siempre que haya alguno */}
               <PendientesAccionables pendientes={pendientes} />
 
@@ -725,62 +796,110 @@ export const MiPerfil: React.FC = () => {
                 onSesionCerrada={() => setSuccess('Sesión cerrada correctamente')}
               />
 
-              {/* Timeline actividad reciente · canon mockup ACTO 10 · líneas 1107-1186 */}
-              <div className="bg-white border border-slate-200 rounded-xl p-5 space-y-4">
-                <h3 className="text-[14px] font-bold text-slate-900 inline-flex items-center gap-1.5">
-                  <Activity className="w-4 h-4 text-slate-700" />
-                  Actividad reciente
-                </h3>
+              {/* Timeline actividad reciente · canon mockup ACTO 10 · líneas 1107-1186
+                  F10.F.1.O · agregados filtros chip + skeleton loading + empty/error canon */}
+              {loadingActividades ? (
+                <LoadingSkeletonCanon variant="timeline" rows={5} />
+              ) : errorActividades ? (
+                <ErrorStateCanon
+                  titulo="No pudimos cargar tu historial"
+                  descripcion={errorActividades}
+                  onRetry={() => {
+                    // Forzar reload del effect cambiando una key · simplemente recargar la página
+                    window.location.reload();
+                  }}
+                />
+              ) : (
+                <div className="bg-white border border-slate-200 rounded-xl p-5 space-y-4">
+                  <div className="flex items-center justify-between gap-3 flex-wrap">
+                    <h3 className="text-[14px] font-bold text-slate-900 inline-flex items-center gap-1.5">
+                      <Activity className="w-4 h-4 text-slate-700" />
+                      Actividad reciente
+                    </h3>
+                  </div>
 
-                {loadingActividades ? (
-                  <div className="flex items-center justify-center py-6">
-                    <RefreshCw className="h-5 w-5 animate-spin text-slate-400" />
-                  </div>
-                ) : actividades.length === 0 ? (
-                  <div className="text-center py-6">
-                    <Activity className="h-8 w-8 mx-auto mb-1.5 text-slate-300" />
-                    <p className="text-[12px] font-semibold text-slate-700">Sin actividad registrada</p>
-                    <p className="text-[10px] text-slate-500 mt-0.5">
-                      A medida que usés el sistema · las acciones quedarán acá.
-                    </p>
-                  </div>
-                ) : (
-                  <div className="space-y-0">
-                    {actividades.map((act, idx) => (
-                      <div
-                        key={act.id}
-                        className={`flex gap-3 ${
-                          idx === 0
-                            ? 'pb-3 border-b border-slate-100'
-                            : idx === actividades.length - 1
-                            ? 'pt-3'
-                            : 'py-3 border-b border-slate-100'
-                        }`}
-                      >
-                        <div className="w-9 h-9 bg-slate-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                          <Clock className="w-4 h-4 text-slate-600" />
+                  {/* Filtros chip · canon mockup ACTO 10 línea 1109 · solo si hay actividades */}
+                  {actividades.length > 0 && (() => {
+                    const contadores: Record<string, number> = { todos: actividades.length };
+                    actividades.forEach((a) => {
+                      const mod = (a.modulo || '').replace(/^\//, '');
+                      if (mod) contadores[mod] = (contadores[mod] || 0) + 1;
+                    });
+                    return (
+                      <TimelineActividadFiltros
+                        filtroActivo={filtroModulo}
+                        onFiltroChange={setFiltroModulo}
+                        contadores={contadores}
+                      />
+                    );
+                  })()}
+
+                  {actividades.length === 0 ? (
+                    <EmptyStateCanon
+                      icon={Activity}
+                      tone="slate"
+                      titulo="Sin actividad registrada"
+                      descripcion="A medida que usés el sistema · las acciones quedarán acá."
+                      compacto
+                    />
+                  ) : (() => {
+                    const filtradas = filtroModulo
+                      ? actividades.filter((a) => (a.modulo || '').replace(/^\//, '') === filtroModulo)
+                      : actividades;
+                    if (filtradas.length === 0) {
+                      return (
+                        <div className="py-6 text-center">
+                          <p className="text-[12px] text-slate-500">
+                            Sin actividad en módulo <strong className="text-slate-700">{filtroModulo}</strong>
+                          </p>
+                          <button
+                            onClick={() => setFiltroModulo('')}
+                            className="mt-2 text-[11px] font-bold text-slate-700 hover:bg-slate-50 border border-slate-200 px-3 py-1.5 rounded inline-flex items-center gap-1"
+                          >
+                            Mostrar todas
+                          </button>
                         </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="text-[12px] font-bold text-slate-900 capitalize leading-tight">
-                            {act.tipo}
+                      );
+                    }
+                    return (
+                      <div className="space-y-0">
+                        {filtradas.map((act, idx) => (
+                          <div
+                            key={act.id}
+                            className={`flex gap-3 ${
+                              idx === 0
+                                ? 'pb-3 border-b border-slate-100'
+                                : idx === filtradas.length - 1
+                                ? 'pt-3'
+                                : 'py-3 border-b border-slate-100'
+                            }`}
+                          >
+                            <div className="w-9 h-9 bg-slate-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                              <Clock className="w-4 h-4 text-slate-600" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="text-[12px] font-bold text-slate-900 capitalize leading-tight">
+                                {act.tipo}
+                              </div>
+                              <div className="text-[11px] text-slate-600 truncate">{act.descripcion}</div>
+                              <div className="text-[10px] text-slate-400 mt-0.5 inline-flex items-center gap-1">
+                                <Clock className="w-3 h-3" />
+                                {act.fecha.toLocaleDateString('es-PE', {
+                                  day: '2-digit',
+                                  month: 'short',
+                                  hour: '2-digit',
+                                  minute: '2-digit',
+                                })}
+                                {act.modulo && ` · /${act.modulo}`}
+                              </div>
+                            </div>
                           </div>
-                          <div className="text-[11px] text-slate-600 truncate">{act.descripcion}</div>
-                          <div className="text-[10px] text-slate-400 mt-0.5 inline-flex items-center gap-1">
-                            <Clock className="w-3 h-3" />
-                            {act.fecha.toLocaleDateString('es-PE', {
-                              day: '2-digit',
-                              month: 'short',
-                              hour: '2-digit',
-                              minute: '2-digit',
-                            })}
-                            {act.modulo && ` · /${act.modulo}`}
-                          </div>
-                        </div>
+                        ))}
                       </div>
-                    ))}
-                  </div>
-                )}
-              </div>
+                    );
+                  })()}
+                </div>
+              )}
             </div>
           )}
         </div>
