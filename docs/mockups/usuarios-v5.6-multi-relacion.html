@@ -1,0 +1,1476 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Usuarios v5.6 · Multi-relación + Historial · canon 2026-05-28</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+  .tabular { font-variant-numeric: tabular-nums; font-feature-settings: "tnum"; }
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { scrollbar-width: none; }
+  .device-desktop { max-width: 1200px; margin: 0 auto; }
+  .iphone-frame { background: #1e293b; padding: 8px; border-radius: 40px; max-width: 391px; margin: 0 auto; }
+  .iphone-frame > * { border-radius: 32px; overflow: hidden; }
+</style>
+</head>
+<body class="bg-slate-50 text-slate-900 py-8">
+
+<!-- HERO -->
+<section class="max-w-6xl mx-auto mb-8 px-4">
+  <div class="bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 text-white rounded-3xl p-6 shadow-xl">
+    <div class="flex items-start gap-4 flex-wrap">
+      <div class="w-14 h-14 bg-white/20 rounded-2xl flex items-center justify-center flex-shrink-0">
+        <i data-lucide="git-branch" class="w-7 h-7"></i>
+      </div>
+      <div class="flex-1 min-w-[280px]">
+        <div class="text-[11px] uppercase tracking-wider font-bold opacity-90">Mockup · Evolución v5.5 → v5.6</div>
+        <h1 class="text-2xl font-bold mt-0.5">Usuarios v5.6 · Multi-relación + Historial</h1>
+        <p class="text-[13px] opacity-90 mt-1">
+          Soporta los 11 casos reales del negocio · empleado+socio simultáneo · transiciones
+          honorarios→empleado · re-incorporaciones · cliente→socio · pausas · período de prueba.
+          Histórico inmutable con snapshots por relación.
+        </p>
+        <div class="text-[11px] opacity-80 mt-2">
+          Canon 2026-05-28 · 12 actos (8 desktop + 4 mobile)
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ÍNDICE -->
+<section class="max-w-6xl mx-auto mb-8 px-4">
+  <div class="bg-white rounded-2xl ring-1 ring-slate-200 p-5">
+    <h2 class="text-[13px] font-bold text-slate-900 mb-4 uppercase tracking-wider">Índice · 12 actos</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-[12px]">
+      <a href="#a1" class="block p-2 rounded bg-emerald-50 hover:bg-emerald-100"><strong class="text-emerald-700">ACTO 1</strong> · Modelo datos · relacionesLaborales</a>
+      <a href="#a2" class="block p-2 rounded bg-emerald-50 hover:bg-emerald-100"><strong class="text-emerald-700">ACTO 2</strong> · Los 11 casos · cómo se modelan</a>
+      <a href="#a3" class="block p-2 rounded bg-emerald-50 hover:bg-emerald-100"><strong class="text-emerald-700">ACTO 3</strong> · Lista /usuarios · chips multi-relación</a>
+      <a href="#a4" class="block p-2 rounded bg-emerald-50 hover:bg-emerald-100"><strong class="text-emerald-700">ACTO 4</strong> · Side panel tab Relaciones (protagonista)</a>
+      <a href="#a5" class="block p-2 rounded bg-emerald-50 hover:bg-emerald-100"><strong class="text-emerald-700">ACTO 5</strong> · Wizard "Agregar nueva relación"</a>
+      <a href="#a6" class="block p-2 rounded bg-emerald-50 hover:bg-emerald-100"><strong class="text-emerald-700">ACTO 6</strong> · Flow "Reclasificar" (transición)</a>
+      <a href="#a7" class="block p-2 rounded bg-emerald-50 hover:bg-emerald-100"><strong class="text-emerald-700">ACTO 7</strong> · Flow "Pausar / Reanudar"</a>
+      <a href="#a8" class="block p-2 rounded bg-emerald-50 hover:bg-emerald-100"><strong class="text-emerald-700">ACTO 8</strong> · Histórico timeline (snapshots inmutables)</a>
+      <a href="#a9" class="block p-2 rounded bg-sky-50 hover:bg-sky-100"><strong class="text-sky-700">ACTO 9</strong> · Mobile · tab Relaciones</a>
+      <a href="#a10" class="block p-2 rounded bg-sky-50 hover:bg-sky-100"><strong class="text-sky-700">ACTO 10</strong> · Mobile · agregar relación</a>
+      <a href="#a11" class="block p-2 rounded bg-sky-50 hover:bg-sky-100"><strong class="text-sky-700">ACTO 11</strong> · Mobile · histórico</a>
+      <a href="#a12" class="block p-2 rounded bg-slate-50 hover:bg-slate-100"><strong class="text-slate-700">ACTO 12</strong> · Plan implementación v5.6 · 6 etapas</a>
+    </div>
+  </div>
+</section>
+
+<!-- ACTO 1 · MODELO DE DATOS -->
+<section id="a1" class="my-12">
+  <div class="max-w-6xl mx-auto px-4">
+    <div class="bg-gradient-to-r from-emerald-100 to-emerald-50 ring-1 ring-emerald-200 rounded-3xl p-5 mb-6">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 bg-emerald-600 rounded-2xl flex items-center justify-center text-white font-bold">1</div>
+        <div>
+          <h2 class="text-lg font-bold text-emerald-900">Modelo de datos · colección relacionesLaborales</h2>
+          <p class="text-[11px] text-emerald-700">Cada relación es un documento separado · N docs por user · vigente/pausada/finalizada</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="device-desktop bg-white rounded-2xl ring-1 ring-slate-200 overflow-hidden p-6 space-y-4">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- ANTES -->
+        <div>
+          <h3 class="text-[12px] font-bold text-slate-700 mb-2 uppercase tracking-wider inline-flex items-center gap-1.5">
+            <i data-lucide="x-circle" class="w-4 h-4 text-rose-500"></i>
+            v5.5 simple (limitado)
+          </h3>
+          <pre class="bg-slate-900 text-slate-300 text-[10px] p-3 rounded overflow-auto">
+{/* UserProfile */}
+{
+  uid: 'abc123',
+  tipoRelacion: 'empleado',  // ❌ 1 solo valor
+  /* sub-doc datosLaborales */
+  /* sub-doc datosSocio */
+}
+
+❌ Si pasa de honorarios a empleado:
+   se sobrescribe · pierde histórico
+❌ Si es empleado Y socio:
+   no se puede modelar bien
+❌ Sin fechas de transición
+          </pre>
+        </div>
+
+        <!-- AHORA -->
+        <div>
+          <h3 class="text-[12px] font-bold text-slate-700 mb-2 uppercase tracking-wider inline-flex items-center gap-1.5">
+            <i data-lucide="check-circle" class="w-4 h-4 text-emerald-500"></i>
+            v5.6 multi-relación
+          </h3>
+          <pre class="bg-slate-900 text-emerald-300 text-[10px] p-3 rounded overflow-auto">
+{/* UserProfile */}
+{ uid: 'abc123' /* sin tipoRelacion */ }
+
+{/* relacionesLaborales/rel-001 */}
+{
+  userId: 'abc123',
+  tipo: 'empleado',
+  estado: 'vigente',
+  fechaInicio: '2024-03-15',
+  fechaFin: null,
+  datosLaboralesSnapshot: { sueldo: 4500, ... }
+}
+
+{/* relacionesLaborales/rel-002 */}
+{
+  userId: 'abc123',
+  tipo: 'socio',
+  estado: 'vigente',
+  fechaInicio: '2024-03-15',
+  datosSocioSnapshot: { porcentaje: 45 }
+}
+          </pre>
+        </div>
+      </div>
+
+      <!-- Esquema visual -->
+      <div class="bg-slate-50 border border-slate-200 rounded-xl p-4">
+        <h3 class="text-[12px] font-bold text-slate-900 mb-3 uppercase tracking-wider">Estados de una relación</h3>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-[11px]">
+          <div class="bg-emerald-50 border border-emerald-200 rounded-lg p-3">
+            <div class="inline-flex items-center gap-1.5 mb-1">
+              <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+              <span class="font-bold text-emerald-900">vigente</span>
+            </div>
+            <div class="text-slate-600">Relación activa actualmente · cobra · acceso completo</div>
+          </div>
+          <div class="bg-amber-50 border border-amber-200 rounded-lg p-3">
+            <div class="inline-flex items-center gap-1.5 mb-1">
+              <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+              <span class="font-bold text-amber-900">pausada</span>
+            </div>
+            <div class="text-slate-600">Maternidad · estudios · licencia · NO cobra · mantiene cuenta</div>
+          </div>
+          <div class="bg-sky-50 border border-sky-200 rounded-lg p-3">
+            <div class="inline-flex items-center gap-1.5 mb-1">
+              <span class="w-2 h-2 rounded-full bg-sky-500"></span>
+              <span class="font-bold text-sky-900">prueba</span>
+            </div>
+            <div class="text-slate-600">Período prueba · 3 meses iniciales · transición auto a vigente</div>
+          </div>
+          <div class="bg-slate-100 border border-slate-300 rounded-lg p-3">
+            <div class="inline-flex items-center gap-1.5 mb-1">
+              <span class="w-2 h-2 rounded-full bg-slate-500"></span>
+              <span class="font-bold text-slate-700">finalizada</span>
+            </div>
+            <div class="text-slate-600">Cerrada · histórico inmutable · snapshot preservado</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-emerald-50 border border-emerald-200 rounded-lg p-3 inline-flex items-start gap-2 text-[11px] text-emerald-900">
+        <i data-lucide="lock" class="w-3.5 h-3.5 mt-0.5 flex-shrink-0"></i>
+        <span><strong>Snapshots inmutables:</strong> al finalizar una relación, el campo
+        `datosLaboralesSnapshot` queda congelado con los datos exactos al momento de cierre.
+        Si después el sueldo de la nueva relación cambia, el histórico mantiene los valores reales.</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ACTO 2 · LOS 11 CASOS -->
+<section id="a2" class="my-12">
+  <div class="max-w-6xl mx-auto px-4">
+    <div class="bg-gradient-to-r from-emerald-100 to-emerald-50 ring-1 ring-emerald-200 rounded-3xl p-5 mb-6">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 bg-emerald-600 rounded-2xl flex items-center justify-center text-white font-bold">2</div>
+        <div>
+          <h2 class="text-lg font-bold text-emerald-900">Los 11 casos reales · cómo se modelan</h2>
+          <p class="text-[11px] text-emerald-700">Matriz exhaustiva · cada caso del negocio cubierto explícitamente</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="device-desktop bg-white rounded-2xl ring-1 ring-slate-200 overflow-hidden p-6">
+      <table class="w-full text-[12px]">
+        <thead>
+          <tr class="border-b-2 border-slate-200 text-left text-[10px] uppercase tracking-wider text-slate-500 font-bold">
+            <th class="py-2 pr-3">#</th>
+            <th class="pr-3">Escenario</th>
+            <th>Modelo en relacionesLaborales</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+          <tr>
+            <td class="py-3 pr-3 font-bold text-slate-700">1</td>
+            <td class="pr-3">
+              <div class="font-bold text-slate-900">Multi simultáneo · empleado + socio</div>
+              <div class="text-[10px] text-slate-500">José · admin que cobra sueldo + tiene 45% capital</div>
+            </td>
+            <td class="text-[11px] text-slate-700">
+              <div><span class="bg-emerald-100 text-emerald-700 px-1 rounded font-mono text-[9px]">2 docs vigentes</span></div>
+              <div class="text-slate-600">{tipo: empleado, vigente} + {tipo: socio, vigente}</div>
+            </td>
+          </tr>
+          <tr>
+            <td class="py-3 pr-3 font-bold text-slate-700">2</td>
+            <td class="pr-3">
+              <div class="font-bold text-slate-900">Honorarios → Empleado</div>
+              <div class="text-[10px] text-slate-500">Ana freelance se vuelve fija con sueldo</div>
+            </td>
+            <td class="text-[11px] text-slate-700">
+              <div><span class="bg-slate-100 text-slate-700 px-1 rounded font-mono text-[9px]">Cierre + crear</span></div>
+              <div class="text-slate-600">cerrar {tipo: honorarios, finalizada, motivoFin: reclasificacion} + crear {tipo: empleado, vigente}</div>
+            </td>
+          </tr>
+          <tr>
+            <td class="py-3 pr-3 font-bold text-slate-700">3</td>
+            <td class="pr-3">
+              <div class="font-bold text-slate-900">Externo → Empleado</div>
+              <div class="text-[10px] text-slate-500">Cliente que entra a trabajar al negocio</div>
+            </td>
+            <td class="text-[11px] text-slate-700">
+              <div><span class="bg-slate-100 text-slate-700 px-1 rounded font-mono text-[9px]">Cierre + crear</span></div>
+              <div class="text-slate-600">cerrar externo + crear empleado</div>
+            </td>
+          </tr>
+          <tr>
+            <td class="py-3 pr-3 font-bold text-slate-700">4</td>
+            <td class="pr-3">
+              <div class="font-bold text-slate-900">Renuncia + Re-incorporación</div>
+              <div class="text-[10px] text-slate-500">Diego renuncia · vuelve 3 meses después</div>
+            </td>
+            <td class="text-[11px] text-slate-700">
+              <div><span class="bg-amber-100 text-amber-700 px-1 rounded font-mono text-[9px]">Histórico 2 etapas</span></div>
+              <div class="text-slate-600">{empleado, finalizada, motivoFin: renuncia} + nueva {empleado, vigente}</div>
+            </td>
+          </tr>
+          <tr>
+            <td class="py-3 pr-3 font-bold text-slate-700">5</td>
+            <td class="pr-3">
+              <div class="font-bold text-slate-900">Empleado → Honorarios</div>
+              <div class="text-[10px] text-slate-500">Cambio contractual · pasa a recibos honorarios</div>
+            </td>
+            <td class="text-[11px] text-slate-700">
+              <div><span class="bg-slate-100 text-slate-700 px-1 rounded font-mono text-[9px]">Cierre + crear</span></div>
+              <div class="text-slate-600">cerrar empleado + crear honorarios</div>
+            </td>
+          </tr>
+          <tr>
+            <td class="py-3 pr-3 font-bold text-slate-700">6</td>
+            <td class="pr-3">
+              <div class="font-bold text-slate-900">Cliente → Socio (mantiene cliente)</div>
+              <div class="text-[10px] text-slate-500">Cliente invierte · sigue siendo cliente Y ahora socio</div>
+            </td>
+            <td class="text-[11px] text-slate-700">
+              <div><span class="bg-emerald-100 text-emerald-700 px-1 rounded font-mono text-[9px]">2 docs vigentes</span></div>
+              <div class="text-slate-600">mantener externo (cliente) + agregar socio</div>
+            </td>
+          </tr>
+          <tr>
+            <td class="py-3 pr-3 font-bold text-slate-700">7</td>
+            <td class="pr-3">
+              <div class="font-bold text-slate-900">Triple relación · empleado + socio + cliente</div>
+              <div class="text-[10px] text-slate-500">Persona que cobra sueldo · tiene capital · compra productos para sí</div>
+            </td>
+            <td class="text-[11px] text-slate-700">
+              <div><span class="bg-emerald-100 text-emerald-700 px-1 rounded font-mono text-[9px]">3 docs vigentes</span></div>
+              <div class="text-slate-600">empleado + socio + externo (cliente)</div>
+            </td>
+          </tr>
+          <tr>
+            <td class="py-3 pr-3 font-bold text-slate-700">8</td>
+            <td class="pr-3">
+              <div class="font-bold text-slate-900">Licencia / pausa</div>
+              <div class="text-[10px] text-slate-500">Maternidad · estudios · licencia sin goce</div>
+            </td>
+            <td class="text-[11px] text-slate-700">
+              <div><span class="bg-amber-100 text-amber-700 px-1 rounded font-mono text-[9px]">Estado pausada</span></div>
+              <div class="text-slate-600">{tipo: empleado, estado: pausada} · mantiene relación · NO cobra · NO acumula vacaciones</div>
+            </td>
+          </tr>
+          <tr>
+            <td class="py-3 pr-3 font-bold text-slate-700">9</td>
+            <td class="pr-3">
+              <div class="font-bold text-slate-900">Período de prueba</div>
+              <div class="text-[10px] text-slate-500">3 meses iniciales · auto-transición a vigente</div>
+            </td>
+            <td class="text-[11px] text-slate-700">
+              <div><span class="bg-sky-100 text-sky-700 px-1 rounded font-mono text-[9px]">Estado prueba</span></div>
+              <div class="text-slate-600">{tipo: empleado, estado: prueba, fechaFinPrueba: '+3 meses'}</div>
+            </td>
+          </tr>
+          <tr>
+            <td class="py-3 pr-3 font-bold text-slate-700">10</td>
+            <td class="pr-3">
+              <div class="font-bold text-slate-900">Medio tiempo / por horas</div>
+              <div class="text-[10px] text-slate-500">Empleado con intensidad reducida</div>
+            </td>
+            <td class="text-[11px] text-slate-700">
+              <div><span class="bg-violet-100 text-violet-700 px-1 rounded font-mono text-[9px]">Sub-tipo</span></div>
+              <div class="text-slate-600">{tipo: empleado, subTipo: medio_tiempo} · ajusta cálculo planilla</div>
+            </td>
+          </tr>
+          <tr>
+            <td class="py-3 pr-3 font-bold text-slate-700">11</td>
+            <td class="pr-3">
+              <div class="font-bold text-slate-900">Externo tercerizado</div>
+              <div class="text-[10px] text-slate-500">Contratado vía empresa tercera · acceso al sistema</div>
+            </td>
+            <td class="text-[11px] text-slate-700">
+              <div><span class="bg-slate-100 text-slate-700 px-1 rounded font-mono text-[9px]">Sub-tipo</span></div>
+              <div class="text-slate-600">{tipo: externo, subTipo: tercerizado} · permisos reducidos</div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ACTO 3 · LISTA MULTI-CHIP -->
+<section id="a3" class="my-12">
+  <div class="max-w-6xl mx-auto px-4">
+    <div class="bg-gradient-to-r from-emerald-100 to-emerald-50 ring-1 ring-emerald-200 rounded-3xl p-5 mb-6">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 bg-emerald-600 rounded-2xl flex items-center justify-center text-white font-bold">3</div>
+        <div>
+          <h2 class="text-lg font-bold text-emerald-900">Lista /usuarios · chips multi-relación + estado</h2>
+          <p class="text-[11px] text-emerald-700">Cada user muestra TODAS sus relaciones vigentes + indicadores especiales (multi · re-incorporado · pausado)</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="device-desktop bg-white rounded-2xl ring-1 ring-slate-200 overflow-hidden">
+      <!-- Filtros -->
+      <div class="px-6 py-3 border-b border-slate-100 flex items-center gap-1.5 overflow-x-auto no-scrollbar">
+        <span class="text-[10px] text-slate-500 font-bold uppercase tracking-wider flex-shrink-0">Filtros:</span>
+        <button class="bg-slate-900 text-white text-[10px] font-bold px-2 py-1 rounded">Todos · 18</button>
+        <button class="bg-sky-50 text-sky-700 border border-sky-200 text-[10px] font-bold px-2 py-1 rounded">Empleados activos · 6</button>
+        <button class="bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-bold px-2 py-1 rounded">Honorarios · 2</button>
+        <button class="bg-violet-50 text-violet-700 border border-violet-200 text-[10px] font-bold px-2 py-1 rounded">Socios · 3</button>
+        <button class="bg-slate-50 text-slate-700 border border-slate-200 text-[10px] font-bold px-2 py-1 rounded">Externos · 5</button>
+        <button class="bg-amber-50 text-amber-700 border border-amber-200 text-[10px] font-bold px-2 py-1 rounded">Pausados · 1</button>
+        <button class="bg-purple-50 text-purple-700 border border-purple-200 text-[10px] font-bold px-2 py-1 rounded">★ Multi-rol · 3</button>
+        <button class="bg-slate-100 text-slate-700 border border-slate-300 text-[10px] font-bold px-2 py-1 rounded">Histórico finalizados · 12</button>
+      </div>
+
+      <div class="divide-y divide-slate-100">
+        <!-- Caso 1: Multi simultáneo (José) -->
+        <div class="px-6 py-3 hover:bg-purple-50/40 cursor-pointer flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-purple-700 flex items-center justify-center text-white font-bold text-[12px]">JP</div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2 flex-wrap">
+              <span class="text-[13px] font-bold text-slate-900">José Pinto</span>
+              <span class="text-[10px] bg-sky-100 text-sky-700 font-bold px-1.5 py-0.5 rounded uppercase">EMPLEADO ✓</span>
+              <span class="text-[10px] bg-violet-100 text-violet-700 font-bold px-1.5 py-0.5 rounded uppercase">SOCIO 45% ✓</span>
+              <span class="text-[10px] bg-red-100 text-red-700 font-bold px-1.5 py-0.5 rounded uppercase">ADMIN</span>
+              <span class="text-[10px] bg-purple-100 text-purple-700 font-bold px-1.5 py-0.5 rounded inline-flex items-center gap-0.5">
+                <i data-lucide="star" class="w-2.5 h-2.5"></i>MULTI
+              </span>
+            </div>
+            <div class="text-[11px] text-slate-500">CEO · empleado desde mar 2024 · socio desde mar 2024</div>
+          </div>
+          <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i>
+        </div>
+
+        <!-- Caso 2: Reclasificada (Ana honorarios→empleado) -->
+        <div class="px-6 py-3 hover:bg-purple-50/40 cursor-pointer flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-sky-500 to-sky-700 flex items-center justify-center text-white font-bold text-[12px]">AR</div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2 flex-wrap">
+              <span class="text-[13px] font-bold text-slate-900">Ana Rodríguez</span>
+              <span class="text-[10px] bg-sky-100 text-sky-700 font-bold px-1.5 py-0.5 rounded uppercase">EMPLEADO ✓</span>
+              <span class="text-[10px] bg-slate-100 text-slate-600 font-bold px-1.5 py-0.5 rounded uppercase inline-flex items-center gap-0.5">
+                <i data-lucide="history" class="w-2.5 h-2.5"></i>HONOR. histórico
+              </span>
+              <span class="text-[10px] bg-emerald-50 text-emerald-700 font-bold px-1.5 py-0.5 rounded inline-flex items-center gap-0.5">
+                <i data-lucide="refresh-cw" class="w-2.5 h-2.5"></i>RECLASIFICADA
+              </span>
+            </div>
+            <div class="text-[11px] text-slate-500">Vendedor · empleado desde mar 2024 · antes honorarios ene 2023-mar 2024</div>
+          </div>
+          <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i>
+        </div>
+
+        <!-- Caso 4: Re-incorporado (Diego) -->
+        <div class="px-6 py-3 hover:bg-purple-50/40 cursor-pointer flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center text-white font-bold text-[12px]">DL</div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2 flex-wrap">
+              <span class="text-[13px] font-bold text-slate-900">Diego López</span>
+              <span class="text-[10px] bg-sky-100 text-sky-700 font-bold px-1.5 py-0.5 rounded uppercase">EMPLEADO ✓</span>
+              <span class="text-[10px] bg-amber-50 text-amber-700 font-bold px-1.5 py-0.5 rounded inline-flex items-center gap-0.5">
+                <i data-lucide="rotate-ccw" class="w-2.5 h-2.5"></i>RE-INCORPORADO
+              </span>
+            </div>
+            <div class="text-[11px] text-slate-500">Vendedor sr. · vigente desde mar 2026 · etapa anterior abr 2024-dic 2025</div>
+          </div>
+          <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i>
+        </div>
+
+        <!-- Caso 6: Cliente + Socio (María) -->
+        <div class="px-6 py-3 hover:bg-purple-50/40 cursor-pointer flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-violet-700 flex items-center justify-center text-white font-bold text-[12px]">MC</div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2 flex-wrap">
+              <span class="text-[13px] font-bold text-slate-900">María Castro</span>
+              <span class="text-[10px] bg-slate-100 text-slate-700 font-bold px-1.5 py-0.5 rounded uppercase">EXTERNO ✓</span>
+              <span class="text-[10px] bg-violet-100 text-violet-700 font-bold px-1.5 py-0.5 rounded uppercase">SOCIO 5% ✓</span>
+              <span class="text-[10px] bg-purple-100 text-purple-700 font-bold px-1.5 py-0.5 rounded inline-flex items-center gap-0.5">
+                <i data-lucide="star" class="w-2.5 h-2.5"></i>MULTI
+              </span>
+            </div>
+            <div class="text-[11px] text-slate-500">Cliente VIP de Constructora ABC · invirtió S/ 12K en mar 2026 (ahora socia)</div>
+          </div>
+          <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i>
+        </div>
+
+        <!-- Caso 8: Pausada (licencia maternidad) -->
+        <div class="px-6 py-3 hover:bg-purple-50/40 cursor-pointer flex items-center gap-3 bg-amber-50/30">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center text-white font-bold text-[12px]">LM</div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2 flex-wrap">
+              <span class="text-[13px] font-bold text-slate-900">Lucía Mendoza</span>
+              <span class="text-[10px] bg-amber-100 text-amber-700 font-bold px-1.5 py-0.5 rounded uppercase">EMPLEADO ⏸</span>
+              <span class="text-[10px] bg-amber-50 text-amber-700 font-bold px-1.5 py-0.5 rounded inline-flex items-center gap-0.5">
+                <i data-lucide="pause" class="w-2.5 h-2.5"></i>PAUSADA
+              </span>
+            </div>
+            <div class="text-[11px] text-slate-500">Vendedora · licencia maternidad desde abr 2026 · vuelve sep 2026</div>
+          </div>
+          <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i>
+        </div>
+
+        <!-- Caso 9: Período de prueba (nuevo) -->
+        <div class="px-6 py-3 hover:bg-purple-50/40 cursor-pointer flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-sky-400 to-sky-600 flex items-center justify-center text-white font-bold text-[12px]">PM</div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2 flex-wrap">
+              <span class="text-[13px] font-bold text-slate-900">Pedro Martínez</span>
+              <span class="text-[10px] bg-sky-100 text-sky-700 font-bold px-1.5 py-0.5 rounded uppercase">EMPLEADO 🔵</span>
+              <span class="text-[10px] bg-sky-50 text-sky-700 font-bold px-1.5 py-0.5 rounded inline-flex items-center gap-0.5">
+                <i data-lucide="clock" class="w-2.5 h-2.5"></i>PRUEBA · 2m restantes
+              </span>
+            </div>
+            <div class="text-[11px] text-slate-500">Comprador · ingreso may 2026 · período prueba hasta jul 2026</div>
+          </div>
+          <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-4 max-w-6xl mx-auto p-3 bg-emerald-50 border border-emerald-200 rounded-lg">
+      <div class="text-[12px] font-bold text-emerald-900 mb-1 inline-flex items-center gap-1.5">
+        <i data-lucide="layers" class="w-4 h-4"></i>
+        Chips dinámicos por relación
+      </div>
+      <div class="text-[11px] text-emerald-800">
+        <strong>Vigentes:</strong> chip con check ✓ · <strong>Pausadas:</strong> chip con ⏸ amber ·
+        <strong>Prueba:</strong> chip con 🔵 + tiempo restante · <strong>Históricas:</strong> chip slate con icon history ·
+        <strong>MULTI:</strong> badge purple ★ si tiene ≥2 vigentes · <strong>RECLASIFICADA:</strong> badge si la actual viene de un cambio
+        · <strong>RE-INCORPORADO:</strong> badge amber si tiene histórico finalizado del mismo tipo.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ACTO 4 · TAB RELACIONES -->
+<section id="a4" class="my-12">
+  <div class="max-w-6xl mx-auto px-4">
+    <div class="bg-gradient-to-r from-emerald-100 to-emerald-50 ring-1 ring-emerald-200 rounded-3xl p-5 mb-6">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 bg-emerald-600 rounded-2xl flex items-center justify-center text-white font-bold">4</div>
+        <div>
+          <h2 class="text-lg font-bold text-emerald-900">Side panel · tab Relaciones (protagonista)</h2>
+          <p class="text-[11px] text-emerald-700">Reemplaza tabs Laboral/Capital separados · UNA vista con todas las relaciones · cards por cada una</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="device-desktop bg-white rounded-2xl ring-1 ring-slate-200 overflow-hidden p-4">
+      <div class="flex gap-3" style="height: 740px">
+        <div class="flex-1 bg-slate-100/60 rounded-xl p-4 text-[10px] text-slate-400 text-center pt-20">
+          Lista atenuada
+        </div>
+
+        <div class="bg-white border-2 border-emerald-300 rounded-2xl shadow-2xl overflow-hidden flex flex-col" style="width: 500px">
+          <!-- Header -->
+          <div class="px-5 py-4 border-b border-slate-200 flex items-start gap-3">
+            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-purple-700 flex items-center justify-center text-white font-bold text-[14px]">JP</div>
+            <div class="flex-1 min-w-0">
+              <h2 class="text-[15px] font-bold text-slate-900">José Pinto</h2>
+              <p class="text-[11px] text-slate-500">2 relaciones vigentes · 1 histórica</p>
+            </div>
+            <button class="w-7 h-7 hover:bg-slate-100 rounded flex items-center justify-center">
+              <i data-lucide="x" class="w-4 h-4 text-slate-600"></i>
+            </button>
+          </div>
+
+          <!-- Tabs · "Relaciones" es protagonista · NO más Laboral/Capital por separado -->
+          <div class="border-b border-slate-200 px-2 overflow-x-auto no-scrollbar">
+            <div class="flex gap-1 whitespace-nowrap">
+              <button class="px-3 py-2 text-[11px] font-medium border-b-2 border-transparent text-slate-600 flex items-center gap-1"><i data-lucide="user" class="w-3 h-3"></i>Identidad</button>
+              <button class="px-3 py-2 text-[11px] font-medium border-b-2 border-transparent text-slate-600 flex items-center gap-1"><i data-lucide="shield" class="w-3 h-3"></i>Roles</button>
+              <button class="px-3 py-2 text-[11px] font-bold border-b-2 border-emerald-600 text-emerald-700 flex items-center gap-1">
+                <i data-lucide="git-branch" class="w-3 h-3"></i>Relaciones
+                <span class="text-[9px] bg-emerald-100 px-1 rounded-full font-bold">3</span>
+              </button>
+              <button class="px-3 py-2 text-[11px] font-medium border-b-2 border-transparent text-slate-600 flex items-center gap-1"><i data-lucide="key" class="w-3 h-3"></i>Permisos</button>
+              <button class="px-3 py-2 text-[11px] font-medium border-b-2 border-transparent text-slate-600 flex items-center gap-1"><i data-lucide="monitor" class="w-3 h-3"></i>Sesiones</button>
+            </div>
+          </div>
+
+          <!-- Body con cards de relaciones -->
+          <div class="flex-1 overflow-y-auto p-4 space-y-3 bg-slate-50/30">
+            <!-- Filtro · vigentes/históricas -->
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-1.5">
+                <button class="bg-slate-900 text-white text-[10px] font-bold px-2 py-1 rounded">Vigentes · 2</button>
+                <button class="bg-white text-slate-700 border border-slate-200 text-[10px] font-bold px-2 py-1 rounded">Históricas · 1</button>
+                <button class="bg-white text-slate-700 border border-slate-200 text-[10px] font-bold px-2 py-1 rounded">Todas · 3</button>
+              </div>
+              <button class="bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-bold px-2.5 py-1 rounded inline-flex items-center gap-1">
+                <i data-lucide="plus" class="w-3 h-3"></i>Nueva
+              </button>
+            </div>
+
+            <!-- Card 1 · Empleado vigente -->
+            <div class="bg-white border-2 border-sky-200 rounded-xl p-4">
+              <div class="flex items-start justify-between mb-2">
+                <div class="flex items-center gap-2">
+                  <div class="w-9 h-9 rounded-lg bg-sky-100 flex items-center justify-center">
+                    <i data-lucide="briefcase" class="w-4 h-4 text-sky-700"></i>
+                  </div>
+                  <div>
+                    <div class="flex items-center gap-1.5 flex-wrap">
+                      <span class="text-[13px] font-bold text-slate-900">Empleado</span>
+                      <span class="text-[9px] bg-emerald-100 text-emerald-700 font-bold px-1.5 py-0.5 rounded uppercase">VIGENTE</span>
+                    </div>
+                    <div class="text-[10px] text-slate-500">desde 15 mar 2024 · 2 años 2 meses</div>
+                  </div>
+                </div>
+                <div class="relative">
+                  <button class="w-6 h-6 hover:bg-slate-100 rounded flex items-center justify-center"><i data-lucide="more-vertical" class="w-3.5 h-3.5 text-slate-600"></i></button>
+                </div>
+              </div>
+              <div class="grid grid-cols-2 gap-x-3 gap-y-1 text-[11px] mt-2 pl-11">
+                <div><span class="text-slate-500">Cargo:</span> <span class="font-bold text-sky-900">CEO</span></div>
+                <div><span class="text-slate-500">Área:</span> <span class="font-bold text-sky-900">Dirección</span></div>
+                <div><span class="text-slate-500">Sueldo:</span> <span class="font-bold text-sky-900 tabular">S/ 8,000</span></div>
+                <div><span class="text-slate-500">Contrato:</span> <span class="font-bold text-sky-900">Indefinido</span></div>
+              </div>
+              <div class="mt-3 pt-2 border-t border-sky-100 flex items-center justify-end gap-1.5">
+                <button class="text-[10px] font-medium text-slate-600 hover:bg-slate-50 border border-slate-200 px-2 py-1 rounded">Editar</button>
+                <button class="text-[10px] font-medium text-amber-700 hover:bg-amber-50 border border-amber-200 px-2 py-1 rounded">Pausar</button>
+                <button class="text-[10px] font-medium text-slate-600 hover:bg-slate-50 border border-slate-200 px-2 py-1 rounded">Reclasificar</button>
+                <button class="text-[10px] font-medium text-rose-700 hover:bg-rose-50 border border-rose-200 px-2 py-1 rounded">Finalizar</button>
+              </div>
+            </div>
+
+            <!-- Card 2 · Socio vigente -->
+            <div class="bg-white border-2 border-violet-200 rounded-xl p-4">
+              <div class="flex items-start justify-between mb-2">
+                <div class="flex items-center gap-2">
+                  <div class="w-9 h-9 rounded-lg bg-violet-100 flex items-center justify-center">
+                    <i data-lucide="coins" class="w-4 h-4 text-violet-700"></i>
+                  </div>
+                  <div>
+                    <div class="flex items-center gap-1.5 flex-wrap">
+                      <span class="text-[13px] font-bold text-slate-900">Socio</span>
+                      <span class="text-[9px] bg-emerald-100 text-emerald-700 font-bold px-1.5 py-0.5 rounded uppercase">VIGENTE</span>
+                    </div>
+                    <div class="text-[10px] text-slate-500">desde 15 mar 2024 · 2 años 2 meses</div>
+                  </div>
+                </div>
+                <button class="w-6 h-6 hover:bg-slate-100 rounded flex items-center justify-center"><i data-lucide="more-vertical" class="w-3.5 h-3.5 text-slate-600"></i></button>
+              </div>
+              <div class="grid grid-cols-2 gap-x-3 gap-y-1 text-[11px] mt-2 pl-11">
+                <div><span class="text-slate-500">% participación:</span> <span class="font-bold text-violet-900 tabular">45%</span></div>
+                <div><span class="text-slate-500">Capital:</span> <span class="font-bold text-violet-900 tabular">S/ 70K</span></div>
+                <div><span class="text-slate-500">Tipo:</span> <span class="font-bold text-violet-900">Cash + Valor</span></div>
+                <div><span class="text-slate-500">Rol:</span> <span class="font-bold text-violet-900">Co-fundador</span></div>
+              </div>
+              <div class="mt-3 pt-2 border-t border-violet-100 flex items-center justify-end gap-1.5">
+                <button class="text-[10px] font-medium text-slate-600 hover:bg-slate-50 border border-slate-200 px-2 py-1 rounded">Editar</button>
+                <button class="text-[10px] font-medium text-rose-700 hover:bg-rose-50 border border-rose-200 px-2 py-1 rounded">Finalizar</button>
+              </div>
+            </div>
+
+            <!-- Card 3 · Histórica finalizada -->
+            <div class="bg-slate-50 border border-slate-300 rounded-xl p-4 opacity-80">
+              <div class="flex items-start justify-between mb-2">
+                <div class="flex items-center gap-2">
+                  <div class="w-9 h-9 rounded-lg bg-slate-200 flex items-center justify-center">
+                    <i data-lucide="file-text" class="w-4 h-4 text-slate-600"></i>
+                  </div>
+                  <div>
+                    <div class="flex items-center gap-1.5 flex-wrap">
+                      <span class="text-[13px] font-bold text-slate-700">Honorarios</span>
+                      <span class="text-[9px] bg-slate-200 text-slate-700 font-bold px-1.5 py-0.5 rounded uppercase">FINALIZADA</span>
+                    </div>
+                    <div class="text-[10px] text-slate-500">15 ene 2023 → 14 mar 2024 · 14 meses</div>
+                  </div>
+                </div>
+                <button class="w-6 h-6 hover:bg-slate-100 rounded flex items-center justify-center"><i data-lucide="more-vertical" class="w-3.5 h-3.5 text-slate-600"></i></button>
+              </div>
+              <div class="grid grid-cols-2 gap-x-3 gap-y-1 text-[11px] mt-2 pl-11">
+                <div><span class="text-slate-500">Cargo:</span> <span class="font-bold text-slate-700">Consultor</span></div>
+                <div><span class="text-slate-500">Honor./mes:</span> <span class="font-bold text-slate-700 tabular">S/ 3,500</span></div>
+                <div class="col-span-2"><span class="text-slate-500">Motivo cierre:</span> <span class="font-bold text-slate-700">reclasificación a empleado</span></div>
+              </div>
+              <div class="mt-3 pt-2 border-t border-slate-200 flex items-center justify-end gap-1.5">
+                <button class="text-[10px] font-medium text-slate-600 hover:bg-slate-100 border border-slate-200 px-2 py-1 rounded inline-flex items-center gap-1">
+                  <i data-lucide="lock" class="w-3 h-3"></i>Ver snapshot
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="px-5 py-3 border-t border-slate-200 bg-slate-50 flex items-center justify-between">
+            <button class="text-[11px] font-medium text-rose-600 hover:bg-rose-50 px-3 py-1.5 rounded">Desactivar cuenta</button>
+            <button class="text-[11px] font-bold text-white bg-purple-600 hover:bg-purple-700 px-3 py-1.5 rounded">Listo</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ACTO 5 · WIZARD AGREGAR RELACIÓN -->
+<section id="a5" class="my-12">
+  <div class="max-w-6xl mx-auto px-4">
+    <div class="bg-gradient-to-r from-emerald-100 to-emerald-50 ring-1 ring-emerald-200 rounded-3xl p-5 mb-6">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 bg-emerald-600 rounded-2xl flex items-center justify-center text-white font-bold">5</div>
+        <div>
+          <h2 class="text-lg font-bold text-emerald-900">Wizard · "Agregar nueva relación"</h2>
+          <p class="text-[11px] text-emerald-700">Modal 2-pasos · Tipo + Detalles · invocado desde card "+ Nueva relación"</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="device-desktop bg-slate-900/30 rounded-2xl p-6 flex items-center justify-center min-h-[640px]">
+      <div class="bg-white rounded-2xl ring-1 ring-slate-200 w-full max-w-2xl overflow-hidden">
+        <!-- Header -->
+        <div class="px-5 py-4 border-b border-slate-100 flex items-center gap-3">
+          <div class="w-10 h-10 bg-gradient-to-br from-emerald-500 to-emerald-700 rounded-xl flex items-center justify-center text-white">
+            <i data-lucide="git-branch-plus" class="w-5 h-5"></i>
+          </div>
+          <div class="flex-1">
+            <h3 class="text-[14px] font-bold text-slate-900">Agregar nueva relación · José Pinto</h3>
+            <p class="text-[11px] text-slate-500">El user ya tiene 2 relaciones vigentes · esta será adicional</p>
+          </div>
+          <button class="w-7 h-7 hover:bg-slate-100 rounded flex items-center justify-center"><i data-lucide="x" class="w-4 h-4 text-slate-600"></i></button>
+        </div>
+
+        <!-- Stepper -->
+        <div class="px-5 py-3 border-b border-slate-200 bg-slate-50 flex items-center gap-2 text-[11px]">
+          <div class="w-5 h-5 rounded-full bg-emerald-600 text-white font-bold flex items-center justify-center text-[10px]">1</div>
+          <span class="font-bold text-emerald-700">Tipo</span>
+          <div class="flex-1 h-px bg-slate-300"></div>
+          <div class="w-5 h-5 rounded-full bg-slate-200 text-slate-500 font-bold flex items-center justify-center text-[10px]">2</div>
+          <span class="text-slate-500">Detalles</span>
+        </div>
+
+        <!-- Body · paso 1 -->
+        <div class="p-5 space-y-3">
+          <div class="text-center mb-2">
+            <h3 class="text-[15px] font-bold text-slate-900">¿Qué tipo de nueva relación?</h3>
+            <p class="text-[11px] text-slate-500 mt-0.5">No se duplica con tipos vigentes · ya tiene Empleado + Socio</p>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <!-- Empleado · disabled (ya vigente) -->
+            <button disabled class="bg-slate-50 border border-slate-200 rounded-xl p-3 text-left opacity-50 cursor-not-allowed">
+              <div class="flex items-center gap-2 mb-1">
+                <div class="w-8 h-8 bg-slate-200 rounded-lg flex items-center justify-center">
+                  <i data-lucide="briefcase" class="w-4 h-4 text-slate-500"></i>
+                </div>
+                <div>
+                  <span class="text-[12px] font-bold text-slate-700">Empleado</span>
+                  <span class="block text-[9px] text-slate-500">Ya vigente</span>
+                </div>
+              </div>
+            </button>
+            <button class="bg-white border border-slate-200 hover:border-emerald-300 hover:bg-emerald-50/30 rounded-xl p-3 text-left">
+              <div class="flex items-center gap-2 mb-1">
+                <div class="w-8 h-8 bg-emerald-100 rounded-lg flex items-center justify-center">
+                  <i data-lucide="file-text" class="w-4 h-4 text-emerald-700"></i>
+                </div>
+                <div>
+                  <span class="text-[12px] font-bold text-slate-900">Honorarios</span>
+                  <span class="block text-[9px] text-slate-500">Recibos · servicios extra</span>
+                </div>
+              </div>
+            </button>
+            <!-- Socio · disabled (ya vigente) -->
+            <button disabled class="bg-slate-50 border border-slate-200 rounded-xl p-3 text-left opacity-50 cursor-not-allowed">
+              <div class="flex items-center gap-2 mb-1">
+                <div class="w-8 h-8 bg-slate-200 rounded-lg flex items-center justify-center">
+                  <i data-lucide="coins" class="w-4 h-4 text-slate-500"></i>
+                </div>
+                <div>
+                  <span class="text-[12px] font-bold text-slate-700">Socio</span>
+                  <span class="block text-[9px] text-slate-500">Ya vigente</span>
+                </div>
+              </div>
+            </button>
+            <button class="bg-white border border-slate-200 hover:border-slate-400 hover:bg-slate-100 rounded-xl p-3 text-left">
+              <div class="flex items-center gap-2 mb-1">
+                <div class="w-8 h-8 bg-slate-100 rounded-lg flex items-center justify-center">
+                  <i data-lucide="external-link" class="w-4 h-4 text-slate-600"></i>
+                </div>
+                <div>
+                  <span class="text-[12px] font-bold text-slate-900">Externo</span>
+                  <span class="block text-[9px] text-slate-500">Cliente · proveedor</span>
+                </div>
+              </div>
+            </button>
+          </div>
+
+          <div class="bg-sky-50 border border-sky-200 rounded-lg p-3 text-[11px] text-sky-900 inline-flex items-start gap-2">
+            <i data-lucide="lightbulb" class="w-3.5 h-3.5 mt-0.5 flex-shrink-0"></i>
+            <span><strong>Casos comunes de agregar:</strong> empleado que compra productos para sí (agregar Externo·cliente) ·
+            cliente que invierte capital (agregar Socio) · empleado que recibe pagos extra por servicios (agregar Honorarios).</span>
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="px-5 py-3 border-t border-slate-100 bg-slate-50 flex items-center justify-between">
+          <button class="text-[11px] font-medium text-slate-600 px-3 py-1.5 rounded">Cancelar</button>
+          <button class="text-[11px] font-bold text-white bg-purple-600 hover:bg-purple-700 px-3 py-1.5 rounded inline-flex items-center gap-1">Siguiente<i data-lucide="arrow-right" class="w-3.5 h-3.5"></i></button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ACTO 6 · FLOW RECLASIFICAR -->
+<section id="a6" class="my-12">
+  <div class="max-w-6xl mx-auto px-4">
+    <div class="bg-gradient-to-r from-amber-100 to-amber-50 ring-1 ring-amber-200 rounded-3xl p-5 mb-6">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 bg-amber-600 rounded-2xl flex items-center justify-center text-white font-bold">6</div>
+        <div>
+          <h2 class="text-lg font-bold text-amber-900">Flow "Reclasificar" · transición atómica</h2>
+          <p class="text-[11px] text-amber-700">Honorarios → Empleado · finaliza la actual + crea la nueva en una operación</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="device-desktop bg-slate-900/30 rounded-2xl p-6 flex items-center justify-center min-h-[680px]">
+      <div class="bg-white rounded-2xl ring-1 ring-slate-200 w-full max-w-2xl overflow-hidden">
+        <div class="px-5 py-4 border-b border-slate-100 flex items-center gap-3">
+          <div class="w-10 h-10 bg-gradient-to-br from-amber-500 to-amber-700 rounded-xl flex items-center justify-center text-white">
+            <i data-lucide="refresh-cw" class="w-5 h-5"></i>
+          </div>
+          <div class="flex-1">
+            <h3 class="text-[14px] font-bold text-slate-900">Reclasificar relación</h3>
+            <p class="text-[11px] text-slate-500">Ana Rodríguez · Honorarios → Empleado</p>
+          </div>
+          <button class="w-7 h-7 hover:bg-slate-100 rounded flex items-center justify-center"><i data-lucide="x" class="w-4 h-4 text-slate-600"></i></button>
+        </div>
+
+        <div class="p-5 space-y-4">
+          <!-- Visual del cambio -->
+          <div class="bg-slate-50 border border-slate-200 rounded-xl p-4">
+            <div class="flex items-center gap-3 justify-center">
+              <div class="text-center">
+                <div class="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center mx-auto mb-1">
+                  <i data-lucide="file-text" class="w-6 h-6 text-emerald-700"></i>
+                </div>
+                <div class="text-[11px] font-bold text-emerald-900">HONORARIOS</div>
+                <div class="text-[9px] text-slate-500">Relación actual</div>
+              </div>
+              <div class="text-amber-600">
+                <i data-lucide="arrow-right" class="w-6 h-6"></i>
+              </div>
+              <div class="text-center">
+                <div class="w-12 h-12 bg-sky-100 rounded-xl flex items-center justify-center mx-auto mb-1">
+                  <i data-lucide="briefcase" class="w-6 h-6 text-sky-700"></i>
+                </div>
+                <div class="text-[11px] font-bold text-sky-900">EMPLEADO</div>
+                <div class="text-[9px] text-slate-500">Nueva relación</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Qué pasa -->
+          <div class="space-y-2">
+            <div class="bg-emerald-50 border border-emerald-200 rounded-lg p-3 text-[11px] text-emerald-900 inline-flex items-start gap-2">
+              <i data-lucide="check-circle" class="w-3.5 h-3.5 mt-0.5 flex-shrink-0"></i>
+              <div>
+                <strong>1. Finalizar Honorarios</strong>
+                <div class="text-[10px] text-emerald-800 mt-0.5">fechaFin = hoy · motivoFin = reclasificacion · snapshot inmutable se preserva</div>
+              </div>
+            </div>
+            <div class="bg-sky-50 border border-sky-200 rounded-lg p-3 text-[11px] text-sky-900 inline-flex items-start gap-2">
+              <i data-lucide="plus-circle" class="w-3.5 h-3.5 mt-0.5 flex-shrink-0"></i>
+              <div>
+                <strong>2. Crear nueva Empleado</strong>
+                <div class="text-[10px] text-sky-800 mt-0.5">fechaInicio = mañana · estado = vigente · pide datos laborales nuevos</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Form datos nueva relación -->
+          <div class="bg-white border border-slate-200 rounded-xl p-4 space-y-3 text-[11px]">
+            <h4 class="text-[12px] font-bold text-slate-900 inline-flex items-center gap-1.5">
+              <i data-lucide="briefcase" class="w-3.5 h-3.5 text-sky-700"></i>
+              Datos de la nueva relación Empleado
+            </h4>
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="font-bold text-slate-700 block mb-1">Fecha efectiva</label>
+                <input type="date" value="2026-05-29" class="w-full px-2 py-1.5 border border-slate-300 rounded text-[11px]" />
+              </div>
+              <div>
+                <label class="font-bold text-slate-700 block mb-1">Sueldo base</label>
+                <input type="number" placeholder="4500" class="w-full px-2 py-1.5 border border-slate-300 rounded text-[11px] tabular" />
+              </div>
+              <div>
+                <label class="font-bold text-slate-700 block mb-1">Cargo</label>
+                <input type="text" placeholder="ej. Vendedor sr." class="w-full px-2 py-1.5 border border-slate-300 rounded text-[11px]" />
+              </div>
+              <div>
+                <label class="font-bold text-slate-700 block mb-1">Período de prueba?</label>
+                <select class="w-full px-2 py-1.5 border border-slate-300 rounded text-[11px]">
+                  <option>No · pasa directo a vigente</option>
+                  <option>Sí · 3 meses de prueba</option>
+                </select>
+              </div>
+            </div>
+            <div>
+              <label class="font-bold text-slate-700 block mb-1">Motivo del cambio (audit)</label>
+              <textarea rows="2" placeholder="ej. tras 14 meses como freelance · se incorpora full-time al equipo · acuerdo del 28-may-2026" class="w-full px-2 py-1.5 border border-slate-300 rounded text-[11px]"></textarea>
+            </div>
+          </div>
+
+          <div class="bg-amber-50 border border-amber-200 rounded-lg p-3 text-[11px] text-amber-900 inline-flex items-start gap-2">
+            <i data-lucide="info" class="w-3.5 h-3.5 mt-0.5 flex-shrink-0"></i>
+            <span>El histórico de honorarios queda intacto · podrás consultar los recibos pasados.
+            La transición es <strong>atómica</strong>: si falla, no se aplica nada.</span>
+          </div>
+        </div>
+
+        <div class="px-5 py-3 border-t border-slate-100 bg-slate-50 flex items-center justify-between">
+          <button class="text-[11px] font-medium text-slate-600 px-3 py-1.5 rounded">Cancelar</button>
+          <button class="text-[11px] font-bold text-white bg-amber-600 hover:bg-amber-700 px-3 py-1.5 rounded inline-flex items-center gap-1.5">
+            <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>Confirmar reclasificación
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ACTO 7 · FLOW PAUSAR -->
+<section id="a7" class="my-12">
+  <div class="max-w-6xl mx-auto px-4">
+    <div class="bg-gradient-to-r from-amber-100 to-amber-50 ring-1 ring-amber-200 rounded-3xl p-5 mb-6">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 bg-amber-600 rounded-2xl flex items-center justify-center text-white font-bold">7</div>
+        <div>
+          <h2 class="text-lg font-bold text-amber-900">Flow "Pausar / Reanudar" · licencia</h2>
+          <p class="text-[11px] text-amber-700">Maternidad · estudios · licencia sin goce · mantiene relación pero NO cobra</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="device-desktop bg-slate-900/30 rounded-2xl p-6 flex items-center justify-center min-h-[500px]">
+      <div class="bg-white rounded-2xl ring-1 ring-slate-200 w-full max-w-lg overflow-hidden">
+        <div class="px-5 py-4 border-b border-slate-100 flex items-center gap-3">
+          <div class="w-10 h-10 bg-gradient-to-br from-amber-500 to-amber-700 rounded-xl flex items-center justify-center text-white">
+            <i data-lucide="pause" class="w-5 h-5"></i>
+          </div>
+          <div class="flex-1">
+            <h3 class="text-[14px] font-bold text-slate-900">Pausar relación</h3>
+            <p class="text-[11px] text-slate-500">Lucía Mendoza · Empleado · Vendedora</p>
+          </div>
+          <button class="w-7 h-7 hover:bg-slate-100 rounded flex items-center justify-center"><i data-lucide="x" class="w-4 h-4 text-slate-600"></i></button>
+        </div>
+
+        <div class="p-5 space-y-3">
+          <div class="bg-amber-50 border border-amber-200 rounded-lg p-3 text-[11px] text-amber-900">
+            <strong>Una relación pausada:</strong>
+            <ul class="list-disc list-inside mt-1 space-y-0.5">
+              <li>Mantiene la cuenta del usuario activa</li>
+              <li>NO recibe sueldo · boletas se omiten</li>
+              <li>NO acumula vacaciones ni gratificación proporcional</li>
+              <li>Aparece en la lista con chip "PAUSADA" amber</li>
+              <li>Al reanudar · se calcula la fecha de retorno</li>
+            </ul>
+          </div>
+
+          <div class="space-y-3 text-[11px]">
+            <div>
+              <label class="font-bold text-slate-700 block mb-1">Motivo de la pausa <span class="text-rose-600">*</span></label>
+              <select class="w-full px-3 py-2 border border-slate-300 rounded">
+                <option>Licencia maternidad/paternidad</option>
+                <option>Estudios · licencia educativa</option>
+                <option>Licencia sin goce</option>
+                <option>Licencia médica extendida</option>
+                <option>Sabático</option>
+                <option>Otro</option>
+              </select>
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="font-bold text-slate-700 block mb-1">Fecha de inicio</label>
+                <input type="date" value="2026-05-29" class="w-full px-2 py-1.5 border border-slate-300 rounded" />
+              </div>
+              <div>
+                <label class="font-bold text-slate-700 block mb-1">Fecha estimada retorno</label>
+                <input type="date" value="2026-09-15" class="w-full px-2 py-1.5 border border-slate-300 rounded" />
+              </div>
+            </div>
+            <div>
+              <label class="font-bold text-slate-700 block mb-1">Notas internas (opcional)</label>
+              <textarea rows="2" placeholder="ej. Licencia maternidad · 90 días · regreso 15-sep" class="w-full px-2 py-1.5 border border-slate-300 rounded"></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="px-5 py-3 border-t border-slate-100 bg-slate-50 flex items-center justify-between">
+          <button class="text-[11px] font-medium text-slate-600 px-3 py-1.5 rounded">Cancelar</button>
+          <button class="text-[11px] font-bold text-white bg-amber-600 hover:bg-amber-700 px-3 py-1.5 rounded inline-flex items-center gap-1.5">
+            <i data-lucide="pause" class="w-3.5 h-3.5"></i>Confirmar pausa
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ACTO 8 · HISTÓRICO TIMELINE -->
+<section id="a8" class="my-12">
+  <div class="max-w-6xl mx-auto px-4">
+    <div class="bg-gradient-to-r from-slate-100 to-slate-50 ring-1 ring-slate-200 rounded-3xl p-5 mb-6">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 bg-slate-700 rounded-2xl flex items-center justify-center text-white font-bold">8</div>
+        <div>
+          <h2 class="text-lg font-bold text-slate-900">Histórico timeline · snapshots inmutables</h2>
+          <p class="text-[11px] text-slate-700">Vista cronológica de todas las relaciones del user · sub-tab dentro de Relaciones</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="device-desktop bg-white rounded-2xl ring-1 ring-slate-200 overflow-hidden p-6">
+      <div class="bg-white border border-slate-200 rounded-xl p-5">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-[14px] font-bold text-slate-900 inline-flex items-center gap-1.5">
+            <i data-lucide="history" class="w-4 h-4 text-slate-700"></i>
+            Timeline · Diego López · 2 etapas
+          </h3>
+          <span class="text-[10px] text-slate-500">2 años 6 meses lifetime</span>
+        </div>
+
+        <div class="space-y-4">
+          <!-- Etapa actual · vigente -->
+          <div class="flex gap-3">
+            <div class="flex flex-col items-center">
+              <div class="w-4 h-4 rounded-full bg-emerald-500 ring-4 ring-emerald-100 flex-shrink-0"></div>
+              <div class="w-0.5 flex-1 bg-slate-200 mt-2"></div>
+            </div>
+            <div class="flex-1 pb-4">
+              <div class="flex items-center gap-2 mb-1 flex-wrap">
+                <span class="text-[13px] font-bold text-slate-900">Empleado</span>
+                <span class="text-[10px] bg-emerald-100 text-emerald-700 font-bold px-1.5 py-0.5 rounded uppercase">VIGENTE</span>
+                <span class="text-[10px] bg-amber-50 text-amber-700 font-bold px-1.5 py-0.5 rounded uppercase">RE-INCORPORADO</span>
+              </div>
+              <div class="text-[11px] text-slate-600 mb-1">desde mar 2026 · 2 meses · vendedor sr.</div>
+              <div class="bg-emerald-50/60 border border-emerald-200 rounded-lg p-3 text-[11px] mt-2">
+                <div class="grid grid-cols-2 gap-x-3 gap-y-1">
+                  <div><span class="text-slate-500">Sueldo actual:</span> <span class="font-bold tabular">S/ 4,500</span></div>
+                  <div><span class="text-slate-500">Cargo:</span> <span class="font-bold">Vendedor sr.</span></div>
+                  <div><span class="text-slate-500">Contrato:</span> <span class="font-bold">Indefinido</span></div>
+                  <div><span class="text-slate-500">Modalidad:</span> <span class="font-bold">Presencial</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Brecha · gap -->
+          <div class="flex gap-3">
+            <div class="flex flex-col items-center">
+              <div class="w-3 h-3 rounded-full bg-slate-300 flex-shrink-0"></div>
+              <div class="w-0.5 flex-1 bg-slate-200 mt-2"></div>
+            </div>
+            <div class="flex-1 pb-4">
+              <div class="text-[11px] text-slate-500 italic">⏰ Gap de 3 meses · ene-mar 2026 · sin relación con el negocio</div>
+            </div>
+          </div>
+
+          <!-- Etapa anterior · finalizada -->
+          <div class="flex gap-3">
+            <div class="flex flex-col items-center">
+              <div class="w-4 h-4 rounded-full bg-slate-400 ring-4 ring-slate-100 flex-shrink-0"></div>
+            </div>
+            <div class="flex-1 pb-2">
+              <div class="flex items-center gap-2 mb-1 flex-wrap">
+                <span class="text-[13px] font-bold text-slate-700">Empleado</span>
+                <span class="text-[10px] bg-slate-100 text-slate-600 font-bold px-1.5 py-0.5 rounded uppercase">FINALIZADA</span>
+              </div>
+              <div class="text-[11px] text-slate-600 mb-1">abr 2024 → dic 2025 · 1 año 8 meses · vendedor</div>
+              <div class="bg-slate-50 border border-slate-300 rounded-lg p-3 text-[11px] mt-2">
+                <div class="grid grid-cols-2 gap-x-3 gap-y-1 mb-2">
+                  <div><span class="text-slate-500">Sueldo final:</span> <span class="font-bold tabular text-slate-700">S/ 4,200</span></div>
+                  <div><span class="text-slate-500">Cargo final:</span> <span class="font-bold text-slate-700">Vendedor</span></div>
+                  <div class="col-span-2"><span class="text-slate-500">Motivo cierre:</span> <span class="font-bold text-rose-700">Renuncia voluntaria</span></div>
+                </div>
+                <div class="border-t border-slate-200 pt-2 text-[10px] text-slate-500">
+                  Snapshot inmutable · datos al 31-dic-2025 · audit trail completo
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-4 pt-3 border-t border-slate-200 flex items-center justify-between">
+          <button class="text-[11px] font-medium text-slate-700 hover:bg-slate-50 border border-slate-200 px-3 py-1.5 rounded inline-flex items-center gap-1">
+            <i data-lucide="download" class="w-3 h-3"></i>Exportar histórico CSV
+          </button>
+          <span class="text-[10px] text-slate-500 italic">Los snapshots son inmutables · garantizan trazabilidad legal</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DIVISOR MOBILE -->
+<section class="my-16 max-w-6xl mx-auto px-4">
+  <div class="bg-gradient-to-r from-sky-600 to-sky-700 text-white rounded-3xl p-6 shadow-xl">
+    <div class="flex items-center gap-4">
+      <div class="w-14 h-14 bg-white/20 rounded-2xl flex items-center justify-center flex-shrink-0">
+        <i data-lucide="smartphone" class="w-7 h-7"></i>
+      </div>
+      <div>
+        <h2 class="text-2xl font-bold">Vista mobile · 3 actos · canon 2026-05-27</h2>
+        <p class="text-[13px] opacity-90 mt-1">Tab Relaciones · agregar relación bottom-sheet · histórico stack</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ACTO 9 · MOBILE TAB RELACIONES -->
+<section id="a9" class="my-12">
+  <div class="max-w-6xl mx-auto px-4">
+    <div class="bg-gradient-to-r from-sky-100 to-sky-50 ring-1 ring-sky-200 rounded-3xl p-5 mb-6">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 bg-sky-600 rounded-2xl flex items-center justify-center text-white font-bold">9</div>
+        <div>
+          <h2 class="text-lg font-bold text-sky-900">Mobile · tab Relaciones 375px</h2>
+          <p class="text-[11px] text-sky-700">Cards stack 1-col · acciones swipe horizontal · FAB "+ Nueva"</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="iphone-frame">
+      <div class="bg-white relative" style="min-height: 700px">
+        <div class="bg-slate-50 px-4 py-1 text-[10px] text-slate-600 flex justify-between">
+          <span>9:41</span><span>BusinessMN</span><span>100%</span>
+        </div>
+        <div class="px-3 py-3 border-b border-slate-100 flex items-center gap-2">
+          <button class="w-11 h-11 bg-slate-100 rounded-lg flex items-center justify-center"><i data-lucide="arrow-left" class="w-5 h-5 text-slate-700"></i></button>
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-purple-700 flex items-center justify-center text-white font-bold text-[12px]">JP</div>
+          <div class="flex-1 min-w-0">
+            <h1 class="text-[14px] font-bold text-slate-900 truncate">José Pinto</h1>
+            <p class="text-[10px] text-slate-500">3 relaciones · 2 vigentes</p>
+          </div>
+        </div>
+
+        <div class="border-b border-slate-200 overflow-x-auto no-scrollbar">
+          <div class="flex gap-1 px-2 whitespace-nowrap" style="min-height: 44px">
+            <button class="px-3 py-2.5 text-[11px] font-medium border-b-2 border-transparent text-slate-600 flex items-center gap-1"><i data-lucide="user" class="w-3 h-3"></i>Ident.</button>
+            <button class="px-3 py-2.5 text-[11px] font-medium border-b-2 border-transparent text-slate-600 flex items-center gap-1"><i data-lucide="shield" class="w-3 h-3"></i>Roles</button>
+            <button class="px-3 py-2.5 text-[11px] font-bold border-b-2 border-emerald-600 text-emerald-700 flex items-center gap-1">
+              <i data-lucide="git-branch" class="w-3 h-3"></i>Relaciones<span class="text-[9px] bg-emerald-100 px-1 rounded-full font-bold">3</span>
+            </button>
+            <button class="px-3 py-2.5 text-[11px] font-medium border-b-2 border-transparent text-slate-600 flex items-center gap-1"><i data-lucide="key" class="w-3 h-3"></i>Perm.</button>
+          </div>
+        </div>
+
+        <!-- Filtros chip -->
+        <div class="px-3 py-2 border-b border-slate-100 flex items-center gap-1.5 overflow-x-auto no-scrollbar">
+          <button class="bg-slate-900 text-white text-[10px] font-bold px-2 py-1 rounded">Vigentes · 2</button>
+          <button class="bg-white text-slate-700 border border-slate-200 text-[10px] font-bold px-2 py-1 rounded">Históricas · 1</button>
+        </div>
+
+        <!-- Cards -->
+        <div class="p-3 space-y-2.5">
+          <div class="bg-white border-2 border-sky-200 rounded-xl p-3">
+            <div class="flex items-center gap-2 mb-2">
+              <div class="w-8 h-8 bg-sky-100 rounded-lg flex items-center justify-center">
+                <i data-lucide="briefcase" class="w-4 h-4 text-sky-700"></i>
+              </div>
+              <div class="flex-1">
+                <div class="flex items-center gap-1">
+                  <span class="text-[12px] font-bold text-slate-900">Empleado</span>
+                  <span class="text-[8px] bg-emerald-100 text-emerald-700 font-bold px-1 py-0.5 rounded uppercase">VIGENTE</span>
+                </div>
+                <div class="text-[10px] text-slate-500">desde mar 2024 · CEO</div>
+              </div>
+              <i data-lucide="more-vertical" class="w-3.5 h-3.5 text-slate-400"></i>
+            </div>
+            <div class="text-[10px] text-slate-700 pl-10">Sueldo · S/ 8,000 · Indefinido · Presencial</div>
+          </div>
+
+          <div class="bg-white border-2 border-violet-200 rounded-xl p-3">
+            <div class="flex items-center gap-2 mb-2">
+              <div class="w-8 h-8 bg-violet-100 rounded-lg flex items-center justify-center">
+                <i data-lucide="coins" class="w-4 h-4 text-violet-700"></i>
+              </div>
+              <div class="flex-1">
+                <div class="flex items-center gap-1">
+                  <span class="text-[12px] font-bold text-slate-900">Socio</span>
+                  <span class="text-[8px] bg-emerald-100 text-emerald-700 font-bold px-1 py-0.5 rounded uppercase">VIGENTE</span>
+                </div>
+                <div class="text-[10px] text-slate-500">desde mar 2024 · Co-fundador</div>
+              </div>
+              <i data-lucide="more-vertical" class="w-3.5 h-3.5 text-slate-400"></i>
+            </div>
+            <div class="text-[10px] text-slate-700 pl-10">45% · S/ 70K · cash + valor</div>
+          </div>
+
+          <div class="bg-slate-50 border border-slate-300 rounded-xl p-3 opacity-80">
+            <div class="flex items-center gap-2 mb-2">
+              <div class="w-8 h-8 bg-slate-200 rounded-lg flex items-center justify-center">
+                <i data-lucide="file-text" class="w-4 h-4 text-slate-600"></i>
+              </div>
+              <div class="flex-1">
+                <div class="flex items-center gap-1">
+                  <span class="text-[12px] font-bold text-slate-700">Honorarios</span>
+                  <span class="text-[8px] bg-slate-200 text-slate-700 font-bold px-1 py-0.5 rounded uppercase">FINALIZADA</span>
+                </div>
+                <div class="text-[10px] text-slate-500">ene 2023 - mar 2024</div>
+              </div>
+              <i data-lucide="lock" class="w-3.5 h-3.5 text-slate-400"></i>
+            </div>
+            <div class="text-[10px] text-slate-700 pl-10">Consultor · S/ 3,500/mes · reclasificada</div>
+          </div>
+        </div>
+
+        <!-- FAB · agregar relación -->
+        <button class="absolute bottom-4 right-4 w-12 h-12 bg-emerald-600 hover:bg-emerald-700 text-white rounded-full shadow-2xl flex items-center justify-center">
+          <i data-lucide="git-branch-plus" class="w-5 h-5"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ACTO 10 · MOBILE AGREGAR RELACIÓN BOTTOM-SHEET -->
+<section id="a10" class="my-12">
+  <div class="max-w-6xl mx-auto px-4">
+    <div class="bg-gradient-to-r from-sky-100 to-sky-50 ring-1 ring-sky-200 rounded-3xl p-5 mb-6">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 bg-sky-600 rounded-2xl flex items-center justify-center text-white font-bold">10</div>
+        <div>
+          <h2 class="text-lg font-bold text-sky-900">Mobile · agregar relación bottom-sheet</h2>
+          <p class="text-[11px] text-sky-700">Drag handle + safe-area inset · cards radio stack 1-col</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="iphone-frame">
+      <div class="bg-white relative" style="min-height: 700px; overflow: hidden">
+        <div class="bg-slate-50 px-4 py-1 text-[10px] text-slate-600 flex justify-between">
+          <span>9:41</span><span>BusinessMN</span><span>100%</span>
+        </div>
+        <!-- Backdrop -->
+        <div class="absolute inset-0 bg-slate-900/50" style="top: 24px"></div>
+
+        <!-- Bottom sheet -->
+        <div class="absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl shadow-2xl pt-2 px-4 pb-6">
+          <div class="w-10 h-1 bg-slate-300 rounded-full mx-auto mb-3"></div>
+
+          <div class="flex items-center gap-3 pb-3 border-b border-slate-100">
+            <div class="w-10 h-10 bg-gradient-to-br from-emerald-500 to-emerald-700 rounded-xl flex items-center justify-center text-white">
+              <i data-lucide="git-branch-plus" class="w-5 h-5"></i>
+            </div>
+            <div>
+              <h3 class="text-[14px] font-bold text-slate-900">Nueva relación</h3>
+              <p class="text-[10px] text-slate-500">José Pinto · 2 vigentes</p>
+            </div>
+          </div>
+
+          <div class="py-4 space-y-2">
+            <button disabled class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-left opacity-50">
+              <div class="flex items-center gap-2">
+                <div class="w-9 h-9 bg-slate-200 rounded-lg flex items-center justify-center">
+                  <i data-lucide="briefcase" class="w-4 h-4 text-slate-500"></i>
+                </div>
+                <div class="flex-1">
+                  <div class="text-[12px] font-bold text-slate-700">Empleado <span class="text-[9px] text-slate-500">(ya vigente)</span></div>
+                </div>
+              </div>
+            </button>
+            <button class="w-full bg-white border border-slate-200 rounded-xl p-3 text-left" style="min-height: 56px">
+              <div class="flex items-center gap-2">
+                <div class="w-9 h-9 bg-emerald-100 rounded-lg flex items-center justify-center">
+                  <i data-lucide="file-text" class="w-4 h-4 text-emerald-700"></i>
+                </div>
+                <div class="flex-1">
+                  <div class="text-[12px] font-bold text-slate-900">Honorarios</div>
+                  <div class="text-[10px] text-slate-500">Servicios extra · recibos</div>
+                </div>
+              </div>
+            </button>
+            <button disabled class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-left opacity-50" style="min-height: 56px">
+              <div class="flex items-center gap-2">
+                <div class="w-9 h-9 bg-slate-200 rounded-lg flex items-center justify-center">
+                  <i data-lucide="coins" class="w-4 h-4 text-slate-500"></i>
+                </div>
+                <div class="flex-1">
+                  <div class="text-[12px] font-bold text-slate-700">Socio <span class="text-[9px] text-slate-500">(ya vigente)</span></div>
+                </div>
+              </div>
+            </button>
+            <button class="w-full bg-white border border-slate-200 rounded-xl p-3 text-left" style="min-height: 56px">
+              <div class="flex items-center gap-2">
+                <div class="w-9 h-9 bg-slate-100 rounded-lg flex items-center justify-center">
+                  <i data-lucide="external-link" class="w-4 h-4 text-slate-600"></i>
+                </div>
+                <div class="flex-1">
+                  <div class="text-[12px] font-bold text-slate-900">Externo</div>
+                  <div class="text-[10px] text-slate-500">Cliente · proveedor · colab</div>
+                </div>
+              </div>
+            </button>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2 pt-3 border-t border-slate-100">
+            <button class="text-[12px] font-medium text-slate-600 bg-slate-100 rounded-lg" style="min-height: 44px">Cancelar</button>
+            <button class="text-[12px] font-bold text-white bg-emerald-600 rounded-lg" style="min-height: 44px">Siguiente</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ACTO 11 · MOBILE HISTÓRICO -->
+<section id="a11" class="my-12">
+  <div class="max-w-6xl mx-auto px-4">
+    <div class="bg-gradient-to-r from-sky-100 to-sky-50 ring-1 ring-sky-200 rounded-3xl p-5 mb-6">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 bg-sky-600 rounded-2xl flex items-center justify-center text-white font-bold">11</div>
+        <div>
+          <h2 class="text-lg font-bold text-sky-900">Mobile · histórico timeline</h2>
+          <p class="text-[11px] text-sky-700">Timeline vertical canon dots · etapas cronológicas con snapshot expand</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="iphone-frame">
+      <div class="bg-white" style="min-height: 700px">
+        <div class="bg-slate-50 px-4 py-1 text-[10px] text-slate-600 flex justify-between">
+          <span>9:41</span><span>BusinessMN</span><span>100%</span>
+        </div>
+        <div class="px-3 py-3 border-b border-slate-100 flex items-center gap-2">
+          <button class="w-11 h-11 bg-slate-100 rounded-lg flex items-center justify-center"><i data-lucide="arrow-left" class="w-5 h-5 text-slate-700"></i></button>
+          <h1 class="text-[14px] font-bold text-slate-900 flex-1">Histórico · Diego López</h1>
+        </div>
+
+        <div class="p-4">
+          <div class="space-y-4">
+            <div class="flex gap-2">
+              <div class="flex flex-col items-center">
+                <div class="w-3 h-3 rounded-full bg-emerald-500 ring-4 ring-emerald-100"></div>
+                <div class="w-0.5 flex-1 bg-slate-200 mt-1"></div>
+              </div>
+              <div class="flex-1 pb-3">
+                <div class="flex items-center gap-1.5 mb-0.5 flex-wrap">
+                  <span class="text-[12px] font-bold text-slate-900">Empleado</span>
+                  <span class="text-[9px] bg-emerald-100 text-emerald-700 font-bold px-1 py-0.5 rounded">VIGENTE</span>
+                </div>
+                <div class="text-[10px] text-slate-500">mar 2026 · re-incorporado</div>
+                <div class="bg-emerald-50 border border-emerald-200 rounded-lg p-2 mt-1.5 text-[10px]">
+                  Vendedor sr. · S/ 4,500 · Presencial
+                </div>
+              </div>
+            </div>
+
+            <div class="flex gap-2">
+              <div class="flex flex-col items-center">
+                <div class="w-2.5 h-2.5 rounded-full bg-slate-300"></div>
+                <div class="w-0.5 flex-1 bg-slate-200 mt-1"></div>
+              </div>
+              <div class="flex-1 pb-3">
+                <div class="text-[10px] text-slate-500 italic">⏰ Gap 3 meses · ene-mar 2026</div>
+              </div>
+            </div>
+
+            <div class="flex gap-2">
+              <div class="flex flex-col items-center">
+                <div class="w-3 h-3 rounded-full bg-slate-400 ring-4 ring-slate-100"></div>
+              </div>
+              <div class="flex-1 pb-0">
+                <div class="flex items-center gap-1.5 mb-0.5 flex-wrap">
+                  <span class="text-[12px] font-bold text-slate-700">Empleado</span>
+                  <span class="text-[9px] bg-slate-200 text-slate-700 font-bold px-1 py-0.5 rounded">FINAL.</span>
+                </div>
+                <div class="text-[10px] text-slate-500">abr 2024 - dic 2025 · renuncia</div>
+                <div class="bg-slate-50 border border-slate-200 rounded-lg p-2 mt-1.5 text-[10px]">
+                  Vendedor · S/ 4,200 final · Presencial
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ACTO 12 · PLAN IMPLEMENTACIÓN -->
+<section id="a12" class="my-12">
+  <div class="max-w-6xl mx-auto px-4">
+    <div class="bg-gradient-to-r from-slate-100 to-slate-50 ring-1 ring-slate-200 rounded-3xl p-5 mb-6">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 bg-slate-700 rounded-2xl flex items-center justify-center text-white font-bold">12</div>
+        <div>
+          <h2 class="text-lg font-bold text-slate-900">Plan implementación v5.6 · ~12h en 6 etapas</h2>
+          <p class="text-[11px] text-slate-700">Migración compatible con users existentes · cero data loss · cleanup drill pages legacy</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="device-desktop bg-white rounded-2xl ring-1 ring-slate-200 overflow-hidden p-6 space-y-3">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-4">
+          <div class="text-[10px] uppercase tracking-wider text-emerald-700 font-bold mb-1">ETAPA 1 · 2h</div>
+          <div class="text-[13px] font-bold text-emerald-900 mb-2">Tipos + Service + Migración</div>
+          <ul class="text-[11px] text-emerald-800 space-y-1 list-disc list-inside">
+            <li>RelacionLaboral type</li>
+            <li>relacionesLaboralesService CRUD</li>
+            <li>Script migración: datosLaborales/datosSocio existentes → docs nuevos</li>
+            <li>Firestore rules update</li>
+          </ul>
+        </div>
+        <div class="bg-sky-50 border border-sky-200 rounded-xl p-4">
+          <div class="text-[10px] uppercase tracking-wider text-sky-700 font-bold mb-1">ETAPA 2 · 3.5h</div>
+          <div class="text-[13px] font-bold text-sky-900 mb-2">Side Panel + tab Relaciones</div>
+          <ul class="text-[11px] text-sky-800 space-y-1 list-disc list-inside">
+            <li>UserPanel.tsx con 5 tabs canon</li>
+            <li>Tab Relaciones protagonista</li>
+            <li>RelacionCard component</li>
+            <li>Filtros vigentes/históricas/todas</li>
+          </ul>
+        </div>
+        <div class="bg-violet-50 border border-violet-200 rounded-xl p-4">
+          <div class="text-[10px] uppercase tracking-wider text-violet-700 font-bold mb-1">ETAPA 3 · 2.5h</div>
+          <div class="text-[13px] font-bold text-violet-900 mb-2">Wizard + flows transición</div>
+          <ul class="text-[11px] text-violet-800 space-y-1 list-disc list-inside">
+            <li>CrearUsuarioWizard 4 pasos</li>
+            <li>AgregarRelacionWizard 2 pasos</li>
+            <li>ReclasificarModal · atomic transaction</li>
+            <li>PausarModal · ReanudarModal</li>
+          </ul>
+        </div>
+        <div class="bg-amber-50 border border-amber-200 rounded-xl p-4">
+          <div class="text-[10px] uppercase tracking-wider text-amber-700 font-bold mb-1">ETAPA 4 · 2h</div>
+          <div class="text-[13px] font-bold text-amber-900 mb-2">Histórico + snapshots</div>
+          <ul class="text-[11px] text-amber-800 space-y-1 list-disc list-inside">
+            <li>HistoricoTimeline component</li>
+            <li>Snapshot inmutable al cerrar relación</li>
+            <li>Export CSV histórico</li>
+            <li>Sub-tab Histórico dentro de Relaciones</li>
+          </ul>
+        </div>
+        <div class="bg-rose-50 border border-rose-200 rounded-xl p-4">
+          <div class="text-[10px] uppercase tracking-wider text-rose-700 font-bold mb-1">ETAPA 5 · 1.5h</div>
+          <div class="text-[13px] font-bold text-rose-900 mb-2">Wire-up + cleanup legacy</div>
+          <ul class="text-[11px] text-rose-800 space-y-1 list-disc list-inside">
+            <li>Usuarios.tsx · click row → side panel</li>
+            <li>Eliminar EditarLaborales.tsx · EditarSocio.tsx</li>
+            <li>Redirect routes legacy</li>
+            <li>Update useMiEspacioItems para leer relaciones vigentes</li>
+          </ul>
+        </div>
+        <div class="bg-slate-50 border border-slate-300 rounded-xl p-4">
+          <div class="text-[10px] uppercase tracking-wider text-slate-600 font-bold mb-1">ETAPA 6 · 0.5h</div>
+          <div class="text-[13px] font-bold text-slate-900 mb-2">Validación + diagnóstico cleanup</div>
+          <ul class="text-[11px] text-slate-700 space-y-1 list-disc list-inside">
+            <li>tsc · vite build · screenshot diff</li>
+            <li>Eliminar DiagnosticoPerfil page</li>
+            <li>Eliminar logs temporales</li>
+            <li>Commit consolidado final</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="bg-emerald-50 border-2 border-emerald-300 rounded-xl p-4 mt-2">
+        <h3 class="text-[13px] font-bold text-emerald-900 mb-2 inline-flex items-center gap-1.5">
+          <i data-lucide="award" class="w-4 h-4"></i>
+          Resultado neto al implementar v5.6
+        </h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-[11px] text-emerald-800">
+          <div>
+            <div class="font-bold mb-1">🎯 Casos cubiertos:</div>
+            <ul class="list-disc list-inside space-y-0.5">
+              <li>Multi simultáneo (empleado+socio)</li>
+              <li>Transiciones (honorarios→empleado)</li>
+              <li>Re-incorporación con histórico</li>
+              <li>Pausas (licencia maternidad)</li>
+              <li>Período de prueba auto-transición</li>
+              <li>Sub-tipos (medio tiempo · tercerizado)</li>
+            </ul>
+          </div>
+          <div>
+            <div class="font-bold mb-1">⚙️ Beneficios técnicos:</div>
+            <ul class="list-disc list-inside space-y-0.5">
+              <li>Modelo escalable · agregar tipos futuros sin migración</li>
+              <li>Histórico inmutable · cumple compliance</li>
+              <li>Trazabilidad legal · audit trail completo</li>
+              <li>Sin drill pages · sin context loss</li>
+              <li>Bug "Mi planilla no se activa" resuelto raíz</li>
+              <li>Base para futuro CRM (clientes/proveedores)</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<section class="max-w-6xl mx-auto mt-16 mb-8 px-4">
+  <div class="bg-white rounded-2xl ring-1 ring-slate-200 p-6">
+    <h2 class="text-[16px] font-bold text-slate-900 mb-4 inline-flex items-center gap-2">
+      <i data-lucide="check-square" class="w-5 h-5 text-emerald-600"></i>
+      Checklist canon · cobertura del mockup
+    </h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-[12px]">
+      <div>
+        <h3 class="font-bold text-slate-700 mb-2 uppercase tracking-wider text-[11px]">Bloque A · desktop (8 actos)</h3>
+        <ul class="space-y-1 text-slate-600">
+          <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600 flex-shrink-0"></i>Modelo datos relacionesLaborales · antes/después</li>
+          <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600 flex-shrink-0"></i>11 casos reales matriz exhaustiva</li>
+          <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600 flex-shrink-0"></i>Lista usuarios con chips multi-relación</li>
+          <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600 flex-shrink-0"></i>Side panel tab Relaciones protagonista</li>
+          <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600 flex-shrink-0"></i>Wizard agregar nueva relación</li>
+          <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600 flex-shrink-0"></i>Flow reclasificar atomic</li>
+          <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600 flex-shrink-0"></i>Flow pausar/reanudar</li>
+          <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600 flex-shrink-0"></i>Histórico timeline snapshots</li>
+        </ul>
+      </div>
+      <div>
+        <h3 class="font-bold text-slate-700 mb-2 uppercase tracking-wider text-[11px]">Bloque B · mobile (3 actos) + plan</h3>
+        <ul class="space-y-1 text-slate-600">
+          <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600 flex-shrink-0"></i>Mobile tab Relaciones + FAB</li>
+          <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600 flex-shrink-0"></i>Mobile agregar relación bottom-sheet</li>
+          <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600 flex-shrink-0"></i>Mobile histórico timeline</li>
+          <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600 flex-shrink-0"></i>Plan implementación 6 etapas ~12h</li>
+        </ul>
+      </div>
+    </div>
+    <div class="mt-4 text-[10px] text-slate-400 italic">
+      Mockup canon · usuarios-v5.6-multi-relacion.html · 12 actos · canon 2026-05-28
+    </div>
+  </div>
+</section>
+
+<script>lucide.createIcons();</script>
+</body>
+</html>
