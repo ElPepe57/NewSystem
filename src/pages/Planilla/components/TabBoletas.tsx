@@ -11,7 +11,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import {
   FileText, Check, CreditCard, XCircle, Trash2, ChevronLeft, ChevronRight,
-  AlertCircle, Plus, RefreshCw, Filter,
+  AlertCircle, Plus, RefreshCw, Filter, ExternalLink,
 } from 'lucide-react';
 import { useConfirmDialog, ConfirmDialog } from '../../../components/common';
 import { useToastStore } from '../../../store/toastStore';
@@ -23,6 +23,8 @@ import type { Boleta, EstadoBoleta } from '../../../types/planilla.types';
 import { BoletaDetalleModal } from '../../../components/modules/planilla/BoletaDetalleModal';
 import { NuevaBoletaModal } from '../../../components/modules/planilla/NuevaBoletaModal';
 import { GenerarBoletasModal } from '../../../components/modules/planilla/GenerarBoletasModal';
+// chk5.PERSONAS-v5.7 · E6.1 (2026-05-28) · Click en empleado → UserPanel canon F6-E
+import { UserPanel } from '../../../components/usuarios/UserPanel';
 
 const MESES = [
   'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
@@ -64,6 +66,8 @@ export const TabBoletas: React.FC = () => {
   const [nuevaBoletaOpen, setNuevaBoletaOpen] = useState(false);
   const [generarOpen, setGenerarOpen] = useState(false);
   const [filtroEstado, setFiltroEstado] = useState<'todas' | EstadoBoleta>('todas');
+  // chk5.PERSONAS-v5.7 · E6.1 · UserPanel para ver perfil del empleado
+  const [panelUid, setPanelUid] = useState<string | null>(null);
   const confirm = useConfirmDialog();
 
   useEffect(() => {
@@ -310,17 +314,33 @@ export const TabBoletas: React.FC = () => {
                 onClick={() => setBoletaDetalle(b)}
               >
                 <div className="flex items-start gap-3 flex-wrap">
-                  {/* Avatar */}
-                  <div className="w-11 h-11 rounded-full bg-gradient-to-br from-sky-400 to-sky-600 flex items-center justify-center text-white font-bold text-[13px] flex-shrink-0">
+                  {/* Avatar · chk5.PERSONAS-v5.7 E6.1 · click abre UserPanel canon */}
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setPanelUid(b.userId);
+                    }}
+                    className="w-11 h-11 rounded-full bg-gradient-to-br from-sky-400 to-sky-600 flex items-center justify-center text-white font-bold text-[13px] flex-shrink-0 hover:ring-2 hover:ring-sky-300 transition"
+                    title="Ver perfil del empleado"
+                  >
                     {init}
-                  </div>
+                  </button>
 
                   {/* Info principal */}
                   <div className="flex-1 min-w-[200px]">
                     <div className="flex items-center gap-2 flex-wrap mb-0.5">
-                      <span className="text-[13px] sm:text-[14px] font-bold text-slate-900">
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setPanelUid(b.userId);
+                        }}
+                        className="text-[13px] sm:text-[14px] font-bold text-slate-900 hover:text-sky-700 transition"
+                        title="Ver perfil del empleado"
+                      >
                         {b.empleadoNombre}
-                      </span>
+                      </button>
                       <span
                         className={`text-[9px] font-bold px-1.5 py-0.5 rounded uppercase ${ESTADO_CHIP[b.estado]}`}
                       >
@@ -402,6 +422,15 @@ export const TabBoletas: React.FC = () => {
                         <XCircle className="w-3.5 h-3.5" />
                       </button>
                     )}
+                    {/* chk5.PERSONAS-v5.7 E6.1 · Ver perfil canon */}
+                    <button
+                      type="button"
+                      onClick={() => setPanelUid(b.userId)}
+                      className="p-1.5 hover:bg-purple-50 rounded text-slate-500 hover:text-purple-700"
+                      title="Ver perfil del empleado (UserPanel)"
+                    >
+                      <ExternalLink className="w-3.5 h-3.5" />
+                    </button>
                   </div>
                 </div>
               </div>
@@ -409,6 +438,17 @@ export const TabBoletas: React.FC = () => {
           })}
         </div>
       )}
+
+      {/* chk5.PERSONAS-v5.7 · E6.1 · UserPanel canon F6-E
+          Drawer lateral con tabs core (Resumen · Relaciones · Datos · Permisos ·
+          Histórico · Vinculación condicional). Reusa el mismo componente que /usuarios.
+          Si se quisieran tabs contextuales específicos de Planilla (Boletas · Pagos ·
+          Incentivos) se pasan via prop tabsContextuales · diferido para no inflar E6.1. */}
+      <UserPanel
+        userId={panelUid}
+        onClose={() => setPanelUid(null)}
+      />
+
 
       {/* Modal detalle canon */}
       <BoletaDetalleModal
