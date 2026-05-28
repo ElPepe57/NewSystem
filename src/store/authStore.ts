@@ -56,6 +56,41 @@ export const useAuthStore = create<AuthState>((set) => ({
           );
         }
       } else {
+        // chk5.AUTH-GUARD (2026-05-28) · GUARD CRÍTICO de integridad de identidad.
+        // Detectar mismatch entre el email del Firebase Auth user y el email del
+        // UserProfile en Firestore. Si NO coinciden · es un cruce de datos peligroso
+        // (el doc users/{uid} tiene un email distinto al usuario autenticado).
+        // Causa típica: data legacy donde alguien creó docs users/X con email Y
+        // que no corresponde al Auth user X.
+        // Comportamiento: NO setear userProfile · forzar logout · mostrar error.
+        const authUser = useAuthStore.getState().user;
+        const authEmail = authUser?.email?.toLowerCase().trim();
+        const profileEmail = profile.email?.toLowerCase().trim();
+        if (authEmail && profileEmail && authEmail !== profileEmail) {
+          console.error(
+            '[authStore] CRUCE DE IDENTIDAD DETECTADO · Firebase Auth dice ' +
+              `email="${authEmail}" pero el doc users/${uid} tiene email="${profileEmail}". ` +
+              'El UserProfile NO se va a cargar · forzando logout por seguridad.',
+          );
+          set({
+            userProfile: null,
+            error:
+              `Cruce de identidad detectado. La cuenta de Firebase Auth (${authEmail}) ` +
+              `no coincide con el UserProfile en Firestore (${profileEmail}). ` +
+              'Contactá al admin del sistema · puede ser data legacy corrupta.',
+          });
+          // Hacer logout async · no bloquear el flow
+          (async () => {
+            try {
+              const { AuthService } = await import('../services/auth.service');
+              await AuthService.logout();
+            } catch (e) {
+              console.error('[authStore] error al forzar logout:', e);
+            }
+          })();
+          return;
+        }
+
         // Solo actualizar última conexión si el usuario está activo
         if (profile.activo) {
           await userService.updateLastConnection(uid);
