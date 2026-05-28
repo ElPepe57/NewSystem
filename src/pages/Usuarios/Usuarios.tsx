@@ -19,6 +19,12 @@ import {
 import { UserPanel } from '../../components/usuarios/UserPanel';
 import { relacionesLaboralesService } from '../../services/relacionesLaborales.service';
 import type { RelacionLaboral } from '../../types/relacionLaboral.types';
+import {
+  TIPO_RELACION_LABELS,
+  TIPO_RELACION_ICONS,
+  TIPO_RELACION_COLORS,
+  getRelacionesActivas as getRelacionesActivasHelper,
+} from '../../types/relacionLaboral.types';
 import type { LucideIcon } from 'lucide-react';
 import { PageShell } from '../../design-system';
 import { userService } from '../../services/user.service';
@@ -365,6 +371,27 @@ export const Usuarios: React.FC = () => {
   const multiRolCount = usuarios.filter((u) => getUserRoles(u).length > 1).length;
   const otrosCount = roleStats['invitado'] ?? 0;
 
+  // chk5.PERSONAS-v5.7 · E4.2 · Stats por TIPO DE RELACIÓN (modelo v5.6)
+  // Cuenta users que tienen al menos 1 relación vigente del tipo X.
+  // Un user puede contar en múltiples (empleado + socio).
+  const relacionStats = useMemo(() => {
+    const counts = { empleado: 0, honorarios: 0, socio: 0, externo: 0, multiRelacion: 0 };
+    Object.values(relacionesByUid).forEach((rels) => {
+      const vigentes = rels.filter((r) => r.estado !== 'finalizada');
+      const tipos = new Set(vigentes.map((r) => r.tipo));
+      if (tipos.has('empleado')) counts.empleado++;
+      if (tipos.has('honorarios')) counts.honorarios++;
+      if (tipos.has('socio')) counts.socio++;
+      if (tipos.has('externo')) counts.externo++;
+      if (vigentes.length > 1) counts.multiRelacion++;
+    });
+    return counts;
+  }, [relacionesByUid]);
+
+  // chk5.PERSONAS-v5.7 · E4.2 · Indica si ya hay data de relaciones cargada
+  // (para mostrar "—" en KPIs mientras cargan en background)
+  const relacionesCargadas = Object.keys(relacionesByUid).length > 0;
+
   return (
     <PageShell>
       <div className="max-w-6xl mx-auto p-3 sm:p-4 md:p-6">
@@ -544,6 +571,65 @@ export const Usuarios: React.FC = () => {
               <div className="text-2xl font-bold tabular-nums text-indigo-900">{multiRolCount}</div>
               <div className="text-[10px] text-indigo-700 truncate">
                 {multiRolCount > 0 ? '2+ roles asignados' : 'todos con 1 rol'}
+              </div>
+            </div>
+          </div>
+
+          {/* §D-bis · chk5.PERSONAS-v5.7 · E4.2 · KPI strip POR TIPO DE RELACIÓN
+              Modelo v5.6 · counts derivados de relacionesByUid (bulk fetch).
+              Color semántico canon N1: teal=empleado · sky=honorarios · purple=socio · amber=externo.
+              "—" mientras cargan en background. */}
+          <div className="px-4 sm:px-6 mt-2 grid grid-cols-2 md:grid-cols-5 gap-2 sm:gap-3">
+            <div className="bg-gradient-to-br from-teal-50 to-teal-100/40 ring-1 ring-teal-200/50 rounded-2xl p-3">
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-[10px] uppercase tracking-wider text-teal-700 font-bold">EMPLEADOS</span>
+                <Briefcase className="w-3.5 h-3.5 text-teal-700" />
+              </div>
+              <div className="text-2xl font-bold tabular-nums text-teal-900">
+                {relacionesCargadas ? relacionStats.empleado : '—'}
+              </div>
+              <div className="text-[10px] text-teal-700 truncate">en planilla</div>
+            </div>
+            <div className="bg-gradient-to-br from-sky-50 to-sky-100/40 ring-1 ring-sky-200/50 rounded-2xl p-3">
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-[10px] uppercase tracking-wider text-sky-700 font-bold">HONORARIOS</span>
+                <BriefcaseBusiness className="w-3.5 h-3.5 text-sky-700" />
+              </div>
+              <div className="text-2xl font-bold tabular-nums text-sky-900">
+                {relacionesCargadas ? relacionStats.honorarios : '—'}
+              </div>
+              <div className="text-[10px] text-sky-700 truncate">RxH 4ta cat.</div>
+            </div>
+            <div className="bg-gradient-to-br from-purple-50 to-purple-100/40 ring-1 ring-purple-200/50 rounded-2xl p-3">
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-[10px] uppercase tracking-wider text-purple-700 font-bold">SOCIOS</span>
+                <Landmark className="w-3.5 h-3.5 text-purple-700" />
+              </div>
+              <div className="text-2xl font-bold tabular-nums text-purple-900">
+                {relacionesCargadas ? relacionStats.socio : '—'}
+              </div>
+              <div className="text-[10px] text-purple-700 truncate">cap table</div>
+            </div>
+            <div className="bg-gradient-to-br from-amber-50 to-amber-100/40 ring-1 ring-amber-200/50 rounded-2xl p-3">
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-[10px] uppercase tracking-wider text-amber-700 font-bold">EXTERNOS</span>
+                <UserIcon className="w-3.5 h-3.5 text-amber-700" />
+              </div>
+              <div className="text-2xl font-bold tabular-nums text-amber-900">
+                {relacionesCargadas ? relacionStats.externo : '—'}
+              </div>
+              <div className="text-[10px] text-amber-700 truncate">contactos · VIP</div>
+            </div>
+            <div className="bg-gradient-to-br from-rose-50 to-rose-100/40 ring-1 ring-rose-200/50 rounded-2xl p-3">
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-[10px] uppercase tracking-wider text-rose-700 font-bold">MULTI-RELACIÓN</span>
+                <Key className="w-3.5 h-3.5 text-rose-700" />
+              </div>
+              <div className="text-2xl font-bold tabular-nums text-rose-900">
+                {relacionesCargadas ? relacionStats.multiRelacion : '—'}
+              </div>
+              <div className="text-[10px] text-rose-700 truncate">
+                {relacionStats.multiRelacion > 0 ? 'tipos simultáneos' : 'sin multi'}
               </div>
             </div>
           </div>
@@ -811,6 +897,45 @@ export const Usuarios: React.FC = () => {
                         })
                       )}
                     </div>
+
+                    {/* chk5.PERSONAS-v5.7 · E4.2 · Chips multi-relación
+                        (modelo v5.6 · color semántico canon N1)
+                        Solo se muestra si el user tiene al menos 1 relación vigente.
+                        Si tiene >1 · se muestra badge MULTI rose adicional. */}
+                    {(() => {
+                      const rels = relacionesByUid[u.uid] || [];
+                      const vigentes = getRelacionesActivasHelper(rels);
+                      if (vigentes.length === 0) return null;
+                      return (
+                        <div className="flex items-center gap-1 flex-wrap mt-1.5">
+                          <span className="text-[9px] uppercase tracking-wider font-bold text-slate-400 mr-0.5">
+                            Relaciones:
+                          </span>
+                          {vigentes.length > 1 && (
+                            <span className="text-[9px] bg-rose-100 text-rose-700 px-1.5 py-0.5 rounded-full font-bold inline-flex items-center gap-0.5">
+                              🔀 MULTI
+                            </span>
+                          )}
+                          {vigentes.map((r) => {
+                            const colors = TIPO_RELACION_COLORS[r.tipo];
+                            return (
+                              <span
+                                key={r.id}
+                                className={`text-[10px] ${colors.bg} ${colors.text} px-2 py-0.5 rounded-full font-semibold inline-flex items-center gap-1`}
+                                title={r.cargoDisplay ?? TIPO_RELACION_LABELS[r.tipo]}
+                              >
+                                <span>{TIPO_RELACION_ICONS[r.tipo]}</span>
+                                <span className="truncate max-w-[160px]">
+                                  {r.cargoDisplay ?? TIPO_RELACION_LABELS[r.tipo]}
+                                </span>
+                                {r.estado === 'pausada' && <span className="opacity-60">⏸</span>}
+                                {r.estado === 'prueba' && <span className="opacity-60">🧪</span>}
+                              </span>
+                            );
+                          })}
+                        </div>
+                      );
+                    })()}
                   </div>
 
                   {/* Acciones derecha */}
