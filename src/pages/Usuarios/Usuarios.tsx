@@ -25,6 +25,8 @@ import {
   TIPO_RELACION_COLORS,
   getRelacionesActivas as getRelacionesActivasHelper,
 } from '../../types/relacionLaboral.types';
+// chk5.PERSONAS-v5.7 · E4.3 · Wizard "Nuevo colaborador" 4 pasos canon v5.7
+import { CrearUsuarioWizard } from '../../components/usuarios/CrearUsuarioWizard';
 import type { LucideIcon } from 'lucide-react';
 import { PageShell } from '../../design-system';
 import { userService } from '../../services/user.service';
@@ -98,6 +100,8 @@ export const Usuarios: React.FC = () => {
   // chk5.PERSONAS-v5.7 · E4.1 · cache de relaciones por uid · usado para chips
   // multi-relación en las cards y para multi-rol stats. Bulk fetch al cargar users.
   const [relacionesByUid, setRelacionesByUid] = useState<Record<string, RelacionLaboral[]>>({});
+  // chk5.PERSONAS-v5.7 · E4.3 · Wizard "Nuevo colaborador" 4 pasos
+  const [wizardOpen, setWizardOpen] = useState(false);
   // Cleanup chk5.F4-USERS · 2026-05-26 · state legacy (newUser · editPermisos ·
   // editRoles · editDatosLab/Soc · approveRole · newPassword · etc) eliminado ·
   // cada modal canon FormModalV2 maneja su propio estado internamente.
@@ -446,11 +450,12 @@ export const Usuarios: React.FC = () => {
                 </button>
                 <button
                   type="button"
-                  onClick={() => setModalType('create')}
-                  className="text-[12px] font-bold text-white bg-purple-600 hover:bg-purple-700 px-3 py-1.5 rounded-lg flex items-center gap-1.5"
+                  onClick={() => setWizardOpen(true)}
+                  className="text-[12px] font-bold text-white bg-teal-600 hover:bg-teal-700 px-3 py-1.5 rounded-lg flex items-center gap-1.5"
+                  title="Wizard 4 pasos canon v5.7 · crea User + Relación inicial"
                 >
                   <Plus className="w-3.5 h-3.5" />
-                  <span className="hidden sm:inline">Nuevo usuario</span>
+                  <span className="hidden sm:inline">Nuevo colaborador</span>
                 </button>
               </div>
             </div>
@@ -1135,6 +1140,24 @@ export const Usuarios: React.FC = () => {
           setSuccess('Invitación enviada · ver tracking en Configuración → Invitaciones');
           fetchUsuarios();
         }}
+      />
+
+      {/* chk5.PERSONAS-v5.7 · E4.3 · Wizard "Nuevo colaborador" 4 pasos
+          Reemplaza al NuevoUsuarioModal viejo (queda @deprecated · cleanup E10).
+          Submit crea UserProfile + RelacionLaboral inicial atómicamente.
+          onSuccess auto-abre el UserPanel del user recién creado. */}
+      <CrearUsuarioWizard
+        isOpen={wizardOpen}
+        onClose={() => setWizardOpen(false)}
+        onSuccess={(uid) => {
+          setWizardOpen(false);
+          setSuccess(`Colaborador creado correctamente · abriendo perfil...`);
+          // Auto-abre el UserPanel del recién creado
+          setPanelUid(uid);
+          // Refrescar lista en background
+          void fetchUsuarios();
+        }}
+        onError={setError}
       />
 
       {/* chk5.PERSONAS-v5.7 · E4.1 · UserPanel canon F6-E (reemplaza Ficha360Modal)
