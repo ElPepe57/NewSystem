@@ -11,7 +11,7 @@
  *     Submit:  useCreateUserWithRelacion.create()
  *
  *   Modo B · "agregar relación" (user existe · sin relación empleado vigente)
- *     Muestra: PersonaAutocomplete (chip pill) + DatosLaboralesFields
+ *     Muestra: PersonaAutocomplete (chip pill) + InfoRelevantePanel + DatosLaboralesFields
  *     Submit:  useCreateUserWithRelacion.addRelacionToExisting(uid, datos)
  *
  *   Modo C · "bloqueado" (user existe · YA tiene relación empleado vigente)
@@ -48,10 +48,20 @@ import {
   DatosLaboralesFields,
   type DatosLaboralesValues,
 } from '../../usuarios/forms/DatosLaboralesFields';
+import {
+  InfoRelevantePanel,
+} from '../../usuarios/forms/InfoRelevantePanel';
 import { borradorWizardService } from '../../../services/borradorWizard.service';
+import { userService } from '../../../services/user.service';
 import { useAuthStore } from '../../../store/authStore';
 import type { UserProfile } from '../../../types/auth.types';
-import type { RelacionLaboral, SubTipoEmpleado } from '../../../types/relacionLaboral.types';
+import type {
+  DatosLaboralesSnapshot,
+  DatosSocioSnapshot,
+  RelacionLaboral,
+  SubTipoEmpleado,
+  TipoRelacion,
+} from '../../../types/relacionLaboral.types';
 
 // ═════════════════════════════════════════════════════════════════════════
 // TIPOS
@@ -151,6 +161,9 @@ export const NuevoEmpleadoModal: React.FC<NuevoEmpleadoModalProps> = ({
   const [userExistente, setUserExistente] = useState<UserProfile | null>(null);
   const [relacionesVigentes, setRelacionesVigentes] = useState<RelacionLaboral[]>([]);
 
+  // ── Teléfono pendiente (de InfoRelevantePanel alerta 3) ─────────────────
+  const [telefonoPending, setTelefonoPending] = useState<string | null>(null);
+
   // ── Borrador ────────────────────────────────────────────────────────────
   const [borradorRestaurado, setBorradorRestaurado] = useState(false);
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -240,6 +253,7 @@ export const NuevoEmpleadoModal: React.FC<NuevoEmpleadoModalProps> = ({
     setErrors({});
     setUserExistente(null);
     setRelacionesVigentes([]);
+    setTelefonoPending(null);
     setBorradorRestaurado(false);
     clearError();
   };
@@ -283,6 +297,30 @@ export const NuevoEmpleadoModal: React.FC<NuevoEmpleadoModalProps> = ({
     setUserExistente(null);
     setRelacionesVigentes([]);
     setEmailInput('');
+    setTelefonoPending(null);
+  };
+
+  // ─── Callback InfoRelevantePanel: pre-rellenar desde historial ────────
+  const handlePrefillFromHistory = (
+    snapshot: DatosLaboralesSnapshot | DatosSocioSnapshot,
+    _tipo: TipoRelacion,
+  ) => {
+    // Narrowing: solo aplica cuando tiene campo 'salarioBruto' (DatosLaboralesSnapshot)
+    if ('salarioBruto' in snapshot) {
+      const s = snapshot as DatosLaboralesSnapshot;
+      setLaborales((prev) => ({
+        ...prev,
+        cargoDisplay: s.cargo || prev.cargoDisplay,
+        montoMensualReferencia:
+          s.salarioBruto > 0 ? s.salarioBruto : prev.montoMensualReferencia,
+        monedaReferencia: s.monedaSalario ?? prev.monedaReferencia,
+      }));
+    }
+  };
+
+  // ─── Callback InfoRelevantePanel: teléfono pending ────────────────────
+  const handleTelefonoPending = (telefono: string) => {
+    setTelefonoPending(telefono);
   };
 
   // ─── Navegación al UserPanel del user bloqueado ───────────────────────
@@ -303,6 +341,10 @@ export const NuevoEmpleadoModal: React.FC<NuevoEmpleadoModalProps> = ({
       }
       setErrors({});
       try {
+        // Aplicar teléfono pending antes de crear la relación (si el admin lo completó)
+        if (telefonoPending) {
+          await userService.updateProfile(userExistente.uid, { telefono: telefonoPending });
+        }
         const { uid } = await addRelacionToExisting(userExistente.uid, {
           tipo: 'empleado',
           subTipo: (laborales.subTipo || undefined) as SubTipoEmpleado | undefined,
@@ -527,6 +569,15 @@ export const NuevoEmpleadoModal: React.FC<NuevoEmpleadoModalProps> = ({
         {/* ── Modo B: agregar relación a user existente ── */}
         {modoAgregarRelacion && userExistente && (
           <>
+            {/* Panel de información relevante · alertas contextuales */}
+            <InfoRelevantePanel
+              user={userExistente}
+              tipoModal="empleado"
+              relacionesVigentes={relacionesVigentes}
+              onPrefillFromHistory={handlePrefillFromHistory}
+              onTelefonoPending={handleTelefonoPending}
+            />
+
             <div className="border-t border-slate-100" />
             {/* La chip-pill del autocomplete ya muestra los datos del user. Solo mostramos los datos laborales. */}
             <div>

@@ -11,7 +11,7 @@
  *     Submit:  useCreateUserWithRelacion.create()
  *
  *   Modo B · "agregar relación" (user existe · sin relación socio vigente)
- *     Muestra: PersonaAutocomplete (chip pill) + DatosSocioFields
+ *     Muestra: PersonaAutocomplete (chip pill) + InfoRelevantePanel + DatosSocioFields
  *     Submit:  useCreateUserWithRelacion.addRelacionToExisting(uid, datos)
  *
  *   Modo C · "bloqueado" (user existe · YA tiene relación socio vigente)
@@ -46,10 +46,20 @@ import {
   DatosSocioFields,
   type DatosSocioValues,
 } from '../../usuarios/forms/DatosSocioFields';
+import {
+  InfoRelevantePanel,
+} from '../../usuarios/forms/InfoRelevantePanel';
 import { borradorWizardService } from '../../../services/borradorWizard.service';
+import { userService } from '../../../services/user.service';
 import { useAuthStore } from '../../../store/authStore';
 import type { UserProfile } from '../../../types/auth.types';
-import type { RelacionLaboral, SubTipoSocio } from '../../../types/relacionLaboral.types';
+import type {
+  DatosLaboralesSnapshot,
+  DatosSocioSnapshot,
+  RelacionLaboral,
+  SubTipoSocio,
+  TipoRelacion,
+} from '../../../types/relacionLaboral.types';
 
 // ═════════════════════════════════════════════════════════════════════════
 // TIPOS
@@ -134,6 +144,9 @@ export const NuevoSocioModal: React.FC<NuevoSocioModalProps> = ({
   const [userExistente, setUserExistente] = useState<UserProfile | null>(null);
   const [relacionesVigentes, setRelacionesVigentes] = useState<RelacionLaboral[]>([]);
 
+  // ── Teléfono pendiente (de InfoRelevantePanel alerta 3) ─────────────────
+  const [telefonoPending, setTelefonoPending] = useState<string | null>(null);
+
   // ── Borrador ────────────────────────────────────────────────────────────
   const [borradorRestaurado, setBorradorRestaurado] = useState(false);
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -216,6 +229,7 @@ export const NuevoSocioModal: React.FC<NuevoSocioModalProps> = ({
     setErrors({});
     setUserExistente(null);
     setRelacionesVigentes([]);
+    setTelefonoPending(null);
     setBorradorRestaurado(false);
     clearError();
   };
@@ -255,6 +269,23 @@ export const NuevoSocioModal: React.FC<NuevoSocioModalProps> = ({
     setUserExistente(null);
     setRelacionesVigentes([]);
     setEmailInput('');
+    setTelefonoPending(null);
+  };
+
+  // ─── Callback InfoRelevantePanel: pre-rellenar desde historial ────────
+  const handlePrefillFromHistory = (
+    _snapshot: DatosLaboralesSnapshot | DatosSocioSnapshot,
+    _tipo: TipoRelacion,
+  ) => {
+    // Para socios el snapshot no expone cargo en DatosSocioSnapshot directamente.
+    // El campo cargoDisplay vive en la RelacionLaboral padre, no en el snapshot.
+    // El panel muestra la info al usuario; aquí no hay campos de equity en el form.
+    // Si en el futuro DatosSocioValues incluye campos de participación, expandir acá.
+  };
+
+  // ─── Callback InfoRelevantePanel: teléfono pending ────────────────────
+  const handleTelefonoPending = (telefono: string) => {
+    setTelefonoPending(telefono);
   };
 
   // ─── Navegación al UserPanel ──────────────────────────────────────────
@@ -270,6 +301,10 @@ export const NuevoSocioModal: React.FC<NuevoSocioModalProps> = ({
     if (modoAgregarRelacion && userExistente) {
       setErrors({});
       try {
+        // Aplicar teléfono pending antes de crear la relación (si el admin lo completó)
+        if (telefonoPending) {
+          await userService.updateProfile(userExistente.uid, { telefono: telefonoPending });
+        }
         const { uid } = await addRelacionToExisting(userExistente.uid, {
           tipo: 'socio',
           subTipo: (socio.subTipo || undefined) as SubTipoSocio | undefined,
@@ -470,6 +505,15 @@ export const NuevoSocioModal: React.FC<NuevoSocioModalProps> = ({
         {/* ── Modo B: agregar relación a user existente ── */}
         {modoAgregarRelacion && userExistente && (
           <>
+            {/* Panel de información relevante · alertas contextuales */}
+            <InfoRelevantePanel
+              user={userExistente}
+              tipoModal="socio"
+              relacionesVigentes={relacionesVigentes}
+              onPrefillFromHistory={handlePrefillFromHistory}
+              onTelefonoPending={handleTelefonoPending}
+            />
+
             <div className="border-t border-slate-100" />
             {/* La chip-pill del autocomplete ya muestra los datos del user. Solo mostramos los datos de socio. */}
             <div>
