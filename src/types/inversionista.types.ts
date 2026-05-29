@@ -420,6 +420,14 @@ export interface ResumenInversionista {
   utilidadNetaAcumuladaPEN: number;
   ventasMesActualPEN: number;
   margenNetoMesActual: number;
+  /**
+   * chk5.E-INV-PERF2 (2026-05-29) · lazy-load de acumulados.
+   * false → utilidadNetaAcumuladaPEN / ROI 12m / soberanía son placeholder (0),
+   *          esperando la 2ª fase de carga · la UI muestra mini-spinner en esos KPIs.
+   * true  → acumulados reales ya calculados.
+   * Ausente (cálculos legacy) → se trata como true (comportamiento previo).
+   */
+  acumuladosCargados?: boolean;
 }
 
 // ===============================================

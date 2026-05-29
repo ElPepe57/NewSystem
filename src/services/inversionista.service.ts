@@ -672,7 +672,13 @@ export async function calcularTrayectoria24Meses(
  */
 export async function calcularResumenInversionista(
   mes: number,
-  anio: number
+  anio: number,
+  // chk5.E-INV-PERF2 (2026-05-29) · optimización A · lazy-load de acumulados.
+  // Si false, NO se calculan los 12 P&L históricos (utilidad acum 12m + promedio 6m).
+  // El mount de /inversionistas pasa false → primer paint con 2 cálculos en vez de ~20.
+  // La 2ª fase vuelve a llamar con true para enriquecer ROI/soberanía/salud.
+  // Default true → backward compat para /perfil (MiCapitalPersonal · ResumenSocio).
+  incluirAcumulados = true,
 ): Promise<ResumenInversionista> {
   // 1. TC vigente + configuración (en paralelo)
   const [tcResuelto, config] = await Promise.all([
@@ -690,8 +696,7 @@ export async function calcularResumenInversionista(
     tcsData,
     balance,
     estadoMesActual,
-    utilidadNetaAcumulada,
-    utilidadMensualPromedio,
+    acumulados,
   ] = await Promise.all([
     listarSocios(),
     getAportesPorSocio(),
@@ -699,9 +704,14 @@ export async function calcularResumenInversionista(
     getTCPersonalesPorSocio(tipoCambio),
     contabilidadService.generarBalanceGeneral(mes, anio),
     contabilidadService.generarEstadoResultados(mes, anio),
-    calcularUNAcumulada12m(mes, anio),   // paralelo internamente
-    calcularUNPromedio6m(mes, anio),     // paralelo internamente
+    // chk5.E-INV-PERF2 · lazy: los 12 P&L históricos solo se calculan si se piden.
+    // El mount de /inversionistas pasa incluirAcumulados=false → primer paint rápido.
+    incluirAcumulados
+      ? calcularUNHistorica12m(mes, anio)
+      : Promise.resolve({ acumulada12m: 0, promedio6m: 0 }),
   ]);
+  const utilidadNetaAcumulada = acumulados.acumulada12m;
+  const utilidadMensualPromedio = acumulados.promedio6m;
 
   // 3. Métricas calculadas (sincrónicas · ya tenemos toda la data)
   const retirosDeCapital = retirosData.porSocio.reduce(
@@ -782,6 +792,9 @@ export async function calcularResumenInversionista(
     utilidadNetaAcumuladaPEN: utilidadNetaAcumulada,
     ventasMesActualPEN: estadoMesActual.ventasNetas,
     margenNetoMesActual: estadoMesActual.utilidadNetaPorcentaje,
+    // chk5.E-INV-PERF2 · flag para que la UI sepa si ROI 12m / soberanía ya
+    // tienen los acumulados reales (true) o son placeholder 0 esperando 2ª fase (false).
+    acumuladosCargados: incluirAcumulados,
   };
 }
 
@@ -826,35 +839,28 @@ export function recalcularSaludConTendencia(
  * chk5.E-INV-PERF · paralelo · 12 P&L concurrentes.
  * Sin data por mes → contribuye 0 al acumulado.
  */
-async function calcularUNAcumulada12m(mes: number, anio: number): Promise<number> {
+/**
+ * chk5.E-INV-PERF2 (2026-05-29) · UNIFICADO (optimización B).
+ *
+ * Antes había 2 funciones (calcularUNAcumulada12m + calcularUNPromedio6m) que
+ * recalculaban los ÚLTIMOS 6 MESES DOS VECES (redundancia: 12 + 6 = 18 P&L,
+ * pero solo 12 meses únicos). Ahora hacemos 1 SOLA pasada de 12 meses y
+ * derivamos ambas métricas del mismo array · 18 → 12 cálculos contables.
+ *
+ * Devuelve:
+ *  - acumulada12m: suma de UN de los 12 meses
+ *  - promedio6m: promedio de UN de los últimos 6 meses CON data
+ */
+async function calcularUNHistorica12m(
+  mes: number,
+  anio: number,
+): Promise<{ acumulada12m: number; promedio6m: number }> {
   const meses: Array<{ m: number; a: number }> = [];
   for (let i = 0; i < 12; i++) {
     const fecha = new Date(anio, mes - 1 - i, 1);
     meses.push({ m: fecha.getMonth() + 1, a: fecha.getFullYear() });
   }
-  const utilidades = await Promise.all(
-    meses.map(async ({ m, a }) => {
-      try {
-        const estado = await contabilidadService.generarEstadoResultados(m, a);
-        return estado.utilidadNeta || 0;
-      } catch {
-        return 0;
-      }
-    })
-  );
-  return utilidades.reduce((acc, un) => acc + un, 0);
-}
-
-/**
- * chk5.E-INV-PERF · paralelo · 6 P&L concurrentes.
- * Promedio sobre los meses con data (los sin data se descartan).
- */
-async function calcularUNPromedio6m(mes: number, anio: number): Promise<number> {
-  const meses: Array<{ m: number; a: number }> = [];
-  for (let i = 0; i < 6; i++) {
-    const fecha = new Date(anio, mes - 1 - i, 1);
-    meses.push({ m: fecha.getMonth() + 1, a: fecha.getFullYear() });
-  }
+  // 1 sola pasada · índice 0 = mes actual · 11 = hace 11 meses
   const resultados = await Promise.all(
     meses.map(async ({ m, a }) => {
       try {
@@ -863,11 +869,17 @@ async function calcularUNPromedio6m(mes: number, anio: number): Promise<number> 
       } catch {
         return { un: 0, hasData: false };
       }
-    })
+    }),
   );
-  const conData = resultados.filter((r) => r.hasData);
-  if (conData.length === 0) return 0;
-  return conData.reduce((acc, r) => acc + r.un, 0) / conData.length;
+
+  const acumulada12m = resultados.reduce((acc, r) => acc + r.un, 0);
+
+  // Promedio 6m · solo los primeros 6 (más recientes) con data
+  const ultimos6 = resultados.slice(0, 6).filter((r) => r.hasData);
+  const promedio6m =
+    ultimos6.length === 0 ? 0 : ultimos6.reduce((acc, r) => acc + r.un, 0) / ultimos6.length;
+
+  return { acumulada12m, promedio6m };
 }
 
 /**

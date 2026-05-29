@@ -278,6 +278,8 @@ export default function Inversionistas() {
   // Distribución (lazy), y luego queda cacheada para futuras navegaciones.
   const [trayectoriaCargada, setTrayectoriaCargada] = useState(false);
   const [trayectoriaCargando, setTrayectoriaCargando] = useState(false);
+  // chk5.E-INV-PERF2 · FASE 2 · carga de acumulados históricos (12 P&L) en background
+  const [acumuladosCargando, setAcumuladosCargando] = useState(false);
 
   // chk5.PERSONAS-v5.8 · E4 · Modal "Nuevo socio" · alta directa
   const [nuevoSocioOpen, setNuevoSocioOpen] = useState(false);
@@ -307,13 +309,36 @@ export default function Inversionistas() {
     setError(null);
     setTrayectoriaCargada(false);   // reset · cambio de período fuerza recargar trayectoria
     try {
-      const resumen = await inversionistaService.calcularResumenInversionista(mes, anio);
+      // chk5.E-INV-PERF2 · FASE 1 · primer paint rápido SIN los 12 P&L históricos
+      // (acumulados ROI 12m + soberanía). Pasa incluirAcumulados=false → ~2 cálculos
+      // contables en vez de ~20. La FASE 2 (cargarAcumulados) los enriquece después.
+      const resumen = await inversionistaService.calcularResumenInversionista(mes, anio, false);
       setData(resumen);
     } catch (err) {
       console.error('Error cargando datos inversionistas:', err);
       setError(err instanceof Error ? err.message : 'Error al cargar datos.');
     } finally {
       setLoading(false);
+    }
+  };
+
+  /**
+   * chk5.E-INV-PERF2 · FASE 2 · enriquece con los acumulados históricos (12 P&L).
+   * Se dispara en background tras el primer paint · NO bloquea la vista. Cuando
+   * termina, ROI 12m + soberanía + salud se actualizan con los valores reales.
+   */
+  const cargarAcumulados = async () => {
+    if (acumuladosCargando) return;
+    setAcumuladosCargando(true);
+    try {
+      const completo = await inversionistaService.calcularResumenInversionista(mes, anio, true);
+      // Preservar la trayectoria si el user ya la cargó (lazy de otro tab)
+      setData((prev) => (prev ? { ...completo, trayectoria: prev.trayectoria } : completo));
+    } catch (err) {
+      console.error('Error cargando acumulados inversionistas:', err);
+      // No bloqueamos · los KPIs históricos quedan en placeholder
+    } finally {
+      setAcumuladosCargando(false);
     }
   };
 
@@ -356,6 +381,16 @@ export default function Inversionistas() {
     cargarDatos();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mes, anio]);
+
+  // chk5.E-INV-PERF2 · FASE 2 · tras el primer paint (data con acumuladosCargados=false)
+  // disparamos en background el cálculo de los 12 P&L históricos para enriquecer
+  // ROI 12m + soberanía + salud. No bloquea la vista.
+  useEffect(() => {
+    if (data && data.acumuladosCargados === false && !acumuladosCargando) {
+      cargarAcumulados();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data]);
 
   // chk5.E-INV-PERF · disparar lazy load cuando entra a tabs que necesitan trayectoria
   useEffect(() => {
