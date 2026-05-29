@@ -37,6 +37,8 @@ import {
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { COLLECTIONS } from '../config/collections';
+// chk5.PERF-INVALIDACION · un movimiento financiero puede afectar el P&L del mes
+import { notificarCambioContable } from './contabilidadCache';
 import type {
   MovimientoFinanciero,
   MovimientoFinancieroFormData,
@@ -177,6 +179,10 @@ export async function registrarMovimientoFinanciero(
 
   // ─── Insertar el movimiento ───────────────────────────────────────
   const ref = await addDoc(collection(db, COL), docData);
+
+  // chk5.PERF-INVALIDACION · el movimiento puede afectar el P&L del mes (gastos,
+  // otros ingresos) → invalidar cache/snapshot contable (fire-and-forget).
+  void notificarCambioContable(data.fecha);
 
   // ─── Aplicar delta de saldo (solo si ejecutado) ──────────────────
   if (estado === 'ejecutado') {

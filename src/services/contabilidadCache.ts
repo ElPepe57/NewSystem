@@ -28,6 +28,7 @@
 import {
   generarEstadoResultados,
   generarBalanceGeneral,
+  invalidarSnapshotPLPorFecha,
 } from './contabilidad.service';
 
 // Inferimos los tipos de retorno sin tener que importarlos explícitamente.
@@ -140,5 +141,46 @@ export function invalidarContabilidadCache(mes?: number, anio?: number): void {
   }
   for (const k of balanceCache.keys()) {
     if (k.startsWith(prefijo)) balanceCache.delete(k);
+  }
+}
+
+/**
+ * chk5.PERF-INVALIDACION (2026-05-29) · Punto ÚNICO de invalidación contable
+ * para los servicios de escritura. Llamar tras crear/editar/eliminar cualquier
+ * documento que afecte el P&L (venta, gasto, compra recibida, movimiento
+ * financiero), pasando la fecha del documento.
+ *
+ * Hace dos cosas en un solo lugar (evita wire-up frágil repetido):
+ *   1. Cache en memoria del mes afectado → así la próxima visita a Contabilidad
+ *      o Inversionistas recalcula con el dato nuevo (no espera el TTL de 60s).
+ *   2. Snapshot materializado del mes (solo si el mes está cerrado · el mes vivo
+ *      no tiene snapshot) → mantiene la materialización consistente ante
+ *      correcciones retroactivas, sin depender del botón "Recargar".
+ *
+ * Si no se puede resolver la fecha, invalida TODO el cache en memoria (seguro).
+ * Es best-effort y nunca lanza: una falla de invalidación jamás debe romper la
+ * operación de negocio que la disparó.
+ */
+export async function notificarCambioContable(
+  fecha: Date | { toDate: () => Date } | string | null | undefined,
+): Promise<void> {
+  try {
+    let d: Date | null = null;
+    if (fecha) {
+      if (typeof fecha === 'string') d = new Date(fecha);
+      else if (fecha instanceof Date) d = fecha;
+      else if (typeof (fecha as { toDate?: () => Date }).toDate === 'function') {
+        d = (fecha as { toDate: () => Date }).toDate();
+      }
+    }
+    if (d && !isNaN(d.getTime())) {
+      invalidarContabilidadCache(d.getMonth() + 1, d.getFullYear());
+      await invalidarSnapshotPLPorFecha(d);
+    } else {
+      // Sin fecha utilizable → invalidación total del cache en memoria (barato y seguro)
+      invalidarContabilidadCache();
+    }
+  } catch {
+    // best-effort · nunca romper la operación de negocio
   }
 }

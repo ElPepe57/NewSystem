@@ -29,6 +29,8 @@ import { tesoreriaService } from './tesoreria.service';
 // poolUSDService + TipoMovimientoPool: eliminados — tesorería registra automáticamente en Pool USD
 import type { MetodoTesoreria, MonedaTesoreria } from '../types/tesoreria.types';
 import { actividadService } from './actividad.service';
+// chk5.PERF-INVALIDACION · invalida cache+snapshot contable del mes al escribir un gasto
+import { notificarCambioContable } from './contabilidadCache';
 import { COLLECTIONS } from '../config/collections';
 import { getNextSequenceNumber } from '../lib/sequenceGenerator';
 import { logBackgroundError } from '../lib/logger';
@@ -104,6 +106,10 @@ export const gastoService = {
       }
 
       const docRef = await addDoc(collection(db, GASTOS_COLLECTION), gasto);
+
+      // chk5.PERF-INVALIDACION · gasto nuevo afecta el P&L del mes → invalidar
+      // cache/snapshot contable (fire-and-forget · no bloquea el alta).
+      void notificarCambioContable(data.fecha);
 
       // ── S58b F5 — MovimientoCC débito en CC del proveedor ───────────
       // Crear el débito al momento de registrar el gasto, igual que las OCs.
@@ -488,6 +494,9 @@ export const gastoService = {
 
       await updateDoc(docRef, updateData);
 
+      // chk5.PERF-INVALIDACION · edición de gasto afecta el P&L · invalidar contable
+      void notificarCambioContable(data.fecha ?? gastoActual.fecha);
+
     } catch (error: any) {
       logger.error('Error al actualizar gasto:', error);
       throw new Error(`Error al actualizar gasto: ${error.message}`);
@@ -563,6 +572,9 @@ export const gastoService = {
 
       const docRef = doc(db, GASTOS_COLLECTION, id);
       await deleteDoc(docRef);
+
+      // chk5.PERF-INVALIDACION · baja de gasto afecta el P&L · invalidar contable
+      void notificarCambioContable(gasto.fecha);
     } catch (error: any) {
       logger.error('Error al eliminar gasto:', error);
       throw new Error(`Error al eliminar gasto: ${error.message}`);

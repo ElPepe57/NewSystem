@@ -35,6 +35,8 @@ import {
 import { db } from '../lib/firebase';
 import { mapDocs } from '../lib/firestoreHelpers';
 import { COLLECTIONS } from '../config/collections';
+// chk5.PERF-INVALIDACION · una venta nueva afecta el P&L del mes (ventas netas)
+import { notificarCambioContable } from './contabilidadCache';
 import type {
   Venta,
   VentaFormData,
@@ -527,6 +529,10 @@ export class VentaService {
       }
 
       const docRef = await addDoc(collection(db, COLLECTION_NAME), nuevaVenta);
+
+      // chk5.PERF-INVALIDACION · venta nueva (se cuenta por fechaCreacion = hoy) afecta
+      // el P&L del mes en curso → invalidar cache contable (fire-and-forget).
+      void notificarCambioContable(new Date());
 
       // S55 Fase 3 — Si es venta directa (confirmada al crear), generar movimiento
       // `debito_venta` en CC del cliente. La cotización NO genera movimiento — eso
