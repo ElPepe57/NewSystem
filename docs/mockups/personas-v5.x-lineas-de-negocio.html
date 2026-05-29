@@ -47,7 +47,10 @@
       <li><strong>9.</strong> Empty state · sin líneas configuradas</li>
       <li><strong>10.</strong> Mobile · modal empleado</li>
       <li><strong>11.</strong> Mobile · modal socio + filtros planilla</li>
-      <li><strong>12.</strong> Cierre · checklist canon</li>
+      <li><strong>12.</strong> /usuarios directorio · cards con chips de líneas</li>
+      <li><strong>13.</strong> /perfil personal · "Mis líneas de negocio"</li>
+      <li><strong>14.</strong> Mobile · perfil personal con chips</li>
+      <li><strong>15.</strong> Cierre · checklist canon</li>
     </ul>
   </div>
 </section>
@@ -1021,9 +1024,451 @@
   </div>
 </section>
 
-<!-- ─────────── ACTO 12 · CIERRE · CHECKLIST CANON ─────────── -->
+<!-- ─────────── ACTO 12 · /USUARIOS DIRECTORIO ─────────── -->
 <section class="canvas py-10 px-6 border-t border-slate-200">
-  <div class="label-acto font-bold text-slate-700 mb-2 uppercase">ACTO 12 · Cierre · checklist canon</div>
+  <div class="label-acto font-bold text-slate-700 mb-2 uppercase">ACTO 12 · /usuarios directorio · cards con chips de líneas</div>
+  <h2 class="text-2xl font-bold mb-6">Hub central · ver a TODOS con sus líneas de un vistazo</h2>
+
+  <div class="bg-white rounded-2xl ring-1 ring-slate-200 shadow-sm p-6">
+    <!-- Breadcrumb + header -->
+    <div class="text-[11px] text-slate-500 mb-2 flex items-center gap-1">
+      <span>Equipo</span><i data-lucide="chevron-right" class="w-3 h-3"></i><span class="font-semibold text-slate-700">Usuarios</span>
+    </div>
+    <div class="flex items-end justify-between mb-4">
+      <div>
+        <h1 class="text-2xl font-bold flex items-center gap-2">
+          <i data-lucide="users" class="w-5 h-5 text-slate-700"></i>
+          Usuarios
+        </h1>
+        <p class="text-[13px] text-slate-500">Directorio de personas · empleados · socios · externos · honorarios</p>
+      </div>
+      <input type="text" placeholder="Buscar por nombre o email..." class="text-sm px-3 py-2 ring-1 ring-slate-200 rounded-lg w-72">
+    </div>
+
+    <!-- Filtros · tipo + línea -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
+      <div class="bg-slate-50 ring-1 ring-slate-200 rounded-xl p-3">
+        <div class="text-[10px] uppercase tracking-wider font-bold text-slate-500 mb-2">Filtrar por tipo</div>
+        <div class="flex flex-wrap gap-1.5">
+          <button class="text-[11px] font-semibold px-2.5 py-1 rounded-lg bg-slate-900 text-white">Todos <span class="opacity-70">15</span></button>
+          <button class="text-[11px] font-semibold px-2.5 py-1 rounded-lg bg-white ring-1 ring-teal-300 text-teal-800 flex items-center gap-1"><i data-lucide="briefcase" class="w-3 h-3"></i> Empleados 12</button>
+          <button class="text-[11px] font-semibold px-2.5 py-1 rounded-lg bg-white ring-1 ring-purple-300 text-purple-800 flex items-center gap-1"><i data-lucide="handshake" class="w-3 h-3"></i> Socios 3</button>
+          <button class="text-[11px] font-semibold px-2.5 py-1 rounded-lg bg-white ring-1 ring-sky-300 text-sky-800 flex items-center gap-1"><i data-lucide="file-text" class="w-3 h-3"></i> Honorarios 2</button>
+        </div>
+      </div>
+      <div class="bg-slate-50 ring-1 ring-slate-200 rounded-xl p-3">
+        <div class="text-[10px] uppercase tracking-wider font-bold text-slate-500 mb-2">Filtrar por línea</div>
+        <div class="flex flex-wrap gap-1.5">
+          <button class="text-[11px] font-semibold px-2.5 py-1 rounded-lg bg-slate-900 text-white">Todas</button>
+          <button class="text-[11px] font-semibold px-2.5 py-1 rounded-lg bg-white ring-1 ring-slate-200 flex items-center gap-1">
+            <div class="w-1.5 h-1.5 rounded-full bg-teal-500"></div> Skincare
+          </button>
+          <button class="text-[11px] font-semibold px-2.5 py-1 rounded-lg bg-white ring-1 ring-slate-200 flex items-center gap-1">
+            <div class="w-1.5 h-1.5 rounded-full bg-pink-500"></div> Maquillaje
+          </button>
+          <button class="text-[11px] font-semibold px-2.5 py-1 rounded-lg bg-white ring-1 ring-slate-200 flex items-center gap-1">
+            <div class="w-1.5 h-1.5 rounded-full bg-amber-500"></div> Fragancias
+          </button>
+          <button class="text-[11px] font-semibold px-2.5 py-1 rounded-lg bg-white ring-1 ring-slate-200 flex items-center gap-1">
+            <i data-lucide="globe" class="w-3 h-3 text-slate-400"></i> Compartidos
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Grid de cards con chips de líneas -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+
+      <!-- Card 1 · Marcos · multi-relación (empleado en 2 líneas + socio) -->
+      <div class="ring-1 ring-slate-200 rounded-xl p-4 hover:ring-slate-300 hover:shadow-sm cursor-pointer">
+        <div class="flex items-start gap-3 mb-2">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-teal-500 to-emerald-500 flex items-center justify-center text-white font-bold text-sm">MC</div>
+          <div class="flex-1 min-w-0">
+            <div class="font-bold text-slate-900 truncate">Marcos Castillo</div>
+            <div class="text-[11px] text-slate-500 truncate">marcos@vita.pe</div>
+          </div>
+        </div>
+        <!-- Chips de tipo de relación -->
+        <div class="flex flex-wrap gap-1 mb-2">
+          <span class="text-[10px] font-bold bg-teal-100 text-teal-700 px-1.5 py-0.5 rounded-full">EMPLEADO ×2</span>
+          <span class="text-[10px] font-bold bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded-full">SOCIO</span>
+        </div>
+        <!-- Chips de líneas -->
+        <div class="text-[10px] uppercase tracking-wider font-bold text-slate-400 mb-1">Líneas</div>
+        <div class="flex flex-wrap gap-1">
+          <span class="inline-flex items-center gap-1 text-[10px] font-semibold bg-teal-50 ring-1 ring-teal-200 text-teal-700 px-1.5 py-0.5 rounded-full">
+            <div class="w-1.5 h-1.5 rounded-full bg-teal-500"></div> Skincare
+          </span>
+          <span class="inline-flex items-center gap-1 text-[10px] font-semibold bg-pink-50 ring-1 ring-pink-200 text-pink-700 px-1.5 py-0.5 rounded-full">
+            <div class="w-1.5 h-1.5 rounded-full bg-pink-500"></div> Maquillaje
+          </span>
+        </div>
+      </div>
+
+      <!-- Card 2 · Ana · empleada solo Skincare -->
+      <div class="ring-1 ring-slate-200 rounded-xl p-4 hover:ring-slate-300 hover:shadow-sm cursor-pointer">
+        <div class="flex items-start gap-3 mb-2">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-bold text-sm">AQ</div>
+          <div class="flex-1 min-w-0">
+            <div class="font-bold text-slate-900 truncate">Ana Quispe</div>
+            <div class="text-[11px] text-slate-500 truncate">ana@vita.pe</div>
+          </div>
+        </div>
+        <div class="flex flex-wrap gap-1 mb-2">
+          <span class="text-[10px] font-bold bg-teal-100 text-teal-700 px-1.5 py-0.5 rounded-full">EMPLEADO</span>
+          <span class="text-[10px] font-bold bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded-full">SOCIO</span>
+        </div>
+        <div class="text-[10px] uppercase tracking-wider font-bold text-slate-400 mb-1">Líneas</div>
+        <div class="flex flex-wrap gap-1">
+          <span class="inline-flex items-center gap-1 text-[10px] font-semibold bg-teal-50 ring-1 ring-teal-200 text-teal-700 px-1.5 py-0.5 rounded-full">
+            <div class="w-1.5 h-1.5 rounded-full bg-teal-500"></div> Skincare
+          </span>
+          <span class="inline-flex items-center gap-1 text-[10px] font-semibold bg-slate-100 ring-1 ring-slate-200 text-slate-700 px-1.5 py-0.5 rounded-full">
+            <i data-lucide="globe" class="w-2.5 h-2.5"></i> Empresa global
+          </span>
+        </div>
+      </div>
+
+      <!-- Card 3 · José Pérez · CEO compartido -->
+      <div class="ring-1 ring-slate-200 rounded-xl p-4 hover:ring-slate-300 hover:shadow-sm cursor-pointer">
+        <div class="flex items-start gap-3 mb-2">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center text-white font-bold text-sm">JP</div>
+          <div class="flex-1 min-w-0">
+            <div class="font-bold text-slate-900 truncate">José Pérez</div>
+            <div class="text-[11px] text-slate-500 truncate">jose.lp9205@gmail.com</div>
+          </div>
+          <span class="text-[9px] font-bold bg-slate-900 text-white px-1.5 py-0.5 rounded">ADMIN</span>
+        </div>
+        <div class="flex flex-wrap gap-1 mb-2">
+          <span class="text-[10px] font-bold bg-teal-100 text-teal-700 px-1.5 py-0.5 rounded-full">EMPLEADO</span>
+          <span class="text-[10px] font-bold bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded-full">SOCIO</span>
+        </div>
+        <div class="text-[10px] uppercase tracking-wider font-bold text-slate-400 mb-1">Líneas</div>
+        <div class="flex flex-wrap gap-1">
+          <span class="inline-flex items-center gap-1 text-[10px] font-semibold bg-slate-100 ring-1 ring-slate-200 text-slate-700 px-1.5 py-0.5 rounded-full">
+            <i data-lucide="globe" class="w-2.5 h-2.5"></i> Compartido (sin línea)
+          </span>
+        </div>
+      </div>
+
+      <!-- Card 4 · Pedro Silva · socio Maquillaje -->
+      <div class="ring-1 ring-slate-200 rounded-xl p-4 hover:ring-slate-300 hover:shadow-sm cursor-pointer">
+        <div class="flex items-start gap-3 mb-2">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center text-white font-bold text-sm">PS</div>
+          <div class="flex-1 min-w-0">
+            <div class="font-bold text-slate-900 truncate">Pedro Silva</div>
+            <div class="text-[11px] text-slate-500 truncate">pedro@vita.pe</div>
+          </div>
+        </div>
+        <div class="flex flex-wrap gap-1 mb-2">
+          <span class="text-[10px] font-bold bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded-full">SOCIO ×2</span>
+        </div>
+        <div class="text-[10px] uppercase tracking-wider font-bold text-slate-400 mb-1">Líneas</div>
+        <div class="flex flex-wrap gap-1">
+          <span class="inline-flex items-center gap-1 text-[10px] font-semibold bg-slate-100 ring-1 ring-slate-200 text-slate-700 px-1.5 py-0.5 rounded-full">
+            <i data-lucide="globe" class="w-2.5 h-2.5"></i> Empresa global
+          </span>
+          <span class="inline-flex items-center gap-1 text-[10px] font-semibold bg-pink-50 ring-1 ring-pink-200 text-pink-700 px-1.5 py-0.5 rounded-full">
+            <div class="w-1.5 h-1.5 rounded-full bg-pink-500"></div> Maquillaje
+          </span>
+        </div>
+      </div>
+
+      <!-- Card 5 · Lucía · honorarios -->
+      <div class="ring-1 ring-slate-200 rounded-xl p-4 hover:ring-slate-300 hover:shadow-sm cursor-pointer">
+        <div class="flex items-start gap-3 mb-2">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-sky-500 to-blue-500 flex items-center justify-center text-white font-bold text-sm">LH</div>
+          <div class="flex-1 min-w-0">
+            <div class="font-bold text-slate-900 truncate">Lucía Herrera</div>
+            <div class="text-[11px] text-slate-500 truncate">lucia@contabilidad.pe</div>
+          </div>
+        </div>
+        <div class="flex flex-wrap gap-1 mb-2">
+          <span class="text-[10px] font-bold bg-sky-100 text-sky-700 px-1.5 py-0.5 rounded-full">HONORARIOS</span>
+        </div>
+        <div class="text-[10px] uppercase tracking-wider font-bold text-slate-400 mb-1">Líneas</div>
+        <div class="flex flex-wrap gap-1">
+          <span class="inline-flex items-center gap-1 text-[10px] font-semibold bg-slate-100 ring-1 ring-slate-200 text-slate-700 px-1.5 py-0.5 rounded-full">
+            <i data-lucide="globe" class="w-2.5 h-2.5"></i> Compartido (contadora todas)
+          </span>
+        </div>
+      </div>
+
+      <!-- Card 6 · Juan transportista externo -->
+      <div class="ring-1 ring-slate-200 rounded-xl p-4 hover:ring-slate-300 hover:shadow-sm cursor-pointer">
+        <div class="flex items-start gap-3 mb-2">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 to-yellow-500 flex items-center justify-center text-white font-bold text-sm">JT</div>
+          <div class="flex-1 min-w-0">
+            <div class="font-bold text-slate-900 truncate">Juan Torres</div>
+            <div class="text-[11px] text-slate-500 truncate">juan@logistica.pe</div>
+          </div>
+        </div>
+        <div class="flex flex-wrap gap-1 mb-2">
+          <span class="text-[10px] font-bold bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-full">EXTERNO</span>
+        </div>
+        <div class="text-[10px] uppercase tracking-wider font-bold text-slate-400 mb-1">Líneas</div>
+        <div class="flex flex-wrap gap-1">
+          <span class="inline-flex items-center gap-1 text-[10px] font-semibold bg-teal-50 ring-1 ring-teal-200 text-teal-700 px-1.5 py-0.5 rounded-full">
+            <div class="w-1.5 h-1.5 rounded-full bg-teal-500"></div> Skincare
+          </span>
+          <span class="inline-flex items-center gap-1 text-[10px] font-semibold bg-amber-50 ring-1 ring-amber-200 text-amber-700 px-1.5 py-0.5 rounded-full">
+            <div class="w-1.5 h-1.5 rounded-full bg-amber-500"></div> Fragancias
+          </span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Hint -->
+    <div class="mt-4 bg-sky-50/60 ring-1 ring-sky-200 rounded-xl p-3 flex items-start gap-3">
+      <i data-lucide="info" class="w-4 h-4 text-sky-600 mt-0.5"></i>
+      <div class="text-[12px] text-sky-900">
+        Cada card muestra <strong>tipos de relación</strong> (chips arriba) y <strong>líneas donde la persona opera</strong>
+        (chips abajo). Click en la card abre el UserPanel con tab Relaciones donde se ven los detalles.
+        El filtro de líneas combina con el filtro de tipos · ej. "Empleados de Skincare" muestra 6.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────── ACTO 13 · /PERFIL PERSONAL ─────────── -->
+<section class="canvas py-10 px-6 border-t border-slate-200">
+  <div class="label-acto font-bold text-purple-700 mb-2 uppercase">ACTO 13 · /perfil personal · "Mis líneas de negocio"</div>
+  <h2 class="text-2xl font-bold mb-6">Cuando la persona se ve A SÍ MISMA · contexto laboral por línea</h2>
+
+  <p class="text-slate-600 mb-6 max-w-3xl">
+    En el módulo /perfil personal (canon banking-grade purple del v5.4), agregamos una sección
+    <strong>"Mi vínculo con cada línea"</strong> que muestra al empleado/socio cómo se relaciona con cada línea de negocio:
+    sus cargos, sueldos por línea, equity si aplica. Auto-adapta por rol.
+  </p>
+
+  <div class="bg-white rounded-2xl ring-1 ring-slate-200 shadow-sm p-6 max-w-3xl mx-auto">
+    <!-- Header /perfil canon -->
+    <div class="flex items-start gap-4 pb-5 border-b border-slate-100">
+      <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-teal-500 to-emerald-500 flex items-center justify-center text-white font-bold text-xl">MC</div>
+      <div class="flex-1">
+        <div class="text-[11px] uppercase tracking-wider font-bold text-purple-600 mb-1">Mi perfil · Banking grade</div>
+        <h1 class="font-bold text-2xl text-slate-900">Hola, Marcos</h1>
+        <div class="text-[13px] text-slate-500">Asistente de bodega · activo desde feb 2025</div>
+      </div>
+    </div>
+
+    <!-- Sección "Mis líneas de negocio" -->
+    <div class="pt-5">
+      <div class="flex items-center gap-2 mb-3">
+        <i data-lucide="layers" class="w-4 h-4 text-purple-700"></i>
+        <h2 class="font-bold text-base text-slate-900">Mi vínculo con cada línea</h2>
+      </div>
+      <p class="text-[12px] text-slate-500 mb-4">
+        Trabajás en <strong>2 líneas de negocio</strong> y tenés equity en <strong>1</strong>. Acá ves el detalle.
+      </p>
+
+      <!-- Card línea Skincare -->
+      <div class="ring-1 ring-teal-200 rounded-xl overflow-hidden mb-3">
+        <div class="bg-gradient-to-r from-teal-50 to-teal-100/40 px-4 py-3 flex items-center gap-3">
+          <div class="w-9 h-9 rounded-xl bg-white ring-1 ring-teal-200 flex items-center justify-center">
+            <div class="w-3 h-3 rounded-full bg-teal-500"></div>
+          </div>
+          <div class="flex-1">
+            <div class="font-bold text-teal-900">Línea Skincare</div>
+            <div class="text-[11px] text-teal-700/80">Línea principal · productos propios</div>
+          </div>
+          <span class="text-[10px] font-bold bg-teal-700 text-white px-2 py-0.5 rounded">2 RELACIONES</span>
+        </div>
+        <div class="px-4 py-3 space-y-2 bg-white">
+          <!-- Sub-relación empleado -->
+          <div class="flex items-start gap-2 text-[13px]">
+            <i data-lucide="briefcase" class="w-4 h-4 text-teal-700 mt-0.5"></i>
+            <div class="flex-1">
+              <div class="font-semibold text-slate-900">Empleado · Asistente de bodega</div>
+              <div class="text-[11px] text-slate-500">Sueldo S/1,500.00 · contrato A · desde feb 2025</div>
+            </div>
+          </div>
+          <!-- Sub-relación socio -->
+          <div class="flex items-start gap-2 text-[13px] pt-2 border-t border-teal-50">
+            <i data-lucide="handshake" class="w-4 h-4 text-purple-700 mt-0.5"></i>
+            <div class="flex-1">
+              <div class="font-semibold text-slate-900">Socio · 5% equity Línea Skincare</div>
+              <div class="text-[11px] text-slate-500">USD 30,000 invertidos · desde ene 2025 · última distribución abr 2026: USD 1,500</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card línea Maquillaje -->
+      <div class="ring-1 ring-pink-200 rounded-xl overflow-hidden mb-3">
+        <div class="bg-gradient-to-r from-pink-50 to-pink-100/40 px-4 py-3 flex items-center gap-3">
+          <div class="w-9 h-9 rounded-xl bg-white ring-1 ring-pink-200 flex items-center justify-center">
+            <div class="w-3 h-3 rounded-full bg-pink-500"></div>
+          </div>
+          <div class="flex-1">
+            <div class="font-bold text-pink-900">Línea Maquillaje</div>
+            <div class="text-[11px] text-pink-700/80">Línea secundaria · colaboración eventual</div>
+          </div>
+          <span class="text-[10px] font-bold bg-pink-700 text-white px-2 py-0.5 rounded">1 RELACIÓN</span>
+        </div>
+        <div class="px-4 py-3 space-y-2 bg-white">
+          <div class="flex items-start gap-2 text-[13px]">
+            <i data-lucide="briefcase" class="w-4 h-4 text-pink-700 mt-0.5"></i>
+            <div class="flex-1">
+              <div class="font-semibold text-slate-900">Empleado · Empacador</div>
+              <div class="text-[11px] text-slate-500">Sueldo S/800.00 · contrato B · desde mar 2026 · medio tiempo</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Resumen total -->
+      <div class="bg-gradient-to-r from-slate-50 to-white ring-1 ring-slate-200 rounded-xl px-4 py-3 flex items-center justify-between">
+        <div>
+          <div class="text-[10px] uppercase tracking-wider font-bold text-slate-500 mb-1">Total combinado</div>
+          <div class="text-lg font-bold tabular-nums text-slate-900">S/ 2,300<span class="text-slate-400">.00</span> <span class="text-[12px] text-slate-500 font-normal">/ mes</span></div>
+        </div>
+        <div class="text-right">
+          <div class="text-[10px] uppercase tracking-wider font-bold text-slate-500 mb-1">+ equity</div>
+          <div class="text-lg font-bold tabular-nums text-purple-700">5% <span class="text-[12px] text-slate-500 font-normal">Skincare</span></div>
+        </div>
+      </div>
+
+      <!-- Hint pedagógico -->
+      <div class="mt-4 bg-purple-50/60 ring-1 ring-purple-200 rounded-xl px-4 py-3 flex items-start gap-3">
+        <i data-lucide="info" class="w-4 h-4 text-purple-600 mt-0.5"></i>
+        <div class="text-[12px] text-purple-900">
+          <strong>¿Por qué tengo 2 contratos?</strong> Tu empleo en Skincare y Maquillaje están separados
+          porque cobrás sueldos distintos en cada línea. Cada boleta es independiente y se contabiliza
+          en su línea respectiva. Hablá con RRHH si querés modificar la división.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Variante CEO (sin línea) -->
+  <div class="mt-8 max-w-3xl mx-auto">
+    <div class="text-[10px] uppercase tracking-wider font-bold text-slate-500 mb-2">Variante · cuando es CEO / compartido</div>
+    <div class="bg-white rounded-2xl ring-1 ring-slate-200 shadow-sm p-6">
+      <div class="flex items-center gap-2 mb-3">
+        <i data-lucide="layers" class="w-4 h-4 text-purple-700"></i>
+        <h2 class="font-bold text-base text-slate-900">Mi vínculo con cada línea</h2>
+      </div>
+
+      <div class="ring-1 ring-slate-200 rounded-xl overflow-hidden">
+        <div class="bg-gradient-to-r from-slate-50 to-slate-100/40 px-4 py-3 flex items-center gap-3">
+          <div class="w-9 h-9 rounded-xl bg-white ring-1 ring-slate-200 flex items-center justify-center">
+            <i data-lucide="globe" class="w-4 h-4 text-slate-600"></i>
+          </div>
+          <div class="flex-1">
+            <div class="font-bold text-slate-900">Compartido · todas las líneas</div>
+            <div class="text-[11px] text-slate-500">Rol transversal · no estás asignado a una línea específica</div>
+          </div>
+        </div>
+        <div class="px-4 py-3 bg-white">
+          <div class="flex items-start gap-2 text-[13px]">
+            <i data-lucide="briefcase" class="w-4 h-4 text-teal-700 mt-0.5"></i>
+            <div class="flex-1">
+              <div class="font-semibold text-slate-900">Empleado · Director general (CEO)</div>
+              <div class="text-[11px] text-slate-500">Sueldo S/7,500.00 · sin asignación a línea (el costo se distribuye según contabilidad)</div>
+            </div>
+          </div>
+          <div class="flex items-start gap-2 text-[13px] pt-2 border-t border-slate-100 mt-2">
+            <i data-lucide="handshake" class="w-4 h-4 text-purple-700 mt-0.5"></i>
+            <div class="flex-1">
+              <div class="font-semibold text-slate-900">Socio · 60% Empresa global</div>
+              <div class="text-[11px] text-slate-500">USD 200,000 invertidos · cap table principal</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────── ACTO 14 · MOBILE PERFIL PERSONAL ─────────── -->
+<section class="py-10 px-6 border-t border-slate-200 bg-slate-50">
+  <div class="canvas">
+    <div class="label-acto font-bold text-purple-700 mb-2 uppercase">ACTO 14 · Mobile · perfil personal con chips de líneas</div>
+    <h2 class="text-2xl font-bold mb-6">375px · cards de línea apiladas verticalmente</h2>
+  </div>
+
+  <div class="mobile-canvas bg-white rounded-3xl ring-1 ring-slate-200 modal-shadow overflow-hidden">
+    <div class="bg-gradient-to-br from-purple-600 to-purple-700 text-white px-4 py-5">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 rounded-xl bg-white text-purple-700 flex items-center justify-center font-bold">MC</div>
+        <div class="flex-1">
+          <div class="text-[10px] uppercase tracking-wider font-semibold opacity-80">Mi perfil</div>
+          <div class="font-bold text-lg">Marcos</div>
+        </div>
+        <button class="text-white/80"><i data-lucide="settings" class="w-4 h-4"></i></button>
+      </div>
+    </div>
+
+    <div class="px-3 py-4 space-y-3">
+      <div class="flex items-center gap-2 mb-1">
+        <i data-lucide="layers" class="w-4 h-4 text-purple-700"></i>
+        <h2 class="font-bold text-sm">Mi vínculo con cada línea</h2>
+      </div>
+      <p class="text-[11px] text-slate-500">2 líneas · 1 con equity</p>
+
+      <!-- Línea Skincare mobile -->
+      <div class="ring-1 ring-teal-200 rounded-xl overflow-hidden">
+        <div class="bg-teal-50 px-3 py-2 flex items-center gap-2">
+          <div class="w-2.5 h-2.5 rounded-full bg-teal-500"></div>
+          <span class="font-bold text-sm text-teal-900 flex-1">Skincare</span>
+          <span class="text-[9px] font-bold bg-teal-700 text-white px-1.5 py-0.5 rounded">2 REL</span>
+        </div>
+        <div class="px-3 py-2 space-y-2 bg-white">
+          <div class="flex items-start gap-2 text-[12px]">
+            <i data-lucide="briefcase" class="w-3.5 h-3.5 text-teal-700 mt-0.5"></i>
+            <div class="flex-1">
+              <div class="font-semibold">Asistente de bodega</div>
+              <div class="text-[10px] text-slate-500 tabular-nums">S/ 1,500.00 · contrato A</div>
+            </div>
+          </div>
+          <div class="flex items-start gap-2 text-[12px] pt-1.5 border-t border-teal-50">
+            <i data-lucide="handshake" class="w-3.5 h-3.5 text-purple-700 mt-0.5"></i>
+            <div class="flex-1">
+              <div class="font-semibold">5% equity</div>
+              <div class="text-[10px] text-slate-500 tabular-nums">USD 30,000 · desde ene 2025</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Línea Maquillaje mobile -->
+      <div class="ring-1 ring-pink-200 rounded-xl overflow-hidden">
+        <div class="bg-pink-50 px-3 py-2 flex items-center gap-2">
+          <div class="w-2.5 h-2.5 rounded-full bg-pink-500"></div>
+          <span class="font-bold text-sm text-pink-900 flex-1">Maquillaje</span>
+          <span class="text-[9px] font-bold bg-pink-700 text-white px-1.5 py-0.5 rounded">1 REL</span>
+        </div>
+        <div class="px-3 py-2 bg-white">
+          <div class="flex items-start gap-2 text-[12px]">
+            <i data-lucide="briefcase" class="w-3.5 h-3.5 text-pink-700 mt-0.5"></i>
+            <div class="flex-1">
+              <div class="font-semibold">Empacador</div>
+              <div class="text-[10px] text-slate-500 tabular-nums">S/ 800.00 · contrato B</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Total -->
+      <div class="bg-slate-100 rounded-xl px-3 py-2.5 flex items-center justify-between">
+        <div>
+          <div class="text-[9px] uppercase font-bold text-slate-500">Total mensual</div>
+          <div class="text-base font-bold tabular-nums">S/ 2,300<span class="text-slate-400">.00</span></div>
+        </div>
+        <div class="text-right">
+          <div class="text-[9px] uppercase font-bold text-slate-500">Equity</div>
+          <div class="text-base font-bold tabular-nums text-purple-700">5%</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────── ACTO 15 · CIERRE · CHECKLIST CANON ─────────── -->
+<section class="canvas py-10 px-6 border-t border-slate-200">
+  <div class="label-acto font-bold text-slate-700 mb-2 uppercase">ACTO 15 · Cierre · checklist canon</div>
   <h2 class="text-2xl font-bold mb-6">Cobertura del mockup vs canons del proyecto</h2>
 
   <div class="bg-white ring-1 ring-slate-200 rounded-2xl p-6">
@@ -1058,7 +1503,7 @@
 </section>
 
 <footer class="canvas py-10 px-6 text-center text-[11px] text-slate-500">
-  Mockup canon · Personas v5.x · Líneas de Negocio · 2026-05-29
+  Mockup canon · Personas v5.x · Líneas de Negocio · 2026-05-29 · 15 actos · cobertura 360
 </footer>
 
 <script>
