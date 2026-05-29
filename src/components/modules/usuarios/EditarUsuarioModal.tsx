@@ -107,11 +107,6 @@ export default function EditarUsuarioModal({
     }
   };
 
-  const goToDrill = (path: string) => {
-    onClose();
-    navigate(path);
-  };
-
   return (
     <FormModalV2
       isOpen={isOpen}

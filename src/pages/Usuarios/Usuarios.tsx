@@ -12,6 +12,8 @@ import {
   ArrowRight,
   // chk5.PERSONAS-v5.4 · F10.D · breadcrumb canon S9.D1 + exportar
   ChevronRight, Download,
+  // chk5.PERSONAS-v5.8 · E5 · banner borrador colaborador (wizard @deprecated)
+  FileText,
 } from 'lucide-react';
 // chk5.PERSONAS-v5.7 · E4.1 (2026-05-28) · UserPanel reemplaza Ficha360Modal
 // como camino canon para ver el detalle de un usuario. Ficha360Modal queda

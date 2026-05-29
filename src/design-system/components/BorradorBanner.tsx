@@ -89,6 +89,24 @@ const LABELS: Record<TipoBorradorWizard, {
     resumenFallback: 'Baja sin terminar',
     totalPasos: 4,
   },
+  // chk5.PERSONAS-v5.7 · E4.4 · wizard 4 pasos "Nuevo colaborador" (CrearUsuarioWizard)
+  colaborador: {
+    titulo: 'Tienes un alta de colaborador en borrador',
+    resumenFallback: 'Colaborador sin terminar',
+    totalPasos: 4,
+  },
+  // chk5.PERSONAS-v5.8 · E3 · modal "Nuevo empleado" desde /planilla (form único)
+  'nuevo-empleado': {
+    titulo: 'Tienes un alta de empleado en borrador',
+    resumenFallback: 'Empleado sin terminar',
+    totalPasos: 1,
+  },
+  // chk5.PERSONAS-v5.8 · E4 · modal "Nuevo socio" desde /inversionistas (form único)
+  'nuevo-socio': {
+    titulo: 'Tienes un alta de socio en borrador',
+    resumenFallback: 'Socio sin terminar',
+    totalPasos: 1,
+  },
 };
 
 interface BorradorBannerProps {
