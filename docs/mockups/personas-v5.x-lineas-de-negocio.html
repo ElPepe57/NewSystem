@@ -1,0 +1,1068 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Personas v5.x · Líneas de Negocio · Modelo y UX</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<style>
+  body { font-family: -apple-system, "Segoe UI", Roboto, sans-serif; background: #f8fafc; }
+  .tabular-nums { font-variant-numeric: tabular-nums; }
+  .canvas { max-width: 1100px; margin: 0 auto; }
+  .mobile-canvas { max-width: 375px; margin: 0 auto; }
+  .label-acto { font-size: 10px; letter-spacing: 0.12em; }
+  .modal-shadow { box-shadow: 0 20px 50px -10px rgba(15, 23, 42, 0.25); }
+</style>
+</head>
+<body class="text-slate-900">
+
+<!-- ─────────── HERO ─────────── -->
+<section class="canvas py-10 px-6">
+  <div class="text-center">
+    <div class="inline-flex items-center gap-2 text-[10px] uppercase tracking-widest font-bold text-teal-700 bg-teal-50 ring-1 ring-teal-200 px-3 py-1 rounded-full mb-4">
+      <i data-lucide="layers"></i>
+      Mockup canon · Líneas de Negocio en Personas v5.x
+    </div>
+    <h1 class="text-4xl font-bold text-slate-900 mb-3">Separar empleados y socios por línea de negocio</h1>
+    <p class="text-slate-600 max-w-3xl mx-auto leading-relaxed">
+      Extensión al modelo Personas v5.x para attribuir relaciones laborales a una o varias líneas de negocio.
+      <strong>Empleados multi-select</strong> (puede trabajar en N líneas) ·
+      <strong>Socios single</strong> (equity es por entidad legal · empresa O línea).
+      <strong>Sueldos separados por línea = N relaciones empleado.</strong>
+    </p>
+  </div>
+
+  <div class="mt-8 bg-white ring-1 ring-slate-200 rounded-2xl p-6">
+    <div class="text-[10px] uppercase tracking-widest font-bold text-slate-500 mb-3">Índice de actos</div>
+    <ul class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2 text-sm text-slate-700">
+      <li><strong>1.</strong> Modelo conceptual · 3 reglas</li>
+      <li><strong>2.</strong> Modal Nuevo empleado · selector multi-line</li>
+      <li><strong>3.</strong> Modal Nuevo empleado · empleado compartido (sin línea)</li>
+      <li><strong>4.</strong> Modal Nuevo socio · selector single + empresa global</li>
+      <li><strong>5.</strong> Caso especial · sueldos separados (N relaciones)</li>
+      <li><strong>6.</strong> /planilla · filtros por línea + chips en cards</li>
+      <li><strong>7.</strong> /inversionistas · filtros por línea + cap table separado</li>
+      <li><strong>8.</strong> UserPanel · tab Relaciones con chips de líneas</li>
+      <li><strong>9.</strong> Empty state · sin líneas configuradas</li>
+      <li><strong>10.</strong> Mobile · modal empleado</li>
+      <li><strong>11.</strong> Mobile · modal socio + filtros planilla</li>
+      <li><strong>12.</strong> Cierre · checklist canon</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ─────────── ACTO 1 · MODELO CONCEPTUAL ─────────── -->
+<section class="canvas py-10 px-6 border-t border-slate-200">
+  <div class="label-acto font-bold text-teal-700 mb-2 uppercase">ACTO 1 · Modelo conceptual</div>
+  <h2 class="text-2xl font-bold mb-6">3 reglas que rigen el modelo</h2>
+
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+    <div class="bg-gradient-to-br from-teal-50 to-teal-100/40 ring-1 ring-teal-200 rounded-2xl p-5">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-teal-100 text-teal-700 flex items-center justify-center text-sm font-bold">1</div>
+        <div class="font-bold text-teal-900">Empleados · multi-select</div>
+      </div>
+      <p class="text-[13px] text-teal-900 leading-relaxed">
+        <code class="bg-white px-1.5 py-0.5 rounded text-[12px]">lineasNegocioIds: string[]</code>
+        · array de IDs de líneas. Puede tener 0 (compartido), 1 (dedicado), o N (multi-línea con UN sueldo).
+      </p>
+      <div class="mt-3 text-[11px] text-teal-700/80 leading-relaxed">
+        Ej. Marcos ayuda en Skincare Y Maquillaje con UN sueldo S/2300 · 1 relación con array de 2 IDs.
+      </div>
+    </div>
+
+    <div class="bg-gradient-to-br from-purple-50 to-purple-100/40 ring-1 ring-purple-200 rounded-2xl p-5">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center text-sm font-bold">2</div>
+        <div class="font-bold text-purple-900">Socios · single (o vacío)</div>
+      </div>
+      <p class="text-[13px] text-purple-900 leading-relaxed">
+        <code class="bg-white px-1.5 py-0.5 rounded text-[12px]">lineaNegocioId: string | null</code>
+        · 1 valor o null. <strong>null = cap table empresa global</strong>. Equity es por entidad legal.
+      </p>
+      <div class="mt-3 text-[11px] text-purple-700/80 leading-relaxed">
+        Ej. Juan fundador empresa = null · Pedro inversor de Maquillaje = "maquillaje". Si está en 2, 2 relaciones.
+      </div>
+    </div>
+
+    <div class="bg-gradient-to-br from-amber-50 to-amber-100/40 ring-1 ring-amber-200 rounded-2xl p-5">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center text-sm font-bold">3</div>
+        <div class="font-bold text-amber-900">Sueldos separados = N relaciones</div>
+      </div>
+      <p class="text-[13px] text-amber-900 leading-relaxed">
+        Si Marcos cobra <strong>S/1500 en Skincare</strong> Y <strong>S/800 extra en Maquillaje</strong> (sueldos distintos),
+        se crean <strong>2 relaciones empleado</strong>.
+      </p>
+      <div class="mt-3 text-[11px] text-amber-700/80 leading-relaxed">
+        El admin elige conscientemente · UX: en el modal hay opción "Agregar segundo contrato con otra línea".
+      </div>
+    </div>
+
+  </div>
+
+  <div class="mt-6 bg-sky-50/60 ring-1 ring-sky-200 rounded-xl p-4 flex items-start gap-3">
+    <i data-lucide="info" class="w-4 h-4 text-sky-600 flex-shrink-0 mt-0.5"></i>
+    <div class="text-[13px] text-sky-900 leading-relaxed">
+      <strong>Por qué asimétrico:</strong> el trabajo (empleo) puede ser compartido entre líneas con UN solo
+      contrato · el equity es siempre por entidad legal y no se "promedia". Esta asimetría refleja la realidad
+      contable y operativa de PyMEs.
+    </div>
+  </div>
+</section>
+
+<!-- ─────────── ACTO 2 · MODAL NUEVO EMPLEADO · MULTI-SELECT ─────────── -->
+<section class="canvas py-10 px-6 border-t border-slate-200">
+  <div class="label-acto font-bold text-teal-700 mb-2 uppercase">ACTO 2 · Modal Nuevo empleado · selector multi-line</div>
+  <h2 class="text-2xl font-bold mb-6">Marcos · trabaja en Skincare Y Maquillaje · UN sueldo</h2>
+
+  <div class="bg-white rounded-2xl ring-1 ring-slate-200 modal-shadow p-6 max-w-2xl mx-auto">
+    <!-- Header -->
+    <div class="flex items-center gap-3 pb-4 border-b border-slate-100">
+      <div class="w-11 h-11 rounded-xl bg-teal-50 ring-1 ring-teal-200 flex items-center justify-center">
+        <i data-lucide="briefcase" class="w-5 h-5 text-teal-700"></i>
+      </div>
+      <div>
+        <div class="font-bold text-lg text-slate-900">Nuevo empleado</div>
+        <div class="text-[12px] text-slate-500">Alta a planilla · 5ta categoría · sueldo fijo mensual</div>
+      </div>
+      <button class="ml-auto text-slate-400 hover:text-slate-600">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+    </div>
+
+    <!-- Autocomplete -->
+    <div class="pt-4">
+      <label class="block text-[11px] uppercase tracking-wider font-bold text-slate-700 mb-1.5">
+        <i data-lucide="search" class="w-3 h-3 inline mr-1 text-slate-500"></i>
+        Buscar persona <span class="text-rose-500">*</span>
+      </label>
+      <input type="text" value="Marcos Castillo Ruiz" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm">
+    </div>
+
+    <!-- Banner pedagógico -->
+    <div class="mt-4 bg-sky-50/60 ring-1 ring-sky-200 rounded-lg px-3 py-2.5 flex items-start gap-2">
+      <i data-lucide="info" class="w-4 h-4 text-sky-600 flex-shrink-0 mt-0.5"></i>
+      <div class="flex-1 text-[12px] text-sky-900">
+        <div class="text-[11px] uppercase tracking-wider font-bold text-sky-900 mb-1">Esto va a crear</div>
+        <ul class="space-y-0.5">
+          <li class="flex items-start gap-1.5"><i data-lucide="user-plus" class="w-3.5 h-3.5 mt-0.5 text-sky-700"></i> Un <strong>usuario nuevo</strong> con email + password para loguear.</li>
+          <li class="flex items-start gap-1.5"><i data-lucide="link-2" class="w-3.5 h-3.5 mt-0.5 text-sky-700"></i> Una <strong>relación tipo empleado</strong> vinculada a 2 líneas (UN sueldo compartido).</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Sección 1 · Datos personales -->
+    <div class="mt-5 pt-4 border-t border-slate-100">
+      <div class="text-[10px] uppercase tracking-wider font-bold text-slate-500 mb-3 flex items-center gap-1.5">
+        <span class="w-4 h-4 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center text-[9px] font-bold">1</span>
+        Datos personales
+      </div>
+
+      <div class="space-y-3">
+        <div>
+          <label class="block text-[11px] uppercase tracking-wider font-bold text-slate-700 mb-1.5">Nombre completo <span class="text-rose-500">*</span></label>
+          <input type="text" value="Marcos Castillo Ruiz" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm">
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-[11px] uppercase tracking-wider font-bold text-slate-700 mb-1.5">Email <span class="text-rose-500">*</span></label>
+            <input type="email" value="marcos@vita.pe" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm">
+          </div>
+          <div>
+            <label class="block text-[11px] uppercase tracking-wider font-bold text-slate-700 mb-1.5">Teléfono</label>
+            <input type="tel" value="+51 987 654 321" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm">
+          </div>
+        </div>
+        <div>
+          <label class="block text-[11px] uppercase tracking-wider font-bold text-slate-700 mb-1.5">Password inicial <span class="text-rose-500">*</span></label>
+          <input type="password" value="••••••••" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm">
+        </div>
+      </div>
+    </div>
+
+    <!-- Sección 2 · Datos laborales -->
+    <div class="mt-5 pt-4 border-t border-slate-100">
+      <div class="text-[10px] uppercase tracking-wider font-bold text-slate-500 mb-3 flex items-center gap-1.5">
+        <span class="w-4 h-4 rounded-full bg-teal-100 text-teal-700 flex items-center justify-center text-[9px] font-bold">2</span>
+        Datos laborales
+      </div>
+
+      <div class="space-y-3">
+        <div>
+          <label class="block text-[11px] uppercase tracking-wider font-bold text-slate-700 mb-1.5">Cargo <span class="text-rose-500">*</span></label>
+          <input type="text" value="Asistente de bodega" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm">
+        </div>
+
+        <div class="grid grid-cols-3 gap-3">
+          <div class="col-span-2">
+            <label class="block text-[11px] uppercase tracking-wider font-bold text-slate-700 mb-1.5">Sueldo bruto mensual</label>
+            <input type="text" value="2,300.00" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm tabular-nums">
+          </div>
+          <div>
+            <label class="block text-[11px] uppercase tracking-wider font-bold text-slate-700 mb-1.5">Moneda</label>
+            <select class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm">
+              <option>PEN</option><option>USD</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- ★ SELECTOR MULTI-LÍNEA · CANON v8.0 N1 (color teal · empleado) -->
+        <div>
+          <label class="block text-[11px] uppercase tracking-wider font-bold text-slate-700 mb-1.5">
+            <i data-lucide="layers" class="w-3 h-3 inline mr-1 text-slate-500"></i>
+            Líneas de negocio
+          </label>
+          <p class="text-[11px] text-slate-500 mb-2">Seleccioná en qué líneas trabajará · vacío = compartido / sin asignar.</p>
+
+          <div class="space-y-1.5">
+            <!-- Chip multi-select · estilo Linear/Notion -->
+            <button type="button" class="w-full text-left px-3 py-2 rounded-lg border-2 border-teal-500 bg-teal-50 flex items-center gap-2">
+              <i data-lucide="check-square" class="w-4 h-4 text-teal-600"></i>
+              <span class="font-semibold text-sm text-teal-900">Skincare</span>
+              <span class="text-[11px] text-teal-700 ml-auto">Línea principal</span>
+            </button>
+            <button type="button" class="w-full text-left px-3 py-2 rounded-lg border-2 border-teal-500 bg-teal-50 flex items-center gap-2">
+              <i data-lucide="check-square" class="w-4 h-4 text-teal-600"></i>
+              <span class="font-semibold text-sm text-teal-900">Maquillaje</span>
+              <span class="text-[11px] text-teal-700 ml-auto">Línea secundaria</span>
+            </button>
+            <button type="button" class="w-full text-left px-3 py-2 rounded-lg border border-slate-200 bg-white flex items-center gap-2 hover:border-slate-300">
+              <i data-lucide="square" class="w-4 h-4 text-slate-400"></i>
+              <span class="text-sm text-slate-700">Fragancias</span>
+            </button>
+            <button type="button" class="w-full text-left px-3 py-2 rounded-lg border border-slate-200 bg-white flex items-center gap-2 hover:border-slate-300">
+              <i data-lucide="square" class="w-4 h-4 text-slate-400"></i>
+              <span class="text-sm text-slate-700">Cuidado capilar</span>
+            </button>
+          </div>
+
+          <!-- Hint dinámico según selección -->
+          <div class="mt-2 bg-teal-50/60 ring-1 ring-teal-200 rounded-lg px-3 py-2 flex items-start gap-2">
+            <i data-lucide="zap" class="w-3.5 h-3.5 text-teal-600 mt-0.5 flex-shrink-0"></i>
+            <div class="text-[11px] text-teal-900">
+              <strong>2 líneas seleccionadas · UN sueldo.</strong> Los S/2,300 se distribuyen a las 2 líneas
+              según la lógica de planilla / contabilidad.
+              <br>
+              <span class="text-teal-700/80">¿Necesitás sueldos SEPARADOS por línea?</span>
+              <button class="underline font-semibold text-teal-700">Crear 2 relaciones (una por línea) →</button>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-[11px] uppercase tracking-wider font-bold text-slate-700 mb-1.5">Notas (opcional)</label>
+          <textarea class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm" rows="2" placeholder="Ej. trabaja medio tiempo, escolaridad nocturna..."></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between">
+      <label class="flex items-center gap-2 text-[12px] text-slate-700">
+        <input type="checkbox" checked class="rounded text-teal-600"> Enviar invitación al email
+      </label>
+      <div class="flex gap-2">
+        <button class="px-3 py-2 text-sm text-slate-600 hover:bg-slate-50 rounded-lg">Cancelar</button>
+        <button class="px-4 py-2 text-sm font-bold text-white bg-teal-600 hover:bg-teal-700 rounded-lg flex items-center gap-1.5">
+          <i data-lucide="check" class="w-3.5 h-3.5"></i>
+          Crear empleado
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────── ACTO 3 · EMPLEADO COMPARTIDO (SIN LÍNEA) ─────────── -->
+<section class="canvas py-10 px-6 border-t border-slate-200">
+  <div class="label-acto font-bold text-teal-700 mb-2 uppercase">ACTO 3 · Empleado compartido · sin línea asignada</div>
+  <h2 class="text-2xl font-bold mb-6">CEO / Gerencia · trabajan para TODA la empresa</h2>
+
+  <div class="bg-white rounded-2xl ring-1 ring-slate-200 modal-shadow p-6 max-w-2xl mx-auto">
+    <div class="flex items-center gap-2 mb-4">
+      <i data-lucide="briefcase" class="w-4 h-4 text-teal-700"></i>
+      <span class="font-bold text-slate-900">Datos laborales · selector líneas</span>
+    </div>
+
+    <div>
+      <label class="block text-[11px] uppercase tracking-wider font-bold text-slate-700 mb-1.5">
+        <i data-lucide="layers" class="w-3 h-3 inline mr-1 text-slate-500"></i>
+        Líneas de negocio
+      </label>
+      <p class="text-[11px] text-slate-500 mb-2">Seleccioná en qué líneas trabajará · vacío = compartido / sin asignar.</p>
+
+      <div class="space-y-1.5">
+        <button type="button" class="w-full text-left px-3 py-2 rounded-lg border border-slate-200 bg-white flex items-center gap-2 hover:border-slate-300">
+          <i data-lucide="square" class="w-4 h-4 text-slate-400"></i>
+          <span class="text-sm text-slate-700">Skincare</span>
+        </button>
+        <button type="button" class="w-full text-left px-3 py-2 rounded-lg border border-slate-200 bg-white flex items-center gap-2 hover:border-slate-300">
+          <i data-lucide="square" class="w-4 h-4 text-slate-400"></i>
+          <span class="text-sm text-slate-700">Maquillaje</span>
+        </button>
+        <button type="button" class="w-full text-left px-3 py-2 rounded-lg border border-slate-200 bg-white flex items-center gap-2 hover:border-slate-300">
+          <i data-lucide="square" class="w-4 h-4 text-slate-400"></i>
+          <span class="text-sm text-slate-700">Fragancias</span>
+        </button>
+      </div>
+
+      <div class="mt-2 bg-slate-50 ring-1 ring-slate-200 rounded-lg px-3 py-2 flex items-start gap-2">
+        <i data-lucide="globe" class="w-3.5 h-3.5 text-slate-500 mt-0.5 flex-shrink-0"></i>
+        <div class="text-[11px] text-slate-700">
+          <strong>Sin líneas seleccionadas · empleado compartido.</strong> Aparecerá en /planilla bajo
+          el filtro <em>"Sin asignar"</em>. Útil para gerencia, admin, IT u otros roles transversales.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────── ACTO 4 · MODAL NUEVO SOCIO · SINGLE ─────────── -->
+<section class="canvas py-10 px-6 border-t border-slate-200">
+  <div class="label-acto font-bold text-purple-700 mb-2 uppercase">ACTO 4 · Modal Nuevo socio · selector single</div>
+  <h2 class="text-2xl font-bold mb-6">Equity es por entidad · empresa global o una línea específica</h2>
+
+  <div class="bg-white rounded-2xl ring-1 ring-slate-200 modal-shadow p-6 max-w-2xl mx-auto">
+    <!-- Header -->
+    <div class="flex items-center gap-3 pb-4 border-b border-slate-100">
+      <div class="w-11 h-11 rounded-xl bg-purple-50 ring-1 ring-purple-200 flex items-center justify-center">
+        <i data-lucide="handshake" class="w-5 h-5 text-purple-700"></i>
+      </div>
+      <div>
+        <div class="font-bold text-lg text-slate-900">Nuevo socio</div>
+        <div class="text-[12px] text-slate-500">Alta al cap table · equity + distribuciones</div>
+      </div>
+      <button class="ml-auto text-slate-400 hover:text-slate-600">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+    </div>
+
+    <!-- Sección 2 · Datos del socio (resumido · solo destacar selector línea) -->
+    <div class="pt-5">
+      <div class="text-[10px] uppercase tracking-wider font-bold text-slate-500 mb-3 flex items-center gap-1.5">
+        <span class="w-4 h-4 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center text-[9px] font-bold">2</span>
+        Datos del socio
+      </div>
+
+      <div class="space-y-3">
+        <div>
+          <label class="block text-[11px] uppercase tracking-wider font-bold text-slate-700 mb-1.5">Rol / cargo de socio</label>
+          <input type="text" value="Fundador" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm">
+        </div>
+
+        <!-- ★ SELECTOR SINGLE · LÍNEA O EMPRESA GLOBAL -->
+        <div>
+          <label class="block text-[11px] uppercase tracking-wider font-bold text-slate-700 mb-1.5">
+            <i data-lucide="layers" class="w-3 h-3 inline mr-1 text-slate-500"></i>
+            ¿De qué entidad es socio? <span class="text-rose-500">*</span>
+          </label>
+          <p class="text-[11px] text-slate-500 mb-2">El equity es por entidad legal · empresa global O una línea específica.</p>
+
+          <div class="space-y-1.5">
+            <!-- Opción seleccionada · empresa global -->
+            <button type="button" class="w-full text-left px-3 py-2.5 rounded-lg border-2 border-purple-500 bg-purple-50 flex items-center gap-2.5">
+              <i data-lucide="globe" class="w-4 h-4 text-purple-600"></i>
+              <div class="flex-1">
+                <div class="font-bold text-sm text-purple-900">Empresa global · Cap table principal</div>
+                <div class="text-[11px] text-purple-700/80">Equity sobre la holding completa.</div>
+              </div>
+              <i data-lucide="check" class="w-4 h-4 text-purple-600"></i>
+            </button>
+            <!-- Opciones por línea -->
+            <button type="button" class="w-full text-left px-3 py-2.5 rounded-lg border border-slate-200 bg-white flex items-center gap-2.5 hover:border-slate-300">
+              <div class="w-4 h-4 rounded-full bg-purple-200"></div>
+              <div class="flex-1">
+                <div class="font-semibold text-sm text-slate-900">Línea Skincare</div>
+                <div class="text-[11px] text-slate-500">Equity sobre el cap table de Skincare.</div>
+              </div>
+            </button>
+            <button type="button" class="w-full text-left px-3 py-2.5 rounded-lg border border-slate-200 bg-white flex items-center gap-2.5 hover:border-slate-300">
+              <div class="w-4 h-4 rounded-full bg-purple-200"></div>
+              <div class="flex-1">
+                <div class="font-semibold text-sm text-slate-900">Línea Maquillaje</div>
+                <div class="text-[11px] text-slate-500">Equity sobre el cap table de Maquillaje.</div>
+              </div>
+            </button>
+            <button type="button" class="w-full text-left px-3 py-2.5 rounded-lg border border-slate-200 bg-white flex items-center gap-2.5 hover:border-slate-300">
+              <div class="w-4 h-4 rounded-full bg-purple-200"></div>
+              <div class="flex-1">
+                <div class="font-semibold text-sm text-slate-900">Línea Fragancias</div>
+                <div class="text-[11px] text-slate-500">Equity sobre el cap table de Fragancias.</div>
+              </div>
+            </button>
+          </div>
+
+          <div class="mt-2 bg-purple-50/60 ring-1 ring-purple-200 rounded-lg px-3 py-2 flex items-start gap-2">
+            <i data-lucide="info" class="w-3.5 h-3.5 text-purple-600 mt-0.5 flex-shrink-0"></i>
+            <div class="text-[11px] text-purple-900">
+              <strong>¿Es socio de varias líneas a la vez?</strong>
+              Después de crear esta relación, agregás más desde el UserPanel · tab Relaciones · "+ Agregar relación".
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3 pt-2">
+          <div>
+            <label class="block text-[11px] uppercase tracking-wider font-bold text-slate-700 mb-1.5">% equity (configurable después)</label>
+            <input type="text" placeholder="0.00" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm tabular-nums">
+          </div>
+          <div>
+            <label class="block text-[11px] uppercase tracking-wider font-bold text-slate-700 mb-1.5">Monto invertido</label>
+            <input type="text" placeholder="0.00" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm tabular-nums">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="mt-6 pt-4 border-t border-slate-100 flex justify-end gap-2">
+      <button class="px-3 py-2 text-sm text-slate-600 hover:bg-slate-50 rounded-lg">Cancelar</button>
+      <button class="px-4 py-2 text-sm font-bold text-white bg-purple-600 hover:bg-purple-700 rounded-lg flex items-center gap-1.5">
+        <i data-lucide="check" class="w-3.5 h-3.5"></i>
+        Crear socio
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────── ACTO 5 · CASO N RELACIONES ─────────── -->
+<section class="canvas py-10 px-6 border-t border-slate-200">
+  <div class="label-acto font-bold text-amber-700 mb-2 uppercase">ACTO 5 · Caso especial · sueldos separados</div>
+  <h2 class="text-2xl font-bold mb-6">Marcos · S/1,500 en Skincare + S/800 en Maquillaje (sueldos distintos)</h2>
+
+  <p class="text-slate-600 mb-6 max-w-3xl">
+    En el modal, click en "Crear 2 relaciones (una por línea)" lleva a un wizard que muestra ambas líneas
+    una al lado de la otra para llenar sus sueldos por separado:
+  </p>
+
+  <div class="bg-white rounded-2xl ring-1 ring-slate-200 modal-shadow p-6 max-w-3xl mx-auto">
+    <div class="flex items-center gap-3 pb-4 border-b border-slate-100">
+      <div class="w-11 h-11 rounded-xl bg-amber-50 ring-1 ring-amber-200 flex items-center justify-center">
+        <i data-lucide="split" class="w-5 h-5 text-amber-700"></i>
+      </div>
+      <div>
+        <div class="font-bold text-lg text-slate-900">Contratos separados por línea</div>
+        <div class="text-[12px] text-slate-500">Crear 2 relaciones empleado · una por línea · sueldos independientes</div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-5">
+      <!-- Contrato 1 · Skincare -->
+      <div class="bg-teal-50/40 ring-1 ring-teal-200 rounded-xl p-4">
+        <div class="flex items-center justify-between mb-3">
+          <div class="font-bold text-teal-900">Contrato 1 · Skincare</div>
+          <span class="text-[10px] uppercase tracking-wider font-bold text-teal-700 bg-teal-100 px-2 py-0.5 rounded-full">Relación A</span>
+        </div>
+        <div class="space-y-2">
+          <input type="text" placeholder="Cargo" value="Asistente de bodega" class="w-full px-3 py-2 border border-teal-200 rounded-lg text-sm">
+          <div class="grid grid-cols-3 gap-2">
+            <input type="text" placeholder="Sueldo" value="1,500.00" class="col-span-2 px-3 py-2 border border-teal-200 rounded-lg text-sm tabular-nums">
+            <select class="px-3 py-2 border border-teal-200 rounded-lg text-sm"><option>PEN</option></select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Contrato 2 · Maquillaje -->
+      <div class="bg-teal-50/40 ring-1 ring-teal-200 rounded-xl p-4">
+        <div class="flex items-center justify-between mb-3">
+          <div class="font-bold text-teal-900">Contrato 2 · Maquillaje</div>
+          <span class="text-[10px] uppercase tracking-wider font-bold text-teal-700 bg-teal-100 px-2 py-0.5 rounded-full">Relación B</span>
+        </div>
+        <div class="space-y-2">
+          <input type="text" placeholder="Cargo" value="Empacador" class="w-full px-3 py-2 border border-teal-200 rounded-lg text-sm">
+          <div class="grid grid-cols-3 gap-2">
+            <input type="text" placeholder="Sueldo" value="800.00" class="col-span-2 px-3 py-2 border border-teal-200 rounded-lg text-sm tabular-nums">
+            <select class="px-3 py-2 border border-teal-200 rounded-lg text-sm"><option>PEN</option></select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-4 bg-amber-50/60 ring-1 ring-amber-200 rounded-lg px-3 py-2.5 flex items-start gap-2">
+      <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5"></i>
+      <div class="text-[12px] text-amber-900">
+        <strong>Sueldo total combinado: S/2,300.00</strong> · Marcos aparecerá en /planilla con
+        <strong>2 entradas</strong> · una por línea · cada una con su boleta independiente.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────── ACTO 6 · /PLANILLA CON FILTROS ─────────── -->
+<section class="canvas py-10 px-6 border-t border-slate-200">
+  <div class="label-acto font-bold text-teal-700 mb-2 uppercase">ACTO 6 · /planilla con filtros por línea</div>
+  <h2 class="text-2xl font-bold mb-6">Filtrar la planilla por línea · ver costo por línea de inmediato</h2>
+
+  <div class="bg-white rounded-2xl ring-1 ring-slate-200 shadow-sm p-6">
+    <!-- Breadcrumb -->
+    <div class="text-[11px] text-slate-500 mb-2 flex items-center gap-1">
+      <span>Equipo</span><i data-lucide="chevron-right" class="w-3 h-3"></i><span class="font-semibold text-slate-700">Planilla</span>
+    </div>
+    <div class="flex items-end justify-between mb-4">
+      <div>
+        <h1 class="text-2xl font-bold flex items-center gap-2">
+          <i data-lucide="users" class="w-5 h-5 text-teal-700"></i>
+          Planilla
+        </h1>
+        <p class="text-[13px] text-slate-500">Gestión de sueldos · boletas · adelantos por línea de negocio</p>
+      </div>
+      <div class="flex gap-2">
+        <button class="text-[11px] font-semibold px-3 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-50">Exportar</button>
+        <button class="text-[11px] font-bold text-white bg-teal-600 hover:bg-teal-700 px-3 py-1.5 rounded-lg flex items-center gap-1">
+          <i data-lucide="plus" class="w-3 h-3"></i> Nuevo empleado
+        </button>
+      </div>
+    </div>
+
+    <!-- Filtros chip · canon v8.0 N4 + N6 -->
+    <div class="bg-slate-50 ring-1 ring-slate-200 rounded-xl p-3 mb-4">
+      <div class="text-[10px] uppercase tracking-wider font-bold text-slate-500 mb-2">Filtrar por línea</div>
+      <div class="flex flex-wrap gap-1.5">
+        <button class="text-[12px] font-semibold px-3 py-1.5 rounded-lg bg-teal-600 text-white flex items-center gap-1.5">
+          <i data-lucide="layers" class="w-3 h-3"></i> Todas <span class="opacity-70 tabular-nums">12</span>
+        </button>
+        <button class="text-[12px] font-semibold px-3 py-1.5 rounded-lg bg-white ring-1 ring-teal-300 text-teal-800 flex items-center gap-1.5">
+          <div class="w-2 h-2 rounded-full bg-teal-500"></div> Skincare <span class="opacity-70 tabular-nums">6</span>
+        </button>
+        <button class="text-[12px] font-semibold px-3 py-1.5 rounded-lg bg-white ring-1 ring-slate-200 text-slate-700 hover:ring-slate-300 flex items-center gap-1.5">
+          <div class="w-2 h-2 rounded-full bg-pink-500"></div> Maquillaje <span class="opacity-70 tabular-nums">4</span>
+        </button>
+        <button class="text-[12px] font-semibold px-3 py-1.5 rounded-lg bg-white ring-1 ring-slate-200 text-slate-700 hover:ring-slate-300 flex items-center gap-1.5">
+          <div class="w-2 h-2 rounded-full bg-amber-500"></div> Fragancias <span class="opacity-70 tabular-nums">1</span>
+        </button>
+        <button class="text-[12px] font-semibold px-3 py-1.5 rounded-lg bg-white ring-1 ring-slate-200 text-slate-700 hover:ring-slate-300 flex items-center gap-1.5">
+          <i data-lucide="globe" class="w-3 h-3 text-slate-400"></i> Compartidos <span class="opacity-70 tabular-nums">1</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- KPI strip por línea -->
+    <div class="grid grid-cols-4 gap-3 mb-5">
+      <div class="bg-gradient-to-br from-teal-50 to-teal-100/40 ring-1 ring-teal-200 rounded-xl p-3">
+        <div class="text-[10px] uppercase tracking-wider font-bold text-teal-700 mb-1">Costo Skincare</div>
+        <div class="text-xl font-bold tabular-nums text-teal-900">S/ 18,300<span class="text-teal-400">.00</span></div>
+        <div class="text-[11px] text-teal-700/80">6 empleados</div>
+      </div>
+      <div class="bg-gradient-to-br from-pink-50 to-pink-100/40 ring-1 ring-pink-200 rounded-xl p-3">
+        <div class="text-[10px] uppercase tracking-wider font-bold text-pink-700 mb-1">Costo Maquillaje</div>
+        <div class="text-xl font-bold tabular-nums text-pink-900">S/ 9,200<span class="text-pink-400">.00</span></div>
+        <div class="text-[11px] text-pink-700/80">4 empleados</div>
+      </div>
+      <div class="bg-gradient-to-br from-amber-50 to-amber-100/40 ring-1 ring-amber-200 rounded-xl p-3">
+        <div class="text-[10px] uppercase tracking-wider font-bold text-amber-700 mb-1">Costo Fragancias</div>
+        <div class="text-xl font-bold tabular-nums text-amber-900">S/ 2,500<span class="text-amber-400">.00</span></div>
+        <div class="text-[11px] text-amber-700/80">1 empleado</div>
+      </div>
+      <div class="bg-gradient-to-br from-slate-50 to-slate-100/40 ring-1 ring-slate-200 rounded-xl p-3">
+        <div class="text-[10px] uppercase tracking-wider font-bold text-slate-700 mb-1">Compartidos</div>
+        <div class="text-xl font-bold tabular-nums text-slate-900">S/ 7,500<span class="text-slate-400">.00</span></div>
+        <div class="text-[11px] text-slate-700/80">1 empleado · CEO</div>
+      </div>
+    </div>
+
+    <!-- Tabla con columna Línea -->
+    <div class="ring-1 ring-slate-200 rounded-xl overflow-hidden">
+      <table class="w-full text-sm">
+        <thead class="bg-slate-50 text-[11px] uppercase tracking-wider font-bold text-slate-600">
+          <tr>
+            <th class="text-left px-3 py-2.5">Empleado</th>
+            <th class="text-left px-3 py-2.5">Cargo</th>
+            <th class="text-left px-3 py-2.5">Línea(s)</th>
+            <th class="text-right px-3 py-2.5">Sueldo</th>
+            <th class="text-center px-3 py-2.5">Estado</th>
+          </tr>
+        </thead>
+        <tbody class="text-slate-800 divide-y divide-slate-100">
+          <tr>
+            <td class="px-3 py-2.5 font-semibold">Marcos Castillo</td>
+            <td class="px-3 py-2.5 text-slate-600">Asistente bodega</td>
+            <td class="px-3 py-2.5">
+              <span class="inline-flex items-center gap-1 text-[11px] font-semibold bg-teal-50 text-teal-700 px-2 py-0.5 rounded-full">
+                <div class="w-1.5 h-1.5 rounded-full bg-teal-500"></div> Skincare
+              </span>
+              <span class="inline-flex items-center gap-1 text-[11px] font-semibold bg-pink-50 text-pink-700 px-2 py-0.5 rounded-full ml-1">
+                <div class="w-1.5 h-1.5 rounded-full bg-pink-500"></div> Maquillaje
+              </span>
+            </td>
+            <td class="px-3 py-2.5 text-right tabular-nums font-semibold">S/ 2,300<span class="text-slate-400">.00</span></td>
+            <td class="px-3 py-2.5 text-center"><span class="text-[10px] bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full font-semibold">Activo</span></td>
+          </tr>
+          <tr>
+            <td class="px-3 py-2.5 font-semibold">Ana Quispe</td>
+            <td class="px-3 py-2.5 text-slate-600">Marketing digital</td>
+            <td class="px-3 py-2.5">
+              <span class="inline-flex items-center gap-1 text-[11px] font-semibold bg-teal-50 text-teal-700 px-2 py-0.5 rounded-full">
+                <div class="w-1.5 h-1.5 rounded-full bg-teal-500"></div> Skincare
+              </span>
+            </td>
+            <td class="px-3 py-2.5 text-right tabular-nums font-semibold">S/ 3,500<span class="text-slate-400">.00</span></td>
+            <td class="px-3 py-2.5 text-center"><span class="text-[10px] bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full font-semibold">Activo</span></td>
+          </tr>
+          <tr>
+            <td class="px-3 py-2.5 font-semibold">José Pérez (CEO)</td>
+            <td class="px-3 py-2.5 text-slate-600">Director general</td>
+            <td class="px-3 py-2.5">
+              <span class="inline-flex items-center gap-1 text-[11px] font-semibold bg-slate-100 text-slate-700 px-2 py-0.5 rounded-full">
+                <i data-lucide="globe" class="w-3 h-3"></i> Compartido
+              </span>
+            </td>
+            <td class="px-3 py-2.5 text-right tabular-nums font-semibold">S/ 7,500<span class="text-slate-400">.00</span></td>
+            <td class="px-3 py-2.5 text-center"><span class="text-[10px] bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full font-semibold">Activo</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────── ACTO 7 · /INVERSIONISTAS POR LÍNEA ─────────── -->
+<section class="canvas py-10 px-6 border-t border-slate-200">
+  <div class="label-acto font-bold text-purple-700 mb-2 uppercase">ACTO 7 · /inversionistas con cap table por línea</div>
+  <h2 class="text-2xl font-bold mb-6">Cap table separado por entidad · empresa global y por línea</h2>
+
+  <div class="bg-white rounded-2xl ring-1 ring-slate-200 shadow-sm p-6">
+    <div class="text-[11px] text-slate-500 mb-2 flex items-center gap-1">
+      <span>Equipo</span><i data-lucide="chevron-right" class="w-3 h-3"></i><span class="font-semibold text-slate-700">Inversionistas</span>
+    </div>
+    <div class="flex items-end justify-between mb-4">
+      <div>
+        <h1 class="text-2xl font-bold flex items-center gap-2">
+          <i data-lucide="handshake" class="w-5 h-5 text-purple-700"></i>
+          Inversionistas
+        </h1>
+        <p class="text-[13px] text-slate-500">Cap table · distribuciones · evolución por entidad</p>
+      </div>
+      <button class="text-[11px] font-bold text-white bg-purple-600 hover:bg-purple-700 px-3 py-1.5 rounded-lg flex items-center gap-1">
+        <i data-lucide="plus" class="w-3 h-3"></i> Nuevo socio
+      </button>
+    </div>
+
+    <!-- Selector entidad (tabs) -->
+    <div class="border-b border-slate-200 mb-4">
+      <div class="flex gap-1">
+        <button class="px-3 py-2 text-[12px] font-bold text-purple-700 border-b-2 border-purple-600">
+          <i data-lucide="globe" class="w-3 h-3 inline mr-1"></i> Empresa global
+        </button>
+        <button class="px-3 py-2 text-[12px] font-semibold text-slate-600 hover:text-slate-900">
+          <div class="w-2 h-2 rounded-full bg-teal-500 inline-block mr-1"></div> Línea Skincare
+        </button>
+        <button class="px-3 py-2 text-[12px] font-semibold text-slate-600 hover:text-slate-900">
+          <div class="w-2 h-2 rounded-full bg-pink-500 inline-block mr-1"></div> Línea Maquillaje
+        </button>
+        <button class="px-3 py-2 text-[12px] font-semibold text-slate-600 hover:text-slate-900">
+          <div class="w-2 h-2 rounded-full bg-amber-500 inline-block mr-1"></div> Línea Fragancias
+        </button>
+      </div>
+    </div>
+
+    <!-- Cap table para empresa global -->
+    <div class="grid grid-cols-4 gap-3 mb-5">
+      <div class="bg-gradient-to-br from-purple-50 to-purple-100/40 ring-1 ring-purple-200 rounded-xl p-3">
+        <div class="text-[10px] uppercase tracking-wider font-bold text-purple-700 mb-1">Total equity</div>
+        <div class="text-xl font-bold tabular-nums text-purple-900">100<span class="text-purple-400">%</span></div>
+        <div class="text-[11px] text-purple-700/80">3 socios</div>
+      </div>
+      <div class="bg-gradient-to-br from-emerald-50 to-emerald-100/40 ring-1 ring-emerald-200 rounded-xl p-3">
+        <div class="text-[10px] uppercase tracking-wider font-bold text-emerald-700 mb-1">Capital total</div>
+        <div class="text-xl font-bold tabular-nums text-emerald-900">USD 380K</div>
+        <div class="text-[11px] text-emerald-700/80">Inversión inicial</div>
+      </div>
+      <div class="bg-gradient-to-br from-amber-50 to-amber-100/40 ring-1 ring-amber-200 rounded-xl p-3">
+        <div class="text-[10px] uppercase tracking-wider font-bold text-amber-700 mb-1">Última distribución</div>
+        <div class="text-xl font-bold tabular-nums text-amber-900">USD 45K</div>
+        <div class="text-[11px] text-amber-700/80">Abril 2026</div>
+      </div>
+      <div class="bg-gradient-to-br from-sky-50 to-sky-100/40 ring-1 ring-sky-200 rounded-xl p-3">
+        <div class="text-[10px] uppercase tracking-wider font-bold text-sky-700 mb-1">Próxima fecha</div>
+        <div class="text-xl font-bold tabular-nums text-sky-900">Jul 26</div>
+        <div class="text-[11px] text-sky-700/80">Distribución prevista</div>
+      </div>
+    </div>
+
+    <div class="ring-1 ring-slate-200 rounded-xl overflow-hidden">
+      <table class="w-full text-sm">
+        <thead class="bg-slate-50 text-[11px] uppercase tracking-wider font-bold text-slate-600">
+          <tr>
+            <th class="text-left px-3 py-2.5">Socio</th>
+            <th class="text-left px-3 py-2.5">Rol</th>
+            <th class="text-right px-3 py-2.5">% equity</th>
+            <th class="text-right px-3 py-2.5">Capital invertido</th>
+          </tr>
+        </thead>
+        <tbody class="text-slate-800 divide-y divide-slate-100">
+          <tr>
+            <td class="px-3 py-2.5 font-semibold">José Pérez</td>
+            <td class="px-3 py-2.5 text-slate-600">Fundador</td>
+            <td class="px-3 py-2.5 text-right tabular-nums font-bold">60.0%</td>
+            <td class="px-3 py-2.5 text-right tabular-nums">USD 200,000</td>
+          </tr>
+          <tr>
+            <td class="px-3 py-2.5 font-semibold">Ana Quispe</td>
+            <td class="px-3 py-2.5 text-slate-600">Co-fundadora</td>
+            <td class="px-3 py-2.5 text-right tabular-nums font-bold">30.0%</td>
+            <td class="px-3 py-2.5 text-right tabular-nums">USD 120,000</td>
+          </tr>
+          <tr>
+            <td class="px-3 py-2.5 font-semibold">Pedro Silva</td>
+            <td class="px-3 py-2.5 text-slate-600">Inversor</td>
+            <td class="px-3 py-2.5 text-right tabular-nums font-bold">10.0%</td>
+            <td class="px-3 py-2.5 text-right tabular-nums">USD 60,000</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="mt-4 bg-purple-50/40 ring-1 ring-purple-200 rounded-xl p-3 flex items-start gap-3">
+      <i data-lucide="info" class="w-4 h-4 text-purple-600 mt-0.5"></i>
+      <div class="text-[12px] text-purple-900">
+        <strong>Pedro Silva también es socio de la Línea Skincare</strong> con 15% adicional ·
+        ese cap table se ve en la tab <em>Línea Skincare</em>. Las relaciones son independientes.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────── ACTO 8 · USERPANEL · TAB RELACIONES ─────────── -->
+<section class="canvas py-10 px-6 border-t border-slate-200">
+  <div class="label-acto font-bold text-slate-700 mb-2 uppercase">ACTO 8 · UserPanel · tab Relaciones con chips de líneas</div>
+  <h2 class="text-2xl font-bold mb-6">Ver de un vistazo todas las relaciones + a qué líneas pertenecen</h2>
+
+  <div class="bg-white rounded-2xl ring-1 ring-slate-200 modal-shadow p-6 max-w-3xl mx-auto">
+    <!-- Header user -->
+    <div class="flex items-center gap-3 pb-4 border-b border-slate-100">
+      <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-teal-500 to-emerald-500 flex items-center justify-center text-white font-bold">MC</div>
+      <div>
+        <div class="font-bold text-slate-900">Marcos Castillo Ruiz</div>
+        <div class="text-[12px] text-slate-500">marcos@vita.pe · activo desde feb 2025</div>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="border-b border-slate-200 mt-3">
+      <div class="flex gap-1">
+        <button class="px-3 py-2 text-[12px] font-semibold text-slate-500">Resumen</button>
+        <button class="px-3 py-2 text-[12px] font-bold text-slate-900 border-b-2 border-slate-900">Relaciones (3)</button>
+        <button class="px-3 py-2 text-[12px] font-semibold text-slate-500">Datos</button>
+        <button class="px-3 py-2 text-[12px] font-semibold text-slate-500">Permisos</button>
+      </div>
+    </div>
+
+    <!-- Lista relaciones -->
+    <div class="pt-5 space-y-3">
+      <!-- Relación 1 · empleado Skincare -->
+      <div class="ring-1 ring-teal-200 rounded-xl p-4 bg-teal-50/30">
+        <div class="flex items-start gap-3">
+          <div class="w-9 h-9 rounded-lg bg-teal-100 flex items-center justify-center">
+            <i data-lucide="briefcase" class="w-4 h-4 text-teal-700"></i>
+          </div>
+          <div class="flex-1">
+            <div class="flex items-center gap-2 flex-wrap mb-1">
+              <span class="text-[10px] uppercase tracking-wider font-bold text-teal-700 bg-teal-100 px-2 py-0.5 rounded-full">Empleado</span>
+              <span class="text-[10px] uppercase tracking-wider font-semibold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full">Vigente</span>
+              <!-- Chip línea -->
+              <span class="inline-flex items-center gap-1 text-[11px] font-semibold bg-white ring-1 ring-teal-300 text-teal-800 px-2 py-0.5 rounded-full">
+                <div class="w-1.5 h-1.5 rounded-full bg-teal-500"></div> Skincare
+              </span>
+            </div>
+            <div class="font-bold text-slate-900 text-sm">Asistente de bodega</div>
+            <div class="text-[12px] text-slate-600">S/1,500.00 · contrato A · desde feb 2025</div>
+          </div>
+          <button class="text-slate-400 hover:text-slate-600"><i data-lucide="more-horizontal" class="w-4 h-4"></i></button>
+        </div>
+      </div>
+
+      <!-- Relación 2 · empleado Maquillaje -->
+      <div class="ring-1 ring-teal-200 rounded-xl p-4 bg-teal-50/30">
+        <div class="flex items-start gap-3">
+          <div class="w-9 h-9 rounded-lg bg-teal-100 flex items-center justify-center">
+            <i data-lucide="briefcase" class="w-4 h-4 text-teal-700"></i>
+          </div>
+          <div class="flex-1">
+            <div class="flex items-center gap-2 flex-wrap mb-1">
+              <span class="text-[10px] uppercase tracking-wider font-bold text-teal-700 bg-teal-100 px-2 py-0.5 rounded-full">Empleado</span>
+              <span class="text-[10px] uppercase tracking-wider font-semibold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full">Vigente</span>
+              <span class="inline-flex items-center gap-1 text-[11px] font-semibold bg-white ring-1 ring-pink-300 text-pink-800 px-2 py-0.5 rounded-full">
+                <div class="w-1.5 h-1.5 rounded-full bg-pink-500"></div> Maquillaje
+              </span>
+            </div>
+            <div class="font-bold text-slate-900 text-sm">Empacador</div>
+            <div class="text-[12px] text-slate-600">S/800.00 · contrato B · desde mar 2026</div>
+          </div>
+          <button class="text-slate-400 hover:text-slate-600"><i data-lucide="more-horizontal" class="w-4 h-4"></i></button>
+        </div>
+      </div>
+
+      <!-- Relación 3 · socio Línea Skincare -->
+      <div class="ring-1 ring-purple-200 rounded-xl p-4 bg-purple-50/30">
+        <div class="flex items-start gap-3">
+          <div class="w-9 h-9 rounded-lg bg-purple-100 flex items-center justify-center">
+            <i data-lucide="handshake" class="w-4 h-4 text-purple-700"></i>
+          </div>
+          <div class="flex-1">
+            <div class="flex items-center gap-2 flex-wrap mb-1">
+              <span class="text-[10px] uppercase tracking-wider font-bold text-purple-700 bg-purple-100 px-2 py-0.5 rounded-full">Socio</span>
+              <span class="text-[10px] uppercase tracking-wider font-semibold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full">Vigente</span>
+              <span class="inline-flex items-center gap-1 text-[11px] font-semibold bg-white ring-1 ring-teal-300 text-teal-800 px-2 py-0.5 rounded-full">
+                <div class="w-1.5 h-1.5 rounded-full bg-teal-500"></div> Cap table Skincare
+              </span>
+            </div>
+            <div class="font-bold text-slate-900 text-sm">5% equity Línea Skincare</div>
+            <div class="text-[12px] text-slate-600">USD 30,000 · desde ene 2025</div>
+          </div>
+          <button class="text-slate-400 hover:text-slate-600"><i data-lucide="more-horizontal" class="w-4 h-4"></i></button>
+        </div>
+      </div>
+
+      <button class="w-full ring-1 ring-dashed ring-slate-300 hover:ring-slate-400 rounded-xl py-3 flex items-center justify-center gap-1.5 text-[12px] font-semibold text-slate-700">
+        <i data-lucide="plus" class="w-3.5 h-3.5"></i> Agregar relación
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────── ACTO 9 · EMPTY STATE ─────────── -->
+<section class="canvas py-10 px-6 border-t border-slate-200">
+  <div class="label-acto font-bold text-slate-700 mb-2 uppercase">ACTO 9 · Empty state · sin líneas configuradas</div>
+  <h2 class="text-2xl font-bold mb-6">¿Qué pasa si el ERP no tiene líneas de negocio configuradas todavía?</h2>
+
+  <div class="max-w-2xl mx-auto bg-amber-50/60 ring-1 ring-amber-200 rounded-2xl p-6 text-center">
+    <div class="w-12 h-12 rounded-xl bg-amber-100 ring-1 ring-amber-200 flex items-center justify-center mx-auto mb-3">
+      <i data-lucide="layers" class="w-5 h-5 text-amber-700"></i>
+    </div>
+    <div class="font-bold text-amber-900 mb-1">No tenés líneas de negocio configuradas</div>
+    <p class="text-[13px] text-amber-800 leading-relaxed max-w-sm mx-auto">
+      Para separar empleados o socios por línea, primero tenés que crear al menos una línea desde
+      Configuración. Si tu negocio no tiene varias líneas, podés dejar este campo vacío sin problema.
+    </p>
+    <div class="mt-4 flex justify-center gap-2">
+      <button class="text-[12px] font-bold text-amber-700 ring-1 ring-amber-300 px-3 py-1.5 rounded-lg hover:bg-amber-100">Crear líneas →</button>
+      <button class="text-[12px] font-semibold text-slate-600 px-3 py-1.5 rounded-lg hover:bg-slate-50">Continuar sin línea</button>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────── ACTO 10 · MOBILE EMPLEADO ─────────── -->
+<section class="py-10 px-6 border-t border-slate-200 bg-slate-50">
+  <div class="canvas">
+    <div class="label-acto font-bold text-teal-700 mb-2 uppercase">ACTO 10 · Mobile · modal Nuevo empleado · selector multi-line</div>
+    <h2 class="text-2xl font-bold mb-6">375px · bottom sheet con selector touch-friendly</h2>
+  </div>
+
+  <div class="mobile-canvas bg-white rounded-3xl ring-1 ring-slate-200 modal-shadow overflow-hidden">
+    <div class="px-4 py-3 border-b border-slate-100 flex items-center gap-2">
+      <i data-lucide="briefcase" class="w-5 h-5 text-teal-700"></i>
+      <div>
+        <div class="font-bold text-sm">Nuevo empleado</div>
+        <div class="text-[10px] text-slate-500">Alta a planilla</div>
+      </div>
+      <button class="ml-auto text-slate-400"><i data-lucide="x" class="w-4 h-4"></i></button>
+    </div>
+
+    <div class="p-4 space-y-3 max-h-[60vh] overflow-y-auto">
+      <div>
+        <label class="block text-[10px] uppercase tracking-wider font-bold text-slate-700 mb-1">Buscar persona <span class="text-rose-500">*</span></label>
+        <input value="Marcos Castillo" class="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm">
+      </div>
+
+      <div class="bg-sky-50/60 ring-1 ring-sky-200 rounded-lg px-3 py-2">
+        <div class="text-[10px] uppercase font-bold text-sky-900 mb-1">Esto va a crear</div>
+        <div class="text-[11px] text-sky-900">Usuario nuevo + relación empleado vinculada a las líneas elegidas</div>
+      </div>
+
+      <div>
+        <label class="block text-[10px] uppercase font-bold mb-1">Cargo <span class="text-rose-500">*</span></label>
+        <input value="Asistente bodega" class="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm">
+      </div>
+
+      <div class="grid grid-cols-3 gap-2">
+        <input value="2,300.00" class="col-span-2 px-3 py-2.5 border border-slate-200 rounded-lg text-sm tabular-nums">
+        <select class="px-2 py-2.5 border border-slate-200 rounded-lg text-sm"><option>PEN</option></select>
+      </div>
+
+      <!-- Selector líneas mobile · touch-friendly -->
+      <div>
+        <label class="block text-[10px] uppercase font-bold mb-1">Líneas de negocio</label>
+        <div class="space-y-1.5">
+          <button class="w-full text-left px-3 py-3 rounded-lg border-2 border-teal-500 bg-teal-50 flex items-center gap-2 min-h-[44px]">
+            <i data-lucide="check-square" class="w-4 h-4 text-teal-600"></i>
+            <span class="font-bold text-sm text-teal-900 flex-1">Skincare</span>
+          </button>
+          <button class="w-full text-left px-3 py-3 rounded-lg border-2 border-teal-500 bg-teal-50 flex items-center gap-2 min-h-[44px]">
+            <i data-lucide="check-square" class="w-4 h-4 text-teal-600"></i>
+            <span class="font-bold text-sm text-teal-900 flex-1">Maquillaje</span>
+          </button>
+          <button class="w-full text-left px-3 py-3 rounded-lg border border-slate-200 flex items-center gap-2 min-h-[44px]">
+            <i data-lucide="square" class="w-4 h-4 text-slate-400"></i>
+            <span class="text-sm flex-1">Fragancias</span>
+          </button>
+        </div>
+        <div class="mt-2 bg-teal-50/60 rounded-lg p-2 text-[11px] text-teal-900">
+          <strong>2 líneas · UN sueldo</strong> · S/2,300 se distribuye según planilla.
+        </div>
+      </div>
+    </div>
+
+    <div class="p-4 border-t border-slate-100 sticky bottom-0 bg-white">
+      <button class="w-full py-3 text-sm font-bold text-white bg-teal-600 rounded-lg flex items-center justify-center gap-1.5 min-h-[48px]">
+        <i data-lucide="check" class="w-4 h-4"></i> Crear empleado
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────── ACTO 11 · MOBILE SOCIO + FILTROS PLANILLA ─────────── -->
+<section class="py-10 px-6 border-t border-slate-200 bg-slate-50">
+  <div class="canvas">
+    <div class="label-acto font-bold text-purple-700 mb-2 uppercase">ACTO 11 · Mobile · modal Socio + filtros planilla</div>
+    <h2 class="text-2xl font-bold mb-6">375px · selector single para socios + chip filter en planilla</h2>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto">
+
+    <!-- Mobile · modal socio -->
+    <div class="mobile-canvas bg-white rounded-3xl ring-1 ring-slate-200 modal-shadow overflow-hidden">
+      <div class="px-4 py-3 border-b border-slate-100 flex items-center gap-2">
+        <i data-lucide="handshake" class="w-5 h-5 text-purple-700"></i>
+        <div>
+          <div class="font-bold text-sm">Nuevo socio</div>
+          <div class="text-[10px] text-slate-500">Cap table</div>
+        </div>
+      </div>
+      <div class="p-4 space-y-3 max-h-[60vh] overflow-y-auto">
+        <input placeholder="Buscar persona" class="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm">
+        <div>
+          <label class="block text-[10px] uppercase font-bold mb-1">¿De qué entidad es socio? <span class="text-rose-500">*</span></label>
+          <div class="space-y-1.5">
+            <button class="w-full text-left px-3 py-3 rounded-lg border-2 border-purple-500 bg-purple-50 flex items-center gap-2 min-h-[44px]">
+              <i data-lucide="globe" class="w-4 h-4 text-purple-600"></i>
+              <div class="flex-1">
+                <div class="font-bold text-sm text-purple-900">Empresa global</div>
+                <div class="text-[10px] text-purple-700/80">Cap table principal</div>
+              </div>
+              <i data-lucide="check" class="w-4 h-4 text-purple-600"></i>
+            </button>
+            <button class="w-full text-left px-3 py-3 rounded-lg border border-slate-200 flex items-center gap-2 min-h-[44px]">
+              <div class="w-3 h-3 rounded-full bg-teal-500"></div>
+              <span class="text-sm flex-1">Línea Skincare</span>
+            </button>
+            <button class="w-full text-left px-3 py-3 rounded-lg border border-slate-200 flex items-center gap-2 min-h-[44px]">
+              <div class="w-3 h-3 rounded-full bg-pink-500"></div>
+              <span class="text-sm flex-1">Línea Maquillaje</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile · filtros planilla -->
+    <div class="mobile-canvas bg-white rounded-3xl ring-1 ring-slate-200 modal-shadow overflow-hidden">
+      <div class="px-4 py-3 border-b border-slate-100">
+        <div class="font-bold text-base">Planilla</div>
+        <div class="text-[10px] text-slate-500">12 empleados</div>
+      </div>
+      <!-- chips scroll-x mobile · canon v8.0 N6 -->
+      <div class="px-4 py-2 border-b border-slate-100">
+        <div class="text-[10px] uppercase font-bold text-slate-500 mb-1">Línea</div>
+        <div class="flex gap-1.5 overflow-x-auto pb-1 -mx-1 px-1" style="scrollbar-width:none;">
+          <button class="text-[11px] font-bold px-3 py-1.5 rounded-lg bg-teal-600 text-white whitespace-nowrap min-h-[36px]">Todas <span class="opacity-70">12</span></button>
+          <button class="text-[11px] font-semibold px-3 py-1.5 rounded-lg bg-teal-50 ring-1 ring-teal-300 text-teal-800 whitespace-nowrap min-h-[36px] flex items-center gap-1">
+            <div class="w-1.5 h-1.5 rounded-full bg-teal-500"></div> Skincare <span class="opacity-70">6</span>
+          </button>
+          <button class="text-[11px] font-semibold px-3 py-1.5 rounded-lg bg-white ring-1 ring-slate-200 text-slate-700 whitespace-nowrap min-h-[36px] flex items-center gap-1">
+            <div class="w-1.5 h-1.5 rounded-full bg-pink-500"></div> Maquillaje <span class="opacity-70">4</span>
+          </button>
+          <button class="text-[11px] font-semibold px-3 py-1.5 rounded-lg bg-white ring-1 ring-slate-200 text-slate-700 whitespace-nowrap min-h-[36px] flex items-center gap-1">
+            <div class="w-1.5 h-1.5 rounded-full bg-amber-500"></div> Fragancias <span class="opacity-70">1</span>
+          </button>
+          <button class="text-[11px] font-semibold px-3 py-1.5 rounded-lg bg-white ring-1 ring-slate-200 text-slate-700 whitespace-nowrap min-h-[36px] flex items-center gap-1">
+            <i data-lucide="globe" class="w-3 h-3"></i> Compartidos <span class="opacity-70">1</span>
+          </button>
+        </div>
+      </div>
+      <!-- KPI mobile compacto -->
+      <div class="grid grid-cols-2 gap-2 p-3">
+        <div class="bg-teal-50 ring-1 ring-teal-200 rounded-lg p-2.5">
+          <div class="text-[10px] uppercase font-bold text-teal-700">Skincare</div>
+          <div class="text-base font-bold tabular-nums text-teal-900">S/ 18,300</div>
+        </div>
+        <div class="bg-pink-50 ring-1 ring-pink-200 rounded-lg p-2.5">
+          <div class="text-[10px] uppercase font-bold text-pink-700">Maquillaje</div>
+          <div class="text-base font-bold tabular-nums text-pink-900">S/ 9,200</div>
+        </div>
+      </div>
+      <!-- Empleado card mobile -->
+      <div class="px-3 pb-3 space-y-2">
+        <div class="ring-1 ring-slate-200 rounded-xl p-3">
+          <div class="font-bold text-sm">Marcos Castillo</div>
+          <div class="text-[11px] text-slate-500">Asistente bodega · S/2,300</div>
+          <div class="mt-1 flex flex-wrap gap-1">
+            <span class="text-[10px] font-semibold bg-teal-50 text-teal-700 px-1.5 py-0.5 rounded-full flex items-center gap-1">
+              <div class="w-1.5 h-1.5 rounded-full bg-teal-500"></div> Skincare
+            </span>
+            <span class="text-[10px] font-semibold bg-pink-50 text-pink-700 px-1.5 py-0.5 rounded-full flex items-center gap-1">
+              <div class="w-1.5 h-1.5 rounded-full bg-pink-500"></div> Maquillaje
+            </span>
+          </div>
+        </div>
+        <div class="ring-1 ring-slate-200 rounded-xl p-3">
+          <div class="font-bold text-sm">Ana Quispe</div>
+          <div class="text-[11px] text-slate-500">Marketing digital · S/3,500</div>
+          <div class="mt-1 flex flex-wrap gap-1">
+            <span class="text-[10px] font-semibold bg-teal-50 text-teal-700 px-1.5 py-0.5 rounded-full flex items-center gap-1">
+              <div class="w-1.5 h-1.5 rounded-full bg-teal-500"></div> Skincare
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ─────────── ACTO 12 · CIERRE · CHECKLIST CANON ─────────── -->
+<section class="canvas py-10 px-6 border-t border-slate-200">
+  <div class="label-acto font-bold text-slate-700 mb-2 uppercase">ACTO 12 · Cierre · checklist canon</div>
+  <h2 class="text-2xl font-bold mb-6">Cobertura del mockup vs canons del proyecto</h2>
+
+  <div class="bg-white ring-1 ring-slate-200 rounded-2xl p-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2 text-[13px]">
+      <div class="flex items-start gap-2"><i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-600 mt-0.5"></i> Canon ubicación funcionalidad · alta por módulo</div>
+      <div class="flex items-start gap-2"><i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-600 mt-0.5"></i> Canon F6-A modal centrado · empleados y socios</div>
+      <div class="flex items-start gap-2"><i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-600 mt-0.5"></i> Canon F7 · tabular-nums en montos</div>
+      <div class="flex items-start gap-2"><i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-600 mt-0.5"></i> Canon F8 · iconos lucide únicamente</div>
+      <div class="flex items-start gap-2"><i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-600 mt-0.5"></i> Canon v8.0 N1 · color semántico (teal=empleado, purple=socio)</div>
+      <div class="flex items-start gap-2"><i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-600 mt-0.5"></i> Canon v8.0 N2 · gradient sutil + ring colored KPIs</div>
+      <div class="flex items-start gap-2"><i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-600 mt-0.5"></i> Canon v8.0 N4 · color cross-módulo (Skincare=teal, Maquillaje=pink, Fragancias=amber)</div>
+      <div class="flex items-start gap-2"><i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-600 mt-0.5"></i> Canon v8.0 N6 · scroll-x mobile en chips</div>
+      <div class="flex items-start gap-2"><i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-600 mt-0.5"></i> Canon v8.0 N9 · empty state con CTA accionable</div>
+      <div class="flex items-start gap-2"><i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-600 mt-0.5"></i> Canon v8.0 N10 · 3-tier jerarquía CTA</div>
+      <div class="flex items-start gap-2"><i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-600 mt-0.5"></i> Canon mockup-first · mobile-included desde inicio</div>
+      <div class="flex items-start gap-2"><i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-600 mt-0.5"></i> Banner pedagógico · explica qué se va a crear</div>
+      <div class="flex items-start gap-2"><i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-600 mt-0.5"></i> Touch targets ≥44px en mobile</div>
+      <div class="flex items-start gap-2"><i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-600 mt-0.5"></i> Empty state · cobertura sin líneas configuradas</div>
+    </div>
+
+    <div class="mt-6 pt-4 border-t border-slate-200">
+      <div class="text-[10px] uppercase tracking-widest font-bold text-slate-500 mb-2">Próximas etapas tras validación</div>
+      <ol class="list-decimal pl-5 space-y-1 text-[13px] text-slate-700">
+        <li>Extender tipo <code class="bg-slate-100 px-1.5 py-0.5 rounded text-[12px]">RelacionLaboral.lineasNegocioIds: string[]</code> (empleado/honorarios/externo) y <code class="bg-slate-100 px-1.5 py-0.5 rounded text-[12px]">lineaNegocioId: string | null</code> (socio)</li>
+        <li>Crear componentes shared <code class="bg-slate-100 px-1.5 py-0.5 rounded text-[12px]">LineaNegocioMultiSelect</code> y <code class="bg-slate-100 px-1.5 py-0.5 rounded text-[12px]">LineaNegocioSelect</code></li>
+        <li>Wire-up en <code class="bg-slate-100 px-1.5 py-0.5 rounded text-[12px]">DatosLaboralesFields</code> + <code class="bg-slate-100 px-1.5 py-0.5 rounded text-[12px]">DatosSocioFields</code></li>
+        <li>Filtros chip + KPI strip por línea en /planilla y tabs en /inversionistas</li>
+        <li>Migración data legacy: mapear <code class="bg-slate-100 px-1.5 py-0.5 rounded text-[12px]">Planilla.empleado.lineaNegocioId</code> a <code class="bg-slate-100 px-1.5 py-0.5 rounded text-[12px]">RelacionLaboral.lineasNegocioIds</code></li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<footer class="canvas py-10 px-6 text-center text-[11px] text-slate-500">
+  Mockup canon · Personas v5.x · Líneas de Negocio · 2026-05-29
+</footer>
+
+<script>
+  if (window.lucide) { lucide.createIcons(); }
+</script>
+</body>
+</html>
