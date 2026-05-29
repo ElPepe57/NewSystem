@@ -5,7 +5,6 @@ import { useCollaborationStore } from '../store/collaborationStore';
 import { useToastStore } from '../store/toastStore';
 import { presenciaService } from '../services/presencia.service';
 import { actividadService } from '../services/actividad.service';
-import { userService } from '../services/user.service';
 import { llamadaService } from '../services/llamada.service';
 import { HEARTBEAT_INTERVAL_MS } from '../types/collaboration.types';
 
@@ -88,21 +87,22 @@ export const useCollaborationInit = () => {
     );
   }, [location.pathname]);
 
-  // === 3. Iniciar suscripciones de colaboración + limpiar presencia huérfana ===
+  // === 3. Iniciar suscripciones de colaboración ===
   useEffect(() => {
     if (!userProfile?.uid) return;
 
     const { iniciarTodo, detenerTodo } = useCollaborationStore.getState();
     iniciarTodo();
 
-    // Limpiar presencia de usuarios eliminados (una vez al iniciar)
-    userService.getAll().then(users => {
-      const uidsActivos = users.map(u => u.uid);
-      presenciaService.limpiarHuerfanos(uidsActivos);
-    }).catch(() => {});
-
-    // Limpiar documentos de llamadas antiguos (una vez al iniciar)
-    llamadaService.limpiarLlamadasAntiguas().catch(() => {});
+    // chk5.PERF-LISTENERS (2026-05-29) · ELIMINADAS las tareas de mantenimiento
+    // global que corrían en CADA arranque de CADA cliente:
+    //   - userService.getAll() → leía TODA la colección users solo para limpiar presencia
+    //   - presenciaService.limpiarHuerfanos() → leía+borraba presencia ajena → permission-denied
+    //     repetido (las reglas Firestore correctamente lo bloquean para no-admin)
+    //   - llamadaService.limpiarLlamadasAntiguas() → similar
+    // Son mantenimiento GLOBAL · deben correr en un Cloud Function programado (cron),
+    // NO en el cliente. Ejecutarlas acá generaba tráfico + errores en cada sesión.
+    // DEUDA: mover estas 3 limpiezas a una Cloud Function scheduled (o TTL de Firestore).
 
     return () => {
       detenerTodo();

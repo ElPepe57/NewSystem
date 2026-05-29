@@ -77,35 +77,26 @@ export function useMiEspacioItems(): {
   // "Mi planilla" automáticamente sin requerir F5 manual.
   useEffect(() => {
     if (!profile?.uid) {
-      console.log('[useMiEspacioItems] sin profile.uid · skip listener');
       setHasDatosLaborales(null);
       setLoading(false);
       return;
     }
     setLoading(true);
-    const path = `users/${profile.uid}/private/datosLaborales`;
-    console.log('[useMiEspacioItems] suscribiendo a:', path);
     // Subscribe al doc /users/{uid}/private/datosLaborales · canon F2 path
+    // chk5.PERF-LISTENERS · console.logs de cada snapshot/suscripción removidos (ruido).
     const ref = doc(db, COLLECTIONS.USERS, profile.uid, 'private', 'datosLaborales');
     const unsubscribe = onSnapshot(
       ref,
       (snap) => {
-        console.log('[useMiEspacioItems] snapshot recibido:', {
-          path,
-          exists: snap.exists(),
-          data: snap.exists() ? snap.data() : null,
-        });
         setHasDatosLaborales(snap.exists());
         setLoading(false);
       },
-      (err) => {
-        console.error('[useMiEspacioItems] ERROR onSnapshot · path:', path, 'err:', err);
+      () => {
         setHasDatosLaborales(false);
         setLoading(false);
       },
     );
     return () => {
-      console.log('[useMiEspacioItems] desuscribiendo de:', path);
       unsubscribe();
     };
   }, [profile?.uid]);
