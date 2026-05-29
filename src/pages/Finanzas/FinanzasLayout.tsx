@@ -32,8 +32,7 @@ import {
   Landmark,
   ChevronLeft,
   ChevronRight,
-  Bell,
-  Keyboard,
+  Shield,
   Download,
   Settings2,
   LayoutDashboard,
@@ -46,6 +45,8 @@ import {
 } from 'lucide-react';
 import { PageShell } from '../../design-system';
 import { cn } from '../../design-system';
+import { useAuthStore } from '../../store/authStore';
+import { hasRole } from '../../types/auth.types';
 import {
   KpiStripFinanzas,
   type KpiStripFinanzasData,
@@ -95,7 +96,7 @@ interface TabConfig {
 }
 
 const TABS: TabConfig[] = [
-  { path: '/finanzas', label: 'Overview', icon: LayoutDashboard, end: true },
+  { path: '/finanzas', label: 'Resumen', icon: LayoutDashboard, end: true },
   { path: '/finanzas/saldos', label: 'Saldos', icon: Wallet, end: false },
   {
     path: '/finanzas/movimientos',
@@ -109,7 +110,7 @@ const TABS: TabConfig[] = [
     icon: Users,
     end: false,
   },
-  { path: '/finanzas/cash-flow', label: 'Cash flow', icon: CalendarRange, end: false },
+  { path: '/finanzas/cash-flow', label: 'Flujo de caja', icon: CalendarRange, end: false },
   {
     path: '/finanzas/analisis',
     label: 'Análisis',
@@ -365,6 +366,10 @@ const DEFAULT_HEADER = {
 const FinanzasLayout: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
+
+  // Canon "admin ve todo" · chip contextual al rol del top-bar (alineado a Inversionistas)
+  const userProfile = useAuthStore((s) => s.userProfile);
+  const esAdmin = hasRole(userProfile, 'admin');
 
   // ─── Sub-vista config · override-able por cada hijo del Outlet ───────
   const [subVistaConfig, setSubVistaConfig] = useState<SubVistaConfig | null>(null);
@@ -674,24 +679,13 @@ const FinanzasLayout: React.FC = () => {
               <span className="text-slate-900 font-semibold">Finanzas</span>
             )}
           </div>
-          <div className="flex items-center gap-1.5">
-            <button
-              type="button"
-              className="hover:bg-slate-100 text-slate-600 text-[11px] px-2 py-1 rounded inline-flex items-center gap-1"
-              aria-label="Atajo teclado"
-            >
-              <Keyboard className="w-3 h-3" />
-              <span className="text-[10px] font-mono">⌘K</span>
-            </button>
-            <button
-              type="button"
-              className="relative hover:bg-slate-100 p-1.5 rounded"
-              aria-label="Notificaciones"
-            >
-              <Bell className="w-3.5 h-3.5 text-slate-500" />
-              <span className="absolute top-0 right-0 w-2 h-2 bg-rose-500 rounded-full" />
-            </button>
-          </div>
+          {/* Chip contextual al rol · canon "admin ve todo" · alineado a Inversionistas.
+              Color teal = semántico del shell Finanzas (vs violet de Inversionistas).
+              chk5.D-S10 · reemplaza los placeholders muertos ⌘K + campanita (sin función). */}
+          <span className="text-[10px] bg-teal-50 text-teal-700 px-2 py-0.5 rounded font-bold hidden sm:inline-flex items-center gap-1 flex-shrink-0">
+            <Shield className="w-3 h-3" />
+            {esAdmin ? 'Vista ejecutiva · admin' : 'Vista ejecutiva'}
+          </span>
         </div>
 
         {/* §B · HEADER BANKING-GRADE · icon + title + actions · N10 + adaptativo SF1 */}
