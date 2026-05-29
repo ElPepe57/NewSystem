@@ -411,6 +411,11 @@ export const NuevoEmpleadoModal: React.FC<NuevoEmpleadoModalProps> = ({
     value: string,
   ) => {
     setPersonales((prev) => ({ ...prev, [field]: value }));
+    // chk5.PERSONAS-v5.x · sincronizar el campo email del form con emailInput
+    // (el autocomplete arriba muestra el mismo valor) · evita "doble fuente de verdad".
+    if (field === 'email') {
+      setEmailInput(value);
+    }
     if (errors.personales?.[field]) {
       setErrors((prev) => ({
         ...prev,
@@ -554,7 +559,6 @@ export const NuevoEmpleadoModal: React.FC<NuevoEmpleadoModalProps> = ({
                 values={{ ...personales, email: emailInput }}
                 onChange={handlePersonalesChange}
                 errors={errors.personales}
-                hideEmail
               />
             </div>
 

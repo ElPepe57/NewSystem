@@ -361,6 +361,11 @@ export const NuevoSocioModal: React.FC<NuevoSocioModalProps> = ({
     value: string,
   ) => {
     setPersonales((prev) => ({ ...prev, [field]: value }));
+    // chk5.PERSONAS-v5.x · sincronizar el campo email del form con emailInput
+    // (el autocomplete arriba muestra el mismo valor) · evita "doble fuente de verdad".
+    if (field === 'email') {
+      setEmailInput(value);
+    }
     if (errors.personales?.[field]) {
       setErrors((prev) => ({
         ...prev,
@@ -478,7 +483,7 @@ export const NuevoSocioModal: React.FC<NuevoSocioModalProps> = ({
         {modoCrear && (
           <>
             <div className="border-t border-slate-100" />
-            {/* Sección 1 · Datos personales (email ya está arriba) */}
+            {/* Sección 1 · Datos personales */}
             <div>
               <div className="text-[10px] uppercase tracking-wider font-bold text-slate-500 mb-3 flex items-center gap-1.5">
                 <span className="w-4 h-4 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center text-[9px] font-bold">
@@ -490,7 +495,6 @@ export const NuevoSocioModal: React.FC<NuevoSocioModalProps> = ({
                 values={{ ...personales, email: emailInput }}
                 onChange={handlePersonalesChange}
                 errors={errors.personales}
-                hideEmail
               />
             </div>
 

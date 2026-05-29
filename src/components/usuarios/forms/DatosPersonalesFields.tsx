@@ -95,6 +95,7 @@ export const DatosPersonalesFields: React.FC<DatosPersonalesFieldsProps> = ({
           <Field
             label="Email"
             icon={Mail}
+            hint="Será el email para loguear al sistema · debe ser único."
             required
             error={errors?.email}
           >
