@@ -1,7 +1,7 @@
 import { useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  Users, Shield, UserCheck, UserX, Plus, Edit2, X, Eye, Search,
+  Users, Shield, UserCheck, UserX, Edit2, X, Eye, Search,
   Key, LogOut, Trash2, Clock, CheckCircle, Loader2, MoreHorizontal,
   // chk5.F4-USERS · iconos de roles (avatares + chips)
   Briefcase, ShoppingCart, Package, Wallet, Landmark, User as UserIcon, Moon,
@@ -528,15 +528,12 @@ export const Usuarios: React.FC = () => {
                   <MailPlus className="w-3.5 h-3.5" />
                   <span className="hidden sm:inline">Invitar por email</span>
                 </button>
-                <button
-                  type="button"
-                  onClick={() => setWizardOpen(true)}
-                  className="text-[12px] font-bold text-white bg-teal-600 hover:bg-teal-700 px-3 py-1.5 rounded-lg flex items-center gap-1.5"
-                  title="Wizard 4 pasos canon v5.7 · crea User + Relación inicial"
-                >
-                  <Plus className="w-3.5 h-3.5" />
-                  <span className="hidden sm:inline">Nuevo colaborador</span>
-                </button>
+                {/* chk5.PERSONAS-v5.8 · E5 · Botón "Nuevo colaborador" removido del header.
+                    El alta ahora nace desde cada módulo:
+                      - Empleados → /planilla "+ Nuevo empleado"
+                      - Socios    → /inversionistas "+ Nuevo socio"
+                    El wizard general (CrearUsuarioWizard) sigue disponible
+                    pero solo se abre desde el banner de borrador legacy. */}
               </div>
             </div>
           </div>
@@ -719,10 +716,10 @@ export const Usuarios: React.FC = () => {
             </div>
           </div>
 
-          {/* chk5.PERSONAS-v5.7 · E4.4 · BANNER BORRADOR del wizard
-              Canon 2026-05-07 · "todo wizard de creación debe ofrecer
-              borrador + descartar". Se muestra si el user tiene un borrador
-              pendiente del wizard CrearUsuarioWizard. */}
+          {/* chk5.PERSONAS-v5.7 · E4.4 · BANNER BORRADOR del wizard (legacy)
+              chk5.PERSONAS-v5.8 · E5 · El wizard CrearUsuarioWizard está @deprecated.
+              El banner solo ofrece "Descartar" · no se puede continuar el wizard desde aquí.
+              Para crear empleados → /planilla. Para socios → /inversionistas. */}
           {borradorColaborador && !wizardOpen && (
             <div className="mx-4 sm:mx-6 mt-3 bg-amber-50 ring-1 ring-amber-300 rounded-xl p-3 flex items-center gap-3 flex-wrap">
               <div className="w-9 h-9 rounded-lg bg-amber-100 flex items-center justify-center flex-shrink-0">
@@ -730,10 +727,10 @@ export const Usuarios: React.FC = () => {
               </div>
               <div className="flex-1 min-w-[200px]">
                 <div className="text-sm font-bold text-amber-900">
-                  Tenés un colaborador en borrador
+                  Borrador de colaborador pendiente
                 </div>
                 <div className="text-xs text-amber-800">
-                  {borradorColaborador.resumen || 'Sin nombre'} · paso {borradorColaborador.pasoActual} de 4
+                  {borradorColaborador.resumen || 'Sin nombre'} · Para empleados usa Planilla · para socios usa Inversionistas.
                 </div>
               </div>
               <div className="flex items-center gap-1.5">
@@ -745,15 +742,6 @@ export const Usuarios: React.FC = () => {
                 >
                   <Trash2 className="w-3 h-3" />
                   Descartar
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setWizardOpen(true)}
-                  className="text-[11px] font-bold text-white bg-teal-600 hover:bg-teal-700 px-2.5 py-1.5 rounded-lg flex items-center gap-1"
-                  title="Continuar con el wizard"
-                >
-                  Continuar
-                  <ArrowRight className="w-3 h-3" />
                 </button>
               </div>
             </div>

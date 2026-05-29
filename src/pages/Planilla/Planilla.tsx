@@ -62,6 +62,8 @@ import { GenerarBoletasModal } from '../../components/modules/planilla/GenerarBo
 import { CerrarMesModal } from '../../components/modules/planilla/CerrarMesModal';
 import { ExportPayrollModal } from '../../components/modules/planilla/ExportPayrollModal';
 import { WizardBajaEmpleadoModal } from '../../components/modules/planilla/WizardBajaEmpleadoModal';
+// chk5.PERSONAS-v5.8 · E3 · Modal "Nuevo empleado" · alta directa desde Planilla
+import { NuevoEmpleadoModal } from '../../components/modules/planilla/NuevoEmpleadoModal';
 import type { CalculoIncentivoMes, EsquemaIncentivo } from '../../types/planilla.types';
 
 // ═════════════════════════════════════════════════════════════════════════
@@ -143,6 +145,7 @@ export const Planilla: React.FC = () => {
     | { kind: 'cerrarMes' }
     | { kind: 'exportPayroll' }
     | { kind: 'bajaEmpleado' }
+    | { kind: 'nuevoEmpleado' }
   >({ kind: 'none' });
   const [toast, setToast] = useState<{ kind: 'success' | 'error'; msg: string } | null>(null);
 
@@ -381,6 +384,17 @@ export const Planilla: React.FC = () => {
               >
                 <Plus className="w-3 h-3 rotate-45" />
                 <span className="hidden lg:inline">Dar de baja</span>
+              </button>
+              {/* Tier primary · Nuevo empleado (alta directa desde planilla) */}
+              <button
+                type="button"
+                onClick={() => setModal({ kind: 'nuevoEmpleado' })}
+                aria-label="Dar de alta a nuevo empleado"
+                title="Alta de empleado a planilla · sin pasar por el wizard de usuarios"
+                className="text-[11px] font-bold text-white bg-teal-600 hover:bg-teal-700 px-3 py-1.5 rounded-lg flex items-center gap-1.5"
+              >
+                <Plus className="w-3 h-3" />
+                <span className="hidden sm:inline">Nuevo empleado</span>
               </button>
               {/* Tier primary · Generar boletas (CTA principal del mes) */}
               <button
@@ -672,6 +686,17 @@ export const Planilla: React.FC = () => {
           cargarShellData();
         }}
         onError={(msg) => setToast({ kind: 'error', msg })}
+      />
+
+      {/* chk5.PERSONAS-v5.8 · E3 · Alta de empleado directa desde Planilla */}
+      <NuevoEmpleadoModal
+        isOpen={modal.kind === 'nuevoEmpleado'}
+        onClose={() => setModal({ kind: 'none' })}
+        onSuccess={(uid) => {
+          setModal({ kind: 'none' });
+          setToast({ kind: 'success', msg: `Empleado agregado a planilla (uid: ${uid.slice(0, 8)}...)` });
+          cargarShellData();
+        }}
       />
     </div>
   );

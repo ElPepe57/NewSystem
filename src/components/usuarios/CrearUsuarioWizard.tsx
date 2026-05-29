@@ -1,6 +1,13 @@
 /**
  * CrearUsuarioWizard.tsx · chk5.PERSONAS-v5.7 · E4.3 (2026-05-28)
  *
+ * @deprecated 2026-05-28 · chk5.PERSONAS-v5.8
+ * Reemplazado por NuevoEmpleadoModal (src/components/modules/planilla/NuevoEmpleadoModal.tsx)
+ * y NuevoSocioModal (src/components/modules/inversionistas/NuevoSocioModal.tsx) para los
+ * flujos más comunes. El wizard general sigue disponible desde /usuarios para tipos
+ * externo/honorarios o cuando el admin necesita el flujo de 4 pasos completo.
+ * NO invocar desde código nuevo para casos 'empleado' o 'socio'.
+ *
  * Wizard de 4 pasos para crear un nuevo colaborador con relación inicial.
  * Reemplaza a NuevoUsuarioModal (queda @deprecated).
  *

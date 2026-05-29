@@ -20,7 +20,13 @@ export type TipoBorradorWizard =
   | 'baja_empleado'
   // chk5.PERSONAS-v5.7 · E4.4 (2026-05-28) · Wizard "Nuevo colaborador" 4 pasos
   // Crea User + RelacionLaboral inicial · ver CrearUsuarioWizard.tsx
-  | 'colaborador';
+  | 'colaborador'
+  // chk5.PERSONAS-v5.8 · E3 (2026-05-28) · Modal "Nuevo empleado" desde /planilla
+  // Reemplaza el wizard largo cuando el tipo es conocido de antemano · ver NuevoEmpleadoModal.tsx
+  | 'nuevo-empleado'
+  // chk5.PERSONAS-v5.8 · E4 (2026-05-28) · Modal "Nuevo socio" desde /inversionistas
+  // Reemplaza el wizard largo cuando el tipo es conocido de antemano · ver NuevoSocioModal.tsx
+  | 'nuevo-socio';
 
 /**
  * Documento de borrador de wizard almacenado en Firestore.
