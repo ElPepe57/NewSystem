@@ -1,26 +1,27 @@
 /**
- * NuevoEmpleadoModal.tsx · chk5.PERSONAS-v5.8 · E3-extended (2026-05-28)
+ * NuevoEmpleadoModal.tsx · chk5.PERSONAS-v5.9 · E2 (2026-05-28)
  *
  * Modal F6-A (FormModalV2 centrado) para dar de alta a un nuevo empleado
  * directamente desde /planilla, sin pasar por el wizard 4-pasos de /usuarios.
  *
- * ── 3 modos según email lookup ──────────────────────────────────────────
+ * ── 3 modos según autocomplete ──────────────────────────────────────────
  *
  *   Modo A · "crear" (user no existe)
- *     Muestra: EmailUserLookup + DatosPersonalesFields + DatosLaboralesFields
+ *     Muestra: PersonaAutocomplete + DatosPersonalesFields + DatosLaboralesFields
  *     Submit:  useCreateUserWithRelacion.create()
  *
  *   Modo B · "agregar relación" (user existe · sin relación empleado vigente)
- *     Muestra: EmailUserLookup + Card readonly con datos del user + DatosLaboralesFields
+ *     Muestra: PersonaAutocomplete (chip pill) + DatosLaboralesFields
  *     Submit:  useCreateUserWithRelacion.addRelacionToExisting(uid, datos)
  *
  *   Modo C · "bloqueado" (user existe · YA tiene relación empleado vigente)
- *     Muestra: EmailUserLookup + banner rojo + CTA "Abrir perfil en Usuarios"
+ *     Muestra: PersonaAutocomplete (chip pill con indicador rojo) + banner
  *     Submit:  disabled
  *
  * Borrador canon (2026-05-07): autoguardado via borradorWizardService tipo 'nuevo-empleado'.
- * El borrador persiste el email del lookup (string) · no el objeto UserProfile (no serializable).
- * Si al restaurar el borrador el email ya tiene user → el lookup lo re-detecta solo.
+ * El borrador persiste emailInput (string) · no el objeto UserProfile (no serializable).
+ * Si al restaurar el borrador había emailInput → el autocomplete lo muestra pre-cargado;
+ * el user NO se auto-selecciona (no queremos auto-selección sin gesto del usuario).
  *
  * Constraints:
  *   - Backend NO se toca · solo services existentes
@@ -31,14 +32,14 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Briefcase, AlertCircle, User as UserIcon, Mail, Phone } from 'lucide-react';
+import { Briefcase, AlertCircle } from 'lucide-react';
 import { FormModalV2 } from '../../../design-system';
 import {
   useCreateUserWithRelacion,
 } from '../../../hooks/useCreateUserWithRelacion';
 import {
-  EmailUserLookup,
-} from '../../usuarios/forms/EmailUserLookup';
+  PersonaAutocomplete,
+} from '../../usuarios/forms/PersonaAutocomplete';
 import {
   DatosPersonalesFields,
   type DatosPersonalesValues,
@@ -133,7 +134,6 @@ export const NuevoEmpleadoModal: React.FC<NuevoEmpleadoModalProps> = ({
   const currentUser = useAuthStore((s) => s.userProfile);
   const {
     create,
-    lookupUserByEmail,
     addRelacionToExisting,
     loading,
     error: hookError,
@@ -249,21 +249,40 @@ export const NuevoEmpleadoModal: React.FC<NuevoEmpleadoModalProps> = ({
     onClose();
   };
 
-  // ─── Callback del lookup ──────────────────────────────────────────────
-  const handleUserFound = (user: UserProfile | null, relaciones: RelacionLaboral[]) => {
+  // ─── Callback autocomplete: user seleccionado del dropdown ──────────
+  const handleUserSelected = (user: UserProfile, relaciones: RelacionLaboral[]) => {
     setUserExistente(user);
     setRelacionesVigentes(relaciones);
-    // Si encontramos un user, sincronizar el campo email en DatosPersonalesFields
-    if (user) {
-      setPersonales((prev) => ({ ...prev, email: emailInput.trim().toLowerCase() }));
-    }
-    // Limpiar errores del email si ya era válido
+    // Sincronizar emailInput con el email del user seleccionado
+    setEmailInput(user.email);
+    // Limpiar error de email si existía
     if (errors.personales?.email) {
       setErrors((prev) => ({
         ...prev,
         personales: { ...prev.personales, email: undefined },
       }));
     }
+  };
+
+  // ─── Callback autocomplete: "Crear nuevo con X" ───────────────────────
+  const handleCreateNew = (query: string) => {
+    // Resetear user existente
+    setUserExistente(null);
+    setRelacionesVigentes([]);
+    // Pre-llenar según si es email o nombre
+    const isEmail = query.includes('@');
+    if (isEmail) {
+      setEmailInput(query);
+    } else {
+      setPersonales((prev) => ({ ...prev, displayName: query }));
+    }
+  };
+
+  // ─── Callback autocomplete: deseleccionar (click X en pill) ──────────
+  const handleDeselect = () => {
+    setUserExistente(null);
+    setRelacionesVigentes([]);
+    setEmailInput('');
   };
 
   // ─── Navegación al UserPanel del user bloqueado ───────────────────────
@@ -433,24 +452,38 @@ export const NuevoEmpleadoModal: React.FC<NuevoEmpleadoModalProps> = ({
           </div>
         )}
 
-        {/* ── Email lookup · siempre arriba ── */}
-        <EmailUserLookup
-          value={emailInput}
-          onChange={(v) => {
-            setEmailInput(v);
-            // Resetear lookup si el usuario borra el email
-            if (!v.trim()) {
-              setUserExistente(null);
-              setRelacionesVigentes([]);
-            }
-          }}
-          onUserFound={handleUserFound}
+        {/* ── Autocomplete de personas · siempre arriba ── */}
+        <PersonaAutocomplete
+          inputValue={emailInput}
+          onInputChange={(v) => setEmailInput(v)}
+          userExistente={userExistente}
+          relacionesVigentes={relacionesVigentes}
+          onUserSelected={handleUserSelected}
+          onCreateNew={handleCreateNew}
+          onDeselect={handleDeselect}
           tipoModal="empleado"
-          tipoLabel="empleado"
-          lookupFn={lookupUserByEmail}
           error={errors.personales?.email}
-          onOpenUserPanel={handleOpenUserPanel}
         />
+
+        {/* Banner bloqueado · CTA al UserPanel */}
+        {modoBlocked && userExistente && (
+          <div className="bg-rose-50 ring-1 ring-rose-200 rounded-lg px-3 py-2.5 flex items-start gap-2">
+            <AlertCircle className="w-4 h-4 text-rose-600 flex-shrink-0 mt-0.5" />
+            <div className="text-[12px] text-rose-800 flex-1">
+              <span>
+                Ya tiene una relaci&oacute;n de <strong>empleado</strong> vigente.
+                Para modificar su cargo o sueldo, abrí su perfil desde Usuarios.
+              </span>
+              <button
+                type="button"
+                onClick={() => handleOpenUserPanel(userExistente.uid)}
+                className="block mt-1 text-[11px] font-semibold text-rose-700 underline hover:text-rose-900"
+              >
+                Abrir perfil de {userExistente.displayName} en Usuarios &rarr;
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* ── Modo A: crear nuevo user ── */}
         {modoCrear && (
@@ -495,33 +528,7 @@ export const NuevoEmpleadoModal: React.FC<NuevoEmpleadoModalProps> = ({
         {modoAgregarRelacion && userExistente && (
           <>
             <div className="border-t border-slate-100" />
-
-            {/* Card read-only con datos del user */}
-            <div className="bg-slate-50 ring-1 ring-slate-200 rounded-lg px-3 py-2.5">
-              <div className="text-[10px] uppercase tracking-wider font-bold text-slate-500 mb-2">
-                Datos personales (existentes)
-              </div>
-              <div className="space-y-1 text-[12px] text-slate-700">
-                <div className="flex items-center gap-1.5">
-                  <UserIcon className="w-3 h-3 text-slate-400 flex-shrink-0" />
-                  <span className="font-semibold">{userExistente.displayName}</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <Mail className="w-3 h-3 text-slate-400 flex-shrink-0" />
-                  <span>{userExistente.email}</span>
-                </div>
-                {userExistente.telefono && (
-                  <div className="flex items-center gap-1.5">
-                    <Phone className="w-3 h-3 text-slate-400 flex-shrink-0" />
-                    <span>{userExistente.telefono}</span>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            <div className="border-t border-slate-100" />
-
-            {/* Sección datos laborales */}
+            {/* La chip-pill del autocomplete ya muestra los datos del user. Solo mostramos los datos laborales. */}
             <div>
               <div className="text-[10px] uppercase tracking-wider font-bold text-slate-500 mb-3 flex items-center gap-1.5">
                 <span className="w-4 h-4 rounded-full bg-teal-100 text-teal-700 flex items-center justify-center text-[9px] font-bold">
@@ -536,14 +543,6 @@ export const NuevoEmpleadoModal: React.FC<NuevoEmpleadoModalProps> = ({
               />
             </div>
           </>
-        )}
-
-        {/* ── Modo C: bloqueado (ya tiene relación empleado) ── */}
-        {modoBlocked && (
-          <div className="bg-slate-50 ring-1 ring-slate-200 rounded-lg px-3 py-2.5 text-[12px] text-slate-600">
-            Para modificar el cargo o sueldo de este empleado, abrí su perfil
-            desde el módulo Usuarios.
-          </div>
         )}
       </div>
     </FormModalV2>

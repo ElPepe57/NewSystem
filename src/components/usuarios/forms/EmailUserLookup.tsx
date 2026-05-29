@@ -1,5 +1,9 @@
 /**
  * EmailUserLookup.tsx · chk5.PERSONAS-v5.8 · E2-extended (2026-05-28)
+ * @deprecated chk5.PERSONAS-v5.9 (2026-05-28) · Reemplazado por PersonaAutocomplete.tsx
+ * que ofrece búsqueda local por nombre O email con dropdown y chip-pill.
+ * NuevoEmpleadoModal y NuevoSocioModal ya usan PersonaAutocomplete.
+ * Este archivo se mantiene para referencia histórica · NO importar en código nuevo.
  *
  * Input de email con detección automática de user existente (debounce 500ms).
  * Muestra una card informativa debajo del input con el resultado del lookup.

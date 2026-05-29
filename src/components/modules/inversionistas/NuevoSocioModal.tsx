@@ -1,26 +1,25 @@
 /**
- * NuevoSocioModal.tsx · chk5.PERSONAS-v5.8 · E4-extended (2026-05-28)
+ * NuevoSocioModal.tsx · chk5.PERSONAS-v5.9 · E3 (2026-05-28)
  *
  * Modal F6-A (FormModalV2 centrado) para dar de alta a un nuevo socio
  * directamente desde /inversionistas, sin pasar por el wizard 4-pasos de /usuarios.
  *
- * ── 3 modos según email lookup ──────────────────────────────────────────
+ * ── 3 modos según autocomplete ──────────────────────────────────────────
  *
  *   Modo A · "crear" (user no existe)
- *     Muestra: EmailUserLookup + DatosPersonalesFields + DatosSocioFields
+ *     Muestra: PersonaAutocomplete + DatosPersonalesFields + DatosSocioFields
  *     Submit:  useCreateUserWithRelacion.create()
  *
  *   Modo B · "agregar relación" (user existe · sin relación socio vigente)
- *     Muestra: EmailUserLookup + Card readonly con datos del user + DatosSocioFields
+ *     Muestra: PersonaAutocomplete (chip pill) + DatosSocioFields
  *     Submit:  useCreateUserWithRelacion.addRelacionToExisting(uid, datos)
  *
  *   Modo C · "bloqueado" (user existe · YA tiene relación socio vigente)
- *     Muestra: EmailUserLookup + banner rojo + CTA "Abrir perfil en Usuarios"
+ *     Muestra: PersonaAutocomplete (chip pill) + banner rojo + CTA
  *     Submit:  disabled
  *
  * Borrador canon (2026-05-07): autoguardado via borradorWizardService tipo 'nuevo-socio'.
  * El borrador persiste emailInput (string) · no el objeto UserProfile (no serializable).
- * Si al restaurar el borrador el email ya tiene user → el lookup lo re-detecta solo.
  *
  * Constraints:
  *   - Backend NO se toca · solo services existentes
@@ -31,14 +30,14 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Handshake, AlertCircle, User as UserIcon, Mail, Phone } from 'lucide-react';
+import { Handshake, AlertCircle } from 'lucide-react';
 import { FormModalV2 } from '../../../design-system';
 import {
   useCreateUserWithRelacion,
 } from '../../../hooks/useCreateUserWithRelacion';
 import {
-  EmailUserLookup,
-} from '../../usuarios/forms/EmailUserLookup';
+  PersonaAutocomplete,
+} from '../../usuarios/forms/PersonaAutocomplete';
 import {
   DatosPersonalesFields,
   type DatosPersonalesValues,
@@ -119,7 +118,6 @@ export const NuevoSocioModal: React.FC<NuevoSocioModalProps> = ({
   const currentUser = useAuthStore((s) => s.userProfile);
   const {
     create,
-    lookupUserByEmail,
     addRelacionToExisting,
     loading,
     error: hookError,
@@ -227,19 +225,36 @@ export const NuevoSocioModal: React.FC<NuevoSocioModalProps> = ({
     onClose();
   };
 
-  // ─── Callback del lookup ──────────────────────────────────────────────
-  const handleUserFound = (user: UserProfile | null, relaciones: RelacionLaboral[]) => {
+  // ─── Callback autocomplete: user seleccionado del dropdown ──────────
+  const handleUserSelected = (user: UserProfile, relaciones: RelacionLaboral[]) => {
     setUserExistente(user);
     setRelacionesVigentes(relaciones);
-    if (user) {
-      setPersonales((prev) => ({ ...prev, email: emailInput.trim().toLowerCase() }));
-    }
+    setEmailInput(user.email);
     if (errors.personales?.email) {
       setErrors((prev) => ({
         ...prev,
         personales: { ...prev.personales, email: undefined },
       }));
     }
+  };
+
+  // ─── Callback autocomplete: "Crear nuevo con X" ───────────────────────
+  const handleCreateNew = (query: string) => {
+    setUserExistente(null);
+    setRelacionesVigentes([]);
+    const isEmail = query.includes('@');
+    if (isEmail) {
+      setEmailInput(query);
+    } else {
+      setPersonales((prev) => ({ ...prev, displayName: query }));
+    }
+  };
+
+  // ─── Callback autocomplete: deseleccionar ────────────────────────────
+  const handleDeselect = () => {
+    setUserExistente(null);
+    setRelacionesVigentes([]);
+    setEmailInput('');
   };
 
   // ─── Navegación al UserPanel ──────────────────────────────────────────
@@ -380,23 +395,38 @@ export const NuevoSocioModal: React.FC<NuevoSocioModalProps> = ({
           </div>
         )}
 
-        {/* ── Email lookup · siempre arriba ── */}
-        <EmailUserLookup
-          value={emailInput}
-          onChange={(v) => {
-            setEmailInput(v);
-            if (!v.trim()) {
-              setUserExistente(null);
-              setRelacionesVigentes([]);
-            }
-          }}
-          onUserFound={handleUserFound}
+        {/* ── Autocomplete de personas · siempre arriba ── */}
+        <PersonaAutocomplete
+          inputValue={emailInput}
+          onInputChange={(v) => setEmailInput(v)}
+          userExistente={userExistente}
+          relacionesVigentes={relacionesVigentes}
+          onUserSelected={handleUserSelected}
+          onCreateNew={handleCreateNew}
+          onDeselect={handleDeselect}
           tipoModal="socio"
-          tipoLabel="socio"
-          lookupFn={lookupUserByEmail}
           error={errors.personales?.email}
-          onOpenUserPanel={handleOpenUserPanel}
         />
+
+        {/* Banner bloqueado · CTA al UserPanel */}
+        {modoBlocked && userExistente && (
+          <div className="bg-rose-50 ring-1 ring-rose-200 rounded-lg px-3 py-2.5 flex items-start gap-2">
+            <AlertCircle className="w-4 h-4 text-rose-600 flex-shrink-0 mt-0.5" />
+            <div className="text-[12px] text-rose-800 flex-1">
+              <span>
+                Ya tiene una relaci&oacute;n de <strong>socio</strong> vigente.
+                Para modificar sus datos, abrí su perfil desde Usuarios.
+              </span>
+              <button
+                type="button"
+                onClick={() => handleOpenUserPanel(userExistente.uid)}
+                className="block mt-1 text-[11px] font-semibold text-rose-700 underline hover:text-rose-900"
+              >
+                Abrir perfil de {userExistente.displayName} en Usuarios &rarr;
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* ── Modo A: crear nuevo user ── */}
         {modoCrear && (
@@ -441,33 +471,7 @@ export const NuevoSocioModal: React.FC<NuevoSocioModalProps> = ({
         {modoAgregarRelacion && userExistente && (
           <>
             <div className="border-t border-slate-100" />
-
-            {/* Card read-only con datos del user */}
-            <div className="bg-slate-50 ring-1 ring-slate-200 rounded-lg px-3 py-2.5">
-              <div className="text-[10px] uppercase tracking-wider font-bold text-slate-500 mb-2">
-                Datos personales (existentes)
-              </div>
-              <div className="space-y-1 text-[12px] text-slate-700">
-                <div className="flex items-center gap-1.5">
-                  <UserIcon className="w-3 h-3 text-slate-400 flex-shrink-0" />
-                  <span className="font-semibold">{userExistente.displayName}</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <Mail className="w-3 h-3 text-slate-400 flex-shrink-0" />
-                  <span>{userExistente.email}</span>
-                </div>
-                {userExistente.telefono && (
-                  <div className="flex items-center gap-1.5">
-                    <Phone className="w-3 h-3 text-slate-400 flex-shrink-0" />
-                    <span>{userExistente.telefono}</span>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            <div className="border-t border-slate-100" />
-
-            {/* Sección datos de socio */}
+            {/* La chip-pill del autocomplete ya muestra los datos del user. Solo mostramos los datos de socio. */}
             <div>
               <div className="text-[10px] uppercase tracking-wider font-bold text-slate-500 mb-3 flex items-center gap-1.5">
                 <span className="w-4 h-4 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center text-[9px] font-bold">
@@ -482,14 +486,6 @@ export const NuevoSocioModal: React.FC<NuevoSocioModalProps> = ({
               />
             </div>
           </>
-        )}
-
-        {/* ── Modo C: bloqueado ── */}
-        {modoBlocked && (
-          <div className="bg-slate-50 ring-1 ring-slate-200 rounded-lg px-3 py-2.5 text-[12px] text-slate-600">
-            Para modificar el rol o datos de este socio, abrí su perfil desde el módulo
-            Usuarios.
-          </div>
         )}
       </div>
     </FormModalV2>
