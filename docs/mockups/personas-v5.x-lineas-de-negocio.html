@@ -33,6 +33,20 @@
     </p>
   </div>
 
+  <!-- Principio rector del mockup -->
+  <div class="mt-6 bg-amber-50/60 ring-1 ring-amber-200 rounded-2xl p-5 flex items-start gap-3">
+    <i data-lucide="shield-check" class="w-5 h-5 text-amber-700 flex-shrink-0 mt-0.5"></i>
+    <div class="text-[13px] text-amber-900 leading-relaxed">
+      <strong>Principio de este mockup · COMPLEMENTAR, no rediseñar.</strong> La estructura de Usuarios,
+      Planilla, Inversionistas y Perfil <strong>ya está aprobada y NO se toca</strong>. Líneas de negocio
+      se INSERTA encima como elementos mínimos (un chip, un filtro, una columna). Los actos de vistas
+      existentes (6 · 7 · 12 · 13) muestran la estructura real intacta + resaltan SOLO el delta que se agrega
+      (recuadro <span class="inline-block px-1.5 py-0.5 ring-1 ring-dashed ring-teal-400 rounded text-[11px] text-teal-700">dashed</span>).
+      Los actos de componentes genuinamente nuevos (modales de alta · configuración de líneas · selector ·
+      reclasificación) sí se dibujan completos porque no existían.
+    </div>
+  </div>
+
   <div class="mt-8 bg-white ring-1 ring-slate-200 rounded-2xl p-6">
     <div class="text-[10px] uppercase tracking-widest font-bold text-slate-500 mb-3">Índice de actos</div>
     <ul class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2 text-sm text-slate-700">
@@ -41,14 +55,14 @@
       <li><strong>3.</strong> Modal Nuevo empleado · empleado compartido (sin línea)</li>
       <li><strong>4.</strong> Modal Nuevo socio · selector single + empresa global</li>
       <li><strong>5.</strong> Caso especial · sueldos separados (N relaciones)</li>
-      <li><strong>6.</strong> /planilla · filtros por línea + chips en cards</li>
-      <li><strong>7.</strong> /inversionistas · filtros por línea + cap table separado</li>
+      <li><strong>6.</strong> DELTA /planilla · qué se inserta (no redibuja)</li>
+      <li><strong>7.</strong> DELTA /inversionistas · filtro entidad (no tabs nuevos)</li>
       <li><strong>8.</strong> UserPanel · tab Relaciones con chips de líneas</li>
       <li><strong>9.</strong> Empty state · sin líneas configuradas</li>
       <li><strong>10.</strong> Mobile · modal empleado</li>
       <li><strong>11.</strong> Mobile · modal socio + filtros planilla</li>
       <li><strong>12.</strong> /usuarios directorio · cards con chips de líneas</li>
-      <li><strong>13.</strong> /perfil personal · "Mis líneas de negocio"</li>
+      <li><strong>13.</strong> DELTA /perfil personal · chips en componentes existentes</li>
       <li><strong>14.</strong> Mobile · perfil personal con chips</li>
       <li><strong>15.</strong> Configuración de líneas · CRUD</li>
       <li><strong>16.</strong> AgregarRelacionWizard updated · desde UserPanel</li>
@@ -502,237 +516,151 @@
   </div>
 </section>
 
-<!-- ─────────── ACTO 6 · /PLANILLA CON FILTROS ─────────── -->
+<!-- ─────────── ACTO 6 · DELTA EN /PLANILLA ─────────── -->
 <section class="canvas py-10 px-6 border-t border-slate-200">
-  <div class="label-acto font-bold text-teal-700 mb-2 uppercase">ACTO 6 · /planilla con filtros por línea</div>
-  <h2 class="text-2xl font-bold mb-6">Filtrar la planilla por línea · ver costo por línea de inmediato</h2>
+  <div class="label-acto font-bold text-teal-700 mb-2 uppercase">ACTO 6 · DELTA en /planilla · NO redibuja · solo inserta</div>
+  <h2 class="text-2xl font-bold mb-2">Qué se AGREGA a la planilla ya aprobada</h2>
+  <p class="text-slate-600 mb-6 max-w-3xl">
+    La estructura de Planilla (6 tabs · banking-grade sky) <strong>NO se toca</strong>. Solo se insertan
+    2 elementos de línea. Abajo: la estructura real intacta + los 2 puntos de inserción resaltados.
+  </p>
 
-  <div class="bg-white rounded-2xl ring-1 ring-slate-200 shadow-sm p-6">
-    <!-- Breadcrumb -->
-    <div class="text-[11px] text-slate-500 mb-2 flex items-center gap-1">
-      <span>Equipo</span><i data-lucide="chevron-right" class="w-3 h-3"></i><span class="font-semibold text-slate-700">Planilla</span>
+  <!-- Estructura real INTACTA -->
+  <div class="bg-white rounded-2xl ring-1 ring-slate-200 shadow-sm p-6 mb-4">
+    <div class="flex items-center gap-2 mb-3">
+      <span class="text-[10px] uppercase tracking-widest font-bold text-slate-400 bg-slate-100 px-2 py-1 rounded">Ya existe · no se modifica</span>
     </div>
-    <div class="flex items-end justify-between mb-4">
-      <div>
-        <h1 class="text-2xl font-bold flex items-center gap-2">
-          <i data-lucide="users" class="w-5 h-5 text-teal-700"></i>
-          Planilla
-        </h1>
-        <p class="text-[13px] text-slate-500">Gestión de sueldos · boletas · adelantos por línea de negocio</p>
-      </div>
-      <div class="flex gap-2">
-        <button class="text-[11px] font-semibold px-3 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-50">Exportar</button>
-        <button class="text-[11px] font-bold text-white bg-teal-600 hover:bg-teal-700 px-3 py-1.5 rounded-lg flex items-center gap-1">
-          <i data-lucide="plus" class="w-3 h-3"></i> Nuevo empleado
-        </button>
+    <!-- Tabs reales de planilla -->
+    <div class="border-b border-slate-200 mb-4">
+      <div class="flex gap-1 flex-wrap">
+        <span class="px-3 py-2 text-[12px] font-bold text-sky-700 border-b-2 border-sky-600">Resumen</span>
+        <span class="px-3 py-2 text-[12px] font-semibold text-slate-500">Boletas</span>
+        <span class="px-3 py-2 text-[12px] font-semibold text-slate-500">Adelantos</span>
+        <span class="px-3 py-2 text-[12px] font-semibold text-slate-500">Incentivos</span>
+        <span class="px-3 py-2 text-[12px] font-semibold text-slate-500">Vacaciones</span>
+        <span class="px-3 py-2 text-[12px] font-semibold text-slate-500">Análisis</span>
       </div>
     </div>
+    <!-- Estructura del tab Resumen real (wireframe, sin detalle) -->
+    <div class="space-y-2 text-[11px] text-slate-400">
+      <div class="bg-slate-50 rounded-lg px-3 py-2 ring-1 ring-slate-100">§A · Banner estado de planilla (verde/amber/rojo)</div>
+      <div class="bg-slate-50 rounded-lg px-3 py-2 ring-1 ring-slate-100">§B · Mini bar chart 12m · evolución costo laboral</div>
+      <div class="bg-slate-50 rounded-lg px-3 py-2 ring-1 ring-slate-100">§C · Insights del mes (auto-generados)</div>
+      <div class="bg-slate-50 rounded-lg px-3 py-2 ring-1 ring-slate-100">§D · Acciones rápidas · §E · Cross-links 360 · §F · Alertas activas</div>
+    </div>
+  </div>
 
-    <!-- Filtros chip · canon v8.0 N4 + N6 -->
-    <div class="bg-slate-50 ring-1 ring-slate-200 rounded-xl p-3 mb-4">
-      <div class="text-[10px] uppercase tracking-wider font-bold text-slate-500 mb-2">Filtrar por línea</div>
-      <div class="flex flex-wrap gap-1.5">
-        <button class="text-[12px] font-semibold px-3 py-1.5 rounded-lg bg-teal-600 text-white flex items-center gap-1.5">
-          <i data-lucide="layers" class="w-3 h-3"></i> Todas <span class="opacity-70 tabular-nums">12</span>
-        </button>
-        <button class="text-[12px] font-semibold px-3 py-1.5 rounded-lg bg-white ring-1 ring-teal-300 text-teal-800 flex items-center gap-1.5">
-          <div class="w-2 h-2 rounded-full bg-teal-500"></div> Skincare <span class="opacity-70 tabular-nums">6</span>
-        </button>
-        <button class="text-[12px] font-semibold px-3 py-1.5 rounded-lg bg-white ring-1 ring-slate-200 text-slate-700 hover:ring-slate-300 flex items-center gap-1.5">
-          <div class="w-2 h-2 rounded-full bg-pink-500"></div> Maquillaje <span class="opacity-70 tabular-nums">4</span>
-        </button>
-        <button class="text-[12px] font-semibold px-3 py-1.5 rounded-lg bg-white ring-1 ring-slate-200 text-slate-700 hover:ring-slate-300 flex items-center gap-1.5">
-          <div class="w-2 h-2 rounded-full bg-amber-500"></div> Fragancias <span class="opacity-70 tabular-nums">1</span>
-        </button>
-        <button class="text-[12px] font-semibold px-3 py-1.5 rounded-lg bg-white ring-1 ring-slate-200 text-slate-700 hover:ring-slate-300 flex items-center gap-1.5">
-          <i data-lucide="globe" class="w-3 h-3 text-slate-400"></i> Compartidos <span class="opacity-70 tabular-nums">1</span>
-        </button>
-      </div>
+  <!-- DELTA 1 · filtro global de línea (reusa selector existente) -->
+  <div class="bg-white rounded-2xl ring-2 ring-dashed ring-teal-400 shadow-sm p-5 mb-4">
+    <div class="flex items-center gap-2 mb-3">
+      <span class="text-[10px] uppercase tracking-widest font-bold text-white bg-teal-600 px-2 py-1 rounded flex items-center gap-1"><i data-lucide="plus" class="w-3 h-3"></i> Delta 1</span>
+      <span class="text-[12px] font-semibold text-slate-700">Filtro de línea · reusa el selector de línea GLOBAL ya existente (useLineaNegocioStore)</span>
     </div>
+    <div class="flex flex-wrap gap-1.5">
+      <button class="text-[12px] font-semibold px-3 py-1.5 rounded-lg bg-teal-600 text-white flex items-center gap-1.5"><i data-lucide="layers" class="w-3 h-3"></i> Todas</button>
+      <button class="text-[12px] font-semibold px-3 py-1.5 rounded-lg bg-white ring-1 ring-teal-300 text-teal-800 flex items-center gap-1.5"><div class="w-2 h-2 rounded-full bg-teal-500"></div> Skincare</button>
+      <button class="text-[12px] font-semibold px-3 py-1.5 rounded-lg bg-white ring-1 ring-slate-200 text-slate-700 flex items-center gap-1.5"><div class="w-2 h-2 rounded-full bg-pink-500"></div> Maquillaje</button>
+      <button class="text-[12px] font-semibold px-3 py-1.5 rounded-lg bg-white ring-1 ring-slate-200 text-slate-700 flex items-center gap-1.5"><i data-lucide="globe" class="w-3 h-3 text-slate-400"></i> Compartidos</button>
+    </div>
+    <p class="text-[11px] text-teal-700/80 mt-2">Al filtrar, TODO el tab Resumen (banner · chart · insights) se recalcula para esa línea. No cambia el layout · solo los datos.</p>
+  </div>
 
-    <!-- KPI strip por línea -->
-    <div class="grid grid-cols-4 gap-3 mb-5">
-      <div class="bg-gradient-to-br from-teal-50 to-teal-100/40 ring-1 ring-teal-200 rounded-xl p-3">
-        <div class="text-[10px] uppercase tracking-wider font-bold text-teal-700 mb-1">Costo Skincare</div>
-        <div class="text-xl font-bold tabular-nums text-teal-900">S/ 18,300<span class="text-teal-400">.00</span></div>
-        <div class="text-[11px] text-teal-700/80">6 empleados</div>
-      </div>
-      <div class="bg-gradient-to-br from-pink-50 to-pink-100/40 ring-1 ring-pink-200 rounded-xl p-3">
-        <div class="text-[10px] uppercase tracking-wider font-bold text-pink-700 mb-1">Costo Maquillaje</div>
-        <div class="text-xl font-bold tabular-nums text-pink-900">S/ 9,200<span class="text-pink-400">.00</span></div>
-        <div class="text-[11px] text-pink-700/80">4 empleados</div>
-      </div>
-      <div class="bg-gradient-to-br from-amber-50 to-amber-100/40 ring-1 ring-amber-200 rounded-xl p-3">
-        <div class="text-[10px] uppercase tracking-wider font-bold text-amber-700 mb-1">Costo Fragancias</div>
-        <div class="text-xl font-bold tabular-nums text-amber-900">S/ 2,500<span class="text-amber-400">.00</span></div>
-        <div class="text-[11px] text-amber-700/80">1 empleado</div>
-      </div>
-      <div class="bg-gradient-to-br from-slate-50 to-slate-100/40 ring-1 ring-slate-200 rounded-xl p-3">
-        <div class="text-[10px] uppercase tracking-wider font-bold text-slate-700 mb-1">Compartidos</div>
-        <div class="text-xl font-bold tabular-nums text-slate-900">S/ 7,500<span class="text-slate-400">.00</span></div>
-        <div class="text-[11px] text-slate-700/80">1 empleado · CEO</div>
-      </div>
+  <!-- DELTA 2 · chip de línea en cada boleta (tab Boletas existente) -->
+  <div class="bg-white rounded-2xl ring-2 ring-dashed ring-teal-400 shadow-sm p-5">
+    <div class="flex items-center gap-2 mb-3">
+      <span class="text-[10px] uppercase tracking-widest font-bold text-white bg-teal-600 px-2 py-1 rounded flex items-center gap-1"><i data-lucide="plus" class="w-3 h-3"></i> Delta 2</span>
+      <span class="text-[12px] font-semibold text-slate-700">Chip de línea en cada boleta/adelanto · dentro de las cards que YA existen</span>
     </div>
-
-    <!-- Tabla con columna Línea -->
-    <div class="ring-1 ring-slate-200 rounded-xl overflow-hidden">
-      <table class="w-full text-sm">
-        <thead class="bg-slate-50 text-[11px] uppercase tracking-wider font-bold text-slate-600">
-          <tr>
-            <th class="text-left px-3 py-2.5">Empleado</th>
-            <th class="text-left px-3 py-2.5">Cargo</th>
-            <th class="text-left px-3 py-2.5">Línea(s)</th>
-            <th class="text-right px-3 py-2.5">Sueldo</th>
-            <th class="text-center px-3 py-2.5">Estado</th>
-          </tr>
-        </thead>
-        <tbody class="text-slate-800 divide-y divide-slate-100">
-          <tr>
-            <td class="px-3 py-2.5 font-semibold">Marcos Castillo</td>
-            <td class="px-3 py-2.5 text-slate-600">Asistente bodega</td>
-            <td class="px-3 py-2.5">
-              <span class="inline-flex items-center gap-1 text-[11px] font-semibold bg-teal-50 text-teal-700 px-2 py-0.5 rounded-full">
-                <div class="w-1.5 h-1.5 rounded-full bg-teal-500"></div> Skincare
-              </span>
-              <span class="inline-flex items-center gap-1 text-[11px] font-semibold bg-pink-50 text-pink-700 px-2 py-0.5 rounded-full ml-1">
-                <div class="w-1.5 h-1.5 rounded-full bg-pink-500"></div> Maquillaje
-              </span>
-            </td>
-            <td class="px-3 py-2.5 text-right tabular-nums font-semibold">S/ 2,300<span class="text-slate-400">.00</span></td>
-            <td class="px-3 py-2.5 text-center"><span class="text-[10px] bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full font-semibold">Activo</span></td>
-          </tr>
-          <tr>
-            <td class="px-3 py-2.5 font-semibold">Ana Quispe</td>
-            <td class="px-3 py-2.5 text-slate-600">Marketing digital</td>
-            <td class="px-3 py-2.5">
-              <span class="inline-flex items-center gap-1 text-[11px] font-semibold bg-teal-50 text-teal-700 px-2 py-0.5 rounded-full">
-                <div class="w-1.5 h-1.5 rounded-full bg-teal-500"></div> Skincare
-              </span>
-            </td>
-            <td class="px-3 py-2.5 text-right tabular-nums font-semibold">S/ 3,500<span class="text-slate-400">.00</span></td>
-            <td class="px-3 py-2.5 text-center"><span class="text-[10px] bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full font-semibold">Activo</span></td>
-          </tr>
-          <tr>
-            <td class="px-3 py-2.5 font-semibold">José Pérez (CEO)</td>
-            <td class="px-3 py-2.5 text-slate-600">Director general</td>
-            <td class="px-3 py-2.5">
-              <span class="inline-flex items-center gap-1 text-[11px] font-semibold bg-slate-100 text-slate-700 px-2 py-0.5 rounded-full">
-                <i data-lucide="globe" class="w-3 h-3"></i> Compartido
-              </span>
-            </td>
-            <td class="px-3 py-2.5 text-right tabular-nums font-semibold">S/ 7,500<span class="text-slate-400">.00</span></td>
-            <td class="px-3 py-2.5 text-center"><span class="text-[10px] bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full font-semibold">Activo</span></td>
-          </tr>
-        </tbody>
-      </table>
+    <!-- Ejemplo de card boleta existente · solo se agrega el chip -->
+    <div class="ring-1 ring-slate-200 rounded-xl px-4 py-3 flex items-center gap-3">
+      <div class="w-9 h-9 rounded-lg bg-sky-100 flex items-center justify-center"><i data-lucide="file-text" class="w-4 h-4 text-sky-700"></i></div>
+      <div class="flex-1">
+        <div class="flex items-center gap-2">
+          <span class="font-bold text-sm text-slate-900">Boleta · Marcos Castillo</span>
+          <!-- DELTA · chip línea resaltado -->
+          <span class="inline-flex items-center gap-1 text-[10px] font-semibold bg-teal-50 ring-2 ring-teal-400 text-teal-700 px-1.5 py-0.5 rounded-full">
+            <div class="w-1.5 h-1.5 rounded-full bg-teal-500"></div> Skincare
+          </span>
+        </div>
+        <div class="text-[11px] text-slate-500">Julio 2026 · neto S/1,350.00</div>
+      </div>
+      <span class="text-[10px] bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full font-semibold">Pagada</span>
     </div>
+    <p class="text-[11px] text-teal-700/80 mt-2">El resto de la card (icono · nombre · monto · estado) es idéntico a hoy · solo se inserta el chip teal.</p>
   </div>
 </section>
 
-<!-- ─────────── ACTO 7 · /INVERSIONISTAS POR LÍNEA ─────────── -->
+<!-- ─────────── ACTO 7 · DELTA EN /INVERSIONISTAS ─────────── -->
 <section class="canvas py-10 px-6 border-t border-slate-200">
-  <div class="label-acto font-bold text-purple-700 mb-2 uppercase">ACTO 7 · /inversionistas con cap table por línea</div>
-  <h2 class="text-2xl font-bold mb-6">Cap table separado por entidad · empresa global y por línea</h2>
+  <div class="label-acto font-bold text-purple-700 mb-2 uppercase">ACTO 7 · DELTA en /inversionistas · NO crea tabs nuevos</div>
+  <h2 class="text-2xl font-bold mb-2">Qué se AGREGA a inversionistas ya aprobado</h2>
+  <p class="text-slate-600 mb-6 max-w-3xl">
+    Los <strong>7 tabs aprobados se mantienen intactos</strong> (Resumen · Capital · Trayectoria · ROI ·
+    Distribución · Salud · Reportes). NO se crean tabs "por entidad". Solo se inserta 1 filtro de entidad
+    que recalcula los datos de los tabs existentes.
+  </p>
 
-  <div class="bg-white rounded-2xl ring-1 ring-slate-200 shadow-sm p-6">
-    <div class="text-[11px] text-slate-500 mb-2 flex items-center gap-1">
-      <span>Equipo</span><i data-lucide="chevron-right" class="w-3 h-3"></i><span class="font-semibold text-slate-700">Inversionistas</span>
+  <!-- Estructura real INTACTA -->
+  <div class="bg-white rounded-2xl ring-1 ring-slate-200 shadow-sm p-6 mb-4">
+    <div class="flex items-center gap-2 mb-3">
+      <span class="text-[10px] uppercase tracking-widest font-bold text-slate-400 bg-slate-100 px-2 py-1 rounded">Ya existe · no se modifica</span>
     </div>
-    <div class="flex items-end justify-between mb-4">
-      <div>
-        <h1 class="text-2xl font-bold flex items-center gap-2">
-          <i data-lucide="handshake" class="w-5 h-5 text-purple-700"></i>
-          Inversionistas
-        </h1>
-        <p class="text-[13px] text-slate-500">Cap table · distribuciones · evolución por entidad</p>
+    <!-- 7 tabs reales (TabsRow canon) -->
+    <div class="border-b border-slate-200 mb-3">
+      <div class="flex gap-1 flex-wrap">
+        <span class="px-3 py-2 text-[12px] font-bold text-purple-700 border-b-2 border-purple-600">Resumen</span>
+        <span class="px-3 py-2 text-[12px] font-semibold text-slate-500">Capital</span>
+        <span class="px-3 py-2 text-[12px] font-semibold text-slate-500">Trayectoria</span>
+        <span class="px-3 py-2 text-[12px] font-semibold text-slate-500">ROI</span>
+        <span class="px-3 py-2 text-[12px] font-semibold text-slate-500">Distribución</span>
+        <span class="px-3 py-2 text-[12px] font-semibold text-slate-500">Salud</span>
+        <span class="px-3 py-2 text-[12px] font-semibold text-slate-500">Reportes</span>
       </div>
-      <button class="text-[11px] font-bold text-white bg-purple-600 hover:bg-purple-700 px-3 py-1.5 rounded-lg flex items-center gap-1">
-        <i data-lucide="plus" class="w-3 h-3"></i> Nuevo socio
-      </button>
     </div>
+    <div class="space-y-2 text-[11px] text-slate-400">
+      <div class="bg-slate-50 rounded-lg px-3 py-2 ring-1 ring-slate-100">Tab Resumen · Banner Salud (score 0-100) + 3 cards rápidas</div>
+      <div class="bg-slate-50 rounded-lg px-3 py-2 ring-1 ring-slate-100">Tab Capital · cap table con % equity + capital invertido por socio</div>
+    </div>
+  </div>
 
-    <!-- Selector entidad (tabs) -->
-    <div class="border-b border-slate-200 mb-4">
-      <div class="flex gap-1">
-        <button class="px-3 py-2 text-[12px] font-bold text-purple-700 border-b-2 border-purple-600">
-          <i data-lucide="globe" class="w-3 h-3 inline mr-1"></i> Empresa global
-        </button>
-        <button class="px-3 py-2 text-[12px] font-semibold text-slate-600 hover:text-slate-900">
-          <div class="w-2 h-2 rounded-full bg-teal-500 inline-block mr-1"></div> Línea Skincare
-        </button>
-        <button class="px-3 py-2 text-[12px] font-semibold text-slate-600 hover:text-slate-900">
-          <div class="w-2 h-2 rounded-full bg-pink-500 inline-block mr-1"></div> Línea Maquillaje
-        </button>
-        <button class="px-3 py-2 text-[12px] font-semibold text-slate-600 hover:text-slate-900">
-          <div class="w-2 h-2 rounded-full bg-amber-500 inline-block mr-1"></div> Línea Fragancias
-        </button>
-      </div>
+  <!-- DELTA · filtro de entidad (no tabs nuevos) -->
+  <div class="bg-white rounded-2xl ring-2 ring-dashed ring-purple-400 shadow-sm p-5 mb-4">
+    <div class="flex items-center gap-2 mb-3">
+      <span class="text-[10px] uppercase tracking-widest font-bold text-white bg-purple-600 px-2 py-1 rounded flex items-center gap-1"><i data-lucide="plus" class="w-3 h-3"></i> Delta único</span>
+      <span class="text-[12px] font-semibold text-slate-700">Filtro de entidad · arriba del tab activo · recalcula sus datos</span>
     </div>
+    <div class="flex flex-wrap gap-1.5">
+      <button class="text-[12px] font-semibold px-3 py-1.5 rounded-lg bg-purple-600 text-white flex items-center gap-1.5"><i data-lucide="globe" class="w-3 h-3"></i> Empresa global</button>
+      <button class="text-[12px] font-semibold px-3 py-1.5 rounded-lg bg-white ring-1 ring-slate-200 text-slate-700 flex items-center gap-1.5"><div class="w-2 h-2 rounded-full bg-teal-500"></div> Skincare</button>
+      <button class="text-[12px] font-semibold px-3 py-1.5 rounded-lg bg-white ring-1 ring-slate-200 text-slate-700 flex items-center gap-1.5"><div class="w-2 h-2 rounded-full bg-pink-500"></div> Maquillaje</button>
+    </div>
+    <p class="text-[11px] text-purple-700/80 mt-2">
+      Al elegir una entidad, los 7 tabs muestran el cap table / distribuciones / ROI de ESA entidad ·
+      mismo layout, datos filtrados. Un socio puede estar en empresa global Y en una línea (2 relaciones independientes).
+    </p>
+  </div>
 
-    <!-- Cap table para empresa global -->
-    <div class="grid grid-cols-4 gap-3 mb-5">
-      <div class="bg-gradient-to-br from-purple-50 to-purple-100/40 ring-1 ring-purple-200 rounded-xl p-3">
-        <div class="text-[10px] uppercase tracking-wider font-bold text-purple-700 mb-1">Total equity</div>
-        <div class="text-xl font-bold tabular-nums text-purple-900">100<span class="text-purple-400">%</span></div>
-        <div class="text-[11px] text-purple-700/80">3 socios</div>
-      </div>
-      <div class="bg-gradient-to-br from-emerald-50 to-emerald-100/40 ring-1 ring-emerald-200 rounded-xl p-3">
-        <div class="text-[10px] uppercase tracking-wider font-bold text-emerald-700 mb-1">Capital total</div>
-        <div class="text-xl font-bold tabular-nums text-emerald-900">USD 380K</div>
-        <div class="text-[11px] text-emerald-700/80">Inversión inicial</div>
-      </div>
-      <div class="bg-gradient-to-br from-amber-50 to-amber-100/40 ring-1 ring-amber-200 rounded-xl p-3">
-        <div class="text-[10px] uppercase tracking-wider font-bold text-amber-700 mb-1">Última distribución</div>
-        <div class="text-xl font-bold tabular-nums text-amber-900">USD 45K</div>
-        <div class="text-[11px] text-amber-700/80">Abril 2026</div>
-      </div>
-      <div class="bg-gradient-to-br from-sky-50 to-sky-100/40 ring-1 ring-sky-200 rounded-xl p-3">
-        <div class="text-[10px] uppercase tracking-wider font-bold text-sky-700 mb-1">Próxima fecha</div>
-        <div class="text-xl font-bold tabular-nums text-sky-900">Jul 26</div>
-        <div class="text-[11px] text-sky-700/80">Distribución prevista</div>
-      </div>
+  <!-- DELTA · chip de entidad en card de socio (dentro del cap table existente) -->
+  <div class="bg-white rounded-2xl ring-2 ring-dashed ring-purple-400 shadow-sm p-5">
+    <div class="flex items-center gap-2 mb-3">
+      <span class="text-[10px] uppercase tracking-widest font-bold text-white bg-purple-600 px-2 py-1 rounded flex items-center gap-1"><i data-lucide="plus" class="w-3 h-3"></i> Delta secundario</span>
+      <span class="text-[12px] font-semibold text-slate-700">Chip de entidad en la fila de socio del cap table existente</span>
     </div>
-
-    <div class="ring-1 ring-slate-200 rounded-xl overflow-hidden">
-      <table class="w-full text-sm">
-        <thead class="bg-slate-50 text-[11px] uppercase tracking-wider font-bold text-slate-600">
-          <tr>
-            <th class="text-left px-3 py-2.5">Socio</th>
-            <th class="text-left px-3 py-2.5">Rol</th>
-            <th class="text-right px-3 py-2.5">% equity</th>
-            <th class="text-right px-3 py-2.5">Capital invertido</th>
-          </tr>
-        </thead>
-        <tbody class="text-slate-800 divide-y divide-slate-100">
-          <tr>
-            <td class="px-3 py-2.5 font-semibold">José Pérez</td>
-            <td class="px-3 py-2.5 text-slate-600">Fundador</td>
-            <td class="px-3 py-2.5 text-right tabular-nums font-bold">60.0%</td>
-            <td class="px-3 py-2.5 text-right tabular-nums">USD 200,000</td>
-          </tr>
-          <tr>
-            <td class="px-3 py-2.5 font-semibold">Ana Quispe</td>
-            <td class="px-3 py-2.5 text-slate-600">Co-fundadora</td>
-            <td class="px-3 py-2.5 text-right tabular-nums font-bold">30.0%</td>
-            <td class="px-3 py-2.5 text-right tabular-nums">USD 120,000</td>
-          </tr>
-          <tr>
-            <td class="px-3 py-2.5 font-semibold">Pedro Silva</td>
-            <td class="px-3 py-2.5 text-slate-600">Inversor</td>
-            <td class="px-3 py-2.5 text-right tabular-nums font-bold">10.0%</td>
-            <td class="px-3 py-2.5 text-right tabular-nums">USD 60,000</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <div class="mt-4 bg-purple-50/40 ring-1 ring-purple-200 rounded-xl p-3 flex items-start gap-3">
-      <i data-lucide="info" class="w-4 h-4 text-purple-600 mt-0.5"></i>
-      <div class="text-[12px] text-purple-900">
-        <strong>Pedro Silva también es socio de la Línea Skincare</strong> con 15% adicional ·
-        ese cap table se ve en la tab <em>Línea Skincare</em>. Las relaciones son independientes.
+    <div class="ring-1 ring-slate-200 rounded-xl px-4 py-3 flex items-center gap-3">
+      <div class="w-9 h-9 rounded-lg bg-amber-100 flex items-center justify-center text-amber-700 font-bold text-sm">PS</div>
+      <div class="flex-1">
+        <div class="flex items-center gap-2">
+          <span class="font-bold text-sm text-slate-900">Pedro Silva</span>
+          <span class="text-[11px] text-slate-500">Inversor</span>
+          <!-- DELTA · chip entidad resaltado -->
+          <span class="inline-flex items-center gap-1 text-[10px] font-semibold bg-pink-50 ring-2 ring-pink-400 text-pink-700 px-1.5 py-0.5 rounded-full">
+            <div class="w-1.5 h-1.5 rounded-full bg-pink-500"></div> Maquillaje
+          </span>
+        </div>
       </div>
+      <div class="text-right tabular-nums"><div class="font-bold text-sm">15.0%</div><div class="text-[11px] text-slate-500">USD 40,000</div></div>
     </div>
+    <p class="text-[11px] text-purple-700/80 mt-2">La fila del cap table es idéntica a hoy · solo se inserta el chip de entidad para los socios de línea.</p>
   </div>
 </section>
 
@@ -1246,154 +1174,93 @@
   </div>
 </section>
 
-<!-- ─────────── ACTO 13 · /PERFIL PERSONAL ─────────── -->
+<!-- ─────────── ACTO 13 · DELTA EN /PERFIL PERSONAL ─────────── -->
 <section class="canvas py-10 px-6 border-t border-slate-200">
-  <div class="label-acto font-bold text-purple-700 mb-2 uppercase">ACTO 13 · /perfil personal · "Mis líneas de negocio"</div>
-  <h2 class="text-2xl font-bold mb-6">Cuando la persona se ve A SÍ MISMA · contexto laboral por línea</h2>
-
+  <div class="label-acto font-bold text-purple-700 mb-2 uppercase">ACTO 13 · DELTA en /perfil personal · chips en componentes existentes</div>
+  <h2 class="text-2xl font-bold mb-2">Qué se AGREGA al perfil personal ya aprobado (v5.4)</h2>
   <p class="text-slate-600 mb-6 max-w-3xl">
-    En el módulo /perfil personal (canon banking-grade purple del v5.4), agregamos una sección
-    <strong>"Mi vínculo con cada línea"</strong> que muestra al empleado/socio cómo se relaciona con cada línea de negocio:
-    sus cargos, sueldos por línea, equity si aplica. Auto-adapta por rol.
+    El perfil banking-grade purple (v5.4) mantiene sus componentes aprobados intactos. NO se crea una
+    sección nueva "Mis líneas". Solo se inserta un <strong>chip de línea</strong> en 2 componentes que
+    YA existen: <code class="bg-slate-100 px-1 rounded text-[12px]">MisDatosLaboralesCard</code> y
+    <code class="bg-slate-100 px-1 rounded text-[12px]">MiCapitalSocio</code>.
   </p>
 
-  <div class="bg-white rounded-2xl ring-1 ring-slate-200 shadow-sm p-6 max-w-3xl mx-auto">
-    <!-- Header /perfil canon -->
-    <div class="flex items-start gap-4 pb-5 border-b border-slate-100">
-      <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-teal-500 to-emerald-500 flex items-center justify-center text-white font-bold text-xl">MC</div>
-      <div class="flex-1">
-        <div class="text-[11px] uppercase tracking-wider font-bold text-purple-600 mb-1">Mi perfil · Banking grade</div>
-        <h1 class="font-bold text-2xl text-slate-900">Hola, Marcos</h1>
-        <div class="text-[13px] text-slate-500">Asistente de bodega · activo desde feb 2025</div>
-      </div>
+  <!-- Estructura real INTACTA -->
+  <div class="bg-white rounded-2xl ring-1 ring-slate-200 shadow-sm p-6 mb-4">
+    <div class="flex items-center gap-2 mb-3">
+      <span class="text-[10px] uppercase tracking-widest font-bold text-slate-400 bg-slate-100 px-2 py-1 rounded">Componentes del perfil v5.4 · no se modifican</span>
     </div>
-
-    <!-- Sección "Mis líneas de negocio" -->
-    <div class="pt-5">
-      <div class="flex items-center gap-2 mb-3">
-        <i data-lucide="layers" class="w-4 h-4 text-purple-700"></i>
-        <h2 class="font-bold text-base text-slate-900">Mi vínculo con cada línea</h2>
-      </div>
-      <p class="text-[12px] text-slate-500 mb-4">
-        Trabajás en <strong>2 líneas de negocio</strong> y tenés equity en <strong>1</strong>. Acá ves el detalle.
-      </p>
-
-      <!-- Card línea Skincare -->
-      <div class="ring-1 ring-teal-200 rounded-xl overflow-hidden mb-3">
-        <div class="bg-gradient-to-r from-teal-50 to-teal-100/40 px-4 py-3 flex items-center gap-3">
-          <div class="w-9 h-9 rounded-xl bg-white ring-1 ring-teal-200 flex items-center justify-center">
-            <div class="w-3 h-3 rounded-full bg-teal-500"></div>
-          </div>
-          <div class="flex-1">
-            <div class="font-bold text-teal-900">Línea Skincare</div>
-            <div class="text-[11px] text-teal-700/80">Línea principal · productos propios</div>
-          </div>
-          <span class="text-[10px] font-bold bg-teal-700 text-white px-2 py-0.5 rounded">2 RELACIONES</span>
-        </div>
-        <div class="px-4 py-3 space-y-2 bg-white">
-          <!-- Sub-relación empleado -->
-          <div class="flex items-start gap-2 text-[13px]">
-            <i data-lucide="briefcase" class="w-4 h-4 text-teal-700 mt-0.5"></i>
-            <div class="flex-1">
-              <div class="font-semibold text-slate-900">Empleado · Asistente de bodega</div>
-              <div class="text-[11px] text-slate-500">Sueldo S/1,500.00 · contrato A · desde feb 2025</div>
-            </div>
-          </div>
-          <!-- Sub-relación socio -->
-          <div class="flex items-start gap-2 text-[13px] pt-2 border-t border-teal-50">
-            <i data-lucide="handshake" class="w-4 h-4 text-purple-700 mt-0.5"></i>
-            <div class="flex-1">
-              <div class="font-semibold text-slate-900">Socio · 5% equity Línea Skincare</div>
-              <div class="text-[11px] text-slate-500">USD 30,000 invertidos · desde ene 2025 · última distribución abr 2026: USD 1,500</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Card línea Maquillaje -->
-      <div class="ring-1 ring-pink-200 rounded-xl overflow-hidden mb-3">
-        <div class="bg-gradient-to-r from-pink-50 to-pink-100/40 px-4 py-3 flex items-center gap-3">
-          <div class="w-9 h-9 rounded-xl bg-white ring-1 ring-pink-200 flex items-center justify-center">
-            <div class="w-3 h-3 rounded-full bg-pink-500"></div>
-          </div>
-          <div class="flex-1">
-            <div class="font-bold text-pink-900">Línea Maquillaje</div>
-            <div class="text-[11px] text-pink-700/80">Línea secundaria · colaboración eventual</div>
-          </div>
-          <span class="text-[10px] font-bold bg-pink-700 text-white px-2 py-0.5 rounded">1 RELACIÓN</span>
-        </div>
-        <div class="px-4 py-3 space-y-2 bg-white">
-          <div class="flex items-start gap-2 text-[13px]">
-            <i data-lucide="briefcase" class="w-4 h-4 text-pink-700 mt-0.5"></i>
-            <div class="flex-1">
-              <div class="font-semibold text-slate-900">Empleado · Empacador</div>
-              <div class="text-[11px] text-slate-500">Sueldo S/800.00 · contrato B · desde mar 2026 · medio tiempo</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Resumen total -->
-      <div class="bg-gradient-to-r from-slate-50 to-white ring-1 ring-slate-200 rounded-xl px-4 py-3 flex items-center justify-between">
-        <div>
-          <div class="text-[10px] uppercase tracking-wider font-bold text-slate-500 mb-1">Total combinado</div>
-          <div class="text-lg font-bold tabular-nums text-slate-900">S/ 2,300<span class="text-slate-400">.00</span> <span class="text-[12px] text-slate-500 font-normal">/ mes</span></div>
-        </div>
-        <div class="text-right">
-          <div class="text-[10px] uppercase tracking-wider font-bold text-slate-500 mb-1">+ equity</div>
-          <div class="text-lg font-bold tabular-nums text-purple-700">5% <span class="text-[12px] text-slate-500 font-normal">Skincare</span></div>
-        </div>
-      </div>
-
-      <!-- Hint pedagógico -->
-      <div class="mt-4 bg-purple-50/60 ring-1 ring-purple-200 rounded-xl px-4 py-3 flex items-start gap-3">
-        <i data-lucide="info" class="w-4 h-4 text-purple-600 mt-0.5"></i>
-        <div class="text-[12px] text-purple-900">
-          <strong>¿Por qué tengo 2 contratos?</strong> Tu empleo en Skincare y Maquillaje están separados
-          porque cobrás sueldos distintos en cada línea. Cada boleta es independiente y se contabiliza
-          en su línea respectiva. Hablá con RRHH si querés modificar la división.
-        </div>
-      </div>
+    <div class="space-y-2 text-[11px] text-slate-400">
+      <div class="bg-slate-50 rounded-lg px-3 py-2 ring-1 ring-slate-100">PendientesAccionables · MisBoletasRecientes · MisIncentivos · MisSesionesActivas</div>
+      <div class="bg-slate-50 rounded-lg px-3 py-2 ring-1 ring-slate-100">MisDatosLaboralesCard ← <strong class="text-purple-600">inserta chip de línea aquí</strong></div>
+      <div class="bg-slate-50 rounded-lg px-3 py-2 ring-1 ring-slate-100">MiCapitalSocio ← <strong class="text-purple-600">inserta chip de entidad aquí</strong></div>
     </div>
   </div>
 
-  <!-- Variante CEO (sin línea) -->
-  <div class="mt-8 max-w-3xl mx-auto">
-    <div class="text-[10px] uppercase tracking-wider font-bold text-slate-500 mb-2">Variante · cuando es CEO / compartido</div>
-    <div class="bg-white rounded-2xl ring-1 ring-slate-200 shadow-sm p-6">
-      <div class="flex items-center gap-2 mb-3">
-        <i data-lucide="layers" class="w-4 h-4 text-purple-700"></i>
-        <h2 class="font-bold text-base text-slate-900">Mi vínculo con cada línea</h2>
-      </div>
-
-      <div class="ring-1 ring-slate-200 rounded-xl overflow-hidden">
-        <div class="bg-gradient-to-r from-slate-50 to-slate-100/40 px-4 py-3 flex items-center gap-3">
-          <div class="w-9 h-9 rounded-xl bg-white ring-1 ring-slate-200 flex items-center justify-center">
-            <i data-lucide="globe" class="w-4 h-4 text-slate-600"></i>
+  <!-- DELTA 1 · chip en MisDatosLaboralesCard -->
+  <div class="bg-white rounded-2xl ring-2 ring-dashed ring-purple-400 shadow-sm p-5 mb-4">
+    <div class="flex items-center gap-2 mb-3">
+      <span class="text-[10px] uppercase tracking-widest font-bold text-white bg-purple-600 px-2 py-1 rounded flex items-center gap-1"><i data-lucide="plus" class="w-3 h-3"></i> Delta 1</span>
+      <span class="text-[12px] font-semibold text-slate-700">MisDatosLaboralesCard · chip de línea por cada relación laboral</span>
+    </div>
+    <!-- El componente existente · solo se agrega el chip -->
+    <div class="ring-1 ring-slate-200 rounded-xl p-4 space-y-3">
+      <div class="text-[10px] uppercase tracking-wider font-bold text-slate-500">Mis datos laborales</div>
+      <!-- Relación A (existente) + chip línea (delta) -->
+      <div class="flex items-center gap-2">
+        <i data-lucide="briefcase" class="w-4 h-4 text-sky-700"></i>
+        <div class="flex-1">
+          <div class="flex items-center gap-2">
+            <span class="font-semibold text-sm text-slate-900">Asistente de bodega · contrato A</span>
+            <span class="inline-flex items-center gap-1 text-[10px] font-semibold bg-teal-50 ring-2 ring-teal-400 text-teal-700 px-1.5 py-0.5 rounded-full">
+              <div class="w-1.5 h-1.5 rounded-full bg-teal-500"></div> Skincare
+            </span>
           </div>
-          <div class="flex-1">
-            <div class="font-bold text-slate-900">Compartido · todas las líneas</div>
-            <div class="text-[11px] text-slate-500">Rol transversal · no estás asignado a una línea específica</div>
-          </div>
+          <div class="text-[11px] text-slate-500 tabular-nums">S/ 1,500.00 / mes · desde feb 2025</div>
         </div>
-        <div class="px-4 py-3 bg-white">
-          <div class="flex items-start gap-2 text-[13px]">
-            <i data-lucide="briefcase" class="w-4 h-4 text-teal-700 mt-0.5"></i>
-            <div class="flex-1">
-              <div class="font-semibold text-slate-900">Empleado · Director general (CEO)</div>
-              <div class="text-[11px] text-slate-500">Sueldo S/7,500.00 · sin asignación a línea (el costo se distribuye según contabilidad)</div>
-            </div>
+      </div>
+      <!-- Relación B (existente) + chip línea (delta) -->
+      <div class="flex items-center gap-2 pt-2 border-t border-slate-100">
+        <i data-lucide="briefcase" class="w-4 h-4 text-sky-700"></i>
+        <div class="flex-1">
+          <div class="flex items-center gap-2">
+            <span class="font-semibold text-sm text-slate-900">Empacador · contrato B</span>
+            <span class="inline-flex items-center gap-1 text-[10px] font-semibold bg-pink-50 ring-2 ring-pink-400 text-pink-700 px-1.5 py-0.5 rounded-full">
+              <div class="w-1.5 h-1.5 rounded-full bg-pink-500"></div> Maquillaje
+            </span>
           </div>
-          <div class="flex items-start gap-2 text-[13px] pt-2 border-t border-slate-100 mt-2">
-            <i data-lucide="handshake" class="w-4 h-4 text-purple-700 mt-0.5"></i>
-            <div class="flex-1">
-              <div class="font-semibold text-slate-900">Socio · 60% Empresa global</div>
-              <div class="text-[11px] text-slate-500">USD 200,000 invertidos · cap table principal</div>
-            </div>
-          </div>
+          <div class="text-[11px] text-slate-500 tabular-nums">S/ 800.00 / mes · desde mar 2026</div>
         </div>
       </div>
     </div>
+    <p class="text-[11px] text-purple-700/80 mt-2">La card ya muestra cargo + sueldo + fecha · solo se inserta el chip de línea junto al cargo.</p>
+  </div>
+
+  <!-- DELTA 2 · chip en MiCapitalSocio -->
+  <div class="bg-white rounded-2xl ring-2 ring-dashed ring-purple-400 shadow-sm p-5">
+    <div class="flex items-center gap-2 mb-3">
+      <span class="text-[10px] uppercase tracking-widest font-bold text-white bg-purple-600 px-2 py-1 rounded flex items-center gap-1"><i data-lucide="plus" class="w-3 h-3"></i> Delta 2</span>
+      <span class="text-[12px] font-semibold text-slate-700">MiCapitalSocio · chip de entidad (empresa global o línea)</span>
+    </div>
+    <div class="ring-1 ring-slate-200 rounded-xl p-4">
+      <div class="text-[10px] uppercase tracking-wider font-bold text-slate-500 mb-2">Mi capital como socio</div>
+      <div class="flex items-center gap-2">
+        <i data-lucide="handshake" class="w-4 h-4 text-purple-700"></i>
+        <div class="flex-1">
+          <div class="flex items-center gap-2">
+            <span class="font-semibold text-sm text-slate-900">5% equity</span>
+            <span class="inline-flex items-center gap-1 text-[10px] font-semibold bg-teal-50 ring-2 ring-teal-400 text-teal-700 px-1.5 py-0.5 rounded-full">
+              <div class="w-1.5 h-1.5 rounded-full bg-teal-500"></div> Cap table Skincare
+            </span>
+          </div>
+          <div class="text-[11px] text-slate-500 tabular-nums">USD 30,000 · última distribución abr 2026: USD 1,500</div>
+        </div>
+      </div>
+    </div>
+    <p class="text-[11px] text-purple-700/80 mt-2">
+      El componente ya muestra equity + capital + distribuciones · solo se aclara DE QUÉ entidad es el equity
+      con el chip. Para CEO/socio global el chip dice "Empresa global".
+    </p>
   </div>
 </section>
 
