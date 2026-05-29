@@ -64,6 +64,27 @@ function fmtMoneda(monto: number | undefined, moneda: 'PEN' | 'USD' | undefined)
   return `${simbolo}${monto.toLocaleString('es-PE', { maximumFractionDigits: 0 })}`;
 }
 
+/**
+ * Chip de línea de negocio · chk5-LINEAS.
+ * Muestra el nombre + color de la línea desde el snapshot desnormalizado.
+ * Si no hay línea (compartido / empresa global) NO renderiza nada (es el default).
+ */
+const LineaChip: React.FC<{ relacion: RelacionLaboral }> = ({ relacion: r }) => {
+  const snap = r.lineaNegocioSnapshot;
+  if (!snap) return null; // compartido · sin chip (default)
+  const color = snap.lineaNegocioColor || '#94a3b8';
+  return (
+    <span
+      className="inline-flex items-center gap-1 text-[9px] font-semibold px-1.5 py-0.5 rounded-full ring-1"
+      style={{ backgroundColor: `${color}1a`, color, borderColor: `${color}55` }}
+      title={`Línea de negocio: ${snap.lineaNegocioNombre}`}
+    >
+      <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: color }} />
+      {snap.lineaNegocioNombre}
+    </span>
+  );
+};
+
 function diasEntre(inicio: { toMillis: () => number } | undefined, fin?: { toMillis: () => number } | null): string {
   if (!inicio) return '—';
   const inicioMs = inicio.toMillis();
@@ -111,6 +132,7 @@ export const RelacionCard: React.FC<RelacionCardProps> = ({
                   {MOTIVO_FIN_LABELS[r.motivoFin]}
                 </span>
               )}
+              <LineaChip relacion={r} />
             </div>
             <div className="text-[11px] text-slate-500 mt-1">
               {fmtFecha(r.fechaInicio)} → {fmtFecha(r.fechaFin)} · {diasEntre(r.fechaInicio, r.fechaFin)} de duración
@@ -153,6 +175,7 @@ export const RelacionCard: React.FC<RelacionCardProps> = ({
             {r.cargoDisplay && (
               <span className={`text-sm font-normal ${colors.text} opacity-90`}>· {r.cargoDisplay}</span>
             )}
+            <LineaChip relacion={r} />
             <span
               className={`text-[9px] ${ESTADO_RELACION_COLORS[r.estado].bg} ${ESTADO_RELACION_COLORS[r.estado].text} px-1.5 py-0.5 rounded-full font-bold ml-auto flex-shrink-0`}
             >

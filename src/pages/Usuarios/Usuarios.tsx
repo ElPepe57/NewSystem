@@ -1062,6 +1062,44 @@ export const Usuarios: React.FC = () => {
                         </div>
                       );
                     })()}
+
+                    {/* chk5-LINEAS · chips de línea de negocio · derivados de relaciones vigentes
+                        con snapshot. Solo se muestra si al menos una relación tiene línea específica
+                        (negocio que usa líneas) · evita ruido en negocios sin líneas. */}
+                    {(() => {
+                      const rels = relacionesByUid[u.uid] || [];
+                      const vigentes = getRelacionesActivasHelper(rels);
+                      // Líneas únicas (por id) de las relaciones vigentes con snapshot
+                      const lineasMap = new Map<string, { nombre: string; color: string }>();
+                      vigentes.forEach((r) => {
+                        const snap = r.lineaNegocioSnapshot;
+                        if (snap) {
+                          lineasMap.set(snap.lineaNegocioId, {
+                            nombre: snap.lineaNegocioNombre,
+                            color: snap.lineaNegocioColor || '#94a3b8',
+                          });
+                        }
+                      });
+                      if (lineasMap.size === 0) return null;
+                      return (
+                        <div className="flex items-center gap-1 flex-wrap mt-1.5">
+                          <span className="text-[9px] uppercase tracking-wider font-bold text-slate-400 mr-0.5">
+                            Líneas:
+                          </span>
+                          {Array.from(lineasMap.entries()).map(([id, l]) => (
+                            <span
+                              key={id}
+                              className="text-[10px] font-semibold px-2 py-0.5 rounded-full inline-flex items-center gap-1 ring-1"
+                              style={{ backgroundColor: `${l.color}1a`, color: l.color, borderColor: `${l.color}55` }}
+                              title={`Línea de negocio: ${l.nombre}`}
+                            >
+                              <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: l.color }} />
+                              {l.nombre}
+                            </span>
+                          ))}
+                        </div>
+                      );
+                    })()}
                   </div>
 
                   {/* Acciones derecha */}
