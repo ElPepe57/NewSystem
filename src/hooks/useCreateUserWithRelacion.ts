@@ -1,5 +1,5 @@
 /**
- * useCreateUserWithRelacion.ts · chk5.PERSONAS-v5.8 · E1 (2026-05-28)
+ * useCreateUserWithRelacion.ts · chk5.PERSONAS-v5.8 · E1-extended (2026-05-28)
  *
  * Hook compartido para crear un UserProfile + RelacionLaboral inicial
  * desde modales contextuales (NuevoEmpleadoModal · NuevoSocioModal).
@@ -9,6 +9,10 @@
  *  2. Si email ya existe → orphan recovery vía userService.getByEmail
  *  3. Verificar que no tenga relación vigente del mismo tipo (evita duplicados reales)
  *  4. relacionesLaboralesService.create con los datos de la relación
+ *
+ * Métodos adicionales (E1-extended):
+ *  - lookupUserByEmail(email) → detecta user existente + sus relaciones vigentes
+ *  - addRelacionToExisting(uid, input) → crea solo la relación en un user ya existente
  *
  * NO toca el backend · solo consume services existentes.
  */
@@ -24,6 +28,7 @@ import type {
   CrearRelacionInput,
   EntidadMaestroRef,
   TipoEntidadMaestro,
+  RelacionLaboral,
 } from '../types/relacionLaboral.types';
 
 // ═════════════════════════════════════════════════════════════════════════
@@ -56,6 +61,22 @@ export interface CreateUserWithRelacionResult {
   uid: string;
   esOrphanRecovery: boolean;
 }
+
+/** Resultado de lookupUserByEmail */
+export interface LookupUserResult {
+  user: UserProfile | null;
+  relacionesVigentes: RelacionLaboral[];
+}
+
+/**
+ * Input para addRelacionToExisting.
+ * Mismos campos relacionales que CreateUserWithRelacionInput pero sin
+ * los datos personales (displayName · email · telefono · password · rol).
+ */
+export type AddRelacionToExistingInput = Omit<
+  CreateUserWithRelacionInput,
+  'displayName' | 'email' | 'telefono' | 'password' | 'rol'
+>;
 
 // ═════════════════════════════════════════════════════════════════════════
 // HOOK
@@ -154,7 +175,74 @@ export function useCreateUserWithRelacion(creadoPor: string) {
     }
   };
 
+  // ─── lookupUserByEmail ───────────────────────────────────────────────────
+  /**
+   * Busca un user por email y recupera sus relaciones laborales vigentes.
+   * Silencioso: si el email es incompleto devuelve { user: null, relacionesVigentes: [] }.
+   * Solo lanza si hay un error real de red/Firestore.
+   */
+  const lookupUserByEmail = async (email: string): Promise<LookupUserResult> => {
+    const normalized = email.trim().toLowerCase();
+    if (!normalized.includes('@') || !normalized.includes('.')) {
+      return { user: null, relacionesVigentes: [] };
+    }
+
+    try {
+      const user = await userService.getByEmail(normalized);
+      if (!user) return { user: null, relacionesVigentes: [] };
+      const relacionesVigentes = await relacionesLaboralesService.listVigentesByUser(user.uid);
+      return { user, relacionesVigentes };
+    } catch (err) {
+      console.warn('[useCreateUserWithRelacion] lookupUserByEmail error:', err);
+      return { user: null, relacionesVigentes: [] };
+    }
+  };
+
+  // ─── addRelacionToExisting ───────────────────────────────────────────────
+  /**
+   * Crea SOLO una RelacionLaboral para un user que ya existe.
+   * No crea ni modifica el UserProfile.
+   * Replica la lógica de construcción del relacionInput del método create().
+   */
+  const addRelacionToExisting = async (
+    uid: string,
+    input: AddRelacionToExistingInput,
+  ): Promise<{ uid: string }> => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const relacionInput: CrearRelacionInput = {
+        userId: uid,
+        tipo: input.tipo,
+        subTipo: input.subTipo,
+        estado: 'vigente',
+        fechaInicio: input.fechaInicio ?? Timestamp.now(),
+        cargoDisplay: input.cargoDisplay?.trim() || undefined,
+        montoMensualReferencia:
+          input.montoMensualReferencia !== undefined && input.montoMensualReferencia > 0
+            ? input.montoMensualReferencia
+            : undefined,
+        monedaReferencia:
+          input.montoMensualReferencia !== undefined && input.montoMensualReferencia > 0
+            ? (input.monedaReferencia ?? 'PEN')
+            : undefined,
+        notas: input.notas?.trim() || undefined,
+        entidadMaestroRef: input.entidadMaestroRef,
+      };
+
+      await relacionesLaboralesService.create(relacionInput, creadoPor);
+      return { uid };
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Error al agregar relación';
+      setError(msg);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const clearError = () => setError(null);
 
-  return { create, loading, error, clearError };
+  return { create, lookupUserByEmail, addRelacionToExisting, loading, error, clearError };
 }

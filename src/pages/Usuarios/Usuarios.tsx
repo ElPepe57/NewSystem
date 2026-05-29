@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import {
   Users, Shield, UserCheck, UserX, Edit2, X, Eye, Search,
   Key, LogOut, Trash2, Clock, CheckCircle, Loader2, MoreHorizontal,
@@ -91,6 +91,7 @@ type ModalType =
 
 export const Usuarios: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   // ─── Estado del shell ─────────────────────────────────────────────────
   const [usuarios, setUsuarios] = useState<UserProfile[]>([]);
   const [loading, setLoading] = useState(true);
@@ -243,6 +244,18 @@ export const Usuarios: React.FC = () => {
       setFilterRole(rawFilter as FiltroRol);
     }
   }, []);
+
+  // chk5.PERSONAS-v5.8 · E3/E4 · deep-link desde NuevoEmpleadoModal/NuevoSocioModal
+  // cuando el user intenta crear alguien que ya tiene relación vigente.
+  // navigate('/usuarios', { state: { openUid: uid } }) → abre UserPanel directo.
+  useEffect(() => {
+    const state = location.state as { openUid?: string } | null;
+    if (state?.openUid) {
+      setPanelUid(state.openUid);
+      // Limpiar el state para que no re-abra en navegaciones posteriores
+      navigate(location.pathname, { replace: true, state: null });
+    }
+  }, [location.state]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Auto-hide success message
   useEffect(() => {

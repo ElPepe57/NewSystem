@@ -26,6 +26,12 @@ export interface DatosPersonalesFieldsProps {
   values: DatosPersonalesValues;
   onChange: (field: keyof DatosPersonalesValues, value: string) => void;
   errors?: Partial<Record<keyof DatosPersonalesValues, string>>;
+  /**
+   * Oculta el campo Email del bloque de datos personales.
+   * Usado cuando el email ya está capturado por EmailUserLookup arriba del modal.
+   * Default: false (muestra el campo normalmente).
+   */
+  hideEmail?: boolean;
 }
 
 // ═════════════════════════════════════════════════════════════════════════
@@ -64,6 +70,7 @@ export const DatosPersonalesFields: React.FC<DatosPersonalesFieldsProps> = ({
   values,
   onChange,
   errors,
+  hideEmail = false,
 }) => {
   return (
     <div className="space-y-3">
@@ -83,22 +90,24 @@ export const DatosPersonalesFields: React.FC<DatosPersonalesFieldsProps> = ({
         />
       </Field>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <Field
-          label="Email"
-          icon={Mail}
-          required
-          error={errors?.email}
-        >
-          <input
-            type="email"
-            value={values.email}
-            onChange={(e) => onChange('email', e.target.value)}
-            placeholder="carlos@empresa.pe"
-            className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-teal-500"
-            autoComplete="email"
-          />
-        </Field>
+      <div className={hideEmail ? '' : 'grid grid-cols-1 sm:grid-cols-2 gap-3'}>
+        {!hideEmail && (
+          <Field
+            label="Email"
+            icon={Mail}
+            required
+            error={errors?.email}
+          >
+            <input
+              type="email"
+              value={values.email}
+              onChange={(e) => onChange('email', e.target.value)}
+              placeholder="carlos@empresa.pe"
+              className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-teal-500"
+              autoComplete="email"
+            />
+          </Field>
+        )}
 
         <Field
           label="Teléfono"
