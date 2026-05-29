@@ -49,6 +49,9 @@ import {
 import {
   InfoRelevantePanel,
 } from '../../usuarios/forms/InfoRelevantePanel';
+import {
+  BannerQueSeCreara,
+} from '../../usuarios/forms/BannerQueSeCreara';
 import { borradorWizardService } from '../../../services/borradorWizard.service';
 import { userService } from '../../../services/user.service';
 import { useAuthStore } from '../../../store/authStore';
@@ -442,6 +445,14 @@ export const NuevoSocioModal: React.FC<NuevoSocioModalProps> = ({
           tipoModal="socio"
           error={errors.personales?.email}
         />
+
+        {/* ── Banner pedagógico · matiza qué se va a crear · NO en modo blocked ── */}
+        {!modoBlocked && (
+          <BannerQueSeCreara
+            tipoRelacion="socio"
+            nombreUserExistente={modoAgregarRelacion && userExistente ? userExistente.displayName : null}
+          />
+        )}
 
         {/* Banner bloqueado · CTA al UserPanel */}
         {modoBlocked && userExistente && (

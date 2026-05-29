@@ -51,6 +51,9 @@ import {
 import {
   InfoRelevantePanel,
 } from '../../usuarios/forms/InfoRelevantePanel';
+import {
+  BannerQueSeCreara,
+} from '../../usuarios/forms/BannerQueSeCreara';
 import { borradorWizardService } from '../../../services/borradorWizard.service';
 import { userService } from '../../../services/user.service';
 import { useAuthStore } from '../../../store/authStore';
@@ -506,6 +509,14 @@ export const NuevoEmpleadoModal: React.FC<NuevoEmpleadoModalProps> = ({
           tipoModal="empleado"
           error={errors.personales?.email}
         />
+
+        {/* ── Banner pedagógico · matiza qué se va a crear · NO se muestra en modo blocked ── */}
+        {!modoBlocked && (
+          <BannerQueSeCreara
+            tipoRelacion="empleado"
+            nombreUserExistente={modoAgregarRelacion && userExistente ? userExistente.displayName : null}
+          />
+        )}
 
         {/* Banner bloqueado · CTA al UserPanel */}
         {modoBlocked && userExistente && (
