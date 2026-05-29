@@ -264,6 +264,9 @@ export const NuevoSocioModal: React.FC<NuevoSocioModalProps> = ({
       setEmailInput(query);
     } else {
       setPersonales((prev) => ({ ...prev, displayName: query }));
+      // chk5.PERSONAS-v5.x · limpiar emailInput cuando el query era nombre.
+      // Sin esto, el campo email del form arrancaba con el nombre (UX confuso).
+      setEmailInput('');
     }
   };
 

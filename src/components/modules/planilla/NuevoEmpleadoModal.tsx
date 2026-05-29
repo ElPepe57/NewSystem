@@ -286,12 +286,17 @@ export const NuevoEmpleadoModal: React.FC<NuevoEmpleadoModalProps> = ({
     // Resetear user existente
     setUserExistente(null);
     setRelacionesVigentes([]);
-    // Pre-llenar según si es email o nombre
+    // Pre-llenar según si es email o nombre · NO mezclar emailInput con displayName
     const isEmail = query.includes('@');
     if (isEmail) {
       setEmailInput(query);
     } else {
       setPersonales((prev) => ({ ...prev, displayName: query }));
+      // chk5.PERSONAS-v5.x · limpiar emailInput · si el query era nombre,
+      // el campo email del form debe arrancar VACÍO (no con el nombre).
+      // Sin esta línea, values.email = emailInput = "Marcos Perez" y se
+      // rellenaba el campo email con el nombre · UX confuso.
+      setEmailInput('');
     }
   };
 
