@@ -7,22 +7,17 @@
  * Reemplaza el modal 'edit-permisos' legacy con tabs internas embebidas.
  */
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import {
-  Pencil, Briefcase, BriefcaseBusiness, ChevronRight, Trash2, AlertTriangle,
+  Pencil, Trash2, AlertTriangle, Users,
 } from 'lucide-react';
 import { FormModalV2 } from '../../../design-system/components/FormModalV2';
 import RolesMultiSelect from './RolesMultiSelect';
 import { userService } from '../../../services/user.service';
-import { datosLaboralesService } from '../../../services/datosLaborales.service';
-import { datosSocioService } from '../../../services/datosSocio.service';
 import { useAuthStore } from '../../../store/authStore';
 import {
   type UserProfile, type UserRole,
-  getUserRoles, calcularPermisosDeRoles, hasRole,
+  getUserRoles, calcularPermisosDeRoles,
 } from '../../../types/auth.types';
-import type { DatosLaborales } from '../../../types/datosLaborales.types';
-import type { DatosSocio } from '../../../types/datosSocio.types';
 
 interface Props {
   isOpen: boolean;
@@ -36,7 +31,6 @@ interface Props {
 export default function EditarUsuarioModal({
   isOpen, onClose, user, onSuccess, onError, onRequestDelete,
 }: Props) {
-  const navigate = useNavigate();
   const currentUser = useAuthStore((s) => s.userProfile);
   const isSelf = user?.uid === currentUser?.uid;
 
@@ -44,8 +38,6 @@ export default function EditarUsuarioModal({
   const [telefono, setTelefono] = useState('');
   const [cargo, setCargo] = useState('');
   const [roles, setRoles] = useState<UserRole[]>([]);
-  const [datosLab, setDatosLab] = useState<DatosLaborales | null>(null);
-  const [datosSoc, setDatosSoc] = useState<DatosSocio | null>(null);
   const [saving, setSaving] = useState(false);
 
   // Cargar datos al abrir
@@ -55,8 +47,6 @@ export default function EditarUsuarioModal({
       setTelefono('');
       setCargo('');
       setRoles([]);
-      setDatosLab(null);
-      setDatosSoc(null);
       return;
     }
     setDisplayName(user.displayName || '');
@@ -64,22 +54,9 @@ export default function EditarUsuarioModal({
     setCargo(user.cargo || '');
     const initialRoles = getUserRoles(user);
     setRoles(initialRoles.length > 0 ? initialRoles : ['invitado']);
-
-    // Cargar sub-perfiles en paralelo
-    Promise.all([
-      datosLaboralesService.get(user.uid).catch(() => null),
-      datosSocioService.get(user.uid).catch(() => null),
-    ]).then(([lab, soc]) => {
-      setDatosLab(lab);
-      setDatosSoc(soc);
-    });
   }, [isOpen, user]);
 
   if (!user) return null;
-
-  const tieneRolPlanilla = roles.some((r) =>
-    ['vendedor', 'comprador', 'almacenero', 'finanzas', 'supervisor'].includes(r));
-  const tieneRolSocio = roles.includes('socio');
 
   const handleSave = async () => {
     if (saving) return;
@@ -234,75 +211,22 @@ export default function EditarUsuarioModal({
           )}
         </section>
 
-        {/* ─── SUB-PERFILES · drill cards ─── */}
+        {/* ─── RELACIONES · gestión en el modelo nuevo (RelacionLaboral) ───
+            chk5.PERSONAS-v5.x-LINEAS · 2026-05-29 · Las cards legacy "Datos de
+            socio" + "Datos laborales" (modelo viejo de sub-perfiles singulares)
+            se eliminaron. Esos datos ahora viven en las RelacionLaboral · se
+            gestionan desde el tab Relaciones del perfil (UserPanel · "Ver perfil").
+            Este modal queda enfocado solo en datos básicos + roles del UserProfile. */}
         <section>
-          <div className="text-[10px] uppercase tracking-wider text-slate-700 font-bold mb-2">
-            Sub-perfiles · drill a página dedicada
-          </div>
-          <div className="space-y-2">
-            {/* Datos socio */}
-            {tieneRolSocio ? (
-              <button
-                type="button"
-                onClick={() => goToDrill(`/usuarios/${user.uid}/editar/socio`)}
-                className="w-full bg-violet-50/50 border border-violet-200 hover:bg-violet-50 hover:border-violet-300 rounded-lg p-3 flex items-center gap-3 text-left transition-colors"
-              >
-                <Briefcase className="w-5 h-5 text-violet-600 flex-shrink-0" />
-                <div className="flex-1 min-w-0">
-                  <div className="text-[12px] font-bold text-slate-900">Datos de socio (D7)</div>
-                  <div className="text-[10px] text-violet-700 truncate">
-                    {datosSoc
-                      ? `${datosSoc.tipoParticipacion} · ${datosSoc.porcentajeParticipacion}% participación`
-                      : 'No configurado todavía · click para crear'}
-                  </div>
-                </div>
-                <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${datosSoc ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>
-                  {datosSoc ? 'CONFIGURADO' : 'PENDIENTE'}
-                </span>
-                <ChevronRight className="w-4 h-4 text-violet-600 flex-shrink-0" />
-              </button>
-            ) : (
-              <div className="bg-slate-50 border border-dashed border-slate-300 rounded-lg p-3 flex items-center gap-3">
-                <Briefcase className="w-5 h-5 text-slate-400" />
-                <div className="flex-1">
-                  <div className="text-[12px] font-bold text-slate-500">Datos de socio</div>
-                  <div className="text-[10px] text-slate-400">No aplica · sin rol socio asignado</div>
-                </div>
-                <span className="text-[10px] bg-slate-200 text-slate-600 font-bold px-2 py-0.5 rounded">N/A</span>
-              </div>
-            )}
-
-            {/* Datos laborales */}
-            {tieneRolPlanilla ? (
-              <button
-                type="button"
-                onClick={() => goToDrill(`/usuarios/${user.uid}/editar/laborales`)}
-                className="w-full bg-sky-50/50 border border-sky-200 hover:bg-sky-50 hover:border-sky-300 rounded-lg p-3 flex items-center gap-3 text-left transition-colors"
-              >
-                <BriefcaseBusiness className="w-5 h-5 text-sky-600 flex-shrink-0" />
-                <div className="flex-1 min-w-0">
-                  <div className="text-[12px] font-bold text-slate-900">Datos laborales</div>
-                  <div className="text-[10px] text-sky-700 truncate">
-                    {datosLab
-                      ? `${datosLab.area || 'Sin área'} · ${datosLab.modalidad || 'sin modalidad'}`
-                      : 'No configurado todavía · click para crear'}
-                  </div>
-                </div>
-                <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${datosLab ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>
-                  {datosLab ? 'CONFIGURADO' : 'PENDIENTE'}
-                </span>
-                <ChevronRight className="w-4 h-4 text-sky-600 flex-shrink-0" />
-              </button>
-            ) : (
-              <div className="bg-slate-50 border border-dashed border-slate-300 rounded-lg p-3 flex items-center gap-3">
-                <BriefcaseBusiness className="w-5 h-5 text-slate-400" />
-                <div className="flex-1">
-                  <div className="text-[12px] font-bold text-slate-500">Datos laborales</div>
-                  <div className="text-[10px] text-slate-400">No aplica · sin rol de planilla</div>
-                </div>
-                <span className="text-[10px] bg-slate-200 text-slate-600 font-bold px-2 py-0.5 rounded">N/A</span>
-              </div>
-            )}
+          <div className="bg-slate-50 ring-1 ring-slate-200 rounded-lg p-3 flex items-start gap-2.5">
+            <Users className="w-4 h-4 text-slate-500 flex-shrink-0 mt-0.5" />
+            <div className="text-[11px] text-slate-600 leading-relaxed">
+              <strong className="text-slate-800">Relaciones laborales y societarias.</strong> El cargo,
+              sueldo, equity, línea de negocio y demás datos de cada vínculo (empleado · socio ·
+              honorarios) se gestionan desde el <strong>tab Relaciones</strong> del perfil ·
+              cerrá este modal y abrí <strong>"Ver perfil"</strong>. Acá solo se editan los datos
+              básicos y los roles del sistema.
+            </div>
           </div>
         </section>
       </div>

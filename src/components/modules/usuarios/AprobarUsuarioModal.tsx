@@ -7,7 +7,6 @@
  * RolesMultiSelect canon + 2 botones (Aprobar y configurar después / Aprobar y configurar).
  */
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { UserCheck, Globe, Mail, Info } from 'lucide-react';
 import { getFunctions, httpsCallable } from 'firebase/functions';
 import { FormModalV2 } from '../../../design-system/components/FormModalV2';
@@ -26,7 +25,6 @@ interface Props {
 }
 
 export default function AprobarUsuarioModal({ isOpen, onClose, user, onSuccess, onError }: Props) {
-  const navigate = useNavigate();
   const [rolesAsignados, setRolesAsignados] = useState<UserRole[]>([]);
   const [saving, setSaving] = useState(false);
 
@@ -39,7 +37,7 @@ export default function AprobarUsuarioModal({ isOpen, onClose, user, onSuccess, 
   const esSelfSignup = user.origen === 'self_signup';
   const estado = getUserEstado(user);
 
-  const aprobar = async (continuarADrill: boolean) => {
+  const aprobar = async () => {
     if (!isValid || saving) return;
     setSaving(true);
     try {
@@ -50,15 +48,9 @@ export default function AprobarUsuarioModal({ isOpen, onClose, user, onSuccess, 
       await fn({ uid: user.uid, rolesAsignados });
       onSuccess?.(`"${user.displayName}" aprobado · email enviado`);
       onClose();
-
-      // Auto-continuación a drill page si rol = planilla/socio
-      if (continuarADrill) {
-        if (rolesAsignados.includes('socio')) {
-          navigate(`/usuarios/${user.uid}/editar/socio`);
-        } else if (rolesAsignados.some((r) => ['vendedor', 'comprador', 'almacenero', 'finanzas', 'supervisor'].includes(r))) {
-          navigate(`/usuarios/${user.uid}/editar/laborales`);
-        }
-      }
+      // chk5.PERSONAS-v5.x-LINEAS · 2026-05-29 · se removió la auto-continuación a las
+      // drill pages legacy (editar/laborales · editar/socio). Las relaciones laborales
+      // y societarias se gestionan ahora desde el tab Relaciones del perfil (UserPanel).
     } catch (err) {
       onError?.(err instanceof Error ? err.message : 'Error al aprobar');
     } finally {
@@ -70,27 +62,17 @@ export default function AprobarUsuarioModal({ isOpen, onClose, user, onSuccess, 
     <FormModalV2
       isOpen={isOpen}
       onClose={onClose}
-      onSubmit={() => aprobar(true)}
+      onSubmit={() => aprobar()}
       title={`Aprobar · ${user.displayName}`}
       subtitle="Asigná roles antes de activar"
       icon={UserCheck}
       iconTone="emerald"
       size="md"
-      submitLabel="Aprobar y configurar"
+      submitLabel="Aprobar y activar"
       submitVariant="success-soft"
       submitIcon={UserCheck}
       loading={saving}
       disabled={!isValid}
-      footerExtras={
-        <button
-          type="button"
-          onClick={() => aprobar(false)}
-          disabled={!isValid || saving}
-          className="text-[11px] text-emerald-700 hover:text-emerald-900 font-bold underline disabled:opacity-50"
-        >
-          Aprobar · configurar después
-        </button>
-      }
     >
       <div className="space-y-4">
         {/* Info del usuario */}

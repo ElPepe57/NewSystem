@@ -68,9 +68,9 @@ const Inversionistas = React.lazy(() => import('./pages/Inversionistas/Inversion
 // chk5.F4-USERS · DEPRECATED · Ficha 360 ahora vive como modal in-place desde /usuarios
 // (Ficha360Modal · canon F6.A). Esta página queda como fallback hasta deprecación final.
 const Ficha360 = React.lazy(() => import('./pages/Usuarios/Ficha360/Ficha360'));
-// chk5.F4-USERS · 2026-05-25 · drill pages para sub-perfiles (canon F6.B)
-const EditarLaborales = React.lazy(() => import('./pages/Usuarios/EditarLaborales'));
-const EditarSocio = React.lazy(() => import('./pages/Usuarios/EditarSocio'));
+// chk5.PERSONAS-v5.x-LINEAS · 2026-05-29 · drill pages EditarLaborales/EditarSocio
+// ELIMINADAS · eran del modelo viejo de sub-perfiles singulares (datosLaborales/
+// datosSocio). Reemplazadas por RelacionLaboral · gestión en tab Relaciones del UserPanel.
 const ProductosIntel = React.lazy(() => import('./pages/ProductosIntel/ProductosIntel').then(m => ({ default: m.ProductosIntel })));
 const IntelProductosPage = React.lazy(() => import('./pages/IntelProductos').then(m => ({ default: m.IntelProductosPage })));
 const MiPerfil = React.lazy(() => import('./pages/Perfil/MiPerfil').then(m => ({ default: m.MiPerfil })));
@@ -255,9 +255,9 @@ function App() {
               {/* chk5.F2-SUB-PERFILES · Ficha 360 página propia (DEPRECATED · fallback)
                    chk5.F4-USERS · 2026-05-25 · uso preferido: modal in-place desde /usuarios */}
               <Route path="usuarios/:uid/ficha" element={<Ficha360 />} />
-              {/* chk5.F4-USERS · drill pages canon F6.B para sub-perfiles ricos */}
-              <Route path="usuarios/:uid/editar/laborales" element={<EditarLaborales />} />
-              <Route path="usuarios/:uid/editar/socio" element={<EditarSocio />} />
+              {/* chk5.PERSONAS-v5.x-LINEAS · 2026-05-29 · rutas editar/laborales y
+                  editar/socio ELIMINADAS · modelo viejo de sub-perfiles reemplazado
+                  por RelacionLaboral (tab Relaciones del UserPanel). */}
               <Route path="auditoria" element={<Auditoria />} />
               <Route path="configuracion" element={<Configuracion />} />
               <Route path="configuracion/borradores" element={<BorradoresWizardPanel />} />

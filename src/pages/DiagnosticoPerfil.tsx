@@ -67,7 +67,10 @@ export const DiagnosticoPerfil: React.FC = () => {
 
   const handleEditarLaborales = () => {
     if (!profile?.uid) return;
-    navigate(`/usuarios/${profile.uid}/editar/laborales`);
+    // chk5.PERSONAS-v5.x-LINEAS · 2026-05-29 · la ruta editar/laborales se eliminó
+    // (modelo viejo de sub-perfiles). Las relaciones se gestionan desde /usuarios →
+    // Ver perfil → tab Relaciones. Redirigimos al hub para no romper la herramienta.
+    navigate('/usuarios');
   };
 
   const [docCanon, setDocCanon] = useState<DocState>(initialDoc);

@@ -57,7 +57,7 @@ import InvitarPorEmailModal from '../../components/modules/usuarios/InvitarPorEm
 // invoca desde acá. Se elimina en E10 cuando todos los consumidores hayan migrado.
 // import Ficha360Modal from './Ficha360/Ficha360Modal'; // @deprecated chk5.PERSONAS-v5.7
 // chk5.F4-USERS · 2026-05-26 · Fase 5-BIS · 8 modales operativos canon FormModalV2
-import NuevoUsuarioModal from '../../components/modules/usuarios/NuevoUsuarioModal';
+// chk5.PERSONAS-v5.x-LINEAS · NuevoUsuarioModal eliminado (alta vive en /planilla + /inversionistas)
 import EditarUsuarioModal from '../../components/modules/usuarios/EditarUsuarioModal';
 import AprobarUsuarioModal from '../../components/modules/usuarios/AprobarUsuarioModal';
 import RechazarUsuarioModal from '../../components/modules/usuarios/RechazarUsuarioModal';
@@ -80,7 +80,6 @@ const ROLES_PLANILLA: UserRole[] = ['vendedor', 'comprador', 'almacenero', 'fina
 // chk5.F4-USERS · 2026-05-26 · ModalType final · 10 estados operativos canon
 type ModalType =
   | 'none'
-  | 'create'                  // canon ACTO 2.1 · NuevoUsuarioModal
   | 'edit-permisos'           // canon ACTO 3.1 · EditarUsuarioModal
   | 'delete-confirm'          // canon ACTO 5.5 · EliminarUsuarioModal
   | 'reset-password'          // canon ACTO 5.3 · ResetPasswordModal
@@ -1216,13 +1215,10 @@ export const Usuarios: React.FC = () => {
            components/modules/usuarios/ · canon ACTO 2.1/3.1/5.1-5.6 v2.
            ════════════════════════════════════════════════════════════════ */}
 
-      {/* 2.1 · Nuevo usuario directo */}
-      <NuevoUsuarioModal
-        isOpen={modalType === 'create'}
-        onClose={() => setModalType('none')}
-        onSuccess={(msg) => { setSuccess(msg); fetchUsuarios(); }}
-        onError={setError}
-      />
+      {/* chk5.PERSONAS-v5.x-LINEAS · 2026-05-29 · NuevoUsuarioModal ELIMINADO.
+          Dead code: su botón de alta fue removido (alta ahora vive en /planilla
+          e /inversionistas) y modalType 'create' ya no se dispara desde ningún lado.
+          El alta de personas se hace con NuevoEmpleadoModal / NuevoSocioModal. */}
 
       {/* 3.1 · Editar usuario (Camino 3 híbrido) */}
       <EditarUsuarioModal
