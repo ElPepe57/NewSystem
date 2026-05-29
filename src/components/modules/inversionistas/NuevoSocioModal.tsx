@@ -88,6 +88,7 @@ const INITIAL_PERSONALES: DatosPersonalesValues = {
 const INITIAL_SOCIO: DatosSocioValues = {
   cargoDisplay: '',
   subTipo: '',
+  lineaNegocioId: '',
   notas: '',
 };
 
@@ -315,6 +316,7 @@ export const NuevoSocioModal: React.FC<NuevoSocioModalProps> = ({
           tipo: 'socio',
           subTipo: (socio.subTipo || undefined) as SubTipoSocio | undefined,
           cargoDisplay: socio.cargoDisplay.trim() || undefined,
+          lineaNegocioId: socio.lineaNegocioId || undefined,
           notas: socio.notas.trim() || undefined,
         });
         await limpiarBorrador();
@@ -347,6 +349,7 @@ export const NuevoSocioModal: React.FC<NuevoSocioModalProps> = ({
         tipo: 'socio',
         subTipo: (socio.subTipo || undefined) as SubTipoSocio | undefined,
         cargoDisplay: socio.cargoDisplay.trim() || undefined,
+        lineaNegocioId: socio.lineaNegocioId || undefined,
         notas: socio.notas.trim() || undefined,
       });
 

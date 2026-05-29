@@ -144,6 +144,9 @@ async function create(input: CrearRelacionInput, creadoPor: string): Promise<str
     cargoDisplay: input.cargoDisplay,
     montoMensualReferencia: input.montoMensualReferencia,
     monedaReferencia: input.monedaReferencia,
+    // Línea de negocio · single · ausente = compartido (chk5-LINEAS)
+    lineaNegocioId: input.lineaNegocioId,
+    lineaNegocioSnapshot: input.lineaNegocioSnapshot,
     notas: input.notas,
     relacionAnteriorId: input.relacionAnteriorId,
     creadoPor,
@@ -178,7 +181,7 @@ async function update(
   relacionId: string,
   cambios: Partial<Pick<RelacionLaboral,
     'cargoDisplay' | 'montoMensualReferencia' | 'monedaReferencia' |
-    'subTipo' | 'notas'>>,
+    'subTipo' | 'notas' | 'lineaNegocioId' | 'lineaNegocioSnapshot'>>,
   modificadoPor: string,
 ): Promise<void> {
   const existente = await getById(relacionId);

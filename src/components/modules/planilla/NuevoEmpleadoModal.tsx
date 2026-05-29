@@ -92,6 +92,7 @@ const INITIAL_LABORALES: DatosLaboralesValues = {
   subTipo: '',
   montoMensualReferencia: '',
   monedaReferencia: 'PEN',
+  lineaNegocioId: '',
   notas: '',
 };
 
@@ -362,6 +363,7 @@ export const NuevoEmpleadoModal: React.FC<NuevoEmpleadoModalProps> = ({
               ? Number(laborales.montoMensualReferencia)
               : undefined,
           monedaReferencia: laborales.monedaReferencia,
+          lineaNegocioId: laborales.lineaNegocioId || undefined,
           notas: laborales.notas.trim() || undefined,
         });
         await limpiarBorrador();
@@ -399,6 +401,7 @@ export const NuevoEmpleadoModal: React.FC<NuevoEmpleadoModalProps> = ({
             ? Number(laborales.montoMensualReferencia)
             : undefined,
         monedaReferencia: laborales.monedaReferencia,
+        lineaNegocioId: laborales.lineaNegocioId || undefined,
         notas: laborales.notas.trim() || undefined,
       });
 

@@ -11,6 +11,7 @@
 import React from 'react';
 import { Briefcase, DollarSign } from 'lucide-react';
 import type { SubTipoEmpleado } from '../../../types/relacionLaboral.types';
+import { LineaNegocioFieldSelect } from './LineaNegocioFieldSelect';
 
 // ═════════════════════════════════════════════════════════════════════════
 // TIPOS
@@ -21,6 +22,8 @@ export interface DatosLaboralesValues {
   subTipo: SubTipoEmpleado | '';
   montoMensualReferencia: number | '';
   monedaReferencia: 'PEN' | 'USD';
+  /** Id línea de negocio · '' = compartido · chk5-LINEAS */
+  lineaNegocioId: string;
   notas: string;
 }
 
@@ -133,6 +136,13 @@ export const DatosLaboralesFields: React.FC<DatosLaboralesFieldsProps> = ({
           </select>
         </Field>
       </div>
+
+      {/* Línea de negocio · single · chk5-LINEAS (solo si hay líneas configuradas) */}
+      <LineaNegocioFieldSelect
+        modo="trabajo"
+        value={values.lineaNegocioId}
+        onChange={(id) => onChange('lineaNegocioId', id)}
+      />
 
       <Field label="Notas" hint="Observaciones opcionales sobre la relación laboral.">
         <textarea

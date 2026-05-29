@@ -18,6 +18,7 @@
 // los docs legacy para backward compat hasta que todos los lectores se migren.
 
 import { Timestamp } from 'firebase/firestore';
+import type { LineaNegocioSnapshot } from './lineaNegocio.types';
 
 // ═════════════════════════════════════════════════════════════════════════
 // ENUMS · tipos · estados · motivos
@@ -240,6 +241,18 @@ export interface RelacionLaboral {
   montoMensualReferencia?: number;
   monedaReferencia?: 'PEN' | 'USD';
 
+  // ── Línea de negocio · chk5.PERSONAS-v5.x-LINEAS (2026-05-29) ───────────
+  // Modelo SINGLE consistente con todo el sistema (Producto · Venta · Gasto · OC).
+  //   - lineaNegocioId presente  → la relación opera en esa línea específica.
+  //   - lineaNegocioId ausente   → COMPARTIDO (transversal · se incluye en cada
+  //     línea al filtrar el P&L, igual que un gasto compartido).
+  // Para socios: lineaNegocioId = la ENTIDAD del equity (ausente = empresa global).
+  // Sueldos separados por línea = N relaciones (una por línea), cada una con su id.
+  /** Id de la línea de negocio · ausente = compartido / empresa global */
+  lineaNegocioId?: string;
+  /** Snapshot desnormalizado (nombre · código · color) para renderizar chips sin join */
+  lineaNegocioSnapshot?: LineaNegocioSnapshot;
+
   // ── Snapshots inmutables (al finalizar) ────────────────────────────────
   datosLaboralesSnapshot?: DatosLaboralesSnapshot;
   datosSocioSnapshot?: DatosSocioSnapshot;
@@ -284,6 +297,10 @@ export interface CrearRelacionInput {
   cargoDisplay?: string;
   montoMensualReferencia?: number;
   monedaReferencia?: 'PEN' | 'USD';
+  /** Id de línea de negocio · ausente = compartido / empresa global · chk5-LINEAS */
+  lineaNegocioId?: string;
+  /** Snapshot desnormalizado de la línea · el service lo arma desde el store si hay lineaNegocioId */
+  lineaNegocioSnapshot?: LineaNegocioSnapshot;
   entidadMaestroRef?: Omit<EntidadMaestroRef, 'fechaVinculacion' | 'vinculadoPor'>;
   notas?: string;
   relacionAnteriorId?: string;

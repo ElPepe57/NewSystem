@@ -12,6 +12,7 @@
 import React from 'react';
 import { Handshake } from 'lucide-react';
 import type { SubTipoSocio } from '../../../types/relacionLaboral.types';
+import { LineaNegocioFieldSelect } from './LineaNegocioFieldSelect';
 
 // ═════════════════════════════════════════════════════════════════════════
 // TIPOS
@@ -20,6 +21,8 @@ import type { SubTipoSocio } from '../../../types/relacionLaboral.types';
 export interface DatosSocioValues {
   cargoDisplay: string;
   subTipo: SubTipoSocio | '';
+  /** Id entidad del equity · '' = empresa global · chk5-LINEAS */
+  lineaNegocioId: string;
   notas: string;
 }
 
@@ -96,6 +99,13 @@ export const DatosSocioFields: React.FC<DatosSocioFieldsProps> = ({
           <option value="estrategico">Estratégico</option>
         </select>
       </Field>
+
+      {/* Entidad del equity · single · chk5-LINEAS (empresa global vs línea) */}
+      <LineaNegocioFieldSelect
+        modo="entidad"
+        value={values.lineaNegocioId}
+        onChange={(id) => onChange('lineaNegocioId', id)}
+      />
 
       <Field label="Notas" hint="Acuerdos especiales · restricciones de voto · notas para el equipo.">
         <textarea

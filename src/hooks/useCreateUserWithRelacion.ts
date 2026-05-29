@@ -21,7 +21,9 @@ import { useState } from 'react';
 import { Timestamp } from 'firebase/firestore';
 import { userService } from '../services/user.service';
 import { relacionesLaboralesService } from '../services/relacionesLaborales.service';
+import { useLineaNegocioStore } from '../store/lineaNegocioStore';
 import type { UserRole, UserProfile } from '../types/auth.types';
+import type { LineaNegocio, LineaNegocioSnapshot } from '../types/lineaNegocio.types';
 import type {
   TipoRelacion,
   SubTipoRelacion,
@@ -30,6 +32,26 @@ import type {
   TipoEntidadMaestro,
   RelacionLaboral,
 } from '../types/relacionLaboral.types';
+
+/**
+ * Arma el snapshot desnormalizado de una línea desde su id, usando las líneas
+ * cargadas en memoria. Devuelve undefined si no hay id (= compartido) o si la
+ * línea no se encuentra (no rompe · solo omite el snapshot).
+ */
+function buildLineaSnapshot(
+  lineaNegocioId: string | undefined,
+  lineas: LineaNegocio[],
+): LineaNegocioSnapshot | undefined {
+  if (!lineaNegocioId) return undefined;
+  const l = lineas.find((x) => x.id === lineaNegocioId);
+  if (!l) return undefined;
+  return {
+    lineaNegocioId: l.id,
+    lineaNegocioNombre: l.nombre,
+    lineaNegocioCodigo: l.codigo,
+    lineaNegocioColor: l.color,
+  };
+}
 
 // ═════════════════════════════════════════════════════════════════════════
 // TIPOS DEL HOOK
@@ -52,6 +74,8 @@ export interface CreateUserWithRelacionInput {
   monedaReferencia?: 'PEN' | 'USD';
   fechaInicio?: Timestamp;
   notas?: string;
+  /** Id de línea de negocio · ausente = compartido / empresa global · chk5-LINEAS */
+  lineaNegocioId?: string;
 
   // ── Solo para 'externo' con vinculación a Maestros ──
   entidadMaestroRef?: Omit<EntidadMaestroRef, 'fechaVinculacion' | 'vinculadoPor'>;
@@ -85,6 +109,8 @@ export type AddRelacionToExistingInput = Omit<
 export function useCreateUserWithRelacion(creadoPor: string) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // Líneas en memoria · para armar el snapshot desnormalizado al crear la relación
+  const lineasActivas = useLineaNegocioStore((s) => s.lineasActivas);
 
   const create = async (
     input: CreateUserWithRelacionInput,
@@ -158,6 +184,9 @@ export function useCreateUserWithRelacion(creadoPor: string) {
           input.montoMensualReferencia !== undefined && input.montoMensualReferencia > 0
             ? (input.monedaReferencia ?? 'PEN')
             : undefined,
+        // Línea de negocio · single · ausente = compartido (chk5-LINEAS)
+        lineaNegocioId: input.lineaNegocioId || undefined,
+        lineaNegocioSnapshot: buildLineaSnapshot(input.lineaNegocioId, lineasActivas),
         notas: input.notas?.trim() || undefined,
         entidadMaestroRef: input.entidadMaestroRef,
       };
@@ -227,6 +256,9 @@ export function useCreateUserWithRelacion(creadoPor: string) {
           input.montoMensualReferencia !== undefined && input.montoMensualReferencia > 0
             ? (input.monedaReferencia ?? 'PEN')
             : undefined,
+        // Línea de negocio · single · ausente = compartido (chk5-LINEAS)
+        lineaNegocioId: input.lineaNegocioId || undefined,
+        lineaNegocioSnapshot: buildLineaSnapshot(input.lineaNegocioId, lineasActivas),
         notas: input.notas?.trim() || undefined,
         entidadMaestroRef: input.entidadMaestroRef,
       };
