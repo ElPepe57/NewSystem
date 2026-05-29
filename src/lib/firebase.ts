@@ -1,6 +1,13 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth, connectAuthEmulator } from 'firebase/auth';
-import { getFirestore, connectFirestoreEmulator } from 'firebase/firestore';
+import {
+  initializeFirestore,
+  getFirestore,
+  persistentLocalCache,
+  persistentMultipleTabManager,
+  connectFirestoreEmulator,
+  type Firestore,
+} from 'firebase/firestore';
 import { getStorage, connectStorageEmulator } from 'firebase/storage';
 
 // Firebase configuration
@@ -19,7 +26,32 @@ const app = initializeApp(firebaseConfig);
 
 // Initialize Firebase services
 export const auth = getAuth(app);
-export const db = getFirestore(app);
+// chk5.PERF-FIRESTORE-CACHE (2026-05-29) · Persistencia local IndexedDB.
+// Causa raíz TRANSVERSAL de la lentitud de carga (diagnóstico medido en sesión):
+// con getFirestore() sin cache, CADA query en CADA visita a cada módulo era un
+// round-trip a la nube (~150-300ms × N queries desde Perú · ~3.5s async/módulo
+// medido). Con persistentLocalCache, los listeners onSnapshot entregan la data
+// cacheada al INSTANTE y sincronizan en background → re-visitas instantáneas en
+// TODO el sistema, sin reescribir ningún service (solución integral · un punto).
+// persistentMultipleTabManager habilita uso multi-pestaña seguro (varias
+// pestañas del ERP abiertas a la vez · evita el error de single-tab lock).
+//
+// Idempotencia obligatoria: initializeFirestore() (a diferencia de getFirestore)
+// lanza si se vuelve a llamar · y en dev Vite re-ejecuta este módulo en cada HMR.
+// El try/catch garantiza: primer run inicializa con cache · re-runs reusan la
+// instancia ya creada (sino la app caería al ErrorBoundary tras cada edición).
+let _db: Firestore;
+try {
+  _db = initializeFirestore(app, {
+    localCache: persistentLocalCache({
+      tabManager: persistentMultipleTabManager(),
+    }),
+  });
+} catch {
+  // Ya inicializado (HMR re-ejecutó el módulo) · reutilizar la instancia viva.
+  _db = getFirestore(app);
+}
+export const db = _db;
 export const storage = getStorage(app);
 
 // =============================================

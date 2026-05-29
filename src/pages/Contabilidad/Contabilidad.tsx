@@ -77,6 +77,9 @@ import {
 } from '../../utils/contabilidadInsights';
 import { contabilidadService } from '../../services/contabilidad.service';
 import { DEFAULT_UMBRALES } from '../../services/contabilidad.service';
+// chk5.PERF-CACHE · estado/balance del mes actual vía cache en memoria (dedup + TTL)
+// → re-visitas sin recargar = cache hit instant (alinea Contabilidad con Inversionistas).
+import { getEstadoResultadosCached, getBalanceGeneralCached } from '../../services/contabilidadCache';
 import { useLineaNegocioStore } from '../../store/lineaNegocioStore';
 import type {
   EstadoResultados as EstadoResultadosType,
@@ -1406,26 +1409,26 @@ export function Contabilidad() {
     setLoading(true);
     setErrorMsg(null);
     try {
-      const [estadoData, tendenciaData, balanceData, indicadoresData] = await Promise.all([
-        contabilidadService.generarEstadoResultados(mes, anio, lineaFiltroGlobal),
-        contabilidadService.getTendenciaMensual(anio, lineaFiltroGlobal),
-        contabilidadService.generarBalanceGeneral(mes, anio),
-        contabilidadService.calcularIndicadoresFinancieros(mes, anio, lineaFiltroGlobal),
+      // chk5.PERF-LAZY (2026-05-29) · FASE 1 · SOLO el mes actual · primer paint rápido.
+      // estado + balance se calculan UNA sola vez · los indicadores se derivan
+      // SÍNCRONO de ellos (calcularIndicadoresDesde) en vez de recalcular otro balance
+      // completo (que internamente recorre 12 meses de utilidades acumuladas).
+      // La tendencia 12m y el mes anterior salieron del path crítico → FASE 2 (background).
+      const [estadoData, balanceData] = await Promise.all([
+        getEstadoResultadosCached(mes, anio, lineaFiltroGlobal),
+        getBalanceGeneralCached(mes, anio),
       ]);
+      const indicadoresData = contabilidadService.calcularIndicadoresDesde(
+        balanceData,
+        estadoData,
+        mes,
+        anio,
+      );
 
       setEstado(estadoData);
-      setTendencia(tendenciaData);
       setBalance(balanceData);
       setIndicadores(indicadoresData);
       setAnalisis(contabilidadService.generarAnalisisFinanciero(indicadoresData));
-
-      // chk5.E-C · cargar umbrales desde config (fallback DEFAULT_UMBRALES)
-      try {
-        const cfg = await contabilidadService.getConfiguracionContable();
-        setUmbrales(cfg.umbrales ?? DEFAULT_UMBRALES);
-      } catch {
-        setUmbrales(DEFAULT_UMBRALES);
-      }
 
       // Crear resumen desde estado
       setResumen({
@@ -1439,20 +1442,29 @@ export function Contabilidad() {
         tendencia: estadoData.utilidadNeta >= 0 ? 'subiendo' : 'bajando',
       });
 
-      // Cargar mes anterior para comparación
+      // Primer paint LISTO · liberar el spinner antes de cargar lo histórico.
+      setLoading(false);
+
+      // chk5.PERF-LAZY · FASE 2 · histórico en SEGUNDO PLANO · no bloquea el render.
+      // Tendencia (12 meses) alimenta sparklines/comparativos · mes anterior alimenta
+      // las variaciones · config los umbrales. Llegan un instante después y la UI se
+      // actualiza sola (los sparklines parten vacíos hasta que llega la tendencia).
       const mesAnt = mes === 1 ? 12 : mes - 1;
       const anioAnt = mes === 1 ? anio - 1 : anio;
-      try {
-        const resumenAnt = await contabilidadService.getResumenContable(mesAnt, anioAnt, lineaFiltroGlobal);
+      void (async () => {
+        const [tendenciaData, resumenAnt, cfg] = await Promise.all([
+          contabilidadService.getTendenciaMensual(anio, lineaFiltroGlobal).catch(() => null),
+          contabilidadService.getResumenContable(mesAnt, anioAnt, lineaFiltroGlobal).catch(() => null),
+          contabilidadService.getConfiguracionContable().catch(() => null),
+        ]);
+        if (tendenciaData) setTendencia(tendenciaData);
         setMesAnterior(resumenAnt);
-      } catch {
-        setMesAnterior(null);
-      }
+        setUmbrales(cfg?.umbrales ?? DEFAULT_UMBRALES);
+      })();
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Error desconocido';
       console.error('Error cargando datos contables:', err);
       setErrorMsg(msg);
-    } finally {
       setLoading(false);
     }
   };
@@ -1460,6 +1472,18 @@ export function Contabilidad() {
   useEffect(() => {
     cargarDatos();
   }, [mes, anio, lineaFiltroGlobal]);
+
+  // chk5.PERF-MATERIALIZACION · "Recargar" fuerza frescura: invalida los snapshots
+  // P&L materializados del año visible (por si se corrigió un mes ya cerrado) y
+  // recalcula todo desde los movimientos crudos · re-materializa al vuelo.
+  const recargarForzado = async () => {
+    try {
+      await contabilidadService.invalidarSnapshotsAnio(anio);
+    } catch {
+      // best-effort · si no se pudo invalidar, igual recargamos
+    }
+    cargarDatos();
+  };
 
   // Calcular variaciones vs mes anterior
   const calcularVariacion = (actual: number, anterior: number | undefined): number | null => {
@@ -1687,10 +1711,10 @@ export function Contabilidad() {
                   ))}
                 </select>
               </div>
-              {/* Tier neutral · Recargar */}
+              {/* Tier neutral · Recargar (fuerza re-materialización del año) */}
               <button
                 type="button"
-                onClick={cargarDatos}
+                onClick={recargarForzado}
                 disabled={loading}
                 aria-label="Recargar datos contables"
                 title="Recargar datos contables"

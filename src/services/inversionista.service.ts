@@ -66,6 +66,8 @@ import {
   getEstadoResultadosCached,
   getBalanceGeneralCached,
 } from './contabilidadCache';
+// chk5.PERF-MATERIALIZACION · snapshot P&L mensual · meses cerrados = 1 read (no recalcular).
+import { getSnapshotPLMensual } from './contabilidad.service';
 import { tesoreriaService } from './tesoreria.service';
 import { tipoCambioService } from './tipoCambio.service';
 import { socioService } from './socio.service';
@@ -866,11 +868,12 @@ async function calcularUNHistorica12m(
     meses.push({ m: fecha.getMonth() + 1, a: fecha.getFullYear() });
   }
   // 1 sola pasada · índice 0 = mes actual · 11 = hace 11 meses
+  // chk5.PERF-MATERIALIZACION · meses cerrados → 1 read del snapshot P&L (no recalcular).
   const resultados = await Promise.all(
     meses.map(async ({ m, a }) => {
       try {
-        const estado = await getEstadoResultadosCached(m, a);
-        return { un: estado.utilidadNeta || 0, hasData: true };
+        const s = await getSnapshotPLMensual(m, a);
+        return { un: s.utilidadNeta || 0, hasData: true };
       } catch {
         return { un: 0, hasData: false };
       }

@@ -497,6 +497,18 @@ service cloud.firestore {
     }
 
     // ============================================================
+    // chk5.PERF-MATERIALIZACION · ESTADÍSTICAS CONTABLES (snapshots P&L mensuales)
+    // Cache derivado pre-calculado de meses cerrados · acelera Contabilidad e
+    // Inversionistas (evita recomputar 12-24 estados desde movimientos en cada visita).
+    // Los roles que LEEN contabilidad pueden leer y materializar (write best-effort al
+    // haber cache miss). admin incluido (principio "admin ve todo").
+    // ============================================================
+    match /estadisticasContables/{docId} {
+      allow read: if hasAnyRole(['admin', 'gerente', 'finanzas', 'supervisor']);
+      allow write: if hasAnyRole(['admin', 'gerente', 'finanzas', 'supervisor']);
+    }
+
+    // ============================================================
     // chk5.E-INV · SOCIOS / INVERSIONISTAS
     // Catálogo de socios del negocio. Acceso restringido: solo admin
     // y gerente leen/escriben. Los socios individuales (cuando existan

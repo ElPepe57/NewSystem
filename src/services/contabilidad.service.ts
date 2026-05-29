@@ -19,6 +19,7 @@ import {
   getDoc,
   doc,
   setDoc,
+  deleteDoc,
   Timestamp,
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
@@ -970,41 +971,197 @@ export async function getResumenContable(mes: number, anio: number, lineaNegocio
 /**
  * Obtener tendencia mensual para gráficos
  */
+// ============================================================================
+// MATERIALIZACIÓN DE SNAPSHOTS P&L MENSUALES (chk5.PERF-MATERIALIZACION · 2026-05-29)
+// ============================================================================
+//
+// Problema medido: Contabilidad e Inversionistas recalculaban 12-24 estados de
+// resultados desde movimientos crudos EN CADA visita (53/41 requests · 9-11s).
+// Solución integral: materializar el P&L de los MESES CERRADOS como 1 documento
+// pre-calculado en Firestore. El mes vivo NUNCA se materializa (cambia siempre →
+// se recalcula fresco). Leer un mes cerrado = 1 read en vez de N queries + agregación.
+//
+// Invalidación: invalidarSnapshotPL(mes, anio) borra el snapshot · se llama desde
+// los puntos de escritura contable cuando la fecha cae en un mes ya materializado.
+// El campo `version` invalida TODOS los snapshots si cambia la lógica de cálculo
+// (basta con incrementar SNAPSHOT_PL_VERSION).
+
+/** Snapshot P&L mensual pre-calculado · solo los campos que consumen los lectores históricos. */
+export interface SnapshotPLMensual {
+  periodo: string;            // "2026-04"
+  mes: number;
+  anio: number;
+  ventasNetas: number;
+  compras: number;            // estado.compras.total
+  utilidadBruta: number;
+  gastosOperativos: number;   // estado.totalGastosOperativos
+  utilidadOperativa: number;
+  utilidadNeta: number;
+  utilidadNetaPorcentaje: number;
+  calculadoEn: Timestamp;
+  version: number;
+}
+
+/** Bump si cambia la lógica de generarEstadoResultados · invalida snapshots viejos. */
+const SNAPSHOT_PL_VERSION = 1;
+
+function snapshotDocId(mes: number, anio: number): string {
+  return `${anio}-${String(mes).padStart(2, '0')}`;
+}
+
+/** true si (mes, anio) es ANTERIOR al mes en curso → cerrado, estable, materializable. */
+function esMesCerrado(mes: number, anio: number): boolean {
+  const now = new Date();
+  const mesActual = now.getMonth() + 1;
+  const anioActual = now.getFullYear();
+  return anio < anioActual || (anio === anioActual && mes < mesActual);
+}
+
+function mapEstadoASnapshot(estado: EstadoResultados, mes: number, anio: number): SnapshotPLMensual {
+  return {
+    periodo: snapshotDocId(mes, anio),
+    mes,
+    anio,
+    ventasNetas: estado.ventasNetas,
+    compras: estado.compras.total,
+    utilidadBruta: estado.utilidadBruta,
+    gastosOperativos: estado.totalGastosOperativos,
+    utilidadOperativa: estado.utilidadOperativa,
+    utilidadNeta: estado.utilidadNeta,
+    utilidadNetaPorcentaje: estado.utilidadNetaPorcentaje,
+    calculadoEn: Timestamp.now(),
+    version: SNAPSHOT_PL_VERSION,
+  };
+}
+
+/**
+ * Devuelve el P&L mensual · materializado si el mes está cerrado, fresco si es el mes vivo.
+ *
+ * - Filtro por línea de negocio → SIEMPRE fresco (no se materializa · caso menos común).
+ * - Mes vivo (actual/futuro) → SIEMPRE fresco (cambia constantemente).
+ * - Mes cerrado, caso global → lee snapshot (1 read). Si no existe o version desfasada →
+ *   calcula, materializa (best-effort, no bloquea) y devuelve.
+ */
+export async function getSnapshotPLMensual(
+  mes: number,
+  anio: number,
+  opts?: { lineaNegocioId?: string | null; forzarRecalculo?: boolean }
+): Promise<SnapshotPLMensual> {
+  const linea = opts?.lineaNegocioId ?? null;
+  const forzar = opts?.forzarRecalculo ?? false;
+
+  // Filtro por línea o mes vivo → no materializar · calcular fresco
+  if (linea || !esMesCerrado(mes, anio)) {
+    const estado = await generarEstadoResultados(mes, anio, linea);
+    return mapEstadoASnapshot(estado, mes, anio);
+  }
+
+  const ref = doc(db, COLLECTIONS.ESTADISTICAS_CONTABLES, snapshotDocId(mes, anio));
+
+  if (!forzar) {
+    try {
+      const snap = await getDoc(ref);
+      if (snap.exists()) {
+        const data = snap.data() as SnapshotPLMensual;
+        if (data.version === SNAPSHOT_PL_VERSION) return data; // HIT · 1 read
+      }
+    } catch {
+      // sin acceso o error · cae a recalcular
+    }
+  }
+
+  // MISS o forzar → calcular + materializar (write best-effort · no bloquea la respuesta)
+  const estado = await generarEstadoResultados(mes, anio, null);
+  const snapshot = mapEstadoASnapshot(estado, mes, anio);
+  setDoc(ref, snapshot).catch(() => {});
+  return snapshot;
+}
+
+/**
+ * Invalida (borra) el snapshot materializado de un mes · se llama cuando se escribe
+ * un movimiento contable con fecha en ese mes. Solo aplica a meses cerrados (el mes
+ * vivo no tiene snapshot). Best-effort · no lanza.
+ */
+export async function invalidarSnapshotPL(mes: number, anio: number): Promise<void> {
+  if (!esMesCerrado(mes, anio)) return; // el mes vivo no se materializa
+  try {
+    await deleteDoc(doc(db, COLLECTIONS.ESTADISTICAS_CONTABLES, snapshotDocId(mes, anio)));
+  } catch {
+    // best-effort
+  }
+}
+
+/**
+ * Invalida el snapshot del mes correspondiente a una fecha dada · helper para los
+ * puntos de escritura contable (reciben la fecha del movimiento). Acepta Date,
+ * Timestamp de Firestore, o string ISO · normaliza internamente.
+ */
+export async function invalidarSnapshotPLPorFecha(
+  fecha: Date | { toDate: () => Date } | string | null | undefined
+): Promise<void> {
+  if (!fecha) return;
+  let d: Date;
+  if (typeof fecha === 'string') d = new Date(fecha);
+  else if (fecha instanceof Date) d = fecha;
+  else if (typeof (fecha as any).toDate === 'function') d = (fecha as any).toDate();
+  else return;
+  if (isNaN(d.getTime())) return;
+  await invalidarSnapshotPL(d.getMonth() + 1, d.getFullYear());
+}
+
+/**
+ * Invalida TODOS los snapshots materializados de un año (12 meses) · usado por el
+ * botón "Recargar" de Contabilidad para forzar recálculo fresco + re-materialización
+ * cuando el usuario sabe que corrigió datos de un mes ya cerrado. Best-effort.
+ */
+export async function invalidarSnapshotsAnio(anio: number): Promise<void> {
+  const meses = Array.from({ length: 12 }, (_, i) => i + 1);
+  await Promise.all(meses.map((m) => invalidarSnapshotPL(m, anio)));
+}
+
 export async function getTendenciaMensual(anio: number, lineaNegocioId?: string | null): Promise<TendenciaMensual[]> {
-  const tendencia: TendenciaMensual[] = [];
   const mesActual = new Date().getMonth() + 1;
   const anioActual = new Date().getFullYear();
 
   const hastasMes = anio === anioActual ? mesActual : 12;
 
-  for (let mes = 1; mes <= hastasMes; mes++) {
-    try {
-      const estado = await generarEstadoResultados(mes, anio, lineaNegocioId);
-      tendencia.push({
-        mes,
-        anio,
-        nombreMes: MESES[mes],
-        ventasNetas: estado.ventasNetas,
-        compras: estado.compras.total,
-        utilidadBruta: estado.utilidadBruta,
-        gastosOperativos: estado.totalGastosOperativos,
-        utilidadOperativa: estado.utilidadOperativa,
-        utilidadNeta: estado.utilidadNeta
-      });
-    } catch {
-      tendencia.push({
-        mes,
-        anio,
-        nombreMes: MESES[mes],
-        ventasNetas: 0,
-        compras: 0,
-        utilidadBruta: 0,
-        gastosOperativos: 0,
-        utilidadOperativa: 0,
-        utilidadNeta: 0
-      });
-    }
-  }
+  // chk5.PERF-TENDENCIA (2026-05-29) · ANTES: for secuencial con await adentro →
+  // hasta 12 generarEstadoResultados EN SERIE (cada uno con varias lecturas) →
+  // tiempo = SUMA de los 12. Causa medida de la lentitud de Contabilidad (53
+  // requests / 11.6s). AHORA: Promise.all · las 12 iteraciones concurrentes →
+  // tiempo ≈ la más lenta. .map() preserva el orden por mes (1..hastasMes).
+  const meses = Array.from({ length: hastasMes }, (_, i) => i + 1);
+  const tendencia = await Promise.all(
+    meses.map(async (mes): Promise<TendenciaMensual> => {
+      try {
+        // chk5.PERF-MATERIALIZACION · meses cerrados → 1 read del snapshot · mes vivo → fresco.
+        const s = await getSnapshotPLMensual(mes, anio, { lineaNegocioId });
+        return {
+          mes,
+          anio,
+          nombreMes: MESES[mes],
+          ventasNetas: s.ventasNetas,
+          compras: s.compras,
+          utilidadBruta: s.utilidadBruta,
+          gastosOperativos: s.gastosOperativos,
+          utilidadOperativa: s.utilidadOperativa,
+          utilidadNeta: s.utilidadNeta
+        };
+      } catch {
+        return {
+          mes,
+          anio,
+          nombreMes: MESES[mes],
+          ventasNetas: 0,
+          compras: 0,
+          utilidadBruta: 0,
+          gastosOperativos: 0,
+          utilidadOperativa: 0,
+          utilidadNeta: 0
+        };
+      }
+    })
+  );
 
   return tendencia;
 }
@@ -1481,18 +1638,23 @@ async function getDeudasFinancieras(tc: number): Promise<DeudasFinancieras> {
  * Calcular utilidades acumuladas (YTD)
  */
 async function calcularUtilidadesAcumuladas(anio: number, hastasMes: number): Promise<number> {
-  let utilidadAcumulada = 0;
+  // chk5.PERF-TENDENCIA (2026-05-29) · ANTES: for secuencial · 12 generarEstadoResultados
+  // EN SERIE dentro de generarBalanceGeneral → se sumaba al costo de la tendencia
+  // (los mismos meses recalculados). AHORA: Promise.all concurrente.
+  const meses = Array.from({ length: hastasMes }, (_, i) => i + 1);
+  const utilidades = await Promise.all(
+    meses.map(async (mes) => {
+      try {
+        // chk5.PERF-MATERIALIZACION · meses cerrados → 1 read del snapshot · mes vivo → fresco.
+        const s = await getSnapshotPLMensual(mes, anio);
+        return s.utilidadNeta;
+      } catch {
+        return 0;
+      }
+    })
+  );
 
-  for (let mes = 1; mes <= hastasMes; mes++) {
-    try {
-      const estado = await generarEstadoResultados(mes, anio);
-      utilidadAcumulada += estado.utilidadNeta;
-    } catch {
-      // Sin datos para ese mes
-    }
-  }
-
-  return utilidadAcumulada;
+  return utilidades.reduce((acc, u) => acc + u, 0);
 }
 
 /**
@@ -1653,7 +1815,23 @@ export async function calcularIndicadoresFinancieros(
     generarBalanceGeneral(mes, anio),
     generarEstadoResultados(mes, anio, lineaNegocioId)
   ]);
+  return calcularIndicadoresDesde(balance, estado, mes, anio);
+}
 
+/**
+ * chk5.PERF-LAZY (2026-05-29) · Versión PURA (síncrona) de los indicadores.
+ * Recibe el balance + estado YA calculados y solo computa ratios · CERO queries.
+ * Permite a los consumidores (ej. Contabilidad.cargarDatos) calcular balance y
+ * estado UNA sola vez y derivar indicadores sin recalcular el balance — que
+ * internamente recorre 12 meses de utilidades acumuladas. Elimina la redundancia
+ * de generarBalanceGeneral ×2 que duplicaba el costo del primer paint.
+ */
+export function calcularIndicadoresDesde(
+  balance: BalanceGeneral,
+  estado: EstadoResultados,
+  mes: number,
+  anio: number
+): IndicadoresFinancieros {
   const actCorriente = balance.activos.corriente.total;
   const pasCorriente = balance.pasivos.corriente.total;
   const inventarios = balance.activos.corriente.inventarios.totalValorPEN;
@@ -1817,7 +1995,13 @@ export const contabilidadService = {
   getTendenciaMensual,
   generarBalanceGeneral,
   calcularIndicadoresFinancieros,
+  calcularIndicadoresDesde,
   generarAnalisisFinanciero,
+  // chk5.PERF-MATERIALIZACION · snapshots P&L mensuales
+  getSnapshotPLMensual,
+  invalidarSnapshotPL,
+  invalidarSnapshotPLPorFecha,
+  invalidarSnapshotsAnio,
   actualizarConfiguracionContable,
   getConfiguracionContable,
 };

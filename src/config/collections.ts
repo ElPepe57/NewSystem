@@ -147,6 +147,16 @@ export const COLLECTIONS = {
   // === Contabilidad ===
   CIERRES_CONTABLES: 'cierresContables', // @deprecated · reemplazado por REVISIONES_MENSUALES (chk5.E-RM)
   REVISIONES_MENSUALES: 'revisionesMensuales', // chk5.E-RM · revisión informal sin bloqueo
+  /**
+   * chk5.PERF-MATERIALIZACION (2026-05-29) · Snapshots P&L mensuales pre-calculados.
+   * Doc id = `${anio}-${MM}` (ej. "2026-04"). Solo se materializan MESES CERRADOS
+   * (el mes vivo siempre se recalcula). Evita recomputar 12-24 estados de resultados
+   * desde movimientos crudos en cada visita a Contabilidad/Inversionistas.
+   * Campos: ventasNetas · compras · utilidadBruta · gastosOperativos ·
+   * utilidadOperativa · utilidadNeta · utilidadNetaPorcentaje · calculadoEn · version.
+   * Se invalida (borra) cuando se escribe un movimiento contable con fecha del mes.
+   */
+  ESTADISTICAS_CONTABLES: 'estadisticasContables',
 
   // === chk5.E-INV · Inversionistas ===
   /** Catálogo de socios/inversionistas · doc id determinístico snake_case del nombre */
