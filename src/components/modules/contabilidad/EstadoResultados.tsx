@@ -32,6 +32,8 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { contabilidadService } from '../../../services/contabilidad.service';
+// chk5.PERF-CACHE · P&L vía cache compartido (cross-módulo · dedup · TTL).
+import { getEstadoResultadosCached } from '../../../services/contabilidadCache';
 import type {
   EstadoResultados as EstadoResultadosType,
   TendenciaMensual,
@@ -76,13 +78,13 @@ export default function EstadoResultados({ mes: mesProp, anio: anioProp }: Props
     setLoading(true);
     setErrorMsg(null);
     try {
-      const data = await contabilidadService.generarEstadoResultados(mes, anio);
+      const data = await getEstadoResultadosCached(mes, anio);
       setEstado(data);
       // Mes anterior para comparativo
       const mesAnt = mes === 1 ? 12 : mes - 1;
       const anioAnt = mes === 1 ? anio - 1 : anio;
       try {
-        const dataAnt = await contabilidadService.generarEstadoResultados(mesAnt, anioAnt);
+        const dataAnt = await getEstadoResultadosCached(mesAnt, anioAnt);
         setEstadoAnterior(dataAnt);
       } catch {
         setEstadoAnterior(null);
@@ -96,7 +98,7 @@ export default function EstadoResultados({ mes: mesProp, anio: anioProp }: Props
       }
       // chk5.E-B · mismo mes año anterior para comparativo YoY
       try {
-        const dataAnioAnt = await contabilidadService.generarEstadoResultados(mes, anio - 1);
+        const dataAnioAnt = await getEstadoResultadosCached(mes, anio - 1);
         setEstadoAnioAnterior(dataAnioAnt);
       } catch {
         setEstadoAnioAnterior(null);

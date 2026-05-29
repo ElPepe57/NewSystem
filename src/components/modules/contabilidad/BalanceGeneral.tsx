@@ -25,7 +25,8 @@ import {
   Loader2,
   Lightbulb,
 } from 'lucide-react';
-import { contabilidadService } from '../../../services/contabilidad.service';
+// chk5.PERF-CACHE · balance vía cache compartido (cross-módulo · dedup · TTL).
+import { getBalanceGeneralCached } from '../../../services/contabilidadCache';
 import type { BalanceGeneral as BalanceGeneralType } from '../../../types/contabilidad.types';
 import { formatCurrencyPEN } from '../../../utils/format';
 // chk5.E-B · Sprint B · donuts composición + tooltips
@@ -205,7 +206,7 @@ export default function BalanceGeneral({ mes, anio }: Props) {
     setLoading(true);
     setErrorMsg(null);
     try {
-      const data = await contabilidadService.generarBalanceGeneral(mes, anio);
+      const data = await getBalanceGeneralCached(mes, anio);
       setBalance(data);
     } catch (err) {
       console.error('Error cargando balance:', err);

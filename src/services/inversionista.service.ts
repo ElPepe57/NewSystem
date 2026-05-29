@@ -60,7 +60,12 @@ import type {
 import { DEFAULT_CONFIG_INVERSIONISTAS } from '../types/inversionista.types';
 import type { CuentaCaja, MonedaTesoreria } from '../types/tesoreria.types';
 
-import { contabilidadService } from './contabilidad.service';
+// chk5.PERF-CACHE · estados/balance vía cache compartido (cross-módulo · dedup concurrente).
+// Reemplaza las llamadas directas a contabilidadService.generar* · ver contabilidadCache.ts.
+import {
+  getEstadoResultadosCached,
+  getBalanceGeneralCached,
+} from './contabilidadCache';
 import { tesoreriaService } from './tesoreria.service';
 import { tipoCambioService } from './tipoCambio.service';
 import { socioService } from './socio.service';
@@ -600,8 +605,8 @@ export async function calcularTrayectoria24Meses(
     meses.map(async ({ m, a }): Promise<TrayectoriaMensual> => {
       try {
         const [balance, estado] = await Promise.all([
-          contabilidadService.generarBalanceGeneral(m, a),
-          contabilidadService.generarEstadoResultados(m, a),
+          getBalanceGeneralCached(m, a),
+          getEstadoResultadosCached(m, a),
         ]);
         return {
           periodo: `${a}-${String(m).padStart(2, '0')}`,
@@ -702,8 +707,8 @@ export async function calcularResumenInversionista(
     getAportesPorSocio(),
     getRetirosPorSocio(),
     getTCPersonalesPorSocio(tipoCambio),
-    contabilidadService.generarBalanceGeneral(mes, anio),
-    contabilidadService.generarEstadoResultados(mes, anio),
+    getBalanceGeneralCached(mes, anio),
+    getEstadoResultadosCached(mes, anio),
     // chk5.E-INV-PERF2 · lazy: los 12 P&L históricos solo se calculan si se piden.
     // El mount de /inversionistas pasa incluirAcumulados=false → primer paint rápido.
     incluirAcumulados
@@ -864,7 +869,7 @@ async function calcularUNHistorica12m(
   const resultados = await Promise.all(
     meses.map(async ({ m, a }) => {
       try {
-        const estado = await contabilidadService.generarEstadoResultados(m, a);
+        const estado = await getEstadoResultadosCached(m, a);
         return { un: estado.utilidadNeta || 0, hasData: true };
       } catch {
         return { un: 0, hasData: false };
