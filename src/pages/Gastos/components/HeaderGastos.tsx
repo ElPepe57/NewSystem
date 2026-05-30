@@ -44,7 +44,7 @@ export const HeaderGastos: React.FC<HeaderGastosProps> = ({
   const esAdmin = hasRole(userProfile, 'admin');
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden mb-4">
+    <>
       {/* §A · TOP-BAR · breadcrumb S9.D1 + chip de rol contextual (canon hub) */}
       <div className="border-b border-slate-200 px-4 sm:px-6 py-2.5 flex items-center gap-3 bg-slate-50">
         <div className="flex items-center text-[12px] flex-1 min-w-0">
@@ -59,7 +59,7 @@ export const HeaderGastos: React.FC<HeaderGastosProps> = ({
       </div>
 
       {/* §B · HEADER banking-grade · icon teal + h1 + subtítulo + acciones 3-tier (N10) */}
-      <div className="px-4 sm:px-6 py-4 sm:py-5">
+      <div className="px-4 sm:px-6 py-4 sm:py-5 border-b border-slate-100">
         <div className="flex items-start justify-between gap-3 flex-wrap">
           <div className="flex-1 min-w-[260px]">
             <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-slate-900 flex items-center gap-2 sm:gap-2.5">
@@ -127,6 +127,6 @@ export const HeaderGastos: React.FC<HeaderGastosProps> = ({
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };

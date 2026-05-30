@@ -84,7 +84,7 @@ export const KpiStripGastos: React.FC<KpiStripGastosProps> = ({ kpis, miniStats 
 
   return (
     /* chk5.C-UX-PASS · canon v8.0 N3 · UN solo card con strip + footer mini-stats */
-    <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden mb-4">
+    <div className="border-b border-slate-200">
 
       {/* chk5.C-UX-PASS · canon v8.0 N7 · md:grid-cols-5 (antes lg:)
           canon v8.0 N1 · cada KPI con tinte semántico (no slate uniforme) */}

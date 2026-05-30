@@ -738,7 +738,9 @@ export const Gastos: React.FC = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 space-y-4">
-      {/* chk5.C1 · Header canon banking-grade · reemplaza PageHeader legacy */}
+      {/* chk5.E-GASTOS · pulido 1-card · SHELL unificado: header + KPIs + tabs en UN card (canon hub, como hermanos) */}
+      <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+      {/* chk5.C1 · Header canon banking-grade (top-bar + header · sin card propio) */}
       <HeaderGastos
         totalMovimientosMes={heroKpis.gastosDelMes.length}
         onPoliticaAsignacion={() => setShowAllocationSettings(true)}
@@ -748,26 +750,13 @@ export const Gastos: React.FC = () => {
         exportDisabled={gastosVisibles.length === 0}
       />
 
-      {/* chk5.C-FIX · canon F-Borradores · banner page-level con borrador de gasto */}
-      <BorradorBanner
-        tipo="gasto"
-        refreshKey={borradorRefreshKey}
-        onContinuar={() => {
-          // Re-abre el GastoForm en CREATE mode · useWizardAutosave detecta el
-          // borrador y pre-carga el estado al montar.
-          setGastoParaEditar(null);
-          setShowModal(true);
-        }}
-      />
-
       {/* chk5.E-GASTOS · F1.b · KPI strip canon · SIEMPRE visible sobre las tabs (canon hub) */}
       {stats && (
         <KpiStripGastos kpis={kpiData} miniStats={miniStatsData} />
       )}
 
-      {/* chk5.E-GASTOS · F1.b · TABS de sub-sección canon HUB (Resumen · Movimientos · Análisis)
-          vistaActiva motoriza la tab activa + la sub-vista. Reemplaza el toggle de 4 vistas. */}
-      <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden mb-4">
+      {/* chk5.E-GASTOS · F1.b · TABS de sub-sección canon HUB (Resumen · Movimientos · Análisis) */}
+      <div>
         {/* fila de tabs · border-b-2 activo teal (canon hub) */}
         <div className="border-b border-slate-200 px-2 sm:px-4">
           <div className="flex items-center gap-1 -mb-px overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
@@ -847,6 +836,17 @@ export const Gastos: React.FC = () => {
           )}
         </div>
       </div>
+      </div>{/* /SHELL card unificado · chk5.E-GASTOS pulido 1-card (header + KPIs + tabs) */}
+
+      {/* chk5.C-FIX · canon F-Borradores · banner borrador (fuera del shell · sobre el body) */}
+      <BorradorBanner
+        tipo="gasto"
+        refreshKey={borradorRefreshKey}
+        onContinuar={() => {
+          setGastoParaEditar(null);
+          setShowModal(true);
+        }}
+      />
 
       {/* chk5.C-UX-PASS-ALT · canon v8.0 N7 · GRID main+sidebar envuelve LAS 4 VISTAS
           · Listado · Por Bloque · Calendario · Por Proveedor
