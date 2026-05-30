@@ -94,6 +94,72 @@ explícito de este principio · hasta entonces, admin = root absoluto.
 
 ---
 
+# CANON DE ARQUITECTURA DE MÓDULO · HUB CON TABS (declarado 2026-05-30)
+
+**Todo módulo del ERP sigue la misma anatomía de "hub": shell → top-bar →
+header banking-grade → KPI strip → TABS de sub-sección → body. Ningún módulo
+queda como página suelta sin esta estructura.**
+
+Cita literal del usuario (2026-05-30):
+*"esa arquitectura de hub debe ser canonico para todos los modulos."*
+
+Descubierto al comparar los shells lado a lado: Gastos (módulo ORIGEN del canon
+v8.0) había quedado como "1 pantalla con vistas alternativas" mientras Finanzas,
+Contabilidad, Usuarios e Inversionistas ya eran hubs con tabs. El usuario lo
+detectó visualmente y declaró el hub como canon universal.
+
+## Anatomía canónica del módulo (orden obligatorio)
+
+1. **Shell frame** · `bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden`
+2. **Top-bar** · `border-b border-slate-200 px-6 py-2.5 bg-slate-50` · breadcrumb
+   canon S9.D1 (`Inicio › Módulo`) a la izquierda + **chip de rol contextual** a
+   la derecha (`{esAdmin ? 'Vista ejecutiva · admin' : 'Vista ejecutiva'}` + icono
+   Shield, en el color semántico del módulo · canon "admin ve todo")
+3. **Header banking-grade** · icono tonal en cuadro + h1 + subtítulo + acciones
+   3-tier (N10 · primary en color del módulo)
+4. **KPI strip** · color semántico (N1+N2) + mini-stats footer integrado (N3)
+5. **TABS de sub-sección** · fila `border-b` con tab activo `border-b-2` en el
+   color del módulo · primera tab siempre **Resumen** (dashboard ejecutivo)
+6. **Body** · cuerpo de la tab activa
+
+## Distinción clave · TABS vs TOGGLE DE VISTAS
+
+- **Tab de sub-sección**: cada una es DATA/FUNCIÓN distinta (Balance vs P&L en
+  Contabilidad · Resumen vs Movimientos vs Análisis en Gastos). Vive al nivel del
+  shell (fila de tabs bajo los KPIs).
+- **Toggle de vistas**: la MISMA data vista de otro ángulo (Lista vs Calendario
+  de los mismos gastos). Vive DENTRO de una tab, NUNCA al nivel del shell.
+
+**Regla para distribuir vistas en tabs**: ¿muestra registros INDIVIDUALES
+(operar: ver/editar/pagar) o AGREGADOS (analizar: sumas/distribución/sparklines)?
+Individuales → tab operativa (ej. Movimientos) · Agregados → tab Análisis.
+
+## Referencias canónicas vigentes
+
+- ✅ Finanzas · Contabilidad · Usuarios · Inversionistas (ya son hubs)
+- 🟡 Gastos · en alineación (mockup `docs/mockups/gastos-v5.2-integral.html` · 3 tabs)
+
+## Aplica a
+
+- ✅ Todos los módulos existentes (auditar retroactivamente los que no sean hub)
+- ✅ Todo módulo nuevo a partir de 2026-05-30
+- ⚠️ Excepción única: una pantalla de acción muy simple (wizard standalone, página
+  de detalle) puede no tener tabs, pero SÍ mantiene shell + top-bar + header.
+
+## Checklist antes de cerrar un módulo
+
+1. ✅ ¿Top-bar con breadcrumb S9.D1 + chip de rol contextual (color del módulo)?
+2. ✅ ¿Header banking-grade (icono tonal + h1 + subtítulo + acciones 3-tier)?
+3. ✅ ¿KPI strip semántico + mini-stats?
+4. ✅ ¿Tabs de sub-sección con Resumen como default?
+5. ✅ ¿Vistas "misma data" como toggle DENTRO de tab, no como tab del shell?
+6. ✅ ¿Modales en FormModalV2?
+
+Este canon complementa el canon de cobertura de rework: cuando un módulo entra
+en rework, debe terminar cumpliendo esta anatomía hub completa.
+
+---
+
 # CANON DE COBERTURA DE REWORK DE MÓDULO (declarado 2026-05-11)
 
 **Cuando un módulo entra en rework canon, TODAS sus superficies son parte del

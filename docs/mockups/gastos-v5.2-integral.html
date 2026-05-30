@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Gastos v5.2 · Sección integral · HUB con tabs (evolución del sistema)</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  body { font-family: 'Inter', -apple-system, system-ui, sans-serif; }
+  .tabular { font-variant-numeric: tabular-nums; }
+  kbd { font-family: ui-monospace, monospace; }
+  .acto-label { letter-spacing: .08em; }
+  .scrollbar-hide::-webkit-scrollbar { display: none; }
+  .modal-body::-webkit-scrollbar { width: 6px; }
+  .modal-body::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+</style>
+</head>
+<body class="bg-slate-100 text-slate-900">
+
+<div class="max-w-[1100px] mx-auto px-6 py-10">
+
+  <!-- ════════════════════════════════════════════════════════════════ -->
+  <!-- HERO + ÍNDICE                                                      -->
+  <!-- ════════════════════════════════════════════════════════════════ -->
+  <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-7 mb-8">
+    <div class="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-teal-700 mb-2">
+      <i data-lucide="receipt" class="w-4 h-4"></i> Gastos · Sección integral · v5.2 · HUB con tabs
+    </div>
+    <h1 class="text-3xl font-bold tracking-tight text-slate-900 mb-2">Gastos · reestructurado a <span class="text-teal-600">hub con sub-secciones</span></h1>
+    <p class="text-[14px] text-slate-600 leading-relaxed max-w-3xl">
+      Gastos deja de ser "1 pantalla con vistas alternativas" y pasa a <strong>hub con 3 tabs</strong> — la misma anatomía que
+      Finanzas, Contabilidad y Usuarios: <strong>top-bar + chip de rol + header + KPIs + tabs de sub-sección</strong>.
+      Toda la lógica se conserva, solo se reorganiza el contenido. Cobertura total + mobile.
+    </p>
+
+    <!-- las 3 tabs -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-5">
+      <div class="bg-teal-50 ring-1 ring-teal-200/60 rounded-xl p-4">
+        <div class="flex items-center gap-1.5 text-[11px] uppercase tracking-wider text-teal-700 font-bold mb-1.5"><i data-lucide="layout-dashboard" class="w-3.5 h-3.5"></i> Resumen</div>
+        <div class="text-[12px] text-slate-700">Dashboard ejecutivo: estado del gasto + resumen por bloque + por vencer + top proveedores + eficiencia</div>
+      </div>
+      <div class="bg-amber-50 ring-1 ring-amber-200/60 rounded-xl p-4">
+        <div class="flex items-center gap-1.5 text-[11px] uppercase tracking-wider text-amber-700 font-bold mb-1.5"><i data-lucide="list" class="w-3.5 h-3.5"></i> Movimientos</div>
+        <div class="text-[12px] text-slate-700">Operación: listado de gastos + filtros + toggle Lista/Calendario + banner borrador + nuevo gasto</div>
+      </div>
+      <div class="bg-indigo-50 ring-1 ring-indigo-200/60 rounded-xl p-4">
+        <div class="flex items-center gap-1.5 text-[11px] uppercase tracking-wider text-indigo-700 font-bold mb-1.5"><i data-lucide="bar-chart-3" class="w-3.5 h-3.5"></i> Análisis</div>
+        <div class="text-[12px] text-slate-700">Agregados: por bloque + por proveedor + tendencias 6m + eficiencia cross-módulo (CI)</div>
+      </div>
+    </div>
+
+    <!-- índice -->
+    <div class="mt-6 pt-5 border-t border-slate-200">
+      <div class="text-[10px] uppercase tracking-wider text-slate-400 font-bold mb-2">Actos · cobertura total</div>
+      <div class="grid grid-cols-2 sm:grid-cols-5 gap-2 text-[11px]">
+        <a href="#acto1" class="text-slate-600 hover:text-teal-700">1 · Shell + tabs + KPIs</a>
+        <a href="#acto2" class="text-slate-600 hover:text-teal-700">2 · Tab Resumen</a>
+        <a href="#acto3" class="text-slate-600 hover:text-teal-700">3 · Tab Movimientos</a>
+        <a href="#acto4" class="text-slate-600 hover:text-teal-700">4 · Tab Análisis</a>
+        <a href="#acto5" class="text-slate-600 hover:text-teal-700">5 · Modal GastoForm</a>
+        <a href="#acto6" class="text-slate-600 hover:text-teal-700">6 · Formularios internos</a>
+        <a href="#acto7" class="text-slate-600 hover:text-teal-700">7 · Modal de pago</a>
+        <a href="#acto8" class="text-slate-600 hover:text-teal-700">8 · Política asignación</a>
+        <a href="#acto9" class="text-slate-600 hover:text-teal-700">9 · Estados</a>
+        <a href="#acto10" class="text-slate-600 hover:text-teal-700">10 · Mobile 375px</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════════ -->
+  <!-- ACTO 1 · SHELL DESKTOP + TABS                                      -->
+  <!-- ════════════════════════════════════════════════════════════════ -->
+  <div id="acto1" class="mb-10">
+    <div class="flex items-center gap-2 mb-3">
+      <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500 acto-label">ACTO 1 · Shell · top-bar S9.D1 + chip rol + header + KPIs + TABS de sub-sección (como hermanos)</span>
+    </div>
+
+    <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+      <!-- §A · TOP BAR -->
+      <div class="border-b border-slate-200 px-6 py-2.5 flex items-center gap-3 bg-slate-50">
+        <div class="flex items-center text-[12px] flex-1">
+          <span class="text-slate-500 hover:text-teal-700 cursor-pointer">Inicio</span>
+          <i data-lucide="chevron-right" class="w-3 h-3 text-slate-300 mx-1.5"></i>
+          <span class="text-slate-900 font-semibold">Gastos</span>
+        </div>
+        <span class="text-[10px] bg-teal-50 text-teal-700 px-2 py-0.5 rounded font-bold inline-flex items-center gap-1">
+          <i data-lucide="shield" class="w-3 h-3"></i> Vista ejecutiva · admin
+        </span>
+      </div>
+
+      <!-- §B · HEADER -->
+      <div class="px-6 py-5 border-b border-slate-100">
+        <div class="flex items-start justify-between gap-4 flex-wrap">
+          <div class="flex items-start gap-3 flex-1 min-w-[260px]">
+            <div class="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 bg-gradient-to-br from-teal-50 to-teal-100 ring-1 ring-teal-200/50">
+              <i data-lucide="receipt" class="w-6 h-6 text-teal-700"></i>
+            </div>
+            <div class="min-w-0">
+              <h1 class="text-2xl font-bold tracking-tight text-slate-900">Gastos</h1>
+              <p class="text-[13px] text-slate-500 leading-snug">Consolidador de gastos · manuales + auto-generados por OC/Envío/Venta · separación gasto/pago canon.</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2 flex-wrap justify-end max-w-full">
+            <button class="text-[11px] font-semibold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 px-3 py-1.5 rounded-lg flex items-center gap-1.5">
+              <i data-lucide="settings" class="w-3 h-3"></i> <span class="hidden lg:inline">Política asignación</span><span class="lg:hidden">Política</span>
+            </button>
+            <button class="text-[11px] font-semibold text-slate-600 hover:bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-lg flex items-center gap-1.5">
+              <i data-lucide="file-bar-chart" class="w-3 h-3"></i> <span class="hidden lg:inline">Ver P&L</span> <i data-lucide="external-link" class="w-3 h-3 opacity-50"></i>
+            </button>
+            <button class="text-[11px] font-semibold text-slate-600 hover:bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-lg flex items-center gap-1.5">
+              <i data-lucide="download" class="w-3 h-3"></i> <span class="hidden lg:inline">Exportar</span>
+            </button>
+            <button class="text-[11px] font-bold text-white bg-teal-600 hover:bg-teal-700 px-4 py-1.5 rounded-lg flex items-center gap-1.5 shadow-sm">
+              <i data-lucide="plus" class="w-3.5 h-3.5"></i> <span class="hidden sm:inline">Nuevo gasto manual</span><span class="sm:hidden">Nuevo</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- §C · KPI STRIP -->
+      <div class="px-6 py-4 grid grid-cols-2 md:grid-cols-5 gap-3">
+        <div class="bg-gradient-to-br from-amber-50 to-amber-100/40 ring-1 ring-amber-200/50 rounded-2xl p-4">
+          <div class="flex items-center justify-between mb-2"><span class="text-[10px] uppercase tracking-wider text-amber-700 font-bold">Gasto del mes</span><i data-lucide="receipt" class="w-3.5 h-3.5 text-amber-700"></i></div>
+          <div class="text-2xl font-bold tabular text-amber-900">12,480<span class="text-amber-400">.50</span></div>
+          <div class="text-[11px] text-amber-700 flex items-center gap-1 mt-1"><i data-lucide="trending-down" class="w-3 h-3"></i> -8.2% vs mes ant.</div>
+        </div>
+        <div class="bg-gradient-to-br from-rose-50 to-rose-100/40 ring-1 ring-rose-200/50 rounded-2xl p-4">
+          <div class="flex items-center justify-between mb-2"><span class="text-[10px] uppercase tracking-wider text-rose-700 font-bold">Burn rate · 3M</span><i data-lucide="flame" class="w-3.5 h-3.5 text-rose-700"></i></div>
+          <div class="text-2xl font-bold tabular text-rose-900">13,950</div>
+          <div class="text-[11px] text-rose-700 mt-1">promedio móvil</div>
+        </div>
+        <div class="bg-gradient-to-br from-indigo-50 to-indigo-100/40 ring-1 ring-indigo-200/50 rounded-2xl p-4">
+          <div class="flex items-center justify-between mb-2"><span class="text-[10px] uppercase tracking-wider text-indigo-700 font-bold">Recurrentes</span><i data-lucide="repeat" class="w-3.5 h-3.5 text-indigo-700"></i></div>
+          <div class="text-2xl font-bold tabular text-indigo-900">34<span class="text-indigo-400">%</span></div>
+          <div class="text-[11px] text-indigo-700 mt-1">fijos comprometidos</div>
+        </div>
+        <div class="bg-gradient-to-br from-rose-50 to-rose-100/40 ring-1 ring-rose-200/50 rounded-2xl p-4">
+          <div class="flex items-center justify-between mb-2"><span class="text-[10px] uppercase tracking-wider text-rose-700 font-bold">Vencen 30d</span><i data-lucide="clock" class="w-3.5 h-3.5 text-rose-700"></i></div>
+          <div class="text-2xl font-bold tabular text-rose-900">3,200</div>
+          <div class="text-[11px] text-rose-700 mt-1">4 gastos</div>
+        </div>
+        <div class="bg-gradient-to-br from-emerald-50 to-emerald-100/40 ring-1 ring-emerald-200/50 rounded-2xl p-4">
+          <div class="flex items-center justify-between mb-2"><span class="text-[10px] uppercase tracking-wider text-emerald-700 font-bold">DPO · días pago</span><i data-lucide="calendar-check" class="w-3.5 h-3.5 text-emerald-700"></i></div>
+          <div class="text-2xl font-bold tabular text-emerald-900">28<span class="text-emerald-400">d</span></div>
+          <div class="text-[11px] text-emerald-700 flex items-center gap-1 mt-1"><i data-lucide="trending-up" class="w-3 h-3"></i> +3d vs trim.</div>
+        </div>
+      </div>
+
+      <!-- §D · MINI-STATS -->
+      <div class="bg-slate-50/50 border-t border-slate-200 px-6 py-2 flex items-center gap-4 text-[11px] flex-wrap">
+        <span class="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Mini-stats:</span>
+        <span class="flex items-center gap-1 text-slate-600"><i data-lucide="briefcase" class="w-3 h-3 text-slate-400"></i> Top proveedor: <strong>Maersk · S/ 2,400</strong></span>
+        <span class="flex items-center gap-1 text-slate-600"><i data-lucide="alert-circle" class="w-3 h-3 text-amber-500"></i> Sin clasificar: <strong>2</strong></span>
+        <span class="flex items-center gap-1 text-slate-600"><i data-lucide="clock" class="w-3 h-3 text-rose-500"></i> Próximo vto: <strong>Alquiler · 3 jun</strong></span>
+      </div>
+
+      <!-- §E · TABS de sub-sección (NUEVO · como hermanos) -->
+      <div class="border-b border-slate-200 px-6">
+        <div class="flex items-center gap-1 -mb-px">
+          <a class="px-4 py-3 text-[12px] border-b-2 border-teal-600 text-teal-700 font-semibold flex items-center gap-1.5 whitespace-nowrap"><i data-lucide="layout-dashboard" class="w-3.5 h-3.5"></i> Resumen</a>
+          <a class="px-4 py-3 text-[12px] border-b-2 border-transparent text-slate-600 hover:text-slate-900 hover:border-slate-300 font-medium flex items-center gap-1.5 whitespace-nowrap"><i data-lucide="list" class="w-3.5 h-3.5"></i> Movimientos <span class="text-[10px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded-full font-bold">14</span></a>
+          <a class="px-4 py-3 text-[12px] border-b-2 border-transparent text-slate-600 hover:text-slate-900 hover:border-slate-300 font-medium flex items-center gap-1.5 whitespace-nowrap"><i data-lucide="bar-chart-3" class="w-3.5 h-3.5"></i> Análisis</a>
+        </div>
+      </div>
+
+      <!-- §F · BODY (tab activa: Resumen) -->
+      <div class="bg-slate-50/30 px-6 py-5 text-center text-[12px] text-slate-400">
+        ↓ El cuerpo de la tab activa se muestra en el ACTO 2 (Resumen)
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════════ -->
+  <!-- ACTO 2 · TAB RESUMEN (dashboard ejecutivo)                         -->
+  <!-- ════════════════════════════════════════════════════════════════ -->
+  <div id="acto2" class="mb-10">
+    <div class="flex items-center gap-2 mb-3">
+      <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500 acto-label">ACTO 2 · Tab RESUMEN · dashboard ejecutivo ("¿cómo voy de gastos este mes?")</span>
+    </div>
+    <div class="bg-slate-50/40 border border-slate-200 rounded-2xl p-5 space-y-4">
+
+      <!-- Estado del gasto del mes -->
+      <div class="bg-white border border-slate-200 rounded-xl p-4 flex items-start gap-3">
+        <div class="w-10 h-10 rounded-lg bg-emerald-100 flex items-center justify-center flex-shrink-0"><i data-lucide="check-circle-2" class="w-5 h-5 text-emerald-700"></i></div>
+        <div class="flex-1">
+          <div class="text-[13px] font-bold text-slate-900">Gasto bajo control este mes</div>
+          <div class="text-[12px] text-slate-600">Gastás <strong>8.2% menos</strong> que el mes pasado · 34% son recurrentes comprometidos · 4 vencimientos próximos por S/ 3,200.</div>
+        </div>
+      </div>
+
+      <!-- Resumen por bloque (3 mini) -->
+      <div>
+        <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-2">Distribución por bloque</div>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div class="bg-gradient-to-br from-blue-50 to-blue-100/40 ring-1 ring-blue-200/50 rounded-xl p-3.5">
+            <div class="flex items-center gap-2 mb-1.5"><i data-lucide="package" class="w-4 h-4 text-blue-700"></i><span class="text-[12px] font-bold text-blue-900">Producto</span></div>
+            <div class="text-xl font-bold tabular text-blue-900">S/ 5,240</div>
+            <div class="h-1.5 bg-blue-100 rounded-full mt-2 overflow-hidden"><div class="h-full bg-blue-500" style="width:42%"></div></div>
+            <div class="text-[10px] text-blue-700 mt-1">42% · prorratea al CTRU</div>
+          </div>
+          <div class="bg-gradient-to-br from-purple-50 to-purple-100/40 ring-1 ring-purple-200/50 rounded-xl p-3.5">
+            <div class="flex items-center gap-2 mb-1.5"><i data-lucide="shopping-bag" class="w-4 h-4 text-purple-700"></i><span class="text-[12px] font-bold text-purple-900">Venta</span></div>
+            <div class="text-xl font-bold tabular text-purple-900">S/ 1,920</div>
+            <div class="h-1.5 bg-purple-100 rounded-full mt-2 overflow-hidden"><div class="h-full bg-purple-500" style="width:15%"></div></div>
+            <div class="text-[10px] text-purple-700 mt-1">15% · resta margen de venta</div>
+          </div>
+          <div class="bg-gradient-to-br from-amber-50 to-amber-100/40 ring-1 ring-amber-200/50 rounded-xl p-3.5">
+            <div class="flex items-center gap-2 mb-1.5"><i data-lucide="calendar" class="w-4 h-4 text-amber-700"></i><span class="text-[12px] font-bold text-amber-900">Período</span></div>
+            <div class="text-xl font-bold tabular text-amber-900">S/ 5,320</div>
+            <div class="h-1.5 bg-amber-100 rounded-full mt-2 overflow-hidden"><div class="h-full bg-amber-500" style="width:43%"></div></div>
+            <div class="text-[10px] text-amber-700 mt-1">43% · overhead al P&L</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- grid: por vencer + top proveedores | eficiencia -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <!-- por vencer -->
+        <div class="bg-white border border-slate-200 rounded-xl p-4">
+          <div class="flex items-center gap-1.5 mb-2.5"><i data-lucide="alarm-clock" class="w-3.5 h-3.5 text-rose-600"></i><span class="text-[11px] uppercase tracking-wider text-slate-500 font-bold">Por vencer (30d)</span></div>
+          <div class="space-y-2">
+            <div class="flex items-center justify-between text-[12px] p-2 rounded-lg bg-rose-50/50 border border-rose-100"><div><div class="font-semibold text-slate-900">Alquiler oficina</div><div class="text-[10px] text-rose-600">vence en 3 días</div></div><span class="font-bold text-slate-900 tabular">S/ 1,800</span></div>
+            <div class="flex items-center justify-between text-[12px] p-2 rounded-lg bg-amber-50/50 border border-amber-100"><div><div class="font-semibold text-slate-900">Internet + teléfono</div><div class="text-[10px] text-amber-600">vence en 8 días</div></div><span class="font-bold text-slate-900 tabular">S/ 180</span></div>
+            <div class="flex items-center justify-between text-[12px] p-2 rounded-lg bg-amber-50/50 border border-amber-100"><div><div class="font-semibold text-slate-900">Flete Maersk</div><div class="text-[10px] text-amber-600">vence en 12 días</div></div><span class="font-bold text-slate-900 tabular">S/ 1,220</span></div>
+          </div>
+        </div>
+        <!-- top proveedores + eficiencia apiladas -->
+        <div class="space-y-3">
+          <div class="bg-white border border-slate-200 rounded-xl p-4">
+            <div class="flex items-center gap-1.5 mb-2.5"><i data-lucide="briefcase" class="w-3.5 h-3.5 text-slate-500"></i><span class="text-[11px] uppercase tracking-wider text-slate-500 font-bold">Top proveedores · mes</span></div>
+            <div class="space-y-1.5 text-[12px]">
+              <div class="flex items-center justify-between"><span class="text-slate-700">Maersk Logistics</span><span class="font-bold tabular">S/ 2,400</span></div>
+              <div class="flex items-center justify-between"><span class="text-slate-700">Inmobiliaria SAC</span><span class="font-bold tabular">S/ 1,800</span></div>
+              <div class="flex items-center justify-between"><span class="text-slate-700">Mercado Libre</span><span class="font-bold tabular">S/ 640</span></div>
+            </div>
+          </div>
+          <div class="bg-gradient-to-r from-teal-50 to-cyan-50/30 border border-teal-200 rounded-xl p-4">
+            <div class="flex items-center gap-1.5 mb-1.5"><i data-lucide="bar-chart-3" class="w-3.5 h-3.5 text-teal-600"></i><span class="text-[11px] uppercase tracking-wider text-teal-700 font-bold">Eficiencia · mes</span></div>
+            <div class="flex items-center gap-4 text-[12px] text-slate-700">
+              <span>Gasto/Inversión <strong class="tabular text-teal-700">18.4%</strong></span>
+              <span>Gasto/Ingreso <strong class="tabular text-teal-700">22.1%</strong></span>
+            </div>
+            <button class="mt-2 text-[11px] text-teal-700 hover:text-teal-800 font-bold flex items-center gap-1">Ver Cost Intelligence <i data-lucide="arrow-right" class="w-3 h-3"></i></button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════════ -->
+  <!-- ACTO 3 · TAB MOVIMIENTOS                                           -->
+  <!-- ════════════════════════════════════════════════════════════════ -->
+  <div id="acto3" class="mb-10">
+    <div class="flex items-center gap-2 mb-3">
+      <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500 acto-label">ACTO 3 · Tab MOVIMIENTOS · operación (listado + filtros + toggle Lista/Calendario)</span>
+    </div>
+    <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+      <!-- mini tabs indicador -->
+      <div class="flex items-center gap-1 border-b border-slate-200 px-6">
+        <span class="px-4 py-3 text-[12px] text-slate-500 border-b-2 border-transparent">Resumen</span>
+        <span class="px-4 py-3 text-[12px] border-b-2 border-teal-600 text-teal-700 font-semibold flex items-center gap-1.5"><i data-lucide="list" class="w-3.5 h-3.5"></i> Movimientos</span>
+        <span class="px-4 py-3 text-[12px] text-slate-500 border-b-2 border-transparent">Análisis</span>
+      </div>
+      <!-- nav temporal + borrador -->
+      <div class="px-6 py-3 border-b border-slate-100 flex items-center justify-between gap-3 flex-wrap">
+        <div class="flex items-center gap-2">
+          <button class="px-2 py-1 text-slate-400 hover:text-slate-600 flex items-center gap-1 text-[12px]"><i data-lucide="chevron-left" class="w-3.5 h-3.5"></i> Abril</button>
+          <span class="px-3 py-1 text-[13px] font-bold text-slate-900">Mayo 2026</span>
+          <button class="px-2 py-1 text-slate-300 flex items-center gap-1 text-[12px]">Junio <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i></button>
+          <span class="w-px h-4 bg-slate-200 mx-1"></span>
+          <button class="flex items-center gap-1.5 px-2.5 py-1 text-[12px] text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-lg"><span class="w-2 h-2 rounded-full bg-emerald-500"></span> Todas las líneas <i data-lucide="chevron-down" class="w-3 h-3"></i></button>
+        </div>
+        <!-- toggle interno Lista / Calendario -->
+        <div class="flex items-center gap-1.5">
+          <button class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-bold bg-amber-100 text-amber-800 border border-amber-300"><i data-lucide="list" class="w-3.5 h-3.5"></i> Lista</button>
+          <button class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-medium bg-white text-slate-600 border border-slate-200"><i data-lucide="calendar" class="w-3.5 h-3.5"></i> Calendario</button>
+        </div>
+      </div>
+      <!-- banner borrador -->
+      <div class="mx-6 mt-3 bg-amber-50 border border-amber-200 rounded-xl px-4 py-2.5 flex items-center justify-between gap-3 flex-wrap">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center flex-shrink-0"><i data-lucide="file-text" class="w-4 h-4 text-amber-700"></i></div>
+          <div><div class="text-[12px] font-bold text-slate-900">Tienes un gasto en borrador</div><div class="text-[10px] text-amber-700">hace 4 min · Paso 2 de 5</div></div>
+        </div>
+        <div class="flex items-center gap-2">
+          <button class="px-2.5 py-1 text-[11px] font-medium text-slate-600 hover:bg-amber-100 rounded-lg flex items-center gap-1"><i data-lucide="trash-2" class="w-3 h-3"></i> Descartar</button>
+          <button class="px-2.5 py-1 text-[11px] font-bold text-white bg-amber-600 rounded-lg flex items-center gap-1">Continuar <i data-lucide="arrow-right" class="w-3 h-3"></i></button>
+        </div>
+      </div>
+      <!-- filtros + listado -->
+      <div class="p-6">
+        <div class="flex items-center gap-2 flex-wrap mb-3">
+          <div class="relative flex-1 min-w-[200px]"><i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"></i><input type="text" placeholder="Buscar gasto, proveedor, comprobante..." class="w-full pl-9 pr-3 py-2 border border-slate-200 rounded-lg text-[12px]" /></div>
+          <button class="flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-medium bg-blue-100 text-blue-800 border border-blue-300 ring-2 ring-blue-200"><i data-lucide="package" class="w-3 h-3"></i> Producto</button>
+          <button class="flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-medium bg-amber-50 text-amber-700 border border-amber-200"><i data-lucide="clock" class="w-3 h-3"></i> Pendiente</button>
+          <button class="flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-medium text-rose-600 hover:bg-rose-50"><i data-lucide="x" class="w-3 h-3"></i> Limpiar</button>
+        </div>
+        <div class="space-y-2.5">
+          <!-- card 1 -->
+          <div class="bg-white border border-slate-200 rounded-xl p-3.5 hover:shadow-sm">
+            <div class="flex items-start gap-3">
+              <div class="w-10 h-10 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center flex-shrink-0"><i data-lucide="package" class="w-5 h-5"></i></div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-1.5 text-[11px] text-slate-400 mb-0.5"><span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full font-semibold text-[10px] bg-blue-100 text-blue-700">Producto</span><i data-lucide="chevron-right" class="w-3 h-3"></i><span>Importación</span><i data-lucide="chevron-right" class="w-3 h-3"></i><span class="text-slate-600 font-medium">Flete internacional</span></div>
+                <div class="text-[13px] font-semibold text-slate-900">Flete contenedor marzo · Maersk</div>
+                <div class="flex items-center gap-2 mt-1 flex-wrap"><span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200"><i data-lucide="package" class="w-3 h-3"></i> OC-2026-014</span><button class="text-[10px] text-blue-600 hover:underline flex items-center gap-0.5">Ver doc <i data-lucide="external-link" class="w-2.5 h-2.5"></i></button><span class="text-[11px] text-slate-400">· 12 may</span></div>
+              </div>
+              <div class="text-right flex-shrink-0"><div class="text-[15px] font-bold text-slate-900 tabular">S/ 2,400.00</div><span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-700 border border-amber-300 mt-1"><i data-lucide="clock" class="w-3 h-3"></i> PENDIENTE</span><div class="flex items-center justify-end gap-1 mt-1.5"><button class="p-1.5 text-slate-400 hover:bg-slate-50 rounded"><i data-lucide="edit-3" class="w-3.5 h-3.5"></i></button><button class="px-2.5 py-1 text-[11px] font-bold text-white bg-teal-600 rounded-lg">Pagar</button></div></div>
+            </div>
+          </div>
+          <!-- card 2 -->
+          <div class="bg-white border border-slate-200 rounded-xl p-3.5 hover:shadow-sm">
+            <div class="flex items-start gap-3">
+              <div class="w-10 h-10 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center flex-shrink-0"><i data-lucide="calendar" class="w-5 h-5"></i></div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-1.5 text-[11px] text-slate-400 mb-0.5"><span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full font-semibold text-[10px] bg-amber-100 text-amber-700">Período</span><i data-lucide="chevron-right" class="w-3 h-3"></i><span>Operativo</span><i data-lucide="chevron-right" class="w-3 h-3"></i><span class="text-slate-600 font-medium">Alquiler</span></div>
+                <div class="text-[13px] font-semibold text-slate-900">Alquiler oficina · mayo</div>
+                <div class="flex items-center gap-2 mt-1 flex-wrap"><span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-600 border border-slate-200"><i data-lucide="edit-3" class="w-3 h-3"></i> Manual</span><span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-medium bg-indigo-50 text-indigo-700"><i data-lucide="repeat" class="w-3 h-3"></i> Recurrente</span><span class="text-[11px] text-slate-400">· 5 may</span></div>
+              </div>
+              <div class="text-right flex-shrink-0"><div class="text-[15px] font-bold text-slate-900 tabular">S/ 1,800.00</div><span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-700 border border-emerald-300 mt-1"><i data-lucide="check" class="w-3 h-3"></i> PAGADO</span><div class="flex items-center justify-end gap-1 mt-1.5"><button class="p-1.5 text-slate-400 hover:bg-slate-50 rounded"><i data-lucide="edit-3" class="w-3.5 h-3.5"></i></button></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════════ -->
+  <!-- ACTO 4 · TAB ANÁLISIS                                              -->
+  <!-- ════════════════════════════════════════════════════════════════ -->
+  <div id="acto4" class="mb-10">
+    <div class="flex items-center gap-2 mb-3">
+      <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500 acto-label">ACTO 4 · Tab ANÁLISIS · agregados (Por Bloque + Por Proveedor + tendencias)</span>
+    </div>
+    <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+      <!-- mini tabs indicador -->
+      <div class="flex items-center gap-1 border-b border-slate-200 px-6">
+        <span class="px-4 py-3 text-[12px] text-slate-500 border-b-2 border-transparent">Resumen</span>
+        <span class="px-4 py-3 text-[12px] text-slate-500 border-b-2 border-transparent">Movimientos</span>
+        <span class="px-4 py-3 text-[12px] border-b-2 border-teal-600 text-teal-700 font-semibold flex items-center gap-1.5"><i data-lucide="bar-chart-3" class="w-3.5 h-3.5"></i> Análisis</span>
+      </div>
+      <div class="p-6 space-y-4">
+        <!-- Por Bloque -->
+        <div>
+          <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-2">Por bloque de costo</div>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div class="bg-gradient-to-br from-blue-50 to-blue-100/40 ring-1 ring-blue-200/50 rounded-2xl p-4">
+              <div class="flex items-center gap-2 mb-1.5"><i data-lucide="package" class="w-4 h-4 text-blue-700"></i><span class="text-[12px] font-bold text-blue-900">Producto</span></div>
+              <div class="text-xl font-bold tabular text-blue-900">S/ 5,240</div>
+              <svg viewBox="0 0 100 24" class="w-full h-6 my-1.5"><polyline points="0,18 20,14 40,16 60,8 80,10 100,4" fill="none" stroke="#3b82f6" stroke-width="2"/></svg>
+              <div class="space-y-1 text-[11px] text-slate-600"><div class="flex justify-between"><span>Flete internacional</span><span class="font-bold tabular">2,400</span></div><div class="flex justify-between"><span>Aranceles</span><span class="font-bold tabular">1,840</span></div></div>
+            </div>
+            <div class="bg-gradient-to-br from-purple-50 to-purple-100/40 ring-1 ring-purple-200/50 rounded-2xl p-4">
+              <div class="flex items-center gap-2 mb-1.5"><i data-lucide="shopping-bag" class="w-4 h-4 text-purple-700"></i><span class="text-[12px] font-bold text-purple-900">Venta</span></div>
+              <div class="text-xl font-bold tabular text-purple-900">S/ 1,920</div>
+              <svg viewBox="0 0 100 24" class="w-full h-6 my-1.5"><polyline points="0,10 20,12 40,8 60,14 80,11 100,13" fill="none" stroke="#a855f7" stroke-width="2"/></svg>
+              <div class="space-y-1 text-[11px] text-slate-600"><div class="flex justify-between"><span>Comisión ML</span><span class="font-bold tabular">1,280</span></div><div class="flex justify-between"><span>Publicidad</span><span class="font-bold tabular">640</span></div></div>
+            </div>
+            <div class="bg-gradient-to-br from-amber-50 to-amber-100/40 ring-1 ring-amber-200/50 rounded-2xl p-4">
+              <div class="flex items-center gap-2 mb-1.5"><i data-lucide="calendar" class="w-4 h-4 text-amber-700"></i><span class="text-[12px] font-bold text-amber-900">Período</span></div>
+              <div class="text-xl font-bold tabular text-amber-900">S/ 5,320</div>
+              <svg viewBox="0 0 100 24" class="w-full h-6 my-1.5"><polyline points="0,12 20,12 40,11 60,12 80,12 100,12" fill="none" stroke="#f59e0b" stroke-width="2"/></svg>
+              <div class="space-y-1 text-[11px] text-slate-600"><div class="flex justify-between"><span>Sueldos admin</span><span class="font-bold tabular">3,200</span></div><div class="flex justify-between"><span>Alquiler</span><span class="font-bold tabular">1,800</span></div></div>
+            </div>
+          </div>
+        </div>
+        <!-- Por Proveedor -->
+        <div>
+          <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-2">Por proveedor</div>
+          <div class="border border-slate-200 rounded-xl divide-y divide-slate-100">
+            <div class="flex items-center gap-3 px-4 py-2.5">
+              <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-blue-50 to-blue-100 ring-1 ring-blue-200/50 flex items-center justify-center text-blue-700 font-bold text-[12px]">MA</div>
+              <div class="flex-1 min-w-0"><div class="flex items-center gap-2"><span class="text-[12px] font-semibold text-slate-900">Maersk Logistics</span><span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-medium bg-blue-100 text-blue-700"><i data-lucide="package" class="w-3 h-3"></i> Producto</span></div><div class="text-[10px] text-slate-400">3 gastos</div></div>
+              <svg viewBox="0 0 80 20" class="w-14 h-5"><polyline points="0,16 20,10 40,12 60,6 80,8" fill="none" stroke="#3b82f6" stroke-width="2"/></svg>
+              <div class="text-[13px] font-bold text-slate-900 tabular">S/ 4,200</div>
+            </div>
+            <div class="flex items-center gap-3 px-4 py-2.5">
+              <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-amber-50 to-amber-100 ring-1 ring-amber-200/50 flex items-center justify-center text-amber-700 font-bold text-[12px]">IN</div>
+              <div class="flex-1 min-w-0"><div class="flex items-center gap-2"><span class="text-[12px] font-semibold text-slate-900">Inmobiliaria SAC</span><span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-medium bg-amber-100 text-amber-700"><i data-lucide="calendar" class="w-3 h-3"></i> Período</span></div><div class="text-[10px] text-slate-400">1 gasto · recurrente</div></div>
+              <svg viewBox="0 0 80 20" class="w-14 h-5"><polyline points="0,10 20,10 40,10 60,10 80,10" fill="none" stroke="#f59e0b" stroke-width="2"/></svg>
+              <div class="text-[13px] font-bold text-slate-900 tabular">S/ 1,800</div>
+            </div>
+          </div>
+        </div>
+        <!-- Tendencia 6m + cross-link CI -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div class="bg-white border border-slate-200 rounded-xl p-4">
+            <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-2">Tendencia gasto · 6 meses</div>
+            <svg viewBox="0 0 200 50" class="w-full h-14"><polyline points="0,40 40,34 80,38 120,28 160,30 200,22" fill="none" stroke="#0f766e" stroke-width="2.5"/></svg>
+            <div class="flex justify-between text-[10px] text-slate-400 mt-1"><span>Dic</span><span>Ene</span><span>Feb</span><span>Mar</span><span>Abr</span><span>May</span></div>
+          </div>
+          <div class="bg-gradient-to-r from-teal-50 to-cyan-50/30 border border-teal-200 rounded-xl p-4 flex flex-col justify-center">
+            <div class="flex items-center gap-1.5 mb-1.5"><i data-lucide="bar-chart-3" class="w-4 h-4 text-teal-600"></i><span class="text-[11px] uppercase tracking-wider text-teal-700 font-bold">Eficiencia profunda</span></div>
+            <div class="text-[12px] text-slate-700 mb-2">Ratios de gasto vs inversión e ingreso · análisis 6m por línea de negocio viven en Cost Intelligence.</div>
+            <button class="text-[11px] text-teal-700 hover:text-teal-800 font-bold flex items-center gap-1 self-start">Abrir Cost Intelligence <i data-lucide="arrow-right" class="w-3 h-3"></i></button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════════ -->
+  <!-- ACTO 5 · MODAL GASTOFORM (FormModalV2 · 5 secciones)               -->
+  <!-- ════════════════════════════════════════════════════════════════ -->
+  <div id="acto5" class="mb-10">
+    <div class="flex items-center gap-2 mb-3">
+      <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500 acto-label">ACTO 5 · Modal "Nuevo gasto manual" · FormModalV2 (icono tonal + numeración 1→5 + footer sticky)</span>
+    </div>
+    <div class="flex justify-center bg-slate-200/60 rounded-2xl p-6">
+      <div class="bg-white rounded-2xl shadow-xl w-full max-w-[560px] overflow-hidden flex flex-col" style="max-height: 78vh;">
+        <div class="px-6 py-4 border-b border-slate-200 bg-white flex items-center justify-between gap-3 flex-shrink-0">
+          <div class="flex items-center gap-3 min-w-0"><div class="flex-shrink-0 w-10 h-10 rounded-lg border bg-teal-50 border-teal-200 text-teal-700 flex items-center justify-center"><i data-lucide="receipt" class="w-5 h-5"></i></div><div class="min-w-0"><h2 class="text-base font-bold text-slate-900 truncate">Nuevo gasto manual</h2><p class="text-[11px] text-slate-500 truncate">Registra el gasto · el pago se gestiona después desde la lista</p></div></div>
+          <button class="text-slate-400 hover:text-slate-600 flex-shrink-0"><i data-lucide="x" class="w-5 h-5"></i></button>
+        </div>
+        <div class="modal-body px-6 py-5 space-y-5 overflow-y-auto">
+          <div>
+            <div class="flex items-center gap-2 mb-2.5"><span class="w-5 h-5 rounded-full bg-slate-100 text-slate-500 text-[10px] font-bold flex items-center justify-center">1</span><h3 class="text-[11px] uppercase tracking-wider text-slate-500 font-bold">Clasificación</h3><span class="text-rose-500 text-xs">*</span></div>
+            <button class="w-full flex items-center justify-between gap-2 px-3 py-2.5 border border-slate-300 rounded-lg text-left"><span class="flex items-center gap-2 min-w-0 text-[13px]"><span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full font-semibold text-[10px] bg-blue-100 text-blue-700"><i data-lucide="package" class="w-3 h-3"></i> Producto</span><i data-lucide="chevron-right" class="w-3 h-3 text-slate-300"></i><span class="text-slate-600 truncate">Importación</span><i data-lucide="chevron-right" class="w-3 h-3 text-slate-300"></i><span class="font-semibold text-slate-900 truncate">Flete internacional</span></span><i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-400"></i></button>
+            <div class="mt-2 flex items-start gap-1.5 text-[11px] text-blue-700 bg-blue-50 border border-blue-100 rounded-lg px-2.5 py-1.5"><i data-lucide="info" class="w-3 h-3 mt-0.5 flex-shrink-0"></i><span>Bloque <strong>PRODUCTO</strong> · prorratea al CTRU · afecta el margen por unidad</span></div>
+          </div>
+          <div>
+            <div class="flex items-center gap-2 mb-2.5"><span class="w-5 h-5 rounded-full bg-slate-100 text-slate-500 text-[10px] font-bold flex items-center justify-center">2</span><h3 class="text-[11px] uppercase tracking-wider text-slate-500 font-bold">Agente del gasto</h3></div>
+            <div class="flex items-center gap-1.5 mb-2.5"><button class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-semibold bg-slate-900 text-white"><i data-lucide="briefcase" class="w-3.5 h-3.5"></i> Proveedor</button><button class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-medium bg-white text-slate-600 border border-slate-200"><i data-lucide="users" class="w-3.5 h-3.5"></i> Colaborador</button><button class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-medium bg-white text-slate-600 border border-slate-200"><i data-lucide="user" class="w-3.5 h-3.5"></i> Empleado</button></div>
+            <div class="relative"><i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"></i><input type="text" value="Maersk Logistics SAC" class="w-full pl-9 pr-3 py-2.5 border border-slate-300 rounded-lg text-[13px] text-slate-900" /></div>
+            <button class="mt-1.5 text-[12px] text-teal-600 font-medium flex items-center gap-1"><i data-lucide="plus" class="w-3.5 h-3.5"></i> Crear nuevo proveedor inline</button>
+          </div>
+          <div>
+            <div class="flex items-center gap-2 mb-2.5"><span class="w-5 h-5 rounded-full bg-slate-100 text-slate-500 text-[10px] font-bold flex items-center justify-center">3</span><h3 class="text-[11px] uppercase tracking-wider text-slate-500 font-bold">Monto</h3></div>
+            <div class="flex items-center gap-1.5 mb-2.5"><button class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-semibold bg-slate-900 text-white"><i data-lucide="banknote" class="w-3.5 h-3.5"></i> PEN · S/</button><button class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-medium bg-white text-slate-600 border border-slate-200"><i data-lucide="dollar-sign" class="w-3.5 h-3.5"></i> USD · $</button></div>
+            <div class="grid grid-cols-3 gap-2"><div class="col-span-2"><div class="flex items-center border border-slate-300 rounded-lg overflow-hidden"><span class="px-3 py-2.5 bg-slate-50 text-slate-500 text-[13px] border-r border-slate-200">S/</span><input type="text" value="2,400.00" class="flex-1 px-3 py-2.5 text-[15px] font-bold text-slate-900 tabular text-right" /></div></div><div><div class="flex items-center border border-slate-200 rounded-lg overflow-hidden bg-slate-50"><span class="px-2 py-2.5 text-slate-400 text-[11px] border-r border-slate-200">TC</span><input type="text" value="3.405" class="flex-1 px-2 py-2.5 text-[13px] text-slate-500 tabular text-right bg-transparent" /></div></div></div>
+            <div class="mt-1.5 text-[11px] text-slate-400 text-right">≈ <strong class="text-slate-600 tabular">$ 704.85</strong> USD</div>
+          </div>
+          <div>
+            <div class="flex items-center gap-2 mb-2.5"><span class="w-5 h-5 rounded-full bg-slate-100 text-slate-500 text-[10px] font-bold flex items-center justify-center">4</span><h3 class="text-[11px] uppercase tracking-wider text-slate-500 font-bold">Fecha + recurrencia</h3></div>
+            <div class="grid grid-cols-2 gap-2"><div><label class="block text-[11px] text-slate-500 mb-1">Fecha <span class="text-rose-500">*</span></label><div class="flex items-center border border-slate-300 rounded-lg px-3 py-2.5 text-[13px]"><i data-lucide="calendar" class="w-4 h-4 text-slate-400 mr-2"></i><span class="text-slate-900 tabular">30/05/2026</span></div></div><div><label class="block text-[11px] text-slate-500 mb-1">Recurrencia</label><div class="flex items-center justify-between border border-slate-300 rounded-lg px-3 py-2.5 text-[13px]"><span class="flex items-center gap-2 text-slate-900"><i data-lucide="repeat" class="w-4 h-4 text-slate-400"></i> Único</span><i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-400"></i></div></div></div>
+          </div>
+          <div>
+            <div class="flex items-center gap-2 mb-2.5"><span class="w-5 h-5 rounded-full bg-slate-100 text-slate-500 text-[10px] font-bold flex items-center justify-center">5</span><h3 class="text-[11px] uppercase tracking-wider text-slate-500 font-bold">Detalle</h3></div>
+            <div class="space-y-3"><div><label class="block text-[11px] text-slate-500 mb-1">Descripción <span class="text-rose-500">*</span></label><input type="text" placeholder="Detalle específico del gasto" class="w-full px-3 py-2.5 border border-slate-300 rounded-lg text-[13px]" /></div><div><label class="block text-[11px] text-slate-500 mb-1">Línea de negocio</label><div class="flex items-center justify-between border border-slate-300 rounded-lg px-3 py-2.5 text-[13px]"><span class="text-slate-900">Compartido (todas las líneas)</span><i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-400"></i></div></div><div><label class="block text-[11px] text-slate-500 mb-1">Notas <span class="text-slate-400">(opcional)</span></label><textarea rows="2" placeholder="Notas internas o contexto adicional" class="w-full px-3 py-2.5 border border-slate-300 rounded-lg text-[13px] resize-none"></textarea></div></div>
+          </div>
+        </div>
+        <div class="flex-shrink-0 border-t border-slate-200 bg-white">
+          <div class="px-6 pt-2.5 flex items-center gap-1.5 text-[10px] text-slate-400"><i data-lucide="info" class="w-3 h-3"></i> Solo <strong class="text-slate-500">registra</strong> el gasto · el pago se gestiona con "Pagar" en la lista</div>
+          <div class="px-6 py-3 flex items-center justify-between gap-3 flex-wrap"><div class="flex items-center gap-3 text-[10px] text-slate-500"><span class="flex items-center gap-1"><kbd class="px-1.5 py-px bg-slate-100 border border-slate-300 border-b-2 rounded">Esc</kbd> cerrar</span><span class="flex items-center gap-1"><kbd class="px-1.5 py-px bg-slate-100 border border-slate-300 border-b-2 rounded">⌘</kbd><kbd class="px-1.5 py-px bg-slate-100 border border-slate-300 border-b-2 rounded">↵</kbd> guardar</span></div><div class="flex items-center gap-2"><button class="text-[12px] font-medium text-slate-600 hover:bg-slate-50 px-3 py-1.5 rounded-lg">Cancelar</button><button class="text-[12px] font-bold text-white bg-teal-600 hover:bg-teal-700 px-4 py-1.5 rounded-lg flex items-center gap-1.5 shadow-sm"><i data-lucide="save" class="w-3.5 h-3.5"></i> Guardar gasto</button></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════════ -->
+  <!-- ACTO 6 · FORMULARIOS INTERNOS                                      -->
+  <!-- ════════════════════════════════════════════════════════════════ -->
+  <div id="acto6" class="mb-10">
+    <div class="flex items-center gap-2 mb-3">
+      <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500 acto-label">ACTO 6 · Formularios internos del gasto · panel categorías + 2 modales anidados (inline-create)</span>
+    </div>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div>
+        <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-2">6a · Panel selector de categorías (árbol)</div>
+        <div class="bg-white rounded-xl border border-slate-200 shadow-lg overflow-hidden"><div class="px-4 py-3">
+          <div class="text-[10px] uppercase tracking-wider text-slate-400 font-bold mb-2">1 · Bloque de costo</div>
+          <div class="grid grid-cols-3 gap-2 mb-3"><button class="flex flex-col items-center gap-1 px-2 py-2 rounded-lg border-2 border-blue-300 bg-blue-50"><i data-lucide="package" class="w-4 h-4 text-blue-600"></i><span class="text-[11px] font-bold text-blue-700">Producto</span></button><button class="flex flex-col items-center gap-1 px-2 py-2 rounded-lg border border-slate-200"><i data-lucide="shopping-bag" class="w-4 h-4 text-purple-600"></i><span class="text-[11px] text-slate-600">Venta</span></button><button class="flex flex-col items-center gap-1 px-2 py-2 rounded-lg border border-slate-200"><i data-lucide="calendar" class="w-4 h-4 text-amber-600"></i><span class="text-[11px] text-slate-600">Período</span></button></div>
+          <div class="text-[10px] uppercase tracking-wider text-slate-400 font-bold mb-2">2 · Categoría y subcategoría</div>
+          <div class="border border-slate-200 rounded-lg divide-y divide-slate-100 max-h-[140px] overflow-y-auto"><div class="px-3 py-1.5 bg-slate-50 text-[12px] font-bold text-slate-700">Importación</div><button class="w-full text-left px-3 py-1.5 pl-6 text-[12px] text-teal-700 bg-teal-50 flex items-center justify-between">Flete internacional <i data-lucide="check" class="w-3.5 h-3.5 text-teal-600"></i></button><button class="w-full text-left px-3 py-1.5 pl-6 text-[12px] text-slate-600 hover:bg-teal-50">Aranceles / aduana</button></div>
+          <div class="flex items-center justify-between mt-2.5 pt-2.5 border-t border-slate-100"><button class="text-[11px] text-teal-600 font-medium flex items-center gap-1"><i data-lucide="plus" class="w-3 h-3"></i> Nueva categoría</button><button class="text-[11px] text-teal-600 font-medium flex items-center gap-1"><i data-lucide="plus" class="w-3 h-3"></i> Nueva subcategoría</button></div>
+        </div></div>
+      </div>
+      <div class="space-y-4">
+        <div>
+          <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-2">6b · Modal "Nueva subcategoría"</div>
+          <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
+            <div class="px-5 py-3 border-b border-slate-200 flex items-center gap-2.5"><div class="w-8 h-8 rounded-lg border bg-purple-50 border-purple-200 text-purple-700 flex items-center justify-center"><i data-lucide="folder-plus" class="w-4 h-4"></i></div><div><h2 class="text-[14px] font-bold text-slate-900">Nueva subcategoría</h2><p class="text-[10px] text-slate-500">Crear sin abandonar el gasto</p></div></div>
+            <div class="px-5 py-4 space-y-3"><div class="bg-slate-50 border border-slate-200 rounded-lg p-2.5 flex items-center gap-2 text-[11px]"><span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full font-semibold text-[10px] bg-blue-100 text-blue-700"><i data-lucide="package" class="w-3 h-3"></i> Producto</span><i data-lucide="chevron-right" class="w-3 h-3 text-slate-300"></i><span class="font-bold text-slate-700">Importación</span></div><input type="text" placeholder="Ej. Almacenaje en puerto" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-[13px]" /></div>
+            <div class="px-5 py-2.5 border-t border-slate-200 flex justify-end gap-2 bg-slate-50/50"><button class="text-[12px] text-slate-600 px-3 py-1.5 rounded-lg border border-slate-200">Cancelar</button><button class="text-[12px] font-bold text-white bg-purple-600 px-3 py-1.5 rounded-lg">Crear</button></div>
+          </div>
+        </div>
+        <div>
+          <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-2">6c · Modal "Nuevo proveedor inline" <span class="text-amber-600">· compartido con OC</span></div>
+          <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
+            <div class="px-5 py-3 border-b border-slate-200 flex items-center gap-2.5"><div class="w-8 h-8 rounded-lg border bg-teal-50 border-teal-200 text-teal-700 flex items-center justify-center"><i data-lucide="briefcase" class="w-4 h-4"></i></div><div><h2 class="text-[14px] font-bold text-slate-900">Nuevo proveedor inline</h2><p class="text-[10px] text-slate-500">Se crea y queda seleccionado</p></div></div>
+            <div class="px-5 py-4"><div class="flex items-center gap-1.5 text-[10px] text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-2 py-1 mb-2.5"><i data-lucide="git-fork" class="w-3 h-3"></i> <code class="bg-amber-100 px-1 rounded">ProveedorForm</code> compartido con OC · interior se decide aparte</div><div class="grid grid-cols-2 gap-2.5"><input type="text" placeholder="Razón social *" class="px-3 py-2 border border-slate-300 rounded-lg text-[13px]" /><input type="text" placeholder="RUC" class="px-3 py-2 border border-slate-300 rounded-lg text-[13px]" /></div></div>
+            <div class="px-5 py-2.5 border-t border-slate-200 flex justify-end gap-2 bg-slate-50/50"><button class="text-[12px] text-slate-600 px-3 py-1.5 rounded-lg border border-slate-200">Cancelar</button><button class="text-[12px] font-bold text-white bg-teal-600 px-3 py-1.5 rounded-lg">Crear y seleccionar</button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════════ -->
+  <!-- ACTO 7 · MODAL DE PAGO (PagoUnificadoForm · ciclo registrar→pagar) -->
+  <!-- ════════════════════════════════════════════════════════════════ -->
+  <div id="acto7" class="mb-10">
+    <div class="flex items-center gap-2 mb-3">
+      <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500 acto-label">ACTO 7 · Modal de PAGO · cierra el ciclo (botón "Pagar" del gasto → PagoUnificadoForm)</span>
+    </div>
+    <div class="flex justify-center bg-slate-200/60 rounded-2xl p-6">
+      <div class="bg-white rounded-2xl shadow-xl w-full max-w-[560px] overflow-hidden flex flex-col" style="max-height: 80vh;">
+        <!-- header -->
+        <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between gap-3 flex-shrink-0">
+          <div class="flex items-center gap-3 min-w-0"><div class="flex-shrink-0 w-10 h-10 rounded-lg border bg-teal-50 border-teal-200 text-teal-700 flex items-center justify-center"><i data-lucide="credit-card" class="w-5 h-5"></i></div><div class="min-w-0"><h2 class="text-base font-bold text-slate-900 truncate">Registrar pago</h2><p class="text-[11px] text-slate-500 truncate">Flete contenedor marzo · Maersk</p></div></div>
+          <button class="text-slate-400 hover:text-slate-600 flex-shrink-0"><i data-lucide="x" class="w-5 h-5"></i></button>
+        </div>
+        <div class="modal-body px-6 py-5 space-y-4 overflow-y-auto">
+          <!-- nota compartido -->
+          <div class="flex items-center gap-1.5 text-[10px] text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-2.5 py-1.5"><i data-lucide="git-fork" class="w-3 h-3 flex-shrink-0"></i><span><code class="bg-amber-100 px-1 rounded">PagoUnificadoForm</code> · form ÚNICO de pagos de TODO el sistema (OC · Ventas · Gastos) · su rework canon es transversal (DEUDA-PAGO-UNIFICADO-CANON)</span></div>
+          <!-- contexto del gasto -->
+          <div class="bg-slate-50 border border-slate-200 rounded-lg p-3 flex items-center justify-between">
+            <div class="flex items-center gap-2"><span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full font-semibold text-[10px] bg-blue-100 text-blue-700"><i data-lucide="package" class="w-3 h-3"></i> Producto</span><span class="text-[12px] font-semibold text-slate-800">Flete contenedor marzo</span></div>
+            <div class="text-right"><div class="text-[10px] text-slate-500">Pendiente</div><div class="text-[15px] font-bold tabular text-slate-900">S/ 2,400.00</div></div>
+          </div>
+          <!-- monto a pagar (completo/parcial) -->
+          <div>
+            <div class="flex items-center justify-between mb-1.5"><label class="text-[11px] uppercase tracking-wider text-slate-500 font-bold">Monto a pagar</label><div class="flex items-center gap-1"><button class="px-2 py-0.5 rounded text-[10px] font-bold bg-teal-100 text-teal-700">Completo</button><button class="px-2 py-0.5 rounded text-[10px] font-medium bg-white text-slate-500 border border-slate-200">Parcial</button></div></div>
+            <div class="flex items-center border border-slate-300 rounded-lg overflow-hidden"><span class="px-3 py-2.5 bg-slate-50 text-slate-500 text-[13px] border-r border-slate-200">S/</span><input type="text" value="2,400.00" class="flex-1 px-3 py-2.5 text-[15px] font-bold text-slate-900 tabular text-right" /></div>
+          </div>
+          <!-- cuenta origen · MANDA · agrupada por banco (cuentas reales de Tesorería) -->
+          <div>
+            <label class="block text-[11px] uppercase tracking-wider text-slate-500 font-bold mb-1.5">Cuenta origen <span class="text-slate-400 normal-case font-normal">· de Tesorería</span></label>
+            <div class="border border-slate-300 rounded-lg overflow-hidden">
+              <div class="px-2.5 py-1 bg-slate-50 text-[10px] uppercase tracking-wider text-slate-400 font-bold flex items-center gap-1"><i data-lucide="building-2" class="w-3 h-3"></i> BCP</div>
+              <button class="w-full flex items-center justify-between px-3 py-2 text-[13px] bg-teal-50 border-l-2 border-teal-500"><span class="text-slate-900">Cuenta corriente PEN <span class="text-slate-400">· S/ 18,200</span></span><i data-lucide="check" class="w-3.5 h-3.5 text-teal-600"></i></button>
+              <button class="w-full flex items-center justify-between px-3 py-2 text-[13px] hover:bg-slate-50"><span class="text-slate-700">Cuenta USD <span class="text-slate-400">· $ 2,100</span></span></button>
+              <div class="px-2.5 py-1 bg-slate-50 text-[10px] uppercase tracking-wider text-slate-400 font-bold flex items-center gap-1"><i data-lucide="smartphone" class="w-3 h-3"></i> Digitales</div>
+              <button class="w-full flex items-center justify-between px-3 py-2 text-[13px] hover:bg-slate-50"><span class="text-slate-700">Yape empresa <span class="text-slate-400">· S/ 1,450</span></span></button>
+              <div class="px-2.5 py-1 bg-slate-50 text-[10px] uppercase tracking-wider text-slate-400 font-bold flex items-center gap-1"><i data-lucide="banknote" class="w-3 h-3"></i> Efectivo</div>
+              <button class="w-full flex items-center justify-between px-3 py-2 text-[13px] hover:bg-slate-50"><span class="text-slate-700">Caja chica <span class="text-slate-400">· S/ 800</span></span></button>
+            </div>
+          </div>
+          <!-- método de pago · DERIVADO de la cuenta seleccionada -->
+          <div>
+            <label class="block text-[11px] uppercase tracking-wider text-slate-500 font-bold mb-1.5">Método de pago <span class="text-slate-400 normal-case font-normal">· según la cuenta</span></label>
+            <div class="flex items-center gap-1.5 flex-wrap">
+              <button class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-semibold bg-slate-900 text-white"><i data-lucide="building-2" class="w-3.5 h-3.5"></i> Transferencia</button>
+              <button class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-medium bg-white text-slate-600 border border-slate-200"><i data-lucide="building-2" class="w-3.5 h-3.5"></i> Depósito</button>
+            </div>
+            <p class="text-[10px] text-slate-400 mt-1.5 flex items-start gap-1"><i data-lucide="info" class="w-3 h-3 mt-0.5 flex-shrink-0"></i> Solo aparecen los métodos que soporta <strong>BCP · Cuenta corriente PEN</strong>. Elegir otra cuenta (ej. Yape empresa) habilita otros métodos. Cada cuenta de Tesorería define sus canales.</p>
+          </div>
+          <!-- destino tercero (opcional) -->
+          <div>
+            <label class="block text-[11px] uppercase tracking-wider text-slate-500 font-bold mb-1.5">Destino del proveedor <span class="text-slate-400 normal-case font-normal">(opcional · evidencia)</span></label>
+            <div class="flex items-center justify-between border border-slate-200 rounded-lg px-3 py-2.5 text-[13px] bg-slate-50"><span class="text-slate-500">Yape Maersk · 999 888 777</span><i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-400"></i></div>
+          </div>
+          <!-- fecha + referencia -->
+          <div class="grid grid-cols-2 gap-2">
+            <div><label class="block text-[11px] text-slate-500 mb-1">Fecha de pago</label><div class="flex items-center border border-slate-300 rounded-lg px-3 py-2.5 text-[13px]"><i data-lucide="calendar" class="w-4 h-4 text-slate-400 mr-2"></i><span class="text-slate-900 tabular">30/05/2026</span></div></div>
+            <div><label class="block text-[11px] text-slate-500 mb-1">Referencia <span class="text-slate-400">(opc.)</span></label><input type="text" placeholder="N° operación" class="w-full px-3 py-2.5 border border-slate-300 rounded-lg text-[13px]" /></div>
+          </div>
+        </div>
+        <div class="flex-shrink-0 border-t border-slate-200 bg-white px-6 py-3 flex items-center justify-between gap-3 flex-wrap">
+          <div class="flex items-center gap-3 text-[10px] text-slate-500"><span class="flex items-center gap-1"><kbd class="px-1.5 py-px bg-slate-100 border border-slate-300 border-b-2 rounded">Esc</kbd> cerrar</span><span class="flex items-center gap-1"><kbd class="px-1.5 py-px bg-slate-100 border border-slate-300 border-b-2 rounded">⌘</kbd><kbd class="px-1.5 py-px bg-slate-100 border border-slate-300 border-b-2 rounded">↵</kbd> registrar</span></div>
+          <div class="flex items-center gap-2"><button class="text-[12px] font-medium text-slate-600 hover:bg-slate-50 px-3 py-1.5 rounded-lg">Cancelar</button><button class="text-[12px] font-bold text-white bg-teal-600 hover:bg-teal-700 px-4 py-1.5 rounded-lg flex items-center gap-1.5 shadow-sm"><i data-lucide="check" class="w-3.5 h-3.5"></i> Registrar pago</button></div>
+        </div>
+      </div>
+    </div>
+    <p class="text-center text-[11px] text-slate-400 mt-2">Separación canon: el gasto se <strong>registra</strong> (GastoForm · ACTO 5) y se <strong>paga</strong> aparte (este modal) · el gasto pasa de PENDIENTE → PAGADO y mueve caja en Tesorería</p>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════════ -->
+  <!-- ACTO 8 · MODAL POLÍTICA DE ASIGNACIÓN                              -->
+  <!-- ════════════════════════════════════════════════════════════════ -->
+  <div id="acto8" class="mb-10">
+    <div class="flex items-center gap-2 mb-3">
+      <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500 acto-label">ACTO 8 · Modal "Política de asignación" · prorrateo de overhead a productos (cross-link a CI)</span>
+    </div>
+    <div class="flex justify-center bg-slate-200/60 rounded-2xl p-6">
+      <div class="bg-white rounded-2xl shadow-xl w-full max-w-[520px] overflow-hidden">
+        <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between gap-3">
+          <div class="flex items-center gap-3"><div class="w-10 h-10 rounded-lg border bg-indigo-50 border-indigo-200 text-indigo-700 flex items-center justify-center"><i data-lucide="settings" class="w-5 h-5"></i></div><div><h2 class="text-base font-bold text-slate-900">Política de asignación</h2><p class="text-[11px] text-slate-500">Cómo se reparte el overhead (Período) entre productos</p></div></div>
+          <button class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
+        </div>
+        <div class="px-6 py-5 space-y-4">
+          <div>
+            <h3 class="text-[11px] uppercase tracking-wider text-slate-500 font-bold mb-2">Método de prorrateo</h3>
+            <div class="space-y-2">
+              <label class="flex items-start gap-2.5 p-2.5 rounded-lg border border-slate-200 cursor-pointer"><input type="radio" name="m2" class="mt-0.5 accent-indigo-600" /><div><div class="text-[12px] font-semibold text-slate-800">Por unidades (simple)</div><div class="text-[11px] text-slate-500">overhead ÷ unidades vendidas</div></div></label>
+              <label class="flex items-start gap-2.5 p-2.5 rounded-lg border-2 border-indigo-300 bg-indigo-50/40 cursor-pointer"><input type="radio" name="m2" checked class="mt-0.5 accent-indigo-600" /><div><div class="text-[12px] font-semibold text-slate-800 flex items-center gap-1.5">Por ingreso <span class="text-[9px] uppercase font-bold px-1.5 py-0.5 rounded bg-indigo-100 text-indigo-700">recomendado</span></div><div class="text-[11px] text-slate-500">overhead × (ingreso producto / ingreso total)</div></div></label>
+              <label class="flex items-start gap-2.5 p-2.5 rounded-lg border border-slate-200 cursor-pointer"><input type="radio" name="m2" class="mt-0.5 accent-indigo-600" /><div><div class="text-[12px] font-semibold text-slate-800">Por margen de contribución</div><div class="text-[11px] text-slate-500">pondera por margen · favorece rentables</div></div></label>
+              <label class="flex items-start gap-2.5 p-2.5 rounded-lg border border-slate-200 cursor-pointer"><input type="radio" name="m2" class="mt-0.5 accent-indigo-600" /><div><div class="text-[12px] font-semibold text-slate-800">Manual por SKU (power-user)</div><div class="text-[11px] text-slate-500">pesos manuales · requiere mantenimiento</div></div></label>
+            </div>
+          </div>
+          <div>
+            <h3 class="text-[11px] uppercase tracking-wider text-slate-500 font-bold mb-2">Período base</h3>
+            <div class="flex items-center gap-1.5"><button class="px-3 py-1.5 rounded-lg text-[12px] font-medium bg-white text-slate-600 border border-slate-200">Tiempo real</button><button class="px-3 py-1.5 rounded-lg text-[12px] font-semibold bg-indigo-100 text-indigo-800 border border-indigo-300">Mes anterior</button><button class="px-3 py-1.5 rounded-lg text-[12px] font-medium bg-white text-slate-600 border border-slate-200">Móvil 3M</button></div>
+          </div>
+          <div class="bg-slate-50 border border-slate-200 rounded-lg p-3 grid grid-cols-2 gap-3 text-center"><div><div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Overhead mes</div><div class="text-[16px] font-bold text-amber-700 tabular">S/ 5,320</div></div><div><div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Ingreso base</div><div class="text-[16px] font-bold text-emerald-700 tabular">S/ 48,200</div></div></div>
+          <button class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg bg-gradient-to-r from-teal-50 to-cyan-50/30 border border-teal-200 text-[12px] font-semibold text-teal-700"><span class="flex items-center gap-2"><i data-lucide="bar-chart-3" class="w-4 h-4"></i> Ver impacto en productos (Cost Intelligence)</span><i data-lucide="arrow-right" class="w-4 h-4"></i></button>
+        </div>
+        <div class="px-6 py-3 border-t border-slate-200 flex items-center justify-end gap-2 bg-slate-50/50"><button class="text-[12px] font-medium text-slate-600 px-3 py-1.5 rounded-lg border border-slate-200">Cancelar</button><button class="text-[12px] font-bold text-white bg-indigo-600 hover:bg-indigo-700 px-4 py-1.5 rounded-lg">Guardar política</button></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════════ -->
+  <!-- ACTO 8 · ESTADOS                                                   -->
+  <!-- ════════════════════════════════════════════════════════════════ -->
+  <div id="acto9" class="mb-10">
+    <div class="flex items-center gap-2 mb-3">
+      <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500 acto-label">ACTO 9 · Estados · empty (quick-start N9) · loading skeleton · error con retry</span>
+    </div>
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <div class="bg-white border border-slate-200 rounded-2xl p-5">
+        <div class="text-[10px] uppercase tracking-wider text-emerald-600 font-bold mb-3">Empty state</div>
+        <div class="text-center mb-4"><div class="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center mx-auto mb-2"><i data-lucide="receipt" class="w-6 h-6 text-slate-400"></i></div><div class="text-[13px] font-semibold text-slate-700">Sin gastos este mes</div><div class="text-[11px] text-slate-400">Registra el primero o empieza por un recurrente típico</div></div>
+        <div class="grid grid-cols-2 gap-2">
+          <button class="bg-white border border-slate-200 rounded-lg p-2.5 hover:border-amber-300 hover:bg-amber-50/30 text-left"><i data-lucide="calendar" class="w-4 h-4 text-amber-600 mb-1"></i><div class="text-[11px] font-bold text-slate-900">Alquiler</div><div class="text-[10px] text-slate-500">Período · recurrente</div></button>
+          <button class="bg-white border border-slate-200 rounded-lg p-2.5 hover:border-indigo-300 hover:bg-indigo-50/30 text-left"><i data-lucide="users" class="w-4 h-4 text-indigo-600 mb-1"></i><div class="text-[11px] font-bold text-slate-900">Sueldo</div><div class="text-[10px] text-slate-500">Período · mensual</div></button>
+          <button class="bg-white border border-slate-200 rounded-lg p-2.5 hover:border-sky-300 hover:bg-sky-50/30 text-left"><i data-lucide="cloud" class="w-4 h-4 text-sky-600 mb-1"></i><div class="text-[11px] font-bold text-slate-900">SaaS</div><div class="text-[10px] text-slate-500">Período · suscripción</div></button>
+          <button class="bg-white border border-slate-200 rounded-lg p-2.5 hover:border-blue-300 hover:bg-blue-50/30 text-left"><i data-lucide="package" class="w-4 h-4 text-blue-600 mb-1"></i><div class="text-[11px] font-bold text-slate-900">Flete</div><div class="text-[10px] text-slate-500">Producto · importación</div></button>
+        </div>
+      </div>
+      <div class="bg-white border border-slate-200 rounded-2xl p-5">
+        <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-3">Loading skeleton</div>
+        <div class="space-y-2.5">
+          <div class="flex items-center gap-3 animate-pulse"><div class="w-10 h-10 rounded-lg bg-slate-200"></div><div class="flex-1 space-y-1.5"><div class="h-3 bg-slate-200 rounded w-3/4"></div><div class="h-2 bg-slate-100 rounded w-1/2"></div></div><div class="h-4 w-16 bg-slate-200 rounded"></div></div>
+          <div class="flex items-center gap-3 animate-pulse"><div class="w-10 h-10 rounded-lg bg-slate-200"></div><div class="flex-1 space-y-1.5"><div class="h-3 bg-slate-200 rounded w-2/3"></div><div class="h-2 bg-slate-100 rounded w-1/3"></div></div><div class="h-4 w-16 bg-slate-200 rounded"></div></div>
+          <div class="flex items-center gap-3 animate-pulse"><div class="w-10 h-10 rounded-lg bg-slate-200"></div><div class="flex-1 space-y-1.5"><div class="h-3 bg-slate-200 rounded w-3/4"></div><div class="h-2 bg-slate-100 rounded w-1/2"></div></div><div class="h-4 w-16 bg-slate-200 rounded"></div></div>
+        </div>
+      </div>
+      <div class="bg-white border border-slate-200 rounded-2xl p-5">
+        <div class="text-[10px] uppercase tracking-wider text-rose-600 font-bold mb-3">Error state</div>
+        <div class="text-center"><div class="w-12 h-12 rounded-xl bg-rose-50 flex items-center justify-center mx-auto mb-2"><i data-lucide="alert-triangle" class="w-6 h-6 text-rose-500"></i></div><div class="text-[13px] font-semibold text-slate-700">No se pudieron cargar los gastos</div><div class="text-[11px] text-slate-400 mb-3">Revisá tu conexión e intentá de nuevo</div><button class="text-[12px] font-bold text-white bg-slate-700 hover:bg-slate-800 px-4 py-1.5 rounded-lg inline-flex items-center gap-1.5"><i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Reintentar</button></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════════ -->
+  <!-- ACTO 9 · MOBILE 375px                                              -->
+  <!-- ════════════════════════════════════════════════════════════════ -->
+  <div id="acto10" class="mb-10">
+    <div class="flex items-center gap-2 mb-3">
+      <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500 acto-label">ACTO 10 · Mobile 375px · shell + tabs scroll-x + Movimientos + modal bottom-sheet</span>
+    </div>
+    <div class="flex gap-4 overflow-x-auto pb-2">
+
+      <!-- frame 1 · shell + tabs -->
+      <div class="flex-shrink-0" style="width: 375px;">
+        <div class="text-[10px] uppercase tracking-wider text-slate-400 font-bold mb-1.5">Shell + KPIs + tabs scroll-x</div>
+        <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden">
+          <div class="border-b border-slate-200 px-3 py-2 bg-slate-50 flex items-center text-[11px]"><span class="text-slate-500">Inicio</span><i data-lucide="chevron-right" class="w-3 h-3 text-slate-300 mx-1"></i><span class="text-slate-900 font-semibold">Gastos</span></div>
+          <div class="px-3 py-3 border-b border-slate-100">
+            <div class="flex items-center gap-2 mb-2"><div class="w-9 h-9 rounded-lg bg-gradient-to-br from-teal-50 to-teal-100 ring-1 ring-teal-200/50 flex items-center justify-center"><i data-lucide="receipt" class="w-5 h-5 text-teal-700"></i></div><h1 class="text-lg font-bold text-slate-900">Gastos</h1></div>
+            <div class="flex items-center gap-1.5"><button class="p-2 bg-indigo-50 border border-indigo-200 rounded-lg"><i data-lucide="settings" class="w-3.5 h-3.5 text-indigo-700"></i></button><button class="p-2 bg-white border border-slate-200 rounded-lg"><i data-lucide="download" class="w-3.5 h-3.5 text-slate-600"></i></button><button class="flex-1 py-2 bg-teal-600 text-white rounded-lg text-[12px] font-bold flex items-center justify-center gap-1.5"><i data-lucide="plus" class="w-3.5 h-3.5"></i> Nuevo</button></div>
+          </div>
+          <div class="px-3 py-3 grid grid-cols-2 gap-2">
+            <div class="bg-gradient-to-br from-amber-50 to-amber-100/40 ring-1 ring-amber-200/50 rounded-xl p-2.5"><div class="text-[9px] uppercase tracking-wider text-amber-700 font-bold">Gasto mes</div><div class="text-lg font-bold tabular text-amber-900">12,480</div></div>
+            <div class="bg-gradient-to-br from-rose-50 to-rose-100/40 ring-1 ring-rose-200/50 rounded-xl p-2.5"><div class="text-[9px] uppercase tracking-wider text-rose-700 font-bold">Burn 3M</div><div class="text-lg font-bold tabular text-rose-900">13,950</div></div>
+            <div class="bg-gradient-to-br from-indigo-50 to-indigo-100/40 ring-1 ring-indigo-200/50 rounded-xl p-2.5"><div class="text-[9px] uppercase tracking-wider text-indigo-700 font-bold">Recurrentes</div><div class="text-lg font-bold tabular text-indigo-900">34%</div></div>
+            <div class="bg-gradient-to-br from-emerald-50 to-emerald-100/40 ring-1 ring-emerald-200/50 rounded-xl p-2.5"><div class="text-[9px] uppercase tracking-wider text-emerald-700 font-bold">DPO</div><div class="text-lg font-bold tabular text-emerald-900">28d</div></div>
+          </div>
+          <!-- tabs scroll-x -->
+          <div class="px-3 border-t border-slate-100 flex items-center gap-1 overflow-x-auto scrollbar-hide">
+            <span class="px-3 py-2.5 text-[12px] border-b-2 border-teal-600 text-teal-700 font-semibold whitespace-nowrap flex items-center gap-1.5"><i data-lucide="layout-dashboard" class="w-3.5 h-3.5"></i> Resumen</span>
+            <span class="px-3 py-2.5 text-[12px] border-b-2 border-transparent text-slate-500 whitespace-nowrap flex items-center gap-1.5"><i data-lucide="list" class="w-3.5 h-3.5"></i> Movimientos</span>
+            <span class="px-3 py-2.5 text-[12px] border-b-2 border-transparent text-slate-500 whitespace-nowrap flex items-center gap-1.5"><i data-lucide="bar-chart-3" class="w-3.5 h-3.5"></i> Análisis</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- frame 2 · Movimientos mobile -->
+      <div class="flex-shrink-0" style="width: 375px;">
+        <div class="text-[10px] uppercase tracking-wider text-slate-400 font-bold mb-1.5">Tab Movimientos · filtros colapsados + cards 1-col</div>
+        <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden">
+          <button class="w-full px-3 py-2.5 flex items-center justify-between border-b border-slate-100"><span class="flex items-center gap-2 text-[12px]"><i data-lucide="filter" class="w-3.5 h-3.5 text-slate-500"></i> <span class="font-bold text-slate-700">Filtros</span> <span class="text-[10px] bg-teal-100 text-teal-700 px-1.5 py-0.5 rounded-full font-bold">2 activos</span></span><i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-400"></i></button>
+          <div class="p-3 space-y-2">
+            <div class="border border-slate-200 rounded-xl p-3"><div class="flex items-start gap-2.5"><div class="w-9 h-9 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center flex-shrink-0"><i data-lucide="package" class="w-4 h-4"></i></div><div class="flex-1 min-w-0"><div class="text-[12px] font-semibold text-slate-900 truncate">Flete contenedor · Maersk</div><div class="text-[10px] text-slate-400">Producto › Flete · 12 may</div><div class="flex items-center gap-2 mt-1"><span class="text-[13px] font-bold tabular">S/ 2,400</span><span class="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-100 text-amber-700"><i data-lucide="clock" class="w-2.5 h-2.5"></i> PEND</span></div></div><button class="px-2.5 py-1 text-[11px] font-bold text-white bg-teal-600 rounded-lg flex-shrink-0">Pagar</button></div></div>
+            <div class="border border-slate-200 rounded-xl p-3"><div class="flex items-start gap-2.5"><div class="w-9 h-9 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center flex-shrink-0"><i data-lucide="calendar" class="w-4 h-4"></i></div><div class="flex-1 min-w-0"><div class="text-[12px] font-semibold text-slate-900 truncate">Alquiler oficina · mayo</div><div class="text-[10px] text-slate-400">Período › Alquiler · 5 may</div><div class="flex items-center gap-2 mt-1"><span class="text-[13px] font-bold tabular">S/ 1,800</span><span class="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[9px] font-bold bg-emerald-100 text-emerald-700"><i data-lucide="check" class="w-2.5 h-2.5"></i> PAG</span></div></div></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- frame 3 · modal bottom-sheet -->
+      <div class="flex-shrink-0" style="width: 375px;">
+        <div class="text-[10px] uppercase tracking-wider text-slate-400 font-bold mb-1.5">Modal · bottom-sheet</div>
+        <div class="bg-slate-300/40 rounded-2xl overflow-hidden flex flex-col justify-end" style="height: 480px;">
+          <div class="bg-white rounded-t-2xl shadow-2xl flex flex-col" style="max-height: 92%;">
+            <div class="flex flex-col items-center pt-2 pb-1"><div class="w-10 h-1 rounded-full bg-slate-300"></div></div>
+            <div class="px-4 py-2.5 border-b border-slate-200 flex items-center justify-between"><div class="flex items-center gap-2.5"><div class="w-9 h-9 rounded-lg border bg-teal-50 border-teal-200 text-teal-700 flex items-center justify-center"><i data-lucide="receipt" class="w-4 h-4"></i></div><div><h2 class="text-[14px] font-bold text-slate-900">Nuevo gasto manual</h2><p class="text-[10px] text-slate-500">el pago se gestiona aparte</p></div></div><i data-lucide="x" class="w-5 h-5 text-slate-400"></i></div>
+            <div class="px-4 py-3 space-y-3 overflow-y-auto">
+              <div><div class="flex items-center gap-1.5 mb-1.5"><span class="w-4 h-4 rounded-full bg-slate-100 text-slate-500 text-[9px] font-bold flex items-center justify-center">1</span><span class="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Clasificación</span></div><div class="px-3 py-2 border border-slate-300 rounded-lg text-[12px] text-slate-400 flex items-center justify-between">Selecciona categoría <i data-lucide="chevron-down" class="w-3.5 h-3.5"></i></div></div>
+              <div><div class="flex items-center gap-1.5 mb-1.5"><span class="w-4 h-4 rounded-full bg-slate-100 text-slate-500 text-[9px] font-bold flex items-center justify-center">2</span><span class="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Agente</span></div><div class="flex gap-1.5"><button class="flex-1 py-1.5 rounded-lg text-[11px] font-semibold bg-slate-900 text-white">Proveedor</button><button class="flex-1 py-1.5 rounded-lg text-[11px] bg-white border border-slate-200 text-slate-600">Colab.</button><button class="flex-1 py-1.5 rounded-lg text-[11px] bg-white border border-slate-200 text-slate-600">Emple.</button></div></div>
+              <div><div class="flex items-center gap-1.5 mb-1.5"><span class="w-4 h-4 rounded-full bg-slate-100 text-slate-500 text-[9px] font-bold flex items-center justify-center">3</span><span class="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Monto</span></div><div class="flex items-center border border-slate-300 rounded-lg overflow-hidden"><span class="px-2.5 py-2 bg-slate-50 text-slate-500 text-[12px] border-r">S/</span><input value="2,400.00" class="flex-1 px-2.5 py-2 text-[14px] font-bold tabular text-right" /></div></div>
+            </div>
+            <div class="px-4 py-2.5 border-t border-slate-200 flex items-center gap-2"><button class="flex-1 py-2 text-[12px] font-medium text-slate-600 border border-slate-200 rounded-lg">Cancelar</button><button class="flex-1 py-2 text-[12px] font-bold text-white bg-teal-600 rounded-lg flex items-center justify-center gap-1.5"><i data-lucide="save" class="w-3.5 h-3.5"></i> Guardar</button></div>
+          </div>
+        </div>
+        <p class="text-[10px] text-slate-400 mt-1.5 text-center">Touch targets ≥44px · grabber + footer sticky · safe-area inset</p>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════════ -->
+  <!-- FOOTER · CHECKLIST CANON                                           -->
+  <!-- ════════════════════════════════════════════════════════════════ -->
+  <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+    <div class="text-[11px] font-bold uppercase tracking-wider text-teal-700 mb-3 flex items-center gap-1.5"><i data-lucide="check-circle-2" class="w-4 h-4"></i> Cobertura canon (2026-05-27)</div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1.5 text-[12px] text-slate-700">
+      <div>✅ Shell (chrome S9.D1 + chip rol + KPIs + tabs)</div>
+      <div>✅ Tab Resumen (dashboard ejecutivo)</div>
+      <div>✅ Tab Movimientos (listado + filtros + toggle Lista/Cal.)</div>
+      <div>✅ Tab Análisis (por bloque + proveedor + tendencias)</div>
+      <div>✅ Banner de borrador (F-Borradores)</div>
+      <div>✅ Modal GastoForm (FormModalV2 · 5 secciones)</div>
+      <div>✅ Formularios internos (panel categorías + 2 modales)</div>
+      <div>✅ Modal de pago (PagoUnificadoForm · ciclo registrar→pagar)</div>
+      <div>✅ Modal Política de asignación</div>
+      <div>✅ Empty / loading / error states</div>
+      <div>✅ Mobile 375px (shell + tabs scroll-x + bottom-sheet)</div>
+    </div>
+    <div class="mt-4 pt-3 border-t border-slate-200 text-[11px] text-slate-600">
+      <strong>El gran cambio:</strong> Gastos pasa de "1 pantalla con vistas" a <strong>HUB con 3 tabs</strong> (Resumen · Movimientos · Análisis) — misma anatomía que Finanzas/Contabilidad/Usuarios.
+      <br><strong>Evoluciona:</strong> chrome (top-bar S9.D1 + chip rol) · estructura de tabs · 3 modales a FormModalV2 · numeración form 1→5.
+      <br><strong>Se conserva (lógica 100%):</strong> 3 bloques · bi-moneda · prorrateo · recurrencia · borradores · cross-links · inline-create · separación gasto/pago.
+      <br><strong>Nota 360 · componentes compartidos:</strong> <code class="bg-slate-100 px-1 rounded">ProveedorForm</code> (con OC) y <code class="bg-slate-100 px-1 rounded">PagoUnificadoForm</code> (form ÚNICO de pagos de TODO el sistema) · sus reworks canon son transversales (no de Gastos) → DEUDA-PAGO-UNIFICADO-CANON.
+    </div>
+  </div>
+
+</div>
+
+<script>lucide.createIcons();</script>
+</body>
+</html>

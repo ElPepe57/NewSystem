@@ -504,6 +504,11 @@ export const Usuarios: React.FC = () => {
               <ChevronRight className="w-3 h-3 text-slate-300 mx-1.5 flex-shrink-0" />
               <span className="text-slate-900 font-semibold truncate">Usuarios</span>
             </div>
+            {/* Chip contextual al rol · canon "admin ve todo" · estandarización chip (chk5.E-GASTOS-CHIP) */}
+            <span className="text-[10px] bg-purple-50 text-purple-700 px-2 py-0.5 rounded font-bold hidden sm:inline-flex items-center gap-1 flex-shrink-0">
+              <Shield className="w-3 h-3" />
+              {hasRole(currentUser, 'admin') ? 'Vista ejecutiva · admin' : 'Vista ejecutiva'}
+            </span>
           </div>
 
           {/* §B · HEADER canon mockup usuarios-v5.3-hub.html línea 67-81

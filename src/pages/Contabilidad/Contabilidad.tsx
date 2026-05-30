@@ -45,9 +45,13 @@ import {
   Receipt,
   // chk5.E-A · Sprint A · botón Glosario
   BookOpen,
+  // chk5.E-GASTOS-CHIP · chip de rol estandarizado
+  Shield,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useAuthStore } from '../../store/authStore';
+import { hasRole } from '../../types/auth.types';
 import {
   StatDistribution,
   Sparkline,
@@ -1375,6 +1379,9 @@ function TendenciasView({
 // ═════════════════════════════════════════════════════════════════════════
 
 export function Contabilidad() {
+  // chk5.E-GASTOS-CHIP · canon "admin ve todo" · chip contextual al rol del top-bar
+  const userProfileChip = useAuthStore((s) => s.userProfile);
+  const esAdmin = hasRole(userProfileChip, 'admin');
   const lineaFiltroGlobal = useLineaNegocioStore(state => state.lineaFiltroGlobal);
   const [tabActiva, setTabActiva] = useState<TabActiva>('resumen');
   const [mes, setMes] = useState(new Date().getMonth() + 1);
@@ -1669,6 +1676,11 @@ export function Contabilidad() {
               </>
             )}
           </div>
+          {/* Chip contextual al rol · canon "admin ve todo" · estandarización (chk5.E-GASTOS-CHIP) */}
+          <span className="text-[10px] bg-purple-50 text-purple-700 px-2 py-0.5 rounded font-bold hidden sm:inline-flex items-center gap-1 flex-shrink-0">
+            <Shield className="w-3 h-3" />
+            {esAdmin ? 'Vista ejecutiva · admin' : 'Vista ejecutiva'}
+          </span>
         </div>
 
         {/* §B · HEADER BANKING-GRADE · icon purple gradient + h1 + subtitle + 3-tier actions canon N10 */}
