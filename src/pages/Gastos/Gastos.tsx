@@ -742,7 +742,6 @@ export const Gastos: React.FC = () => {
       <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
       {/* chk5.C1 · Header canon banking-grade (top-bar + header · sin card propio) */}
       <HeaderGastos
-        totalMovimientosMes={heroKpis.gastosDelMes.length}
         onPoliticaAsignacion={() => setShowAllocationSettings(true)}
         onVerPnL={() => navigate('/contabilidad')}
         onExportar={() => exportService.exportGastos(gastosFiltrados)}
@@ -758,12 +757,12 @@ export const Gastos: React.FC = () => {
       {/* chk5.E-GASTOS · F1.b · TABS de sub-sección canon HUB (Resumen · Movimientos · Análisis) */}
       <div>
         {/* fila de tabs · border-b-2 activo teal (canon hub) */}
-        <div className="border-b border-slate-200 px-2 sm:px-4">
+        <div className="border-b border-slate-200 px-4 sm:px-6">
           <div className="flex items-center gap-1 -mb-px overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
             {([
-              { tab: 'resumen',     vista: 'resumen' as const,  Icon: LayoutDashboard, label: 'Resumen' },
-              { tab: 'movimientos', vista: 'listado' as const,  Icon: List,            label: 'Movimientos' },
-              { tab: 'analisis',    vista: 'bloque' as const,   Icon: BarChart3,       label: 'Análisis' },
+              { tab: 'resumen',     vista: 'resumen' as const,  Icon: LayoutDashboard, label: 'Resumen',     badge: 0 },
+              { tab: 'movimientos', vista: 'listado' as const,  Icon: List,            label: 'Movimientos', badge: heroKpis.gastosDelMes.length },
+              { tab: 'analisis',    vista: 'bloque' as const,   Icon: BarChart3,       label: 'Análisis',    badge: 0 },
             ]).map((t) => {
               const TIcon = t.Icon;
               const activa =
@@ -783,6 +782,11 @@ export const Gastos: React.FC = () => {
                 >
                   <TIcon className="w-3.5 h-3.5" />
                   {t.label}
+                  {t.badge > 0 && (
+                    <span className="text-[10px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded-full font-bold tabular-nums">
+                      {t.badge}
+                    </span>
+                  )}
                 </button>
               );
             })}
