@@ -845,9 +845,12 @@ export const Gastos: React.FC = () => {
         </div>
         )}
       </div>
-      </div>{/* /SHELL card unificado · chk5.E-GASTOS pulido 1-card (header + KPIs + tabs) */}
 
-      {/* chk5.C-FIX · canon F-Borradores · banner borrador (fuera del shell · sobre el body) */}
+      {/* §F · BODY · DENTRO del shell card (canon hub · como §E Outlet de Finanzas / §E body de Contabilidad) ·
+          bg-slate-50/30 separa el cuerpo del chrome · TODO el módulo en UN solo recuadro continuo */}
+      <div className="bg-slate-50/30 px-4 sm:px-6 py-5 space-y-4">
+
+      {/* chk5.C-FIX · canon F-Borradores · banner borrador · dentro del body, sobre el grid */}
       <BorradorBanner
         tipo="gasto"
         refreshKey={borradorRefreshKey}
@@ -1443,6 +1446,8 @@ export const Gastos: React.FC = () => {
           </div>
         </div>
       </div>
+      </div>{/* /§F body */}
+      </div>{/* /SHELL card · header + KPIs + tabs + BODY · TODO en un recuadro continuo (canon hub) */}
 
       {/* chk5.C9 · F9 · Allocation Engine settings panel · D-GR-7 */}
       {showAllocationSettings && (
