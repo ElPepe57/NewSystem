@@ -29,10 +29,11 @@ import {
   // chk5.C-FIX · lucide canon F8/F9 (cero emojis)
   Check, X as XIcon, AlertTriangle, Package, ShoppingBag, ChevronRight,
   Users, User as UserIcon, Briefcase, Plus, ChevronDown, Repeat,
-  Hash, Save, FileText,
+  Hash, Save, FileText, Receipt,
 } from 'lucide-react';
 import { Button, Input, AutocompleteInput } from '../../components/common';
 import { Modal } from '../../components/common/Modal';
+import { FormModalV2 } from '../../design-system/components/FormModalV2';
 import { useGastoStore } from '../../store/gastoStore';
 import { useAuthStore } from '../../store/authStore';
 import { useTipoCambioStore } from '../../store/tipoCambioStore';
@@ -566,8 +567,8 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose, gastoEditar }) =>
   }, [borradorExistente, isEditing]);
 
   // ── Submit handler ───────────────────────────────────────────────────────
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (e?: React.FormEvent) => {
+    e?.preventDefault();
     if (!user) { toast.warning('Debe iniciar sesión'); return; }
     if (!formData.categoriaCostoId) { toast.warning('Selecciona una categoría'); return; }
     if (!formData.descripcion.trim()) { toast.warning('Ingresa una descripción'); return; }
@@ -635,14 +636,30 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose, gastoEditar }) =>
     : [];
 
   return (
-    <Modal
+    <FormModalV2
       isOpen={true}
       onClose={onClose}
+      onSubmit={() => handleSubmit()}
       title={isEditing ? 'Editar gasto' : 'Nuevo gasto manual'}
+      subtitle="Registra el gasto · el pago se gestiona aparte desde la lista"
+      icon={Receipt}
+      iconTone="teal"
       size="lg"
-      contentPadding="none"
+      submitLabel={isEditing ? 'Actualizar gasto' : 'Crear gasto'}
+      submitIcon={Save}
+      loading={loading}
+      footerExtras={!isEditing ? (
+        <button
+          type="button"
+          onClick={handleGuardarBorrador}
+          disabled={loading}
+          className="text-[11px] font-medium text-slate-600 hover:text-slate-900 inline-flex items-center gap-1 disabled:opacity-50"
+        >
+          <Save className="w-3 h-3" /> Guardar borrador
+        </button>
+      ) : undefined}
     >
-      <form onSubmit={handleSubmit} className="px-5 py-5 space-y-4">
+      <div className="space-y-4">
 
         {/* Banner edit-mode si gasto ya pagado */}
         {isEditing && gastoEditar?.estado === 'pagado' && (
@@ -1083,7 +1100,11 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose, gastoEditar }) =>
         {/* ═══════════════════════════════════════════════════════════════
             SECCIÓN 4 · FECHA + RECURRENCIA (canon · grid 2 cols)
             ═══════════════════════════════════════════════════════════════ */}
-        <section className="grid grid-cols-2 gap-2">
+        <section>
+          <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">
+            4 · Fecha + recurrencia
+          </div>
+          <div className="grid grid-cols-2 gap-2">
           <div>
             <label className="text-[10px] text-slate-600 font-medium">Fecha del gasto *</label>
             <div className="flex items-center gap-2 px-3 py-2 bg-white border border-slate-200 rounded-lg mt-1">
@@ -1113,6 +1134,7 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose, gastoEditar }) =>
                 <option value="anual">Anual</option>
               </select>
             </div>
+          </div>
           </div>
         </section>
 
@@ -1268,38 +1290,7 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose, gastoEditar }) =>
           </div>
         )}
 
-        {/* ═══════════════════════════════════════════════════════════════
-            ACCIONES BOTTOM (canon)
-            ═══════════════════════════════════════════════════════════════ */}
-        <div className="flex items-center gap-2 pt-3 border-t border-slate-100">
-          <button
-            type="button"
-            onClick={onClose}
-            disabled={loading}
-            className="text-[11px] font-medium text-slate-700 bg-white border border-slate-200 hover:bg-slate-100 rounded-md px-3 py-1.5 disabled:opacity-50"
-          >
-            Cancelar
-          </button>
-          {!isEditing && (
-            <button
-              type="button"
-              onClick={handleGuardarBorrador}
-              disabled={loading}
-              className="text-[11px] font-medium text-slate-700 bg-white border border-slate-200 hover:bg-slate-100 rounded-md px-3 py-1.5 ml-auto inline-flex items-center gap-1 disabled:opacity-50"
-            >
-              <Save className="w-3 h-3" />
-              Guardar borrador
-            </button>
-          )}
-          <button
-            type="submit"
-            disabled={loading}
-            className={`text-[11px] font-bold text-white bg-slate-900 hover:bg-slate-800 rounded-md px-4 py-1.5 inline-flex items-center gap-1 disabled:opacity-50 ${isEditing ? 'ml-auto' : ''}`}
-          >
-            {loading ? 'Procesando...' : (isEditing ? 'Actualizar gasto' : 'Crear gasto')}
-          </button>
-        </div>
-      </form>
+      </div>
 
       {/* ═══════════════════════════════════════════════════════════════════
           MODALES INLINE (preservados · D-INLINE-8)
@@ -1374,6 +1365,6 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose, gastoEditar }) =>
           />
         </Modal>
       )}
-    </Modal>
+    </FormModalV2>
   );
 };
