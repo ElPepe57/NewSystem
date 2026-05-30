@@ -742,6 +742,12 @@ export const Gastos: React.FC = () => {
       <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
       {/* chk5.C1 · Header canon banking-grade (top-bar + header · sin card propio) */}
       <HeaderGastos
+        breadcrumbLeaf={
+          (vistaActiva === 'listado' || vistaActiva === 'calendario') ? 'Movimientos'
+          : (vistaActiva === 'bloque' || vistaActiva === 'proveedor') ? 'Análisis'
+          : null
+        }
+        onVolverResumen={() => setVistaActiva('resumen')}
         onPoliticaAsignacion={() => setShowAllocationSettings(true)}
         onVerPnL={() => navigate('/contabilidad')}
         onExportar={() => exportService.exportGastos(gastosFiltrados)}

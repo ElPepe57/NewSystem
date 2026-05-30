@@ -18,6 +18,10 @@ import { useAuthStore } from '../../../store/authStore';
 import { hasRole } from '../../../types/auth.types';
 
 interface HeaderGastosProps {
+  /** Leaf del breadcrumb S9.D1 (tab activa) · null/undefined = tab Resumen (default · 2 niveles) */
+  breadcrumbLeaf?: string | null;
+  /** Click en "Gastos" del breadcrumb → vuelve a tab Resumen (solo cuando hay leaf) */
+  onVolverResumen?: () => void;
   /** Click "Política asignación" → abre AllocationEngineSettings (F9) */
   onPoliticaAsignacion?: () => void;
   /** Click "Ver P&L" → navega a Contabilidad · placeholder MVP */
@@ -31,6 +35,8 @@ interface HeaderGastosProps {
 }
 
 export const HeaderGastos: React.FC<HeaderGastosProps> = ({
+  breadcrumbLeaf,
+  onVolverResumen,
   onPoliticaAsignacion,
   onVerPnL,
   onExportar,
@@ -48,7 +54,21 @@ export const HeaderGastos: React.FC<HeaderGastosProps> = ({
         <div className="flex items-center text-[12px] flex-1 min-w-0">
           <span className="text-slate-500 hover:text-teal-700 cursor-pointer flex-shrink-0">Inicio</span>
           <ChevronRight className="w-3 h-3 text-slate-300 mx-1.5 flex-shrink-0" />
-          <span className="text-slate-900 font-semibold truncate">Gastos</span>
+          {breadcrumbLeaf ? (
+            <>
+              {/* canon S9.D1 · "Gastos" clickable vuelve a tab Resumen · leaf = tab activa */}
+              <span
+                onClick={onVolverResumen}
+                className="text-slate-500 hover:text-teal-700 cursor-pointer flex-shrink-0"
+              >
+                Gastos
+              </span>
+              <ChevronRight className="w-3 h-3 text-slate-300 mx-1.5 flex-shrink-0" />
+              <span className="text-slate-900 font-semibold truncate">{breadcrumbLeaf}</span>
+            </>
+          ) : (
+            <span className="text-slate-900 font-semibold truncate">Gastos</span>
+          )}
         </div>
         <span className="text-[10px] bg-teal-50 text-teal-700 px-2 py-0.5 rounded font-bold hidden sm:inline-flex items-center gap-1 flex-shrink-0">
           <Shield className="w-3 h-3" />
