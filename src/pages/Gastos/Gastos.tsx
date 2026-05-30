@@ -7,6 +7,8 @@ import {
   X as XIcon, Download as DownloadIcon, Trash as TrashIcon,
   // chk5.C8 · canon F8 · iconos para tabs de vistas alternativas (sin emojis)
   List, Package, Factory,
+  // chk5.E-GASTOS · F1.b · iconos tabs hub + dashboard resumen
+  LayoutDashboard, BarChart3, ShoppingBag,
   // chk5.C10 · F10 · empty state canon · iconos lucide
   Receipt, Building, User as UserIcon, Cloud, ArrowRight, CheckCircle2, Plus,
 } from 'lucide-react';
@@ -99,7 +101,9 @@ export const Gastos: React.FC = () => {
   const [bulkMode, setBulkMode] = useState(false);
   const [seleccionados, setSeleccionados] = useState<Set<string>>(new Set());
   // chk5.C8 · D-GR-8 · toggle de 4 vistas (Reportes BI eliminado · vive en CI/BI)
-  const [vistaActiva, setVistaActiva] = useState<'listado' | 'bloque' | 'calendario' | 'proveedor'>('listado');
+  // chk5.E-GASTOS · F1.b · hub con tabs · vistaActiva motoriza tab+sub-vista:
+  //   resumen → Tab Resumen · listado/calendario → Tab Movimientos · bloque/proveedor → Tab Análisis
+  const [vistaActiva, setVistaActiva] = useState<'resumen' | 'listado' | 'bloque' | 'calendario' | 'proveedor'>('resumen');
   // chk5.C9 · F9 · settings panel del Allocation Engine
   const [showAllocationSettings, setShowAllocationSettings] = useState(false);
   // chk5.C-FIX · canon F-Borradores · refresh del banner al cerrar el modal
@@ -756,38 +760,79 @@ export const Gastos: React.FC = () => {
         }}
       />
 
-      {/* chk5.C-UX-PASS · U4 · Toolbar unificado · canon v8.0 N4+N6
-          Vistas + nav temporal + LineaDropdown en 1 fila (desktop) ·
-          mobile: scroll horizontal en vistas (N6) · nav temporal stack */}
-      <div className="bg-white rounded-2xl border border-slate-200 px-3 sm:px-4 py-2.5 sm:py-3 mb-4">
-        <div className="flex items-center justify-between gap-3 flex-wrap">
-          {/* Toggle 4 vistas · scroll horizontal en mobile · canon v8.0 N6 */}
-          <div className="flex gap-1.5 overflow-x-auto pb-1 sm:pb-0 -mx-1 px-1" style={{ scrollbarWidth: 'none' }}>
+      {/* chk5.E-GASTOS · F1.b · KPI strip canon · SIEMPRE visible sobre las tabs (canon hub) */}
+      {stats && (
+        <KpiStripGastos kpis={kpiData} miniStats={miniStatsData} />
+      )}
+
+      {/* chk5.E-GASTOS · F1.b · TABS de sub-sección canon HUB (Resumen · Movimientos · Análisis)
+          vistaActiva motoriza la tab activa + la sub-vista. Reemplaza el toggle de 4 vistas. */}
+      <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden mb-4">
+        {/* fila de tabs · border-b-2 activo teal (canon hub) */}
+        <div className="border-b border-slate-200 px-2 sm:px-4">
+          <div className="flex items-center gap-1 -mb-px overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
             {([
-              { key: 'listado',    Icon: List,     label: 'Listado',      activeClass: 'bg-amber-100 text-amber-800 ring-2 ring-amber-300' },
-              { key: 'bloque',     Icon: Package,  label: 'Por Bloque',   activeClass: 'bg-blue-100 text-blue-800 ring-2 ring-blue-300' },
-              { key: 'calendario', Icon: Calendar, label: 'Calendario',   activeClass: 'bg-emerald-100 text-emerald-800 ring-2 ring-emerald-300' },
-              { key: 'proveedor',  Icon: Factory,  label: 'Por Proveedor', activeClass: 'bg-sky-100 text-sky-800 ring-2 ring-sky-300' },
-            ] as const).map((opt) => {
-              const TabIcon = opt.Icon;
+              { tab: 'resumen',     vista: 'resumen' as const,  Icon: LayoutDashboard, label: 'Resumen' },
+              { tab: 'movimientos', vista: 'listado' as const,  Icon: List,            label: 'Movimientos' },
+              { tab: 'analisis',    vista: 'bloque' as const,   Icon: BarChart3,       label: 'Análisis' },
+            ]).map((t) => {
+              const TIcon = t.Icon;
+              const activa =
+                (t.tab === 'resumen' && vistaActiva === 'resumen') ||
+                (t.tab === 'movimientos' && (vistaActiva === 'listado' || vistaActiva === 'calendario')) ||
+                (t.tab === 'analisis' && (vistaActiva === 'bloque' || vistaActiva === 'proveedor'));
               return (
                 <button
-                  key={opt.key}
+                  key={t.tab}
                   type="button"
-                  onClick={() => setVistaActiva(opt.key)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all inline-flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 ${
-                    vistaActiva === opt.key ? opt.activeClass : 'text-slate-600 hover:bg-slate-50'
+                  onClick={() => setVistaActiva(t.vista)}
+                  className={`px-4 py-3 text-[12px] border-b-2 flex items-center gap-1.5 whitespace-nowrap transition-colors ${
+                    activa
+                      ? 'border-teal-600 text-teal-700 font-semibold'
+                      : 'border-transparent text-slate-600 hover:text-slate-900 hover:border-slate-300 font-medium'
                   }`}
                 >
-                  <TabIcon className="w-3.5 h-3.5" />
-                  <span>{opt.label}</span>
+                  <TIcon className="w-3.5 h-3.5" />
+                  {t.label}
                 </button>
               );
             })}
           </div>
-
-          {/* Nav temporal + LineaDropdown · solo en vista Listado */}
-          {vistaActiva === 'listado' && (
+        </div>
+        {/* sub-toolbar contextual · sub-toggle de vista + nav temporal */}
+        <div className="px-3 sm:px-4 py-2.5 flex items-center justify-between gap-3 flex-wrap">
+          {/* Movimientos · sub-toggle Lista / Calendario */}
+          {(vistaActiva === 'listado' || vistaActiva === 'calendario') && (
+            <div className="flex gap-1.5">
+              <button type="button" onClick={() => setVistaActiva('listado')}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold inline-flex items-center gap-1.5 ${vistaActiva === 'listado' ? 'bg-amber-100 text-amber-800 ring-2 ring-amber-300' : 'text-slate-600 hover:bg-slate-50 border border-slate-200'}`}>
+                <List className="w-3.5 h-3.5" /> Lista
+              </button>
+              <button type="button" onClick={() => setVistaActiva('calendario')}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold inline-flex items-center gap-1.5 ${vistaActiva === 'calendario' ? 'bg-emerald-100 text-emerald-800 ring-2 ring-emerald-300' : 'text-slate-600 hover:bg-slate-50 border border-slate-200'}`}>
+                <Calendar className="w-3.5 h-3.5" /> Calendario
+              </button>
+            </div>
+          )}
+          {/* Análisis · sub-toggle Por Bloque / Por Proveedor */}
+          {(vistaActiva === 'bloque' || vistaActiva === 'proveedor') && (
+            <div className="flex gap-1.5">
+              <button type="button" onClick={() => setVistaActiva('bloque')}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold inline-flex items-center gap-1.5 ${vistaActiva === 'bloque' ? 'bg-blue-100 text-blue-800 ring-2 ring-blue-300' : 'text-slate-600 hover:bg-slate-50 border border-slate-200'}`}>
+                <Package className="w-3.5 h-3.5" /> Por Bloque
+              </button>
+              <button type="button" onClick={() => setVistaActiva('proveedor')}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold inline-flex items-center gap-1.5 ${vistaActiva === 'proveedor' ? 'bg-sky-100 text-sky-800 ring-2 ring-sky-300' : 'text-slate-600 hover:bg-slate-50 border border-slate-200'}`}>
+                <Factory className="w-3.5 h-3.5" /> Por Proveedor
+              </button>
+            </div>
+          )}
+          {/* Resumen · hint */}
+          {vistaActiva === 'resumen' && (
+            <span className="text-[12px] text-slate-400">Vista ejecutiva del gasto del mes</span>
+          )}
+          {/* Nav temporal + LineaDropdown · en Movimientos */}
+          {(vistaActiva === 'listado' || vistaActiva === 'calendario') && (
             <div className="ml-auto">
               <NavegacionTemporal
                 selectedMonth={selectedMonth}
@@ -808,6 +853,75 @@ export const Gastos: React.FC = () => {
           · sidebar (DrawerUrgentes + TopProveedoresLight) persiste en TODAS · canon v8.0 consistencia */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div className="md:col-span-3 space-y-4">
+
+      {/* chk5.E-GASTOS · F1.b · Tab RESUMEN · dashboard ejecutivo del gasto del mes */}
+      {vistaActiva === 'resumen' && (
+        <div className="space-y-4">
+          {/* estado del gasto del mes */}
+          <div className="bg-white border border-slate-200 rounded-xl p-4 flex items-start gap-3">
+            <div className="w-10 h-10 rounded-lg bg-teal-100 flex items-center justify-center flex-shrink-0">
+              <Receipt className="w-5 h-5 text-teal-700" />
+            </div>
+            <div className="min-w-0">
+              <div className="text-[13px] font-bold text-slate-900">
+                Gasto de {MONTH_NAMES[selectedMonth - 1]} {selectedYear}
+              </div>
+              <div className="text-xs text-slate-600">
+                {heroKpis.gastosDelMes.length.toLocaleString('es-PE')} movimientos registrados este mes · distribución y eficiencia abajo · vencimientos y proveedores en el panel lateral.
+              </div>
+            </div>
+          </div>
+
+          {/* distribución por bloque (canon N1+N2) */}
+          <div>
+            <div className="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-2">Distribución por bloque</div>
+            {(() => {
+              const montos: Record<BloqueCosto, number> = { producto: 0, venta: 0, periodo: 0 };
+              for (const g of gastosPorLinea) {
+                const b: BloqueCosto = getBloqueDelGasto(g, arbolCategorias) ?? 'periodo';
+                montos[b] += g.montoPEN || 0;
+              }
+              const total = (montos.producto + montos.venta + montos.periodo) || 1;
+              const cfg = [
+                { b: 'producto' as BloqueCosto, label: 'Producto', Icon: Package,      wrap: 'from-blue-50 to-blue-100/40 ring-blue-200/50',     txt: 'text-blue-900',   bar: 'bg-blue-500',   barbg: 'bg-blue-100' },
+                { b: 'venta' as BloqueCosto,    label: 'Venta',    Icon: ShoppingBag,   wrap: 'from-purple-50 to-purple-100/40 ring-purple-200/50', txt: 'text-purple-900', bar: 'bg-purple-500', barbg: 'bg-purple-100' },
+                { b: 'periodo' as BloqueCosto,  label: 'Período',  Icon: Calendar,      wrap: 'from-amber-50 to-amber-100/40 ring-amber-200/50',   txt: 'text-amber-900',  bar: 'bg-amber-500',  barbg: 'bg-amber-100' },
+              ];
+              return (
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  {cfg.map((c) => {
+                    const CIcon = c.Icon;
+                    const pct = Math.round((montos[c.b] / total) * 100);
+                    return (
+                      <div key={c.b} className={`bg-gradient-to-br ${c.wrap} ring-1 rounded-xl p-3.5`}>
+                        <div className="flex items-center gap-2 mb-1.5">
+                          <CIcon className={`w-4 h-4 ${c.txt}`} />
+                          <span className={`text-[12px] font-bold ${c.txt}`}>{c.label}</span>
+                        </div>
+                        <div className={`text-xl font-bold tabular-nums ${c.txt}`}>{formatCurrency(montos[c.b])}</div>
+                        <div className={`h-1.5 ${c.barbg} rounded-full mt-2 overflow-hidden`}>
+                          <div className={`h-full ${c.bar}`} style={{ width: `${pct}%` }} />
+                        </div>
+                        <div className="text-[10px] text-slate-500 mt-1">{pct}% del mes</div>
+                      </div>
+                    );
+                  })}
+                </div>
+              );
+            })()}
+          </div>
+
+          {/* eficiencia cross-link (canon N8 · siempre visible) */}
+          <LinkCardEficiencia
+            ratioGastoInversion={ratiosEficiencia.ratioGastoInversion}
+            deltaGastoInversionPp={ratiosEficiencia.deltaGastoInversionPp}
+            ratioGastoIngreso={ratiosEficiencia.ratioGastoIngreso}
+            deltaGastoIngresoPp={ratiosEficiencia.deltaGastoIngresoPp}
+            onVerEvolucion={() => navigate('/intel-productos/costos')}
+            hasData={ratiosEficiencia.hasData}
+          />
+        </div>
+      )}
 
       {/* Vistas alternativas · canon v8.0 · cada una dentro del main del grid */}
       {vistaActiva === 'bloque' && (
@@ -845,11 +959,6 @@ export const Gastos: React.FC = () => {
 
       {/* Vista Listado · contenido completo (KPIs + LinkCard + Filtros + Lista) */}
       {vistaActiva === 'listado' && (<>
-
-      {/* chk5.C1 · KPI strip canon banking-grade · reemplaza 5 KPI cards gradientes legacy */}
-      {stats && (
-        <KpiStripGastos kpis={kpiData} miniStats={miniStatsData} />
-      )}
 
       {/* chk5.PERSONAS-v5.4 · F6 · cross-link 360° → Planilla
           Banner amber con costo de planilla del mes (color cross-módulo canon N4) */}
