@@ -798,8 +798,10 @@ export const Gastos: React.FC = () => {
             })}
           </div>
         </div>
-        {/* sub-toolbar contextual · sub-toggle de vista + nav temporal */}
-        <div className="px-3 sm:px-4 py-2.5 flex items-center justify-between gap-3 flex-wrap">
+        {/* sub-toolbar contextual · SOLO Movimientos/Análisis (toggles de vista) ·
+            en Resumen NO se renderiza → el body arranca directo tras las tabs (consistente con hermanos) */}
+        {vistaActiva !== 'resumen' && (
+        <div className="px-4 sm:px-6 py-2.5 flex items-center justify-between gap-3 flex-wrap">
           {/* Movimientos · sub-toggle Lista / Calendario */}
           {(vistaActiva === 'listado' || vistaActiva === 'calendario') && (
             <div className="flex gap-1.5">
@@ -826,10 +828,6 @@ export const Gastos: React.FC = () => {
               </button>
             </div>
           )}
-          {/* Resumen · hint */}
-          {vistaActiva === 'resumen' && (
-            <span className="text-[12px] text-slate-400">Vista ejecutiva del gasto del mes</span>
-          )}
           {/* Nav temporal + LineaDropdown · en Movimientos */}
           {(vistaActiva === 'listado' || vistaActiva === 'calendario') && (
             <div className="ml-auto">
@@ -845,6 +843,7 @@ export const Gastos: React.FC = () => {
             </div>
           )}
         </div>
+        )}
       </div>
       </div>{/* /SHELL card unificado · chk5.E-GASTOS pulido 1-card (header + KPIs + tabs) */}
 

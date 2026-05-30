@@ -160,9 +160,7 @@ export const KpiStripGastos: React.FC<KpiStripGastosProps> = ({ kpis, miniStats 
 
       {/* §D · MINI-STATS · footer integrado · border-t (canon v8.0 N3) */}
       <div className="bg-slate-50/50 border-t border-slate-200 px-4 sm:px-6 py-2 flex items-center gap-4 text-[11px] flex-wrap">
-        <span className="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Mini-stats:</span>
-
-        {/* Top proveedor */}
+        {/* Top proveedor · sin label (canon · alineado con Finanzas · solo chips) */}
         {miniStats.topProveedor ? (
           <span className="flex items-center gap-1 text-slate-600">
             <Briefcase className="w-3 h-3 text-slate-400 flex-shrink-0" /> Top proveedor:{' '}
