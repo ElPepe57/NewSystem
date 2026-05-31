@@ -1238,7 +1238,9 @@ export const Gastos: React.FC = () => {
                `gastos-rework-v3-final.html · Sección 7 · empty state honesto`.
                Cero emojis · 3 quick-starts canon (Alquiler/Sueldo/SaaS) ·
                checklist activación + CTA "Ver módulo Compras" cross-link. */
-            <div className="bg-white border border-slate-200 rounded-xl p-12">
+            /* chk5.E-GASTOS · empty state SIN borde/fondo propio · ya vive dentro del Card
+               contenedor (evita recuadro-dentro-de-recuadro · solución integral 360) */
+            <div className="py-8">
               <div className="max-w-lg mx-auto text-center">
                 <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-teal-50 to-teal-100 ring-1 ring-teal-200/50 flex items-center justify-center mx-auto mb-4">
                   <Receipt className="w-10 h-10 text-teal-700" />
