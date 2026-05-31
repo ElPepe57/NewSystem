@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Catálogo funcional de componentes · qué hace cada uno + qué crear · Vita Skin ERP</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+  .tabular { font-variant-numeric: tabular-nums; }
+  code { font-family: 'SF Mono', ui-monospace, Menlo, Consolas, monospace; }
+  .acto-label { letter-spacing: 0.08em; }
+  .s-ok    { background:#dcfce7; color:#15803d; }
+  .s-fix   { background:#fef3c7; color:#b45309; }
+  .s-new   { background:#ede9fe; color:#6d28d9; }
+</style>
+</head>
+<body class="bg-slate-100 text-slate-900 p-4 sm:p-8">
+
+<div class="max-w-6xl mx-auto space-y-8">
+
+  <!-- HERO -->
+  <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-6 sm:p-8">
+    <div class="flex flex-wrap items-center gap-2 mb-3">
+      <span class="text-[11px] font-bold uppercase tracking-wider text-teal-700 bg-teal-50 px-2 py-1 rounded">Catálogo FUNCIONAL · decisión #4</span>
+      <span class="text-[11px] font-bold uppercase tracking-wider text-purple-700 bg-purple-50 px-2 py-1 rounded">qué hace cada uno + qué CREAR</span>
+    </div>
+    <h1 class="text-2xl sm:text-3xl font-bold tracking-tight mb-2">Componentes por capacidad · y los que faltan crear</h1>
+    <p class="text-sm text-slate-600 max-w-3xl leading-relaxed">
+      Cada componente con sus <strong>funciones reales</strong> (best-in-class), no por uso. Marco lo que ya está bien,
+      lo que hay que mejorar, y <strong>lo que entiendo que hay que CREAR</strong> porque hoy no existe y se necesita.
+    </p>
+    <div class="mt-4 flex flex-wrap gap-2 text-[11px]">
+      <span class="s-ok px-2 py-1 rounded font-bold">✅ existe · OK</span>
+      <span class="s-fix px-2 py-1 rounded font-bold">🔧 existe · mejorar</span>
+      <span class="s-new px-2 py-1 rounded font-bold">✨ CREAR · no existe y se necesita</span>
+    </div>
+  </div>
+
+  <!-- BOTONES -->
+  <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-5">
+    <div class="flex items-center justify-between mb-3"><div class="text-[14px] font-bold">Button · 3-tier</div><span class="s-fix px-2 py-0.5 rounded text-[10px] font-bold">🔧 mejorar</span></div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="text-[12px] text-slate-600 space-y-1">
+        <div class="font-bold text-slate-800">Funciones (best-in-class):</div>
+        <div>• 3 tiers: primary / config / neutral (jerarquía N10).</div>
+        <div>• <strong>Color automático del módulo</strong> (hereda · hoy se pone a mano).</div>
+        <div>• Estados: loading (spinner) · disabled · con icono izq/der.</div>
+        <div>• Tamaños sm/md · full-width opcional.</div>
+        <div class="text-amber-700">Mejora: <code>&lt;Button tier color loading icon&gt;</code> · que resuelva todo por props.</div>
+      </div>
+      <div class="flex flex-wrap items-center gap-2">
+        <button class="text-[11px] font-bold text-white bg-teal-600 px-3 py-1.5 rounded-lg">Primary</button>
+        <button class="text-[11px] font-semibold text-indigo-700 bg-indigo-50 border border-indigo-200 px-3 py-1.5 rounded-lg">Config</button>
+        <button class="text-[11px] font-semibold text-slate-600 bg-white border border-slate-200 px-3 py-1.5 rounded-lg">Neutral</button>
+        <button class="text-[11px] font-bold text-white bg-teal-600/60 px-3 py-1.5 rounded-lg inline-flex items-center gap-1"><i data-lucide="loader" class="w-3 h-3 animate-spin"></i> Loading</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SMARTSEARCH -->
+  <div class="bg-white border-2 border-purple-200 rounded-2xl shadow-sm p-5">
+    <div class="flex items-center justify-between mb-3"><div class="text-[14px] font-bold">SmartSearch · buscador único</div><span class="s-new px-2 py-0.5 rounded text-[10px] font-bold">✨ CREAR</span></div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="text-[12px] text-slate-600 space-y-1">
+        <div class="font-bold text-slate-800">Funciones (absorbe 7 buscadores):</div>
+        <div>• <code>mode="filter"</code> · filtra una lista.</div>
+        <div>• <code>mode="select"</code> · elige entidad del catálogo (resultados tipados con icono).</div>
+        <div>• <code>mode="select-create"</code> · <strong>crear inline</strong> si no existe.</div>
+        <div>• Multi-source (proveedor · persona · producto).</div>
+        <div class="text-purple-700">Por qué crear: hoy 7 buscadores y NINGUNO crea inline.</div>
+      </div>
+      <div class="border border-slate-200 rounded-lg p-2 text-[11px]">
+        <div class="flex items-center border border-emerald-300 rounded px-2 py-1.5 ring-2 ring-emerald-100"><i data-lucide="search" class="w-3.5 h-3.5 text-emerald-500 mr-1.5"></i> Proveedor Nuevo SAC</div>
+        <div class="mt-1 flex items-center gap-1.5 px-2 py-1.5 bg-emerald-50 text-emerald-700 rounded font-bold"><i data-lucide="plus-circle" class="w-3.5 h-3.5"></i> Crear "Proveedor Nuevo SAC"</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HUBCARD -->
+  <div class="bg-white border-2 border-purple-200 rounded-2xl shadow-sm p-5">
+    <div class="flex items-center justify-between mb-3"><div class="text-[14px] font-bold">HubCard · card de entidad unificada</div><span class="s-new px-2 py-0.5 rounded text-[10px] font-bold">✨ CREAR</span></div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="text-[12px] text-slate-600 space-y-1">
+        <div class="font-bold text-slate-800">Funciones (unifica 5+ cards):</div>
+        <div>• Slots: icono tonal · título · meta · monto · estado · acciones.</div>
+        <div>• Sub-filas anidadas (ej. OC con sus líneas · canon CompraCard).</div>
+        <div>• Checkbox opcional (selección múltiple).</div>
+        <div>• Click → drill / editar.</div>
+        <div class="text-purple-700">Por qué crear: hoy GastoCard, CompraCard, EnvioCard, DataCard… cada una su molde.</div>
+      </div>
+      <div class="bg-white border border-slate-200 rounded-xl p-3 flex items-center gap-3">
+        <div class="w-9 h-9 rounded-lg bg-amber-100 flex items-center justify-center"><i data-lucide="building" class="w-4 h-4 text-amber-700"></i></div>
+        <div class="flex-1"><div class="text-[12px] font-bold">Alquiler local</div><div class="text-[10px] text-slate-500">Período · vence 3 jun</div></div>
+        <div class="text-[13px] font-bold tabular">S/ 2,400</div>
+        <span class="bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full text-[10px] font-bold">Pendiente</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- FILTROSBAR -->
+  <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-5">
+    <div class="flex items-center justify-between mb-3"><div class="text-[14px] font-bold">FiltrosBar · filtros componible</div><span class="s-fix px-2 py-0.5 rounded text-[10px] font-bold">🔧 existe · adoptar/mejorar</span></div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="text-[12px] text-slate-600 space-y-1">
+        <div class="font-bold text-slate-800">Funciones:</div>
+        <div>• Chips toggle por dimensión (estado · bloque · origen) con color cross-módulo.</div>
+        <div>• Búsqueda (usa SmartSearch mode=filter) + orden + limpiar global.</div>
+        <div>• Conteo activo · colapsable en mobile (N5).</div>
+        <div class="text-amber-700">Existe canon · falta ADOPTAR (cada módulo hizo FiltrosXBar) + sumar el rango de fechas.</div>
+      </div>
+      <div class="border border-slate-200 rounded-lg p-2.5 text-[11px]">
+        <div class="flex flex-wrap items-center gap-1.5 mb-1.5"><span class="text-[9px] font-bold uppercase text-slate-500">Estado</span><span class="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-bold">Pagado</span><span class="bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-bold">Pendiente</span></div>
+        <div class="flex items-center gap-1.5"><div class="flex-1 flex items-center border border-slate-300 rounded px-2 py-1"><i data-lucide="search" class="w-3 h-3 text-slate-400 mr-1"></i><span class="text-slate-400">Buscar…</span></div><span class="border border-slate-300 rounded px-2 py-1 text-slate-500">Orden</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FORMS -->
+  <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-5">
+    <div class="flex items-center justify-between mb-3"><div class="text-[14px] font-bold">Campos de form</div><span class="s-ok px-2 py-0.5 rounded text-[10px] font-bold">✅ existe OK (maduro)</span></div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="text-[12px] text-slate-600 space-y-1">
+        <div class="font-bold text-slate-800">Funciones (ya en design-system/forms):</div>
+        <div>• TextField · MoneyField (S/ + decimales) · DateField.</div>
+        <div>• Combobox (select con búsqueda) · ToggleGroup (sí/no, opciones).</div>
+        <div>• ValidationSummary · estados error/help.</div>
+        <div class="text-emerald-700">La capa más madura · solo falta adoptarla donde aún hay &lt;input&gt; a mano.</div>
+      </div>
+      <div class="space-y-1.5">
+        <div class="flex items-center border border-slate-300 rounded-lg px-2 py-1.5 text-[11px]"><span class="text-slate-400 mr-1">S/</span><span class="tabular">2,400.00</span></div>
+        <div class="flex gap-1.5"><span class="text-[11px] font-bold bg-teal-100 text-teal-800 ring-2 ring-teal-300 px-2 py-1 rounded">Recurrente</span><span class="text-[11px] text-slate-600 border border-slate-200 px-2 py-1 rounded">Único</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODALES + BOTTOMSHEET -->
+  <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-5">
+    <div class="flex items-center justify-between mb-3"><div class="text-[14px] font-bold">Overlays · modales y mobile</div><span class="text-[10px] text-slate-400">mixto</span></div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-[11px]">
+      <div class="border border-slate-200 rounded-xl p-3">
+        <div class="flex items-center justify-between mb-1"><span class="font-bold">FormModalV2</span><span class="s-ok px-1.5 rounded text-[9px] font-bold">✅ OK</span></div>
+        <div class="text-slate-600">Header tonal + body + footer atajos (Esc/⌘↵) + "guardar borrador". Canon de forms.</div>
+      </div>
+      <div class="border border-slate-200 rounded-xl p-3">
+        <div class="flex items-center justify-between mb-1"><span class="font-bold">ConfirmDialog</span><span class="s-fix px-1.5 rounded text-[9px] font-bold">🔧</span></div>
+        <div class="text-slate-600">Confirmar + typed-confirm para destructivo. Existe · estandarizar el uso.</div>
+      </div>
+      <div class="border-2 border-purple-200 rounded-xl p-3">
+        <div class="flex items-center justify-between mb-1"><span class="font-bold">BottomSheet</span><span class="s-new px-1.5 rounded text-[9px] font-bold">✨ CREAR</span></div>
+        <div class="text-slate-600">Modal mobile que sube desde abajo (drag handle). Hoy los modales se ven apretados en mobile.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ESTADOS -->
+  <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-5">
+    <div class="flex items-center justify-between mb-3"><div class="text-[14px] font-bold">Estados · Empty / Loading / Error</div><span class="s-fix px-2 py-0.5 rounded text-[10px] font-bold">🔧 fusionar 2→1</span></div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="text-[12px] text-slate-600 space-y-1">
+        <div class="font-bold text-slate-800">Funciones (1 componente, variantes):</div>
+        <div>• <code>variant="empty"</code> · icono + título + quick-start cards (N9).</div>
+        <div>• <code>variant="no-results"</code> · "limpiar filtros".</div>
+        <div>• <code>variant="loading"</code> · spinner/skeleton · <code>variant="error"</code> · reintentar.</div>
+        <div class="text-amber-700">Hoy: EmptyStateAction + EmptyStatePro → fusionar en uno con variantes.</div>
+      </div>
+      <div class="border border-slate-200 rounded-xl p-4 text-center">
+        <div class="w-12 h-12 rounded-2xl bg-teal-50 ring-1 ring-teal-200/50 flex items-center justify-center mx-auto mb-2"><i data-lucide="inbox" class="w-6 h-6 text-teal-700"></i></div>
+        <div class="text-[12px] font-bold">Sin gastos registrados</div>
+        <div class="text-[10px] text-slate-500">+ quick-starts accionables</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- POSIBLES CREAR EXTRA -->
+  <div class="bg-purple-50/50 border border-purple-200 rounded-2xl p-5">
+    <div class="acto-label text-[11px] font-bold uppercase text-purple-700 mb-3">✨ Otros que entiendo que hay que CREAR (gaps detectados)</div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-[11px]">
+      <div class="bg-white border border-purple-100 rounded-xl p-3">
+        <div class="font-bold mb-1">BulkActionsToolbar</div>
+        <div class="text-slate-600">Selección múltiple + acciones masivas (exportar/eliminar/pagar). Hoy en Gastos está a mano con emojis ☑📥🗑 (viola F8). → componente canon con lucide.</div>
+      </div>
+      <div class="bg-white border border-purple-100 rounded-xl p-3">
+        <div class="font-bold mb-1">Drawer lateral</div>
+        <div class="text-slate-600">Panel que entra desde el lado (detalle/contexto sin salir). Hoy FilterDrawer está muerto · UserPanel lo hace a mano. → 1 Drawer canon.</div>
+      </div>
+      <div class="bg-white border border-purple-100 rounded-xl p-3">
+        <div class="font-bold mb-1">InlineCreateForm</div>
+        <div class="text-slate-600">El mini-form del "crear inline" del SmartSearch (proveedor/persona rápido). Parte del SmartSearch pero reutilizable.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RESUMEN -->
+  <div class="bg-gradient-to-br from-teal-50 to-teal-100/40 ring-1 ring-teal-200/60 rounded-2xl p-6">
+    <div class="acto-label text-[11px] font-bold uppercase text-teal-700 mb-3">Resumen · qué crear vs qué ya está</div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-[12px]">
+      <div><div class="s-new inline-block px-2 py-0.5 rounded font-bold mb-1">✨ CREAR (5)</div><div class="text-slate-700">SmartSearch · HubCard · BottomSheet · BulkActionsToolbar · Drawer (+ InlineCreate dentro de SmartSearch)</div></div>
+      <div><div class="s-fix inline-block px-2 py-0.5 rounded font-bold mb-1">🔧 MEJORAR (4)</div><div class="text-slate-700">Button (tier+color) · FiltrosBar (adoptar+fechas) · EmptyState (fusionar) · StatusBadge (paleta)</div></div>
+      <div><div class="s-ok inline-block px-2 py-0.5 rounded font-bold mb-1">✅ OK (varios)</div><div class="text-slate-700">Campos form (TextField/Money/Date/Combobox/Toggle) · FormModalV2 · DataTable · ConfirmDialog</div></div>
+    </div>
+    <p class="text-[12px] text-slate-600 mt-3">El DS no es solo "consolidar lo que hay" → también <strong>crear el ideal donde falta</strong>. Los 5 ✨ son las piezas que de verdad elevan el sistema.</p>
+  </div>
+
+  <div class="text-center text-[11px] text-slate-400 pb-6">
+    docs/mockups/eval-componentes-funcional-v1.html · capacidades + gaps a crear (2026-05-30)
+  </div>
+
+</div>
+
+<script>lucide.createIcons();</script>
+</body>
+</html>
