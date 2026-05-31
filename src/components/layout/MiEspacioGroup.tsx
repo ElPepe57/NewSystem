@@ -6,10 +6,10 @@
  * perfil-v5.6-sidebar-personalizado.html (ACTOs 3-6).
  *
  * Patrón visual canon:
- *   - border-t-2 border-purple-200 separa del resto del sidebar
- *   - Label "Mi espacio" en uppercase tracking-wider color purple-700
+ *   - border-t-2 border-slate-200 separa del resto del sidebar
+ *   - Label "Mi espacio" en uppercase tracking-wider color slate-700
  *   - Items con icon w-4 h-4 + label text-sm
- *   - Item activo: bg-purple-50 text-purple-700 font-semibold
+ *   - Item activo: bg-slate-50 text-slate-700 font-semibold
  *   - Badge dinámico (ej. "7" en Mi bandeja) bg-amber-100 text-amber-700
  *   - Items disabled: tachados con label "sin data"
  *
@@ -44,9 +44,9 @@ export const MiEspacioGroup: React.FC = () => {
     new URLSearchParams(window.location.search).get('debug') === 'sidebar';
 
   return (
-    <div className="border-t-2 border-purple-200 mt-2 pt-2 px-3">
+    <div className="border-t-2 border-slate-200 mt-2 pt-2 px-3">
       {/* Label del grupo */}
-      <div className="px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-purple-700">
+      <div className="px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-slate-700">
         Mi espacio
       </div>
 
@@ -93,12 +93,12 @@ export const MiEspacioGroup: React.FC = () => {
               className={`
                 flex items-center space-x-2.5 px-3 py-2 rounded-lg transition-all duration-150
                 ${isActive
-                  ? 'bg-purple-50 text-purple-700 font-semibold'
-                  : 'text-slate-600 hover:bg-purple-50/40 hover:text-purple-700'
+                  ? 'bg-slate-50 text-slate-700 font-semibold'
+                  : 'text-slate-600 hover:bg-slate-50/40 hover:text-slate-700'
                 }
               `}
             >
-              <Icon className={`h-4 w-4 flex-shrink-0 ${isActive ? 'text-purple-700' : ''}`} />
+              <Icon className={`h-4 w-4 flex-shrink-0 ${isActive ? 'text-slate-700' : ''}`} />
               <span className="text-sm font-medium truncate flex-1">{item.label}</span>
               {item.badge !== undefined && item.badge > 0 && (
                 <span

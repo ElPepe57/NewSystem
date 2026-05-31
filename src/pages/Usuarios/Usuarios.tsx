@@ -495,14 +495,28 @@ export const Usuarios: React.FC = () => {
       <div className="max-w-6xl mx-auto p-3 sm:p-4 md:p-6">
         <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
 
-          {/* §A · BREADCRUMB canon S9.D1 · 3 niveles · Inicio › Equipo › Usuarios */}
+          {/* §A · BREADCRUMB canon S9.D1 · Inicio › Usuarios › sub-tab (módulo como 2º nivel) */}
           <div className="border-b border-slate-200 px-4 sm:px-6 py-2.5 flex items-center gap-3 bg-slate-50">
             <div className="flex items-center text-[12px] flex-1 min-w-0">
               <a className="text-slate-500 hover:text-violet-700 cursor-pointer flex-shrink-0">Inicio</a>
               <ChevronRight className="w-3 h-3 text-slate-300 mx-1.5 flex-shrink-0" />
-              <span className="text-slate-500 flex-shrink-0">Equipo</span>
-              <ChevronRight className="w-3 h-3 text-slate-300 mx-1.5 flex-shrink-0" />
-              <span className="text-slate-900 font-semibold truncate">Usuarios</span>
+              {tabActiva === 'directorio' ? (
+                <span className="text-slate-900 font-semibold truncate">Usuarios</span>
+              ) : (
+                <>
+                  <a
+                    className="text-slate-500 hover:text-violet-700 cursor-pointer flex-shrink-0"
+                    onClick={() => setTabActiva('directorio')}
+                  >
+                    Usuarios
+                  </a>
+                  <ChevronRight className="w-3 h-3 text-slate-300 mx-1.5 flex-shrink-0" />
+                  <span className="text-slate-900 font-semibold truncate">
+                    {tabActiva === 'accesos' && 'Accesos & seguridad'}
+                    {tabActiva === 'configuracion' && 'Configuración'}
+                  </span>
+                </>
+              )}
             </div>
             {/* Chip contextual al rol · canon "admin ve todo" · estandarización chip (chk5.E-GASTOS-CHIP) */}
             <span className="text-[10px] bg-violet-50 text-violet-700 px-2 py-0.5 rounded font-bold hidden sm:inline-flex items-center gap-1 flex-shrink-0">

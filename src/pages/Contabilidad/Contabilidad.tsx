@@ -949,7 +949,7 @@ function AlimentadoPorPanel() {
   const fuentes: Array<{
     label: string;
     descripcion: string;
-    color: 'emerald' | 'rose' | 'amber' | 'teal' | 'purple';
+    color: 'emerald' | 'rose' | 'amber' | 'teal' | 'orange';
     icon: LucideIcon;
     ruta: string;
   }> = [
@@ -984,7 +984,7 @@ function AlimentadoPorPanel() {
     {
       label: 'Stock',
       descripcion: 'unidades · valorización · alimenta inventario en Balance',
-      color: 'purple',
+      color: 'orange',
       icon: Package,
       ruta: '/stock',
     },
@@ -995,7 +995,7 @@ function AlimentadoPorPanel() {
     rose: { bg: 'bg-rose-50', text: 'text-rose-700', textHover: 'hover:text-rose-900', border: 'hover:border-rose-300', iconBg: 'bg-rose-100', iconText: 'text-rose-700' },
     amber: { bg: 'bg-amber-50', text: 'text-amber-700', textHover: 'hover:text-amber-900', border: 'hover:border-amber-300', iconBg: 'bg-amber-100', iconText: 'text-amber-700' },
     teal: { bg: 'bg-teal-50', text: 'text-teal-700', textHover: 'hover:text-teal-900', border: 'hover:border-teal-300', iconBg: 'bg-teal-100', iconText: 'text-teal-700' },
-    purple: { bg: 'bg-purple-50', text: 'text-purple-700', textHover: 'hover:text-purple-900', border: 'hover:border-purple-300', iconBg: 'bg-purple-100', iconText: 'text-purple-700' },
+    orange: { bg: 'bg-orange-50', text: 'text-orange-700', textHover: 'hover:text-orange-900', border: 'hover:border-orange-300', iconBg: 'bg-orange-100', iconText: 'text-orange-700' },
   };
 
   return (
