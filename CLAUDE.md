@@ -290,6 +290,30 @@ NUNCA de golpe) · common/ CONGELADO (nada nuevo ahí). Conteo: ~22 mantener · 
   error persiste · acción opcional (Reintentar/Deshacer) · mobile full-width abajo (safe-area) · lucide + color semántico.
 - **Descartados** (no aplican a ERP interno): dark mode · densidad configurable.
 
+## F · TODO MOCKUP NACE ALINEADO AL DESIGN SYSTEM (✅ declarado 2026-05-31)
+
+Cita literal del usuario (2026-05-31):
+*"cada vez que se desarrolle uno o más mock ups, tienen que venir alineados con estos
+patrones de diseño."*
+
+**Regla:** todo mockup de MÓDULO o FEATURE (los que preceden a implementación) DEBE nacer
+alineado a este canon DS desde el inicio — no se diseña "libre" y se alinea después:
+- **Color** del grupo del módulo (sección A · gobernanza heredada) · NUNCA inventar un color.
+- **Layout** A o B según el criterio (sección B · `max-w-6xl` · body dentro del shell).
+- **Anatomía Hub** (top-bar → header → KPIs → tabs → body) si es módulo hub.
+- **Componentes best-in-class** (sección C): usar HubCard · SmartSearch · FiltrosBar · FormModalV2 ·
+  Button 3-tier · etc. · PROHIBIDO inventar una variante nueva de algo que el DS ya resuelve.
+- **Tokens** (sección E): radios/tipografía/sombras/spacing/breakpoints del sistema · tabular-nums · lucide.
+- **Cobertura total + mobile** (canon de mockups 2026-05-27): todas las superficies + 375px.
+
+**Excepción declarada — mockups EXPLORATORIOS / de DECISIÓN:** comparativos, evaluaciones,
+auditorías y propuestas (como los 14 mockups del propio DS) PUEDEN mostrar el estado actual,
+variantes y alternativas NO-alineadas, porque su propósito es DECIDIR, no especificar. Se rotulan
+como "exploratorio/decisión" en el HERO.
+
+Este canon COMPLEMENTA el "CANON DE MOCKUPS DE DISEÑO · COBERTURA TOTAL + MOBILE-INCLUDED"
+(2026-05-27): aquél define QUÉ superficies cubrir · éste define que nazcan con el LENGUAJE del DS.
+
 ## Estado e implementación (plan de fases · ✅ #5 CONFIRMADO · F0 CERRADA 100% · 2026-05-31)
 - **F0** · Blueprint · **14 mockups + TODAS las decisiones** ✅ CERRADO.
 - **F1** · Tokens + color (`tokens.ts` · `grupoColor.ts` · alinear Contabilidad/Usuarios/Planilla a su color de grupo).
