@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Mapa de color por grupo · gobernanza de identidad · Vita Skin ERP</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+  .tabular { font-variant-numeric: tabular-nums; }
+  code, pre { font-family: 'SF Mono', ui-monospace, Menlo, Consolas, monospace; }
+  .acto-label { letter-spacing: 0.08em; }
+</style>
+</head>
+<body class="bg-slate-100 text-slate-900 p-4 sm:p-8">
+
+<div class="max-w-6xl mx-auto space-y-8">
+
+  <!-- HERO -->
+  <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-6 sm:p-8">
+    <div class="flex flex-wrap items-center gap-2 mb-3">
+      <span class="text-[11px] font-bold uppercase tracking-wider text-teal-700 bg-teal-50 px-2 py-1 rounded">Gobernanza de color v1</span>
+      <span class="text-[11px] font-bold uppercase tracking-wider text-slate-600 bg-slate-100 px-2 py-1 rounded">mapa grupo → color · heredado</span>
+    </div>
+    <h1 class="text-2xl sm:text-3xl font-bold tracking-tight mb-2">Mapa de color por grupo</h1>
+    <p class="text-sm text-slate-600 max-w-3xl leading-relaxed">
+      La regla que responde "¿cómo elijo el color de un módulo nuevo?": <strong>no lo elegís — lo hereda de su grupo del sidebar.</strong>
+      6 grupos = 6 colores. El sistema lee de un registro finito; nunca inventa.
+    </p>
+  </div>
+
+  <!-- LA REGLA · flujo -->
+  <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-5">
+    <div class="acto-label text-[11px] font-bold uppercase text-slate-500 mb-3">La regla · cómo nace el color</div>
+    <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 text-[12px]">
+      <div class="flex-1 bg-slate-50 rounded-xl p-3 text-center">
+        <div class="font-bold text-slate-900">1. Módulo nuevo</div>
+        <div class="text-[11px] text-slate-500">¿qué hace? ¿dónde vive?</div>
+      </div>
+      <i data-lucide="arrow-right" class="w-4 h-4 text-slate-300 mx-auto sm:rotate-0 rotate-90 flex-shrink-0"></i>
+      <div class="flex-1 bg-slate-50 rounded-xl p-3 text-center">
+        <div class="font-bold text-slate-900">2. Se ubica en un grupo</div>
+        <div class="text-[11px] text-slate-500">Canon de ubicación (ya existe)</div>
+      </div>
+      <i data-lucide="arrow-right" class="w-4 h-4 text-slate-300 mx-auto sm:rotate-0 rotate-90 flex-shrink-0"></i>
+      <div class="flex-1 bg-teal-50 rounded-xl p-3 text-center ring-1 ring-teal-200">
+        <div class="font-bold text-teal-900">3. Hereda el color del grupo</div>
+        <div class="text-[11px] text-teal-700">automático · del registro</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LOS 6 GRUPOS -->
+  <div>
+    <div class="acto-label text-[11px] font-bold uppercase text-slate-500 mb-3">Los 6 grupos · su color y los módulos que heredan</div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+      <!-- F&C teal -->
+      <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+        <div class="bg-teal-600 text-white px-4 py-2.5 flex items-center justify-between">
+          <span class="text-[13px] font-bold">Finanzas y Contabilidad</span>
+          <span class="text-[10px] font-bold bg-white/20 px-2 py-0.5 rounded">teal · FIRME (marca)</span>
+        </div>
+        <div class="p-4">
+          <!-- mini hub preview teal -->
+          <div class="border border-slate-200 rounded-lg overflow-hidden text-[10px] mb-3">
+            <div class="bg-slate-50 px-2 py-1 border-b flex justify-between"><span class="text-slate-500">› Finanzas</span><span class="bg-teal-50 text-teal-700 px-1.5 rounded font-bold">chip</span></div>
+            <div class="px-2 py-1.5 flex items-center gap-1.5"><div class="w-5 h-5 rounded bg-teal-100"></div><span class="font-bold">Finanzas</span><span class="ml-auto bg-teal-600 text-white px-1.5 py-0.5 rounded">+ Nuevo</span></div>
+            <div class="px-2 py-1 border-t flex gap-2"><span class="border-b-2 border-teal-600 text-teal-700 font-semibold">Resumen</span><span class="text-slate-400">Tab</span></div>
+          </div>
+          <div class="flex flex-wrap gap-1.5 text-[10px]">
+            <span class="bg-slate-100 text-slate-700 px-2 py-0.5 rounded font-semibold">Finanzas ✓</span>
+            <span class="bg-slate-100 text-slate-700 px-2 py-0.5 rounded font-semibold">Gastos ✓</span>
+            <span class="bg-slate-100 text-slate-700 px-2 py-0.5 rounded font-semibold">Tipo de Cambio</span>
+            <span class="bg-amber-100 text-amber-800 px-2 py-0.5 rounded font-semibold">Contabilidad · purple→teal</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Equipo violet -->
+      <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+        <div class="bg-violet-600 text-white px-4 py-2.5 flex items-center justify-between">
+          <span class="text-[13px] font-bold">Equipo</span>
+          <span class="text-[10px] font-bold bg-white/20 px-2 py-0.5 rounded">violet · FIRME</span>
+        </div>
+        <div class="p-4">
+          <div class="border border-slate-200 rounded-lg overflow-hidden text-[10px] mb-3">
+            <div class="bg-slate-50 px-2 py-1 border-b flex justify-between"><span class="text-slate-500">› Usuarios</span><span class="bg-violet-50 text-violet-700 px-1.5 rounded font-bold">chip</span></div>
+            <div class="px-2 py-1.5 flex items-center gap-1.5"><div class="w-5 h-5 rounded bg-violet-100"></div><span class="font-bold">Usuarios</span><span class="ml-auto bg-violet-600 text-white px-1.5 py-0.5 rounded">+ Nuevo</span></div>
+            <div class="px-2 py-1 border-t flex gap-2"><span class="border-b-2 border-violet-600 text-violet-700 font-semibold">Resumen</span><span class="text-slate-400">Tab</span></div>
+          </div>
+          <div class="flex flex-wrap gap-1.5 text-[10px]">
+            <span class="bg-amber-100 text-amber-800 px-2 py-0.5 rounded font-semibold">Usuarios · purple→violet</span>
+            <span class="bg-amber-100 text-amber-800 px-2 py-0.5 rounded font-semibold">Planilla · sky→violet</span>
+            <span class="bg-slate-100 text-slate-700 px-2 py-0.5 rounded font-semibold">Inversionistas ✓</span>
+            <span class="bg-slate-100 text-slate-700 px-2 py-0.5 rounded font-semibold">Notas IA</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Comercial blue -->
+      <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+        <div class="bg-blue-600 text-white px-4 py-2.5 flex items-center justify-between">
+          <span class="text-[13px] font-bold">Comercial</span>
+          <span class="text-[10px] font-bold bg-white/20 px-2 py-0.5 rounded">blue · a confirmar</span>
+        </div>
+        <div class="p-4">
+          <div class="border border-slate-200 rounded-lg overflow-hidden text-[10px] mb-3">
+            <div class="bg-slate-50 px-2 py-1 border-b flex justify-between"><span class="text-slate-500">› Ventas</span><span class="bg-blue-50 text-blue-700 px-1.5 rounded font-bold">chip</span></div>
+            <div class="px-2 py-1.5 flex items-center gap-1.5"><div class="w-5 h-5 rounded bg-blue-100"></div><span class="font-bold">Ventas</span><span class="ml-auto bg-blue-600 text-white px-1.5 py-0.5 rounded">+ Nueva</span></div>
+            <div class="px-2 py-1 border-t flex gap-2"><span class="border-b-2 border-blue-600 text-blue-700 font-semibold">Resumen</span><span class="text-slate-400">Tab</span></div>
+          </div>
+          <div class="flex flex-wrap gap-1.5 text-[10px]">
+            <span class="bg-slate-100 text-slate-700 px-2 py-0.5 rounded font-semibold">Compras</span>
+            <span class="bg-slate-100 text-slate-700 px-2 py-0.5 rounded font-semibold">Ventas</span>
+            <span class="bg-slate-100 text-slate-700 px-2 py-0.5 rounded font-semibold">Cotizaciones</span>
+            <span class="bg-slate-100 text-slate-700 px-2 py-0.5 rounded font-semibold">Requerimientos · ML</span>
+          </div>
+          <div class="text-[10px] text-amber-700 mt-2">⚠ roce leve con semántico "bloque producto"=blue (zonas distintas · tolerable)</div>
+        </div>
+      </div>
+
+      <!-- Inventario orange -->
+      <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+        <div class="bg-orange-500 text-white px-4 py-2.5 flex items-center justify-between">
+          <span class="text-[13px] font-bold">Inventario</span>
+          <span class="text-[10px] font-bold bg-white/20 px-2 py-0.5 rounded">orange · a confirmar</span>
+        </div>
+        <div class="p-4">
+          <div class="border border-slate-200 rounded-lg overflow-hidden text-[10px] mb-3">
+            <div class="bg-slate-50 px-2 py-1 border-b flex justify-between"><span class="text-slate-500">› Productos</span><span class="bg-orange-50 text-orange-700 px-1.5 rounded font-bold">chip</span></div>
+            <div class="px-2 py-1.5 flex items-center gap-1.5"><div class="w-5 h-5 rounded bg-orange-100"></div><span class="font-bold">Productos</span><span class="ml-auto bg-orange-500 text-white px-1.5 py-0.5 rounded">+ Nuevo</span></div>
+            <div class="px-2 py-1 border-t flex gap-2"><span class="border-b-2 border-orange-500 text-orange-700 font-semibold">Resumen</span><span class="text-slate-400">Tab</span></div>
+          </div>
+          <div class="flex flex-wrap gap-1.5 text-[10px]">
+            <span class="bg-slate-100 text-slate-700 px-2 py-0.5 rounded font-semibold">Productos · Stock</span>
+            <span class="bg-slate-100 text-slate-700 px-2 py-0.5 rounded font-semibold">Envíos</span>
+            <span class="bg-slate-100 text-slate-700 px-2 py-0.5 rounded font-semibold">Red Logística · Escáner</span>
+          </div>
+          <div class="text-[10px] text-emerald-700 mt-2">✓ orange NO es semántico · limpio (cajas/almacén/físico)</div>
+        </div>
+      </div>
+
+      <!-- Análisis indigo -->
+      <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+        <div class="bg-indigo-600 text-white px-4 py-2.5 flex items-center justify-between">
+          <span class="text-[13px] font-bold">Análisis</span>
+          <span class="text-[10px] font-bold bg-white/20 px-2 py-0.5 rounded">indigo · a confirmar</span>
+        </div>
+        <div class="p-4">
+          <div class="border border-slate-200 rounded-lg overflow-hidden text-[10px] mb-3">
+            <div class="bg-slate-50 px-2 py-1 border-b flex justify-between"><span class="text-slate-500">› Reportes</span><span class="bg-indigo-50 text-indigo-700 px-1.5 rounded font-bold">chip</span></div>
+            <div class="px-2 py-1.5 flex items-center gap-1.5"><div class="w-5 h-5 rounded bg-indigo-100"></div><span class="font-bold">Reportes</span><span class="ml-auto bg-indigo-600 text-white px-1.5 py-0.5 rounded">Exportar</span></div>
+            <div class="px-2 py-1 border-t flex gap-2"><span class="border-b-2 border-indigo-600 text-indigo-700 font-semibold">Resumen</span><span class="text-slate-400">Tab</span></div>
+          </div>
+          <div class="flex flex-wrap gap-1.5 text-[10px]">
+            <span class="bg-slate-100 text-slate-700 px-2 py-0.5 rounded font-semibold">Reportes · CTRU</span>
+            <span class="bg-slate-100 text-slate-700 px-2 py-0.5 rounded font-semibold">Cost Intelligence</span>
+            <span class="bg-slate-100 text-slate-700 px-2 py-0.5 rounded font-semibold">Proyección · Mapa</span>
+          </div>
+          <div class="text-[10px] text-amber-700 mt-2">⚠ roce leve con semántico "fijo"=indigo (poco usado · tolerable)</div>
+        </div>
+      </div>
+
+      <!-- Administración slate -->
+      <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+        <div class="bg-slate-600 text-white px-4 py-2.5 flex items-center justify-between">
+          <span class="text-[13px] font-bold">Administración</span>
+          <span class="text-[10px] font-bold bg-white/20 px-2 py-0.5 rounded">slate · a confirmar</span>
+        </div>
+        <div class="p-4">
+          <div class="border border-slate-200 rounded-lg overflow-hidden text-[10px] mb-3">
+            <div class="bg-slate-50 px-2 py-1 border-b flex justify-between"><span class="text-slate-500">› Maestros</span><span class="bg-slate-100 text-slate-700 px-1.5 rounded font-bold">chip</span></div>
+            <div class="px-2 py-1.5 flex items-center gap-1.5"><div class="w-5 h-5 rounded bg-slate-200"></div><span class="font-bold">Maestros</span><span class="ml-auto bg-slate-600 text-white px-1.5 py-0.5 rounded">+ Nuevo</span></div>
+            <div class="px-2 py-1 border-t flex gap-2"><span class="border-b-2 border-slate-600 text-slate-700 font-semibold">Resumen</span><span class="text-slate-400">Tab</span></div>
+          </div>
+          <div class="flex flex-wrap gap-1.5 text-[10px]">
+            <span class="bg-slate-100 text-slate-700 px-2 py-0.5 rounded font-semibold">Líneas de Negocio</span>
+            <span class="bg-slate-100 text-slate-700 px-2 py-0.5 rounded font-semibold">Maestros · Auditoría</span>
+            <span class="bg-slate-100 text-slate-700 px-2 py-0.5 rounded font-semibold">Configuración</span>
+          </div>
+          <div class="text-[10px] text-emerald-700 mt-2">✓ slate = técnico/neutral · apropiado para config</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ANTES / DESPUÉS -->
+  <div>
+    <div class="acto-label text-[11px] font-bold uppercase text-slate-500 mb-3">Antes / después · los 3 módulos que cambian de color</div>
+    <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+      <table class="w-full text-[12px]">
+        <thead><tr class="bg-slate-50 border-b text-left text-[10px] uppercase tracking-wider text-slate-500">
+          <th class="px-3 py-2.5">Módulo</th><th class="px-3 py-2.5">Grupo</th><th class="px-3 py-2.5">Hoy</th><th class="px-3 py-2.5">Canon</th>
+        </tr></thead>
+        <tbody class="divide-y divide-slate-100">
+          <tr><td class="px-3 py-2 font-semibold">Contabilidad</td><td class="px-3 py-2 text-slate-600">Finanzas y Contabilidad</td><td class="px-3 py-2"><span class="bg-purple-100 text-purple-700 px-2 py-0.5 rounded font-bold">purple</span></td><td class="px-3 py-2"><span class="bg-teal-100 text-teal-700 px-2 py-0.5 rounded font-bold">teal</span></td></tr>
+          <tr><td class="px-3 py-2 font-semibold">Usuarios</td><td class="px-3 py-2 text-slate-600">Equipo</td><td class="px-3 py-2"><span class="bg-purple-100 text-purple-700 px-2 py-0.5 rounded font-bold">purple</span></td><td class="px-3 py-2"><span class="bg-violet-100 text-violet-700 px-2 py-0.5 rounded font-bold">violet</span></td></tr>
+          <tr><td class="px-3 py-2 font-semibold">Planilla</td><td class="px-3 py-2 text-slate-600">Equipo</td><td class="px-3 py-2"><span class="bg-sky-100 text-sky-700 px-2 py-0.5 rounded font-bold">sky</span></td><td class="px-3 py-2"><span class="bg-violet-100 text-violet-700 px-2 py-0.5 rounded font-bold">violet</span></td></tr>
+          <tr class="bg-emerald-50/40"><td class="px-3 py-2 font-semibold">Finanzas · Gastos · Inversionistas</td><td class="px-3 py-2 text-slate-600">—</td><td class="px-3 py-2 text-emerald-700" colspan="2">✓ ya están alineados (teal · teal · violet)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- COEXISTENCIA con semántico -->
+  <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-5">
+    <div class="acto-label text-[11px] font-bold uppercase text-slate-500 mb-3">Recordatorio · el color de grupo NO toca el semántico</div>
+    <p class="text-[12px] text-slate-600 mb-3">El color del grupo viste el <strong>chrome</strong> (chip · icono · tab activo · primary CTA). Los <strong>datos</strong> siguen su semántico fijo en CUALQUIER módulo:</p>
+    <div class="flex flex-wrap gap-2 text-[11px]">
+      <span class="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-bold">Pagado · emerald</span>
+      <span class="bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-bold">Pendiente · amber</span>
+      <span class="bg-rose-100 text-rose-700 px-2 py-0.5 rounded-full font-bold">Vencido · rose</span>
+      <span class="bg-sky-100 text-sky-700 px-2 py-0.5 rounded-full font-bold">Parcial · sky</span>
+    </div>
+    <div class="text-[11px] text-slate-500 mt-2">Ej: en Inventario (orange) un stock OK sigue siendo emerald, uno crítico sigue siendo rose. El orange solo está en el marco.</div>
+  </div>
+
+  <!-- REGISTRO técnico -->
+  <div>
+    <div class="acto-label text-[11px] font-bold uppercase text-slate-500 mb-3">Cómo lo lee el sistema · registro finito (no inventa)</div>
+    <div class="bg-slate-900 rounded-2xl p-5 overflow-x-auto">
+      <pre class="text-[11px] text-slate-100 leading-relaxed"><code><span class="text-slate-500">// grupoColor.ts · única fuente de verdad</span>
+export const GRUPO_COLOR = {
+  <span class="text-amber-300">'finanzas-contabilidad'</span>: <span class="text-teal-300">'teal'</span>,
+  <span class="text-amber-300">'equipo'</span>:               <span class="text-teal-300">'violet'</span>,
+  <span class="text-amber-300">'comercial'</span>:            <span class="text-teal-300">'blue'</span>,
+  <span class="text-amber-300">'inventario'</span>:           <span class="text-teal-300">'orange'</span>,
+  <span class="text-amber-300">'analisis'</span>:             <span class="text-teal-300">'indigo'</span>,
+  <span class="text-amber-300">'administracion'</span>:       <span class="text-teal-300">'slate'</span>,
+} as const;
+
+<span class="text-slate-500">// el Hub Kit lo resuelve solo · el módulo no decide color</span>
+&lt;HubShell color={GRUPO_COLOR[grupoDelModulo]}&gt; ... &lt;/HubShell&gt;</code></pre>
+    </div>
+  </div>
+
+  <!-- decisión final -->
+  <div class="bg-gradient-to-br from-teal-50 to-teal-100/40 ring-1 ring-teal-200/60 rounded-2xl p-6">
+    <div class="acto-label text-[11px] font-bold uppercase text-teal-700 mb-2">Lo que falta decidir</div>
+    <p class="text-[13px] text-slate-800 leading-relaxed">
+      <strong>teal y violet están firmes.</strong> Los 4 propuestos (Comercial=blue · Inventario=orange · Análisis=indigo · Admin=slate)
+      son una propuesta sobria y banking-grade — ajustables. Si te cierran, queda cerrada la gobernanza de color y se documenta como canon.
+      Las únicas tensiones (leves) son blue/indigo con semánticos poco usados; orange y slate están limpios.
+    </p>
+  </div>
+
+  <div class="text-center text-[11px] text-slate-400 pb-6">
+    docs/mockups/mapa-color-por-grupo-v1.html · gobernanza de identidad de color (2026-05-30)
+  </div>
+
+</div>
+
+<script>lucide.createIcons();</script>
+</body>
+</html>

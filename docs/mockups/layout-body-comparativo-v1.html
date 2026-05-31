@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Comparativo · Layout de Body de Módulos Hub · Vita Skin ERP</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+  .tabular { font-variant-numeric: tabular-nums; }
+  /* zonas de wireframe */
+  .wf-topbar { background: #f8fafc; border-bottom: 1px solid #e2e8f0; }
+  .wf-header { background: #ffffff; border-bottom: 1px solid #f1f5f9; }
+  .wf-kpi    { background: #ffffff; border-bottom: 1px solid #e2e8f0; }
+  .wf-tabs   { background: #ffffff; border-bottom: 1px solid #e2e8f0; }
+  .wf-body   { background: rgba(248,250,252,0.5); }
+  .wf-main   { background: #ffffff; border: 1px solid #e2e8f0; }
+  .wf-aside  { background: #ffffff; border: 1px dashed #94a3b8; }
+  .acto-label { letter-spacing: 0.08em; }
+</style>
+</head>
+<body class="bg-slate-100 text-slate-900 p-4 sm:p-8">
+
+<div class="max-w-6xl mx-auto space-y-10">
+
+  <!-- ════════════════════════ HERO ════════════════════════ -->
+  <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-6 sm:p-8">
+    <div class="flex items-center gap-2 mb-3">
+      <span class="text-[11px] font-bold uppercase tracking-wider text-teal-700 bg-teal-50 px-2 py-1 rounded">Documento de decisión · Arquitectura de información</span>
+    </div>
+    <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 mb-2">Layout de Body · Comparativo de módulos hub</h1>
+    <p class="text-sm text-slate-600 max-w-3xl leading-relaxed">
+      ¿Cómo distribuyen el <strong>cuerpo</strong> (área bajo las tabs) los 6 módulos hub del ERP?
+      ¿Hay forma de alinearlos todos? ¿La desviación entre unos y otros es necesaria o accidental?
+      Este documento mapea el estado real, argumenta cada desviación y propone alternativas de alineación.
+    </p>
+    <div class="mt-4 flex flex-wrap gap-2 text-[11px]">
+      <span class="bg-slate-100 text-slate-600 px-2 py-1 rounded">Finanzas</span>
+      <span class="bg-slate-100 text-slate-600 px-2 py-1 rounded">Contabilidad</span>
+      <span class="bg-slate-100 text-slate-600 px-2 py-1 rounded">Usuarios</span>
+      <span class="bg-slate-100 text-slate-600 px-2 py-1 rounded">Planilla</span>
+      <span class="bg-slate-100 text-slate-600 px-2 py-1 rounded">Inversionistas</span>
+      <span class="bg-slate-100 text-slate-600 px-2 py-1 rounded">Gastos</span>
+    </div>
+  </div>
+
+  <!-- ════════════════════════ SECCIÓN 0 · esqueleto común ════════════════════════ -->
+  <div>
+    <div class="acto-label text-[11px] font-bold uppercase text-slate-500 mb-3">Punto de partida · lo que YA es común a todos</div>
+    <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+      <div class="wf-topbar px-4 py-2 flex items-center justify-between">
+        <span class="text-[11px] text-slate-500">Inicio › Módulo › <span class="text-slate-900 font-semibold">Tab</span></span>
+        <span class="text-[10px] bg-teal-50 text-teal-700 px-2 py-0.5 rounded font-bold">Chip rol</span>
+      </div>
+      <div class="wf-header px-4 py-4 flex items-center gap-3">
+        <div class="w-9 h-9 rounded-lg bg-teal-100"></div>
+        <div><div class="text-sm font-bold">Header banking-grade</div><div class="text-[11px] text-slate-500">icono + h1 + subtítulo + acciones 3-tier</div></div>
+      </div>
+      <div class="wf-kpi px-4 py-3 grid grid-cols-5 gap-2">
+        <div class="h-12 rounded-lg bg-amber-50 ring-1 ring-amber-200/50"></div>
+        <div class="h-12 rounded-lg bg-rose-50 ring-1 ring-rose-200/50"></div>
+        <div class="h-12 rounded-lg bg-indigo-50 ring-1 ring-indigo-200/50"></div>
+        <div class="h-12 rounded-lg bg-emerald-50 ring-1 ring-emerald-200/50"></div>
+        <div class="h-12 rounded-lg bg-sky-50 ring-1 ring-sky-200/50"></div>
+      </div>
+      <div class="wf-tabs px-4 py-2 flex gap-3 text-[12px]">
+        <span class="border-b-2 border-teal-600 text-teal-700 font-semibold pb-1">Resumen</span>
+        <span class="text-slate-500 pb-1">Tab 2</span>
+        <span class="text-slate-500 pb-1">Tab 3</span>
+      </div>
+      <div class="wf-body px-4 py-6 text-center">
+        <span class="text-[12px] text-slate-400 font-medium">↓ §BODY · acá empieza la divergencia entre módulos ↓</span>
+      </div>
+    </div>
+    <p class="text-[12px] text-slate-600 mt-3 leading-relaxed">
+      <strong>Todos</strong> comparten: shell card → top-bar (breadcrumb + chip rol) → header → KPI strip → tabs → <strong>§body</strong>.
+      Hasta acá hay consistencia. El problema vive <strong>dentro del §body</strong>.
+    </p>
+  </div>
+
+  <!-- ════════════════════════ SECCIÓN 1 · los 2 layouts actuales ════════════════════════ -->
+  <div>
+    <div class="acto-label text-[11px] font-bold uppercase text-slate-500 mb-3">El estado real · 2 layouts de body coexisten</div>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+
+      <!-- LAYOUT A -->
+      <div class="bg-white border-2 border-teal-300 rounded-2xl shadow-sm overflow-hidden">
+        <div class="bg-teal-50 px-4 py-2.5 border-b border-teal-200">
+          <div class="text-[13px] font-bold text-teal-900">Layout A · GRID main(3) + sidebar(1)</div>
+          <div class="text-[11px] text-teal-700">Finanzas · Gastos</div>
+        </div>
+        <div class="p-4 wf-body">
+          <div class="grid grid-cols-4 gap-2">
+            <div class="col-span-3 space-y-2">
+              <div class="wf-main h-10 rounded-lg flex items-center px-2 text-[10px] text-slate-500">card / sección</div>
+              <div class="wf-main h-16 rounded-lg flex items-center px-2 text-[10px] text-slate-500">card grande</div>
+              <div class="grid grid-cols-3 gap-2">
+                <div class="wf-main h-10 rounded-lg"></div>
+                <div class="wf-main h-10 rounded-lg"></div>
+                <div class="wf-main h-10 rounded-lg"></div>
+              </div>
+              <div class="wf-main h-12 rounded-lg flex items-center px-2 text-[10px] text-slate-500">listado / contenido</div>
+            </div>
+            <aside class="col-span-1 space-y-2">
+              <div class="wf-aside h-14 rounded-lg flex items-center justify-center text-[9px] text-slate-500 text-center px-1">widget<br/>urgentes</div>
+              <div class="wf-aside h-20 rounded-lg flex items-center justify-center text-[9px] text-slate-500 text-center px-1">cross-link<br/>contexto</div>
+            </aside>
+          </div>
+        </div>
+        <div class="px-4 py-3 border-t border-slate-100 text-[11px] text-slate-600 space-y-1">
+          <div><strong class="text-teal-700">Sirve para:</strong> dashboards operativos con <strong>contexto persistente</strong> (urgencias, widgets, cross-links) que el usuario quiere ver siempre mientras opera.</div>
+          <div><strong class="text-teal-700">Sidebar Finanzas:</strong> Pool USD · TC · urgentes · cajas. <strong class="text-teal-700">Sidebar Gastos:</strong> vencimientos urgentes · top proveedores.</div>
+        </div>
+      </div>
+
+      <!-- LAYOUT B -->
+      <div class="bg-white border-2 border-indigo-300 rounded-2xl shadow-sm overflow-hidden">
+        <div class="bg-indigo-50 px-4 py-2.5 border-b border-indigo-200">
+          <div class="text-[13px] font-bold text-indigo-900">Layout B · FULL-WIDTH (cards apiladas)</div>
+          <div class="text-[11px] text-indigo-700">Contabilidad · Usuarios · Planilla · Inversionistas</div>
+        </div>
+        <div class="p-4 wf-body">
+          <div class="space-y-2">
+            <div class="wf-main h-10 rounded-lg flex items-center px-2 text-[10px] text-slate-500">banner / sección full-width</div>
+            <div class="grid grid-cols-2 gap-2">
+              <div class="wf-main h-16 rounded-lg"></div>
+              <div class="wf-main h-16 rounded-lg"></div>
+            </div>
+            <div class="wf-main h-12 rounded-lg flex items-center px-2 text-[10px] text-slate-500">insights / tabla / listado</div>
+            <div class="wf-main h-10 rounded-lg flex items-center px-2 text-[10px] text-slate-500">cross-links (como cards en el flujo)</div>
+          </div>
+        </div>
+        <div class="px-4 py-3 border-t border-slate-100 text-[11px] text-slate-600 space-y-1">
+          <div><strong class="text-indigo-700">Sirve para:</strong> contenido <strong>autónomo y ancho</strong> (estados financieros, tablas, directorios) que NO necesita panel lateral. El contexto/cross-links se integra como cards en el flujo vertical.</div>
+          <div><strong class="text-indigo-700">Nota:</strong> Planilla e Inversionistas igual tienen cross-links 360 — pero los ponen como <strong>cards en el flujo</strong>, no en sidebar.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ════════════════════════ SECCIÓN 2 · tabla estado real ════════════════════════ -->
+  <div>
+    <div class="acto-label text-[11px] font-bold uppercase text-slate-500 mb-3">Estado real medido en el código · macro + micro</div>
+    <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+      <table class="w-full text-[12px]">
+        <thead>
+          <tr class="bg-slate-50 border-b border-slate-200 text-left text-[10px] uppercase tracking-wider text-slate-500">
+            <th class="px-3 py-2.5">Módulo</th>
+            <th class="px-3 py-2.5">Layout</th>
+            <th class="px-3 py-2.5">Contenedor / max-w</th>
+            <th class="px-3 py-2.5">Padding</th>
+            <th class="px-3 py-2.5">Sidebar</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+          <tr>
+            <td class="px-3 py-2.5 font-semibold">Finanzas</td>
+            <td class="px-3 py-2.5"><span class="bg-teal-100 text-teal-800 px-2 py-0.5 rounded font-bold">A</span></td>
+            <td class="px-3 py-2.5 tabular">full-width <span class="text-rose-600 font-bold">⚠</span></td>
+            <td class="px-3 py-2.5 tabular">p-6 <span class="text-rose-600 font-bold">⚠</span></td>
+            <td class="px-3 py-2.5 text-emerald-700">Sí</td>
+          </tr>
+          <tr>
+            <td class="px-3 py-2.5 font-semibold">Gastos</td>
+            <td class="px-3 py-2.5"><span class="bg-teal-100 text-teal-800 px-2 py-0.5 rounded font-bold">A</span></td>
+            <td class="px-3 py-2.5 tabular">max-w-7xl <span class="text-rose-600 font-bold">⚠</span></td>
+            <td class="px-3 py-2.5 tabular">px-4 sm:px-6 py-5 <span class="text-rose-600 font-bold">⚠</span></td>
+            <td class="px-3 py-2.5 text-emerald-700">Sí</td>
+          </tr>
+          <tr class="bg-slate-50/40">
+            <td class="px-3 py-2.5 font-semibold">Contabilidad</td>
+            <td class="px-3 py-2.5"><span class="bg-indigo-100 text-indigo-800 px-2 py-0.5 rounded font-bold">B</span></td>
+            <td class="px-3 py-2.5 tabular">full-width <span class="text-rose-600 font-bold">⚠</span></td>
+            <td class="px-3 py-2.5 tabular">px-6 py-6 <span class="text-rose-600 font-bold">⚠</span></td>
+            <td class="px-3 py-2.5 text-slate-400">No</td>
+          </tr>
+          <tr class="bg-slate-50/40">
+            <td class="px-3 py-2.5 font-semibold">Usuarios</td>
+            <td class="px-3 py-2.5"><span class="bg-indigo-100 text-indigo-800 px-2 py-0.5 rounded font-bold">B</span></td>
+            <td class="px-3 py-2.5 tabular">max-w-6xl</td>
+            <td class="px-3 py-2.5 tabular">p-3 sm:p-4 md:p-6</td>
+            <td class="px-3 py-2.5 text-slate-400">No</td>
+          </tr>
+          <tr class="bg-slate-50/40">
+            <td class="px-3 py-2.5 font-semibold">Planilla</td>
+            <td class="px-3 py-2.5"><span class="bg-indigo-100 text-indigo-800 px-2 py-0.5 rounded font-bold">B</span></td>
+            <td class="px-3 py-2.5 tabular">max-w-6xl</td>
+            <td class="px-3 py-2.5 tabular">p-3 sm:p-4 md:p-6</td>
+            <td class="px-3 py-2.5 text-slate-400">No</td>
+          </tr>
+          <tr class="bg-slate-50/40">
+            <td class="px-3 py-2.5 font-semibold">Inversionistas</td>
+            <td class="px-3 py-2.5"><span class="bg-indigo-100 text-indigo-800 px-2 py-0.5 rounded font-bold">B</span></td>
+            <td class="px-3 py-2.5 tabular">max-w-6xl</td>
+            <td class="px-3 py-2.5 tabular">p-3 sm:p-4 md:p-6</td>
+            <td class="px-3 py-2.5 text-slate-400">No</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="px-4 py-3 bg-amber-50/50 border-t border-amber-200 text-[11px] text-amber-800">
+        <strong>⚠ = desviación micro accidental.</strong> Usuarios + Planilla + Inversionistas YA están alineados entre sí
+        (max-w-6xl · p-3 sm:p-4 md:p-6). Los outliers son <strong>Contabilidad</strong> (full-width sin max-w · px-6),
+        <strong>Finanzas</strong> (full · p-6) y <strong>Gastos</strong> (max-w-7xl · px-4 sm:px-6 py-5). Ninguna de esas 3 diferencias
+        responde a una razón de diseño — son producto de haberse construido en momentos distintos.
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════ SECCIÓN 3 · ¿es necesaria la desviación A vs B? ════════════════════════ -->
+  <div>
+    <div class="acto-label text-[11px] font-bold uppercase text-slate-500 mb-3">¿Es necesaria la desviación A vs B?</div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="bg-emerald-50/50 border border-emerald-200 rounded-2xl p-5">
+        <div class="text-[13px] font-bold text-emerald-900 mb-2">✓ Sí es legítima (macro)</div>
+        <ul class="text-[12px] text-emerald-800 space-y-1.5 list-disc pl-4">
+          <li>El sidebar (Layout A) existe porque Finanzas y Gastos tienen <strong>contexto operativo urgente</strong> (qué vence, qué cobrar, pool USD) que el usuario necesita ver <strong>mientras opera la lista</strong>, sin scrollear.</li>
+          <li>Contabilidad muestra <strong>estados financieros anchos</strong> (Balance, P&L) que necesitan todo el ancho — un sidebar les robaría espacio crítico.</li>
+          <li>Forzar un layout único <strong>degradaría</strong> a uno de los dos grupos.</li>
+        </ul>
+      </div>
+      <div class="bg-rose-50/50 border border-rose-200 rounded-2xl p-5">
+        <div class="text-[13px] font-bold text-rose-900 mb-2">✗ NO es legítima (micro)</div>
+        <ul class="text-[12px] text-rose-800 space-y-1.5 list-disc pl-4">
+          <li>Que Gastos use <code class="bg-white px-1 rounded">max-w-7xl</code> y Finanzas <code class="bg-white px-1 rounded">full</code> — siendo ambos Layout A — no tiene razón.</li>
+          <li>Que Contabilidad sea <code class="bg-white px-1 rounded">px-6</code> sin max-w mientras Usuarios/Planilla/Inversionistas son <code class="bg-white px-1 rounded">max-w-6xl p-3 sm:p-4 md:p-6</code> — sin razón.</li>
+          <li>El <strong>orden del Resumen</strong> (banner→viz→insights→cross-links→alertas) está documentado en Planilla pero Gastos no lo respeta.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="mt-4 bg-slate-900 text-white rounded-2xl p-5">
+      <div class="text-[13px] font-bold mb-1">Veredicto</div>
+      <p class="text-[12px] text-slate-200 leading-relaxed">
+        La desviación <strong>A vs B sí es necesaria</strong> — responde a la naturaleza del contenido (operativo-con-contexto vs financiero-ancho).
+        Lo que <strong>no</strong> es aceptable es la inconsistencia <strong>micro</strong> (max-w, padding, orden de Resumen) dentro de cada grupo.
+        La alineación correcta NO es "un layout para todos", sino <strong>2 layouts canónicos bien definidos</strong> + micro-detalles idénticos dentro de cada uno.
+      </p>
+    </div>
+  </div>
+
+  <!-- ════════════════════════ SECCIÓN 4 · alternativas de alineación ════════════════════════ -->
+  <div>
+    <div class="acto-label text-[11px] font-bold uppercase text-slate-500 mb-3">Alternativas de alineación · de menos a más ambiciosa</div>
+    <div class="space-y-4">
+
+      <!-- OPCIÓN 1 -->
+      <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+        <div class="px-4 py-3 border-b border-slate-100 flex items-center justify-between">
+          <div class="text-[13px] font-bold text-slate-900">Opción 1 · Normalizar micro-detalles (mínima · bajo riesgo)</div>
+          <span class="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded font-bold">RECOMENDADA como base</span>
+        </div>
+        <div class="px-4 py-3 text-[12px] text-slate-600 space-y-1.5">
+          <div>Mantener A y B, pero <strong>alinear</strong>: contenedor único <code class="bg-slate-100 px-1 rounded">max-w-6xl mx-auto</code> + padding único <code class="bg-slate-100 px-1 rounded">p-3 sm:p-4 md:p-6</code> en TODOS. Layout A conserva su grid+sidebar dentro de ese contenedor.</div>
+          <div class="flex gap-4 pt-1">
+            <span class="text-emerald-700">+ Bajo riesgo · cambios de clase puntuales</span>
+            <span class="text-rose-600">– No unifica el layout macro (sigue A y B)</span>
+          </div>
+          <div class="text-slate-500">Toca: Contabilidad (add max-w-6xl + padding) · Finanzas (add max-w-6xl) · Gastos (7xl→6xl + padding).</div>
+        </div>
+      </div>
+
+      <!-- OPCIÓN 2 -->
+      <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+        <div class="px-4 py-3 border-b border-slate-100">
+          <div class="text-[13px] font-bold text-slate-900">Opción 2 · Componente <code class="bg-slate-100 px-1 rounded text-[12px]">&lt;HubBody&gt;</code> con slot opcional (ideal técnica)</div>
+        </div>
+        <div class="px-4 py-3 text-[12px] text-slate-600 space-y-2">
+          <div>Un solo componente que unifica el CÓDIGO; el sidebar es un <strong>slot opcional</strong>:</div>
+          <pre class="bg-slate-900 text-slate-100 text-[10px] rounded-lg p-3 overflow-x-auto"><code>&lt;HubBody aside={&lt;Urgentes/&gt;}&gt;   {/* Layout A si pasás aside */}
+  {contenido main}
+&lt;/HubBody&gt;
+
+&lt;HubBody&gt;                          {/* Layout B si NO pasás aside */}
+  {contenido full-width}
+&lt;/HubBody&gt;</code></pre>
+          <div>El componente resuelve internamente: contenedor, max-w, padding, grid vs full-width, y el responsive. <strong>Imposible desviarse</strong> a futuro.</div>
+          <div class="flex gap-4 pt-1">
+            <span class="text-emerald-700">+ 1 fuente de verdad · cero desviaciones futuras · A y B salen del mismo componente</span>
+            <span class="text-rose-600">– Refactor de los 6 módulos (mediano)</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- OPCIÓN 3 -->
+      <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden opacity-80">
+        <div class="px-4 py-3 border-b border-slate-100">
+          <div class="text-[13px] font-bold text-slate-900">Opción 3 · Forzar 1 layout único para todos (no recomendada)</div>
+        </div>
+        <div class="px-4 py-3 text-[12px] text-slate-600 space-y-1.5">
+          <div>Convertir todo a full-width (mover sidebars a cards en el flujo) <em>o</em> todo a grid+sidebar.</div>
+          <div class="flex gap-4 pt-1">
+            <span class="text-emerald-700">+ Consistencia visual absoluta</span>
+            <span class="text-rose-600">– Degrada un grupo: o Finanzas/Gastos pierden el panel de urgencias, o Contabilidad pierde ancho para el Balance. Va contra la función.</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ════════════════════════ SECCIÓN 5 · recomendación ════════════════════════ -->
+  <div class="bg-gradient-to-br from-teal-50 to-teal-100/40 ring-1 ring-teal-200/60 rounded-2xl p-6">
+    <div class="acto-label text-[11px] font-bold uppercase text-teal-700 mb-2">Recomendación</div>
+    <p class="text-[13px] text-slate-800 leading-relaxed mb-3">
+      <strong>Declarar 2 layouts canónicos de body</strong> (A · grid+sidebar · para dashboards operativos con contexto · y
+      B · full-width · para contenido financiero/directorio ancho) con regla clara de cuándo usar cada uno, y
+      <strong>normalizar los micro-detalles</strong> (max-w-6xl + p-3 sm:p-4 md:p-6 + orden de Resumen §A→§F) idénticos dentro de cada uno.
+    </p>
+    <p class="text-[13px] text-slate-800 leading-relaxed">
+      <strong>Camino sugerido:</strong> Opción 1 ahora (normalizar · bajo riesgo) → registrar el canon de 2 layouts en CLAUDE.md →
+      Opción 2 (componente <code class="bg-white px-1 rounded">&lt;HubBody&gt;</code>) como meta de mediano plazo para blindar la consistencia.
+    </p>
+  </div>
+
+  <div class="text-center text-[11px] text-slate-400 pb-6">
+    docs/mockups/layout-body-comparativo-v1.html · análisis basado en lectura del código real (2026-05-30)
+  </div>
+
+</div>
+
+<script>lucide.createIcons();</script>
+</body>
+</html>

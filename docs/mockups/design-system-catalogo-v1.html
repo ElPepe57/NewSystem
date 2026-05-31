@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Design System · Catálogo completo · Vita Skin ERP</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+  .tabular { font-variant-numeric: tabular-nums; }
+  code, pre { font-family: 'SF Mono', ui-monospace, Menlo, Consolas, monospace; }
+  .acto-label { letter-spacing: 0.08em; }
+  .badge-ok   { background:#dcfce7; color:#15803d; }
+  .badge-dup  { background:#fef3c7; color:#b45309; }
+  .badge-miss { background:#ffe4e6; color:#be123c; }
+  .layer { scroll-margin-top: 1rem; }
+</style>
+</head>
+<body class="bg-slate-100 text-slate-900 p-4 sm:p-8">
+
+<div class="max-w-6xl mx-auto space-y-8">
+
+  <!-- ════════ HERO ════════ -->
+  <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-6 sm:p-8">
+    <div class="flex flex-wrap items-center gap-2 mb-3">
+      <span class="text-[11px] font-bold uppercase tracking-wider text-teal-700 bg-teal-50 px-2 py-1 rounded">Catálogo · Design System v1</span>
+      <span class="text-[11px] font-bold uppercase tracking-wider text-amber-700 bg-amber-50 px-2 py-1 rounded">Blueprint · pre-implementación</span>
+    </div>
+    <h1 class="text-2xl sm:text-3xl font-bold tracking-tight mb-2">Design System · Catálogo de componentes</h1>
+    <p class="text-sm text-slate-600 max-w-3xl leading-relaxed">
+      El kit completo del que nace cada módulo: desde los <strong>tokens</strong> (color, spacing) hasta el <strong>Hub shell</strong>,
+      pasando por botones, campos, cards, filtros, buscadores y modales. Cada pieza con su ejemplo, su estado real
+      (✓ canon · ⚠ duplicado · ✗ falta) y su API. <strong>Un módulo solo ensambla — no re-inventa.</strong>
+    </p>
+    <!-- leyenda estado -->
+    <div class="mt-4 flex flex-wrap gap-2 text-[11px]">
+      <span class="badge-ok px-2 py-1 rounded font-bold">✓ existe · canon</span>
+      <span class="badge-dup px-2 py-1 rounded font-bold">⚠ existe · duplicado / disperso</span>
+      <span class="badge-miss px-2 py-1 rounded font-bold">✗ falta · construir</span>
+    </div>
+    <!-- índice capas -->
+    <div class="mt-4 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 text-[11px]">
+      <a href="#l0" class="bg-slate-100 hover:bg-slate-200 px-2 py-1.5 rounded text-center font-semibold">L0 · Tokens</a>
+      <a href="#l1" class="bg-slate-100 hover:bg-slate-200 px-2 py-1.5 rounded text-center font-semibold">L1 · Primitivas</a>
+      <a href="#l2" class="bg-slate-100 hover:bg-slate-200 px-2 py-1.5 rounded text-center font-semibold">L2 · Campos form</a>
+      <a href="#l3" class="bg-slate-100 hover:bg-slate-200 px-2 py-1.5 rounded text-center font-semibold">L3 · Patrones</a>
+      <a href="#l4" class="bg-slate-100 hover:bg-slate-200 px-2 py-1.5 rounded text-center font-semibold">L4 · Overlays</a>
+      <a href="#l5" class="bg-slate-100 hover:bg-slate-200 px-2 py-1.5 rounded text-center font-semibold">L5 · Hub Kit</a>
+    </div>
+  </div>
+
+  <!-- ════════ DIAGRAMA PILA ════════ -->
+  <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-5">
+    <div class="acto-label text-[11px] font-bold uppercase text-slate-500 mb-3">La pila · cada capa usa la de abajo</div>
+    <div class="space-y-1.5">
+      <div class="bg-teal-600 text-white rounded-lg px-4 py-2.5 text-[12px] font-bold flex items-center justify-between"><span>L5 · HUB KIT (shell)</span><span class="text-[10px] font-normal opacity-80">HubShell · TopBar · Header · KpiStrip · Tabs · Body</span></div>
+      <div class="bg-indigo-500 text-white rounded-lg px-4 py-2.5 text-[12px] font-bold flex items-center justify-between"><span>L4 · OVERLAYS</span><span class="text-[10px] font-normal opacity-80">FormModalV2 · ConfirmDialog · Drawer/BottomSheet</span></div>
+      <div class="bg-purple-500 text-white rounded-lg px-4 py-2.5 text-[12px] font-bold flex items-center justify-between"><span>L3 · PATRONES</span><span class="text-[10px] font-normal opacity-80">HubCard · FiltrosBar · SmartSearch · EmptyState</span></div>
+      <div class="bg-sky-500 text-white rounded-lg px-4 py-2.5 text-[12px] font-bold flex items-center justify-between"><span>L2 · CAMPOS DE FORM</span><span class="text-[10px] font-normal opacity-80">TextField · MoneyField · DateField · Combobox · ToggleGroup</span></div>
+      <div class="bg-amber-500 text-white rounded-lg px-4 py-2.5 text-[12px] font-bold flex items-center justify-between"><span>L1 · PRIMITIVAS</span><span class="text-[10px] font-normal opacity-80">Button · Input · Select · Badge · Chip · Tooltip · Sparkline</span></div>
+      <div class="bg-slate-700 text-white rounded-lg px-4 py-2.5 text-[12px] font-bold flex items-center justify-between"><span>L0 · TOKENS</span><span class="text-[10px] font-normal opacity-80">color semántico · spacing · tipografía · radios · breakpoints</span></div>
+    </div>
+  </div>
+
+  <!-- ════════ L0 · TOKENS ════════ -->
+  <div id="l0" class="layer">
+    <div class="acto-label text-[11px] font-bold uppercase text-slate-500 mb-3">L0 · Tokens <span class="badge-dup px-1.5 rounded ml-1">⚠ implícitos · sin archivo único</span></div>
+    <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-5 space-y-4">
+      <div>
+        <div class="text-[12px] font-bold mb-2">Color semántico por módulo</div>
+        <div class="flex flex-wrap gap-2 text-[10px] font-bold text-white">
+          <span class="bg-teal-600 px-3 py-1.5 rounded">teal · Finanzas/Gastos</span>
+          <span class="bg-purple-600 px-3 py-1.5 rounded">purple · Contab/Usuarios</span>
+          <span class="bg-violet-600 px-3 py-1.5 rounded">violet · Inversionistas</span>
+          <span class="bg-sky-600 px-3 py-1.5 rounded">sky · Planilla</span>
+        </div>
+      </div>
+      <div>
+        <div class="text-[12px] font-bold mb-2">Color semántico por KPI (canon v8.0 N1)</div>
+        <div class="flex flex-wrap gap-2 text-[10px] font-bold">
+          <span class="bg-amber-100 text-amber-800 px-3 py-1.5 rounded ring-1 ring-amber-200">amber · dinero</span>
+          <span class="bg-rose-100 text-rose-800 px-3 py-1.5 rounded ring-1 ring-rose-200">rose · consumo/urgencia</span>
+          <span class="bg-indigo-100 text-indigo-800 px-3 py-1.5 rounded ring-1 ring-indigo-200">indigo · compromiso</span>
+          <span class="bg-emerald-100 text-emerald-800 px-3 py-1.5 rounded ring-1 ring-emerald-200">emerald · positivo</span>
+          <span class="bg-sky-100 text-sky-800 px-3 py-1.5 rounded ring-1 ring-sky-200">sky · progreso</span>
+        </div>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-[11px]">
+        <div class="bg-slate-50 rounded-lg p-3"><div class="font-bold mb-1">Radios</div><code class="text-slate-600">rounded-lg (8) · rounded-xl (12) · rounded-2xl (16, shell)</code></div>
+        <div class="bg-slate-50 rounded-lg p-3"><div class="font-bold mb-1">Tipografía</div><code class="text-slate-600">tabular-nums en números · text-[10px]→2xl</code></div>
+        <div class="bg-slate-50 rounded-lg p-3"><div class="font-bold mb-1">Breakpoints</div><code class="text-slate-600">sm 640 · md 768 · lg 1024</code></div>
+      </div>
+      <div class="bg-rose-50/50 border border-rose-200 rounded-lg p-3 text-[11px] text-rose-800">
+        <strong>Decisión pendiente:</strong> los tokens viven hoy como clases Tailwind repetidas en cada componente. Conviene un <code>tokens.ts</code> / config Tailwind extendido para 1 fuente de verdad.
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════ L1 · PRIMITIVAS ════════ -->
+  <div id="l1" class="layer">
+    <div class="acto-label text-[11px] font-bold uppercase text-slate-500 mb-3">L1 · Primitivas</div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+
+      <!-- Button -->
+      <div class="bg-white border border-slate-200 rounded-xl p-4">
+        <div class="flex items-center justify-between mb-2">
+          <div class="text-[13px] font-bold">Button · jerarquía 3-tier (N10)</div>
+          <span class="badge-dup px-1.5 py-0.5 rounded text-[10px] font-bold">⚠ existe · tier a mano</span>
+        </div>
+        <div class="flex flex-wrap gap-2 mb-2">
+          <button class="text-[11px] font-bold text-white bg-teal-600 px-3 py-1.5 rounded-lg">Primary</button>
+          <button class="text-[11px] font-semibold text-indigo-700 bg-indigo-50 border border-indigo-200 px-3 py-1.5 rounded-lg">Config</button>
+          <button class="text-[11px] font-semibold text-slate-600 bg-white border border-slate-200 px-3 py-1.5 rounded-lg">Neutral</button>
+        </div>
+        <div class="text-[10px] text-slate-500">Hoy: <code>common/Button</code> existe pero la jerarquía teal/indigo/slate se aplica a mano. → <code>&lt;Button tier="primary" color="teal"&gt;</code></div>
+      </div>
+
+      <!-- Badge / Chip -->
+      <div class="bg-white border border-slate-200 rounded-xl p-4">
+        <div class="flex items-center justify-between mb-2">
+          <div class="text-[13px] font-bold">Badge · Chip · StatusBadge</div>
+          <span class="badge-dup px-1.5 py-0.5 rounded text-[10px] font-bold">⚠ disperso</span>
+        </div>
+        <div class="flex flex-wrap gap-2 mb-2">
+          <span class="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full text-[11px] font-bold">Pagado</span>
+          <span class="bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full text-[11px] font-bold">Pendiente</span>
+          <span class="bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full text-[11px] font-bold">14</span>
+        </div>
+        <div class="text-[10px] text-slate-500"><code>Badge · StatusBadge · ChipMultiSelect · LineaBadges</code> → unificar paleta de estados.</div>
+      </div>
+
+      <!-- Input/Select -->
+      <div class="bg-white border border-slate-200 rounded-xl p-4">
+        <div class="flex items-center justify-between mb-2">
+          <div class="text-[13px] font-bold">Input · Select</div>
+          <span class="badge-dup px-1.5 py-0.5 rounded text-[10px] font-bold">⚠ common + ds/forms</span>
+        </div>
+        <input class="w-full text-[12px] border border-slate-300 rounded-lg px-3 py-2 mb-1.5" placeholder="Input estándar" />
+        <select class="w-full text-[12px] border border-slate-300 rounded-lg px-3 py-2"><option>Select estándar</option></select>
+      </div>
+
+      <!-- Tooltip / Sparkline -->
+      <div class="bg-white border border-slate-200 rounded-xl p-4">
+        <div class="flex items-center justify-between mb-2">
+          <div class="text-[13px] font-bold">Tooltip · Sparkline · DonutChart</div>
+          <span class="badge-dup px-1.5 py-0.5 rounded text-[10px] font-bold">⚠ Sparkline x2</span>
+        </div>
+        <div class="flex items-center gap-3">
+          <svg width="80" height="24" viewBox="0 0 80 24"><polyline points="0,18 16,14 32,16 48,8 64,10 80,4" fill="none" stroke="#0d9488" stroke-width="2"/></svg>
+          <span class="text-[10px] text-slate-500">Sparkline (✓) · Tooltip + TooltipPedagogico (⚠ 2) · DonutChart (✓ DonutChartCanon)</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ════════ L2 · CAMPOS DE FORM ════════ -->
+  <div id="l2" class="layer">
+    <div class="acto-label text-[11px] font-bold uppercase text-slate-500 mb-3">L2 · Campos de form <span class="badge-ok px-1.5 rounded ml-1">✓ ya en design-system/forms</span></div>
+    <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-5">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div>
+          <label class="text-[11px] font-bold text-slate-700 block mb-1">TextField</label>
+          <input class="w-full text-[12px] border border-slate-300 rounded-lg px-3 py-2" placeholder="Descripción" />
+        </div>
+        <div>
+          <label class="text-[11px] font-bold text-slate-700 block mb-1">MoneyField</label>
+          <div class="flex items-center border border-slate-300 rounded-lg px-3 py-2"><span class="text-[12px] text-slate-400 mr-1">S/</span><input class="flex-1 text-[12px] tabular outline-none" placeholder="0.00" /></div>
+        </div>
+        <div>
+          <label class="text-[11px] font-bold text-slate-700 block mb-1">DateField</label>
+          <input class="w-full text-[12px] border border-slate-300 rounded-lg px-3 py-2" placeholder="2026-05-30" />
+        </div>
+        <div>
+          <label class="text-[11px] font-bold text-slate-700 block mb-1">ToggleGroup</label>
+          <div class="flex gap-1.5"><button class="text-[11px] font-bold bg-teal-100 text-teal-800 ring-2 ring-teal-300 px-3 py-1.5 rounded-lg">Sí</button><button class="text-[11px] font-medium text-slate-600 border border-slate-200 px-3 py-1.5 rounded-lg">No</button></div>
+        </div>
+      </div>
+      <div class="text-[10px] text-slate-500 mt-3">Existen: <code>TextField · MoneyField · DateField · Combobox · ToggleGroup · ValidationSummary</code> en <code>design-system/components/forms/</code>. <strong>Esta capa es la más madura.</strong></div>
+    </div>
+  </div>
+
+  <!-- ════════ L3 · PATRONES ════════ -->
+  <div id="l3" class="layer">
+    <div class="acto-label text-[11px] font-bold uppercase text-slate-500 mb-3">L3 · Patrones de contenido <span class="badge-miss px-1.5 rounded ml-1">✗ donde más falta consolidar</span></div>
+    <div class="space-y-3">
+
+      <!-- HubCard -->
+      <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-5">
+        <div class="flex items-center justify-between mb-2">
+          <div class="text-[13px] font-bold">HubCard · card de entidad unificada</div>
+          <span class="badge-miss px-1.5 py-0.5 rounded text-[10px] font-bold">✗ falta · hay 5+ variantes</span>
+        </div>
+        <div class="border border-slate-200 rounded-xl p-3 flex items-center gap-3 max-w-md">
+          <div class="w-9 h-9 rounded-lg bg-teal-100 flex items-center justify-center"><i data-lucide="receipt" class="w-4 h-4 text-teal-700"></i></div>
+          <div class="flex-1"><div class="text-[12px] font-bold">Alquiler local</div><div class="text-[10px] text-slate-500">Período · recurrente · vence 3 jun</div></div>
+          <div class="text-[13px] font-bold tabular text-slate-900">S/ 2,400</div>
+          <span class="bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full text-[10px] font-bold">Pendiente</span>
+        </div>
+        <div class="text-[10px] text-slate-500 mt-2">Hoy disperso: <code>DataCard · StatCard · Card · GastoCardCanonico · CompraCard · EnvioCardSimple</code>. → <code>&lt;HubCard icon title meta amount status actions/&gt;</code> + slots para sub-entidades.</div>
+      </div>
+
+      <!-- FiltrosBar -->
+      <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-5">
+        <div class="flex items-center justify-between mb-2">
+          <div class="text-[13px] font-bold">FiltrosBar · barra de filtros única</div>
+          <span class="badge-dup px-1.5 py-0.5 rounded text-[10px] font-bold">⚠ canon existe · NO adoptado</span>
+        </div>
+        <div class="border border-slate-200 rounded-xl p-3">
+          <div class="flex flex-wrap items-center gap-2 mb-2">
+            <span class="text-[10px] font-bold uppercase text-slate-500">Estado</span>
+            <span class="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full text-[11px] font-bold">Pagado</span>
+            <span class="bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full text-[11px] font-bold">Pendiente</span>
+          </div>
+          <div class="flex items-center gap-2"><div class="flex-1 flex items-center border border-slate-300 rounded-lg px-2 py-1.5"><i data-lucide="search" class="w-3.5 h-3.5 text-slate-400 mr-1"></i><span class="text-[11px] text-slate-400">Buscar…</span></div><select class="text-[11px] border border-slate-300 rounded-lg px-2 py-1.5"><option>Más recientes</option></select></div>
+        </div>
+        <div class="text-[10px] text-slate-500 mt-2"><strong>El gran pendiente:</strong> existe <code>design-system/filters/FiltrosBar</code> (canon) pero cada módulo hizo el suyo (<code>FiltrosGastosBar · FiltrosSaldosBar · FiltrosCCBar · FiltrosLedgerBar</code>). → adoptar el único componional. (TAREA-FILTROS-GLOBAL)</div>
+      </div>
+
+      <!-- SmartSearch -->
+      <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-5">
+        <div class="flex items-center justify-between mb-2">
+          <div class="text-[13px] font-bold">SmartSearch · buscador inteligente único</div>
+          <span class="badge-miss px-1.5 py-0.5 rounded text-[10px] font-bold">✗ falta · hay 7 buscadores</span>
+        </div>
+        <div class="border border-slate-200 rounded-xl p-2 max-w-md">
+          <div class="flex items-center border border-slate-300 rounded-lg px-3 py-2"><i data-lucide="search" class="w-4 h-4 text-slate-400 mr-2"></i><span class="text-[12px] text-slate-400">Buscar proveedor, producto, persona…</span></div>
+          <div class="mt-1.5 space-y-1">
+            <div class="flex items-center gap-2 px-2 py-1.5 hover:bg-slate-50 rounded text-[11px]"><i data-lucide="briefcase" class="w-3.5 h-3.5 text-blue-500"></i> Maersk <span class="text-slate-400">· proveedor</span></div>
+            <div class="flex items-center gap-2 px-2 py-1.5 hover:bg-slate-50 rounded text-[11px]"><i data-lucide="user" class="w-3.5 h-3.5 text-teal-500"></i> Juan Pérez <span class="text-slate-400">· empleado</span></div>
+          </div>
+        </div>
+        <div class="text-[10px] text-slate-500 mt-2">Hoy 7 buscadores distintos: <code>SearchInput · AutocompleteInput · Combobox · EntityPicker · MaestroSelect · PersonaAutocomplete · EmailUserLookup</code>. → <code>&lt;SmartSearch sources={[...]} onSelect/&gt;</code> con resultados tipados por entidad.</div>
+      </div>
+
+      <!-- EmptyState -->
+      <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-5">
+        <div class="flex items-center justify-between mb-2">
+          <div class="text-[13px] font-bold">EmptyState · Loading · Error (estados)</div>
+          <span class="badge-dup px-1.5 py-0.5 rounded text-[10px] font-bold">⚠ 2 (Action + Pro)</span>
+        </div>
+        <div class="border border-slate-200 rounded-xl p-5 text-center max-w-md">
+          <div class="w-12 h-12 rounded-2xl bg-teal-50 ring-1 ring-teal-200/50 flex items-center justify-center mx-auto mb-2"><i data-lucide="inbox" class="w-6 h-6 text-teal-700"></i></div>
+          <div class="text-[13px] font-bold">Sin registros</div>
+          <div class="text-[11px] text-slate-500">+ quick-start cards (canon N9)</div>
+        </div>
+        <div class="text-[10px] text-slate-500 mt-2"><code>EmptyStateAction + EmptyStatePro</code> → unificar a 1. Loading/Error como variantes.</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ════════ L4 · OVERLAYS ════════ -->
+  <div id="l4" class="layer">
+    <div class="acto-label text-[11px] font-bold uppercase text-slate-500 mb-3">L4 · Overlays (modales · drawers)</div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+      <div class="bg-white border border-slate-200 rounded-xl p-4">
+        <div class="flex items-center justify-between mb-2"><div class="text-[13px] font-bold">FormModalV2</div><span class="badge-ok px-1.5 py-0.5 rounded text-[10px] font-bold">✓ canon</span></div>
+        <div class="border border-slate-200 rounded-lg overflow-hidden text-[10px]">
+          <div class="bg-teal-50 px-2 py-1.5 flex items-center gap-1.5 border-b border-teal-100"><div class="w-5 h-5 rounded bg-teal-100"></div><span class="font-bold">Nuevo X</span></div>
+          <div class="p-2 space-y-1"><div class="h-4 bg-slate-100 rounded"></div><div class="h-4 bg-slate-100 rounded"></div></div>
+          <div class="bg-slate-50 px-2 py-1.5 border-t border-slate-200 flex justify-end gap-1"><span class="bg-white border border-slate-200 px-2 rounded">Esc</span><span class="bg-teal-600 text-white px-2 rounded">⌘+↵</span></div>
+        </div>
+        <div class="text-[10px] text-slate-500 mt-2">Header tonal + footer sticky atajos. <strong>Migrar</strong> Modal/ActionModal/FormModal v1 a este.</div>
+      </div>
+      <div class="bg-white border border-slate-200 rounded-xl p-4">
+        <div class="flex items-center justify-between mb-2"><div class="text-[13px] font-bold">ConfirmDialog</div><span class="badge-ok px-1.5 py-0.5 rounded text-[10px] font-bold">✓ existe</span></div>
+        <div class="border border-slate-200 rounded-lg p-2 text-center text-[10px]"><i data-lucide="alert-triangle" class="w-5 h-5 text-rose-500 mx-auto mb-1"></i><div class="font-bold">¿Confirmás?</div><div class="flex gap-1 justify-center mt-1.5"><span class="bg-slate-100 px-2 py-0.5 rounded">Cancelar</span><span class="bg-rose-600 text-white px-2 py-0.5 rounded">Eliminar</span></div></div>
+        <div class="text-[10px] text-slate-500 mt-2">Confirmaciones + typed-confirm para destructivo.</div>
+      </div>
+      <div class="bg-white border border-slate-200 rounded-xl p-4">
+        <div class="flex items-center justify-between mb-2"><div class="text-[13px] font-bold">Drawer / BottomSheet</div><span class="badge-dup px-1.5 py-0.5 rounded text-[10px] font-bold">⚠ parcial</span></div>
+        <div class="border border-slate-200 rounded-lg overflow-hidden text-[10px]"><div class="h-8 bg-slate-50"></div><div class="bg-white border-t-2 border-slate-300 rounded-t-lg p-2 text-center"><div class="w-8 h-1 bg-slate-300 rounded-full mx-auto mb-1"></div>bottom-sheet mobile</div></div>
+        <div class="text-[10px] text-slate-500 mt-2"><code>FilterDrawer · FiltrosDrawerMobile</code> existen → consolidar + bottom-sheet canon mobile.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════ L5 · HUB KIT ════════ -->
+  <div id="l5" class="layer">
+    <div class="acto-label text-[11px] font-bold uppercase text-slate-500 mb-3">L5 · Hub Kit (shell) <span class="badge-miss px-1.5 rounded ml-1">✗ a construir · blueprint aparte</span></div>
+    <div class="bg-white border-2 border-teal-300 rounded-2xl shadow-sm p-5">
+      <div class="text-[12px] text-slate-700 mb-3">El shell completo del módulo. Detallado en su propio blueprint: <code class="bg-slate-100 px-1 rounded">docs/mockups/hub-design-system-v1.html</code></div>
+      <div class="flex flex-wrap gap-2 text-[11px] font-bold">
+        <span class="bg-teal-50 text-teal-700 px-2.5 py-1.5 rounded ring-1 ring-teal-200">&lt;HubShell&gt;</span>
+        <span class="bg-teal-50 text-teal-700 px-2.5 py-1.5 rounded ring-1 ring-teal-200">&lt;HubTopBar&gt;</span>
+        <span class="bg-teal-50 text-teal-700 px-2.5 py-1.5 rounded ring-1 ring-teal-200">&lt;HubHeader&gt;</span>
+        <span class="bg-teal-50 text-teal-700 px-2.5 py-1.5 rounded ring-1 ring-teal-200">&lt;HubKpiStrip&gt;</span>
+        <span class="bg-teal-50 text-teal-700 px-2.5 py-1.5 rounded ring-1 ring-teal-200">&lt;HubTabs&gt;</span>
+        <span class="bg-teal-50 text-teal-700 px-2.5 py-1.5 rounded ring-1 ring-teal-200">&lt;HubBody aside?&gt;</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════ ESTADO DE CONSOLIDACIÓN ════════ -->
+  <div>
+    <div class="acto-label text-[11px] font-bold uppercase text-slate-500 mb-3">El problema de fondo · 2 carpetas paralelas</div>
+    <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-5">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-[12px]">
+        <div class="bg-slate-50 rounded-lg p-3">
+          <div class="font-bold mb-1">📁 src/components/common/ <span class="text-[10px] text-slate-500">(viejo)</span></div>
+          <div class="text-[11px] text-slate-600">Button · Input · Select · Badge · Card · Modal · ActionModal · SearchInput · AutocompleteInput · Sparkline · EmptyStateAction · EmptyStatePro · …</div>
+        </div>
+        <div class="bg-slate-50 rounded-lg p-3">
+          <div class="font-bold mb-1">📁 src/design-system/ <span class="text-[10px] text-slate-500">(nuevo)</span></div>
+          <div class="text-[11px] text-slate-600">FormModalV2 · forms/ · filters/ · DataCard · StatCard · KpiRow · EntityHeader · Toolbar · maestros/ · …</div>
+        </div>
+      </div>
+      <div class="bg-amber-50/60 border border-amber-200 rounded-lg p-3 mt-3 text-[11px] text-amber-800">
+        <strong>Duplicados confirmados:</strong> 2 Sparkline · 3 modales (Modal/ActionModal/FormModal v1 vs FormModalV2) · 2 EmptyState · 5+ formas de card · 7 buscadores · filtros canon vs FiltrosXBar por módulo.
+        <strong>Decisión raíz:</strong> elegir <code>design-system/</code> como única fuente, migrar lo vivo de <code>common/</code>, deprecar el resto.
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════ PLAN ════════ -->
+  <div class="bg-gradient-to-br from-teal-50 to-teal-100/40 ring-1 ring-teal-200/60 rounded-2xl p-6">
+    <div class="acto-label text-[11px] font-bold uppercase text-teal-700 mb-3">Plan de adopción · mockup primero</div>
+    <div class="space-y-2 text-[12px]">
+      <div class="flex items-start gap-2"><span class="bg-teal-600 text-white font-bold rounded w-5 h-5 flex items-center justify-center text-[10px] flex-shrink-0">0</span><div><strong>Este catálogo + blueprint Hub</strong> → validás capas, APIs y prioridades. <span class="text-teal-700 font-bold">← AHORA</span></div></div>
+      <div class="flex items-start gap-2"><span class="bg-slate-300 text-slate-700 font-bold rounded w-5 h-5 flex items-center justify-center text-[10px] flex-shrink-0">1</span><div><strong>Tokens + auditoría de duplicados</strong> (decidir fuente única · deprecar viejos).</div></div>
+      <div class="flex items-start gap-2"><span class="bg-slate-300 text-slate-700 font-bold rounded w-5 h-5 flex items-center justify-center text-[10px] flex-shrink-0">2</span><div><strong>Construir/consolidar L1-L4</strong> (Button 3-tier · HubCard · FiltrosBar adoptado · SmartSearch · estados unificados).</div></div>
+      <div class="flex items-start gap-2"><span class="bg-slate-300 text-slate-700 font-bold rounded w-5 h-5 flex items-center justify-center text-[10px] flex-shrink-0">3</span><div><strong>Construir L5 · Hub Kit</strong> sobre las capas ya consolidadas.</div></div>
+      <div class="flex items-start gap-2"><span class="bg-slate-300 text-slate-700 font-bold rounded w-5 h-5 flex items-center justify-center text-[10px] flex-shrink-0">4</span><div><strong>Migrar módulos</strong> (piloto Gastos → resto) + canon en CLAUDE.md "todo nace del DS".</div></div>
+    </div>
+  </div>
+
+  <div class="text-center text-[11px] text-slate-400 pb-6">
+    docs/mockups/design-system-catalogo-v1.html · inventario basado en el código real (2026-05-30)
+  </div>
+
+</div>
+
+<script>lucide.createIcons();</script>
+</body>
+</html>

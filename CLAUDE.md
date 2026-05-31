@@ -160,6 +160,112 @@ en rework, debe terminar cumpliendo esta anatomía hub completa.
 
 ---
 
+# CANON DE DESIGN SYSTEM · KIT UNIVERSAL + GOBERNANZA DE COLOR (declarado 2026-05-30)
+
+**Todo módulo del ERP NACE del Design System. No se re-inventa el shell ni los
+componentes de contenido: se ENSAMBLAN desde el kit. La consistencia vive en el
+componente, no en la disciplina de quien programa.**
+
+Cita literal del usuario (2026-05-30):
+*"quiero que el sistema parta de nacimiento desde ahí, porque cada vez que pasamos
+a un nuevo módulo, siempre nos toma tiempo revisar y revisar continuamente el diseño."*
+
+Origen: tras cerrar Gastos hub, el usuario detectó por goteo múltiples desviaciones
+(KPI strip legacy, breadcrumb fijo, body fuera del shell, recuadros anidados, banner
+redundante). Raíz: el sistema no nacía de un kit canónico. Se diseñó el blueprint
+completo en 5 mockups (ver abajo).
+
+## Blueprint · 5 mockups foundacionales (docs/mockups/)
+- `layout-body-comparativo-v1.html` · los 2 layouts de body + argumentación.
+- `hub-design-system-v1.html` · Hub Kit (L5 shell) + API de cada block + mobile.
+- `design-system-catalogo-v1.html` · catálogo 6 capas tipo Storybook (estado existe/dup/falta).
+- `design-system-decision-v1.html` · decisión por capa + recomendaciones + impacto.
+- `mapa-color-por-grupo-v1.html` · gobernanza de color · mapa grupo→color.
+
+## A · GOBERNANZA DE COLOR (cerrado · CONFIRMADO por user 2026-05-30)
+
+**Hay DOS sistemas de color y NO chocan (aplican a zonas distintas):**
+
+1. **Identidad de módulo** — responde "¿en qué módulo estoy?". 1 color por módulo.
+   Aplica SOLO al **chrome**: chip de rol · icono del header · tab activo (border-b-2 +
+   texto) · primary CTA · anillos de foco.
+2. **Semántico** — responde "¿qué significa este dato?". Paleta FIJA, idéntica en
+   TODOS los módulos. Aplica al **contenido**: KPIs por naturaleza (amber=dinero ·
+   rose=urgencia · emerald=positivo · indigo=fijo · sky=parcial) · estados (pagado=
+   emerald · pendiente=amber · vencido=rose · parcial=sky) · bloques (producto=blue ·
+   venta=purple · período=amber). El color de módulo NUNCA pisa al semántico.
+
+**Modelo A (elegido):** el color del módulo viste TODO el chrome (incluido el primary
+CTA). Deroga el N10 anterior ("primary siempre teal") · ahora primary = color del módulo.
+
+**Gobernanza · color POR GRUPO del sidebar, HEREDADO (NO por módulo):**
+El color NO se elige ni se inventa. Cuando nace un módulo, se ubica en un grupo del
+sidebar (Canon de ubicación de funcionalidad) y **hereda el color de su grupo**. El
+sistema lee de un registro finito. Escala infinito (color por grupo, no por módulo).
+
+**Paleta de grupos (registro `grupoColor.ts` · fuente única):**
+| Grupo sidebar | Color |
+|---|---|
+| Finanzas y Contabilidad | `teal` (marca Vita Skin) |
+| Equipo | `violet` |
+| Comercial | `blue` |
+| Inventario | `orange` |
+| Análisis | `indigo` |
+| Administración | `slate` |
+
+**Alineación pendiente (al migrar cada módulo):** Contabilidad purple→teal · Usuarios
+purple→violet · Planilla sky→violet (Finanzas/Gastos=teal e Inversionistas=violet ya OK).
+
+## B · LOS 2 LAYOUTS DE BODY (canónicos · ambos válidos)
+- **Layout A · grid main(3)+sidebar(1)**: `grid grid-cols-1 md:grid-cols-4` · main
+  `md:col-span-3 space-y-4` + `<aside className="md:col-span-1">`. Para dashboards
+  operativos con CONTEXTO persistente (urgencias, widgets, cross-links). Usan: Finanzas,
+  Gastos. Mobile: el aside se apila DEBAJO del main.
+- **Layout B · full-width**: cards apiladas `space-y-4` + grids internos · sin sidebar.
+  Para contenido ANCHO/autónomo (estados financieros, directorios, tablas). Usan:
+  Contabilidad, Usuarios, Planilla, Inversionistas.
+- **Micro unificado en ambos (hoy difieren · alinear):** contenedor `max-w-6xl mx-auto` ·
+  padding `p-3 sm:p-4 md:p-6` · fondo body `bg-slate-50/30` · el body va DENTRO del shell
+  card (1 recuadro continuo, nunca cards sueltas afuera).
+- **Orden canónico del Tab Resumen:** §A banner estado → §B visualización → §C insights →
+  §D acciones rápidas → §E cross-links 360 → §F alertas.
+
+## C · DESIGN SYSTEM EN 6 CAPAS (fuente única: `src/design-system/`)
+Decisión raíz: `src/design-system/` es la fuente única · `src/components/common/` se
+migra y deprecia (hoy hay duplicados: 2 Sparkline, 3 modales, 2 EmptyState, etc.).
+- **L0 Tokens** · color (grupoColor.ts) · spacing · tipografía (tabular-nums) · radios.
+- **L1 Primitivas** · Button (3-tier: primary/config/neutral · color del módulo) ·
+  Input · Select · Badge · Chip · Tooltip · Sparkline.
+- **L2 Campos form** (✓ maduro) · TextField · MoneyField · DateField · Combobox · ToggleGroup.
+- **L3 Patrones** · `HubCard` (unifica 5+ cards) · `FiltrosBar` único (cierra TAREA-
+  FILTROS-GLOBAL · hoy cada módulo tiene su FiltrosXBar) · `SmartSearch` único (hoy 7
+  buscadores) · EmptyState (fusionar Action+Pro).
+- **L4 Overlays** · FormModalV2 (canon · deprecar Modal/ActionModal v1) · ConfirmDialog ·
+  Drawer/BottomSheet (mobile).
+- **L5 Hub Kit (shell)** · `HubShell` · `HubTopBar` (breadcrumb S9.D1 dinámico + chip rol) ·
+  `HubHeader` · `HubKpiStrip` · `HubTabs` · `HubBody` (slot `aside` opcional = decide
+  Layout A/B con UN componente). El kit resuelve el mobile solo.
+
+## D · REGLA PARA UNA SECCIÓN/MÓDULO NUEVO
+1. Responder el Canon de ubicación de funcionalidad → en qué grupo del sidebar vive.
+2. El color sale GRATIS del grupo (hereda · `grupoColor.ts`). No se decide color.
+3. Ensamblar el shell con el Hub Kit (`<HubShell color={...}>` + blocks).
+4. ¿Tiene contexto lateral persistente? → pasar `aside` (Layout A). Si no → Layout B.
+5. Contenido con componentes L1-L4 (Button/HubCard/FiltrosBar/SmartSearch/FormModalV2).
+6. El semántico (KPIs/estados) usa la paleta fija, nunca el color del módulo.
+
+## Estado e implementación (plan de fases · F0 cerrado 2026-05-30)
+- **F0** · Blueprint (5 mockups + decisiones) ✅ CERRADO.
+- **F1** · Tokens + color (`tokens.ts` · `grupoColor.ts` · alinear Contab/Usuarios/Planilla).
+- **F2** · Consolidar L1-L4 (Button 3-tier · HubCard · FiltrosBar · SmartSearch · estados).
+- **F3** · Construir L5 Hub Kit.
+- **F4** · Migrar módulos (piloto Gastos → resto) + este canon como ley operativa.
+
+Hasta que el enforcement técnico (F1+) exista, ESTE canon documental rige. Una vez
+construido el kit, el código refuerza la regla (imposible desviarse).
+
+---
+
 # CANON DE COBERTURA DE REWORK DE MÓDULO (declarado 2026-05-11)
 
 **Cuando un módulo entra en rework canon, TODAS sus superficies son parte del

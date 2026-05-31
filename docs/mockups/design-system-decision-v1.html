@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Design System · Catálogo de DECISIÓN · alinear a versión única · Vita Skin ERP</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+  .tabular { font-variant-numeric: tabular-nums; }
+  code, pre { font-family: 'SF Mono', ui-monospace, Menlo, Consolas, monospace; }
+  .acto-label { letter-spacing: 0.08em; }
+  .rec { background:#dcfce7; color:#15803d; }
+  .alt { background:#f1f5f9; color:#475569; }
+  .imp-low  { background:#dcfce7; color:#15803d; }
+  .imp-med  { background:#fef3c7; color:#b45309; }
+  .imp-high { background:#ffe4e6; color:#be123c; }
+</style>
+</head>
+<body class="bg-slate-100 text-slate-900 p-4 sm:p-8">
+
+<div class="max-w-6xl mx-auto space-y-8">
+
+  <!-- HERO -->
+  <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-6 sm:p-8">
+    <div class="flex flex-wrap items-center gap-2 mb-3">
+      <span class="text-[11px] font-bold uppercase tracking-wider text-teal-700 bg-teal-50 px-2 py-1 rounded">Catálogo de DECISIÓN v1</span>
+      <span class="text-[11px] font-bold uppercase tracking-wider text-slate-600 bg-slate-100 px-2 py-1 rounded">alinear a versión única · con mis recomendaciones</span>
+    </div>
+    <h1 class="text-2xl sm:text-3xl font-bold tracking-tight mb-2">Cómo alinear cada capa a un patrón único</h1>
+    <p class="text-sm text-slate-600 max-w-3xl leading-relaxed">
+      Para cada tema: <strong>qué variantes existen hoy → cuál recomiendo como única → qué impacto tiene alinear</strong>.
+      Empezamos por el color (lo que más confusión genera), con un mapa de <strong>dónde se usa exactamente</strong> cada uno.
+    </p>
+    <div class="mt-3 flex flex-wrap gap-2 text-[11px]">
+      <span class="rec px-2 py-1 rounded font-bold">✓ recomendado</span>
+      <span class="alt px-2 py-1 rounded font-bold">alternativa</span>
+      <span class="imp-low px-2 py-1 rounded font-bold">impacto bajo</span>
+      <span class="imp-med px-2 py-1 rounded font-bold">impacto medio</span>
+      <span class="imp-high px-2 py-1 rounded font-bold">impacto alto</span>
+    </div>
+  </div>
+
+  <!-- ════════ TEMA ESTRELLA · COLOR ════════ -->
+  <div>
+    <div class="acto-label text-[11px] font-bold uppercase text-slate-500 mb-3">Tema 1 · Color — la pregunta "¿dónde se usa?"</div>
+
+    <!-- Los 2 sistemas -->
+    <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-5 mb-4">
+      <div class="text-[14px] font-bold mb-1">Hay DOS sistemas de color y NO chocan</div>
+      <p class="text-[12px] text-slate-600 mb-4">La confusión nace de mezclarlos. En realidad responden a preguntas distintas:</p>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="bg-teal-50/50 border border-teal-200 rounded-xl p-4">
+          <div class="text-[13px] font-bold text-teal-900 mb-1">① Identidad de módulo</div>
+          <div class="text-[11px] text-teal-800 mb-2">Responde: <strong>"¿en qué módulo estoy?"</strong> · 1 color por módulo.</div>
+          <div class="flex flex-wrap gap-1.5 text-[10px] font-bold text-white mb-2">
+            <span class="bg-teal-600 px-2 py-1 rounded">teal · Finanzas/Gastos</span>
+            <span class="bg-purple-600 px-2 py-1 rounded">purple · Contab/Usuarios</span>
+            <span class="bg-violet-600 px-2 py-1 rounded">violet · Inversionistas</span>
+            <span class="bg-sky-600 px-2 py-1 rounded">sky · Planilla</span>
+          </div>
+          <div class="text-[11px] text-teal-800">Aplica SOLO al <strong>chrome</strong> (el marco): chip rol · icono header · tab activo · primary CTA · foco.</div>
+        </div>
+        <div class="bg-amber-50/50 border border-amber-200 rounded-xl p-4">
+          <div class="text-[13px] font-bold text-amber-900 mb-1">② Semántico (significado)</div>
+          <div class="text-[11px] text-amber-800 mb-2">Responde: <strong>"¿qué significa este dato?"</strong> · paleta FIJA, igual en todos los módulos.</div>
+          <div class="flex flex-wrap gap-1.5 text-[10px] font-bold mb-2">
+            <span class="bg-amber-100 text-amber-800 px-2 py-1 rounded ring-1 ring-amber-200">amber · dinero</span>
+            <span class="bg-rose-100 text-rose-800 px-2 py-1 rounded ring-1 ring-rose-200">rose · urgencia</span>
+            <span class="bg-emerald-100 text-emerald-800 px-2 py-1 rounded ring-1 ring-emerald-200">emerald · positivo</span>
+            <span class="bg-indigo-100 text-indigo-800 px-2 py-1 rounded ring-1 ring-indigo-200">indigo · fijo</span>
+          </div>
+          <div class="text-[11px] text-amber-800">Aplica al <strong>contenido</strong>: KPIs por naturaleza · estados (pagado/pendiente) · bloques (producto/venta).</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mapa anatómico -->
+    <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden mb-4">
+      <div class="px-4 py-2.5 border-b border-slate-100 text-[13px] font-bold">Mapa · DÓNDE va cada color (ejemplo: Contabilidad = purple)</div>
+      <div class="p-4 bg-slate-50/40">
+        <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden text-[11px]">
+          <!-- topbar -->
+          <div class="bg-slate-50 px-3 py-2 border-b border-slate-200 flex items-center justify-between">
+            <span class="text-slate-500">Inicio › <span class="text-slate-900 font-semibold">Contabilidad</span></span>
+            <span class="bg-purple-50 text-purple-700 px-2 py-0.5 rounded font-bold ring-1 ring-purple-200">chip rol <span class="text-[9px]">①módulo</span></span>
+          </div>
+          <!-- header -->
+          <div class="px-3 py-2.5 border-b border-slate-100 flex items-center gap-2">
+            <div class="w-8 h-8 rounded-lg bg-purple-100 flex items-center justify-center ring-1 ring-purple-200"><span class="text-[8px] text-purple-700 font-bold">①</span></div>
+            <div class="flex-1"><span class="font-bold">Contabilidad</span> <span class="text-[9px] text-slate-400">icono = ①módulo</span></div>
+            <span class="bg-purple-600 text-white px-2.5 py-1 rounded font-bold">+ Nuevo <span class="text-[9px]">①módulo</span></span>
+          </div>
+          <!-- kpis -->
+          <div class="px-3 py-2.5 border-b border-slate-200 grid grid-cols-4 gap-2">
+            <div class="rounded-lg bg-amber-50 ring-1 ring-amber-200/50 p-1.5 text-center text-[9px] text-amber-700 font-bold">Ventas<br/><span class="text-[8px]">②amber</span></div>
+            <div class="rounded-lg bg-emerald-50 ring-1 ring-emerald-200/50 p-1.5 text-center text-[9px] text-emerald-700 font-bold">Utilidad<br/><span class="text-[8px]">②emerald</span></div>
+            <div class="rounded-lg bg-rose-50 ring-1 ring-rose-200/50 p-1.5 text-center text-[9px] text-rose-700 font-bold">Pasivos<br/><span class="text-[8px]">②rose</span></div>
+            <div class="rounded-lg bg-indigo-50 ring-1 ring-indigo-200/50 p-1.5 text-center text-[9px] text-indigo-700 font-bold">Patrim.<br/><span class="text-[8px]">②indigo</span></div>
+          </div>
+          <!-- tabs -->
+          <div class="px-3 py-2 border-b border-slate-200 flex gap-3">
+            <span class="border-b-2 border-purple-600 text-purple-700 font-semibold pb-1">Resumen <span class="text-[9px]">①módulo</span></span>
+            <span class="text-slate-500 pb-1">Balance</span>
+          </div>
+          <!-- body -->
+          <div class="px-3 py-3 bg-slate-50/40 flex gap-2">
+            <span class="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-bold">Saludable <span class="text-[9px]">②emerald</span></span>
+            <span class="bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-bold">Pendiente <span class="text-[9px]">②amber</span></span>
+          </div>
+        </div>
+        <div class="mt-3 flex flex-wrap gap-4 text-[11px]">
+          <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-purple-600"></span> <strong>① módulo (purple)</strong> = chip · icono · tab activo · primary CTA</span>
+          <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-amber-400"></span> <strong>② semántico</strong> = KPIs · estados · bloques (igual en todos los módulos)</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- estado real + decisión -->
+    <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden mb-4">
+      <div class="px-4 py-2.5 border-b border-slate-100 text-[13px] font-bold">Estado real del color de módulo (medido en código)</div>
+      <table class="w-full text-[12px]">
+        <tbody class="divide-y divide-slate-100">
+          <tr><td class="px-3 py-2 font-semibold w-36">Finanzas/Gastos</td><td class="px-3 py-2 text-slate-600">teal · todo (tab + primary + icono) ✓ coherente</td></tr>
+          <tr><td class="px-3 py-2 font-semibold">Contabilidad</td><td class="px-3 py-2 text-slate-600">purple · tab + botones ✓ coherente (pero contradice N10 "teal siempre")</td></tr>
+          <tr><td class="px-3 py-2 font-semibold">Inversionistas</td><td class="px-3 py-2 text-slate-600">violet · tab + primary ✓ coherente (contradice N10)</td></tr>
+          <tr class="bg-rose-50/40"><td class="px-3 py-2 font-semibold">Planilla</td><td class="px-3 py-2 text-rose-700">sky en tab PERO mezcla botones teal + sky <strong>⚠ inconsistente internamente</strong></td></tr>
+          <tr class="bg-amber-50/40"><td class="px-3 py-2 font-semibold">Canon N10</td><td class="px-3 py-2 text-amber-800">dice "primary SIEMPRE teal" → <strong>nadie lo respeta · regla muerta</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- LA DECISIÓN color -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="bg-white border-2 border-emerald-300 rounded-2xl shadow-sm p-5">
+        <div class="flex items-center justify-between mb-1"><div class="text-[13px] font-bold text-emerald-900">Modelo A · "el módulo se viste de su color"</div><span class="rec px-1.5 py-0.5 rounded text-[10px] font-bold">✓ recomiendo</span></div>
+        <div class="text-[12px] text-slate-600 space-y-1.5">
+          <div>El color de módulo manda en TODO el chrome: chip · icono · tab activo · <strong>primary CTA</strong> · foco. El semántico manda en el contenido.</div>
+          <div class="flex gap-3 pt-1 text-[11px]">
+            <span class="text-emerald-700">+ Identidad clara (sabés dónde estás) · ya es lo que hacen 3 de 6 · menos cambios</span>
+          </div>
+          <div class="text-[11px] text-slate-500">Requiere: actualizar canon N10 ("primary del color del módulo") · arreglar Planilla (todo sky) · token de color por módulo.</div>
+          <span class="imp-med px-1.5 py-0.5 rounded text-[10px] font-bold inline-block mt-1">impacto medio</span>
+        </div>
+      </div>
+      <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-5 opacity-90">
+        <div class="flex items-center justify-between mb-1"><div class="text-[13px] font-bold text-slate-900">Modelo B · "teal-marca + acento de módulo"</div><span class="alt px-1.5 py-0.5 rounded text-[10px] font-bold">alternativa</span></div>
+        <div class="text-[12px] text-slate-600 space-y-1.5">
+          <div>Primary CTA SIEMPRE teal (marca Vita Skin única). El color de módulo solo en acentos sutiles: tab activo · icono · chip.</div>
+          <div class="flex gap-3 pt-1 text-[11px]">
+            <span class="text-slate-600">+ Marca teal dominante · respeta N10 actual</span>
+            <span class="text-rose-600">– Contab/Inversionistas pierden su botón de color · menos identidad</span>
+          </div>
+          <span class="imp-high px-1.5 py-0.5 rounded text-[10px] font-bold inline-block mt-1">impacto alto (revertir purple/violet)</span>
+        </div>
+      </div>
+    </div>
+    <div class="bg-slate-900 text-white rounded-2xl p-4 mt-4 text-[12px] leading-relaxed">
+      <strong class="text-emerald-300">Mi recomendación · Modelo A.</strong> El semántico (amber/rose/emerald) NUNCA cambia por módulo —
+      es el "idioma de los datos". El color de módulo solo viste el chrome. Así, en Contabilidad el botón "Nuevo asiento" es purple,
+      pero un KPI de utilidad sigue siendo emerald. Cada módulo tiene identidad y los datos se leen igual en todos.
+    </div>
+  </div>
+
+  <!-- ════════ TEMA 2 · decisiones por capa ════════ -->
+  <div>
+    <div class="acto-label text-[11px] font-bold uppercase text-slate-500 mb-3">Tema 2 · Decisión por cada capa · variante recomendada + impacto</div>
+    <div class="space-y-3">
+
+      <!-- Botones -->
+      <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-4">
+        <div class="flex items-center justify-between mb-2"><div class="text-[13px] font-bold">Botones</div><span class="imp-med px-1.5 py-0.5 rounded text-[10px] font-bold">impacto medio</span></div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-[11px]">
+          <div><div class="text-slate-500 font-bold mb-1">Hoy</div>3-tier (teal/indigo/slate) aplicado a mano en cada módulo · color de tier inconsistente.</div>
+          <div><div class="rec inline-block px-1.5 rounded font-bold mb-1">✓ Recomiendo</div><div><code>&lt;Button tier="primary|config|neutral" color={modulo}&gt;</code> — el componente resuelve el tier y el color. Primary = color del módulo (Modelo A).</div></div>
+        </div>
+      </div>
+
+      <!-- Forms -->
+      <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-4">
+        <div class="flex items-center justify-between mb-2"><div class="text-[13px] font-bold">Forms / campos</div><span class="imp-low px-1.5 py-0.5 rounded text-[10px] font-bold">impacto bajo</span></div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-[11px]">
+          <div><div class="text-slate-500 font-bold mb-1">Hoy</div>Capa madura (<code>design-system/forms/</code>) pero algunos módulos aún usan <code>&lt;input&gt;</code> a mano.</div>
+          <div><div class="rec inline-block px-1.5 rounded font-bold mb-1">✓ Recomiendo</div><div>Adoptar <code>TextField·MoneyField·DateField·Combobox·ToggleGroup</code> en todos. Ya existen — solo migrar los inputs sueltos.</div></div>
+        </div>
+      </div>
+
+      <!-- Cards -->
+      <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-4">
+        <div class="flex items-center justify-between mb-2"><div class="text-[13px] font-bold">Cards</div><span class="imp-high px-1.5 py-0.5 rounded text-[10px] font-bold">impacto alto</span></div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-[11px]">
+          <div><div class="text-slate-500 font-bold mb-1">Hoy</div>5+ variantes: <code>DataCard·StatCard·Card·GastoCard·CompraCard·EnvioCard</code>.</div>
+          <div><div class="rec inline-block px-1.5 rounded font-bold mb-1">✓ Recomiendo</div><div><code>&lt;HubCard&gt;</code> único con slots (icono·título·meta·monto·estado·acciones·sub-entidades). Migración gradual módulo a módulo.</div></div>
+        </div>
+      </div>
+
+      <!-- Filtros -->
+      <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-4">
+        <div class="flex items-center justify-between mb-2"><div class="text-[13px] font-bold">Filtros</div><span class="imp-high px-1.5 py-0.5 rounded text-[10px] font-bold">impacto alto</span></div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-[11px]">
+          <div><div class="text-slate-500 font-bold mb-1">Hoy</div>Canon existe (<code>filters/FiltrosBar</code>) pero NO adoptado: <code>FiltrosGastosBar·FiltrosSaldosBar·FiltrosCCBar·FiltrosLedgerBar</code>.</div>
+          <div><div class="rec inline-block px-1.5 rounded font-bold mb-1">✓ Recomiendo</div><div>Adoptar el <code>FiltrosBar</code> componional único (chips estado/bloque/origen + búsqueda + orden + limpiar). Cierra la <strong>TAREA-FILTROS-GLOBAL</strong>.</div></div>
+        </div>
+      </div>
+
+      <!-- Buscadores -->
+      <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-4">
+        <div class="flex items-center justify-between mb-2"><div class="text-[13px] font-bold">Buscadores</div><span class="imp-high px-1.5 py-0.5 rounded text-[10px] font-bold">impacto alto</span></div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-[11px]">
+          <div><div class="text-slate-500 font-bold mb-1">Hoy</div>7 distintos: <code>SearchInput·AutocompleteInput·Combobox·EntityPicker·MaestroSelect·PersonaAutocomplete·EmailUserLookup</code>.</div>
+          <div><div class="rec inline-block px-1.5 rounded font-bold mb-1">✓ Recomiendo</div><div><code>&lt;SmartSearch sources={[...]}&gt;</code> único · resultados tipados por entidad (proveedor/persona/producto) con icono. Los específicos se vuelven "sources".</div></div>
+        </div>
+      </div>
+
+      <!-- Modales -->
+      <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-4">
+        <div class="flex items-center justify-between mb-2"><div class="text-[13px] font-bold">Modales internos</div><span class="imp-med px-1.5 py-0.5 rounded text-[10px] font-bold">impacto medio</span></div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-[11px]">
+          <div><div class="text-slate-500 font-bold mb-1">Hoy</div><code>FormModalV2</code> es canon · conviven <code>Modal·ActionModal·FormModal v1</code> viejos.</div>
+          <div><div class="rec inline-block px-1.5 rounded font-bold mb-1">✓ Recomiendo</div><div><code>FormModalV2</code> para forms · <code>ConfirmDialog</code> para confirmar · <code>BottomSheet</code> en mobile. Deprecar los viejos.</div></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ════════ TABLA RESUMEN DE DECISIONES ════════ -->
+  <div>
+    <div class="acto-label text-[11px] font-bold uppercase text-slate-500 mb-3">Resumen · todas las decisiones a tomar</div>
+    <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+      <table class="w-full text-[12px]">
+        <thead><tr class="bg-slate-50 border-b border-slate-200 text-left text-[10px] uppercase tracking-wider text-slate-500">
+          <th class="px-3 py-2.5">Capa / tema</th><th class="px-3 py-2.5">Mi recomendación</th><th class="px-3 py-2.5">Impacto</th>
+        </tr></thead>
+        <tbody class="divide-y divide-slate-100">
+          <tr><td class="px-3 py-2 font-semibold">Color</td><td class="px-3 py-2 text-slate-600">Modelo A · módulo viste el chrome · semántico fijo en contenido</td><td class="px-3 py-2"><span class="imp-med px-1.5 py-0.5 rounded text-[10px] font-bold">medio</span></td></tr>
+          <tr><td class="px-3 py-2 font-semibold">Tokens</td><td class="px-3 py-2 text-slate-600">crear <code>tokens.ts</code> + Tailwind config · 1 fuente</td><td class="px-3 py-2"><span class="imp-low px-1.5 py-0.5 rounded text-[10px] font-bold">bajo</span></td></tr>
+          <tr><td class="px-3 py-2 font-semibold">Botones</td><td class="px-3 py-2 text-slate-600"><code>&lt;Button tier color&gt;</code></td><td class="px-3 py-2"><span class="imp-med px-1.5 py-0.5 rounded text-[10px] font-bold">medio</span></td></tr>
+          <tr><td class="px-3 py-2 font-semibold">Forms</td><td class="px-3 py-2 text-slate-600">adoptar <code>forms/</code> existentes</td><td class="px-3 py-2"><span class="imp-low px-1.5 py-0.5 rounded text-[10px] font-bold">bajo</span></td></tr>
+          <tr><td class="px-3 py-2 font-semibold">Cards</td><td class="px-3 py-2 text-slate-600"><code>&lt;HubCard&gt;</code> único</td><td class="px-3 py-2"><span class="imp-high px-1.5 py-0.5 rounded text-[10px] font-bold">alto</span></td></tr>
+          <tr><td class="px-3 py-2 font-semibold">Filtros</td><td class="px-3 py-2 text-slate-600"><code>FiltrosBar</code> componional (TAREA-FILTROS-GLOBAL)</td><td class="px-3 py-2"><span class="imp-high px-1.5 py-0.5 rounded text-[10px] font-bold">alto</span></td></tr>
+          <tr><td class="px-3 py-2 font-semibold">Buscadores</td><td class="px-3 py-2 text-slate-600"><code>&lt;SmartSearch&gt;</code> único</td><td class="px-3 py-2"><span class="imp-high px-1.5 py-0.5 rounded text-[10px] font-bold">alto</span></td></tr>
+          <tr><td class="px-3 py-2 font-semibold">Modales</td><td class="px-3 py-2 text-slate-600"><code>FormModalV2</code> + deprecar viejos</td><td class="px-3 py-2"><span class="imp-med px-1.5 py-0.5 rounded text-[10px] font-bold">medio</span></td></tr>
+          <tr><td class="px-3 py-2 font-semibold">Estados</td><td class="px-3 py-2 text-slate-600">1 EmptyState (fusionar Action+Pro)</td><td class="px-3 py-2"><span class="imp-low px-1.5 py-0.5 rounded text-[10px] font-bold">bajo</span></td></tr>
+          <tr><td class="px-3 py-2 font-semibold">Hub shell (L5)</td><td class="px-3 py-2 text-slate-600">construir Hub Kit sobre lo anterior</td><td class="px-3 py-2"><span class="imp-med px-1.5 py-0.5 rounded text-[10px] font-bold">medio</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- recomendación de secuencia -->
+  <div class="bg-gradient-to-br from-teal-50 to-teal-100/40 ring-1 ring-teal-200/60 rounded-2xl p-6">
+    <div class="acto-label text-[11px] font-bold uppercase text-teal-700 mb-2">Mi recomendación de secuencia</div>
+    <p class="text-[13px] text-slate-800 leading-relaxed">
+      Arrancar por lo de <strong>impacto bajo y base</strong>: <strong>Tokens</strong> (incl. cerrar la decisión de color · Modelo A) →
+      <strong>Forms</strong> (adoptar lo que ya existe) → <strong>Estados</strong>. Eso da victorias rápidas y la base.
+      Luego lo de <strong>impacto alto pero alto valor</strong>: <strong>Cards · Filtros · Buscadores</strong> (los que más se repiten).
+      Y al final el <strong>Hub Kit (L5)</strong>, que se apoya en todo lo anterior. Migración piloto: Gastos.
+    </p>
+  </div>
+
+  <div class="text-center text-[11px] text-slate-400 pb-6">
+    docs/mockups/design-system-decision-v1.html · decisiones + recomendaciones · basado en código real (2026-05-30)
+  </div>
+
+</div>
+
+<script>lucide.createIcons();</script>
+</body>
+</html>
