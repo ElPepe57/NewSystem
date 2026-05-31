@@ -651,7 +651,7 @@ const PasoTipoRelacion: React.FC<PasoProps> = ({ state, set }) => {
   const opciones: Array<{ tipo: TipoRelacion; label: string; icon: React.FC<{ className?: string }>; desc: string; bg: string; ring: string; text: string }> = [
     { tipo: 'empleado', label: 'Empleado', icon: Briefcase, desc: 'En planilla · sueldo fijo · 5ta cat. · CTS · vacaciones', bg: 'bg-teal-50', ring: 'ring-teal-500', text: 'text-teal-900' },
     { tipo: 'honorarios', label: 'Honorarios', icon: FileText, desc: 'Profesional independiente · RxH · 4ta categoría', bg: 'bg-sky-50', ring: 'ring-sky-500', text: 'text-sky-900' },
-    { tipo: 'socio', label: 'Socio', icon: Handshake, desc: 'Cap table · distribuciones · sin sueldo (a menos que también sea empleado)', bg: 'bg-purple-50', ring: 'ring-purple-500', text: 'text-purple-900' },
+    { tipo: 'socio', label: 'Socio', icon: Handshake, desc: 'Cap table · distribuciones · sin sueldo (a menos que también sea empleado)', bg: 'bg-violet-50', ring: 'ring-violet-500', text: 'text-violet-900' },
     { tipo: 'externo', label: 'Externo', icon: UserIcon, desc: 'Cliente VIP · proveedor · colaborador · sin staff interno', bg: 'bg-amber-50', ring: 'ring-amber-500', text: 'text-amber-900' },
   ];
   return (
@@ -802,7 +802,7 @@ const PasoDatosTipo: React.FC<PasoProps> = ({ state, set }) => {
               type="text"
               value={state.cargoDisplay}
               onChange={(e) => set('cargoDisplay', e.target.value)}
-              className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-purple-500"
+              className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-violet-500"
             />
           </Field>
           <Field label="Subtipo">
@@ -818,7 +818,7 @@ const PasoDatosTipo: React.FC<PasoProps> = ({ state, set }) => {
               <option value="estrategico">Estratégico</option>
             </select>
           </Field>
-          <div className="bg-purple-50 ring-1 ring-purple-200 rounded-lg p-3 text-xs text-purple-900 flex items-start gap-2">
+          <div className="bg-violet-50 ring-1 ring-violet-200 rounded-lg p-3 text-xs text-violet-900 flex items-start gap-2">
             <span className="flex-shrink-0">ℹ️</span>
             <span>
               <strong>Cap table %, aporte y distribuciones</strong> se configuran después en{' '}
@@ -849,7 +849,7 @@ const PasoDatosTipo: React.FC<PasoProps> = ({ state, set }) => {
           </Field>
 
           {/* Vinculación con Maestros · v5.8 */}
-          <div className="bg-gradient-to-br from-indigo-50 to-purple-50 ring-1 ring-indigo-200 rounded-xl p-4 space-y-3">
+          <div className="bg-gradient-to-br from-indigo-50 to-violet-50 ring-1 ring-indigo-200 rounded-xl p-4 space-y-3">
             <label className="flex items-start gap-2 cursor-pointer">
               <input
                 type="checkbox"

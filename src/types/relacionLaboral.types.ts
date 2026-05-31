@@ -355,7 +355,7 @@ export const TIPO_RELACION_ICONS: Record<TipoRelacion, string> = {
 export const TIPO_RELACION_COLORS: Record<TipoRelacion, { bg: string; text: string; ring: string }> = {
   empleado:   { bg: 'bg-teal-100',   text: 'text-teal-700',   ring: 'ring-teal-200' },
   honorarios: { bg: 'bg-sky-100',    text: 'text-sky-700',    ring: 'ring-sky-200' },
-  socio:      { bg: 'bg-purple-100', text: 'text-purple-700', ring: 'ring-purple-200' },
+  socio:      { bg: 'bg-violet-100', text: 'text-violet-700', ring: 'ring-violet-200' },
   externo:    { bg: 'bg-amber-100',  text: 'text-amber-700',  ring: 'ring-amber-200' },
 };
 

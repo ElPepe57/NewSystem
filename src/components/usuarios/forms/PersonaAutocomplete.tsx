@@ -19,7 +19,7 @@
  *
  * Constraints:
  *   - Canon F8: iconos lucide únicos, sin emojis en chrome UI.
- *   - Canon colores chips: empleado=teal, socio=purple, honorarios=sky, externo=amber.
+ *   - Canon colores chips: empleado=teal, socio=violet, honorarios=sky, externo=amber.
  *   - El borrador serializa emailInput (string), nunca el objeto UserProfile.
  */
 
@@ -61,7 +61,7 @@ function getInitials(name: string): string {
 /** Color de fondo del avatar derivado del UID (determinístico) */
 const AVATAR_PALETTES = [
   'bg-teal-500',
-  'bg-purple-500',
+  'bg-violet-500',
   'bg-sky-500',
   'bg-amber-500',
   'bg-rose-500',

@@ -48,14 +48,14 @@ interface TabPermisosProps {
 
 const ROLE_COLORS: Record<UserRole, { bg: string; text: string; ring: string }> = {
   admin: { bg: 'bg-red-50', text: 'text-red-700', ring: 'ring-red-200' },
-  gerente: { bg: 'bg-purple-50', text: 'text-purple-700', ring: 'ring-purple-200' },
+  gerente: { bg: 'bg-indigo-50', text: 'text-indigo-700', ring: 'ring-indigo-200' },
   vendedor: { bg: 'bg-sky-50', text: 'text-sky-700', ring: 'ring-sky-200' },
   comprador: { bg: 'bg-amber-50', text: 'text-amber-700', ring: 'ring-amber-200' },
   almacenero: { bg: 'bg-emerald-50', text: 'text-emerald-700', ring: 'ring-emerald-200' },
   finanzas: { bg: 'bg-teal-50', text: 'text-teal-700', ring: 'ring-teal-200' },
   supervisor: { bg: 'bg-teal-50', text: 'text-teal-700', ring: 'ring-teal-200' },
   invitado: { bg: 'bg-slate-100', text: 'text-slate-600', ring: 'ring-slate-200' },
-  socio: { bg: 'bg-purple-50', text: 'text-purple-700', ring: 'ring-purple-200' },
+  socio: { bg: 'bg-violet-50', text: 'text-violet-700', ring: 'ring-violet-200' },
 };
 
 function fmtFechaHora(ts: { toDate?: () => Date } | undefined | null): string {

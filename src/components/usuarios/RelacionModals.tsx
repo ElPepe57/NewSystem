@@ -19,7 +19,7 @@
  *   - Loading state en el botón submit
  *   - Validación inline · error banner rose si aplica
  *   - ESC + click overlay cierran
- *   - Color semántico canon por tipo de relación (teal/sky/purple/amber)
+ *   - Color semántico canon por tipo de relación (teal/sky/violet/amber)
  */
 
 import React, { useState } from 'react';

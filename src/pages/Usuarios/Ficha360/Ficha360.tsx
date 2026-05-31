@@ -40,7 +40,7 @@ import {
 } from '../../../types/datosSocio.types';
 
 const ROLE_CHIP_COLORS: Record<UserRole, string> = {
-  admin: 'bg-purple-100 text-purple-700',
+  admin: 'bg-slate-100 text-slate-700',
   gerente: 'bg-indigo-100 text-indigo-700',
   vendedor: 'bg-sky-100 text-sky-700',
   comprador: 'bg-amber-100 text-amber-700',
@@ -115,7 +115,7 @@ export default function Ficha360() {
   if (loading) {
     return (
       <div className="max-w-5xl mx-auto p-6 text-center py-12">
-        <RefreshCw className="w-8 h-8 text-purple-500 animate-spin mx-auto mb-3" />
+        <RefreshCw className="w-8 h-8 text-violet-500 animate-spin mx-auto mb-3" />
         <p className="text-[13px] text-slate-600">Cargando ficha 360...</p>
       </div>
     );
@@ -174,9 +174,9 @@ export default function Ficha360() {
         {/* Breadcrumb */}
         <div className="border-b border-slate-200 px-4 sm:px-6 py-2.5 flex items-center gap-3 bg-slate-50">
           <div className="flex items-center text-[12px] flex-1 min-w-0">
-            <Link to="/" className="text-slate-500 hover:text-purple-700">Inicio</Link>
+            <Link to="/" className="text-slate-500 hover:text-violet-700">Inicio</Link>
             <ChevronRight className="w-3 h-3 text-slate-300 mx-1.5 flex-shrink-0" />
-            <Link to="/usuarios" className="text-slate-500 hover:text-purple-700">Usuarios</Link>
+            <Link to="/usuarios" className="text-slate-500 hover:text-violet-700">Usuarios</Link>
             <ChevronRight className="w-3 h-3 text-slate-300 mx-1.5 flex-shrink-0" />
             <span className="text-slate-900 font-semibold truncate">{profile.displayName}</span>
           </div>
@@ -190,9 +190,9 @@ export default function Ficha360() {
         </div>
 
         {/* Header de ficha · avatar big + identidad + roles + acciones */}
-        <div className="px-4 sm:px-6 py-5 border-b border-slate-100 bg-gradient-to-r from-purple-50/40 to-violet-50/40">
+        <div className="px-4 sm:px-6 py-5 border-b border-slate-100 bg-gradient-to-r from-violet-50/40 to-violet-50/40">
           <div className="flex items-start gap-4 flex-wrap">
-            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-purple-500 to-purple-700 flex items-center justify-center text-white font-bold text-[28px] flex-shrink-0">
+            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-violet-500 to-violet-700 flex items-center justify-center text-white font-bold text-[28px] flex-shrink-0">
               {iniciales || '?'}
             </div>
             <div className="flex-1 min-w-[260px]">
@@ -241,14 +241,14 @@ export default function Ficha360() {
         <div className="p-4 sm:p-6 space-y-4">
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
             {/* 1 · Permisos · siempre */}
-            <div className="bg-white border border-purple-200 rounded-xl p-3">
+            <div className="bg-white border border-violet-200 rounded-xl p-3">
               <div className="flex items-center gap-2 mb-1">
-                <div className="w-8 h-8 rounded-lg bg-purple-100 flex items-center justify-center flex-shrink-0">
-                  <Key className="w-4 h-4 text-purple-700" />
+                <div className="w-8 h-8 rounded-lg bg-violet-100 flex items-center justify-center flex-shrink-0">
+                  <Key className="w-4 h-4 text-violet-700" />
                 </div>
-                <span className="text-[10px] uppercase tracking-wider text-purple-700 font-bold">PERMISOS</span>
+                <span className="text-[10px] uppercase tracking-wider text-violet-700 font-bold">PERMISOS</span>
               </div>
-              <div className="text-[20px] font-bold tabular-nums text-purple-900">{totalPermisos}</div>
+              <div className="text-[20px] font-bold tabular-nums text-violet-900">{totalPermisos}</div>
               <div className="text-[10px] text-slate-500">
                 {hasRole(profile, 'admin')
                   ? `de ${totalPermisosDelSistema} · admin total`

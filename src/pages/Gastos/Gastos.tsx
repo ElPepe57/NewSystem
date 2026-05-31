@@ -735,7 +735,7 @@ export const Gastos: React.FC = () => {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 space-y-4">
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 space-y-4">
       {/* chk5.E-GASTOS · pulido 1-card · SHELL unificado: header + KPIs + tabs en UN card (canon hub, como hermanos) */}
       <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
       {/* chk5.C1 · Header canon banking-grade (top-bar + header · sin card propio) */}

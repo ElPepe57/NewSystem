@@ -82,7 +82,7 @@ export const DatosSocioFields: React.FC<DatosSocioFieldsProps> = ({
           value={values.cargoDisplay}
           onChange={(e) => onChange('cargoDisplay', e.target.value)}
           placeholder="Ej. Fundador · Co-fundador · Inversor ángel"
-          className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+          className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-violet-500 focus:border-transparent"
         />
       </Field>
 
@@ -90,7 +90,7 @@ export const DatosSocioFields: React.FC<DatosSocioFieldsProps> = ({
         <select
           value={values.subTipo}
           onChange={(e) => onChange('subTipo', e.target.value as SubTipoSocio | '')}
-          className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm bg-white focus:ring-2 focus:ring-purple-500"
+          className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm bg-white focus:ring-2 focus:ring-violet-500"
         >
           <option value="">— ninguno —</option>
           <option value="fundador">Fundador</option>
@@ -113,12 +113,12 @@ export const DatosSocioFields: React.FC<DatosSocioFieldsProps> = ({
           onChange={(e) => onChange('notas', e.target.value)}
           placeholder="Ej. Tiene derecho preferente · restricción de transferencia 2 años"
           rows={2}
-          className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm resize-none focus:ring-2 focus:ring-purple-500"
+          className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm resize-none focus:ring-2 focus:ring-violet-500"
         />
       </Field>
 
       {/* Banner informativo · cap table se configura en /inversionistas */}
-      <div className="bg-purple-50 ring-1 ring-purple-200 rounded-lg p-3 text-[12px] text-purple-900">
+      <div className="bg-violet-50 ring-1 ring-violet-200 rounded-lg p-3 text-[12px] text-violet-900">
         <strong className="font-semibold">Cap table, aporte y distribuciones</strong> se configuran
         en el módulo Inversionistas una vez creado el socio. Acá solo registramos el vínculo inicial.
       </div>

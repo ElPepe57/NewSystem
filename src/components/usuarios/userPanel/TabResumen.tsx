@@ -234,16 +234,16 @@ export const TabResumen: React.FC<TabResumenProps> = ({ user, relaciones, onAfte
         {tieneSocio && (
           <button
             onClick={() => handleNav(`/inversionistas?socio=${user.uid}`)}
-            className="w-full text-left bg-white ring-1 ring-purple-200 hover:bg-purple-50/50 rounded-xl p-3 flex items-center gap-3 transition-colors group"
+            className="w-full text-left bg-white ring-1 ring-violet-200 hover:bg-violet-50/50 rounded-xl p-3 flex items-center gap-3 transition-colors group"
           >
-            <div className="w-9 h-9 rounded-lg bg-purple-100 flex items-center justify-center flex-shrink-0">
-              <Handshake className="w-4 h-4 text-purple-700" />
+            <div className="w-9 h-9 rounded-lg bg-violet-100 flex items-center justify-center flex-shrink-0">
+              <Handshake className="w-4 h-4 text-violet-700" />
             </div>
             <div className="flex-1 min-w-0">
               <div className="text-sm font-semibold text-slate-900">Ver en Inversionistas</div>
               <div className="text-[11px] text-slate-500">Cap table · distribuciones · aportes</div>
             </div>
-            <ExternalLink className="w-4 h-4 text-slate-400 group-hover:text-purple-700 flex-shrink-0" />
+            <ExternalLink className="w-4 h-4 text-slate-400 group-hover:text-violet-700 flex-shrink-0" />
           </button>
         )}
 

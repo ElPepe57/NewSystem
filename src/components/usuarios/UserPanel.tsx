@@ -23,7 +23,7 @@
  *   - Responsive desde sm: (640px) · mobile bottom-sheet
  *   - Tabular-nums en métricas
  *   - Lucide icons únicos · sin emojis en chrome de UI
- *   - Color semántico v8.0 N1: teal=empleado · sky=honorarios · purple=socio · amber=externo
+ *   - Color semántico v8.0 N1: teal=empleado · sky=honorarios · violet=socio · amber=externo
  */
 
 import React, { useEffect, useState, useMemo } from 'react';
@@ -109,7 +109,7 @@ function getAvatarGradient(user: UserProfile | null, relaciones: RelacionLaboral
   // Si tiene relación 'empleado' vigente · teal
   const activas = getRelacionesActivas(relaciones);
   if (activas.some(r => r.tipo === 'empleado')) return 'from-teal-400 to-teal-600';
-  if (activas.some(r => r.tipo === 'socio')) return 'from-purple-400 to-purple-600';
+  if (activas.some(r => r.tipo === 'socio')) return 'from-violet-400 to-violet-600';
   if (activas.some(r => r.tipo === 'honorarios')) return 'from-sky-400 to-sky-600';
   if (activas.some(r => r.tipo === 'externo')) return 'from-amber-400 to-orange-600';
   return 'from-slate-400 to-slate-600';
@@ -476,7 +476,7 @@ const TabButton: React.FC<TabButtonProps> = ({
         ${active
           ? contextual
             ? 'text-teal-700 border-teal-600 font-semibold'
-            : 'text-slate-900 border-purple-600 font-semibold'
+            : 'text-slate-900 border-violet-600 font-semibold'
           : 'text-slate-500 border-transparent hover:text-slate-900'
         }
         ${highlight && !active ? 'text-slate-700' : ''}

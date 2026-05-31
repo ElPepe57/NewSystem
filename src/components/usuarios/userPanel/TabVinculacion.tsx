@@ -8,7 +8,7 @@
  * (proveedor/cliente/marca) · canon v5.8.
  *
  * Contenido por cada relación externa vinculada:
- *   1. Card grande del Maestro (gradient indigo/purple)
+ *   1. Card grande del Maestro (gradient indigo/violet)
  *      - Icon building-2 + nombre + tipo (Proveedor · Cliente · Marca)
  *      - Stats: rol en entidad · desde cuándo · días/meses de relación
  *      - CTA "Abrir en Maestros" (navega a /maestros)
@@ -54,7 +54,7 @@ const TIPO_MAESTRO_COLORS: Record<
   { bgGradient: string; iconBg: string; ring: string; text: string; cta: string }
 > = {
   proveedor: {
-    bgGradient: 'from-indigo-50 to-purple-50',
+    bgGradient: 'from-indigo-50 to-violet-50',
     iconBg: 'bg-indigo-600',
     ring: 'ring-indigo-200',
     text: 'text-indigo-900',

@@ -475,7 +475,7 @@ export const AgregarRelacionWizard: React.FC<AgregarRelacionWizardProps> = ({
 
               {/* Nota socio · explicación */}
               {state.tipo === 'socio' && (
-                <div className="bg-purple-50 ring-1 ring-purple-200 rounded-lg p-3 text-xs text-purple-900 flex items-start gap-2">
+                <div className="bg-violet-50 ring-1 ring-violet-200 rounded-lg p-3 text-xs text-violet-900 flex items-start gap-2">
                   <span className="flex-shrink-0">ℹ️</span>
                   <span>
                     El % de participación · aporte · distribuciones se configuran después en{' '}
@@ -486,7 +486,7 @@ export const AgregarRelacionWizard: React.FC<AgregarRelacionWizardProps> = ({
 
               {/* Vinculación Maestros · solo externo (v5.8) */}
               {state.tipo === 'externo' && (
-                <div className="bg-gradient-to-br from-indigo-50 to-purple-50 ring-1 ring-indigo-200 rounded-xl p-4 space-y-3">
+                <div className="bg-gradient-to-br from-indigo-50 to-violet-50 ring-1 ring-indigo-200 rounded-xl p-4 space-y-3">
                   <label className="flex items-start gap-2 cursor-pointer">
                     <input
                       type="checkbox"

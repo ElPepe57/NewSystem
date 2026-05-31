@@ -4,7 +4,7 @@
  * Card visual para una RelacionLaboral · usado en el tab Relaciones del UserPanel.
  *
  * Estados visuales:
- *   - VIGENTE/PRUEBA: fondo full color (teal/sky/purple/amber) · acciones disponibles
+ *   - VIGENTE/PRUEBA: fondo full color (teal/sky/violet/amber) · acciones disponibles
  *   - PAUSADA: fondo con opacity reducida + badge amber · acción "Reanudar"
  *   - FINALIZADA: fondo gris + opacity 60% + badge rose · solo lectura (snapshot)
  *
