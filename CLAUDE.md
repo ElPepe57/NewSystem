@@ -170,6 +170,18 @@ Cita literal del usuario (2026-05-30):
 *"quiero que el sistema parta de nacimiento desde ahí, porque cada vez que pasamos
 a un nuevo módulo, siempre nos toma tiempo revisar y revisar continuamente el diseño."*
 
+## ⚠️ ESTADO DE APROBACIÓN (2026-05-30)
+
+**Solo la sección A · GOBERNANZA DE COLOR está CONFIRMADA por el usuario.**
+
+Las secciones **B (layouts), C (6 capas), D (regla módulo nuevo) y el plan de fases
+son PROPUESTA / blueprint EN DISCUSIÓN · NO son canon firme · NO aplicar como
+obligatorias hasta que el usuario las valide una por una.** Los 5 mockups son
+material de decisión, no especificación aprobada. Decisiones pendientes de respuesta
+del usuario: layouts A/B + micro (max-w/padding) · fuente única design-system/ vs
+common/ · arquitectura Hub Kit (6 blocks) · componentes L1-L4 (Button 3-tier · HubCard ·
+FiltrosBar · SmartSearch · EmptyState) · plan/orden de fases.
+
 Origen: tras cerrar Gastos hub, el usuario detectó por goteo múltiples desviaciones
 (KPI strip legacy, breadcrumb fijo, body fuera del shell, recuadros anidados, banner
 redundante). Raíz: el sistema no nacía de un kit canónico. Se diseñó el blueprint
@@ -216,7 +228,7 @@ sistema lee de un registro finito. Escala infinito (color por grupo, no por mód
 **Alineación pendiente (al migrar cada módulo):** Contabilidad purple→teal · Usuarios
 purple→violet · Planilla sky→violet (Finanzas/Gastos=teal e Inversionistas=violet ya OK).
 
-## B · LOS 2 LAYOUTS DE BODY (canónicos · ambos válidos)
+## B · LOS 2 LAYOUTS DE BODY (🟡 PROPUESTO · pendiente validación del usuario)
 - **Layout A · grid main(3)+sidebar(1)**: `grid grid-cols-1 md:grid-cols-4` · main
   `md:col-span-3 space-y-4` + `<aside className="md:col-span-1">`. Para dashboards
   operativos con CONTEXTO persistente (urgencias, widgets, cross-links). Usan: Finanzas,
@@ -230,7 +242,7 @@ purple→violet · Planilla sky→violet (Finanzas/Gastos=teal e Inversionistas=
 - **Orden canónico del Tab Resumen:** §A banner estado → §B visualización → §C insights →
   §D acciones rápidas → §E cross-links 360 → §F alertas.
 
-## C · DESIGN SYSTEM EN 6 CAPAS (fuente única: `src/design-system/`)
+## C · DESIGN SYSTEM EN 6 CAPAS (🟡 PROPUESTO · pendiente validación · fuente única: `src/design-system/`)
 Decisión raíz: `src/design-system/` es la fuente única · `src/components/common/` se
 migra y deprecia (hoy hay duplicados: 2 Sparkline, 3 modales, 2 EmptyState, etc.).
 - **L0 Tokens** · color (grupoColor.ts) · spacing · tipografía (tabular-nums) · radios.
@@ -246,7 +258,7 @@ migra y deprecia (hoy hay duplicados: 2 Sparkline, 3 modales, 2 EmptyState, etc.
   `HubHeader` · `HubKpiStrip` · `HubTabs` · `HubBody` (slot `aside` opcional = decide
   Layout A/B con UN componente). El kit resuelve el mobile solo.
 
-## D · REGLA PARA UNA SECCIÓN/MÓDULO NUEVO
+## D · REGLA PARA UNA SECCIÓN/MÓDULO NUEVO (🟡 PROPUESTO · firme solo el punto 2 de color)
 1. Responder el Canon de ubicación de funcionalidad → en qué grupo del sidebar vive.
 2. El color sale GRATIS del grupo (hereda · `grupoColor.ts`). No se decide color.
 3. Ensamblar el shell con el Hub Kit (`<HubShell color={...}>` + blocks).
