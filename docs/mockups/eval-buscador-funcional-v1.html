@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Evaluación funcional · Buscador (best-in-class) · Vita Skin ERP</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+  .tabular { font-variant-numeric: tabular-nums; }
+  code { font-family: 'SF Mono', ui-monospace, Menlo, Consolas, monospace; }
+  .acto-label { letter-spacing: 0.08em; }
+</style>
+</head>
+<body class="bg-slate-100 text-slate-900 p-4 sm:p-8">
+
+<div class="max-w-5xl mx-auto space-y-8">
+
+  <!-- HERO -->
+  <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-6 sm:p-8">
+    <div class="flex flex-wrap items-center gap-2 mb-3">
+      <span class="text-[11px] font-bold uppercase tracking-wider text-teal-700 bg-teal-50 px-2 py-1 rounded">Eval funcional · Buscador</span>
+      <span class="text-[11px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2 py-1 rounded">criterio: capacidad, no uso</span>
+    </div>
+    <h1 class="text-2xl sm:text-3xl font-bold tracking-tight mb-2">El mejor buscador no es el más usado · es el más capaz</h1>
+    <p class="text-sm text-slate-600 max-w-3xl leading-relaxed">
+      Hoy hay 7 buscadores sueltos (SearchInput · AutocompleteInput · Combobox · EntityPicker · MaestroSelect · PersonaAutocomplete · EmailUserLookup).
+      No se trata de "cuál se usa más" sino <strong>qué necesidad resuelve cada uno</strong>. Hay 3 necesidades · y un solo componente capaz las cubre.
+    </p>
+  </div>
+
+  <!-- 3 NECESIDADES -->
+  <div>
+    <div class="acto-label text-[11px] font-bold uppercase text-slate-500 mb-3">Las 3 necesidades de "buscar" (funcionales · no por nombre)</div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+      <!-- 1 FILTRAR -->
+      <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+        <div class="bg-slate-50 px-4 py-2 border-b text-[12px] font-bold">1 · Filtrar una lista</div>
+        <div class="p-4 space-y-2">
+          <div class="flex items-center border border-slate-300 rounded-lg px-3 py-2"><i data-lucide="search" class="w-4 h-4 text-slate-400 mr-2"></i><span class="text-[12px] text-slate-700">alquiler</span></div>
+          <div class="space-y-1 text-[11px]">
+            <div class="flex justify-between bg-slate-50 rounded px-2 py-1.5"><span>Alquiler local</span><span class="tabular font-bold">S/ 2,400</span></div>
+            <div class="text-slate-400 text-center py-1">filtra lo que ya está en pantalla</div>
+          </div>
+        </div>
+        <div class="px-4 py-2 border-t border-slate-100 text-[10px] text-slate-500">Para: filtrar gastos/listas · <strong>NO crea nada</strong>. Hoy: SearchInput.</div>
+      </div>
+
+      <!-- 2 SELECCIONAR -->
+      <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+        <div class="bg-slate-50 px-4 py-2 border-b text-[12px] font-bold">2 · Seleccionar una entidad</div>
+        <div class="p-4 space-y-2">
+          <div class="flex items-center border border-slate-300 rounded-lg px-3 py-2"><i data-lucide="search" class="w-4 h-4 text-slate-400 mr-2"></i><span class="text-[12px] text-slate-700">maer</span></div>
+          <div class="space-y-1 text-[11px] border border-slate-200 rounded-lg p-1">
+            <div class="flex items-center gap-2 px-2 py-1.5 bg-blue-50 rounded"><i data-lucide="briefcase" class="w-3.5 h-3.5 text-blue-500"></i> Maersk Line <span class="text-slate-400">· proveedor</span></div>
+            <div class="flex items-center gap-2 px-2 py-1.5"><i data-lucide="briefcase" class="w-3.5 h-3.5 text-blue-500"></i> Maersk Perú SAC</div>
+          </div>
+        </div>
+        <div class="px-4 py-2 border-t border-slate-100 text-[10px] text-slate-500">Para: elegir proveedor/persona en un form · del catálogo. Hoy: Combobox/MaestroSelect.</div>
+      </div>
+
+      <!-- 3 SELECCIONAR + CREAR -->
+      <div class="bg-white border-2 border-emerald-300 rounded-2xl shadow-sm overflow-hidden">
+        <div class="bg-emerald-50 px-4 py-2 border-b border-emerald-200 text-[12px] font-bold text-emerald-900">3 · Seleccionar + CREAR inline ⭐</div>
+        <div class="p-4 space-y-2">
+          <div class="flex items-center border border-emerald-300 rounded-lg px-3 py-2 ring-2 ring-emerald-100"><i data-lucide="search" class="w-4 h-4 text-emerald-500 mr-2"></i><span class="text-[12px] text-slate-700">Proveedor Nuevo SAC</span></div>
+          <div class="space-y-1 text-[11px] border border-slate-200 rounded-lg p-1">
+            <div class="text-slate-400 text-center py-1 italic">sin resultados…</div>
+            <div class="flex items-center gap-2 px-2 py-1.5 bg-emerald-50 text-emerald-700 rounded font-bold"><i data-lucide="plus-circle" class="w-3.5 h-3.5"></i> Crear "Proveedor Nuevo SAC"</div>
+          </div>
+        </div>
+        <div class="px-4 py-2 border-t border-emerald-100 text-[10px] text-emerald-700"><strong>Para: pickers de form</strong> · si no existe, lo creás SIN salir. Hoy: ningún buscador lo hace bien.</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- FLUJO CREAR INLINE -->
+  <div>
+    <div class="acto-label text-[11px] font-bold uppercase text-emerald-700 mb-3">Cómo funciona el "crear inline" (el que más sirve en formularios)</div>
+    <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-5">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-2 items-stretch text-[11px]">
+        <div class="bg-slate-50 rounded-xl p-3"><div class="font-bold mb-1">1. Escribís</div>"Maersk Perú SAC" en el campo Proveedor de una OC.</div>
+        <div class="bg-slate-50 rounded-xl p-3"><div class="font-bold mb-1">2. No existe</div>El buscador no lo encuentra en el catálogo → muestra "+ Crear".</div>
+        <div class="bg-emerald-50 rounded-xl p-3 ring-1 ring-emerald-200"><div class="font-bold mb-1 text-emerald-800">3. Creás ahí</div>Click "+ Crear" → mini-form rápido (o crea directo con el nombre) · sin abandonar la OC.</div>
+        <div class="bg-slate-50 rounded-xl p-3"><div class="font-bold mb-1">4. Queda listo</div>El proveedor queda creado en Maestros Y seleccionado en la OC. Seguís sin interrumpirte.</div>
+      </div>
+      <div class="mt-3 bg-rose-50/50 border border-rose-200 rounded-lg p-3 text-[11px] text-rose-800">
+        <strong>Sin esto (search tradicional):</strong> "sin resultados" → salís de la OC (perdés lo cargado o queda en borrador) → vas a Maestros → creás proveedor → volvés a la OC → lo buscás de nuevo. <strong>4 pasos extra y riesgo de perder el contexto.</strong>
+      </div>
+    </div>
+  </div>
+
+  <!-- RECOMENDACIÓN: 1 componente configurable -->
+  <div>
+    <div class="acto-label text-[11px] font-bold uppercase text-slate-500 mb-3">Mi recomendación · UN SmartSearch configurable (absorbe los 7)</div>
+    <div class="bg-slate-900 rounded-2xl p-5 overflow-x-auto">
+      <pre class="text-[11px] text-slate-100 leading-relaxed"><code><span class="text-slate-500">// 1 componente · 3 modos por prop · no 7 buscadores sueltos</span>
+
+<span class="text-slate-500">// Filtrar lista (gastos)</span>
+&lt;<span class="text-teal-300">SmartSearch</span> mode=<span class="text-amber-300">"filter"</span> onFilter={setTexto} /&gt;
+
+<span class="text-slate-500">// Seleccionar proveedor (solo elegir del catálogo)</span>
+&lt;<span class="text-teal-300">SmartSearch</span> mode=<span class="text-amber-300">"select"</span> sources={[<span class="text-amber-300">'proveedor'</span>]} onSelect={...} /&gt;
+
+<span class="text-slate-500">// Seleccionar O crear inline (el más capaz · para forms)</span>
+&lt;<span class="text-teal-300">SmartSearch</span>
+  mode=<span class="text-amber-300">"select-create"</span>
+  sources={[<span class="text-amber-300">'proveedor'</span>]}
+  onSelect={...}
+  onCreate={(nombre) =&gt; maestrosService.crearProveedor(nombre)} /&gt;</code></pre>
+    </div>
+    <p class="text-[12px] text-slate-600 mt-3">
+      Los 7 buscadores actuales se vuelven <strong>configuraciones</strong> de este: EntityPicker/MaestroSelect = <code class="bg-slate-100 px-1 rounded">mode="select"</code> ·
+      PersonaAutocomplete = <code class="bg-slate-100 px-1 rounded">sources=['persona']</code> · SearchInput = <code class="bg-slate-100 px-1 rounded">mode="filter"</code>.
+      <strong>Elegido por capacidad</strong> (hace lo de todos + crear inline), no porque sea el más usado.
+    </p>
+  </div>
+
+  <!-- MOBILE -->
+  <div>
+    <div class="acto-label text-[11px] font-bold uppercase text-slate-500 mb-3">Mobile (375px)</div>
+    <div class="flex flex-wrap gap-4 items-start">
+      <div class="w-[260px] bg-white border border-slate-200 rounded-2xl shadow-sm p-3">
+        <div class="text-[10px] text-slate-500 mb-2">Picker proveedor · OC nueva</div>
+        <div class="flex items-center border border-emerald-300 rounded-lg px-2 py-2 ring-2 ring-emerald-100"><i data-lucide="search" class="w-4 h-4 text-emerald-500 mr-1.5"></i><span class="text-[12px]">Proveedor Nuevo</span></div>
+        <div class="mt-1.5 border border-slate-200 rounded-lg p-1 text-[11px]">
+          <div class="text-slate-400 text-center py-1 italic">sin resultados…</div>
+          <div class="flex items-center gap-1.5 px-2 py-2 bg-emerald-50 text-emerald-700 rounded font-bold"><i data-lucide="plus-circle" class="w-4 h-4"></i> Crear "Proveedor Nuevo"</div>
+        </div>
+      </div>
+      <div class="flex-1 min-w-[200px] text-[12px] text-slate-600 space-y-1.5 pt-2">
+        <div class="font-bold text-slate-900 text-[13px]">En mobile:</div>
+        <div>• Resultados full-width · touch targets ≥44px.</div>
+        <div>• "+ Crear" abre bottom-sheet con el mini-form.</div>
+        <div>• Mismo componente · solo cambia el layout (lo da el kit).</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LECCIÓN GENERAL -->
+  <div class="bg-gradient-to-br from-teal-50 to-teal-100/40 ring-1 ring-teal-200/60 rounded-2xl p-6">
+    <div class="acto-label text-[11px] font-bold uppercase text-teal-700 mb-2">La lección · aplica a TODAS las capas</div>
+    <p class="text-[13px] text-slate-800 leading-relaxed">
+      El mapa de consolidación debe re-leerse con este lente: <strong>no "cuál se usa más" sino "cuál es el más capaz para la necesidad" — y si ninguno es bueno, se mejora o se crea el ideal.</strong>
+      A veces el ganador es el más usado, a veces el menos usado (pero superior), a veces uno nuevo que absorbe a varios (como este SmartSearch).
+      Por eso cada componente de la decisión #4 merece su mini-evaluación funcional, no solo un conteo de imports.
+    </p>
+  </div>
+
+  <div class="text-center text-[11px] text-slate-400 pb-6">
+    docs/mockups/eval-buscador-funcional-v1.html · best-in-class por capacidad (2026-05-30)
+  </div>
+
+</div>
+
+<script>lucide.createIcons();</script>
+</body>
+</html>
