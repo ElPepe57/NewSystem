@@ -172,10 +172,11 @@ a un nuevo módulo, siempre nos toma tiempo revisar y revisar continuamente el d
 
 ## ⚠️ ESTADO DE APROBACIÓN (2026-05-30)
 
-**CONFIRMADAS por el usuario: A (COLOR) · B (LAYOUTS · max-w-6xl) · #2 fuente única (design-system/ · gradual) · #4 COMPONENTES (lista best-in-class · ver C) · PRINCIPIO best-in-class.**
-
-PENDIENTES (evaluadas con mockup funcional · falta OK final): **#3 Hub Kit (6 blocks) · #5 plan/orden de fases.**
-Los mockups son material de decisión. La regla D se aplica salvo en lo que dependa de #3/#5.
+**✅ TODO CONFIRMADO por el usuario 2026-05-31 · FASE 0 (BLUEPRINT) CERRADA 100%.**
+Confirmados: A (COLOR) · B (LAYOUTS 6xl) · #2 (fuente única · gradual) · #3 (Hub Kit · 6 blocks) ·
+#4 (componentes best-in-class) · #5 (plan de fases) · E (refinamientos: tokens L0 · estados · charts ·
+toasts) · PRINCIPIO best-in-class. Este canon es la **LEY OPERATIVA del DS** · todo módulo nuevo nace de
+aquí. 14 mockups en docs/mockups/. Siguiente: ejecución (Fase 1+ · ver plan al final).
 
 Origen: tras cerrar Gastos hub, el usuario detectó por goteo múltiples desviaciones
 (KPI strip legacy, breadcrumb fijo, body fuera del shell, recuadros anidados, banner
@@ -267,7 +268,7 @@ NUNCA de golpe) · common/ CONGELADO (nada nuevo ahí). Conteo: ~22 mantener · 
   `HubHeader` · `HubKpiStrip` · `HubTabs` · `HubBody` (slot `aside` opcional = decide
   Layout A/B con UN componente). El kit resuelve el mobile solo.
 
-## D · REGLA PARA UNA SECCIÓN/MÓDULO NUEVO (🟡 PROPUESTO · firme solo el punto 2 de color)
+## D · REGLA PARA UNA SECCIÓN/MÓDULO NUEVO (✅ CONFIRMADO 2026-05-31)
 1. Responder el Canon de ubicación de funcionalidad → en qué grupo del sidebar vive.
 2. El color sale GRATIS del grupo (hereda · `grupoColor.ts`). No se decide color.
 3. Ensamblar el shell con el Hub Kit (`<HubShell color={...}>` + blocks).
@@ -275,11 +276,26 @@ NUNCA de golpe) · common/ CONGELADO (nada nuevo ahí). Conteo: ~22 mantener · 
 5. Contenido con componentes L1-L4 (Button/HubCard/FiltrosBar/SmartSearch/FormModalV2).
 6. El semántico (KPIs/estados) usa la paleta fija, nunca el color del módulo.
 
-## Estado e implementación (plan de fases · F0 cerrado 2026-05-30)
-- **F0** · Blueprint (5 mockups + decisiones) ✅ CERRADO.
-- **F1** · Tokens + color (`tokens.ts` · `grupoColor.ts` · alinear Contab/Usuarios/Planilla).
-- **F2** · Consolidar L1-L4 (Button 3-tier · HubCard · FiltrosBar · SmartSearch · estados).
-- **F3** · Construir L5 Hub Kit.
+## E · REFINAMIENTOS (✅ CONFIRMADO · mockup eval-refinamientos-funcional-v1.html)
+- **Tokens L0**: spacing base-4px · **radios** (lg 8=controles/botones/inputs · xl 12=cards internas ·
+  2xl 16=shell/KPI · full=pills/badges · regla: hijo NUNCA más redondo que el padre) · **tipografía por ROL**
+  (2xl=dato héroe · lg=título · sm=subtítulo · 12px=cuerpo · 11px=meta · 10px-upper=label · pocos tamaños=orden) ·
+  **sombras=elevación** (none=plano integrado · sm=card en reposo · lg=overlay flotante) · **breakpoints mobile-first**
+  (base<640 · sm 640 · md 768=aparece sidebar+KPIs5cols · lg 1024=ajustes finos). → `tokens.ts` + tailwind.config.
+- **Estados de interacción**: normal/hover/focus(`ring-2 ring-teal-500/40` · accesible)/disabled/loading/selected
+  en TODO interactivo.
+- **Charts**: el DATO manda el tipo (tendencia→sparkline/línea · composición→donut · comparar→barras · progreso→bullet) ·
+  color SEMÁNTICO (emerald+ · rose− · teal neutro · amber alerta) · nunca decorativo.
+- **Toasts/notificaciones**: success/error/info/warning + banner contextual inline · success/info auto-cierra (4s) ·
+  error persiste · acción opcional (Reintentar/Deshacer) · mobile full-width abajo (safe-area) · lucide + color semántico.
+- **Descartados** (no aplican a ERP interno): dark mode · densidad configurable.
+
+## Estado e implementación (plan de fases · ✅ #5 CONFIRMADO · F0 CERRADA 100% · 2026-05-31)
+- **F0** · Blueprint · **14 mockups + TODAS las decisiones** ✅ CERRADO.
+- **F1** · Tokens + color (`tokens.ts` · `grupoColor.ts` · alinear Contabilidad/Usuarios/Planilla a su color de grupo).
+- **F2** · Consolidar L1-L4 (limpiar 17 muertos · Button 3-tier · HubCard · SmartSearch · BulkActionsToolbar ·
+  FiltrosBar · EmptyState · gradual 4 olas · pesos pesados con cada módulo).
+- **F3** · Construir L5 Hub Kit (Shell/TopBar/Header/KpiStrip/Tabs/Body) + estandarizar bottom-sheet en FormModalV2.
 - **F4** · Migrar módulos (piloto Gastos → resto) + este canon como ley operativa.
 
 Hasta que el enforcement técnico (F1+) exista, ESTE canon documental rige. Una vez
