@@ -172,15 +172,10 @@ a un nuevo módulo, siempre nos toma tiempo revisar y revisar continuamente el d
 
 ## ⚠️ ESTADO DE APROBACIÓN (2026-05-30)
 
-**CONFIRMADAS por el usuario: sección A (COLOR) + sección B (LAYOUTS · max-w-6xl unificado).**
+**CONFIRMADAS por el usuario: A (COLOR) · B (LAYOUTS · max-w-6xl) · #2 fuente única (design-system/ · gradual) · #4 COMPONENTES (lista best-in-class · ver C) · PRINCIPIO best-in-class.**
 
-Las secciones **C (6 capas), D (regla módulo nuevo) y el plan de fases son PROPUESTA /
-blueprint EN DISCUSIÓN · NO son canon firme · NO aplicar como obligatorias hasta que
-el usuario las valide una por una.** Los mockups son material de decisión, no
-especificación aprobada. Decisiones PENDIENTES de respuesta del usuario (se evalúan
-una por una con mockup funcional antes de decidir): #2 fuente única design-system/ vs
-common/ · #3 arquitectura Hub Kit (6 blocks) · #4 componentes L1-L4 (Button 3-tier ·
-HubCard · FiltrosBar · SmartSearch · EmptyState) · #5 plan/orden de fases.
+PENDIENTES (evaluadas con mockup funcional · falta OK final): **#3 Hub Kit (6 blocks) · #5 plan/orden de fases.**
+Los mockups son material de decisión. La regla D se aplica salvo en lo que dependa de #3/#5.
 
 Origen: tras cerrar Gastos hub, el usuario detectó por goteo múltiples desviaciones
 (KPI strip legacy, breadcrumb fijo, body fuera del shell, recuadros anidados, banner
@@ -245,18 +240,29 @@ purple→violet · Planilla sky→violet (Finanzas/Gastos=teal e Inversionistas=
 - **Orden canónico del Tab Resumen:** §A banner estado → §B visualización → §C insights →
   §D acciones rápidas → §E cross-links 360 → §F alertas.
 
-## C · DESIGN SYSTEM EN 6 CAPAS (🟡 PROPUESTO · pendiente validación · fuente única: `src/design-system/`)
-Decisión raíz: `src/design-system/` es la fuente única · `src/components/common/` se
-migra y deprecia (hoy hay duplicados: 2 Sparkline, 3 modales, 2 EmptyState, etc.).
+## C · DESIGN SYSTEM · COMPONENTES (✅ #4 + #2 CONFIRMADO 2026-05-31 · fuente única: `src/design-system/`)
+**PRINCIPIO best-in-class (confirmado · insight del usuario):** cada componente se elige por
+CAPACIDAD funcional, NO por uso/popularidad · si ninguno sirve, se mejora o se crea el ideal.
+Decisión raíz #2: `src/design-system/` es la fuente única · `common/` se migra y deprecia
+GRADUALMENTE en 4 olas (mapa-consolidacion-componentes-v1.html · pesos pesados Button/Card/Modal
+NUNCA de golpe) · common/ CONGELADO (nada nuevo ahí). Conteo: ~22 mantener · 8 mover · 3 fusionar
+· 17 deprecar (muertos · 0 uso).
 - **L0 Tokens** · color (grupoColor.ts) · spacing · tipografía (tabular-nums) · radios.
 - **L1 Primitivas** · Button (3-tier: primary/config/neutral · color del módulo) ·
   Input · Select · Badge · Chip · Tooltip · Sparkline.
 - **L2 Campos form** (✓ maduro) · TextField · MoneyField · DateField · Combobox · ToggleGroup.
-- **L3 Patrones** · `HubCard` (unifica 5+ cards) · `FiltrosBar` único (cierra TAREA-
-  FILTROS-GLOBAL · hoy cada módulo tiene su FiltrosXBar) · `SmartSearch` único (hoy 7
-  buscadores) · EmptyState (fusionar Action+Pro).
-- **L4 Overlays** · FormModalV2 (canon · deprecar Modal/ActionModal v1) · ConfirmDialog ·
-  Drawer/BottomSheet (mobile).
+- **L3 Patrones** · ✨CREAR: `HubCard` (card de entidad unificada · slots icon/title/meta/amount/
+  status/actions + sub-filas + selectable · reemplaza GastoCard/CompraCard/EnvioCard/DataCard) ·
+  `SmartSearch` (buscador ÚNICO · `mode=filter|select|select-create` · CREAR INLINE · absorbe los 7
+  actuales por capacidad) · `BulkActionsToolbar` (selección masiva · iconos lucide · mata los emojis
+  ☑📥🗑 de Gastos · canon F8). 🔧MEJORAR: `FiltrosBar` (adoptar en todos · cierra TAREA-FILTROS-GLOBAL
+  · +rango fechas) · `EmptyState` (fusionar Action+Pro · variantes empty/no-results/loading/error).
+- **L4 Overlays** · `FormModalV2` (canon · deprecar Modal/ActionModal/FormModal v1) · `ConfirmDialog`
+  (+typed-confirm destructivo). **BottomSheet NO es componente nuevo** · es el patrón mobile que
+  UserPanel YA usa (`items-end sm:items-center` + `rounded-t-2xl sm:rounded-2xl`) → se ESTANDARIZA en
+  FormModalV2 (desktop=modal · mobile=sheet · incluye crear-gasto). **Drawer lateral DESCARTADO** · el
+  sistema lo probó (UserPanel F6-E) y lo quitó porque chocaba con el sidebar · ÚNICO drawer = el sidebar
+  de navegación.
 - **L5 Hub Kit (shell)** · `HubShell` · `HubTopBar` (breadcrumb S9.D1 dinámico + chip rol) ·
   `HubHeader` · `HubKpiStrip` · `HubTabs` · `HubBody` (slot `aside` opcional = decide
   Layout A/B con UN componente). El kit resuelve el mobile solo.
