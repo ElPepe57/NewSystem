@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Alineación de color · 3 módulos al color de su grupo · v1 (EXPLORATORIO)</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  * { font-family: 'Inter', sans-serif; }
+  .tabular { font-variant-numeric: tabular-nums; }
+  body { background: #f1f5f9; }
+  .ring-highlight { box-shadow: 0 0 0 3px rgba(251, 191, 36, .55); border-radius: .65rem; }
+</style>
+</head>
+<body class="text-slate-800">
+
+<!-- ════════════════ HERO ════════════════ -->
+<div class="max-w-6xl mx-auto px-4 sm:px-6 py-8">
+  <div class="flex items-center gap-2 mb-3">
+    <span class="text-[10px] uppercase tracking-wider font-bold text-amber-700 bg-amber-100 border border-amber-200 px-2 py-1 rounded-full">
+      ⚑ Exploratorio / Decisión · muestra estado actual vs propuesto
+    </span>
+  </div>
+  <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight mb-2">
+    Alineación de color · 3 módulos al color de su grupo
+  </h1>
+  <p class="text-slate-500 text-[15px] max-w-3xl leading-relaxed">
+    Contabilidad, Usuarios y Planilla conservan el color que tenían <b>antes</b> de la gobernanza de color.
+    Este mockup muestra <b>antes → después</b>, <b>dónde exactamente</b> vive el color de identidad,
+    y — lo más importante — <b>qué NO cambia</b>.
+  </p>
+
+  <!-- Gobernanza · los 6 colores de grupo -->
+  <div class="mt-6 bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
+    <div class="text-[11px] uppercase tracking-wider text-slate-500 font-bold mb-3">Gobernanza vigente · color por grupo del sidebar (heredado)</div>
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">
+      <div class="flex items-center gap-2 bg-teal-50 border border-teal-200 rounded-lg px-3 py-2"><span class="w-3 h-3 rounded-full bg-teal-500"></span><span class="text-[12px] font-semibold text-teal-800">Finanzas y Contab.</span></div>
+      <div class="flex items-center gap-2 bg-violet-50 border border-violet-200 rounded-lg px-3 py-2"><span class="w-3 h-3 rounded-full bg-violet-500"></span><span class="text-[12px] font-semibold text-violet-800">Equipo</span></div>
+      <div class="flex items-center gap-2 bg-blue-50 border border-blue-200 rounded-lg px-3 py-2"><span class="w-3 h-3 rounded-full bg-blue-500"></span><span class="text-[12px] font-semibold text-blue-800">Comercial</span></div>
+      <div class="flex items-center gap-2 bg-orange-50 border border-orange-200 rounded-lg px-3 py-2"><span class="w-3 h-3 rounded-full bg-orange-500"></span><span class="text-[12px] font-semibold text-orange-800">Inventario</span></div>
+      <div class="flex items-center gap-2 bg-indigo-50 border border-indigo-200 rounded-lg px-3 py-2"><span class="w-3 h-3 rounded-full bg-indigo-500"></span><span class="text-[12px] font-semibold text-indigo-800">Análisis</span></div>
+      <div class="flex items-center gap-2 bg-slate-100 border border-slate-300 rounded-lg px-3 py-2"><span class="w-3 h-3 rounded-full bg-slate-500"></span><span class="text-[12px] font-semibold text-slate-700">Administración</span></div>
+    </div>
+    <div class="mt-3 text-[12px] text-slate-500 flex flex-wrap gap-x-5 gap-y-1">
+      <span>→ <b class="text-teal-700">Contabilidad</b> pertenece a <b>Finanzas y Contabilidad</b> = <b>teal</b> (hoy purple)</span>
+      <span>→ <b class="text-violet-700">Usuarios</b> y <b class="text-violet-700">Planilla</b> pertenecen a <b>Equipo</b> = <b>violet</b> (hoy purple / sky)</span>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════ SECCIÓN 0 · ¿DÓNDE VIVE EL COLOR DE IDENTIDAD? ════════════════ -->
+<div class="max-w-6xl mx-auto px-4 sm:px-6 pb-4">
+  <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
+    <h2 class="text-lg font-bold text-slate-900 mb-1">¿Dónde se usa el color de identidad?</h2>
+    <p class="text-[13px] text-slate-500 mb-4">Son 6 puntos del <b>chrome</b> (el marco del módulo). Todo lo demás es color semántico y no se toca.</p>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+      <!-- usando teal como ejemplo -->
+      <div class="border border-slate-200 rounded-xl p-3">
+        <div class="text-[11px] font-bold text-slate-700 mb-2">1 · Chip de rol (top-bar)</div>
+        <span class="inline-flex items-center gap-1 bg-teal-50 text-teal-700 border border-teal-200 px-2 py-1 rounded-md text-[11px] font-semibold"><i data-lucide="shield" class="w-3 h-3"></i> Vista ejecutiva · admin</span>
+      </div>
+      <div class="border border-slate-200 rounded-xl p-3">
+        <div class="text-[11px] font-bold text-slate-700 mb-2">2 · Icono del header</div>
+        <div class="w-10 h-10 rounded-xl bg-teal-100 flex items-center justify-center"><i data-lucide="calculator" class="w-5 h-5 text-teal-700"></i></div>
+      </div>
+      <div class="border border-slate-200 rounded-xl p-3">
+        <div class="text-[11px] font-bold text-slate-700 mb-2">3 · Tab activo</div>
+        <div class="flex gap-4 text-[12px]"><span class="pb-1.5 border-b-2 border-teal-600 text-teal-700 font-semibold">Resumen</span><span class="pb-1.5 text-slate-400">Balance</span></div>
+      </div>
+      <div class="border border-slate-200 rounded-xl p-3">
+        <div class="text-[11px] font-bold text-slate-700 mb-2">4 · Botón primario (CTA)</div>
+        <button class="bg-teal-600 hover:bg-teal-700 text-white text-[12px] font-semibold px-3 py-1.5 rounded-lg flex items-center gap-1.5"><i data-lucide="plus" class="w-3.5 h-3.5"></i> Nuevo asiento</button>
+      </div>
+      <div class="border border-slate-200 rounded-xl p-3">
+        <div class="text-[11px] font-bold text-slate-700 mb-2">5 · Focus ring (inputs)</div>
+        <input class="w-full text-[12px] px-2.5 py-1.5 rounded-lg border border-teal-400 outline-none" style="box-shadow:0 0 0 3px rgba(20,184,166,.25)" value="Campo enfocado">
+      </div>
+      <div class="border border-slate-200 rounded-xl p-3">
+        <div class="text-[11px] font-bold text-slate-700 mb-2">6 · Acentos / links</div>
+        <a class="text-teal-700 text-[12px] font-semibold inline-flex items-center gap-1">Ver detalle <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i></a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════ HELPER MACRO · mini-shell ════════════════ -->
+<!-- Cada módulo se muestra como un mini-shell hub: top-bar → header → KPI → tabs -->
+
+<!-- ════════════════ SECCIÓN 1 · CONTABILIDAD ════════════════ -->
+<div class="max-w-6xl mx-auto px-4 sm:px-6 py-6">
+  <div class="flex items-center gap-2 mb-3">
+    <span class="text-xs font-bold text-slate-400">MÓDULO 1</span>
+    <h2 class="text-xl font-bold text-slate-900">Contabilidad</h2>
+    <span class="text-[12px] text-slate-500">· grupo Finanzas y Contabilidad</span>
+  </div>
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+
+    <!-- ANTES · purple -->
+    <div>
+      <div class="flex items-center gap-2 mb-2"><span class="text-[11px] font-bold text-rose-600 bg-rose-50 border border-rose-200 px-2 py-0.5 rounded-full">ANTES · purple</span></div>
+      <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+        <div class="border-b border-slate-200 px-4 py-2 bg-slate-50 flex items-center justify-between">
+          <div class="flex items-center gap-1 text-[11px] text-slate-500"><span>Inicio</span><i data-lucide="chevron-right" class="w-3 h-3"></i><span>Finanzas y Contabilidad</span><i data-lucide="chevron-right" class="w-3 h-3"></i><span class="text-slate-700 font-semibold">Contabilidad</span></div>
+          <span class="ring-highlight inline-flex items-center gap-1 bg-purple-50 text-purple-700 border border-purple-200 px-2 py-0.5 rounded-md text-[10px] font-semibold"><i data-lucide="shield" class="w-3 h-3"></i> admin</span>
+        </div>
+        <div class="px-4 py-3 flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="ring-highlight w-10 h-10 rounded-xl bg-purple-100 flex items-center justify-center"><i data-lucide="calculator" class="w-5 h-5 text-purple-700"></i></div>
+            <div><div class="font-bold text-slate-900 text-[15px]">Contabilidad</div><div class="text-[11px] text-slate-500">Balance · P&amp;L · Indicadores</div></div>
+          </div>
+          <button class="ring-highlight bg-purple-600 text-white text-[11px] font-semibold px-3 py-1.5 rounded-lg flex items-center gap-1"><i data-lucide="plus" class="w-3.5 h-3.5"></i> Asiento</button>
+        </div>
+        <div class="grid grid-cols-3 gap-2 px-4 pb-3">
+          <div class="bg-gradient-to-br from-emerald-50 to-emerald-100/40 ring-1 ring-emerald-200/50 rounded-xl p-2.5"><div class="text-[9px] uppercase font-bold text-emerald-700">Ventas</div><div class="text-base font-bold tabular text-emerald-900">S/ 48.2k</div></div>
+          <div class="bg-gradient-to-br from-rose-50 to-rose-100/40 ring-1 ring-rose-200/50 rounded-xl p-2.5"><div class="text-[9px] uppercase font-bold text-rose-700">Costos</div><div class="text-base font-bold tabular text-rose-900">S/ 31.0k</div></div>
+          <div class="bg-gradient-to-br from-teal-50 to-teal-100/40 ring-1 ring-teal-200/50 rounded-xl p-2.5"><div class="text-[9px] uppercase font-bold text-teal-700">Utilidad</div><div class="text-base font-bold tabular text-teal-900">S/ 17.2k</div></div>
+        </div>
+        <div class="border-t border-slate-200 px-4 flex gap-4 text-[12px]">
+          <span class="ring-highlight py-2 border-b-2 border-purple-600 text-purple-700 font-semibold">Resumen</span>
+          <span class="py-2 text-slate-400">Balance</span><span class="py-2 text-slate-400">P&amp;L</span><span class="py-2 text-slate-400">Indicadores</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- DESPUÉS · teal -->
+    <div>
+      <div class="flex items-center gap-2 mb-2"><span class="text-[11px] font-bold text-teal-700 bg-teal-50 border border-teal-200 px-2 py-0.5 rounded-full">DESPUÉS · teal ✓</span></div>
+      <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+        <div class="border-b border-slate-200 px-4 py-2 bg-slate-50 flex items-center justify-between">
+          <div class="flex items-center gap-1 text-[11px] text-slate-500"><span>Inicio</span><i data-lucide="chevron-right" class="w-3 h-3"></i><span>Finanzas y Contabilidad</span><i data-lucide="chevron-right" class="w-3 h-3"></i><span class="text-slate-700 font-semibold">Contabilidad</span></div>
+          <span class="inline-flex items-center gap-1 bg-teal-50 text-teal-700 border border-teal-200 px-2 py-0.5 rounded-md text-[10px] font-semibold"><i data-lucide="shield" class="w-3 h-3"></i> admin</span>
+        </div>
+        <div class="px-4 py-3 flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-teal-100 flex items-center justify-center"><i data-lucide="calculator" class="w-5 h-5 text-teal-700"></i></div>
+            <div><div class="font-bold text-slate-900 text-[15px]">Contabilidad</div><div class="text-[11px] text-slate-500">Balance · P&amp;L · Indicadores</div></div>
+          </div>
+          <button class="bg-teal-600 text-white text-[11px] font-semibold px-3 py-1.5 rounded-lg flex items-center gap-1"><i data-lucide="plus" class="w-3.5 h-3.5"></i> Asiento</button>
+        </div>
+        <div class="grid grid-cols-3 gap-2 px-4 pb-3">
+          <div class="bg-gradient-to-br from-emerald-50 to-emerald-100/40 ring-1 ring-emerald-200/50 rounded-xl p-2.5"><div class="text-[9px] uppercase font-bold text-emerald-700">Ventas</div><div class="text-base font-bold tabular text-emerald-900">S/ 48.2k</div></div>
+          <div class="bg-gradient-to-br from-rose-50 to-rose-100/40 ring-1 ring-rose-200/50 rounded-xl p-2.5"><div class="text-[9px] uppercase font-bold text-rose-700">Costos</div><div class="text-base font-bold tabular text-rose-900">S/ 31.0k</div></div>
+          <div class="bg-gradient-to-br from-teal-50 to-teal-100/40 ring-1 ring-teal-200/50 rounded-xl p-2.5"><div class="text-[9px] uppercase font-bold text-teal-700">Utilidad</div><div class="text-base font-bold tabular text-teal-900">S/ 17.2k</div></div>
+        </div>
+        <div class="border-t border-slate-200 px-4 flex gap-4 text-[12px]">
+          <span class="py-2 border-b-2 border-teal-600 text-teal-700 font-semibold">Resumen</span>
+          <span class="py-2 text-slate-400">Balance</span><span class="py-2 text-slate-400">P&amp;L</span><span class="py-2 text-slate-400">Indicadores</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <p class="text-[12px] text-slate-500 mt-3 flex items-center gap-1.5"><i data-lucide="info" class="w-3.5 h-3.5 text-teal-600"></i> Quedaría <b>igual que Finanzas</b> (mismo grupo = mismo teal). Los KPIs verde/rojo/teal son <b>semánticos</b> y <b>no cambian</b>.</p>
+</div>
+
+<!-- ════════════════ SECCIÓN 2 · USUARIOS ════════════════ -->
+<div class="max-w-6xl mx-auto px-4 sm:px-6 py-6">
+  <div class="flex items-center gap-2 mb-3">
+    <span class="text-xs font-bold text-slate-400">MÓDULO 2</span>
+    <h2 class="text-xl font-bold text-slate-900">Usuarios</h2>
+    <span class="text-[12px] text-slate-500">· grupo Equipo</span>
+  </div>
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+
+    <!-- ANTES · purple -->
+    <div>
+      <div class="flex items-center gap-2 mb-2"><span class="text-[11px] font-bold text-rose-600 bg-rose-50 border border-rose-200 px-2 py-0.5 rounded-full">ANTES · purple</span></div>
+      <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+        <div class="border-b border-slate-200 px-4 py-2 bg-slate-50 flex items-center justify-between">
+          <div class="flex items-center gap-1 text-[11px] text-slate-500"><span>Inicio</span><i data-lucide="chevron-right" class="w-3 h-3"></i><span>Equipo</span><i data-lucide="chevron-right" class="w-3 h-3"></i><span class="text-slate-700 font-semibold">Usuarios</span></div>
+          <span class="ring-highlight inline-flex items-center gap-1 bg-purple-50 text-purple-700 border border-purple-200 px-2 py-0.5 rounded-md text-[10px] font-semibold"><i data-lucide="shield" class="w-3 h-3"></i> admin</span>
+        </div>
+        <div class="px-4 py-3 flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="ring-highlight w-10 h-10 rounded-xl bg-purple-100 flex items-center justify-center"><i data-lucide="users" class="w-5 h-5 text-purple-700"></i></div>
+            <div><div class="font-bold text-slate-900 text-[15px]">Usuarios</div><div class="text-[11px] text-slate-500">Directorio del equipo</div></div>
+          </div>
+          <button class="ring-highlight bg-purple-600 text-white text-[11px] font-semibold px-3 py-1.5 rounded-lg flex items-center gap-1"><i data-lucide="user-plus" class="w-3.5 h-3.5"></i> Colaborador</button>
+        </div>
+        <div class="grid grid-cols-3 gap-2 px-4 pb-3">
+          <div class="bg-gradient-to-br from-slate-50 to-slate-100/40 ring-1 ring-slate-200/50 rounded-xl p-2.5"><div class="text-[9px] uppercase font-bold text-slate-600">Activos</div><div class="text-base font-bold tabular text-slate-900">14</div></div>
+          <div class="bg-gradient-to-br from-amber-50 to-amber-100/40 ring-1 ring-amber-200/50 rounded-xl p-2.5"><div class="text-[9px] uppercase font-bold text-amber-700">Pendientes</div><div class="text-base font-bold tabular text-amber-900">3</div></div>
+          <div class="bg-gradient-to-br from-sky-50 to-sky-100/40 ring-1 ring-sky-200/50 rounded-xl p-2.5"><div class="text-[9px] uppercase font-bold text-sky-700">Socios</div><div class="text-base font-bold tabular text-sky-900">2</div></div>
+        </div>
+        <div class="border-t border-slate-200 px-4 flex gap-4 text-[12px]">
+          <span class="ring-highlight py-2 border-b-2 border-purple-600 text-purple-700 font-semibold">Directorio</span>
+          <span class="py-2 text-slate-400">Solicitudes</span><span class="py-2 text-slate-400">Configuración</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- DESPUÉS · violet -->
+    <div>
+      <div class="flex items-center gap-2 mb-2"><span class="text-[11px] font-bold text-violet-700 bg-violet-50 border border-violet-200 px-2 py-0.5 rounded-full">DESPUÉS · violet ✓</span></div>
+      <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+        <div class="border-b border-slate-200 px-4 py-2 bg-slate-50 flex items-center justify-between">
+          <div class="flex items-center gap-1 text-[11px] text-slate-500"><span>Inicio</span><i data-lucide="chevron-right" class="w-3 h-3"></i><span>Equipo</span><i data-lucide="chevron-right" class="w-3 h-3"></i><span class="text-slate-700 font-semibold">Usuarios</span></div>
+          <span class="inline-flex items-center gap-1 bg-violet-50 text-violet-700 border border-violet-200 px-2 py-0.5 rounded-md text-[10px] font-semibold"><i data-lucide="shield" class="w-3 h-3"></i> admin</span>
+        </div>
+        <div class="px-4 py-3 flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-violet-100 flex items-center justify-center"><i data-lucide="users" class="w-5 h-5 text-violet-700"></i></div>
+            <div><div class="font-bold text-slate-900 text-[15px]">Usuarios</div><div class="text-[11px] text-slate-500">Directorio del equipo</div></div>
+          </div>
+          <button class="bg-violet-600 text-white text-[11px] font-semibold px-3 py-1.5 rounded-lg flex items-center gap-1"><i data-lucide="user-plus" class="w-3.5 h-3.5"></i> Colaborador</button>
+        </div>
+        <div class="grid grid-cols-3 gap-2 px-4 pb-3">
+          <div class="bg-gradient-to-br from-slate-50 to-slate-100/40 ring-1 ring-slate-200/50 rounded-xl p-2.5"><div class="text-[9px] uppercase font-bold text-slate-600">Activos</div><div class="text-base font-bold tabular text-slate-900">14</div></div>
+          <div class="bg-gradient-to-br from-amber-50 to-amber-100/40 ring-1 ring-amber-200/50 rounded-xl p-2.5"><div class="text-[9px] uppercase font-bold text-amber-700">Pendientes</div><div class="text-base font-bold tabular text-amber-900">3</div></div>
+          <div class="bg-gradient-to-br from-sky-50 to-sky-100/40 ring-1 ring-sky-200/50 rounded-xl p-2.5"><div class="text-[9px] uppercase font-bold text-sky-700">Socios</div><div class="text-base font-bold tabular text-sky-900">2</div></div>
+        </div>
+        <div class="border-t border-slate-200 px-4 flex gap-4 text-[12px]">
+          <span class="py-2 border-b-2 border-violet-600 text-violet-700 font-semibold">Directorio</span>
+          <span class="py-2 text-slate-400">Solicitudes</span><span class="py-2 text-slate-400">Configuración</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <p class="text-[12px] text-slate-500 mt-3 flex items-center gap-1.5"><i data-lucide="info" class="w-3.5 h-3.5 text-violet-600"></i> Quedaría <b>igual que Inversionistas</b> (mismo grupo Equipo = mismo violet). El chip "Socios" en sky es <b>semántico</b> y no cambia.</p>
+</div>
+
+<!-- ════════════════ SECCIÓN 3 · PLANILLA ════════════════ -->
+<div class="max-w-6xl mx-auto px-4 sm:px-6 py-6">
+  <div class="flex items-center gap-2 mb-3">
+    <span class="text-xs font-bold text-slate-400">MÓDULO 3</span>
+    <h2 class="text-xl font-bold text-slate-900">Planilla</h2>
+    <span class="text-[12px] text-slate-500">· grupo Equipo</span>
+  </div>
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+
+    <!-- ANTES · sky -->
+    <div>
+      <div class="flex items-center gap-2 mb-2"><span class="text-[11px] font-bold text-rose-600 bg-rose-50 border border-rose-200 px-2 py-0.5 rounded-full">ANTES · sky</span></div>
+      <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+        <div class="border-b border-slate-200 px-4 py-2 bg-slate-50 flex items-center justify-between">
+          <div class="flex items-center gap-1 text-[11px] text-slate-500"><span>Inicio</span><i data-lucide="chevron-right" class="w-3 h-3"></i><span>Equipo</span><i data-lucide="chevron-right" class="w-3 h-3"></i><span class="text-slate-700 font-semibold">Planilla</span></div>
+          <span class="ring-highlight inline-flex items-center gap-1 bg-sky-50 text-sky-700 border border-sky-200 px-2 py-0.5 rounded-md text-[10px] font-semibold"><i data-lucide="shield" class="w-3 h-3"></i> admin</span>
+        </div>
+        <div class="px-4 py-3 flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="ring-highlight w-10 h-10 rounded-xl bg-gradient-to-br from-sky-500 to-sky-700 flex items-center justify-center"><i data-lucide="receipt" class="w-5 h-5 text-white"></i></div>
+            <div><div class="font-bold text-slate-900 text-[15px]">Planilla</div><div class="text-[11px] text-slate-500">Boletas · Adelantos · Incentivos</div></div>
+          </div>
+          <button class="ring-highlight bg-sky-600 text-white text-[11px] font-semibold px-3 py-1.5 rounded-lg flex items-center gap-1"><i data-lucide="plus" class="w-3.5 h-3.5"></i> Boleta</button>
+        </div>
+        <div class="grid grid-cols-3 gap-2 px-4 pb-3">
+          <div class="bg-gradient-to-br from-rose-50 to-rose-100/40 ring-1 ring-rose-200/50 rounded-xl p-2.5"><div class="text-[9px] uppercase font-bold text-rose-700">Planilla mes</div><div class="text-base font-bold tabular text-rose-900">S/ 22.4k</div></div>
+          <div class="bg-gradient-to-br from-amber-50 to-amber-100/40 ring-1 ring-amber-200/50 rounded-xl p-2.5"><div class="text-[9px] uppercase font-bold text-amber-700">Adelantos</div><div class="text-base font-bold tabular text-amber-900">S/ 1.8k</div></div>
+          <div class="bg-gradient-to-br from-emerald-50 to-emerald-100/40 ring-1 ring-emerald-200/50 rounded-xl p-2.5"><div class="text-[9px] uppercase font-bold text-emerald-700">Incentivos</div><div class="text-base font-bold tabular text-emerald-900">S/ 3.1k</div></div>
+        </div>
+        <div class="border-t border-slate-200 px-4 flex gap-3 text-[12px] overflow-x-auto">
+          <span class="ring-highlight py-2 border-b-2 border-sky-600 text-sky-700 font-semibold whitespace-nowrap">Resumen</span>
+          <span class="py-2 text-slate-400 whitespace-nowrap">Boletas</span><span class="py-2 text-slate-400 whitespace-nowrap">Adelantos</span><span class="py-2 text-slate-400 whitespace-nowrap">Incentivos</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- DESPUÉS · violet -->
+    <div>
+      <div class="flex items-center gap-2 mb-2"><span class="text-[11px] font-bold text-violet-700 bg-violet-50 border border-violet-200 px-2 py-0.5 rounded-full">DESPUÉS · violet ✓</span></div>
+      <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+        <div class="border-b border-slate-200 px-4 py-2 bg-slate-50 flex items-center justify-between">
+          <div class="flex items-center gap-1 text-[11px] text-slate-500"><span>Inicio</span><i data-lucide="chevron-right" class="w-3 h-3"></i><span>Equipo</span><i data-lucide="chevron-right" class="w-3 h-3"></i><span class="text-slate-700 font-semibold">Planilla</span></div>
+          <span class="inline-flex items-center gap-1 bg-violet-50 text-violet-700 border border-violet-200 px-2 py-0.5 rounded-md text-[10px] font-semibold"><i data-lucide="shield" class="w-3 h-3"></i> admin</span>
+        </div>
+        <div class="px-4 py-3 flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-violet-700 flex items-center justify-center"><i data-lucide="receipt" class="w-5 h-5 text-white"></i></div>
+            <div><div class="font-bold text-slate-900 text-[15px]">Planilla</div><div class="text-[11px] text-slate-500">Boletas · Adelantos · Incentivos</div></div>
+          </div>
+          <button class="bg-violet-600 text-white text-[11px] font-semibold px-3 py-1.5 rounded-lg flex items-center gap-1"><i data-lucide="plus" class="w-3.5 h-3.5"></i> Boleta</button>
+        </div>
+        <div class="grid grid-cols-3 gap-2 px-4 pb-3">
+          <div class="bg-gradient-to-br from-rose-50 to-rose-100/40 ring-1 ring-rose-200/50 rounded-xl p-2.5"><div class="text-[9px] uppercase font-bold text-rose-700">Planilla mes</div><div class="text-base font-bold tabular text-rose-900">S/ 22.4k</div></div>
+          <div class="bg-gradient-to-br from-amber-50 to-amber-100/40 ring-1 ring-amber-200/50 rounded-xl p-2.5"><div class="text-[9px] uppercase font-bold text-amber-700">Adelantos</div><div class="text-base font-bold tabular text-amber-900">S/ 1.8k</div></div>
+          <div class="bg-gradient-to-br from-emerald-50 to-emerald-100/40 ring-1 ring-emerald-200/50 rounded-xl p-2.5"><div class="text-[9px] uppercase font-bold text-emerald-700">Incentivos</div><div class="text-base font-bold tabular text-emerald-900">S/ 3.1k</div></div>
+        </div>
+        <div class="border-t border-slate-200 px-4 flex gap-3 text-[12px] overflow-x-auto">
+          <span class="py-2 border-b-2 border-violet-600 text-violet-700 font-semibold whitespace-nowrap">Resumen</span>
+          <span class="py-2 text-slate-400 whitespace-nowrap">Boletas</span><span class="py-2 text-slate-400 whitespace-nowrap">Adelantos</span><span class="py-2 text-slate-400 whitespace-nowrap">Incentivos</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <p class="text-[12px] text-slate-500 mt-3 flex items-center gap-1.5"><i data-lucide="info" class="w-3.5 h-3.5 text-violet-600"></i> Planilla, Usuarios e Inversionistas comparten <b>violet</b> (todos son del grupo Equipo). Los KPIs rojo/ámbar/verde son <b>semánticos</b> y no cambian.</p>
+</div>
+
+<!-- ════════════════ SECCIÓN 4 · COHERENCIA POR GRUPO ════════════════ -->
+<div class="max-w-6xl mx-auto px-4 sm:px-6 py-6">
+  <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
+    <h2 class="text-lg font-bold text-slate-900 mb-1">Resultado · el sidebar queda cromáticamente coherente</h2>
+    <p class="text-[13px] text-slate-500 mb-4">Al entrar a un módulo, su color de chrome coincide con el color de su grupo en el menú. El usuario aprende "violet = mi gente, teal = mi plata".</p>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div class="border border-teal-200 rounded-xl overflow-hidden">
+        <div class="bg-teal-50 px-3 py-2 text-[12px] font-bold text-teal-800 flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full bg-teal-500"></span> Finanzas y Contabilidad · teal</div>
+        <div class="p-3 space-y-1.5 text-[13px]">
+          <div class="flex items-center gap-2 text-teal-700"><i data-lucide="wallet" class="w-4 h-4"></i> Finanzas <span class="text-[10px] text-teal-600 bg-teal-50 px-1.5 rounded">ya teal ✓</span></div>
+          <div class="flex items-center gap-2 text-teal-700"><i data-lucide="receipt-text" class="w-4 h-4"></i> Gastos <span class="text-[10px] text-teal-600 bg-teal-50 px-1.5 rounded">ya teal ✓</span></div>
+          <div class="flex items-center gap-2 text-teal-700"><i data-lucide="calculator" class="w-4 h-4"></i> Contabilidad <span class="text-[10px] text-white bg-teal-600 px-1.5 rounded">cambia → teal</span></div>
+        </div>
+      </div>
+      <div class="border border-violet-200 rounded-xl overflow-hidden">
+        <div class="bg-violet-50 px-3 py-2 text-[12px] font-bold text-violet-800 flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full bg-violet-500"></span> Equipo · violet</div>
+        <div class="p-3 space-y-1.5 text-[13px]">
+          <div class="flex items-center gap-2 text-violet-700"><i data-lucide="trending-up" class="w-4 h-4"></i> Inversionistas <span class="text-[10px] text-violet-600 bg-violet-50 px-1.5 rounded">ya violet ✓</span></div>
+          <div class="flex items-center gap-2 text-violet-700"><i data-lucide="users" class="w-4 h-4"></i> Usuarios <span class="text-[10px] text-white bg-violet-600 px-1.5 rounded">cambia → violet</span></div>
+          <div class="flex items-center gap-2 text-violet-700"><i data-lucide="receipt" class="w-4 h-4"></i> Planilla <span class="text-[10px] text-white bg-violet-600 px-1.5 rounded">cambia → violet</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════ SECCIÓN 5 · QUÉ NO CAMBIA ════════════════ -->
+<div class="max-w-6xl mx-auto px-4 sm:px-6 py-6">
+  <div class="bg-amber-50 border border-amber-200 rounded-2xl p-5">
+    <h2 class="text-lg font-bold text-amber-900 mb-1 flex items-center gap-2"><i data-lucide="alert-triangle" class="w-5 h-5"></i> Importante · qué NO se toca</h2>
+    <p class="text-[13px] text-amber-800 mb-3">El cambio es <b>solo el chrome de identidad</b> (6 puntos). El <b>color semántico de datos se conserva 100%</b>:</p>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 text-[12px]">
+      <div class="bg-white border border-amber-200 rounded-lg p-2.5 flex items-center gap-2"><i data-lucide="circle-dollar-sign" class="w-4 h-4 text-emerald-600"></i> KPIs verde=positivo / rojo=negativo</div>
+      <div class="bg-white border border-amber-200 rounded-lg p-2.5 flex items-center gap-2"><i data-lucide="pie-chart" class="w-4 h-4 text-rose-600"></i> Donuts de Balance (teal/rose/indigo)</div>
+      <div class="bg-white border border-amber-200 rounded-lg p-2.5 flex items-center gap-2"><i data-lucide="badge-check" class="w-4 h-4 text-emerald-600"></i> Badges de estado (pagado/pendiente)</div>
+      <div class="bg-white border border-amber-200 rounded-lg p-2.5 flex items-center gap-2"><i data-lucide="activity" class="w-4 h-4 text-sky-600"></i> Sparklines y gráficos</div>
+      <div class="bg-white border border-amber-200 rounded-lg p-2.5 flex items-center gap-2"><i data-lucide="git-branch" class="w-4 h-4 text-blue-600"></i> Color por bloque/origen (azul/morado/ámbar)</div>
+      <div class="bg-white border border-amber-200 rounded-lg p-2.5 flex items-center gap-2"><i data-lucide="lightbulb" class="w-4 h-4 text-amber-600"></i> Insights y banners de alerta</div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════ FOOTER · IMPACTO TÉCNICO + CHECKLIST ════════════════ -->
+<div class="max-w-6xl mx-auto px-4 sm:px-6 py-6 pb-16">
+  <div class="bg-slate-900 text-slate-100 rounded-2xl p-6">
+    <h2 class="text-lg font-bold mb-4 flex items-center gap-2"><i data-lucide="wrench" class="w-5 h-5"></i> Impacto técnico de la Fase 1 · color</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-[13px]">
+      <div class="bg-slate-800 rounded-xl p-4">
+        <div class="text-teal-300 font-bold mb-1">Contabilidad</div>
+        <div class="text-slate-300">purple → teal en chrome (tab activo, chip, icono, CTA, focus). ~Contabilidad.tsx + sub-componentes de tabs.</div>
+      </div>
+      <div class="bg-slate-800 rounded-xl p-4">
+        <div class="text-violet-300 font-bold mb-1">Usuarios</div>
+        <div class="text-slate-300">purple → violet en chrome. ~Usuarios.tsx + UserPanel + cards de colaborador.</div>
+      </div>
+      <div class="bg-slate-800 rounded-xl p-4">
+        <div class="text-violet-300 font-bold mb-1">Planilla</div>
+        <div class="text-slate-300">sky → violet en chrome. ~Planilla.tsx + 5 tabs + ~15 modales sky.</div>
+      </div>
+    </div>
+    <div class="mt-4 flex flex-wrap gap-x-6 gap-y-2 text-[12px] text-slate-400">
+      <span class="flex items-center gap-1.5"><i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> Reversible (solo tokens de color)</span>
+      <span class="flex items-center gap-1.5"><i data-lucide="shield-check" class="w-3.5 h-3.5"></i> Cero cambio de lógica / datos</span>
+      <span class="flex items-center gap-1.5"><i data-lucide="eye" class="w-3.5 h-3.5"></i> Validación side-by-side localhost (canon M4)</span>
+      <span class="flex items-center gap-1.5"><i data-lucide="layers" class="w-3.5 h-3.5"></i> Pre-paso ideal de tokens.ts + grupoColor.ts</span>
+    </div>
+  </div>
+  <p class="text-center text-[11px] text-slate-400 mt-6">Mockup exploratorio · alineacion-color-3-modulos-v1 · 2026-05-31 · Vita Skin Design System</p>
+</div>
+
+<script>lucide.createIcons();</script>
+</body>
+</html>
