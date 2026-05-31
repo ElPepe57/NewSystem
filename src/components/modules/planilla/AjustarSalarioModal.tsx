@@ -189,12 +189,12 @@ export const AjustarSalarioModal: React.FC<Props> = ({
                 value={salarioNuevo}
                 onChange={(e) => setSalarioNuevo(e.target.value)}
                 placeholder="0.00"
-                className="flex-1 text-[14px] tabular-nums border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent"
+                className="flex-1 text-[14px] tabular-nums border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
               />
               <select
                 value={moneda}
                 onChange={(e) => setMoneda(e.target.value as 'PEN' | 'USD')}
-                className="text-[12px] font-semibold border border-slate-300 rounded-lg px-2 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-sky-500"
+                className="text-[12px] font-semibold border border-slate-300 rounded-lg px-2 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-violet-500"
               >
                 <option value="PEN">PEN</option>
                 <option value="USD">USD</option>
@@ -251,7 +251,7 @@ export const AjustarSalarioModal: React.FC<Props> = ({
               type="date"
               value={efectivoDesde}
               onChange={(e) => setEfectivoDesde(e.target.value)}
-              className="w-full text-[13px] border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-500"
+              className="w-full text-[13px] border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500"
             />
             <p className="text-[10px] text-slate-500 mt-1">
               Las boletas a partir de esta fecha usarán el nuevo monto
@@ -271,7 +271,7 @@ export const AjustarSalarioModal: React.FC<Props> = ({
                   onClick={() => setRazon(r)}
                   className={`text-[11px] px-2 py-1.5 rounded border transition-colors text-left ${
                     razon === r
-                      ? 'bg-sky-50 border-sky-300 text-sky-800 font-bold ring-1 ring-sky-200'
+                      ? 'bg-violet-50 border-violet-300 text-violet-800 font-bold ring-1 ring-violet-200'
                       : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
                   }`}
                 >
@@ -291,7 +291,7 @@ export const AjustarSalarioModal: React.FC<Props> = ({
               onChange={(e) => setNotas(e.target.value)}
               rows={2}
               placeholder="Contexto adicional · referencia a decisión gerencial · etc."
-              className="w-full text-[12px] border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-500 resize-none"
+              className="w-full text-[12px] border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500 resize-none"
             />
           </div>
 

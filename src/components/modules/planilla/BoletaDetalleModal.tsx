@@ -148,7 +148,7 @@ export const BoletaDetalleModal: React.FC<Props> = ({
     >
       {/* Header custom · avatar gradient sky + nombre + estado + acciones */}
       <div className="px-5 py-4 border-b border-slate-200 bg-white flex items-start gap-3 sticky top-0 z-10">
-        <div className="w-12 h-12 bg-gradient-to-br from-sky-400 to-sky-600 rounded-2xl flex items-center justify-center text-white font-bold text-[14px] flex-shrink-0">
+        <div className="w-12 h-12 bg-gradient-to-br from-violet-400 to-violet-600 rounded-2xl flex items-center justify-center text-white font-bold text-[14px] flex-shrink-0">
           {initials}
         </div>
         <div className="flex-1 min-w-0">
@@ -190,8 +190,8 @@ export const BoletaDetalleModal: React.FC<Props> = ({
             onClick={() => setTab('detalle')}
             className={`px-3 py-2.5 text-[12px] border-b-2 flex items-center gap-1.5 ${
               tab === 'detalle'
-                ? 'border-sky-600 text-sky-700 font-bold'
-                : 'border-transparent text-slate-600 hover:text-sky-600 font-medium'
+                ? 'border-violet-600 text-violet-700 font-bold'
+                : 'border-transparent text-slate-600 hover:text-violet-600 font-medium'
             }`}
           >
             <FileText className="w-3.5 h-3.5" />
@@ -202,8 +202,8 @@ export const BoletaDetalleModal: React.FC<Props> = ({
             onClick={() => setTab('comisiones')}
             className={`px-3 py-2.5 text-[12px] border-b-2 flex items-center gap-1.5 ${
               tab === 'comisiones'
-                ? 'border-sky-600 text-sky-700 font-bold'
-                : 'border-transparent text-slate-600 hover:text-sky-600 font-medium'
+                ? 'border-violet-600 text-violet-700 font-bold'
+                : 'border-transparent text-slate-600 hover:text-violet-600 font-medium'
             }`}
           >
             <DollarSign className="w-3.5 h-3.5" />
@@ -258,13 +258,13 @@ export const BoletaDetalleModal: React.FC<Props> = ({
             </div>
 
             {/* NETO grande · canon mockup */}
-            <div className="bg-gradient-to-r from-sky-50 to-cyan-50 border border-sky-200 rounded-xl p-4">
+            <div className="bg-gradient-to-r from-violet-50 to-cyan-50 border border-violet-200 rounded-xl p-4">
               <div className="flex items-center justify-between flex-wrap gap-3">
                 <div>
-                  <div className="text-[10px] uppercase tracking-wider text-sky-700 font-bold mb-1">
+                  <div className="text-[10px] uppercase tracking-wider text-violet-700 font-bold mb-1">
                     NETO A PAGAR
                   </div>
-                  <div className="text-3xl font-bold tabular-nums text-sky-900">
+                  <div className="text-3xl font-bold tabular-nums text-violet-900">
                     {formatCurrencyPEN(boleta.totalNeto)}
                   </div>
                 </div>
@@ -273,7 +273,7 @@ export const BoletaDetalleModal: React.FC<Props> = ({
                     type="button"
                     onClick={() => setShowPago(true)}
                     disabled={pagando}
-                    className="bg-sky-600 hover:bg-sky-700 text-white text-[12px] font-bold px-4 py-2 rounded-lg flex items-center gap-1.5 disabled:opacity-50"
+                    className="bg-violet-600 hover:bg-violet-700 text-white text-[12px] font-bold px-4 py-2 rounded-lg flex items-center gap-1.5 disabled:opacity-50"
                   >
                     <Check className="w-3.5 h-3.5" />
                     Marcar pagada
@@ -382,7 +382,7 @@ export const BoletaDetalleModal: React.FC<Props> = ({
             <button
               type="button"
               onClick={() => onRequestEdit(boleta)}
-              className="bg-sky-600 hover:bg-sky-700 text-white text-[12px] font-bold px-4 py-1.5 rounded-lg flex items-center gap-1.5"
+              className="bg-violet-600 hover:bg-violet-700 text-white text-[12px] font-bold px-4 py-1.5 rounded-lg flex items-center gap-1.5"
             >
               <Edit2 className="w-3.5 h-3.5" />
               Editar

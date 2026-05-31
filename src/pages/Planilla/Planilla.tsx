@@ -12,7 +12,7 @@
  *   ✅ Tab "Análisis & Reportes" NUEVO (v5.4 · cost analytics 360)
  *
  * Estructura del shell:
- *   §A · Breadcrumb 3 niveles (Inicio › Finanzas y Contabilidad › Planilla)
+ *   §A · Breadcrumb (Inicio › Planilla › sub-tab · módulo como 2º nivel · canon S9.D1)
  *   §B · Header banking-grade sky (icon · h1 · acciones)
  *   §C · KPI strip 4 cards (Payroll mes · Personal activo · Incentivos mes · Próx. gratif)
  *   §D · Selector de período (mes/año)
@@ -278,12 +278,12 @@ export const Planilla: React.FC = () => {
             Sub-tab activa:    Inicio › Planilla › {tab.breadcrumbLeaf} */}
         <div className="border-b border-slate-200 px-4 sm:px-6 py-2.5 flex items-center gap-3 bg-slate-50">
           <div className="flex items-center text-[12px] flex-1 min-w-0">
-            <a className="text-slate-500 hover:text-sky-700 cursor-pointer flex-shrink-0">Inicio</a>
+            <a className="text-slate-500 hover:text-violet-700 cursor-pointer flex-shrink-0">Inicio</a>
             <ChevronRight className="w-3 h-3 text-slate-300 mx-1.5 flex-shrink-0" />
             {tabActivaCfg.breadcrumbLeaf ? (
               <>
                 <a
-                  className="text-slate-500 hover:text-sky-700 cursor-pointer flex-shrink-0"
+                  className="text-slate-500 hover:text-violet-700 cursor-pointer flex-shrink-0"
                   onClick={() => setTabActiva('resumen')}
                 >
                   Planilla
@@ -301,7 +301,7 @@ export const Planilla: React.FC = () => {
         <div className="px-4 sm:px-6 py-4 sm:py-5 border-b border-slate-100">
           <div className="flex items-start justify-between gap-3 sm:gap-4 flex-wrap">
             <div className="flex items-start gap-3 flex-1 min-w-[260px]">
-              <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-br from-sky-500 to-sky-700 flex items-center justify-center text-white flex-shrink-0">
+              <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-br from-violet-500 to-violet-700 flex items-center justify-center text-white flex-shrink-0">
                 <BriefcaseBusiness className="w-5 h-5" />
               </div>
               <div className="min-w-0">
@@ -402,7 +402,7 @@ export const Planilla: React.FC = () => {
                 onClick={() => setModal({ kind: 'generarBoletas' })}
                 aria-label="Generar boletas del mes"
                 title="Genera boletas borrador para todos los empleados activos"
-                className="text-[11px] font-bold text-white bg-sky-600 hover:bg-sky-700 px-3 py-1.5 rounded-lg flex items-center gap-1.5"
+                className="text-[11px] font-bold text-white bg-violet-600 hover:bg-violet-700 px-3 py-1.5 rounded-lg flex items-center gap-1.5"
               >
                 <Plus className="w-3 h-3" />
                 <span className="hidden sm:inline">Generar boletas</span>
@@ -413,17 +413,17 @@ export const Planilla: React.FC = () => {
 
         {/* §C · KPI STRIP · 4 cards canon mockup ACTO 1 */}
         <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-slate-100 grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-3">
-          <div className="bg-gradient-to-br from-sky-50 to-sky-100/40 ring-1 ring-sky-200/50 rounded-2xl p-3 sm:p-4">
+          <div className="bg-gradient-to-br from-rose-50 to-rose-100/40 ring-1 ring-rose-200/50 rounded-2xl p-3 sm:p-4">
             <div className="flex items-center justify-between mb-1.5 sm:mb-2">
-              <span className="text-[9px] sm:text-[10px] uppercase tracking-wider text-sky-700 font-bold">
+              <span className="text-[9px] sm:text-[10px] uppercase tracking-wider text-rose-700 font-bold">
                 PAYROLL {mesNombreCorto(mes).toUpperCase()}
               </span>
-              <Wallet className="w-3.5 h-3.5 text-sky-700 flex-shrink-0" />
+              <Wallet className="w-3.5 h-3.5 text-rose-700 flex-shrink-0" />
             </div>
-            <div className="text-xl sm:text-2xl font-bold tabular-nums text-sky-900">
+            <div className="text-xl sm:text-2xl font-bold tabular-nums text-rose-900">
               {formatCurrencyPEN(payrollMes)}
             </div>
-            <div className="text-[10px] sm:text-[11px] text-sky-700 mt-1 truncate">
+            <div className="text-[10px] sm:text-[11px] text-rose-700 mt-1 truncate">
               {boletasMes.length} boleta{boletasMes.length === 1 ? '' : 's'}
               {bonosMesPEN > 0 ? ` · ${formatCurrencyPEN(bonosMesPEN)} bonos` : ''}
             </div>
@@ -487,8 +487,8 @@ export const Planilla: React.FC = () => {
                   aria-current={isActive ? 'page' : undefined}
                   className={`px-3 sm:px-4 py-2.5 text-[12px] border-b-2 flex items-center gap-1.5 whitespace-nowrap transition-colors ${
                     isActive
-                      ? 'border-sky-600 text-sky-700 font-bold'
-                      : 'border-transparent text-slate-600 hover:text-sky-600 font-medium'
+                      ? 'border-violet-600 text-violet-700 font-bold'
+                      : 'border-transparent text-slate-600 hover:text-violet-600 font-medium'
                   }`}
                 >
                   <Icon className="w-3.5 h-3.5" />
@@ -498,7 +498,7 @@ export const Planilla: React.FC = () => {
                     <span
                       className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${
                         tab.badge.tinte === 'sky'
-                          ? 'bg-sky-100 text-sky-700'
+                          ? 'bg-violet-100 text-violet-700'
                           : tab.badge.tinte === 'amber'
                             ? 'bg-amber-100 text-amber-700'
                             : 'bg-violet-100 text-violet-700'

@@ -102,9 +102,9 @@ export const GenerarBoletasModal: React.FC<Props> = ({
       disabled={loading || porGenerar === 0}
     >
       <div className="space-y-4">
-        <div className="bg-sky-50 border border-sky-200 rounded p-3 flex items-start gap-2">
-          <Info className="w-4 h-4 text-sky-700 flex-shrink-0 mt-0.5" />
-          <div className="text-[11px] text-sky-900">
+        <div className="bg-violet-50 border border-violet-200 rounded p-3 flex items-start gap-2">
+          <Info className="w-4 h-4 text-violet-700 flex-shrink-0 mt-0.5" />
+          <div className="text-[11px] text-violet-900">
             Las boletas se generan en estado <strong>borrador</strong>. Comisiones, adelantos y
             bonificaciones de incentivos se calculan automáticamente. Podés ajustar manualmente
             antes de aprobar.
@@ -112,12 +112,12 @@ export const GenerarBoletasModal: React.FC<Props> = ({
         </div>
 
         <div className="grid grid-cols-2 gap-3">
-          <div className="bg-sky-50 ring-1 ring-sky-200 rounded-xl p-3">
-            <div className="flex items-center gap-2 text-[10px] uppercase tracking-wider text-sky-700 font-bold mb-1">
+          <div className="bg-violet-50 ring-1 ring-violet-200 rounded-xl p-3">
+            <div className="flex items-center gap-2 text-[10px] uppercase tracking-wider text-violet-700 font-bold mb-1">
               <Users className="w-3 h-3" />
               Empleados activos
             </div>
-            <div className="text-2xl font-bold tabular-nums text-sky-900">{empleadosActivos}</div>
+            <div className="text-2xl font-bold tabular-nums text-violet-900">{empleadosActivos}</div>
           </div>
           <div className="bg-slate-50 ring-1 ring-slate-200 rounded-xl p-3">
             <div className="flex items-center gap-2 text-[10px] uppercase tracking-wider text-slate-700 font-bold mb-1">

@@ -178,7 +178,7 @@ export const AprobarAdelantoModal: React.FC<Props> = ({
         </div>
 
         {/* Info próximo paso */}
-        <div className="bg-sky-50 border border-sky-200 rounded p-2 text-[10px] text-sky-900 flex items-start gap-1.5">
+        <div className="bg-violet-50 border border-violet-200 rounded p-2 text-[10px] text-violet-900 flex items-start gap-1.5">
           <Info className="w-3 h-3 flex-shrink-0 mt-0.5" />
           <span>
             Al aprobar · el adelanto queda listo para que admin marque pagado y se cree el

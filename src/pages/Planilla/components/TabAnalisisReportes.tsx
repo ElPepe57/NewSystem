@@ -66,7 +66,7 @@ const MiniBars: React.FC<{ serie: CostoLaboralMensual[] }> = ({ serie }) => {
                 width={barW}
                 height={altura}
                 rx={3}
-                className="fill-sky-500"
+                className="fill-violet-500"
               />
               <text
                 x={barW / 2}
@@ -157,15 +157,15 @@ export const TabAnalisisReportes: React.FC<TabAnalisisReportesProps> = ({ mes, a
     <div className="p-4 sm:p-6 space-y-5">
       {/* §A · KPIs ejecutivos · 4 cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <div className="bg-gradient-to-br from-sky-50 to-sky-100/40 ring-1 ring-sky-200/50 rounded-2xl p-4">
+        <div className="bg-gradient-to-br from-rose-50 to-rose-100/40 ring-1 ring-rose-200/50 rounded-2xl p-4">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-[10px] uppercase tracking-wider text-sky-700 font-bold">PAYROLL YTD</span>
-            <Wallet className="w-3.5 h-3.5 text-sky-700" />
+            <span className="text-[10px] uppercase tracking-wider text-rose-700 font-bold">PAYROLL YTD</span>
+            <Wallet className="w-3.5 h-3.5 text-rose-700" />
           </div>
-          <div className="text-2xl font-bold tabular-nums text-sky-900">
+          <div className="text-2xl font-bold tabular-nums text-rose-900">
             {formatCurrencyPEN(payrollYTD)}
           </div>
-          <div className="text-[10px] text-sky-700 mt-1">{serie.length} meses acumulados</div>
+          <div className="text-[10px] text-rose-700 mt-1">{serie.length} meses acumulados</div>
         </div>
         <div className="bg-gradient-to-br from-emerald-50 to-emerald-100/40 ring-1 ring-emerald-200/50 rounded-2xl p-4">
           <div className="flex items-center justify-between mb-2">
@@ -228,7 +228,7 @@ export const TabAnalisisReportes: React.FC<TabAnalisisReportesProps> = ({ mes, a
       <div className="bg-white border border-slate-200 rounded-xl p-4">
         <div className="flex items-center justify-between mb-3">
           <h3 className="text-[14px] font-bold text-slate-900 inline-flex items-center gap-1.5">
-            <BarChart3 className="w-4 h-4 text-sky-700" />
+            <BarChart3 className="w-4 h-4 text-violet-700" />
             Evolución mensual · últimos {serie.length} meses
           </h3>
           <button
@@ -265,7 +265,7 @@ export const TabAnalisisReportes: React.FC<TabAnalisisReportesProps> = ({ mes, a
                   <div className="flex items-center gap-2">
                     <div className="flex-1 h-1.5 bg-slate-100 rounded">
                       <div
-                        className="h-1.5 bg-sky-500 rounded"
+                        className="h-1.5 bg-violet-500 rounded"
                         style={{ width: `${d.pctDelTotal}%` }}
                       />
                     </div>
@@ -312,7 +312,7 @@ export const TabAnalisisReportes: React.FC<TabAnalisisReportesProps> = ({ mes, a
       </div>
 
       {/* §D · Cross-links 360 · canon F6 (placeholder enriquecido aquí · F6 los habilita end-to-end) */}
-      <div className="bg-gradient-to-br from-sky-50 to-violet-50/40 ring-1 ring-sky-200 rounded-xl p-4">
+      <div className="bg-gradient-to-br from-violet-50 to-violet-50/40 ring-1 ring-violet-200 rounded-xl p-4">
         <h3 className="text-[13px] font-bold text-slate-900 mb-2">Impacto 360° en otros módulos</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
           <button
@@ -340,13 +340,13 @@ export const TabAnalisisReportes: React.FC<TabAnalisisReportesProps> = ({ mes, a
           <button
             type="button"
             onClick={() => navigate('/contabilidad?tab=pyl')}
-            className="bg-white border border-sky-200 rounded-lg p-3 hover:bg-sky-50/30 text-left flex items-center justify-between"
+            className="bg-white border border-violet-200 rounded-lg p-3 hover:bg-violet-50/30 text-left flex items-center justify-between"
           >
             <div className="min-w-0">
-              <div className="text-[11px] font-bold text-sky-900">P&L · gastos de personal</div>
-              <div className="text-[10px] text-sky-700">impacto en utilidad operativa</div>
+              <div className="text-[11px] font-bold text-violet-900">P&L · gastos de personal</div>
+              <div className="text-[10px] text-violet-700">impacto en utilidad operativa</div>
             </div>
-            <ArrowRight className="w-3.5 h-3.5 text-sky-700 flex-shrink-0 ml-2" />
+            <ArrowRight className="w-3.5 h-3.5 text-violet-700 flex-shrink-0 ml-2" />
           </button>
           <button
             type="button"

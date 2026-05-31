@@ -386,9 +386,9 @@ export const WizardBajaEmpleadoModal: React.FC<Props> = ({
   // ───── Paso 2 ─────
   const paso2 = (
     <div className="space-y-3">
-      <div className="bg-sky-50 border border-sky-200 rounded p-2 flex items-start gap-2">
-        <Info className="w-3.5 h-3.5 text-sky-700 flex-shrink-0 mt-0.5" />
-        <div className="text-[11px] text-sky-900">
+      <div className="bg-violet-50 border border-violet-200 rounded p-2 flex items-start gap-2">
+        <Info className="w-3.5 h-3.5 text-violet-700 flex-shrink-0 mt-0.5" />
+        <div className="text-[11px] text-violet-900">
           Conceptos sugeridos automáticamente. Podés editar montos · agregar nuevos · o eliminar.
           Positivos = pagar al empleado · negativos = descontar.
         </div>

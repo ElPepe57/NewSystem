@@ -139,9 +139,9 @@ export const ProgramarVacacionesModal: React.FC<Props> = ({
       disabled={!esValido}
     >
       {/* Banner explicativo · canon Vita Skin sin CTS sin acumulación */}
-      <div className="bg-sky-50 border border-sky-200 rounded-lg p-3 mb-4 flex items-start gap-2">
-        <Info className="w-4 h-4 text-sky-700 flex-shrink-0 mt-0.5" />
-        <div className="text-[11px] text-sky-900">
+      <div className="bg-violet-50 border border-violet-200 rounded-lg p-3 mb-4 flex items-start gap-2">
+        <Info className="w-4 h-4 text-violet-700 flex-shrink-0 mt-0.5" />
+        <div className="text-[11px] text-violet-900">
           <strong>Control informal.</strong> Esta programación sirve para coordinar suplencias y
           dejar registro del período acordado. No genera obligación legal · no descuenta días
           acumulados ni dispara cálculo automático en planilla.
@@ -168,7 +168,7 @@ export const ProgramarVacacionesModal: React.FC<Props> = ({
             <select
               value={userIdSeleccionado}
               onChange={(e) => setUserIdSeleccionado(e.target.value)}
-              className="w-full text-[13px] border border-slate-300 rounded-lg px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-sky-500"
+              className="w-full text-[13px] border border-slate-300 rounded-lg px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-violet-500"
             >
               <option value="">— Seleccionar empleado —</option>
               {empleados.map((e) => (
@@ -189,7 +189,7 @@ export const ProgramarVacacionesModal: React.FC<Props> = ({
                 type="date"
                 value={fechaDesde}
                 onChange={(e) => setFechaDesde(e.target.value)}
-                className="w-full text-[13px] border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-500"
+                className="w-full text-[13px] border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500"
               />
             </div>
             <div>
@@ -201,20 +201,20 @@ export const ProgramarVacacionesModal: React.FC<Props> = ({
                 value={fechaHasta}
                 onChange={(e) => setFechaHasta(e.target.value)}
                 min={fechaDesde || undefined}
-                className="w-full text-[13px] border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-500"
+                className="w-full text-[13px] border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500"
               />
             </div>
           </div>
 
           {/* Preview días */}
           {dias > 0 && (
-            <div className="bg-sky-50 border border-sky-200 rounded-lg p-3">
-              <div className="text-[10px] uppercase tracking-wider text-sky-700 font-bold mb-0.5">
+            <div className="bg-violet-50 border border-violet-200 rounded-lg p-3">
+              <div className="text-[10px] uppercase tracking-wider text-violet-700 font-bold mb-0.5">
                 DÍAS DE VACACIONES
               </div>
-              <div className="text-2xl font-bold tabular-nums text-sky-900">
+              <div className="text-2xl font-bold tabular-nums text-violet-900">
                 {dias}{' '}
-                <span className="text-[12px] font-normal text-sky-700">
+                <span className="text-[12px] font-normal text-violet-700">
                   día{dias === 1 ? '' : 's'} consecutivos
                 </span>
               </div>
@@ -230,7 +230,7 @@ export const ProgramarVacacionesModal: React.FC<Props> = ({
             <select
               value={suplenteUid}
               onChange={(e) => setSuplenteUid(e.target.value)}
-              className="w-full text-[13px] border border-slate-300 rounded-lg px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-sky-500"
+              className="w-full text-[13px] border border-slate-300 rounded-lg px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-violet-500"
             >
               <option value="">— Sin suplente designado —</option>
               {usuariosTodos
@@ -256,7 +256,7 @@ export const ProgramarVacacionesModal: React.FC<Props> = ({
               onChange={(e) => setNotas(e.target.value)}
               rows={2}
               placeholder="Coordinación · razón · acuerdos específicos..."
-              className="w-full text-[12px] border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-500 resize-none"
+              className="w-full text-[12px] border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500 resize-none"
             />
           </div>
 

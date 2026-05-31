@@ -144,9 +144,9 @@ export const TabIncentivos: React.FC<TabIncentivosProps> = ({
   if (esquemas.length === 0) {
     return (
       <div className="p-6">
-        <div className="bg-gradient-to-br from-sky-50 to-violet-50/40 ring-1 ring-sky-200 rounded-2xl p-8 text-center">
-          <div className="w-12 h-12 mx-auto mb-3 bg-sky-100 rounded-xl flex items-center justify-center">
-            <Trophy className="w-6 h-6 text-sky-700" />
+        <div className="bg-gradient-to-br from-violet-50 to-violet-50/40 ring-1 ring-violet-200 rounded-2xl p-8 text-center">
+          <div className="w-12 h-12 mx-auto mb-3 bg-violet-100 rounded-xl flex items-center justify-center">
+            <Trophy className="w-6 h-6 text-violet-700" />
           </div>
           <div className="text-[14px] font-bold text-slate-900 mb-1">No hay esquemas de incentivo</div>
           <p className="text-[12px] text-slate-600 mb-5 max-w-md mx-auto">
@@ -174,7 +174,7 @@ export const TabIncentivos: React.FC<TabIncentivosProps> = ({
           <button
             type="button"
             onClick={onNuevoEsquema}
-            className="mt-5 bg-sky-600 hover:bg-sky-700 text-white text-[12px] font-bold px-4 py-2 rounded-lg inline-flex items-center gap-1.5"
+            className="mt-5 bg-violet-600 hover:bg-violet-700 text-white text-[12px] font-bold px-4 py-2 rounded-lg inline-flex items-center gap-1.5"
           >
             <Plus className="w-3.5 h-3.5" />
             Crear primer esquema
@@ -198,12 +198,12 @@ export const TabIncentivos: React.FC<TabIncentivosProps> = ({
           <div className="text-lg font-bold tabular-nums text-emerald-900">{stats.activos}</div>
           <div className="text-[10px] text-emerald-700">de {stats.totalEsquemas} totales</div>
         </div>
-        <div className="bg-sky-50 ring-1 ring-sky-200 rounded-xl p-3">
-          <div className="text-[10px] uppercase font-bold text-sky-700">COBERTURA</div>
-          <div className="text-lg font-bold tabular-nums text-sky-900">
+        <div className="bg-violet-50 ring-1 ring-violet-200 rounded-xl p-3">
+          <div className="text-[10px] uppercase font-bold text-violet-700">COBERTURA</div>
+          <div className="text-lg font-bold tabular-nums text-violet-900">
             {stats.cobertura}/{stats.totalEmpleados}
           </div>
-          <div className="text-[10px] text-sky-700">{stats.cobertura_pct}% del equipo</div>
+          <div className="text-[10px] text-violet-700">{stats.cobertura_pct}% del equipo</div>
         </div>
         <div className="bg-amber-50 ring-1 ring-amber-200 rounded-xl p-3">
           <div className="text-[10px] uppercase font-bold text-amber-700">
@@ -345,7 +345,7 @@ export const TabIncentivos: React.FC<TabIncentivosProps> = ({
                 {stats.pendientesAprobacion.map((c) => (
                   <tr key={c.id} className="border-b border-amber-100">
                     <td className="py-2 pr-2 font-semibold text-slate-900">{c.empleadoNombre}</td>
-                    <td className="pr-2 text-[11px] text-sky-700">{c.esquemaNombre}</td>
+                    <td className="pr-2 text-[11px] text-violet-700">{c.esquemaNombre}</td>
                     <td className="text-right pr-2 tabular-nums">
                       {c.metricaCalculada.valorMedido.toLocaleString('es-PE')} {c.metricaCalculada.unidad}
                     </td>

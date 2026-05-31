@@ -176,7 +176,7 @@ export const NuevaBoletaModal: React.FC<Props> = ({
           <select
             value={userId}
             onChange={(e) => setUserId(e.target.value)}
-            className="mt-1 w-full px-3 py-2 rounded-lg border border-slate-300 text-[12px] bg-white focus:outline-none focus:ring-2 focus:ring-sky-500"
+            className="mt-1 w-full px-3 py-2 rounded-lg border border-slate-300 text-[12px] bg-white focus:outline-none focus:ring-2 focus:ring-violet-500"
           >
             <option value="">— Seleccionar empleado —</option>
             {empleados.map((e) => (
@@ -243,7 +243,7 @@ export const NuevaBoletaModal: React.FC<Props> = ({
               value={salarioBase}
               onChange={(e) => setSalarioBase(e.target.value)}
               placeholder="0.00"
-              className="mt-1 w-full px-3 py-2 rounded-lg border border-slate-300 text-[12px] tabular-nums focus:outline-none focus:ring-2 focus:ring-sky-500"
+              className="mt-1 w-full px-3 py-2 rounded-lg border border-slate-300 text-[12px] tabular-nums focus:outline-none focus:ring-2 focus:ring-violet-500"
             />
           </div>
           <div>
@@ -255,7 +255,7 @@ export const NuevaBoletaModal: React.FC<Props> = ({
               value={bonificacion}
               onChange={(e) => setBonificacion(e.target.value)}
               placeholder="0.00"
-              className="mt-1 w-full px-3 py-2 rounded-lg border border-slate-300 text-[12px] tabular-nums focus:outline-none focus:ring-2 focus:ring-sky-500"
+              className="mt-1 w-full px-3 py-2 rounded-lg border border-slate-300 text-[12px] tabular-nums focus:outline-none focus:ring-2 focus:ring-violet-500"
             />
           </div>
         </div>
@@ -271,7 +271,7 @@ export const NuevaBoletaModal: React.FC<Props> = ({
               value={comisiones}
               onChange={(e) => setComisiones(e.target.value)}
               placeholder="0.00"
-              className="mt-1 w-full px-3 py-2 rounded-lg border border-slate-300 text-[12px] tabular-nums focus:outline-none focus:ring-2 focus:ring-sky-500"
+              className="mt-1 w-full px-3 py-2 rounded-lg border border-slate-300 text-[12px] tabular-nums focus:outline-none focus:ring-2 focus:ring-violet-500"
             />
           </div>
           <div>
@@ -283,7 +283,7 @@ export const NuevaBoletaModal: React.FC<Props> = ({
               value={descuento}
               onChange={(e) => setDescuento(e.target.value)}
               placeholder="0.00"
-              className="mt-1 w-full px-3 py-2 rounded-lg border border-slate-300 text-[12px] tabular-nums focus:outline-none focus:ring-2 focus:ring-sky-500"
+              className="mt-1 w-full px-3 py-2 rounded-lg border border-slate-300 text-[12px] tabular-nums focus:outline-none focus:ring-2 focus:ring-violet-500"
             />
           </div>
         </div>
@@ -296,13 +296,13 @@ export const NuevaBoletaModal: React.FC<Props> = ({
             onChange={(e) => setNotas(e.target.value)}
             rows={2}
             placeholder="Observaciones · razón del ajuste..."
-            className="mt-1 w-full px-3 py-2 rounded-lg border border-slate-300 text-[11px] resize-none focus:outline-none focus:ring-2 focus:ring-sky-500"
+            className="mt-1 w-full px-3 py-2 rounded-lg border border-slate-300 text-[11px] resize-none focus:outline-none focus:ring-2 focus:ring-violet-500"
           />
         </div>
 
         {/* Neto preview */}
-        <div className="bg-sky-50 border border-sky-200 rounded-lg p-3 text-[12px]">
-          <div className="flex justify-between font-bold text-sky-900">
+        <div className="bg-violet-50 border border-violet-200 rounded-lg p-3 text-[12px]">
+          <div className="flex justify-between font-bold text-violet-900">
             <span>NETO A PAGAR</span>
             <span className="tabular-nums text-[15px]">{formatCurrencyPEN(neto)}</span>
           </div>

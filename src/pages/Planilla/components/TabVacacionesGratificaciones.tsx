@@ -139,13 +139,13 @@ export const TabVacacionesGratificaciones: React.FC<TabVacacionesGratificaciones
             {gratificacionesAnio.length} gratificación{gratificacionesAnio.length === 1 ? '' : 'es'} registradas
           </div>
         </div>
-        <div className="bg-gradient-to-br from-sky-50 to-sky-100/40 ring-1 ring-sky-200/50 rounded-2xl p-4">
+        <div className="bg-gradient-to-br from-violet-50 to-violet-100/40 ring-1 ring-violet-200/50 rounded-2xl p-4">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-[10px] uppercase tracking-wider text-sky-700 font-bold">VACACIONES</span>
-            <Palmtree className="w-3.5 h-3.5 text-sky-700" />
+            <span className="text-[10px] uppercase tracking-wider text-violet-700 font-bold">VACACIONES</span>
+            <Palmtree className="w-3.5 h-3.5 text-violet-700" />
           </div>
-          <div className="text-2xl font-bold tabular-nums text-sky-900">—</div>
-          <div className="text-[10px] text-sky-700 mt-1">control informal · programación manual</div>
+          <div className="text-2xl font-bold tabular-nums text-violet-900">—</div>
+          <div className="text-[10px] text-violet-700 mt-1">control informal · programación manual</div>
         </div>
       </div>
 
@@ -214,7 +214,7 @@ export const TabVacacionesGratificaciones: React.FC<TabVacacionesGratificaciones
                               g.estado === 'pagada'
                                 ? 'bg-emerald-100 text-emerald-700'
                                 : g.estado === 'aprobada'
-                                  ? 'bg-sky-100 text-sky-700'
+                                  ? 'bg-violet-100 text-violet-700'
                                   : g.estado === 'pendiente'
                                     ? 'bg-amber-100 text-amber-700'
                                     : 'bg-slate-200 text-slate-600'
@@ -237,19 +237,19 @@ export const TabVacacionesGratificaciones: React.FC<TabVacacionesGratificaciones
       <div className="bg-white border border-slate-200 rounded-xl p-4">
         <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
           <h3 className="text-[14px] font-bold text-slate-900 inline-flex items-center gap-1.5">
-            <Palmtree className="w-4 h-4 text-sky-700" />
+            <Palmtree className="w-4 h-4 text-violet-700" />
             Vacaciones · control informal
           </h3>
           <button
             type="button"
             onClick={onProgramarVacaciones}
-            className="bg-sky-600 hover:bg-sky-700 text-white text-[11px] font-bold px-3 py-1.5 rounded-lg inline-flex items-center gap-1.5"
+            className="bg-violet-600 hover:bg-violet-700 text-white text-[11px] font-bold px-3 py-1.5 rounded-lg inline-flex items-center gap-1.5"
           >
             <Plus className="w-3 h-3" />
             Programar vacaciones
           </button>
         </div>
-        <div className="bg-sky-50 border border-sky-200 rounded-lg p-3 text-[11px] text-sky-900">
+        <div className="bg-violet-50 border border-violet-200 rounded-lg p-3 text-[11px] text-violet-900">
           <strong>Nota:</strong> Vita Skin gestiona vacaciones de forma informal · sin acumulación
           legal · sin cálculo de derecho. Esta sección sirve para coordinar suplencias y registrar
           períodos planificados con cada empleado.

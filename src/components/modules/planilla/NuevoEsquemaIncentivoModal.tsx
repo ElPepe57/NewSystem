@@ -727,9 +727,9 @@ export interface ConfigBonoMetaFormProps {
 export const ConfigBonoMetaForm: React.FC<ConfigBonoMetaFormProps> = ({ config, onChange }) => {
   return (
     <div className="space-y-3">
-      <div className="bg-sky-50 border border-sky-200 rounded p-2 flex items-start gap-2">
-        <Info className="w-3.5 h-3.5 text-sky-700 flex-shrink-0 mt-0.5" />
-        <div className="text-[11px] text-sky-900">
+      <div className="bg-violet-50 border border-violet-200 rounded p-2 flex items-start gap-2">
+        <Info className="w-3.5 h-3.5 text-violet-700 flex-shrink-0 mt-0.5" />
+        <div className="text-[11px] text-violet-900">
           Se paga bono si el empleado cumple la meta cuantitativa del mes.
         </div>
       </div>

@@ -149,8 +149,8 @@ export const HistorialSalarialTimeline: React.FC<Props> = ({
           const fecha = h.efectivoDesde.toDate();
 
           // Dot color canon
-          let dotBg = 'bg-sky-500';
-          let dotRing = 'ring-sky-100';
+          let dotBg = 'bg-violet-500';
+          let dotRing = 'ring-violet-100';
           if (esVigente) {
             dotBg = 'bg-emerald-500';
             dotRing = 'ring-emerald-100';

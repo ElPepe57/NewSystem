@@ -101,7 +101,7 @@ const MiniBars: React.FC<{ serie: CostoLaboralMensual[] }> = ({ serie }) => {
                 width={barW}
                 height={altura}
                 rx={3}
-                className={esActual ? 'fill-sky-600' : 'fill-sky-300'}
+                className={esActual ? 'fill-violet-600' : 'fill-violet-300'}
               />
               <text
                 x={barW / 2}
@@ -438,17 +438,17 @@ export const TabResumenPlanilla: React.FC<Props> = ({
 
       {/* §B · KPI strip ejecutivo · 4 cards canon banking-grade */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <div className="bg-gradient-to-br from-sky-50 to-sky-100/40 ring-1 ring-sky-200/50 rounded-2xl p-4">
+        <div className="bg-gradient-to-br from-rose-50 to-rose-100/40 ring-1 ring-rose-200/50 rounded-2xl p-4">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-[10px] uppercase tracking-wider text-sky-700 font-bold">
+            <span className="text-[10px] uppercase tracking-wider text-rose-700 font-bold">
               PAYROLL {mesNombreCorto(mes).toUpperCase()}
             </span>
-            <Wallet className="w-3.5 h-3.5 text-sky-700" />
+            <Wallet className="w-3.5 h-3.5 text-rose-700" />
           </div>
-          <div className="text-2xl font-bold tabular-nums text-sky-900">
+          <div className="text-2xl font-bold tabular-nums text-rose-900">
             {formatCurrencyPEN(stats.payrollMes)}
           </div>
-          <div className="text-[11px] text-sky-700 mt-1 truncate">
+          <div className="text-[11px] text-rose-700 mt-1 truncate">
             {boletas.length} boleta{boletas.length === 1 ? '' : 's'}
           </div>
         </div>
@@ -524,13 +524,13 @@ export const TabResumenPlanilla: React.FC<Props> = ({
       <div className="bg-white border border-slate-200 rounded-xl p-4">
         <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
           <h3 className="text-[13px] font-bold text-slate-900 inline-flex items-center gap-1.5">
-            <LayoutDashboard className="w-4 h-4 text-sky-700" />
+            <LayoutDashboard className="w-4 h-4 text-violet-700" />
             Evolución del costo laboral · últimos {serie.length || 0} meses
           </h3>
           <button
             type="button"
             onClick={() => onIrATab?.('analisis')}
-            className="text-[11px] text-sky-700 font-bold hover:underline inline-flex items-center gap-1"
+            className="text-[11px] text-violet-700 font-bold hover:underline inline-flex items-center gap-1"
           >
             Análisis detallado
             <ArrowRight className="w-3 h-3" />
@@ -577,10 +577,10 @@ export const TabResumenPlanilla: React.FC<Props> = ({
           <button
             type="button"
             onClick={onGenerarBoletas}
-            className="bg-white border border-sky-200 hover:bg-sky-50/30 rounded-lg p-3 text-left transition-colors"
+            className="bg-white border border-violet-200 hover:bg-violet-50/30 rounded-lg p-3 text-left transition-colors"
           >
-            <div className="w-8 h-8 bg-sky-100 rounded-lg flex items-center justify-center mb-1.5">
-              <FileText className="w-4 h-4 text-sky-700" />
+            <div className="w-8 h-8 bg-violet-100 rounded-lg flex items-center justify-center mb-1.5">
+              <FileText className="w-4 h-4 text-violet-700" />
             </div>
             <div className="text-[11px] font-bold text-slate-900">Generar boletas</div>
             <div className="text-[10px] text-slate-500">del mes en lote</div>
@@ -650,13 +650,13 @@ export const TabResumenPlanilla: React.FC<Props> = ({
           <button
             type="button"
             onClick={() => navigate('/contabilidad?tab=pyl')}
-            className="bg-white border border-sky-200 hover:bg-sky-50/30 rounded-lg p-3 text-left flex items-center justify-between transition-colors"
+            className="bg-white border border-violet-200 hover:bg-violet-50/30 rounded-lg p-3 text-left flex items-center justify-between transition-colors"
           >
             <div className="min-w-0">
-              <div className="text-[11px] font-bold text-sky-900">P&amp;L · gastos personal</div>
-              <div className="text-[10px] text-sky-700">impacto utilidad</div>
+              <div className="text-[11px] font-bold text-violet-900">P&amp;L · gastos personal</div>
+              <div className="text-[10px] text-violet-700">impacto utilidad</div>
             </div>
-            <ArrowRight className="w-3.5 h-3.5 text-sky-700 flex-shrink-0 ml-2" />
+            <ArrowRight className="w-3.5 h-3.5 text-violet-700 flex-shrink-0 ml-2" />
           </button>
           <button
             type="button"

@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Alineación de color · Planilla · v1 (EXPLORATORIO/DECISIÓN)</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  * { font-family: 'Inter', sans-serif; }
+  .tabular { font-variant-numeric: tabular-nums; }
+  body { background: #f1f5f9; }
+  .ring-bad { box-shadow: 0 0 0 3px rgba(244,63,94,.5); border-radius: .65rem; }
+  .ring-good { box-shadow: 0 0 0 3px rgba(16,185,129,.5); border-radius: .65rem; }
+</style>
+</head>
+<body class="text-slate-800">
+
+<!-- HERO -->
+<div class="max-w-6xl mx-auto px-4 sm:px-6 py-8">
+  <span class="text-[10px] uppercase tracking-wider font-bold text-amber-700 bg-amber-100 border border-amber-200 px-2 py-1 rounded-full">⚑ Exploratorio / Decisión</span>
+  <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight mt-3 mb-2">Alineación de color · Planilla</h1>
+  <p class="text-slate-500 text-[15px] max-w-3xl leading-relaxed">
+    Planilla usaba <b>sky</b> como color de módulo (147 usos en 19 archivos). La mayoría es <b>chrome</b> (→ violet),
+    pero hay 2 sutilezas: el KPI principal usa el color del módulo, y <b>"honorarios" = sky es semántico</b> (se queda).
+    <b>Vos decidís antes de tocar.</b>
+  </p>
+</div>
+
+<!-- EL CASO -->
+<div class="max-w-6xl mx-auto px-4 sm:px-6 pb-4">
+  <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
+    <h2 class="text-lg font-bold text-slate-900 mb-3 flex items-center gap-2"><i data-lucide="info" class="w-5 h-5 text-sky-500"></i> Dónde vive el sky en Planilla</h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+      <div class="border border-slate-200 rounded-xl p-3">
+        <div class="text-[11px] font-bold text-slate-700 mb-1">Chrome (la mayoría)</div>
+        <div class="text-[12px] text-slate-500">breadcrumb · icono header · tab activo · botón primario · sub-toggles · ~12 modales. → <b class="text-violet-700">violet</b></div>
+      </div>
+      <div class="border border-rose-200 bg-rose-50/40 rounded-xl p-3">
+        <div class="text-[11px] font-bold text-rose-700 mb-1">KPI "Payroll" (1 card)</div>
+        <div class="text-[12px] text-slate-600">Usa el color del módulo (sky). Pero es un <b>costo laboral</b> → tiene semántico natural: <b class="text-rose-700">rose</b> (dinero saliendo). No debe ir a violet.</div>
+      </div>
+      <div class="border border-sky-200 bg-sky-50/40 rounded-xl p-3">
+        <div class="text-[11px] font-bold text-sky-700 mb-1">"Honorarios" = sky (semántico)</div>
+        <div class="text-[12px] text-slate-600">Tipo de relación (RxH 4ta cat). Es la paleta fija teal/sky/violet/amber. <b>Se queda sky</b> · no es chrome.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- LA PROPUESTA -->
+<div class="max-w-6xl mx-auto px-4 sm:px-6 pb-4">
+  <div class="bg-violet-50 border border-violet-200 rounded-2xl p-5">
+    <h2 class="text-lg font-bold text-violet-900 mb-3 flex items-center gap-2"><i data-lucide="check-circle-2" class="w-5 h-5"></i> La propuesta</h2>
+    <div class="space-y-2 text-[13px] text-violet-900">
+      <div class="flex items-start gap-2"><span class="font-bold text-violet-700">A ·</span> <span><b>Chrome → violet</b> (header · breadcrumb · tab activo · botón "Generar boletas" · sub-toggles · ~12 modales). Igual que Usuarios e Inversionistas.</span></div>
+      <div class="flex items-start gap-2"><span class="font-bold text-violet-700">B ·</span> <span><b>KPI "Payroll" → rose</b> (costo laboral · dinero saliendo). Libera el violet del chrome y le da su color por naturaleza.</span></div>
+      <div class="flex items-start gap-2"><span class="font-bold text-violet-700">C ·</span> <span><b>KPI "Incentivos" se queda violet</b> (bono · coexiste con el chrome como "Socios" en Usuarios · está en zona de datos, no marco).</span></div>
+      <div class="flex items-start gap-2"><span class="font-bold text-violet-700">D ·</span> <span><b>"Honorarios" se queda sky</b> (semántico tipo de relación) · estado de planilla (verde/amber/rojo) intacto.</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ANTES / DESPUÉS -->
+<div class="max-w-6xl mx-auto px-4 sm:px-6 py-6">
+  <h2 class="text-xl font-bold text-slate-900 mb-3">Shell de Planilla · antes → después</h2>
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+
+    <!-- ANTES -->
+    <div>
+      <div class="mb-2"><span class="text-[11px] font-bold text-rose-600 bg-rose-50 border border-rose-200 px-2 py-0.5 rounded-full">ANTES · marco sky + Payroll sky</span></div>
+      <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+        <div class="border-b border-slate-200 px-4 py-2 bg-slate-50 flex items-center justify-between">
+          <div class="flex items-center gap-1 text-[11px] text-slate-500"><span>Inicio</span><i data-lucide="chevron-right" class="w-3 h-3"></i><span>Equipo</span><i data-lucide="chevron-right" class="w-3 h-3"></i><span class="text-slate-700 font-semibold">Planilla</span></div>
+          <span class="ring-bad inline-flex items-center gap-1 bg-sky-50 text-sky-700 border border-sky-200 px-2 py-0.5 rounded-md text-[10px] font-semibold"><i data-lucide="shield" class="w-3 h-3"></i> admin</span>
+        </div>
+        <div class="px-4 py-3 flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="ring-bad w-10 h-10 rounded-xl bg-gradient-to-br from-sky-500 to-sky-700 flex items-center justify-center"><i data-lucide="receipt" class="w-5 h-5 text-white"></i></div>
+            <div><div class="font-bold text-slate-900 text-[15px]">Planilla</div><div class="text-[11px] text-slate-500">Boletas · adelantos · incentivos</div></div>
+          </div>
+          <button class="ring-bad bg-sky-600 text-white text-[11px] font-semibold px-3 py-1.5 rounded-lg flex items-center gap-1"><i data-lucide="plus" class="w-3.5 h-3.5"></i> Boletas</button>
+        </div>
+        <div class="grid grid-cols-4 gap-1.5 px-4 pb-3">
+          <div class="ring-bad bg-gradient-to-br from-sky-50 to-sky-100/40 ring-1 ring-sky-200/50 rounded-lg p-1.5"><div class="text-[7px] uppercase font-bold text-sky-700">Payroll</div><div class="text-sm font-bold tabular text-sky-900">22.4k</div></div>
+          <div class="bg-gradient-to-br from-emerald-50 to-emerald-100/40 ring-1 ring-emerald-200/50 rounded-lg p-1.5"><div class="text-[7px] uppercase font-bold text-emerald-700">Activo</div><div class="text-sm font-bold tabular text-emerald-900">9</div></div>
+          <div class="bg-gradient-to-br from-violet-50 to-violet-100/40 ring-1 ring-violet-200/50 rounded-lg p-1.5"><div class="text-[7px] uppercase font-bold text-violet-700">Incent.</div><div class="text-sm font-bold tabular text-violet-900">3.1k</div></div>
+          <div class="bg-gradient-to-br from-indigo-50 to-indigo-100/40 ring-1 ring-indigo-200/50 rounded-lg p-1.5"><div class="text-[7px] uppercase font-bold text-indigo-700">Gratif.</div><div class="text-sm font-bold tabular text-indigo-900">jul</div></div>
+        </div>
+        <div class="border-t border-slate-200 px-4 flex gap-3 text-[12px] overflow-x-auto">
+          <span class="ring-bad py-2 border-b-2 border-sky-600 text-sky-700 font-bold whitespace-nowrap">Resumen</span>
+          <span class="py-2 text-slate-400 whitespace-nowrap">Boletas</span><span class="py-2 text-slate-400 whitespace-nowrap">Adelantos</span><span class="py-2 text-slate-400 whitespace-nowrap">Incentivos</span>
+        </div>
+      </div>
+      <p class="text-[11px] text-rose-600 mt-2">⚠ Marco sky · "Payroll" usa el color del módulo (debería ser su semántico de costo).</p>
+    </div>
+
+    <!-- DESPUÉS -->
+    <div>
+      <div class="mb-2"><span class="text-[11px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">DESPUÉS · marco violet + Payroll rose</span></div>
+      <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+        <div class="border-b border-slate-200 px-4 py-2 bg-slate-50 flex items-center justify-between">
+          <div class="flex items-center gap-1 text-[11px] text-slate-500"><span>Inicio</span><i data-lucide="chevron-right" class="w-3 h-3"></i><span>Equipo</span><i data-lucide="chevron-right" class="w-3 h-3"></i><span class="text-slate-700 font-semibold">Planilla</span></div>
+          <span class="inline-flex items-center gap-1 bg-violet-50 text-violet-700 border border-violet-200 px-2 py-0.5 rounded-md text-[10px] font-semibold"><i data-lucide="shield" class="w-3 h-3"></i> admin</span>
+        </div>
+        <div class="px-4 py-3 flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="ring-good w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-violet-700 flex items-center justify-center"><i data-lucide="receipt" class="w-5 h-5 text-white"></i></div>
+            <div><div class="font-bold text-slate-900 text-[15px]">Planilla</div><div class="text-[11px] text-slate-500">Boletas · adelantos · incentivos</div></div>
+          </div>
+          <button class="bg-violet-600 text-white text-[11px] font-semibold px-3 py-1.5 rounded-lg flex items-center gap-1"><i data-lucide="plus" class="w-3.5 h-3.5"></i> Boletas</button>
+        </div>
+        <div class="grid grid-cols-4 gap-1.5 px-4 pb-3">
+          <div class="ring-good bg-gradient-to-br from-rose-50 to-rose-100/40 ring-1 ring-rose-200/50 rounded-lg p-1.5"><div class="text-[7px] uppercase font-bold text-rose-700">Payroll</div><div class="text-sm font-bold tabular text-rose-900">22.4k</div></div>
+          <div class="bg-gradient-to-br from-emerald-50 to-emerald-100/40 ring-1 ring-emerald-200/50 rounded-lg p-1.5"><div class="text-[7px] uppercase font-bold text-emerald-700">Activo</div><div class="text-sm font-bold tabular text-emerald-900">9</div></div>
+          <div class="bg-gradient-to-br from-violet-50 to-violet-100/40 ring-1 ring-violet-200/50 rounded-lg p-1.5"><div class="text-[7px] uppercase font-bold text-violet-700">Incent.</div><div class="text-sm font-bold tabular text-violet-900">3.1k</div></div>
+          <div class="bg-gradient-to-br from-indigo-50 to-indigo-100/40 ring-1 ring-indigo-200/50 rounded-lg p-1.5"><div class="text-[7px] uppercase font-bold text-indigo-700">Gratif.</div><div class="text-sm font-bold tabular text-indigo-900">jul</div></div>
+        </div>
+        <div class="border-t border-slate-200 px-4 flex gap-3 text-[12px] overflow-x-auto">
+          <span class="ring-good py-2 border-b-2 border-violet-600 text-violet-700 font-bold whitespace-nowrap">Resumen</span>
+          <span class="py-2 text-slate-400 whitespace-nowrap">Boletas</span><span class="py-2 text-slate-400 whitespace-nowrap">Adelantos</span><span class="py-2 text-slate-400 whitespace-nowrap">Incentivos</span>
+        </div>
+      </div>
+      <p class="text-[11px] text-emerald-700 mt-2">✓ Marco violet · "Payroll" rose (costo) · "Incentivos" violet (dato · coexiste) · Activo/Gratif. intactos.</p>
+    </div>
+  </div>
+</div>
+
+<!-- NOTAS · honorarios + modales -->
+<div class="max-w-6xl mx-auto px-4 sm:px-6 py-6">
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
+      <h3 class="text-[13px] font-bold text-slate-900 mb-3">"Honorarios" se queda sky (semántico)</h3>
+      <div class="flex flex-wrap gap-2">
+        <span class="inline-flex items-center gap-1 bg-teal-100 text-teal-800 px-2.5 py-1 rounded-full text-[12px] font-bold"><i data-lucide="briefcase" class="w-3.5 h-3.5"></i> empleado · teal</span>
+        <span class="inline-flex items-center gap-1 bg-sky-100 text-sky-800 px-2.5 py-1 rounded-full text-[12px] font-bold"><i data-lucide="file-text" class="w-3.5 h-3.5"></i> honorarios · sky</span>
+        <span class="inline-flex items-center gap-1 bg-violet-100 text-violet-800 px-2.5 py-1 rounded-full text-[12px] font-bold"><i data-lucide="landmark" class="w-3.5 h-3.5"></i> socio · violet</span>
+        <span class="inline-flex items-center gap-1 bg-amber-100 text-amber-800 px-2.5 py-1 rounded-full text-[12px] font-bold"><i data-lucide="user" class="w-3.5 h-3.5"></i> externo · amber</span>
+      </div>
+      <p class="text-[11px] text-slate-500 mt-3">Esta paleta (tipo de relación) es fija y compartida con Usuarios. El sky de "honorarios" NO es el marco · no se toca.</p>
+    </div>
+    <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
+      <h3 class="text-[13px] font-bold text-slate-900 mb-3">~12 modales → violet</h3>
+      <div class="space-y-1.5 text-[12px] text-slate-600">
+        <div class="flex items-center gap-2"><i data-lucide="file-plus" class="w-3.5 h-3.5 text-violet-600"></i> Nueva boleta · Generar boletas · Boleta detalle</div>
+        <div class="flex items-center gap-2"><i data-lucide="hand-coins" class="w-3.5 h-3.5 text-violet-600"></i> Aprobar adelanto · Aprobar bono · Ajustar salario</div>
+        <div class="flex items-center gap-2"><i data-lucide="trophy" class="w-3.5 h-3.5 text-violet-600"></i> Nuevo/Editar esquema incentivo</div>
+        <div class="flex items-center gap-2"><i data-lucide="calendar" class="w-3.5 h-3.5 text-violet-600"></i> Programar vacaciones · Wizard baja empleado</div>
+      </div>
+      <p class="text-[11px] text-slate-500 mt-3">Su chrome (iconTone, focus, botón primario) pasa a violet · su contenido semántico (estados, montos) intacto.</p>
+    </div>
+  </div>
+</div>
+
+<!-- MOBILE -->
+<div class="max-w-6xl mx-auto px-4 sm:px-6 py-6">
+  <h2 class="text-lg font-bold text-slate-900 mb-3">Mobile · 375px (después)</h2>
+  <div class="mx-auto" style="width:340px">
+    <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+      <div class="border-b border-slate-200 px-3 py-2 bg-slate-50 flex items-center justify-between">
+        <div class="flex items-center gap-1 text-[10px] text-slate-500"><span>Inicio</span><i data-lucide="chevron-right" class="w-2.5 h-2.5"></i><span class="text-slate-700 font-semibold">Planilla</span></div>
+        <span class="inline-flex items-center gap-1 bg-violet-50 text-violet-700 border border-violet-200 px-1.5 py-0.5 rounded text-[9px] font-semibold"><i data-lucide="shield" class="w-2.5 h-2.5"></i> admin</span>
+      </div>
+      <div class="px-3 py-2.5 flex items-center gap-2">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-violet-500 to-violet-700 flex items-center justify-center"><i data-lucide="receipt" class="w-4 h-4 text-white"></i></div>
+        <div><div class="font-bold text-slate-900 text-[13px]">Planilla</div></div>
+      </div>
+      <div class="grid grid-cols-2 gap-1.5 px-3 pb-2">
+        <div class="bg-gradient-to-br from-rose-50 to-rose-100/40 ring-1 ring-rose-200/50 rounded-lg p-2"><div class="text-[8px] uppercase font-bold text-rose-700">Payroll</div><div class="text-base font-bold tabular text-rose-900">22.4k</div></div>
+        <div class="bg-gradient-to-br from-violet-50 to-violet-100/40 ring-1 ring-violet-200/50 rounded-lg p-2"><div class="text-[8px] uppercase font-bold text-violet-700">Incent.</div><div class="text-base font-bold tabular text-violet-900">3.1k</div></div>
+      </div>
+      <div class="border-t border-slate-200 px-3 flex gap-3 text-[11px] overflow-x-auto">
+        <span class="py-2 border-b-2 border-violet-600 text-violet-700 font-bold whitespace-nowrap">Resumen</span>
+        <span class="py-2 text-slate-400 whitespace-nowrap">Boletas</span><span class="py-2 text-slate-400 whitespace-nowrap">Adelantos</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<div class="max-w-6xl mx-auto px-4 sm:px-6 py-6 pb-16">
+  <div class="bg-slate-900 text-slate-100 rounded-2xl p-6">
+    <h2 class="text-lg font-bold mb-3 flex items-center gap-2"><i data-lucide="list-checks" class="w-5 h-5"></i> Qué se decide acá</h2>
+    <div class="space-y-1.5 text-[13px] text-slate-300">
+      <div>✓ Chrome de Planilla → <b class="text-violet-300">violet</b> (header · tabs · botón · ~12 modales)</div>
+      <div>✓ KPI "Payroll" → <b class="text-rose-300">rose</b> (costo laboral · semántico)</div>
+      <div>✓ KPI "Incentivos" → se queda <b class="text-violet-300">violet</b> (dato · coexiste con el marco)</div>
+      <div>✓ "Honorarios" → se queda <b class="text-sky-300">sky</b> (semántico tipo relación) · estado planilla intacto</div>
+      <div>? <b class="text-amber-300">A confirmar:</b> ¿"Payroll" en rose te cierra, o preferís amber (gasto fijo)?</div>
+    </div>
+    <p class="text-[11px] text-slate-500 mt-4">Mockup exploratorio · alineacion-color-planilla-v1 · 2026-05-31 · Vita Skin DS · 147 occ sky en 19 archivos</p>
+  </div>
+</div>
+
+<script>lucide.createIcons();</script>
+</body>
+</html>

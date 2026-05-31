@@ -110,9 +110,9 @@ export const AprobarBonoModal: React.FC<Props> = ({
         </div>
 
         {/* Info aprobación */}
-        <div className="bg-sky-50 border border-sky-200 rounded-lg p-3 flex items-start gap-2">
-          <Info className="w-4 h-4 text-sky-700 flex-shrink-0 mt-0.5" />
-          <div className="text-[11px] text-sky-900">
+        <div className="bg-violet-50 border border-violet-200 rounded-lg p-3 flex items-start gap-2">
+          <Info className="w-4 h-4 text-violet-700 flex-shrink-0 mt-0.5" />
+          <div className="text-[11px] text-violet-900">
             Al aprobar · el bono queda en estado "aprobado" y se incluirá automáticamente en la
             boleta del mes al generarla. Si necesitás ajustar el monto, rechazá y registrá
             manualmente vía Nueva boleta.
