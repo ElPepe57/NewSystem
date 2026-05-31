@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Los 4 componentes a CREAR · funcional · Vita Skin ERP</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+  .tabular { font-variant-numeric: tabular-nums; }
+  code, pre { font-family: 'SF Mono', ui-monospace, Menlo, Consolas, monospace; }
+  .acto-label { letter-spacing: 0.08em; }
+</style>
+</head>
+<body class="bg-slate-100 text-slate-900 p-4 sm:p-8">
+
+<div class="max-w-5xl mx-auto space-y-8">
+
+  <!-- HERO -->
+  <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-6 sm:p-8">
+    <div class="flex flex-wrap items-center gap-2 mb-3">
+      <span class="text-[11px] font-bold uppercase tracking-wider text-purple-700 bg-purple-50 px-2 py-1 rounded">✨ Los 4 a CREAR · funcional</span>
+    </div>
+    <h1 class="text-2xl sm:text-3xl font-bold tracking-tight mb-2">Las 4 piezas nuevas, a fondo</h1>
+    <p class="text-sm text-slate-600 max-w-3xl leading-relaxed">
+      Cada una con sus funciones, ejemplo real, mobile y API. (SmartSearch ya tiene su mockup aparte.)
+    </p>
+    <div class="mt-3 flex flex-wrap gap-2 text-[11px]">
+      <a href="#hubcard" class="bg-slate-100 hover:bg-slate-200 px-2.5 py-1.5 rounded font-semibold">1 · HubCard</a>
+      <a href="#bottomsheet" class="bg-slate-100 hover:bg-slate-200 px-2.5 py-1.5 rounded font-semibold">2 · BottomSheet</a>
+      <a href="#bulk" class="bg-slate-100 hover:bg-slate-200 px-2.5 py-1.5 rounded font-semibold">3 · BulkActionsToolbar</a>
+      <a href="#drawer" class="bg-slate-100 hover:bg-slate-200 px-2.5 py-1.5 rounded font-semibold">4 · Drawer</a>
+    </div>
+  </div>
+
+  <!-- 1 · HUBCARD -->
+  <div id="hubcard" class="bg-white border border-slate-200 rounded-2xl shadow-sm p-5">
+    <div class="text-[15px] font-bold mb-1">1 · HubCard <span class="text-[11px] font-normal text-slate-500">· card de entidad unificada</span></div>
+    <div class="text-[12px] text-slate-600 mb-3">Reemplaza GastoCard · CompraCard · EnvioCard · DataCard… un solo molde con slots.</div>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div>
+        <div class="text-[11px] font-bold text-slate-800 mb-1.5">Variante simple (1 entidad)</div>
+        <div class="bg-white border border-slate-200 rounded-xl p-3 flex items-center gap-3 mb-3">
+          <div class="w-9 h-9 rounded-lg bg-amber-100 flex items-center justify-center"><i data-lucide="building" class="w-4 h-4 text-amber-700"></i></div>
+          <div class="flex-1"><div class="text-[12px] font-bold">Alquiler local Miraflores</div><div class="text-[10px] text-slate-500">Período · recurrente · vence 3 jun</div></div>
+          <div class="text-[13px] font-bold tabular">S/ 2,400</div>
+          <span class="bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full text-[10px] font-bold">Pendiente</span>
+          <i data-lucide="chevron-right" class="w-4 h-4 text-slate-300"></i>
+        </div>
+        <div class="text-[11px] font-bold text-slate-800 mb-1.5">Variante con sub-filas (OC + líneas)</div>
+        <div class="bg-white border border-slate-200 rounded-xl overflow-hidden">
+          <div class="p-3 flex items-center gap-3 border-b border-slate-100">
+            <div class="w-9 h-9 rounded-lg bg-blue-100 flex items-center justify-center"><i data-lucide="package" class="w-4 h-4 text-blue-700"></i></div>
+            <div class="flex-1"><div class="text-[12px] font-bold">OC-0042 · Maersk</div><div class="text-[10px] text-slate-500">3 productos · importación</div></div>
+            <div class="text-[13px] font-bold tabular">$ 8,400</div>
+          </div>
+          <div class="bg-slate-50/60 text-[10px] divide-y divide-slate-100">
+            <div class="px-3 py-1.5 flex justify-between"><span class="text-slate-600">Serum Vit C ×200</span><span class="tabular">$ 3,200</span></div>
+            <div class="px-3 py-1.5 flex justify-between"><span class="text-slate-600">Crema noche ×150</span><span class="tabular">$ 5,200</span></div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="text-[11px] font-bold text-slate-800 mb-1.5">Funciones</div>
+        <div class="text-[12px] text-slate-600 space-y-1">
+          <div>• Slots: <code>icon · iconTone · title · meta · amount · status · actions</code>.</div>
+          <div>• <code>subRows</code> · sub-entidades anidadas (OC→líneas · canon CompraCard).</div>
+          <div>• <code>selectable</code> · checkbox para bulk.</div>
+          <div>• <code>onClick</code> → drill/editar · chevron opcional.</div>
+          <div>• status usa la paleta semántica (no el color del módulo).</div>
+        </div>
+        <div class="text-[11px] font-bold text-slate-800 mt-3 mb-1">Mobile</div>
+        <div class="text-[12px] text-slate-600">Layout 1-col · touch ≥44px · monto baja a 2ª línea si no entra.</div>
+        <pre class="bg-slate-900 text-slate-100 text-[10px] rounded-lg p-2.5 mt-2 overflow-x-auto"><code>&lt;HubCard icon={Building} iconTone="amber"
+  title="Alquiler" meta="vence 3 jun"
+  amount="S/ 2,400" status="pendiente"
+  subRows={[...]} onClick={...} /&gt;</code></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2 · BOTTOMSHEET -->
+  <div id="bottomsheet" class="bg-white border border-slate-200 rounded-2xl shadow-sm p-5">
+    <div class="text-[15px] font-bold mb-1">2 · BottomSheet <span class="text-[11px] font-normal text-slate-500">· modal mobile que sube desde abajo</span></div>
+    <div class="text-[12px] text-slate-600 mb-3">En mobile, los modales centrados se ven apretados. El bottom-sheet es el patrón nativo (drag handle).</div>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div class="flex justify-center">
+        <div class="w-[260px] bg-slate-200 rounded-2xl p-2 relative" style="height:300px;">
+          <div class="text-[9px] text-slate-500 text-center pt-1">pantalla mobile</div>
+          <div class="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl border-t-2 border-slate-300 p-3">
+            <div class="w-10 h-1 bg-slate-300 rounded-full mx-auto mb-3"></div>
+            <div class="flex items-center gap-2 mb-2"><div class="w-7 h-7 rounded bg-teal-100 flex items-center justify-center"><i data-lucide="receipt" class="w-4 h-4 text-teal-700"></i></div><span class="text-[12px] font-bold">Nuevo gasto</span></div>
+            <div class="space-y-1.5 text-[11px]">
+              <div class="border border-slate-300 rounded px-2 py-1.5 text-slate-400">Descripción</div>
+              <div class="border border-slate-300 rounded px-2 py-1.5 text-slate-400">S/ 0.00</div>
+              <button class="w-full bg-teal-600 text-white py-1.5 rounded font-bold">Guardar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="text-[11px] font-bold text-slate-800 mb-1.5">Funciones</div>
+        <div class="text-[12px] text-slate-600 space-y-1">
+          <div>• Sube desde abajo · drag handle para cerrar deslizando.</div>
+          <div>• Snap points (medio / full) · backdrop tap para cerrar.</div>
+          <div>• Para forms, acciones, "crear inline" en mobile.</div>
+          <div>• Safe-area inset (notch).</div>
+          <div class="text-purple-700">Es el mismo contenido del FormModalV2 · solo cambia la presentación en mobile (el Hub Kit decide modal vs sheet por breakpoint).</div>
+        </div>
+        <pre class="bg-slate-900 text-slate-100 text-[10px] rounded-lg p-2.5 mt-2 overflow-x-auto"><code>&lt;BottomSheet open snapPoints={['50%','full']}
+  onClose={...}&gt; {form} &lt;/BottomSheet&gt;
+// o automático: FormModalV2 → sheet en &lt;sm</code></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3 · BULK -->
+  <div id="bulk" class="bg-white border border-slate-200 rounded-2xl shadow-sm p-5">
+    <div class="text-[15px] font-bold mb-1">3 · BulkActionsToolbar <span class="text-[11px] font-normal text-slate-500">· selección múltiple + acciones masivas</span></div>
+    <div class="text-[12px] text-slate-600 mb-3">Hoy en Gastos está a mano con emojis ☑📥🗑 (viola canon F8). → componente canon con lucide.</div>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div>
+        <div class="text-[11px] font-bold text-slate-800 mb-1.5">Inactivo (botón activar)</div>
+        <div class="bg-white border border-slate-200 rounded-xl px-3 py-2 mb-3 text-[11px]"><button class="text-amber-700 font-semibold flex items-center gap-1.5"><i data-lucide="check-square" class="w-3.5 h-3.5"></i> Activar selección múltiple</button></div>
+        <div class="text-[11px] font-bold text-slate-800 mb-1.5">Activo (con selección)</div>
+        <div class="bg-amber-100 border-2 border-amber-400 ring-2 ring-amber-200 rounded-xl px-3 py-2 text-[11px]">
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="font-bold text-amber-900">3 gastos · S/ 11,400</span>
+            <div class="ml-auto flex items-center gap-1.5">
+              <button class="bg-white border border-slate-200 px-2 py-1 rounded font-bold inline-flex items-center gap-1"><i data-lucide="download" class="w-3 h-3"></i> Exportar</button>
+              <button class="bg-rose-600 text-white px-2 py-1 rounded font-bold inline-flex items-center gap-1"><i data-lucide="trash-2" class="w-3 h-3"></i> Eliminar</button>
+              <button class="text-amber-700 px-1.5 py-1 inline-flex items-center gap-1"><i data-lucide="x" class="w-3 h-3"></i></button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="text-[11px] font-bold text-slate-800 mb-1.5">Funciones</div>
+        <div class="text-[12px] text-slate-600 space-y-1">
+          <div>• Toggle modo selección · checkbox en cada HubCard.</div>
+          <div>• Conteo + suma de seleccionados (tabular).</div>
+          <div>• Acciones configurables (exportar · eliminar · pagar · reclasificar…).</div>
+          <div>• "Todos visibles" · "Limpiar" · "Salir".</div>
+          <div class="text-emerald-700">Iconos lucide (canon F8) · cero emojis.</div>
+        </div>
+        <pre class="bg-slate-900 text-slate-100 text-[10px] rounded-lg p-2.5 mt-2 overflow-x-auto"><code>&lt;BulkActionsToolbar
+  count={3} total="S/ 11,400"
+  actions={[{label,icon,onClick,tone}...]}
+  onClear onExit /&gt;</code></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4 · DRAWER -->
+  <div id="drawer" class="bg-white border border-slate-200 rounded-2xl shadow-sm p-5">
+    <div class="text-[15px] font-bold mb-1">4 · Drawer lateral <span class="text-[11px] font-normal text-slate-500">· panel de contexto sin salir</span></div>
+    <div class="text-[12px] text-slate-600 mb-3">Entra desde el lado para ver detalle/contexto sin cambiar de página. Hoy FilterDrawer está muerto · UserPanel lo hace a mano.</div>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div>
+        <div class="bg-slate-100 rounded-xl p-2 relative overflow-hidden" style="height:200px;">
+          <div class="text-[9px] text-slate-400 p-1">contenido detrás (atenuado)</div>
+          <div class="absolute top-0 right-0 bottom-0 w-[62%] bg-white border-l-2 border-slate-300 shadow-xl p-3">
+            <div class="flex items-center justify-between mb-2"><span class="text-[12px] font-bold">Juan Pérez</span><i data-lucide="x" class="w-4 h-4 text-slate-400"></i></div>
+            <div class="flex gap-2 text-[10px] border-b border-slate-200 mb-2"><span class="border-b-2 border-violet-600 text-violet-700 font-semibold pb-1">Resumen</span><span class="text-slate-400 pb-1">Relaciones</span></div>
+            <div class="space-y-1 text-[10px] text-slate-600"><div>Empleado · activo</div><div>Sueldo S/ 1,700</div><div>2 relaciones</div></div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="text-[11px] font-bold text-slate-800 mb-1.5">Funciones</div>
+        <div class="text-[12px] text-slate-600 space-y-1">
+          <div>• Entra desde derecha (o izquierda) · backdrop · cerrar con Esc/tap/X.</div>
+          <div>• Anchos (sm/md/lg) · puede tener tabs internos (ej. UserPanel).</div>
+          <div>• Para: detalle de entidad, panel de contexto, filtros avanzados.</div>
+          <div class="text-purple-700">En mobile → full-screen o bottom-sheet (lo decide el kit).</div>
+        </div>
+        <pre class="bg-slate-900 text-slate-100 text-[10px] rounded-lg p-2.5 mt-2 overflow-x-auto"><code>&lt;Drawer open side="right" size="md"
+  title="Juan Pérez" onClose={...}&gt;
+  {tabs + contenido}
+&lt;/Drawer&gt;</code></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- cierre -->
+  <div class="bg-gradient-to-br from-purple-50 to-purple-100/40 ring-1 ring-purple-200/60 rounded-2xl p-6">
+    <div class="acto-label text-[11px] font-bold uppercase text-purple-700 mb-2">Las 5 piezas a crear (con SmartSearch)</div>
+    <p class="text-[13px] text-slate-800 leading-relaxed">
+      <strong>SmartSearch</strong> (3 modos + crear inline) · <strong>HubCard</strong> (entidad unificada) · <strong>BottomSheet</strong> (modal mobile) ·
+      <strong>BulkActionsToolbar</strong> (selección masiva · mata los emojis F8) · <strong>Drawer</strong> (panel lateral).
+      Estas 5 + las 4 mejoras (Button · FiltrosBar · EmptyState · StatusBadge) son el corazón de la capa de contenido del DS.
+      Cada una nace en <code class="bg-white px-1 rounded">design-system/</code> y la usa el Hub Kit.
+    </p>
+  </div>
+
+  <div class="text-center text-[11px] text-slate-400 pb-6">
+    docs/mockups/eval-componentes-crear-funcional-v1.html · las 4 piezas nuevas a fondo (2026-05-30)
+  </div>
+
+</div>
+
+<script>lucide.createIcons();</script>
+</body>
+</html>
