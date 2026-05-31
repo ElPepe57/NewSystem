@@ -114,7 +114,7 @@ export const ReporteDirectoIndirecto: React.FC<Props> = ({
   if (loading) {
     return (
       <div className="bg-white border border-slate-200 rounded-2xl p-6 flex items-center justify-center gap-2 text-[12px] text-slate-500">
-        <Loader2 className="w-4 h-4 animate-spin text-purple-600" /> Calculando costos directos vs
+        <Loader2 className="w-4 h-4 animate-spin text-teal-600" /> Calculando costos directos vs
         indirectos…
       </div>
     );

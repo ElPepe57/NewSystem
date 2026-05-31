@@ -119,7 +119,7 @@ export const InsightsDelMes: React.FC<Props> = ({ insights, periodo }) => {
     <section className="bg-white border border-slate-200 rounded-2xl overflow-hidden">
       <div className="px-5 py-3 border-b border-slate-100 flex items-center justify-between flex-wrap gap-2">
         <h3 className="text-[13px] font-bold text-slate-900 flex items-center gap-2">
-          <Sparkles className="w-4 h-4 text-purple-600" />
+          <Sparkles className="w-4 h-4 text-teal-600" />
           Insights del mes · {periodo}
         </h3>
         <span className="text-[10px] text-slate-500">

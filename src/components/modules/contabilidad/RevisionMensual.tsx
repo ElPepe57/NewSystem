@@ -143,8 +143,8 @@ export default function RevisionMensual({ mes, anio, balance, estado }: Props) {
   if (loading) {
     return (
       <div className="bg-white border border-slate-200 rounded-2xl p-12 text-center space-y-3">
-        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-purple-50">
-          <Loader2 className="w-8 h-8 text-purple-600 animate-spin" />
+        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-teal-50">
+          <Loader2 className="w-8 h-8 text-teal-600 animate-spin" />
         </div>
         <div className="text-[13px] font-semibold text-slate-700">Cargando revisión mensual…</div>
         <div className="text-[11px] text-slate-500">Consultando cuentas + verificaciones + historial</div>
@@ -168,7 +168,7 @@ export default function RevisionMensual({ mes, anio, balance, estado }: Props) {
       <section className="bg-gradient-to-r from-slate-50 to-slate-100/40 ring-1 ring-slate-200/50 rounded-2xl p-4">
         <div className="flex items-center justify-between flex-wrap gap-3">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-purple-50 border border-purple-200 flex items-center justify-center text-purple-700 flex-shrink-0">
+            <div className="w-10 h-10 rounded-xl bg-teal-50 border border-teal-200 flex items-center justify-center text-teal-700 flex-shrink-0">
               <ClipboardCheck className="w-5 h-5" />
             </div>
             <div>
@@ -222,14 +222,14 @@ export default function RevisionMensual({ mes, anio, balance, estado }: Props) {
 
       {/* §4 · Acción opcional "Marcar como revisado" */}
       {!yaRevisado && (
-        <section className="bg-gradient-to-r from-purple-50 to-purple-100/30 ring-1 ring-purple-200/50 rounded-2xl p-4 flex items-center justify-between flex-wrap gap-3">
+        <section className="bg-gradient-to-r from-teal-50 to-teal-100/30 ring-1 ring-teal-200/50 rounded-2xl p-4 flex items-center justify-between flex-wrap gap-3">
           <div className="flex items-start gap-3 flex-1 min-w-[280px]">
-            <Bookmark className="w-5 h-5 text-purple-700 mt-0.5" />
+            <Bookmark className="w-5 h-5 text-teal-700 mt-0.5" />
             <div>
-              <div className="text-[12px] font-bold text-purple-900">
+              <div className="text-[12px] font-bold text-teal-900">
                 ¿Terminaste de revisar {MESES[mes - 1]}?
               </div>
-              <div className="text-[11px] text-purple-700">
+              <div className="text-[11px] text-teal-700">
                 Opcional · solo deja registro de "fue revisado el {new Date().getDate()}/{
                   MESES[new Date().getMonth()].slice(0, 3)
                 }" en el historial · no bloquea nada.
@@ -240,7 +240,7 @@ export default function RevisionMensual({ mes, anio, balance, estado }: Props) {
             type="button"
             onClick={handleMarcarRevisado}
             disabled={marcandoRevisado}
-            className="text-[11px] font-bold text-white bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded-lg inline-flex items-center gap-2 disabled:opacity-60"
+            className="text-[11px] font-bold text-white bg-teal-600 hover:bg-teal-700 px-4 py-2 rounded-lg inline-flex items-center gap-2 disabled:opacity-60"
           >
             {marcandoRevisado ? (
               <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -963,7 +963,7 @@ function AplicarAjusteModal({
             value={razon}
             onChange={(e) => setRazon(e.target.value)}
             placeholder="Ej: intereses bancarios no registrados · comisión de mantenimiento · transferencia recibida sin registrar..."
-            className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:border-purple-500 focus:ring-1 focus:ring-purple-500"
+            className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
             rows={3}
           />
           <p className="text-[10px] text-slate-500 mt-1">

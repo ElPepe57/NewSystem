@@ -220,12 +220,12 @@ export default function BalanceGeneral({ mes, anio }: Props) {
     cargarDatos();
   }, [mes, anio]);
 
-  // ===== LOADING STATE · canon v5.1 spinner purple + skeleton =====
+  // ===== LOADING STATE · canon v5.1 spinner teal + skeleton =====
   if (loading) {
     return (
       <div className="bg-white border border-slate-200 rounded-2xl p-12 text-center space-y-4">
-        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-purple-50">
-          <Loader2 className="w-8 h-8 text-purple-600 animate-spin" />
+        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-teal-50">
+          <Loader2 className="w-8 h-8 text-teal-600 animate-spin" />
         </div>
         <div>
           <div className="text-[13px] font-semibold text-slate-700">Calculando Balance General…</div>

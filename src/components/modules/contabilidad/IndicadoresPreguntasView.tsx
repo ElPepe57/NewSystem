@@ -159,7 +159,7 @@ const CardPregunta: React.FC<CardPreguntaProps> = ({
                   <div className="text-[12px] font-semibold text-slate-900 flex items-center gap-1 flex-wrap">
                     {r.pregunta}
                     {r.esKey && (
-                      <span className="text-[8px] bg-purple-100 text-purple-700 px-1 rounded font-bold whitespace-nowrap">
+                      <span className="text-[8px] bg-teal-100 text-teal-700 px-1 rounded font-bold whitespace-nowrap">
                         ★ KEY
                       </span>
                     )}

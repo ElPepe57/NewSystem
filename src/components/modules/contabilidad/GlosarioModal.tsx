@@ -113,7 +113,7 @@ export const GlosarioModal: React.FC<Props> = ({ isOpen, onClose }) => {
       title="Glosario contable"
       subtitle="Todos los términos técnicos del módulo explicados en lenguaje claro"
       icon={BookOpen}
-      iconTone="purple"
+      iconTone="teal"
       submitLabel="Cerrar"
       submitVariant="primary"
       cancelLabel=""
@@ -128,7 +128,7 @@ export const GlosarioModal: React.FC<Props> = ({ isOpen, onClose }) => {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Buscar término · ej. EBITDA, margen, liquidez..."
-            className="w-full pl-9 pr-9 py-2 border border-slate-300 rounded-lg text-sm focus:border-purple-500 focus:ring-1 focus:ring-purple-500"
+            className="w-full pl-9 pr-9 py-2 border border-slate-300 rounded-lg text-sm focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
             autoFocus
           />
           {search && (
@@ -150,7 +150,7 @@ export const GlosarioModal: React.FC<Props> = ({ isOpen, onClose }) => {
             onClick={() => setCategoria('todos')}
             className={`text-[10px] font-bold whitespace-nowrap px-2.5 py-1 rounded-full transition-colors ${
               categoria === 'todos'
-                ? 'bg-purple-600 text-white'
+                ? 'bg-teal-600 text-white'
                 : 'bg-slate-50 text-slate-700 border border-slate-200 hover:bg-slate-100'
             }`}
           >
@@ -193,7 +193,7 @@ export const GlosarioModal: React.FC<Props> = ({ isOpen, onClose }) => {
             .sort()
             .map((letra) => (
               <div key={letra}>
-                <div className="text-[11px] uppercase tracking-wider font-bold text-purple-700 mb-2">
+                <div className="text-[11px] uppercase tracking-wider font-bold text-teal-700 mb-2">
                   {letra}
                 </div>
                 <div className="space-y-2">
@@ -226,8 +226,8 @@ const GlosarioEntry: React.FC<{ termino: TerminoGlosario }> = ({ termino }) => {
     <div
       className={`border rounded-xl p-3 transition-colors ${
         isClave
-          ? 'border-purple-200 bg-purple-50/30 ring-2 ring-purple-100'
-          : 'border-slate-200 hover:border-purple-300'
+          ? 'border-teal-200 bg-teal-50/30 ring-2 ring-teal-100'
+          : 'border-slate-200 hover:border-teal-300'
       }`}
     >
       <div className="flex items-start justify-between gap-2 mb-1 flex-wrap">
@@ -240,7 +240,7 @@ const GlosarioEntry: React.FC<{ termino: TerminoGlosario }> = ({ termino }) => {
           </span>
         </div>
         {isClave && (
-          <span className="text-[9px] text-purple-600 italic font-bold whitespace-nowrap">
+          <span className="text-[9px] text-teal-600 italic font-bold whitespace-nowrap">
             ★ término clave
           </span>
         )}

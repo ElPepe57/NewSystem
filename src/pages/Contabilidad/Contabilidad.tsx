@@ -94,6 +94,8 @@ import type {
   AnalisisFinanciero,
 } from '../../types/contabilidad.types';
 import { formatCurrencyPEN, formatPercent } from '../../utils/format';
+// chk5.DS · Fase 1 · color de identidad heredado del grupo "Finanzas y Contabilidad" (= teal · gobernanza DS · grupoColor.ts)
+import { chromeDe } from '../../design-system/grupoColor';
 
 type TabActiva = 'resumen' | 'balance' | 'estado-resultados' | 'indicadores' | 'tendencias' | 'revision';
 
@@ -101,6 +103,9 @@ type TabActiva = 'resumen' | 'balance' | 'estado-resultados' | 'indicadores' | '
 // en format.ts — se usa formatCurrencyPEN que produce 2 decimales; la diferencia visual
 // es mínima y unifica el comportamiento).
 const formatCurrency = formatCurrencyPEN;
+
+// chk5.DS · Fase 1 · chrome del módulo = color del grupo (teal). NO inventar color · leer del registro grupoColor.ts.
+const MOD = chromeDe('finanzas-contabilidad');
 
 // Color según estado del análisis
 const getEstadoColor = (estado: AnalisisFinanciero['estado']) => {
@@ -315,7 +320,7 @@ const SubVistaTabsContabilidad: React.FC<SubVistaTabsContabilidadProps> = ({
                 className={
                   'px-4 py-3 text-[12px] border-b-2 flex items-center gap-1.5 whitespace-nowrap transition-colors ' +
                   (isActive
-                    ? 'border-purple-600 text-purple-700 font-semibold'
+                    ? `${MOD.tabActive} font-semibold`
                     : 'border-transparent text-slate-600 hover:text-slate-900 hover:border-slate-300 font-medium')
                 }
               >
@@ -469,7 +474,7 @@ interface IndicadorRowProps {
   semaforo: Semaforo;
   /** Override del label del semáforo · ej "Sobreliquidez" */
   semaforoLabel?: string;
-  /** Si true · bg purple-50/40 (ratio destacado tipo Ciclo Conversión) */
+  /** Si true · bg teal-50/40 (ratio destacado tipo Ciclo Conversión) */
   destacado?: boolean;
   /** chk5.E-B · sparkline data tendencia 6m (opcional · solo en ratios derivables) */
   sparkData?: number[];
@@ -491,7 +496,7 @@ const IndicadorRow: React.FC<IndicadorRowProps> = ({
   const showSparkline = validSparkData.length >= 2;
 
   return (
-    <div className={`px-4 py-2.5 flex items-center justify-between gap-2 ${destacado ? 'bg-purple-50/40' : ''}`}>
+    <div className={`px-4 py-2.5 flex items-center justify-between gap-2 ${destacado ? MOD.rowHighlight : ''}`}>
       <div className="flex-1 min-w-0 pr-2">
         <div className="font-semibold text-slate-900 flex items-center gap-1">
           {nombre}
@@ -660,7 +665,7 @@ const ConfigurarContableModal: React.FC<ConfigurarContableModalProps> = ({
       title="Configuración contable"
       subtitle="Parámetros que afectan el cálculo de Balance General y Estado de Resultados"
       icon={Settings2}
-      iconTone="purple"
+      iconTone="teal"
       submitLabel={submitting ? 'Guardando…' : 'Guardar configuración'}
       submitVariant="primary"
       submitIcon={CheckCircle2}
@@ -672,7 +677,7 @@ const ConfigurarContableModal: React.FC<ConfigurarContableModalProps> = ({
       <div className="space-y-4">
         {loading ? (
           <div className="text-center py-8">
-            <Loader2 className="w-6 h-6 animate-spin text-purple-600 mx-auto mb-2" />
+            <Loader2 className="w-6 h-6 animate-spin text-teal-600 mx-auto mb-2" />
             <div className="text-[11px] text-slate-500">Cargando configuración actual…</div>
           </div>
         ) : (
@@ -695,7 +700,7 @@ const ConfigurarContableModal: React.FC<ConfigurarContableModalProps> = ({
                   step="0.01"
                   value={capitalStr}
                   onChange={(e) => setCapitalStr(e.target.value)}
-                  className="w-full pl-10 pr-3 py-2.5 border border-slate-300 rounded-lg text-sm tabular-nums focus:border-purple-500 focus:ring-1 focus:ring-purple-500"
+                  className="w-full pl-10 pr-3 py-2.5 border border-slate-300 rounded-lg text-sm tabular-nums focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
                 />
               </div>
               <p className="text-[10px] text-slate-500 mt-1">
@@ -714,7 +719,7 @@ const ConfigurarContableModal: React.FC<ConfigurarContableModalProps> = ({
                   step="0.01"
                   value={reservaStr}
                   onChange={(e) => setReservaStr(e.target.value)}
-                  className="w-full pl-10 pr-3 py-2.5 border border-slate-300 rounded-lg text-sm tabular-nums focus:border-purple-500 focus:ring-1 focus:ring-purple-500"
+                  className="w-full pl-10 pr-3 py-2.5 border border-slate-300 rounded-lg text-sm tabular-nums focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
                 />
               </div>
               <p className="text-[10px] text-slate-500 mt-1">
@@ -734,7 +739,7 @@ const ConfigurarContableModal: React.FC<ConfigurarContableModalProps> = ({
                   max="100"
                   value={provisionStr}
                   onChange={(e) => setProvisionStr(e.target.value)}
-                  className="w-full pl-3 pr-10 py-2.5 border border-slate-300 rounded-lg text-sm tabular-nums focus:border-purple-500 focus:ring-1 focus:ring-purple-500"
+                  className="w-full pl-3 pr-10 py-2.5 border border-slate-300 rounded-lg text-sm tabular-nums focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
                 />
                 <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 font-bold text-sm">%</span>
               </div>
@@ -755,7 +760,7 @@ const ConfigurarContableModal: React.FC<ConfigurarContableModalProps> = ({
                   min="0"
                   value={tcStr}
                   onChange={(e) => setTcStr(e.target.value)}
-                  className="w-full pl-20 pr-3 py-2.5 border border-slate-300 rounded-lg text-sm tabular-nums focus:border-purple-500 focus:ring-1 focus:ring-purple-500"
+                  className="w-full pl-20 pr-3 py-2.5 border border-slate-300 rounded-lg text-sm tabular-nums focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
                 />
               </div>
               <p className="text-[10px] text-slate-500 mt-1">
@@ -1177,8 +1182,8 @@ function TendenciasView({
               const width = (Math.abs(valor) / maxAbs) * 100;
               const isCurrent = idx === mesActualIdx;
 
-              const rowBg = isCurrent ? 'bg-purple-50/30 -mx-2 px-2 py-1 rounded' : '';
-              const labelColor = isCurrent ? 'font-bold text-purple-900' : 'text-slate-600';
+              const rowBg = isCurrent ? 'bg-teal-50/30 -mx-2 px-2 py-1 rounded' : '';
+              const labelColor = isCurrent ? 'font-bold text-teal-900' : 'text-slate-600';
               const valueColor = isCurrent
                 ? isPositive
                   ? 'font-bold text-emerald-700'
@@ -1306,16 +1311,16 @@ function TendenciasView({
                 const margen = m.ventasNetas > 0 ? (m.utilidadNeta / m.ventasNetas) * 100 : 0;
                 const utilColor = m.utilidadNeta >= 0 ? 'text-emerald-700' : 'text-rose-700';
                 const rowBg = isCurrent
-                  ? 'bg-purple-50/30 border-l-4 border-purple-500'
+                  ? 'bg-teal-50/30 border-l-4 border-teal-500'
                   : isPeor
                   ? 'bg-rose-50/30'
                   : 'hover:bg-slate-50';
                 const labelCls = isCurrent
-                  ? 'font-bold text-purple-900'
+                  ? 'font-bold text-teal-900'
                   : isPeor
                   ? 'font-semibold text-rose-700'
                   : 'font-semibold text-slate-700';
-                const numCls = isCurrent ? 'font-bold text-purple-900' : '';
+                const numCls = isCurrent ? 'font-bold text-teal-900' : '';
 
                 return (
                   <tr key={idx} className={rowBg}>
@@ -1677,17 +1682,17 @@ export function Contabilidad() {
             )}
           </div>
           {/* Chip contextual al rol · canon "admin ve todo" · estandarización (chk5.E-GASTOS-CHIP) */}
-          <span className="text-[10px] bg-purple-50 text-purple-700 px-2 py-0.5 rounded font-bold hidden sm:inline-flex items-center gap-1 flex-shrink-0">
+          <span className={`text-[10px] ${MOD.chip} px-2 py-0.5 rounded font-bold hidden sm:inline-flex items-center gap-1 flex-shrink-0`}>
             <Shield className="w-3 h-3" />
             {esAdmin ? 'Vista ejecutiva · admin' : 'Vista ejecutiva'}
           </span>
         </div>
 
-        {/* §B · HEADER BANKING-GRADE · icon purple gradient + h1 + subtitle + 3-tier actions canon N10 */}
+        {/* §B · HEADER BANKING-GRADE · icon teal gradient (color del grupo F&C) + h1 + subtitle + 3-tier actions canon N10 */}
         <div className="px-6 py-5 border-b border-slate-100">
           <div className="flex items-start justify-between gap-4 flex-wrap">
             <div className="flex items-start gap-3 flex-1 min-w-[260px]">
-              <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-purple-500 to-purple-700 flex items-center justify-center text-white flex-shrink-0">
+              <div className={`w-11 h-11 rounded-xl ${MOD.headerIcon} flex items-center justify-center text-white flex-shrink-0`}>
                 <Calculator className="w-5 h-5" />
               </div>
               <div className="min-w-0">
@@ -1862,11 +1867,11 @@ export function Contabilidad() {
           </div>
         )}
 
-        {/* chk5.E-S2 · LOADING STATE canon · spinner purple + skeleton bars */}
+        {/* chk5.E-S2 · LOADING STATE canon · spinner teal + skeleton bars */}
         {loading && !errorMsg && (
           <div className="bg-white border border-slate-200 rounded-2xl p-12 text-center space-y-4">
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-purple-50">
-              <Loader2 className="w-8 h-8 animate-spin text-purple-600" />
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-teal-50">
+              <Loader2 className="w-8 h-8 animate-spin text-teal-600" />
             </div>
             <div>
               <div className="text-[13px] font-semibold text-slate-700">Calculando estados financieros…</div>
@@ -1885,8 +1890,8 @@ export function Contabilidad() {
         {/* chk5.E-S2 · EMPTY STATE canon N9 · 4 quick-start cards */}
         {!loading && !errorMsg && (!estado || estado.ventasNetas === 0) && tabActiva === 'resumen' && (
           <div className="bg-white border border-slate-200 rounded-2xl p-12 text-center space-y-4">
-            <div className="w-20 h-20 mx-auto rounded-full bg-purple-100 flex items-center justify-center">
-              <Calculator className="w-10 h-10 text-purple-600" />
+            <div className="w-20 h-20 mx-auto rounded-full bg-teal-100 flex items-center justify-center">
+              <Calculator className="w-10 h-10 text-teal-600" />
             </div>
             <div>
               <div className="text-[16px] font-bold text-slate-900 mb-1">
@@ -2029,7 +2034,7 @@ export function Contabilidad() {
             {indicadores && (
               <div className="bg-white rounded-lg border p-6">
                 <h4 className="font-semibold text-slate-700 mb-4 flex items-center gap-2">
-                  <Activity className="w-5 h-5 text-purple-600" />
+                  <Activity className="w-5 h-5 text-teal-600" />
                   Indicadores Clave
                 </h4>
                 <div className="grid grid-cols-2 gap-4">
@@ -2147,13 +2152,13 @@ export function Contabilidad() {
         <div className="space-y-4">
 
           {/* Header informativo · chk5.E-C · toggle Preguntas/Técnico */}
-          <div className="bg-gradient-to-r from-purple-50 to-purple-100/30 ring-1 ring-purple-200/50 rounded-2xl p-4">
+          <div className={`${MOD.banner} rounded-2xl p-4`}>
             <div className="flex items-center justify-between flex-wrap gap-3">
               <div className="flex items-center gap-3">
-                <Activity className="w-5 h-5 text-purple-700" />
+                <Activity className="w-5 h-5 text-teal-700" />
                 <div>
-                  <div className="text-[13px] font-bold text-purple-900">Indicadores Financieros · {MESES[mes - 1]} {anio}</div>
-                  <div className="text-[11px] text-purple-700">
+                  <div className="text-[13px] font-bold text-teal-900">Indicadores Financieros · {MESES[mes - 1]} {anio}</div>
+                  <div className="text-[11px] text-teal-700">
                     {vistaIndicadores === 'preguntas'
                       ? '4 preguntas clave del negocio · cada una con ratios técnicos detrás'
                       : '16 ratios técnicos en 4 dimensiones · semáforo verde/ámbar/rojo'}
@@ -2167,7 +2172,7 @@ export function Contabilidad() {
                   onClick={() => setVistaIndicadores('preguntas')}
                   className={`text-[10px] font-bold px-2.5 py-1 rounded transition-colors ${
                     vistaIndicadores === 'preguntas'
-                      ? 'bg-purple-600 text-white'
+                      ? MOD.toggleActive
                       : 'text-slate-600 hover:bg-slate-50'
                   }`}
                 >

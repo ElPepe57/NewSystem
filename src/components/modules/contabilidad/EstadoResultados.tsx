@@ -117,12 +117,12 @@ export default function EstadoResultados({ mes: mesProp, anio: anioProp }: Props
     cargarDatos();
   }, [mes, anio]);
 
-  // ===== LOADING STATE · canon v5.1 spinner purple + skeleton =====
+  // ===== LOADING STATE · canon v5.1 spinner teal + skeleton =====
   if (loading) {
     return (
       <div className="bg-white border border-slate-200 rounded-2xl p-12 text-center space-y-4">
-        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-purple-50">
-          <Loader2 className="w-8 h-8 text-purple-600 animate-spin" />
+        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-teal-50">
+          <Loader2 className="w-8 h-8 text-teal-600 animate-spin" />
         </div>
         <div>
           <div className="text-[13px] font-semibold text-slate-700">
@@ -639,7 +639,7 @@ export default function EstadoResultados({ mes: mesProp, anio: anioProp }: Props
               title={!hasAnioAnt ? `Sin data de ${estado.periodo.nombreMes} ${anio - 1} para comparar` : undefined}
               className={`text-[10px] font-semibold px-3 py-1.5 border-b-2 transition-colors ${
                 comparativoMode === 'anio'
-                  ? 'border-purple-600 text-purple-700'
+                  ? 'border-teal-600 text-teal-700'
                   : 'border-transparent text-slate-500 hover:text-slate-700'
               } disabled:opacity-40 disabled:cursor-not-allowed`}
             >
