@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Mapa de consolidación de componentes · Design System · Vita Skin ERP</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+  .tabular { font-variant-numeric: tabular-nums; }
+  code { font-family: 'SF Mono', ui-monospace, Menlo, Consolas, monospace; }
+  .acto-label { letter-spacing: 0.08em; }
+  .v-keep { background:#dcfce7; color:#15803d; }
+  .v-move { background:#dbeafe; color:#1d4ed8; }
+  .v-merge{ background:#fef3c7; color:#b45309; }
+  .v-dep  { background:#ffe4e6; color:#be123c; }
+</style>
+</head>
+<body class="bg-slate-100 text-slate-900 p-4 sm:p-8">
+
+<div class="max-w-6xl mx-auto space-y-8">
+
+  <!-- HERO -->
+  <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-6 sm:p-8">
+    <div class="flex flex-wrap items-center gap-2 mb-3">
+      <span class="text-[11px] font-bold uppercase tracking-wider text-teal-700 bg-teal-50 px-2 py-1 rounded">Decisión #2 · Mapa de consolidación</span>
+      <span class="text-[11px] font-bold uppercase tracking-wider text-amber-700 bg-amber-50 px-2 py-1 rounded">conteos aproximados · se validan al ejecutar</span>
+    </div>
+    <h1 class="text-2xl sm:text-3xl font-bold tracking-tight mb-2">common/ → design-system/ · qué se mueve, fusiona y depreca</h1>
+    <p class="text-sm text-slate-600 max-w-3xl leading-relaxed">
+      Análisis de los ~100 componentes de ambas carpetas. Para que decidas la estrategia con el detalle a la vista.
+      <strong>Nota honesta:</strong> los conteos de uso son aproximados (grep de imports) · los veredictos finos se confirman al ejecutar.
+    </p>
+    <!-- resumen -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4">
+      <div class="v-keep rounded-xl p-3 text-center"><div class="text-2xl font-bold tabular">22</div><div class="text-[11px] font-bold uppercase">Mantener</div></div>
+      <div class="v-move rounded-xl p-3 text-center"><div class="text-2xl font-bold tabular">8</div><div class="text-[11px] font-bold uppercase">Mover</div></div>
+      <div class="v-merge rounded-xl p-3 text-center"><div class="text-2xl font-bold tabular">3</div><div class="text-[11px] font-bold uppercase">Fusionar</div></div>
+      <div class="v-dep rounded-xl p-3 text-center"><div class="text-2xl font-bold tabular">17</div><div class="text-[11px] font-bold uppercase">Deprecar</div></div>
+    </div>
+  </div>
+
+  <!-- HALLAZGO CLAVE -->
+  <div class="bg-slate-900 text-white rounded-2xl p-5">
+    <div class="acto-label text-[11px] font-bold uppercase text-amber-300 mb-2">Hallazgo que cambia la estrategia</div>
+    <p class="text-[13px] text-slate-200 leading-relaxed">
+      El uso real NO está donde esperaba: los componentes <strong class="text-white">MÁS usados viven en common/</strong> (Button <span class="tabular">124</span> imports ·
+      Card <span class="tabular">91</span> · Badge <span class="tabular">76</span> · Modal <span class="tabular">50+</span>), mientras que <strong class="text-white">muchos de design-system/ tienen 0 uso</strong>
+      (FilterDrawer, FilterSection, ChipsActivos, PillsRapidos, PageShell, Toolbar…). <br/><br/>
+      <strong class="text-emerald-300">Conclusión:</strong> mover los pesos pesados (Button = re-importar 124 archivos) de golpe es altísimo riesgo →
+      <strong class="text-emerald-300">la consolidación TIENE que ser gradual.</strong> Pero hay <strong class="text-emerald-300">17 componentes muertos (0 uso)</strong> que se pueden borrar YA, sin riesgo: limpieza inmediata.
+    </p>
+  </div>
+
+  <!-- TABLA POR CATEGORÍA -->
+  <div>
+    <div class="acto-label text-[11px] font-bold uppercase text-slate-500 mb-3">Mapa por categoría</div>
+    <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+      <div class="overflow-x-auto">
+      <table class="w-full text-[12px] min-w-[640px]">
+        <thead><tr class="bg-slate-50 border-b text-left text-[10px] uppercase tracking-wider text-slate-500">
+          <th class="px-3 py-2">Componente</th><th class="px-3 py-2">Carpeta</th><th class="px-3 py-2">Uso aprox</th><th class="px-3 py-2">Veredicto</th>
+        </tr></thead>
+        <tbody class="divide-y divide-slate-100">
+          <tr class="bg-slate-50/60"><td colspan="4" class="px-3 py-1.5 text-[10px] font-bold uppercase text-slate-500">Primitivas</td></tr>
+          <tr><td class="px-3 py-1.5 font-semibold">Button</td><td class="px-3 py-1.5 text-slate-500">common</td><td class="px-3 py-1.5 tabular">124</td><td class="px-3 py-1.5"><span class="v-keep px-2 py-0.5 rounded font-bold">mantener · llevar a DS (3-tier)</span></td></tr>
+          <tr><td class="px-3 py-1.5 font-semibold">Input → TextField</td><td class="px-3 py-1.5 text-slate-500">common→DS</td><td class="px-3 py-1.5 tabular">34</td><td class="px-3 py-1.5"><span class="v-merge px-2 py-0.5 rounded font-bold">fusionar → TextField</span></td></tr>
+          <tr><td class="px-3 py-1.5 font-semibold">Select → Combobox</td><td class="px-3 py-1.5 text-slate-500">common→DS</td><td class="px-3 py-1.5 tabular">26</td><td class="px-3 py-1.5"><span class="v-merge px-2 py-0.5 rounded font-bold">fusionar → Combobox</span></td></tr>
+          <tr><td class="px-3 py-1.5 font-semibold">Badge → StatusBadge</td><td class="px-3 py-1.5 text-slate-500">common→DS</td><td class="px-3 py-1.5 tabular">76</td><td class="px-3 py-1.5"><span class="v-merge px-2 py-0.5 rounded font-bold">fusionar → StatusBadge</span></td></tr>
+          <tr><td class="px-3 py-1.5 font-semibold">Tooltip</td><td class="px-3 py-1.5 text-slate-500">common</td><td class="px-3 py-1.5 tabular">6</td><td class="px-3 py-1.5"><span class="v-move px-2 py-0.5 rounded font-bold">mover a DS</span></td></tr>
+
+          <tr class="bg-slate-50/60"><td colspan="4" class="px-3 py-1.5 text-[10px] font-bold uppercase text-slate-500">Modales</td></tr>
+          <tr><td class="px-3 py-1.5 font-semibold">Modal</td><td class="px-3 py-1.5 text-slate-500">common</td><td class="px-3 py-1.5 tabular">50+</td><td class="px-3 py-1.5"><span class="v-keep px-2 py-0.5 rounded font-bold">mantener (base)</span></td></tr>
+          <tr><td class="px-3 py-1.5 font-semibold">FormModalV2</td><td class="px-3 py-1.5 text-slate-500">DS</td><td class="px-3 py-1.5 tabular">5</td><td class="px-3 py-1.5"><span class="v-keep px-2 py-0.5 rounded font-bold">mantener (canon forms)</span></td></tr>
+          <tr><td class="px-3 py-1.5 text-slate-400 line-through">FormModal v1 · ActionModal</td><td class="px-3 py-1.5 text-slate-500">DS · common</td><td class="px-3 py-1.5 tabular">0-1</td><td class="px-3 py-1.5"><span class="v-dep px-2 py-0.5 rounded font-bold">deprecar</span></td></tr>
+
+          <tr class="bg-slate-50/60"><td colspan="4" class="px-3 py-1.5 text-[10px] font-bold uppercase text-slate-500">Cards · Tablas</td></tr>
+          <tr><td class="px-3 py-1.5 font-semibold">Card</td><td class="px-3 py-1.5 text-slate-500">common</td><td class="px-3 py-1.5 tabular">91</td><td class="px-3 py-1.5"><span class="v-keep px-2 py-0.5 rounded font-bold">mantener · coexiste con HubCard</span></td></tr>
+          <tr><td class="px-3 py-1.5 font-semibold">DataCard · StatCard · KPIBar · DataTable</td><td class="px-3 py-1.5 text-slate-500">DS</td><td class="px-3 py-1.5 tabular">7-30</td><td class="px-3 py-1.5"><span class="v-keep px-2 py-0.5 rounded font-bold">mantener</span></td></tr>
+
+          <tr class="bg-slate-50/60"><td colspan="4" class="px-3 py-1.5 text-[10px] font-bold uppercase text-slate-500">Filtros · Buscadores</td></tr>
+          <tr><td class="px-3 py-1.5 font-semibold">FiltrosBar · MaestroSelect · MaestroChipsMulti</td><td class="px-3 py-1.5 text-slate-500">DS</td><td class="px-3 py-1.5 tabular">1-3</td><td class="px-3 py-1.5"><span class="v-keep px-2 py-0.5 rounded font-bold">mantener (canon)</span></td></tr>
+          <tr><td class="px-3 py-1.5 font-semibold">SearchInput · ChipMultiSelect</td><td class="px-3 py-1.5 text-slate-500">common</td><td class="px-3 py-1.5 tabular">2-3</td><td class="px-3 py-1.5"><span class="v-move px-2 py-0.5 rounded font-bold">mover/fusionar</span></td></tr>
+          <tr><td class="px-3 py-1.5 text-slate-400 line-through">FilterDrawer · FilterSection · ChipsActivos · PillsRapidos</td><td class="px-3 py-1.5 text-slate-500">DS</td><td class="px-3 py-1.5 tabular">0</td><td class="px-3 py-1.5"><span class="v-dep px-2 py-0.5 rounded font-bold">deprecar (muertos)</span></td></tr>
+
+          <tr class="bg-slate-50/60"><td colspan="4" class="px-3 py-1.5 text-[10px] font-bold uppercase text-slate-500">Estados · Charts</td></tr>
+          <tr><td class="px-3 py-1.5 font-semibold">Sparkline</td><td class="px-3 py-1.5 text-slate-500">common ×2</td><td class="px-3 py-1.5 tabular">9</td><td class="px-3 py-1.5"><span class="v-merge px-2 py-0.5 rounded font-bold">consolidar 2→1 · mover a DS</span></td></tr>
+          <tr><td class="px-3 py-1.5 font-semibold">DonutChart · Charts (Recharts)</td><td class="px-3 py-1.5 text-slate-500">common</td><td class="px-3 py-1.5 tabular">1-8</td><td class="px-3 py-1.5"><span class="v-move px-2 py-0.5 rounded font-bold">mover a DS</span></td></tr>
+          <tr><td class="px-3 py-1.5 font-semibold">EmptyStateAction · PageLoader</td><td class="px-3 py-1.5 text-slate-500">common</td><td class="px-3 py-1.5 tabular">1-2</td><td class="px-3 py-1.5"><span class="v-move px-2 py-0.5 rounded font-bold">mover a DS</span></td></tr>
+          <tr><td class="px-3 py-1.5 text-slate-400 line-through">dashboard/* (Gauge · HealthSemaphore · InsightCard · BulletProgress) · EmptyStatePro</td><td class="px-3 py-1.5 text-slate-500">common</td><td class="px-3 py-1.5 tabular">0</td><td class="px-3 py-1.5"><span class="v-dep px-2 py-0.5 rounded font-bold">deprecar (muertos)</span></td></tr>
+
+          <tr class="bg-slate-50/60"><td colspan="4" class="px-3 py-1.5 text-[10px] font-bold uppercase text-slate-500">Navegación · Layout</td></tr>
+          <tr><td class="px-3 py-1.5 font-semibold">Tabs · Breadcrumbs · Stepper</td><td class="px-3 py-1.5 text-slate-500">common</td><td class="px-3 py-1.5 tabular">0-2</td><td class="px-3 py-1.5"><span class="v-move px-2 py-0.5 rounded font-bold">mover a DS</span></td></tr>
+          <tr><td class="px-3 py-1.5 font-semibold">PageShell · PageHeader · WizardShell · Toolbar</td><td class="px-3 py-1.5 text-slate-500">DS</td><td class="px-3 py-1.5 tabular">0-3</td><td class="px-3 py-1.5"><span class="v-keep px-2 py-0.5 rounded font-bold">mantener</span></td></tr>
+        </tbody>
+      </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- QUICK WINS -->
+  <div>
+    <div class="acto-label text-[11px] font-bold uppercase text-slate-500 mb-3">Quick-wins · borrar muertos YA (0 uso · riesgo cero)</div>
+    <div class="bg-rose-50/50 border border-rose-200 rounded-2xl p-4">
+      <div class="text-[12px] text-rose-800 mb-2 font-bold">17 componentes sin uso · limpieza inmediata segura:</div>
+      <div class="flex flex-wrap gap-1.5 text-[10px]">
+        <span class="bg-white border border-rose-200 text-rose-700 px-2 py-0.5 rounded line-through">GaugeChart</span>
+        <span class="bg-white border border-rose-200 text-rose-700 px-2 py-0.5 rounded line-through">HealthSemaphore</span>
+        <span class="bg-white border border-rose-200 text-rose-700 px-2 py-0.5 rounded line-through">InsightCard</span>
+        <span class="bg-white border border-rose-200 text-rose-700 px-2 py-0.5 rounded line-through">BulletProgressBar</span>
+        <span class="bg-white border border-rose-200 text-rose-700 px-2 py-0.5 rounded line-through">dashboard/Sparkline (dup)</span>
+        <span class="bg-white border border-rose-200 text-rose-700 px-2 py-0.5 rounded line-through">EmptyStatePro</span>
+        <span class="bg-white border border-rose-200 text-rose-700 px-2 py-0.5 rounded line-through">ActionModal</span>
+        <span class="bg-white border border-rose-200 text-rose-700 px-2 py-0.5 rounded line-through">FormModal v1</span>
+        <span class="bg-white border border-rose-200 text-rose-700 px-2 py-0.5 rounded line-through">FilterDrawer</span>
+        <span class="bg-white border border-rose-200 text-rose-700 px-2 py-0.5 rounded line-through">FilterSection</span>
+        <span class="bg-white border border-rose-200 text-rose-700 px-2 py-0.5 rounded line-through">ChipsActivos</span>
+        <span class="bg-white border border-rose-200 text-rose-700 px-2 py-0.5 rounded line-through">PillsRapidos</span>
+        <span class="bg-white border border-rose-200 text-rose-700 px-2 py-0.5 rounded line-through">+ otros</span>
+      </div>
+      <div class="text-[10px] text-rose-600 mt-2">⚠ Antes de borrar, verificar 0 uso real (grep final) · el conteo del análisis es aproximado.</div>
+    </div>
+  </div>
+
+  <!-- ESTRATEGIA -->
+  <div class="bg-gradient-to-br from-teal-50 to-teal-100/40 ring-1 ring-teal-200/60 rounded-2xl p-6">
+    <div class="acto-label text-[11px] font-bold uppercase text-teal-700 mb-2">Mi recomendación · gradual en 4 olas</div>
+    <ol class="text-[13px] text-slate-800 space-y-1.5 list-decimal pl-5 leading-relaxed">
+      <li><strong>Ola 1 · Limpiar muertos (YA · riesgo cero):</strong> borrar los ~17 con 0 uso. El repo respira al instante.</li>
+      <li><strong>Ola 2 · Mover seguros (bajo riesgo):</strong> Sparkline (2→1), SearchInput, Tabs, Breadcrumbs, Stepper, DonutChart, Charts → design-system/.</li>
+      <li><strong>Ola 3 · Fusionar duplicados (medio):</strong> Select→Combobox · Badge→StatusBadge · Input→TextField. Re-importar progresivamente.</li>
+      <li><strong>Ola 4 · Pesos pesados (con cada migración de módulo):</strong> Button/Card/Modal (100+ usos) se llevan a design-system/ a medida que los módulos migran al Hub Kit. NUNCA de golpe.</li>
+    </ol>
+    <p class="text-[12px] text-slate-600 mt-3"><strong>Regla nueva desde ya:</strong> componente nuevo SOLO en <code class="bg-white px-1 rounded">design-system/</code> · <code class="bg-white px-1 rounded">common/</code> queda congelado (solo se vacía, nunca se agrega). Resultado: common/ baja de ~49 a ~15.</p>
+  </div>
+
+  <div class="text-center text-[11px] text-slate-400 pb-6">
+    docs/mockups/mapa-consolidacion-componentes-v1.html · decisión #2 · conteos aproximados (2026-05-30)
+  </div>
+
+</div>
+
+<script>lucide.createIcons();</script>
+</body>
+</html>
