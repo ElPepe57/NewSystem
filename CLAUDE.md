@@ -172,15 +172,15 @@ a un nuevo módulo, siempre nos toma tiempo revisar y revisar continuamente el d
 
 ## ⚠️ ESTADO DE APROBACIÓN (2026-05-30)
 
-**Solo la sección A · GOBERNANZA DE COLOR está CONFIRMADA por el usuario.**
+**CONFIRMADAS por el usuario: sección A (COLOR) + sección B (LAYOUTS · max-w-6xl unificado).**
 
-Las secciones **B (layouts), C (6 capas), D (regla módulo nuevo) y el plan de fases
-son PROPUESTA / blueprint EN DISCUSIÓN · NO son canon firme · NO aplicar como
-obligatorias hasta que el usuario las valide una por una.** Los 5 mockups son
-material de decisión, no especificación aprobada. Decisiones pendientes de respuesta
-del usuario: layouts A/B + micro (max-w/padding) · fuente única design-system/ vs
-common/ · arquitectura Hub Kit (6 blocks) · componentes L1-L4 (Button 3-tier · HubCard ·
-FiltrosBar · SmartSearch · EmptyState) · plan/orden de fases.
+Las secciones **C (6 capas), D (regla módulo nuevo) y el plan de fases son PROPUESTA /
+blueprint EN DISCUSIÓN · NO son canon firme · NO aplicar como obligatorias hasta que
+el usuario las valide una por una.** Los mockups son material de decisión, no
+especificación aprobada. Decisiones PENDIENTES de respuesta del usuario (se evalúan
+una por una con mockup funcional antes de decidir): #2 fuente única design-system/ vs
+common/ · #3 arquitectura Hub Kit (6 blocks) · #4 componentes L1-L4 (Button 3-tier ·
+HubCard · FiltrosBar · SmartSearch · EmptyState) · #5 plan/orden de fases.
 
 Origen: tras cerrar Gastos hub, el usuario detectó por goteo múltiples desviaciones
 (KPI strip legacy, breadcrumb fijo, body fuera del shell, recuadros anidados, banner
@@ -228,7 +228,7 @@ sistema lee de un registro finito. Escala infinito (color por grupo, no por mód
 **Alineación pendiente (al migrar cada módulo):** Contabilidad purple→teal · Usuarios
 purple→violet · Planilla sky→violet (Finanzas/Gastos=teal e Inversionistas=violet ya OK).
 
-## B · LOS 2 LAYOUTS DE BODY (🟡 PROPUESTO · pendiente validación del usuario)
+## B · LOS 2 LAYOUTS DE BODY (✅ CONFIRMADO por user 2026-05-30)
 - **Layout A · grid main(3)+sidebar(1)**: `grid grid-cols-1 md:grid-cols-4` · main
   `md:col-span-3 space-y-4` + `<aside className="md:col-span-1">`. Para dashboards
   operativos con CONTEXTO persistente (urgencias, widgets, cross-links). Usan: Finanzas,
@@ -236,9 +236,12 @@ purple→violet · Planilla sky→violet (Finanzas/Gastos=teal e Inversionistas=
 - **Layout B · full-width**: cards apiladas `space-y-4` + grids internos · sin sidebar.
   Para contenido ANCHO/autónomo (estados financieros, directorios, tablas). Usan:
   Contabilidad, Usuarios, Planilla, Inversionistas.
-- **Micro unificado en ambos (hoy difieren · alinear):** contenedor `max-w-6xl mx-auto` ·
-  padding `p-3 sm:p-4 md:p-6` · fondo body `bg-slate-50/30` · el body va DENTRO del shell
-  card (1 recuadro continuo, nunca cards sueltas afuera).
+- **`max-w-6xl mx-auto` UNIFICADO AL 100% (sin excepción de ancho · NINGÚN módulo va full-width).**
+  Tablas/estados densos NO estiran el body: usan FORMATO (Balance 2-columnas · P&L cascada vertical ·
+  comparativo TOGGLE Mes/Año/YTD · tendencia sparkline) y, como último recurso, `overflow-x` propio +
+  cards apiladas en mobile. Padding `p-3 sm:p-4 md:p-6` · fondo body `bg-slate-50/30` · el body va DENTRO
+  del shell card (1 recuadro continuo · nunca cards sueltas afuera). Contabilidad adapta su formato a 6xl
+  al entrar a su rework (mockup `eval-contabilidad-6xl-funcional-v1.html`).
 - **Orden canónico del Tab Resumen:** §A banner estado → §B visualización → §C insights →
   §D acciones rápidas → §E cross-links 360 → §F alertas.
 
