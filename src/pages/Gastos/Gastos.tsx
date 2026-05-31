@@ -47,8 +47,6 @@ import { KpiStripGastos, type KpiGastosData, type MiniStatsData } from './compon
 import { NavegacionTemporal } from './components/NavegacionTemporal';
 // chk5.C2 · link-card cross-módulo
 import { LinkCardEficiencia } from './components/LinkCardEficiencia';
-// chk5.PERSONAS-v5.4 · F6 · cross-link 360° desde Gastos hacia Planilla
-import { BannerImpactoPlanilla } from '../../components/modules/planilla/BannerImpactoPlanilla';
 import { useUnidadStore } from '../../store/unidadStore';
 import { useVentaStore } from '../../store/ventaStore';
 
@@ -972,24 +970,14 @@ export const Gastos: React.FC = () => {
       {/* Vista Listado · contenido completo (KPIs + LinkCard + Filtros + Lista) */}
       {vistaActiva === 'listado' && (<>
 
-      {/* chk5.PERSONAS-v5.4 · F6 · cross-link 360° → Planilla
-          Banner amber con costo de planilla del mes (color cross-módulo canon N4) */}
-      <BannerImpactoPlanilla
-        variante="gastos"
-        mes={selectedMonth}
-        anio={selectedYear}
-      />
-
-      {/* chk5.C-UX-PASS · canon v8.0 N8 · Link-card cross-módulo SIEMPRE visible
-          (con estado vacío + CTA si no hay data · discovery de feature) */}
-      <LinkCardEficiencia
-        ratioGastoInversion={ratiosEficiencia.ratioGastoInversion}
-        deltaGastoInversionPp={ratiosEficiencia.deltaGastoInversionPp}
-        ratioGastoIngreso={ratiosEficiencia.ratioGastoIngreso}
-        deltaGastoIngresoPp={ratiosEficiencia.deltaGastoIngresoPp}
-        onVerEvolucion={() => navigate('/intel-productos/costos')}
-        hasData={ratiosEficiencia.hasData}
-      />
+      {/* chk5.E-GASTOS · ELIMINADOS de la tab Movimientos (2026-05-30 · solución integral 360):
+          - BannerImpactoPlanilla · REDUNDANTE: planilla.service.pagarBoleta ya crea gastos
+            'nomina'/'comision_vendedor' vía gastoService.create → el costo laboral YA figura
+            en esta lista de movimientos + en distribución por bloque (Resumen/Análisis) + P&L.
+            El banner sólo duplicaba el agregado de algo ya desglosado abajo.
+          - LinkCardEficiencia · DUPLICADO: ya vive en la tab Resumen (canon hub · los cross-links
+            contextuales van en Resumen, no en la lista operativa de Movimientos).
+          Resultado: Movimientos = filtros + lista, enfocado en operar registros individuales. */}
 
       {/* chk5.C-FIX · DEUDA-GASTOS-DEAD-CODE CERRADA · ELIMINADOS 2 bloques legacy:
           - 5 KPI cards con gradientes pesados + emojis 💰⏰📊👑🏭 (~110 líneas)
