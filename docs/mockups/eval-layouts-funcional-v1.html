@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Evaluación funcional · Layouts de body · Vita Skin ERP</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+  .tabular { font-variant-numeric: tabular-nums; }
+  .acto-label { letter-spacing: 0.08em; }
+</style>
+</head>
+<body class="bg-slate-100 text-slate-900 p-4 sm:p-8">
+
+<div class="space-y-10">
+
+  <!-- HERO -->
+  <div class="max-w-6xl mx-auto bg-white border border-slate-200 rounded-2xl shadow-sm p-6 sm:p-8">
+    <div class="flex flex-wrap items-center gap-2 mb-3">
+      <span class="text-[11px] font-bold uppercase tracking-wider text-teal-700 bg-teal-50 px-2 py-1 rounded">Evaluación FUNCIONAL · Layouts de body</span>
+      <span class="text-[11px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2 py-1 rounded">con mi recomendación de best-practice</span>
+    </div>
+    <h1 class="text-2xl sm:text-3xl font-bold tracking-tight mb-2">Layouts de body · con contenido real</h1>
+    <p class="text-sm text-slate-600 max-w-3xl leading-relaxed">
+      No wireframes grises: ejemplos funcionales con datos reales para que evalúes la elección.
+      Mi recomendación: <strong>2 layouts (A/B) · max-w-6xl unificado en TODOS · tablas densas con scroll propio (no full-width).</strong>
+    </p>
+  </div>
+
+  <!-- LA REGLA A/B -->
+  <div class="max-w-6xl mx-auto">
+    <div class="acto-label text-[11px] font-bold uppercase text-slate-500 mb-3">La regla de decisión (una sola pregunta)</div>
+    <div class="bg-slate-900 text-white rounded-2xl p-5 text-[13px] leading-relaxed">
+      <strong class="text-teal-300">"¿Hay info secundaria que el usuario necesita ver MIENTRAS opera el contenido principal, sin cambiar de tab?"</strong><br/>
+      <span class="text-emerald-300">Sí</span> → Layout <strong>A</strong> (grid + sidebar) · &nbsp; <span class="text-amber-300">No</span> → Layout <strong>B</strong> (full-width)
+    </div>
+  </div>
+
+  <!-- LAYOUT A FUNCIONAL -->
+  <div class="max-w-6xl mx-auto">
+    <div class="acto-label text-[11px] font-bold uppercase text-teal-700 mb-3">Layout A · grid main + sidebar · ejemplo real: GASTOS (teal)</div>
+    <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+      <!-- topbar -->
+      <div class="bg-slate-50 border-b border-slate-200 px-5 py-2.5 flex items-center justify-between text-[12px]">
+        <span class="text-slate-500">Inicio › <span class="text-slate-900 font-semibold">Gastos</span></span>
+        <span class="bg-teal-50 text-teal-700 px-2 py-0.5 rounded font-bold inline-flex items-center gap-1"><i data-lucide="shield" class="w-3 h-3"></i> Vista ejecutiva · admin</span>
+      </div>
+      <!-- header -->
+      <div class="px-5 py-4 border-b border-slate-100 flex items-start justify-between gap-3 flex-wrap">
+        <div class="flex items-start gap-3">
+          <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-teal-50 to-teal-100 ring-1 ring-teal-200/50 flex items-center justify-center"><i data-lucide="receipt" class="w-6 h-6 text-teal-700"></i></div>
+          <div><h2 class="text-xl font-bold tracking-tight">Gastos</h2><p class="text-[13px] text-slate-500">Consolidador de gastos · manuales + auto-generados.</p></div>
+        </div>
+        <button class="text-[11px] font-bold text-white bg-teal-600 px-4 py-1.5 rounded-lg flex items-center gap-1.5"><i data-lucide="plus" class="w-3.5 h-3.5"></i> Nuevo gasto</button>
+      </div>
+      <!-- kpis -->
+      <div class="px-5 py-4 grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div class="bg-gradient-to-br from-amber-50 to-amber-100/40 ring-1 ring-amber-200/50 rounded-2xl p-3"><div class="text-[10px] uppercase tracking-wider text-amber-700 font-bold">Gasto del mes</div><div class="text-xl font-bold tabular text-amber-900">12,480<span class="text-amber-400">.50</span></div></div>
+        <div class="bg-gradient-to-br from-rose-50 to-rose-100/40 ring-1 ring-rose-200/50 rounded-2xl p-3"><div class="text-[10px] uppercase tracking-wider text-rose-700 font-bold">Burn rate 3M</div><div class="text-xl font-bold tabular text-rose-900">13,950</div></div>
+        <div class="bg-gradient-to-br from-indigo-50 to-indigo-100/40 ring-1 ring-indigo-200/50 rounded-2xl p-3"><div class="text-[10px] uppercase tracking-wider text-indigo-700 font-bold">Recurrentes</div><div class="text-xl font-bold tabular text-indigo-900">34<span class="text-indigo-400">%</span></div></div>
+        <div class="bg-gradient-to-br from-emerald-50 to-emerald-100/40 ring-1 ring-emerald-200/50 rounded-2xl p-3"><div class="text-[10px] uppercase tracking-wider text-emerald-700 font-bold">DPO</div><div class="text-xl font-bold tabular text-emerald-900">28<span class="text-emerald-400">d</span></div></div>
+      </div>
+      <!-- tabs -->
+      <div class="px-5 border-b border-slate-200 flex gap-3 text-[12px]">
+        <span class="border-b-2 border-teal-600 text-teal-700 font-semibold py-2.5">Movimientos</span>
+        <span class="text-slate-500 py-2.5">Resumen</span>
+        <span class="text-slate-500 py-2.5">Análisis</span>
+      </div>
+      <!-- BODY · grid main + sidebar -->
+      <div class="bg-slate-50/30 p-5">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <!-- main -->
+          <div class="md:col-span-3 space-y-2">
+            <div class="bg-white border border-slate-200 rounded-xl p-3 flex items-center gap-3">
+              <div class="w-9 h-9 rounded-lg bg-amber-100 flex items-center justify-center"><i data-lucide="building" class="w-4 h-4 text-amber-700"></i></div>
+              <div class="flex-1"><div class="text-[13px] font-bold">Alquiler local Miraflores</div><div class="text-[11px] text-slate-500">Período · recurrente · vence 3 jun</div></div>
+              <div class="text-[14px] font-bold tabular">S/ 2,400</div>
+              <span class="bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full text-[10px] font-bold">Pendiente</span>
+            </div>
+            <div class="bg-white border border-slate-200 rounded-xl p-3 flex items-center gap-3">
+              <div class="w-9 h-9 rounded-lg bg-violet-100 flex items-center justify-center"><i data-lucide="users" class="w-4 h-4 text-violet-700"></i></div>
+              <div class="flex-1"><div class="text-[13px] font-bold">Planilla mayo · 4 boletas</div><div class="text-[11px] text-slate-500">Período · auto desde Planilla</div></div>
+              <div class="text-[14px] font-bold tabular">S/ 6,800</div>
+              <span class="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full text-[10px] font-bold">Pagado</span>
+            </div>
+            <div class="bg-white border border-slate-200 rounded-xl p-3 flex items-center gap-3">
+              <div class="w-9 h-9 rounded-lg bg-sky-100 flex items-center justify-center"><i data-lucide="cloud" class="w-4 h-4 text-sky-700"></i></div>
+              <div class="flex-1"><div class="text-[13px] font-bold">Shopify + apps</div><div class="text-[11px] text-slate-500">Período · USD · recurrente</div></div>
+              <div class="text-[14px] font-bold tabular">S/ 1,180</div>
+              <span class="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full text-[10px] font-bold">Pagado</span>
+            </div>
+          </div>
+          <!-- sidebar (el "contexto" que justifica Layout A) -->
+          <aside class="md:col-span-1 space-y-3">
+            <div class="bg-white border border-rose-200 rounded-xl p-3">
+              <div class="text-[10px] uppercase tracking-wider text-rose-700 font-bold mb-1.5 flex items-center gap-1"><i data-lucide="alarm-clock" class="w-3 h-3"></i> Vencen pronto</div>
+              <div class="text-[11px] text-slate-700">Alquiler · <strong>3 jun</strong></div>
+              <div class="text-[11px] text-slate-700">Seguro · <strong>8 jun</strong></div>
+            </div>
+            <div class="bg-white border border-slate-200 rounded-xl p-3">
+              <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1.5">Top proveedores</div>
+              <div class="text-[11px] text-slate-700">Maersk · <strong>S/ 2,400</strong></div>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </div>
+    <p class="text-[12px] text-slate-600 mt-2">↑ El <strong>sidebar</strong> (vencimientos, top proveedores) es lo que justifica Layout A: lo ves mientras operás la lista, sin cambiar de tab.</p>
+  </div>
+
+  <!-- LAYOUT B FUNCIONAL -->
+  <div class="max-w-6xl mx-auto">
+    <div class="acto-label text-[11px] font-bold uppercase text-teal-700 mb-3">Layout B · full-width · ejemplo real: CONTABILIDAD (teal · ya no purple) · tabla con scroll propio</div>
+    <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+      <div class="bg-slate-50 border-b border-slate-200 px-5 py-2.5 flex items-center justify-between text-[12px]">
+        <span class="text-slate-500">Inicio › <span class="text-slate-900 font-semibold">Contabilidad › Balance</span></span>
+        <span class="bg-teal-50 text-teal-700 px-2 py-0.5 rounded font-bold inline-flex items-center gap-1"><i data-lucide="shield" class="w-3 h-3"></i> Vista ejecutiva · admin</span>
+      </div>
+      <div class="px-5 py-4 border-b border-slate-100 flex items-center gap-3">
+        <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-teal-50 to-teal-100 ring-1 ring-teal-200/50 flex items-center justify-center"><i data-lucide="book-open" class="w-6 h-6 text-teal-700"></i></div>
+        <div><h2 class="text-xl font-bold tracking-tight">Contabilidad</h2><p class="text-[13px] text-slate-500">Estados financieros · Balance · P&L.</p></div>
+      </div>
+      <div class="px-5 border-b border-slate-200 flex gap-3 text-[12px]">
+        <span class="border-b-2 border-teal-600 text-teal-700 font-semibold py-2.5">Balance</span>
+        <span class="text-slate-500 py-2.5">P&L</span>
+        <span class="text-slate-500 py-2.5">Indicadores</span>
+      </div>
+      <!-- BODY full-width · pero la TABLA tiene scroll propio (clave de mi recomendación) -->
+      <div class="bg-slate-50/30 p-5">
+        <div class="bg-white border border-slate-200 rounded-xl overflow-hidden">
+          <div class="px-3 py-2 border-b border-slate-100 text-[12px] font-bold flex items-center gap-1.5"><i data-lucide="scale" class="w-3.5 h-3.5 text-teal-700"></i> Balance General · mayo 2026</div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-[12px] min-w-[640px]">
+              <thead><tr class="bg-slate-50 text-left text-[10px] uppercase text-slate-500"><th class="px-3 py-2">Cuenta</th><th class="px-3 py-2 text-right">Mayo</th><th class="px-3 py-2 text-right">Abril</th><th class="px-3 py-2 text-right">Δ</th></tr></thead>
+              <tbody class="divide-y divide-slate-100 tabular">
+                <tr><td class="px-3 py-1.5 font-semibold">Activo corriente</td><td class="px-3 py-1.5 text-right">S/ 48,200</td><td class="px-3 py-1.5 text-right">S/ 44,100</td><td class="px-3 py-1.5 text-right text-emerald-600">+9.3%</td></tr>
+                <tr><td class="px-3 py-1.5 pl-6 text-slate-600">Caja y bancos</td><td class="px-3 py-1.5 text-right">S/ 22,400</td><td class="px-3 py-1.5 text-right">S/ 19,800</td><td class="px-3 py-1.5 text-right text-emerald-600">+13%</td></tr>
+                <tr><td class="px-3 py-1.5 pl-6 text-slate-600">Inventario</td><td class="px-3 py-1.5 text-right">S/ 25,800</td><td class="px-3 py-1.5 text-right">S/ 24,300</td><td class="px-3 py-1.5 text-right text-emerald-600">+6.2%</td></tr>
+                <tr><td class="px-3 py-1.5 font-semibold">Pasivo</td><td class="px-3 py-1.5 text-right">S/ 12,600</td><td class="px-3 py-1.5 text-right">S/ 14,200</td><td class="px-3 py-1.5 text-right text-emerald-600">−11%</td></tr>
+                <tr><td class="px-3 py-1.5 font-semibold">Patrimonio</td><td class="px-3 py-1.5 text-right">S/ 35,600</td><td class="px-3 py-1.5 text-right">S/ 29,900</td><td class="px-3 py-1.5 text-right text-emerald-600">+19%</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="text-[12px] text-slate-600 mt-2">↑ <strong>Mi recomendación clave:</strong> el body sigue en <code class="bg-slate-100 px-1 rounded">max-w-6xl</code> (no full) · la <strong>tabla</strong> tiene <code class="bg-slate-100 px-1 rounded">overflow-x-auto</code> propio. Así Contabilidad NO necesita romper el ancho — la tabla scrollea sola si no entra.</p>
+  </div>
+
+  <!-- max-w · comparación de legibilidad -->
+  <div class="space-y-3">
+    <div class="max-w-6xl mx-auto">
+      <div class="acto-label text-[11px] font-bold uppercase text-slate-500 mb-3">Por qué max-w-6xl y no full · legibilidad (mismo contenido)</div>
+    </div>
+    <!-- full ejemplo -->
+    <div class="px-4">
+      <div class="bg-rose-50/40 border border-rose-200 rounded-2xl p-4">
+        <div class="text-[11px] font-bold text-rose-700 mb-2">❌ full-width · en monitor grande las líneas se estiran demasiado (el ojo "barre" mucho)</div>
+        <div class="bg-white border border-slate-200 rounded-xl p-3 text-[12px] text-slate-600">
+          Este texto y las cards ocupan TODO el ancho del monitor. En una pantalla de 1920px+, una línea de texto puede tener 200+ caracteres — el ojo se cansa siguiendo de un extremo al otro, y los dashboards quedan con elementos muy separados. Útil solo cuando el contenido REALMENTE necesita el ancho (tablas de muchas columnas).
+        </div>
+      </div>
+    </div>
+    <!-- 6xl ejemplo -->
+    <div class="max-w-6xl mx-auto px-4">
+      <div class="bg-emerald-50/40 border border-emerald-200 rounded-2xl p-4">
+        <div class="text-[11px] font-bold text-emerald-700 mb-2">✓ max-w-6xl · contenido centrado, líneas legibles, aire a los lados</div>
+        <div class="bg-white border border-slate-200 rounded-xl p-3 text-[12px] text-slate-600">
+          El mismo contenido, contenido a 1152px máximo y centrado. Las líneas tienen largo cómodo de leer, los dashboards se ven compactos y ordenados, y en monitores grandes hay aire a los lados (no se siente "vacío", se siente intencional · estilo Mercury/Linear).
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RECOMENDACIÓN FINAL -->
+  <div class="max-w-6xl mx-auto bg-gradient-to-br from-teal-50 to-teal-100/40 ring-1 ring-teal-200/60 rounded-2xl p-6">
+    <div class="acto-label text-[11px] font-bold uppercase text-teal-700 mb-2">Mi recomendación (best-practice · más allá de lo existente)</div>
+    <ol class="text-[13px] text-slate-800 space-y-1.5 list-decimal pl-5 leading-relaxed">
+      <li><strong>2 layouts</strong> A (grid+sidebar) y B (full-width-de-contenido) según la regla de la pregunta única.</li>
+      <li><strong>max-w-6xl unificado en TODOS</strong> (incluido Contabilidad) · sin excepción de ancho.</li>
+      <li><strong>Tablas densas → scroll horizontal propio</strong> (<code class="bg-white px-1 rounded">overflow-x-auto</code>), NO estirar el body. Resuelve el único caso que pedía full-width.</li>
+      <li><strong>Padding <code class="bg-white px-1 rounded">p-3 sm:p-4 md:p-6</code></strong> · mobile-first.</li>
+      <li><strong>Body siempre dentro del shell</strong> (1 recuadro continuo).</li>
+    </ol>
+    <p class="text-[12px] text-slate-600 mt-3">Ventaja: el <code class="bg-white px-1 rounded">max-w</code> deja de ser "depende" → es <strong>siempre 6xl</strong>. Más simple, más consistente, y las tablas siguen funcionando.</p>
+  </div>
+
+  <div class="max-w-6xl mx-auto text-center text-[11px] text-slate-400 pb-6">
+    docs/mockups/eval-layouts-funcional-v1.html · evaluación funcional con recomendación (2026-05-30)
+  </div>
+
+</div>
+
+<script>lucide.createIcons();</script>
+</body>
+</html>

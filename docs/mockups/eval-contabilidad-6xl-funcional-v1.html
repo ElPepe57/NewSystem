@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Contabilidad adaptada a max-w-6xl · funcional · Vita Skin ERP</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+  .tabular { font-variant-numeric: tabular-nums; }
+  .acto-label { letter-spacing: 0.08em; }
+  code { font-family: 'SF Mono', ui-monospace, Menlo, Consolas, monospace; }
+</style>
+</head>
+<body class="bg-slate-100 text-slate-900 p-4 sm:p-8">
+
+<div class="space-y-10">
+
+  <!-- HERO -->
+  <div class="max-w-6xl mx-auto bg-white border border-slate-200 rounded-2xl shadow-sm p-6 sm:p-8">
+    <div class="flex flex-wrap items-center gap-2 mb-3">
+      <span class="text-[11px] font-bold uppercase tracking-wider text-teal-700 bg-teal-50 px-2 py-1 rounded">Eval funcional · Contabilidad en max-w-6xl</span>
+      <span class="text-[11px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2 py-1 rounded">cobertura total · desktop + mobile</span>
+    </div>
+    <h1 class="text-2xl sm:text-3xl font-bold tracking-tight mb-2">Contabilidad cabe en 6xl · sin full-width ni scroll feo</h1>
+    <p class="text-sm text-slate-600 max-w-3xl leading-relaxed">
+      Tesis: un estado financiero <strong>no es una tabla ancha</strong>. El Balance es 2 columnas (Activo │ Pasivo+Patrimonio),
+      el P&L es una cascada vertical, y el comparativo es un <strong>toggle</strong> — no columnas paralelas.
+      Todo cabe en max-w-6xl y se lee mejor. Acá, funcional con datos reales.
+    </p>
+  </div>
+
+  <!-- ANTES / DESPUÉS -->
+  <div class="space-y-3">
+    <div class="max-w-6xl mx-auto"><div class="acto-label text-[11px] font-bold uppercase text-slate-500">Antes (full) vs después (6xl adaptado)</div></div>
+    <!-- antes full -->
+    <div class="px-4">
+      <div class="bg-rose-50/40 border border-rose-200 rounded-2xl p-4">
+        <div class="text-[11px] font-bold text-rose-700 mb-2">❌ HOY · full-width · tabla de 5 columnas estirada a todo el monitor</div>
+        <div class="bg-white border border-slate-200 rounded-xl overflow-hidden">
+          <table class="w-full text-[11px] tabular">
+            <thead><tr class="bg-slate-50 text-left text-[9px] uppercase text-slate-500"><th class="px-2 py-1.5">Cuenta</th><th class="px-2 py-1.5 text-right">Mayo</th><th class="px-2 py-1.5 text-right">Abril</th><th class="px-2 py-1.5 text-right">Marzo</th><th class="px-2 py-1.5 text-right">Δ Mes</th><th class="px-2 py-1.5 text-right">Δ YTD</th></tr></thead>
+            <tbody class="divide-y divide-slate-100 text-slate-600">
+              <tr><td class="px-2 py-1">Activo corriente</td><td class="px-2 py-1 text-right">48,200</td><td class="px-2 py-1 text-right">44,100</td><td class="px-2 py-1 text-right">41,300</td><td class="px-2 py-1 text-right text-emerald-600">+9.3%</td><td class="px-2 py-1 text-right text-emerald-600">+16.7%</td></tr>
+              <tr><td class="px-2 py-1">Pasivo</td><td class="px-2 py-1 text-right">12,600</td><td class="px-2 py-1 text-right">14,200</td><td class="px-2 py-1 text-right">15,100</td><td class="px-2 py-1 text-right text-emerald-600">−11%</td><td class="px-2 py-1 text-right text-emerald-600">−16.5%</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="text-[10px] text-rose-700 mt-2">Las líneas se estiran de borde a borde en 1920px · 6 columnas que casi nadie compara a la vez · ilegible.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BALANCE adaptado 6xl · 2 columnas -->
+  <div class="max-w-6xl mx-auto">
+    <div class="acto-label text-[11px] font-bold uppercase text-emerald-700 mb-3">✓ Balance adaptado · 2 columnas (formato contable real) · cabe en 6xl</div>
+    <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+      <!-- chrome -->
+      <div class="bg-slate-50 border-b border-slate-200 px-5 py-2.5 flex items-center justify-between text-[12px]">
+        <span class="text-slate-500">Inicio › <span class="text-slate-900 font-semibold">Contabilidad › Balance</span></span>
+        <span class="bg-teal-50 text-teal-700 px-2 py-0.5 rounded font-bold inline-flex items-center gap-1"><i data-lucide="shield" class="w-3 h-3"></i> Vista ejecutiva · admin</span>
+      </div>
+      <div class="px-5 py-3 border-b border-slate-200 flex gap-3 text-[12px]">
+        <span class="border-b-2 border-teal-600 text-teal-700 font-semibold py-2">Balance</span>
+        <span class="text-slate-500 py-2">P&L</span><span class="text-slate-500 py-2">Indicadores</span>
+      </div>
+      <div class="bg-slate-50/30 p-5 space-y-4">
+        <!-- ecuación banner -->
+        <div class="bg-white border border-slate-200 rounded-xl p-3 flex items-center justify-center gap-3 text-[13px] tabular">
+          <span class="font-bold text-teal-700">Activo S/ 48,200</span><span class="text-slate-400">=</span>
+          <span class="font-bold text-rose-700">Pasivo S/ 12,600</span><span class="text-slate-400">+</span>
+          <span class="font-bold text-indigo-700">Patrimonio S/ 35,600</span>
+          <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-600"></i>
+        </div>
+        <!-- 2 columnas -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="bg-white border border-slate-200 rounded-xl overflow-hidden">
+            <div class="bg-teal-50 px-3 py-2 text-[11px] font-bold text-teal-800 uppercase tracking-wider">Activo</div>
+            <div class="divide-y divide-slate-100 text-[12px] tabular">
+              <div class="px-3 py-1.5 flex justify-between font-semibold"><span>Activo corriente</span><span>S/ 48,200</span></div>
+              <div class="px-3 py-1.5 flex justify-between text-slate-600"><span class="pl-3">Caja y bancos</span><span>S/ 22,400</span></div>
+              <div class="px-3 py-1.5 flex justify-between text-slate-600"><span class="pl-3">Inventario</span><span>S/ 25,800</span></div>
+              <div class="px-3 py-2 flex justify-between font-bold bg-slate-50"><span>Total activo</span><span>S/ 48,200</span></div>
+            </div>
+          </div>
+          <div class="bg-white border border-slate-200 rounded-xl overflow-hidden">
+            <div class="bg-rose-50 px-3 py-2 text-[11px] font-bold text-rose-800 uppercase tracking-wider">Pasivo + Patrimonio</div>
+            <div class="divide-y divide-slate-100 text-[12px] tabular">
+              <div class="px-3 py-1.5 flex justify-between font-semibold"><span>Pasivo</span><span>S/ 12,600</span></div>
+              <div class="px-3 py-1.5 flex justify-between text-slate-600"><span class="pl-3">Proveedores</span><span>S/ 9,200</span></div>
+              <div class="px-3 py-1.5 flex justify-between font-semibold"><span>Patrimonio</span><span>S/ 35,600</span></div>
+              <div class="px-3 py-1.5 flex justify-between text-slate-600"><span class="pl-3">Utilidades ret.</span><span>S/ 15,600</span></div>
+              <div class="px-3 py-2 flex justify-between font-bold bg-slate-50"><span>Total P + P</span><span>S/ 48,200</span></div>
+            </div>
+          </div>
+        </div>
+        <!-- donuts (ya existen) -->
+        <div class="grid grid-cols-3 gap-3">
+          <div class="bg-white border border-slate-200 rounded-xl p-3 text-center"><svg width="56" height="56" viewBox="0 0 36 36" class="mx-auto"><circle cx="18" cy="18" r="15" fill="none" stroke="#e2e8f0" stroke-width="5"/><circle cx="18" cy="18" r="15" fill="none" stroke="#0d9488" stroke-width="5" stroke-dasharray="62 100" transform="rotate(-90 18 18)"/></svg><div class="text-[10px] font-bold text-teal-700 mt-1">ACTIVO</div></div>
+          <div class="bg-white border border-slate-200 rounded-xl p-3 text-center"><svg width="56" height="56" viewBox="0 0 36 36" class="mx-auto"><circle cx="18" cy="18" r="15" fill="none" stroke="#e2e8f0" stroke-width="5"/><circle cx="18" cy="18" r="15" fill="none" stroke="#e11d48" stroke-width="5" stroke-dasharray="26 100" transform="rotate(-90 18 18)"/></svg><div class="text-[10px] font-bold text-rose-700 mt-1">PASIVO</div></div>
+          <div class="bg-white border border-slate-200 rounded-xl p-3 text-center"><svg width="56" height="56" viewBox="0 0 36 36" class="mx-auto"><circle cx="18" cy="18" r="15" fill="none" stroke="#e2e8f0" stroke-width="5"/><circle cx="18" cy="18" r="15" fill="none" stroke="#4f46e5" stroke-width="5" stroke-dasharray="74 100" transform="rotate(-90 18 18)"/></svg><div class="text-[10px] font-bold text-indigo-700 mt-1">PATRIM.</div></div>
+        </div>
+      </div>
+    </div>
+    <p class="text-[12px] text-slate-600 mt-2">✓ 2 columnas + ecuación + donuts (ya existen) · cabe en 6xl · más legible que la tabla de 6 columnas.</p>
+  </div>
+
+  <!-- P&L cascada + toggle -->
+  <div class="max-w-6xl mx-auto">
+    <div class="acto-label text-[11px] font-bold uppercase text-emerald-700 mb-3">✓ P&L cascada vertical + comparativo TOGGLE (no columnas paralelas)</div>
+    <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-5 bg-slate-50/30">
+      <div class="bg-white border border-slate-200 rounded-xl overflow-hidden">
+        <div class="px-3 py-2 border-b border-slate-100 flex items-center justify-between">
+          <span class="text-[12px] font-bold flex items-center gap-1.5"><i data-lucide="trending-up" class="w-3.5 h-3.5 text-teal-700"></i> Estado de Resultados · mayo 2026</span>
+          <div class="flex gap-1 text-[10px]"><span class="bg-teal-600 text-white px-2 py-0.5 rounded font-bold">vs Mes</span><span class="text-slate-500 px-2 py-0.5">vs Año</span><span class="text-slate-500 px-2 py-0.5">YTD</span></div>
+        </div>
+        <div class="divide-y divide-slate-100 text-[12px] tabular">
+          <div class="px-3 py-1.5 flex justify-between items-center"><span class="font-semibold">Ventas netas</span><span class="flex items-center gap-2"><span class="text-emerald-600 text-[10px]">+12%</span><span class="font-bold">S/ 38,400</span></span></div>
+          <div class="px-3 py-1.5 flex justify-between text-slate-600"><span>(−) Costo de ventas</span><span>S/ 15,200</span></div>
+          <div class="px-3 py-1.5 flex justify-between items-center bg-emerald-50/40"><span class="font-bold text-emerald-800">= Margen bruto · 60.4%</span><span class="flex items-center gap-2"><svg width="44" height="16" viewBox="0 0 44 16"><polyline points="0,12 11,10 22,11 33,6 44,4" fill="none" stroke="#059669" stroke-width="1.5"/></svg><span class="font-bold text-emerald-800">S/ 23,200</span></span></div>
+          <div class="px-3 py-1.5 flex justify-between text-slate-600"><span>(−) Gastos operativos</span><span>S/ 14,600</span></div>
+          <div class="px-3 py-1.5 flex justify-between items-center bg-teal-50/40"><span class="font-bold text-teal-800">= EBITDA · 22.4%</span><span class="flex items-center gap-2"><svg width="44" height="16" viewBox="0 0 44 16"><polyline points="0,10 11,11 22,8 33,7 44,5" fill="none" stroke="#0d9488" stroke-width="1.5"/></svg><span class="font-bold text-teal-800">S/ 8,600</span></span></div>
+          <div class="px-3 py-1.5 flex justify-between text-slate-600"><span>(−) Deprec. + financieros</span><span>S/ 1,200</span></div>
+          <div class="px-3 py-2 flex justify-between items-center bg-slate-900 text-white"><span class="font-bold">= Utilidad neta · 19.3%</span><span class="flex items-center gap-2"><svg width="44" height="16" viewBox="0 0 44 16"><polyline points="0,12 11,10 22,9 33,6 44,3" fill="none" stroke="#5eead4" stroke-width="1.5"/></svg><span class="font-bold">S/ 7,400</span></span></div>
+        </div>
+      </div>
+    </div>
+    <p class="text-[12px] text-slate-600 mt-2">✓ Cascada vertical (1-2 columnas) + toggle Mes/Año/YTD + sparkline de tendencia → el comparativo NO necesita 5 columnas. Cabe holgado en 6xl.</p>
+  </div>
+
+  <!-- MOBILE -->
+  <div class="max-w-6xl mx-auto">
+    <div class="acto-label text-[11px] font-bold uppercase text-slate-500 mb-3">Mobile (375px) · el mismo contenido · tabla → cards apiladas</div>
+    <div class="flex flex-wrap gap-5 items-start">
+      <!-- balance mobile -->
+      <div class="w-[300px] bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+        <div class="bg-slate-50 px-3 py-1.5 border-b text-[10px] text-slate-500">Contabilidad › Balance</div>
+        <div class="px-2 py-1.5 border-b flex gap-2 text-[11px] overflow-x-auto" style="scrollbar-width:none;"><span class="border-b-2 border-teal-600 text-teal-700 font-semibold whitespace-nowrap">Balance</span><span class="text-slate-400 whitespace-nowrap">P&L</span><span class="text-slate-400 whitespace-nowrap">Indicadores</span></div>
+        <div class="p-2.5 bg-slate-50/30 space-y-2">
+          <div class="bg-white border border-slate-200 rounded-lg p-2 text-center text-[10px] tabular"><span class="text-teal-700 font-bold">Activo 48,200</span> = <span class="text-rose-700 font-bold">Pas 12,600</span> + <span class="text-indigo-700 font-bold">Pat 35,600</span></div>
+          <div class="bg-white border border-slate-200 rounded-lg overflow-hidden text-[11px] tabular">
+            <div class="bg-teal-50 px-2 py-1 text-[9px] font-bold text-teal-800 uppercase">Activo</div>
+            <div class="px-2 py-1 flex justify-between text-slate-600"><span>Caja</span><span>22,400</span></div>
+            <div class="px-2 py-1 flex justify-between text-slate-600"><span>Inventario</span><span>25,800</span></div>
+            <div class="px-2 py-1 flex justify-between font-bold bg-slate-50"><span>Total</span><span>48,200</span></div>
+          </div>
+          <div class="bg-white border border-slate-200 rounded-lg overflow-hidden text-[11px] tabular">
+            <div class="bg-rose-50 px-2 py-1 text-[9px] font-bold text-rose-800 uppercase">Pasivo + Patrim.</div>
+            <div class="px-2 py-1 flex justify-between text-slate-600"><span>Proveedores</span><span>9,200</span></div>
+            <div class="px-2 py-1 flex justify-between text-slate-600"><span>Patrimonio</span><span>35,600</span></div>
+          </div>
+        </div>
+      </div>
+      <!-- p&l mobile -->
+      <div class="w-[300px] bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+        <div class="bg-slate-50 px-3 py-1.5 border-b text-[10px] text-slate-500">Contabilidad › P&L</div>
+        <div class="px-2 py-1.5 border-b flex justify-end gap-1 text-[9px]"><span class="bg-teal-600 text-white px-1.5 py-0.5 rounded">Mes</span><span class="text-slate-400 px-1.5 py-0.5">Año</span><span class="text-slate-400 px-1.5 py-0.5">YTD</span></div>
+        <div class="p-2.5 bg-slate-50/30">
+          <div class="bg-white border border-slate-200 rounded-lg overflow-hidden text-[11px] tabular divide-y divide-slate-100">
+            <div class="px-2 py-1 flex justify-between font-semibold"><span>Ventas</span><span>38,400</span></div>
+            <div class="px-2 py-1 flex justify-between text-slate-600"><span>(−) Costo</span><span>15,200</span></div>
+            <div class="px-2 py-1 flex justify-between font-bold bg-emerald-50/40 text-emerald-800"><span>Margen 60%</span><span>23,200</span></div>
+            <div class="px-2 py-1 flex justify-between text-slate-600"><span>(−) Gastos</span><span>14,600</span></div>
+            <div class="px-2 py-1 flex justify-between font-bold bg-teal-50/40 text-teal-800"><span>EBITDA 22%</span><span>8,600</span></div>
+            <div class="px-2 py-1.5 flex justify-between font-bold bg-slate-900 text-white"><span>Utilidad</span><span>7,400</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="flex-1 min-w-[200px] text-[12px] text-slate-600 space-y-1.5 pt-2">
+        <div class="font-bold text-slate-900 text-[13px]">En mobile:</div>
+        <div>• Balance → las 2 columnas se apilan (Activo arriba, Pasivo+Patrim. abajo).</div>
+        <div>• P&L → la cascada YA es vertical · cabe sin tocar nada.</div>
+        <div>• Comparativo → el toggle Mes/Año/YTD scrollea.</div>
+        <div>• <strong>Cero scroll horizontal incómodo</strong> · cero tabla de 6 columnas.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- conclusión -->
+  <div class="max-w-6xl mx-auto bg-gradient-to-br from-emerald-50 to-emerald-100/40 ring-1 ring-emerald-200/60 rounded-2xl p-6">
+    <div class="acto-label text-[11px] font-bold uppercase text-emerald-700 mb-2">Conclusión</div>
+    <p class="text-[13px] text-slate-800 leading-relaxed">
+      <strong>Contabilidad NO necesita full-width.</strong> Repensando el formato (Balance 2-columnas · P&L cascada · comparativo toggle ·
+      tendencia sparkline — todo lo cual <strong>ya tiene en buena parte</strong>), cabe holgado en <code class="bg-white px-1 rounded">max-w-6xl</code>,
+      se lee mejor en desktop y funciona limpio en mobile. → <strong>El <code class="bg-white px-1 rounded">max-w-6xl</code> se unifica en el 100% de los módulos, sin excepciones.</strong>
+    </p>
+  </div>
+
+  <div class="max-w-6xl mx-auto text-center text-[11px] text-slate-400 pb-6">
+    docs/mockups/eval-contabilidad-6xl-funcional-v1.html · desktop + mobile (2026-05-30)
+  </div>
+
+</div>
+
+<script>lucide.createIcons();</script>
+</body>
+</html>
