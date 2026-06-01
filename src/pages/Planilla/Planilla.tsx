@@ -23,7 +23,6 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   BriefcaseBusiness,
-  ChevronRight,
   Calendar,
   Download,
   Lock,
@@ -36,9 +35,16 @@ import {
   BarChart3,
   Wallet,
   Users,
+  UserMinus,
   CalendarDays,
   LayoutDashboard,
 } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
+// Hub Kit (L5) · DS Fase 4
+import { HubShell, HubTopBar, HubHeader, HubKpiStrip, HubTabs, HubBody } from '../../design-system';
+import type { HubTab, HubKpi } from '../../design-system';
+import { useAuthStore } from '../../store/authStore';
+import { hasRole } from '../../types/auth.types';
 import { TabBoletas } from './components/TabBoletas';
 import { TabAdelantos } from './components/TabAdelantos';
 import { TabIncentivos } from './components/TabIncentivos';
@@ -86,7 +92,7 @@ interface TabConfig {
   labelSm?: string;
   /** Leaf canon S9.D1 para breadcrumb · undefined si es default (sin leaf) */
   breadcrumbLeaf?: string;
-  Icon: React.ComponentType<{ className?: string }>;
+  Icon: LucideIcon;
   badge?: { label: string; tinte: 'sky' | 'amber' | 'violet' };
 }
 
@@ -105,6 +111,9 @@ function mesNombreCorto(m: number) {
 
 export const Planilla: React.FC = () => {
   const navigate = useNavigate();
+  // DS Fase 4 · Hub Kit · chip de rol en el top-bar (canon "admin ve todo")
+  const userProfile = useAuthStore((s) => s.userProfile);
+  const esAdmin = hasRole(userProfile, 'admin');
   const ahora = new Date();
   // chk5.PERSONAS-v5.4 · F6 · deep-link reading desde cross-links 360°
   // ?mes=X&anio=Y pre-selecciona el período al entrar desde /gastos · /finanzas/cash-flow · etc
@@ -269,252 +278,68 @@ export const Planilla: React.FC = () => {
   // chk5.PERSONAS-v5.4 · F10.E · breadcrumbLeaf dinámico según tab activa
   const tabActivaCfg = TABS.find((t) => t.id === tabActiva)!;
 
+  // ===== Hub Kit · breadcrumb leaf + tabs (badges) + KPIs + selector de período =====
+  const breadcrumbLeaf = tabActivaCfg.breadcrumbLeaf ?? null;
+  const planillaTabs: HubTab[] = TABS.map((t) => {
+    const base = { id: t.id, label: t.label, icon: t.Icon };
+    if (t.id === 'boletas' && boletasMes.length > 0) return { ...base, badge: boletasMes.length, badgeTono: 'slate' as const };
+    if (t.id === 'adelantos' && adelantosPendientes.length > 0) return { ...base, badge: adelantosPendientes.length, badgeTono: 'amber' as const };
+    return base;
+  });
+  const planillaKpis: HubKpi[] = [
+    { label: `PAYROLL ${mesNombreCorto(mes).toUpperCase()}`, tono: 'rose', icon: Wallet, valor: formatCurrencyPEN(payrollMes), delta: `${boletasMes.length} boleta${boletasMes.length === 1 ? '' : 's'}${bonosMesPEN > 0 ? ` · ${formatCurrencyPEN(bonosMesPEN)} bonos` : ''}` },
+    { label: 'PERSONAL ACTIVO', tono: 'emerald', icon: Users, valor: String(empleadosActivos), delta: `empleado${empleadosActivos === 1 ? '' : 's'} con perfil laboral` },
+    { label: 'INCENTIVOS MES', tono: 'violet', icon: Trophy, valor: formatCurrencyPEN(bonosMesPEN), delta: 'bonos aprobados + en boleta' },
+    { label: 'PRÓX. GRATIF.', tono: 'indigo', icon: CalendarDays, valor: proximaGratificacion.fecha.getMonth() === 6 ? 'jul' : 'dic', sufijo: ` · ${proximaGratificacion.dias}d`, delta: 'jul/dic Perú · sin CTS' },
+  ];
+  const periodoSelector = (
+    <div className="inline-flex items-center gap-1 bg-white border border-slate-200 rounded-lg px-2 py-1.5">
+      <Calendar className="w-3.5 h-3.5 text-slate-500" />
+      <select value={mes} onChange={(e) => setMes(Number(e.target.value))} className="text-[11px] font-semibold bg-transparent focus:outline-none cursor-pointer" aria-label="Mes">
+        {MESES_NOMBRE.map((m, i) => (<option key={i} value={i + 1}>{m}</option>))}
+      </select>
+      <select value={anio} onChange={(e) => setAnio(Number(e.target.value))} className="text-[11px] font-semibold bg-transparent focus:outline-none cursor-pointer" aria-label="Año">
+        {aniosDisponibles.map((a) => (<option key={a} value={a}>{a}</option>))}
+      </select>
+    </div>
+  );
+
   return (
     <div className="max-w-6xl mx-auto p-3 sm:p-4 md:p-6">
-      <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
-        {/* §A · BREADCRUMB canon S9.D1 · 2-3 niveles dinámicos · F10.E
-            Canon explícito Contabilidad.tsx línea 1618-1622: NO repetir grupo del sidebar.
-            Default (resumen): Inicio › Planilla
-            Sub-tab activa:    Inicio › Planilla › {tab.breadcrumbLeaf} */}
-        <div className="border-b border-slate-200 px-4 sm:px-6 py-2.5 flex items-center gap-3 bg-slate-50">
-          <div className="flex items-center text-[12px] flex-1 min-w-0">
-            <a className="text-slate-500 hover:text-violet-700 cursor-pointer flex-shrink-0">Inicio</a>
-            <ChevronRight className="w-3 h-3 text-slate-300 mx-1.5 flex-shrink-0" />
-            {tabActivaCfg.breadcrumbLeaf ? (
-              <>
-                <a
-                  className="text-slate-500 hover:text-violet-700 cursor-pointer flex-shrink-0"
-                  onClick={() => setTabActiva('resumen')}
-                >
-                  Planilla
-                </a>
-                <ChevronRight className="w-3 h-3 text-slate-300 mx-1.5 flex-shrink-0" />
-                <span className="text-slate-900 font-semibold truncate">{tabActivaCfg.breadcrumbLeaf}</span>
-              </>
-            ) : (
-              <span className="text-slate-900 font-semibold truncate">Planilla</span>
-            )}
-          </div>
-        </div>
+      <HubShell>
+        <HubTopBar
+          grupo="equipo"
+          modulo="Planilla"
+          leaf={breadcrumbLeaf}
+          esAdmin={esAdmin}
+          onModulo={() => setTabActiva('resumen')}
+        />
 
-        {/* §B · HEADER banking-grade · icon sky gradient */}
-        <div className="px-4 sm:px-6 py-4 sm:py-5 border-b border-slate-100">
-          <div className="flex items-start justify-between gap-3 sm:gap-4 flex-wrap">
-            <div className="flex items-start gap-3 flex-1 min-w-[260px]">
-              <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-br from-violet-500 to-violet-700 flex items-center justify-center text-white flex-shrink-0">
-                <BriefcaseBusiness className="w-5 h-5" />
-              </div>
-              <div className="min-w-0">
-                <h1 className="text-2xl font-bold tracking-tight text-slate-900">Planilla</h1>
-                <p className="text-[12px] sm:text-[13px] text-slate-500 leading-snug">
-                  Operación mensual · nómina · adelantos · incentivos · vacaciones · gratificaciones
-                </p>
-              </div>
-            </div>
-            {/* Acciones header · 3-tier canon */}
-            <div className="flex items-center gap-1.5 flex-wrap justify-end">
-              {/* Selector período */}
-              <div className="inline-flex items-center gap-1 bg-white border border-slate-200 rounded-lg px-2 py-1.5">
-                <Calendar className="w-3.5 h-3.5 text-slate-500" />
-                <select
-                  value={mes}
-                  onChange={(e) => setMes(Number(e.target.value))}
-                  className="text-[11px] font-semibold bg-transparent focus:outline-none cursor-pointer"
-                  aria-label="Mes"
-                >
-                  {MESES_NOMBRE.map((m, i) => (
-                    <option key={i} value={i + 1}>
-                      {m}
-                    </option>
-                  ))}
-                </select>
-                <select
-                  value={anio}
-                  onChange={(e) => setAnio(Number(e.target.value))}
-                  className="text-[11px] font-semibold bg-transparent focus:outline-none cursor-pointer"
-                  aria-label="Año"
-                >
-                  {aniosDisponibles.map((a) => (
-                    <option key={a} value={a}>
-                      {a}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              {/* Tier neutral · Recargar */}
-              <button
-                type="button"
-                onClick={cargarShellData}
-                disabled={loadingShell}
-                aria-label="Recargar datos"
-                className="text-[11px] font-semibold text-slate-600 hover:bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-lg flex items-center gap-1.5 disabled:opacity-50"
-              >
-                <RefreshCw className={`w-3 h-3 ${loadingShell ? 'animate-spin' : ''}`} />
-                <span className="hidden sm:inline">Recargar</span>
-              </button>
-              {/* Tier neutral · Exportar */}
-              <button
-                type="button"
-                onClick={() => setModal({ kind: 'exportPayroll' })}
-                aria-label="Exportar payroll"
-                title="Exportar payroll del mes a CSV"
-                className="text-[11px] font-semibold text-slate-600 hover:bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-lg flex items-center gap-1.5"
-              >
-                <Download className="w-3 h-3" />
-                <span className="hidden md:inline">Exportar</span>
-              </button>
-              {/* Tier destacada · Cerrar mes */}
-              <button
-                type="button"
-                onClick={() => setModal({ kind: 'cerrarMes' })}
-                aria-label="Cerrar mes"
-                title="Cerrar el mes de planilla (marcar revisado · sin bloqueo Vita Skin)"
-                className="text-[11px] font-semibold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 px-3 py-1.5 rounded-lg flex items-center gap-1.5"
-              >
-                <Lock className="w-3 h-3" />
-                <span className="hidden md:inline">Cerrar mes</span>
-              </button>
-              {/* Tier destacada · Dar de baja */}
-              <button
-                type="button"
-                onClick={() => setModal({ kind: 'bajaEmpleado' })}
-                aria-label="Dar de baja a empleado"
-                title="Iniciar liquidación de baja · wizard 4 pasos"
-                className="text-[11px] font-semibold text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 px-3 py-1.5 rounded-lg flex items-center gap-1.5"
-              >
-                <Plus className="w-3 h-3 rotate-45" />
-                <span className="hidden lg:inline">Dar de baja</span>
-              </button>
-              {/* Tier primary · Nuevo empleado (alta directa desde planilla) */}
-              <button
-                type="button"
-                onClick={() => setModal({ kind: 'nuevoEmpleado' })}
-                aria-label="Dar de alta a nuevo empleado"
-                title="Alta de empleado a planilla · sin pasar por el wizard de usuarios"
-                className="text-[11px] font-bold text-white bg-teal-600 hover:bg-teal-700 px-3 py-1.5 rounded-lg flex items-center gap-1.5"
-              >
-                <Plus className="w-3 h-3" />
-                <span className="hidden sm:inline">Nuevo empleado</span>
-              </button>
-              {/* Tier primary · Generar boletas (CTA principal del mes) */}
-              <button
-                type="button"
-                onClick={() => setModal({ kind: 'generarBoletas' })}
-                aria-label="Generar boletas del mes"
-                title="Genera boletas borrador para todos los empleados activos"
-                className="text-[11px] font-bold text-white bg-violet-600 hover:bg-violet-700 px-3 py-1.5 rounded-lg flex items-center gap-1.5"
-              >
-                <Plus className="w-3 h-3" />
-                <span className="hidden sm:inline">Generar boletas</span>
-              </button>
-            </div>
-          </div>
-        </div>
+        {/* §B · HEADER banking-grade · ícono violet sólido + período (extraActions) + 6 acciones */}
+        <HubHeader
+          grupo="equipo"
+          icon={BriefcaseBusiness}
+          titulo="Planilla"
+          subtitulo="Operación mensual · nómina · adelantos · incentivos · vacaciones · gratificaciones"
+          extraActions={periodoSelector}
+          acciones={[
+            { label: 'Recargar', icon: RefreshCw, onClick: cargarShellData, tier: 'neutral', disabled: loadingShell },
+            { label: 'Exportar', icon: Download, onClick: () => setModal({ kind: 'exportPayroll' }), tier: 'neutral' },
+            { label: 'Cerrar mes', icon: Lock, onClick: () => setModal({ kind: 'cerrarMes' }), tier: 'config' },
+            { label: 'Dar de baja', icon: UserMinus, onClick: () => setModal({ kind: 'bajaEmpleado' }), tier: 'danger' },
+            { label: 'Nuevo empleado', icon: Plus, onClick: () => setModal({ kind: 'nuevoEmpleado' }), tier: 'neutral' },
+            { label: 'Generar boletas', icon: Plus, onClick: () => setModal({ kind: 'generarBoletas' }), tier: 'primary' },
+          ]}
+        />
 
-        {/* §C · KPI STRIP · 4 cards canon mockup ACTO 1 */}
-        <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-slate-100 grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-3">
-          <div className="bg-gradient-to-br from-rose-50 to-rose-100/40 ring-1 ring-rose-200/50 rounded-2xl p-3 sm:p-4">
-            <div className="flex items-center justify-between mb-1.5 sm:mb-2">
-              <span className="text-[9px] sm:text-[10px] uppercase tracking-wider text-rose-700 font-bold">
-                PAYROLL {mesNombreCorto(mes).toUpperCase()}
-              </span>
-              <Wallet className="w-3.5 h-3.5 text-rose-700 flex-shrink-0" />
-            </div>
-            <div className="text-xl sm:text-2xl font-bold tabular-nums text-rose-900">
-              {formatCurrencyPEN(payrollMes)}
-            </div>
-            <div className="text-[10px] sm:text-[11px] text-rose-700 mt-1 truncate">
-              {boletasMes.length} boleta{boletasMes.length === 1 ? '' : 's'}
-              {bonosMesPEN > 0 ? ` · ${formatCurrencyPEN(bonosMesPEN)} bonos` : ''}
-            </div>
-          </div>
-          <div className="bg-gradient-to-br from-emerald-50 to-emerald-100/40 ring-1 ring-emerald-200/50 rounded-2xl p-3 sm:p-4">
-            <div className="flex items-center justify-between mb-1.5 sm:mb-2">
-              <span className="text-[9px] sm:text-[10px] uppercase tracking-wider text-emerald-700 font-bold">
-                PERSONAL ACTIVO
-              </span>
-              <Users className="w-3.5 h-3.5 text-emerald-700 flex-shrink-0" />
-            </div>
-            <div className="text-xl sm:text-2xl font-bold tabular-nums text-emerald-900">
-              {empleadosActivos}
-            </div>
-            <div className="text-[10px] sm:text-[11px] text-emerald-700 mt-1 truncate">
-              empleado{empleadosActivos === 1 ? '' : 's'} con perfil laboral
-            </div>
-          </div>
-          <div className="bg-gradient-to-br from-violet-50 to-violet-100/40 ring-1 ring-violet-200/50 rounded-2xl p-3 sm:p-4">
-            <div className="flex items-center justify-between mb-1.5 sm:mb-2">
-              <span className="text-[9px] sm:text-[10px] uppercase tracking-wider text-violet-700 font-bold">
-                INCENTIVOS MES
-              </span>
-              <Trophy className="w-3.5 h-3.5 text-violet-700 flex-shrink-0" />
-            </div>
-            <div className="text-xl sm:text-2xl font-bold tabular-nums text-violet-900">
-              {formatCurrencyPEN(bonosMesPEN)}
-            </div>
-            <div className="text-[10px] sm:text-[11px] text-violet-700 mt-1 truncate">
-              bonos aprobados + en boleta
-            </div>
-          </div>
-          <div className="bg-gradient-to-br from-indigo-50 to-indigo-100/40 ring-1 ring-indigo-200/50 rounded-2xl p-3 sm:p-4">
-            <div className="flex items-center justify-between mb-1.5 sm:mb-2">
-              <span className="text-[9px] sm:text-[10px] uppercase tracking-wider text-indigo-700 font-bold">
-                PRÓX. GRATIF.
-              </span>
-              <CalendarDays className="w-3.5 h-3.5 text-indigo-700 flex-shrink-0" />
-            </div>
-            <div className="text-xl sm:text-2xl font-bold tabular-nums text-indigo-900">
-              {proximaGratificacion.fecha.getMonth() === 6 ? 'jul' : 'dic'}{' '}
-              <span className="text-indigo-400">· {proximaGratificacion.dias}d</span>
-            </div>
-            <div className="text-[10px] sm:text-[11px] text-indigo-700 mt-1 truncate">
-              jul/dic Perú · sin CTS
-            </div>
-          </div>
-        </div>
+        {/* §C · KPI STRIP · 4 KPIs (Payroll rose · Personal emerald · Incentivos violet · Próx.gratif indigo) */}
+        <HubKpiStrip cols={4} kpis={planillaKpis} />
 
-        {/* §E · TABS ROW · 5 tabs · scroll-x mobile · canon N6 */}
-        <div className="border-b border-slate-200 px-3 sm:px-6 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
-          <div className="flex gap-1 whitespace-nowrap">
-            {TABS.map((tab) => {
-              const isActive = tab.id === tabActiva;
-              const Icon = tab.Icon;
-              return (
-                <button
-                  key={tab.id}
-                  type="button"
-                  onClick={() => setTabActiva(tab.id)}
-                  aria-current={isActive ? 'page' : undefined}
-                  className={`px-3 sm:px-4 py-2.5 text-[12px] border-b-2 flex items-center gap-1.5 whitespace-nowrap transition-colors ${
-                    isActive
-                      ? 'border-violet-600 text-violet-700 font-bold'
-                      : 'border-transparent text-slate-600 hover:text-violet-600 font-medium'
-                  }`}
-                >
-                  <Icon className="w-3.5 h-3.5" />
-                  <span className="hidden sm:inline">{tab.label}</span>
-                  <span className="sm:hidden">{tab.labelSm ?? tab.label}</span>
-                  {tab.badge && (
-                    <span
-                      className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${
-                        tab.badge.tinte === 'sky'
-                          ? 'bg-violet-100 text-violet-700'
-                          : tab.badge.tinte === 'amber'
-                            ? 'bg-amber-100 text-amber-700'
-                            : 'bg-violet-100 text-violet-700'
-                      }`}
-                    >
-                      {tab.badge.label}
-                    </span>
-                  )}
-                </button>
-              );
-            })}
-          </div>
-        </div>
+        {/* §E · TABS · HubTabs (equipo → violet · scroll-x N6 · badges slate/amber) */}
+        <HubTabs grupo="equipo" tabs={planillaTabs} activa={tabActiva} onChange={(id) => setTabActiva(id as TabId)} />
 
-        {/* §F · BODY del tab activo */}
-        <div>
+        {/* §F · BODY · Layout B · flush (las tabs auto-paddean p-4 sm:p-6) */}
+        <HubBody flush>
           {tabActiva === 'resumen' && (
             <TabResumenPlanilla
               mes={mes}
@@ -553,8 +378,8 @@ export const Planilla: React.FC = () => {
             />
           )}
           {tabActiva === 'analisis' && <TabAnalisisReportes mes={mes} anio={anio} />}
-        </div>
-      </div>
+        </HubBody>
+      </HubShell>
 
       {/* ═════════════════════════════════════════════════════════════════ */}
       {/* TOAST notificaciones canon · auto-hide 4s                          */}

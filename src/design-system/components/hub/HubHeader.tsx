@@ -19,8 +19,9 @@ export interface HubHeaderAccion {
   label: string;
   icon?: LucideIcon;
   onClick?: () => void;
-  /** Jerarquía cromática · default 'neutral'. Solo UNA acción debería ser 'primary'. */
-  tier?: 'primary' | 'config' | 'neutral';
+  /** Jerarquía cromática · default 'neutral'. Solo UNA acción debería ser 'primary'.
+   *  'danger' (rose) = acción destructiva/delicada de header (ej. dar de baja). */
+  tier?: 'primary' | 'config' | 'neutral' | 'danger';
   disabled?: boolean;
 }
 
@@ -38,6 +39,7 @@ interface HubHeaderProps {
 }
 
 const TIER_CONFIG = 'bg-indigo-50 text-indigo-700 border border-indigo-200 hover:bg-indigo-100 font-medium';
+const TIER_DANGER = 'bg-rose-50 text-rose-700 border border-rose-200 hover:bg-rose-100 font-medium';
 const TIER_NEUTRAL = 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 font-medium';
 
 export const HubHeader: React.FC<HubHeaderProps> = ({
@@ -72,6 +74,7 @@ export const HubHeader: React.FC<HubHeaderProps> = ({
             const tierClass =
               tier === 'primary' ? `${C.primaryBtn} font-semibold`
               : tier === 'config' ? TIER_CONFIG
+              : tier === 'danger' ? TIER_DANGER
               : TIER_NEUTRAL;
             return (
               <button
