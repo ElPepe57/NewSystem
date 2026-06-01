@@ -16,15 +16,19 @@
   Se re-exportan desde el barrel `'../../design-system'`.
 - **Spec visual validada**: `docs/mockups/hub-kit-implementacion-v1.html`
   (sírvela en `http://localhost:5178/docs/mockups/hub-kit-implementacion-v1.html`).
-- **Migrados (6 de 7)** ✅: `Stock` (piloto · `InventarioPageV2.tsx`) · `Gastos` · `Inversionistas` ·
-  `Planilla` · `Usuarios` · `Contabilidad`. Cualquiera sirve de referencia de cómo queda un módulo migrado.
-  Casos útiles: KPIs que quedan INLINE (no van a HubKpiStrip) → ver Usuarios/Contabilidad ·
-  `HubBody flush` (tabs auto-paddean) → ver Planilla/Usuarios · selector en header (`extraActions`) →
-  ver Inversionistas/Contabilidad · adaptación a `max-w-6xl` sin reformatear tablas → ver Contabilidad.
+- **Migrados (7 de 7)** ✅ **MIGRACIÓN HUB KIT COMPLETA**: `Stock` (piloto · `InventarioPageV2.tsx`) ·
+  `Gastos` · `Inversionistas` · `Planilla` · `Usuarios` · `Contabilidad` · `Finanzas`.
+  Cualquiera sirve de referencia. Casos útiles:
+  - KPIs que quedan INLINE (no van a HubKpiStrip) → Usuarios/Contabilidad/Finanzas.
+  - `HubBody flush` (contenido auto-paddea) → Planilla/Usuarios/Finanzas.
+  - selector/acciones custom en header (`extraActions`) → Inversionistas/Contabilidad/Finanzas.
+  - adaptación a `max-w-6xl` sin reformatear tablas/charts → Contabilidad/Finanzas.
+  - **shell adaptativo router-based** (header/KPIs/acciones override por sub-ruta · `HubTabs` adaptado
+    a router con `activa`=ruta + `onChange`=navigate) → **Finanzas** (`FinanzasLayout.tsx`).
 
-### Pendiente de migrar al kit (1 de 7)
-**Finanzas** — el más complejo (router-based · `FinanzasLayout` + `<Outlet/>` · Layout A ·
-puede requerir `HubTabs` en modo ruta, no estado local).
+### Pendientes
+Ninguno · los 7 módulos hub están migrados. Próximo foco: deploy de checkpoint (Inter es global ·
+validar en prod) + F2 restante del DS (consolidar L1-L4 · crear HubCard/SmartSearch/BulkActionsToolbar).
 
 ---
 
