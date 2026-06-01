@@ -47,7 +47,7 @@ const TONO: Record<HubKpiTono, { card: string; label: string; icon: string; valo
   indigo:  { card: 'from-indigo-50 to-indigo-100/40 ring-indigo-200/50',   label: 'text-indigo-700',  icon: 'text-indigo-700',  valor: 'text-indigo-900',  decimal: 'text-indigo-400',  delta: 'text-indigo-700' },
   sky:     { card: 'from-sky-50 to-sky-100/40 ring-sky-200/50',            label: 'text-sky-700',     icon: 'text-sky-700',     valor: 'text-sky-900',     decimal: 'text-sky-400',     delta: 'text-sky-700' },
   violet:  { card: 'from-violet-50 to-violet-100/40 ring-violet-200/50',   label: 'text-violet-700',  icon: 'text-violet-700',  valor: 'text-violet-900',  decimal: 'text-violet-400',  delta: 'text-violet-700' },
-  slate:   { card: 'from-slate-50 to-slate-100/40 ring-slate-200/50',      label: 'text-slate-600',   icon: 'text-slate-600',   valor: 'text-slate-900',   decimal: 'text-slate-400',   delta: 'text-slate-600' },
+  slate:   { card: 'from-slate-50 to-slate-100/60 ring-slate-200/60',      label: 'text-slate-600',   icon: 'text-slate-600',   valor: 'text-slate-900',   decimal: 'text-slate-400',   delta: 'text-slate-600' },
 };
 
 const COLS: Record<3 | 4 | 5, string> = {
@@ -58,20 +58,20 @@ const COLS: Record<3 | 4 | 5, string> = {
 
 export const HubKpiStrip: React.FC<HubKpiStripProps> = ({ kpis, miniStats = [], cols = 5, className = '' }) => (
   <div className={`px-4 sm:px-6 py-4 border-b border-slate-100 ${className}`}>
-    <div className={`grid grid-cols-2 ${COLS[cols]} gap-3`}>
+    <div className={`grid grid-cols-2 ${COLS[cols]} gap-2 sm:gap-3`}>
       {kpis.map((k, i) => {
         const t = TONO[k.tono];
         const Ki = k.icon;
         return (
-          <div key={i} className={`bg-gradient-to-br ${t.card} ring-1 rounded-2xl p-4`}>
-            <div className="flex items-center justify-between mb-2">
+          <div key={i} className={`bg-gradient-to-br ${t.card} ring-1 rounded-2xl p-3`}>
+            <div className="flex items-center justify-between mb-1">
               <span className={`text-[10px] uppercase tracking-wider font-bold ${t.label}`}>{k.label}</span>
               {Ki && <Ki className={`w-3.5 h-3.5 ${t.icon}`} />}
             </div>
             <div className={`text-2xl font-bold tabular-nums ${t.valor}`}>
               {k.valor}{k.sufijo && <span className={t.decimal}>{k.sufijo}</span>}
             </div>
-            {k.delta && <div className={`text-[11px] mt-1 ${t.delta}`}>{k.delta}</div>}
+            {k.delta && <div className={`text-[10px] mt-0.5 ${t.delta}`}>{k.delta}</div>}
           </div>
         );
       })}

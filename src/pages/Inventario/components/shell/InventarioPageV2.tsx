@@ -22,7 +22,7 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import {
-  Package, BarChart3, Bell, MapPin, Boxes,
+  Package, BarChart3, Bell, MapPin, Boxes, CheckCircle, Lock, AlertTriangle, Download,
   ChevronRight, Shield, LayoutDashboard,
   Droplets, Pill, Shirt, UtensilsCrossed,
   User, Truck, Warehouse, Building2, Globe2, type LucideIcon,
@@ -35,16 +35,15 @@ import {
   Card,
   InventarioSkeleton,
 } from '../../../../components/common';
-import { FiltrosBar, ChipsActivos, BulkActionsToolbar, PaginacionFooter } from '../../../../design-system';
+import { FiltrosBar, ChipsActivos, BulkActionsToolbar, PaginacionFooter,
+  HubShell, HubTopBar, HubHeader, HubKpiStrip, HubTabs, HubBody } from '../../../../design-system';
 import type {
   ChipGroupConfig, ChipOption, SortOption,
   LeadingFilterConfig, LeadingFilterOptionGroup, ChipActivo,
+  HubTab, HubKpi,
 } from '../../../../design-system';
-import type { Tab } from '../../../../components/common/Tabs';
 
 // Componentes locales del módulo
-import { HeaderV2 } from './HeaderV2';
-import { KpiStripV2 } from './KpiStripV2';
 import { SegmentedControl } from './SegmentedControl';
 import { InventarioPills, type PillInventario } from './InventarioPills';
 import {
@@ -816,15 +815,15 @@ export const InventarioPageV2: React.FC = () => {
 
   // ==================== TABS CANÓNICOS (4) ====================
 
-  const tabs: Tab[] = useMemo(() => [
-    { id: 'resumen', label: 'Resumen', icon: <LayoutDashboard className="h-4 w-4" /> },
-    { id: 'inventario', label: 'Existencias', icon: <Package className="h-4 w-4" /> },
-    { id: 'mapa', label: 'Mapa', icon: <MapPin className="h-4 w-4" /> },
-    { id: 'analytics', label: 'Analytics', icon: <BarChart3 className="h-4 w-4" /> },
+  const tabs: HubTab[] = useMemo(() => [
+    { id: 'resumen', label: 'Resumen', icon: LayoutDashboard },
+    { id: 'inventario', label: 'Existencias', icon: Package },
+    { id: 'mapa', label: 'Mapa', icon: MapPin },
+    { id: 'analytics', label: 'Analytics', icon: BarChart3 },
     {
       id: 'atencion',
       label: 'Atención',
-      icon: <Bell className="h-4 w-4" />,
+      icon: Bell,
       badge: alertasPrioritarias.length > 0 ? alertasPrioritarias.length : undefined,
     },
   ], [alertasPrioritarias.length]);
@@ -917,98 +916,51 @@ export const InventarioPageV2: React.FC = () => {
 
   // ==================== RENDER ====================
 
+  // Subtítulo condicional del KPI Reservadas (lógica que antes vivía en KpiStripV2)
+  const reservadasSubtitle = inventarioStats.reservada === 0
+    ? 'Sin reservas activas'
+    : [
+        inventarioStats.reservadaOrigen > 0 ? `Origen: ${inventarioStats.reservadaOrigen}` : null,
+        inventarioStats.reservadaPeru > 0 ? `PE: ${inventarioStats.reservadaPeru}` : null,
+      ].filter(Boolean).join(' · ');
+
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6">
-      {/* chk5.DS-F3 · SHELL HUB · 1 card continuo (canon DS · grupo Inventario = orange) */}
-      <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
-
-        {/* §A · TOP-BAR · breadcrumb S9.D1 (Inicio › Stock) + chip rol orange */}
-        <div className="border-b border-slate-200 px-4 sm:px-6 py-2.5 flex items-center justify-between gap-3 bg-slate-50">
-          <div className="flex items-center gap-1 text-[12px] text-slate-500">
-            <a className="hover:text-orange-700 cursor-pointer flex-shrink-0">Inicio</a>
-            <ChevronRight className="w-3 h-3 text-slate-300 mx-0.5 flex-shrink-0" />
-            {breadcrumbLeaf ? (
-              <>
-                <button
-                  type="button"
-                  onClick={() => setTabActivo('resumen')}
-                  className="hover:text-orange-700 cursor-pointer flex-shrink-0"
-                >
-                  Stock
-                </button>
-                <ChevronRight className="w-3 h-3 text-slate-300 mx-0.5 flex-shrink-0" />
-                <span className="text-slate-900 font-semibold">{breadcrumbLeaf}</span>
-              </>
-            ) : (
-              <span className="text-slate-900 font-semibold">Stock</span>
-            )}
-          </div>
-          <span className="text-[10px] bg-orange-50 text-orange-700 px-2 py-0.5 rounded font-bold hidden sm:inline-flex items-center gap-1 flex-shrink-0">
-            <Shield className="w-3 h-3" />
-            {esAdmin ? 'Vista ejecutiva · admin' : 'Vista ejecutiva'}
-          </span>
-        </div>
-
-        {/* §B · HEADER banking-grade (icono orange + h1 + subtítulo + acciones) */}
-        <div className="px-4 sm:px-6 py-4 border-b border-slate-100">
-          <HeaderV2
-            titulo="Stock"
-            subtitulo="Qué tengo, dónde está, en qué estado · vista operativa de existencias en tiempo real (productos, lotes, vencimientos, reservas)."
-            onExportar={handleExportar}
-            exportarDisabled={unidades.length === 0}
-          />
-        </div>
-
-        {/* §C · KPI STRIP integrado (5 KPIs semánticos) */}
-        <div className="px-4 sm:px-6 py-4 border-b border-slate-100">
-          <KpiStripV2
-            stats={{
-              total: inventarioStats.total,
-              productos: productosConUnidades.length,
-              disponiblePeru: inventarioStats.disponiblePeru,
-              pctDisponiblesPeru,
-              reservada: inventarioStats.reservada,
-              reservadaOrigen: inventarioStats.reservadaOrigen,
-              reservadaPeru: inventarioStats.reservadaPeru,
-              enTransito: inventarioStats.enTransito,
-              proximasAVencer: inventarioStats.proximasAVencer,
-            }}
-          />
-        </div>
-
-        {/* §E · TABS de sub-sección · canon hub border-b-2 en color del módulo (orange) · scroll-x mobile (N6) */}
-        <div className="border-b border-slate-200 px-4 sm:px-6 overflow-x-auto scrollbar-hide">
-          <div className="flex items-center gap-1 -mb-px">
-            {tabs.map((tab) => {
-              const isActive = tab.id === tabActivo;
-              return (
-                <button
-                  key={tab.id}
-                  type="button"
-                  onClick={() => setTabActivo(tab.id as TabInventarioV2)}
-                  aria-current={isActive ? 'page' : undefined}
-                  className={
-                    'px-3 sm:px-4 py-3 text-[12px] border-b-2 flex items-center gap-1.5 whitespace-nowrap transition-colors ' +
-                    (isActive
-                      ? 'border-orange-600 text-orange-700 font-semibold'
-                      : 'border-transparent text-slate-600 font-medium hover:text-slate-900')
-                  }
-                >
-                  {tab.icon}
-                  <span>{tab.label}</span>
-                  {tab.badge !== undefined && (
-                    <span className="px-1.5 py-0.5 rounded-full text-[10px] font-bold tabular-nums bg-rose-100 text-rose-700">
-                      {tab.badge}
-                    </span>
-                  )}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* §F · BODY dentro del shell */}
-        <div className="bg-slate-50/30 px-4 sm:px-6 py-5 space-y-4">
+      {/* chk5.DS-F4 · PILOTO · shell ensamblado desde el Hub Kit (L5) · grupo Inventario = orange */}
+      <HubShell>
+        <HubTopBar
+          grupo="inventario"
+          modulo="Stock"
+          leaf={breadcrumbLeaf}
+          esAdmin={esAdmin}
+          onModulo={() => setTabActivo('resumen')}
+        />
+        <HubHeader
+          grupo="inventario"
+          icon={Warehouse}
+          titulo="Stock"
+          subtitulo="Qué tengo, dónde está, en qué estado · vista operativa de existencias en tiempo real (productos, lotes, vencimientos, reservas)."
+          acciones={[
+            { label: 'Exportar', icon: Download, onClick: handleExportar, tier: 'neutral', disabled: unidades.length === 0 },
+          ]}
+        />
+        <HubKpiStrip
+          cols={5}
+          kpis={[
+            { label: 'Unidades', valor: inventarioStats.total.toLocaleString('es-PE'), tono: 'slate', icon: Boxes, delta: `${productosConUnidades.length.toLocaleString('es-PE')} productos` },
+            { label: 'Disponibles', valor: inventarioStats.disponiblePeru.toLocaleString('es-PE'), tono: 'emerald', icon: CheckCircle, delta: `${pctDisponiblesPeru}% libres en PE` },
+            { label: 'Reservadas', valor: inventarioStats.reservada.toLocaleString('es-PE'), tono: 'sky', icon: Lock, delta: reservadasSubtitle },
+            { label: 'En tránsito', valor: inventarioStats.enTransito.toLocaleString('es-PE'), tono: 'amber', icon: Truck, delta: 'Origen + Perú' },
+            { label: 'Vencen < 30d', valor: inventarioStats.proximasAVencer.toLocaleString('es-PE'), tono: 'rose', icon: AlertTriangle, delta: inventarioStats.proximasAVencer > 0 ? 'revisar lotes' : 'Todo OK' },
+          ]}
+        />
+        <HubTabs
+          grupo="inventario"
+          tabs={tabs}
+          activa={tabActivo}
+          onChange={(id) => setTabActivo(id as TabInventarioV2)}
+        />
+        <HubBody>
 
           {/* Banner amber alertas inmediatas (chk4.7a) · no en Atención ni Resumen
               (Resumen ya tiene §A banner de estado + §F alertas top · evita duplicar) */}
@@ -1222,8 +1174,8 @@ export const InventarioPageV2: React.FC = () => {
         />
       )}
 
-        </div>{/* §F · cierre BODY */}
-      </div>{/* chk5.DS-F3 · cierre SHELL HUB card */}
+        </HubBody>
+      </HubShell>
 
       {/* ==================== MODALES GLOBALES ==================== */}
 

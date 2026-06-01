@@ -19,9 +19,6 @@
 
 // shell (chk4.2 + chk4.7)
 export { InventarioPageV2 } from './shell/InventarioPageV2';
-export { HeaderV2 } from './shell/HeaderV2';
-export { KpiStripV2 } from './shell/KpiStripV2';
-export type { KpiStripStats } from './shell/KpiStripV2';
 export { SegmentedControl } from './shell/SegmentedControl';
 export { InventarioPills } from './shell/InventarioPills';
 export type { PillInventario, PillInventarioCounts } from './shell/InventarioPills';
