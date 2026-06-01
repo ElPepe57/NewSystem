@@ -16,11 +16,15 @@
   Se re-exportan desde el barrel `'../../design-system'`.
 - **Spec visual validada**: `docs/mockups/hub-kit-implementacion-v1.html`
   (sírvela en `http://localhost:5178/docs/mockups/hub-kit-implementacion-v1.html`).
-- **Piloto migrado**: `Stock` (`InventarioPageV2.tsx`) ya ensambla desde el kit · cero regresión.
-  Es el ejemplo de referencia de cómo queda un módulo migrado.
+- **Migrados (6 de 7)** ✅: `Stock` (piloto · `InventarioPageV2.tsx`) · `Gastos` · `Inversionistas` ·
+  `Planilla` · `Usuarios` · `Contabilidad`. Cualquiera sirve de referencia de cómo queda un módulo migrado.
+  Casos útiles: KPIs que quedan INLINE (no van a HubKpiStrip) → ver Usuarios/Contabilidad ·
+  `HubBody flush` (tabs auto-paddean) → ver Planilla/Usuarios · selector en header (`extraActions`) →
+  ver Inversionistas/Contabilidad · adaptación a `max-w-6xl` sin reformatear tablas → ver Contabilidad.
 
-### Pendientes de migrar al kit
-Finanzas · Contabilidad · Usuarios · Planilla · Inversionistas · Gastos · (otros con shell hub).
+### Pendiente de migrar al kit (1 de 7)
+**Finanzas** — el más complejo (router-based · `FinanzasLayout` + `<Outlet/>` · Layout A ·
+puede requerir `HubTabs` en modo ruta, no estado local).
 
 ---
 
