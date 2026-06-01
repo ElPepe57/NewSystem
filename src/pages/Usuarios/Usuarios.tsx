@@ -10,8 +10,8 @@ import {
   Settings as SettingsIcon, LayoutDashboard, MailPlus,
   // chk5.PERSONAS-v5.3 · F2 · banners cross-link
   ArrowRight,
-  // chk5.PERSONAS-v5.4 · F10.D · breadcrumb canon S9.D1 + exportar
-  ChevronRight, Download,
+  // chk5.PERSONAS-v5.4 · F10.D · exportar
+  Download,
   // chk5.PERSONAS-v5.8 · E5 · banner borrador colaborador (wizard @deprecated)
   FileText,
 } from 'lucide-react';
@@ -44,7 +44,9 @@ import { ReclasificarRelacionModal } from '../../components/usuarios/Reclasifica
 // chk5.PERSONAS-v5.7 · E5.3 · AgregarRelacionWizard · 2 pasos · 2ª/Nª relación
 import { AgregarRelacionWizard } from '../../components/usuarios/AgregarRelacionWizard';
 import type { LucideIcon } from 'lucide-react';
-import { PageShell } from '../../design-system';
+// Hub Kit (L5) · DS Fase 4
+import { HubShell, HubTopBar, HubHeader, HubTabs, HubBody } from '../../design-system';
+import type { HubTab } from '../../design-system';
 import { userService } from '../../services/user.service';
 import { useAuthStore } from '../../store/authStore';
 import type { UserProfile, UserRole } from '../../types/auth.types';
@@ -490,124 +492,48 @@ export const Usuarios: React.FC = () => {
   // No es hook · es derivada simple · puede vivir después del early return.
   const relacionesCargadas = Object.keys(relacionesByUid).length > 0;
 
+  // ===== Hub Kit · breadcrumb leaf + tabs =====
+  const breadcrumbLeaf =
+    tabActiva === 'directorio' ? null
+    : tabActiva === 'accesos' ? 'Accesos & seguridad'
+    : 'Configuración';
+  const usuariosTabs: HubTab[] = [
+    { id: 'directorio', label: 'Resumen', icon: LayoutDashboard },
+    { id: 'accesos', label: 'Accesos & seguridad', icon: ShieldCheck },
+    { id: 'configuracion', label: 'Configuración', icon: SettingsIcon },
+  ];
+
   return (
-    <PageShell>
-      <div className="max-w-6xl mx-auto p-3 sm:p-4 md:p-6">
-        <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+    <div className="max-w-6xl mx-auto p-3 sm:p-4 md:p-6">
+      <HubShell>
+        <HubTopBar
+          grupo="equipo"
+          modulo="Usuarios"
+          leaf={breadcrumbLeaf}
+          esAdmin={hasRole(currentUser, 'admin')}
+          onModulo={() => setTabActiva('directorio')}
+        />
 
-          {/* §A · BREADCRUMB canon S9.D1 · Inicio › Usuarios › sub-tab (módulo como 2º nivel) */}
-          <div className="border-b border-slate-200 px-4 sm:px-6 py-2.5 flex items-center gap-3 bg-slate-50">
-            <div className="flex items-center text-[12px] flex-1 min-w-0">
-              <a className="text-slate-500 hover:text-violet-700 cursor-pointer flex-shrink-0">Inicio</a>
-              <ChevronRight className="w-3 h-3 text-slate-300 mx-1.5 flex-shrink-0" />
-              {tabActiva === 'directorio' ? (
-                <span className="text-slate-900 font-semibold truncate">Usuarios</span>
-              ) : (
-                <>
-                  <a
-                    className="text-slate-500 hover:text-violet-700 cursor-pointer flex-shrink-0"
-                    onClick={() => setTabActiva('directorio')}
-                  >
-                    Usuarios
-                  </a>
-                  <ChevronRight className="w-3 h-3 text-slate-300 mx-1.5 flex-shrink-0" />
-                  <span className="text-slate-900 font-semibold truncate">
-                    {tabActiva === 'accesos' && 'Accesos & seguridad'}
-                    {tabActiva === 'configuracion' && 'Configuración'}
-                  </span>
-                </>
-              )}
-            </div>
-            {/* Chip contextual al rol · canon "admin ve todo" · estandarización chip (chk5.E-GASTOS-CHIP) */}
-            <span className="text-[10px] bg-violet-50 text-violet-700 px-2 py-0.5 rounded font-bold hidden sm:inline-flex items-center gap-1 flex-shrink-0">
-              <Shield className="w-3 h-3" />
-              {hasRole(currentUser, 'admin') ? 'Vista ejecutiva · admin' : 'Vista ejecutiva'}
-            </span>
-          </div>
+        {/* §B · HEADER · ícono violet sólido + subtítulo + 2 acciones (Exportar neutral · Invitar config) */}
+        <HubHeader
+          grupo="equipo"
+          icon={Users}
+          titulo="Usuarios"
+          subtitulo="Directorio central de personas · roles · accesos · configuración del sistema"
+          acciones={[
+            { label: 'Exportar', icon: Download, onClick: handleExportarUsuarios, tier: 'neutral' },
+            { label: 'Invitar por email', icon: MailPlus, onClick: () => setInvitarOpen(true), tier: 'config' },
+          ]}
+        />
 
-          {/* §B · HEADER canon mockup usuarios-v5.3-hub.html línea 67-81
-              Icon chip plano · h1 text-[20px] · subtítulo canon · 3 acciones (Exportar · Invitar · Nuevo) */}
-          <div className="px-4 sm:px-6 py-4 sm:py-5 border-b border-slate-100">
-            <div className="flex items-start justify-between gap-3 sm:gap-4 flex-wrap">
-              <div className="flex items-start gap-3 flex-1 min-w-[260px]">
-                <div className="w-10 h-10 rounded-xl bg-violet-100 flex items-center justify-center flex-shrink-0">
-                  <Users className="w-5 h-5 text-violet-600" />
-                </div>
-                <div className="min-w-0">
-                  <h1 className="text-[20px] font-bold text-slate-900">Usuarios</h1>
-                  <p className="text-[12px] text-slate-500 leading-snug">
-                    Directorio central de personas · roles · accesos · configuración del sistema
-                  </p>
-                </div>
-              </div>
-              {/* Acciones canon mockup · Exportar (neutral) · Invitar email (indigo) · Nuevo usuario (violet primary) */}
-              <div className="flex items-center gap-1.5 flex-wrap justify-end">
-                <button
-                  type="button"
-                  onClick={handleExportarUsuarios}
-                  aria-label="Exportar usuarios a CSV"
-                  title="Exportar usuarios a CSV"
-                  className="text-[12px] font-medium text-slate-600 hover:bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-lg flex items-center gap-1.5"
-                >
-                  <Download className="w-3.5 h-3.5" />
-                  <span className="hidden sm:inline">Exportar</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setInvitarOpen(true)}
-                  className="text-[12px] font-medium text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 px-3 py-1.5 rounded-lg flex items-center gap-1.5"
-                  title="Invitar por email · canon mockup ACTO 2.2"
-                >
-                  <MailPlus className="w-3.5 h-3.5" />
-                  <span className="hidden sm:inline">Invitar por email</span>
-                </button>
-                {/* chk5.PERSONAS-v5.8 · E5 · Botón "Nuevo colaborador" removido del header.
-                    El alta ahora nace desde cada módulo:
-                      - Empleados → /planilla "+ Nuevo empleado"
-                      - Socios    → /inversionistas "+ Nuevo socio"
-                    El wizard general (CrearUsuarioWizard) sigue disponible
-                    pero solo se abre desde el banner de borrador legacy. */}
-              </div>
-            </div>
-          </div>
+        {/* §B-bis · TABS · HubTabs (equipo → violet · 3 sub-tabs · scroll-x N6) */}
+        <HubTabs grupo="equipo" tabs={usuariosTabs} activa={tabActiva} onChange={(id) => setTabActiva(id as TabActiva)} />
 
-          {/* §B-bis · TABS internas · canon mockup usuarios-v5.3-hub.html línea 83-96
-              3 sub-tabs: Resumen · Accesos & seguridad · Configuración · scroll-x mobile N6 */}
-          <div className="border-b border-slate-200 px-3 sm:px-6 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
-            <div className="flex gap-1 whitespace-nowrap">
-              {([
-                { id: 'directorio' as TabActiva, label: 'Resumen', Icon: LayoutDashboard, badge: null },
-                { id: 'accesos' as TabActiva, label: 'Accesos & seguridad', Icon: ShieldCheck, badge: null },
-                { id: 'configuracion' as TabActiva, label: 'Configuración', Icon: SettingsIcon, badge: null },
-              ]).map(({ id, label, Icon, badge }) => {
-                const isActive = tabActiva === id;
-                return (
-                  <button
-                    key={id}
-                    type="button"
-                    onClick={() => setTabActiva(id)}
-                    className={`px-3 sm:px-4 py-2.5 text-[12px] font-${isActive ? 'bold' : 'medium'} border-b-2 transition-colors flex items-center gap-1.5 ${
-                      isActive
-                        ? 'border-violet-600 text-violet-700'
-                        : 'border-transparent text-slate-600 hover:text-violet-600'
-                    }`}
-                  >
-                    <Icon className="w-3.5 h-3.5" />
-                    {label}
-                    {badge !== null && (
-                      <span className="bg-violet-100 text-violet-700 px-1.5 py-0.5 rounded text-[10px] font-bold">
-                        {badge}
-                      </span>
-                    )}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
+        {/* §F · BODY · Layout B · flush (directorio + sub-tabs auto-paddean px-4 sm:px-6) */}
+        <HubBody flush>
 
           {/* ════════════════════════════════════════════════════════════ */}
           {/* TAB · RESUMEN · banner pendientes + KPIs + chips filtro + listado */}
-          {/* Canon mockup usuarios-v5.3-hub.html línea 97-135                  */}
           {/* ════════════════════════════════════════════════════════════ */}
           {tabActiva === 'directorio' && (<>
 
@@ -1225,10 +1151,8 @@ export const Usuarios: React.FC = () => {
               <TabConfiguracion />
             </div>
           )}
-
-          {/* Cierra el shell card canon */}
-        </div>
-      </div>
+        </HubBody>
+      </HubShell>
 
       {/* ════════════════════════════════════════════════════════════════
            chk5.F4-USERS · 2026-05-26 · Fase 5-BIS · 8 MODALES CANON FormModalV2
@@ -1436,6 +1360,6 @@ export const Usuarios: React.FC = () => {
         }}
         onError={setError}
       />
-    </PageShell>
+    </div>
   );
 };
