@@ -317,6 +317,56 @@ como "exploratorio/decisión" en el HERO.
 Este canon COMPLEMENTA el "CANON DE MOCKUPS DE DISEÑO · COBERTURA TOTAL + MOBILE-INCLUDED"
 (2026-05-27): aquél define QUÉ superficies cubrir · éste define que nazcan con el LENGUAJE del DS.
 
+## G · TIPOGRAFÍA · FAMILIA + ESCALA POR ROL + COLOR (✅ CONFIRMADO por user 2026-06-01)
+
+**Origen:** el user notó que las letras "tienen una tonalidad y luego otra" y pidió **reglas
+claras de tipografía, idealmente en el kit**. Auditoría 360: la tipografía vivía esparcida en
+3 lugares que no coincidían (`tokens.ts` roles NO consumidos · `index.css` CSS-vars NO consumidas ·
+clases literales en kit/páginas = lo real) + la **FAMILIA sin definir** (la app caía a la fuente del
+SO · los mockups usaban Inter). Se cerró una capa L0 única.
+
+### Familia (lo que faltaba)
+**Inter** · única fuente de la app · cargada en `index.html` (Google Fonts · weights 400-800) +
+`tailwind.config.fontFamily.sans = ['Inter', …]` (el preflight la aplica al `<html>` · toda la app la
+hereda · fallback a `system-ui`). Alinea la app a los mockups (que ya estaban en Inter).
+
+### Escala por ROL (tamaño + peso · `tokens.ts.text` = referencia · = implementación real del kit)
+| Rol | Clase | Uso |
+|---|---|---|
+| `hero` (h1) | `text-2xl font-bold tracking-tight` | título de módulo (HubHeader) |
+| `metricHero` | `text-2xl font-bold tabular-nums` | dato héroe KPI (número grande) |
+| `title` | `text-base sm:text-lg font-semibold` | título de sección/card |
+| `subtitle` | `text-[13px] leading-snug` | subtítulo bajo el h1 |
+| `navTab` | `text-[13px]` | label de tab (peso por estado) |
+| `bodyText` | `text-[12px]` | cuerpo |
+| `meta` | `text-[11px]` | meta · breadcrumb · delta KPI |
+| `overline` | `text-[10px] font-bold uppercase tracking-wider` | label/etiqueta |
+| `micro` | `text-[9px] font-bold` | badge |
+
+Regla: **pocos tamaños = orden** · `tabular-nums` SIEMPRE en números.
+
+### Color por FUNCIÓN (el "una tonalidad y luego otra" ES un sistema, no deriva)
+- **Estructura** → slate: `900` título · `700` · `600` cuerpo · `500` meta · `400` muted/placeholder.
+- **Dato** → semántico (la naturaleza del dato · amber=dinero · rose=urgencia · emerald=positivo ·
+  indigo=fijo · sky=parcial). Dentro de un dato hay JERARQUÍA de tono: `-700` label / `-900` valor /
+  `-400` decimal-atenuado (canon F7).
+- **Chrome** (¿dónde estoy?) → color del grupo (teal/violet/… · `grupoColor.ts`): tab activa · chip ·
+  primary · ícono header · focus rings.
+- Nunca mezclar: el color del grupo NO pinta datos · el semántico NO pinta chrome.
+
+### Dónde vive / enforcement
+- **Capa L0**: familia en `tailwind.config` · escala/roles en `tokens.ts.text` · color estructural=slate ·
+  dato=semántico · chrome=`grupoColor.ts`.
+- **El Hub Kit es la implementación de referencia** (sus clases literales M1 coinciden 1:1 con los roles).
+  Por ahora el kit NO importa los tokens (mantiene clases literales · canon M1) · `tokens.ts` es la
+  referencia documental. Enforcement duro (primitiva `<Text role>` que el kit consuma) = FASE 2 futura
+  (el user eligió "reglas + reconciliar tokens · liviano" · 2026-06-01).
+
+### Aplica a
+Todo módulo/componente nuevo + todo mockup (que ya nace en Inter). Al migrar un módulo al kit, su
+texto hereda Inter + la escala automáticamente. NOTA: Inter es ~levemente más ancha que la fuente del
+sistema · puede reflowar líneas justas (ej. mini-stats a 2 líneas) · el `flex-wrap` lo absorbe.
+
 ## Estado e implementación (plan de fases · ✅ #5 CONFIRMADO · F0 CERRADA 100% · 2026-05-31)
 - **F0** · Blueprint · **14 mockups + TODAS las decisiones** ✅ CERRADO.
 - **F1** · Tokens + color (`tokens.ts` · `grupoColor.ts` · alinear Contabilidad/Usuarios/Planilla a su color de grupo).

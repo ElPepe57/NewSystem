@@ -69,18 +69,29 @@ export const surface = {
   active: 'bg-teal-50',
 } as const;
 
-// ─── Typography · por ROL (canon E) ──────────────────────────────────────────
-// Escala canónica: dato-héroe 2xl · título lg · subtítulo sm · cuerpo 12px ·
-// meta 11px · label 10px-upper. Pocos tamaños = orden. tabular-nums en números.
+// ─── Typography · por ROL (canon TIPOGRAFÍA) ─────────────────────────────────
+// FAMILIA: Inter (tailwind.config.fontFamily.sans · cargada en index.html · heredada
+//   por TODA la app · alineada a los mockups). Estos roles fijan TAMAÑO + PESO; el
+//   COLOR lo pone el CONTEXTO, no el rol:
+//     • estructura → slate (900 título · 700 · 600 cuerpo · 500 meta · 400 muted)
+//     • dato       → semántico (amber=dinero · rose=urgencia · emerald=positivo …)
+//     • chrome     → color del grupo (teal/violet/blue/orange/indigo/slate · grupoColor.ts)
+//   Dentro de un dato: jerarquía de tono -700 (label) / -900 (valor) / -400 (decimal atenuado · F7).
+// Escala: h1/metric 2xl · título base/lg · subtítulo 13px · cuerpo 12px · meta 11px ·
+//   overline 10px-upper · micro 9px. Pocos tamaños = orden · tabular-nums en números.
+// Estos roles COINCIDEN con la implementación real del Hub Kit (M1 · referencia viva).
 
 export const text = {
-  // Roles canónicos
-  hero: 'text-2xl font-bold tabular-nums tracking-tight text-slate-900', // dato héroe (KPI grande)
+  // Roles canónicos (0 consumidores hoy · REFERENCIA documental del canon TIPOGRAFÍA)
+  hero: 'text-2xl font-bold tracking-tight text-slate-900',              // h1 de módulo (HubHeader)
+  metricHero: 'text-2xl font-bold tabular-nums',                         // dato héroe KPI (color = tono semántico)
   title: 'text-base sm:text-lg font-semibold text-slate-900',            // título de sección/card
-  subtitle: 'text-sm font-semibold text-slate-700',                      // subtítulo
+  subtitle: 'text-[13px] text-slate-500 leading-snug',                   // subtítulo bajo el h1 (HubHeader)
+  navTab: 'text-[13px]',                                                 // label de tab (peso por estado · HubTabs)
   bodyText: 'text-[12px] text-slate-600',                                // cuerpo (12px · canon)
-  meta: 'text-[11px] text-slate-500',                                    // meta / secundario (11px)
-  overline: 'text-[10px] font-bold uppercase tracking-wider text-slate-500', // label/etiqueta (10px-upper)
+  meta: 'text-[11px] text-slate-500',                                    // meta · breadcrumb · delta KPI (11px)
+  overline: 'text-[10px] font-bold uppercase tracking-wider text-slate-500', // label/etiqueta (KPI override → semántico-700)
+  micro: 'text-[9px] font-bold tabular-nums',                            // badge/micro (9px)
 
   // ── Alias en uso por los componentes DS pre-canon (se mantienen para compat) ──
   display: 'text-xl sm:text-2xl font-bold tracking-tight text-slate-900',

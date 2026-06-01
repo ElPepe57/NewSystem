@@ -22,6 +22,14 @@ export default {
   // ════════════════════════════════════════════════════════════════════════
   theme: {
     extend: {
+      // ── TIPOGRAFÍA canónica L0 · familia = Inter ──────────────────────────
+      // Inter se carga en index.html (Google Fonts · weights 400-800). Acá se
+      // sobrescribe el `sans` default de Tailwind → el preflight aplica font-sans
+      // al <html> y TODA la app hereda Inter. Fallback a la fuente del sistema.
+      // La ESCALA por rol (tamaño/peso) vive documentada en tokens.ts + canon.
+      fontFamily: {
+        sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+      },
       colors: {
         // ============================================================
         // BRAND — Controlado desde CSS variables en src/index.css
