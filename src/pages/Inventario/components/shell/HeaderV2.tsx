@@ -13,7 +13,7 @@
  */
 
 import React from 'react';
-import { ChevronRight, Warehouse, RefreshCw, Download } from 'lucide-react';
+import { Warehouse, RefreshCw, Download } from 'lucide-react';
 
 interface HeaderV2Props {
   /** Texto del crumb padre (ej: "Logística"). Click navega o filtra · opcional. */
@@ -35,8 +35,6 @@ interface HeaderV2Props {
 }
 
 export const HeaderV2: React.FC<HeaderV2Props> = ({
-  parentCrumb = 'Logística',
-  currentCrumb,
   titulo,
   subtitulo,
   sincronizando = false,
@@ -44,23 +42,22 @@ export const HeaderV2: React.FC<HeaderV2Props> = ({
   onExportar,
   exportarDisabled = false,
 }) => {
+  // chk5.DS-F3 · header banking-grade canon hub · icono tonal orange (grupo Inventario)
+  // · el breadcrumb vive ahora en el top-bar del shell (InventarioPageV2)
   return (
     <div className="flex items-start justify-between gap-4 flex-wrap">
-      <div className="flex-1 min-w-[260px]">
-        <div className="flex items-center gap-2 text-xs text-slate-400 mb-1">
-          <span className="hover:text-teal-600 transition-colors cursor-pointer">{parentCrumb}</span>
-          <ChevronRight className="w-3 h-3" />
-          <span className="text-slate-600 font-medium">{currentCrumb}</span>
+      <div className="flex items-start gap-3 flex-1 min-w-[260px]">
+        <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-orange-500 to-orange-700 flex items-center justify-center text-white flex-shrink-0">
+          <Warehouse className="w-5 h-5" />
         </div>
-        <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2.5 tracking-tight">
-          <Warehouse className="w-6 h-6 text-teal-600" />
-          {titulo}
-        </h1>
-        <p className="text-sm text-slate-500 mt-0.5 max-w-2xl">
-          {subtitulo}
-        </p>
+        <div className="min-w-0">
+          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">{titulo}</h1>
+          <p className="text-[13px] text-slate-500 leading-snug max-w-2xl mt-0.5">
+            {subtitulo}
+          </p>
+        </div>
       </div>
-      <div className="flex items-center gap-2 flex-wrap">
+      <div className="flex items-center gap-2 flex-wrap justify-end">
         {onSincronizar && (
           <button
             type="button"

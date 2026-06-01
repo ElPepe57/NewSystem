@@ -23,10 +23,13 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import {
   Package, BarChart3, Bell, MapPin, CheckCircle, Boxes,
+  ChevronRight, Shield,
   Droplets, Pill, Shirt, UtensilsCrossed,
   User, Truck, Warehouse, Building2, Globe2, type LucideIcon,
 } from 'lucide-react';
 import { useToastStore } from '../../../../store/toastStore';
+import { useAuthStore } from '../../../../store/authStore';
+import { hasRole } from '../../../../types/auth.types';
 import { calcularDiasParaVencer } from '../../../../utils/dateFormatters';
 import {
   Card,
@@ -83,6 +86,9 @@ type TabInventarioV2 = 'inventario' | 'mapa' | 'analytics' | 'atencion';
 
 export const InventarioPageV2: React.FC = () => {
   const toast = useToastStore();
+  // chk5.DS-F3 · chip de rol en top-bar del shell hub (canon "admin ve todo")
+  const currentUser = useAuthStore(state => state.user);
+  const esAdmin = hasRole(currentUser, 'admin');
 
   // Stores
   const unidades = useUnidadStore(state => state.unidades);
@@ -924,48 +930,73 @@ export const InventarioPageV2: React.FC = () => {
   // ==================== RENDER ====================
 
   return (
-    <div className="space-y-6">
-      {/* Header banking-grade canónico */}
-      <HeaderV2
-        parentCrumb="Logística"
-        currentCrumb="Stock · Inventario operativo"
-        titulo="Stock"
-        subtitulo="Qué tengo, dónde está, en qué estado · vista operativa de existencias en tiempo real (productos, lotes, vencimientos, reservas)."
-        sincronizando={sincronizando}
-        onSincronizar={handleSincronizarCompleto}
-        onExportar={handleExportar}
-        exportarDisabled={unidades.length === 0}
-      />
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6">
+      {/* chk5.DS-F3 · SHELL HUB · 1 card continuo (canon DS · grupo Inventario = orange) */}
+      <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
 
-      {/* KPI strip canónico (5 KPIs) */}
-      <KpiStripV2
-        stats={{
-          total: inventarioStats.total,
-          productos: productosConUnidades.length,
-          disponiblePeru: inventarioStats.disponiblePeru,
-          pctDisponiblesPeru,
-          reservada: inventarioStats.reservada,
-          reservadaOrigen: inventarioStats.reservadaOrigen,
-          reservadaPeru: inventarioStats.reservadaPeru,
-          enTransito: inventarioStats.enTransito,
-          proximasAVencer: inventarioStats.proximasAVencer,
-        }}
-      />
+        {/* §A · TOP-BAR · breadcrumb S9.D1 (Inicio › Inventario) + chip rol orange */}
+        <div className="border-b border-slate-200 px-4 sm:px-6 py-2.5 flex items-center justify-between gap-3 bg-slate-50">
+          <div className="flex items-center gap-1 text-[12px] text-slate-500">
+            <a className="hover:text-orange-700 cursor-pointer flex-shrink-0">Inicio</a>
+            <ChevronRight className="w-3 h-3 text-slate-300 mx-0.5 flex-shrink-0" />
+            <span className="text-slate-900 font-semibold">Inventario</span>
+          </div>
+          <span className="text-[10px] bg-orange-50 text-orange-700 px-2 py-0.5 rounded font-bold hidden sm:inline-flex items-center gap-1 flex-shrink-0">
+            <Shield className="w-3 h-3" />
+            {esAdmin ? 'Vista ejecutiva · admin' : 'Vista ejecutiva'}
+          </span>
+        </div>
 
-      {/* Banner amber alertas inmediatas (chk4.7a) */}
-      <AlertasBanner
-        alertas={alertasPrioritarias}
-        onIrAtencion={() => setTabActivo('atencion')}
-      />
+        {/* §B · HEADER banking-grade (icono orange + h1 + subtítulo + acciones) */}
+        <div className="px-4 sm:px-6 py-4 border-b border-slate-100">
+          <HeaderV2
+            titulo="Stock"
+            subtitulo="Qué tengo, dónde está, en qué estado · vista operativa de existencias en tiempo real (productos, lotes, vencimientos, reservas)."
+            sincronizando={sincronizando}
+            onSincronizar={handleSincronizarCompleto}
+            onExportar={handleExportar}
+            exportarDisabled={unidades.length === 0}
+          />
+        </div>
 
-      {/* Tabs canónicos (4) */}
-      <Tabs
-        tabs={tabs}
-        activeTab={tabActivo}
-        onChange={(tabId) => setTabActivo(tabId as TabInventarioV2)}
-        variant="pills"
-        size="md"
-      />
+        {/* §C · KPI STRIP integrado (5 KPIs semánticos) */}
+        <div className="px-4 sm:px-6 py-4 border-b border-slate-100">
+          <KpiStripV2
+            stats={{
+              total: inventarioStats.total,
+              productos: productosConUnidades.length,
+              disponiblePeru: inventarioStats.disponiblePeru,
+              pctDisponiblesPeru,
+              reservada: inventarioStats.reservada,
+              reservadaOrigen: inventarioStats.reservadaOrigen,
+              reservadaPeru: inventarioStats.reservadaPeru,
+              enTransito: inventarioStats.enTransito,
+              proximasAVencer: inventarioStats.proximasAVencer,
+            }}
+          />
+        </div>
+
+        {/* §E · TABS de sub-sección */}
+        <div className="border-b border-slate-200 px-4 sm:px-6">
+          <Tabs
+            tabs={tabs}
+            activeTab={tabActivo}
+            onChange={(tabId) => setTabActivo(tabId as TabInventarioV2)}
+            variant="pills"
+            size="md"
+          />
+        </div>
+
+        {/* §F · BODY dentro del shell */}
+        <div className="bg-slate-50/30 px-4 sm:px-6 py-5 space-y-4">
+
+          {/* Banner amber alertas inmediatas (chk4.7a) · no en tab Atención (redundante) */}
+          {tabActivo !== 'atencion' && (
+            <AlertasBanner
+              alertas={alertasPrioritarias}
+              onIrAtencion={() => setTabActivo('atencion')}
+            />
+          )}
 
       {/* ==================== TAB: INVENTARIO ==================== */}
       {tabActivo === 'inventario' && (
@@ -1142,6 +1173,9 @@ export const InventarioPageV2: React.FC = () => {
           onRefresh={() => { fetchUnidades(); fetchProductos(); }}
         />
       )}
+
+        </div>{/* §F · cierre BODY */}
+      </div>{/* chk5.DS-F3 · cierre SHELL HUB card */}
 
       {/* ==================== MODALES GLOBALES ==================== */}
 
