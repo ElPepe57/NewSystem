@@ -29,7 +29,6 @@ import {
   TrendingUp,
   AlertOctagon,
   Info,
-  RefreshCw,
   Calendar,
   ShoppingCart,
   Package,
@@ -64,7 +63,6 @@ interface ResumenTabProps {
   alertas: AlertaProducto[];
   ctruData?: CTRUProductoDetalle[];
   lineasNegocio: { id: string; nombre: string; codigo?: string }[];
-  onSincronizar: () => void;
   onVerVencimientos: () => void;
   onIrAtencion: () => void;
   onIrExistencias: () => void;
@@ -112,7 +110,6 @@ export const ResumenTab: React.FC<ResumenTabProps> = ({
   alertas,
   ctruData,
   lineasNegocio,
-  onSincronizar,
   onVerVencimientos,
   onIrAtencion,
   onIrExistencias,
@@ -251,23 +248,35 @@ export const ResumenTab: React.FC<ResumenTabProps> = ({
   const hayInventario = productosConUnidades.length > 0;
 
   // ── Empty state limpio (sin crashear) ─────────────────────────────────────
+  // El inventario NO se "sincroniza" manualmente: nace automáticamente al confirmar
+  // una OC (genera las unidades) y transita estados con cada envío/venta. Por eso el
+  // CTA del vacío apunta al ORIGEN del inventario (Compras), no a "Sincronizar".
   if (!hayInventario) {
     return (
       <div className="bg-white border border-slate-200 rounded-2xl p-10 text-center">
         <div className="w-12 h-12 mx-auto rounded-xl bg-orange-100 flex items-center justify-center mb-3">
           <Package className="w-6 h-6 text-orange-600" />
         </div>
-        <div className="text-sm font-bold text-slate-900 mb-1">Sin inventario aún</div>
+        <div className="text-sm font-bold text-slate-900 mb-1">Aún no tienes unidades en circulación</div>
         <p className="text-[12px] text-slate-500 max-w-sm mx-auto mb-4">
-          Cuando registres unidades verás aquí el resumen ejecutivo: distribución, líneas de negocio, alertas y capital inmovilizado.
+          Tu inventario se genera <b className="text-slate-600">automáticamente</b> al confirmar órdenes de compra y registrar envíos. Cuando tengas unidades verás aquí distribución, líneas de negocio, alertas y capital inmovilizado.
         </p>
-        <button
-          type="button"
-          onClick={onSincronizar}
-          className="inline-flex items-center gap-2 px-3 py-2 text-[12px] font-semibold text-white bg-orange-600 hover:bg-orange-700 rounded-lg"
-        >
-          <RefreshCw className="w-4 h-4" /> Sincronizar inventario
-        </button>
+        <div className="flex items-center justify-center gap-2">
+          <button
+            type="button"
+            onClick={() => navigate('/compras')}
+            className="inline-flex items-center gap-2 px-3 py-2 text-[12px] font-semibold text-white bg-orange-600 hover:bg-orange-700 rounded-lg"
+          >
+            <ShoppingCart className="w-4 h-4" /> Crear orden de compra
+          </button>
+          <button
+            type="button"
+            onClick={() => navigate('/productos')}
+            className="inline-flex items-center gap-2 px-3 py-2 text-[12px] font-medium text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 rounded-lg"
+          >
+            <Tag className="w-4 h-4 text-slate-400" /> Ver productos
+          </button>
+        </div>
       </div>
     );
   }
@@ -429,30 +438,18 @@ export const ResumenTab: React.FC<ResumenTabProps> = ({
         {/* ASIDE (contexto persistente) */}
         <aside className="md:col-span-1 space-y-4">
 
-          {/* §D · ACCIONES RÁPIDAS */}
+          {/* §D · ACCIONES RÁPIDAS · operativas. La reconciliación de datos NO vive
+              aquí (es mantenimiento ocasional · está en el header): el inventario es
+              live y la acción de mayor valor desde Stock es reabastecer (Crear OC). */}
           <div className="bg-white border border-slate-200 rounded-xl p-4">
             <div className="text-[10px] uppercase tracking-wider font-bold text-slate-500 mb-2.5">Acciones rápidas</div>
             <div className="space-y-2">
               <button
                 type="button"
-                onClick={onSincronizar}
+                onClick={() => navigate('/compras')}
                 className="w-full flex items-center gap-2 px-3 py-2 text-[12px] font-semibold text-white bg-orange-600 hover:bg-orange-700 rounded-lg"
               >
-                <RefreshCw className="w-4 h-4" /> Sincronizar inventario
-              </button>
-              <button
-                type="button"
-                onClick={onVerVencimientos}
-                className="w-full flex items-center gap-2 px-3 py-2 text-[12px] font-medium text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 rounded-lg"
-              >
-                <Calendar className="w-4 h-4 text-slate-400" /> Ver vencimientos
-              </button>
-              <button
-                type="button"
-                onClick={() => navigate('/compras')}
-                className="w-full flex items-center gap-2 px-3 py-2 text-[12px] font-medium text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 rounded-lg"
-              >
-                <ShoppingCart className="w-4 h-4 text-slate-400" /> Crear orden de compra
+                <ShoppingCart className="w-4 h-4" /> Crear orden de compra
               </button>
               <button
                 type="button"
@@ -460,6 +457,13 @@ export const ResumenTab: React.FC<ResumenTabProps> = ({
                 className="w-full flex items-center gap-2 px-3 py-2 text-[12px] font-medium text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 rounded-lg"
               >
                 <Package className="w-4 h-4 text-slate-400" /> Ver existencias
+              </button>
+              <button
+                type="button"
+                onClick={onVerVencimientos}
+                className="w-full flex items-center gap-2 px-3 py-2 text-[12px] font-medium text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 rounded-lg"
+              >
+                <Calendar className="w-4 h-4 text-slate-400" /> Ver vencimientos
               </button>
             </div>
           </div>

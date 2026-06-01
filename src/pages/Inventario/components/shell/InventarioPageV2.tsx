@@ -22,7 +22,7 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import {
-  Package, BarChart3, Bell, MapPin, CheckCircle, Boxes,
+  Package, BarChart3, Bell, MapPin, CheckCircle, Boxes, Info,
   ChevronRight, Shield, LayoutDashboard,
   Droplets, Pill, Shirt, UtensilsCrossed,
   User, Truck, Warehouse, Building2, Globe2, type LucideIcon,
@@ -854,8 +854,8 @@ export const InventarioPageV2: React.FC = () => {
       fetchUnidades();
       fetchStats();
     } catch (error: any) {
-      console.error('Error sincronizando:', error);
-      toast.error('Error al sincronizar: ' + error.message);
+      console.error('Error reconciliando datos:', error);
+      toast.error('Error al reconciliar datos: ' + error.message);
     } finally {
       setSincronizando(false);
     }
@@ -1062,7 +1062,6 @@ export const InventarioPageV2: React.FC = () => {
           alertas={alertasPrioritarias}
           ctruData={ctruData}
           lineasNegocio={lineasNegocio}
-          onSincronizar={handleSincronizarCompleto}
           onVerVencimientos={() => setShowVencidasModal(true)}
           onIrAtencion={() => setTabActivo('atencion')}
           onIrExistencias={() => setTabActivo('inventario')}
@@ -1288,10 +1287,17 @@ export const InventarioPageV2: React.FC = () => {
       <Modal
         isOpen={showSyncModal}
         onClose={() => setShowSyncModal(false)}
-        title="Sincronización Completa"
+        title="Reconciliación de datos"
         size="lg"
       >
         <div className="space-y-4">
+          <div className="flex items-start gap-2 text-[12px] text-slate-500 bg-slate-50 border border-slate-200 rounded-lg p-3">
+            <Info className="h-4 w-4 text-slate-400 flex-shrink-0 mt-0.5" />
+            <span>
+              El inventario se actualiza <b className="text-slate-600">automáticamente</b> con cada compra, envío y venta.
+              Esta herramienta solo recalcula estados de unidades y contadores de stock cuando detecta diferencias — no es necesaria en la operación normal.
+            </span>
+          </div>
           {resultadoSync && (
             <>
               <div>
@@ -1352,13 +1358,13 @@ export const InventarioPageV2: React.FC = () => {
                resultadoSync.stockProductos?.productosActualizados === 0) ? (
                 <div className="flex items-center gap-2 text-emerald-600 bg-emerald-50 p-3 rounded-lg">
                   <CheckCircle className="h-5 w-5" />
-                  <span>Todo sincronizado correctamente. No se encontraron inconsistencias.</span>
+                  <span>Todo está consistente. No se encontraron diferencias que corregir.</span>
                 </div>
               ) : (
                 <div className="flex items-center gap-2 text-emerald-600 bg-emerald-50 p-3 rounded-lg">
                   <CheckCircle className="h-5 w-5" />
                   <span>
-                    Sincronización completada. Se corrigieron {resultadoSync.estadosUnidades?.correccionesRealizadas || 0} unidades
+                    Reconciliación completada. Se corrigieron {resultadoSync.estadosUnidades?.correccionesRealizadas || 0} unidades
                     y {resultadoSync.stockProductos?.productosActualizados || 0} productos.
                   </span>
                 </div>

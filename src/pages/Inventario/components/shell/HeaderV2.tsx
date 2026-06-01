@@ -24,9 +24,9 @@ interface HeaderV2Props {
   titulo: string;
   /** Subtítulo descriptivo de 1-2 líneas. */
   subtitulo: string;
-  /** Estado de carga del botón Sincronizar. */
+  /** Estado de carga del botón Reconciliar datos. */
   sincronizando?: boolean;
-  /** Handler del botón Sincronizar. */
+  /** Handler del botón Reconciliar datos (recalcula estados/contadores · mantenimiento, NO actualiza el inventario · el inventario es live). */
   onSincronizar?: () => void;
   /** Handler del botón Exportar. */
   onExportar?: () => void;
@@ -64,10 +64,10 @@ export const HeaderV2: React.FC<HeaderV2Props> = ({
             onClick={onSincronizar}
             disabled={sincronizando}
             className="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-all disabled:opacity-50"
-            title="Sincronizar desde origen"
+            title="El inventario se actualiza solo con cada compra, envío y venta. Reconcilia estados y contadores solo si detectas inconsistencias."
           >
             <RefreshCw className={`w-3.5 h-3.5 ${sincronizando ? 'animate-spin' : ''}`} />
-            <span className="hidden sm:inline">Sincronizar</span>
+            <span className="hidden sm:inline">Reconciliar datos</span>
           </button>
         )}
         {onExportar && (
