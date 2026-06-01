@@ -3,7 +3,7 @@
  * Vista completa con pestañas: Resumen, Balance General, Estado de Resultados, Indicadores, Tendencias, Cierre
  */
 
-import React, { useState, useEffect, useRef, useCallback, type ComponentType } from 'react';
+import React, { useState, useEffect, type ComponentType } from 'react';
 import {
   TrendingUp,
   TrendingDown,
@@ -37,7 +37,6 @@ import {
   ClipboardCheck,
   // chk5.E-S1 · canon banking-grade
   ChevronRight,
-  ChevronLeft,
   Download,
   Settings2,
   CreditCard,
@@ -45,8 +44,6 @@ import {
   Receipt,
   // chk5.E-A · Sprint A · botón Glosario
   BookOpen,
-  // chk5.E-GASTOS-CHIP · chip de rol estandarizado
-  Shield,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -59,9 +56,9 @@ import {
 } from '../../components/common';
 import type { SparklineColor } from '../../components/common';
 import { getTermino } from '../../data/glosarioContable';
-import { DataTable } from '../../design-system';
+import { DataTable, HubShell, HubTopBar, HubHeader, HubTabs, HubBody } from '../../design-system';
 import { FormModalV2 } from '../../design-system/components/FormModalV2';
-import type { DataTableColumn } from '../../design-system';
+import type { DataTableColumn, HubTab } from '../../design-system';
 import {
   EstadoResultados,
   BalanceGeneral,
@@ -237,119 +234,7 @@ const KpiContaCard: React.FC<KpiContaCardProps> = ({
   );
 };
 
-interface ContaTabConfig {
-  id: string;
-  label: string;
-  mobileLabel?: string;
-  icon: LucideIcon;
-}
-
-interface SubVistaTabsContabilidadProps {
-  tabs: ContaTabConfig[];
-  activeId: string;
-  onTabChange: (id: string) => void;
-}
-
-const SubVistaTabsContabilidad: React.FC<SubVistaTabsContabilidadProps> = ({
-  tabs, activeId, onTabChange,
-}) => {
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const [canScrollLeft, setCanScrollLeft] = useState(false);
-  const [canScrollRight, setCanScrollRight] = useState(false);
-
-  const updateScrollState = useCallback(() => {
-    const el = scrollRef.current;
-    if (!el) return;
-    const slack = 2;
-    setCanScrollLeft(el.scrollLeft > slack);
-    setCanScrollRight(el.scrollLeft + el.clientWidth < el.scrollWidth - slack);
-  }, []);
-
-  useEffect(() => {
-    const el = scrollRef.current;
-    if (!el) return;
-    updateScrollState();
-    el.addEventListener('scroll', updateScrollState, { passive: true });
-    window.addEventListener('resize', updateScrollState);
-    return () => {
-      el.removeEventListener('scroll', updateScrollState);
-      window.removeEventListener('resize', updateScrollState);
-    };
-  }, [updateScrollState]);
-
-  useEffect(() => {
-    const el = scrollRef.current;
-    if (!el) return;
-    const active = el.querySelector<HTMLElement>('button[aria-current="page"]');
-    if (active) {
-      active.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-    }
-    const t = window.setTimeout(updateScrollState, 350);
-    return () => window.clearTimeout(t);
-  }, [activeId, updateScrollState]);
-
-  const scrollBy = useCallback((dir: 1 | -1) => {
-    const el = scrollRef.current;
-    if (!el) return;
-    el.scrollBy({ left: dir * el.clientWidth * 0.6, behavior: 'smooth' });
-  }, []);
-
-  return (
-    <div className="relative border-b border-slate-200">
-      {canScrollLeft && (
-        <button
-          type="button"
-          onClick={() => scrollBy(-1)}
-          aria-label="Desplazar tabs a la izquierda"
-          className="absolute left-0 top-0 bottom-0 z-20 px-1.5 bg-white/95 hover:bg-slate-50 border-r border-slate-200 flex items-center text-slate-600 hover:text-slate-900 shadow-[2px_0_4px_-2px_rgba(0,0,0,0.06)]"
-        >
-          <ChevronLeft className="w-4 h-4" />
-        </button>
-      )}
-      <div ref={scrollRef} className="px-6 overflow-x-auto scrollbar-hide">
-        <div className="flex items-center gap-1 -mb-px">
-          {tabs.map((tab) => {
-            const Icon = tab.icon;
-            const isActive = tab.id === activeId;
-            return (
-              <button
-                key={tab.id}
-                type="button"
-                onClick={() => onTabChange(tab.id)}
-                aria-current={isActive ? 'page' : undefined}
-                className={
-                  'px-4 py-3 text-[12px] border-b-2 flex items-center gap-1.5 whitespace-nowrap transition-colors ' +
-                  (isActive
-                    ? `${MOD.tabActive} font-semibold`
-                    : 'border-transparent text-slate-600 hover:text-slate-900 hover:border-slate-300 font-medium')
-                }
-              >
-                <Icon className="w-3.5 h-3.5" />
-                {tab.label}
-              </button>
-            );
-          })}
-        </div>
-      </div>
-      {canScrollRight && (
-        <button
-          type="button"
-          onClick={() => scrollBy(1)}
-          aria-label="Desplazar tabs a la derecha"
-          className="absolute right-0 top-0 bottom-0 z-20 px-1.5 bg-white/95 hover:bg-slate-50 border-l border-slate-200 flex items-center text-slate-600 hover:text-slate-900 shadow-[-2px_0_4px_-2px_rgba(0,0,0,0.06)]"
-        >
-          <ChevronRight className="w-4 h-4" />
-        </button>
-      )}
-      {canScrollRight && (
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute top-0 right-8 h-full w-6 bg-gradient-to-l from-white to-transparent"
-        />
-      )}
-    </div>
-  );
-};
+// SubVistaTabsContabilidad local (tabs con chevron-scroll) → reemplazado por HubTabs (Hub Kit · DS F4).
 
 // ─── DistributionCard (chk5.E-S2 · canon N2 reusable) ───────────────────
 // Card de distribución con gradient sutil + ring + items con dot + barra
@@ -1524,6 +1409,27 @@ export function Contabilidad() {
     aniosDisponibles.push(a);
   }
 
+  // ===== Hub Kit · breadcrumb leaf + tabs + selector período (extraActions) =====
+  const breadcrumbLeaf =
+    tabActiva === 'resumen' ? null
+    : tabActiva === 'balance' ? 'Balance General'
+    : tabActiva === 'estado-resultados' ? 'Estado de Resultados'
+    : tabActiva === 'indicadores' ? 'Indicadores'
+    : tabActiva === 'tendencias' ? 'Tendencias'
+    : 'Revisión Mensual';
+  const contabilidadTabs: HubTab[] = tabs.map((t) => ({ id: t.id, label: t.label, icon: t.icon }));
+  const periodoSelector = (
+    <div className="flex items-center gap-1 bg-slate-50 border border-slate-200 rounded-lg px-2 py-1">
+      <Calendar className="w-3 h-3 text-slate-500" />
+      <select value={mes} onChange={(e) => setMes(Number(e.target.value))} className="border-none bg-transparent text-[12px] font-medium text-slate-700 focus:ring-0 focus:outline-none cursor-pointer">
+        {MESES.map((m, i) => (<option key={i} value={i + 1}>{m}</option>))}
+      </select>
+      <select value={anio} onChange={(e) => setAnio(Number(e.target.value))} className="border-none bg-transparent text-[12px] font-medium text-slate-700 focus:ring-0 focus:outline-none cursor-pointer">
+        {aniosDisponibles.map((a) => (<option key={a} value={a}>{a}</option>))}
+      </select>
+    </div>
+  );
+
   // Encontrar mejor y peor mes
   const mejorMes = tendencia.reduce((best, curr) =>
     curr.utilidadNeta > (best?.utilidadNeta || -Infinity) ? curr : best, tendencia[0]);
@@ -1647,135 +1553,30 @@ export function Contabilidad() {
   };
 
   return (
-    <div className="p-4 lg:p-6">
-      {/* Shell frame banking-grade · canon F1+S9.D1 · pixel-perfect Finanzas */}
-      <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+    <div className="max-w-6xl mx-auto p-3 sm:p-4 md:p-6">
+      <HubShell>
+        <HubTopBar
+          grupo="finanzas-contabilidad"
+          modulo="Contabilidad"
+          leaf={breadcrumbLeaf}
+          esAdmin={esAdmin}
+          onModulo={() => setTabActiva('resumen')}
+        />
 
-        {/* §A · TOP BAR breadcrumb canon S9.D1 · 3 niveles · alineado con Finanzas
-              - Resumen      → Inicio › Contabilidad (default · sin leaf)
-              - Sub-vistas   → Inicio › Contabilidad › <leaf>
-              Razón: el grupo "Finanzas y Contabilidad" ya está visible siempre en
-              el sidebar izquierdo · no aporta repetirlo en breadcrumb. */}
-        <div className="border-b border-slate-200 px-6 py-2.5 flex items-center gap-3 bg-slate-50">
-          <div className="flex items-center text-[12px] flex-1">
-            <a className="text-slate-500 hover:text-teal-700 cursor-pointer">Inicio</a>
-            <ChevronRight className="w-3 h-3 text-slate-300 mx-1.5" />
-            {tabActiva === 'resumen' ? (
-              <span className="text-slate-900 font-semibold">Contabilidad</span>
-            ) : (
-              <>
-                <a
-                  className="text-slate-500 hover:text-teal-700 cursor-pointer"
-                  onClick={() => setTabActiva('resumen')}
-                >
-                  Contabilidad
-                </a>
-                <ChevronRight className="w-3 h-3 text-slate-300 mx-1.5" />
-                <span className="text-slate-900 font-semibold">
-                  {tabActiva === 'balance' && 'Balance General'}
-                  {tabActiva === 'estado-resultados' && 'Estado de Resultados'}
-                  {tabActiva === 'indicadores' && 'Indicadores'}
-                  {tabActiva === 'tendencias' && 'Tendencias'}
-                  {tabActiva === 'revision' && 'Revisión Mensual'}
-                </span>
-              </>
-            )}
-          </div>
-          {/* Chip contextual al rol · canon "admin ve todo" · estandarización (chk5.E-GASTOS-CHIP) */}
-          <span className={`text-[10px] ${MOD.chip} px-2 py-0.5 rounded font-bold hidden sm:inline-flex items-center gap-1 flex-shrink-0`}>
-            <Shield className="w-3 h-3" />
-            {esAdmin ? 'Vista ejecutiva · admin' : 'Vista ejecutiva'}
-          </span>
-        </div>
-
-        {/* §B · HEADER BANKING-GRADE · icon teal gradient (color del grupo F&C) + h1 + subtitle + 3-tier actions canon N10 */}
-        <div className="px-6 py-5 border-b border-slate-100">
-          <div className="flex items-start justify-between gap-4 flex-wrap">
-            <div className="flex items-start gap-3 flex-1 min-w-[260px]">
-              <div className={`w-11 h-11 rounded-xl ${MOD.headerIcon} flex items-center justify-center text-white flex-shrink-0`}>
-                <Calculator className="w-5 h-5" />
-              </div>
-              <div className="min-w-0">
-                <h1 className="text-2xl font-bold tracking-tight text-slate-900">
-                  Contabilidad
-                </h1>
-                <p className="text-[13px] text-slate-500 leading-snug">
-                  Estados financieros formales · Balance General · P&L · ratios e indicadores · cierre mensual
-                </p>
-              </div>
-            </div>
-            {/* canon S8.D8+D10 · flex-wrap + max-w-full + icon-only mobile */}
-            <div className="flex items-center gap-2 flex-wrap justify-end max-w-full">
-              {/* Selector período · compacto */}
-              <div className="flex items-center gap-1 bg-slate-50 border border-slate-200 rounded-lg px-2 py-1">
-                <Calendar className="w-3 h-3 text-slate-500" />
-                <select
-                  value={mes}
-                  onChange={(e) => setMes(Number(e.target.value))}
-                  className="border-none bg-transparent text-[12px] font-medium text-slate-700 focus:ring-0 focus:outline-none cursor-pointer"
-                >
-                  {MESES.map((m, i) => (
-                    <option key={i} value={i + 1}>{m}</option>
-                  ))}
-                </select>
-                <select
-                  value={anio}
-                  onChange={(e) => setAnio(Number(e.target.value))}
-                  className="border-none bg-transparent text-[12px] font-medium text-slate-700 focus:ring-0 focus:outline-none cursor-pointer"
-                >
-                  {aniosDisponibles.map((a) => (
-                    <option key={a} value={a}>{a}</option>
-                  ))}
-                </select>
-              </div>
-              {/* Tier neutral · Recargar (fuerza re-materialización del año) */}
-              <button
-                type="button"
-                onClick={recargarForzado}
-                disabled={loading}
-                aria-label="Recargar datos contables"
-                title="Recargar datos contables"
-                className="text-[11px] font-semibold text-slate-600 hover:bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-lg flex items-center gap-1.5 disabled:opacity-50"
-              >
-                <RefreshCw className={`w-3 h-3 ${loading ? 'animate-spin' : ''}`} />
-                <span className="hidden sm:inline">Recargar</span>
-              </button>
-              {/* chk5.E-A · Tier neutral · Glosario (Sprint A nuevo) */}
-              <button
-                type="button"
-                onClick={() => setGlosarioModalOpen(true)}
-                aria-label="Abrir glosario de términos contables"
-                title="Glosario A-Z de términos contables explicados en lenguaje claro"
-                className="text-[11px] font-semibold text-slate-600 hover:bg-slate-50 border border-slate-200 px-2.5 py-1.5 rounded-lg flex items-center gap-1.5"
-              >
-                <BookOpen className="w-3 h-3" />
-                <span className="hidden md:inline">Glosario</span>
-              </button>
-              {/* Tier destacada · Configurar (S2 nuevo) */}
-              <button
-                type="button"
-                onClick={() => setConfigModalOpen(true)}
-                aria-label="Configurar parámetros contables"
-                title="Configurar capital · reserva legal · provisión incobrables · TC default"
-                className="text-[11px] font-semibold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 px-3 py-1.5 rounded-lg flex items-center gap-1.5"
-              >
-                <Settings2 className="w-3 h-3" />
-                <span className="hidden sm:inline">Configurar</span>
-              </button>
-              {/* chk5.E-S6 · Tier neutral · Exportar (contextual al tab activo) */}
-              <button
-                type="button"
-                onClick={handleExportContextual}
-                aria-label="Exportar reporte contable del tab activo"
-                title="Exporta a CSV el reporte del tab activo (Resumen · Balance · P&L · Tendencias)"
-                className="text-[11px] font-semibold text-slate-600 hover:bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-lg flex items-center gap-1.5"
-              >
-                <Download className="w-3 h-3" />
-                <span className="hidden sm:inline">Exportar</span>
-              </button>
-            </div>
-          </div>
-        </div>
+        {/* §B · HEADER · ícono teal sólido (MOD.headerIcon) + período (extraActions) + 4 acciones (sin primary) */}
+        <HubHeader
+          grupo="finanzas-contabilidad"
+          icon={Calculator}
+          titulo="Contabilidad"
+          subtitulo="Estados financieros formales · Balance General · P&L · ratios e indicadores · cierre mensual"
+          extraActions={periodoSelector}
+          acciones={[
+            { label: 'Recargar', icon: RefreshCw, onClick: recargarForzado, tier: 'neutral', disabled: loading },
+            { label: 'Glosario', icon: BookOpen, onClick: () => setGlosarioModalOpen(true), tier: 'neutral' },
+            { label: 'Configurar', icon: Settings2, onClick: () => setConfigModalOpen(true), tier: 'config' },
+            { label: 'Exportar', icon: Download, onClick: handleExportContextual, tier: 'neutral' },
+          ]}
+        />
 
         {/* §C · KPI STRIP canon N1+N2 · 5 KPIs color semántico + gradient + ring */}
         {estado && balance && (
@@ -1824,15 +1625,16 @@ export function Contabilidad() {
           </div>
         )}
 
-        {/* §D · Sub-vista TABS canon S9.D11 con chevron buttons (adaptado a tabs internos) */}
-        <SubVistaTabsContabilidad
-          tabs={tabs}
-          activeId={tabActiva}
-          onTabChange={(id) => setTabActiva(id as TabActiva)}
+        {/* §D · Sub-vista TABS · Hub Kit (HubTabs · color heredado del grupo F&C) */}
+        <HubTabs
+          grupo="finanzas-contabilidad"
+          tabs={contabilidadTabs}
+          activa={tabActiva}
+          onChange={(id) => setTabActiva(id as TabActiva)}
         />
 
-        {/* §E · BODY · contenido según tab activo */}
-        <div className="p-6 bg-slate-50/30">
+        {/* §E · BODY · Hub Kit (Layout B full-width · contenido depende del padding del body) */}
+        <HubBody>
 
         {/* chk5.E-S2 · ERROR STATE canon · botones Reintentar + Solicitar permiso */}
         {!loading && errorMsg && (
@@ -2432,9 +2234,9 @@ export function Contabilidad() {
       {!loading && tabActiva === 'revision' && (
         <RevisionMensual mes={mes} anio={anio} balance={balance} estado={estado} />
       )}
-        </div>
+        </HubBody>
         {/* fin §E body */}
-      </div>
+      </HubShell>
       {/* fin shell frame */}
 
       {/* chk5.E-S2 · Modal Configurar contable */}
