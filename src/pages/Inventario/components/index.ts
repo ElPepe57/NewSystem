@@ -55,3 +55,4 @@ export { MapaTab } from './sections/MapaTab';
 export { UnidadesListView } from './sections/UnidadesListView';
 export { AlertasBanner } from './sections/AlertasBanner';
 export { AnalyticsTab } from './sections/AnalyticsTab';
+export { ResumenTab } from './sections/ResumenTab';

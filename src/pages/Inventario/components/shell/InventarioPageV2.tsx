@@ -23,7 +23,7 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import {
   Package, BarChart3, Bell, MapPin, CheckCircle, Boxes,
-  ChevronRight, Shield,
+  ChevronRight, Shield, LayoutDashboard,
   Droplets, Pill, Shirt, UtensilsCrossed,
   User, Truck, Warehouse, Building2, Globe2, type LucideIcon,
 } from 'lucide-react';
@@ -62,6 +62,7 @@ import { MapaTab } from '../sections/MapaTab';
 import { UnidadesListView } from '../sections/UnidadesListView';
 import { AlertasBanner } from '../sections/AlertasBanner';
 import { AnalyticsTab } from '../sections/AnalyticsTab';
+import { ResumenTab } from '../sections/ResumenTab';
 import type { PromocionData, ProductoConUnidades, AlertaProducto } from '../index';
 
 // Stores
@@ -81,7 +82,7 @@ import { esEstadoEnOrigen, esEstadoEnTransitoOrigen } from '../../../../utils/mu
 
 type VistaInventario = 'cards' | 'tabla';
 type ModoInventario = 'stock' | 'unidades';
-type TabInventarioV2 = 'inventario' | 'mapa' | 'analytics' | 'atencion';
+type TabInventarioV2 = 'resumen' | 'inventario' | 'mapa' | 'analytics' | 'atencion';
 
 export const InventarioPageV2: React.FC = () => {
   const toast = useToastStore();
@@ -114,9 +115,10 @@ export const InventarioPageV2: React.FC = () => {
   const tabParam = searchParams.get('tab') as TabInventarioV2 | null;
   const modoParam = searchParams.get('modo') as ModoInventario | null;
   const [tabActivo, setTabActivo] = useState<TabInventarioV2>(
-    tabParam && ['inventario', 'mapa', 'analytics', 'atencion'].includes(tabParam)
+    tabParam && ['resumen', 'inventario', 'mapa', 'analytics', 'atencion'].includes(tabParam)
       ? tabParam
-      : (modoParam === 'unidades' ? 'inventario' : 'inventario')
+      // ?modo=unidades abre directo Existencias (modo Unidades) · sin tab/modo → Resumen (canon hub)
+      : (modoParam === 'unidades' ? 'inventario' : 'resumen')
   );
 
   // Modo Stock|Unidades dentro del tab Inventario · respeta ?modo= en URL
@@ -821,6 +823,7 @@ export const InventarioPageV2: React.FC = () => {
   // ==================== TABS CANÓNICOS (4) ====================
 
   const tabs: Tab[] = useMemo(() => [
+    { id: 'resumen', label: 'Resumen', icon: <LayoutDashboard className="h-4 w-4" /> },
     { id: 'inventario', label: 'Existencias', icon: <Package className="h-4 w-4" /> },
     { id: 'mapa', label: 'Mapa', icon: <MapPin className="h-4 w-4" /> },
     { id: 'analytics', label: 'Analytics', icon: <BarChart3 className="h-4 w-4" /> },
@@ -832,9 +835,10 @@ export const InventarioPageV2: React.FC = () => {
     },
   ], [alertasPrioritarias.length]);
 
-  // Breadcrumb leaf dinámico (canon S9.D1) · null en tab default (inventario) = 2 niveles
+  // Breadcrumb leaf dinámico (canon S9.D1) · null en tab default (resumen) = 2 niveles "Inicio › Stock"
   const breadcrumbLeaf =
-    tabActivo === 'mapa' ? 'Mapa'
+    tabActivo === 'inventario' ? 'Existencias'
+    : tabActivo === 'mapa' ? 'Mapa'
     : tabActivo === 'analytics' ? 'Analytics'
     : tabActivo === 'atencion' ? 'Atención'
     : null;
@@ -949,7 +953,7 @@ export const InventarioPageV2: React.FC = () => {
               <>
                 <button
                   type="button"
-                  onClick={() => setTabActivo('inventario')}
+                  onClick={() => setTabActivo('resumen')}
                   className="hover:text-orange-700 cursor-pointer flex-shrink-0"
                 >
                   Stock
@@ -1030,13 +1034,40 @@ export const InventarioPageV2: React.FC = () => {
         {/* §F · BODY dentro del shell */}
         <div className="bg-slate-50/30 px-4 sm:px-6 py-5 space-y-4">
 
-          {/* Banner amber alertas inmediatas (chk4.7a) · no en tab Atención (redundante) */}
-          {tabActivo !== 'atencion' && (
+          {/* Banner amber alertas inmediatas (chk4.7a) · no en Atención ni Resumen
+              (Resumen ya tiene §A banner de estado + §F alertas top · evita duplicar) */}
+          {tabActivo !== 'atencion' && tabActivo !== 'resumen' && (
             <AlertasBanner
               alertas={alertasPrioritarias}
               onIrAtencion={() => setTabActivo('atencion')}
             />
           )}
+
+      {/* ==================== TAB: RESUMEN (dashboard ejecutivo · canon hub) ==================== */}
+      {tabActivo === 'resumen' && (
+        <ResumenTab
+          stats={{
+            total: inventarioStats.total,
+            disponiblePeru: inventarioStats.disponiblePeru,
+            reservada: inventarioStats.reservada,
+            reservadaOrigen: inventarioStats.reservadaOrigen,
+            reservadaPeru: inventarioStats.reservadaPeru,
+            enTransito: inventarioStats.enTransito,
+            enOrigen: inventarioStats.enOrigen,
+            problemas: inventarioStats.problemas,
+            valorTotalUSD: inventarioStats.valorTotalUSD,
+            proximasAVencer: inventarioStats.proximasAVencer,
+          }}
+          productosConUnidades={productosConUnidades}
+          alertas={alertasPrioritarias}
+          ctruData={ctruData}
+          lineasNegocio={lineasNegocio}
+          onSincronizar={handleSincronizarCompleto}
+          onVerVencimientos={() => setShowVencidasModal(true)}
+          onIrAtencion={() => setTabActivo('atencion')}
+          onIrExistencias={() => setTabActivo('inventario')}
+        />
+      )}
 
       {/* ==================== TAB: INVENTARIO ==================== */}
       {tabActivo === 'inventario' && (
