@@ -85,13 +85,13 @@ interface TabConfig {
 }
 
 const TABS: TabConfig[] = [
-  { id: 'resumen', label: 'Resumen', breadcrumb: 'Resumen ejecutivo', icon: Home },
-  { id: 'capital', label: 'Mi Capital', breadcrumb: 'Mi capital', icon: Coins },
-  { id: 'trayectoria', label: 'Trayectoria', breadcrumb: 'Trayectoria 24m', icon: LineChart },
-  { id: 'roi', label: 'ROI Dual', breadcrumb: 'ROI dual', icon: Layers },
-  { id: 'distribucion', label: 'Distribución', breadcrumb: 'Distribución de utilidad', icon: Banknote },
-  { id: 'salud', label: 'Salud', breadcrumb: 'Salud financiera', icon: HeartPulse },
-  { id: 'reportes', label: 'Reportes', breadcrumb: 'Reportes ejecutivos', icon: FileBarChart },
+  { id: 'resumen', label: 'Resumen', breadcrumb: 'Resumen', icon: Home },
+  { id: 'capital', label: 'Mi Capital', breadcrumb: 'Mi Capital', icon: Coins },
+  { id: 'trayectoria', label: 'Trayectoria', breadcrumb: 'Trayectoria', icon: LineChart },
+  { id: 'roi', label: 'ROI Dual', breadcrumb: 'ROI Dual', icon: Layers },
+  { id: 'distribucion', label: 'Distribución', breadcrumb: 'Distribución', icon: Banknote },
+  { id: 'salud', label: 'Salud', breadcrumb: 'Salud', icon: HeartPulse },
+  { id: 'reportes', label: 'Reportes', breadcrumb: 'Reportes', icon: FileBarChart },
 ];
 
 // ═════════════════════════════════════════════════════════════════════════

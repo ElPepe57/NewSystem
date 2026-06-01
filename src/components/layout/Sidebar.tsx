@@ -146,7 +146,7 @@ const menuGroups: MenuGroup[] = [
       // Hub Finanzas (Overview/Saldos/Cash flow vía tabs internas)
       { icon: Coins, label: 'Finanzas', path: '/finanzas', permiso: PERMISOS.VER_TESORERIA },
       { icon: DollarSign, label: 'Tipo de Cambio', path: '/tipo-cambio', permiso: PERMISOS.VER_TESORERIA },
-      { icon: Receipt, label: 'Gastos Fijos', path: '/gastos', permiso: PERMISOS.VER_GASTOS },
+      { icon: Receipt, label: 'Gastos', path: '/gastos', permiso: PERMISOS.VER_GASTOS },
       { icon: BookOpen, label: 'Contabilidad', path: '/contabilidad', permiso: PERMISOS.VER_TESORERIA },
     ]
   },

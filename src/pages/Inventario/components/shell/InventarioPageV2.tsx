@@ -821,7 +821,7 @@ export const InventarioPageV2: React.FC = () => {
   // ==================== TABS CANÓNICOS (4) ====================
 
   const tabs: Tab[] = useMemo(() => [
-    { id: 'inventario', label: 'Inventario', icon: <Package className="h-4 w-4" /> },
+    { id: 'inventario', label: 'Existencias', icon: <Package className="h-4 w-4" /> },
     { id: 'mapa', label: 'Mapa', icon: <MapPin className="h-4 w-4" /> },
     { id: 'analytics', label: 'Analytics', icon: <BarChart3 className="h-4 w-4" /> },
     {
@@ -970,7 +970,7 @@ export const InventarioPageV2: React.FC = () => {
         {/* §B · HEADER banking-grade (icono orange + h1 + subtítulo + acciones) */}
         <div className="px-4 sm:px-6 py-4 border-b border-slate-100">
           <HeaderV2
-            titulo="Stock"
+            titulo="Inventario"
             subtitulo="Qué tengo, dónde está, en qué estado · vista operativa de existencias en tiempo real (productos, lotes, vencimientos, reservas)."
             sincronizando={sincronizando}
             onSincronizar={handleSincronizarCompleto}
