@@ -32,7 +32,7 @@ Sesión: migrar el módulo <NOMBRE> al Hub Kit (DS Fase 4).
 Antes de tocar código, lee para tener el contexto:
 1. La memoria del proyecto (MEMORY.md · "ESTADO ACTUAL") — Design System, Hub Kit y piloto Stock.
 2. docs/HANDOFF_HUB_KIT_MIGRACION.md — el patrón de migración (este doc).
-3. docs/mockups/hub-kit-implementacion-v1.html — la spec del kit (validada).
+3. docs/mockups/hub-kit-implementacion-v1.html — la spec del kit (validada) + sus PAUTAS CANÓNICAS §0-§7 al tope (LEER PRIMERO: ubicación/anatomía/layout 2:1/color/tipografía Inter/componentes/pixel-perfect/validación).
 4. El módulo ya migrado de referencia: src/pages/Inventario/components/shell/InventarioPageV2.tsx.
 
 Luego, siguiendo el principio rector (diagnóstico 360 + plan, yo decido antes de codear):
