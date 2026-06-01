@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Hub Kit · Mockup de implementación · Vita Skin ERP</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+  .tabular { font-variant-numeric: tabular-nums; }
+  code, pre { font-family: 'SF Mono', ui-monospace, Menlo, Consolas, monospace; }
+  .acto-label { letter-spacing: 0.08em; }
+  .no-sb::-webkit-scrollbar { display: none; }
+  .no-sb { scrollbar-width: none; }
+</style>
+</head>
+<body class="bg-slate-100 text-slate-900 p-4 sm:p-8">
+
+<div class="max-w-6xl mx-auto space-y-12">
+
+  <!-- ════════ HERO ════════ -->
+  <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-6 sm:p-8">
+    <div class="flex items-center gap-2 mb-3 flex-wrap">
+      <span class="text-[11px] font-bold uppercase tracking-wider text-teal-700 bg-teal-50 px-2 py-1 rounded">Hub Kit · v1 implementación</span>
+      <span class="text-[11px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2 py-1 rounded">Pixel-perfect spec · F3</span>
+      <span class="text-[11px] font-bold uppercase tracking-wider text-slate-600 bg-slate-100 px-2 py-1 rounded">Alineado a tokens.ts + grupoColor.ts</span>
+    </div>
+    <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 mb-2">Hub Kit · la spec para construir el shell canónico (L5)</h1>
+    <p class="text-sm text-slate-600 max-w-3xl leading-relaxed">
+      Esta es la spec de implementación de los 6 building blocks. A diferencia del blueprint conceptual
+      (<code class="text-[12px] bg-slate-100 px-1 rounded">hub-design-system-v1</code>), aquí el kit está <strong>ensamblado con contenido real</strong>,
+      mostrando Layout A y B, la <strong>herencia de color por grupo</strong>, los estados del body y el mobile 375px.
+      Sirve de referencia pixel-perfect para escribir <code class="text-[12px] bg-slate-100 px-1 rounded">HubShell / HubTopBar / HubHeader / HubKpiStrip / HubTabs / HubBody</code>.
+    </p>
+    <div class="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-2 text-[11px]">
+      <div class="bg-slate-50 border border-slate-200 rounded-lg p-3"><strong class="text-slate-900">Radios (tokens):</strong> shell <code>2xl</code> · cards <code>xl</code> · controles <code>lg</code> · pills <code>full</code>. Hijo nunca más redondo que el padre.</div>
+      <div class="bg-slate-50 border border-slate-200 rounded-lg p-3"><strong class="text-slate-900">Color:</strong> chrome = color del grupo (heredado · grupoColor.ts) · datos = paleta semántica fija.</div>
+      <div class="bg-slate-50 border border-slate-200 rounded-lg p-3"><strong class="text-slate-900">Sombra:</strong> shell <code>shadow-sm</code> (reposo) · overlays <code>shadow-lg</code>. El body va dentro del shell (1 recuadro).</div>
+    </div>
+  </div>
+
+  <!-- ════════ ÍNDICE ════════ -->
+  <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-5">
+    <div class="acto-label text-[11px] font-bold uppercase text-slate-500 mb-3">Índice</div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 text-[12px]">
+      <div class="flex items-center gap-2"><span class="w-5 h-5 rounded bg-teal-100 text-teal-700 text-[10px] font-bold flex items-center justify-center">1</span> Kit ensamblado · Layout A (main + aside)</div>
+      <div class="flex items-center gap-2"><span class="w-5 h-5 rounded bg-teal-100 text-teal-700 text-[10px] font-bold flex items-center justify-center">2</span> Kit ensamblado · Layout B (full-width)</div>
+      <div class="flex items-center gap-2"><span class="w-5 h-5 rounded bg-teal-100 text-teal-700 text-[10px] font-bold flex items-center justify-center">3</span> Herencia de color · los 6 grupos</div>
+      <div class="flex items-center gap-2"><span class="w-5 h-5 rounded bg-teal-100 text-teal-700 text-[10px] font-bold flex items-center justify-center">4</span> Anatomía + API + tokens por block</div>
+      <div class="flex items-center gap-2"><span class="w-5 h-5 rounded bg-teal-100 text-teal-700 text-[10px] font-bold flex items-center justify-center">5</span> Estados del HubBody (empty/loading/error)</div>
+      <div class="flex items-center gap-2"><span class="w-5 h-5 rounded bg-teal-100 text-teal-700 text-[10px] font-bold flex items-center justify-center">6</span> Mobile 375px (shell completo)</div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════════ -->
+  <!-- ACTO 1 · KIT ENSAMBLADO · LAYOUT A (main + aside) · color teal -->
+  <!-- ════════════════════════════════════════════════════════════════ -->
+  <div>
+    <div class="acto-label text-[11px] font-bold uppercase text-slate-500 mb-1">ACTO 1 · Kit ensamblado · Layout A</div>
+    <p class="text-[12px] text-slate-500 mb-3">Módulo con <strong>contexto lateral persistente</strong> (aside). Ejemplo: Finanzas (grupo Finanzas y Contabilidad → <span class="text-teal-700 font-semibold">teal</span>). El <code>aside</code> presente activa Layout A automáticamente.</p>
+
+    <!-- ░░░ HubShell ░░░ -->
+    <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+
+      <!-- HubTopBar -->
+      <div class="border-b border-slate-200 px-6 py-2.5 bg-slate-50 flex items-center justify-between gap-3">
+        <div class="flex items-center gap-1.5 text-[11px] text-slate-500 min-w-0">
+          <span class="hover:text-slate-700 cursor-pointer">Inicio</span>
+          <i data-lucide="chevron-right" class="w-3 h-3 flex-shrink-0"></i>
+          <span class="text-slate-900 font-semibold truncate">Finanzas</span>
+        </div>
+        <span class="text-[10px] bg-teal-50 text-teal-700 px-2 py-0.5 rounded font-bold inline-flex items-center gap-1 flex-shrink-0">
+          <i data-lucide="shield" class="w-3 h-3"></i> Vista ejecutiva · admin
+        </span>
+      </div>
+
+      <!-- HubHeader -->
+      <div class="px-6 py-4 border-b border-slate-100 flex items-start justify-between gap-4 flex-wrap">
+        <div class="flex items-start gap-3 flex-1 min-w-[260px]">
+          <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-teal-500 to-teal-700 flex items-center justify-center text-white flex-shrink-0">
+            <i data-lucide="wallet" class="w-5 h-5"></i>
+          </div>
+          <div class="min-w-0">
+            <h1 class="text-2xl font-bold text-slate-900 tracking-tight">Finanzas</h1>
+            <p class="text-[13px] text-slate-500 leading-snug max-w-2xl mt-0.5">Posición de caja, movimientos y saldos por cobrar/pagar · vista operativa en tiempo real.</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2 flex-wrap justify-end">
+          <button class="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50"><i data-lucide="download" class="w-3.5 h-3.5"></i><span class="hidden sm:inline">Exportar</span></button>
+          <button class="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-indigo-700 bg-indigo-50 border border-indigo-200 rounded-lg hover:bg-indigo-100"><i data-lucide="settings-2" class="w-3.5 h-3.5"></i><span class="hidden sm:inline">Configurar</span></button>
+          <button class="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-white bg-teal-600 rounded-lg hover:bg-teal-700"><i data-lucide="plus" class="w-3.5 h-3.5"></i><span class="hidden sm:inline">Nuevo movimiento</span></button>
+        </div>
+      </div>
+
+      <!-- HubKpiStrip (semántico · N1+N2) + mini-stats footer (N3) -->
+      <div class="px-6 py-4 border-b border-slate-100">
+        <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
+          <!-- amber = dinero -->
+          <div class="bg-gradient-to-br from-amber-50 to-amber-100/40 ring-1 ring-amber-200/50 rounded-2xl p-4">
+            <div class="flex items-center justify-between mb-2"><span class="text-[10px] uppercase tracking-wider text-amber-700 font-bold">Caja hoy</span><i data-lucide="banknote" class="w-3.5 h-3.5 text-amber-700"></i></div>
+            <div class="text-2xl font-bold tabular text-amber-900">$48.2<span class="text-amber-400">k</span></div>
+            <div class="text-[11px] text-amber-700 mt-1">3 cuentas</div>
+          </div>
+          <!-- emerald = positivo -->
+          <div class="bg-gradient-to-br from-emerald-50 to-emerald-100/40 ring-1 ring-emerald-200/50 rounded-2xl p-4">
+            <div class="flex items-center justify-between mb-2"><span class="text-[10px] uppercase tracking-wider text-emerald-700 font-bold">Por cobrar</span><i data-lucide="trending-up" class="w-3.5 h-3.5 text-emerald-700"></i></div>
+            <div class="text-2xl font-bold tabular text-emerald-900">$31.0<span class="text-emerald-400">k</span></div>
+            <div class="text-[11px] text-emerald-700 mt-1">12 clientes</div>
+          </div>
+          <!-- rose = urgencia -->
+          <div class="bg-gradient-to-br from-rose-50 to-rose-100/40 ring-1 ring-rose-200/50 rounded-2xl p-4">
+            <div class="flex items-center justify-between mb-2"><span class="text-[10px] uppercase tracking-wider text-rose-700 font-bold">Por pagar</span><i data-lucide="trending-down" class="w-3.5 h-3.5 text-rose-700"></i></div>
+            <div class="text-2xl font-bold tabular text-rose-900">$18.4<span class="text-rose-400">k</span></div>
+            <div class="text-[11px] text-rose-700 mt-1">7 proveedores</div>
+          </div>
+          <!-- indigo = fijo -->
+          <div class="bg-gradient-to-br from-indigo-50 to-indigo-100/40 ring-1 ring-indigo-200/50 rounded-2xl p-4">
+            <div class="flex items-center justify-between mb-2"><span class="text-[10px] uppercase tracking-wider text-indigo-700 font-bold">Compromisos</span><i data-lucide="calendar-clock" class="w-3.5 h-3.5 text-indigo-700"></i></div>
+            <div class="text-2xl font-bold tabular text-indigo-900">$9.6<span class="text-indigo-400">k</span></div>
+            <div class="text-[11px] text-indigo-700 mt-1">este mes</div>
+          </div>
+          <!-- sky = parcial/info -->
+          <div class="bg-gradient-to-br from-sky-50 to-sky-100/40 ring-1 ring-sky-200/50 rounded-2xl p-4">
+            <div class="flex items-center justify-between mb-2"><span class="text-[10px] uppercase tracking-wider text-sky-700 font-bold">Flujo neto</span><i data-lucide="activity" class="w-3.5 h-3.5 text-sky-700"></i></div>
+            <div class="text-2xl font-bold tabular text-sky-900">+$12.6<span class="text-sky-400">k</span></div>
+            <div class="text-[11px] text-sky-700 mt-1">30 días</div>
+          </div>
+        </div>
+        <!-- mini-stats footer integrado (N3) -->
+        <div class="bg-slate-50/50 border border-slate-200 rounded-xl mt-3 px-4 py-2 flex items-center gap-4 text-[11px] flex-wrap">
+          <span class="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Mini-stats:</span>
+          <span class="flex items-center gap-1 text-slate-600"><i data-lucide="building-2" class="w-3 h-3 text-slate-400"></i> Top cuenta · BCP $22.1k</span>
+          <span class="flex items-center gap-1 text-slate-600"><i data-lucide="clock" class="w-3 h-3 text-slate-400"></i> DSO · 34 días</span>
+          <span class="flex items-center gap-1 text-slate-600"><i data-lucide="alert-triangle" class="w-3 h-3 text-amber-500"></i> 2 vencen esta semana</span>
+        </div>
+      </div>
+
+      <!-- HubTabs (border-b-2 · color del grupo) -->
+      <div class="border-b border-slate-200 px-6">
+        <div class="flex gap-1 overflow-x-auto no-sb -mb-px">
+          <button class="whitespace-nowrap px-3 py-2.5 text-[13px] font-semibold text-teal-700 border-b-2 border-teal-600 flex items-center gap-1.5"><i data-lucide="layout-dashboard" class="w-4 h-4"></i> Resumen</button>
+          <button class="whitespace-nowrap px-3 py-2.5 text-[13px] font-medium text-slate-500 border-b-2 border-transparent hover:text-slate-700 flex items-center gap-1.5"><i data-lucide="arrow-left-right" class="w-4 h-4"></i> Movimientos</button>
+          <button class="whitespace-nowrap px-3 py-2.5 text-[13px] font-medium text-slate-500 border-b-2 border-transparent hover:text-slate-700 flex items-center gap-1.5"><i data-lucide="wallet" class="w-4 h-4"></i> Saldos</button>
+          <button class="whitespace-nowrap px-3 py-2.5 text-[13px] font-medium text-slate-500 border-b-2 border-transparent hover:text-slate-700 flex items-center gap-1.5">Por cobrar/pagar <span class="text-[9px] bg-rose-100 text-rose-700 px-1.5 rounded-full font-bold tabular">9</span></button>
+        </div>
+      </div>
+
+      <!-- HubBody · Layout A (main 2/3 + aside 1/3) · DENTRO del shell -->
+      <div class="bg-slate-50/30 p-3 sm:p-4 md:p-6">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <!-- main -->
+          <div class="md:col-span-2 space-y-4">
+            <div class="bg-white border border-slate-200 rounded-xl p-4">
+              <div class="text-sm font-semibold text-slate-900 mb-3">Posición de caja · 30 días</div>
+              <div class="h-28 rounded-lg bg-gradient-to-t from-teal-50 to-white border border-slate-100 flex items-end gap-1 p-2">
+                <div class="flex-1 bg-teal-200 rounded-t" style="height:40%"></div>
+                <div class="flex-1 bg-teal-300 rounded-t" style="height:62%"></div>
+                <div class="flex-1 bg-teal-300 rounded-t" style="height:55%"></div>
+                <div class="flex-1 bg-teal-400 rounded-t" style="height:78%"></div>
+                <div class="flex-1 bg-teal-500 rounded-t" style="height:70%"></div>
+                <div class="flex-1 bg-teal-600 rounded-t" style="height:92%"></div>
+              </div>
+            </div>
+            <div class="bg-white border border-slate-200 rounded-xl p-4">
+              <div class="text-[12px] font-bold text-slate-900 mb-2">Últimos movimientos</div>
+              <div class="divide-y divide-slate-100 text-[12px]">
+                <div class="py-2 flex items-center justify-between"><span class="text-slate-700">Venta · Cliente Norte</span><span class="font-bold tabular text-emerald-700">+$2,400</span></div>
+                <div class="py-2 flex items-center justify-between"><span class="text-slate-700">Pago proveedor · Importadora</span><span class="font-bold tabular text-rose-700">−$1,180</span></div>
+                <div class="py-2 flex items-center justify-between"><span class="text-slate-700">Gasto · Alquiler local</span><span class="font-bold tabular text-rose-700">−$900</span></div>
+              </div>
+            </div>
+          </div>
+          <!-- aside (contexto persistente) -->
+          <aside class="md:col-span-1 space-y-4">
+            <div class="bg-white border border-slate-200 rounded-xl p-4">
+              <div class="text-[10px] uppercase tracking-wider font-bold text-slate-500 mb-2.5">Acciones rápidas</div>
+              <div class="space-y-2">
+                <button class="w-full flex items-center gap-2 px-3 py-2 text-[12px] font-semibold text-white bg-teal-600 hover:bg-teal-700 rounded-lg"><i data-lucide="plus" class="w-4 h-4"></i> Nuevo movimiento</button>
+                <button class="w-full flex items-center gap-2 px-3 py-2 text-[12px] font-medium text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 rounded-lg"><i data-lucide="banknote" class="w-4 h-4 text-slate-400"></i> Conciliar banco</button>
+              </div>
+            </div>
+            <div class="bg-white border border-slate-200 rounded-xl overflow-hidden">
+              <div class="px-4 py-2.5 bg-slate-50 border-b border-slate-200"><span class="text-[10px] uppercase tracking-wider font-bold text-slate-500">Conecta con</span></div>
+              <div class="p-2 grid grid-cols-2 gap-2">
+                <div class="flex flex-col gap-1 p-2.5 rounded-lg border border-slate-200 hover:border-teal-300 cursor-pointer"><i data-lucide="calculator" class="w-4 h-4 text-teal-600"></i><span class="text-[11px] font-bold text-slate-800">Contabilidad</span></div>
+                <div class="flex flex-col gap-1 p-2.5 rounded-lg border border-slate-200 hover:border-teal-300 cursor-pointer"><i data-lucide="receipt" class="w-4 h-4 text-teal-600"></i><span class="text-[11px] font-bold text-slate-800">Gastos</span></div>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </div>
+    <p class="text-[11px] text-slate-400 mt-2"><code>&lt;HubBody aside={...}&gt;</code> → grid main(2)+aside(1). Sin <code>aside</code> → full-width (Layout B · ACTO 2).</p>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════════ -->
+  <!-- ACTO 2 · KIT ENSAMBLADO · LAYOUT B (full-width) · color violet -->
+  <!-- ════════════════════════════════════════════════════════════════ -->
+  <div>
+    <div class="acto-label text-[11px] font-bold uppercase text-slate-500 mb-1">ACTO 2 · Kit ensamblado · Layout B</div>
+    <p class="text-[12px] text-slate-500 mb-3">Contenido <strong>ancho/autónomo</strong> sin aside (directorios, tablas, estados financieros). Ejemplo: Usuarios (grupo Equipo → <span class="text-violet-700 font-semibold">violet</span>). <strong>El mismo kit, distinto color heredado.</strong></p>
+
+    <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+      <!-- TopBar -->
+      <div class="border-b border-slate-200 px-6 py-2.5 bg-slate-50 flex items-center justify-between gap-3">
+        <div class="flex items-center gap-1.5 text-[11px] text-slate-500 min-w-0">
+          <span class="hover:text-slate-700 cursor-pointer">Inicio</span>
+          <i data-lucide="chevron-right" class="w-3 h-3 flex-shrink-0"></i>
+          <span class="hover:text-slate-700 cursor-pointer">Usuarios</span>
+          <i data-lucide="chevron-right" class="w-3 h-3 flex-shrink-0"></i>
+          <span class="text-slate-900 font-semibold truncate">Accesos y seguridad</span>
+        </div>
+        <span class="text-[10px] bg-violet-50 text-violet-700 px-2 py-0.5 rounded font-bold inline-flex items-center gap-1 flex-shrink-0"><i data-lucide="shield" class="w-3 h-3"></i> Vista ejecutiva · admin</span>
+      </div>
+      <!-- Header -->
+      <div class="px-6 py-4 border-b border-slate-100 flex items-start justify-between gap-4 flex-wrap">
+        <div class="flex items-start gap-3 flex-1 min-w-[260px]">
+          <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-violet-500 to-violet-700 flex items-center justify-center text-white flex-shrink-0"><i data-lucide="users" class="w-5 h-5"></i></div>
+          <div class="min-w-0"><h1 class="text-2xl font-bold text-slate-900 tracking-tight">Usuarios</h1><p class="text-[13px] text-slate-500 leading-snug mt-0.5">Directorio del equipo · relaciones, accesos y seguridad.</p></div>
+        </div>
+        <div class="flex items-center gap-2 justify-end">
+          <button class="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50"><i data-lucide="download" class="w-3.5 h-3.5"></i><span class="hidden sm:inline">Exportar</span></button>
+          <button class="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-white bg-violet-600 rounded-lg hover:bg-violet-700"><i data-lucide="user-plus" class="w-3.5 h-3.5"></i><span class="hidden sm:inline">Nuevo colaborador</span></button>
+        </div>
+      </div>
+      <!-- KPI strip -->
+      <div class="px-6 py-4 border-b border-slate-100 grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div class="bg-gradient-to-br from-slate-50 to-slate-100/40 ring-1 ring-slate-200/50 rounded-2xl p-4"><div class="flex items-center justify-between mb-2"><span class="text-[10px] uppercase tracking-wider text-slate-600 font-bold">Total</span><i data-lucide="users" class="w-3.5 h-3.5 text-slate-600"></i></div><div class="text-2xl font-bold tabular text-slate-900">18</div></div>
+        <div class="bg-gradient-to-br from-emerald-50 to-emerald-100/40 ring-1 ring-emerald-200/50 rounded-2xl p-4"><div class="flex items-center justify-between mb-2"><span class="text-[10px] uppercase tracking-wider text-emerald-700 font-bold">Activos</span><i data-lucide="user-check" class="w-3.5 h-3.5 text-emerald-700"></i></div><div class="text-2xl font-bold tabular text-emerald-900">15</div></div>
+        <div class="bg-gradient-to-br from-violet-50 to-violet-100/40 ring-1 ring-violet-200/50 rounded-2xl p-4"><div class="flex items-center justify-between mb-2"><span class="text-[10px] uppercase tracking-wider text-violet-700 font-bold">Socios</span><i data-lucide="handshake" class="w-3.5 h-3.5 text-violet-700"></i></div><div class="text-2xl font-bold tabular text-violet-900">3</div></div>
+        <div class="bg-gradient-to-br from-amber-50 to-amber-100/40 ring-1 ring-amber-200/50 rounded-2xl p-4"><div class="flex items-center justify-between mb-2"><span class="text-[10px] uppercase tracking-wider text-amber-700 font-bold">Pendientes</span><i data-lucide="clock" class="w-3.5 h-3.5 text-amber-700"></i></div><div class="text-2xl font-bold tabular text-amber-900">2</div></div>
+      </div>
+      <!-- Tabs -->
+      <div class="border-b border-slate-200 px-6"><div class="flex gap-1 overflow-x-auto no-sb -mb-px">
+        <button class="whitespace-nowrap px-3 py-2.5 text-[13px] font-medium text-slate-500 border-b-2 border-transparent hover:text-slate-700">Resumen</button>
+        <button class="whitespace-nowrap px-3 py-2.5 text-[13px] font-semibold text-violet-700 border-b-2 border-violet-600">Accesos y seguridad</button>
+        <button class="whitespace-nowrap px-3 py-2.5 text-[13px] font-medium text-slate-500 border-b-2 border-transparent hover:text-slate-700">Configuración</button>
+      </div></div>
+      <!-- Body · full-width (sin aside) -->
+      <div class="bg-slate-50/30 p-3 sm:p-4 md:p-6 space-y-4">
+        <div class="bg-white border border-slate-200 rounded-xl overflow-hidden">
+          <div class="px-4 py-2.5 bg-slate-50 border-b border-slate-200 text-[12px] font-bold text-slate-700">Directorio · 18 personas</div>
+          <div class="divide-y divide-slate-100 text-[12px]">
+            <div class="px-4 py-2.5 flex items-center gap-3"><div class="w-8 h-8 rounded-full bg-violet-100 text-violet-700 flex items-center justify-center font-bold text-[11px]">JP</div><div class="flex-1"><div class="font-semibold text-slate-800">José Pinto</div><div class="text-[10px] text-slate-500">Administrador</div></div><span class="text-[10px] bg-slate-100 text-slate-700 px-2 py-0.5 rounded-full font-bold">admin</span><span class="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-bold">activo</span></div>
+            <div class="px-4 py-2.5 flex items-center gap-3"><div class="w-8 h-8 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center font-bold text-[11px]">MR</div><div class="flex-1"><div class="font-semibold text-slate-800">María Rojas</div><div class="text-[10px] text-slate-500">Contadora · Socia</div></div><span class="text-[10px] bg-violet-100 text-violet-700 px-2 py-0.5 rounded-full font-bold">socio</span><span class="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-bold">activo</span></div>
+          </div>
+        </div>
+        <p class="text-[11px] text-slate-400 text-center">Body full-width · <code>max-w-6xl</code> · tablas/directorios sin aside.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════════ -->
+  <!-- ACTO 3 · HERENCIA DE COLOR · LOS 6 GRUPOS -->
+  <!-- ════════════════════════════════════════════════════════════════ -->
+  <div>
+    <div class="acto-label text-[11px] font-bold uppercase text-slate-500 mb-1">ACTO 3 · Herencia de color · 1 kit, 6 colores</div>
+    <p class="text-[12px] text-slate-500 mb-3">El MISMO <code>HubShell</code> · el color del CHROME (icono, tab activo, primary, chip) sale del grupo del sidebar vía <code>grupoColor.ts</code>. <strong>Nunca se elige ni se inventa.</strong> Los datos siempre usan la paleta semántica fija.</p>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+      <!-- teal -->
+      <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+        <div class="px-3 py-1.5 bg-slate-50 border-b border-slate-200 flex items-center justify-between"><span class="text-[10px] text-slate-500">Inicio › <b class="text-slate-700">Finanzas</b></span><span class="text-[9px] bg-teal-50 text-teal-700 px-1.5 rounded font-bold">admin</span></div>
+        <div class="px-3 py-2.5 flex items-center gap-2 border-b border-slate-100"><div class="w-8 h-8 rounded-lg bg-gradient-to-br from-teal-500 to-teal-700 flex items-center justify-center text-white"><i data-lucide="wallet" class="w-4 h-4"></i></div><div class="text-[13px] font-bold">Finanzas</div></div>
+        <div class="px-3 pt-2 flex gap-2 text-[11px] border-b border-slate-200"><span class="border-b-2 border-teal-600 text-teal-700 font-semibold pb-1.5">Resumen</span><span class="text-slate-400 pb-1.5">Saldos</span></div>
+        <div class="p-3"><button class="w-full py-1.5 rounded-lg bg-teal-600 text-white text-[11px] font-semibold">Primary CTA</button><div class="text-[9px] text-slate-400 mt-1.5 text-center">grupo: Finanzas y Contabilidad → teal</div></div>
+      </div>
+      <!-- violet -->
+      <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+        <div class="px-3 py-1.5 bg-slate-50 border-b border-slate-200 flex items-center justify-between"><span class="text-[10px] text-slate-500">Inicio › <b class="text-slate-700">Planilla</b></span><span class="text-[9px] bg-violet-50 text-violet-700 px-1.5 rounded font-bold">admin</span></div>
+        <div class="px-3 py-2.5 flex items-center gap-2 border-b border-slate-100"><div class="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500 to-violet-700 flex items-center justify-center text-white"><i data-lucide="users" class="w-4 h-4"></i></div><div class="text-[13px] font-bold">Planilla</div></div>
+        <div class="px-3 pt-2 flex gap-2 text-[11px] border-b border-slate-200"><span class="border-b-2 border-violet-600 text-violet-700 font-semibold pb-1.5">Resumen</span><span class="text-slate-400 pb-1.5">Boletas</span></div>
+        <div class="p-3"><button class="w-full py-1.5 rounded-lg bg-violet-600 text-white text-[11px] font-semibold">Primary CTA</button><div class="text-[9px] text-slate-400 mt-1.5 text-center">grupo: Equipo → violet</div></div>
+      </div>
+      <!-- blue -->
+      <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+        <div class="px-3 py-1.5 bg-slate-50 border-b border-slate-200 flex items-center justify-between"><span class="text-[10px] text-slate-500">Inicio › <b class="text-slate-700">Ventas</b></span><span class="text-[9px] bg-blue-50 text-blue-700 px-1.5 rounded font-bold">admin</span></div>
+        <div class="px-3 py-2.5 flex items-center gap-2 border-b border-slate-100"><div class="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center text-white"><i data-lucide="shopping-cart" class="w-4 h-4"></i></div><div class="text-[13px] font-bold">Ventas</div></div>
+        <div class="px-3 pt-2 flex gap-2 text-[11px] border-b border-slate-200"><span class="border-b-2 border-blue-600 text-blue-700 font-semibold pb-1.5">Resumen</span><span class="text-slate-400 pb-1.5">Pedidos</span></div>
+        <div class="p-3"><button class="w-full py-1.5 rounded-lg bg-blue-600 text-white text-[11px] font-semibold">Primary CTA</button><div class="text-[9px] text-slate-400 mt-1.5 text-center">grupo: Comercial → blue</div></div>
+      </div>
+      <!-- orange -->
+      <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+        <div class="px-3 py-1.5 bg-slate-50 border-b border-slate-200 flex items-center justify-between"><span class="text-[10px] text-slate-500">Inicio › <b class="text-slate-700">Stock</b></span><span class="text-[9px] bg-orange-50 text-orange-700 px-1.5 rounded font-bold">admin</span></div>
+        <div class="px-3 py-2.5 flex items-center gap-2 border-b border-slate-100"><div class="w-8 h-8 rounded-lg bg-gradient-to-br from-orange-500 to-orange-700 flex items-center justify-center text-white"><i data-lucide="warehouse" class="w-4 h-4"></i></div><div class="text-[13px] font-bold">Stock</div></div>
+        <div class="px-3 pt-2 flex gap-2 text-[11px] border-b border-slate-200"><span class="border-b-2 border-orange-600 text-orange-700 font-semibold pb-1.5">Resumen</span><span class="text-slate-400 pb-1.5">Existencias</span></div>
+        <div class="p-3"><button class="w-full py-1.5 rounded-lg bg-orange-600 text-white text-[11px] font-semibold">Primary CTA</button><div class="text-[9px] text-slate-400 mt-1.5 text-center">grupo: Inventario → orange</div></div>
+      </div>
+      <!-- indigo -->
+      <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+        <div class="px-3 py-1.5 bg-slate-50 border-b border-slate-200 flex items-center justify-between"><span class="text-[10px] text-slate-500">Inicio › <b class="text-slate-700">Cost Intel</b></span><span class="text-[9px] bg-indigo-50 text-indigo-700 px-1.5 rounded font-bold">admin</span></div>
+        <div class="px-3 py-2.5 flex items-center gap-2 border-b border-slate-100"><div class="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-indigo-700 flex items-center justify-center text-white"><i data-lucide="bar-chart-3" class="w-4 h-4"></i></div><div class="text-[13px] font-bold">Cost Intel</div></div>
+        <div class="px-3 pt-2 flex gap-2 text-[11px] border-b border-slate-200"><span class="border-b-2 border-indigo-600 text-indigo-700 font-semibold pb-1.5">Resumen</span><span class="text-slate-400 pb-1.5">Variance</span></div>
+        <div class="p-3"><button class="w-full py-1.5 rounded-lg bg-indigo-600 text-white text-[11px] font-semibold">Primary CTA</button><div class="text-[9px] text-slate-400 mt-1.5 text-center">grupo: Análisis → indigo</div></div>
+      </div>
+      <!-- slate -->
+      <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+        <div class="px-3 py-1.5 bg-slate-50 border-b border-slate-200 flex items-center justify-between"><span class="text-[10px] text-slate-500">Inicio › <b class="text-slate-700">Auditoría</b></span><span class="text-[9px] bg-slate-100 text-slate-700 px-1.5 rounded font-bold">admin</span></div>
+        <div class="px-3 py-2.5 flex items-center gap-2 border-b border-slate-100"><div class="w-8 h-8 rounded-lg bg-gradient-to-br from-slate-500 to-slate-700 flex items-center justify-center text-white"><i data-lucide="settings" class="w-4 h-4"></i></div><div class="text-[13px] font-bold">Auditoría</div></div>
+        <div class="px-3 pt-2 flex gap-2 text-[11px] border-b border-slate-200"><span class="border-b-2 border-slate-600 text-slate-700 font-semibold pb-1.5">Resumen</span><span class="text-slate-400 pb-1.5">Logs</span></div>
+        <div class="p-3"><button class="w-full py-1.5 rounded-lg bg-slate-700 text-white text-[11px] font-semibold">Primary CTA</button><div class="text-[9px] text-slate-400 mt-1.5 text-center">grupo: Administración → slate</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════════ -->
+  <!-- ACTO 4 · ANATOMÍA + API + TOKENS POR BLOCK -->
+  <!-- ════════════════════════════════════════════════════════════════ -->
+  <div>
+    <div class="acto-label text-[11px] font-bold uppercase text-slate-500 mb-3">ACTO 4 · Los 6 blocks · API + tokens que consume cada uno</div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+      <div class="bg-white border border-slate-200 rounded-xl p-4">
+        <div class="text-[13px] font-bold text-teal-700 mb-1">&lt;HubShell&gt;</div>
+        <div class="text-[11px] text-slate-600 mb-2">Card contenedor · 1 recuadro continuo. Envuelve todo.</div>
+        <pre class="bg-slate-900 text-slate-100 text-[10px] rounded-lg p-2.5 overflow-x-auto"><code>&lt;HubShell&gt;{children}&lt;/HubShell&gt;</code></pre>
+        <div class="text-[10px] text-slate-500 mt-2">tokens: <code>radius.shell</code> (2xl) · <code>elevation.resting</code> (shadow-sm) · <code>border.default</code> · <code>overflow-hidden</code></div>
+      </div>
+      <div class="bg-white border border-slate-200 rounded-xl p-4">
+        <div class="text-[13px] font-bold text-teal-700 mb-1">&lt;HubTopBar&gt;</div>
+        <div class="text-[11px] text-slate-600 mb-2">Breadcrumb S9.D1 dinámico + chip de rol contextual.</div>
+        <pre class="bg-slate-900 text-slate-100 text-[10px] rounded-lg p-2.5 overflow-x-auto"><code>&lt;HubTopBar grupo="equipo"
+  modulo="Usuarios" leaf={tab}
+  onVolver={...} esAdmin /&gt;</code></pre>
+        <div class="text-[10px] text-slate-500 mt-2">color: <code>chromeDe(grupo).chip</code> · <code>text.meta</code> · ChevronRight w-3</div>
+      </div>
+      <div class="bg-white border border-slate-200 rounded-xl p-4">
+        <div class="text-[13px] font-bold text-teal-700 mb-1">&lt;HubHeader&gt;</div>
+        <div class="text-[11px] text-slate-600 mb-2">Icono tonal + h1 + subtítulo + acciones 3-tier (N10).</div>
+        <pre class="bg-slate-900 text-slate-100 text-[10px] rounded-lg p-2.5 overflow-x-auto"><code>&lt;HubHeader icon={Wallet}
+  grupo="finanzas-contabilidad"
+  titulo="Finanzas" subtitulo="…"
+  acciones={[…]} /&gt;</code></pre>
+        <div class="text-[10px] text-slate-500 mt-2">icono: <code>chromeDe(g).headerIcon</code> · primary: <code>.primaryBtn</code> · <code>text.hero</code> (h1)</div>
+      </div>
+      <div class="bg-white border border-slate-200 rounded-xl p-4">
+        <div class="text-[13px] font-bold text-teal-700 mb-1">&lt;HubKpiStrip&gt;</div>
+        <div class="text-[11px] text-slate-600 mb-2">KPIs semánticos (N1+N2) + mini-stats footer (N3).</div>
+        <pre class="bg-slate-900 text-slate-100 text-[10px] rounded-lg p-2.5 overflow-x-auto"><code>&lt;HubKpiStrip kpis={[
+  {label,valor,tono:'amber',icon},…
+]} miniStats={[…]} /&gt;</code></pre>
+        <div class="text-[10px] text-slate-500 mt-2">color SEMÁNTICO (no de grupo) · <code>radius.shell</code> en cada card · <code>text.hero</code> + <code>overline</code></div>
+      </div>
+      <div class="bg-white border border-slate-200 rounded-xl p-4">
+        <div class="text-[13px] font-bold text-teal-700 mb-1">&lt;HubTabs&gt;</div>
+        <div class="text-[11px] text-slate-600 mb-2">Tabs border-b-2 · scroll-x mobile (N6) · badge opcional.</div>
+        <pre class="bg-slate-900 text-slate-100 text-[10px] rounded-lg p-2.5 overflow-x-auto"><code>&lt;HubTabs grupo="…" activa={t}
+  tabs={[{id,label,icon,badge?}]}
+  onChange={…} /&gt;</code></pre>
+        <div class="text-[10px] text-slate-500 mt-2">activa: <code>chromeDe(g).tabActive</code> · badge = semántico · 1ª tab = Resumen</div>
+      </div>
+      <div class="bg-white border border-slate-200 rounded-xl p-4">
+        <div class="text-[13px] font-bold text-teal-700 mb-1">&lt;HubBody&gt;</div>
+        <div class="text-[11px] text-slate-600 mb-2">Cuerpo · <code>aside</code> opcional decide Layout A/B.</div>
+        <pre class="bg-slate-900 text-slate-100 text-[10px] rounded-lg p-2.5 overflow-x-auto"><code>&lt;HubBody aside={&lt;Contexto/&gt;}&gt;
+  {contenido}
+&lt;/HubBody&gt;  // sin aside = full</code></pre>
+        <div class="text-[10px] text-slate-500 mt-2"><code>bg-slate-50/30</code> · <code>p-3 sm:p-4 md:p-6</code> · grid 3 (con aside) o full · DENTRO del shell</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════════ -->
+  <!-- ACTO 5 · ESTADOS DEL HUBBODY -->
+  <!-- ════════════════════════════════════════════════════════════════ -->
+  <div>
+    <div class="acto-label text-[11px] font-bold uppercase text-slate-500 mb-3">ACTO 5 · Estados del HubBody · empty (N9) · loading · error</div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+      <!-- empty -->
+      <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+        <div class="bg-slate-900 text-white text-[10px] px-3 py-1 font-semibold">EMPTY · canon N9</div>
+        <div class="bg-slate-50/30 p-6 text-center">
+          <div class="w-12 h-12 mx-auto rounded-xl bg-teal-100 flex items-center justify-center mb-3"><i data-lucide="inbox" class="w-6 h-6 text-teal-600"></i></div>
+          <div class="text-sm font-bold text-slate-900 mb-1">Aún no hay movimientos</div>
+          <p class="text-[12px] text-slate-500 mb-4">Se generan automáticamente con cada operación.</p>
+          <button class="inline-flex items-center gap-2 px-3 py-2 text-[12px] font-semibold text-white bg-teal-600 rounded-lg"><i data-lucide="plus" class="w-4 h-4"></i> Crear el primero</button>
+        </div>
+      </div>
+      <!-- loading -->
+      <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+        <div class="bg-slate-900 text-white text-[10px] px-3 py-1 font-semibold">LOADING · skeleton</div>
+        <div class="bg-slate-50/30 p-6 space-y-3">
+          <div class="h-4 w-1/3 rounded bg-slate-200 animate-pulse"></div>
+          <div class="h-20 rounded-xl bg-slate-200 animate-pulse"></div>
+          <div class="h-4 w-2/3 rounded bg-slate-200 animate-pulse"></div>
+          <div class="h-4 w-1/2 rounded bg-slate-200 animate-pulse"></div>
+        </div>
+      </div>
+      <!-- error -->
+      <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+        <div class="bg-slate-900 text-white text-[10px] px-3 py-1 font-semibold">ERROR · con retry</div>
+        <div class="bg-slate-50/30 p-6 text-center">
+          <div class="w-12 h-12 mx-auto rounded-xl bg-rose-100 flex items-center justify-center mb-3"><i data-lucide="alert-octagon" class="w-6 h-6 text-rose-600"></i></div>
+          <div class="text-sm font-bold text-slate-900 mb-1">No se pudo cargar</div>
+          <p class="text-[12px] text-slate-500 mb-4">Revisa tu conexión e intenta de nuevo.</p>
+          <button class="inline-flex items-center gap-2 px-3 py-2 text-[12px] font-semibold text-slate-700 bg-white border border-slate-200 rounded-lg hover:bg-slate-50"><i data-lucide="refresh-cw" class="w-4 h-4 text-slate-400"></i> Reintentar</button>
+        </div>
+      </div>
+    </div>
+    <p class="text-[11px] text-slate-400 mt-2">Los 3 estados viven DENTRO del shell (debajo de tabs). El icono tonal usa el color del grupo · el error usa rose semántico.</p>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════════ -->
+  <!-- ACTO 6 · MOBILE 375px -->
+  <!-- ════════════════════════════════════════════════════════════════ -->
+  <div>
+    <div class="acto-label text-[11px] font-bold uppercase text-slate-500 mb-3">ACTO 6 · Mobile 375px · shell completo</div>
+    <div class="flex flex-col lg:flex-row gap-6 items-start">
+
+      <!-- viewport mobile -->
+      <div class="mx-auto lg:mx-0" style="width:375px;">
+        <div class="bg-slate-900 rounded-[2rem] p-2 shadow-xl">
+          <div class="bg-slate-50 rounded-[1.6rem] overflow-hidden" style="height:760px;">
+            <!-- topbar app -->
+            <div class="bg-white px-4 py-2 flex items-center justify-between border-b border-slate-200">
+              <i data-lucide="menu" class="w-5 h-5 text-slate-600"></i>
+              <span class="text-[11px] text-slate-500">lun, 1 jun</span>
+              <div class="w-7 h-7 rounded-full bg-violet-100"></div>
+            </div>
+            <div class="p-2 overflow-y-auto no-sb" style="height:716px;">
+              <!-- HubShell mobile -->
+              <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+                <!-- topbar -->
+                <div class="border-b border-slate-200 px-3 py-2 bg-slate-50 flex items-center justify-between">
+                  <span class="text-[10px] text-slate-500 truncate">Inicio › <b class="text-slate-700">Finanzas</b></span>
+                  <span class="text-[9px] bg-teal-50 text-teal-700 px-1.5 py-0.5 rounded font-bold flex items-center gap-0.5"><i data-lucide="shield" class="w-2.5 h-2.5"></i>admin</span>
+                </div>
+                <!-- header -->
+                <div class="px-3 py-3 border-b border-slate-100">
+                  <div class="flex items-center gap-2 mb-2">
+                    <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-teal-500 to-teal-700 flex items-center justify-center text-white flex-shrink-0"><i data-lucide="wallet" class="w-4 h-4"></i></div>
+                    <div class="min-w-0"><h1 class="text-lg font-bold text-slate-900 leading-tight">Finanzas</h1></div>
+                  </div>
+                  <p class="text-[11px] text-slate-500 leading-snug mb-2">Caja, movimientos y saldos en tiempo real.</p>
+                  <button class="w-full flex items-center justify-center gap-1.5 px-3 py-2 text-[12px] font-semibold text-white bg-teal-600 rounded-lg"><i data-lucide="plus" class="w-4 h-4"></i> Nuevo movimiento</button>
+                </div>
+                <!-- KPIs apilados 2-col -->
+                <div class="px-3 py-3 border-b border-slate-100 grid grid-cols-2 gap-2">
+                  <div class="bg-gradient-to-br from-amber-50 to-amber-100/40 ring-1 ring-amber-200/50 rounded-xl p-2.5"><div class="text-[9px] uppercase tracking-wider text-amber-700 font-bold mb-1">Caja</div><div class="text-lg font-bold tabular text-amber-900">$48.2k</div></div>
+                  <div class="bg-gradient-to-br from-emerald-50 to-emerald-100/40 ring-1 ring-emerald-200/50 rounded-xl p-2.5"><div class="text-[9px] uppercase tracking-wider text-emerald-700 font-bold mb-1">Por cobrar</div><div class="text-lg font-bold tabular text-emerald-900">$31.0k</div></div>
+                  <div class="bg-gradient-to-br from-rose-50 to-rose-100/40 ring-1 ring-rose-200/50 rounded-xl p-2.5"><div class="text-[9px] uppercase tracking-wider text-rose-700 font-bold mb-1">Por pagar</div><div class="text-lg font-bold tabular text-rose-900">$18.4k</div></div>
+                  <div class="bg-gradient-to-br from-sky-50 to-sky-100/40 ring-1 ring-sky-200/50 rounded-xl p-2.5"><div class="text-[9px] uppercase tracking-wider text-sky-700 font-bold mb-1">Flujo</div><div class="text-lg font-bold tabular text-sky-900">+$12.6k</div></div>
+                </div>
+                <!-- tabs scroll-x (N6) -->
+                <div class="border-b border-slate-200 px-3"><div class="flex gap-3 overflow-x-auto no-sb -mb-px text-[12px]">
+                  <span class="whitespace-nowrap border-b-2 border-teal-600 text-teal-700 font-semibold py-2">Resumen</span>
+                  <span class="whitespace-nowrap text-slate-500 py-2">Movimientos</span>
+                  <span class="whitespace-nowrap text-slate-500 py-2">Saldos</span>
+                  <span class="whitespace-nowrap text-slate-500 py-2">Por cobrar/pagar</span>
+                </div></div>
+                <!-- body · aside APILADO debajo del main -->
+                <div class="bg-slate-50/30 p-3 space-y-3">
+                  <div class="bg-white border border-slate-200 rounded-xl p-3">
+                    <div class="text-[12px] font-semibold text-slate-900 mb-2">Posición de caja</div>
+                    <div class="h-20 rounded-lg bg-gradient-to-t from-teal-50 to-white border border-slate-100 flex items-end gap-1 p-1.5"><div class="flex-1 bg-teal-300 rounded-t" style="height:55%"></div><div class="flex-1 bg-teal-400 rounded-t" style="height:78%"></div><div class="flex-1 bg-teal-600 rounded-t" style="height:92%"></div></div>
+                  </div>
+                  <!-- aside apilado -->
+                  <div class="bg-white border border-slate-200 rounded-xl p-3">
+                    <div class="text-[10px] uppercase tracking-wider font-bold text-slate-500 mb-2">Acciones rápidas</div>
+                    <button class="w-full flex items-center gap-2 px-3 py-2 text-[12px] font-semibold text-white bg-teal-600 rounded-lg mb-1.5"><i data-lucide="plus" class="w-4 h-4"></i> Nuevo movimiento</button>
+                    <button class="w-full flex items-center gap-2 px-3 py-2 text-[12px] font-medium text-slate-700 bg-white border border-slate-200 rounded-lg"><i data-lucide="banknote" class="w-4 h-4 text-slate-400"></i> Conciliar banco</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- notas mobile -->
+      <div class="flex-1 space-y-2 text-[12px]">
+        <div class="acto-label text-[11px] font-bold uppercase text-slate-500 mb-1">Patrones mobile que el kit resuelve solo</div>
+        <div class="bg-white border border-slate-200 rounded-xl p-3 flex items-start gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0"></i><span><b>Aside apilado:</b> en <code>&lt;640px</code> el <code>aside</code> de Layout A baja DEBAJO del main (decisión user · no se oculta).</span></div>
+        <div class="bg-white border border-slate-200 rounded-xl p-3 flex items-start gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0"></i><span><b>KPIs 2-col:</b> el strip de 5 cols pasa a grid 2-col apilado. Radio baja a <code>xl</code> (cards) por escala mobile.</span></div>
+        <div class="bg-white border border-slate-200 rounded-xl p-3 flex items-start gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0"></i><span><b>Tabs scroll-x (N6):</b> nunca wrap · scroll horizontal sin scrollbar visible · altura predecible.</span></div>
+        <div class="bg-white border border-slate-200 rounded-xl p-3 flex items-start gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0"></i><span><b>Primary full-width:</b> el CTA del header pasa a <code>w-full</code> · touch target ≥44px.</span></div>
+        <div class="bg-white border border-slate-200 rounded-xl p-3 flex items-start gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0"></i><span><b>Sidebar app:</b> aparece desde <code>md:</code> (768px). En mobile = hamburguesa (chrome global, fuera del kit).</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════ FOOTER · CHECKLIST CANON ════════ -->
+  <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-5">
+    <div class="acto-label text-[11px] font-bold uppercase text-slate-500 mb-3">Checklist canon · cobertura del mockup</div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1.5 text-[12px]">
+      <div class="flex items-center gap-2"><i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-600"></i> Anatomía hub completa (topbar→header→KPIs→tabs→body)</div>
+      <div class="flex items-center gap-2"><i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-600"></i> Layout A (con aside) + Layout B (full-width)</div>
+      <div class="flex items-center gap-2"><i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-600"></i> Herencia de color · los 6 grupos (grupoColor.ts)</div>
+      <div class="flex items-center gap-2"><i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-600"></i> Chrome (color grupo) vs semántico (datos) separados</div>
+      <div class="flex items-center gap-2"><i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-600"></i> API de los 6 blocks + tokens que consume cada uno</div>
+      <div class="flex items-center gap-2"><i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-600"></i> Estados empty (N9) / loading / error</div>
+      <div class="flex items-center gap-2"><i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-600"></i> Mobile 375px · aside apilado · tabs scroll-x · primary full</div>
+      <div class="flex items-center gap-2"><i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-600"></i> Tokens: radios 2xl/xl/lg · text hero/meta/overline · shadow-sm</div>
+      <div class="flex items-center gap-2"><i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-600"></i> max-w-6xl · body dentro del shell (1 recuadro)</div>
+      <div class="flex items-center gap-2"><i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-600"></i> tabular-nums en números · lucide icons · sin emojis chrome</div>
+    </div>
+    <div class="mt-4 bg-slate-900 text-white rounded-xl p-4 text-[12px] leading-relaxed">
+      <strong class="text-teal-300">Siguiente paso (tras validar):</strong> construir los 6 componentes en <code>src/design-system/components/hub/</code> consumiendo <code>tokens.ts</code> + <code>grupoColor.ts</code>, exponerlos en el barrel, y migrar un módulo PILOTO (ej. Stock) para validar el kit en uso real (canon F4).
+    </div>
+  </div>
+
+</div>
+
+<script>lucide.createIcons();</script>
+</body>
+</html>
