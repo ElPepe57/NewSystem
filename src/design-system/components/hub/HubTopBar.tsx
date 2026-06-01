@@ -27,6 +27,9 @@ interface HubTopBarProps {
   onModulo?: () => void;
   /** Si el usuario activo es admin → el chip dice "Vista ejecutiva · admin". */
   esAdmin?: boolean;
+  /** Texto del chip para NO-admin (canon "admin ve todo" · contextual al rol · ej.
+   *  módulo rol-gated → "Acceso restringido · solo socios"). Default "Vista ejecutiva". */
+  chipNoAdmin?: string;
   className?: string;
 }
 
@@ -37,6 +40,7 @@ export const HubTopBar: React.FC<HubTopBarProps> = ({
   onInicio,
   onModulo,
   esAdmin = false,
+  chipNoAdmin = 'Vista ejecutiva',
   className = '',
 }) => {
   const C = chromeDe(grupo);
@@ -68,7 +72,7 @@ export const HubTopBar: React.FC<HubTopBarProps> = ({
       {/* Chip de rol contextual · color heredado del grupo (chromeDe(grupo).chip) */}
       <span className={`text-[10px] ${C.chip} px-2 py-0.5 rounded font-bold inline-flex items-center gap-1 flex-shrink-0`}>
         <Shield className="w-3 h-3" />
-        {esAdmin ? 'Vista ejecutiva · admin' : 'Vista ejecutiva'}
+        {esAdmin ? 'Vista ejecutiva · admin' : chipNoAdmin}
       </span>
     </div>
   );

@@ -32,6 +32,8 @@ interface HubHeaderProps {
   titulo: string;
   subtitulo?: string;
   acciones?: HubHeaderAccion[];
+  /** Contenido custom al inicio del área de acciones (antes de los botones · ej. selector de período). */
+  extraActions?: React.ReactNode;
   className?: string;
 }
 
@@ -44,6 +46,7 @@ export const HubHeader: React.FC<HubHeaderProps> = ({
   titulo,
   subtitulo,
   acciones = [],
+  extraActions,
   className = '',
 }) => {
   const C = chromeDe(grupo);
@@ -60,8 +63,9 @@ export const HubHeader: React.FC<HubHeaderProps> = ({
         </div>
       </div>
 
-      {acciones.length > 0 && (
+      {(extraActions || acciones.length > 0) && (
         <div className="flex items-center gap-2 flex-wrap justify-end">
+          {extraActions}
           {acciones.map((a, i) => {
             const Ai = a.icon;
             const tier = a.tier ?? 'neutral';

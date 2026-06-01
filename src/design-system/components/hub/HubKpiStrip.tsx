@@ -11,7 +11,7 @@
  * Spec: docs/mockups/hub-kit-implementacion-v1.html (ACTO 1/4).
  */
 import React from 'react';
-import { type LucideIcon } from 'lucide-react';
+import { Info, type LucideIcon } from 'lucide-react';
 
 export type HubKpiTono = 'amber' | 'rose' | 'emerald' | 'indigo' | 'sky' | 'violet' | 'slate';
 
@@ -22,6 +22,8 @@ export interface HubKpi {
   sufijo?: string;
   tono: HubKpiTono;
   icon?: LucideIcon;
+  /** Tooltip explicativo de la métrica · renderiza un ícono Info junto al label. */
+  tooltip?: string;
   /** texto secundario bajo el valor (ej. "3 cuentas"). ReactNode → permite deltas
    *  semánticos (color condicional + ícono de tendencia · ej. Gastos). */
   delta?: React.ReactNode;
@@ -66,7 +68,10 @@ export const HubKpiStrip: React.FC<HubKpiStripProps> = ({ kpis, miniStats = [], 
         return (
           <div key={i} className={`bg-gradient-to-br ${t.card} ring-1 rounded-2xl p-4`}>
             <div className="flex items-center justify-between mb-2">
-              <span className={`text-[10px] uppercase tracking-wider font-bold ${t.label}`}>{k.label}</span>
+              <span className={`text-[10px] uppercase tracking-wider font-bold ${t.label} flex items-center gap-1`} title={k.tooltip}>
+                {k.label}
+                {k.tooltip && <Info className="w-3 h-3 text-slate-400 flex-shrink-0" aria-label={k.tooltip} />}
+              </span>
               {Ki && <Ki className={`w-3.5 h-3.5 ${t.icon}`} />}
             </div>
             <div className={`text-2xl font-bold tabular-nums ${t.valor}`}>
