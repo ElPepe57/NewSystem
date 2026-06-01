@@ -5,12 +5,16 @@
  * Un módulo nuevo se ENSAMBLA desde estos blocks (no re-implementa el shell).
  *
  * Estado de construcción (F3):
- *   ✅ HubShell   · card contenedor (1 recuadro continuo)
- *   ✅ HubTopBar  · breadcrumb S9.D1 + chip de rol (color heredado del grupo)
- *   ⬜ HubHeader  · icono tonal + h1 + subtítulo + acciones 3-tier
- *   ⬜ HubKpiStrip· KPIs semánticos + mini-stats footer
- *   ⬜ HubTabs    · tabs border-b-2 (color del grupo) + scroll-x mobile
- *   ⬜ HubBody    · cuerpo · aside opcional decide Layout A/B
+ *   ✅ HubShell    · card contenedor (1 recuadro continuo)
+ *   ✅ HubTopBar   · breadcrumb S9.D1 + chip de rol (color heredado del grupo)
+ *   ✅ HubHeader   · icono tonal + h1 + subtítulo + acciones 3-tier (N10)
+ *   ✅ HubKpiStrip · KPIs semánticos (N1+N2) + mini-stats footer (N3)
+ *   ⬜ HubTabs     · tabs border-b-2 (color del grupo) + scroll-x mobile
+ *   ⬜ HubBody     · cuerpo · aside opcional decide Layout A/B
  */
 export { HubShell } from './HubShell';
 export { HubTopBar } from './HubTopBar';
+export { HubHeader } from './HubHeader';
+export type { HubHeaderAccion } from './HubHeader';
+export { HubKpiStrip } from './HubKpiStrip';
+export type { HubKpi, HubKpiTono, HubMiniStat } from './HubKpiStrip';
