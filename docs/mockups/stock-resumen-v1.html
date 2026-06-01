@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mockup · Tab Resumen de Stock · dashboard ejecutivo</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  body { background:#eef2f6; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; }
+  .tabular { font-variant-numeric: tabular-nums; }
+  .acto { margin: 0 auto 2.5rem; }
+</style>
+</head>
+<body class="text-slate-800 py-8">
+
+<!-- ════════ HERO ════════ -->
+<div class="max-w-6xl mx-auto px-4 sm:px-6 mb-8">
+  <div class="text-[11px] uppercase tracking-wider font-bold text-orange-600 mb-1">Mockup de implementación · nace alineado al Design System</div>
+  <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight mb-2">Tab <span class="text-orange-700">Resumen</span> de Stock · dashboard ejecutivo</h1>
+  <p class="text-[13px] text-slate-500 leading-snug max-w-3xl">
+    Falta la primera tab <b>Resumen</b> que el canon hub exige ("primera tab siempre Resumen · dashboard ejecutivo").
+    Tabs resultantes: <b class="text-orange-700">Resumen</b> · Existencias · Mapa · Analytics · Atención.
+    Color del grupo <b>Inventario = orange</b> en el chrome · semántico fijo en los datos · orden canónico §A→§F · Layout A (main + aside) · cobertura desktop + mobile 375px.
+  </p>
+  <div class="mt-3 flex flex-wrap gap-2 text-[11px]">
+    <a href="#desktop" class="px-2.5 py-1 rounded-lg bg-white border border-slate-200 hover:border-orange-300 font-semibold">ACTO 1 · Desktop</a>
+    <a href="#mobile" class="px-2.5 py-1 rounded-lg bg-white border border-slate-200 hover:border-orange-300 font-semibold">ACTO 2 · Mobile 375px</a>
+  </div>
+</div>
+
+<!-- ════════ ACTO 1 · DESKTOP ════════ -->
+<div id="desktop" class="acto max-w-6xl px-4 sm:px-6">
+  <h2 class="text-xl font-bold text-slate-900 mb-3">ACTO 1 · Tab Resumen (desktop)</h2>
+
+  <!-- SHELL HUB -->
+  <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+
+    <!-- §TopBar · breadcrumb (Resumen = default → 2 niveles "Inicio › Stock") + chip rol -->
+    <div class="border-b border-slate-200 px-6 py-2.5 flex items-center justify-between gap-3 bg-slate-50">
+      <div class="flex items-center gap-1 text-[12px] text-slate-500">
+        <a class="hover:text-orange-700 cursor-pointer">Inicio</a>
+        <i data-lucide="chevron-right" class="w-3 h-3 text-slate-300 mx-0.5"></i>
+        <span class="text-slate-900 font-semibold">Stock</span>
+      </div>
+      <span class="text-[10px] bg-orange-50 text-orange-700 px-2 py-0.5 rounded font-bold inline-flex items-center gap-1">
+        <i data-lucide="shield" class="w-3 h-3"></i> Vista ejecutiva · admin
+      </span>
+    </div>
+
+    <!-- §Header banking-grade -->
+    <div class="px-6 py-4 border-b border-slate-100 flex items-start justify-between gap-4 flex-wrap">
+      <div class="flex items-start gap-3">
+        <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-orange-500 to-orange-700 flex items-center justify-center text-white flex-shrink-0">
+          <i data-lucide="warehouse" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <h1 class="text-2xl font-bold tracking-tight text-slate-900">Stock</h1>
+          <p class="text-[13px] text-slate-500 leading-snug max-w-xl">Qué tengo, dónde está, en qué estado · vista operativa de existencias en tiempo real (productos, lotes, vencimientos, reservas).</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <button class="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50"><i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Sincronizar</button>
+        <button class="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50"><i data-lucide="download" class="w-3.5 h-3.5"></i> Exportar</button>
+      </div>
+    </div>
+
+    <!-- §KPI strip · 5 mini-cards semánticos -->
+    <div class="px-6 py-4 border-b border-slate-100 grid grid-cols-2 md:grid-cols-5 gap-3">
+      <div class="bg-gradient-to-br from-slate-50 to-slate-100/60 ring-1 ring-slate-200/60 rounded-2xl p-3"><div class="flex items-center justify-between mb-1"><span class="text-[10px] uppercase tracking-wider text-slate-600 font-bold">Unidades</span><i data-lucide="boxes" class="w-3.5 h-3.5 text-slate-600"></i></div><div class="text-2xl font-bold tabular text-slate-900">1,240</div><div class="text-[10px] text-slate-600">84 productos</div></div>
+      <div class="bg-gradient-to-br from-emerald-50 to-emerald-100/40 ring-1 ring-emerald-200/50 rounded-2xl p-3"><div class="flex items-center justify-between mb-1"><span class="text-[10px] uppercase tracking-wider text-emerald-700 font-bold">Disponibles</span><i data-lucide="check-circle" class="w-3.5 h-3.5 text-emerald-700"></i></div><div class="text-2xl font-bold tabular text-emerald-900">980</div><div class="text-[10px] text-emerald-700">79% libres en PE</div></div>
+      <div class="bg-gradient-to-br from-sky-50 to-sky-100/40 ring-1 ring-sky-200/50 rounded-2xl p-3"><div class="flex items-center justify-between mb-1"><span class="text-[10px] uppercase tracking-wider text-sky-700 font-bold">Reservadas</span><i data-lucide="lock" class="w-3.5 h-3.5 text-sky-700"></i></div><div class="text-2xl font-bold tabular text-sky-900">120</div><div class="text-[10px] text-sky-700">Origen: 40 · PE: 80</div></div>
+      <div class="bg-gradient-to-br from-amber-50 to-amber-100/40 ring-1 ring-amber-200/50 rounded-2xl p-3"><div class="flex items-center justify-between mb-1"><span class="text-[10px] uppercase tracking-wider text-amber-700 font-bold">En tránsito</span><i data-lucide="truck" class="w-3.5 h-3.5 text-amber-700"></i></div><div class="text-2xl font-bold tabular text-amber-900">90</div><div class="text-[10px] text-amber-700">Origen + Perú</div></div>
+      <div class="bg-gradient-to-br from-rose-50 to-rose-100/40 ring-1 ring-rose-200/50 rounded-2xl p-3"><div class="flex items-center justify-between mb-1"><span class="text-[10px] uppercase tracking-wider text-rose-700 font-bold">Vencen &lt; 30d</span><i data-lucide="alert-triangle" class="w-3.5 h-3.5 text-rose-700"></i></div><div class="text-2xl font-bold tabular text-rose-900">12</div><div class="text-[10px] text-rose-700">revisar lotes</div></div>
+    </div>
+
+    <!-- §Tabs · Resumen ACTIVA -->
+    <div class="border-b border-slate-200 px-6 flex gap-1 overflow-x-auto">
+      <span class="px-4 py-3 text-[12px] border-b-2 border-orange-600 text-orange-700 font-semibold flex items-center gap-1.5 whitespace-nowrap"><i data-lucide="layout-dashboard" class="w-3.5 h-3.5"></i> Resumen</span>
+      <span class="px-4 py-3 text-[12px] border-b-2 border-transparent text-slate-600 font-medium flex items-center gap-1.5 whitespace-nowrap"><i data-lucide="package" class="w-3.5 h-3.5"></i> Existencias</span>
+      <span class="px-4 py-3 text-[12px] border-b-2 border-transparent text-slate-600 font-medium flex items-center gap-1.5 whitespace-nowrap"><i data-lucide="map-pin" class="w-3.5 h-3.5"></i> Mapa</span>
+      <span class="px-4 py-3 text-[12px] border-b-2 border-transparent text-slate-600 font-medium flex items-center gap-1.5 whitespace-nowrap"><i data-lucide="bar-chart-3" class="w-3.5 h-3.5"></i> Analytics</span>
+      <span class="px-4 py-3 text-[12px] border-b-2 border-transparent text-slate-600 font-medium flex items-center gap-1.5 whitespace-nowrap"><i data-lucide="bell" class="w-3.5 h-3.5"></i> Atención <span class="text-[9px] bg-rose-100 text-rose-700 px-1.5 rounded-full font-bold">3</span></span>
+    </div>
+
+    <!-- §BODY del Tab Resumen · bg-slate-50/30 -->
+    <div class="bg-slate-50/30 px-6 py-5 space-y-4">
+
+      <!-- §A · BANNER DE ESTADO -->
+      <div class="bg-gradient-to-r from-emerald-50 to-emerald-100/30 border border-emerald-200 rounded-2xl p-4 flex items-center justify-between gap-4 flex-wrap">
+        <div class="flex items-start gap-3">
+          <div class="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center flex-shrink-0"><i data-lucide="check-circle-2" class="w-5 h-5 text-emerald-700"></i></div>
+          <div>
+            <div class="text-[13px] font-bold text-slate-900">Inventario saludable · 79% disponible en Perú</div>
+            <div class="text-[11px] text-slate-500 max-w-xl">Valor inmovilizado <b class="text-slate-700 tabular">$19,800</b> en <b class="tabular">84</b> productos / <b class="tabular">1,240</b> unidades · <b class="text-rose-700">3 alertas</b> abiertas requieren atención.</div>
+          </div>
+        </div>
+        <div class="flex items-center gap-4 text-center">
+          <div><div class="text-2xl font-bold tabular text-emerald-700">$19.8k</div><div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Valor total</div></div>
+          <div class="w-px h-8 bg-slate-200"></div>
+          <div><div class="text-2xl font-bold tabular text-amber-700">$2.3k</div><div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Inmovilizado</div></div>
+        </div>
+      </div>
+
+      <!-- LAYOUT A · main(3) + aside(1) -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+        <!-- MAIN -->
+        <div class="md:col-span-2 space-y-4">
+
+          <!-- §B · VISUALIZACIÓN · distribución de existencias -->
+          <div class="bg-white border border-slate-200 rounded-xl p-4">
+            <div class="flex items-center justify-between mb-3">
+              <div><div class="text-sm font-semibold text-slate-900">Distribución de existencias</div><div class="text-[10px] text-slate-500">Snapshot actual · 1,240 unidades</div></div>
+              <i data-lucide="pie-chart" class="w-4 h-4 text-slate-400"></i>
+            </div>
+            <div class="flex items-center gap-5 flex-wrap">
+              <!-- donut SVG -->
+              <svg viewBox="0 0 36 36" class="w-32 h-32 -rotate-90 flex-shrink-0">
+                <circle cx="18" cy="18" r="14" fill="none" stroke="#f1f5f9" stroke-width="4"/>
+                <circle cx="18" cy="18" r="14" fill="none" stroke="#10b981" stroke-width="4" stroke-dasharray="79 100" stroke-dashoffset="0"/>
+                <circle cx="18" cy="18" r="14" fill="none" stroke="#0ea5e9" stroke-width="4" stroke-dasharray="10 100" stroke-dashoffset="-79"/>
+                <circle cx="18" cy="18" r="14" fill="none" stroke="#f59e0b" stroke-width="4" stroke-dasharray="7 100" stroke-dashoffset="-89"/>
+                <circle cx="18" cy="18" r="14" fill="none" stroke="#8b5cf6" stroke-width="4" stroke-dasharray="4 100" stroke-dashoffset="-96"/>
+              </svg>
+              <div class="flex-1 min-w-[180px] space-y-1.5 text-xs">
+                <div class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span><span class="text-slate-700">Disponible</span><span class="ml-auto font-bold text-slate-900 tabular">980</span><span class="text-slate-400 text-[10px] tabular w-8 text-right">79%</span></div>
+                <div class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full bg-sky-500"></span><span class="text-slate-700">Reservada</span><span class="ml-auto font-bold text-slate-900 tabular">120</span><span class="text-slate-400 text-[10px] tabular w-8 text-right">10%</span></div>
+                <div class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span><span class="text-slate-700">En tránsito</span><span class="ml-auto font-bold text-slate-900 tabular">90</span><span class="text-slate-400 text-[10px] tabular w-8 text-right">7%</span></div>
+                <div class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full bg-violet-500"></span><span class="text-slate-700">En origen</span><span class="ml-auto font-bold text-slate-900 tabular">50</span><span class="text-slate-400 text-[10px] tabular w-8 text-right">4%</span></div>
+                <div class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span><span class="text-slate-700">Problemas</span><span class="ml-auto font-bold text-slate-900 tabular">0</span><span class="text-slate-400 text-[10px] tabular w-8 text-right">0%</span></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- §B2 · por línea + por país -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="bg-white border border-slate-200 rounded-xl p-4">
+              <div class="text-[12px] font-bold text-slate-900 mb-2">Por línea de negocio</div>
+              <div class="space-y-1.5 text-[11px]">
+                <div class="flex items-center gap-2"><span class="w-20 text-slate-600 truncate">Skincare</span><div class="flex-1 bg-slate-100 rounded h-2"><div class="bg-orange-500 h-2 rounded" style="width:49%"></div></div><span class="tabular w-6 text-right">41</span></div>
+                <div class="flex items-center gap-2"><span class="w-20 text-slate-600 truncate">Suplementos</span><div class="flex-1 bg-slate-100 rounded h-2"><div class="bg-orange-400 h-2 rounded" style="width:26%"></div></div><span class="tabular w-6 text-right">22</span></div>
+                <div class="flex items-center gap-2"><span class="w-20 text-slate-600 truncate">Apparel</span><div class="flex-1 bg-slate-100 rounded h-2"><div class="bg-orange-300 h-2 rounded" style="width:17%"></div></div><span class="tabular w-6 text-right">14</span></div>
+                <div class="flex items-center gap-2"><span class="w-20 text-slate-600 truncate">Alimentos</span><div class="flex-1 bg-slate-100 rounded h-2"><div class="bg-orange-200 h-2 rounded" style="width:8%"></div></div><span class="tabular w-6 text-right">7</span></div>
+              </div>
+            </div>
+            <div class="bg-white border border-slate-200 rounded-xl p-4">
+              <div class="text-[12px] font-bold text-slate-900 mb-2">Por país</div>
+              <div class="space-y-1.5 text-[11px]">
+                <div class="flex items-center gap-2"><span class="w-20 text-slate-600 truncate">🇵🇪 Perú</span><div class="flex-1 bg-slate-100 rounded h-2"><div class="bg-emerald-500 h-2 rounded" style="width:70%"></div></div><span class="tabular w-9 text-right">868</span></div>
+                <div class="flex items-center gap-2"><span class="w-20 text-slate-600 truncate">🇺🇸 USA</span><div class="flex-1 bg-slate-100 rounded h-2"><div class="bg-sky-500 h-2 rounded" style="width:30%"></div></div><span class="tabular w-9 text-right">372</span></div>
+              </div>
+              <div class="mt-2 text-[10px] text-slate-400">372 unidades en USA · pendientes de despacho a Perú.</div>
+            </div>
+          </div>
+
+          <!-- §C · INSIGHTS -->
+          <div class="bg-white border border-slate-200 rounded-xl p-4">
+            <div class="text-[12px] font-bold text-slate-900 mb-2 flex items-center gap-1.5"><i data-lucide="lightbulb" class="w-4 h-4 text-amber-500"></i> Insights del inventario</div>
+            <div class="space-y-2 text-[11px]">
+              <div class="flex items-start gap-2"><i data-lucide="trending-up" class="w-3.5 h-3.5 text-emerald-600 mt-0.5"></i><span class="text-slate-600"><b class="text-slate-800">49%</b> del inventario concentrado en línea <b>Skincare</b> · diversificación moderada.</span></div>
+              <div class="flex items-start gap-2"><i data-lucide="alert-octagon" class="w-3.5 h-3.5 text-rose-600 mt-0.5"></i><span class="text-slate-600"><b class="text-slate-800">$2,340</b> de capital inmovilizado en <b>12 productos</b> sin movimiento &gt;90d · recuperable vía promoción.</span></div>
+              <div class="flex items-start gap-2"><i data-lucide="info" class="w-3.5 h-3.5 text-sky-600 mt-0.5"></i><span class="text-slate-600">Rotación promedio <b class="text-slate-800">5.2x</b>/año · días promedio en inventario <b>48d</b>.</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ASIDE (contexto persistente) -->
+        <aside class="md:col-span-1 space-y-4">
+
+          <!-- §D · ACCIONES RÁPIDAS -->
+          <div class="bg-white border border-slate-200 rounded-xl p-4">
+            <div class="text-[10px] uppercase tracking-wider font-bold text-slate-500 mb-2.5">Acciones rápidas</div>
+            <div class="space-y-2">
+              <button class="w-full flex items-center gap-2 px-3 py-2 text-[12px] font-semibold text-white bg-orange-600 hover:bg-orange-700 rounded-lg"><i data-lucide="refresh-cw" class="w-4 h-4"></i> Sincronizar inventario</button>
+              <button class="w-full flex items-center gap-2 px-3 py-2 text-[12px] font-medium text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 rounded-lg"><i data-lucide="calendar" class="w-4 h-4 text-slate-400"></i> Ver vencimientos</button>
+              <button class="w-full flex items-center gap-2 px-3 py-2 text-[12px] font-medium text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 rounded-lg"><i data-lucide="shopping-cart" class="w-4 h-4 text-slate-400"></i> Crear orden de compra</button>
+              <button class="w-full flex items-center gap-2 px-3 py-2 text-[12px] font-medium text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 rounded-lg"><i data-lucide="package" class="w-4 h-4 text-slate-400"></i> Ver existencias</button>
+            </div>
+          </div>
+
+          <!-- §F · ALERTAS TOP -->
+          <div class="bg-white border border-slate-200 rounded-xl overflow-hidden">
+            <div class="px-4 py-2.5 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+              <span class="text-[10px] uppercase tracking-wider font-bold text-slate-500">Alertas que requieren atención</span>
+              <span class="text-[9px] bg-rose-100 text-rose-700 px-1.5 rounded-full font-bold">3</span>
+            </div>
+            <div class="divide-y divide-slate-100">
+              <div class="px-4 py-2.5 flex items-start gap-2.5">
+                <div class="w-7 h-7 rounded-lg bg-rose-100 flex items-center justify-center flex-shrink-0"><i data-lucide="clock" class="w-3.5 h-3.5 text-rose-700"></i></div>
+                <div class="min-w-0"><div class="text-[11px] font-semibold text-slate-800 truncate">Crema Hidratante · vence en 18d</div><div class="text-[10px] text-slate-500">36 uds · $540 afectado</div></div>
+              </div>
+              <div class="px-4 py-2.5 flex items-start gap-2.5">
+                <div class="w-7 h-7 rounded-lg bg-rose-100 flex items-center justify-center flex-shrink-0"><i data-lucide="trending-down" class="w-3.5 h-3.5 text-rose-700"></i></div>
+                <div class="min-w-0"><div class="text-[11px] font-semibold text-slate-800 truncate">Colágeno · bajo mínimo</div><div class="text-[10px] text-slate-500">10 uds (mín 15)</div></div>
+              </div>
+              <div class="px-4 py-2.5 flex items-start gap-2.5">
+                <div class="w-7 h-7 rounded-lg bg-amber-100 flex items-center justify-center flex-shrink-0"><i data-lucide="search" class="w-3.5 h-3.5 text-amber-700"></i></div>
+                <div class="min-w-0"><div class="text-[11px] font-semibold text-slate-800 truncate">Barra proteica · sin mov &gt;90d</div><div class="text-[10px] text-slate-500">85 uds · $178 inmovilizado</div></div>
+              </div>
+            </div>
+            <button class="w-full px-4 py-2 text-[11px] font-semibold text-orange-700 hover:bg-orange-50 flex items-center justify-center gap-1 border-t border-slate-100">Ver todas en Atención <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i></button>
+          </div>
+
+          <!-- §E · CROSS-LINKS 360 -->
+          <div class="bg-white border border-slate-200 rounded-xl p-4">
+            <div class="text-[10px] uppercase tracking-wider font-bold text-slate-500 mb-2.5">Conecta con</div>
+            <div class="grid grid-cols-2 gap-2">
+              <a class="flex flex-col gap-1 p-2.5 rounded-lg border border-slate-200 hover:border-orange-300 hover:bg-orange-50/30 cursor-pointer"><i data-lucide="tag" class="w-4 h-4 text-orange-600"></i><span class="text-[11px] font-bold text-slate-800">Productos</span><span class="text-[9px] text-slate-500">catálogo</span></a>
+              <a class="flex flex-col gap-1 p-2.5 rounded-lg border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50/30 cursor-pointer"><i data-lucide="calculator" class="w-4 h-4 text-indigo-600"></i><span class="text-[11px] font-bold text-slate-800">CTRU</span><span class="text-[9px] text-slate-500">rentabilidad</span></a>
+              <a class="flex flex-col gap-1 p-2.5 rounded-lg border border-slate-200 hover:border-blue-300 hover:bg-blue-50/30 cursor-pointer"><i data-lucide="shopping-cart" class="w-4 h-4 text-blue-600"></i><span class="text-[11px] font-bold text-slate-800">Compras</span><span class="text-[9px] text-slate-500">reabastecer</span></a>
+              <a class="flex flex-col gap-1 p-2.5 rounded-lg border border-slate-200 hover:border-purple-300 hover:bg-purple-50/30 cursor-pointer"><i data-lucide="truck" class="w-4 h-4 text-purple-600"></i><span class="text-[11px] font-bold text-slate-800">Envíos</span><span class="text-[9px] text-slate-500">en tránsito</span></a>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════ ACTO 2 · MOBILE 375px ════════ -->
+<div id="mobile" class="acto max-w-6xl px-4 sm:px-6">
+  <h2 class="text-xl font-bold text-slate-900 mb-3">ACTO 2 · Tab Resumen (mobile · 375px)</h2>
+  <p class="text-[12px] text-slate-500 mb-3">El aside se apila DEBAJO del main (decisión DS) · KPIs 2-col · tabs scroll-x · touch targets ≥44px.</p>
+
+  <div class="mx-auto bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden" style="width:375px;">
+    <!-- top-bar -->
+    <div class="border-b border-slate-200 px-3 py-2 flex items-center justify-between bg-slate-50">
+      <div class="flex items-center gap-1 text-[11px] text-slate-500"><a>Inicio</a><i data-lucide="chevron-right" class="w-3 h-3 text-slate-300"></i><span class="text-slate-900 font-semibold">Stock</span></div>
+      <span class="text-[9px] bg-orange-50 text-orange-700 px-1.5 py-0.5 rounded font-bold">admin</span>
+    </div>
+    <!-- header -->
+    <div class="px-3 py-3 border-b border-slate-100 flex items-center gap-2">
+      <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-orange-500 to-orange-700 flex items-center justify-center text-white"><i data-lucide="warehouse" class="w-4 h-4"></i></div>
+      <h1 class="text-[15px] font-bold text-slate-900">Stock</h1>
+    </div>
+    <!-- KPIs 2-col -->
+    <div class="px-3 py-3 border-b border-slate-100 grid grid-cols-2 gap-2">
+      <div class="bg-gradient-to-br from-slate-50 to-slate-100/60 ring-1 ring-slate-200/60 rounded-xl p-2.5"><div class="text-[9px] uppercase font-bold text-slate-600">Unidades</div><div class="text-lg font-bold tabular text-slate-900">1,240</div></div>
+      <div class="bg-gradient-to-br from-rose-50 to-rose-100/40 ring-1 ring-rose-200/50 rounded-xl p-2.5"><div class="text-[9px] uppercase font-bold text-rose-700">Vencen</div><div class="text-lg font-bold tabular text-rose-900">12</div></div>
+    </div>
+    <!-- tabs scroll-x -->
+    <div class="border-b border-slate-200 px-3 flex gap-3 overflow-x-auto text-[11px]">
+      <span class="py-2.5 border-b-2 border-orange-600 text-orange-700 font-semibold whitespace-nowrap">Resumen</span>
+      <span class="py-2.5 border-b-2 border-transparent text-slate-500 whitespace-nowrap">Existencias</span>
+      <span class="py-2.5 border-b-2 border-transparent text-slate-500 whitespace-nowrap">Mapa</span>
+      <span class="py-2.5 border-b-2 border-transparent text-slate-500 whitespace-nowrap">Analytics</span>
+      <span class="py-2.5 border-b-2 border-transparent text-slate-500 whitespace-nowrap">Atención</span>
+    </div>
+    <!-- body apilado -->
+    <div class="bg-slate-50/30 px-3 py-3 space-y-3">
+      <!-- §A banner -->
+      <div class="bg-gradient-to-r from-emerald-50 to-emerald-100/30 border border-emerald-200 rounded-2xl p-3">
+        <div class="flex items-center gap-2 mb-1"><i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-700"></i><span class="text-[12px] font-bold text-slate-900">Inventario saludable</span></div>
+        <div class="text-[10px] text-slate-500">$19,800 en 84 prod · <b class="text-rose-700">3 alertas</b></div>
+        <div class="flex gap-3 mt-2"><div><div class="text-base font-bold tabular text-emerald-700">$19.8k</div><div class="text-[9px] uppercase text-slate-500 font-bold">Valor</div></div><div><div class="text-base font-bold tabular text-amber-700">$2.3k</div><div class="text-[9px] uppercase text-slate-500 font-bold">Inmovil.</div></div></div>
+      </div>
+      <!-- §B donut -->
+      <div class="bg-white border border-slate-200 rounded-xl p-3">
+        <div class="text-[11px] font-bold text-slate-900 mb-2">Distribución de existencias</div>
+        <div class="flex items-center gap-3">
+          <svg viewBox="0 0 36 36" class="w-20 h-20 -rotate-90 flex-shrink-0"><circle cx="18" cy="18" r="14" fill="none" stroke="#f1f5f9" stroke-width="4"/><circle cx="18" cy="18" r="14" fill="none" stroke="#10b981" stroke-width="4" stroke-dasharray="79 100"/><circle cx="18" cy="18" r="14" fill="none" stroke="#0ea5e9" stroke-width="4" stroke-dasharray="10 100" stroke-dashoffset="-79"/><circle cx="18" cy="18" r="14" fill="none" stroke="#f59e0b" stroke-width="4" stroke-dasharray="7 100" stroke-dashoffset="-89"/></svg>
+          <div class="flex-1 space-y-1 text-[10px]">
+            <div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-emerald-500"></span>Disponible<span class="ml-auto font-bold tabular">980</span></div>
+            <div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-sky-500"></span>Reservada<span class="ml-auto font-bold tabular">120</span></div>
+            <div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-amber-500"></span>Tránsito<span class="ml-auto font-bold tabular">90</span></div>
+          </div>
+        </div>
+      </div>
+      <!-- §D acciones (touch ≥44px) -->
+      <div class="bg-white border border-slate-200 rounded-xl p-3 space-y-2">
+        <div class="text-[10px] uppercase tracking-wider font-bold text-slate-500">Acciones rápidas</div>
+        <button class="w-full flex items-center gap-2 px-3 py-3 text-[12px] font-semibold text-white bg-orange-600 rounded-lg"><i data-lucide="refresh-cw" class="w-4 h-4"></i> Sincronizar</button>
+        <button class="w-full flex items-center gap-2 px-3 py-3 text-[12px] font-medium text-slate-700 bg-white border border-slate-200 rounded-lg"><i data-lucide="calendar" class="w-4 h-4 text-slate-400"></i> Ver vencimientos</button>
+      </div>
+      <!-- §F alertas -->
+      <div class="bg-white border border-slate-200 rounded-xl overflow-hidden">
+        <div class="px-3 py-2 bg-slate-50 border-b border-slate-200 flex items-center justify-between"><span class="text-[10px] uppercase font-bold text-slate-500">Alertas</span><span class="text-[9px] bg-rose-100 text-rose-700 px-1.5 rounded-full font-bold">3</span></div>
+        <div class="divide-y divide-slate-100">
+          <div class="px-3 py-2.5 flex items-center gap-2"><div class="w-7 h-7 rounded-lg bg-rose-100 flex items-center justify-center"><i data-lucide="clock" class="w-3.5 h-3.5 text-rose-700"></i></div><div class="min-w-0"><div class="text-[11px] font-semibold text-slate-800 truncate">Crema · vence 18d</div><div class="text-[10px] text-slate-500">36 uds · $540</div></div></div>
+          <div class="px-3 py-2.5 flex items-center gap-2"><div class="w-7 h-7 rounded-lg bg-rose-100 flex items-center justify-center"><i data-lucide="trending-down" class="w-3.5 h-3.5 text-rose-700"></i></div><div class="min-w-0"><div class="text-[11px] font-semibold text-slate-800 truncate">Colágeno · bajo mínimo</div><div class="text-[10px] text-slate-500">10/15 uds</div></div></div>
+        </div>
+        <button class="w-full px-3 py-2.5 text-[11px] font-semibold text-orange-700 flex items-center justify-center gap-1 border-t border-slate-100">Ver todas <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i></button>
+      </div>
+      <!-- §E cross-links -->
+      <div class="bg-white border border-slate-200 rounded-xl p-3">
+        <div class="text-[10px] uppercase tracking-wider font-bold text-slate-500 mb-2">Conecta con</div>
+        <div class="grid grid-cols-2 gap-2">
+          <a class="flex items-center gap-2 p-2.5 rounded-lg border border-slate-200"><i data-lucide="tag" class="w-4 h-4 text-orange-600"></i><span class="text-[11px] font-bold text-slate-800">Productos</span></a>
+          <a class="flex items-center gap-2 p-2.5 rounded-lg border border-slate-200"><i data-lucide="calculator" class="w-4 h-4 text-indigo-600"></i><span class="text-[11px] font-bold text-slate-800">CTRU</span></a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════ FOOTER · CHECKLIST CANON ════════ -->
+<div class="max-w-6xl mx-auto px-4 sm:px-6">
+  <div class="bg-white border border-slate-200 rounded-xl p-5">
+    <h3 class="text-sm font-bold text-slate-900 mb-3">Checklist canon (cobertura del mockup)</h3>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-1.5 text-[12px] text-slate-600">
+      <div>✓ Nace alineado al DS · color grupo Inventario = <b>orange</b> en chrome</div>
+      <div>✓ Semántico fijo en datos (emerald/sky/amber/rose/violet/indigo)</div>
+      <div>✓ Orden canónico Tab Resumen §A→§F (banner→visualización→insights→acciones→alertas→cross-links)</div>
+      <div>✓ Layout A · main(2/3) + aside(1/3) · max-w-6xl</div>
+      <div>✓ Shell hub: top-bar breadcrumb "Inicio › Stock" + chip rol + header + KPI strip + 5 tabs</div>
+      <div>✓ Resumen = primera tab (default · 2 niveles breadcrumb) · canon hub</div>
+      <div>✓ Mobile 375px: aside apilado · KPIs 2-col · tabs scroll-x · touch ≥44px</div>
+      <div>✓ Cross-links 360: Productos · CTRU · Compras · Envíos</div>
+      <div>✓ Alertas top con CTA → tab Atención (no duplica · resume)</div>
+      <div>✓ lucide icons · tabular-nums · sin emojis en chrome (sí banderas en datos)</div>
+    </div>
+    <div class="mt-4 pt-3 border-t border-slate-100 text-[11px] text-slate-500">
+      <b>Datos disponibles para alimentarlo (ya existen):</b> inventarioStats (KPIs), productosConUnidades (distribución/líneas/país), alertasPrioritarias (§F), ctruData (rotación/insights). No requiere backend nuevo.
+    </div>
+  </div>
+</div>
+
+<script>lucide.createIcons();</script>
+</body>
+</html>
