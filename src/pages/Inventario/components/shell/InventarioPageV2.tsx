@@ -83,8 +83,8 @@ type TabInventarioV2 = 'resumen' | 'inventario' | 'mapa' | 'analytics' | 'atenci
 export const InventarioPageV2: React.FC = () => {
   const toast = useToastStore();
   // chk5.DS-F3 · chip de rol en top-bar del shell hub (canon "admin ve todo")
-  const currentUser = useAuthStore(state => state.user);
-  const esAdmin = hasRole(currentUser, 'admin');
+  const currentUserProfile = useAuthStore(state => state.userProfile);
+  const esAdmin = hasRole(currentUserProfile, 'admin');
 
   // Stores
   const unidades = useUnidadStore(state => state.unidades);
