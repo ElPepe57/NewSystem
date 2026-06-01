@@ -3,14 +3,11 @@ import { formatCurrency } from '../../../../utils/format';
 import {
   Megaphone,
   Percent,
-  Calendar,
-  DollarSign,
-  TrendingUp,
   AlertTriangle,
   Clock,
-  CheckCircle
 } from 'lucide-react';
-import { Modal, Button, Badge, Input, Select } from '../../../../components/common';
+import { Badge } from '../../../../components/common';
+import { FormModalV2 } from '../../../../design-system';
 import type { Producto } from '../../../../types/producto.types';
 import type { Unidad } from '../../../../types/unidad.types';
 
@@ -115,11 +112,18 @@ export const PromocionModal: React.FC<PromocionModalProps> = ({
   if (!producto) return null;
 
   return (
-    <Modal
+    <FormModalV2
       isOpen={isOpen}
       onClose={onClose}
-      title="Crear Promoción"
+      onSubmit={handleGuardar}
+      title="Crear promoción"
+      subtitle={`${producto.marca} · ${producto.nombreComercial}`}
+      icon={Megaphone}
+      iconTone="amber"
       size="lg"
+      submitLabel="Crear promoción"
+      submitVariant="primary-soft"
+      loading={guardando}
     >
       <div className="space-y-6">
         {/* Info del Producto */}
@@ -286,32 +290,8 @@ export const PromocionModal: React.FC<PromocionModalProps> = ({
             </div>
           </div>
         )}
-
-        {/* Acciones */}
-        <div className="flex items-center justify-end gap-3 pt-4 border-t">
-          <Button variant="secondary" onClick={onClose}>
-            Cancelar
-          </Button>
-          <Button
-            variant="primary"
-            onClick={handleGuardar}
-            disabled={guardando}
-          >
-            {guardando ? (
-              <>
-                <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2" />
-                Guardando...
-              </>
-            ) : (
-              <>
-                <CheckCircle className="h-4 w-4 mr-2" />
-                Crear Promoción
-              </>
-            )}
-          </Button>
-        </div>
       </div>
-    </Modal>
+    </FormModalV2>
   );
 };
 

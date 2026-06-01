@@ -7,7 +7,8 @@ import {
   Package,
   Clock,
 } from 'lucide-react';
-import { Modal, Button, Badge } from '../../../../components/common';
+import { Badge } from '../../../../components/common';
+import { FormModalV2 } from '../../../../design-system';
 import { bajaInventarioService } from '../../../../services/bajaInventario.service';
 import { useToastStore } from '../../../../store/toastStore';
 import { useAuthStore } from '../../../../store/authStore';
@@ -126,30 +127,67 @@ export const GestionVencidasModal: React.FC<GestionVencidasModalProps> = ({
     }
   };
 
-  if (loading) {
-    return (
-      <Modal isOpen onClose={onClose} title="Unidades Vencidas" size="lg">
+  // ─── Submit derivado · 2 fases (revisar → confirmar) sobre el único botón de FormModalV2 ───
+  const sinUnidades = !loading && unidadesVencidas.length === 0;
+  const handleSubmit = () => {
+    if (loading || sinUnidades) return;
+    if (!showConfirmacion) {
+      setShowConfirmacion(true);
+    } else {
+      handleConfirmar();
+    }
+  };
+  const submitLabel = !showConfirmacion
+    ? `Revisar y confirmar (${resueltas}/${unidadesVencidas.length})`
+    : 'Confirmar';
+  // Disabled: sin data, o cargando, o (fase 1) hasta que todas estén resueltas.
+  const submitDisabled =
+    loading || sinUnidades || (!showConfirmacion && !todasResueltas);
+
+  return (
+    <FormModalV2
+      isOpen
+      onClose={onClose}
+      onSubmit={handleSubmit}
+      title="Unidades vencidas"
+      subtitle={
+        loading
+          ? 'Cargando…'
+          : sinUnidades
+            ? 'Sin pendientes'
+            : 'Pendientes de gestión'
+      }
+      icon={Trash2}
+      iconTone="red"
+      size="lg"
+      submitLabel={submitLabel}
+      submitVariant="danger-soft"
+      loading={submitting}
+      disabled={submitDisabled}
+      footerExtras={
+        showConfirmacion && !loading && !sinUnidades ? (
+          <button
+            type="button"
+            onClick={() => setShowConfirmacion(false)}
+            disabled={submitting}
+            className="text-[11px] font-medium text-slate-600 hover:text-slate-900 disabled:opacity-50"
+          >
+            ← Atrás
+          </button>
+        ) : undefined
+      }
+    >
+      {loading ? (
         <div className="flex items-center justify-center py-12">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-500" />
         </div>
-      </Modal>
-    );
-  }
-
-  if (unidadesVencidas.length === 0) {
-    return (
-      <Modal isOpen onClose={onClose} title="Unidades Vencidas" size="md">
+      ) : sinUnidades ? (
         <div className="text-center py-8 text-slate-500">
           <CheckCircle className="h-12 w-12 mx-auto text-emerald-400 mb-3" />
           <p className="font-medium">Sin unidades vencidas</p>
           <p className="text-sm mt-1">No hay productos pendientes de gestión.</p>
         </div>
-      </Modal>
-    );
-  }
-
-  return (
-    <Modal isOpen onClose={onClose} title="Unidades Vencidas — Pendientes de Gestión" size="lg">
+      ) : (
       <div className="space-y-4">
         {/* Progress */}
         <div className="bg-red-50 border border-red-200 rounded-lg p-3">
@@ -314,44 +352,8 @@ export const GestionVencidasModal: React.FC<GestionVencidasModalProps> = ({
             </ul>
           </div>
         )}
-
-        {/* Actions */}
-        <div className="flex justify-between pt-4 border-t sticky bottom-0 bg-white">
-          <Button variant="secondary" onClick={onClose} disabled={submitting}>
-            Cancelar
-          </Button>
-          <div className="flex gap-2">
-            {!showConfirmacion ? (
-              <Button
-                variant="primary"
-                onClick={() => setShowConfirmacion(true)}
-                disabled={!todasResueltas || submitting}
-              >
-                Revisar y confirmar ({resueltas}/{unidadesVencidas.length})
-              </Button>
-            ) : (
-              <>
-                <Button variant="secondary" onClick={() => setShowConfirmacion(false)} disabled={submitting}>
-                  Atrás
-                </Button>
-                <Button variant="primary" onClick={handleConfirmar} disabled={submitting}>
-                  {submitting ? (
-                    <span className="flex items-center">
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
-                      Procesando...
-                    </span>
-                  ) : (
-                    <span className="flex items-center">
-                      <CheckCircle className="h-4 w-4 mr-2" />
-                      Confirmar todo
-                    </span>
-                  )}
-                </Button>
-              </>
-            )}
-          </div>
-        </div>
       </div>
-    </Modal>
+      )}
+    </FormModalV2>
   );
 };

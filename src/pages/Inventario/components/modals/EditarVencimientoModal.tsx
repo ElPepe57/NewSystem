@@ -7,7 +7,8 @@ import {
   ChevronRight,
   Check
 } from 'lucide-react';
-import { Modal, Button, Badge } from '../../../../components/common';
+import { Badge } from '../../../../components/common';
+import { FormModalV2 } from '../../../../design-system';
 import type { Unidad } from '../../../../types/unidad.types';
 import { unidadService } from '../../../../services/unidad.service';
 import { useAuthStore } from '../../../../store/authStore';
@@ -291,11 +292,28 @@ export const EditarVencimientoModal: React.FC<EditarVencimientoModalProps> = ({
   };
 
   return (
-    <Modal
+    <FormModalV2
       isOpen={isOpen}
       onClose={handleClose}
-      title="Editar Vencimientos"
+      onSubmit={handleGuardar}
+      title="Editar vencimientos"
+      subtitle={loteSeleccionado ? `Lote ${loteSeleccionado}` : 'Selecciona un lote'}
+      icon={Calendar}
+      iconTone="orange"
       size="lg"
+      submitLabel="Guardar"
+      submitVariant="primary-soft"
+      loading={guardando}
+      disabled={!puedeGuardar}
+      footerExtras={
+        loteSeleccionado ? (
+          <span className="text-[11px] text-slate-500">
+            {unidadesConFecha.length > 0
+              ? `${unidadesConFecha.length} de ${totalUnidades} unidades listas`
+              : 'Selecciona, pon fecha y aplica'}
+          </span>
+        ) : undefined
+      }
     >
       <div className="space-y-4">
         {!loteSeleccionado ? (
@@ -520,36 +538,9 @@ export const EditarVencimientoModal: React.FC<EditarVencimientoModalProps> = ({
                 );
               })}
             </div>
-
-            {/* Footer */}
-            <div className="flex items-center justify-between pt-3 border-t border-slate-200">
-              <div className="text-sm text-slate-500">
-                {unidadesConFecha.length > 0
-                  ? `${unidadesConFecha.length} de ${totalUnidades} unidades listas`
-                  : 'Selecciona, pon fecha y aplica'
-                }
-              </div>
-              <Button
-                variant="primary"
-                onClick={handleGuardar}
-                disabled={!puedeGuardar}
-              >
-                {guardando ? (
-                  <span className="flex items-center gap-2">
-                    <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                    Guardando...
-                  </span>
-                ) : (
-                  <span className="flex items-center gap-1.5">
-                    <Calendar className="h-4 w-4" />
-                    Guardar
-                  </span>
-                )}
-              </Button>
-            </div>
           </>
         )}
       </div>
-    </Modal>
+    </FormModalV2>
   );
 };

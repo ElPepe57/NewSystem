@@ -50,7 +50,7 @@ export interface FormModalV2Props {
   /** Icono lucide. Default: Coins (teal). */
   icon?: LucideIcon;
   /** Color del fondo del icono. Default: 'teal'. */
-  iconTone?: 'teal' | 'amber' | 'sky' | 'emerald' | 'red' | 'purple' | 'slate';
+  iconTone?: 'teal' | 'amber' | 'sky' | 'emerald' | 'red' | 'purple' | 'slate' | 'orange' | 'violet';
 
   // ── Auto-save banner (opcional) ──
   autoSaveStatus?: FormModalV2AutoSaveStatus;
@@ -92,6 +92,8 @@ const ICON_TONE_CLASSES: Record<NonNullable<FormModalV2Props['iconTone']>, strin
   red: 'bg-red-50 border-red-200 text-red-700',
   purple: 'bg-purple-50 border-purple-200 text-purple-700',
   slate: 'bg-slate-100 border-slate-200 text-slate-700',
+  orange: 'bg-orange-50 border-orange-200 text-orange-700',
+  violet: 'bg-violet-50 border-violet-200 text-violet-700',
 };
 
 // ─── Helper: kbd ───────────────────────────────────────────────────────
