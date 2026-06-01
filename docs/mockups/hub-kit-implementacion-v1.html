@@ -6,8 +6,12 @@
 <title>Hub Kit · Mockup de implementación · Vita Skin ERP</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://unpkg.com/lucide@latest"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
 <style>
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+  /* DS · tipografía canónica = Inter (igual que la app · tailwind.config.fontFamily.sans) */
+  body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
   .tabular { font-variant-numeric: tabular-nums; }
   code, pre { font-family: 'SF Mono', ui-monospace, Menlo, Consolas, monospace; }
   .acto-label { letter-spacing: 0.08em; }
@@ -44,12 +48,83 @@
   <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-5">
     <div class="acto-label text-[11px] font-bold uppercase text-slate-500 mb-3">Índice</div>
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 text-[12px]">
+      <a href="#pautas" class="flex items-center gap-2 sm:col-span-2 lg:col-span-3 bg-teal-50 border border-teal-200 rounded-lg px-2 py-1.5"><span class="w-5 h-5 rounded bg-teal-600 text-white text-[11px] font-bold flex items-center justify-center">★</span> <strong class="text-teal-800">Pautas canónicas de implementación · LEER PRIMERO</strong></a>
       <div class="flex items-center gap-2"><span class="w-5 h-5 rounded bg-teal-100 text-teal-700 text-[10px] font-bold flex items-center justify-center">1</span> Kit ensamblado · Layout A (main + aside)</div>
       <div class="flex items-center gap-2"><span class="w-5 h-5 rounded bg-teal-100 text-teal-700 text-[10px] font-bold flex items-center justify-center">2</span> Kit ensamblado · Layout B (full-width)</div>
       <div class="flex items-center gap-2"><span class="w-5 h-5 rounded bg-teal-100 text-teal-700 text-[10px] font-bold flex items-center justify-center">3</span> Herencia de color · los 6 grupos</div>
       <div class="flex items-center gap-2"><span class="w-5 h-5 rounded bg-teal-100 text-teal-700 text-[10px] font-bold flex items-center justify-center">4</span> Anatomía + API + tokens por block</div>
       <div class="flex items-center gap-2"><span class="w-5 h-5 rounded bg-teal-100 text-teal-700 text-[10px] font-bold flex items-center justify-center">5</span> Estados del HubBody (empty/loading/error)</div>
       <div class="flex items-center gap-2"><span class="w-5 h-5 rounded bg-teal-100 text-teal-700 text-[10px] font-bold flex items-center justify-center">6</span> Mobile 375px (shell completo)</div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════════ -->
+  <!-- PAUTAS CANÓNICAS DE IMPLEMENTACIÓN · LEER ANTES DE IMPLEMENTAR -->
+  <!-- ════════════════════════════════════════════════════════════════ -->
+  <div id="pautas" class="bg-white border-2 border-teal-300 rounded-2xl shadow-sm p-6 sm:p-8 scroll-mt-4">
+    <div class="flex items-center gap-2 mb-2 flex-wrap">
+      <span class="text-[11px] font-bold uppercase tracking-wider text-teal-700 bg-teal-50 px-2 py-1 rounded">Pautas canónicas</span>
+      <span class="text-[11px] font-bold uppercase tracking-wider text-rose-700 bg-rose-50 px-2 py-1 rounded">Leer ANTES de implementar</span>
+      <span class="text-[11px] font-bold uppercase tracking-wider text-slate-600 bg-slate-100 px-2 py-1 rounded">Prevalece para TODA implementación</span>
+    </div>
+    <h2 class="text-xl font-bold tracking-tight text-slate-900 mb-1">Reglas de implementación del Hub Kit (en orden)</h2>
+    <p class="text-[13px] text-slate-500 mb-5 max-w-3xl leading-snug">El orden §0→§7 es el orden de implementar/revisar un módulo. Cada regla está canonizada en <code class="text-[11px] bg-slate-100 px-1 rounded">CLAUDE.md</code> (§A-§G). Si el módulo no cumple una de estas reglas, NO está terminado. Cambiar una regla requiere aprobación del usuario.</p>
+
+    <div class="space-y-3">
+
+      <div class="border border-slate-200 rounded-xl p-4">
+        <div class="flex items-center gap-2 mb-2"><span class="w-6 h-6 rounded-lg bg-slate-900 text-white text-[11px] font-bold flex items-center justify-center">0</span><span class="text-[13px] font-bold text-slate-900">Ubicación → color (no se elige)</span></div>
+        <p class="text-[12px] text-slate-600 leading-relaxed">El módulo se ubica en un grupo del sidebar y <strong>HEREDA su color</strong> de <code class="text-[11px] bg-slate-100 px-1 rounded">grupoColor.ts</code>: F&amp;C=<span class="text-teal-700 font-semibold">teal</span> · Equipo=<span class="text-violet-700 font-semibold">violet</span> · Comercial=<span class="text-blue-700 font-semibold">blue</span> · Inventario=<span class="text-orange-700 font-semibold">orange</span> · Análisis=<span class="text-indigo-700 font-semibold">indigo</span> · Administración=<span class="text-slate-700 font-semibold">slate</span>. <strong>Prohibido inventar color.</strong></p>
+      </div>
+
+      <div class="border border-slate-200 rounded-xl p-4">
+        <div class="flex items-center gap-2 mb-2"><span class="w-6 h-6 rounded-lg bg-slate-900 text-white text-[11px] font-bold flex items-center justify-center">1</span><span class="text-[13px] font-bold text-slate-900">Anatomía (orden fijo · 1 recuadro)</span></div>
+        <p class="text-[12px] text-slate-600 leading-relaxed"><code class="text-[11px] bg-slate-100 px-1 rounded">&lt;HubShell&gt;</code> → <code class="text-[11px] bg-slate-100 px-1 rounded">HubTopBar</code> → <code class="text-[11px] bg-slate-100 px-1 rounded">HubHeader</code> → <code class="text-[11px] bg-slate-100 px-1 rounded">HubKpiStrip</code> → <code class="text-[11px] bg-slate-100 px-1 rounded">HubTabs</code> → <code class="text-[11px] bg-slate-100 px-1 rounded">HubBody</code>. El body va DENTRO del shell (UN recuadro continuo · nunca cards sueltas afuera). 1ª tab SIEMPRE <strong>Resumen</strong> (dashboard ejecutivo).</p>
+      </div>
+
+      <div class="border border-slate-200 rounded-xl p-4">
+        <div class="flex items-center gap-2 mb-2"><span class="w-6 h-6 rounded-lg bg-slate-900 text-white text-[11px] font-bold flex items-center justify-center">2</span><span class="text-[13px] font-bold text-slate-900">Layout + contenedor</span></div>
+        <p class="text-[12px] text-slate-600 leading-relaxed"><strong>Layout A</strong> (con <code class="text-[11px] bg-slate-100 px-1 rounded">aside</code> · contexto persistente) = <code class="text-[11px] bg-slate-100 px-1 rounded">md:grid-cols-3</code> · main <code class="text-[11px] bg-slate-100 px-1 rounded">col-span-2</code> + aside <code class="text-[11px] bg-slate-100 px-1 rounded">col-span-1</code> → <strong>ratio 2:1</strong> (aside apila en mobile). <strong>Layout B</strong> (sin aside) = full-width. SIEMPRE <code class="text-[11px] bg-slate-100 px-1 rounded">max-w-6xl mx-auto</code> · body <code class="text-[11px] bg-slate-100 px-1 rounded">bg-slate-50/30 p-3 sm:p-4 md:p-6</code>.</p>
+      </div>
+
+      <div class="border border-slate-200 rounded-xl p-4">
+        <div class="flex items-center gap-2 mb-2"><span class="w-6 h-6 rounded-lg bg-slate-900 text-white text-[11px] font-bold flex items-center justify-center">3</span><span class="text-[13px] font-bold text-slate-900">Color por FUNCIÓN (2 sistemas · NUNCA se mezclan)</span></div>
+        <ul class="text-[12px] text-slate-600 leading-relaxed space-y-1 list-disc pl-4">
+          <li><strong>Chrome</strong> (¿dónde estoy?) → color del GRUPO: tab activa · chip rol · primary CTA · ícono header · focus rings.</li>
+          <li><strong>Dato</strong> (¿qué significa?) → paleta SEMÁNTICA fija: amber=dinero · rose=urgencia · emerald=positivo · indigo=fijo · sky=parcial · violet=capital · slate=neutral.</li>
+          <li>El color del grupo NUNCA pinta datos · el semántico NUNCA pinta chrome.</li>
+        </ul>
+      </div>
+
+      <div class="border border-slate-200 rounded-xl p-4">
+        <div class="flex items-center gap-2 mb-2"><span class="w-6 h-6 rounded-lg bg-slate-900 text-white text-[11px] font-bold flex items-center justify-center">4</span><span class="text-[13px] font-bold text-slate-900">Tipografía</span></div>
+        <ul class="text-[12px] text-slate-600 leading-relaxed space-y-1 list-disc pl-4">
+          <li><strong>Familia = Inter</strong> · única para toda la app (heredada · <code class="text-[11px] bg-slate-100 px-1 rounded">tailwind.config.fontFamily.sans</code>).</li>
+          <li><strong>Escala por rol:</strong> h1 <code class="text-[11px] bg-slate-100 px-1 rounded">text-2xl bold</code> · métrica KPI <code class="text-[11px] bg-slate-100 px-1 rounded">text-2xl bold tabular-nums</code> · título <code class="text-[11px] bg-slate-100 px-1 rounded">text-base/lg semibold</code> · subtítulo/tab <code class="text-[11px] bg-slate-100 px-1 rounded">text-[13px]</code> · cuerpo <code class="text-[11px] bg-slate-100 px-1 rounded">text-[12px]</code> · meta/breadcrumb/delta <code class="text-[11px] bg-slate-100 px-1 rounded">text-[11px]</code> · label <code class="text-[11px] bg-slate-100 px-1 rounded">text-[10px] bold upper</code> · badge <code class="text-[11px] bg-slate-100 px-1 rounded">text-[9px]</code>. Pocos tamaños = orden · <code class="text-[11px] bg-slate-100 px-1 rounded">tabular-nums</code> SIEMPRE en números.</li>
+          <li><strong>Color del texto = por función:</strong> estructura→slate (900 título/700/600 cuerpo/500 meta/400 muted) · dato→semántico · chrome→grupo.</li>
+          <li><strong>Dentro de un dato, jerarquía de tono:</strong> -700 label / -900 valor / -400 decimal-atenuado (F7). <strong>El delta/sub-texto HEREDA el color de la card (card monocromática)</strong> · la dirección/tendencia va en el ÍCONO ↗↘—, NUNCA en otro color de texto.</li>
+        </ul>
+      </div>
+
+      <div class="border border-slate-200 rounded-xl p-4">
+        <div class="flex items-center gap-2 mb-2"><span class="w-6 h-6 rounded-lg bg-slate-900 text-white text-[11px] font-bold flex items-center justify-center">5</span><span class="text-[13px] font-bold text-slate-900">Componentes + formularios</span></div>
+        <p class="text-[12px] text-slate-600 leading-relaxed">Ensamblar con el DS (HubCard · FiltrosBar · SmartSearch · FormModalV2 · Button 3-tier: primary=color-grupo / config=indigo / neutral=slate). Todo form/wizard de creación: <strong>Borrador + Descartar</strong>. Iconos lucide · <strong>cero emojis en el chrome</strong>.</p>
+      </div>
+
+      <div class="border border-slate-200 rounded-xl p-4">
+        <div class="flex items-center gap-2 mb-2"><span class="w-6 h-6 rounded-lg bg-slate-900 text-white text-[11px] font-bold flex items-center justify-center">6</span><span class="text-[13px] font-bold text-slate-900">Pixel-perfect + cobertura</span></div>
+        <p class="text-[12px] text-slate-600 leading-relaxed"><strong>M1:</strong> copy-paste LITERAL de las clases del mockup (NO reescribir de memoria). Cobertura TOTAL (shell + tabs + cards + modales + banners + empty/loading/error) + <strong>mobile 375px</strong> desde el inicio.</p>
+      </div>
+
+      <div class="border border-emerald-200 bg-emerald-50/40 rounded-xl p-4">
+        <div class="flex items-center gap-2 mb-2"><span class="w-6 h-6 rounded-lg bg-emerald-600 text-white text-[11px] font-bold flex items-center justify-center">7</span><span class="text-[13px] font-bold text-slate-900">Validación (antes de cerrar)</span></div>
+        <p class="text-[12px] text-slate-600 leading-relaxed"><code class="text-[11px] bg-white border border-slate-200 px-1 rounded">npm run build</code> (tsc -b · EXIT 0) · screenshot <strong>M4 side-by-side</strong> vs este kit · sin errores de consola · dead code eliminado · commit + push.</p>
+      </div>
+
+    </div>
+
+    <div class="mt-5 text-[11px] text-slate-500 border-t border-slate-200 pt-3 leading-relaxed">
+      Refleja las decisiones hasta <strong>2026-06-01</strong> (incl. Layout A <strong>2:1</strong> · tipografía <strong>Inter</strong> · color por función · <strong>delta monocromático</strong>). Canonizado en <code class="text-[11px] bg-slate-100 px-1 rounded">CLAUDE.md §A-§G</code> · valores calibrados del kit: KPI card <code class="text-[11px] bg-slate-100 px-1 rounded">p-4/mb-2/gap-3</code> · tabs <code class="text-[11px] bg-slate-100 px-1 rounded">px-3 py-2.5 text-[13px]</code> · header <code class="text-[11px] bg-slate-100 px-1 rounded">py-4 + ícono sólido from-{c}-500→700</code>.
     </div>
   </div>
 
