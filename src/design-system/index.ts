@@ -17,7 +17,6 @@ export { PageHeader } from './components/PageHeader';
 export { Toolbar } from './components/Toolbar';
 export { FilterDrawer } from './components/FilterDrawer';
 export { FilterSection } from './components/FilterSection';
-export { ContentArea } from './components/ContentArea';
 
 // Data Display
 export { DataTable } from './components/DataTable';
@@ -29,7 +28,6 @@ export { StatusBadge } from './components/StatusBadge';
 
 // Forms
 export { FormModal } from './components/FormModal';
-export { FormField } from './components/FormField';
 // S58 Fase 1 — Modal banking-grade (header rico + atajos + auto-save banner)
 // Se usa por modal en lugar de FormModal (migración progresiva).
 export { FormModalV2 } from './components/FormModalV2';
@@ -46,10 +44,6 @@ export * from './components/forms';
 // Wizards multi-paso (Nueva OC, Nuevo Envío)
 export { WizardShell } from './components/WizardShell';
 export type { WizardStep } from './components/WizardShell';
-
-// Selector rico de entidades (proveedor, colaborador, casilla, etc.)
-export { EntityPicker } from './components/EntityPicker';
-export type { EntityPickerGroup } from './components/EntityPicker';
 
 // Visualización de ruta logística A→B→C
 export { RouteVisual } from './components/RouteVisual';

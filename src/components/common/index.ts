@@ -75,7 +75,6 @@ export { TabNavigation } from './TabNavigation';
 
 // Extracted from ProfessionalUI
 export { SectionHeader } from './SectionHeader';
-export { EmptyState } from './EmptyStatePro';
 
 // Charts
 export {
