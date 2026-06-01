@@ -774,7 +774,7 @@ export const Gastos: React.FC = () => {
       label: 'Gasto del mes', tono: 'amber', icon: Receipt,
       valor: gastoEntero, sufijo: `.${gastoDecimales}`,
       delta: (
-        <span className={`flex items-center gap-1 tabular-nums ${variacionUp ? 'text-rose-600' : variacionDown ? 'text-emerald-600' : 'text-amber-700'}`}>
+        <span className="flex items-center gap-1 tabular-nums">
           <VariacionIcon className="w-3 h-3 flex-shrink-0" />
           {variacionUp ? '+' : ''}{kpiData.variacionPct.toFixed(1)}% vs mes ant.
         </span>
@@ -795,7 +795,7 @@ export const Gastos: React.FC = () => {
       label: 'DPO · días pago', tono: 'emerald', icon: CalendarCheck,
       valor: String(kpiData.dpoDias), sufijo: 'd',
       delta: (
-        <span className={`flex items-center gap-1 tabular-nums ${dpoMejora ? 'text-emerald-700' : 'text-amber-700'}`}>
+        <span className="flex items-center gap-1 tabular-nums">
           <DpoIcon className="w-3 h-3 flex-shrink-0" />
           {fmtPct(kpiData.dpoDeltaTrimestre, 0)}d vs trim.
         </span>

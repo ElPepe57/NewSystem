@@ -349,7 +349,10 @@ Regla: **pocos tamaños = orden** · `tabular-nums` SIEMPRE en números.
 - **Estructura** → slate: `900` título · `700` · `600` cuerpo · `500` meta · `400` muted/placeholder.
 - **Dato** → semántico (la naturaleza del dato · amber=dinero · rose=urgencia · emerald=positivo ·
   indigo=fijo · sky=parcial). Dentro de un dato hay JERARQUÍA de tono: `-700` label / `-900` valor /
-  `-400` decimal-atenuado (canon F7).
+  `-400` decimal-atenuado (canon F7). **El delta/sub-texto TAMBIÉN hereda el color de la card**
+  (card monocromática · la dirección/tendencia va en el ÍCONO ↗↘—, NUNCA en otro color de texto).
+  Anti-patrón corregido 2026-06-01: el delta de DPO/Gasto se pintaba verde/rojo por dirección y
+  rompía la monocromía (ej. "+0%d" amber sobre card emerald) · se monocromatizó al color de la card.
 - **Chrome** (¿dónde estoy?) → color del grupo (teal/violet/… · `grupoColor.ts`): tab activa · chip ·
   primary · ícono header · focus rings.
 - Nunca mezclar: el color del grupo NO pinta datos · el semántico NO pinta chrome.
