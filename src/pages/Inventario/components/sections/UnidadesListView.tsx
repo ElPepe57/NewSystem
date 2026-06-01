@@ -20,7 +20,7 @@
 
 import React, { useEffect, useState, useMemo } from 'react';
 import {
-  Package, Eye, Calendar, RefreshCw, LayoutGrid, Table2,
+  Package, Eye, Calendar, LayoutGrid, Table2,
   Building2, Warehouse, User, Truck, Globe2, type LucideIcon,
 } from 'lucide-react';
 import { formatFecha, calcularDiasParaVencer as calcularDiasParaVencerUtil } from '../../../../utils/dateFormatters';
@@ -126,7 +126,6 @@ export const UnidadesListView: React.FC = () => {
   const [selecciones, setSelecciones] = useState<Record<string, string[]>>({});
   const [busqueda, setBusqueda] = useState('');
   const [sortValue, setSortValue] = useState('vencen_asc');
-  const [sincronizando, setSincronizando] = useState(false);
   const [unidadSeleccionada, setUnidadSeleccionada] = useState<Unidad | null>(null);
   const [showEditarVencimiento, setShowEditarVencimiento] = useState(false);
   const [vistaActual, setVistaActual] = useState<VistaUnidades>(
@@ -401,25 +400,6 @@ export const UnidadesListView: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selecciones, busqueda, almacenes]);
 
-  const handleSincronizar = async () => {
-    setSincronizando(true);
-    try {
-      const resultado = await unidadService.sincronizarUnidadesHuerfanas();
-      if (resultado.unidadesSincronizadas > 0) {
-        addToast('success', `Se sincronizaron ${resultado.unidadesSincronizadas} unidades huérfanas`, 5000);
-        fetchUnidades();
-        fetchStats();
-      } else {
-        addToast('success', 'No hay unidades huérfanas para sincronizar');
-      }
-    } catch (error: any) {
-      console.error('Error sincronizando:', error);
-      addToast('error', `Error al sincronizar: ${error.message}`);
-    } finally {
-      setSincronizando(false);
-    }
-  };
-
   const tablaColumns: DataTableColumn<Unidad>[] = [
     {
       key: 'producto',
@@ -525,15 +505,6 @@ export const UnidadesListView: React.FC = () => {
         >
           <Calendar className="h-4 w-4" />
           <span className="hidden sm:inline text-sm">Vencimientos</span>
-        </Button>
-        <Button
-          variant="ghost"
-          onClick={handleSincronizar}
-          disabled={sincronizando}
-          className="text-slate-600 hover:text-slate-900 hover:bg-slate-100"
-          title="Sincronizar unidades huérfanas"
-        >
-          <RefreshCw className={`h-5 w-5 ${sincronizando ? 'animate-spin' : ''}`} />
         </Button>
       </div>
 

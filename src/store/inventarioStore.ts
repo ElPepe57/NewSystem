@@ -8,26 +8,11 @@ import type {
   InventarioStats
 } from '../types/inventario.types';
 
-interface SincronizacionResultado {
-  estadosUnidades: {
-    unidadesRevisadas: number;
-    correccionesRealizadas: number;
-    reservasLiberadas: number;
-  };
-  stockProductos: {
-    productosRevisados: number;
-    productosActualizados: number;
-  };
-  ctruActualizados: number;
-  errores: number;
-}
-
 interface InventarioState {
   inventario: InventarioProducto[];
   resumen: InventarioResumen | null;
   stats: InventarioStats | null;
   loading: boolean;
-  sincronizando: boolean;
   error: string | null;
 
   // Acciones
@@ -35,7 +20,6 @@ interface InventarioState {
   fetchInventarioPorPais: (pais: string) => Promise<InventarioPorPais>;
   fetchResumen: () => Promise<void>;
   fetchStats: () => Promise<void>;
-  sincronizarCompleto: () => Promise<SincronizacionResultado>;
   clearError: () => void;
 }
 
@@ -44,7 +28,6 @@ export const useInventarioStore = create<InventarioState>((set, get) => ({
   resumen: null,
   stats: null,
   loading: false,
-  sincronizando: false,
   error: null,
 
   fetchInventario: async (filtros?: InventarioFiltros) => {
@@ -88,23 +71,6 @@ export const useInventarioStore = create<InventarioState>((set, get) => ({
       set({ stats, loading: false });
     } catch (error: any) {
       set({ error: error.message, loading: false });
-      throw error;
-    }
-  },
-
-  sincronizarCompleto: async () => {
-    set({ sincronizando: true, error: null });
-    try {
-      const resultado = await inventarioService.sincronizacionCompleta();
-
-      // Recargar inventario después de sincronizar
-      const inventario = await inventarioService.getInventarioAgregado();
-      const stats = await inventarioService.getStats();
-
-      set({ inventario, stats, sincronizando: false });
-      return resultado;
-    } catch (error: any) {
-      set({ error: error.message, sincronizando: false });
       throw error;
     }
   },

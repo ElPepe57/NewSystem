@@ -13,7 +13,7 @@
  */
 
 import React from 'react';
-import { Warehouse, RefreshCw, Download } from 'lucide-react';
+import { Warehouse, Download } from 'lucide-react';
 
 interface HeaderV2Props {
   /** Texto del crumb padre (ej: "Logística"). Click navega o filtra · opcional. */
@@ -24,10 +24,6 @@ interface HeaderV2Props {
   titulo: string;
   /** Subtítulo descriptivo de 1-2 líneas. */
   subtitulo: string;
-  /** Estado de carga del botón Reconciliar datos. */
-  sincronizando?: boolean;
-  /** Handler del botón Reconciliar datos (recalcula estados/contadores · mantenimiento, NO actualiza el inventario · el inventario es live). */
-  onSincronizar?: () => void;
   /** Handler del botón Exportar. */
   onExportar?: () => void;
   /** Disabled state del botón Exportar (sin datos). */
@@ -37,8 +33,6 @@ interface HeaderV2Props {
 export const HeaderV2: React.FC<HeaderV2Props> = ({
   titulo,
   subtitulo,
-  sincronizando = false,
-  onSincronizar,
   onExportar,
   exportarDisabled = false,
 }) => {
@@ -58,18 +52,6 @@ export const HeaderV2: React.FC<HeaderV2Props> = ({
         </div>
       </div>
       <div className="flex items-center gap-2 flex-wrap justify-end">
-        {onSincronizar && (
-          <button
-            type="button"
-            onClick={onSincronizar}
-            disabled={sincronizando}
-            className="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-all disabled:opacity-50"
-            title="El inventario se actualiza solo con cada compra, envío y venta. Reconcilia estados y contadores solo si detectas inconsistencias."
-          >
-            <RefreshCw className={`w-3.5 h-3.5 ${sincronizando ? 'animate-spin' : ''}`} />
-            <span className="hidden sm:inline">Reconciliar datos</span>
-          </button>
-        )}
         {onExportar && (
           <button
             type="button"

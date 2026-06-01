@@ -22,7 +22,7 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import {
-  Package, BarChart3, Bell, MapPin, CheckCircle, Boxes, Info,
+  Package, BarChart3, Bell, MapPin, Boxes,
   ChevronRight, Shield, LayoutDashboard,
   Droplets, Pill, Shirt, UtensilsCrossed,
   User, Truck, Warehouse, Building2, Globe2, type LucideIcon,
@@ -33,8 +33,6 @@ import { hasRole } from '../../../../types/auth.types';
 import { calcularDiasParaVencer } from '../../../../utils/dateFormatters';
 import {
   Card,
-  Button,
-  Modal,
   InventarioSkeleton,
 } from '../../../../components/common';
 import { FiltrosBar, ChipsActivos, BulkActionsToolbar, PaginacionFooter } from '../../../../design-system';
@@ -75,7 +73,6 @@ import { useLineaNegocioStore } from '../../../../store/lineaNegocioStore';
 
 // Services + helpers
 import { exportService } from '../../../../services/export.service';
-import { inventarioService } from '../../../../services/inventario.service';
 import type { Unidad } from '../../../../types/unidad.types';
 import { useLineaFilter } from '../../../../hooks/useLineaFilter';
 import { esEstadoEnOrigen, esEstadoEnTransitoOrigen } from '../../../../utils/multiOrigen.helpers';
@@ -149,10 +146,7 @@ export const InventarioPageV2: React.FC = () => {
 
   // Modales
   const [unidadSeleccionada, setUnidadSeleccionada] = useState<Unidad | null>(null);
-  const [sincronizando, setSincronizando] = useState(false);
-  const [resultadoSync, setResultadoSync] = useState<any>(null);
   const [showVencidasModal, setShowVencidasModal] = useState(false);
-  const [showSyncModal, setShowSyncModal] = useState(false);
   const [showPromocionModal, setShowPromocionModal] = useState(false);
   const [productoPromocion, setProductoPromocion] = useState<{
     producto: any;
@@ -845,22 +839,6 @@ export const InventarioPageV2: React.FC = () => {
 
   // ==================== HANDLERS ====================
 
-  const handleSincronizarCompleto = async () => {
-    setSincronizando(true);
-    try {
-      const resultado = await inventarioService.sincronizacionCompleta();
-      setResultadoSync(resultado);
-      setShowSyncModal(true);
-      fetchUnidades();
-      fetchStats();
-    } catch (error: any) {
-      console.error('Error reconciliando datos:', error);
-      toast.error('Error al reconciliar datos: ' + error.message);
-    } finally {
-      setSincronizando(false);
-    }
-  };
-
   const handleExportar = () => {
     const dataExport = unidades.map(u => ({
       SKU: u.productoSKU,
@@ -976,8 +954,6 @@ export const InventarioPageV2: React.FC = () => {
           <HeaderV2
             titulo="Stock"
             subtitulo="Qué tengo, dónde está, en qué estado · vista operativa de existencias en tiempo real (productos, lotes, vencimientos, reservas)."
-            sincronizando={sincronizando}
-            onSincronizar={handleSincronizarCompleto}
             onExportar={handleExportar}
             exportarDisabled={unidades.length === 0}
           />
@@ -1283,99 +1259,6 @@ export const InventarioPageV2: React.FC = () => {
           }}
         />
       )}
-
-      <Modal
-        isOpen={showSyncModal}
-        onClose={() => setShowSyncModal(false)}
-        title="Reconciliación de datos"
-        size="lg"
-      >
-        <div className="space-y-4">
-          <div className="flex items-start gap-2 text-[12px] text-slate-500 bg-slate-50 border border-slate-200 rounded-lg p-3">
-            <Info className="h-4 w-4 text-slate-400 flex-shrink-0 mt-0.5" />
-            <span>
-              El inventario se actualiza <b className="text-slate-600">automáticamente</b> con cada compra, envío y venta.
-              Esta herramienta solo recalcula estados de unidades y contadores de stock cuando detecta diferencias — no es necesaria en la operación normal.
-            </span>
-          </div>
-          {resultadoSync && (
-            <>
-              <div>
-                <h4 className="font-medium text-slate-900 mb-2">Estados de Unidades</h4>
-                <div className="grid grid-cols-3 gap-3">
-                  <div className="bg-slate-50 rounded-lg p-3 text-center">
-                    <div className="text-xl font-bold text-slate-900 tabular-nums">
-                      {resultadoSync.estadosUnidades?.unidadesRevisadas || 0}
-                    </div>
-                    <div className="text-xs text-slate-500">Revisadas</div>
-                  </div>
-                  <div className="bg-emerald-50 rounded-lg p-3 text-center">
-                    <div className="text-xl font-bold text-emerald-600 tabular-nums">
-                      {resultadoSync.estadosUnidades?.correccionesRealizadas || 0}
-                    </div>
-                    <div className="text-xs text-emerald-700">Corregidas</div>
-                  </div>
-                  <div className="bg-emerald-50 rounded-lg p-3 text-center">
-                    <div className="text-xl font-bold text-emerald-600 tabular-nums">
-                      {resultadoSync.estadosUnidades?.reservasLiberadas || 0}
-                    </div>
-                    <div className="text-xs text-emerald-700">Reservas Lib.</div>
-                  </div>
-                </div>
-              </div>
-
-              <div>
-                <h4 className="font-medium text-slate-900 mb-2">Stock de Productos</h4>
-                <div className="grid grid-cols-4 gap-3">
-                  <div className="bg-slate-50 rounded-lg p-3 text-center">
-                    <div className="text-xl font-bold text-slate-900 tabular-nums">
-                      {resultadoSync.stockProductos?.productosRevisados || 0}
-                    </div>
-                    <div className="text-xs text-slate-500">Revisados</div>
-                  </div>
-                  <div className="bg-emerald-50 rounded-lg p-3 text-center">
-                    <div className="text-xl font-bold text-emerald-600 tabular-nums">
-                      {resultadoSync.stockProductos?.productosActualizados || 0}
-                    </div>
-                    <div className="text-xs text-emerald-700">Actualizados</div>
-                  </div>
-                  <div className="bg-sky-50 rounded-lg p-3 text-center">
-                    <div className="text-xl font-bold text-sky-600 tabular-nums">
-                      {resultadoSync.ctruActualizados || 0}
-                    </div>
-                    <div className="text-xs text-sky-700">CTRU Actualiz.</div>
-                  </div>
-                  <div className="bg-red-50 rounded-lg p-3 text-center">
-                    <div className="text-xl font-bold text-red-600 tabular-nums">
-                      {resultadoSync.errores || 0}
-                    </div>
-                    <div className="text-xs text-red-700">Errores</div>
-                  </div>
-                </div>
-              </div>
-
-              {(resultadoSync.estadosUnidades?.correccionesRealizadas === 0 &&
-               resultadoSync.stockProductos?.productosActualizados === 0) ? (
-                <div className="flex items-center gap-2 text-emerald-600 bg-emerald-50 p-3 rounded-lg">
-                  <CheckCircle className="h-5 w-5" />
-                  <span>Todo está consistente. No se encontraron diferencias que corregir.</span>
-                </div>
-              ) : (
-                <div className="flex items-center gap-2 text-emerald-600 bg-emerald-50 p-3 rounded-lg">
-                  <CheckCircle className="h-5 w-5" />
-                  <span>
-                    Reconciliación completada. Se corrigieron {resultadoSync.estadosUnidades?.correccionesRealizadas || 0} unidades
-                    y {resultadoSync.stockProductos?.productosActualizados || 0} productos.
-                  </span>
-                </div>
-              )}
-            </>
-          )}
-          <div className="flex justify-end">
-            <Button onClick={() => setShowSyncModal(false)}>Cerrar</Button>
-          </div>
-        </div>
-      </Modal>
 
       <PromocionModal
         isOpen={showPromocionModal}
