@@ -11,6 +11,8 @@ import {
   LayoutDashboard, BarChart3, ShoppingBag,
   // chk5.C10 · F10 · empty state canon · iconos lucide
   Receipt, Building, User as UserIcon, Cloud, ArrowRight, CheckCircle2, Plus,
+  // DS Fase 4 · Hub Kit · KPIs (deltas semánticos) + acciones header
+  TrendingUp, TrendingDown, Minus, Flame, Repeat, Clock, CalendarCheck, Briefcase, Settings, FileBarChart,
 } from 'lucide-react';
 // chk5.C-FIX · cleanup · Pencil/CreditCard/Badge/GastoLineaBadge removidos (eran del DataTable legacy eliminado)
 import { Card, useConfirmDialog, ConfirmDialog, ListSummary, EmptyStateAction, GastosSkeleton } from '../../components/common';
@@ -18,6 +20,7 @@ import { LineaDropdown } from '../../components/common/LineaDropdown';
 import { useToastStore } from '../../store/toastStore';
 import { useGastoStore } from '../../store/gastoStore';
 import { useAuthStore } from '../../store/authStore';
+import { hasRole } from '../../types/auth.types';
 import { ctruService } from '../../services/ctru.service';
 import { GastoForm } from './GastoForm';
 import { PagoUnificadoForm } from '../../components/modules/pagos/PagoUnificadoForm';
@@ -40,10 +43,11 @@ import { VistaPorBloque } from './components/VistaPorBloque';
 import { VistaCalendario } from './components/VistaCalendario';
 import { VistaPorProveedor } from './components/VistaPorProveedor';
 // chk5.C1 · shell canon banking-grade
-import { HeaderGastos } from './components/HeaderGastos';
 // chk5.C-FIX · canon F-Borradores extendido a Gastos
 import { BorradorBanner } from '../../design-system/components/BorradorBanner';
-import { KpiStripGastos, type KpiGastosData, type MiniStatsData } from './components/KpiStripGastos';
+// DS Fase 4 · Hub Kit (L5) · shell ensamblado desde el kit aprobado (hub-kit-implementacion-v1)
+import { HubShell, HubTopBar, HubHeader, HubKpiStrip, HubTabs, HubBody } from '../../design-system';
+import type { HubTab, HubKpi, HubMiniStat } from '../../design-system';
 import { NavegacionTemporal } from './components/NavegacionTemporal';
 // chk5.C2 · link-card cross-módulo
 import { LinkCardEficiencia } from './components/LinkCardEficiencia';
@@ -61,6 +65,9 @@ type ViewMode = 'month' | 'all';
 
 export const Gastos: React.FC = () => {
   const { user } = useAuthStore();
+  // DS Fase 4 · Hub Kit · chip de rol en el top-bar (canon "admin ve todo")
+  const userProfile = useAuthStore((s) => s.userProfile);
+  const esAdmin = hasRole(userProfile, 'admin');
   const navigate = useNavigate();
   const {
     gastos, stats, loading,
@@ -641,7 +648,7 @@ export const Gastos: React.FC = () => {
   // chk5.C1 · KPI data canon para KpiStripGastos
   // CRÍTICO: estos useMemo DEBEN declararse ANTES del early return de skeleton
   // para respetar Rules of Hooks (mismo número de hooks en cada render).
-  const kpiData: KpiGastosData = useMemo(() => ({
+  const kpiData = useMemo(() => ({
     gastoMesPEN: stats?.totalMesActual ?? 0,
     variacionPct: stats?.variacionVsMesAnterior ?? 0,
     burnRate3m: heroKpis.burnRate3m,
@@ -653,7 +660,7 @@ export const Gastos: React.FC = () => {
     dpoDeltaTrimestre: heroKpis.dpoDeltaTrimestre,
   }), [stats, heroKpis]);
 
-  const miniStatsData: MiniStatsData = useMemo(() => ({
+  const miniStatsData = useMemo(() => ({
     topProveedor: heroKpis.topProveedor,
     sinClasificarCount: heroKpis.sinClasificarCount,
     proximoVencimiento: heroKpis.proximoVencimiento,
@@ -734,68 +741,125 @@ export const Gastos: React.FC = () => {
     return <GastosSkeleton />;
   }
 
-  return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 space-y-4">
-      {/* chk5.E-GASTOS · pulido 1-card · SHELL unificado: header + KPIs + tabs en UN card (canon hub, como hermanos) */}
-      <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
-      {/* chk5.C1 · Header canon banking-grade (top-bar + header · sin card propio) */}
-      <HeaderGastos
-        breadcrumbLeaf={
-          (vistaActiva === 'listado' || vistaActiva === 'calendario') ? 'Movimientos'
-          : (vistaActiva === 'bloque' || vistaActiva === 'proveedor') ? 'Análisis'
-          : null
-        }
-        onVolverResumen={() => setVistaActiva('resumen')}
-        onPoliticaAsignacion={() => setShowAllocationSettings(true)}
-        onVerPnL={() => navigate('/contabilidad')}
-        onExportar={() => exportService.exportGastos(gastosFiltrados)}
-        onNuevoGasto={() => { setGastoParaEditar(null); setShowModal(true); }}
-        exportDisabled={gastosVisibles.length === 0}
-      />
+  // ===== Hub Kit · breadcrumb leaf + adapter vistaActiva ↔ tabId (3 tabs ↔ 5 vistas) =====
+  const breadcrumbLeaf =
+    (vistaActiva === 'listado' || vistaActiva === 'calendario') ? 'Movimientos'
+    : (vistaActiva === 'bloque' || vistaActiva === 'proveedor') ? 'Análisis'
+    : null;
+  const tabActiva =
+    vistaActiva === 'resumen' ? 'resumen'
+    : (vistaActiva === 'listado' || vistaActiva === 'calendario') ? 'movimientos'
+    : 'analisis';
+  const handleTabChange = (id: string) => {
+    setVistaActiva(id === 'resumen' ? 'resumen' : id === 'movimientos' ? 'listado' : 'bloque');
+  };
+  const gastosTabs: HubTab[] = [
+    { id: 'resumen', label: 'Resumen', icon: LayoutDashboard },
+    { id: 'movimientos', label: 'Movimientos', icon: List, badge: heroKpis.gastosDelMes.length || undefined, badgeTono: 'slate' },
+    { id: 'analisis', label: 'Análisis', icon: BarChart3 },
+  ];
 
-      {/* chk5.E-GASTOS · F1.b · KPI strip canon · SIEMPRE visible sobre las tabs (canon hub) */}
-      {stats && (
-        <KpiStripGastos kpis={kpiData} miniStats={miniStatsData} />
-      )}
+  // ===== Hub Kit · KPIs (canon mockup) · deltas semánticos preservados (color+ícono por dirección) =====
+  const fmtMiles = (n: number): string => Math.round(n).toLocaleString('es-PE');
+  const fmtPct = (n: number, d = 1): string => `${n >= 0 ? '+' : ''}${n.toFixed(d)}%`;
+  const variacionUp = kpiData.variacionPct > 0;
+  const variacionDown = kpiData.variacionPct < 0;
+  const VariacionIcon = variacionUp ? TrendingUp : variacionDown ? TrendingDown : Minus;
+  const dpoMejora = kpiData.dpoDeltaTrimestre < 0;
+  const DpoIcon = dpoMejora ? TrendingDown : TrendingUp;
+  const gastoFixed = kpiData.gastoMesPEN.toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const [gastoEntero, gastoDecimales = '00'] = gastoFixed.split('.');
+  const gastosKpis: HubKpi[] = [
+    {
+      label: 'Gasto del mes', tono: 'amber', icon: Receipt,
+      valor: gastoEntero, sufijo: `.${gastoDecimales}`,
+      delta: (
+        <span className={`flex items-center gap-1 tabular-nums ${variacionUp ? 'text-rose-600' : variacionDown ? 'text-emerald-600' : 'text-amber-700'}`}>
+          <VariacionIcon className="w-3 h-3 flex-shrink-0" />
+          {variacionUp ? '+' : ''}{kpiData.variacionPct.toFixed(1)}% vs mes ant.
+        </span>
+      ),
+    },
+    { label: 'Burn rate · 3M', tono: 'rose', icon: Flame, valor: fmtMiles(kpiData.burnRate3m), delta: 'promedio móvil' },
+    { label: 'Recurrentes', tono: 'indigo', icon: Repeat, valor: kpiData.porcentajeRecurrentes.toFixed(0), sufijo: '%', delta: 'fijos comprometidos' },
+    {
+      label: 'Vencen 30d', tono: 'rose', icon: Clock, valor: fmtMiles(kpiData.vencimientos30dPEN),
+      delta: (
+        <span className="tabular-nums">
+          {kpiData.vencimientos30dCount} gastos
+          {kpiData.vencimientosCriticos > 0 && (<> · <span className="font-bold">{kpiData.vencimientosCriticos} críticos</span></>)}
+        </span>
+      ),
+    },
+    {
+      label: 'DPO · días pago', tono: 'emerald', icon: CalendarCheck,
+      valor: String(kpiData.dpoDias), sufijo: 'd',
+      delta: (
+        <span className={`flex items-center gap-1 tabular-nums ${dpoMejora ? 'text-emerald-700' : 'text-amber-700'}`}>
+          <DpoIcon className="w-3 h-3 flex-shrink-0" />
+          {fmtPct(kpiData.dpoDeltaTrimestre, 0)}d vs trim.
+        </span>
+      ),
+    },
+  ];
+  const gastosMiniStats: HubMiniStat[] = [
+    {
+      label: miniStatsData.topProveedor ? (
+        <><Briefcase className="w-3 h-3 text-slate-400 flex-shrink-0" /> Top proveedor: <strong className="text-slate-900 tabular-nums">{miniStatsData.topProveedor.nombre} · {miniStatsData.topProveedor.pctDelMes.toFixed(0)}%</strong></>
+      ) : (
+        <span className="flex items-center gap-1 text-slate-400"><Briefcase className="w-3 h-3 flex-shrink-0" /> Top proveedor: <span className="italic">sin data</span></span>
+      ),
+    },
+    {
+      label: (
+        <><AlertCircle className={`w-3 h-3 flex-shrink-0 ${miniStatsData.sinClasificarCount > 0 ? 'text-amber-500' : 'text-slate-400'}`} /> Sin clasificar: <strong className={`tabular-nums ${miniStatsData.sinClasificarCount > 0 ? 'text-rose-600' : 'text-slate-900'}`}>{miniStatsData.sinClasificarCount}</strong></>
+      ),
+    },
+    {
+      label: miniStatsData.proximoVencimiento ? (
+        <><Clock className="w-3 h-3 text-rose-500 flex-shrink-0" /> Próximo vto: <strong className="text-slate-900 tabular-nums">{miniStatsData.proximoVencimiento.descripcion} · en {miniStatsData.proximoVencimiento.diasParaVencer}d</strong></>
+      ) : (
+        <span className="flex items-center gap-1 text-slate-400"><Clock className="w-3 h-3 flex-shrink-0" /> Próximo vto: <span className="italic">sin data</span></span>
+      ),
+    },
+  ];
+
+  return (
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6">
+      {/* DS Fase 4 · shell ensamblado desde el Hub Kit (L5) · grupo Finanzas y Contabilidad = teal */}
+      <HubShell>
+        <HubTopBar
+          grupo="finanzas-contabilidad"
+          modulo="Gastos"
+          leaf={breadcrumbLeaf}
+          esAdmin={esAdmin}
+          onModulo={() => setVistaActiva('resumen')}
+        />
+        <HubHeader
+          grupo="finanzas-contabilidad"
+          icon={Receipt}
+          titulo="Gastos"
+          subtitulo="Consolidador de gastos · manuales + auto-generados por OC/Envío/Venta · separación gasto/pago canon."
+          acciones={[
+            { label: 'Política asignación', icon: Settings, onClick: () => setShowAllocationSettings(true), tier: 'config' },
+            { label: 'Ver P&L', icon: FileBarChart, onClick: () => navigate('/contabilidad'), tier: 'neutral' },
+            { label: 'Exportar', icon: DownloadIcon, onClick: () => exportService.exportGastos(gastosFiltrados), tier: 'neutral', disabled: gastosVisibles.length === 0 },
+            { label: 'Nuevo gasto manual', icon: Plus, onClick: () => { setGastoParaEditar(null); setShowModal(true); }, tier: 'primary' },
+          ]}
+        />
+        {stats && (
+          <HubKpiStrip cols={5} kpis={gastosKpis} miniStats={gastosMiniStats} />
+        )}
 
       {/* chk5.E-GASTOS · F1.b · TABS de sub-sección canon HUB (Resumen · Movimientos · Análisis) */}
       <div>
-        {/* fila de tabs · border-b-2 activo teal (canon hub) */}
-        <div className="border-b border-slate-200 px-4 sm:px-6">
-          <div className="flex items-center gap-1 -mb-px overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
-            {([
-              { tab: 'resumen',     vista: 'resumen' as const,  Icon: LayoutDashboard, label: 'Resumen',     badge: 0 },
-              { tab: 'movimientos', vista: 'listado' as const,  Icon: List,            label: 'Movimientos', badge: heroKpis.gastosDelMes.length },
-              { tab: 'analisis',    vista: 'bloque' as const,   Icon: BarChart3,       label: 'Análisis',    badge: 0 },
-            ]).map((t) => {
-              const TIcon = t.Icon;
-              const activa =
-                (t.tab === 'resumen' && vistaActiva === 'resumen') ||
-                (t.tab === 'movimientos' && (vistaActiva === 'listado' || vistaActiva === 'calendario')) ||
-                (t.tab === 'analisis' && (vistaActiva === 'bloque' || vistaActiva === 'proveedor'));
-              return (
-                <button
-                  key={t.tab}
-                  type="button"
-                  onClick={() => setVistaActiva(t.vista)}
-                  className={`px-4 py-3 text-[12px] border-b-2 flex items-center gap-1.5 whitespace-nowrap transition-colors ${
-                    activa
-                      ? 'border-teal-600 text-teal-700 font-semibold'
-                      : 'border-transparent text-slate-600 hover:text-slate-900 hover:border-slate-300 font-medium'
-                  }`}
-                >
-                  <TIcon className="w-3.5 h-3.5" />
-                  {t.label}
-                  {t.badge > 0 && (
-                    <span className="text-[10px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded-full font-bold tabular-nums">
-                      {t.badge}
-                    </span>
-                  )}
-                </button>
-              );
-            })}
-          </div>
-        </div>
+        {/* HubTabs · Resumen · Movimientos · Análisis (color del grupo = teal · badge slate) */}
+        <HubTabs
+          grupo="finanzas-contabilidad"
+          tabs={gastosTabs}
+          activa={tabActiva}
+          onChange={handleTabChange}
+        />
         {/* sub-toolbar contextual · SOLO Movimientos/Análisis (toggles de vista) ·
             en Resumen NO se renderiza → el body arranca directo tras las tabs (consistente con hermanos) */}
         {vistaActiva !== 'resumen' && (
@@ -844,25 +908,38 @@ export const Gastos: React.FC = () => {
         )}
       </div>
 
-      {/* §F · BODY · DENTRO del shell card (canon hub · como §E Outlet de Finanzas / §E body de Contabilidad) ·
-          bg-slate-50/30 separa el cuerpo del chrome · TODO el módulo en UN solo recuadro continuo */}
-      <div className="bg-slate-50/30 px-4 sm:px-6 py-5 space-y-4">
-
-      {/* chk5.C-FIX · canon F-Borradores · banner borrador · dentro del body, sobre el grid */}
-      <BorradorBanner
-        tipo="gasto"
-        refreshKey={borradorRefreshKey}
-        onContinuar={() => {
-          setGastoParaEditar(null);
-          setShowModal(true);
-        }}
-      />
-
-      {/* chk5.C-UX-PASS-ALT · canon v8.0 N7 · GRID main+sidebar envuelve LAS 4 VISTAS
-          · Listado · Por Bloque · Calendario · Por Proveedor
-          · sidebar (DrawerUrgentes + TopProveedoresLight) persiste en TODAS · canon v8.0 consistencia */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="md:col-span-3 space-y-4">
+      {/* §F · BODY · Hub Kit · Layout A (main + aside) · aboveGrid = banner borrador full-width */}
+      <HubBody
+        aboveGrid={
+          <BorradorBanner
+            tipo="gasto"
+            refreshKey={borradorRefreshKey}
+            onContinuar={() => {
+              setGastoParaEditar(null);
+              setShowModal(true);
+            }}
+          />
+        }
+        aside={
+          <div className="md:sticky md:top-4 space-y-3">
+            {heroKpis.vencidos.length + heroKpis.vencenPronto.length > 0 && (
+              <DrawerUrgentes
+                vencidos={heroKpis.vencidos}
+                vencenPronto={heroKpis.vencenPronto}
+                onPagar={(g) => setGastoParaPago(g)}
+                onVerDetalle={handleEditarGasto}
+              />
+            )}
+            <TopProveedoresLightWidget
+              gastosDelMes={heroKpis.gastosDelMes}
+              onVerAnalisisCompleto={() => navigate('/maestros?tab=proveedores')}
+              onClickProveedor={(nombreProveedor) => {
+                setSearchTerm(nombreProveedor);
+              }}
+            />
+          </div>
+        }
+      >
 
       {/* chk5.E-GASTOS · F1.b · Tab RESUMEN · dashboard ejecutivo del gasto del mes */}
       {vistaActiva === 'resumen' && (
@@ -1409,35 +1486,8 @@ export const Gastos: React.FC = () => {
           el sidebar SIGUE abajo · persiste en las 4 vistas */}
       </>)}
 
-        </div>
-
-        {/* Sidebar derecho (sticky en desktop) · PERSISTE EN LAS 4 VISTAS
-            chk5.C-UX-PASS-ALT · canon v8.0 N7 · md: (768px) no lg:
-              - DrawerUrgentes (solo si hay vencidos/vencenPronto)
-              - TopProveedoresLightWidget (SIEMPRE · D-GR-8 cross-link a Maestros) */}
-        <div className="md:col-span-1">
-          <div className="md:sticky md:top-4 space-y-3">
-            {heroKpis.vencidos.length + heroKpis.vencenPronto.length > 0 && (
-              <DrawerUrgentes
-                vencidos={heroKpis.vencidos}
-                vencenPronto={heroKpis.vencenPronto}
-                onPagar={(g) => setGastoParaPago(g)}
-                onVerDetalle={handleEditarGasto}
-              />
-            )}
-            <TopProveedoresLightWidget
-              gastosDelMes={heroKpis.gastosDelMes}
-              onVerAnalisisCompleto={() => navigate('/maestros?tab=proveedores')}
-              onClickProveedor={(nombreProveedor) => {
-                // Pre-cargar búsqueda con el proveedor clickeado · UX rápido
-                setSearchTerm(nombreProveedor);
-              }}
-            />
-          </div>
-        </div>
-      </div>
-      </div>{/* /§F body */}
-      </div>{/* /SHELL card · header + KPIs + tabs + BODY · TODO en un recuadro continuo (canon hub) */}
+      </HubBody>
+    </HubShell>
 
       {/* chk5.C9 · F9 · Allocation Engine settings panel · D-GR-7 */}
       {showAllocationSettings && (

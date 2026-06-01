@@ -60,7 +60,7 @@ export const HubTabs: React.FC<HubTabsProps> = ({ grupo, tabs, activa, onChange,
               type="button"
               onClick={() => onChange(t.id)}
               aria-current={isActive ? 'page' : undefined}
-              className={`whitespace-nowrap px-3 sm:px-4 py-3 text-[12px] border-b-2 flex items-center gap-1.5 transition-colors ${
+              className={`whitespace-nowrap px-3 py-2.5 text-[13px] border-b-2 flex items-center gap-1.5 transition-colors ${
                 isActive
                   ? `${C.tabActive} font-semibold`
                   : 'border-transparent text-slate-500 hover:text-slate-700 font-medium'
@@ -69,7 +69,7 @@ export const HubTabs: React.FC<HubTabsProps> = ({ grupo, tabs, activa, onChange,
               {Ti && <Ti className="w-4 h-4" />}
               {t.label}
               {hayBadge && (
-                <span className={`text-[10px] ${BADGE[t.badgeTono ?? 'rose']} px-1.5 py-0.5 rounded-full font-bold tabular-nums`}>
+                <span className={`text-[9px] ${BADGE[t.badgeTono ?? 'rose']} px-1.5 rounded-full font-bold tabular-nums`}>
                   {t.badge}
                 </span>
               )}

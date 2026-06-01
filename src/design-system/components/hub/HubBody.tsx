@@ -17,14 +17,17 @@ interface HubBodyProps {
   children: React.ReactNode;
   /** Si se pasa → Layout A (main + aside). Sin aside → Layout B (full-width). */
   aside?: React.ReactNode;
+  /** Contenido full-width ARRIBA del grid (dentro del body). Ej: banner de borrador. */
+  aboveGrid?: React.ReactNode;
   className?: string;
 }
 
-export const HubBody: React.FC<HubBodyProps> = ({ children, aside, className = '' }) => {
+export const HubBody: React.FC<HubBodyProps> = ({ children, aside, aboveGrid, className = '' }) => {
   // Layout A · main(2) + aside(1) · aside apila debajo del main en mobile
   if (aside) {
     return (
-      <div className={`bg-slate-50/30 px-4 sm:px-6 py-5 ${className}`}>
+      <div className={`bg-slate-50/30 p-3 sm:p-4 md:p-6 space-y-4 ${className}`}>
+        {aboveGrid}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="md:col-span-2 space-y-4">{children}</div>
           <aside className="md:col-span-1 space-y-4">{aside}</aside>
@@ -35,7 +38,8 @@ export const HubBody: React.FC<HubBodyProps> = ({ children, aside, className = '
 
   // Layout B · full-width apilado
   return (
-    <div className={`bg-slate-50/30 px-4 sm:px-6 py-5 space-y-4 ${className}`}>
+    <div className={`bg-slate-50/30 p-3 sm:p-4 md:p-6 space-y-4 ${className}`}>
+      {aboveGrid}
       {children}
     </div>
   );

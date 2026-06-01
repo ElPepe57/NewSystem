@@ -22,8 +22,9 @@ export interface HubKpi {
   sufijo?: string;
   tono: HubKpiTono;
   icon?: LucideIcon;
-  /** texto secundario bajo el valor (ej. "3 cuentas"). */
-  delta?: string;
+  /** texto secundario bajo el valor (ej. "3 cuentas"). ReactNode → permite deltas
+   *  semánticos (color condicional + ícono de tendencia · ej. Gastos). */
+  delta?: React.ReactNode;
 }
 
 export interface HubMiniStat {
@@ -58,20 +59,20 @@ const COLS: Record<3 | 4 | 5, string> = {
 
 export const HubKpiStrip: React.FC<HubKpiStripProps> = ({ kpis, miniStats = [], cols = 5, className = '' }) => (
   <div className={`px-4 sm:px-6 py-4 border-b border-slate-100 ${className}`}>
-    <div className={`grid grid-cols-2 ${COLS[cols]} gap-2 sm:gap-3`}>
+    <div className={`grid grid-cols-2 ${COLS[cols]} gap-3`}>
       {kpis.map((k, i) => {
         const t = TONO[k.tono];
         const Ki = k.icon;
         return (
-          <div key={i} className={`bg-gradient-to-br ${t.card} ring-1 rounded-2xl p-3`}>
-            <div className="flex items-center justify-between mb-1">
+          <div key={i} className={`bg-gradient-to-br ${t.card} ring-1 rounded-2xl p-4`}>
+            <div className="flex items-center justify-between mb-2">
               <span className={`text-[10px] uppercase tracking-wider font-bold ${t.label}`}>{k.label}</span>
               {Ki && <Ki className={`w-3.5 h-3.5 ${t.icon}`} />}
             </div>
             <div className={`text-2xl font-bold tabular-nums ${t.valor}`}>
               {k.valor}{k.sufijo && <span className={t.decimal}>{k.sufijo}</span>}
             </div>
-            {k.delta && <div className={`text-[10px] mt-0.5 ${t.delta}`}>{k.delta}</div>}
+            {k.delta && <div className={`text-[11px] mt-1 ${t.delta}`}>{k.delta}</div>}
           </div>
         );
       })}

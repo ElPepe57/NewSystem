@@ -224,11 +224,14 @@ sistema lee de un registro finito. Escala infinito (color por grupo, no por mód
 **Alineación pendiente (al migrar cada módulo):** Contabilidad purple→teal · Usuarios
 purple→violet · Planilla sky→violet (Finanzas/Gastos=teal e Inversionistas=violet ya OK).
 
-## B · LOS 2 LAYOUTS DE BODY (✅ CONFIRMADO por user 2026-05-30)
-- **Layout A · grid main(3)+sidebar(1)**: `grid grid-cols-1 md:grid-cols-4` · main
-  `md:col-span-3 space-y-4` + `<aside className="md:col-span-1">`. Para dashboards
+## B · LOS 2 LAYOUTS DE BODY (✅ CONFIRMADO por user 2026-05-30 · ratio actualizado 2026-06-01)
+- **Layout A · grid main(2)+sidebar(1)**: `grid grid-cols-1 md:grid-cols-3` · main
+  `md:col-span-2 space-y-4` + `<aside className="md:col-span-1">`. Para dashboards
   operativos con CONTEXTO persistente (urgencias, widgets, cross-links). Usan: Finanzas,
   Gastos. Mobile: el aside se apila DEBAJO del main.
+  ⚠️ Ratio **2:1 (no 3:1)** reconciliado al **kit aprobado** `hub-kit-implementacion-v1.html`
+  (madrugada 01-jun · fuente única de verdad · decisión del user). El `eval-layouts-funcional-v1`
+  (30-may · main(3)) quedó **superado** por el kit de implementación final. Vive en `HubBody`.
 - **Layout B · full-width**: cards apiladas `space-y-4` + grids internos · sin sidebar.
   Para contenido ANCHO/autónomo (estados financieros, directorios, tablas). Usan:
   Contabilidad, Usuarios, Planilla, Inversionistas.
@@ -1376,8 +1379,8 @@ mantiene altura predecible.
 Layout principal de páginas con sidebar (DrawerUrgentes + TopProveedoresLight):
 
 ```html
-<div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-  <div class="md:col-span-3"> {/* main */} </div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+  <div class="md:col-span-2"> {/* main */} </div>
   <aside class="md:col-span-1"> {/* sidebar */} </aside>
 </div>
 ```

@@ -45,11 +45,11 @@ export const HubTopBar: React.FC<HubTopBarProps> = ({
   return (
     <div className={`border-b border-slate-200 px-4 sm:px-6 py-2.5 bg-slate-50 flex items-center justify-between gap-3 ${className}`}>
       {/* Breadcrumb S9.D1 · Inicio › Módulo › [leaf] */}
-      <nav className="flex items-center gap-1 text-[12px] text-slate-500 min-w-0" aria-label="Breadcrumb">
+      <nav className="flex items-center gap-1.5 text-[11px] text-slate-500 min-w-0" aria-label="Breadcrumb">
         <button type="button" onClick={onInicio} className="hover:text-slate-700 transition-colors flex-shrink-0">
           Inicio
         </button>
-        <ChevronRight className="w-3 h-3 text-slate-300 mx-0.5 flex-shrink-0" />
+        <ChevronRight className="w-3 h-3 flex-shrink-0" />
         {hayLeaf ? (
           <button type="button" onClick={onModulo} className="hover:text-slate-700 transition-colors flex-shrink-0">
             {modulo}
@@ -59,14 +59,14 @@ export const HubTopBar: React.FC<HubTopBarProps> = ({
         )}
         {hayLeaf && (
           <>
-            <ChevronRight className="w-3 h-3 text-slate-300 mx-0.5 flex-shrink-0" />
+            <ChevronRight className="w-3 h-3 flex-shrink-0" />
             <span className="text-slate-900 font-semibold truncate">{leaf}</span>
           </>
         )}
       </nav>
 
       {/* Chip de rol contextual · color heredado del grupo (chromeDe(grupo).chip) */}
-      <span className={`text-[10px] ${C.chip} px-2 py-0.5 rounded font-bold hidden sm:inline-flex items-center gap-1 flex-shrink-0`}>
+      <span className={`text-[10px] ${C.chip} px-2 py-0.5 rounded font-bold inline-flex items-center gap-1 flex-shrink-0`}>
         <Shield className="w-3 h-3" />
         {esAdmin ? 'Vista ejecutiva · admin' : 'Vista ejecutiva'}
       </span>
