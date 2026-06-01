@@ -7,7 +7,7 @@
  *   detail/   → UnidadDetailsModal
  *   modals/   → PromocionModal · EditarVencimientoModal · GestionVencidasModal
  *   sections/ → AlertasInventario · AlertasPrioritarias · IncidenciasTab
- *               · InventarioAnalytics · ProductoInventarioTable · UnidadTable
+ *               · ProductoInventarioTable · UnidadTable · AnalyticsTab
  *               · UnidadesDesglose · AtencionTab · MapaTab
  *   shared/   → helpers cross-componente (vacío inicial)
  *   tools/    → utility components (vacío inicial)
@@ -46,7 +46,6 @@ export { AlertasInventario } from './sections/AlertasInventario';
 export { AlertasPrioritarias } from './sections/AlertasPrioritarias';
 export type { AlertaProducto } from './sections/AlertasPrioritarias';
 export { IncidenciasTab } from './sections/IncidenciasTab';
-export { InventarioAnalytics } from './sections/InventarioAnalytics';
 export { ProductoInventarioTable } from './sections/ProductoInventarioTable';
 export type { ProductoConUnidades } from './sections/ProductoInventarioTable';
 export { UnidadTable } from './sections/UnidadTable';
