@@ -1,29 +1,53 @@
 /**
- * Design System Tokens — Fuente unica de verdad para todo el sistema visual.
+ * Design System Tokens — Capa L0 · escala visual canónica del sistema.
  *
- * REGLA: Ningun componente debe usar clases de color/tipografia/spacing
- * directamente. Siempre importar desde aqui.
+ * Canon "DESIGN SYSTEM · KIT UNIVERSAL" sección E · REFINAMIENTOS (2026-05-31).
+ *
+ * ┌─ QUÉ vive aquí ────────────────────────────────────────────────────────────┐
+ * │  Radios · tipografía por rol · sombras (elevación) · spacing · breakpoints  │
+ * │  + la paleta SEMÁNTICA fija (success/warning/danger/info/neutral/brand).    │
+ * └────────────────────────────────────────────────────────────────────────────┘
+ *
+ * ┌─ QUÉ NO vive aquí ─────────────────────────────────────────────────────────┐
+ * │  El COLOR DE IDENTIDAD por módulo (teal/violet/blue/orange/indigo/slate).   │
+ * │  Eso vive en `grupoColor.ts` (heredado por grupo del sidebar · Modelo A).   │
+ * │  Los dos sistemas NO chocan: identidad viste el CHROME · semántico el DATO. │
+ * └────────────────────────────────────────────────────────────────────────────┘
+ *
+ * REGLAS DE ORO (canon E):
+ *   • Radios: un hijo NUNCA más redondo que su padre (control < card < shell).
+ *   • Tipografía: pocos tamaños = orden. Cada texto tiene un ROL, no un tamaño suelto.
+ *   • Sombras = elevación (no decoración): plano integrado < card en reposo < overlay.
+ *   • Mobile-first: la escala nace en móvil y crece con los breakpoints.
+ *
+ * NOTA sobre el canon M1 (pixel-perfect): las PÁGINAS/MÓDULOS copian las clases
+ * literales de su mockup (no importan estos objetos). Estos tokens son la fuente
+ * para los COMPONENTES del Design System (capas L1-L5 · Hub Kit) y la referencia
+ * documental de la escala. La consistencia vive en el componente, no en la
+ * disciplina de quien escribe una página.
  */
 
-// ─── Colors ──────────────────────────────────────────────────────────────────
+// ─── Colors · paleta de MARCA ────────────────────────────────────────────────
+// El color de marca (Vita Skin) es teal. El color de IDENTIDAD por módulo NO se
+// elige aquí: se hereda del grupo del sidebar vía `grupoColor.ts` (Modelo A).
 
 export const colors = {
   brand: {
-    50: '#eef2ff',
-    100: '#e0e7ff',
-    200: '#c7d2fe',
-    300: '#a5b4fc',
-    400: '#818cf8',
-    500: '#6366f1', // primary brand
-    600: '#4f46e5',
-    700: '#4338ca',
-    800: '#3730a3',
-    900: '#312e81',
-    950: '#1e1b4b',
+    50: '#f0fdfa',
+    100: '#ccfbf1',
+    200: '#99f6e4',
+    300: '#5eead4',
+    400: '#2dd4bf',
+    500: '#14b8a6', // teal-500 · marca Vita Skin
+    600: '#0d9488',
+    700: '#0f766e',
+    800: '#115e59',
+    900: '#134e4a',
+    950: '#042f2e',
   },
 } as const;
 
-// Semantic color mapping (Tailwind class names)
+// Paleta SEMÁNTICA fija (idéntica en todos los módulos · NO la pisa la identidad).
 export const semantic = {
   success: 'emerald',
   warning: 'amber',
@@ -45,9 +69,20 @@ export const surface = {
   active: 'bg-teal-50',
 } as const;
 
-// ─── Typography ──────────────────────────────────────────────────────────────
+// ─── Typography · por ROL (canon E) ──────────────────────────────────────────
+// Escala canónica: dato-héroe 2xl · título lg · subtítulo sm · cuerpo 12px ·
+// meta 11px · label 10px-upper. Pocos tamaños = orden. tabular-nums en números.
 
 export const text = {
+  // Roles canónicos
+  hero: 'text-2xl font-bold tabular-nums tracking-tight text-slate-900', // dato héroe (KPI grande)
+  title: 'text-base sm:text-lg font-semibold text-slate-900',            // título de sección/card
+  subtitle: 'text-sm font-semibold text-slate-700',                      // subtítulo
+  bodyText: 'text-[12px] text-slate-600',                                // cuerpo (12px · canon)
+  meta: 'text-[11px] text-slate-500',                                    // meta / secundario (11px)
+  overline: 'text-[10px] font-bold uppercase tracking-wider text-slate-500', // label/etiqueta (10px-upper)
+
+  // ── Alias en uso por los componentes DS pre-canon (se mantienen para compat) ──
   display: 'text-xl sm:text-2xl font-bold tracking-tight text-slate-900',
   heading: 'text-base sm:text-lg font-semibold text-slate-900',
   subheading: 'text-sm font-semibold text-slate-700',
@@ -59,7 +94,8 @@ export const text = {
   metricSm: 'text-lg font-bold tabular-nums text-slate-900',
 } as const;
 
-// ─── Spacing ─────────────────────────────────────────────────────────────────
+// ─── Spacing · base 4px (canon E) ────────────────────────────────────────────
+// Tailwind ya opera en base-4 (p-1=4px · p-2=8px · gap-3=12px · gap-4=16px).
 
 export const spacing = {
   pageX: 'px-4 sm:px-6 lg:px-8',
@@ -71,21 +107,43 @@ export const spacing = {
   stackGap: 'gap-4',
 } as const;
 
-// ─── Elevation (Shadows) ─────────────────────────────────────────────────────
+// ─── Elevation (Shadows) · 3 niveles = elevación (canon E) ────────────────────
+// Sombra comunica ALTURA, no decoración:
+//   flat    → plano integrado en la superficie (sin sombra)
+//   resting → card en reposo sobre el fondo
+//   overlay → elemento flotante (modal · dropdown · tooltip)
 
 export const elevation = {
+  flat: '',
+  resting: 'shadow-sm',
+  overlay: 'shadow-lg',
+
+  // ── Alias numéricos en uso por componentes DS pre-canon (compat) ──
   0: '',
   1: 'shadow-sm',
   2: 'shadow-md',
   3: 'shadow-lg',
 } as const;
 
-// ─── Radius ──────────────────────────────────────────────────────────────────
+// ─── Radius · por ROL (canon E) ──────────────────────────────────────────────
+// Regla de oro: un hijo NUNCA más redondo que su padre.
+//   control 8px  → botones · inputs · chips cuadrados · controles
+//   card    12px → cards internas
+//   shell   16px → shell del módulo · KPI strip · overlays grandes
+//   pill         → pills · badges · avatares circulares
 
 export const radius = {
-  sm: 'rounded-md',
-  md: 'rounded-lg',
-  lg: 'rounded-xl',
+  // Escala canónica por rol (usar en componentes nuevos · Hub Kit)
+  control: 'rounded-lg',  // 8px
+  card: 'rounded-xl',     // 12px
+  shell: 'rounded-2xl',   // 16px
+  pill: 'rounded-full',
+
+  // ── Escala legacy (nombres "corridos") en uso por componentes DS pre-canon ──
+  // @deprecated · no usar en componentes nuevos · preferir control/card/shell/pill.
+  sm: 'rounded-md',   // 6px
+  md: 'rounded-lg',   // 8px
+  lg: 'rounded-xl',   // 12px
   full: 'rounded-full',
 } as const;
 
@@ -105,6 +163,21 @@ export const transition = {
   fast: 'transition-all duration-150 ease-in-out',
   normal: 'transition-all duration-200 ease-in-out',
   slow: 'transition-all duration-300 ease-in-out',
+} as const;
+
+// ─── Breakpoints · mobile-first (canon E · documental) ────────────────────────
+// Coinciden con los defaults de Tailwind. La app NACE en móvil y crece:
+//   base <640  → 1 columna · filtros colapsados · KPIs apilados
+//   sm   640   → ajustes finos de texto/acciones
+//   md   768   → APARECE el sidebar · KPIs en fila (5 cols) · layout A/B con aside
+//   lg   1024  → afinamiento de grids/paddings
+// Uso: clases responsive de Tailwind (`sm:` `md:` `lg:`). No requiere config.
+
+export const breakpoints = {
+  sm: 640,
+  md: 768,
+  lg: 1024,
+  xl: 1280,
 } as const;
 
 // ─── Status Variant Mapping ──────────────────────────────────────────────────
