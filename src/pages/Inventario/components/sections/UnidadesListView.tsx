@@ -74,8 +74,8 @@ const getEstadoBadgeMeta = (estado: EstadoUnidad | string, paisOrigen?: string) 
 
 export const UnidadesListView: React.FC = () => {
   const { unidades, loading, fetchUnidades, fetchStats } = useUnidadStore();
-  const { productos, fetchProductos } = useProductoStore();
-  const { almacenes, fetchAlmacenes } = useAlmacenStore();
+  const { productos } = useProductoStore();
+  const { almacenes } = useAlmacenStore();
   const { addToast } = useToastStore();
   const { user } = useAuthStore();
 
@@ -99,12 +99,12 @@ export const UnidadesListView: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(24);
 
-  useEffect(() => {
-    fetchUnidades();
-    fetchStats();
-    fetchProductos();
-    fetchAlmacenes();
-  }, [fetchUnidades, fetchStats, fetchProductos, fetchAlmacenes]);
+  // chk5.DS-F3 FIX · NO re-fetch al montar · el shell InventarioPageV2 ya carga unidades/stats/
+  // productos/almacenes en su propio mount. El doble fetch causaba un LOOP de skeleton al entrar
+  // al modo Unidades con inventario VACÍO: fetch→loading=true→el guard global del shell renderiza
+  // InventarioSkeleton (desmonta esta vista)→fetch resuelve con 0→loading=false→remonta→re-fetch…
+  // Esta vista solo CONSUME del store. fetchUnidades/fetchStats se conservan para refrescar tras
+  // acciones (editar vencimiento, etc.), que operan sobre unidades existentes (no disparan el loop).
 
   const unidadesFiltradas = useMemo(() => {
     return unidadesPorLinea.filter(unidad => {
