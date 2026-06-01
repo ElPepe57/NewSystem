@@ -1198,6 +1198,8 @@ export const InventarioPageV2: React.FC = () => {
             problemas: inventarioStats.problemas,
             total: inventarioStats.total,
           }}
+          ctruData={ctruData}
+          almacenes={almacenes}
         />
       )}
 
