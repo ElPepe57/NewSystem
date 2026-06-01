@@ -5,31 +5,42 @@
  * Se renderiza dentro del modo "Unidades" del tab Inventario.
  *
  * NO renderiza header ni KPI strip · esos vienen del shell `InventarioPageV2`.
- * SÍ renderiza: filtros + búsqueda + paginación + cards apiladas (canon F4) /
- * tabla densa + modales propios (UnidadDetails · EditarVencimiento).
+ * SÍ renderiza: filtros (FiltrosBar canónico) + búsqueda + paginación + cards
+ * apiladas (canon F4) / tabla densa + modales propios (UnidadDetails · EditarVencimiento).
  *
- * Mantiene la lógica original 1:1: filtros (producto, casilla, estado, país),
- * pipeline tabs (origen/tránsito/Perú/reservada/vendida/problemas), búsqueda
- * por SKU/nombre/lote/almacén, paginación, FEFO sort.
+ * chk5.DS · FILTROS UNIFICADOS A FiltrosBar (igual que el modo Stock · InventarioPageV2):
+ *   - Búsqueda  → searchTerm (SKU/nombre/lote/almacén)
+ *   - Ubicación → leadingFilter "Todas las ubicaciones" (dropdown agrupado por TIPO de almacén)
+ *   - País      → chipGroup multi (USA 🇺🇸 sky · Perú 🇵🇪 emerald · count = nº unidades)
+ *   - Estado    → chipGroup multi GRANULAR (preserva casos especiales recibida_origen/en_transito_origen)
+ *   - Orden     → sortValue (vencen_asc default · reciente_desc · sku_asc · nombre_asc)
+ *   - ChipsActivos → banner removible bajo FiltrosBar
+ * Eliminados: <Toolbar> · <FilterDrawer>/<FilterSection> · filtro Producto (cubierto por búsqueda).
  */
 
 import React, { useEffect, useState, useMemo } from 'react';
-import { Package, Eye, Calendar, RefreshCw } from 'lucide-react';
+import {
+  Package, Eye, Calendar, RefreshCw, LayoutGrid, Table2,
+  Building2, Warehouse, User, Truck, Globe2, type LucideIcon,
+} from 'lucide-react';
 import { formatFecha, calcularDiasParaVencer as calcularDiasParaVencerUtil } from '../../../../utils/dateFormatters';
 import { getDescripcionProducto } from '../../../../utils/producto.helpers';
 import { formatCurrency } from '../../../../utils/format';
 import {
   Card,
   Badge,
-  Select,
   Button,
   ListSummary,
   Pagination,
   LineaNegocioBadge,
   PaisOrigenBadge,
 } from '../../../../components/common';
-import { Toolbar, FilterDrawer, FilterSection, DataTable } from '../../../../design-system';
-import type { DataTableColumn } from '../../../../design-system';
+import { DataTable, FiltrosBar, ChipsActivos } from '../../../../design-system';
+import type {
+  DataTableColumn,
+  ChipGroupConfig, SortOption,
+  LeadingFilterConfig, LeadingFilterOptionGroup, ChipActivo,
+} from '../../../../design-system';
 import { UnidadDetailsModal } from '../detail/UnidadDetailsModal';
 import { UnidadCard } from '../cards/UnidadCard';
 import { EditarVencimientoModal } from '../modals/EditarVencimientoModal';
@@ -72,6 +83,33 @@ const getEstadoBadgeMeta = (estado: EstadoUnidad | string, paisOrigen?: string) 
   return { variant, label };
 };
 
+// ─── Filtro de ESTADO · valores granulares para el chipGroup ──────────────────
+// Mismos 6 valores que el Select legacy (pedida/en_transito/disponible/reservada/
+// vendida/danada). Cada chip lleva su variant semántico FIJO (no el color del módulo).
+const ESTADO_CHIP_OPTIONS: { value: string; label: string; variant: ChipGroupConfig['options'][number]['variant'] }[] = [
+  { value: 'pedida',      label: 'Pedida',      variant: 'slate' },
+  { value: 'en_transito', label: 'En Tránsito', variant: 'sky' },
+  { value: 'disponible',  label: 'Disponible',  variant: 'emerald' },
+  { value: 'reservada',   label: 'Reservada',   variant: 'amber' },
+  { value: 'vendida',     label: 'Vendida',     variant: 'slate' },
+  { value: 'danada',      label: 'Dañada',      variant: 'rose' },
+];
+
+/**
+ * Determina si una unidad matchea un valor de estado del filtro.
+ * PRESERVA 1:1 la lógica granular original (UnidadesListView legacy L123-130):
+ *   - 'recibida_origen'    → esEstadoEnOrigen(unidad.estado)
+ *   - 'en_transito_origen' → esEstadoEnTransitoOrigen(unidad.estado)
+ *   - resto               → unidad.estado === valor
+ * Estos casos especiales se conservan aunque los 6 chips visibles sean los
+ * estándar · garantiza comportamiento equivalente al filtro previo.
+ */
+const matchEstadoUnidad = (unidad: Unidad, valor: string): boolean => {
+  if (valor === 'recibida_origen') return esEstadoEnOrigen(unidad.estado);
+  if (valor === 'en_transito_origen') return esEstadoEnTransitoOrigen(unidad.estado);
+  return unidad.estado === valor;
+};
+
 export const UnidadesListView: React.FC = () => {
   const { unidades, loading, fetchUnidades, fetchStats } = useUnidadStore();
   const { productos } = useProductoStore();
@@ -81,14 +119,13 @@ export const UnidadesListView: React.FC = () => {
 
   const unidadesPorLinea = useLineaFilter(unidades, u => u.lineaNegocioId);
 
-  const [filtros, setFiltros] = useState({
-    productoId: '',
-    casillaId: '',
-    estado: '' as EstadoUnidad | '',
-    pais: '' as string,
-  });
+  // chk5.DS · modelo de filtros unificado al canon FiltrosBar (mismo que modo Stock):
+  //   selecciones · multi-valor por dimensión (pais/estado) + ubicacion (single → [valor])
+  //   busqueda    · texto libre (SKU/nombre/lote/almacén)
+  //   sortValue   · orden de la lista (default FEFO · por vencer primero)
+  const [selecciones, setSelecciones] = useState<Record<string, string[]>>({});
   const [busqueda, setBusqueda] = useState('');
-  const [showFilters, setShowFilters] = useState(false);
+  const [sortValue, setSortValue] = useState('vencen_asc');
   const [sincronizando, setSincronizando] = useState(false);
   const [unidadSeleccionada, setUnidadSeleccionada] = useState<Unidad | null>(null);
   const [showEditarVencimiento, setShowEditarVencimiento] = useState(false);
@@ -106,8 +143,15 @@ export const UnidadesListView: React.FC = () => {
   // Esta vista solo CONSUME del store. fetchUnidades/fetchStats se conservan para refrescar tras
   // acciones (editar vencimiento, etc.), que operan sobre unidades existentes (no disparan el loop).
 
+  // Valor de ubicación seleccionado (single-select · vive en selecciones.ubicacion como [valor])
+  const ubicacionSel = selecciones.ubicacion?.[0] ?? '';
+
   const unidadesFiltradas = useMemo(() => {
+    const paisSel = selecciones.pais ?? [];
+    const estadoSel = selecciones.estado ?? [];
+
     return unidadesPorLinea.filter(unidad => {
+      // Búsqueda (SKU / nombre / lote / almacén)
       if (busqueda) {
         const term = busqueda.toLowerCase();
         const matchSearch =
@@ -118,26 +162,53 @@ export const UnidadesListView: React.FC = () => {
         if (!matchSearch) return false;
       }
 
-      if (filtros.productoId && unidad.productoId !== filtros.productoId) return false;
-      if (filtros.casillaId && (unidad.casillaActualId || unidad.almacenId) !== filtros.casillaId) return false;
-      if (filtros.estado) {
-        if (filtros.estado === 'recibida_origen') {
-          if (!esEstadoEnOrigen(unidad.estado)) return false;
-        } else if (filtros.estado === 'en_transito_origen') {
-          if (!esEstadoEnTransitoOrigen(unidad.estado)) return false;
-        } else if (unidad.estado !== filtros.estado) {
-          return false;
-        }
-      }
-      if (filtros.pais && unidad.pais !== filtros.pais) return false;
+      // Ubicación (leadingFilter · single-select)
+      if (ubicacionSel && (unidad.casillaActualId || unidad.almacenId) !== ubicacionSel) return false;
+
+      // País (chipGroup multi · pasa si vacío O incluye el país de la unidad)
+      if (paisSel.length > 0 && !paisSel.includes(unidad.pais)) return false;
+
+      // Estado (chipGroup multi GRANULAR · pasa si vacío O matchea ALGÚN valor seleccionado,
+      // aplicando los casos especiales recibida_origen/en_transito_origen por cada valor)
+      if (estadoSel.length > 0 && !estadoSel.some(v => matchEstadoUnidad(unidad, v))) return false;
+
       return true;
     });
-  }, [unidadesPorLinea, filtros, busqueda]);
+  }, [unidadesPorLinea, selecciones, busqueda, ubicacionSel]);
+
+  // Orden (FEFO por defecto) · se aplica ANTES de la paginación
+  const unidadesOrdenadas = useMemo(() => {
+    const arr = [...unidadesFiltradas];
+    switch (sortValue) {
+      case 'vencen_asc': // FEFO · vence antes primero (null/sin fecha al final)
+        arr.sort((a, b) => {
+          const da = calcularDiasParaVencerUtil(a.fechaVencimiento);
+          const db = calcularDiasParaVencerUtil(b.fechaVencimiento);
+          if (da === null && db === null) return 0;
+          if (da === null) return 1;
+          if (db === null) return -1;
+          return da - db;
+        });
+        break;
+      case 'reciente_desc': // creación más reciente primero
+        arr.sort((a, b) => (b.fechaCreacion?.toMillis?.() ?? 0) - (a.fechaCreacion?.toMillis?.() ?? 0));
+        break;
+      case 'sku_asc':
+        arr.sort((a, b) => (a.productoSKU ?? '').localeCompare(b.productoSKU ?? ''));
+        break;
+      case 'nombre_asc':
+        arr.sort((a, b) => (a.productoNombre ?? '').localeCompare(b.productoNombre ?? ''));
+        break;
+      default:
+        break;
+    }
+    return arr;
+  }, [unidadesFiltradas, sortValue]);
 
   const unidadesPaginadas = useMemo(() => {
     const startIndex = (currentPage - 1) * pageSize;
-    return unidadesFiltradas.slice(startIndex, startIndex + pageSize);
-  }, [unidadesFiltradas, currentPage, pageSize]);
+    return unidadesOrdenadas.slice(startIndex, startIndex + pageSize);
+  }, [unidadesOrdenadas, currentPage, pageSize]);
 
   const productosMap = useMemo(() => {
     const map = new Map<string, { presentacion?: string; contenido?: string; dosaje?: string; sabor?: string; atributosSkincare?: any }>();
@@ -151,13 +222,184 @@ export const UnidadesListView: React.FC = () => {
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [filtros, busqueda]);
+  }, [selecciones, busqueda, sortValue]);
+
+  // ─── Config FiltrosBar ──────────────────────────────────────────────────────
+
+  // chipGroups · País (multi · count = nº de UNIDADES de ese país)
+  const chipGroups: ChipGroupConfig[] = useMemo(() => {
+    const porPais = new Map<string, number>();
+    unidadesPorLinea.forEach(u => {
+      if (u.pais) porPais.set(u.pais, (porPais.get(u.pais) ?? 0) + 1);
+    });
+    return [
+      {
+        key: 'pais',
+        label: 'País',
+        multi: true,
+        options: [
+          { value: 'USA',  label: 'USA',  count: porPais.get('USA') ?? 0,  emojiPrefix: '🇺🇸', variant: 'sky' as const },
+          { value: 'Peru', label: 'Perú', count: porPais.get('Peru') ?? 0, emojiPrefix: '🇵🇪', variant: 'emerald' as const },
+        ],
+      },
+      {
+        key: 'estado',
+        label: 'Estado',
+        multi: true,
+        options: ESTADO_CHIP_OPTIONS.map(o => ({
+          value: o.value,
+          label: o.label,
+          variant: o.variant,
+          count: unidadesPorLinea.filter(u => matchEstadoUnidad(u, o.value)).length,
+        })),
+      },
+    ];
+  }, [unidadesPorLinea]);
+
+  // leadingFilter · "Todas las ubicaciones" · dropdown agrupado por TIPO de almacén
+  // (réplica del patrón Stock · InventarioPageV2 L583-638)
+  const leadingFilter: LeadingFilterConfig = useMemo(() => {
+    const TIPO_CONFIG: Record<string, { label: string; icon: LucideIcon; itemIcon: LucideIcon; orden: number }> = {
+      almacen_peru:   { label: 'Almacenes Perú',      icon: Building2, itemIcon: Building2, orden: 1 },
+      almacen_origen: { label: 'Almacenes en origen', icon: Warehouse, itemIcon: Warehouse, orden: 2 },
+      viajero:        { label: 'Viajeros',            icon: User,      itemIcon: User,      orden: 3 },
+      courier:        { label: 'Couriers',            icon: Truck,     itemIcon: Truck,     orden: 4 },
+    };
+
+    const porTipo = new Map<string, typeof almacenes>();
+    almacenes.forEach(a => {
+      const tipo = a.tipo || 'almacen_peru';
+      if (!porTipo.has(tipo)) porTipo.set(tipo, []);
+      porTipo.get(tipo)!.push(a);
+    });
+
+    const grupos: LeadingFilterOptionGroup[] = Array.from(porTipo.keys())
+      .filter(tipo => (porTipo.get(tipo)?.length ?? 0) > 0)
+      .sort((a, b) => (TIPO_CONFIG[a]?.orden ?? 99) - (TIPO_CONFIG[b]?.orden ?? 99))
+      .map(tipo => {
+        const cfg = TIPO_CONFIG[tipo] ?? { label: tipo, icon: Warehouse, itemIcon: Warehouse, orden: 99 };
+        const items = (porTipo.get(tipo) ?? []).slice().sort((a, b) =>
+          (a.nombre ?? '').localeCompare(b.nombre ?? '')
+        );
+        return {
+          groupLabel: cfg.label,
+          groupIcon: cfg.icon,
+          options: items.map(a => ({
+            value: a.id,
+            label: a.nombre,
+            icon: cfg.itemIcon,
+          })),
+        };
+      });
+
+    return {
+      label: 'Todas las ubicaciones',
+      value: ubicacionSel,
+      icon: Globe2,
+      allOption: {
+        value: '',
+        label: 'Todas las ubicaciones',
+        icon: Globe2,
+      },
+      options: grupos,
+      onChange: (value: string) => {
+        setSelecciones(prev => {
+          const updated = { ...prev };
+          if (value === '') delete updated.ubicacion;
+          else updated.ubicacion = [value];
+          return updated;
+        });
+      },
+    };
+  }, [ubicacionSel, almacenes]);
+
+  const sortOptions: SortOption[] = useMemo(() => [
+    { value: 'vencen_asc',    label: 'Por vencer primero' },
+    { value: 'reciente_desc', label: 'Más reciente' },
+    { value: 'sku_asc',       label: 'SKU A-Z' },
+    { value: 'nombre_asc',    label: 'Nombre A-Z' },
+  ], []);
+
+  const handleChipToggle = (groupKey: string, value: string) => {
+    setSelecciones(prev => {
+      const current = prev[groupKey] ?? [];
+      const next = current.includes(value)
+        ? current.filter(v => v !== value)
+        : [...current, value];
+      const updated = { ...prev };
+      if (next.length === 0) delete updated[groupKey];
+      else updated[groupKey] = next;
+      return updated;
+    });
+  };
+
+  const hayFiltrosActivos = useMemo(
+    () => !!busqueda || Object.values(selecciones).some(a => a.length > 0),
+    [busqueda, selecciones]
+  );
 
   const limpiarFiltros = () => {
-    setFiltros({ productoId: '', casillaId: '', estado: '', pais: '' });
+    setSelecciones({});
     setBusqueda('');
     setCurrentPage(1);
   };
+
+  // chipsActivos · banner removible bajo el FiltrosBar (réplica patrón Stock L650+)
+  const chipsActivos: ChipActivo[] = useMemo(() => {
+    const chips: ChipActivo[] = [];
+
+    // País
+    (selecciones.pais ?? []).forEach(pais => {
+      chips.push({
+        key: `pais:${pais}`,
+        label: `${pais === 'USA' ? '🇺🇸' : '🇵🇪'} ${pais === 'Peru' ? 'Perú' : pais}`,
+        color: pais === 'USA' ? 'sky' : 'emerald',
+        onRemove: () => handleChipToggle('pais', pais),
+      });
+    });
+
+    // Estado
+    (selecciones.estado ?? []).forEach(estado => {
+      const opt = ESTADO_CHIP_OPTIONS.find(o => o.value === estado);
+      chips.push({
+        key: `estado:${estado}`,
+        label: `Estado: ${opt?.label ?? estado}`,
+        color: (opt?.variant as ChipActivo['color']) ?? 'slate',
+        onRemove: () => handleChipToggle('estado', estado),
+      });
+    });
+
+    // Ubicación
+    (selecciones.ubicacion ?? []).forEach(almacenId => {
+      const almacen = almacenes.find(a => a.id === almacenId);
+      if (!almacen) return;
+      chips.push({
+        key: `ubicacion:${almacenId}`,
+        label: `Ubicación: ${almacen.nombre}`,
+        color: 'slate',
+        onRemove: () => {
+          setSelecciones(prev => {
+            const updated = { ...prev };
+            delete updated.ubicacion;
+            return updated;
+          });
+        },
+      });
+    });
+
+    // Búsqueda
+    if (busqueda.trim()) {
+      chips.push({
+        key: 'search',
+        label: `"${busqueda}"`,
+        color: 'slate',
+        onRemove: () => setBusqueda(''),
+      });
+    }
+
+    return chips;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selecciones, busqueda, almacenes]);
 
   const handleSincronizar = async () => {
     setSincronizando(true);
@@ -177,8 +419,6 @@ export const UnidadesListView: React.FC = () => {
       setSincronizando(false);
     }
   };
-
-  const hayFiltrosActivos = busqueda || filtros.productoId || filtros.casillaId || filtros.estado || filtros.pais;
 
   const tablaColumns: DataTableColumn<Unidad>[] = [
     {
@@ -297,76 +537,65 @@ export const UnidadesListView: React.FC = () => {
         </Button>
       </div>
 
-      {/* Toolbar (búsqueda + view mode + filtros) */}
-      <Toolbar
-        search={{ value: busqueda, onChange: setBusqueda, placeholder: 'Buscar por SKU, nombre, lote o almacén...' }}
-        viewMode={vistaActual === 'tabla' ? 'table' : 'card'}
-        onViewModeChange={(mode) => setVistaActual(mode === 'table' ? 'tabla' : 'cards')}
-        filterCount={[filtros.productoId, filtros.casillaId, filtros.estado, filtros.pais].filter(Boolean).length}
-        onFilterToggle={() => setShowFilters(true)}
-        resultCount={unidadesFiltradas.length}
+      {/* FiltrosBar canónico (búsqueda + ubicación + país + estado + orden) */}
+      <FiltrosBar
+        leadingFilter={leadingFilter}
+        chipGroups={chipGroups}
+        selecciones={selecciones}
+        onChipToggle={handleChipToggle}
+        searchTerm={busqueda}
+        searchPlaceholder="Buscar por SKU, nombre, lote o almacén..."
+        onSearchChange={setBusqueda}
+        sortValue={sortValue}
+        sortOptions={sortOptions}
+        onSortChange={setSortValue}
+        hayFiltrosActivos={hayFiltrosActivos}
+        onLimpiarTodo={limpiarFiltros}
       />
 
-      <FilterDrawer
-        isOpen={showFilters}
-        onClose={() => setShowFilters(false)}
-        onClearAll={() => setFiltros({ productoId: '', casillaId: '', estado: '' as any, pais: '' })}
-        activeFilterCount={[filtros.productoId, filtros.casillaId, filtros.estado, filtros.pais].filter(Boolean).length}
-      >
-        <FilterSection title="Producto">
-          <Select
-            label="Producto"
-            value={filtros.productoId}
-            onChange={(e) => setFiltros({ ...filtros, productoId: e.target.value })}
-            options={[{ value: '', label: 'Todos' }, ...productos.map(p => ({ value: p.id, label: `${p.sku} - ${p.nombreComercial}` }))]}
-          />
-        </FilterSection>
-        <FilterSection title="Ubicación">
-          <Select
-            label="Casilla"
-            value={filtros.casillaId}
-            onChange={(e) => setFiltros({ ...filtros, casillaId: e.target.value })}
-            options={[{ value: '', label: 'Todas' }, ...almacenes.map(a => ({ value: a.id, label: a.nombre }))]}
-          />
-          <Select
-            label="País"
-            value={filtros.pais}
-            onChange={(e) => setFiltros({ ...filtros, pais: e.target.value })}
-            options={[{ value: '', label: 'Todos' }, { value: 'USA', label: 'USA' }, { value: 'Peru', label: 'Perú' }]}
-          />
-        </FilterSection>
-        <FilterSection title="Estado">
-          <Select
-            label="Estado"
-            value={filtros.estado}
-            onChange={(e) => setFiltros({ ...filtros, estado: e.target.value as EstadoUnidad | '' })}
-            options={[
-              { value: '', label: 'Todos' },
-              { value: 'pedida', label: 'Pedida' },
-              { value: 'en_transito', label: 'En Tránsito' },
-              { value: 'disponible', label: 'Disponible' },
-              { value: 'reservada', label: 'Reservada' },
-              { value: 'vendida', label: 'Vendida' },
-              { value: 'danada', label: 'Dañada' },
-            ]}
-          />
-        </FilterSection>
-      </FilterDrawer>
+      {/* ChipsActivos · banner removible cuando hay filtros aplicados */}
+      <ChipsActivos
+        resultCount={unidadesFiltradas.length}
+        totalCount={unidadesPorLinea.length}
+        chips={chipsActivos}
+        entityLabel="unidades"
+      />
 
-      <div className="flex items-center justify-between">
+      {/* Mini-toolbar · contador + toggle de vista (Cards / Tabla) */}
+      <div className="flex items-center justify-between gap-2">
         <span className="text-sm text-slate-600">
           Mostrando <span className="font-medium tabular-nums">{unidadesPaginadas.length}</span> de{' '}
           <span className="font-medium tabular-nums">{unidadesFiltradas.length}</span> unidades
           {unidadesFiltradas.length !== unidadesPorLinea.length && ` (${unidadesPorLinea.length} total)`}
         </span>
-        {hayFiltrosActivos && (
+        <div className="flex items-center gap-1 bg-slate-100 rounded-lg p-0.5">
           <button
-            onClick={limpiarFiltros}
-            className="text-sm text-orange-600 hover:text-orange-700 font-medium"
+            type="button"
+            onClick={() => setVistaActual('cards')}
+            className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-medium transition-colors ${
+              vistaActual === 'cards'
+                ? 'bg-white text-orange-700 shadow-sm'
+                : 'text-slate-500 hover:text-slate-700'
+            }`}
+            title="Vista de tarjetas"
           >
-            Limpiar filtros
+            <LayoutGrid className="h-3.5 w-3.5" />
+            <span className="hidden sm:inline">Cards</span>
           </button>
-        )}
+          <button
+            type="button"
+            onClick={() => setVistaActual('tabla')}
+            className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-medium transition-colors ${
+              vistaActual === 'tabla'
+                ? 'bg-white text-orange-700 shadow-sm'
+                : 'text-slate-500 hover:text-slate-700'
+            }`}
+            title="Vista de tabla"
+          >
+            <Table2 className="h-3.5 w-3.5" />
+            <span className="hidden sm:inline">Tabla</span>
+          </button>
+        </div>
       </div>
 
       {/* Vista cards apiladas o tabla */}

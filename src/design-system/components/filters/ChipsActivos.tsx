@@ -29,6 +29,8 @@ interface ChipsActivosProps {
   resultCount: number;
   totalCount: number;
   chips: ChipActivo[];
+  /** Sustantivo de la entidad contada (ej: 'productos', 'unidades'). Default 'productos'. */
+  entityLabel?: string;
 }
 
 const COLOR_CLASSES: Record<ChipColor, string> = {
@@ -53,14 +55,14 @@ const REMOVE_HOVER_CLASSES: Record<ChipColor, string> = {
   slate: 'hover:bg-slate-200',
 };
 
-export const ChipsActivos: React.FC<ChipsActivosProps> = ({ resultCount, totalCount, chips }) => {
+export const ChipsActivos: React.FC<ChipsActivosProps> = ({ resultCount, totalCount, chips, entityLabel = 'productos' }) => {
   if (chips.length === 0) return null;
 
   return (
     <div className="flex items-center gap-2 mb-4 flex-wrap">
       <span className="text-xs text-slate-500">
         <strong className="text-slate-900 tabular-nums">{resultCount}</strong> de{' '}
-        <strong className="text-slate-900 tabular-nums">{totalCount}</strong> productos
+        <strong className="text-slate-900 tabular-nums">{totalCount}</strong> {entityLabel}
       </span>
       <span className="text-slate-300">·</span>
       <span className="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">Filtros activos:</span>
