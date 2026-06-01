@@ -104,3 +104,7 @@ export * from './components/maestros';
 // Ver `docs/DESIGN_PATTERNS.md` para documentación completa.
 export * from './templates';
 export * from './hooks';
+
+// ─── Hub Kit (L5 · shell canónico de módulos · en construcción F3) ───
+// Spec: docs/mockups/hub-kit-implementacion-v1.html
+export * from './components/hub';
