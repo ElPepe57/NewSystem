@@ -26,13 +26,10 @@
  * placeholders (cross-link a /tesoreria) hasta SF5/S3 que las wire-up al canon.
  */
 
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Outlet, NavLink, useLocation, useNavigate } from 'react-router-dom';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import {
   Landmark,
-  ChevronLeft,
-  ChevronRight,
-  Shield,
   Download,
   Settings2,
   LayoutDashboard,
@@ -43,8 +40,8 @@ import {
   LineChart,
   type LucideIcon,
 } from 'lucide-react';
-import { PageShell } from '../../design-system';
-import { cn } from '../../design-system';
+import { HubShell, HubTopBar, HubHeader, HubTabs, HubBody } from '../../design-system';
+import type { HubTab } from '../../design-system';
 import { useAuthStore } from '../../store/authStore';
 import { hasRole } from '../../types/auth.types';
 import {
@@ -119,158 +116,12 @@ const TABS: TabConfig[] = [
   },
 ];
 
-const BADGE_COLOR: Record<NonNullable<TabConfig['badge']>['color'], string> = {
-  slate: 'bg-slate-100 text-slate-600',
-  emerald: 'bg-emerald-100 text-emerald-700',
-  rose: 'bg-rose-100 text-rose-700',
-  indigo: 'bg-indigo-100 text-indigo-700',
-  amber: 'bg-amber-100 text-amber-700',
-};
+// HubTab[] derivado de TABS (id = path · el shell adapta HubTabs a router · ver el return).
+const HUB_TABS: HubTab[] = TABS.map((t) => ({ id: t.path, label: t.label, icon: t.icon }));
 
-// ═════════════════════════════════════════════════════════════════════════
-// SUB-COMPONENTE · SubVistaTabs (chk5.D-S8.SF3.D11)
-// Scroll horizontal con chevron buttons que aparecen sólo cuando hay overflow.
-// Auto-scroll del tab activo a la vista al navegar.
-// ═════════════════════════════════════════════════════════════════════════
-
-const SubVistaTabs: React.FC = () => {
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const location = useLocation();
-  const [canScrollLeft, setCanScrollLeft] = useState(false);
-  const [canScrollRight, setCanScrollRight] = useState(false);
-
-  // Actualiza estado de chevrons según scroll position
-  const updateScrollState = useCallback(() => {
-    const el = scrollRef.current;
-    if (!el) return;
-    const slack = 2; // tolerancia pixel-perfect
-    setCanScrollLeft(el.scrollLeft > slack);
-    setCanScrollRight(el.scrollLeft + el.clientWidth < el.scrollWidth - slack);
-  }, []);
-
-  // Listeners: scroll + resize + mount
-  useEffect(() => {
-    const el = scrollRef.current;
-    if (!el) return;
-    updateScrollState();
-    el.addEventListener('scroll', updateScrollState, { passive: true });
-    window.addEventListener('resize', updateScrollState);
-    return () => {
-      el.removeEventListener('scroll', updateScrollState);
-      window.removeEventListener('resize', updateScrollState);
-    };
-  }, [updateScrollState]);
-
-  // Auto-scroll del tab activo a la vista cuando cambia la ruta
-  useEffect(() => {
-    const el = scrollRef.current;
-    if (!el) return;
-    const active = el.querySelector<HTMLElement>('a[aria-current="page"]');
-    if (active) {
-      active.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-    }
-    // Re-evaluar chevrons después del scroll programático
-    const t = window.setTimeout(updateScrollState, 350);
-    return () => window.clearTimeout(t);
-  }, [location.pathname, updateScrollState]);
-
-  // Scroll por click de chevron · 60% del viewport visible (aprox 1.5 tabs)
-  const scrollBy = useCallback((dir: 1 | -1) => {
-    const el = scrollRef.current;
-    if (!el) return;
-    el.scrollBy({ left: dir * el.clientWidth * 0.6, behavior: 'smooth' });
-  }, []);
-
-  return (
-    <div className="relative border-b border-slate-200">
-      {/* Chevron izquierdo · sólo si hay scroll posible a la izquierda */}
-      {canScrollLeft && (
-        <button
-          type="button"
-          onClick={() => scrollBy(-1)}
-          aria-label="Desplazar tabs a la izquierda"
-          className="absolute left-0 top-0 bottom-0 z-20 px-1.5 bg-white/95 hover:bg-slate-50 border-r border-slate-200 flex items-center text-slate-600 hover:text-slate-900 shadow-[2px_0_4px_-2px_rgba(0,0,0,0.06)]"
-        >
-          <ChevronLeft className="w-4 h-4" />
-        </button>
-      )}
-
-      <div ref={scrollRef} className="px-6 overflow-x-auto scrollbar-hide">
-        <div className="flex items-center gap-1 -mb-px">
-          {TABS.map((tab) => {
-            const Icon = tab.icon;
-            if (tab.disabled) {
-              return (
-                <button
-                  key={tab.path}
-                  type="button"
-                  disabled
-                  title={tab.disabledHint}
-                  aria-disabled="true"
-                  className="px-4 py-3 text-[12px] font-medium border-b-2 border-transparent text-slate-400 cursor-not-allowed flex items-center gap-1.5 whitespace-nowrap"
-                >
-                  <Icon className="w-3.5 h-3.5" />
-                  {tab.label}
-                  <span className="text-[9px] bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded-full font-bold">
-                    próx
-                  </span>
-                </button>
-              );
-            }
-            return (
-              <NavLink
-                key={tab.path}
-                to={tab.path}
-                end={tab.end}
-                className={({ isActive }) =>
-                  cn(
-                    'px-4 py-3 text-[12px] border-b-2 flex items-center gap-1.5 whitespace-nowrap transition-colors',
-                    isActive
-                      ? 'border-teal-600 text-teal-700 font-semibold'
-                      : 'border-transparent text-slate-600 hover:text-slate-900 hover:border-slate-300 font-medium',
-                  )
-                }
-              >
-                <Icon className="w-3.5 h-3.5" />
-                {tab.label}
-                {tab.badge && (
-                  <span
-                    className={cn(
-                      'text-[10px] px-1.5 py-0.5 rounded-full font-bold',
-                      BADGE_COLOR[tab.badge.color],
-                    )}
-                  >
-                    {tab.badge.value}
-                  </span>
-                )}
-              </NavLink>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Chevron derecho · sólo si hay scroll posible a la derecha */}
-      {canScrollRight && (
-        <button
-          type="button"
-          onClick={() => scrollBy(1)}
-          aria-label="Desplazar tabs a la derecha"
-          className="absolute right-0 top-0 bottom-0 z-20 px-1.5 bg-white/95 hover:bg-slate-50 border-l border-slate-200 flex items-center text-slate-600 hover:text-slate-900 shadow-[-2px_0_4px_-2px_rgba(0,0,0,0.06)]"
-        >
-          <ChevronRight className="w-4 h-4" />
-        </button>
-      )}
-
-      {/* Fade hint derecho · sólo se nota cuando hay overflow horizontal y no hay chevron (ej. desktop apenas justo) */}
-      {canScrollRight && (
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute top-0 right-8 h-full w-6 bg-gradient-to-l from-white to-transparent"
-        />
-      )}
-    </div>
-  );
-};
+// SubVistaTabs local (NavLink + chevron-scroll) → reemplazado por HubTabs (Hub Kit · DS F4).
+// El shell adapta HubTabs al router: activa = tab cuyo path matchea la ruta (con lógica `end`),
+// onChange = navigate(id). Se pierden los botones-chevron (HubTabs usa scroll-x canon N6).
 
 // ═════════════════════════════════════════════════════════════════════════
 // SUB-VISTA CONFIG · cada sub-vista puede override header/KPIs/actions/crumb
@@ -338,18 +189,8 @@ export interface FinanzasShellContext {
   setSubVistaConfig: (config: SubVistaConfig | null) => void;
 }
 
-// ═════════════════════════════════════════════════════════════════════════
-// MAPS canon · gradient del icon banking-grade por color (Tailwind static)
-// ═════════════════════════════════════════════════════════════════════════
-
-const ICON_GRADIENT: Record<NonNullable<SubVistaConfig['header']>['iconColor'], string> = {
-  teal: 'bg-gradient-to-br from-teal-500 to-teal-700 ring-2 ring-teal-100',
-  slate: 'bg-gradient-to-br from-slate-500 to-slate-700 ring-2 ring-slate-100',
-  indigo: 'bg-gradient-to-br from-indigo-500 to-indigo-700 ring-2 ring-indigo-100',
-  purple: 'bg-gradient-to-br from-purple-500 to-purple-700 ring-2 ring-purple-100',
-  emerald: 'bg-gradient-to-br from-emerald-500 to-emerald-700 ring-2 ring-emerald-100',
-  amber: 'bg-gradient-to-br from-amber-500 to-amber-700 ring-2 ring-amber-100',
-};
+// El ícono del header ahora hereda el color del grupo (teal · canon §A · vía HubHeader) ·
+// el ICON_GRADIENT por sub-vista quedó derogado al migrar al Hub Kit (decisión user 2026-06-01).
 
 const DEFAULT_HEADER = {
   title: 'Finanzas',
@@ -641,110 +482,77 @@ const FinanzasLayout: React.FC = () => {
     [kpiData, miniStats, cuentas, resumenCC, movimientosMes, loading, handleSeleccionarAccion],
   );
 
-  // ─── Resolver header/breadcrumb/actions/KPI con override de sub-vista ─
+  // ─── Resolver header/breadcrumb/actions con override de sub-vista ─
   const headerCfg = subVistaConfig?.header ?? DEFAULT_HEADER;
   const HeaderIcon = headerCfg.icon;
-  const breadcrumbLeaf = subVistaConfig?.breadcrumbLeaf ?? 'Finanzas';
-  const showDefaultKpi = !subVistaConfig?.kpiSlot;
+  // leaf null → breadcrumb 2 niveles (Inicio › Finanzas) · con leaf → 3 niveles.
+  const breadcrumbLeaf = subVistaConfig?.breadcrumbLeaf ?? null;
   const showDefaultActions = !subVistaConfig?.actions;
+  // Tab activa · path que matchea la ruta (lógica `end`: index exacto · resto startsWith).
+  const activeTabId =
+    TABS.find((t) => (t.end ? location.pathname === t.path : location.pathname.startsWith(t.path)))
+      ?.path ?? '/finanzas';
+
+  // §B · Cluster de acciones ADAPTATIVO → slot extraActions del HubHeader.
+  // Preserva 1:1 la lógica de override de sub-vista (actions / actionsReplaceAll) + el
+  // dropdown "+ Nuevo movimiento" que se mantiene salvo actionsReplaceAll.
+  const accionesCluster = (
+    <>
+      {subVistaConfig?.actions}
+      {(showDefaultActions || !subVistaConfig?.actionsReplaceAll) && (
+        <>
+          {showDefaultActions && (
+            <>
+              <button
+                type="button"
+                onClick={handleExportar}
+                aria-label="Exportar"
+                title="Exportar"
+                className="text-[11px] font-semibold text-slate-600 hover:bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-lg flex items-center gap-1.5"
+              >
+                <Download className="w-3 h-3" />
+                <span className="hidden sm:inline">Exportar</span>
+              </button>
+              <button
+                type="button"
+                onClick={handleConfigurarTC}
+                aria-label="Configurar TC"
+                title="Configurar tipo de cambio"
+                className="text-[11px] font-semibold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 px-3 py-1.5 rounded-lg flex items-center gap-1.5"
+              >
+                <Settings2 className="w-3 h-3" />
+                <span className="hidden sm:inline">Configurar TC</span>
+              </button>
+            </>
+          )}
+          <DropdownNuevoMovimiento onSeleccionar={handleSeleccionarAccion} />
+        </>
+      )}
+    </>
+  );
 
   return (
-    <PageShell>
-      {/* Shell frame · borde + sombra · contiene todo el módulo Finanzas */}
-      <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
-        {/* §A · TOP BAR breadcrumb + utility · canon chk5.D-S9.D1 (2026-05-18)
-              Canon breadcrumb consistente · 3 niveles sin grupo sidebar:
-                Overview      → Inicio › Finanzas
-                Sub-vistas    → Inicio › Finanzas › <leaf>
-              Razón: el grupo "Finanzas y Contabilidad" ya está visible siempre
-              en el sidebar izquierdo · no aporta repetirlo en breadcrumb +
-              evita rutas largas tipo "Inicio › Finanzas y Contabilidad › Finanzas".
-              Patrón a replicar en Compras/Ventas/Envíos/Gastos cuando agreguen breadcrumb. */}
-        <div className="border-b border-slate-200 px-6 py-2.5 flex items-center gap-3 bg-slate-50">
-          <div className="flex items-center text-[12px] flex-1">
-            <a className="text-slate-500 hover:text-teal-700 cursor-pointer">Inicio</a>
-            <ChevronRight className="w-3 h-3 text-slate-300 mx-1.5" />
-            {subVistaConfig?.breadcrumbLeaf ? (
-              <>
-                <a
-                  className="text-slate-500 hover:text-teal-700 cursor-pointer"
-                  onClick={() => navigate('/finanzas')}
-                >
-                  Finanzas
-                </a>
-                <ChevronRight className="w-3 h-3 text-slate-300 mx-1.5" />
-                <span className="text-slate-900 font-semibold">{breadcrumbLeaf}</span>
-              </>
-            ) : (
-              <span className="text-slate-900 font-semibold">Finanzas</span>
-            )}
-          </div>
-          {/* Chip contextual al rol · canon "admin ve todo" · alineado a Inversionistas.
-              Color teal = semántico del shell Finanzas (vs violet de Inversionistas).
-              chk5.D-S10 · reemplaza los placeholders muertos ⌘K + campanita (sin función). */}
-          <span className="text-[10px] bg-teal-50 text-teal-700 px-2 py-0.5 rounded font-bold hidden sm:inline-flex items-center gap-1 flex-shrink-0">
-            <Shield className="w-3 h-3" />
-            {esAdmin ? 'Vista ejecutiva · admin' : 'Vista ejecutiva'}
-          </span>
-        </div>
+    <div className="max-w-6xl mx-auto p-3 sm:p-4 md:p-6">
+      <HubShell>
+        {/* §A · TOP BAR · HubTopBar (breadcrumb S9.D1 · leaf dinámico por sub-vista · chip rol teal) */}
+        <HubTopBar
+          grupo="finanzas-contabilidad"
+          modulo="Finanzas"
+          leaf={breadcrumbLeaf}
+          esAdmin={esAdmin}
+          onModulo={() => navigate('/finanzas')}
+        />
 
-        {/* §B · HEADER BANKING-GRADE · icon + title + actions · N10 + adaptativo SF1 */}
-        <div className="px-6 py-5 border-b border-slate-100">
-          <div className="flex items-start justify-between gap-4 flex-wrap">
-            <div className="flex items-start gap-3 flex-1 min-w-[260px]">
-              <div
-                className={`w-11 h-11 rounded-xl flex items-center justify-center text-white flex-shrink-0 ${
-                  ICON_GRADIENT[headerCfg.iconColor]
-                }`}
-              >
-                <HeaderIcon className="w-5 h-5" />
-              </div>
-              <div className="min-w-0">
-                <h1 className="text-2xl font-bold tracking-tight text-slate-900">
-                  {headerCfg.title}
-                </h1>
-                <p className="text-[13px] text-slate-500 leading-snug">
-                  {headerCfg.subtitle}
-                </p>
-              </div>
-            </div>
-            {/* N10 · 3-tier action hierarchy · sub-vista puede override total o parcial.
-                  chk5.D-S8.SF3.D8 · sin flex-shrink-0 + flex-wrap + justify-end · evita
-                  que en mobile (<sm) la fila de 3 botones se salga del viewport. */}
-            <div className="flex items-center gap-2 flex-wrap justify-end max-w-full">
-              {subVistaConfig?.actions}
-              {(showDefaultActions || !subVistaConfig?.actionsReplaceAll) && (
-                <>
-                  {showDefaultActions && (
-                    <>
-                      <button
-                        type="button"
-                        onClick={handleExportar}
-                        aria-label="Exportar"
-                        title="Exportar"
-                        className="text-[11px] font-semibold text-slate-600 hover:bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-lg flex items-center gap-1.5"
-                      >
-                        <Download className="w-3 h-3" />
-                        <span className="hidden sm:inline">Exportar</span>
-                      </button>
-                      <button
-                        type="button"
-                        onClick={handleConfigurarTC}
-                        aria-label="Configurar TC"
-                        title="Configurar tipo de cambio"
-                        className="text-[11px] font-semibold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 px-3 py-1.5 rounded-lg flex items-center gap-1.5"
-                      >
-                        <Settings2 className="w-3 h-3" />
-                        <span className="hidden sm:inline">Configurar TC</span>
-                      </button>
-                    </>
-                  )}
-                  <DropdownNuevoMovimiento onSeleccionar={handleSeleccionarAccion} />
-                </>
-              )}
-            </div>
-          </div>
-        </div>
+        {/* §B · HEADER · HubHeader · ícono teal SÓLIDO (canon §A: chrome = color del grupo · el
+              iconColor por sub-vista queda derogado) + título/subtítulo dinámicos + cluster de
+              acciones adaptativo vía extraActions (preserva dropdown + overrides de sub-vista) */}
+        <HubHeader
+          grupo="finanzas-contabilidad"
+          icon={HeaderIcon}
+          titulo={headerCfg.title}
+          subtitulo={headerCfg.subtitle}
+          extraActions={accionesCluster}
+        />
 
         {/* §C · KPI STRIP + MINI-STATS · canon v8.0 N1+N2+N3 · adaptativo SF1 */}
         {subVistaConfig?.kpiSlot ? (
@@ -770,16 +578,20 @@ const FinanzasLayout: React.FC = () => {
           />
         )}
 
-        {/* §D · TABS 6 sub-rutas · canon mockup §2 · scroll-x mobile (N6)
-              chk5.D-S8.SF3.D11 · extraido a <SubVistaTabs> con chevron buttons
-              que aparecen solo cuando hay overflow + auto-scroll del tab activo */}
-        <SubVistaTabs />
+        {/* §D · TABS · HubTabs router-adaptado (activa = ruta vía lógica `end` · onChange = navigate ·
+              scroll-x canon N6 · se pierden los botones-chevron del SubVistaTabs legacy) */}
+        <HubTabs
+          grupo="finanzas-contabilidad"
+          tabs={HUB_TABS}
+          activa={activeTabId}
+          onChange={(id) => navigate(id)}
+        />
 
-        {/* §E · OUTLET · cuerpo de la sub-vista activa */}
-        <div className="bg-slate-50/30">
+        {/* §E · OUTLET · HubBody flush (bg-slate-50/30 sin padding · cada sub-vista trae su layout) */}
+        <HubBody flush>
           <Outlet context={outletContext} />
-        </div>
-      </div>
+        </HubBody>
+      </HubShell>
 
       {/* §F · WIZARDS · wire-up directo del dropdown (chk5.D-S4.a.SF5) */}
       {/* A.1 · Ingreso simple */}
@@ -840,7 +652,7 @@ const FinanzasLayout: React.FC = () => {
         onClose={handleCerrarWizard}
         onSuccess={handleSuccessWizard}
       />
-    </PageShell>
+    </div>
   );
 };
 
