@@ -125,8 +125,8 @@ export const PromocionModal: React.FC<PromocionModalProps> = ({
         {/* Info del Producto */}
         <div className="bg-slate-50 rounded-lg p-4">
           <div className="flex items-start gap-4">
-            <div className="h-12 w-12 rounded-lg bg-teal-100 flex items-center justify-center flex-shrink-0">
-              <Megaphone className="h-6 w-6 text-teal-600" />
+            <div className="h-12 w-12 rounded-lg bg-orange-100 flex items-center justify-center flex-shrink-0">
+              <Megaphone className="h-6 w-6 text-orange-600" />
             </div>
             <div className="flex-1 min-w-0">
               <h4 className="font-mono text-lg font-bold text-slate-900">{producto.sku}</h4>
@@ -160,7 +160,7 @@ export const PromocionModal: React.FC<PromocionModalProps> = ({
                 onClick={() => setPorcentajeDescuento(d)}
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                   porcentajeDescuento === d
-                    ? 'bg-teal-600 text-white'
+                    ? 'bg-orange-600 text-white'
                     : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
                 }`}
               >
@@ -177,11 +177,11 @@ export const PromocionModal: React.FC<PromocionModalProps> = ({
               max="70"
               value={porcentajeDescuento}
               onChange={(e) => setPorcentajeDescuento(Number(e.target.value))}
-              className="flex-1 h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-teal-600"
+              className="flex-1 h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-orange-600"
             />
-            <div className="flex items-center gap-1 bg-teal-100 rounded-lg px-3 py-2">
-              <Percent className="h-4 w-4 text-teal-600" />
-              <span className="text-xl font-bold text-teal-700">{porcentajeDescuento}</span>
+            <div className="flex items-center gap-1 bg-orange-100 rounded-lg px-3 py-2">
+              <Percent className="h-4 w-4 text-orange-600" />
+              <span className="text-xl font-bold text-orange-700">{porcentajeDescuento}</span>
             </div>
           </div>
         </div>
@@ -219,7 +219,7 @@ export const PromocionModal: React.FC<PromocionModalProps> = ({
               type="date"
               value={fechaInicio}
               onChange={(e) => setFechaInicio(e.target.value)}
-              className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
             />
           </div>
           <div>
@@ -231,7 +231,7 @@ export const PromocionModal: React.FC<PromocionModalProps> = ({
               value={fechaFin}
               onChange={(e) => setFechaFin(e.target.value)}
               min={fechaInicio}
-              className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
             />
           </div>
           <div>
@@ -241,7 +241,7 @@ export const PromocionModal: React.FC<PromocionModalProps> = ({
             <select
               value={motivo}
               onChange={(e) => setMotivo(e.target.value as any)}
-              className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
             >
               <option value="vencimiento">Próximo a vencer</option>
               <option value="liquidacion">Liquidación de stock</option>
@@ -261,7 +261,7 @@ export const PromocionModal: React.FC<PromocionModalProps> = ({
             onChange={(e) => setNotas(e.target.value)}
             placeholder="Ej: Publicar en redes sociales, ofrecer a clientes frecuentes..."
             rows={2}
-            className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+            className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
           />
         </div>
 

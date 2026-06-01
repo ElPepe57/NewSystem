@@ -279,7 +279,7 @@ const TabButton: React.FC<TabButtonProps> = ({ active, onClick, icon: Icon, labe
     onClick={onClick}
     className={`flex items-center gap-2 px-3 py-2 border-b-2 font-medium text-xs transition-colors ${
       active
-        ? 'border-teal-600 text-teal-700 font-semibold'
+        ? 'border-orange-600 text-orange-700 font-semibold'
         : 'border-transparent text-slate-600 hover:text-slate-900'
     }`}
   >
@@ -498,7 +498,7 @@ const CostosTab: React.FC<{ unidad: Unidad }> = ({ unidad }) => {
           )}
           <div className="border-t border-slate-200 pt-2 flex items-center justify-between">
             <span className="text-[11px] text-slate-700 font-bold">Total USD</span>
-            <span className="text-base font-bold text-teal-600 tabular-nums">{formatCurrency(totalUSD, 'USD')}</span>
+            <span className="text-base font-bold text-emerald-600 tabular-nums">{formatCurrency(totalUSD, 'USD')}</span>
           </div>
         </div>
       </div>

@@ -36,7 +36,6 @@ import {
   Button,
   Modal,
   InventarioSkeleton,
-  Tabs,
 } from '../../../../components/common';
 import { FiltrosBar, ChipsActivos, BulkActionsToolbar, PaginacionFooter } from '../../../../design-system';
 import type {
@@ -709,7 +708,7 @@ export const InventarioPageV2: React.FC = () => {
       chips.push({
         key: `ubicacion:${almacenId}`,
         label: `Ubicación: ${almacen.nombre}`,
-        color: 'teal',
+        color: 'slate',
         onRemove: () => {
           setSelecciones(prev => {
             const updated = { ...prev };
@@ -833,6 +832,13 @@ export const InventarioPageV2: React.FC = () => {
     },
   ], [alertasPrioritarias.length]);
 
+  // Breadcrumb leaf dinámico (canon S9.D1) · null en tab default (inventario) = 2 niveles
+  const breadcrumbLeaf =
+    tabActivo === 'mapa' ? 'Mapa'
+    : tabActivo === 'analytics' ? 'Analytics'
+    : tabActivo === 'atencion' ? 'Atención'
+    : null;
+
   // ==================== HANDLERS ====================
 
   const handleSincronizarCompleto = async () => {
@@ -939,7 +945,21 @@ export const InventarioPageV2: React.FC = () => {
           <div className="flex items-center gap-1 text-[12px] text-slate-500">
             <a className="hover:text-orange-700 cursor-pointer flex-shrink-0">Inicio</a>
             <ChevronRight className="w-3 h-3 text-slate-300 mx-0.5 flex-shrink-0" />
-            <span className="text-slate-900 font-semibold">Inventario</span>
+            {breadcrumbLeaf ? (
+              <>
+                <button
+                  type="button"
+                  onClick={() => setTabActivo('inventario')}
+                  className="hover:text-orange-700 cursor-pointer flex-shrink-0"
+                >
+                  Inventario
+                </button>
+                <ChevronRight className="w-3 h-3 text-slate-300 mx-0.5 flex-shrink-0" />
+                <span className="text-slate-900 font-semibold">{breadcrumbLeaf}</span>
+              </>
+            ) : (
+              <span className="text-slate-900 font-semibold">Inventario</span>
+            )}
           </div>
           <span className="text-[10px] bg-orange-50 text-orange-700 px-2 py-0.5 rounded font-bold hidden sm:inline-flex items-center gap-1 flex-shrink-0">
             <Shield className="w-3 h-3" />
@@ -976,15 +996,35 @@ export const InventarioPageV2: React.FC = () => {
           />
         </div>
 
-        {/* §E · TABS de sub-sección */}
-        <div className="border-b border-slate-200 px-4 sm:px-6">
-          <Tabs
-            tabs={tabs}
-            activeTab={tabActivo}
-            onChange={(tabId) => setTabActivo(tabId as TabInventarioV2)}
-            variant="pills"
-            size="md"
-          />
+        {/* §E · TABS de sub-sección · canon hub border-b-2 en color del módulo (orange) · scroll-x mobile (N6) */}
+        <div className="border-b border-slate-200 px-4 sm:px-6 overflow-x-auto scrollbar-hide">
+          <div className="flex items-center gap-1 -mb-px">
+            {tabs.map((tab) => {
+              const isActive = tab.id === tabActivo;
+              return (
+                <button
+                  key={tab.id}
+                  type="button"
+                  onClick={() => setTabActivo(tab.id as TabInventarioV2)}
+                  aria-current={isActive ? 'page' : undefined}
+                  className={
+                    'px-3 sm:px-4 py-3 text-[12px] border-b-2 flex items-center gap-1.5 whitespace-nowrap transition-colors ' +
+                    (isActive
+                      ? 'border-orange-600 text-orange-700 font-semibold'
+                      : 'border-transparent text-slate-600 font-medium hover:text-slate-900')
+                  }
+                >
+                  {tab.icon}
+                  <span>{tab.label}</span>
+                  {tab.badge !== undefined && (
+                    <span className="px-1.5 py-0.5 rounded-full text-[10px] font-bold tabular-nums bg-rose-100 text-rose-700">
+                      {tab.badge}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         {/* §F · BODY dentro del shell */}
@@ -1230,11 +1270,11 @@ export const InventarioPageV2: React.FC = () => {
                     </div>
                     <div className="text-xs text-slate-500">Revisadas</div>
                   </div>
-                  <div className="bg-teal-50 rounded-lg p-3 text-center">
-                    <div className="text-xl font-bold text-teal-600 tabular-nums">
+                  <div className="bg-emerald-50 rounded-lg p-3 text-center">
+                    <div className="text-xl font-bold text-emerald-600 tabular-nums">
                       {resultadoSync.estadosUnidades?.correccionesRealizadas || 0}
                     </div>
-                    <div className="text-xs text-teal-700">Corregidas</div>
+                    <div className="text-xs text-emerald-700">Corregidas</div>
                   </div>
                   <div className="bg-emerald-50 rounded-lg p-3 text-center">
                     <div className="text-xl font-bold text-emerald-600 tabular-nums">
@@ -1254,11 +1294,11 @@ export const InventarioPageV2: React.FC = () => {
                     </div>
                     <div className="text-xs text-slate-500">Revisados</div>
                   </div>
-                  <div className="bg-teal-50 rounded-lg p-3 text-center">
-                    <div className="text-xl font-bold text-teal-600 tabular-nums">
+                  <div className="bg-emerald-50 rounded-lg p-3 text-center">
+                    <div className="text-xl font-bold text-emerald-600 tabular-nums">
                       {resultadoSync.stockProductos?.productosActualizados || 0}
                     </div>
-                    <div className="text-xs text-teal-700">Actualizados</div>
+                    <div className="text-xs text-emerald-700">Actualizados</div>
                   </div>
                   <div className="bg-sky-50 rounded-lg p-3 text-center">
                     <div className="text-xl font-bold text-sky-600 tabular-nums">
@@ -1282,7 +1322,7 @@ export const InventarioPageV2: React.FC = () => {
                   <span>Todo sincronizado correctamente. No se encontraron inconsistencias.</span>
                 </div>
               ) : (
-                <div className="flex items-center gap-2 text-teal-600 bg-teal-50 p-3 rounded-lg">
+                <div className="flex items-center gap-2 text-emerald-600 bg-emerald-50 p-3 rounded-lg">
                   <CheckCircle className="h-5 w-5" />
                   <span>
                     Sincronización completada. Se corrigieron {resultadoSync.estadosUnidades?.correccionesRealizadas || 0} unidades

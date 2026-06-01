@@ -113,7 +113,7 @@ export const MapaTab: React.FC<MapaTabProps> = ({ unidades, almacenes }) => {
         <div className="px-4 py-3 border-b border-slate-200 flex items-center justify-between">
           <div className="min-w-0">
             <div className="text-sm font-semibold text-slate-900 flex items-center gap-2">
-              <MapIcon className="w-4 h-4 text-teal-600" />
+              <MapIcon className="w-4 h-4 text-orange-600" />
               Distribución geográfica del stock
             </div>
             <div className="text-[10px] text-slate-500 mt-0.5">
@@ -131,8 +131,8 @@ export const MapaTab: React.FC<MapaTabProps> = ({ unidades, almacenes }) => {
           }}
         >
           <div className="text-center max-w-sm px-6">
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-teal-50 to-sky-50 mb-4 border border-teal-100">
-              <MapPin className="w-8 h-8 text-teal-600" />
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-orange-50 to-amber-50 mb-4 border border-orange-100">
+              <MapPin className="w-8 h-8 text-orange-600" />
             </div>
             <h3 className="text-base font-semibold text-slate-900 mb-2">
               Mapa interactivo en desarrollo

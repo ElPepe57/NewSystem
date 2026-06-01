@@ -3,7 +3,7 @@
  *
  * Pixel-perfect canon F1 + F1.1 (S58f + S3.3).
  *   - Breadcrumb superior con ChevronRight separator (canon F9)
- *   - h1 con icon teal · texto bold tracking-tight
+ *   - h1 con icon orange · texto bold tracking-tight
  *   - Subtítulo descriptivo · `flex-1 min-w-[260px]` (canon F1.1 anti-colapso)
  *   - Acciones a la derecha · estilo secundario plano (canon F10)
  *

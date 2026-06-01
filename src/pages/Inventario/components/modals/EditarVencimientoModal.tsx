@@ -308,7 +308,7 @@ export const EditarVencimientoModal: React.FC<EditarVencimientoModalProps> = ({
                 placeholder="Buscar lote..."
                 value={busquedaLote}
                 onChange={(e) => setBusquedaLote(e.target.value)}
-                className="w-full pl-9 pr-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+                className="w-full pl-9 pr-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
               />
             </div>
 
@@ -322,7 +322,7 @@ export const EditarVencimientoModal: React.FC<EditarVencimientoModalProps> = ({
                   <button
                     key={l.lote}
                     onClick={() => handleSeleccionarLote(l.lote)}
-                    className="w-full text-left px-3 py-2.5 rounded-lg hover:bg-teal-50 border border-transparent hover:border-teal-200 transition-colors"
+                    className="w-full text-left px-3 py-2.5 rounded-lg hover:bg-orange-50 border border-transparent hover:border-orange-200 transition-colors"
                   >
                     <div className="flex items-center justify-between">
                       <span className="font-mono text-sm font-medium text-slate-900">
@@ -423,7 +423,7 @@ export const EditarVencimientoModal: React.FC<EditarVencimientoModalProps> = ({
                                 type="checkbox"
                                 checked={todasSinFechaSeleccionadas}
                                 onChange={() => toggleSeleccionTodas(grupo.productoId)}
-                                className="h-3.5 w-3.5 rounded border-slate-300 text-teal-600 focus:ring-teal-500"
+                                className="h-3.5 w-3.5 rounded border-slate-300 text-orange-600 focus:ring-orange-500"
                               />
                               <span className="text-[10px] text-slate-500">Todas</span>
                             </label>
@@ -432,7 +432,7 @@ export const EditarVencimientoModal: React.FC<EditarVencimientoModalProps> = ({
                               type="date"
                               value={grupo.fechaBatch}
                               onChange={(e) => setFechaBatch(grupo.productoId, e.target.value)}
-                              className="flex-1 min-w-0 px-2 py-1 border border-slate-300 rounded text-xs focus:ring-1 focus:ring-teal-500 focus:border-teal-500"
+                              className="flex-1 min-w-0 px-2 py-1 border border-slate-300 rounded text-xs focus:ring-1 focus:ring-orange-500 focus:border-orange-500"
                             />
 
                             <button
@@ -440,7 +440,7 @@ export const EditarVencimientoModal: React.FC<EditarVencimientoModalProps> = ({
                               disabled={!grupo.fechaBatch || seleccionadas.length === 0}
                               className={`text-[10px] font-medium whitespace-nowrap px-2 py-1 rounded transition-colors ${
                                 grupo.fechaBatch && seleccionadas.length > 0
-                                  ? 'bg-teal-100 text-teal-700 hover:bg-teal-200'
+                                  ? 'bg-orange-100 text-orange-700 hover:bg-orange-200'
                                   : 'bg-slate-100 text-slate-400 cursor-not-allowed'
                               }`}
                             >
@@ -451,7 +451,7 @@ export const EditarVencimientoModal: React.FC<EditarVencimientoModalProps> = ({
                             {grupo.fechaBatch && grupos.length > 1 && (
                               <button
                                 onClick={() => aplicarATodas(grupo.fechaBatch)}
-                                className="text-[10px] text-teal-600 hover:text-teal-800 whitespace-nowrap font-medium"
+                                className="text-[10px] text-orange-600 hover:text-orange-800 whitespace-nowrap font-medium"
                                 title="Aplicar esta fecha a todas las unidades de todos los productos"
                               >
                                 Todo
@@ -468,7 +468,7 @@ export const EditarVencimientoModal: React.FC<EditarVencimientoModalProps> = ({
                               unidad.nuevaFecha
                                 ? 'bg-emerald-50'
                                 : unidad.seleccionada
-                                  ? 'bg-teal-50/50'
+                                  ? 'bg-orange-50/50'
                                   : ''
                             }`}
                           >
@@ -480,7 +480,7 @@ export const EditarVencimientoModal: React.FC<EditarVencimientoModalProps> = ({
                                 type="checkbox"
                                 checked={unidad.seleccionada}
                                 onChange={() => toggleSeleccion(grupo.productoId, unidad.unidadId)}
-                                className="h-3.5 w-3.5 rounded border-slate-300 text-teal-600 focus:ring-teal-500"
+                                className="h-3.5 w-3.5 rounded border-slate-300 text-orange-600 focus:ring-orange-500"
                               />
                             )}
 

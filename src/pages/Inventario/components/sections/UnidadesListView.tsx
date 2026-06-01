@@ -265,7 +265,7 @@ export const UnidadesListView: React.FC = () => {
       render: unidad => (
         <button
           onClick={() => setUnidadSeleccionada(unidad)}
-          className="p-1.5 text-teal-600 hover:text-teal-800 hover:bg-teal-50 rounded-lg transition-colors"
+          className="p-1.5 text-orange-600 hover:text-orange-800 hover:bg-orange-50 rounded-lg transition-colors"
           title="Ver detalles"
         >
           <Eye className="h-4 w-4" />
@@ -362,7 +362,7 @@ export const UnidadesListView: React.FC = () => {
         {hayFiltrosActivos && (
           <button
             onClick={limpiarFiltros}
-            className="text-sm text-teal-600 hover:text-teal-700 font-medium"
+            className="text-sm text-orange-600 hover:text-orange-700 font-medium"
           >
             Limpiar filtros
           </button>
@@ -375,7 +375,7 @@ export const UnidadesListView: React.FC = () => {
           <div className="space-y-2">
             {loading ? (
               <div className="flex items-center justify-center py-12">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600"></div>
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600"></div>
               </div>
             ) : unidadesPaginadas.length === 0 ? (
               <Card padding="lg">

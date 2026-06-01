@@ -377,7 +377,7 @@ export const AlertasInventario: React.FC<AlertasInventarioProps> = ({
             {hayFiltrosActivos && (
               <button
                 onClick={limpiarFiltros}
-                className="text-sm text-teal-600 hover:text-teal-700 font-medium"
+                className="text-sm text-orange-600 hover:text-orange-700 font-medium"
               >
                 Limpiar filtros
               </button>

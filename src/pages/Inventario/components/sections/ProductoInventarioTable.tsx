@@ -180,7 +180,7 @@ export const ProductoInventarioTable: React.FC<ProductoInventarioTableProps> = (
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600"></div>
       </div>
     );
   }
@@ -341,13 +341,13 @@ export const ProductoInventarioTable: React.FC<ProductoInventarioTableProps> = (
             placeholder="Buscar por SKU, nombre, marca o grupo..."
             value={busqueda}
             onChange={(e) => setBusqueda(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+            className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-orange-500 focus:border-transparent"
           />
         </div>
         <div className="flex items-center gap-2">
           <button
             onClick={expandAll}
-            className="text-xs text-teal-600 hover:text-teal-700 font-medium px-3 py-1.5 rounded hover:bg-teal-50"
+            className="text-xs text-orange-600 hover:text-orange-700 font-medium px-3 py-1.5 rounded hover:bg-orange-50"
           >
             Expandir todos
           </button>
@@ -368,15 +368,15 @@ export const ProductoInventarioTable: React.FC<ProductoInventarioTableProps> = (
 
       {/* Indicador de ordenamiento activo */}
       {sortConfig && (
-        <div className="flex items-center gap-2 text-sm text-slate-600 bg-teal-50 px-3 py-2 rounded-lg">
-          <ArrowUpDown className="h-4 w-4 text-teal-600" />
+        <div className="flex items-center gap-2 text-sm text-slate-600 bg-orange-50 px-3 py-2 rounded-lg">
+          <ArrowUpDown className="h-4 w-4 text-orange-600" />
           <span>
             Ordenado por <strong>{SORT_KEY_LABELS[sortConfig.key]}</strong>
             {' '}({sortConfig.direction === 'asc' ? 'ascendente' : 'descendente'})
           </span>
           <button
             onClick={() => setSortConfig(null)}
-            className="ml-2 text-teal-600 hover:text-teal-700 font-medium"
+            className="ml-2 text-orange-600 hover:text-orange-700 font-medium"
           >
             Quitar orden
           </button>

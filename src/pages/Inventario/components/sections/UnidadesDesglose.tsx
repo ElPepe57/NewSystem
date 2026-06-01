@@ -109,7 +109,7 @@ export const UnidadesDesglose: React.FC<UnidadesDesgloseProps> = ({
             onClick={() => setVistaAgrupada(true)}
             className={`text-xs px-2 py-1 rounded ${
               vistaAgrupada
-                ? 'bg-teal-100 text-teal-700'
+                ? 'bg-orange-100 text-orange-700'
                 : 'text-slate-500 hover:bg-slate-100'
             }`}
           >
@@ -119,7 +119,7 @@ export const UnidadesDesglose: React.FC<UnidadesDesgloseProps> = ({
             onClick={() => setVistaAgrupada(false)}
             className={`text-xs px-2 py-1 rounded ${
               !vistaAgrupada
-                ? 'bg-teal-100 text-teal-700'
+                ? 'bg-orange-100 text-orange-700'
                 : 'text-slate-500 hover:bg-slate-100'
             }`}
           >
@@ -271,7 +271,7 @@ export const UnidadesDesglose: React.FC<UnidadesDesgloseProps> = ({
                     e.stopPropagation();
                     onUnidadClick(unidad);
                   }}
-                  className="p-1 text-teal-600 hover:text-teal-800 hover:bg-teal-50 rounded"
+                  className="p-1 text-orange-600 hover:text-orange-800 hover:bg-orange-50 rounded"
                 >
                   <Eye className="h-4 w-4" />
                 </button>

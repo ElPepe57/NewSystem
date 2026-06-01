@@ -36,7 +36,7 @@ export const UnidadTable: React.FC<UnidadTableProps> = ({
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600"></div>
       </div>
     );
   }
@@ -142,7 +142,7 @@ export const UnidadTable: React.FC<UnidadTableProps> = ({
       render: (unidad) => (
         <button
           onClick={() => onViewDetails(unidad)}
-          className="text-teal-600 hover:text-teal-900"
+          className="text-orange-600 hover:text-orange-900"
         >
           Ver Detalles
         </button>

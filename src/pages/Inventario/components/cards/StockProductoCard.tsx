@@ -130,7 +130,7 @@ export const StockProductoCard: React.FC<StockProductoCardProps> = ({
             checked={selected}
             onChange={onToggleSelect}
             onClick={e => e.stopPropagation()}
-            className="rounded border-slate-300 text-teal-600 w-3.5 h-3.5 focus:ring-teal-500"
+            className="rounded border-slate-300 text-orange-600 w-3.5 h-3.5 focus:ring-orange-500"
           />
         )}
         <ProductoAvatar linea={linea} esPack={esPack} packCount={packCount} />
@@ -249,7 +249,7 @@ export const StockProductoCard: React.FC<StockProductoCardProps> = ({
         <button
           type="button"
           onClick={(e) => { e.stopPropagation(); onVerDetalle(); }}
-          className="p-1.5 rounded hover:bg-teal-50 text-slate-500 hover:text-teal-600 transition-colors"
+          className="p-1.5 rounded hover:bg-orange-50 text-slate-500 hover:text-orange-600 transition-colors"
           title="Ver detalle"
         >
           <Eye className="w-4 h-4" />
@@ -295,7 +295,7 @@ export const StockListHeader: React.FC<StockListHeaderProps> = ({
             type="checkbox"
             checked={allSelected}
             onChange={onToggleAll}
-            className="rounded border-slate-300 text-teal-600 w-3.5 h-3.5 focus:ring-teal-500"
+            className="rounded border-slate-300 text-orange-600 w-3.5 h-3.5 focus:ring-orange-500"
           />
         )}
         <span>Producto · <span className="tabular-nums">{total.toLocaleString('es-PE')}</span> resultados</span>

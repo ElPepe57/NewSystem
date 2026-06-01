@@ -192,7 +192,7 @@ const AlertaItem: React.FC<AlertaItemProps> = ({ alerta, onVerProducto, onPromoc
   // CTA y handler según tipo
   let ctaLabel = 'Ver';
   let ctaHandler = () => onVerProducto(alerta.producto.productoId);
-  let ctaClass = 'text-teal-700 hover:bg-teal-50';
+  let ctaClass = 'text-slate-600 hover:bg-slate-100';
 
   if (alerta.tipo === 'vencimiento') {
     ctaLabel = 'Promocionar';
@@ -202,7 +202,7 @@ const AlertaItem: React.FC<AlertaItemProps> = ({ alerta, onVerProducto, onPromoc
     ctaLabel = 'Crear OC';
     // TODO: conectar a flujo de OC cuando esté disponible · por ahora ver producto
     ctaHandler = () => onVerProducto(alerta.producto.productoId);
-    ctaClass = 'text-teal-700 hover:bg-teal-50';
+    ctaClass = 'text-rose-700 hover:bg-rose-50';
   }
 
   return (
