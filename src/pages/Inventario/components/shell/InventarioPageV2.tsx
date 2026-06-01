@@ -940,7 +940,7 @@ export const InventarioPageV2: React.FC = () => {
       {/* chk5.DS-F3 · SHELL HUB · 1 card continuo (canon DS · grupo Inventario = orange) */}
       <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
 
-        {/* §A · TOP-BAR · breadcrumb S9.D1 (Inicio › Inventario) + chip rol orange */}
+        {/* §A · TOP-BAR · breadcrumb S9.D1 (Inicio › Stock) + chip rol orange */}
         <div className="border-b border-slate-200 px-4 sm:px-6 py-2.5 flex items-center justify-between gap-3 bg-slate-50">
           <div className="flex items-center gap-1 text-[12px] text-slate-500">
             <a className="hover:text-orange-700 cursor-pointer flex-shrink-0">Inicio</a>
@@ -952,13 +952,13 @@ export const InventarioPageV2: React.FC = () => {
                   onClick={() => setTabActivo('inventario')}
                   className="hover:text-orange-700 cursor-pointer flex-shrink-0"
                 >
-                  Inventario
+                  Stock
                 </button>
                 <ChevronRight className="w-3 h-3 text-slate-300 mx-0.5 flex-shrink-0" />
                 <span className="text-slate-900 font-semibold">{breadcrumbLeaf}</span>
               </>
             ) : (
-              <span className="text-slate-900 font-semibold">Inventario</span>
+              <span className="text-slate-900 font-semibold">Stock</span>
             )}
           </div>
           <span className="text-[10px] bg-orange-50 text-orange-700 px-2 py-0.5 rounded font-bold hidden sm:inline-flex items-center gap-1 flex-shrink-0">
@@ -970,7 +970,7 @@ export const InventarioPageV2: React.FC = () => {
         {/* §B · HEADER banking-grade (icono orange + h1 + subtítulo + acciones) */}
         <div className="px-4 sm:px-6 py-4 border-b border-slate-100">
           <HeaderV2
-            titulo="Inventario"
+            titulo="Stock"
             subtitulo="Qué tengo, dónde está, en qué estado · vista operativa de existencias en tiempo real (productos, lotes, vencimientos, reservas)."
             sincronizando={sincronizando}
             onSincronizar={handleSincronizarCompleto}
