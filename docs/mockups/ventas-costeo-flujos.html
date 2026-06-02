@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ventas · Flujos de costeo (comisión · delivery · empaque) · Vita Skin ERP</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  body { font-family: 'Inter', system-ui, sans-serif; }
+  .tabular { font-variant-numeric: tabular-nums; }
+  ::-webkit-scrollbar { height: 6px; width: 6px; }
+  ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+</style>
+</head>
+<body class="bg-slate-100 p-4 sm:p-8 text-slate-800">
+
+<!-- HERO -->
+<div class="max-w-5xl mx-auto mb-8">
+  <div class="flex items-center gap-2 mb-2">
+    <span class="text-[11px] font-bold uppercase tracking-wider text-blue-700 bg-blue-100 px-2 py-1 rounded">Ventas</span>
+    <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500 bg-slate-200 px-2 py-1 rounded">3 flujos de costeo</span>
+  </div>
+  <h1 class="text-2xl font-bold tracking-tight text-slate-900">Costeo de Ventas · flujos</h1>
+  <p class="text-[13px] text-slate-500 mt-1">(1) Configuración de comisión por vendedor · (2) Delivery auto-calculado al programar entrega · (3) Empaque (cajas del inventario + cinta/scotch como overhead). Todo reusa estructuras existentes.</p>
+</div>
+
+<!-- ═══ ACTO 1 · CONFIG DE COMISIÓN POR VENDEDOR (perfil · Equipo = violet) ═══ -->
+<div class="max-w-5xl mx-auto mb-10">
+  <div class="text-[11px] font-bold uppercase text-violet-700 mb-3">1 · Configuración de comisión por vendedor (en su perfil · módulo Equipo · violet)</div>
+  <div class="max-w-md bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+    <div class="px-5 py-3 border-b border-slate-100 flex items-center gap-2.5">
+      <div class="w-9 h-9 rounded-lg bg-violet-100 flex items-center justify-center"><i data-lucide="user-cog" class="w-4.5 h-4.5 text-violet-700"></i></div>
+      <div><div class="text-[13px] font-bold text-slate-900">Jose Pinto</div><div class="text-[11px] text-slate-500">Datos laborales · comisión de ventas</div></div>
+    </div>
+    <div class="p-5 space-y-4">
+      <div><label class="text-[11px] font-medium text-slate-600">Tipo de colaborador</label><div class="mt-1 flex gap-1.5"><span class="text-[11px] px-2.5 py-1 rounded-md bg-violet-600 text-white">Empleado</span><span class="text-[11px] px-2.5 py-1 rounded-md bg-slate-100 text-slate-600">Comisionista</span><span class="text-[11px] px-2.5 py-1 rounded-md bg-slate-100 text-slate-600">Externo</span></div></div>
+      <div class="border-t border-slate-100 pt-3">
+        <div class="flex items-center justify-between mb-2"><label class="text-[11px] uppercase tracking-wider text-violet-700 font-bold">Esquema de comisión</label><label class="flex items-center gap-1.5 text-[11px] text-slate-500"><span class="w-8 h-4 bg-violet-500 rounded-full relative"><span class="absolute right-0.5 top-0.5 w-3 h-3 bg-white rounded-full"></span></span> activo</label></div>
+        <div class="space-y-3">
+          <div><label class="text-[11px] font-medium text-slate-600">Cómo comisiona</label><div class="mt-1 flex gap-1.5"><span class="text-[11px] px-2.5 py-1.5 rounded-md bg-violet-600 text-white">% sobre la venta</span><span class="text-[11px] px-2.5 py-1.5 rounded-md bg-slate-100 text-slate-600">Monto fijo</span></div></div>
+          <div class="grid grid-cols-2 gap-2">
+            <div><label class="text-[11px] font-medium text-slate-600">Porcentaje</label><div class="mt-1 border border-slate-300 rounded-lg px-3 py-2 text-[14px] font-bold tabular text-violet-700">3 %</div></div>
+            <div><label class="text-[11px] font-medium text-slate-600">Sobre</label><div class="mt-1 border border-slate-300 rounded-lg px-3 py-2 text-[12px] flex items-center justify-between"><span>Total venta</span><i data-lucide="chevron-down" class="w-4 h-4 text-slate-400"></i></div></div>
+          </div>
+          <div><label class="text-[11px] font-medium text-slate-600">Aplica a líneas de negocio</label><div class="mt-1 flex gap-1.5 flex-wrap"><span class="text-[11px] px-2 py-1 rounded-md bg-violet-100 text-violet-700 flex items-center gap-1">Todas <i data-lucide="check" class="w-3 h-3"></i></span><span class="text-[11px] px-2 py-1 rounded-md bg-slate-100 text-slate-500">Skincare</span><span class="text-[11px] px-2 py-1 rounded-md bg-slate-100 text-slate-500">Suplementos</span></div></div>
+        </div>
+      </div>
+      <div class="bg-violet-50 rounded-lg p-2.5 text-[11px] text-violet-700"><i data-lucide="calculator" class="w-3.5 h-3.5 inline mr-1 align-text-bottom"></i>Ejemplo: una venta de S/ 1,000 → comisión <strong>S/ 30</strong> · se devenga en su boleta al cierre.</div>
+      <p class="text-[10px] text-slate-400 flex items-center gap-1"><i data-lucide="info" class="w-3 h-3"></i> Escalas por meta (2% &lt; 10k · 3% &gt; 10k) → esquema avanzado v5.4, fase posterior.</p>
+    </div>
+    <div class="px-5 py-3 border-t border-slate-200 bg-slate-50 flex justify-end gap-2"><button class="text-[12px] text-slate-500">Cancelar</button><button class="px-4 py-2 text-[12px] font-semibold text-white rounded-lg bg-violet-600">Guardar esquema</button></div>
+  </div>
+</div>
+
+<!-- ═══ ACTO 2 · DELIVERY AUTO-CALCULADO (programar entrega · Ventas = blue) ═══ -->
+<div class="max-w-5xl mx-auto mb-10">
+  <div class="text-[11px] font-bold uppercase text-blue-700 mb-3">2 · Delivery auto-calculado al programar la entrega (tarifa del courier × peso)</div>
+  <div class="max-w-md bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+    <div class="px-5 py-3 border-b border-slate-100 flex items-center justify-between"><div class="text-[13px] font-bold text-slate-900">Programar entrega</div><i data-lucide="x" class="w-4 h-4 text-slate-400"></i></div>
+    <div class="p-5 space-y-3">
+      <div><label class="text-[11px] font-medium text-slate-600">Transportista (red logística)</label><div class="mt-1 border border-slate-300 rounded-lg px-3 py-2 text-[12px] flex items-center justify-between"><span class="flex items-center gap-1.5"><i data-lucide="truck" class="w-4 h-4 text-slate-400"></i> Olva Courier <span class="text-[10px] bg-slate-100 text-slate-500 px-1.5 rounded">externo</span></span><i data-lucide="chevron-down" class="w-4 h-4 text-slate-400"></i></div></div>
+      <!-- flete auto -->
+      <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 space-y-2">
+        <div class="flex items-center justify-between text-[11px]"><span class="text-slate-500">Peso del paquete (suma de productos)</span><span class="tabular font-medium text-slate-700">2.3 lb</span></div>
+        <div class="flex items-center justify-between text-[11px]"><span class="text-slate-500">Tarifa Olva · tramo 1-3 lb</span><span class="tabular font-medium text-slate-700">S/ 12.00</span></div>
+        <div class="flex items-center justify-between border-t border-blue-200 pt-2"><span class="text-[12px] font-semibold text-blue-900 flex items-center gap-1"><i data-lucide="sparkles" class="w-3.5 h-3.5"></i> Flete calculado</span><span class="tabular font-bold text-blue-900 text-[15px]">S/ 12.00</span></div>
+        <div class="text-[10px] text-blue-600 flex items-center gap-1"><i data-lucide="info" class="w-2.5 h-2.5 flex-shrink-0"></i> auto de la tarifa por tramos del courier · editable si cobró distinto</div>
+      </div>
+      <div><label class="text-[11px] font-medium text-slate-600">Ajustar manualmente (opcional)</label><div class="mt-1 border border-slate-300 rounded-lg px-3 py-2 text-[14px] font-bold tabular text-slate-400">S/ 12.00</div></div>
+      <div><label class="text-[11px] font-medium text-slate-600">Fecha de entrega</label><div class="mt-1 border border-slate-300 rounded-lg px-3 py-2 text-[12px] flex items-center gap-2"><i data-lucide="calendar" class="w-4 h-4 text-slate-400"></i> 3 jun 2026</div></div>
+      <div class="bg-slate-50 rounded-lg p-2.5 text-[11px] text-slate-500 flex items-center gap-1.5"><i data-lucide="arrow-right" class="w-3.5 h-3.5 flex-shrink-0"></i> El flete (S/ 12) se carga a la <strong>CC de Olva Courier</strong> · es costo de la venta.</div>
+    </div>
+    <div class="px-5 py-3 border-t border-slate-200 bg-slate-50 flex justify-between"><button class="text-[12px] text-slate-500">Cancelar</button><button class="px-4 py-2 text-[12px] font-semibold text-white rounded-lg bg-blue-600">Programar</button></div>
+  </div>
+</div>
+
+<!-- ═══ ACTO 3 · EMPAQUE (despacho · cajas del inventario + overhead cinta/scotch) ═══ -->
+<div class="max-w-5xl mx-auto mb-10">
+  <div class="text-[11px] font-bold uppercase text-blue-700 mb-3">3 · Empaque al despachar (cajas del inventario de insumos · cinta/scotch = overhead)</div>
+  <div class="max-w-md bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+    <div class="px-5 py-3 border-b border-slate-100 flex items-center justify-between"><div class="text-[13px] font-bold text-slate-900">Empaque del despacho</div><i data-lucide="x" class="w-4 h-4 text-slate-400"></i></div>
+    <div class="p-5 space-y-3">
+      <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Cajas usadas (se descuentan del inventario)</div>
+      <div class="space-y-2">
+        <div class="flex items-center justify-between gap-2 border border-slate-200 rounded-lg px-3 py-2">
+          <div class="flex items-center gap-2 min-w-0"><i data-lucide="package" class="w-4 h-4 text-blue-600 flex-shrink-0"></i><div class="min-w-0"><div class="text-[12px] font-medium text-slate-800">Caja mediana</div><div class="text-[10px] text-slate-400">INS-002 · stock: 84 · S/ 1.20 c/u</div></div></div>
+          <div class="flex items-center gap-2 flex-shrink-0"><button class="w-6 h-6 rounded border border-slate-300 text-slate-500">−</button><span class="text-[13px] font-semibold tabular w-5 text-center">2</span><button class="w-6 h-6 rounded border border-slate-300 text-slate-500">+</button></div>
+        </div>
+        <button class="w-full border border-dashed border-slate-300 rounded-lg py-1.5 text-[11px] text-slate-500 hover:border-blue-300 hover:text-blue-600 flex items-center justify-center gap-1"><i data-lucide="plus" class="w-3 h-3"></i> Otra caja (ej. chica para el frágil)</button>
+      </div>
+      <div class="flex items-center justify-between bg-blue-50 rounded-lg px-3 py-2 text-[12px]"><span class="text-blue-700">Costo de cajas (2 × S/ 1.20)</span><span class="tabular font-bold text-blue-900">S/ 2.40</span></div>
+      <!-- overhead cinta/scotch -->
+      <div class="bg-slate-50 border border-slate-200 rounded-lg p-3">
+        <div class="flex items-start gap-2"><i data-lucide="scissors" class="w-4 h-4 text-slate-400 flex-shrink-0 mt-0.5"></i><div class="text-[11px] text-slate-500"><strong class="text-slate-700">Cinta, scotch, relleno:</strong> no se cuentan por envío (overhead operativo). Se compran en lote y se reconocen como gasto del negocio · <span class="text-slate-400">no afectan el costo de esta venta.</span></div></div>
+      </div>
+      <div class="text-[10px] text-slate-400 flex items-center gap-1"><i data-lucide="info" class="w-3 h-3 flex-shrink-0"></i> Las 2 cajas salen del inventario de insumos (stock 84 → 82) · costo = consumo real, no la compra.</div>
+    </div>
+    <div class="px-5 py-3 border-t border-slate-200 bg-slate-50 flex justify-between"><button class="text-[12px] text-slate-500">Cancelar</button><button class="px-4 py-2 text-[12px] font-semibold text-white rounded-lg bg-blue-600">Confirmar empaque</button></div>
+  </div>
+</div>
+
+<!-- ═══ ACTO 4 · MOBILE ═══ -->
+<div class="max-w-5xl mx-auto mb-10">
+  <div class="text-[11px] font-bold uppercase text-blue-700 mb-3">4 · Mobile 375px (delivery auto · bottom-sheet)</div>
+  <div class="w-[375px] bg-white border border-slate-200 rounded-t-2xl shadow-xl overflow-hidden mt-8">
+    <div class="flex justify-center pt-2"><div class="w-10 h-1 rounded-full bg-slate-300"></div></div>
+    <div class="px-4 py-3 flex items-center justify-between"><div class="text-[13px] font-bold text-slate-900">Programar entrega</div><i data-lucide="x" class="w-4 h-4 text-slate-400"></i></div>
+    <div class="px-4 pb-4 space-y-3">
+      <div class="border border-slate-300 rounded-lg px-3 py-2 text-[12px] flex items-center justify-between"><span class="flex items-center gap-1.5"><i data-lucide="truck" class="w-4 h-4 text-slate-400"></i> Olva Courier</span><i data-lucide="chevron-down" class="w-4 h-4 text-slate-400"></i></div>
+      <div class="bg-blue-50 border border-blue-200 rounded-lg p-2.5 space-y-1.5">
+        <div class="flex justify-between text-[11px]"><span class="text-slate-500">Peso · 2.3 lb · tramo 1-3 lb</span><span class="tabular text-slate-700">S/ 12</span></div>
+        <div class="flex justify-between border-t border-blue-200 pt-1.5"><span class="text-[12px] font-semibold text-blue-900">Flete calculado</span><span class="tabular font-bold text-blue-900">S/ 12.00</span></div>
+        <div class="text-[10px] text-blue-600">auto · editable · → CC de Olva</div>
+      </div>
+      <button class="w-full px-4 py-2.5 text-[13px] font-semibold text-white rounded-lg bg-blue-600">Programar</button>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<div class="max-w-5xl mx-auto">
+  <div class="bg-white border border-slate-200 rounded-2xl p-5">
+    <div class="text-[13px] font-bold text-slate-900 mb-3">Flujos de costeo · cubiertos</div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1.5 text-[12px] text-slate-600">
+      <div>✓ Comisión por vendedor · % o monto fijo · por línea · en su perfil (Equipo)</div>
+      <div>✓ Preview del cálculo + nota de escalas avanzadas (futuro)</div>
+      <div>✓ Delivery auto · tarifa del courier × peso · editable · → CC del courier</div>
+      <div>✓ Empaque · N cajas del inventario de insumos (consumo, no compra)</div>
+      <div>✓ Cinta/scotch · overhead operativo (no por venta · cero especulación)</div>
+      <div>✓ Mobile 375px (bottom-sheet)</div>
+    </div>
+    <div class="mt-4 flex flex-wrap gap-2 text-[11px]">
+      <span class="bg-emerald-50 text-emerald-700 px-2 py-1 rounded">✓ Reusa: esquemaComision · tarifaPorTramos · Insumo · MovimientoInsumo</span>
+    </div>
+  </div>
+</div>
+
+<script>lucide.createIcons();</script>
+</body>
+</html>
