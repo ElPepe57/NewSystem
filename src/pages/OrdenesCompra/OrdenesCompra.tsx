@@ -17,6 +17,7 @@ import { SubOrdenDetailModal } from '../../components/modules/ordenCompra/SubOrd
 import { TabResumenCompras } from './components/TabResumenCompras';
 import { TabPendientesCompras } from './components/TabPendientesCompras';
 import { TabProveedoresCompras } from './components/TabProveedoresCompras';
+import { TabInteligenciaCompras } from './components/TabInteligenciaCompras';
 import { OCBuilder } from '../../components/modules/ordenCompra/OCBuilder/OCBuilder';
 import { useRequerimientoStore } from '../../store/requerimientoStore';
 import type { Requerimiento } from '../../types/requerimiento.types';
@@ -1161,20 +1162,13 @@ export const OrdenesCompra: React.FC = () => {
           />
         )}
 
-        {/* ═══ TAB EN CONSTRUCCIÓN (Inteligencia) · fase siguiente ═══ */}
+        {/* ═══ TAB INTELIGENCIA · vista agregada de compra (ranking SKU · precios · competitividad) ═══ */}
         {tabActiva === 'inteligencia' && (
-          <div className="p-8 sm:p-12 text-center">
-            <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-blue-50 text-blue-600 mb-3 mx-auto">
-              <LayoutDashboard className="w-6 h-6" />
-            </div>
-            <h3 className="text-base font-semibold text-slate-900">
-              {comprasTabs.find((t) => t.id === tabActiva)?.label}
-            </h3>
-            <p className="text-[12px] text-slate-500 mt-1 max-w-sm mx-auto">
-              Esta sección se construye en la siguiente fase del hub de Compras. Mientras tanto, opera desde{' '}
-              <button type="button" onClick={() => setTabActiva('ordenes')} className="text-blue-600 font-medium hover:underline">Órdenes</button>.
-            </p>
-          </div>
+          <TabInteligenciaCompras
+            ordenes={ordenesLN}
+            proveedores={proveedoresActivos}
+            navigate={navigate}
+          />
         )}
 
         </HubBody>
