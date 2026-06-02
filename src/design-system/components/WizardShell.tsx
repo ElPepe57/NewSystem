@@ -13,6 +13,18 @@ export interface WizardStep {
   optional?: boolean;
 }
 
+/** Acento de color del wizard (chrome: paso activo del stepper + botón primary). Default teal. */
+export type WizardAccent = 'teal' | 'blue' | 'violet' | 'orange' | 'indigo' | 'slate';
+
+const ACCENT_STYLES: Record<WizardAccent, { stepActive: string; primary: string }> = {
+  teal: { stepActive: 'bg-teal-600 text-white scale-105 ring-4 ring-teal-100', primary: 'bg-teal-600 hover:bg-teal-700' },
+  blue: { stepActive: 'bg-blue-600 text-white scale-105 ring-4 ring-blue-100', primary: 'bg-blue-600 hover:bg-blue-700' },
+  violet: { stepActive: 'bg-violet-600 text-white scale-105 ring-4 ring-violet-100', primary: 'bg-violet-600 hover:bg-violet-700' },
+  orange: { stepActive: 'bg-orange-600 text-white scale-105 ring-4 ring-orange-100', primary: 'bg-orange-600 hover:bg-orange-700' },
+  indigo: { stepActive: 'bg-indigo-600 text-white scale-105 ring-4 ring-indigo-100', primary: 'bg-indigo-600 hover:bg-indigo-700' },
+  slate: { stepActive: 'bg-slate-700 text-white scale-105 ring-4 ring-slate-200', primary: 'bg-slate-700 hover:bg-slate-800' },
+};
+
 interface WizardShellProps {
   /** Título principal del wizard */
   title: string;
@@ -52,6 +64,8 @@ interface WizardShellProps {
   confirmLabel?: string;
   /** Variante visual: 'page' (standalone) o 'modal' (embebido) */
   variant?: 'page' | 'modal';
+  /** Acento de color del chrome (paso activo + primary). Default 'teal'. */
+  accent?: WizardAccent;
   /** ClassName adicional para el contenedor raíz */
   className?: string;
 }
@@ -64,7 +78,8 @@ const Stepper: React.FC<{
   steps: WizardStep[];
   currentStep: number;
   onStepChange?: (index: number) => void;
-}> = ({ steps, currentStep, onStepChange }) => {
+  accent: WizardAccent;
+}> = ({ steps, currentStep, onStepChange, accent }) => {
   return (
     <div className="flex items-center justify-between max-w-4xl mx-auto w-full">
       {steps.map((step, index) => {
@@ -88,7 +103,7 @@ const Stepper: React.FC<{
               <div
                 className={cn(
                   'w-9 h-9 rounded-full flex items-center justify-center text-xs font-semibold transition-all duration-200',
-                  isActive && 'bg-teal-600 text-white scale-105 ring-4 ring-teal-100',
+                  isActive && ACCENT_STYLES[accent].stepActive,
                   isDone && 'bg-emerald-500 text-white',
                   isPending && 'bg-slate-200 text-slate-500',
                   isClickable && isDone && 'group-hover:bg-emerald-600'
@@ -175,6 +190,7 @@ export const WizardShell: React.FC<WizardShellProps> = ({
   nextDisabled = false,
   loading = false,
   variant = 'page',
+  accent = 'teal',
   className,
 }) => {
   const isFirstStep = currentStep === 0;
@@ -223,6 +239,7 @@ export const WizardShell: React.FC<WizardShellProps> = ({
           steps={steps}
           currentStep={currentStep}
           onStepChange={onStepChange}
+          accent={accent}
         />
       </div>
 
@@ -282,7 +299,7 @@ export const WizardShell: React.FC<WizardShellProps> = ({
             disabled={nextDisabled || loading}
             className={cn(
               'px-5 py-2 text-sm font-semibold text-white rounded-lg transition-colors flex items-center gap-2',
-              'bg-teal-600 hover:bg-teal-700',
+              ACCENT_STYLES[accent].primary,
               'disabled:opacity-50 disabled:cursor-not-allowed'
             )}
           >

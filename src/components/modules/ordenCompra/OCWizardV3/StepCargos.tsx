@@ -272,8 +272,8 @@ export const StepCargos: React.FC<StepCargosProps> = ({
       </div>
 
       {/* Totales consolidados */}
-      <div className="bg-gradient-to-br from-teal-50 to-emerald-50 border border-teal-200 rounded-xl p-4">
-        <div className="text-xs font-semibold text-teal-900 uppercase tracking-wide mb-3">
+      <div className="bg-gradient-to-br from-blue-50 to-emerald-50 border border-blue-200 rounded-xl p-4">
+        <div className="text-xs font-semibold text-blue-900 uppercase tracking-wide mb-3">
           Cálculo del total OC
         </div>
         <div className="space-y-1.5 text-sm">
@@ -301,9 +301,9 @@ export const StepCargos: React.FC<StepCargosProps> = ({
               <span className="font-medium tabular-nums">+${totalImpuestos.toFixed(2)}</span>
             </div>
           )}
-          <div className="flex items-center justify-between pt-2 border-t-2 border-teal-300 mt-2">
-            <span className="text-base font-bold text-teal-900">Total OC</span>
-            <span className="text-lg font-bold text-teal-900 tabular-nums">
+          <div className="flex items-center justify-between pt-2 border-t-2 border-blue-300 mt-2">
+            <span className="text-base font-bold text-blue-900">Total OC</span>
+            <span className="text-lg font-bold text-blue-900 tabular-nums">
               ${totalOC.toFixed(2)}
             </span>
           </div>

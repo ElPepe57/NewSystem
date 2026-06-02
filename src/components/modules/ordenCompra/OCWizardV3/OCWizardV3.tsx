@@ -530,6 +530,7 @@ export const OCWizardV3: React.FC<OCWizardV3Props> = ({
       )}
       <div className="w-full max-w-7xl mx-auto flex-1 min-h-0">
         <WizardShell
+          accent="blue"
           title={esEdicion ? `Editar OC ${ordenEditar?.numeroOrden}` : 'Nueva Orden de Compra'}
           subtitle={esEdicion ? 'Modificá los campos necesarios y guardá los cambios.' : subtitle}
           steps={STEPS}

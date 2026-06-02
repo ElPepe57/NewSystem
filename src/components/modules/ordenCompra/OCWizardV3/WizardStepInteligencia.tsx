@@ -337,7 +337,7 @@ export const WizardStepInteligencia: React.FC<WizardStepInteligenciaProps> = ({
           <div className={cn(
             'text-xl font-bold',
             kpis.margenPromedio === null && 'text-slate-400',
-            kpis.margenPromedio !== null && kpis.margenPromedio >= 45 && 'text-teal-700',
+            kpis.margenPromedio !== null && kpis.margenPromedio >= 45 && 'text-emerald-700',
             kpis.margenPromedio !== null && kpis.margenPromedio >= 30 && kpis.margenPromedio < 45 && 'text-amber-700',
             kpis.margenPromedio !== null && kpis.margenPromedio < 30 && 'text-red-700',
           )}>

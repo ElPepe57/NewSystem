@@ -85,20 +85,20 @@ export const OCWizardPreview: React.FC<OCWizardPreviewProps> = ({
 
       {/* ─── Gran total ────────────────────────────────────────────────── */}
       {grandTotal > 0 && (
-        <div className="bg-teal-50 border border-teal-200 rounded-xl p-3">
+        <div className="bg-blue-50 border border-blue-200 rounded-xl p-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <TrendingUp className="w-4 h-4 text-teal-600" />
-              <span className="text-xs font-semibold text-teal-900 uppercase tracking-wide">
+              <TrendingUp className="w-4 h-4 text-blue-600" />
+              <span className="text-xs font-semibold text-blue-900 uppercase tracking-wide">
                 Gran total
               </span>
             </div>
-            <span className="text-xl font-bold text-teal-900 tabular-nums">
+            <span className="text-xl font-bold text-blue-900 tabular-nums">
               ${grandTotal.toFixed(2)}
             </span>
           </div>
           {state.tcCompra > 0 && (
-            <div className="text-[10px] text-teal-700 mt-1 text-right">
+            <div className="text-[10px] text-blue-700 mt-1 text-right">
               ≈ S/ {(grandTotal * state.tcCompra).toFixed(2)} · TC {state.tcCompra}
             </div>
           )}

@@ -195,7 +195,7 @@ export const StepConfirm: React.FC<StepConfirmProps> = ({
           {totalImpuestos > 0 && <Row label="+ Impuestos" value={totalImpuestos} />}
           <div className="flex items-center justify-between pt-2 border-t-2 border-slate-200 mt-2">
             <span className="text-base font-bold text-slate-900">Total USD</span>
-            <span className="text-xl font-bold text-teal-700 tabular-nums">
+            <span className="text-xl font-bold text-blue-700 tabular-nums">
               ${grandTotal.toFixed(2)}
             </span>
           </div>
@@ -230,7 +230,7 @@ export const StepConfirm: React.FC<StepConfirmProps> = ({
                   </span>
                   <span className="text-xs text-slate-500">PEN por USD</span>
                   {tcInfo && (
-                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-teal-50 text-teal-700 text-[10px] font-semibold border border-teal-200">
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 text-[10px] font-semibold border border-blue-200">
                       <Sparkles className="w-3 h-3" />
                       {tcInfo.fuente}
                       {tcInfo.freshness === 'stale' && <span className="ml-1">· &gt;24h</span>}
@@ -259,7 +259,7 @@ export const StepConfirm: React.FC<StepConfirmProps> = ({
               }
               rows={2}
               placeholder="Notas sobre la compra, términos especiales del proveedor, etc."
-              className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-100"
+              className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-100"
             />
           </div>
         </div>
