@@ -143,7 +143,16 @@
         <div class="bg-white border border-slate-200 rounded-xl p-4 space-y-3">
           <div class="grid grid-cols-2 gap-2"><div class="bg-slate-50 rounded-lg p-3"><div class="text-[10px] text-slate-500 mb-0.5">Margen esperado (cotización)</div><div class="text-lg font-bold tabular text-slate-700">28%</div></div><div class="bg-violet-50 rounded-lg p-3"><div class="text-[10px] text-violet-700 mb-0.5">Margen real (asignado)</div><div class="text-lg font-bold tabular text-violet-700">31%</div></div></div>
           <div class="bg-emerald-50 ring-1 ring-emerald-200 rounded-lg p-3 flex items-center gap-2"><i data-lucide="trending-up" class="w-4 h-4 text-emerald-600 flex-shrink-0"></i><div class="text-[12px] text-emerald-900"><strong>Superó la expectativa</strong> +3 pts · utilidad real S/ 610 (esperada S/ 549).</div></div>
-          <div class="space-y-1.5 text-[12px]"><div class="flex justify-between"><span class="text-slate-500">Costo real (CTRU)</span><span class="tabular text-slate-700">S/ 1,150</span></div><div class="flex justify-between"><span class="text-slate-500">Gastos de venta (delivery, comisión)</span><span class="tabular text-slate-700">S/ 200</span></div><div class="flex justify-between border-t border-slate-100 pt-1.5 font-semibold"><span class="text-slate-700">Utilidad neta</span><span class="tabular text-violet-700">S/ 610</span></div></div>
+          <!-- GASTOS DE LA VENTA · gestionable (costosVenta · GastosVentaForm) -->
+          <div class="bg-amber-50/40 border border-amber-200 rounded-lg p-3">
+            <div class="flex items-center justify-between mb-2"><div class="text-[10px] uppercase tracking-wider text-amber-700 font-bold">Gastos de la venta</div><button class="text-[11px] font-semibold text-blue-600 flex items-center gap-1 hover:underline"><i data-lucide="plus" class="w-3 h-3"></i> Agregar gasto</button></div>
+            <div class="space-y-1.5 text-[12px]">
+              <div class="flex items-center justify-between"><div class="flex items-center gap-1.5 min-w-0"><i data-lucide="shopping-cart" class="w-3.5 h-3.5 text-slate-400 flex-shrink-0"></i><span class="text-slate-700 truncate">Comisión Mercado Libre <span class="text-slate-400">· 12%</span></span></div><div class="flex items-center gap-2 flex-shrink-0"><span class="tabular text-slate-700">S/ 120</span><button><i data-lucide="more-vertical" class="w-3.5 h-3.5 text-slate-300"></i></button></div></div>
+              <div class="flex items-center justify-between"><div class="flex items-center gap-1.5 min-w-0"><i data-lucide="truck" class="w-3.5 h-3.5 text-slate-400 flex-shrink-0"></i><span class="text-slate-700 truncate">Delivery al cliente</span></div><div class="flex items-center gap-2 flex-shrink-0"><span class="tabular text-slate-700">S/ 80</span><button><i data-lucide="more-vertical" class="w-3.5 h-3.5 text-slate-300"></i></button></div></div>
+              <div class="flex justify-between border-t border-amber-200 pt-1.5 font-semibold text-[11px]"><span class="text-amber-800">Total gastos</span><span class="tabular text-amber-800">S/ 200</span></div>
+            </div>
+          </div>
+          <div class="space-y-1.5 text-[12px]"><div class="flex justify-between"><span class="text-slate-500">Ingreso (total venta)</span><span class="tabular text-slate-700">S/ 1,960</span></div><div class="flex justify-between"><span class="text-slate-500">− Costo real (CTRU)</span><span class="tabular text-slate-700">S/ 1,150</span></div><div class="flex justify-between"><span class="text-slate-500">− Gastos de venta</span><span class="tabular text-slate-700">S/ 200</span></div><div class="flex justify-between border-t border-slate-100 pt-1.5 font-semibold"><span class="text-slate-700">Utilidad neta</span><span class="tabular text-violet-700">S/ 610</span></div></div>
         </div>
         <div class="bg-white border border-slate-200 rounded-xl p-4">
           <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-3">Margen por producto</div>
@@ -224,6 +233,24 @@
       <div class="bg-white border border-emerald-200 rounded-xl p-2.5"><div class="flex items-center gap-2 mb-1"><span class="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700">Entrega 1</span><span class="text-[10px] text-slate-400">30 may</span></div><div class="text-[11px] text-slate-600">Vita C Serum ×2 · Olva · OLVA-88213</div></div>
       <div class="bg-white border border-amber-200 border-dashed rounded-xl p-2.5 flex items-center justify-between"><div class="text-[11px] text-amber-800">Entrega 2 · pendiente</div><button class="text-[10px] font-semibold text-blue-600">Programar →</button></div>
     </div>
+  </div>
+</div>
+
+<!-- MODAL · Agregar gasto de venta -->
+<div class="max-w-5xl mx-auto mb-6">
+  <div class="text-[11px] font-bold uppercase text-blue-700 mb-3">Modal · Agregar gasto de venta (GastosVentaForm · FormModalV2 · desktop=modal / mobile=sheet)</div>
+  <div class="max-w-sm bg-white border border-slate-200 rounded-2xl shadow-xl overflow-hidden">
+    <div class="px-4 py-3 border-b border-slate-200 flex items-center justify-between"><div class="text-[13px] font-bold text-slate-900">Agregar gasto de venta</div><i data-lucide="x" class="w-4 h-4 text-slate-400"></i></div>
+    <div class="p-4 space-y-3">
+      <div><label class="text-[11px] font-medium text-slate-600">Categoría</label><div class="mt-1 flex gap-1.5 flex-wrap"><span class="text-[11px] px-2 py-1 rounded-md bg-blue-600 text-white">Comisión ML</span><span class="text-[11px] px-2 py-1 rounded-md bg-slate-100 text-slate-600">Delivery</span><span class="text-[11px] px-2 py-1 rounded-md bg-slate-100 text-slate-600">Envío negocio</span><span class="text-[11px] px-2 py-1 rounded-md bg-slate-100 text-slate-600">Otro</span></div></div>
+      <div class="grid grid-cols-2 gap-2">
+        <div><label class="text-[11px] font-medium text-slate-600">Moneda</label><div class="mt-1 border border-slate-300 rounded-lg px-3 py-2 text-[12px] flex items-center justify-between"><span>PEN</span><i data-lucide="chevron-down" class="w-4 h-4 text-slate-400"></i></div></div>
+        <div><label class="text-[11px] font-medium text-slate-600">Monto</label><div class="mt-1 border border-slate-300 rounded-lg px-3 py-2 text-[14px] font-bold tabular">S/ 120.00</div></div>
+      </div>
+      <div><label class="text-[11px] font-medium text-slate-600">Descripción (opcional)</label><input type="text" placeholder="Comisión 12% sobre S/ 1,000" class="mt-1 w-full border border-slate-300 rounded-lg px-3 py-2 text-[12px] focus:outline-none focus:ring-2 focus:ring-blue-500/40"></div>
+      <div class="bg-slate-50 rounded-lg p-2.5 text-[11px] text-slate-500 flex items-center gap-1.5"><i data-lucide="info" class="w-3.5 h-3.5"></i> Impacta la utilidad neta y el margen real de la venta.</div>
+    </div>
+    <div class="px-4 py-3 border-t border-slate-200 bg-slate-50 flex justify-between"><button class="text-[12px] text-slate-500">Cancelar</button><button class="px-4 py-2 text-[12px] font-semibold text-white rounded-lg bg-blue-600">Agregar gasto</button></div>
   </div>
 </div>
 
