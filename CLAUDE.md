@@ -160,6 +160,81 @@ en rework, debe terminar cumpliendo esta anatomía hub completa.
 
 ---
 
+# CANON DE NO-REDUNDANCIA · KPIs DEL STRIP ↔ RESÚMENES/SECCIONES (declarado 2026-06-02)
+
+**Ningún KPI del strip persistente del shell debe re-mostrarse —con el mismo dato y
+nivel de agregación— en el Resumen ni en otra sección visible al mismo tiempo. El strip
+DA el número; el Resumen y las tabs APORTAN análisis que el strip NO da.**
+
+Cita literal del usuario (2026-06-02):
+*"Podemos agregar dentro de los canónicos esto de no ser redundantes con la
+implementación de los resúmenes y los KPI's."*
+
+Origen: tras la migración Hub Kit (7/7) se hizo un barrido de los 7 módulos y se halló que
+varios Resúmenes/tabs CLONABAN el KPI strip persistente (Planilla repetía Payroll/Bonos/
+Gratif · Inversionistas repetía Multiplicador/Equity/ROI en tabs de detalle · Gastos
+repetía el #1 del widget de proveedores). Se de-duplicó y se institucionalizó la regla.
+
+## Regla operativa
+
+1. **El strip persistente es la fuente del dato-resumen.** Una vez que un KPI vive en el
+   strip (siempre visible), NO se repite como card/stat con el mismo dato y nivel en el
+   Resumen ni en una sección que se vea simultáneamente.
+2. **El Resumen NO clona el strip.** La 1ª tab Resumen sigue el orden canónico §A→§F
+   (banner → visualización → insights → acciones → cross-links → alertas) con contenido
+   que el strip NO da: composición, tendencia, ratios derivados, proyección, concentración,
+   desglose, narrativa.
+3. **No quitar · ELEVAR.** Cuando se detecta un clon, no se borra dejando un hueco: se
+   REEMPLAZA por análisis de valor (el "porqué" o la "trayectoria" del número).
+
+## Distinción obligatoria · 3 categorías (NO toda repetición es redundancia)
+
+- ❌ **Redundancia REAL (de-duplicar):** mismo dato, mismo nivel de agregación, visible
+  SIMULTÁNEAMENTE, donde la 2ª copia no aporta nada. Ej: Planilla Resumen con "PAYROLL"
+  idéntico al strip · Gastos mini-stat "Top proveedor" = #1 del widget del aside (ambos
+  siempre visibles).
+- ✅ **Resumen + detalle LEGÍTIMO (dejar):** el strip da el número, una tab de DETALLE lo
+  DESGLOSA o lo presenta en su forma formal. Ej: Contabilidad strip "Total Activos" + tab
+  Balance que abre el activo en sus componentes · Stock strip "Disponibles" + donut que
+  agrega proporción visual + categorías nuevas (En origen · Problemas).
+- ✅ **Teaser con valor de UBICACIÓN (evaluar con el user):** un resumen de 1 línea
+  persistente que en mobile evita scrollear hasta el detalle. Caso límite.
+
+## Método obligatorio · VERIFICAR en código antes de afirmar
+
+El reporte automático / subagente Explore **SOBRE-ESTIMA** la redundancia (caso
+Inversionistas: de 5 "clones" reportados, solo 3 eran reales · el user dudó y tenía razón).
+Antes de tocar:
+1. Confirmar en el CÓDIGO REAL, con línea exacta, que el dato del strip y el de la sección
+   son el MISMO (misma fuente/cálculo).
+2. Confirmar que se ven SIMULTÁNEAMENTE (¿la sección/aside está siempre visible o es condicional?).
+3. Si no se confirma → NO es redundancia · se deja (y se declara por qué).
+
+## Checklist antes de cerrar un módulo nuevo o un rework
+
+1. ✅ ¿El Resumen re-renderiza algún KPI que ya está en el strip? → de-duplicar.
+2. ✅ ¿Alguna tab de detalle muestra una card con el dato idéntico al strip (no su desglose)? → de-duplicar.
+3. ✅ ¿Algún mini-stat/teaser repite un widget del aside siempre visible? → de-duplicar.
+4. ✅ ¿Cada clon detectado fue REEMPLAZADO por análisis de valor (no solo borrado)?
+5. ✅ ¿Se verificó en código real (no solo en el reporte) antes de tocar?
+
+## Referencias
+
+- ✅ Modelo correcto · **Usuarios** (no tiene strip persistente · KPIs en un solo lugar).
+- ✅ Resumen+detalle legítimo · **Contabilidad** (strip = headers de Balance/P&L).
+- 🔧 De-dup implementado (2026-06-01/02) · **Planilla** (Resumen → dashboard de salud del
+  costo laboral) · **Inversionistas** (tabs Salud/ROI Dual → Equity Bridge / Sensibilidad /
+  Payback / IRR) · **Finanzas Movimientos** (toolbar contextual al filtro) · **Gastos**
+  (mini-stat "Top proveedor" → "Promedio/día").
+
+## Aplica a
+
+- ✅ Todo módulo nuevo y todo rework a partir de 2026-06-02.
+- ✅ Todo mockup de módulo (nace sin clonar el strip · el Resumen aporta §A→§F).
+- ✅ Complementa el canon HUB (anatomía) y el canon DESIGN SYSTEM (el Resumen §A→§F).
+
+---
+
 # CANON DE DESIGN SYSTEM · KIT UNIVERSAL + GOBERNANZA DE COLOR (declarado 2026-05-30)
 
 **Todo módulo del ERP NACE del Design System. No se re-inventa el shell ni los
