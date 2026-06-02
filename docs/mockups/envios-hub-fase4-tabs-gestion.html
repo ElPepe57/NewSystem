@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Envíos Hub · Fase 4 · Tabs de gestión</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  * { font-family: 'Inter', system-ui, sans-serif; }
+  .tabular-nums { font-variant-numeric: tabular-nums; }
+  .font-mono { font-family: ui-monospace, monospace; }
+  body { background: #f1f5f9; }
+  .hide-scroll::-webkit-scrollbar { display: none; }
+  .hide-scroll { scrollbar-width: none; }
+  .th { text-align:left; font-size:10px; text-transform:uppercase; letter-spacing:.05em; color:#64748b; font-weight:700; padding:8px 16px; }
+  .td { font-size:13px; color:#334155; padding:12px 16px; }
+</style>
+</head>
+<body class="text-slate-900 pb-24">
+
+<!-- ════════════ HERO ════════════ -->
+<div class="max-w-6xl mx-auto px-4 pt-8 pb-4">
+  <div class="flex items-center gap-2 mb-3 flex-wrap">
+    <span class="text-[10px] font-bold uppercase tracking-wider bg-orange-100 text-orange-700 px-2 py-1 rounded">ENVÍOS · orange</span>
+    <span class="text-[10px] font-bold uppercase tracking-wider bg-slate-200 text-slate-600 px-2 py-1 rounded">FASE 4 · TABS DE GESTIÓN</span>
+    <span class="text-[10px] font-bold uppercase tracking-wider bg-emerald-100 text-emerald-700 px-2 py-1 rounded">DataTable + Charts DS · MOBILE</span>
+  </div>
+  <h1 class="text-3xl font-bold tracking-tight mb-2">Envíos Hub · Fase 4 · Tabs de gestión</h1>
+  <p class="text-[14px] text-slate-600 max-w-3xl leading-relaxed">
+    Las 4 tabs de gestión: <strong>Incidencias · Reclamos · Costos · Rendimiento</strong>. Cada una con sus KPIs +
+    filtros + <strong>DataTable</strong> (catálogo denso · excepción F4 · tabla del kit) — salvo Rendimiento, que es
+    dashboard con <strong>charts del DS</strong> (bullet/sparkline/barras). Mobile: tabla → cards apiladas.
+  </p>
+</div>
+
+<!-- ÍNDICE -->
+<div class="max-w-6xl mx-auto px-4 mb-8">
+  <div class="bg-white border border-slate-200 rounded-2xl p-4 grid grid-cols-2 md:grid-cols-5 gap-2 text-[12px]">
+    <a href="#acto1" class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-slate-50"><span class="w-5 h-5 rounded bg-rose-100 text-rose-700 flex items-center justify-center text-[10px] font-bold">1</span> Incidencias</a>
+    <a href="#acto2" class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-slate-50"><span class="w-5 h-5 rounded bg-amber-100 text-amber-700 flex items-center justify-center text-[10px] font-bold">2</span> Reclamos</a>
+    <a href="#acto3" class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-slate-50"><span class="w-5 h-5 rounded bg-indigo-100 text-indigo-700 flex items-center justify-center text-[10px] font-bold">3</span> Costos</a>
+    <a href="#acto4" class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-slate-50"><span class="w-5 h-5 rounded bg-emerald-100 text-emerald-700 flex items-center justify-center text-[10px] font-bold">4</span> Rendimiento</a>
+    <a href="#acto5" class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-slate-50"><span class="w-5 h-5 rounded bg-slate-100 flex items-center justify-center text-[10px] font-bold">5</span> Mobile</a>
+  </div>
+</div>
+
+<!-- ════════════ ACTO 1 · INCIDENCIAS ════════════ -->
+<div id="acto1" class="max-w-6xl mx-auto px-4 mb-12">
+  <div class="text-[11px] font-bold uppercase tracking-wider text-rose-600 mb-3">1 · Tab Incidencias — KPIs + filtros + DataTable de incidencias</div>
+  <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+    <!-- tabs -->
+    <div class="border-b border-slate-200 px-4 sm:px-6"><div class="flex gap-1 overflow-x-auto -mb-px hide-scroll text-[13px]">
+      <button class="whitespace-nowrap px-3 py-2.5 border-b-2 border-transparent text-slate-500 font-medium">Resumen</button>
+      <button class="whitespace-nowrap px-3 py-2.5 border-b-2 border-transparent text-slate-500 font-medium">Operaciones</button>
+      <button class="whitespace-nowrap px-3 py-2.5 border-b-2 border-orange-600 text-orange-700 font-semibold flex items-center gap-1.5">Incidencias <span class="text-[9px] bg-rose-100 text-rose-700 px-1.5 rounded-full font-bold">2</span></button>
+      <button class="whitespace-nowrap px-3 py-2.5 border-b-2 border-transparent text-slate-500 font-medium flex items-center gap-1.5">Reclamos <span class="text-[9px] bg-amber-100 text-amber-700 px-1.5 rounded-full font-bold">3</span></button>
+      <button class="whitespace-nowrap px-3 py-2.5 border-b-2 border-transparent text-slate-500 font-medium">Costos</button>
+      <button class="whitespace-nowrap px-3 py-2.5 border-b-2 border-transparent text-slate-500 font-medium">Rendimiento</button>
+    </div></div>
+    <div class="text-[10px] text-slate-400 px-4 sm:px-6 pt-1.5">(mismo shell · tab Incidencias activa)</div>
+
+    <div class="bg-slate-50/30 p-3 sm:p-4 md:p-6 space-y-4">
+      <!-- KPIs (4 · semánticos) -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div class="bg-white border border-slate-200 rounded-2xl p-4"><div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1">Total</div><div class="text-2xl font-bold tabular-nums text-slate-900">5</div><div class="text-[11px] text-slate-400">este mes</div></div>
+        <div class="bg-gradient-to-br from-rose-50 to-rose-100/40 ring-1 ring-rose-200/50 rounded-2xl p-4"><div class="text-[10px] uppercase tracking-wider text-rose-700 font-bold mb-1">Abiertas</div><div class="text-2xl font-bold tabular-nums text-rose-900">2</div><div class="text-[11px] text-rose-700">sin resolver</div></div>
+        <div class="bg-gradient-to-br from-amber-50 to-amber-100/40 ring-1 ring-amber-200/50 rounded-2xl p-4"><div class="text-[10px] uppercase tracking-wider text-amber-700 font-bold mb-1">Dañadas</div><div class="text-2xl font-bold tabular-nums text-amber-900">3</div><div class="text-[11px] text-amber-700">unidades</div></div>
+        <div class="bg-gradient-to-br from-fuchsia-50 to-fuchsia-100/40 ring-1 ring-fuchsia-200/50 rounded-2xl p-4"><div class="text-[10px] uppercase tracking-wider text-fuchsia-700 font-bold mb-1">En reclamo</div><div class="text-2xl font-bold tabular-nums text-fuchsia-900">S/<span class="text-xl">168</span></div><div class="text-[11px] text-fuchsia-700">por recuperar</div></div>
+      </div>
+      <!-- filtros -->
+      <div class="flex items-center gap-2 flex-wrap">
+        <span class="text-[10px] uppercase tracking-wider text-slate-400 font-bold">Tipo:</span>
+        <button class="text-[11px] px-2.5 py-1 rounded-full bg-orange-600 text-white font-medium">Todas <span class="opacity-70">5</span></button>
+        <button class="text-[11px] px-2.5 py-1 rounded-full bg-white border border-slate-200 text-slate-600">Dañada <span class="text-slate-400">3</span></button>
+        <button class="text-[11px] px-2.5 py-1 rounded-full bg-white border border-slate-200 text-slate-600">Faltante <span class="text-slate-400">1</span></button>
+        <button class="text-[11px] px-2.5 py-1 rounded-full bg-white border border-slate-200 text-slate-600">Aduana <span class="text-slate-400">1</span></button>
+        <span class="mx-1 w-px h-4 bg-slate-200"></span>
+        <button class="text-[11px] px-2.5 py-1 rounded-full bg-rose-100 text-rose-700 font-medium">Abiertas <span>2</span></button>
+        <button class="text-[11px] px-2.5 py-1 rounded-full bg-white border border-slate-200 text-slate-600">Resueltas <span class="text-slate-400">3</span></button>
+      </div>
+      <!-- DataTable -->
+      <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full">
+            <thead><tr class="bg-slate-50 border-b border-slate-200"><th class="th">Envío</th><th class="th">Tipo</th><th class="th">Producto</th><th class="th">Estado</th><th class="th" style="text-align:right">Reclamo</th><th class="th">Fecha</th></tr></thead>
+            <tbody>
+              <tr class="border-b border-slate-100 hover:bg-slate-50 cursor-pointer">
+                <td class="td font-mono text-[11px]">ENV-0309</td>
+                <td class="td"><span class="text-[10px] font-bold uppercase bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded">Dañada</span></td>
+                <td class="td">Colágeno · 60 cáps <span class="text-slate-400 font-mono text-[11px]">COL-60</span></td>
+                <td class="td"><span class="text-[10px] font-bold uppercase bg-rose-100 text-rose-700 px-1.5 py-0.5 rounded">Abierta</span></td>
+                <td class="td tabular-nums text-right font-semibold">S/ 84</td>
+                <td class="td text-slate-500 tabular-nums">30 may</td>
+              </tr>
+              <tr class="border-b border-slate-100 hover:bg-slate-50 cursor-pointer">
+                <td class="td font-mono text-[11px]">ENV-0309</td>
+                <td class="td"><span class="text-[10px] font-bold uppercase bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded">Aduana</span></td>
+                <td class="td text-slate-400">— (24 unidades)</td>
+                <td class="td"><span class="text-[10px] font-bold uppercase bg-rose-100 text-rose-700 px-1.5 py-0.5 rounded">Abierta</span></td>
+                <td class="td tabular-nums text-right text-slate-400">—</td>
+                <td class="td text-slate-500 tabular-nums">31 may</td>
+              </tr>
+              <tr class="border-b border-slate-100 hover:bg-slate-50 cursor-pointer">
+                <td class="td font-mono text-[11px]">ENV-0298</td>
+                <td class="td"><span class="text-[10px] font-bold uppercase bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded">Dañada</span></td>
+                <td class="td">Magnesio · 90 cáps <span class="text-slate-400 font-mono text-[11px]">MAG-90</span></td>
+                <td class="td"><span class="text-[10px] font-bold uppercase bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded">Resuelta</span></td>
+                <td class="td tabular-nums text-right font-semibold text-emerald-700">S/ 84 ✓</td>
+                <td class="td text-slate-500 tabular-nums">24 may</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════ ACTO 2 · RECLAMOS ════════════ -->
+<div id="acto2" class="max-w-6xl mx-auto px-4 mb-12">
+  <div class="text-[11px] font-bold uppercase tracking-wider text-amber-600 mb-3">2 · Tab Reclamos — KPI strip (5) + filtros estado/destinatario + DataTable</div>
+  <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+    <div class="border-b border-slate-200 px-4 sm:px-6"><div class="flex gap-1 overflow-x-auto -mb-px hide-scroll text-[13px]">
+      <button class="whitespace-nowrap px-3 py-2.5 border-b-2 border-transparent text-slate-500 font-medium">Resumen</button>
+      <button class="whitespace-nowrap px-3 py-2.5 border-b-2 border-transparent text-slate-500 font-medium">Operaciones</button>
+      <button class="whitespace-nowrap px-3 py-2.5 border-b-2 border-transparent text-slate-500 font-medium flex items-center gap-1.5">Incidencias <span class="text-[9px] bg-rose-100 text-rose-700 px-1.5 rounded-full font-bold">2</span></button>
+      <button class="whitespace-nowrap px-3 py-2.5 border-b-2 border-orange-600 text-orange-700 font-semibold flex items-center gap-1.5">Reclamos <span class="text-[9px] bg-amber-100 text-amber-700 px-1.5 rounded-full font-bold">3</span></button>
+      <button class="whitespace-nowrap px-3 py-2.5 border-b-2 border-transparent text-slate-500 font-medium">Costos</button>
+      <button class="whitespace-nowrap px-3 py-2.5 border-b-2 border-transparent text-slate-500 font-medium">Rendimiento</button>
+    </div></div>
+    <div class="text-[10px] text-slate-400 px-4 sm:px-6 pt-1.5">(mismo shell · tab Reclamos activa)</div>
+    <div class="bg-slate-50/30 p-3 sm:p-4 md:p-6 space-y-4">
+      <!-- KPI strip 5 -->
+      <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
+        <div class="bg-white border border-slate-200 rounded-2xl p-4"><div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1">Total</div><div class="text-2xl font-bold tabular-nums text-slate-900">3</div></div>
+        <div class="bg-gradient-to-br from-amber-50 to-amber-100/40 ring-1 ring-amber-200/50 rounded-2xl p-4"><div class="text-[10px] uppercase tracking-wider text-amber-700 font-bold mb-1">Pendientes</div><div class="text-2xl font-bold tabular-nums text-amber-900">2</div></div>
+        <div class="bg-gradient-to-br from-fuchsia-50 to-fuchsia-100/40 ring-1 ring-fuchsia-200/50 rounded-2xl p-4"><div class="text-[10px] uppercase tracking-wider text-fuchsia-700 font-bold mb-1">En disputa</div><div class="text-2xl font-bold tabular-nums text-fuchsia-900">S/<span class="text-xl">1.8k</span></div></div>
+        <div class="bg-gradient-to-br from-sky-50 to-sky-100/40 ring-1 ring-sky-200/50 rounded-2xl p-4"><div class="text-[10px] uppercase tracking-wider text-sky-700 font-bold mb-1">Aceptados</div><div class="text-2xl font-bold tabular-nums text-sky-900">1</div></div>
+        <div class="bg-gradient-to-br from-emerald-50 to-emerald-100/40 ring-1 ring-emerald-200/50 rounded-2xl p-4"><div class="text-[10px] uppercase tracking-wider text-emerald-700 font-bold mb-1">Cobrados</div><div class="text-2xl font-bold tabular-nums text-emerald-900">S/<span class="text-xl">420</span></div></div>
+      </div>
+      <!-- filtros -->
+      <div class="flex items-center gap-2 flex-wrap">
+        <span class="text-[10px] uppercase tracking-wider text-slate-400 font-bold">Estado:</span>
+        <button class="text-[11px] px-2.5 py-1 rounded-full bg-orange-600 text-white font-medium">Todos</button>
+        <button class="text-[11px] px-2.5 py-1 rounded-full bg-white border border-slate-200 text-slate-600">Enviado</button>
+        <button class="text-[11px] px-2.5 py-1 rounded-full bg-white border border-slate-200 text-slate-600">En disputa</button>
+        <span class="mx-1 w-px h-4 bg-slate-200"></span>
+        <span class="text-[10px] uppercase tracking-wider text-slate-400 font-bold">Para:</span>
+        <button class="text-[11px] px-2.5 py-1 rounded-full bg-white border border-slate-200 text-slate-600">Proveedor</button>
+        <button class="text-[11px] px-2.5 py-1 rounded-full bg-white border border-slate-200 text-slate-600">Courier</button>
+        <button class="text-[11px] px-2.5 py-1 rounded-full bg-white border border-slate-200 text-slate-600">Seguro</button>
+      </div>
+      <!-- DataTable -->
+      <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden">
+        <div class="overflow-x-auto"><table class="w-full">
+          <thead><tr class="bg-slate-50 border-b border-slate-200"><th class="th">Reclamo</th><th class="th">Envío</th><th class="th">Destinatario</th><th class="th">Tipo</th><th class="th" style="text-align:right">Monto</th><th class="th">Estado</th></tr></thead>
+          <tbody>
+            <tr class="border-b border-slate-100 hover:bg-slate-50 cursor-pointer"><td class="td font-mono text-[11px]">RCL-012</td><td class="td font-mono text-[11px]">ENV-0309</td><td class="td">Proveedor · AB Wholesale</td><td class="td"><span class="text-[10px] font-bold uppercase bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded">Dañada</span></td><td class="td tabular-nums text-right font-semibold">S/ 84</td><td class="td"><span class="text-[10px] font-bold uppercase bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded">Enviado</span></td></tr>
+            <tr class="border-b border-slate-100 hover:bg-slate-50 cursor-pointer"><td class="td font-mono text-[11px]">RCL-011</td><td class="td font-mono text-[11px]">ENV-0301</td><td class="td">Courier · DHL</td><td class="td"><span class="text-[10px] font-bold uppercase bg-rose-100 text-rose-700 px-1.5 py-0.5 rounded">Perdida</span></td><td class="td tabular-nums text-right font-semibold">S/ 1,756</td><td class="td"><span class="text-[10px] font-bold uppercase bg-fuchsia-100 text-fuchsia-700 px-1.5 py-0.5 rounded">En disputa</span></td></tr>
+            <tr class="border-b border-slate-100 hover:bg-slate-50 cursor-pointer"><td class="td font-mono text-[11px]">RCL-009</td><td class="td font-mono text-[11px]">ENV-0287</td><td class="td">Seguro · Pacífico</td><td class="td"><span class="text-[10px] font-bold uppercase bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded">Aduana</span></td><td class="td tabular-nums text-right font-semibold text-emerald-700">S/ 420 ✓</td><td class="td"><span class="text-[10px] font-bold uppercase bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded">Cobrado</span></td></tr>
+          </tbody>
+        </table></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════ ACTO 3 · COSTOS LANDED ════════════ -->
+<div id="acto3" class="max-w-6xl mx-auto px-4 mb-12">
+  <div class="text-[11px] font-bold uppercase tracking-wider text-indigo-600 mb-3">3 · Tab Costos — KPIs + período + DataTable expandible (envío × costos)</div>
+  <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+    <div class="border-b border-slate-200 px-4 sm:px-6"><div class="flex gap-1 overflow-x-auto -mb-px hide-scroll text-[13px]">
+      <button class="whitespace-nowrap px-3 py-2.5 border-b-2 border-transparent text-slate-500 font-medium">Resumen</button>
+      <button class="whitespace-nowrap px-3 py-2.5 border-b-2 border-transparent text-slate-500 font-medium">Operaciones</button>
+      <button class="whitespace-nowrap px-3 py-2.5 border-b-2 border-transparent text-slate-500 font-medium">Incidencias</button>
+      <button class="whitespace-nowrap px-3 py-2.5 border-b-2 border-transparent text-slate-500 font-medium">Reclamos</button>
+      <button class="whitespace-nowrap px-3 py-2.5 border-b-2 border-orange-600 text-orange-700 font-semibold">Costos</button>
+      <button class="whitespace-nowrap px-3 py-2.5 border-b-2 border-transparent text-slate-500 font-medium">Rendimiento</button>
+    </div></div>
+    <div class="text-[10px] text-slate-400 px-4 sm:px-6 pt-1.5">(mismo shell · tab Costos activa)</div>
+    <div class="bg-slate-50/30 p-3 sm:p-4 md:p-6 space-y-4">
+      <!-- KPIs + período -->
+      <div class="flex items-center justify-between gap-3 flex-wrap">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 flex-1">
+          <div class="bg-gradient-to-br from-indigo-50 to-indigo-100/40 ring-1 ring-indigo-200/50 rounded-2xl p-4"><div class="text-[10px] uppercase tracking-wider text-indigo-700 font-bold mb-1">Total landed</div><div class="text-2xl font-bold tabular-nums text-indigo-900">S/ 48.2<span class="text-indigo-400">k</span></div></div>
+          <div class="bg-white border border-slate-200 rounded-2xl p-4"><div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1">CTRU prom.</div><div class="text-2xl font-bold tabular-nums text-slate-900">S/ 18.4</div></div>
+          <div class="bg-gradient-to-br from-amber-50 to-amber-100/40 ring-1 ring-amber-200/50 rounded-2xl p-4"><div class="text-[10px] uppercase tracking-wider text-amber-700 font-bold mb-1">Estimados</div><div class="text-2xl font-bold tabular-nums text-amber-900">3</div></div>
+          <div class="bg-gradient-to-br from-emerald-50 to-emerald-100/40 ring-1 ring-emerald-200/50 rounded-2xl p-4"><div class="text-[10px] uppercase tracking-wider text-emerald-700 font-bold mb-1">Cerrados</div><div class="text-2xl font-bold tabular-nums text-emerald-900">12</div></div>
+        </div>
+      </div>
+      <div class="flex items-center gap-2 flex-wrap">
+        <span class="text-[10px] uppercase tracking-wider text-slate-400 font-bold">Período:</span>
+        <button class="text-[11px] px-2.5 py-1 rounded-full bg-orange-600 text-white font-medium">Este mes</button>
+        <button class="text-[11px] px-2.5 py-1 rounded-full bg-white border border-slate-200 text-slate-600">Trimestre</button>
+        <button class="text-[11px] px-2.5 py-1 rounded-full bg-white border border-slate-200 text-slate-600">Año</button>
+      </div>
+      <!-- DataTable expandible -->
+      <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden">
+        <div class="overflow-x-auto"><table class="w-full">
+          <thead><tr class="bg-slate-50 border-b border-slate-200"><th class="th" style="width:40px"></th><th class="th">Envío</th><th class="th">Productos</th><th class="th" style="text-align:right">Total landed</th><th class="th">Cierre</th></tr></thead>
+          <tbody>
+            <!-- fila expandida -->
+            <tr class="border-b border-slate-100 bg-indigo-50/30"><td class="td" style="width:40px"><button class="p-1 rounded-md bg-indigo-100 text-indigo-700"><i data-lucide="chevron-up" class="w-4 h-4"></i></button></td><td class="td font-mono text-[11px]">ENV-0309</td><td class="td">2 SKUs · 24 und</td><td class="td tabular-nums text-right font-bold text-indigo-700">$2,780</td><td class="td"><span class="text-[10px] font-bold uppercase bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded">Pendiente</span></td></tr>
+            <tr><td colspan="5" class="p-0"><div class="bg-slate-50/60 border-b border-slate-100 px-6 py-3"><div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-[11px]">
+              <div class="flex justify-between"><span class="text-slate-500">Flete intl.</span><span class="tabular-nums font-semibold">$1,820</span></div>
+              <div class="flex justify-between"><span class="text-slate-500">Aduana <span class="text-amber-600">·estim</span></span><span class="tabular-nums font-semibold">$840</span></div>
+              <div class="flex justify-between"><span class="text-slate-500">Fee recep.</span><span class="tabular-nums font-semibold">$120</span></div>
+              <div class="flex justify-between"><span class="text-slate-500">CTRU/und</span><span class="tabular-nums font-bold text-indigo-700">$115.8</span></div>
+            </div></div></td></tr>
+            <tr class="border-b border-slate-100 hover:bg-slate-50 cursor-pointer"><td class="td" style="width:40px"><button class="p-1 rounded-md hover:bg-slate-100 text-slate-400"><i data-lucide="chevron-down" class="w-4 h-4"></i></button></td><td class="td font-mono text-[11px]">ENV-0307</td><td class="td">3 SKUs · 15 und</td><td class="td tabular-nums text-right font-bold text-slate-800">$1,240</td><td class="td"><span class="text-[10px] font-bold uppercase bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded">Definitivo</span></td></tr>
+            <tr class="border-b border-slate-100 hover:bg-slate-50 cursor-pointer"><td class="td" style="width:40px"><button class="p-1 rounded-md hover:bg-slate-100 text-slate-400"><i data-lucide="chevron-down" class="w-4 h-4"></i></button></td><td class="td font-mono text-[11px]">ENV-0298</td><td class="td">1 SKU · 8 und</td><td class="td tabular-nums text-right font-bold text-slate-800">$640</td><td class="td"><span class="text-[10px] font-bold uppercase bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded">Definitivo</span></td></tr>
+          </tbody>
+        </table></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════ ACTO 4 · RENDIMIENTO ════════════ -->
+<div id="acto4" class="max-w-6xl mx-auto px-4 mb-12">
+  <div class="text-[11px] font-bold uppercase tracking-wider text-emerald-600 mb-3">4 · Tab Rendimiento — dashboard de KPIs operativos (charts del DS · bullet/línea/barras)</div>
+  <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+    <div class="border-b border-slate-200 px-4 sm:px-6"><div class="flex gap-1 overflow-x-auto -mb-px hide-scroll text-[13px]">
+      <button class="whitespace-nowrap px-3 py-2.5 border-b-2 border-transparent text-slate-500 font-medium">Resumen</button>
+      <button class="whitespace-nowrap px-3 py-2.5 border-b-2 border-transparent text-slate-500 font-medium">Operaciones</button>
+      <button class="whitespace-nowrap px-3 py-2.5 border-b-2 border-transparent text-slate-500 font-medium">Incidencias</button>
+      <button class="whitespace-nowrap px-3 py-2.5 border-b-2 border-transparent text-slate-500 font-medium">Reclamos</button>
+      <button class="whitespace-nowrap px-3 py-2.5 border-b-2 border-transparent text-slate-500 font-medium">Costos</button>
+      <button class="whitespace-nowrap px-3 py-2.5 border-b-2 border-orange-600 text-orange-700 font-semibold">Rendimiento</button>
+    </div></div>
+    <div class="text-[10px] text-slate-400 px-4 sm:px-6 pt-1.5">(mismo shell · tab Rendimiento activa)</div>
+    <div class="bg-slate-50/30 p-3 sm:p-4 md:p-6 space-y-4">
+      <!-- KPIs operativos con bullet (vs meta) -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="bg-white border border-slate-200 rounded-2xl p-5 space-y-4">
+          <div class="text-[13px] font-bold text-slate-900">KPIs operativos <span class="text-[11px] font-normal text-slate-400">· vs meta</span></div>
+          <div>
+            <div class="flex items-center justify-between text-[12px] mb-1.5"><span class="text-slate-600">Fill rate</span><span class="tabular-nums font-bold text-emerald-700">97.4% <span class="text-[10px] text-slate-400">/ 95%</span></span></div>
+            <div class="h-3 bg-slate-100 rounded-full overflow-hidden relative"><div class="h-full bg-emerald-500 rounded-full" style="width:97.4%"></div><div class="absolute top-0 h-full w-0.5 bg-slate-400" style="left:95%"></div></div>
+          </div>
+          <div>
+            <div class="flex items-center justify-between text-[12px] mb-1.5"><span class="text-slate-600">On-time delivery</span><span class="tabular-nums font-bold text-emerald-700">91% <span class="text-[10px] text-slate-400">/ 90%</span></span></div>
+            <div class="h-3 bg-slate-100 rounded-full overflow-hidden relative"><div class="h-full bg-emerald-500 rounded-full" style="width:91%"></div><div class="absolute top-0 h-full w-0.5 bg-slate-400" style="left:90%"></div></div>
+          </div>
+          <div>
+            <div class="flex items-center justify-between text-[12px] mb-1.5"><span class="text-slate-600">Damage rate</span><span class="tabular-nums font-bold text-amber-700">1.8% <span class="text-[10px] text-slate-400">/ &lt;2%</span></span></div>
+            <div class="h-3 bg-slate-100 rounded-full overflow-hidden relative"><div class="h-full bg-amber-500 rounded-full" style="width:36%"></div><div class="absolute top-0 h-full w-0.5 bg-slate-400" style="left:40%"></div></div>
+          </div>
+          <div>
+            <div class="flex items-center justify-between text-[12px] mb-1.5"><span class="text-slate-600">Loss rate</span><span class="tabular-nums font-bold text-emerald-700">0.3% <span class="text-[10px] text-slate-400">/ &lt;1%</span></span></div>
+            <div class="h-3 bg-slate-100 rounded-full overflow-hidden relative"><div class="h-full bg-emerald-500 rounded-full" style="width:30%"></div><div class="absolute top-0 h-full w-0.5 bg-slate-400" style="left:100%"></div></div>
+          </div>
+        </div>
+        <!-- tendencia lead time (línea) -->
+        <div class="bg-white border border-slate-200 rounded-2xl p-5">
+          <div class="flex items-center justify-between mb-4"><span class="text-[13px] font-bold text-slate-900">Lead time (6 meses)</span><span class="text-[11px] tabular-nums text-emerald-700 font-bold flex items-center gap-1"><i data-lucide="trending-down" class="w-3.5 h-3.5"></i> −1.4 días</span></div>
+          <svg width="100%" height="120" viewBox="0 0 300 120" preserveAspectRatio="none">
+            <polyline points="0,40 60,46 120,38 180,58 240,66 300,80" fill="none" stroke="#0d9488" stroke-width="2.5"/>
+            <polyline points="0,30 60,30 120,30 180,30 240,30 300,30" fill="none" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="4 4"/>
+          </svg>
+          <div class="flex justify-between text-[10px] text-slate-400 mt-1"><span>ene</span><span>feb</span><span>mar</span><span>abr</span><span>may</span><span>jun</span></div>
+          <div class="text-[10px] text-slate-400 mt-2 flex items-center gap-3"><span class="flex items-center gap-1"><span class="w-3 h-0.5 bg-teal-600"></span> real (6.2d)</span><span class="flex items-center gap-1"><span class="w-3 h-0.5 bg-slate-300"></span> meta (7d)</span></div>
+        </div>
+      </div>
+      <!-- rankings (barras) -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="bg-white border border-slate-200 rounded-2xl p-5">
+          <div class="text-[13px] font-bold text-slate-900 mb-4">Por courier · tasa de éxito</div>
+          <div class="space-y-2.5">
+            <div class="flex items-center gap-3"><span class="w-20 text-[11px] text-slate-600">Olva</span><div class="flex-1 h-5 bg-slate-100 rounded-md overflow-hidden"><div class="h-full bg-emerald-400 rounded-md flex items-center justify-end pr-2" style="width:98%"><span class="text-[10px] font-bold text-white tabular-nums">98%</span></div></div></div>
+            <div class="flex items-center gap-3"><span class="w-20 text-[11px] text-slate-600">Shalom</span><div class="flex-1 h-5 bg-slate-100 rounded-md overflow-hidden"><div class="h-full bg-emerald-400 rounded-md flex items-center justify-end pr-2" style="width:94%"><span class="text-[10px] font-bold text-white tabular-nums">94%</span></div></div></div>
+            <div class="flex items-center gap-3"><span class="w-20 text-[11px] text-slate-600">M. Torres ✈</span><div class="flex-1 h-5 bg-slate-100 rounded-md overflow-hidden"><div class="h-full bg-amber-400 rounded-md flex items-center justify-end pr-2" style="width:88%"><span class="text-[10px] font-bold text-white tabular-nums">88%</span></div></div></div>
+          </div>
+        </div>
+        <div class="bg-white border border-slate-200 rounded-2xl p-5">
+          <div class="text-[13px] font-bold text-slate-900 mb-4">Por zona · entregas</div>
+          <div class="space-y-2.5">
+            <div class="flex items-center gap-3"><span class="w-20 text-[11px] text-slate-600">Lima</span><div class="flex-1 h-5 bg-slate-100 rounded-md overflow-hidden"><div class="h-full bg-sky-400 rounded-md flex items-center justify-end pr-2" style="width:72%"><span class="text-[10px] font-bold text-white tabular-nums">42</span></div></div></div>
+            <div class="flex items-center gap-3"><span class="w-20 text-[11px] text-slate-600">Arequipa</span><div class="flex-1 h-5 bg-slate-100 rounded-md overflow-hidden"><div class="h-full bg-sky-400 rounded-md flex items-center justify-end pr-2" style="width:28%"><span class="text-[10px] font-bold text-white tabular-nums">16</span></div></div></div>
+            <div class="flex items-center gap-3"><span class="w-20 text-[11px] text-slate-600">Otras</span><div class="flex-1 h-5 bg-slate-100 rounded-md overflow-hidden"><div class="h-full bg-slate-400 rounded-md flex items-center justify-end pr-2" style="width:18%"><span class="text-[10px] font-bold text-white tabular-nums">10</span></div></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════ ACTO 5 · MOBILE ════════════ -->
+<div id="acto5" class="max-w-6xl mx-auto px-4 mb-12">
+  <div class="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-3">5 · Mobile (375px) — la tabla colapsa a cards apiladas</div>
+  <div class="flex flex-wrap gap-5 justify-center">
+    <!-- Incidencias mobile (cards) -->
+    <div>
+      <div class="text-[10px] font-bold uppercase text-rose-600 mb-1.5 text-center">Incidencias</div>
+      <div class="w-[300px] bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+        <div class="flex gap-1 px-3 pt-2.5 border-b border-slate-200 overflow-x-auto hide-scroll text-[12px] -mb-px">
+          <button class="pb-2 px-1 border-b-2 border-transparent text-slate-500 whitespace-nowrap">Reclamos</button>
+          <button class="pb-2 px-1 border-b-2 border-orange-600 text-orange-700 font-semibold whitespace-nowrap">Incidencias</button>
+          <button class="pb-2 px-1 border-b-2 border-transparent text-slate-500 whitespace-nowrap">Costos</button>
+        </div>
+        <div class="grid grid-cols-2 gap-1.5 p-2.5">
+          <div class="bg-rose-50 ring-1 ring-rose-200/50 rounded-lg p-2"><div class="text-[9px] uppercase text-rose-700 font-bold">Abiertas</div><div class="text-lg font-bold tabular-nums text-rose-900">2</div></div>
+          <div class="bg-amber-50 ring-1 ring-amber-200/50 rounded-lg p-2"><div class="text-[9px] uppercase text-amber-700 font-bold">Dañadas</div><div class="text-lg font-bold tabular-nums text-amber-900">3</div></div>
+        </div>
+        <div class="flex gap-1.5 px-2.5 pb-2 overflow-x-auto hide-scroll"><span class="text-[9px] font-bold px-2 py-1 rounded-full bg-orange-600 text-white whitespace-nowrap">Todas 5</span><span class="text-[9px] font-medium px-2 py-1 rounded-full bg-rose-100 text-rose-700 whitespace-nowrap">Abiertas 2</span></div>
+        <!-- cards (tabla colapsada) -->
+        <div class="px-2.5 pb-2.5 space-y-1.5">
+          <div class="border border-slate-200 rounded-lg p-2.5">
+            <div class="flex items-center justify-between mb-1"><span class="text-[10px] font-mono text-slate-500">ENV-0309</span><span class="text-[8px] font-bold uppercase bg-rose-100 text-rose-700 px-1.5 py-0.5 rounded">Abierta</span></div>
+            <div class="text-[11px] text-slate-700 mb-1">Colágeno · 60 cáps <span class="text-[8px] font-bold uppercase bg-amber-100 text-amber-700 px-1 rounded ml-1">Dañada</span></div>
+            <div class="flex items-center justify-between text-[10px]"><span class="text-slate-400">30 may</span><span class="tabular-nums font-bold text-slate-700">reclamo S/ 84</span></div>
+          </div>
+          <div class="border border-slate-200 rounded-lg p-2.5">
+            <div class="flex items-center justify-between mb-1"><span class="text-[10px] font-mono text-slate-500">ENV-0309</span><span class="text-[8px] font-bold uppercase bg-rose-100 text-rose-700 px-1.5 py-0.5 rounded">Abierta</span></div>
+            <div class="text-[11px] text-slate-700 mb-1">24 unidades <span class="text-[8px] font-bold uppercase bg-slate-100 text-slate-600 px-1 rounded ml-1">Aduana</span></div>
+            <div class="flex items-center justify-between text-[10px]"><span class="text-slate-400">31 may</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Rendimiento mobile -->
+    <div>
+      <div class="text-[10px] font-bold uppercase text-emerald-600 mb-1.5 text-center">Rendimiento</div>
+      <div class="w-[300px] bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+        <div class="flex gap-1 px-3 pt-2.5 border-b border-slate-200 overflow-x-auto hide-scroll text-[12px] -mb-px">
+          <button class="pb-2 px-1 border-b-2 border-transparent text-slate-500 whitespace-nowrap">Costos</button>
+          <button class="pb-2 px-1 border-b-2 border-orange-600 text-orange-700 font-semibold whitespace-nowrap">Rendimiento</button>
+        </div>
+        <div class="p-3 space-y-3">
+          <div class="space-y-2.5">
+            <div><div class="flex justify-between text-[10px] mb-1"><span class="text-slate-600">Fill rate</span><span class="tabular-nums font-bold text-emerald-700">97.4%</span></div><div class="h-2.5 bg-slate-100 rounded-full"><div class="h-full bg-emerald-500 rounded-full" style="width:97%"></div></div></div>
+            <div><div class="flex justify-between text-[10px] mb-1"><span class="text-slate-600">On-time</span><span class="tabular-nums font-bold text-emerald-700">91%</span></div><div class="h-2.5 bg-slate-100 rounded-full"><div class="h-full bg-emerald-500 rounded-full" style="width:91%"></div></div></div>
+            <div><div class="flex justify-between text-[10px] mb-1"><span class="text-slate-600">Damage</span><span class="tabular-nums font-bold text-amber-700">1.8%</span></div><div class="h-2.5 bg-slate-100 rounded-full"><div class="h-full bg-amber-500 rounded-full" style="width:36%"></div></div></div>
+          </div>
+          <div class="border-t border-slate-100 pt-2.5">
+            <div class="text-[10px] font-bold text-slate-900 mb-2">Lead time (6m)</div>
+            <svg width="100%" height="50" viewBox="0 0 260 50" preserveAspectRatio="none"><polyline points="0,18 52,20 104,16 156,26 208,30 260,36" fill="none" stroke="#0d9488" stroke-width="2"/></svg>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════ FOOTER ════════════ -->
+<div class="max-w-6xl mx-auto px-4 mb-12">
+  <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+    <div class="px-5 py-3 border-b border-slate-200 bg-slate-50 text-[12px] font-bold text-slate-700 flex items-center gap-2"><i data-lucide="check-circle" class="w-4 h-4 text-emerald-500"></i> Fase 4 · tabs de gestión</div>
+    <div class="px-5 py-4 grid md:grid-cols-2 gap-x-6 gap-y-1.5 text-[12px] text-slate-600">
+      <div class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-500"></i> Incidencias · KPIs + filtros tipo/estado + DataTable</div>
+      <div class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-500"></i> Reclamos · KPI strip 5 + filtros estado/destinatario + DataTable</div>
+      <div class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-500"></i> Costos · KPIs + período + DataTable expandible (desglose)</div>
+      <div class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-500"></i> Rendimiento · bullet (vs meta) + línea + barras (DS)</div>
+      <div class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-500"></i> DataTable del kit (thead slate-50 · sorting · expandable)</div>
+      <div class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-500"></i> Mobile · tabla colapsa a cards apiladas</div>
+    </div>
+    <div class="px-5 py-3 border-t border-slate-200 bg-slate-50 text-[11px] text-slate-500">
+      <strong class="text-slate-600">Última fase:</strong> 5 · 3 wizards (Nuevo envío unificado · Despacho F · Devolución G) paso por paso + borrador.
+    </div>
+  </div>
+</div>
+
+<script>lucide.createIcons();</script>
+</body>
+</html>
