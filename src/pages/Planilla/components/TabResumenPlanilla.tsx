@@ -1,38 +1,41 @@
 /**
  * TabResumenPlanilla.tsx
  *
- * chk5.PERSONAS-v5.4 · F10.E · 2026-05-26
+ * chk5.DS-DEDUP · 2026-06-01 · Rediseño "Dashboard de salud del costo laboral".
  *
- * Tab "Resumen" estratégico del módulo Planilla · alineado con el patrón
- * canon de Contabilidad (Resumen) · Finanzas (Overview) · Inversionistas
- * (Resumen ejecutivo) · Vita Skin.
+ * El KPI strip superior del shell (Payroll · Personal activo · Incentivos ·
+ * Próx. gratif.) se queda INTACTO. Esta tab dejó de clonarlo: ahora muestra
+ * análisis que el strip NO da, en el orden canónico §A→§F.
  *
- * Estructura canon banking-grade sky:
- *  §A · Banner estado de planilla (verde/amber/rojo)
- *  §B · Mini bar chart 12m evolución costo laboral
- *  §C · Insights del mes (auto-generados · 3-5 hallazgos)
- *  §D · Acciones rápidas (Generar boletas · Calcular bonos · etc)
- *  §E · Cross-links 360° mini cards (Gastos · Cash-flow · P&L · Salud)
- *  §F · Alertas activas (boletas borrador · bonos pendientes)
+ * Variables nuevas (recomendación curada del squad · FP&A + BI + Contabilidad):
+ *  §A · Semáforo carga laboral (costo laboral / ventas del mes) — el ratio #1
+ *  §B · Donut composición (fijo vs variable) + sparkline tendencia 6 meses
+ *  §C · Insights: productividad/persona · fijo% · devengado vs pagado · provisión gratif
+ *  §D · Acciones rápidas
+ *  §E · Cross-links 360 que cuadran con P&L y Cash flow
+ *  §F · Alertas accionables
+ *
+ * Mockup aprobado: docs/mockups/planilla-resumen-salud-laboral-v1.html
  */
 import React, { useEffect, useMemo, useState } from 'react';
 import {
-  LayoutDashboard,
-  TrendingUp,
-  TrendingDown,
-  Wallet,
-  CalendarDays,
-  AlertCircle,
   CheckCircle2,
   AlertTriangle,
-  Plus,
-  Zap,
-  Gift,
-  UserMinus,
-  ArrowRight,
+  AlertCircle,
+  TrendingUp,
+  TrendingDown,
+  Minus,
+  PieChart,
+  BarChart3,
+  Lock,
+  Wallet,
+  PiggyBank,
+  Info,
   FileText,
-  Trophy,
-  Lightbulb,
+  HandCoins,
+  Users,
+  ArrowRight,
+  Clock,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -42,6 +45,7 @@ import {
 import { planillaService } from '../../../services/planilla.service';
 import { calculoIncentivoService } from '../../../services/calculoIncentivo.service';
 import { liquidacionService } from '../../../services/liquidacion.service';
+import { getEstadoResultadosCached } from '../../../services/contabilidadCache';
 import type {
   Boleta,
   AdelantoNomina,
@@ -53,221 +57,76 @@ import { formatCurrencyPEN } from '../../../utils/format';
 interface Props {
   mes: number;
   anio: number;
-  /** Callbacks para wire-up con modales del shell */
   onGenerarBoletas?: () => void;
-  onCalcularBonos?: () => void;
-  onProcesarGratificacion?: () => void;
-  onBajaEmpleado?: () => void;
-  /** Navegar a tab específico del shell */
   onIrATab?: (tab: 'boletas' | 'adelantos' | 'incentivos' | 'vacaciones' | 'analisis') => void;
 }
-
-const MES_NOMBRE = [
-  'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
-  'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre',
-];
 
 function mesNombreCorto(m: number) {
   return ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'][m - 1] ?? '';
 }
 
-// ───── Mini bar chart SVG ─────
+// ════════════════════════════════════════════════════════════════════
+// §B · Donut de composición · 4 segmentos semánticos (fijo vs variable)
+// ════════════════════════════════════════════════════════════════════
 
-const MiniBars: React.FC<{ serie: CostoLaboralMensual[] }> = ({ serie }) => {
-  if (serie.length === 0) {
-    return <div className="text-[11px] text-slate-400 py-4 text-center">Sin data histórica</div>;
-  }
-  const max = Math.max(...serie.map((s) => s.totalCostoLaboral), 1);
-  const barW = 28;
-  const gap = 4;
-  const h = 60;
+interface Segmento {
+  label: string;
+  valor: number;
+  pct: number;
+  color: string; // hex para el stroke SVG
+  dot: string;   // clase tailwind del dot
+}
+
+const DonutComposicion: React.FC<{ segmentos: Segmento[]; total: number }> = ({ segmentos, total }) => {
+  // Arcos acumulados · offset 25 = empieza arriba (12 en punto)
+  let acumulado = 0;
+  const arcos = segmentos.map((s) => {
+    const dash = `${s.pct} ${100 - s.pct}`;
+    const offset = 25 - acumulado;
+    acumulado += s.pct;
+    return { ...s, dash, offset };
+  });
   return (
-    <div className="overflow-x-auto">
-      <svg
-        width={serie.length * (barW + gap)}
-        height={h + 18}
-        className="block"
-        role="img"
-        aria-label="Costo laboral mensual"
-      >
-        {serie.map((m, i) => {
-          const altura = (m.totalCostoLaboral / max) * h;
-          const esActual = i === serie.length - 1;
-          return (
-            <g key={`${m.anio}-${m.mes}`} transform={`translate(${i * (barW + gap)}, 0)`}>
-              <rect
-                x={0}
-                y={h - altura}
-                width={barW}
-                height={altura}
-                rx={3}
-                className={esActual ? 'fill-violet-600' : 'fill-violet-300'}
-              />
-              <text
-                x={barW / 2}
-                y={h + 13}
-                textAnchor="middle"
-                className="fill-slate-500"
-                fontSize={9}
-              >
-                {mesNombreCorto(m.mes)}
-              </text>
-            </g>
-          );
-        })}
+    <div className="flex items-center gap-4">
+      <svg viewBox="0 0 36 36" className="w-24 h-24 flex-shrink-0">
+        <circle cx="18" cy="18" r="15.9" fill="none" stroke="#e2e8f0" strokeWidth="3.6" />
+        {arcos.map((a, i) => (
+          <circle
+            key={i}
+            cx="18"
+            cy="18"
+            r="15.9"
+            fill="none"
+            stroke={a.color}
+            strokeWidth="3.6"
+            strokeDasharray={a.dash}
+            strokeDashoffset={a.offset}
+          />
+        ))}
+        <text x="18" y="17" textAnchor="middle" className="tabular-nums" style={{ fontSize: '5px', fontWeight: 700, fill: '#0f172a' }}>
+          {total >= 1000 ? `S/${(total / 1000).toFixed(1)}k` : `S/${total.toFixed(0)}`}
+        </text>
+        <text x="18" y="22" textAnchor="middle" style={{ fontSize: '2.6px', fill: '#94a3b8' }}>total mes</text>
       </svg>
+      <div className="flex-1 space-y-1.5 text-[12px]">
+        {segmentos.map((s, i) => (
+          <div key={i} className="flex items-center justify-between">
+            <span className="flex items-center gap-1.5">
+              <span className={`w-2 h-2 rounded-full ${s.dot}`}></span> {s.label}
+            </span>
+            <span className="tabular-nums font-semibold text-slate-700">{s.pct.toFixed(0)}%</span>
+          </div>
+        ))}
+      </div>
     </div>
   );
 };
 
-// ───── Calculadora de estado de la planilla ─────
+// ════════════════════════════════════════════════════════════════════
+// COMPONENT
+// ════════════════════════════════════════════════════════════════════
 
-type EstadoPlanilla = 'al_dia' | 'atencion' | 'critico';
-
-interface InfoEstado {
-  estado: EstadoPlanilla;
-  titulo: string;
-  detalle: string;
-  razones: string[];
-}
-
-function calcularEstadoPlanilla(
-  boletas: Boleta[],
-  bonosPendientes: CalculoIncentivoMes[],
-  liquidacionesAprobadas: LiquidacionEmpleado[],
-): InfoEstado {
-  const boletasBorrador = boletas.filter((b) => b.estado === 'borrador').length;
-  const boletasAprobadasSinPagar = boletas.filter((b) => b.estado === 'aprobada').length;
-  const bonosPorAprobar = bonosPendientes.length;
-
-  // Liquidaciones aprobadas sin pagar hace +7 días
-  const ahora = Date.now();
-  const liqCriticas = liquidacionesAprobadas.filter((l) => {
-    const aprobacionMs = l.fechaAprobacion?.toMillis?.() ?? l.fechaCreacion.toMillis();
-    const diasDesde = (ahora - aprobacionMs) / (1000 * 60 * 60 * 24);
-    return diasDesde > 7;
-  }).length;
-
-  const razones: string[] = [];
-
-  if (liqCriticas > 0) {
-    razones.push(`${liqCriticas} liquidación${liqCriticas === 1 ? '' : 'es'} aprobada${liqCriticas === 1 ? '' : 's'} sin pagar hace +7 días`);
-    return {
-      estado: 'critico',
-      titulo: 'Estado crítico',
-      detalle: 'Hay compromisos vencidos que requieren acción inmediata.',
-      razones,
-    };
-  }
-
-  if (boletasBorrador > 0) razones.push(`${boletasBorrador} boleta${boletasBorrador === 1 ? '' : 's'} en borrador`);
-  if (boletasAprobadasSinPagar > 0) razones.push(`${boletasAprobadasSinPagar} boleta${boletasAprobadasSinPagar === 1 ? '' : 's'} aprobada${boletasAprobadasSinPagar === 1 ? '' : 's'} sin pagar`);
-  if (bonosPorAprobar > 0) razones.push(`${bonosPorAprobar} bono${bonosPorAprobar === 1 ? '' : 's'} pendiente${bonosPorAprobar === 1 ? '' : 's'} de aprobación`);
-
-  if (razones.length > 0) {
-    return {
-      estado: 'atencion',
-      titulo: 'Atención requerida',
-      detalle: 'Hay items pendientes que conviene resolver pronto.',
-      razones,
-    };
-  }
-
-  return {
-    estado: 'al_dia',
-    titulo: 'Planilla al día',
-    detalle: 'Todas las boletas pagadas · sin bonos pendientes · sin liquidaciones vencidas.',
-    razones: ['Operación impecable este mes'],
-  };
-}
-
-// ───── Generador de insights ─────
-
-interface Insight {
-  tipo: 'positivo' | 'atencion' | 'negativo' | 'info';
-  texto: string;
-  ctaLabel?: string;
-  ctaAction?: () => void;
-}
-
-function generarInsightsResumen(
-  serie: CostoLaboralMensual[],
-  bonosMesPEN: number,
-  empleadosActivos: number,
-  diasAProximaGratif: number,
-  mesProxGratif: number,
-  ctas: {
-    irAnalisis: () => void;
-    irIncentivos: () => void;
-    procesarGratif?: () => void;
-  },
-): Insight[] {
-  const insights: Insight[] = [];
-
-  // Insight #1 · variación MoM
-  if (serie.length >= 2) {
-    const ultimo = serie[serie.length - 1];
-    const penultimo = serie[serie.length - 2];
-    if (penultimo.totalCostoLaboral > 0) {
-      const variacionPct =
-        ((ultimo.totalCostoLaboral - penultimo.totalCostoLaboral) / penultimo.totalCostoLaboral) * 100;
-      if (Math.abs(variacionPct) >= 3) {
-        insights.push({
-          tipo: variacionPct > 0 ? 'atencion' : 'positivo',
-          texto: `Tu costo laboral ${variacionPct > 0 ? 'subió' : 'bajó'} ${Math.abs(variacionPct).toFixed(1)}% vs el mes pasado (${formatCurrencyPEN(Math.abs(ultimo.totalCostoLaboral - penultimo.totalCostoLaboral))})`,
-          ctaLabel: 'Ver análisis',
-          ctaAction: ctas.irAnalisis,
-        });
-      }
-    }
-  }
-
-  // Insight #2 · bonos del mes vs payroll
-  const ultimoMes = serie[serie.length - 1];
-  if (ultimoMes && bonosMesPEN > 0 && ultimoMes.totalBoletas > 0) {
-    const ratio = (bonosMesPEN / ultimoMes.totalBoletas) * 100;
-    if (ratio > 15) {
-      insights.push({
-        tipo: 'info',
-        texto: `Los bonos representan ${ratio.toFixed(0)}% del payroll este mes · típico cuando hay performance alto en ventas`,
-        ctaLabel: 'Ver incentivos',
-        ctaAction: ctas.irIncentivos,
-      });
-    }
-  }
-
-  // Insight #3 · próxima gratificación
-  if (diasAProximaGratif <= 30 && diasAProximaGratif >= 0) {
-    insights.push({
-      tipo: 'atencion',
-      texto: `Próxima gratificación de ${MES_NOMBRE[mesProxGratif - 1]} en ${diasAProximaGratif} días · ${empleadosActivos} empleados afectados`,
-      ctaLabel: ctas.procesarGratif ? 'Procesar ahora' : undefined,
-      ctaAction: ctas.procesarGratif,
-    });
-  }
-
-  // Insight #4 · estabilidad
-  if (insights.length === 0) {
-    insights.push({
-      tipo: 'positivo',
-      texto: `Costo laboral estable · sin variaciones significativas · ${empleadosActivos} empleados activos`,
-    });
-  }
-
-  return insights;
-}
-
-// ───── COMPONENT ─────
-
-export const TabResumenPlanilla: React.FC<Props> = ({
-  mes,
-  anio,
-  onGenerarBoletas,
-  onCalcularBonos,
-  onProcesarGratificacion,
-  onBajaEmpleado,
-  onIrATab,
-}) => {
+export const TabResumenPlanilla: React.FC<Props> = ({ mes, anio, onGenerarBoletas, onIrATab }) => {
   const navigate = useNavigate();
   const [serie, setSerie] = useState<CostoLaboralMensual[]>([]);
   const [boletas, setBoletas] = useState<Boleta[]>([]);
@@ -275,32 +134,29 @@ export const TabResumenPlanilla: React.FC<Props> = ({
   const [bonosPendientes, setBonosPendientes] = useState<CalculoIncentivoMes[]>([]);
   const [liquidacionesAprobadas, setLiquidacionesAprobadas] = useState<LiquidacionEmpleado[]>([]);
   const [empleadosActivos, setEmpleadosActivos] = useState(0);
-  const [bonosMesPEN, setBonosMesPEN] = useState(0);
+  const [ventasMes, setVentasMes] = useState(0);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     setLoading(true);
     (async () => {
       try {
-        const [s, bs, ads, calculos, liqs, emps] = await Promise.all([
-          planillaAnalyticsService.costoLaboralPorMes(12),
+        const [s, bs, ads, calculos, liqs, emps, estado] = await Promise.all([
+          planillaAnalyticsService.costoLaboralPorMes(6),
           planillaService.getBoletasPorPeriodo(mes, anio),
           planillaService.getAdelantos(50),
           calculoIncentivoService.listMes(mes, anio),
           liquidacionService.listPorEstado('aprobada'),
           planillaService.getEmpleadosActivos(),
+          getEstadoResultadosCached(mes, anio).catch(() => null),
         ]);
         setSerie(s);
         setBoletas(bs);
         setAdelantos(ads);
         setBonosPendientes(calculos.filter((c) => c.estado === 'calculado'));
-        setBonosMesPEN(
-          calculos
-            .filter((c) => c.estado === 'incluido_en_boleta' || c.estado === 'aprobado')
-            .reduce((s, c) => s + c.bonoCalculado, 0),
-        );
         setLiquidacionesAprobadas(liqs);
         setEmpleadosActivos(emps.length);
+        setVentasMes(estado?.ventasNetas ?? 0);
       } catch (err) {
         console.error('[TabResumenPlanilla] error:', err);
       } finally {
@@ -309,430 +165,309 @@ export const TabResumenPlanilla: React.FC<Props> = ({
     })();
   }, [mes, anio]);
 
-  // Stats derivadas
-  const stats = useMemo(() => {
-    const ultimoMes = serie[serie.length - 1];
-    const penultimoMes = serie[serie.length - 2];
-    const variacionMoM =
-      ultimoMes && penultimoMes && penultimoMes.totalCostoLaboral > 0
-        ? ((ultimoMes.totalCostoLaboral - penultimoMes.totalCostoLaboral) /
-            penultimoMes.totalCostoLaboral) *
-          100
-        : 0;
-    const payrollMes = boletas.reduce((s, b) => s + b.totalNeto, 0);
+  // ─── Costo laboral del mes seleccionado (de la serie · fallback a boletas) ───
+  const costoMes = useMemo<CostoLaboralMensual>(() => {
+    const enSerie = serie.find((s) => s.mes === mes && s.anio === anio);
+    if (enSerie) return enSerie;
+    const totalBoletas = boletas.reduce((acc, b) => acc + b.totalNeto, 0);
+    const totalBonos = boletas.reduce((acc, b) => acc + (b.bonificaciones ?? 0), 0);
     return {
-      payrollMes,
-      variacionMoM,
-      adelantosPendientes: adelantos.filter((a) => a.estado === 'pendiente').length,
-      bonosPendientes: bonosPendientes.length,
-      boletasBorrador: boletas.filter((b) => b.estado === 'borrador').length,
+      mes, anio, totalBoletas, totalBonos,
+      totalGratificaciones: 0, totalLiquidaciones: 0,
+      totalCostoLaboral: totalBoletas + totalBonos, cantidadEmpleados: boletas.length,
     };
-  }, [serie, boletas, adelantos, bonosPendientes]);
+  }, [serie, boletas, mes, anio]);
 
-  const proximaGratif = useMemo(() => {
-    const hoy = new Date();
-    const candidatos: Array<{ mes: number; fecha: Date }> = [
-      { mes: 7, fecha: new Date(anio, 6, 15) },
-      { mes: 12, fecha: new Date(anio, 11, 15) },
-      { mes: 7, fecha: new Date(anio + 1, 6, 15) },
+  // ─── Análisis derivado (las variables nuevas) ───
+  const analisis = useMemo(() => {
+    const total = costoMes.totalCostoLaboral;
+    const empleados = empleadosActivos || costoMes.cantidadEmpleados || boletas.length || 0;
+
+    // §A · Carga laboral / ventas
+    const cargaLaboral = ventasMes > 0 ? (total / ventasMes) * 100 : null;
+    const estadoCarga: 'sano' | 'atencion' | 'critico' | 'sindata' =
+      cargaLaboral === null ? 'sindata' : cargaLaboral <= 30 ? 'sano' : cargaLaboral <= 40 ? 'atencion' : 'critico';
+
+    // Δ vs mes anterior (de la serie)
+    const idx = serie.findIndex((s) => s.mes === mes && s.anio === anio);
+    const prev = idx > 0 ? serie[idx - 1] : serie.length >= 2 ? serie[serie.length - 2] : null;
+    const cargaPrev = prev && ventasMes > 0 ? null : null; // delta de carga requiere ventas históricas · usamos delta de costo
+    const deltaCostoPp =
+      prev && prev.totalCostoLaboral > 0
+        ? ((total - prev.totalCostoLaboral) / prev.totalCostoLaboral) * 100
+        : null;
+
+    // §C · costo por persona · productividad · fijo vs variable
+    const costoPorPersona = empleados > 0 ? total / empleados : 0;
+    const productividad = empleados > 0 ? ventasMes / empleados : 0;
+    const pctFijo = total > 0 ? (costoMes.totalBoletas / total) * 100 : 0;
+
+    // §C · devengado vs pagado (de las boletas del mes)
+    const devengado = boletas.reduce((acc, b) => acc + b.totalNeto, 0);
+    const pagado = boletas.filter((b) => b.estado === 'pagada').reduce((acc, b) => acc + b.totalNeto, 0);
+    const pendientePago = Math.max(0, devengado - pagado);
+
+    // §C · provisión de gratificación acumulada (1/6 del sueldo por mes del semestre)
+    const mesSemestre = mes <= 6 ? mes : mes - 6;
+    const provisionMensual = costoMes.totalBoletas / 6;
+    const provisionAcumulada = provisionMensual * mesSemestre;
+
+    return {
+      total, empleados, cargaLaboral, estadoCarga, deltaCostoPp, cargaPrev,
+      costoPorPersona, productividad, pctFijo,
+      devengado, pagado, pendientePago,
+      mesSemestre, provisionAcumulada,
+    };
+  }, [costoMes, empleadosActivos, boletas, ventasMes, serie, mes, anio]);
+
+  // ─── §B · segmentos del donut ───
+  const segmentos = useMemo<Segmento[]>(() => {
+    const t = costoMes.totalCostoLaboral || 1;
+    const defs = [
+      { label: 'Sueldos base', valor: costoMes.totalBoletas, color: '#6366f1', dot: 'bg-indigo-500' },
+      { label: 'Bonos / comisiones', valor: costoMes.totalBonos, color: '#10b981', dot: 'bg-emerald-500' },
+      { label: 'Gratif. (provisión)', valor: costoMes.totalGratificaciones, color: '#f59e0b', dot: 'bg-amber-500' },
+      { label: 'Liquidaciones', valor: costoMes.totalLiquidaciones, color: '#f43f5e', dot: 'bg-rose-500' },
     ];
-    const next = candidatos.find((c) => c.fecha.getTime() > hoy.getTime()) ?? candidatos[0];
-    const dias = Math.max(
-      0,
-      Math.ceil((next.fecha.getTime() - hoy.getTime()) / (1000 * 60 * 60 * 24)),
-    );
-    return { mesProx: next.mes, dias };
-  }, [anio]);
+    return defs.map((d) => ({ ...d, pct: (d.valor / t) * 100 }));
+  }, [costoMes]);
 
-  const estadoPlanilla = useMemo(
-    () => calcularEstadoPlanilla(boletas, bonosPendientes, liquidacionesAprobadas),
-    [boletas, bonosPendientes, liquidacionesAprobadas],
-  );
+  // ─── §B · tendencia 6 meses ───
+  const tendencia = useMemo(() => {
+    const max = Math.max(...serie.map((s) => s.totalCostoLaboral), 1);
+    const promedio = serie.length > 0 ? serie.reduce((acc, s) => acc + s.totalCostoLaboral, 0) / serie.length : 0;
+    return { max, promedio };
+  }, [serie]);
 
-  const insights = useMemo(
-    () =>
-      generarInsightsResumen(serie, bonosMesPEN, empleadosActivos, proximaGratif.dias, proximaGratif.mesProx, {
-        irAnalisis: () => onIrATab?.('analisis'),
-        irIncentivos: () => onIrATab?.('incentivos'),
-        procesarGratif: onProcesarGratificacion,
-      }),
-    [serie, bonosMesPEN, empleadosActivos, proximaGratif, onIrATab, onProcesarGratificacion],
-  );
+  // ─── alertas/pendientes ───
+  const pendientes = useMemo(() => {
+    // 'pagado' = entregado al empleado pero aún sin descontar de boleta (en circulación)
+    const adelantosVencidos = adelantos.filter((a) => a.estado === 'pagado').length;
+    return {
+      boletasBorrador: boletas.filter((b) => b.estado === 'borrador').length,
+      adelantosVencidos,
+      bonosPorAprobar: bonosPendientes.length,
+      liquidacionesPend: liquidacionesAprobadas.length,
+    };
+  }, [boletas, adelantos, bonosPendientes, liquidacionesAprobadas]);
 
   if (loading) {
     return (
       <div className="p-8 text-center text-slate-500">
-        <div className="text-[12px]">Cargando resumen estratégico...</div>
+        <div className="text-[12px]">Cargando salud del costo laboral…</div>
       </div>
     );
   }
 
-  // Estilos por estado
-  const estadoStyles = {
-    al_dia: {
-      bg: 'bg-gradient-to-r from-emerald-50 to-emerald-100/40',
-      ring: 'ring-emerald-200',
-      iconBg: 'bg-emerald-100',
-      iconText: 'text-emerald-700',
-      titleText: 'text-emerald-900',
-      bodyText: 'text-emerald-700',
-      icon: CheckCircle2,
-    },
-    atencion: {
-      bg: 'bg-gradient-to-r from-amber-50 to-amber-100/40',
-      ring: 'ring-amber-200',
-      iconBg: 'bg-amber-100',
-      iconText: 'text-amber-700',
-      titleText: 'text-amber-900',
-      bodyText: 'text-amber-700',
-      icon: AlertTriangle,
-    },
-    critico: {
-      bg: 'bg-gradient-to-r from-rose-50 to-rose-100/40',
-      ring: 'ring-rose-200',
-      iconBg: 'bg-rose-100',
-      iconText: 'text-rose-700',
-      titleText: 'text-rose-900',
-      bodyText: 'text-rose-700',
-      icon: AlertCircle,
-    },
-  }[estadoPlanilla.estado];
+  // Estilos del semáforo §A
+  const cargaStyles = {
+    sano: { bg: 'from-emerald-50 to-emerald-100/30', ring: 'ring-emerald-200/60', iconBg: 'bg-emerald-100', icon: 'text-emerald-600', title: 'text-emerald-900', body: 'text-emerald-700', val: 'text-emerald-900', dec: 'text-emerald-400', Icon: CheckCircle2, titulo: 'Costo laboral bajo control' },
+    atencion: { bg: 'from-amber-50 to-amber-100/30', ring: 'ring-amber-200/60', iconBg: 'bg-amber-100', icon: 'text-amber-600', title: 'text-amber-900', body: 'text-amber-700', val: 'text-amber-900', dec: 'text-amber-400', Icon: AlertTriangle, titulo: 'Costo laboral elevado' },
+    critico: { bg: 'from-rose-50 to-rose-100/30', ring: 'ring-rose-200/60', iconBg: 'bg-rose-100', icon: 'text-rose-600', title: 'text-rose-900', body: 'text-rose-700', val: 'text-rose-900', dec: 'text-rose-400', Icon: AlertCircle, titulo: 'Costo laboral alto · margen en riesgo' },
+    sindata: { bg: 'from-slate-50 to-slate-100/30', ring: 'ring-slate-200/60', iconBg: 'bg-slate-100', icon: 'text-slate-500', title: 'text-slate-900', body: 'text-slate-600', val: 'text-slate-900', dec: 'text-slate-400', Icon: Info, titulo: 'Sin ventas registradas este mes' },
+  }[analisis.estadoCarga];
+  const CargaIcon = cargaStyles.Icon;
 
-  const IconEstado = estadoStyles.icon;
-  const insightTinte: Record<Insight['tipo'], string> = {
-    positivo: 'bg-emerald-50 border-emerald-200 text-emerald-900',
-    atencion: 'bg-amber-50 border-amber-200 text-amber-900',
-    negativo: 'bg-rose-50 border-rose-200 text-rose-900',
-    info: 'bg-sky-50 border-sky-200 text-sky-900',
-  };
+  // posición del marcador en la barra de umbral (0–50% → 0–100% del ancho)
+  const cargaBarPct = analisis.cargaLaboral !== null ? Math.min(100, (analisis.cargaLaboral / 50) * 100) : 0;
 
   return (
-    <div className="p-4 sm:p-6 space-y-5">
-      {/* §A · Banner Estado de la Planilla · canon Contabilidad BannerEstadoNegocio */}
-      <div className={`${estadoStyles.bg} ring-1 ${estadoStyles.ring} rounded-2xl p-4`}>
-        <div className="flex items-start gap-3 flex-wrap">
-          <div className={`w-12 h-12 ${estadoStyles.iconBg} rounded-2xl flex items-center justify-center flex-shrink-0`}>
-            <IconEstado className={`w-6 h-6 ${estadoStyles.iconText}`} />
-          </div>
-          <div className="flex-1 min-w-[200px]">
-            <div className={`text-[10px] uppercase tracking-wider ${estadoStyles.iconText} font-bold mb-0.5`}>
-              ESTADO DE LA PLANILLA
-            </div>
-            <div className={`text-[16px] font-bold ${estadoStyles.titleText} mb-1`}>
-              {estadoPlanilla.titulo}
-            </div>
-            <div className={`text-[11px] ${estadoStyles.bodyText} mb-2`}>{estadoPlanilla.detalle}</div>
-            <div className="flex flex-wrap items-center gap-2">
-              {estadoPlanilla.razones.map((r, i) => (
-                <span
-                  key={i}
-                  className={`text-[10px] bg-white/60 ${estadoStyles.bodyText} px-2 py-0.5 rounded-full border ${estadoStyles.ring.replace('ring-', 'border-')} font-semibold`}
-                >
-                  {r}
-                </span>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
+    <div className="p-4 sm:p-6 space-y-4">
 
-      {/* §B · KPI strip ejecutivo · 4 cards canon banking-grade */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <div className="bg-gradient-to-br from-rose-50 to-rose-100/40 ring-1 ring-rose-200/50 rounded-2xl p-4">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-[10px] uppercase tracking-wider text-rose-700 font-bold">
-              PAYROLL {mesNombreCorto(mes).toUpperCase()}
-            </span>
-            <Wallet className="w-3.5 h-3.5 text-rose-700" />
+      {/* §A · BANNER SEMÁFORO · carga laboral */}
+      <div className={`bg-gradient-to-r ${cargaStyles.bg} ring-1 ${cargaStyles.ring} rounded-2xl p-4`}>
+        <div className="flex items-center justify-between flex-wrap gap-3">
+          <div className="flex items-center gap-3">
+            <div className={`w-10 h-10 rounded-xl ${cargaStyles.iconBg} flex items-center justify-center flex-shrink-0`}>
+              <CargaIcon className={`w-5 h-5 ${cargaStyles.icon}`} />
+            </div>
+            <div>
+              <div className={`text-[14px] font-bold ${cargaStyles.title}`}>{cargaStyles.titulo}</div>
+              <div className={`text-[12px] ${cargaStyles.body}`}>
+                {analisis.cargaLaboral !== null ? (
+                  <>De cada <strong>S/ 100</strong> que vendés, <strong>S/ {analisis.cargaLaboral.toFixed(0)}</strong> se van en tu equipo</>
+                ) : (
+                  <>Registrá ventas del mes para ver tu ratio de carga laboral</>
+                )}
+              </div>
+            </div>
           </div>
-          <div className="text-2xl font-bold tabular-nums text-rose-900">
-            {formatCurrencyPEN(stats.payrollMes)}
-          </div>
-          <div className="text-[11px] text-rose-700 mt-1 truncate">
-            {boletas.length} boleta{boletas.length === 1 ? '' : 's'}
-          </div>
-        </div>
-        <div
-          className={`bg-gradient-to-br ring-1 rounded-2xl p-4 ${
-            stats.variacionMoM >= 0
-              ? 'from-amber-50 to-amber-100/40 ring-amber-200/50'
-              : 'from-emerald-50 to-emerald-100/40 ring-emerald-200/50'
-          }`}
-        >
-          <div className="flex items-center justify-between mb-2">
-            <span
-              className={`text-[10px] uppercase tracking-wider font-bold ${
-                stats.variacionMoM >= 0 ? 'text-amber-700' : 'text-emerald-700'
-              }`}
-            >
-              Δ MoM
-            </span>
-            {stats.variacionMoM >= 0 ? (
-              <TrendingUp className="w-3.5 h-3.5 text-amber-700" />
-            ) : (
-              <TrendingDown className="w-3.5 h-3.5 text-emerald-700" />
+          <div className="text-right">
+            <div className={`text-[10px] uppercase tracking-wider ${cargaStyles.body} font-bold`}>Carga laboral</div>
+            <div className={`text-2xl font-bold tabular-nums ${cargaStyles.val}`}>
+              {analisis.cargaLaboral !== null ? analisis.cargaLaboral.toFixed(1) : '—'}<span className={cargaStyles.dec}>%</span>
+            </div>
+            {analisis.deltaCostoPp !== null && (
+              <div className={`text-[11px] ${cargaStyles.body} flex items-center gap-1 justify-end`}>
+                {analisis.deltaCostoPp > 0 ? <TrendingUp className="w-3 h-3" /> : analisis.deltaCostoPp < 0 ? <TrendingDown className="w-3 h-3" /> : <Minus className="w-3 h-3" />}
+                {analisis.deltaCostoPp > 0 ? '+' : ''}{analisis.deltaCostoPp.toFixed(1)}% costo vs mes ant.
+              </div>
             )}
           </div>
-          <div
-            className={`text-2xl font-bold tabular-nums ${
-              stats.variacionMoM >= 0 ? 'text-amber-900' : 'text-emerald-900'
-            }`}
-          >
-            {stats.variacionMoM >= 0 ? '+' : ''}
-            {stats.variacionMoM.toFixed(1)}%
+        </div>
+        {analisis.cargaLaboral !== null && (
+          <div className="mt-3 flex items-center gap-2 text-[10px] text-slate-500">
+            <span className="font-bold text-emerald-700">Sano ≤30%</span>
+            <div className="flex-1 h-1.5 rounded-full bg-slate-200 overflow-hidden relative">
+              <div className={`absolute inset-y-0 left-0 rounded-full ${analisis.estadoCarga === 'sano' ? 'bg-emerald-500' : analisis.estadoCarga === 'atencion' ? 'bg-amber-500' : 'bg-rose-500'}`} style={{ width: `${cargaBarPct}%` }}></div>
+              <div className="absolute inset-y-0" style={{ left: '60%', width: '1px', background: '#f59e0b' }}></div>
+              <div className="absolute inset-y-0" style={{ left: '80%', width: '1px', background: '#f43f5e' }}></div>
+            </div>
+            <span className="text-amber-600 font-bold">40%</span>
+            <span className="text-rose-600 font-bold">alto</span>
           </div>
-          <div
-            className={`text-[11px] mt-1 ${stats.variacionMoM >= 0 ? 'text-amber-700' : 'text-emerald-700'}`}
-          >
-            vs mes anterior
+        )}
+      </div>
+
+      {/* §B · VISUALIZACIÓN · composición + tendencia */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        {/* Donut composición */}
+        <div className="bg-white border border-slate-200 rounded-2xl p-4">
+          <div className="flex items-center justify-between mb-3">
+            <div>
+              <div className="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Composición del costo</div>
+              <div className="text-[11px] text-slate-400">de qué está hecho tu costo laboral</div>
+            </div>
+            <PieChart className="w-4 h-4 text-slate-400" />
+          </div>
+          <DonutComposicion segmentos={segmentos} total={costoMes.totalCostoLaboral} />
+          <div className="mt-3 pt-2 border-t border-slate-100 text-[11px] text-slate-600 flex items-start gap-1.5">
+            <Info className="w-3 h-3 mt-0.5 text-indigo-500 flex-shrink-0" />
+            <span><strong>{analisis.pctFijo.toFixed(0)}% es fijo</strong> (sueldos) · el {(100 - analisis.pctFijo).toFixed(0)}% restante se ajusta solo si las ventas bajan.</span>
           </div>
         </div>
-        <div className="bg-gradient-to-br from-violet-50 to-violet-100/40 ring-1 ring-violet-200/50 rounded-2xl p-4">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-[10px] uppercase tracking-wider text-violet-700 font-bold">
-              BONOS DEL MES
-            </span>
-            <Trophy className="w-3.5 h-3.5 text-violet-700" />
+
+        {/* Sparkline tendencia 6m */}
+        <div className="bg-white border border-slate-200 rounded-2xl p-4">
+          <div className="flex items-center justify-between mb-3">
+            <div>
+              <div className="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Tendencia · {serie.length} meses</div>
+              <div className="text-[11px] text-slate-400">costo laboral total por mes</div>
+            </div>
+            <BarChart3 className="w-4 h-4 text-slate-400" />
           </div>
-          <div className="text-2xl font-bold tabular-nums text-violet-900">
-            {formatCurrencyPEN(bonosMesPEN)}
-          </div>
-          <div className="text-[11px] text-violet-700 mt-1 truncate">
-            {stats.payrollMes > 0
-              ? `${((bonosMesPEN / stats.payrollMes) * 100).toFixed(0)}% del payroll`
-              : 'sin payroll este mes'}
-          </div>
-        </div>
-        <div className="bg-gradient-to-br from-indigo-50 to-indigo-100/40 ring-1 ring-indigo-200/50 rounded-2xl p-4">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-[10px] uppercase tracking-wider text-indigo-700 font-bold">
-              PRÓX. GRATIF.
-            </span>
-            <CalendarDays className="w-3.5 h-3.5 text-indigo-700" />
-          </div>
-          <div className="text-2xl font-bold tabular-nums text-indigo-900">
-            {proximaGratif.mesProx === 7 ? 'jul' : 'dic'}{' '}
-            <span className="text-indigo-400">· {proximaGratif.dias}d</span>
-          </div>
-          <div className="text-[11px] text-indigo-700 mt-1 truncate">
-            {empleadosActivos} empleados afectados
-          </div>
+          {serie.length === 0 ? (
+            <div className="h-28 flex items-center justify-center text-[11px] text-slate-400">Sin data histórica</div>
+          ) : (
+            <>
+              <div className="flex items-end justify-between gap-2 h-28 pt-2">
+                {serie.map((s, i) => {
+                  const esActual = s.mes === mes && s.anio === anio;
+                  const h = (s.totalCostoLaboral / tendencia.max) * 100;
+                  return (
+                    <div key={`${s.anio}-${s.mes}`} className="flex-1 flex flex-col items-center gap-1">
+                      <div className={`w-full rounded-t ${esActual ? 'bg-violet-600' : 'bg-violet-200'}`} style={{ height: `${Math.max(4, h)}%` }}></div>
+                      <span className={`text-[9px] ${esActual ? 'text-violet-700 font-bold' : 'text-slate-400'}`}>{mesNombreCorto(s.mes)}</span>
+                    </div>
+                  );
+                })}
+              </div>
+              <div className="mt-2 pt-2 border-t border-slate-100 flex items-center justify-between text-[11px]">
+                <span className="text-slate-500 flex items-center gap-1"><span className="w-3 h-0.5 bg-slate-400 inline-block"></span> Promedio {formatCurrencyPEN(tendencia.promedio)}</span>
+                <span className="text-violet-700 font-semibold tabular-nums">{mesNombreCorto(mes)} {formatCurrencyPEN(costoMes.totalCostoLaboral)}</span>
+              </div>
+            </>
+          )}
         </div>
       </div>
 
-      {/* §C · Mini bar chart 12m · canon TabAnalisisReportes (compacto) */}
-      <div className="bg-white border border-slate-200 rounded-xl p-4">
-        <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
-          <h3 className="text-[13px] font-bold text-slate-900 inline-flex items-center gap-1.5">
-            <LayoutDashboard className="w-4 h-4 text-violet-700" />
-            Evolución del costo laboral · últimos {serie.length || 0} meses
-          </h3>
-          <button
-            type="button"
-            onClick={() => onIrATab?.('analisis')}
-            className="text-[11px] text-violet-700 font-bold hover:underline inline-flex items-center gap-1"
-          >
-            Análisis detallado
-            <ArrowRight className="w-3 h-3" />
-          </button>
-        </div>
-        <MiniBars serie={serie} />
-      </div>
-
-      {/* §D · Insights del mes · canon Contabilidad InsightsDelMes */}
+      {/* §C · INSIGHTS · 4 cards en lenguaje del dueño */}
       <div>
-        <h3 className="text-[13px] font-bold text-slate-900 mb-2 inline-flex items-center gap-1.5">
-          <Lightbulb className="w-4 h-4 text-amber-600" />
-          Insights del mes
-          <span className="text-[10px] text-slate-500 font-normal">
-            · {insights.length} hallazgo{insights.length === 1 ? '' : 's'}
-          </span>
-        </h3>
-        <div className="space-y-2">
-          {insights.map((ins, i) => (
-            <div
-              key={i}
-              className={`border rounded-lg p-3 ${insightTinte[ins.tipo]} flex items-start justify-between gap-3 flex-wrap`}
-            >
-              <div className="text-[12px] flex-1 min-w-[200px]">{ins.texto}</div>
-              {ins.ctaLabel && ins.ctaAction && (
-                <button
-                  type="button"
-                  onClick={ins.ctaAction}
-                  className="text-[11px] font-bold underline hover:no-underline inline-flex items-center gap-0.5 flex-shrink-0"
-                >
-                  {ins.ctaLabel}
-                  <ArrowRight className="w-3 h-3" />
-                </button>
-              )}
+        <div className="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-2 ml-1">Insights del mes</div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          {/* productividad/costo */}
+          <div className="bg-white border border-slate-200 rounded-xl p-3">
+            <div className="flex items-center gap-1.5 mb-1"><TrendingUp className="w-3.5 h-3.5 text-emerald-600" /><span className="text-[10px] uppercase tracking-wider text-emerald-700 font-bold">Productividad</span></div>
+            <div className="text-[18px] font-bold tabular-nums text-slate-900">{formatCurrencyPEN(analisis.productividad)}</div>
+            <div className="text-[11px] text-slate-500 leading-snug">genera cada persona en ventas · cuesta <span className="font-semibold text-slate-700">{formatCurrencyPEN(analisis.costoPorPersona)}</span></div>
+          </div>
+          {/* fijo vs variable */}
+          <div className="bg-white border border-slate-200 rounded-xl p-3">
+            <div className="flex items-center gap-1.5 mb-1"><Lock className="w-3.5 h-3.5 text-indigo-600" /><span className="text-[10px] uppercase tracking-wider text-indigo-700 font-bold">Flexibilidad</span></div>
+            <div className="text-[18px] font-bold tabular-nums text-slate-900">{analisis.pctFijo.toFixed(0)}<span className="text-slate-400">%</span> fijo</div>
+            <div className="text-[11px] text-slate-500 leading-snug">el {(100 - analisis.pctFijo).toFixed(0)}% se ajusta solo con el desempeño del equipo</div>
+          </div>
+          {/* devengado vs pagado */}
+          <div className="bg-white border border-slate-200 rounded-xl p-3">
+            <div className="flex items-center gap-1.5 mb-1"><Wallet className="w-3.5 h-3.5 text-amber-600" /><span className="text-[10px] uppercase tracking-wider text-amber-700 font-bold">Pagado vs debido</span></div>
+            <div className="text-[18px] font-bold tabular-nums text-slate-900">{formatCurrencyPEN(analisis.pendientePago)}</div>
+            <div className="text-[11px] text-slate-500 leading-snug">pendiente · costó {formatCurrencyPEN(analisis.devengado)} · pagaste <span className="font-semibold text-slate-700">{formatCurrencyPEN(analisis.pagado)}</span></div>
+          </div>
+          {/* provision gratif */}
+          <div className="bg-white border border-slate-200 rounded-xl p-3">
+            <div className="flex items-center gap-1.5 mb-1"><PiggyBank className="w-3.5 h-3.5 text-amber-600" /><span className="text-[10px] uppercase tracking-wider text-amber-700 font-bold">Provisión gratif.</span></div>
+            <div className="text-[18px] font-bold tabular-nums text-slate-900">{formatCurrencyPEN(analisis.provisionAcumulada)}</div>
+            <div className="flex items-center gap-1.5 mt-1">
+              <div className="flex-1 h-1.5 rounded-full bg-slate-200 overflow-hidden"><div className="h-full bg-amber-500 rounded-full" style={{ width: `${(analisis.mesSemestre / 6) * 100}%` }}></div></div>
+              <span className="text-[10px] text-slate-500 font-semibold whitespace-nowrap">{analisis.mesSemestre}/6 meses</span>
             </div>
-          ))}
+          </div>
         </div>
       </div>
 
-      {/* §E · Acciones rápidas · 4 quick-start canon N9 */}
+      {/* §D · ACCIONES RÁPIDAS */}
       <div>
-        <h3 className="text-[13px] font-bold text-slate-900 mb-2">Acciones rápidas</h3>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-          <button
-            type="button"
-            onClick={onGenerarBoletas}
-            className="bg-white border border-violet-200 hover:bg-violet-50/30 rounded-lg p-3 text-left transition-colors"
-          >
-            <div className="w-8 h-8 bg-violet-100 rounded-lg flex items-center justify-center mb-1.5">
-              <FileText className="w-4 h-4 text-violet-700" />
-            </div>
-            <div className="text-[11px] font-bold text-slate-900">Generar boletas</div>
-            <div className="text-[10px] text-slate-500">del mes en lote</div>
+        <div className="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-2 ml-1">Acciones rápidas</div>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <button type="button" onClick={onGenerarBoletas} className="bg-white border border-slate-200 rounded-lg p-3 hover:border-violet-300 hover:bg-violet-50/30 text-left transition-colors">
+            <FileText className="w-4 h-4 text-violet-600 mb-1.5" />
+            <div className="text-[12px] font-bold text-slate-900">Generar boletas del mes</div>
+            <div className="text-[10px] text-slate-500">{analisis.empleados} empleados activos</div>
           </button>
-          <button
-            type="button"
-            onClick={onCalcularBonos}
-            className="bg-white border border-violet-200 hover:bg-violet-50/30 rounded-lg p-3 text-left transition-colors"
-          >
-            <div className="w-8 h-8 bg-violet-100 rounded-lg flex items-center justify-center mb-1.5">
-              <Zap className="w-4 h-4 text-violet-700" />
-            </div>
-            <div className="text-[11px] font-bold text-slate-900">Calcular bonos</div>
-            <div className="text-[10px] text-slate-500">4 tipos · auto</div>
+          <button type="button" onClick={() => onIrATab?.('adelantos')} className="bg-white border border-slate-200 rounded-lg p-3 hover:border-amber-300 hover:bg-amber-50/30 text-left transition-colors">
+            <HandCoins className="w-4 h-4 text-amber-600 mb-1.5" />
+            <div className="text-[12px] font-bold text-slate-900">Aprobar adelantos</div>
+            <div className="text-[10px] text-slate-500">{adelantos.filter((a) => a.estado === 'pendiente').length} pendientes</div>
           </button>
-          <button
-            type="button"
-            onClick={onProcesarGratificacion}
-            className="bg-white border border-indigo-200 hover:bg-indigo-50/30 rounded-lg p-3 text-left transition-colors"
-          >
-            <div className="w-8 h-8 bg-indigo-100 rounded-lg flex items-center justify-center mb-1.5">
-              <Gift className="w-4 h-4 text-indigo-700" />
-            </div>
-            <div className="text-[11px] font-bold text-slate-900">Procesar gratif.</div>
-            <div className="text-[10px] text-slate-500">jul / dic</div>
-          </button>
-          <button
-            type="button"
-            onClick={onBajaEmpleado}
-            className="bg-white border border-rose-200 hover:bg-rose-50/30 rounded-lg p-3 text-left transition-colors"
-          >
-            <div className="w-8 h-8 bg-rose-100 rounded-lg flex items-center justify-center mb-1.5">
-              <UserMinus className="w-4 h-4 text-rose-700" />
-            </div>
-            <div className="text-[11px] font-bold text-slate-900">Dar de baja</div>
-            <div className="text-[10px] text-slate-500">wizard 4 pasos</div>
+          <button type="button" onClick={() => onIrATab?.('boletas')} className="bg-white border border-slate-200 rounded-lg p-3 hover:border-slate-300 hover:bg-slate-50 text-left transition-colors">
+            <Users className="w-4 h-4 text-slate-600 mb-1.5" />
+            <div className="text-[12px] font-bold text-slate-900">Ver detalle por empleado</div>
+            <div className="text-[10px] text-slate-500">boletas individuales</div>
           </button>
         </div>
       </div>
 
-      {/* §F · Cross-links 360° · canon F6 BannerImpactoPlanilla pero compacto */}
+      {/* §E · CROSS-LINKS 360 · que cuadran con P&L y Cash flow */}
       <div>
-        <h3 className="text-[13px] font-bold text-slate-900 mb-2">Impacto 360° en otros módulos</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-          <button
-            type="button"
-            onClick={() => navigate(`/gastos?mes=${mes}&anio=${anio}`)}
-            className="bg-white border border-amber-200 hover:bg-amber-50/30 rounded-lg p-3 text-left flex items-center justify-between transition-colors"
-          >
-            <div className="min-w-0">
-              <div className="text-[11px] font-bold text-amber-900">Gastos · costo planilla mes</div>
-              <div className="text-[10px] text-amber-700">overhead recurrente</div>
-            </div>
-            <ArrowRight className="w-3.5 h-3.5 text-amber-700 flex-shrink-0 ml-2" />
+        <div className="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-2 ml-1">Conecta con · 360</div>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <button type="button" onClick={() => navigate('/contabilidad')} className="bg-gradient-to-r from-teal-50 to-cyan-50/30 border border-teal-200 rounded-lg p-3 flex items-center justify-between hover:border-teal-300 transition-colors text-left">
+            <div className="min-w-0"><div className="text-[12px] font-bold text-slate-900">Gasto de personal · P&amp;L</div><div className="text-[11px] text-teal-700 tabular-nums">{formatCurrencyPEN(analisis.devengado)} en Contabilidad</div></div>
+            <ArrowRight className="w-4 h-4 text-teal-600 flex-shrink-0 ml-2" />
           </button>
-          <button
-            type="button"
-            onClick={() => navigate('/finanzas/cash-flow')}
-            className="bg-white border border-rose-200 hover:bg-rose-50/30 rounded-lg p-3 text-left flex items-center justify-between transition-colors"
-          >
-            <div className="min-w-0">
-              <div className="text-[11px] font-bold text-rose-900">Cash flow · próx. pago</div>
-              <div className="text-[10px] text-rose-700">programación egresos</div>
-            </div>
-            <ArrowRight className="w-3.5 h-3.5 text-rose-700 flex-shrink-0 ml-2" />
+          <button type="button" onClick={() => navigate('/finanzas/cash-flow')} className="bg-gradient-to-r from-teal-50 to-cyan-50/30 border border-teal-200 rounded-lg p-3 flex items-center justify-between hover:border-teal-300 transition-colors text-left">
+            <div className="min-w-0"><div className="text-[12px] font-bold text-slate-900">Salida de caja · nómina</div><div className="text-[11px] text-teal-700 tabular-nums">{formatCurrencyPEN(analisis.pagado)} en Finanzas</div></div>
+            <ArrowRight className="w-4 h-4 text-teal-600 flex-shrink-0 ml-2" />
           </button>
-          <button
-            type="button"
-            onClick={() => navigate('/contabilidad?tab=pyl')}
-            className="bg-white border border-violet-200 hover:bg-violet-50/30 rounded-lg p-3 text-left flex items-center justify-between transition-colors"
-          >
-            <div className="min-w-0">
-              <div className="text-[11px] font-bold text-violet-900">P&amp;L · gastos personal</div>
-              <div className="text-[10px] text-violet-700">impacto utilidad</div>
-            </div>
-            <ArrowRight className="w-3.5 h-3.5 text-violet-700 flex-shrink-0 ml-2" />
-          </button>
-          <button
-            type="button"
-            onClick={() => navigate('/inversionistas?tab=salud')}
-            className="bg-white border border-violet-200 hover:bg-violet-50/30 rounded-lg p-3 text-left flex items-center justify-between transition-colors"
-          >
-            <div className="min-w-0">
-              <div className="text-[11px] font-bold text-violet-900">Inversionistas · salud</div>
-              <div className="text-[10px] text-violet-700">ratio costo/ingresos</div>
-            </div>
-            <ArrowRight className="w-3.5 h-3.5 text-violet-700 flex-shrink-0 ml-2" />
+          <button type="button" onClick={() => navigate('/usuarios')} className="bg-gradient-to-r from-violet-50 to-violet-100/20 border border-violet-200 rounded-lg p-3 flex items-center justify-between hover:border-violet-300 transition-colors text-left">
+            <div className="min-w-0"><div className="text-[12px] font-bold text-slate-900">Gestión del equipo</div><div className="text-[11px] text-violet-700">Usuarios · identidades</div></div>
+            <ArrowRight className="w-4 h-4 text-violet-600 flex-shrink-0 ml-2" />
           </button>
         </div>
       </div>
 
-      {/* §G · Alertas activas · si hay pendientes accionables */}
-      {(stats.boletasBorrador > 0 || stats.bonosPendientes > 0 || stats.adelantosPendientes > 0) && (
+      {/* §F · ALERTAS */}
+      {(pendientes.boletasBorrador > 0 || pendientes.adelantosVencidos > 0 || pendientes.bonosPorAprobar > 0) && (
         <div>
-          <h3 className="text-[13px] font-bold text-slate-900 mb-2 inline-flex items-center gap-1.5">
-            <AlertCircle className="w-4 h-4 text-amber-700" />
-            Pendientes accionables
-          </h3>
+          <div className="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-2 ml-1">Alertas</div>
           <div className="space-y-2">
-            {stats.boletasBorrador > 0 && (
-              <button
-                type="button"
-                onClick={() => onIrATab?.('boletas')}
-                className="w-full bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-lg p-3 text-left flex items-center justify-between"
-              >
-                <div className="flex items-center gap-2">
-                  <FileText className="w-4 h-4 text-slate-500" />
-                  <div>
-                    <div className="text-[12px] font-semibold text-slate-900">
-                      {stats.boletasBorrador} boleta{stats.boletasBorrador === 1 ? '' : 's'} en borrador
-                    </div>
-                    <div className="text-[10px] text-slate-500">requieren aprobación antes de pagar</div>
-                  </div>
-                </div>
-                <ArrowRight className="w-4 h-4 text-slate-400" />
-              </button>
+            {pendientes.boletasBorrador > 0 && (
+              <div className="bg-rose-50 ring-1 ring-rose-200 rounded-lg px-3 py-2.5 flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2"><AlertTriangle className="w-4 h-4 text-rose-600 flex-shrink-0" /><span className="text-[12px] text-rose-900"><strong>{pendientes.boletasBorrador} boleta{pendientes.boletasBorrador === 1 ? '' : 's'} en borrador</strong> · requieren aprobación antes de pagar</span></div>
+                <button type="button" onClick={() => onIrATab?.('boletas')} className="text-[11px] font-bold text-rose-700 hover:underline whitespace-nowrap">Ver →</button>
+              </div>
             )}
-            {stats.bonosPendientes > 0 && (
-              <button
-                type="button"
-                onClick={() => onIrATab?.('incentivos')}
-                className="w-full bg-amber-50 hover:bg-amber-100/60 border border-amber-200 rounded-lg p-3 text-left flex items-center justify-between"
-              >
-                <div className="flex items-center gap-2">
-                  <Trophy className="w-4 h-4 text-amber-700" />
-                  <div>
-                    <div className="text-[12px] font-semibold text-amber-900">
-                      {stats.bonosPendientes} bono{stats.bonosPendientes === 1 ? '' : 's'} pendiente{stats.bonosPendientes === 1 ? '' : 's'} de aprobación
-                    </div>
-                    <div className="text-[10px] text-amber-700">revisar y aprobar/rechazar</div>
-                  </div>
-                </div>
-                <ArrowRight className="w-4 h-4 text-amber-700" />
-              </button>
+            {pendientes.adelantosVencidos > 0 && (
+              <div className="bg-sky-50 ring-1 ring-sky-200 rounded-lg px-3 py-2.5 flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2"><Clock className="w-4 h-4 text-sky-600 flex-shrink-0" /><span className="text-[12px] text-sky-900"><strong>{pendientes.adelantosVencidos} adelanto{pendientes.adelantosVencidos === 1 ? '' : 's'} sin descontar</strong> · revisar antes del cierre del mes</span></div>
+                <button type="button" onClick={() => onIrATab?.('adelantos')} className="text-[11px] font-bold text-sky-700 hover:underline whitespace-nowrap">Ver →</button>
+              </div>
             )}
-            {stats.adelantosPendientes > 0 && (
-              <button
-                type="button"
-                onClick={() => onIrATab?.('adelantos')}
-                className="w-full bg-amber-50 hover:bg-amber-100/60 border border-amber-200 rounded-lg p-3 text-left flex items-center justify-between"
-              >
-                <div className="flex items-center gap-2">
-                  <Plus className="w-4 h-4 text-amber-700 rotate-45" />
-                  <div>
-                    <div className="text-[12px] font-semibold text-amber-900">
-                      {stats.adelantosPendientes} adelanto{stats.adelantosPendientes === 1 ? '' : 's'} pendiente{stats.adelantosPendientes === 1 ? '' : 's'}
-                    </div>
-                    <div className="text-[10px] text-amber-700">aprobar o rechazar solicitudes</div>
-                  </div>
-                </div>
-                <ArrowRight className="w-4 h-4 text-amber-700" />
-              </button>
+            {pendientes.bonosPorAprobar > 0 && (
+              <div className="bg-amber-50 ring-1 ring-amber-200 rounded-lg px-3 py-2.5 flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2"><AlertCircle className="w-4 h-4 text-amber-600 flex-shrink-0" /><span className="text-[12px] text-amber-900"><strong>{pendientes.bonosPorAprobar} bono{pendientes.bonosPorAprobar === 1 ? '' : 's'} pendiente{pendientes.bonosPorAprobar === 1 ? '' : 's'} de aprobación</strong> · antes de generar boletas</span></div>
+                <button type="button" onClick={() => onIrATab?.('incentivos')} className="text-[11px] font-bold text-amber-700 hover:underline whitespace-nowrap">Ver →</button>
+              </div>
             )}
           </div>
         </div>

@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Planilla · Resumen como Dashboard de Salud del Costo Laboral · Vita Skin ERP</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+  body { font-family: 'Inter', system-ui, sans-serif; }
+  .tabular { font-variant-numeric: tabular-nums; }
+  .acto-label { letter-spacing: 0.08em; }
+  ::-webkit-scrollbar { display: none; }
+</style>
+</head>
+<body class="bg-slate-100 text-slate-900 p-4 sm:p-8">
+
+<div class="space-y-10">
+
+  <!-- ════════════════════ HERO ════════════════════ -->
+  <div class="max-w-6xl mx-auto bg-white border border-slate-200 rounded-2xl shadow-sm p-6 sm:p-8">
+    <div class="flex flex-wrap items-center gap-2 mb-3">
+      <span class="text-[11px] font-bold uppercase tracking-wider text-violet-700 bg-violet-50 px-2 py-1 rounded">Propuesta · Planilla Resumen v1</span>
+      <span class="text-[11px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2 py-1 rounded">de-duplicado · valor nuevo</span>
+      <span class="text-[11px] font-bold uppercase tracking-wider text-slate-600 bg-slate-100 px-2 py-1 rounded">DS-aligned · violet (Equipo)</span>
+    </div>
+    <h1 class="text-2xl sm:text-3xl font-bold tracking-tight mb-2">El Resumen deja de clonar el strip · se vuelve un dashboard de salud del costo laboral</h1>
+    <p class="text-sm text-slate-600 max-w-3xl leading-relaxed mb-5">
+      El KPI strip superior (Payroll · Personal activo · Incentivos · Próx. gratif.) <strong>se queda intacto</strong>.
+      Lo que cambia es la tab Resumen: hoy repite esos números; en esta propuesta pasa al orden canónico §A→§F con
+      <strong>variables que el strip no da</strong> — carga laboral sobre ventas, composición fijo/variable, devengado vs pagado,
+      provisión de gratificación. Recomendaciones curadas del squad (FP&amp;A + BI + Contabilidad).
+    </p>
+
+    <!-- comparativo antes/después -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+      <div class="bg-rose-50/40 border border-rose-200 rounded-xl p-4">
+        <div class="text-[11px] font-bold text-rose-700 mb-2">❌ HOY · el Resumen clona el strip</div>
+        <ul class="text-[12px] text-slate-600 space-y-1">
+          <li>· <code class="bg-white px-1 rounded">PAYROLL JUN</code> — ya está en el strip</li>
+          <li>· <code class="bg-white px-1 rounded">BONOS DEL MES</code> — = INCENTIVOS MES del strip</li>
+          <li>· <code class="bg-white px-1 rounded">PRÓX. GRATIF.</code> — ya está en el strip</li>
+          <li>· solo <code class="bg-white px-1 rounded">Δ MoM</code> aporta algo nuevo</li>
+        </ul>
+      </div>
+      <div class="bg-emerald-50/40 border border-emerald-200 rounded-xl p-4">
+        <div class="text-[11px] font-bold text-emerald-700 mb-2">✓ PROPUESTA · análisis que no existe hoy</div>
+        <ul class="text-[12px] text-slate-600 space-y-1">
+          <li>· <strong>Carga laboral / ventas</strong> — el ratio de salud #1</li>
+          <li>· <strong>Composición</strong> fijo vs variable + <strong>tendencia 6m</strong></li>
+          <li>· <strong>Devengado vs pagado</strong> — la deuda con el equipo</li>
+          <li>· <strong>Provisión de gratificación</strong> — la bomba silenciosa</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════ ACTO 1 · DESKTOP ════════════════════ -->
+  <div class="max-w-6xl mx-auto">
+    <div class="acto-label text-[11px] font-bold uppercase text-violet-700 mb-3">ACTO 1 · Shell desktop · strip intacto + Resumen §A→§F</div>
+
+    <!-- SHELL -->
+    <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+
+      <!-- TOP BAR -->
+      <div class="border-b border-slate-200 px-6 py-2.5 flex items-center justify-between gap-3 bg-slate-50">
+        <div class="flex items-center gap-1.5 text-[11px]">
+          <span class="text-slate-500 hover:text-violet-700 cursor-pointer">Inicio</span>
+          <i data-lucide="chevron-right" class="w-3 h-3 text-slate-300"></i>
+          <span class="text-slate-900 font-semibold">Planilla</span>
+        </div>
+        <span class="text-[10px] bg-violet-50 text-violet-700 px-2 py-0.5 rounded font-bold inline-flex items-center gap-1">
+          <i data-lucide="shield" class="w-3 h-3"></i> Vista ejecutiva · admin
+        </span>
+      </div>
+
+      <!-- HEADER -->
+      <div class="px-6 py-4 border-b border-slate-100 flex items-start justify-between gap-4 flex-wrap">
+        <div class="flex items-start gap-3 flex-1 min-w-[260px]">
+          <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-violet-500 to-violet-700 flex items-center justify-center text-white flex-shrink-0">
+            <i data-lucide="banknote" class="w-5 h-5"></i>
+          </div>
+          <div class="min-w-0">
+            <h1 class="text-2xl font-bold text-slate-900 tracking-tight">Planilla</h1>
+            <p class="text-[13px] text-slate-500 leading-snug">Costo del equipo · boletas · adelantos · incentivos · gratificaciones</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2 flex-wrap justify-end">
+          <button class="flex items-center gap-1.5 px-3 py-2 text-xs rounded-lg bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 font-medium"><i data-lucide="user-minus" class="w-3.5 h-3.5"></i> Dar de baja</button>
+          <button class="flex items-center gap-1.5 px-3 py-2 text-xs rounded-lg bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 font-medium"><i data-lucide="user-plus" class="w-3.5 h-3.5"></i> Nuevo empleado</button>
+          <button class="flex items-center gap-1.5 px-3 py-2 text-xs rounded-lg bg-violet-600 text-white hover:bg-violet-700 font-semibold"><i data-lucide="file-text" class="w-3.5 h-3.5"></i> Generar boletas</button>
+        </div>
+      </div>
+
+      <!-- ░░░ KPI STRIP · INTACTO (se queda) ░░░ -->
+      <div class="relative px-6 py-4 border-b border-slate-100 grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div class="absolute -top-px right-6 text-[9px] font-bold uppercase tracking-wider text-violet-400 bg-white px-2">strip general · intacto</div>
+        <!-- KPI 1 -->
+        <div class="bg-gradient-to-br from-rose-50 to-rose-100/40 ring-1 ring-rose-200/50 rounded-2xl p-4">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-[10px] uppercase tracking-wider text-rose-700 font-bold">Payroll Jun</span>
+            <i data-lucide="banknote" class="w-3.5 h-3.5 text-rose-700"></i>
+          </div>
+          <div class="text-2xl font-bold tabular text-rose-900">S/ 18,500<span class="text-rose-400">.00</span></div>
+          <div class="text-[11px] text-rose-700 mt-1">neto del mes</div>
+        </div>
+        <!-- KPI 2 -->
+        <div class="bg-gradient-to-br from-violet-50 to-violet-100/40 ring-1 ring-violet-200/50 rounded-2xl p-4">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-[10px] uppercase tracking-wider text-violet-700 font-bold">Personal activo</span>
+            <i data-lucide="users" class="w-3.5 h-3.5 text-violet-700"></i>
+          </div>
+          <div class="text-2xl font-bold tabular text-violet-900">6</div>
+          <div class="text-[11px] text-violet-700 mt-1">con perfil laboral</div>
+        </div>
+        <!-- KPI 3 -->
+        <div class="bg-gradient-to-br from-emerald-50 to-emerald-100/40 ring-1 ring-emerald-200/50 rounded-2xl p-4">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-[10px] uppercase tracking-wider text-emerald-700 font-bold">Incentivos mes</span>
+            <i data-lucide="gift" class="w-3.5 h-3.5 text-emerald-700"></i>
+          </div>
+          <div class="text-2xl font-bold tabular text-emerald-900">S/ 3,500<span class="text-emerald-400">.00</span></div>
+          <div class="text-[11px] text-emerald-700 mt-1">bonos aprobados</div>
+        </div>
+        <!-- KPI 4 -->
+        <div class="bg-gradient-to-br from-indigo-50 to-indigo-100/40 ring-1 ring-indigo-200/50 rounded-2xl p-4">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-[10px] uppercase tracking-wider text-indigo-700 font-bold">Próx. gratif.</span>
+            <i data-lucide="calendar-clock" class="w-3.5 h-3.5 text-indigo-700"></i>
+          </div>
+          <div class="text-2xl font-bold tabular text-indigo-900">Jul<span class="text-indigo-400"> · 35d</span></div>
+          <div class="text-[11px] text-indigo-700 mt-1">gratificación</div>
+        </div>
+      </div>
+
+      <!-- TABS -->
+      <div class="border-b border-slate-200 px-4 sm:px-6">
+        <div class="flex gap-1 overflow-x-auto -mb-px">
+          <button class="whitespace-nowrap px-3 py-2.5 text-[13px] border-b-2 border-violet-600 text-violet-700 font-semibold flex items-center gap-1.5"><i data-lucide="layout-dashboard" class="w-4 h-4"></i> Resumen</button>
+          <button class="whitespace-nowrap px-3 py-2.5 text-[13px] border-b-2 border-transparent text-slate-500 hover:text-slate-700 font-medium flex items-center gap-1.5"><i data-lucide="hand-coins" class="w-4 h-4"></i> Adelantos</button>
+          <button class="whitespace-nowrap px-3 py-2.5 text-[13px] border-b-2 border-transparent text-slate-500 hover:text-slate-700 font-medium flex items-center gap-1.5"><i data-lucide="receipt" class="w-4 h-4"></i> Boletas</button>
+          <button class="whitespace-nowrap px-3 py-2.5 text-[13px] border-b-2 border-transparent text-slate-500 hover:text-slate-700 font-medium flex items-center gap-1.5"><i data-lucide="trophy" class="w-4 h-4"></i> Incentivos</button>
+          <button class="whitespace-nowrap px-3 py-2.5 text-[13px] border-b-2 border-transparent text-slate-500 hover:text-slate-700 font-medium flex items-center gap-1.5"><i data-lucide="palmtree" class="w-4 h-4"></i> Vacaciones</button>
+          <button class="whitespace-nowrap px-3 py-2.5 text-[13px] border-b-2 border-transparent text-slate-500 hover:text-slate-700 font-medium flex items-center gap-1.5"><i data-lucide="bar-chart-3" class="w-4 h-4"></i> Análisis</button>
+        </div>
+      </div>
+
+      <!-- ░░░ BODY · RESUMEN §A→§F ░░░ -->
+      <div class="bg-slate-50/30 p-4 sm:p-6 space-y-4">
+
+        <!-- §A · BANNER SEMÁFORO -->
+        <div class="bg-gradient-to-r from-emerald-50 to-emerald-100/30 ring-1 ring-emerald-200/60 rounded-2xl p-4">
+          <div class="flex items-center justify-between flex-wrap gap-3">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center flex-shrink-0">
+                <i data-lucide="check-circle-2" class="w-5 h-5 text-emerald-600"></i>
+              </div>
+              <div>
+                <div class="text-[14px] font-bold text-emerald-900">Costo laboral bajo control</div>
+                <div class="text-[12px] text-emerald-700">De cada <strong>S/ 100</strong> que vendés, <strong>S/ 30</strong> se van en tu equipo · dentro del rango saludable</div>
+              </div>
+            </div>
+            <div class="text-right">
+              <div class="text-[10px] uppercase tracking-wider text-emerald-700 font-bold">Carga laboral</div>
+              <div class="text-2xl font-bold tabular text-emerald-900">29.8<span class="text-emerald-400">%</span></div>
+              <div class="text-[11px] text-emerald-700 flex items-center gap-1 justify-end"><i data-lucide="trending-down" class="w-3 h-3"></i> −1.2pp vs may</div>
+            </div>
+          </div>
+          <!-- mini barra umbral -->
+          <div class="mt-3 flex items-center gap-2 text-[10px] text-slate-500">
+            <span class="font-bold text-emerald-700">Sano ≤30%</span>
+            <div class="flex-1 h-1.5 rounded-full bg-slate-200 overflow-hidden relative">
+              <div class="absolute inset-y-0 left-0 bg-emerald-500 rounded-full" style="width:74.5%"></div>
+              <div class="absolute inset-y-0" style="left:75%; width:1px; background:#f59e0b"></div>
+              <div class="absolute inset-y-0" style="left:100%; width:1px; background:#f43f5e"></div>
+            </div>
+            <span class="text-amber-600 font-bold">40%</span>
+            <span class="text-rose-600 font-bold">alto</span>
+          </div>
+        </div>
+
+        <!-- §B · VISUALIZACIÓN · grid 2 -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <!-- Donut composición -->
+          <div class="bg-white border border-slate-200 rounded-2xl p-4">
+            <div class="flex items-center justify-between mb-3">
+              <div>
+                <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Composición del costo</div>
+                <div class="text-[11px] text-slate-400">de qué está hecho tu costo laboral</div>
+              </div>
+              <i data-lucide="pie-chart" class="w-4 h-4 text-slate-400"></i>
+            </div>
+            <div class="flex items-center gap-4">
+              <!-- donut SVG -->
+              <svg viewBox="0 0 36 36" class="w-24 h-24 flex-shrink-0">
+                <circle cx="18" cy="18" r="15.9" fill="none" stroke="#e2e8f0" stroke-width="3.6"/>
+                <!-- base 65% indigo -->
+                <circle cx="18" cy="18" r="15.9" fill="none" stroke="#6366f1" stroke-width="3.6" stroke-dasharray="65 35" stroke-dashoffset="25" stroke-linecap="butt"/>
+                <!-- bonos 19% emerald -->
+                <circle cx="18" cy="18" r="15.9" fill="none" stroke="#10b981" stroke-width="3.6" stroke-dasharray="19 81" stroke-dashoffset="-40" stroke-linecap="butt"/>
+                <!-- gratif 11% amber -->
+                <circle cx="18" cy="18" r="15.9" fill="none" stroke="#f59e0b" stroke-width="3.6" stroke-dasharray="11 89" stroke-dashoffset="-59" stroke-linecap="butt"/>
+                <!-- liquidaciones 5% rose -->
+                <circle cx="18" cy="18" r="15.9" fill="none" stroke="#f43f5e" stroke-width="3.6" stroke-dasharray="5 95" stroke-dashoffset="-70" stroke-linecap="butt"/>
+                <text x="18" y="17" text-anchor="middle" class="tabular" style="font-size:5px;font-weight:700;fill:#0f172a">S/18.5k</text>
+                <text x="18" y="22" text-anchor="middle" style="font-size:2.6px;fill:#94a3b8">total mes</text>
+              </svg>
+              <div class="flex-1 space-y-1.5 text-[12px]">
+                <div class="flex items-center justify-between"><span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-indigo-500"></span> Sueldos base</span><span class="tabular font-semibold text-slate-700">65%</span></div>
+                <div class="flex items-center justify-between"><span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-emerald-500"></span> Bonos / comisiones</span><span class="tabular font-semibold text-slate-700">19%</span></div>
+                <div class="flex items-center justify-between"><span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-amber-500"></span> Gratif. (provisión)</span><span class="tabular font-semibold text-slate-700">11%</span></div>
+                <div class="flex items-center justify-between"><span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-rose-500"></span> Liquidaciones</span><span class="tabular font-semibold text-slate-700">5%</span></div>
+              </div>
+            </div>
+            <div class="mt-3 pt-2 border-t border-slate-100 text-[11px] text-slate-600 flex items-start gap-1.5">
+              <i data-lucide="info" class="w-3 h-3 mt-0.5 text-indigo-500 flex-shrink-0"></i>
+              <span><strong>65% es fijo</strong> (sueldos) · el 35% restante se ajusta solo si las ventas bajan.</span>
+            </div>
+          </div>
+
+          <!-- Sparkline tendencia 6m -->
+          <div class="bg-white border border-slate-200 rounded-2xl p-4">
+            <div class="flex items-center justify-between mb-3">
+              <div>
+                <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Tendencia · 6 meses</div>
+                <div class="text-[11px] text-slate-400">costo laboral total por mes</div>
+              </div>
+              <i data-lucide="bar-chart-3" class="w-4 h-4 text-slate-400"></i>
+            </div>
+            <!-- barras -->
+            <div class="flex items-end justify-between gap-2 h-28 pt-2">
+              <div class="flex-1 flex flex-col items-center gap-1"><div class="w-full bg-violet-200 rounded-t" style="height:64%"></div><span class="text-[9px] text-slate-400">Ene</span></div>
+              <div class="flex-1 flex flex-col items-center gap-1"><div class="w-full bg-violet-200 rounded-t" style="height:74%"></div><span class="text-[9px] text-slate-400">Feb</span></div>
+              <div class="flex-1 flex flex-col items-center gap-1"><div class="w-full bg-violet-200 rounded-t" style="height:69%"></div><span class="text-[9px] text-slate-400">Mar</span></div>
+              <div class="flex-1 flex flex-col items-center gap-1"><div class="w-full bg-violet-200 rounded-t" style="height:86%"></div><span class="text-[9px] text-slate-400">Abr</span></div>
+              <div class="flex-1 flex flex-col items-center gap-1"><div class="w-full bg-violet-200 rounded-t" style="height:84%"></div><span class="text-[9px] text-slate-400">May</span></div>
+              <div class="flex-1 flex flex-col items-center gap-1"><div class="w-full bg-violet-600 rounded-t" style="height:90%"></div><span class="text-[9px] text-violet-700 font-bold">Jun</span></div>
+            </div>
+            <div class="mt-2 pt-2 border-t border-slate-100 flex items-center justify-between text-[11px]">
+              <span class="text-slate-500 flex items-center gap-1"><span class="w-3 h-0.5 bg-slate-400 inline-block"></span> Promedio S/ 17.3k</span>
+              <span class="text-violet-700 font-semibold">Jun S/ 18.5k · +6.9% vs prom</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- §C · INSIGHTS · 4 cards en lenguaje del dueño -->
+        <div>
+          <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-2 ml-1">Insights del mes</div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            <!-- productividad/costo -->
+            <div class="bg-white border border-slate-200 rounded-xl p-3">
+              <div class="flex items-center gap-1.5 mb-1"><i data-lucide="trending-up" class="w-3.5 h-3.5 text-emerald-600"></i><span class="text-[10px] uppercase tracking-wider text-emerald-700 font-bold">Productividad</span></div>
+              <div class="text-[18px] font-bold tabular text-slate-900">S/ 10,333</div>
+              <div class="text-[11px] text-slate-500 leading-snug">genera cada persona en ventas · cuesta <span class="font-semibold text-slate-700">S/ 3,083</span></div>
+            </div>
+            <!-- fijo vs variable -->
+            <div class="bg-white border border-slate-200 rounded-xl p-3">
+              <div class="flex items-center gap-1.5 mb-1"><i data-lucide="lock" class="w-3.5 h-3.5 text-indigo-600"></i><span class="text-[10px] uppercase tracking-wider text-indigo-700 font-bold">Flexibilidad</span></div>
+              <div class="text-[18px] font-bold tabular text-slate-900">65<span class="text-slate-400">%</span> fijo</div>
+              <div class="text-[11px] text-slate-500 leading-snug">el 35% se ajusta solo con el desempeño del equipo</div>
+            </div>
+            <!-- devengado vs pagado -->
+            <div class="bg-white border border-slate-200 rounded-xl p-3">
+              <div class="flex items-center gap-1.5 mb-1"><i data-lucide="wallet" class="w-3.5 h-3.5 text-amber-600"></i><span class="text-[10px] uppercase tracking-wider text-amber-700 font-bold">Pagado vs debido</span></div>
+              <div class="text-[18px] font-bold tabular text-slate-900">S/ 2,500</div>
+              <div class="text-[11px] text-slate-500 leading-snug">pendiente · costó S/18.5k · pagaste <span class="font-semibold text-slate-700">S/16k</span></div>
+            </div>
+            <!-- provision gratif -->
+            <div class="bg-white border border-slate-200 rounded-xl p-3">
+              <div class="flex items-center gap-1.5 mb-1"><i data-lucide="piggy-bank" class="w-3.5 h-3.5 text-amber-600"></i><span class="text-[10px] uppercase tracking-wider text-amber-700 font-bold">Provisión gratif.</span></div>
+              <div class="text-[18px] font-bold tabular text-slate-900">S/ 3,000</div>
+              <div class="flex items-center gap-1.5 mt-1">
+                <div class="flex-1 h-1.5 rounded-full bg-slate-200 overflow-hidden"><div class="h-full bg-amber-500 rounded-full" style="width:50%"></div></div>
+                <span class="text-[10px] text-slate-500 font-semibold">3/6 meses</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- §D · ACCIONES RÁPIDAS -->
+        <div>
+          <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-2 ml-1">Acciones rápidas</div>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <button class="bg-white border border-slate-200 rounded-lg p-3 hover:border-violet-300 hover:bg-violet-50/30 text-left transition-colors">
+              <i data-lucide="file-text" class="w-4 h-4 text-violet-600 mb-1.5"></i>
+              <div class="text-[12px] font-bold text-slate-900">Generar boletas del mes</div>
+              <div class="text-[10px] text-slate-500">6 empleados activos</div>
+            </button>
+            <button class="bg-white border border-slate-200 rounded-lg p-3 hover:border-amber-300 hover:bg-amber-50/30 text-left transition-colors">
+              <i data-lucide="hand-coins" class="w-4 h-4 text-amber-600 mb-1.5"></i>
+              <div class="text-[12px] font-bold text-slate-900">Aprobar adelantos</div>
+              <div class="text-[10px] text-slate-500">2 pendientes</div>
+            </button>
+            <button class="bg-white border border-slate-200 rounded-lg p-3 hover:border-slate-300 hover:bg-slate-50 text-left transition-colors">
+              <i data-lucide="users" class="w-4 h-4 text-slate-600 mb-1.5"></i>
+              <div class="text-[12px] font-bold text-slate-900">Ver detalle por empleado</div>
+              <div class="text-[10px] text-slate-500">boletas individuales</div>
+            </button>
+          </div>
+        </div>
+
+        <!-- §E · CROSS-LINKS 360 -->
+        <div>
+          <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-2 ml-1">Conecta con · 360</div>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <a class="bg-gradient-to-r from-teal-50 to-cyan-50/30 border border-teal-200 rounded-lg p-3 flex items-center justify-between hover:border-teal-300 cursor-pointer">
+              <div><div class="text-[12px] font-bold text-slate-900">Gasto de personal · P&amp;L</div><div class="text-[11px] text-teal-700 tabular">S/ 18,500 en Contabilidad</div></div>
+              <i data-lucide="arrow-right" class="w-4 h-4 text-teal-600"></i>
+            </a>
+            <a class="bg-gradient-to-r from-teal-50 to-cyan-50/30 border border-teal-200 rounded-lg p-3 flex items-center justify-between hover:border-teal-300 cursor-pointer">
+              <div><div class="text-[12px] font-bold text-slate-900">Salida de caja · nómina</div><div class="text-[11px] text-teal-700 tabular">S/ 16,000 en Finanzas</div></div>
+              <i data-lucide="arrow-right" class="w-4 h-4 text-teal-600"></i>
+            </a>
+            <a class="bg-gradient-to-r from-violet-50 to-violet-100/20 border border-violet-200 rounded-lg p-3 flex items-center justify-between hover:border-violet-300 cursor-pointer">
+              <div><div class="text-[12px] font-bold text-slate-900">Gestión del equipo</div><div class="text-[11px] text-violet-700">Usuarios · identidades</div></div>
+              <i data-lucide="arrow-right" class="w-4 h-4 text-violet-600"></i>
+            </a>
+          </div>
+        </div>
+
+        <!-- §F · ALERTAS -->
+        <div>
+          <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-2 ml-1">Alertas</div>
+          <div class="space-y-2">
+            <div class="bg-rose-50 ring-1 ring-rose-200 rounded-lg px-3 py-2.5 flex items-center justify-between gap-3">
+              <div class="flex items-center gap-2"><i data-lucide="alert-triangle" class="w-4 h-4 text-rose-600 flex-shrink-0"></i><span class="text-[12px] text-rose-900"><strong>Pago de planilla vence en 3 días</strong> · S/ 16,000 · confirmá la transferencia</span></div>
+              <button class="text-[11px] font-bold text-rose-700 hover:underline whitespace-nowrap">Pagar →</button>
+            </div>
+            <div class="bg-sky-50 ring-1 ring-sky-200 rounded-lg px-3 py-2.5 flex items-center justify-between gap-3">
+              <div class="flex items-center gap-2"><i data-lucide="clock" class="w-4 h-4 text-sky-600 flex-shrink-0"></i><span class="text-[12px] text-sky-900"><strong>1 adelanto vencido sin descontar</strong> · revisar antes del cierre del mes</span></div>
+              <button class="text-[11px] font-bold text-sky-700 hover:underline whitespace-nowrap">Ver →</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+      <!-- fin body -->
+    </div>
+  </div>
+
+  <!-- ════════════════════ ACTO 2 · MOBILE 375px ════════════════════ -->
+  <div class="max-w-6xl mx-auto">
+    <div class="acto-label text-[11px] font-bold uppercase text-violet-700 mb-3">ACTO 2 · Mobile · 375px</div>
+    <div class="flex justify-center">
+      <div class="w-[375px] bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+        <!-- topbar -->
+        <div class="border-b border-slate-200 px-4 py-2 flex items-center justify-between bg-slate-50">
+          <div class="flex items-center gap-1 text-[11px]"><span class="text-slate-500">Inicio</span><i data-lucide="chevron-right" class="w-3 h-3 text-slate-300"></i><span class="text-slate-900 font-semibold">Planilla</span></div>
+          <span class="text-[9px] bg-violet-50 text-violet-700 px-1.5 py-0.5 rounded font-bold inline-flex items-center gap-1"><i data-lucide="shield" class="w-2.5 h-2.5"></i> admin</span>
+        </div>
+        <!-- header -->
+        <div class="px-4 py-3 border-b border-slate-100">
+          <div class="flex items-center gap-2.5">
+            <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-violet-500 to-violet-700 flex items-center justify-center text-white"><i data-lucide="banknote" class="w-4 h-4"></i></div>
+            <div><h1 class="text-lg font-bold text-slate-900">Planilla</h1><p class="text-[11px] text-slate-500">Costo del equipo</p></div>
+          </div>
+          <button class="mt-2.5 w-full flex items-center justify-center gap-1.5 px-3 py-2 text-xs rounded-lg bg-violet-600 text-white font-semibold"><i data-lucide="file-text" class="w-3.5 h-3.5"></i> Generar boletas</button>
+        </div>
+        <!-- strip 2x2 -->
+        <div class="px-4 py-3 border-b border-slate-100 grid grid-cols-2 gap-2">
+          <div class="bg-gradient-to-br from-rose-50 to-rose-100/40 ring-1 ring-rose-200/50 rounded-xl p-2.5"><span class="text-[9px] uppercase tracking-wider text-rose-700 font-bold">Payroll Jun</span><div class="text-base font-bold tabular text-rose-900">S/ 18.5k</div></div>
+          <div class="bg-gradient-to-br from-violet-50 to-violet-100/40 ring-1 ring-violet-200/50 rounded-xl p-2.5"><span class="text-[9px] uppercase tracking-wider text-violet-700 font-bold">Activos</span><div class="text-base font-bold tabular text-violet-900">6</div></div>
+          <div class="bg-gradient-to-br from-emerald-50 to-emerald-100/40 ring-1 ring-emerald-200/50 rounded-xl p-2.5"><span class="text-[9px] uppercase tracking-wider text-emerald-700 font-bold">Incentivos</span><div class="text-base font-bold tabular text-emerald-900">S/ 3.5k</div></div>
+          <div class="bg-gradient-to-br from-indigo-50 to-indigo-100/40 ring-1 ring-indigo-200/50 rounded-xl p-2.5"><span class="text-[9px] uppercase tracking-wider text-indigo-700 font-bold">Gratif.</span><div class="text-base font-bold tabular text-indigo-900">Jul·35d</div></div>
+        </div>
+        <!-- tabs scroll-x -->
+        <div class="border-b border-slate-200 px-3"><div class="flex gap-1 overflow-x-auto -mb-px whitespace-nowrap">
+          <button class="px-2.5 py-2.5 text-[12px] border-b-2 border-violet-600 text-violet-700 font-semibold flex items-center gap-1"><i data-lucide="layout-dashboard" class="w-3.5 h-3.5"></i> Resumen</button>
+          <button class="px-2.5 py-2.5 text-[12px] border-b-2 border-transparent text-slate-500 font-medium">Adelantos</button>
+          <button class="px-2.5 py-2.5 text-[12px] border-b-2 border-transparent text-slate-500 font-medium">Boletas</button>
+          <button class="px-2.5 py-2.5 text-[12px] border-b-2 border-transparent text-slate-500 font-medium">Incentivos</button>
+        </div></div>
+        <!-- body mobile -->
+        <div class="bg-slate-50/30 p-3 space-y-3">
+          <!-- §A -->
+          <div class="bg-gradient-to-r from-emerald-50 to-emerald-100/30 ring-1 ring-emerald-200/60 rounded-2xl p-3">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2"><i data-lucide="check-circle-2" class="w-5 h-5 text-emerald-600"></i><span class="text-[12px] font-bold text-emerald-900">Costo bajo control</span></div>
+              <div class="text-right"><div class="text-xl font-bold tabular text-emerald-900">29.8<span class="text-emerald-400">%</span></div></div>
+            </div>
+            <div class="text-[11px] text-emerald-700 mt-1">S/30 de cada S/100 vendidos van al equipo</div>
+          </div>
+          <!-- §B donut -->
+          <div class="bg-white border border-slate-200 rounded-2xl p-3">
+            <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-2">Composición</div>
+            <div class="flex items-center gap-3">
+              <svg viewBox="0 0 36 36" class="w-16 h-16 flex-shrink-0">
+                <circle cx="18" cy="18" r="15.9" fill="none" stroke="#e2e8f0" stroke-width="4"/>
+                <circle cx="18" cy="18" r="15.9" fill="none" stroke="#6366f1" stroke-width="4" stroke-dasharray="65 35" stroke-dashoffset="25"/>
+                <circle cx="18" cy="18" r="15.9" fill="none" stroke="#10b981" stroke-width="4" stroke-dasharray="19 81" stroke-dashoffset="-40"/>
+                <circle cx="18" cy="18" r="15.9" fill="none" stroke="#f59e0b" stroke-width="4" stroke-dasharray="11 89" stroke-dashoffset="-59"/>
+                <circle cx="18" cy="18" r="15.9" fill="none" stroke="#f43f5e" stroke-width="4" stroke-dasharray="5 95" stroke-dashoffset="-70"/>
+              </svg>
+              <div class="flex-1 space-y-1 text-[11px]">
+                <div class="flex justify-between"><span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-indigo-500"></span> Base</span><span class="tabular font-semibold">65%</span></div>
+                <div class="flex justify-between"><span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-emerald-500"></span> Bonos</span><span class="tabular font-semibold">19%</span></div>
+                <div class="flex justify-between"><span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-amber-500"></span> Gratif.</span><span class="tabular font-semibold">11%</span></div>
+                <div class="flex justify-between"><span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-rose-500"></span> Liquid.</span><span class="tabular font-semibold">5%</span></div>
+              </div>
+            </div>
+          </div>
+          <!-- §C insights 1-col -->
+          <div class="grid grid-cols-2 gap-2">
+            <div class="bg-white border border-slate-200 rounded-xl p-2.5"><div class="text-[9px] uppercase tracking-wider text-emerald-700 font-bold">Productividad</div><div class="text-[15px] font-bold tabular text-slate-900">S/ 10.3k</div><div class="text-[10px] text-slate-500">por persona</div></div>
+            <div class="bg-white border border-slate-200 rounded-xl p-2.5"><div class="text-[9px] uppercase tracking-wider text-indigo-700 font-bold">Fijo</div><div class="text-[15px] font-bold tabular text-slate-900">65%</div><div class="text-[10px] text-slate-500">35% variable</div></div>
+            <div class="bg-white border border-slate-200 rounded-xl p-2.5"><div class="text-[9px] uppercase tracking-wider text-amber-700 font-bold">Pendiente</div><div class="text-[15px] font-bold tabular text-slate-900">S/ 2.5k</div><div class="text-[10px] text-slate-500">por pagar</div></div>
+            <div class="bg-white border border-slate-200 rounded-xl p-2.5"><div class="text-[9px] uppercase tracking-wider text-amber-700 font-bold">Gratif.</div><div class="text-[15px] font-bold tabular text-slate-900">S/ 3k</div><div class="text-[10px] text-slate-500">3/6 meses</div></div>
+          </div>
+          <!-- §F alerta -->
+          <div class="bg-rose-50 ring-1 ring-rose-200 rounded-lg px-3 py-2 flex items-center gap-2"><i data-lucide="alert-triangle" class="w-4 h-4 text-rose-600 flex-shrink-0"></i><span class="text-[11px] text-rose-900"><strong>Pago vence en 3 días</strong> · S/ 16,000</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════ FOOTER · qué NO cambia + checklist ════════════════════ -->
+  <div class="max-w-6xl mx-auto bg-white border border-slate-200 rounded-2xl shadow-sm p-6">
+    <h2 class="text-lg font-bold mb-4">Notas de la propuesta</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div>
+        <div class="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-2">✓ Lo que NO cambia</div>
+        <ul class="text-[12px] text-slate-600 space-y-1.5">
+          <li>· El <strong>KPI strip superior</strong> (Payroll · Personal · Incentivos · Gratif.) queda intacto.</li>
+          <li>· Las otras tabs (Adelantos · Boletas · Incentivos · Vacaciones · Análisis) no se tocan.</li>
+          <li>· El chrome del shell (top-bar · header · tabs) ya está migrado al Hub Kit.</li>
+        </ul>
+      </div>
+      <div>
+        <div class="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-2">✦ Variables nuevas (del squad · curadas)</div>
+        <ul class="text-[12px] text-slate-600 space-y-1.5">
+          <li>· <strong>Carga laboral / ventas</strong> (FP&amp;A + BI + Conta · el ratio #1)</li>
+          <li>· <strong>Composición</strong> fijo vs variable + <strong>tendencia 6m</strong> (FP&amp;A + BI)</li>
+          <li>· <strong>Productividad por persona</strong> + costo por cabeza (BI + FP&amp;A)</li>
+          <li>· <strong>Devengado vs pagado</strong> + <strong>provisión gratif.</strong> (Contabilidad)</li>
+          <li>· <strong>Cross-links que cuadran</strong> con P&amp;L y Cash flow (Contabilidad)</li>
+        </ul>
+      </div>
+    </div>
+    <div class="mt-5 pt-4 border-t border-slate-100">
+      <div class="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-2">Checklist canon</div>
+      <div class="flex flex-wrap gap-2 text-[11px]">
+        <span class="bg-emerald-50 text-emerald-700 px-2 py-1 rounded">✓ DS-aligned (violet · Inter · tokens)</span>
+        <span class="bg-emerald-50 text-emerald-700 px-2 py-1 rounded">✓ Anatomía hub (strip + tabs + §A→§F)</span>
+        <span class="bg-emerald-50 text-emerald-700 px-2 py-1 rounded">✓ Paleta semántica (datos) vs violet (chrome)</span>
+        <span class="bg-emerald-50 text-emerald-700 px-2 py-1 rounded">✓ Desktop + mobile 375px</span>
+        <span class="bg-emerald-50 text-emerald-700 px-2 py-1 rounded">✓ tabular-nums · lucide</span>
+        <span class="bg-amber-50 text-amber-700 px-2 py-1 rounded">⚠ Cruce con contabilidadService.getTendenciaMensual (ya existe)</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>lucide.createIcons();</script>
+</body>
+</html>

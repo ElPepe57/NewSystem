@@ -345,14 +345,6 @@ export const Planilla: React.FC = () => {
               mes={mes}
               anio={anio}
               onGenerarBoletas={() => setModal({ kind: 'generarBoletas' })}
-              onCalcularBonos={() => setModal({ kind: 'calcularBonos' })}
-              onProcesarGratificacion={() =>
-                setModal({
-                  kind: 'procesarGratif',
-                  mes: ([7, 12].includes(mes) ? mes : 7) as MesGratificacion,
-                })
-              }
-              onBajaEmpleado={() => setModal({ kind: 'bajaEmpleado' })}
               onIrATab={(t) => setTabActiva(t)}
             />
           )}
