@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ventas · Hub Kit · Fase C (Cobranzas + Analítica + Devoluciones + modales) · Vita Skin ERP</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  body { font-family: 'Inter', system-ui, sans-serif; }
+  .tabular { font-variant-numeric: tabular-nums; }
+  ::-webkit-scrollbar { height: 6px; width: 6px; }
+  ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+</style>
+</head>
+<body class="bg-slate-100 p-4 sm:p-8 text-slate-800">
+
+<!-- HERO -->
+<div class="max-w-6xl mx-auto mb-8">
+  <div class="flex items-center gap-2 mb-2">
+    <span class="text-[11px] font-bold uppercase tracking-wider text-blue-700 bg-blue-100 px-2 py-1 rounded">Comercial · blue</span>
+    <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500 bg-slate-200 px-2 py-1 rounded">Fase C · Cobranzas · Analítica · Devoluciones · modales</span>
+  </div>
+  <h1 class="text-2xl font-bold tracking-tight text-slate-900">Ventas · Hub Kit · Fase C</h1>
+  <p class="text-[13px] text-slate-500 mt-1">Tab Cobranzas (aging) + Tab Analítica + Tab Devoluciones + modales (cobro compartido · entrega · devolución) + mobile.</p>
+</div>
+
+<!-- ═══════════ ACTO 1 · TAB COBRANZAS ═══════════ -->
+<div class="max-w-6xl mx-auto mb-10">
+  <div class="acto-label text-[11px] font-bold uppercase text-blue-700 mb-3">ACTO 1 · Tab Cobranzas · KPIs cobranza + aging buckets + cartera</div>
+  <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+    <div class="px-6 border-b border-slate-200 flex items-center gap-1 overflow-x-auto text-[13px] pt-2">
+      <button class="whitespace-nowrap px-3 py-2.5 border-b-2 border-transparent text-slate-500 font-medium flex items-center gap-1.5"><i data-lucide="layout-dashboard" class="w-4 h-4"></i> Resumen</button>
+      <button class="whitespace-nowrap px-3 py-2.5 border-b-2 border-transparent text-slate-500 font-medium flex items-center gap-1.5"><i data-lucide="shopping-cart" class="w-4 h-4"></i> Ventas</button>
+      <button class="whitespace-nowrap px-3 py-2.5 border-b-2 border-blue-600 text-blue-700 font-semibold flex items-center gap-1.5"><i data-lucide="hand-coins" class="w-4 h-4"></i> Cobranzas</button>
+      <button class="whitespace-nowrap px-3 py-2.5 border-b-2 border-transparent text-slate-500 font-medium flex items-center gap-1.5"><i data-lucide="undo-2" class="w-4 h-4"></i> Devoluciones</button>
+      <button class="whitespace-nowrap px-3 py-2.5 border-b-2 border-transparent text-slate-500 font-medium flex items-center gap-1.5"><i data-lucide="bar-chart-3" class="w-4 h-4"></i> Analítica</button>
+    </div>
+    <div class="bg-slate-50/30 p-4 sm:p-6 space-y-4">
+      <!-- header + KPIs cobranza -->
+      <div class="flex items-start justify-between flex-wrap gap-3">
+        <div><div class="text-[13px] font-bold text-slate-900">Cartera por cobrar</div><div class="text-[11px] text-slate-500">gestión de cobranza del lado ventas · la CxC global vive en Finanzas</div></div>
+        <div class="flex items-center gap-2 flex-wrap">
+          <span class="inline-flex items-center gap-1.5 text-[11px] bg-white border border-slate-200 rounded-lg px-2.5 py-1.5"><i data-lucide="hand-coins" class="w-3.5 h-3.5 text-rose-600"></i><span class="font-semibold text-slate-900 tabular">S/ 12.4k</span> <span class="text-slate-500">por cobrar</span></span>
+          <span class="inline-flex items-center gap-1.5 text-[11px] bg-white border border-slate-200 rounded-lg px-2.5 py-1.5"><i data-lucide="alarm-clock" class="w-3.5 h-3.5 text-rose-600"></i><span class="font-semibold text-rose-700 tabular">S/ 3.1k</span> <span class="text-slate-500">vencido</span></span>
+          <span class="inline-flex items-center gap-1.5 text-[11px] bg-white border border-slate-200 rounded-lg px-2.5 py-1.5"><i data-lucide="clock" class="w-3.5 h-3.5 text-blue-600"></i><span class="font-semibold text-slate-900 tabular">11d</span> <span class="text-slate-500">DSO</span></span>
+          <span class="inline-flex items-center gap-1.5 text-[11px] bg-white border border-slate-200 rounded-lg px-2.5 py-1.5"><i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-emerald-600"></i><span class="font-semibold text-slate-900 tabular">75%</span> <span class="text-slate-500">al día</span></span>
+        </div>
+      </div>
+      <!-- aging buckets (chips clickeables) -->
+      <div>
+        <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-2 ml-1">Antigüedad (aging) · clic para filtrar</div>
+        <div class="grid grid-cols-2 sm:grid-cols-5 gap-2">
+          <button class="rounded-xl border-2 border-blue-500 bg-blue-50 p-3 text-left"><div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Todas</div><div class="text-lg font-bold tabular text-slate-900">S/ 12.4k</div><div class="text-[10px] text-slate-400">18 ventas</div></button>
+          <button class="rounded-xl border border-emerald-200 bg-emerald-50/50 p-3 text-left hover:border-emerald-300"><div class="text-[10px] uppercase tracking-wider text-emerald-700 font-bold">Por vencer</div><div class="text-lg font-bold tabular text-slate-900">S/ 6.2k</div><div class="text-[10px] text-slate-400">9 ventas</div></button>
+          <button class="rounded-xl border border-amber-200 bg-amber-50/50 p-3 text-left hover:border-amber-300"><div class="text-[10px] uppercase tracking-wider text-amber-700 font-bold">1-30 días</div><div class="text-lg font-bold tabular text-slate-900">S/ 3.1k</div><div class="text-[10px] text-slate-400">5 ventas</div></button>
+          <button class="rounded-xl border border-orange-200 bg-orange-50/50 p-3 text-left hover:border-orange-300"><div class="text-[10px] uppercase tracking-wider text-orange-700 font-bold">31-60 días</div><div class="text-lg font-bold tabular text-slate-900">S/ 1.9k</div><div class="text-[10px] text-slate-400">3 ventas</div></button>
+          <button class="rounded-xl border border-rose-200 bg-rose-50/50 p-3 text-left hover:border-rose-300"><div class="text-[10px] uppercase tracking-wider text-rose-700 font-bold">+60 días</div><div class="text-lg font-bold tabular text-rose-700">S/ 1.2k</div><div class="text-[10px] text-slate-400">1 venta</div></button>
+        </div>
+      </div>
+      <!-- toggle agrupar -->
+      <div class="flex items-center gap-2 text-[12px]">
+        <span class="text-slate-500">Ver:</span>
+        <button class="px-2.5 py-1 rounded-lg bg-blue-600 text-white font-medium">Por venta</button>
+        <button class="px-2.5 py-1 rounded-lg bg-white border border-slate-200 text-slate-600">Por cliente</button>
+        <div class="flex-1"></div>
+        <a class="text-[11px] text-teal-700 font-semibold flex items-center gap-1 hover:underline">Ver CxC en Finanzas <i data-lucide="arrow-up-right" class="w-3 h-3"></i></a>
+      </div>
+      <!-- cartera -->
+      <div class="space-y-2">
+        <div class="bg-white border border-rose-200 rounded-xl p-3.5 flex items-center gap-3">
+          <div class="w-10 h-10 rounded-lg bg-rose-50 flex items-center justify-center flex-shrink-0"><i data-lucide="alert-triangle" class="w-5 h-5 text-rose-600"></i></div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2 flex-wrap mb-0.5"><span class="text-[11px] font-mono text-slate-400">VT-2026-051</span><span class="text-[10px] bg-rose-100 text-rose-700 px-1.5 py-0.5 rounded-full font-bold">68 días</span></div>
+            <p class="text-[13px] font-medium text-slate-900 truncate">Distribuidora Norte SAC</p>
+            <div class="mt-1.5 flex items-center gap-2"><div class="flex-1 h-1.5 bg-slate-100 rounded-full overflow-hidden max-w-[180px]"><div class="h-full bg-rose-500 rounded-full" style="width:20%"></div></div><span class="text-[10px] text-rose-700 font-medium">S/ 240 de S/ 1,200</span></div>
+          </div>
+          <div class="flex-shrink-0 text-right">
+            <div class="text-[15px] font-bold text-rose-700 tabular">S/ 960</div>
+            <button class="mt-1 text-[11px] font-bold text-white bg-blue-600 px-2.5 py-1 rounded-md hover:bg-blue-700 whitespace-nowrap">Cobrar</button>
+          </div>
+        </div>
+        <div class="bg-white border border-slate-200 rounded-xl p-3.5 flex items-center gap-3">
+          <div class="w-10 h-10 rounded-lg bg-amber-50 flex items-center justify-center flex-shrink-0"><i data-lucide="clock" class="w-5 h-5 text-amber-600"></i></div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2 flex-wrap mb-0.5"><span class="text-[11px] font-mono text-slate-400">VT-2026-071</span><span class="text-[10px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-full font-bold">12 días</span></div>
+            <p class="text-[13px] font-medium text-slate-900 truncate">Farmacia San José</p>
+            <div class="mt-1.5 flex items-center gap-2"><div class="flex-1 h-1.5 bg-slate-100 rounded-full overflow-hidden max-w-[180px]"><div class="h-full bg-amber-500 rounded-full" style="width:0%"></div></div><span class="text-[10px] text-amber-700 font-medium">sin cobros</span></div>
+          </div>
+          <div class="flex-shrink-0 text-right">
+            <div class="text-[15px] font-bold text-slate-900 tabular">S/ 1,840</div>
+            <button class="mt-1 text-[11px] font-bold text-white bg-blue-600 px-2.5 py-1 rounded-md hover:bg-blue-700 whitespace-nowrap">Cobrar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ ACTO 2 · TAB ANALÍTICA ═══════════ -->
+<div class="max-w-6xl mx-auto mb-10">
+  <div class="acto-label text-[11px] font-bold uppercase text-blue-700 mb-3">ACTO 2 · Tab Analítica · rentabilidad por canal/producto + ranking</div>
+  <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+    <div class="px-6 border-b border-slate-200 flex items-center gap-1 overflow-x-auto text-[13px] pt-2">
+      <button class="whitespace-nowrap px-3 py-2.5 border-b-2 border-transparent text-slate-500 font-medium">Resumen</button>
+      <button class="whitespace-nowrap px-3 py-2.5 border-b-2 border-transparent text-slate-500 font-medium">Ventas</button>
+      <button class="whitespace-nowrap px-3 py-2.5 border-b-2 border-transparent text-slate-500 font-medium">Cobranzas</button>
+      <button class="whitespace-nowrap px-3 py-2.5 border-b-2 border-transparent text-slate-500 font-medium">Devoluciones</button>
+      <button class="whitespace-nowrap px-3 py-2.5 border-b-2 border-blue-600 text-blue-700 font-semibold flex items-center gap-1.5"><i data-lucide="bar-chart-3" class="w-4 h-4"></i> Analítica</button>
+    </div>
+    <div class="bg-slate-50/30 p-4 sm:p-6 space-y-4">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <!-- rentabilidad por canal -->
+        <div class="bg-white border border-slate-200 rounded-2xl p-4">
+          <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-3">Rentabilidad por canal</div>
+          <div class="space-y-3">
+            <div><div class="flex justify-between text-[12px] mb-1"><span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-blue-500"></span>Mercado Libre</span><span class="tabular font-semibold">margen 24%</span></div><div class="h-2 bg-slate-100 rounded-full overflow-hidden"><div class="h-full bg-blue-500 rounded-full" style="width:24%"></div></div></div>
+            <div><div class="flex justify-between text-[12px] mb-1"><span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-violet-500"></span>Directo</span><span class="tabular font-semibold">margen 38%</span></div><div class="h-2 bg-slate-100 rounded-full overflow-hidden"><div class="h-full bg-violet-500 rounded-full" style="width:38%"></div></div></div>
+            <div><div class="flex justify-between text-[12px] mb-1"><span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-slate-400"></span>Otros</span><span class="tabular font-semibold">margen 31%</span></div><div class="h-2 bg-slate-100 rounded-full overflow-hidden"><div class="h-full bg-slate-400 rounded-full" style="width:31%"></div></div></div>
+          </div>
+          <p class="text-[11px] text-slate-500 mt-3 flex items-center gap-1"><i data-lucide="info" class="w-3 h-3"></i> Directo deja más margen; ML mueve más volumen.</p>
+        </div>
+        <!-- ranking productos -->
+        <div class="bg-white border border-slate-200 rounded-2xl p-4">
+          <div class="flex items-center justify-between mb-3"><div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Top productos · por venta</div><i data-lucide="trophy" class="w-4 h-4 text-slate-400"></i></div>
+          <div class="space-y-2.5">
+            <div><div class="flex justify-between text-[12px] mb-1"><span class="truncate">Colágeno 60 caps</span><span class="tabular font-semibold">S/ 8.4k</span></div><div class="flex items-center gap-2"><div class="flex-1 h-1.5 bg-slate-100 rounded-full overflow-hidden"><div class="h-full bg-blue-500 rounded-full" style="width:100%"></div></div><span class="text-[10px] text-slate-400 tabular">38 u</span></div></div>
+            <div><div class="flex justify-between text-[12px] mb-1"><span class="truncate">Vita C Serum 30ml</span><span class="tabular font-semibold">S/ 6.1k</span></div><div class="flex items-center gap-2"><div class="flex-1 h-1.5 bg-slate-100 rounded-full overflow-hidden"><div class="h-full bg-blue-500 rounded-full" style="width:73%"></div></div><span class="text-[10px] text-slate-400 tabular">51 u</span></div></div>
+            <div><div class="flex justify-between text-[12px] mb-1"><span class="truncate">Retinol Night 50ml</span><span class="tabular font-semibold">S/ 4.8k</span></div><div class="flex items-center gap-2"><div class="flex-1 h-1.5 bg-slate-100 rounded-full overflow-hidden"><div class="h-full bg-blue-500 rounded-full" style="width:57%"></div></div><span class="text-[10px] text-slate-400 tabular">29 u</span></div></div>
+          </div>
+        </div>
+      </div>
+      <!-- cumplimiento expectativa -->
+      <div class="bg-white border border-slate-200 rounded-2xl p-4">
+        <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-3">Margen real vs esperado · cumplimiento de cotización</div>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div class="bg-emerald-50 rounded-xl p-3 text-center"><div class="text-[10px] text-emerald-700 uppercase tracking-wider font-bold">Superaron</div><div class="text-2xl font-bold tabular text-emerald-700">62%</div><div class="text-[10px] text-slate-500">de las ventas</div></div>
+          <div class="bg-amber-50 rounded-xl p-3 text-center"><div class="text-[10px] text-amber-700 uppercase tracking-wider font-bold">En línea</div><div class="text-2xl font-bold tabular text-amber-700">28%</div><div class="text-[10px] text-slate-500">±2 pts</div></div>
+          <div class="bg-rose-50 rounded-xl p-3 text-center"><div class="text-[10px] text-rose-700 uppercase tracking-wider font-bold">Por debajo</div><div class="text-2xl font-bold tabular text-rose-700">10%</div><div class="text-[10px] text-slate-500">revisar costeo</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ ACTO 3 · TAB DEVOLUCIONES ═══════════ -->
+<div class="max-w-6xl mx-auto mb-10">
+  <div class="acto-label text-[11px] font-bold uppercase text-blue-700 mb-3">ACTO 3 · Tab Devoluciones · solicitudes + reembolsos</div>
+  <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+    <div class="bg-slate-50/30 p-4 sm:p-6 space-y-3">
+      <div class="flex items-center justify-between flex-wrap gap-2">
+        <div class="text-[13px] font-bold text-slate-900">Devoluciones y reembolsos</div>
+        <button class="text-[12px] font-semibold text-white bg-blue-600 px-3 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-1.5"><i data-lucide="plus" class="w-4 h-4"></i> Nueva devolución</button>
+      </div>
+      <div class="space-y-2">
+        <div class="bg-white border border-slate-200 rounded-xl p-3.5 flex items-center gap-3">
+          <div class="w-10 h-10 rounded-lg bg-amber-50 flex items-center justify-center flex-shrink-0"><i data-lucide="undo-2" class="w-5 h-5 text-amber-600"></i></div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2 flex-wrap mb-0.5"><span class="text-[11px] font-mono text-slate-400">DV-2026-007</span><span class="text-[10px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-full">En revisión</span><span class="text-[10px] text-slate-400">← VT-2026-062</span></div>
+            <p class="text-[13px] font-medium text-slate-900 truncate">Botica La Salud · Retinol Night ×1 · producto dañado</p>
+          </div>
+          <div class="flex-shrink-0 text-right"><div class="text-[14px] font-bold text-slate-900 tabular">S/ 380</div><div class="text-[10px] text-slate-400">a reembolsar</div></div>
+        </div>
+        <div class="bg-white border border-slate-200 rounded-xl p-3.5 flex items-center gap-3">
+          <div class="w-10 h-10 rounded-lg bg-emerald-50 flex items-center justify-center flex-shrink-0"><i data-lucide="check-circle" class="w-5 h-5 text-emerald-600"></i></div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2 flex-wrap mb-0.5"><span class="text-[11px] font-mono text-slate-400">DV-2026-006</span><span class="text-[10px] bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded-full">Reembolsada</span><span class="text-[10px] text-slate-400">← VT-2026-058</span></div>
+            <p class="text-[13px] font-medium text-slate-900 truncate">Dr. Martín Ríos · Colágeno ×2 · talla equivocada</p>
+          </div>
+          <div class="flex-shrink-0 text-right"><div class="text-[14px] font-bold text-emerald-700 tabular">S/ 1,440</div><div class="text-[10px] text-slate-400">reembolsado</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ ACTO 4 · MODALES ═══════════ -->
+<div class="max-w-6xl mx-auto mb-10">
+  <div class="acto-label text-[11px] font-bold uppercase text-blue-700 mb-3">ACTO 4 · Modales · cobro (compartido) · programar entrega · devolución</div>
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+    <!-- modal cobro (PagoUnificadoForm compartido) -->
+    <div class="bg-white border border-slate-200 rounded-2xl shadow-xl overflow-hidden">
+      <div class="px-4 py-3 border-b border-slate-200 flex items-center justify-between"><div class="text-[13px] font-bold text-slate-900">Registrar cobro</div><i data-lucide="x" class="w-4 h-4 text-slate-400"></i></div>
+      <div class="p-4 space-y-3">
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-2.5 text-[11px] text-blue-800"><i data-lucide="layers" class="w-3 h-3 inline"></i> Componente compartido · <strong>Registro Único de Pago</strong> (mismo de Compras/Gastos)</div>
+        <div class="bg-gradient-to-br from-rose-50 to-rose-100/30 rounded-xl p-3 text-center"><div class="text-[10px] text-rose-700 uppercase tracking-wider font-bold">Saldo a cobrar</div><div class="text-2xl font-bold tabular text-rose-900">S/ 980</div></div>
+        <div><label class="text-[11px] font-medium text-slate-600">Cuenta / billetera</label><div class="mt-1 border border-slate-300 rounded-lg px-3 py-2 text-[12px] flex items-center justify-between"><span>Yape · negocio</span><i data-lucide="chevron-down" class="w-4 h-4 text-slate-400"></i></div></div>
+        <div><label class="text-[11px] font-medium text-slate-600">Método</label><div class="mt-1 flex gap-1.5"><span class="text-[11px] px-2 py-1 rounded-md bg-slate-800 text-white">Yape</span><span class="text-[11px] px-2 py-1 rounded-md bg-slate-100 text-slate-600">Transfer.</span><span class="text-[11px] px-2 py-1 rounded-md bg-slate-100 text-slate-600">Efectivo</span></div></div>
+        <div><label class="text-[11px] font-medium text-slate-600">Monto</label><div class="mt-1 border border-slate-300 rounded-lg px-3 py-2 text-[14px] font-bold tabular">S/ 980.00</div></div>
+      </div>
+      <div class="px-4 py-3 border-t border-slate-200 bg-slate-50 flex justify-between"><button class="text-[12px] text-slate-500">Cancelar</button><button class="px-4 py-2 text-[12px] font-semibold text-white rounded-lg bg-blue-600">Registrar cobro</button></div>
+    </div>
+    <!-- modal programar entrega -->
+    <div class="bg-white border border-slate-200 rounded-2xl shadow-xl overflow-hidden">
+      <div class="px-4 py-3 border-b border-slate-200 flex items-center justify-between"><div class="text-[13px] font-bold text-slate-900">Programar entrega</div><i data-lucide="x" class="w-4 h-4 text-slate-400"></i></div>
+      <div class="p-4 space-y-3">
+        <div class="bg-sky-50 border border-sky-200 rounded-lg p-2.5 text-[11px] text-sky-800">3 de 5 productos asignados · listos para despachar</div>
+        <div><label class="text-[11px] font-medium text-slate-600">Fecha de entrega</label><div class="mt-1 border border-slate-300 rounded-lg px-3 py-2 text-[12px] flex items-center gap-2"><i data-lucide="calendar" class="w-4 h-4 text-slate-400"></i> 3 jun 2026</div></div>
+        <div><label class="text-[11px] font-medium text-slate-600">Transportista</label><div class="mt-1 border border-slate-300 rounded-lg px-3 py-2 text-[12px] flex items-center justify-between"><span>Olva Courier</span><i data-lucide="chevron-down" class="w-4 h-4 text-slate-400"></i></div></div>
+        <div><label class="text-[11px] font-medium text-slate-600">Productos a entregar</label><div class="mt-1 space-y-1.5"><label class="flex items-center gap-2 text-[12px]"><input type="checkbox" checked class="rounded"> Vita C Serum ×2</label><label class="flex items-center gap-2 text-[12px]"><input type="checkbox" class="rounded"> Retinol Night ×2</label></div></div>
+      </div>
+      <div class="px-4 py-3 border-t border-slate-200 bg-slate-50 flex justify-between"><button class="text-[12px] text-slate-500">Cancelar</button><button class="px-4 py-2 text-[12px] font-semibold text-white rounded-lg bg-blue-600">Programar</button></div>
+    </div>
+    <!-- modal devolución -->
+    <div class="bg-white border border-slate-200 rounded-2xl shadow-xl overflow-hidden">
+      <div class="px-4 py-3 border-b border-slate-200 flex items-center justify-between"><div class="text-[13px] font-bold text-slate-900">Nueva devolución</div><i data-lucide="x" class="w-4 h-4 text-slate-400"></i></div>
+      <div class="p-4 space-y-3">
+        <div><label class="text-[11px] font-medium text-slate-600">Venta origen</label><div class="mt-1 border border-slate-300 rounded-lg px-3 py-2 text-[12px] flex items-center justify-between"><span>VT-2026-062 · Botica La Salud</span><i data-lucide="chevron-down" class="w-4 h-4 text-slate-400"></i></div></div>
+        <div><label class="text-[11px] font-medium text-slate-600">Productos a devolver</label><div class="mt-1 border border-amber-200 bg-amber-50/40 rounded-lg p-2 text-[12px] flex items-center justify-between"><label class="flex items-center gap-2"><input type="checkbox" checked class="rounded"> Retinol Night ×1</label><span class="font-bold tabular">S/ 380</span></div></div>
+        <div><label class="text-[11px] font-medium text-slate-600">Motivo</label><div class="mt-1 border border-slate-300 rounded-lg px-3 py-2 text-[12px]">Producto dañado</div></div>
+        <div class="bg-rose-50 rounded-lg p-2.5 flex justify-between text-[12px]"><span class="text-rose-700 font-medium">A reembolsar</span><span class="font-bold tabular text-rose-700">S/ 380</span></div>
+      </div>
+      <div class="px-4 py-3 border-t border-slate-200 bg-slate-50 flex justify-between"><button class="text-[12px] text-slate-500">Cancelar</button><button class="px-4 py-2 text-[12px] font-semibold text-white rounded-lg bg-blue-600">Crear devolución</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ ACTO 5 · MOBILE ═══════════ -->
+<div class="max-w-6xl mx-auto mb-10">
+  <div class="acto-label text-[11px] font-bold uppercase text-blue-700 mb-3">ACTO 5 · Mobile 375px (Cobranzas + modal cobro bottom-sheet)</div>
+  <div class="flex gap-6 flex-wrap">
+    <div>
+      <div class="text-[10px] font-bold uppercase text-slate-400 mb-2">Cobranzas · mobile</div>
+      <div class="w-[375px] bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+        <div class="px-3 border-b border-slate-200 flex items-center gap-1 overflow-x-auto text-[12px] pt-2" style="scrollbar-width:none">
+          <button class="whitespace-nowrap px-2 py-2.5 border-b-2 border-transparent text-slate-500">Resumen</button>
+          <button class="whitespace-nowrap px-2 py-2.5 border-b-2 border-transparent text-slate-500">Ventas</button>
+          <button class="whitespace-nowrap px-2 py-2.5 border-b-2 border-blue-600 text-blue-700 font-semibold">Cobranzas</button>
+        </div>
+        <div class="bg-slate-50/30 p-3 space-y-3">
+          <div class="grid grid-cols-2 gap-2">
+            <div class="bg-white border border-slate-200 rounded-lg p-2.5"><div class="text-[9px] uppercase text-rose-700 font-bold">Por cobrar</div><div class="text-[15px] font-bold tabular">S/ 12.4k</div></div>
+            <div class="bg-white border border-slate-200 rounded-lg p-2.5"><div class="text-[9px] uppercase text-blue-700 font-bold">DSO</div><div class="text-[15px] font-bold tabular">11d</div></div>
+          </div>
+          <div class="flex gap-1.5 overflow-x-auto pb-1" style="scrollbar-width:none">
+            <button class="whitespace-nowrap px-2.5 py-1.5 text-[11px] font-medium rounded-lg border-2 border-blue-500 bg-blue-50">Todas</button>
+            <button class="whitespace-nowrap px-2.5 py-1.5 text-[11px] font-medium rounded-lg border border-amber-200 bg-amber-50/50 text-amber-700">1-30</button>
+            <button class="whitespace-nowrap px-2.5 py-1.5 text-[11px] font-medium rounded-lg border border-rose-200 bg-rose-50/50 text-rose-700">+60</button>
+          </div>
+          <div class="bg-white border border-rose-200 rounded-xl p-3">
+            <div class="flex items-center gap-2 mb-1"><span class="text-[10px] font-mono text-slate-400">VT-2026-051</span><span class="text-[9px] bg-rose-100 text-rose-700 px-1.5 rounded-full font-bold">68 días</span></div>
+            <p class="text-[12px] font-medium text-slate-900">Distribuidora Norte SAC</p>
+            <div class="flex items-center justify-between mt-1.5"><span class="text-[10px] text-rose-700">S/ 240 de 1,200</span><div class="flex items-center gap-2"><span class="text-[14px] font-bold tabular text-rose-700">S/ 960</span><button class="text-[10px] font-bold text-white bg-blue-600 px-2 py-1 rounded">Cobrar</button></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="text-[10px] font-bold uppercase text-slate-400 mb-2">Cobro · bottom-sheet</div>
+      <div class="w-[375px] bg-white border border-slate-200 rounded-t-2xl shadow-xl overflow-hidden mt-12">
+        <div class="flex justify-center pt-2"><div class="w-10 h-1 rounded-full bg-slate-300"></div></div>
+        <div class="px-4 py-3 flex items-center justify-between"><div class="text-[13px] font-bold text-slate-900">Registrar cobro</div><i data-lucide="x" class="w-4 h-4 text-slate-400"></i></div>
+        <div class="px-4 pb-4 space-y-3">
+          <div class="bg-blue-50 border border-blue-200 rounded-lg p-2 text-[10px] text-blue-800">Registro Único de Pago · compartido</div>
+          <div class="bg-gradient-to-br from-rose-50 to-rose-100/30 rounded-xl p-2.5 text-center"><div class="text-[9px] text-rose-700 uppercase font-bold">Saldo</div><div class="text-xl font-bold tabular text-rose-900">S/ 960</div></div>
+          <div class="border border-slate-300 rounded-lg px-3 py-2 text-[12px] flex items-center justify-between"><span>Yape · negocio</span><i data-lucide="chevron-down" class="w-4 h-4 text-slate-400"></i></div>
+          <button class="w-full px-4 py-2.5 text-[13px] font-semibold text-white rounded-lg bg-blue-600">Registrar cobro</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<div class="max-w-6xl mx-auto">
+  <div class="bg-white border border-slate-200 rounded-2xl p-5">
+    <div class="text-[13px] font-bold text-slate-900 mb-3">Cobertura Fase C · canon · cierra los mockups de Ventas</div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1.5 text-[12px] text-slate-600">
+      <div>✓ Cobranzas: KPIs + aging buckets (clic-filtra) + cartera + por-cliente toggle</div>
+      <div>✓ Cobranzas: cross-link a Finanzas (no duplica el motor CxC)</div>
+      <div>✓ Analítica: rentabilidad por canal + ranking productos + cumplimiento expectativa</div>
+      <div>✓ Devoluciones: solicitudes + reembolsos (estados)</div>
+      <div>✓ Modal cobro = PagoUnificadoForm compartido (cuenta + método de Tesorería)</div>
+      <div>✓ Modales: programar entrega · nueva devolución (FormModalV2)</div>
+      <div>✓ Mobile 375px (Cobranzas + cobro bottom-sheet)</div>
+      <div>✓ Semántico: aging amber→rose · canal blue/violet/slate · estados</div>
+    </div>
+    <div class="mt-4 flex flex-wrap gap-2 text-[11px]">
+      <span class="bg-emerald-50 text-emerald-700 px-2 py-1 rounded">✓ Mockups de Ventas completos (A + B + C) · listo para implementar por fases</span>
+    </div>
+  </div>
+</div>
+
+<script>lucide.createIcons();</script>
+</body>
+</html>
