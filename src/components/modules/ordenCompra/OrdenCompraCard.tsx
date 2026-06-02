@@ -615,7 +615,7 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
               <button
                 type="button"
                 onClick={onEditarOC}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-teal-700 bg-teal-50 hover:bg-teal-100 border border-teal-200 rounded-lg transition-colors"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-lg transition-colors"
               >
                 <Edit3 className="w-3.5 h-3.5" />
                 Editar OC
@@ -663,7 +663,7 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
       ) : (<>
 
       {/* S52 — Banner CTA migrado a <NextActionBanner> (plantilla Capa 3).
-           Preserva el ícono Send + colores teal + botón variant. Mismo
+           Preserva el ícono Send + colores blue + botón variant. Mismo
            comportamiento: dispara vistaInterna='confirmar' en borrador, etc. */}
       {nextAction && nextAction.buttonText && nextAction.onClick && (
         <NextActionBanner
@@ -673,7 +673,7 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
           buttonText={nextAction.buttonText}
           onClick={nextAction.onClick}
           buttonVariant={nextAction.variant === 'primary' ? 'primary' : 'secondary'}
-          variant="teal"
+          variant="blue"
         />
       )}
 
@@ -700,7 +700,7 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
             label: 'Sub-órdenes',
             value: subOrdenesCount > 0 ? String(subOrdenesCount) : '—',
             subtitle: subOrdenesCount > 0 ? 'divisiones' : 'sin dividir',
-            tone: subOrdenesCount > 0 ? 'teal' : 'muted',
+            tone: subOrdenesCount > 0 ? 'blue' : 'muted',
           },
           {
             label: 'Pagos',
@@ -798,7 +798,7 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
                 icon={<Layers className="w-3.5 h-3.5" />}
                 label="Sub-órdenes"
                 badge={orden.subOrdenes!.length}
-                badgeColor="teal"
+                badgeColor="blue"
               />
             )}
             <TabButtonOC
@@ -869,7 +869,7 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
 
       {/* S42bd — Tabla Productos con CTRU comercial integrado.
           En vez de una sección separada y pesada, el CTRU unitario se muestra
-          como una columna más, con fondo teal sutil para darle importancia
+          como una columna más, con fondo blue sutil para darle importancia
           visual. Si la OC tiene sub-órdenes con cargos desiguales, el valor
           es el promedio ponderado por cantidad entre sub-órdenes (y se marca
           con un badge "~" para indicar que hay variación interna).
@@ -923,7 +923,7 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
                     <th className="px-4 py-2 text-[11px] font-medium text-slate-500 uppercase tracking-wide text-right">Cant.</th>
                     <th className="px-4 py-2 text-[11px] font-medium text-slate-500 uppercase tracking-wide text-right">Precio</th>
                     <th className="px-4 py-2 text-[11px] font-medium text-slate-500 uppercase tracking-wide text-right">Subtotal</th>
-                    <th className="px-4 py-2 text-[11px] font-medium text-teal-700 uppercase tracking-wide text-right bg-teal-50">CTRU/u</th>
+                    <th className="px-4 py-2 text-[11px] font-medium text-blue-700 uppercase tracking-wide text-right bg-blue-50">CTRU/u</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
@@ -934,7 +934,7 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
                     return (
                       <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
                         <td className="px-4 py-3 align-top">
-                          <span className="text-sm font-mono text-teal-700">{p.sku || '—'}</span>
+                          <span className="text-sm font-mono text-blue-700">{p.sku || '—'}</span>
                         </td>
                         <td className="px-4 py-3 align-top">
                           <div className="font-medium text-slate-900">{p.nombreComercial || '—'}</div>
@@ -945,7 +945,7 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
                         <td className="px-4 py-3 text-right tabular-nums text-slate-700">{p.cantidad}</td>
                         <td className="px-4 py-3 text-right tabular-nums text-slate-700">${(p.costoUnitario || 0).toFixed(2)}</td>
                         <td className="px-4 py-3 text-right tabular-nums font-semibold text-slate-900">${subtotal.toFixed(2)}</td>
-                        <td className="px-4 py-3 text-right tabular-nums font-bold text-teal-900 bg-teal-50/40">
+                        <td className="px-4 py-3 text-right tabular-nums font-bold text-blue-900 bg-blue-50/40">
                           {ctru.valor > 0 ? (
                             <span className="inline-flex items-baseline gap-1 justify-end">
                               {ctru.variaEntreBloques && (
@@ -978,7 +978,7 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
       {orden.estado !== 'borrador' && orden.estado !== 'cancelada' && (
         <Link
           to={`/ctru?tab=lote&ocId=${orden.id}`}
-          className="inline-flex items-center gap-2 text-xs text-teal-700 hover:text-teal-900 hover:bg-teal-50 border border-teal-200 rounded-lg px-3 py-2 transition-colors w-fit"
+          className="inline-flex items-center gap-2 text-xs text-blue-700 hover:text-blue-900 hover:bg-blue-50 border border-blue-200 rounded-lg px-3 py-2 transition-colors w-fit"
         >
           <Calculator className="w-3.5 h-3.5" />
           <span>
@@ -1015,7 +1015,7 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
               </span>
               {efectivos.fuente === 'subOrdenes' && (
                 <span
-                  className="inline-flex items-center px-1.5 py-0.5 rounded-full bg-teal-50 text-teal-700 text-[10px] font-semibold border border-teal-200 normal-case"
+                  className="inline-flex items-center px-1.5 py-0.5 rounded-full bg-blue-50 text-blue-700 text-[10px] font-semibold border border-blue-200 normal-case"
                   title="Valores agregados desde las sub-órdenes (reflejan cómo el proveedor realmente subdividió la orden)"
                 >
                   Agregado de sub-órdenes
@@ -1055,7 +1055,7 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
               )}
               <div className="border-t border-slate-200 pt-2 flex items-center justify-between">
                 <span className="font-semibold text-slate-900">Total OC</span>
-                <span className="text-lg font-bold text-teal-700 tabular-nums">
+                <span className="text-lg font-bold text-blue-700 tabular-nums">
                   ${efectivos.total.toFixed(2)}
                 </span>
               </div>
@@ -1084,13 +1084,13 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
       {/* S54 · T1 — El link al módulo CTRU se movió al tab 'productos' (contexto natural). */}
 
       {/* S42ao — Tracking / Envío vinculado (estilo mockup S41 L1075-1138):
-          card teal-50 con 4 columnas (Ruta / Courier / Tracking / Despachado). */}
+          card blue-50 con 4 columnas (Ruta / Courier / Tracking / Despachado). */}
       {orden.numeroTracking && (
         <div>
           <div className="text-[11px] font-semibold text-slate-500 uppercase tracking-wide mb-2">
             Información de envío
           </div>
-          <div className="bg-teal-50 border border-teal-200 rounded-xl p-4">
+          <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-sm">
               {orden.modoEntregaDetallado && (
                 <div>
@@ -1348,7 +1348,7 @@ const TabButtonOC: React.FC<{
   icon: React.ReactNode;
   label: string;
   badge?: number | string;
-  badgeColor?: 'red' | 'amber' | 'slate' | 'teal';
+  badgeColor?: 'red' | 'amber' | 'slate' | 'blue';
 }> = ({ active, onClick, icon, label, badge, badgeColor = 'slate' }) => (
   <button
     type="button"
@@ -1356,7 +1356,7 @@ const TabButtonOC: React.FC<{
     className={cn(
       'px-3 py-2 text-sm font-medium flex items-center gap-1.5 transition-colors whitespace-nowrap border-b-2',
       active
-        ? 'text-teal-700 border-teal-600'
+        ? 'text-blue-700 border-blue-600'
         : 'text-slate-500 hover:text-slate-700 border-transparent'
     )}
   >
@@ -1370,8 +1370,8 @@ const TabButtonOC: React.FC<{
             ? 'bg-red-100 text-red-700'
             : badgeColor === 'amber'
               ? 'bg-amber-100 text-amber-700'
-              : badgeColor === 'teal'
-                ? 'bg-teal-100 text-teal-700'
+              : badgeColor === 'blue'
+                ? 'bg-blue-100 text-blue-700'
                 : 'bg-slate-100 text-slate-600'
         )}
       >

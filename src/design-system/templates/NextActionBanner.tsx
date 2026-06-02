@@ -40,7 +40,7 @@ import { Button } from '../../components/common/Button';
 // Tipos
 // ────────────────────────────────────────────────────────────────────────────
 
-export type NextActionVariant = 'teal' | 'amber' | 'red' | 'sky' | 'emerald' | 'neutral';
+export type NextActionVariant = 'teal' | 'blue' | 'amber' | 'red' | 'sky' | 'emerald' | 'neutral';
 
 export interface NextActionBannerProps {
   /** Ícono opcional (de lucide-react) a la izquierda */
@@ -78,6 +78,14 @@ const VARIANT_STYLES: Record<
     iconText: 'text-teal-600',
     labelText: 'text-teal-900',
     descText: 'text-teal-700',
+  },
+  blue: {
+    bg: 'bg-blue-50',
+    border: 'border-blue-200',
+    iconBg: 'bg-white border-blue-200',
+    iconText: 'text-blue-600',
+    labelText: 'text-blue-900',
+    descText: 'text-blue-700',
   },
   amber: {
     bg: 'bg-amber-50',
