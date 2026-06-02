@@ -1,9 +1,10 @@
 import React, { useEffect, useState, useMemo, useRef } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
-import { Plus, Package, DollarSign, TrendingUp, AlertCircle, Download, ExternalLink, FileText, Send, Truck, CheckCircle, XCircle, CreditCard, PackageCheck, Calendar, Building2, Edit3, Search } from 'lucide-react';
+import { Plus, Package, DollarSign, AlertCircle, Download, ExternalLink, FileText, Send, Truck, CheckCircle, XCircle, CreditCard, PackageCheck, Calendar, Building2, Search, ShoppingCart, LayoutDashboard, ClipboardList, BrainCircuit } from 'lucide-react';
 import { Button, Card, Modal, useConfirmDialog, ConfirmDialog, useActionModal, ActionModal } from '../../components/common';
-import { PageShell, PageHeader, KPIBar, StatCard, DataCard } from '../../design-system';
-import type { StatusVariant } from '../../design-system';
+// chk5.COMERCIALES-F1 · Compras re-construido como hub del kit (grupo Comercial = blue)
+import { HubShell, HubTopBar, HubHeader, HubKpiStrip, HubTabs, HubBody } from '../../design-system';
+import type { StatusVariant, HubTab, HubKpi } from '../../design-system';
 import { useToastStore } from '../../store/toastStore';
 // S53.9 — OrdenCompraForm + OrdenCompraTable ELIMINADOS (legacy).
 // Toda la creacion/edicion de OC pasa por OCWizardV3. Lista en tarjetas unicamente.
@@ -25,6 +26,7 @@ import { useProveedorStore } from '../../store/proveedorStore';
 import { useProductoStore } from '../../store/productoStore';
 import { useTipoCambioStore } from '../../store/tipoCambioStore';
 import { useAuthStore } from '../../store/authStore';
+import { hasRole } from '../../types/auth.types';
 import { useColaboradorStore } from '../../store/colaboradorStore';
 import { exportService } from '../../services/export.service';
 import type { OrdenCompra, OrdenCompraFormData, EstadoOrden } from '../../types/ordenCompra.types';
@@ -79,6 +81,8 @@ export const OrdenesCompra: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const user = useAuthStore(state => state.user);
+  const userProfile = useAuthStore((s) => s.userProfile);
+  const esAdmin = hasRole(userProfile, 'admin'); // canon "admin ve todo" · chip contextual al rol
   const toast = useToastStore();
   const { productos, fetchProductos } = useProductoStore();
   const { getTCDelDia } = useTipoCambioStore();
@@ -164,6 +168,8 @@ export const OrdenesCompra: React.FC = () => {
   const { pagos: pagosOCSeleccionada } = usePagosOC(selectedOrden?.id ?? null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [filtroEstado, setFiltroEstado] = useState<string | null>(null);
+  // chk5.COMERCIALES-F1 · tab activa del hub · default 'ordenes' hasta que la Fase 1b construya el Resumen §A→§F
+  const [tabActiva, setTabActiva] = useState<'resumen' | 'ordenes' | 'pendientes' | 'proveedores' | 'inteligencia'>('ordenes');
   // S42 Tanda 10 — Filtros adicionales vista Compras (mockup s40 líneas 235-254)
   const [busquedaGlobal, setBusquedaGlobal] = useState('');
   const [pillFiltro, setPillFiltro] = useState<'todas' | 'activas' | 'completadas'>('todas');
@@ -865,48 +871,55 @@ export const OrdenesCompra: React.FC = () => {
     return map[estado] ?? 'neutral';
   };
 
+  // chk5.COMERCIALES-F1 · derivados del hub (tabs · KPI strip semántico · breadcrumb)
+  const comprasTabs: HubTab[] = [
+    { id: 'resumen', label: 'Resumen', icon: LayoutDashboard },
+    { id: 'ordenes', label: 'Órdenes', icon: Package },
+    { id: 'pendientes', label: 'Pendientes', icon: ClipboardList },
+    { id: 'proveedores', label: 'Proveedores', icon: Building2 },
+    { id: 'inteligencia', label: 'Inteligencia', icon: BrainCircuit },
+  ];
+  const breadcrumbLeaf = tabActiva === 'resumen' ? null : (comprasTabs.find((t) => t.id === tabActiva)?.label ?? null);
+  const comprasKpis: HubKpi[] = stats ? [
+    { label: 'Comprado mes', valor: `$ ${stats.valorTotalUSD.toLocaleString('en-US', { maximumFractionDigits: 0 })}`, tono: 'amber', icon: DollarSign, delta: `${stats.totalOrdenes} OCs este mes` },
+    { label: 'Borradores', valor: String(stats.borradores), tono: 'slate', icon: FileText, delta: 'sin confirmar' },
+    { label: 'En curso', valor: String(stats.enviadas + stats.pagadas + stats.enTransito + (stats.recibidasParcial || 0)), tono: 'sky', icon: Truck, delta: statsExtra.enviosActivosVinculados > 0 ? `${statsExtra.enviosActivosVinculados} envíos activos` : 'en tránsito / parcial' },
+    { label: 'Por pagar', valor: String(statsExtra.ocsConPagoPendiente), tono: 'rose', icon: CreditCard, delta: statsExtra.montoPendienteUSD > 0 ? `$${statsExtra.montoPendienteUSD.toLocaleString('en-US', { maximumFractionDigits: 0 })} pendiente` : 'al día' },
+    { label: 'Completadas', valor: String(stats.recibidas), tono: 'emerald', icon: CheckCircle, delta: statsExtra.montoCompletadasUSD > 0 ? `$${statsExtra.montoCompletadasUSD.toLocaleString('en-US', { maximumFractionDigits: 0 })}` : 'recibidas' },
+  ] : [];
+
   return (
-    <PageShell>
-      {/* Header */}
-      <PageHeader
-        title="Compras"
-        subtitle="Órdenes de compra y proveedores"
-        icon={Package}
-        actions={
-          <div className="flex items-center gap-2">
-            {/* S42 Tanda 10 — Search global (mockup líneas 116-125) */}
-            <div className="relative hidden md:block">
-              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400 pointer-events-none" />
-              <input
-                type="text"
-                value={busquedaGlobal}
-                onChange={(e) => setBusquedaGlobal(e.target.value)}
-                placeholder="Buscar OC, proveedor, número..."
-                className="pl-8 pr-3 py-1.5 text-xs border border-slate-300 rounded-lg bg-white focus:outline-none focus:ring-1 focus:ring-teal-500 focus:border-teal-500 w-60"
-              />
-            </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => exportService.exportOrdenesCompra(ordenes)}
-              disabled={ordenesLN.length === 0}
-            >
-              <Download className="h-4 w-4 mr-1.5" />
-              <span className="hidden sm:inline">Exportar</span>
-            </Button>
-            <Button
-              variant="primary"
-              size="sm"
-              onClick={() => setIsWizardV2Open(true)}
-              disabled={proveedoresActivos.length === 0}
-            >
-              <Plus className="h-4 w-4 mr-1.5" />
-              <span className="hidden sm:inline">Nueva OC</span>
-              <span className="sm:hidden">Nueva</span>
-            </Button>
+    <div className="max-w-6xl mx-auto p-3 sm:p-4 md:p-6">
+      <HubShell>
+        <HubTopBar grupo="comercial" modulo="Compras" leaf={breadcrumbLeaf} esAdmin={esAdmin} onModulo={() => setTabActiva('resumen')} />
+        <HubHeader
+          grupo="comercial"
+          icon={ShoppingCart}
+          titulo="Compras"
+          subtitulo="Órdenes de compra · proveedores · recepción · pagos · inteligencia de precios"
+          acciones={[
+            { label: 'Exportar', icon: Download, onClick: () => exportService.exportOrdenesCompra(ordenes), tier: 'neutral', disabled: ordenesLN.length === 0 },
+            { label: 'Nueva OC', icon: Plus, onClick: () => setIsWizardV2Open(true), tier: 'primary', disabled: proveedoresActivos.length === 0 },
+          ]}
+        />
+        {stats && <HubKpiStrip cols={5} kpis={comprasKpis} />}
+        <HubTabs grupo="comercial" tabs={comprasTabs} activa={tabActiva} onChange={(id) => setTabActiva(id as typeof tabActiva)} />
+        <HubBody flush>
+
+        {/* ═══ TAB ÓRDENES · pipeline + filtros + listado (contenido operativo) ═══ */}
+        {tabActiva === 'ordenes' && (
+        <div className="p-4 sm:p-6 space-y-4">
+          {/* Buscador (movido del header) */}
+          <div className="relative max-w-md">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
+            <input
+              type="text"
+              value={busquedaGlobal}
+              onChange={(e) => setBusquedaGlobal(e.target.value)}
+              placeholder="Buscar OC, proveedor, número…"
+              className="w-full pl-9 pr-3 py-2 text-[12px] border border-slate-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/40"
+            />
           </div>
-        }
-      />
 
       {/* Alerta si no hay proveedores */}
       {proveedoresActivos.length === 0 && (
@@ -931,61 +944,7 @@ export const OrdenesCompra: React.FC = () => {
         </Card>
       )}
 
-      {/* S42 Tanda 10 — KPIs alineados al mockup (líneas 128-178): Total · Valor · Borradores · En curso · Por pagar · Completadas */}
-      {stats && (
-        <KPIBar columns={6}>
-          <StatCard
-            label="Total OCs"
-            value={stats.totalOrdenes}
-            icon={Package}
-            variant="neutral"
-            subtitle="este mes"
-          />
-          <StatCard
-            label="Valor total"
-            value={`$${stats.valorTotalUSD.toLocaleString('en-US', { maximumFractionDigits: 0 })}`}
-            icon={DollarSign}
-            variant="info"
-            subtitle="USD"
-          />
-          <StatCard
-            label="Borradores"
-            value={stats.borradores}
-            icon={Edit3}
-            variant="neutral"
-            subtitle="sin confirmar"
-            onClick={() => setFiltroEstado(filtroEstado === 'borrador' ? null : 'borrador')}
-            active={filtroEstado === 'borrador'}
-          />
-          <StatCard
-            label="En curso"
-            value={stats.enviadas + stats.pagadas + stats.enTransito + (stats.recibidasParcial || 0)}
-            icon={TrendingUp}
-            variant="warning"
-            subtitle={statsExtra.enviosActivosVinculados > 0
-              ? `${statsExtra.enviosActivosVinculados} envíos activos`
-              : 'envíos en tránsito / parcial'}
-          />
-          <StatCard
-            label="Por pagar"
-            value={statsExtra.ocsConPagoPendiente}
-            icon={CreditCard}
-            variant="danger"
-            subtitle={statsExtra.montoPendienteUSD > 0
-              ? `$${statsExtra.montoPendienteUSD.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} pendiente`
-              : 'sin pagos pendientes'}
-          />
-          <StatCard
-            label="Completadas"
-            value={stats.recibidas}
-            icon={CheckCircle}
-            variant="success"
-            subtitle={statsExtra.montoCompletadasUSD > 0
-              ? `$${statsExtra.montoCompletadasUSD.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
-              : 'todos los envíos recibidos'}
-          />
-        </KPIBar>
-      )}
+      {/* KPIs movidos al HubKpiStrip persistente del shell · chk5.COMERCIALES-F1 */}
 
       {/* Pipeline Opción B (S41) — 4 etapas Borrador → Confirmada → En Despacho → Completada */}
       <PipelineCompras
@@ -1143,6 +1102,27 @@ export const OrdenesCompra: React.FC = () => {
           )}
         </div>
       )}
+        </div>
+        )}
+
+        {/* ═══ TABS EN CONSTRUCCIÓN (Resumen · Pendientes · Proveedores · Inteligencia) · fases siguientes ═══ */}
+        {tabActiva !== 'ordenes' && (
+          <div className="p-8 sm:p-12 text-center">
+            <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-blue-50 text-blue-600 mb-3 mx-auto">
+              <LayoutDashboard className="w-6 h-6" />
+            </div>
+            <h3 className="text-base font-semibold text-slate-900">
+              {comprasTabs.find((t) => t.id === tabActiva)?.label}
+            </h3>
+            <p className="text-[12px] text-slate-500 mt-1 max-w-sm mx-auto">
+              Esta sección se construye en la siguiente fase del hub de Compras. Mientras tanto, opera desde{' '}
+              <button type="button" onClick={() => setTabActiva('ordenes')} className="text-blue-600 font-medium hover:underline">Órdenes</button>.
+            </p>
+          </div>
+        )}
+
+        </HubBody>
+      </HubShell>
 
       {/* S53.9 — Modal Nueva Orden legacy ELIMINADO. La creacion/edicion vive en OCWizardV3. */}
 
@@ -1316,6 +1296,6 @@ export const OrdenesCompra: React.FC = () => {
           />
         );
       })()}
-    </PageShell>
+    </div>
   );
 };
