@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Envíos Hub · Fase 1 · Shell + Resumen + Operaciones</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  * { font-family: 'Inter', system-ui, sans-serif; }
+  .tabular-nums { font-variant-numeric: tabular-nums; }
+  body { background: #f1f5f9; }
+  .hide-scroll::-webkit-scrollbar { display: none; }
+  .hide-scroll { scrollbar-width: none; }
+</style>
+</head>
+<body class="text-slate-900 pb-24">
+
+<!-- ════════════ HERO ════════════ -->
+<div class="max-w-6xl mx-auto px-4 pt-8 pb-4">
+  <div class="flex items-center gap-2 mb-3 flex-wrap">
+    <span class="text-[10px] font-bold uppercase tracking-wider bg-orange-100 text-orange-700 px-2 py-1 rounded">ENVÍOS · orange · Inventario</span>
+    <span class="text-[10px] font-bold uppercase tracking-wider bg-slate-200 text-slate-600 px-2 py-1 rounded">FASE 1 · ENSAMBLADO DEL HUB KIT</span>
+    <span class="text-[10px] font-bold uppercase tracking-wider bg-emerald-100 text-emerald-700 px-2 py-1 rounded">COBERTURA TOTAL + MOBILE</span>
+  </div>
+  <h1 class="text-3xl font-bold tracking-tight mb-2">Envíos Hub · Fase 1</h1>
+  <p class="text-[14px] text-slate-600 max-w-3xl leading-relaxed">
+    Ensamblado <strong>literal</strong> del Hub Kit (HubShell · HubTopBar · HubHeader · HubKpiStrip · HubTabs ·
+    HubBody). Chrome = <strong>orange</strong> (grupo). KPIs = <strong>semánticos</strong> (la identidad NO pisa
+    el strip). Charts = del DS (composición → <strong>donut</strong>, sin figuritas). Cubre: shell + Resumen
+    (§A→§F) + Operaciones (filtro A-J + aside) + empty/loading/error + mobile 375px.
+  </p>
+</div>
+
+<!-- ÍNDICE -->
+<div class="max-w-6xl mx-auto px-4 mb-8">
+  <div class="bg-white border border-slate-200 rounded-2xl p-4 grid grid-cols-2 md:grid-cols-4 gap-2 text-[12px]">
+    <a href="#acto1" class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-slate-50"><span class="w-5 h-5 rounded bg-orange-100 text-orange-700 flex items-center justify-center text-[10px] font-bold">1</span> Shell + Resumen</a>
+    <a href="#acto2" class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-slate-50"><span class="w-5 h-5 rounded bg-orange-100 text-orange-700 flex items-center justify-center text-[10px] font-bold">2</span> Operaciones (listado)</a>
+    <a href="#acto3" class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-slate-50"><span class="w-5 h-5 rounded bg-slate-100 flex items-center justify-center text-[10px] font-bold">3</span> Empty / Loading / Error</a>
+    <a href="#acto4" class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-slate-50"><span class="w-5 h-5 rounded bg-slate-100 flex items-center justify-center text-[10px] font-bold">4</span> Mobile 375px</a>
+  </div>
+</div>
+
+<!-- ════════════ ACTO 1 · SHELL + RESUMEN ════════════ -->
+<div id="acto1" class="max-w-6xl mx-auto px-4 mb-12">
+  <div class="text-[11px] font-bold uppercase tracking-wider text-orange-600 mb-3">1 · HubShell (orange) + tab Resumen (§A→§F)</div>
+
+  <!-- HubShell -->
+  <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+
+    <!-- HubTopBar -->
+    <div class="border-b border-slate-200 px-4 sm:px-6 py-2.5 bg-slate-50 flex items-center justify-between gap-3">
+      <nav class="flex items-center gap-1.5 text-[11px] text-slate-500 min-w-0">
+        <button class="hover:text-slate-700 flex-shrink-0">Inicio</button>
+        <i data-lucide="chevron-right" class="w-3 h-3 flex-shrink-0"></i>
+        <span class="text-slate-900 font-semibold truncate">Envíos</span>
+      </nav>
+      <span class="text-[10px] bg-orange-50 text-orange-700 px-2 py-0.5 rounded font-bold inline-flex items-center gap-1 flex-shrink-0"><i data-lucide="shield" class="w-3 h-3"></i> Vista ejecutiva · admin</span>
+    </div>
+
+    <!-- HubHeader -->
+    <div class="px-4 sm:px-6 py-4 border-b border-slate-100 flex items-start justify-between gap-4 flex-wrap">
+      <div class="flex items-start gap-3 flex-1 min-w-[260px]">
+        <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-orange-500 to-orange-700 flex items-center justify-center text-white flex-shrink-0"><i data-lucide="truck" class="w-5 h-5"></i></div>
+        <div class="min-w-0">
+          <h1 class="text-2xl font-bold text-slate-900 tracking-tight">Envíos</h1>
+          <p class="text-[13px] text-slate-500 leading-snug max-w-2xl mt-0.5">Hub logístico · todo lo que entra, sale o se traslada físicamente</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2 flex-wrap justify-end">
+        <button class="flex items-center gap-1.5 px-3 py-2 text-xs rounded-lg bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 font-medium"><i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i></button>
+        <button class="flex items-center gap-1.5 px-3 py-2 text-xs rounded-lg bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 font-medium"><i data-lucide="download" class="w-3.5 h-3.5"></i> <span class="hidden sm:inline">Exportar</span></button>
+        <button class="flex items-center gap-1.5 px-3 py-2 text-xs rounded-lg bg-orange-600 hover:bg-orange-700 text-white font-semibold"><i data-lucide="plus" class="w-3.5 h-3.5"></i> <span class="hidden sm:inline">Nuevo envío</span></button>
+      </div>
+    </div>
+
+    <!-- HubKpiStrip · tonos SEMÁNTICOS (no orange/teal) -->
+    <div class="px-4 sm:px-6 py-4 border-b border-slate-100">
+      <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
+        <!-- Activos · slate (neutral) -->
+        <div class="bg-gradient-to-br from-slate-50 to-slate-100/60 ring-slate-200/60 ring-1 rounded-2xl p-4">
+          <div class="flex items-center justify-between mb-2"><span class="text-[10px] uppercase tracking-wider font-bold text-slate-600">Activos</span><i data-lucide="package" class="w-3.5 h-3.5 text-slate-600"></i></div>
+          <div class="text-2xl font-bold tabular-nums text-slate-900">18</div>
+          <div class="text-[11px] mt-1 text-slate-600">envíos en curso</div>
+        </div>
+        <!-- En tránsito · sky -->
+        <div class="bg-gradient-to-br from-sky-50 to-sky-100/40 ring-sky-200/50 ring-1 rounded-2xl p-4">
+          <div class="flex items-center justify-between mb-2"><span class="text-[10px] uppercase tracking-wider font-bold text-sky-700">En tránsito</span><i data-lucide="plane" class="w-3.5 h-3.5 text-sky-700"></i></div>
+          <div class="text-2xl font-bold tabular-nums text-sky-900">7</div>
+          <div class="text-[11px] mt-1 text-sky-700">en camino</div>
+        </div>
+        <!-- Pend. recepción · amber -->
+        <div class="bg-gradient-to-br from-amber-50 to-amber-100/40 ring-amber-200/50 ring-1 rounded-2xl p-4">
+          <div class="flex items-center justify-between mb-2"><span class="text-[10px] uppercase tracking-wider font-bold text-amber-700">Pend. recepción</span><i data-lucide="package-check" class="w-3.5 h-3.5 text-amber-700"></i></div>
+          <div class="text-2xl font-bold tabular-nums text-amber-900">4</div>
+          <div class="text-[11px] mt-1 text-amber-700">por recibir</div>
+        </div>
+        <!-- Incidencias · rose -->
+        <div class="bg-gradient-to-br from-rose-50 to-rose-100/40 ring-rose-200/50 ring-1 rounded-2xl p-4">
+          <div class="flex items-center justify-between mb-2"><span class="text-[10px] uppercase tracking-wider font-bold text-rose-700">Incidencias</span><i data-lucide="alert-triangle" class="w-3.5 h-3.5 text-rose-700"></i></div>
+          <div class="text-2xl font-bold tabular-nums text-rose-900">2</div>
+          <div class="text-[11px] mt-1 text-rose-700">sin resolver</div>
+        </div>
+        <!-- Valor landed · indigo (capital) -->
+        <div class="bg-gradient-to-br from-indigo-50 to-indigo-100/40 ring-indigo-200/50 ring-1 rounded-2xl p-4">
+          <div class="flex items-center justify-between mb-2"><span class="text-[10px] uppercase tracking-wider font-bold text-indigo-700">Valor landed</span><i data-lucide="dollar-sign" class="w-3.5 h-3.5 text-indigo-700"></i></div>
+          <div class="text-2xl font-bold tabular-nums text-indigo-900">S/ 48.2<span class="text-indigo-400">k</span></div>
+          <div class="text-[11px] mt-1 text-indigo-700">prorrateado</div>
+        </div>
+      </div>
+      <!-- mini-stats footer (kit) -->
+      <div class="bg-slate-50/50 border border-slate-200 rounded-xl mt-3 px-4 py-2 flex items-center gap-4 text-[11px] flex-wrap">
+        <span class="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Mini-stats:</span>
+        <span class="flex items-center gap-1 text-slate-600"><i data-lucide="gavel" class="w-3 h-3 text-slate-400"></i> En reclamo <strong class="tabular-nums">S/ 1,840</strong></span>
+        <span class="flex items-center gap-1 text-slate-600"><i data-lucide="hand-coins" class="w-3 h-3 text-slate-400"></i> COD x cobrar <strong class="tabular-nums">S/ 1,210</strong></span>
+        <span class="flex items-center gap-1 text-slate-600"><i data-lucide="stamp" class="w-3 h-3 text-slate-400"></i> Próxima aduana <strong>ENV-0309 · 2d</strong></span>
+      </div>
+    </div>
+
+    <!-- HubTabs -->
+    <div class="border-b border-slate-200 px-4 sm:px-6">
+      <div class="flex gap-1 overflow-x-auto -mb-px hide-scroll">
+        <button class="whitespace-nowrap px-3 py-2.5 text-[13px] border-b-2 flex items-center gap-1.5 border-orange-600 text-orange-700 font-semibold">Resumen</button>
+        <button class="whitespace-nowrap px-3 py-2.5 text-[13px] border-b-2 flex items-center gap-1.5 border-transparent text-slate-500 hover:text-slate-700 font-medium">Operaciones <span class="text-[9px] bg-slate-100 text-slate-700 px-1.5 rounded-full font-bold tabular-nums">18</span></button>
+        <button class="whitespace-nowrap px-3 py-2.5 text-[13px] border-b-2 flex items-center gap-1.5 border-transparent text-slate-500 hover:text-slate-700 font-medium">Incidencias <span class="text-[9px] bg-rose-100 text-rose-700 px-1.5 rounded-full font-bold tabular-nums">2</span></button>
+        <button class="whitespace-nowrap px-3 py-2.5 text-[13px] border-b-2 flex items-center gap-1.5 border-transparent text-slate-500 hover:text-slate-700 font-medium">Reclamos <span class="text-[9px] bg-amber-100 text-amber-700 px-1.5 rounded-full font-bold tabular-nums">3</span></button>
+        <button class="whitespace-nowrap px-3 py-2.5 text-[13px] border-b-2 flex items-center gap-1.5 border-transparent text-slate-500 hover:text-slate-700 font-medium">Costos</button>
+        <button class="whitespace-nowrap px-3 py-2.5 text-[13px] border-b-2 flex items-center gap-1.5 border-transparent text-slate-500 hover:text-slate-700 font-medium">Rendimiento</button>
+      </div>
+    </div>
+
+    <!-- HubBody · Resumen (Layout B · full-width) -->
+    <div class="bg-slate-50/30 p-3 sm:p-4 md:p-6 space-y-4">
+
+      <!-- §A BANNER SALUD -->
+      <div class="rounded-2xl bg-gradient-to-r from-amber-50 to-amber-100/30 ring-1 ring-amber-200/50 p-4 flex items-start gap-3">
+        <span class="w-10 h-10 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center flex-shrink-0"><i data-lucide="activity" class="w-5 h-5"></i></span>
+        <div class="flex-1">
+          <div class="flex items-center gap-2 flex-wrap"><span class="text-[14px] font-bold text-slate-900">Salud logística · atención moderada</span><span class="text-[10px] font-bold uppercase bg-amber-200 text-amber-800 px-2 py-0.5 rounded-full">2 focos</span></div>
+          <div class="text-[12px] text-slate-600 mt-0.5">1 envío retenido en aduana (ENV-0309) · 2 incidencias sin resolver · 4 recepciones pendientes dentro de SLA · COD por cobrar S/ 1,210.</div>
+        </div>
+      </div>
+
+      <!-- §B VISUALIZACIÓN (donut · composición) + §C INSIGHTS -->
+      <div class="grid md:grid-cols-3 gap-4">
+        <!-- §B distribución por tipo de ruta · DONUT -->
+        <div class="md:col-span-2 bg-white border border-slate-200 rounded-2xl p-5">
+          <div class="flex items-center justify-between mb-4">
+            <span class="text-[13px] font-bold text-slate-900">Distribución por tipo de ruta</span>
+            <span class="text-[11px] text-slate-400">18 activos</span>
+          </div>
+          <div class="flex items-center gap-6">
+            <!-- donut SVG (composición · color semántico · sin figuritas) -->
+            <svg width="120" height="120" viewBox="0 0 36 36" class="flex-shrink-0">
+              <circle cx="18" cy="18" r="15.9155" fill="none" stroke="#e2e8f0" stroke-width="4"/>
+              <circle cx="18" cy="18" r="15.9155" fill="none" stroke="#0ea5e9" stroke-width="4" stroke-dasharray="55.5 44.5" stroke-dashoffset="0" transform="rotate(-90 18 18)"/>
+              <circle cx="18" cy="18" r="15.9155" fill="none" stroke="#f59e0b" stroke-width="4" stroke-dasharray="27.8 72.2" stroke-dashoffset="-55.5" transform="rotate(-90 18 18)"/>
+              <circle cx="18" cy="18" r="15.9155" fill="none" stroke="#8b5cf6" stroke-width="4" stroke-dasharray="11.1 88.9" stroke-dashoffset="-83.3" transform="rotate(-90 18 18)"/>
+              <circle cx="18" cy="18" r="15.9155" fill="none" stroke="#94a3b8" stroke-width="4" stroke-dasharray="5.6 94.4" stroke-dashoffset="-94.4" transform="rotate(-90 18 18)"/>
+              <text x="18" y="17" text-anchor="middle" class="fill-slate-900 font-bold" style="font-size:6px">18</text>
+              <text x="18" y="23" text-anchor="middle" class="fill-slate-400" style="font-size:2.6px">ACTIVOS</text>
+            </svg>
+            <!-- leyenda (texto · sin emojis) -->
+            <div class="flex-1 space-y-2">
+              <div class="flex items-center justify-between text-[12px]"><span class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full bg-sky-500"></span> Importación <span class="text-slate-400">(A·C)</span></span><span class="tabular-nums font-semibold text-slate-700">10 · 56%</span></div>
+              <div class="flex items-center justify-between text-[12px]"><span class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span> Despacho venta <span class="text-slate-400">(F)</span></span><span class="tabular-nums font-semibold text-slate-700">5 · 28%</span></div>
+              <div class="flex items-center justify-between text-[12px]"><span class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full bg-violet-500"></span> Traslado interno <span class="text-slate-400">(E)</span></span><span class="tabular-nums font-semibold text-slate-700">2 · 11%</span></div>
+              <div class="flex items-center justify-between text-[12px]"><span class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full bg-slate-400"></span> Devolución <span class="text-slate-400">(G)</span></span><span class="tabular-nums font-semibold text-slate-700">1 · 6%</span></div>
+            </div>
+          </div>
+        </div>
+        <!-- §C insights -->
+        <div class="bg-white border border-slate-200 rounded-2xl p-5">
+          <div class="text-[13px] font-bold text-slate-900 mb-3">Insights operativos</div>
+          <div class="space-y-3">
+            <div class="flex items-center justify-between"><span class="text-[11px] text-slate-500">Lead time prom.</span><span class="text-[13px] font-bold tabular-nums text-slate-800">6.2 <span class="text-[10px] text-slate-400">días</span></span></div>
+            <div class="flex items-center justify-between"><span class="text-[11px] text-slate-500">Fill rate</span><span class="text-[13px] font-bold tabular-nums text-emerald-700">97.4<span class="text-[10px]">%</span></span></div>
+            <div class="flex items-center justify-between"><span class="text-[11px] text-slate-500">On-time</span><span class="text-[13px] font-bold tabular-nums text-emerald-700">91<span class="text-[10px]">%</span></span></div>
+            <div class="flex items-center justify-between"><span class="text-[11px] text-slate-500">Flete prom./lb</span><span class="text-[13px] font-bold tabular-nums text-slate-800">$5.20</span></div>
+            <div class="flex items-center justify-between"><span class="text-[11px] text-slate-500">Damage rate</span><span class="text-[13px] font-bold tabular-nums text-amber-700">1.8<span class="text-[10px]">%</span></span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- §D ACCIONES + §E CROSS-LINKS -->
+      <div class="grid md:grid-cols-2 gap-4">
+        <div class="bg-white border border-slate-200 rounded-2xl p-5">
+          <div class="text-[13px] font-bold text-slate-900 mb-3">Acciones rápidas</div>
+          <div class="grid grid-cols-2 gap-2">
+            <button class="text-left p-3 rounded-xl border border-slate-200 hover:border-orange-300 hover:bg-orange-50/30"><i data-lucide="plus" class="w-4 h-4 text-orange-600 mb-1"></i><div class="text-[11px] font-bold text-slate-900">Nuevo envío</div></button>
+            <button class="text-left p-3 rounded-xl border border-slate-200 hover:border-emerald-300 hover:bg-emerald-50/30"><i data-lucide="package-check" class="w-4 h-4 text-emerald-600 mb-1"></i><div class="text-[11px] font-bold text-slate-900">Registrar recepción</div><div class="text-[10px] text-slate-500">4 pendientes</div></button>
+            <button class="text-left p-3 rounded-xl border border-slate-200 hover:border-rose-300 hover:bg-rose-50/30"><i data-lucide="alert-triangle" class="w-4 h-4 text-rose-600 mb-1"></i><div class="text-[11px] font-bold text-slate-900">Gestionar incidencias</div><div class="text-[10px] text-slate-500">2 abiertas</div></button>
+            <button class="text-left p-3 rounded-xl border border-slate-200 hover:border-amber-300 hover:bg-amber-50/30"><i data-lucide="stamp" class="w-4 h-4 text-amber-600 mb-1"></i><div class="text-[11px] font-bold text-slate-900">Liberar aduana</div><div class="text-[10px] text-slate-500">ENV-0309</div></button>
+          </div>
+        </div>
+        <div class="bg-white border border-slate-200 rounded-2xl p-5">
+          <div class="text-[13px] font-bold text-slate-900 mb-3">Conexiones 360</div>
+          <div class="space-y-2">
+            <a href="#" class="flex items-center justify-between p-2.5 rounded-lg bg-blue-50/50 border border-blue-100 hover:bg-blue-50"><span class="text-[12px] text-blue-800 flex items-center gap-2"><i data-lucide="shopping-cart" class="w-4 h-4"></i> Compras · OCs que disparan envíos</span><i data-lucide="arrow-up-right" class="w-3.5 h-3.5 text-blue-400"></i></a>
+            <a href="#" class="flex items-center justify-between p-2.5 rounded-lg bg-blue-50/50 border border-blue-100 hover:bg-blue-50"><span class="text-[12px] text-blue-800 flex items-center gap-2"><i data-lucide="store" class="w-4 h-4"></i> Ventas · 5 despachos en curso</span><i data-lucide="arrow-up-right" class="w-3.5 h-3.5 text-blue-400"></i></a>
+            <a href="#" class="flex items-center justify-between p-2.5 rounded-lg bg-violet-50/50 border border-violet-100 hover:bg-violet-50"><span class="text-[12px] text-violet-800 flex items-center gap-2"><i data-lucide="users" class="w-4 h-4"></i> Red Logística · couriers y viajeros</span><i data-lucide="arrow-up-right" class="w-3.5 h-3.5 text-violet-400"></i></a>
+          </div>
+        </div>
+      </div>
+
+      <!-- §F ALERTAS -->
+      <div class="bg-white border border-slate-200 rounded-2xl p-5">
+        <div class="text-[13px] font-bold text-slate-900 mb-3 flex items-center gap-2"><i data-lucide="bell" class="w-4 h-4 text-rose-500"></i> Alertas</div>
+        <div class="space-y-2">
+          <div class="flex items-center gap-3 p-2.5 rounded-lg bg-rose-50 border border-rose-200"><i data-lucide="stamp" class="w-4 h-4 text-rose-600 flex-shrink-0"></i><span class="text-[12px] text-rose-800 flex-1">ENV-0309 retenido en aduana hace 2 días · gastos de liberación pendientes</span><button class="text-[11px] font-bold text-rose-700">Liberar →</button></div>
+          <div class="flex items-center gap-3 p-2.5 rounded-lg bg-amber-50 border border-amber-200"><i data-lucide="hand-coins" class="w-4 h-4 text-amber-600 flex-shrink-0"></i><span class="text-[12px] text-amber-800 flex-1">COD por cobrar S/ 1,210 en 3 despachos entregados · conciliar con caja chica</span><button class="text-[11px] font-bold text-amber-700">Ver →</button></div>
+          <div class="flex items-center gap-3 p-2.5 rounded-lg bg-slate-50 border border-slate-200"><i data-lucide="clock" class="w-4 h-4 text-slate-500 flex-shrink-0"></i><span class="text-[12px] text-slate-700 flex-1">ENV-0301 en tránsito hace 9 días · supera lead time promedio (6.2d)</span><button class="text-[11px] font-bold text-slate-600">Ver →</button></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ════════════ ACTO 2 · OPERACIONES ════════════ -->
+<div id="acto2" class="max-w-6xl mx-auto px-4 mb-12">
+  <div class="text-[11px] font-bold uppercase tracking-wider text-orange-600 mb-3">2 · Tab Operaciones — listado (filtro tipo de ruta A-J) + aside (HubBody Layout A)</div>
+  <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+    <!-- HubTabs · Operaciones activo -->
+    <div class="border-b border-slate-200 px-4 sm:px-6">
+      <div class="flex gap-1 overflow-x-auto -mb-px hide-scroll">
+        <button class="whitespace-nowrap px-3 py-2.5 text-[13px] border-b-2 flex items-center gap-1.5 border-transparent text-slate-500 font-medium">Resumen</button>
+        <button class="whitespace-nowrap px-3 py-2.5 text-[13px] border-b-2 flex items-center gap-1.5 border-orange-600 text-orange-700 font-semibold">Operaciones <span class="text-[9px] bg-slate-100 text-slate-700 px-1.5 rounded-full font-bold tabular-nums">18</span></button>
+        <button class="whitespace-nowrap px-3 py-2.5 text-[13px] border-b-2 flex items-center gap-1.5 border-transparent text-slate-500 font-medium">Incidencias <span class="text-[9px] bg-rose-100 text-rose-700 px-1.5 rounded-full font-bold tabular-nums">2</span></button>
+        <button class="whitespace-nowrap px-3 py-2.5 text-[13px] border-b-2 flex items-center gap-1.5 border-transparent text-slate-500 font-medium">Reclamos <span class="text-[9px] bg-amber-100 text-amber-700 px-1.5 rounded-full font-bold tabular-nums">3</span></button>
+        <button class="whitespace-nowrap px-3 py-2.5 text-[13px] border-b-2 flex items-center gap-1.5 border-transparent text-slate-500 font-medium">Costos</button>
+        <button class="whitespace-nowrap px-3 py-2.5 text-[13px] border-b-2 flex items-center gap-1.5 border-transparent text-slate-500 font-medium">Rendimiento</button>
+      </div>
+    </div>
+    <div class="text-[10px] text-slate-400 px-4 sm:px-6 pt-1.5">(mismo HubShell · top-bar + header + KPI strip · tab Operaciones activa)</div>
+
+    <!-- HubBody Layout A -->
+    <div class="bg-slate-50/30 p-3 sm:p-4 md:p-6 space-y-4">
+      <!-- filtro tipo de ruta A-J (chips · sin emojis · color semántico/neutral) -->
+      <div class="flex gap-1.5 overflow-x-auto hide-scroll pb-1">
+        <button class="whitespace-nowrap text-[11px] font-semibold px-3 py-1.5 rounded-full bg-orange-600 text-white">Todos <span class="opacity-70 tabular-nums">18</span></button>
+        <button class="whitespace-nowrap text-[11px] font-medium px-3 py-1.5 rounded-full bg-white border border-slate-200 text-slate-600">Importación <span class="text-slate-400 tabular-nums">6</span></button>
+        <button class="whitespace-nowrap text-[11px] font-medium px-3 py-1.5 rounded-full bg-white border border-slate-200 text-slate-600">Casilla-Perú <span class="text-slate-400 tabular-nums">4</span></button>
+        <button class="whitespace-nowrap text-[11px] font-medium px-3 py-1.5 rounded-full bg-white border border-slate-200 text-slate-600">Despacho venta <span class="text-slate-400 tabular-nums">5</span></button>
+        <button class="whitespace-nowrap text-[11px] font-medium px-3 py-1.5 rounded-full bg-white border border-slate-200 text-slate-600">Traslado <span class="text-slate-400 tabular-nums">2</span></button>
+        <button class="whitespace-nowrap text-[11px] font-medium px-3 py-1.5 rounded-full bg-white border border-slate-200 text-slate-600">Devolución <span class="text-slate-400 tabular-nums">1</span></button>
+      </div>
+      <!-- pills + toolbar -->
+      <div class="flex items-center justify-between gap-3 flex-wrap">
+        <div class="flex gap-1.5 items-center text-[11px]">
+          <span class="text-[10px] uppercase tracking-wider text-slate-400 font-bold">Filtrar:</span>
+          <button class="px-2.5 py-1 rounded-full bg-orange-600 text-white font-medium">Todas <span class="opacity-70 tabular-nums">18</span></button>
+          <button class="px-2.5 py-1 rounded-full bg-white border border-slate-200 text-slate-600">Activas <span class="text-slate-400 tabular-nums">16</span></button>
+          <button class="px-2.5 py-1 rounded-full bg-white border border-slate-200 text-slate-600">Con incidencias <span class="text-rose-500 tabular-nums">2</span></button>
+        </div>
+        <div class="flex items-center gap-2">
+          <div class="flex items-center gap-1.5 bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-[12px] text-slate-400"><i data-lucide="search" class="w-3.5 h-3.5"></i> Buscar envío...</div>
+          <span class="text-[11px] text-slate-400 tabular-nums">18 resultados</span>
+        </div>
+      </div>
+
+      <!-- grid main + aside (Layout A) -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="md:col-span-2 space-y-2.5">
+          <!-- card F · despacho venta -->
+          <div class="bg-white border-2 border-orange-200 ring-1 ring-orange-100 rounded-xl p-4">
+            <div class="flex items-center gap-3">
+              <span class="w-10 h-10 rounded-lg bg-orange-100 text-orange-700 flex items-center justify-center flex-shrink-0"><i data-lucide="store" class="w-5 h-5"></i></span>
+              <div class="min-w-0 flex-1">
+                <div class="flex items-center gap-2 flex-wrap"><span class="text-[13px] font-bold text-slate-800">ENV-2026-0312</span><span class="text-[9px] font-bold uppercase bg-orange-100 text-orange-700 px-1.5 py-0.5 rounded">F · Despacho venta</span><span class="text-[9px] font-bold uppercase bg-rose-100 text-rose-700 px-1.5 py-0.5 rounded">COD S/360</span></div>
+                <div class="text-[11px] text-slate-500 flex items-center gap-1 mt-0.5">Lima <i data-lucide="arrow-right" class="w-3 h-3"></i> Juan Pérez · Surco · Olva · <span class="text-blue-600">VT-0188</span></div>
+              </div>
+              <div class="text-right flex-shrink-0">
+                <span class="text-[10px] font-bold uppercase bg-sky-100 text-sky-700 px-2 py-1 rounded-full">en camino</span>
+                <div class="text-[10px] text-slate-400 mt-1 tabular-nums">3/3 uds</div>
+              </div>
+              <i data-lucide="eye" class="w-4 h-4 text-orange-400 flex-shrink-0"></i>
+            </div>
+          </div>
+          <!-- card C · importación retenida aduana -->
+          <div class="bg-white border border-rose-200 rounded-xl p-4">
+            <div class="flex items-center gap-3">
+              <span class="w-10 h-10 rounded-lg bg-slate-100 text-slate-500 flex items-center justify-center flex-shrink-0"><i data-lucide="plane" class="w-5 h-5"></i></span>
+              <div class="min-w-0 flex-1">
+                <div class="flex items-center gap-2 flex-wrap"><span class="text-[13px] font-bold text-slate-800">ENV-2026-0309</span><span class="text-[9px] font-bold uppercase bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded">C · Casilla-Perú</span></div>
+                <div class="text-[11px] text-slate-500 flex items-center gap-1 mt-0.5">Miami <i data-lucide="arrow-right" class="w-3 h-3"></i> Lima · viajero M. Torres · OC-0142</div>
+              </div>
+              <div class="text-right flex-shrink-0">
+                <span class="text-[10px] font-bold uppercase bg-rose-100 text-rose-700 px-2 py-1 rounded-full">aduana</span>
+                <div class="text-[10px] text-slate-400 mt-1 tabular-nums">0/24 uds</div>
+              </div>
+              <i data-lucide="eye" class="w-4 h-4 text-slate-300 flex-shrink-0"></i>
+            </div>
+          </div>
+          <!-- card E · traslado interno -->
+          <div class="bg-white border border-slate-200 rounded-xl p-4">
+            <div class="flex items-center gap-3">
+              <span class="w-10 h-10 rounded-lg bg-slate-100 text-slate-500 flex items-center justify-center flex-shrink-0"><i data-lucide="arrow-right-left" class="w-5 h-5"></i></span>
+              <div class="min-w-0 flex-1">
+                <div class="flex items-center gap-2 flex-wrap"><span class="text-[13px] font-bold text-slate-800">ENV-2026-0307</span><span class="text-[9px] font-bold uppercase bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded">E · Traslado interno</span></div>
+                <div class="text-[11px] text-slate-500 flex items-center gap-1 mt-0.5">Lima <i data-lucide="arrow-right" class="w-3 h-3"></i> Arequipa · motivo: consolidación</div>
+              </div>
+              <div class="text-right flex-shrink-0">
+                <span class="text-[10px] font-bold uppercase bg-sky-100 text-sky-700 px-2 py-1 rounded-full">en tránsito</span>
+                <div class="text-[10px] text-slate-400 mt-1 tabular-nums">0/15 uds</div>
+              </div>
+              <i data-lucide="eye" class="w-4 h-4 text-slate-300 flex-shrink-0"></i>
+            </div>
+          </div>
+          <!-- card G · devolución -->
+          <div class="bg-white border border-slate-200 rounded-xl p-4">
+            <div class="flex items-center gap-3">
+              <span class="w-10 h-10 rounded-lg bg-violet-100 text-violet-700 flex items-center justify-center flex-shrink-0"><i data-lucide="rotate-ccw" class="w-5 h-5"></i></span>
+              <div class="min-w-0 flex-1">
+                <div class="flex items-center gap-2 flex-wrap"><span class="text-[13px] font-bold text-slate-800">ENV-2026-0310</span><span class="text-[9px] font-bold uppercase bg-violet-100 text-violet-700 px-1.5 py-0.5 rounded">G · Devolución</span></div>
+                <div class="text-[11px] text-slate-500 flex items-center gap-1 mt-0.5">Cliente <i data-lucide="arrow-right" class="w-3 h-3"></i> Lima · revisión (D-7) · DEV-0033</div>
+              </div>
+              <div class="text-right flex-shrink-0">
+                <span class="text-[10px] font-bold uppercase bg-amber-100 text-amber-700 px-2 py-1 rounded-full">programada</span>
+                <div class="text-[10px] text-slate-400 mt-1 tabular-nums">2 uds</div>
+              </div>
+              <i data-lucide="eye" class="w-4 h-4 text-slate-300 flex-shrink-0"></i>
+            </div>
+          </div>
+          <!-- paginación -->
+          <div class="flex items-center justify-center gap-3 pt-2 text-[12px]">
+            <span class="text-slate-400">Mostrando 4 de 18</span>
+            <button class="text-orange-700 font-semibold border border-orange-200 bg-orange-50 px-4 py-1.5 rounded-lg">Cargar más · +12</button>
+          </div>
+        </div>
+
+        <!-- aside (Layout A) -->
+        <aside class="md:col-span-1 space-y-4">
+          <div class="bg-white border border-slate-200 rounded-2xl p-4">
+            <div class="text-[12px] font-bold text-slate-900 mb-2.5 flex items-center gap-1.5"><i data-lucide="zap" class="w-3.5 h-3.5 text-rose-500"></i> Urgencias logísticas</div>
+            <div class="space-y-2">
+              <div class="flex items-start gap-2 p-2 rounded-lg bg-rose-50 border border-rose-200"><i data-lucide="stamp" class="w-3.5 h-3.5 text-rose-600 flex-shrink-0 mt-0.5"></i><div class="text-[11px]"><div class="font-bold text-rose-800">Aduana · ENV-0309</div><div class="text-rose-600">retenido 2d · liberar</div></div></div>
+              <div class="flex items-start gap-2 p-2 rounded-lg bg-amber-50 border border-amber-200"><i data-lucide="hand-coins" class="w-3.5 h-3.5 text-amber-600 flex-shrink-0 mt-0.5"></i><div class="text-[11px]"><div class="font-bold text-amber-800">COD · S/ 1,210</div><div class="text-amber-600">3 entregados sin conciliar</div></div></div>
+              <div class="flex items-start gap-2 p-2 rounded-lg bg-slate-50 border border-slate-200"><i data-lucide="clock" class="w-3.5 h-3.5 text-slate-500 flex-shrink-0 mt-0.5"></i><div class="text-[11px]"><div class="font-bold text-slate-700">Demora · ENV-0301</div><div class="text-slate-500">9d en tránsito (&gt;6.2d)</div></div></div>
+            </div>
+          </div>
+          <div class="bg-white border border-slate-200 rounded-2xl p-4">
+            <div class="text-[12px] font-bold text-slate-900 mb-2.5 flex items-center gap-1.5"><i data-lucide="users" class="w-3.5 h-3.5 text-violet-500"></i> Couriers activos</div>
+            <div class="space-y-2 text-[11px]">
+              <div class="flex items-center justify-between"><span class="flex items-center gap-1.5"><span class="w-5 h-5 rounded bg-slate-100 text-slate-600 flex items-center justify-center text-[8px] font-bold">OL</span> Olva</span><span class="tabular-nums text-slate-500">6 envíos</span></div>
+              <div class="flex items-center justify-between"><span class="flex items-center gap-1.5"><span class="w-5 h-5 rounded bg-slate-100 text-slate-600 flex items-center justify-center text-[8px] font-bold">SH</span> Shalom</span><span class="tabular-nums text-slate-500">3 envíos</span></div>
+              <div class="flex items-center justify-between"><span class="flex items-center gap-1.5"><span class="w-5 h-5 rounded bg-slate-100 text-slate-600 flex items-center justify-center text-[8px] font-bold">MT</span> M. Torres</span><span class="tabular-nums text-slate-500">2 envíos</span></div>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════ ACTO 3 · ESTADOS ════════════ -->
+<div id="acto3" class="max-w-6xl mx-auto px-4 mb-12">
+  <div class="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-3">3 · Estados de Operaciones — empty · loading · error</div>
+  <div class="grid md:grid-cols-3 gap-4">
+    <!-- EMPTY (icono tonal del grupo · orange) -->
+    <div class="bg-white border border-slate-200 rounded-2xl p-6 flex flex-col items-center justify-center text-center min-h-[280px]">
+      <span class="w-14 h-14 rounded-2xl bg-orange-100 text-orange-700 flex items-center justify-center mb-3"><i data-lucide="truck" class="w-7 h-7"></i></span>
+      <div class="text-[14px] font-bold text-slate-900 mb-1">No hay envíos en este filtro</div>
+      <div class="text-[12px] text-slate-500 mb-4">Creá un envío para mover productos entre casillas, despachar una venta o procesar una devolución.</div>
+      <button class="text-xs font-semibold text-white bg-orange-600 hover:bg-orange-700 px-3 py-2 rounded-lg flex items-center gap-1.5"><i data-lucide="plus" class="w-3.5 h-3.5"></i> Nuevo envío</button>
+    </div>
+    <!-- LOADING -->
+    <div class="bg-white border border-slate-200 rounded-2xl p-4 min-h-[280px]">
+      <div class="text-[10px] uppercase tracking-wider text-slate-400 font-bold mb-3">Loading · skeleton</div>
+      <div class="space-y-2.5">
+        <div class="h-16 rounded-xl bg-slate-100 animate-pulse"></div>
+        <div class="h-16 rounded-xl bg-slate-100 animate-pulse"></div>
+        <div class="h-16 rounded-xl bg-slate-100 animate-pulse"></div>
+      </div>
+    </div>
+    <!-- ERROR (NUEVO) -->
+    <div class="bg-white border border-rose-200 rounded-2xl p-6 flex flex-col items-center justify-center text-center min-h-[280px]">
+      <span class="w-14 h-14 rounded-2xl bg-rose-50 text-rose-500 flex items-center justify-center mb-3"><i data-lucide="cloud-off" class="w-7 h-7"></i></span>
+      <div class="text-[14px] font-bold text-slate-900 mb-1">No se pudieron cargar los envíos</div>
+      <div class="text-[12px] text-slate-500 mb-4">Revisá tu conexión e intentá de nuevo. <span class="text-[10px] bg-slate-100 px-1 rounded">NUEVO · hoy solo toast</span></div>
+      <button class="text-xs font-semibold text-rose-700 bg-rose-50 border border-rose-200 hover:bg-rose-100 px-3 py-2 rounded-lg flex items-center gap-1.5"><i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Reintentar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════ ACTO 4 · MOBILE ════════════ -->
+<div id="acto4" class="max-w-6xl mx-auto px-4 mb-12">
+  <div class="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-3">4 · Mobile (375px) — shell + Resumen + Operaciones</div>
+  <div class="flex flex-wrap gap-5 justify-center">
+
+    <!-- Mobile A: shell + Resumen -->
+    <div>
+      <div class="text-[10px] font-bold uppercase text-orange-600 mb-1.5 text-center">Shell + Resumen</div>
+      <div class="w-[300px] bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+        <div class="px-3 py-2 border-b border-slate-100 bg-slate-50 flex items-center justify-between text-[10px]">
+          <span class="text-slate-500 flex items-center gap-1">Inicio <i data-lucide="chevron-right" class="w-2.5 h-2.5"></i> <span class="text-slate-900 font-semibold">Envíos</span></span>
+          <span class="text-[9px] bg-orange-50 text-orange-700 px-1.5 py-0.5 rounded font-bold flex items-center gap-0.5"><i data-lucide="shield" class="w-2.5 h-2.5"></i> admin</span>
+        </div>
+        <div class="px-3 py-2.5 flex items-center justify-between">
+          <div class="flex items-center gap-2"><span class="w-9 h-9 rounded-xl bg-gradient-to-br from-orange-500 to-orange-700 flex items-center justify-center text-white"><i data-lucide="truck" class="w-5 h-5"></i></span><div><div class="text-lg font-bold tracking-tight">Envíos</div><div class="text-[9px] text-slate-500">Hub logístico</div></div></div>
+          <button class="w-8 h-8 rounded-lg bg-orange-600 text-white flex items-center justify-center"><i data-lucide="plus" class="w-4 h-4"></i></button>
+        </div>
+        <div class="grid grid-cols-2 gap-1.5 px-3">
+          <div class="bg-gradient-to-br from-slate-50 to-slate-100/60 ring-1 ring-slate-200/60 rounded-lg p-2"><div class="text-[9px] uppercase tracking-wider text-slate-600 font-bold">Activos</div><div class="text-lg font-bold tabular-nums text-slate-900">18</div></div>
+          <div class="bg-gradient-to-br from-sky-50 to-sky-100/40 ring-1 ring-sky-200/50 rounded-lg p-2"><div class="text-[9px] uppercase tracking-wider text-sky-700 font-bold">En tránsito</div><div class="text-lg font-bold tabular-nums text-sky-900">7</div></div>
+          <div class="bg-gradient-to-br from-amber-50 to-amber-100/40 ring-1 ring-amber-200/50 rounded-lg p-2"><div class="text-[9px] uppercase tracking-wider text-amber-700 font-bold">Pend. recep.</div><div class="text-lg font-bold tabular-nums text-amber-900">4</div></div>
+          <div class="bg-gradient-to-br from-rose-50 to-rose-100/40 ring-1 ring-rose-200/50 rounded-lg p-2"><div class="text-[9px] uppercase tracking-wider text-rose-700 font-bold">Incidencias</div><div class="text-lg font-bold tabular-nums text-rose-900">2</div></div>
+        </div>
+        <div class="flex gap-1 px-3 mt-2.5 border-b border-slate-200 overflow-x-auto hide-scroll text-[12px] -mb-px">
+          <button class="pb-2 px-1 border-b-2 border-orange-600 text-orange-700 font-semibold whitespace-nowrap">Resumen</button>
+          <button class="pb-2 px-1 border-b-2 border-transparent text-slate-500 whitespace-nowrap">Operaciones</button>
+          <button class="pb-2 px-1 border-b-2 border-transparent text-slate-500 whitespace-nowrap">Incidencias</button>
+        </div>
+        <div class="p-3 bg-slate-50/30 space-y-2.5">
+          <div class="rounded-xl bg-gradient-to-r from-amber-50 to-amber-100/30 ring-1 ring-amber-200/50 p-2.5 flex items-start gap-2"><i data-lucide="activity" class="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5"></i><div class="text-[11px]"><div class="font-bold text-slate-900">Salud · atención moderada</div><div class="text-slate-600">aduana + 2 incidencias + COD</div></div></div>
+          <div class="bg-white border border-slate-200 rounded-xl p-3">
+            <div class="text-[11px] font-bold text-slate-900 mb-2">Por tipo de ruta</div>
+            <div class="flex items-center gap-3">
+              <svg width="64" height="64" viewBox="0 0 36 36" class="flex-shrink-0">
+                <circle cx="18" cy="18" r="15.9155" fill="none" stroke="#e2e8f0" stroke-width="4"/>
+                <circle cx="18" cy="18" r="15.9155" fill="none" stroke="#0ea5e9" stroke-width="4" stroke-dasharray="55.5 44.5" transform="rotate(-90 18 18)"/>
+                <circle cx="18" cy="18" r="15.9155" fill="none" stroke="#f59e0b" stroke-width="4" stroke-dasharray="27.8 72.2" stroke-dashoffset="-55.5" transform="rotate(-90 18 18)"/>
+                <circle cx="18" cy="18" r="15.9155" fill="none" stroke="#8b5cf6" stroke-width="4" stroke-dasharray="11.1 88.9" stroke-dashoffset="-83.3" transform="rotate(-90 18 18)"/>
+              </svg>
+              <div class="flex-1 space-y-1 text-[10px]">
+                <div class="flex justify-between"><span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-sky-500"></span> Import</span><span class="tabular-nums text-slate-500">10</span></div>
+                <div class="flex justify-between"><span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-amber-500"></span> Despacho</span><span class="tabular-nums text-slate-500">5</span></div>
+                <div class="flex justify-between"><span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-violet-500"></span> Traslado</span><span class="tabular-nums text-slate-500">2</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile B: Operaciones -->
+    <div>
+      <div class="text-[10px] font-bold uppercase text-orange-600 mb-1.5 text-center">Operaciones</div>
+      <div class="w-[300px] bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+        <div class="flex gap-1 px-3 pt-2.5 border-b border-slate-200 overflow-x-auto hide-scroll text-[12px] -mb-px">
+          <button class="pb-2 px-1 border-b-2 border-transparent text-slate-500 whitespace-nowrap">Resumen</button>
+          <button class="pb-2 px-1 border-b-2 border-orange-600 text-orange-700 font-semibold whitespace-nowrap">Operaciones</button>
+          <button class="pb-2 px-1 border-b-2 border-transparent text-slate-500 whitespace-nowrap">Incidencias</button>
+        </div>
+        <div class="flex gap-1.5 px-3 py-2 overflow-x-auto hide-scroll">
+          <span class="text-[9px] font-semibold px-2 py-1 rounded-full bg-orange-600 text-white whitespace-nowrap">Todos 18</span>
+          <span class="text-[9px] font-medium px-2 py-1 rounded-full bg-white border border-slate-200 text-slate-600 whitespace-nowrap">Despacho 5</span>
+          <span class="text-[9px] font-medium px-2 py-1 rounded-full bg-white border border-slate-200 text-slate-600 whitespace-nowrap">Import 6</span>
+        </div>
+        <div class="px-3 pb-3 space-y-2 bg-slate-50/30">
+          <div class="bg-white border-2 border-orange-200 rounded-xl p-2.5">
+            <div class="flex items-center gap-2 mb-1"><span class="w-7 h-7 rounded bg-orange-100 text-orange-700 flex items-center justify-center"><i data-lucide="store" class="w-3.5 h-3.5"></i></span><span class="text-[11px] font-bold">ENV-0312</span><span class="text-[8px] font-bold uppercase bg-rose-100 text-rose-700 px-1 rounded ml-auto">COD</span></div>
+            <div class="text-[9px] text-slate-500 mb-1">Lima → Juan Pérez · Surco · Olva</div>
+            <div class="flex items-center justify-between"><span class="text-[8px] font-bold uppercase bg-sky-100 text-sky-700 px-1.5 py-0.5 rounded-full">en camino</span><span class="text-[9px] text-slate-400 tabular-nums">3/3 uds</span></div>
+          </div>
+          <div class="bg-white border border-rose-200 rounded-xl p-2.5">
+            <div class="flex items-center gap-2 mb-1"><span class="w-7 h-7 rounded bg-slate-100 text-slate-500 flex items-center justify-center"><i data-lucide="plane" class="w-3.5 h-3.5"></i></span><span class="text-[11px] font-bold">ENV-0309</span><span class="text-[8px] font-bold uppercase bg-slate-100 text-slate-600 px-1 rounded ml-auto">C</span></div>
+            <div class="text-[9px] text-slate-500 mb-1">Miami → Lima · viajero · OC-0142</div>
+            <div class="flex items-center justify-between"><span class="text-[8px] font-bold uppercase bg-rose-100 text-rose-700 px-1.5 py-0.5 rounded-full">aduana</span><span class="text-[9px] text-slate-400 tabular-nums">0/24</span></div>
+          </div>
+          <div class="bg-white border border-slate-200 rounded-xl p-2.5">
+            <div class="text-[10px] font-bold text-slate-900 mb-1.5 flex items-center gap-1"><i data-lucide="zap" class="w-3 h-3 text-rose-500"></i> Urgencias</div>
+            <div class="flex items-start gap-1.5 p-1.5 rounded bg-rose-50 text-[9px]"><i data-lucide="stamp" class="w-3 h-3 text-rose-600 flex-shrink-0 mt-0.5"></i><span class="text-rose-700"><strong>Aduana ENV-0309</strong> · retenido 2d</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ════════════ FOOTER · CHECKLIST ════════════ -->
+<div class="max-w-6xl mx-auto px-4 mb-12">
+  <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+    <div class="px-5 py-3 border-b border-slate-200 bg-slate-50 text-[12px] font-bold text-slate-700 flex items-center gap-2"><i data-lucide="check-circle" class="w-4 h-4 text-emerald-500"></i> Fase 1 · ensamblado del Hub Kit (clases literales)</div>
+    <div class="px-5 py-4 grid md:grid-cols-2 gap-x-6 gap-y-1.5 text-[12px] text-slate-600">
+      <div class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-500"></i> HubShell + HubTopBar + HubHeader (icono gradient + blanco)</div>
+      <div class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-500"></i> HubKpiStrip · tonos SEMÁNTICOS (no color de módulo)</div>
+      <div class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-500"></i> HubTabs (border-b-2 orange · badges semánticos)</div>
+      <div class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-500"></i> HubBody Layout B (Resumen) + Layout A (Operaciones)</div>
+      <div class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-500"></i> §B = DONUT (composición · DS) · sin figuritas</div>
+      <div class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-500"></i> Resumen §A→§F completo</div>
+      <div class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-500"></i> Operaciones · filtro A-J + 4 cards por tipo + aside</div>
+      <div class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-500"></i> Empty · loading · error (error NUEVO)</div>
+      <div class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-500"></i> Mobile 375px (shell + Resumen donut + Operaciones)</div>
+      <div class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-500"></i> Inter · lucide (sin emojis en chrome) · tabular-nums</div>
+    </div>
+    <div class="px-5 py-3 border-t border-slate-200 bg-slate-50 text-[11px] text-slate-500">
+      <strong class="text-slate-600">Próximas fases:</strong> 2 · Detalle adaptativo (9 tabs · 3 perfiles) · 3 · 11 modales · 4 · tabs de gestión · 5 · 3 wizards.
+    </div>
+  </div>
+</div>
+
+<script>lucide.createIcons();</script>
+</body>
+</html>

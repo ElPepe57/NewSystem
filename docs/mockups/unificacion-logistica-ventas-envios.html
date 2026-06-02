@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unificación Logística · Ventas ⟷ Envíos</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  * { font-family: 'Inter', system-ui, sans-serif; }
+  .tabular { font-variant-numeric: tabular-nums; }
+  body { background: #f1f5f9; }
+  .hide-scroll::-webkit-scrollbar { display: none; }
+  .hide-scroll { scrollbar-width: none; }
+</style>
+</head>
+<body class="text-slate-900 pb-24">
+
+<!-- ════════════ HERO ════════════ -->
+<div class="max-w-6xl mx-auto px-4 pt-8 pb-4">
+  <div class="flex items-center gap-2 mb-3">
+    <span class="text-[10px] font-bold uppercase tracking-wider bg-blue-100 text-blue-700 px-2 py-1 rounded">VENTAS · blue</span>
+    <span class="text-slate-300">⟷</span>
+    <span class="text-[10px] font-bold uppercase tracking-wider bg-orange-100 text-orange-700 px-2 py-1 rounded">ENVÍOS · orange</span>
+    <span class="text-[10px] font-bold uppercase tracking-wider bg-slate-200 text-slate-600 px-2 py-1 rounded">ESPECIFICACIÓN + DECISIÓN</span>
+  </div>
+  <h1 class="text-3xl font-bold tracking-tight mb-2">Unificación Logística · Ventas dispara, Envíos opera</h1>
+  <p class="text-[14px] text-slate-600 max-w-3xl leading-relaxed">
+    Patrón maestro del ERP (Charter S58f · decisión S43-S52): los módulos comerciales <strong>disparan</strong> la
+    logística y la <strong>reflejan</strong>; el hub de Envíos la <strong>opera</strong>. Cierra la tarea <strong>T-F</strong>
+    (despacho de venta) y deprecia el sistema paralelo <code class="text-[12px] bg-slate-200 px-1 rounded">Entrega</code>.
+    Un solo hub logístico · un solo modelo · detalle adaptativo.
+  </p>
+</div>
+
+<!-- ÍNDICE -->
+<div class="max-w-6xl mx-auto px-4 mb-8">
+  <div class="bg-white border border-slate-200 rounded-2xl p-4 grid grid-cols-2 md:grid-cols-3 gap-2 text-[12px]">
+    <a href="#acto1" class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-slate-50"><span class="w-5 h-5 rounded bg-slate-100 flex items-center justify-center text-[10px] font-bold">1</span> El patrón disparo+espejo</a>
+    <a href="#acto2" class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-slate-50"><span class="w-5 h-5 rounded bg-blue-100 text-blue-700 flex items-center justify-center text-[10px] font-bold">2</span> Ventas · dispara + refleja</a>
+    <a href="#acto3" class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-slate-50"><span class="w-5 h-5 rounded bg-blue-100 text-blue-700 flex items-center justify-center text-[10px] font-bold">3</span> El disparo (modal ágil)</a>
+    <a href="#acto4" class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-slate-50"><span class="w-5 h-5 rounded bg-orange-100 text-orange-700 flex items-center justify-center text-[10px] font-bold">4</span> Envíos · el hub opera</a>
+    <a href="#acto5" class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-slate-50"><span class="w-5 h-5 rounded bg-orange-100 text-orange-700 flex items-center justify-center text-[10px] font-bold">5</span> Detalle última milla</a>
+    <a href="#acto6" class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-slate-50"><span class="w-5 h-5 rounded bg-slate-100 flex items-center justify-center text-[10px] font-bold">6</span> Mobile</a>
+  </div>
+</div>
+
+<!-- ════════════ ACTO 1 · EL PATRÓN ════════════ -->
+<div id="acto1" class="max-w-6xl mx-auto px-4 mb-12">
+  <div class="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-3">1 · El patrón maestro — comercial dispara, hub opera, comercial refleja</div>
+  <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-6">
+    <div class="grid md:grid-cols-2 gap-5">
+      <!-- Compras (ya existe) -->
+      <div class="border border-slate-200 rounded-xl p-4 bg-slate-50/50">
+        <div class="flex items-center gap-2 mb-3">
+          <span class="text-[10px] font-bold uppercase tracking-wider bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded">YA EXISTE</span>
+          <span class="text-[13px] font-bold text-slate-900">Compras → Envíos</span>
+        </div>
+        <div class="space-y-2 text-[12px]">
+          <div class="flex items-center gap-2"><span class="w-6 h-6 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center"><i data-lucide="shopping-cart" class="w-3.5 h-3.5"></i></span> OC confirmada</div>
+          <div class="pl-3 text-slate-400 flex items-center gap-1.5"><i data-lucide="corner-down-right" class="w-3.5 h-3.5"></i> <code class="bg-slate-200 px-1 rounded text-[11px]">confirmarOC()</code> dispara automático</div>
+          <div class="flex items-center gap-2"><span class="w-6 h-6 rounded-lg bg-orange-100 text-orange-700 flex items-center justify-center"><i data-lucide="truck" class="w-3.5 h-3.5"></i></span> Envío nace en <strong>'borrador'</strong> en el hub</div>
+          <div class="pl-3 text-slate-400 flex items-center gap-1.5"><i data-lucide="arrow-up" class="w-3.5 h-3.5"></i> Compras <strong>refleja</strong>: "📦 en tránsito"</div>
+        </div>
+      </div>
+      <!-- Ventas (T-F, a replicar) -->
+      <div class="border-2 border-blue-200 rounded-xl p-4 bg-blue-50/30">
+        <div class="flex items-center gap-2 mb-3">
+          <span class="text-[10px] font-bold uppercase tracking-wider bg-blue-600 text-white px-2 py-0.5 rounded">T-F · A CONSTRUIR</span>
+          <span class="text-[13px] font-bold text-slate-900">Ventas → Envíos</span>
+        </div>
+        <div class="space-y-2 text-[12px]">
+          <div class="flex items-center gap-2"><span class="w-6 h-6 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center"><i data-lucide="store" class="w-3.5 h-3.5"></i></span> Venta confirmada</div>
+          <div class="pl-3 text-blue-500 flex items-center gap-1.5"><i data-lucide="corner-down-right" class="w-3.5 h-3.5"></i> <code class="bg-blue-100 px-1 rounded text-[11px]">despacharVenta()</code> — mismo patrón</div>
+          <div class="flex items-center gap-2"><span class="w-6 h-6 rounded-lg bg-orange-100 text-orange-700 flex items-center justify-center"><i data-lucide="truck" class="w-3.5 h-3.5"></i></span> Despacho F nace en <strong>'borrador'</strong> en el hub</div>
+          <div class="pl-3 text-blue-500 flex items-center gap-1.5"><i data-lucide="arrow-up" class="w-3.5 h-3.5"></i> Ventas <strong>refleja</strong>: "📦 en camino · Olva"</div>
+        </div>
+      </div>
+    </div>
+    <!-- El hub recibe a los tres -->
+    <div class="mt-5 pt-5 border-t border-slate-200">
+      <div class="flex flex-col md:flex-row items-center justify-center gap-3 text-[12px]">
+        <div class="flex items-center gap-2 px-3 py-2 rounded-lg bg-blue-50 text-blue-700"><i data-lucide="shopping-cart" class="w-4 h-4"></i> Compras <span class="text-[10px]">(C/J/E/I)</span></div>
+        <div class="flex items-center gap-2 px-3 py-2 rounded-lg bg-blue-50 text-blue-700"><i data-lucide="store" class="w-4 h-4"></i> Ventas <span class="text-[10px]">(F)</span></div>
+        <div class="flex items-center gap-2 px-3 py-2 rounded-lg bg-violet-50 text-violet-700"><i data-lucide="rotate-ccw" class="w-4 h-4"></i> Devoluciones <span class="text-[10px]">(G)</span></div>
+        <i data-lucide="arrow-right" class="w-5 h-5 text-slate-300 hidden md:block"></i>
+        <i data-lucide="arrow-down" class="w-5 h-5 text-slate-300 md:hidden"></i>
+        <div class="flex items-center gap-2 px-4 py-3 rounded-xl bg-orange-100 text-orange-800 font-bold ring-2 ring-orange-200"><i data-lucide="truck" class="w-5 h-5"></i> HUB DE ENVÍOS · opera todo</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════ ACTO 2 · LADO VENTAS ════════════ -->
+<div id="acto2" class="max-w-6xl mx-auto px-4 mb-12">
+  <div class="text-[11px] font-bold uppercase tracking-wider text-blue-600 mb-3">2 · Lado Ventas — el tab "Despacho" del detalle de venta (dispara + refleja)</div>
+  <div class="grid md:grid-cols-2 gap-5">
+
+    <!-- Estado A: sin despachar -->
+    <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+      <div class="px-4 py-2.5 border-b border-slate-100 bg-slate-50 flex items-center justify-between">
+        <span class="text-[12px] font-bold text-slate-700">Detalle venta · tab Despacho</span>
+        <span class="text-[10px] font-bold uppercase bg-amber-100 text-amber-700 px-2 py-0.5 rounded">antes de despachar</span>
+      </div>
+      <div class="p-5">
+        <div class="flex items-start gap-3 p-4 rounded-xl bg-amber-50 border border-amber-200 mb-4">
+          <i data-lucide="package-check" class="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5"></i>
+          <div>
+            <div class="text-[13px] font-bold text-amber-900">Lista para despachar</div>
+            <div class="text-[12px] text-amber-700 mt-0.5">Inventario asignado (FEFO) · 3 productos · 2.3 lb. Generá el despacho para que entre al hub logístico.</div>
+          </div>
+        </div>
+        <button class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-[13px] py-3 rounded-xl flex items-center justify-center gap-2">
+          <i data-lucide="truck" class="w-4 h-4"></i> Despachar venta
+        </button>
+        <div class="text-[11px] text-slate-400 text-center mt-2">Crea el despacho en el hub de Envíos (estado borrador)</div>
+      </div>
+    </div>
+
+    <!-- Estado B: despachada (espejo) -->
+    <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+      <div class="px-4 py-2.5 border-b border-slate-100 bg-slate-50 flex items-center justify-between">
+        <span class="text-[12px] font-bold text-slate-700">Detalle venta · tab Despacho</span>
+        <span class="text-[10px] font-bold uppercase bg-sky-100 text-sky-700 px-2 py-0.5 rounded">espejo del envío</span>
+      </div>
+      <div class="p-5">
+        <!-- Card espejo -->
+        <div class="rounded-xl border border-orange-200 bg-gradient-to-br from-orange-50 to-orange-100/40 overflow-hidden">
+          <div class="px-4 py-3 flex items-center justify-between border-b border-orange-200/60">
+            <div class="flex items-center gap-2">
+              <span class="w-7 h-7 rounded-lg bg-orange-100 text-orange-700 flex items-center justify-center"><i data-lucide="truck" class="w-4 h-4"></i></span>
+              <div>
+                <div class="text-[12px] font-bold text-orange-900">ENV-2026-0312 · Despacho</div>
+                <div class="text-[10px] text-orange-600">Olva Courier · tracking OLV-99281</div>
+              </div>
+            </div>
+            <span class="text-[10px] font-bold uppercase bg-sky-100 text-sky-700 px-2 py-1 rounded-full">en camino</span>
+          </div>
+          <!-- Progreso reparto -->
+          <div class="px-4 py-3">
+            <div class="flex items-center gap-1 mb-2">
+              <div class="flex-1 h-1.5 rounded-full bg-emerald-400"></div>
+              <div class="flex-1 h-1.5 rounded-full bg-emerald-400"></div>
+              <div class="flex-1 h-1.5 rounded-full bg-sky-400"></div>
+              <div class="flex-1 h-1.5 rounded-full bg-slate-200"></div>
+            </div>
+            <div class="flex items-center justify-between text-[10px] text-slate-500">
+              <span>Programada</span><span>Despachada</span><span class="text-sky-600 font-bold">En camino</span><span>Entregada</span>
+            </div>
+          </div>
+          <div class="px-4 py-2.5 bg-white/60 border-t border-orange-200/60 flex items-center justify-between text-[11px]">
+            <span class="text-slate-500 flex items-center gap-1"><i data-lucide="calendar" class="w-3 h-3"></i> Llega mañana · 10-14h</span>
+            <a href="#acto4" class="text-orange-700 font-bold flex items-center gap-0.5">Ver en Envíos <i data-lucide="arrow-up-right" class="w-3 h-3"></i></a>
+          </div>
+        </div>
+        <!-- COD chip -->
+        <div class="mt-3 flex items-center justify-between p-3 rounded-lg bg-rose-50 border border-rose-200 text-[11px]">
+          <span class="text-rose-700 flex items-center gap-1.5 font-medium"><i data-lucide="hand-coins" class="w-3.5 h-3.5"></i> Cobro contra entrega (COD)</span>
+          <span class="tabular font-bold text-rose-900">S/ 360 pendiente</span>
+        </div>
+        <div class="text-[10px] text-slate-400 mt-2 flex items-center gap-1"><i data-lucide="info" class="w-3 h-3"></i> Ventas refleja · la operación vive en el hub.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════ ACTO 3 · EL DISPARO ════════════ -->
+<div id="acto3" class="max-w-6xl mx-auto px-4 mb-12">
+  <div class="text-[11px] font-bold uppercase tracking-wider text-blue-600 mb-3">3 · El disparo — modal ágil "Despachar" (NO el wizard pesado · igual que Compras)</div>
+  <div class="max-w-md mx-auto bg-white border border-slate-200 rounded-2xl shadow-lg overflow-hidden">
+    <div class="px-5 py-3.5 border-b border-slate-100 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <span class="w-7 h-7 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center"><i data-lucide="truck" class="w-4 h-4"></i></span>
+        <span class="text-[14px] font-bold text-slate-900">Despachar venta VT-2026-0188</span>
+      </div>
+      <i data-lucide="x" class="w-4 h-4 text-slate-400"></i>
+    </div>
+    <div class="p-5 space-y-4">
+      <!-- Resumen auto -->
+      <div class="rounded-lg bg-slate-50 border border-slate-200 p-3 text-[11px] space-y-1.5">
+        <div class="flex justify-between"><span class="text-slate-500">Cliente</span><span class="font-medium text-slate-800">Juan Pérez · Surco</span></div>
+        <div class="flex justify-between"><span class="text-slate-500">Productos (FEFO asignado)</span><span class="font-medium text-slate-800">3 · 2.3 lb</span></div>
+      </div>
+      <!-- Almacén -->
+      <div>
+        <label class="text-[11px] font-medium text-slate-600">Almacén de origen</label>
+        <div class="mt-1 border border-slate-300 rounded-lg px-3 py-2 text-[12px] flex items-center justify-between">
+          <span class="flex items-center gap-1.5"><i data-lucide="warehouse" class="w-3.5 h-3.5 text-slate-400"></i> Almacén Lima · Principal</span>
+          <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400"></i>
+        </div>
+      </div>
+      <!-- Courier con flete auto -->
+      <div>
+        <label class="text-[11px] font-medium text-slate-600">Courier / transportista</label>
+        <div class="mt-1 border border-blue-300 ring-1 ring-blue-100 rounded-lg px-3 py-2 text-[12px] flex items-center justify-between">
+          <span class="flex items-center gap-1.5"><span class="w-5 h-5 rounded bg-orange-100 text-orange-700 flex items-center justify-center text-[9px] font-bold">OL</span> Olva Courier <span class="text-[10px] bg-orange-50 text-orange-700 px-1.5 rounded">red logística</span></span>
+          <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400"></i>
+        </div>
+      </div>
+      <!-- Flete calculado -->
+      <div class="rounded-lg bg-blue-50 border border-blue-200 p-3">
+        <div class="flex items-center justify-between text-[11px] mb-1">
+          <span class="text-slate-500">Peso 2.3 lb · tarifa tramo 1-3 lb</span><span class="tabular text-slate-700">S/ 12.00</span>
+        </div>
+        <div class="flex items-center justify-between text-[12px]">
+          <span class="font-bold text-blue-800 flex items-center gap-1"><i data-lucide="sparkles" class="w-3.5 h-3.5"></i> Flete calculado</span>
+          <span class="tabular font-bold text-blue-900 text-[15px]">S/ 12.00</span>
+        </div>
+        <div class="text-[10px] text-blue-500 mt-1">auto desde tarifaPorTramos · editable en el hub · → CC de Olva</div>
+      </div>
+      <!-- COD toggle -->
+      <div class="flex items-center justify-between p-3 rounded-lg bg-rose-50 border border-rose-200">
+        <span class="text-[12px] text-rose-700 font-medium flex items-center gap-1.5"><i data-lucide="hand-coins" class="w-4 h-4"></i> Cobra contra entrega (COD)</span>
+        <div class="w-9 h-5 rounded-full bg-rose-500 relative"><span class="absolute right-0.5 top-0.5 w-4 h-4 rounded-full bg-white"></span></div>
+      </div>
+    </div>
+    <div class="px-5 py-3.5 border-t border-slate-100 flex items-center justify-between">
+      <button class="text-[12px] text-slate-500 font-medium">Cancelar</button>
+      <button class="bg-blue-600 hover:bg-blue-700 text-white font-bold text-[12px] px-5 py-2.5 rounded-lg flex items-center gap-1.5"><i data-lucide="truck" class="w-4 h-4"></i> Generar despacho</button>
+    </div>
+  </div>
+  <div class="max-w-md mx-auto mt-2 text-[10px] text-slate-400 text-center">Un disparo ágil · el detalle operativo (parciales, foto, reprogramar) vive en el hub.</div>
+</div>
+
+<!-- ════════════ ACTO 4 · EL HUB DE ENVÍOS ════════════ -->
+<div id="acto4" class="max-w-6xl mx-auto px-4 mb-12">
+  <div class="text-[11px] font-bold uppercase tracking-wider text-orange-600 mb-3">4 · Lado Envíos — el hub (orange · Hub Kit) opera importaciones Y despachos de venta en una sola lista</div>
+  <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+    <!-- top-bar -->
+    <div class="border-b border-slate-200 px-5 py-2.5 bg-slate-50 flex items-center justify-between">
+      <div class="text-[11px] text-slate-500 flex items-center gap-1"><i data-lucide="home" class="w-3 h-3"></i> Inicio <i data-lucide="chevron-right" class="w-3 h-3"></i> <span class="text-slate-700 font-medium">Envíos</span></div>
+      <div class="flex items-center gap-1 text-[11px] text-orange-700 font-medium"><i data-lucide="shield" class="w-3.5 h-3.5"></i> Vista ejecutiva · admin</div>
+    </div>
+    <!-- header -->
+    <div class="px-5 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <span class="w-11 h-11 rounded-xl bg-orange-100 text-orange-700 flex items-center justify-center"><i data-lucide="truck" class="w-6 h-6"></i></span>
+        <div>
+          <h2 class="text-xl font-bold tracking-tight text-slate-900">Envíos</h2>
+          <p class="text-[12px] text-slate-500">Hub logístico · todo lo que entra, sale o se traslada</p>
+        </div>
+      </div>
+      <button class="bg-orange-600 hover:bg-orange-700 text-white font-bold text-[12px] px-4 py-2.5 rounded-lg flex items-center gap-1.5"><i data-lucide="plus" class="w-4 h-4"></i> Nuevo envío</button>
+    </div>
+    <!-- KPI strip -->
+    <div class="px-5 grid grid-cols-2 md:grid-cols-5 gap-2.5 mb-3">
+      <div class="bg-gradient-to-br from-orange-50 to-orange-100/40 ring-1 ring-orange-200/50 rounded-xl p-3">
+        <div class="text-[10px] uppercase tracking-wider text-orange-700 font-bold mb-1">Activos</div>
+        <div class="text-2xl font-bold tabular text-orange-900">18</div>
+      </div>
+      <div class="bg-gradient-to-br from-sky-50 to-sky-100/40 ring-1 ring-sky-200/50 rounded-xl p-3">
+        <div class="text-[10px] uppercase tracking-wider text-sky-700 font-bold mb-1">En tránsito</div>
+        <div class="text-2xl font-bold tabular text-sky-900">7</div>
+      </div>
+      <div class="bg-gradient-to-br from-blue-50 to-blue-100/40 ring-1 ring-blue-200/50 rounded-xl p-3">
+        <div class="text-[10px] uppercase tracking-wider text-blue-700 font-bold mb-1">Despachos venta</div>
+        <div class="text-2xl font-bold tabular text-blue-900">5</div>
+      </div>
+      <div class="bg-gradient-to-br from-rose-50 to-rose-100/40 ring-1 ring-rose-200/50 rounded-xl p-3">
+        <div class="text-[10px] uppercase tracking-wider text-rose-700 font-bold mb-1">COD x cobrar</div>
+        <div class="text-2xl font-bold tabular text-rose-900">S/<span class="text-lg">1.2k</span></div>
+      </div>
+      <div class="bg-gradient-to-br from-amber-50 to-amber-100/40 ring-1 ring-amber-200/50 rounded-xl p-3">
+        <div class="text-[10px] uppercase tracking-wider text-amber-700 font-bold mb-1">Incidencias</div>
+        <div class="text-2xl font-bold tabular text-amber-900">2</div>
+      </div>
+    </div>
+    <!-- filtro por tipo de ruta -->
+    <div class="px-5 flex gap-1.5 overflow-x-auto hide-scroll pb-2 border-b border-slate-100">
+      <button class="whitespace-nowrap text-[11px] font-bold px-3 py-1.5 rounded-full bg-orange-600 text-white">Todos</button>
+      <button class="whitespace-nowrap text-[11px] font-medium px-3 py-1.5 rounded-full bg-slate-100 text-slate-600">Importación <span class="text-[9px] opacity-70">C·J·E·I</span></button>
+      <button class="whitespace-nowrap text-[11px] font-medium px-3 py-1.5 rounded-full bg-blue-100 text-blue-700">Despacho venta · F</button>
+      <button class="whitespace-nowrap text-[11px] font-medium px-3 py-1.5 rounded-full bg-violet-100 text-violet-700">Devolución · G</button>
+    </div>
+    <!-- listado mixto -->
+    <div class="p-3 space-y-2 bg-slate-50/40">
+      <!-- card importación -->
+      <div class="bg-white border border-slate-200 rounded-xl px-4 py-3 flex items-center gap-3">
+        <span class="w-9 h-9 rounded-lg bg-slate-100 text-slate-500 flex items-center justify-center flex-shrink-0"><i data-lucide="plane" class="w-4 h-4"></i></span>
+        <div class="min-w-0 flex-1">
+          <div class="flex items-center gap-2"><span class="text-[12px] font-bold text-slate-800">ENV-2026-0309</span><span class="text-[9px] font-bold uppercase bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded">E · Importación</span></div>
+          <div class="text-[11px] text-slate-500 flex items-center gap-1 mt-0.5">🇺🇸 Miami <i data-lucide="arrow-right" class="w-3 h-3"></i> 🇵🇪 Lima · viajero</div>
+        </div>
+        <span class="text-[10px] font-bold uppercase bg-sky-100 text-sky-700 px-2 py-1 rounded-full">en tránsito</span>
+        <i data-lucide="eye" class="w-4 h-4 text-slate-300"></i>
+      </div>
+      <!-- card DESPACHO VENTA (protagonista) -->
+      <div class="bg-white border-2 border-blue-200 rounded-xl px-4 py-3 flex items-center gap-3 ring-1 ring-blue-100">
+        <span class="w-9 h-9 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center flex-shrink-0"><i data-lucide="store" class="w-4 h-4"></i></span>
+        <div class="min-w-0 flex-1">
+          <div class="flex items-center gap-2"><span class="text-[12px] font-bold text-slate-800">ENV-2026-0312</span><span class="text-[9px] font-bold uppercase bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded">F · Despacho venta</span><span class="text-[9px] font-bold uppercase bg-rose-100 text-rose-700 px-1.5 py-0.5 rounded">COD S/360</span></div>
+          <div class="text-[11px] text-slate-500 flex items-center gap-1 mt-0.5">🏪 Lima <i data-lucide="arrow-right" class="w-3 h-3"></i> 🏠 Juan Pérez · Surco · <span class="text-blue-600">VT-2026-0188</span></div>
+        </div>
+        <span class="text-[10px] font-bold uppercase bg-sky-100 text-sky-700 px-2 py-1 rounded-full">en camino</span>
+        <i data-lucide="eye" class="w-4 h-4 text-blue-400"></i>
+      </div>
+      <!-- card devolución -->
+      <div class="bg-white border border-slate-200 rounded-xl px-4 py-3 flex items-center gap-3">
+        <span class="w-9 h-9 rounded-lg bg-violet-100 text-violet-700 flex items-center justify-center flex-shrink-0"><i data-lucide="rotate-ccw" class="w-4 h-4"></i></span>
+        <div class="min-w-0 flex-1">
+          <div class="flex items-center gap-2"><span class="text-[12px] font-bold text-slate-800">ENV-2026-0310</span><span class="text-[9px] font-bold uppercase bg-violet-100 text-violet-700 px-1.5 py-0.5 rounded">G · Devolución</span></div>
+          <div class="text-[11px] text-slate-500 flex items-center gap-1 mt-0.5">🏠 Cliente <i data-lucide="arrow-right" class="w-3 h-3"></i> 🏪 Lima · retorno</div>
+        </div>
+        <span class="text-[10px] font-bold uppercase bg-amber-100 text-amber-700 px-2 py-1 rounded-full">programada</span>
+        <i data-lucide="eye" class="w-4 h-4 text-slate-300"></i>
+      </div>
+    </div>
+  </div>
+  <div class="mt-2 text-[11px] text-slate-500 flex items-center gap-1.5"><i data-lucide="info" class="w-3.5 h-3.5"></i> Un solo hub · el filtro <strong>"Despacho venta · F"</strong> aísla los despachos cuando hace falta. El despacho de venta convive con importaciones y devoluciones.</div>
+</div>
+
+<!-- ════════════ ACTO 5 · DETALLE ÚLTIMA MILLA ════════════ -->
+<div id="acto5" class="max-w-6xl mx-auto px-4 mb-12">
+  <div class="text-[11px] font-bold uppercase tracking-wider text-orange-600 mb-3">5 · Detalle del despacho — el MISMO modal de envío, adaptado a última milla (COD · parciales · reprogramar · foto)</div>
+  <div class="bg-white border border-slate-200 rounded-2xl shadow-lg overflow-hidden">
+    <!-- header -->
+    <div class="px-5 py-3.5 border-b border-slate-100 flex items-center justify-between">
+      <div class="flex items-center gap-2.5">
+        <span class="w-9 h-9 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center"><i data-lucide="store" class="w-5 h-5"></i></span>
+        <div>
+          <div class="text-[14px] font-bold text-slate-900 flex items-center gap-2">ENV-2026-0312 <span class="text-[10px] font-bold uppercase bg-sky-100 text-sky-700 px-2 py-0.5 rounded-full">en camino</span></div>
+          <div class="text-[11px] text-slate-500">Despacho de venta <span class="text-blue-600 font-medium">VT-2026-0188</span> · Juan Pérez</div>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <button class="text-[11px] font-medium text-slate-600 border border-slate-200 px-3 py-1.5 rounded-lg flex items-center gap-1"><i data-lucide="printer" class="w-3.5 h-3.5"></i> Guía</button>
+        <i data-lucide="x" class="w-4 h-4 text-slate-400"></i>
+      </div>
+    </div>
+    <!-- ruta última milla -->
+    <div class="px-5 py-3 bg-slate-50 border-b border-slate-100 flex items-center justify-center gap-3 text-[11px]">
+      <span class="flex items-center gap-1 font-medium text-slate-700">🏪 Almacén Lima</span>
+      <span class="flex-1 max-w-[120px] border-t-2 border-dotted border-slate-300 relative"><i data-lucide="bike" class="w-4 h-4 text-orange-500 absolute -top-2 left-1/2 -translate-x-1/2 bg-slate-50 px-0.5"></i></span>
+      <span class="flex items-center gap-1 font-medium text-slate-700">🏠 Surco · Juan Pérez</span>
+    </div>
+    <!-- estado reparto (última milla) -->
+    <div class="px-5 py-3 border-b border-slate-100">
+      <div class="flex items-center gap-1 mb-1.5">
+        <div class="flex-1 h-1.5 rounded-full bg-emerald-400"></div>
+        <div class="flex-1 h-1.5 rounded-full bg-emerald-400"></div>
+        <div class="flex-1 h-1.5 rounded-full bg-sky-400"></div>
+        <div class="flex-1 h-1.5 rounded-full bg-slate-200"></div>
+      </div>
+      <div class="flex items-center justify-between text-[10px] text-slate-500">
+        <span class="text-emerald-600 font-bold">✓ Programada</span><span class="text-emerald-600 font-bold">✓ Despachada</span><span class="text-sky-600 font-bold">● En camino</span><span>Entregada</span>
+      </div>
+    </div>
+    <div class="grid md:grid-cols-3 gap-0">
+      <!-- main: tabs -->
+      <div class="md:col-span-2 p-5 border-r border-slate-100">
+        <div class="flex gap-3 border-b border-slate-100 mb-4 text-[12px]">
+          <button class="pb-2 border-b-2 border-orange-500 text-orange-700 font-bold">Productos</button>
+          <button class="pb-2 text-slate-400">Cobro COD</button>
+          <button class="pb-2 text-slate-400">Reparto</button>
+          <button class="pb-2 text-slate-400">Documentos</button>
+        </div>
+        <!-- productos + parciales -->
+        <div class="space-y-2">
+          <div class="flex items-center gap-3 p-2.5 rounded-lg border border-slate-100">
+            <span class="w-8 h-8 rounded bg-slate-100 flex items-center justify-center text-[14px]">🧴</span>
+            <div class="flex-1 min-w-0"><div class="text-[12px] font-medium text-slate-800">Colágeno Hidrolizado · 60 cáps</div><div class="text-[10px] text-slate-400">SKU COL-60 · ×2</div></div>
+            <span class="text-[10px] font-bold uppercase bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded">en envío</span>
+          </div>
+          <div class="flex items-center gap-3 p-2.5 rounded-lg border border-slate-100">
+            <span class="w-8 h-8 rounded bg-slate-100 flex items-center justify-center text-[14px]">💊</span>
+            <div class="flex-1 min-w-0"><div class="text-[12px] font-medium text-slate-800">Magnesio + B6 · 90 cáps</div><div class="text-[10px] text-slate-400">SKU MAG-90 · ×1</div></div>
+            <span class="text-[10px] font-bold uppercase bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded">en envío</span>
+          </div>
+          <!-- entrega parcial nota -->
+          <div class="flex items-start gap-2 p-2.5 rounded-lg bg-sky-50 border border-sky-200 text-[11px]">
+            <i data-lucide="split" class="w-3.5 h-3.5 text-sky-600 flex-shrink-0 mt-0.5"></i>
+            <span class="text-sky-700">Soporta <strong>entrega parcial</strong>: si el cliente recibe solo parte, esta entrega cierra parcial y se reprograma el resto.</span>
+          </div>
+        </div>
+      </div>
+      <!-- sidebar -->
+      <div class="md:col-span-1 p-5 space-y-4 bg-slate-50/40">
+        <!-- courier + CC -->
+        <div>
+          <div class="text-[10px] uppercase tracking-wider text-slate-400 font-bold mb-1.5">Transportista</div>
+          <div class="flex items-center gap-2">
+            <span class="w-8 h-8 rounded-full bg-orange-100 text-orange-700 flex items-center justify-center text-[10px] font-bold">OL</span>
+            <div><div class="text-[12px] font-medium text-slate-800">Olva Courier</div><div class="text-[10px] text-slate-400">externo · CC propia</div></div>
+          </div>
+        </div>
+        <!-- flete -->
+        <div class="rounded-lg bg-white border border-slate-200 p-3">
+          <div class="flex justify-between text-[11px] mb-1"><span class="text-slate-500">Flete (2.3 lb)</span><span class="tabular font-bold text-slate-800">S/ 12.00</span></div>
+          <div class="text-[10px] text-slate-400">→ CC de Olva · costo de la venta</div>
+        </div>
+        <!-- COD -->
+        <div class="rounded-lg bg-rose-50 border border-rose-200 p-3">
+          <div class="text-[10px] uppercase tracking-wider text-rose-600 font-bold mb-1">Cobro contra entrega</div>
+          <div class="tabular text-[18px] font-bold text-rose-900">S/ 360.00</div>
+          <div class="text-[10px] text-rose-500">pendiente · se recauda al entregar → caja chica de Olva</div>
+        </div>
+        <!-- acciones última milla -->
+        <div class="space-y-2">
+          <button class="w-full bg-emerald-600 hover:bg-emerald-700 text-white text-[12px] font-bold py-2.5 rounded-lg flex items-center justify-center gap-1.5"><i data-lucide="check-circle" class="w-4 h-4"></i> Marcar entregada + cobro</button>
+          <button class="w-full bg-white border border-amber-200 text-amber-700 text-[12px] font-medium py-2 rounded-lg flex items-center justify-center gap-1.5"><i data-lucide="calendar-clock" class="w-3.5 h-3.5"></i> Reprogramar</button>
+          <button class="w-full bg-white border border-slate-200 text-slate-500 text-[11px] py-2 rounded-lg flex items-center justify-center gap-1.5"><i data-lucide="camera" class="w-3.5 h-3.5"></i> Adjuntar foto / firma</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="mt-2 text-[11px] text-slate-500 flex items-center gap-1.5"><i data-lucide="info" class="w-3.5 h-3.5"></i> Mismo modal de envío que una importación — pero el detalle se <strong>adapta</strong>: aquí muestra COD, reparto, reprogramar y foto/firma (lo que hoy hace <code class="bg-slate-200 px-1 rounded text-[10px]">Entrega</code>, absorbido).</div>
+</div>
+
+<!-- ════════════ ACTO 6 · MOBILE ════════════ -->
+<div id="acto6" class="max-w-6xl mx-auto px-4 mb-12">
+  <div class="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-3">6 · Mobile (375px) — los dos lados + el detalle como bottom-sheet</div>
+  <div class="flex flex-wrap gap-5 justify-center">
+
+    <!-- Mobile A: Ventas tab Despacho (espejo) -->
+    <div>
+      <div class="text-[10px] font-bold uppercase text-blue-600 mb-1.5 text-center">Ventas · tab Despacho</div>
+      <div class="w-[280px] bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+        <div class="px-3 py-2 border-b border-slate-100 bg-slate-50 text-[11px] font-bold text-slate-700 flex items-center gap-1"><i data-lucide="chevron-left" class="w-3.5 h-3.5"></i> VT-2026-0188</div>
+        <div class="flex gap-2 px-3 py-2 border-b border-slate-100 overflow-x-auto hide-scroll text-[11px]">
+          <span class="text-slate-400 whitespace-nowrap">Productos</span><span class="text-slate-400 whitespace-nowrap">Cobros</span><span class="text-blue-700 font-bold border-b-2 border-blue-500 pb-1 whitespace-nowrap">Despacho</span><span class="text-slate-400 whitespace-nowrap">Cliente</span>
+        </div>
+        <div class="p-3">
+          <div class="rounded-xl border border-orange-200 bg-gradient-to-br from-orange-50 to-orange-100/40 overflow-hidden">
+            <div class="px-3 py-2 flex items-center justify-between border-b border-orange-200/60">
+              <div class="flex items-center gap-1.5"><span class="w-6 h-6 rounded bg-orange-100 text-orange-700 flex items-center justify-center"><i data-lucide="truck" class="w-3.5 h-3.5"></i></span><span class="text-[11px] font-bold text-orange-900">ENV-0312</span></div>
+              <span class="text-[9px] font-bold uppercase bg-sky-100 text-sky-700 px-1.5 py-0.5 rounded-full">en camino</span>
+            </div>
+            <div class="px-3 py-2">
+              <div class="flex gap-1 mb-1"><div class="flex-1 h-1 rounded bg-emerald-400"></div><div class="flex-1 h-1 rounded bg-emerald-400"></div><div class="flex-1 h-1 rounded bg-sky-400"></div><div class="flex-1 h-1 rounded bg-slate-200"></div></div>
+              <div class="text-[10px] text-slate-500 flex items-center gap-1"><i data-lucide="calendar" class="w-3 h-3"></i> Olva · llega mañana</div>
+            </div>
+          </div>
+          <div class="mt-2 flex items-center justify-between p-2 rounded-lg bg-rose-50 border border-rose-200 text-[10px]">
+            <span class="text-rose-700 font-medium flex items-center gap-1"><i data-lucide="hand-coins" class="w-3 h-3"></i> COD</span><span class="tabular font-bold text-rose-900">S/ 360</span>
+          </div>
+          <a href="#" class="mt-2 block text-center text-[10px] text-orange-700 font-bold">Ver en Envíos ↗</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile B: Hub Envíos -->
+    <div>
+      <div class="text-[10px] font-bold uppercase text-orange-600 mb-1.5 text-center">Hub Envíos</div>
+      <div class="w-[280px] bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+        <div class="px-3 py-2.5 flex items-center gap-2 border-b border-slate-100">
+          <span class="w-8 h-8 rounded-lg bg-orange-100 text-orange-700 flex items-center justify-center"><i data-lucide="truck" class="w-4 h-4"></i></span>
+          <div><div class="text-[13px] font-bold">Envíos</div><div class="text-[9px] text-slate-400">Hub logístico</div></div>
+        </div>
+        <div class="grid grid-cols-2 gap-1.5 p-2.5">
+          <div class="bg-orange-50 ring-1 ring-orange-200/50 rounded-lg p-2"><div class="text-[9px] uppercase text-orange-700 font-bold">Activos</div><div class="text-lg font-bold tabular text-orange-900">18</div></div>
+          <div class="bg-rose-50 ring-1 ring-rose-200/50 rounded-lg p-2"><div class="text-[9px] uppercase text-rose-700 font-bold">COD</div><div class="text-lg font-bold tabular text-rose-900">S/1.2k</div></div>
+        </div>
+        <div class="flex gap-1.5 px-2.5 pb-2 overflow-x-auto hide-scroll">
+          <span class="text-[9px] font-bold px-2 py-1 rounded-full bg-orange-600 text-white whitespace-nowrap">Todos</span>
+          <span class="text-[9px] font-medium px-2 py-1 rounded-full bg-blue-100 text-blue-700 whitespace-nowrap">Venta · F</span>
+          <span class="text-[9px] font-medium px-2 py-1 rounded-full bg-slate-100 text-slate-500 whitespace-nowrap">Import.</span>
+        </div>
+        <div class="px-2.5 pb-2.5 space-y-1.5">
+          <div class="border-2 border-blue-200 ring-1 ring-blue-100 rounded-lg p-2">
+            <div class="flex items-center gap-1.5 mb-1"><span class="w-6 h-6 rounded bg-blue-100 text-blue-700 flex items-center justify-center"><i data-lucide="store" class="w-3 h-3"></i></span><span class="text-[10px] font-bold">ENV-0312</span><span class="text-[8px] font-bold uppercase bg-rose-100 text-rose-700 px-1 rounded ml-auto">COD</span></div>
+            <div class="text-[9px] text-slate-500">🏪→🏠 Juan Pérez · Surco</div>
+            <span class="text-[8px] font-bold uppercase bg-sky-100 text-sky-700 px-1.5 py-0.5 rounded-full mt-1 inline-block">en camino</span>
+          </div>
+          <div class="border border-slate-200 rounded-lg p-2">
+            <div class="flex items-center gap-1.5 mb-1"><span class="w-6 h-6 rounded bg-slate-100 text-slate-500 flex items-center justify-center"><i data-lucide="plane" class="w-3 h-3"></i></span><span class="text-[10px] font-bold">ENV-0309</span></div>
+            <div class="text-[9px] text-slate-500">🇺🇸→🇵🇪 viajero</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile C: Detalle bottom-sheet -->
+    <div>
+      <div class="text-[10px] font-bold uppercase text-slate-500 mb-1.5 text-center">Detalle · bottom-sheet</div>
+      <div class="w-[280px] h-[420px] bg-slate-900/30 rounded-2xl overflow-hidden flex items-end relative">
+        <div class="w-full bg-white rounded-t-2xl overflow-hidden">
+          <div class="flex justify-center pt-2"><div class="w-10 h-1 rounded-full bg-slate-300"></div></div>
+          <div class="px-3 py-2.5 border-b border-slate-100">
+            <div class="flex items-center gap-1.5"><span class="w-7 h-7 rounded bg-blue-100 text-blue-700 flex items-center justify-center"><i data-lucide="store" class="w-3.5 h-3.5"></i></span><span class="text-[12px] font-bold">ENV-0312</span><span class="text-[8px] font-bold uppercase bg-sky-100 text-sky-700 px-1.5 py-0.5 rounded-full ml-auto">en camino</span></div>
+            <div class="text-[9px] text-slate-500 mt-0.5">VT-2026-0188 · Juan Pérez</div>
+          </div>
+          <div class="px-3 py-2 border-b border-slate-100">
+            <div class="flex gap-1 mb-1"><div class="flex-1 h-1 rounded bg-emerald-400"></div><div class="flex-1 h-1 rounded bg-emerald-400"></div><div class="flex-1 h-1 rounded bg-sky-400"></div><div class="flex-1 h-1 rounded bg-slate-200"></div></div>
+            <div class="text-[9px] text-slate-500 text-center">programada · despachada · <span class="text-sky-600 font-bold">en camino</span> · entregada</div>
+          </div>
+          <div class="p-3 space-y-2">
+            <div class="rounded-lg bg-rose-50 border border-rose-200 p-2.5">
+              <div class="text-[9px] uppercase text-rose-600 font-bold">Cobro contra entrega</div>
+              <div class="tabular text-[16px] font-bold text-rose-900">S/ 360.00</div>
+            </div>
+            <button class="w-full bg-emerald-600 text-white text-[11px] font-bold py-2.5 rounded-lg flex items-center justify-center gap-1.5"><i data-lucide="check-circle" class="w-3.5 h-3.5"></i> Entregada + cobro</button>
+            <div class="grid grid-cols-2 gap-1.5">
+              <button class="bg-white border border-amber-200 text-amber-700 text-[10px] font-medium py-2 rounded-lg">Reprogramar</button>
+              <button class="bg-white border border-slate-200 text-slate-500 text-[10px] py-2 rounded-lg flex items-center justify-center gap-1"><i data-lucide="camera" class="w-3 h-3"></i> Foto</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ════════════ FOOTER · DECISIONES + CHECKLIST ════════════ -->
+<div class="max-w-6xl mx-auto px-4 mb-12">
+  <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+    <div class="px-5 py-3 border-b border-slate-200 bg-slate-50 text-[12px] font-bold text-slate-700 flex items-center gap-2"><i data-lucide="gavel" class="w-4 h-4"></i> Decisiones de modelo que el mockup propone</div>
+    <div class="p-5 grid md:grid-cols-2 gap-4 text-[12px]">
+      <div class="space-y-2.5">
+        <div class="flex items-start gap-2"><span class="w-5 h-5 rounded bg-emerald-100 text-emerald-700 flex items-center justify-center flex-shrink-0 text-[10px] font-bold">1</span><div><strong>Un hub, un modelo.</strong> El despacho de venta es un <code class="bg-slate-100 px-1 rounded text-[11px]">Envío</code> (Caso F). La entidad <code class="bg-slate-100 px-1 rounded text-[11px]">Entrega</code> se deprecia y su lógica de última milla se absorbe en el Caso F.</div></div>
+        <div class="flex items-start gap-2"><span class="w-5 h-5 rounded bg-emerald-100 text-emerald-700 flex items-center justify-center flex-shrink-0 text-[10px] font-bold">2</span><div><strong>Ventas dispara, no opera.</strong> Botón "Despachar" en el detalle de venta → crea el envío en borrador (patrón <code class="bg-slate-100 px-1 rounded text-[11px]">confirmarOC()</code> replicado).</div></div>
+        <div class="flex items-start gap-2"><span class="w-5 h-5 rounded bg-emerald-100 text-emerald-700 flex items-center justify-center flex-shrink-0 text-[10px] font-bold">3</span><div><strong>Ventas refleja.</strong> El tab Despacho muestra el estado del envío como espejo (igual que el cobro refleja a Tesorería).</div></div>
+      </div>
+      <div class="space-y-2.5">
+        <div class="flex items-start gap-2"><span class="w-5 h-5 rounded bg-amber-100 text-amber-700 flex items-center justify-center flex-shrink-0 text-[10px] font-bold">4</span><div><strong>El Caso F absorbe última milla.</strong> Campos a sumar al Envío: COD, entregas parciales, foto/firma, motivo de fallo, estados de reparto (programada→en_camino→entregada/fallida/reprogramada).</div></div>
+        <div class="flex items-start gap-2"><span class="w-5 h-5 rounded bg-amber-100 text-amber-700 flex items-center justify-center flex-shrink-0 text-[10px] font-bold">5</span><div><strong>Detalle adaptativo.</strong> El mismo modal de envío muestra aduana/landed para importación y COD/reparto para despacho de venta, según el tipo.</div></div>
+        <div class="flex items-start gap-2"><span class="w-5 h-5 rounded bg-slate-200 text-slate-600 flex items-center justify-center flex-shrink-0 text-[10px] font-bold">6</span><div><strong>Costeo conectado.</strong> Flete (tarifa×peso→CC), COD→caja chica del courier, cajas→consumo de insumos. La venta lo refleja en Rentabilidad.</div></div>
+      </div>
+    </div>
+    <div class="px-5 py-3 border-t border-slate-200 bg-slate-50 text-[11px] text-slate-500">
+      <strong class="text-slate-600">Cobertura canon:</strong> patrón ✓ · Ventas dispara+refleja ✓ · disparo ✓ · hub lista mixta ✓ · detalle última milla ✓ · mobile 375px (3 superficies) ✓ · DS-aligned (blue Comercial / orange Inventario · Hub Kit · lucide · tabular) ✓
+    </div>
+  </div>
+</div>
+
+<script>lucide.createIcons();</script>
+</body>
+</html>
