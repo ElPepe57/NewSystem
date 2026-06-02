@@ -251,7 +251,7 @@
                 <span class="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>Entregada</span>
               </div>
               <p class="text-[13px] font-medium text-slate-900 truncate">Botica La Salud</p>
-              <div class="text-[11px] text-slate-500 truncate mt-0.5 flex items-center gap-1"><i data-lucide="package" class="w-3 h-3 text-slate-400 flex-shrink-0"></i> Vita C Serum ×2 · Retinol Night ×2 · Colágeno ×1</div>
+              <button class="text-[11px] text-slate-500 mt-0.5 flex items-center gap-1 hover:text-blue-600 max-w-full"><i data-lucide="package" class="w-3 h-3 text-slate-400 flex-shrink-0"></i> <span class="truncate">Vita C Serum ×2 · Retinol Night ×2 · Colágeno ×1</span> <i data-lucide="chevron-down" class="w-3 h-3 flex-shrink-0 text-slate-400"></i></button>
               <div class="mt-1.5 flex items-center gap-2"><div class="flex-1 h-1.5 bg-slate-100 rounded-full overflow-hidden max-w-[160px]"><div class="h-full bg-emerald-500 rounded-full" style="width:100%"></div></div><span class="text-[10px] text-emerald-700 font-medium">Pagado</span></div>
             </div>
             <div class="flex-shrink-0 text-right">
@@ -260,8 +260,8 @@
             </div>
           </div>
         </div>
-        <!-- card 2 · en entrega + parcial -->
-        <div class="bg-white border border-slate-200 rounded-xl p-3.5 hover:border-slate-300 hover:shadow-sm transition-all cursor-pointer">
+        <!-- card 2 · EXPANDIDA · detalle de productos inline (presentación/contenido · sin ir al detalle de venta) -->
+        <div class="bg-white border border-blue-200 ring-1 ring-blue-100 rounded-xl p-3.5 transition-all">
           <div class="flex items-start gap-3">
             <div class="w-10 h-10 rounded-lg bg-sky-50 flex items-center justify-center flex-shrink-0"><i data-lucide="truck" class="w-5 h-5 text-sky-600"></i></div>
             <div class="flex-1 min-w-0">
@@ -271,8 +271,16 @@
                 <span class="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-sky-100 text-sky-700"><span class="w-1.5 h-1.5 rounded-full bg-sky-500"></span>En entrega</span>
               </div>
               <p class="text-[13px] font-medium text-slate-900 truncate">Dr. Martín Ríos</p>
-              <div class="text-[11px] text-slate-500 truncate mt-0.5 flex items-center gap-1"><i data-lucide="package" class="w-3 h-3 text-slate-400 flex-shrink-0"></i> Colágeno ×2 · Omega 3 ×1 · Magnesio ×1 · +2 más</div>
-              <div class="mt-1.5 flex items-center gap-2"><div class="flex-1 h-1.5 bg-slate-100 rounded-full overflow-hidden max-w-[160px]"><div class="h-full bg-amber-500 rounded-full" style="width:50%"></div></div><span class="text-[10px] text-amber-700 font-medium">Parcial · S/ 980 de S/ 1,960</span></div>
+              <button class="text-[11px] text-blue-600 font-medium mt-0.5 flex items-center gap-1"><i data-lucide="package" class="w-3 h-3 flex-shrink-0"></i> 5 productos <i data-lucide="chevron-up" class="w-3 h-3"></i></button>
+              <!-- detalle desplegado: nombre · presentación/contenido · cantidad · subtotal -->
+              <div class="mt-2 bg-slate-50 rounded-lg p-2.5 space-y-1.5 border border-slate-100">
+                <div class="flex items-center justify-between text-[11px] gap-2"><div class="min-w-0 truncate"><span class="text-slate-800 font-medium">Colágeno Hidrolizado</span> <span class="text-slate-400">· 60 cápsulas</span></div><div class="flex items-center gap-3 flex-shrink-0"><span class="text-slate-500 tabular">×2</span><span class="tabular font-semibold text-slate-700 w-16 text-right">S/ 720</span></div></div>
+                <div class="flex items-center justify-between text-[11px] gap-2"><div class="min-w-0 truncate"><span class="text-slate-800 font-medium">Omega 3</span> <span class="text-slate-400">· 1000mg · 90 cáps. blandas</span></div><div class="flex items-center gap-3 flex-shrink-0"><span class="text-slate-500 tabular">×1</span><span class="tabular font-semibold text-slate-700 w-16 text-right">S/ 180</span></div></div>
+                <div class="flex items-center justify-between text-[11px] gap-2"><div class="min-w-0 truncate"><span class="text-slate-800 font-medium">Magnesio Citrato</span> <span class="text-slate-400">· 120 cápsulas</span></div><div class="flex items-center gap-3 flex-shrink-0"><span class="text-slate-500 tabular">×1</span><span class="tabular font-semibold text-slate-700 w-16 text-right">S/ 240</span></div></div>
+                <div class="flex items-center justify-between text-[11px] gap-2"><div class="min-w-0 truncate"><span class="text-slate-800 font-medium">Vitamina D3</span> <span class="text-slate-400">· gotas 30ml</span></div><div class="flex items-center gap-3 flex-shrink-0"><span class="text-slate-500 tabular">×1</span><span class="tabular font-semibold text-slate-700 w-16 text-right">S/ 95</span></div></div>
+                <div class="flex items-center justify-between text-[11px] gap-2"><div class="min-w-0 truncate"><span class="text-slate-800 font-medium">Probiótico 50B</span> <span class="text-slate-400">· 30 cápsulas</span></div><div class="flex items-center gap-3 flex-shrink-0"><span class="text-slate-500 tabular">×1</span><span class="tabular font-semibold text-slate-700 w-16 text-right">S/ 165</span></div></div>
+              </div>
+              <div class="mt-2 flex items-center gap-2"><div class="flex-1 h-1.5 bg-slate-100 rounded-full overflow-hidden max-w-[160px]"><div class="h-full bg-amber-500 rounded-full" style="width:50%"></div></div><span class="text-[10px] text-amber-700 font-medium">Parcial · S/ 980 de S/ 1,960</span></div>
             </div>
             <div class="flex-shrink-0 text-right">
               <div class="text-[15px] font-bold text-slate-900 tabular">S/ 1,960</div>
