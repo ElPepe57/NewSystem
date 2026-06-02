@@ -147,4 +147,41 @@ EXPERIENCIA. Cualquier cambio de lógica que surja se declara y se discute apart
 
 ---
 
-**Siguiente:** producir el mockup Fase A (shell + Resumen + Ventas + mobile), que el usuario valida.
+## 7 · MODELO DE COSTEO DE LA VENTA (decisiones 2026-06-02 · confirmadas por el usuario)
+
+> **Principio rector del costeo: el costo es el CONSUMO, no la COMPRA.** El inventario (productos +
+> insumos) separa la compra (entrada · activo) del uso (salida · costo). Resuelve el timing
+> (comprar un lote que dura meses NO carga todo a un mes; el mes que no comprás igual consumís del stock).
+
+### Costos que SÍ entran en la utilidad de la venta (medibles)
+| Costo | Fuente | Lógica / destino |
+|---|---|---|
+| **Productos (CTRU)** | inventario de productos (FEFO) | costo real de las unidades asignadas |
+| **Cajas / etiquetas** | inventario de **insumos** (`Insumo` · por consumo) | al despachar se registran cuántas cajas (1..N) → salida del stock → costo real |
+| **Comisión del vendedor** | esquema del perfil laboral (% · líneas) | se **devenga** en su boleta (planilla) · no se paga aquí |
+| **Comisión plataforma (ML/pasarela)** | % del canal | gasto a la plataforma (auto-calculable) |
+| **Delivery** | tarifa del courier por tramo de peso (`tarifaPorTramos`) | **auto-calculado** al programar la entrega (peso → tramo → costo) → CC del courier |
+
+**Utilidad neta de la venta** = Ingreso − CTRU − cajas/etiquetas − comisiones − delivery.
+
+### Costos que NO se asignan a la venta (overhead operativo · decisión del usuario)
+- **Cinta, scotch, relleno y consumibles no medibles** → NO se costean por venta (medirlos sería
+  especular). Se reconocen como **gasto operativo del negocio** (afectan el margen GLOBAL del mes,
+  como la luz del local), no la utilidad de la venta individual. Cero especulación.
+
+### "Más de una caja" + timing
+- Un envío puede consumir N cajas → se registran al despachar → descuento real del inventario.
+- El gasto sigue al USO (salida de inventario), no a la COMPRA (entrada). El stock de insumos es activo.
+
+### Pendientes de implementación (los tipos/estructura existen · falta orquestar)
+- **Delivery auto** desde `tarifaPorTramos` al programar entrega (hoy se ingresa a mano).
+- **Consumo de cajas** del inventario de insumos al despachar (hoy es manual).
+- **UI de configuración** del `esquemaComision` por vendedor (hoy el form laboral no lo edita).
+- **Caja recaudadora** del courier para COD (DEUDA-MODELO-RECAUDADOR · el COD hoy va vía `entrega.cobroRealizado`).
+
+---
+
+**Estado:** mockups A+B+C + detalle de venta completo producidos y validados (con cards de productos
+expandibles · costos/comisiones con destino · COD). Modelo de costeo cerrado (§7). **Pendiente:**
+decidir si se bosquejan los 3 flujos de costeo (comisión config · delivery auto · empaque) o se
+implementan al llegar a esas superficies; luego implementación por fases (1a shell + Ventas → …).
