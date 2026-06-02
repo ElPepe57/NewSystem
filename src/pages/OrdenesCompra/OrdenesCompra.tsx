@@ -16,6 +16,7 @@ import type { EstadoPipelineCompras, PipelineComprasStage } from '../../componen
 import { SubOrdenDetailModal } from '../../components/modules/ordenCompra/SubOrdenDetailModal';
 import { TabResumenCompras } from './components/TabResumenCompras';
 import { TabPendientesCompras } from './components/TabPendientesCompras';
+import { TabProveedoresCompras } from './components/TabProveedoresCompras';
 import { OCBuilder } from '../../components/modules/ordenCompra/OCBuilder/OCBuilder';
 import { useRequerimientoStore } from '../../store/requerimientoStore';
 import type { Requerimiento } from '../../types/requerimiento.types';
@@ -1151,8 +1152,17 @@ export const OrdenesCompra: React.FC = () => {
           />
         )}
 
-        {/* ═══ TABS EN CONSTRUCCIÓN (Proveedores · Inteligencia) · fases siguientes ═══ */}
-        {(tabActiva === 'proveedores' || tabActiva === 'inteligencia') && (
+        {/* ═══ TAB PROVEEDORES · evaluación SRM agregada (gasto/OCs en vivo + métricas) ═══ */}
+        {tabActiva === 'proveedores' && (
+          <TabProveedoresCompras
+            proveedores={proveedoresActivos}
+            ordenes={ordenesLN}
+            navigate={navigate}
+          />
+        )}
+
+        {/* ═══ TAB EN CONSTRUCCIÓN (Inteligencia) · fase siguiente ═══ */}
+        {tabActiva === 'inteligencia' && (
           <div className="p-8 sm:p-12 text-center">
             <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-blue-50 text-blue-600 mb-3 mx-auto">
               <LayoutDashboard className="w-6 h-6" />
