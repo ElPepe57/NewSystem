@@ -100,11 +100,23 @@ Es donde vive toda la lógica de UNA orden. Se preserva la riqueza pero vestida 
 - **PriceAdvisor** → drawer/panel del kit dentro del step Productos.
 - Soporta: edición de borrador · pre-carga desde requerimiento(s) · multi-viajero (N OCs secuenciales).
 
-### MODALES DE FLUJO — FormModalV2 (canon L4)
-- **Confirmar / dividir sub-órdenes** — matriz de asignación productos + distribución de cargos + reconciliación. FormModalV2 grande.
-- **Despachar** — courier (SmartSearch select-create) + tracking + fecha.
-- **Pago** — PagoUnificado (USD/PEN + TC + método + deudor alternativo).
-- **SubOrden detalle** — drill secundario.
+### MODALES DE FLUJO
+- **Confirmar / dividir sub-órdenes** (PROPIO de Compras) — matriz de asignación productos +
+  distribución de cargos + reconciliación. Se re-construye con FormModalV2.
+- **Despachar** (PROPIO de Compras) — courier (SmartSearch select-create) + tracking + fecha.
+  Se re-construye con FormModalV2.
+- **SubOrden detalle** (PROPIO) — drill secundario.
+- **Registrar pago** → **NO es propio de Compras · es el `PagoUnificadoForm` COMPARTIDO**
+  (`src/components/modules/pagos/PagoUnificadoForm.tsx` · el "Registro Único de Pago"). Compras lo
+  **INVOCA**, no lo re-construye. Lo usan también Ventas · Gastos · Cotizaciones · Envíos · Planilla.
+
+> ⚠️ **PRINCIPIO · componentes TRANSVERSALES compartidos** (descubierto por el user 2026-06-02):
+> distinguir lo PROPIO del módulo (se re-construye desde el kit) de lo TRANSVERSAL compartido
+> (se INVOCA tal cual · NO se duplica por módulo). El pago es el caso canónico: `PagoUnificadoForm`
+> es uno solo para todo el ERP. Si se quiere alinearlo al kit, es un cambio TRANSVERSAL (1 componente ·
+> beneficia a los 6+ módulos a la vez), NO parte de la re-construcción de Compras. Lo mismo aplica a
+> otros transversales que aparezcan (ej. selector de proveedor/cliente, adjuntos, etc.). En el mockup,
+> el "modal de pago" debe leerse como **invocación del componente compartido**, no como uno propio.
 
 ---
 
