@@ -11,7 +11,6 @@ import { useToastStore } from '../../store/toastStore';
 import { OrdenCompraCard } from '../../components/modules/ordenCompra/OrdenCompraCard';
 import { OCWizardV3 } from '../../components/modules/ordenCompra/OCWizardV3/OCWizardV3';
 import { CompraCard } from '../../components/modules/ordenCompra/CompraCard';
-import { PipelineCompras } from '../../components/modules/ordenCompra/PipelineCompras';
 import type { EstadoPipelineCompras, PipelineComprasStage } from '../../components/modules/ordenCompra/PipelineCompras';
 import { SubOrdenDetailModal } from '../../components/modules/ordenCompra/SubOrdenDetailModal';
 import { TabResumenCompras } from './components/TabResumenCompras';
@@ -183,7 +182,6 @@ export const OrdenesCompra: React.FC = () => {
   const [ocBuilderReqs, setOcBuilderReqs] = useState<Requerimiento[]>([]);
   // S42 Tanda 10 — Filtros adicionales vista Compras (mockup s40 líneas 235-254)
   const [busquedaGlobal, setBusquedaGlobal] = useState('');
-  const [pillFiltro, setPillFiltro] = useState<'todas' | 'activas' | 'completadas'>('todas');
   const [filtroProveedor, setFiltroProveedor] = useState('');
   const [filtroEstadoPago, setFiltroEstadoPago] = useState('');
   const [itemsVisibles, setItemsVisibles] = useState(10);
@@ -263,19 +261,14 @@ export const OrdenesCompra: React.FC = () => {
 
   // S42 Tanda 10 — Stats derivados para KPIs enriquecidos (mockup s40 líneas 128-178)
   const statsExtra = useMemo(() => {
-    const estadosActivos = ['confirmada', 'enviada', 'pagada', 'en_proceso', 'despachada', 'en_transito', 'recibida_parcial'];
     const estadosCompletados = ['completada', 'recibida'];
 
     let montoPendienteUSD = 0;
     let ocsConPagoPendiente = 0;
     let montoCompletadasUSD = 0;
-    let countActivas = 0;
-    let countCompletadas = 0;
 
     for (const o of ordenesLN) {
-      if (estadosActivos.includes(o.estado)) countActivas++;
       if (estadosCompletados.includes(o.estado)) {
-        countCompletadas++;
         montoCompletadasUSD += (o.totalUSD || 0);
       }
       if (o.estado !== 'cancelada' && (o.estadoPago === 'pendiente' || o.estadoPago === 'parcial')) {
@@ -307,8 +300,6 @@ export const OrdenesCompra: React.FC = () => {
       montoPendienteUSD,
       ocsConPagoPendiente,
       montoCompletadasUSD,
-      countActivas,
-      countCompletadas,
       enviosActivosVinculados,
     };
   }, [ordenesLN, envios]);
@@ -322,15 +313,6 @@ export const OrdenesCompra: React.FC = () => {
       const estadosValidos =
         estadoFilterMapOpcionB[filtroEstado as EstadoPipelineCompras] || [filtroEstado];
       lista = lista.filter((o) => estadosValidos.includes(o.estado));
-    }
-
-    // Pills filtro (todas / activas / completadas)
-    if (pillFiltro === 'activas') {
-      lista = lista.filter(o =>
-        ['confirmada', 'enviada', 'pagada', 'en_proceso', 'despachada', 'en_transito', 'recibida_parcial'].includes(o.estado)
-      );
-    } else if (pillFiltro === 'completadas') {
-      lista = lista.filter(o => ['completada', 'recibida'].includes(o.estado));
     }
 
     // Filtro por proveedor
@@ -354,12 +336,12 @@ export const OrdenesCompra: React.FC = () => {
     }
 
     return lista;
-  }, [ordenesLN, filtroEstado, pillFiltro, filtroProveedor, filtroEstadoPago, busquedaGlobal]);
+  }, [ordenesLN, filtroEstado, filtroProveedor, filtroEstadoPago, busquedaGlobal]);
 
   // Reset paginación cuando cambian filtros
   useEffect(() => {
     setItemsVisibles(10);
-  }, [filtroEstado, pillFiltro, filtroProveedor, filtroEstadoPago, busquedaGlobal]);
+  }, [filtroEstado, filtroProveedor, filtroEstadoPago, busquedaGlobal]);
 
   // Cargar datos al montar
   useEffect(() => {
@@ -965,51 +947,31 @@ export const OrdenesCompra: React.FC = () => {
 
       {/* KPIs movidos al HubKpiStrip persistente del shell · chk5.COMERCIALES-F1 */}
 
-      {/* Pipeline Opción B (S41) — 4 etapas Borrador → Confirmada → En Despacho → Completada */}
-      <PipelineCompras
-        stages={pipelineComprasStages}
-        activeStage={filtroEstado as EstadoPipelineCompras | null}
-        onStageClick={(s) => setFiltroEstado(s)}
-        totalOCs={ordenesLN.length}
-      />
-
-      {/* S42 Tanda 10 — Pills filtros rápidos + dropdowns (mockup líneas 236-250) */}
+      {/* chk5.COMERCIALES-F1 · Filtro por etapa UNIFICADO — reemplaza el Pipeline (4 cards)
+          + los pills (Todas/Activas/Completadas). El strip da los KPIs ejecutivos; este
+          control filtra el listado por etapa (canon de no-redundancia · no clona el strip). */}
       <div className="flex items-center gap-2 flex-wrap">
-        <span className="text-xs text-slate-500">Filtrar:</span>
-        <button
-          type="button"
-          onClick={() => setPillFiltro('todas')}
-          className={`px-2.5 py-1 text-xs rounded-full transition-colors ${
-            pillFiltro === 'todas'
-              ? 'bg-blue-600 text-white'
-              : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-          }`}
-        >
-          Todas <span className="ml-1 opacity-75">({ordenesLN.length})</span>
-        </button>
-        <button
-          type="button"
-          onClick={() => setPillFiltro('activas')}
-          className={`px-2.5 py-1 text-xs rounded-full transition-colors ${
-            pillFiltro === 'activas'
-              ? 'bg-blue-600 text-white'
-              : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-          }`}
-        >
-          Activas ({statsExtra.countActivas})
-        </button>
-        <button
-          type="button"
-          onClick={() => setPillFiltro('completadas')}
-          className={`px-2.5 py-1 text-xs rounded-full transition-colors ${
-            pillFiltro === 'completadas'
-              ? 'bg-blue-600 text-white'
-              : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-          }`}
-        >
-          Completadas ({statsExtra.countCompletadas})
-        </button>
-        <span className="text-slate-300 mx-1">|</span>
+        <span className="text-xs text-slate-500 flex-shrink-0">Etapa:</span>
+        <div className="flex gap-1.5 overflow-x-auto pb-0.5 -mx-1 px-1" style={{ scrollbarWidth: 'none' }}>
+          {[{ id: null as string | null, label: 'Todas', count: ordenesLN.length }, ...pipelineComprasStages.map((s) => ({ id: s.id as string | null, label: s.label, count: s.count }))].map((chip) => {
+            const activo = filtroEstado === chip.id;
+            return (
+              <button
+                key={chip.id ?? 'todas'}
+                type="button"
+                onClick={() => setFiltroEstado(chip.id)}
+                className={`whitespace-nowrap inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border transition-colors ${activo ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'}`}
+              >
+                {chip.label}
+                <span className={`tabular-nums ${activo ? 'text-blue-100' : 'text-slate-400'}`}>{chip.count}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Filtros secundarios — proveedor · estado de pago · línea de negocio */}
+      <div className="flex items-center gap-2 flex-wrap">
         <select
           value={filtroProveedor}
           onChange={(e) => setFiltroProveedor(e.target.value)}
@@ -1044,7 +1006,7 @@ export const OrdenesCompra: React.FC = () => {
           ))}
         </select>
         <div className="flex-1" />
-        {(pillFiltro !== 'todas' ||
+        {(filtroEstado ||
           filtroProveedor ||
           filtroEstadoPago ||
           lineaFiltroGlobal ||
@@ -1052,7 +1014,7 @@ export const OrdenesCompra: React.FC = () => {
           <button
             type="button"
             onClick={() => {
-              setPillFiltro('todas');
+              setFiltroEstado(null);
               setFiltroProveedor('');
               setFiltroEstadoPago('');
               setLineaFiltroGlobal(null);

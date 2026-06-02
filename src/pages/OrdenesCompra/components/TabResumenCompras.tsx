@@ -14,8 +14,6 @@ interface StatsExtra {
   montoPendienteUSD: number;
   ocsConPagoPendiente: number;
   montoCompletadasUSD: number;
-  countActivas: number;
-  countCompletadas: number;
   enviosActivosVinculados: number;
 }
 
