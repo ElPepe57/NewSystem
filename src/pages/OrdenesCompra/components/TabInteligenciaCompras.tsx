@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import { BrainCircuit, TrendingUp, TrendingDown, Package, ArrowUpRight, BarChart3, Tag, Trophy, Minus } from 'lucide-react';
 import type { OrdenCompra, Proveedor } from '../../../types/ordenCompra.types';
+import { EmptyDashboardSkeleton } from '../../../design-system';
 
 // chk5.COMERCIALES-F3c · Tab Inteligencia del hub de Compras · vista AGREGADA de compra.
 // Eleva sin duplicar el Resumen (que da concentración por proveedor + FX). Aquí:
@@ -77,19 +78,20 @@ export const TabInteligenciaCompras: React.FC<Props> = ({ ordenes, proveedores, 
   if (sinDatos) {
     return (
       <div className="bg-slate-50/30 p-4 sm:p-6">
-        <div className="bg-white border border-slate-200 rounded-2xl p-10 text-center">
-          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-blue-50 text-blue-600 mb-4 mx-auto">
-            <BrainCircuit className="w-7 h-7" />
-          </div>
-          <h3 className="text-base font-semibold text-slate-900">{hayOCs ? 'Sin detalle de productos para analizar' : 'Sin datos de inteligencia aún'}</h3>
-          <p className="text-[12px] text-slate-500 mt-1 max-w-md mx-auto">
-            {hayOCs
-              ? 'Tus órdenes de compra no tienen líneas de producto con precio para agregar. Las OCs creadas con el wizard incluyen ese detalle y aparecerán aquí automáticamente.'
-              : 'Cuando registres órdenes de compra verás aquí el ranking de SKUs por gasto, la variación de precios y la competitividad de tus proveedores.'}
-          </p>
-          <button onClick={() => navigate('/intel-productos')} className="mt-5 inline-flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white text-[12px] font-semibold px-4 py-2 rounded-lg transition-colors">
-            <ArrowUpRight className="w-4 h-4" /> Ir a Cost Intelligence
-          </button>
+        <div className="bg-white border border-slate-200 rounded-2xl p-6 sm:p-8">
+          <EmptyDashboardSkeleton
+            color="blue"
+            icon={BrainCircuit}
+            titulo={hayOCs ? 'Sin detalle de productos para analizar' : 'Aún no hay inteligencia de compra'}
+            subtitulo={hayOCs ? 'Vista previa · tus OCs aún no tienen líneas con precio para agregar' : 'Vista previa · así se verá cuando registres tu primera OC'}
+            cta={{ label: 'Ir a Cost Intelligence', icon: ArrowUpRight, onClick: () => navigate('/intel-productos') }}
+            bloques={[
+              { tipo: 'stats', items: ['SKUs comprados', 'Total comprado', 'Con histórico de precio'] },
+              { tipo: 'charts', items: [{ label: 'Top SKUs por gasto', forma: 'bars' }, { label: 'Movimientos de precio', forma: 'bars' }] },
+              { tipo: 'list', label: 'Competitividad de precios · proveedores', filas: 3 },
+              { tipo: 'links', label: 'Análisis profundo', items: ['Cost Intelligence', 'Price Advisor'] },
+            ]}
+          />
         </div>
       </div>
     );
