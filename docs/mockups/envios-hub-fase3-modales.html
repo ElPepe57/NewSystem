@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Envíos Hub · Fase 3 · Modales</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  * { font-family: 'Inter', system-ui, sans-serif; }
+  .tabular-nums { font-variant-numeric: tabular-nums; }
+  .font-mono { font-family: ui-monospace, monospace; }
+  body { background: #f1f5f9; }
+  .hide-scroll::-webkit-scrollbar { display: none; }
+  .hide-scroll { scrollbar-width: none; }
+  .kbd { display:inline-block; padding:0 6px; font-family: ui-monospace, monospace; font-size:10px; background:#f1f5f9; border:1px solid #cbd5e1; border-bottom-width:2px; border-radius:4px; color:#475569; }
+</style>
+</head>
+<body class="text-slate-900 pb-24">
+
+<!-- ════════════ HERO ════════════ -->
+<div class="max-w-6xl mx-auto px-4 pt-8 pb-4">
+  <div class="flex items-center gap-2 mb-3 flex-wrap">
+    <span class="text-[10px] font-bold uppercase tracking-wider bg-orange-100 text-orange-700 px-2 py-1 rounded">ENVÍOS · orange</span>
+    <span class="text-[10px] font-bold uppercase tracking-wider bg-slate-200 text-slate-600 px-2 py-1 rounded">FASE 3 · 11 MODALES</span>
+    <span class="text-[10px] font-bold uppercase tracking-wider bg-emerald-100 text-emerald-700 px-2 py-1 rounded">FormModalV2 · COBERTURA + MOBILE</span>
+  </div>
+  <h1 class="text-3xl font-bold tracking-tight mb-2">Envíos Hub · Fase 3 · Modales</h1>
+  <p class="text-[14px] text-slate-600 max-w-3xl leading-relaxed">
+    Los 11 modales del módulo, todos ensamblados con <strong>FormModalV2</strong> (header icono tonal + body +
+    footer con atajos <span class="kbd">Esc</span> <span class="kbd">⌘↵</span>). Incluye el <strong>disparo "Despachar"
+    desde la Venta</strong> (T-F · la unificación). Cada uno con su tono semántico.
+  </p>
+</div>
+
+<!-- ÍNDICE -->
+<div class="max-w-6xl mx-auto px-4 mb-8">
+  <div class="bg-white border border-slate-200 rounded-2xl p-4 grid grid-cols-2 md:grid-cols-3 gap-2 text-[12px]">
+    <a href="#acto1" class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-slate-50"><span class="w-5 h-5 rounded bg-sky-100 text-sky-700 flex items-center justify-center text-[10px] font-bold">1</span> Despachar + Recepción</a>
+    <a href="#acto2" class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-slate-50"><span class="w-5 h-5 rounded bg-orange-100 text-orange-700 flex items-center justify-center text-[10px] font-bold">2</span> Disparo desde Venta</a>
+    <a href="#acto3" class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-slate-50"><span class="w-5 h-5 rounded bg-indigo-100 text-indigo-700 flex items-center justify-center text-[10px] font-bold">3</span> Costos (3)</a>
+    <a href="#acto4" class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-slate-50"><span class="w-5 h-5 rounded bg-rose-100 text-rose-700 flex items-center justify-center text-[10px] font-bold">4</span> Incidencias · Aduana · Reclamo</a>
+    <a href="#acto5" class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-slate-50"><span class="w-5 h-5 rounded bg-violet-100 text-violet-700 flex items-center justify-center text-[10px] font-bold">5</span> Tanda + Salida wizard</a>
+    <a href="#acto6" class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-slate-50"><span class="w-5 h-5 rounded bg-slate-100 flex items-center justify-center text-[10px] font-bold">6</span> Mobile</a>
+  </div>
+</div>
+
+<!-- ════════════ ACTO 1 · DESPACHAR + RECEPCIÓN ════════════ -->
+<div id="acto1" class="max-w-6xl mx-auto px-4 mb-12">
+  <div class="text-[11px] font-bold uppercase tracking-wider text-sky-600 mb-3">1 · Flujo logístico — Despachar envío + Registrar recepción</div>
+  <div class="grid md:grid-cols-2 gap-5 items-start">
+
+    <!-- DESPACHAR ENVÍO (sky) -->
+    <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+      <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between gap-3">
+        <div class="flex items-center gap-3 min-w-0">
+          <div class="flex-shrink-0 w-10 h-10 rounded-lg border bg-sky-50 border-sky-200 text-sky-700 flex items-center justify-center"><i data-lucide="truck" class="w-5 h-5"></i></div>
+          <div class="min-w-0"><h2 class="text-base font-bold text-slate-900 truncate">Despachar envío</h2><p class="text-[11px] text-slate-500 truncate">ENV-0309 · Confirmado → En tránsito</p></div>
+        </div>
+        <button class="text-slate-400"><i data-lucide="x" class="w-4 h-4"></i></button>
+      </div>
+      <div class="px-6 py-5 space-y-4">
+        <div>
+          <label class="text-[11px] font-medium text-slate-600 mb-1.5 block">Tipo de transporte</label>
+          <div class="grid grid-cols-3 gap-2">
+            <button class="p-2.5 rounded-lg border-2 border-sky-300 bg-sky-50 text-center"><i data-lucide="luggage" class="w-4 h-4 text-sky-600 mx-auto mb-1"></i><div class="text-[10px] font-bold text-slate-800">Viajero</div></button>
+            <button class="p-2.5 rounded-lg border border-slate-200 text-center"><i data-lucide="plane" class="w-4 h-4 text-slate-400 mx-auto mb-1"></i><div class="text-[10px] font-medium text-slate-600">Courier intl.</div></button>
+            <button class="p-2.5 rounded-lg border border-slate-200 text-center"><i data-lucide="package" class="w-4 h-4 text-slate-400 mx-auto mb-1"></i><div class="text-[10px] font-medium text-slate-600">Courier ext.</div></button>
+          </div>
+        </div>
+        <div>
+          <label class="text-[11px] font-medium text-slate-600 mb-1.5 block">Colaborador</label>
+          <div class="border border-slate-300 rounded-lg px-3 py-2 text-[12px] flex items-center justify-between"><span class="flex items-center gap-2"><span class="w-5 h-5 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center text-[8px] font-bold">MT</span> M. Torres <span class="text-[9px] text-slate-400">· 98% éxito · 24 envíos</span></span><i data-lucide="chevron-down" class="w-4 h-4 text-slate-400"></i></div>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div><label class="text-[11px] font-medium text-slate-600 mb-1.5 block">Tracking</label><div class="border border-slate-300 rounded-lg px-3 py-2 text-[12px] text-slate-400 font-mono">TRK-99281</div></div>
+          <div><label class="text-[11px] font-medium text-slate-600 mb-1.5 block">Fecha despacho</label><div class="border border-slate-300 rounded-lg px-3 py-2 text-[12px] flex items-center gap-1.5"><i data-lucide="calendar" class="w-3.5 h-3.5 text-slate-400"></i> hoy</div></div>
+        </div>
+        <div class="bg-slate-50 rounded-lg p-2.5 text-[11px] text-slate-500 flex items-center gap-2"><i data-lucide="arrow-right" class="w-3.5 h-3.5"></i> El envío pasa a <strong class="text-sky-700">En tránsito</strong> y se registra la salida.</div>
+      </div>
+      <div class="px-6 py-4 border-t border-slate-200 flex items-center justify-between gap-3 flex-wrap">
+        <div class="flex items-center gap-3 text-[10px] text-slate-500"><span class="flex items-center gap-1"><span class="kbd">Esc</span> cerrar</span><span class="flex items-center gap-1"><span class="kbd">⌘</span><span class="kbd">↵</span> guardar</span></div>
+        <div class="flex items-center gap-2"><button class="text-sm text-slate-600 px-3 py-1.5">Cancelar</button><button class="text-sm font-semibold bg-sky-600 hover:bg-sky-700 text-white px-4 py-1.5 rounded-lg flex items-center gap-1.5"><i data-lucide="truck" class="w-4 h-4"></i> Despachar envío</button></div>
+      </div>
+    </div>
+
+    <!-- REGISTRAR RECEPCIÓN (emerald) -->
+    <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+      <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between gap-3">
+        <div class="flex items-center gap-3 min-w-0">
+          <div class="flex-shrink-0 w-10 h-10 rounded-lg border bg-emerald-50 border-emerald-200 text-emerald-700 flex items-center justify-center"><i data-lucide="package-check" class="w-5 h-5"></i></div>
+          <div class="min-w-0"><h2 class="text-base font-bold text-slate-900 truncate">Registrar recepción</h2><p class="text-[11px] text-slate-500 truncate">ENV-0309 · 24 unidades esperadas</p></div>
+        </div>
+        <button class="text-slate-400"><i data-lucide="x" class="w-4 h-4"></i></button>
+      </div>
+      <div class="px-6 py-5 space-y-3">
+        <div class="flex items-center justify-between text-[11px] mb-1"><span class="text-slate-500">Progreso de recepción</span><button class="text-sky-600 font-medium flex items-center gap-1"><i data-lucide="scan-line" class="w-3.5 h-3.5"></i> Escanear</button></div>
+        <!-- producto 1 -->
+        <div class="rounded-lg border border-slate-200 p-3">
+          <div class="flex items-center gap-2.5 mb-2"><span class="w-8 h-8 rounded bg-slate-100 flex items-center justify-center text-[14px]">🧴</span><div class="flex-1 min-w-0"><div class="text-[12px] font-medium text-slate-800">Colágeno · 60 cáps</div><div class="text-[10px] text-slate-400 font-mono">COL-60 · 12 esperadas</div></div><div class="flex items-center gap-1"><button class="w-6 h-6 rounded bg-slate-100 text-slate-500 flex items-center justify-center">−</button><span class="w-7 text-center text-[13px] font-bold tabular-nums">12</span><button class="w-6 h-6 rounded bg-slate-100 text-slate-500 flex items-center justify-center">+</button></div></div>
+          <div class="flex gap-2 text-[10px]"><span class="px-1.5 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200">2 dañadas</span><span class="px-1.5 py-0.5 rounded bg-slate-50 text-slate-500 border border-slate-200">+ vencimiento</span></div>
+        </div>
+        <!-- producto 2 -->
+        <div class="rounded-lg border border-slate-200 p-3">
+          <div class="flex items-center gap-2.5"><span class="w-8 h-8 rounded bg-slate-100 flex items-center justify-center text-[14px]">💊</span><div class="flex-1 min-w-0"><div class="text-[12px] font-medium text-slate-800">Magnesio · 90 cáps</div><div class="text-[10px] text-slate-400 font-mono">MAG-90 · 12 esperadas</div></div><div class="flex items-center gap-1"><button class="w-6 h-6 rounded bg-slate-100 text-slate-500 flex items-center justify-center">−</button><span class="w-7 text-center text-[13px] font-bold tabular-nums">12</span><button class="w-6 h-6 rounded bg-slate-100 text-slate-500 flex items-center justify-center">+</button></div></div>
+        </div>
+        <div><label class="text-[11px] font-medium text-slate-600 mb-1.5 block">Observaciones</label><div class="border border-slate-300 rounded-lg px-3 py-2 text-[11px] text-slate-400">Notas de la recepción...</div></div>
+      </div>
+      <div class="px-6 py-4 border-t border-slate-200 flex items-center justify-between gap-3 flex-wrap">
+        <div class="flex items-center gap-2 text-[10px] text-slate-500"><span class="px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700">22 OK</span><span class="px-1.5 py-0.5 rounded bg-amber-50 text-amber-700">2 dañadas</span></div>
+        <div class="flex items-center gap-2"><button class="text-sm text-slate-600 px-3 py-1.5">Cancelar</button><button class="text-sm font-semibold bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-1.5 rounded-lg">Registrar #1</button></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ════════════ ACTO 2 · DISPARO DESDE VENTA (NUEVO · T-F) ════════════ -->
+<div id="acto2" class="max-w-6xl mx-auto px-4 mb-12">
+  <div class="text-[11px] font-bold uppercase tracking-wider text-orange-600 mb-3">2 · El disparo "Despachar" desde la Venta (NUEVO · T-F) — modal ágil que crea el envío en el hub</div>
+  <div class="max-w-md mx-auto bg-white rounded-2xl shadow-lg overflow-hidden">
+    <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between gap-3">
+      <div class="flex items-center gap-3 min-w-0">
+        <div class="flex-shrink-0 w-10 h-10 rounded-lg border bg-orange-50 border-orange-200 text-orange-700 flex items-center justify-center"><i data-lucide="truck" class="w-5 h-5"></i></div>
+        <div class="min-w-0"><h2 class="text-base font-bold text-slate-900 truncate">Despachar venta</h2><p class="text-[11px] text-slate-500 truncate">VT-2026-0188 · se invoca desde el detalle de la Venta</p></div>
+      </div>
+      <button class="text-slate-400"><i data-lucide="x" class="w-4 h-4"></i></button>
+    </div>
+    <div class="px-6 py-5 space-y-4">
+      <div class="rounded-lg bg-slate-50 border border-slate-200 p-3 text-[11px] space-y-1.5">
+        <div class="flex justify-between"><span class="text-slate-500">Cliente</span><span class="font-medium text-slate-800">Juan Pérez · Surco</span></div>
+        <div class="flex justify-between"><span class="text-slate-500">Productos (FEFO asignado)</span><span class="font-medium text-slate-800">3 · 2.3 lb</span></div>
+      </div>
+      <div><label class="text-[11px] font-medium text-slate-600 mb-1.5 block">Almacén de origen</label><div class="border border-slate-300 rounded-lg px-3 py-2 text-[12px] flex items-center justify-between"><span class="flex items-center gap-1.5"><i data-lucide="warehouse" class="w-3.5 h-3.5 text-slate-400"></i> Almacén Lima · Principal</span><i data-lucide="chevron-down" class="w-4 h-4 text-slate-400"></i></div></div>
+      <div><label class="text-[11px] font-medium text-slate-600 mb-1.5 block">Courier / transportista</label><div class="border border-orange-300 ring-1 ring-orange-100 rounded-lg px-3 py-2 text-[12px] flex items-center justify-between"><span class="flex items-center gap-1.5"><span class="w-5 h-5 rounded bg-slate-100 text-slate-600 flex items-center justify-center text-[9px] font-bold">OL</span> Olva Courier</span><i data-lucide="chevron-down" class="w-4 h-4 text-slate-400"></i></div></div>
+      <div class="rounded-lg bg-indigo-50 border border-indigo-200 p-3">
+        <div class="flex items-center justify-between text-[11px] mb-1"><span class="text-slate-500">Peso 2.3 lb · tarifa tramo 1-3 lb</span><span class="tabular-nums text-slate-700">S/ 12.00</span></div>
+        <div class="flex items-center justify-between text-[12px]"><span class="font-bold text-indigo-800 flex items-center gap-1"><i data-lucide="sparkles" class="w-3.5 h-3.5"></i> Flete calculado</span><span class="tabular-nums font-bold text-indigo-900 text-[15px]">S/ 12.00</span></div>
+        <div class="text-[10px] text-indigo-500 mt-1">auto de tarifaPorTramos · editable en el hub · → CC de Olva</div>
+      </div>
+      <div class="flex items-center justify-between p-3 rounded-lg bg-rose-50 border border-rose-200"><span class="text-[12px] text-rose-700 font-medium flex items-center gap-1.5"><i data-lucide="hand-coins" class="w-4 h-4"></i> Cobra contra entrega (COD)</span><div class="w-9 h-5 rounded-full bg-rose-500 relative"><span class="absolute right-0.5 top-0.5 w-4 h-4 rounded-full bg-white"></span></div></div>
+    </div>
+    <div class="px-6 py-4 border-t border-slate-200 flex items-center justify-between gap-3 flex-wrap">
+      <div class="flex items-center gap-2 text-[10px] text-slate-500"><span class="flex items-center gap-1"><span class="kbd">Esc</span> cerrar</span></div>
+      <div class="flex items-center gap-2"><button class="text-sm text-slate-600 px-3 py-1.5">Cancelar</button><button class="text-sm font-semibold bg-orange-600 hover:bg-orange-700 text-white px-4 py-1.5 rounded-lg flex items-center gap-1.5"><i data-lucide="truck" class="w-4 h-4"></i> Generar despacho</button></div>
+    </div>
+  </div>
+  <div class="max-w-md mx-auto mt-2 text-[10px] text-slate-400 text-center">Nace en el hub en estado borrador · la operación (parciales, foto, reprogramar) vive en el detalle del envío (Fase 2).</div>
+</div>
+
+<!-- ════════════ ACTO 3 · COSTOS ════════════ -->
+<div id="acto3" class="max-w-6xl mx-auto px-4 mb-12">
+  <div class="text-[11px] font-bold uppercase tracking-wider text-indigo-600 mb-3">3 · Costos — Agregar costo landed · Finalizar costos · Editar flete</div>
+  <div class="grid md:grid-cols-2 gap-5 items-start">
+
+    <!-- AGREGAR COSTO LANDED (indigo) -->
+    <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+      <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between gap-3">
+        <div class="flex items-center gap-3 min-w-0"><div class="flex-shrink-0 w-10 h-10 rounded-lg border bg-purple-50 border-purple-200 text-purple-700 flex items-center justify-center"><i data-lucide="dollar-sign" class="w-5 h-5"></i></div><div class="min-w-0"><h2 class="text-base font-bold text-slate-900 truncate">Agregar costo landed</h2><p class="text-[11px] text-slate-500 truncate">ENV-0309 · se prorratea al CTRU</p></div></div>
+        <button class="text-slate-400"><i data-lucide="x" class="w-4 h-4"></i></button>
+      </div>
+      <div class="px-6 py-5 space-y-4">
+        <div>
+          <label class="text-[11px] font-medium text-slate-600 mb-1.5 block">Alcance</label>
+          <div class="grid grid-cols-2 gap-2">
+            <button class="p-2.5 rounded-lg border-2 border-purple-300 bg-purple-50 text-[11px] font-bold text-slate-800 flex items-center gap-1.5"><i data-lucide="package" class="w-3.5 h-3.5 text-purple-600"></i> Todo el envío</button>
+            <button class="p-2.5 rounded-lg border border-slate-200 text-[11px] font-medium text-slate-600 flex items-center gap-1.5"><i data-lucide="target" class="w-3.5 h-3.5 text-slate-400"></i> Tanda específica</button>
+          </div>
+        </div>
+        <div><label class="text-[11px] font-medium text-slate-600 mb-1.5 block">Concepto</label><div class="border border-slate-300 rounded-lg px-3 py-2 text-[12px] text-slate-700">Aduana + aranceles</div></div>
+        <div class="grid grid-cols-2 gap-3">
+          <div><label class="text-[11px] font-medium text-slate-600 mb-1.5 block">Monto</label><div class="border border-slate-300 rounded-lg px-3 py-2 text-[12px] tabular-nums text-slate-700">840.00</div></div>
+          <div><label class="text-[11px] font-medium text-slate-600 mb-1.5 block">Moneda</label><div class="flex gap-1"><button class="flex-1 py-2 rounded-lg bg-slate-800 text-white text-[11px] font-bold">USD</button><button class="flex-1 py-2 rounded-lg bg-slate-100 text-slate-500 text-[11px]">PEN</button></div></div>
+        </div>
+        <div><label class="text-[11px] font-medium text-slate-600 mb-1.5 block">Prorrateo</label><div class="flex flex-wrap gap-1.5 text-[10px]"><span class="px-2 py-1 rounded-full bg-purple-100 text-purple-700 font-medium">Por peso</span><span class="px-2 py-1 rounded-full bg-white border border-slate-200 text-slate-500">Por valor</span><span class="px-2 py-1 rounded-full bg-white border border-slate-200 text-slate-500">Fijo/unidad</span></div></div>
+        <div class="flex items-center justify-between p-2.5 rounded-lg bg-amber-50 border border-amber-200 text-[11px]"><span class="text-amber-700 font-medium">Estado</span><div class="flex gap-1"><span class="px-2 py-0.5 rounded bg-amber-200 text-amber-800 font-bold">Estimado</span><span class="px-2 py-0.5 rounded text-slate-500">Confirmado</span></div></div>
+      </div>
+      <div class="px-6 py-4 border-t border-slate-200 flex items-center justify-between gap-3 flex-wrap">
+        <span class="flex items-center gap-1 text-[10px] text-slate-500"><span class="kbd">⌘</span><span class="kbd">↵</span> guardar</span>
+        <div class="flex items-center gap-2"><button class="text-sm text-slate-600 px-3 py-1.5">Cancelar</button><button class="text-sm font-semibold bg-purple-600 hover:bg-purple-700 text-white px-4 py-1.5 rounded-lg">Agregar costo</button></div>
+      </div>
+    </div>
+
+    <div class="space-y-5">
+      <!-- FINALIZAR COSTOS (slate · destructivo/irreversible) -->
+      <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+        <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between gap-3">
+          <div class="flex items-center gap-3 min-w-0"><div class="flex-shrink-0 w-10 h-10 rounded-lg border bg-slate-100 border-slate-200 text-slate-700 flex items-center justify-center"><i data-lucide="lock" class="w-5 h-5"></i></div><div class="min-w-0"><h2 class="text-base font-bold text-slate-900 truncate">Finalizar costos</h2><p class="text-[11px] text-slate-500 truncate">CTRU definitivo · irreversible</p></div></div>
+          <button class="text-slate-400"><i data-lucide="x" class="w-4 h-4"></i></button>
+        </div>
+        <div class="px-6 py-5 space-y-3">
+          <div class="rounded-lg bg-amber-50 border border-amber-200 p-3 flex items-start gap-2 text-[11px]"><i data-lucide="alert-triangle" class="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5"></i><span class="text-amber-800">Hay <strong>1 costo estimado</strong> (Aduana $840). No se puede finalizar hasta confirmarlo.</span></div>
+          <div class="rounded-lg bg-slate-50 border border-slate-200 p-3 text-[11px]"><div class="flex justify-between mb-1"><span class="text-slate-500">Total a aplicar</span><span class="tabular-nums font-bold text-slate-800">$2,780</span></div><div class="text-[10px] text-slate-400">CTRU definitivo a 24 unidades · solo lectura tras finalizar</div></div>
+        </div>
+        <div class="px-6 py-4 border-t border-slate-200 flex items-center justify-end gap-2"><button class="text-sm text-slate-600 px-3 py-1.5">Cancelar</button><button class="text-sm font-semibold bg-slate-200 text-slate-400 px-4 py-1.5 rounded-lg cursor-not-allowed">Finalizar</button></div>
+      </div>
+
+      <!-- EDITAR FLETE (teal) -->
+      <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+        <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between gap-3">
+          <div class="flex items-center gap-3 min-w-0"><div class="flex-shrink-0 w-10 h-10 rounded-lg border bg-teal-50 border-teal-200 text-teal-700 flex items-center justify-center"><i data-lucide="banknote" class="w-5 h-5"></i></div><div class="min-w-0"><h2 class="text-base font-bold text-slate-900 truncate">Editar flete</h2><p class="text-[11px] text-slate-500 truncate">por unidad · total auto-calculado</p></div></div>
+          <button class="text-slate-400"><i data-lucide="x" class="w-4 h-4"></i></button>
+        </div>
+        <div class="px-6 py-5 space-y-2.5">
+          <div class="flex items-center justify-between p-2.5 rounded-lg border border-slate-200 text-[11px]"><span class="flex items-center gap-2"><span class="w-6 h-6 rounded bg-slate-100 flex items-center justify-center text-[12px]">🧴</span> Colágeno ×12</span><div class="flex items-center gap-1.5"><span class="text-slate-400">$</span><span class="border border-slate-300 rounded px-2 py-0.5 tabular-nums">4.50</span><span class="text-slate-400">/u</span></div></div>
+          <div class="flex items-center justify-between p-2.5 rounded-lg border border-slate-200 text-[11px]"><span class="flex items-center gap-2"><span class="w-6 h-6 rounded bg-slate-100 flex items-center justify-center text-[12px]">💊</span> Magnesio ×12</span><div class="flex items-center gap-1.5"><span class="text-slate-400">$</span><span class="border border-slate-300 rounded px-2 py-0.5 tabular-nums">3.80</span><span class="text-slate-400">/u</span></div></div>
+          <div class="flex justify-between pt-2 border-t border-slate-100 text-[12px]"><span class="font-medium text-slate-700">Total flete</span><span class="tabular-nums font-bold text-teal-700">$99.60</span></div>
+        </div>
+        <div class="px-6 py-4 border-t border-slate-200 flex items-center justify-end gap-2"><button class="text-sm text-slate-600 px-3 py-1.5">Cancelar</button><button class="text-sm font-semibold bg-teal-600 hover:bg-teal-700 text-white px-4 py-1.5 rounded-lg">Guardar flete</button></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ════════════ ACTO 4 · INCIDENCIAS · ADUANA · RECLAMO ════════════ -->
+<div id="acto4" class="max-w-6xl mx-auto px-4 mb-12">
+  <div class="text-[11px] font-bold uppercase tracking-wider text-rose-600 mb-3">4 · Gestión de incidencias (3 sub-tabs) · Liberar aduana · Resolver reclamo</div>
+
+  <!-- GESTIÓN INCIDENCIAS (red · 3 sub-tabs) -->
+  <div class="bg-white rounded-2xl shadow-lg overflow-hidden mb-5">
+    <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between gap-3">
+      <div class="flex items-center gap-3 min-w-0"><div class="flex-shrink-0 w-10 h-10 rounded-lg border bg-red-50 border-red-200 text-red-700 flex items-center justify-center"><i data-lucide="alert-triangle" class="w-5 h-5"></i></div><div class="min-w-0"><h2 class="text-base font-bold text-slate-900 truncate">Gestionar incidencias</h2><p class="text-[11px] text-slate-500 truncate">ENV-0309 · decide el destino de cada unidad</p></div></div>
+      <button class="text-slate-400"><i data-lucide="x" class="w-4 h-4"></i></button>
+    </div>
+    <!-- sub-tabs -->
+    <div class="px-6 pt-3 flex gap-2 border-b border-slate-100">
+      <button class="pb-2 px-1 border-b-2 border-red-500 text-red-700 text-[12px] font-bold flex items-center gap-1">Dañadas <span class="text-[9px] bg-red-100 px-1.5 rounded-full">2</span></button>
+      <button class="pb-2 px-1 border-b-2 border-transparent text-slate-400 text-[12px] font-medium">Perdidas</button>
+      <button class="pb-2 px-1 border-b-2 border-transparent text-slate-400 text-[12px] font-medium flex items-center gap-1">Aduana <span class="text-[9px] bg-amber-100 text-amber-700 px-1.5 rounded-full">24</span></button>
+    </div>
+    <div class="px-6 py-5">
+      <div class="flex items-center justify-between text-[11px] mb-3"><span class="text-slate-500">Progreso · 0 de 2 decididas</span><div class="w-24 h-1.5 bg-slate-100 rounded-full"><div class="h-full bg-red-400 rounded-full" style="width:0%"></div></div></div>
+      <div class="rounded-lg border border-slate-200 p-3">
+        <div class="flex items-center gap-2.5 mb-3"><span class="w-8 h-8 rounded bg-slate-100 flex items-center justify-center text-[14px]">🧴</span><div class="flex-1 min-w-0"><div class="text-[12px] font-medium text-slate-800">Colágeno · 60 cáps</div><div class="text-[10px] text-slate-400 font-mono">COL-60 · sello roto</div></div><a href="#" class="text-[10px] text-sky-600 font-medium">Ver evidencia</a></div>
+        <div class="grid grid-cols-3 gap-2 mb-2">
+          <button class="p-2 rounded-lg border-2 border-red-300 bg-red-50 text-center"><i data-lucide="trash-2" class="w-4 h-4 text-red-600 mx-auto mb-1"></i><div class="text-[9px] font-bold text-slate-800">Baja definitiva</div></button>
+          <button class="p-2 rounded-lg border border-slate-200 text-center"><i data-lucide="rotate-ccw" class="w-4 h-4 text-slate-400 mx-auto mb-1"></i><div class="text-[9px] font-medium text-slate-600">Devolución</div></button>
+          <button class="p-2 rounded-lg border border-slate-200 text-center"><i data-lucide="wrench" class="w-4 h-4 text-slate-400 mx-auto mb-1"></i><div class="text-[9px] font-medium text-slate-600">Reparación</div></button>
+        </div>
+        <div class="bg-slate-50 rounded-lg p-2 text-[10px] text-slate-500 flex items-center gap-1.5"><i data-lucide="info" class="w-3 h-3"></i> Baja definitiva genera gasto automático (cuenta 6952).</div>
+      </div>
+    </div>
+    <div class="px-6 py-4 border-t border-slate-200 flex items-center justify-end gap-2"><button class="text-sm text-slate-600 px-3 py-1.5">Cancelar</button><button class="text-sm font-semibold bg-red-600 hover:bg-red-700 text-white px-4 py-1.5 rounded-lg">Revisar y confirmar</button></div>
+  </div>
+
+  <div class="grid md:grid-cols-2 gap-5 items-start">
+    <!-- LIBERAR ADUANA (amber) -->
+    <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+      <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between gap-3">
+        <div class="flex items-center gap-3 min-w-0"><div class="flex-shrink-0 w-10 h-10 rounded-lg border bg-amber-50 border-amber-200 text-amber-700 flex items-center justify-center"><i data-lucide="stamp" class="w-5 h-5"></i></div><div class="min-w-0"><h2 class="text-base font-bold text-slate-900 truncate">Liberar aduana</h2><p class="text-[11px] text-slate-500 truncate">24 unidades retenidas</p></div></div>
+        <button class="text-slate-400"><i data-lucide="x" class="w-4 h-4"></i></button>
+      </div>
+      <div class="px-6 py-5 space-y-3">
+        <div class="flex items-center justify-between p-2.5 rounded-lg bg-slate-50 border border-slate-200 text-[11px]"><span class="flex items-center gap-1.5"><input type="checkbox" checked class="accent-amber-600"> Seleccionar todas</span><span class="tabular-nums text-slate-500">24 / 24</span></div>
+        <div><label class="text-[11px] font-medium text-slate-600 mb-1.5 block">Gastos de liberación (PEN)</label><div class="border border-slate-300 rounded-lg px-3 py-2 text-[12px] tabular-nums text-slate-700">320.00</div><div class="text-[10px] text-slate-400 mt-1">tasas, aranceles, brokerage</div></div>
+        <div><label class="text-[11px] font-medium text-slate-600 mb-1.5 block">Documento (DUA)</label><div class="border border-slate-300 rounded-lg px-3 py-2 text-[12px] text-slate-400">URL o referencia...</div></div>
+        <div class="bg-amber-50 rounded-lg p-2.5 text-[11px] text-amber-700 flex items-center justify-between"><span>Prorrateo estimado</span><span class="tabular-nums font-bold">S/ 13.33 / u</span></div>
+      </div>
+      <div class="px-6 py-4 border-t border-slate-200 flex items-center justify-end gap-2"><button class="text-sm text-slate-600 px-3 py-1.5">Cancelar</button><button class="text-sm font-semibold bg-amber-600 hover:bg-amber-700 text-white px-4 py-1.5 rounded-lg">Liberar 24 unidades</button></div>
+    </div>
+
+    <!-- RESOLVER RECLAMO (purple · 3 opciones) -->
+    <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+      <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between gap-3">
+        <div class="flex items-center gap-3 min-w-0"><div class="flex-shrink-0 w-10 h-10 rounded-lg border bg-purple-50 border-purple-200 text-purple-700 flex items-center justify-center"><i data-lucide="gavel" class="w-5 h-5"></i></div><div class="min-w-0"><h2 class="text-base font-bold text-slate-900 truncate">Resolver reclamo</h2><p class="text-[11px] text-slate-500 truncate">RCL-012 · 2 unidades · S/ 84</p></div></div>
+        <button class="text-slate-400"><i data-lucide="x" class="w-4 h-4"></i></button>
+      </div>
+      <div class="px-6 py-5 space-y-2.5">
+        <button class="w-full p-3 rounded-lg border border-slate-200 text-left flex items-start gap-2.5"><i data-lucide="dollar-sign" class="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5"></i><div><div class="text-[12px] font-bold text-slate-800">Reembolso</div><div class="text-[10px] text-slate-500">el responsable paga · ingreso a tesorería</div></div></button>
+        <button class="w-full p-3 rounded-lg border-2 border-violet-300 bg-violet-50 text-left flex items-start gap-2.5"><i data-lucide="package" class="w-4 h-4 text-violet-600 flex-shrink-0 mt-0.5"></i><div><div class="text-[12px] font-bold text-slate-800">Reemplazo</div><div class="text-[10px] text-slate-500">envía otra unidad · crea tanda · CTRU preservado</div></div></button>
+        <button class="w-full p-3 rounded-lg border border-slate-200 text-left flex items-start gap-2.5"><i data-lucide="trash-2" class="w-4 h-4 text-red-600 flex-shrink-0 mt-0.5"></i><div><div class="text-[12px] font-bold text-slate-800">Merma</div><div class="text-[10px] text-slate-500">se asume la pérdida · baja de inventario</div></div></button>
+      </div>
+      <div class="px-6 py-4 border-t border-slate-200 flex items-center justify-end gap-2"><button class="text-sm text-slate-600 px-3 py-1.5">Cancelar</button><button class="text-sm font-semibold bg-violet-600 hover:bg-violet-700 text-white px-4 py-1.5 rounded-lg">Crear tanda reemplazo</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════ ACTO 5 · TANDA + SALIDA WIZARD ════════════ -->
+<div id="acto5" class="max-w-6xl mx-auto px-4 mb-12">
+  <div class="text-[11px] font-bold uppercase tracking-wider text-violet-600 mb-3">5 · Agregar tanda (sub-envío T1) · Confirmar salida del wizard</div>
+  <div class="grid md:grid-cols-2 gap-5 items-start">
+
+    <!-- AGREGAR TANDA (violet) -->
+    <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+      <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between gap-3">
+        <div class="flex items-center gap-3 min-w-0"><div class="flex-shrink-0 w-10 h-10 rounded-lg border bg-violet-50 border-violet-200 text-violet-700 flex items-center justify-center"><i data-lucide="package-plus" class="w-5 h-5"></i></div><div class="min-w-0"><h2 class="text-base font-bold text-slate-900 truncate">Agregar tanda</h2><p class="text-[11px] text-slate-500 truncate">fracciona el envío del proveedor</p></div></div>
+        <button class="text-slate-400"><i data-lucide="x" class="w-4 h-4"></i></button>
+      </div>
+      <div class="px-6 py-5 space-y-3">
+        <div class="grid grid-cols-2 gap-3">
+          <div><label class="text-[11px] font-medium text-slate-600 mb-1.5 block">Tracking proveedor</label><div class="border border-slate-300 rounded-lg px-3 py-2 text-[11px] text-slate-400 font-mono">opcional</div></div>
+          <div><label class="text-[11px] font-medium text-slate-600 mb-1.5 block">Fecha estimada</label><div class="border border-slate-300 rounded-lg px-3 py-2 text-[11px] flex items-center gap-1.5"><i data-lucide="calendar" class="w-3 h-3 text-slate-400"></i> 8 jun</div></div>
+        </div>
+        <div>
+          <label class="text-[11px] font-medium text-slate-600 mb-1.5 block">Unidades (sin asignar)</label>
+          <div class="space-y-1.5">
+            <div class="flex items-center justify-between p-2 rounded-lg border border-slate-200 text-[11px]"><span class="flex items-center gap-2"><span class="w-6 h-6 rounded bg-slate-100 flex items-center justify-center text-[12px]">🧴</span> Colágeno</span><div class="flex items-center gap-1"><button class="w-5 h-5 rounded bg-slate-100 text-slate-500 text-[10px]">−</button><span class="w-6 text-center tabular-nums font-bold">4</span><button class="w-5 h-5 rounded bg-slate-100 text-slate-500 text-[10px]">+</button></div></div>
+          </div>
+          <div class="text-[10px] text-slate-400 mt-1.5">4 unidades seleccionadas · 1 producto</div>
+        </div>
+        <div>
+          <label class="text-[11px] font-medium text-slate-600 mb-1.5 block">Estado inicial</label>
+          <div class="grid grid-cols-2 gap-2">
+            <button class="p-2 rounded-lg border-2 border-violet-300 bg-violet-50 text-[11px] font-bold text-slate-800">⏳ Pendiente</button>
+            <button class="p-2 rounded-lg border border-slate-200 text-[11px] font-medium text-slate-600">🚚 En tránsito</button>
+          </div>
+        </div>
+      </div>
+      <div class="px-6 py-4 border-t border-slate-200 flex items-center justify-end gap-2"><button class="text-sm text-slate-600 px-3 py-1.5">Cancelar</button><button class="text-sm font-semibold bg-violet-600 hover:bg-violet-700 text-white px-4 py-1.5 rounded-lg">Crear tanda</button></div>
+    </div>
+
+    <!-- CONFIRMAR SALIDA WIZARD (slate · 3 vías) -->
+    <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+      <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between gap-3">
+        <div class="flex items-center gap-3 min-w-0"><div class="flex-shrink-0 w-10 h-10 rounded-lg border bg-slate-100 border-slate-200 text-slate-700 flex items-center justify-center"><i data-lucide="log-out" class="w-5 h-5"></i></div><div class="min-w-0"><h2 class="text-base font-bold text-slate-900 truncate">¿Salir del wizard?</h2><p class="text-[11px] text-slate-500 truncate">tenés cambios sin guardar</p></div></div>
+      </div>
+      <div class="px-6 py-5 space-y-2.5">
+        <button class="w-full p-3 rounded-lg border-2 border-emerald-300 bg-emerald-50 text-left flex items-center gap-2.5"><i data-lucide="save" class="w-4 h-4 text-emerald-600 flex-shrink-0"></i><div><div class="text-[12px] font-bold text-slate-800">Guardar como borrador</div><div class="text-[10px] text-slate-500">retomás después donde quedaste (canon borrador)</div></div></button>
+        <button class="w-full p-3 rounded-lg border border-red-200 text-left flex items-center gap-2.5"><i data-lucide="trash-2" class="w-4 h-4 text-red-600 flex-shrink-0"></i><div><div class="text-[12px] font-bold text-slate-800">Descartar</div><div class="text-[10px] text-slate-500">se pierden los cambios</div></div></button>
+        <button class="w-full p-3 rounded-lg border border-slate-200 text-left flex items-center gap-2.5"><i data-lucide="arrow-left" class="w-4 h-4 text-slate-500 flex-shrink-0"></i><div><div class="text-[12px] font-bold text-slate-800">Seguir editando</div></div></button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ════════════ ACTO 6 · MOBILE ════════════ -->
+<div id="acto6" class="max-w-6xl mx-auto px-4 mb-12">
+  <div class="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-3">6 · Mobile (375px) — modal como bottom-sheet (despachar venta)</div>
+  <div class="flex justify-center">
+    <div class="w-[320px] h-[560px] bg-slate-900/20 rounded-3xl overflow-hidden flex items-end relative">
+      <div class="w-full bg-white rounded-t-3xl overflow-hidden">
+        <div class="flex justify-center pt-2"><div class="w-10 h-1 rounded-full bg-slate-300"></div></div>
+        <div class="px-4 py-3 border-b border-slate-100 flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-lg border bg-orange-50 border-orange-200 text-orange-700 flex items-center justify-center"><i data-lucide="truck" class="w-4.5 h-4.5"></i></div>
+          <div class="flex-1 min-w-0"><h2 class="text-[14px] font-bold text-slate-900">Despachar venta</h2><p class="text-[10px] text-slate-500">VT-0188 · Juan Pérez</p></div>
+          <button class="text-slate-400"><i data-lucide="x" class="w-4 h-4"></i></button>
+        </div>
+        <div class="p-4 space-y-3">
+          <div class="rounded-lg bg-slate-50 border border-slate-200 p-2.5 text-[10px] space-y-1"><div class="flex justify-between"><span class="text-slate-500">Cliente</span><span class="font-medium">Juan Pérez · Surco</span></div><div class="flex justify-between"><span class="text-slate-500">Productos</span><span class="font-medium">3 · 2.3 lb</span></div></div>
+          <div><label class="text-[10px] font-medium text-slate-600 mb-1 block">Courier</label><div class="border border-orange-300 ring-1 ring-orange-100 rounded-lg px-2.5 py-2 text-[11px] flex items-center justify-between"><span class="flex items-center gap-1.5"><span class="w-4 h-4 rounded bg-slate-100 flex items-center justify-center text-[8px] font-bold">OL</span> Olva</span><i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-400"></i></div></div>
+          <div class="rounded-lg bg-indigo-50 border border-indigo-200 p-2.5"><div class="flex items-center justify-between text-[12px]"><span class="font-bold text-indigo-800 flex items-center gap-1"><i data-lucide="sparkles" class="w-3 h-3"></i> Flete</span><span class="tabular-nums font-bold text-indigo-900">S/ 12.00</span></div><div class="text-[9px] text-indigo-500">auto · → CC Olva</div></div>
+          <div class="flex items-center justify-between p-2.5 rounded-lg bg-rose-50 border border-rose-200 text-[11px]"><span class="text-rose-700 font-medium flex items-center gap-1"><i data-lucide="hand-coins" class="w-3.5 h-3.5"></i> COD</span><div class="w-8 h-4.5 rounded-full bg-rose-500 relative"><span class="absolute right-0.5 top-0.5 w-3.5 h-3.5 rounded-full bg-white"></span></div></div>
+        </div>
+        <div class="px-4 py-3 border-t border-slate-100">
+          <button class="w-full text-[12px] font-semibold bg-orange-600 text-white py-2.5 rounded-lg flex items-center justify-center gap-1.5"><i data-lucide="truck" class="w-4 h-4"></i> Generar despacho</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════ FOOTER ════════════ -->
+<div class="max-w-6xl mx-auto px-4 mb-12">
+  <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+    <div class="px-5 py-3 border-b border-slate-200 bg-slate-50 text-[12px] font-bold text-slate-700 flex items-center gap-2"><i data-lucide="check-circle" class="w-4 h-4 text-emerald-500"></i> Fase 3 · 11 modales (FormModalV2)</div>
+    <div class="px-5 py-4 grid md:grid-cols-3 gap-x-6 gap-y-1.5 text-[12px] text-slate-600">
+      <div class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-500"></i> Despachar envío</div>
+      <div class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-500"></i> Registrar recepción</div>
+      <div class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-500"></i> Despachar desde Venta (T-F · nuevo)</div>
+      <div class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-500"></i> Agregar costo landed</div>
+      <div class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-500"></i> Finalizar costos (irreversible)</div>
+      <div class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-500"></i> Editar flete</div>
+      <div class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-500"></i> Gestionar incidencias (3 sub-tabs)</div>
+      <div class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-500"></i> Liberar aduana</div>
+      <div class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-500"></i> Resolver reclamo (3 vías)</div>
+      <div class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-500"></i> Agregar tanda</div>
+      <div class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-500"></i> Confirmar salida wizard</div>
+      <div class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-500"></i> Mobile bottom-sheet</div>
+    </div>
+    <div class="px-5 py-3 border-t border-slate-200 bg-slate-50 text-[11px] text-slate-500">
+      Todos con FormModalV2 (header icono tonal + body + footer atajos <span class="kbd">Esc</span> <span class="kbd">⌘↵</span>). <strong class="text-slate-600">Próximas:</strong> 4 · tabs de gestión (Incidencias/Reclamos/Costos/Rendimiento) · 5 · 3 wizards.
+    </div>
+  </div>
+</div>
+
+<script>lucide.createIcons();</script>
+</body>
+</html>
