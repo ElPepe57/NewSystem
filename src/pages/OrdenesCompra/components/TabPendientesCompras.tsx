@@ -77,7 +77,7 @@ export const TabPendientesCompras: React.FC<Props> = ({ requerimientos, loading,
     return (
       <div className="bg-slate-50/30 p-4 sm:p-6">
         <div className="bg-white border border-slate-200 rounded-2xl p-10 text-center">
-          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-emerald-50 text-emerald-600 mb-4 mx-auto">
+          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-blue-50 text-blue-600 mb-4 mx-auto">
             <CheckSquare className="w-7 h-7" />
           </div>
           <h3 className="text-base font-semibold text-slate-900">Sin productos pendientes de comprar</h3>

@@ -877,7 +877,6 @@ const ProveedorCard: React.FC<{
   onClick: () => void;
 }> = ({ proveedor, selected, onClick }) => {
   const flag = getFlagByPais(proveedor.pais);
-  const colorIcon = proveedor.tipo === 'distribuidor' ? 'sky' : 'pink';
   const ocPrevias = proveedor.metricas?.ordenesCompra ?? 0;
   const tipoLabel = (() => {
     const map: Record<string, string> = {
@@ -901,18 +900,8 @@ const ProveedorCard: React.FC<{
       )}
     >
       <div className="flex items-start gap-3">
-        <div
-          className={cn(
-            'w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0',
-            colorIcon === 'sky' ? 'bg-sky-100' : 'bg-pink-100'
-          )}
-        >
-          <Building2
-            className={cn(
-              'w-5 h-5',
-              colorIcon === 'sky' ? 'text-sky-700' : 'text-pink-600'
-            )}
-          />
+        <div className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 bg-blue-100">
+          <Building2 className="w-5 h-5 text-blue-700" />
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
