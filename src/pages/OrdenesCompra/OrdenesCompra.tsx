@@ -14,6 +14,7 @@ import { CompraCard } from '../../components/modules/ordenCompra/CompraCard';
 import { PipelineCompras } from '../../components/modules/ordenCompra/PipelineCompras';
 import type { EstadoPipelineCompras, PipelineComprasStage } from '../../components/modules/ordenCompra/PipelineCompras';
 import { SubOrdenDetailModal } from '../../components/modules/ordenCompra/SubOrdenDetailModal';
+import { TabResumenCompras } from './components/TabResumenCompras';
 import { useEnvioStore } from '../../store/envioStore';
 import { PagoUnificadoForm } from '../../components/modules/pagos/PagoUnificadoForm';
 import type { PagoUnificadoResult } from '../../components/modules/pagos/PagoUnificadoForm';
@@ -169,7 +170,7 @@ export const OrdenesCompra: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [filtroEstado, setFiltroEstado] = useState<string | null>(null);
   // chk5.COMERCIALES-F1 · tab activa del hub · default 'ordenes' hasta que la Fase 1b construya el Resumen §A→§F
-  const [tabActiva, setTabActiva] = useState<'resumen' | 'ordenes' | 'pendientes' | 'proveedores' | 'inteligencia'>('ordenes');
+  const [tabActiva, setTabActiva] = useState<'resumen' | 'ordenes' | 'pendientes' | 'proveedores' | 'inteligencia'>('resumen');
   // S42 Tanda 10 — Filtros adicionales vista Compras (mockup s40 líneas 235-254)
   const [busquedaGlobal, setBusquedaGlobal] = useState('');
   const [pillFiltro, setPillFiltro] = useState<'todas' | 'activas' | 'completadas'>('todas');
@@ -1105,8 +1106,27 @@ export const OrdenesCompra: React.FC = () => {
         </div>
         )}
 
-        {/* ═══ TABS EN CONSTRUCCIÓN (Resumen · Pendientes · Proveedores · Inteligencia) · fases siguientes ═══ */}
-        {tabActiva !== 'ordenes' && (
+        {/* ═══ TAB RESUMEN · dashboard ejecutivo §A→§F (no clona el strip) ═══ */}
+        {tabActiva === 'resumen' && (
+          <TabResumenCompras
+            ordenes={ordenesLN}
+            stats={stats}
+            statsExtra={statsExtra}
+            tcHoy={tcSugerido}
+            onNuevaOC={() => setIsWizardV2Open(true)}
+            onIrTab={(tab) => setTabActiva(tab)}
+            onFiltrarEstado={(estado) => {
+              setTabActiva('ordenes');
+              if (estado === '__por_pagar__') { setFiltroEstadoPago('pendiente'); }
+              else { setFiltroEstado(estado); }
+            }}
+            onVerOC={(oc) => { setSelectedOrdenLocal(oc); setIsDetailsModalOpen(true); }}
+            navigate={navigate}
+          />
+        )}
+
+        {/* ═══ TABS EN CONSTRUCCIÓN (Pendientes · Proveedores · Inteligencia) · fases siguientes ═══ */}
+        {(tabActiva === 'pendientes' || tabActiva === 'proveedores' || tabActiva === 'inteligencia') && (
           <div className="p-8 sm:p-12 text-center">
             <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-blue-50 text-blue-600 mb-3 mx-auto">
               <LayoutDashboard className="w-6 h-6" />
