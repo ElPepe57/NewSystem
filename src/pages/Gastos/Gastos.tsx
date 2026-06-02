@@ -12,7 +12,7 @@ import {
   // chk5.C10 · F10 · empty state canon · iconos lucide
   Receipt, Building, User as UserIcon, Cloud, ArrowRight, CheckCircle2, Plus,
   // DS Fase 4 · Hub Kit · KPIs (deltas semánticos) + acciones header
-  TrendingUp, TrendingDown, Minus, Flame, Repeat, Clock, CalendarCheck, Briefcase, Settings, FileBarChart,
+  TrendingUp, TrendingDown, Minus, Flame, Repeat, Clock, CalendarCheck, Settings, FileBarChart,
 } from 'lucide-react';
 // chk5.C-FIX · cleanup · Pencil/CreditCard/Badge/GastoLineaBadge removidos (eran del DataTable legacy eliminado)
 import { Card, useConfirmDialog, ConfirmDialog, ListSummary, EmptyStateAction, GastosSkeleton } from '../../components/common';
@@ -297,18 +297,8 @@ export const Gastos: React.FC = () => {
       : 0;
     const dpoDeltaTrimestre = dpoDias - dpoDiasPrev;
 
-    // Top proveedor del mes
-    const porProveedor: Record<string, { nombre: string; monto: number }> = {};
-    for (const g of gastosDelMes) {
-      const key = g.proveedorId || g.proveedor || 'sin-prov';
-      const nombre = g.proveedorNombre || g.proveedor || 'Sin proveedor';
-      if (!porProveedor[key]) porProveedor[key] = { nombre, monto: 0 };
-      porProveedor[key].monto += g.montoPEN || 0;
-    }
-    const topProveedorArr = Object.values(porProveedor).sort((a, b) => b.monto - a.monto);
-    const topProveedor = topProveedorArr[0] && totalMesPEN > 0
-      ? { nombre: topProveedorArr[0].nombre, pctDelMes: (topProveedorArr[0].monto / totalMesPEN) * 100 }
-      : null;
+    // (Top proveedor del mes se removió · vivía duplicado en el TopProveedoresLightWidget
+    //  del aside · chk5.DS-DEDUP · el mini-stat ahora es Promedio/día)
 
     // Sin clasificar · gastos sin categoriaCostoId
     const sinClasificarCount = gastosPorLinea.filter(g => !g.categoriaCostoId).length;
@@ -326,6 +316,14 @@ export const Gastos: React.FC = () => {
         }
       : null;
 
+    // chk5.DS-DEDUP · Promedio diario de gasto (run-rate) · reemplaza el mini-stat
+    // "Top proveedor" que duplicaba el #1 del TopProveedoresLightWidget del aside.
+    // Días transcurridos si es el mes en curso · días del mes completo si es pasado.
+    const _esMesActual = selectedMonth === (hoyRef.getMonth() + 1) && selectedYear === hoyRef.getFullYear();
+    const _diasMes = new Date(selectedYear, selectedMonth, 0).getDate();
+    const _diasBase = _esMesActual ? Math.max(1, hoyRef.getDate()) : _diasMes;
+    const promedioDiaPEN = _diasBase > 0 ? totalMesPEN / _diasBase : 0;
+
     return {
       mixPorBloque, totalMix,
       topCategoria, segundaCategoria, totalCategorias: topCategorias.length,
@@ -340,9 +338,9 @@ export const Gastos: React.FC = () => {
       vencimientosCriticos,
       dpoDias,
       dpoDeltaTrimestre,
-      topProveedor,
       sinClasificarCount,
       proximoVencimiento,
+      promedioDiaPEN,
     };
   }, [gastosPorLinea, arbolCategorias, selectedMonth, selectedYear]);
 
@@ -661,7 +659,7 @@ export const Gastos: React.FC = () => {
   }), [stats, heroKpis]);
 
   const miniStatsData = useMemo(() => ({
-    topProveedor: heroKpis.topProveedor,
+    promedioDiaPEN: heroKpis.promedioDiaPEN,
     sinClasificarCount: heroKpis.sinClasificarCount,
     proximoVencimiento: heroKpis.proximoVencimiento,
   }), [heroKpis]);
@@ -804,10 +802,8 @@ export const Gastos: React.FC = () => {
   ];
   const gastosMiniStats: HubMiniStat[] = [
     {
-      label: miniStatsData.topProveedor ? (
-        <><Briefcase className="w-3 h-3 text-slate-400 flex-shrink-0" /> Top proveedor: <strong className="text-slate-900 tabular-nums">{miniStatsData.topProveedor.nombre} · {miniStatsData.topProveedor.pctDelMes.toFixed(0)}%</strong></>
-      ) : (
-        <span className="flex items-center gap-1 text-slate-400"><Briefcase className="w-3 h-3 flex-shrink-0" /> Top proveedor: <span className="italic">sin data</span></span>
+      label: (
+        <><CalendarCheck className="w-3 h-3 text-slate-400 flex-shrink-0" /> Promedio/día: <strong className="text-slate-900 tabular-nums">{formatCurrencyPEN(miniStatsData.promedioDiaPEN)}</strong></>
       ),
     },
     {
