@@ -148,10 +148,19 @@
             </button>
           </div>
 
-          <!-- método + fecha -->
+          <!-- método · DERIVADO de la cuenta de Tesorería (no es un campo libre) -->
+          <div>
+            <label class="block text-[10px] uppercase tracking-wider text-slate-600 font-bold mb-1.5">Método <span class="text-slate-400 normal-case font-medium">· habilitados por la cuenta BCP</span></label>
+            <div class="flex gap-2 flex-wrap">
+              <button class="px-3 py-1.5 rounded-lg text-[12px] font-bold border-2 bg-slate-100 border-slate-300 text-slate-700 flex items-center gap-1.5"><i data-lucide="building-2" class="w-3.5 h-3.5"></i> Transferencia</button>
+              <button class="px-3 py-1.5 rounded-lg text-[12px] font-medium border border-slate-200 bg-white text-slate-400 flex items-center gap-1.5"><i data-lucide="banknote" class="w-3.5 h-3.5"></i> Depósito</button>
+            </div>
+            <div class="text-[10px] text-slate-400 mt-1.5 flex items-start gap-1"><i data-lucide="info" class="w-3 h-3 mt-0.5 flex-shrink-0"></i> Los métodos salen de <strong>cuenta.metodosDisponibles</strong> (Tesorería) · una cuenta digital mostraría Yape/Plin · efectivo mostraría Caja · si hay uno solo, se auto-selecciona.</div>
+          </div>
+          <!-- fecha + referencia -->
           <div class="grid grid-cols-2 gap-3">
-            <div><label class="block text-[10px] uppercase tracking-wider text-slate-600 font-bold mb-1.5">Método</label><select class="w-full px-3 py-2 text-[12px] border border-slate-200 rounded-lg"><option>Transferencia</option><option>Yape / Plin</option></select></div>
             <div><label class="block text-[10px] uppercase tracking-wider text-slate-600 font-bold mb-1.5">Fecha</label><input class="w-full px-3 py-2 text-[12px] border border-slate-200 rounded-lg" value="02/06/2026" /></div>
+            <div><label class="block text-[10px] uppercase tracking-wider text-slate-600 font-bold mb-1.5">Referencia</label><input class="w-full px-3 py-2 text-[12px] border border-slate-200 rounded-lg" placeholder="N° operación…" /></div>
           </div>
 
           <!-- equivalencia -->

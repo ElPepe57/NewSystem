@@ -144,7 +144,7 @@ function getSaldo(cuenta: CuentaCaja, moneda: 'PEN' | 'USD'): number {
 function getTipoIcon(cuenta: CuentaCaja) {
   const pf = cuenta.productoFinanciero;
   if (pf === 'caja' || cuenta.tipo === 'efectivo') return <Banknote className="w-3.5 h-3.5 text-emerald-500" />;
-  if (pf === 'billetera_digital' || cuenta.tipo === 'digital') return <Smartphone className="w-3.5 h-3.5 text-purple-500" />;
+  if (pf === 'billetera_digital' || cuenta.tipo === 'digital') return <Smartphone className="w-3.5 h-3.5 text-slate-500" />;
   if (cuenta.tipo === 'credito') return <CreditCard className="w-3.5 h-3.5 text-amber-500" />;
   return <Building2 className="w-3.5 h-3.5 text-sky-500" />;
 }
@@ -404,7 +404,7 @@ export const PagoUnificadoForm: React.FC<PagoUnificadoFormProps> = ({
           {!compacta && canales.length > 0 && (
             <div className="flex gap-1 mt-0.5">
               {canales.map(([tipo, v]) => (
-                <span key={tipo} className="text-[9px] px-1 py-0.5 rounded bg-purple-50 text-purple-600">
+                <span key={tipo} className="text-[9px] px-1 py-0.5 rounded bg-slate-100 text-slate-500">
                   {tipo} · {v.identificador}
                 </span>
               ))}
@@ -429,8 +429,8 @@ export const PagoUnificadoForm: React.FC<PagoUnificadoFormProps> = ({
         {items.map(c => (
           <button key={c.id} type="button"
             onClick={() => { setCuentaOrigenId(c.id); setSelectorAbierto(false); }}
-            className={`w-full text-left px-3 py-2.5 hover:bg-teal-50 transition-colors ${
-              c.id === cuentaOrigenId ? 'bg-teal-50/70' : ''
+            className={`w-full text-left px-3 py-2.5 hover:bg-slate-50 transition-colors ${
+              c.id === cuentaOrigenId ? 'bg-slate-100/70' : ''
             }`}>
             {renderCuentaTarjeta(c, true)}
           </button>
@@ -492,13 +492,13 @@ export const PagoUnificadoForm: React.FC<PagoUnificadoFormProps> = ({
       )}
 
       {/* HEADER · DEUDA-PAGOFORM-001 Fase 1 visual S58f · gradient + tabular-nums */}
-      <div className="bg-gradient-to-br from-purple-50 to-fuchsia-50 border border-purple-200 rounded-xl p-4 shadow-sm">
+      <div className="bg-rose-50/60 border border-rose-200 rounded-xl p-4">
         <div className="flex items-center justify-between">
           <div>
-            <div className="text-[10px] uppercase tracking-wider text-purple-700 font-bold">
+            <div className="text-[10px] uppercase tracking-wider text-slate-500 font-bold">
               {titulo || `${esIngreso ? 'Cobro' : 'Pago'} ${origen}`}
             </div>
-            <div className="text-xl font-bold text-purple-900 tabular-nums mt-0.5">
+            <div className="text-xl font-bold text-slate-900 tabular-nums mt-0.5">
               {monedaOriginal === 'USD' ? '$' : 'S/'} {montoTotal.toFixed(2)}
             </div>
           </div>
@@ -510,9 +510,9 @@ export const PagoUnificadoForm: React.FC<PagoUnificadoFormProps> = ({
           </div>
         </div>
         {pagosAnteriores.length > 0 && (
-          <div className="mt-3 pt-3 border-t border-purple-200">
+          <div className="mt-3 pt-3 border-t border-slate-200">
             <button type="button" onClick={() => setShowHistorial(!showHistorial)}
-              className="flex items-center gap-1.5 text-xs text-purple-700 hover:text-purple-900 font-semibold">
+              className="flex items-center gap-1.5 text-xs text-slate-600 hover:text-slate-900 font-semibold">
               <History className="w-3.5 h-3.5" />
               <span className="tabular-nums">{pagosAnteriores.length}</span> pago(s) anterior(es)
               {showHistorial ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
@@ -520,7 +520,7 @@ export const PagoUnificadoForm: React.FC<PagoUnificadoFormProps> = ({
             {showHistorial && (
               <div className="mt-2 space-y-1">
                 {pagosAnteriores.map(p => (
-                  <div key={p.id} className="flex items-center justify-between text-xs bg-white rounded-lg p-2 border border-purple-100">
+                  <div key={p.id} className="flex items-center justify-between text-xs bg-white rounded-lg p-2 border border-slate-100">
                     <div className="flex items-center gap-2">
                       <span className="text-slate-400 tabular-nums">
                         {typeof p.fecha === 'string' ? p.fecha : p.fecha.toLocaleDateString('es-PE', { day: '2-digit', month: 'short' })}
@@ -529,7 +529,7 @@ export const PagoUnificadoForm: React.FC<PagoUnificadoFormProps> = ({
                         {METODOS_PAGO_INFO[p.metodo as MetodoPagoUnificado]?.label ?? p.metodo}
                       </span>
                     </div>
-                    <span className="font-bold text-purple-800 tabular-nums">
+                    <span className="font-bold text-slate-800 tabular-nums">
                       {p.moneda === 'USD' ? '$' : 'S/'} {p.monto.toFixed(2)}
                     </span>
                   </div>
@@ -568,7 +568,7 @@ export const PagoUnificadoForm: React.FC<PagoUnificadoFormProps> = ({
           {(['PEN', 'USD'] as const).map(m => (
             <button key={m} type="button" onClick={() => setMonedaPago(m)}
               className={`flex-1 py-2.5 rounded-xl text-sm font-bold border-2 transition-all ${
-                monedaPago === m ? 'bg-purple-50 border-purple-500 text-purple-700 ring-2 ring-purple-200' : 'bg-white border-slate-200 text-slate-500 hover:border-slate-300'
+                monedaPago === m ? 'bg-slate-800 border-slate-800 text-white' : 'bg-white border-slate-200 text-slate-500 hover:border-slate-300'
               }`}>
               {m === 'PEN' ? 'S/ Soles' : '$ Dólares'}
             </button>
@@ -589,7 +589,7 @@ export const PagoUnificadoForm: React.FC<PagoUnificadoFormProps> = ({
           <>
             <button type="button" onClick={() => setSelectorAbierto(!selectorAbierto)}
               className={`w-full text-left p-3 rounded-lg border-2 transition-colors ${
-                selectorAbierto ? 'border-teal-400 ring-2 ring-teal-100' : 'border-slate-200 hover:border-slate-300'
+                selectorAbierto ? 'border-slate-400 ring-2 ring-slate-100' : 'border-slate-200 hover:border-slate-300'
               }`}>
               {cuentaSeleccionada
                 ? renderCuentaTarjeta(cuentaSeleccionada)
@@ -664,7 +664,7 @@ export const PagoUnificadoForm: React.FC<PagoUnificadoFormProps> = ({
       {destinoTerceroActivo && (
         <div ref={destinoSelectorRef} className="relative">
           <div className="flex items-center justify-between mb-1.5">
-            <label className="text-[10px] uppercase tracking-wider text-violet-700 font-bold">
+            <label className="text-[10px] uppercase tracking-wider text-slate-700 font-bold">
               Destino del pago · {tercero.terceroNombre || '...'}
             </label>
             <span className="text-[9px] text-slate-400 italic">
@@ -693,7 +693,7 @@ export const PagoUnificadoForm: React.FC<PagoUnificadoFormProps> = ({
                 onClick={() => setDestinoSelectorAbierto(!destinoSelectorAbierto)}
                 className={`w-full text-left p-3 rounded-lg border-2 transition-colors ${
                   destinoSelectorAbierto
-                    ? 'border-violet-400 ring-2 ring-violet-100'
+                    ? 'border-slate-400 ring-2 ring-slate-100'
                     : 'border-slate-200 hover:border-slate-300'
                 }`}
               >
@@ -703,7 +703,7 @@ export const PagoUnificadoForm: React.FC<PagoUnificadoFormProps> = ({
                       {datoBancarioSeleccionado.tipo === 'banco' ? (
                         <Building2 className="w-3.5 h-3.5 text-sky-500" />
                       ) : (
-                        <Smartphone className="w-3.5 h-3.5 text-purple-500" />
+                        <Smartphone className="w-3.5 h-3.5 text-slate-500" />
                       )}
                     </div>
                     <div className="flex-1 min-w-0">
@@ -758,7 +758,7 @@ export const PagoUnificadoForm: React.FC<PagoUnificadoFormProps> = ({
               {destinoSelectorAbierto && (
                 <div className="absolute z-30 w-full mt-1 bg-white rounded-lg border border-slate-200 shadow-lg max-h-64 overflow-y-auto">
                   {/* Grupo 1: Datos bancarios del tercero */}
-                  <div className="px-3 py-1.5 text-[10px] font-semibold text-violet-500 uppercase tracking-wide bg-violet-50">
+                  <div className="px-3 py-1.5 text-[10px] font-semibold text-slate-500 uppercase tracking-wide bg-slate-50">
                     Datos del tercero · referencia
                   </div>
                   {tercero.datosBancarios.map((d) => {
@@ -771,8 +771,8 @@ export const PagoUnificadoForm: React.FC<PagoUnificadoFormProps> = ({
                           setDestinoSeleccionado(d.id);
                           setDestinoSelectorAbierto(false);
                         }}
-                        className={`w-full text-left px-3 py-2.5 hover:bg-violet-50 transition-colors ${
-                          d.id === destinoSeleccionado ? 'bg-violet-50/70' : ''
+                        className={`w-full text-left px-3 py-2.5 hover:bg-slate-50 transition-colors ${
+                          d.id === destinoSeleccionado ? 'bg-slate-50/70' : ''
                         }`}
                       >
                         <div className="flex items-start gap-2 w-full">
@@ -780,7 +780,7 @@ export const PagoUnificadoForm: React.FC<PagoUnificadoFormProps> = ({
                             {d.tipo === 'banco' ? (
                               <Building2 className="w-3.5 h-3.5 text-sky-500" />
                             ) : (
-                              <Smartphone className="w-3.5 h-3.5 text-purple-500" />
+                              <Smartphone className="w-3.5 h-3.5 text-slate-500" />
                             )}
                           </div>
                           <div className="flex-1 min-w-0">
@@ -850,7 +850,7 @@ export const PagoUnificadoForm: React.FC<PagoUnificadoFormProps> = ({
           {onPromoverACajaRecaudadora &&
             datoBancarioSeleccionado &&
             !datoBancarioSeleccionado.promovidaACuentaCajaId && (
-              <div className="mt-2 bg-gradient-to-br from-emerald-50 to-teal-50 border border-emerald-300 rounded-lg p-3">
+              <div className="mt-2 bg-gradient-to-br from-emerald-50 to-emerald-100/40 border border-emerald-300 rounded-lg p-3">
                 <div className="flex items-start gap-2">
                   <div className="text-base flex-shrink-0">💡</div>
                   <div className="flex-1 min-w-0">
@@ -882,7 +882,7 @@ export const PagoUnificadoForm: React.FC<PagoUnificadoFormProps> = ({
         <div>
           <label className="block text-[10px] uppercase tracking-wider text-slate-600 font-bold mb-1.5">Método de pago</label>
           {metodosDisponibles.length === 1 ? (
-            <div className="py-2 px-3 rounded-lg text-xs font-medium bg-teal-50 border border-teal-300 text-teal-700">
+            <div className="py-2 px-3 rounded-lg text-xs font-medium bg-slate-100 border border-slate-300 text-slate-700">
               {METODOS_PAGO_INFO[metodosDisponibles[0] as MetodoPagoUnificado]?.label || metodosDisponibles[0]}
             </div>
           ) : (
@@ -892,7 +892,7 @@ export const PagoUnificadoForm: React.FC<PagoUnificadoFormProps> = ({
                 return (
                   <button key={m} type="button" onClick={() => setMetodoPago(m)}
                     className={`py-2 px-3 rounded-lg text-xs font-medium border transition-all flex-shrink-0 ${
-                      metodoPago === m ? 'bg-teal-50 border-teal-300 text-teal-700' : 'bg-slate-50 border-slate-200 text-slate-500 hover:bg-slate-100'
+                      metodoPago === m ? 'bg-slate-100 border-slate-300 text-slate-700' : 'bg-slate-50 border-slate-200 text-slate-500 hover:bg-slate-100'
                     }`}>
                     {info?.label || m}
                   </button>
@@ -903,18 +903,18 @@ export const PagoUnificadoForm: React.FC<PagoUnificadoFormProps> = ({
 
           {/* Canal vinculado (Yape/Plin — muestra teléfono) */}
           {canalDetalle?.identificador && (
-            <div className="mt-2 flex items-center gap-2 bg-purple-50 border border-purple-200 rounded-lg px-3 py-2">
-              <Phone className="w-3.5 h-3.5 text-purple-500 flex-shrink-0" />
-              <span className="text-xs text-purple-700 font-medium">
+            <div className="mt-2 flex items-center gap-2 bg-sky-50 border border-sky-200 rounded-lg px-3 py-2">
+              <Phone className="w-3.5 h-3.5 text-sky-500 flex-shrink-0" />
+              <span className="text-xs text-sky-700 font-medium">
                 {metodoInfo?.label || metodoPago}:
               </span>
-              <span className="text-xs text-purple-900 font-mono">{canalDetalle.identificador}</span>
+              <span className="text-xs text-sky-900 font-mono">{canalDetalle.identificador}</span>
               <button type="button"
                 onClick={() => {
                   navigator.clipboard.writeText(canalDetalle.identificador!);
                   toast.success('Copiado');
                 }}
-                className="ml-auto p-1 text-purple-400 hover:text-purple-600 rounded">
+                className="ml-auto p-1 text-sky-400 hover:text-sky-600 rounded">
                 <Copy className="w-3.5 h-3.5" />
               </button>
             </div>
@@ -945,12 +945,12 @@ export const PagoUnificadoForm: React.FC<PagoUnificadoFormProps> = ({
             }
           }}
           disabled={esPagoCompleto}
-          className="w-full px-3 py-2.5 border rounded-lg text-sm focus:ring-2 focus:ring-teal-300 disabled:bg-slate-100" />
+          className="w-full px-3 py-2.5 border rounded-lg text-sm focus:ring-2 focus:ring-slate-300 disabled:bg-slate-100" />
         {showTC && (
           <div className="mt-1.5">
             <input type="text" inputMode="decimal"
               value={tipoCambio || ''} onChange={e => setTipoCambio(parseFloat(e.target.value) || 0)}
-              className="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-teal-300" />
+              className="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-slate-300" />
           </div>
         )}
       </div>
@@ -972,7 +972,7 @@ export const PagoUnificadoForm: React.FC<PagoUnificadoFormProps> = ({
             <Calendar className="w-3 h-3 inline mr-1" /> Fecha
           </label>
           <input type="date" value={fechaPago} onChange={e => setFechaPago(e.target.value)}
-            className="w-full px-3 py-2 border-2 border-slate-200 rounded-lg text-sm focus:outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-100 tabular-nums" />
+            className="w-full px-3 py-2 border-2 border-slate-200 rounded-lg text-sm focus:outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-100 tabular-nums" />
         </div>
         <div>
           <label className="block text-[10px] uppercase tracking-wider text-slate-600 font-bold mb-1.5">
@@ -980,7 +980,7 @@ export const PagoUnificadoForm: React.FC<PagoUnificadoFormProps> = ({
           </label>
           <input type="text" value={referencia} onChange={e => setReferencia(e.target.value)}
             placeholder="Nro. operación"
-            className="w-full px-3 py-2 border-2 border-slate-200 rounded-lg text-sm focus:outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-100 tabular-nums" />
+            className="w-full px-3 py-2 border-2 border-slate-200 rounded-lg text-sm focus:outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-100 tabular-nums" />
         </div>
       </div>
 
@@ -989,7 +989,7 @@ export const PagoUnificadoForm: React.FC<PagoUnificadoFormProps> = ({
         <label className="block text-[10px] uppercase tracking-wider text-slate-600 font-bold mb-1.5">Notas (opcional)</label>
         <textarea value={notas} onChange={e => setNotas(e.target.value)} rows={2}
           placeholder="Observaciones..."
-          className="w-full px-3 py-2 border-2 border-slate-200 rounded-lg text-sm focus:outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-100 resize-none" />
+          className="w-full px-3 py-2 border-2 border-slate-200 rounded-lg text-sm focus:outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-100 resize-none" />
       </div>
 
       {/* BOTONES */}
