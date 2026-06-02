@@ -104,7 +104,7 @@ export const TabPendientesCompras: React.FC<Props> = ({ requerimientos, loading,
         </div>
         <div className="flex items-center gap-2 flex-wrap">
           <span className="inline-flex items-center gap-1.5 text-[11px] bg-white border border-slate-200 rounded-lg px-2.5 py-1.5"><Package className="w-3.5 h-3.5 text-blue-600" /><span className="font-semibold text-slate-900 tabular-nums">{totalProductos}</span> <span className="text-slate-500">productos</span></span>
-          <span className="inline-flex items-center gap-1.5 text-[11px] bg-white border border-slate-200 rounded-lg px-2.5 py-1.5"><Boxes className="w-3.5 h-3.5 text-sky-600" /><span className="font-semibold text-slate-900 tabular-nums">{totalUnidades.toLocaleString('es-PE')}</span> <span className="text-slate-500">uds</span></span>
+          <span className="inline-flex items-center gap-1.5 text-[11px] bg-white border border-slate-200 rounded-lg px-2.5 py-1.5"><Boxes className="w-3.5 h-3.5 text-blue-600" /><span className="font-semibold text-slate-900 tabular-nums">{totalUnidades.toLocaleString('es-PE')}</span> <span className="text-slate-500">uds</span></span>
           <span className="inline-flex items-center gap-1.5 text-[11px] bg-white border border-slate-200 rounded-lg px-2.5 py-1.5"><DollarSign className="w-3.5 h-3.5 text-amber-600" /><span className="font-semibold text-slate-900 tabular-nums">${totalEstimadoUSD.toLocaleString('en-US', { maximumFractionDigits: 0 })}</span> <span className="text-slate-500">est.</span></span>
         </div>
       </div>

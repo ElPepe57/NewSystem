@@ -17,15 +17,15 @@ interface Props {
 
 const colorBg: Record<GroupColor, string> = {
   blue: 'bg-sky-500', emerald: 'bg-emerald-500', amber: 'bg-amber-500', purple: 'bg-purple-500',
-  rose: 'bg-rose-500', cyan: 'bg-cyan-500', orange: 'bg-orange-500', indigo: 'bg-teal-500',
+  rose: 'bg-rose-500', cyan: 'bg-cyan-500', orange: 'bg-orange-500', indigo: 'bg-blue-500',
 };
 const colorBorder: Record<GroupColor, string> = {
   blue: 'border-sky-400', emerald: 'border-emerald-400', amber: 'border-amber-400', purple: 'border-purple-400',
-  rose: 'border-rose-400', cyan: 'border-cyan-400', orange: 'border-orange-400', indigo: 'border-teal-400',
+  rose: 'border-rose-400', cyan: 'border-cyan-400', orange: 'border-orange-400', indigo: 'border-blue-400',
 };
 const colorHeaderBg: Record<GroupColor, string> = {
   blue: 'bg-sky-50', emerald: 'bg-emerald-50', amber: 'bg-amber-50', purple: 'bg-purple-50',
-  rose: 'bg-rose-50', cyan: 'bg-cyan-50', orange: 'bg-orange-50', indigo: 'bg-teal-50',
+  rose: 'bg-rose-50', cyan: 'bg-cyan-50', orange: 'bg-orange-50', indigo: 'bg-blue-50',
 };
 
 const SummaryCard: React.FC<{ group: OCDraftGroup; state: OCBuilderState }> = ({ group, state }) => {

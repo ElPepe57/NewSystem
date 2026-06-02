@@ -114,7 +114,7 @@ const AccionContextual: React.FC<{
         type="button"
         disabled={loading}
         onClick={onRecibirProductos}
-        className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-teal-600 hover:bg-teal-700 disabled:opacity-50 text-white text-xs font-medium rounded-lg transition-colors"
+        className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white text-xs font-medium rounded-lg transition-colors"
       >
         <Box className="w-3 h-3" />
         {loading ? 'Guardando...' : 'Recibir Productos'}
@@ -287,7 +287,7 @@ export const SubOrdenCard: React.FC<SubOrdenCardProps> = ({
               value={trackingDraft.tracking}
               onChange={e => onTrackingChange({ ...trackingDraft, tracking: e.target.value })}
               placeholder="Numero de tracking"
-              className="w-full text-xs border border-slate-200 rounded-lg px-2 py-1.5 focus:ring-1 focus:ring-teal-500 focus:outline-none"
+              className="w-full text-xs border border-slate-200 rounded-lg px-2 py-1.5 focus:ring-1 focus:ring-blue-500 focus:outline-none"
             />
           </div>
           <div>
@@ -297,7 +297,7 @@ export const SubOrdenCard: React.FC<SubOrdenCardProps> = ({
               value={trackingDraft.courier}
               onChange={e => onTrackingChange({ ...trackingDraft, courier: e.target.value })}
               placeholder="USPS, FedEx, DHL..."
-              className="w-full text-xs border border-slate-200 rounded-lg px-2 py-1.5 focus:ring-1 focus:ring-teal-500 focus:outline-none"
+              className="w-full text-xs border border-slate-200 rounded-lg px-2 py-1.5 focus:ring-1 focus:ring-blue-500 focus:outline-none"
             />
           </div>
         </div>

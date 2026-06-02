@@ -176,7 +176,7 @@ export const IncidenciasOCPanel: React.FC<IncidenciasOCPanelProps> = ({ orden })
         })}
         <button
           onClick={() => setFormOpen(true)}
-          className="ml-auto inline-flex items-center gap-1 text-teal-700 hover:text-teal-900 font-medium"
+          className="ml-auto inline-flex items-center gap-1 text-blue-700 hover:text-blue-900 font-medium"
         >
           <Plus className="w-3.5 h-3.5" /> Nueva incidencia
         </button>
@@ -368,7 +368,7 @@ const IncidenciaRow: React.FC<{
                             <span className="text-[10px] font-mono text-slate-500">· {acc.referencia}</span>
                           )}
                           {acc.montoUSD !== undefined && (
-                            <span className="text-[10px] text-teal-700 font-semibold">
+                            <span className="text-[10px] text-blue-700 font-semibold">
                               · ${acc.montoUSD.toFixed(2)}
                             </span>
                           )}
@@ -515,9 +515,9 @@ const NuevaIncidenciaForm: React.FC<{
   };
 
   return (
-    <div className="p-3 border border-teal-300 bg-teal-50/50 rounded-lg space-y-2">
+    <div className="p-3 border border-blue-300 bg-blue-50/50 rounded-lg space-y-2">
       <div className="flex items-center justify-between">
-        <span className="text-xs font-semibold text-teal-900">Nueva incidencia</span>
+        <span className="text-xs font-semibold text-blue-900">Nueva incidencia</span>
         <button onClick={onCancel} className="text-slate-500 hover:text-slate-700">
           <X className="w-4 h-4" />
         </button>
@@ -671,7 +671,7 @@ const AgregarAccionForm: React.FC<{
         <button
           onClick={handle}
           disabled={!puedeGuardar || saving}
-          className="text-xs px-2 py-1 bg-teal-600 text-white rounded hover:bg-teal-700 disabled:opacity-50"
+          className="text-xs px-2 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
         >
           {saving ? 'Guardando…' : 'Agregar'}
         </button>

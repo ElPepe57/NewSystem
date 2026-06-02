@@ -183,7 +183,7 @@ export const PriceAdvisor: React.FC<PriceAdvisorProps> = ({
   if (loading && !analysis) {
     return (
       <div className="mt-3 p-4 bg-slate-50 rounded-lg border border-slate-200 flex items-center justify-center">
-        <Loader2 className="h-5 w-5 animate-spin text-teal-500 mr-2" />
+        <Loader2 className="h-5 w-5 animate-spin text-blue-500 mr-2" />
         <span className="text-sm text-slate-600">Analizando precio...</span>
       </div>
     );
@@ -338,7 +338,7 @@ export const PriceAdvisor: React.FC<PriceAdvisorProps> = ({
             key={tab.id}
             className={`flex-1 px-3 py-2 text-xs font-medium flex items-center justify-center gap-1 transition-colors ${
               activeSection === tab.id
-                ? 'text-teal-600 border-b-2 border-teal-500 bg-white'
+                ? 'text-blue-600 border-b-2 border-blue-500 bg-white'
                 : 'text-slate-500 hover:text-slate-700 hover:bg-slate-100'
             }`}
             onClick={() => setActiveSection(tab.id as any)}
@@ -542,7 +542,7 @@ export const PriceAdvisor: React.FC<PriceAdvisorProps> = ({
                         href={prov.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 mt-2 text-xs text-teal-600 hover:text-teal-800"
+                        className="inline-flex items-center gap-1 mt-2 text-xs text-blue-600 hover:text-blue-800"
                       >
                         Ver producto <ExternalLink className="h-3 w-3" />
                       </a>
@@ -593,7 +593,7 @@ export const PriceAdvisor: React.FC<PriceAdvisorProps> = ({
                   <span className="text-slate-600">= Costo Total USD:</span>
                   <span className="font-medium">${(analysis.proyeccionRentabilidad?.ctruProyectadoUSD || 0).toFixed(2)}</span>
                 </div>
-                <div className="flex justify-between text-teal-600">
+                <div className="flex justify-between text-blue-600">
                   <span>CTRU (TC {(tipoCambio || 0).toFixed(3)}):</span>
                   <span className="font-semibold">S/ {(analysis.proyeccionRentabilidad?.ctruProyectado || 0).toFixed(2)}</span>
                 </div>

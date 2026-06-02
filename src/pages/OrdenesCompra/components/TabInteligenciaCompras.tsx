@@ -107,7 +107,7 @@ export const TabInteligenciaCompras: React.FC<Props> = ({ ordenes, proveedores, 
         <div className="flex items-center gap-2 flex-wrap">
           <span className="inline-flex items-center gap-1.5 text-[11px] bg-white border border-slate-200 rounded-lg px-2.5 py-1.5"><Tag className="w-3.5 h-3.5 text-blue-600" /><span className="font-semibold text-slate-900 tabular-nums">{porSKU.length}</span> <span className="text-slate-500">SKUs</span></span>
           <span className="inline-flex items-center gap-1.5 text-[11px] bg-white border border-slate-200 rounded-lg px-2.5 py-1.5"><span className="font-semibold text-slate-900 tabular-nums">{fmtUSD(totalGasto)}</span> <span className="text-slate-500">comprado</span></span>
-          <span className="inline-flex items-center gap-1.5 text-[11px] bg-white border border-slate-200 rounded-lg px-2.5 py-1.5"><BarChart3 className="w-3.5 h-3.5 text-amber-600" /><span className="font-semibold text-slate-900 tabular-nums">{conVariacion}</span> <span className="text-slate-500">con histórico</span></span>
+          <span className="inline-flex items-center gap-1.5 text-[11px] bg-white border border-slate-200 rounded-lg px-2.5 py-1.5"><BarChart3 className="w-3.5 h-3.5 text-blue-600" /><span className="font-semibold text-slate-900 tabular-nums">{conVariacion}</span> <span className="text-slate-500">con histórico</span></span>
         </div>
       </div>
 

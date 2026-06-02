@@ -981,7 +981,7 @@ export const OrdenesCompra: React.FC = () => {
           onClick={() => setPillFiltro('todas')}
           className={`px-2.5 py-1 text-xs rounded-full transition-colors ${
             pillFiltro === 'todas'
-              ? 'bg-teal-600 text-white'
+              ? 'bg-blue-600 text-white'
               : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
           }`}
         >
@@ -992,7 +992,7 @@ export const OrdenesCompra: React.FC = () => {
           onClick={() => setPillFiltro('activas')}
           className={`px-2.5 py-1 text-xs rounded-full transition-colors ${
             pillFiltro === 'activas'
-              ? 'bg-teal-600 text-white'
+              ? 'bg-blue-600 text-white'
               : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
           }`}
         >
@@ -1003,7 +1003,7 @@ export const OrdenesCompra: React.FC = () => {
           onClick={() => setPillFiltro('completadas')}
           className={`px-2.5 py-1 text-xs rounded-full transition-colors ${
             pillFiltro === 'completadas'
-              ? 'bg-teal-600 text-white'
+              ? 'bg-blue-600 text-white'
               : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
           }`}
         >
@@ -1013,7 +1013,7 @@ export const OrdenesCompra: React.FC = () => {
         <select
           value={filtroProveedor}
           onChange={(e) => setFiltroProveedor(e.target.value)}
-          className="text-xs border border-slate-300 rounded-lg px-2 py-1 bg-white focus:outline-none focus:ring-1 focus:ring-teal-500"
+          className="text-xs border border-slate-300 rounded-lg px-2 py-1 bg-white focus:outline-none focus:ring-1 focus:ring-blue-500"
         >
           <option value="">Todos los proveedores</option>
           {proveedoresActivos.map((p) => (
@@ -1023,7 +1023,7 @@ export const OrdenesCompra: React.FC = () => {
         <select
           value={filtroEstadoPago}
           onChange={(e) => setFiltroEstadoPago(e.target.value)}
-          className="text-xs border border-slate-300 rounded-lg px-2 py-1 bg-white focus:outline-none focus:ring-1 focus:ring-teal-500"
+          className="text-xs border border-slate-300 rounded-lg px-2 py-1 bg-white focus:outline-none focus:ring-1 focus:ring-blue-500"
         >
           <option value="">Todos los estados de pago</option>
           <option value="pendiente">Pendiente</option>
@@ -1034,7 +1034,7 @@ export const OrdenesCompra: React.FC = () => {
         <select
           value={lineaFiltroGlobal ?? ''}
           onChange={(e) => setLineaFiltroGlobal(e.target.value || null)}
-          className="text-xs border border-slate-300 rounded-lg px-2 py-1 bg-white focus:outline-none focus:ring-1 focus:ring-teal-500"
+          className="text-xs border border-slate-300 rounded-lg px-2 py-1 bg-white focus:outline-none focus:ring-1 focus:ring-blue-500"
         >
           <option value="">Todas las líneas</option>
           {lineasActivas.map((l) => (
@@ -1111,7 +1111,7 @@ export const OrdenesCompra: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setItemsVisibles((n) => n + 10)}
-                    className="text-xs font-medium text-teal-600 hover:text-teal-700 hover:underline"
+                    className="text-xs font-medium text-blue-600 hover:text-blue-700 hover:underline"
                   >
                     Cargar más
                   </button>

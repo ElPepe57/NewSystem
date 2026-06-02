@@ -113,7 +113,7 @@ export const TabProveedoresCompras: React.FC<Props> = ({ proveedores, ordenes, n
         </div>
         <div className="flex items-center gap-2 flex-wrap">
           <span className="inline-flex items-center gap-1.5 text-[11px] bg-white border border-slate-200 rounded-lg px-2.5 py-1.5"><Building2 className="w-3.5 h-3.5 text-blue-600" /><span className="font-semibold text-slate-900 tabular-nums">{stats.total}</span> <span className="text-slate-500">proveedores</span></span>
-          <span className="inline-flex items-center gap-1.5 text-[11px] bg-white border border-slate-200 rounded-lg px-2.5 py-1.5"><Award className="w-3.5 h-3.5 text-emerald-600" /><span className="font-semibold text-slate-900 tabular-nums">{stats.preferidos}</span> <span className="text-slate-500">preferidos</span></span>
+          <span className="inline-flex items-center gap-1.5 text-[11px] bg-white border border-slate-200 rounded-lg px-2.5 py-1.5"><Award className="w-3.5 h-3.5 text-blue-600" /><span className="font-semibold text-slate-900 tabular-nums">{stats.preferidos}</span> <span className="text-slate-500">preferidos</span></span>
           <span className="inline-flex items-center gap-1.5 text-[11px] bg-white border border-slate-200 rounded-lg px-2.5 py-1.5"><span className="font-semibold text-slate-900 tabular-nums">${stats.gastoTotal.toLocaleString('en-US', { maximumFractionDigits: 0 })}</span> <span className="text-slate-500">gasto acum.</span></span>
         </div>
       </div>

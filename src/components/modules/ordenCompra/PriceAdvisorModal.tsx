@@ -41,10 +41,10 @@ export const PriceAdvisorModal: React.FC<PriceAdvisorModalProps> = ({
       {/* Drawer */}
       <div className="fixed right-0 top-0 h-full w-full max-w-md bg-white shadow-2xl z-50 flex flex-col animate-slide-in-right">
         {/* Header */}
-        <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200 bg-teal-50">
+        <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200 bg-blue-50">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-teal-100 rounded-lg">
-              <Lightbulb className="h-5 w-5 text-teal-600" />
+            <div className="p-2 bg-blue-100 rounded-lg">
+              <Lightbulb className="h-5 w-5 text-blue-600" />
             </div>
             <div>
               <h3 className="font-semibold text-slate-900">Asesor de Precios</h3>

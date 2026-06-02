@@ -271,7 +271,7 @@ export const TimelineOCPanel: React.FC<TimelineOCPanelProps> = ({ orden }) => {
           onChange={(e) => setNuevoComentario(e.target.value)}
           placeholder="Ej: Ya hablé con proveedor, enviarán reemplazo en próxima OC"
           rows={2}
-          className="w-full text-xs border border-slate-200 rounded p-2 focus:border-teal-400 focus:outline-none"
+          className="w-full text-xs border border-slate-200 rounded p-2 focus:border-blue-400 focus:outline-none"
         />
         <div className="flex justify-end mt-2">
           <Button

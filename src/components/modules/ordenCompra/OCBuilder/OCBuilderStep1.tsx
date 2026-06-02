@@ -25,7 +25,7 @@ const colorMap: Record<GroupColor, { bg: string; border: string; text: string; l
   rose: { bg: 'bg-rose-500', border: 'border-rose-400', text: 'text-rose-700', light: 'bg-rose-50' },
   cyan: { bg: 'bg-cyan-500', border: 'border-cyan-400', text: 'text-cyan-700', light: 'bg-cyan-50' },
   orange: { bg: 'bg-orange-500', border: 'border-orange-400', text: 'text-orange-700', light: 'bg-orange-50' },
-  indigo: { bg: 'bg-teal-500', border: 'border-teal-400', text: 'text-teal-700', light: 'bg-teal-50' },
+  indigo: { bg: 'bg-blue-500', border: 'border-blue-400', text: 'text-blue-700', light: 'bg-blue-50' },
 };
 
 // Split dialog
@@ -74,7 +74,7 @@ const SplitDialog: React.FC<{
                   max={producto.cantidadOriginal}
                   value={splits[g.id] || 0}
                   onChange={e => setSplits(prev => ({ ...prev, [g.id]: Math.max(0, parseInt(e.target.value) || 0) }))}
-                  className="w-20 px-3 py-1.5 border rounded-lg text-sm text-center focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+                  className="w-20 px-3 py-1.5 border rounded-lg text-sm text-center focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
             );
@@ -306,7 +306,7 @@ export const OCBuilderStep1: React.FC<Props> = ({ state, dispatch }) => {
                       {state.groups.length === 1 ? (
                         <button
                           onClick={() => setSplitProduct(p)}
-                          className="p-1.5 text-slate-400 hover:text-teal-600 hover:bg-teal-50 rounded-lg transition-colors"
+                          className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                           title={`Asignar a ${state.groups[0].nombre}`}
                         >
                           <Plus className="h-4 w-4" />
@@ -314,7 +314,7 @@ export const OCBuilderStep1: React.FC<Props> = ({ state, dispatch }) => {
                       ) : (
                         <button
                           onClick={() => setSplitProduct(p)}
-                          className="p-1.5 text-slate-400 hover:text-teal-600 hover:bg-teal-50 rounded-lg transition-colors"
+                          className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                           title="Asignar a grupos"
                         >
                           <Plus className="h-4 w-4" />
@@ -337,7 +337,7 @@ export const OCBuilderStep1: React.FC<Props> = ({ state, dispatch }) => {
             <Layers className="h-5 w-5 text-slate-500" />
             Grupos de OC
             {state.groups.length > 0 && (
-              <span className="text-xs bg-teal-50 text-teal-700 px-2 py-0.5 rounded-full">{state.groups.length}</span>
+              <span className="text-xs bg-blue-50 text-blue-700 px-2 py-0.5 rounded-full">{state.groups.length}</span>
             )}
           </h3>
           <Button
@@ -442,7 +442,7 @@ export const OCBuilderStep1: React.FC<Props> = ({ state, dispatch }) => {
                             <span>{totalUnits} unidades</span>
                             <button
                               onClick={() => dispatch({ type: 'ASSIGN_ALL_TO_GROUP', payload: { groupId: group.id } })}
-                              className="text-teal-600 hover:text-teal-700 font-medium"
+                              className="text-blue-600 hover:text-blue-700 font-medium"
                               disabled={allAssigned}
                             >
                               + Agregar restantes
@@ -509,7 +509,7 @@ export const OCBuilderStep1: React.FC<Props> = ({ state, dispatch }) => {
                   value={viajeroSearch}
                   onChange={e => setViajeroSearch(e.target.value)}
                   placeholder="Buscar viajero..."
-                  className="w-full pl-9 pr-4 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+                  className="w-full pl-9 pr-4 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   autoFocus
                 />
               </div>
@@ -518,7 +518,7 @@ export const OCBuilderStep1: React.FC<Props> = ({ state, dispatch }) => {
             <div className="flex-1 overflow-auto p-2">
               {loadingViajeros ? (
                 <div className="flex items-center justify-center py-8 text-slate-400">
-                  <div className="animate-spin h-5 w-5 border-2 border-teal-500 border-t-transparent rounded-full mr-2" />
+                  <div className="animate-spin h-5 w-5 border-2 border-blue-500 border-t-transparent rounded-full mr-2" />
                   Cargando viajeros...
                 </div>
               ) : filteredViajeros.length === 0 ? (

@@ -16,13 +16,13 @@ interface Props {
 
 const colorBg: Record<GroupColor, string> = {
   blue: 'bg-sky-500', emerald: 'bg-emerald-500', amber: 'bg-amber-500', purple: 'bg-purple-500',
-  rose: 'bg-rose-500', cyan: 'bg-cyan-500', orange: 'bg-orange-500', indigo: 'bg-teal-500',
+  rose: 'bg-rose-500', cyan: 'bg-cyan-500', orange: 'bg-orange-500', indigo: 'bg-blue-500',
 };
 const colorLight: Record<GroupColor, string> = {
   blue: 'bg-sky-50 text-sky-700 border-sky-200', emerald: 'bg-emerald-50 text-emerald-700 border-emerald-200',
   amber: 'bg-amber-50 text-amber-700 border-amber-200', purple: 'bg-purple-50 text-purple-700 border-purple-200',
   rose: 'bg-rose-50 text-rose-700 border-rose-200', cyan: 'bg-cyan-50 text-cyan-700 border-cyan-200',
-  orange: 'bg-orange-50 text-orange-700 border-orange-200', indigo: 'bg-teal-50 text-teal-700 border-teal-200',
+  orange: 'bg-orange-50 text-orange-700 border-orange-200', indigo: 'bg-blue-50 text-blue-700 border-blue-200',
 };
 
 const GroupTab: React.FC<{
@@ -97,7 +97,7 @@ const GroupConfigForm: React.FC<{
               step="0.001"
               value={group.tcCompra || ''}
               onChange={e => dispatch({ type: 'SET_GROUP_TC', payload: { groupId: group.id, tc: parseFloat(e.target.value) || 0 } })}
-              className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+              className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               placeholder="3.500"
             />
           </div>
@@ -140,7 +140,7 @@ const GroupConfigForm: React.FC<{
                         type: 'UPDATE_PRODUCT_IN_GROUP',
                         payload: { groupId: group.id, productoId: p.productoId, changes: { cantidad: Math.max(1, parseInt(e.target.value) || 1) } }
                       })}
-                      className="w-full px-2 py-1 border rounded text-center text-sm focus:ring-1 focus:ring-teal-500"
+                      className="w-full px-2 py-1 border rounded text-center text-sm focus:ring-1 focus:ring-blue-500"
                     />
                   </td>
                   <td className="px-3 py-2">
@@ -155,7 +155,7 @@ const GroupConfigForm: React.FC<{
                           type: 'UPDATE_PRODUCT_IN_GROUP',
                           payload: { groupId: group.id, productoId: p.productoId, changes: { costoUnitarioUSD: parseFloat(e.target.value) || 0 } }
                         })}
-                        className="w-full px-2 py-1 border rounded text-right text-sm focus:ring-1 focus:ring-teal-500"
+                        className="w-full px-2 py-1 border rounded text-right text-sm focus:ring-1 focus:ring-blue-500"
                       />
                     </div>
                   </td>
@@ -241,7 +241,7 @@ const GroupConfigForm: React.FC<{
               type="number" step="0.1" min={0}
               value={group.porcentajeTax || ''}
               onChange={e => dispatch({ type: 'SET_GROUP_TAX', payload: { groupId: group.id, porcentajeTax: parseFloat(e.target.value) || 0 } })}
-              className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-sm text-right focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+              className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-sm text-right focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               placeholder="0"
             />
             <span className="text-xs text-slate-400 flex-shrink-0">%</span>
@@ -263,7 +263,7 @@ const GroupConfigForm: React.FC<{
               type="number" step="0.01" min={0}
               value={group.costoEnvioProveedorUSD || ''}
               onChange={e => dispatch({ type: 'SET_GROUP_ENVIO', payload: { groupId: group.id, costoEnvioProveedorUSD: parseFloat(e.target.value) || 0 } })}
-              className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-sm text-right focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+              className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-sm text-right focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               placeholder="0.00"
             />
           </div>
@@ -281,7 +281,7 @@ const GroupConfigForm: React.FC<{
               type="number" step="0.01" min={0}
               value={group.otrosGastosCompraUSD || ''}
               onChange={e => dispatch({ type: 'SET_GROUP_OTROS', payload: { groupId: group.id, otrosGastosCompraUSD: parseFloat(e.target.value) || 0 } })}
-              className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-sm text-right focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+              className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-sm text-right focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               placeholder="0.00"
             />
           </div>
@@ -314,7 +314,7 @@ const GroupConfigForm: React.FC<{
         >
           <FileText className="h-4 w-4 text-slate-400" />
           Observaciones
-          {group.observaciones && <span className="w-1.5 h-1.5 rounded-full bg-teal-400" />}
+          {group.observaciones && <span className="w-1.5 h-1.5 rounded-full bg-blue-400" />}
           {showObs ? <ChevronUp className="h-4 w-4 ml-auto text-slate-400" /> : <ChevronDown className="h-4 w-4 ml-auto text-slate-400" />}
         </button>
         {showObs && (
@@ -322,7 +322,7 @@ const GroupConfigForm: React.FC<{
             <textarea
               value={group.observaciones}
               onChange={e => dispatch({ type: 'SET_GROUP_OBSERVACIONES', payload: { groupId: group.id, observaciones: e.target.value } })}
-              className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm resize-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+              className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm resize-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               rows={3}
               placeholder="Observaciones opcionales..."
             />
@@ -395,7 +395,7 @@ export const OCBuilderStep2: React.FC<Props> = ({ state, dispatch }) => {
           <button
             onClick={() => dispatch({ type: 'SET_TC_MODE', payload: { mode: 'global' } })}
             className={`px-3 py-1 rounded-md text-xs font-medium transition-colors ${
-              state.tcMode === 'global' ? 'bg-teal-100 text-teal-700' : 'text-slate-500 hover:bg-slate-200'
+              state.tcMode === 'global' ? 'bg-blue-100 text-blue-700' : 'text-slate-500 hover:bg-slate-200'
             }`}
           >
             Global
@@ -403,7 +403,7 @@ export const OCBuilderStep2: React.FC<Props> = ({ state, dispatch }) => {
           <button
             onClick={() => dispatch({ type: 'SET_TC_MODE', payload: { mode: 'per_group' } })}
             className={`px-3 py-1 rounded-md text-xs font-medium transition-colors ${
-              state.tcMode === 'per_group' ? 'bg-teal-100 text-teal-700' : 'text-slate-500 hover:bg-slate-200'
+              state.tcMode === 'per_group' ? 'bg-blue-100 text-blue-700' : 'text-slate-500 hover:bg-slate-200'
             }`}
           >
             Por OC
@@ -415,7 +415,7 @@ export const OCBuilderStep2: React.FC<Props> = ({ state, dispatch }) => {
             step="0.001"
             value={state.tcGlobal || ''}
             onChange={e => dispatch({ type: 'SET_TC_GLOBAL', payload: { tc: parseFloat(e.target.value) || 0 } })}
-            className="w-24 px-3 py-1.5 border rounded-lg text-sm text-right focus:ring-2 focus:ring-teal-500"
+            className="w-24 px-3 py-1.5 border rounded-lg text-sm text-right focus:ring-2 focus:ring-blue-500"
             placeholder="3.500"
           />
         )}

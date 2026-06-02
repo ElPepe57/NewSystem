@@ -573,7 +573,7 @@ export const ConfirmarOCModal: React.FC<ConfirmarOCModalProps> = ({
               className={cn(
                 'px-3 py-1 text-xs font-medium rounded-lg transition-colors',
                 flujo === 'question'
-                  ? 'bg-teal-600 text-white'
+                  ? 'bg-blue-600 text-white'
                   : 'bg-slate-200 text-slate-600 hover:bg-slate-300'
               )}
             >
@@ -586,7 +586,7 @@ export const ConfirmarOCModal: React.FC<ConfirmarOCModalProps> = ({
               className={cn(
                 'px-3 py-1 text-xs font-medium rounded-lg transition-colors',
                 flujo === 'dividir'
-                  ? 'bg-teal-600 text-white'
+                  ? 'bg-blue-600 text-white'
                   : 'bg-slate-200 text-slate-600 hover:bg-slate-300'
               )}
             >
@@ -603,16 +603,16 @@ export const ConfirmarOCModal: React.FC<ConfirmarOCModalProps> = ({
              proveedor (Costco, iHerb en persona, etc.) y no tiene sentido
              dividir en tandas. La OC va directo como única. */}
         {embedded && !orden.recojoEnOrigen && (
-          <div className="bg-teal-50 border border-teal-200 rounded-xl p-4 flex items-center justify-between gap-4 flex-wrap">
+          <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 flex items-center justify-between gap-4 flex-wrap">
             <div className="flex items-center gap-3 flex-1 min-w-0">
-              <div className="w-10 h-10 rounded-full bg-white border border-teal-200 flex items-center justify-center flex-shrink-0">
-                <Layers className="w-5 h-5 text-teal-600" />
+              <div className="w-10 h-10 rounded-full bg-white border border-blue-200 flex items-center justify-center flex-shrink-0">
+                <Layers className="w-5 h-5 text-blue-600" />
               </div>
               <div className="min-w-0">
-                <div className="text-sm font-semibold text-teal-900">
+                <div className="text-sm font-semibold text-blue-900">
                   ¿Dividir en sub-órdenes?
                 </div>
-                <div className="text-xs text-teal-700 mt-0.5">
+                <div className="text-xs text-blue-700 mt-0.5">
                   Si el proveedor las separará en tandas, divide la OC para trackear cada envío por separado.
                 </div>
               </div>
@@ -630,7 +630,7 @@ export const ConfirmarOCModal: React.FC<ConfirmarOCModalProps> = ({
                 className={cn(
                   'px-3 py-1.5 text-xs font-medium rounded-lg transition-colors',
                   flujo === 'question'
-                    ? 'bg-teal-600 text-white'
+                    ? 'bg-blue-600 text-white'
                     : 'bg-white text-slate-700 border border-slate-300 hover:bg-slate-50'
                 )}
               >
@@ -643,7 +643,7 @@ export const ConfirmarOCModal: React.FC<ConfirmarOCModalProps> = ({
                 className={cn(
                   'px-3 py-1.5 text-xs font-medium rounded-lg transition-colors',
                   flujo === 'dividir'
-                    ? 'bg-teal-600 text-white'
+                    ? 'bg-blue-600 text-white'
                     : 'bg-white text-slate-700 border border-slate-300 hover:bg-slate-50'
                 )}
               >
@@ -766,7 +766,7 @@ export const ConfirmarOCModal: React.FC<ConfirmarOCModalProps> = ({
                 type="button"
                 onClick={handleElegirNo}
                 disabled={isSubmitting}
-                className="px-5 py-2 text-sm font-semibold bg-teal-600 text-white rounded-lg hover:bg-teal-700 flex items-center gap-2 disabled:opacity-50"
+                className="px-5 py-2 text-sm font-semibold bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2 disabled:opacity-50"
               >
                 {isSubmitting && <Loader2 className="w-4 h-4 animate-spin" />}
                 Confirmar OC
@@ -780,7 +780,7 @@ export const ConfirmarOCModal: React.FC<ConfirmarOCModalProps> = ({
                 className={cn(
                   'px-5 py-2 text-sm font-semibold rounded-lg flex items-center gap-2',
                   puedeConfirmar
-                    ? 'bg-teal-600 text-white hover:bg-teal-700'
+                    ? 'bg-blue-600 text-white hover:bg-blue-700'
                     : 'bg-slate-300 text-white cursor-not-allowed'
                 )}
               >
@@ -854,7 +854,7 @@ const MatrizProductos: React.FC<{
         <button
           type="button"
           onClick={onAgregarSubOrden}
-          className="px-2.5 py-1 text-xs text-teal-600 hover:bg-teal-50 rounded border border-teal-200 flex items-center gap-1 font-medium"
+          className="px-2.5 py-1 text-xs text-blue-600 hover:bg-blue-50 rounded border border-blue-200 flex items-center gap-1 font-medium"
         >
           <Plus className="w-3 h-3" />
           Agregar sub-orden
@@ -872,7 +872,7 @@ const MatrizProductos: React.FC<{
               {subOrdenIds.map((subId, idx) => (
                 <th
                   key={subId}
-                  className="text-right p-2 font-semibold bg-teal-50 whitespace-nowrap min-w-[6rem]"
+                  className="text-right p-2 font-semibold bg-blue-50 whitespace-nowrap min-w-[6rem]"
                 >
                   <div className="flex items-center justify-end gap-1">
                     <span>SUB-{String.fromCharCode(65 + idx)}</span>
@@ -930,7 +930,7 @@ const MatrizProductos: React.FC<{
                         className={cn(
                           'w-12 text-right border rounded px-1 py-0.5 bg-white tabular-nums',
                           v.valido
-                            ? 'border-slate-200 focus:border-teal-500'
+                            ? 'border-slate-200 focus:border-blue-500'
                             : 'border-red-300 focus:border-red-500'
                         )}
                       />
@@ -976,7 +976,7 @@ const MatrizProductos: React.FC<{
               value={refsProveedor[subId] ?? ''}
               onChange={(e) => onChangeRef(subId, e.target.value)}
               placeholder="Ref. proveedor (opcional)"
-              className="flex-1 px-2 py-1 text-xs border border-slate-200 rounded focus:outline-none focus:border-teal-500"
+              className="flex-1 px-2 py-1 text-xs border border-slate-200 rounded focus:outline-none focus:border-blue-500"
             />
           </div>
         ))}
@@ -1076,7 +1076,7 @@ const MatrizCargos: React.FC<{
               {subOrdenIds.map((_, idx) => (
                 <th
                   key={idx}
-                  className="text-right p-2 font-semibold bg-teal-50 whitespace-nowrap min-w-[6rem]"
+                  className="text-right p-2 font-semibold bg-blue-50 whitespace-nowrap min-w-[6rem]"
                 >
                   SUB-{String.fromCharCode(65 + idx)}
                 </th>
@@ -1200,7 +1200,7 @@ const MatrizCargos: React.FC<{
                           className={cn(
                             'w-20 text-right border rounded px-1 py-0.5 bg-white tabular-nums',
                             v.valido
-                              ? 'border-slate-200 focus:border-teal-500'
+                              ? 'border-slate-200 focus:border-blue-500'
                               : 'border-red-300 focus:border-red-500'
                           )}
                         />
@@ -1302,14 +1302,14 @@ const TotalesPorSubOrden: React.FC<{
         className={cn(
           'mt-3 flex items-center justify-between rounded-lg p-2.5 border',
           reconciliado
-            ? 'bg-teal-50 border-teal-200'
+            ? 'bg-blue-50 border-blue-200'
             : 'bg-amber-50 border-amber-200'
         )}
       >
         <span
           className={cn(
             'text-xs font-semibold tracking-wide',
-            reconciliado ? 'text-teal-900' : 'text-amber-900'
+            reconciliado ? 'text-blue-900' : 'text-amber-900'
           )}
         >
           SUMA SUB-ÓRDENES:
@@ -1317,7 +1317,7 @@ const TotalesPorSubOrden: React.FC<{
         <span
           className={cn(
             'text-sm font-semibold tabular-nums',
-            reconciliado ? 'text-teal-900' : 'text-amber-900'
+            reconciliado ? 'text-blue-900' : 'text-amber-900'
           )}
         >
           ${sumaSubOrdenes.toFixed(2)}{' '}

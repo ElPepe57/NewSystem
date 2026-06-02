@@ -147,7 +147,7 @@ export const EnviosDeOC: React.FC<EnviosDeOCProps> = ({
               onClick={() => handleAbrir(envio)}
               className={`text-left p-3 rounded-lg border transition-colors group ${
                 esActivo
-                  ? 'bg-white border-slate-200 hover:border-teal-300 hover:bg-teal-50/30'
+                  ? 'bg-white border-slate-200 hover:border-blue-300 hover:bg-blue-50/30'
                   : 'bg-slate-50 border-slate-200 opacity-75'
               }`}
             >
@@ -177,7 +177,7 @@ export const EnviosDeOC: React.FC<EnviosDeOCProps> = ({
                     </div>
                   )}
                 </div>
-                <ExternalLink className="w-3.5 h-3.5 text-slate-300 group-hover:text-teal-600 flex-shrink-0" />
+                <ExternalLink className="w-3.5 h-3.5 text-slate-300 group-hover:text-blue-600 flex-shrink-0" />
               </div>
 
               {/* Progress bar */}

@@ -216,7 +216,7 @@ const CompraCardSimple: React.FC<{
   return (
     <div
       className={cn(
-        '@container bg-white rounded-xl border border-slate-200 p-4 hover:shadow-md hover:border-teal-300 transition-all cursor-pointer',
+        '@container bg-white rounded-xl border border-slate-200 p-4 hover:shadow-md hover:border-blue-300 transition-all cursor-pointer',
         estadoPago === 'pagado' && estadoDerivado === 'recibida' && 'opacity-80',
         className
       )}
@@ -366,7 +366,7 @@ const CompraCardSimple: React.FC<{
                 e.stopPropagation();
                 onView();
               }}
-              className="w-8 h-8 rounded-full bg-teal-50 text-teal-600 hover:bg-teal-100 flex items-center justify-center flex-shrink-0 transition-colors"
+              className="w-8 h-8 rounded-full bg-blue-50 text-blue-600 hover:bg-blue-100 flex items-center justify-center flex-shrink-0 transition-colors"
             >
               <Eye className="w-4 h-4" />
             </button>
@@ -555,7 +555,7 @@ const CompraCardSimple: React.FC<{
               e.stopPropagation();
               onView();
             }}
-            className="p-1.5 rounded-lg text-teal-600 hover:bg-teal-50 transition-colors"
+            className="p-1.5 rounded-lg text-blue-600 hover:bg-blue-50 transition-colors"
           >
             <Eye className="w-4 h-4" />
           </button>
@@ -770,17 +770,17 @@ const EstadoPagoPillConPorcentaje: React.FC<{
 
 /**
  * Botón icono pequeño para la columna 5 de acciones.
- * Tonos (teal / emerald / sky) alineados al mockup L315-319.
+ * Tonos (blue / emerald / sky) alineados al mockup L315-319.
  */
 const IconAction: React.FC<{
   title: string;
   onClick?: (e: React.MouseEvent) => void;
   icon: React.ReactNode;
-  tone: 'teal' | 'emerald' | 'sky';
+  tone: 'blue' | 'emerald' | 'sky';
   disabled?: boolean;
 }> = ({ title, onClick, icon, tone, disabled }) => {
   const toneHover = {
-    teal: 'hover:text-teal-600 hover:bg-teal-50',
+    blue: 'hover:text-blue-600 hover:bg-blue-50',
     emerald: 'hover:text-emerald-600 hover:bg-emerald-50',
     sky: 'hover:text-sky-600 hover:bg-sky-50',
   }[tone];
@@ -853,7 +853,7 @@ const CompraCardConSubOrdenes: React.FC<{
             </span>
             <EstadoOCPill estado={estadoDerivado} />
             <EstadoPagoPill estado={estadoPago} />
-            <span className="inline-flex items-center gap-1 text-[10px] font-medium text-teal-700 bg-teal-50 border border-teal-200 rounded-full px-2 py-0.5">
+            <span className="inline-flex items-center gap-1 text-[10px] font-medium text-blue-700 bg-blue-50 border border-blue-200 rounded-full px-2 py-0.5">
               <Layers className="w-2.5 h-2.5" />
               {subOrdenes.length} sub-órdenes
             </span>
@@ -982,7 +982,7 @@ const CompraCardConSubOrdenes: React.FC<{
                 e.stopPropagation();
                 onRegistrarPago();
               }}
-              className="px-3 py-1.5 text-xs font-medium text-teal-700 border border-teal-300 rounded-lg hover:bg-teal-50"
+              className="px-3 py-1.5 text-xs font-medium text-blue-700 border border-blue-300 rounded-lg hover:bg-blue-50"
             >
               Registrar pago OC completa
             </button>
@@ -1020,8 +1020,8 @@ const SubOrdenExpandible: React.FC<{
       className={cn(
         'bg-white rounded-xl border transition-all',
         expandido
-          ? 'border-teal-300 shadow-sm'
-          : 'border-slate-200 hover:shadow-sm hover:border-teal-300'
+          ? 'border-blue-300 shadow-sm'
+          : 'border-slate-200 hover:shadow-sm hover:border-blue-300'
       )}
     >
       {/* Header sub-orden (siempre visible) */}
@@ -1032,7 +1032,7 @@ const SubOrdenExpandible: React.FC<{
       >
         <div className="flex items-center gap-3 flex-wrap flex-1 min-w-0">
           {expandido ? (
-            <ChevronDown className="w-3.5 h-3.5 text-teal-600 flex-shrink-0" />
+            <ChevronDown className="w-3.5 h-3.5 text-blue-600 flex-shrink-0" />
           ) : (
             <ChevronRight className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
           )}
@@ -1152,9 +1152,9 @@ const SubOrdenExpandible: React.FC<{
           </div>
 
           {/* Total + acciones */}
-          <div className="flex items-center justify-between bg-teal-50 rounded-lg p-3 flex-wrap gap-2">
+          <div className="flex items-center justify-between bg-blue-50 rounded-lg p-3 flex-wrap gap-2">
             <div>
-              <div className="text-xs text-teal-700 font-medium">
+              <div className="text-xs text-blue-700 font-medium">
                 Total sub-orden:{' '}
                 <span className="text-slate-800 tabular-nums">
                   ${subOrden.totalUSD.toFixed(2)}
@@ -1186,7 +1186,7 @@ const SubOrdenExpandible: React.FC<{
                     e.stopPropagation();
                     onVerEnvio();
                   }}
-                  className="px-3 py-1.5 text-xs font-medium text-teal-700 border border-teal-300 rounded-lg hover:bg-teal-50 flex items-center gap-1.5"
+                  className="px-3 py-1.5 text-xs font-medium text-blue-700 border border-blue-300 rounded-lg hover:bg-blue-50 flex items-center gap-1.5"
                 >
                   <ExternalLink className="w-3 h-3" />
                   Ver envío
@@ -1199,7 +1199,7 @@ const SubOrdenExpandible: React.FC<{
                     e.stopPropagation();
                     onRegistrarPago();
                   }}
-                  className="px-3 py-1.5 text-xs font-medium text-white bg-teal-600 rounded-lg hover:bg-teal-700"
+                  className="px-3 py-1.5 text-xs font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700"
                 >
                   Registrar pago
                 </button>
@@ -1220,7 +1220,7 @@ const SubOrdenExpandible: React.FC<{
               {envio.numeroTracking && (
                 <div className="flex items-center gap-1.5">
                   <span className="text-slate-500">Tracking:</span>
-                  <span className="font-mono text-teal-700">{envio.numeroTracking}</span>
+                  <span className="font-mono text-blue-700">{envio.numeroTracking}</span>
                 </div>
               )}
               {envio.fechaSalida && (
@@ -1318,7 +1318,7 @@ const PipelineDots4: React.FC<{ estado: string }> = ({ estado }) => {
               className={cn(
                 'w-2 h-2 rounded-full transition-colors',
                 done && !active && 'bg-emerald-500',
-                active && 'bg-teal-600 ring-2 ring-teal-100',
+                active && 'bg-blue-600 ring-2 ring-blue-100',
                 !done && 'bg-slate-200'
               )}
             />
@@ -1361,7 +1361,7 @@ const PipelineDots3: React.FC<{ estado: string; className?: string }> = ({
                 'w-2 h-2 rounded-full transition-colors',
                 done && 'bg-emerald-500',
                 active && stage === 2 && 'bg-emerald-500',
-                active && stage !== 2 && 'bg-teal-600 ring-2 ring-teal-100',
+                active && stage !== 2 && 'bg-blue-600 ring-2 ring-blue-100',
                 !done && !active && 'bg-slate-200'
               )}
             />
@@ -1402,10 +1402,10 @@ const ActionButton: React.FC<{
   icon: React.ReactNode;
   label: string;
   onClick: (e: React.MouseEvent) => void;
-  variant: 'teal' | 'emerald' | 'sky';
+  variant: 'blue' | 'emerald' | 'sky';
 }> = ({ icon, label, onClick, variant }) => {
   const classes = {
-    teal: 'text-teal-700 border-teal-300 hover:bg-teal-50',
+    blue: 'text-blue-700 border-blue-300 hover:bg-blue-50',
     emerald: 'text-emerald-700 border-emerald-300 hover:bg-emerald-50',
     sky: 'text-sky-700 border-sky-300 hover:bg-sky-50',
   }[variant];
@@ -1435,7 +1435,7 @@ const AVATAR_PALETTES = [
   { bg: 'bg-emerald-100', text: 'text-emerald-700' },
   { bg: 'bg-pink-100', text: 'text-pink-700' },
   { bg: 'bg-indigo-100', text: 'text-indigo-700' },
-  { bg: 'bg-teal-100', text: 'text-teal-700' },
+  { bg: 'bg-blue-100', text: 'text-blue-700' },
   { bg: 'bg-rose-100', text: 'text-rose-700' },
 ];
 

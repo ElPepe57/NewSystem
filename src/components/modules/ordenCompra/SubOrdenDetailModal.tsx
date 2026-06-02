@@ -37,9 +37,9 @@ import { usePagosOC } from '../../../hooks/usePagosOC';
  *   4 KPIs (Total / Productos / Envío vinculado / Pagos)
  *
  *   Secciones:
- *     - Productos (tabla con SKU mono teal + descripción rica)
+ *     - Productos (tabla con SKU mono blue + descripción rica)
  *     - Cargos comerciales (desglose + ajuste proveedor + cobrado)
- *     - Envío vinculado (card teal con ruta + courier + tracking + fecha)
+ *     - Envío vinculado (card blue con ruta + courier + tracking + fecha)
  *     - Pagos (ámbar si no hay / lista si hay)
  *
  *   Footer: "← Volver a OC-XXX" | Editar cargos | Marcar recibida
@@ -124,7 +124,7 @@ export const SubOrdenDetailModal: React.FC<SubOrdenDetailModalProps> = ({
                 <button
                   type="button"
                   onClick={onBackToOC}
-                  className="text-teal-600 hover:underline hover:text-teal-800 cursor-pointer font-mono"
+                  className="text-blue-600 hover:underline hover:text-blue-800 cursor-pointer font-mono"
                 >
                   {orden.numeroOrden}
                 </button>
@@ -193,7 +193,7 @@ export const SubOrdenDetailModal: React.FC<SubOrdenDetailModalProps> = ({
           <KpiCell
             label="Envío vinculado"
             value={subOrden.envioNumero ?? '—'}
-            tone={subOrden.envioNumero ? 'teal' : 'muted'}
+            tone={subOrden.envioNumero ? 'blue' : 'muted'}
             mono
           />
           <KpiCell
@@ -232,7 +232,7 @@ export const SubOrdenDetailModal: React.FC<SubOrdenDetailModalProps> = ({
                     key={`${p.productoId}-${idx}`}
                     className="border-t border-slate-100 hover:bg-slate-50 transition-colors"
                   >
-                    <td className="p-2 font-mono text-teal-600">{p.sku}</td>
+                    <td className="p-2 font-mono text-blue-600">{p.sku}</td>
                     <td className="p-2">
                       <div className="font-medium">{p.nombreComercial}</div>
                       <div className="text-slate-500">
@@ -302,8 +302,8 @@ export const SubOrdenDetailModal: React.FC<SubOrdenDetailModalProps> = ({
                     </span>
                   </div>
                   <div className="flex items-center justify-between pt-2 border-t border-slate-200">
-                    <span className="font-semibold text-teal-700">Cobrado</span>
-                    <span className="font-semibold text-teal-700 tabular-nums">
+                    <span className="font-semibold text-blue-700">Cobrado</span>
+                    <span className="font-semibold text-blue-700 tabular-nums">
                       ${subOrden.totalUSD.toFixed(2)}
                     </span>
                   </div>
@@ -318,7 +318,7 @@ export const SubOrdenDetailModal: React.FC<SubOrdenDetailModalProps> = ({
               <div className="text-xs font-semibold text-slate-500 mb-2 tracking-wide">
                 ENVÍO VINCULADO
               </div>
-              <div className="bg-teal-50 rounded-xl p-4 border border-teal-200">
+              <div className="bg-blue-50 rounded-xl p-4 border border-blue-200">
                 <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
                   <div className="flex items-center gap-2">
                     <span className="font-semibold text-slate-800 font-mono">
@@ -330,7 +330,7 @@ export const SubOrdenDetailModal: React.FC<SubOrdenDetailModalProps> = ({
                     <button
                       type="button"
                       onClick={onVerEnvio}
-                      className="text-xs text-teal-700 font-medium hover:underline flex items-center gap-1"
+                      className="text-xs text-blue-700 font-medium hover:underline flex items-center gap-1"
                     >
                       Ver envío <ExternalLink className="w-3 h-3" />
                     </button>
@@ -455,7 +455,7 @@ export const SubOrdenDetailModal: React.FC<SubOrdenDetailModalProps> = ({
               <button
                 type="button"
                 onClick={onMarcarRecibida}
-                className="px-3 py-1.5 text-sm font-medium text-white bg-teal-600 rounded-lg hover:bg-teal-700 flex items-center gap-1.5"
+                className="px-3 py-1.5 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 flex items-center gap-1.5"
               >
                 <Check className="w-3.5 h-3.5" />
                 Marcar recibida
@@ -563,7 +563,7 @@ const PipelineGrande3: React.FC<{
                   className={cn(
                     'w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold transition-all',
                     done && 'bg-emerald-500 text-white',
-                    active && 'bg-teal-600 text-white ring-4 ring-teal-100',
+                    active && 'bg-blue-600 text-white ring-4 ring-blue-100',
                     pending && 'bg-slate-200 text-slate-400'
                   )}
                 >
@@ -606,12 +606,12 @@ const PipelineGrande3: React.FC<{
 const KpiCell: React.FC<{
   label: string;
   value: string;
-  tone: 'default' | 'teal' | 'warning' | 'success' | 'muted' | 'danger';
+  tone: 'default' | 'blue' | 'warning' | 'success' | 'muted' | 'danger';
   mono?: boolean;
 }> = ({ label, value, tone, mono }) => {
   const toneClass = {
     default: 'text-slate-800',
-    teal: 'text-teal-600',
+    blue: 'text-blue-600',
     warning: 'text-amber-600',
     success: 'text-emerald-700',
     muted: 'text-slate-400',
@@ -646,7 +646,7 @@ const InfoItem: React.FC<{ label: string; value: string; mono?: boolean }> = ({
     <div
       className={cn(
         'font-medium text-slate-800 truncate',
-        mono && 'font-mono text-teal-700'
+        mono && 'font-mono text-blue-700'
       )}
     >
       {value}

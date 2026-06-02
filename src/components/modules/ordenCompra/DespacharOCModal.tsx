@@ -145,8 +145,8 @@ export const DespacharOCModal: React.FC<Props> = ({
         {/* Header */}
         <div className="flex items-start justify-between px-6 pt-6 pb-4 border-b border-slate-100">
           <div className="flex items-start gap-3">
-            <div className="w-10 h-10 rounded-full bg-teal-100 flex items-center justify-center flex-shrink-0">
-              <Truck className="w-5 h-5 text-teal-600" />
+            <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
+              <Truck className="w-5 h-5 text-blue-600" />
             </div>
             <div>
               <h3 className="text-base font-semibold text-slate-900">{tituloEstado}</h3>
@@ -197,7 +197,7 @@ export const DespacharOCModal: React.FC<Props> = ({
                 }}
                 onFocus={() => setShowDropdown(true)}
                 placeholder="Buscar o escribir nombre (ej: DHL, Olva...)"
-                className={`w-full pl-9 pr-9 py-2.5 border rounded-lg text-sm focus:ring-2 focus:ring-teal-300 focus:outline-none ${
+                className={`w-full pl-9 pr-9 py-2.5 border rounded-lg text-sm focus:ring-2 focus:ring-blue-300 focus:outline-none ${
                   selected ? 'border-emerald-300 bg-emerald-50' : 'border-slate-300'
                 }`}
                 autoComplete="off"
@@ -238,11 +238,11 @@ export const DespacharOCModal: React.FC<Props> = ({
                 ))}
 
                 {puedeCrear && (
-                  <div className="bg-teal-50/50 border-t-2 border-teal-100 px-3 py-2.5">
+                  <div className="bg-blue-50/50 border-t-2 border-blue-100 px-3 py-2.5">
                     <div className="flex items-center gap-2 mb-2">
-                      <Plus className="w-4 h-4 text-teal-600" />
+                      <Plus className="w-4 h-4 text-blue-600" />
                       <span className="text-sm text-slate-700">
-                        Crear <span className="font-semibold text-teal-700">"{query.trim()}"</span> como:
+                        Crear <span className="font-semibold text-blue-700">"{query.trim()}"</span> como:
                       </span>
                     </div>
                     <div className="flex gap-2">
@@ -283,7 +283,7 @@ export const DespacharOCModal: React.FC<Props> = ({
               </p>
             )}
             {!selected && query.trim() && puedeCrear && !showDropdown && (
-              <p className="mt-1.5 text-xs text-teal-600 flex items-center gap-1">
+              <p className="mt-1.5 text-xs text-blue-600 flex items-center gap-1">
                 <Plus className="w-3 h-3" /> Se creará como {tipoNuevo === 'courier_externo' ? 'courier internacional' : 'transportista local'}
               </p>
             )}
@@ -301,7 +301,7 @@ export const DespacharOCModal: React.FC<Props> = ({
                 value={tracking}
                 onChange={(e) => setTracking(e.target.value)}
                 placeholder="Ej: 1Z999AA10123456784"
-                className="w-full pl-9 pr-3 py-2.5 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-300 focus:outline-none"
+                className="w-full pl-9 pr-3 py-2.5 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-300 focus:outline-none"
               />
             </div>
           </div>
@@ -317,7 +317,7 @@ export const DespacharOCModal: React.FC<Props> = ({
                 type="date"
                 value={fecha}
                 onChange={(e) => setFecha(e.target.value)}
-                className="w-full pl-9 pr-3 py-2.5 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-300 focus:outline-none"
+                className="w-full pl-9 pr-3 py-2.5 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-300 focus:outline-none"
               />
             </div>
           </div>
