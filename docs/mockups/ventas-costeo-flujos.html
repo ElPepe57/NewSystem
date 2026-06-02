@@ -27,6 +27,19 @@
   <p class="text-[13px] text-slate-500 mt-1">(1) Configuración de comisión por vendedor · (2) Delivery auto-calculado al programar entrega · (3) Empaque (cajas del inventario + cinta/scotch como overhead). Todo reusa estructuras existentes.</p>
 </div>
 
+<!-- ═══ ACTO 0 · SELECTOR DE VENDEDOR EN LA VENTA ═══ -->
+<div class="max-w-5xl mx-auto mb-10">
+  <div class="text-[11px] font-bold uppercase text-blue-700 mb-3">0 · Vendedor de la venta · quién comisiona (seleccionable · NO es necesariamente quien registra)</div>
+  <div class="max-w-md bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+    <div class="px-5 py-3 border-b border-slate-100 text-[13px] font-bold text-slate-900">¿Quién vendió? <span class="text-[11px] font-normal text-slate-400">· paso del wizard · editable en el detalle</span></div>
+    <div class="p-5 space-y-3">
+      <div><label class="text-[11px] font-medium text-slate-600">Vendedor de la venta</label><div class="mt-1 border border-blue-300 ring-1 ring-blue-100 rounded-lg px-3 py-2 text-[12px] flex items-center justify-between"><span class="flex items-center gap-1.5 min-w-0"><span class="w-5 h-5 rounded-full bg-violet-100 flex items-center justify-center text-[9px] font-bold text-violet-700 flex-shrink-0">MG</span> María García <span class="text-[10px] bg-violet-50 text-violet-700 px-1.5 rounded">comisionista · 3.5%</span></span><i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 flex-shrink-0"></i></div></div>
+      <div class="bg-slate-50 rounded-lg p-2.5 text-[11px] text-slate-500 flex items-start gap-1.5"><i data-lucide="info" class="w-3.5 h-3.5 flex-shrink-0 mt-0.5"></i><div>Por defecto es <strong>quien registra</strong> la venta (vos). Si la vendió otra persona, seleccionala — la comisión se calcula con <strong>SU esquema</strong> y va a <strong>SU boleta</strong>, no a quien la cargó.</div></div>
+      <div class="bg-violet-50 border border-violet-200 rounded-lg p-2.5 flex items-center justify-between text-[11px]"><span class="text-violet-700 flex items-center gap-1.5"><i data-lucide="user-check" class="w-3.5 h-3.5 flex-shrink-0"></i> Comisión → María García (3.5%)</span><span class="tabular font-bold text-violet-900">S/ 69 → su boleta</span></div>
+    </div>
+  </div>
+</div>
+
 <!-- ═══ ACTO 1 · CONFIG DE COMISIÓN POR VENDEDOR (perfil · Equipo = violet) ═══ -->
 <div class="max-w-5xl mx-auto mb-10">
   <div class="text-[11px] font-bold uppercase text-violet-700 mb-3">1 · Configuración de comisión por vendedor (en su perfil · módulo Equipo · violet)</div>
