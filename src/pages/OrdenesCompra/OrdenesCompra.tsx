@@ -15,6 +15,10 @@ import { PipelineCompras } from '../../components/modules/ordenCompra/PipelineCo
 import type { EstadoPipelineCompras, PipelineComprasStage } from '../../components/modules/ordenCompra/PipelineCompras';
 import { SubOrdenDetailModal } from '../../components/modules/ordenCompra/SubOrdenDetailModal';
 import { TabResumenCompras } from './components/TabResumenCompras';
+import { TabPendientesCompras } from './components/TabPendientesCompras';
+import { OCBuilder } from '../../components/modules/ordenCompra/OCBuilder/OCBuilder';
+import { useRequerimientoStore } from '../../store/requerimientoStore';
+import type { Requerimiento } from '../../types/requerimiento.types';
 import { useEnvioStore } from '../../store/envioStore';
 import { PagoUnificadoForm } from '../../components/modules/pagos/PagoUnificadoForm';
 import type { PagoUnificadoResult } from '../../components/modules/pagos/PagoUnificadoForm';
@@ -87,6 +91,8 @@ export const OrdenesCompra: React.FC = () => {
   const toast = useToastStore();
   const { productos, fetchProductos } = useProductoStore();
   const { getTCDelDia } = useTipoCambioStore();
+  const { requerimientos, fetchRequerimientos } = useRequerimientoStore();
+  const loadingReqs = useRequerimientoStore((s) => s.loading);
   const [tcSugerido, setTcSugerido] = useState<number>(0);
 
   // Proveedores desde el store centralizado
@@ -171,6 +177,8 @@ export const OrdenesCompra: React.FC = () => {
   const [filtroEstado, setFiltroEstado] = useState<string | null>(null);
   // chk5.COMERCIALES-F1 · tab activa del hub · default 'ordenes' hasta que la Fase 1b construya el Resumen §A→§F
   const [tabActiva, setTabActiva] = useState<'resumen' | 'ordenes' | 'pendientes' | 'proveedores' | 'inteligencia'>('resumen');
+  const [isOCBuilderOpen, setIsOCBuilderOpen] = useState(false);
+  const [ocBuilderReqs, setOcBuilderReqs] = useState<Requerimiento[]>([]);
   // S42 Tanda 10 — Filtros adicionales vista Compras (mockup s40 líneas 235-254)
   const [busquedaGlobal, setBusquedaGlobal] = useState('');
   const [pillFiltro, setPillFiltro] = useState<'todas' | 'activas' | 'completadas'>('todas');
@@ -376,6 +384,14 @@ export const OrdenesCompra: React.FC = () => {
     loadData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Lazy: cargar requerimientos al abrir la tab Pendientes (chk5.COMERCIALES-F3a)
+  useEffect(() => {
+    if (tabActiva === 'pendientes' && requerimientos.length === 0) {
+      fetchRequerimientos().catch(() => {});
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tabActiva]);
 
   // Si viene de Requerimientos, abrir modal con datos pre-cargados
   useEffect(() => {
@@ -1125,8 +1141,18 @@ export const OrdenesCompra: React.FC = () => {
           />
         )}
 
-        {/* ═══ TABS EN CONSTRUCCIÓN (Pendientes · Proveedores · Inteligencia) · fases siguientes ═══ */}
-        {(tabActiva === 'pendientes' || tabActiva === 'proveedores' || tabActiva === 'inteligencia') && (
+        {/* ═══ TAB PENDIENTES · requerimientos aprobados → OC consolidada ═══ */}
+        {tabActiva === 'pendientes' && (
+          <TabPendientesCompras
+            requerimientos={requerimientos}
+            loading={loadingReqs}
+            onCrearOCConsolidada={(reqs) => { setOcBuilderReqs(reqs); setIsOCBuilderOpen(true); }}
+            onNuevaOC={() => setIsWizardV2Open(true)}
+          />
+        )}
+
+        {/* ═══ TABS EN CONSTRUCCIÓN (Proveedores · Inteligencia) · fases siguientes ═══ */}
+        {(tabActiva === 'proveedores' || tabActiva === 'inteligencia') && (
           <div className="p-8 sm:p-12 text-center">
             <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-blue-50 text-blue-600 mb-3 mx-auto">
               <LayoutDashboard className="w-6 h-6" />
@@ -1143,6 +1169,21 @@ export const OrdenesCompra: React.FC = () => {
 
         </HubBody>
       </HubShell>
+
+      {/* OC Builder · consolida N requerimientos en OC(s) · motor único reusado (chk5.COMERCIALES-F3a) */}
+      <OCBuilder
+        isOpen={isOCBuilderOpen}
+        onClose={() => { setIsOCBuilderOpen(false); setOcBuilderReqs([]); }}
+        requerimientos={ocBuilderReqs}
+        tcSugerido={tcSugerido}
+        onComplete={(ordenesCreadas) => {
+          setIsOCBuilderOpen(false);
+          setOcBuilderReqs([]);
+          toast.success(`${ordenesCreadas.length} OC(s) creadas exitosamente`);
+          fetchOrdenes();
+          fetchRequerimientos().catch(() => {});
+        }}
+      />
 
       {/* S53.9 — Modal Nueva Orden legacy ELIMINADO. La creacion/edicion vive en OCWizardV3. */}
 

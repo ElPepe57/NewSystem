@@ -5,25 +5,8 @@ import {
 } from 'lucide-react';
 import { Button } from '../../common/Button';
 import { Modal } from '../../common/Modal';
-import type { Requerimiento, ProductoRequerimiento } from '../../../types/requerimiento.types';
-
-interface PendienteItem {
-  productoId: string;
-  sku: string;
-  marca: string;
-  nombreComercial: string;
-  presentacion: string;
-  pendienteTotal: number;
-  costoEstimadoUSD: number;
-  proveedorSugerido?: string;
-  origenes: Array<{
-    requerimientoId: string;
-    requerimientoNumero: string;
-    clienteNombre: string;
-    cantidad: number;
-    cotizacionId?: string;
-  }>;
-}
+import type { Requerimiento } from '../../../types/requerimiento.types';
+import { calcularPendientesCompra, requerimientosDeProductos, type PendienteItem } from './pendientesCompra.helper';
 
 interface Props {
   isOpen: boolean;
@@ -41,53 +24,8 @@ export const PendientesCompraPanel: React.FC<Props> = ({
   const [selectedProductIds, setSelectedProductIds] = useState<Set<string>>(new Set());
   const [searchTerm, setSearchTerm] = useState('');
 
-  // Build pending items from all requerimientos with pending products
-  const pendientes = useMemo<PendienteItem[]>(() => {
-    const map = new Map<string, PendienteItem>();
-
-    for (const req of requerimientos) {
-      // Only aprobado or parcial states
-      if (req.estado !== 'aprobado' && req.estado !== 'parcial') continue;
-      if (!req.productos) continue;
-
-      for (const p of req.productos) {
-        const cantidadEnOC = p.cantidadEnOC || 0;
-        const pendiente = p.cantidadSolicitada - cantidadEnOC;
-        if (pendiente <= 0) continue;
-
-        const existing = map.get(p.productoId);
-        const origen = {
-          requerimientoId: req.id!,
-          requerimientoNumero: req.numeroRequerimiento,
-          clienteNombre: req.nombreSolicitante || req.nombreClienteSolicitante || 'Admin',
-          cantidad: pendiente,
-          cotizacionId: req.cotizacionId || (req as any).ventaRelacionadaId,
-        };
-
-        if (existing) {
-          existing.pendienteTotal += pendiente;
-          existing.origenes.push(origen);
-          if (p.precioEstimadoUSD && p.precioEstimadoUSD > existing.costoEstimadoUSD) {
-            existing.costoEstimadoUSD = p.precioEstimadoUSD;
-          }
-        } else {
-          map.set(p.productoId, {
-            productoId: p.productoId,
-            sku: p.sku,
-            marca: p.marca,
-            nombreComercial: p.nombreComercial,
-            presentacion: p.presentacion || '',
-            pendienteTotal: pendiente,
-            costoEstimadoUSD: p.precioEstimadoUSD || 0,
-            proveedorSugerido: p.proveedorSugerido,
-            origenes: [origen],
-          });
-        }
-      }
-    }
-
-    return Array.from(map.values()).sort((a, b) => b.pendienteTotal - a.pendienteTotal);
-  }, [requerimientos]);
+  // Build pending items from all requerimientos with pending products (helper compartido · DRY)
+  const pendientes = useMemo<PendienteItem[]>(() => calcularPendientesCompra(requerimientos), [requerimientos]);
 
   // Filter by search
   const filtered = useMemo(() => {
@@ -119,17 +57,7 @@ export const PendientesCompraPanel: React.FC<Props> = ({
 
   const handleEnviar = () => {
     if (selectedProductIds.size === 0) return;
-
-    // Find all reqs that have at least one selected product with pending items
-    const selectedItems = pendientes.filter(p => selectedProductIds.has(p.productoId));
-    const reqIdsNeeded = new Set<string>();
-    for (const item of selectedItems) {
-      for (const o of item.origenes) {
-        reqIdsNeeded.add(o.requerimientoId);
-      }
-    }
-
-    const reqsToSend = requerimientos.filter(r => reqIdsNeeded.has(r.id!));
+    const reqsToSend = requerimientosDeProductos(pendientes, selectedProductIds, requerimientos);
     onEnviarAlBuilder(reqsToSend);
     setSelectedProductIds(new Set());
     onClose();
