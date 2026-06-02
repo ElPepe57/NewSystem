@@ -4,6 +4,7 @@ import {
   ArrowLeftRight, Plus, ClipboardList, Truck, ArrowRight, ShoppingCart,
 } from 'lucide-react';
 import type { OrdenCompra, OrdenCompraStats } from '../../../types/ordenCompra.types';
+import { EmptyDashboardSkeleton } from '../../../design-system';
 
 // chk5.COMERCIALES-F1b · Tab Resumen de Compras · dashboard ejecutivo §A→§F
 // Canon de no-redundancia: NO clona los 5 KPIs del strip · aporta visión NUEVA
@@ -204,26 +205,26 @@ export const TabResumenCompras: React.FC<TabResumenComprasProps> = ({
 
   const sinDatos = activas.length === 0;
 
-  // ════════════════════ EMPTY STATE (sin OCs) ════════════════════
+  // ════════════════════ EMPTY STATE · esqueleto estructural (sin OCs) ════════════════════
   if (sinDatos) {
     return (
       <div className="bg-slate-50/30 p-4 sm:p-6">
-        <div className="bg-white border border-slate-200 rounded-2xl p-10 text-center">
-          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-blue-50 text-blue-600 mb-4 mx-auto">
-            <ShoppingCart className="w-7 h-7" />
-          </div>
-          <h3 className="text-base font-semibold text-slate-900">Aún no hay órdenes de compra</h3>
-          <p className="text-[12px] text-slate-500 mt-1 max-w-sm mx-auto">
-            Cuando registres tu primera OC verás aquí la salud de compras, concentración por proveedor, tendencia y alertas.
-          </p>
-          <div className="mt-5 flex items-center justify-center gap-2 flex-wrap">
-            <button onClick={onNuevaOC} className="inline-flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white text-[12px] font-semibold px-4 py-2 rounded-lg transition-colors">
-              <Plus className="w-4 h-4" /> Nueva orden de compra
-            </button>
-            <button onClick={() => onIrTab('pendientes')} className="inline-flex items-center gap-1.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-600 text-[12px] font-semibold px-4 py-2 rounded-lg transition-colors">
-              <ClipboardList className="w-4 h-4" /> Ver pendientes
-            </button>
-          </div>
+        <div className="bg-white border border-slate-200 rounded-2xl p-6 sm:p-8">
+          <EmptyDashboardSkeleton
+            color="blue"
+            icon={ShoppingCart}
+            titulo="Aún no hay órdenes de compra"
+            subtitulo="Cuando registres tu primera OC, tu Resumen mostrará esto:"
+            cta={{ label: 'Nueva orden de compra', icon: Plus, onClick: onNuevaOC }}
+            ctaSecundario={{ label: 'Ver pendientes', icon: ClipboardList, onClick: () => onIrTab('pendientes') }}
+            bloques={[
+              { tipo: 'banner', label: 'Salud de compras' },
+              { tipo: 'charts', items: [{ label: 'Gasto por proveedor', forma: 'donut' }, { label: 'Tendencia de compras · 6 meses', forma: 'bars' }] },
+              { tipo: 'stats', label: 'Insights del mes', items: ['Lead time', 'Concentración', 'Cumplim. pago', 'FX acumulado'] },
+              { tipo: 'links', label: 'Conecta con · 360', items: ['Envíos', 'Inventario', 'Finanzas', 'Requerimientos'] },
+              { tipo: 'list', label: 'Alertas', filas: 2 },
+            ]}
+          />
         </div>
       </div>
     );
