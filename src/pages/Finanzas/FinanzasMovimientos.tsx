@@ -296,12 +296,21 @@ const FinanzasMovimientos: React.FC = () => {
     );
   }, [toastInfo]);
 
-  // ─── Resumen toolbar ─────────────────────────────────────────────────
+  // ─── Resumen toolbar · contextual al FILTRO activo ───────────────────
+  // chk5.DS-DEDUP: antes mezclaba scopes (count filtrado + montos del MES vía
+  // kpisLedger) y repetía los ingresos/egresos que ya muestra el KPI strip.
+  // Ahora recalcula sobre movimientosFiltrados → resumen del filtro, no del mes.
   const resumenToolbar = useMemo(() => {
-    return `${movimientosFiltrados.length} movs · S/ ${fmt0(
-      kpisLedger.ingresos,
-    )} ingresos · S/ ${fmt0(kpisLedger.egresos)} egresos`;
-  }, [movimientosFiltrados.length, kpisLedger]);
+    let ing = 0;
+    let egr = 0;
+    for (const m of movimientosFiltrados) {
+      if (m.estado === 'anulado') continue;
+      const equiv = m.montoEquivalentePEN || 0;
+      if (TIPOS_INGRESO.includes(m.tipo)) ing += equiv;
+      else if (TIPOS_EGRESO.includes(m.tipo)) egr += equiv;
+    }
+    return `${movimientosFiltrados.length} resultados · S/ ${fmt0(ing)} ingresos · S/ ${fmt0(egr)} egresos`;
+  }, [movimientosFiltrados]);
 
   // ─── KPI Slot canon MOCK 7 §1 · 5 KPIs específicos ledger ─────────────
   const kpiSlot = useMemo(() => {
