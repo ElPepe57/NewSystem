@@ -148,22 +148,28 @@ export const EmptyDashboardSkeleton: React.FC<EmptyDashboardSkeletonProps> = ({
   const c = COLOR_CLASSES[color];
   return (
     <div className="relative">
-      {/* Invitación */}
-      <div className="text-center mb-5">
-        <div className={cn('inline-flex items-center justify-center w-14 h-14 rounded-2xl mb-3 mx-auto', c.iconTonalBg, c.iconTonalText)}>
-          <Icon className="w-7 h-7" />
+      {/* Barra de invitación COMPACTA (una sola fila) — UNA herramienta de presentación:
+          el preview es el protagonista, la invitación + CTA viven en una barra sobre él
+          (no un empty centrado grande + un esqueleto aparte). */}
+      <div className="flex items-center justify-between gap-3 flex-wrap mb-4 pb-4 border-b border-slate-100">
+        <div className="flex items-center gap-3 min-w-0">
+          <div className={cn('w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0', c.iconTonalBg, c.iconTonalText)}>
+            <Icon className="w-5 h-5" />
+          </div>
+          <div className="min-w-0">
+            <h3 className="text-[14px] font-bold text-slate-900">{titulo}</h3>
+            {subtitulo && <p className="text-[11px] text-slate-500">{subtitulo}</p>}
+          </div>
         </div>
-        <h3 className="text-base font-semibold text-slate-900">{titulo}</h3>
-        {subtitulo && <p className="text-[12px] text-slate-500 mt-1 max-w-md mx-auto">{subtitulo}</p>}
         {(cta || ctaSecundario) && (
-          <div className="mt-4 flex items-center justify-center gap-2 flex-wrap">
+          <div className="flex items-center gap-2 flex-shrink-0">
             {cta && (
-              <button onClick={cta.onClick} className={cn('inline-flex items-center gap-1.5 text-[12px] font-semibold px-4 py-2 rounded-lg transition-colors', c.primaryBtn)}>
+              <button onClick={cta.onClick} className={cn('inline-flex items-center gap-1.5 text-[12px] font-semibold px-3.5 py-2 rounded-lg transition-colors', c.primaryBtn)}>
                 {cta.icon && <cta.icon className="w-4 h-4" />}{cta.label}
               </button>
             )}
             {ctaSecundario && (
-              <button onClick={ctaSecundario.onClick} className="inline-flex items-center gap-1.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-600 text-[12px] font-semibold px-4 py-2 rounded-lg transition-colors">
+              <button onClick={ctaSecundario.onClick} className="inline-flex items-center gap-1.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-600 text-[12px] font-semibold px-3.5 py-2 rounded-lg transition-colors">
                 {ctaSecundario.icon && <ctaSecundario.icon className="w-4 h-4" />}{ctaSecundario.label}
               </button>
             )}
@@ -171,15 +177,8 @@ export const EmptyDashboardSkeleton: React.FC<EmptyDashboardSkeletonProps> = ({
         )}
       </div>
 
-      {/* Separador "vista previa" */}
-      <div className="flex items-center gap-2 mb-3">
-        <div className="flex-1 h-px bg-slate-200" />
-        <span className="text-[10px] uppercase tracking-wider text-slate-400 font-bold">Vista previa · estructura</span>
-        <div className="flex-1 h-px bg-slate-200" />
-      </div>
-
-      {/* Esqueleto estructural (atenuado · no interactivo · solo referencia) */}
-      <div className="space-y-4 opacity-60 select-none pointer-events-none" aria-hidden="true">
+      {/* Esqueleto estructural · referencia atenuada de lo que verás (sin números falsos) */}
+      <div className="space-y-4 opacity-50 select-none pointer-events-none" aria-hidden="true">
         {bloques.map((b, i) => <Bloque key={i} bloque={b} />)}
       </div>
     </div>

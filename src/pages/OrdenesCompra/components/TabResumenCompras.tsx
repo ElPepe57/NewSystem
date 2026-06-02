@@ -214,7 +214,7 @@ export const TabResumenCompras: React.FC<TabResumenComprasProps> = ({
             color="blue"
             icon={ShoppingCart}
             titulo="Aún no hay órdenes de compra"
-            subtitulo="Cuando registres tu primera OC, tu Resumen mostrará esto:"
+            subtitulo="Vista previa · así se verá cuando registres tu primera OC"
             cta={{ label: 'Nueva orden de compra', icon: Plus, onClick: onNuevaOC }}
             ctaSecundario={{ label: 'Ver pendientes', icon: ClipboardList, onClick: () => onIrTab('pendientes') }}
             bloques={[
