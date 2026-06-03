@@ -22,8 +22,10 @@ import { logger } from '../lib/logger';
 import { COLLECTIONS } from '../config/collections';
 import { envioCrudService } from './envio.crud.service';
 import { gastoService } from './gasto.service';
+import { unidadService } from './unidad.service';
+import { colaboradorService } from './colaborador.service';
 import type { Venta, MetodoPago } from '../types/venta.types';
-import type { EstadoEnvio } from '../types/envio.types';
+import type { EstadoEnvio, MotivoFallo } from '../types/envio.types';
 
 const ENVIOS_COLL = COLLECTIONS.ENVIOS;
 const VENTAS_COLL = COLLECTIONS.VENTAS;
@@ -215,5 +217,89 @@ export const envioDespachoService = {
         logger.error(`[marcarEnCaminoEnvio ${envio.numeroEnvio}] Error creando gasto delivery:`, error);
       }
     }
+  },
+
+  /**
+   * A2.3a — Marca un despacho de venta como FALLIDO o REPROGRAMADO (NO cobra · sin dinero).
+   *
+   * Porta la rama `exitosa=false` de entrega.service.registrarResultado sobre Envio:
+   *   - estado → 'fallida' | 'reprogramada' (+ motivoFallo).
+   *   - si NO se reprograma: anula el gasto delivery + libera las unidades (vuelven a stock).
+   *   - actualiza métricas del transportista (fallo · sin cobro).
+   *
+   * La rama EXITOSA (entrega + cobro COD → venta/tesorería/caja recaudadora + métricas +
+   * anticipos + CTRU) es A2.3b — se porta con foco y revisión contable (toca dinero real).
+   */
+  async marcarEntregaFallida(
+    envioId: string,
+    payload: {
+      motivoFallo: MotivoFallo;
+      descripcionFallo?: string;
+      reprogramar?: boolean;
+      nuevaFechaProgramada?: Date;
+      notasEntrega?: string;
+    },
+    userId: string,
+  ): Promise<void> {
+    const envio = await envioCrudService.getById(envioId);
+    if (!envio) throw new Error('Envío no encontrado');
+    if (envio.destinoTipo !== 'cliente') {
+      throw new Error('No es un despacho de venta (Caso F).');
+    }
+    if (!['programada', 'en_camino', 'reprogramada'].includes(envio.estado)) {
+      throw new Error(`No se puede marcar como fallida un envío en estado "${envio.estado}".`);
+    }
+
+    const nuevoEstado: EstadoEnvio = payload.reprogramar ? 'reprogramada' : 'fallida';
+    const update: Record<string, unknown> = {
+      estado: nuevoEstado,
+      motivoFallo: payload.motivoFallo,
+      actualizadoPor: userId,
+      fechaActualizacion: Timestamp.now(),
+    };
+    if (payload.descripcionFallo) update.descripcionFallo = payload.descripcionFallo;
+    if (payload.notasEntrega) update.notasEntregaDetalles = payload.notasEntrega;
+    if (payload.reprogramar && payload.nuevaFechaProgramada) {
+      update.fechaLlegadaEstimada = Timestamp.fromDate(payload.nuevaFechaProgramada);
+    }
+    await updateDoc(doc(db, ENVIOS_COLL, envioId), update);
+
+    // Si NO se reprograma: anular gasto delivery + liberar unidades (vuelven a stock)
+    if (!payload.reprogramar) {
+      if (envio.gastoDeliveryId) {
+        try {
+          await gastoService.delete(envio.gastoDeliveryId);
+          await updateDoc(doc(db, ENVIOS_COLL, envioId), { gastoDeliveryId: null });
+        } catch (error) {
+          logger.error(`[marcarEntregaFallida ${envio.numeroEnvio}] Error anulando gasto delivery:`, error);
+        }
+      }
+      const unidadIds = envio.unidades.map((u) => u.unidadId);
+      if (unidadIds.length > 0) {
+        try {
+          const r = await unidadService.liberarUnidades(
+            unidadIds, `Entrega fallida: ${payload.motivoFallo}`, userId,
+          );
+          logger.log(`[marcarEntregaFallida ${envio.numeroEnvio}] Unidades liberadas: ${r.exitos}/${unidadIds.length}`);
+        } catch (error) {
+          logger.error(`[marcarEntregaFallida ${envio.numeroEnvio}] Error liberando unidades:`, error);
+        }
+      }
+    }
+
+    // Métricas del transportista (fallo · sin tiempo ni cobro)
+    if (envio.colaboradorId) {
+      try {
+        await colaboradorService.registrarEntrega(envio.colaboradorId, false, 0, 0, envio.destinoClienteDistrito);
+      } catch (error) {
+        logger.error(`[marcarEntregaFallida ${envio.numeroEnvio}] Error métricas transportista:`, error);
+      }
+    }
+
+    // TODO (A2.3b/A6): movimientoTransportistaService.registrarEntregaFallida espera un objeto
+    // `Entrega` · se adapta a Envio cuando se porte el cobro/movimiento transportista (es solo
+    // historial sin costo · no bloquea la operación de fallo).
+
+    logger.log(`[marcarEntregaFallida ${envio.numeroEnvio}] → ${nuevoEstado} · ${payload.motivoFallo}`);
   },
 };
