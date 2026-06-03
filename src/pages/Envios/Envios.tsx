@@ -18,6 +18,7 @@ import {
   ChevronRight,
   Search,
   Download,
+  LayoutDashboard,
 } from "lucide-react";
 import { exportService } from "../../services/export.service";
 import {
@@ -67,6 +68,7 @@ import { TabReclamos } from './TabReclamos';
 import { TabIncidencias } from './TabIncidencias';
 import { TabCostosLanded } from './TabCostosLanded';
 import { TabRendimiento } from './TabRendimiento';
+import { TabResumenEnvios, type ResumenEnviosData } from './TabResumenEnvios';
 // S47 — Modelo Envios Transversal: clasificación A-J derivada de campos existentes
 import {
   deriveTipoRutaLogistica,
@@ -75,10 +77,10 @@ import {
   type TipoRutaLogistica,
 } from '../../utils/envio.tipoRuta.helpers';
 
-type TabEnvios = 'operaciones' | 'incidencias' | 'reclamos' | 'costos' | 'rendimiento';
+type TabEnvios = 'resumen' | 'operaciones' | 'incidencias' | 'reclamos' | 'costos' | 'rendimiento';
 
 export const Envios: React.FC = () => {
-  const [tabEnvios, setTabEnvios] = useState<TabEnvios>('operaciones');
+  const [tabEnvios, setTabEnvios] = useState<TabEnvios>('resumen');
   const user = useAuthStore(state => state.user);
   const toast = useToastStore();
   const {
@@ -351,6 +353,29 @@ export const Envios: React.FC = () => {
       countsPorTipoRuta,
     };
   }, [enviosEnTransitoPorLinea, enviosPorLinea, tipoCambioActual, valorEnTransito]);
+
+  // Resumen ejecutivo (tab Resumen · §A→§F · canon HUB)
+  const resumenEnviosData: ResumenEnviosData = useMemo(() => {
+    const alertas: ResumenEnviosData['alertas'] = [];
+    enviosPorLinea.filter(e => e.estado === 'retenida_aduana').slice(0, 2).forEach(e =>
+      alertas.push({ tono: 'rose', icon: 'aduana', texto: `${e.numeroEnvio} retenido en aduana` }));
+    if (resumen?.enviosConIncidencias) {
+      alertas.push({ tono: 'amber', icon: 'incidencia', texto: `${resumen.enviosConIncidencias} envío(s) con incidencias sin resolver` });
+    }
+    if (resumenReclamos?.reclamosPendientes) {
+      alertas.push({ tono: 'slate', icon: 'reclamo', texto: `${resumenReclamos.reclamosPendientes} reclamo(s) pendiente(s)` });
+    }
+    return {
+      activos: enviosStatsExtra.countActivas,
+      enTransito: resumen?.enTransito ?? 0,
+      pendientesRecepcion: resumen?.pendientesRecepcion ?? 0,
+      incidencias: resumen?.enviosConIncidencias ?? enviosStatsExtra.countIncidencias,
+      reclamosPendientes: resumenReclamos?.reclamosPendientes ?? 0,
+      reclamadoPEN: resumenReclamos?.totalReclamadoPEN ?? 0,
+      countsPorTipoRuta: enviosStatsExtra.countsPorTipoRuta,
+      alertas,
+    };
+  }, [enviosPorLinea, resumen, resumenReclamos, enviosStatsExtra]);
 
   // S42 Tanda 9 — Breakdown por tipo de ruta (mockup líneas 2003-2036)
   const breakdownPorTipo = useMemo(() => {
@@ -703,6 +728,12 @@ export const Envios: React.FC = () => {
       {/* S40 Bloque D: Tabs módulo logístico — Operaciones / Proveedor / Incidencias / Reclamos / Costos / Rendimiento */}
       <div className="flex items-center gap-1 bg-slate-100 rounded-lg p-1 w-fit flex-wrap">
         <EnviosTabButton
+          active={tabEnvios === 'resumen'}
+          onClick={() => setTabEnvios('resumen')}
+          icon={LayoutDashboard}
+          label="Resumen"
+        />
+        <EnviosTabButton
           active={tabEnvios === 'operaciones'}
           onClick={() => setTabEnvios('operaciones')}
           icon={ArrowRightLeft}
@@ -740,7 +771,13 @@ export const Envios: React.FC = () => {
         />
       </div>
 
-      {tabEnvios === 'reclamos' ? (
+      {tabEnvios === 'resumen' ? (
+        <TabResumenEnvios
+          data={resumenEnviosData}
+          onNuevoEnvio={() => navigate('/envios/nuevo')}
+          onIrATab={setTabEnvios}
+        />
+      ) : tabEnvios === 'reclamos' ? (
         <TabReclamos />
       ) : tabEnvios === 'incidencias' ? (
         <TabIncidencias />
