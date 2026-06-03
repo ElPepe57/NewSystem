@@ -81,8 +81,8 @@ desnormaliza datos, hereda cargos. `despacharVenta()` replica esta forma con dat
 | **A0 · Auditoría EstadoEnvio** | Mapear TODOS los switch/match sobre `EstadoEnvio` (para extender el enum sin romper la UI). | 🟢 read-only |
 | **A1 · Modelo/tipos** | Sumar los campos de última milla a `envio.types.ts` + extender `EstadoEnvio` + manejar nuevos casos en los switches auditados. `tsc` verde. | 🟢 bajo (campos opcionales) |
 | **A2 · Servicio de despacho** | Portar la lógica de `entrega.service` a `envio.despacho.service`: `despacharVenta()` (crea F + sincroniza venta) · `marcarEnCaminoEnvio()` (+GD) · `registrarEntregaEnvio()` (entregada/fallida/reprogramada + COD + GD + métricas + anticipos + CTRU) · cancelar/corregir · **cable COD→cajaRecaudadora**. | 🔴 alto (corazón financiero) |
-| **A3 · Migración de datos** | Script idempotente `entregas → envios` (destinoTipo=cliente · mapeo completo) + verificación de integridad. Coexistencia durante transición. | 🔴 alto (datos reales) |
-| **A4 · UI Ventas (disparo + espejo)** | Quitar `ProgramarEntregaModal` de Ventas → botón "Despachar" dispara a Envíos. `EntregasVenta` lee de envios (espejo). `DespachoML` (Mercado Libre) usa el nuevo flujo. | 🟠 medio |
+| **A3 · Migración de datos** | ⚪ **ELIMINADA (2026-06-03)** — el usuario confirmó que el sistema NO tiene datos reales (ERP en construcción · `entregas` vacía/pruebas). **Nada que migrar.** | ⚪ N/A |
+| **A4 · UI Ventas (disparo + espejo)** | Quitar `ProgramarEntregaModal` de Ventas → botón "Despachar" dispara a Envíos. `EntregasVenta` lee de envios (espejo). `DespachoML` (Mercado Libre) usa el nuevo flujo. Sin datos → si hace falta, una guarda simple basta (o ni eso). | 🟢 bajo (sin datos reales) |
 | **A5 · Rework visual Envíos** | Las 5 fases de mockups sobre el modelo unificado (shell+Resumen+Operaciones · detalle adaptativo perfil F lee Envio · modales · tabs · wizards). | 🟠 medio |
 | **A6 · Deprecar `Entrega`** | Tras migrar + verificar: deprecar `entrega.service` · `entregaStore` · `venta.entregas.service` · `entrega.types`. | 🟠 medio |
 
@@ -123,8 +123,15 @@ desnormaliza datos, hereda cargos. `despacharVenta()` replica esta forma con dat
   original que no liberaba). `corregirDespacho` (editar transportista/costo · toca gasto+métricas)
   queda PENDIENTE como deuda declarada (corrección post-hoc · no bloquea el flujo
   crear→despachar→entregar/fallar/cancelar). `tsc -b` verde.
-- ⏳ **A3** migración datos · **A4** UI Ventas (disparo+espejo) · **A5** rework visual (5 fases
-  mockups) · **A6** deprecar `Entrega`.
+- ⚪ **A3** migración datos — **ELIMINADA (2026-06-03):** el usuario confirmó que el ERP está en
+  construcción, SIN datos reales (colección `entregas` vacía/pruebas). No hay nada que migrar.
+- ⏳ **A4** cablear UI Ventas (disparo+espejo · riesgo BAJO sin datos) · **A5** rework visual (5 fases
+  mockups) · **A6** deprecar `Entrega` (sin datos · se puede quitar directo tras cablear).
+
+> **Recontextualización (2026-06-03):** el ERP está EN CONSTRUCCIÓN, sin datos/usuarios reales. El
+> riesgo de "producción" que motivó la cautela extra (migración, foco para el cobro) era sobre una
+> premisa falsa. La CALIDAD del código sigue importando (la revisión contable de A2.3b fue válida y
+> útil), pero el encendido (A4+A6) es de bajo riesgo: cablear la UI y deprecar `Entrega`, sin migrar.
 
 > **El motor de despacho (A2) está 100% completo y revisado** (despacharVenta · marcarEnCaminoEnvio ·
 > marcarEntregaFallida · registrarEntregaExitosa · cancelarDespacho). Lo que falta es el **ENCENDIDO**:
