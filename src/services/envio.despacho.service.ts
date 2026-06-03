@@ -15,7 +15,7 @@
  * Ver docs/ENVIOS_ABSORCION_ENTREGA_PLAN.md
  */
 import {
-  collection, doc, updateDoc, getDoc, query, where, getDocs, writeBatch, Timestamp,
+  collection, doc, updateDoc, getDoc, query, where, getDocs, writeBatch, arrayUnion, Timestamp,
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { logger } from '../lib/logger';
@@ -24,8 +24,12 @@ import { envioCrudService } from './envio.crud.service';
 import { gastoService } from './gasto.service';
 import { unidadService } from './unidad.service';
 import { colaboradorService } from './colaborador.service';
-import type { Venta, MetodoPago } from '../types/venta.types';
-import type { EstadoEnvio, MotivoFallo } from '../types/envio.types';
+import { auditoriaService } from './auditoria.service';
+import { inventarioService } from './inventario.service';
+import { tesoreriaService } from './tesoreria.service';
+import type { Venta, EstadoVenta, MetodoPago } from '../types/venta.types';
+import type { Unidad, MovimientoUnidad } from '../types/unidad.types';
+import type { EstadoEnvio, MotivoFallo, Envio } from '../types/envio.types';
 
 const ENVIOS_COLL = COLLECTIONS.ENVIOS;
 const VENTAS_COLL = COLLECTIONS.VENTAS;
@@ -34,6 +38,47 @@ const VENTAS_COLL = COLLECTIONS.VENTAS;
 const ESTADOS_VENTA_DESPACHABLES: readonly string[] = [
   'confirmada', 'reservada', 'parcial', 'asignada', 'en_entrega',
 ];
+
+/**
+ * Calcula qué estado debería tener la venta tras este despacho (sin escribir).
+ * Porta entrega.service.calcularEstadoVentaPostEntrega contando los DESPACHOS F
+ * (envíos destinoTipo='cliente' estado='entregada') de la venta en vez de entregas.
+ */
+async function calcularEstadoVentaPostDespacho(
+  ventaId: string,
+  itemsDespachoActual: number,
+  envioIdActual: string,
+): Promise<{ nuevoEstado: EstadoVenta | null }> {
+  try {
+    const ventaSnap = await getDoc(doc(db, VENTAS_COLL, ventaId));
+    if (!ventaSnap.exists()) return { nuevoEstado: null };
+    const venta = ventaSnap.data() as Venta;
+    const totalProductos = venta.productos.reduce((s, p) => s + p.cantidad, 0);
+    if (totalProductos === 0) return { nuevoEstado: null }; // EDGE-001: venta sin productos
+
+    const previosSnap = await getDocs(query(
+      collection(db, ENVIOS_COLL),
+      where('ventaId', '==', ventaId),
+      where('destinoTipo', '==', 'cliente'),
+    ));
+    let entregados = 0;
+    previosSnap.forEach((d) => {
+      if (d.id === envioIdActual) return; // excluir el despacho actual (evita doble conteo en reintentos · BUG-001)
+      const e = d.data() as Envio;
+      if (e.estado === 'entregada') entregados += e.totalUnidades || 0;
+    });
+    entregados += itemsDespachoActual;
+
+    let nuevoEstado: EstadoVenta | null = null;
+    if (entregados >= totalProductos) nuevoEstado = 'entregada';
+    else if (entregados > 0 && venta.estado !== 'despachada') nuevoEstado = 'despachada';
+
+    return { nuevoEstado: (nuevoEstado && nuevoEstado !== venta.estado) ? nuevoEstado : null };
+  } catch (error) {
+    logger.error(`[calcularEstadoVentaPostDespacho] venta ${ventaId}:`, error);
+    return { nuevoEstado: null };
+  }
+}
 
 export interface DespacharVentaPayload {
   /** La venta a despachar (ya cargada por la UI). */
@@ -301,5 +346,214 @@ export const envioDespachoService = {
     // historial sin costo · no bloquea la operación de fallo).
 
     logger.log(`[marcarEntregaFallida ${envio.numeroEnvio}] → ${nuevoEstado} · ${payload.motivoFallo}`);
+  },
+
+  /**
+   * A2.3b — Registra la ENTREGA EXITOSA de un despacho de venta (Caso F). EL DINERO REAL.
+   *
+   * Porta la rama `exitosa=true` de entrega.service.registrarResultado sobre Envio:
+   *   FASE A (batch atómico · todo o nada): envío → 'entregada' · unidades → 'vendida'
+   *     (con movimiento) · venta → 'entregada'|'despachada'.
+   *   FASE B (secundarias · try/catch individual · si una falla, el core ya está commiteado):
+   *     auditoría, sync stock, ML, métricas transportista, COBRO COD (registrarPago → venta +
+   *     tesorería), reclasificar anticipos, CTRU.
+   *
+   * Reusa los servicios YA probados (VentaService.registrarPago, tesoreriaService, etc.).
+   *
+   * ⚠️ DEUDA DECLARADA (no atajo · ver plan A6):
+   *   - movimientoTransportistaService.registrarEntregaExitosa espera un objeto Entrega → TODO.
+   *   - cable cajaRecaudadora.registrarCobroEntrante (si el COD lo recauda un courier-recaudador)
+   *     → TODO (requiere detectar tipoProducto de la cuenta + mapear canal). El cobro a la Venta
+   *     + tesorería SÍ se registra (registrarPago).
+   *   - _secondaryErrors solo se loguean (no se persisten · Envio no tiene ese campo de recovery).
+   */
+  async registrarEntregaExitosa(
+    envioId: string,
+    data: {
+      fechaEntrega?: Date;
+      fotoEntrega?: string;
+      firmaCliente?: string;
+      cobroRealizado?: boolean;
+      montoRecaudado?: number;
+      metodoPagoRecibido?: MetodoPago;
+      cuentaDestinoId?: string;
+      notasEntrega?: string;
+    },
+    userId: string,
+  ): Promise<{ secondaryErrors: string[] }> {
+    const envio = await envioCrudService.getById(envioId);
+    if (!envio) throw new Error('Envío no encontrado');
+    if (envio.destinoTipo !== 'cliente') throw new Error('No es un despacho de venta (Caso F).');
+    if (!['programada', 'en_camino'].includes(envio.estado)) {
+      throw new Error(`No se puede entregar un envío en estado "${envio.estado}".`);
+    }
+    if (!envio.ventaId) throw new Error('El despacho no está vinculado a una venta.');
+
+    const now = Timestamp.now();
+    const envioRef = doc(db, ENVIOS_COLL, envioId);
+
+    // Cargar la venta (precios por producto + datos para anticipos)
+    const ventaSnap = await getDoc(doc(db, VENTAS_COLL, envio.ventaId));
+    if (!ventaSnap.exists()) throw new Error('Venta no encontrada');
+    const venta = ventaSnap.data() as Venta;
+    const precioPorProducto = new Map<string, number>();
+    venta.productos.forEach((p) => precioPorProducto.set(p.productoId, p.precioUnitario || 0));
+
+    // Tiempo de entrega
+    const fechaSalida = envio.fechaSalida ?? now;
+    const llegadaMs = data.fechaEntrega ? data.fechaEntrega.getTime() : Date.now();
+    const minutos = Math.round((llegadaMs - fechaSalida.toMillis()) / 60000);
+    const tiempoEntregaMinutos = minutos > 0 ? minutos : undefined;
+
+    // Pre-lectura de unidades
+    const unidadIds = envio.unidades.map((u) => u.unidadId);
+    const unidadesMap = new Map<string, Unidad>();
+    const productosAfectados = new Set<string>();
+    for (const uid of unidadIds) {
+      const u = await unidadService.getById(uid);
+      if (u) { unidadesMap.set(uid, u); productosAfectados.add(u.productoId); }
+    }
+
+    const estadoVentaPost = await calcularEstadoVentaPostDespacho(envio.ventaId, unidadIds.length, envioId);
+
+    // ─────── FASE A · batch atómico ───────
+    const batch = writeBatch(db);
+    const envioUpdate: Record<string, unknown> = {
+      estado: 'entregada' as EstadoEnvio,
+      fechaLlegadaReal: data.fechaEntrega ? Timestamp.fromDate(data.fechaEntrega) : now,
+      actualizadoPor: userId,
+      fechaActualizacion: now,
+    };
+    if (!envio.fechaSalida) envioUpdate.fechaSalida = envioUpdate.fechaLlegadaReal;
+    if (tiempoEntregaMinutos !== undefined) envioUpdate.tiempoEntregaMinutos = tiempoEntregaMinutos;
+    if (data.fotoEntrega !== undefined) envioUpdate.fotoEntrega = data.fotoEntrega;
+    if (data.firmaCliente !== undefined) envioUpdate.firmaCliente = data.firmaCliente;
+    if (data.cobroRealizado !== undefined) envioUpdate.cobroRealizado = data.cobroRealizado;
+    if (data.montoRecaudado !== undefined) envioUpdate.montoRecaudado = data.montoRecaudado;
+    if (data.metodoPagoRecibido !== undefined) envioUpdate.metodoPagoRecibido = data.metodoPagoRecibido;
+    if (data.notasEntrega !== undefined) envioUpdate.notasEntregaDetalles = data.notasEntrega;
+    batch.update(envioRef, envioUpdate);
+
+    // Unidades → 'vendida' (con movimiento)
+    const precioFallback = unidadIds.length > 0 ? (venta.subtotalPEN || 0) / unidadIds.length : 0; // BUG-002: subtotal, no total
+    for (const uid of unidadIds) {
+      const u = unidadesMap.get(uid);
+      if (!u) continue;
+      const precio = precioPorProducto.get(u.productoId) ?? precioFallback;
+      const mov: MovimientoUnidad = {
+        id: crypto.randomUUID(),
+        tipo: 'venta',
+        fecha: now,
+        almacenOrigen: u.almacenId,
+        usuarioId: userId,
+        observaciones: `Venta registrada: ${venta.numeroVenta}`,
+        documentoRelacionado: { tipo: 'venta', id: envio.ventaId, numero: venta.numeroVenta },
+      };
+      batch.update(doc(db, COLLECTIONS.UNIDADES, uid), {
+        estado: 'vendida',
+        ventaId: envio.ventaId,
+        ventaNumero: venta.numeroVenta,
+        fechaVenta: now,
+        precioVentaPEN: precio,
+        movimientos: arrayUnion(mov),
+        actualizadoPor: userId,
+        fechaActualizacion: now,
+      });
+    }
+
+    // Venta → estado post
+    if (estadoVentaPost.nuevoEstado) {
+      const vu: Record<string, unknown> = {
+        estado: estadoVentaPost.nuevoEstado, editadoPor: userId, ultimaEdicion: now,
+      };
+      if (estadoVentaPost.nuevoEstado === 'entregada') {
+        vu.fechaEntrega = data.fechaEntrega ? Timestamp.fromDate(data.fechaEntrega) : now;
+      }
+      batch.update(doc(db, VENTAS_COLL, envio.ventaId), vu);
+    }
+
+    await batch.commit();
+    logger.log(
+      `[registrarEntregaExitosa ${envio.numeroEnvio}] Batch: entrega + ${unidadesMap.size} uds` +
+      `${estadoVentaPost.nuevoEstado ? ` + venta → ${estadoVentaPost.nuevoEstado}` : ''}`,
+    );
+
+    // ─────── FASE B · secundarias (try/catch individual) ───────
+    const secondaryErrors: string[] = [];
+
+    for (const uid of unidadIds) {
+      const u = unidadesMap.get(uid);
+      if (!u) continue;
+      try {
+        await auditoriaService.logInventario(u.productoId, u.productoNombre, 'salida_inventario', 1, u.almacenNombre);
+      } catch (e) { secondaryErrors.push(`auditoria_${uid}: ${e}`); }
+    }
+    for (const pid of productosAfectados) {
+      try { await inventarioService.sincronizarStockProducto(pid); }
+      catch (e) { secondaryErrors.push(`sync_stock_${pid}: ${e}`); }
+    }
+    // ML sync (fire-and-forget)
+    import('./mercadoLibre.service').then(({ mercadoLibreService }) => {
+      for (const pid of productosAfectados) {
+        mercadoLibreService.syncStock(pid).catch((e) => logger.error(`[ML Sync] post-entrega ${pid}:`, e));
+      }
+    }).catch(() => {});
+
+    // Métricas del transportista (éxito)
+    if (envio.colaboradorId) {
+      try {
+        await colaboradorService.registrarEntrega(
+          envio.colaboradorId, true, tiempoEntregaMinutos || 0, envio.costoDeliveryPEN || 0, envio.destinoClienteDistrito,
+        );
+      } catch (e) { secondaryErrors.push(`metricas_transportista: ${e}`); }
+    }
+
+    // COBRO COD → registrarPago en la venta (+ tesorería). Guarda anti-doble-cobro (BUG-003).
+    if (data.cobroRealizado && data.montoRecaudado && data.montoRecaudado > 0 && !envio.referenciaCobroId) {
+      try {
+        const { VentaService } = await import('./venta.service');
+        const ventaActual = await VentaService.getById(envio.ventaId);
+        const montoACobrar = Math.min(data.montoRecaudado, ventaActual?.montoPendiente || 0);
+        if (montoACobrar > 0) {
+          const pago = await VentaService.registrarPago(
+            envio.ventaId,
+            {
+              monto: montoACobrar,
+              metodoPago: data.metodoPagoRecibido || 'efectivo',
+              referencia: `Cobro despacho ${envio.numeroEnvio}`,
+              notas: `Cobro contra-entrega · ${envio.colaboradorNombre ?? 'repartidor'}`,
+              cuentaDestinoId: data.cuentaDestinoId,
+            },
+            userId,
+            true,
+          );
+          await updateDoc(envioRef, { referenciaCobroId: pago.id });
+          logger.log(`[registrarEntregaExitosa ${envio.numeroEnvio}] COD S/${montoACobrar.toFixed(2)} · pago ${pago.id}`);
+          // TODO (cable caja recaudadora · gap del diagnóstico): si data.cuentaDestinoId es una
+          // caja_recaudadora, disparar cajaRecaudadoraService.registrarCobroEntrante(...).
+        }
+      } catch (e) { secondaryErrors.push(`cobro_venta: ${e}`); }
+    }
+
+    // Reclasificar anticipos (si la venta quedó entregada)
+    if (estadoVentaPost.nuevoEstado === 'entregada') {
+      try {
+        const reclas = await tesoreriaService.reclasificarAnticipos(envio.ventaId, venta.cotizacionOrigenId, userId);
+        if (reclas > 0) logger.log(`[registrarEntregaExitosa ${envio.numeroEnvio}] ${reclas} anticipo(s) reclasificados`);
+      } catch (e) { secondaryErrors.push(`reclasificar_anticipos: ${e}`); }
+    }
+
+    // CTRU recalc (fire-and-forget)
+    import('./ctru.service').then(({ ctruService }) => {
+      ctruService.recalcularCTRUDinamicoSafe().catch((e) => logger.error('[CTRU] post-entrega:', e));
+    }).catch(() => {});
+
+    // TODO (A6): B4 movimientoTransportistaService.registrarEntregaExitosa espera Entrega · adaptar a Envio.
+
+    if (secondaryErrors.length > 0) {
+      logger.warn(`[registrarEntregaExitosa ${envio.numeroEnvio}] ${secondaryErrors.length} error(es) secundario(s):`, secondaryErrors);
+    }
+
+    return { secondaryErrors };
   },
 };
