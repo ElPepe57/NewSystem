@@ -556,4 +556,47 @@ export const envioDespachoService = {
 
     return { secondaryErrors };
   },
+
+  /**
+   * A2.4 — Cancela un despacho de venta (Caso F). Porta entrega.service.cancelar sobre Envio:
+   *   - estado → 'cancelada' (+ motivo en descripcionFallo).
+   *   - anula el gasto delivery si existe.
+   *   - libera las unidades (vuelven a stock · mejora vs original, que no las liberaba).
+   * No se puede cancelar un despacho ya entregado (las unidades ya están vendidas).
+   */
+  async cancelarDespacho(envioId: string, motivo: string, userId: string): Promise<void> {
+    const envio = await envioCrudService.getById(envioId);
+    if (!envio) throw new Error('Envío no encontrado');
+    if (envio.destinoTipo !== 'cliente') throw new Error('No es un despacho de venta (Caso F).');
+    if (envio.estado === 'entregada') throw new Error('No se puede cancelar un despacho ya entregado.');
+    if (envio.estado === 'cancelada') return; // idempotente
+
+    await updateDoc(doc(db, ENVIOS_COLL, envioId), {
+      estado: 'cancelada' as EstadoEnvio,
+      descripcionFallo: motivo,
+      actualizadoPor: userId,
+      fechaActualizacion: Timestamp.now(),
+    });
+
+    if (envio.gastoDeliveryId) {
+      try {
+        await gastoService.delete(envio.gastoDeliveryId);
+        await updateDoc(doc(db, ENVIOS_COLL, envioId), { gastoDeliveryId: null });
+      } catch (error) {
+        logger.error(`[cancelarDespacho ${envio.numeroEnvio}] Error anulando gasto delivery:`, error);
+      }
+    }
+
+    const unidadIds = envio.unidades.map((u) => u.unidadId);
+    if (unidadIds.length > 0) {
+      try {
+        const r = await unidadService.liberarUnidades(unidadIds, `Despacho cancelado: ${motivo}`, userId);
+        logger.log(`[cancelarDespacho ${envio.numeroEnvio}] Unidades liberadas: ${r.exitos}/${unidadIds.length}`);
+      } catch (error) {
+        logger.error(`[cancelarDespacho ${envio.numeroEnvio}] Error liberando unidades:`, error);
+      }
+    }
+
+    logger.log(`[cancelarDespacho ${envio.numeroEnvio}] cancelado · ${motivo}`);
+  },
 };

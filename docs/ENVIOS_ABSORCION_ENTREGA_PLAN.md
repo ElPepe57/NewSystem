@@ -119,8 +119,17 @@ desnormaliza datos, hereda cargos. `despacharVenta()` replica esta forma con dat
     espera `Entrega` → adaptar en A6; (b) cable `cajaRecaudadora.registrarCobroEntrante` (el COD a
     venta+tesorería SÍ se registra · falta solo el evento al courier-recaudador); (c) `_secondaryErrors`
     solo se loguean; (d) fallo usa hard-delete del gasto (heredado · storno futuro con cierre de periodos).
-- ⏳ **A2.4** cancelar/corregir · **A3** migración datos · **A4** UI Ventas (disparo+espejo) ·
-  **A5** rework visual (5 fases mockups) · **A6** deprecar `Entrega`.
+- ✅ **A2.4** `cancelarDespacho` (estado→cancelada + anula gasto + libera unidades · mejora vs
+  original que no liberaba). `corregirDespacho` (editar transportista/costo · toca gasto+métricas)
+  queda PENDIENTE como deuda declarada (corrección post-hoc · no bloquea el flujo
+  crear→despachar→entregar/fallar/cancelar). `tsc -b` verde.
+- ⏳ **A3** migración datos · **A4** UI Ventas (disparo+espejo) · **A5** rework visual (5 fases
+  mockups) · **A6** deprecar `Entrega`.
+
+> **El motor de despacho (A2) está 100% completo y revisado** (despacharVenta · marcarEnCaminoEnvio ·
+> marcarEntregaFallida · registrarEntregaExitosa · cancelarDespacho). Lo que falta es el **ENCENDIDO**:
+> A3 (migrar ~1000 docs reales) + A4 (cablear UI + guarda anti-doble-camino) — el tramo de producción
+> real, que merece estrategia de switch + dry-run + rollback. El servicio sigue aislado (0 imports en UI).
   ⚠️ **A4 · GUARDA OBLIGATORIA (Hallazgo 4 · accounting):** `entrega.service` sigue activo (lo usan
   Ventas/DespachoML/store). ANTES de cablear la UI al servicio nuevo, agregar una guarda que impida
   despachar una venta por AMBOS caminos (Entrega vieja + Envio F) — si no, doble gasto/cobro. El
