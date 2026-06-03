@@ -15,12 +15,13 @@
  * Ver docs/ENVIOS_ABSORCION_ENTREGA_PLAN.md
  */
 import {
-  collection, doc, updateDoc, query, where, getDocs, Timestamp,
+  collection, doc, updateDoc, getDoc, query, where, getDocs, writeBatch, Timestamp,
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { logger } from '../lib/logger';
 import { COLLECTIONS } from '../config/collections';
 import { envioCrudService } from './envio.crud.service';
+import { gastoService } from './gasto.service';
 import type { Venta, MetodoPago } from '../types/venta.types';
 import type { EstadoEnvio } from '../types/envio.types';
 
@@ -145,5 +146,74 @@ export const envioDespachoService = {
     );
 
     return { envioId, numeroEnvio };
+  },
+
+  /**
+   * A2.2 — Despacha un envío de venta (Caso F): 'programada'|'reprogramada' → 'en_camino'.
+   *
+   * Replica entrega.service.marcarEnCamino() sobre Envio:
+   *   - batch atómico: envío → 'en_camino' (+fechaSalida) · venta → 'despachada'
+   *     (solo si estaba en 'en_entrega').
+   *   - crea el Gasto tipo 'delivery' (bloque venta · NO el GD legacy) reusando el
+   *     servicio probado `gastoService.crearGastoDistribucion` (idempotente). El gasto
+   *     se vincula a la venta (costeo) y al envío (trazabilidad · campo `entregaId`
+   *     contiene el envioId hasta que se deprecan las entregas en A6).
+   */
+  async marcarEnCaminoEnvio(envioId: string, userId: string): Promise<void> {
+    const envio = await envioCrudService.getById(envioId);
+    if (!envio) throw new Error('Envío no encontrado');
+    if (envio.destinoTipo !== 'cliente') {
+      throw new Error('No es un despacho de venta (Caso F).');
+    }
+    if (envio.estado !== 'programada' && envio.estado !== 'reprogramada') {
+      throw new Error(`No se puede despachar un envío en estado "${envio.estado}".`);
+    }
+
+    const batch = writeBatch(db);
+    const envioRef = doc(db, ENVIOS_COLL, envioId);
+    batch.update(envioRef, {
+      estado: 'en_camino' as EstadoEnvio,
+      fechaSalida: Timestamp.now(),
+      actualizadoPor: userId,
+      fechaActualizacion: Timestamp.now(),
+    });
+
+    // Venta → 'despachada' (solo en el primer despacho · si estaba en 'en_entrega')
+    if (envio.ventaId) {
+      const ventaRef = doc(db, VENTAS_COLL, envio.ventaId);
+      const ventaSnap = await getDoc(ventaRef);
+      if (ventaSnap.exists() && (ventaSnap.data() as Venta).estado === 'en_entrega') {
+        batch.update(ventaRef, {
+          estado: 'despachada',
+          fechaDespacho: Timestamp.now(),
+          editadoPor: userId,
+          ultimaEdicion: Timestamp.now(),
+        });
+      }
+    }
+
+    await batch.commit();
+
+    // Gasto de delivery (tipo 'delivery' · momento unificado de registro del flete)
+    if (!envio.gastoDeliveryId && envio.costoDeliveryPEN && envio.costoDeliveryPEN > 0 && envio.ventaId) {
+      try {
+        const gastoId = await gastoService.crearGastoDistribucion({
+          entregaId: envioId,                                  // absorción: contiene el envioId
+          entregaCodigo: envio.numeroEnvio,
+          ventaId: envio.ventaId,
+          ventaNumero: envio.ventaNumero ?? envio.numeroEnvio,
+          transportistaId: envio.colaboradorId ?? '',
+          transportistaNombre: envio.colaboradorNombre ?? 'Repartidor',
+          costoEntrega: envio.costoDeliveryPEN,
+          distrito: envio.destinoClienteDistrito,
+        }, userId);
+        await updateDoc(envioRef, { gastoDeliveryId: gastoId });
+        logger.log(
+          `[marcarEnCaminoEnvio ${envio.numeroEnvio}] Gasto delivery ${gastoId} · S/${envio.costoDeliveryPEN.toFixed(2)}`,
+        );
+      } catch (error) {
+        logger.error(`[marcarEnCaminoEnvio ${envio.numeroEnvio}] Error creando gasto delivery:`, error);
+      }
+    }
   },
 };
