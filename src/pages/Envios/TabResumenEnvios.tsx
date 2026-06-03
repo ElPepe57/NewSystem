@@ -120,14 +120,15 @@ export const TabResumenEnvios: React.FC<TabResumenEnviosProps> = ({ data, onNuev
             </div>
           )}
         </div>
-        {/* §C insights (los que SÍ tienen dato) */}
+        {/* §C insights · RATIOS derivados · el strip persistente DA el nº crudo (Activos/
+             En tránsito/Pend/Incidencias) · aquí la COMPOSICIÓN y la TASA que el strip NO da
+             (canon no-redundancia 2026-06-02 · ELEVAR el clon, no clonarlo). */}
         <div className="bg-white border border-slate-200 rounded-2xl p-5">
-          <div className="text-[13px] font-bold text-slate-900 mb-3">Insights</div>
+          <div className="text-[13px] font-bold text-slate-900 mb-3">Composición & ratios</div>
           <div className="space-y-3">
-            <div className="flex items-center justify-between"><span className="text-[11px] text-slate-500">Activos</span><span className="text-[13px] font-bold tabular-nums text-slate-800">{data.activos}</span></div>
-            <div className="flex items-center justify-between"><span className="text-[11px] text-slate-500">En tránsito</span><span className="text-[13px] font-bold tabular-nums text-sky-700">{data.enTransito}</span></div>
-            <div className="flex items-center justify-between"><span className="text-[11px] text-slate-500">Pend. recepción</span><span className="text-[13px] font-bold tabular-nums text-amber-700">{data.pendientesRecepcion}</span></div>
-            <div className="flex items-center justify-between"><span className="text-[11px] text-slate-500">Incidencias</span><span className="text-[13px] font-bold tabular-nums text-rose-700">{data.incidencias}</span></div>
+            <div className="flex items-center justify-between"><span className="text-[11px] text-slate-500">En tránsito · % del activo</span><span className="text-[13px] font-bold tabular-nums text-sky-700">{Math.round((data.enTransito / (data.activos || 1)) * 100)}%</span></div>
+            <div className="flex items-center justify-between"><span className="text-[11px] text-slate-500">Pend. recepción · % del activo</span><span className="text-[13px] font-bold tabular-nums text-amber-700">{Math.round((data.pendientesRecepcion / (data.activos || 1)) * 100)}%</span></div>
+            <div className="flex items-center justify-between"><span className="text-[11px] text-slate-500">Tasa de incidencia</span><span className={`text-[13px] font-bold tabular-nums ${(data.incidencias / (data.activos || 1)) > 0.15 ? 'text-rose-700' : 'text-slate-700'}`}>{Math.round((data.incidencias / (data.activos || 1)) * 100)}%</span></div>
             <div className="flex items-center justify-between border-t border-slate-100 pt-2"><span className="text-[11px] text-slate-500">En reclamo</span><span className="text-[13px] font-bold tabular-nums text-fuchsia-700">S/ {data.reclamadoPEN.toLocaleString('es-PE', { maximumFractionDigits: 0 })}</span></div>
           </div>
         </div>

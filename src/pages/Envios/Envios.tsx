@@ -27,9 +27,9 @@ import {
   ConfirmDialog,
   useConfirmDialog,
 } from "../../components/common";
-import type { PipelineStage } from "../../components/common";
-import { KPIBar as DSKPIBar, StatCard as DSStatCard, Toolbar, FilterDrawer, FilterSection, PageShell, PageHeader } from '../../design-system';
-import { FileText, CheckCircle2, XOctagon } from "lucide-react";
+import { Toolbar, FilterDrawer, FilterSection, HubShell, HubTopBar, HubHeader, HubKpiStrip, HubTabs, HubBody } from '../../design-system';
+import type { HubKpi, HubTab } from '../../design-system';
+import { hasRole } from '../../types/auth.types';
 import { useEnvioStore } from '../../store/envioStore';
 // S55 Fase 4 — pagos al colaborador viven en CC
 import { usePagosEnvio } from '../../hooks/usePagosEnvio';
@@ -82,6 +82,8 @@ type TabEnvios = 'resumen' | 'operaciones' | 'incidencias' | 'reclamos' | 'costo
 export const Envios: React.FC = () => {
   const [tabEnvios, setTabEnvios] = useState<TabEnvios>('resumen');
   const user = useAuthStore(state => state.user);
+  const userProfile = useAuthStore((s) => s.userProfile);
+  const esAdmin = hasRole(userProfile, 'admin'); // canon "admin ve todo" · chip contextual al rol
   const toast = useToastStore();
   const {
     envios,
@@ -260,50 +262,6 @@ export const Envios: React.FC = () => {
   const enviosEnTransitoPorLinea = useLineaFilter(enviosEnTransito, e => e.lineaNegocioId, { allowUndefined: true });
   const enviosPendientesPorLinea = useLineaFilter(enviosPendientesRecepcion, e => e.lineaNegocioId, { allowUndefined: true });
 
-  // Pipeline stages
-  const pipelineStages: PipelineStage[] = useMemo(() => {
-    const contarPorEstado = (estados: EstadoEnvio[]) =>
-      enviosPorLinea.filter(e => estados.includes(e.estado)).length;
-
-    return [
-      {
-        id: 'borrador',
-        label: 'Borrador',
-        count: contarPorEstado(['borrador']),
-        color: 'gray' as const,
-        icon: <FileText className="h-4 w-4" />,
-      },
-      {
-        id: 'confirmado',
-        label: 'Confirmado',
-        count: contarPorEstado(['confirmado']),
-        color: 'yellow' as const,
-        icon: <Package className="h-4 w-4" />,
-      },
-      {
-        id: 'en_transito',
-        label: 'En Transito',
-        count: contarPorEstado(['en_transito']),
-        color: 'blue' as const,
-        icon: <Truck className="h-4 w-4" />,
-      },
-      {
-        id: 'recibida',
-        label: 'Recibida',
-        count: contarPorEstado(['recibida_parcial', 'recibida_completa']),
-        color: 'green' as const,
-        icon: <CheckCircle2 className="h-4 w-4" />,
-      },
-      {
-        id: 'cancelada',
-        label: 'Cancelada',
-        count: contarPorEstado(['cancelada']),
-        color: 'red' as const,
-        icon: <XOctagon className="h-4 w-4" />,
-      },
-    ];
-  }, [enviosPorLinea]);
-
   // Calcular valor total en transito
   const valorEnTransito = useMemo(() => {
     return enviosEnTransito.reduce((total, e) => {
@@ -376,28 +334,6 @@ export const Envios: React.FC = () => {
       alertas,
     };
   }, [enviosPorLinea, resumen, resumenReclamos, enviosStatsExtra]);
-
-  // S42 Tanda 9 — Breakdown por tipo de ruta (mockup líneas 2003-2036)
-  const breakdownPorTipo = useMemo(() => {
-    const total = enviosPorLinea.length || 1;
-    let proveedorACasilla = 0;
-    let casillaAPeru = 0;
-    let entreCasillas = 0;
-    let ddpDirecto = 0;
-    for (const e of enviosPorLinea) {
-      if ((e as any).esDDP === true) { ddpDirecto++; continue; }
-      if (e.tipo === 'interna_origen') { entreCasillas++; continue; }
-      // tipo === 'internacional_peru'
-      if (e.ordenCompraId) proveedorACasilla++;
-      else casillaAPeru++;
-    }
-    return [
-      { label: 'Proveedor → Casilla', value: proveedorACasilla, pct: Math.round((proveedorACasilla / total) * 100), dot: 'bg-sky-500', bar: 'bg-sky-500' },
-      { label: 'Casilla → Perú', value: casillaAPeru, pct: Math.round((casillaAPeru / total) * 100), dot: 'bg-teal-500', bar: 'bg-teal-500' },
-      { label: 'Entre casillas origen', value: entreCasillas, pct: Math.round((entreCasillas / total) * 100), dot: 'bg-purple-500', bar: 'bg-purple-500' },
-      { label: 'Entrega directa a Perú', value: ddpDirecto, pct: Math.round((ddpDirecto / total) * 100), dot: 'bg-amber-500', bar: 'bg-amber-500' },
-    ];
-  }, [enviosPorLinea]);
 
   // S42 Tanda 9 — Couriers únicos para dropdown filtro
   const couriersUnicos = useMemo(() => {
@@ -669,217 +605,96 @@ export const Envios: React.FC = () => {
   // alineado con /compras (referencia canónica S54.x). Los helpers
   // estadoVariant/estadoLabel vivían solo dentro de envioColumns.
 
+  // ─── Derivados del Hub Kit · KPI strip SEMÁNTICO (N1/N2) + tabs + breadcrumb ───
+  // OJO: el tono es semántico (qué significa el dato), NUNCA el color del módulo
+  // (inventario=orange vive solo en el chrome · identidad nunca pisa al semántico).
+  const enviosKpis: HubKpi[] = [
+    { label: 'Activos', valor: String(enviosPorLinea.length), tono: 'slate', icon: Package, delta: 'envíos en curso' },
+    { label: 'En tránsito', valor: String(resumen?.enTransito ?? 0), tono: 'sky', icon: Truck, delta: enviosStatsExtra.unidadesEnTransito > 0 ? `${enviosStatsExtra.unidadesEnTransito} uds en camino` : 'en camino' },
+    { label: 'Pend. recepción', valor: String(resumen?.pendientesRecepcion ?? 0), tono: 'amber', icon: Clock, delta: 'recepción parcial' },
+    { label: 'Incidencias', valor: String(resumen?.enviosConIncidencias ?? 0), tono: 'rose', icon: AlertTriangle, delta: 'sin resolver' },
+    { label: 'Valor landed', valor: enviosStatsExtra.tc > 0 ? `S/ ${(enviosStatsExtra.valorLandedPEN / 1000).toFixed(1)}` : `$ ${(valorEnTransito / 1000).toFixed(1)}`, sufijo: 'k', tono: 'indigo', icon: DollarSign, delta: 'total prorrateado' },
+  ];
+  const tabsHub: HubTab[] = [
+    { id: 'resumen', label: 'Resumen', icon: LayoutDashboard },
+    { id: 'operaciones', label: 'Operaciones', icon: ArrowRightLeft },
+    { id: 'incidencias', label: 'Incidencias', icon: AlertTriangle, badge: resumen?.enviosConIncidencias || undefined, badgeTono: 'rose' },
+    { id: 'reclamos', label: 'Reclamos', icon: Gavel, badge: resumenReclamos?.reclamosPendientes || undefined, badgeTono: 'amber' },
+    { id: 'costos', label: 'Costos Landed', icon: DollarSign },
+    { id: 'rendimiento', label: 'Rendimiento', icon: BarChart3 },
+  ];
+  const breadcrumbLeaf = tabEnvios === 'resumen' ? null : (tabsHub.find((t) => t.id === tabEnvios)?.label ?? null);
+
   return (
-    <PageShell>
-      <PageHeader
-        title="Envíos"
-        subtitle="Hub logístico · Todos los movimientos físicos del negocio"
-        icon={ArrowRightLeft}
-        actions={
-          <div className="flex items-center gap-2">
-            {/* S53.26 — Search global + Exportar + Nuevo envío dentro del header,
-                 igual que el patrón de /compras. Deja el header como un card
-                 único de borde a borde con todos los controles principales. */}
-            <div className="relative hidden md:block">
-              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400 pointer-events-none" />
-              <input
-                type="text"
-                value={busqueda}
-                onChange={(e) => setBusqueda(e.target.value)}
-                placeholder="Buscar envío, proveedor, destino..."
-                className="pl-8 pr-3 py-1.5 text-xs border border-slate-300 rounded-lg bg-white focus:outline-none focus:ring-1 focus:ring-teal-500 focus:border-teal-500 w-60"
+    <div className="max-w-6xl mx-auto p-3 sm:p-4 md:p-6">
+      <HubShell>
+        <HubTopBar
+          grupo="inventario"
+          modulo="Envíos"
+          leaf={breadcrumbLeaf}
+          esAdmin={esAdmin}
+          onInicio={() => navigate('/')}
+          onModulo={() => setTabEnvios('resumen')}
+        />
+        <HubHeader
+          grupo="inventario"
+          icon={Truck}
+          titulo="Envíos"
+          subtitulo="Hub logístico · todo lo que entra, sale o se traslada físicamente"
+          extraActions={
+            <button
+              type="button"
+              onClick={() => { fetchEnvios(); fetchEnTransito(); fetchPendientesRecepcion(); fetchResumen(); }}
+              title="Actualizar"
+              className="flex items-center justify-center w-9 h-9 rounded-lg bg-white text-slate-500 border border-slate-200 hover:bg-slate-50 transition-colors"
+            >
+              <RefreshCw className="w-4 h-4" />
+            </button>
+          }
+          acciones={[
+            { label: 'Exportar', icon: Download, onClick: () => exportService.exportEnvios(enviosPorLinea), tier: 'neutral', disabled: enviosPorLinea.length === 0 },
+            { label: 'Nuevo envío', icon: Plus, onClick: () => navigate('/envios/nuevo'), tier: 'primary' },
+          ]}
+        />
+        {/* KPI strip persistente · color SEMÁNTICO (N1/N2) + mini-stats (N3) · canon Hub */}
+        <HubKpiStrip
+          cols={5}
+          kpis={enviosKpis}
+          miniStats={[
+            { label: <span><strong className="font-semibold text-slate-700 tabular-nums">{enviosStatsExtra.countTramo1}</strong> en Tramo 1 · proveedor</span>, icon: Package },
+            { label: <span><strong className="font-semibold text-slate-700 tabular-nums">{couriersUnicos.length}</strong> couriers activos</span>, icon: Truck },
+          ]}
+        />
+        <HubTabs
+          grupo="inventario"
+          tabs={tabsHub}
+          activa={tabEnvios}
+          onChange={(id) => setTabEnvios(id as TabEnvios)}
+        />
+
+        <HubBody flush>
+          {tabEnvios === 'resumen' ? (
+            <div className="p-4 sm:p-6">
+              <TabResumenEnvios
+                data={resumenEnviosData}
+                onNuevoEnvio={() => navigate('/envios/nuevo')}
+                onIrATab={setTabEnvios}
               />
             </div>
-            <Button
-              variant="ghost"
-              onClick={() => {
-                fetchEnvios();
-                fetchEnTransito();
-                fetchPendientesRecepcion();
-                fetchResumen();
-              }}
-              className="text-slate-600 hover:text-slate-900 hover:bg-slate-100"
-              title="Actualizar"
-            >
-              <RefreshCw className="h-5 w-5" />
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => exportService.exportEnvios(enviosPorLinea)}
-              disabled={enviosPorLinea.length === 0}
-            >
-              <Download className="h-4 w-4 mr-1.5" />
-              <span className="hidden sm:inline">Exportar</span>
-            </Button>
-            <Button
-              variant="primary"
-              size="sm"
-              onClick={() => navigate('/envios/nuevo')}
-            >
-              <Plus className="h-4 w-4 mr-1.5" />
-              <span className="hidden sm:inline">Nuevo envío</span>
-              <span className="sm:hidden">Nuevo</span>
-            </Button>
-          </div>
-        }
-      />
-
-      {/* S40 Bloque D: Tabs módulo logístico — Operaciones / Proveedor / Incidencias / Reclamos / Costos / Rendimiento */}
-      <div className="flex items-center gap-1 bg-slate-100 rounded-lg p-1 w-fit flex-wrap">
-        <EnviosTabButton
-          active={tabEnvios === 'resumen'}
-          onClick={() => setTabEnvios('resumen')}
-          icon={LayoutDashboard}
-          label="Resumen"
-        />
-        <EnviosTabButton
-          active={tabEnvios === 'operaciones'}
-          onClick={() => setTabEnvios('operaciones')}
-          icon={ArrowRightLeft}
-          label="Operaciones"
-        />
-        {/* S42aj — Tab "Envíos Proveedor" eliminado. El acceso queda como pill
-            "Tramo 1 (Proveedor)" dentro del tab Operaciones. */}
-        <EnviosTabButton
-          active={tabEnvios === 'incidencias'}
-          onClick={() => setTabEnvios('incidencias')}
-          icon={AlertTriangle}
-          label="Incidencias"
-          badge={resumen?.enviosConIncidencias || 0}
-          badgeColor="red"
-        />
-        <EnviosTabButton
-          active={tabEnvios === 'reclamos'}
-          onClick={() => setTabEnvios('reclamos')}
-          icon={Gavel}
-          label="Reclamos"
-          badge={resumenReclamos?.reclamosPendientes || 0}
-          badgeColor="amber"
-        />
-        <EnviosTabButton
-          active={tabEnvios === 'costos'}
-          onClick={() => setTabEnvios('costos')}
-          icon={DollarSign}
-          label="Costos Landed"
-        />
-        <EnviosTabButton
-          active={tabEnvios === 'rendimiento'}
-          onClick={() => setTabEnvios('rendimiento')}
-          icon={BarChart3}
-          label="Rendimiento"
-        />
-      </div>
-
-      {tabEnvios === 'resumen' ? (
-        <TabResumenEnvios
-          data={resumenEnviosData}
-          onNuevoEnvio={() => navigate('/envios/nuevo')}
-          onIrATab={setTabEnvios}
-        />
-      ) : tabEnvios === 'reclamos' ? (
-        <TabReclamos />
-      ) : tabEnvios === 'incidencias' ? (
-        <TabIncidencias />
-      ) : tabEnvios === 'costos' ? (
-        <TabCostosLanded />
-      ) : tabEnvios === 'rendimiento' ? (
-        <TabRendimiento />
-      ) : (
-      <>
-      {/* S52 — KPIBar pixel-perfect al mockup S43 (6 tarjetas pastel, sin ícono).
-          Reemplaza DSKPIBar+DSStatCard blanco-con-icono por el diseño pastel suave
-          del mockup (`docs/mockups/envios-transversal-s43.html`).
-          El "Distribución por tipo + Pipeline" debajo fue ELIMINADO: redundante con
-          las pills A-J del filtro por tipo de ruta logística. */}
-      {/* S53.25 — Grid 3x2 (igual a /compras) en vez de 6x1 apretado. Los
-           KPIs quedan con tamaño legible y el layout "alargado" que el
-           usuario prefiere, consistente con la vista de Compras. */}
-      {/* S54 — Grid auto-adaptable: cada card ≥140px, `auto-fit` acomoda
-           tantas cols como quepan. 6x1 en pantallas amplias, 3x2 en
-           medianas, 2x3 en móvil. Nunca overflow horizontal. */}
-      <div className="grid gap-3 [grid-template-columns:repeat(auto-fit,minmax(140px,1fr))]">
-        <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
-          <div className="text-xs text-slate-600 font-medium">Total activos</div>
-          <div className="text-2xl font-bold text-slate-900 tabular-nums mt-1">
-            {enviosPorLinea.length}
-          </div>
-          <div className="text-[11px] text-slate-500 mt-0.5">envíos en curso</div>
-        </div>
-        <button
-          type="button"
-          onClick={() => setActiveTab(activeTab === 'en_transito' ? 'todas' : 'en_transito')}
-          className={`rounded-xl border text-left p-3 transition-colors ${
-            activeTab === 'en_transito'
-              ? 'border-sky-400 bg-sky-100 ring-2 ring-sky-200'
-              : 'border-sky-200 bg-sky-50 hover:bg-sky-100'
-          }`}
-        >
-          <div className="text-xs text-sky-700 font-medium">En tránsito</div>
-          <div className="text-2xl font-bold text-sky-900 tabular-nums mt-1">
-            {resumen?.enTransito || 0}
-          </div>
-          <div className="text-[11px] text-sky-700/80 mt-0.5">
-            {enviosStatsExtra.unidadesEnTransito > 0
-              ? `${enviosStatsExtra.unidadesEnTransito} uds`
-              : 'en camino'}
-          </div>
-        </button>
-        <button
-          type="button"
-          onClick={() => setActiveTab(activeTab === 'pendientes' ? 'todas' : 'pendientes')}
-          className={`rounded-xl border text-left p-3 transition-colors ${
-            activeTab === 'pendientes'
-              ? 'border-amber-400 bg-amber-100 ring-2 ring-amber-200'
-              : 'border-amber-200 bg-amber-50 hover:bg-amber-100'
-          }`}
-        >
-          <div className="text-xs text-amber-800 font-medium">Pendientes recepción</div>
-          <div className="text-2xl font-bold text-amber-900 tabular-nums mt-1">
-            {resumen?.pendientesRecepcion || 0}
-          </div>
-          <div className="text-[11px] text-amber-700/80 mt-0.5">recepción parcial</div>
-        </button>
-        <button
-          type="button"
-          onClick={() => setActiveTab(activeTab === 'incidencias' ? 'todas' : 'incidencias')}
-          className={`rounded-xl border text-left p-3 transition-colors ${
-            activeTab === 'incidencias'
-              ? 'border-rose-400 bg-rose-100 ring-2 ring-rose-200'
-              : 'border-rose-200 bg-rose-50 hover:bg-rose-100'
-          }`}
-        >
-          <div className="text-xs text-rose-800 font-medium">Incidencias</div>
-          <div className="text-2xl font-bold text-rose-900 tabular-nums mt-1">
-            {resumen?.enviosConIncidencias || 0}
-          </div>
-          <div className="text-[11px] text-rose-700/80 mt-0.5">sin resolver</div>
-        </button>
-        <button
-          type="button"
-          onClick={() => setTabEnvios('reclamos')}
-          className="rounded-xl border border-fuchsia-200 bg-fuchsia-50 hover:bg-fuchsia-100 text-left p-3 transition-colors"
-        >
-          <div className="text-xs text-fuchsia-800 font-medium">En reclamo</div>
-          <div className="text-2xl font-bold text-fuchsia-900 tabular-nums mt-1">
-            {resumenReclamos?.reclamosPendientes || 0}
-          </div>
-          <div className="text-[11px] text-fuchsia-700/80 mt-0.5">
-            {resumenReclamos && resumenReclamos.totalReclamadoPEN > 0
-              ? `S/ ${resumenReclamos.totalReclamadoPEN.toLocaleString('es-PE', { maximumFractionDigits: 0 })} pend.`
-              : 'sin reclamos'}
-          </div>
-        </button>
-        <div className="rounded-xl border border-teal-200 bg-teal-50 p-3">
-          <div className="text-xs text-teal-800 font-medium">Valor landed</div>
-          <div className="text-2xl font-bold text-teal-900 tabular-nums mt-1">
-            {enviosStatsExtra.tc > 0
-              ? `S/ ${(enviosStatsExtra.valorLandedPEN / 1000).toFixed(1)}k`
-              : `$${(valorEnTransito / 1000).toFixed(1)}k`}
-          </div>
-          <div className="text-[11px] text-teal-700/80 mt-0.5">total prorrateado</div>
-        </div>
-      </div>
+          ) : tabEnvios === 'reclamos' ? (
+            <div className="p-4 sm:p-6"><TabReclamos /></div>
+          ) : tabEnvios === 'incidencias' ? (
+            <div className="p-4 sm:p-6"><TabIncidencias /></div>
+          ) : tabEnvios === 'costos' ? (
+            <div className="p-4 sm:p-6"><TabCostosLanded /></div>
+          ) : tabEnvios === 'rendimiento' ? (
+            <div className="p-4 sm:p-6"><TabRendimiento /></div>
+          ) : (
+          <div className="p-4 sm:p-6 space-y-4">
+      {/* KPIs ejecutivos → HubKpiStrip persistente del shell (semántico) ·
+           canon de no-redundancia: el strip DA el número, aquí NO se re-renderiza.
+           El filtrado por vista (en_transito/pendientes/incidencias) vive en las
+           pills + FilterDrawer de abajo (antes era el click en el KPI). */}
 
       {/* S42 Tanda 9 — Pills filtros + dropdowns (mockup líneas 2072-2092) */}
       <div className="flex items-center gap-2 flex-wrap">
@@ -1107,9 +922,13 @@ export const Envios: React.FC = () => {
           )}
         </>
       )}
+          </div>
+          )}
+        </HubBody>
+      </HubShell>
 
-      {/* S53 F5 · EnvioWizardV2 ELIMINADO — el wizard unificado (/envios/nuevo) lo reemplaza.
-           La creación de envíos C/J/E/I nace desde NuevoEnvioMenu → /envios/nuevo. */}
+      {/* ═══ Overlays · FUERA del HubShell (accesibles desde cualquier tab) ═══ */}
+      {/* S53 F5 · EnvioWizardV2 ELIMINADO — el wizard unificado (/envios/nuevo) lo reemplaza. */}
 
       {/* Modal: Detalle de envio */}
       {selectedEnvio && (
@@ -1211,39 +1030,8 @@ export const Envios: React.FC = () => {
 
       {/* Dialogo de Confirmacion */}
       <ConfirmDialog {...dialogProps} />
-      </>
-      )}
-    </PageShell>
+    </div>
   );
 };
 
-// ─── Helper component: botón de tab unificado ─────────────────────────────
-interface EnviosTabButtonProps {
-  active: boolean;
-  onClick: () => void;
-  icon: React.ElementType;
-  label: string;
-  badge?: number;
-  badgeColor?: 'red' | 'amber';
-}
-
-const EnviosTabButton: React.FC<EnviosTabButtonProps> = ({ active, onClick, icon: Icon, label, badge, badgeColor = 'red' }) => {
-  const badgeClass = badgeColor === 'amber' ? 'bg-amber-100 text-amber-700' : 'bg-red-100 text-red-700';
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`px-3 py-2 text-xs font-medium rounded-md transition-colors flex items-center gap-1.5 ${
-        active ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'
-      }`}
-    >
-      <Icon className="w-3.5 h-3.5" />
-      <span>{label}</span>
-      {badge !== undefined && badge > 0 && (
-        <span className={`inline-flex items-center justify-center px-1.5 py-0.5 text-[10px] font-semibold rounded-full ${badgeClass}`}>
-          {badge}
-        </span>
-      )}
-    </button>
-  );
-};
+// EnviosTabButton ELIMINADO · los tabs legacy migraron a <HubTabs> del Hub Kit (A5.1).
