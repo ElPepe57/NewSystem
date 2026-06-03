@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Envíos Hub · Fase 5 · Wizards</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  * { font-family: 'Inter', system-ui, sans-serif; }
+  .tabular-nums { font-variant-numeric: tabular-nums; }
+  .font-mono { font-family: ui-monospace, monospace; }
+  body { background: #f1f5f9; }
+  .hide-scroll::-webkit-scrollbar { display: none; }
+  .hide-scroll { scrollbar-width: none; }
+</style>
+</head>
+<body class="text-slate-900 pb-24">
+
+<!-- ════════════ HERO ════════════ -->
+<div class="max-w-6xl mx-auto px-4 pt-8 pb-4">
+  <div class="flex items-center gap-2 mb-3 flex-wrap">
+    <span class="text-[10px] font-bold uppercase tracking-wider bg-orange-100 text-orange-700 px-2 py-1 rounded">ENVÍOS · orange</span>
+    <span class="text-[10px] font-bold uppercase tracking-wider bg-slate-200 text-slate-600 px-2 py-1 rounded">FASE 5 · 3 WIZARDS</span>
+    <span class="text-[10px] font-bold uppercase tracking-wider bg-emerald-100 text-emerald-700 px-2 py-1 rounded">WizardShell · BORRADOR · MOBILE</span>
+  </div>
+  <h1 class="text-3xl font-bold tracking-tight mb-2">Envíos Hub · Fase 5 · Wizards</h1>
+  <p class="text-[14px] text-slate-600 max-w-3xl leading-relaxed">
+    Los 3 wizards de creación, todos con <strong>WizardShell</strong> (header + stepper accent orange + body con
+    <strong>preview panel</strong> + footer) y <strong>BorradorBanner</strong> (canon borrador + descartar). Nuevo
+    envío unificado (tipo inferido) · Despacho venta F · Devolución G. Cierra la cobertura total de Envíos.
+  </p>
+</div>
+
+<!-- ÍNDICE -->
+<div class="max-w-6xl mx-auto px-4 mb-8">
+  <div class="bg-white border border-slate-200 rounded-2xl p-4 grid grid-cols-2 md:grid-cols-5 gap-2 text-[12px]">
+    <a href="#acto1" class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-slate-50"><span class="w-5 h-5 rounded bg-orange-100 text-orange-700 flex items-center justify-center text-[10px] font-bold">1</span> Nuevo envío</a>
+    <a href="#acto2" class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-slate-50"><span class="w-5 h-5 rounded bg-slate-100 flex items-center justify-center text-[10px] font-bold">2</span> Los 4 pasos</a>
+    <a href="#acto3" class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-slate-50"><span class="w-5 h-5 rounded bg-orange-100 text-orange-700 flex items-center justify-center text-[10px] font-bold">3</span> Wizard F + G</a>
+    <a href="#acto4" class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-slate-50"><span class="w-5 h-5 rounded bg-amber-100 text-amber-700 flex items-center justify-center text-[10px] font-bold">4</span> Borrador</a>
+    <a href="#acto5" class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-slate-50"><span class="w-5 h-5 rounded bg-slate-100 flex items-center justify-center text-[10px] font-bold">5</span> Mobile</a>
+  </div>
+</div>
+
+<!-- ════════════ ACTO 1 · NUEVO ENVÍO UNIFICADO ════════════ -->
+<div id="acto1" class="max-w-6xl mx-auto px-4 mb-12">
+  <div class="text-[11px] font-bold uppercase tracking-wider text-orange-600 mb-3">1 · Nuevo envío unificado (WizardShell · paso 1 · tipo inferido del origen+destino)</div>
+  <!-- WizardShell -->
+  <div class="bg-white rounded-2xl overflow-hidden flex flex-col shadow-xl border border-slate-200">
+    <!-- Header -->
+    <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
+      <div><h2 class="text-lg font-semibold text-slate-900">Nuevo envío</h2><p class="text-xs text-slate-500 mt-0.5">El tipo se infiere del origen y destino · no elegís siglas técnicas</p></div>
+      <button class="text-slate-400 hover:text-slate-600 rounded-lg p-2 hover:bg-slate-100"><i data-lucide="x" class="w-5 h-5"></i></button>
+    </div>
+    <!-- Stepper -->
+    <div class="px-6 py-5 border-b border-slate-100 bg-slate-50">
+      <div class="flex items-center justify-between max-w-4xl mx-auto w-full">
+        <div class="flex flex-col items-center gap-1.5 flex-shrink-0"><div class="w-9 h-9 rounded-full flex items-center justify-center text-xs font-semibold bg-orange-600 text-white scale-105 ring-4 ring-orange-100">1</div><div class="text-center"><div class="text-xs font-medium text-slate-900">Origen y destino</div></div></div>
+        <div class="flex-1 h-0.5 mx-2 bg-slate-200"></div>
+        <div class="flex flex-col items-center gap-1.5 flex-shrink-0"><div class="w-9 h-9 rounded-full flex items-center justify-center text-xs font-semibold bg-slate-200 text-slate-500">2</div><div class="text-center"><div class="text-xs font-medium text-slate-400">Detalles</div><div class="text-[10px] text-slate-400">opcional</div></div></div>
+        <div class="flex-1 h-0.5 mx-2 bg-slate-200"></div>
+        <div class="flex flex-col items-center gap-1.5 flex-shrink-0"><div class="w-9 h-9 rounded-full flex items-center justify-center text-xs font-semibold bg-slate-200 text-slate-500">3</div><div class="text-center"><div class="text-xs font-medium text-slate-400">Logística</div></div></div>
+        <div class="flex-1 h-0.5 mx-2 bg-slate-200"></div>
+        <div class="flex flex-col items-center gap-1.5 flex-shrink-0"><div class="w-9 h-9 rounded-full flex items-center justify-center text-xs font-semibold bg-slate-200 text-slate-500">4</div><div class="text-center"><div class="text-xs font-medium text-slate-400">Confirmar</div></div></div>
+      </div>
+    </div>
+    <!-- Body grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-[1fr_360px]">
+      <div class="overflow-y-auto p-6 space-y-5">
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="text-[11px] font-medium text-slate-600 mb-1.5 block">Origen</label>
+            <div class="space-y-1.5">
+              <button class="w-full p-2.5 rounded-lg border-2 border-orange-300 bg-orange-50 text-left flex items-center gap-2 text-[12px]"><span class="text-base">🇺🇸</span> <div><div class="font-bold text-slate-800">Miami Hub</div><div class="text-[10px] text-slate-500">Casilla · USA</div></div></button>
+              <button class="w-full p-2.5 rounded-lg border border-slate-200 text-left flex items-center gap-2 text-[12px] text-slate-500"><i data-lucide="plus" class="w-3.5 h-3.5"></i> Otro origen</button>
+            </div>
+          </div>
+          <div>
+            <label class="text-[11px] font-medium text-slate-600 mb-1.5 block">Destino</label>
+            <div class="space-y-1.5">
+              <button class="w-full p-2.5 rounded-lg border-2 border-orange-300 bg-orange-50 text-left flex items-center gap-2 text-[12px]"><span class="text-base">🇵🇪</span> <div><div class="font-bold text-slate-800">Almacén Lima</div><div class="text-[10px] text-slate-500">Casilla · Perú</div></div></button>
+              <button class="w-full p-2.5 rounded-lg border border-slate-200 text-left flex items-center gap-2 text-[12px] text-slate-500"><i data-lucide="plus" class="w-3.5 h-3.5"></i> Otro destino</button>
+            </div>
+          </div>
+        </div>
+        <!-- tipo inferido -->
+        <div class="rounded-lg bg-teal-50 border border-teal-200 p-3 flex items-center gap-2 text-[12px]"><i data-lucide="sparkles" class="w-4 h-4 text-teal-600"></i> <span class="text-teal-800">Tipo inferido: <strong>Casilla internacional → Almacén Perú (C)</strong></span></div>
+        <!-- unidades -->
+        <div>
+          <label class="text-[11px] font-medium text-slate-600 mb-1.5 block">Unidades a enviar</label>
+          <div class="space-y-1.5">
+            <div class="flex items-center justify-between p-2.5 rounded-lg border border-slate-200 text-[12px]"><span class="flex items-center gap-2"><span class="w-7 h-7 rounded bg-slate-100 flex items-center justify-center text-[13px]">🧴</span> Colágeno · 60 cáps</span><div class="flex items-center gap-1.5"><button class="w-6 h-6 rounded bg-slate-100 text-slate-500">−</button><span class="w-7 text-center font-bold tabular-nums">12</span><button class="w-6 h-6 rounded bg-slate-100 text-slate-500">+</button></div></div>
+            <div class="flex items-center justify-between p-2.5 rounded-lg border border-slate-200 text-[12px]"><span class="flex items-center gap-2"><span class="w-7 h-7 rounded bg-slate-100 flex items-center justify-center text-[13px]">💊</span> Magnesio · 90 cáps</span><div class="flex items-center gap-1.5"><button class="w-6 h-6 rounded bg-slate-100 text-slate-500">−</button><span class="w-7 text-center font-bold tabular-nums">12</span><button class="w-6 h-6 rounded bg-slate-100 text-slate-500">+</button></div></div>
+          </div>
+        </div>
+      </div>
+      <!-- preview panel -->
+      <aside class="hidden sm:block overflow-y-auto border-l border-slate-200 bg-slate-50 p-4">
+        <div class="text-[10px] uppercase tracking-wider text-slate-400 font-bold mb-3">Resumen del envío</div>
+        <!-- ruta vertical -->
+        <div class="space-y-2 mb-4">
+          <div class="flex items-center gap-2 bg-white rounded-lg p-2.5 border border-slate-200"><span class="text-base">🇺🇸</span><div class="text-[11px]"><div class="font-bold text-slate-800">Miami Hub</div><div class="text-[10px] text-slate-400">origen</div></div></div>
+          <div class="flex justify-center"><i data-lucide="arrow-down" class="w-4 h-4 text-slate-300"></i></div>
+          <div class="flex items-center gap-2 bg-white rounded-lg p-2.5 border border-slate-200"><span class="text-base">🇵🇪</span><div class="text-[11px]"><div class="font-bold text-slate-800">Almacén Lima</div><div class="text-[10px] text-slate-400">destino</div></div></div>
+        </div>
+        <div class="bg-white rounded-lg p-3 border border-slate-200 space-y-1.5 text-[11px]">
+          <div class="flex justify-between"><span class="text-slate-500">Unidades</span><span class="tabular-nums font-bold">24</span></div>
+          <div class="flex justify-between"><span class="text-slate-500">SKUs</span><span class="tabular-nums font-bold">2</span></div>
+          <div class="flex justify-between"><span class="text-slate-500">Tipo</span><span class="font-bold text-teal-700">C · Casilla-Perú</span></div>
+        </div>
+      </aside>
+    </div>
+    <!-- Footer -->
+    <div class="px-6 py-4 border-t border-slate-200 bg-slate-50 flex items-center justify-between">
+      <button class="px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-lg">Cancelar</button>
+      <div class="flex items-center gap-3"><span class="text-xs text-slate-500 hidden sm:inline">Podés volver en cualquier paso</span><button class="px-5 py-2 text-sm font-semibold text-white rounded-lg bg-orange-600 hover:bg-orange-700">Siguiente →</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════ ACTO 2 · LOS 4 PASOS ════════════ -->
+<div id="acto2" class="max-w-6xl mx-auto px-4 mb-12">
+  <div class="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-3">2 · El body de cada paso (el shell es el mismo · solo cambia el contenido)</div>
+  <div class="grid md:grid-cols-3 gap-4">
+    <!-- paso 2 detalles -->
+    <div class="bg-white border border-slate-200 rounded-2xl p-5">
+      <div class="flex items-center gap-2 mb-3"><span class="w-6 h-6 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center text-[11px] font-bold">2</span><span class="text-[12px] font-bold text-slate-900">Detalles <span class="text-[10px] font-normal text-slate-400">· opcional · solo E/I</span></span></div>
+      <div class="space-y-3">
+        <div><label class="text-[11px] font-medium text-slate-600 mb-1 block">Motivo del traslado</label><div class="border border-slate-300 rounded-lg px-3 py-2 text-[11px] text-slate-700">Consolidación</div></div>
+        <div class="text-[10px] text-slate-400">Este paso solo aparece cuando el tipo lo requiere (traslado interno, terceros).</div>
+      </div>
+    </div>
+    <!-- paso 3 logística -->
+    <div class="bg-white border border-slate-200 rounded-2xl p-5">
+      <div class="flex items-center gap-2 mb-3"><span class="w-6 h-6 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center text-[11px] font-bold">3</span><span class="text-[12px] font-bold text-slate-900">Logística</span></div>
+      <div class="space-y-3">
+        <div>
+          <label class="text-[11px] font-medium text-slate-600 mb-1.5 block">Modalidad de costo</label>
+          <div class="grid grid-cols-2 gap-1.5 text-[10px]">
+            <button class="p-2 rounded-lg border-2 border-orange-300 bg-orange-50 font-bold text-slate-800">Viajero</button>
+            <button class="p-2 rounded-lg border border-slate-200 text-slate-600">Courier</button>
+            <button class="p-2 rounded-lg border border-slate-200 text-slate-600">Contenedor</button>
+            <button class="p-2 rounded-lg border border-slate-200 text-slate-600">Partner</button>
+          </div>
+        </div>
+        <div><label class="text-[11px] font-medium text-slate-600 mb-1 block">Colaborador</label><div class="border border-slate-300 rounded-lg px-3 py-2 text-[11px] flex items-center gap-1.5"><span class="w-4 h-4 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center text-[7px] font-bold">MT</span> M. Torres</div></div>
+      </div>
+    </div>
+    <!-- paso 4 confirmar -->
+    <div class="bg-white border border-slate-200 rounded-2xl p-5">
+      <div class="flex items-center gap-2 mb-3"><span class="w-6 h-6 rounded-full bg-orange-600 text-white flex items-center justify-center text-[11px] font-bold">4</span><span class="text-[12px] font-bold text-slate-900">Confirmar</span></div>
+      <div class="rounded-lg bg-slate-50 border border-slate-200 p-3 space-y-1.5 text-[11px]">
+        <div class="flex justify-between"><span class="text-slate-500">Ruta</span><span class="font-medium">🇺🇸 Miami → 🇵🇪 Lima</span></div>
+        <div class="flex justify-between"><span class="text-slate-500">Unidades</span><span class="tabular-nums font-bold">24 · 2 SKUs</span></div>
+        <div class="flex justify-between"><span class="text-slate-500">Transporte</span><span class="font-medium">Viajero · M. Torres</span></div>
+        <div class="flex justify-between"><span class="text-slate-500">Tipo</span><span class="font-bold text-teal-700">C · Casilla-Perú</span></div>
+      </div>
+      <button class="w-full mt-3 bg-orange-600 hover:bg-orange-700 text-white text-[12px] font-semibold py-2 rounded-lg">Crear envío</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════ ACTO 3 · WIZARD F + G ════════════ -->
+<div id="acto3" class="max-w-6xl mx-auto px-4 mb-12">
+  <div class="text-[11px] font-bold uppercase tracking-wider text-orange-600 mb-3">3 · Wizard F (despacho venta) + Wizard G (devolución) — mismo WizardShell, pasos propios</div>
+  <div class="grid md:grid-cols-2 gap-5 items-start">
+
+    <!-- Wizard F -->
+    <div class="bg-white rounded-2xl overflow-hidden shadow-lg border border-slate-200">
+      <div class="px-5 py-3.5 border-b border-slate-200 flex items-center justify-between"><div><h2 class="text-base font-semibold text-slate-900">Despacho de venta</h2><p class="text-[11px] text-slate-500">VT-0188 → cliente</p></div><button class="text-slate-400"><i data-lucide="x" class="w-4 h-4"></i></button></div>
+      <div class="px-5 py-4 border-b border-slate-100 bg-slate-50">
+        <div class="flex items-center justify-between">
+          <div class="flex flex-col items-center gap-1"><div class="w-7 h-7 rounded-full bg-emerald-500 text-white flex items-center justify-center"><i data-lucide="check" class="w-3.5 h-3.5"></i></div><span class="text-[10px] font-medium text-emerald-700">Venta</span></div>
+          <div class="flex-1 h-0.5 mx-1.5 bg-emerald-500"></div>
+          <div class="flex flex-col items-center gap-1"><div class="w-7 h-7 rounded-full bg-orange-600 text-white flex items-center justify-center text-[11px] font-bold ring-4 ring-orange-100">2</div><span class="text-[10px] font-medium text-slate-900">Picking</span></div>
+          <div class="flex-1 h-0.5 mx-1.5 bg-slate-200"></div>
+          <div class="flex flex-col items-center gap-1"><div class="w-7 h-7 rounded-full bg-slate-200 text-slate-500 flex items-center justify-center text-[11px] font-bold">3</div><span class="text-[10px] text-slate-400">Detalles</span></div>
+          <div class="flex-1 h-0.5 mx-1.5 bg-slate-200"></div>
+          <div class="flex flex-col items-center gap-1"><div class="w-7 h-7 rounded-full bg-slate-200 text-slate-500 flex items-center justify-center text-[11px] font-bold">4</div><span class="text-[10px] text-slate-400">Confirmar</span></div>
+        </div>
+      </div>
+      <div class="p-5 space-y-3">
+        <div class="text-[12px] font-bold text-slate-900">Picking · unidades reservadas (FEFO)</div>
+        <div class="space-y-1.5">
+          <div class="flex items-center justify-between p-2.5 rounded-lg border border-emerald-200 bg-emerald-50/40 text-[11px]"><span class="flex items-center gap-2"><input type="checkbox" checked class="accent-emerald-600"> 🧴 Colágeno · lote A-225 <span class="text-[9px] text-slate-400">vence 09/26</span></span><span class="tabular-nums font-bold">×2</span></div>
+          <div class="flex items-center justify-between p-2.5 rounded-lg border border-emerald-200 bg-emerald-50/40 text-[11px]"><span class="flex items-center gap-2"><input type="checkbox" checked class="accent-emerald-600"> 💊 Magnesio · lote M-118 <span class="text-[9px] text-slate-400">vence 11/26</span></span><span class="tabular-nums font-bold">×1</span></div>
+        </div>
+        <div class="bg-sky-50 rounded-lg p-2 text-[10px] text-sky-700 flex items-center gap-1.5"><i data-lucide="info" class="w-3 h-3"></i> Auto-seleccionadas las unidades reservadas para esta venta.</div>
+      </div>
+      <div class="px-5 py-3.5 border-t border-slate-200 bg-slate-50 flex items-center justify-between"><button class="px-3 py-1.5 text-[12px] text-slate-700 border border-slate-300 rounded-lg">← Anterior</button><button class="px-4 py-1.5 text-[12px] font-semibold text-white bg-orange-600 rounded-lg">Siguiente →</button></div>
+    </div>
+
+    <!-- Wizard G -->
+    <div class="bg-white rounded-2xl overflow-hidden shadow-lg border border-slate-200">
+      <div class="px-5 py-3.5 border-b border-slate-200 flex items-center justify-between"><div><h2 class="text-base font-semibold text-slate-900">Devolución</h2><p class="text-[11px] text-slate-500">cliente → almacén</p></div><button class="text-slate-400"><i data-lucide="x" class="w-4 h-4"></i></button></div>
+      <div class="px-5 py-4 border-b border-slate-100 bg-slate-50">
+        <div class="flex items-center justify-between">
+          <div class="flex flex-col items-center gap-1"><div class="w-7 h-7 rounded-full bg-orange-600 text-white flex items-center justify-center text-[11px] font-bold ring-4 ring-orange-100">1</div><span class="text-[10px] font-medium text-slate-900">Devolución</span></div>
+          <div class="flex-1 h-0.5 mx-1.5 bg-slate-200"></div>
+          <div class="flex flex-col items-center gap-1"><div class="w-7 h-7 rounded-full bg-slate-200 text-slate-500 flex items-center justify-center text-[11px] font-bold">2</div><span class="text-[10px] text-slate-400">Productos</span></div>
+          <div class="flex-1 h-0.5 mx-1.5 bg-slate-200"></div>
+          <div class="flex flex-col items-center gap-1"><div class="w-7 h-7 rounded-full bg-slate-200 text-slate-500 flex items-center justify-center text-[11px] font-bold">3</div><span class="text-[10px] text-slate-400">Logística</span></div>
+          <div class="flex-1 h-0.5 mx-1.5 bg-slate-200"></div>
+          <div class="flex flex-col items-center gap-1"><div class="w-7 h-7 rounded-full bg-slate-200 text-slate-500 flex items-center justify-center text-[11px] font-bold">4</div><span class="text-[10px] text-slate-400">Confirmar</span></div>
+        </div>
+      </div>
+      <div class="p-5 space-y-3">
+        <div class="text-[12px] font-bold text-slate-900">¿Qué venta se devuelve?</div>
+        <div><label class="text-[11px] font-medium text-slate-600 mb-1.5 block">Venta origen</label><div class="border border-slate-300 rounded-lg px-3 py-2 text-[12px] flex items-center justify-between"><span>VT-0166 · Ana Ríos</span><i data-lucide="chevron-down" class="w-4 h-4 text-slate-400"></i></div></div>
+        <div><label class="text-[11px] font-medium text-slate-600 mb-1.5 block">Motivo</label><div class="flex flex-wrap gap-1.5 text-[10px]"><span class="px-2 py-1 rounded-full bg-violet-100 text-violet-700 font-medium">Producto dañado</span><span class="px-2 py-1 rounded-full bg-white border border-slate-200 text-slate-500">No le gustó</span><span class="px-2 py-1 rounded-full bg-white border border-slate-200 text-slate-500">Otro</span></div></div>
+      </div>
+      <div class="px-5 py-3.5 border-t border-slate-200 bg-slate-50 flex items-center justify-end"><button class="px-4 py-1.5 text-[12px] font-semibold text-white bg-orange-600 rounded-lg">Siguiente →</button></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ════════════ ACTO 4 · BORRADOR ════════════ -->
+<div id="acto4" class="max-w-6xl mx-auto px-4 mb-12">
+  <div class="text-[11px] font-bold uppercase tracking-wider text-amber-600 mb-3">4 · BorradorBanner — aparece en la PÁGINA de Envíos (no dentro del wizard · canon borrador)</div>
+  <!-- BorradorBanner -->
+  <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-center gap-4 shadow-sm">
+    <div class="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center flex-shrink-0"><i data-lucide="file-text" class="w-5 h-5 text-amber-700"></i></div>
+    <div class="flex-1 min-w-0">
+      <div class="text-sm font-semibold text-amber-900">Tienes un envío en borrador</div>
+      <div class="text-xs text-amber-800 mt-0.5 truncate">Envío Miami → Lima · 24 unidades <span class="text-amber-600 mx-1.5">·</span> hace 2 horas <span class="text-amber-600 mx-1.5">·</span> Paso 3 de 4</div>
+    </div>
+    <div class="flex items-center gap-2 flex-shrink-0">
+      <button class="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-amber-800 hover:bg-amber-100 rounded-lg"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Descartar</button>
+      <button class="flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-white bg-amber-600 hover:bg-amber-700 rounded-lg shadow-sm">Continuar <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i></button>
+    </div>
+  </div>
+  <div class="mt-2 text-[11px] text-slate-500 flex items-center gap-1.5"><i data-lucide="info" class="w-3.5 h-3.5"></i> Autoguardado en 2 capas (localStorage + Firestore) · 1 borrador por (usuario, tipo) · el mismo banner sirve a los 3 wizards.</div>
+</div>
+
+<!-- ════════════ ACTO 5 · MOBILE ════════════ -->
+<div id="acto5" class="max-w-6xl mx-auto px-4 mb-12">
+  <div class="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-3">5 · Mobile (375px) — el preview se apila bajo el contenido (canon HubBody)</div>
+  <div class="flex justify-center">
+    <div class="w-[320px] bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+      <!-- header -->
+      <div class="px-4 py-3 border-b border-slate-200 flex items-center justify-between"><div><h2 class="text-[15px] font-semibold text-slate-900">Nuevo envío</h2><p class="text-[10px] text-slate-500">tipo inferido</p></div><button class="text-slate-400"><i data-lucide="x" class="w-4.5 h-4.5"></i></button></div>
+      <!-- stepper compacto (dots) -->
+      <div class="px-4 py-3 border-b border-slate-100 bg-slate-50">
+        <div class="flex items-center justify-between">
+          <div class="flex flex-col items-center gap-1"><div class="w-7 h-7 rounded-full bg-orange-600 text-white flex items-center justify-center text-[11px] font-bold ring-2 ring-orange-100">1</div></div>
+          <div class="flex-1 h-0.5 mx-1 bg-slate-200"></div>
+          <div class="w-7 h-7 rounded-full bg-slate-200 text-slate-500 flex items-center justify-center text-[11px] font-bold">2</div>
+          <div class="flex-1 h-0.5 mx-1 bg-slate-200"></div>
+          <div class="w-7 h-7 rounded-full bg-slate-200 text-slate-500 flex items-center justify-center text-[11px] font-bold">3</div>
+          <div class="flex-1 h-0.5 mx-1 bg-slate-200"></div>
+          <div class="w-7 h-7 rounded-full bg-slate-200 text-slate-500 flex items-center justify-center text-[11px] font-bold">4</div>
+        </div>
+        <div class="text-center text-[11px] font-medium text-slate-900 mt-1.5">Origen y destino</div>
+      </div>
+      <!-- body -->
+      <div class="p-4 space-y-3">
+        <div class="grid grid-cols-2 gap-2">
+          <div><label class="text-[10px] font-medium text-slate-600 mb-1 block">Origen</label><button class="w-full p-2 rounded-lg border-2 border-orange-300 bg-orange-50 text-left text-[11px]"><span class="text-base">🇺🇸</span><div class="font-bold text-slate-800">Miami</div></button></div>
+          <div><label class="text-[10px] font-medium text-slate-600 mb-1 block">Destino</label><button class="w-full p-2 rounded-lg border-2 border-orange-300 bg-orange-50 text-left text-[11px]"><span class="text-base">🇵🇪</span><div class="font-bold text-slate-800">Lima</div></button></div>
+        </div>
+        <div class="rounded-lg bg-teal-50 border border-teal-200 p-2 text-[10px] text-teal-800 flex items-center gap-1.5"><i data-lucide="sparkles" class="w-3 h-3"></i> Tipo: <strong>C · Casilla-Perú</strong></div>
+        <div class="flex items-center justify-between p-2 rounded-lg border border-slate-200 text-[11px]"><span class="flex items-center gap-1.5">🧴 Colágeno</span><div class="flex items-center gap-1"><button class="w-5 h-5 rounded bg-slate-100 text-slate-500 text-[10px]">−</button><span class="w-6 text-center font-bold tabular-nums">12</span><button class="w-5 h-5 rounded bg-slate-100 text-slate-500 text-[10px]">+</button></div></div>
+        <!-- preview apilado (mobile) -->
+        <div class="rounded-lg bg-slate-50 border border-slate-200 p-2.5">
+          <div class="text-[9px] uppercase tracking-wider text-slate-400 font-bold mb-1.5">Resumen</div>
+          <div class="flex items-center justify-between text-[10px]"><span class="text-slate-500">24 uds · 2 SKUs</span><span class="font-bold text-teal-700">C · Casilla-Perú</span></div>
+        </div>
+      </div>
+      <!-- footer -->
+      <div class="px-4 py-3 border-t border-slate-200 bg-slate-50 flex items-center justify-between">
+        <button class="px-3 py-1.5 text-[12px] text-slate-600">Cancelar</button>
+        <button class="px-4 py-1.5 text-[12px] font-semibold text-white bg-orange-600 rounded-lg">Siguiente →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════ FOOTER ════════════ -->
+<div class="max-w-6xl mx-auto px-4 mb-12">
+  <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+    <div class="px-5 py-3 border-b border-slate-200 bg-slate-50 text-[12px] font-bold text-slate-700 flex items-center gap-2"><i data-lucide="check-circle" class="w-4 h-4 text-emerald-500"></i> Fase 5 · 3 wizards (WizardShell · accent orange)</div>
+    <div class="px-5 py-4 grid md:grid-cols-2 gap-x-6 gap-y-1.5 text-[12px] text-slate-600">
+      <div class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-500"></i> Nuevo envío unificado (4 pasos · tipo inferido)</div>
+      <div class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-500"></i> WizardShell literal (header + stepper + body[1fr_360px] + footer)</div>
+      <div class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-500"></i> Preview panel lateral (ruta vertical + resumen)</div>
+      <div class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-500"></i> Despacho F (Venta/Picking/Detalles/Confirmar)</div>
+      <div class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-500"></i> Devolución G (Devolución/Productos/Logística/Confirmar)</div>
+      <div class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-500"></i> BorradorBanner (canon · 2 capas · descartar/continuar)</div>
+      <div class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-500"></i> Stepper accent orange (ring-4 + connector emerald al avanzar)</div>
+      <div class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-500"></i> Mobile · preview apilado bajo el contenido</div>
+    </div>
+    <div class="px-5 py-3 border-t border-slate-200 bg-slate-50 text-[11px] text-slate-500">
+      🎉 <strong class="text-slate-600">Cobertura total de Envíos completa:</strong> Fase 1 (shell+Resumen+Operaciones) · 2 (detalle adaptativo) · 3 (11 modales) · 4 (tabs gestión) · 5 (3 wizards). Listo para implementación.
+    </div>
+  </div>
+</div>
+
+<script>lucide.createIcons();</script>
+</body>
+</html>
