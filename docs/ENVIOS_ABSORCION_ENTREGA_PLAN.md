@@ -59,7 +59,13 @@ desnormaliza datos, hereda cargos. `despacharVenta()` replica esta forma con dat
   `destinoClienteCodigoPostal?` · `destinoClienteReferencia?` · `destinoCoordenadas?`
 - **Confirmaciones:** `fotoEntrega?` · `firmaCliente?` · `notasEntregaDetalles?`
 - **Documentos:** `pdfGuiaTransportista?` · `pdfCargoCliente?`
-- **Distribución:** `gastoDistribucionId?` · `costoTransportistaEspecifico?`
+- **Delivery:** `gastoDeliveryId?` · `costoDeliveryPEN?`
+  ⚠️ **GD legacy eliminado (chk5.A15 · confirmado por el usuario 2026-06-03):** el flete del
+  despacho NO es un "Gasto de Distribución / gasto_distribucion" (categoría borrada). Se registra
+  como **`Gasto` tipo `'delivery'`** (bloque venta · `categoriaCostoId` "Distribución/Delivery
+  local" del árbol · `impactaCTRU:false` · vinculado a `ventaId` · reduce `gastosVentaPEN`). En A2
+  el servicio crea un gasto tipo `delivery`, NO replica GD. (La función `crearGastoDistribucion()`
+  conserva el nombre legacy pero ya hace esto — renombrarla es limpieza opcional de A2.)
 - **Transportista (tipado):** `tipoTransportista?` · `courierExterno?` · `telefonoTransportista?`
 
 **Ya existen en Envio (sirven al Caso F):** `destinoClienteNombre/Direccion/Distrito/Telefono`,

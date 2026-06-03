@@ -457,9 +457,11 @@ export interface Envio {
   pdfGuiaTransportista?: string;
   pdfCargoCliente?: string;
 
-  // Gasto de distribución (GD · flete del repartidor para esta entrega)
-  gastoDistribucionId?: string;
-  costoTransportistaEspecifico?: number;
+  // Costo de delivery del despacho — se registra como Gasto tipo 'delivery' (bloque
+  // venta · modelo de gastos vigente). El "GD/gasto_distribucion" legacy fue eliminado
+  // en chk5.A15 · acá solo guardamos el vínculo al gasto y el monto del flete.
+  gastoDeliveryId?: string;            // ID del Gasto tipo 'delivery' vinculado
+  costoDeliveryPEN?: number;           // Flete del repartidor para esta entrega (PEN)
 
   // Notas
   notas?: string;
