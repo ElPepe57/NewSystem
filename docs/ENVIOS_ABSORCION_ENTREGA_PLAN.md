@@ -100,11 +100,23 @@ desnormaliza datos, hereda cargos. `despacharVenta()` replica esta forma con dat
 
 ---
 
-## 5 · ESTADO
+## 5 · ESTADO (actualizado 2026-06-03)
 
-- ✅ Diagnóstico técnico (4 frentes) · decisión Camino A.
+- ✅ Diagnóstico técnico (4 frentes + GD) · decisión Camino A.
 - ✅ Mockups visuales (5 fases · cobertura total) — guía del rework visual (A5).
-- ⏳ **EN CURSO:** A0 (auditoría EstadoEnvio) → A1 (modelo/tipos).
+- ✅ **A0** auditoría `EstadoEnvio` (12 lugares · 3 Records · validación de recepción crítica).
+- ✅ **A1** modelo/tipos (5 estados de reparto + 27 campos + helpers · `tsc -b` verde).
+- ✅ **A2.1** `despacharVenta` (disparo · Envio 'programada' + venta 'en_entrega').
+- ✅ **A2.2** `marcarEnCaminoEnvio` ('en_camino' + gasto `delivery` + venta 'despachada').
+- ✅ **A2.3a** `marcarEntregaFallida` (fallida/reprogramada · anula gasto + libera unidades · SIN cobro).
+- ⏳ **A2.3b** `registrarEntregaExitosa` (entrega + **COD → venta/tesorería/caja recaudadora**
+  + métricas + anticipos + CTRU) · **EL DINERO REAL · requiere foco + revisión contable/lógica
+  antes de mergear.** Pendiente: portar la rama `exitosa=true` (fase A batch + fase B secundarias)
+  + el cable `cajaRecaudadora.registrarCobroEntrante` + `movimientoTransportista` (adaptar de Entrega→Envio).
+- ⏳ **A2.4** cancelar/corregir · **A3** migración datos · **A4** UI Ventas (disparo+espejo) ·
+  **A5** rework visual (5 fases mockups) · **A6** deprecar `Entrega`.
 
-Los mockups de las 5 fases siguen siendo la guía visual; lo que A1-A4 hacen es preparar
-el MODELO sobre el que A5 (rework visual) opera. La experiencia final es la de los mockups.
+Rama `envios-absorcion-entrega` · todo verde (6 commits). **Todo lo SEGURO de A2 (sin tocar
+cobros reales) está portado 1:1.** Lo que falta — el cobro COD (A2.3b) y la migración de datos
+(A3) — son las partes de dinero/datos reales, que se hacen con foco y revisión. Los mockups de
+las 5 fases siguen siendo la guía visual de A5.
