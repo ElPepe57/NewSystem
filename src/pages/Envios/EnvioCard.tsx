@@ -103,6 +103,12 @@ const ESTADO_STYLE: Record<EstadoEnvio, { label: string; className: string }> = 
   recibida_parcial: { label: 'Recibido parcial', className: 'bg-purple-100 text-purple-800' },
   recibida_completa: { label: 'Recibido completo', className: 'bg-emerald-100 text-emerald-800' },
   perdida_total: { label: 'Perdido', className: 'bg-red-100 text-red-800' },
+  // Última milla (Caso F · despacho de venta)
+  programada: { label: 'Programada', className: 'bg-amber-100 text-amber-800' },
+  en_camino: { label: 'En camino', className: 'bg-sky-100 text-sky-800' },
+  entregada: { label: 'Entregada', className: 'bg-emerald-100 text-emerald-800' },
+  fallida: { label: 'Fallida', className: 'bg-red-100 text-red-800' },
+  reprogramada: { label: 'Reprogramada', className: 'bg-amber-100 text-amber-800' },
   cancelada: { label: 'Cancelado', className: 'bg-red-100 text-red-800' },
 };
 

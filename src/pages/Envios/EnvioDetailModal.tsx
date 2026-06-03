@@ -2056,6 +2056,11 @@ const getEstadoBadgeNuevo = (estado: EstadoEnvio) => {
     recibida_parcial: { variant: 'warning', label: 'Parcial' },
     recibida_completa: { variant: 'success', label: 'Completada' },
     perdida_total: { variant: 'danger', label: 'Perdida' },
+    programada: { variant: 'warning', label: 'Programada' },
+    en_camino: { variant: 'info', label: 'En camino' },
+    entregada: { variant: 'success', label: 'Entregada' },
+    fallida: { variant: 'danger', label: 'Fallida' },
+    reprogramada: { variant: 'warning', label: 'Reprogramada' },
     cancelada: { variant: 'danger', label: 'Cancelada' },
   };
   const { variant, label } = config[estado] ?? { variant: 'default' as const, label: estado };

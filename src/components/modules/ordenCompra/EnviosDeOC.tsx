@@ -42,6 +42,12 @@ const ESTADO_CONFIG: Record<EstadoEnvio, { label: string; variant: 'default' | '
   recibida_parcial: { label: 'Parcial', variant: 'warning', icon: AlertTriangle },
   recibida_completa: { label: 'Completado', variant: 'success', icon: CheckCircle },
   perdida_total: { label: 'Perdido', variant: 'danger', icon: XCircle },
+  // Última milla (Caso F · despacho de venta)
+  programada: { label: 'Programada', variant: 'warning', icon: Clock },
+  en_camino: { label: 'En camino', variant: 'info', icon: Truck },
+  entregada: { label: 'Entregada', variant: 'success', icon: CheckCircle },
+  fallida: { label: 'Fallida', variant: 'danger', icon: XCircle },
+  reprogramada: { label: 'Reprogramada', variant: 'warning', icon: Clock },
   cancelada: { label: 'Cancelado', variant: 'danger', icon: XCircle },
 };
 

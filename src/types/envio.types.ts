@@ -1,4 +1,6 @@
 import { Timestamp } from 'firebase/firestore';
+import type { MetodoPago } from './venta.types';
+import type { TipoTransportista, CourierExterno } from './colaborador.types';
 
 /**
  * Tipo de envio (reemplaza TipoTransferencia del modelo legacy)
@@ -75,9 +77,17 @@ export interface IncidenciaEnvio {
 }
 
 /**
- * Estado del envio
+ * Estado del envio.
+ *
+ * Dos ciclos conviven (aislados por destinoTipo · helpers abajo):
+ *  - IMPORTACIÓN / abastecimiento (casos A-E, J): borrador→confirmado→en_transito→
+ *    (retenida_aduana)→recibida_parcial/completa | perdida_total.
+ *  - ÚLTIMA MILLA (Caso F · despacho de venta · absorción de Entrega 2026-06-03):
+ *    programada→en_camino→entregada | fallida↔reprogramada.
+ *  - cancelada aplica a ambos.
  */
 export type EstadoEnvio =
+  // ── Importación / abastecimiento ──
   | 'borrador'           // Creado automaticamente al confirmar OC, pendiente de preparar
   | 'confirmado'         // Listo para salir
   | 'en_transito'        // En camino
@@ -85,7 +95,37 @@ export type EstadoEnvio =
   | 'recibida_parcial'   // Llego parcialmente
   | 'recibida_completa'  // Todas las unidades recibidas
   | 'perdida_total'      // Envio perdido completamente (excepcion)
+  // ── Última milla (Caso F · despacho de venta) — absorción de Entrega (2026-06-03) ──
+  | 'programada'         // Entrega programada, pendiente de salir
+  | 'en_camino'          // Repartidor en ruta hacia el cliente
+  | 'entregada'          // Entregada con éxito al cliente
+  | 'fallida'            // Entrega no completada (no encontrado, rechazo, etc.)
+  | 'reprogramada'       // Entrega fallida pero re-agendada
+  // ── Común ──
   | 'cancelada';         // Cancelado
+
+/**
+ * Estados de ÚLTIMA MILLA (Caso F). Helper para que la lógica de IMPORTACIÓN
+ * (recepción/aduana/subenvíos/queries de activos) NO entre en las ramas de reparto,
+ * y viceversa. Ver docs/ENVIOS_ABSORCION_ENTREGA_PLAN.md (A0).
+ */
+export const ESTADOS_REPARTO: readonly EstadoEnvio[] = [
+  'programada', 'en_camino', 'entregada', 'fallida', 'reprogramada',
+];
+export const esEstadoReparto = (e: EstadoEnvio): boolean => ESTADOS_REPARTO.includes(e);
+export const esEstadoImportacion = (e: EstadoEnvio): boolean =>
+  e !== 'cancelada' && !esEstadoReparto(e);
+
+/**
+ * Motivo de una entrega fallida (Caso F · última milla · absorción de Entrega).
+ */
+export type MotivoFallo =
+  | 'no_encontrado'
+  | 'ausente'
+  | 'rechazo'
+  | 'producto_danado'
+  | 'pago_rechazado'
+  | 'otro';
 
 /**
  * Tipo de origen del envio
@@ -369,6 +409,57 @@ export interface Envio {
 
   // S38-009: DDP directo — proveedor entrega directo a Perú sin casilla intermedia
   esDDP?: boolean;
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // ÚLTIMA MILLA (Caso F · despacho de venta) — absorción de Entrega (2026-06-03)
+  // Solo aplican cuando destinoTipo='cliente'. Ver docs/ENVIOS_ABSORCION_ENTREGA_PLAN.md
+  // ══════════════════════════════════════════════════════════════════════════
+
+  // Entregas parciales (una venta puede despacharse en varias entregas)
+  numeroEntrega?: number;
+  totalEntregas?: number;
+
+  // Transportista (tipado fuerte de última milla · complementa colaboradorTipo:string)
+  tipoTransportista?: TipoTransportista;
+  courierExterno?: CourierExterno;
+  telefonoTransportista?: string;
+
+  // Cliente destino (extensión sobre destinoCliente* existentes)
+  destinoClienteEmail?: string;
+  destinoClienteProvincia?: string;
+  destinoClienteCodigoPostal?: string;
+  destinoClienteReferencia?: string;
+  destinoCoordenadas?: { lat: number; lng: number };
+
+  // Programación de reparto
+  horaProgramada?: string;             // Ventana, ej. "10:00-14:00"
+  tiempoEntregaMinutos?: number;       // Métrica: salida → entrega
+
+  // Cobro contra-entrega (COD)
+  cobroPendiente?: boolean;
+  montoPorCobrar?: number;
+  metodoPagoEsperado?: MetodoPago;
+  cobroRealizado?: boolean;
+  montoRecaudado?: number;
+  metodoPagoRecibido?: MetodoPago;
+  referenciaCobroId?: string;          // ID del pago registrado en la Venta
+
+  // Entrega fallida
+  motivoFallo?: MotivoFallo;
+  descripcionFallo?: string;
+
+  // Confirmaciones de entrega
+  fotoEntrega?: string;
+  firmaCliente?: string;
+  notasEntregaDetalles?: string;       // Distinto de `notas` (genérico del envío)
+
+  // Documentos de reparto
+  pdfGuiaTransportista?: string;
+  pdfCargoCliente?: string;
+
+  // Gasto de distribución (GD · flete del repartidor para esta entrega)
+  gastoDistribucionId?: string;
+  costoTransportistaEspecifico?: number;
 
   // Notas
   notas?: string;
