@@ -34,19 +34,6 @@ type EstadoBloque = 'pending' | 'current' | 'complete' | 'complete-category';
 // Helpers
 // ============================================================================
 
-function paisBandera(pais: string): string {
-  const MAP: Record<string, string> = {
-    USA: '🇺🇸',
-    Peru: '🇵🇪',
-    Perú: '🇵🇪',
-    China: '🇨🇳',
-    Corea: '🇰🇷',
-    Japón: '🇯🇵',
-    Japon: '🇯🇵',
-  };
-  return MAP[pais] || '🌎';
-}
-
 function iconoTransito(modo: 'aereo' | 'maritimo' | 'terrestre'): LucideIcon {
   return modo === 'aereo' ? Plane : modo === 'maritimo' ? Ship : Truck;
 }
@@ -194,13 +181,6 @@ export const RutaVerticalSidebar: React.FC<Props> = ({
   else if (state.pasoActual === 2) estadoDestino = 'current';
 
   // Metadata del bloque ORIGEN
-  const origenBandera = state.ubicacionOrigenPais
-    ? paisBandera(state.ubicacionOrigenPais)
-    : state.origenCategoria === 'casilla_intl'
-    ? '🌎'
-    : state.origenCategoria === 'almacen_peru'
-    ? '🇵🇪'
-    : '';
   const origenNombre = state.ubicacionOrigenNombre
     ? state.ubicacionOrigenNombre
     : state.origenCategoria === 'casilla_intl'
@@ -209,23 +189,14 @@ export const RutaVerticalSidebar: React.FC<Props> = ({
     ? 'Almacén Perú'
     : '(por elegir)';
   const origenMetadata = state.ubicacionOrigenId
-    ? `${origenBandera} ${state.ubicacionOrigenPais || ''}${
+    ? `${state.ubicacionOrigenPais || ''}${
         totalUnidades > 0 ? ` · ${totalUnidades} uds` : ''
       }`
     : origenCategoriaCompleta
-    ? `${origenBandera} Por refinar en Paso 1`
+    ? 'Por refinar en Paso 1'
     : undefined;
 
   // Metadata del bloque DESTINO
-  const destinoBandera = state.ubicacionDestinoPais
-    ? paisBandera(state.ubicacionDestinoPais)
-    : state.destinoCategoria === 'casilla_intl'
-    ? '🌎'
-    : state.destinoCategoria === 'almacen_peru'
-    ? '🇵🇪'
-    : state.destinoCategoria === 'almacen_tercero'
-    ? '🏭'
-    : '';
   const destinoNombre = state.ubicacionDestinoNombre
     ? state.ubicacionDestinoNombre
     : state.destinoCategoria === 'casilla_intl'
@@ -236,9 +207,9 @@ export const RutaVerticalSidebar: React.FC<Props> = ({
     ? 'Almacén tercero'
     : '(por elegir)';
   const destinoMetadata = state.ubicacionDestinoId
-    ? `${destinoBandera} ${state.ubicacionDestinoPais || ''}`
+    ? `${state.ubicacionDestinoPais || ''}`
     : destinoCategoriaCompleta
-    ? `${destinoBandera} Por refinar en Paso 1`
+    ? 'Por refinar en Paso 1'
     : undefined;
   const destinoExtra =
     tipoConfig?.tipo === 'I' && state.referenciaTercero

@@ -13,6 +13,7 @@
  */
 import React, { useState, useEffect, useMemo } from 'react';
 import { Globe, Factory, type LucideIcon } from 'lucide-react';
+import { PaisBadge } from '../../shared/PaisBadge';
 import { useAlmacenStore } from '../../../../../store/casillaStore';
 import type { Casilla } from '../../../../../types/casilla.types';
 import type { UseEnvioWizardStateReturn } from '../../useEnvioWizardState';
@@ -26,16 +27,6 @@ interface Props {
   disabled: boolean;
 }
 
-function paisEmoji(pais: string): string {
-  const MAP: Record<string, string> = {
-    USA: '🇺🇸',
-    China: '🇨🇳',
-    Corea: '🇰🇷',
-    Peru: '🇵🇪',
-    Peru_local: '🇵🇪',
-  };
-  return MAP[pais] || '🌎';
-}
 
 // Qué categorías de destino son válidas según el origen
 function getCategoriasPermitidas(
@@ -69,7 +60,7 @@ export const SeccionDestino: React.FC<Props> = ({
       descripcion: 'Otra casilla tuya en el extranjero',
     },
     almacen_peru: {
-      icon: '🇵🇪',
+      icon: 'PE', // string marker → render muestra <PaisBadge pais="Peru" /> (orange)
       label: 'Almacén Perú',
       descripcion: 'Tu almacén local',
     },
@@ -143,10 +134,10 @@ export const SeccionDestino: React.FC<Props> = ({
   // Resumen COLLAPSED
   const resumen = ubicacionSeleccionada ? (
     <div className="flex items-center gap-3">
-      <div className="w-10 h-10 rounded-lg bg-emerald-100 flex items-center justify-center text-xl flex-shrink-0">
+      <div className="w-10 h-10 rounded-lg bg-orange-100 flex items-center justify-center flex-shrink-0">
         {state.destinoCategoria === 'almacen_tercero'
-          ? <Factory className="w-5 h-5 text-emerald-600" />
-          : paisEmoji(ubicacionSeleccionada.pais)}
+          ? <Factory className="w-5 h-5 text-orange-600" />
+          : <PaisBadge pais={ubicacionSeleccionada.pais} />}
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-1.5 flex-wrap">
@@ -243,7 +234,7 @@ export const SeccionDestino: React.FC<Props> = ({
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-0.5">
                         {typeof info.icon === 'string'
-                          ? <span className="text-xl">{info.icon}</span>
+                          ? <PaisBadge pais="Peru" />
                           : React.createElement(info.icon, { className: 'w-5 h-5 text-orange-600' })}
                         <span className="text-sm font-semibold text-slate-900">
                           {info.label}
@@ -306,10 +297,10 @@ export const SeccionDestino: React.FC<Props> = ({
                           : 'border-slate-200 hover:border-orange-500 hover:bg-orange-50/30'
                       }`}
                     >
-                      <div className="w-10 h-10 rounded-lg bg-emerald-100 flex items-center justify-center text-xl flex-shrink-0">
+                      <div className="w-10 h-10 rounded-lg bg-orange-100 flex items-center justify-center flex-shrink-0">
                         {state.destinoCategoria === 'almacen_tercero'
-                          ? <Factory className="w-5 h-5 text-emerald-600" />
-                          : paisEmoji(c.pais)}
+                          ? <Factory className="w-5 h-5 text-orange-600" />
+                          : <PaisBadge pais={c.pais} />}
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-1.5 flex-wrap">

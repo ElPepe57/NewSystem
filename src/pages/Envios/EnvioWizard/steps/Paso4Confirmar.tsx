@@ -13,22 +13,14 @@
  * envioUnificadoService.crear() → método legacy correspondiente.
  */
 import React from 'react';
+import { Factory } from 'lucide-react';
+import { PaisBadge } from '../shared/PaisBadge';
 import type { UseEnvioWizardStateReturn } from '../useEnvioWizardState';
 
 interface Props {
   wizard: UseEnvioWizardStateReturn;
 }
 
-function paisEmoji(pais: string): string {
-  const MAP: Record<string, string> = {
-    USA: '🇺🇸',
-    China: '🇨🇳',
-    Corea: '🇰🇷',
-    Peru: '🇵🇪',
-    Peru_local: '🇵🇪',
-  };
-  return MAP[pais] || '🌎';
-}
 
 export const Paso4Confirmar: React.FC<Props> = ({ wizard }) => {
   const {
@@ -95,8 +87,8 @@ export const Paso4Confirmar: React.FC<Props> = ({ wizard }) => {
       <div className="bg-gradient-to-br from-slate-50 to-white border border-slate-200 rounded-xl p-6">
         <div className="flex items-center gap-4 justify-between">
           <div className="text-center">
-            <div className="w-14 h-14 bg-sky-100 rounded-xl flex items-center justify-center text-3xl mb-2">
-              {paisEmoji(state.ubicacionOrigenPais)}
+            <div className="w-14 h-14 bg-orange-100 rounded-xl flex items-center justify-center text-2xl mb-2">
+              <PaisBadge pais={state.ubicacionOrigenPais} />
             </div>
             <div className="text-sm font-semibold text-slate-900">
               {state.ubicacionOrigenNombre}
@@ -122,10 +114,10 @@ export const Paso4Confirmar: React.FC<Props> = ({ wizard }) => {
             <div className="flex-1 h-px bg-slate-300 mt-1" />
           </div>
           <div className="text-center">
-            <div className="w-14 h-14 bg-emerald-100 rounded-xl flex items-center justify-center text-3xl mb-2">
+            <div className="w-14 h-14 bg-orange-100 rounded-xl flex items-center justify-center text-2xl mb-2">
               {state.destinoCategoria === 'almacen_tercero'
-                ? '🏭'
-                : paisEmoji(state.ubicacionDestinoPais)}
+                ? <Factory className="w-6 h-6 text-orange-600" />
+                : <PaisBadge pais={state.ubicacionDestinoPais} />}
             </div>
             <div className="text-sm font-semibold text-slate-900">
               {state.ubicacionDestinoNombre}

@@ -13,6 +13,7 @@
  */
 import React, { useState, useEffect, useMemo } from 'react';
 import { Globe, Inbox } from 'lucide-react';
+import { PaisBadge } from '../../shared/PaisBadge';
 import { useAlmacenStore } from '../../../../../store/casillaStore';
 import type { Casilla } from '../../../../../types/casilla.types';
 import type { UseEnvioWizardStateReturn } from '../../useEnvioWizardState';
@@ -22,17 +23,6 @@ interface Props {
   wizard: UseEnvioWizardStateReturn;
   collapsed: boolean;
   onToggle: () => void;
-}
-
-function paisEmoji(pais: string): string {
-  const MAP: Record<string, string> = {
-    USA: '🇺🇸',
-    China: '🇨🇳',
-    Corea: '🇰🇷',
-    Peru: '🇵🇪',
-    Peru_local: '🇵🇪',
-  };
-  return MAP[pais] || '🌎';
 }
 
 export const SeccionOrigen: React.FC<Props> = ({ wizard, collapsed, onToggle }) => {
@@ -104,8 +94,8 @@ export const SeccionOrigen: React.FC<Props> = ({ wizard, collapsed, onToggle }) 
   // Resumen del estado COLLAPSED
   const resumen = casillaSeleccionada ? (
     <div className="flex items-center gap-3">
-      <div className="w-10 h-10 rounded-lg bg-sky-100 flex items-center justify-center text-xl flex-shrink-0">
-        {paisEmoji(casillaSeleccionada.pais)}
+      <div className="w-10 h-10 rounded-lg bg-orange-100 flex items-center justify-center flex-shrink-0">
+        <PaisBadge pais={casillaSeleccionada.pais} />
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-1.5 flex-wrap">
@@ -194,7 +184,7 @@ export const SeccionOrigen: React.FC<Props> = ({ wizard, collapsed, onToggle }) 
               />
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-0.5">
-                  <span className="text-xl">🇵🇪</span>
+                  <PaisBadge pais="Peru" />
                   <span className="text-sm font-semibold text-slate-900">
                     Almacén Perú
                   </span>
@@ -260,8 +250,8 @@ export const SeccionOrigen: React.FC<Props> = ({ wizard, collapsed, onToggle }) 
                           : 'border-slate-200 hover:border-orange-500 hover:bg-orange-50/30'
                       }`}
                     >
-                      <div className="w-10 h-10 rounded-lg bg-sky-100 flex items-center justify-center text-xl flex-shrink-0">
-                        {paisEmoji(c.pais)}
+                      <div className="w-10 h-10 rounded-lg bg-orange-100 flex items-center justify-center flex-shrink-0">
+                        <PaisBadge pais={c.pais} />
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-1.5 flex-wrap">
