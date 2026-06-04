@@ -109,6 +109,13 @@ export const EnvioWizardPage: React.FC = () => {
         if (!s.ubicacionOrigenId && !s.ubicacionDestinoId) return undefined;
         return `${origen} → ${destino}${unidades > 0 ? ` · ${unidades} uds` : ''}`;
       },
+      // Wizard vacío (reset/inicial) → sin borrador: evita que un descarte lo re-cree.
+      isEmpty: (s) =>
+        !s.ubicacionOrigenId &&
+        !s.ubicacionDestinoId &&
+        !s.origenCategoria &&
+        !s.destinoCategoria &&
+        (s.unidadesSeleccionadas?.length ?? 0) === 0,
     });
 
   // Auto-saltar Paso 2 cuando el tipo no lo requiere (C y J)
@@ -274,6 +281,7 @@ export const EnvioWizardPage: React.FC = () => {
               tipo="envio"
               refreshKey={openCount}
               onContinuar={handleContinuarBorrador}
+              onDescartar={() => dispatch({ type: 'RESET' })}
             />
           </div>
         )}

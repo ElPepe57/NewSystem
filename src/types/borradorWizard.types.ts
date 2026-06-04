@@ -77,3 +77,31 @@ export function buildBorradorWizardId(userId: string, tipo: TipoBorradorWizard):
 export function buildBorradorLocalStorageKey(userId: string, tipo: TipoBorradorWizard): string {
   return `wizard_draft_${tipo}_${userId}`;
 }
+
+/**
+ * Evento de coordinación banner ↔ autosave.
+ *
+ * Problema que resuelve (bug "banner pegado tras Descartar"): el BorradorBanner y
+ * el hook useWizardAutosave gestionan el MISMO borrador de forma independiente.
+ * Cuando el usuario descarta desde el banner, éste borra el draft, pero el autosave
+ * —que sigue corriendo con el estado del wizard poblado— lo re-crea a los segundos.
+ *
+ * Solución: al descartar, el banner emite este evento; el autosave lo escucha y
+ * FRENA (marca limpio + borra ambas capas) para no re-crear el draft descartado.
+ */
+export const WIZARD_BORRADOR_DESCARTADO_EVENT = 'wizard:borrador-descartado';
+
+export interface BorradorDescartadoDetail {
+  tipo: TipoBorradorWizard;
+  userId: string;
+}
+
+/** Dispara el evento de descarte para que el autosave del wizard se frene. */
+export function emitirBorradorDescartado(userId: string, tipo: TipoBorradorWizard): void {
+  if (typeof window === 'undefined') return;
+  window.dispatchEvent(
+    new CustomEvent<BorradorDescartadoDetail>(WIZARD_BORRADOR_DESCARTADO_EVENT, {
+      detail: { tipo, userId },
+    })
+  );
+}

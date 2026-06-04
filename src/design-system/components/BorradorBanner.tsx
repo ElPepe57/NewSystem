@@ -35,6 +35,7 @@ import { auth } from '../../lib/firebase';
 import { borradorWizardService } from '../../services/borradorWizard.service';
 import {
   buildBorradorLocalStorageKey,
+  emitirBorradorDescartado,
   type BorradorWizard,
   type TipoBorradorWizard,
 } from '../../types/borradorWizard.types';
@@ -116,6 +117,9 @@ interface BorradorBannerProps {
   refreshKey?: number;
   /** Callback cuando el usuario hace click en "Continuar" */
   onContinuar: (borrador: BorradorWizard) => void;
+  /** Callback opcional al descartar (ej: resetear el estado del wizard). Se llama
+   *  DESPUÉS de borrar el draft y emitir el evento que frena el autosave. */
+  onDescartar?: () => void;
   /** Override opcional de totalPasos · default del LABELS */
   totalPasos?: number;
   /** Override opcional del título · default del LABELS */
@@ -140,6 +144,7 @@ export const BorradorBanner: React.FC<BorradorBannerProps> = ({
   tipo,
   refreshKey = 0,
   onContinuar,
+  onDescartar,
   totalPasos: totalPasosOverride,
   titulo: tituloOverride,
   resumenFallback: fallbackOverride,
@@ -200,8 +205,12 @@ export const BorradorBanner: React.FC<BorradorBannerProps> = ({
     } catch {
       /* silencioso */
     }
+    // Frenar el autosave del wizard para que NO re-cree el draft recién descartado
+    // (bug "banner pegado"). El hook useWizardAutosave escucha este evento.
+    emitirBorradorDescartado(userId, tipo);
     setBorrador(null);
     setDescartando(false);
+    onDescartar?.();
   };
 
   if (!borrador) return null;

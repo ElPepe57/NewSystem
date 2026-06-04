@@ -1,7 +1,11 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { borradorWizardService } from '../services/borradorWizard.service';
 import type { BorradorWizard, TipoBorradorWizard } from '../types/borradorWizard.types';
-import { buildBorradorLocalStorageKey } from '../types/borradorWizard.types';
+import {
+  buildBorradorLocalStorageKey,
+  WIZARD_BORRADOR_DESCARTADO_EVENT,
+  type BorradorDescartadoDetail,
+} from '../types/borradorWizard.types';
 import { auth } from '../lib/firebase';
 import { toMillisSafe } from '../utils/dateFormatters';
 
@@ -20,6 +24,11 @@ interface UseWizardAutosaveOptions<TState> {
   buildResumen?: (state: TState) => string | undefined;
   /** Callback opcional para extraer el monto estimado (para listado admin) */
   buildMonto?: (state: TState) => number | undefined;
+  /** Si devuelve true, el wizard se considera VACÍO → no se guarda borrador
+   *  (y se borra el de localStorage si existía). Evita drafts de wizards sin
+   *  datos y, combinado con el reset al descartar, impide que un descarte
+   *  re-cree el draft recién borrado. */
+  isEmpty?: (state: TState) => boolean;
 }
 
 interface UseWizardAutosaveResult<TState> {
@@ -75,6 +84,7 @@ export function useWizardAutosave<TState>({
   firestoreIntervalMs = 30_000,
   buildResumen,
   buildMonto,
+  isEmpty,
 }: UseWizardAutosaveOptions<TState>): UseWizardAutosaveResult<TState> {
   const [borradorExistente, setBorradorExistente] = useState<BorradorWizard | null>(null);
   const [loadingBorrador, setLoadingBorrador] = useState(true);
@@ -144,9 +154,35 @@ export function useWizardAutosave<TState>({
     };
   }, [enabled, userId, tipo, lsKey]);
 
+  // ─── Coordinación con el BorradorBanner ───────────────────────────────────
+  // Al descartar desde el banner, FRENAR el autosave para no re-crear el draft
+  // recién borrado (bug "banner pegado tras Descartar"). El banner emite el
+  // evento; acá borramos ambas capas y marcamos limpio para que la Capa 2 no
+  // re-guarde mientras el estado siga igual.
+  useEffect(() => {
+    if (!userId) return;
+    const onDescartado = (e: Event) => {
+      const detail = (e as CustomEvent<BorradorDescartadoDetail>).detail;
+      if (!detail || detail.tipo !== tipo || detail.userId !== userId) return;
+      try { localStorage.removeItem(lsKey); } catch { /* silencioso */ }
+      void borradorWizardService.delete(userId, tipo).catch(() => {});
+      setIsDirty(false);
+      setBorradorExistente(null);
+    };
+    window.addEventListener(WIZARD_BORRADOR_DESCARTADO_EVENT, onDescartado);
+    return () => window.removeEventListener(WIZARD_BORRADOR_DESCARTADO_EVENT, onDescartado);
+  }, [userId, tipo, lsKey]);
+
   // ─── Capa 1: localStorage (inmediato en cada cambio) ─────────────────────
   useEffect(() => {
     if (!enabled || !userId || !initialLoadDoneRef.current) return;
+    // Wizard VACÍO → no hay borrador que guardar: borrar el de localStorage si
+    // existía + marcar limpio (así un reset al descartar no re-crea el draft).
+    if (isEmpty?.(state)) {
+      try { localStorage.removeItem(lsKey); } catch { /* silencioso */ }
+      setIsDirty(false);
+      return;
+    }
     try {
       const payload = {
         id: `${userId}_${tipo}`,
@@ -161,7 +197,7 @@ export function useWizardAutosave<TState>({
     } catch {
       /* localStorage lleno o deshabilitado — silencioso */
     }
-  }, [state, pasoActual, enabled, userId, lsKey, tipo]);
+  }, [state, pasoActual, enabled, userId, lsKey, tipo, isEmpty]);
 
   // ─── Capa 2: Firestore (cada N segundos si hay cambios) ──────────────────
   useEffect(() => {
