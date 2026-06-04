@@ -21,6 +21,8 @@
  * E/F/G/I devuelven null hasta que S48+ agregue los campos necesarios.
  */
 import type { Envio } from '../types/envio.types';
+import type { LucideIcon } from 'lucide-react';
+import { Factory, Plane, Ship, Handshake, ArrowLeftRight, Send, Undo2, Building2, Repeat } from 'lucide-react';
 
 export type TipoRutaLogistica = 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'G' | 'I' | 'J';
 
@@ -80,7 +82,7 @@ export function deriveTipoRutaLogistica(envio: Envio): TipoRutaLogistica | null 
 
 export interface TipoRutaInfo {
   codigo: TipoRutaLogistica;
-  icono: string;       // Flecha emoji ej. "🏭→📦"
+  icon: LucideIcon;    // Ícono lucide representativo · 1 por ruta (canon F8 · 2026-06-03)
   nombreCorto: string; // Ej. "Proveedor-Casilla"
   nombreLargo: string; // Ej. "Proveedor → Casilla Internacional"
   color: 'slate' | 'sky' | 'teal' | 'amber' | 'orange' | 'yellow' | 'fuchsia' | 'violet';
@@ -89,63 +91,63 @@ export interface TipoRutaInfo {
 export const INFO_TIPO_RUTA: Record<TipoRutaLogistica, TipoRutaInfo> = {
   A: {
     codigo: 'A',
-    icono: '🏭→📦',
+    icon: Factory,
     nombreCorto: 'Proveedor-Casilla',
     nombreLargo: 'Proveedor → Casilla Internacional',
     color: 'slate',
   },
   B: {
     codigo: 'B',
-    icono: '🏭→🇵🇪',
+    icon: Plane,
     nombreCorto: 'DDP Directo',
     nombreLargo: 'DDP · Proveedor directo a Perú',
     color: 'sky',
   },
   C: {
     codigo: 'C',
-    icono: '📦→🇵🇪',
+    icon: Ship,
     nombreCorto: 'Casilla-Perú',
     nombreLargo: 'Casilla Internacional → Almacén Perú',
     color: 'teal',
   },
   D: {
     codigo: 'D',
-    icono: '🏭→👤',
+    icon: Handshake,
     nombreCorto: 'Recojo directo',
     nombreLargo: 'Compra directa del colaborador',
     color: 'amber',
   },
   E: {
     codigo: 'E',
-    icono: '🏠↔🏠',
+    icon: ArrowLeftRight,
     nombreCorto: 'Traslado interno',
     nombreLargo: 'Almacén → Almacén interno (Perú)',
     color: 'slate',
   },
   F: {
     codigo: 'F',
-    icono: '🏠→🛍️',
+    icon: Send,
     nombreCorto: 'Despacho venta',
     nombreLargo: 'Almacén → Cliente (despacho venta)',
     color: 'orange',
   },
   G: {
     codigo: 'G',
-    icono: '🛍️→🏠',
+    icon: Undo2,
     nombreCorto: 'Devolución',
     nombreLargo: 'Cliente → Almacén (devolución)',
     color: 'yellow',
   },
   I: {
     codigo: 'I',
-    icono: '🏠→🏢',
+    icon: Building2,
     nombreCorto: 'Terceros',
     nombreLargo: 'Almacén → Almacén de terceros',
     color: 'fuchsia',
   },
   J: {
     codigo: 'J',
-    icono: '📦↔📦',
+    icon: Repeat,
     nombreCorto: 'Casilla-Casilla',
     nombreLargo: 'Casilla ↔ Casilla Internacional',
     color: 'violet',

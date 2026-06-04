@@ -808,7 +808,7 @@ export const EnvioDetailModal: React.FC<EnvioDetailModalProps> = ({
                         title={infoRuta.nombreLargo}
                       >
                         <span className="font-mono text-[9px] opacity-70">{infoRuta.codigo}</span>
-                        <span>{infoRuta.icono}</span>
+                        <infoRuta.icon className="w-3 h-3" />
                         <span>{infoRuta.nombreCorto}</span>
                       </span>
                     )}

@@ -703,7 +703,7 @@ export const Envios: React.FC = () => {
           type="button"
           onClick={() => setPillFiltroEnv('todas')}
           className={`px-2.5 py-1 text-xs rounded-full transition-colors ${
-            pillFiltroEnv === 'todas' ? 'bg-teal-600 text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+            pillFiltroEnv === 'todas' ? 'bg-orange-600 text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
           }`}
         >
           Todas <span className="ml-1 opacity-75">({enviosPorLinea.length})</span>
@@ -712,7 +712,7 @@ export const Envios: React.FC = () => {
           type="button"
           onClick={() => setPillFiltroEnv('activas')}
           className={`px-2.5 py-1 text-xs rounded-full transition-colors ${
-            pillFiltroEnv === 'activas' ? 'bg-teal-600 text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+            pillFiltroEnv === 'activas' ? 'bg-orange-600 text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
           }`}
         >
           Activas ({enviosStatsExtra.countActivas})
@@ -721,7 +721,7 @@ export const Envios: React.FC = () => {
           type="button"
           onClick={() => setPillFiltroEnv('incidencias')}
           className={`px-2.5 py-1 text-xs rounded-full transition-colors ${
-            pillFiltroEnv === 'incidencias' ? 'bg-teal-600 text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+            pillFiltroEnv === 'incidencias' ? 'bg-orange-600 text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
           }`}
         >
           Con incidencias ({enviosStatsExtra.countIncidencias})
@@ -732,7 +732,7 @@ export const Envios: React.FC = () => {
           onClick={() => setPillFiltroEnv('tramo1')}
           title="Envíos con origen proveedor (Tramo 1 — lo que el proveedor te envía a la casilla)"
           className={`px-2.5 py-1 text-xs rounded-full transition-colors flex items-center gap-1 ${
-            pillFiltroEnv === 'tramo1' ? 'bg-teal-600 text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+            pillFiltroEnv === 'tramo1' ? 'bg-orange-600 text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
           }`}
         >
           <Package className="w-3 h-3" />
@@ -741,7 +741,7 @@ export const Envios: React.FC = () => {
         <select
           value={filtroCourier}
           onChange={(e) => setFiltroCourier(e.target.value)}
-          className="text-xs border border-slate-300 rounded-lg px-2 py-1 bg-white focus:outline-none focus:ring-1 focus:ring-teal-500"
+          className="text-xs border border-slate-300 rounded-lg px-2 py-1 bg-white focus:outline-none focus:ring-1 focus:ring-orange-500"
         >
           <option value="">Todos los couriers</option>
           {couriersUnicos.map((c) => (
@@ -770,7 +770,7 @@ export const Envios: React.FC = () => {
             type="button"
             onClick={() => setFiltroTipoRuta('')}
             className={`px-2.5 py-1 text-xs rounded-full transition-colors ${
-              filtroTipoRuta === '' ? 'bg-teal-600 text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+              filtroTipoRuta === '' ? 'bg-orange-600 text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
             }`}
             title="Ver todos los tipos de ruta"
           >
@@ -790,13 +790,13 @@ export const Envios: React.FC = () => {
                 title={info.nombreLargo}
                 className={`px-2.5 py-1 text-xs rounded-full transition-colors flex items-center gap-1.5 ${
                   activo
-                    ? 'bg-teal-600 text-white ring-2 ring-teal-300'
+                    ? 'bg-orange-600 text-white ring-2 ring-orange-300'
                     : count === 0
                       ? 'bg-slate-50 text-slate-400 border border-slate-100 cursor-not-allowed opacity-60'
                       : 'bg-slate-50 text-slate-700 hover:bg-slate-100 border border-slate-200 cursor-pointer'
                 }`}
               >
-                <span className="text-[11px]">{info.icono}</span>
+                <info.icon className="w-3 h-3" />
                 <span>{info.nombreCorto}</span>
                 <span className="font-mono text-[10px] opacity-70">· {codigo}</span>
                 <span className={`font-semibold ${activo ? 'text-white/90' : 'text-slate-500'}`}>({count})</span>
@@ -861,7 +861,7 @@ export const Envios: React.FC = () => {
       {/* Lista de envios */}
       {loading ? (
         <div className="flex items-center justify-center py-12">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600"></div>
         </div>
       ) : enviosFiltrados.length === 0 ? (
         <Card padding="lg">
@@ -914,7 +914,7 @@ export const Envios: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setItemsVisiblesEnv((n) => n + 12)}
-                className="text-xs font-medium text-teal-600 hover:text-teal-700 hover:underline"
+                className="text-xs font-medium text-orange-600 hover:text-orange-700 hover:underline"
               >
                 Cargar más
               </button>

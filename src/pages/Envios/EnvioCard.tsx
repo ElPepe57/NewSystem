@@ -616,7 +616,7 @@ export const EnvioCard: React.FC<EnvioCardProps> = ({ envio, onSelect }) => {
               )}
               title={infoRuta.nombreLargo}
             >
-              <span>{infoRuta.icono}</span>
+              <infoRuta.icon className="w-3 h-3" />
               <span>{infoRuta.nombreCorto}</span>
               <span className="font-mono text-[9px] opacity-70">· {infoRuta.codigo}</span>
             </span>
