@@ -65,8 +65,19 @@ const WIZARD_STEPS: WizardStep[] = [
   },
 ];
 
-export const EnvioWizardPage: React.FC = () => {
+interface EnvioWizardPageProps {
+  /** Cierre del wizard (cancelar/salir). Modo modal: lo pasa Envios.tsx. Si no se
+   *  provee, navega a /envios (compat con la ruta legacy /envios/nuevo). */
+  onClose?: () => void;
+  /** Llamado tras crear el envío con éxito (el padre cierra + refresca la lista). */
+  onCreated?: () => void;
+}
+
+export const EnvioWizardPage: React.FC<EnvioWizardPageProps> = ({ onClose, onCreated }) => {
   const navigate = useNavigate();
+  // Patrón modal (canon · consistente con OCWizardV3/Compras): el cierre lo decide
+  // el padre vía onClose. Fallback a navigate para la ruta legacy.
+  const cerrar = onClose ?? (() => navigate('/envios'));
   const { user } = useAuthStore();
   const toast = useToastStore();
   const wizard = useEnvioWizardState();
@@ -159,19 +170,19 @@ export const EnvioWizardPage: React.FC = () => {
       setShowExitConfirm(true);
       return;
     }
-    navigate('/envios');
+    cerrar();
   };
 
   const handleGuardarBorradorYSalir = async () => {
     await forceSave();
     setShowExitConfirm(false);
-    navigate('/envios');
+    cerrar();
   };
 
   const handleDescartarYSalir = async () => {
     await descartarBorrador();
     setShowExitConfirm(false);
-    navigate('/envios');
+    cerrar();
   };
 
   const handleSeguirEditando = () => {
@@ -214,7 +225,7 @@ export const EnvioWizardPage: React.FC = () => {
         `Envío ${resultado.numeroEnvio} creado (${tipoConfig?.nombre})`,
         '✓ Envío creado'
       );
-      navigate(`/envios`);
+      (onCreated ?? cerrar)();
     } catch (error: any) {
       const mensaje = error?.message || 'Error desconocido al crear el envío';
       dispatch({ type: 'SUBMIT_ERROR', error: mensaje });

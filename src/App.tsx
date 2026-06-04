@@ -30,9 +30,6 @@ const WizardGPage = React.lazy(() =>
   import('./pages/Envios/EnvioWizardG').then(m => ({ default: m.WizardGPage }))
 );
 // S53 — Wizard UNIFICADO de envíos (v7 aprobado en S52). Ruta: /envios/nuevo
-const EnvioWizardPage = React.lazy(() =>
-  import('./pages/Envios/EnvioWizard/EnvioWizardPage').then(m => ({ default: m.EnvioWizardPage }))
-);
 const Unidades = React.lazy(() => import('./pages/Unidades/Unidades').then(m => ({ default: m.Unidades })));
 const TipoCambio = React.lazy(() => import('./pages/TipoCambio/TipoCambio').then(m => ({ default: m.TipoCambio })));
 const OrdenesCompra = React.lazy(() => import('./pages/OrdenesCompra/OrdenesCompra').then(m => ({ default: m.OrdenesCompra })));
@@ -200,9 +197,10 @@ function App() {
               <Route path="intel-productos/:workspace" element={<IntelProductosPage />} />
               <Route path="inventario" element={<Inventario />} />
               <Route path="envios" element={<Envios />} />
-              {/* S53 — Wizard UNIFICADO (v7). Ruta principal de creación de envíos
-                   para los 4 tipos C/J/E/I (el tipo se infiere del origen+destino). */}
-              <Route path="envios/nuevo" element={<EnvioWizardPage />} />
+              {/* chk5.ENVIOS-CONSISTENCIA · La creación de envíos pasó de ruta-página
+                   a MODAL montado en /envios (canon · consistente con los demás módulos).
+                   Esta ruta legacy redirige al hub; el botón "Nuevo envío" abre el modal. */}
+              <Route path="envios/nuevo" element={<Navigate to="/envios" replace />} />
               {/* S49/S51 — Wizards F (despacho venta) y G (retorno devolución) siguen
                    activos hasta T-F y T-G que los migran a Ventas/Devoluciones. */}
               <Route path="envios/nuevo-f" element={<WizardFPage />} />

@@ -78,10 +78,18 @@ import {
   type TipoRutaLogistica,
 } from '../../utils/envio.tipoRuta.helpers';
 
+// chk5.ENVIOS-CONSISTENCIA · El wizard de creación se monta como MODAL en esta
+// página (canon · consistente con OCWizardV3 de Compras y los demás módulos), no
+// como ruta-página aparte. Lazy para no bloar el chunk de Envios (carga al abrir).
+const EnvioWizardModal = React.lazy(() =>
+  import('./EnvioWizard/EnvioWizardPage').then((m) => ({ default: m.EnvioWizardPage }))
+);
+
 type TabEnvios = 'resumen' | 'operaciones' | 'incidencias' | 'reclamos' | 'costos' | 'rendimiento';
 
 export const Envios: React.FC = () => {
   const [tabEnvios, setTabEnvios] = useState<TabEnvios>('resumen');
+  const [showWizard, setShowWizard] = useState(false); // modal de creación de envío
   const user = useAuthStore(state => state.user);
   const userProfile = useAuthStore((s) => s.userProfile);
   const esAdmin = hasRole(userProfile, 'admin'); // canon "admin ve todo" · chip contextual al rol
@@ -651,7 +659,7 @@ export const Envios: React.FC = () => {
           }
           acciones={[
             { label: 'Exportar', icon: Download, onClick: () => exportService.exportEnvios(enviosPorLinea), tier: 'neutral', disabled: enviosPorLinea.length === 0 },
-            { label: 'Nuevo envío', icon: Plus, onClick: () => navigate('/envios/nuevo'), tier: 'primary' },
+            { label: 'Nuevo envío', icon: Plus, onClick: () => setShowWizard(true), tier: 'primary' },
           ]}
         />
         {/* KPI strip persistente · color SEMÁNTICO (N1/N2) + mini-stats (N3) · canon Hub */}
@@ -675,7 +683,7 @@ export const Envios: React.FC = () => {
             <div className="p-4 sm:p-6">
               <TabResumenEnvios
                 data={resumenEnviosData}
-                onNuevoEnvio={() => navigate('/envios/nuevo')}
+                onNuevoEnvio={() => setShowWizard(true)}
                 onIrATab={setTabEnvios}
               />
             </div>
@@ -867,7 +875,7 @@ export const Envios: React.FC = () => {
               }
             </p>
             {activeTab === 'todas' && (
-              <Button variant="primary" onClick={() => navigate('/envios/nuevo')}>
+              <Button variant="primary" onClick={() => setShowWizard(true)}>
                 <Plus className="h-5 w-5 mr-2" />
                 Nuevo Envio
               </Button>
@@ -1012,6 +1020,22 @@ export const Envios: React.FC = () => {
           productosMap={productosMapGlobal}
           onConfirm={handleDespacharEnvioSubmit}
         />
+      )}
+
+      {/* Wizard de creación de envío · MODAL (canon · reemplaza la ruta /envios/nuevo) */}
+      {showWizard && (
+        <React.Suspense fallback={null}>
+          <EnvioWizardModal
+            onClose={() => setShowWizard(false)}
+            onCreated={() => {
+              setShowWizard(false);
+              fetchEnvios();
+              fetchEnTransito();
+              fetchPendientesRecepcion();
+              fetchResumen();
+            }}
+          />
+        </React.Suspense>
       )}
 
       {/* Dialogo de Confirmacion */}
