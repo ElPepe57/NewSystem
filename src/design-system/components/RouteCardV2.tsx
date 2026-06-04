@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowRight, ChevronRight, Check, Copy } from 'lucide-react';
+import { ArrowRight, ChevronRight, Check, Copy, Globe } from 'lucide-react';
 import { cn } from '../utils';
 
 /**
@@ -21,7 +21,7 @@ import { cn } from '../utils';
 export type RouteNodeBadgeVariant = 'emerald' | 'sky' | 'amber' | 'slate';
 
 export interface RouteCardV2Node {
-  /** Emoji bandera. Si no se provee, usar `icon`. */
+  /** Código de país (PE/US/CN…). Si no se provee, usa `icon` o un Globe neutro. */
   flag?: string;
   /** Ícono custom que reemplaza al flag (ej: ícono cliente, almacén). */
   icon?: React.ReactNode;
@@ -255,8 +255,12 @@ const Nodo: React.FC<{ nodo: RouteCardV2Node }> = ({ nodo }) => (
     <div className="flex items-center gap-1.5 mb-1 flex-wrap">
       {nodo.icon ? (
         <span className="flex-shrink-0">{nodo.icon}</span>
+      ) : nodo.flag ? (
+        <span className="text-[10px] font-bold text-slate-500 tabular-nums bg-slate-100 px-1.5 py-0.5 rounded flex-shrink-0">
+          {nodo.flag}
+        </span>
       ) : (
-        <span className="text-lg flex-shrink-0">{nodo.flag ?? '🌐'}</span>
+        <Globe className="w-4 h-4 text-slate-400 flex-shrink-0" />
       )}
       <span className="font-semibold text-sm text-slate-900 truncate">
         {nodo.nombre}
@@ -419,25 +423,25 @@ const PipelineRow: React.FC<{ steps: RouteCardV2PipelineStep[] }> = ({ steps }) 
  * Reemplaza el helper privado `getFlag` de EnvioDetailModal (L1786).
  */
 export function getFlagFromPais(pais?: string | null): string {
-  if (!pais) return '🌐';
-  const flags: Record<string, string> = {
-    USA: '🇺🇸',
-    'Estados Unidos': '🇺🇸',
-    EEUU: '🇺🇸',
-    CHINA: '🇨🇳',
-    China: '🇨🇳',
-    COREA: '🇰🇷',
-    Corea: '🇰🇷',
-    'Corea del Sur': '🇰🇷',
-    JAPÓN: '🇯🇵',
-    Japón: '🇯🇵',
-    Japon: '🇯🇵',
-    MÉXICO: '🇲🇽',
-    México: '🇲🇽',
-    Mexico: '🇲🇽',
-    PERÚ: '🇵🇪',
-    Perú: '🇵🇪',
-    Peru: '🇵🇪',
+  if (!pais) return '';
+  const codigos: Record<string, string> = {
+    USA: 'US',
+    'Estados Unidos': 'US',
+    EEUU: 'US',
+    CHINA: 'CN',
+    China: 'CN',
+    COREA: 'KR',
+    Corea: 'KR',
+    'Corea del Sur': 'KR',
+    JAPÓN: 'JP',
+    Japón: 'JP',
+    Japon: 'JP',
+    MÉXICO: 'MX',
+    México: 'MX',
+    Mexico: 'MX',
+    PERÚ: 'PE',
+    Perú: 'PE',
+    Peru: 'PE',
   };
-  return flags[pais] ?? '🌐';
+  return codigos[pais] ?? '';
 }

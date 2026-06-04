@@ -7,6 +7,7 @@
  * con warning + auditoría.
  */
 import React, { useState, useEffect } from 'react';
+import { AlertTriangle, Repeat } from 'lucide-react';
 import { useTipoCambio } from '../../../../hooks/useTipoCambio';
 
 interface Props {
@@ -68,7 +69,7 @@ export const TCChip: React.FC<Props> = ({ tc, overrideActivo, onChange }) => {
     return (
       <div className="bg-amber-50 border-2 border-amber-300 rounded-xl p-4 space-y-3">
         <div className="flex items-start gap-3">
-          <span className="text-2xl flex-shrink-0">⚠️</span>
+          <AlertTriangle className="w-6 h-6 text-amber-600 flex-shrink-0 mt-0.5" />
           <div className="flex-1 text-xs">
             <div className="font-bold text-amber-900 mb-0.5">
               Reemplazar TC oficial del día
@@ -129,7 +130,7 @@ export const TCChip: React.FC<Props> = ({ tc, overrideActivo, onChange }) => {
   return (
     <div className={`border rounded-xl p-3 flex items-center justify-between ${bgClass}`}>
       <div className="flex items-center gap-3">
-        <span className="text-2xl">💱</span>
+        <Repeat className="w-6 h-6 text-slate-500" />
         <div>
           <div className="text-sm font-semibold text-slate-900 tabular-nums">
             {tc > 0 ? tc.toFixed(3) : '—'}{' '}

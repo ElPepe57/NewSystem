@@ -5,7 +5,7 @@
  * desde la venta + KPIs + efectos al confirmar.
  */
 import React from 'react';
-import { User, MapPin, Phone, Package } from 'lucide-react';
+import { User, MapPin, Phone, Package, Truck } from 'lucide-react';
 import { RouteVisual, type RouteNode, type RouteSegment } from '../../../design-system';
 import { cn } from '../../../design-system';
 import type { EnvioWizardFState, EnvioWizardFAction } from './envioWizardFTypes';
@@ -37,14 +37,13 @@ export const EnvioFStepConfirm: React.FC<EnvioFStepConfirmProps> = ({ state, dis
   const nodes: RouteNode[] = [
     {
       tipo: 'almacen',
-      flag: '🇵🇪',
+      flag: 'PE',
       nombre: state.almacenOrigenNombre || 'Almacén origen',
       subtexto: 'Perú',
       state: 'done',
     },
     {
       tipo: 'destino',
-      flag: '🏠',
       nombre: cliente?.nombreCliente || 'Cliente',
       subtexto: cliente?.distrito || 'Despacho a domicilio',
       state: 'done',
@@ -55,7 +54,7 @@ export const EnvioFStepConfirm: React.FC<EnvioFStepConfirmProps> = ({ state, dis
       label: state.colaboradorTransporteNombre || 'Delivery',
       subtexto: state.colaboradorTransporteId ? 'Transportista local' : 'Sin transportista asignado',
       state: 'done',
-      icon: '🚚',
+      icon: <Truck className="w-4 h-4" />,
     },
   ];
 
@@ -141,14 +140,14 @@ export const EnvioFStepConfirm: React.FC<EnvioFStepConfirmProps> = ({ state, dis
           className={cn(
             'border border-l-4 rounded-lg p-4',
             totalCostosPEN > 0
-              ? 'bg-teal-50 border-teal-200 border-l-teal-500'
+              ? 'bg-orange-50 border-orange-200 border-l-orange-500'
               : 'bg-slate-50 border-slate-200 border-l-slate-300'
           )}
         >
           <p
             className={cn(
               'text-xs font-medium uppercase tracking-wider',
-              totalCostosPEN > 0 ? 'text-teal-600' : 'text-slate-500'
+              totalCostosPEN > 0 ? 'text-orange-600' : 'text-slate-500'
             )}
           >
             Costos del despacho
@@ -156,24 +155,24 @@ export const EnvioFStepConfirm: React.FC<EnvioFStepConfirmProps> = ({ state, dis
           <p
             className={cn(
               'text-2xl font-bold tabular-nums mt-1',
-              totalCostosPEN > 0 ? 'text-teal-900' : 'text-slate-400'
+              totalCostosPEN > 0 ? 'text-orange-900' : 'text-slate-400'
             )}
           >
             S/ {totalCostosPEN.toFixed(0)}
           </p>
-          <p className={cn('text-xs mt-0.5', totalCostosPEN > 0 ? 'text-teal-700' : 'text-slate-500')}>
+          <p className={cn('text-xs mt-0.5', totalCostosPEN > 0 ? 'text-orange-700' : 'text-slate-500')}>
             {totalCostosPEN > 0 ? 'PEN · delivery / costos locales' : 'Sin costos capturados'}
           </p>
         </div>
       </div>
 
       {/* Efectos */}
-      <div className="bg-sky-50 border border-sky-200 rounded-xl p-4">
+      <div className="bg-orange-50 border border-orange-200 rounded-xl p-4">
         <div className="flex items-center gap-2 mb-2">
-          <Package className="w-4 h-4 text-sky-700" />
-          <div className="text-sm font-semibold text-sky-900">Al confirmar se creará:</div>
+          <Package className="w-4 h-4 text-orange-700" />
+          <div className="text-sm font-semibold text-orange-900">Al confirmar se creará:</div>
         </div>
-        <ul className="text-xs text-sky-800 space-y-1.5 pl-7 list-disc">
+        <ul className="text-xs text-orange-800 space-y-1.5 pl-7 list-disc">
           <li>
             Envío <strong>Caso F (despacho venta)</strong> en estado{' '}
             <strong>
@@ -218,7 +217,7 @@ export const EnvioFStepConfirm: React.FC<EnvioFStepConfirmProps> = ({ state, dis
           onChange={(e) => dispatch({ type: 'SET_NOTAS', notas: e.target.value })}
           rows={2}
           placeholder="Ej. Entrega en horario de oficina, llamar antes de llegar, etc."
-          className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+          className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
         />
       </div>
     </div>

@@ -21,7 +21,7 @@
  * el envío es de tipo T1 (A/B/D).
  */
 import React, { useMemo, useState } from 'react';
-import { Package, Plus, CheckCircle2, Truck, Clock, PackageCheck } from 'lucide-react';
+import { Package, Plus, CheckCircle2, Truck, Clock, PackageCheck, Calendar } from 'lucide-react';
 import type { Envio, SubEnvioT1, EstadoSubEnvio } from '../../../types/envio.types';
 import { SubEnvioTimelineItem, SubEnviosTimelineLinea } from './SubEnvioTimelineItem';
 import type { SubEnvioTimelineItemProductoInfo } from './SubEnvioTimelineItem';
@@ -251,7 +251,7 @@ export const SubEnviosTimeline: React.FC<SubEnviosTimelineProps> = ({
       {/* Header con título + acción */}
       <div className="px-5 py-3 border-b border-slate-200 flex items-center justify-between gap-3 flex-wrap">
         <div className="flex items-center gap-2">
-          <span className="text-base" aria-hidden>📅</span>
+          <Calendar className="w-4 h-4 text-slate-500" aria-hidden />
           <h4 className="text-sm font-semibold text-slate-900">
             Tandas del proveedor ({subEnvios.length})
           </h4>

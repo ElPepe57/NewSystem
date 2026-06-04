@@ -13,6 +13,7 @@
  *   - Auto-carga tramosPeso del colaborador seleccionado
  */
 import React, { useEffect, useMemo, useState } from 'react';
+import { type LucideIcon, Plane, Ship, Truck, Package, Search, Lightbulb, Scale, Clock } from 'lucide-react';
 import { useColaboradorStore } from '../../../../store/colaboradorStore';
 import { TCChip } from '../shared/TCChip';
 import { TablaCalculoTramos } from '../shared/TablaCalculoTramos';
@@ -60,11 +61,11 @@ const MODALIDADES: {
 const MODOS_TRANSPORTE: {
   value: ModoTransporte;
   label: string;
-  icon: string;
+  icon: LucideIcon;
 }[] = [
-  { value: 'aereo', label: 'Aéreo', icon: '✈️' },
-  { value: 'maritimo', label: 'Marítimo', icon: '🚢' },
-  { value: 'terrestre', label: 'Terrestre', icon: '🚚' },
+  { value: 'aereo', label: 'Aéreo', icon: Plane },
+  { value: 'maritimo', label: 'Marítimo', icon: Ship },
+  { value: 'terrestre', label: 'Terrestre', icon: Truck },
 ];
 
 export const Paso3Logistica: React.FC<Props> = ({ wizard }) => {
@@ -124,7 +125,7 @@ export const Paso3Logistica: React.FC<Props> = ({ wizard }) => {
       {/* Banner: costos pueden registrarse antes/durante/después */}
       <div className="bg-sky-50 border border-sky-200 rounded-lg p-3 flex items-start gap-3">
         <div className="w-8 h-8 rounded-full bg-white border border-sky-200 flex items-center justify-center flex-shrink-0">
-          ⏱️
+          <Clock className="w-4 h-4 text-sky-600" />
         </div>
         <div className="flex-1 text-xs text-sky-900">
           <div className="font-semibold mb-0.5">
@@ -156,8 +157,8 @@ export const Paso3Logistica: React.FC<Props> = ({ wizard }) => {
               }`}
             >
               <div className="flex items-start gap-3">
-                <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center flex-shrink-0 text-xl">
-                  ✈️
+                <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <Plane className="w-5 h-5 text-orange-600" />
                 </div>
                 <div>
                   <div className="text-sm font-semibold text-slate-900">
@@ -186,8 +187,8 @@ export const Paso3Logistica: React.FC<Props> = ({ wizard }) => {
               }`}
             >
               <div className="flex items-start gap-3">
-                <div className="w-10 h-10 bg-slate-100 rounded-lg flex items-center justify-center flex-shrink-0 text-xl">
-                  📦
+                <div className="w-10 h-10 bg-slate-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <Package className="w-5 h-5 text-slate-500" />
                 </div>
                 <div>
                   <div className="text-sm font-semibold text-slate-700">
@@ -216,8 +217,8 @@ export const Paso3Logistica: React.FC<Props> = ({ wizard }) => {
               }`}
             >
               <div className="flex items-start gap-3">
-                <div className="w-10 h-10 bg-slate-100 rounded-lg flex items-center justify-center flex-shrink-0 text-xl">
-                  🚚
+                <div className="w-10 h-10 bg-slate-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <Truck className="w-5 h-5 text-slate-500" />
                 </div>
                 <div>
                   <div className="text-sm font-semibold text-slate-700">
@@ -239,9 +240,7 @@ export const Paso3Logistica: React.FC<Props> = ({ wizard }) => {
               Colaborador específico
             </label>
             <div className="relative mb-2">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">
-                🔍
-              </span>
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
               <input
                 type="text"
                 value={busquedaColab}
@@ -296,10 +295,10 @@ export const Paso3Logistica: React.FC<Props> = ({ wizard }) => {
                       </div>
                       {tieneTramos && (
                         <span
-                          className="text-[10px] px-1.5 py-0.5 bg-amber-100 text-amber-800 rounded whitespace-nowrap flex-shrink-0"
+                          className="inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 bg-amber-100 text-amber-800 rounded whitespace-nowrap flex-shrink-0"
                           title="Tiene tarifa por tramos preset"
                         >
-                          ⚖️ Tramos
+                          <Scale className="w-3 h-3" /> Tramos
                         </span>
                       )}
                     </div>
@@ -333,7 +332,9 @@ export const Paso3Logistica: React.FC<Props> = ({ wizard }) => {
                       : 'border-slate-200 hover:border-orange-500'
                   }`}
                 >
-                  <div className="text-xl mb-0.5">{m.icon}</div>
+                  <div className="flex justify-center mb-0.5">
+                    <m.icon className="w-5 h-5 text-orange-600" />
+                  </div>
                   <div
                     className={`text-xs ${
                       selected ? 'font-semibold text-slate-900' : 'text-slate-700'
@@ -504,7 +505,12 @@ export const Paso3Logistica: React.FC<Props> = ({ wizard }) => {
                           )?.costoUnitario || 0;
                         return (
                           <tr key={u.productoId}>
-                            <td className="px-3 py-2">📦 {u.productoNombre}</td>
+                            <td className="px-3 py-2">
+                              <span className="inline-flex items-center gap-1.5">
+                                <Package className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
+                                {u.productoNombre}
+                              </span>
+                            </td>
                             <td className="px-3 py-2 text-right tabular-nums">
                               {u.cantidadSeleccionada}
                             </td>
@@ -562,7 +568,7 @@ export const Paso3Logistica: React.FC<Props> = ({ wizard }) => {
               {/* Banner: tramos cargados del colaborador */}
               {state.colaboradorTransporteId && state.tramosPeso.length > 0 && (
                 <div className="bg-sky-50 border border-sky-200 rounded-lg p-3 flex items-start gap-3">
-                  <span className="text-xl flex-shrink-0">💡</span>
+                  <Lightbulb className="w-5 h-5 text-sky-600 flex-shrink-0 mt-0.5" />
                   <div className="text-xs flex-1">
                     <div className="font-semibold text-sky-900 mb-0.5">
                       Tramos cargados del acuerdo preset de{' '}
@@ -637,7 +643,7 @@ export const Paso3Logistica: React.FC<Props> = ({ wizard }) => {
       {/* Recordatorio cierre operativo ≠ financiero */}
       <div className="bg-amber-50 border-l-4 border-amber-400 rounded-r-lg p-4">
         <div className="flex items-start gap-3">
-          <span className="text-2xl flex-shrink-0">⏱️</span>
+          <Clock className="w-6 h-6 text-amber-600 flex-shrink-0 mt-0.5" />
           <div className="flex-1 text-xs">
             <div className="font-bold text-amber-900 mb-1">
               Cierre operativo ≠ Cierre financiero

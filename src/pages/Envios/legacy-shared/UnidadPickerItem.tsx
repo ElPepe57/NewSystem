@@ -20,6 +20,7 @@
  *  />
  */
 import React from 'react';
+import { Tag } from 'lucide-react';
 import { cn } from '../../../design-system';
 
 export interface UnidadPickerItemProps {
@@ -75,7 +76,7 @@ export const UnidadPickerItem: React.FC<UnidadPickerItemProps> = ({
         disabled={disabled}
         className="w-4 h-4 rounded border-slate-300 text-teal-600 focus:ring-teal-500 disabled:cursor-not-allowed"
       />
-      <span className="text-base flex-shrink-0" aria-hidden>🏷️</span>
+      <Tag className="w-4 h-4 flex-shrink-0 text-slate-400" aria-hidden />
       <div className="flex-1 min-w-0 flex items-center gap-2 flex-wrap">
         <span className="font-mono text-xs text-slate-700">#{codigoUnidad}</span>
         {reservadaParaLabel && (

@@ -12,7 +12,7 @@
  *   - Si origen='almacen_peru': destino puede ser almacen_peru (E) o almacen_tercero (I)
  */
 import React, { useState, useEffect, useMemo } from 'react';
-import { Globe, Factory, type LucideIcon } from 'lucide-react';
+import { Globe, Factory, Search, AlertTriangle, Inbox, type LucideIcon } from 'lucide-react';
 import { PaisBadge } from '../../shared/PaisBadge';
 import { useAlmacenStore } from '../../../../../store/casillaStore';
 import type { Casilla } from '../../../../../types/casilla.types';
@@ -182,7 +182,7 @@ export const SeccionDestino: React.FC<Props> = ({
         {/* Banner D-9 · advertencia de cambio de país para tipo J */}
         {state.advertenciaCambioPais && (
           <div className="bg-amber-50 border-2 border-amber-300 rounded-lg p-3 flex items-start gap-3">
-            <span className="text-xl flex-shrink-0">⚠️</span>
+            <AlertTriangle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
             <div className="text-xs">
               <div className="font-semibold text-amber-900 mb-0.5">
                 Cambio de país detectado
@@ -262,9 +262,7 @@ export const SeccionDestino: React.FC<Props> = ({
             </label>
 
             <div className="relative mb-3">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">
-                🔍
-              </span>
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
               <input
                 type="text"
                 value={busqueda}
@@ -276,7 +274,7 @@ export const SeccionDestino: React.FC<Props> = ({
 
             {ubicacionesDisponibles.length === 0 ? (
               <div className="bg-slate-50 border border-dashed border-slate-300 rounded-lg p-4 text-center">
-                <div className="text-2xl mb-1">📭</div>
+                <Inbox className="w-7 h-7 text-slate-300 mx-auto mb-1" />
                 <p className="text-xs text-slate-600">
                   {busqueda
                     ? 'Sin resultados para esa búsqueda.'

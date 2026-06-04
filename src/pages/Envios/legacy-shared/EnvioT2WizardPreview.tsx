@@ -19,26 +19,28 @@
  * selectMontoTotalFlete, selectTotalLandedUSD).
  */
 import React from 'react';
+import { Target } from 'lucide-react';
 import { cn } from '../../../design-system';
+import { PaisBadge } from '../EnvioWizard/shared/PaisBadge';
 
 export interface EnvioT2WizardPreviewProps {
   // ─── Ruta ───
-  /** Bandera emoji del país de origen (ej: "🇺🇸") */
-  origenFlag?: string;
+  /** País de origen (ej: "USA", "China") — se renderiza como PaisBadge */
+  origenPais?: string;
   /** Nombre corto de la casilla origen (ej: "Felicita") */
   origenNombre?: string;
   /** Subtexto del origen (ej: "Miami") */
   origenSubtexto?: string;
 
-  /** Bandera emoji del país destino (default: "🇵🇪") */
-  destinoFlag?: string;
+  /** País destino (ej: "Peru") — se renderiza como PaisBadge. Default "Peru" */
+  destinoPais?: string;
   /** Nombre corto del almacén destino (ej: "Lima Centro") */
   destinoNombre?: string;
   /** Subtexto del destino (ej: "Almacén") */
   destinoSubtexto?: string;
 
-  /** Icono del tipo de transporte entre origen y destino (ej: "✈️", "📦") */
-  transporteIcono?: string;
+  /** Ícono del tipo de transporte entre origen y destino (lucide ReactNode). */
+  transporteIcono?: React.ReactNode;
   /** Nombre del colaborador del transporte (ej: "Juan Pérez") */
   colaboradorNombre?: string;
 
@@ -62,7 +64,7 @@ export interface EnvioT2WizardPreviewProps {
   autoguardadoLabel?: string;
 
   // ─── Estilo ───
-  /** Si se muestra el "Gran total" destacado en teal (solo en paso 5) */
+  /** Si se muestra el "Gran total" destacado en orange (solo en paso 5) */
   destacarTotal?: boolean;
   /** Clase adicional */
   className?: string;
@@ -75,10 +77,10 @@ const formatPEN = (n: number): string =>
   `S/ ${n.toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
 export const EnvioT2WizardPreview: React.FC<EnvioT2WizardPreviewProps> = ({
-  origenFlag = '🌎',
+  origenPais,
   origenNombre = 'Origen',
   origenSubtexto,
-  destinoFlag = '🇵🇪',
+  destinoPais = 'Peru',
   destinoNombre = 'Destino',
   destinoSubtexto,
   transporteIcono,
@@ -111,7 +113,7 @@ export const EnvioT2WizardPreview: React.FC<EnvioT2WizardPreviewProps> = ({
         <div className="flex items-center gap-2">
           {/* Origen */}
           <div className="flex flex-col items-center min-w-0">
-            <span className="text-2xl" aria-hidden>{origenFlag}</span>
+            <PaisBadge pais={origenPais} size="md" />
             <div
               className={cn(
                 'text-[10px] font-medium mt-1 truncate max-w-[70px]',
@@ -132,7 +134,7 @@ export const EnvioT2WizardPreview: React.FC<EnvioT2WizardPreviewProps> = ({
             <div
               className={cn(
                 'h-px flex-1',
-                hayOrigen && hayDestino ? 'bg-teal-400' : 'bg-slate-300'
+                hayOrigen && hayDestino ? 'bg-orange-400' : 'bg-slate-300'
               )}
             />
             {transporteIcono && (
@@ -157,14 +159,14 @@ export const EnvioT2WizardPreview: React.FC<EnvioT2WizardPreviewProps> = ({
             <div
               className={cn(
                 'h-px flex-1',
-                hayOrigen && hayDestino ? 'bg-teal-400' : 'bg-slate-300'
+                hayOrigen && hayDestino ? 'bg-orange-400' : 'bg-slate-300'
               )}
             />
           </div>
 
           {/* Destino */}
           <div className="flex flex-col items-center min-w-0">
-            <span className="text-2xl" aria-hidden>{destinoFlag}</span>
+            <PaisBadge pais={destinoPais} size="md" />
             <div
               className={cn(
                 'text-[10px] font-medium mt-1 truncate max-w-[80px]',
@@ -204,7 +206,9 @@ export const EnvioT2WizardPreview: React.FC<EnvioT2WizardPreviewProps> = ({
         </div>
         {prioritariasTotales > 0 && (
           <div className="flex items-center justify-between text-xs">
-            <span className="text-slate-500">🎯 Pre-vendidas</span>
+            <span className="text-slate-500 flex items-center gap-1">
+              <Target className="w-3.5 h-3.5" aria-hidden /> Pre-vendidas
+            </span>
             <span className="font-semibold text-emerald-700 tabular-nums">
               {prioritariasCount} de {prioritariasTotales}
             </span>
@@ -225,7 +229,7 @@ export const EnvioT2WizardPreview: React.FC<EnvioT2WizardPreviewProps> = ({
           <span
             className={cn(
               'font-semibold tabular-nums',
-              landedUSD > 0 ? 'text-teal-700' : 'text-slate-400'
+              landedUSD > 0 ? 'text-orange-700' : 'text-slate-400'
             )}
           >
             {landedUSD > 0 ? '+' : ''}{formatUSD(landedUSD)}
@@ -270,15 +274,15 @@ export const EnvioT2WizardPreview: React.FC<EnvioT2WizardPreviewProps> = ({
 
       {/* ─── Gran total destacado (solo paso 5) ─── */}
       {destacarTotal && (
-        <div className="bg-teal-50 border border-teal-200 rounded-xl p-3">
-          <div className="text-[10px] font-semibold uppercase tracking-wider text-teal-700 mb-1">
+        <div className="bg-orange-50 border border-orange-200 rounded-xl p-3">
+          <div className="text-[10px] font-semibold uppercase tracking-wider text-orange-700 mb-1">
             Gran total del envío
           </div>
-          <div className="text-2xl font-bold text-teal-900 tabular-nums">
+          <div className="text-2xl font-bold text-orange-900 tabular-nums">
             {formatUSD(totalUSD)}
           </div>
           {totalPEN > 0 && (
-            <div className="text-xs text-teal-700 mt-0.5">
+            <div className="text-xs text-orange-700 mt-0.5">
               USD · {formatPEN(totalPEN)} PEN
             </div>
           )}

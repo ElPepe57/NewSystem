@@ -69,16 +69,16 @@ export const EnvioFStepVenta: React.FC<EnvioFStepVentaProps> = ({ state, dispatc
 
       {/* Chip venta seleccionada */}
       {ventaSeleccionada ? (
-        <div className="p-4 bg-teal-50 border border-teal-200 rounded-lg flex items-start gap-3">
-          <div className="w-10 h-10 rounded-lg bg-teal-100 flex items-center justify-center flex-shrink-0">
-            <Package className="w-5 h-5 text-teal-700" />
+        <div className="p-4 bg-orange-50 border border-orange-200 rounded-lg flex items-start gap-3">
+          <div className="w-10 h-10 rounded-lg bg-orange-100 flex items-center justify-center flex-shrink-0">
+            <Package className="w-5 h-5 text-orange-700" />
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
               <span className="text-sm font-semibold text-slate-900 font-mono">
                 {ventaSeleccionada.numeroVenta}
               </span>
-              <span className="text-[10px] uppercase font-semibold px-2 py-0.5 rounded-full bg-teal-100 text-teal-800">
+              <span className="text-[10px] uppercase font-semibold px-2 py-0.5 rounded-full bg-orange-100 text-orange-800">
                 {ventaSeleccionada.estado}
               </span>
               <span className="text-xs text-slate-500">
@@ -118,7 +118,7 @@ export const EnvioFStepVenta: React.FC<EnvioFStepVentaProps> = ({ state, dispatc
                 venta: { ...ventaSeleccionada, id: '' } as Venta,
               });
             }}
-            className="text-[11px] text-teal-700 hover:text-teal-800 font-medium"
+            className="text-[11px] text-orange-700 hover:text-orange-800 font-medium"
           >
             Cambiar
           </button>
@@ -130,7 +130,7 @@ export const EnvioFStepVenta: React.FC<EnvioFStepVentaProps> = ({ state, dispatc
             value={busqueda}
             onChange={(e) => setBusqueda(e.target.value)}
             placeholder="Buscar por N° venta, cliente o dirección..."
-            className="w-full text-sm px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+            className="w-full text-sm px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
           />
           {ventasDespachables.length === 0 ? (
             <div className="p-5 bg-amber-50 border border-amber-200 rounded-lg text-center text-xs text-amber-900">
@@ -147,8 +147,8 @@ export const EnvioFStepVenta: React.FC<EnvioFStepVentaProps> = ({ state, dispatc
                   className="w-full text-left px-3 py-2.5 hover:bg-slate-50 transition-colors group"
                 >
                   <div className="flex items-start gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-slate-100 group-hover:bg-teal-100 flex items-center justify-center flex-shrink-0">
-                      <Package className="w-4 h-4 text-slate-500 group-hover:text-teal-700" />
+                    <div className="w-8 h-8 rounded-lg bg-slate-100 group-hover:bg-orange-100 flex items-center justify-center flex-shrink-0">
+                      <Package className="w-4 h-4 text-slate-500 group-hover:text-orange-700" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-1.5 flex-wrap">
@@ -162,7 +162,7 @@ export const EnvioFStepVenta: React.FC<EnvioFStepVentaProps> = ({ state, dispatc
                             v.estado === 'reservada' && 'bg-purple-100 text-purple-800',
                             v.estado === 'asignada' && 'bg-emerald-100 text-emerald-800',
                             v.estado === 'parcial' && 'bg-amber-100 text-amber-800',
-                            v.estado === 'en_entrega' && 'bg-teal-100 text-teal-800'
+                            v.estado === 'en_entrega' && 'bg-orange-100 text-orange-800'
                           )}
                         >
                           {v.estado}

@@ -21,7 +21,7 @@
  * tal cual y cada uno se referencia a su registro físico.
  */
 import React, { useState, useEffect, useMemo } from 'react';
-import { ChevronRight } from 'lucide-react';
+import { ChevronRight, Search, Target, Package } from 'lucide-react';
 import { useUnidadStore } from '../../../../../store/unidadStore';
 import { useProductoStore } from '../../../../../store/productoStore';
 import type { Unidad } from '../../../../../types/unidad.types';
@@ -253,9 +253,7 @@ export const SeccionUnidades: React.FC<Props> = ({ wizard, disabled }) => {
 
         {/* Buscador */}
         <div className="relative">
-          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">
-            🔍
-          </span>
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
           <input
             type="text"
             value={busqueda}
@@ -268,7 +266,7 @@ export const SeccionUnidades: React.FC<Props> = ({ wizard, disabled }) => {
         {/* Banner pre-vendidas */}
         {totalPrevendidasDisponibles > 0 && (
           <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-3 flex items-start gap-3">
-            <span className="text-xl flex-shrink-0">🎯</span>
+            <Target className="w-5 h-5 text-emerald-600 flex-shrink-0 mt-0.5" />
             <div className="flex-1 text-xs">
               <div className="font-semibold text-emerald-900 mb-0.5">
                 {totalPrevendidasDisponibles} unidades pre-vendidas disponibles
@@ -297,7 +295,7 @@ export const SeccionUnidades: React.FC<Props> = ({ wizard, disabled }) => {
         {/* Lista de productos con stepper + expansión manual */}
         {grupos.length === 0 ? (
           <div className="bg-slate-50 border border-dashed border-slate-300 rounded-lg p-6 text-center">
-            <div className="text-2xl mb-1">📦</div>
+            <Package className="w-7 h-7 text-slate-300 mx-auto mb-1" />
             <p className="text-xs text-slate-600">
               {busqueda
                 ? 'Sin resultados para esa búsqueda.'
@@ -329,15 +327,16 @@ export const SeccionUnidades: React.FC<Props> = ({ wizard, disabled }) => {
                         }`}
                       />
                     </button>
-                    <span className="text-2xl flex-shrink-0">📦</span>
+                    <Package className="w-6 h-6 text-slate-400 flex-shrink-0" />
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
                         <span className="text-sm font-semibold text-slate-900">
                           {g.productoNombre}
                         </span>
                         {g.cantidadPrevendida > 0 && (
-                          <span className="text-[10px] px-1.5 py-0.5 bg-amber-100 text-amber-800 rounded">
-                            🎯 {g.cantidadPrevendida} pre-vendida
+                          <span className="inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 bg-amber-100 text-amber-800 rounded">
+                            <Target className="w-3 h-3" />
+                            {g.cantidadPrevendida} pre-vendida
                             {g.cantidadPrevendida > 1 ? 's' : ''}
                           </span>
                         )}
@@ -423,10 +422,10 @@ export const SeccionUnidades: React.FC<Props> = ({ wizard, disabled }) => {
                               </div>
                               {u.reservadaPara && (
                                 <span
-                                  className="text-[10px] px-1.5 py-0.5 bg-amber-100 text-amber-800 rounded whitespace-nowrap"
+                                  className="inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 bg-amber-100 text-amber-800 rounded whitespace-nowrap"
                                   title="Pre-vendida"
                                 >
-                                  🎯 pre-v
+                                  <Target className="w-3 h-3" /> pre-v
                                 </span>
                               )}
                             </label>

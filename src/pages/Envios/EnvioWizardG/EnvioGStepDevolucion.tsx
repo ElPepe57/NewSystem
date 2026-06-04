@@ -6,7 +6,7 @@
  * unidades — el usuario puede ajustar si recibe parcial.
  */
 import React, { useEffect, useMemo, useState } from 'react';
-import { User, Package, Calendar } from 'lucide-react';
+import { User, Package, Calendar, Search } from 'lucide-react';
 import { useDevolucionStore } from '../../../store/devolucionStore';
 import type { Devolucion, EstadoDevolucion } from '../../../types/devolucion.types';
 import { cn } from '../../../design-system';
@@ -131,7 +131,7 @@ export const EnvioGStepDevolucion: React.FC<EnvioGStepDevolucionProps> = ({
             value={busqueda}
             onChange={(e) => setBusqueda(e.target.value)}
             placeholder="Buscar por N° devolución, N° venta o cliente..."
-            className="w-full text-sm px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+            className="w-full text-sm px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
           />
           {relevantes.length === 0 ? (
             <div className="p-5 bg-amber-50 border border-amber-200 rounded-lg text-center text-xs text-amber-900">
@@ -205,18 +205,18 @@ export const EnvioGStepDevolucion: React.FC<EnvioGStepDevolucionProps> = ({
             <button
               type="button"
               onClick={() => dispatch({ type: 'SELECCIONAR_TODAS' })}
-              className="text-[11px] text-teal-700 hover:text-teal-800 font-medium"
+              className="text-[11px] text-orange-700 hover:text-orange-800 font-medium"
             >
               Re-seleccionar todas
             </button>
           </div>
 
           {/* Banner D-7 */}
-          <div className="mb-3 p-3 bg-sky-50 border border-sky-200 rounded-lg flex items-start gap-3">
-            <span className="text-xl">🔍</span>
+          <div className="mb-3 p-3 bg-orange-50 border border-orange-200 rounded-lg flex items-start gap-3">
+            <Search className="w-5 h-5 text-orange-700 flex-shrink-0 mt-0.5" />
             <div className="flex-1 text-xs">
-              <div className="font-semibold text-sky-900">D-7 · Unidades en revisión</div>
-              <div className="text-sky-800 mt-0.5">
+              <div className="font-semibold text-orange-900">D-7 · Unidades en revisión</div>
+              <div className="text-orange-800 mt-0.5">
                 Al recibir, las unidades NO vuelven directamente a stock vendible.
                 Quedan marcadas para revisión del operador, quien decide si son
                 reintegrables (disponible), merma (danada) o materia de reclamo.
@@ -263,8 +263,8 @@ export const EnvioGStepDevolucion: React.FC<EnvioGStepDevolucionProps> = ({
                           className={cn(
                             'text-[10px] font-mono px-2 py-1 rounded border transition-colors',
                             sel
-                              ? 'bg-teal-600 text-white border-teal-600'
-                              : 'bg-white text-slate-600 border-slate-300 hover:border-teal-400'
+                              ? 'bg-orange-600 text-white border-orange-600'
+                              : 'bg-white text-slate-600 border-slate-300 hover:border-orange-400'
                           )}
                         >
                           {uid.slice(-6).toUpperCase()}

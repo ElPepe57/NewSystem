@@ -12,7 +12,7 @@
  * Output: total derivado (sum de subtotales).
  */
 import React from 'react';
-import { Package } from 'lucide-react';
+import { Package, AlertTriangle } from 'lucide-react';
 import type { TramoPeso } from '../../../../types/colaborador.types';
 import type { UnidadSeleccionadaWizard } from '../envioWizardTypes';
 import { encontrarTramoPorPeso } from '../envioWizardTypes';
@@ -48,7 +48,7 @@ export const TablaCalculoTramos: React.FC<Props> = ({
   if (tramos.length === 0) {
     return (
       <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 flex items-start gap-3">
-        <span className="text-xl">⚠️</span>
+        <AlertTriangle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
         <div className="text-xs">
           <div className="font-semibold text-amber-900 mb-0.5">
             Sin tramos configurados
@@ -138,7 +138,7 @@ export const TablaCalculoTramos: React.FC<Props> = ({
       {/* Advertencia si hay productos sin peso */}
       {unidadesSinPeso.length > 0 && (
         <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 flex items-start gap-3">
-          <span className="text-xl">⚠️</span>
+          <AlertTriangle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
           <div className="text-xs flex-1">
             <div className="font-semibold text-amber-900 mb-0.5">
               {unidadesSinPeso.length} producto

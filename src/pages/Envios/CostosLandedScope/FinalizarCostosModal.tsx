@@ -7,7 +7,7 @@
  * Requiere confirmación explícita del usuario (click en botón final).
  */
 import React, { useState } from 'react';
-import { AlertOctagon, Lock } from 'lucide-react';
+import { AlertOctagon, Lock, AlertTriangle } from 'lucide-react';
 import { Modal, Button } from '../../../components/common';
 import { cn } from '../../../design-system';
 import type { CostoLanded } from '../../../types/envio.types';
@@ -189,11 +189,12 @@ export const FinalizarCostosModal: React.FC<FinalizarCostosModalProps> = ({
 
         {/* Nota de advertencia irreversibilidad */}
         {estimados.length === 0 && confirmados.length > 0 && (
-          <div className="text-xs text-slate-600 bg-slate-50 border border-slate-200 rounded p-3">
-            <strong>⚠️ Acción irreversible:</strong> una vez finalizados, los costos quedan en solo
+          <div className="text-xs text-slate-600 bg-slate-50 border border-slate-200 rounded p-3 flex items-start gap-1.5">
+            <AlertTriangle className="w-3.5 h-3.5 text-amber-500 flex-shrink-0 mt-0.5" aria-hidden />
+            <span><strong>Acción irreversible:</strong> una vez finalizados, los costos quedan en solo
             lectura y el CTRU de cada unidad se convierte en definitivo. Si aparece una factura
             adicional después (ej. tasa aduanera atrasada), puedes reabrir con motivo de
-            auditoría, pero eso genera un asiento contable de ajuste retroactivo.
+            auditoría, pero eso genera un asiento contable de ajuste retroactivo.</span>
           </div>
         )}
 

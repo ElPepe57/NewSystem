@@ -30,6 +30,8 @@ import {
   RotateCcw,
   Pencil,
   ChevronRight,
+  Package,
+  Link,
 } from 'lucide-react';
 import { cn } from '../../../design-system';
 import type { SubEnvioT1, EstadoSubEnvio } from '../../../types/envio.types';
@@ -214,7 +216,7 @@ export const SubEnvioTimelineItem: React.FC<SubEnvioTimelineItemProps> = ({
         aria-label={`Tanda ${subEnvio.secuencia} · ${cfg.badgeLabel}`}
       >
         {esReemplazo ? (
-          <span className="text-[9px]" aria-hidden>📦</span>
+          <Package className="w-3.5 h-3.5" aria-hidden />
         ) : DotIcon ? (
           <DotIcon className="w-3.5 h-3.5" aria-hidden />
         ) : (
@@ -229,8 +231,8 @@ export const SubEnvioTimelineItem: React.FC<SubEnvioTimelineItemProps> = ({
           <div className="flex items-center gap-2 min-w-0">
             <span className="font-medium text-slate-900">Tanda {subEnvio.secuencia}</span>
             {esReemplazo && (
-              <span className="text-[10px] px-1.5 py-0.5 bg-violet-200 text-violet-900 rounded font-bold">
-                📦 REEMPLAZO
+              <span className="inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 bg-violet-200 text-violet-900 rounded font-bold">
+                <Package className="w-3 h-3" aria-hidden /> REEMPLAZO
               </span>
             )}
             <span className="text-xs text-slate-500 truncate">{fechaLabel}</span>
@@ -283,7 +285,7 @@ export const SubEnvioTimelineItem: React.FC<SubEnvioTimelineItemProps> = ({
           <div className="mt-2 p-2 bg-white rounded border border-violet-200 text-xs">
             {reclamoNumero && (
               <div className="flex items-center gap-2 text-violet-800">
-                <span aria-hidden>🔗</span>
+                <Link className="w-3.5 h-3.5 flex-shrink-0" aria-hidden />
                 <span>
                   Vinculada al reclamo{' '}
                   <span className="font-mono font-bold">{reclamoNumero}</span>

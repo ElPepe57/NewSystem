@@ -6,6 +6,7 @@
  */
 import React, { useReducer, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { AlertTriangle, X, RefreshCw } from 'lucide-react';
 import { WizardShell, DraftBanner, formatFechaRelativa } from '../../../design-system';
 import { useWizardAutosave } from '../../../hooks/useWizardAutosave';
 import { useAuthStore } from '../../../store/authStore';
@@ -96,13 +97,13 @@ export const WizardGPage: React.FC<WizardGPageProps> = ({
 
   const previewProps = useMemo(() => {
     return {
-      origenFlag: '🏠',
+      origenPais: undefined,
       origenNombre: state.devolucionSnapshot?.clienteNombre || 'Cliente',
       origenSubtexto: state.devolucionSnapshot?.numeroDevolucion || 'Devolución',
-      destinoFlag: '🇵🇪',
+      destinoPais: 'Peru',
       destinoNombre: state.almacenDestinoNombre || 'Almacén Perú',
       destinoSubtexto: 'Recepción + revisión',
-      transporteIcono: '🔄',
+      transporteIcono: <RefreshCw className="w-3.5 h-3.5 text-slate-500" />,
       colaboradorNombre: state.colaboradorTransporteNombre || undefined,
       unidadesCount: selectUnidadesCount(state),
       productosCount: selectProductosCount(state),
@@ -232,8 +233,8 @@ export const WizardGPage: React.FC<WizardGPageProps> = ({
 
       {error && (
         <div className="mb-4 bg-red-50 border border-red-200 rounded-xl p-4 flex items-start gap-3">
-          <div className="w-8 h-8 rounded-full bg-red-100 text-red-700 flex items-center justify-center flex-shrink-0 text-sm">
-            ⚠️
+          <div className="w-8 h-8 rounded-full bg-red-100 text-red-700 flex items-center justify-center flex-shrink-0">
+            <AlertTriangle className="w-4 h-4" />
           </div>
           <div className="flex-1">
             <div className="text-sm font-semibold text-red-900">No se pudo crear el retorno</div>
@@ -245,7 +246,7 @@ export const WizardGPage: React.FC<WizardGPageProps> = ({
             className="text-red-400 hover:text-red-600 flex-shrink-0"
             aria-label="Cerrar error"
           >
-            ✕
+            <X className="w-4 h-4" />
           </button>
         </div>
       )}

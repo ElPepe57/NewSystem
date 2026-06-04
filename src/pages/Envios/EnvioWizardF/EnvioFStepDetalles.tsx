@@ -87,7 +87,7 @@ export const EnvioFStepDetalles: React.FC<EnvioFStepDetallesProps> = ({ state, d
                 nombre: col?.nombre || '',
               });
             }}
-            className="w-full sm:max-w-md px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+            className="w-full sm:max-w-md px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
           >
             <option value="">— Sin transportista asignado —</option>
             {transportistas.map((c) => (
@@ -109,7 +109,7 @@ export const EnvioFStepDetalles: React.FC<EnvioFStepDetallesProps> = ({ state, d
           value={state.numeroTracking}
           onChange={(e) => dispatch({ type: 'SET_TRACKING', tracking: e.target.value })}
           placeholder="Ej. OLVA-12345 o GR-PE-456"
-          className="w-full sm:max-w-md px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+          className="w-full sm:max-w-md px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
         />
       </div>
 
@@ -154,7 +154,7 @@ export const EnvioFStepDetalles: React.FC<EnvioFStepDetallesProps> = ({ state, d
                       updates: { activo: e.target.checked },
                     })
                   }
-                  className="w-4 h-4 rounded border-slate-300 text-teal-600 focus:ring-teal-500"
+                  className="w-4 h-4 rounded border-slate-300 text-orange-600 focus:ring-orange-500"
                 />
                 <input
                   type="text"
@@ -227,7 +227,7 @@ export const EnvioFStepDetalles: React.FC<EnvioFStepDetallesProps> = ({ state, d
             value={nuevoConcepto}
             onChange={(e) => setNuevoConcepto(e.target.value)}
             placeholder="Agregar otro costo (concepto)…"
-            className="flex-1 sm:max-w-md px-3 py-1.5 text-xs border border-slate-200 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+            className="flex-1 sm:max-w-md px-3 py-1.5 text-xs border border-slate-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
           />
           <button
             type="button"
@@ -238,7 +238,7 @@ export const EnvioFStepDetalles: React.FC<EnvioFStepDetallesProps> = ({ state, d
               }
             }}
             disabled={!nuevoConcepto.trim()}
-            className="text-xs px-3 py-1.5 rounded-lg bg-teal-600 text-white hover:bg-teal-700 disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center gap-1"
+            className="text-xs px-3 py-1.5 rounded-lg bg-orange-600 text-white hover:bg-orange-700 disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center gap-1"
           >
             <Plus className="w-3 h-3" /> Agregar
           </button>
@@ -246,10 +246,10 @@ export const EnvioFStepDetalles: React.FC<EnvioFStepDetallesProps> = ({ state, d
 
         {totalCostos > 0 && (
           <div className={cn(
-            "mt-3 p-2.5 bg-teal-50 border border-teal-200 rounded-lg flex items-center justify-between"
+            "mt-3 p-2.5 bg-orange-50 border border-orange-200 rounded-lg flex items-center justify-between"
           )}>
-            <span className="text-xs font-medium text-teal-800">Total costos del despacho</span>
-            <span className="text-sm font-bold text-teal-900 tabular-nums">
+            <span className="text-xs font-medium text-orange-800">Total costos del despacho</span>
+            <span className="text-sm font-bold text-orange-900 tabular-nums">
               S/ {totalCostos.toLocaleString('es-PE', { minimumFractionDigits: 2 })}
             </span>
           </div>

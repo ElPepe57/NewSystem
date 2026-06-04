@@ -8,7 +8,11 @@ import {
   Truck,
   Info,
   AlertCircle,
+  Plane,
+  Package,
+  Building2,
 } from 'lucide-react';
+import { PaisBadge } from './EnvioWizard/shared/PaisBadge';
 import { cn } from '../../design-system';
 import type {
   Colaborador,
@@ -243,7 +247,11 @@ export const DespacharEnvioModal: React.FC<DespacharEnvioModalProps> = ({
               <div className="text-xs text-slate-500 mb-2">RUTA</div>
               <div className="flex items-center justify-between">
                 <div className="text-center flex-1">
-                  <div className="text-2xl">{getFlag(envio.origenCasillaPais)}</div>
+                  <div className="flex justify-center">
+                    <div className="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center">
+                      <PaisBadge pais={envio.origenCasillaPais} size="md" />
+                    </div>
+                  </div>
                   <div className="text-xs font-semibold mt-1 font-mono">
                     {envio.origenCasillaCodigo || '—'}
                   </div>
@@ -261,7 +269,11 @@ export const DespacharEnvioModal: React.FC<DespacharEnvioModalProps> = ({
                   </div>
                 </div>
                 <div className="text-center flex-1">
-                  <div className="text-2xl">{getFlag(envio.destinoCasillaPais)}</div>
+                  <div className="flex justify-center">
+                    <div className="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center">
+                      <PaisBadge pais={envio.destinoCasillaPais} size="md" />
+                    </div>
+                  </div>
                   <div className="text-xs font-semibold mt-1 font-mono">
                     {envio.destinoCasillaCodigo || '—'}
                   </div>
@@ -358,21 +370,21 @@ export const DespacharEnvioModal: React.FC<DespacharEnvioModalProps> = ({
               </label>
               <div className="grid grid-cols-3 gap-2">
                 <TipoTransporteCard
-                  icon="✈️"
+                  icon={Plane}
                   titulo="Viajero"
                   subtitulo="Colaborador interno"
                   selected={tipoTransporte === 'viajero'}
                   onClick={() => handleCambiarTipo('viajero')}
                 />
                 <TipoTransporteCard
-                  icon="📦"
+                  icon={Package}
                   titulo="Courier internacional"
                   subtitulo="DHL, FedEx, UPS"
                   selected={tipoTransporte === 'courier_internacional'}
                   onClick={() => handleCambiarTipo('courier_internacional')}
                 />
                 <TipoTransporteCard
-                  icon="🏢"
+                  icon={Building2}
                   titulo="Courier externo"
                   subtitulo="Servicio tercerizado"
                   selected={tipoTransporte === 'courier_externo'}
@@ -602,12 +614,12 @@ export const DespacharEnvioModal: React.FC<DespacharEnvioModalProps> = ({
 // ════════════════════════════════════════════════════════════════════════════
 
 const TipoTransporteCard: React.FC<{
-  icon: string;
+  icon: React.ComponentType<{ className?: string }>;
   titulo: string;
   subtitulo: string;
   selected: boolean;
   onClick: () => void;
-}> = ({ icon, titulo, subtitulo, selected, onClick }) => (
+}> = ({ icon: Icon, titulo, subtitulo, selected, onClick }) => (
   <button
     type="button"
     onClick={onClick}
@@ -618,7 +630,9 @@ const TipoTransporteCard: React.FC<{
         : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50'
     )}
   >
-    <div className="text-2xl mb-1">{icon}</div>
+    <div className="mb-1">
+      <Icon className={cn('w-6 h-6', selected ? 'text-orange-600' : 'text-slate-500')} />
+    </div>
     <div className="text-xs font-semibold text-slate-700">{titulo}</div>
     <div className="text-[11px] text-slate-500 mt-0.5">{subtitulo}</div>
   </button>
@@ -721,25 +735,3 @@ const InfoRow: React.FC<{ label: string; children: React.ReactNode }> = ({
   </div>
 );
 
-// ─── Helpers ────────────────────────────────────────────────────────────────
-
-function getFlag(pais?: string): string {
-  if (!pais) return '🌐';
-  const flags: Record<string, string> = {
-    USA: '🇺🇸',
-    'Estados Unidos': '🇺🇸',
-    CHINA: '🇨🇳',
-    China: '🇨🇳',
-    COREA: '🇰🇷',
-    Corea: '🇰🇷',
-    'Corea del Sur': '🇰🇷',
-    JAPÓN: '🇯🇵',
-    Japón: '🇯🇵',
-    MÉXICO: '🇲🇽',
-    México: '🇲🇽',
-    PERÚ: '🇵🇪',
-    Perú: '🇵🇪',
-    Peru: '🇵🇪',
-  };
-  return flags[pais] ?? '🌐';
-}

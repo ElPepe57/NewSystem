@@ -29,6 +29,7 @@
  *  />
  */
 import React, { useState } from 'react';
+import { Target } from 'lucide-react';
 import { cn } from '../../../design-system';
 import { UnidadPickerItem } from './UnidadPickerItem';
 
@@ -174,7 +175,7 @@ export const ProductoPickingGroup: React.FC<ProductoPickingGroupProps> = ({
               {procedenciaLabel && <span>{procedenciaLabel}</span>}
               {prioritariasCount > 0 && (
                 <span className="ml-1 inline-flex items-center gap-1 px-1.5 py-0 bg-emerald-100 text-emerald-700 text-[10px] font-medium rounded">
-                  🎯 {prioritariasCount} prioritaria{prioritariasCount !== 1 ? 's' : ''}
+                  <Target className="w-3 h-3" aria-hidden /> {prioritariasCount} prioritaria{prioritariasCount !== 1 ? 's' : ''}
                 </span>
               )}
             </div>

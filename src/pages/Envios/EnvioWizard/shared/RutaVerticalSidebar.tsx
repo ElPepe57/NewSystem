@@ -14,7 +14,7 @@
  *   - R5: iconos fijos por rol (📦/🏠) + tránsito dinámico (✈️/🚢/🚚)
  */
 import React from 'react';
-import { Package, Home, Plane, Ship, Truck, Tag, type LucideIcon } from 'lucide-react';
+import { Package, Home, Plane, Ship, Truck, Tag, Lock, type LucideIcon } from 'lucide-react';
 import type { EnvioWizardState } from '../envioWizardTypes';
 import type { EnvioTipoConfig } from '../registry';
 
@@ -379,8 +379,8 @@ export const RutaVerticalSidebar: React.FC<Props> = ({
       {/* Banner de bloqueo de stock (solo tipo I) */}
       {tipoConfig?.bloqueaStock && totalUnidades > 0 && (
         <div className="bg-red-50 border border-red-200 rounded-xl p-3">
-          <div className="text-[10px] font-semibold uppercase tracking-wider text-red-700 mb-1">
-            🔒 Stock bloqueado
+          <div className="text-[10px] font-semibold uppercase tracking-wider text-red-700 mb-1 flex items-center gap-1">
+            <Lock className="w-3 h-3" /> Stock bloqueado
           </div>
           <div className="text-sm font-bold text-red-900 tabular-nums">
             {totalUnidades} unidades

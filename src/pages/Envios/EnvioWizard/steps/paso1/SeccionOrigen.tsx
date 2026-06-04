@@ -12,7 +12,7 @@
  *   - almacen_peru  → Casilla.tipo='almacen_propio' en Perú
  */
 import React, { useState, useEffect, useMemo } from 'react';
-import { Globe, Inbox } from 'lucide-react';
+import { Globe, Inbox, Search } from 'lucide-react';
 import { PaisBadge } from '../../shared/PaisBadge';
 import { useAlmacenStore } from '../../../../../store/casillaStore';
 import type { Casilla } from '../../../../../types/casilla.types';
@@ -204,9 +204,7 @@ export const SeccionOrigen: React.FC<Props> = ({ wizard, collapsed, onToggle }) 
 
             {/* Buscador */}
             <div className="relative mb-3">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">
-                🔍
-              </span>
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
               <input
                 type="text"
                 value={busqueda}

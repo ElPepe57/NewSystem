@@ -27,6 +27,7 @@ import {
   Unlock,
   CheckCircle2,
   AlertTriangle,
+  Package,
 } from 'lucide-react';
 import { cn } from '../../../design-system';
 import type {
@@ -439,8 +440,8 @@ const TandaCostosSection: React.FC<TandaCostosSectionProps> = ({
             Tanda {tanda.secuencia}
           </span>
           {esReemplazo && (
-            <span className="text-[10px] px-1.5 py-0.5 bg-violet-200 text-violet-900 rounded font-bold">
-              📦 REEMPLAZO
+            <span className="inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 bg-violet-200 text-violet-900 rounded font-bold">
+              <Package className="w-3 h-3" aria-hidden /> REEMPLAZO
             </span>
           )}
           <span className="text-[10px] text-slate-500">

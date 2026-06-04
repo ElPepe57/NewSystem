@@ -309,7 +309,7 @@ export const TabIncidencias: React.FC = () => {
           search || filtroTipo !== 'todos'
             ? 'No hay incidencias que coincidan con los filtros.'
             : filtroEstado === 'abiertas'
-              ? '✨ Sin incidencias abiertas. Buen trabajo.'
+              ? 'Sin incidencias abiertas. Buen trabajo.'
               : 'No hay incidencias registradas.'
         }
       />

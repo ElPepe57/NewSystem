@@ -454,7 +454,7 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
         ? { label: 'En tránsito', variant: 'sky' }
         : { label: 'Pendiente', variant: 'slate' };
     const destino: RouteCardV2Node = {
-      flag: '🇵🇪',
+      flag: 'PE',
       nombre: orden.nombreAlmacenDestino || orden.almacenDestino || 'Almacén Perú',
       subtitulo: 'Almacén final · Perú',
       badge: destinoBadge,

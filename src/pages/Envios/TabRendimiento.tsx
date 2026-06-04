@@ -23,6 +23,7 @@ import {
   TrendingUp,
   Calendar,
   Truck,
+  BarChart3,
 } from 'lucide-react';
 import { StatCard } from '../../design-system';
 import { useEnvioStore } from '../../store/envioStore';
@@ -295,7 +296,7 @@ export const TabRendimiento: React.FC = () => {
             <h4 className="text-sm font-semibold text-slate-900">Top 5 envíos con dañadas</h4>
           </div>
           {rankingDanadas.length === 0 ? (
-            <div className="text-xs text-slate-500 py-4 text-center">✨ Sin envíos dañados en el período.</div>
+            <div className="text-xs text-slate-500 py-4 text-center">Sin envíos dañados en el período.</div>
           ) : (
             <div className="space-y-2">
               {rankingDanadas.map(r => (
@@ -351,7 +352,7 @@ export const TabRendimiento: React.FC = () => {
 
       {/* Notas metodología */}
       <div className="p-3 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-600">
-        <div className="font-medium text-slate-800 mb-1">📊 Metodología</div>
+        <div className="font-medium text-slate-800 mb-1 flex items-center gap-1.5"><BarChart3 className="w-3.5 h-3.5" /> Metodología</div>
         <ul className="space-y-0.5 list-disc list-inside">
           <li><strong>Fill Rate</strong> = unidades recibidas / unidades esperadas (sobre envíos completados)</li>
           <li><strong>On-Time</strong> = envíos que llegaron ≤ ETA / total con fecha estimada</li>

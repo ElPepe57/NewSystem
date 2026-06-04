@@ -15,7 +15,7 @@
  * normales del mismo envío padre).
  */
 import React, { useMemo, useState } from 'react';
-import { Package, X } from 'lucide-react';
+import { Package, X, Clock, Truck } from 'lucide-react';
 import { Modal, Button } from '../../../components/common';
 import { cn } from '../../../design-system';
 
@@ -282,7 +282,7 @@ export const AgregarTandaModal: React.FC<AgregarTandaModalProps> = ({
                 className="w-4 h-4"
               />
               <div>
-                <div className="text-sm font-medium text-slate-900">⏳ Pendiente</div>
+                <div className="text-sm font-medium text-slate-900 flex items-center gap-1.5"><Clock className="w-4 h-4 text-slate-500" aria-hidden /> Pendiente</div>
                 <div className="text-[10px] text-slate-600">Aún no sale, solo planificación</div>
               </div>
             </label>
@@ -304,7 +304,7 @@ export const AgregarTandaModal: React.FC<AgregarTandaModalProps> = ({
                 className="w-4 h-4"
               />
               <div>
-                <div className="text-sm font-medium text-slate-900">🚚 En tránsito</div>
+                <div className="text-sm font-medium text-slate-900 flex items-center gap-1.5"><Truck className="w-4 h-4 text-slate-500" aria-hidden /> En tránsito</div>
                 <div className="text-[10px] text-slate-600">Ya salió (tienes tracking)</div>
               </div>
             </label>

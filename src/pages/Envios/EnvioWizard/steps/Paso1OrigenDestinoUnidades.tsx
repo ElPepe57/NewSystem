@@ -14,6 +14,7 @@
  *   - Si se elige una combinación no válida (matriz de inferencia), banner admin.
  */
 import React, { useState, useEffect } from 'react';
+import { AlertTriangle } from 'lucide-react';
 import type { UseEnvioWizardStateReturn } from '../useEnvioWizardState';
 import { COMBINACIONES_VALIDAS } from '../useTipoInferido';
 import { SeccionOrigen } from './paso1/SeccionOrigen';
@@ -83,7 +84,7 @@ export const Paso1OrigenDestinoUnidades: React.FC<Props> = ({ wizard }) => {
           <div className="bg-amber-50 border-2 border-amber-300 rounded-xl p-4">
             <div className="flex items-start gap-3">
               <div className="w-10 h-10 rounded-full bg-white border border-amber-200 flex items-center justify-center flex-shrink-0">
-                <span className="text-lg">⚠️</span>
+                <AlertTriangle className="w-5 h-5 text-amber-600" />
               </div>
               <div className="flex-1">
                 <div className="text-xs font-semibold uppercase tracking-wider text-amber-700 mb-0.5">

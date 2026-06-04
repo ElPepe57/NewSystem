@@ -17,6 +17,7 @@
  *  - Cerrar el modal al terminar
  */
 import React, { useState } from 'react';
+import { DollarSign, Package, Trash2, Info, Link } from 'lucide-react';
 import { Modal, Button } from '../../../components/common';
 import { cn } from '../../../design-system';
 import type { TipoResolucionReclamo } from '../../../types/reclamo.types';
@@ -183,7 +184,7 @@ export const ResolverReclamoModal: React.FC<ResolverReclamoModalProps> = ({
           />
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1">
-              <span className="text-2xl" aria-hidden>💰</span>
+              <DollarSign className="w-5 h-5 text-emerald-600" aria-hidden />
               <span className="font-bold text-slate-900">
                 Reembolso — el destinatario paga el valor
               </span>
@@ -260,7 +261,7 @@ export const ResolverReclamoModal: React.FC<ResolverReclamoModalProps> = ({
           />
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1 flex-wrap">
-              <span className="text-2xl" aria-hidden>📦</span>
+              <Package className="w-5 h-5 text-violet-600" aria-hidden />
               <span className="font-bold text-slate-900">
                 Reemplazo — el destinatario envía otra unidad
               </span>
@@ -317,8 +318,9 @@ export const ResolverReclamoModal: React.FC<ResolverReclamoModalProps> = ({
                     />
                   </div>
                 </div>
-                <div className="text-[10px] text-violet-700 italic">
-                  ℹ️ Si el reemplazo también falla, puedes reabrir el reclamo y convertirlo a <strong>Merma</strong>.
+                <div className="text-[10px] text-violet-700 italic flex items-start gap-1">
+                  <Info className="w-3 h-3 flex-shrink-0 mt-0.5" aria-hidden />
+                  <span>Si el reemplazo también falla, puedes reabrir el reclamo y convertirlo a <strong>Merma</strong>.</span>
                 </div>
               </div>
             )}
@@ -345,7 +347,7 @@ export const ResolverReclamoModal: React.FC<ResolverReclamoModalProps> = ({
           />
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1">
-              <span className="text-2xl" aria-hidden>🗑️</span>
+              <Trash2 className="w-5 h-5 text-red-500" aria-hidden />
               <span className="font-bold text-slate-900">Merma — el destinatario no asume</span>
             </div>
             <div className="text-xs text-slate-700 mb-2">
@@ -398,8 +400,9 @@ export const ResolverReclamoModal: React.FC<ResolverReclamoModalProps> = ({
       </div>
 
       {/* Nota al pie */}
-      <div className="mt-3 p-3 bg-sky-50 border border-sky-200 rounded text-xs text-sky-900">
-        <strong>🔗 Trazabilidad:</strong> la unidad mantiene su <code className="bg-white px-1 rounded">unidadId</code> original. Su historial queda con la tanda original + la tanda de reemplazo (al recibirla). Auditoría completa.
+      <div className="mt-3 p-3 bg-sky-50 border border-sky-200 rounded text-xs text-sky-900 flex items-start gap-1.5">
+        <Link className="w-3.5 h-3.5 text-sky-600 flex-shrink-0 mt-0.5" aria-hidden />
+        <span><strong>Trazabilidad:</strong> la unidad mantiene su <code className="bg-white px-1 rounded">unidadId</code> original. Su historial queda con la tanda original + la tanda de reemplazo (al recibirla). Auditoría completa.</span>
       </div>
     </Modal>
   );

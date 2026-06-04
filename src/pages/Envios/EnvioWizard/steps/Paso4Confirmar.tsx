@@ -13,7 +13,7 @@
  * envioUnificadoService.crear() → método legacy correspondiente.
  */
 import React from 'react';
-import { Factory } from 'lucide-react';
+import { Factory, Plane, Ship, Truck, Sparkles, Lock, AlertTriangle, X } from 'lucide-react';
 import { PaisBadge } from '../shared/PaisBadge';
 import type { UseEnvioWizardStateReturn } from '../useEnvioWizardState';
 
@@ -48,12 +48,12 @@ export const Paso4Confirmar: React.FC<Props> = ({ wizard }) => {
       : state.modoTransporte === 'maritimo'
       ? 'Marítimo'
       : 'Terrestre';
-  const modoIcon =
+  const ModoIcon =
     state.modoTransporte === 'aereo'
-      ? '✈️'
+      ? Plane
       : state.modoTransporte === 'maritimo'
-      ? '🚢'
-      : '🚚';
+      ? Ship
+      : Truck;
 
   const transportadorLabel =
     state.tipoTransportador === 'viajero'
@@ -101,7 +101,7 @@ export const Paso4Confirmar: React.FC<Props> = ({ wizard }) => {
             <div className="flex-1 h-px bg-slate-300 mb-1" />
             {state.colaboradorTransporteId ? (
               <div className="text-xs text-slate-600 font-medium flex items-center justify-center gap-1 truncate">
-                <span>{modoIcon}</span>
+                <ModoIcon className="w-4 h-4 flex-shrink-0 text-slate-500" />
                 <span className="truncate">
                   {state.colaboradorTransporteNombre} ({transportadorLabel})
                 </span>
@@ -151,8 +151,8 @@ export const Paso4Confirmar: React.FC<Props> = ({ wizard }) => {
         </div>
         <div className="px-2 py-1 text-center">
           <div className="text-xs text-slate-500 mb-1">Modo transporte</div>
-          <div className="text-xl font-bold text-slate-900 tabular-nums">
-            {modoIcon}
+          <div className="flex justify-center mb-0.5">
+            <ModoIcon className="w-6 h-6 text-slate-700" />
           </div>
           <div className="text-[11px] text-slate-400">{modoLabel}</div>
         </div>
@@ -174,7 +174,7 @@ export const Paso4Confirmar: React.FC<Props> = ({ wizard }) => {
       {/* Bloque "Al confirmar se creará" */}
       <div className="bg-sky-50 border border-sky-200 rounded-xl p-4">
         <div className="flex items-center gap-2 mb-2">
-          <span>✨</span>
+          <Sparkles className="w-4 h-4 text-sky-600" />
           <div className="text-sm font-semibold text-sky-900">
             Al confirmar se creará:
           </div>
@@ -213,13 +213,13 @@ export const Paso4Confirmar: React.FC<Props> = ({ wizard }) => {
             Al recibir: CTRU landed se aplica prorrateado por unidad
           </li>
           {tipoConfig.bloqueaStock && (
-            <li className="text-red-700 font-semibold">
-              🔒 Stock bloqueado hasta retorno o liquidación (tipo I)
+            <li className="text-red-700 font-semibold flex items-center gap-1.5">
+              <Lock className="w-3.5 h-3.5 flex-shrink-0" /> Stock bloqueado hasta retorno o liquidación (tipo I)
             </li>
           )}
           {state.advertenciaCambioPais && (
-            <li className="text-amber-700">
-              ⚠️ Cambio de país auditado (origen: {state.ubicacionOrigenPais} →
+            <li className="text-amber-700 flex items-center gap-1.5">
+              <AlertTriangle className="w-3.5 h-3.5 flex-shrink-0" /> Cambio de país auditado (origen: {state.ubicacionOrigenPais} →
               destino: {state.ubicacionDestinoPais})
             </li>
           )}
@@ -286,7 +286,7 @@ export const Paso4Confirmar: React.FC<Props> = ({ wizard }) => {
       {/* Error del submit si aplica */}
       {state.estadoSubmit === 'error' && state.errorSubmit && (
         <div className="bg-red-50 border border-red-200 rounded-lg p-3 flex items-start gap-3">
-          <span className="text-xl">❌</span>
+          <X className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
           <div className="text-xs">
             <div className="font-semibold text-red-900">
               Error al crear el envío

@@ -23,9 +23,10 @@ import {
   badgeClassForTipoRuta,
 } from '../../utils/envio.tipoRuta.helpers';
 
-// Lucide icons: solo los necesarios después del rediseño
-import { Plane, Truck, Package, ArrowRightLeft, AlertTriangle } from 'lucide-react';
+// Lucide icons
+import { Plane, Truck, AlertTriangle, Target, Lock, RefreshCw } from 'lucide-react';
 import type { Producto } from '../../types/producto.types';
+import { PaisBadge } from './EnvioWizard/shared/PaisBadge';
 
 // Props (retrocompat — los handlers on* ya no se usan aquí, pero mantenemos la
 // firma para no romper el call-site que los pasa. Se ignoran silenciosamente).
@@ -42,57 +43,6 @@ interface EnvioCardProps {
 // ────────────────────────────────────────────────────────────────────────────
 // Helpers
 // ────────────────────────────────────────────────────────────────────────────
-
-const FLAG_MAP: Record<string, string> = {
-  USA: '🇺🇸',
-  'Estados Unidos': '🇺🇸',
-  US: '🇺🇸',
-  China: '🇨🇳',
-  CHINA: '🇨🇳',
-  Corea: '🇰🇷',
-  COREA: '🇰🇷',
-  'Corea del Sur': '🇰🇷',
-  Japón: '🇯🇵',
-  México: '🇲🇽',
-  Perú: '🇵🇪',
-  PERÚ: '🇵🇪',
-  Peru: '🇵🇪',
-  Peru_local: '🇵🇪',
-  PE: '🇵🇪',
-};
-
-const COUNTRY_CODE: Record<string, string> = {
-  USA: 'US',
-  'Estados Unidos': 'US',
-  US: 'US',
-  China: 'CN',
-  CHINA: 'CN',
-  Corea: 'KR',
-  COREA: 'KR',
-  'Corea del Sur': 'KR',
-  Japón: 'JP',
-  México: 'MX',
-  Perú: 'PE',
-  PERÚ: 'PE',
-  Peru: 'PE',
-  Peru_local: 'PE',
-  PE: 'PE',
-};
-
-// S53.28 — Normaliza el input para aceptar variaciones (trim, case) antes de
-// consultar los mapas. Si no se encuentra, devuelve string vacío para que
-// el JSX oculte el badge (en vez de mostrar "??" como ruido visual).
-const _lookupMap = <T extends string>(
-  pais: string | undefined,
-  map: Record<string, T>
-): T | '' => {
-  if (!pais) return '';
-  const raw = pais.trim();
-  if (!raw) return '';
-  return (map[raw] || map[raw.toUpperCase()] || map[raw.toLowerCase()] || '') as T | '';
-};
-const flagDe = (pais?: string): string => _lookupMap(pais, FLAG_MAP) || '🌐';
-const codDe = (pais?: string): string => _lookupMap(pais, COUNTRY_CODE);
 
 // Estado badge (pastel, sin dot) matching mockup colors
 const ESTADO_STYLE: Record<EstadoEnvio, { label: string; className: string }> = {
@@ -326,8 +276,8 @@ function buildFooterSummary(
         );
       }
       partes.push(
-        <span key="bloqueo" className="text-red-600 italic">
-          🔒 stock bloqueado
+        <span key="bloqueo" className="text-red-600 italic inline-flex items-center gap-1">
+          <Lock className="w-3 h-3" /> stock bloqueado
         </span>
       );
       break;
@@ -352,8 +302,8 @@ function buildFooterSummary(
       }
       if (advPais) {
         partes.push(
-          <span key="adv" className="text-amber-700 italic">
-            ⚠ cambio país
+          <span key="adv" className="text-amber-700 italic inline-flex items-center gap-1">
+            <AlertTriangle className="w-3 h-3" /> cambio país
           </span>
         );
       }
@@ -382,80 +332,70 @@ function buildFooterSummary(
 // ────────────────────────────────────────────────────────────────────────────
 
 interface RutaMockupProps {
-  origenCod: string;
-  origenFlag: string;
+  origenPais?: string;
   origenNombre: string;
   origenSubtexto?: string;
-  destinoCod: string;
-  destinoFlag: string;
+  destinoPais?: string;
   destinoNombre: string;
   destinoSubtexto?: string;
   transporteLabel?: string;
-  transporteIcon?: string;
+  /** Tipo de transporte para elegir el ícono lucide */
+  transporteTipo?: 'avion' | 'retorno' | 'camion';
 }
 
 const RutaMockup: React.FC<RutaMockupProps> = ({
-  origenCod,
-  origenFlag,
+  origenPais,
   origenNombre,
   origenSubtexto,
-  destinoCod,
-  destinoFlag,
+  destinoPais,
   destinoNombre,
   destinoSubtexto,
   transporteLabel,
-  transporteIcon,
-}) => (
-  <div className="flex items-center gap-3">
-    {/* Origen */}
-    <div className="flex items-center gap-2 flex-shrink-0 min-w-0">
-      {origenCod && (
-        <span className="text-xs text-slate-400 font-semibold tracking-wider w-5 text-center">
-          {origenCod}
-        </span>
-      )}
-      <span className="text-lg leading-none" aria-hidden>
-        {origenFlag}
-      </span>
-      <div className="min-w-0">
-        <div className="text-sm font-semibold text-slate-900 truncate">{origenNombre}</div>
-        {origenSubtexto && (
-          <div className="text-[11px] text-slate-500 truncate">{origenSubtexto}</div>
-        )}
-      </div>
-    </div>
+  transporteTipo,
+}) => {
+  const TransporteIcono =
+    transporteTipo === 'avion' ? Plane
+    : transporteTipo === 'retorno' ? RefreshCw
+    : Truck;
 
-    {/* Línea punteada + transporte */}
-    <div className="flex-1 flex items-center gap-2 min-w-0 px-1">
-      <div className="flex-1 border-t-2 border-dotted border-slate-300 min-w-[20px]" />
-      {(transporteLabel || transporteIcon) && (
-        <div className="flex items-center gap-1 text-xs text-slate-600 whitespace-nowrap">
-          {transporteIcon && <span aria-hidden>{transporteIcon}</span>}
-          {transporteLabel && <span>{transporteLabel}</span>}
+  return (
+    <div className="flex items-center gap-3">
+      {/* Origen */}
+      <div className="flex items-center gap-2 flex-shrink-0 min-w-0">
+        <PaisBadge pais={origenPais} size="sm" />
+        <div className="min-w-0">
+          <div className="text-sm font-semibold text-slate-900 truncate">{origenNombre}</div>
+          {origenSubtexto && (
+            <div className="text-[11px] text-slate-500 truncate">{origenSubtexto}</div>
+          )}
         </div>
-      )}
-      <div className="flex-1 border-t-2 border-dotted border-slate-300 min-w-[20px]" />
-    </div>
+      </div>
 
-    {/* Destino */}
-    <div className="flex items-center gap-2 flex-shrink-0 min-w-0">
-      {destinoCod && (
-        <span className="text-xs text-slate-400 font-semibold tracking-wider w-5 text-center">
-          {destinoCod}
-        </span>
-      )}
-      <span className="text-lg leading-none" aria-hidden>
-        {destinoFlag}
-      </span>
-      <div className="min-w-0">
-        <div className="text-sm font-semibold text-slate-900 truncate">{destinoNombre}</div>
-        {destinoSubtexto && (
-          <div className="text-[11px] text-slate-500 truncate">{destinoSubtexto}</div>
+      {/* Línea punteada + transporte */}
+      <div className="flex-1 flex items-center gap-2 min-w-0 px-1">
+        <div className="flex-1 border-t-2 border-dotted border-slate-300 min-w-[20px]" />
+        {(transporteLabel || transporteTipo) && (
+          <div className="flex items-center gap-1 text-xs text-slate-600 whitespace-nowrap">
+            <TransporteIcono className="w-3.5 h-3.5 text-slate-500" aria-hidden />
+            {transporteLabel && <span>{transporteLabel}</span>}
+          </div>
         )}
+        <div className="flex-1 border-t-2 border-dotted border-slate-300 min-w-[20px]" />
+      </div>
+
+      {/* Destino */}
+      <div className="flex items-center gap-2 flex-shrink-0 min-w-0">
+        <PaisBadge pais={destinoPais} size="sm" />
+        <div className="min-w-0">
+          <div className="text-sm font-semibold text-slate-900 truncate">{destinoNombre}</div>
+          {destinoSubtexto && (
+            <div className="text-[11px] text-slate-500 truncate">{destinoSubtexto}</div>
+          )}
+        </div>
       </div>
     </div>
-  </div>
-);
+  );
+};
 
 // ────────────────────────────────────────────────────────────────────────────
 // EnvioCard principal
@@ -532,8 +472,10 @@ export const EnvioCard: React.FC<EnvioCardProps> = ({ envio, onSelect }) => {
 
   // Transporte
   const courierLabel = envio.courier ?? envio.colaboradorNombre ?? null;
-  const transporteIcon =
-    envio.tipo === 'internacional_peru' ? '✈️' : envio.origenTipo === 'cliente' ? '🔄' : '🚚';
+  const transporteTipo: 'avion' | 'retorno' | 'camion' =
+    envio.tipo === 'internacional_peru' ? 'avion'
+    : envio.origenTipo === 'cliente' ? 'retorno'
+    : 'camion';
 
   // Footer info
   const totalUnidades = envio.totalUnidades ?? envio.unidades?.length ?? 0;
@@ -645,7 +587,8 @@ export const EnvioCard: React.FC<EnvioCardProps> = ({ envio, onSelect }) => {
               className="inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-full bg-amber-100 text-amber-800"
               title="Unidades reservadas para ventas pendientes"
             >
-              🎯 {numPreVendidas} pre-vendida{numPreVendidas !== 1 ? 's' : ''}
+              <Target className="w-3 h-3" />
+              {numPreVendidas} pre-vendida{numPreVendidas !== 1 ? 's' : ''}
             </span>
           )}
           {/* Incidencia (solo si NO es retenida_aduana, que ya está como estado) */}
@@ -713,16 +656,14 @@ export const EnvioCard: React.FC<EnvioCardProps> = ({ envio, onSelect }) => {
 
       {/* ─── Fila 2: Ruta horizontal ─── */}
       <RutaMockup
-        origenCod={codDe(origenPais)}
-        origenFlag={flagDe(origenPais)}
+        origenPais={origenPais}
         origenNombre={origenNombre}
         origenSubtexto={origenSubtexto}
-        destinoCod={codDe(destinoPais)}
-        destinoFlag={flagDe(destinoPais)}
+        destinoPais={destinoPais}
         destinoNombre={destinoNombre}
         destinoSubtexto={destinoSubtexto}
         transporteLabel={courierLabel ?? undefined}
-        transporteIcon={transporteIcon}
+        transporteTipo={transporteTipo}
       />
 
       {/* ─── Fila 3: Footer contextual según tipo de ruta (mockup S43) ─── */}
@@ -754,8 +695,5 @@ export const EnvioCard: React.FC<EnvioCardProps> = ({ envio, onSelect }) => {
   );
 };
 
-// Helper para silenciar TS unused warnings (los íconos pueden usarse si se extiende)
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const _unusedIcons = { Plane, Truck, Package, ArrowRightLeft };
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const _unusedNavigate = () => useNavigate();

@@ -33,46 +33,14 @@
  */
 import React from 'react';
 import { cn } from '../../design-system';
-import { Eye, CheckCircle2, Clock, AlertCircle, Ban } from 'lucide-react';
+import { Eye, CheckCircle2, Clock, AlertCircle, Ban, Plane } from 'lucide-react';
 import type { Envio, EstadoEnvio } from '../../types/envio.types';
 import type { Producto } from '../../types/producto.types';
 import {
   deriveTipoRutaLogistica,
   INFO_TIPO_RUTA,
 } from '../../utils/envio.tipoRuta.helpers';
-
-// ────────────────────────────────────────────────────────────────────────────
-// Helpers
-// ────────────────────────────────────────────────────────────────────────────
-
-const FLAG_MAP: Record<string, string> = {
-  USA: '🇺🇸',
-  'Estados Unidos': '🇺🇸',
-  US: '🇺🇸',
-  China: '🇨🇳',
-  CHINA: '🇨🇳',
-  Corea: '🇰🇷',
-  COREA: '🇰🇷',
-  'Corea del Sur': '🇰🇷',
-  Japón: '🇯🇵',
-  México: '🇲🇽',
-  Perú: '🇵🇪',
-  PERÚ: '🇵🇪',
-  Peru: '🇵🇪',
-  Peru_local: '🇵🇪',
-  PE: '🇵🇪',
-};
-
-function getFlag(pais?: string): string {
-  if (!pais) return '🌐';
-  const raw = pais.trim();
-  return (
-    FLAG_MAP[raw] ||
-    FLAG_MAP[raw.toUpperCase()] ||
-    FLAG_MAP[raw.toLowerCase()] ||
-    '🌐'
-  );
-}
+import { PaisBadge } from './EnvioWizard/shared/PaisBadge';
 
 function formatFechaRelativa(fecha: any): string {
   if (!fecha) return '';
@@ -291,7 +259,7 @@ export const EnvioCardSimple: React.FC<EnvioCardSimpleProps> = ({
         <div className="bg-slate-50 rounded-lg px-3 py-2">
           <div className="flex items-center justify-between gap-2 text-xs">
             <div className="flex items-center gap-1 flex-1 min-w-0">
-              <span className="text-sm flex-shrink-0">{getFlag(origenPais)}</span>
+              <PaisBadge pais={origenPais} size="sm" />
               <span className="font-medium truncate" title={origenNombre}>
                 {origenNombre}
               </span>
@@ -301,12 +269,12 @@ export const EnvioCardSimple: React.FC<EnvioCardSimpleProps> = ({
                 className="text-[10px] italic text-slate-500 flex items-center gap-1 flex-shrink-0"
                 title={transportador}
               >
-                <span>✈️</span>
+                <Plane className="w-3.5 h-3.5 text-slate-400" aria-hidden />
                 <span className="truncate max-w-[80px]">{transportador}</span>
               </div>
             )}
             <div className="flex items-center gap-1 flex-1 min-w-0 justify-end">
-              <span className="text-sm flex-shrink-0">{getFlag(destinoPais)}</span>
+              <PaisBadge pais={destinoPais} size="sm" />
               <span className="font-medium truncate" title={destinoNombre}>
                 {destinoNombre}
               </span>
@@ -432,7 +400,7 @@ export const EnvioCardSimple: React.FC<EnvioCardSimpleProps> = ({
           )}
           <div className="flex items-center gap-1 mt-2 text-[11px] flex-wrap">
             <span className="text-slate-900 font-medium flex items-center gap-1">
-              <span className="text-sm">{getFlag(origenPais)}</span>
+              <PaisBadge pais={origenPais} size="sm" />
               <span className="truncate max-w-[160px]" title={origenNombre}>
                 {origenNombre}
               </span>
@@ -441,7 +409,7 @@ export const EnvioCardSimple: React.FC<EnvioCardSimpleProps> = ({
             {transportador && (
               <>
                 <span className="text-slate-500 italic flex items-center gap-1">
-                  <span>✈️</span>
+                  <Plane className="w-3.5 h-3.5 text-slate-400" aria-hidden />
                   <span className="truncate max-w-[100px]" title={transportador}>
                     {transportador}
                   </span>
@@ -450,7 +418,7 @@ export const EnvioCardSimple: React.FC<EnvioCardSimpleProps> = ({
               </>
             )}
             <span className="text-slate-900 font-medium flex items-center gap-1">
-              <span className="text-sm">{getFlag(destinoPais)}</span>
+              <PaisBadge pais={destinoPais} size="sm" />
               <span className="truncate max-w-[160px]" title={destinoNombre}>
                 {destinoNombre}
               </span>

@@ -10,7 +10,7 @@
  *   - Si estado=estimado: campo motivoEstimado opcional (ej. "pendiente factura")
  */
 import React, { useMemo, useState } from 'react';
-import { DollarSign, Package } from 'lucide-react';
+import { DollarSign, Package, Info, Clock } from 'lucide-react';
 import { Modal, Button } from '../../../components/common';
 import { cn } from '../../../design-system';
 import type {
@@ -209,7 +209,7 @@ export const AgregarCostoLandedModal: React.FC<AgregarCostoLandedModalProps> = (
               />
               <div className="flex-1">
                 <div className="text-sm font-medium text-slate-900 flex items-center gap-2">
-                  <span className="text-base" aria-hidden>📦</span>
+                  <Package className="w-4 h-4 text-slate-500" aria-hidden />
                   Tanda específica
                 </div>
                 <div className="text-[10px] text-slate-600 mt-0.5">
@@ -228,7 +228,7 @@ export const AgregarCostoLandedModal: React.FC<AgregarCostoLandedModalProps> = (
                     {subEnvios.map((se) => (
                       <option key={se.id} value={se.id}>
                         Tanda {se.secuencia}
-                        {se.tipo === 'reemplazo' ? ' · 📦 Reemplazo' : ''}
+                        {se.tipo === 'reemplazo' ? ' · Reemplazo' : ''}
                         {` · ${se.unidadesIds.length} uds · ${se.estado}`}
                       </option>
                     ))}
@@ -407,7 +407,7 @@ export const AgregarCostoLandedModal: React.FC<AgregarCostoLandedModalProps> = (
                 className="w-3.5 h-3.5 mt-0.5"
               />
               <div>
-                <div className="text-sm font-medium text-slate-900">⏳ Estimado</div>
+                <div className="text-sm font-medium text-slate-900 flex items-center gap-1.5"><Clock className="w-4 h-4 text-amber-500" aria-hidden /> Estimado</div>
                 <div className="text-[10px] text-slate-600">
                   Aún no tengo factura firme · bloquea cierre financiero
                 </div>
@@ -472,10 +472,11 @@ export const AgregarCostoLandedModal: React.FC<AgregarCostoLandedModalProps> = (
 
         {/* Contexto informativo */}
         {scope === 'tanda' && tandaSeleccionada && (
-          <div className="text-xs text-slate-600 bg-violet-50 border border-violet-200 rounded p-2">
-            ℹ️ Este costo se prorrateará solo entre las{' '}
+          <div className="text-xs text-slate-600 bg-violet-50 border border-violet-200 rounded p-2 flex items-start gap-1.5">
+            <Info className="w-3.5 h-3.5 text-violet-500 flex-shrink-0 mt-0.5" aria-hidden />
+            <span>Este costo se prorrateará solo entre las{' '}
             <strong>{tandaSeleccionada.unidadesIds.length} unidades</strong> de la
-            Tanda {tandaSeleccionada.secuencia}.
+            Tanda {tandaSeleccionada.secuencia}.</span>
           </div>
         )}
       </div>

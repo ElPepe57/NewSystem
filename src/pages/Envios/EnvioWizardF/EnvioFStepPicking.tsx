@@ -7,6 +7,7 @@
  */
 import React, { useEffect, useMemo } from 'react';
 import { Star } from 'lucide-react';
+import { PaisBadge } from '../EnvioWizard/shared/PaisBadge';
 import { useAlmacenStore } from '../../../store/casillaStore';
 import { unidadService } from '../../../services/unidad.service';
 import { useProductoStore } from '../../../store/productoStore';
@@ -170,14 +171,16 @@ export const EnvioFStepPicking: React.FC<EnvioFStepPickingProps> = ({ state, dis
                 className={cn(
                   'relative rounded-xl p-3 text-left transition-all border',
                   sel
-                    ? 'bg-teal-50 border-teal-500 ring-2 ring-teal-100'
+                    ? 'bg-orange-50 border-orange-500 ring-2 ring-orange-100'
                     : sinStock
                       ? 'bg-slate-50 border-slate-200 opacity-60 cursor-not-allowed'
-                      : 'bg-white border-slate-200 hover:border-teal-300 cursor-pointer'
+                      : 'bg-white border-slate-200 hover:border-orange-300 cursor-pointer'
                 )}
               >
                 <div className="flex items-start gap-3">
-                  <span className="text-2xl">🇵🇪</span>
+                  <div className="w-8 h-8 rounded-lg bg-orange-100 flex items-center justify-center flex-shrink-0">
+                    <PaisBadge pais="Peru" />
+                  </div>
                   <div className="flex-1 min-w-0">
                     <div className="text-sm font-semibold text-slate-900 truncate">{c.nombre}</div>
                     <div className="text-xs text-slate-500">

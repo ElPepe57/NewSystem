@@ -6,6 +6,7 @@
  */
 import React, { useEffect, useMemo, useState } from 'react';
 import { Plus, Trash2 } from 'lucide-react';
+import { PaisBadge } from '../EnvioWizard/shared/PaisBadge';
 import { useAlmacenStore } from '../../../store/casillaStore';
 import { useColaboradorStore } from '../../../store/colaboradorStore';
 import type { Colaborador } from '../../../types/colaborador.types';
@@ -111,12 +112,14 @@ export const EnvioGStepDestinoDetalles: React.FC<EnvioGStepDestinoDetallesProps>
                   className={cn(
                     'relative rounded-xl p-3 text-left transition-all border',
                     sel
-                      ? 'bg-teal-50 border-teal-500 ring-2 ring-teal-100'
-                      : 'bg-white border-slate-200 hover:border-teal-300 cursor-pointer'
+                      ? 'bg-orange-50 border-orange-500 ring-2 ring-orange-100'
+                      : 'bg-white border-slate-200 hover:border-orange-300 cursor-pointer'
                   )}
                 >
                   <div className="flex items-start gap-3">
-                    <span className="text-2xl">🇵🇪</span>
+                    <div className="w-8 h-8 rounded-lg bg-orange-100 flex items-center justify-center flex-shrink-0">
+                      <PaisBadge pais="Peru" />
+                    </div>
                     <div className="flex-1 min-w-0">
                       <div className="text-sm font-semibold text-slate-900 truncate">{c.nombre}</div>
                       {c.direccion && (
@@ -159,7 +162,7 @@ export const EnvioGStepDestinoDetalles: React.FC<EnvioGStepDestinoDetallesProps>
                 nombre: col?.nombre || '',
               });
             }}
-            className="w-full sm:max-w-md px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+            className="w-full sm:max-w-md px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
           >
             <option value="">— Sin transportista asignado —</option>
             {transportistas.map((c) => (
@@ -181,7 +184,7 @@ export const EnvioGStepDestinoDetalles: React.FC<EnvioGStepDestinoDetallesProps>
           value={state.numeroTracking}
           onChange={(e) => dispatch({ type: 'SET_TRACKING', tracking: e.target.value })}
           placeholder="Ej. OLVA-98765, GR-RET-001"
-          className="w-full sm:max-w-md px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+          className="w-full sm:max-w-md px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
         />
       </div>
 
@@ -226,7 +229,7 @@ export const EnvioGStepDestinoDetalles: React.FC<EnvioGStepDestinoDetallesProps>
                       updates: { activo: e.target.checked },
                     })
                   }
-                  className="w-4 h-4 rounded border-slate-300 text-teal-600 focus:ring-teal-500"
+                  className="w-4 h-4 rounded border-slate-300 text-orange-600 focus:ring-orange-500"
                 />
                 <input
                   type="text"
@@ -299,7 +302,7 @@ export const EnvioGStepDestinoDetalles: React.FC<EnvioGStepDestinoDetallesProps>
             value={nuevoConcepto}
             onChange={(e) => setNuevoConcepto(e.target.value)}
             placeholder="Agregar otro costo…"
-            className="flex-1 sm:max-w-md px-3 py-1.5 text-xs border border-slate-200 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+            className="flex-1 sm:max-w-md px-3 py-1.5 text-xs border border-slate-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
           />
           <button
             type="button"
@@ -310,16 +313,16 @@ export const EnvioGStepDestinoDetalles: React.FC<EnvioGStepDestinoDetallesProps>
               }
             }}
             disabled={!nuevoConcepto.trim()}
-            className="text-xs px-3 py-1.5 rounded-lg bg-teal-600 text-white hover:bg-teal-700 disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center gap-1"
+            className="text-xs px-3 py-1.5 rounded-lg bg-orange-600 text-white hover:bg-orange-700 disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center gap-1"
           >
             <Plus className="w-3 h-3" /> Agregar
           </button>
         </div>
 
         {totalCostos > 0 && (
-          <div className="mt-3 p-2.5 bg-teal-50 border border-teal-200 rounded-lg flex items-center justify-between">
-            <span className="text-xs font-medium text-teal-800">Total costos retorno</span>
-            <span className="text-sm font-bold text-teal-900 tabular-nums">
+          <div className="mt-3 p-2.5 bg-orange-50 border border-orange-200 rounded-lg flex items-center justify-between">
+            <span className="text-xs font-medium text-orange-800">Total costos retorno</span>
+            <span className="text-sm font-bold text-orange-900 tabular-nums">
               S/ {totalCostos.toLocaleString('es-PE', { minimumFractionDigits: 2 })}
             </span>
           </div>

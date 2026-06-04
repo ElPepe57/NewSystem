@@ -11,6 +11,7 @@
  *         + banner rojo de bloqueo de stock
  */
 import React from 'react';
+import { type LucideIcon, Package, Building2, DollarSign, Plane, PenLine, Handshake, Truck, Lightbulb, Lock } from 'lucide-react';
 import type { UseEnvioWizardStateReturn } from '../useEnvioWizardState';
 import type { MotivoEnvioInterno } from '../../../../types/envio.types';
 import type { TipoRelacionTercero } from '../envioWizardTypes';
@@ -19,31 +20,31 @@ interface Props {
   wizard: UseEnvioWizardStateReturn;
 }
 
-const MOTIVOS_E: { value: MotivoEnvioInterno; label: string; icon: string }[] = [
+const MOTIVOS_E: { value: MotivoEnvioInterno; label: string; icon: LucideIcon }[] = [
   {
     value: 'consolidacion',
     label: 'Consolidación en un solo almacén',
-    icon: '📦',
+    icon: Package,
   },
   {
     value: 'capacidad',
     label: 'Capacidad (el otro almacén está lleno)',
-    icon: '🏢',
+    icon: Building2,
   },
-  { value: 'costo_menor', label: 'Costo de mantenimiento menor', icon: '💰' },
-  { value: 'viaje_proximo', label: 'Viaje próximo desde ese almacén', icon: '✈️' },
-  { value: 'otro', label: 'Otro', icon: '✏️' },
+  { value: 'costo_menor', label: 'Costo de mantenimiento menor', icon: DollarSign },
+  { value: 'viaje_proximo', label: 'Viaje próximo desde ese almacén', icon: Plane },
+  { value: 'otro', label: 'Otro', icon: PenLine },
 ];
 
 const TIPOS_RELACION: {
   value: TipoRelacionTercero;
   label: string;
-  icon: string;
+  icon: LucideIcon;
 }[] = [
-  { value: 'fulfillment', label: 'Fulfillment', icon: '📦' },
-  { value: 'consignacion', label: 'Consignación', icon: '🤝' },
-  { value: 'distribucion', label: 'Distribución', icon: '🚚' },
-  { value: 'otro', label: 'Otro', icon: '✏️' },
+  { value: 'fulfillment', label: 'Fulfillment', icon: Package },
+  { value: 'consignacion', label: 'Consignación', icon: Handshake },
+  { value: 'distribucion', label: 'Distribución', icon: Truck },
+  { value: 'otro', label: 'Otro', icon: PenLine },
 ];
 
 export const Paso2DestinoDetalles: React.FC<Props> = ({ wizard }) => {
@@ -74,7 +75,7 @@ export const Paso2DestinoDetalles: React.FC<Props> = ({ wizard }) => {
       {/* Banner informativo sobre la condicionalidad */}
       <div className="bg-sky-50 border border-sky-200 rounded-lg p-3 flex items-start gap-3">
         <div className="w-8 h-8 rounded-full bg-white border border-sky-200 flex items-center justify-center flex-shrink-0">
-          💡
+          <Lightbulb className="w-4 h-4 text-sky-600" />
         </div>
         <div className="flex-1 text-xs text-sky-900">
           <div className="font-semibold mb-0.5">
@@ -115,7 +116,7 @@ export const Paso2DestinoDetalles: React.FC<Props> = ({ wizard }) => {
                         dispatch({ type: 'SET_MOTIVO', motivo: m.value })
                       }
                     />
-                    <span className="text-xl">{m.icon}</span>
+                    <m.icon className="w-5 h-5 text-orange-600 flex-shrink-0" />
                     <span className="text-sm text-slate-900">{m.label}</span>
                   </label>
                 );
@@ -147,7 +148,7 @@ export const Paso2DestinoDetalles: React.FC<Props> = ({ wizard }) => {
         <div className="space-y-4">
           {/* Banner rojo de bloqueo */}
           <div className="bg-red-50 border border-red-200 rounded-lg p-3 flex items-start gap-3">
-            <span className="text-xl">🔒</span>
+            <Lock className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
             <div className="flex-1 text-xs">
               <div className="font-semibold text-red-900 mb-0.5">
                 Bloqueo de stock al confirmar
@@ -180,7 +181,7 @@ export const Paso2DestinoDetalles: React.FC<Props> = ({ wizard }) => {
                         : 'border-slate-200 hover:border-orange-500 hover:bg-orange-50/30'
                     }`}
                   >
-                    <div className="text-xl mb-1">{tr.icon}</div>
+                    <tr.icon className="w-5 h-5 text-orange-600 mx-auto mb-1" />
                     <div
                       className={`text-xs ${
                         selected

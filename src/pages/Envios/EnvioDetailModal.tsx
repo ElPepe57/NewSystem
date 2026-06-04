@@ -38,6 +38,9 @@ import {
   Hash,
   Copy,
   Users,
+  HelpCircle,
+  Landmark,
+  MapPin,
 } from 'lucide-react';
 import { Modal, Badge, Button } from '../../components/common';
 import type { Envio, EstadoEnvio, TipoEnvio, EstadoSubEnvio, SubEnvioT1 } from '../../types/envio.types';
@@ -293,7 +296,7 @@ export const EnvioDetailModal: React.FC<EnvioDetailModalProps> = ({
       origen = {
         flag: envio.origenCasillaPais
           ? getFlagFromPais(envio.origenCasillaPais)
-          : '🌐',
+          : undefined,
         nombre: envio.origenCasillaNombre || 'Casilla Origen',
         subtitulo: [
           envio.origenCasillaCodigo,
@@ -350,7 +353,7 @@ export const EnvioDetailModal: React.FC<EnvioDetailModalProps> = ({
       destino = {
         flag: envio.destinoCasillaPais
           ? getFlagFromPais(envio.destinoCasillaPais)
-          : '🌐',
+          : undefined,
         nombre: envio.destinoCasillaNombre || 'Destino',
         subtitulo: [
           envio.destinoCasillaCodigo,
@@ -1725,12 +1728,12 @@ const TabIncidencias: React.FC<{
   const [filtroEstado, setFiltroEstado] = useState<'todos' | 'abiertas' | 'resueltas'>('todos');
 
   // S54 E2 — Meta por tipo (estilo IncidenciasOCPanel)
-  const TIPO_META: Record<string, { label: string; emoji: string; colorClass: string }> = {
-    faltante: { label: 'Faltante', emoji: '📦', colorClass: 'bg-amber-100 text-amber-800' },
-    danada: { label: 'Dañada', emoji: '💥', colorClass: 'bg-red-100 text-red-800' },
-    diferente: { label: 'Diferente', emoji: '❓', colorClass: 'bg-purple-100 text-purple-800' },
-    aduana: { label: 'Aduana', emoji: '🛃', colorClass: 'bg-sky-100 text-sky-800' },
-    otro: { label: 'Otro', emoji: '📌', colorClass: 'bg-slate-100 text-slate-800' },
+  const TIPO_META: Record<string, { label: string; icon: React.ComponentType<{ className?: string }>; iconClass: string; colorClass: string }> = {
+    faltante: { label: 'Faltante', icon: Package, iconClass: 'text-amber-700', colorClass: 'bg-amber-100 text-amber-800' },
+    danada: { label: 'Dañada', icon: AlertTriangle, iconClass: 'text-red-700', colorClass: 'bg-red-100 text-red-800' },
+    diferente: { label: 'Diferente', icon: HelpCircle, iconClass: 'text-purple-700', colorClass: 'bg-purple-100 text-purple-800' },
+    aduana: { label: 'Aduana', icon: Landmark, iconClass: 'text-sky-700', colorClass: 'bg-sky-100 text-sky-800' },
+    otro: { label: 'Otro', icon: MapPin, iconClass: 'text-slate-600', colorClass: 'bg-slate-100 text-slate-800' },
   };
 
   // Contadores por tipo y por estado
@@ -1784,20 +1787,24 @@ const TabIncidencias: React.FC<{
         >
           Todas <span className="text-[10px] text-slate-400">({contadores.porTipo.todas})</span>
         </button>
-        {tiposPresentes.map((t) => (
-          <button
-            key={t}
-            type="button"
-            onClick={() => setFiltroTipo(t as 'faltante' | 'danada' | 'diferente' | 'aduana' | 'otro')}
-            className={cn(
-              'text-xs px-3 py-1.5 rounded font-medium whitespace-nowrap',
-              filtroTipo === t ? 'bg-white shadow-sm text-slate-900' : 'text-slate-600'
-            )}
-          >
-            {TIPO_META[t].emoji} {TIPO_META[t].label}{' '}
-            <span className="text-[10px] text-slate-400">({contadores.porTipo[t] || 0})</span>
-          </button>
-        ))}
+        {tiposPresentes.map((t) => {
+          const TipoIcon = TIPO_META[t].icon;
+          return (
+            <button
+              key={t}
+              type="button"
+              onClick={() => setFiltroTipo(t as 'faltante' | 'danada' | 'diferente' | 'aduana' | 'otro')}
+              className={cn(
+                'text-xs px-3 py-1.5 rounded font-medium whitespace-nowrap inline-flex items-center gap-1',
+                filtroTipo === t ? 'bg-white shadow-sm text-slate-900' : 'text-slate-600'
+              )}
+            >
+              <TipoIcon className={cn('w-3 h-3', TIPO_META[t].iconClass)} />
+              {TIPO_META[t].label}{' '}
+              <span className="text-[10px] text-slate-400">({contadores.porTipo[t] || 0})</span>
+            </button>
+          );
+        })}
       </div>
 
       {/* Filtros estado + CTAs */}
@@ -1873,8 +1880,9 @@ const TabIncidencias: React.FC<{
                       >
                         {inc.resuelta ? 'Resuelta' : 'Abierta'}
                       </span>
-                      <span className={cn('text-[10px] px-1.5 py-0.5 rounded font-medium', meta.colorClass)}>
-                        {meta.emoji} {meta.label}
+                      <span className={cn('text-[10px] px-1.5 py-0.5 rounded font-medium inline-flex items-center gap-1', meta.colorClass)}>
+                        <meta.icon className={cn('w-3 h-3', meta.iconClass)} />
+                        {meta.label}
                       </span>
                       {inc.sku && (
                         <span className="text-[10px] text-slate-500 font-mono">{inc.sku}</span>

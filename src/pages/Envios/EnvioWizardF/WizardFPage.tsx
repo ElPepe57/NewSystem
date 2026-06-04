@@ -8,6 +8,7 @@
  */
 import React, { useReducer, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { AlertTriangle, X, Truck } from 'lucide-react';
 import { WizardShell, DraftBanner, formatFechaRelativa } from '../../../design-system';
 import { useWizardAutosave } from '../../../hooks/useWizardAutosave';
 import { useProductoStore } from '../../../store/productoStore';
@@ -121,13 +122,13 @@ export const WizardFPage: React.FC<WizardFPageProps> = ({
 
   const previewProps = useMemo(() => {
     return {
-      origenFlag: '🇵🇪',
+      origenPais: 'Peru',
       origenNombre: state.almacenOrigenNombre || 'Almacén Perú',
       origenSubtexto: 'Origen',
-      destinoFlag: '🏠',
+      destinoPais: undefined,
       destinoNombre: state.ventaSnapshot?.nombreCliente || 'Cliente',
       destinoSubtexto: state.ventaSnapshot?.distrito || 'Despacho a domicilio',
-      transporteIcono: '🚚',
+      transporteIcono: <Truck className="w-3.5 h-3.5 text-slate-500" />,
       colaboradorNombre: state.colaboradorTransporteNombre || undefined,
       unidadesCount: selectUnidadesCount(state),
       productosCount: selectProductosCount(state),
@@ -268,8 +269,8 @@ export const WizardFPage: React.FC<WizardFPageProps> = ({
 
       {error && (
         <div className="mb-4 bg-red-50 border border-red-200 rounded-xl p-4 flex items-start gap-3">
-          <div className="w-8 h-8 rounded-full bg-red-100 text-red-700 flex items-center justify-center flex-shrink-0 text-sm">
-            ⚠️
+          <div className="w-8 h-8 rounded-full bg-red-100 text-red-700 flex items-center justify-center flex-shrink-0">
+            <AlertTriangle className="w-4 h-4" />
           </div>
           <div className="flex-1">
             <div className="text-sm font-semibold text-red-900">No se pudo crear el despacho</div>
@@ -281,7 +282,7 @@ export const WizardFPage: React.FC<WizardFPageProps> = ({
             className="text-red-400 hover:text-red-600 flex-shrink-0"
             aria-label="Cerrar error"
           >
-            ✕
+            <X className="w-4 h-4" />
           </button>
         </div>
       )}
