@@ -244,7 +244,7 @@ export const SeccionDestino: React.FC<Props> = ({
                       <div className="flex items-center gap-2 mb-0.5">
                         {typeof info.icon === 'string'
                           ? <span className="text-xl">{info.icon}</span>
-                          : React.createElement(info.icon, { className: 'w-5 h-5 text-emerald-600' })}
+                          : React.createElement(info.icon, { className: 'w-5 h-5 text-orange-600' })}
                         <span className="text-sm font-semibold text-slate-900">
                           {info.label}
                         </span>

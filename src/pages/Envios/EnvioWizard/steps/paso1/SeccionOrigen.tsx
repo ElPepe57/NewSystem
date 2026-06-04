@@ -168,7 +168,7 @@ export const SeccionOrigen: React.FC<Props> = ({ wizard, collapsed, onToggle }) 
               />
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-0.5">
-                  <Globe className="w-5 h-5 text-sky-600" />
+                  <Globe className="w-5 h-5 text-orange-600" />
                   <span className="text-sm font-semibold text-slate-900">
                     Casilla internacional
                   </span>

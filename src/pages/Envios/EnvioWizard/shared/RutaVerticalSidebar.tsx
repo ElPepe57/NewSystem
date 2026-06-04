@@ -85,7 +85,7 @@ const Bloque: React.FC<BloqueProps> = ({
     pending:
       'bg-slate-50 border-slate-200 border-dashed',
     current:
-      'bg-blue-50 border-blue-500 shadow-[0_0_0_4px_#dbeafe] animate-pulse',
+      'bg-orange-50 border-orange-500 shadow-[0_0_0_4px_#ffedd5] animate-pulse',
     complete:
       'bg-green-50 border-green-500 cursor-pointer hover:bg-green-100 hover:border-green-600',
     'complete-category':
@@ -94,28 +94,28 @@ const Bloque: React.FC<BloqueProps> = ({
 
   const nombreClases = {
     pending: 'text-slate-400 italic',
-    current: 'text-blue-900 font-semibold',
+    current: 'text-orange-900 font-semibold',
     complete: 'text-green-800 font-semibold',
     'complete-category': 'text-emerald-700 font-medium',
   }[estado];
 
   const labelClases = {
     pending: 'text-slate-500',
-    current: 'text-blue-700',
+    current: 'text-orange-700',
     complete: 'text-green-700',
     'complete-category': 'text-emerald-700',
   }[estado];
 
   const badgeClases = {
     pending: 'bg-slate-200 text-slate-400',
-    current: 'bg-blue-500 text-white',
+    current: 'bg-orange-500 text-white',
     complete: 'bg-green-500 text-white',
     'complete-category': 'bg-green-500 text-white',
   }[estado];
 
   const metadataClases = {
     pending: 'text-slate-400',
-    current: 'text-blue-700',
+    current: 'text-orange-700',
     complete: 'text-green-700',
     'complete-category': 'text-emerald-600',
   }[estado];
