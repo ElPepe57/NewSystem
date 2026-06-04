@@ -621,7 +621,7 @@ const DanadasTabContent: React.FC<DanadasTabContentProps> = ({
                           value={op.value}
                           checked={isSelected}
                           onChange={() => updateDecision(inc.id, 'disposicion', op.value)}
-                          className="text-amber-600 focus:ring-amber-500"
+                          className="text-orange-600 focus:ring-orange-500"
                         />
                         <Icon className={`h-4 w-4 flex-shrink-0 ${isSelected ? iconColor : 'text-slate-400'}`} />
                         <div>
@@ -639,7 +639,7 @@ const DanadasTabContent: React.FC<DanadasTabContentProps> = ({
                     <select
                       value={decision.responsable}
                       onChange={e => updateDecision(inc.id, 'responsable', e.target.value)}
-                      className="w-full text-sm border border-slate-300 rounded-md px-2 py-1.5 focus:ring-2 focus:ring-amber-400"
+                      className="w-full text-sm border border-slate-300 rounded-md px-2 py-1.5 focus:ring-2 focus:ring-orange-400"
                     >
                       {OPCIONES_RESPONSABLE.map(r => (
                         <option key={r.value} value={r.value}>{r.label}</option>
@@ -662,7 +662,7 @@ const DanadasTabContent: React.FC<DanadasTabContentProps> = ({
                       value={decision.motivo}
                       onChange={e => updateDecision(inc.id, 'motivo', e.target.value)}
                       placeholder="Ej: Tapa rota durante el vuelo"
-                      className="w-full text-sm border border-slate-300 rounded-md px-2 py-1.5 focus:ring-2 focus:ring-amber-400"
+                      className="w-full text-sm border border-slate-300 rounded-md px-2 py-1.5 focus:ring-2 focus:ring-orange-400"
                     />
                   </div>
                 )}

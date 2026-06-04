@@ -273,7 +273,7 @@ function buildFooterSummary(
         partes.push(
           <span key="venta">
             Venta:{' '}
-            <span className="font-mono text-teal-700 font-semibold">{ventaNum}</span>
+            <span className="font-mono text-slate-700 font-semibold">{ventaNum}</span>
           </span>
         );
       }
@@ -589,7 +589,7 @@ export const EnvioCard: React.FC<EnvioCardProps> = ({ envio, onSelect }) => {
     hayIncidencia
       ? 'border-red-200 ring-1 ring-red-100'
       : envio.estado === 'en_transito'
-        ? 'border-teal-200'
+        ? 'border-sky-200'
         : 'border-slate-200';
 
   return (
@@ -597,7 +597,7 @@ export const EnvioCard: React.FC<EnvioCardProps> = ({ envio, onSelect }) => {
       type="button"
       onClick={() => onSelect(envio)}
       className={cn(
-        'w-full text-left bg-white border rounded-xl px-4 py-3 transition-all hover:shadow-md hover:border-teal-300 group',
+        'w-full text-left bg-white border rounded-xl px-4 py-3 transition-all hover:shadow-md hover:border-orange-300 group',
         borderClass
       )}
     >
@@ -689,14 +689,14 @@ export const EnvioCard: React.FC<EnvioCardProps> = ({ envio, onSelect }) => {
               <div className="text-[10px] text-slate-500 uppercase tracking-wider">
                 OC vinculada
               </div>
-              <div className="text-xs font-mono font-semibold text-teal-700">{ocNumero}</div>
+              <div className="text-xs font-mono font-semibold text-slate-700">{ocNumero}</div>
             </>
           ) : ventaNumero ? (
             <>
               <div className="text-[10px] text-slate-500 uppercase tracking-wider">
                 Venta vinculada
               </div>
-              <div className="text-xs font-mono font-semibold text-teal-700">{ventaNumero}</div>
+              <div className="text-xs font-mono font-semibold text-slate-700">{ventaNumero}</div>
             </>
           ) : devolucionNumero ? (
             <>
@@ -737,7 +737,7 @@ export const EnvioCard: React.FC<EnvioCardProps> = ({ envio, onSelect }) => {
           {footer.incluyeTimelineLink && (
             <>
               <span className="text-slate-300">·</span>
-              <span className="text-teal-700 hover:text-teal-900 hover:underline cursor-pointer font-medium">
+              <span className="text-orange-700 hover:text-orange-900 hover:underline cursor-pointer font-medium">
                 ver timeline
               </span>
             </>

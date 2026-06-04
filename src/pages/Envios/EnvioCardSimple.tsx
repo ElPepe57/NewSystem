@@ -230,7 +230,7 @@ export const EnvioCardSimple: React.FC<EnvioCardSimpleProps> = ({
   return (
     <div
       className={cn(
-        '@container bg-white rounded-xl border border-slate-200 p-4 hover:shadow-md hover:border-teal-300 transition-all cursor-pointer',
+        '@container bg-white rounded-xl border border-slate-200 p-4 hover:shadow-md hover:border-orange-300 transition-all cursor-pointer',
         className
       )}
       onClick={() => onSelect(envio)}
@@ -374,7 +374,7 @@ export const EnvioCardSimple: React.FC<EnvioCardSimpleProps> = ({
                 e.stopPropagation();
                 onSelect(envio);
               }}
-              className="w-8 h-8 rounded-full bg-teal-50 text-teal-600 hover:bg-teal-100 flex items-center justify-center flex-shrink-0 transition-colors"
+              className="w-8 h-8 rounded-full bg-orange-50 text-orange-600 hover:bg-orange-100 flex items-center justify-center flex-shrink-0 transition-colors"
             >
               <Eye className="w-4 h-4" />
             </button>
@@ -565,7 +565,7 @@ export const EnvioCardSimple: React.FC<EnvioCardSimpleProps> = ({
               e.stopPropagation();
               onSelect(envio);
             }}
-            className="p-1.5 rounded-lg text-teal-600 hover:bg-teal-50 transition-colors"
+            className="p-1.5 rounded-lg text-orange-600 hover:bg-orange-50 transition-colors"
           >
             <Eye className="w-4 h-4" />
           </button>
