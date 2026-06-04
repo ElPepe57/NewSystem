@@ -99,8 +99,13 @@ export const useAlmacenStore = create<AlmacenState>((set, get) => ({
   fetchAlmacenes: async () => {
     set({ loading: true, error: null });
     try {
-      const almacenes = await almacenService.getAll();
-      set({ almacenes, loading: false });
+      // chk5.ENVIOS-CONTADOR Fase 1 · el path legacy `almacenes` deriva el conteo en
+      // VIVO (misma fuente que casillas) · antes mostraba el contador crudo (fantasma).
+      const [almacenes, conteo] = await Promise.all([
+        almacenService.getAll(),
+        casillaCrudService.contarDisponiblesPorCasilla(),
+      ]);
+      set({ almacenes: almacenes.map(a => ({ ...a, unidadesActuales: conteo[a.id] ?? 0 })), loading: false });
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : 'Error desconocido';
       set({ error: message, loading: false });
@@ -111,8 +116,11 @@ export const useAlmacenStore = create<AlmacenState>((set, get) => ({
   fetchAlmacenesUSA: async () => {
     set({ loading: true, error: null });
     try {
-      const almacenesUSA = await almacenService.getAlmacenesUSA();
-      set({ almacenesUSA, loading: false });
+      const [almacenesUSA, conteo] = await Promise.all([
+        almacenService.getAlmacenesUSA(),
+        casillaCrudService.contarDisponiblesPorCasilla(),
+      ]);
+      set({ almacenesUSA: almacenesUSA.map(a => ({ ...a, unidadesActuales: conteo[a.id] ?? 0 })), loading: false });
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : 'Error desconocido';
       set({ error: message, loading: false });
@@ -123,8 +131,11 @@ export const useAlmacenStore = create<AlmacenState>((set, get) => ({
   fetchAlmacenesPeru: async () => {
     set({ loading: true, error: null });
     try {
-      const almacenesPeru = await almacenService.getAlmacenesPeru();
-      set({ almacenesPeru, loading: false });
+      const [almacenesPeru, conteo] = await Promise.all([
+        almacenService.getAlmacenesPeru(),
+        casillaCrudService.contarDisponiblesPorCasilla(),
+      ]);
+      set({ almacenesPeru: almacenesPeru.map(a => ({ ...a, unidadesActuales: conteo[a.id] ?? 0 })), loading: false });
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : 'Error desconocido';
       set({ error: message, loading: false });
