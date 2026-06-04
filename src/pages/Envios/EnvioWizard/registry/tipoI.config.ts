@@ -16,11 +16,11 @@ export const tipoIConfig: EnvioTipoConfig = {
   requiereDestinoDetalles: true, // referencia + tipo relación obligatorios
   transportadoresPermitidos: ['courier_internacional', 'transportista_local'],
   chipColor: {
-    bg: 'bg-violet-50',
-    border: 'border-violet-200',
-    textUpper: 'text-violet-700',
-    textMain: 'text-violet-900',
-    textSub: 'text-violet-700',
+    bg: 'bg-orange-50',
+    border: 'border-orange-200',
+    textUpper: 'text-orange-700',
+    textMain: 'text-orange-900',
+    textSub: 'text-orange-700',
   },
   botonCrearLabel: 'Crear envío a tercero',
   bloqueaStock: true,

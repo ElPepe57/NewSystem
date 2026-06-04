@@ -14,11 +14,11 @@ export const tipoEConfig: EnvioTipoConfig = {
   requiereDestinoDetalles: true, // motivo obligatorio
   transportadoresPermitidos: ['transportista_local'],
   chipColor: {
-    bg: 'bg-amber-50',
-    border: 'border-amber-200',
-    textUpper: 'text-amber-700',
-    textMain: 'text-amber-900',
-    textSub: 'text-amber-700',
+    bg: 'bg-orange-50',
+    border: 'border-orange-200',
+    textUpper: 'text-orange-700',
+    textMain: 'text-orange-900',
+    textSub: 'text-orange-700',
   },
   botonCrearLabel: 'Crear traslado interno',
   bloqueaStock: false,

@@ -74,37 +74,37 @@ const Bloque: React.FC<BloqueProps> = ({
     current:
       'bg-orange-50 border-orange-500 shadow-[0_0_0_4px_#ffedd5] animate-pulse',
     complete:
-      'bg-green-50 border-green-500 cursor-pointer hover:bg-green-100 hover:border-green-600',
+      'bg-orange-50 border-orange-500 cursor-pointer hover:bg-orange-100 hover:border-orange-600',
     'complete-category':
-      'bg-emerald-50 border-emerald-500 cursor-pointer hover:bg-emerald-100',
+      'bg-orange-50 border-orange-400 cursor-pointer hover:bg-orange-100',
   }[estado];
 
   const nombreClases = {
     pending: 'text-slate-400 italic',
     current: 'text-orange-900 font-semibold',
-    complete: 'text-green-800 font-semibold',
-    'complete-category': 'text-emerald-700 font-medium',
+    complete: 'text-orange-900 font-semibold',
+    'complete-category': 'text-orange-800 font-medium',
   }[estado];
 
   const labelClases = {
     pending: 'text-slate-500',
     current: 'text-orange-700',
-    complete: 'text-green-700',
-    'complete-category': 'text-emerald-700',
+    complete: 'text-orange-700',
+    'complete-category': 'text-orange-700',
   }[estado];
 
   const badgeClases = {
     pending: 'bg-slate-200 text-slate-400',
     current: 'bg-orange-500 text-white',
-    complete: 'bg-green-500 text-white',
-    'complete-category': 'bg-green-500 text-white',
+    complete: 'bg-orange-500 text-white',
+    'complete-category': 'bg-orange-500 text-white',
   }[estado];
 
   const metadataClases = {
     pending: 'text-slate-400',
     current: 'text-orange-700',
-    complete: 'text-green-700',
-    'complete-category': 'text-emerald-600',
+    complete: 'text-orange-700',
+    'complete-category': 'text-orange-600',
   }[estado];
 
   return (
