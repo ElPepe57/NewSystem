@@ -28,6 +28,30 @@ export const casillaCrudService = {
     return snap.docs.map(d => ({ id: d.id, ...d.data() } as Casilla));
   },
 
+  /**
+   * Cuenta las unidades 'disponible' por casilla, derivado de las UNIDADES REALES.
+   * Fuente ÚNICA de verdad para "X uds disponibles" — evita confiar en el contador
+   * denormalizado `unidadesActuales`, que se desincroniza (ej. al borrar unidades de
+   * prueba sin pasar por el flujo de despacho → quedaba un "20 fantasma"). chk5.ENVIOS-CONTADOR.
+   *
+   * Misma regla que el selector de unidades del wizard (SeccionUnidades):
+   * estado === 'disponible' · ubicación = casillaActualId (o el legacy almacenId).
+   */
+  async contarDisponiblesPorCasilla(): Promise<Record<string, number>> {
+    const q = query(
+      collection(db, COLLECTIONS.UNIDADES),
+      where('estado', '==', 'disponible')
+    );
+    const snap = await getDocs(q);
+    const conteo: Record<string, number> = {};
+    snap.docs.forEach(d => {
+      const data = d.data() as { casillaActualId?: string; almacenId?: string };
+      const ubic = data.casillaActualId || data.almacenId;
+      if (ubic) conteo[ubic] = (conteo[ubic] ?? 0) + 1;
+    });
+    return conteo;
+  },
+
   async getById(id: string): Promise<Casilla | null> {
     const ref = doc(db, COLL, id);
     const snap = await getDoc(ref);

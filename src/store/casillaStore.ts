@@ -260,8 +260,19 @@ export const useAlmacenStore = create<AlmacenState>((set, get) => ({
   fetchCasillas: async () => {
     set({ casillasLoading: true });
     try {
-      const casillas = await casillaCrudService.getAll();
-      set({ casillas, casillasLoading: false });
+      // chk5.ENVIOS-CONTADOR · `unidadesActuales` se DERIVA del conteo REAL de
+      // unidades 'disponible' (fuente única de verdad). El contador denormalizado
+      // guardado se desincroniza (ej. al borrar unidades de prueba) → mostraba
+      // "fantasmas" (20 uds en una casilla vacía).
+      const [casillas, conteoLive] = await Promise.all([
+        casillaCrudService.getAll(),
+        casillaCrudService.contarDisponiblesPorCasilla(),
+      ]);
+      const casillasLive = casillas.map(c => ({
+        ...c,
+        unidadesActuales: conteoLive[c.id] ?? 0,
+      }));
+      set({ casillas: casillasLive, casillasLoading: false });
     } catch {
       set({ casillasLoading: false });
     }
