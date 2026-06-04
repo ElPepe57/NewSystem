@@ -19,6 +19,7 @@ import {
   Search,
   Download,
   LayoutDashboard,
+  Landmark,
 } from "lucide-react";
 import { exportService } from "../../services/export.service";
 import {
@@ -201,8 +202,7 @@ export const Envios: React.FC = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [pipelineStage, setPipelineStage] = useState<string | null>(null);
   // S42 Tanda 9 — Filtros extra alineados a mockup s40 líneas 2073-2092
-  // S42aj — 'tramo1' reemplaza el tab "Envíos Proveedor" eliminado (origenTipo === 'proveedor')
-  const [pillFiltroEnv, setPillFiltroEnv] = useState<'todas' | 'activas' | 'incidencias' | 'tramo1'>('todas');
+  const [pillFiltroEnv, setPillFiltroEnv] = useState<'todas' | 'activas' | 'incidencias'>('todas');
   const [filtroCourier, setFiltroCourier] = useState('');
   // S47 — Filtro por tipo de ruta logística (A-J del Modelo Envíos Transversal)
   const [filtroTipoRuta, setFiltroTipoRuta] = useState<TipoRutaLogistica | ''>('');
@@ -295,8 +295,8 @@ export const Envios: React.FC = () => {
       return false;
     }).length;
 
-    // S42aj — Count Tramo 1 (envíos del proveedor a casilla)
-    const countTramo1 = enviosPorLinea.filter(e => e.origenTipo === 'proveedor').length;
+    // Count en aduana (retenidos · señal de fricción de importación · mini-stat del strip)
+    const countEnAduana = enviosPorLinea.filter(e => e.estado === 'retenida_aduana').length;
 
     // S47 — Count por tipo de ruta A-J (Modelo Envíos Transversal)
     const countsPorTipoRuta = contarEnviosPorTipoRuta(enviosPorLinea);
@@ -306,7 +306,7 @@ export const Envios: React.FC = () => {
       valorLandedPEN,
       countActivas,
       countIncidencias,
-      countTramo1,
+      countEnAduana,
       tc,
       countsPorTipoRuta,
     };
@@ -394,8 +394,8 @@ export const Envios: React.FC = () => {
       });
     }
 
-    // S42 Tanda 9 — Pills filtro (mockup s40 líneas 2074-2077)
-    // S42aj — +tramo1 (envíos con origen=proveedor, reemplaza tab "Envíos Proveedor")
+    // Pills filtro · eje ESTADO/SALUD. El filtro por origen/ruta (incl. "lo que manda
+    // el proveedor") vive en la fila "Filtrar por tipo de ruta logística" (ruta A).
     if (pillFiltroEnv === 'activas') {
       lista = lista.filter(e => !['recibida_completa', 'cancelada'].includes(e.estado));
     } else if (pillFiltroEnv === 'incidencias') {
@@ -405,8 +405,6 @@ export const Envios: React.FC = () => {
         if (Array.isArray(e.incidencias) && e.incidencias.some(i => !i.resuelta)) return true;
         return false;
       });
-    } else if (pillFiltroEnv === 'tramo1') {
-      lista = lista.filter(e => e.origenTipo === 'proveedor');
     }
 
     // Dropdown courier
@@ -661,7 +659,7 @@ export const Envios: React.FC = () => {
           cols={5}
           kpis={enviosKpis}
           miniStats={[
-            { label: <span><strong className="font-semibold text-slate-700 tabular-nums">{enviosStatsExtra.countTramo1}</strong> en Tramo 1 · proveedor</span>, icon: Package },
+            { label: <span><strong className={`tabular-nums font-semibold ${enviosStatsExtra.countEnAduana > 0 ? 'text-rose-700' : 'text-slate-700'}`}>{enviosStatsExtra.countEnAduana}</strong> en aduana</span>, icon: Landmark },
             { label: <span><strong className="font-semibold text-slate-700 tabular-nums">{couriersUnicos.length}</strong> couriers activos</span>, icon: Truck },
           ]}
         />
@@ -725,18 +723,6 @@ export const Envios: React.FC = () => {
           }`}
         >
           Con incidencias ({enviosStatsExtra.countIncidencias})
-        </button>
-        {/* S42aj — Pill que reemplaza el tab "Envíos Proveedor" */}
-        <button
-          type="button"
-          onClick={() => setPillFiltroEnv('tramo1')}
-          title="Envíos con origen proveedor (Tramo 1 — lo que el proveedor te envía a la casilla)"
-          className={`px-2.5 py-1 text-xs rounded-full transition-colors flex items-center gap-1 ${
-            pillFiltroEnv === 'tramo1' ? 'bg-orange-600 text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-          }`}
-        >
-          <Package className="w-3 h-3" />
-          Tramo 1 · Proveedor ({enviosStatsExtra.countTramo1})
         </button>
         <select
           value={filtroCourier}
