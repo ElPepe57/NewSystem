@@ -12,6 +12,7 @@
  * Output: total derivado (sum de subtotales).
  */
 import React from 'react';
+import { Package } from 'lucide-react';
 import type { TramoPeso } from '../../../../types/colaborador.types';
 import type { UnidadSeleccionadaWizard } from '../envioWizardTypes';
 import { encontrarTramoPorPeso } from '../envioWizardTypes';
@@ -96,7 +97,7 @@ export const TablaCalculoTramos: React.FC<Props> = ({
                   u.pesoLibras === undefined ? 'bg-amber-50/50' : '';
                 return (
                   <tr key={u.productoId} className={rowClass}>
-                    <td className="px-3 py-2">📦 {u.productoNombre}</td>
+                    <td className="px-3 py-2"><Package className="w-3.5 h-3.5 inline-block mr-1 text-slate-400 align-text-bottom" />{u.productoNombre}</td>
                     <td className="px-3 py-2 text-right tabular-nums">
                       {u.pesoLibras !== undefined ? (
                         `${u.pesoLibras} lb`

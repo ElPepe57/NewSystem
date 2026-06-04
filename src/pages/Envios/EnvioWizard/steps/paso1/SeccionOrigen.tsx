@@ -12,6 +12,7 @@
  *   - almacen_peru  → Casilla.tipo='almacen_propio' en Perú
  */
 import React, { useState, useEffect, useMemo } from 'react';
+import { Globe, Inbox } from 'lucide-react';
 import { useAlmacenStore } from '../../../../../store/casillaStore';
 import type { Casilla } from '../../../../../types/casilla.types';
 import type { UseEnvioWizardStateReturn } from '../../useEnvioWizardState';
@@ -167,7 +168,7 @@ export const SeccionOrigen: React.FC<Props> = ({ wizard, collapsed, onToggle }) 
               />
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-0.5">
-                  <span className="text-xl">🌎</span>
+                  <Globe className="w-5 h-5 text-sky-600" />
                   <span className="text-sm font-semibold text-slate-900">
                     Casilla internacional
                   </span>
@@ -236,7 +237,7 @@ export const SeccionOrigen: React.FC<Props> = ({ wizard, collapsed, onToggle }) 
               </div>
             ) : casillasDisponibles.length === 0 ? (
               <div className="bg-slate-50 border border-dashed border-slate-300 rounded-lg p-4 text-center">
-                <div className="text-2xl mb-1">📭</div>
+                <Inbox className="w-7 h-7 text-slate-300 mx-auto mb-1" />
                 <p className="text-xs text-slate-600">
                   {busqueda
                     ? 'Sin resultados para esa búsqueda.'

@@ -14,6 +14,7 @@
  *   - R5: iconos fijos por rol (📦/🏠) + tránsito dinámico (✈️/🚢/🚚)
  */
 import React from 'react';
+import { Package, Home, Plane, Ship, Truck, Tag, type LucideIcon } from 'lucide-react';
 import type { EnvioWizardState } from '../envioWizardTypes';
 import type { EnvioTipoConfig } from '../registry';
 
@@ -46,8 +47,8 @@ function paisBandera(pais: string): string {
   return MAP[pais] || '🌎';
 }
 
-function iconoTransito(modo: 'aereo' | 'maritimo' | 'terrestre'): string {
-  return modo === 'aereo' ? '✈️' : modo === 'maritimo' ? '🚢' : '🚚';
+function iconoTransito(modo: 'aereo' | 'maritimo' | 'terrestre'): LucideIcon {
+  return modo === 'aereo' ? Plane : modo === 'maritimo' ? Ship : Truck;
 }
 
 function labelTransito(modo: 'aereo' | 'maritimo' | 'terrestre'): string {
@@ -60,7 +61,7 @@ function labelTransito(modo: 'aereo' | 'maritimo' | 'terrestre'): string {
 
 interface BloqueProps {
   estado: EstadoBloque;
-  icono: string;
+  icon: LucideIcon;
   labelRol: string;
   nombre: string;
   metadata?: string;
@@ -72,7 +73,7 @@ interface BloqueProps {
 
 const Bloque: React.FC<BloqueProps> = ({
   estado,
-  icono,
+  icon: Icon,
   labelRol,
   nombre,
   metadata,
@@ -131,9 +132,7 @@ const Bloque: React.FC<BloqueProps> = ({
     >
       <div className="flex items-start justify-between mb-1">
         <div className="flex items-center gap-1.5">
-          <span className={`text-base ${estado === 'pending' ? 'opacity-50' : ''}`}>
-            {icono}
-          </span>
+          <Icon className={`w-4 h-4 ${labelClases} ${estado === 'pending' ? 'opacity-50' : ''}`} />
           <span className={`text-[10px] font-semibold uppercase tracking-wider ${labelClases}`}>
             {labelRol}
           </span>
@@ -255,7 +254,7 @@ export const RutaVerticalSidebar: React.FC<Props> = ({
     ? state.colaboradorTransporteNombre
     : '(por elegir)';
   const transitoMetadata = transitoCompleto
-    ? `${tIcon} ${
+    ? `${
         state.tipoTransportador === 'viajero'
           ? 'Viajero'
           : state.tipoTransportador === 'courier_internacional'
@@ -276,7 +275,7 @@ export const RutaVerticalSidebar: React.FC<Props> = ({
           className={`rounded-xl px-3 py-2 border ${tipoConfig.chipColor.bg} ${tipoConfig.chipColor.border}`}
         >
           <div className="flex items-center gap-2">
-            <span className="text-lg">🏷️</span>
+            <Tag className={`w-5 h-5 flex-shrink-0 ${tipoConfig.chipColor.textMain}`} />
             <div className="flex-1 min-w-0">
               <div
                 className={`text-[10px] font-semibold uppercase tracking-wider ${tipoConfig.chipColor.textUpper}`}
@@ -297,7 +296,7 @@ export const RutaVerticalSidebar: React.FC<Props> = ({
       ) : (
         <div className="rounded-xl px-3 py-2 border border-slate-200 bg-slate-50">
           <div className="flex items-center gap-2">
-            <span className="text-lg opacity-40">🏷️</span>
+            <Tag className="w-5 h-5 flex-shrink-0 text-slate-300" />
             <div className="flex-1 min-w-0">
               <div className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
                 Tipo detectado
@@ -322,7 +321,7 @@ export const RutaVerticalSidebar: React.FC<Props> = ({
         <div className="space-y-2">
           <Bloque
             estado={estadoOrigen}
-            icono="📦"
+            icon={Package}
             labelRol="Origen"
             nombre={origenNombre}
             metadata={origenMetadata}
@@ -333,7 +332,7 @@ export const RutaVerticalSidebar: React.FC<Props> = ({
 
           <Bloque
             estado={estadoTransito}
-            icono={estadoTransito === 'pending' ? '✈️' : tIcon}
+            icon={estadoTransito === 'pending' ? Plane : tIcon}
             labelRol={tLabelRol}
             nombre={transitoNombre}
             metadata={transitoMetadata}
@@ -345,7 +344,7 @@ export const RutaVerticalSidebar: React.FC<Props> = ({
 
           <Bloque
             estado={estadoDestino}
-            icono="🏠"
+            icon={Home}
             labelRol="Destino"
             nombre={destinoNombre}
             metadata={destinoMetadata}

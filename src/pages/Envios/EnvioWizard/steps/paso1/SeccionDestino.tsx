@@ -12,6 +12,7 @@
  *   - Si origen='almacen_peru': destino puede ser almacen_peru (E) o almacen_tercero (I)
  */
 import React, { useState, useEffect, useMemo } from 'react';
+import { Globe, Factory, type LucideIcon } from 'lucide-react';
 import { useAlmacenStore } from '../../../../../store/casillaStore';
 import type { Casilla } from '../../../../../types/casilla.types';
 import type { UseEnvioWizardStateReturn } from '../../useEnvioWizardState';
@@ -60,10 +61,10 @@ export const SeccionDestino: React.FC<Props> = ({
 
   const CATEGORIAS_INFO: Record<
     DestinoCategoria,
-    { icon: string; label: string; descripcion: string }
+    { icon: LucideIcon | string; label: string; descripcion: string }
   > = {
     casilla_intl: {
-      icon: '🌎',
+      icon: Globe,
       label: 'Casilla internacional',
       descripcion: 'Otra casilla tuya en el extranjero',
     },
@@ -73,7 +74,7 @@ export const SeccionDestino: React.FC<Props> = ({
       descripcion: 'Tu almacén local',
     },
     almacen_tercero: {
-      icon: '🏭',
+      icon: Factory,
       label: 'Almacén tercero',
       descripcion: 'FBA Amazon, distribuidor, consignación',
     },
@@ -144,7 +145,7 @@ export const SeccionDestino: React.FC<Props> = ({
     <div className="flex items-center gap-3">
       <div className="w-10 h-10 rounded-lg bg-emerald-100 flex items-center justify-center text-xl flex-shrink-0">
         {state.destinoCategoria === 'almacen_tercero'
-          ? '🏭'
+          ? <Factory className="w-5 h-5 text-emerald-600" />
           : paisEmoji(ubicacionSeleccionada.pais)}
       </div>
       <div className="flex-1 min-w-0">
@@ -241,7 +242,9 @@ export const SeccionDestino: React.FC<Props> = ({
                     />
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-0.5">
-                        <span className="text-xl">{info.icon}</span>
+                        {typeof info.icon === 'string'
+                          ? <span className="text-xl">{info.icon}</span>
+                          : React.createElement(info.icon, { className: 'w-5 h-5 text-emerald-600' })}
                         <span className="text-sm font-semibold text-slate-900">
                           {info.label}
                         </span>
@@ -305,7 +308,7 @@ export const SeccionDestino: React.FC<Props> = ({
                     >
                       <div className="w-10 h-10 rounded-lg bg-emerald-100 flex items-center justify-center text-xl flex-shrink-0">
                         {state.destinoCategoria === 'almacen_tercero'
-                          ? '🏭'
+                          ? <Factory className="w-5 h-5 text-emerald-600" />
                           : paisEmoji(c.pais)}
                       </div>
                       <div className="flex-1 min-w-0">
