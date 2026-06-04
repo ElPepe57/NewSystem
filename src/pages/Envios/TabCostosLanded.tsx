@@ -349,7 +349,7 @@ export const TabCostosLanded: React.FC = () => {
           <select
             value={filtroPeriodo}
             onChange={(e) => setFiltroPeriodo(e.target.value as FiltroPeriodo)}
-            className="px-2 py-1.5 text-sm border border-slate-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-teal-500"
+            className="px-2 py-1.5 text-sm border border-slate-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-orange-500"
           >
             <option value="mes_actual">Último mes</option>
             <option value="ultimos_3_meses">Últimos 3 meses</option>

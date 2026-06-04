@@ -193,12 +193,12 @@ export const TabReclamos: React.FC = () => {
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
           <div className="flex items-center gap-2 text-xs text-slate-400 mb-1">
-            <span className="hover:text-teal-600 transition-colors cursor-pointer">Logística</span>
+            <span className="hover:text-orange-600 transition-colors cursor-pointer">Logística</span>
             <ChevronRight className="w-3 h-3" />
             <span className="text-slate-600 font-medium">Reclamos · Recuperación de incidencias</span>
           </div>
           <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2.5">
-            <ShieldAlert className="w-6 h-6 text-teal-600" />
+            <ShieldAlert className="w-6 h-6 text-orange-600" />
             Reclamos
           </h1>
           <p className="text-sm text-slate-500 mt-0.5 max-w-2xl">
@@ -308,7 +308,7 @@ export const TabReclamos: React.FC = () => {
           <select
             value={filtroEstado}
             onChange={(e) => setFiltroEstado(e.target.value as FiltroEstado)}
-            className="px-2 py-1.5 text-sm border border-slate-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-teal-500"
+            className="px-2 py-1.5 text-sm border border-slate-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-orange-500"
           >
             <option value="activos">Activos</option>
             <option value="cerrados">Cerrados</option>
@@ -325,7 +325,7 @@ export const TabReclamos: React.FC = () => {
           <select
             value={filtroDestinatario}
             onChange={(e) => setFiltroDestinatario(e.target.value as any)}
-            className="px-2 py-1.5 text-sm border border-slate-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-teal-500"
+            className="px-2 py-1.5 text-sm border border-slate-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-orange-500"
           >
             <option value="todos">Todos los destinatarios</option>
             <option value="proveedor">Proveedor</option>

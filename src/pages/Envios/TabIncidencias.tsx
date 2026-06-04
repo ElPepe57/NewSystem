@@ -278,7 +278,7 @@ export const TabIncidencias: React.FC = () => {
           <select
             value={filtroTipo}
             onChange={(e) => setFiltroTipo(e.target.value as FiltroTipo)}
-            className="px-2 py-1.5 text-sm border border-slate-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-teal-500"
+            className="px-2 py-1.5 text-sm border border-slate-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-orange-500"
           >
             <option value="todos">Todos los tipos</option>
             <option value="danada">Dañadas</option>
@@ -290,7 +290,7 @@ export const TabIncidencias: React.FC = () => {
           <select
             value={filtroEstado}
             onChange={(e) => setFiltroEstado(e.target.value as FiltroEstadoInc)}
-            className="px-2 py-1.5 text-sm border border-slate-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-teal-500"
+            className="px-2 py-1.5 text-sm border border-slate-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-orange-500"
           >
             <option value="abiertas">Abiertas</option>
             <option value="resueltas">Resueltas</option>

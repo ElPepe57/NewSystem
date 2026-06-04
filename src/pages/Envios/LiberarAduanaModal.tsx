@@ -143,7 +143,7 @@ export const LiberarAduanaModal: React.FC<LiberarAduanaModalProps> = ({
             <button
               type="button"
               onClick={() => toggleTodas(totalSeleccionadas !== totalIncidencias)}
-              className="text-xs text-teal-600 hover:text-teal-800 font-medium"
+              className="text-xs text-orange-600 hover:text-orange-800 font-medium"
             >
               {totalSeleccionadas === totalIncidencias ? 'Deseleccionar todas' : 'Seleccionar todas'}
             </button>
@@ -183,7 +183,7 @@ export const LiberarAduanaModal: React.FC<LiberarAduanaModalProps> = ({
                             checked={checked}
                             onChange={() => inc.unidadId && toggleUnidad(inc.unidadId)}
                             disabled={!inc.unidadId}
-                            className="h-4 w-4 text-teal-600 rounded"
+                            className="h-4 w-4 text-orange-600 rounded"
                           />
                           <div className="flex-1 min-w-0 text-xs text-slate-600">
                             {unidadEnvio?.codigoUnidad && (
@@ -222,7 +222,7 @@ export const LiberarAduanaModal: React.FC<LiberarAduanaModalProps> = ({
                 const v = e.target.value;
                 if (v === '' || /^\d*[.,]?\d*$/.test(v)) setGastosPEN(v);
               }}
-              className="w-40 px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white"
+              className="w-40 px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 bg-white"
               placeholder="Ej: 85.00"
             />
             <p className="text-xs text-slate-500 mt-1">
@@ -238,7 +238,7 @@ export const LiberarAduanaModal: React.FC<LiberarAduanaModalProps> = ({
               type="text"
               value={descripcion}
               onChange={(e) => setDescripcion(e.target.value)}
-              className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white"
+              className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 bg-white"
               placeholder="Ej: DUA simplificada, agente de aduanas"
             />
           </div>
@@ -252,7 +252,7 @@ export const LiberarAduanaModal: React.FC<LiberarAduanaModalProps> = ({
               type="url"
               value={documentoURL}
               onChange={(e) => setDocumentoURL(e.target.value)}
-              className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white"
+              className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 bg-white"
               placeholder="https://..."
             />
             <p className="text-xs text-slate-500 mt-1">
@@ -263,7 +263,7 @@ export const LiberarAduanaModal: React.FC<LiberarAduanaModalProps> = ({
 
         {/* Preview por unidad */}
         {gastosParsed > 0 && totalSeleccionadas > 0 && envio.totalUnidades > 0 && (
-          <div className="text-xs text-slate-600 px-3 py-2 bg-teal-50 border border-teal-200 rounded-lg">
+          <div className="text-xs text-slate-600 px-3 py-2 bg-orange-50 border border-orange-200 rounded-lg">
             Prorrateo estimado: S/ {(gastosParsed / envio.totalUnidades).toFixed(2)} por unidad del envío
             <span className="text-slate-500"> (sobre las {envio.totalUnidades} unidades totales, no solo las liberadas)</span>
           </div>

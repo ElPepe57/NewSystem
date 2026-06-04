@@ -35,7 +35,7 @@ import { cn } from '../utils';
 // Tipos
 // ────────────────────────────────────────────────────────────────────────────
 
-export type KpiTone = 'default' | 'teal' | 'blue' | 'amber' | 'emerald' | 'red' | 'muted';
+export type KpiTone = 'default' | 'teal' | 'orange' | 'blue' | 'amber' | 'emerald' | 'red' | 'muted';
 
 export interface KpiRowItem {
   /** Etiqueta pequeña arriba del valor (ej. "Total OC", "Productos") */
@@ -99,6 +99,7 @@ const KpiCell: React.FC<KpiRowItem> = ({ label, value, subtitle, tone = 'default
   const valueColor: Record<KpiTone, string> = {
     default: 'text-slate-900',
     teal: 'text-teal-700',
+    orange: 'text-orange-700',
     blue: 'text-blue-700',
     amber: 'text-amber-700',
     emerald: 'text-emerald-700',

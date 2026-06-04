@@ -278,7 +278,7 @@ export const EnvioDetailModal: React.FC<EnvioDetailModalProps> = ({
       };
     } else if (envio.origenTipo === 'cliente') {
       origen = {
-        icon: <UserIcon className="w-4 h-4 text-teal-600" />,
+        icon: <UserIcon className="w-4 h-4 text-orange-600" />,
         nombre: envio.origenClienteNombre || 'Cliente',
         subtitulo: 'Cliente origen',
         badge: origenEstadoDone
@@ -329,7 +329,7 @@ export const EnvioDetailModal: React.FC<EnvioDetailModalProps> = ({
     let destino: RouteCardV2Node;
     if (envio.destinoTipo === 'cliente') {
       destino = {
-        icon: <UserIcon className="w-4 h-4 text-teal-600" />,
+        icon: <UserIcon className="w-4 h-4 text-orange-600" />,
         nombre: envio.destinoClienteNombre || 'Cliente',
         subtitulo: envio.destinoClienteDistrito
           ? `Cliente · ${envio.destinoClienteDistrito}`
@@ -578,7 +578,7 @@ export const EnvioDetailModal: React.FC<EnvioDetailModalProps> = ({
     description: string;
     buttonText: string;
     onClick: () => void;
-    variant: 'teal' | 'sky' | 'amber' | 'emerald';
+    variant: 'orange' | 'sky' | 'amber' | 'emerald';
   } | null => {
     switch (envio.estado) {
       case 'borrador':
@@ -588,7 +588,7 @@ export const EnvioDetailModal: React.FC<EnvioDetailModalProps> = ({
           description: 'Valida los detalles del envío antes del despacho',
           buttonText: 'Confirmar',
           onClick: () => onConfirmar(envio.id),
-          variant: 'teal',
+          variant: 'orange',
         };
       case 'confirmado':
         return {
@@ -792,7 +792,7 @@ export const EnvioDetailModal: React.FC<EnvioDetailModalProps> = ({
                       <>
                         {' '}
                         · vinculado a{' '}
-                        <span className="text-teal-600 font-medium font-mono">
+                        <span className="text-orange-600 font-medium font-mono">
                           {envio.ordenCompraNumero}
                         </span>
                       </>
@@ -886,7 +886,7 @@ export const EnvioDetailModal: React.FC<EnvioDetailModalProps> = ({
                         : ocsConsolidadas > 1
                           ? 'de distintos proveedores'
                           : 'sin OC vinculada',
-                    tone: 'teal',
+                    tone: 'orange',
                     onClick: envio.ordenCompraId
                       ? () => {
                           // S54 — Navegar a /compras con la OC preseleccionada.
@@ -1189,7 +1189,7 @@ const TabButton: React.FC<{
     className={cn(
       'px-4 py-3 text-sm font-medium flex items-center gap-1.5 transition-colors whitespace-nowrap',
       active
-        ? 'text-teal-700 border-b-2 border-teal-600'
+        ? 'text-orange-700 border-b-2 border-orange-600'
         : 'text-slate-500 hover:text-slate-700 border-b-2 border-transparent'
     )}
   >
@@ -1214,10 +1214,10 @@ const SidebarAction: React.FC<{
   icon: React.ReactNode;
   label: string;
   onClick: () => void;
-  variant: 'teal' | 'red' | 'amber' | 'emerald' | 'slate';
+  variant: 'orange' | 'red' | 'amber' | 'emerald' | 'slate';
 }> = ({ icon, label, onClick, variant }) => {
   const classes = {
-    teal: 'hover:border-teal-400 hover:text-teal-700',
+    orange: 'hover:border-orange-400 hover:text-orange-700',
     red: 'hover:border-red-400 hover:text-red-700',
     amber: 'hover:border-amber-400 hover:text-amber-700',
     emerald: 'hover:border-emerald-400 hover:text-emerald-700',
@@ -1338,7 +1338,7 @@ const TabProductos: React.FC<{
                 {/* S47 — OC origen */}
                 <td className="px-4 py-3">
                   {ocOrigenTexto ? (
-                    <span className="inline-flex items-center gap-1 text-[11px] font-mono text-teal-700 bg-teal-50 border border-teal-100 px-1.5 py-0.5 rounded">
+                    <span className="inline-flex items-center gap-1 text-[11px] font-mono text-orange-700 bg-orange-50 border border-orange-100 px-1.5 py-0.5 rounded">
                       {ocOrigenTexto}
                     </span>
                   ) : (
@@ -1501,14 +1501,14 @@ const TabCostos: React.FC<{
       <div className="border border-slate-200 rounded-xl p-4">
         <div className="flex items-center justify-between mb-3">
           <h4 className="text-sm font-semibold text-slate-900 flex items-center gap-1.5">
-            <DollarSign className="w-4 h-4 text-teal-600" />
+            <DollarSign className="w-4 h-4 text-orange-600" />
             Costos landed
           </h4>
           {esInternacional && (
             <button
               type="button"
               onClick={() => onEditFlete(envio)}
-              className="px-3 py-1.5 text-xs font-medium text-teal-700 border border-teal-300 rounded-lg hover:bg-teal-50 flex items-center gap-1.5"
+              className="px-3 py-1.5 text-xs font-medium text-orange-700 border border-orange-300 rounded-lg hover:bg-orange-50 flex items-center gap-1.5"
             >
               <Edit3 className="w-3 h-3" />
               {costoFlete > 0 ? 'Editar flete' : 'Agregar flete'}
@@ -1544,7 +1544,7 @@ const TabCostos: React.FC<{
           {costoFlete > 0 && (
             <div className="pt-2 mt-2 border-t border-slate-200 flex justify-between font-bold text-slate-900">
               <span>Total prorrateado</span>
-              <span className="text-teal-700 tabular-nums">
+              <span className="text-orange-700 tabular-nums">
                 ${costoFlete.toFixed(2)}
               </span>
             </div>
@@ -2079,7 +2079,7 @@ const TabDocumentosEnvio: React.FC<{ envio: Envio }> = ({ envio }) => {
         { tipo: 'Packing list', descripcion: 'Lista de empaque detallada', icono: FileText, color: 'emerald' },
         { tipo: 'Factura comercial', descripcion: 'Invoice del proveedor/courier', icono: FileText, color: 'amber' },
         { tipo: 'Certificado de origen', descripcion: 'Para tratamientos arancelarios', icono: FileText, color: 'purple' },
-        { tipo: 'DAM (DUA)', descripcion: 'Declaración aduanera de mercancías', icono: FileText, color: 'teal' },
+        { tipo: 'DAM (DUA)', descripcion: 'Declaración aduanera de mercancías', icono: FileText, color: 'orange' },
         { tipo: 'Liberación aduanera', descripcion: 'Comprobante de nacionalización', icono: PackageCheck, color: 'slate' },
       ]
     : [
@@ -2104,7 +2104,7 @@ const TabDocumentosEnvio: React.FC<{ envio: Envio }> = ({ envio }) => {
             emerald: 'bg-emerald-100 text-emerald-700',
             amber: 'bg-amber-100 text-amber-700',
             purple: 'bg-purple-100 text-purple-700',
-            teal: 'bg-teal-100 text-teal-700',
+            orange: 'bg-orange-100 text-orange-700',
             slate: 'bg-slate-100 text-slate-700',
           };
           return (

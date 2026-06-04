@@ -213,7 +213,7 @@ export const TabRendimiento: React.FC = () => {
           <select
             value={periodo}
             onChange={(e) => setPeriodo(e.target.value as Periodo)}
-            className="px-2 py-1.5 text-sm border border-slate-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-teal-500"
+            className="px-2 py-1.5 text-sm border border-slate-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-orange-500"
           >
             {(Object.keys(PERIODO_LABELS) as Periodo[]).map(p => (
               <option key={p} value={p}>{PERIODO_LABELS[p]}</option>
