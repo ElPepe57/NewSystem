@@ -31,7 +31,6 @@ import type {
   ProductoOrden
 } from '../types/ordenCompra.types';
 import { ProductoService } from './producto.service';
-import { almacenService } from './casilla.service';
 import { requerimientoService } from './requerimiento.service';
 import { actividadService } from './actividad.service';
 import { metricasService } from './metricas.service';
@@ -234,15 +233,10 @@ export async function create(
 
     if (data.almacenDestino) {
       nuevaOrden.almacenDestino = data.almacenDestino;
-      // Resolver nombre: primero casilla (modelo nuevo), luego almacén (legacy)
+      // Resolver nombre desde la casilla (única fuente de verdad).
       const { casillaCrudService } = await import('./casilla.crud.service');
       const casilla = await casillaCrudService.getById(data.almacenDestino);
-      if (casilla) {
-        nuevaOrden.nombreAlmacenDestino = casilla.nombre;
-      } else {
-        const almacen = await almacenService.getById(data.almacenDestino);
-        if (almacen) nuevaOrden.nombreAlmacenDestino = almacen.nombre;
-      }
+      if (casilla) nuevaOrden.nombreAlmacenDestino = casilla.nombre;
     }
 
     if (data.observaciones) nuevaOrden.observaciones = data.observaciones;
@@ -443,10 +437,11 @@ export async function update(
     }
 
     if (data.almacenDestino && data.almacenDestino !== orden.almacenDestino) {
-      const almacen = await almacenService.getById(data.almacenDestino);
-      if (almacen) {
+      const { casillaCrudService } = await import('./casilla.crud.service');
+      const casilla = await casillaCrudService.getById(data.almacenDestino);
+      if (casilla) {
         updates.almacenDestino = data.almacenDestino;
-        updates.nombreAlmacenDestino = almacen.nombre;
+        updates.nombreAlmacenDestino = casilla.nombre;
       }
     }
 
@@ -752,9 +747,7 @@ export async function confirmarOC(
     ...(orden.nombreAlmacenDestino ? {} : await (async () => {
       const { casillaCrudService } = await import('./casilla.crud.service');
       const cas = await casillaCrudService.getById(destinoCasillaId);
-      if (cas) return { nombreAlmacenDestino: cas.nombre };
-      const alm = await almacenService.getById(destinoCasillaId);
-      return alm ? { nombreAlmacenDestino: alm.nombre } : {};
+      return cas ? { nombreAlmacenDestino: cas.nombre } : {};
     })()),
     ultimaEdicion: now,
     editadoPor: userId,

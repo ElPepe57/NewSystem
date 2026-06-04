@@ -29,7 +29,7 @@ import type {
   RequerimientoResumen,
   ResumenAsignaciones
 } from '../types/requerimiento.types';
-import { almacenService } from './casilla.service';
+import { casillaCrudService } from './casilla.crud.service';
 import { COLLECTIONS } from '../config/collections';
 import { logger } from '../lib/logger';
 import { tipoCambioService } from './tipoCambio.service';
@@ -609,8 +609,8 @@ export const requerimientoService = {
         throw new Error('No se puede asignar a un requerimiento cancelado o completado');
       }
 
-      // Obtener datos del responsable (almacén/viajero)
-      const responsable = await almacenService.getById(data.responsableId);
+      // Obtener datos del responsable (la casilla · su dueño es el colaborador/viajero)
+      const responsable = await casillaCrudService.getById(data.responsableId);
       if (!responsable) {
         throw new Error('Responsable/viajero no encontrado');
       }
@@ -652,7 +652,7 @@ export const requerimientoService = {
         responsableId: responsable.id,
         responsableNombre: responsable.nombre,
         responsableCodigo: responsable.codigo,
-        esViajero: responsable.esViajero || false,
+        esViajero: responsable.tipo === 'casilla_viajero',
         productos: productosAsignados,
         estado: 'pendiente',
         fechaAsignacion: Timestamp.now(),
@@ -665,9 +665,9 @@ export const requerimientoService = {
       }
       if (data.fechaEstimadaLlegada) {
         nuevaAsignacion.fechaEstimadaLlegada = Timestamp.fromDate(data.fechaEstimadaLlegada);
-      } else if (responsable.proximoViaje) {
-        nuevaAsignacion.fechaEstimadaLlegada = responsable.proximoViaje;
       }
+      // (legacy) Se eliminó el fallback a `responsable.proximoViaje`: "próximo viaje" es
+      // feature muerto (deprecado S42j) · la casilla no lo tiene. chk5.ENVIOS-UNIF.
       if (data.costoEstimadoUSD !== undefined && data.costoEstimadoUSD !== null) {
         nuevaAsignacion.costoEstimadoUSD = data.costoEstimadoUSD;
       }

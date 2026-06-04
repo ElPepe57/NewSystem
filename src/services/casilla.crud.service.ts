@@ -75,6 +75,31 @@ export const casillaCrudService = {
     return casillas.find(c => c.esPrincipal) || casillas[0] || null;
   },
 
+  /**
+   * Casillas de tipo viajero (la UBICACIÓN temporal de un viajero · ej. la casa de
+   * Angie en California). El "viajero" como persona es el Colaborador dueño (colaboradorId);
+   * esta casilla es solo su ubicación de acopio.
+   *
+   * Reemplaza almacenService.getViajeros(), que filtraba por los campos legacy
+   * `esViajero`/`estadoAlmacen` — ausentes en las casillas nuevas (usan `tipo`/`estado`),
+   * por lo que devolvía vacío para todo dato creado por el flujo actual. chk5.ENVIOS-UNIF.
+   *
+   * Un solo `where` sobre `tipo` (índice de campo único · sin índice compuesto) + filtro
+   * de estado en memoria. Conteo en vivo (fuente única de verdad), no el contador denormalizado.
+   */
+  async getViajeros(): Promise<Casilla[]> {
+    const q = query(collection(db, COLL), where('tipo', '==', 'casilla_viajero'));
+    const [snap, conteo] = await Promise.all([
+      getDocs(q),
+      this.contarDisponiblesPorCasilla(),
+    ]);
+    return snap.docs
+      .map(d => ({ id: d.id, ...d.data() } as Casilla))
+      .filter(c => c.estado === 'activa')
+      .map(c => ({ ...c, unidadesActuales: conteo[c.id] ?? 0 }))
+      .sort((a, b) => a.nombre.localeCompare(b.nombre));
+  },
+
   async crear(data: CasillaFormData, userId: string): Promise<string> {
     const codigo = await generarCodigoCasilla();
     const now = Timestamp.now();

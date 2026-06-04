@@ -24,7 +24,6 @@ import type { RecepcionParcial } from '../types/ordenCompra.types';
 import { ProductoService } from './producto.service';
 import { inventarioService } from './inventario.service';
 import { unidadService } from './unidad.service';
-import { almacenService } from './casilla.service';
 import { requerimientoService } from './requerimiento.service';
 import { ctruService } from './ctru.service';
 import { actividadService } from './actividad.service';
@@ -91,11 +90,6 @@ export async function revertirRecepciones(
       const casDest = await casillaSvc.getById(orden.almacenDestino);
       if (casDest) {
         await casillaSvc.incrementarUnidadesRecibidas(orden.almacenDestino, -totalUnidadesRecibidas);
-      } else {
-        const almDest = await almacenService.getById(orden.almacenDestino);
-        if (almDest) {
-          await almacenService.incrementarUnidadesRecibidas(orden.almacenDestino, -totalUnidadesRecibidas);
-        }
       }
     }
 
