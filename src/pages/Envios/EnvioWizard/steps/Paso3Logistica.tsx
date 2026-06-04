@@ -151,12 +151,12 @@ export const Paso3Logistica: React.FC<Props> = ({ wizard }) => {
               }
               className={`p-3 border-2 rounded-lg text-left transition ${
                 state.tipoTransportador === 'viajero'
-                  ? 'border-teal-600 bg-teal-50 ring-[3px] ring-teal-100'
-                  : 'border-slate-200 hover:border-teal-500'
+                  ? 'border-orange-600 bg-orange-50 ring-[3px] ring-orange-100'
+                  : 'border-slate-200 hover:border-orange-500'
               }`}
             >
               <div className="flex items-start gap-3">
-                <div className="w-10 h-10 bg-teal-100 rounded-lg flex items-center justify-center flex-shrink-0 text-xl">
+                <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center flex-shrink-0 text-xl">
                   ✈️
                 </div>
                 <div>
@@ -181,8 +181,8 @@ export const Paso3Logistica: React.FC<Props> = ({ wizard }) => {
               }
               className={`p-3 border-2 rounded-lg text-left transition ${
                 state.tipoTransportador === 'courier_internacional'
-                  ? 'border-teal-600 bg-teal-50 ring-[3px] ring-teal-100'
-                  : 'border-slate-200 hover:border-teal-500'
+                  ? 'border-orange-600 bg-orange-50 ring-[3px] ring-orange-100'
+                  : 'border-slate-200 hover:border-orange-500'
               }`}
             >
               <div className="flex items-start gap-3">
@@ -211,8 +211,8 @@ export const Paso3Logistica: React.FC<Props> = ({ wizard }) => {
               }
               className={`p-3 border-2 rounded-lg text-left transition ${
                 state.tipoTransportador === 'transportista_local'
-                  ? 'border-teal-600 bg-teal-50 ring-[3px] ring-teal-100'
-                  : 'border-slate-200 hover:border-teal-500'
+                  ? 'border-orange-600 bg-orange-50 ring-[3px] ring-orange-100'
+                  : 'border-slate-200 hover:border-orange-500'
               }`}
             >
               <div className="flex items-start gap-3">
@@ -247,7 +247,7 @@ export const Paso3Logistica: React.FC<Props> = ({ wizard }) => {
                 value={busquedaColab}
                 onChange={e => setBusquedaColab(e.target.value)}
                 placeholder="Buscar colaborador por nombre..."
-                className="w-full pl-9 pr-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-100 focus:border-teal-500 outline-none"
+                className="w-full pl-9 pr-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-100 focus:border-orange-500 outline-none"
               />
             </div>
             {colaboradoresFiltrados.length === 0 ? (
@@ -274,12 +274,12 @@ export const Paso3Logistica: React.FC<Props> = ({ wizard }) => {
                       onClick={() => handleSeleccionarColab(c.id)}
                       className={`bg-white border-2 rounded-lg p-3 flex items-center justify-between cursor-pointer transition ${
                         selected
-                          ? 'border-teal-600 bg-teal-50 ring-[3px] ring-teal-100'
-                          : 'border-slate-200 hover:border-teal-500'
+                          ? 'border-orange-600 bg-orange-50 ring-[3px] ring-orange-100'
+                          : 'border-slate-200 hover:border-orange-500'
                       }`}
                     >
                       <div className="flex items-center gap-3 min-w-0 flex-1">
-                        <div className="w-9 h-9 bg-teal-100 text-teal-700 rounded-full flex items-center justify-center font-semibold text-sm flex-shrink-0">
+                        <div className="w-9 h-9 bg-orange-100 text-orange-700 rounded-full flex items-center justify-center font-semibold text-sm flex-shrink-0">
                           {iniciales || '?'}
                         </div>
                         <div className="min-w-0">
@@ -329,8 +329,8 @@ export const Paso3Logistica: React.FC<Props> = ({ wizard }) => {
                   }
                   className={`p-2 border-2 rounded-lg text-center transition ${
                     selected
-                      ? 'border-teal-600 bg-teal-50 ring-[3px] ring-teal-100'
-                      : 'border-slate-200 hover:border-teal-500'
+                      ? 'border-orange-600 bg-orange-50 ring-[3px] ring-orange-100'
+                      : 'border-slate-200 hover:border-orange-500'
                   }`}
                 >
                   <div className="text-xl mb-0.5">{m.icon}</div>
@@ -381,8 +381,8 @@ export const Paso3Logistica: React.FC<Props> = ({ wizard }) => {
                 }
                 className={`p-3 border-2 rounded-lg text-center transition relative ${
                   selected
-                    ? 'border-teal-600 bg-teal-50 ring-[3px] ring-teal-100'
-                    : 'border-slate-200 hover:border-teal-500'
+                    ? 'border-orange-600 bg-orange-50 ring-[3px] ring-orange-100'
+                    : 'border-slate-200 hover:border-orange-500'
                 }`}
               >
                 {m.nuevo && (
@@ -537,15 +537,15 @@ export const Paso3Logistica: React.FC<Props> = ({ wizard }) => {
                         );
                       })}
                     </tbody>
-                    <tfoot className="bg-teal-50 border-t-2 border-teal-200">
+                    <tfoot className="bg-orange-50 border-t-2 border-orange-200">
                       <tr>
                         <td
                           colSpan={3}
-                          className="px-3 py-2 font-semibold text-teal-900 text-right"
+                          className="px-3 py-2 font-semibold text-orange-900 text-right"
                         >
                           TOTAL:
                         </td>
-                        <td className="px-3 py-2 text-right tabular-nums font-bold text-teal-900">
+                        <td className="px-3 py-2 text-right tabular-nums font-bold text-orange-900">
                           ${totalFleteUSD.toFixed(2)}
                         </td>
                       </tr>
@@ -611,22 +611,22 @@ export const Paso3Logistica: React.FC<Props> = ({ wizard }) => {
       )}
 
       {/* Total landed */}
-      <div className="bg-teal-50 border border-teal-200 rounded-lg p-3">
+      <div className="bg-orange-50 border border-orange-200 rounded-lg p-3">
         <div className="flex items-center justify-between mb-1">
-          <div className="text-xs text-teal-800">
-            <b className="text-teal-900">Total flete:</b>
+          <div className="text-xs text-orange-800">
+            <b className="text-orange-900">Total flete:</b>
           </div>
-          <div className="text-sm font-bold tabular-nums text-teal-900">
+          <div className="text-sm font-bold tabular-nums text-orange-900">
             ${totalFleteUSD.toFixed(2)} USD
             {state.tipoCambio > 0 && (
-              <span className="text-teal-700 font-normal">
+              <span className="text-orange-700 font-normal">
                 {' · '}
                 S/ {(totalFleteUSD * state.tipoCambio).toFixed(2)}
               </span>
             )}
           </div>
         </div>
-        <div className="text-[11px] text-teal-700">
+        <div className="text-[11px] text-orange-700">
           {state.modalidadCosto === 'flete_total' && 'Monto fijo ingresado'}
           {state.modalidadCosto === 'tarifa_unidad' && `${totalUnidades} uds × tarifa unitaria`}
           {state.modalidadCosto === 'por_producto' && 'Sumatoria por producto'}

@@ -304,6 +304,7 @@ export const EnvioWizardPage: React.FC = () => {
             nextDisabled={!puedeAvanzar}
             loading={state.estadoSubmit === 'saving'}
             variant="page"
+            accent="orange"
             className="h-full"
           >
             {renderPaso()}

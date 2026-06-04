@@ -103,8 +103,8 @@ export const Paso2DestinoDetalles: React.FC<Props> = ({ wizard }) => {
                     key={m.value}
                     className={`flex items-center gap-3 p-3 border-2 rounded-xl cursor-pointer transition ${
                       selected
-                        ? 'border-teal-600 bg-teal-50 ring-[3px] ring-teal-100'
-                        : 'border-slate-200 hover:border-teal-500 hover:bg-teal-50/30'
+                        ? 'border-orange-600 bg-orange-50 ring-[3px] ring-orange-100'
+                        : 'border-slate-200 hover:border-orange-500 hover:bg-orange-50/30'
                     }`}
                   >
                     <input
@@ -135,7 +135,7 @@ export const Paso2DestinoDetalles: React.FC<Props> = ({ wizard }) => {
                   dispatch({ type: 'SET_MOTIVO_DETALLE', detalle: e.target.value })
                 }
                 placeholder="Describí brevemente el motivo..."
-                className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-100 focus:border-teal-500 outline-none"
+                className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-100 focus:border-orange-500 outline-none"
               />
             </div>
           )}
@@ -176,8 +176,8 @@ export const Paso2DestinoDetalles: React.FC<Props> = ({ wizard }) => {
                     }
                     className={`p-3 border-2 rounded-lg text-center transition ${
                       selected
-                        ? 'border-teal-600 bg-teal-50 ring-[3px] ring-teal-100'
-                        : 'border-slate-200 hover:border-teal-500 hover:bg-teal-50/30'
+                        ? 'border-orange-600 bg-orange-50 ring-[3px] ring-orange-100'
+                        : 'border-slate-200 hover:border-orange-500 hover:bg-orange-50/30'
                     }`}
                   >
                     <div className="text-xl mb-1">{tr.icon}</div>
@@ -211,7 +211,7 @@ export const Paso2DestinoDetalles: React.FC<Props> = ({ wizard }) => {
                 })
               }
               placeholder="Ej. FBA-SHIPMENT-7XYZ123 o Consig-2026-001"
-              className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-100 focus:border-teal-500 outline-none font-mono"
+              className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-100 focus:border-orange-500 outline-none font-mono"
             />
             <p className="text-xs text-slate-500 mt-1">
               Identificador del contrato, shipment ID o número de consignación.

@@ -398,7 +398,7 @@ export const RutaVerticalSidebar: React.FC<Props> = ({
           {totalFleteUSD > 0 && (
             <div className="flex items-center justify-between">
               <span className="text-slate-500">Flete:</span>
-              <span className="text-teal-700 font-semibold tabular-nums">
+              <span className="text-orange-700 font-semibold tabular-nums">
                 ${totalFleteUSD.toFixed(0)}
               </span>
             </div>

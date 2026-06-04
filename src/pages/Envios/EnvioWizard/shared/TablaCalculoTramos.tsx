@@ -117,15 +117,15 @@ export const TablaCalculoTramos: React.FC<Props> = ({
                 );
               })}
             </tbody>
-            <tfoot className="bg-teal-50 border-t-2 border-teal-200">
+            <tfoot className="bg-orange-50 border-t-2 border-orange-200">
               <tr>
                 <td
                   colSpan={4}
-                  className="px-3 py-2 font-semibold text-teal-900 text-right"
+                  className="px-3 py-2 font-semibold text-orange-900 text-right"
                 >
                   TOTAL DEL FLETE:
                 </td>
-                <td className="px-3 py-2 text-right tabular-nums font-bold text-teal-900 text-sm">
+                <td className="px-3 py-2 text-right tabular-nums font-bold text-orange-900 text-sm">
                   ${totalFleteUSD.toFixed(2)}
                 </td>
               </tr>

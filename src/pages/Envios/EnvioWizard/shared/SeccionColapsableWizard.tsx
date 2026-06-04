@@ -29,7 +29,7 @@ interface Props {
   children?: React.ReactNode;
   /** Texto adicional a la derecha del header (ej. contador "14 / 47 seleccionadas") */
   headerExtra?: React.ReactNode;
-  /** Variante del badge: 'activo' (teal) o 'completado' (teal-100) */
+  /** Variante del badge: 'activo' (orange) o 'completado' (orange-100) */
   variante?: 'activo' | 'completado';
 }
 
@@ -48,8 +48,8 @@ export const SeccionColapsableWizard: React.FC<Props> = ({
   const badgeClases = disabled
     ? 'bg-slate-100 text-slate-400'
     : variante === 'activo'
-    ? 'bg-teal-600 text-white'
-    : 'bg-teal-100 text-teal-700';
+    ? 'bg-orange-600 text-white'
+    : 'bg-orange-100 text-orange-700';
 
   const bordeContainer = disabled
     ? 'border-slate-200 opacity-60'
@@ -82,7 +82,7 @@ export const SeccionColapsableWizard: React.FC<Props> = ({
             <button
               type="button"
               onClick={onToggle}
-              className="text-xs font-medium text-teal-600 hover:text-teal-700"
+              className="text-xs font-medium text-orange-600 hover:text-orange-700"
             >
               Cambiar
             </button>

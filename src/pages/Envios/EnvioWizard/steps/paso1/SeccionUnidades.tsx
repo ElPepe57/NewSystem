@@ -230,7 +230,7 @@ export const SeccionUnidades: React.FC<Props> = ({ wizard, disabled }) => {
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 bg-slate-50 border-b border-slate-200">
         <div className="flex items-center gap-2">
-          <span className="w-6 h-6 rounded-full bg-teal-600 text-white flex items-center justify-center text-xs font-bold flex-shrink-0">
+          <span className="w-6 h-6 rounded-full bg-orange-600 text-white flex items-center justify-center text-xs font-bold flex-shrink-0">
             3
           </span>
           <h4 className="text-sm font-semibold text-slate-900">
@@ -261,7 +261,7 @@ export const SeccionUnidades: React.FC<Props> = ({ wizard, disabled }) => {
             value={busqueda}
             onChange={e => setBusqueda(e.target.value)}
             placeholder="Buscar producto por nombre, SKU, marca..."
-            className="w-full pl-9 pr-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-100 focus:border-teal-500 outline-none"
+            className="w-full pl-9 pr-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-100 focus:border-orange-500 outline-none"
           />
         </div>
 
@@ -363,7 +363,7 @@ export const SeccionUnidades: React.FC<Props> = ({ wizard, disabled }) => {
                         type="button"
                         onClick={() => handleSumar(g)}
                         disabled={cantSelected >= disponibles}
-                        className="w-7 h-7 rounded-lg bg-teal-600 text-white hover:bg-teal-700 disabled:opacity-40 disabled:cursor-not-allowed"
+                        className="w-7 h-7 rounded-lg bg-orange-600 text-white hover:bg-orange-700 disabled:opacity-40 disabled:cursor-not-allowed"
                       >
                         +
                       </button>
@@ -387,8 +387,8 @@ export const SeccionUnidades: React.FC<Props> = ({ wizard, disabled }) => {
                               key={u.id}
                               className={`flex items-center gap-2 p-2 rounded border transition cursor-pointer ${
                                 asignada
-                                  ? 'border-teal-500 bg-teal-50'
-                                  : 'border-slate-200 bg-white hover:border-teal-300'
+                                  ? 'border-orange-500 bg-orange-50'
+                                  : 'border-slate-200 bg-white hover:border-orange-300'
                               }`}
                             >
                               <input

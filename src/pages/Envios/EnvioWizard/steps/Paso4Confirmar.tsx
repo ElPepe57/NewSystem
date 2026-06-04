@@ -2,7 +2,7 @@
  * Paso 4 · Confirmar (S52 v7 · S53 F4)
  *
  * Resumen final del envío antes de crear:
- *   - Header con tipo detectado (chip teal/sky/amber/violet según tipo)
+ *   - Header con tipo detectado (chip orange/sky/amber/violet según tipo)
  *   - Ruta visual origen → tránsito → destino
  *   - KPIs consolidados
  *   - Bloque "Al confirmar se creará" con efectos esperados
@@ -166,7 +166,7 @@ export const Paso4Confirmar: React.FC<Props> = ({ wizard }) => {
         </div>
         <div className="px-2 py-1 text-center">
           <div className="text-xs text-slate-500 mb-1">Flete</div>
-          <div className="text-xl font-bold text-teal-700 tabular-nums">
+          <div className="text-xl font-bold text-orange-700 tabular-nums">
             ${totalFleteUSD.toFixed(0)}
           </div>
           <div className="text-[11px] text-slate-400">
@@ -265,7 +265,7 @@ export const Paso4Confirmar: React.FC<Props> = ({ wizard }) => {
           value={state.notas}
           onChange={e => dispatch({ type: 'SET_NOTAS', notas: e.target.value })}
           placeholder="Ej. Prioridad alta, empacar con cuidado..."
-          className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-100 focus:border-teal-500 outline-none"
+          className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-100 focus:border-orange-500 outline-none"
         />
       </div>
 

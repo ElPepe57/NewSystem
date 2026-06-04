@@ -126,7 +126,7 @@ export const SeccionOrigen: React.FC<Props> = ({ wizard, collapsed, onToggle }) 
             ` · ${casillaSeleccionada.unidadesActuales} uds disponibles`}
         </div>
       </div>
-      <div className="w-6 h-6 rounded-full bg-teal-600 text-white flex items-center justify-center text-xs flex-shrink-0">
+      <div className="w-6 h-6 rounded-full bg-orange-600 text-white flex items-center justify-center text-xs flex-shrink-0">
         ✓
       </div>
     </div>
@@ -154,8 +154,8 @@ export const SeccionOrigen: React.FC<Props> = ({ wizard, collapsed, onToggle }) 
             <label
               className={`flex items-start gap-3 p-3 border-2 rounded-xl cursor-pointer transition ${
                 state.origenCategoria === 'casilla_intl'
-                  ? 'border-teal-600 bg-teal-50 ring-[3px] ring-teal-100'
-                  : 'border-slate-200 hover:border-teal-500 hover:bg-teal-50/30'
+                  ? 'border-orange-600 bg-orange-50 ring-[3px] ring-orange-100'
+                  : 'border-slate-200 hover:border-orange-500 hover:bg-orange-50/30'
               }`}
             >
               <input
@@ -180,8 +180,8 @@ export const SeccionOrigen: React.FC<Props> = ({ wizard, collapsed, onToggle }) 
             <label
               className={`flex items-start gap-3 p-3 border-2 rounded-xl cursor-pointer transition ${
                 state.origenCategoria === 'almacen_peru'
-                  ? 'border-teal-600 bg-teal-50 ring-[3px] ring-teal-100'
-                  : 'border-slate-200 hover:border-teal-500 hover:bg-teal-50/30'
+                  ? 'border-orange-600 bg-orange-50 ring-[3px] ring-orange-100'
+                  : 'border-slate-200 hover:border-orange-500 hover:bg-orange-50/30'
               }`}
             >
               <input
@@ -225,7 +225,7 @@ export const SeccionOrigen: React.FC<Props> = ({ wizard, collapsed, onToggle }) 
                     ? 'Buscar casilla por nombre, ciudad, país...'
                     : 'Buscar almacén por nombre, ciudad...'
                 }
-                className="w-full pl-9 pr-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-100 focus:border-teal-500 outline-none"
+                className="w-full pl-9 pr-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-100 focus:border-orange-500 outline-none"
               />
             </div>
 
@@ -255,8 +255,8 @@ export const SeccionOrigen: React.FC<Props> = ({ wizard, collapsed, onToggle }) 
                       onClick={() => handleSeleccionar(c)}
                       className={`flex items-center gap-3 p-3 border-2 rounded-xl cursor-pointer transition ${
                         selected
-                          ? 'border-teal-600 bg-teal-50 ring-[3px] ring-teal-100'
-                          : 'border-slate-200 hover:border-teal-500 hover:bg-teal-50/30'
+                          ? 'border-orange-600 bg-orange-50 ring-[3px] ring-orange-100'
+                          : 'border-slate-200 hover:border-orange-500 hover:bg-orange-50/30'
                       }`}
                     >
                       <div className="w-10 h-10 rounded-lg bg-sky-100 flex items-center justify-center text-xl flex-shrink-0">
@@ -281,7 +281,7 @@ export const SeccionOrigen: React.FC<Props> = ({ wizard, collapsed, onToggle }) 
                         </div>
                       </div>
                       {selected && (
-                        <div className="w-6 h-6 rounded-full bg-teal-600 text-white flex items-center justify-center text-xs flex-shrink-0">
+                        <div className="w-6 h-6 rounded-full bg-orange-600 text-white flex items-center justify-center text-xs flex-shrink-0">
                           ✓
                         </div>
                       )}

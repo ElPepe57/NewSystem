@@ -167,7 +167,7 @@ export const SeccionDestino: React.FC<Props> = ({
             ` · ${ubicacionSeleccionada.colaboradorNombre}`}
         </div>
       </div>
-      <div className="w-6 h-6 rounded-full bg-teal-600 text-white flex items-center justify-center text-xs flex-shrink-0">
+      <div className="w-6 h-6 rounded-full bg-orange-600 text-white flex items-center justify-center text-xs flex-shrink-0">
         ✓
       </div>
     </div>
@@ -222,8 +222,8 @@ export const SeccionDestino: React.FC<Props> = ({
                       !permitida
                         ? 'border-slate-100 bg-slate-50 opacity-50 cursor-not-allowed'
                         : selected
-                        ? 'border-teal-600 bg-teal-50 ring-[3px] ring-teal-100 cursor-pointer'
-                        : 'border-slate-200 hover:border-teal-500 hover:bg-teal-50/30 cursor-pointer'
+                        ? 'border-orange-600 bg-orange-50 ring-[3px] ring-orange-100 cursor-pointer'
+                        : 'border-slate-200 hover:border-orange-500 hover:bg-orange-50/30 cursor-pointer'
                     }`}
                     title={
                       !permitida
@@ -276,7 +276,7 @@ export const SeccionDestino: React.FC<Props> = ({
                 value={busqueda}
                 onChange={e => setBusqueda(e.target.value)}
                 placeholder="Buscar por nombre, ciudad, país..."
-                className="w-full pl-9 pr-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-100 focus:border-teal-500 outline-none"
+                className="w-full pl-9 pr-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-100 focus:border-orange-500 outline-none"
               />
             </div>
 
@@ -299,8 +299,8 @@ export const SeccionDestino: React.FC<Props> = ({
                       onClick={() => handleSeleccionar(c)}
                       className={`flex items-center gap-3 p-3 border-2 rounded-xl cursor-pointer transition ${
                         selected
-                          ? 'border-teal-600 bg-teal-50 ring-[3px] ring-teal-100'
-                          : 'border-slate-200 hover:border-teal-500 hover:bg-teal-50/30'
+                          ? 'border-orange-600 bg-orange-50 ring-[3px] ring-orange-100'
+                          : 'border-slate-200 hover:border-orange-500 hover:bg-orange-50/30'
                       }`}
                     >
                       <div className="w-10 h-10 rounded-lg bg-emerald-100 flex items-center justify-center text-xl flex-shrink-0">
@@ -323,7 +323,7 @@ export const SeccionDestino: React.FC<Props> = ({
                         </div>
                       </div>
                       {selected && (
-                        <div className="w-6 h-6 rounded-full bg-teal-600 text-white flex items-center justify-center text-xs flex-shrink-0">
+                        <div className="w-6 h-6 rounded-full bg-orange-600 text-white flex items-center justify-center text-xs flex-shrink-0">
                           ✓
                         </div>
                       )}
