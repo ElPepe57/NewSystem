@@ -13,7 +13,7 @@ import {
 } from 'lucide-react';
 import { useProveedorStore } from '../../../store/proveedorStore';
 import { usePaisOrigenStore } from '../../../store/paisOrigenStore';
-import { PAISES_CONFIG } from '../../../types/almacen.types';
+import { PAISES_CONFIG } from '../../../types/casilla.types';
 import type { Proveedor, ProveedorFormData, TipoProveedor } from '../../../types/ordenCompra.types';
 
 export interface ProveedorSnapshot {

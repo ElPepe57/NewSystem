@@ -116,67 +116,7 @@ export const Envios: React.FC = () => {
   const { getTCDelDia } = useTipoCambioStore();
   const [tipoCambioActual, setTipoCambioActual] = useState<{ tasaVenta: number } | null>(null);
 
-  const {
-    almacenes: todosAlmacenes,
-    casillas,
-    viajeros,
-    fetchAlmacenes: fetchTodosAlmacenes,
-    fetchAlmacenesUSA,
-    fetchAlmacenesPeru,
-    fetchCasillas,
-    fetchViajeros,
-  } = useAlmacenStore();
-
-  // S52 — El modal clasico EnvioWizardV2 consume el tipo `Almacen` (legacy).
-  // La Red Logistica nueva escribe en `casillas` (tipo Casilla). Este mapping
-  // convierte Casilla → shape compatible con Almacen para que el wizard legacy
-  // vea las casillas activas del usuario.
-  const casillaToAlmacen = useCallback((c: typeof casillas[0]): any => ({
-    id: c.id,
-    codigo: c.codigo,
-    nombre: c.nombre,
-    pais: c.pais,
-    // Mapping de tipo de casilla -> tipo de almacen legacy
-    tipo:
-      c.tipo === 'almacen_propio'
-        ? c.pais === 'Peru' || c.pais === 'Peru_local'
-          ? 'almacen_peru'
-          : 'almacen_origen'
-        : c.tipo === 'casilla_viajero'
-          ? 'viajero'
-          : c.tipo === 'punto_courier'
-            ? 'courier'
-            : 'almacen_origen',
-    estadoAlmacen: c.estado === 'activa' ? 'activo' : 'inactivo',
-    direccion: c.direccion ?? '',
-    ciudad: c.ciudad ?? '',
-    esViajero: c.tipo === 'casilla_viajero',
-    capacidadUnidades: c.capacidadUnidades,
-    unidadesActuales: c.unidadesActuales,
-    totalUnidadesRecibidas: c.totalUnidadesRecibidas ?? 0,
-    totalUnidadesEnviadas: c.totalUnidadesEnviadas ?? 0,
-    valorInventarioUSD: c.valorInventarioUSD ?? 0,
-    tiempoPromedioAlmacenamiento: 0,
-    fechaCreacion: c.fechaCreacion,
-    creadoPor: c.creadoPor,
-  }), []);
-
-  // Derivamos los arrays legacy desde casillas (fuente de verdad post-S42g).
-  // Fallback a todosAlmacenes si no hay casillas aún (caso BD legacy pura).
-  const almacenesOrigen = useMemo(() => {
-    if (casillas.length > 0) {
-      return casillas.filter(c => c.estado === 'activa').map(casillaToAlmacen);
-    }
-    return todosAlmacenes.filter(a => a.estadoAlmacen === 'activo');
-  }, [casillas, todosAlmacenes, casillaToAlmacen]);
-  const almacenesDestinoPeru = useMemo(() => {
-    if (casillas.length > 0) {
-      return casillas
-        .filter(c => c.estado === 'activa' && (c.pais === 'Peru' || c.pais === 'Peru_local'))
-        .map(casillaToAlmacen);
-    }
-    return todosAlmacenes.filter(a => a.estadoAlmacen === 'activo' && a.pais === 'Peru');
-  }, [casillas, todosAlmacenes, casillaToAlmacen]);
+  const { casillas, fetchCasillas } = useAlmacenStore();
 
   const { productos: todosProductos, fetchProductos } = useProductoStore();
   const productosMapGlobal = useMemo(() => {
@@ -237,16 +177,12 @@ export const Envios: React.FC = () => {
     fetchEnTransito();
     fetchPendientesRecepcion();
     fetchResumen();
-    fetchTodosAlmacenes();
-    fetchAlmacenesUSA();
-    fetchAlmacenesPeru();
-    fetchCasillas(); // S52 — nueva fuente de verdad de Red Logística (tipo Casilla)
-    fetchViajeros();
+    fetchCasillas(); // Red Logística · fuente de verdad (tipo Casilla)
     fetchColaboradores();
     fetchResumenReclamos();
     getTCDelDia().then(tc => setTipoCambioActual(tc ? { tasaVenta: tc.venta } : null)).catch(console.error);
     tesoreriaService.getCuentas().then(setCuentasTesoreria).catch(console.error);
-  }, [fetchEnvios, fetchEnTransito, fetchPendientesRecepcion, fetchResumen, fetchAlmacenesUSA, fetchAlmacenesPeru, fetchCasillas, fetchViajeros, getTCDelDia, fetchResumenReclamos]);
+  }, [fetchEnvios, fetchEnTransito, fetchPendientesRecepcion, fetchResumen, fetchCasillas, getTCDelDia, fetchResumenReclamos]);
 
   useEffect(() => {
     if (todosProductos.length === 0) fetchProductos();

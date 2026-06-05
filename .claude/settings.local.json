@@ -406,7 +406,11 @@
       "Bash(sed -n '137,141p' src/services/stockDisponibilidad.service.ts)",
       "Bash(sed -n '348,356p' src/services/stockDisponibilidad.service.ts)",
       "Bash(sed -n '416,424p' src/services/stockDisponibilidad.service.ts)",
-      "Bash(awk '{print $6, $7, $8, $9}')"
+      "Bash(awk '{print $6, $7, $8, $9}')",
+      "Bash(sed -i \"s#from '../../types/almacen.types'#from '../../types/casilla.types'#\" src/components/Maestros/ProveedoresSRM.tsx)",
+      "Bash(sed -i \"s#from '../../../types/almacen.types'#from '../../../types/casilla.types'#\" src/components/modules/entidades/ProveedorAutocomplete.tsx)",
+      "Bash(sed -i \"s#from '../types/almacen.types'#from '../types/casilla.types'#\" src/utils/multiOrigen.helpers.ts)",
+      "Bash(sed -i \"s#import type { PaisAlmacen } from '../types/almacen.types';#import type { PaisCasilla } from '../types/casilla.types';#; s#PaisAlmacen#PaisCasilla#g\" src/services/stockDisponibilidad.service.ts)"
     ],
     "deny": [],
     "ask": []

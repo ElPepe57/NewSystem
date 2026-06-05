@@ -2,8 +2,7 @@ import { Timestamp } from 'firebase/firestore';
 import { inventarioService } from './inventario.service';
 import { casillaCrudService } from './casilla.crud.service';
 import { unidadService } from './unidad.service';
-import type { PaisAlmacen } from '../types/almacen.types';
-import type { Casilla } from '../types/casilla.types';
+import type { Casilla, PaisCasilla } from '../types/casilla.types';
 import type { InventarioProducto } from '../types/inventario.types';
 import type { Unidad } from '../types/unidad.types';
 import { esPaisOrigen, esEstadoEnOrigen } from '../utils/multiOrigen.helpers';
@@ -183,7 +182,7 @@ export const stockDisponibilidadService = {
         almacenId: inv.almacenId,
         almacenNombre: inv.almacenNombre,
         almacenCodigo: almacen.codigo,
-        pais: inv.pais as PaisAlmacen,
+        pais: inv.pais as PaisCasilla,
         esViajero: almacen.tipo === 'casilla_viajero',
         unidadesDisponibles: inv.disponibles,
         unidadesReservadas: inv.reservadas,

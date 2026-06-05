@@ -43,7 +43,7 @@ import { LineaNegocioBadges, LineaNegocioSelect } from './LineaNegocioBadge';
 import { useAuthStore } from '../../store/authStore';
 import { ProveedorDetailView } from './ProveedorDetailView';
 import type { Proveedor, ClasificacionProveedor, TipoProveedor } from '../../types/ordenCompra.types';
-import { PAISES_CONFIG } from '../../types/almacen.types';
+import { PAISES_CONFIG } from '../../types/casilla.types';
 
 // Sub-tabs dentro del módulo de proveedores
 type SubTabProveedores = 'lista' | 'dashboard' | 'evaluacion';

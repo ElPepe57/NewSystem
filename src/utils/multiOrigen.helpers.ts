@@ -14,7 +14,7 @@ import type { EstadoUnidad } from '../types/unidad.types';
 import type { TipoEnvio as TipoTransferencia } from '../types/envio.types';
 import type { TipoGasto } from '../types/gasto.types';
 import type { EstadoAsignacion } from '../types/requerimiento.types';
-import { PAISES_CONFIG } from '../types/almacen.types';
+import { PAISES_CONFIG } from '../types/casilla.types';
 
 // ============================================================
 // ESTADOS DE UNIDAD — Normalización
