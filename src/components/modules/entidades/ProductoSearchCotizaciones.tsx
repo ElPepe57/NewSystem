@@ -52,8 +52,6 @@ interface DisponibilidadExtendida {
   usa: number;
   enTransito: number;
   tiempoEstimadoDias: number;
-  proximoViajeDias?: number;
-  viajeroNombre?: string;
 }
 
 interface ProductoSearchCotizacionesProps {
@@ -146,18 +144,9 @@ export const ProductoSearchCotizaciones: React.FC<ProductoSearchCotizacionesProp
       };
     }
     if (disp.usa > 0) {
-      if (disp.proximoViajeDias !== undefined && disp.proximoViajeDias <= 15) {
-        return {
-          fuente: 'origen_viajero',
-          mensaje: disp.viajeroNombre
-            ? `${disp.viajeroNombre} viaja en ${disp.proximoViajeDias}d`
-            : `Viajero en ${disp.proximoViajeDias} días`,
-          dias: disp.proximoViajeDias + 3
-        };
-      }
       return {
         fuente: 'origen_almacen',
-        mensaje: 'Stock en origen (sin viaje programado)',
+        mensaje: 'Stock en origen',
         dias: 20
       };
     }

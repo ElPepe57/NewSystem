@@ -5,11 +5,10 @@ import {
   Check,
   X,
   Loader2,
-  Plane,
-  Calendar
+  Plane
 } from 'lucide-react';
 import { useAlmacenStore } from '../../../store/casillaStore';
-import type { Almacen } from '../../../types/almacen.types';
+import type { Casilla } from '../../../types/casilla.types';
 
 export interface AlmacenSnapshot {
   almacenId: string;
@@ -40,8 +39,8 @@ export const AlmacenAutocomplete: React.FC<AlmacenAutocompleteProps> = ({
   soloViajeros = false,
   className = ''
 }) => {
-  const { almacenes, fetchAlmacenes, loading } = useAlmacenStore();
-  const [filteredAlmacenes, setFilteredAlmacenes] = useState<Almacen[]>([]);
+  const { casillas, fetchCasillas, loading } = useAlmacenStore();
+  const [filteredAlmacenes, setFilteredAlmacenes] = useState<Casilla[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [isOpen, setIsOpen] = useState(false);
 
@@ -50,8 +49,8 @@ export const AlmacenAutocomplete: React.FC<AlmacenAutocompleteProps> = ({
 
   // Cargar almacenes al montar
   useEffect(() => {
-    if (almacenes.length === 0) {
-      fetchAlmacenes();
+    if (casillas.length === 0) {
+      fetchCasillas();
     }
   }, []);
 
@@ -76,7 +75,7 @@ export const AlmacenAutocomplete: React.FC<AlmacenAutocompleteProps> = ({
 
   // Filtrar almacenes
   useEffect(() => {
-    let filtered = almacenes.filter(a => a.estadoAlmacen === 'activo');
+    let filtered = casillas.filter(a => a.estado === 'activa');
 
     // Filtrar por país si se especifica
     if (filterPais) {
@@ -85,7 +84,7 @@ export const AlmacenAutocomplete: React.FC<AlmacenAutocompleteProps> = ({
 
     // Filtrar solo viajeros si se especifica
     if (soloViajeros) {
-      filtered = filtered.filter(a => a.esViajero);
+      filtered = filtered.filter(a => a.tipo === 'casilla_viajero');
     }
 
     // Filtrar por búsqueda (con validación segura)
@@ -100,7 +99,7 @@ export const AlmacenAutocomplete: React.FC<AlmacenAutocompleteProps> = ({
     }
 
     setFilteredAlmacenes(filtered);
-  }, [inputValue, almacenes, filterPais, soloViajeros]);
+  }, [inputValue, casillas, filterPais, soloViajeros]);
 
   const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const valor = e.target.value;
@@ -113,17 +112,17 @@ export const AlmacenAutocomplete: React.FC<AlmacenAutocompleteProps> = ({
     }
   }, [value, onChange]);
 
-  // Seleccionar almacén
-  const handleSelectAlmacen = (almacen: Almacen) => {
+  // Seleccionar almacén (casilla). La región no se modela como token en la casilla:
+  // vive dentro de `direccion` (Google Maps) · no se setea `estado` (ese campo es el status).
+  const handleSelectAlmacen = (almacen: Casilla) => {
     const snapshot: AlmacenSnapshot = {
       almacenId: almacen.id,
       nombre: almacen.nombre,
       ciudad: almacen.ciudad || '',
-      estado: almacen.estado,
       pais: almacen.pais
     };
     onChange(snapshot);
-    setInputValue(`${almacen.nombre} - ${almacen.ciudad}${almacen.estado ? `, ${almacen.estado}` : ''}`);
+    setInputValue(`${almacen.nombre} - ${almacen.ciudad}`);
     setIsOpen(false);
   };
 
@@ -132,17 +131,6 @@ export const AlmacenAutocomplete: React.FC<AlmacenAutocompleteProps> = ({
     setInputValue('');
     onChange(null);
     inputRef.current?.focus();
-  };
-
-  // Formatear próximo viaje
-  const formatProximoViaje = (fecha: any) => {
-    if (!fecha) return null;
-    const date = fecha.toDate?.() || new Date(fecha);
-    const dias = Math.ceil((date.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
-    if (dias < 0) return null;
-    if (dias === 0) return 'Hoy';
-    if (dias === 1) return 'Mañana';
-    return `En ${dias} días`;
   };
 
   return (
@@ -206,8 +194,6 @@ export const AlmacenAutocomplete: React.FC<AlmacenAutocompleteProps> = ({
         <div className="absolute z-50 mt-1 w-full bg-white rounded-md shadow-lg border border-slate-200 max-h-60 overflow-auto">
           {filteredAlmacenes.length > 0 ? (
             filteredAlmacenes.map((almacen) => {
-              const proximoViaje = almacen.esViajero ? formatProximoViaje(almacen.proximoViaje) : null;
-
               return (
                 <button
                   key={almacen.id}
@@ -215,28 +201,20 @@ export const AlmacenAutocomplete: React.FC<AlmacenAutocompleteProps> = ({
                   onClick={() => handleSelectAlmacen(almacen)}
                   className="w-full px-4 py-3 text-left hover:bg-slate-50 border-b border-slate-100 last:border-0"
                 >
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <div className="flex items-center space-x-2">
-                        <span className="font-medium text-slate-900">{almacen.nombre}</span>
-                        {almacen.esViajero && (
-                          <span className="px-1.5 py-0.5 text-xs rounded bg-purple-100 text-purple-800 flex items-center">
-                            <Plane className="h-3 w-3 mr-1" />
-                            Viajero
-                          </span>
-                        )}
-                      </div>
-                      <div className="flex items-center mt-1 text-xs text-slate-500">
-                        <MapPin className="h-3 w-3 mr-1" />
-                        {almacen.ciudad}{almacen.estado && `, ${almacen.estado}`} - {almacen.pais}
-                      </div>
+                  <div>
+                    <div className="flex items-center space-x-2">
+                      <span className="font-medium text-slate-900">{almacen.nombre}</span>
+                      {almacen.tipo === 'casilla_viajero' && (
+                        <span className="px-1.5 py-0.5 text-xs rounded bg-purple-100 text-purple-800 flex items-center">
+                          <Plane className="h-3 w-3 mr-1" />
+                          Viajero
+                        </span>
+                      )}
                     </div>
-                    {proximoViaje && (
-                      <div className="flex items-center text-xs text-emerald-600 bg-emerald-50 px-2 py-1 rounded">
-                        <Calendar className="h-3 w-3 mr-1" />
-                        {proximoViaje}
-                      </div>
-                    )}
+                    <div className="flex items-center mt-1 text-xs text-slate-500">
+                      <MapPin className="h-3 w-3 mr-1" />
+                      {almacen.ciudad} - {almacen.pais}
+                    </div>
                   </div>
                 </button>
               );

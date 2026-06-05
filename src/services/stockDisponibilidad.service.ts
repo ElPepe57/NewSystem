@@ -1,8 +1,9 @@
 import { Timestamp } from 'firebase/firestore';
 import { inventarioService } from './inventario.service';
-import { almacenService } from './casilla.service';
+import { casillaCrudService } from './casilla.crud.service';
 import { unidadService } from './unidad.service';
-import type { Almacen, PaisAlmacen } from '../types/almacen.types';
+import type { PaisAlmacen } from '../types/almacen.types';
+import type { Casilla } from '../types/casilla.types';
 import type { InventarioProducto } from '../types/inventario.types';
 import type { Unidad } from '../types/unidad.types';
 import { esPaisOrigen, esEstadoEnOrigen } from '../utils/multiOrigen.helpers';
@@ -68,10 +69,10 @@ export const stockDisponibilidadService = {
 
     // Obtener inventario completo
     const inventarioCompleto = await inventarioService.getInventarioAgregado();
-    const todosAlmacenes = await almacenService.getAll();
+    const todosAlmacenes = await casillaCrudService.getAll();
 
     // Mapear almacenes por ID
-    const almacenesMap = new Map<string, Almacen>();
+    const almacenesMap = new Map<string, Casilla>();
     todosAlmacenes.forEach(a => almacenesMap.set(a.id, a));
 
     for (const item of request.productos) {
@@ -135,7 +136,7 @@ export const stockDisponibilidadService = {
     productoId: string,
     cantidadRequerida: number,
     inventarioCompleto?: InventarioProducto[],
-    almacenesMap?: Map<string, Almacen>,
+    almacenesMap?: Map<string, Casilla>,
     incluirRecomendacion: boolean = true,
     priorizarPeru: boolean = true
   ): Promise<DisponibilidadProducto> {
@@ -148,8 +149,8 @@ export const stockDisponibilidadService = {
     // Si no hay almacenes mapeados, obtenerlos
     let almacenes = almacenesMap;
     if (!almacenes) {
-      const todosAlmacenes = await almacenService.getAll();
-      almacenes = new Map<string, Almacen>();
+      const todosAlmacenes = await casillaCrudService.getAll();
+      almacenes = new Map<string, Casilla>();
       todosAlmacenes.forEach(a => almacenes!.set(a.id, a));
     }
 
@@ -183,7 +184,7 @@ export const stockDisponibilidadService = {
         almacenNombre: inv.almacenNombre,
         almacenCodigo: almacen.codigo,
         pais: inv.pais as PaisAlmacen,
-        esViajero: almacen.esViajero,
+        esViajero: almacen.tipo === 'casilla_viajero',
         unidadesDisponibles: inv.disponibles,
         unidadesReservadas: inv.reservadas,
         unidadesLibres: unidadesLibresCalc,
@@ -192,30 +193,15 @@ export const stockDisponibilidadService = {
         diasPromedioVencimiento: inv.diasPromedioVencimiento
       };
 
-      // Agregar información de viajero si aplica
-      if (almacen.esViajero && almacen.proximoViaje) {
-        disponibilidadAlmacen.viajeroProximoViaje = almacen.proximoViaje;
-        disponibilidadAlmacen.viajeroNombre = almacen.nombre;
-
-        // Calcular días estimados de llegada
-        const hoy = new Date();
-        const proximoViaje = almacen.proximoViaje.toDate();
-        const diasHastaViaje = Math.ceil(
-          (proximoViaje.getTime() - hoy.getTime()) / (1000 * 60 * 60 * 24)
-        );
-        // Sumar días de viaje estimados (3 días promedio)
-        disponibilidadAlmacen.tiempoEstimadoLlegadaDias = Math.max(0, diasHastaViaje) + 3;
-      } else if (esPaisOrigen(inv.pais)) {
-        // Almacén origen sin viaje programado: estimar 15 días
+      // Tiempo estimado de llegada: origen ~15 días, Perú inmediato.
+      // El feature "próximo viaje del viajero" se eliminó (deprecado S42j · chk5.ENVIOS-UNIF):
+      // la casilla es solo ubicación · los viajes del viajero ya no se modelan acá.
+      if (esPaisOrigen(inv.pais)) {
         disponibilidadAlmacen.tiempoEstimadoLlegadaDias = 15;
+        disponibilidadAlmacen.costoFleteEstimadoUSD = 5; // estimación fija por unidad
       } else {
         // Perú: disponible inmediatamente
         disponibilidadAlmacen.tiempoEstimadoLlegadaDias = 0;
-      }
-
-      // Estimar costo de flete para USA
-      if (esPaisOrigen(inv.pais)) {
-        disponibilidadAlmacen.costoFleteEstimadoUSD = almacen.costoPromedioFlete || 5;
       }
 
       disponibilidadAlmacenes.push(disponibilidadAlmacen);
@@ -232,12 +218,10 @@ export const stockDisponibilidadService = {
       }
     }
 
-    // Ordenar por prioridad: Perú primero, luego USA con viaje, luego USA sin viaje
+    // Prioridad: Perú primero, luego por menor tiempo estimado de llegada.
     disponibilidadAlmacenes.sort((a, b) => {
       if (a.pais === 'Peru' && b.pais !== 'Peru') return -1;
       if (a.pais !== 'Peru' && b.pais === 'Peru') return 1;
-      if (a.viajeroProximoViaje && !b.viajeroProximoViaje) return -1;
-      if (!a.viajeroProximoViaje && b.viajeroProximoViaje) return 1;
       return (a.tiempoEstimadoLlegadaDias || 0) - (b.tiempoEstimadoLlegadaDias || 0);
     });
 
@@ -341,9 +325,6 @@ export const stockDisponibilidadService = {
         if (almacen.pais === 'Peru') {
           fuentePrincipal = 'peru';
           razon = 'Stock disponible en Perú (entrega inmediata)';
-        } else if (almacen.esViajero && almacen.viajeroProximoViaje) {
-          fuentePrincipal = 'origen_viajero';
-          razon = `Stock en origen con ${almacen.viajeroNombre}, viaje próximo en ${almacen.tiempoEstimadoLlegadaDias} días`;
         } else {
           fuentePrincipal = 'origen_almacen';
           razon = `Stock en almacén origen, tiempo estimado ${almacen.tiempoEstimadoLlegadaDias} días`;

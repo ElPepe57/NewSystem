@@ -402,7 +402,10 @@
       "Bash(grep -rln \"unidadesActuales\" src/services src/store)",
       "Bash(sed -n '255,275p' src/store/casillaStore.ts)",
       "Bash(sed -n '1,20p' src/services/casilla.crud.service.ts)",
-      "Bash(sed -n '105,160p' src/types/almacen.types.ts)"
+      "Bash(sed -n '105,160p' src/types/almacen.types.ts)",
+      "Bash(sed -n '137,141p' src/services/stockDisponibilidad.service.ts)",
+      "Bash(sed -n '348,356p' src/services/stockDisponibilidad.service.ts)",
+      "Bash(sed -n '416,424p' src/services/stockDisponibilidad.service.ts)"
     ],
     "deny": [],
     "ask": []

@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Users, Package, Calendar, DollarSign, Plus, X, Truck, Check, AlertCircle } from 'lucide-react';
 import { Button, Modal } from '../../common';
-import { almacenService } from '../../../services/casilla.service';
+import { casillaCrudService } from '../../../services/casilla.crud.service';
 import { requerimientoService } from '../../../services/requerimiento.service';
 import { useToastStore } from '../../../store/toastStore';
-import type { Almacen } from '../../../types/almacen.types';
+import type { Casilla } from '../../../types/casilla.types';
 import type {
   Requerimiento,
   AsignacionResponsable,
@@ -28,7 +28,7 @@ export const AsignacionResponsableForm: React.FC<Props> = ({
   userId
 }) => {
   const toast = useToastStore();
-  const [viajeros, setViajeros] = useState<Almacen[]>([]);
+  const [viajeros, setViajeros] = useState<Casilla[]>([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
 
@@ -45,11 +45,8 @@ export const AsignacionResponsableForm: React.FC<Props> = ({
   useEffect(() => {
     const loadViajeros = async () => {
       try {
-        const almacenes = await almacenService.getAll();
-        // Filtrar solo viajeros activos
-        const viajerosActivos = almacenes.filter(
-          a => a.esViajero && a.estadoAlmacen === 'activo'
-        );
+        // Casillas de tipo viajero, activas (la casilla = ubicación; su dueño es el viajero).
+        const viajerosActivos = await casillaCrudService.getViajeros();
         setViajeros(viajerosActivos);
       } catch (error) {
         console.error('Error al cargar viajeros:', error);
@@ -85,12 +82,8 @@ export const AsignacionResponsableForm: React.FC<Props> = ({
           cantidad: p.cantidadPendiente
         }))
       );
-
-      // Si el viajero tiene fecha de próximo viaje, usarla
-      if (viajeroSeleccionado?.proximoViaje) {
-        const fecha = viajeroSeleccionado.proximoViaje.toDate();
-        setFechaEstimadaLlegada(fecha.toISOString().split('T')[0]);
-      }
+      // (legacy) El auto-relleno de fecha desde `proximoViaje` se eliminó · feature
+      // muerto (deprecado S42j) · la casilla no modela viajes. chk5.ENVIOS-UNIF.
     }
   }, [selectedViajeroId]);
 
@@ -198,7 +191,6 @@ export const AsignacionResponsableForm: React.FC<Props> = ({
               {viajeros.map(v => (
                 <option key={v.id} value={v.id}>
                   {v.codigo} - {v.nombre}
-                  {v.proximoViaje && ` (Próx. viaje: ${v.proximoViaje.toDate().toLocaleDateString('es-PE')})`}
                 </option>
               ))}
             </select>
@@ -208,29 +200,13 @@ export const AsignacionResponsableForm: React.FC<Props> = ({
         {/* Info del viajero seleccionado */}
         {viajeroSeleccionado && (
           <div className="bg-slate-50 rounded-lg p-4 border">
-            <div className="flex items-start justify-between">
-              <div>
-                <div className="font-semibold text-slate-900">{viajeroSeleccionado.nombre}</div>
-                <div className="text-sm text-slate-500">
-                  {viajeroSeleccionado.ciudad}, {viajeroSeleccionado.estado || 'USA'}
-                </div>
-                {/* S42j — Chip "Frecuencia de viaje" removido por no tener uso real en el negocio */}
+            <div>
+              <div className="font-semibold text-slate-900">{viajeroSeleccionado.nombre}</div>
+              <div className="text-sm text-slate-500">
+                {[viajeroSeleccionado.ciudad, viajeroSeleccionado.pais].filter(Boolean).join(', ')}
               </div>
-              <div className="text-right">
-                {viajeroSeleccionado.costoPromedioFlete && (
-                  <div className="text-sm">
-                    <span className="text-slate-500">Flete promedio:</span>
-                    <span className="font-medium text-slate-900 ml-1">
-                      ${viajeroSeleccionado.costoPromedioFlete}/ud
-                    </span>
-                  </div>
-                )}
-                {viajeroSeleccionado.proximoViaje && (
-                  <div className="text-sm text-sky-600">
-                    Próximo viaje: {viajeroSeleccionado.proximoViaje.toDate().toLocaleDateString('es-PE')}
-                  </div>
-                )}
-              </div>
+              {/* S42j/chk5.ENVIOS-UNIF — "Flete promedio" y "Próximo viaje" removidos:
+                  feature muerto · la casilla es solo ubicación (los viajes del viajero no se modelan). */}
             </div>
           </div>
         )}
