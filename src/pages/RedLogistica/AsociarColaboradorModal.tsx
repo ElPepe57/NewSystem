@@ -78,8 +78,8 @@ export const AsociarColaboradorModal: React.FC<Props> = ({ isOpen, onClose, casi
     <Modal isOpen={isOpen} onClose={onClose} title="Asociar colaboradores" size="md">
       <div className="space-y-4">
         {/* Contexto de la casilla */}
-        <div className="p-3 rounded-lg bg-teal-50 border border-teal-100">
-          <p className="text-xs text-teal-700 font-medium">Casilla destino</p>
+        <div className="p-3 rounded-lg bg-orange-50 border border-orange-100">
+          <p className="text-xs text-orange-700 font-medium">Casilla destino</p>
           <p className="text-sm font-semibold text-slate-900 mt-0.5">{casilla.nombre}</p>
           <p className="text-xs text-slate-600 mt-0.5">
             {casilla.direccion}{casilla.ciudad ? `, ${casilla.ciudad}` : ''}
@@ -112,12 +112,12 @@ export const AsociarColaboradorModal: React.FC<Props> = ({ isOpen, onClose, casi
                     type="button"
                     onClick={() => toggleId(c.id)}
                     className={`w-full flex items-center gap-3 px-3 py-2 text-left transition-colors ${
-                      isSelected ? 'bg-teal-50' : 'hover:bg-slate-50'
+                      isSelected ? 'bg-orange-50' : 'hover:bg-slate-50'
                     }`}
                   >
                     <div
                       className={`w-4 h-4 rounded border flex items-center justify-center flex-shrink-0 transition-colors ${
-                        isSelected ? 'bg-teal-600 border-teal-600' : 'bg-white border-slate-300'
+                        isSelected ? 'bg-orange-600 border-orange-600' : 'bg-white border-slate-300'
                       }`}
                     >
                       {isSelected && <Check className="w-3 h-3 text-white" />}
@@ -148,13 +148,13 @@ export const AsociarColaboradorModal: React.FC<Props> = ({ isOpen, onClose, casi
               return (
                 <span
                   key={id}
-                  className="inline-flex items-center gap-1 pl-2 pr-1 py-0.5 text-xs bg-teal-600 text-white rounded-full"
+                  className="inline-flex items-center gap-1 pl-2 pr-1 py-0.5 text-xs bg-orange-600 text-white rounded-full"
                 >
                   {c.nombre}
                   <button
                     type="button"
                     onClick={() => toggleId(id)}
-                    className="p-0.5 hover:bg-teal-700 rounded-full"
+                    className="p-0.5 hover:bg-orange-700 rounded-full"
                   >
                     <X className="w-3 h-3" />
                   </button>

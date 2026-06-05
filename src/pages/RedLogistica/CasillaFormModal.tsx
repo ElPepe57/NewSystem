@@ -6,6 +6,7 @@ import { MapPin, Loader2, Check } from 'lucide-react';
 import { Modal } from '../../components/common/Modal';
 import { Button } from '../../components/common/Button';
 import { useAuthStore } from '../../store/authStore';
+import { useColaboradorStore } from '../../store/colaboradorStore';
 import { casillaCrudService } from '../../services/casilla.crud.service';
 import type { Casilla, TipoCasilla, PaisCasilla, CasillaFormData } from '../../types/casilla.types';
 import { useToastStore } from '../../store/toastStore';
@@ -52,13 +53,17 @@ const PAIS_ISO: Record<PaisCasilla, string> = {
   Peru_local: 'PE',
 };
 
-const inputCls = 'w-full text-sm border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 outline-none';
+const inputCls = 'w-full text-sm border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none';
 const labelCls = 'block text-xs font-medium text-slate-600 mb-1';
 
 export const CasillaFormModal: React.FC<Props> = ({ isOpen, onClose, onSaved, casilla, colaboradorId }) => {
   const { user } = useAuthStore();
+  const { colaboradores, fetchColaboradores } = useColaboradorStore();
   const toast = useToastStore();
   const [loading, setLoading] = useState(false);
+  // Si no viene colaboradorId (ej. "Nueva casilla" desde el header), se elige acá.
+  const [colaboradorIdSel, setColaboradorIdSel] = useState(colaboradorId);
+  const requiereSelector = !colaboradorId && !casilla;
 
   const { geocode, isGeocoding } = useGeocoder();
   const [coordenadas, setCoordenadas] = useState<{ lat: number; lng: number } | null>(null);
@@ -105,6 +110,13 @@ export const CasillaFormModal: React.FC<Props> = ({ isOpen, onClose, onSaved, ca
     }
   }, [casilla, isOpen]);
 
+  // Sincronizar el colaborador seleccionado + cargar lista para el selector global.
+  useEffect(() => {
+    setColaboradorIdSel(colaboradorId);
+    if (!colaboradorId && colaboradores.length === 0) fetchColaboradores();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [colaboradorId, isOpen]);
+
   // S42d — Geocoding on-blur de dirección (fallback cuando el usuario no
   // selecciona del autocomplete). Consulta Google y guarda coordenadas.
   const handleGeocode = async () => {
@@ -137,6 +149,7 @@ export const CasillaFormModal: React.FC<Props> = ({ isOpen, onClose, onSaved, ca
 
   const handleSubmit = async () => {
     if (!user || !form.nombre.trim()) return;
+    if (requiereSelector && !colaboradorIdSel) { toast.warning('Elegí el colaborador dueño de la casilla'); return; }
     setLoading(true);
     try {
       // S42c fix — omitir campos vacíos (Firestore rechaza undefined en updateDoc)
@@ -145,7 +158,7 @@ export const CasillaFormModal: React.FC<Props> = ({ isOpen, onClose, onSaved, ca
         tipo: form.tipo,
         estado: form.estado,
         pais: form.pais,
-        colaboradorId,
+        colaboradorId: colaboradorIdSel || colaboradorId,
         esPrincipal: form.esPrincipal,
       } as CasillaFormData;
       if (form.direccion.trim()) data.direccion = form.direccion.trim();
@@ -175,6 +188,17 @@ export const CasillaFormModal: React.FC<Props> = ({ isOpen, onClose, onSaved, ca
   return (
     <Modal isOpen={isOpen} onClose={onClose} title={casilla ? 'Editar Casilla' : 'Nueva Casilla'} size="lg">
       <div className="space-y-4">
+        {requiereSelector && (
+          <div>
+            <label className={labelCls}>Colaborador (dueño de la casilla)</label>
+            <select value={colaboradorIdSel} onChange={e => setColaboradorIdSel(e.target.value)} className={inputCls}>
+              <option value="">Seleccionar colaborador…</option>
+              {colaboradores.filter(c => c.estado === 'activo').map(c => (
+                <option key={c.id} value={c.id}>{c.nombre} ({c.codigo})</option>
+              ))}
+            </select>
+          </div>
+        )}
         {/* Tipo, estado, principal */}
         <div className="grid grid-cols-3 gap-3">
           <div>
@@ -231,7 +255,7 @@ export const CasillaFormModal: React.FC<Props> = ({ isOpen, onClose, onSaved, ca
                 type="button"
                 onClick={handleGeocode}
                 disabled={isGeocoding}
-                className="text-[10px] text-teal-600 hover:text-teal-800 hover:underline mt-1 flex items-center gap-1 disabled:opacity-40"
+                className="text-[10px] text-orange-600 hover:text-orange-800 hover:underline mt-1 flex items-center gap-1 disabled:opacity-40"
               >
                 {isGeocoding
                   ? <><Loader2 className="w-3 h-3 animate-spin" /> Geolocalizando…</>
@@ -300,7 +324,7 @@ export const CasillaFormModal: React.FC<Props> = ({ isOpen, onClose, onSaved, ca
             type="checkbox"
             checked={form.esPrincipal}
             onChange={e => setForm({ ...form, esPrincipal: e.target.checked })}
-            className="w-4 h-4 text-teal-600 rounded border-slate-300 focus:ring-teal-500"
+            className="w-4 h-4 text-orange-600 rounded border-slate-300 focus:ring-orange-500"
           />
           <span className="text-sm text-slate-700">Casilla principal de este colaborador</span>
         </label>

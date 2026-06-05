@@ -18,14 +18,6 @@ import type { Casilla } from '../../../types/casilla.types';
 import type { Colaborador } from '../../../types/colaborador.types';
 import { formatCurrency } from '../../../utils/format';
 
-const PAIS_EMOJI: Record<string, string> = {
-  USA: '\u{1F1FA}\u{1F1F8}',
-  Peru: '\u{1F1F5}\u{1F1EA}',
-  China: '\u{1F1E8}\u{1F1F3}',
-  Corea: '\u{1F1F0}\u{1F1F7}',
-  Peru_local: '\u{1F1F5}\u{1F1EA}',
-};
-
 const TIPO_COLAB_LABEL: Record<string, string> = {
   empresa: 'Empresa',
   viajero: 'Viajero',
@@ -69,12 +61,11 @@ export const CasillaExpandible: React.FC<CasillaExpandibleProps> = ({
           {expanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
         </button>
 
-        {/* Icono casilla con bandera */}
-        <div className="flex-shrink-0 relative">
-          <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-teal-50 text-teal-600 border border-teal-200">
+        {/* Icono casilla (el país ya lo da el header de grupo del directorio) */}
+        <div className="flex-shrink-0">
+          <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-orange-50 text-orange-600 border border-orange-200">
             <MapPin className="w-5 h-5" />
           </div>
-          <span className="absolute -top-1 -right-1 text-xs">{PAIS_EMOJI[casilla.pais] || ''}</span>
         </div>
 
         {/* Info principal */}
@@ -157,7 +148,7 @@ export const CasillaExpandible: React.FC<CasillaExpandibleProps> = ({
           <div className="px-4 pl-12 py-2 border-t border-slate-100">
             <button
               onClick={() => onAsociarColaborador(casilla)}
-              className="inline-flex items-center gap-1 text-xs text-teal-600 hover:text-teal-800 font-medium"
+              className="inline-flex items-center gap-1 text-xs text-orange-600 hover:text-orange-800 font-medium"
             >
               <Plus className="w-3.5 h-3.5" /> Asociar otro colaborador
             </button>
@@ -187,7 +178,7 @@ const ColabRowInCasilla: React.FC<ColabRowInCasillaProps> = ({ colaborador, esPr
     </div>
 
     {/* Avatar inicial */}
-    <div className="flex-shrink-0 w-7 h-7 rounded-full bg-gradient-to-br from-teal-100 to-teal-200 text-teal-800 flex items-center justify-center text-[11px] font-semibold">
+    <div className="flex-shrink-0 w-7 h-7 rounded-full bg-gradient-to-br from-orange-100 to-orange-200 text-orange-800 flex items-center justify-center text-[11px] font-semibold">
       {colaborador.nombre.charAt(0).toUpperCase()}
     </div>
 

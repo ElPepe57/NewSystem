@@ -21,7 +21,7 @@ interface Props {
 }
 
 const inputCls =
-  'w-full text-sm border border-slate-300 rounded px-2 py-1.5 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 outline-none tabular-nums';
+  'w-full text-sm border border-slate-300 rounded px-2 py-1.5 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none tabular-nums';
 
 /**
  * Valida integridad de la tabla de tramos.
@@ -133,7 +133,7 @@ export const TramosPesoSection: React.FC<Props> = ({
           <button
             type="button"
             onClick={handleAgregar}
-            className="text-sm font-medium px-3 py-1.5 bg-teal-600 text-white rounded-lg hover:bg-teal-700"
+            className="text-sm font-medium px-3 py-1.5 bg-orange-600 text-white rounded-lg hover:bg-orange-700"
           >
             + Agregar primer tramo
           </button>
@@ -248,7 +248,7 @@ export const TramosPesoSection: React.FC<Props> = ({
           <button
             type="button"
             onClick={handleAgregar}
-            className="text-xs font-medium text-teal-700 hover:text-teal-900"
+            className="text-xs font-medium text-orange-700 hover:text-orange-900"
           >
             + Agregar tramo
           </button>

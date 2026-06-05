@@ -413,7 +413,11 @@
       "Bash(sed -i \"s#import type { PaisAlmacen } from '../types/almacen.types';#import type { PaisCasilla } from '../types/casilla.types';#; s#PaisAlmacen#PaisCasilla#g\" src/services/stockDisponibilidad.service.ts)",
       "Bash(sed -n '95,112p' src/components/layout/Sidebar.tsx)",
       "Bash(sed -n '256,275p' src/pages/RedLogistica/RedLogistica.tsx)",
-      "Bash(awk '/return \\\\\\(/{p=1} p&&/HubShell|HubTopBar|HubHeader|HubKpiStrip|HubTabs|grupo=|esAdmin|tono:|acciones=|tabs=/{print NR\": \"$0}' src/pages/Envios/Envios.tsx)"
+      "Bash(awk '/return \\\\\\(/{p=1} p&&/HubShell|HubTopBar|HubHeader|HubKpiStrip|HubTabs|grupo=|esAdmin|tono:|acciones=|tabs=/{print NR\": \"$0}' src/pages/Envios/Envios.tsx)",
+      "Bash(sed -i 's/teal-/orange-/g' src/pages/RedLogistica/vistas/CasillaExpandible.tsx)",
+      "Bash(sed -i 's/teal-/orange-/g' src/pages/RedLogistica/shared/TramosPesoSection.tsx)",
+      "Bash(sed -n '40,60p' src/pages/RedLogistica/CasillaFormModal.tsx)",
+      "Bash(sed -n '140,165p' src/pages/RedLogistica/CasillaFormModal.tsx)"
     ],
     "deny": [],
     "ask": []
