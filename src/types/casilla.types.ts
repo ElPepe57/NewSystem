@@ -23,7 +23,7 @@ export type EstadoCasilla = 'activa' | 'inactiva';
 /**
  * Pais de la casilla
  */
-export type PaisCasilla = 'USA' | 'Peru' | 'China' | 'Corea' | 'Peru_local';
+export type PaisCasilla = 'USA' | 'Peru' | 'China' | 'Corea';
 
 /**
  * Configuracion de pais para display y logica
@@ -33,7 +33,6 @@ export const PAISES_CONFIG: Record<string, { nombre: string; emoji: string; esOr
   China:      { nombre: 'China',          emoji: '\u{1F1E8}\u{1F1F3}', esOrigen: true, monedaDefault: 'USD' },
   Corea:      { nombre: 'Corea del Sur',  emoji: '\u{1F1F0}\u{1F1F7}', esOrigen: true, monedaDefault: 'USD' },
   Peru:       { nombre: 'Per\u00FA',           emoji: '\u{1F1F5}\u{1F1EA}', esOrigen: false, monedaDefault: 'PEN' },
-  Peru_local: { nombre: 'Per\u00FA (local)',   emoji: '\u{1F1F5}\u{1F1EA}', esOrigen: false, monedaDefault: 'PEN' },
 };
 
 /**

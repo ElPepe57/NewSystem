@@ -57,8 +57,8 @@ export const RedLogisticaMapa: React.FC<RedLogisticaMapaProps> = ({ casillas, co
     }, {});
     return Object.entries(counts)
       .map(([pais, count]) => ({
-        label: pais === 'Peru_local' ? 'Perú (local)' : pais,
-        color: COUNTRY_COLORS[pais === 'Peru_local' ? 'Peru' : pais] ?? '#64748B',
+        label: pais,
+        color: COUNTRY_COLORS[pais] ?? '#64748B',
         count,
       }))
       .sort((a, b) => b.count - a.count);
@@ -99,7 +99,7 @@ export const RedLogisticaMapa: React.FC<RedLogisticaMapaProps> = ({ casillas, co
             <MarkersLayer<CasillaMeta>
               points={puntos}
               colorBy={(p) =>
-                COUNTRY_COLORS[p.metadata?.pais === 'Peru_local' ? 'Peru' : (p.metadata?.pais ?? '')] ?? '#64748B'
+                COUNTRY_COLORS[p.metadata?.pais ?? ''] ?? '#64748B'
               }
               scaleBy={(p) => {
                 // Escala entre 8 y 14 según unidades actuales
@@ -123,7 +123,7 @@ export const RedLogisticaMapa: React.FC<RedLogisticaMapaProps> = ({ casillas, co
                     }
                     kpis={[
                       { label: 'Colaboradores', value: colaboradoresTexto },
-                      { label: 'País', value: c.pais === 'Peru_local' ? 'Perú' : c.pais },
+                      { label: 'País', value: c.pais },
                       { label: 'Ciudad', value: c.ciudad ?? '—' },
                       { label: 'Unidades', value: c.unidadesActuales ?? 0 },
                       { label: 'Valor inv.', value: formatCurrency(c.valorInventarioUSD ?? 0, 'USD') },

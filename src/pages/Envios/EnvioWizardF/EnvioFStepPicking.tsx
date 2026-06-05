@@ -54,7 +54,7 @@ export const EnvioFStepPicking: React.FC<EnvioFStepPickingProps> = ({ state, dis
   const almacenesPeruActivos = useMemo(
     () =>
       casillas.filter(
-        (c) => c.estado === 'activa' && (c.pais === 'Peru' || c.pais === 'Peru_local')
+        (c) => c.estado === 'activa' && (c.pais === 'Peru')
       ),
     [casillas]
   );

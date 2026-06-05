@@ -37,7 +37,6 @@ const PAIS_INFO: Record<string, { codigo: string; nombre: string; orden: number 
   China: { codigo: 'CN', nombre: 'China', orden: 2 },
   Corea: { codigo: 'KR', nombre: 'Corea', orden: 3 },
   Peru: { codigo: 'PE', nombre: 'Perú', orden: 4 },
-  Peru_local: { codigo: 'PE', nombre: 'Perú (local)', orden: 5 },
 };
 const paisCodigo = (p?: string) => PAIS_INFO[p ?? '']?.codigo ?? (p ?? '—');
 const paisNombre = (p?: string) => PAIS_INFO[p ?? '']?.nombre ?? (p ?? 'Sin país');

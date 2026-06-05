@@ -34,8 +34,8 @@ export function deriveTipoRutaLogistica(envio: Envio): TipoRutaLogistica | null 
   const origenPais = envio.origenCasillaPais;
   const destinoPais = envio.destinoCasillaPais;
   const recojoEnOrigen = (envio as any).recojoEnOrigen === true;
-  const origenEsPeru = origenPais === 'Peru' || origenPais === 'Peru_local';
-  const destinoEsPeru = destinoPais === 'Peru' || destinoPais === 'Peru_local';
+  const origenEsPeru = origenPais === 'Peru';
+  const destinoEsPeru = destinoPais === 'Peru';
 
   // D — Recojo directo: OC donde el colaborador recoge (unidades nacen en su casilla)
   if (hayOC && recojoEnOrigen) return 'D';

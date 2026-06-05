@@ -41,7 +41,6 @@ const PAISES: { value: PaisCasilla; label: string }[] = [
   { value: 'Peru', label: 'Peru' },
   { value: 'China', label: 'China' },
   { value: 'Corea', label: 'Corea' },
-  { value: 'Peru_local', label: 'Peru (local)' },
 ];
 
 // ISO 3166-1 alpha-2 para sesgo de Places Autocomplete
@@ -50,7 +49,6 @@ const PAIS_ISO: Record<PaisCasilla, string> = {
   Peru: 'PE',
   China: 'CN',
   Corea: 'KR',
-  Peru_local: 'PE',
 };
 
 const inputCls = 'w-full text-sm border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none';
@@ -122,7 +120,7 @@ export const CasillaFormModal: React.FC<Props> = ({ isOpen, onClose, onSaved, ca
   const handleGeocode = async () => {
     const dir = form.direccion.trim();
     if (!dir) return;
-    const paisLabel = form.pais === 'Peru_local' ? 'Peru' : form.pais;
+    const paisLabel = form.pais;
     const query = [dir, form.ciudad.trim(), paisLabel].filter(Boolean).join(', ');
     const result = await geocode(query);
     if (result) {
@@ -295,7 +293,7 @@ export const CasillaFormModal: React.FC<Props> = ({ isOpen, onClose, onSaved, ca
                       nombre: form.nombre || 'Casilla',
                       metadata: { nombre: form.nombre, pais: form.pais },
                     } as MapPoint<{ nombre: string; pais: string }>]}
-                    colorBy={() => COUNTRY_COLORS[form.pais === 'Peru_local' ? 'Peru' : form.pais] ?? '#14B8A6'}
+                    colorBy={() => COUNTRY_COLORS[form.pais] ?? '#14B8A6'}
                     scaleBy={() => 10}
                   />
                 </MapContainer>

@@ -193,7 +193,7 @@ export const ResumenTab: React.FC<ResumenTabProps> = ({
     productosConUnidades.forEach((p) => {
       p.unidades.forEach((u) => {
         if (u.estado === 'vendida') return;
-        if (u.pais === 'Peru' || u.pais === 'Peru_local') unidadesPeru++;
+        if (u.pais === 'Peru') unidadesPeru++;
         else unidadesOrigen++;
       });
     });

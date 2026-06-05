@@ -45,14 +45,13 @@ export const SeccionOrigen: React.FC<Props> = ({ wizard, collapsed, onToggle }) 
         c =>
           c.tipo === 'casilla_viajero' &&
           c.pais !== 'Peru' &&
-          c.pais !== 'Peru_local' &&
           c.estado === 'activa'
       );
     } else if (state.origenCategoria === 'almacen_peru') {
       filtradas = casillas.filter(
         c =>
           c.tipo === 'almacen_propio' &&
-          (c.pais === 'Peru' || c.pais === 'Peru_local') &&
+          (c.pais === 'Peru') &&
           c.estado === 'activa'
       );
     }

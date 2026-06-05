@@ -15,7 +15,6 @@ const CODIGO_PAIS: Record<string, string> = {
   USA: 'US',
   Peru: 'PE',
   'Perú': 'PE',
-  Peru_local: 'PE',
   China: 'CN',
   Corea: 'KR',
   'Japón': 'JP',

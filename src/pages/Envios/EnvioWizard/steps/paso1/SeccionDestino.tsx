@@ -80,7 +80,6 @@ export const SeccionDestino: React.FC<Props> = ({
         c =>
           c.tipo === 'casilla_viajero' &&
           c.pais !== 'Peru' &&
-          c.pais !== 'Peru_local' &&
           c.estado === 'activa' &&
           c.id !== state.ubicacionOrigenId // no mismo origen
       );
@@ -88,7 +87,7 @@ export const SeccionDestino: React.FC<Props> = ({
       filtradas = casillas.filter(
         c =>
           c.tipo === 'almacen_propio' &&
-          (c.pais === 'Peru' || c.pais === 'Peru_local') &&
+          (c.pais === 'Peru') &&
           c.estado === 'activa' &&
           c.id !== state.ubicacionOrigenId
       );

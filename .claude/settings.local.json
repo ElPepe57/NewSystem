@@ -417,7 +417,9 @@
       "Bash(sed -i 's/teal-/orange-/g' src/pages/RedLogistica/vistas/CasillaExpandible.tsx)",
       "Bash(sed -i 's/teal-/orange-/g' src/pages/RedLogistica/shared/TramosPesoSection.tsx)",
       "Bash(sed -n '40,60p' src/pages/RedLogistica/CasillaFormModal.tsx)",
-      "Bash(sed -n '140,165p' src/pages/RedLogistica/CasillaFormModal.tsx)"
+      "Bash(sed -n '140,165p' src/pages/RedLogistica/CasillaFormModal.tsx)",
+      "Bash(sed -i \"s#form\\\\.pais === 'Peru_local' ? 'Peru' : form\\\\.pais#form.pais#g\" src/pages/RedLogistica/CasillaFormModal.tsx)",
+      "Bash(sed -n '58,62p;100,104p;124,128p' src/pages/RedLogistica/RedLogisticaMapa.tsx)"
     ],
     "deny": [],
     "ask": []

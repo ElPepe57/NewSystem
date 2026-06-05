@@ -55,7 +55,7 @@ export const ModoTransferencia = forwardRef<ModoTransferenciaHandle>((_props, re
         ]);
 
         const casillasActivas = todasCasillas.filter(
-          c => c.estado === 'activa' && (c.pais === 'Peru' || c.pais === 'Peru_local')
+          c => c.estado === 'activa' && (c.pais === 'Peru')
         );
 
         setAlmacenes(casillasActivas);

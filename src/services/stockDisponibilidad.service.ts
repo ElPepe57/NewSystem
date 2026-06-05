@@ -210,7 +210,7 @@ export const stockDisponibilidadService = {
       totalDisponible += inv.disponibles;
       totalReservado += inv.reservadas;
 
-      if (inv.pais === 'Peru' || inv.pais === 'Peru_local') {
+      if (inv.pais === 'Peru') {
         disponiblePeru += libres;
       } else {
         disponibleOrigen += libres;
@@ -435,7 +435,7 @@ export const stockDisponibilidadService = {
 
           // Actualizar contadores
           cantidadRestante -= cantidadReservar;
-          if (almacenInfo.pais === 'Peru' || almacenInfo.pais === 'Peru_local') {
+          if (almacenInfo.pais === 'Peru') {
             cantidadPeru += cantidadReservar;
           } else {
             cantidadOrigen += cantidadReservar;
@@ -506,7 +506,7 @@ export const stockDisponibilidadService = {
       for (const reservaAlmacen of producto.reservasPorAlmacen) {
         for (const unidadId of reservaAlmacen.unidadesIds) {
           // Restaurar estado según ubicación
-          const nuevoEstado = (reservaAlmacen.pais === 'Peru' || reservaAlmacen.pais === 'Peru_local') ? 'disponible_peru' : 'recibida_origen';
+          const nuevoEstado = (reservaAlmacen.pais === 'Peru') ? 'disponible_peru' : 'recibida_origen';
           await unidadService.actualizarEstado(
             unidadId,
             nuevoEstado as any,

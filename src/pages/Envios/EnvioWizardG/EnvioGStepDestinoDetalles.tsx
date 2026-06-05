@@ -44,7 +44,7 @@ export const EnvioGStepDestinoDetalles: React.FC<EnvioGStepDestinoDetallesProps>
       casillas.filter(
         (c) =>
           c.estado === 'activa' &&
-          (c.pais === 'Peru' || c.pais === 'Peru_local') &&
+          (c.pais === 'Peru') &&
           c.tipo === 'almacen_propio'
       ),
     [casillas]
