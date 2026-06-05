@@ -1,7 +1,27 @@
 # Migración Almacenes → Casillas · Blueprint (Fases 2-4)
 
-> **Estado:** Fase 1 ✅ cerrada (conteo en vivo en ambos paths · fantasma muerto en
-> todas las superficies · riesgo operativo CERRADO). Fases 2-4 = limpieza estructural
+> **✅ COMPLETADA (2026-06-05).** Todas las fases cerradas · tsc -b + vite build verdes ·
+> el modelo legacy `Almacen` eliminado al 100% del código vivo (grep → 0, solo 2 comentarios
+> históricos). Commits en rama `envios-absorcion-entrega`:
+> - Fase 1 · conteo en vivo (75d814e)
+> - Fase 2 + 3A-services · casillas fuente única
+> - Fase 3B · matar feature de viaje muerto (Cotizaciones/Requerimientos/Compras)
+> - Fase 3A-UI · consumidores mecánicos a casillas (3 subagentes + reconciliación)
+> - Fase 4 · BORRAR almacen.types + casilla.service (almacenService) + casilla.analytics
+>   (muerto) + casillaStore legacy + 2da vía de configuración + casillaToAlmacen
+>
+> **Resultado:** única fuente de verdad = colección `casillas` (tipo `Casilla`). Un almacén
+> de la empresa = casilla tipo `almacen_propio`. Quedan solo nombres cosméticos (hook
+> `useAlmacenStore` ya 100% casillas · tipos `AlmacenSnapshot`/`DisponibilidadAlmacen` ·
+> campos de BD `almacenId`/`almacenDestino`) · rename opcional pendiente (no perturba operación).
+>
+> **Decisión de UX registrada:** el filtro "Todas las ubicaciones" de Inventario ahora agrupa
+> por tipo de casilla (Almacenes propios/Viajeros/Couriers/Ubicaciones proveedor/Terceros) en
+> vez de "Almacenes Perú / en origen" (la distinción por país ahora vive en el campo `pais`).
+>
+> ---
+> **Estado original (histórico):** Fase 1 ✅ cerrada (conteo en vivo en ambos paths · fantasma
+> muerto en todas las superficies · riesgo operativo CERRADO). Fases 2-4 = limpieza estructural
 > (eliminar la duplicación). Declarado como esfuerzo dedicado por su profundidad real.
 >
 > **Decisión del usuario:** `casillas`/`Casilla` = única fuente de verdad. `Almacen`,
