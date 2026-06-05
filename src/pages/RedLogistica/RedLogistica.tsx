@@ -1,21 +1,26 @@
 /**
- * Red Logistica — Gestion de Colaboradores y Casillas
- * Organizada en 2 secciones por proceso de negocio:
- *   - COMPRAS (origen → acopio): empresa, viajero, courier_externo
- *   - VENTAS (distribución local): transportista_local (interno/externo)
+ * Red Logística — Hub Kit (orange · grupo Inventario)
+ *
+ * Migrado del shell legacy (PageShell + KPIBar) al Hub Kit canónico.
+ * Modelo: Colaborador (quien transporta) ↔ Casilla (ubicación) · N-a-N.
+ * Directorio agrupado por PAÍS → Casillas → Colaboradores asociados.
+ * 3 tabs: Resumen · Directorio · Mapa (Mapa como tab · consistente con Inventario).
  */
 import React, { useEffect, useState, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
-  Network, Plus, ChevronDown, ChevronRight, MapPin, Package,
-  DollarSign, Star, Edit2, Plane, Truck, Building2, Users,
-  Search, X, ShoppingCart, ShoppingBag, Briefcase,
-  List, Map as MapIcon, Trash2,
+  Network, UserPlus, MapPin, Package, DollarSign, Users, Gauge, Plane,
+  Search, RefreshCw, Warehouse, Truck, Bike, AlertTriangle,
+  CheckCircle, Lightbulb, UserX, ArrowUpRight, ArrowRightLeft,
+  BarChart3, Pencil,
 } from 'lucide-react';
-import { PageShell, PageHeader, KPIBar, StatusBadge, StatCard } from '../../design-system';
-import { Button, useConfirmDialog, ConfirmDialog } from '../../components/common';
+import { HubShell, HubTopBar, HubHeader, HubKpiStrip, HubTabs, HubBody, type HubKpi, type HubTab } from '../../design-system';
+import { useConfirmDialog, ConfirmDialog } from '../../components/common';
 import { useToastStore } from '../../store/toastStore';
 import { useColaboradorStore } from '../../store/colaboradorStore';
 import { useAlmacenStore } from '../../store/casillaStore';
+import { useAuthStore } from '../../store/authStore';
+import { hasRole } from '../../types/auth.types';
 import type { Colaborador, TipoColaborador, SubtipoTransportistaLocal } from '../../types/colaborador.types';
 import type { Casilla } from '../../types/casilla.types';
 import { ColaboradorFormModal } from './ColaboradorFormModal';
@@ -23,152 +28,145 @@ import { CasillaFormModal } from './CasillaFormModal';
 import { AsociarColaboradorModal } from './AsociarColaboradorModal';
 import { RedLogisticaMapa } from './RedLogisticaMapa';
 import { CasillaExpandible } from './vistas/CasillaExpandible';
-import { useAuthStore } from '../../store/authStore';
 import { formatCurrency } from '../../utils/format';
 
 // ── Helpers ──
 
-const PAIS_EMOJI: Record<string, string> = {
-  USA: '\u{1F1FA}\u{1F1F8}',
-  Peru: '\u{1F1F5}\u{1F1EA}',
-  China: '\u{1F1E8}\u{1F1F3}',
-  Corea: '\u{1F1F0}\u{1F1F7}',
-  Peru_local: '\u{1F1F5}\u{1F1EA}',
+const PAIS_INFO: Record<string, { codigo: string; nombre: string; orden: number }> = {
+  USA: { codigo: 'US', nombre: 'Estados Unidos', orden: 1 },
+  China: { codigo: 'CN', nombre: 'China', orden: 2 },
+  Corea: { codigo: 'KR', nombre: 'Corea', orden: 3 },
+  Peru: { codigo: 'PE', nombre: 'Perú', orden: 4 },
+  Peru_local: { codigo: 'PE', nombre: 'Perú (local)', orden: 5 },
 };
+const paisCodigo = (p?: string) => PAIS_INFO[p ?? '']?.codigo ?? (p ?? '—');
+const paisNombre = (p?: string) => PAIS_INFO[p ?? '']?.nombre ?? (p ?? 'Sin país');
 
-interface ColabConCasillas {
-  colaborador: Colaborador;
+const TIPOS_CASILLA: { value: string; label: string }[] = [
+  { value: 'casilla_viajero', label: 'Casillas viajero' },
+  { value: 'almacen_propio', label: 'Almacenes propios' },
+  { value: 'punto_courier', label: 'Puntos courier' },
+  { value: 'ubicacion_proveedor', label: 'Proveedores' },
+  { value: 'almacen_tercero', label: 'Terceros' },
+];
+
+type TabRed = 'resumen' | 'directorio' | 'mapa';
+
+interface PaisGrupo {
+  pais: string;
   casillas: Casilla[];
+  reparto: Colaborador[];
 }
 
-// ── Main Component ──
+// ══════════════════════════════════════════════════════════════════
+// Main
+// ══════════════════════════════════════════════════════════════════
 
 export const RedLogistica: React.FC = () => {
-  const { user } = useAuthStore();
+  const navigate = useNavigate();
+  const userProfile = useAuthStore((s) => s.userProfile);
+  const esAdmin = hasRole(userProfile, 'admin');
   const { colaboradores, fetchColaboradores, eliminarColaborador } = useColaboradorStore();
   const { casillas, fetchCasillas } = useAlmacenStore();
   const toast = useToastStore();
   const { confirm, dialogProps } = useConfirmDialog();
 
+  const [tab, setTab] = useState<TabRed>('resumen');
   const [busqueda, setBusqueda] = useState('');
-  const [filtroPais, setFiltroPais] = useState('');
+  const [filtroTipo, setFiltroTipo] = useState('');
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
-  // S42d — Toggle lista / mapa (MapKit)
-  const [viewMode, setViewMode] = useState<'lista' | 'mapa'>('lista');
 
-  // Modals
+  // Modales
   const [colabFormOpen, setColabFormOpen] = useState(false);
   const [colabEditing, setColabEditing] = useState<Colaborador | null>(null);
   const [tipoPreseleccionado, setTipoPreseleccionado] = useState<TipoColaborador | undefined>();
   const [subtipoPreseleccionado, setSubtipoPreseleccionado] = useState<SubtipoTransportistaLocal | undefined>();
-
   const [casillaFormOpen, setCasillaFormOpen] = useState(false);
   const [casillaColabId, setCasillaColabId] = useState('');
   const [casillaEditing, setCasillaEditing] = useState<Casilla | null>(null);
-
-  // S42h — Modal para asociar colaboradores a una casilla existente
   const [asociarCasilla, setAsociarCasilla] = useState<Casilla | null>(null);
 
   useEffect(() => {
     if (colaboradores.length === 0) fetchColaboradores();
     if (casillas.length === 0) fetchCasillas();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // ── Derived data ──
-
-  // S42g — Una casilla puede aparecer en varios colaboradores (principal + secundarios).
-  // Para el principal se muestra tal cual; para secundarios se muestra con badge "Compartida".
-  // S42m fix — Indexar SOLO casillas activas. Las inactivas no se cuentan ni listan,
-  // alineado con el KPI global "Casillas activas" y evitando inconsistencias.
-  const casillasMap = useMemo(() => {
-    const map = new Map<string, Casilla[]>();
-    casillas
-      .filter(c => c.estado === 'activa')
-      .forEach(c => {
-        // Dueño principal
-        const arrPrincipal = map.get(c.colaboradorId) || [];
-        arrPrincipal.push(c);
-        map.set(c.colaboradorId, arrPrincipal);
-        // Colaboradores secundarios (casilla compartida)
-        c.colaboradoresSecundariosIds?.forEach((secId) => {
-          const arrSec = map.get(secId) || [];
-          arrSec.push(c);
-          map.set(secId, arrSec);
-        });
-      });
-    return map;
-  }, [casillas]);
+  // ── Derived ──
 
   const colaboradoresMap = useMemo(() => {
-    const map = new Map<string, Colaborador>();
-    colaboradores.forEach(c => map.set(c.id, c));
-    return map;
+    const m = new Map<string, Colaborador>();
+    colaboradores.forEach(c => m.set(c.id, c));
+    return m;
   }, [colaboradores]);
 
-  /** Aplica filtros de busqueda y pais a la lista completa */
-  const colabsFiltrados = useMemo(() => {
-    return colaboradores
-      .filter(c => {
-        if (filtroPais && c.pais !== filtroPais) return false;
-        if (busqueda) {
-          const term = busqueda.toLowerCase();
-          const cas = casillasMap.get(c.id) || [];
-          const matchCasilla = cas.some(cs => cs.nombre.toLowerCase().includes(term));
-          return (
-            c.nombre.toLowerCase().includes(term) ||
-            c.codigo?.toLowerCase().includes(term) ||
-            matchCasilla
-          );
-        }
-        return true;
-      })
-      .map(c => ({
-        colaborador: c,
-        casillas: (casillasMap.get(c.id) || []).sort((a, b) =>
-          (b.esPrincipal ? 1 : 0) - (a.esPrincipal ? 1 : 0)
-        ),
-      }));
-  }, [colaboradores, casillas, casillasMap, filtroPais, busqueda]);
-
-  /** Agrupa colaboradores por categoria de negocio */
-  const grupos = useMemo(() => {
-    return {
-      misAlmacenes: colabsFiltrados.filter(c => c.colaborador.tipo === 'empresa'),
-      viajeros: colabsFiltrados.filter(c => c.colaborador.tipo === 'viajero'),
-      couriersIntl: colabsFiltrados.filter(c => c.colaborador.tipo === 'courier_externo'),
-      internos: colabsFiltrados.filter(c =>
-        c.colaborador.tipo === 'transportista_local' &&
-        c.colaborador.subtipoTransportista === 'interno'
-      ),
-      externos: colabsFiltrados.filter(c =>
-        c.colaborador.tipo === 'transportista_local' &&
-        c.colaborador.subtipoTransportista === 'externo'
-      ),
-      sinCategoria: colabsFiltrados.filter(c =>
-        c.colaborador.tipo === 'transportista_local' &&
-        !c.colaborador.subtipoTransportista
-      ),
-    };
-  }, [colabsFiltrados]);
-
-  // ── KPIs globales ──
-
-  // S42m fix — KPIs alineados a casillas ACTIVAS (misma fuente de verdad que el listado).
   const casillasActivas = useMemo(() => casillas.filter(c => c.estado === 'activa'), [casillas]);
+
+  // KPIs
+  const totalColaboradoresActivos = useMemo(() => colaboradores.filter(c => c.estado === 'activo').length, [colaboradores]);
+  const totalCasillasActivas = casillasActivas.length;
   const totalUnidades = casillasActivas.reduce((s, c) => s + (c.unidadesActuales || 0), 0);
   const totalValorUSD = casillasActivas.reduce((s, c) => s + (c.valorInventarioUSD || 0), 0);
-  const totalCasillasActivas = casillasActivas.length;
-  // S42m fix — contar solo transportistas activos (alineado con KPI global)
-  const totalTransportistas = [
-    ...grupos.internos, ...grupos.externos, ...grupos.sinCategoria,
-  ].filter(i => i.colaborador.estado === 'activo').length;
-  // Colaboradores activos (excluye inactivos/suspendidos para el conteo visible)
-  const totalColaboradoresActivos = useMemo(
-    () => colaboradores.filter(c => c.estado === 'activo').length,
-    [colaboradores]
-  );
+  const capacidadTotal = casillasActivas.reduce((s, c) => s + (c.capacidadUnidades || 0), 0);
+  const capacidadUsada = capacidadTotal > 0 ? Math.round((totalUnidades / capacidadTotal) * 100) : 0;
 
-  // ── Toggle expand ──
+  // Composición por tipo (Resumen §B)
+  const composicion = useMemo(() => {
+    const act = colaboradores.filter(c => c.estado === 'activo');
+    return {
+      empresa: act.filter(c => c.tipo === 'empresa').length,
+      viajero: act.filter(c => c.tipo === 'viajero').length,
+      courier: act.filter(c => c.tipo === 'courier_externo').length,
+      transportista: act.filter(c => c.tipo === 'transportista_local').length,
+    };
+  }, [colaboradores]);
+
+  // Casillas por país (Resumen §B.2)
+  const casillasPorPais = useMemo(() => {
+    const m = new Map<string, number>();
+    casillasActivas.forEach(c => m.set(c.pais, (m.get(c.pais) ?? 0) + 1));
+    return Array.from(m.entries()).sort((a, b) => (PAIS_INFO[a[0]]?.orden ?? 99) - (PAIS_INFO[b[0]]?.orden ?? 99));
+  }, [casillasActivas]);
+
+  const paisesCubiertos = casillasPorPais.length;
+  const casillasSinColaborador = useMemo(
+    () => casillasActivas.filter(c => !colaboradoresMap.get(c.colaboradorId)).length,
+    [casillasActivas, colaboradoresMap]
+  );
+  const totalViajeros = composicion.viajero;
+
+  // Directorio: País → Casillas → Colaboradores + reparto local
+  const directorioPorPais = useMemo<PaisGrupo[]>(() => {
+    const term = busqueda.toLowerCase();
+    const casFiltradas = casillasActivas.filter(c => {
+      if (filtroTipo && c.tipo !== filtroTipo) return false;
+      if (term) {
+        const matchCol = colaboradoresMap.get(c.colaboradorId)?.nombre.toLowerCase().includes(term);
+        return c.nombre.toLowerCase().includes(term) || c.codigo.toLowerCase().includes(term) || !!matchCol;
+      }
+      return true;
+    });
+    const conCasilla = new Set<string>();
+    casillasActivas.forEach(c => { conCasilla.add(c.colaboradorId); c.colaboradoresSecundariosIds?.forEach(id => conCasilla.add(id)); });
+    const sinCasilla = filtroTipo ? [] : colaboradores.filter(c =>
+      c.estado === 'activo' && !conCasilla.has(c.id) &&
+      (!term || c.nombre.toLowerCase().includes(term) || (c.codigo?.toLowerCase().includes(term) ?? false))
+    );
+
+    const map = new Map<string, PaisGrupo>();
+    const ensure = (pais: string) => {
+      if (!map.has(pais)) map.set(pais, { pais, casillas: [], reparto: [] });
+      return map.get(pais)!;
+    };
+    casFiltradas.forEach(c => ensure(c.pais).casillas.push(c));
+    sinCasilla.forEach(c => ensure(c.pais).reparto.push(c));
+    map.forEach(g => g.casillas.sort((a, b) => (b.esPrincipal ? 1 : 0) - (a.esPrincipal ? 1 : 0)));
+    return Array.from(map.values())
+      .filter(g => g.casillas.length > 0 || g.reparto.length > 0)
+      .sort((a, b) => (PAIS_INFO[a.pais]?.orden ?? 99) - (PAIS_INFO[b.pais]?.orden ?? 99));
+  }, [casillasActivas, colaboradores, colaboradoresMap, busqueda, filtroTipo]);
+
+  // ── Handlers ──
 
   const toggleExpand = (id: string) => {
     setExpandedIds(prev => {
@@ -177,11 +175,6 @@ export const RedLogistica: React.FC = () => {
       return next;
     });
   };
-
-  const expandAll = () => setExpandedIds(new Set(colaboradores.map(c => c.id)));
-  const collapseAll = () => setExpandedIds(new Set());
-
-  // ── Handlers ──
 
   const handleNuevoColaborador = (tipo?: TipoColaborador, subtipo?: SubtipoTransportistaLocal) => {
     setColabEditing(null);
@@ -197,10 +190,9 @@ export const RedLogistica: React.FC = () => {
     setColabFormOpen(true);
   };
 
-  // S42n — Eliminar colaborador (con validación de dependencias en el service)
   const handleEliminarColaborador = async (c: Colaborador) => {
     const ok = await confirm({
-      title: `Eliminar colaborador`,
+      title: 'Eliminar colaborador',
       message: `¿Seguro que quieres eliminar a "${c.nombre}" (${c.codigo})? Esta acción no se puede deshacer.`,
       confirmText: 'Eliminar',
       variant: 'danger',
@@ -240,251 +232,154 @@ export const RedLogistica: React.FC = () => {
     fetchCasillas();
   };
 
-  // S42h — Handler para asociar colaboradores a casilla
-  const handleAsociarColaborador = (casilla: Casilla) => {
-    setAsociarCasilla(casilla);
-  };
-
   const handleAsociarSaved = () => {
     setAsociarCasilla(null);
     fetchCasillas();
   };
 
+  const refrescar = () => { fetchColaboradores(); fetchCasillas(); };
+
+  // ── KPIs / Tabs Hub ──
+
+  const kpis: HubKpi[] = [
+    { label: 'Colaboradores', valor: String(totalColaboradoresActivos), tono: 'slate', icon: Users, delta: 'activos en la red' },
+    { label: 'Casillas activas', valor: String(totalCasillasActivas), tono: 'emerald', icon: MapPin, delta: 'ubicaciones' },
+    { label: 'Unidades en red', valor: totalUnidades.toLocaleString('en-US'), tono: 'sky', icon: Package, delta: 'en circulación' },
+    { label: 'Valor en red', valor: formatCurrency(totalValorUSD, 'USD'), tono: 'indigo', icon: DollarSign, delta: 'capital acopiado' },
+    { label: 'Capacidad', valor: String(capacidadUsada), sufijo: '%', tono: 'amber', icon: Gauge, delta: 'ocupación media' },
+  ];
+
+  const tabs: HubTab[] = [
+    { id: 'resumen', label: 'Resumen' },
+    { id: 'directorio', label: 'Directorio', badge: totalCasillasActivas, badgeTono: 'slate' },
+    { id: 'mapa', label: 'Mapa', icon: MapPin },
+  ];
+
+  const leaf = tab === 'resumen' ? 'Resumen' : tab === 'directorio' ? 'Directorio' : 'Mapa';
+
   // ── Render ──
 
   return (
-    <PageShell>
-      <PageHeader
-        title="Red Logística"
-        subtitle={`${totalColaboradoresActivos} colaboradores, ${totalCasillasActivas} casillas activas`}
-        icon={Network}
-      />
-
-      {/* KPIs globales */}
-      <KPIBar columns={4}>
-        <StatCard label="Colaboradores" value={totalColaboradoresActivos} icon={Users} />
-        <StatCard label="Casillas activas" value={totalCasillasActivas} icon={MapPin} />
-        <StatCard label="Unidades en red" value={totalUnidades} icon={Package} />
-        <StatCard label="Valor inventario" value={formatCurrency(totalValorUSD, 'USD')} icon={DollarSign} />
-      </KPIBar>
-
-      {/* Filtros */}
-      <div className="flex flex-wrap items-center gap-3 mt-4 mb-4">
-        <div className="relative flex-1 min-w-[200px] max-w-sm">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-          <input
-            type="text"
-            placeholder="Buscar colaborador o casilla..."
-            value={busqueda}
-            onChange={e => setBusqueda(e.target.value)}
-            className="w-full pl-9 pr-3 py-2 text-sm border border-slate-200 rounded-lg bg-white focus:ring-2 focus:ring-teal-500 focus:border-teal-500 outline-none"
-          />
-          {busqueda && (
-            <button onClick={() => setBusqueda('')} className="absolute right-2 top-1/2 -translate-y-1/2">
-              <X className="w-4 h-4 text-slate-400" />
+    <div className="max-w-6xl mx-auto p-3 sm:p-4 md:p-6">
+      <HubShell>
+        <HubTopBar
+          grupo="inventario"
+          modulo="Red Logística"
+          leaf={leaf}
+          esAdmin={esAdmin}
+          onInicio={() => navigate('/')}
+          onModulo={() => setTab('resumen')}
+        />
+        <HubHeader
+          grupo="inventario"
+          icon={Network}
+          titulo="Red Logística"
+          subtitulo="Quiénes transportan y dónde se acopia · colaboradores y casillas de la red"
+          extraActions={
+            <button
+              type="button"
+              onClick={refrescar}
+              title="Actualizar"
+              className="flex items-center justify-center w-9 h-9 rounded-lg bg-white text-slate-500 border border-slate-200 hover:bg-slate-50 transition-colors"
+            >
+              <RefreshCw className="w-4 h-4" />
             </button>
+          }
+          acciones={[
+            { label: 'Nueva casilla', icon: MapPin, onClick: () => handleNuevaCasilla(''), tier: 'neutral' },
+            { label: 'Nuevo colaborador', icon: UserPlus, onClick: () => handleNuevoColaborador(), tier: 'primary' },
+          ]}
+        />
+        <HubKpiStrip
+          cols={5}
+          kpis={kpis}
+          miniStats={[
+            { label: <span><strong className="tabular-nums font-semibold text-slate-700">{totalViajeros}</strong> viajeros</span>, icon: Plane },
+            { label: <span>Cobertura <strong className="font-semibold text-slate-700">{paisesCubiertos} {paisesCubiertos === 1 ? 'país' : 'países'}</strong></span>, icon: Network },
+            { label: <span><strong className={`tabular-nums font-semibold ${casillasSinColaborador > 0 ? 'text-rose-700' : 'text-slate-700'}`}>{casillasSinColaborador}</strong> casilla sin colaborador</span>, icon: UserX },
+          ]}
+        />
+        <HubTabs grupo="inventario" tabs={tabs} activa={tab} onChange={(id) => setTab(id as TabRed)} />
+
+        <HubBody flush>
+          {tab === 'resumen' && (
+            <div className="p-4 sm:p-6">
+              <TabResumenRed
+                totalColaboradores={totalColaboradoresActivos}
+                paisesCubiertos={paisesCubiertos}
+                capacidadUsada={capacidadUsada}
+                composicion={composicion}
+                casillasPorPais={casillasPorPais}
+                casillasSinColaborador={casillasSinColaborador}
+                onNuevoColaborador={handleNuevoColaborador}
+                onNuevaCasilla={() => handleNuevaCasilla('')}
+                onIrDirectorio={() => setTab('directorio')}
+                onIr={(ruta) => navigate(ruta)}
+              />
+            </div>
           )}
-        </div>
 
-        <select
-          value={filtroPais}
-          onChange={e => setFiltroPais(e.target.value)}
-          className="text-sm border border-slate-200 rounded-lg px-3 py-2 bg-white"
-        >
-          <option value="">Todos los países</option>
-          <option value="USA">USA</option>
-          <option value="Peru">Peru</option>
-          <option value="China">China</option>
-          <option value="Corea">Corea</option>
-        </select>
+          {tab === 'directorio' && (
+            <div className="p-4 sm:p-6 space-y-4">
+              {/* Toolbar */}
+              <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                <div className="relative flex-1 min-w-[180px]">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <input
+                    type="text"
+                    placeholder="Buscar casilla o colaborador…"
+                    value={busqueda}
+                    onChange={e => setBusqueda(e.target.value)}
+                    className="w-full pl-9 pr-3 py-2 text-[13px] rounded-lg border border-slate-300 focus:border-orange-500 focus:ring-1 focus:ring-orange-500 outline-none"
+                  />
+                </div>
+                <div className="flex gap-1.5 overflow-x-auto pb-1 -mx-1 px-1" style={{ scrollbarWidth: 'none' }}>
+                  <button
+                    onClick={() => setFiltroTipo('')}
+                    className={`whitespace-nowrap px-2.5 py-1.5 text-[11px] rounded-lg font-semibold ${filtroTipo === '' ? 'bg-orange-600 text-white' : 'bg-white border border-slate-200 text-slate-600'}`}
+                  >Todas</button>
+                  {TIPOS_CASILLA.map(t => (
+                    <button
+                      key={t.value}
+                      onClick={() => setFiltroTipo(t.value)}
+                      className={`whitespace-nowrap px-2.5 py-1.5 text-[11px] rounded-lg ${filtroTipo === t.value ? 'bg-orange-600 text-white font-semibold' : 'bg-white border border-slate-200 text-slate-600'}`}
+                    >{t.label}</button>
+                  ))}
+                </div>
+              </div>
+              <p className="text-[11px] text-slate-400 px-1 -mt-1">
+                Agrupado por <strong>país</strong> → <strong>casillas</strong> (ubicación) → <strong>colaboradores</strong> asociados (dueño + compartida).
+              </p>
 
-        {/* S42d — Toggle Lista / Mapa */}
-        <div className="flex items-center gap-1 bg-slate-100 rounded-lg p-0.5">
-          <button
-            type="button"
-            onClick={() => setViewMode('lista')}
-            className={`px-2 py-1 text-xs rounded transition-colors flex items-center gap-1 ${
-              viewMode === 'lista' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'
-            }`}
-            title="Vista lista"
-          >
-            <List className="w-3.5 h-3.5" />
-            Lista
-          </button>
-          <button
-            type="button"
-            onClick={() => setViewMode('mapa')}
-            className={`px-2 py-1 text-xs rounded transition-colors flex items-center gap-1 ${
-              viewMode === 'mapa' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'
-            }`}
-            title="Vista mapa"
-          >
-            <MapIcon className="w-3.5 h-3.5" />
-            Mapa
-          </button>
-        </div>
+              {directorioPorPais.length === 0 ? (
+                <EmptyDirectorio onNuevoColaborador={handleNuevoColaborador} />
+              ) : (
+                directorioPorPais.map(grupo => (
+                  <PaisGrupoView
+                    key={grupo.pais}
+                    grupo={grupo}
+                    expandedIds={expandedIds}
+                    colaboradoresMap={colaboradoresMap}
+                    onToggle={toggleExpand}
+                    onEditarCasilla={handleEditarCasilla}
+                    onEditarColaborador={handleEditarColaborador}
+                    onAsociar={(c) => setAsociarCasilla(c)}
+                    onNuevaCasillaParaColab={handleNuevaCasilla}
+                  />
+                ))
+              )}
+            </div>
+          )}
 
-        {viewMode === 'lista' && (
-          <div className="flex gap-1 ml-auto">
-            <button onClick={expandAll} className="text-xs text-teal-600 hover:text-teal-800 px-2 py-1">
-              Expandir todo
-            </button>
-            <button onClick={collapseAll} className="text-xs text-slate-500 hover:text-slate-700 px-2 py-1">
-              Colapsar
-            </button>
-          </div>
-        )}
-      </div>
+          {tab === 'mapa' && (
+            <div className="p-4 sm:p-6">
+              <RedLogisticaMapa casillas={casillasActivas} colaboradoresMap={colaboradoresMap} />
+            </div>
+          )}
+        </HubBody>
+      </HubShell>
 
-      {/* S42d — Vista Mapa */}
-      {viewMode === 'mapa' && (
-        <RedLogisticaMapa casillas={casillas} colaboradoresMap={colaboradoresMap} />
-      )}
-
-      {viewMode === 'lista' && (<>
-
-      {/* ═══════════════════════════════════════════════════════════ */}
-      {/* SECCIÓN COMPRAS */}
-      {/* ═══════════════════════════════════════════════════════════ */}
-      <SeccionHeader
-        icon={ShoppingCart}
-        titulo="Compras"
-        descripcion="Origen → Acopio · Recepción internacional de mercancía"
-        color="teal"
-      />
-
-      <div className="space-y-4 mb-8">
-        <Subgrupo
-          titulo="Mis Almacenes"
-          subtitulo="Puntos de acopio propios del negocio · Vista por ubicación física"
-          icon={Building2}
-          colorAccent="teal"
-          items={grupos.misAlmacenes}
-          onNuevo={() => handleNuevoColaborador('empresa')}
-          nuevoLabel="Nueva empresa"
-          expandedIds={expandedIds}
-          toggleExpand={toggleExpand}
-          onEditar={handleEditarColaborador}
-          onEliminar={handleEliminarColaborador}
-          onNuevaCasilla={handleNuevaCasilla}
-          onEditarCasilla={handleEditarCasilla}
-          emptyMsg="Sin almacenes propios. Agrega tu primer punto de acopio."
-          layoutMode="por-casilla"
-          onAsociarColaborador={handleAsociarColaborador}
-          colaboradoresMap={colaboradoresMap}
-        />
-
-        <Subgrupo
-          titulo="Viajeros"
-          subtitulo="Casas de viajeros en países origen · Vista por ubicación física"
-          icon={Plane}
-          colorAccent="teal"
-          items={grupos.viajeros}
-          onNuevo={() => handleNuevoColaborador('viajero')}
-          nuevoLabel="Nuevo viajero"
-          expandedIds={expandedIds}
-          toggleExpand={toggleExpand}
-          onEditar={handleEditarColaborador}
-          onEliminar={handleEliminarColaborador}
-          onNuevaCasilla={handleNuevaCasilla}
-          onEditarCasilla={handleEditarCasilla}
-          emptyMsg="Sin viajeros. Agrega personas que trasladen productos."
-          layoutMode="por-casilla"
-          onAsociarColaborador={handleAsociarColaborador}
-          colaboradoresMap={colaboradoresMap}
-        />
-
-        <Subgrupo
-          titulo="Couriers Internacionales"
-          subtitulo="Servicios de transporte internacional (DHL, FedEx, etc.)"
-          icon={Truck}
-          colorAccent="amber"
-          items={grupos.couriersIntl}
-          onNuevo={() => handleNuevoColaborador('courier_externo')}
-          nuevoLabel="Nuevo courier"
-          expandedIds={expandedIds}
-          toggleExpand={toggleExpand}
-          onEditar={handleEditarColaborador}
-          onEliminar={handleEliminarColaborador}
-          onNuevaCasilla={handleNuevaCasilla}
-          onEditarCasilla={handleEditarCasilla}
-          emptyMsg="Sin couriers internacionales. Agrega servicios como DHL o FedEx."
-          mostrarCasillas={false}
-        />
-      </div>
-
-      {/* ═══════════════════════════════════════════════════════════ */}
-      {/* SECCIÓN VENTAS */}
-      {/* ═══════════════════════════════════════════════════════════ */}
-      <SeccionHeader
-        icon={ShoppingBag}
-        titulo="Ventas"
-        descripcion={`Distribución local · Entrega de pedidos a clientes (${totalTransportistas} transportistas)`}
-        color="sky"
-      />
-
-      <div className="space-y-4">
-        <Subgrupo
-          titulo="Internos — Partners"
-          subtitulo="Aliados estratégicos con acuerdos preferentes"
-          icon={Briefcase}
-          colorAccent="sky"
-          items={grupos.internos}
-          onNuevo={() => handleNuevoColaborador('transportista_local', 'interno')}
-          nuevoLabel="Nuevo partner"
-          expandedIds={expandedIds}
-          toggleExpand={toggleExpand}
-          onEditar={handleEditarColaborador}
-          onEliminar={handleEliminarColaborador}
-          onNuevaCasilla={handleNuevaCasilla}
-          onEditarCasilla={handleEditarCasilla}
-          emptyMsg="Sin partners internos. Agrega tus aliados estratégicos."
-          mostrarCasillas={false}
-        />
-
-        <Subgrupo
-          titulo="Externos — Terceros"
-          subtitulo="Servicios tercerizados (Shalom, Urbano, Olva, etc.)"
-          icon={Truck}
-          colorAccent="slate"
-          items={grupos.externos}
-          onNuevo={() => handleNuevoColaborador('transportista_local', 'externo')}
-          nuevoLabel="Nuevo servicio"
-          expandedIds={expandedIds}
-          toggleExpand={toggleExpand}
-          onEditar={handleEditarColaborador}
-          onEliminar={handleEliminarColaborador}
-          onNuevaCasilla={handleNuevaCasilla}
-          onEditarCasilla={handleEditarCasilla}
-          emptyMsg="Sin servicios externos. Agrega couriers como Shalom o Urbano."
-          mostrarCasillas={false}
-        />
-
-        {/* Transportistas sin categoría (migración incompleta) */}
-        {grupos.sinCategoria.length > 0 && (
-          <Subgrupo
-            titulo="Sin categorizar"
-            subtitulo="Transportistas sin subtipo asignado. Edítalos para clasificarlos."
-            icon={Truck}
-            colorAccent="amber"
-            items={grupos.sinCategoria}
-            onNuevo={() => handleNuevoColaborador('transportista_local')}
-            nuevoLabel="Nuevo"
-            expandedIds={expandedIds}
-            toggleExpand={toggleExpand}
-            onEditar={handleEditarColaborador}
-            onEliminar={handleEliminarColaborador}
-            onNuevaCasilla={handleNuevaCasilla}
-            onEditarCasilla={handleEditarCasilla}
-            emptyMsg=""
-            mostrarCasillas={false}
-          />
-        )}
-      </div>
-
-      </>)}
-
-      {/* Modals */}
+      {/* ═══ Modales · fuera del HubShell ═══ */}
       <ColaboradorFormModal
         isOpen={colabFormOpen}
         onClose={() => { setColabFormOpen(false); setColabEditing(null); setTipoPreseleccionado(undefined); setSubtipoPreseleccionado(undefined); }}
@@ -493,7 +388,6 @@ export const RedLogistica: React.FC = () => {
         tipoPreseleccionado={tipoPreseleccionado}
         subtipoPreseleccionado={subtipoPreseleccionado}
       />
-
       <CasillaFormModal
         isOpen={casillaFormOpen}
         onClose={() => { setCasillaFormOpen(false); setCasillaEditing(null); }}
@@ -501,390 +395,13 @@ export const RedLogistica: React.FC = () => {
         casilla={casillaEditing}
         colaboradorId={casillaColabId}
       />
-
-      {/* S42h — Modal asociar colaboradores a una casilla existente */}
       <AsociarColaboradorModal
         isOpen={!!asociarCasilla}
         onClose={() => setAsociarCasilla(null)}
         casilla={asociarCasilla}
         onSaved={handleAsociarSaved}
       />
-
-      {/* S42n — Confirmación de eliminar colaborador */}
       <ConfirmDialog {...dialogProps} />
-    </PageShell>
-  );
-};
-
-// ══════════════════════════════════════════════════════════════════
-// Subcomponentes
-// ══════════════════════════════════════════════════════════════════
-
-interface SeccionHeaderProps {
-  icon: React.FC<any>;
-  titulo: string;
-  descripcion: string;
-  color: 'teal' | 'sky' | 'amber' | 'slate';
-}
-
-const SeccionHeader: React.FC<SeccionHeaderProps> = ({ icon: Icon, titulo, descripcion, color }) => {
-  const colorMap = {
-    teal: 'bg-teal-50 text-teal-700 border-teal-200',
-    sky: 'bg-sky-50 text-sky-700 border-sky-200',
-    amber: 'bg-amber-50 text-amber-700 border-amber-200',
-    slate: 'bg-slate-50 text-slate-700 border-slate-200',
-  };
-
-  return (
-    <div className="flex items-center gap-3 mt-6 mb-3">
-      <div className={`w-10 h-10 rounded-xl flex items-center justify-center border ${colorMap[color]}`}>
-        <Icon className="w-5 h-5" />
-      </div>
-      <div>
-        <h2 className="text-base font-semibold text-slate-900">{titulo}</h2>
-        <p className="text-xs text-slate-500 mt-0.5">{descripcion}</p>
-      </div>
-    </div>
-  );
-};
-
-interface SubgrupoProps {
-  titulo: string;
-  subtitulo: string;
-  icon: React.FC<any>;
-  colorAccent: 'teal' | 'sky' | 'amber' | 'slate';
-  items: ColabConCasillas[];
-  onNuevo: () => void;
-  nuevoLabel: string;
-  expandedIds: Set<string>;
-  toggleExpand: (id: string) => void;
-  onEditar: (c: Colaborador) => void;
-  onEliminar: (c: Colaborador) => void;
-  onNuevaCasilla: (colaboradorId: string) => void;
-  onEditarCasilla: (casilla: Casilla) => void;
-  emptyMsg: string;
-  /** Si es false, no se muestra la expansion de casillas (solo el colaborador) */
-  mostrarCasillas?: boolean;
-  /** S42h — layoutMode: 'por-casilla' invierte la jerarquía (casilla como fila, colaboradores como dependientes) */
-  layoutMode?: 'por-casilla' | 'por-colaborador';
-  /** Solo aplica a layoutMode='por-casilla': handler para asociar otros colaboradores */
-  onAsociarColaborador?: (casilla: Casilla) => void;
-  /** Mapa id → colaborador para resolver principal y secundarios en vista por casilla */
-  colaboradoresMap?: Map<string, Colaborador>;
-  /** Label del botón "Nueva casilla" (para vista por casilla) */
-  nuevaCasillaLabel?: string;
-  /** Handler del botón "Nueva casilla" (para vista por casilla) */
-  onNuevaCasillaGlobal?: () => void;
-}
-
-const Subgrupo: React.FC<SubgrupoProps> = ({
-  titulo, subtitulo, icon: Icon, colorAccent, items, onNuevo, nuevoLabel,
-  expandedIds, toggleExpand, onEditar, onEliminar, onNuevaCasilla, onEditarCasilla, emptyMsg,
-  mostrarCasillas = true,
-  layoutMode = 'por-colaborador',
-  onAsociarColaborador,
-  colaboradoresMap,
-  nuevaCasillaLabel,
-  onNuevaCasillaGlobal,
-}) => {
-  const accentMap = {
-    teal: 'text-teal-600 bg-teal-50',
-    sky: 'text-sky-600 bg-sky-50',
-    amber: 'text-amber-600 bg-amber-50',
-    slate: 'text-slate-600 bg-slate-50',
-  };
-
-  // S42h — Para layout por-casilla, aplanar casillas únicas con su principal + secundarios
-  const casillasDelSubgrupo = React.useMemo(() => {
-    if (layoutMode !== 'por-casilla') return [];
-    const seen = new Set<string>();
-    const out: Casilla[] = [];
-    items.forEach((item) => {
-      item.casillas.forEach((cas) => {
-        // Solo contar la casilla una vez y solo si el colaborador es el principal
-        // (evita duplicarla en la lista cuando aparece en un secundario)
-        if (cas.colaboradorId === item.colaborador.id && !seen.has(cas.id)) {
-          seen.add(cas.id);
-          out.push(cas);
-        }
-      });
-    });
-    // Ordenar por esPrincipal desc, luego por nombre
-    return out.sort((a, b) => {
-      if (a.esPrincipal !== b.esPrincipal) return a.esPrincipal ? -1 : 1;
-      return a.nombre.localeCompare(b.nombre);
-    });
-  }, [items, layoutMode]);
-
-  // S42m fix — contar solo colaboradores activos en los headers de subgrupo
-  // (alineado con el KPI global "Colaboradores"). Inactivos siguen visibles en el
-  // listado con badge "inactivo" pero no inflan el contador principal.
-  const itemsActivosCount = items.filter(i => i.colaborador.estado === 'activo').length;
-  const countDisplay = layoutMode === 'por-casilla'
-    ? `${casillasDelSubgrupo.length} ${casillasDelSubgrupo.length === 1 ? 'casilla' : 'casillas'} · ${itemsActivosCount} ${itemsActivosCount === 1 ? 'colaborador' : 'colaboradores'}`
-    : `${itemsActivosCount}`;
-
-  return (
-    <div className="border border-slate-200 rounded-xl bg-white overflow-hidden">
-      {/* Header subgrupo */}
-      <div className="flex items-center gap-3 px-4 py-3 border-b border-slate-100 bg-slate-50/50">
-        <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${accentMap[colorAccent]}`}>
-          <Icon className="w-4 h-4" />
-        </div>
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2">
-            <h3 className="text-sm font-semibold text-slate-900">{titulo}</h3>
-            <span className="text-xs text-slate-500">·</span>
-            <span className="text-xs text-slate-500">{countDisplay}</span>
-          </div>
-          <p className="text-[11px] text-slate-500 mt-0.5">{subtitulo}</p>
-        </div>
-        {/* En por-casilla: botón adicional "Nueva casilla" si hay handler */}
-        {layoutMode === 'por-casilla' && onNuevaCasillaGlobal && items.length > 0 && (
-          <button
-            onClick={onNuevaCasillaGlobal}
-            className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-slate-700 bg-white hover:bg-slate-50 rounded-lg border border-slate-200 transition-colors"
-          >
-            <MapPin className="w-3 h-3" /> {nuevaCasillaLabel ?? 'Nueva casilla'}
-          </button>
-        )}
-        <button
-          onClick={onNuevo}
-          className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-teal-700 bg-teal-50 hover:bg-teal-100 rounded-lg border border-teal-200 transition-colors"
-        >
-          <Plus className="w-3 h-3" /> {nuevoLabel}
-        </button>
-      </div>
-
-      {/* Items */}
-      {items.length === 0 ? (
-        <div className="px-4 py-6 text-center text-sm text-slate-400 italic">
-          {emptyMsg}
-        </div>
-      ) : layoutMode === 'por-casilla' ? (
-        // ═══ VISTA POR CASILLA ═══
-        <PorCasillaLayout
-          casillas={casillasDelSubgrupo}
-          items={items}
-          expandedIds={expandedIds}
-          toggleExpand={toggleExpand}
-          onEditarCasilla={onEditarCasilla}
-          onEditarColaborador={onEditar}
-          onEliminarColaborador={onEliminar}
-          onAsociarColaborador={onAsociarColaborador}
-          onNuevaCasillaGlobal={onNuevaCasillaGlobal}
-          onNuevaCasillaParaColab={onNuevaCasilla}
-          colaboradoresMap={colaboradoresMap}
-        />
-      ) : (
-        // ═══ VISTA POR COLABORADOR (default) ═══
-        <div className="divide-y divide-slate-100">
-          {items.map(({ colaborador, casillas: cas }) => (
-            <ColaboradorRow
-              key={colaborador.id}
-              colaborador={colaborador}
-              casillas={cas}
-              expanded={expandedIds.has(colaborador.id)}
-              toggleExpand={toggleExpand}
-              onEditar={onEditar}
-              onEliminar={onEliminar}
-              onNuevaCasilla={onNuevaCasilla}
-              onEditarCasilla={onEditarCasilla}
-              mostrarCasillas={mostrarCasillas}
-            />
-          ))}
-        </div>
-      )}
-    </div>
-  );
-};
-
-interface ColaboradorRowProps {
-  colaborador: Colaborador;
-  casillas: Casilla[];
-  expanded: boolean;
-  toggleExpand: (id: string) => void;
-  onEditar: (c: Colaborador) => void;
-  onEliminar: (c: Colaborador) => void;
-  onNuevaCasilla: (colaboradorId: string) => void;
-  onEditarCasilla: (casilla: Casilla) => void;
-  mostrarCasillas: boolean;
-}
-
-const ColaboradorRow: React.FC<ColaboradorRowProps> = ({
-  colaborador, casillas, expanded, toggleExpand, onEditar, onEliminar, onNuevaCasilla, onEditarCasilla, mostrarCasillas,
-}) => {
-  const totalUds = casillas.reduce((s, c) => s + (c.unidadesActuales || 0), 0);
-  const totalVal = casillas.reduce((s, c) => s + (c.valorInventarioUSD || 0), 0);
-
-  return (
-    <div>
-      {/* Header colaborador */}
-      <div
-        className={`flex items-center gap-3 px-4 py-2.5 transition-colors ${mostrarCasillas ? 'cursor-pointer hover:bg-slate-50' : 'hover:bg-slate-50/50'}`}
-        onClick={() => mostrarCasillas && toggleExpand(colaborador.id)}
-      >
-        {mostrarCasillas && (
-          <button className="flex-shrink-0 text-slate-400">
-            {expanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
-          </button>
-        )}
-        {!mostrarCasillas && <div className="w-4" />}
-
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className="font-medium text-sm text-slate-900 truncate">{colaborador.nombre}</span>
-            <span className="text-[10px] font-mono text-slate-400">{colaborador.codigo}</span>
-            <StatusBadge variant={colaborador.estado === 'activo' ? 'success' : 'neutral'} size="sm">
-              {colaborador.estado}
-            </StatusBadge>
-            {casillas.length > 0 && mostrarCasillas && (
-              <span className="text-[10px] text-slate-500">
-                {casillas.length} casilla{casillas.length > 1 ? 's' : ''}
-              </span>
-            )}
-          </div>
-          <div className="flex items-center gap-3 mt-0.5 text-xs text-slate-500 flex-wrap">
-            <span>{PAIS_EMOJI[colaborador.pais] || ''} {colaborador.pais}</span>
-            {colaborador.ciudad && <span>{colaborador.ciudad}</span>}
-            {colaborador.telefono && <span>{colaborador.telefono}</span>}
-
-            {/* S42l — Badges de tarifas/métricas retirados. Se eliminaron las secciones de
-                 configuración detallada (S42j+k) por no tener uso en cálculos. El único
-                 identificador estructural que queda es el subtipo del transportista local. */}
-            {colaborador.tipo === 'transportista_local' && colaborador.subtipoTransportista && (
-              <span
-                className={`inline-flex items-center px-1.5 py-0.5 text-[10px] font-medium rounded ${
-                  colaborador.subtipoTransportista === 'interno'
-                    ? 'bg-sky-50 text-sky-700 border border-sky-200'
-                    : 'bg-slate-100 text-slate-700 border border-slate-200'
-                }`}
-              >
-                {colaborador.subtipoTransportista === 'interno' ? 'Partner interno' : 'Tercero'}
-              </span>
-            )}
-          </div>
-        </div>
-
-        {/* Metricas resumen (solo si tiene casillas) */}
-        {mostrarCasillas && casillas.length > 0 && (
-          <div className="hidden sm:flex items-center gap-4 text-xs text-slate-600 flex-shrink-0">
-            <span className="flex items-center gap-1">
-              <Package className="w-3.5 h-3.5 text-slate-400" />
-              {totalUds}
-            </span>
-            <span className="flex items-center gap-1">
-              <DollarSign className="w-3.5 h-3.5 text-slate-400" />
-              {formatCurrency(totalVal, 'USD')}
-            </span>
-          </div>
-        )}
-
-        {/* Acciones */}
-        <div className="flex items-center gap-1 flex-shrink-0" onClick={e => e.stopPropagation()}>
-          <button
-            onClick={() => onEditar(colaborador)}
-            className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-600"
-            title="Editar"
-          >
-            <Edit2 className="w-3.5 h-3.5" />
-          </button>
-          {mostrarCasillas && (
-            <button
-              onClick={() => onNuevaCasilla(colaborador.id)}
-              className="p-1.5 rounded-lg hover:bg-teal-50 text-teal-500 hover:text-teal-700"
-              title="Agregar casilla"
-            >
-              <Plus className="w-3.5 h-3.5" />
-            </button>
-          )}
-          {/* S42n — Botón eliminar con confirmación en el handler */}
-          <button
-            onClick={() => onEliminar(colaborador)}
-            className="p-1.5 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-600"
-            title="Eliminar colaborador"
-          >
-            <Trash2 className="w-3.5 h-3.5" />
-          </button>
-        </div>
-      </div>
-
-      {/* Casillas expandidas */}
-      {mostrarCasillas && expanded && (
-        <div className="bg-slate-50/50 border-t border-slate-100">
-          {casillas.length === 0 ? (
-            <div className="px-12 py-3 text-xs text-slate-400 italic">
-              Sin casillas.{' '}
-              <button
-                onClick={() => onNuevaCasilla(colaborador.id)}
-                className="text-teal-600 hover:text-teal-800 font-medium not-italic"
-              >
-                Agregar casilla
-              </button>
-            </div>
-          ) : (
-            <div className="divide-y divide-slate-100">
-              {casillas.map(casilla => {
-                // S42g — ¿Esta casilla se muestra porque es propia o porque comparte con el dueño?
-                const esCompartidaConEste = casilla.colaboradorId !== colaborador.id;
-                return (
-                <div
-                  key={casilla.id}
-                  className="flex items-center gap-3 px-4 pl-12 py-2 hover:bg-white/60 transition-colors"
-                >
-                  <div className="flex-shrink-0 w-5">
-                    {casilla.esPrincipal && !esCompartidaConEste && (
-                      <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
-                    )}
-                    {esCompartidaConEste && (
-                      <Users className="w-3.5 h-3.5 text-purple-500" />
-                    )}
-                  </div>
-
-                  <MapPin className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
-
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className="text-sm font-medium text-slate-800 truncate">{casilla.nombre}</span>
-                      <span className="text-[10px] font-mono text-slate-400">{casilla.codigo}</span>
-                      <StatusBadge variant={casilla.estado === 'activa' ? 'success' : 'neutral'} size="sm">
-                        {casilla.estado}
-                      </StatusBadge>
-                      {esCompartidaConEste && (
-                        <span
-                          className="inline-flex items-center gap-1 px-1.5 py-0.5 text-[10px] font-medium rounded bg-purple-50 text-purple-700 border border-purple-200"
-                          title={`Casilla principal de ${casilla.colaboradorNombre}`}
-                        >
-                          Compartida · {casilla.colaboradorNombre}
-                        </span>
-                      )}
-                    </div>
-                    {casilla.direccion && (
-                      <div className="text-[11px] text-slate-500 mt-0.5 truncate">
-                        {casilla.direccion}{casilla.ciudad ? `, ${casilla.ciudad}` : ''}
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="hidden sm:flex items-center gap-4 text-xs text-slate-500 flex-shrink-0">
-                    <span>{casilla.unidadesActuales || 0} uds</span>
-                    <span>{formatCurrency(casilla.valorInventarioUSD || 0, 'USD')}</span>
-                  </div>
-
-                  <button
-                    onClick={() => onEditarCasilla(casilla)}
-                    className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-600 flex-shrink-0"
-                    title={esCompartidaConEste ? `Editar (administrada por ${casilla.colaboradorNombre})` : 'Editar casilla'}
-                  >
-                    <Edit2 className="w-3 h-3" />
-                  </button>
-                </div>
-                );
-              })}
-            </div>
-          )}
-        </div>
-      )}
     </div>
   );
 };
@@ -892,125 +409,253 @@ const ColaboradorRow: React.FC<ColaboradorRowProps> = ({
 export default RedLogistica;
 
 // ══════════════════════════════════════════════════════════════════
-// S42h — Layout "por casilla": casillas arriba, colaboradores huérfanos abajo
+// Directorio · grupo por país
 // ══════════════════════════════════════════════════════════════════
 
-interface PorCasillaLayoutProps {
-  casillas: Casilla[];
-  items: ColabConCasillas[];
+interface PaisGrupoViewProps {
+  grupo: PaisGrupo;
   expandedIds: Set<string>;
-  toggleExpand: (id: string) => void;
-  onEditarCasilla: (casilla: Casilla) => void;
+  colaboradoresMap: Map<string, Colaborador>;
+  onToggle: (id: string) => void;
+  onEditarCasilla: (c: Casilla) => void;
   onEditarColaborador: (c: Colaborador) => void;
-  onEliminarColaborador: (c: Colaborador) => void;
-  onAsociarColaborador?: (casilla: Casilla) => void;
-  onNuevaCasillaGlobal?: () => void;
+  onAsociar: (c: Casilla) => void;
   onNuevaCasillaParaColab: (colaboradorId: string) => void;
-  colaboradoresMap?: Map<string, Colaborador>;
 }
 
-const PorCasillaLayout: React.FC<PorCasillaLayoutProps> = ({
-  casillas, items, expandedIds, toggleExpand, onEditarCasilla, onEditarColaborador, onEliminarColaborador,
-  onAsociarColaborador, onNuevaCasillaGlobal, onNuevaCasillaParaColab, colaboradoresMap,
+const PaisGrupoView: React.FC<PaisGrupoViewProps> = ({
+  grupo, expandedIds, colaboradoresMap, onToggle, onEditarCasilla, onEditarColaborador, onAsociar, onNuevaCasillaParaColab,
 }) => {
-  // S42i fix — Colaboradores SIN ninguna casilla activa (ni propia ni compartida).
-  // `cas` ya incluye casillas donde el colaborador es secundario (via casillasMap).
-  // S42m — excluir colaboradores inactivos/suspendidos del listado de huérfanos
-  // (no tiene sentido ofrecer "Agregar casilla" a un colaborador inactivo).
-  const huerfanos = items.filter(
-    ({ colaborador, casillas: cas }) =>
-      cas.length === 0 && colaborador.estado === 'activo'
-  );
-
-  if (casillas.length === 0 && huerfanos.length === 0) {
-    return (
-      <div className="px-4 py-6 text-center text-sm text-slate-400 italic">
-        No hay casillas configuradas aún.
-      </div>
-    );
-  }
+  const nColabs = new Set<string>();
+  grupo.casillas.forEach(c => { nColabs.add(c.colaboradorId); c.colaboradoresSecundariosIds?.forEach(id => nColabs.add(id)); });
+  grupo.reparto.forEach(c => nColabs.add(c.id));
 
   return (
-    <>
-      {/* Casillas */}
-      {casillas.length > 0 && (
-        <div className="divide-y divide-slate-100">
-          {casillas.map((casilla) => {
-            const principal = colaboradoresMap?.get(casilla.colaboradorId);
-            const secundarios = (casilla.colaboradoresSecundariosIds ?? [])
-              .map((id) => colaboradoresMap?.get(id))
-              .filter((c): c is Colaborador => !!c);
-            return (
-              <CasillaExpandible
-                key={casilla.id}
-                casilla={casilla}
-                colaboradorPrincipal={principal}
-                colaboradoresSecundarios={secundarios}
-                expanded={expandedIds.has(casilla.id)}
-                onToggleExpand={() => toggleExpand(casilla.id)}
-                onEditarCasilla={onEditarCasilla}
-                onEditarColaborador={onEditarColaborador}
-                onAsociarColaborador={(c) => onAsociarColaborador?.(c)}
-              />
-            );
-          })}
-        </div>
-      )}
+    <div className="space-y-2">
+      {/* Header país */}
+      <div className="flex items-center gap-2 pt-1">
+        <span className="text-[11px] font-bold text-slate-600 tabular-nums bg-slate-100 px-2 py-0.5 rounded">{paisCodigo(grupo.pais)}</span>
+        <span className="text-[13px] font-bold text-slate-800">{paisNombre(grupo.pais)}</span>
+        <span className="text-[10px] text-slate-400 tabular-nums">
+          {grupo.casillas.length} {grupo.casillas.length === 1 ? 'casilla' : 'casillas'} · {nColabs.size} {nColabs.size === 1 ? 'colaborador' : 'colaboradores'}
+        </span>
+        <div className="flex-1 border-t border-slate-200 ml-1" />
+      </div>
 
-      {/* Colaboradores sin casilla */}
-      {huerfanos.length > 0 && (
-        <div className="border-t-2 border-slate-100 bg-amber-50/30">
-          <div className="px-4 py-2 text-[11px] font-semibold text-amber-800 uppercase tracking-wide">
-            Sin casilla configurada
+      {/* Casillas (con colaboradores asociados dentro) */}
+      <div className="space-y-2">
+        {grupo.casillas.map(casilla => {
+          const principal = colaboradoresMap.get(casilla.colaboradorId);
+          const secundarios = (casilla.colaboradoresSecundariosIds ?? [])
+            .map(id => colaboradoresMap.get(id))
+            .filter((c): c is Colaborador => !!c);
+          return (
+            <CasillaExpandible
+              key={casilla.id}
+              casilla={casilla}
+              colaboradorPrincipal={principal}
+              colaboradoresSecundarios={secundarios}
+              expanded={expandedIds.has(casilla.id)}
+              onToggleExpand={() => onToggle(casilla.id)}
+              onEditarCasilla={onEditarCasilla}
+              onEditarColaborador={onEditarColaborador}
+              onAsociarColaborador={onAsociar}
+            />
+          );
+        })}
+      </div>
+
+      {/* Reparto local · colaboradores sin casilla */}
+      {grupo.reparto.length > 0 && (
+        <div className="bg-slate-50 border border-slate-200 rounded-xl p-3">
+          <div className="text-[10px] font-bold uppercase tracking-wide text-slate-500 mb-2 flex items-center gap-1.5">
+            <Bike className="w-3.5 h-3.5 text-amber-500" /> Reparto local · sin casilla de acopio
           </div>
-          <div className="divide-y divide-slate-100">
-            {huerfanos.map(({ colaborador }) => (
-              <div
-                key={colaborador.id}
-                className="flex items-center gap-3 px-4 py-2.5 hover:bg-white/60 transition-colors"
-              >
-                <div className="w-7 h-7 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center text-[11px] font-semibold flex-shrink-0">
-                  {colaborador.nombre.charAt(0).toUpperCase()}
-                </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            {grupo.reparto.map(c => (
+              <div key={c.id} className="bg-white border border-slate-200 rounded-lg flex items-center gap-2.5 p-2.5">
+                <span className="w-8 h-8 rounded-lg bg-amber-100 text-amber-700 text-[11px] font-bold flex items-center justify-center flex-shrink-0">
+                  {c.nombre.charAt(0).toUpperCase()}
+                </span>
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className="text-sm font-medium text-slate-800 truncate">{colaborador.nombre}</span>
-                    <span className="text-[10px] font-mono text-slate-400">{colaborador.codigo}</span>
-                    <StatusBadge variant={colaborador.estado === 'activo' ? 'success' : 'neutral'} size="sm">
-                      {colaborador.estado}
-                    </StatusBadge>
+                  <div className="text-[12px] font-semibold text-slate-900 flex items-center gap-1.5 truncate">
+                    {c.nombre}
+                    {c.tipo === 'transportista_local' && c.subtipoTransportista && (
+                      <span className={`text-[9px] px-1 rounded font-bold ${c.subtipoTransportista === 'interno' ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-600'}`}>
+                        {c.subtipoTransportista}
+                      </span>
+                    )}
                   </div>
-                  <div className="text-[11px] text-slate-500 mt-0.5">
-                    {PAIS_EMOJI[colaborador.pais] || ''} {colaborador.pais}
-                    {colaborador.telefono && <> · {colaborador.telefono}</>}
-                  </div>
+                  <div className="text-[10px] text-slate-400">{c.ciudad || paisNombre(c.pais)}</div>
                 </div>
-                <button
-                  onClick={() => onNuevaCasillaParaColab(colaborador.id)}
-                  className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium text-teal-700 bg-teal-50 hover:bg-teal-100 rounded-lg border border-teal-200 transition-colors"
-                >
-                  <Plus className="w-3 h-3" /> Agregar casilla
+                <button onClick={() => onNuevaCasillaParaColab(c.id)} className="p-1 rounded hover:bg-slate-100 text-slate-400" title="Agregar casilla">
+                  <MapPin className="w-3.5 h-3.5" />
                 </button>
-                <button
-                  onClick={() => onEditarColaborador(colaborador)}
-                  className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-600"
-                  title="Editar colaborador"
-                >
-                  <Edit2 className="w-3 h-3" />
-                </button>
-                {/* S42n — Eliminar colaborador huérfano */}
-                <button
-                  onClick={() => onEliminarColaborador(colaborador)}
-                  className="p-1.5 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-600"
-                  title="Eliminar colaborador"
-                >
-                  <Trash2 className="w-3 h-3" />
+                <button onClick={() => onEditarColaborador(c)} className="p-1 rounded hover:bg-slate-100 text-slate-400" title="Editar">
+                  <Pencil className="w-3.5 h-3.5" />
                 </button>
               </div>
             ))}
           </div>
         </div>
       )}
-    </>
+    </div>
+  );
+};
+
+const EmptyDirectorio: React.FC<{ onNuevoColaborador: (t?: TipoColaborador) => void }> = ({ onNuevoColaborador }) => (
+  <div className="bg-white border border-slate-200 rounded-2xl p-8 text-center">
+    <div className="w-12 h-12 rounded-2xl bg-orange-50 flex items-center justify-center mx-auto mb-3">
+      <Network className="w-6 h-6 text-orange-500" />
+    </div>
+    <div className="text-[14px] font-semibold text-slate-900 mb-1">Aún no hay colaboradores ni casillas</div>
+    <div className="text-[12px] text-slate-500 mb-4">Empezá agregando un viajero o tu primer almacén propio.</div>
+    <div className="flex items-center justify-center gap-2">
+      <button onClick={() => onNuevoColaborador('viajero')} className="bg-white border border-slate-200 rounded-lg px-3 py-2 hover:border-violet-300 hover:bg-violet-50/30 text-left inline-flex items-center gap-2">
+        <Plane className="w-4 h-4 text-violet-600" /><span className="text-[12px] font-bold text-slate-900">Nuevo viajero</span>
+      </button>
+      <button onClick={() => onNuevoColaborador('empresa')} className="bg-white border border-slate-200 rounded-lg px-3 py-2 hover:border-indigo-300 hover:bg-indigo-50/30 text-left inline-flex items-center gap-2">
+        <Warehouse className="w-4 h-4 text-indigo-600" /><span className="text-[12px] font-bold text-slate-900">Almacén propio</span>
+      </button>
+    </div>
+  </div>
+);
+
+// ══════════════════════════════════════════════════════════════════
+// Tab Resumen · §A→§F
+// ══════════════════════════════════════════════════════════════════
+
+interface TabResumenRedProps {
+  totalColaboradores: number;
+  paisesCubiertos: number;
+  capacidadUsada: number;
+  composicion: { empresa: number; viajero: number; courier: number; transportista: number };
+  casillasPorPais: [string, number][];
+  casillasSinColaborador: number;
+  onNuevoColaborador: (t?: TipoColaborador) => void;
+  onNuevaCasilla: () => void;
+  onIrDirectorio: () => void;
+  onIr: (ruta: string) => void;
+}
+
+const TabResumenRed: React.FC<TabResumenRedProps> = ({
+  totalColaboradores, paisesCubiertos, capacidadUsada, composicion, casillasPorPais,
+  casillasSinColaborador, onNuevoColaborador, onNuevaCasilla, onIrDirectorio, onIr,
+}) => {
+  const totalComp = composicion.empresa + composicion.viajero + composicion.courier + composicion.transportista || 1;
+  const compRows = [
+    { label: 'Mis almacenes', value: composicion.empresa, color: 'bg-indigo-500' },
+    { label: 'Viajeros', value: composicion.viajero, color: 'bg-violet-500' },
+    { label: 'Couriers intl.', value: composicion.courier, color: 'bg-sky-500' },
+    { label: 'Transportistas locales', value: composicion.transportista, color: 'bg-amber-500' },
+  ];
+  const maxPais = Math.max(1, ...casillasPorPais.map(([, n]) => n));
+  const paisColor = (p: string) => p.startsWith('Peru') ? 'bg-emerald-500' : p === 'USA' ? 'bg-sky-500' : 'bg-amber-500';
+
+  return (
+    <div className="space-y-4">
+      {/* §A · banner estado */}
+      <div className={`rounded-2xl p-4 flex items-start gap-3 border ${casillasSinColaborador > 0 ? 'bg-gradient-to-r from-amber-50 to-amber-100/30 border-amber-200' : 'bg-gradient-to-r from-emerald-50 to-emerald-100/30 border-emerald-200'}`}>
+        <div className={`w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 ${casillasSinColaborador > 0 ? 'bg-amber-100' : 'bg-emerald-100'}`}>
+          {casillasSinColaborador > 0
+            ? <AlertTriangle className="w-5 h-5 text-amber-700" />
+            : <CheckCircle className="w-5 h-5 text-emerald-700" />}
+        </div>
+        <div className="min-w-0">
+          <div className={`text-[13px] font-semibold ${casillasSinColaborador > 0 ? 'text-amber-900' : 'text-emerald-900'}`}>
+            Red operativa · {totalColaboradores} colaboradores cubren {paisesCubiertos} {paisesCubiertos === 1 ? 'país' : 'países'}
+          </div>
+          <div className={`text-[12px] leading-snug mt-0.5 ${casillasSinColaborador > 0 ? 'text-amber-700' : 'text-emerald-700'}`}>
+            {casillasSinColaborador > 0
+              ? `${casillasSinColaborador} ${casillasSinColaborador === 1 ? 'casilla quedó' : 'casillas quedaron'} sin colaborador asignado. Acopio al ${capacidadUsada}% de ocupación media.`
+              : `Sin casillas sin asignar. Acopio sano: ${capacidadUsada}% de ocupación media.`}
+          </div>
+        </div>
+      </div>
+
+      {/* §B · visualización */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="md:col-span-2 bg-white border border-slate-200 rounded-2xl p-4">
+          <div className="flex items-center justify-between mb-3">
+            <div className="text-sm font-semibold text-slate-900">Composición de la red por tipo</div>
+            <span className="text-[10px] text-slate-400 uppercase tracking-wider font-bold">colaboradores</span>
+          </div>
+          <div className="space-y-2.5">
+            {compRows.map(r => (
+              <div key={r.label}>
+                <div className="flex justify-between text-[12px] mb-1">
+                  <span className="text-slate-600">{r.label}</span>
+                  <strong className="tabular-nums text-slate-900">{r.value}</strong>
+                </div>
+                <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                  <div className={`h-full ${r.color} rounded-full`} style={{ width: `${(r.value / totalComp) * 100}%` }} />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="bg-white border border-slate-200 rounded-2xl p-4">
+          <div className="text-sm font-semibold text-slate-900 mb-3">Casillas por país</div>
+          {casillasPorPais.length === 0 ? (
+            <div className="text-[12px] text-slate-400 italic">Sin casillas aún.</div>
+          ) : (
+            <div className="space-y-2.5 text-[12px]">
+              {casillasPorPais.map(([pais, n]) => (
+                <div key={pais}>
+                  <div className="flex justify-between mb-1">
+                    <span className="font-bold text-slate-500 text-[10px] tabular-nums bg-slate-100 px-1.5 py-0.5 rounded">{paisCodigo(pais)}</span>
+                    <strong className="tabular-nums">{n}</strong>
+                  </div>
+                  <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                    <div className={`h-full ${paisColor(pais)} rounded-full`} style={{ width: `${(n / maxPais) * 100}%` }} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* §C insights + §D acciones */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="md:col-span-2 bg-white border border-slate-200 rounded-2xl p-4">
+          <div className="text-sm font-semibold text-slate-900 mb-3 flex items-center gap-2"><Lightbulb className="w-4 h-4 text-amber-500" /> Insights</div>
+          <div className="space-y-2 text-[12px] text-slate-600">
+            <div className="flex items-start gap-2"><Network className="w-3.5 h-3.5 text-sky-500 mt-0.5 flex-shrink-0" /> <span>La red cubre <strong className="text-slate-900">{paisesCubiertos} {paisesCubiertos === 1 ? 'país' : 'países'}</strong> con <strong className="text-slate-900">{totalColaboradores}</strong> colaboradores activos.</span></div>
+            <div className="flex items-start gap-2"><Gauge className="w-3.5 h-3.5 text-amber-500 mt-0.5 flex-shrink-0" /> <span>Ocupación media de acopio en <strong className="text-slate-900">{capacidadUsada}%</strong>.</span></div>
+            {casillasSinColaborador > 0 && (
+              <div className="flex items-start gap-2"><UserX className="w-3.5 h-3.5 text-rose-500 mt-0.5 flex-shrink-0" /> <span><strong className="text-slate-900">{casillasSinColaborador}</strong> {casillasSinColaborador === 1 ? 'casilla' : 'casillas'} sin colaborador asignado.</span></div>
+            )}
+          </div>
+        </div>
+        <div className="bg-white border border-slate-200 rounded-2xl p-4">
+          <div className="text-sm font-semibold text-slate-900 mb-3">Acciones rápidas</div>
+          <div className="grid grid-cols-2 gap-2">
+            <button onClick={() => onNuevoColaborador('viajero')} className="bg-white border border-slate-200 rounded-lg p-3 hover:border-violet-300 hover:bg-violet-50/30 text-left transition-colors"><Plane className="w-4 h-4 text-violet-600 mb-1.5" /><div className="text-[11px] font-bold text-slate-900">Nuevo viajero</div></button>
+            <button onClick={() => onNuevoColaborador('empresa')} className="bg-white border border-slate-200 rounded-lg p-3 hover:border-indigo-300 hover:bg-indigo-50/30 text-left transition-colors"><Warehouse className="w-4 h-4 text-indigo-600 mb-1.5" /><div className="text-[11px] font-bold text-slate-900">Almacén propio</div></button>
+            <button onClick={() => onNuevoColaborador('courier_externo')} className="bg-white border border-slate-200 rounded-lg p-3 hover:border-sky-300 hover:bg-sky-50/30 text-left transition-colors"><Truck className="w-4 h-4 text-sky-600 mb-1.5" /><div className="text-[11px] font-bold text-slate-900">Courier intl.</div></button>
+            <button onClick={onNuevaCasilla} className="bg-white border border-slate-200 rounded-lg p-3 hover:border-emerald-300 hover:bg-emerald-50/30 text-left transition-colors"><MapPin className="w-4 h-4 text-emerald-600 mb-1.5" /><div className="text-[11px] font-bold text-slate-900">Nueva casilla</div></button>
+          </div>
+        </div>
+      </div>
+
+      {/* §E cross-links 360 */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <button onClick={() => onIr('/envios')} className="bg-white border border-slate-200 rounded-xl p-3 flex items-center justify-between hover:border-orange-300 hover:bg-orange-50/20 transition-colors"><span className="text-[12px] font-medium text-slate-700 flex items-center gap-2"><ArrowRightLeft className="w-4 h-4 text-orange-500" /> Envíos</span><ArrowUpRight className="w-3.5 h-3.5 text-slate-400" /></button>
+        <button onClick={() => onIr('/inventario')} className="bg-white border border-slate-200 rounded-xl p-3 flex items-center justify-between hover:border-orange-300 hover:bg-orange-50/20 transition-colors"><span className="text-[12px] font-medium text-slate-700 flex items-center gap-2"><Warehouse className="w-4 h-4 text-orange-500" /> Stock / Existencias</span><ArrowUpRight className="w-3.5 h-3.5 text-slate-400" /></button>
+        <button onClick={() => onIr('/reportes')} className="bg-white border border-slate-200 rounded-xl p-3 flex items-center justify-between hover:border-orange-300 hover:bg-orange-50/20 transition-colors"><span className="text-[12px] font-medium text-slate-700 flex items-center gap-2"><BarChart3 className="w-4 h-4 text-orange-500" /> Reportes · Logística</span><ArrowUpRight className="w-3.5 h-3.5 text-slate-400" /></button>
+      </div>
+
+      {/* §F alertas */}
+      {casillasSinColaborador > 0 && (
+        <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 flex items-center gap-3">
+          <AlertTriangle className="w-4 h-4 text-amber-600 flex-shrink-0" />
+          <span className="text-[12px] text-amber-800">
+            {casillasSinColaborador} {casillasSinColaborador === 1 ? 'casilla' : 'casillas'} sin colaborador asignado.{' '}
+            <button onClick={onIrDirectorio} className="font-semibold underline">Revisar en Directorio →</button>
+          </span>
+        </div>
+      )}
+    </div>
   );
 };
