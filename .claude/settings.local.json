@@ -410,7 +410,9 @@
       "Bash(sed -i \"s#from '../../types/almacen.types'#from '../../types/casilla.types'#\" src/components/Maestros/ProveedoresSRM.tsx)",
       "Bash(sed -i \"s#from '../../../types/almacen.types'#from '../../../types/casilla.types'#\" src/components/modules/entidades/ProveedorAutocomplete.tsx)",
       "Bash(sed -i \"s#from '../types/almacen.types'#from '../types/casilla.types'#\" src/utils/multiOrigen.helpers.ts)",
-      "Bash(sed -i \"s#import type { PaisAlmacen } from '../types/almacen.types';#import type { PaisCasilla } from '../types/casilla.types';#; s#PaisAlmacen#PaisCasilla#g\" src/services/stockDisponibilidad.service.ts)"
+      "Bash(sed -i \"s#import type { PaisAlmacen } from '../types/almacen.types';#import type { PaisCasilla } from '../types/casilla.types';#; s#PaisAlmacen#PaisCasilla#g\" src/services/stockDisponibilidad.service.ts)",
+      "Bash(sed -n '95,112p' src/components/layout/Sidebar.tsx)",
+      "Bash(sed -n '256,275p' src/pages/RedLogistica/RedLogistica.tsx)"
     ],
     "deny": [],
     "ask": []

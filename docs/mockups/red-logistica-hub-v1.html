@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Red Logística Hub · v1 · Migración al Hub Kit</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  * { font-family: 'Inter', system-ui, sans-serif; }
+  .tabular-nums { font-variant-numeric: tabular-nums; }
+  body { background: #f1f5f9; }
+  .hide-scroll::-webkit-scrollbar { display: none; }
+  .hide-scroll { scrollbar-width: none; }
+  .phone { width: 375px; }
+</style>
+</head>
+<body class="text-slate-900 pb-24">
+
+<!-- ════════════ HERO ════════════ -->
+<div class="max-w-6xl mx-auto px-4 pt-8 pb-4">
+  <div class="flex items-center gap-2 mb-3 flex-wrap">
+    <span class="text-[10px] font-bold uppercase tracking-wider bg-orange-100 text-orange-700 px-2 py-1 rounded">RED LOGÍSTICA · orange · Inventario</span>
+    <span class="text-[10px] font-bold uppercase tracking-wider bg-slate-200 text-slate-600 px-2 py-1 rounded">v1 · MIGRACIÓN AL HUB KIT</span>
+    <span class="text-[10px] font-bold uppercase tracking-wider bg-emerald-100 text-emerald-700 px-2 py-1 rounded">COBERTURA TOTAL + MOBILE</span>
+  </div>
+  <h1 class="text-3xl font-bold tracking-tight mb-2">Red Logística Hub · v1</h1>
+  <p class="text-[14px] text-slate-600 max-w-3xl leading-relaxed">
+    Migración del módulo <strong>Red Logística</strong> (hoy legacy: PageShell + KPIBar + toggle Lista/Mapa) al
+    <strong>Hub Kit</strong>. Chrome = <strong>orange</strong> (grupo Inventario). KPIs = <strong>semánticos</strong>.
+    Modelo consolidado: <strong>Colaborador</strong> = quien transporta · <strong>Casilla</strong> = ubicación (1-a-N).
+    Cubre: shell + Resumen (§A→§F) + Directorio (4 grupos · toggle Lista/Mapa) + 3 modales + empty/loading/error + mobile 375px.
+  </p>
+</div>
+
+<!-- ÍNDICE -->
+<div class="max-w-6xl mx-auto px-4 mb-8">
+  <div class="bg-white border border-slate-200 rounded-2xl p-4 grid grid-cols-2 md:grid-cols-5 gap-2 text-[12px]">
+    <a href="#acto1" class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-slate-50"><span class="w-5 h-5 rounded bg-orange-100 text-orange-700 flex items-center justify-center text-[10px] font-bold">1</span> Shell + Resumen</a>
+    <a href="#acto2" class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-slate-50"><span class="w-5 h-5 rounded bg-orange-100 text-orange-700 flex items-center justify-center text-[10px] font-bold">2</span> Directorio + Mapa</a>
+    <a href="#acto3" class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-slate-50"><span class="w-5 h-5 rounded bg-orange-100 text-orange-700 flex items-center justify-center text-[10px] font-bold">3</span> Modales (3)</a>
+    <a href="#acto4" class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-slate-50"><span class="w-5 h-5 rounded bg-slate-100 flex items-center justify-center text-[10px] font-bold">4</span> Empty / Loading / Error</a>
+    <a href="#acto5" class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-slate-50"><span class="w-5 h-5 rounded bg-slate-100 flex items-center justify-center text-[10px] font-bold">5</span> Mobile 375px</a>
+  </div>
+</div>
+
+<!-- ════════════ ACTO 1 · SHELL + RESUMEN ════════════ -->
+<div id="acto1" class="max-w-6xl mx-auto px-4 mb-12">
+  <div class="text-[11px] font-bold uppercase tracking-wider text-orange-600 mb-3">1 · HubShell (orange) + tab Resumen (§A→§F)</div>
+
+  <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+
+    <!-- HubTopBar -->
+    <div class="border-b border-slate-200 px-4 sm:px-6 py-2.5 bg-slate-50 flex items-center justify-between gap-3">
+      <nav class="flex items-center gap-1.5 text-[11px] text-slate-500 min-w-0">
+        <button class="hover:text-slate-700 flex-shrink-0">Inicio</button>
+        <i data-lucide="chevron-right" class="w-3 h-3 flex-shrink-0"></i>
+        <span class="text-slate-900 font-semibold truncate">Red Logística</span>
+      </nav>
+      <span class="text-[10px] bg-orange-50 text-orange-700 px-2 py-0.5 rounded font-bold inline-flex items-center gap-1 flex-shrink-0"><i data-lucide="shield" class="w-3 h-3"></i> Vista ejecutiva · admin</span>
+    </div>
+
+    <!-- HubHeader -->
+    <div class="px-4 sm:px-6 py-4 border-b border-slate-100 flex items-start justify-between gap-4 flex-wrap">
+      <div class="flex items-start gap-3 flex-1 min-w-[260px]">
+        <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-orange-500 to-orange-700 flex items-center justify-center text-white flex-shrink-0"><i data-lucide="network" class="w-5 h-5"></i></div>
+        <div class="min-w-0">
+          <h1 class="text-2xl font-bold text-slate-900 tracking-tight">Red Logística</h1>
+          <p class="text-[13px] text-slate-500 leading-snug max-w-2xl mt-0.5">Quiénes transportan y dónde se acopia · colaboradores y casillas de la red</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2 flex-wrap justify-end">
+        <button class="flex items-center gap-1.5 px-3 py-2 text-xs rounded-lg bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 font-medium"><i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i></button>
+        <button class="flex items-center gap-1.5 px-3 py-2 text-xs rounded-lg bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 font-medium"><i data-lucide="map-pin" class="w-3.5 h-3.5"></i> <span class="hidden sm:inline">Nueva casilla</span></button>
+        <button class="flex items-center gap-1.5 px-3 py-2 text-xs rounded-lg bg-orange-600 hover:bg-orange-700 text-white font-semibold"><i data-lucide="user-plus" class="w-3.5 h-3.5"></i> <span class="hidden sm:inline">Nuevo colaborador</span></button>
+      </div>
+    </div>
+
+    <!-- HubKpiStrip · tonos SEMÁNTICOS -->
+    <div class="px-4 sm:px-6 py-4 border-b border-slate-100">
+      <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
+        <!-- Colaboradores · slate -->
+        <div class="bg-gradient-to-br from-slate-50 to-slate-100/60 ring-slate-200/60 ring-1 rounded-2xl p-4">
+          <div class="flex items-center justify-between mb-2"><span class="text-[10px] uppercase tracking-wider font-bold text-slate-600">Colaboradores</span><i data-lucide="users" class="w-3.5 h-3.5 text-slate-600"></i></div>
+          <div class="text-2xl font-bold tabular-nums text-slate-900">12</div>
+          <div class="text-[11px] mt-1 text-slate-600">activos en la red</div>
+        </div>
+        <!-- Casillas activas · emerald -->
+        <div class="bg-gradient-to-br from-emerald-50 to-emerald-100/40 ring-emerald-200/50 ring-1 rounded-2xl p-4">
+          <div class="flex items-center justify-between mb-2"><span class="text-[10px] uppercase tracking-wider font-bold text-emerald-700">Casillas activas</span><i data-lucide="map-pin" class="w-3.5 h-3.5 text-emerald-700"></i></div>
+          <div class="text-2xl font-bold tabular-nums text-emerald-900">19</div>
+          <div class="text-[11px] mt-1 text-emerald-700">ubicaciones</div>
+        </div>
+        <!-- Unidades en red · sky -->
+        <div class="bg-gradient-to-br from-sky-50 to-sky-100/40 ring-sky-200/50 ring-1 rounded-2xl p-4">
+          <div class="flex items-center justify-between mb-2"><span class="text-[10px] uppercase tracking-wider font-bold text-sky-700">Unidades en red</span><i data-lucide="package" class="w-3.5 h-3.5 text-sky-700"></i></div>
+          <div class="text-2xl font-bold tabular-nums text-sky-900">1,284</div>
+          <div class="text-[11px] mt-1 text-sky-700">en circulación</div>
+        </div>
+        <!-- Valor inventario · indigo (capital) -->
+        <div class="bg-gradient-to-br from-indigo-50 to-indigo-100/40 ring-indigo-200/50 ring-1 rounded-2xl p-4">
+          <div class="flex items-center justify-between mb-2"><span class="text-[10px] uppercase tracking-wider font-bold text-indigo-700">Valor en red</span><i data-lucide="dollar-sign" class="w-3.5 h-3.5 text-indigo-700"></i></div>
+          <div class="text-2xl font-bold tabular-nums text-indigo-900">$38.4<span class="text-indigo-400">k</span></div>
+          <div class="text-[11px] mt-1 text-indigo-700">capital acopiado</div>
+        </div>
+        <!-- Capacidad usada · amber -->
+        <div class="bg-gradient-to-br from-amber-50 to-amber-100/40 ring-amber-200/50 ring-1 rounded-2xl p-4">
+          <div class="flex items-center justify-between mb-2"><span class="text-[10px] uppercase tracking-wider font-bold text-amber-700">Capacidad</span><i data-lucide="gauge" class="w-3.5 h-3.5 text-amber-700"></i></div>
+          <div class="text-2xl font-bold tabular-nums text-amber-900">62<span class="text-amber-400">%</span></div>
+          <div class="text-[11px] mt-1 text-amber-700">ocupación media</div>
+        </div>
+      </div>
+      <!-- mini-stats footer (kit) -->
+      <div class="bg-slate-50/50 border border-slate-200 rounded-xl mt-3 px-4 py-2 flex items-center gap-4 text-[11px] flex-wrap">
+        <span class="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Mini-stats:</span>
+        <span class="flex items-center gap-1 text-slate-600"><i data-lucide="plane" class="w-3 h-3 text-slate-400"></i> Viajeros <strong class="tabular-nums">4</strong></span>
+        <span class="flex items-center gap-1 text-slate-600"><i data-lucide="globe" class="w-3 h-3 text-slate-400"></i> Cobertura <strong>3 países</strong></span>
+        <span class="flex items-center gap-1 text-slate-600"><i data-lucide="user-x" class="w-3 h-3 text-slate-400"></i> Casilla sin colaborador <strong>1</strong></span>
+      </div>
+    </div>
+
+    <!-- HubTabs -->
+    <div class="border-b border-slate-200 px-4 sm:px-6">
+      <div class="flex gap-1 overflow-x-auto -mb-px hide-scroll">
+        <button class="whitespace-nowrap px-3 py-2.5 text-[13px] border-b-2 flex items-center gap-1.5 border-orange-600 text-orange-700 font-semibold">Resumen</button>
+        <button class="whitespace-nowrap px-3 py-2.5 text-[13px] border-b-2 flex items-center gap-1.5 border-transparent text-slate-500 hover:text-slate-700 font-medium">Directorio <span class="text-[9px] bg-slate-100 text-slate-700 px-1.5 rounded-full font-bold tabular-nums">12</span></button>
+      </div>
+    </div>
+
+    <!-- HubBody · Resumen (Layout B full-width · directorio es ancho) -->
+    <div class="bg-slate-50/30 p-3 sm:p-4 md:p-6">
+      <div class="max-w-6xl mx-auto space-y-4">
+
+        <!-- §A · BANNER ESTADO -->
+        <div class="bg-gradient-to-r from-emerald-50 to-emerald-100/30 border border-emerald-200 rounded-2xl p-4 flex items-start gap-3">
+          <div class="w-9 h-9 rounded-lg bg-emerald-100 flex items-center justify-center flex-shrink-0"><i data-lucide="check-circle" class="w-5 h-5 text-emerald-700"></i></div>
+          <div class="min-w-0">
+            <div class="text-[13px] font-semibold text-emerald-900">Red operativa · 12 colaboradores cubren 3 países</div>
+            <div class="text-[12px] text-emerald-700 leading-snug mt-0.5">Sin casillas sobre capacidad. 1 casilla quedó sin colaborador asignado (revisar abajo). Acopio sano: 62% de ocupación media.</div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <!-- §B · VISUALIZACIÓN · composición de la red (donut) -->
+          <div class="md:col-span-2 bg-white border border-slate-200 rounded-2xl p-4">
+            <div class="flex items-center justify-between mb-3">
+              <div class="text-sm font-semibold text-slate-900">Composición de la red por tipo</div>
+              <span class="text-[10px] text-slate-400 uppercase tracking-wider font-bold">colaboradores</span>
+            </div>
+            <div class="flex items-center gap-6 flex-wrap">
+              <!-- donut SVG -->
+              <svg viewBox="0 0 36 36" class="w-28 h-28 flex-shrink-0">
+                <circle cx="18" cy="18" r="15.9" fill="none" stroke="#e2e8f0" stroke-width="3.4"></circle>
+                <circle cx="18" cy="18" r="15.9" fill="none" stroke="#6366f1" stroke-width="3.4" stroke-dasharray="33 67" stroke-dashoffset="0" transform="rotate(-90 18 18)"></circle>
+                <circle cx="18" cy="18" r="15.9" fill="none" stroke="#8b5cf6" stroke-width="3.4" stroke-dasharray="33 67" stroke-dashoffset="-33" transform="rotate(-90 18 18)"></circle>
+                <circle cx="18" cy="18" r="15.9" fill="none" stroke="#0ea5e9" stroke-width="3.4" stroke-dasharray="17 83" stroke-dashoffset="-66" transform="rotate(-90 18 18)"></circle>
+                <circle cx="18" cy="18" r="15.9" fill="none" stroke="#f59e0b" stroke-width="3.4" stroke-dasharray="17 83" stroke-dashoffset="-83" transform="rotate(-90 18 18)"></circle>
+                <text x="18" y="17" text-anchor="middle" class="text-[5px] font-bold fill-slate-900">12</text>
+                <text x="18" y="22" text-anchor="middle" class="text-[2.4px] fill-slate-400 uppercase tracking-wide">colabs</text>
+              </svg>
+              <div class="space-y-1.5 text-[12px] flex-1 min-w-[180px]">
+                <div class="flex items-center justify-between"><span class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-sm bg-indigo-500"></span> Mis almacenes</span><strong class="tabular-nums">4</strong></div>
+                <div class="flex items-center justify-between"><span class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-sm bg-violet-500"></span> Viajeros</span><strong class="tabular-nums">4</strong></div>
+                <div class="flex items-center justify-between"><span class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-sm bg-sky-500"></span> Couriers intl.</span><strong class="tabular-nums">2</strong></div>
+                <div class="flex items-center justify-between"><span class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-sm bg-amber-500"></span> Transportistas locales</span><strong class="tabular-nums">2</strong></div>
+              </div>
+            </div>
+          </div>
+          <!-- §B.2 · casillas por país (barras) -->
+          <div class="bg-white border border-slate-200 rounded-2xl p-4">
+            <div class="text-sm font-semibold text-slate-900 mb-3">Casillas por país</div>
+            <div class="space-y-2.5 text-[12px]">
+              <div><div class="flex justify-between mb-1"><span class="font-bold text-slate-500 text-[10px] tabular-nums bg-slate-100 px-1.5 py-0.5 rounded">US</span><strong class="tabular-nums">9</strong></div><div class="h-1.5 bg-slate-100 rounded-full overflow-hidden"><div class="h-full bg-sky-500 rounded-full" style="width:47%"></div></div></div>
+              <div><div class="flex justify-between mb-1"><span class="font-bold text-slate-500 text-[10px] tabular-nums bg-slate-100 px-1.5 py-0.5 rounded">PE</span><strong class="tabular-nums">8</strong></div><div class="h-1.5 bg-slate-100 rounded-full overflow-hidden"><div class="h-full bg-emerald-500 rounded-full" style="width:42%"></div></div></div>
+              <div><div class="flex justify-between mb-1"><span class="font-bold text-slate-500 text-[10px] tabular-nums bg-slate-100 px-1.5 py-0.5 rounded">CN</span><strong class="tabular-nums">2</strong></div><div class="h-1.5 bg-slate-100 rounded-full overflow-hidden"><div class="h-full bg-amber-500 rounded-full" style="width:11%"></div></div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- §C · INSIGHTS + §D · ACCIONES -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="md:col-span-2 bg-white border border-slate-200 rounded-2xl p-4">
+            <div class="text-sm font-semibold text-slate-900 mb-3 flex items-center gap-2"><i data-lucide="lightbulb" class="w-4 h-4 text-amber-500"></i> Insights</div>
+            <div class="space-y-2 text-[12px] text-slate-600">
+              <div class="flex items-start gap-2"><i data-lucide="trending-up" class="w-3.5 h-3.5 text-emerald-500 mt-0.5 flex-shrink-0"></i> <span><strong class="text-slate-900">Angie Price</strong> concentra el 38% de las unidades en USA (casilla California).</span></div>
+              <div class="flex items-start gap-2"><i data-lucide="gauge" class="w-3.5 h-3.5 text-amber-500 mt-0.5 flex-shrink-0"></i> <span>2 casillas superan el 85% de capacidad — conviene balancear acopio.</span></div>
+              <div class="flex items-start gap-2"><i data-lucide="user-x" class="w-3.5 h-3.5 text-rose-500 mt-0.5 flex-shrink-0"></i> <span>1 casilla (Punto DHL Lima) quedó sin colaborador asignado.</span></div>
+            </div>
+          </div>
+          <!-- §D · ACCIONES RÁPIDAS · quick-start con tinte semántico -->
+          <div class="bg-white border border-slate-200 rounded-2xl p-4">
+            <div class="text-sm font-semibold text-slate-900 mb-3">Acciones rápidas</div>
+            <div class="grid grid-cols-2 gap-2">
+              <button class="bg-white border border-slate-200 rounded-lg p-3 hover:border-violet-300 hover:bg-violet-50/30 text-left transition-colors"><i data-lucide="plane" class="w-4 h-4 text-violet-600 mb-1.5"></i><div class="text-[11px] font-bold text-slate-900">Nuevo viajero</div></button>
+              <button class="bg-white border border-slate-200 rounded-lg p-3 hover:border-indigo-300 hover:bg-indigo-50/30 text-left transition-colors"><i data-lucide="warehouse" class="w-4 h-4 text-indigo-600 mb-1.5"></i><div class="text-[11px] font-bold text-slate-900">Almacén propio</div></button>
+              <button class="bg-white border border-slate-200 rounded-lg p-3 hover:border-sky-300 hover:bg-sky-50/30 text-left transition-colors"><i data-lucide="truck" class="w-4 h-4 text-sky-600 mb-1.5"></i><div class="text-[11px] font-bold text-slate-900">Courier intl.</div></button>
+              <button class="bg-white border border-slate-200 rounded-lg p-3 hover:border-emerald-300 hover:bg-emerald-50/30 text-left transition-colors"><i data-lucide="map-pin" class="w-4 h-4 text-emerald-600 mb-1.5"></i><div class="text-[11px] font-bold text-slate-900">Nueva casilla</div></button>
+            </div>
+          </div>
+        </div>
+
+        <!-- §E · CROSS-LINKS 360 -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <a href="#" class="bg-white border border-slate-200 rounded-xl p-3 flex items-center justify-between hover:border-orange-300 hover:bg-orange-50/20 transition-colors"><span class="text-[12px] font-medium text-slate-700 flex items-center gap-2"><i data-lucide="arrow-right-left" class="w-4 h-4 text-orange-500"></i> Envíos</span><i data-lucide="arrow-up-right" class="w-3.5 h-3.5 text-slate-400"></i></a>
+          <a href="#" class="bg-white border border-slate-200 rounded-xl p-3 flex items-center justify-between hover:border-orange-300 hover:bg-orange-50/20 transition-colors"><span class="text-[12px] font-medium text-slate-700 flex items-center gap-2"><i data-lucide="warehouse" class="w-4 h-4 text-orange-500"></i> Stock / Existencias</span><i data-lucide="arrow-up-right" class="w-3.5 h-3.5 text-slate-400"></i></a>
+          <a href="#" class="bg-white border border-slate-200 rounded-xl p-3 flex items-center justify-between hover:border-orange-300 hover:bg-orange-50/20 transition-colors"><span class="text-[12px] font-medium text-slate-700 flex items-center gap-2"><i data-lucide="bar-chart-3" class="w-4 h-4 text-orange-500"></i> Reportes · Logística</span><i data-lucide="arrow-up-right" class="w-3.5 h-3.5 text-slate-400"></i></a>
+        </div>
+
+        <!-- §F · ALERTAS -->
+        <div class="bg-amber-50 border border-amber-200 rounded-xl p-3 flex items-center gap-3">
+          <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-600 flex-shrink-0"></i>
+          <span class="text-[12px] text-amber-800">1 casilla sin colaborador · 2 casillas cerca de capacidad máxima. <button class="font-semibold underline">Revisar en Directorio →</button></span>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════ ACTO 2 · DIRECTORIO + MAPA ════════════ -->
+<div id="acto2" class="max-w-6xl mx-auto px-4 mb-12">
+  <div class="text-[11px] font-bold uppercase tracking-wider text-orange-600 mb-3">2 · Tab Directorio · 4 grupos + toggle Lista/Mapa (misma data · canon)</div>
+
+  <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+    <!-- top-bar + header colapsado (referencia) -->
+    <div class="border-b border-slate-200 px-4 sm:px-6 py-2.5 bg-slate-50 flex items-center justify-between gap-3">
+      <nav class="flex items-center gap-1.5 text-[11px] text-slate-500"><button class="hover:text-slate-700">Inicio</button><i data-lucide="chevron-right" class="w-3 h-3"></i><span class="text-slate-900 font-semibold">Red Logística</span></nav>
+      <span class="text-[10px] bg-orange-50 text-orange-700 px-2 py-0.5 rounded font-bold inline-flex items-center gap-1"><i data-lucide="shield" class="w-3 h-3"></i> Vista ejecutiva · admin</span>
+    </div>
+    <!-- tabs · Directorio activa -->
+    <div class="border-b border-slate-200 px-4 sm:px-6">
+      <div class="flex gap-1 overflow-x-auto -mb-px hide-scroll">
+        <button class="whitespace-nowrap px-3 py-2.5 text-[13px] border-b-2 flex items-center gap-1.5 border-transparent text-slate-500 hover:text-slate-700 font-medium">Resumen</button>
+        <button class="whitespace-nowrap px-3 py-2.5 text-[13px] border-b-2 flex items-center gap-1.5 border-orange-600 text-orange-700 font-semibold">Directorio <span class="text-[9px] bg-orange-100 text-orange-700 px-1.5 rounded-full font-bold tabular-nums">12</span></button>
+      </div>
+    </div>
+
+    <div class="bg-slate-50/30 p-3 sm:p-4 md:p-6 space-y-4">
+      <!-- Toolbar: búsqueda + filtro tipo + TOGGLE Lista/Mapa (toggle = misma data DENTRO de la tab) -->
+      <div class="flex flex-col sm:flex-row sm:items-center gap-3">
+        <div class="relative flex-1 min-w-[180px]">
+          <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"></i>
+          <input type="text" placeholder="Buscar colaborador o casilla…" class="w-full pl-9 pr-3 py-2 text-[13px] rounded-lg border border-slate-300 focus:border-orange-500 focus:ring-1 focus:ring-orange-500 outline-none">
+        </div>
+        <div class="flex gap-1.5 overflow-x-auto pb-1 -mx-1 px-1 hide-scroll">
+          <button class="whitespace-nowrap px-2.5 py-1.5 text-[11px] rounded-lg bg-orange-600 text-white font-semibold">Todos</button>
+          <button class="whitespace-nowrap px-2.5 py-1.5 text-[11px] rounded-lg bg-white border border-slate-200 text-slate-600">Mis almacenes</button>
+          <button class="whitespace-nowrap px-2.5 py-1.5 text-[11px] rounded-lg bg-white border border-slate-200 text-slate-600">Viajeros</button>
+          <button class="whitespace-nowrap px-2.5 py-1.5 text-[11px] rounded-lg bg-white border border-slate-200 text-slate-600">Couriers</button>
+          <button class="whitespace-nowrap px-2.5 py-1.5 text-[11px] rounded-lg bg-white border border-slate-200 text-slate-600">Transportistas</button>
+        </div>
+        <!-- toggle vista (misma data · DENTRO de la tab) -->
+        <div class="flex bg-slate-100 rounded-lg p-0.5 flex-shrink-0">
+          <button class="px-3 py-1.5 text-[12px] rounded-md bg-white text-slate-900 shadow-sm font-semibold flex items-center gap-1.5"><i data-lucide="list" class="w-3.5 h-3.5"></i> Lista</button>
+          <button class="px-3 py-1.5 text-[12px] rounded-md text-slate-500 hover:text-slate-700 flex items-center gap-1.5"><i data-lucide="map" class="w-3.5 h-3.5"></i> Mapa</button>
+        </div>
+      </div>
+
+      <!-- GRUPO · Viajeros (HubCard de colaborador con casillas anidadas) -->
+      <div>
+        <div class="flex items-center gap-2 mb-2 px-1">
+          <i data-lucide="plane" class="w-4 h-4 text-violet-500"></i>
+          <span class="text-[12px] font-bold text-slate-700 uppercase tracking-wide">Viajeros</span>
+          <span class="text-[10px] bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded-full font-bold tabular-nums">4</span>
+        </div>
+        <div class="space-y-2">
+          <!-- Colaborador card -->
+          <div class="bg-white border border-slate-200 rounded-xl overflow-hidden">
+            <div class="flex items-center gap-3 p-3">
+              <div class="w-10 h-10 rounded-lg bg-violet-100 flex items-center justify-center flex-shrink-0 text-violet-700 font-bold text-[13px]">AP</div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-2"><span class="font-semibold text-slate-900 text-[14px] truncate">Angie Price</span><span class="text-[9px] font-bold uppercase bg-violet-100 text-violet-700 px-1.5 py-0.5 rounded">Viajero</span><span class="text-[10px] font-bold text-slate-500 tabular-nums bg-slate-100 px-1.5 py-0.5 rounded">US</span></div>
+                <div class="text-[11px] text-slate-500 flex items-center gap-2 mt-0.5"><span class="flex items-center gap-1"><i data-lucide="map-pin" class="w-3 h-3"></i> 2 casillas</span><span class="flex items-center gap-1"><i data-lucide="package" class="w-3 h-3"></i> 487 uds</span><span class="flex items-center gap-1"><i data-lucide="phone" class="w-3 h-3"></i> +1 801…</span></div>
+              </div>
+              <div class="flex items-center gap-1 flex-shrink-0">
+                <button class="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400"><i data-lucide="user-plus" class="w-4 h-4"></i></button>
+                <button class="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400"><i data-lucide="pencil" class="w-4 h-4"></i></button>
+                <button class="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400"><i data-lucide="chevron-down" class="w-4 h-4"></i></button>
+              </div>
+            </div>
+            <!-- casillas anidadas -->
+            <div class="border-t border-slate-100 bg-slate-50/50 divide-y divide-slate-100">
+              <div class="flex items-center gap-3 px-3 py-2 pl-6">
+                <i data-lucide="home" class="w-3.5 h-3.5 text-slate-400 flex-shrink-0"></i>
+                <div class="flex-1 min-w-0"><div class="text-[12px] font-medium text-slate-800 flex items-center gap-1.5">Casa California <span class="text-[9px] bg-amber-100 text-amber-700 px-1 rounded font-bold">principal</span></div><div class="text-[10px] text-slate-400">Salt Lake City, UT · CAS-014</div></div>
+                <div class="text-right flex-shrink-0"><div class="text-[12px] font-bold tabular-nums text-slate-900">312</div><div class="text-[9px] text-slate-400">de 400</div></div>
+                <div class="w-12 flex-shrink-0"><div class="h-1.5 bg-slate-200 rounded-full overflow-hidden"><div class="h-full bg-amber-500 rounded-full" style="width:78%"></div></div></div>
+              </div>
+              <div class="flex items-center gap-3 px-3 py-2 pl-6">
+                <i data-lucide="home" class="w-3.5 h-3.5 text-slate-400 flex-shrink-0"></i>
+                <div class="flex-1 min-w-0"><div class="text-[12px] font-medium text-slate-800">Bodega secundaria</div><div class="text-[10px] text-slate-400">Provo, UT · CAS-021</div></div>
+                <div class="text-right flex-shrink-0"><div class="text-[12px] font-bold tabular-nums text-slate-900">175</div><div class="text-[9px] text-slate-400">de 300</div></div>
+                <div class="w-12 flex-shrink-0"><div class="h-1.5 bg-slate-200 rounded-full overflow-hidden"><div class="h-full bg-emerald-500 rounded-full" style="width:58%"></div></div></div>
+              </div>
+            </div>
+          </div>
+          <!-- otro viajero · colapsado -->
+          <div class="bg-white border border-slate-200 rounded-xl flex items-center gap-3 p-3">
+            <div class="w-10 h-10 rounded-lg bg-violet-100 flex items-center justify-center flex-shrink-0 text-violet-700 font-bold text-[13px]">MT</div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2"><span class="font-semibold text-slate-900 text-[14px]">Manuel Torres</span><span class="text-[9px] font-bold uppercase bg-violet-100 text-violet-700 px-1.5 py-0.5 rounded">Viajero</span><span class="text-[10px] font-bold text-slate-500 tabular-nums bg-slate-100 px-1.5 py-0.5 rounded">US</span></div>
+              <div class="text-[11px] text-slate-500 flex items-center gap-2 mt-0.5"><span class="flex items-center gap-1"><i data-lucide="map-pin" class="w-3 h-3"></i> 1 casilla</span><span class="flex items-center gap-1"><i data-lucide="package" class="w-3 h-3"></i> 96 uds</span></div>
+            </div>
+            <div class="flex items-center gap-1 flex-shrink-0"><button class="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400"><i data-lucide="user-plus" class="w-4 h-4"></i></button><button class="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400"><i data-lucide="pencil" class="w-4 h-4"></i></button><button class="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400"><i data-lucide="chevron-down" class="w-4 h-4"></i></button></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- GRUPO · Mis almacenes (1 ejemplo) -->
+      <div>
+        <div class="flex items-center gap-2 mb-2 px-1">
+          <i data-lucide="warehouse" class="w-4 h-4 text-indigo-500"></i>
+          <span class="text-[12px] font-bold text-slate-700 uppercase tracking-wide">Mis almacenes</span>
+          <span class="text-[10px] bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded-full font-bold tabular-nums">4</span>
+        </div>
+        <div class="bg-white border border-slate-200 rounded-xl flex items-center gap-3 p-3">
+          <div class="w-10 h-10 rounded-lg bg-indigo-100 flex items-center justify-center flex-shrink-0 text-indigo-700"><i data-lucide="building-2" class="w-5 h-5"></i></div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2"><span class="font-semibold text-slate-900 text-[14px]">Almacén Central Lima</span><span class="text-[9px] font-bold uppercase bg-indigo-100 text-indigo-700 px-1.5 py-0.5 rounded">Empresa</span><span class="text-[10px] font-bold text-slate-500 tabular-nums bg-slate-100 px-1.5 py-0.5 rounded">PE</span></div>
+            <div class="text-[11px] text-slate-500 flex items-center gap-2 mt-0.5"><span class="flex items-center gap-1"><i data-lucide="map-pin" class="w-3 h-3"></i> 1 casilla</span><span class="flex items-center gap-1"><i data-lucide="package" class="w-3 h-3"></i> 540 uds</span></div>
+          </div>
+          <div class="flex items-center gap-1 flex-shrink-0"><button class="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400"><i data-lucide="pencil" class="w-4 h-4"></i></button><button class="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400"><i data-lucide="chevron-down" class="w-4 h-4"></i></button></div>
+        </div>
+      </div>
+
+      <!-- GRUPO · Couriers + Transportistas (encabezados · colapsados para brevedad) -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div class="bg-white border border-slate-200 rounded-xl p-3 flex items-center justify-between"><span class="flex items-center gap-2 text-[12px] font-bold text-slate-700 uppercase tracking-wide"><i data-lucide="truck" class="w-4 h-4 text-sky-500"></i> Couriers intl. <span class="text-[10px] bg-slate-100 text-slate-500 px-1.5 rounded-full tabular-nums">2</span></span><i data-lucide="chevron-down" class="w-4 h-4 text-slate-400"></i></div>
+        <div class="bg-white border border-slate-200 rounded-xl p-3 flex items-center justify-between"><span class="flex items-center gap-2 text-[12px] font-bold text-slate-700 uppercase tracking-wide"><i data-lucide="bike" class="w-4 h-4 text-amber-500"></i> Transportistas <span class="text-[10px] bg-slate-100 text-slate-500 px-1.5 rounded-full tabular-nums">2</span></span><i data-lucide="chevron-down" class="w-4 h-4 text-slate-400"></i></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Vista MAPA (toggle activo) -->
+  <div class="mt-4 bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+    <div class="px-4 sm:px-6 py-2.5 border-b border-slate-100 flex items-center justify-between">
+      <span class="text-[12px] font-semibold text-slate-700 flex items-center gap-2"><i data-lucide="map" class="w-4 h-4 text-orange-500"></i> Toggle = Mapa · misma data (casillas) vista geográfica</span>
+      <div class="flex bg-slate-100 rounded-lg p-0.5"><button class="px-3 py-1 text-[12px] rounded-md text-slate-500 flex items-center gap-1.5"><i data-lucide="list" class="w-3.5 h-3.5"></i> Lista</button><button class="px-3 py-1 text-[12px] rounded-md bg-white text-slate-900 shadow-sm font-semibold flex items-center gap-1.5"><i data-lucide="map" class="w-3.5 h-3.5"></i> Mapa</button></div>
+    </div>
+    <div class="relative h-72 bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center">
+      <div class="text-center text-slate-400"><i data-lucide="map" class="w-10 h-10 mx-auto mb-2"></i><div class="text-[12px]">Mapa con pins de casillas (Google Maps · coordenadas guardadas)</div></div>
+      <span class="absolute top-[30%] left-[28%] w-6 h-6 rounded-full bg-emerald-500 text-white text-[9px] font-bold flex items-center justify-center ring-2 ring-white shadow">9</span>
+      <span class="absolute top-[55%] left-[58%] w-6 h-6 rounded-full bg-sky-500 text-white text-[9px] font-bold flex items-center justify-center ring-2 ring-white shadow">8</span>
+      <span class="absolute top-[40%] left-[78%] w-5 h-5 rounded-full bg-amber-500 text-white text-[9px] font-bold flex items-center justify-center ring-2 ring-white shadow">2</span>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════ ACTO 3 · MODALES ════════════ -->
+<div id="acto3" class="max-w-6xl mx-auto px-4 mb-12">
+  <div class="text-[11px] font-bold uppercase tracking-wider text-orange-600 mb-3">3 · Modales internos (FormModalV2 · header + body + footer · primary orange)</div>
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+
+    <!-- Modal 1 · Nuevo/Editar Colaborador -->
+    <div class="bg-white border border-slate-200 rounded-2xl shadow-lg overflow-hidden">
+      <div class="px-4 py-3 border-b border-slate-100 flex items-center justify-between">
+        <div class="flex items-center gap-2"><div class="w-8 h-8 rounded-lg bg-orange-100 flex items-center justify-center text-orange-700"><i data-lucide="user-plus" class="w-4 h-4"></i></div><div><div class="text-[14px] font-bold text-slate-900">Nuevo Colaborador</div><div class="text-[10px] text-slate-400">Viajero</div></div></div>
+        <button class="p-1 rounded-lg hover:bg-slate-100 text-slate-400"><i data-lucide="x" class="w-4 h-4"></i></button>
+      </div>
+      <div class="p-4 space-y-3 max-h-80 overflow-auto">
+        <div class="grid grid-cols-2 gap-3">
+          <div><label class="block text-[11px] font-medium text-slate-600 mb-1">Tipo</label><select class="w-full text-[13px] border border-slate-300 rounded-lg px-3 py-2 focus:border-orange-500 focus:ring-1 focus:ring-orange-500 outline-none"><option>Viajero</option><option>Empresa (almacén)</option><option>Courier externo</option><option>Transportista local</option></select></div>
+          <div><label class="block text-[11px] font-medium text-slate-600 mb-1">Estado</label><select class="w-full text-[13px] border border-slate-300 rounded-lg px-3 py-2"><option>Activo</option><option>Inactivo</option></select></div>
+        </div>
+        <div><label class="block text-[11px] font-medium text-slate-600 mb-1">Nombre</label><input type="text" placeholder="Ej: Angie Price" class="w-full text-[13px] border border-slate-300 rounded-lg px-3 py-2 focus:border-orange-500 focus:ring-1 focus:ring-orange-500 outline-none"></div>
+        <div class="grid grid-cols-2 gap-3">
+          <div><label class="block text-[11px] font-medium text-slate-600 mb-1">País</label><select class="w-full text-[13px] border border-slate-300 rounded-lg px-3 py-2"><option>USA</option><option>Perú</option><option>China</option></select></div>
+          <div><label class="block text-[11px] font-medium text-slate-600 mb-1">Ciudad</label><input type="text" placeholder="Salt Lake City" class="w-full text-[13px] border border-slate-300 rounded-lg px-3 py-2"></div>
+        </div>
+        <div class="bg-slate-50 rounded-lg p-3 border border-slate-200"><div class="text-[10px] font-bold uppercase tracking-wide text-slate-500 mb-2">Contacto</div><div class="space-y-2"><input type="text" placeholder="Teléfono" class="w-full text-[12px] border border-slate-300 rounded-lg px-3 py-1.5"><input type="text" placeholder="WhatsApp" class="w-full text-[12px] border border-slate-300 rounded-lg px-3 py-1.5"></div></div>
+      </div>
+      <div class="px-4 py-3 border-t border-slate-100 flex items-center justify-end gap-2">
+        <button class="px-3 py-2 text-[13px] rounded-lg text-slate-600 hover:bg-slate-50 font-medium">Cancelar</button>
+        <button class="px-3 py-2 text-[13px] rounded-lg bg-orange-600 hover:bg-orange-700 text-white font-semibold">Guardar</button>
+      </div>
+    </div>
+
+    <!-- Modal 2 · Nueva/Editar Casilla -->
+    <div class="bg-white border border-slate-200 rounded-2xl shadow-lg overflow-hidden">
+      <div class="px-4 py-3 border-b border-slate-100 flex items-center justify-between">
+        <div class="flex items-center gap-2"><div class="w-8 h-8 rounded-lg bg-orange-100 flex items-center justify-center text-orange-700"><i data-lucide="map-pin" class="w-4 h-4"></i></div><div><div class="text-[14px] font-bold text-slate-900">Nueva Casilla</div><div class="text-[10px] text-slate-400">para Angie Price</div></div></div>
+        <button class="p-1 rounded-lg hover:bg-slate-100 text-slate-400"><i data-lucide="x" class="w-4 h-4"></i></button>
+      </div>
+      <div class="p-4 space-y-3 max-h-80 overflow-auto">
+        <div class="grid grid-cols-2 gap-3">
+          <div><label class="block text-[11px] font-medium text-slate-600 mb-1">Tipo</label><select class="w-full text-[13px] border border-slate-300 rounded-lg px-3 py-2 focus:border-orange-500 focus:ring-1 focus:ring-orange-500 outline-none"><option>Casilla de viajero</option><option>Almacén propio</option><option>Punto courier</option><option>Ubicación proveedor</option></select></div>
+          <div><label class="block text-[11px] font-medium text-slate-600 mb-1">País</label><select class="w-full text-[13px] border border-slate-300 rounded-lg px-3 py-2"><option>USA</option><option>Perú</option><option>China</option></select></div>
+        </div>
+        <div><label class="block text-[11px] font-medium text-slate-600 mb-1">Dirección (Google Maps)</label><div class="relative"><i data-lucide="map-pin" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"></i><input type="text" placeholder="Busca dirección…" class="w-full text-[13px] border border-slate-300 rounded-lg pl-9 pr-3 py-2 focus:border-orange-500 focus:ring-1 focus:ring-orange-500 outline-none"></div><div class="text-[10px] text-slate-400 mt-1">Región y coordenadas se guardan automáticamente</div></div>
+        <div class="grid grid-cols-2 gap-3">
+          <div><label class="block text-[11px] font-medium text-slate-600 mb-1">Ciudad</label><input type="text" placeholder="Salt Lake City" class="w-full text-[13px] border border-slate-300 rounded-lg px-3 py-2"></div>
+          <div><label class="block text-[11px] font-medium text-slate-600 mb-1">Capacidad (uds)</label><input type="text" placeholder="400" class="w-full text-[13px] border border-slate-300 rounded-lg px-3 py-2 tabular-nums"></div>
+        </div>
+        <div class="h-20 bg-slate-100 rounded-lg flex items-center justify-center text-slate-400 text-[11px]"><i data-lucide="map" class="w-4 h-4 mr-1.5"></i> Preview del mapa</div>
+      </div>
+      <div class="px-4 py-3 border-t border-slate-100 flex items-center justify-end gap-2">
+        <button class="px-3 py-2 text-[13px] rounded-lg text-slate-600 hover:bg-slate-50 font-medium">Cancelar</button>
+        <button class="px-3 py-2 text-[13px] rounded-lg bg-orange-600 hover:bg-orange-700 text-white font-semibold">Guardar</button>
+      </div>
+    </div>
+
+    <!-- Modal 3 · Asociar colaborador a casilla -->
+    <div class="bg-white border border-slate-200 rounded-2xl shadow-lg overflow-hidden self-start">
+      <div class="px-4 py-3 border-b border-slate-100 flex items-center justify-between">
+        <div class="flex items-center gap-2"><div class="w-8 h-8 rounded-lg bg-orange-100 flex items-center justify-center text-orange-700"><i data-lucide="users" class="w-4 h-4"></i></div><div><div class="text-[14px] font-bold text-slate-900">Asociar colaborador</div><div class="text-[10px] text-slate-400">Casa California · casilla compartida</div></div></div>
+        <button class="p-1 rounded-lg hover:bg-slate-100 text-slate-400"><i data-lucide="x" class="w-4 h-4"></i></button>
+      </div>
+      <div class="p-4 space-y-3">
+        <p class="text-[12px] text-slate-600">Varios colaboradores pueden usar la misma dirección física (ej. familiares en la misma casa). El principal sigue siendo <strong>Angie Price</strong>.</p>
+        <div><label class="block text-[11px] font-medium text-slate-600 mb-1">Agregar secundario</label><select class="w-full text-[13px] border border-slate-300 rounded-lg px-3 py-2 focus:border-orange-500 focus:ring-1 focus:ring-orange-500 outline-none"><option>Seleccionar colaborador…</option><option>Manuel Torres</option></select></div>
+        <div class="space-y-1.5"><div class="flex items-center justify-between bg-slate-50 rounded-lg px-3 py-2"><span class="text-[12px] text-slate-700 flex items-center gap-2"><span class="w-6 h-6 rounded bg-violet-100 text-violet-700 text-[10px] font-bold flex items-center justify-center">SP</span> Sara Price</span><button class="text-slate-400 hover:text-rose-500"><i data-lucide="x" class="w-3.5 h-3.5"></i></button></div></div>
+      </div>
+      <div class="px-4 py-3 border-t border-slate-100 flex items-center justify-end gap-2">
+        <button class="px-3 py-2 text-[13px] rounded-lg text-slate-600 hover:bg-slate-50 font-medium">Cancelar</button>
+        <button class="px-3 py-2 text-[13px] rounded-lg bg-orange-600 hover:bg-orange-700 text-white font-semibold">Asociar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════ ACTO 4 · ESTADOS ════════════ -->
+<div id="acto4" class="max-w-6xl mx-auto px-4 mb-12">
+  <div class="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-3">4 · Empty · Loading · Error</div>
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <!-- Empty -->
+    <div class="bg-white border border-slate-200 rounded-2xl p-6 text-center">
+      <div class="w-12 h-12 rounded-2xl bg-orange-50 flex items-center justify-center mx-auto mb-3"><i data-lucide="network" class="w-6 h-6 text-orange-500"></i></div>
+      <div class="text-[14px] font-semibold text-slate-900 mb-1">Aún no hay colaboradores</div>
+      <div class="text-[12px] text-slate-500 mb-4">Empezá agregando un viajero o tu primer almacén propio.</div>
+      <div class="grid grid-cols-2 gap-2">
+        <button class="bg-white border border-slate-200 rounded-lg p-2.5 hover:border-violet-300 hover:bg-violet-50/30 text-left"><i data-lucide="plane" class="w-4 h-4 text-violet-600 mb-1"></i><div class="text-[11px] font-bold text-slate-900">Viajero</div></button>
+        <button class="bg-white border border-slate-200 rounded-lg p-2.5 hover:border-indigo-300 hover:bg-indigo-50/30 text-left"><i data-lucide="warehouse" class="w-4 h-4 text-indigo-600 mb-1"></i><div class="text-[11px] font-bold text-slate-900">Almacén</div></button>
+      </div>
+    </div>
+    <!-- Loading (skeleton) -->
+    <div class="bg-white border border-slate-200 rounded-2xl p-4">
+      <div class="animate-pulse space-y-3">
+        <div class="flex items-center gap-3"><div class="w-10 h-10 rounded-lg bg-slate-200"></div><div class="flex-1 space-y-2"><div class="h-3 bg-slate-200 rounded w-1/2"></div><div class="h-2 bg-slate-100 rounded w-3/4"></div></div></div>
+        <div class="flex items-center gap-3"><div class="w-10 h-10 rounded-lg bg-slate-200"></div><div class="flex-1 space-y-2"><div class="h-3 bg-slate-200 rounded w-2/3"></div><div class="h-2 bg-slate-100 rounded w-1/2"></div></div></div>
+        <div class="flex items-center gap-3"><div class="w-10 h-10 rounded-lg bg-slate-200"></div><div class="flex-1 space-y-2"><div class="h-3 bg-slate-200 rounded w-1/2"></div><div class="h-2 bg-slate-100 rounded w-2/3"></div></div></div>
+      </div>
+    </div>
+    <!-- Error -->
+    <div class="bg-white border border-rose-200 rounded-2xl p-6 text-center">
+      <div class="w-12 h-12 rounded-2xl bg-rose-50 flex items-center justify-center mx-auto mb-3"><i data-lucide="wifi-off" class="w-6 h-6 text-rose-500"></i></div>
+      <div class="text-[14px] font-semibold text-slate-900 mb-1">No se pudo cargar la red</div>
+      <div class="text-[12px] text-slate-500 mb-4">Revisá tu conexión e intentá de nuevo.</div>
+      <button class="px-3 py-2 text-[13px] rounded-lg bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 font-medium inline-flex items-center gap-1.5"><i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Reintentar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════ ACTO 5 · MOBILE 375px ════════════ -->
+<div id="acto5" class="max-w-6xl mx-auto px-4 mb-12">
+  <div class="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-3">5 · Mobile 375px · shell + resumen + directorio + modal bottom-sheet</div>
+  <div class="flex gap-6 overflow-x-auto pb-4 hide-scroll">
+
+    <!-- Mobile · Shell + Resumen -->
+    <div class="phone flex-shrink-0 bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+      <div class="border-b border-slate-200 px-3 py-2 bg-slate-50 flex items-center justify-between">
+        <nav class="flex items-center gap-1 text-[10px] text-slate-500"><span>Inicio</span><i data-lucide="chevron-right" class="w-2.5 h-2.5"></i><span class="text-slate-900 font-semibold">Red Logística</span></nav>
+        <span class="text-[9px] bg-orange-50 text-orange-700 px-1.5 py-0.5 rounded font-bold inline-flex items-center gap-1"><i data-lucide="shield" class="w-2.5 h-2.5"></i> admin</span>
+      </div>
+      <div class="px-3 py-3 border-b border-slate-100 flex items-center gap-2">
+        <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-orange-500 to-orange-700 flex items-center justify-center text-white flex-shrink-0"><i data-lucide="network" class="w-4 h-4"></i></div>
+        <div class="flex-1 min-w-0"><h1 class="text-[17px] font-bold text-slate-900">Red Logística</h1></div>
+        <button class="w-9 h-9 rounded-lg bg-orange-600 text-white flex items-center justify-center flex-shrink-0"><i data-lucide="user-plus" class="w-4 h-4"></i></button>
+      </div>
+      <!-- KPIs 2 cols mobile -->
+      <div class="px-3 py-3 border-b border-slate-100 grid grid-cols-2 gap-2">
+        <div class="bg-gradient-to-br from-slate-50 to-slate-100/60 ring-1 ring-slate-200/60 rounded-xl p-2.5"><div class="text-[9px] uppercase font-bold text-slate-600">Colaboradores</div><div class="text-[18px] font-bold tabular-nums text-slate-900">12</div></div>
+        <div class="bg-gradient-to-br from-emerald-50 to-emerald-100/40 ring-1 ring-emerald-200/50 rounded-xl p-2.5"><div class="text-[9px] uppercase font-bold text-emerald-700">Casillas</div><div class="text-[18px] font-bold tabular-nums text-emerald-900">19</div></div>
+        <div class="bg-gradient-to-br from-sky-50 to-sky-100/40 ring-1 ring-sky-200/50 rounded-xl p-2.5"><div class="text-[9px] uppercase font-bold text-sky-700">Unidades</div><div class="text-[18px] font-bold tabular-nums text-sky-900">1,284</div></div>
+        <div class="bg-gradient-to-br from-indigo-50 to-indigo-100/40 ring-1 ring-indigo-200/50 rounded-xl p-2.5"><div class="text-[9px] uppercase font-bold text-indigo-700">Valor</div><div class="text-[18px] font-bold tabular-nums text-indigo-900">$38.4k</div></div>
+      </div>
+      <!-- tabs scroll-x -->
+      <div class="border-b border-slate-200 px-3"><div class="flex gap-1 overflow-x-auto -mb-px hide-scroll"><button class="whitespace-nowrap px-2.5 py-2 text-[12px] border-b-2 border-orange-600 text-orange-700 font-semibold">Resumen</button><button class="whitespace-nowrap px-2.5 py-2 text-[12px] border-b-2 border-transparent text-slate-500 font-medium">Directorio</button></div></div>
+      <div class="p-3 space-y-2 bg-slate-50/30">
+        <div class="bg-gradient-to-r from-emerald-50 to-emerald-100/30 border border-emerald-200 rounded-xl p-3"><div class="text-[12px] font-semibold text-emerald-900">Red operativa · 3 países</div><div class="text-[11px] text-emerald-700 mt-0.5">62% ocupación media</div></div>
+        <div class="bg-white border border-slate-200 rounded-xl p-3"><div class="text-[12px] font-semibold text-slate-900 mb-2">Composición</div><div class="text-[11px] space-y-1 text-slate-600"><div class="flex justify-between"><span>Mis almacenes</span><strong>4</strong></div><div class="flex justify-between"><span>Viajeros</span><strong>4</strong></div><div class="flex justify-between"><span>Couriers</span><strong>2</strong></div></div></div>
+      </div>
+    </div>
+
+    <!-- Mobile · Directorio (lista 1-col + filtros chip scroll-x) -->
+    <div class="phone flex-shrink-0 bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+      <div class="px-3 py-2.5 border-b border-slate-100"><div class="relative mb-2"><i data-lucide="search" class="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400"></i><input placeholder="Buscar…" class="w-full pl-8 pr-3 py-2 text-[12px] rounded-lg border border-slate-300"></div>
+        <div class="flex gap-1.5 overflow-x-auto hide-scroll"><button class="whitespace-nowrap px-2 py-1 text-[10px] rounded-lg bg-orange-600 text-white font-semibold">Todos</button><button class="whitespace-nowrap px-2 py-1 text-[10px] rounded-lg bg-white border border-slate-200 text-slate-600">Viajeros</button><button class="whitespace-nowrap px-2 py-1 text-[10px] rounded-lg bg-white border border-slate-200 text-slate-600">Almacenes</button><button class="whitespace-nowrap px-2 py-1 text-[10px] rounded-lg bg-white border border-slate-200 text-slate-600">Couriers</button></div>
+      </div>
+      <div class="p-3 space-y-2 bg-slate-50/30">
+        <div class="flex items-center gap-2 px-1"><i data-lucide="plane" class="w-3.5 h-3.5 text-violet-500"></i><span class="text-[11px] font-bold text-slate-700 uppercase">Viajeros</span><span class="text-[9px] bg-slate-100 text-slate-500 px-1.5 rounded-full tabular-nums">4</span></div>
+        <div class="bg-white border border-slate-200 rounded-xl p-3">
+          <div class="flex items-center gap-2.5"><div class="w-9 h-9 rounded-lg bg-violet-100 text-violet-700 font-bold text-[12px] flex items-center justify-center flex-shrink-0">AP</div><div class="flex-1 min-w-0"><div class="flex items-center gap-1.5"><span class="font-semibold text-slate-900 text-[13px] truncate">Angie Price</span><span class="text-[8px] font-bold text-slate-500 tabular-nums bg-slate-100 px-1 rounded">US</span></div><div class="text-[10px] text-slate-500">2 casillas · 487 uds</div></div><button class="w-8 h-8 rounded-lg hover:bg-slate-100 text-slate-400 flex items-center justify-center flex-shrink-0"><i data-lucide="chevron-down" class="w-4 h-4"></i></button></div>
+        </div>
+        <div class="bg-white border border-slate-200 rounded-xl p-3">
+          <div class="flex items-center gap-2.5"><div class="w-9 h-9 rounded-lg bg-violet-100 text-violet-700 font-bold text-[12px] flex items-center justify-center flex-shrink-0">MT</div><div class="flex-1 min-w-0"><div class="flex items-center gap-1.5"><span class="font-semibold text-slate-900 text-[13px]">Manuel Torres</span><span class="text-[8px] font-bold text-slate-500 tabular-nums bg-slate-100 px-1 rounded">US</span></div><div class="text-[10px] text-slate-500">1 casilla · 96 uds</div></div><button class="w-8 h-8 rounded-lg hover:bg-slate-100 text-slate-400 flex items-center justify-center flex-shrink-0"><i data-lucide="chevron-down" class="w-4 h-4"></i></button></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile · Modal bottom-sheet -->
+    <div class="phone flex-shrink-0 relative bg-slate-200 border border-slate-200 rounded-2xl shadow-sm overflow-hidden" style="height:560px;">
+      <div class="absolute inset-0 bg-slate-900/30"></div>
+      <div class="absolute bottom-0 inset-x-0 bg-white rounded-t-2xl max-h-[88%] overflow-hidden flex flex-col">
+        <div class="px-4 pt-2 pb-1 flex justify-center"><div class="w-9 h-1 rounded-full bg-slate-300"></div></div>
+        <div class="px-4 py-2 border-b border-slate-100 flex items-center justify-between"><div class="flex items-center gap-2"><div class="w-8 h-8 rounded-lg bg-orange-100 flex items-center justify-center text-orange-700"><i data-lucide="user-plus" class="w-4 h-4"></i></div><div class="text-[14px] font-bold text-slate-900">Nuevo Colaborador</div></div><button class="p-1 text-slate-400"><i data-lucide="x" class="w-4 h-4"></i></button></div>
+        <div class="p-4 space-y-3 overflow-auto flex-1">
+          <div><label class="block text-[11px] font-medium text-slate-600 mb-1">Tipo</label><select class="w-full text-[13px] border border-slate-300 rounded-lg px-3 py-2.5"><option>Viajero</option></select></div>
+          <div><label class="block text-[11px] font-medium text-slate-600 mb-1">Nombre</label><input placeholder="Angie Price" class="w-full text-[13px] border border-slate-300 rounded-lg px-3 py-2.5"></div>
+          <div><label class="block text-[11px] font-medium text-slate-600 mb-1">País</label><select class="w-full text-[13px] border border-slate-300 rounded-lg px-3 py-2.5"><option>USA</option></select></div>
+        </div>
+        <div class="px-4 py-3 border-t border-slate-100 grid grid-cols-2 gap-2"><button class="py-2.5 text-[13px] rounded-lg border border-slate-200 text-slate-600 font-medium">Cancelar</button><button class="py-2.5 text-[13px] rounded-lg bg-orange-600 text-white font-semibold">Guardar</button></div>
+      </div>
+    </div>
+  </div>
+  <p class="text-[11px] text-slate-400 mt-1">↔ scroll horizontal · touch targets ≥44px · modal = bottom-sheet (FormModalV2 mobile) · safe-area abajo</p>
+</div>
+
+<!-- ════════════ FOOTER · CHECKLIST CANON ════════════ -->
+<div class="max-w-6xl mx-auto px-4">
+  <div class="bg-white border border-slate-200 rounded-2xl p-5">
+    <div class="text-[13px] font-bold text-slate-900 mb-3 flex items-center gap-2"><i data-lucide="check-square" class="w-4 h-4 text-emerald-500"></i> Checklist canon · cobertura declarada</div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1.5 text-[12px] text-slate-600">
+      <div class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-500"></i> HubShell + TopBar (breadcrumb S9.D1 + chip rol orange)</div>
+      <div class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-500"></i> Header banking-grade (icono tonal + acciones 3-tier)</div>
+      <div class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-500"></i> KPI strip semántico (slate/emerald/sky/indigo/amber) + mini-stats</div>
+      <div class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-500"></i> Tabs (Resumen default + Directorio)</div>
+      <div class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-500"></i> Toggle Lista/Mapa DENTRO de la tab (misma data · canon)</div>
+      <div class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-500"></i> Resumen §A→§F (banner/visualización/insights/acciones/cross-links/alertas)</div>
+      <div class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-500"></i> 3 modales FormModalV2 (Colaborador · Casilla · Asociar)</div>
+      <div class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-500"></i> Empty / Loading / Error</div>
+      <div class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-500"></i> Mobile 375px (shell + directorio + bottom-sheet)</div>
+      <div class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-500"></i> Modelo correcto: Colaborador (persona) ↔ Casilla (ubicación)</div>
+      <div class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-500"></i> lucide · tabular-nums · Inter · max-w-6xl · sin emojis en chrome</div>
+      <div class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-500"></i> Color heredado del grupo Inventario (orange) · cero invención</div>
+    </div>
+  </div>
+</div>
+
+<script>lucide.createIcons();</script>
+</body>
+</html>
