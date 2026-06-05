@@ -113,7 +113,7 @@ const matchEstadoUnidad = (unidad: Unidad, valor: string): boolean => {
 export const UnidadesListView: React.FC = () => {
   const { unidades, loading, fetchUnidades, fetchStats } = useUnidadStore();
   const { productos } = useProductoStore();
-  const { almacenes } = useAlmacenStore();
+  const { casillas: almacenes } = useAlmacenStore();
   const { addToast } = useToastStore();
   const { user } = useAuthStore();
 
@@ -259,15 +259,16 @@ export const UnidadesListView: React.FC = () => {
   // (réplica del patrón Stock · InventarioPageV2 L583-638)
   const leadingFilter: LeadingFilterConfig = useMemo(() => {
     const TIPO_CONFIG: Record<string, { label: string; icon: LucideIcon; itemIcon: LucideIcon; orden: number }> = {
-      almacen_peru:   { label: 'Almacenes Perú',      icon: Building2, itemIcon: Building2, orden: 1 },
-      almacen_origen: { label: 'Almacenes en origen', icon: Warehouse, itemIcon: Warehouse, orden: 2 },
-      viajero:        { label: 'Viajeros',            icon: User,      itemIcon: User,      orden: 3 },
-      courier:        { label: 'Couriers',            icon: Truck,     itemIcon: Truck,     orden: 4 },
+      almacen_propio:      { label: 'Almacenes propios',     icon: Building2, itemIcon: Building2, orden: 1 },
+      ubicacion_proveedor: { label: 'Ubicaciones proveedor', icon: Warehouse, itemIcon: Warehouse, orden: 2 },
+      casilla_viajero:     { label: 'Viajeros',              icon: User,      itemIcon: User,      orden: 3 },
+      punto_courier:       { label: 'Couriers',              icon: Truck,     itemIcon: Truck,     orden: 4 },
+      almacen_tercero:     { label: 'Almacenes terceros',    icon: Warehouse, itemIcon: Warehouse, orden: 5 },
     };
 
     const porTipo = new Map<string, typeof almacenes>();
     almacenes.forEach(a => {
-      const tipo = a.tipo || 'almacen_peru';
+      const tipo = a.tipo || 'almacen_propio';
       if (!porTipo.has(tipo)) porTipo.set(tipo, []);
       porTipo.get(tipo)!.push(a);
     });

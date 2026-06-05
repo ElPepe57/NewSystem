@@ -7,8 +7,8 @@ import {
 } from 'lucide-react';
 import { Button } from '../../../common/Button';
 import { validateStep1, formatProductSubtitle } from './ocBuilderUtils';
-import { almacenService } from '../../../../services/casilla.service';
-import type { Almacen } from '../../../../types/almacen.types';
+import { casillaCrudService } from '../../../../services/casilla.crud.service';
+import type { Casilla } from '../../../../types/casilla.types';
 import type { OCBuilderState, OCBuilderAction, PoolProducto, OCDraftGroup, GroupColor } from './ocBuilderTypes';
 
 interface Props {
@@ -113,7 +113,7 @@ export const OCBuilderStep1: React.FC<Props> = ({ state, dispatch }) => {
   const [splitProduct, setSplitProduct] = useState<PoolProducto | null>(null);
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
   const [showViajerosPicker, setShowViajerosPicker] = useState(false);
-  const [viajeros, setViajeros] = useState<Almacen[]>([]);
+  const [viajeros, setViajeros] = useState<Casilla[]>([]);
   const [viajeroSearch, setViajeroSearch] = useState('');
   const [loadingViajeros, setLoadingViajeros] = useState(false);
   const validation = useMemo(() => validateStep1(state), [state]);
@@ -124,7 +124,7 @@ export const OCBuilderStep1: React.FC<Props> = ({ state, dispatch }) => {
     const load = async () => {
       setLoadingViajeros(true);
       try {
-        const data = await almacenService.getViajeros();
+        const data = await casillaCrudService.getViajeros();
         setViajeros(data);
       } catch (e) {
         console.error('Error loading viajeros:', e);
@@ -158,7 +158,7 @@ export const OCBuilderStep1: React.FC<Props> = ({ state, dispatch }) => {
     });
   };
 
-  const handleAddViajeroGroup = (viajero: Almacen) => {
+  const handleAddViajeroGroup = (viajero: Casilla) => {
     dispatch({
       type: 'ADD_GROUP',
       payload: {
@@ -167,7 +167,6 @@ export const OCBuilderStep1: React.FC<Props> = ({ state, dispatch }) => {
           almacenId: viajero.id!,
           nombre: viajero.nombre,
           ciudad: viajero.ciudad || '',
-          estado: viajero.estado,
           pais: viajero.pais || 'USA',
         },
       },

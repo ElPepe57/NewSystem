@@ -19,11 +19,11 @@
 import React, { useMemo } from 'react';
 import { Map as MapIcon, MapPin, TrendingUp, AlertTriangle, Info, Sparkles } from 'lucide-react';
 import type { Unidad } from '../../../../types/unidad.types';
-import type { Almacen } from '../../../../types/almacen.types';
+import type { Casilla } from '../../../../types/casilla.types';
 
 interface MapaTabProps {
   unidades: Unidad[];
-  almacenes: Almacen[];
+  almacenes: Casilla[];
 }
 
 interface UbicacionStats {

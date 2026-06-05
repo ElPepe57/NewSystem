@@ -405,7 +405,8 @@
       "Bash(sed -n '105,160p' src/types/almacen.types.ts)",
       "Bash(sed -n '137,141p' src/services/stockDisponibilidad.service.ts)",
       "Bash(sed -n '348,356p' src/services/stockDisponibilidad.service.ts)",
-      "Bash(sed -n '416,424p' src/services/stockDisponibilidad.service.ts)"
+      "Bash(sed -n '416,424p' src/services/stockDisponibilidad.service.ts)",
+      "Bash(awk '{print $6, $7, $8, $9}')"
     ],
     "deny": [],
     "ask": []

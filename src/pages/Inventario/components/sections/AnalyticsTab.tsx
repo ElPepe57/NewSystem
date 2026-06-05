@@ -37,7 +37,7 @@ import {
 import { formatCurrencyCompact } from '../../../../utils/format';
 import { calcularDiasParaVencer } from '../../../../utils/dateFormatters';
 import type { ProductoConUnidades } from './ProductoInventarioTable';
-import type { Almacen } from '../../../../types/almacen.types';
+import type { Casilla } from '../../../../types/casilla.types';
 import type { CTRUProductoDetalle } from '../../../../store/ctruStore';
 import { exportService } from '../../../../services/export.service';
 
@@ -55,7 +55,7 @@ interface AnalyticsTabProps {
   /** Datos de rentabilidad/CTRU · provee margen + base para rotación de la matriz BCG */
   ctruData?: CTRUProductoDetalle[];
   /** Almacenes · para el filtro de almacén y resolver país por unidad */
-  almacenes?: Almacen[];
+  almacenes?: Casilla[];
 }
 
 // Producto analítico derivado (1 fila por producto · base de BCG/ABC/tabla)

@@ -5,9 +5,9 @@
  */
 
 import { envioCrudService } from './envio.crud.service';
-import { almacenService } from './casilla.service';
+import { casillaCrudService } from './casilla.crud.service';
 import type { Envio as Transferencia } from '../types/envio.types';
-import type { Almacen } from '../types/almacen.types';
+import type { Casilla } from '../types/casilla.types';
 import { logger } from '../lib/logger';
 
 // ---- Tipos ----
@@ -68,7 +68,7 @@ export const logisticaReporteService = {
     try {
       const [transferencias, almacenes] = await Promise.all([
         envioCrudService.getAll(),
-        almacenService.getAll(),
+        casillaCrudService.getAll(),
       ]);
 
       // Solo transferencias internacionales (USA → Perú)
@@ -147,7 +147,7 @@ export const logisticaReporteService = {
 function calcularRendimientoViajero(
   nombre: string,
   transferencias: Transferencia[],
-  almacen?: Almacen
+  almacen?: Casilla
 ): RendimientoViajero {
   const completadas = transferencias.filter(t =>
     t.estado === 'recibida_completa' || t.estado === 'recibida_parcial'
@@ -234,7 +234,7 @@ function calcularRendimientoViajero(
   return {
     viajeroId: almacen?.id || nombre,
     viajeroNombre: nombre,
-    tipo: almacen?.esViajero ? 'viajero' : 'courier',
+    tipo: almacen?.tipo === 'casilla_viajero' ? 'viajero' : 'courier',
     enviosTotales: transferencias.length,
     enviosATiempo,
     enviosAtrasados,

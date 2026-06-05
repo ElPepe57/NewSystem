@@ -3,11 +3,11 @@ import { ClipboardCheck, Download, Save, Warehouse, RotateCcw, CheckCircle2, Ale
 import { ScanAccumulatorList } from '../ScanAccumulatorList';
 import { useScanAccumulator } from '../../../../hooks/useScanAccumulator';
 import { inventarioService } from '../../../../services/inventario.service';
-import { almacenService } from '../../../../services/casilla.service';
+import { casillaCrudService } from '../../../../services/casilla.crud.service';
 import { conteoInventarioService } from '../../../../services/conteoInventario.service';
 import { useToastStore } from '../../../../store/toastStore';
 import { useAuthStore } from '../../../../store/authStore';
-import type { Almacen } from '../../../../types/almacen.types';
+import type { Casilla } from '../../../../types/casilla.types';
 import type { AuditoriaItem, AuditoriaSession, AuditoriaSessionItem, AuditoriaResumen } from '../../../../types/escanerModos.types';
 import { toDateOrNow } from '../../../../utils/dateFormatters';
 
@@ -19,7 +19,7 @@ export const ModoAuditoria = forwardRef<ModoAuditoriaHandle>((_props, ref) => {
   const toast = useToastStore();
   const { user } = useAuthStore();
 
-  const [almacenes, setAlmacenes] = useState<Almacen[]>([]);
+  const [almacenes, setAlmacenes] = useState<Casilla[]>([]);
   const [selectedAlmacenId, setSelectedAlmacenId] = useState('');
   const [selectedAlmacenNombre, setSelectedAlmacenNombre] = useState('');
   const [isSaving, setIsSaving] = useState(false);
@@ -88,8 +88,8 @@ export const ModoAuditoria = forwardRef<ModoAuditoriaHandle>((_props, ref) => {
   useEffect(() => {
     const load = async () => {
       try {
-        const all = await almacenService.getAll();
-        const activos = all.filter((a: Almacen) => a.estadoAlmacen === 'activo');
+        const all = await casillaCrudService.getAll();
+        const activos = all.filter((a: Casilla) => a.estado === 'activa');
         setAlmacenes(activos);
       } catch {
         toast.error('Error al cargar almacenes');

@@ -1,5 +1,5 @@
 import type { Timestamp } from 'firebase/firestore';
-import type { PaisAlmacen } from './almacen.types';
+import type { PaisCasilla } from './casilla.types';
 import type { Requerimiento } from './requerimiento.types';
 
 /**
@@ -45,7 +45,7 @@ export interface DisponibilidadAlmacen {
   almacenId: string;
   almacenNombre: string;
   almacenCodigo: string;
-  pais: PaisAlmacen;
+  pais: PaisCasilla;
   esViajero: boolean;
 
   // Cantidades
@@ -62,8 +62,6 @@ export interface DisponibilidadAlmacen {
 
   // Tiempos (solo para USA)
   tiempoEstimadoLlegadaDias?: number;
-  viajeroProximoViaje?: Timestamp;
-  viajeroNombre?: string;
 
   // Vencimiento
   diasPromedioVencimiento?: number;
@@ -168,7 +166,7 @@ export interface ReservaAlmacen {
   almacenId: string;
   almacenNombre: string;
   almacenCodigo: string;
-  pais: PaisAlmacen;
+  pais: PaisCasilla;
   esViajero: boolean;
 
   // Unidades reservadas

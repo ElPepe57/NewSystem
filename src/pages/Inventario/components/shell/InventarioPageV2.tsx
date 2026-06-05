@@ -92,8 +92,8 @@ export const InventarioPageV2: React.FC = () => {
   const fetchUnidades = useUnidadStore(state => state.fetchUnidades);
   const productos = useProductoStore(state => state.productos);
   const fetchProductos = useProductoStore(state => state.fetchProductos);
-  const almacenes = useAlmacenStore(state => state.almacenes);
-  const fetchAlmacenes = useAlmacenStore(state => state.fetchAlmacenes);
+  const casillas = useAlmacenStore(state => state.casillas);
+  const fetchCasillas = useAlmacenStore(state => state.fetchCasillas);
   const fetchStats = useInventarioStore(state => state.fetchStats);
   const ctruData = useCTRUStore(state => state.productosDetalle);
   const fetchCTRU = useCTRUStore(state => state.fetchAll);
@@ -158,10 +158,10 @@ export const InventarioPageV2: React.FC = () => {
     fetchUnidades();
     fetchStats();
     fetchProductos();
-    fetchAlmacenes();
+    fetchCasillas();
     fetchCTRU();
     fetchLineas();
-  }, [fetchUnidades, fetchStats, fetchProductos, fetchAlmacenes, fetchCTRU, fetchLineas]);
+  }, [fetchUnidades, fetchStats, fetchProductos, fetchCasillas, fetchCTRU, fetchLineas]);
 
   // ==================== STATS DERIVADOS ====================
 
@@ -577,16 +577,17 @@ export const InventarioPageV2: React.FC = () => {
   const ubicacionSel = selecciones.ubicacion?.[0] ?? '';
   const leadingFilter: LeadingFilterConfig = useMemo(() => {
     const TIPO_CONFIG: Record<string, { label: string; icon: LucideIcon; itemIcon: LucideIcon; orden: number }> = {
-      almacen_peru:   { label: 'Almacenes Perú',     icon: Building2, itemIcon: Building2, orden: 1 },
-      almacen_origen: { label: 'Almacenes en origen', icon: Warehouse, itemIcon: Warehouse, orden: 2 },
-      viajero:        { label: 'Viajeros',           icon: User,      itemIcon: User,      orden: 3 },
-      courier:        { label: 'Couriers',           icon: Truck,     itemIcon: Truck,     orden: 4 },
+      almacen_propio:      { label: 'Almacenes propios',     icon: Building2, itemIcon: Building2, orden: 1 },
+      ubicacion_proveedor: { label: 'Ubicaciones proveedor', icon: Warehouse, itemIcon: Warehouse, orden: 2 },
+      casilla_viajero:     { label: 'Viajeros',              icon: User,      itemIcon: User,      orden: 3 },
+      punto_courier:       { label: 'Couriers',              icon: Truck,     itemIcon: Truck,     orden: 4 },
+      almacen_tercero:     { label: 'Almacenes terceros',    icon: Warehouse, itemIcon: Warehouse, orden: 5 },
     };
 
-    // Agrupar almacenes por tipo
-    const porTipo = new Map<string, typeof almacenes>();
-    almacenes.forEach(a => {
-      const tipo = a.tipo || 'almacen_peru';
+    // Agrupar casillas por tipo de ubicación
+    const porTipo = new Map<string, typeof casillas>();
+    casillas.forEach(a => {
+      const tipo = a.tipo || 'almacen_propio';
       if (!porTipo.has(tipo)) porTipo.set(tipo, []);
       porTipo.get(tipo)!.push(a);
     });
@@ -630,7 +631,7 @@ export const InventarioPageV2: React.FC = () => {
         });
       },
     };
-  }, [ubicacionSel, almacenes]);
+  }, [ubicacionSel, casillas]);
 
   const sortOptions: SortOption[] = useMemo(() => [
     { value: 'stock_desc',  label: 'Mayor stock' },
@@ -698,7 +699,7 @@ export const InventarioPageV2: React.FC = () => {
 
     // Ubicación
     (selecciones.ubicacion ?? []).forEach(almacenId => {
-      const almacen = almacenes.find(a => a.id === almacenId);
+      const almacen = casillas.find(a => a.id === almacenId);
       if (!almacen) return;
       chips.push({
         key: `ubicacion:${almacenId}`,
@@ -726,7 +727,7 @@ export const InventarioPageV2: React.FC = () => {
 
     return chips;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pillActivo, selecciones, busqueda, lineasNegocio, almacenes]);
+  }, [pillActivo, selecciones, busqueda, lineasNegocio, casillas]);
 
   const hayFiltrosActivos = useMemo(() => {
     if (Object.values(selecciones).some(v => v.length > 0)) return true;
@@ -1140,7 +1141,7 @@ export const InventarioPageV2: React.FC = () => {
       {tabActivo === 'mapa' && (
         <MapaTab
           unidades={unidades}
-          almacenes={almacenes}
+          almacenes={casillas}
         />
       )}
 
@@ -1157,7 +1158,7 @@ export const InventarioPageV2: React.FC = () => {
             total: inventarioStats.total,
           }}
           ctruData={ctruData}
-          almacenes={almacenes}
+          almacenes={casillas}
         />
       )}
 

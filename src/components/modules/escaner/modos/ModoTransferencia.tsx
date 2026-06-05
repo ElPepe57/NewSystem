@@ -1,13 +1,12 @@
 import React, { useState, useEffect, useCallback, useImperativeHandle, forwardRef, useMemo } from 'react';
 import { ArrowRightLeft, Warehouse, Package, CheckCircle2, Trash2, Minus, Plus, AlertCircle, AlertTriangle, ChevronDown, ChevronUp } from 'lucide-react';
-import { almacenService } from '../../../../services/casilla.service';
 import { casillaCrudService } from '../../../../services/casilla.crud.service';
 import { unidadService } from '../../../../services/unidad.service';
 import { envioCrudService } from '../../../../services/envio.crud.service';
 import { ProductoService } from '../../../../services/producto.service';
 import { useToastStore } from '../../../../store/toastStore';
 import { useAuthStore } from '../../../../store/authStore';
-import type { Almacen } from '../../../../types/almacen.types';
+import type { Casilla } from '../../../../types/casilla.types';
 import type { Unidad } from '../../../../types/unidad.types';
 import type { TipoEnvio } from '../../../../types/envio.types';
 import { VincularUPCModal } from '../VincularUPCModal';
@@ -30,7 +29,7 @@ export const ModoTransferencia = forwardRef<ModoTransferenciaHandle>((_props, re
   const toast = useToastStore();
   const { user } = useAuthStore();
 
-  const [almacenes, setAlmacenes] = useState<Almacen[]>([]);
+  const [almacenes, setAlmacenes] = useState<Casilla[]>([]);
   const [origenId, setOrigenId] = useState('');
   const [destinoId, setDestinoId] = useState('');
   const [loading, setLoading] = useState(true);
@@ -42,7 +41,7 @@ export const ModoTransferencia = forwardRef<ModoTransferenciaHandle>((_props, re
   const [showVincularModal, setShowVincularModal] = useState(false);
   const [notFoundBarcode, setNotFoundBarcode] = useState('');
   const [viajeroId, setViajeroId] = useState('');
-  const [viajeros, setViajeros] = useState<Almacen[]>([]);
+  const [viajeros, setViajeros] = useState<Casilla[]>([]);
   const [numeroTracking, setNumeroTracking] = useState('');
   const [showEnvioFields, setShowEnvioFields] = useState(false);
 
@@ -50,33 +49,16 @@ export const ModoTransferencia = forwardRef<ModoTransferenciaHandle>((_props, re
   useEffect(() => {
     const load = async () => {
       try {
-        const [almLegacy, viajerosData, casillasNuevas] = await Promise.all([
-          almacenService.getAll(),
-          almacenService.getViajeros().catch(() => [] as Almacen[]),
-          casillaCrudService.getAll().catch(() => []),
+        const [todasCasillas, viajerosData] = await Promise.all([
+          casillaCrudService.getAll(),
+          casillaCrudService.getViajeros().catch(() => [] as Casilla[]),
         ]);
 
-        // Unificar: casillas nuevas + almacenes legacy (sin duplicados por id)
-        const idsCasillas = new Set(casillasNuevas.map(c => c.id));
-        const legacyFiltered = almLegacy.filter(a =>
-          !idsCasillas.has(a.id) && a.estadoAlmacen !== 'inactivo' && (a.pais === 'Peru' || a.pais === 'Peru_local')
+        const casillasActivas = todasCasillas.filter(
+          c => c.estado === 'activa' && (c.pais === 'Peru' || c.pais === 'Peru_local')
         );
-        const casillasPeru = casillasNuevas
-          .filter(c => c.estado === 'activa' && (c.pais === 'Peru' || c.pais === 'Peru_local'))
-          // Adaptar forma de Casilla a Almacen para compatibilidad local de UI
-          .map(c => ({
-            id: c.id,
-            codigo: c.codigo,
-            nombre: c.nombre,
-            pais: c.pais,
-            tipo: 'almacen_peru',
-            estadoAlmacen: c.estado === 'activa' ? 'activo' : 'inactivo',
-            direccion: c.direccion || '',
-            ciudad: c.ciudad || '',
-            esViajero: false,
-          } as any as Almacen));
 
-        setAlmacenes([...casillasPeru, ...legacyFiltered]);
+        setAlmacenes(casillasActivas);
         setViajeros(viajerosData);
       } catch {
         toast.error('Error al cargar almacenes');
