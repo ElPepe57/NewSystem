@@ -63,7 +63,6 @@ export const colaboradorService = {
     if (data.ciudad) nuevoDoc.ciudad = data.ciudad;
     if (data.direccion) nuevoDoc.direccion = data.direccion;
     if (data.tarifas) nuevoDoc.tarifas = data.tarifas;
-    if (data.frecuenciaViaje) nuevoDoc.frecuenciaViaje = data.frecuenciaViaje;
     if (data.notas) nuevoDoc.notas = data.notas;
 
     const docRef = await addDoc(collection(db, COLL), nuevoDoc);

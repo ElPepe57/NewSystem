@@ -52,26 +52,10 @@ export interface TramoPeso {
  * Tarifas del colaborador (varia segun tipo)
  */
 export interface TarifasColaborador {
-  // Viajero
-  /** @deprecated S42j — Campo sin consumo en flete/pago/reportes. Se mantiene por retrocompat con datos existentes. */
-  tarifaPorLibraUSD?: number;
-  /** @deprecated S42j — Campo sin consumo en cálculos del negocio. */
-  tarifaFijaPorViajeUSD?: number;
-
-  // Courier externo
-  /** @deprecated S42l — Campo sin consumo en flete/pagos. Retrocompat con datos existentes. */
-  tarifaBasePorEnvioUSD?: number;
-  /** @deprecated S42l — Campo sin consumo. */
-  tarifaPorKgUSD?: number;
-
-  // Transportista local
-  /** @deprecated S42l — Sin uso en cálculos. */
-  tarifaEntregaPEN?: number;
-  /** @deprecated S42l — Sin uso. */
-  zonaCobertura?: string;
-  /** @deprecated S42l — Sin uso. */
+  // Transportista local · ambos VIVOS (mostrados/usados en ProgramarEntrega y selección de transportista)
+  /** % de comisión sobre el valor (se muestra en ProgramarEntregaModal). */
   comisionPorcentaje?: number;
-  /** @deprecated S42l — Sin uso. */
+  /** Costo fijo por entrega (usado en el label de selección de transportista). */
   costoFijo?: number;
 
   /**
@@ -139,20 +123,9 @@ export interface Colaborador {
   // Metricas
   metricas?: MetricasColaborador;
 
-  // Solo viajeros
-  /** @deprecated S42j — Campo sin uso real en el negocio (no participa en cálculos ni decisiones operativas). Se mantiene por retrocompat con datos existentes. */
-  frecuenciaViaje?: 'semanal' | 'quincenal' | 'mensual' | 'bimestral' | 'variable';
-  /** @deprecated S42j — Campo sin consumo en flujo de trabajo. */
-  proximoViaje?: Timestamp;
-
   // Solo transportistas locales
   subtipoTransportista?: SubtipoTransportistaLocal;  // interno | externo (activo en UI)
-  /** @deprecated S42l — Sin uso en UI. */
-  courierExterno?: CourierExterno;
-  /** @deprecated S42l — Dato personal no requerido para flujo operativo. */
-  dni?: string;
-  /** @deprecated S42l — Sin uso. */
-  licencia?: string;
+  courierExterno?: CourierExterno;                   // courier tercerizado (Olva/Shalom) · usado en entregas
 
   // Notas
   notas?: string;
@@ -183,19 +156,10 @@ export interface ColaboradorFormData {
   ciudad?: string;
   direccion?: string;
   tarifas?: TarifasColaborador;
-  /** @deprecated S42j — sin uso real en el negocio. */
-  frecuenciaViaje?: 'semanal' | 'quincenal' | 'mensual' | 'bimestral' | 'variable';
-  /** @deprecated S42j — sin consumo. */
-  proximoViaje?: Date;
   notas?: string;
-  // Solo transportistas locales (subtipo sigue en UI; resto @deprecated S42l)
+  // Solo transportistas locales
   subtipoTransportista?: SubtipoTransportistaLocal;
-  /** @deprecated S42l */
   courierExterno?: CourierExterno;
-  /** @deprecated S42l */
-  dni?: string;
-  /** @deprecated S42l */
-  licencia?: string;
 }
 
 // ============================================
