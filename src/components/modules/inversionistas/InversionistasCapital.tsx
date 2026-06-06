@@ -14,12 +14,15 @@ import {
   Sparkles,
   Banknote,
   ExternalLink,
+  Coins,
 } from 'lucide-react';
 import { formatCurrencyPEN } from '../../../utils/format';
 import { formatFechaCorta } from './shared';
 import type { ResumenInversionista } from '../../../types/inversionista.types';
 // chk5.PERSONAS-v5.7 · E6.2 (2026-05-28) · Click en socio → UserPanel canon F6-E
 import { UserPanel } from '../../usuarios/UserPanel';
+import type { TabContextual } from '../../usuarios/UserPanel';
+import TabCapitalSocio from './TabCapitalSocio';
 import { useSocioStore } from '../../../store/socioStore';
 
 interface Props {
@@ -29,6 +32,8 @@ interface Props {
 export default function InversionistasCapital({ data }: Props) {
   // chk5.PERSONAS-v5.7 · E6.2 · UserPanel state + lookup de userId por socioId
   const [panelUid, setPanelUid] = useState<string | null>(null);
+  // F14.1 · socio del panel (para inyectar el tab "Capital" contextual)
+  const [panelSocioId, setPanelSocioId] = useState<string | null>(null);
   const socios = useSocioStore((s) => s.socios);
 
   // Map { socioId → userId } para lookup rápido en el render
@@ -39,6 +44,20 @@ export default function InversionistasCapital({ data }: Props) {
     });
     return m;
   }, [socios]);
+
+  // F14.1 · tab contextual "Capital" inyectado al UserPanel (hogar del capital
+  // del socio · canon: NO drill-down nuevo, sí TabContextual del panel existente).
+  const tabsCapital = useMemo<TabContextual[]>(() => {
+    if (!panelSocioId) return [];
+    const sid = panelSocioId;
+    return [{
+      id: 'capital',
+      label: 'Capital',
+      icon: Coins,
+      render: () => <TabCapitalSocio socioId={sid} data={data} />,
+    }];
+  }, [panelSocioId, data]);
+
   const totalAportes = data.aportesPorSocio.reduce((a, b) => a + b.totalAportadoPEN, 0);
   const cash = data.capitalComprometido.cashAportadoPEN;
   const tc = data.capitalComprometido.deudaTCPersonalPEN;
@@ -152,7 +171,7 @@ export default function InversionistasCapital({ data }: Props) {
                           {uid ? (
                             <button
                               type="button"
-                              onClick={() => setPanelUid(uid)}
+                              onClick={() => { setPanelUid(uid); setPanelSocioId(a.socioId); }}
                               className="text-[10px] text-purple-700 hover:text-purple-900 hover:bg-purple-50 px-2 py-1 rounded inline-flex items-center gap-1"
                               title="Ver perfil del socio"
                             >
@@ -190,7 +209,7 @@ export default function InversionistasCapital({ data }: Props) {
                         {uid && (
                           <button
                             type="button"
-                            onClick={() => setPanelUid(uid)}
+                            onClick={() => { setPanelUid(uid); setPanelSocioId(a.socioId); }}
                             className="text-[10px] text-purple-700 hover:bg-purple-50 px-1.5 py-0.5 rounded inline-flex items-center gap-0.5"
                             title="Ver perfil"
                           >
@@ -321,7 +340,9 @@ export default function InversionistasCapital({ data }: Props) {
           que /usuarios y /planilla · 5+1 tabs canon. */}
       <UserPanel
         userId={panelUid}
-        onClose={() => setPanelUid(null)}
+        onClose={() => { setPanelUid(null); setPanelSocioId(null); }}
+        tabInicial="capital"
+        tabsContextuales={tabsCapital}
       />
     </div>
   );

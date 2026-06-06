@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Inversionistas · Ficha de Capital del Socio · v1</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script>tailwind.config={theme:{extend:{fontFamily:{sans:['Inter','system-ui','sans-serif']}}}}</script>
+<style>body{font-family:'Inter',system-ui,sans-serif}.tabular{font-variant-numeric:tabular-nums}.no-scrollbar::-webkit-scrollbar{display:none}.no-scrollbar{scrollbar-width:none}.phone{width:375px}</style>
+</head>
+<body class="bg-slate-100 text-slate-900">
+
+<!-- HERO -->
+<header class="bg-gradient-to-br from-violet-600 to-violet-800 text-white">
+  <div class="max-w-6xl mx-auto px-6 py-9">
+    <div class="inline-flex items-center gap-2 text-violet-200 text-[11px] font-bold uppercase tracking-wider mb-3">
+      <i data-lucide="coins" class="w-4 h-4"></i> Inversionistas · violet
+      <span class="ml-1 px-2 py-0.5 bg-white/15 rounded-full normal-case tracking-normal font-semibold">Mockup de feature · alineado al DS</span>
+    </div>
+    <h1 class="text-3xl font-bold tracking-tight mb-2">Ficha de Capital del Socio · el hogar único</h1>
+    <p class="text-violet-100 text-sm max-w-3xl leading-relaxed">
+      Consolida las 4 piezas del capital de un socio en un solo lugar (drill-down desde "Mi Capital"):
+      <strong>Cash · Deuda TC (80% ⭐) · Valor · Fundacional</strong>. Implementa las decisiones D2 (saldo inicial declara socio),
+      D3 (admin edita valor acá), D4 (atajo al wizard de TC).
+    </p>
+  </div>
+</header>
+
+<nav class="bg-white border-b border-slate-200 sticky top-0 z-30">
+  <div class="max-w-6xl mx-auto px-6 py-3 flex flex-wrap gap-x-5 gap-y-1 text-[12px] font-medium text-slate-600">
+    <span class="font-bold text-slate-900">Índice:</span>
+    <a href="#acceso" class="hover:text-violet-700">1 · Acceso</a>
+    <a href="#ficha" class="hover:text-violet-700">2 · Ficha del socio</a>
+    <a href="#tc" class="hover:text-violet-700">3 · Sección TC (80%)</a>
+    <a href="#acciones" class="hover:text-violet-700">4 · Acciones/atajos</a>
+    <a href="#mobile" class="hover:text-violet-700">5 · Mobile</a>
+    <a href="#check" class="hover:text-violet-700">Checklist</a>
+  </div>
+</nav>
+
+<main class="max-w-6xl mx-auto px-6 py-10 space-y-16">
+
+  <!-- ACTO 1 · ACCESO -->
+  <section id="acceso">
+    <div class="flex items-center gap-3 mb-5">
+      <span class="text-[11px] font-bold uppercase tracking-wider text-violet-700 bg-violet-50 px-2.5 py-1 rounded-full">Acto 1</span>
+      <h2 class="text-xl font-bold tracking-tight">Acceso — tab "Mi Capital" → click en socio → su ficha</h2>
+    </div>
+    <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
+      <div class="text-[11px] uppercase tracking-wider text-slate-500 font-bold mb-2">Cap table por socio (la fila ahora abre la ficha completa)</div>
+      <div class="border border-slate-200 rounded-xl divide-y divide-slate-100">
+        <div class="flex items-center gap-3 px-4 py-3 hover:bg-violet-50/40 cursor-pointer ring-1 ring-violet-200 rounded-t-xl">
+          <div class="w-9 h-9 rounded-full bg-violet-100 text-violet-700 flex items-center justify-center text-[13px] font-bold">JL</div>
+          <div class="flex-1"><div class="text-[13px] font-semibold">José López</div><div class="text-[11px] text-slate-500">Co-fundador · 60% · participación mixta</div></div>
+          <div class="hidden sm:flex items-center gap-4 text-right">
+            <div><div class="text-[10px] text-slate-400">Cash</div><div class="text-[12px] font-bold tabular text-emerald-700">S/ 52,000</div></div>
+            <div><div class="text-[10px] text-slate-400">Deuda TC</div><div class="text-[12px] font-bold tabular text-rose-700">S/ 38,400</div></div>
+            <div><div class="text-[10px] text-slate-400">Comprometido</div><div class="text-[12px] font-bold tabular text-violet-700">S/ 90,400</div></div>
+          </div>
+          <i data-lucide="chevron-right" class="w-4 h-4 text-violet-400"></i>
+        </div>
+        <div class="flex items-center gap-3 px-4 py-3 hover:bg-violet-50/40 cursor-pointer">
+          <div class="w-9 h-9 rounded-full bg-violet-100 text-violet-700 flex items-center justify-center text-[13px] font-bold">MP</div>
+          <div class="flex-1"><div class="text-[13px] font-semibold">María Paz</div><div class="text-[11px] text-slate-500">Socia · 40% · cash puro</div></div>
+          <div class="hidden sm:flex items-center gap-4 text-right">
+            <div><div class="text-[10px] text-slate-400">Cash</div><div class="text-[12px] font-bold tabular text-emerald-700">S/ 32,500</div></div>
+            <div><div class="text-[10px] text-slate-400">Deuda TC</div><div class="text-[12px] font-bold tabular text-slate-400">—</div></div>
+            <div><div class="text-[10px] text-slate-400">Comprometido</div><div class="text-[12px] font-bold tabular text-violet-700">S/ 32,500</div></div>
+          </div>
+          <i data-lucide="chevron-right" class="w-4 h-4 text-violet-400"></i>
+        </div>
+      </div>
+      <p class="text-[11px] text-slate-400 mt-2 flex items-center gap-1.5"><i data-lucide="mouse-pointer-click" class="w-3.5 h-3.5"></i> Click en José → abre su Ficha de Capital (abajo).</p>
+    </div>
+  </section>
+
+  <!-- ACTO 2 · FICHA DEL SOCIO -->
+  <section id="ficha">
+    <div class="flex items-center gap-3 mb-5">
+      <span class="text-[11px] font-bold uppercase tracking-wider text-violet-700 bg-violet-50 px-2.5 py-1 rounded-full">Acto 2</span>
+      <h2 class="text-xl font-bold tracking-tight">Ficha de Capital del Socio (desktop)</h2>
+    </div>
+
+    <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+      <!-- header socio -->
+      <div class="px-6 py-4 border-b border-slate-100 flex items-start justify-between gap-4">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-full bg-violet-100 text-violet-700 flex items-center justify-center text-base font-bold">JL</div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h3 class="text-lg font-semibold tracking-tight">José López</h3>
+              <span class="text-[10px] font-bold px-2 py-0.5 bg-violet-100 text-violet-700 rounded-full">60% · mixta</span>
+            </div>
+            <p class="text-[12px] text-slate-500">Co-fundador · CEO · desde mar 2024</p>
+          </div>
+        </div>
+        <button class="text-[12px] text-slate-500 hover:text-slate-700 flex items-center gap-1"><i data-lucide="arrow-left" class="w-3.5 h-3.5"></i> Volver a Mi Capital</button>
+      </div>
+
+      <!-- banner salud capital del socio -->
+      <div class="mx-6 mt-4 rounded-xl border border-amber-200 bg-amber-50/60 px-4 py-3 flex items-center gap-3">
+        <div class="w-9 h-9 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center"><i data-lucide="gauge" class="w-5 h-5"></i></div>
+        <div class="flex-1">
+          <div class="text-[13px] font-semibold text-amber-900">Apalancado · 42% de su capital es deuda TC</div>
+          <div class="text-[11px] text-amber-700">Soberanía financiera estimada: <strong>14 meses</strong> para liberar la deuda al ritmo actual.</div>
+        </div>
+      </div>
+
+      <!-- KPI strip 4 -->
+      <div class="px-6 py-4 grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <div class="bg-gradient-to-br from-violet-50 to-violet-100/40 ring-1 ring-violet-200/50 rounded-2xl p-4">
+          <div class="flex items-center justify-between mb-1"><span class="text-[10px] uppercase tracking-wider text-violet-700 font-bold">Comprometido</span><i data-lucide="layers" class="w-3.5 h-3.5 text-violet-700"></i></div>
+          <div class="text-[22px] font-bold tabular text-violet-900">S/ 90,400</div>
+          <div class="text-[11px] text-violet-700 mt-0.5">cash + deuda TC</div>
+        </div>
+        <div class="bg-gradient-to-br from-emerald-50 to-emerald-100/40 ring-1 ring-emerald-200/50 rounded-2xl p-4">
+          <div class="flex items-center justify-between mb-1"><span class="text-[10px] uppercase tracking-wider text-emerald-700 font-bold">Cash aportado</span><i data-lucide="banknote" class="w-3.5 h-3.5 text-emerald-700"></i></div>
+          <div class="text-[22px] font-bold tabular text-emerald-900">S/ 52,000</div>
+          <div class="text-[11px] text-emerald-700 mt-0.5">5 aportes · 58%</div>
+        </div>
+        <div class="bg-gradient-to-br from-rose-50 to-rose-100/40 ring-1 ring-rose-200/50 rounded-2xl p-4">
+          <div class="flex items-center justify-between mb-1"><span class="text-[10px] uppercase tracking-wider text-rose-700 font-bold">Deuda TC vigente</span><i data-lucide="credit-card" class="w-3.5 h-3.5 text-rose-700"></i></div>
+          <div class="text-[22px] font-bold tabular text-rose-900">S/ 38,400</div>
+          <div class="text-[11px] text-rose-700 mt-0.5">2 tarjetas · 64% uso</div>
+        </div>
+        <div class="bg-gradient-to-br from-sky-50 to-sky-100/40 ring-1 ring-sky-200/50 rounded-2xl p-4">
+          <div class="flex items-center justify-between mb-1"><span class="text-[10px] uppercase tracking-wider text-sky-700 font-bold">Valor estimado</span><i data-lucide="brain" class="w-3.5 h-3.5 text-sky-700"></i></div>
+          <div class="text-[22px] font-bold tabular text-sky-900">S/ 40,000</div>
+          <div class="text-[11px] text-sky-700 mt-0.5">aparte del monetario</div>
+        </div>
+      </div>
+
+      <!-- secciones consolidadas -->
+      <div class="px-6 pb-6 grid grid-cols-1 lg:grid-cols-2 gap-4">
+
+        <!-- CASH -->
+        <div class="border border-slate-200 rounded-xl overflow-hidden">
+          <div class="px-4 py-2.5 bg-emerald-50/50 border-b border-emerald-100 flex items-center justify-between">
+            <div class="flex items-center gap-2 text-[12px] font-bold text-emerald-800"><i data-lucide="banknote" class="w-4 h-4"></i> Cash aportado</div>
+            <button class="text-[11px] font-semibold text-emerald-700 bg-white border border-emerald-200 hover:bg-emerald-50 px-2 py-1 rounded-lg flex items-center gap-1"><i data-lucide="plus" class="w-3.5 h-3.5"></i> Aporte</button>
+          </div>
+          <div class="divide-y divide-slate-100 text-[12px]">
+            <div class="flex items-center justify-between px-4 py-2.5">
+              <div><div class="font-medium">Aporte inicial</div><div class="text-[10px] text-slate-400">mar 2024 · BCP Corriente</div></div>
+              <div class="flex items-center gap-2"><span class="text-[9px] px-1.5 py-0.5 bg-amber-100 text-amber-700 rounded-full font-bold">FUNDACIONAL</span><span class="tabular font-bold text-emerald-700">S/ 30,000</span></div>
+            </div>
+            <div class="flex items-center justify-between px-4 py-2.5">
+              <div><div class="font-medium">Aporte</div><div class="text-[10px] text-slate-400">ago 2024 · Efectivo</div></div>
+              <span class="tabular font-bold text-emerald-700">S/ 12,000</span>
+            </div>
+            <div class="flex items-center justify-between px-4 py-2.5">
+              <div><div class="font-medium">Aporte</div><div class="text-[10px] text-slate-400">feb 2025 · Transferencia</div></div>
+              <span class="tabular font-bold text-emerald-700">S/ 10,000</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- VALOR (editable por admin · D3) -->
+        <div class="border border-slate-200 rounded-xl overflow-hidden">
+          <div class="px-4 py-2.5 bg-sky-50/50 border-b border-sky-100 flex items-center justify-between">
+            <div class="flex items-center gap-2 text-[12px] font-bold text-sky-800"><i data-lucide="brain" class="w-4 h-4"></i> Aporte de valor</div>
+            <button class="text-[11px] font-semibold text-sky-700 bg-white border border-sky-200 hover:bg-sky-50 px-2 py-1 rounded-lg flex items-center gap-1"><i data-lucide="pencil" class="w-3.5 h-3.5"></i> Editar</button>
+          </div>
+          <div class="px-4 py-3 space-y-2">
+            <div class="flex flex-wrap gap-1.5">
+              <span class="text-[10px] px-2 py-0.5 bg-sky-100 text-sky-700 rounded-full font-semibold">Know-how</span>
+              <span class="text-[10px] px-2 py-0.5 bg-sky-100 text-sky-700 rounded-full font-semibold">Gestión CEO</span>
+              <span class="text-[10px] px-2 py-0.5 bg-sky-100 text-sky-700 rounded-full font-semibold">Marca personal</span>
+            </div>
+            <p class="text-[11px] text-slate-600 leading-relaxed">"20 años en industria skincare · cartera de 500 clientes · CEO full-time sin sueldo de mercado."</p>
+            <div class="flex items-center gap-2 text-[11px] pt-1 border-t border-slate-100">
+              <span class="text-slate-400">Valuación estimada:</span>
+              <span class="tabular font-bold text-sky-700">S/ 40,000</span>
+              <span class="text-[9px] px-1.5 py-0.5 bg-slate-100 text-slate-500 rounded-full ml-auto">privado · datosSocio</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- nota privacidad -->
+      <div class="mx-6 mb-6 -mt-1 text-[10px] text-slate-400 flex items-center gap-1.5">
+        <i data-lucide="shield" class="w-3.5 h-3.5"></i> El aporte de valor persiste en el sub-perfil privado del socio (<code>datosSocio</code>). Editable acá por admin/gerente (D3) o por el socio en su Perfil.
+      </div>
+    </div>
+  </section>
+
+  <!-- ACTO 3 · SECCIÓN TC (PROTAGONISTA) -->
+  <section id="tc">
+    <div class="flex items-center gap-3 mb-5">
+      <span class="text-[11px] font-bold uppercase tracking-wider text-rose-700 bg-rose-50 px-2.5 py-1 rounded-full">Acto 3 · el 80%</span>
+      <h2 class="text-xl font-bold tracking-tight">Sección Deuda TC — protagonista, con des-apalancamiento</h2>
+    </div>
+    <div class="bg-white border-2 border-rose-200 rounded-2xl shadow-sm overflow-hidden">
+      <div class="px-6 py-3 bg-rose-50/50 border-b border-rose-100 flex items-center justify-between">
+        <div class="flex items-center gap-2 text-[13px] font-bold text-rose-800"><i data-lucide="credit-card" class="w-4.5 h-4.5"></i> Tarjetas de crédito personales asumidas por el negocio</div>
+        <button class="text-[12px] font-semibold text-white bg-violet-600 hover:bg-violet-700 px-3 py-1.5 rounded-lg flex items-center gap-1.5"><i data-lucide="plus-circle" class="w-4 h-4"></i> Registrar TC del socio</button>
+      </div>
+
+      <!-- tarjetas -->
+      <div class="px-6 py-4 space-y-3">
+        <!-- TC 1 -->
+        <div class="border border-slate-200 rounded-xl p-4">
+          <div class="flex items-center justify-between mb-2">
+            <div class="flex items-center gap-2">
+              <div class="w-8 h-8 rounded-lg bg-rose-50 text-rose-700 flex items-center justify-center"><i data-lucide="credit-card" class="w-4 h-4"></i></div>
+              <div><div class="text-[13px] font-semibold">BCP Visa Signature</div><div class="text-[10px] text-slate-400">USD · corte día 15 · pago día 5</div></div>
+            </div>
+            <div class="text-right"><div class="text-[10px] text-slate-400">Deuda vigente</div><div class="text-[14px] font-bold tabular text-rose-700">S/ 24,800</div></div>
+          </div>
+          <div class="flex items-center justify-between text-[10px] text-slate-500 mb-1">
+            <span>Utilizado S/ 24,800 de S/ 35,000</span><span class="font-bold text-rose-600">71%</span>
+          </div>
+          <div class="h-2 rounded-full bg-slate-100 overflow-hidden"><div class="h-full bg-rose-500" style="width:71%"></div></div>
+        </div>
+        <!-- TC 2 -->
+        <div class="border border-slate-200 rounded-xl p-4">
+          <div class="flex items-center justify-between mb-2">
+            <div class="flex items-center gap-2">
+              <div class="w-8 h-8 rounded-lg bg-rose-50 text-rose-700 flex items-center justify-center"><i data-lucide="credit-card" class="w-4 h-4"></i></div>
+              <div><div class="text-[13px] font-semibold">Interbank Mastercard</div><div class="text-[10px] text-slate-400">PEN · corte día 20 · pago día 10</div></div>
+            </div>
+            <div class="text-right"><div class="text-[10px] text-slate-400">Deuda vigente</div><div class="text-[14px] font-bold tabular text-rose-700">S/ 13,600</div></div>
+          </div>
+          <div class="flex items-center justify-between text-[10px] text-slate-500 mb-1">
+            <span>Utilizado S/ 13,600 de S/ 25,000</span><span class="font-bold text-amber-600">54%</span>
+          </div>
+          <div class="h-2 rounded-full bg-slate-100 overflow-hidden"><div class="h-full bg-amber-500" style="width:54%"></div></div>
+        </div>
+      </div>
+
+      <!-- des-apalancamiento / soberanía -->
+      <div class="mx-6 mb-5 rounded-xl bg-gradient-to-br from-violet-50 to-violet-100/30 border border-violet-200 p-4">
+        <div class="flex items-center gap-2 text-[12px] font-bold text-violet-800 mb-2"><i data-lucide="target" class="w-4 h-4"></i> Plan de des-apalancamiento (Soberanía financiera)</div>
+        <div class="flex items-center justify-between text-[11px] text-slate-600 mb-1.5">
+          <span>S/ 38,400 de deuda · pagando ~S/ 2,750/mes (30% utilidad)</span>
+          <span class="font-bold text-violet-700">14 meses</span>
+        </div>
+        <div class="h-2.5 rounded-full bg-white/70 overflow-hidden mb-1"><div class="h-full bg-gradient-to-r from-violet-500 to-emerald-500" style="width:36%"></div></div>
+        <div class="text-[10px] text-slate-500">Liberación estimada: <strong>ago 2027</strong> · 36% del camino recorrido desde el pico de deuda.</div>
+      </div>
+    </div>
+    <p class="text-center text-[11px] text-slate-400 mt-3">La deuda (<code>lineaCredito.utilizado</code>) es lo que el modelo nuevo <strong class="text-rose-600">aún no sabe modelar</strong> (D1) — por eso bloquea la migración hasta resolverlo.</p>
+  </section>
+
+  <!-- ACTO 4 · ACCIONES / ATAJOS -->
+  <section id="acciones">
+    <div class="flex items-center gap-3 mb-5">
+      <span class="text-[11px] font-bold uppercase tracking-wider text-slate-700 bg-slate-100 px-2.5 py-1 rounded-full">Acto 4</span>
+      <h2 class="text-xl font-bold tracking-tight">Acciones del hogar — cada pieza, su atajo</h2>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div class="bg-white border border-emerald-200 rounded-xl p-4">
+        <div class="flex items-center gap-2 mb-2"><i data-lucide="banknote" class="w-4 h-4 text-emerald-600"></i><span class="text-[12px] font-bold">Registrar aporte</span></div>
+        <p class="text-[11px] text-slate-600 mb-2">Abre el modal de aporte (mockup <code>inversionistas-capital-movimiento-v1</code>), socio pre-cargado.</p>
+        <span class="text-[10px] px-2 py-0.5 bg-emerald-50 text-emerald-700 rounded-full">FormModalV2 · existente</span>
+      </div>
+      <div class="bg-white border-2 border-rose-200 rounded-xl p-4">
+        <div class="flex items-center gap-2 mb-2"><i data-lucide="credit-card" class="w-4 h-4 text-rose-600"></i><span class="text-[12px] font-bold">Registrar TC del socio (D4)</span></div>
+        <p class="text-[11px] text-slate-600 mb-2">Abre el <strong>CuentaWizard pre-contextualizado</strong>: tipo crédito + titularidad personal + socio. Reusa el wizard, no duplica.</p>
+        <span class="text-[10px] px-2 py-0.5 bg-rose-50 text-rose-700 rounded-full">Atajo → wizard real</span>
+      </div>
+      <div class="bg-white border border-sky-200 rounded-xl p-4">
+        <div class="flex items-center gap-2 mb-2"><i data-lucide="brain" class="w-4 h-4 text-sky-600"></i><span class="text-[12px] font-bold">Editar valor (D3)</span></div>
+        <p class="text-[11px] text-slate-600 mb-2">Form embebido (admin/gerente) que persiste en <code>datosSocio</code> privado. Tipos + descripción + valuación.</p>
+        <span class="text-[10px] px-2 py-0.5 bg-sky-50 text-sky-700 rounded-full">FormModalV2 · admin</span>
+      </div>
+    </div>
+    <!-- atribución fundacional D2 -->
+    <div class="mt-4 bg-amber-50/60 border border-amber-200 rounded-xl p-4 flex items-start gap-3">
+      <i data-lucide="flag" class="w-5 h-5 text-amber-600 mt-0.5 shrink-0"></i>
+      <div class="text-[12px] text-slate-700">
+        <strong class="text-amber-900">Atribución del fundacional (D2):</strong> cuando una cuenta se crea con saldo inicial, el wizard ofrece "¿es aporte de un socio?".
+        Si sí → aparece acá como aporte <span class="text-[9px] px-1.5 py-0.5 bg-amber-100 text-amber-700 rounded-full font-bold">FUNDACIONAL</span> sin doble conteo (el saldo ya existe, solo se atribuye).
+      </div>
+    </div>
+  </section>
+
+  <!-- ACTO 5 · MOBILE -->
+  <section id="mobile">
+    <div class="flex items-center gap-3 mb-5">
+      <span class="text-[11px] font-bold uppercase tracking-wider text-violet-700 bg-violet-50 px-2.5 py-1 rounded-full">Acto 5</span>
+      <h2 class="text-xl font-bold tracking-tight">Mobile (375px) — ficha apilada, TC destacada</h2>
+    </div>
+    <div class="flex justify-center">
+      <div class="phone bg-white rounded-[2rem] border-4 border-slate-800 overflow-hidden shadow-xl">
+        <div class="bg-slate-50 px-4 py-2 flex items-center gap-1 text-[10px] text-slate-500 border-b border-slate-200">
+          <span>Mi Capital</span><i data-lucide="chevron-right" class="w-3 h-3"></i><span class="text-violet-700 font-semibold">José López</span>
+        </div>
+        <!-- header socio -->
+        <div class="px-4 py-3 flex items-center gap-2 border-b border-slate-100">
+          <div class="w-10 h-10 rounded-full bg-violet-100 text-violet-700 flex items-center justify-center text-[14px] font-bold">JL</div>
+          <div class="flex-1"><div class="text-[14px] font-semibold">José López</div><div class="text-[10px] text-slate-500">60% · mixta</div></div>
+        </div>
+        <!-- KPI scroll-x -->
+        <div class="flex gap-2 overflow-x-auto no-scrollbar px-4 py-3">
+          <div class="shrink-0 w-32 bg-gradient-to-br from-violet-50 to-violet-100/40 ring-1 ring-violet-200/50 rounded-xl p-3"><div class="text-[9px] uppercase tracking-wider text-violet-700 font-bold">Comprometido</div><div class="text-base font-bold tabular text-violet-900">S/ 90.4k</div></div>
+          <div class="shrink-0 w-32 bg-gradient-to-br from-emerald-50 to-emerald-100/40 ring-1 ring-emerald-200/50 rounded-xl p-3"><div class="text-[9px] uppercase tracking-wider text-emerald-700 font-bold">Cash</div><div class="text-base font-bold tabular text-emerald-900">S/ 52k</div></div>
+          <div class="shrink-0 w-32 bg-gradient-to-br from-rose-50 to-rose-100/40 ring-1 ring-rose-200/50 rounded-xl p-3"><div class="text-[9px] uppercase tracking-wider text-rose-700 font-bold">Deuda TC</div><div class="text-base font-bold tabular text-rose-900">S/ 38.4k</div></div>
+        </div>
+        <!-- TC destacada -->
+        <div class="px-4 pb-2">
+          <div class="border-2 border-rose-200 rounded-xl p-3">
+            <div class="flex items-center justify-between mb-2"><span class="text-[11px] font-bold text-rose-800 flex items-center gap-1"><i data-lucide="credit-card" class="w-3.5 h-3.5"></i> Deuda TC (80%)</span><span class="text-[12px] font-bold tabular text-rose-700">S/ 38,400</span></div>
+            <div class="space-y-1.5">
+              <div><div class="flex justify-between text-[9px] text-slate-500 mb-0.5"><span>BCP Visa · 71%</span></div><div class="h-1.5 rounded-full bg-slate-100"><div class="h-full bg-rose-500 rounded-full" style="width:71%"></div></div></div>
+              <div><div class="flex justify-between text-[9px] text-slate-500 mb-0.5"><span>Interbank · 54%</span></div><div class="h-1.5 rounded-full bg-slate-100"><div class="h-full bg-amber-500 rounded-full" style="width:54%"></div></div></div>
+            </div>
+            <div class="mt-2 pt-2 border-t border-slate-100 text-[10px] text-violet-700 font-semibold flex items-center gap-1"><i data-lucide="target" class="w-3 h-3"></i> Soberanía: 14 meses</div>
+          </div>
+        </div>
+        <!-- acciones -->
+        <div class="px-4 py-3 grid grid-cols-3 gap-1.5">
+          <button class="flex flex-col items-center gap-1 py-2.5 rounded-lg border border-emerald-200 bg-emerald-50 text-emerald-700"><i data-lucide="plus" class="w-4 h-4"></i><span class="text-[10px] font-bold">Aporte</span></button>
+          <button class="flex flex-col items-center gap-1 py-2.5 rounded-lg border border-rose-200 bg-rose-50 text-rose-700"><i data-lucide="credit-card" class="w-4 h-4"></i><span class="text-[10px] font-bold">TC</span></button>
+          <button class="flex flex-col items-center gap-1 py-2.5 rounded-lg border border-sky-200 bg-sky-50 text-sky-700"><i data-lucide="brain" class="w-4 h-4"></i><span class="text-[10px] font-bold">Valor</span></button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CHECKLIST -->
+  <section id="check" class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+    <h2 class="text-lg font-bold tracking-tight mb-4 flex items-center gap-2"><i data-lucide="clipboard-check" class="w-5 h-5 text-violet-600"></i> Checklist canon</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2 text-[12px]">
+      <div class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-600"></i> Hogar único: consolida las 4 piezas del capital</div>
+      <div class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-600"></i> TC protagonista (sección propia + des-apalancamiento)</div>
+      <div class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-600"></i> D2 · fundacional atribuido (badge, sin doble conteo)</div>
+      <div class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-600"></i> D3 · valor editable por admin (nota privacidad datosSocio)</div>
+      <div class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-600"></i> D4 · atajo "Registrar TC" → wizard pre-contextualizado</div>
+      <div class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-600"></i> Acceso por drill-down desde Mi Capital</div>
+      <div class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-600"></i> Color violet (chrome) + semántico (cash/TC/valor)</div>
+      <div class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-600"></i> Mobile 375px (KPI scroll-x · TC destacada · acciones)</div>
+    </div>
+    <div class="mt-5 pt-4 border-t border-slate-100 text-[11px] text-slate-500 leading-relaxed">
+      <strong class="text-slate-700">Pendiente de validar con vos:</strong> (1) ¿la ficha es drill-down dentro de "Mi Capital" o merece su propia tab? ·
+      (2) ¿el des-apalancamiento va en la ficha del socio o solo en la tab Soberanía global? · (3) ¿faltan estados (socio cash-puro sin TC · socio valor-puro)?
+    </div>
+  </section>
+
+</main>
+
+<footer class="bg-slate-900 text-slate-400 text-[11px] py-6 text-center">
+  Inversionistas · Ficha de Capital del Socio · v1 · 2026-06-06 · hogar único del capital (cash + TC 80% + valor + fundacional) · alineado al DS
+</footer>
+<script>lucide.createIcons();</script>
+</body>
+</html>

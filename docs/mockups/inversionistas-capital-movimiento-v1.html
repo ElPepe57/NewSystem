@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Inversionistas · Registrar aporte / retiro de capital · v1</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script>
+  tailwind.config = { theme: { extend: {
+    fontFamily: { sans: ['Inter','system-ui','sans-serif'] },
+  } } }
+</script>
+<style>
+  body { font-family: 'Inter', system-ui, sans-serif; }
+  .tabular { font-variant-numeric: tabular-nums; }
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { scrollbar-width: none; }
+  .phone { width: 375px; }
+</style>
+</head>
+<body class="bg-slate-100 text-slate-900">
+
+<!-- ===================== HERO ===================== -->
+<header class="bg-gradient-to-br from-violet-600 to-violet-800 text-white">
+  <div class="max-w-6xl mx-auto px-6 py-10">
+    <div class="flex items-center gap-2 text-violet-200 text-[11px] font-bold uppercase tracking-wider mb-3">
+      <i data-lucide="coins" class="w-4 h-4"></i> Inversionistas · grupo Equipo · violet
+      <span class="ml-2 px-2 py-0.5 bg-white/15 rounded-full normal-case tracking-normal font-semibold">Mockup de feature · nace alineado al DS</span>
+    </div>
+    <h1 class="text-3xl font-bold tracking-tight mb-2">Registrar aporte / retiro de capital</h1>
+    <p class="text-violet-100 text-sm max-w-2xl leading-relaxed">
+      Operación <strong>exclusiva de Inversionistas</strong> (decisión AI 2026-06-05). El aporte/retiro es una
+      transacción socio↔negocio: su <strong>origen</strong> vive acá, contextual al socio. Su <strong>efecto financiero</strong>
+      (movimiento + saldo) sigue 100% visible en el libro de Finanzas — solo cambia <em>de dónde se dispara</em>.
+    </p>
+    <div class="mt-5 flex flex-wrap gap-2 text-[11px]">
+      <span class="px-2.5 py-1 bg-white/15 rounded-lg">FormModalV2 · iconTone violet</span>
+      <span class="px-2.5 py-1 bg-white/15 rounded-lg">Chrome violet · datos semánticos</span>
+      <span class="px-2.5 py-1 bg-white/15 rounded-lg">socioId obligatorio</span>
+      <span class="px-2.5 py-1 bg-white/15 rounded-lg">Cobertura total + mobile 375px</span>
+    </div>
+  </div>
+</header>
+
+<!-- ===================== ÍNDICE ===================== -->
+<nav class="bg-white border-b border-slate-200 sticky top-0 z-30">
+  <div class="max-w-6xl mx-auto px-6 py-3 flex flex-wrap gap-x-5 gap-y-1 text-[12px] font-medium text-slate-600">
+    <span class="font-bold text-slate-900">Índice:</span>
+    <a href="#flujo" class="hover:text-violet-700">0 · Flujo end-to-end</a>
+    <a href="#acto1" class="hover:text-violet-700">1 · Punto de entrada</a>
+    <a href="#acto2" class="hover:text-violet-700">2 · Modal Aporte</a>
+    <a href="#acto3" class="hover:text-violet-700">3 · Modal Retiro</a>
+    <a href="#acto4" class="hover:text-violet-700">4 · Estados</a>
+    <a href="#acto5" class="hover:text-violet-700">5 · Mobile</a>
+    <a href="#check" class="hover:text-violet-700">Checklist</a>
+  </div>
+</nav>
+
+<main class="max-w-6xl mx-auto px-6 py-10 space-y-16">
+
+  <!-- ===================== FLUJO END-TO-END ===================== -->
+  <section id="flujo">
+    <div class="flex items-center gap-3 mb-5">
+      <span class="text-[11px] font-bold uppercase tracking-wider text-violet-700 bg-violet-50 px-2.5 py-1 rounded-full">Flujo 0</span>
+      <h2 class="text-xl font-bold tracking-tight">El flujo completo — de la acción al efecto en métricas</h2>
+    </div>
+    <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+      <div class="grid grid-cols-1 md:grid-cols-5 gap-3">
+        <!-- paso 1 -->
+        <div class="relative bg-violet-50/50 border border-violet-200 rounded-xl p-4">
+          <div class="w-7 h-7 rounded-lg bg-violet-600 text-white flex items-center justify-center text-sm font-bold mb-2">1</div>
+          <div class="text-[13px] font-semibold text-slate-900 mb-1">Entrada contextual</div>
+          <p class="text-[11px] text-slate-600 leading-relaxed">Tab <strong>Mi Capital</strong> → botón "Registrar capital" o acción rápida <strong>+Aporte / −Retiro</strong> en la fila del socio.</p>
+        </div>
+        <!-- paso 2 -->
+        <div class="relative bg-violet-50/50 border border-violet-200 rounded-xl p-4">
+          <div class="w-7 h-7 rounded-lg bg-violet-600 text-white flex items-center justify-center text-sm font-bold mb-2">2</div>
+          <div class="text-[13px] font-semibold text-slate-900 mb-1">Modal pre-contextualizado</div>
+          <p class="text-[11px] text-slate-600 leading-relaxed">Socio ya seleccionado + modo (aporte/retiro). Completás monto, cuenta, método, fecha.</p>
+        </div>
+        <!-- paso 3 -->
+        <div class="relative bg-amber-50/50 border border-amber-200 rounded-xl p-4">
+          <div class="w-7 h-7 rounded-lg bg-amber-500 text-white flex items-center justify-center text-sm font-bold mb-2">3</div>
+          <div class="text-[13px] font-semibold text-slate-900 mb-1">Preview del efecto</div>
+          <p class="text-[11px] text-slate-600 leading-relaxed">El modal muestra <strong>antes → después</strong> del capital comprometido del socio. Decisión informada.</p>
+        </div>
+        <!-- paso 4 -->
+        <div class="relative bg-emerald-50/50 border border-emerald-200 rounded-xl p-4">
+          <div class="w-7 h-7 rounded-lg bg-emerald-600 text-white flex items-center justify-center text-sm font-bold mb-2">4</div>
+          <div class="text-[13px] font-semibold text-slate-900 mb-1">Registro atómico</div>
+          <p class="text-[11px] text-slate-600 leading-relaxed">Movimiento (libro) + saldo de cuenta + espejo capital. <strong>Visible en Finanzas.</strong></p>
+        </div>
+        <!-- paso 5 -->
+        <div class="relative bg-emerald-50/50 border border-emerald-200 rounded-xl p-4">
+          <div class="w-7 h-7 rounded-lg bg-emerald-600 text-white flex items-center justify-center text-sm font-bold mb-2">5</div>
+          <div class="text-[13px] font-semibold text-slate-900 mb-1">Métricas actualizadas</div>
+          <p class="text-[11px] text-slate-600 leading-relaxed">Toast success + Mi Capital, Equity, ROI dual y Soberanía recalculan.</p>
+        </div>
+      </div>
+      <div class="mt-4 flex items-start gap-2 text-[11px] text-slate-500 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2">
+        <i data-lucide="git-branch" class="w-3.5 h-3.5 mt-0.5 shrink-0 text-slate-400"></i>
+        <span><strong class="text-slate-700">Servicio sin cambio:</strong> la UI invoca <code class="bg-slate-200 px-1 rounded">registrarAporteCapital</code> / <code class="bg-slate-200 px-1 rounded">registrarRetiroCapital</code> existentes. El movimiento sigue apareciendo en el libro/flujo de caja de Finanzas — no se esconde, solo cambia el origen de la acción.</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== ACTO 1 · PUNTO DE ENTRADA ===================== -->
+  <section id="acto1">
+    <div class="flex items-center gap-3 mb-5">
+      <span class="text-[11px] font-bold uppercase tracking-wider text-violet-700 bg-violet-50 px-2.5 py-1 rounded-full">Acto 1</span>
+      <h2 class="text-xl font-bold tracking-tight">Punto de entrada — tab "Mi Capital" (desktop)</h2>
+    </div>
+
+    <!-- Shell del hub (recortado a la tab Mi Capital) -->
+    <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+      <!-- top-bar -->
+      <div class="border-b border-slate-200 px-6 py-2.5 bg-slate-50 flex items-center justify-between">
+        <div class="flex items-center gap-1.5 text-[11px] text-slate-500">
+          <span class="hover:text-slate-700">Inicio</span>
+          <i data-lucide="chevron-right" class="w-3 h-3"></i>
+          <span class="hover:text-slate-700">Inversionistas</span>
+          <i data-lucide="chevron-right" class="w-3 h-3"></i>
+          <span class="text-violet-700 font-semibold">Mi Capital</span>
+        </div>
+        <div class="flex items-center gap-1.5 text-[11px] font-semibold text-violet-700">
+          <i data-lucide="shield" class="w-3.5 h-3.5"></i> Vista ejecutiva · admin
+        </div>
+      </div>
+
+      <!-- header banking-grade -->
+      <div class="px-6 py-4 flex items-start justify-between gap-4 border-b border-slate-100">
+        <div class="flex items-start gap-3">
+          <div class="w-10 h-10 rounded-xl bg-violet-50 border border-violet-200 text-violet-700 flex items-center justify-center">
+            <i data-lucide="coins" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h3 class="text-lg font-semibold tracking-tight">Mi Capital</h3>
+            <p class="text-[13px] text-slate-500 leading-snug">Cash aportado · deuda TC personal · cap table por socio</p>
+          </div>
+        </div>
+        <!-- acción primaria del módulo -->
+        <button class="inline-flex items-center gap-1.5 bg-violet-600 hover:bg-violet-700 text-white text-[13px] font-semibold px-3.5 py-2 rounded-lg shadow-sm">
+          <i data-lucide="plus-circle" class="w-4 h-4"></i> Registrar capital
+        </button>
+      </div>
+
+      <!-- KPI strip cap table (semántico) -->
+      <div class="px-6 py-4 grid grid-cols-1 sm:grid-cols-3 gap-3 bg-slate-50/30">
+        <div class="bg-gradient-to-br from-emerald-50 to-emerald-100/40 ring-1 ring-emerald-200/50 rounded-2xl p-4">
+          <div class="flex items-center justify-between mb-1.5">
+            <span class="text-[10px] uppercase tracking-wider text-emerald-700 font-bold">Cash aportado</span>
+            <i data-lucide="banknote" class="w-3.5 h-3.5 text-emerald-700"></i>
+          </div>
+          <div class="text-[22px] font-bold tabular text-emerald-900">S/ 84,500<span class="text-emerald-400">.00</span></div>
+          <div class="text-[11px] text-emerald-700 mt-0.5">62% del valor monetario</div>
+        </div>
+        <div class="bg-gradient-to-br from-rose-50 to-rose-100/40 ring-1 ring-rose-200/50 rounded-2xl p-4">
+          <div class="flex items-center justify-between mb-1.5">
+            <span class="text-[10px] uppercase tracking-wider text-rose-700 font-bold">Deuda TC personal</span>
+            <i data-lucide="credit-card" class="w-3.5 h-3.5 text-rose-700"></i>
+          </div>
+          <div class="text-[22px] font-bold tabular text-rose-900">S/ 51,200<span class="text-rose-400">.00</span></div>
+          <div class="text-[11px] text-rose-700 mt-0.5">38% · apalancamiento vigente</div>
+        </div>
+        <div class="bg-gradient-to-br from-violet-50 to-violet-100/40 ring-1 ring-violet-200/50 rounded-2xl p-4">
+          <div class="flex items-center justify-between mb-1.5">
+            <span class="text-[10px] uppercase tracking-wider text-violet-700 font-bold">Capital comprometido</span>
+            <i data-lucide="layers" class="w-3.5 h-3.5 text-violet-700"></i>
+          </div>
+          <div class="text-[22px] font-bold tabular text-violet-900">S/ 135,700<span class="text-violet-400">.00</span></div>
+          <div class="text-[11px] text-violet-700 mt-0.5">cash + deuda TC</div>
+        </div>
+      </div>
+
+      <!-- tabla aportes por socio con acciones rápidas -->
+      <div class="px-6 pb-5">
+        <div class="text-[11px] uppercase tracking-wider text-slate-500 font-bold mb-2 mt-1">Por socio</div>
+        <div class="border border-slate-200 rounded-xl overflow-hidden divide-y divide-slate-100">
+          <!-- fila socio 1 -->
+          <div class="flex items-center gap-3 px-4 py-3 hover:bg-slate-50/60">
+            <div class="w-9 h-9 rounded-full bg-violet-100 text-violet-700 flex items-center justify-center text-[13px] font-bold">JL</div>
+            <div class="flex-1 min-w-0">
+              <div class="text-[13px] font-semibold text-slate-900">José López</div>
+              <div class="text-[11px] text-slate-500">Co-fundador · CEO · 60% participación</div>
+            </div>
+            <div class="text-right hidden sm:block">
+              <div class="text-[13px] font-bold tabular text-emerald-700">S/ 52,000</div>
+              <div class="text-[10px] text-slate-400">cash · 4 aportes</div>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <button class="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 px-2 py-1.5 rounded-lg">
+                <i data-lucide="plus" class="w-3.5 h-3.5"></i> Aporte
+              </button>
+              <button class="inline-flex items-center gap-1 text-[11px] font-semibold text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 px-2 py-1.5 rounded-lg">
+                <i data-lucide="minus" class="w-3.5 h-3.5"></i> Retiro
+              </button>
+            </div>
+          </div>
+          <!-- fila socio 2 -->
+          <div class="flex items-center gap-3 px-4 py-3 hover:bg-slate-50/60">
+            <div class="w-9 h-9 rounded-full bg-violet-100 text-violet-700 flex items-center justify-center text-[13px] font-bold">MP</div>
+            <div class="flex-1 min-w-0">
+              <div class="text-[13px] font-semibold text-slate-900">María Paz</div>
+              <div class="text-[11px] text-slate-500">Socia · 40% participación</div>
+            </div>
+            <div class="text-right hidden sm:block">
+              <div class="text-[13px] font-bold tabular text-emerald-700">S/ 32,500</div>
+              <div class="text-[10px] text-slate-400">cash · 2 aportes</div>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <button class="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 px-2 py-1.5 rounded-lg">
+                <i data-lucide="plus" class="w-3.5 h-3.5"></i> Aporte
+              </button>
+              <button class="inline-flex items-center gap-1 text-[11px] font-semibold text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 px-2 py-1.5 rounded-lg">
+                <i data-lucide="minus" class="w-3.5 h-3.5"></i> Retiro
+              </button>
+            </div>
+          </div>
+        </div>
+        <p class="text-[11px] text-slate-400 mt-2 flex items-center gap-1.5">
+          <i data-lucide="info" class="w-3.5 h-3.5"></i>
+          Las acciones por fila abren el modal <strong>pre-contextualizado</strong> al socio y al modo.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== ACTO 2 · MODAL APORTE ===================== -->
+  <section id="acto2">
+    <div class="flex items-center gap-3 mb-5">
+      <span class="text-[11px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full">Acto 2</span>
+      <h2 class="text-xl font-bold tracking-tight">Modal "Registrar aporte" (desktop · FormModalV2 · iconTone violet)</h2>
+    </div>
+
+    <div class="flex justify-center">
+      <!-- FormModalV2 -->
+      <div class="w-full max-w-lg bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden">
+        <!-- header -->
+        <div class="px-5 py-4 border-b border-slate-100 flex items-start gap-3">
+          <div class="w-10 h-10 rounded-xl bg-violet-50 border border-violet-200 text-violet-700 flex items-center justify-center shrink-0">
+            <i data-lucide="coins" class="w-5 h-5"></i>
+          </div>
+          <div class="flex-1">
+            <div class="text-[10px] uppercase tracking-wider text-slate-400 font-bold mb-0.5">Mi Capital · Movimiento</div>
+            <h3 class="text-base font-semibold tracking-tight text-slate-900">Registrar movimiento de capital</h3>
+            <p class="text-[12px] text-slate-500 leading-snug">Transacción del socio · afecta patrimonio y caja</p>
+          </div>
+          <button class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
+        </div>
+
+        <!-- body -->
+        <div class="px-5 py-4 space-y-4 max-h-[60vh] overflow-y-auto">
+          <!-- toggle modo (semántico) -->
+          <div class="grid grid-cols-2 gap-1 bg-slate-100 rounded-lg p-1">
+            <button class="flex items-center justify-center gap-1.5 py-2 rounded-md bg-white shadow-sm text-[13px] font-semibold text-emerald-700">
+              <i data-lucide="arrow-down-circle" class="w-4 h-4"></i> Aporte
+            </button>
+            <button class="flex items-center justify-center gap-1.5 py-2 rounded-md text-[13px] font-semibold text-slate-500 hover:text-slate-700">
+              <i data-lucide="arrow-up-circle" class="w-4 h-4"></i> Retiro
+            </button>
+          </div>
+
+          <!-- socio (obligatorio) -->
+          <div>
+            <label class="text-[11px] font-semibold text-slate-600 flex items-center gap-1 mb-1">Socio <span class="text-rose-500">*</span></label>
+            <div class="flex items-center gap-2 border border-violet-300 rounded-lg px-3 py-2 bg-violet-50/40 ring-2 ring-violet-500/10">
+              <div class="w-7 h-7 rounded-full bg-violet-100 text-violet-700 flex items-center justify-center text-[11px] font-bold">JL</div>
+              <div class="flex-1">
+                <div class="text-[13px] font-semibold text-slate-900">José López</div>
+                <div class="text-[10px] text-slate-500">Co-fundador · 60%</div>
+              </div>
+              <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400"></i>
+            </div>
+          </div>
+
+          <!-- monto + moneda -->
+          <div class="grid grid-cols-3 gap-3">
+            <div class="col-span-2">
+              <label class="text-[11px] font-semibold text-slate-600 mb-1 block">Monto <span class="text-rose-500">*</span></label>
+              <div class="flex items-center border border-slate-300 rounded-lg px-3 py-2 focus-within:ring-2 focus-within:ring-violet-500/40">
+                <span class="text-slate-400 text-[13px] mr-1.5">S/</span>
+                <input value="15,000.00" class="flex-1 outline-none text-[14px] font-semibold tabular text-slate-900 bg-transparent">
+              </div>
+            </div>
+            <div>
+              <label class="text-[11px] font-semibold text-slate-600 mb-1 block">Moneda</label>
+              <div class="grid grid-cols-2 gap-1 bg-slate-100 rounded-lg p-1 h-[38px]">
+                <button class="rounded-md bg-white shadow-sm text-[12px] font-bold text-violet-700">PEN</button>
+                <button class="rounded-md text-[12px] font-semibold text-slate-500">USD</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- cuenta destino -->
+          <div>
+            <label class="text-[11px] font-semibold text-slate-600 mb-1 block">Cuenta destino <span class="text-rose-500">*</span></label>
+            <div class="flex items-center gap-2 border border-slate-300 rounded-lg px-3 py-2">
+              <i data-lucide="landmark" class="w-4 h-4 text-slate-400"></i>
+              <span class="flex-1 text-[13px] text-slate-900">BCP Corriente · S/</span>
+              <span class="text-[11px] tabular text-slate-400">Saldo S/ 12,300</span>
+              <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400"></i>
+            </div>
+          </div>
+
+          <!-- método + fecha -->
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="text-[11px] font-semibold text-slate-600 mb-1 block">Método</label>
+              <div class="flex items-center gap-2 border border-slate-300 rounded-lg px-3 py-2">
+                <i data-lucide="arrow-left-right" class="w-4 h-4 text-slate-400"></i>
+                <span class="flex-1 text-[13px] text-slate-900">Transferencia</span>
+                <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400"></i>
+              </div>
+            </div>
+            <div>
+              <label class="text-[11px] font-semibold text-slate-600 mb-1 block">Fecha</label>
+              <div class="flex items-center gap-2 border border-slate-300 rounded-lg px-3 py-2">
+                <i data-lucide="calendar" class="w-4 h-4 text-slate-400"></i>
+                <span class="flex-1 text-[13px] tabular text-slate-900">06 / 06 / 2026</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- referencia (opcional) -->
+          <div>
+            <label class="text-[11px] font-semibold text-slate-600 mb-1 block">Referencia <span class="text-slate-400 font-normal">· opcional</span></label>
+            <input placeholder="Nro de operación bancaria…" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-[13px] outline-none focus:ring-2 focus:ring-violet-500/40 placeholder:text-slate-400">
+          </div>
+
+          <!-- PREVIEW DEL EFECTO (diferenciador) -->
+          <div class="rounded-xl border border-emerald-200 bg-emerald-50/50 p-3">
+            <div class="text-[10px] uppercase tracking-wider text-emerald-700 font-bold mb-2 flex items-center gap-1.5">
+              <i data-lucide="trending-up" class="w-3.5 h-3.5"></i> Efecto en el capital de José
+            </div>
+            <div class="flex items-center justify-between text-[13px]">
+              <div>
+                <div class="text-[10px] text-slate-500">Cash aportado</div>
+                <div class="tabular text-slate-500">S/ 52,000 <i data-lucide="arrow-right" class="w-3 h-3 inline mx-0.5"></i> <span class="font-bold text-emerald-700">S/ 67,000</span></div>
+              </div>
+              <div class="text-right">
+                <div class="text-[10px] text-slate-500">Capital comprometido</div>
+                <div class="tabular text-slate-500">S/ 135,700 <i data-lucide="arrow-right" class="w-3 h-3 inline mx-0.5"></i> <span class="font-bold text-violet-700">S/ 150,700</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- footer sticky -->
+        <div class="px-5 py-3 border-t border-slate-100 bg-slate-50/60 flex items-center justify-between">
+          <div class="hidden sm:flex items-center gap-2 text-[10px] text-slate-400">
+            <span class="px-1.5 py-px font-mono bg-slate-100 border border-slate-300 border-b-2 rounded">esc</span> cerrar
+            <span class="px-1.5 py-px font-mono bg-slate-100 border border-slate-300 border-b-2 rounded ml-1">⌘↵</span> guardar
+          </div>
+          <div class="flex items-center gap-2 ml-auto">
+            <button class="text-[13px] font-semibold text-slate-600 hover:text-slate-800 px-3 py-2">Cancelar</button>
+            <button class="inline-flex items-center gap-1.5 bg-violet-600 hover:bg-violet-700 text-white text-[13px] font-semibold px-4 py-2 rounded-lg shadow-sm">
+              <i data-lucide="check" class="w-4 h-4"></i> Registrar aporte
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="text-center text-[11px] text-slate-400 mt-3 max-w-xl mx-auto">
+      Chrome en <strong class="text-violet-600">violet</strong> (identidad módulo: icono, socio activo, moneda, primary CTA) ·
+      modo y efecto en <strong class="text-emerald-600">semántico</strong> (aporte = emerald).
+    </p>
+  </section>
+
+  <!-- ===================== ACTO 3 · MODAL RETIRO ===================== -->
+  <section id="acto3">
+    <div class="flex items-center gap-3 mb-5">
+      <span class="text-[11px] font-bold uppercase tracking-wider text-rose-700 bg-rose-50 px-2.5 py-1 rounded-full">Acto 3</span>
+      <h2 class="text-xl font-bold tracking-tight">Modal "Registrar retiro" (con tipoRetiro)</h2>
+    </div>
+    <div class="flex justify-center">
+      <div class="w-full max-w-lg bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden">
+        <div class="px-5 py-4 border-b border-slate-100 flex items-start gap-3">
+          <div class="w-10 h-10 rounded-xl bg-violet-50 border border-violet-200 text-violet-700 flex items-center justify-center shrink-0">
+            <i data-lucide="coins" class="w-5 h-5"></i>
+          </div>
+          <div class="flex-1">
+            <div class="text-[10px] uppercase tracking-wider text-slate-400 font-bold mb-0.5">Mi Capital · Movimiento</div>
+            <h3 class="text-base font-semibold tracking-tight text-slate-900">Registrar movimiento de capital</h3>
+            <p class="text-[12px] text-slate-500 leading-snug">Transacción del socio · afecta patrimonio y caja</p>
+          </div>
+          <button class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
+        </div>
+        <div class="px-5 py-4 space-y-4 max-h-[60vh] overflow-y-auto">
+          <!-- toggle modo -> retiro activo -->
+          <div class="grid grid-cols-2 gap-1 bg-slate-100 rounded-lg p-1">
+            <button class="flex items-center justify-center gap-1.5 py-2 rounded-md text-[13px] font-semibold text-slate-500 hover:text-slate-700">
+              <i data-lucide="arrow-down-circle" class="w-4 h-4"></i> Aporte
+            </button>
+            <button class="flex items-center justify-center gap-1.5 py-2 rounded-md bg-white shadow-sm text-[13px] font-semibold text-rose-700">
+              <i data-lucide="arrow-up-circle" class="w-4 h-4"></i> Retiro
+            </button>
+          </div>
+          <!-- socio -->
+          <div>
+            <label class="text-[11px] font-semibold text-slate-600 flex items-center gap-1 mb-1">Socio <span class="text-rose-500">*</span></label>
+            <div class="flex items-center gap-2 border border-violet-300 rounded-lg px-3 py-2 bg-violet-50/40 ring-2 ring-violet-500/10">
+              <div class="w-7 h-7 rounded-full bg-violet-100 text-violet-700 flex items-center justify-center text-[11px] font-bold">JL</div>
+              <div class="flex-1"><div class="text-[13px] font-semibold text-slate-900">José López</div><div class="text-[10px] text-slate-500">Co-fundador · 60%</div></div>
+              <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400"></i>
+            </div>
+          </div>
+          <!-- tipoRetiro (distintivo) -->
+          <div>
+            <label class="text-[11px] font-semibold text-slate-600 mb-1 block">Tipo de retiro <span class="text-rose-500">*</span></label>
+            <div class="grid grid-cols-3 gap-1.5">
+              <button class="flex flex-col items-center gap-1 py-2.5 rounded-lg border border-rose-200 bg-rose-50 text-rose-700">
+                <i data-lucide="trending-up" class="w-4 h-4"></i><span class="text-[11px] font-bold">Utilidades</span>
+              </button>
+              <button class="flex flex-col items-center gap-1 py-2.5 rounded-lg border border-slate-200 text-slate-500 hover:bg-slate-50">
+                <i data-lucide="coins" class="w-4 h-4"></i><span class="text-[11px] font-semibold">Capital</span>
+              </button>
+              <button class="flex flex-col items-center gap-1 py-2.5 rounded-lg border border-slate-200 text-slate-500 hover:bg-slate-50">
+                <i data-lucide="hand-coins" class="w-4 h-4"></i><span class="text-[11px] font-semibold">Préstamo</span>
+              </button>
+            </div>
+          </div>
+          <!-- monto + moneda -->
+          <div class="grid grid-cols-3 gap-3">
+            <div class="col-span-2">
+              <label class="text-[11px] font-semibold text-slate-600 mb-1 block">Monto <span class="text-rose-500">*</span></label>
+              <div class="flex items-center border border-slate-300 rounded-lg px-3 py-2 focus-within:ring-2 focus-within:ring-violet-500/40">
+                <span class="text-slate-400 text-[13px] mr-1.5">S/</span>
+                <input value="8,000.00" class="flex-1 outline-none text-[14px] font-semibold tabular text-slate-900 bg-transparent">
+              </div>
+            </div>
+            <div>
+              <label class="text-[11px] font-semibold text-slate-600 mb-1 block">Moneda</label>
+              <div class="grid grid-cols-2 gap-1 bg-slate-100 rounded-lg p-1 h-[38px]">
+                <button class="rounded-md bg-white shadow-sm text-[12px] font-bold text-violet-700">PEN</button>
+                <button class="rounded-md text-[12px] font-semibold text-slate-500">USD</button>
+              </div>
+            </div>
+          </div>
+          <!-- cuenta origen (con guard de saldo) -->
+          <div>
+            <label class="text-[11px] font-semibold text-slate-600 mb-1 block">Cuenta origen <span class="text-rose-500">*</span></label>
+            <div class="flex items-center gap-2 border border-slate-300 rounded-lg px-3 py-2">
+              <i data-lucide="landmark" class="w-4 h-4 text-slate-400"></i>
+              <span class="flex-1 text-[13px] text-slate-900">BCP Corriente · S/</span>
+              <span class="text-[11px] tabular text-emerald-600">Saldo S/ 12,300</span>
+              <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400"></i>
+            </div>
+            <p class="text-[10px] text-slate-400 mt-1 flex items-center gap-1"><i data-lucide="shield-check" class="w-3 h-3"></i> Valida saldo suficiente antes de registrar.</p>
+          </div>
+          <!-- método + fecha -->
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="text-[11px] font-semibold text-slate-600 mb-1 block">Método</label>
+              <div class="flex items-center gap-2 border border-slate-300 rounded-lg px-3 py-2">
+                <i data-lucide="arrow-left-right" class="w-4 h-4 text-slate-400"></i><span class="flex-1 text-[13px] text-slate-900">Transferencia</span><i data-lucide="chevron-down" class="w-4 h-4 text-slate-400"></i>
+              </div>
+            </div>
+            <div>
+              <label class="text-[11px] font-semibold text-slate-600 mb-1 block">Fecha</label>
+              <div class="flex items-center gap-2 border border-slate-300 rounded-lg px-3 py-2">
+                <i data-lucide="calendar" class="w-4 h-4 text-slate-400"></i><span class="flex-1 text-[13px] tabular text-slate-900">06 / 06 / 2026</span>
+              </div>
+            </div>
+          </div>
+          <!-- preview efecto retiro -->
+          <div class="rounded-xl border border-rose-200 bg-rose-50/50 p-3">
+            <div class="text-[10px] uppercase tracking-wider text-rose-700 font-bold mb-2 flex items-center gap-1.5">
+              <i data-lucide="trending-down" class="w-3.5 h-3.5"></i> Efecto · retiro de utilidades
+            </div>
+            <div class="flex items-center justify-between text-[13px]">
+              <div>
+                <div class="text-[10px] text-slate-500">Caja BCP</div>
+                <div class="tabular text-slate-500">S/ 12,300 <i data-lucide="arrow-right" class="w-3 h-3 inline mx-0.5"></i> <span class="font-bold text-rose-700">S/ 4,300</span></div>
+              </div>
+              <div class="text-right">
+                <div class="text-[10px] text-slate-500">No afecta capital aportado</div>
+                <div class="tabular text-slate-400">utilidades ≠ capital</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="px-5 py-3 border-t border-slate-100 bg-slate-50/60 flex items-center justify-between">
+          <div class="hidden sm:flex items-center gap-2 text-[10px] text-slate-400">
+            <span class="px-1.5 py-px font-mono bg-slate-100 border border-slate-300 border-b-2 rounded">esc</span> cerrar
+            <span class="px-1.5 py-px font-mono bg-slate-100 border border-slate-300 border-b-2 rounded ml-1">⌘↵</span> guardar
+          </div>
+          <div class="flex items-center gap-2 ml-auto">
+            <button class="text-[13px] font-semibold text-slate-600 hover:text-slate-800 px-3 py-2">Cancelar</button>
+            <button class="inline-flex items-center gap-1.5 bg-violet-600 hover:bg-violet-700 text-white text-[13px] font-semibold px-4 py-2 rounded-lg shadow-sm">
+              <i data-lucide="check" class="w-4 h-4"></i> Registrar retiro
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== ACTO 4 · ESTADOS ===================== -->
+  <section id="acto4">
+    <div class="flex items-center gap-3 mb-5">
+      <span class="text-[11px] font-bold uppercase tracking-wider text-slate-700 bg-slate-100 px-2.5 py-1 rounded-full">Acto 4</span>
+      <h2 class="text-xl font-bold tracking-tight">Estados — validación · saldo insuficiente · success · empty</h2>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <!-- validación: socio obligatorio -->
+      <div class="bg-white border border-slate-200 rounded-xl p-4">
+        <div class="text-[11px] uppercase tracking-wider text-slate-500 font-bold mb-2">Validación · socio obligatorio</div>
+        <label class="text-[11px] font-semibold text-slate-600 flex items-center gap-1 mb-1">Socio <span class="text-rose-500">*</span></label>
+        <div class="flex items-center gap-2 border border-rose-300 rounded-lg px-3 py-2 bg-rose-50/40">
+          <i data-lucide="user-x" class="w-4 h-4 text-rose-500"></i>
+          <span class="flex-1 text-[13px] text-slate-400">Seleccioná un socio…</span>
+        </div>
+        <p class="text-[11px] text-rose-600 mt-1 flex items-center gap-1"><i data-lucide="alert-circle" class="w-3.5 h-3.5"></i> El capital siempre tiene un dueño. Campo requerido.</p>
+      </div>
+      <!-- saldo insuficiente (retiro) -->
+      <div class="bg-white border border-slate-200 rounded-xl p-4">
+        <div class="text-[11px] uppercase tracking-wider text-slate-500 font-bold mb-2">Guard · saldo insuficiente (retiro)</div>
+        <div class="flex items-center border border-rose-300 rounded-lg px-3 py-2 bg-rose-50/40">
+          <span class="text-slate-400 text-[13px] mr-1.5">S/</span>
+          <input value="20,000.00" class="flex-1 outline-none text-[14px] font-semibold tabular text-rose-700 bg-transparent">
+        </div>
+        <p class="text-[11px] text-rose-600 mt-1 flex items-center gap-1"><i data-lucide="alert-triangle" class="w-3.5 h-3.5"></i> Saldo disponible: S/ 12,300. El botón "Registrar" queda deshabilitado.</p>
+      </div>
+      <!-- success toast -->
+      <div class="bg-white border border-slate-200 rounded-xl p-4">
+        <div class="text-[11px] uppercase tracking-wider text-slate-500 font-bold mb-2">Success · toast (auto-cierra 4s)</div>
+        <div class="flex items-start gap-2.5 bg-emerald-50 border border-emerald-200 rounded-lg px-3 py-2.5">
+          <i data-lucide="check-circle" class="w-4 h-4 text-emerald-600 mt-0.5"></i>
+          <div class="flex-1">
+            <div class="text-[13px] font-semibold text-emerald-900">Aporte registrado</div>
+            <div class="text-[11px] text-emerald-700">S/ 15,000 de José López · BCP Corriente. Capital comprometido: S/ 150,700.</div>
+          </div>
+          <button class="text-[11px] font-semibold text-emerald-700 underline">Ver en libro</button>
+        </div>
+      </div>
+      <!-- empty: sin socios -->
+      <div class="bg-white border border-slate-200 rounded-xl p-4">
+        <div class="text-[11px] uppercase tracking-wider text-slate-500 font-bold mb-2">Empty · sin socios registrados</div>
+        <div class="text-center py-3">
+          <div class="w-10 h-10 rounded-xl bg-violet-50 border border-violet-200 text-violet-600 flex items-center justify-center mx-auto mb-2"><i data-lucide="users" class="w-5 h-5"></i></div>
+          <div class="text-[13px] font-semibold text-slate-900">Aún no hay socios</div>
+          <div class="text-[11px] text-slate-500 mb-3">Registrá un socio antes de cargar aportes o retiros.</div>
+          <button class="inline-flex items-center gap-1.5 bg-violet-600 text-white text-[12px] font-semibold px-3 py-1.5 rounded-lg"><i data-lucide="user-plus" class="w-4 h-4"></i> Nuevo socio</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== ACTO 5 · MOBILE ===================== -->
+  <section id="acto5">
+    <div class="flex items-center gap-3 mb-5">
+      <span class="text-[11px] font-bold uppercase tracking-wider text-violet-700 bg-violet-50 px-2.5 py-1 rounded-full">Acto 5</span>
+      <h2 class="text-xl font-bold tracking-tight">Mobile (375px) — tab Mi Capital + modal como bottom-sheet</h2>
+    </div>
+    <div class="flex flex-wrap gap-6 justify-center">
+
+      <!-- mobile: tab Mi Capital -->
+      <div class="phone bg-white rounded-[2rem] border-4 border-slate-800 overflow-hidden shadow-xl">
+        <div class="bg-slate-50 px-4 py-2 flex items-center justify-between border-b border-slate-200">
+          <div class="flex items-center gap-1 text-[10px] text-slate-500"><span>Inversionistas</span><i data-lucide="chevron-right" class="w-3 h-3"></i><span class="text-violet-700 font-semibold">Mi Capital</span></div>
+          <i data-lucide="shield" class="w-3.5 h-3.5 text-violet-700"></i>
+        </div>
+        <div class="px-4 py-3 flex items-center gap-2 border-b border-slate-100">
+          <div class="w-8 h-8 rounded-lg bg-violet-50 border border-violet-200 text-violet-700 flex items-center justify-center"><i data-lucide="coins" class="w-4 h-4"></i></div>
+          <h3 class="text-base font-semibold flex-1">Mi Capital</h3>
+        </div>
+        <!-- KPI scroll-x -->
+        <div class="flex gap-2 overflow-x-auto no-scrollbar px-4 py-3">
+          <div class="shrink-0 w-36 bg-gradient-to-br from-emerald-50 to-emerald-100/40 ring-1 ring-emerald-200/50 rounded-xl p-3">
+            <div class="text-[9px] uppercase tracking-wider text-emerald-700 font-bold">Cash</div>
+            <div class="text-lg font-bold tabular text-emerald-900">S/ 84.5k</div>
+          </div>
+          <div class="shrink-0 w-36 bg-gradient-to-br from-rose-50 to-rose-100/40 ring-1 ring-rose-200/50 rounded-xl p-3">
+            <div class="text-[9px] uppercase tracking-wider text-rose-700 font-bold">Deuda TC</div>
+            <div class="text-lg font-bold tabular text-rose-900">S/ 51.2k</div>
+          </div>
+          <div class="shrink-0 w-36 bg-gradient-to-br from-violet-50 to-violet-100/40 ring-1 ring-violet-200/50 rounded-xl p-3">
+            <div class="text-[9px] uppercase tracking-wider text-violet-700 font-bold">Comprometido</div>
+            <div class="text-lg font-bold tabular text-violet-900">S/ 135.7k</div>
+          </div>
+        </div>
+        <!-- socio card mobile -->
+        <div class="px-4 pb-3">
+          <div class="border border-slate-200 rounded-xl p-3">
+            <div class="flex items-center gap-2 mb-2.5">
+              <div class="w-8 h-8 rounded-full bg-violet-100 text-violet-700 flex items-center justify-center text-[12px] font-bold">JL</div>
+              <div class="flex-1"><div class="text-[13px] font-semibold">José López</div><div class="text-[10px] text-slate-500">60% · S/ 52,000</div></div>
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+              <button class="flex items-center justify-center gap-1 text-[12px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 py-2.5 rounded-lg"><i data-lucide="plus" class="w-4 h-4"></i> Aporte</button>
+              <button class="flex items-center justify-center gap-1 text-[12px] font-semibold text-rose-700 bg-rose-50 border border-rose-200 py-2.5 rounded-lg"><i data-lucide="minus" class="w-4 h-4"></i> Retiro</button>
+            </div>
+          </div>
+        </div>
+        <!-- FAB -->
+        <div class="px-4 pb-4">
+          <button class="w-full flex items-center justify-center gap-1.5 bg-violet-600 text-white text-[13px] font-semibold py-3 rounded-xl shadow-sm"><i data-lucide="plus-circle" class="w-4 h-4"></i> Registrar capital</button>
+        </div>
+      </div>
+
+      <!-- mobile: bottom-sheet aporte -->
+      <div class="phone bg-slate-900/40 rounded-[2rem] border-4 border-slate-800 overflow-hidden shadow-xl relative" style="height:640px">
+        <div class="absolute inset-x-0 top-0 px-4 py-8 text-center text-white/40 text-[11px]">Backdrop · tab Mi Capital</div>
+        <!-- sheet -->
+        <div class="absolute inset-x-0 bottom-0 bg-white rounded-t-2xl max-h-[88%] overflow-y-auto">
+          <div class="flex justify-center pt-2"><div class="w-10 h-1 rounded-full bg-slate-300"></div></div>
+          <div class="px-4 py-3 flex items-start gap-2.5 border-b border-slate-100">
+            <div class="w-9 h-9 rounded-xl bg-violet-50 border border-violet-200 text-violet-700 flex items-center justify-center shrink-0"><i data-lucide="coins" class="w-4 h-4"></i></div>
+            <div class="flex-1"><h3 class="text-[14px] font-semibold">Registrar capital</h3><p class="text-[11px] text-slate-500">Transacción del socio</p></div>
+            <button class="text-slate-400"><i data-lucide="x" class="w-5 h-5"></i></button>
+          </div>
+          <div class="px-4 py-3 space-y-3">
+            <div class="grid grid-cols-2 gap-1 bg-slate-100 rounded-lg p-1">
+              <button class="py-2.5 rounded-md bg-white shadow-sm text-[13px] font-semibold text-emerald-700 flex items-center justify-center gap-1"><i data-lucide="arrow-down-circle" class="w-4 h-4"></i> Aporte</button>
+              <button class="py-2.5 rounded-md text-[13px] font-semibold text-slate-500 flex items-center justify-center gap-1"><i data-lucide="arrow-up-circle" class="w-4 h-4"></i> Retiro</button>
+            </div>
+            <div class="flex items-center gap-2 border border-violet-300 rounded-lg px-3 py-2.5 bg-violet-50/40">
+              <div class="w-7 h-7 rounded-full bg-violet-100 text-violet-700 flex items-center justify-center text-[11px] font-bold">JL</div>
+              <div class="flex-1"><div class="text-[13px] font-semibold">José López</div><div class="text-[10px] text-slate-500">60%</div></div>
+              <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400"></i>
+            </div>
+            <div class="flex items-center border border-slate-300 rounded-lg px-3 py-2.5">
+              <span class="text-slate-400 text-[13px] mr-1.5">S/</span><input value="15,000.00" class="flex-1 outline-none text-[15px] font-semibold tabular bg-transparent">
+            </div>
+            <div class="flex items-center gap-2 border border-slate-300 rounded-lg px-3 py-2.5">
+              <i data-lucide="landmark" class="w-4 h-4 text-slate-400"></i><span class="flex-1 text-[13px]">BCP Corriente · S/</span><i data-lucide="chevron-down" class="w-4 h-4 text-slate-400"></i>
+            </div>
+            <div class="rounded-xl border border-emerald-200 bg-emerald-50/50 p-3">
+              <div class="text-[10px] uppercase tracking-wider text-emerald-700 font-bold mb-1 flex items-center gap-1.5"><i data-lucide="trending-up" class="w-3.5 h-3.5"></i> Capital comprometido</div>
+              <div class="text-[13px] tabular text-slate-500">S/ 135,700 <i data-lucide="arrow-right" class="w-3 h-3 inline"></i> <span class="font-bold text-violet-700">S/ 150,700</span></div>
+            </div>
+          </div>
+          <!-- footer sticky sheet (safe-area) -->
+          <div class="sticky bottom-0 bg-white border-t border-slate-100 px-4 py-3 pb-5">
+            <button class="w-full flex items-center justify-center gap-1.5 bg-violet-600 text-white text-[14px] font-semibold py-3 rounded-xl"><i data-lucide="check" class="w-4 h-4"></i> Registrar aporte</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="text-center text-[11px] text-slate-400 mt-3">Mobile: modal → <strong>bottom-sheet</strong> (canon · drag handle + footer sticky con safe-area) · touch targets ≥44px · acciones por socio en card.</p>
+  </section>
+
+  <!-- ===================== CHECKLIST ===================== -->
+  <section id="check" class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+    <h2 class="text-lg font-bold tracking-tight mb-4 flex items-center gap-2"><i data-lucide="clipboard-check" class="w-5 h-5 text-violet-600"></i> Checklist canon · cobertura declarada</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2 text-[12px]">
+      <div class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-600"></i> Color violet (chrome) + semántico (datos/modo/efecto)</div>
+      <div class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-600"></i> FormModalV2 (header tonal + body + footer sticky + shortcuts)</div>
+      <div class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-600"></i> Punto de entrada contextual (botón + acciones por socio)</div>
+      <div class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-600"></i> Modal Aporte + Retiro (toggle modo · tipoRetiro)</div>
+      <div class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-600"></i> Campos = FormData real (monto/moneda/TC/cuenta/método/fecha/ref)</div>
+      <div class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-600"></i> socioId obligatorio (validación)</div>
+      <div class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-600"></i> Preview del efecto (antes → después)</div>
+      <div class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-600"></i> Estados: validación · saldo insuficiente · success · empty</div>
+      <div class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-600"></i> Mobile 375px: tab + bottom-sheet</div>
+      <div class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-600"></i> Flujo end-to-end (5 pasos) + efecto visible en Finanzas</div>
+      <div class="flex items-center gap-2 text-amber-700"><i data-lucide="help-circle" class="w-4 h-4"></i> A decidir: ¿borrador (1 paso · F-Borradores opcional)?</div>
+      <div class="flex items-center gap-2 text-amber-700"><i data-lucide="help-circle" class="w-4 h-4"></i> A decidir: ¿1 modal con toggle vs 2 modales?</div>
+    </div>
+    <div class="mt-5 pt-4 border-t border-slate-100 text-[11px] text-slate-500 leading-relaxed">
+      <strong class="text-slate-700">Decisiones abiertas para tu validación:</strong>
+      (1) ¿El primary CTA va en <strong>violet</strong> (canon: color del módulo · como está) o preferís <strong>semántico</strong> por modo (emerald aporte / rose retiro)?
+      (2) ¿Querés <strong>borrador</strong> en este modal (es 1 paso · canon lo deja opcional)?
+      (3) ¿El <strong>preview del efecto</strong> te parece valioso o agrega ruido?
+    </div>
+  </section>
+
+</main>
+
+<footer class="bg-slate-900 text-slate-400 text-[11px] py-6 text-center">
+  Inversionistas · Registrar aporte/retiro · v1 · 2026-06-06 · nace alineado al Design System (violet · FormModalV2 · Inter · tabular-nums · lucide)
+</footer>
+
+<script>lucide.createIcons();</script>
+</body>
+</html>
