@@ -23,17 +23,22 @@ import type { ResumenInversionista } from '../../../types/inversionista.types';
 import { UserPanel } from '../../usuarios/UserPanel';
 import type { TabContextual } from '../../usuarios/UserPanel';
 import TabCapitalSocio from './TabCapitalSocio';
+import AporteCapitalModal from './AporteCapitalModal';
 import { useSocioStore } from '../../../store/socioStore';
 
 interface Props {
   data: ResumenInversionista;
+  /** F14.2 · refresca el resumen tras registrar capital (provisto por el shell). */
+  onRefetch?: () => void;
 }
 
-export default function InversionistasCapital({ data }: Props) {
+export default function InversionistasCapital({ data, onRefetch }: Props) {
   // chk5.PERSONAS-v5.7 · E6.2 · UserPanel state + lookup de userId por socioId
   const [panelUid, setPanelUid] = useState<string | null>(null);
   // F14.1 · socio del panel (para inyectar el tab "Capital" contextual)
   const [panelSocioId, setPanelSocioId] = useState<string | null>(null);
+  // F14.2 · modal de aporte de capital (socio del panel)
+  const [aporteModalOpen, setAporteModalOpen] = useState(false);
   const socios = useSocioStore((s) => s.socios);
 
   // Map { socioId → userId } para lookup rápido en el render
@@ -45,6 +50,12 @@ export default function InversionistasCapital({ data }: Props) {
     return m;
   }, [socios]);
 
+  // Nombre del socio del panel · para el modal de aporte
+  const panelSocioNombre = useMemo(
+    () => socios.find((s) => s.id === panelSocioId)?.nombre ?? '',
+    [socios, panelSocioId],
+  );
+
   // F14.1 · tab contextual "Capital" inyectado al UserPanel (hogar del capital
   // del socio · canon: NO drill-down nuevo, sí TabContextual del panel existente).
   const tabsCapital = useMemo<TabContextual[]>(() => {
@@ -54,7 +65,13 @@ export default function InversionistasCapital({ data }: Props) {
       id: 'capital',
       label: 'Capital',
       icon: Coins,
-      render: () => <TabCapitalSocio socioId={sid} data={data} />,
+      render: () => (
+        <TabCapitalSocio
+          socioId={sid}
+          data={data}
+          onRegistrarAporte={() => setAporteModalOpen(true)}
+        />
+      ),
     }];
   }, [panelSocioId, data]);
 
@@ -344,6 +361,18 @@ export default function InversionistasCapital({ data }: Props) {
         tabInicial="capital"
         tabsContextuales={tabsCapital}
       />
+
+      {/* F14.2 · modal de aporte de capital · operación exclusiva de Inversionistas */}
+      {panelSocioId && (
+        <AporteCapitalModal
+          isOpen={aporteModalOpen}
+          socioId={panelSocioId}
+          socioNombre={panelSocioNombre}
+          tipoCambio={data.tipoCambio}
+          onClose={() => setAporteModalOpen(false)}
+          onSuccess={() => { setAporteModalOpen(false); onRefetch?.(); }}
+        />
+      )}
     </div>
   );
 }

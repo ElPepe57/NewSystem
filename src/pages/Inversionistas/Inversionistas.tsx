@@ -375,7 +375,7 @@ export default function Inversionistas() {
           {data && !loading && (
             <>
               {tabActiva === 'resumen' && <InversionistasResumen data={data} />}
-              {tabActiva === 'capital' && <InversionistasCapital data={data} />}
+              {tabActiva === 'capital' && <InversionistasCapital data={data} onRefetch={cargarDatos} />}
               {tabActiva === 'trayectoria' && (
                 trayectoriaCargando ? (
                   <TrayectoriaLoadingState />
