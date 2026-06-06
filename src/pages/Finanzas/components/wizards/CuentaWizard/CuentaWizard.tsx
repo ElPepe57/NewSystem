@@ -91,6 +91,13 @@ export interface CuentaWizardProps {
    * con este tipo ya seleccionado en vez del default 'banco'.
    */
   tipoInicial?: CuentaWizardState['tipo'];
+  /**
+   * F14.3 · Preset inicial completo para modo creación (precedencia sobre
+   * INITIAL_STATE y tipoInicial). Usado por el atajo "Registrar TC" del hogar
+   * del capital del socio en Inversionistas: pre-carga tipo='credito' +
+   * titularidad='personal' + titularEntidadTipo='socio' + titularEntidadId.
+   */
+  presetInicial?: Partial<CuentaWizardState>;
 }
 
 // ═════════════════════════════════════════════════════════════════════════
@@ -156,6 +163,7 @@ export const CuentaWizard: React.FC<CuentaWizardProps> = ({
   onSuccess,
   isSubmitting,
   tipoInicial,
+  presetInicial,
 }) => {
   const userId = useAuthStore((s) => s.user?.uid ?? '');
   const toastSuccess = useToastStore((s) => s.success);
@@ -182,7 +190,11 @@ export const CuentaWizard: React.FC<CuentaWizardProps> = ({
     if (!cuentaEditar) {
       // chk5.D-S9.D1 · si viene tipoInicial, aplicarlo sobre el INITIAL_STATE
       // para que el wizard arranque pre-seleccionado en Paso 1.
-      setState(tipoInicial ? { ...INITIAL_STATE, tipo: tipoInicial } : INITIAL_STATE);
+      setState({
+        ...INITIAL_STATE,
+        ...(tipoInicial ? { tipo: tipoInicial } : {}),
+        ...(presetInicial ?? {}),
+      });
       return;
     }
 
@@ -195,7 +207,7 @@ export const CuentaWizard: React.FC<CuentaWizardProps> = ({
         setState(hidratarStateDesdeProductoFinanciero(pf));
       }
     });
-  }, [isOpen, cuentaEditar, tipoInicial]);
+  }, [isOpen, cuentaEditar, tipoInicial, presetInicial]);
 
   // ── Validación del paso actual ──
   const validacion = useMemo(() => validarPaso(paso, state), [paso, state]);

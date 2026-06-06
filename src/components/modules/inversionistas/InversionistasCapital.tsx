@@ -24,6 +24,8 @@ import { UserPanel } from '../../usuarios/UserPanel';
 import type { TabContextual } from '../../usuarios/UserPanel';
 import TabCapitalSocio from './TabCapitalSocio';
 import AporteCapitalModal from './AporteCapitalModal';
+import { CuentaWizard } from '../../../pages/Finanzas/components/wizards/CuentaWizard/CuentaWizard';
+import type { CuentaWizardState } from '../../../pages/Finanzas/components/wizards/CuentaWizard/types';
 import { useSocioStore } from '../../../store/socioStore';
 
 interface Props {
@@ -39,6 +41,8 @@ export default function InversionistasCapital({ data, onRefetch }: Props) {
   const [panelSocioId, setPanelSocioId] = useState<string | null>(null);
   // F14.2 · modal de aporte de capital (socio del panel)
   const [aporteModalOpen, setAporteModalOpen] = useState(false);
+  // F14.3 · CuentaWizard pre-contextualizado para TC personal del socio (D4)
+  const [tcWizardOpen, setTcWizardOpen] = useState(false);
   const socios = useSocioStore((s) => s.socios);
 
   // Map { socioId → userId } para lookup rápido en el render
@@ -56,6 +60,18 @@ export default function InversionistasCapital({ data, onRefetch }: Props) {
     [socios, panelSocioId],
   );
 
+  // F14.3 · preset TC personal del socio (D4 · el wizard arranca pre-cargado:
+  // tipo crédito + titularidad personal + socio garante)
+  const tcPreset = useMemo<Partial<CuentaWizardState>>(
+    () => ({
+      tipo: 'credito',
+      titularidad: 'personal',
+      titularEntidadTipo: 'socio',
+      titularEntidadId: panelSocioId ?? '',
+    }),
+    [panelSocioId],
+  );
+
   // F14.1 · tab contextual "Capital" inyectado al UserPanel (hogar del capital
   // del socio · canon: NO drill-down nuevo, sí TabContextual del panel existente).
   const tabsCapital = useMemo<TabContextual[]>(() => {
@@ -70,6 +86,7 @@ export default function InversionistasCapital({ data, onRefetch }: Props) {
           socioId={sid}
           data={data}
           onRegistrarAporte={() => setAporteModalOpen(true)}
+          onRegistrarTC={() => setTcWizardOpen(true)}
         />
       ),
     }];
@@ -373,6 +390,14 @@ export default function InversionistasCapital({ data, onRefetch }: Props) {
           onSuccess={() => { setAporteModalOpen(false); onRefetch?.(); }}
         />
       )}
+
+      {/* F14.3 · CuentaWizard pre-contextualizado para TC personal del socio (D4) */}
+      <CuentaWizard
+        isOpen={tcWizardOpen}
+        onClose={() => setTcWizardOpen(false)}
+        presetInicial={tcPreset}
+        onSuccess={() => { setTcWizardOpen(false); onRefetch?.(); }}
+      />
     </div>
   );
 }
