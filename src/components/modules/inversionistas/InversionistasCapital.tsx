@@ -24,6 +24,7 @@ import { UserPanel } from '../../usuarios/UserPanel';
 import type { TabContextual } from '../../usuarios/UserPanel';
 import TabCapitalSocio from './TabCapitalSocio';
 import AporteCapitalModal from './AporteCapitalModal';
+import EditarValorSocioModal from './EditarValorSocioModal';
 import { CuentaWizard } from '../../../pages/Finanzas/components/wizards/CuentaWizard/CuentaWizard';
 import type { CuentaWizardState } from '../../../pages/Finanzas/components/wizards/CuentaWizard/types';
 import { useSocioStore } from '../../../store/socioStore';
@@ -43,6 +44,8 @@ export default function InversionistasCapital({ data, onRefetch }: Props) {
   const [aporteModalOpen, setAporteModalOpen] = useState(false);
   // F14.3 · CuentaWizard pre-contextualizado para TC personal del socio (D4)
   const [tcWizardOpen, setTcWizardOpen] = useState(false);
+  // F14.4 · modal editar participación + aporte de valor (D3)
+  const [valorModalOpen, setValorModalOpen] = useState(false);
   const socios = useSocioStore((s) => s.socios);
 
   // Map { socioId → userId } para lookup rápido en el render
@@ -87,6 +90,7 @@ export default function InversionistasCapital({ data, onRefetch }: Props) {
           data={data}
           onRegistrarAporte={() => setAporteModalOpen(true)}
           onRegistrarTC={() => setTcWizardOpen(true)}
+          onEditarValor={() => setValorModalOpen(true)}
         />
       ),
     }];
@@ -398,6 +402,17 @@ export default function InversionistasCapital({ data, onRefetch }: Props) {
         presetInicial={tcPreset}
         onSuccess={() => { setTcWizardOpen(false); onRefetch?.(); }}
       />
+
+      {/* F14.4 · editar participación + aporte de valor del socio (D3) */}
+      {panelUid && (
+        <EditarValorSocioModal
+          isOpen={valorModalOpen}
+          userId={panelUid}
+          socioNombre={panelSocioNombre}
+          onClose={() => setValorModalOpen(false)}
+          onSuccess={() => { setValorModalOpen(false); onRefetch?.(); }}
+        />
+      )}
     </div>
   );
 }
