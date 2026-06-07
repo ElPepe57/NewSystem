@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Inversionistas · Registrar capital · v1 (360 + Hub Kit)</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script>tailwind.config={theme:{extend:{fontFamily:{sans:['Inter','system-ui','sans-serif']}}}}</script>
+<style>body{font-family:'Inter',system-ui,sans-serif}.tabular{font-variant-numeric:tabular-nums}.no-scrollbar::-webkit-scrollbar{display:none}.no-scrollbar{scrollbar-width:none}.phone{width:375px}</style>
+</head>
+<body class="bg-slate-100 text-slate-900">
+
+<!-- HERO -->
+<header class="bg-gradient-to-br from-violet-600 to-violet-800 text-white">
+  <div class="max-w-6xl mx-auto px-6 py-9">
+    <div class="inline-flex items-center gap-2 text-violet-200 text-[11px] font-bold uppercase tracking-wider mb-3">
+      <i data-lucide="coins" class="w-4 h-4"></i> Inversionistas · violet
+      <span class="ml-1 px-2 py-0.5 bg-white/15 rounded-full normal-case tracking-normal font-semibold">Feature · 360 + Hub Kit · nace alineado al DS</span>
+    </div>
+    <h1 class="text-3xl font-bold tracking-tight mb-2">Registrar capital · acceso de primer nivel</h1>
+    <p class="text-violet-100 text-sm max-w-3xl leading-relaxed">
+      Al entrar a Inversionistas, <strong>un solo botón visible "Registrar capital"</strong> → selector de los <strong>3 tipos</strong>
+      de capital del socio: <strong>Aporte de cash · Retiro · Tarjeta de crédito (80%)</strong>. Cada uno a su flujo natural.
+      Y el capital <strong>sale de Finanzas</strong> (origen único). Sin enterrar nada.
+    </p>
+  </div>
+</header>
+
+<nav class="bg-white border-b border-slate-200 sticky top-0 z-30">
+  <div class="max-w-6xl mx-auto px-6 py-3 flex flex-wrap gap-x-5 gap-y-1 text-[12px] font-medium text-slate-600">
+    <span class="font-bold text-slate-900">Índice:</span>
+    <a href="#alinea" class="hover:text-violet-700">0 · Alineación 360</a>
+    <a href="#acceso" class="hover:text-violet-700">1 · Acceso (header)</a>
+    <a href="#selector" class="hover:text-violet-700">2 · Selector de tipo</a>
+    <a href="#aporte" class="hover:text-violet-700">3 · Aporte</a>
+    <a href="#retiro" class="hover:text-violet-700">4 · Retiro</a>
+    <a href="#tc" class="hover:text-violet-700">5 · Tarjeta</a>
+    <a href="#mobile" class="hover:text-violet-700">6 · Mobile</a>
+    <a href="#check" class="hover:text-violet-700">Checklist</a>
+  </div>
+</nav>
+
+<main class="max-w-6xl mx-auto px-6 py-10 space-y-14">
+
+  <!-- 0 · ALINEACIÓN 360 -->
+  <section id="alinea">
+    <div class="flex items-center gap-3 mb-5">
+      <span class="text-[11px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full">Alineación 360</span>
+      <h2 class="text-xl font-bold tracking-tight">Qué reusa del Hub Kit / DS · qué NO inventa</h2>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
+        <div class="text-[11px] uppercase tracking-wider text-emerald-700 font-bold mb-3">✓ Reusa (patrones existentes)</div>
+        <ul class="space-y-2 text-[12px] text-slate-700">
+          <li class="flex items-start gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-600 mt-0.5 shrink-0"></i> <strong>HubHeader · acción 3-tier</strong>: "Registrar capital" como <strong>primary</strong> (color del módulo · violet).</li>
+          <li class="flex items-start gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-600 mt-0.5 shrink-0"></i> <strong>FormModalV2</strong> (iconTone violet · header + body + footer sticky).</li>
+          <li class="flex items-start gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-600 mt-0.5 shrink-0"></i> <strong>Selector de tipo en radio-cards</strong> (mismo patrón que IngresoSimpleModal).</li>
+          <li class="flex items-start gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-600 mt-0.5 shrink-0"></i> <strong>CuentaWizard</strong> real para la TC (pre-cargado · D4 · no se duplica).</li>
+          <li class="flex items-start gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-600 mt-0.5 shrink-0"></i> <strong>Bottom-sheet mobile</strong> que ya resuelve FormModalV2.</li>
+        </ul>
+      </div>
+      <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
+        <div class="text-[11px] uppercase tracking-wider text-rose-700 font-bold mb-3">✗ NO inventa</div>
+        <ul class="space-y-2 text-[12px] text-slate-700">
+          <li class="flex items-start gap-2"><i data-lucide="x" class="w-4 h-4 text-rose-500 mt-0.5 shrink-0"></i> <strong>Dropdown/menú de acciones</strong> — no existe en el DS → usamos modal con selector (alineado).</li>
+          <li class="flex items-start gap-2"><i data-lucide="x" class="w-4 h-4 text-rose-500 mt-0.5 shrink-0"></i> Pantalla/drill-down nuevo — todo vive en el shell hub + modal.</li>
+          <li class="flex items-start gap-2"><i data-lucide="x" class="w-4 h-4 text-rose-500 mt-0.5 shrink-0"></i> Color fuera de gobernanza — chrome violet · datos semánticos.</li>
+        </ul>
+        <div class="mt-3 text-[11px] text-slate-500 bg-slate-50 border border-slate-200 rounded-lg p-2.5">
+          <strong class="text-slate-700">Impacto 360:</strong> Hub Inversionistas (header) · 3 accesos (header · tab Mi Capital · tab socio) ·
+          modal selector · CuentaWizard · y F5 saca capital de IngresoSimple/EgresoSimpleModal (Finanzas). El movimiento sigue visible en el libro.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 1 · ACCESO (header del módulo) -->
+  <section id="acceso">
+    <div class="flex items-center gap-3 mb-5">
+      <span class="text-[11px] font-bold uppercase tracking-wider text-violet-700 bg-violet-50 px-2.5 py-1 rounded-full">Acto 1</span>
+      <h2 class="text-xl font-bold tracking-tight">Acceso de primer nivel — header del Hub</h2>
+    </div>
+    <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+      <div class="border-b border-slate-200 px-6 py-2.5 bg-slate-50 flex items-center justify-between">
+        <div class="flex items-center gap-1.5 text-[11px] text-slate-500"><span>Inicio</span><i data-lucide="chevron-right" class="w-3 h-3"></i><span class="text-violet-700 font-semibold">Inversionistas</span></div>
+        <div class="flex items-center gap-1.5 text-[11px] font-semibold text-violet-700"><i data-lucide="shield" class="w-3.5 h-3.5"></i> Vista ejecutiva · admin</div>
+      </div>
+      <div class="px-6 py-4 flex items-start justify-between gap-4">
+        <div class="flex items-start gap-3">
+          <div class="w-10 h-10 rounded-xl bg-violet-50 border border-violet-200 text-violet-700 flex items-center justify-center"><i data-lucide="coins" class="w-5 h-5"></i></div>
+          <div><h3 class="text-lg font-semibold tracking-tight">Inversionistas</h3><p class="text-[13px] text-slate-500 leading-snug">Capital comprometido · ROI · soberanía financiera</p></div>
+        </div>
+        <div class="flex items-center gap-2">
+          <button class="inline-flex items-center gap-1.5 bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 text-[12px] font-semibold px-2.5 py-2 rounded-lg"><i data-lucide="user-cog" class="w-4 h-4"></i> <span class="hidden sm:inline">Gestionar socios</span></button>
+          <button class="inline-flex items-center gap-1.5 bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 text-[12px] font-semibold px-2.5 py-2 rounded-lg"><i data-lucide="users" class="w-4 h-4"></i> <span class="hidden sm:inline">Nuevo socio</span></button>
+          <!-- PRIMARY · acción principal del módulo -->
+          <button class="inline-flex items-center gap-1.5 bg-violet-600 hover:bg-violet-700 text-white text-[13px] font-semibold px-3.5 py-2 rounded-lg shadow-sm"><i data-lucide="plus-circle" class="w-4 h-4"></i> Registrar capital</button>
+        </div>
+      </div>
+      <div class="px-6 pb-4 text-[11px] text-slate-400 flex items-center gap-1.5 border-t border-slate-100 pt-3">
+        <i data-lucide="info" class="w-3.5 h-3.5"></i>
+        "Registrar capital" pasa a ser el <strong>primary</strong> del módulo (antes lo era "Nuevo socio" → ahora secundario · el capital es la operación frecuente).
+      </div>
+    </div>
+    <p class="text-center text-[11px] text-slate-400 mt-3">Accesos al mismo flujo: <strong>header</strong> (visible siempre) · botón "Nuevo aporte" del tab Mi Capital · botón del tab del socio (pre-cargado).</p>
+  </section>
+
+  <!-- 2 · SELECTOR DE TIPO -->
+  <section id="selector">
+    <div class="flex items-center gap-3 mb-5">
+      <span class="text-[11px] font-bold uppercase tracking-wider text-violet-700 bg-violet-50 px-2.5 py-1 rounded-full">Acto 2</span>
+      <h2 class="text-xl font-bold tracking-tight">Modal · selector de tipo (radio-cards · patrón existente)</h2>
+    </div>
+    <div class="flex justify-center">
+      <div class="w-full max-w-lg bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden">
+        <div class="px-5 py-4 border-b border-slate-100 flex items-start gap-3">
+          <div class="w-10 h-10 rounded-xl bg-violet-50 border border-violet-200 text-violet-700 flex items-center justify-center shrink-0"><i data-lucide="coins" class="w-5 h-5"></i></div>
+          <div class="flex-1"><div class="text-[10px] uppercase tracking-wider text-slate-400 font-bold mb-0.5">Inversionistas · Capital</div><h3 class="text-base font-semibold tracking-tight">Registrar capital</h3><p class="text-[12px] text-slate-500 leading-snug">¿Qué tipo de capital querés registrar?</p></div>
+          <button class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
+        </div>
+        <div class="px-5 py-4 space-y-2.5">
+          <!-- card aporte -->
+          <button class="w-full flex items-center gap-3 p-3 border-2 border-emerald-300 bg-emerald-50/50 rounded-xl text-left ring-2 ring-emerald-200/40">
+            <div class="w-9 h-9 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0"><i data-lucide="banknote" class="w-5 h-5"></i></div>
+            <div class="flex-1"><div class="text-[13px] font-bold text-slate-900">Aporte de cash</div><div class="text-[11px] text-slate-500">El socio inyecta dinero al negocio · sube caja y patrimonio</div></div>
+            <i data-lucide="chevron-right" class="w-4 h-4 text-emerald-400"></i>
+          </button>
+          <!-- card retiro -->
+          <button class="w-full flex items-center gap-3 p-3 border border-slate-200 hover:border-rose-300 hover:bg-rose-50/30 rounded-xl text-left">
+            <div class="w-9 h-9 rounded-lg bg-rose-100 text-rose-700 flex items-center justify-center shrink-0"><i data-lucide="arrow-up-from-line" class="w-5 h-5"></i></div>
+            <div class="flex-1"><div class="text-[13px] font-bold text-slate-900">Retiro</div><div class="text-[11px] text-slate-500">El socio saca capital, utilidades o préstamo · baja caja</div></div>
+            <i data-lucide="chevron-right" class="w-4 h-4 text-slate-300"></i>
+          </button>
+          <!-- card TC · PROTAGONISTA -->
+          <button class="w-full flex items-center gap-3 p-3 border-2 border-rose-200 hover:border-rose-300 bg-gradient-to-r from-rose-50/40 to-transparent rounded-xl text-left relative">
+            <span class="absolute -top-2 left-3 bg-rose-600 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full">80% del negocio</span>
+            <div class="w-9 h-9 rounded-lg bg-rose-100 text-rose-700 flex items-center justify-center shrink-0"><i data-lucide="credit-card" class="w-5 h-5"></i></div>
+            <div class="flex-1"><div class="text-[13px] font-bold text-slate-900">Tarjeta de crédito</div><div class="text-[11px] text-slate-500">El socio pone su TC personal · deuda asumida por el negocio</div></div>
+            <i data-lucide="external-link" class="w-3.5 h-3.5 text-rose-400"></i>
+          </button>
+          <p class="text-[10px] text-slate-400 flex items-center gap-1.5 pt-1"><i data-lucide="info" class="w-3 h-3"></i> El <strong>aporte de valor</strong> (know-how, marca) se edita en el perfil del socio · no es un movimiento.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3 · APORTE -->
+  <section id="aporte">
+    <div class="flex items-center gap-3 mb-5">
+      <span class="text-[11px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full">Acto 3</span>
+      <h2 class="text-xl font-bold tracking-tight">Flujo Aporte (form en el mismo modal · selector de socio)</h2>
+    </div>
+    <div class="flex justify-center">
+      <div class="w-full max-w-lg bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden">
+        <div class="px-5 py-4 border-b border-slate-100 flex items-start gap-3">
+          <div class="w-10 h-10 rounded-xl bg-violet-50 border border-violet-200 text-violet-700 flex items-center justify-center shrink-0"><i data-lucide="coins" class="w-5 h-5"></i></div>
+          <div class="flex-1"><div class="text-[10px] uppercase tracking-wider text-slate-400 font-bold mb-0.5">Capital · Aporte de cash</div><h3 class="text-base font-semibold tracking-tight">Registrar aporte</h3></div>
+          <button class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
+        </div>
+        <div class="px-5 py-4 space-y-3.5 max-h-[58vh] overflow-y-auto">
+          <button class="text-[11px] text-slate-500 hover:text-slate-700 flex items-center gap-1"><i data-lucide="arrow-left" class="w-3.5 h-3.5"></i> Cambiar tipo</button>
+          <!-- selector socio (porque viene del header · sin contexto) -->
+          <div>
+            <label class="text-[11px] font-semibold text-slate-600 mb-1 block">Socio <span class="text-rose-500">*</span></label>
+            <div class="flex items-center gap-2 border border-slate-300 rounded-lg px-2.5 focus-within:ring-2 focus-within:ring-violet-500/40">
+              <i data-lucide="user" class="w-4 h-4 text-slate-400 shrink-0"></i>
+              <select class="flex-1 bg-transparent text-[13px] py-2 outline-none"><option>José López · 60%</option><option>María Paz · 40%</option></select>
+            </div>
+          </div>
+          <div class="grid grid-cols-3 gap-3">
+            <div class="col-span-2"><label class="text-[11px] font-semibold text-slate-600 mb-1 block">Monto <span class="text-rose-500">*</span></label><div class="flex items-center border border-slate-300 rounded-lg px-3 py-2"><span class="text-slate-400 text-[13px] mr-1.5">S/</span><input value="15,000.00" class="flex-1 outline-none text-[14px] font-semibold tabular bg-transparent"></div></div>
+            <div><label class="text-[11px] font-semibold text-slate-600 mb-1 block">Moneda</label><div class="grid grid-cols-2 gap-1 bg-slate-100 rounded-lg p-1 h-[38px]"><button class="rounded-md bg-white shadow-sm text-[12px] font-bold text-violet-700">PEN</button><button class="rounded-md text-[12px] font-semibold text-slate-500">USD</button></div></div>
+          </div>
+          <div><label class="text-[11px] font-semibold text-slate-600 mb-1 block">Cuenta destino <span class="text-rose-500">*</span></label><div class="flex items-center gap-2 border border-slate-300 rounded-lg px-2.5 py-2"><i data-lucide="landmark" class="w-4 h-4 text-slate-400"></i><span class="flex-1 text-[13px]">BCP Corriente · saldo S/ 12,300</span><i data-lucide="chevron-down" class="w-4 h-4 text-slate-400"></i></div></div>
+          <div class="grid grid-cols-2 gap-3">
+            <div><label class="text-[11px] font-semibold text-slate-600 mb-1 block">Método</label><div class="flex items-center gap-2 border border-slate-300 rounded-lg px-2.5 py-2"><i data-lucide="arrow-left-right" class="w-4 h-4 text-slate-400"></i><span class="flex-1 text-[13px]">Transferencia</span><i data-lucide="chevron-down" class="w-4 h-4 text-slate-400"></i></div></div>
+            <div><label class="text-[11px] font-semibold text-slate-600 mb-1 block">Fecha</label><div class="flex items-center gap-2 border border-slate-300 rounded-lg px-2.5 py-2"><i data-lucide="calendar" class="w-4 h-4 text-slate-400"></i><span class="flex-1 text-[13px] tabular">06/06/2026</span></div></div>
+          </div>
+          <div class="rounded-xl border border-emerald-200 bg-emerald-50/50 p-3">
+            <div class="text-[10px] uppercase tracking-wider text-emerald-700 font-bold mb-1 flex items-center gap-1.5"><i data-lucide="trending-up" class="w-3.5 h-3.5"></i> Efecto en José</div>
+            <div class="text-[12px] tabular text-slate-500">Cash aportado S/ 52,000 <i data-lucide="arrow-right" class="w-3 h-3 inline"></i> <span class="font-bold text-emerald-700">S/ 67,000</span></div>
+          </div>
+        </div>
+        <div class="px-5 py-3 border-t border-slate-100 bg-slate-50/60 flex items-center justify-end gap-2">
+          <button class="text-[13px] font-semibold text-slate-600 px-3 py-2">Cancelar</button>
+          <button class="inline-flex items-center gap-1.5 bg-violet-600 hover:bg-violet-700 text-white text-[13px] font-semibold px-4 py-2 rounded-lg"><i data-lucide="check" class="w-4 h-4"></i> Registrar aporte</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 · RETIRO -->
+  <section id="retiro">
+    <div class="flex items-center gap-3 mb-5">
+      <span class="text-[11px] font-bold uppercase tracking-wider text-rose-700 bg-rose-50 px-2.5 py-1 rounded-full">Acto 4</span>
+      <h2 class="text-xl font-bold tracking-tight">Flujo Retiro (+ tipoRetiro)</h2>
+    </div>
+    <div class="flex justify-center">
+      <div class="w-full max-w-lg bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden">
+        <div class="px-5 py-4 border-b border-slate-100 flex items-start gap-3">
+          <div class="w-10 h-10 rounded-xl bg-violet-50 border border-violet-200 text-violet-700 flex items-center justify-center shrink-0"><i data-lucide="coins" class="w-5 h-5"></i></div>
+          <div class="flex-1"><div class="text-[10px] uppercase tracking-wider text-slate-400 font-bold mb-0.5">Capital · Retiro</div><h3 class="text-base font-semibold tracking-tight">Registrar retiro</h3></div>
+          <button class="text-slate-400"><i data-lucide="x" class="w-5 h-5"></i></button>
+        </div>
+        <div class="px-5 py-4 space-y-3.5">
+          <button class="text-[11px] text-slate-500 flex items-center gap-1"><i data-lucide="arrow-left" class="w-3.5 h-3.5"></i> Cambiar tipo</button>
+          <div><label class="text-[11px] font-semibold text-slate-600 mb-1 block">Socio <span class="text-rose-500">*</span></label><div class="flex items-center gap-2 border border-slate-300 rounded-lg px-2.5"><i data-lucide="user" class="w-4 h-4 text-slate-400"></i><select class="flex-1 bg-transparent text-[13px] py-2 outline-none"><option>José López · 60%</option></select></div></div>
+          <!-- tipoRetiro -->
+          <div>
+            <label class="text-[11px] font-semibold text-slate-600 mb-1 block">Tipo de retiro <span class="text-rose-500">*</span></label>
+            <div class="grid grid-cols-3 gap-1.5">
+              <button class="flex flex-col items-center gap-1 py-2.5 rounded-lg border border-rose-200 bg-rose-50 text-rose-700"><i data-lucide="trending-up" class="w-4 h-4"></i><span class="text-[11px] font-bold">Utilidades</span></button>
+              <button class="flex flex-col items-center gap-1 py-2.5 rounded-lg border border-slate-200 text-slate-500"><i data-lucide="coins" class="w-4 h-4"></i><span class="text-[11px] font-semibold">Capital</span></button>
+              <button class="flex flex-col items-center gap-1 py-2.5 rounded-lg border border-slate-200 text-slate-500"><i data-lucide="hand-coins" class="w-4 h-4"></i><span class="text-[11px] font-semibold">Préstamo</span></button>
+            </div>
+          </div>
+          <div class="grid grid-cols-3 gap-3">
+            <div class="col-span-2"><label class="text-[11px] font-semibold text-slate-600 mb-1 block">Monto <span class="text-rose-500">*</span></label><div class="flex items-center border border-slate-300 rounded-lg px-3 py-2"><span class="text-slate-400 text-[13px] mr-1.5">S/</span><input value="8,000.00" class="flex-1 outline-none text-[14px] font-semibold tabular bg-transparent"></div></div>
+            <div><label class="text-[11px] font-semibold text-slate-600 mb-1 block">Moneda</label><div class="grid grid-cols-2 gap-1 bg-slate-100 rounded-lg p-1 h-[38px]"><button class="rounded-md bg-white shadow-sm text-[12px] font-bold text-violet-700">PEN</button><button class="rounded-md text-[12px] font-semibold text-slate-500">USD</button></div></div>
+          </div>
+          <div><label class="text-[11px] font-semibold text-slate-600 mb-1 block">Cuenta origen <span class="text-rose-500">*</span></label><div class="flex items-center gap-2 border border-slate-300 rounded-lg px-2.5 py-2"><i data-lucide="landmark" class="w-4 h-4 text-slate-400"></i><span class="flex-1 text-[13px]">BCP Corriente</span><span class="text-[11px] tabular text-emerald-600">S/ 12,300</span><i data-lucide="chevron-down" class="w-4 h-4 text-slate-400"></i></div><p class="text-[10px] text-slate-400 mt-1 flex items-center gap-1"><i data-lucide="shield-check" class="w-3 h-3"></i> valida saldo suficiente</p></div>
+        </div>
+        <div class="px-5 py-3 border-t border-slate-100 bg-slate-50/60 flex items-center justify-end gap-2">
+          <button class="text-[13px] font-semibold text-slate-600 px-3 py-2">Cancelar</button>
+          <button class="inline-flex items-center gap-1.5 bg-violet-600 hover:bg-violet-700 text-white text-[13px] font-semibold px-4 py-2 rounded-lg"><i data-lucide="check" class="w-4 h-4"></i> Registrar retiro</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5 · TARJETA -->
+  <section id="tc">
+    <div class="flex items-center gap-3 mb-5">
+      <span class="text-[11px] font-bold uppercase tracking-wider text-rose-700 bg-rose-50 px-2.5 py-1 rounded-full">Acto 5</span>
+      <h2 class="text-xl font-bold tracking-tight">Flujo Tarjeta → CuentaWizard pre-cargado (no se duplica)</h2>
+    </div>
+    <div class="flex flex-col md:flex-row items-center justify-center gap-3">
+      <!-- transición -->
+      <div class="w-full max-w-sm bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
+        <div class="px-5 py-4 border-b border-slate-100 flex items-center gap-3">
+          <div class="w-9 h-9 rounded-lg bg-rose-50 text-rose-700 flex items-center justify-center"><i data-lucide="credit-card" class="w-4 h-4"></i></div>
+          <div class="flex-1"><h3 class="text-[14px] font-semibold">Tarjeta de crédito del socio</h3></div>
+        </div>
+        <div class="px-5 py-4 text-center">
+          <p class="text-[12px] text-slate-600 leading-relaxed mb-3">Registrar una TC es crear una <strong>cuenta de crédito</strong> (varios pasos). Te llevamos al <strong>asistente de cuentas</strong> ya pre-cargado para José.</p>
+          <div class="flex items-center justify-center gap-2 text-[11px] text-slate-500 mb-4">
+            <span class="px-2 py-1 bg-slate-100 rounded-full">tipo: crédito</span>
+            <span class="px-2 py-1 bg-slate-100 rounded-full">titular: José (socio)</span>
+          </div>
+          <button class="w-full inline-flex items-center justify-center gap-1.5 bg-violet-600 text-white text-[13px] font-semibold px-4 py-2.5 rounded-lg"><i data-lucide="arrow-right" class="w-4 h-4"></i> Abrir asistente de tarjeta</button>
+        </div>
+      </div>
+      <i data-lucide="arrow-right" class="w-6 h-6 text-slate-300 hidden md:block"></i>
+      <!-- wizard pre-cargado (recorte) -->
+      <div class="w-full max-w-sm bg-white rounded-2xl shadow-xl border border-violet-200 overflow-hidden">
+        <div class="px-5 py-3 border-b border-slate-100 bg-violet-50/40 flex items-center gap-2"><i data-lucide="sparkles" class="w-4 h-4 text-violet-600"></i><span class="text-[12px] font-bold text-violet-900">CuentaWizard · pre-cargado</span></div>
+        <div class="px-5 py-4 space-y-2 text-[12px]">
+          <div class="flex items-center justify-between"><span class="text-slate-500">Tipo</span><span class="font-semibold text-violet-700">Tarjeta de crédito ✓</span></div>
+          <div class="flex items-center justify-between"><span class="text-slate-500">Titularidad</span><span class="font-semibold text-violet-700">Personal · socio ✓</span></div>
+          <div class="flex items-center justify-between"><span class="text-slate-500">Socio garante</span><span class="font-semibold text-violet-700">José López ✓</span></div>
+          <div class="pt-2 mt-1 border-t border-slate-100 text-[11px] text-slate-400">Seguís con banco · límite · día de corte/pago…</div>
+        </div>
+      </div>
+    </div>
+    <p class="text-center text-[11px] text-slate-400 mt-3">La TC reusa el wizard REAL (D4) · el atajo solo lo abre pre-contextualizado · cero lógica duplicada.</p>
+  </section>
+
+  <!-- 6 · MOBILE -->
+  <section id="mobile">
+    <div class="flex items-center gap-3 mb-5">
+      <span class="text-[11px] font-bold uppercase tracking-wider text-violet-700 bg-violet-50 px-2.5 py-1 rounded-full">Acto 6</span>
+      <h2 class="text-xl font-bold tracking-tight">Mobile (375px) — bottom-sheet (selector + flujo)</h2>
+    </div>
+    <div class="flex flex-wrap gap-6 justify-center">
+      <!-- selector sheet -->
+      <div class="phone bg-slate-900/40 rounded-[2rem] border-4 border-slate-800 overflow-hidden shadow-xl relative" style="height:560px">
+        <div class="absolute inset-x-0 top-0 px-4 py-4 flex items-center justify-between"><span class="text-white/50 text-[11px]">Inversionistas</span><span class="bg-violet-600 text-white text-[10px] font-semibold px-2 py-1 rounded-lg flex items-center gap-1"><i data-lucide="plus-circle" class="w-3 h-3"></i> Capital</span></div>
+        <div class="absolute inset-x-0 bottom-0 bg-white rounded-t-2xl max-h-[88%]">
+          <div class="flex justify-center pt-2"><div class="w-10 h-1 rounded-full bg-slate-300"></div></div>
+          <div class="px-4 py-3 border-b border-slate-100"><h3 class="text-[14px] font-semibold">Registrar capital</h3><p class="text-[11px] text-slate-500">¿Qué tipo?</p></div>
+          <div class="px-4 py-3 space-y-2">
+            <button class="w-full flex items-center gap-2.5 p-3 border-2 border-emerald-300 bg-emerald-50/50 rounded-xl text-left"><div class="w-9 h-9 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center"><i data-lucide="banknote" class="w-4 h-4"></i></div><div class="flex-1"><div class="text-[13px] font-bold">Aporte de cash</div><div class="text-[10px] text-slate-500">socio inyecta dinero</div></div></button>
+            <button class="w-full flex items-center gap-2.5 p-3 border border-slate-200 rounded-xl text-left"><div class="w-9 h-9 rounded-lg bg-rose-100 text-rose-700 flex items-center justify-center"><i data-lucide="arrow-up-from-line" class="w-4 h-4"></i></div><div class="flex-1"><div class="text-[13px] font-bold">Retiro</div><div class="text-[10px] text-slate-500">saca capital/utilidades</div></div></button>
+            <button class="w-full flex items-center gap-2.5 p-3 border-2 border-rose-200 rounded-xl text-left relative"><span class="absolute -top-2 left-3 bg-rose-600 text-white text-[8px] font-bold px-1.5 rounded-full">80%</span><div class="w-9 h-9 rounded-lg bg-rose-100 text-rose-700 flex items-center justify-center"><i data-lucide="credit-card" class="w-4 h-4"></i></div><div class="flex-1"><div class="text-[13px] font-bold">Tarjeta de crédito</div><div class="text-[10px] text-slate-500">TC personal del socio</div></div></button>
+          </div>
+        </div>
+      </div>
+      <!-- aporte sheet -->
+      <div class="phone bg-slate-900/40 rounded-[2rem] border-4 border-slate-800 overflow-hidden shadow-xl relative" style="height:560px">
+        <div class="absolute inset-x-0 bottom-0 bg-white rounded-t-2xl max-h-[92%] overflow-y-auto no-scrollbar">
+          <div class="flex justify-center pt-2"><div class="w-10 h-1 rounded-full bg-slate-300"></div></div>
+          <div class="px-4 py-3 border-b border-slate-100 flex items-center gap-2"><button class="text-slate-400"><i data-lucide="arrow-left" class="w-4 h-4"></i></button><h3 class="text-[14px] font-semibold flex-1">Aporte de cash</h3><button class="text-slate-400"><i data-lucide="x" class="w-5 h-5"></i></button></div>
+          <div class="px-4 py-3 space-y-3">
+            <div class="flex items-center gap-2 border border-slate-300 rounded-lg px-2.5"><i data-lucide="user" class="w-4 h-4 text-slate-400"></i><select class="flex-1 bg-transparent text-[13px] py-2.5 outline-none"><option>José López · 60%</option></select></div>
+            <div class="flex items-center border border-slate-300 rounded-lg px-3 py-2.5"><span class="text-slate-400 text-[13px] mr-1.5">S/</span><input value="15,000.00" class="flex-1 outline-none text-[15px] font-semibold tabular bg-transparent"></div>
+            <div class="flex items-center gap-2 border border-slate-300 rounded-lg px-2.5 py-2.5"><i data-lucide="landmark" class="w-4 h-4 text-slate-400"></i><span class="flex-1 text-[13px]">BCP Corriente</span><i data-lucide="chevron-down" class="w-4 h-4 text-slate-400"></i></div>
+            <div class="rounded-xl border border-emerald-200 bg-emerald-50/50 p-2.5 text-[12px] tabular text-slate-500">Cash José: S/ 52k <i data-lucide="arrow-right" class="w-3 h-3 inline"></i> <span class="font-bold text-emerald-700">S/ 67k</span></div>
+          </div>
+          <div class="sticky bottom-0 bg-white border-t border-slate-100 px-4 py-3 pb-5"><button class="w-full bg-violet-600 text-white text-[14px] font-semibold py-3 rounded-xl flex items-center justify-center gap-1.5"><i data-lucide="check" class="w-4 h-4"></i> Registrar aporte</button></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CHECKLIST -->
+  <section id="check" class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+    <h2 class="text-lg font-bold tracking-tight mb-4 flex items-center gap-2"><i data-lucide="clipboard-check" class="w-5 h-5 text-violet-600"></i> Checklist canon</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2 text-[12px]">
+      <div class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-600"></i> Acceso primer nivel: "Registrar capital" primary del HubHeader</div>
+      <div class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-600"></i> Selector de tipo en radio-cards (patrón IngresoSimpleModal)</div>
+      <div class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-600"></i> 3 tipos: Aporte · Retiro · TC (80% destacada)</div>
+      <div class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-600"></i> Aporte/Retiro = FormModalV2 · TC = CuentaWizard pre-cargado</div>
+      <div class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-600"></i> Selector de socio (header) o pre-cargado (tab socio)</div>
+      <div class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-600"></i> 3 accesos al mismo flujo (header · Mi Capital · tab socio)</div>
+      <div class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-600"></i> Color violet (chrome) + semántico (emerald/rose)</div>
+      <div class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-600"></i> Mobile bottom-sheet (selector + flujo)</div>
+      <div class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-600"></i> F5: capital sale de Finanzas (origen único · visible en libro)</div>
+      <div class="flex items-center gap-2 text-amber-700"><i data-lucide="help-circle" class="w-4 h-4"></i> A validar: ¿"Registrar capital" primary desplaza a "Nuevo socio"?</div>
+    </div>
+    <div class="mt-5 pt-4 border-t border-slate-100 text-[11px] text-slate-500 leading-relaxed">
+      <strong class="text-slate-700">Decisión abierta:</strong> el header pasa "Registrar capital" a primary y "Nuevo socio" a secundario (config). Si preferís mantener "Nuevo socio" como primary, lo ajusto.
+    </div>
+  </section>
+
+</main>
+
+<footer class="bg-slate-900 text-slate-400 text-[11px] py-6 text-center">
+  Inversionistas · Registrar capital · v1 · 2026-06-06 · acceso primer nivel + selector 3 tipos · alineado a Hub Kit + FormModalV2 + CuentaWizard
+</footer>
+<script>lucide.createIcons();</script>
+</body>
+</html>

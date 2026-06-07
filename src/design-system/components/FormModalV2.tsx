@@ -80,6 +80,8 @@ export interface FormModalV2Props {
   disableBackdropClick?: boolean;
   /** Si false, el atajo Cmd/Ctrl+Enter no llama onSubmit. Default: true. */
   enableSubmitShortcut?: boolean;
+  /** Oculta el footer completo (ej. una vista de selección sin submit). Default: false. */
+  hideFooter?: boolean;
 }
 
 // ─── Helper: tono del icono ────────────────────────────────────────────
@@ -134,6 +136,7 @@ export const FormModalV2: React.FC<FormModalV2Props> = ({
   disableEscapeKey,
   disableBackdropClick,
   enableSubmitShortcut = true,
+  hideFooter = false,
 }) => {
   // ── Atajo Cmd/Ctrl+Enter para submit ──
   const handleSubmitShortcut = useCallback(
@@ -254,7 +257,7 @@ export const FormModalV2: React.FC<FormModalV2Props> = ({
       contentPadding="none"
       disableEscapeKey={disableEscapeKey}
       disableBackdropClick={disableBackdropClick}
-      footer={footer}
+      footer={hideFooter ? undefined : footer}
       showHeaderShadow={false}
     >
       {/* Header custom con icono tonal */}

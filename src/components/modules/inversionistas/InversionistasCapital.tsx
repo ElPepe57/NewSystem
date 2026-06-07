@@ -23,27 +23,24 @@ import type { ResumenInversionista } from '../../../types/inversionista.types';
 import { UserPanel } from '../../usuarios/UserPanel';
 import type { TabContextual } from '../../usuarios/UserPanel';
 import TabCapitalSocio from './TabCapitalSocio';
-import AporteCapitalModal from './AporteCapitalModal';
 import EditarValorSocioModal from './EditarValorSocioModal';
-import { CuentaWizard } from '../../../pages/Finanzas/components/wizards/CuentaWizard/CuentaWizard';
-import type { CuentaWizardState } from '../../../pages/Finanzas/components/wizards/CuentaWizard/types';
 import { useSocioStore } from '../../../store/socioStore';
 
 interface Props {
   data: ResumenInversionista;
   /** F14.2 · refresca el resumen tras registrar capital (provisto por el shell). */
   onRefetch?: () => void;
+  /** F14.G · abre el modal Registrar capital del shell (socioId opcional · pre-cargado). */
+  onAbrirMovimiento?: (socioId?: string) => void;
+  /** F14.G · abre el CuentaWizard de TC directo del shell (socio pre-cargado). */
+  onAbrirTC?: (socioId: string) => void;
 }
 
-export default function InversionistasCapital({ data, onRefetch }: Props) {
+export default function InversionistasCapital({ data, onRefetch, onAbrirMovimiento, onAbrirTC }: Props) {
   // chk5.PERSONAS-v5.7 · E6.2 · UserPanel state + lookup de userId por socioId
   const [panelUid, setPanelUid] = useState<string | null>(null);
   // F14.1 · socio del panel (para inyectar el tab "Capital" contextual)
   const [panelSocioId, setPanelSocioId] = useState<string | null>(null);
-  // F14.2 · modal de aporte de capital (socio del panel)
-  const [aporteModalOpen, setAporteModalOpen] = useState(false);
-  // F14.3 · CuentaWizard pre-contextualizado para TC personal del socio (D4)
-  const [tcWizardOpen, setTcWizardOpen] = useState(false);
   // F14.4 · modal editar participación + aporte de valor (D3)
   const [valorModalOpen, setValorModalOpen] = useState(false);
   const socios = useSocioStore((s) => s.socios);
@@ -63,18 +60,6 @@ export default function InversionistasCapital({ data, onRefetch }: Props) {
     [socios, panelSocioId],
   );
 
-  // F14.3 · preset TC personal del socio (D4 · el wizard arranca pre-cargado:
-  // tipo crédito + titularidad personal + socio garante)
-  const tcPreset = useMemo<Partial<CuentaWizardState>>(
-    () => ({
-      tipo: 'credito',
-      titularidad: 'personal',
-      titularEntidadTipo: 'socio',
-      titularEntidadId: panelSocioId ?? '',
-    }),
-    [panelSocioId],
-  );
-
   // F14.1 · tab contextual "Capital" inyectado al UserPanel (hogar del capital
   // del socio · canon: NO drill-down nuevo, sí TabContextual del panel existente).
   const tabsCapital = useMemo<TabContextual[]>(() => {
@@ -88,8 +73,8 @@ export default function InversionistasCapital({ data, onRefetch }: Props) {
         <TabCapitalSocio
           socioId={sid}
           data={data}
-          onRegistrarAporte={() => setAporteModalOpen(true)}
-          onRegistrarTC={() => setTcWizardOpen(true)}
+          onRegistrarAporte={() => onAbrirMovimiento?.(sid)}
+          onRegistrarTC={() => onAbrirTC?.(sid)}
           onEditarValor={() => setValorModalOpen(true)}
         />
       ),
@@ -170,8 +155,9 @@ export default function InversionistasCapital({ data, onRefetch }: Props) {
             </h3>
             <button
               type="button"
+              onClick={() => onAbrirMovimiento?.()}
               className="text-[10px] text-emerald-700 hover:bg-emerald-100 border border-emerald-300 px-2 py-1 rounded inline-flex items-center gap-1 whitespace-nowrap"
-              title="Próximamente · usar Finanzas › Movimientos › Aporte"
+              title="Registrar capital"
             >
               <Plus className="w-3 h-3" /> <span className="hidden sm:inline">Nuevo aporte</span>
             </button>
@@ -381,26 +367,6 @@ export default function InversionistasCapital({ data, onRefetch }: Props) {
         onClose={() => { setPanelUid(null); setPanelSocioId(null); }}
         tabInicial="capital"
         tabsContextuales={tabsCapital}
-      />
-
-      {/* F14.2 · modal de aporte de capital · operación exclusiva de Inversionistas */}
-      {panelSocioId && (
-        <AporteCapitalModal
-          isOpen={aporteModalOpen}
-          socioId={panelSocioId}
-          socioNombre={panelSocioNombre}
-          tipoCambio={data.tipoCambio}
-          onClose={() => setAporteModalOpen(false)}
-          onSuccess={() => { setAporteModalOpen(false); onRefetch?.(); }}
-        />
-      )}
-
-      {/* F14.3 · CuentaWizard pre-contextualizado para TC personal del socio (D4) */}
-      <CuentaWizard
-        isOpen={tcWizardOpen}
-        onClose={() => setTcWizardOpen(false)}
-        presetInicial={tcPreset}
-        onSuccess={() => { setTcWizardOpen(false); onRefetch?.(); }}
       />
 
       {/* F14.4 · editar participación + aporte de valor del socio (D3) */}

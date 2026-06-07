@@ -39,6 +39,7 @@ import {
   FileBarChart,
   Users,
   ArrowRight,
+  PlusCircle,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 // Hub Kit (L5) · DS Fase 4
@@ -66,6 +67,9 @@ import {
 } from '../../components/modules/inversionistas';
 // chk5.PERSONAS-v5.8 · E4 · Modal "Nuevo socio" · alta directa desde Inversionistas
 import { NuevoSocioModal } from '../../components/modules/inversionistas/NuevoSocioModal';
+import MovimientoCapitalModal from '../../components/modules/inversionistas/MovimientoCapitalModal';
+import { CuentaWizard } from '../Finanzas/components/wizards/CuentaWizard/CuentaWizard';
+import type { CuentaWizardState } from '../Finanzas/components/wizards/CuentaWizard/types';
 
 import { MESES_NOMBRE_LARGO } from '../../components/modules/inversionistas/shared';
 
@@ -139,6 +143,16 @@ export default function Inversionistas() {
   // chk5.PERSONAS-v5.8 · E4 · Modal "Nuevo socio" · alta directa
   const [nuevoSocioOpen, setNuevoSocioOpen] = useState(false);
   const [toastMsg, setToastMsg] = useState<string | null>(null);
+
+  // F14.G · Registrar capital · modal único (aporte/retiro/TC) accesible desde el header
+  const [movOpen, setMovOpen] = useState(false);
+  const [movSocioId, setMovSocioId] = useState('');      // '' = selector de socio
+  const [tcWizardOpen, setTcWizardOpen] = useState(false);
+  const [tcWizardSocioId, setTcWizardSocioId] = useState('');
+  const tcPreset = useMemo<Partial<CuentaWizardState>>(() => ({
+    tipo: 'credito', titularidad: 'personal', titularEntidadTipo: 'socio',
+    titularEntidadId: tcWizardSocioId,
+  }), [tcWizardSocioId]);
 
   // Auto-hide toast
   useEffect(() => {
@@ -319,7 +333,8 @@ export default function Inversionistas() {
             { label: 'Recargar', icon: RefreshCw, onClick: cargarDatos, tier: 'neutral', disabled: loading },
             { label: 'Gestionar socios', icon: UserCog, onClick: () => navigate('/usuarios?filterRole=socio'), tier: 'config' },
             { label: 'Reportes', icon: FileText, onClick: () => setTabActiva('reportes'), tier: 'neutral' },
-            { label: 'Nuevo socio', icon: Users, onClick: () => setNuevoSocioOpen(true), tier: 'primary' },
+            { label: 'Nuevo socio', icon: Users, onClick: () => setNuevoSocioOpen(true), tier: 'config' },
+            { label: 'Registrar capital', icon: PlusCircle, onClick: () => { setMovSocioId(''); setMovOpen(true); }, tier: 'primary' },
           ]}
         />
 
@@ -375,7 +390,14 @@ export default function Inversionistas() {
           {data && !loading && (
             <>
               {tabActiva === 'resumen' && <InversionistasResumen data={data} />}
-              {tabActiva === 'capital' && <InversionistasCapital data={data} onRefetch={cargarDatos} />}
+              {tabActiva === 'capital' && (
+                <InversionistasCapital
+                  data={data}
+                  onRefetch={cargarDatos}
+                  onAbrirMovimiento={(sid) => { setMovSocioId(sid ?? ''); setMovOpen(true); }}
+                  onAbrirTC={(sid) => { setTcWizardSocioId(sid); setTcWizardOpen(true); }}
+                />
+              )}
               {tabActiva === 'trayectoria' && (
                 trayectoriaCargando ? (
                   <TrayectoriaLoadingState />
@@ -407,6 +429,27 @@ export default function Inversionistas() {
           setToastMsg(`Socio agregado al cap table (uid: ${uid.slice(0, 8)}...)`);
           cargarDatos();
         }}
+      />
+
+      {/* F14.G · Registrar capital (aporte/retiro/TC) · acceso de primer nivel */}
+      {data && (
+        <MovimientoCapitalModal
+          isOpen={movOpen}
+          socioId={movSocioId || undefined}
+          tipoCambio={data.tipoCambio}
+          socios={data.socios.map((s) => ({ id: s.id, nombre: s.nombre }))}
+          onClose={() => setMovOpen(false)}
+          onSuccess={() => { setMovOpen(false); setToastMsg('Movimiento de capital registrado'); cargarDatos(); }}
+          onRegistrarTC={(sid) => { setMovOpen(false); setTcWizardSocioId(sid); setTcWizardOpen(true); }}
+        />
+      )}
+
+      {/* F14.G · TC del socio → CuentaWizard pre-contextualizado */}
+      <CuentaWizard
+        isOpen={tcWizardOpen}
+        onClose={() => setTcWizardOpen(false)}
+        presetInicial={tcPreset}
+        onSuccess={() => { setTcWizardOpen(false); setToastMsg('Tarjeta de crédito registrada'); cargarDatos(); }}
       />
 
       {/* Toast inline · patron existente del módulo */}
