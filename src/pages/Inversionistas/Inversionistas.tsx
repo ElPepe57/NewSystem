@@ -88,7 +88,7 @@ interface TabConfig {
 
 const TABS: TabConfig[] = [
   { id: 'resumen', label: 'Resumen', breadcrumb: 'Resumen', icon: Home },
-  { id: 'capital', label: 'Mi Capital', breadcrumb: 'Mi Capital', icon: Coins },
+  { id: 'capital', label: 'Capital', breadcrumb: 'Capital', icon: Coins },
   { id: 'trayectoria', label: 'Trayectoria', breadcrumb: 'Trayectoria', icon: LineChart },
   { id: 'roi', label: 'ROI Dual', breadcrumb: 'ROI Dual', icon: Layers },
   { id: 'distribucion', label: 'Distribución', breadcrumb: 'Distribución', icon: Banknote },
@@ -344,7 +344,7 @@ export default function Inversionistas() {
             </div>
             <div className="flex-1 min-w-0">
               <div className="text-[11px] text-slate-700">
-                <strong>Admin/Gerente:</strong> gestioná capital · % participación · aportes de valor de cada socio en <strong>Mi Capital</strong> (sin salir del módulo).
+                <strong>Admin/Gerente:</strong> gestioná capital · % participación · aportes de valor de cada socio en <strong>Capital</strong> (sin salir del módulo).
               </div>
             </div>
             <button
