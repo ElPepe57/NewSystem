@@ -425,7 +425,9 @@
       "Bash(sed -n '488,492p' src/pages/Finanzas/components/wizards/CuentaWizard/types.ts)",
       "Bash(sed -n '755,761p' src/pages/Finanzas/components/wizards/CuentaWizard/types.ts)",
       "Bash(grep -nE \"saldoInicialPEN:\" src/pages/Finanzas/components/wizards/CuentaWizard/types.ts)",
-      "Bash(grep -n \"retiro_socio\\\\|tipoRetiro\\\\|socioId\\\\|sociosActivos\\\\|recomiendaGastos\\\\|Selector de socio\" src/pages/Finanzas/components/wizards/EgresoSimpleModal.tsx)"
+      "Bash(grep -n \"retiro_socio\\\\|tipoRetiro\\\\|socioId\\\\|sociosActivos\\\\|recomiendaGastos\\\\|Selector de socio\" src/pages/Finanzas/components/wizards/EgresoSimpleModal.tsx)",
+      "Bash(grep -nE \"navigate\\\\\\(\" src/pages/Inversionistas/Inversionistas.tsx)",
+      "Bash(grep -nE \"UserCog\" src/pages/Inversionistas/Inversionistas.tsx)"
     ],
     "deny": [],
     "ask": []

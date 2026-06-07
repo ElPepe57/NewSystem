@@ -46,7 +46,6 @@ import type { LucideIcon } from 'lucide-react';
 import { HubShell, HubTopBar, HubHeader, HubKpiStrip, HubTabs, HubBody } from '../../design-system';
 import type { HubTab, HubKpi } from '../../design-system';
 
-import { useNavigate } from 'react-router-dom';
 import { inversionistaService } from '../../services/inversionista.service';
 import type {
   ResumenInversionista,
@@ -122,7 +121,6 @@ function TrayectoriaLoadingState() {
 // ═════════════════════════════════════════════════════════════════════════
 
 export default function Inversionistas() {
-  const navigate = useNavigate();
   const ahora = new Date();
   const [mes, setMes] = useState<number>(ahora.getMonth() + 1);
   const [anio, setAnio] = useState<number>(ahora.getFullYear());
@@ -331,7 +329,7 @@ export default function Inversionistas() {
           extraActions={periodoSelector}
           acciones={[
             { label: 'Recargar', icon: RefreshCw, onClick: cargarDatos, tier: 'neutral', disabled: loading },
-            { label: 'Gestionar socios', icon: UserCog, onClick: () => navigate('/usuarios?filterRole=socio'), tier: 'config' },
+            { label: 'Gestionar socios', icon: UserCog, onClick: () => setTabActiva('capital'), tier: 'config' },
             { label: 'Reportes', icon: FileText, onClick: () => setTabActiva('reportes'), tier: 'neutral' },
             { label: 'Nuevo socio', icon: Users, onClick: () => setNuevoSocioOpen(true), tier: 'config' },
             { label: 'Registrar capital', icon: PlusCircle, onClick: () => { setMovSocioId(''); setMovOpen(true); }, tier: 'primary' },
@@ -346,15 +344,15 @@ export default function Inversionistas() {
             </div>
             <div className="flex-1 min-w-0">
               <div className="text-[11px] text-slate-700">
-                <strong>Admin/Gerente:</strong> para configurar socios · % participación · aportes de valor (D7) · ir a Usuarios.
+                <strong>Admin/Gerente:</strong> gestioná capital · % participación · aportes de valor de cada socio en <strong>Mi Capital</strong> (sin salir del módulo).
               </div>
             </div>
             <button
               type="button"
-              onClick={() => navigate('/usuarios?filterRole=socio')}
+              onClick={() => setTabActiva('capital')}
               className="bg-white border border-purple-300 hover:bg-purple-50 text-purple-700 text-[11px] font-bold px-3 py-1 rounded-lg whitespace-nowrap flex items-center gap-1"
             >
-              <span className="hidden sm:inline">Configurar socios</span>
+              <span className="hidden sm:inline">Ver socios</span>
               <span className="sm:hidden">Socios</span>
               <ArrowRight className="w-3 h-3" />
             </button>
