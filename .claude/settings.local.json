@@ -420,7 +420,11 @@
       "Bash(sed -n '140,165p' src/pages/RedLogistica/CasillaFormModal.tsx)",
       "Bash(sed -i \"s#form\\\\.pais === 'Peru_local' ? 'Peru' : form\\\\.pais#form.pais#g\" src/pages/RedLogistica/CasillaFormModal.tsx)",
       "Bash(sed -n '58,62p;100,104p;124,128p' src/pages/RedLogistica/RedLogisticaMapa.tsx)",
-      "Bash(awk '{print $9}')"
+      "Bash(awk '{print $9}')",
+      "Bash(sed -n '152,160p' src/pages/Finanzas/components/wizards/IngresoSimpleModal.tsx)",
+      "Bash(sed -n '488,492p' src/pages/Finanzas/components/wizards/CuentaWizard/types.ts)",
+      "Bash(sed -n '755,761p' src/pages/Finanzas/components/wizards/CuentaWizard/types.ts)",
+      "Bash(grep -nE \"saldoInicialPEN:\" src/pages/Finanzas/components/wizards/CuentaWizard/types.ts)"
     ],
     "deny": [],
     "ask": []

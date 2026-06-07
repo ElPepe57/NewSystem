@@ -147,6 +147,9 @@ export interface CuentaWizardState {
   saldoInicial: number;           // Mono-moneda (saldo del negocio actual)
   saldoInicialUSD: number;        // Bi-moneda
   saldoInicialPEN: number;        // Bi-moneda
+  // F14.6 · D2 · si el saldo inicial es aporte de un socio, su id (atribución
+  // fundacional sin doble conteo · solo cuentas de cash). '' = sin declarar.
+  aporteFundacionalSocioId: string;
 
   // ── Paso 4 ──
   metodosDisponibles: MetodoTesoreria[];
@@ -206,6 +209,7 @@ export const INITIAL_STATE: CuentaWizardState = {
   saldoInicial: 0,
   saldoInicialUSD: 0,
   saldoInicialPEN: 0,
+  aporteFundacionalSocioId: '',
 
   metodosDisponibles: ['transferencia_bancaria'],
   canalesDigitales: [],
@@ -517,6 +521,7 @@ export function hidratarStateDesdeCuenta(
     saldoInicial: cuenta.saldoActual ?? 0,
     saldoInicialUSD: cuenta.saldoUSD ?? 0,
     saldoInicialPEN: cuenta.saldoPEN ?? 0,
+    aporteFundacionalSocioId: '',
 
     metodosDisponibles: (cuenta.metodosDisponibles ??
       []) as MetodoTesoreria[],
@@ -782,6 +787,7 @@ export function hidratarStateDesdeProductoFinanciero(
     saldoInicial,
     saldoInicialUSD: pf.saldoUSD ?? 0,
     saldoInicialPEN: pf.saldoPEN ?? 0,
+    aporteFundacionalSocioId: '',
 
     metodosDisponibles: (pf.metodosDisponibles ?? []) as MetodoTesoreria[],
     canalesDigitales,

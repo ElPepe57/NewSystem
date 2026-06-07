@@ -29,9 +29,13 @@ import {
   getProductoFinanciero,
 } from '../../../../../services/productoFinanciero.service';
 import { findOrCreateRelacionBancaria } from '../../../../../services/relacionBancaria.service';
+import { registrarAporteFundacional } from '../../../../../services/tesoreria.capital.service';
+import { useSocioStore } from '../../../../../store/socioStore';
+import { useTipoCambio } from '../../../../../hooks/useTipoCambio';
 import type {
   CuentaCajaFormData,
   CuentaCaja,
+  MonedaTesoreria,
 } from '../../../../../types/tesoreria.types';
 import { requiereRelacionBancaria } from '../../../../../types/productoFinanciero.types';
 import { cn } from '../../../../../design-system/utils';
@@ -168,6 +172,9 @@ export const CuentaWizard: React.FC<CuentaWizardProps> = ({
   const userId = useAuthStore((s) => s.user?.uid ?? '');
   const toastSuccess = useToastStore((s) => s.success);
   const toastError = useToastStore((s) => s.error);
+  // F14.6 · D2 · para el espejo de aporte fundacional (saldo inicial → socio)
+  const socios = useSocioStore((s) => s.socios);
+  const { tc: tcSistema } = useTipoCambio();
 
   const modoEdicion = !!cuentaEditar;
 
@@ -296,6 +303,41 @@ export const CuentaWizard: React.FC<CuentaWizardProps> = ({
         }
 
         const productoId = await crearProductoFinanciero(pfData, userId);
+
+        // F14.6 · D2 · si el saldo inicial se declaró como aporte de un socio,
+        // escribir el espejo en aportesCapital (sin tocar saldo · sin doble conteo).
+        if (state.aporteFundacionalSocioId) {
+          const socioNombre =
+            socios.find((s) => s.id === state.aporteFundacionalSocioId)?.nombre ?? 'Socio';
+          const aportes: Array<{ monto: number; moneda: MonedaTesoreria; tc: number }> = [];
+          if (state.esBiMoneda) {
+            if (state.saldoInicialUSD > 0)
+              aportes.push({ monto: state.saldoInicialUSD, moneda: 'USD', tc: tcSistema?.compra ?? 0 });
+            if (state.saldoInicialPEN > 0)
+              aportes.push({ monto: state.saldoInicialPEN, moneda: 'PEN', tc: 1 });
+          } else if (state.saldoInicial > 0) {
+            aportes.push({
+              monto: state.saldoInicial,
+              moneda: state.moneda,
+              tc: state.moneda === 'USD' ? (tcSistema?.compra ?? 0) : 1,
+            });
+          }
+          for (const a of aportes) {
+            await registrarAporteFundacional(
+              {
+                socioId: state.aporteFundacionalSocioId,
+                socioNombre,
+                monto: a.monto,
+                moneda: a.moneda,
+                tipoCambio: a.tc,
+                cuentaId: productoId,
+                cuentaNombre: pfData.nombre,
+              },
+              userId,
+            );
+          }
+        }
+
         toastSuccess(
           `Producto "${pfData.nombre}" creado${
             pfData.titularidad === 'personal' && pfData.titularNombre
@@ -326,6 +368,8 @@ export const CuentaWizard: React.FC<CuentaWizardProps> = ({
     onSuccess,
     cuentaEditar,
     modoEdicion,
+    socios,
+    tcSistema,
   ]);
 
   // ── Title & subtitle dinámicos ──
