@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dominio Personas · diagrama de fragmentación → destino</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script>tailwind.config={theme:{extend:{fontFamily:{sans:['Inter','system-ui','sans-serif']}}}}</script>
+<style>
+body{font-family:'Inter',system-ui,sans-serif}
+.tabular{font-variant-numeric:tabular-nums}
+.dead{text-decoration:line-through;opacity:.5}
+.conn{position:relative}
+</style>
+</head>
+<body class="bg-slate-100 text-slate-900">
+
+<!-- HERO -->
+<header class="bg-gradient-to-br from-slate-800 to-slate-900 text-white">
+  <div class="max-w-6xl mx-auto px-6 py-9">
+    <div class="inline-flex items-center gap-2 text-slate-300 text-[11px] font-bold uppercase tracking-wider mb-3">
+      <i data-lucide="git-branch" class="w-4 h-4"></i> Dominio Personas
+      <span class="ml-1 px-2 py-0.5 bg-amber-400/20 text-amber-200 rounded-full normal-case tracking-normal font-semibold">exploratorio · diagrama de decisión</span>
+    </div>
+    <h1 class="text-3xl font-bold tracking-tight mb-2">Persona → relación → detalle · qué está roto y a dónde vamos</h1>
+    <p class="text-slate-300 text-sm max-w-3xl leading-relaxed">
+      3 olas de "unificación" que nunca migraron a quien lee. El <strong>alta</strong> escribe en el modelo nuevo,
+      los <strong>módulos</strong> leen los viejos, y <strong>nada los conecta</strong>. Acompaña a
+      <code class="bg-white/10 px-1 rounded">docs/DIAGNOSTICO-DOMINIO-PERSONAS-360.md</code>.
+    </p>
+  </div>
+</header>
+
+<!-- LEYENDA -->
+<div class="bg-white border-b border-slate-200 sticky top-0 z-30">
+  <div class="max-w-6xl mx-auto px-6 py-3 flex flex-wrap items-center gap-x-5 gap-y-2 text-[11px] font-medium">
+    <span class="font-bold text-slate-900 text-[12px]">Leyenda:</span>
+    <span class="inline-flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-emerald-100 ring-1 ring-emerald-300"></span> modelo NUEVO (destino)</span>
+    <span class="inline-flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-amber-100 ring-1 ring-amber-300"></span> modelo VIEJO (legacy)</span>
+    <span class="inline-flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-rose-100 ring-1 ring-rose-300"></span> bug / gap</span>
+    <span class="inline-flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-slate-200 ring-1 ring-slate-300"></span> muerto</span>
+    <span class="inline-flex items-center gap-1.5 ml-auto text-slate-500"><i data-lucide="pen-line" class="w-3.5 h-3.5"></i> escribe &nbsp;·&nbsp; <i data-lucide="eye" class="w-3.5 h-3.5"></i> lee</span>
+  </div>
+</div>
+
+<main class="max-w-6xl mx-auto px-6 py-10 space-y-16">
+
+  <!-- ════ §1 · ESTADO ACTUAL ════ -->
+  <section>
+    <div class="flex items-center gap-3 mb-6">
+      <span class="text-[11px] font-bold uppercase tracking-wider text-rose-700 bg-rose-50 px-2.5 py-1 rounded-full">Estado actual</span>
+      <h2 class="text-xl font-bold tracking-tight">El desalineamiento de un vistazo</h2>
+    </div>
+
+    <div class="bg-white border border-slate-200 rounded-2xl p-5 sm:p-7 shadow-sm space-y-5">
+
+      <!-- ZONA ALTA -->
+      <div>
+        <div class="text-[10px] uppercase tracking-wider text-slate-400 font-bold mb-2">① El alta (cómo nace una persona)</div>
+        <div class="flex flex-wrap gap-2">
+          <div class="bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-[12px] font-semibold text-slate-700">NuevoEmpleadoModal</div>
+          <div class="bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-[12px] font-semibold text-slate-700">NuevoSocioModal</div>
+          <div class="bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-[12px] font-semibold text-slate-700">AgregarRelación (UserPanel)</div>
+        </div>
+      </div>
+
+      <!-- flecha escribe -->
+      <div class="flex items-center justify-center gap-2 text-emerald-700">
+        <i data-lucide="pen-line" class="w-4 h-4"></i>
+        <span class="text-[11px] font-bold uppercase tracking-wider">escribe SOLO en →</span>
+        <i data-lucide="arrow-down" class="w-4 h-4"></i>
+      </div>
+
+      <!-- ZONA MODELOS -->
+      <div>
+        <div class="text-[10px] uppercase tracking-wider text-slate-400 font-bold mb-2">② Los 5 modelos que conviven</div>
+        <div class="grid grid-cols-1 md:grid-cols-5 gap-2.5">
+          <!-- B nuevo -->
+          <div class="bg-emerald-50 border-2 border-emerald-300 rounded-xl p-3 relative">
+            <span class="absolute -top-2 left-2 bg-emerald-600 text-white text-[8px] font-bold px-1.5 py-0.5 rounded-full">NUEVO · ola 3</span>
+            <div class="text-[12px] font-bold text-emerald-900 mt-1.5">B · RelacionLaboral</div>
+            <div class="text-[10px] text-emerald-700 mt-0.5">colección relacionesLaborales</div>
+            <div class="text-[10px] text-slate-500 mt-1">tipo socio/empleado/honorarios</div>
+          </div>
+          <!-- A rol -->
+          <div class="bg-amber-50 border border-amber-300 rounded-xl p-3">
+            <div class="text-[12px] font-bold text-amber-900 mt-1.5">A · Rol</div>
+            <div class="text-[10px] text-amber-700 mt-0.5">UserProfile.roles[]</div>
+            <div class="text-[10px] text-rose-600 font-semibold mt-1">⚠ se asigna A MANO</div>
+          </div>
+          <!-- C1 -->
+          <div class="bg-amber-50 border border-amber-300 rounded-xl p-3 relative">
+            <span class="absolute -top-2 left-2 bg-amber-500 text-white text-[8px] font-bold px-1.5 py-0.5 rounded-full">VIEJO · ola 1</span>
+            <div class="text-[12px] font-bold text-amber-900 mt-1.5">C1 · laboral</div>
+            <div class="text-[10px] text-amber-700 mt-0.5">private/laboral</div>
+            <div class="text-[10px] text-slate-500 mt-1">salario · boletas</div>
+          </div>
+          <!-- C2 -->
+          <div class="bg-amber-50 border border-amber-300 rounded-xl p-3 relative">
+            <span class="absolute -top-2 left-2 bg-amber-500 text-white text-[8px] font-bold px-1.5 py-0.5 rounded-full">VIEJO · ola 2</span>
+            <div class="text-[12px] font-bold text-amber-900 mt-1.5">C2 · datosLaborales</div>
+            <div class="text-[10px] text-amber-700 mt-0.5">private/datosLaborales</div>
+            <div class="text-[10px] text-rose-600 font-semibold mt-1">⚠ duplica a C1</div>
+          </div>
+          <!-- C3 -->
+          <div class="bg-amber-50 border border-amber-300 rounded-xl p-3 relative">
+            <span class="absolute -top-2 left-2 bg-amber-500 text-white text-[8px] font-bold px-1.5 py-0.5 rounded-full">VIEJO · ola 2</span>
+            <div class="text-[12px] font-bold text-amber-900 mt-1.5">C3 · datosSocio</div>
+            <div class="text-[10px] text-amber-700 mt-0.5">private/datosSocio</div>
+            <div class="text-[10px] text-slate-500 mt-1">% · aporte de valor</div>
+          </div>
+        </div>
+        <!-- gap -->
+        <div class="mt-3 bg-rose-50 border border-dashed border-rose-300 rounded-lg px-3 py-2 flex items-center gap-2 text-[11px] text-rose-800">
+          <i data-lucide="unlink" class="w-4 h-4 shrink-0"></i>
+          <span><strong>No hay puente entre B y A/C.</strong> Nada sincroniza el rol ni copia el detalle. El alta llena B; los módulos miran A+C → el dato nuevo nunca llega.</span>
+        </div>
+      </div>
+
+      <!-- flecha lee -->
+      <div class="flex items-center justify-center gap-2 text-amber-700">
+        <i data-lucide="arrow-down" class="w-4 h-4"></i>
+        <span class="text-[11px] font-bold uppercase tracking-wider">pero los módulos LEEN ↓ (otra cosa)</span>
+        <i data-lucide="eye" class="w-4 h-4"></i>
+      </div>
+
+      <!-- ZONA MÓDULOS -->
+      <div>
+        <div class="text-[10px] uppercase tracking-wider text-slate-400 font-bold mb-2">③ Los módulos operativos</div>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-2.5">
+          <div class="bg-white border border-teal-200 rounded-xl p-3">
+            <div class="flex items-center gap-1.5 mb-1"><i data-lucide="receipt" class="w-3.5 h-3.5 text-teal-700"></i><span class="text-[12px] font-bold text-teal-900">Planilla</span></div>
+            <div class="text-[10px] text-slate-600">lee <span class="font-bold text-amber-700">A + C1</span></div>
+            <div class="text-[10px] text-rose-600 font-semibold mt-1">ignora B</div>
+          </div>
+          <div class="bg-white border border-violet-200 rounded-xl p-3">
+            <div class="flex items-center gap-1.5 mb-1"><i data-lucide="handshake" class="w-3.5 h-3.5 text-violet-700"></i><span class="text-[12px] font-bold text-violet-900">Inversionistas</span></div>
+            <div class="text-[10px] text-slate-600">lee <span class="font-bold text-amber-700">A + C3</span></div>
+            <div class="text-[10px] text-rose-600 font-semibold mt-1">ignora B</div>
+          </div>
+          <div class="bg-white border border-sky-200 rounded-xl p-3">
+            <div class="flex items-center gap-1.5 mb-1"><i data-lucide="user" class="w-3.5 h-3.5 text-sky-700"></i><span class="text-[12px] font-bold text-sky-900">Perfil (el user)</span></div>
+            <div class="text-[10px] text-slate-600">lee <span class="font-bold text-amber-700">C2 + C3</span></div>
+            <div class="text-[10px] text-rose-600 font-semibold mt-1">3ª fuente ≠ Planilla</div>
+          </div>
+          <div class="bg-white border border-indigo-200 rounded-xl p-3">
+            <div class="flex items-center gap-1.5 mb-1"><i data-lucide="file-text" class="w-3.5 h-3.5 text-indigo-700"></i><span class="text-[12px] font-bold text-indigo-900">Honorarios</span></div>
+            <div class="text-[10px] text-slate-600">lee <span class="font-bold text-emerald-700">B</span> ✓</div>
+            <div class="text-[10px] text-slate-400 mt-1">sin módulo operativo</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- muerto -->
+      <div class="flex items-center gap-2 text-[11px] text-slate-400 pt-1">
+        <i data-lucide="skull" class="w-3.5 h-3.5"></i>
+        <span class="dead">Ficha360 (leía A+C2+C3)</span>
+        <span>· deprecada · reemplazada por UserPanel</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════ §2 · LOS 3 BUGS ════ -->
+  <section>
+    <div class="flex items-center gap-3 mb-6">
+      <span class="text-[11px] font-bold uppercase tracking-wider text-rose-700 bg-rose-50 px-2.5 py-1 rounded-full">Síntomas</span>
+      <h2 class="text-xl font-bold tracking-tight">Los 3 bugs que esto produce</h2>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <!-- bug 1 -->
+      <div class="bg-white border border-rose-200 rounded-2xl p-5 shadow-sm">
+        <div class="w-9 h-9 rounded-lg bg-rose-100 flex items-center justify-center mb-3"><i data-lucide="ghost" class="w-5 h-5 text-rose-700"></i></div>
+        <div class="text-[13px] font-bold text-slate-900 mb-1">1 · Empleado/socio invisible</div>
+        <p class="text-[11px] text-slate-600 leading-relaxed">El alta crea B con rol <code class="bg-slate-100 px-1 rounded">'invitado'</code> y sin sub-perfil. Planilla/Inversionistas filtran por A+C → <strong>no aparece</strong> hasta que un admin, a mano y aparte, asigna rol + detalle.</p>
+      </div>
+      <!-- bug 2 -->
+      <div class="bg-white border border-rose-200 rounded-2xl p-5 shadow-sm">
+        <div class="w-9 h-9 rounded-lg bg-rose-100 flex items-center justify-center mb-3"><i data-lucide="copy" class="w-5 h-5 text-rose-700"></i></div>
+        <div class="text-[13px] font-bold text-slate-900 mb-1">2 · Doble sub-perfil laboral</div>
+        <p class="text-[11px] text-slate-600 leading-relaxed"><code class="bg-slate-100 px-1 rounded">laboral</code> (C1·Planilla) y <code class="bg-slate-100 px-1 rounded">datosLaborales</code> (C2·Perfil) son dos docs distintos del mismo empleado. Editar uno no toca el otro → <strong>salarios distintos</strong> en cada pantalla.</p>
+      </div>
+      <!-- bug 3 -->
+      <div class="bg-white border border-rose-200 rounded-2xl p-5 shadow-sm">
+        <div class="w-9 h-9 rounded-lg bg-rose-100 flex items-center justify-center mb-3"><i data-lucide="split" class="w-5 h-5 text-rose-700"></i></div>
+        <div class="text-[13px] font-bold text-slate-900 mb-1">3 · % de socio huérfano</div>
+        <p class="text-[11px] text-slate-600 leading-relaxed">La relación (B) no guarda el %; el wizard dice "configuralo en /inversionistas", que lo mete en C3. El socio queda <strong>partido</strong>: relación sin %, % sin relación.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════ §3 · DESTINO ════ -->
+  <section>
+    <div class="flex items-center gap-3 mb-6">
+      <span class="text-[11px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full">Destino · rumbo A</span>
+      <h2 class="text-xl font-bold tracking-tight">RelacionLaboral como fuente única</h2>
+    </div>
+
+    <div class="bg-white border border-emerald-200 rounded-2xl p-5 sm:p-7 shadow-sm space-y-5">
+      <!-- alta -->
+      <div>
+        <div class="text-[10px] uppercase tracking-wider text-slate-400 font-bold mb-2">① El alta (un solo destino)</div>
+        <div class="flex flex-wrap gap-2">
+          <div class="bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-[12px] font-semibold text-slate-700">Alta desde Usuarios (o atajo del módulo)</div>
+        </div>
+      </div>
+      <div class="flex items-center justify-center gap-2 text-emerald-700">
+        <i data-lucide="pen-line" class="w-4 h-4"></i><span class="text-[11px] font-bold uppercase tracking-wider">escribe →</span><i data-lucide="arrow-down" class="w-4 h-4"></i>
+      </div>
+      <!-- B fuente única -->
+      <div class="flex justify-center">
+        <div class="bg-emerald-50 border-2 border-emerald-300 rounded-xl p-4 max-w-md w-full text-center relative">
+          <span class="absolute -top-2.5 left-1/2 -translate-x-1/2 bg-emerald-600 text-white text-[9px] font-bold px-2 py-0.5 rounded-full">FUENTE ÚNICA DE VERDAD</span>
+          <div class="text-[14px] font-bold text-emerald-900 mt-2">B · RelacionLaboral</div>
+          <div class="text-[11px] text-emerald-700 mt-0.5">quién es empleado / socio / honorarios · desde cuándo · subtipo</div>
+        </div>
+      </div>
+      <!-- deriva + lee -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="bg-emerald-50/40 border border-emerald-200 rounded-xl p-4">
+          <div class="flex items-center gap-1.5 mb-1.5"><i data-lucide="zap" class="w-4 h-4 text-emerald-700"></i><span class="text-[12px] font-bold text-emerald-900">El rol se DERIVA</span></div>
+          <p class="text-[11px] text-slate-600">¿tiene relación socio vigente? → es socio. Sin asignación manual. Adiós al "invisible".</p>
+        </div>
+        <div class="bg-emerald-50/40 border border-emerald-200 rounded-xl p-4">
+          <div class="flex items-center gap-1.5 mb-1.5"><i data-lucide="eye" class="w-4 h-4 text-emerald-700"></i><span class="text-[12px] font-bold text-emerald-900">Los módulos LEEN B</span></div>
+          <p class="text-[11px] text-slate-600">Planilla e Inversionistas listan por <code class="bg-white px-1 rounded">listByTipo()</code>. Una sola fuente de "quién es quién".</p>
+        </div>
+      </div>
+      <!-- detalle en dueño -->
+      <div>
+        <div class="text-[10px] uppercase tracking-wider text-slate-400 font-bold mb-2">② El DETALLE vive en su módulo dueño (referenciado por la relación)</div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-2.5">
+          <div class="bg-white border border-teal-200 rounded-xl p-3">
+            <div class="flex items-center gap-1.5 mb-1"><i data-lucide="receipt" class="w-3.5 h-3.5 text-teal-700"></i><span class="text-[12px] font-bold text-teal-900">Planilla</span></div>
+            <div class="text-[10px] text-slate-600">salario · comisión · banco</div>
+          </div>
+          <div class="bg-white border border-violet-200 rounded-xl p-3">
+            <div class="flex items-center gap-1.5 mb-1"><i data-lucide="handshake" class="w-3.5 h-3.5 text-violet-700"></i><span class="text-[12px] font-bold text-violet-900">Inversionistas</span></div>
+            <div class="text-[10px] text-slate-600">% · aporte · distribuciones</div>
+          </div>
+          <div class="bg-white border border-indigo-200 rounded-xl p-3">
+            <div class="flex items-center gap-1.5 mb-1"><i data-lucide="file-text" class="w-3.5 h-3.5 text-indigo-700"></i><span class="text-[12px] font-bold text-indigo-900">Honorarios</span></div>
+            <div class="text-[10px] text-slate-600">tarifa · retención</div>
+          </div>
+        </div>
+      </div>
+      <div class="bg-emerald-50 border border-emerald-200 rounded-lg px-3 py-2 flex items-center gap-2 text-[11px] text-emerald-800">
+        <i data-lucide="trash-2" class="w-4 h-4 shrink-0"></i>
+        <span>Se eliminan los duplicados: C1 vs C2 se fusionan · C3 se consolida en el dominio Inversionistas · Ficha360 muerta se borra.</span>
+      </div>
+      <div class="bg-violet-50 border border-violet-200 rounded-lg px-3 py-2 flex items-center gap-2 text-[11px] text-violet-800">
+        <i data-lucide="compass" class="w-4 h-4 shrink-0"></i>
+        <span><strong>Coincide con tu definición:</strong> Usuarios = registro de personas + qué tipo de perfil · cada módulo = el detalle de su tipo.</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════ §4 · PLAN POR FASES ════ -->
+  <section>
+    <div class="flex items-center gap-3 mb-6">
+      <span class="text-[11px] font-bold uppercase tracking-wider text-slate-700 bg-slate-100 px-2.5 py-1 rounded-full">Cómo llegar</span>
+      <h2 class="text-xl font-bold tracking-tight">Plan por fases (no big-bang)</h2>
+    </div>
+    <div class="space-y-2.5">
+      <div class="flex items-stretch gap-3">
+        <div class="w-12 shrink-0 bg-slate-800 text-white rounded-lg flex items-center justify-center font-bold text-[15px]">0</div>
+        <div class="flex-1 bg-white border border-slate-200 rounded-lg px-4 py-2.5"><div class="text-[12px] font-bold text-slate-900">Decisión de modelo <span class="text-[10px] font-semibold text-slate-400">· sin código</span></div><div class="text-[11px] text-slate-600">cerrar las 4 preguntas de abajo</div></div>
+      </div>
+      <div class="flex items-stretch gap-3">
+        <div class="w-12 shrink-0 bg-emerald-600 text-white rounded-lg flex items-center justify-center font-bold text-[15px]">1</div>
+        <div class="flex-1 bg-white border border-emerald-200 rounded-lg px-4 py-2.5"><div class="text-[12px] font-bold text-slate-900">Sync defensivo <span class="text-[10px] font-semibold text-emerald-600">· mata el "invisible" YA</span></div><div class="text-[11px] text-slate-600">el alta materializa rol + detalle (o el rol se deriva). Riesgo bajo.</div></div>
+      </div>
+      <div class="flex items-stretch gap-3">
+        <div class="w-12 shrink-0 bg-amber-500 text-white rounded-lg flex items-center justify-center font-bold text-[15px]">2</div>
+        <div class="flex-1 bg-white border border-amber-200 rounded-lg px-4 py-2.5"><div class="text-[12px] font-bold text-slate-900">Unificar sub-perfiles laborales</div><div class="text-[11px] text-slate-600">elegir canónico C1/C2 · migrar · reapuntar. Riesgo medio (boletas = dinero).</div></div>
+      </div>
+      <div class="flex items-stretch gap-3">
+        <div class="w-12 shrink-0 bg-amber-500 text-white rounded-lg flex items-center justify-center font-bold text-[15px]">3</div>
+        <div class="flex-1 bg-white border border-amber-200 rounded-lg px-4 py-2.5"><div class="text-[12px] font-bold text-slate-900">Módulos leen RelacionLaboral</div><div class="text-[11px] text-slate-600">Planilla + Inversionistas → listByTipo(). Riesgo medio-alto.</div></div>
+      </div>
+      <div class="flex items-stretch gap-3">
+        <div class="w-12 shrink-0 bg-amber-500 text-white rounded-lg flex items-center justify-center font-bold text-[15px]">4</div>
+        <div class="flex-1 bg-white border border-amber-200 rounded-lg px-4 py-2.5"><div class="text-[12px] font-bold text-slate-900">Detalle al módulo dueño</div><div class="text-[11px] text-slate-600">equity (C3) → dominio Inversionistas · salario ya en Planilla.</div></div>
+      </div>
+      <div class="flex items-stretch gap-3">
+        <div class="w-12 shrink-0 bg-slate-400 text-white rounded-lg flex items-center justify-center font-bold text-[15px]">5</div>
+        <div class="flex-1 bg-white border border-slate-200 rounded-lg px-4 py-2.5"><div class="text-[12px] font-bold text-slate-900">Eliminar el modelo viejo <span class="text-[10px] font-semibold text-slate-400">· limpieza</span></div><div class="text-[11px] text-slate-600">borrar services/sub-perfiles legacy + Ficha360. Riesgo bajo.</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════ §5 · FASE 0 · 4 DECISIONES ════ -->
+  <section>
+    <div class="flex items-center gap-3 mb-6">
+      <span class="text-[11px] font-bold uppercase tracking-wider text-slate-700 bg-slate-100 px-2.5 py-1 rounded-full">Fase 0 · lo que decidís vos</span>
+      <h2 class="text-xl font-bold tracking-tight">4 preguntas que destraban el plan</h2>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
+        <div class="text-[20px] font-bold tabular text-slate-300 mb-1">Q1</div>
+        <div class="text-[12px] font-bold text-slate-900 mb-1">¿Dónde vive el detalle vigente?</div>
+        <p class="text-[11px] text-slate-600">colección propia del módulo dueño (Planilla/Inversionistas) <strong>vs</strong> un sub-perfil único en el user.</p>
+      </div>
+      <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
+        <div class="text-[20px] font-bold tabular text-slate-300 mb-1">Q2</div>
+        <div class="text-[12px] font-bold text-slate-900 mb-1">¿Canónico laboral?</div>
+        <p class="text-[11px] text-slate-600">entre <code class="bg-slate-100 px-1 rounded">laboral</code> (C1) y <code class="bg-slate-100 px-1 rounded">datosLaborales</code> (C2), cuál conservamos al fusionar.</p>
+      </div>
+      <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
+        <div class="text-[20px] font-bold tabular text-slate-300 mb-1">Q3</div>
+        <div class="text-[12px] font-bold text-slate-900 mb-1">¿El rol se deriva o se materializa?</div>
+        <p class="text-[11px] text-slate-600">calcular el rol on-read desde las relaciones <strong>vs</strong> escribirlo con un sync al crear.</p>
+      </div>
+      <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
+        <div class="text-[20px] font-bold tabular text-slate-300 mb-1">Q4</div>
+        <div class="text-[12px] font-bold text-slate-900 mb-1">¿Honorarios tendrá módulo propio?</div>
+        <p class="text-[11px] text-slate-600">define si su detalle (tarifa/retención) vive en B o en un sub-perfil/colección nuevo.</p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="bg-slate-900 text-slate-400 text-[11px] py-6 text-center">
+  Dominio Personas · diagrama exploratorio · v1 · 2026-06-08 · acompaña a DIAGNOSTICO-DOMINIO-PERSONAS-360.md · cero código hasta cerrar Fase 0
+</footer>
+<script>lucide.createIcons();</script>
+</body>
+</html>

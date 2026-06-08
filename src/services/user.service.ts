@@ -13,7 +13,7 @@ import { getFunctions, httpsCallable } from 'firebase/functions';
 import { db } from '../lib/firebase';
 import { logger } from '../lib/logger';
 import type { UserProfile, UserRole } from '../types/auth.types';
-import { DEFAULT_PERMISOS, PERMISOS, hasRole, calcularPermisosDeRoles } from '../types/auth.types';
+import { DEFAULT_PERMISOS, PERMISOS, hasRole, getUserRoles, calcularPermisosDeRoles } from '../types/auth.types';
 import { auditoriaService } from './auditoria.service';
 import { presenciaService } from './presencia.service';
 import { COLLECTIONS } from '../config/collections';
@@ -171,6 +171,53 @@ export const userService = {
       await updateDoc(docRef, { permisos });
     } catch (error) {
       logger.error('Error al actualizar permisos:', error);
+      throw error;
+    }
+  },
+
+  /**
+   * chk5.PERSONAS-F1 · Agrega un rol al usuario SIN pisar los demás (multi-rol).
+   * Recalcula `permisos` como union de TODOS los roles resultantes.
+   * Idempotente: si ya tiene el rol, no hace nada. Escribe SIEMPRE `roles[]` (modelo nuevo).
+   * Distinto de `updateRole` (legacy single-rol que pisa el rol y sus permisos).
+   */
+  async agregarRol(uid: string, rol: UserRole): Promise<void> {
+    try {
+      const user = await this.getByUid(uid);
+      if (!user) throw new Error(`Usuario ${uid} no encontrado`);
+      const rolesActuales = getUserRoles(user);
+      if (rolesActuales.includes(rol)) return; // idempotente · ya lo tiene
+      const nuevosRoles = [...rolesActuales, rol];
+      await updateDoc(doc(db, COLLECTION_NAME, uid), {
+        roles: nuevosRoles,
+        permisos: calcularPermisosDeRoles(nuevosRoles),
+      });
+      logger.success(`Rol "${rol}" agregado a ${uid} · roles: [${nuevosRoles.join(', ')}]`);
+    } catch (error) {
+      logger.error('Error al agregar rol:', error);
+      throw error;
+    }
+  },
+
+  /**
+   * chk5.PERSONAS-F1 · Quita un rol del usuario manteniendo los demás (multi-rol).
+   * Recalcula `permisos` como union de los roles restantes.
+   * Idempotente: si no lo tiene, no hace nada.
+   */
+  async quitarRol(uid: string, rol: UserRole): Promise<void> {
+    try {
+      const user = await this.getByUid(uid);
+      if (!user) throw new Error(`Usuario ${uid} no encontrado`);
+      const rolesActuales = getUserRoles(user);
+      if (!rolesActuales.includes(rol)) return; // idempotente · no lo tiene
+      const nuevosRoles = rolesActuales.filter((r) => r !== rol);
+      await updateDoc(doc(db, COLLECTION_NAME, uid), {
+        roles: nuevosRoles,
+        permisos: calcularPermisosDeRoles(nuevosRoles),
+      });
+      logger.success(`Rol "${rol}" quitado de ${uid} · roles: [${nuevosRoles.join(', ') || 'ninguno'}]`);
+    } catch (error) {
+      logger.error('Error al quitar rol:', error);
       throw error;
     }
   },

@@ -29,6 +29,9 @@ import {
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { COLLECTIONS } from '../config/collections';
+import { logger } from '../lib/logger';
+import { userService } from './user.service';
+import { datosSocioService } from './datosSocio.service';
 import type {
   RelacionLaboral,
   CrearRelacionInput,
@@ -125,6 +128,43 @@ async function getById(relacionId: string): Promise<RelacionLaboral | null> {
 }
 
 // ═════════════════════════════════════════════════════════════════════════
+// SYNC ROL ↔ RELACIÓN · chk5.PERSONAS-F1 (2026-06-08)
+// Materializa el rol del UserProfile a partir de sus relaciones vigentes.
+// Por ahora SOLO 'socio' (único TipoRelacion con un UserRole homónimo).
+// ═════════════════════════════════════════════════════════════════════════
+
+/**
+ * Sincroniza el rol 'socio' del UserProfile con sus relaciones laborales vigentes.
+ * Idempotente · se invoca tras create/finalizar/reclasificar de relaciones socio.
+ *
+ *  - Tiene relación 'socio' vigente y le falta el rol → lo AGREGA.
+ *  - No tiene relación 'socio' vigente y le sobra el rol → lo QUITA, salvo el
+ *    guard de coexistencia: si el user todavía tiene `datosSocio` (modelo viejo
+ *    aún vivo), conserva el rol (su condición de socio viene de ahí). El "quitar"
+ *    pleno se habilita en la Fase 3, cuando RelacionLaboral sea la única fuente.
+ *
+ * No relanza · si el sync falla, loguea y NO bloquea la operación de relación.
+ */
+async function sincronizarRolSocio(userId: string): Promise<void> {
+  try {
+    const vigentes = await listVigentesByUser(userId);
+    const tieneSocioVigente = vigentes.some((r) => r.tipo === 'socio');
+    if (tieneSocioVigente) {
+      await userService.agregarRol(userId, 'socio');
+      return;
+    }
+    // No hay relación socio vigente · guard de coexistencia con el modelo viejo
+    const datos = await datosSocioService.get(userId).catch(() => null);
+    if (!datos) {
+      await userService.quitarRol(userId, 'socio');
+    }
+    // else: socio del modelo viejo (datosSocio) · conserva el rol hasta la Fase 3.
+  } catch (error) {
+    logger.warn(`[relacionesLaborales] sync rol socio falló para ${userId} (no bloquea):`, error);
+  }
+}
+
+// ═════════════════════════════════════════════════════════════════════════
 // WRITE · create
 // ═════════════════════════════════════════════════════════════════════════
 
@@ -166,6 +206,8 @@ async function create(input: CrearRelacionInput, creadoPor: string): Promise<str
   const clean = removeUndefined(docData);
 
   const ref = await addDoc(collection(db, COL), clean);
+  // chk5.PERSONAS-F1 · materializar el rol socio si la relación creada es socio
+  if (input.tipo === 'socio') await sincronizarRolSocio(input.userId);
   return ref.id;
 }
 
@@ -299,6 +341,9 @@ async function finalizar(
     fechaModificacion: serverTimestamp(),
     ...removeUndefined(snapshot),
   });
+
+  // chk5.PERSONAS-F1 · re-sincronizar el rol socio si la relación finalizada era socio
+  if (existente.tipo === 'socio') await sincronizarRolSocio(existente.userId);
 }
 
 /**
@@ -357,6 +402,10 @@ async function reclasificar(
   batch.set(refNueva, removeUndefined(nuevaData));
 
   await batch.commit();
+  // chk5.PERSONAS-F1 · re-sincronizar el rol socio si el tipo viejo o el nuevo es socio
+  if (anterior.tipo === 'socio' || input.nuevoTipo === 'socio') {
+    await sincronizarRolSocio(anterior.userId);
+  }
   return refNueva.id;
 }
 
@@ -442,6 +491,9 @@ export const relacionesLaboralesService = {
 
   // Write · creación
   create,
+
+  // Sync rol ↔ relación (chk5.PERSONAS-F1)
+  sincronizarRolSocio,
 
   // Write · transiciones
   update,

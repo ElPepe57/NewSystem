@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fase B · Sociedad del socio · v1</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script>tailwind.config={theme:{extend:{fontFamily:{sans:['Inter','system-ui','sans-serif']}}}}</script>
+<style>body{font-family:'Inter',system-ui,sans-serif}.tabular{font-variant-numeric:tabular-nums}.no-scrollbar::-webkit-scrollbar{display:none}.no-scrollbar{scrollbar-width:none}.phone{width:375px}</style>
+</head>
+<body class="bg-slate-100 text-slate-900">
+
+<!-- HERO -->
+<header class="bg-gradient-to-br from-violet-600 to-violet-800 text-white">
+  <div class="max-w-6xl mx-auto px-6 py-9">
+    <div class="inline-flex items-center gap-2 text-violet-200 text-[11px] font-bold uppercase tracking-wider mb-3">
+      <i data-lucide="coins" class="w-4 h-4"></i> Inversionistas · Fase B
+      <span class="ml-1 px-2 py-0.5 bg-emerald-400/20 text-emerald-100 rounded-full normal-case tracking-normal font-semibold">se inserta en el tab Capital existente</span>
+    </div>
+    <h1 class="text-3xl font-bold tracking-tight mb-2">Sociedad del socio · % · rol · participación</h1>
+    <p class="text-violet-100 text-sm max-w-3xl leading-relaxed">
+      Reconecta lo que quedó <strong>huérfano</strong>: el <strong>% de participación · rol · tipo de participación · aporte de valor</strong>
+      (el form que declaraste una vez y dejó de ser accesible tras el rework a UserPanel). Y <strong>unifica el alta</strong> para que un socio
+      nunca nazca sin su %. Todo desde Inversionistas.
+    </p>
+  </div>
+</header>
+
+<nav class="bg-white border-b border-slate-200 sticky top-0 z-30">
+  <div class="max-w-6xl mx-auto px-6 py-3 flex flex-wrap gap-x-5 gap-y-1 text-[12px] font-medium text-slate-600">
+    <span class="font-bold text-slate-900">Índice:</span>
+    <a href="#problema" class="hover:text-violet-700">0 · El gap</a>
+    <a href="#ficha" class="hover:text-violet-700">1 · Sociedad en el tab Capital</a>
+    <a href="#editar" class="hover:text-violet-700">2 · Editar sociedad</a>
+    <a href="#alta" class="hover:text-violet-700">3 · Alta unificada</a>
+    <a href="#mobile" class="hover:text-violet-700">4 · Mobile</a>
+    <a href="#check" class="hover:text-violet-700">Checklist</a>
+  </div>
+</nav>
+
+<main class="max-w-6xl mx-auto px-6 py-10 space-y-14">
+
+  <!-- 0 · EL GAP -->
+  <section id="problema">
+    <div class="flex items-center gap-3 mb-5">
+      <span class="text-[11px] font-bold uppercase tracking-wider text-amber-700 bg-amber-50 px-2.5 py-1 rounded-full">El gap</span>
+      <h2 class="text-xl font-bold tracking-tight">Qué está roto hoy</h2>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div class="bg-white border border-rose-200 rounded-xl p-4">
+        <div class="text-[11px] uppercase tracking-wider text-rose-700 font-bold mb-1">🚩 % huérfano</div>
+        <p class="text-[12px] text-slate-600">El form de % · rol · tipo (`DatosSocioForm`) se desconectó al pasar a UserPanel. El dato existe (Usuarios → Ficha 360, read-only) pero no se editaba.</p>
+      </div>
+      <div class="bg-white border border-amber-200 rounded-xl p-4">
+        <div class="text-[11px] uppercase tracking-wider text-amber-700 font-bold mb-1">⚠️ Alta sin %</div>
+        <p class="text-[12px] text-slate-600">"Nuevo socio" captura cargo/sub-tipo, pero NO el % de participación · el socio nace sin su dimensión societaria.</p>
+      </div>
+      <div class="bg-white border border-emerald-200 rounded-xl p-4">
+        <div class="text-[11px] uppercase tracking-wider text-emerald-700 font-bold mb-1">✓ Base ya hecha</div>
+        <p class="text-[12px] text-slate-600">El `EditarValorSocioModal` (F4) ya reconectó el form. Fase B lo hace <strong>visible y claro</strong> + arregla el alta.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 1 · SOCIEDAD EN EL TAB CAPITAL -->
+  <section id="ficha">
+    <div class="flex items-center gap-3 mb-5">
+      <span class="text-[11px] font-bold uppercase tracking-wider text-violet-700 bg-violet-50 px-2.5 py-1 rounded-full">Acto 1</span>
+      <h2 class="text-xl font-bold tracking-tight">La SOCIEDAD se ve arriba del capital (mismo tab)</h2>
+    </div>
+    <div class="flex justify-center">
+      <!-- UserPanel · tab Capital -->
+      <div class="w-full max-w-3xl bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden">
+        <div class="border-b border-slate-100 px-5 py-4 flex items-start gap-3">
+          <div class="w-12 h-12 rounded-full bg-gradient-to-br from-violet-400 to-violet-600 text-white flex items-center justify-center font-bold text-sm shrink-0">JL</div>
+          <div class="flex-1"><div class="flex items-center gap-2"><h3 class="text-[15px] font-semibold">José López</h3><span class="text-[9px] bg-violet-100 text-violet-700 px-1.5 py-0.5 rounded-full font-bold">SOCIO</span></div><div class="text-[11px] text-slate-500 mt-0.5">Co-fundador · CEO</div></div>
+          <button class="text-slate-400"><i data-lucide="x" class="w-5 h-5"></i></button>
+        </div>
+        <div class="border-b border-slate-200 px-2 flex items-center gap-0.5 overflow-x-auto no-scrollbar">
+          <button class="px-3 py-2.5 text-[12px] font-medium text-slate-500">Resumen</button>
+          <button class="px-3 py-2.5 text-[12px] font-medium text-slate-500">Relaciones</button>
+          <button class="px-3 py-2.5 text-[12px] font-medium text-slate-500">Datos</button>
+          <button class="px-3 py-2.5 text-[12px] font-bold text-violet-700 border-b-2 border-violet-600 flex items-center gap-1.5"><i data-lucide="coins" class="w-3.5 h-3.5"></i> Capital</button>
+        </div>
+        <div class="px-5 py-4 space-y-4 max-h-[64vh] overflow-y-auto">
+
+          <!-- NUEVO · banner Sociedad (% · rol · tipo) -->
+          <div class="rounded-xl border-2 border-violet-200 bg-gradient-to-r from-violet-50 to-violet-50/30 p-4">
+            <div class="flex items-center justify-between mb-2">
+              <div class="text-[11px] uppercase tracking-wider text-violet-700 font-bold flex items-center gap-1.5"><i data-lucide="handshake" class="w-3.5 h-3.5"></i> Sociedad</div>
+              <button class="text-[11px] font-semibold text-violet-700 bg-white border border-violet-200 hover:bg-violet-50 px-2.5 py-1 rounded-lg flex items-center gap-1"><i data-lucide="pencil" class="w-3.5 h-3.5"></i> Editar</button>
+            </div>
+            <div class="grid grid-cols-3 gap-3">
+              <div><div class="text-[10px] text-slate-500">Participación</div><div class="text-[20px] font-bold tabular text-violet-900">60%</div></div>
+              <div><div class="text-[10px] text-slate-500">Rol</div><div class="text-[13px] font-semibold text-slate-900 mt-1">Co-fundador · CEO</div></div>
+              <div><div class="text-[10px] text-slate-500">Tipo</div><div class="text-[13px] font-semibold text-slate-900 mt-1">Mixta</div><div class="text-[10px] text-slate-400">cash + valor</div></div>
+            </div>
+          </div>
+
+          <!-- banner salud (existente) -->
+          <div class="rounded-xl border border-amber-200 bg-amber-50/60 px-4 py-2.5 flex items-center gap-3">
+            <div class="w-8 h-8 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center shrink-0"><i data-lucide="gauge" class="w-4 h-4"></i></div>
+            <div class="flex-1 text-[12px]"><span class="font-semibold text-amber-900">Apalancado · 42% es deuda TC</span> · <span class="text-amber-700">soberanía: 14 meses</span></div>
+          </div>
+
+          <!-- KPIs capital (existente · resumido) -->
+          <div class="grid grid-cols-2 lg:grid-cols-4 gap-2.5">
+            <div class="bg-gradient-to-br from-violet-50 to-violet-100/40 ring-1 ring-violet-200/50 rounded-xl p-3"><div class="text-[9px] uppercase tracking-wider text-violet-700 font-bold">Comprometido</div><div class="text-[18px] font-bold tabular text-violet-900">S/ 90,400</div></div>
+            <div class="bg-gradient-to-br from-emerald-50 to-emerald-100/40 ring-1 ring-emerald-200/50 rounded-xl p-3"><div class="text-[9px] uppercase tracking-wider text-emerald-700 font-bold">Cash</div><div class="text-[18px] font-bold tabular text-emerald-900">S/ 52,000</div></div>
+            <div class="bg-gradient-to-br from-rose-50 to-rose-100/40 ring-1 ring-rose-200/50 rounded-xl p-3"><div class="text-[9px] uppercase tracking-wider text-rose-700 font-bold">Deuda TC</div><div class="text-[18px] font-bold tabular text-rose-900">S/ 38,400</div></div>
+            <div class="bg-gradient-to-br from-sky-50 to-sky-100/40 ring-1 ring-sky-200/50 rounded-xl p-3"><div class="text-[9px] uppercase tracking-wider text-sky-700 font-bold">Valor est.</div><div class="text-[18px] font-bold tabular text-sky-900">S/ 40,000</div></div>
+          </div>
+          <div class="text-center text-[11px] text-slate-400">— secciones Cash · TC · Valor (ya existen) —</div>
+        </div>
+      </div>
+    </div>
+    <p class="text-center text-[11px] text-slate-400 mt-3">La <strong>Sociedad</strong> (%, rol, tipo) ahora se ve <strong>arriba del capital</strong> en el mismo tab · un solo "Editar" abre el form completo.</p>
+  </section>
+
+  <!-- 2 · EDITAR SOCIEDAD -->
+  <section id="editar">
+    <div class="flex items-center gap-3 mb-5">
+      <span class="text-[11px] font-bold uppercase tracking-wider text-violet-700 bg-violet-50 px-2.5 py-1 rounded-full">Acto 2</span>
+      <h2 class="text-xl font-bold tracking-tight">Editar sociedad (reúsa el DatosSocioForm reconectado)</h2>
+    </div>
+    <div class="flex justify-center">
+      <div class="w-full max-w-lg bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden">
+        <div class="px-5 py-4 border-b border-slate-100 flex items-start gap-3">
+          <div class="w-10 h-10 rounded-xl bg-violet-50 border border-violet-200 text-violet-700 flex items-center justify-center shrink-0"><i data-lucide="handshake" class="w-5 h-5"></i></div>
+          <div class="flex-1"><div class="text-[10px] uppercase tracking-wider text-slate-400 font-bold mb-0.5">Capital · Sociedad</div><h3 class="text-base font-semibold tracking-tight">Participación y aporte de valor</h3><p class="text-[12px] text-slate-500">José López · cap table del negocio</p></div>
+          <button class="text-slate-400"><i data-lucide="x" class="w-5 h-5"></i></button>
+        </div>
+        <div class="px-5 py-4 space-y-3.5 max-h-[58vh] overflow-y-auto">
+          <div class="grid grid-cols-2 gap-3">
+            <div><label class="text-[11px] font-semibold text-slate-600 mb-1 block">% Participación <span class="text-rose-500">*</span></label><div class="flex items-center border border-slate-300 rounded-lg px-3 py-2"><input value="60" class="flex-1 outline-none text-[14px] font-semibold tabular bg-transparent"><span class="text-slate-400">%</span></div></div>
+            <div><label class="text-[11px] font-semibold text-slate-600 mb-1 block">Fecha de ingreso</label><div class="flex items-center gap-2 border border-slate-300 rounded-lg px-2.5 py-2"><i data-lucide="calendar" class="w-4 h-4 text-slate-400"></i><span class="flex-1 text-[13px] tabular">03/2024</span></div></div>
+          </div>
+          <div><label class="text-[11px] font-semibold text-slate-600 mb-1 block">Rol en el negocio</label><input value="Co-fundador · CEO" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-[13px] outline-none"></div>
+          <div>
+            <label class="text-[11px] font-semibold text-slate-600 mb-1 block">¿Cómo se compone tu participación? <span class="text-rose-500">*</span></label>
+            <div class="space-y-1.5">
+              <label class="flex items-start gap-2 p-2.5 border-2 border-slate-200 rounded-lg"><input type="radio" name="tipo" class="mt-0.5 accent-emerald-600"><div><div class="text-[12px] font-bold">Cash puro</div><div class="text-[10px] text-slate-500">solo dinero aportado</div></div></label>
+              <label class="flex items-start gap-2 p-2.5 border-2 border-amber-400 bg-amber-50 rounded-lg"><input type="radio" name="tipo" checked class="mt-0.5 accent-amber-600"><div><div class="text-[12px] font-bold">Mixta</div><div class="text-[10px] text-slate-500">cash + valor aportado</div></div></label>
+              <label class="flex items-start gap-2 p-2.5 border-2 border-slate-200 rounded-lg"><input type="radio" name="tipo" class="mt-0.5 accent-sky-600"><div><div class="text-[12px] font-bold">Valor puro</div><div class="text-[10px] text-slate-500">know-how, marca, sin cash</div></div></label>
+            </div>
+          </div>
+          <!-- aporte de valor (si mixta/valor) -->
+          <div class="rounded-lg bg-sky-50/40 border border-sky-200 p-3 space-y-2">
+            <div class="text-[10px] uppercase tracking-wider text-sky-700 font-bold">Aporte de valor</div>
+            <div class="flex flex-wrap gap-1.5">
+              <span class="text-[10px] px-2 py-0.5 bg-sky-100 text-sky-700 rounded-full font-semibold">Know-how ✓</span>
+              <span class="text-[10px] px-2 py-0.5 bg-sky-100 text-sky-700 rounded-full font-semibold">Gestión CEO ✓</span>
+              <span class="text-[10px] px-2 py-0.5 bg-white border border-slate-200 text-slate-500 rounded-full">+ Marca</span>
+            </div>
+            <input value="20 años en skincare · cartera 500 clientes" class="w-full border border-sky-200 rounded-lg px-2.5 py-1.5 text-[12px] outline-none bg-white">
+            <div class="flex items-center gap-2"><span class="text-[11px] text-slate-500">Valuación estimada:</span><div class="flex items-center border border-sky-200 rounded-lg px-2 py-1 bg-white"><span class="text-slate-400 text-[11px]">S/</span><input value="40,000" class="w-20 outline-none text-[12px] tabular"></div></div>
+          </div>
+        </div>
+        <div class="px-5 py-3 border-t border-slate-100 bg-slate-50/60 flex items-center justify-end gap-2">
+          <button class="text-[13px] font-semibold text-slate-600 px-3 py-2">Cancelar</button>
+          <button class="inline-flex items-center gap-1.5 bg-violet-600 hover:bg-violet-700 text-white text-[13px] font-semibold px-4 py-2 rounded-lg"><i data-lucide="check" class="w-4 h-4"></i> Guardar</button>
+        </div>
+      </div>
+    </div>
+    <p class="text-center text-[11px] text-slate-400 mt-3">Es el <code>DatosSocioForm</code> que ya existe (reconectado en F4) · persiste en <code>datosSocio</code> · editable por admin/gerente.</p>
+  </section>
+
+  <!-- 3 · ALTA UNIFICADA -->
+  <section id="alta">
+    <div class="flex items-center gap-3 mb-5">
+      <span class="text-[11px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full">Acto 3</span>
+      <h2 class="text-xl font-bold tracking-tight">Alta de socio · ahora captura el % de una</h2>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="bg-white border border-rose-200 rounded-2xl p-5 shadow-sm">
+        <div class="text-[11px] uppercase tracking-wider text-rose-700 font-bold mb-2">ANTES · nace sin %</div>
+        <ul class="space-y-1.5 text-[12px] text-slate-600">
+          <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-slate-400"></i> Nombre · email</li>
+          <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-slate-400"></i> Cargo · sub-tipo</li>
+          <li class="flex items-center gap-2 text-rose-600"><i data-lucide="x" class="w-3.5 h-3.5"></i> <strong>% participación → faltaba</strong></li>
+        </ul>
+      </div>
+      <div class="bg-white border border-emerald-200 rounded-2xl p-5 shadow-sm">
+        <div class="text-[11px] uppercase tracking-wider text-emerald-700 font-bold mb-2">DESPUÉS · nace completo</div>
+        <ul class="space-y-1.5 text-[12px] text-slate-600">
+          <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i> Nombre · email</li>
+          <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i> Cargo · rol</li>
+          <li class="flex items-center gap-2 text-emerald-700"><i data-lucide="check" class="w-3.5 h-3.5"></i> <strong>% participación + tipo</strong></li>
+        </ul>
+        <div class="mt-3 border border-slate-200 rounded-lg p-2.5">
+          <label class="text-[10px] uppercase tracking-wider text-slate-500 font-bold block mb-1">% Participación *</label>
+          <div class="flex items-center border border-violet-300 rounded-lg px-2.5 py-1.5"><input value="40" class="flex-1 outline-none text-[13px] font-semibold tabular"><span class="text-slate-400 text-[12px]">%</span></div>
+        </div>
+      </div>
+    </div>
+    <p class="text-center text-[11px] text-slate-400 mt-3">El alta suma el paso de participación (reúsa el mismo `DatosSocioForm`) · el socio nace con su dimensión societaria completa.</p>
+  </section>
+
+  <!-- 4 · MOBILE -->
+  <section id="mobile">
+    <div class="flex items-center gap-3 mb-5">
+      <span class="text-[11px] font-bold uppercase tracking-wider text-violet-700 bg-violet-50 px-2.5 py-1 rounded-full">Acto 4</span>
+      <h2 class="text-xl font-bold tracking-tight">Mobile (375px)</h2>
+    </div>
+    <div class="flex justify-center">
+      <div class="phone bg-white rounded-[2rem] border-4 border-slate-800 overflow-hidden shadow-xl">
+        <div class="bg-slate-50 px-4 py-2 flex items-center gap-1 text-[10px] text-slate-500 border-b border-slate-200"><span>José López</span><i data-lucide="chevron-right" class="w-3 h-3"></i><span class="text-violet-700 font-semibold">Capital</span></div>
+        <div class="px-4 py-3 space-y-3">
+          <!-- sociedad mobile -->
+          <div class="rounded-xl border-2 border-violet-200 bg-violet-50/40 p-3">
+            <div class="flex items-center justify-between mb-2"><span class="text-[10px] uppercase tracking-wider text-violet-700 font-bold flex items-center gap-1"><i data-lucide="handshake" class="w-3 h-3"></i> Sociedad</span><button class="text-[10px] font-semibold text-violet-700 bg-white border border-violet-200 px-2 py-0.5 rounded flex items-center gap-1"><i data-lucide="pencil" class="w-3 h-3"></i> Editar</button></div>
+            <div class="flex items-end gap-3">
+              <div><div class="text-[9px] text-slate-500">Particip.</div><div class="text-[20px] font-bold tabular text-violet-900">60%</div></div>
+              <div class="pb-1"><div class="text-[11px] font-semibold">Co-fundador</div><div class="text-[10px] text-slate-400">mixta · cash + valor</div></div>
+            </div>
+          </div>
+          <div class="flex gap-2 overflow-x-auto no-scrollbar">
+            <div class="shrink-0 w-28 bg-gradient-to-br from-violet-50 to-violet-100/40 ring-1 ring-violet-200/50 rounded-xl p-2.5"><div class="text-[8px] uppercase tracking-wider text-violet-700 font-bold">Comprom.</div><div class="text-[15px] font-bold tabular text-violet-900">S/ 90.4k</div></div>
+            <div class="shrink-0 w-28 bg-gradient-to-br from-emerald-50 to-emerald-100/40 ring-1 ring-emerald-200/50 rounded-xl p-2.5"><div class="text-[8px] uppercase tracking-wider text-emerald-700 font-bold">Cash</div><div class="text-[15px] font-bold tabular text-emerald-900">S/ 52k</div></div>
+            <div class="shrink-0 w-28 bg-gradient-to-br from-rose-50 to-rose-100/40 ring-1 ring-rose-200/50 rounded-xl p-2.5"><div class="text-[8px] uppercase tracking-wider text-rose-700 font-bold">Deuda TC</div><div class="text-[15px] font-bold tabular text-rose-900">S/ 38.4k</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="text-center text-[11px] text-slate-400 mt-3">El modal de editar usa bottom-sheet (FormModalV2) · igual patrón.</p>
+  </section>
+
+  <!-- CHECKLIST -->
+  <section id="check" class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+    <h2 class="text-lg font-bold tracking-tight mb-4 flex items-center gap-2"><i data-lucide="clipboard-check" class="w-5 h-5 text-violet-600"></i> Checklist canon</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2 text-[12px]">
+      <div class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-600"></i> Sociedad (% · rol · tipo) visible arriba del capital (mismo tab)</div>
+      <div class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-600"></i> "Editar" reconecta el DatosSocioForm (no recrea)</div>
+      <div class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-600"></i> Alta unificada captura el % (socio nace completo)</div>
+      <div class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-600"></i> Persiste en datosSocio · editable admin/gerente</div>
+      <div class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-600"></i> Se inserta en UserPanel tab Capital (no pantalla nueva)</div>
+      <div class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-600"></i> Mobile · violet + semántico</div>
+    </div>
+    <div class="mt-5 pt-4 border-t border-slate-100 text-[11px] text-slate-500">
+      <strong class="text-slate-700">Decisión abierta:</strong> el dato societario vive en <code>datosSocio</code> (privado, en Usuarios). ¿Lo seguimos orquestando desde Inversionistas con permiso (recomendado · respeta privacidad) o lo migramos a un modelo del dominio Inversionistas?
+    </div>
+  </section>
+
+</main>
+
+<footer class="bg-slate-900 text-slate-400 text-[11px] py-6 text-center">
+  Inversionistas · Fase B · Sociedad del socio · v1 · 2026-06-08 · reconecta % huérfano + alta unificada · se inserta en el tab Capital
+</footer>
+<script>lucide.createIcons();</script>
+</body>
+</html>
