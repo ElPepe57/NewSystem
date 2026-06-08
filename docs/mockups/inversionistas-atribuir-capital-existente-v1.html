@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fase A · Atribuir capital existente · v1</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script>tailwind.config={theme:{extend:{fontFamily:{sans:['Inter','system-ui','sans-serif']}}}}</script>
+<style>body{font-family:'Inter',system-ui,sans-serif}.tabular{font-variant-numeric:tabular-nums}.no-scrollbar::-webkit-scrollbar{display:none}.no-scrollbar{scrollbar-width:none}.phone{width:375px}</style>
+</head>
+<body class="bg-slate-100 text-slate-900">
+
+<!-- HERO -->
+<header class="bg-gradient-to-br from-violet-600 to-violet-800 text-white">
+  <div class="max-w-6xl mx-auto px-6 py-9">
+    <div class="inline-flex items-center gap-2 text-violet-200 text-[11px] font-bold uppercase tracking-wider mb-3">
+      <i data-lucide="coins" class="w-4 h-4"></i> Inversionistas · Fase A
+      <span class="ml-1 px-2 py-0.5 bg-emerald-400/20 text-emerald-100 rounded-full normal-case tracking-normal font-semibold">se INSERTA en lo existente · no es paralelo</span>
+    </div>
+    <h1 class="text-3xl font-bold tracking-tight mb-2">Atribuir capital existente · cash + TC</h1>
+    <p class="text-violet-100 text-sm max-w-3xl leading-relaxed">
+      El capital que <strong>ya existe</strong> en cuentas (saldos iniciales) y <strong>tarjetas de crédito</strong> se atribuye al socio
+      <strong>desde Inversionistas</strong> — no desde Finanzas. Finanzas solo crea las cuentas; Inversionistas decide de quién es el capital.
+      Es la **4ª opción** del modal "Registrar capital" que ya armamos.
+    </p>
+  </div>
+</header>
+
+<nav class="bg-white border-b border-slate-200 sticky top-0 z-30">
+  <div class="max-w-6xl mx-auto px-6 py-3 flex flex-wrap gap-x-5 gap-y-1 text-[12px] font-medium text-slate-600">
+    <span class="font-bold text-slate-900">Índice:</span>
+    <a href="#integra" class="hover:text-violet-700">0 · Integración</a>
+    <a href="#selector" class="hover:text-violet-700">1 · Selector (3→4)</a>
+    <a href="#flujo" class="hover:text-violet-700">2 · Atribuir (cash/TC)</a>
+    <a href="#wizard" class="hover:text-violet-700">3 · Wizard sin atribución</a>
+    <a href="#estados" class="hover:text-violet-700">4 · Estados</a>
+    <a href="#mobile" class="hover:text-violet-700">5 · Mobile</a>
+    <a href="#check" class="hover:text-violet-700">Checklist</a>
+  </div>
+</nav>
+
+<main class="max-w-6xl mx-auto px-6 py-10 space-y-14">
+
+  <!-- 0 · INTEGRACIÓN -->
+  <section id="integra">
+    <div class="flex items-center gap-3 mb-5">
+      <span class="text-[11px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full">Integración</span>
+      <h2 class="text-xl font-bold tracking-tight">Cómo se inserta en lo que YA existe</h2>
+    </div>
+    <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <div class="text-[11px] uppercase tracking-wider text-emerald-700 font-bold mb-2">✓ Reúsa (no recrea)</div>
+        <ul class="space-y-1.5 text-[12px] text-slate-700">
+          <li class="flex items-start gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-600 mt-0.5 shrink-0"></i> El modal <strong>"Registrar capital"</strong> existente (G) → solo suma 1 opción (3→4).</li>
+          <li class="flex items-start gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-600 mt-0.5 shrink-0"></i> <strong>Cuentas existentes</strong> (creadas en Finanzas) · no crea cuentas.</li>
+          <li class="flex items-start gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-600 mt-0.5 shrink-0"></i> <code>registrarAporteFundacional</code> (F6 · cash) + titularidad (TC) · ya existen.</li>
+          <li class="flex items-start gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-600 mt-0.5 shrink-0"></i> El cap table y el tab Capital del socio reflejan el resultado (ya leen aportesCapital + TC).</li>
+        </ul>
+      </div>
+      <div>
+        <div class="text-[11px] uppercase tracking-wider text-rose-700 font-bold mb-2">↔ Mueve (no duplica)</div>
+        <ul class="space-y-1.5 text-[12px] text-slate-700">
+          <li class="flex items-start gap-2"><i data-lucide="arrow-right" class="w-4 h-4 text-rose-500 mt-0.5 shrink-0"></i> La atribución de <strong>saldo fundacional</strong> (hoy en CuentaWizard Paso 3) → acá.</li>
+          <li class="flex items-start gap-2"><i data-lucide="arrow-right" class="w-4 h-4 text-rose-500 mt-0.5 shrink-0"></i> La atribución de <strong>TC a socio</strong> (hoy en CuentaWizard Paso 2) → acá.</li>
+        </ul>
+        <div class="mt-3 text-[11px] text-slate-500 bg-slate-50 border border-slate-200 rounded-lg p-2.5">
+          <strong class="text-slate-700">Regla:</strong> Finanzas crea la <em>caja</em> (cuenta + saldo) · Inversionistas decide <em>de qué socio es</em>. Sin doble conteo (atribuye, no suma saldo).
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 1 · SELECTOR 3→4 -->
+  <section id="selector">
+    <div class="flex items-center gap-3 mb-5">
+      <span class="text-[11px] font-bold uppercase tracking-wider text-violet-700 bg-violet-50 px-2.5 py-1 rounded-full">Acto 1</span>
+      <h2 class="text-xl font-bold tracking-tight">El selector de "Registrar capital" pasa de 3 a 4</h2>
+    </div>
+    <div class="flex justify-center">
+      <div class="w-full max-w-lg bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden">
+        <div class="px-5 py-4 border-b border-slate-100 flex items-start gap-3">
+          <div class="w-10 h-10 rounded-xl bg-violet-50 border border-violet-200 text-violet-700 flex items-center justify-center shrink-0"><i data-lucide="coins" class="w-5 h-5"></i></div>
+          <div class="flex-1"><div class="text-[10px] uppercase tracking-wider text-slate-400 font-bold mb-0.5">Inversionistas · Capital</div><h3 class="text-base font-semibold tracking-tight">Registrar capital</h3><p class="text-[12px] text-slate-500">¿Qué tipo de capital querés registrar?</p></div>
+          <button class="text-slate-400"><i data-lucide="x" class="w-5 h-5"></i></button>
+        </div>
+        <div class="px-5 py-4 space-y-2.5">
+          <button class="w-full flex items-center gap-3 p-3 border border-slate-200 rounded-xl text-left opacity-70">
+            <div class="w-9 h-9 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0"><i data-lucide="banknote" class="w-5 h-5"></i></div>
+            <div class="flex-1"><div class="text-[13px] font-bold">Aporte de cash</div><div class="text-[11px] text-slate-500">socio inyecta dinero nuevo</div></div>
+            <span class="text-[9px] text-slate-400">ya existe</span>
+          </button>
+          <button class="w-full flex items-center gap-3 p-3 border border-slate-200 rounded-xl text-left opacity-70">
+            <div class="w-9 h-9 rounded-lg bg-rose-100 text-rose-700 flex items-center justify-center shrink-0"><i data-lucide="arrow-up-from-line" class="w-5 h-5"></i></div>
+            <div class="flex-1"><div class="text-[13px] font-bold">Retiro</div><div class="text-[11px] text-slate-500">saca capital/utilidades</div></div>
+            <span class="text-[9px] text-slate-400">ya existe</span>
+          </button>
+          <button class="w-full flex items-center gap-3 p-3 border border-slate-200 rounded-xl text-left opacity-70">
+            <div class="w-9 h-9 rounded-lg bg-rose-100 text-rose-700 flex items-center justify-center shrink-0"><i data-lucide="credit-card" class="w-5 h-5"></i></div>
+            <div class="flex-1"><div class="text-[13px] font-bold">Tarjeta de crédito</div><div class="text-[11px] text-slate-500">crear TC nueva del socio</div></div>
+            <span class="text-[9px] text-slate-400">ya existe</span>
+          </button>
+          <!-- NUEVA · 4ta -->
+          <button class="w-full flex items-center gap-3 p-3 border-2 border-violet-300 bg-violet-50/50 rounded-xl text-left ring-2 ring-violet-200/40 relative">
+            <span class="absolute -top-2 left-3 bg-violet-600 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full">NUEVO · Fase A</span>
+            <div class="w-9 h-9 rounded-lg bg-violet-100 text-violet-700 flex items-center justify-center shrink-0"><i data-lucide="link" class="w-5 h-5"></i></div>
+            <div class="flex-1"><div class="text-[13px] font-bold">Atribuir capital existente</div><div class="text-[11px] text-slate-500">un saldo o TC que YA existe pertenece a un socio</div></div>
+            <i data-lucide="chevron-right" class="w-4 h-4 text-violet-400"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+    <p class="text-center text-[11px] text-slate-400 mt-3">Las 3 primeras ya están (G) · solo se agrega la 4ª. Mismo modal, mismo patrón radio-cards.</p>
+  </section>
+
+  <!-- 2 · FLUJO ATRIBUIR -->
+  <section id="flujo">
+    <div class="flex items-center gap-3 mb-5">
+      <span class="text-[11px] font-bold uppercase tracking-wider text-violet-700 bg-violet-50 px-2.5 py-1 rounded-full">Acto 2</span>
+      <h2 class="text-xl font-bold tracking-tight">Flujo "Atribuir" — socio + cuenta existente (cash o TC)</h2>
+    </div>
+    <div class="flex justify-center">
+      <div class="w-full max-w-lg bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden">
+        <div class="px-5 py-4 border-b border-slate-100 flex items-start gap-3">
+          <div class="w-10 h-10 rounded-xl bg-violet-50 border border-violet-200 text-violet-700 flex items-center justify-center shrink-0"><i data-lucide="link" class="w-5 h-5"></i></div>
+          <div class="flex-1"><div class="text-[10px] uppercase tracking-wider text-slate-400 font-bold mb-0.5">Capital · Atribuir existente</div><h3 class="text-base font-semibold tracking-tight">Atribuir capital a un socio</h3></div>
+          <button class="text-slate-400"><i data-lucide="x" class="w-5 h-5"></i></button>
+        </div>
+        <div class="px-5 py-4 space-y-3.5 max-h-[60vh] overflow-y-auto">
+          <button class="text-[11px] text-slate-500 hover:text-slate-700 flex items-center gap-1"><i data-lucide="arrow-left" class="w-3.5 h-3.5"></i> Cambiar tipo</button>
+
+          <!-- socio -->
+          <div>
+            <label class="text-[11px] font-semibold text-slate-600 mb-1 block">Socio <span class="text-rose-500">*</span></label>
+            <div class="flex items-center gap-2 border border-slate-300 rounded-lg px-2.5 focus-within:ring-2 focus-within:ring-violet-500/40">
+              <i data-lucide="user" class="w-4 h-4 text-slate-400"></i>
+              <select class="flex-1 bg-transparent text-[13px] py-2 outline-none"><option>José López · 60%</option><option>María Paz · 40%</option></select>
+            </div>
+          </div>
+
+          <!-- toggle cash / TC -->
+          <div>
+            <label class="text-[11px] font-semibold text-slate-600 mb-1 block">¿Qué capital le pertenece?</label>
+            <div class="grid grid-cols-2 gap-1 bg-slate-100 rounded-lg p-1">
+              <button class="flex items-center justify-center gap-1.5 py-2 rounded-md bg-white shadow-sm text-[12px] font-bold text-emerald-700"><i data-lucide="banknote" class="w-4 h-4"></i> Saldo (cash)</button>
+              <button class="flex items-center justify-center gap-1.5 py-2 rounded-md text-[12px] font-semibold text-slate-500"><i data-lucide="credit-card" class="w-4 h-4"></i> Tarjeta (TC)</button>
+            </div>
+          </div>
+
+          <!-- lista de cuentas existentes (cash) -->
+          <div>
+            <label class="text-[11px] font-semibold text-slate-600 mb-1 block">Cuenta con saldo sin atribuir <span class="text-rose-500">*</span></label>
+            <div class="space-y-2">
+              <label class="flex items-center gap-3 p-2.5 border-2 border-emerald-300 bg-emerald-50/40 rounded-lg cursor-pointer">
+                <input type="radio" name="cta" checked class="accent-violet-600">
+                <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center"><i data-lucide="landmark" class="w-4 h-4"></i></div>
+                <div class="flex-1"><div class="text-[13px] font-semibold">BCP Corriente · PEN</div><div class="text-[10px] text-slate-500">saldo de apertura · sin dueño</div></div>
+                <div class="text-[13px] font-bold tabular text-emerald-700">S/ 52,000</div>
+              </label>
+              <label class="flex items-center gap-3 p-2.5 border border-slate-200 hover:bg-slate-50 rounded-lg cursor-pointer">
+                <input type="radio" name="cta" class="accent-violet-600">
+                <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center"><i data-lucide="wallet" class="w-4 h-4"></i></div>
+                <div class="flex-1"><div class="text-[13px] font-semibold">Caja Efectivo · PEN</div><div class="text-[10px] text-slate-500">saldo de apertura · sin dueño</div></div>
+                <div class="text-[13px] font-bold tabular text-emerald-700">S/ 5,000</div>
+              </label>
+            </div>
+          </div>
+
+          <!-- monto a atribuir (≤ saldo) -->
+          <div>
+            <label class="text-[11px] font-semibold text-slate-600 mb-1 block">Monto a atribuir <span class="text-slate-400 font-normal">· hasta S/ 52,000</span></label>
+            <div class="flex items-center border border-slate-300 rounded-lg px-3 py-2"><span class="text-slate-400 text-[13px] mr-1.5">S/</span><input value="52,000.00" class="flex-1 outline-none text-[14px] font-semibold tabular bg-transparent"></div>
+          </div>
+
+          <!-- preview · sin doble conteo -->
+          <div class="rounded-xl border border-violet-200 bg-violet-50/50 p-3">
+            <div class="text-[10px] uppercase tracking-wider text-violet-700 font-bold mb-1 flex items-center gap-1.5"><i data-lucide="link" class="w-3.5 h-3.5"></i> Efecto · atribución (sin duplicar saldo)</div>
+            <div class="flex items-center justify-between text-[12px]">
+              <div><div class="text-[10px] text-slate-500">Cash aportado de José</div><div class="tabular text-slate-500">S/ 52,000 <i data-lucide="arrow-right" class="w-3 h-3 inline"></i> <span class="font-bold text-emerald-700">S/ 104,000</span></div></div>
+              <div class="text-right"><div class="text-[10px] text-slate-500">Saldo BCP</div><div class="tabular font-semibold text-slate-600">S/ 52,000 <span class="text-slate-400">(no cambia)</span></div></div>
+            </div>
+          </div>
+        </div>
+        <div class="px-5 py-3 border-t border-slate-100 bg-slate-50/60 flex items-center justify-end gap-2">
+          <button class="text-[13px] font-semibold text-slate-600 px-3 py-2">Cancelar</button>
+          <button class="inline-flex items-center gap-1.5 bg-violet-600 hover:bg-violet-700 text-white text-[13px] font-semibold px-4 py-2 rounded-lg"><i data-lucide="link" class="w-4 h-4"></i> Atribuir a José</button>
+        </div>
+      </div>
+    </div>
+    <p class="text-center text-[11px] text-slate-400 mt-3">Modo <strong>Tarjeta (TC)</strong>: la lista muestra las TC existentes (deuda/límite) → atribuir la titularidad al socio · mismo patrón.</p>
+  </section>
+
+  <!-- 3 · WIZARD SIN ATRIBUCIÓN -->
+  <section id="wizard">
+    <div class="flex items-center gap-3 mb-5">
+      <span class="text-[11px] font-bold uppercase tracking-wider text-teal-700 bg-teal-50 px-2.5 py-1 rounded-full">Acto 3</span>
+      <h2 class="text-xl font-bold tracking-tight">Cómo queda el CuentaWizard (Finanzas) — sin atribuir socio</h2>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="bg-white border border-rose-200 rounded-2xl p-5 shadow-sm">
+        <div class="text-[11px] uppercase tracking-wider text-rose-700 font-bold mb-2">ANTES (F6 · viola el principio)</div>
+        <div class="text-[12px] font-semibold text-slate-700 mb-2">Paso 3 · Saldo</div>
+        <div class="border border-slate-200 rounded-lg p-3 mb-2"><div class="text-[11px] text-slate-500">Saldo del negocio</div><div class="text-[14px] font-bold tabular">S/ 52,000</div></div>
+        <div class="border-2 border-violet-200 bg-violet-50/40 rounded-lg p-3 line-through opacity-60">
+          <div class="text-[11px] font-semibold text-violet-900">¿Este saldo es aporte de un socio?</div>
+          <div class="text-[10px] text-slate-500">[ selector de socio ]</div>
+        </div>
+        <div class="text-[10px] text-rose-600 mt-1.5">❌ Finanzas atribuía capital</div>
+      </div>
+      <div class="bg-white border border-emerald-200 rounded-2xl p-5 shadow-sm">
+        <div class="text-[11px] uppercase tracking-wider text-emerald-700 font-bold mb-2">DESPUÉS (Fase A)</div>
+        <div class="text-[12px] font-semibold text-slate-700 mb-2">Paso 3 · Saldo</div>
+        <div class="border border-slate-200 rounded-lg p-3 mb-2"><div class="text-[11px] text-slate-500">Saldo del negocio</div><div class="text-[14px] font-bold tabular">S/ 52,000</div></div>
+        <div class="bg-slate-50 border border-slate-200 rounded-lg p-3 flex items-start gap-2">
+          <i data-lucide="info" class="w-3.5 h-3.5 text-slate-400 mt-0.5"></i>
+          <div class="text-[10px] text-slate-500">¿Este saldo es de un socio? Atribuilo en <strong>Inversionistas → Registrar capital → Atribuir existente</strong>.</div>
+        </div>
+        <div class="text-[10px] text-emerald-600 mt-1.5">✅ Finanzas solo crea la cuenta + saldo</div>
+      </div>
+    </div>
+    <p class="text-center text-[11px] text-slate-400 mt-3">Lo mismo en el Paso 2 para TC: se quita la opción "socio" de la titularidad (la atribución vive en Inversionistas).</p>
+  </section>
+
+  <!-- 4 · ESTADOS -->
+  <section id="estados">
+    <div class="flex items-center gap-3 mb-5">
+      <span class="text-[11px] font-bold uppercase tracking-wider text-slate-700 bg-slate-100 px-2.5 py-1 rounded-full">Acto 4</span>
+      <h2 class="text-xl font-bold tracking-tight">Estados</h2>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div class="bg-white border border-slate-200 rounded-xl p-4">
+        <div class="text-[11px] uppercase tracking-wider text-slate-500 font-bold mb-2">Sin cuentas para atribuir</div>
+        <div class="text-center py-3">
+          <div class="w-10 h-10 rounded-xl bg-slate-50 border border-slate-200 text-slate-400 flex items-center justify-center mx-auto mb-2"><i data-lucide="link-2-off" class="w-5 h-5"></i></div>
+          <div class="text-[12px] text-slate-600">Todas las cuentas con saldo ya están atribuidas o tienen saldo 0.</div>
+        </div>
+      </div>
+      <div class="bg-white border border-slate-200 rounded-xl p-4">
+        <div class="text-[11px] uppercase tracking-wider text-slate-500 font-bold mb-2">Validación · monto > saldo</div>
+        <p class="text-[11px] text-rose-600 flex items-center gap-1 mt-2"><i data-lucide="alert-triangle" class="w-3.5 h-3.5"></i> No podés atribuir más que el saldo de la cuenta (S/ 52,000).</p>
+      </div>
+      <div class="bg-white border border-slate-200 rounded-xl p-4">
+        <div class="text-[11px] uppercase tracking-wider text-slate-500 font-bold mb-2">Success</div>
+        <div class="flex items-start gap-2 bg-emerald-50 border border-emerald-200 rounded-lg px-3 py-2.5">
+          <i data-lucide="check-circle" class="w-4 h-4 text-emerald-600 mt-0.5"></i>
+          <div class="text-[11px] text-emerald-800">S/ 52,000 atribuidos a José · sin duplicar el saldo de BCP.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5 · MOBILE -->
+  <section id="mobile">
+    <div class="flex items-center gap-3 mb-5">
+      <span class="text-[11px] font-bold uppercase tracking-wider text-violet-700 bg-violet-50 px-2.5 py-1 rounded-full">Acto 5</span>
+      <h2 class="text-xl font-bold tracking-tight">Mobile (375px) — bottom-sheet</h2>
+    </div>
+    <div class="flex justify-center">
+      <div class="phone bg-slate-900/40 rounded-[2rem] border-4 border-slate-800 overflow-hidden shadow-xl relative" style="height:600px">
+        <div class="absolute inset-x-0 bottom-0 bg-white rounded-t-2xl max-h-[92%] overflow-y-auto no-scrollbar">
+          <div class="flex justify-center pt-2"><div class="w-10 h-1 rounded-full bg-slate-300"></div></div>
+          <div class="px-4 py-3 border-b border-slate-100 flex items-center gap-2"><button class="text-slate-400"><i data-lucide="arrow-left" class="w-4 h-4"></i></button><h3 class="text-[14px] font-semibold flex-1">Atribuir capital</h3><button class="text-slate-400"><i data-lucide="x" class="w-5 h-5"></i></button></div>
+          <div class="px-4 py-3 space-y-3">
+            <div class="flex items-center gap-2 border border-slate-300 rounded-lg px-2.5"><i data-lucide="user" class="w-4 h-4 text-slate-400"></i><select class="flex-1 bg-transparent text-[13px] py-2.5 outline-none"><option>José López · 60%</option></select></div>
+            <div class="grid grid-cols-2 gap-1 bg-slate-100 rounded-lg p-1">
+              <button class="py-2.5 rounded-md bg-white shadow-sm text-[12px] font-bold text-emerald-700 flex items-center justify-center gap-1"><i data-lucide="banknote" class="w-4 h-4"></i> Saldo</button>
+              <button class="py-2.5 rounded-md text-[12px] font-semibold text-slate-500 flex items-center justify-center gap-1"><i data-lucide="credit-card" class="w-4 h-4"></i> TC</button>
+            </div>
+            <label class="flex items-center gap-2.5 p-2.5 border-2 border-emerald-300 bg-emerald-50/40 rounded-lg"><input type="radio" checked class="accent-violet-600"><div class="flex-1"><div class="text-[13px] font-semibold">BCP Corriente</div><div class="text-[10px] text-slate-500">sin dueño</div></div><div class="text-[13px] font-bold tabular text-emerald-700">S/ 52k</div></label>
+            <div class="rounded-xl border border-violet-200 bg-violet-50/50 p-2.5 text-[12px] tabular text-slate-500">Cash José: S/ 52k <i data-lucide="arrow-right" class="w-3 h-3 inline"></i> <span class="font-bold text-emerald-700">S/ 104k</span> <span class="text-[10px] text-slate-400">· saldo no cambia</span></div>
+          </div>
+          <div class="sticky bottom-0 bg-white border-t border-slate-100 px-4 py-3 pb-5"><button class="w-full bg-violet-600 text-white text-[14px] font-semibold py-3 rounded-xl flex items-center justify-center gap-1.5"><i data-lucide="link" class="w-4 h-4"></i> Atribuir a José</button></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CHECKLIST -->
+  <section id="check" class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+    <h2 class="text-lg font-bold tracking-tight mb-4 flex items-center gap-2"><i data-lucide="clipboard-check" class="w-5 h-5 text-violet-600"></i> Checklist canon</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2 text-[12px]">
+      <div class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-600"></i> Se inserta en "Registrar capital" (3→4 · no modal nuevo)</div>
+      <div class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-600"></i> Opera sobre cuentas EXISTENTES (no crea cuentas)</div>
+      <div class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-600"></i> Cash y TC (mismo flujo · toggle)</div>
+      <div class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-600"></i> Sin doble conteo (atribuye · no suma saldo)</div>
+      <div class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-600"></i> CuentaWizard pierde la atribución (Finanzas solo crea cuentas)</div>
+      <div class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-600"></i> Reúsa registrarAporteFundacional + titularidad TC</div>
+      <div class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-600"></i> Estados: sin cuentas · validación · success</div>
+      <div class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-600"></i> Mobile bottom-sheet · violet + semántico</div>
+    </div>
+    <div class="mt-5 pt-4 border-t border-slate-100 text-[11px] text-slate-500">
+      <strong class="text-slate-700">Dependencia:</strong> el modo TC se alinea con ADR-PF-001 (lineaCredito · D1) para leer la deuda real de cada tarjeta.
+    </div>
+  </section>
+
+</main>
+
+<footer class="bg-slate-900 text-slate-400 text-[11px] py-6 text-center">
+  Inversionistas · Fase A · Atribuir capital existente · v1 · 2026-06-06 · se inserta en "Registrar capital" · cuentas existentes · sin doble conteo
+</footer>
+<script>lucide.createIcons();</script>
+</body>
+</html>
