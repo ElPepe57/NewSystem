@@ -204,8 +204,18 @@ export default function InversionistasCapital({ data, onRefetch, onAbrirMovimien
               const cap = data.capitalComprometido.porSocio?.find((p) => p.socioId === s.id);
               const tipo = cap?.tipoParticipacion;
               const comprometido = (cap?.cash ?? 0) + (cap?.deudaTC ?? 0);
+              const valorEst = cap?.valorEstimado ?? 0;
               const uid = s.userId;
               const abrir = uid ? () => { setPanelUid(uid); setPanelSocioId(s.id); } : undefined;
+              // El aporte se muestra según su naturaleza: monetario (cash+TC) y/o valor
+              // no-monetario (know-how · IP · gestión). Un socio valor_puro NO pone cash
+              // pero SÍ aporta valor → el card lo refleja (no "S/ 0").
+              const stats: Array<{ label: string; value: string }> = [
+                { label: 'Participación', value: `${s.porcentajeParticipacion}%` },
+              ];
+              if (comprometido > 0) stats.push({ label: 'Comprometido', value: formatCurrencyPEN(comprometido) });
+              if (valorEst > 0) stats.push({ label: 'Valor aportado', value: formatCurrencyPEN(valorEst) });
+              if (stats.length === 1) stats.push({ label: 'Aporte', value: '—' });
               return (
                 <DataCard
                   key={s.id}
@@ -213,10 +223,7 @@ export default function InversionistasCapital({ data, onRefetch, onAbrirMovimien
                   subtitle={s.rol || 'Socio'}
                   status={tipo ? { label: TIPO_PART_SHORT[tipo], variant: TIPO_PART_VARIANT[tipo] } : undefined}
                   accentVariant={tipo ? TIPO_PART_VARIANT[tipo] : 'neutral'}
-                  stats={[
-                    { label: 'Participación', value: `${s.porcentajeParticipacion}%` },
-                    { label: 'Capital comprometido', value: formatCurrencyPEN(comprometido) },
-                  ]}
+                  stats={stats}
                   onClick={abrir}
                   actions={
                     abrir ? (
