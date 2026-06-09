@@ -21,7 +21,6 @@ import {
   Landmark,
   Calendar,
   RefreshCw,
-  UserCog,
   FileText,
   Wallet,
   PiggyBank,
@@ -38,7 +37,6 @@ import {
   HeartPulse,
   FileBarChart,
   Users,
-  ArrowRight,
   PlusCircle,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
@@ -329,7 +327,6 @@ export default function Inversionistas() {
           extraActions={periodoSelector}
           acciones={[
             { label: 'Recargar', icon: RefreshCw, onClick: cargarDatos, tier: 'neutral', disabled: loading },
-            { label: 'Gestionar socios', icon: UserCog, onClick: () => setTabActiva('capital'), tier: 'config' },
             { label: 'Reportes', icon: FileText, onClick: () => setTabActiva('reportes'), tier: 'neutral' },
             { label: 'Nuevo socio', icon: Users, onClick: () => setNuevoSocioOpen(true), tier: 'config' },
             { label: 'Registrar capital', icon: PlusCircle, onClick: () => { setMovSocioId(''); setMovOpen(true); }, tier: 'primary' },
@@ -344,18 +341,9 @@ export default function Inversionistas() {
             </div>
             <div className="flex-1 min-w-0">
               <div className="text-[11px] text-slate-700">
-                <strong>Admin/Gerente:</strong> gestioná capital · % participación · aportes de valor de cada socio en <strong>Capital</strong> (sin salir del módulo).
+                <strong>Admin/Gerente:</strong> gestioná capital · % participación · aportes de valor de cada socio en la tab <strong>Capital</strong> (sin salir del módulo).
               </div>
             </div>
-            <button
-              type="button"
-              onClick={() => setTabActiva('capital')}
-              className="bg-white border border-purple-300 hover:bg-purple-50 text-purple-700 text-[11px] font-bold px-3 py-1 rounded-lg whitespace-nowrap flex items-center gap-1"
-            >
-              <span className="hidden sm:inline">Ver socios</span>
-              <span className="sm:hidden">Socios</span>
-              <ArrowRight className="w-3 h-3" />
-            </button>
           </div>
         )}
 
@@ -394,6 +382,7 @@ export default function Inversionistas() {
                   onRefetch={cargarDatos}
                   onAbrirMovimiento={(sid) => { setMovSocioId(sid ?? ''); setMovOpen(true); }}
                   onAbrirTC={(sid) => { setTcWizardSocioId(sid); setTcWizardOpen(true); }}
+                  onNuevoSocio={() => setNuevoSocioOpen(true)}
                 />
               )}
               {tabActiva === 'trayectoria' && (

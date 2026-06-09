@@ -22,6 +22,9 @@ import {
   CalendarClock, Eye,
 } from 'lucide-react';
 import { formatCurrencyPEN } from '../../../utils/format';
+import { TextField } from '../../../design-system/components/forms/TextField';
+import { DateField } from '../../../design-system/components/forms/DateField';
+import { MoneyField } from '../../../design-system/components/forms/MoneyField';
 import type {
   DatosSocio,
   DatosSocioFormData,
@@ -161,43 +164,42 @@ export default function DatosSocioForm({ initialData, onChange }: Props) {
         </div>
       </div>
 
-      {/* Datos básicos */}
+      {/* Datos básicos · L2 del kit · tone violet (chrome del módulo) */}
       <div className="grid grid-cols-2 gap-3">
-        <div>
-          <label className="text-[10px] uppercase tracking-wider text-slate-500 font-bold block mb-1">% Participación *</label>
-          <input
-            type="number"
-            min="0"
-            max="100"
-            step="0.01"
-            value={porcentaje}
-            onChange={(e) => setPorcentaje(e.target.value)}
-            className="w-full px-3 py-2 text-[12px] border border-slate-300 rounded-lg focus:border-violet-500 focus:outline-none"
-            placeholder="ej: 60"
-          />
-        </div>
-        <div>
-          <label className="text-[10px] uppercase tracking-wider text-slate-500 font-bold block mb-1">Fecha ingreso al negocio *</label>
-          <input
-            type="date"
-            value={fechaIngreso}
-            onChange={(e) => setFechaIngreso(e.target.value)}
-            className="w-full px-3 py-2 text-[12px] border border-slate-300 rounded-lg focus:border-violet-500 focus:outline-none"
-          />
-        </div>
+        <TextField
+          label="% Participación *"
+          tone="violet"
+          type="number"
+          min={0}
+          max={100}
+          step="0.01"
+          value={porcentaje}
+          onChange={setPorcentaje}
+          placeholder="ej: 60"
+        />
+        <DateField
+          label="Fecha ingreso al negocio *"
+          tone="violet"
+          showShortcuts={false}
+          value={fechaIngreso ? new Date(`${fechaIngreso}T00:00:00`) : undefined}
+          onChange={(d) =>
+            setFechaIngreso(
+              d
+                ? `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+                : '',
+            )
+          }
+        />
       </div>
 
-      <div>
-        <label className="text-[10px] uppercase tracking-wider text-slate-500 font-bold block mb-1">Rol en el negocio (descriptivo)</label>
-        <input
-          type="text"
-          value={rolNegocio}
-          onChange={(e) => setRolNegocio(e.target.value)}
-          placeholder="ej: Co-fundador · CEO"
-          className="w-full px-3 py-2 text-[12px] border border-slate-300 rounded-lg focus:border-violet-500 focus:outline-none"
-        />
-        <div className="text-[10px] text-slate-500 mt-0.5">Cargo de negocio · NO el rol del sistema</div>
-      </div>
+      <TextField
+        label="Rol en el negocio (descriptivo)"
+        tone="violet"
+        value={rolNegocio}
+        onChange={setRolNegocio}
+        placeholder="ej: Co-fundador · CEO"
+        hint="Cargo de negocio · NO el rol del sistema"
+      />
 
       {/* Naturaleza de la participación · radio cards */}
       <div>
@@ -303,26 +305,16 @@ export default function DatosSocioForm({ initialData, onChange }: Props) {
             />
           </div>
 
-          <div>
-            <label className="text-[10px] uppercase tracking-wider text-slate-500 font-bold block mb-1 inline-flex items-center gap-1">
-              Valuación estimada del valor aportado
-              <span className="text-[9px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded">opcional</span>
-            </label>
-            <div className="relative">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[12px] font-bold text-slate-400">S/</span>
-              <input
-                type="number"
-                min="0"
-                value={valuacionStr}
-                onChange={(e) => setValuacionStr(e.target.value)}
-                placeholder="ej: 200000"
-                className="w-full pl-10 pr-3 py-2 text-[14px] tabular-nums border border-slate-300 rounded-lg focus:border-amber-500 focus:outline-none"
-              />
-            </div>
-            <div className="text-[10px] text-slate-500 mt-0.5">
-              Si el contador o el acuerdo de socios valuó el aporte de valor, ingresalo. Permite ROI ajustado.
-            </div>
-          </div>
+          <MoneyField
+            label="Valuación estimada del valor aportado"
+            tone="violet"
+            optional
+            moneda="PEN"
+            value={valuacionStr ? parseFloat(valuacionStr) : undefined}
+            onChange={(n) => setValuacionStr(n !== undefined ? n.toString() : '')}
+            placeholder="ej: 200000"
+            hint="Si el contador o el acuerdo de socios valuó el aporte de valor, ingresalo. Permite ROI ajustado."
+          />
 
           {/* Vesting · colapsable avanzado */}
           <details className="text-[11px]">

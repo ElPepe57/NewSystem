@@ -11,7 +11,8 @@
 
 import React, { forwardRef } from 'react';
 import { CircleAlert } from 'lucide-react';
-import { cn } from '../../utils';
+import { cn, focusTone } from '../../utils';
+import type { ColorIdentidad } from '../../grupoColor';
 
 export interface MoneyFieldProps {
   /** Etiqueta. */
@@ -37,6 +38,8 @@ export interface MoneyFieldProps {
   disabled?: boolean;
   className?: string;
   autoFocus?: boolean;
+  /** Color de foco según el grupo del módulo · default 'teal'. */
+  tone?: ColorIdentidad;
 }
 
 // ─── Helpers de formato ────────────────────────────────────────────────
@@ -81,6 +84,7 @@ export const MoneyField = forwardRef<HTMLInputElement, MoneyFieldProps>(
       disabled,
       className,
       autoFocus,
+      tone = 'teal',
     },
     ref,
   ) => {
@@ -150,7 +154,8 @@ export const MoneyField = forwardRef<HTMLInputElement, MoneyFieldProps>(
             aria-invalid={hasError}
             className={cn(
               'w-full h-10 pr-3 text-sm rounded-md bg-white border outline-none transition-colors',
-              'focus:ring-2 focus:ring-teal-500 focus:border-teal-500',
+              'focus:ring-2',
+              focusTone(tone),
               'placeholder:text-slate-400',
               'disabled:bg-slate-50 disabled:text-slate-500 disabled:cursor-not-allowed',
               'tabular-nums font-medium text-right',

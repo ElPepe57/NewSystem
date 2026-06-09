@@ -9,7 +9,8 @@
 
 import React, { forwardRef } from 'react';
 import { CircleAlert, Calendar } from 'lucide-react';
-import { cn } from '../../utils';
+import { cn, focusTone } from '../../utils';
+import type { ColorIdentidad } from '../../grupoColor';
 
 export interface DateFieldProps {
   label: string;
@@ -26,6 +27,8 @@ export interface DateFieldProps {
   /** Min/max permitidos (formato YYYY-MM-DD). */
   min?: string;
   max?: string;
+  /** Color de foco según el grupo del módulo · default 'teal'. */
+  tone?: ColorIdentidad;
 }
 
 // ─── Helpers ───────────────────────────────────────────────────────────
@@ -78,6 +81,7 @@ export const DateField = forwardRef<HTMLInputElement, DateFieldProps>(
       showShortcuts = true,
       min,
       max,
+      tone = 'teal',
     },
     ref,
   ) => {
@@ -126,7 +130,8 @@ export const DateField = forwardRef<HTMLInputElement, DateFieldProps>(
             aria-invalid={hasError}
             className={cn(
               'w-full h-10 pl-3 pr-10 text-sm rounded-md bg-white border outline-none transition-colors',
-              'focus:ring-2 focus:ring-teal-500 focus:border-teal-500',
+              'focus:ring-2',
+              focusTone(tone),
               'disabled:bg-slate-50 disabled:text-slate-500 disabled:cursor-not-allowed',
               hasError
                 ? 'border-red-400 bg-red-50/30 focus:ring-red-500 focus:border-red-500'

@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Inversionistas · A+C · header limpio + sección Socios</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script>tailwind.config={theme:{extend:{fontFamily:{sans:['Inter','system-ui','sans-serif']}}}}</script>
+<style>body{font-family:'Inter',system-ui,sans-serif}.tabular{font-variant-numeric:tabular-nums}.phone{width:375px}</style>
+</head>
+<body class="bg-slate-100 text-slate-900">
+
+<header class="bg-gradient-to-br from-violet-600 to-violet-800 text-white">
+  <div class="max-w-6xl mx-auto px-6 py-8">
+    <div class="inline-flex items-center gap-2 text-violet-200 text-[11px] font-bold uppercase tracking-wider mb-3">
+      <i data-lucide="users-round" class="w-4 h-4"></i> Inversionistas · mejora A + C
+    </div>
+    <h1 class="text-2xl font-bold tracking-tight mb-1">Header sin redundancia + la tab Capital muestra a los socios</h1>
+    <p class="text-violet-100 text-sm max-w-3xl">A: saco los 2 accesos que pisan a la tab. C: la tab Capital deja de listar solo "aportes de cash" y muestra <strong>todos los socios</strong> (su hogar real), con empty state que invita a empezar.</p>
+  </div>
+</header>
+
+<main class="max-w-6xl mx-auto px-6 py-10 space-y-14">
+
+  <!-- A · HEADER -->
+  <section>
+    <div class="flex items-center gap-3 mb-5">
+      <span class="text-[11px] font-bold uppercase tracking-wider text-rose-700 bg-rose-50 px-2.5 py-1 rounded-full">A · header</span>
+      <h2 class="text-xl font-bold tracking-tight">Quitar los 2 accesos redundantes</h2>
+    </div>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div class="bg-white border border-rose-200 rounded-2xl p-4">
+        <div class="text-[11px] uppercase tracking-wider text-rose-700 font-bold mb-2">ANTES · 5 acciones · 3 caminos a Capital</div>
+        <div class="flex flex-wrap gap-1.5">
+          <span class="text-[11px] px-2.5 py-1 bg-white border border-slate-200 rounded-lg text-slate-600">↻ Recargar</span>
+          <span class="text-[11px] px-2.5 py-1 bg-rose-50 border border-rose-300 rounded-lg text-rose-700 line-through">⚙ Gestionar socios</span>
+          <span class="text-[11px] px-2.5 py-1 bg-white border border-slate-200 rounded-lg text-slate-600">📄 Reportes</span>
+          <span class="text-[11px] px-2.5 py-1 bg-indigo-50 border border-indigo-200 rounded-lg text-indigo-700">👥 Nuevo socio</span>
+          <span class="text-[11px] px-2.5 py-1 bg-violet-600 text-white rounded-lg">⊕ Registrar capital</span>
+        </div>
+        <div class="mt-2 text-[10px] text-rose-600">+ en el banner: <span class="line-through">"Ver socios →"</span> · ambos hacían <code>setTabActiva('capital')</code></div>
+      </div>
+      <div class="bg-white border border-emerald-200 rounded-2xl p-4">
+        <div class="text-[11px] uppercase tracking-wider text-emerald-700 font-bold mb-2">DESPUÉS · solo acciones reales</div>
+        <div class="flex flex-wrap gap-1.5">
+          <span class="text-[11px] px-2.5 py-1 bg-white border border-slate-200 rounded-lg text-slate-600">↻ Recargar</span>
+          <span class="text-[11px] px-2.5 py-1 bg-white border border-slate-200 rounded-lg text-slate-600">📄 Reportes</span>
+          <span class="text-[11px] px-2.5 py-1 bg-indigo-50 border border-indigo-200 rounded-lg text-indigo-700">👥 Nuevo socio</span>
+          <span class="text-[11px] px-2.5 py-1 bg-violet-600 text-white rounded-lg">⊕ Registrar capital</span>
+        </div>
+        <div class="mt-2 text-[10px] text-emerald-700">La tab <strong>Capital</strong> es el único camino a los socios (sin pisarse).</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- C · TAB CAPITAL CON SOCIOS -->
+  <section>
+    <div class="flex items-center gap-3 mb-5">
+      <span class="text-[11px] font-bold uppercase tracking-wider text-violet-700 bg-violet-50 px-2.5 py-1 rounded-full">C · tab Capital</span>
+      <h2 class="text-xl font-bold tracking-tight">Nueva sección "Socios del negocio" (su hogar)</h2>
+    </div>
+
+    <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm space-y-4 max-w-4xl">
+      <!-- KPI strip (se mantiene) -->
+      <div class="grid grid-cols-3 gap-3">
+        <div class="bg-gradient-to-br from-emerald-50 to-emerald-100/40 ring-1 ring-emerald-200/50 rounded-2xl p-3"><div class="text-[9px] uppercase tracking-wider text-emerald-700 font-bold">Cash neto</div><div class="text-[18px] font-bold tabular text-emerald-900">S/ 52,000</div></div>
+        <div class="bg-gradient-to-br from-rose-50 to-rose-100/40 ring-1 ring-rose-200/50 rounded-2xl p-3"><div class="text-[9px] uppercase tracking-wider text-rose-700 font-bold">TC asumida</div><div class="text-[18px] font-bold tabular text-rose-900">S/ 38,400</div></div>
+        <div class="bg-gradient-to-br from-sky-50 to-sky-100/40 ring-1 ring-sky-200/50 rounded-2xl p-3"><div class="text-[9px] uppercase tracking-wider text-sky-700 font-bold">Valor est.</div><div class="text-[18px] font-bold tabular text-sky-900">S/ 40,000</div></div>
+      </div>
+
+      <!-- NUEVO · SOCIOS DEL NEGOCIO (prominente · primero) -->
+      <div class="border-2 border-violet-200 rounded-2xl overflow-hidden">
+        <div class="px-4 py-2.5 bg-violet-50/60 border-b border-violet-100 flex items-center justify-between gap-2">
+          <div class="flex items-center gap-2 text-[12px] font-bold text-violet-900"><i data-lucide="users-round" class="w-4 h-4"></i> Socios del negocio · 2</div>
+          <button class="text-[10px] font-semibold text-violet-700 bg-white border border-violet-200 hover:bg-violet-50 px-2.5 py-1 rounded-lg inline-flex items-center gap-1"><i data-lucide="user-plus" class="w-3.5 h-3.5"></i> Nuevo socio</button>
+        </div>
+        <div class="divide-y divide-slate-100">
+          <!-- socio 1 -->
+          <div class="px-4 py-3 flex items-center gap-3 hover:bg-violet-50/30">
+            <div class="w-9 h-9 rounded-full bg-gradient-to-br from-violet-400 to-violet-600 text-white flex items-center justify-center font-bold text-[11px] shrink-0">JL</div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2"><span class="text-[13px] font-semibold text-slate-900">José López</span><span class="text-[16px] font-bold tabular text-violet-900">60%</span></div>
+              <div class="text-[10px] text-slate-500">Co-fundador · CEO · <span class="text-amber-700 font-semibold">Mixta</span></div>
+            </div>
+            <div class="text-right shrink-0">
+              <div class="text-[13px] font-bold tabular text-slate-900">S/ 90,400</div>
+              <div class="text-[9px] text-slate-400">comprometido</div>
+            </div>
+            <button class="text-[11px] font-semibold text-violet-700 bg-white border border-violet-200 hover:bg-violet-50 px-2.5 py-1 rounded-lg inline-flex items-center gap-1 shrink-0"><i data-lucide="pencil" class="w-3.5 h-3.5"></i> Ver participación</button>
+          </div>
+          <!-- socio 2 · SIN aporte aún (antes era invisible) -->
+          <div class="px-4 py-3 flex items-center gap-3 hover:bg-violet-50/30">
+            <div class="w-9 h-9 rounded-full bg-gradient-to-br from-violet-400 to-violet-600 text-white flex items-center justify-center font-bold text-[11px] shrink-0">MR</div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2"><span class="text-[13px] font-semibold text-slate-900">María Ríos</span><span class="text-[16px] font-bold tabular text-violet-900">40%</span></div>
+              <div class="text-[10px] text-slate-500">Inversora · <span class="text-sky-700 font-semibold">Valor puro</span> · <span class="text-amber-600">sin aporte de cash aún</span></div>
+            </div>
+            <div class="text-right shrink-0">
+              <div class="text-[13px] font-bold tabular text-slate-900">S/ 30,000</div>
+              <div class="text-[9px] text-slate-400">valor estimado</div>
+            </div>
+            <button class="text-[11px] font-semibold text-violet-700 bg-white border border-violet-200 hover:bg-violet-50 px-2.5 py-1 rounded-lg inline-flex items-center gap-1 shrink-0"><i data-lucide="pencil" class="w-3.5 h-3.5"></i> Ver participación</button>
+          </div>
+        </div>
+        <div class="px-4 py-1.5 bg-violet-50/40 text-[10px] text-violet-700 flex items-center gap-1.5"><i data-lucide="info" class="w-3 h-3"></i> Lista por <strong>socio</strong> (no por aporte) → todos aparecen, aunque no hayan puesto cash todavía.</div>
+      </div>
+
+      <!-- empty state (cuando no hay socios) -->
+      <div class="border-2 border-dashed border-violet-200 rounded-2xl p-6 text-center bg-violet-50/20">
+        <div class="w-11 h-11 rounded-xl bg-violet-100 flex items-center justify-center mx-auto mb-2"><i data-lucide="users-round" class="w-5 h-5 text-violet-600"></i></div>
+        <div class="text-[13px] font-bold text-slate-900 mb-0.5">Aún no tenés socios registrados</div>
+        <div class="text-[11px] text-slate-500 mb-3">Agregá el primero para empezar a ver participación, capital y ROI.</div>
+        <button class="text-[12px] font-semibold text-white bg-violet-600 hover:bg-violet-700 px-3.5 py-2 rounded-lg inline-flex items-center gap-1.5"><i data-lucide="user-plus" class="w-4 h-4"></i> Agregar primer socio</button>
+        <div class="text-[10px] text-slate-400 mt-2">(reemplaza el viejo "Sin aportes registrados. Usá Finanzas → Movimientos…")</div>
+      </div>
+
+      <div class="text-center text-[11px] text-slate-400">— debajo siguen: aportes de cash (detalle) · donut composición (sin cambios) —</div>
+    </div>
+  </section>
+
+  <!-- MOBILE -->
+  <section>
+    <div class="text-[11px] uppercase tracking-wider text-violet-700 font-bold mb-3">Mobile (375px)</div>
+    <div class="flex justify-center">
+      <div class="phone bg-white rounded-[2rem] border-4 border-slate-800 overflow-hidden shadow-xl">
+        <div class="px-4 py-2 bg-slate-50 border-b border-slate-200 text-[10px] text-slate-500">Inversionistas › Capital</div>
+        <div class="px-3 py-3 space-y-2.5">
+          <div class="border-2 border-violet-200 rounded-xl overflow-hidden">
+            <div class="px-3 py-2 bg-violet-50/60 flex items-center justify-between"><span class="text-[11px] font-bold text-violet-900 flex items-center gap-1"><i data-lucide="users-round" class="w-3.5 h-3.5"></i> Socios · 2</span><button class="text-[9px] font-semibold text-violet-700 bg-white border border-violet-200 px-1.5 py-0.5 rounded">+ Socio</button></div>
+            <div class="divide-y divide-slate-100">
+              <div class="px-3 py-2.5">
+                <div class="flex items-center justify-between"><span class="text-[12px] font-semibold">José López</span><span class="text-[14px] font-bold tabular text-violet-900">60%</span></div>
+                <div class="flex items-center justify-between mt-0.5"><span class="text-[10px] text-slate-500">Co-fundador · Mixta</span><span class="text-[11px] font-bold tabular">S/ 90.4k</span></div>
+                <button class="w-full mt-1.5 text-[10px] font-semibold text-violet-700 bg-violet-50 py-1 rounded inline-flex items-center justify-center gap-1"><i data-lucide="pencil" class="w-3 h-3"></i> Ver participación</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CHECKLIST -->
+  <section class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+    <h2 class="text-lg font-bold tracking-tight mb-4 flex items-center gap-2"><i data-lucide="clipboard-check" class="w-5 h-5 text-violet-600"></i> Qué cambia</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2 text-[12px]">
+      <div class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-600"></i> A · quitar "Gestionar socios" (header) + "Ver socios" (banner)</div>
+      <div class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-600"></i> C · sección "Socios del negocio" lista data.socios (no aportesPorSocio)</div>
+      <div class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-600"></i> Todos los socios aparecen (aunque sin aporte de cash)</div>
+      <div class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-600"></i> Cada socio → "Ver participación" (banner Sociedad + form)</div>
+      <div class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-600"></i> Empty state invita a "Agregar primer socio"</div>
+      <div class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-600"></i> Aportes de cash + donut quedan como detalle (sin cambios)</div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="bg-slate-900 text-slate-400 text-[11px] py-6 text-center">Inversionistas · A+C · v1 · 2026-06-09 · header sin redundancia + tab Capital muestra socios (su hogar)</footer>
+<script>lucide.createIcons();</script>
+</body>
+</html>

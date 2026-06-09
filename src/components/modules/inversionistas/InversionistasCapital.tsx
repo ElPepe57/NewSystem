@@ -15,16 +15,34 @@ import {
   Banknote,
   ExternalLink,
   Coins,
+  UsersRound,
+  UserPlus,
+  Pencil,
 } from 'lucide-react';
 import { formatCurrencyPEN } from '../../../utils/format';
 import { formatFechaCorta } from './shared';
+import { DataCard } from '../../../design-system/components/DataCard';
+import type { StatusVariant } from '../../../design-system/tokens';
 import type { ResumenInversionista } from '../../../types/inversionista.types';
+import type { TipoParticipacionSocio } from '../../../types/datosSocio.types';
 // chk5.PERSONAS-v5.7 · E6.2 (2026-05-28) · Click en socio → UserPanel canon F6-E
 import { UserPanel } from '../../usuarios/UserPanel';
 import type { TabContextual } from '../../usuarios/UserPanel';
 import TabCapitalSocio from './TabCapitalSocio';
 import EditarValorSocioModal from './EditarValorSocioModal';
 import { useSocioStore } from '../../../store/socioStore';
+
+// C · tipo de participación → label corto + variant semántico (cash=emerald · mixta=amber · valor=sky)
+const TIPO_PART_SHORT: Record<TipoParticipacionSocio, string> = {
+  cash_puro: 'Cash puro',
+  mixta: 'Mixta',
+  valor_puro: 'Valor puro',
+};
+const TIPO_PART_VARIANT: Record<TipoParticipacionSocio, StatusVariant> = {
+  cash_puro: 'success',
+  mixta: 'warning',
+  valor_puro: 'info',
+};
 
 interface Props {
   data: ResumenInversionista;
@@ -34,9 +52,11 @@ interface Props {
   onAbrirMovimiento?: (socioId?: string) => void;
   /** F14.G · abre el CuentaWizard de TC directo del shell (socio pre-cargado). */
   onAbrirTC?: (socioId: string) => void;
+  /** C · abre el modal de alta de socio (del shell). */
+  onNuevoSocio?: () => void;
 }
 
-export default function InversionistasCapital({ data, onRefetch, onAbrirMovimiento, onAbrirTC }: Props) {
+export default function InversionistasCapital({ data, onRefetch, onAbrirMovimiento, onAbrirTC, onNuevoSocio }: Props) {
   // chk5.PERSONAS-v5.7 · E6.2 · UserPanel state + lookup de userId por socioId
   const [panelUid, setPanelUid] = useState<string | null>(null);
   // F14.1 · socio del panel (para inyectar el tab "Capital" contextual)
@@ -142,6 +162,80 @@ export default function InversionistasCapital({ data, onRefetch, onAbrirMovimien
               : 'Sin valuación declarada · ver datosSocio'}
           </div>
         </div>
+      </div>
+
+      {/* ── C · SOCIOS DEL NEGOCIO · lista por SOCIO (no por aporte) · su hogar real ──
+          DataCard del kit · todos los socios aparecen aunque no hayan puesto cash. */}
+      <div className="border-2 border-violet-200 rounded-2xl overflow-hidden">
+        <div className="px-4 py-2.5 bg-violet-50/60 border-b border-violet-100 flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 text-[12px] font-bold text-violet-900">
+            <UsersRound className="w-4 h-4" /> Socios del negocio · {socios.length}
+          </div>
+          {onNuevoSocio && (
+            <button
+              type="button"
+              onClick={onNuevoSocio}
+              className="text-[10px] font-semibold text-violet-700 bg-white border border-violet-200 hover:bg-violet-50 px-2.5 py-1 rounded-lg inline-flex items-center gap-1"
+            >
+              <UserPlus className="w-3.5 h-3.5" /> Nuevo socio
+            </button>
+          )}
+        </div>
+        {socios.length === 0 ? (
+          <div className="px-4 py-8 text-center">
+            <div className="w-11 h-11 rounded-xl bg-violet-100 flex items-center justify-center mx-auto mb-2">
+              <UsersRound className="w-5 h-5 text-violet-600" />
+            </div>
+            <div className="text-[13px] font-bold text-slate-900 mb-0.5">Aún no tenés socios registrados</div>
+            <div className="text-[11px] text-slate-500 mb-3">Agregá el primero para ver participación, capital y ROI.</div>
+            {onNuevoSocio && (
+              <button
+                type="button"
+                onClick={onNuevoSocio}
+                className="text-[12px] font-semibold text-white bg-violet-600 hover:bg-violet-700 px-3.5 py-2 rounded-lg inline-flex items-center gap-1.5"
+              >
+                <UserPlus className="w-4 h-4" /> Agregar primer socio
+              </button>
+            )}
+          </div>
+        ) : (
+          <div className="p-3 space-y-2">
+            {socios.map((s) => {
+              const cap = data.capitalComprometido.porSocio?.find((p) => p.socioId === s.id);
+              const tipo = cap?.tipoParticipacion;
+              const comprometido = (cap?.cash ?? 0) + (cap?.deudaTC ?? 0);
+              const uid = s.userId;
+              const abrir = uid ? () => { setPanelUid(uid); setPanelSocioId(s.id); } : undefined;
+              return (
+                <DataCard
+                  key={s.id}
+                  title={s.nombre}
+                  subtitle={s.rol || 'Socio'}
+                  status={tipo ? { label: TIPO_PART_SHORT[tipo], variant: TIPO_PART_VARIANT[tipo] } : undefined}
+                  accentVariant={tipo ? TIPO_PART_VARIANT[tipo] : 'neutral'}
+                  stats={[
+                    { label: 'Participación', value: `${s.porcentajeParticipacion}%` },
+                    { label: 'Capital comprometido', value: formatCurrencyPEN(comprometido) },
+                  ]}
+                  onClick={abrir}
+                  actions={
+                    abrir ? (
+                      <button
+                        type="button"
+                        onClick={(e) => { e.stopPropagation(); abrir(); }}
+                        className="text-[11px] font-semibold text-violet-700 bg-white border border-violet-200 hover:bg-violet-50 px-2.5 py-1 rounded-lg inline-flex items-center gap-1"
+                      >
+                        <Pencil className="w-3.5 h-3.5" /> Ver participación
+                      </button>
+                    ) : (
+                      <span className="text-[10px] text-slate-300" title="Socio sin cuenta de usuario">—</span>
+                    )
+                  }
+                />
+              );
+            })}
+          </div>
+        )}
       </div>
 
       {/* Layout grid · stack en mobile (<lg), 2:1 desktop */}

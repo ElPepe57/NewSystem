@@ -29,10 +29,12 @@ import {
   Pencil,
   ShieldCheck,
   Sparkles,
+  Handshake,
 } from 'lucide-react';
 import { formatCurrencyPEN } from '../../../utils/format';
 import { formatFechaCorta } from './shared';
 import type { ResumenInversionista } from '../../../types/inversionista.types';
+import { TIPO_PARTICIPACION_LABEL } from '../../../types/datosSocio.types';
 
 interface Props {
   socioId: string;
@@ -56,6 +58,11 @@ export default function TabCapitalSocio({
   const aporteSocio = data.aportesPorSocio.find((a) => a.socioId === socioId);
   const tcSocio = data.tcPersonalesPorSocio.find((s) => s.socioId === socioId);
   const capSocio = data.capitalComprometido.porSocio?.find((s) => s.socioId === socioId);
+  // Sociedad · % participación · rol · tipo (lookup en la lista de socios ya cargada)
+  const socio = data.socios.find((s) => s.id === socioId || s.userId === socioId);
+  const pctPart = socio?.porcentajeParticipacion ?? 0;
+  const rolSocio = socio?.rol;
+  const tipoPart = capSocio?.tipoParticipacion;
 
   const cash = capSocio?.cash ?? aporteSocio?.totalAportadoPEN ?? 0;
   const deudaTC = capSocio?.deudaTC ?? tcSocio?.totalComprometidoPEN ?? 0;
@@ -70,6 +77,42 @@ export default function TabCapitalSocio({
 
   return (
     <div className="space-y-4">
+      {/* ── Banner SOCIEDAD · % · rol · tipo · acceso CLARO a fundamentar ── */}
+      <div className="rounded-xl border-2 border-violet-200 bg-gradient-to-r from-violet-50 to-violet-50/30 p-4">
+        <div className="flex items-center justify-between mb-2">
+          <div className="text-[11px] uppercase tracking-wider text-violet-700 font-bold flex items-center gap-1.5">
+            <Handshake className="w-3.5 h-3.5" /> Sociedad
+          </div>
+          {onEditarValor && (
+            <button
+              type="button"
+              onClick={onEditarValor}
+              className="text-[11px] font-semibold text-violet-700 bg-white border border-violet-200 hover:bg-violet-50 px-2.5 py-1 rounded-lg flex items-center gap-1"
+            >
+              <Pencil className="w-3.5 h-3.5" /> Editar participación
+            </button>
+          )}
+        </div>
+        <div className="grid grid-cols-3 gap-3">
+          <div>
+            <div className="text-[10px] text-slate-500">Participación</div>
+            <div className="text-[20px] font-bold tabular-nums text-violet-900">
+              {pctPart > 0 ? `${pctPart}%` : '—'}
+            </div>
+          </div>
+          <div>
+            <div className="text-[10px] text-slate-500">Rol</div>
+            <div className="text-[13px] font-semibold text-slate-900 mt-1 truncate">{rolSocio || 'Socio'}</div>
+          </div>
+          <div>
+            <div className="text-[10px] text-slate-500">Tipo</div>
+            <div className="text-[13px] font-semibold text-slate-900 mt-1">
+              {tipoPart ? TIPO_PARTICIPACION_LABEL[tipoPart].split(' ·')[0] : '—'}
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* ── Banner salud del capital del socio ──────────────────────────── */}
       {tieneTC ? (
         <div className="rounded-xl border border-amber-200 bg-amber-50/60 px-4 py-2.5 flex items-center gap-3">

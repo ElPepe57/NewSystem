@@ -13,7 +13,8 @@
 
 import React, { forwardRef } from 'react';
 import { CircleAlert } from 'lucide-react';
-import { cn } from '../../utils';
+import { cn, focusTone } from '../../utils';
+import type { ColorIdentidad } from '../../grupoColor';
 
 export interface TextFieldProps
   extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'onChange' | 'value'> {
@@ -35,6 +36,8 @@ export interface TextFieldProps
   leadingSlot?: React.ReactNode;
   /** Slot dentro del input al final (ej: icono Calendar). */
   trailingSlot?: React.ReactNode;
+  /** Color de foco según el grupo del módulo · default 'teal'. */
+  tone?: ColorIdentidad;
 }
 
 export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(
@@ -49,6 +52,7 @@ export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(
       rightHint,
       leadingSlot,
       trailingSlot,
+      tone = 'teal',
       className,
       disabled,
       placeholder,
@@ -88,7 +92,8 @@ export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(
             aria-invalid={hasError}
             className={cn(
               'w-full h-10 text-sm rounded-md bg-white border outline-none transition-colors',
-              'focus:ring-2 focus:ring-teal-500 focus:border-teal-500',
+              'focus:ring-2',
+              focusTone(tone),
               'placeholder:text-slate-400',
               'disabled:bg-slate-50 disabled:text-slate-500 disabled:cursor-not-allowed',
               leadingSlot ? 'pl-10' : 'pl-3',

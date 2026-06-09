@@ -429,7 +429,8 @@
       "Bash(grep -nE \"navigate\\\\\\(\" src/pages/Inversionistas/Inversionistas.tsx)",
       "Bash(grep -nE \"UserCog\" src/pages/Inversionistas/Inversionistas.tsx)",
       "Bash(grep -nE \"Mi Capital\" src/pages/Inversionistas/Inversionistas.tsx)",
-      "Bash(grep -nE \"id: 'capital'\" src/pages/Inversionistas/Inversionistas.tsx)"
+      "Bash(grep -nE \"id: 'capital'\" src/pages/Inversionistas/Inversionistas.tsx)",
+      "Bash(rm -f docs/mockups/inversionistas-alta-socio-con-pct-v1.html)"
     ],
     "deny": [],
     "ask": []
