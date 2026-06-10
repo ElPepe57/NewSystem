@@ -26,8 +26,8 @@
  *   - Color semántico v8.0 N1: teal=empleado · sky=honorarios · violet=socio · amber=externo
  */
 
-import React, { useEffect, useState, useMemo } from 'react';
-import { X, User, Briefcase, FileText, Shield, History, Link as LinkIcon, Loader2, AlertCircle } from 'lucide-react';
+import React, { useEffect, useState, useMemo, useRef, useCallback } from 'react';
+import { X, User, Briefcase, FileText, Shield, History, Link as LinkIcon, Loader2, AlertCircle, ChevronLeft, ChevronRight } from 'lucide-react';
 import { db } from '../../lib/firebase';
 import { doc, getDoc } from 'firebase/firestore';
 import { COLLECTIONS } from '../../config/collections';
@@ -146,6 +146,32 @@ export const UserPanel: React.FC<UserPanelProps> = ({
 
   // ── Tab activo · state local ────────────────────────────────────────────
   const [activeTab, setActiveTab] = useState<TabId>(tabInicial);
+
+  // ── Scroll lateral de tabs · flechas ◄ ► cuando hay overflow ───────────
+  const tabsRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
+  const updateTabArrows = useCallback(() => {
+    const el = tabsRef.current;
+    if (!el) return;
+    setCanScrollLeft(el.scrollLeft > 4);
+    setCanScrollRight(el.scrollLeft < el.scrollWidth - el.clientWidth - 4);
+  }, []);
+  const scrollTabs = (dir: -1 | 1) => {
+    tabsRef.current?.scrollBy({ left: dir * 160, behavior: 'smooth' });
+  };
+  useEffect(() => {
+    const el = tabsRef.current;
+    if (!el) return;
+    updateTabArrows();
+    el.addEventListener('scroll', updateTabArrows, { passive: true });
+    const ro = new ResizeObserver(updateTabArrows);
+    ro.observe(el);
+    return () => {
+      el.removeEventListener('scroll', updateTabArrows);
+      ro.disconnect();
+    };
+  }, [updateTabArrows, loading, user, tabsContextuales.length]);
 
   // ── Reset tab cuando cambia userId (panel se abre con otro user) ────────
   useEffect(() => {
@@ -335,7 +361,30 @@ export const UserPanel: React.FC<UserPanelProps> = ({
 
         {/* ═══ TABS NAV ═══ */}
         {!loading && !error && user && (
-          <div className="px-5 border-b border-slate-100 flex items-center gap-1 overflow-x-auto scrollbar-hide flex-shrink-0">
+          <div className="relative flex-shrink-0 border-b border-slate-100">
+            {/* Flecha izquierda · solo si hay tabs ocultos a la izquierda */}
+            {canScrollLeft && (
+              <button
+                type="button"
+                onClick={() => scrollTabs(-1)}
+                aria-label="Tabs anteriores"
+                className="absolute left-0 top-0 bottom-px z-10 pl-2 pr-5 flex items-center bg-gradient-to-r from-white via-white/95 to-transparent text-slate-400 hover:text-slate-700 transition-colors"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+            )}
+            {/* Flecha derecha · solo si hay más tabs a la derecha */}
+            {canScrollRight && (
+              <button
+                type="button"
+                onClick={() => scrollTabs(1)}
+                aria-label="Más tabs"
+                className="absolute right-0 top-0 bottom-px z-10 pr-2 pl-5 flex items-center bg-gradient-to-l from-white via-white/95 to-transparent text-slate-400 hover:text-slate-700 transition-colors"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            )}
+            <div ref={tabsRef} className="px-5 flex items-center gap-1 overflow-x-auto scrollbar-hide">
             {/* Core tabs */}
             <TabButton
               id="resumen"
@@ -405,6 +454,7 @@ export const UserPanel: React.FC<UserPanelProps> = ({
                 />
               );
             })}
+            </div>
           </div>
         )}
 
