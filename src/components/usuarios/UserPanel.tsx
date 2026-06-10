@@ -335,7 +335,7 @@ export const UserPanel: React.FC<UserPanelProps> = ({
 
         {/* ═══ TABS NAV ═══ */}
         {!loading && !error && user && (
-          <div className="px-5 border-b border-slate-100 flex items-center gap-1 overflow-x-auto scroll-hide flex-shrink-0">
+          <div className="px-5 border-b border-slate-100 flex items-center gap-1 overflow-x-auto scrollbar-hide flex-shrink-0">
             {/* Core tabs */}
             <TabButton
               id="resumen"

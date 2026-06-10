@@ -426,7 +426,7 @@ export const CrearUsuarioWizard: React.FC<CrearUsuarioWizardProps> = ({
           <div className="text-[10px] uppercase tracking-wider font-bold text-slate-500 mb-4">
             Nuevo colaborador
           </div>
-          <ol className="flex sm:flex-col gap-3 sm:gap-3 overflow-x-auto scroll-hide">
+          <ol className="flex sm:flex-col gap-3 sm:gap-3 overflow-x-auto scrollbar-hide">
             <PasoIndicator num={1} label="Identidad" sub="Datos básicos" current={paso === 1} done={paso > 1} />
             <PasoIndicator
               num={2}
