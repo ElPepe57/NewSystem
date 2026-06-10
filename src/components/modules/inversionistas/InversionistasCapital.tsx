@@ -5,6 +5,7 @@
  * Donut composición: stack vertical en mobile, lado-a-lado en desktop.
  */
 import React, { useState, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import {
   Wallet,
   Plus,
@@ -472,15 +473,20 @@ export default function InversionistasCapital({ data, onRefetch, onAbrirMovimien
         tabsContextuales={tabsCapital}
       />
 
-      {/* F14.4 · editar participación + aporte de valor del socio (D3) */}
-      {panelUid && (
-        <EditarValorSocioModal
-          isOpen={valorModalOpen}
-          userId={panelUid}
-          socioNombre={panelSocioNombre}
-          onClose={() => setValorModalOpen(false)}
-          onSuccess={() => { setValorModalOpen(false); onRefetch?.(); }}
-        />
+      {/* F14.4 · editar participación + aporte de valor del socio (D3)
+          Portal al body + z-[60] · el modal se abre SOBRE el UserPanel (z-50) ·
+          sin esto quedaba DETRÁS (modal-sobre-modal · mismo stacking context). */}
+      {panelUid && valorModalOpen && createPortal(
+        <div className="relative z-[60]">
+          <EditarValorSocioModal
+            isOpen={valorModalOpen}
+            userId={panelUid}
+            socioNombre={panelSocioNombre}
+            onClose={() => setValorModalOpen(false)}
+            onSuccess={() => { setValorModalOpen(false); onRefetch?.(); }}
+          />
+        </div>,
+        document.body,
       )}
     </div>
   );
