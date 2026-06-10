@@ -30,7 +30,6 @@ import { UserPanel } from '../../usuarios/UserPanel';
 import type { TabContextual } from '../../usuarios/UserPanel';
 import TabCapitalSocio from './TabCapitalSocio';
 import EditarValorSocioModal from './EditarValorSocioModal';
-import { useSocioStore } from '../../../store/socioStore';
 
 // C · tipo de participación → label corto + variant semántico (cash=emerald · mixta=amber · valor=sky)
 const TIPO_PART_SHORT: Record<TipoParticipacionSocio, string> = {
@@ -63,7 +62,10 @@ export default function InversionistasCapital({ data, onRefetch, onAbrirMovimien
   const [panelSocioId, setPanelSocioId] = useState<string | null>(null);
   // F14.4 · modal editar participación + aporte de valor (D3)
   const [valorModalOpen, setValorModalOpen] = useState(false);
-  const socios = useSocioStore((s) => s.socios);
+  // C-fix · usar data.socios (poblado por el módulo vía socio.service) · el
+  // useSocioStore NO se carga en Inversionistas (fetchSocios nunca se llama acá),
+  // por eso la lista de socios salía vacía aunque hubiera socios.
+  const socios = data.socios;
 
   // Map { socioId → userId } para lookup rápido en el render
   const userIdBySocioId = useMemo(() => {
