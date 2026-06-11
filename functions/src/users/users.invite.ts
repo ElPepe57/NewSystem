@@ -116,18 +116,23 @@ export const inviteUser = functions
     );
 
     // 7. Guardar invitación
+    // ⚠️ Firestore RECHAZA `undefined` (no campos ausentes). Los opcionales
+    // (nombreSugerido · mensajePersonalizado) se incluyen SOLO si tienen valor
+    // vía spread condicional. Antes se seteaban a `... || undefined` y el set()
+    // tiraba 500 ("Cannot use undefined as a Firestore value") cuando el admin
+    // dejaba el mensaje (o el nombre) vacío.
     const invitacion: Omit<Invitacion, "id"> = {
       email,
-      nombreSugerido: data.nombreSugerido || undefined,
       rolesPreAsignados,
       invitadoPor: actorUid,
       invitadoPorNombre: actorData.displayName || actorData.email || "Admin",
-      mensajePersonalizado: data.mensajePersonalizado || undefined,
       estado: "enviada",
       fechaEnvio,
       fechaCaducidad,
       reEnviosCount: 0,
       tokenHash,
+      ...(data.nombreSugerido ? { nombreSugerido: data.nombreSugerido } : {}),
+      ...(data.mensajePersonalizado ? { mensajePersonalizado: data.mensajePersonalizado } : {}),
     };
     await invRef.set(invitacion);
 

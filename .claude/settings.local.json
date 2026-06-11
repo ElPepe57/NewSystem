@@ -430,7 +430,12 @@
       "Bash(grep -nE \"UserCog\" src/pages/Inversionistas/Inversionistas.tsx)",
       "Bash(grep -nE \"Mi Capital\" src/pages/Inversionistas/Inversionistas.tsx)",
       "Bash(grep -nE \"id: 'capital'\" src/pages/Inversionistas/Inversionistas.tsx)",
-      "Bash(rm -f docs/mockups/inversionistas-alta-socio-con-pct-v1.html)"
+      "Bash(rm -f docs/mockups/inversionistas-alta-socio-con-pct-v1.html)",
+      "Bash(cd /c/Users/josel/businessmn-v2/functions)",
+      "Bash(ls -la .env* .secret*)",
+      "Bash(grep -rln \"JWT_SECRET\" --include=\"*.json\" --include=\"*.env*\" --include=\"*.sh\" .)",
+      "Bash(grep -i \"secret\\\\|JWT\" ../firebase.json)",
+      "Bash(awk -F= '{v=$2; gsub\\(/[\" ]/,\"\",v\\); print \\(length\\(v\\)>0 ? \"SI · \"length\\(v\\)\" chars\" : \"VACIO ❌\"\\)}')"
     ],
     "deny": [],
     "ask": []
