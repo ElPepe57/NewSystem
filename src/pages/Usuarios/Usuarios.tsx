@@ -1235,10 +1235,16 @@ export const Usuarios: React.FC = () => {
       {/* chk5.F4-USERS · Modal "Invitar por email" (canon ACTO 2.2 mockup integral) */}
       <InvitarPorEmailModal
         isOpen={invitarOpen}
-        onClose={() => setInvitarOpen(false)}
+        onClose={() => {
+          setInvitarOpen(false);
+          fetchUsuarios(); // refresco al CERRAR el modal · ver nota en onSuccess
+        }}
         onSuccess={() => {
-          setSuccess('Invitación enviada · ver tracking en Configuración → Invitaciones');
-          fetchUsuarios();
+          // ⚠️ NO refrescar la lista acá. El modal muestra su PROPIA pantalla de
+          // éxito interna (incluye si el email salió o falló en Resend). fetchUsuarios()
+          // activa `loading`, y el early-return `if (loading)` (~L477) DESMONTA todo el
+          // árbol —incluido este modal—; al re-montarse con isOpen aún true, reaparecía
+          // VACÍO (parecía "una invitación nueva"). El refresh va en onClose (ya cerrado).
         }}
       />
 
