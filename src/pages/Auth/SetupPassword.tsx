@@ -151,13 +151,22 @@ export const SetupPassword: React.FC = () => {
         { invitacionId: string; token: string; uid: string; email: string; displayName: string },
         AcceptInvitationResponse
       >(functions, 'acceptInvitation');
-      await fn({
-        invitacionId,
-        token,
-        uid: firebaseUser.uid,
-        email: invitacion.email,
-        displayName: displayName.trim(),
-      });
+      try {
+        await fn({
+          invitacionId,
+          token,
+          uid: firebaseUser.uid,
+          email: invitacion.email,
+          displayName: displayName.trim(),
+        });
+      } catch (acceptErr) {
+        // ROLLBACK · acceptInvitation falló DESPUÉS de crear el login en Auth.
+        // Borramos el login a medias para NO dejar una cuenta huérfana (sin
+        // perfil en Firestore) que bloquearía el reintento con "email ya
+        // registrado". El user recién creado está logueado → puede auto-borrarse.
+        try { await firebaseUser.delete(); } catch { /* best-effort */ }
+        throw acceptErr;
+      }
 
       // 3. Setear user en store · App.tsx fetchUserProfile cargará el perfil activo
       setUser(firebaseUser);

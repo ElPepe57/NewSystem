@@ -93,6 +93,7 @@ export {
   desconectarTodasSesiones,
   desconectarTodasSistema,
   scheduledAutoRejectExpired,
+  limpiarAuthHuerfanos,
 } from "./users";
 
 const db = admin.firestore();

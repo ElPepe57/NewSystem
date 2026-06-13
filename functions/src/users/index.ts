@@ -11,3 +11,4 @@ export {
   desconectarTodasSistema,
 } from "./users.sessions";
 export { scheduledAutoRejectExpired } from "./users.cron";
+export { limpiarAuthHuerfanos } from "./users.maintenance";
