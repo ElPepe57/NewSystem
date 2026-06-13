@@ -282,3 +282,53 @@ export const acceptInvitation = functions.https.onCall(
     return { success: true };
   },
 );
+
+// ─────────────────────────────────────────────────────────────────────────
+// getInvitacionPreview · PÚBLICA (sin auth) · datos de bienvenida del setup
+// 2026-06-13 · El invitado todavía NO tiene cuenta → no puede leer Firestore
+// (rules de /invitaciones son admin/gerente-only). El token JWT del link ES la
+// credencial: solo quien tiene un link válido (token que matchea el hash) ve
+// los datos. Devuelve SOLO campos de preview (nunca tokenHash ni uids internos).
+// Reemplaza el getDoc directo del cliente que tiraba "Missing or insufficient
+// permissions" a todo invitado.
+// ─────────────────────────────────────────────────────────────────────────
+interface InvitacionPreviewInput {
+  invitacionId: string;
+  token: string;
+}
+
+export const getInvitacionPreview = functions.https.onCall(
+  async (data: InvitacionPreviewInput) => {
+    if (!data?.invitacionId || !data?.token) {
+      throw new functions.https.HttpsError("invalid-argument", "Link de invitación incompleto");
+    }
+
+    // 1. Verificar JWT (firma + expiración + invitacionId)
+    const payload = verifyInvitacionToken(data.token);
+    if (!payload || payload.invitacionId !== data.invitacionId) {
+      throw new functions.https.HttpsError("permission-denied", "Link inválido o expirado");
+    }
+
+    // 2. Cargar invitación con admin SDK (bypassa rules)
+    const invSnap = await db.collection("invitaciones").doc(data.invitacionId).get();
+    if (!invSnap.exists) {
+      throw new functions.https.HttpsError("not-found", "Invitación no encontrada");
+    }
+    const inv = invSnap.data() as Invitacion;
+
+    // 3. Validar token hash (revocación / re-envío invalidan el link viejo)
+    if (inv.tokenHash !== hashToken(data.token)) {
+      throw new functions.https.HttpsError("permission-denied", "Link revocado o reemplazado");
+    }
+
+    // 4. Preview · el cliente decide el mensaje según `estado`
+    return {
+      email: inv.email,
+      nombreSugerido: inv.nombreSugerido ?? null,
+      invitadoPorNombre: inv.invitadoPorNombre,
+      rolesPreAsignados: inv.rolesPreAsignados,
+      estado: inv.estado,
+      fechaCaducidadMs: inv.fechaCaducidad.toMillis(),
+    };
+  },
+);

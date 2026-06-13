@@ -16,8 +16,6 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useSearchParams, useNavigate, Navigate } from 'react-router-dom';
 import { Mail, Eye, EyeOff, AlertCircle, CheckCircle, Loader } from 'lucide-react';
 import { getFunctions, httpsCallable } from 'firebase/functions';
-import { doc, getDoc } from 'firebase/firestore';
-import { db } from '../../lib/firebase';
 import { Button, Input, Card } from '../../components/common';
 import { AuthService } from '../../services/auth.service';
 import { useAuthStore } from '../../store/authStore';
@@ -32,10 +30,10 @@ const functions = getFunctions();
 
 interface InvitacionPreview {
   email: string;
-  nombreSugerido?: string;
+  nombreSugerido?: string | null;
   invitadoPorNombre: string;
   rolesPreAsignados: string[];
-  fechaCaducidad: { toDate: () => Date };
+  fechaCaducidadMs: number;
   estado: string;
 }
 
@@ -81,15 +79,22 @@ export const SetupPassword: React.FC = () => {
         setLoadingInv(false);
         return;
       }
+      if (!token) {
+        setInvError('Link de invitación incompleto · falta el token');
+        setLoadingInv(false);
+        return;
+      }
       try {
-        const snap = await getDoc(doc(db, 'invitaciones', invitacionId));
+        // El invitado todavía NO tiene cuenta → no puede leer Firestore (rules de
+        // /invitaciones son admin/gerente-only). CF pública valida el token JWT
+        // del link y devuelve el preview. Reemplaza el getDoc directo que tiraba
+        // "Missing or insufficient permissions" a todo invitado.
+        const fn = httpsCallable<{ invitacionId: string; token: string }, InvitacionPreview>(
+          functions,
+          'getInvitacionPreview',
+        );
+        const { data } = await fn({ invitacionId, token });
         if (cancelled) return;
-        if (!snap.exists()) {
-          setInvError('Invitación no encontrada · puede que haya expirado');
-          setLoadingInv(false);
-          return;
-        }
-        const data = snap.data() as InvitacionPreview;
 
         if (data.estado === 'aceptada') {
           setInvError('Esta invitación ya fue usada · ingresá con tu cuenta existente');
@@ -113,7 +118,7 @@ export const SetupPassword: React.FC = () => {
       }
     })();
     return () => { cancelled = true; };
-  }, [invitacionId]);
+  }, [invitacionId, token]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -197,7 +202,7 @@ export const SetupPassword: React.FC = () => {
     );
   }
 
-  const expiraDate = invitacion.fechaCaducidad?.toDate?.() || new Date();
+  const expiraDate = new Date(invitacion.fechaCaducidadMs);
   const nombreUser = displayName || invitacion.nombreSugerido || invitacion.email.split('@')[0];
 
   return (

@@ -86,6 +86,7 @@ export {
   approveUser,
   rejectUser,
   acceptInvitation,
+  getInvitacionPreview,
   validateSelfSignup,
   completarSelfSignup,
   desconectarSesion,
