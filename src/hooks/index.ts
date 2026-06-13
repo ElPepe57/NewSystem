@@ -27,3 +27,7 @@ export { useUserName, useUserNames, getUserNameSync, preloadUserNames, clearUser
 
 // Linea de negocio filter
 export { useLineaFilter } from './useLineaFilter';
+
+// Data fetching canónico · refetch silencioso (auditoría 2026-06-12)
+export { useAsyncData } from './useAsyncData';
+export type { UseAsyncDataResult } from './useAsyncData';

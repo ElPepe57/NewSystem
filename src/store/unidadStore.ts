@@ -65,7 +65,11 @@ export const useUnidadStore = create<UnidadState>((set, get) => ({
     // Si no hay filtros específicos y los datos son recientes, omitir la descarga
     if (!filtros && Date.now() - _lastFetchAt < FETCH_TTL_MS && get().unidades.length > 0) return;
 
-    set({ loading: true, error: null });
+    // Canon refetch-silencioso (auditoría 2026-06-12): loading=true SOLO en el
+    // primer load (lista vacía). Los refetch posteriores son silenciosos — la
+    // tabla (ProductoInventarioTable tiene early-return por loading) ya no
+    // colapsa al spinner en cada recarga.
+    set({ loading: get().unidades.length === 0, error: null });
     try {
       const unidades = filtros
         ? await unidadService.buscar(filtros)
@@ -101,50 +105,57 @@ export const useUnidadStore = create<UnidadState>((set, get) => ({
     }
   },
 
+  // ── Mutaciones · canon refetch-silencioso (auditoría 2026-06-12) ────────
+  // Las mutaciones NO tocan el `loading` global (eso colapsaba la tabla al
+  // spinner en cada crear/lote/estado/venta — el modal que muta maneja su
+  // propio estado de submit). Además resetean _lastFetchAt para que el
+  // refetch interno NO sea saltado por el TTL (antes la lista quedaba stale
+  // hasta 5 min después de una mutación).
+
   createUnidad: async (data, userId, productoInfo, almacenInfo) => {
-    set({ loading: true, error: null });
+    set({ error: null });
     try {
       await unidadService.create(data, userId, productoInfo, almacenInfo);
+      _lastFetchAt = 0;
       await get().fetchUnidades();
-      set({ loading: false });
     } catch (error: any) {
-      set({ error: error.message, loading: false });
+      set({ error: error.message });
       throw error;
     }
   },
 
   crearLote: async (data, userId, productoInfo, almacenInfo) => {
-    set({ loading: true, error: null });
+    set({ error: null });
     try {
       await unidadService.crearLote(data, userId, productoInfo, almacenInfo);
+      _lastFetchAt = 0;
       await get().fetchUnidades();
-      set({ loading: false });
     } catch (error: any) {
-      set({ error: error.message, loading: false });
+      set({ error: error.message });
       throw error;
     }
   },
 
   actualizarEstado: async (id, nuevoEstado, userId, observaciones) => {
-    set({ loading: true, error: null });
+    set({ error: null });
     try {
       await unidadService.actualizarEstado(id, nuevoEstado, userId, observaciones);
+      _lastFetchAt = 0;
       await get().fetchUnidades();
-      set({ loading: false });
     } catch (error: any) {
-      set({ error: error.message, loading: false });
+      set({ error: error.message });
       throw error;
     }
   },
 
   marcarComoVendida: async (id, ventaId, ventaNumero, precioVentaPEN, userId) => {
-    set({ loading: true, error: null });
+    set({ error: null });
     try {
       await unidadService.marcarComoVendida(id, ventaId, ventaNumero, precioVentaPEN, userId);
+      _lastFetchAt = 0;
       await get().fetchUnidades();
-      set({ loading: false });
     } catch (error: any) {
-      set({ error: error.message, loading: false });
+      set({ error: error.message });
       throw error;
     }
   },

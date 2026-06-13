@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
   Users, Shield, UserCheck, UserX, Edit2, X, Eye, Search,
@@ -150,12 +150,20 @@ export const Usuarios: React.FC = () => {
   // editRoles · editDatosLab/Soc · approveRole · newPassword · etc) eliminado ·
   // cada modal canon FormModalV2 maneja su propio estado internamente.
 
+  // Canon refetch-silencioso (auditoría 2026-06-12) · mismo patrón que useAsyncData:
+  // el spinner full-page (early-return `if (loading)`) es SOLO del primer load.
+  // Los refetch post-acción (onSuccess de modales) mantienen la UI montada — sin
+  // esto, el early-return desmontaba TODO el árbol incluidos modales abiertos
+  // (el modal Invitar se re-abría vacío). Guard por ref: imposible de olvidar.
+  // No migra a useAsyncData porque `error` lo comparten los onError de los modales.
+  const primeraCargaRef = useRef(true);
   const fetchUsuarios = async () => {
-    setLoading(true);
+    if (primeraCargaRef.current) setLoading(true);
     setError(null);
     try {
       const data = await userService.getAll();
       setUsuarios(data);
+      primeraCargaRef.current = false;
       // chk5.PERSONAS-v5.7 · E4.1 · bulk fetch de relaciones por user
       // No bloquea el render principal · se carga en background
       void fetchRelacionesBulk(data.map((u) => u.uid));
@@ -1235,16 +1243,13 @@ export const Usuarios: React.FC = () => {
       {/* chk5.F4-USERS · Modal "Invitar por email" (canon ACTO 2.2 mockup integral) */}
       <InvitarPorEmailModal
         isOpen={invitarOpen}
-        onClose={() => {
-          setInvitarOpen(false);
-          fetchUsuarios(); // refresco al CERRAR el modal · ver nota en onSuccess
-        }}
+        onClose={() => setInvitarOpen(false)}
         onSuccess={() => {
-          // ⚠️ NO refrescar la lista acá. El modal muestra su PROPIA pantalla de
-          // éxito interna (incluye si el email salió o falló en Resend). fetchUsuarios()
-          // activa `loading`, y el early-return `if (loading)` (~L477) DESMONTA todo el
-          // árbol —incluido este modal—; al re-montarse con isOpen aún true, reaparecía
-          // VACÍO (parecía "una invitación nueva"). El refresh va en onClose (ya cerrado).
+          // Refetch SEGURO: fetchUsuarios ya es silencioso post-primer-load (canon
+          // refetch-silencioso 2026-06-12) — no re-dispara el early-return, el modal
+          // sigue montado mostrando su pantalla de éxito interna.
+          setSuccess('Invitación enviada · ver tracking en Configuración → Invitaciones');
+          fetchUsuarios();
         }}
       />
 

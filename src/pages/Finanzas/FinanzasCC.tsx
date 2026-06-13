@@ -29,6 +29,7 @@ import {
   AlertCircle,
 } from 'lucide-react';
 import { useFinanzasShellContext } from './FinanzasLayout';
+import { useAsyncData } from '../../hooks/useAsyncData';
 import { cuentaCorrienteService } from '../../services/cuentaCorriente.service';
 import type {
   CuentaCorriente,
@@ -75,9 +76,6 @@ const FinanzasCC: React.FC = () => {
   const toastInfo = useToastStore((s) => s.info);
 
   // Estado local
-  const [ccs, setCCs] = useState<CuentaCorriente[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [filtros, setFiltros] = useState<FiltrosCCState>(defaultFiltrosCC);
   const [ccSeleccionada, setCCSeleccionada] = useState<CuentaCorriente | null>(null);
   const [wizardOpen, setWizardOpen] = useState(false);
@@ -92,20 +90,13 @@ const FinanzasCC: React.FC = () => {
   // TCPA actual desde el shell · para equivalentes PEN
   const tcpaActual = miniStats?.tcpa ?? 0;
 
-  // Fetch CC
-  const cargar = useCallback(() => {
-    setLoading(true);
-    setError(null);
-    cuentaCorrienteService
-      .getAll()
-      .then((lista) => setCCs(lista))
-      .catch((err) => setError(err?.message ?? 'Error cargando CC'))
-      .finally(() => setLoading(false));
-  }, []);
-
-  useEffect(() => {
-    cargar();
-  }, [cargar]);
+  // Fetch CC · canon refetch-silencioso (auditoría 2026-06-12) · useAsyncData:
+  // loading SOLO en primer load. El onSuccess del PagoAbonoWizard (→ cargar) ya
+  // NO desmonta el listado al skeleton tras cada pago — refresca en silencio.
+  const { data: ccsData, loading, error, refetch: cargar } = useAsyncData(
+    () => cuentaCorrienteService.getAll(),
+  );
+  const ccs = ccsData ?? [];
 
   // ─── Aplicar filtros client-side ─────────────────────────────────────
   const ccsFiltradas = useMemo(() => {

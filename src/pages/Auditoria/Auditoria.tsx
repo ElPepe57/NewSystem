@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { formatFecha, formatFechaRelativa } from '../../utils/dateFormatters';
 import {
   Activity,
@@ -25,12 +25,10 @@ import {
 import { Card, Badge, Button } from '../../components/common';
 import { PageShell, PageHeader, Toolbar } from '../../design-system';
 import { auditoriaService } from '../../services/auditoria.service';
+import { useAsyncData } from '../../hooks/useAsyncData';
 import type { AuditLog, AuditLogFiltros, AuditLogStats, ModuloAuditoria, NivelAuditoria } from '../../types/auditoria.types';
 
 export const Auditoria: React.FC = () => {
-  const [logs, setLogs] = useState<AuditLog[]>([]);
-  const [stats, setStats] = useState<AuditLogStats | null>(null);
-  const [loading, setLoading] = useState(true);
   const [expandedLog, setExpandedLog] = useState<string | null>(null);
 
   // Filtros
@@ -39,25 +37,18 @@ export const Auditoria: React.FC = () => {
   const [filterNivel, setFilterNivel] = useState<NivelAuditoria | ''>('');
   const [filterFecha, setFilterFecha] = useState<'hoy' | 'semana' | 'mes' | 'todo'>('semana');
 
-  useEffect(() => {
-    loadData();
-  }, []);
-
-  const loadData = async () => {
-    setLoading(true);
-    try {
-      const [logsResult, statsResult] = await Promise.all([
-        auditoriaService.getLogs({}, 100),
-        auditoriaService.getStats()
-      ]);
-      setLogs(logsResult.logs);
-      setStats(statsResult);
-    } catch (error) {
-      console.error('Error loading audit data:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  // Data · canon refetch-silencioso (auditoría 2026-06-12) · useAsyncData:
+  // el botón Actualizar refresca en silencio (antes desmontaba la página
+  // entera al spinner y se perdía scroll/foco).
+  const { data: auditData, loading, refreshing, refetch: loadData } = useAsyncData(async () => {
+    const [logsResult, statsResult] = await Promise.all([
+      auditoriaService.getLogs({}, 100),
+      auditoriaService.getStats(),
+    ]);
+    return { logs: logsResult.logs, stats: statsResult };
+  });
+  const logs: AuditLog[] = auditData?.logs ?? [];
+  const stats: AuditLogStats | null = auditData?.stats ?? null;
 
   const filteredLogs = useMemo(() => {
     let result = logs;
@@ -169,8 +160,8 @@ export const Auditoria: React.FC = () => {
         subtitle="Registro de actividades y cambios en el sistema"
         icon={Activity}
         actions={
-          <Button onClick={loadData} variant="outline">
-            <RefreshCw className="h-4 w-4 mr-2" />
+          <Button onClick={loadData} variant="outline" disabled={refreshing}>
+            <RefreshCw className={`h-4 w-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
             Actualizar
           </Button>
         }
