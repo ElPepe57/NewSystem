@@ -91,6 +91,7 @@ const RedLogistica = React.lazy(() => import('./pages/RedLogistica/RedLogistica'
 // Stores y servicios
 import { useAuthStore } from './store/authStore';
 import { useLineaNegocioStore } from './store/lineaNegocioStore';
+import { hasAnyRole, type UserRole } from './types/auth.types';
 import { AuthService } from './services/auth.service';
 
 // Notificaciones
@@ -141,6 +142,26 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
   return <>{children}</>;
 };
 
+// 2026-06-13 · Roles con acceso al DASHBOARD EJECUTIVO. Carga datos financieros
+// (tesorería, gastos, cuentas pendientes) que otros roles NO pueden leer por las
+// Firestore rules → al fallar esos fetches el dashboard crasheaba (React #300).
+// Los roles operativos aterrizan en su PERFIL (su espacio personal · landing
+// neutral que todos tienen), no en una página arbitraria.
+const ROLES_DASHBOARD: UserRole[] = ['admin', 'gerente', 'finanzas'];
+
+// Landing inteligente · ejecutivos → dashboard · resto → su perfil.
+const LandingRedirect: React.FC = () => {
+  const userProfile = useAuthStore(state => state.userProfile);
+  return <Navigate to={hasAnyRole(userProfile, ROLES_DASHBOARD) ? '/dashboard' : '/perfil'} replace />;
+};
+
+// Guard del dashboard · si un rol sin acceso financiero entra directo (sidebar o
+// URL), lo manda a su perfil en vez de crashear cargando datos vedados.
+const RequireDashboard: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const userProfile = useAuthStore(state => state.userProfile);
+  return hasAnyRole(userProfile, ROLES_DASHBOARD) ? <>{children}</> : <Navigate to="/perfil" replace />;
+};
+
 function App() {
   const setUser = useAuthStore(state => state.setUser);
   const setLoading = useAuthStore(state => state.setLoading);
@@ -186,8 +207,8 @@ function App() {
                 </ProtectedRoute>
               }
             >
-              <Route index element={<Navigate to="/dashboard" replace />} />
-              <Route path="dashboard" element={<Dashboard />} />
+              <Route index element={<LandingRedirect />} />
+              <Route path="dashboard" element={<RequireDashboard><Dashboard /></RequireDashboard>} />
 
               {/* Inventario */}
               <Route path="productos" element={<Productos />} />
@@ -280,7 +301,7 @@ function App() {
             </Route>
 
             {/* Ruta Catch-all */}
-            <Route path="*" element={<Navigate to="/dashboard" replace />} />
+            <Route path="*" element={<LandingRedirect />} />
         </Routes>
       </Suspense>
 

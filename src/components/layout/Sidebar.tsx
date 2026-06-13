@@ -43,7 +43,7 @@ import {
 import { useAuthStore } from '../../store/authStore';
 import { AuthService } from '../../services/auth.service';
 import { usePermissions } from '../../hooks/usePermissions';
-import { PERMISOS } from '../../types/auth.types';
+import { PERMISOS, hasAnyRole } from '../../types/auth.types';
 import { LineaNegocioSelector } from '../modules/lineaNegocio/LineaNegocioSelector';
 // F10.F.1.J-SIDEBAR · Grupo "Mi espacio" al final del sidebar · items dinámicos por rol
 import { MiEspacioGroup } from './MiEspacioGroup';
@@ -326,7 +326,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
       {/* Selector global de Línea de Negocio */}
       <LineaNegocioSelector />
 
-      {/* Dashboard (item principal fuera de grupos) */}
+      {/* Dashboard ejecutivo · solo roles con acceso financiero (admin/gerente/
+          finanzas). Los demás aterrizan en su perfil · ver App.tsx LandingRedirect. */}
+      {hasAnyRole(profile, ['admin', 'gerente', 'finanzas']) && (
       <div className="px-3 pt-4 pb-2">
         <Link
           to="/dashboard"
@@ -342,6 +344,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
           <span className="font-medium">Dashboard</span>
         </Link>
       </div>
+      )}
 
       {/* Grupos de Menú */}
       <nav className="flex-1 min-h-0 px-3 py-2 space-y-1 overflow-y-auto">
