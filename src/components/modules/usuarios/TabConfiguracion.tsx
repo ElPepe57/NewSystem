@@ -14,21 +14,17 @@ import { useEffect, useState } from 'react';
 import {
   UserCheck, Mail, Key, Layers, Sliders, Plus, RefreshCw, X,
   Trash2, Lock, Globe, Repeat, Shield, AlertTriangle, Loader,
-  Send, Copy, Settings,
+  Copy, Settings,
 } from 'lucide-react';
 import { useAuthStore } from '../../../store/authStore';
 import { configUsuariosService } from '../../../services/configUsuarios.service';
-import { invitacionService } from '../../../services/invitacion.service';
 import type { ConfigUsuarios, ModoRegistro } from '../../../types/configUsuarios.types';
 import { MODO_REGISTRO_LABELS, MODO_REGISTRO_DESCRIPCIONES } from '../../../types/configUsuarios.types';
-import type { Invitacion } from '../../../types/invitacion.types';
-import { INVITACION_ESTADO_LABELS, INVITACION_ESTADO_COLORS } from '../../../types/invitacion.types';
 import { ROLE_LABELS } from '../../../types/auth.types';
 
 export default function TabConfiguracion() {
   const currentUser = useAuthStore((s) => s.userProfile);
   const [config, setConfig] = useState<ConfigUsuarios | null>(null);
-  const [invitaciones, setInvitaciones] = useState<Invitacion[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -49,13 +45,9 @@ export default function TabConfiguracion() {
     (async () => {
       setLoading(true);
       try {
-        const [cfg, invs] = await Promise.all([
-          configUsuariosService.get(),
-          invitacionService.listPendientes().catch(() => [] as Invitacion[]),
-        ]);
+        const cfg = await configUsuariosService.get();
         if (cancelled) return;
         setConfig(cfg);
-        setInvitaciones(invs);
         setModoRegistro(cfg.policyRegistro.modo);
         setRateLimitMax(cfg.policyRegistro.rateLimitPorIP.maxRegistros);
         setRateLimitVentana(cfg.policyRegistro.rateLimitPorIP.ventanaHoras);
@@ -128,34 +120,6 @@ export default function TabConfiguracion() {
       const cfg = await configUsuariosService.get();
       setConfig(cfg);
       setSuccess(`Dominio ${dom} removido`);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error');
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const handleCancelInvitacion = async (id: string) => {
-    setSaving(true);
-    try {
-      await invitacionService.cancelar(id);
-      const list = await invitacionService.listPendientes();
-      setInvitaciones(list);
-      setSuccess('Invitación cancelada');
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error');
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const handleReenviarInvitacion = async (id: string) => {
-    setSaving(true);
-    try {
-      await invitacionService.reEnviar(id);
-      const list = await invitacionService.listPendientes();
-      setInvitaciones(list);
-      setSuccess('Email re-enviado');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error');
     } finally {
@@ -384,70 +348,10 @@ export default function TabConfiguracion() {
         </div>
       </div>
 
-      {/* ═══════════════════════════════════════════════════════════════ */}
-      {/* 7.2 INVITACIONES ACTIVAS                                          */}
-      {/* ═══════════════════════════════════════════════════════════════ */}
-      <div className="bg-white rounded-2xl ring-1 ring-indigo-200 p-5">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            <Mail className="w-5 h-5 text-indigo-600" />
-            <h3 className="text-[14px] font-bold text-slate-900">
-              7.2 · Invitaciones activas
-              <span className="ml-2 text-[10px] bg-amber-100 text-amber-700 px-2 py-0.5 rounded font-bold">
-                {invitaciones.length}
-              </span>
-            </h3>
-          </div>
-        </div>
-        {invitaciones.length === 0 ? (
-          <div className="text-center py-6">
-            <Mail className="w-10 h-10 text-slate-300 mx-auto mb-2" />
-            <p className="text-[12px] text-slate-600">No hay invitaciones activas en este momento</p>
-          </div>
-        ) : (
-          <div className="space-y-2">
-            {invitaciones.map((inv) => {
-              const expiraEn = inv.fechaCaducidad?.toDate?.() || new Date();
-              const dias = invitacionService.diasHastaExpiracion(inv);
-              const colors = INVITACION_ESTADO_COLORS[inv.estado];
-              return (
-                <div
-                  key={inv.id}
-                  className="bg-slate-50 border border-slate-200 rounded-lg p-3 flex items-center gap-3 text-[11px]"
-                >
-                  <Mail className="w-4 h-4 text-indigo-600 flex-shrink-0" />
-                  <div className="flex-1 min-w-0">
-                    <div className="font-bold text-slate-900 truncate">{inv.email}</div>
-                    <div className="text-slate-600">
-                      Rol: {inv.rolesPreAsignados.length > 0 ? inv.rolesPreAsignados.join(', ') : 'sin pre-asignar'}
-                      {' · '}expira en {dias}d ({expiraEn.toLocaleDateString('es-PE', { day: 'numeric', month: 'short' })})
-                    </div>
-                  </div>
-                  <span className={`text-[9px] font-bold px-2 py-0.5 rounded ${colors.bg} ${colors.text}`}>
-                    {INVITACION_ESTADO_LABELS[inv.estado]}
-                  </span>
-                  <button
-                    onClick={() => handleReenviarInvitacion(inv.id)}
-                    className="text-[10px] text-indigo-600 hover:text-indigo-800 font-bold flex items-center gap-0.5"
-                    title="Re-enviar email"
-                  >
-                    <Send className="w-3 h-3" />
-                    Re-enviar
-                  </button>
-                  <button
-                    onClick={() => handleCancelInvitacion(inv.id)}
-                    className="text-[10px] text-rose-600 hover:text-rose-800 font-medium flex items-center gap-0.5"
-                    title="Cancelar invitación"
-                  >
-                    <X className="w-3 h-3" />
-                    Cancelar
-                  </button>
-                </div>
-              );
-            })}
-          </div>
-        )}
-      </div>
+      {/* 7.2 Invitaciones · MIGRADO 2026-06-13 a tab propia del hub
+          (components/modules/usuarios/TabInvitaciones.tsx · canon HUB:
+          tab = función distinta · con KPIs de conversión + histórico).
+          Ya NO vive en Configuración (canon no-redundancia). */}
 
       {/* ═══════════════════════════════════════════════════════════════ */}
       {/* 7.3 PASSWORD + 7.4 ROLES (grid)                                   */}

@@ -55,6 +55,7 @@ import { ROLE_LABELS, hasRole, getRolPrincipal, getUserRoles, hasAnyRole } from 
 // TabSocios y TabPlanilla ELIMINADOS · reemplazados por chips filtro + banners cross-link
 import TabAccesos from '../../components/modules/usuarios/TabAccesos';
 import TabConfiguracion from '../../components/modules/usuarios/TabConfiguracion';
+import TabInvitaciones from '../../components/modules/usuarios/TabInvitaciones';
 import InvitarPorEmailModal from '../../components/modules/usuarios/InvitarPorEmailModal';
 // chk5.PERSONAS-v5.7 · E4.1 · Ficha360Modal reemplazado por UserPanel canon F6-E
 // El componente Ficha360Modal sigue exportado para retrocompatibilidad pero NO se
@@ -72,7 +73,7 @@ import DesconectarTodasModal from '../../components/modules/usuarios/Desconectar
 
 // chk5.PERSONAS-v5.3 · 2026-05-26 · F2 · 3 tabs (Directorio + Accesos + Configuración)
 // 'directorio' reemplaza 'resumen' · 'socios' y 'planilla' eliminados (ahora son chips filtro)
-type TabActiva = 'directorio' | 'accesos' | 'configuracion';
+type TabActiva = 'directorio' | 'accesos' | 'invitaciones' | 'configuracion';
 
 // Filtro de rol extendido: soporta valores agregados 'planilla' (todos los empleados)
 // y 'otros' (invitados). Canon mockup usuarios-v5.3-hub.html (chips filtro).
@@ -504,10 +505,12 @@ export const Usuarios: React.FC = () => {
   const breadcrumbLeaf =
     tabActiva === 'directorio' ? null
     : tabActiva === 'accesos' ? 'Accesos & seguridad'
+    : tabActiva === 'invitaciones' ? 'Invitaciones'
     : 'Configuración';
   const usuariosTabs: HubTab[] = [
     { id: 'directorio', label: 'Resumen', icon: LayoutDashboard },
     { id: 'accesos', label: 'Accesos & seguridad', icon: ShieldCheck },
+    { id: 'invitaciones', label: 'Invitaciones', icon: MailPlus },
     { id: 'configuracion', label: 'Configuración', icon: SettingsIcon },
   ];
 
@@ -1148,6 +1151,15 @@ export const Usuarios: React.FC = () => {
           {tabActiva === 'accesos' && (
             <div className="px-4 sm:px-6 py-4">
               <TabAccesos onRequestDisconnectAll={() => setModalType('disconnect-all-confirm')} />
+            </div>
+          )}
+
+          {/* ════════════════════════════════════════════════════════════ */}
+          {/* TAB · INVITACIONES · ciclo de vida + métricas (canon HUB)       */}
+          {/* ════════════════════════════════════════════════════════════ */}
+          {tabActiva === 'invitaciones' && (
+            <div className="px-4 sm:px-6 py-4">
+              <TabInvitaciones onInvitar={() => setInvitarOpen(true)} />
             </div>
           )}
 
