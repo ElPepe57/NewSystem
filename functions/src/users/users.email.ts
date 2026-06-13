@@ -9,12 +9,23 @@
  *   4. emailAlertaAdminSelfSignup · alerta al admin · self-signup pendiente
  */
 import { Resend } from "resend";
+import * as nodemailer from "nodemailer";
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY || "";
 const EMAIL_FROM = process.env.EMAIL_FROM || "onboarding@resend.dev";
 const EMAIL_FROM_NAME = process.env.EMAIL_FROM_NAME || "BusinessMN";
 const EMAIL_REPLY_TO = process.env.EMAIL_REPLY_TO || "";
 const APP_BASE_URL = process.env.APP_BASE_URL || "http://localhost:5178";
+
+// ── Gmail SMTP (2026-06-12) · transporte preferido ──────────────────────
+// El correo sale del Gmail real del admin vía "contraseña de aplicación"
+// (myaccount.google.com/apppasswords · requiere 2FA). Resuelve el rechazo de
+// Resend en sandbox ("You can only send testing emails to your own email
+// address") sin necesidad de verificar un dominio propio.
+// Límite Gmail personal: ~500 correos/día · de sobra para invitaciones ERP.
+const GMAIL_USER = process.env.GMAIL_USER || "";
+// Google muestra la clave con espacios ("xxxx xxxx xxxx xxxx") · se normalizan.
+const GMAIL_APP_PASSWORD = (process.env.GMAIL_APP_PASSWORD || "").replace(/\s+/g, "");
 
 let _resend: Resend | null = null;
 function getClient(): Resend {
@@ -25,8 +36,55 @@ function getClient(): Resend {
   return _resend;
 }
 
+let _gmail: nodemailer.Transporter | null = null;
+function getGmail(): nodemailer.Transporter {
+  if (!_gmail) {
+    _gmail = nodemailer.createTransport({
+      host: "smtp.gmail.com",
+      port: 465,
+      secure: true,
+      auth: { user: GMAIL_USER, pass: GMAIL_APP_PASSWORD },
+    });
+  }
+  return _gmail;
+}
+
 function from(): string {
   return EMAIL_FROM_NAME ? `${EMAIL_FROM_NAME} <${EMAIL_FROM}>` : EMAIL_FROM;
+}
+
+/**
+ * Envío unificado · TODOS los templates pasan por acá.
+ * Prioridad: Gmail SMTP (si GMAIL_USER + GMAIL_APP_PASSWORD están en env)
+ * → fallback Resend (requiere dominio verificado para salir del sandbox).
+ * El `from` de Gmail DEBE ser la cuenta autenticada (anti-spoofing de Google).
+ */
+async function deliver(params: {
+  to: string;
+  subject: string;
+  html: string;
+}): Promise<{ ok: boolean; id?: string; error?: string }> {
+  if (GMAIL_USER && GMAIL_APP_PASSWORD) {
+    const info = await getGmail().sendMail({
+      from: EMAIL_FROM_NAME ? `${EMAIL_FROM_NAME} <${GMAIL_USER}>` : GMAIL_USER,
+      to: params.to,
+      replyTo: EMAIL_REPLY_TO || undefined,
+      subject: params.subject,
+      html: params.html,
+    });
+    return { ok: true, id: info.messageId };
+  }
+  const result = await getClient().emails.send({
+    from: from(),
+    to: params.to,
+    replyTo: EMAIL_REPLY_TO || undefined,
+    subject: params.subject,
+    html: params.html,
+  });
+  if (result.error) {
+    return { ok: false, error: result.error.message };
+  }
+  return { ok: true, id: result.data?.id };
 }
 
 // ─────────────────────────────────────────────────────────────────────────
@@ -150,18 +208,11 @@ export async function sendInvitacionEmail(params: InvitacionEmailParams): Promis
       </p>
     `, `${params.invitedByNombre} te invitó a unirte a BusinessMN`);
 
-    const result = await getClient().emails.send({
-      from: from(),
+    return await deliver({
       to: params.to,
-      replyTo: EMAIL_REPLY_TO || undefined,
       subject: params.asuntoOverride || "Te invitamos a unirte a BusinessMN",
       html,
     });
-
-    if (result.error) {
-      return { ok: false, error: result.error.message };
-    }
-    return { ok: true, id: result.data?.id };
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     console.error("[users.email] sendInvitacionEmail error:", msg);
@@ -203,16 +254,11 @@ export async function sendCuentaAprobadaEmail(params: {
       </p>
     `, "Tu cuenta fue aprobada");
 
-    const result = await getClient().emails.send({
-      from: from(),
+    return await deliver({
       to: params.to,
-      replyTo: EMAIL_REPLY_TO || undefined,
       subject: "Tu cuenta de BusinessMN fue aprobada",
       html,
     });
-
-    if (result.error) return { ok: false, error: result.error.message };
-    return { ok: true, id: result.data?.id };
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     return { ok: false, error: msg };
@@ -247,16 +293,11 @@ export async function sendSolicitudExpiradaEmail(params: {
       </p>
     `);
 
-    const result = await getClient().emails.send({
-      from: from(),
+    return await deliver({
       to: params.to,
-      replyTo: EMAIL_REPLY_TO || undefined,
       subject: "Tu solicitud de cuenta expiró",
       html,
     });
-
-    if (result.error) return { ok: false, error: result.error.message };
-    return { ok: true, id: result.data?.id };
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     return { ok: false, error: msg };
@@ -303,16 +344,11 @@ export async function sendAlertaAdminSelfSignupEmail(params: {
       </p>
     `, "Alguien se registró sin invitación · revisá");
 
-    const result = await getClient().emails.send({
-      from: from(),
+    return await deliver({
       to: params.toAdmin,
-      replyTo: EMAIL_REPLY_TO || undefined,
       subject: "[BusinessMN] Self-signup pendiente · revisar",
       html,
     });
-
-    if (result.error) return { ok: false, error: result.error.message };
-    return { ok: true, id: result.data?.id };
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     return { ok: false, error: msg };
