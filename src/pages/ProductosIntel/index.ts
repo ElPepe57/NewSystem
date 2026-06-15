@@ -1,1 +1,0 @@
-export { ProductosIntel } from './ProductosIntel';
