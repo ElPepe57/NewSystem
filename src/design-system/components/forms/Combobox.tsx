@@ -192,7 +192,7 @@ export function Combobox<T extends string | number = string>({
         onKeyDown={handleKeyDown}
         aria-invalid={hasError}
         className={cn(
-          'w-full h-10 px-3 pr-10 text-sm rounded-md bg-white border outline-none transition-colors text-left',
+          'relative w-full h-10 px-3 pr-10 text-sm rounded-md bg-white border outline-none transition-colors text-left',
           'focus:ring-2 focus:ring-teal-500 focus:border-teal-500',
           'disabled:bg-slate-50 disabled:text-slate-500 disabled:cursor-not-allowed',
           'flex items-center gap-2',
@@ -300,23 +300,29 @@ export function Combobox<T extends string | number = string>({
               })
             )}
 
-            {/* Crear nuevo */}
-            {onCreate && search.trim() && (
-              <button
-                type="button"
-                onClick={() => {
-                  onCreate(search.trim());
-                  setOpen(false);
-                  setSearch('');
-                }}
-                className="w-full px-3 py-2 hover:bg-teal-50 flex items-center gap-2 text-left text-[12px] text-teal-700 font-medium border-t border-slate-100"
-              >
-                <Plus className="w-3.5 h-3.5" />
-                <span>
-                  {createLabel} · "{search.trim()}"
-                </span>
-              </button>
-            )}
+            {/* Crear nuevo · SIEMPRE visible cuando onCreate está activo (descubrible + sticky) */}
+            {onCreate &&
+              (search.trim() ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    onCreate(search.trim());
+                    setOpen(false);
+                    setSearch('');
+                  }}
+                  className="w-full px-3 py-2 hover:bg-teal-50 flex items-center gap-2 text-left text-[12px] text-teal-700 font-medium border-t border-slate-100 sticky bottom-0 bg-white"
+                >
+                  <Plus className="w-3.5 h-3.5 flex-shrink-0" />
+                  <span className="truncate">
+                    {createLabel} · "{search.trim()}"
+                  </span>
+                </button>
+              ) : (
+                <div className="w-full px-3 py-2 flex items-center gap-2 text-[11px] text-slate-400 border-t border-slate-100 sticky bottom-0 bg-white">
+                  <Plus className="w-3 h-3 flex-shrink-0" />
+                  <span>Escribí arriba para crear uno nuevo</span>
+                </div>
+              ))}
           </div>
         </div>
       )}
