@@ -61,6 +61,7 @@ import {
   TIPO_RELACION_ICONS,
   TIPO_RELACION_COLORS,
   getRelacionesActivas,
+  SUBTIPOS_RELACION,
 } from '../../types/relacionLaboral.types';
 
 // ═════════════════════════════════════════════════════════════════════════
@@ -113,37 +114,7 @@ const INITIAL: WizardState = {
   rolEnEntidad: '',
 };
 
-const SUBTIPOS: Record<TipoRelacion, Array<{ value: string; label: string }>> = {
-  empleado: [
-    { value: 'full_time', label: 'Full time' },
-    { value: 'medio_tiempo', label: 'Medio tiempo' },
-    { value: 'por_horas', label: 'Por horas' },
-    { value: 'practicante', label: 'Practicante' },
-    { value: 'tercerizado', label: 'Tercerizado' },
-  ],
-  honorarios: [
-    { value: 'consultor', label: 'Consultor' },
-    { value: 'asesor', label: 'Asesor' },
-    { value: 'profesional_servicios', label: 'Servicios profesionales' },
-    { value: 'freelance', label: 'Freelance' },
-  ],
-  socio: [
-    { value: 'fundador', label: 'Fundador' },
-    { value: 'inversor', label: 'Inversor' },
-    { value: 'minoritario', label: 'Minoritario' },
-    { value: 'estrategico', label: 'Estratégico' },
-  ],
-  externo: [
-    { value: 'contacto_proveedor', label: '🛒 Contacto de proveedor' },
-    { value: 'contacto_cliente', label: '💼 Contacto de cliente (B2B)' },
-    { value: 'cliente_vip', label: '⭐ Cliente VIP' },
-    { value: 'tercerizado_logistico', label: '🚚 Tercerizado logístico' },
-    { value: 'colaborador_marketing', label: '📸 Colaborador marketing' },
-    { value: 'contacto_marca', label: '🤝 Contacto de marca aliada' },
-    { value: 'auditor_externo', label: '🔍 Auditor externo' },
-    { value: 'otro', label: 'Otro' },
-  ],
-};
+// SUBTIPOS local ELIMINADO (2026-06-14) · ahora vive en SUBTIPOS_RELACION (fuente única en relacionLaboral.types).
 
 // ═════════════════════════════════════════════════════════════════════════
 // COMPONENTE
@@ -440,7 +411,7 @@ export const AgregarRelacionWizard: React.FC<AgregarRelacionWizardProps> = ({
                   className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm"
                 >
                   <option value="">— ninguno —</option>
-                  {SUBTIPOS[state.tipo].map((st) => (
+                  {SUBTIPOS_RELACION[state.tipo].map((st) => (
                     <option key={st.value} value={st.value}>
                       {st.label}
                     </option>

@@ -96,6 +96,59 @@ export type SubTipoRelacion =
   | SubTipoSocio
   | SubTipoExterno;
 
+/**
+ * Vocabulario CANÓNICO de subtipos por TipoRelacion · FUENTE ÚNICA (2026-06-14).
+ * Antes estaba duplicado/hardcodeado en 6 lugares (wizard · reclasificar · crear-usuario
+ * · fields · modales) y hasta divergía del tipo. Todos los forms consumen ESTO.
+ * Si agregás un valor a los `SubTipo*` de arriba, agregalo acá (label legible).
+ */
+export const SUBTIPOS_RELACION: Record<TipoRelacion, ReadonlyArray<{ value: string; label: string }>> = {
+  empleado: [
+    { value: 'full_time', label: 'Full time' },
+    { value: 'medio_tiempo', label: 'Medio tiempo' },
+    { value: 'por_horas', label: 'Por horas' },
+    { value: 'tercerizado', label: 'Tercerizado' },
+    { value: 'practicante', label: 'Practicante' },
+    { value: 'aprendiz', label: 'Aprendiz' },
+  ],
+  honorarios: [
+    { value: 'consultor', label: 'Consultor' },
+    { value: 'asesor', label: 'Asesor' },
+    { value: 'profesional_servicios', label: 'Servicios profesionales' },
+    { value: 'freelance', label: 'Freelance' },
+  ],
+  socio: [
+    { value: 'fundador', label: 'Fundador' },
+    { value: 'inversor', label: 'Inversor' },
+    { value: 'minoritario', label: 'Minoritario' },
+    { value: 'estrategico', label: 'Estratégico' },
+  ],
+  externo: [
+    { value: 'contacto_proveedor', label: 'Contacto de proveedor' },
+    { value: 'contacto_cliente', label: 'Contacto de cliente (B2B)' },
+    { value: 'cliente_vip', label: 'Cliente VIP' },
+    { value: 'tercerizado_logistico', label: 'Tercerizado logístico' },
+    { value: 'colaborador_marketing', label: 'Colaborador marketing' },
+    { value: 'contacto_marca', label: 'Contacto de marca aliada' },
+    { value: 'auditor_externo', label: 'Auditor externo' },
+    { value: 'otro', label: 'Otro' },
+  ],
+};
+
+/**
+ * Normaliza un subtipo tipeado libre (crear-inline) a slug canónico, para que
+ * "Co-Fundador", "co fundador" y "co_fundador" NO fragmenten el dato.
+ */
+export function slugSubtipo(texto: string): string {
+  return texto
+    .trim()
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/\p{Diacritic}/gu, '')
+    .replace(/[^a-z0-9]+/g, '_')
+    .replace(/^_+|_+$/g, '');
+}
+
 // ═════════════════════════════════════════════════════════════════════════
 // SNAPSHOTS INMUTABLES · v5.6 canon
 // Al pasar una relación a estado 'finalizada' (o cuando se reclasifica),

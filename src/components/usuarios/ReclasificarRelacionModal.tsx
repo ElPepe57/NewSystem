@@ -49,6 +49,7 @@ import {
   TIPO_RELACION_LABELS,
   TIPO_RELACION_ICONS,
   TIPO_RELACION_COLORS,
+  SUBTIPOS_RELACION,
 } from '../../types/relacionLaboral.types';
 
 // ═════════════════════════════════════════════════════════════════════════
@@ -69,21 +70,7 @@ export interface ReclasificarRelacionModalProps {
 
 const TIPOS_DISPONIBLES: TipoRelacion[] = ['empleado', 'honorarios', 'socio', 'externo'];
 
-const SUBTIPOS_POR_TIPO: Record<TipoRelacion, string[]> = {
-  empleado: ['full_time', 'medio_tiempo', 'por_horas', 'tercerizado', 'practicante', 'aprendiz'],
-  honorarios: ['consultor', 'asesor', 'profesional_servicios', 'freelance'],
-  socio: ['fundador', 'inversor', 'minoritario', 'estrategico'],
-  externo: [
-    'contacto_proveedor',
-    'contacto_cliente',
-    'cliente_vip',
-    'tercerizado_logistico',
-    'colaborador_marketing',
-    'contacto_marca',
-    'auditor_externo',
-    'otro',
-  ],
-};
+// SUBTIPOS_POR_TIPO local ELIMINADO (2026-06-14) · ahora SUBTIPOS_RELACION (fuente única en relacionLaboral.types).
 
 // ═════════════════════════════════════════════════════════════════════════
 // COMPONENTE
@@ -133,7 +120,7 @@ export const ReclasificarRelacionModal: React.FC<ReclasificarRelacionModalProps>
 
   const colorsActual = TIPO_RELACION_COLORS[relacion.tipo];
   const colorsNuevo = nuevoTipo ? TIPO_RELACION_COLORS[nuevoTipo as TipoRelacion] : null;
-  const subTiposNuevo = nuevoTipo ? SUBTIPOS_POR_TIPO[nuevoTipo as TipoRelacion] : [];
+  const subTiposNuevo = nuevoTipo ? SUBTIPOS_RELACION[nuevoTipo as TipoRelacion] : [];
 
   const tipoValido = nuevoTipo && nuevoTipo !== relacion.tipo;
   const puedeSubmit = tipoValido && !submitting;
@@ -325,8 +312,8 @@ export const ReclasificarRelacionModal: React.FC<ReclasificarRelacionModalProps>
                 >
                   <option value="">— ninguno —</option>
                   {subTiposNuevo.map((st) => (
-                    <option key={st} value={st}>
-                      {st.replace(/_/g, ' ')}
+                    <option key={st.value} value={st.value}>
+                      {st.label}
                     </option>
                   ))}
                 </select>
