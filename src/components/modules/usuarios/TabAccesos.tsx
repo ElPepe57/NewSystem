@@ -26,9 +26,14 @@ import {
   Activity,
   History,
   ShieldCheck,
+  Info,
+  XCircle,
+  CheckCircle,
 } from 'lucide-react';
 import { sesionService } from '../../../services/sesion.service';
+import { auditoriaService } from '../../../services/auditoria.service';
 import type { SesionActiva } from '../../../types/sesion.types';
+import type { AuditLog, NivelAuditoria } from '../../../types/auditoria.types';
 
 interface Props {
   onRequestDisconnectAll: () => void;
@@ -48,24 +53,49 @@ function tiempoRel(fecha?: Date | { toDate: () => Date }): string {
   return `hace ${diffD}d`;
 }
 
+/** Icono por nivel · color semántico canon (mismo mapeo que /auditoria) */
+function nivelIcon(nivel: NivelAuditoria) {
+  switch (nivel) {
+    case 'info': return <Info className="w-3.5 h-3.5 text-sky-500" />;
+    case 'warning': return <AlertTriangle className="w-3.5 h-3.5 text-amber-500" />;
+    case 'error': return <XCircle className="w-3.5 h-3.5 text-rose-500" />;
+    case 'critical': return <XCircle className="w-3.5 h-3.5 text-rose-700" />;
+    default: return <CheckCircle className="w-3.5 h-3.5 text-emerald-500" />;
+  }
+}
+
 export default function TabAccesos({ onRequestDisconnectAll }: Props) {
   const navigate = useNavigate();
   const [sesiones, setSesiones] = useState<SesionActiva[]>([]);
+  const [eventos, setEventos] = useState<AuditLog[]>([]);
+  const [eventos7d, setEventos7d] = useState<number | null>(null);
+  const [intentosFallidos, setIntentosFallidos] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let cancelled = false;
     (async () => {
       try {
-        // Intenta cargar sesiones activas globales · si el service no tiene el método
+        // Sesiones activas globales · si el service no tiene el método
         // (deuda menor del sistema de sesiones) · fallback a array vacío.
         const fn = (sesionService as { listActivasGlobal?: () => Promise<SesionActiva[]> }).listActivasGlobal;
-        const data = fn ? await fn.call(sesionService) : [];
+        const [sesionesData, recientes, stats] = await Promise.all([
+          fn ? fn.call(sesionService) : Promise.resolve([]),
+          auditoriaService.getLogsRecientes(50),
+          auditoriaService.getStats(),
+        ]);
         if (cancelled) return;
-        setSesiones(data);
+        setSesiones(sesionesData);
+        setEventos(recientes);
+        setEventos7d(stats.totalSemana);
+        // Intentos fallidos de login en las últimas 24h (recientes ya filtra 24h)
+        setIntentosFallidos(recientes.filter((l) => l.accion === 'login_fallido').length);
       } catch (err) {
         console.error('[TabAccesos] error:', err);
-        if (!cancelled) setSesiones([]);
+        if (!cancelled) {
+          setSesiones([]);
+          setEventos([]);
+        }
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -77,10 +107,9 @@ export default function TabAccesos({ onRequestDisconnectAll }: Props) {
 
   // Stats derivadas
   const sesionesActivas = sesiones.length;
-  // TODO: integrar con auditService cuando esté disponible · por ahora null = placeholder
-  const intentosFallidos: number | null = null;
+  // IPs sospechosas · requiere geo-anomalía no persistida aún (registrar() no captura ip) · sub-deuda
   const ipsSospechosas: number | null = null;
-  const eventos7d: number | null = null;
+  const eventosPreview = eventos.slice(0, 8);
 
   // Slice de top sesiones para preview
   const sesionesPreview = sesiones.slice(0, 4);
@@ -139,7 +168,7 @@ export default function TabAccesos({ onRequestDisconnectAll }: Props) {
             {intentosFallidos !== null && intentosFallidos > 0 ? intentosFallidos : '—'}
           </div>
           <div className="text-[10px] text-amber-700 mt-1">
-            {intentosFallidos !== null && intentosFallidos > 0 ? 'validar IPs' : 'sin data aún'}
+            {intentosFallidos !== null && intentosFallidos > 0 ? 'validar IPs' : 'sin intentos 24h'}
           </div>
         </div>
 
@@ -276,24 +305,40 @@ export default function TabAccesos({ onRequestDisconnectAll }: Props) {
               Ver auditoría completa →
             </button>
           </div>
-          <div className="space-y-1.5 text-[11px]">
+          {loading ? (
+            <div className="text-center py-4 text-[11px] text-slate-500">
+              <Loader className="w-4 h-4 animate-spin mx-auto mb-1" />
+              Cargando eventos...
+            </div>
+          ) : eventosPreview.length === 0 ? (
             <div className="bg-slate-50 border border-slate-200 rounded-lg p-3 text-center text-[11px] text-slate-500">
               <Activity className="w-5 h-5 mx-auto mb-1 text-slate-300" />
-              <div className="font-semibold text-slate-700 text-[12px]">Audit trail en vivo</div>
+              <div className="font-semibold text-slate-700 text-[12px]">Sin eventos recientes</div>
               <p className="text-[10px] mt-0.5">
-                Los eventos del sistema (logins · cambios de rol · aprobaciones) aparecen acá
-                cuando el servicio de auditoría esté integrado.
+                Los eventos del sistema (logins · cambios de rol · aprobaciones) de las últimas
+                24h aparecen acá.
               </p>
-              <button
-                type="button"
-                onClick={() => navigate('/auditoria')}
-                className="mt-2 text-[10px] font-bold text-sky-600 hover:text-sky-800 inline-flex items-center gap-1"
-              >
-                Ver módulo completo
-                <ArrowRight className="w-3 h-3" />
-              </button>
             </div>
-          </div>
+          ) : (
+            <div className="space-y-1.5 text-[11px]">
+              {eventosPreview.map((ev, i) => (
+                <div
+                  key={ev.id ?? i}
+                  className="border border-slate-200 rounded-lg p-2.5 flex items-start gap-2"
+                >
+                  <span className="mt-0.5 flex-shrink-0">{nivelIcon(ev.nivel)}</span>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-[11px] font-semibold text-slate-900 truncate">
+                      {ev.descripcion}
+                    </div>
+                    <div className="text-[10px] text-slate-500 truncate">
+                      {ev.usuarioNombre} · {ev.modulo} · {tiempoRel(ev.fechaCreacion)}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
