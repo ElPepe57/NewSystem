@@ -1,4 +1,4 @@
-import { doc, writeBatch, collection, getDocs, query, where } from 'firebase/firestore';
+import { doc, writeBatch } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { COLLECTIONS } from '../config/collections';
 import { unidadService } from './unidad.service';

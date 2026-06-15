@@ -1,18 +1,16 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useEffect, useCallback } from 'react';
 import {
   Package,
   Check,
   X,
   TrendingUp,
   DollarSign,
-  Clock,
   MapPin,
   Plane,
   Truck,
   ChevronRight,
   Info,
   ShoppingCart,
-  Calendar,
   History
 } from 'lucide-react';
 import type { Producto } from '../../../types/producto.types';

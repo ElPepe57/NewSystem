@@ -1,5 +1,5 @@
 import React from 'react';
-import { Package, TrendingUp, AlertTriangle, Clock, DollarSign, BarChart3, Lock, Truck } from 'lucide-react';
+import { Package, AlertTriangle, Clock, DollarSign, BarChart3, Lock, Truck } from 'lucide-react';
 import { ScoreLiquidezBadge, TendenciaBadge, RotacionBadge } from './ScoreLiquidezBadge';
 import type { ProductoIntel } from '../../../types/productoIntel.types';
 import { formatCurrencyCompact } from '../../../utils/format';

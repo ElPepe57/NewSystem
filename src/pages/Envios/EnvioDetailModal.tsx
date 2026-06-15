@@ -24,7 +24,6 @@ import {
   Truck,
   Package,
   ChevronRight,
-  ExternalLink,
   FileText,
   Clock,
   DollarSign,
@@ -33,25 +32,19 @@ import {
   RefreshCw,
   Banknote,
   Printer,
-  Building2,
   Plane,
-  Hash,
-  Copy,
-  Users,
   HelpCircle,
   Landmark,
   MapPin,
 } from 'lucide-react';
 import { Modal, Badge, Button } from '../../components/common';
-import type { Envio, EstadoEnvio, TipoEnvio, EstadoSubEnvio, SubEnvioT1 } from '../../types/envio.types';
+import type { Envio, EstadoEnvio, EstadoSubEnvio } from '../../types/envio.types';
 import type { Producto } from '../../types/producto.types';
 import { getDescripcionProducto } from '../../utils/producto.helpers';
 import { cn } from '../../design-system';
 // S52 — Capa 3: plantillas canónicas del ERP (ver docs/DESIGN_PATTERNS.md)
 import {
   EntityHeader,
-  EntityPipeline,
-  type EntityPipelineStep,
   NextActionBanner,
   KpiRow,
   RouteCardV2,

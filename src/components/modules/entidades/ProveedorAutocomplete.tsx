@@ -1,15 +1,11 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
-  Search,
   Building2,
   Plus,
   Check,
   X,
   Loader2,
-  Globe,
-  ShoppingCart,
-  Phone,
-  Mail
+  Globe
 } from 'lucide-react';
 import { useProveedorStore } from '../../../store/proveedorStore';
 import { usePaisOrigenStore } from '../../../store/paisOrigenStore';

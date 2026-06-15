@@ -10,7 +10,6 @@ import {
 } from 'lucide-react';
 import { Button, ConfirmDialog, Modal, useConfirmDialog } from '../../components/common';
 import { PageShell, PageHeader } from '../../design-system';
-import { LineaDropdown } from '../../components/common/LineaDropdown';
 import { ProductoForm } from '../../components/modules/productos/ProductoForm';
 import { AsignacionResponsableForm } from '../../components/modules/requerimiento/AsignacionResponsableForm';
 import { VincularOCModal } from '../../components/modules/requerimiento/VincularOCModal';

@@ -23,7 +23,6 @@ import {
   Plus,
   Trash2,
   Info,
-  Check,
   Droplets,
   FileText,
   Search,

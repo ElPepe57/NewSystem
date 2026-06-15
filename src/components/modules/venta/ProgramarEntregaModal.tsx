@@ -14,7 +14,6 @@ import { GoogleMapsAddressInput, type AddressData } from '../../common/GoogleMap
 import { useColaboradorStore } from '../../../store/colaboradorStore';
 import { entregaService } from '../../../services/entrega.service';
 import type { Venta, ProductoVenta, MetodoPago } from '../../../types/venta.types';
-import type { Colaborador as Transportista } from '../../../types/colaborador.types';
 import type { ProgramarEntregaData, Entrega } from '../../../types/entrega.types';
 
 interface ProgramarEntregaModalProps {

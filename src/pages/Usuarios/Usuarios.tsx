@@ -48,7 +48,7 @@ import type { HubTab } from '../../design-system';
 import { userService } from '../../services/user.service';
 import { useAuthStore } from '../../store/authStore';
 import type { UserProfile, UserRole } from '../../types/auth.types';
-import { ROLE_LABELS, hasRole, getRolPrincipal, getUserRoles, hasAnyRole } from '../../types/auth.types';
+import { ROLE_LABELS, hasRole, getRolPrincipal, getUserRoles } from '../../types/auth.types';
 // chk5.PERSONAS-v5.3 · 2026-05-26 · F2 · 3 sub-tabs (Directorio + Accesos + Configuración)
 // TabSocios y TabPlanilla ELIMINADOS · reemplazados por chips filtro + banners cross-link
 import TabAccesos from '../../components/modules/usuarios/TabAccesos';

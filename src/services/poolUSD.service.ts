@@ -57,7 +57,7 @@ export const poolUSDService = {
     tipo?: TipoMovimientoPool;
     direccion?: 'entrada' | 'salida';
   }): Promise<PoolUSDMovimiento[]> {
-    let q = query(
+    const q = query(
       collection(db, MOV_COLLECTION),
       orderBy('fecha', 'asc')
     );

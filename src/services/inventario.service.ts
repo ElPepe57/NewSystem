@@ -12,8 +12,6 @@ import type {
   InventarioStats
 } from '../types/inventario.types';
 import type { Unidad } from '../types/unidad.types';
-import { ESTADOS_EN_ORIGEN, ESTADOS_EN_TRANSITO_ORIGEN, ESTADOS_ACTIVOS } from '../types/unidad.types';
-import type { Producto } from '../types/producto.types';
 import { esEstadoEnOrigen, esEstadoEnTransitoOrigen, esEstadoActivo, esPaisOrigen } from '../utils/multiOrigen.helpers';
 import { logger } from '../lib/logger';
 import { timed } from '../lib/perf';

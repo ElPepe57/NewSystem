@@ -14,7 +14,7 @@
  */
 
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { X, Plus, PlusCircle, Tag, Layers } from 'lucide-react';
+import { X, PlusCircle } from 'lucide-react';
 import { FloatingDropdown } from './FloatingDropdown';
 
 export interface MaestroChipItem {

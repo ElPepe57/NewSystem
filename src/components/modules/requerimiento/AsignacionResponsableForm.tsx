@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Users, Package, Calendar, DollarSign, Plus, X, Truck, Check, AlertCircle } from 'lucide-react';
+import { Users, Package, Calendar, DollarSign, Truck, AlertCircle } from 'lucide-react';
 import { Button, Modal } from '../../common';
 import { casillaCrudService } from '../../../services/casilla.crud.service';
 import { requerimientoService } from '../../../services/requerimiento.service';
@@ -7,9 +7,7 @@ import { useToastStore } from '../../../store/toastStore';
 import type { Casilla } from '../../../types/casilla.types';
 import type {
   Requerimiento,
-  AsignacionResponsable,
-  AsignarResponsableData,
-  ProductoRequerimiento
+  AsignarResponsableData
 } from '../../../types/requerimiento.types';
 
 interface Props {

@@ -1,6 +1,6 @@
 import type { ProveedorSnapshot } from '../../entidades/ProveedorAutocomplete';
 import type { AlmacenSnapshot } from '../../entidades/AlmacenAutocomplete';
-import type { Requerimiento, ProductoRequerimiento } from '../../../../types/requerimiento.types';
+import type { Requerimiento } from '../../../../types/requerimiento.types';
 
 // ============ Product types ============
 

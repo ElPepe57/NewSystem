@@ -29,7 +29,6 @@ import type {
   SubTipoRelacion,
   CrearRelacionInput,
   EntidadMaestroRef,
-  TipoEntidadMaestro,
   RelacionLaboral,
 } from '../types/relacionLaboral.types';
 

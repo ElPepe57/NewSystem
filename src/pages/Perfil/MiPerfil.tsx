@@ -25,7 +25,6 @@ import {
   Lock,
   Shield,
   CheckCircle2,
-  XCircle,
   RefreshCw,
   Activity,
   Clock,

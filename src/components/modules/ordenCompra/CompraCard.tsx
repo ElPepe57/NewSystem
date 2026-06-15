@@ -26,7 +26,6 @@ import {
   ChevronRight,
   Info,
   ExternalLink,
-  Clock,
   CheckCircle2,
   AlertCircle,
   Ban,

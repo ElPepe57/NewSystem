@@ -7,7 +7,6 @@ import {
   Tag,
   Plus,
   Edit2,
-  Search,
   Percent,
   Truck,
   CheckCircle,
@@ -26,7 +25,6 @@ import {
   Activity,
   Target,
   Zap,
-  Clock,
   Crown
 } from 'lucide-react';
 import {
@@ -45,7 +43,6 @@ import { useVentaStore } from '../../store/ventaStore';
 import { useAuthStore } from '../../store/authStore';
 import { useToastStore } from '../../store/toastStore';
 import type { CanalVenta, CanalVentaFormData } from '../../types/canalVenta.types';
-import type { Venta } from '../../types/venta.types';
 
 interface CanalesVentaAnalyticsProps {
   onViewCanal?: (canal: CanalVenta) => void;

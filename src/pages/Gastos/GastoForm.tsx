@@ -24,12 +24,11 @@
  */
 
 import React, { useState, useEffect, useMemo } from 'react';
-import {
-  Wallet, Info, Search, Calendar, DollarSign, Banknote, AlertCircle,
+import { Info, Search, Calendar, DollarSign, Banknote, AlertCircle,
   // chk5.C-FIX · lucide canon F8/F9 (cero emojis)
   Check, X as XIcon, AlertTriangle, Package, ShoppingBag, ChevronRight,
   Users, User as UserIcon, Briefcase, Plus, ChevronDown, Repeat,
-  Hash, Save, FileText, Receipt,
+  Hash, Save, Receipt,
 } from 'lucide-react';
 import { Button, Input, AutocompleteInput } from '../../components/common';
 import { Modal } from '../../components/common/Modal';
@@ -40,7 +39,7 @@ import { useTipoCambioStore } from '../../store/tipoCambioStore';
 import { useToastStore } from '../../store/toastStore';
 import { tesoreriaService } from '../../services/tesoreria.service';
 import { VentaService } from '../../services/venta.service';
-import type { Gasto, GastoFormData, EstadoGasto } from '../../types/gasto.types';
+import type { Gasto, GastoFormData } from '../../types/gasto.types';
 import type { CuentaCaja, MetodoTesoreria } from '../../types/tesoreria.types';
 import type { Venta } from '../../types/venta.types';
 import { useLineaNegocioStore } from '../../store/lineaNegocioStore';

@@ -9,7 +9,7 @@
  * Filtra `reclamos` por `destinatarioId === entidadId`.
  */
 import React, { useEffect, useMemo, useState } from 'react';
-import { AlertTriangle, ExternalLink, DollarSign, CheckCircle2, XCircle, Clock } from 'lucide-react';
+import { AlertTriangle, ExternalLink, CheckCircle2, XCircle, Clock } from 'lucide-react';
 import { reclamoService } from '../../../services/reclamo.service';
 import type { Reclamo, EstadoReclamo } from '../../../types/reclamo.types';
 import { Badge } from '../../common';

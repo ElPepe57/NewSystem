@@ -21,7 +21,7 @@ import {
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { COLLECTIONS } from '../config/collections';
-import { esEstadoEnOrigen, esEstadoEnTransitoOrigen, esPaisOrigen } from '../utils/multiOrigen.helpers';
+import { esEstadoEnOrigen, esEstadoEnTransitoOrigen } from '../utils/multiOrigen.helpers';
 import { ESTADOS_EN_ORIGEN } from '../types/unidad.types';
 
 export interface SincronizacionResult {

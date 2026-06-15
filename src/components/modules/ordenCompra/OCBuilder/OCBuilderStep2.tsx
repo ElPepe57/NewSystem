@@ -1,9 +1,8 @@
 import React, { useState, useMemo } from 'react';
 import {
-  ChevronDown, ChevronUp, DollarSign, Truck, FileText, Globe,
-  Tag, Percent, BadgeDollarSign, Receipt,
+  ChevronDown, ChevronUp, Truck, FileText, Globe,
+  Tag, Percent, Receipt,
 } from 'lucide-react';
-import { Input } from '../../../common/Input';
 import { ProveedorAutocomplete } from '../../entidades/ProveedorAutocomplete';
 import { AlmacenAutocomplete } from '../../entidades/AlmacenAutocomplete';
 import { calcGroupTotals, validateStep2, formatUSD, formatPEN, formatProductSubtitle } from './ocBuilderUtils';

@@ -1,25 +1,13 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import {
   Search,
-  Lightbulb,
-  TrendingUp,
-  TrendingDown,
-  Minus,
   AlertTriangle,
-  CheckCircle,
   Info,
   Package,
-  DollarSign,
-  BarChart3,
   Calculator,
-  Sparkles,
   Tag,
   Layers,
-  ShoppingBag,
-  Sun,
-  GitBranch,
-  Droplets,
-  Palette
+  GitBranch
 } from 'lucide-react';
 import { Button, Input, AutocompleteInput, Tabs, TabsProvider, TabPanel, useTabs } from '../../common';
 import { ChipMultiSelect } from '../../common/ChipMultiSelect';
@@ -41,9 +29,9 @@ import { useLineaNegocioStore } from '../../../store/lineaNegocioStore';
 import { usePaisOrigenStore } from '../../../store/paisOrigenStore';
 import { METODO_ENVIO_LABELS } from '../../../types/paisOrigen.types';
 import type { MetodoEnvio } from '../../../types/paisOrigen.types';
-import { Globe, Building2, Plus, MapPin, Truck, Pencil, Trash2, Loader2 } from 'lucide-react';
-import type { ProductoFormData, Producto, InvestigacionMercado, AtributosSkincare, TipoProductoSKC, PasoRutinaSKC, TexturaSKC, ComponentePack } from '../../../types/producto.types';
-import { TIPO_PRODUCTO_SKC_LABELS, PASO_RUTINA_LABELS, TEXTURA_LABELS, TIPO_PIEL_OPTIONS, PREOCUPACIONES_OPTIONS, ZONA_APLICACION_OPTIONS } from '../../../types/producto.types';
+import { Globe, Building2, Plus, MapPin, Truck, Pencil, Trash2 } from 'lucide-react';
+import type { ProductoFormData, Producto, InvestigacionMercado, AtributosSkincare, TipoProductoSKC, TexturaSKC, ComponentePack } from '../../../types/producto.types';
+import { TIPO_PRODUCTO_SKC_LABELS, TEXTURA_LABELS, TIPO_PIEL_OPTIONS, PREOCUPACIONES_OPTIONS } from '../../../types/producto.types';
 import type { MarcaSnapshot, MarcaFormData } from '../../../types/entidadesMaestras.types';
 import type { TipoProductoSnapshot } from '../../../types/tipoProducto.types';
 import type { CategoriaSnapshot } from '../../../types/categoria.types';

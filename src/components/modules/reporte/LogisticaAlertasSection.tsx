@@ -22,8 +22,6 @@ import {
 } from 'lucide-react';
 import { useEnvioStore } from '../../../store/envioStore';
 import { useReclamoStore } from '../../../store/reclamoStore';
-import type { Envio, IncidenciaEnvio } from '../../../types/envio.types';
-import type { Reclamo } from '../../../types/reclamo.types';
 
 // ─── Umbrales (configurables en un solo lugar) ──────────────────────────
 

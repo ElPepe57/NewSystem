@@ -23,7 +23,6 @@ import {
   autoDistribuir,
 } from '../../../../types/pagoAbonoDistribuido.types';
 import type {
-  DistribucionItem,
   EstrategiaDistribucion,
 } from '../../../../types/pagoAbonoDistribuido.types';
 import type { PagoAbonoState } from './types';

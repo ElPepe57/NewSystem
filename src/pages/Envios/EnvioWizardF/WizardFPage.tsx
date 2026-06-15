@@ -216,7 +216,7 @@ export const WizardFPage: React.FC<WizardFPageProps> = ({
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Error desconocido al crear el despacho';
       setError(msg);
-      // eslint-disable-next-line no-console
+       
       console.error('[WizardFPage] handleConfirm error:', err);
     } finally {
       setCreating(false);

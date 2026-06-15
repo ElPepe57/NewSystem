@@ -7,13 +7,11 @@ import {
   getDocs,
   query,
   where,
-  orderBy,
-  Timestamp,
   limit
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { COLLECTIONS } from '../config/collections';
-import type { Cliente, ClasificacionABC, SegmentoCliente } from '../types/entidadesMaestras.types';
+import type { Cliente } from '../types/entidadesMaestras.types';
 import type { Venta, ProductoVenta } from '../types/venta.types';
 
 // ============================================

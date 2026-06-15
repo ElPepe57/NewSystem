@@ -28,7 +28,6 @@ import {
   Repeat,
   ArrowLeftRight,
   CreditCard,
-  Truck,
   Smartphone,
   Wallet,
   type LucideIcon,

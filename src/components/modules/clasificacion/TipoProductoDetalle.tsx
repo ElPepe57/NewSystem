@@ -1,18 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import {
-  X,
   FlaskConical,
   Package,
   TrendingUp,
   DollarSign,
-  AlertTriangle,
   ShoppingCart,
   BarChart3,
-  Users,
   Percent,
-  ArrowUpRight,
-  ArrowDownRight,
-  Minus,
   Calendar,
   RefreshCw
 } from 'lucide-react';

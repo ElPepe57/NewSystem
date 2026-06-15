@@ -21,7 +21,7 @@ import {
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { logger } from '../lib/logger';
-import type { MetodoTesoreria, MovimientoTesoreriaFormData } from '../types/tesoreria.types';
+import type { MetodoTesoreria } from '../types/tesoreria.types';
 import { tesoreriaService } from './tesoreria.service';
 import { ORDENES_COLLECTION } from './ordenCompra.shared';
 import { getById } from './ordenCompra.crud.service';

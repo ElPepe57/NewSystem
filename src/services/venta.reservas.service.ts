@@ -12,7 +12,6 @@
  */
 
 import {
-  collection,
   doc,
   getDoc,
   updateDoc,

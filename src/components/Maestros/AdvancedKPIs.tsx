@@ -6,15 +6,12 @@ import React from 'react';
 import {
   TrendingUp,
   TrendingDown,
-  Minus,
   AlertTriangle,
   CheckCircle,
   XCircle,
   Info,
   ArrowUpRight,
-  ArrowDownRight,
-  Target,
-  Zap
+  ArrowDownRight
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 

@@ -297,7 +297,7 @@ export const ImportarCSVModal: React.FC<ImportarCSVModalProps> = ({
     const startMs = Date.now();
     const validas = filasParsed.filter(f => f.errores.length === 0);
     let creados = 0;
-    let actualizados = 0;
+    const actualizados = 0;
     const omitidos = filasParsed.length - validas.length;
 
     try {

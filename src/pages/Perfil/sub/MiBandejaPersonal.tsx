@@ -35,7 +35,6 @@ import {
   query,
   where,
   getDocs,
-  orderBy,
   limit as fbLimit,
 } from 'firebase/firestore';
 import { db } from '../../../lib/firebase';

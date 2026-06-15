@@ -8,7 +8,7 @@ import {
   AlertTriangle
 } from 'lucide-react';
 import { Card } from '../../components/common';
-import { Toolbar, PageShell, PageHeader } from '../../design-system';
+import { PageShell, PageHeader } from '../../design-system';
 import { LineaDropdown } from '../../components/common/LineaDropdown';
 import {
   CTRUKPIGrid,
@@ -23,7 +23,6 @@ import {
 import { useCTRUStore } from '../../store/ctruStore';
 import { useLineaFilter } from '../../hooks/useLineaFilter';
 import type { CTRUProductoDetalle } from '../../store/ctruStore';
-import { logger } from '../../lib/logger';
 
 type TabActiva = 'resumen' | 'catalogo' | 'lote';
 

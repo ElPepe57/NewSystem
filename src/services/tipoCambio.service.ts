@@ -1,6 +1,5 @@
 import {
   collection,
-  addDoc,
   setDoc,
   getDocs,
   getDoc,
@@ -13,7 +12,7 @@ import {
   limit
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
-import type { TipoCambio, TipoCambioFormData, TipoCambioFiltros, SunatTCResponse, TCResuelto, TCConfig, TCFreshness, TCModalidad } from '../types/tipoCambio.types';
+import type { TipoCambio, TipoCambioFormData, TipoCambioFiltros, SunatTCResponse, TCResuelto, TCConfig, TCFreshness } from '../types/tipoCambio.types';
 import { TC_CONFIG_DEFAULTS } from '../types/tipoCambio.types';
 import { COLLECTIONS } from '../config/collections';
 import { logger } from '../lib/logger';

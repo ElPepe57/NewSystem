@@ -1,8 +1,8 @@
 import React, { useEffect, useState, useMemo, useCallback } from 'react';
-import { X, Plus, Trash2, Search, AlertTriangle, Package, TrendingUp, Info, PlusCircle, User, Star, ShoppingBag, History, Download, FileText, MapPin, Truck, Clock, ShoppingCart } from 'lucide-react';
+import { Trash2, AlertTriangle, TrendingUp, PlusCircle, User, Star, ShoppingBag, History, Download, FileText, MapPin, Truck, ShoppingCart } from 'lucide-react';
 import { useToastStore } from '../../store/toastStore';
 import { formatCurrencyPEN } from '../../utils/format';
-import { Modal, Input, Select, Button, Badge, GoogleMapsAddressInput } from '../../components/common';
+import { Modal, Input, Button, Badge, GoogleMapsAddressInput } from '../../components/common';
 import type { AddressData } from '../../components/common';
 import { ProductoForm } from '../../components/modules/productos/ProductoForm';
 import { ClienteAutocomplete } from '../../components/modules/entidades/ClienteAutocomplete';
@@ -22,7 +22,7 @@ import type { Cotizacion, CotizacionFormData } from '../../types/cotizacion.type
 import type { CanalVenta, ProductoDisponible } from '../../types/venta.types';
 import type { ProductoFormData } from '../../types/producto.types';
 import type { ClienteSnapshot, ClienteFormData } from '../../types/entidadesMaestras.types';
-import type { DisponibilidadProducto, FuenteStock } from '../../types/stockDisponibilidad.types';
+import type { FuenteStock } from '../../types/stockDisponibilidad.types';
 
 interface ProductoLinea {
   productoId: string;

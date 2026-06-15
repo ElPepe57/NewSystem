@@ -1,19 +1,16 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import {
   RefreshCw,
-  Filter,
   LayoutGrid,
   List,
   Search,
-  Download,
   AlertTriangle,
   TrendingUp,
   Wallet,
-  Package,
-  ChevronDown
+  Package
 } from 'lucide-react';
 import { Button, Card, Modal } from '../../components/common';
-import { PageShell, PageHeader } from '../../design-system';
+import { PageHeader } from '../../design-system';
 import { LineaDropdown } from '../../components/common/LineaDropdown';
 import {
   ResumenCajaCard,

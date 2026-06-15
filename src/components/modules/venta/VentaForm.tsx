@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Plus, Trash2, AlertCircle, AlertTriangle, Wallet, CreditCard, Banknote, Smartphone, Building2, TrendingUp, Info, PlusCircle, History, ShoppingBag, Star, Package, User, CheckCircle, ChevronLeft, ChevronRight, Boxes, Calendar, DollarSign, Lock, MapPin, ShieldAlert } from 'lucide-react';
-import { Button, Input, Select, Modal, Stepper, useStepper, StepContent, GoogleMapsAddressInput } from '../../common';
+import { Plus, Trash2, AlertCircle, AlertTriangle, CreditCard, Banknote, Smartphone, Building2, PlusCircle, History, ShoppingBag, Star, Package, User, CheckCircle, ChevronLeft, ChevronRight, Lock, MapPin, ShieldAlert } from 'lucide-react';
+import { Button, Input, Modal, Stepper, useStepper, StepContent, GoogleMapsAddressInput } from '../../common';
 import type { AddressData } from '../../common';
 import type { Step } from '../../common/Stepper';
 import { ProductoForm } from '../productos/ProductoForm';
@@ -12,7 +12,6 @@ import { clienteService } from '../../../services/cliente.service';
 import { useProductoStore } from '../../../store/productoStore';
 import { useAuthStore } from '../../../store/authStore';
 import { hasRole, hasAnyRole } from '../../../types/auth.types';
-import { useClienteStore } from '../../../store/clienteStore';
 import { useToastStore } from '../../../store/toastStore';
 import { useCanalVentaStore } from '../../../store/canalVentaStore';
 import type { VentaFormData, CanalVenta, MetodoPago, AdelantoData } from '../../../types/venta.types';

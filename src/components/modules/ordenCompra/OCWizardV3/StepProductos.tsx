@@ -126,10 +126,10 @@ export const StepProductos: React.FC<StepProductosProps> = ({ state, dispatch })
         });
         return;
       }
-      // eslint-disable-next-line no-alert
+       
       alert(`No se encontró producto con código ${barcode}`);
     } catch {
-      // eslint-disable-next-line no-alert
+       
       alert('Error al buscar por código de barras');
     }
   };

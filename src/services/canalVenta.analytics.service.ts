@@ -11,7 +11,7 @@ import {
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { COLLECTIONS } from '../config/collections';
-import type { CanalVenta, CanalVentaStats } from '../types/canalVenta.types';
+import type { CanalVenta } from '../types/canalVenta.types';
 import type { Venta } from '../types/venta.types';
 import type { Cotizacion } from '../types/cotizacion.types';
 

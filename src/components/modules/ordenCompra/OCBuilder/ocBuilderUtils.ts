@@ -2,13 +2,12 @@ import type {
   OCBuilderState,
   OCDraftGroup,
   PoolProducto,
-  OCBuilderProducto,
   GroupTotals,
   GroupColor,
   ProductoOrigen,
 } from './ocBuilderTypes';
 import { GROUP_COLORS } from './ocBuilderTypes';
-import type { Requerimiento, ProductoRequerimiento } from '../../../../types/requerimiento.types';
+import type { Requerimiento } from '../../../../types/requerimiento.types';
 import type { OrdenCompraFormData } from '../../../../types/ordenCompra.types';
 
 // ============ Pool building ============

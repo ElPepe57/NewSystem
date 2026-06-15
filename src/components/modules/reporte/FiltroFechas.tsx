@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { Calendar, ChevronDown } from 'lucide-react';
 import { Button } from '../../common';
 
 export type PeriodoPreset = 'hoy' | 'semana' | 'mes' | 'trimestre' | 'anio' | 'custom';

@@ -16,7 +16,6 @@ import {
   orderBy,
   limit,
   onSnapshot,
-  Timestamp,
 } from 'firebase/firestore';
 import { COLLECTIONS } from '../config/collections';
 import type { Unsubscribe } from 'firebase/firestore';
@@ -28,7 +27,6 @@ import type {
   MLOrderSync,
   MLQuestion,
 } from '../types/mercadoLibre.types';
-import { logger } from '../lib/logger';
 
 const functions = getFunctions();
 

@@ -16,7 +16,6 @@ import { resolverCanalNombre } from './cotizacion.shared';
 import type { Cotizacion, EstadoCotizacion } from '../types/cotizacion.types';
 import type { VentaFormData } from '../types/venta.types';
 import { COLLECTIONS } from '../config/collections';
-import { ProductoService } from './producto.service';
 import { VentaService } from './venta.service';
 import { tipoCambioService } from './tipoCambio.service';
 import { logger } from '../lib/logger';

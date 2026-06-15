@@ -6,7 +6,7 @@ import { db } from '../lib/firebase';
 import { logger } from '../lib/logger';
 import { COLLECTIONS } from '../config/collections';
 import { getNextSequenceNumber } from '../lib/sequenceGenerator';
-import type { Insumo, InsumoFormData, MovimientoInsumo } from '../types/insumo.types';
+import type { Insumo, InsumoFormData } from '../types/insumo.types';
 
 const COLL = COLLECTIONS.INSUMOS;
 

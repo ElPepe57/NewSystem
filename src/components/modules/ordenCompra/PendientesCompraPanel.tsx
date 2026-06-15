@@ -1,7 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import {
-  ShoppingCart, Package, Search, CheckSquare, Square,
-  AlertCircle, ArrowRight, X, Layers,
+import { Package, Search, CheckSquare, Square, ArrowRight,
 } from 'lucide-react';
 import { Button } from '../../common/Button';
 import { Modal } from '../../common/Modal';

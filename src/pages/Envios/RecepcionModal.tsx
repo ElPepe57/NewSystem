@@ -1,7 +1,6 @@
 import React, { useState, useMemo } from "react";
 import {
   CheckCircle,
-  Package,
   Minus,
   Plus,
   ChevronRight,

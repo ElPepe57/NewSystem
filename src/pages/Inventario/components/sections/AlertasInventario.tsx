@@ -10,14 +10,10 @@ import {
   Filter,
   Bell,
   CheckCircle,
-  XCircle,
-  AlertCircle,
   Eye,
   Megaphone,
-  Calendar,
   DollarSign,
-  Lightbulb,
-  Percent
+  Lightbulb
 } from 'lucide-react';
 import { Card, Badge, Button, Select, SearchInput } from '../../../../components/common';
 import type { Unidad } from '../../../../types/unidad.types';

@@ -59,7 +59,7 @@ export const StepConfirm: React.FC<StepConfirmProps> = ({
         // en el flujo de pago si corresponde.
         dispatch({ type: 'SET_TC', tc: tc.venta } as OCWizardAction);
       } catch (err) {
-        // eslint-disable-next-line no-console
+         
         console.warn('[StepConfirm] No se pudo resolver TC del día:', err);
       } finally {
         if (!cancelado) setTcLoading(false);

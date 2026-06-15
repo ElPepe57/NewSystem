@@ -14,7 +14,6 @@ import { DollarSign, Package, Info, Clock } from 'lucide-react';
 import { Modal, Button } from '../../../components/common';
 import { cn } from '../../../design-system';
 import type {
-  CostoLanded,
   SubEnvioT1,
   MetodoProrrateo,
 } from '../../../types/envio.types';

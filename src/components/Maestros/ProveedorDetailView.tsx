@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useLayoutEffect } from 'react';
+import React, { useState, useEffect, useLayoutEffect } from 'react';
 import { KPIBar as DSKPIBar, StatCard as DSStatCard, DataTable } from '../../design-system';
 import type { DataTableColumn } from '../../design-system';
 import { formatFecha as formatDate } from '../../utils/dateFormatters';
@@ -9,8 +9,6 @@ import {
   Star,
   Package,
   DollarSign,
-  TrendingUp,
-  TrendingDown,
   Clock,
   Calendar,
   BarChart3,
@@ -26,11 +24,9 @@ import {
   ArrowDownRight,
   Minus,
   Edit2,
-  ChevronRight,
   Award,
   Target,
   Shield,
-  Zap,
   RefreshCw,
   Scale,
   TrendingUp as ChartLine,

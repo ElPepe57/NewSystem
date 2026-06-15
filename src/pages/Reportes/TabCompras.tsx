@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { ShoppingCart, Clock, CheckCircle, DollarSign, Loader2, TrendingUp, AlertTriangle } from 'lucide-react';
+import { ShoppingCart, Clock, DollarSign, Loader2, TrendingUp } from 'lucide-react';
 import { OrdenCompraService } from '../../services/ordenCompra.service';
-import { formatCurrency } from '../../utils/format';
 import type { OrdenCompra } from '../../types/ordenCompra.types';
 import { DataTable } from '../../design-system';
 import type { DataTableColumn } from '../../design-system';

@@ -1,6 +1,6 @@
 import {
   collection, addDoc, getDocs, getDoc, doc, updateDoc,
-  query, where, orderBy, Timestamp
+  query, orderBy, Timestamp
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { logger } from '../lib/logger';

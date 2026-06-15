@@ -44,11 +44,9 @@ import type {
   DeudasFiltro,
   DistribucionItem,
 } from '../types/pagoAbonoDistribuido.types';
-import type { MovimientoTesoreriaFormData } from '../types/tesoreria.types';
 import type { OrdenCompra } from '../types/ordenCompra.types';
 import type { Envio } from '../types/envio.types';
 import type { Gasto, PagoGasto } from '../types/gasto.types';
-import { tesoreriaService } from './tesoreria.service';
 import { cuentaCorrienteService } from './cuentaCorriente.service';
 import { ORDENES_COLLECTION } from './ordenCompra.shared';
 import {

@@ -94,7 +94,7 @@ export async function create(data: CotizacionFormData, userId: string): Promise<
     const productosCotizacion: ProductoCotizacion[] = [];
     let subtotalPEN = 0;
     const lineaNegocioIds: string[] = [];
-    let lineaNegocioNombreMap: Record<string, string> = {};
+    const lineaNegocioNombreMap: Record<string, string> = {};
 
     const consultaDisponibilidad = await stockDisponibilidadService.consultarDisponibilidad({
       productos: data.productos.map(p => ({

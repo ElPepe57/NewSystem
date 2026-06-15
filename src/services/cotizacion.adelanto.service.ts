@@ -5,7 +5,6 @@
  */
 import {
   doc,
-  updateDoc,
   Timestamp,
   serverTimestamp,
   writeBatch
@@ -31,7 +30,6 @@ import { ProductoService } from './producto.service';
 import { stockDisponibilidadService } from './stockDisponibilidad.service';
 import { requerimientoService } from './requerimiento.service';
 import { tipoCambioService } from './tipoCambio.service';
-import { tesoreriaService } from './tesoreria.service';
 import { logger } from '../lib/logger';
 
 export async function registrarPagoAdelanto(

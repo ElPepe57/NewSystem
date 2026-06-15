@@ -11,7 +11,7 @@
  *   - Si origen='casilla_intl': destino puede ser casilla_intl (J) o almacen_peru (C)
  *   - Si origen='almacen_peru': destino puede ser almacen_peru (E) o almacen_tercero (I)
  */
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Globe, Factory, Search, AlertTriangle, Inbox, type LucideIcon } from 'lucide-react';
 import { PaisBadge } from '../../shared/PaisBadge';
 import { useAlmacenStore } from '../../../../../store/casillaStore';

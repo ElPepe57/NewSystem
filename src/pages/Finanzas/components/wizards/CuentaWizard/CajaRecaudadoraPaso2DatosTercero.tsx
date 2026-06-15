@@ -12,7 +12,7 @@
  */
 
 import React from 'react';
-import { Truck, User, Percent } from 'lucide-react';
+import { User, Percent } from 'lucide-react';
 import type { CuentaWizardState } from './types';
 
 interface Paso2RecaudadoraProps {

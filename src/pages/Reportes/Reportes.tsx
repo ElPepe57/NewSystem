@@ -38,9 +38,7 @@ const TABS: { id: ReporteTab; label: string; icon: React.ReactNode }[] = [
   { id: 'auditorias', label: 'Auditorias', icon: <ClipboardCheck className="h-4 w-4" /> },
   { id: 'compras', label: 'Compras', icon: <ShoppingCart className="h-4 w-4" /> },
 ];
-import { Card, Button, Badge } from '../../components/common';
 import { PageShell, PageHeader, Toolbar } from '../../design-system';
-import { LineaDropdown } from '../../components/common/LineaDropdown';
 import { TendenciaChart } from '../../components/modules/reporte/TendenciaChart';
 import { ProductosRentabilidadTable } from '../../components/modules/reporte/ProductosRentabilidadTable';
 import { InventarioValorizadoTable } from '../../components/modules/reporte/InventarioValorizadoTable';
@@ -129,7 +127,7 @@ export const Reportes: React.FC = () => {
     };
     cargarEntregadas();
     return () => { cancelled = true; };
-  }, [fechasFiltro]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [fechasFiltro]);  
 
   // Productos con modelo completo de costos (7 capas) agregados por productoId
   const productosRentabilidadCompleto = useMemo<ProductoRentabilidad[]>(() => {

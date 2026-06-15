@@ -8,7 +8,6 @@
 
 import React from 'react';
 import { Plus, Trash2, Star } from 'lucide-react';
-import { TextField } from '../../../../../design-system/components/forms/TextField';
 import { cn } from '../../../../../design-system/utils';
 import type { MetodoTesoreria } from '../../../../../types/tesoreria.types';
 import {

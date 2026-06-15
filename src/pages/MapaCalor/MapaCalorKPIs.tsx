@@ -1,6 +1,5 @@
 import { MapPin, TrendingUp, DollarSign, Globe, BarChart3, Percent } from 'lucide-react';
 import type { MapaCalorKPIData } from '../../types/mapaCalor.types';
-import { formatCurrencyPEN } from '../../utils/format';
 
 interface Props {
   kpis: MapaCalorKPIData;

@@ -7,7 +7,7 @@ import { logger } from '../lib/logger';
 import { COLLECTIONS } from '../config/collections';
 import { getNextSequenceNumber } from '../lib/sequenceGenerator';
 import type {
-  TarjetaCredito, TarjetaCreditoFormData, CargoTarjeta
+  TarjetaCredito, TarjetaCreditoFormData
 } from '../types/tarjetaCredito.types';
 
 const COLL = COLLECTIONS.TARJETAS_CREDITO;

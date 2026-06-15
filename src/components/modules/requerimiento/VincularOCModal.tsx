@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Modal } from '../../common/Modal';
 import { Button } from '../../common/Button';
-import { Link2, Package, User, CheckCircle2, AlertTriangle, Search } from 'lucide-react';
+import { Link2, User, CheckCircle2, AlertTriangle, Search } from 'lucide-react';
 import { DataTable } from '../../../design-system';
 import type { DataTableColumn } from '../../../design-system';
 import { OrdenCompraService } from '../../../services/ordenCompra.service';

@@ -27,7 +27,6 @@ import {
   Clock,
   Snail,
   TrendingUp,
-  TrendingDown,
   Eye,
   ZapOff,
   Search as SearchIcon,
@@ -230,7 +229,7 @@ export function ProductosIntelDashboard({
   // Lista filtrada + ordenada · nulls van al final (no se pueden ordenar)
   const lista = useMemo(() => {
     const q = busqueda.trim().toLowerCase();
-    let items = productos.filter((p) => {
+    const items = productos.filter((p) => {
       if (filtroScore !== 'todos' && p.scoreCategoria !== filtroScore) return false;
       if (filtroAccion !== 'todas' && p.accion !== filtroAccion) return false;
       if (q) {

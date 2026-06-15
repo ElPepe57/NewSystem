@@ -30,7 +30,6 @@ import { resolverCategoriaCostoIdParaTipo, type ArbolCategorias } from '../utils
 import { calcularComisionesEmpleado } from './planilla.comisiones.service';
 // S55 Fase 5 — CC del empleado
 import { cuentaCorrienteService } from './cuentaCorriente.service';
-import type { UserProfile } from '../types/auth.types';
 import type {
   PerfilLaboral,
   PerfilLaboralFormData,

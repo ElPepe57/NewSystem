@@ -1,10 +1,9 @@
 import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { formatFecha, toDateOrNow } from '../../utils/dateFormatters';
+import { toDateOrNow } from '../../utils/dateFormatters';
 import { formatCurrencyPEN } from '../../utils/format';
 import {
-  AlertCircle, PieChart, Calendar, Trash2, CheckSquare, Square,
-  X as XIcon, Download as DownloadIcon, Trash as TrashIcon,
+  AlertCircle, PieChart, Calendar, Download as DownloadIcon,
   // chk5.C8 · canon F8 · iconos para tabs de vistas alternativas (sin emojis)
   List, Package, Factory,
   // chk5.E-GASTOS · F1.b · iconos tabs hub + dashboard resumen

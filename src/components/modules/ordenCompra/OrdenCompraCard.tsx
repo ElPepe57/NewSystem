@@ -18,15 +18,14 @@
  */
 import React, { useMemo, useState, useCallback } from 'react';
 import { formatFecha as formatDate } from '../../../utils/dateFormatters';
-import { Package, User, Calendar, DollarSign, MapPin, Truck, Box, TrendingUp, CreditCard, ChevronDown, ChevronUp, ChevronLeft, ChevronRight, Clock, RotateCcw, Layers, CheckCircle2, Send, Plane, PersonStanding, PackageOpen, Receipt, TriangleAlert, Brain, History, FolderOpen } from 'lucide-react';
-import { Badge, Button, StatusTimeline } from '../../common';
+import { Package, Truck, CreditCard, ChevronLeft, ChevronRight, Layers, Send, Plane, PersonStanding, PackageOpen, Receipt, TriangleAlert, Brain, History, FolderOpen } from 'lucide-react';
+import { Button } from '../../common';
 import { StatusBadge, cn } from '../../../design-system';
 // S52 — Capa 3: plantillas canónicas del ERP (ver docs/DESIGN_PATTERNS.md)
 import {
   EntityHeader,
   NextActionBanner,
   KpiRow,
-  type KpiRowItem,
   RouteCardV2,
   getFlagFromPais,
   type RouteCardV2Node,
@@ -35,12 +34,12 @@ import {
   type RouteCardV2PipelineStep,
 } from '../../../design-system';
 import type { TimelineStep, NextAction } from '../../common';
-import type { OrdenCompra, EstadoOrden, EstadoPagoOC, SubOrdenCompra, ProductoOrden } from '../../../types/ordenCompra.types';
+import type { OrdenCompra, EstadoOrden, EstadoPagoOC, SubOrdenCompra } from '../../../types/ordenCompra.types';
 import { getDescripcionProducto } from '../../../utils/producto.helpers';
 import { calcularEstadoDerivadoOC, getCargosEfectivosOC, prorratearCargosOC } from '../../../utils/ordenCompra.helpers';
 // S55 Fase 2 — pagos viven en CC; hook reactivo lee desde movimientosCC
 import { usePagosOC } from '../../../hooks/usePagosOC';
-import { Plus, Trash2, AlertTriangle, Edit3 } from 'lucide-react';
+import { Trash2, Edit3 } from 'lucide-react';
 import { SubOrdenCard } from './SubOrdenCard';
 import { EnviosDeOC } from './EnviosDeOC';
 import { ConfirmarOCModal } from './ConfirmarOCModal';

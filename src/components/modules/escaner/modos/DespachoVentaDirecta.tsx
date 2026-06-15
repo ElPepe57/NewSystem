@@ -1,7 +1,6 @@
 import React, { useState, useCallback, useImperativeHandle, forwardRef, useRef } from 'react';
 import { ShoppingCart, Search, User, CheckCircle2, Trash2, Minus, Plus } from 'lucide-react';
 import { useScanAccumulator } from '../../../../hooks/useScanAccumulator';
-import { ScanAccumulatorList } from '../ScanAccumulatorList';
 import { VentaService } from '../../../../services/venta.service';
 import { clienteService } from '../../../../services/cliente.service';
 import { useToastStore } from '../../../../store/toastStore';

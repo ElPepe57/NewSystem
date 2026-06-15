@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { Camera, Keyboard, ScanLine, X, RefreshCw, AlertCircle } from 'lucide-react';
+import { Camera, Keyboard, ScanLine, RefreshCw, AlertCircle } from 'lucide-react';
 import type { ScannerMode } from '../../types/escaner.types';
 
 interface BarcodeScannerProps {

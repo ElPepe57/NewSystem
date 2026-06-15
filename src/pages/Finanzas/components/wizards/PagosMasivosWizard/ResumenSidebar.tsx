@@ -9,7 +9,6 @@
 import React from 'react';
 import { Layers, ArrowUpCircle, ArrowDownCircle, FileText, AlertCircle } from 'lucide-react';
 import type { ConfigPagoMasivo, ItemSeleccionado } from '../../../../../types/pagoMasivo.types';
-import { cn } from '../../../../../design-system/utils';
 
 function fmtMonto(n: number, moneda: 'PEN' | 'USD'): string {
   const sym = moneda === 'USD' ? 'US$' : 'S/';

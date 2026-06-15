@@ -21,7 +21,6 @@ import { getNextSequenceNumber } from '../lib/sequenceGenerator';
 import type {
   Cliente,
   ClienteFormData,
-  ClienteFiltros,
   ClienteSnapshot,
   ClienteStats,
   DireccionCliente,

@@ -11,7 +11,7 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { X, Tags, Check } from 'lucide-react';
+import { X, Tags } from 'lucide-react';
 import type { Producto } from '../../../../../types/producto.types';
 import { useEtiquetaStore } from '../../../../../store/etiquetaStore';
 import { useAuthStore } from '../../../../../store/authStore';

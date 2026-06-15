@@ -1,6 +1,6 @@
 import React from 'react';
 import { formatFecha } from '../../../utils/dateFormatters';
-import { Truck, Clock, TrendingUp, AlertTriangle } from 'lucide-react';
+import { Truck, Clock } from 'lucide-react';
 import type { MetricasLeadTime } from '../../../types/productoIntel.types';
 
 interface LeadTimeCardProps {

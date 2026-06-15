@@ -26,15 +26,12 @@
 
 import {
   collection,
-  addDoc,
   getDoc,
   getDocs,
   doc,
   query,
   where,
   setDoc,
-  updateDoc,
-  deleteDoc,
   Timestamp,
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
@@ -58,7 +55,7 @@ import type {
   ConfiguracionInversionistas,
 } from '../types/inversionista.types';
 import { DEFAULT_CONFIG_INVERSIONISTAS } from '../types/inversionista.types';
-import type { CuentaCaja, MonedaTesoreria } from '../types/tesoreria.types';
+import type { CuentaCaja } from '../types/tesoreria.types';
 
 // chk5.PERF-CACHE · estados/balance vía cache compartido (cross-módulo · dedup concurrente).
 // Reemplaza las llamadas directas a contabilidadService.generar* · ver contabilidadCache.ts.
@@ -68,7 +65,6 @@ import {
 } from './contabilidadCache';
 // chk5.PERF-MATERIALIZACION · snapshot P&L mensual · meses cerrados = 1 read (no recalcular).
 import { getSnapshotPLMensual } from './contabilidad.service';
-import { tesoreriaService } from './tesoreria.service';
 import { tipoCambioService } from './tipoCambio.service';
 import { socioService } from './socio.service';
 

@@ -5,14 +5,13 @@ import { db } from '../lib/firebase';
 import { logger } from '../lib/logger';
 import { COLLECTIONS } from '../config/collections';
 import { envioCrudService } from './envio.crud.service';
-import { getCostoBasePEN, getTC } from '../utils/ctru.utils';
+import { getTC } from '../utils/ctru.utils';
 import {
   calcularCostosLandedPorUnidad,
-  buildProductosInfoFromOC,
   type ProductoInfo,
 } from '../utils/prorrateoLanded';
-import type { Envio, EstadoEnvio, RecepcionEnvio, EnvioUnidad, CostoLanded, MetodoProrrateo } from '../types/envio.types';
-import type { Unidad, EstadoUnidad, MovimientoUnidad } from '../types/unidad.types';
+import type { RecepcionEnvio, EnvioUnidad } from '../types/envio.types';
+import type { Unidad, EstadoUnidad } from '../types/unidad.types';
 
 const ENVIOS_COLL = COLLECTIONS.ENVIOS;
 const UNIDADES_COLL = COLLECTIONS.UNIDADES;

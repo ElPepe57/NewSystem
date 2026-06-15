@@ -2,7 +2,7 @@
  * Modales de Detalle para Entidades Maestras - VERSIÓN PROFESIONAL
  * Dashboard mini con KPIs accionables, insights y diseño enterprise
  */
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { formatFecha } from '../../utils/dateFormatters';
 import {
   X,
@@ -20,7 +20,6 @@ import {
   Truck,
   ExternalLink,
   Globe,
-  Clock,
   AlertTriangle,
   Shield,
   Crown,
@@ -29,14 +28,9 @@ import {
   Building2,
   Target,
   Percent,
-  CreditCard,
   Star,
   Activity,
-  Boxes,
   Eye,
-  Zap,
-  Award,
-  Users,
   FileText,
   CheckCircle,
   XCircle
@@ -50,8 +44,6 @@ import {
   MetricComparison,
   StatTile,
   SectionHeader,
-  DataTableMini,
-  QuickInsightBadge,
   TwoColumnLayout
 } from './AdvancedKPIs';
 import type { Cliente } from '../../types/entidadesMaestras.types';

@@ -8,9 +8,7 @@ import {
   getDocs,
   query,
   where,
-  orderBy,
   limit,
-  Timestamp,
   serverTimestamp
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
@@ -20,7 +18,6 @@ import { getNextSequenceNumber } from '../lib/sequenceGenerator';
 import type {
   Marca,
   MarcaFormData,
-  MarcaFiltros,
   MarcaSnapshot,
   MarcaStats,
   DuplicadoEncontrado

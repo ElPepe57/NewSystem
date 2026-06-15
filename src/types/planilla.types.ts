@@ -14,7 +14,6 @@
  *  - BonificacionIncentivo · línea de detalle en boleta
  */
 import { Timestamp } from 'firebase/firestore';
-import type { MetodoPagoUnificado } from './pago.types';
 
 // ============================================
 // PERFIL LABORAL (subcoleccion users/{uid}/private/laboral)

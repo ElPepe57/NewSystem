@@ -398,7 +398,7 @@ export const UnidadesListView: React.FC = () => {
     }
 
     return chips;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [selecciones, busqueda, almacenes]);
 
   const tablaColumns: DataTableColumn<Unidad>[] = [

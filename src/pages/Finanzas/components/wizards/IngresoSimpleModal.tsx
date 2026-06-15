@@ -114,7 +114,7 @@ export const IngresoSimpleModal: React.FC<IngresoSimpleModalProps> = ({
       setFecha(fechaHoyInputValue());
       setError(null);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [isOpen, cuentas]);
 
   // Cuentas filtradas · activas · matchean la moneda elegida

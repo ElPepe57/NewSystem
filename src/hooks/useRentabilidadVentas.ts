@@ -3,7 +3,7 @@ import { gastoService } from '../services/gasto.service';
 import { unidadService } from '../services/unidad.service';
 import { categoriaCostoService } from '../services/categoriaCosto.service';
 import { getCostoBasePEN } from '../utils/ctru.utils';
-import { esGastoDeVenta, esGastoDePeriodo, getBloqueDelGasto, esGastoDistribucion, type ArbolCategorias } from '../utils/gasto.bloque';
+import { esGastoDePeriodo, getBloqueDelGasto, esGastoDistribucion, type ArbolCategorias } from '../utils/gasto.bloque';
 import type { Venta } from '../types/venta.types';
 import type { Gasto } from '../types/gasto.types';
 import type { Unidad } from '../types/unidad.types';

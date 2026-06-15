@@ -13,7 +13,7 @@ import {
   ChevronDown, ChevronUp, AlertCircle, Check, ArrowRightLeft,
   Building2, Banknote, Smartphone,
 } from 'lucide-react';
-import { Button, Badge } from '../../common';
+import { Button } from '../../common';
 import { useTipoCambioStore } from '../../../store/tipoCambioStore';
 import { useToastStore } from '../../../store/toastStore';
 import { tesoreriaService } from '../../../services/tesoreria.service';

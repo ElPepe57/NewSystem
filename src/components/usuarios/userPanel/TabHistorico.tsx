@@ -26,8 +26,6 @@ import {
   UserPlus,
   Mail,
   CheckCircle,
-  PauseCircle,
-  PlayCircle,
   StopCircle,
   RefreshCw,
   XCircle,

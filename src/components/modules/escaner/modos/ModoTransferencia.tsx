@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useImperativeHandle, forwardRef, useMemo } from 'react';
-import { ArrowRightLeft, Warehouse, Package, CheckCircle2, Trash2, Minus, Plus, AlertCircle, AlertTriangle, ChevronDown, ChevronUp } from 'lucide-react';
+import { ArrowRightLeft, Warehouse, Package, Trash2, Minus, Plus, AlertTriangle, ChevronDown, ChevronUp } from 'lucide-react';
 import { casillaCrudService } from '../../../../services/casilla.crud.service';
 import { unidadService } from '../../../../services/unidad.service';
 import { envioCrudService } from '../../../../services/envio.crud.service';

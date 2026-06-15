@@ -31,7 +31,6 @@ import type {
   EstadoAsignacionProducto,
   EditarVentaData,
 } from '../types/venta.types';
-import type { Unidad } from '../types/unidad.types';
 import { getCTRU } from '../utils/ctru.utils';
 import { tesoreriaService } from './tesoreria.service';
 import { entregaService } from './entrega.service';

@@ -8,7 +8,6 @@ import {
   RefreshCw,
   Shield,
   Store,
-  Crown,
   LayoutDashboard,
   Zap,
   Boxes,
@@ -22,7 +21,7 @@ import {
   useConfirmDialog,
   ConfirmDialog
 } from '../../components/common';
-import { PageShell, PageHeader, Toolbar, KPIBar, StatCard as DSStatCard } from '../../design-system';
+import { PageHeader, Toolbar, KPIBar, StatCard as DSStatCard } from '../../design-system';
 // Toolbar available for future use
 import { useToastStore } from '../../store/toastStore';
 import { useClienteStore } from '../../store/clienteStore';

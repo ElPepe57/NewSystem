@@ -8,8 +8,7 @@ import {
   getDocs,
   query,
   where,
-  Timestamp,
-  writeBatch
+  Timestamp
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { logger } from '../lib/logger';

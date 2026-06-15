@@ -11,7 +11,6 @@ import type {
   VentaStats,
   ProductoDisponible,
   ResultadoAsignacion,
-  StockReservado,
   TipoReserva,
   ProductoReservado,
   ProductoStockVirtual

@@ -13,7 +13,7 @@
  * 3 pasos · sidebar derecho persistente con resumen.
  */
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   RefreshCw,
   ArrowLeftRight,
@@ -29,7 +29,7 @@ import {
   registrarConversionCambiaria,
   registrarTransferenciaInterna,
 } from '../../../../../services/movimientoFinanciero.service';
-import type { MonedaTesoreria, CuentaCaja } from '../../../../../types/tesoreria.types';
+import type { MonedaTesoreria } from '../../../../../types/tesoreria.types';
 import { cn } from '../../../../../design-system/utils';
 
 // ═════════════════════════════════════════════════════════════════════════

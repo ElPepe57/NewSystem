@@ -15,7 +15,7 @@
  * Output: onSave({ precioVenta, motivo? }) · padre actualiza el producto.
  */
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, DollarSign, History, Check, RotateCw, ChevronDown, ChevronUp } from 'lucide-react';
 import type { Producto } from '../../../../types/producto.types';
 

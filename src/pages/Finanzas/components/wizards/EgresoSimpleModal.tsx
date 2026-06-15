@@ -146,7 +146,7 @@ export const EgresoSimpleModal: React.FC<EgresoSimpleModalProps> = ({
       setFecha(fechaHoyInputValue());
       setError(null);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [isOpen, cuentas]);
 
   const cuentasFiltradas = useMemo(

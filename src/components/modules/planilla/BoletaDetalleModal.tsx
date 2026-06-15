@@ -15,7 +15,7 @@
 import React, { useState } from 'react';
 import {
   FileText, Download, Check, Edit2, Trash2,
-  DollarSign, History, X,
+  DollarSign, X,
 } from 'lucide-react';
 import { Modal } from '../../../components/common/Modal';
 import { Button } from '../../../components/common';

@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { ChevronRight, Plus, Edit2, FolderTree } from 'lucide-react';
+import { ChevronRight, FolderTree } from 'lucide-react';
 import { useCategoriaCostoStore } from '../../store/categoriaCostoStore';
-import { useAuthStore } from '../../store/authStore';
-import { Card, Button, Badge } from '../common';
-import type { BloqueCosto, CategoriaCosto } from '../../types/categoriaCosto.types';
+import { Card, Badge } from '../common';
+import type { BloqueCosto } from '../../types/categoriaCosto.types';
 
 const BLOQUE_CONFIG: Record<BloqueCosto, { nombre: string; color: string; descripcion: string }> = {
   producto: {

@@ -23,8 +23,7 @@ import type {
   EstadoOrden,
   OrdenCompraStats,
   Proveedor,
-  ProveedorFormData,
-  RecepcionParcial
+  ProveedorFormData
 } from '../types/ordenCompra.types';
 import type { MetodoTesoreria } from '../types/tesoreria.types';
 // S55 Fase 2 — el tipo legacy PagoOrdenCompra se reemplazó por PagoOCLegacy

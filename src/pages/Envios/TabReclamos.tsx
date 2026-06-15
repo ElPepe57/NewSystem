@@ -5,17 +5,14 @@
  */
 import React, { useEffect, useMemo, useState } from 'react';
 import {
-  FileText,
-  DollarSign,
   TrendingUp,
   AlertOctagon,
   Percent,
   Filter as FilterIcon,
-  Plus,
   ChevronRight,
   ShieldAlert,
 } from 'lucide-react';
-import { DataTable, StatCard } from '../../design-system';
+import { DataTable } from '../../design-system';
 import type { DataTableColumn } from '../../design-system';
 import { Badge, Button, SearchInput } from '../../components/common';
 import { useReclamoStore } from '../../store/reclamoStore';

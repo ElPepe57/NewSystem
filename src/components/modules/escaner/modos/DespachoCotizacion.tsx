@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useImperativeHandle, forwardRef, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useImperativeHandle, forwardRef } from 'react';
 import { FileText, CheckCircle2, AlertTriangle, Clock, Package, Truck } from 'lucide-react';
 import { VentaService } from '../../../../services/venta.service';
 import { ProductoService } from '../../../../services/producto.service';

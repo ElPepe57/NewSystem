@@ -122,7 +122,7 @@ export const PagoAbonoWizard: React.FC<PagoAbonoWizardProps> = ({
     );
     setState((s) => ({ ...s, distribucion: nuevaDistribucion }));
     // Solo se re-aplica al cambiar paso a 3, estrategia, monto o deudas
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [paso, state.estrategia, state.montoAbono, state.deudas, state.monedaAbono]);
 
   // ── Navegación ──

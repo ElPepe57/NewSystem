@@ -12,9 +12,7 @@
  */
 import { useEffect, useState } from 'react';
 import {
-  UserCheck, Mail, Key, Layers, Sliders, Plus, RefreshCw, X,
-  Trash2, Lock, Globe, Repeat, Shield, AlertTriangle, Loader,
-  Copy, Settings,
+  UserCheck, Mail, Key, Layers, Sliders, Plus, RefreshCw, X, Lock, Globe, Repeat, Shield, AlertTriangle, Loader, Settings,
 } from 'lucide-react';
 import { useAuthStore } from '../../../store/authStore';
 import { configUsuariosService } from '../../../services/configUsuarios.service';

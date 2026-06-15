@@ -1,6 +1,6 @@
 import React from 'react';
 import { formatFecha as formatDate } from '../../utils/dateFormatters';
-import { Check, Clock, AlertCircle, ChevronRight, ArrowRight } from 'lucide-react';
+import { Check, Clock, AlertCircle, ArrowRight } from 'lucide-react';
 import type { Timestamp } from 'firebase/firestore';
 
 export interface TimelineStep {

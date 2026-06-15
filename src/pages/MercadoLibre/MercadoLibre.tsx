@@ -10,11 +10,9 @@
  */
 
 import React, { useEffect, useState, useMemo } from 'react';
-import { LineaDropdown } from '../../components/common/LineaDropdown';
 import { PageShell, PageHeader, Toolbar } from '../../design-system';
 import { useSearchParams } from 'react-router-dom';
 import {
-  ShoppingBag,
   Link2,
   RefreshCw,
   Package,
@@ -24,7 +22,6 @@ import {
   CheckCircle2,
   AlertCircle,
   XCircle,
-  Wifi,
   WifiOff,
   BarChart3,
 } from 'lucide-react';

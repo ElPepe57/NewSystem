@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { X, Trash2 } from 'lucide-react';
 import { cn } from '../utils';
-import { text, elevation, transition } from '../tokens';
+import { text, elevation } from '../tokens';
 
 interface FilterDrawerProps {
   isOpen: boolean;

@@ -5,19 +5,15 @@ import { DataTable } from '../../design-system';
 import type { DataTableColumn } from '../../design-system';
 import {
   Users, Globe, DollarSign, TrendingUp, TrendingDown, AlertTriangle,
-  BarChart3, Target, Shield, ShieldAlert, ShieldCheck, Eye, X,
+  BarChart3, Target, Shield, ShieldAlert, ShieldCheck, X,
   RefreshCw, ExternalLink, Package, Star, AlertCircle, Zap,
-  ThumbsUp, ThumbsDown, Activity, Award, ChevronRight
+  ThumbsUp, ThumbsDown, Activity
 } from 'lucide-react';
 import { registerModalOpen, unregisterModalOpen, getModalCount } from '../common/Modal';
 import type { Competidor } from '../../types/entidadesMaestras.types';
 import {
   competidorAnalyticsService,
-  type CompetidorAnalytics,
-  type AnalisisPrecio,
-  type FortalezaDebilidad,
-  type AlertaCompetencia,
-  type RecomendacionEstrategica
+  type CompetidorAnalytics
 } from '../../services/competidor.analytics.service';
 
 type DetailTab = 'resumen' | 'precios' | 'historial' | 'analisis' | 'comparativa';

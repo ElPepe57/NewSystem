@@ -36,8 +36,6 @@ import {
   where,
   Timestamp,
   serverTimestamp,
-  addDoc,
-  updateDoc,
   runTransaction,
   limit,
 } from 'firebase/firestore';
@@ -53,7 +51,6 @@ import type {
   LiquidacionRecaudadora,
   LiquidarSaldoRecaudadoraInput,
   LiquidarSaldoRecaudadoraResult,
-  EventoServicioRecaudador,
 } from '../types/eventoServicioRecaudador.types';
 import { cajaRecaudadoraService, validarConfigRecaudadora } from './cajaRecaudadora.service';
 
@@ -297,9 +294,9 @@ export const liquidarCajaRecaudadoraService = {
 
     // ── Best-effort post-transacción (TODOs F6/S2) ──────────────────
     const errores: string[] = [];
-    let movimientoTesoreriaId = '';
-    let movimientoCCProveedorId = '';
-    let asientoContableId = '';
+    const movimientoTesoreriaId = '';
+    const movimientoCCProveedorId = '';
+    const asientoContableId = '';
 
     // TODO F6: integrar movimientoFinanciero.service para crear:
     //   - Egreso recaudadora (saldo recaudadora baja a 0)
@@ -352,7 +349,7 @@ export const liquidarCajaRecaudadoraService = {
     recaudadoraId: string,
     options?: { soloConfirmadas?: boolean },
   ): Promise<LiquidacionRecaudadora[]> {
-    let q = query(
+    const q = query(
       collection(db, LIQUIDACIONES_COLL),
       where('recaudadoraId', '==', recaudadoraId),
     );

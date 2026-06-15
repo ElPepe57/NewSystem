@@ -21,7 +21,7 @@ import {
 } from 'lucide-react';
 import { DataTable, StatCard } from '../../design-system';
 import type { DataTableColumn } from '../../design-system';
-import { Badge, Button, SearchInput } from '../../components/common';
+import { Badge, SearchInput } from '../../components/common';
 import { useEnvioStore } from '../../store/envioStore';
 import { formatCurrency } from '../../utils/format';
 import type { Envio, CostoLanded } from '../../types/envio.types';

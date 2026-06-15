@@ -2,7 +2,6 @@ import React from 'react';
 import {
   Check,
   XCircle,
-  Link2,
   Package,
   ShoppingCart,
   AlertTriangle,
@@ -15,7 +14,7 @@ import {
 } from 'lucide-react';
 import { Button, LineaNegocioBadge } from '../../components/common';
 import { formatCurrency } from '../../utils/format';
-import type { Requerimiento, EstadoRequerimiento, TipoSolicitante } from '../../types/requerimiento.types';
+import type { Requerimiento, TipoSolicitante } from '../../types/requerimiento.types';
 
 interface KanbanCardProps {
   req: Requerimiento;

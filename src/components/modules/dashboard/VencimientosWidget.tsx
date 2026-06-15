@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { Clock, AlertTriangle, XCircle, Calendar, Package } from 'lucide-react';
 import { Card, Badge } from '../../common';

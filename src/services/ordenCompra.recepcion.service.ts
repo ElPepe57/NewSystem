@@ -10,26 +10,14 @@ import {
   doc,
   updateDoc,
   writeBatch,
-  Timestamp,
-  serverTimestamp,
-  collection,
-  query,
-  where,
-  getDocs
+  serverTimestamp
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { logger } from '../lib/logger';
 import { COLLECTIONS } from '../config/collections';
-import type { RecepcionParcial } from '../types/ordenCompra.types';
-import { ProductoService } from './producto.service';
 import { inventarioService } from './inventario.service';
-import { unidadService } from './unidad.service';
-import { requerimientoService } from './requerimiento.service';
-import { ctruService } from './ctru.service';
-import { actividadService } from './actividad.service';
 import { ORDENES_COLLECTION } from './ordenCompra.shared';
 import { getById } from './ordenCompra.crud.service';
-import { calcularEstadoDerivadoOC } from '../utils/ordenCompra.helpers';
 
 // S40 Bloque E: recibirOrden + recibirOrdenParcial eliminados — la recepción se gestiona
 // ahora desde el Envío asociado vía envio.recepcion.service.ts::registrarRecepcion().

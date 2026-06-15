@@ -4,8 +4,6 @@ import {
   Clock,
   Package,
   Trash2,
-  Heart,
-  ExternalLink,
   Filter,
   RefreshCw,
 } from 'lucide-react';

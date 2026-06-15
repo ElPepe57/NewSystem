@@ -1,9 +1,6 @@
 import React from 'react';
 import {
   X,
-  Package,
-  DollarSign,
-  Truck,
   ExternalLink,
   ArrowLeft,
   Check,

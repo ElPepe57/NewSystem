@@ -3,7 +3,7 @@
  * Vista completa con pestañas: Resumen, Balance General, Estado de Resultados, Indicadores, Tendencias, Cierre
  */
 
-import React, { useState, useEffect, type ComponentType } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   TrendingUp,
   TrendingDown,
@@ -17,9 +17,6 @@ import {
   PiggyBank,
   AlertTriangle,
   Target,
-  Percent,
-  ArrowUpRight,
-  ArrowDownRight,
   FileText,
   LineChart,
   LayoutDashboard,
@@ -32,7 +29,6 @@ import {
   AlertCircle,
   Info,
   Loader2,
-  Lock,
   // chk5.E-RM · icon nuevo para Revisión Mensual (reemplaza Lock)
   ClipboardCheck,
   // chk5.E-S1 · canon banking-grade
@@ -50,15 +46,14 @@ import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
 import { hasRole } from '../../types/auth.types';
 import {
-  StatDistribution,
   Sparkline,
   TooltipPedagogico,
 } from '../../components/common';
 import type { SparklineColor } from '../../components/common';
 import { getTermino } from '../../data/glosarioContable';
-import { DataTable, HubShell, HubTopBar, HubHeader, HubTabs, HubBody } from '../../design-system';
+import { HubShell, HubTopBar, HubHeader, HubTabs, HubBody } from '../../design-system';
 import { FormModalV2 } from '../../design-system/components/FormModalV2';
-import type { DataTableColumn, HubTab } from '../../design-system';
+import type { HubTab } from '../../design-system';
 import {
   EstadoResultados,
   BalanceGeneral,

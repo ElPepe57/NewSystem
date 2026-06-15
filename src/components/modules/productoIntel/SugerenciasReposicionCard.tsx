@@ -1,5 +1,5 @@
 import React from 'react';
-import { ShoppingCart, AlertTriangle, TrendingUp, Clock, DollarSign } from 'lucide-react';
+import { ShoppingCart, AlertTriangle, Clock } from 'lucide-react';
 import type { SugerenciaReposicion } from '../../../types/productoIntel.types';
 import { formatCurrencyCompact } from '../../../utils/format';
 

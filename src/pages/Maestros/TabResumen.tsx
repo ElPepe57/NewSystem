@@ -4,7 +4,6 @@ import {
   Tag,
   Truck,
   RefreshCw,
-  Store,
   Crown,
   Shield,
   BarChart3,

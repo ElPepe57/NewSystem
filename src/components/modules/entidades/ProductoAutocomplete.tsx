@@ -12,7 +12,7 @@ import {
   ChevronRight
 } from 'lucide-react';
 import type { Producto } from '../../../types/producto.types';
-import { useProductoDropdown, type GroupedDropdownItem } from '../../../hooks/useProductoDropdown';
+import { useProductoDropdown } from '../../../hooks/useProductoDropdown';
 
 export interface ProductoSnapshot {
   productoId: string;
@@ -129,7 +129,7 @@ export const ProductoAutocomplete: React.FC<ProductoAutocompleteProps> = ({
     if (!inv?.proveedoresUSA?.length) return null;
 
     // Filtrar por proveedor seleccionado si existe
-    let proveedores = inv.proveedoresUSA;
+    const proveedores = inv.proveedoresUSA;
     if (proveedorSeleccionado) {
       const proveedorMatch = proveedores.find(p =>
         p.nombre.toLowerCase().includes(proveedorSeleccionado.toLowerCase())

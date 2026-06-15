@@ -3,8 +3,6 @@ import {
   collection,
   addDoc,
   getDocs,
-  getDoc,
-  doc,
   query,
   where,
   orderBy,
@@ -18,7 +16,6 @@ import { db } from '../lib/firebase';
 // en tanto no se decida mover estas interfaces a otro módulo contable.
 import type {
   MovimientoTransportista,
-  TipoMovimientoTransportista,
   ResumenCuentaTransportista
 } from '../types/movimiento-transportista.types';
 import type { Entrega } from '../types/entrega.types';

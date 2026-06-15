@@ -852,7 +852,7 @@ export const gastoService = {
       const ahora = new Date();
 
       // Obtener número base para los gastos
-      let numeroBase = await this.generateNumeroGasto();
+      const numeroBase = await this.generateNumeroGasto();
       let baseNum = parseInt(numeroBase.replace('GAS-', ''), 10);
 
       for (const gasto of gastos) {

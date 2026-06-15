@@ -1,7 +1,7 @@
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import QRCode from 'qrcode';
-import type { Entrega, PDFEntregaData } from '../types/entrega.types';
+import type { Entrega } from '../types/entrega.types';
 import { ConfiguracionService } from './configuracion.service';
 
 export interface PDFReportOptions {
@@ -323,7 +323,7 @@ class PDFService {
     });
 
     // KPIs
-    let y = this.addKPICards(doc, [
+    const y = this.addKPICards(doc, [
       { label: 'Total Productos', value: resumen.totalProductos, color: 'primary' },
       { label: 'Valor Inventario', value: `S/ ${resumen.valorInventario.toFixed(2)}`, color: 'success' },
       { label: 'Stock Crítico', value: resumen.stockCritico, color: 'danger' }
@@ -377,7 +377,7 @@ class PDFService {
     });
 
     // KPIs
-    let y = this.addKPICards(doc, [
+    const y = this.addKPICards(doc, [
       { label: 'Total Ventas', value: resumen.totalVentas, color: 'primary' },
       { label: 'Monto Total', value: `S/ ${resumen.montoTotal.toFixed(2)}`, color: 'success' },
       { label: 'Ticket Promedio', value: `S/ ${resumen.ticketPromedio.toFixed(2)}`, color: 'primary' }
@@ -430,7 +430,7 @@ class PDFService {
     });
 
     // KPIs
-    let y = this.addKPICards(doc, [
+    const y = this.addKPICards(doc, [
       { label: 'Total Gastos', value: resumen.totalGastos, color: 'primary' },
       { label: 'Monto Total', value: `S/ ${resumen.montoTotal.toFixed(2)}`, color: 'danger' },
       { label: 'Pendiente Pago', value: `S/ ${resumen.pendientePago.toFixed(2)}`, color: 'danger' }

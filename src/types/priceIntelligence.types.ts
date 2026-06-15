@@ -4,7 +4,6 @@
  * Proporciona análisis histórico, comparativas y recomendaciones
  */
 
-import type { Timestamp } from 'firebase/firestore';
 
 // ============================================
 // EVALUACIÓN DE PRECIO

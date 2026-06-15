@@ -1,10 +1,9 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState } from 'react';
 import { KPIBar as DSKPIBar, StatCard as DSStatCard } from '../../design-system';
 import {
   Users,
   Crown,
   TrendingUp,
-  TrendingDown,
   AlertTriangle,
   Target,
   ShoppingCart,
@@ -12,16 +11,13 @@ import {
   Clock,
   Phone,
   Star,
-  Award,
   UserCheck,
   UserX,
   UserMinus,
-  Percent,
   BarChart3,
   PieChart,
   Zap,
   RefreshCw,
-  ChevronRight,
   Building2,
   User,
   Mail,
@@ -33,25 +29,23 @@ import {
   Search,
   MessageSquare,
   Package,
-  RotateCcw,
-  ExternalLink
+  RotateCcw
 } from 'lucide-react';
 import {
   Button,
   Card,
   Badge,
   AlertCard,
-  StatDistribution,
   TabNavigation,
   Pagination,
   usePagination
 } from '../common';
 import { useClienteStore } from '../../store/clienteStore';
 import { useLineaFilterMulti } from '../../hooks/useLineaFilter';
-import { LineaNegocioBadges, LineaNegocioSelect } from './LineaNegocioBadge';
+import { LineaNegocioBadges } from './LineaNegocioBadge';
 import { useAuthStore } from '../../store/authStore';
 import { useToastStore } from '../../store/toastStore';
-import { recompraService, type AlertaRecompra, type ResumenAlertasRecompra } from '../../services/recompra.service';
+import { recompraService, type ResumenAlertasRecompra } from '../../services/recompra.service';
 import { ClienteDetailView } from './ClienteDetailView';
 import type { Cliente, ClasificacionABC, SegmentoCliente } from '../../types/entidadesMaestras.types';
 

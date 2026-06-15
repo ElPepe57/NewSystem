@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Save, FolderTree } from 'lucide-react';
+import { Save, FolderTree } from 'lucide-react';
 import { Button, Input, Modal, Select } from '../../common';
 import { useCategoriaStore } from '../../../store/categoriaStore';
 import { useLineaNegocioStore } from '../../../store/lineaNegocioStore';

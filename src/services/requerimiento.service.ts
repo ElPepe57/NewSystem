@@ -10,7 +10,6 @@ import {
   orderBy,
   Timestamp,
   serverTimestamp,
-  writeBatch,
   arrayUnion
 } from 'firebase/firestore';
 import { getNextSequenceNumber } from '../lib/sequenceGenerator';
@@ -26,7 +25,6 @@ import type {
   ProductoAsignado,
   RequerimientoFiltros,
   RequerimientoStats,
-  RequerimientoResumen,
   ResumenAsignaciones
 } from '../types/requerimiento.types';
 import { casillaCrudService } from './casilla.crud.service';
@@ -36,7 +34,6 @@ import { tipoCambioService } from './tipoCambio.service';
 import { ProductoService } from './producto.service';
 import { unidadService } from './unidad.service';
 import { actividadService } from './actividad.service';
-import { ctruService } from './ctru.service';
 import { NotificationService } from './notification.service';
 import { userService } from './user.service';
 

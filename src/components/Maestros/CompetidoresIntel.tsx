@@ -6,7 +6,7 @@ import { useLineaFilterMulti } from '../../hooks/useLineaFilter';
 import { LineaNegocioBadges, LineaNegocioSelect } from './LineaNegocioBadge';
 import { CompetidorDetailView } from './CompetidorDetailView';
 import type { Competidor, PlataformaCompetidor, ReputacionCompetidor } from '../../types/entidadesMaestras.types';
-import { Pagination, usePagination, Badge } from '../common';
+import { Pagination, usePagination } from '../common';
 import { DataTable } from '../../design-system';
 import type { DataTableColumn } from '../../design-system';
 

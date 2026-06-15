@@ -9,7 +9,7 @@ import {
 import { db } from '../lib/firebase';
 import { COLLECTIONS } from '../config/collections';
 import type { Producto } from '../types/producto.types';
-import type { Venta, ProductoVenta } from '../types/venta.types';
+import type { Venta } from '../types/venta.types';
 import type { OrdenCompra } from '../types/ordenCompra.types';
 import type {
   MetricasRotacion,

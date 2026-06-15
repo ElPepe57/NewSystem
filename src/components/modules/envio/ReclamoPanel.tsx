@@ -27,7 +27,6 @@ import {
   Package,
   Lock,
   Link2,
-  ArrowRight,
   Reply,
   Truck,
   Hourglass,

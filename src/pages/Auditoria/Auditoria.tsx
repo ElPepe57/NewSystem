@@ -26,7 +26,7 @@ import { Card, Badge, Button } from '../../components/common';
 import { PageShell, PageHeader, Toolbar } from '../../design-system';
 import { auditoriaService } from '../../services/auditoria.service';
 import { useAsyncData } from '../../hooks/useAsyncData';
-import type { AuditLog, AuditLogFiltros, AuditLogStats, ModuloAuditoria, NivelAuditoria } from '../../types/auditoria.types';
+import type { AuditLog, AuditLogStats, ModuloAuditoria, NivelAuditoria } from '../../types/auditoria.types';
 
 export const Auditoria: React.FC = () => {
   const [expandedLog, setExpandedLog] = useState<string | null>(null);

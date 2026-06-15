@@ -6,8 +6,7 @@ import type { DataTableColumn } from '../../design-system';
 import {
   ShoppingBag, DollarSign, TrendingUp, TrendingDown, AlertTriangle,
   BarChart3, RefreshCw, Users, Star, X, Activity, Target, Zap,
-  AlertCircle, Package, Percent, Calendar, Award, ShoppingCart,
-  FileText, ArrowUpRight, ArrowDownRight, CheckCircle, Clock,
+  AlertCircle, Package, Percent, Calendar, ShoppingCart, ArrowUpRight, ArrowDownRight, Clock,
   MessageCircle, Instagram, Store, MoreHorizontal
 } from 'lucide-react';
 import { registerModalOpen, unregisterModalOpen, getModalCount } from '../common/Modal';

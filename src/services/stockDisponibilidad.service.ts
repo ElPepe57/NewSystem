@@ -4,7 +4,6 @@ import { casillaCrudService } from './casilla.crud.service';
 import { unidadService } from './unidad.service';
 import type { Casilla, PaisCasilla } from '../types/casilla.types';
 import type { InventarioProducto } from '../types/inventario.types';
-import type { Unidad } from '../types/unidad.types';
 import { esPaisOrigen, esEstadoEnOrigen } from '../utils/multiOrigen.helpers';
 import type {
   FuenteStock,

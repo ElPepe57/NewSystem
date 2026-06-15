@@ -19,7 +19,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  BriefcaseBusiness,
   Wallet,
   CalendarDays,
   TrendingDown,

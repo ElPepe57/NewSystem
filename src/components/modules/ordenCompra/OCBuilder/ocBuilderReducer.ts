@@ -2,7 +2,6 @@ import type {
   OCBuilderState,
   OCBuilderAction,
   OCDraftGroup,
-  PoolProducto,
   OCBuilderProducto,
 } from './ocBuilderTypes';
 import {

@@ -12,13 +12,11 @@ import {
   updateDoc,
   increment,
   arrayUnion,
-  serverTimestamp,
-  Timestamp
+  serverTimestamp
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { logger } from '../lib/logger';
 import type { Venta } from '../types/venta.types';
-import type { OrdenCompra } from '../types/ordenCompra.types';
 import { COLLECTIONS } from '../config/collections';
 
 const CLIENTES_COLLECTION = COLLECTIONS.CLIENTES;

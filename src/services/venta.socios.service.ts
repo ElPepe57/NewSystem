@@ -1,5 +1,4 @@
 import type { Venta } from '../types/venta.types';
-import { formatCurrency, formatCurrencyPEN } from '../utils/format';
 
 // ---- Umbrales configurables ----
 const UMBRAL_MONTO_MENSUAL_PEN = 800;

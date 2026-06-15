@@ -1,7 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import {
-  Wand2, Plus, Trash2, ChevronDown, ChevronUp,
+import { Plus, Trash2, ChevronDown, ChevronUp,
   Package, CheckCircle2, AlertCircle, Layers, RotateCcw, Info,
   Plane, Search,
 } from 'lucide-react';

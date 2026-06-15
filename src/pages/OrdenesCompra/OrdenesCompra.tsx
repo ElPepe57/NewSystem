@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo, useRef } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
-import { Plus, Package, DollarSign, AlertCircle, Download, ExternalLink, FileText, Send, Truck, CheckCircle, XCircle, CreditCard, PackageCheck, Calendar, Building2, Search, ShoppingCart, LayoutDashboard, ClipboardList, BrainCircuit } from 'lucide-react';
+import { Plus, Package, DollarSign, AlertCircle, Download, ExternalLink, FileText, Truck, CheckCircle, CreditCard, Building2, Search, ShoppingCart, LayoutDashboard, ClipboardList, BrainCircuit } from 'lucide-react';
 import { Button, Card, Modal, useConfirmDialog, ConfirmDialog, useActionModal, ActionModal } from '../../components/common';
 // chk5.COMERCIALES-F1 · Compras re-construido como hub del kit (grupo Comercial = blue)
 import { HubShell, HubTopBar, HubHeader, HubKpiStrip, HubTabs, HubBody } from '../../design-system';
@@ -24,7 +24,6 @@ import { useEnvioStore } from '../../store/envioStore';
 import { PagoUnificadoForm } from '../../components/modules/pagos/PagoUnificadoForm';
 import type { PagoUnificadoResult } from '../../components/modules/pagos/PagoUnificadoForm';
 // S40: RecepcionParcialModal eliminado — recepción ahora se gestiona desde el Envío (ver EnviosDeOC en OrdenCompraCard)
-import { ConfirmarOCModal } from '../../components/modules/ordenCompra/ConfirmarOCModal';
 import { DespacharOCModal, type DespacharOCResult } from '../../components/modules/ordenCompra/DespacharOCModal';
 import type { SubOrdenCompra } from '../../types/ordenCompra.types';
 import { useOrdenCompraStore } from '../../store/ordenCompraStore';
@@ -40,7 +39,6 @@ import { useLineaFilter } from '../../hooks/useLineaFilter';
 // S55 Fase 2 — pagos viven en CC; hook reactivo lee desde movimientosCC
 import { usePagosOC } from '../../hooks/usePagosOC';
 import { useLineaNegocioStore } from '../../store/lineaNegocioStore';
-import { formatFecha } from '../../utils/dateFormatters';
 
 // Interface para datos de requerimiento que viene del navigation state
 interface RequerimientoData {

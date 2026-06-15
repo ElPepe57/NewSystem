@@ -1,26 +1,19 @@
 import React, { useEffect, useState, useLayoutEffect } from 'react';
-import { formatFecha } from '../../../utils/dateFormatters';
 import {
   X,
   User,
-  Package,
   DollarSign,
   Clock,
   CheckCircle,
   AlertTriangle,
-  Calendar,
   MapPin,
   Phone,
   TrendingUp,
   ArrowRight,
   FileText,
   ShoppingCart,
-  Mail,
   Tag,
-  Hash,
   Building2,
-  CreditCard,
-  Percent,
   Wallet,
 } from 'lucide-react';
 import { Button, Card, Badge } from '../../common';

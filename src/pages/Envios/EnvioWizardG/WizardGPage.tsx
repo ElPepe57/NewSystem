@@ -4,7 +4,7 @@
  * 3 pasos: Devolución → Destino+Detalles → Confirmar.
  * Ruta: /envios/nuevo-g (protegido por feature flag WIZARD_G).
  */
-import React, { useReducer, useEffect, useMemo, useState } from 'react';
+import React, { useReducer, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AlertTriangle, X, RefreshCw } from 'lucide-react';
 import { WizardShell, DraftBanner, formatFechaRelativa } from '../../../design-system';
@@ -182,7 +182,7 @@ export const WizardGPage: React.FC<WizardGPageProps> = ({
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Error desconocido al crear el retorno';
       setError(msg);
-      // eslint-disable-next-line no-console
+       
       console.error('[WizardGPage] handleConfirm error:', err);
     } finally {
       setCreating(false);

@@ -29,7 +29,6 @@ import { StatCard } from '../../design-system';
 import { useEnvioStore } from '../../store/envioStore';
 import { useReclamoStore } from '../../store/reclamoStore';
 import { formatCurrency } from '../../utils/format';
-import type { Envio } from '../../types/envio.types';
 
 type Periodo = 'ultimo_mes' | 'ultimos_3_meses' | 'ultimos_6_meses' | 'anio_actual' | 'todos';
 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Truck, Clock, DollarSign, CheckCircle, AlertTriangle, ChevronDown, ChevronUp, Package, Weight, Scale } from 'lucide-react';
+import { Truck, Clock, DollarSign, CheckCircle, AlertTriangle, ChevronDown, ChevronUp, Package, Scale } from 'lucide-react';
 import { logisticaReporteService, type ResumenLogistica, type RendimientoViajero, type TransferenciaResumen } from '../../services/logistica.reporte.service';
 import { useProductoStore } from '../../store/productoStore';
 import { formatCurrency } from '../../utils/format';

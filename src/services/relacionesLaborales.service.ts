@@ -39,7 +39,6 @@ import type {
   ReclasificarRelacionInput,
   EntidadMaestroRef,
   TipoEntidadMaestro,
-  TipoRelacion,
   EstadoRelacion,
   DatosLaboralesSnapshot,
   DatosSocioSnapshot,
@@ -284,7 +283,7 @@ async function finalizar(
 
   // Construir snapshot básico según tipo · v5.6 mínimo
   // (E3 enriquecerá con datos de planilla/socios cuando integremos)
-  let snapshot: Partial<RelacionLaboral> = {};
+  const snapshot: Partial<RelacionLaboral> = {};
 
   if (existente.tipo === 'empleado') {
     const empSnap: DatosLaboralesSnapshot = {

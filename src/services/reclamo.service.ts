@@ -27,7 +27,6 @@ import { logger } from '../lib/logger';
 import { COLLECTIONS } from '../config/collections';
 import { getNextSequenceNumber } from '../lib/sequenceGenerator';
 import { envioCrudService } from './envio.crud.service';
-import { tesoreriaService } from './tesoreria.service';
 import { gastoService } from './gasto.service';
 import { categoriaCostoService } from './categoriaCosto.service';
 import { resolverCategoriaCostoIdParaTipo, type ArbolCategorias } from '../utils/gasto.bloque';

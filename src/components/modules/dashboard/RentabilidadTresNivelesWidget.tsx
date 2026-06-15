@@ -5,7 +5,6 @@ import { gastoService } from '../../../services/gasto.service';
 import { categoriaCostoService } from '../../../services/categoriaCosto.service';
 import { VentaService } from '../../../services/venta.service';
 import { esGastoDePeriodo, type ArbolCategorias } from '../../../utils/gasto.bloque';
-import type { Venta } from '../../../types/venta.types';
 
 interface NivelRentabilidad {
   nombre: string;

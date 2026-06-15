@@ -9,14 +9,11 @@ import {
   Clock,
   AlertTriangle,
   Plus,
-  CheckCircle,
   DollarSign,
   RefreshCw,
   Package,
   Gavel,
   BarChart3,
-  ChevronRight,
-  Search,
   Download,
   LayoutDashboard,
   Landmark,
@@ -43,7 +40,6 @@ import type {
   Envio,
   TipoEnvio,
   EstadoEnvio,
-  EnvioFormData,
   RecepcionEnvioFormData,
 } from "../../types/envio.types";
 import type { CuentaCaja, MetodoTesoreria } from "../../types/tesoreria.types";
@@ -51,7 +47,6 @@ import { useLineaFilter } from "../../hooks/useLineaFilter";
 import { useToastStore } from "../../store/toastStore";
 
 // Sub-componentes
-import { EnvioCard } from "./EnvioCard";
 import { EnvioCardSimple } from "./EnvioCardSimple";
 // S53 F5 · EnvioWizardV2 ELIMINADO — el wizard unificado (/envios/nuevo) lo reemplaza
 // S53.26 — NuevoEnvioMenu reemplazado por un botón directo "+ Nuevo envío"
@@ -62,7 +57,7 @@ import type { PagoUnificadoResult } from '../../components/modules/pagos/PagoUni
 import { EditFleteModal } from "./EditFleteModal";
 import { EnvioDetailModal } from "./EnvioDetailModal";
 import type { DespacharOCResult } from '../../components/modules/ordenCompra/DespacharOCModal';
-import { DespacharEnvioModal, type DespacharEnvioResult } from './DespacharEnvioModal';
+import { DespacharEnvioModal } from './DespacharEnvioModal';
 import { useColaboradorStore } from '../../store/colaboradorStore';
 import { useReclamoStore } from '../../store/reclamoStore';
 import { TabReclamos } from './TabReclamos';

@@ -6,7 +6,7 @@
  * server-side · envía vía Resend · admin recibe confirmación con link.
  */
 import { useState } from 'react';
-import { Mail, Send, AlertCircle, CheckCircle, Copy, X } from 'lucide-react';
+import { Mail, Send, AlertCircle, CheckCircle, X } from 'lucide-react';
 import { invitacionService } from '../../../services/invitacion.service';
 import { ROLES_PERMITIDOS_INVITACION } from '../../../types/invitacion.types';
 import { ROLE_LABELS } from '../../../types/auth.types';

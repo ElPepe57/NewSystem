@@ -9,7 +9,6 @@
  */
 
 import type { Venta, VentaStats } from '../types/venta.types';
-import { logger } from '../lib/logger';
 import { toDateSafe } from '../utils/dateFormatters';
 
 /**

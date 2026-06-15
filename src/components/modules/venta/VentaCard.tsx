@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { formatFecha as formatDate } from '../../../utils/dateFormatters';
 import { ShoppingCart, User, Calendar, DollarSign, TrendingUp, Package, Truck, CreditCard, Trash2, Calculator, Receipt, FileText, Link2, ClipboardList, PieChart, MapPin, Pencil, Clock } from 'lucide-react';
-import { Badge, Button, StatusTimeline } from '../../common';
+import { Button } from '../../common';
 import { StatusBadge, DataTable } from '../../../design-system';
 import type { DataTableColumn } from '../../../design-system';
 // S52 — Capa 3: plantillas canónicas del ERP (ver docs/DESIGN_PATTERNS.md)

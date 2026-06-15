@@ -10,8 +10,7 @@ import {
   addDoc,
   updateDoc,
   deleteDoc,
-  serverTimestamp,
-  Timestamp
+  serverTimestamp
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { logger } from '../lib/logger';

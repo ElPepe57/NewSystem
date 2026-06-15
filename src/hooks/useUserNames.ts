@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { userService } from '../services/user.service';
 
 // Cache global para nombres de usuario (persiste entre renders y componentes)

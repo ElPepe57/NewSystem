@@ -25,7 +25,6 @@ import type {
 import { cn } from '../../../design-system/utils';
 import { DatoBancarioFormModal } from './DatoBancarioFormModal';
 import {
-  TIPO_LABEL,
   TIPO_ICON,
   TIPO_COLOR_CLASSES,
   describirDatoBancario,

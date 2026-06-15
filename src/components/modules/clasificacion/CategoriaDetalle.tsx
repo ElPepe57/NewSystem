@@ -9,8 +9,7 @@ import {
   Percent,
   Calendar,
   RefreshCw,
-  Globe,
-  Tag
+  Globe
 } from 'lucide-react';
 import { Button, Badge, Modal } from '../../common';
 import { DataTable } from '../../../design-system';

@@ -22,8 +22,6 @@ import { getNextSequenceNumber } from '../lib/sequenceGenerator';
 import { gastoService } from './gasto.service';
 import { registrarPago as registrarPagoOC } from './ordenCompra.pagos.service';
 import { registrarPago as registrarPagoVenta } from './venta.pagos.service';
-import type { TipoPendiente } from '../types/tesoreria.types';
-import type { MetodoPagoUnificado } from '../types/pago.types';
 import type {
   LotePago,
   ResultadoItemLote,

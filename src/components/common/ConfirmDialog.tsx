@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { AlertTriangle, Trash2, CheckCircle, Info, X, AlertCircle } from 'lucide-react';
+import { AlertTriangle, Trash2, CheckCircle, Info, X } from 'lucide-react';
 import { Button } from './Button';
 import { registerModalOpen, unregisterModalOpen, getModalCount } from './Modal';
 

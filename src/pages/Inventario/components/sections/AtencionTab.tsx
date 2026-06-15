@@ -19,7 +19,6 @@ import {
   Zap, UserX, Clock, TrendingDown, Search, Trash2, PackageX,
   type LucideIcon,
 } from 'lucide-react';
-import { calcularDiasParaVencer } from '../../../../utils/dateFormatters';
 import { formatCurrency } from '../../../../utils/format';
 import type { Unidad } from '../../../../types/unidad.types';
 import type { Producto } from '../../../../types/producto.types';

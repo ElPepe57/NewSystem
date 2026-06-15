@@ -6,7 +6,7 @@ import type { DataTableColumn } from '../../design-system';
 import {
   User, Phone, Mail, MapPin, Calendar, ShoppingCart, DollarSign,
   TrendingUp, TrendingDown, Package, Star, AlertTriangle, Clock,
-  BarChart3, Target, Award, RefreshCw, ExternalLink, MessageSquare,
+  BarChart3, Target, Award, RefreshCw, MessageSquare,
   Banknote
 } from 'lucide-react';
 import { registerModalOpen, unregisterModalOpen, getModalCount } from '../common/Modal';
@@ -18,7 +18,6 @@ import { useToastStore } from '../../store/toastStore';
 import {
   clienteAnalyticsService,
   type ClienteAnalytics,
-  type CompraHistorial,
   type ProductoFavorito
 } from '../../services/cliente.analytics.service';
 // F-DatosBanc · S58c — Panel de cuentas bancarias pasivas

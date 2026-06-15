@@ -31,7 +31,6 @@ import {
   ShoppingCart,
   Users,
   Calendar,
-  Briefcase as BriefcaseIcon,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import type { RelacionLaboral, TipoEntidadMaestro } from '../../../types/relacionLaboral.types';

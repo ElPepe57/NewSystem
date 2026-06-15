@@ -1,13 +1,12 @@
 // @ts-nocheck — coupled to proyeccion360.service (also @ts-nocheck); pending type sync en sesión dedicada
 import React, { useEffect, useState, useMemo } from 'react';
 import {
-  TrendingUp, TrendingDown, AlertTriangle, BarChart3, DollarSign,
-  Package, RefreshCw, ChevronDown, ChevronUp, ShoppingCart, Check,
-  Target, Zap, ArrowRight, ArrowUp, Minus, Eye, Wallet,
-  ArrowDown, Clock, AlertCircle, Layers
+  TrendingUp, AlertTriangle, BarChart3, DollarSign,
+  Package, RefreshCw, ShoppingCart,
+  Target, Wallet, AlertCircle, Layers
 } from 'lucide-react';
 import {
-  ComposedChart, BarChart, Bar, LineChart, Line, Area, AreaChart,
+  ComposedChart, BarChart, Bar, Line, Area,
   XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
   ReferenceLine, Cell, PieChart, Pie
 } from 'recharts';

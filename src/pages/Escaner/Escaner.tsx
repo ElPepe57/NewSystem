@@ -2,7 +2,7 @@ import React, { useState, useRef, useCallback } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { ScanLine, Search, ClipboardCheck, Truck, PackageCheck, ArrowRightLeft, ArrowLeft } from 'lucide-react';
 import {  } from '../../components/common';
-import { PageShell, PageHeader } from '../../design-system';
+import { PageHeader } from '../../design-system';
 // Toolbar available for future use
 import { BarcodeScanner } from '../../components/common/BarcodeScanner';
 import { Tabs } from '../../components/common/Tabs';

@@ -13,7 +13,7 @@
  */
 
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Building2, Layers, PlusCircle, Loader2, Check, ChevronDown, Award, X } from 'lucide-react';
+import { Building2, Layers, PlusCircle, Loader2, Check, ChevronDown, Award } from 'lucide-react';
 import { FloatingDropdown } from './FloatingDropdown';
 
 export interface MaestroItem {

@@ -1,5 +1,5 @@
 import React from 'react';
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import { Store, ShoppingBag, MoreHorizontal } from 'lucide-react';
 import { Card } from '../../common';
 import { formatCurrencyPEN } from '../../../utils/format';

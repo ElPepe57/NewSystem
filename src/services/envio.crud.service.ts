@@ -8,7 +8,7 @@ import { COLLECTIONS } from '../config/collections';
 import { getNextSequenceNumber } from '../lib/sequenceGenerator';
 import type {
   Envio, EnvioFormData, EnvioFiltros, EnvioUnidad,
-  EstadoEnvio, CostoLanded, RecepcionEnvio, ResumenEnvios,
+  EstadoEnvio, CostoLanded, ResumenEnvios,
   CrearEnvioT2Payload,
   CrearEnvioJPayload,
   CrearEnvioEPayload,

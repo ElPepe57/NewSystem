@@ -32,7 +32,6 @@ import {
   type TipoEntidadCC,
   type MonedaCC,
 } from '../../../types/cuentaCorriente.types';
-import { Badge } from '../../common';
 import { cn } from '../../../design-system';
 
 interface CuentaCorrienteTabProps {

@@ -1,7 +1,6 @@
 import { X, MapPin, DollarSign, Users, Package, ShoppingCart } from 'lucide-react';
 import { useMapaCalorStore } from '../../store/mapaCalorStore';
 import { useLineaNegocioStore } from '../../store/lineaNegocioStore';
-import type { ZonaResumen, VentaGeo } from '../../types/mapaCalor.types';
 
 export function MapaCalorPanelZona() {
   const { zonaSeleccionada, ventaSeleccionada, setZonaSeleccionada, setVentaSeleccionada } = useMapaCalorStore();

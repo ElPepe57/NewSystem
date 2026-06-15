@@ -4,9 +4,8 @@
  * análisis de incidencias y predicciones
  */
 
-import type { Timestamp } from 'firebase/firestore';
-import type { Proveedor, OrdenCompra, ProductoOrden, ClasificacionProveedor } from '../types/ordenCompra.types';
-import type { Producto, ProveedorUSA } from '../types/producto.types';
+import type { Proveedor, OrdenCompra, ClasificacionProveedor } from '../types/ordenCompra.types';
+import type { Producto } from '../types/producto.types';
 
 // ============================================
 // INTERFACES DE ANALYTICS

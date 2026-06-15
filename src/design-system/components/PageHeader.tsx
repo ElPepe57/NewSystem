@@ -1,7 +1,7 @@
 import React from 'react';
 import type { LucideIcon } from 'lucide-react';
 import { cn } from '../utils';
-import { text, border, radius } from '../tokens';
+import { text } from '../tokens';
 
 interface PageHeaderProps {
   title: string;

@@ -1,10 +1,9 @@
 import React, { useEffect, useState, useMemo, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Plus, ShoppingCart, DollarSign, TrendingUp, Package, CheckCircle, CreditCard, Calculator, PieChart, FileText, Truck, XCircle, Clock, Timer, Zap, PackageCheck, AlertTriangle, ChevronDown, ChevronUp, Users, RotateCcw, ChevronRight, Download } from 'lucide-react';
+import { Plus, ShoppingCart, TrendingUp, Package, CheckCircle, Calculator, PieChart, FileText, Truck, XCircle, Clock, AlertTriangle, ChevronDown, ChevronUp, Users, RotateCcw, ChevronRight, Download } from 'lucide-react';
 import { Button, Card, Modal, useConfirmDialog, ConfirmDialog, PipelineHeader, useActionModal, ActionModal, ErrorBoundary } from '../../components/common';
-import { PageShell, PageHeader, Toolbar, DataTable } from '../../design-system';
+import { PageShell, Toolbar, DataTable } from '../../design-system';
 import type { DataTableColumn } from '../../design-system';
-import { LineaDropdown } from '../../components/common/LineaDropdown';
 import { DevolucionesTab } from './DevolucionesTab';
 import { DevolucionFormModal } from './DevolucionFormModal';
 import { useDevolucionStore } from '../../store/devolucionStore';

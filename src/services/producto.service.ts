@@ -5,7 +5,6 @@ import {
   getDoc,
   addDoc,
   updateDoc,
-  deleteDoc,
   deleteField,
   writeBatch,
   Timestamp,
@@ -1128,7 +1127,7 @@ export class ProductoService {
       }));
 
       // Convertir competidores al formato con Timestamp (limpiando undefined)
-      let competidoresPeru = (data.competidoresPeru || []).map(c => this.removeUndefined({
+      const competidoresPeru = (data.competidoresPeru || []).map(c => this.removeUndefined({
         id: c.id,
         competidorId: c.competidorId || null,  // Vínculo con Gestor Maestro
         nombre: c.nombre || '',

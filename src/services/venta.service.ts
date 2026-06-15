@@ -49,18 +49,15 @@ import type {
   AsignacionUnidad,
   ResultadoAsignacion,
   ProductoDisponible,
-  StockReservado,
   ProductoReservado,
   ProductoStockVirtual,
   AdelantoData,
   TipoReserva,
   EstadoCotizacion,
   EstadoAsignacionProducto,
-  EstadoEntregaProducto,
   EntregaParcial,
   EditarVentaData
 } from '../types/venta.types';
-import type { Unidad } from '../types/unidad.types';
 import { ESTADOS_EN_ORIGEN } from '../types/unidad.types';
 import { esPaisOrigen } from '../utils/multiOrigen.helpers';
 import { getCTRU } from '../utils/ctru.utils';
@@ -68,12 +65,9 @@ import { toMillisSafe } from '../utils/dateFormatters';
 import { ProductoService } from './producto.service';
 import { inventarioService } from './inventario.service';
 import { unidadService } from './unidad.service';
-import { tipoCambioService } from './tipoCambio.service';
-import { NotificationService } from './notification.service';
 import { tesoreriaService } from './tesoreria.service';
 import { metricasService } from './metricas.service';
 import { entregaService } from './entrega.service';
-import { gastoService } from './gasto.service';
 import { actividadService } from './actividad.service';
 import { getNextSequenceNumber } from '../lib/sequenceGenerator';
 import { logBackgroundError } from '../lib/logger';
@@ -370,7 +364,7 @@ export class VentaService {
       const productosVenta: ProductoVenta[] = [];
       let subtotalPEN = 0;
       const lineaNegocioIds: string[] = [];
-      let lineaNegocioNombreMap: Record<string, string> = {};
+      const lineaNegocioNombreMap: Record<string, string> = {};
 
       for (const prod of data.productos) {
         const producto = await ProductoService.getById(prod.productoId);

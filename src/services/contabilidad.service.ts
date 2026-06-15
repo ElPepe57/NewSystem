@@ -25,8 +25,7 @@ import {
 import { db } from '../lib/firebase';
 import { tipoCambioService } from './tipoCambio.service';
 import { tesoreriaService } from './tesoreria.service';
-import { categoriaCostoService } from './categoriaCosto.service';
-import { esGastoDeVenta, esGastoDePeriodo, esGastoDistribucion, esGastoAdministrativo, type ArbolCategorias } from '../utils/gasto.bloque';
+import { esGastoDeVenta, esGastoDePeriodo, esGastoDistribucion, esGastoAdministrativo } from '../utils/gasto.bloque';
 import type { Venta } from '../types/venta.types';
 import type { Gasto } from '../types/gasto.types';
 import type { OrdenCompra } from '../types/ordenCompra.types';
@@ -554,7 +553,7 @@ function calcularGV(ventas: Venta[], gastos: Gasto[]): GastosVenta {
 function calcularGD(ventas: Venta[], gastos: Gasto[]): GastosDistribucion {
   let delivery = 0;
   let empaque = 0;
-  let fleteLocal = 0;
+  const fleteLocal = 0;
   let otros = 0;
 
   // Desde ventas (costo de envío asumido por negocio)

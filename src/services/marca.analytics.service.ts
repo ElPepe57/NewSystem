@@ -6,8 +6,7 @@ import {
   collection,
   getDocs,
   query,
-  where,
-  Timestamp
+  where
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { COLLECTIONS } from '../config/collections';

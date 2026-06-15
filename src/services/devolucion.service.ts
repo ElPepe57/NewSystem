@@ -26,11 +26,10 @@ import { db } from '../lib/firebase';
 import { COLLECTIONS } from '../config/collections';
 import { logger, logBackgroundError } from '../lib/logger';
 import { getNextSequenceNumber } from '../lib/sequenceGenerator';
-import { tesoreriaService } from './tesoreria.service';
 import { tipoCambioService } from './tipoCambio.service';
 import { actividadService } from './actividad.service';
 import { inventarioService } from './inventario.service';
-import type { Venta, MetodoPago } from '../types/venta.types';
+import type { Venta } from '../types/venta.types';
 import type {
   Devolucion,
   DevolucionInput,

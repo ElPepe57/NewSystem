@@ -6,8 +6,6 @@ import {
   Warehouse,
   Truck,
   UserCheck,
-  Home,
-  Car,
   Plane,
   DollarSign,
   Info,
@@ -15,7 +13,6 @@ import {
   Check,
   MapPin,
   Users,
-  Package,
 } from 'lucide-react';
 import { cn } from '../../../../design-system';
 import type { OCWizardState } from './ocWizardTypes';
@@ -23,10 +20,6 @@ import type { OCWizardAction } from './ocWizardReducer';
 import { emptyConfig } from './configLogistica';
 import type {
   ConfigLogistica,
-  SalidaProveedor,
-  LlegadaPeru,
-  UltimaMilla,
-  QuienPagaProveedor,
 } from './configLogistica';
 import { useProveedorStore } from '../../../../store/proveedorStore';
 import { useColaboradorStore } from '../../../../store/colaboradorStore';
@@ -264,7 +257,7 @@ export const StepRuta: React.FC<StepRutaProps> = ({ state, dispatch }) => {
         // TODO: Ampliar modelo con 'almacenFinalPeruId' en sesión dedicada.
       });
       // Guardamos como nota:
-      // eslint-disable-next-line no-console
+       
       console.info('[StepRuta] Almacén Perú seleccionado:', a.id, a.nombre);
     }
   };
@@ -339,7 +332,7 @@ export const StepRuta: React.FC<StepRutaProps> = ({ state, dispatch }) => {
                 type="button"
                 onClick={() => {
                   // TODO: abrir modal de crear proveedor inline
-                  // eslint-disable-next-line no-alert
+                   
                   alert('Crear proveedor inline — pendiente de conectar al modal');
                 }}
                 className="w-full border-2 border-dashed border-slate-300 rounded-xl p-3 text-sm text-slate-500 hover:border-blue-400 hover:bg-blue-50 hover:text-blue-700 transition-colors flex items-center justify-center gap-2"

@@ -30,7 +30,7 @@ import { getBalanceGeneralCached } from '../../../services/contabilidadCache';
 import type { BalanceGeneral as BalanceGeneralType } from '../../../types/contabilidad.types';
 import { formatCurrencyPEN } from '../../../utils/format';
 // chk5.E-B · Sprint B · donuts composición + tooltips
-import { DonutChartCanon, TooltipPedagogico } from '../../common';
+import { DonutChartCanon } from '../../common';
 import type { DonutSegment } from '../../common';
 
 const formatCurrency = (value: number): string => formatCurrencyPEN(value);

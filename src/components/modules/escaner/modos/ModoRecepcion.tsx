@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useImperativeHandle, forwardRef, useMemo } from 'react';
-import { Truck, Package, CheckCircle2, AlertTriangle, Clock, ChevronDown, Calendar } from 'lucide-react';
+import { Truck, Package, CheckCircle2, AlertTriangle, Clock, Calendar } from 'lucide-react';
 import { envioCrudService } from '../../../../services/envio.crud.service';
 import { envioRecepcionService } from '../../../../services/envio.recepcion.service';
 import { ProductoService } from '../../../../services/producto.service';

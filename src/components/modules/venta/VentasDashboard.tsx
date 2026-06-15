@@ -10,9 +10,7 @@ import {
   Calculator,
   ChevronDown,
   ChevronUp,
-  ShoppingCart,
   ArrowRight,
-  Minus,
   BarChart3
 } from 'lucide-react';
 import { Card } from '../../common';

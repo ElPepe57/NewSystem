@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Users, TrendingUp, ShoppingBag, Star, RefreshCw, Loader2 } from 'lucide-react';
+import { Star, Loader2 } from 'lucide-react';
 import { clienteService } from '../../services/cliente.service';
 import { VentaService } from '../../services/venta.service';
-import { useLineaFilter } from '../../hooks/useLineaFilter';
 import { filtrarVentasReporte } from '../../utils/kpi.calculators';
 import { formatCurrencyPEN } from '../../utils/format';
 import type { Cliente } from '../../types/entidadesMaestras.types';

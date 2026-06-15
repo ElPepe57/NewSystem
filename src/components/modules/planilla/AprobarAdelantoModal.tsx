@@ -6,10 +6,9 @@
  * Modal canon FormModalV2 emerald · M6 del mockup planilla-v5.3-modales-internos.html.
  * Aprueba un adelanto pendiente · permite ajustar monto + agregar notas internas.
  */
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { CheckCircle2, Check, Info } from 'lucide-react';
 import { FormModalV2 } from '../../../design-system/components/FormModalV2';
-import { planillaService } from '../../../services/planilla.service';
 import type { AdelantoNomina } from '../../../types/planilla.types';
 import { formatCurrencyPEN } from '../../../utils/format';
 import { useAuthStore } from '../../../store/authStore';

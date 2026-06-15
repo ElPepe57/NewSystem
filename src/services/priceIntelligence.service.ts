@@ -12,7 +12,6 @@
 import { OrdenCompraService } from './ordenCompra.service';
 import { ProductoService } from './producto.service';
 import type { Producto } from '../types/producto.types';
-import { getCostoFleteInternacional } from '../utils/multiOrigen.helpers';
 import type {
   PriceIntelligenceResult,
   PriceIntelligenceInput,

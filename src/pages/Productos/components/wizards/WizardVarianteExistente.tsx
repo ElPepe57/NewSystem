@@ -25,7 +25,6 @@ import {
   ArrowRight,
   Check,
   Info,
-  Plus,
   Package,
 } from 'lucide-react';
 import type { Producto, ProductoFormData } from '../../../../types/producto.types';

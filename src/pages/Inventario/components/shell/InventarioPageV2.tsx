@@ -22,8 +22,7 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import {
-  Package, BarChart3, Bell, MapPin, Boxes, CheckCircle, Lock, AlertTriangle, Download,
-  ChevronRight, Shield, LayoutDashboard,
+  Package, BarChart3, Bell, MapPin, Boxes, CheckCircle, Lock, AlertTriangle, Download, LayoutDashboard,
   Droplets, Pill, Shirt, UtensilsCrossed,
   User, Truck, Warehouse, Building2, Globe2, type LucideIcon,
 } from 'lucide-react';
@@ -40,7 +39,7 @@ import { FiltrosBar, ChipsActivos, BulkActionsToolbar, PaginacionFooter,
 import type {
   ChipGroupConfig, ChipOption, SortOption,
   LeadingFilterConfig, LeadingFilterOptionGroup, ChipActivo,
-  HubTab, HubKpi,
+  HubTab,
 } from '../../../../design-system';
 
 // Componentes locales del módulo
@@ -726,7 +725,7 @@ export const InventarioPageV2: React.FC = () => {
     }
 
     return chips;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [pillActivo, selecciones, busqueda, lineasNegocio, casillas]);
 
   const hayFiltrosActivos = useMemo(() => {

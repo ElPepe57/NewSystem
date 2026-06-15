@@ -30,16 +30,12 @@ import type {
   PoolUSDResumen,
   PoolUSDConfig,
   TipoMovimientoPool,
-  RatioCobertura,
   MargenRealVsNominal,
-  PrecioReposicion,
-  NecesidadVentasPEN,
   EscenarioTC,
 } from '../../types/rendimientoCambiario.types';
 import { esEntrada } from '../../types/rendimientoCambiario.types';
 import { poolUSDService } from '../../services/poolUSD.service';
 import { VentaService } from '../../services/venta.service';
-import { getCTRU, getTC } from '../../utils/ctru.utils';
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   BarChart, Bar, Legend,
@@ -1085,7 +1081,7 @@ const TabCicloPENUSD: React.FC<{
         const ventas = await VentaService.getVentasRecientes(30);
 
         let totalVentasPEN = 0;
-        let totalCostoUSD = 0;
+        const totalCostoUSD = 0;
         let pipelinePEN = 0;
         const productosMap = new Map<string, {
           productoId: string;
