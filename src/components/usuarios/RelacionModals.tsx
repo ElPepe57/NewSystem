@@ -43,10 +43,8 @@ import {
   TIPO_RELACION_ICONS,
   TIPO_RELACION_COLORS,
   MOTIVO_FIN_LABELS,
-  SUBTIPOS_RELACION,
-  slugSubtipo,
 } from '../../types/relacionLaboral.types';
-import { Combobox } from '../../design-system/components/forms/Combobox';
+import { SubtipoAutocomplete } from './forms/SubtipoAutocomplete';
 
 // ═════════════════════════════════════════════════════════════════════════
 // HELPER · ModalShell (wrapper común)
@@ -525,12 +523,6 @@ export const EditarRelacionModal: React.FC<BaseModalProps> = ({
     }
   };
 
-  // Opciones de subtipo desde la fuente única + el valor actual si es custom (creado inline).
-  const subtipoOptions = (SUBTIPOS_RELACION[relacion.tipo] ?? []).map((s) => ({ value: s.value, label: s.label }));
-  if (subTipo && !subtipoOptions.some((o) => o.value === subTipo)) {
-    subtipoOptions.unshift({ value: subTipo, label: subTipo });
-  }
-
   return (
     <ModalShell
       isOpen={isOpen}
@@ -618,16 +610,10 @@ export const EditarRelacionModal: React.FC<BaseModalProps> = ({
         </div>
       )}
       <div>
-        <Combobox<string>
-          label="Subtipo"
-          optional
-          value={subTipo || undefined}
-          onChange={(v) => setSubTipo(v)}
-          groups={[{ label: 'Sugeridos', options: subtipoOptions }]}
-          placeholder="Elegí o escribí un subtipo…"
-          onCreate={(term) => setSubTipo(slugSubtipo(term))}
-          createLabel="Crear subtipo"
-          emptyMessage="Escribí para crear uno nuevo"
+        <SubtipoAutocomplete
+          tipo={relacion.tipo}
+          value={subTipo}
+          onChange={setSubTipo}
         />
       </div>
       <div>
