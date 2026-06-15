@@ -133,7 +133,7 @@ export const InlineEditField: React.FC<Props> = ({
             onKeyDown={handleKeyDown}
             maxLength={maxLength}
             disabled={saving}
-            className={`flex-1 min-w-0 px-2 py-1 text-[12px] border ${error ? 'border-rose-300' : 'border-purple-300'} rounded focus:outline-none focus:ring-2 focus:ring-purple-200 font-semibold text-slate-900 ${tabular ? 'tabular-nums' : ''}`}
+            className={`flex-1 min-w-0 px-2 py-1 text-[12px] border ${error ? 'border-rose-300' : 'border-violet-300'} rounded focus:outline-none focus:ring-2 focus:ring-violet-200 font-semibold text-slate-900 ${tabular ? 'tabular-nums' : ''}`}
           />
           <button
             type="button"

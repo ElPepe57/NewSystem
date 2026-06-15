@@ -6,13 +6,13 @@
  * perfil-v5.4-personalizado.html ACTO 12 (líneas 1263-1310).
  *
  * Estructura:
- *   - Header: iconTone="purple" + Camera icon + "Editar foto"
+ *   - Header: iconTone="violet" + Camera icon + "Editar foto"
  *   - Body:
  *     · Preview circular grande (96px) · current photo o iniciales
  *     · Drop zone para seleccionar nueva foto
  *     · Validación: solo imágenes · max 2MB
  *     · Botón "Quitar foto actual" (si tiene)
- *   - Footer: Cancelar + Subir foto (variant primary-soft purple)
+ *   - Footer: Cancelar + Subir foto (variant primary-soft violet)
  *
  * Connector: userService.uploadProfilePhoto
  */
@@ -115,7 +115,7 @@ export const EditarAvatarModal: React.FC<Props> = ({ isOpen, onClose, onSuccess 
       title="Editar foto de perfil"
       subtitle="Sube una imagen cuadrada · máximo 2MB · JPG/PNG/WEBP"
       icon={Camera}
-      iconTone="purple"
+      iconTone="violet"
       submitLabel={uploading ? 'Subiendo...' : 'Subir foto'}
       submitVariant="primary-soft"
       submitIcon={Upload}
@@ -133,14 +133,14 @@ export const EditarAvatarModal: React.FC<Props> = ({ isOpen, onClose, onSuccess 
 
         {/* Preview grande · canon mockup línea 1275 */}
         <div className="flex flex-col items-center py-2">
-          <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-purple-500 to-purple-700 p-0.5 shadow-lg mb-3 overflow-hidden">
+          <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-violet-500 to-violet-700 p-0.5 shadow-lg mb-3 overflow-hidden">
             {previewUrl ? (
               <img src={previewUrl} alt="Preview" className="w-full h-full object-cover rounded-2xl" />
             ) : profile?.photoURL ? (
               <img src={profile.photoURL} alt={displayName} className="w-full h-full object-cover rounded-2xl" />
             ) : (
               <div className="w-full h-full rounded-2xl bg-white flex items-center justify-center">
-                <span className="text-3xl font-bold text-purple-700">{iniciales}</span>
+                <span className="text-3xl font-bold text-violet-700">{iniciales}</span>
               </div>
             )}
           </div>
@@ -158,13 +158,13 @@ export const EditarAvatarModal: React.FC<Props> = ({ isOpen, onClose, onSuccess 
           type="button"
           onClick={() => fileInputRef.current?.click()}
           disabled={uploading}
-          className="w-full bg-purple-50 hover:bg-purple-100 border-2 border-dashed border-purple-300 hover:border-purple-400 rounded-lg p-4 transition-colors flex flex-col items-center gap-2 disabled:opacity-50"
+          className="w-full bg-violet-50 hover:bg-violet-100 border-2 border-dashed border-violet-300 hover:border-violet-400 rounded-lg p-4 transition-colors flex flex-col items-center gap-2 disabled:opacity-50"
         >
-          <ImageIcon className="w-6 h-6 text-purple-600" />
-          <span className="text-[13px] font-semibold text-purple-700">
+          <ImageIcon className="w-6 h-6 text-violet-600" />
+          <span className="text-[13px] font-semibold text-violet-700">
             {selectedFile ? 'Elegir otra imagen' : 'Seleccionar imagen'}
           </span>
-          <span className="text-[10px] text-purple-600">JPG · PNG · WEBP · máximo 2MB</span>
+          <span className="text-[10px] text-violet-600">JPG · PNG · WEBP · máximo 2MB</span>
         </button>
         <input
           ref={fileInputRef}

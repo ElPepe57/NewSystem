@@ -54,6 +54,15 @@ export interface DatosLaborales extends PerfilLaboral {
   /** Días de vacaciones disponibles · informativo */
   vacacionesDisponibles?: number;
 
+  /**
+   * Meta de ventas mensual (S/) · objetivo del mes contra el que ResumenVendedor
+   * mide progreso y proyección. undefined = sin meta.
+   * FUENTE: el modelo vivo `RelacionLaboral.metaVentasMensual` (relación empleado),
+   * leído vía `perfilPersona.adapter.getDatosLaboralesView`. Este campo es el
+   * "carrier" de la VISTA del perfil · ya no se escribe en la colección datosLaborales.
+   */
+  metaVentasMensual?: number;
+
   /** Notas internas (admin/RRHH) */
   notas?: string;
 
@@ -64,18 +73,7 @@ export interface DatosLaborales extends PerfilLaboral {
   actualizadoPor?: string;
 }
 
-/**
- * Form data para crear/editar datos laborales · sin auditoría.
- */
-export interface DatosLaboralesFormData extends Omit<DatosLaborales,
-  | 'uid'
-  | 'fechaCreacion'
-  | 'creadoPor'
-  | 'fechaActualizacion'
-  | 'actualizadoPor'
-  | 'fechaIngreso'
-  | 'fechaSalida'
-> {
-  fechaIngreso: Date;
-  fechaSalida?: Date;
-}
+// NOTA: `DatosLaboralesFormData` (form de escritura legacy) se eliminó junto con
+// el form huérfano `DatosLaboralesForm` y las funciones de escritura del service
+// (2026-06-14) · la escritura laboral vive en `RelacionLaboral`. `DatosLaborales`
+// queda SOLO como la forma de la VISTA de lectura que arma `perfilPersona.adapter`.

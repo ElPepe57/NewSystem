@@ -61,10 +61,6 @@ const Auditoria = React.lazy(() => import('./pages/Auditoria/Auditoria').then(m 
 const Contabilidad = React.lazy(() => import('./pages/Contabilidad/Contabilidad').then(m => ({ default: m.Contabilidad })));
 // chk5.E-INV · Inversionistas · vista ejecutiva canon v5.2 (modelo mixto)
 const Inversionistas = React.lazy(() => import('./pages/Inversionistas/Inversionistas'));
-// chk5.F2-SUB-PERFILES · Ficha 360 de usuario · vista completa multi-rol + sub-perfiles
-// chk5.F4-USERS · DEPRECATED · Ficha 360 ahora vive como modal in-place desde /usuarios
-// (Ficha360Modal · canon F6.A). Esta página queda como fallback hasta deprecación final.
-const Ficha360 = React.lazy(() => import('./pages/Usuarios/Ficha360/Ficha360'));
 // chk5.PERSONAS-v5.x-LINEAS · 2026-05-29 · drill pages EditarLaborales/EditarSocio
 // ELIMINADAS · eran del modelo viejo de sub-perfiles singulares (datosLaborales/
 // datosSocio). Reemplazadas por RelacionLaboral · gestión en tab Relaciones del UserPanel.
@@ -271,9 +267,6 @@ function App() {
               {/* chk5.E-INV · vista ejecutiva para socios/inversionistas (canon v5.2 violet) */}
               <Route path="inversionistas" element={<Inversionistas />} />
               <Route path="usuarios" element={<Usuarios />} />
-              {/* chk5.F2-SUB-PERFILES · Ficha 360 página propia (DEPRECATED · fallback)
-                   chk5.F4-USERS · 2026-05-25 · uso preferido: modal in-place desde /usuarios */}
-              <Route path="usuarios/:uid/ficha" element={<Ficha360 />} />
               {/* chk5.PERSONAS-v5.x-LINEAS · 2026-05-29 · rutas editar/laborales y
                   editar/socio ELIMINADAS · modelo viejo de sub-perfiles reemplazado
                   por RelacionLaboral (tab Relaciones del UserPanel). */}

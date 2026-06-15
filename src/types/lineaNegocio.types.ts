@@ -34,6 +34,14 @@ export interface LineaNegocio {
   icono?: string;                    // Emoji o nombre de ícono (ej: '💊', '✨')
   activa: boolean;
 
+  /**
+   * Comisión Modelo A · % sobre la VENTA que gana el vendedor por cada venta
+   * de esta línea (perfiles-por-rol Fase 2). 0-100. undefined = sin comisión.
+   * Cálculo en ResumenVendedor: Σ(venta.totalPEN × comisionPorcentaje/100).
+   * Por línea porque el margen difiere (ej. SUP vs SKC tienen comisiones distintas).
+   */
+  comisionPorcentaje?: number;
+
   // Métricas snapshot (desnormalizadas, se recalculan)
   totalProductos?: number;
   totalUnidadesActivas?: number;
@@ -56,6 +64,8 @@ export interface LineaNegocioFormData {
   color: string;
   icono?: string;
   activa: boolean;
+  /** Comisión Modelo A · % sobre la venta · 0-100 · ver LineaNegocio.comisionPorcentaje */
+  comisionPorcentaje?: number;
 }
 
 /**

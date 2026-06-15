@@ -471,6 +471,7 @@ export const EditarRelacionModal: React.FC<BaseModalProps> = ({
   const [cargoDisplay, setCargoDisplay] = useState('');
   const [montoMensualReferencia, setMontoMensualReferencia] = useState<number | null>(null);
   const [monedaReferencia, setMonedaReferencia] = useState<'PEN' | 'USD'>('PEN');
+  const [metaVentas, setMetaVentas] = useState<number | null>(null);
   const [subTipo, setSubTipo] = useState<string>('');
   const [notas, setNotas] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -481,6 +482,7 @@ export const EditarRelacionModal: React.FC<BaseModalProps> = ({
       setCargoDisplay(relacion.cargoDisplay ?? '');
       setMontoMensualReferencia(relacion.montoMensualReferencia ?? null);
       setMonedaReferencia(relacion.monedaReferencia ?? 'PEN');
+      setMetaVentas(relacion.metaVentasMensual ?? null);
       setSubTipo(relacion.subTipo ?? '');
       setNotas(relacion.notas ?? '');
       setError(null);
@@ -502,6 +504,8 @@ export const EditarRelacionModal: React.FC<BaseModalProps> = ({
             montoMensualReferencia !== null && montoMensualReferencia > 0 ? montoMensualReferencia : undefined,
           monedaReferencia:
             montoMensualReferencia !== null && montoMensualReferencia > 0 ? monedaReferencia : undefined,
+          metaVentasMensual:
+            relacion.tipo === 'empleado' && metaVentas !== null && metaVentas > 0 ? metaVentas : undefined,
           subTipo: (subTipo || undefined) as RelacionLaboral['subTipo'],
           notas: notas.trim() || undefined,
         },
@@ -589,6 +593,21 @@ export const EditarRelacionModal: React.FC<BaseModalProps> = ({
           </select>
         </div>
       </div>
+      {relacion.tipo === 'empleado' && (
+        <div>
+          <label className="text-[10px] uppercase tracking-wider font-bold text-slate-700 mb-1 block">
+            Meta de ventas mensual (S/) <span className="font-normal normal-case tracking-normal text-slate-400">· solo vendedores</span>
+          </label>
+          <input
+            type="number"
+            value={metaVentas ?? ''}
+            onChange={(e) => setMetaVentas(e.target.value ? Number(e.target.value) : null)}
+            className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm tabular-nums"
+            placeholder="ej: 20000"
+          />
+          <p className="text-[10px] text-slate-400 mt-1">Objetivo del mes para su progreso en "Mi perfil". Vacío = sin meta.</p>
+        </div>
+      )}
       <div>
         <label className="text-[10px] uppercase tracking-wider font-bold text-slate-700 mb-1 block">
           Subtipo (opcional)

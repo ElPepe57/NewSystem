@@ -88,6 +88,7 @@ interface WizardState {
   cargoDisplay: string;
   monto: number | null;
   moneda: 'PEN' | 'USD';
+  metaVentas: number | null;
   notas: string;
   // Externo + vinculación Maestros (v5.8)
   vincularConMaestro: boolean;
@@ -103,6 +104,7 @@ const INITIAL: WizardState = {
   cargoDisplay: '',
   monto: null,
   moneda: 'PEN',
+  metaVentas: null,
   notas: '',
   vincularConMaestro: false,
   maestroTipo: 'proveedor',
@@ -238,6 +240,10 @@ export const AgregarRelacionWizard: React.FC<AgregarRelacionWizardProps> = ({
           state.monto !== null && state.monto > 0 ? state.monto : undefined,
         monedaReferencia:
           state.monto !== null && state.monto > 0 ? state.moneda : undefined,
+        metaVentasMensual:
+          state.tipo === 'empleado' && state.metaVentas !== null && state.metaVentas > 0
+            ? state.metaVentas
+            : undefined,
         notas: state.notas.trim() || undefined,
       };
 
@@ -470,6 +476,23 @@ export const AgregarRelacionWizard: React.FC<AgregarRelacionWizardProps> = ({
                       <option value="USD">USD</option>
                     </select>
                   </div>
+                </div>
+              )}
+
+              {/* Meta de ventas mensual · solo empleado (vendedores) */}
+              {state.tipo === 'empleado' && (
+                <div>
+                  <label className="text-[10px] uppercase tracking-wider font-bold text-slate-700 mb-1 block">
+                    Meta de ventas mensual (S/) <span className="font-normal normal-case tracking-normal text-slate-400">· solo vendedores · opcional</span>
+                  </label>
+                  <input
+                    type="number"
+                    value={state.metaVentas ?? ''}
+                    onChange={(e) => set('metaVentas', e.target.value ? Number(e.target.value) : null)}
+                    className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm tabular-nums"
+                    placeholder="ej: 20000"
+                  />
+                  <p className="text-[10px] text-slate-400 mt-1">Objetivo del mes contra el que el vendedor mide su progreso en "Mi perfil". Dejar vacío si no aplica.</p>
                 </div>
               )}
 

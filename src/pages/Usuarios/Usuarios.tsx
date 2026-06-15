@@ -15,9 +15,7 @@ import {
   // chk5.PERSONAS-v5.8 · E5 · banner borrador colaborador (wizard @deprecated)
   FileText,
 } from 'lucide-react';
-// chk5.PERSONAS-v5.7 · E4.1 (2026-05-28) · UserPanel reemplaza Ficha360Modal
-// como camino canon para ver el detalle de un usuario. Ficha360Modal queda
-// en deprecation soft · se elimina en E10.
+// UserPanel · camino canon para ver el detalle de un usuario (reemplazó a Ficha360, ya eliminada 2026-06-14).
 import { UserPanel } from '../../components/usuarios/UserPanel';
 import { relacionesLaboralesService } from '../../services/relacionesLaborales.service';
 import type { RelacionLaboral } from '../../types/relacionLaboral.types';
@@ -57,10 +55,6 @@ import TabAccesos from '../../components/modules/usuarios/TabAccesos';
 import TabConfiguracion from '../../components/modules/usuarios/TabConfiguracion';
 import TabInvitaciones from '../../components/modules/usuarios/TabInvitaciones';
 import InvitarPorEmailModal from '../../components/modules/usuarios/InvitarPorEmailModal';
-// chk5.PERSONAS-v5.7 · E4.1 · Ficha360Modal reemplazado por UserPanel canon F6-E
-// El componente Ficha360Modal sigue exportado para retrocompatibilidad pero NO se
-// invoca desde acá. Se elimina en E10 cuando todos los consumidores hayan migrado.
-// import Ficha360Modal from './Ficha360/Ficha360Modal'; // @deprecated chk5.PERSONAS-v5.7
 // chk5.F4-USERS · 2026-05-26 · Fase 5-BIS · 8 modales operativos canon FormModalV2
 // chk5.PERSONAS-v5.x-LINEAS · NuevoUsuarioModal eliminado (alta vive en /planilla + /inversionistas)
 import EditarUsuarioModal from '../../components/modules/usuarios/EditarUsuarioModal';

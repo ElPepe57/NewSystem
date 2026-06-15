@@ -241,6 +241,13 @@ export interface RelacionLaboral {
   montoMensualReferencia?: number;
   monedaReferencia?: 'PEN' | 'USD';
 
+  /**
+   * Meta de ventas mensual (S/) · perfiles-por-rol · solo relevante para relaciones
+   * de venta (empleado/comisionista vendedor). Es el objetivo del mes contra el que
+   * ResumenVendedor mide progreso y proyección. undefined = sin meta.
+   */
+  metaVentasMensual?: number;
+
   // ── Línea de negocio · chk5.PERSONAS-v5.x-LINEAS (2026-05-29) ───────────
   // Modelo SINGLE consistente con todo el sistema (Producto · Venta · Gasto · OC).
   //   - lineaNegocioId presente  → la relación opera en esa línea específica.
@@ -297,6 +304,8 @@ export interface CrearRelacionInput {
   cargoDisplay?: string;
   montoMensualReferencia?: number;
   monedaReferencia?: 'PEN' | 'USD';
+  /** Meta de ventas mensual (S/) · solo vendedores · ver RelacionLaboral.metaVentasMensual */
+  metaVentasMensual?: number;
   /** Id de línea de negocio · ausente = compartido / empresa global · chk5-LINEAS */
   lineaNegocioId?: string;
   /** Snapshot desnormalizado de la línea · el service lo arma desde el store si hay lineaNegocioId */

@@ -178,7 +178,7 @@ export const MiBandejaPersonal: React.FC = () => {
             <p className="text-[12px] text-slate-600 mb-4 max-w-md mx-auto">
               Esta vista es para admin/gerente · centro de mando de aprobaciones del sistema.
             </p>
-            <button onClick={() => navigate('/perfil')} className="text-[12px] font-bold text-white bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded-lg">
+            <button onClick={() => navigate('/perfil')} className="text-[12px] font-bold text-white bg-violet-600 hover:bg-violet-700 px-4 py-2 rounded-lg">
               Volver al perfil
             </button>
           </div>
@@ -435,7 +435,7 @@ export const MiBandejaPersonal: React.FC = () => {
           {subTab === 'usuarios' && data.usuariosPendientes.map((u) => (
             <div key={u.id} className="bg-white border border-amber-200 rounded-xl p-4">
               <div className="flex items-start gap-3 flex-wrap">
-                <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-purple-500 to-purple-700 flex items-center justify-center text-white font-bold text-[13px] flex-shrink-0">
+                <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-violet-500 to-violet-700 flex items-center justify-center text-white font-bold text-[13px] flex-shrink-0">
                   {u.nombre.charAt(0).toUpperCase()}
                 </div>
                 <div className="flex-1 min-w-[200px]">

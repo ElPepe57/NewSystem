@@ -206,12 +206,6 @@ export interface BoletaAjustes {
 // LABELS
 // ============================================
 
-export const TIPO_EMPLEADO_LABELS: Record<TipoEmpleado, string> = {
-  empleado: 'Empleado',
-  comisionista: 'Comisionista',
-  externo: 'Externo',
-};
-
 export const TIPO_ADELANTO_LABELS: Record<TipoAdelanto, string> = {
   adelanto_sueldo: 'Adelanto de sueldo',
   reembolso_gasto: 'Reembolso de gasto',
@@ -452,13 +446,6 @@ export interface CalculoIncentivoMes {
   fechaCalculo: Timestamp;
 }
 
-export const ESTADO_CALCULO_LABELS: Record<EstadoCalculoIncentivo, string> = {
-  calculado: 'Calculado',
-  aprobado: 'Aprobado',
-  rechazado: 'Rechazado',
-  incluido_en_boleta: 'En boleta',
-};
-
 // ============================================
 // BONIFICACIÓN INCENTIVO en BOLETA (línea de detalle)
 // ============================================
@@ -541,13 +528,6 @@ export const TIPO_BAJA_LABELS: Record<TipoBaja, string> = {
   fin_contrato: 'Fin de contrato',
   jubilacion: 'Jubilación',
   fallecimiento: 'Fallecimiento',
-};
-
-export const ESTADO_LIQUIDACION_LABELS: Record<EstadoLiquidacion, string> = {
-  borrador: 'Borrador',
-  aprobada: 'Aprobada',
-  pagada: 'Pagada',
-  anulada: 'Anulada',
 };
 
 // ============================================

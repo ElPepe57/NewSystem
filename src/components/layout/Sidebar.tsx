@@ -1,187 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import {
-  Home,
-  Package,
-  Warehouse,
-  Box,
-  ShoppingCart,
-  ShoppingBag,
-  DollarSign,
-  TrendingUp,
-  Calculator,
-  Settings,
-  LogOut,
-  Receipt,
-  ArrowRightLeft,
-  FileText,
-  Users,
-  Activity,
-  Wallet,
-  ClipboardList,
-  Database,
-  ChevronDown,
-  ChevronRight,
-  Boxes,
-  BarChart3,
-  Shield,
-  X,
-  BookOpen,
-  Zap,
-  Droplets,
-  ScanLine,
-  BrainCircuit,
-  Palette,
-  Target,
-  MapPin,
-  Banknote,
-  Network,
-  Coins,
-  Landmark
-} from 'lucide-react';
+import { Home, LogOut, ChevronDown, ChevronRight, X, Droplets } from 'lucide-react';
 
 import { useAuthStore } from '../../store/authStore';
 import { AuthService } from '../../services/auth.service';
 import { usePermissions } from '../../hooks/usePermissions';
-import { PERMISOS, hasAnyRole } from '../../types/auth.types';
+import { hasAnyRole } from '../../types/auth.types';
 import { LineaNegocioSelector } from '../modules/lineaNegocio/LineaNegocioSelector';
 // F10.F.1.J-SIDEBAR · Grupo "Mi espacio" al final del sidebar · items dinámicos por rol
 import { MiEspacioGroup } from './MiEspacioGroup';
+// Fuente única de navegación (grupos + items + permisos) · compartida con MisAreas
+import { MENU_GROUPS, type MenuGroup, type MenuItem } from '../../config/navegacion';
 
-interface MenuItem {
-  icon: React.FC<{ className?: string }>;
-  label: string;
-  path: string;
-  permiso?: string;
-}
-
-interface MenuGroup {
-  id: string;
-  label: string;
-  icon: React.FC<{ className?: string }>;
-  items: MenuItem[];
-  defaultOpen?: boolean;
-}
-
-// Grupos de menú reorganizados.
-//
-// chk5.PERSONAS-v5.7 ACTO 1 (2026-05-28) · Reorganización canónica:
-//   · Grupo "Equipo" posicionado entre Inventario y Finanzas · agrupa todo
-//     lo relacionado con PERSONAS del negocio (patrón Linear/Notion/Stripe).
-//   · Usuarios = hub maestro (catálogo único · modelo v5.6 multi-relación)
-//   · Planilla = vista operativa filtrada por relacion.tipo='empleado'
-//   · Inversionistas = vista operativa para relacion.tipo='socio'
-//   · MOVIDOS desde grupos anteriores:
-//     - Usuarios: Administración → Equipo
-//     - Planilla: Finanzas y Contabilidad → Equipo
-//     - Inversionistas: Finanzas y Contabilidad → Equipo
-//   · Maestros queda en Administración (canon v5.8 ACTO 0 · es catálogo
-//     comercial del negocio · NO personas).
-//   · /honorarios y /socios como rutas dedicadas: NO se agregan aún · no
-//     existen las rutas (v5.7 las propone como features futuras vinculadas
-//     a relacion.tipo · se incorporan en E4+ cuando se implemente el shell
-//     /usuarios completo con vistas filtradas por tipo de relación).
-const menuGroups: MenuGroup[] = [
-  {
-    id: 'comercial',
-    label: 'Comercial',
-    icon: ShoppingBag,
-    defaultOpen: true,
-    items: [
-      { icon: ShoppingCart, label: 'Compras', path: '/compras', permiso: PERMISOS.VER_ORDENES_COMPRA },
-      { icon: ShoppingBag, label: 'Ventas', path: '/ventas', permiso: PERMISOS.VER_VENTAS },
-      { icon: FileText, label: 'Cotizaciones', path: '/cotizaciones', permiso: PERMISOS.VER_COTIZACIONES },
-      { icon: ClipboardList, label: 'Requerimientos', path: '/requerimientos', permiso: PERMISOS.VER_REQUERIMIENTOS },
-      { icon: Droplets, label: 'Mercado Libre', path: '/mercado-libre', permiso: PERMISOS.VER_VENTAS },
-    ]
-  },
-  {
-    id: 'inventario',
-    label: 'Inventario',
-    icon: Boxes,
-    defaultOpen: true,
-    items: [
-      { icon: Package, label: 'Productos', path: '/productos', permiso: PERMISOS.VER_INVENTARIO },
-      { icon: Warehouse, label: 'Stock', path: '/inventario', permiso: PERMISOS.VER_INVENTARIO },
-      { icon: Box, label: 'Unidades', path: '/inventario?modo=unidades', permiso: PERMISOS.GESTIONAR_INVENTARIO },
-      { icon: ArrowRightLeft, label: 'Envíos', path: '/envios', permiso: PERMISOS.TRANSFERIR_UNIDADES },
-      { icon: Network, label: 'Red Logística', path: '/red-logistica', permiso: PERMISOS.VER_INVENTARIO },
-      { icon: ScanLine, label: 'Escaner', path: '/escaner', permiso: PERMISOS.VER_INVENTARIO },
-    ]
-  },
-  {
-    // chk5.PERSONAS-v5.7 ACTO 1 · NUEVO grupo "Equipo" agrupando personas.
-    // Reemplaza el grupo "Equipo" huérfano anterior (que solo tenía "Notas IA").
-    id: 'equipo',
-    label: 'Equipo',
-    icon: Users,
-    defaultOpen: true,
-    items: [
-      // Usuarios · HUB MAESTRO · catálogo único de identidades + relaciones
-      { icon: Users, label: 'Usuarios', path: '/usuarios', permiso: PERMISOS.GESTIONAR_USUARIOS },
-      // Planilla · vista operativa filtrada por relacion.tipo='empleado'
-      { icon: Banknote, label: 'Planilla', path: '/planilla', permiso: PERMISOS.VER_PLANILLA },
-      // Inversionistas · vista operativa para socios (cap table · distribuciones)
-      { icon: Landmark, label: 'Inversionistas', path: '/inversionistas', permiso: PERMISOS.VER_INVERSIONISTAS },
-      // Notas IA · herramienta de equipo (queda acá por ser transversal a personas)
-      { icon: BrainCircuit, label: 'Notas IA', path: '/notas-ia', permiso: PERMISOS.VER_DASHBOARD },
-    ]
-  },
-  {
-    // S57 Fase C+ — Grupo renombrado a "Finanzas y Contabilidad" para evitar
-    // shadowing con el módulo "Finanzas" (hub). Estándar industria
-    // (Odoo: "Accounting & Finance", NetSuite: "Financials").
-    // Los sub-items Saldos y Cash flow se accedían también vía sidebar pero
-    // duplicaban la navegación de las tabs internas del FinanzasLayout.
-    // Patrón Stripe/Linear: el sidebar lleva al hub, las tabs hacen sub-nav.
-    //
-    // chk5.PERSONAS-v5.7 (2026-05-28) · Planilla e Inversionistas SALIERON
-    // de este grupo y viven en "Equipo" · son operaciones de PERSONAS.
-    // Acá quedan los módulos puramente financieros/contables.
-    id: 'finanzas',
-    label: 'Finanzas y Contabilidad',
-    icon: Wallet,
-    defaultOpen: false,
-    items: [
-      // Hub Finanzas (Overview/Saldos/Cash flow vía tabs internas)
-      { icon: Coins, label: 'Finanzas', path: '/finanzas', permiso: PERMISOS.VER_TESORERIA },
-      { icon: DollarSign, label: 'Tipo de Cambio', path: '/tipo-cambio', permiso: PERMISOS.VER_TESORERIA },
-      { icon: Receipt, label: 'Gastos', path: '/gastos', permiso: PERMISOS.VER_GASTOS },
-      { icon: BookOpen, label: 'Contabilidad', path: '/contabilidad', permiso: PERMISOS.VER_TESORERIA },
-    ]
-  },
-  {
-    id: 'analisis',
-    label: 'Análisis',
-    icon: BarChart3,
-    defaultOpen: true,
-    items: [
-      { icon: TrendingUp, label: 'Reportes', path: '/reportes', permiso: PERMISOS.VER_REPORTES },
-      { icon: Calculator, label: 'Costos CTRU', path: '/ctru', permiso: PERMISOS.VER_CTRU },
-      { icon: Zap, label: 'Intel. Productos', path: '/productos-intel', permiso: PERMISOS.VER_INVENTARIO },
-      // chk5.B8 · Cost Intelligence System · módulo nuevo · costos reales/variance/TCPA · coexiste con Intel. Productos viejo hasta DEUDA-REVIEW-INTELS
-      { icon: BrainCircuit, label: 'Cost Intelligence', path: '/intel-productos', permiso: PERMISOS.VER_INVENTARIO },
-      { icon: Activity, label: 'Rendimiento FX', path: '/rendimiento-cambiario', permiso: PERMISOS.VER_TESORERIA },
-      { icon: Target, label: 'Proyeccion', path: '/proyeccion', permiso: PERMISOS.VER_CTRU },
-      { icon: MapPin, label: 'Mapa Ventas', path: '/mapa-ventas', permiso: PERMISOS.VER_REPORTES },
-    ]
-  },
-  {
-    // chk5.PERSONAS-v5.7 (2026-05-28) · Usuarios SALIÓ de este grupo · vive
-    // en "Equipo". Administración queda para configuración técnica del sistema
-    // y catálogos comerciales del negocio (Maestros).
-    id: 'admin',
-    label: 'Administración',
-    icon: Shield,
-    defaultOpen: false,
-    items: [
-      { icon: Palette, label: 'Líneas de Negocio', path: '/lineas-negocio', permiso: PERMISOS.GESTIONAR_CONFIGURACION },
-      { icon: Database, label: 'Maestros', path: '/maestros', permiso: PERMISOS.GESTIONAR_CONFIGURACION },
-      { icon: Activity, label: 'Auditoría', path: '/auditoria', permiso: PERMISOS.VER_AUDITORIA },
-      { icon: Settings, label: 'Configuración', path: '/configuracion', permiso: PERMISOS.GESTIONAR_CONFIGURACION },
-    ]
-  }
-];
+// Grupos de menú · la config vive en src/config/navegacion.ts (fuente única
+// compartida con MisAreas). Reorganización canónica chk5.PERSONAS-v5.7: grupo
+// "Equipo" entre Inventario y Finanzas (Usuarios/Planilla/Inversionistas).
+const menuGroups: MenuGroup[] = MENU_GROUPS;
 
 interface SidebarProps {
   onClose?: () => void;

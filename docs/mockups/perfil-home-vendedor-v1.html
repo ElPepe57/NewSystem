@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mockup · Home del Vendedor (Mi Perfil por rol) · v1</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  body { font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f1f5f9; }
+  .tabular { font-variant-numeric: tabular-nums; }
+  ::-webkit-scrollbar { height: 0; width: 0; }
+</style>
+</head>
+<body class="text-slate-800">
+
+<!-- ╔═══════════════════════════════════════════════════════════╗ -->
+<!-- ║  HERO + ÍNDICE                                             ║ -->
+<!-- ╚═══════════════════════════════════════════════════════════╝ -->
+<div class="max-w-6xl mx-auto px-4 py-8">
+  <div class="bg-gradient-to-br from-violet-600 to-violet-800 rounded-3xl p-8 text-white mb-6">
+    <div class="text-[11px] font-bold uppercase tracking-widest text-violet-200 mb-2">Mockup · v1 · 2026-06-13</div>
+    <h1 class="text-3xl font-bold mb-2">Home del Vendedor · "Mi Perfil" por rol</h1>
+    <p class="text-violet-100 text-[14px] max-w-3xl leading-relaxed">
+      El perfil hoy personaliza por <b>vínculo</b> (admin/empleado/socio) — un vendedor cae en
+      "ResumenEmpleado" y ve su <b>sueldo</b>, no su <b>trabajo</b>. Este mockup readapta el tab
+      <b>Resumen</b> a un <b>home operativo del vendedor</b>: sus ventas, meta, cotizaciones,
+      entregas y cobranzas. Piloto del patrón → se replica a comprador/almacenero/supervisor.
+    </p>
+    <div class="mt-4 flex flex-wrap gap-2 text-[11px]">
+      <span class="bg-violet-500/40 px-3 py-1 rounded-full">Grupo Equipo → color violet</span>
+      <span class="bg-violet-500/40 px-3 py-1 rounded-full">Reusa Hub Kit + DataCard + KPI N1/N2</span>
+      <span class="bg-violet-500/40 px-3 py-1 rounded-full">Cobertura + mobile 375px</span>
+      <span class="bg-amber-400/30 px-3 py-1 rounded-full">⚠ "Comisión" = modelo nuevo (hoy no existe)</span>
+    </div>
+  </div>
+
+  <div class="bg-white rounded-2xl ring-1 ring-slate-200 p-5 mb-8 text-[13px]">
+    <div class="font-bold text-slate-900 mb-2">Índice</div>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-2 text-slate-600">
+      <div>ACTO 1 · Shell + header + tabs</div>
+      <div>ACTO 2 · Tab Resumen = Home del vendedor</div>
+      <div>ACTO 3 · Estados (empty/loading/error)</div>
+      <div>ACTO 4 · Mobile 375px</div>
+    </div>
+  </div>
+
+<!-- ╔═══════════════════════════════════════════════════════════╗ -->
+<!-- ║  ACTO 1 · SHELL DESKTOP                                    ║ -->
+<!-- ╚═══════════════════════════════════════════════════════════╝ -->
+  <div class="text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-3">Acto 1 · Shell del perfil (header + tabs)</div>
+
+  <div class="bg-white rounded-2xl ring-1 ring-slate-200 overflow-hidden mb-10 shadow-sm">
+    <!-- Breadcrumb canon S9.D1 -->
+    <div class="px-6 py-2.5 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
+      <div class="flex items-center gap-1.5 text-[11px] text-slate-500">
+        <span>Inicio</span>
+        <i data-lucide="chevron-right" class="w-3 h-3"></i>
+        <span class="font-semibold text-slate-700">Mi Perfil</span>
+        <i data-lucide="chevron-right" class="w-3 h-3"></i>
+        <span class="text-violet-700 font-semibold">Resumen</span>
+      </div>
+    </div>
+
+    <!-- Header banking-grade -->
+    <div class="px-6 py-5 flex items-start justify-between gap-4 flex-wrap">
+      <div class="flex items-center gap-4">
+        <div class="relative">
+          <div class="w-20 h-20 rounded-2xl bg-gradient-to-br from-violet-500 to-violet-700 flex items-center justify-center text-white text-2xl font-bold">JG</div>
+          <button class="absolute -bottom-1 -right-1 w-7 h-7 bg-white rounded-full ring-1 ring-slate-200 flex items-center justify-center">
+            <i data-lucide="camera" class="w-3.5 h-3.5 text-slate-600"></i>
+          </button>
+        </div>
+        <div>
+          <h1 class="text-2xl font-bold tracking-tight text-slate-900">Josselin Gambini</h1>
+          <p class="text-[13px] text-slate-500 mb-1.5">jgambini2511@gmail.com · activo desde junio 2026</p>
+          <div class="flex items-center gap-1.5 flex-wrap">
+            <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-violet-100 text-violet-700 inline-flex items-center gap-1">
+              <i data-lucide="shopping-bag" class="w-2.5 h-2.5"></i> Vendedor
+            </span>
+            <span class="text-[10px] font-bold px-1.5 py-0.5 rounded uppercase bg-emerald-100 text-emerald-700">Activo</span>
+          </div>
+        </div>
+      </div>
+      <div class="flex items-center gap-1.5">
+        <button class="text-[12px] font-medium text-slate-600 hover:bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-lg flex items-center gap-1.5">
+          <i data-lucide="lock" class="w-3.5 h-3.5"></i> Cambiar contraseña
+        </button>
+        <button class="text-[12px] font-bold text-white bg-violet-600 hover:bg-violet-700 px-3 py-1.5 rounded-lg flex items-center gap-1.5">
+          <i data-lucide="edit-2" class="w-3.5 h-3.5"></i> Editar perfil
+        </button>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="px-6 border-b border-slate-200">
+      <div class="flex gap-1">
+        <button class="px-4 py-2.5 text-[12px] font-bold border-b-2 border-violet-600 text-violet-700 flex items-center gap-1.5">
+          <i data-lucide="layout-dashboard" class="w-3.5 h-3.5"></i> Resumen
+        </button>
+        <button class="px-4 py-2.5 text-[12px] font-medium border-b-2 border-transparent text-slate-600 hover:text-violet-600 flex items-center gap-1.5">
+          <i data-lucide="user" class="w-3.5 h-3.5"></i> Datos
+        </button>
+        <button class="px-4 py-2.5 text-[12px] font-medium border-b-2 border-transparent text-slate-600 hover:text-violet-600 flex items-center gap-1.5">
+          <i data-lucide="activity" class="w-3.5 h-3.5"></i> Actividad & seguridad
+        </button>
+      </div>
+    </div>
+
+<!-- ╔═══════════════════════════════════════════════════════════╗ -->
+<!-- ║  ACTO 2 · TAB RESUMEN = HOME DEL VENDEDOR                  ║ -->
+<!-- ╚═══════════════════════════════════════════════════════════╝ -->
+    <div class="p-6 space-y-5">
+
+      <!-- §A · Banner saludo + pendientes -->
+      <div class="bg-gradient-to-r from-violet-50 to-violet-100/40 ring-1 ring-violet-200/60 rounded-2xl px-5 py-4 flex items-center justify-between gap-4 flex-wrap">
+        <div>
+          <div class="text-[15px] font-bold text-slate-900">Hola, Josselin 👋 — esto es lo tuyo hoy</div>
+          <div class="text-[12px] text-slate-600 mt-0.5">Tenés <b class="text-rose-700">3 pendientes</b> que requieren tu atención · 1 entrega atrasada y 1 cobranza vencida.</div>
+        </div>
+        <button class="text-[12px] font-bold text-violet-700 bg-white ring-1 ring-violet-200 px-3 py-1.5 rounded-lg flex items-center gap-1.5 flex-shrink-0">
+          Ver pendientes <i data-lucide="arrow-down" class="w-3.5 h-3.5"></i>
+        </button>
+      </div>
+
+      <!-- §B · KPI strip semántico (canon N1/N2) -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <!-- Mis ventas -->
+        <div class="bg-gradient-to-br from-amber-50 to-amber-100/40 ring-1 ring-amber-200/50 rounded-2xl p-4">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-[10px] uppercase tracking-wider text-amber-700 font-bold">Mis ventas · mes</span>
+            <i data-lucide="shopping-bag" class="w-3.5 h-3.5 text-amber-700"></i>
+          </div>
+          <div class="text-2xl font-bold tabular text-amber-900">S/ 12,400</div>
+          <div class="text-[11px] text-amber-700 flex items-center gap-1 mt-1"><i data-lucide="trending-up" class="w-3 h-3"></i> +18% vs mayo</div>
+        </div>
+        <!-- Cotizaciones -->
+        <div class="bg-gradient-to-br from-sky-50 to-sky-100/40 ring-1 ring-sky-200/50 rounded-2xl p-4">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-[10px] uppercase tracking-wider text-sky-700 font-bold">Cotizaciones</span>
+            <i data-lucide="file-text" class="w-3.5 h-3.5 text-sky-700"></i>
+          </div>
+          <div class="text-2xl font-bold tabular text-sky-900">7 <span class="text-sky-400 text-base">abiertas</span></div>
+          <div class="text-[11px] text-sky-700 mt-1">3 por vencer esta semana</div>
+        </div>
+        <!-- Entregas pendientes -->
+        <div class="bg-gradient-to-br from-rose-50 to-rose-100/40 ring-1 ring-rose-200/50 rounded-2xl p-4">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-[10px] uppercase tracking-wider text-rose-700 font-bold">Entregas / cobros</span>
+            <i data-lucide="truck" class="w-3.5 h-3.5 text-rose-700"></i>
+          </div>
+          <div class="text-2xl font-bold tabular text-rose-900">4 <span class="text-rose-400 text-base">pend.</span></div>
+          <div class="text-[11px] text-rose-700 mt-1">1 entrega atrasada</div>
+        </div>
+        <!-- Comisión estimada -->
+        <div class="bg-gradient-to-br from-emerald-50 to-emerald-100/40 ring-1 ring-emerald-200/50 rounded-2xl p-4 relative">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-[10px] uppercase tracking-wider text-emerald-700 font-bold">Comisión est.</span>
+            <i data-lucide="badge-dollar-sign" class="w-3.5 h-3.5 text-emerald-700"></i>
+          </div>
+          <div class="text-2xl font-bold tabular text-emerald-900">S/ 620</div>
+          <div class="text-[10px] text-emerald-700 mt-1 inline-flex items-center gap-1">
+            <span class="bg-emerald-200/70 px-1.5 py-0.5 rounded font-bold">estimado 5%</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- §C · Visualización: progreso meta + tendencia -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <!-- Progreso meta (2/3) -->
+        <div class="md:col-span-2 bg-white ring-1 ring-slate-200 rounded-2xl p-5">
+          <div class="flex items-center justify-between mb-3">
+            <div class="text-[13px] font-bold text-slate-900 flex items-center gap-2"><i data-lucide="target" class="w-4 h-4 text-violet-600"></i> Mi meta del mes</div>
+            <div class="text-[12px] text-slate-500">faltan <b class="text-slate-900">14 días</b></div>
+          </div>
+          <div class="flex items-end justify-between mb-2">
+            <div class="text-2xl font-bold tabular text-slate-900">S/ 12,400 <span class="text-[13px] font-medium text-slate-400">de S/ 20,000</span></div>
+            <div class="text-[13px] font-bold text-amber-600">62%</div>
+          </div>
+          <div class="h-3 bg-slate-100 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-amber-400 to-amber-500 rounded-full" style="width:62%"></div>
+          </div>
+          <div class="text-[11px] text-slate-500 mt-2">Necesitás <b class="text-slate-700">S/ 543/día</b> para cerrar la meta · proyección actual: <b class="text-amber-700">S/ 18.6K (93%)</b>.</div>
+        </div>
+        <!-- Sparkline ventas 7d (1/3) -->
+        <div class="bg-white ring-1 ring-slate-200 rounded-2xl p-5">
+          <div class="text-[13px] font-bold text-slate-900 flex items-center gap-2 mb-3"><i data-lucide="trending-up" class="w-4 h-4 text-emerald-600"></i> Mis últimos 7 días</div>
+          <svg viewBox="0 0 200 60" class="w-full h-16">
+            <polyline points="0,45 33,38 66,42 99,28 132,30 165,18 200,12" fill="none" stroke="#10b981" stroke-width="2.5"/>
+          </svg>
+          <div class="text-[11px] text-slate-500 mt-1">12 ventas esta semana · mejor día: ayer (S/ 2.1K)</div>
+        </div>
+      </div>
+
+      <!-- §D · Mis pendientes (DataCard del kit) -->
+      <div>
+        <div class="text-[13px] font-bold text-slate-900 mb-2 flex items-center gap-2"><i data-lucide="list-checks" class="w-4 h-4 text-violet-600"></i> Mis pendientes</div>
+        <div class="space-y-2">
+          <div class="bg-white ring-1 ring-slate-200 border-l-4 border-l-rose-400 rounded-xl p-3 flex items-center justify-between gap-3">
+            <div class="min-w-0">
+              <div class="flex items-center gap-2"><span class="text-[9px] font-bold bg-rose-100 text-rose-700 px-1.5 py-0.5 rounded dot">ENTREGA ATRASADA</span><span class="text-[11px] font-mono text-slate-400">V-0891</span></div>
+              <div class="text-[13px] font-semibold text-slate-900 mt-0.5">Venta a Farmacia Sol · S/ 1,850 · atrasada 1 día</div>
+            </div>
+            <button class="text-[11px] font-bold text-violet-700 hover:bg-violet-50 px-2.5 py-1 rounded flex-shrink-0">Coordinar →</button>
+          </div>
+          <div class="bg-white ring-1 ring-slate-200 border-l-4 border-l-amber-400 rounded-xl p-3 flex items-center justify-between gap-3">
+            <div class="min-w-0">
+              <div class="flex items-center gap-2"><span class="text-[9px] font-bold bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded">COTIZACIÓN POR VENCER</span><span class="text-[11px] font-mono text-slate-400">C-0234</span></div>
+              <div class="text-[13px] font-semibold text-slate-900 mt-0.5">Cliente Belleza Total · S/ 3,200 · vence en 2 días</div>
+            </div>
+            <button class="text-[11px] font-bold text-violet-700 hover:bg-violet-50 px-2.5 py-1 rounded flex-shrink-0">Dar seguimiento →</button>
+          </div>
+          <div class="bg-white ring-1 ring-slate-200 border-l-4 border-l-rose-400 rounded-xl p-3 flex items-center justify-between gap-3">
+            <div class="min-w-0">
+              <div class="flex items-center gap-2"><span class="text-[9px] font-bold bg-rose-100 text-rose-700 px-1.5 py-0.5 rounded">COBRANZA VENCIDA</span><span class="text-[11px] font-mono text-slate-400">V-0867</span></div>
+              <div class="text-[13px] font-semibold text-slate-900 mt-0.5">Cliente Distribuidora MZ · S/ 1,200 · +30 días</div>
+            </div>
+            <button class="text-[11px] font-bold text-violet-700 hover:bg-violet-50 px-2.5 py-1 rounded flex-shrink-0">Gestionar →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- §E · Acciones rápidas + §F cross-links -->
+      <div class="flex flex-wrap items-center gap-2 pt-1">
+        <button class="text-[12px] font-bold text-white bg-violet-600 hover:bg-violet-700 px-4 py-2 rounded-lg flex items-center gap-1.5"><i data-lucide="plus" class="w-4 h-4"></i> Nueva venta</button>
+        <button class="text-[12px] font-medium text-slate-700 bg-white ring-1 ring-slate-200 hover:bg-slate-50 px-4 py-2 rounded-lg flex items-center gap-1.5"><i data-lucide="file-plus" class="w-4 h-4"></i> Nueva cotización</button>
+        <div class="flex-1"></div>
+        <a class="text-[12px] font-semibold text-violet-700 hover:underline flex items-center gap-1">Ver todas mis ventas <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i></a>
+        <span class="text-slate-300">·</span>
+        <a class="text-[12px] font-semibold text-violet-700 hover:underline flex items-center gap-1">Inventario disponible <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i></a>
+      </div>
+
+      <!-- §G · Mis áreas · launcher de accesos (derivado de los permisos del rol) -->
+      <div class="pt-4 border-t border-slate-100">
+        <div class="text-[13px] font-bold text-slate-900 mb-1 flex items-center gap-2"><i data-lucide="layout-grid" class="w-4 h-4 text-violet-600"></i> Mis áreas · a qué tenés acceso</div>
+        <div class="text-[11px] text-slate-500 mb-3">Tu rol <b class="text-violet-700">Vendedor</b> te habilita estas secciones (se derivan de tus permisos · clic para entrar).</div>
+        <div class="space-y-3">
+          <!-- Comercial (core) -->
+          <div>
+            <div class="text-[10px] font-bold uppercase tracking-wider text-blue-600 mb-1.5">Comercial · tu día a día</div>
+            <div class="flex flex-wrap gap-2">
+              <a class="inline-flex items-center gap-1.5 text-[12px] font-semibold text-slate-700 bg-blue-50 ring-1 ring-blue-200 hover:bg-blue-100 px-3 py-1.5 rounded-lg"><i data-lucide="shopping-bag" class="w-3.5 h-3.5 text-blue-600"></i> Ventas</a>
+              <a class="inline-flex items-center gap-1.5 text-[12px] font-semibold text-slate-700 bg-blue-50 ring-1 ring-blue-200 hover:bg-blue-100 px-3 py-1.5 rounded-lg"><i data-lucide="file-text" class="w-3.5 h-3.5 text-blue-600"></i> Cotizaciones</a>
+              <a class="inline-flex items-center gap-1.5 text-[12px] font-semibold text-slate-700 bg-blue-50 ring-1 ring-blue-200 hover:bg-blue-100 px-3 py-1.5 rounded-lg"><i data-lucide="clipboard-list" class="w-3.5 h-3.5 text-blue-600"></i> Requerimientos</a>
+              <a class="inline-flex items-center gap-1.5 text-[12px] font-semibold text-slate-700 bg-blue-50 ring-1 ring-blue-200 hover:bg-blue-100 px-3 py-1.5 rounded-lg"><i data-lucide="droplets" class="w-3.5 h-3.5 text-blue-600"></i> Mercado Libre</a>
+              <a class="inline-flex items-center gap-1.5 text-[12px] font-medium text-slate-500 bg-slate-50 ring-1 ring-slate-200 hover:bg-slate-100 px-3 py-1.5 rounded-lg"><i data-lucide="shopping-cart" class="w-3.5 h-3.5 text-slate-400"></i> Compras <span class="text-[9px] text-slate-400">solo ver</span></a>
+            </div>
+          </div>
+          <!-- Inventario (consulta) -->
+          <div>
+            <div class="text-[10px] font-bold uppercase tracking-wider text-orange-600 mb-1.5">Inventario · consulta</div>
+            <div class="flex flex-wrap gap-2">
+              <a class="inline-flex items-center gap-1.5 text-[12px] font-semibold text-slate-700 bg-orange-50 ring-1 ring-orange-200 hover:bg-orange-100 px-3 py-1.5 rounded-lg"><i data-lucide="package" class="w-3.5 h-3.5 text-orange-600"></i> Productos</a>
+              <a class="inline-flex items-center gap-1.5 text-[12px] font-semibold text-slate-700 bg-orange-50 ring-1 ring-orange-200 hover:bg-orange-100 px-3 py-1.5 rounded-lg"><i data-lucide="warehouse" class="w-3.5 h-3.5 text-orange-600"></i> Stock</a>
+              <a class="inline-flex items-center gap-1.5 text-[12px] font-semibold text-slate-700 bg-orange-50 ring-1 ring-orange-200 hover:bg-orange-100 px-3 py-1.5 rounded-lg"><i data-lucide="scan-line" class="w-3.5 h-3.5 text-orange-600"></i> Escáner</a>
+              <a class="inline-flex items-center gap-1.5 text-[12px] font-semibold text-slate-700 bg-orange-50 ring-1 ring-orange-200 hover:bg-orange-100 px-3 py-1.5 rounded-lg"><i data-lucide="network" class="w-3.5 h-3.5 text-orange-600"></i> Red Logística</a>
+              <a class="inline-flex items-center gap-1.5 text-[12px] font-semibold text-slate-700 bg-orange-50 ring-1 ring-orange-200 hover:bg-orange-100 px-3 py-1.5 rounded-lg"><i data-lucide="zap" class="w-3.5 h-3.5 text-orange-600"></i> Intel. Productos</a>
+            </div>
+          </div>
+          <!-- Análisis -->
+          <div>
+            <div class="text-[10px] font-bold uppercase tracking-wider text-indigo-600 mb-1.5">Análisis</div>
+            <div class="flex flex-wrap gap-2">
+              <a class="inline-flex items-center gap-1.5 text-[12px] font-semibold text-slate-700 bg-indigo-50 ring-1 ring-indigo-200 hover:bg-indigo-100 px-3 py-1.5 rounded-lg"><i data-lucide="trending-up" class="w-3.5 h-3.5 text-indigo-600"></i> Reportes</a>
+              <a class="inline-flex items-center gap-1.5 text-[12px] font-semibold text-slate-700 bg-indigo-50 ring-1 ring-indigo-200 hover:bg-indigo-100 px-3 py-1.5 rounded-lg"><i data-lucide="map-pin" class="w-3.5 h-3.5 text-indigo-600"></i> Mapa de Ventas</a>
+            </div>
+          </div>
+        </div>
+        <div class="text-[11px] text-slate-400 mt-3 flex items-start gap-1.5"><i data-lucide="lock" class="w-3.5 h-3.5 mt-0.5 flex-shrink-0"></i><span>Finanzas, Planilla, Usuarios y Configuración <b>no aparecen</b> porque tu rol no tiene acceso. Si necesitás alguna, pedila al admin.</span></div>
+      </div>
+
+    </div>
+  </div>
+
+<!-- ╔═══════════════════════════════════════════════════════════╗ -->
+<!-- ║  ACTO 3 · ESTADOS                                          ║ -->
+<!-- ╚═══════════════════════════════════════════════════════════╝ -->
+  <div class="text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-3">Acto 3 · Estados (empty · loading · error)</div>
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-10">
+    <!-- Empty -->
+    <div class="bg-white ring-1 ring-slate-200 rounded-2xl p-6 text-center">
+      <div class="text-[10px] font-bold uppercase text-slate-400 mb-3">Empty · vendedor nuevo</div>
+      <i data-lucide="shopping-bag" class="w-10 h-10 text-slate-300 mx-auto mb-2"></i>
+      <div class="text-[13px] font-semibold text-slate-700">Todavía no tenés ventas este mes</div>
+      <div class="text-[12px] text-slate-500 mt-1 mb-3">Registrá tu primera venta o armá una cotización para arrancar.</div>
+      <button class="text-[12px] font-bold text-white bg-violet-600 px-4 py-2 rounded-lg inline-flex items-center gap-1.5"><i data-lucide="plus" class="w-4 h-4"></i> Mi primera venta</button>
+    </div>
+    <!-- Loading -->
+    <div class="bg-white ring-1 ring-slate-200 rounded-2xl p-6">
+      <div class="text-[10px] font-bold uppercase text-slate-400 mb-3">Loading · skeleton</div>
+      <div class="grid grid-cols-2 gap-2 mb-3">
+        <div class="h-16 bg-slate-100 rounded-xl animate-pulse"></div>
+        <div class="h-16 bg-slate-100 rounded-xl animate-pulse"></div>
+      </div>
+      <div class="h-20 bg-slate-100 rounded-xl animate-pulse"></div>
+    </div>
+    <!-- Error -->
+    <div class="bg-white ring-1 ring-slate-200 rounded-2xl p-6 text-center">
+      <div class="text-[10px] font-bold uppercase text-slate-400 mb-3">Error</div>
+      <i data-lucide="alert-circle" class="w-10 h-10 text-rose-300 mx-auto mb-2"></i>
+      <div class="text-[13px] font-semibold text-slate-700">No pudimos cargar tu resumen</div>
+      <button class="mt-3 text-[12px] font-bold text-violet-700">Reintentar</button>
+    </div>
+  </div>
+
+<!-- ╔═══════════════════════════════════════════════════════════╗ -->
+<!-- ║  ACTO 4 · MOBILE 375px                                     ║ -->
+<!-- ╚═══════════════════════════════════════════════════════════╝ -->
+  <div class="text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-3">Acto 4 · Mobile (375px)</div>
+  <div class="flex justify-center mb-10">
+    <div class="w-[375px] bg-white rounded-2xl ring-1 ring-slate-200 overflow-hidden shadow-lg">
+      <!-- header mobile -->
+      <div class="px-4 py-2 border-b border-slate-200 bg-slate-50 text-[11px] text-slate-500 flex items-center gap-1.5">
+        Inicio <i data-lucide="chevron-right" class="w-3 h-3"></i> Mi Perfil <i data-lucide="chevron-right" class="w-3 h-3"></i> <span class="text-violet-700 font-semibold">Resumen</span>
+      </div>
+      <div class="px-4 py-4 flex items-center gap-3">
+        <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-violet-500 to-violet-700 flex items-center justify-center text-white font-bold">JG</div>
+        <div class="min-w-0">
+          <div class="text-[16px] font-bold text-slate-900 truncate">Josselin Gambini</div>
+          <div class="flex items-center gap-1 mt-0.5">
+            <span class="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-violet-100 text-violet-700">Vendedor</span>
+            <span class="text-[9px] font-bold px-1 py-0.5 rounded uppercase bg-emerald-100 text-emerald-700">Activo</span>
+          </div>
+        </div>
+      </div>
+      <!-- tabs scroll-x -->
+      <div class="px-4 border-b border-slate-200 flex gap-1 overflow-x-auto">
+        <button class="px-3 py-2 text-[12px] font-bold border-b-2 border-violet-600 text-violet-700 whitespace-nowrap">Resumen</button>
+        <button class="px-3 py-2 text-[12px] font-medium border-b-2 border-transparent text-slate-500 whitespace-nowrap">Datos</button>
+        <button class="px-3 py-2 text-[12px] font-medium border-b-2 border-transparent text-slate-500 whitespace-nowrap">Actividad</button>
+      </div>
+      <div class="p-4 space-y-3">
+        <!-- banner -->
+        <div class="bg-violet-50 ring-1 ring-violet-200/60 rounded-xl px-3 py-2.5">
+          <div class="text-[13px] font-bold text-slate-900">Hola, Josselin 👋</div>
+          <div class="text-[11px] text-slate-600">3 pendientes · 1 entrega atrasada</div>
+        </div>
+        <!-- KPIs 2-col -->
+        <div class="grid grid-cols-2 gap-2">
+          <div class="bg-gradient-to-br from-amber-50 to-amber-100/40 ring-1 ring-amber-200/50 rounded-xl p-3">
+            <div class="text-[9px] uppercase font-bold text-amber-700">Mis ventas</div>
+            <div class="text-lg font-bold tabular text-amber-900">S/ 12.4K</div>
+            <div class="text-[10px] text-amber-700">+18%</div>
+          </div>
+          <div class="bg-gradient-to-br from-sky-50 to-sky-100/40 ring-1 ring-sky-200/50 rounded-xl p-3">
+            <div class="text-[9px] uppercase font-bold text-sky-700">Cotizaciones</div>
+            <div class="text-lg font-bold tabular text-sky-900">7</div>
+            <div class="text-[10px] text-sky-700">3 por vencer</div>
+          </div>
+          <div class="bg-gradient-to-br from-rose-50 to-rose-100/40 ring-1 ring-rose-200/50 rounded-xl p-3">
+            <div class="text-[9px] uppercase font-bold text-rose-700">Entregas</div>
+            <div class="text-lg font-bold tabular text-rose-900">4</div>
+            <div class="text-[10px] text-rose-700">1 atrasada</div>
+          </div>
+          <div class="bg-gradient-to-br from-emerald-50 to-emerald-100/40 ring-1 ring-emerald-200/50 rounded-xl p-3">
+            <div class="text-[9px] uppercase font-bold text-emerald-700">Comisión est.</div>
+            <div class="text-lg font-bold tabular text-emerald-900">S/ 620</div>
+            <div class="text-[10px] text-emerald-700">5%</div>
+          </div>
+        </div>
+        <!-- meta -->
+        <div class="bg-white ring-1 ring-slate-200 rounded-xl p-3">
+          <div class="flex justify-between text-[12px] mb-1"><span class="font-bold text-slate-900">Meta del mes</span><span class="font-bold text-amber-600">62%</span></div>
+          <div class="h-2.5 bg-slate-100 rounded-full overflow-hidden"><div class="h-full bg-amber-400 rounded-full" style="width:62%"></div></div>
+          <div class="text-[10px] text-slate-500 mt-1">S/ 12.4K de S/ 20K · faltan 14 días</div>
+        </div>
+        <!-- pendiente (touch ≥44px) -->
+        <div class="bg-white ring-1 ring-slate-200 border-l-4 border-l-rose-400 rounded-xl p-3">
+          <div class="text-[9px] font-bold bg-rose-100 text-rose-700 px-1.5 py-0.5 rounded inline-block">ENTREGA ATRASADA</div>
+          <div class="text-[12px] font-semibold text-slate-900 mt-1">Farmacia Sol · S/ 1,850</div>
+          <button class="mt-2 w-full text-[12px] font-bold text-violet-700 bg-violet-50 py-2.5 rounded-lg">Coordinar entrega</button>
+        </div>
+        <!-- CTA -->
+        <button class="w-full text-[13px] font-bold text-white bg-violet-600 py-3 rounded-xl flex items-center justify-center gap-1.5"><i data-lucide="plus" class="w-4 h-4"></i> Nueva venta</button>
+        <!-- Mis áreas (mobile · chips) -->
+        <div class="pt-3 border-t border-slate-100">
+          <div class="text-[12px] font-bold text-slate-900 mb-2">Mis áreas · a qué tenés acceso</div>
+          <div class="flex flex-wrap gap-1.5">
+            <span class="text-[11px] font-semibold text-blue-700 bg-blue-50 ring-1 ring-blue-200 px-2.5 py-1 rounded-lg">Ventas</span>
+            <span class="text-[11px] font-semibold text-blue-700 bg-blue-50 ring-1 ring-blue-200 px-2.5 py-1 rounded-lg">Cotizaciones</span>
+            <span class="text-[11px] font-semibold text-blue-700 bg-blue-50 ring-1 ring-blue-200 px-2.5 py-1 rounded-lg">Requerimientos</span>
+            <span class="text-[11px] font-semibold text-orange-700 bg-orange-50 ring-1 ring-orange-200 px-2.5 py-1 rounded-lg">Productos</span>
+            <span class="text-[11px] font-semibold text-orange-700 bg-orange-50 ring-1 ring-orange-200 px-2.5 py-1 rounded-lg">Stock</span>
+            <span class="text-[11px] font-semibold text-indigo-700 bg-indigo-50 ring-1 ring-indigo-200 px-2.5 py-1 rounded-lg">Reportes</span>
+            <span class="text-[11px] font-medium text-slate-500 bg-slate-50 ring-1 ring-slate-200 px-2.5 py-1 rounded-lg">+6 más</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<!-- ╔═══════════════════════════════════════════════════════════╗ -->
+<!-- ║  ACTO 5 · VARIANTE MULTI-ROL (Vendedor + Comprador)        ║ -->
+<!-- ╚═══════════════════════════════════════════════════════════╝ -->
+  <div class="text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-1">Acto 5 · Variante multi-rol</div>
+  <div class="text-[13px] text-slate-600 mb-3 max-w-3xl">Misma persona, <b>dos sombreros</b> (Vendedor + Comprador). Regla: <b>una sola bandeja de pendientes</b> (lo que hay que hacer hoy, sin importar el rol) + <b>KPIs separados por función</b> (no se suman ventas con compras) + <b>"Mis áreas" = unión automática</b>.</div>
+
+  <div class="bg-white rounded-2xl ring-1 ring-slate-200 overflow-hidden mb-10 shadow-sm">
+    <!-- header con 2 chips de rol -->
+    <div class="px-6 py-2.5 border-b border-slate-200 bg-slate-50 flex items-center gap-1.5 text-[11px] text-slate-500">
+      <span>Inicio</span><i data-lucide="chevron-right" class="w-3 h-3"></i><span class="font-semibold text-slate-700">Mi Perfil</span><i data-lucide="chevron-right" class="w-3 h-3"></i><span class="text-violet-700 font-semibold">Resumen</span>
+    </div>
+    <div class="px-6 py-5 flex items-center gap-4">
+      <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-violet-500 to-violet-700 flex items-center justify-center text-white text-xl font-bold">RP</div>
+      <div>
+        <h1 class="text-xl font-bold tracking-tight text-slate-900">Rosa Paredes</h1>
+        <p class="text-[12px] text-slate-500 mb-1.5">rosa@vitaskin.pe · activo desde abril 2026</p>
+        <div class="flex items-center gap-1.5 flex-wrap">
+          <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-violet-100 text-violet-700 inline-flex items-center gap-1"><i data-lucide="shopping-bag" class="w-2.5 h-2.5"></i> Vendedor</span>
+          <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-violet-100 text-violet-700 inline-flex items-center gap-1"><i data-lucide="shopping-cart" class="w-2.5 h-2.5"></i> Comprador</span>
+          <span class="text-[10px] font-bold px-1.5 py-0.5 rounded uppercase bg-emerald-100 text-emerald-700">Activo</span>
+        </div>
+      </div>
+    </div>
+    <div class="px-6 border-b border-slate-200 flex gap-1">
+      <button class="px-4 py-2.5 text-[12px] font-bold border-b-2 border-violet-600 text-violet-700 flex items-center gap-1.5"><i data-lucide="layout-dashboard" class="w-3.5 h-3.5"></i> Resumen</button>
+      <button class="px-4 py-2.5 text-[12px] font-medium border-b-2 border-transparent text-slate-600 flex items-center gap-1.5"><i data-lucide="user" class="w-3.5 h-3.5"></i> Datos</button>
+      <button class="px-4 py-2.5 text-[12px] font-medium border-b-2 border-transparent text-slate-600 flex items-center gap-1.5"><i data-lucide="activity" class="w-3.5 h-3.5"></i> Actividad</button>
+    </div>
+
+    <div class="p-6 space-y-5">
+      <!-- banner -->
+      <div class="bg-gradient-to-r from-violet-50 to-violet-100/40 ring-1 ring-violet-200/60 rounded-2xl px-5 py-4">
+        <div class="text-[15px] font-bold text-slate-900">Hola, Rosa 👋 — esto es lo tuyo hoy</div>
+        <div class="text-[12px] text-slate-600 mt-0.5"><b class="text-rose-700">5 pendientes</b> entre tus 2 funciones (Ventas y Compras), ordenados por urgencia.</div>
+      </div>
+
+      <!-- ★ BANDEJA UNIFICADA (lo clave del multi-rol) -->
+      <div>
+        <div class="text-[13px] font-bold text-slate-900 mb-2 flex items-center gap-2"><i data-lucide="inbox" class="w-4 h-4 text-violet-600"></i> Mi bandeja · todo lo pendiente, sin importar el sombrero</div>
+        <div class="space-y-2">
+          <div class="bg-white ring-1 ring-slate-200 border-l-4 border-l-rose-400 rounded-xl p-3 flex items-center justify-between gap-3">
+            <div class="min-w-0"><div class="flex items-center gap-2"><span class="text-[9px] font-bold bg-violet-100 text-violet-700 px-1.5 py-0.5 rounded">VENTAS</span><span class="text-[9px] font-bold bg-rose-100 text-rose-700 px-1.5 py-0.5 rounded">ATRASADA</span></div><div class="text-[13px] font-semibold text-slate-900 mt-0.5">Entrega V-0891 · Farmacia Sol · atrasada 1 día</div></div>
+            <button class="text-[11px] font-bold text-violet-700 hover:bg-violet-50 px-2.5 py-1 rounded flex-shrink-0">Coordinar →</button>
+          </div>
+          <div class="bg-white ring-1 ring-slate-200 border-l-4 border-l-rose-400 rounded-xl p-3 flex items-center justify-between gap-3">
+            <div class="min-w-0"><div class="flex items-center gap-2"><span class="text-[9px] font-bold bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded">COMPRAS</span><span class="text-[9px] font-bold bg-rose-100 text-rose-700 px-1.5 py-0.5 rounded">RECEPCIÓN HOY</span></div><div class="text-[13px] font-semibold text-slate-900 mt-0.5">OC-0145 · Lab. Andina · mercadería llega hoy, falta recibir</div></div>
+            <button class="text-[11px] font-bold text-violet-700 hover:bg-violet-50 px-2.5 py-1 rounded flex-shrink-0">Recibir →</button>
+          </div>
+          <div class="bg-white ring-1 ring-slate-200 border-l-4 border-l-amber-400 rounded-xl p-3 flex items-center justify-between gap-3">
+            <div class="min-w-0"><div class="flex items-center gap-2"><span class="text-[9px] font-bold bg-violet-100 text-violet-700 px-1.5 py-0.5 rounded">VENTAS</span><span class="text-[9px] font-bold bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded">POR VENCER</span></div><div class="text-[13px] font-semibold text-slate-900 mt-0.5">Cotización C-0234 · Belleza Total · vence en 2 días</div></div>
+            <button class="text-[11px] font-bold text-violet-700 hover:bg-violet-50 px-2.5 py-1 rounded flex-shrink-0">Seguir →</button>
+          </div>
+          <div class="bg-white ring-1 ring-slate-200 border-l-4 border-l-amber-400 rounded-xl p-3 flex items-center justify-between gap-3">
+            <div class="min-w-0"><div class="flex items-center gap-2"><span class="text-[9px] font-bold bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded">COMPRAS</span><span class="text-[9px] font-bold bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded">POR APROBAR</span></div><div class="text-[13px] font-semibold text-slate-900 mt-0.5">Requerimiento R-0078 · reposición Skincare · espera tu OK</div></div>
+            <button class="text-[11px] font-bold text-violet-700 hover:bg-violet-50 px-2.5 py-1 rounded flex-shrink-0">Aprobar →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- KPIs SEPARADOS POR FUNCIÓN -->
+      <div>
+        <div class="text-[10px] font-bold uppercase tracking-wider text-violet-700 mb-1.5 flex items-center gap-1.5"><i data-lucide="shopping-bag" class="w-3.5 h-3.5"></i> Como vendedor</div>
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+          <div class="bg-gradient-to-br from-amber-50 to-amber-100/40 ring-1 ring-amber-200/50 rounded-2xl p-4"><div class="text-[10px] uppercase font-bold text-amber-700">Mis ventas · mes</div><div class="text-2xl font-bold tabular text-amber-900">S/ 9,800</div><div class="text-[11px] text-amber-700">49% de meta</div></div>
+          <div class="bg-gradient-to-br from-sky-50 to-sky-100/40 ring-1 ring-sky-200/50 rounded-2xl p-4"><div class="text-[10px] uppercase font-bold text-sky-700">Cotizaciones</div><div class="text-2xl font-bold tabular text-sky-900">5</div><div class="text-[11px] text-sky-700">2 por vencer</div></div>
+          <div class="bg-gradient-to-br from-emerald-50 to-emerald-100/40 ring-1 ring-emerald-200/50 rounded-2xl p-4"><div class="text-[10px] uppercase font-bold text-emerald-700">Comisión est.</div><div class="text-2xl font-bold tabular text-emerald-900">S/ 490</div><div class="text-[10px] text-emerald-700">estimado 5%</div></div>
+        </div>
+      </div>
+      <div>
+        <div class="text-[10px] font-bold uppercase tracking-wider text-blue-700 mb-1.5 flex items-center gap-1.5"><i data-lucide="shopping-cart" class="w-3.5 h-3.5"></i> Como comprador</div>
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+          <div class="bg-gradient-to-br from-blue-50 to-blue-100/40 ring-1 ring-blue-200/50 rounded-2xl p-4"><div class="text-[10px] uppercase font-bold text-blue-700">OCs en curso</div><div class="text-2xl font-bold tabular text-blue-900">3</div><div class="text-[11px] text-blue-700">S/ 14.2K comprometido</div></div>
+          <div class="bg-gradient-to-br from-rose-50 to-rose-100/40 ring-1 ring-rose-200/50 rounded-2xl p-4"><div class="text-[10px] uppercase font-bold text-rose-700">Recepciones</div><div class="text-2xl font-bold tabular text-rose-900">2 <span class="text-rose-400 text-base">pend.</span></div><div class="text-[11px] text-rose-700">1 llega hoy</div></div>
+          <div class="bg-gradient-to-br from-amber-50 to-amber-100/40 ring-1 ring-amber-200/50 rounded-2xl p-4"><div class="text-[10px] uppercase font-bold text-amber-700">Requerimientos</div><div class="text-2xl font-bold tabular text-amber-900">1 <span class="text-amber-400 text-base">por aprobar</span></div><div class="text-[11px] text-amber-700">reposición Skincare</div></div>
+        </div>
+      </div>
+
+      <!-- Mis áreas UNIÓN -->
+      <div class="pt-4 border-t border-slate-100">
+        <div class="text-[13px] font-bold text-slate-900 mb-1 flex items-center gap-2"><i data-lucide="layout-grid" class="w-4 h-4 text-violet-600"></i> Mis áreas · <span class="text-[11px] font-medium text-slate-500">unión automática de los 2 roles</span></div>
+        <div class="flex flex-wrap gap-2 mt-2">
+          <span class="text-[11px] font-semibold text-blue-700 bg-blue-50 ring-1 ring-blue-200 px-2.5 py-1 rounded-lg">Ventas</span>
+          <span class="text-[11px] font-semibold text-blue-700 bg-blue-50 ring-1 ring-blue-200 px-2.5 py-1 rounded-lg">Cotizaciones</span>
+          <span class="text-[11px] font-semibold text-blue-700 bg-blue-50 ring-1 ring-blue-200 px-2.5 py-1 rounded-lg">Mercado Libre</span>
+          <span class="text-[11px] font-semibold text-blue-700 bg-blue-50 ring-1 ring-blue-200 px-2.5 py-1 rounded-lg ring-2 ring-emerald-300">Compras <span class="text-[8px] bg-emerald-200 text-emerald-800 px-1 rounded">full</span></span>
+          <span class="text-[11px] font-semibold text-blue-700 bg-blue-50 ring-1 ring-blue-200 px-2.5 py-1 rounded-lg ring-2 ring-emerald-300">Requerimientos <span class="text-[8px] bg-emerald-200 text-emerald-800 px-1 rounded">full</span></span>
+          <span class="text-[11px] font-semibold text-orange-700 bg-orange-50 ring-1 ring-orange-200 px-2.5 py-1 rounded-lg">Productos</span>
+          <span class="text-[11px] font-semibold text-orange-700 bg-orange-50 ring-1 ring-orange-200 px-2.5 py-1 rounded-lg">Stock</span>
+          <span class="text-[11px] font-semibold text-orange-700 bg-orange-50 ring-1 ring-orange-200 px-2.5 py-1 rounded-lg ring-2 ring-emerald-300">Unidades <span class="text-[8px] bg-emerald-200 text-emerald-800 px-1 rounded">+compra</span></span>
+          <span class="text-[11px] font-semibold text-orange-700 bg-orange-50 ring-1 ring-orange-200 px-2.5 py-1 rounded-lg ring-2 ring-emerald-300">Envíos <span class="text-[8px] bg-emerald-200 text-emerald-800 px-1 rounded">+compra</span></span>
+          <span class="text-[11px] font-semibold text-indigo-700 bg-indigo-50 ring-1 ring-indigo-200 px-2.5 py-1 rounded-lg">Reportes</span>
+        </div>
+        <div class="text-[11px] text-slate-400 mt-2"><span class="inline-block w-2 h-2 rounded-full ring-2 ring-emerald-300 align-middle mr-1"></span> Las marcadas <b class="text-emerald-700">así</b> ganaron acceso o permisos extra <b>por sumar el rol Comprador</b> (ej. Compras pasa de "solo ver" a "full"). La unión se calcula sola.</div>
+      </div>
+    </div>
+  </div>
+
+<!-- ╔═══════════════════════════════════════════════════════════╗ -->
+<!-- ║  FOOTER · checklist + notas técnicas                       ║ -->
+<!-- ╚═══════════════════════════════════════════════════════════╝ -->
+  <div class="bg-white rounded-2xl ring-1 ring-slate-200 p-6 text-[13px]">
+    <div class="font-bold text-slate-900 mb-3">✅ Checklist canon + notas técnicas</div>
+    <div class="grid md:grid-cols-2 gap-x-8 gap-y-1.5 text-slate-600">
+      <div>✅ Color violet (grupo Equipo · DS) · shell reusa el header/tabs actuales</div>
+      <div>✅ KPIs semánticos N1/N2 (amber=dinero · sky=cotiz · rose=urgencia · emerald=positivo)</div>
+      <div>✅ Orden Resumen §A→§F (banner→KPIs→viz→pendientes→acciones→cross-links)</div>
+      <div>✅ Cobertura: shell + home + empty/loading/error + mobile 375px (touch ≥44px)</div>
+      <div>✅ Pendientes con DataCard del kit (accent border-l por urgencia)</div>
+      <div>✅ Lucide icons · tabular-nums · sin emojis en chrome (el 👋 del saludo es contenido)</div>
+    </div>
+    <div class="mt-4 pt-4 border-t border-slate-200">
+      <div class="font-bold text-slate-900 mb-2">📡 Qué datos son reales vs a construir</div>
+      <div class="space-y-1 text-slate-600">
+        <div>✅ <b>Existe ya:</b> mis ventas (filtrar por <code>venta.creadoPor</code>) · cotizaciones · entregas · cobranzas (CxC de mis ventas) · sparkline.</div>
+        <div>✅ <b>"Mis áreas" = 100% real, cero config:</b> se deriva de <code>DEFAULT_PERMISOS[rol]</code> cruzado con los items del sidebar (cada uno ya declara su <code>permiso</code>). Lo que el rol puede ver, lo ve; lo que no, no aparece. Mismo motor para todos los roles.</div>
+        <div>⚠️ <b>Requiere modelo nuevo:</b> <b>meta personal por vendedor</b> (hoy la meta es global S/67K) y <b>comisión del vendedor</b> (hoy solo existe <code>comisionML</code>, que es costo). En el mockup van como "estimado" — al implementar decidimos si configurar metas/comisiones por persona o derivarlas.</div>
+      </div>
+    </div>
+    <div class="mt-4 pt-4 border-t border-slate-200 text-slate-500">
+      <b>Siguiente:</b> validás este home → implemento <code>ResumenVendedor</code> en MiPerfil (selección por rol) → replico el molde a comprador/almacenero/supervisor.
+      Migración de paso: MiPerfil purple → <b>violet</b> (cierra la deuda de color del grupo Equipo).
+    </div>
+  </div>
+</div>
+
+<script>lucide.createIcons();</script>
+</body>
+</html>

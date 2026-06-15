@@ -15,6 +15,10 @@ export { default as ResumenEmpleado } from './ResumenEmpleado';
 export { default as ResumenAdmin } from './ResumenAdmin';
 export { default as ResumenSocio } from './ResumenSocio';
 
+// Perfiles-por-rol Fase 1 (2026-06-14) · home operativo POR FUNCIÓN
+export { default as ResumenVendedor } from './ResumenVendedor';
+export { default as MisAreas } from './MisAreas';
+
 // F10.F.1.J-SIDEBAR.3 · Etapa 3 · Tab Mi Información ACTO 5
 export { default as InlineEditField } from './InlineEditField';
 export { default as CardIdentidadEditable } from './CardIdentidadEditable';

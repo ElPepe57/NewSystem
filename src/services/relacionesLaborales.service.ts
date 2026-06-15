@@ -81,24 +81,6 @@ async function listVigentesByUser(userId: string): Promise<RelacionLaboral[]> {
 }
 
 /**
- * Lista TODAS las relaciones de un tipo específico (across users).
- * Ej: getAllEmpleados() = relaciones tipo='empleado' vigentes.
- * Usado por Planilla / Honorarios / Socios como vistas filtradas.
- */
-async function listByTipo(
-  tipo: TipoRelacion,
-  soloVigentes: boolean = true,
-): Promise<RelacionLaboral[]> {
-  const conditions = [where('tipo', '==', tipo)];
-  if (soloVigentes) {
-    conditions.push(where('estado', 'in', ['vigente', 'pausada', 'prueba']));
-  }
-  const q = query(collection(db, COL), ...conditions);
-  const snap = await getDocs(q);
-  return snap.docs.map(d => ({ id: d.id, ...d.data() }) as RelacionLaboral);
-}
-
-/**
  * v5.8 · Lista los Users que están vinculados como contactos de un Maestro.
  * Usado en la sub-sección "Contactos" del detalle de un proveedor/cliente/marca.
  *
@@ -184,6 +166,7 @@ async function create(input: CrearRelacionInput, creadoPor: string): Promise<str
     cargoDisplay: input.cargoDisplay,
     montoMensualReferencia: input.montoMensualReferencia,
     monedaReferencia: input.monedaReferencia,
+    metaVentasMensual: input.metaVentasMensual,
     // Línea de negocio · single · ausente = compartido (chk5-LINEAS)
     lineaNegocioId: input.lineaNegocioId,
     lineaNegocioSnapshot: input.lineaNegocioSnapshot,
@@ -222,7 +205,7 @@ async function create(input: CrearRelacionInput, creadoPor: string): Promise<str
 async function update(
   relacionId: string,
   cambios: Partial<Pick<RelacionLaboral,
-    'cargoDisplay' | 'montoMensualReferencia' | 'monedaReferencia' |
+    'cargoDisplay' | 'montoMensualReferencia' | 'monedaReferencia' | 'metaVentasMensual' |
     'subTipo' | 'notas' | 'lineaNegocioId' | 'lineaNegocioSnapshot'>>,
   modificadoPor: string,
 ): Promise<void> {
@@ -441,26 +424,6 @@ async function vincularConMaestro(
   });
 }
 
-/**
- * Desvincula · elimina el campo entidadMaestroRef.
- */
-async function desvincularDeMaestro(
-  relacionId: string,
-  modificadoPor: string,
-): Promise<void> {
-  const existente = await getById(relacionId);
-  if (!existente) throw new Error(`Relación ${relacionId} no existe`);
-
-  // Firestore: para borrar un campo se usa FieldValue.delete · simplificamos con set undefined
-  // y limpiamos · pero para hacer el delete real necesitamos deleteField
-  const { deleteField } = await import('firebase/firestore');
-  await updateDoc(doc(db, COL, relacionId), {
-    entidadMaestroRef: deleteField(),
-    modificadoPor,
-    fechaModificacion: serverTimestamp(),
-  });
-}
-
 // ═════════════════════════════════════════════════════════════════════════
 // HELPERS internos
 // ═════════════════════════════════════════════════════════════════════════
@@ -485,15 +448,11 @@ export const relacionesLaboralesService = {
   // Read
   listByUser,
   listVigentesByUser,
-  listByTipo,
   getContactosByMaestro,
   getById,
 
   // Write · creación
   create,
-
-  // Sync rol ↔ relación (chk5.PERSONAS-F1)
-  sincronizarRolSocio,
 
   // Write · transiciones
   update,
@@ -504,5 +463,4 @@ export const relacionesLaboralesService = {
 
   // Vinculación con Maestros (v5.8)
   vincularConMaestro,
-  desvincularDeMaestro,
 };

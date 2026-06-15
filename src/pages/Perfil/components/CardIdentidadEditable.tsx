@@ -83,7 +83,7 @@ export const CardIdentidadEditable: React.FC = () => {
     <div className="bg-white border border-slate-200 rounded-xl p-5">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-[14px] font-bold text-slate-900 inline-flex items-center gap-1.5">
-          <User className="w-4 h-4 text-purple-700" />
+          <User className="w-4 h-4 text-violet-700" />
           Datos de identidad
         </h3>
         {emailVerificado && (

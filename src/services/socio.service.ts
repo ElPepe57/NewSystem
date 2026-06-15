@@ -110,13 +110,6 @@ export async function getById(id: string): Promise<Socio | null> {
 }
 
 /**
- * Por userId · alias de getById (ahora son el mismo concepto).
- */
-export async function getByUserId(userId: string): Promise<Socio | null> {
-  return getById(userId);
-}
-
-/**
  * Por email · busca un user con rol 'socio' por email.
  */
 export async function getByEmail(email: string): Promise<Socio | null> {
@@ -230,42 +223,14 @@ export async function eliminar(id: string): Promise<void> {
 }
 
 // ===============================================
-// VINCULACIÓN CON USERPROFILE (utilidades preservadas)
-// ===============================================
-
-export async function buscarUsuariosPorEmail(email: string): Promise<UserProfile[]> {
-  const emailNorm = email.trim().toLowerCase();
-  if (!emailNorm) return [];
-  const q = query(
-    collection(db, COLLECTIONS.USERS),
-    where('email', '==', emailNorm)
-  );
-  const snapshot = await getDocs(q);
-  return snapshot.docs.map((d) => ({
-    uid: d.id,
-    ...d.data(),
-  })) as UserProfile[];
-}
-
-export async function listarUsuariosVinculables(): Promise<UserProfile[]> {
-  const snapshot = await getDocs(collection(db, COLLECTIONS.USERS));
-  return snapshot.docs
-    .map((d) => ({ uid: d.id, ...d.data() }))
-    .filter((u: any) => u.activo) as UserProfile[];
-}
-
-// ===============================================
 // EXPORT NAMESPACE
 // ===============================================
 
 export const socioService = {
   getAll,
   getById,
-  getByUserId,
   getByEmail,
   crear,
   actualizar,
   eliminar,
-  buscarUsuariosPorEmail,
-  listarUsuariosVinculables,
 };

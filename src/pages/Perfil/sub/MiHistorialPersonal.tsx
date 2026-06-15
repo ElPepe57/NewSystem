@@ -17,7 +17,7 @@ import { TrendingUp, User, FileText, GitCommit } from 'lucide-react';
 import { usePermissions } from '../../../hooks/usePermissions';
 import { BackArrowHeader } from '../../../components/common/BackArrowHeader';
 import { historialSalarialService } from '../../../services/historialSalarial.service';
-import { datosLaboralesService } from '../../../services/datosLaborales.service';
+import { getDatosLaboralesView } from '../../../services/perfilPersona.adapter';
 import type { HistorialSalarial, RazonVariacionSalarial } from '../../../types/planilla.types';
 import type { DatosLaborales } from '../../../types/datosLaborales.types';
 import { formatCurrencyPEN } from '../../../utils/format';
@@ -49,7 +49,7 @@ export const MiHistorialPersonal: React.FC = () => {
       try {
         const [h, dl] = await Promise.all([
           historialSalarialService.getHistorialUsuario(profile.uid).catch(() => []),
-          datosLaboralesService.get(profile.uid).catch(() => null),
+          getDatosLaboralesView(profile.uid).catch(() => null),
         ]);
         if (cancelled) return;
         setHistorial(h);
@@ -79,7 +79,7 @@ export const MiHistorialPersonal: React.FC = () => {
             <p className="text-[12px] text-slate-600 mb-4 max-w-md mx-auto">
               Tu cuenta no tiene perfil laboral · contactá al admin de RRHH.
             </p>
-            <button onClick={() => navigate('/perfil')} className="text-[12px] font-bold text-white bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded-lg">
+            <button onClick={() => navigate('/perfil')} className="text-[12px] font-bold text-white bg-violet-600 hover:bg-violet-700 px-4 py-2 rounded-lg">
               Volver al perfil
             </button>
           </div>

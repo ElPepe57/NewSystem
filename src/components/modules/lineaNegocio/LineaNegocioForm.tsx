@@ -25,6 +25,7 @@ interface LineaNegocioFormProps {
     color: string;
     icono?: string;
     activa: boolean;
+    comisionPorcentaje?: number;
   } | null;
   onSubmit: (data: {
     nombre: string;
@@ -33,6 +34,7 @@ interface LineaNegocioFormProps {
     color: string;
     icono?: string;
     activa: boolean;
+    comisionPorcentaje?: number;
   }) => Promise<void>;
   onCancel: () => void;
   isSubmitting?: boolean;
@@ -50,6 +52,7 @@ export const LineaNegocioForm: React.FC<LineaNegocioFormProps> = ({
   const [color, setColor] = useState(COLOR_PALETTE[0].hex);
   const [icono, setIcono] = useState('');
   const [activa, setActiva] = useState(true);
+  const [comision, setComision] = useState('');
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
@@ -60,6 +63,9 @@ export const LineaNegocioForm: React.FC<LineaNegocioFormProps> = ({
       setColor(initialData.color);
       setIcono(initialData.icono || '');
       setActiva(initialData.activa);
+      setComision(
+        initialData.comisionPorcentaje != null ? String(initialData.comisionPorcentaje) : '',
+      );
     }
   }, [initialData]);
 
@@ -80,6 +86,13 @@ export const LineaNegocioForm: React.FC<LineaNegocioFormProps> = ({
       newErrors.color = 'Selecciona un color';
     }
 
+    if (comision.trim() !== '') {
+      const c = parseFloat(comision);
+      if (isNaN(c) || c < 0 || c > 100) {
+        newErrors.comision = 'La comisión debe estar entre 0 y 100%';
+      }
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -95,6 +108,7 @@ export const LineaNegocioForm: React.FC<LineaNegocioFormProps> = ({
       color,
       icono: icono || undefined,
       activa,
+      comisionPorcentaje: comision.trim() !== '' ? parseFloat(comision) : 0,
     });
   };
 
@@ -155,6 +169,33 @@ export const LineaNegocioForm: React.FC<LineaNegocioFormProps> = ({
           rows={3}
           className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 resize-none"
         />
+      </div>
+
+      {/* Comisión del vendedor · Modelo A (% sobre la venta) */}
+      <div>
+        <label htmlFor="ln-comision" className="block text-sm font-medium text-slate-700 mb-1">
+          Comisión del vendedor (% sobre la venta)
+        </label>
+        <div className="relative">
+          <input
+            id="ln-comision"
+            type="number"
+            min="0"
+            max="100"
+            step="0.5"
+            value={comision}
+            onChange={(e) => setComision(e.target.value)}
+            placeholder="0"
+            className={`w-full px-3 py-2 pr-8 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 tabular-nums ${
+              errors.comision ? 'border-red-300' : 'border-slate-300'
+            }`}
+          />
+          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">%</span>
+        </div>
+        {errors.comision && <p className="mt-1 text-sm text-red-600">{errors.comision}</p>}
+        <p className="mt-1 text-xs text-slate-400">
+          % que gana el vendedor por cada venta de esta línea · 0 = sin comisión · se muestra en su perfil.
+        </p>
       </div>
 
       {/* Color */}

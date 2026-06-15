@@ -9,11 +9,12 @@
  * Canon visual literal mockup:
  *  - Container: bg-white rounded-2xl ring-1 ring-slate-200 overflow-hidden
  *  - Breadcrumb: px-6 py-2.5 border-b border-slate-200 bg-slate-50 (canon S9.D1 · 2 niveles)
- *  - Header: avatar XL 80px gradient purple-500→purple-700 · botón camera white
+ *  - Header: avatar XL 80px gradient violet-500→violet-700 · botón camera white
+ *    (chrome del módulo en violet · Perfil vive en el grupo Equipo · canon color por grupo)
  *  - Email line: combinada "email · activo desde mes año"
- *  - Multi-rol chips: rounded-full inline-flex items-center gap-1
- *  - Acciones header: 2 botones (Cambiar contraseña neutral + Editar perfil primary purple)
- *  - Tabs: 3 sub-tabs scroll-x mobile · active border-b-2 border-purple-600 text-purple-700
+ *  - Multi-rol chips: rounded-full inline-flex items-center gap-1 (color POR ROL · identidad, no chrome)
+ *  - Acciones header: 2 botones (Cambiar contraseña neutral + Editar perfil primary violet)
+ *  - Tabs: 3 sub-tabs scroll-x mobile · active border-b-2 border-violet-600 text-violet-700
  *    icons: layout-dashboard · user · activity
  *  - Body: contextual por rol y tab activo
  */
@@ -41,7 +42,7 @@ import {
 import { useAuthStore } from '../../store/authStore';
 import { usePermissions } from '../../hooks/usePermissions';
 import { userService, PERMISOS_INFO } from '../../services/user.service';
-import { datosLaboralesService } from '../../services/datosLaborales.service';
+import { getDatosLaboralesView } from '../../services/perfilPersona.adapter';
 import { datosSocioService } from '../../services/datosSocio.service';
 import { planillaService } from '../../services/planilla.service';
 import { calculoIncentivoService } from '../../services/calculoIncentivo.service';
@@ -68,6 +69,8 @@ import {
   ResumenEmpleado,
   ResumenAdmin,
   ResumenSocio,
+  ResumenVendedor,
+  MisAreas,
   CardIdentidadEditable,
   CardMultiRolRica,
   // F10.F.1.O · Etapa 5 · Banners + Empty/Loading/Error + filtros timeline
@@ -131,7 +134,7 @@ const getIniciales = (nombre?: string): string => {
 };
 
 export const MiPerfil: React.FC = () => {
-  const { profile, roles, displayName, isAdmin, isSocio, canManageUsers } = usePermissions();
+  const { profile, roles, displayName, isAdmin, isSocio, isVendedor, canManageUsers } = usePermissions();
   const fetchUserProfile = useAuthStore((state) => state.fetchUserProfile);
 
   // ─── State · UI ────────────────────────────────────────────────────────
@@ -190,7 +193,7 @@ export const MiPerfil: React.FC = () => {
       setLoadingDatos(true);
       try {
         const [dl, ds, bo, ci] = await Promise.all([
-          datosLaboralesService.get(profile.uid).catch(() => null),
+          getDatosLaboralesView(profile.uid).catch(() => null),
           isSocio ? datosSocioService.get(profile.uid).catch(() => null) : Promise.resolve(null),
           planillaService.getBoletasPorEmpleado(profile.uid, 5).catch(() => []),
           calculoIncentivoService.listUsuario(profile.uid, 12).catch(() => []),
@@ -341,7 +344,7 @@ export const MiPerfil: React.FC = () => {
   if (!profile) {
     return (
       <div className="flex items-center justify-center h-64">
-        <RefreshCw className="h-8 w-8 animate-spin text-purple-600" />
+        <RefreshCw className="h-8 w-8 animate-spin text-violet-600" />
       </div>
     );
   }
@@ -365,14 +368,14 @@ export const MiPerfil: React.FC = () => {
             ═══════════════════════════════════════════════════════════════ */}
         <div className="px-6 py-2.5 border-b border-slate-200 bg-slate-50 flex items-center gap-3">
           <div className="flex items-center text-[12px] flex-1 min-w-0">
-            <a className="text-slate-500 hover:text-purple-700 cursor-pointer flex-shrink-0">Inicio</a>
+            <a className="text-slate-500 hover:text-violet-700 cursor-pointer flex-shrink-0">Inicio</a>
             <ChevronRight className="w-3 h-3 text-slate-300 mx-1.5 flex-shrink-0" />
             {tabActiva === 'resumen' ? (
               <span className="text-slate-900 font-semibold truncate">Mi perfil</span>
             ) : (
               <>
                 <a
-                  className="text-slate-500 hover:text-purple-700 cursor-pointer flex-shrink-0"
+                  className="text-slate-500 hover:text-violet-700 cursor-pointer flex-shrink-0"
                   onClick={() => setTabActiva('resumen')}
                 >
                   Mi perfil
@@ -385,13 +388,13 @@ export const MiPerfil: React.FC = () => {
         </div>
 
         {/* ═══════════════════════════════════════════════════════════════
-            §B · HEADER · avatar XL gradient purple · línea 102-137 mockup
+            §B · HEADER · avatar XL gradient violet · línea 102-137 mockup
             ═══════════════════════════════════════════════════════════════ */}
         <div className="px-6 py-5 border-b border-slate-100 flex items-start justify-between gap-4 flex-wrap">
           <div className="flex items-center gap-4 flex-1 min-w-[280px]">
-            {/* Avatar XL 80px · gradient purple-500→purple-700 · línea 105-112 */}
+            {/* Avatar XL 80px · gradient violet-500→violet-700 · línea 105-112 */}
             <div className="relative group flex-shrink-0">
-              <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-purple-500 to-purple-700 flex items-center justify-center text-white font-bold text-[28px] shadow-md overflow-hidden">
+              <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-violet-500 to-violet-700 flex items-center justify-center text-white font-bold text-[28px] shadow-md overflow-hidden">
                 {profile.photoURL ? (
                   <img
                     src={profile.photoURL}
@@ -420,7 +423,7 @@ export const MiPerfil: React.FC = () => {
                       type="text"
                       value={newName}
                       onChange={(e) => setNewName(e.target.value)}
-                      className="w-full max-w-[260px] px-3 py-1.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-2xl font-bold tracking-tight"
+                      className="w-full max-w-[260px] px-3 py-1.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500 text-2xl font-bold tracking-tight"
                       autoFocus
                     />
                     <button
@@ -444,7 +447,7 @@ export const MiPerfil: React.FC = () => {
                     <h1 className="text-2xl font-bold tracking-tight text-slate-900 truncate">{displayName}</h1>
                     <button
                       onClick={handleStartEditName}
-                      className="p-1 text-slate-400 hover:text-purple-600 rounded transition-colors flex-shrink-0"
+                      className="p-1 text-slate-400 hover:text-violet-600 rounded transition-colors flex-shrink-0"
                       title="Editar nombre"
                       aria-label="Editar nombre"
                     >
@@ -500,7 +503,7 @@ export const MiPerfil: React.FC = () => {
             <button
               type="button"
               onClick={handleStartEditName}
-              className="text-[12px] font-bold text-white bg-purple-600 hover:bg-purple-700 px-3 py-1.5 rounded-lg flex items-center gap-1.5"
+              className="text-[12px] font-bold text-white bg-violet-600 hover:bg-violet-700 px-3 py-1.5 rounded-lg flex items-center gap-1.5"
             >
               <Edit2 className="w-3.5 h-3.5" />
               Editar perfil
@@ -527,8 +530,8 @@ export const MiPerfil: React.FC = () => {
                   onClick={() => setTabActiva(t.id)}
                   className={`px-4 py-2.5 text-[12px] border-b-2 flex items-center gap-1.5 ${
                     active
-                      ? 'font-bold border-purple-600 text-purple-700'
-                      : 'font-medium border-transparent text-slate-600 hover:text-purple-600'
+                      ? 'font-bold border-violet-600 text-violet-700'
+                      : 'font-medium border-transparent text-slate-600 hover:text-violet-600'
                   }`}
                 >
                   <Icon className="w-3.5 h-3.5" />
@@ -646,6 +649,11 @@ export const MiPerfil: React.FC = () => {
               {/* Vista admin · contadores de bandeja + KPI strip admin + quick actions */}
               {canManageUsers && <ResumenAdmin />}
 
+              {/* Vista vendedor · home operativo POR FUNCIÓN (perfiles-por-rol Fase 1 · piloto).
+                  Va PRIMERO: el vendedor ve su TRABAJO del mes antes que su sueldo.
+                  Multi-rol: se concatena con admin/socio (cada función su bloque). */}
+              {isVendedor && profile && <ResumenVendedor uid={profile.uid} displayName={displayName} />}
+
               {/* Vista empleado · banner + KPI strip empleado + quick actions + cross-link */}
               {tieneRolEmpleado && (
                 <ResumenEmpleado
@@ -670,16 +678,20 @@ export const MiPerfil: React.FC = () => {
                 </>
               )}
 
-              {/* Empty state · admin puro sin laboral ni socio */}
-              {!canManageUsers && !tieneRolEmpleado && !isSocio && (
+              {/* Empty state · sin función operativa, laboral ni socio */}
+              {!canManageUsers && !tieneRolEmpleado && !isSocio && !isVendedor && (
                 <div className="bg-white border border-slate-200 rounded-xl p-5 text-center text-slate-500 text-[13px]">
-                  <Shield className="w-8 h-8 mx-auto mb-2 text-purple-300" />
+                  <Shield className="w-8 h-8 mx-auto mb-2 text-violet-300" />
                   <div className="font-semibold text-slate-700">Sin sub-perfiles configurados</div>
                   <div className="text-[11px] mt-1">
                     Tu cuenta aún no tiene datos laborales ni de socio · contactá al admin si corresponde.
                   </div>
                 </div>
               )}
+
+              {/* §G · Mis áreas · a qué tenés acceso · REUSABLE para todos los roles
+                  (deriva de permisos × navegación · cero config · sirve a multi-rol). */}
+              <MisAreas />
             </div>
           )}
 

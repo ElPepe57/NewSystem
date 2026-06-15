@@ -29,7 +29,7 @@ import {
 } from 'lucide-react';
 import { usePermissions } from '../../../hooks/usePermissions';
 import { BackArrowHeader } from '../../../components/common/BackArrowHeader';
-import { datosLaboralesService } from '../../../services/datosLaborales.service';
+import { getDatosLaboralesView } from '../../../services/perfilPersona.adapter';
 import { planillaService } from '../../../services/planilla.service';
 import { calculoIncentivoService } from '../../../services/calculoIncentivo.service';
 import type { DatosLaborales } from '../../../types/datosLaborales.types';
@@ -73,7 +73,7 @@ export const MiPlanillaPersonal: React.FC = () => {
       setLoading(true);
       try {
         const [dl, bo, ci] = await Promise.all([
-          datosLaboralesService.get(profile.uid).catch(() => null),
+          getDatosLaboralesView(profile.uid).catch(() => null),
           planillaService.getBoletasPorEmpleado(profile.uid, 12).catch(() => []),
           calculoIncentivoService.listUsuario(profile.uid, 24).catch(() => []),
         ]);
@@ -120,7 +120,7 @@ export const MiPlanillaPersonal: React.FC = () => {
             <button
               type="button"
               onClick={() => navigate('/perfil')}
-              className="text-[12px] font-bold text-white bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded-lg inline-flex items-center gap-1.5"
+              className="text-[12px] font-bold text-white bg-violet-600 hover:bg-violet-700 px-4 py-2 rounded-lg inline-flex items-center gap-1.5"
             >
               Volver al perfil
             </button>

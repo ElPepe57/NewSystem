@@ -89,7 +89,7 @@ export const MiCapitalPersonal: React.FC = () => {
             <p className="text-[12px] text-slate-600 mb-4 max-w-md mx-auto">
               Esta vista es para socios del negocio. Tu cuenta no tiene rol "socio" asignado.
             </p>
-            <button onClick={() => navigate('/perfil')} className="text-[12px] font-bold text-white bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded-lg">
+            <button onClick={() => navigate('/perfil')} className="text-[12px] font-bold text-white bg-violet-600 hover:bg-violet-700 px-4 py-2 rounded-lg">
               Volver al perfil
             </button>
           </div>
@@ -110,7 +110,7 @@ export const MiCapitalPersonal: React.FC = () => {
               Tu participación aún no está configurada en el sistema. Contactá al admin para asentar
               tu % participación, aportes y tipo de socio.
             </p>
-            <button onClick={() => navigate('/perfil')} className="text-[12px] font-bold text-white bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded-lg">
+            <button onClick={() => navigate('/perfil')} className="text-[12px] font-bold text-white bg-violet-600 hover:bg-violet-700 px-4 py-2 rounded-lg">
               Volver al perfil
             </button>
           </div>

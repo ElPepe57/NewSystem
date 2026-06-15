@@ -69,6 +69,7 @@ export const lineaNegocioService = {
       color: data.color,
       icono: data.icono || null,
       activa: data.activa,
+      comisionPorcentaje: data.comisionPorcentaje ?? null,
       totalProductos: 0,
       totalUnidadesActivas: 0,
       ventasMesActualPEN: 0,
@@ -85,12 +86,16 @@ export const lineaNegocioService = {
    */
   async update(id: string, data: Partial<LineaNegocioFormData>, userId: string): Promise<void> {
     const docRef = doc(db, COLLECTION_NAME, id);
-    await updateDoc(docRef, {
+    const payload: Record<string, unknown> = {
       ...data,
       ...(data.codigo ? { codigo: data.codigo.toUpperCase() } : {}),
       actualizadoPor: userId,
       fechaActualizacion: Timestamp.now(),
-    });
+    };
+    // Firestore rechaza `undefined` (ignoreUndefinedProperties NO está activo) ·
+    // el form puede pasar campos opcionales vacíos como undefined (descripcion/icono).
+    Object.keys(payload).forEach((k) => payload[k] === undefined && delete payload[k]);
+    await updateDoc(docRef, payload);
   },
 
   /**
