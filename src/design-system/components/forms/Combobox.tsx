@@ -60,6 +60,13 @@ export interface ComboboxProps<T = string> {
   onCreate?: (searchTerm: string) => void;
   createLabel?: string;
 
+  /**
+   * Modo AUTOCOMPLETE: el trigger ES un input editable (escribís encima del valor,
+   * filtra al tipear, crea inline ahí mismo) en vez del botón "elegir de lista".
+   * Default false (modo botón · consumidores actuales sin cambios).
+   */
+  editable?: boolean;
+
   /** Empty state custom (ej: "No hay ventas con ese número"). */
   emptyMessage?: string;
 
@@ -80,6 +87,7 @@ export function Combobox<T extends string | number = string>({
   onCreate,
   createLabel = 'Crear nuevo',
   emptyMessage = 'Sin resultados',
+  editable = false,
   disabled,
   className,
 }: ComboboxProps<T>) {
@@ -115,6 +123,11 @@ export function Combobox<T extends string | number = string>({
 
   // ── Encontrar opción seleccionada (para mostrar texto) ──
   const selectedOption = flatOptions.find((o) => o.value === value);
+
+  // ── ¿lo tipeado coincide EXACTO con una opción? (no ofrecer "Crear" redundante) ──
+  const searchHasExactMatch =
+    !!search.trim() &&
+    flatOptions.some((o) => o.label.toLowerCase() === search.trim().toLowerCase());
 
   // ── Click outside cierra ──
   useEffect(() => {
@@ -180,60 +193,100 @@ export function Combobox<T extends string | number = string>({
       </div>
 
       {/* Trigger / display */}
-      <button
-        type="button"
-        disabled={disabled}
-        onClick={() => {
-          if (!disabled) {
-            setOpen((o) => !o);
-            setTimeout(() => inputRef.current?.focus(), 0);
-          }
-        }}
-        onKeyDown={handleKeyDown}
-        aria-invalid={hasError}
-        className={cn(
-          'relative w-full h-10 px-3 pr-10 text-sm rounded-md bg-white border outline-none transition-colors text-left',
-          'focus:ring-2 focus:ring-teal-500 focus:border-teal-500',
-          'disabled:bg-slate-50 disabled:text-slate-500 disabled:cursor-not-allowed',
-          'flex items-center gap-2',
-          hasError
-            ? 'border-red-400 bg-red-50/30 focus:ring-red-500 focus:border-red-500'
-            : 'border-slate-300',
-        )}
-      >
-        {selectedOption ? (
-          <>
-            {selectedOption.icon && <span className="flex-shrink-0">{selectedOption.icon}</span>}
-            <span className="truncate flex-1 text-slate-900">{selectedOption.label}</span>
-          </>
-        ) : (
-          <span className="text-slate-400 truncate">{placeholder}</span>
-        )}
-        <ChevronDown
+      {editable ? (
+        // Modo autocomplete · el input ES el trigger (escribir encima · filtra · crea inline)
+        <div className="relative">
+          <input
+            ref={inputRef}
+            type="text"
+            disabled={disabled}
+            value={open ? search : selectedOption?.label ?? (value != null ? String(value) : '')}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              if (!open) setOpen(true);
+            }}
+            onFocus={() => {
+              if (disabled) return;
+              setOpen(true);
+              setSearch(selectedOption?.label ?? (value != null ? String(value) : ''));
+            }}
+            onKeyDown={handleKeyDown}
+            aria-invalid={hasError}
+            placeholder={placeholder}
+            className={cn(
+              'w-full h-10 px-3 pr-10 text-sm rounded-md bg-white border outline-none transition-colors',
+              'focus:ring-2 focus:ring-teal-500 focus:border-teal-500',
+              'disabled:bg-slate-50 disabled:text-slate-500 disabled:cursor-not-allowed',
+              hasError
+                ? 'border-red-400 bg-red-50/30 focus:ring-red-500 focus:border-red-500'
+                : 'border-slate-300',
+            )}
+          />
+          <ChevronDown
+            className={cn(
+              'absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none transition-transform',
+              open && 'rotate-180',
+            )}
+          />
+        </div>
+      ) : (
+        <button
+          type="button"
+          disabled={disabled}
+          onClick={() => {
+            if (!disabled) {
+              setOpen((o) => !o);
+              setTimeout(() => inputRef.current?.focus(), 0);
+            }
+          }}
+          onKeyDown={handleKeyDown}
+          aria-invalid={hasError}
           className={cn(
-            'absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 transition-transform',
-            open && 'rotate-180',
+            'relative w-full h-10 px-3 pr-10 text-sm rounded-md bg-white border outline-none transition-colors text-left',
+            'focus:ring-2 focus:ring-teal-500 focus:border-teal-500',
+            'disabled:bg-slate-50 disabled:text-slate-500 disabled:cursor-not-allowed',
+            'flex items-center gap-2',
+            hasError
+              ? 'border-red-400 bg-red-50/30 focus:ring-red-500 focus:border-red-500'
+              : 'border-slate-300',
           )}
-        />
-      </button>
+        >
+          {selectedOption ? (
+            <>
+              {selectedOption.icon && <span className="flex-shrink-0">{selectedOption.icon}</span>}
+              <span className="truncate flex-1 text-slate-900">{selectedOption.label}</span>
+            </>
+          ) : (
+            <span className="text-slate-400 truncate">{placeholder}</span>
+          )}
+          <ChevronDown
+            className={cn(
+              'absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 transition-transform',
+              open && 'rotate-180',
+            )}
+          />
+        </button>
+      )}
 
       {/* Dropdown */}
       {open && !disabled && (
         <div className="absolute z-50 w-full mt-1 bg-white border border-slate-200 rounded-md shadow-lg overflow-hidden">
-          {/* Search input */}
-          <div className="relative border-b border-slate-100">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
-            <input
-              ref={inputRef}
-              type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder="Buscar..."
-              className="w-full h-9 pl-9 pr-3 text-sm bg-white outline-none placeholder:text-slate-400"
-              autoFocus
-            />
-          </div>
+          {/* Search input · solo en modo botón (en editable el trigger ya es el buscador) */}
+          {!editable && (
+            <div className="relative border-b border-slate-100">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
+              <input
+                ref={inputRef}
+                type="text"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder="Buscar..."
+                className="w-full h-9 pl-9 pr-3 text-sm bg-white outline-none placeholder:text-slate-400"
+                autoFocus
+              />
+            </div>
+          )}
 
           {/* Options list */}
           <div className="max-h-72 overflow-auto">
@@ -300,9 +353,14 @@ export function Combobox<T extends string | number = string>({
               })
             )}
 
-            {/* Crear nuevo · SIEMPRE visible cuando onCreate está activo (descubrible + sticky) */}
+            {/* Crear nuevo · descubrible + sticky · oculto si coincide exacto con una opción */}
             {onCreate &&
-              (search.trim() ? (
+              (!search.trim() ? (
+                <div className="w-full px-3 py-2 flex items-center gap-2 text-[11px] text-slate-400 border-t border-slate-100 sticky bottom-0 bg-white">
+                  <Plus className="w-3 h-3 flex-shrink-0" />
+                  <span>Escribí arriba para crear uno nuevo</span>
+                </div>
+              ) : searchHasExactMatch ? null : (
                 <button
                   type="button"
                   onClick={() => {
@@ -317,11 +375,6 @@ export function Combobox<T extends string | number = string>({
                     {createLabel} · "{search.trim()}"
                   </span>
                 </button>
-              ) : (
-                <div className="w-full px-3 py-2 flex items-center gap-2 text-[11px] text-slate-400 border-t border-slate-100 sticky bottom-0 bg-white">
-                  <Plus className="w-3 h-3 flex-shrink-0" />
-                  <span>Escribí arriba para crear uno nuevo</span>
-                </div>
               ))}
           </div>
         </div>

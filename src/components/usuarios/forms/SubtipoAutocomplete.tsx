@@ -1,19 +1,18 @@
 /**
  * SubtipoAutocomplete · 2026-06-14
  *
- * Campo de subtipo de relación con UX de AUTOCOMPLETE de verdad: el input es
- * editable (escribís encima del valor actual), filtra sugerencias al tipear y
- * ofrece "Crear nuevo: X" inline en el mismo lugar. Reusa `AutocompleteInput`.
+ * Campo de subtipo de relación con UX de autocomplete: input editable (escribís
+ * encima), filtra sugerencias y crea inline ahí mismo. Es un wrapper fino sobre
+ * el `Combobox` del DS en modo `editable` (UN solo componente de select/autocomplete).
  *
- * Garantiza UNIFORMIDAD del dato: muestra labels lindos ("Fundador") pero ALMACENA
- * el slug canónico ("fundador") — elegir una sugerencia guarda su slug; crear uno
- * nuevo lo normaliza con `slugSubtipo`. Así "Fundador", "fundador" y "Co-Fundador"
- * no fragmentan.
+ * Garantiza UNIFORMIDAD: muestra labels lindos ("Fundador") pero ALMACENA el slug
+ * canónico ("fundador") — elegir una sugerencia guarda su slug; crear uno nuevo lo
+ * normaliza con `slugSubtipo`. Así "Fundador", "fundador" y "Co-Fundador" no fragmentan.
  *
- * Fuente única: `SUBTIPOS_RELACION` (relacionLaboral.types).
+ * Fuente única de opciones: `SUBTIPOS_RELACION` (relacionLaboral.types).
  */
 import React from 'react';
-import { AutocompleteInput } from '../../common/AutocompleteInput';
+import { Combobox } from '../../../design-system/components/forms/Combobox';
 import {
   SUBTIPOS_RELACION,
   slugSubtipo,
@@ -29,7 +28,7 @@ interface SubtipoAutocompleteProps {
   onChange: (slug: string) => void;
   label?: string;
   error?: string;
-  helperText?: string;
+  hint?: string;
 }
 
 export const SubtipoAutocomplete: React.FC<SubtipoAutocompleteProps> = ({
@@ -38,30 +37,27 @@ export const SubtipoAutocomplete: React.FC<SubtipoAutocompleteProps> = ({
   onChange,
   label = 'Subtipo',
   error,
-  helperText,
+  hint,
 }) => {
-  const opciones = SUBTIPOS_RELACION[tipo] ?? [];
-  const labelDe = (slug: string) => opciones.find((o) => o.value === slug)?.label ?? slug;
-  const slugDe = (texto: string) =>
-    opciones.find((o) => o.label.toLowerCase() === texto.toLowerCase().trim())?.value;
+  const options = (SUBTIPOS_RELACION[tipo] ?? []).map((o) => ({ value: o.value, label: o.label }));
+  // Incluir el valor actual si es custom (creado inline antes) para que se muestre.
+  if (value && !options.some((o) => o.value === value)) {
+    options.unshift({ value, label: value });
+  }
 
   return (
-    <AutocompleteInput
+    <Combobox<string>
+      editable
+      optional
       label={label}
-      value={value ? labelDe(value) : ''}
-      suggestions={opciones.map((o) => o.label)}
-      onChange={(texto) => {
-        if (!texto.trim()) {
-          onChange('');
-          return;
-        }
-        // Sugerencia conocida → su slug · texto nuevo → slug normalizado.
-        onChange(slugDe(texto) ?? slugSubtipo(texto));
-      }}
-      placeholder="Elegí o escribí un subtipo…"
+      value={value || undefined}
+      onChange={onChange}
+      groups={[{ label: 'Sugeridos', options }]}
+      onCreate={(term) => onChange(slugSubtipo(term))}
       createLabel="Crear subtipo"
+      placeholder="Elegí o escribí un subtipo…"
       error={error}
-      helperText={helperText}
+      hint={hint}
     />
   );
 };
