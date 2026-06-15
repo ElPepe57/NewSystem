@@ -30,7 +30,8 @@ import { Info, Search, Calendar, DollarSign, Banknote, AlertCircle,
   Users, User as UserIcon, Briefcase, Plus, ChevronDown, Repeat,
   Hash, Save, Receipt,
 } from 'lucide-react';
-import { Button, Input, AutocompleteInput } from '../../components/common';
+import { Button, Input } from '../../components/common';
+import { Combobox, stringGroups } from '../../design-system/components/forms/Combobox';
 import { Modal } from '../../components/common/Modal';
 import { FormModalV2 } from '../../design-system/components/FormModalV2';
 import { useGastoStore } from '../../store/gastoStore';
@@ -1147,15 +1148,16 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose, gastoEditar }) =>
 
           {/* Tipo de gasto (autocomplete por bloque · preservado) */}
           <div className="mb-2">
-            <AutocompleteInput
-              label="Tipo de gasto"
-              value={formData.tipo}
-              onChange={(value) => handleChange('tipo', value)}
-              suggestions={sugerenciasActuales}
-              placeholder="Ej. Sueldo Juan · mayo 2026"
-              allowCreate={true}
-              createLabel="Crear"
+            <Combobox<string>
+              editable
               required
+              label="Tipo de gasto"
+              value={formData.tipo || undefined}
+              onChange={(value) => handleChange('tipo', value)}
+              groups={stringGroups(sugerenciasActuales)}
+              placeholder="Ej. Sueldo Juan · mayo 2026"
+              onCreate={(value) => handleChange('tipo', value)}
+              createLabel="Crear"
             />
           </div>
 

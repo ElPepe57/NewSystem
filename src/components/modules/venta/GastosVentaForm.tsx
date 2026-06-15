@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Plus, Trash2, Loader2, AlertCircle, CheckCircle, Info } from 'lucide-react';
-import { AutocompleteInput, Button } from '../../common';
+import { Button } from '../../common';
+import { Combobox, stringGroups } from '../../../design-system/components/forms/Combobox';
 import type { Venta } from '../../../types/venta.types';
 import type { Gasto, TipoGasto } from '../../../types/gasto.types';
 import { TIPOS_GASTO_LABELS } from '../../../types/gasto.types';
@@ -268,13 +269,14 @@ export const GastosVentaForm: React.FC<GastosVentaFormProps> = ({
 
         <div className="grid grid-cols-1 md:grid-cols-12 gap-3">
           <div className="md:col-span-4">
-            <AutocompleteInput
+            <Combobox<string>
+              editable
               label="Tipo de gasto"
-              value={nuevoTipo}
+              value={nuevoTipo || undefined}
               onChange={(value) => setNuevoTipo(value)}
-              suggestions={sugerenciasPorCategoria[nuevaCategoria] || []}
+              groups={stringGroups(sugerenciasPorCategoria[nuevaCategoria] || [])}
               placeholder="Escribe o selecciona..."
-              allowCreate={true}
+              onCreate={(value) => setNuevoTipo(value)}
               createLabel="Crear tipo"
             />
           </div>

@@ -817,8 +817,7 @@ export const Envios: React.FC = () => {
         <>
           {/* S53.29 — Vista estándar: EnvioCardSimple con layout 5-columnas
                (igual a CompraCard). Elegante, alargado, consistente con
-               /compras. El EnvioCard legacy queda disponible para el modal
-               de detalle cuando el usuario hace click.
+               /compras. El detalle se abre en EnvioDetailModal al hacer click.
                S57.x — Vista de tarjetas única (DataTable eliminada). */}
           <div className="bg-slate-50 rounded-xl p-4 md:p-5 space-y-3 border border-slate-100">
             {enviosFiltrados.slice(0, itemsVisiblesEnv).map(envio => (

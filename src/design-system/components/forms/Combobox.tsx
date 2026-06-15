@@ -51,8 +51,10 @@ export interface ComboboxProps<T = string> {
   hint?: string;
   /** Error inline. */
   error?: string;
-  /** Marca como opcional. */
+  /** Marca como opcional (muestra "(opcional)"). */
   optional?: boolean;
+  /** Marca como requerido (muestra "*"). */
+  required?: boolean;
   /** Slot a la derecha del label. */
   rightHint?: React.ReactNode;
 
@@ -74,6 +76,14 @@ export interface ComboboxProps<T = string> {
   className?: string;
 }
 
+/**
+ * Helper: convierte un `string[]` en `groups` del Combobox (listas simples · value === label).
+ * Para migrar consumidores que tenían `suggestions: string[]` (ex-AutocompleteInput).
+ */
+export function stringGroups(values: string[], groupLabel?: string): ComboboxGroup<string>[] {
+  return [{ label: groupLabel, options: values.map((v) => ({ value: v, label: v })) }];
+}
+
 export function Combobox<T extends string | number = string>({
   label,
   value,
@@ -83,6 +93,7 @@ export function Combobox<T extends string | number = string>({
   hint,
   error,
   optional,
+  required,
   rightHint,
   onCreate,
   createLabel = 'Crear nuevo',
@@ -134,7 +145,8 @@ export function Combobox<T extends string | number = string>({
     const handler = (e: MouseEvent) => {
       if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
         setOpen(false);
-        setSearch('');
+        // En editable, el onBlur del input commitea el texto tipeado · no reseteamos acá.
+        if (!editable) setSearch('');
       }
     };
     if (open) {
@@ -185,6 +197,7 @@ export function Combobox<T extends string | number = string>({
       <div className="flex items-center justify-between mb-1.5">
         <label className="text-[11px] uppercase tracking-wider text-slate-500 font-semibold">
           {label}
+          {required && <span className="text-red-500 ml-1">*</span>}
           {optional && (
             <span className="text-[9px] normal-case text-slate-400 ml-1.5">(opcional)</span>
           )}
@@ -211,6 +224,22 @@ export function Combobox<T extends string | number = string>({
               setSearch(selectedOption?.label ?? (value != null ? String(value) : ''));
             }}
             onKeyDown={handleKeyDown}
+            onBlur={() => {
+              // Paridad con AutocompleteInput: al salir del campo, commitea lo tipeado.
+              const term = search.trim();
+              if (term) {
+                const match = flatOptions.find(
+                  (o) => o.label.toLowerCase() === term.toLowerCase(),
+                );
+                if (match) {
+                  if (match.value !== value) onChange(match.value);
+                } else if (onCreate) {
+                  onCreate(term);
+                }
+              }
+              setSearch('');
+              setOpen(false);
+            }}
             aria-invalid={hasError}
             placeholder={placeholder}
             className={cn(
@@ -316,6 +345,7 @@ export function Combobox<T extends string | number = string>({
                           key={String(opt.value)}
                           type="button"
                           disabled={opt.disabled}
+                          onMouseDown={(e) => e.preventDefault()}
                           onClick={() => {
                             if (opt.disabled) return;
                             onChange(opt.value);
@@ -363,6 +393,7 @@ export function Combobox<T extends string | number = string>({
               ) : searchHasExactMatch ? null : (
                 <button
                   type="button"
+                  onMouseDown={(e) => e.preventDefault()}
                   onClick={() => {
                     onCreate(search.trim());
                     setOpen(false);

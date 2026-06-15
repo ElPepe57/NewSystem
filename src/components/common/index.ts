@@ -7,7 +7,6 @@ export { Select } from './Select';
 export { PageLoader } from './PageLoader';
 export { ConfirmDialog, useConfirmDialog, GlobalConfirmDialog, useGlobalConfirmDialog } from './ConfirmDialog';
 export type { ConfirmDialogProps, ConfirmDialogVariant, UseConfirmDialogOptions } from './ConfirmDialog';
-export { AutocompleteInput } from './AutocompleteInput';
 export { AlertCard } from './AlertCard';
 export type { AlertCardProps } from './AlertCard';
 export { StatDistribution } from './StatDistribution';

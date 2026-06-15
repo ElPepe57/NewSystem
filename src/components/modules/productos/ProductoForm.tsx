@@ -9,7 +9,8 @@ import {
   Layers,
   GitBranch
 } from 'lucide-react';
-import { Button, Input, AutocompleteInput, Tabs, TabsProvider, TabPanel, useTabs } from '../../common';
+import { Button, Input, Tabs, TabsProvider, TabPanel, useTabs } from '../../common';
+import { Combobox, stringGroups } from '../../../design-system/components/forms/Combobox';
 import { ChipMultiSelect } from '../../common/ChipMultiSelect';
 import type { Tab } from '../../common/Tabs';
 import { MarcaAutocomplete } from '../entidades/MarcaAutocomplete';
@@ -987,14 +988,15 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
               )}
             </div>
 
-            <AutocompleteInput
-              label="Nombre Comercial"
-              value={formData.nombreComercial}
-              onChange={handleAutocompleteChange('nombreComercial')}
-              suggestions={sugerencias.nombresComerciales}
+            <Combobox<string>
+              editable
               required
+              label="Nombre Comercial"
+              value={formData.nombreComercial || undefined}
+              onChange={handleAutocompleteChange('nombreComercial')}
+              groups={stringGroups(sugerencias.nombresComerciales)}
               placeholder={esSuplemento ? 'ej: Ultimate Omega' : 'ej: Advanced Snail Mucin'}
-              allowCreate
+              onCreate={handleAutocompleteChange('nombreComercial')}
               createLabel="Crear nombre"
             />
 
@@ -1053,32 +1055,35 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
                 ) : (
                   <>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <AutocompleteInput
-                        label="Presentacion"
-                        value={formData.presentacion}
-                        onChange={handleAutocompleteChange('presentacion')}
-                        suggestions={['Tabletas', 'Gomitas', 'Cápsulas', 'Cápsulas Blandas', 'Cápsulas Vegetales', 'Mini Cápsulas Blandas', 'Polvo', 'Líquido', ...sugerencias.presentaciones]}
+                      <Combobox<string>
+                        editable
                         required
+                        label="Presentacion"
+                        value={formData.presentacion || undefined}
+                        onChange={handleAutocompleteChange('presentacion')}
+                        groups={stringGroups(['Tabletas', 'Gomitas', 'Cápsulas', 'Cápsulas Blandas', 'Cápsulas Vegetales', 'Mini Cápsulas Blandas', 'Polvo', 'Líquido', ...sugerencias.presentaciones])}
                         placeholder="ej: Capsulas"
-                        allowCreate
+                        onCreate={handleAutocompleteChange('presentacion')}
                         createLabel="Crear presentacion"
                       />
-                      <AutocompleteInput
+                      <Combobox<string>
+                        editable
                         label="Dosaje"
-                        value={formData.dosaje}
+                        value={formData.dosaje || undefined}
                         onChange={handleAutocompleteChange('dosaje')}
-                        suggestions={sugerencias.dosajes}
+                        groups={stringGroups(sugerencias.dosajes)}
                         placeholder="ej: 1000mg"
-                        allowCreate
+                        onCreate={handleAutocompleteChange('dosaje')}
                         createLabel="Crear dosaje"
                       />
-                      <AutocompleteInput
+                      <Combobox<string>
+                        editable
                         label="Contenido"
-                        value={formData.contenido}
+                        value={formData.contenido || undefined}
                         onChange={handleAutocompleteChange('contenido')}
-                        suggestions={sugerencias.contenidos}
+                        groups={stringGroups(sugerencias.contenidos)}
                         placeholder="ej: 60 softgels"
-                        allowCreate
+                        onCreate={handleAutocompleteChange('contenido')}
                         createLabel="Crear contenido"
                       />
                     </div>
@@ -1190,43 +1195,47 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
                 ) : (
                   <>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                      <AutocompleteInput
+                      <Combobox<string>
+                        editable
                         label="Tipo de Producto"
-                        value={formData.atributosSkincare?.tipoProductoSKC || ''}
+                        value={formData.atributosSkincare?.tipoProductoSKC || undefined}
                         onChange={(v) => updateSKC({ tipoProductoSKC: v as TipoProductoSKC })}
-                        suggestions={Object.values(TIPO_PRODUCTO_SKC_LABELS)}
+                        groups={stringGroups(Object.values(TIPO_PRODUCTO_SKC_LABELS))}
                         placeholder="ej: Serum, Crema, Protector Solar..."
-                        allowCreate
+                        onCreate={(v) => updateSKC({ tipoProductoSKC: v as TipoProductoSKC })}
                         createLabel="Usar"
                       />
-                      <AutocompleteInput
+                      <Combobox<string>
+                        editable
                         label="Volumen / Peso"
-                        value={formData.atributosSkincare?.volumen || ''}
+                        value={formData.atributosSkincare?.volumen || undefined}
                         onChange={(v) => updateSKC({ volumen: v })}
-                        suggestions={[]}
+                        groups={stringGroups([])}
                         placeholder="ej: 50ml, 27g, 200ml..."
-                        allowCreate
+                        onCreate={(v) => updateSKC({ volumen: v })}
                         createLabel="Usar"
                       />
-                      <AutocompleteInput
+                      <Combobox<string>
+                        editable
                         label="Ingrediente Clave"
-                        value={formData.atributosSkincare?.ingredienteClave || ''}
+                        value={formData.atributosSkincare?.ingredienteClave || undefined}
                         onChange={(v) => updateSKC({ ingredienteClave: v })}
-                        suggestions={[]}
+                        groups={stringGroups([])}
                         placeholder="ej: Centella, Niacinamida..."
-                        allowCreate
+                        onCreate={(v) => updateSKC({ ingredienteClave: v })}
                         createLabel="Usar"
                       />
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                      <AutocompleteInput
+                      <Combobox<string>
+                        editable
                         label="Línea del Producto"
-                        value={formData.atributosSkincare?.lineaProducto || ''}
+                        value={formData.atributosSkincare?.lineaProducto || undefined}
                         onChange={(v) => updateSKC({ lineaProducto: v })}
-                        suggestions={[]}
+                        groups={stringGroups([])}
                         placeholder="ej: Madagascar Centella..."
-                        allowCreate
+                        onCreate={(v) => updateSKC({ lineaProducto: v })}
                         createLabel="Usar"
                       />
                       <ChipMultiSelect
@@ -1246,13 +1255,14 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
-                      <AutocompleteInput
+                      <Combobox<string>
+                        editable
                         label="Textura"
-                        value={formData.atributosSkincare?.textura || ''}
+                        value={formData.atributosSkincare?.textura || undefined}
                         onChange={(v) => updateSKC({ textura: (v || undefined) as TexturaSKC | undefined })}
-                        suggestions={Object.values(TEXTURA_LABELS)}
+                        groups={stringGroups(Object.values(TEXTURA_LABELS))}
                         placeholder="ej: Gel, Crema, Aceite..."
-                        allowCreate
+                        onCreate={(v) => updateSKC({ textura: (v || undefined) as TexturaSKC | undefined })}
                         createLabel="Usar"
                       />
                       <Input
