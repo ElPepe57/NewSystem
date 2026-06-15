@@ -3,6 +3,7 @@ import { collection, getDocs, query, where, doc, getDoc } from 'firebase/firesto
 import { db } from '../lib/firebase';
 import { COLLECTIONS } from '../config/collections';
 import { ctruService } from '../services/ctru.service';
+import { categoriaCostoService } from '../services/categoriaCosto.service';
 import { esGastoDelBloque, esGastoDeVenta, esGastoDePeriodo, esGastoDistribucion, esGastoAdministrativo, type ArbolCategorias } from '../utils/gasto.bloque';
 import { envioCrudService } from '../services/envio.crud.service';
 import { ProductoService } from '../services/producto.service';
@@ -1094,10 +1095,14 @@ export const useCTRUStore = create<CTRUState>((set, get) => ({
       // Gastos: only GA/GO/GV/GD categories (other types have no CTRU impact).
       // OCs: only the subset referenced by the loaded units — avoids full collection scan.
       // Ventas: only the 5 active delivery states — skips cancelled/draft records.
-      const [todosGastos, todasOCs, ventasValidas] = await Promise.all([
+      const [todosGastos, todasOCs, ventasValidas, arbolCategorias] = await Promise.all([
         fetchGastosParaCTRU(),
         fetchOCsParaCTRU(todasUnidades),
-        fetchVentasParaCTRU()
+        fetchVentasParaCTRU(),
+        // chk5.A15 · el árbol de categorías es OBLIGATORIO para clasificar gastos por
+        // bloque (producto/venta/periodo). Sin él, getBloqueDelGasto retorna null y
+        // gastosByVentaId/gastosGAGO/historialGastos quedan VACÍOS (bug pre-fix · gastos=0).
+        categoriaCostoService.getArbol().catch(() => null) as Promise<ArbolCategorias | null>
       ]);
 
       // Units arriving here already exclude vencida/danada — no client-side filter needed.
@@ -1154,14 +1159,14 @@ export const useCTRUStore = create<CTRUState>((set, get) => ({
       // GV/GD por venta · chk5.A12 · canon · bloque 'venta'
       const gastosByVentaId = new Map<string, Gasto[]>();
       for (const g of todosGastos) {
-        if (g.ventaId && esGastoDelBloque(g, 'venta')) {
+        if (g.ventaId && esGastoDelBloque(g, 'venta', arbolCategorias)) {
           if (!gastosByVentaId.has(g.ventaId)) gastosByVentaId.set(g.ventaId, []);
           gastosByVentaId.get(g.ventaId)!.push(g);
         }
       }
 
       // GA/GO — total y costo base de vendidas para prorrateo proporcional · canon
-      const gastosGAGO = todosGastos.filter(g => esGastoDelBloque(g, 'periodo'));
+      const gastosGAGO = todosGastos.filter(g => esGastoDelBloque(g, 'periodo', arbolCategorias));
       const totalGAGOPEN = gastosGAGO.reduce((sum, g) => sum + g.montoPEN, 0);
       const unidadesVendidasAll = todasUnidades.filter(u => u.estado === 'vendida');
       // Costo base total de TODAS las unidades vendidas (para prorrateo proporcional)
@@ -1189,7 +1194,7 @@ export const useCTRUStore = create<CTRUState>((set, get) => ({
         todasUnidades, todosGastos, ventasValidas, ocProductCostMap, ocCostBreakdownMap,
         fleteByUnitMap, fleteByProductMap, gastosByVentaId
       );
-      const historialGastos = processHistorialGastos(todosGastos);
+      const historialGastos = processHistorialGastos(todosGastos, arbolCategorias);
       const lotesOC = processLotesOC(
         todasUnidades, todasOCs, ocProductCostMap, ocCostBreakdownMap,
         fleteByUnitMap, fleteByProductMap, totalGAGOPEN, costoBaseTotalVendidas
