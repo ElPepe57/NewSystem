@@ -5,5 +5,3 @@
  * Ver `docs/DESIGN_PATTERNS.md` para contexto.
  */
 
-export { useEmbeddableView } from './useEmbeddableView';
-export type { EmbeddableView } from './useEmbeddableView';

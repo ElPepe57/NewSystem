@@ -12,10 +12,6 @@
  *     de datos de ningún módulo (OC, Envío, Venta, etc.).
  */
 
-// Plantilla principal: orquestador del detalle
-export { EntityDetailShell } from './EntityDetailShell';
-export type { EntityDetailShellProps } from './EntityDetailShell';
-
 // Piezas del detalle (4 slots canónicos)
 export { EntityHeader } from './EntityHeader';
 export type { EntityHeaderProps } from './EntityHeader';
