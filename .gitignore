@@ -26,3 +26,6 @@ serviceAccountKey.json
 .env
 .env.*
 nul
+
+# Claude Code agent worktrees (no trackear · contaminan tooling y git status)
+.claude/worktrees/
