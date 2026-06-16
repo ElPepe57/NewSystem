@@ -1,4 +1,14 @@
 import type { Unidad } from '../types/unidad.types';
+import type { ComponenteCostoUnidad } from '../types/ctru.types';
+
+/**
+ * Sumar los componentes de costo congelados de una unidad (modelo adaptativo).
+ * Los descuentos entran con montoPEN negativo, así que la suma ya es neta.
+ */
+export function sumarComponentesCosto(componentes?: ComponenteCostoUnidad[] | null): number {
+  if (!componentes || componentes.length === 0) return 0;
+  return componentes.reduce((sum, c) => sum + (c?.montoPEN || 0), 0);
+}
 
 /**
  * Obtener el CTRU (Costo Total Real por Unidad) de una unidad.
@@ -7,8 +17,18 @@ import type { Unidad } from '../types/unidad.types';
  * REINGENIERIA: CTRU = precio producto (de OC) + costos landed (de Envio)
  * GA/GO ya NO se incluyen en el CTRU (Acuerdo 3).
  * Los gastos del periodo se ven en el P&L como "Gastos Fijos del Mes".
+ *
+ * MODELO ADAPTATIVO (fundación 2026-06-16): si la unidad tiene componentesCosto[]
+ * congelados, el CTRU es su SUMA. Si no (unidades legacy sin componentes), se cae
+ * al cálculo por escalares de abajo SIN cambios — backward-compat obligatorio
+ * porque ningún doc histórico tiene componentesCosto todavía.
  */
-export function getCTRU(unidad: Pick<Unidad, 'ctruDinamico' | 'ctruInicial' | 'costoUnitarioUSD' | 'costoFleteUSD' | 'tcPago' | 'tcCompra'> & { costoGAGOAsignado?: number; costosLandedPEN?: number }): number {
+export function getCTRU(unidad: Pick<Unidad, 'ctruDinamico' | 'ctruInicial' | 'costoUnitarioUSD' | 'costoFleteUSD' | 'tcPago' | 'tcCompra' | 'componentesCosto'> & { costoGAGOAsignado?: number; costosLandedPEN?: number }): number {
+  // Prioridad 0: modelo adaptativo — si hay componentes congelados, el CTRU es su suma neta.
+  if (unidad.componentesCosto && unidad.componentesCosto.length > 0) {
+    return sumarComponentesCosto(unidad.componentesCosto);
+  }
+
   // Prioridad 1: Si hay costosLanded del nuevo modelo (Envio), usarlos
   if (unidad.costosLandedPEN && unidad.costosLandedPEN > 0) {
     const tc = getTC(unidad);
@@ -52,8 +72,17 @@ export function getTC(unidad: Pick<Unidad, 'tcPago' | 'tcCompra'>): number {
 /**
  * Calcular el costo base (precio + flete, sin GA/GO) de una unidad en PEN.
  * Formula: (costoUnitarioUSD + costoFleteUSD) x TC + costoRecojoPEN
+ *
+ * MODELO ADAPTATIVO: si hay componentesCosto[], el costo base ES su suma (igual
+ * que getCTRU — no hay componente de overhead, así getCTRU===getCostoBasePEN y
+ * desaparece la divergencia BUG-3/BUG-5). Si no, cálculo por escalares (legacy).
  */
-export function getCostoBasePEN(unidad: Pick<Unidad, 'ctruInicial' | 'costoUnitarioUSD' | 'costoFleteUSD' | 'tcPago' | 'tcCompra'> & { costoRecojoPEN?: number }): number {
+export function getCostoBasePEN(unidad: Pick<Unidad, 'ctruInicial' | 'costoUnitarioUSD' | 'costoFleteUSD' | 'tcPago' | 'tcCompra' | 'componentesCosto'> & { costoRecojoPEN?: number }): number {
+  // Prioridad 0: modelo adaptativo — base = suma de componentes congelados.
+  if (unidad.componentesCosto && unidad.componentesCosto.length > 0) {
+    return sumarComponentesCosto(unidad.componentesCosto);
+  }
+
   const tc = getTC(unidad);
   const costoFleteUSD = unidad.costoFleteUSD || 0;
   const costoRecojo = unidad.costoRecojoPEN || 0;
@@ -73,12 +102,24 @@ export function getCostoBasePEN(unidad: Pick<Unidad, 'ctruInicial' | 'costoUnita
 /**
  * Calcular CTRU Real usando TCPA (del Pool USD) en lugar del TC historico.
  * REINGENIERIA: sin costoGAGOAsignado — GA/GO no tocan CTRU.
+ *
+ * MODELO ADAPTATIVO: si hay componentesCosto[], se revalúan al TCPA los que
+ * nacieron en USD (montoOrigenUSD); los que ya están en PEN se mantienen.
  */
 export function getCTRU_Real(
-  unidad: Pick<Unidad, 'costoUnitarioUSD' | 'costoFleteUSD'> & { costosLandedPEN?: number },
+  unidad: Pick<Unidad, 'costoUnitarioUSD' | 'costoFleteUSD' | 'componentesCosto'> & { costosLandedPEN?: number },
   tcpa: number
 ): number {
   if (tcpa <= 0) return 0;
+
+  // Prioridad 0: revaluar componentes congelados al TCPA gerencial.
+  if (unidad.componentesCosto && unidad.componentesCosto.length > 0) {
+    return unidad.componentesCosto.reduce((sum, c) => {
+      if (c?.montoOrigenUSD != null) return sum + c.montoOrigenUSD * tcpa;
+      return sum + (c?.montoPEN || 0);
+    }, 0);
+  }
+
   const costoUSD = (unidad.costoUnitarioUSD || 0) + (unidad.costoFleteUSD || 0);
   return costoUSD * tcpa + (unidad.costosLandedPEN || 0);
 }

@@ -1,4 +1,5 @@
 import { Timestamp } from 'firebase/firestore';
+import type { ComponenteCostoUnidad } from './ctru.types';
 
 /**
  * Estados posibles de una unidad (flujo lineal + excepciones)
@@ -188,6 +189,12 @@ export interface Unidad {
 
   // Costos landed prorrateados (del Envio)
   costosLandedPEN?: number;      // Suma de costos landed prorrateados a esta unidad
+
+  // Componentes de costo congelados (fundación 2026-06-16 · modelo adaptativo).
+  // getCTRU = Σ componentesCosto[].montoPEN cuando existen; si no, fallback a los
+  // escalares de arriba (costoUnitarioUSD/costoFleteUSD/costosLandedPEN/ctru*).
+  // Cada componente es inmutable (frozen-at-tx) y lleva su ámbito (envío/etapa).
+  componentesCosto?: ComponenteCostoUnidad[];
 
   // @deprecated — eliminados en reingenieria (Acuerdo 3: GA/GO no tocan CTRU)
   costoGAAsignado?: number;
