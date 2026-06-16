@@ -5,13 +5,16 @@ import { db } from '../lib/firebase';
 import { logger } from '../lib/logger';
 import { COLLECTIONS } from '../config/collections';
 import { envioCrudService } from './envio.crud.service';
-import { getTC } from '../utils/ctru.utils';
+import { sumarComponentesCosto } from '../utils/ctru.utils';
+import { type ProductoInfo } from '../utils/prorrateoLanded';
 import {
-  calcularCostosLandedPorUnidad,
-  type ProductoInfo,
-} from '../utils/prorrateoLanded';
+  buildUnidadesPorTanda,
+  prorratearLandedAComponentes,
+  construirComponentesUnidad,
+} from '../utils/costoComponentes.builder';
 import type { RecepcionEnvio, EnvioUnidad } from '../types/envio.types';
 import type { Unidad, EstadoUnidad } from '../types/unidad.types';
+import type { ComponenteCostoUnidad } from '../types/ctru.types';
 
 const ENVIOS_COLL = COLLECTIONS.ENVIOS;
 const UNIDADES_COLL = COLLECTIONS.UNIDADES;
@@ -60,27 +63,22 @@ export const envioRecepcionService = {
     const now = Timestamp.now();
     const batch = writeBatch(db);
 
-    // S53.7 — Calcular prorrateo de costos landed para CADA unidad recibida.
-    // Construimos `productosInfo` leyendo los costos base desde las primeras
-    // unidades de cada productoId (están desnormalizados en el envío + en
-    // la unidad real via `costoUnitarioUSD`). Esto arregla el bug CONT-003
-    // donde `total_por_valor` degeneraba en prorrateo uniforme.
-    const costosLandedPorUnidad = new Map<string, number>();
+    // Prorrateo de costos landed → ComponenteCostoUnidad[] por unidad, POR ÁMBITO
+    // (fundación 2026-06-16). El denominador del prorrateo scope='envio' es el total
+    // ESTABLE del envío (todas las unidades), no las "pendientes" de esta recepción
+    // — así la cuota de cada unidad es igual en cualquier recepción y no se re-toca
+    // a las ya congeladas. Los costos scope='tanda' se reparten solo en su tanda.
+    // (Arregla además CONT-003 pasando productosInfo real a total_por_valor/peso.)
+    const landedComponentesPorUnidad = new Map<string, ComponenteCostoUnidad[]>();
     if (envio.costosLanded.length > 0) {
-      const unidadesPendientes = envio.unidades.filter(
-        u => u.estadoEnvio === 'pendiente' || u.estadoEnvio === 'enviada'
-      );
+      const todasUnidades = envio.unidades;
 
-      // Construir productosInfo leyendo el costoUnitarioUSD real de Firestore
-      // (una lectura por productoId distinto, no por unidad individual).
+      // productosInfo leyendo el costoUnitarioUSD real de Firestore (una lectura por
+      // productoId distinto) sobre TODAS las unidades del envío.
       const productosInfo = new Map<string, ProductoInfo>();
-      const productoIdsUnicos = Array.from(
-        new Set(unidadesPendientes.map(u => u.productoId))
-      );
+      const productoIdsUnicos = Array.from(new Set(todasUnidades.map(u => u.productoId)));
       for (const pid of productoIdsUnicos) {
-        // Tomar una unidad de ese producto para leer su costoUnitarioUSD
-        // desnormalizado y su pesoLibras (si existe).
-        const primera = unidadesPendientes.find(u => u.productoId === pid);
+        const primera = todasUnidades.find(u => u.productoId === pid);
         if (!primera) continue;
         const unidadRef = doc(db, UNIDADES_COLL, primera.unidadId);
         const unidadSnap = await getDoc(unidadRef);
@@ -93,14 +91,15 @@ export const envioRecepcionService = {
         }
       }
 
-      const prorrateo = calcularCostosLandedPorUnidad(
+      const unidadesPorTanda = buildUnidadesPorTanda(envio.subEnvios, todasUnidades);
+      const comps = prorratearLandedAComponentes(
         envio.costosLanded,
-        unidadesPendientes,
-        productosInfo
+        todasUnidades,
+        unidadesPorTanda,
+        productosInfo,
+        now
       );
-      for (const [unidadId, monto] of prorrateo) {
-        costosLandedPorUnidad.set(unidadId, monto);
-      }
+      for (const [uid, list] of comps) landedComponentesPorUnidad.set(uid, list);
     }
 
     // Procesar unidades
@@ -174,22 +173,21 @@ export const envioRecepcionService = {
             fechaActualizacion: now,
           };
 
-          // Costos landed prorrateados
-          const costosLanded = costosLandedPorUnidad.get(ur.unidadId) || 0;
-          if (costosLanded > 0) {
-            updateData.costosLandedPEN = costosLanded;
+          // Congelar los componentes de costo de la unidad (fundación 2026-06-16).
+          // Guard `costosLanded>0` ELIMINADO: ahora SIEMPRE se materializa al menos
+          // el componente producto, así ninguna unidad recibida queda sin CTRU.
+          const landedComps = landedComponentesPorUnidad.get(ur.unidadId) || [];
+          const componentes = construirComponentesUnidad(unidadData, landedComps, now);
+          const costosLandedPEN = sumarComponentesCosto(landedComps);
+          const ctruNuevo = sumarComponentesCosto(componentes);
 
-            // Recalcular CTRU con costos landed
-            const tc = getTC(unidadData);
-            const costoProductoPEN = (unidadData.costoUnitarioUSD || 0) * tc;
-            const costoFletePEN = (unidadData.costoFleteUSD || 0) * tc;
-            const ctruNuevo = costoProductoPEN + costoFletePEN + costosLanded;
-
-            updateData.ctruInicial = ctruNuevo;
-            updateData.ctruDinamico = ctruNuevo;
-            updateData.ctruContable = ctruNuevo;
-            updateData.ctruGerencial = ctruNuevo;
-          }
+          updateData.componentesCosto = componentes;
+          if (costosLandedPEN > 0) updateData.costosLandedPEN = costosLandedPEN;
+          // Escalares en paralelo (doble escritura transicional) · coherentes con Σ componentes.
+          updateData.ctruInicial = ctruNuevo;
+          updateData.ctruDinamico = ctruNuevo;
+          updateData.ctruContable = ctruNuevo;
+          updateData.ctruGerencial = ctruNuevo;
 
           // Fecha de vencimiento
           if (ur.fechaVencimiento) {
