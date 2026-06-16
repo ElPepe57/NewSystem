@@ -102,6 +102,19 @@ export const envioRecepcionService = {
       for (const [uid, list] of comps) landedComponentesPorUnidad.set(uid, list);
     }
 
+    // Paso 5 (fundación) — Recojo en Perú de ESTA recepción como componente de ETAPA.
+    // Se prorratea SOLO entre las unidades RECIBIDAS en esta recepción (ámbito='etapa',
+    // recepcionId), respetando la inmutabilidad de las etapas previas. Antes el campo
+    // formData.costoRecojoPEN se capturaba en el modal pero registrarRecepcion nunca
+    // lo leía (BUG-2 · costo de recojo perdido end-to-end).
+    const recepcionesAnteriores = envio.recepciones || [];
+    const numeroRecepcion = recepcionesAnteriores.length + 1;
+    const recepcionId = `REC-ENV-${Date.now()}-${Math.random().toString(36).substr(2, 6)}`;
+    const nRecibidasRecojo = unidadesRecibidas.filter(ur => ur.recibida).length;
+    const recojoPorUnidad = (formData.costoRecojoPEN && formData.costoRecojoPEN > 0 && nRecibidasRecojo > 0)
+      ? formData.costoRecojoPEN / nRecibidasRecojo
+      : 0;
+
     // Procesar unidades
     let recEnEsta = 0;
     let faltEnEsta = 0;
@@ -177,8 +190,20 @@ export const envioRecepcionService = {
           // Guard `costosLanded>0` ELIMINADO: ahora SIEMPRE se materializa al menos
           // el componente producto, así ninguna unidad recibida queda sin CTRU.
           const landedComps = landedComponentesPorUnidad.get(ur.unidadId) || [];
-          const componentes = construirComponentesUnidad(unidadData, landedComps, now);
-          const costosLandedPEN = sumarComponentesCosto(landedComps);
+          // Recojo en Perú de esta recepción (ámbito='etapa') · solo si el usuario lo ingresó.
+          const compsLandedEtapa: ComponenteCostoUnidad[] = recojoPorUnidad > 0
+            ? [...landedComps, {
+                categoria: 'recojo',
+                concepto: `Recojo en Perú · recepción ${numeroRecepcion}`,
+                montoPEN: recojoPorUnidad,
+                fuente: 'recepcion',
+                ambito: 'etapa',
+                recepcionId,
+                congeladoEn: now,
+              }]
+            : landedComps;
+          const componentes = construirComponentesUnidad(unidadData, compsLandedEtapa, now);
+          const costosLandedPEN = sumarComponentesCosto(compsLandedEtapa);
           const ctruNuevo = sumarComponentesCosto(componentes);
 
           updateData.componentesCosto = componentes;
@@ -219,11 +244,10 @@ export const envioRecepcionService = {
       ? Math.ceil((now.toMillis() - envio.fechaSalida.toMillis()) / (1000 * 60 * 60 * 24))
       : 0;
 
-    // Crear registro de recepcion
-    const recepcionesAnteriores = envio.recepciones || [];
+    // Crear registro de recepcion (id/numero ya calculados arriba para el componente recojo)
     const nuevaRecepcion: RecepcionEnvio = {
-      id: `REC-ENV-${Date.now()}-${Math.random().toString(36).substr(2, 6)}`,
-      numero: recepcionesAnteriores.length + 1,
+      id: recepcionId,
+      numero: numeroRecepcion,
       fechaRecepcion: now,
       recibidoPor: userId,
       unidadesEsperadas: envio.totalUnidades,

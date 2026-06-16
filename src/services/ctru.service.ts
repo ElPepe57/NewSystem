@@ -111,11 +111,14 @@ export const ctruService = {
             costoGOAsignado: 0,
           };
 
-          // Corregir ctruInicial si falta flete
-          const tc = getTC(unidad);
-          const costoConFlete = ((unidad.costoUnitarioUSD || 0) + (unidad.costoFleteUSD || 0)) * tc + ((unidad as any).costoRecojoPEN || 0);
-          if (unidad.ctruInicial && costoConFlete > unidad.ctruInicial + 0.01) {
-            updateData.ctruInicial = costoConFlete;
+          // Corregir ctruInicial SOLO hacia arriba y contra el CTRU REAL completo
+          // (getCTRU incluye landed/componentes con signo, p.ej. descuentos negativos).
+          // NEW-1: antes comparaba contra (producto+flete) SIN landed, así un descuento
+          // neto (landed negativo) hacía costoConFlete > ctruInicial y se pisaba el
+          // ctruInicial hacia arriba, borrando el descuento del costo "inmutable".
+          const ctruReal = getCTRU(unidad);
+          if (unidad.ctruInicial && ctruReal > unidad.ctruInicial + 0.01) {
+            updateData.ctruInicial = ctruReal;
           }
 
           allOps.push({ ref: doc(db, COLLECTIONS.UNIDADES, unidad.id), data: updateData });

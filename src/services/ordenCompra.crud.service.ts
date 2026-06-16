@@ -30,6 +30,7 @@ import type {
   EstadoOrden,
   ProductoOrden
 } from '../types/ordenCompra.types';
+import type { ComponenteCostoUnidad } from '../types/ctru.types';
 import { ProductoService } from './producto.service';
 import { requerimientoService } from './requerimiento.service';
 import { actividadService } from './actividad.service';
@@ -1061,9 +1062,10 @@ async function aplicarRecojoEnOrigen(
 ): Promise<void> {
   const { casillaCrudService } = await import('./casilla.crud.service');
   const { envioCrudService } = await import('./envio.crud.service');
-  const { calcularCostosLandedPorUnidad, buildProductosInfoFromOC } = await import(
-    '../utils/prorrateoLanded'
-  );
+  const { buildProductosInfoFromOC } = await import('../utils/prorrateoLanded');
+  const { buildUnidadesPorTanda, prorratearLandedAComponentes, construirComponentesUnidad } =
+    await import('../utils/costoComponentes.builder');
+  const { sumarComponentesCosto } = await import('../utils/ctru.utils');
   const now = Timestamp.now();
 
   // 1. Obtener nombre de la casilla para desnormalizar en unidades
@@ -1080,20 +1082,25 @@ async function aplicarRecojoEnOrigen(
   const productosInfo = buildProductosInfoFromOC(orden.productos);
   const tcCompra = orden.tcReferencial || orden.tcCompra || 0;
 
-  const costosLandedPorUnidad = new Map<string, number>();
+  // Prorrateo de costos landed → ComponenteCostoUnidad[] por unidad, POR ÁMBITO
+  // (mismo builder que registrarRecepcion · fundación 2026-06-16). scope='envio' se
+  // reparte entre todas las unidades del envío; scope='tanda' solo en su tanda.
+  const landedComponentesPorUnidad = new Map<string, ComponenteCostoUnidad[]>();
   for (const envio of enviosDeOC) {
     if (!envio.costosLanded || envio.costosLanded.length === 0) continue;
-    const unidadesParaProrratear = envio.unidades || [];
-    const prorrateoEnvio = calcularCostosLandedPorUnidad(
+    const todasUnidades = envio.unidades || [];
+    const unidadesPorTanda = buildUnidadesPorTanda(envio.subEnvios, todasUnidades);
+    const comps = prorratearLandedAComponentes(
       envio.costosLanded,
-      unidadesParaProrratear,
-      productosInfo
+      todasUnidades,
+      unidadesPorTanda,
+      productosInfo,
+      now
     );
-    for (const [unidadId, monto] of prorrateoEnvio) {
-      costosLandedPorUnidad.set(
-        unidadId,
-        (costosLandedPorUnidad.get(unidadId) || 0) + monto
-      );
+    for (const [uid, list] of comps) {
+      const prev = landedComponentesPorUnidad.get(uid);
+      if (prev) prev.push(...list);
+      else landedComponentesPorUnidad.set(uid, [...list]);
     }
   }
 
@@ -1106,17 +1113,8 @@ async function aplicarRecojoEnOrigen(
   // recepción normal.
   const unidadesBatch = writeBatch(db);
   for (const uid of unidadIds) {
-    // Buscar el costo unitario desde la OC (usando el productoId de la unidad
-    // no lo tenemos aquí directamente; podemos leer de la unidad o mapear vía envio).
-    // Para consistencia, construimos la fórmula con los datos de la OC:
-    //   costoProductoPEN = costoUnitarioUSD * tc
-    //   costosLandedPEN  = monto prorrateado (ya en PEN)
-    //   ctruInicial      = costoProductoPEN + costosLandedPEN
-    const costosLanded = costosLandedPorUnidad.get(uid) || 0;
-
-    // Necesitamos el costoUnitarioUSD para este uid. Lo resolvemos desde el Envio
-    // T1 (que tiene un array unidades[].productoId) o leyendo la unidad. Como ya
-    // tenemos `enviosDeOC` cargado, lo buscamos ahí.
+    // Resolver el costoUnitarioUSD del producto desde la OC (vía el productoId que
+    // el Envio T1 guarda para cada unidad).
     let costoUnitarioUSD = 0;
     for (const envio of enviosDeOC) {
       const unidadEnvio = envio.unidades?.find(u => u.unidadId === uid);
@@ -1126,9 +1124,6 @@ async function aplicarRecojoEnOrigen(
         break;
       }
     }
-
-    const costoProductoPEN = costoUnitarioUSD * tcCompra;
-    const ctruInicial = costoProductoPEN + costosLanded;
 
     const updateData: Record<string, unknown> = {
       estado: 'disponible',
@@ -1140,15 +1135,20 @@ async function aplicarRecojoEnOrigen(
       fechaActualizacion: now,
     };
 
-    // Persistir CTRU solo si hay datos válidos para calcularlo
-    if (tcCompra > 0 && costoUnitarioUSD > 0) {
-      updateData.ctruInicial = ctruInicial;
-      updateData.ctruDinamico = ctruInicial;
-      updateData.ctruContable = ctruInicial;
-      updateData.ctruGerencial = ctruInicial;
-      if (costosLanded > 0) {
-        updateData.costosLandedPEN = costosLanded;
-      }
+    // Congelar componentes con el MISMO builder que registrarRecepcion (sin 2ª copia
+    // divergente de la fórmula). El TC viene de la OC; solo se valoriza si hay TC.
+    if (tcCompra > 0) {
+      const landedComps = landedComponentesPorUnidad.get(uid) || [];
+      const componentes = construirComponentesUnidad({ costoUnitarioUSD, tcCompra }, landedComps, now);
+      const costosLandedPEN = sumarComponentesCosto(landedComps);
+      const ctruNuevo = sumarComponentesCosto(componentes);
+
+      updateData.componentesCosto = componentes;
+      if (costosLandedPEN > 0) updateData.costosLandedPEN = costosLandedPEN;
+      updateData.ctruInicial = ctruNuevo;
+      updateData.ctruDinamico = ctruNuevo;
+      updateData.ctruContable = ctruNuevo;
+      updateData.ctruGerencial = ctruNuevo;
     }
 
     unidadesBatch.update(doc(db, 'unidades', uid), updateData);
