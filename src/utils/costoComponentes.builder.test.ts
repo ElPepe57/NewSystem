@@ -1,10 +1,12 @@
 import { describe, it, expect } from 'vitest';
 import type { Timestamp } from 'firebase/firestore';
 import type { CostoLanded, EnvioUnidad, SubEnvioT1 } from '../types/envio.types';
+import type { ComponenteCostoUnidad } from '../types/ctru.types';
 import {
   buildUnidadesPorTanda,
   prorratearLandedAComponentes,
   construirComponentesUnidad,
+  componentesACapas,
 } from './costoComponentes.builder';
 import { sumarComponentesCosto } from './ctru.utils';
 
@@ -98,5 +100,28 @@ describe('construirComponentesUnidad', () => {
     expect(comps).toHaveLength(1);
     expect(comps[0].categoria).toBe('producto');
     expect(sumarComponentesCosto(comps)).toBeCloseTo(148);
+  });
+});
+
+describe('componentesACapas · paridad capas == Σ componentes (BUG-1 + BUG-3)', () => {
+  const comps: ComponenteCostoUnidad[] = [
+    { categoria: 'producto', concepto: 'Compra', montoPEN: 148, fuente: 'oc', ambito: 'envio' },
+    { categoria: 'flete', concepto: 'Flete remesa', montoPEN: 20, fuente: 'envio', ambito: 'envio' },
+    { categoria: 'recojo', concepto: 'Recojo', montoPEN: 10, fuente: 'recepcion', ambito: 'etapa' },
+    { categoria: 'descuento', concepto: 'Descuento proveedor', montoPEN: -8, fuente: 'oc', ambito: 'envio' },
+  ];
+
+  it('la suma de las capas PEN == Σ componentes (incluye el descuento negativo)', () => {
+    const capas = componentesACapas(comps, 3.7);
+    const sumaCapas = capas.compraPEN + capas.impuestoPEN + capas.envioPEN + capas.otrosPEN + capas.fleteIntlPEN;
+    expect(sumaCapas).toBeCloseTo(sumarComponentesCosto(comps)); // 148+20+10-8 = 170
+  });
+
+  it('mapea cada categoría a su capa (recojo y descuento → otros)', () => {
+    const capas = componentesACapas(comps, 3.7);
+    expect(capas.compraPEN).toBeCloseTo(148);     // producto
+    expect(capas.fleteIntlPEN).toBeCloseTo(20);   // flete
+    expect(capas.otrosPEN).toBeCloseTo(2);        // recojo 10 + descuento -8
+    expect(capas.compraUSD).toBeCloseTo(40);      // 148 / 3.7 reconstruye USD
   });
 });

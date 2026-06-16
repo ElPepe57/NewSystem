@@ -31,6 +31,7 @@ import type {
   ProductoOrden
 } from '../types/ordenCompra.types';
 import type { ComponenteCostoUnidad } from '../types/ctru.types';
+import type { MetodoProrrateo } from '../types/envio.types';
 import { ProductoService } from './producto.service';
 import { requerimientoService } from './requerimiento.service';
 import { actividadService } from './actividad.service';
@@ -816,10 +817,11 @@ export async function confirmarOC(
 
   // 3. Crear Envio(s) T1 en 'borrador'
   const transporteColaboradorId = orden.colaboradorTransporteId || colaboradorId;
-  const metodoProrrateoMap: Record<string, string> = {
+  const metodoProrrateoMap: Record<string, MetodoProrrateo> = {
     por_valor: 'total_por_valor',
     por_peso: 'total_por_peso',
     por_cantidad: 'fijo_por_unidad',
+    proporcional: 'total_por_valor', // proporcional ≈ por valor
   };
 
   // S42ba — Helper: heredar cargos comerciales al envío como costosLanded.
@@ -843,6 +845,7 @@ export async function confirmarOC(
       id: string;
       concepto: string;
       monto: number; // positivo = cargo/impuesto; negativo = descuento
+      metodoProrrateo?: string; // método declarado en el cargo/descuento (si lo hay)
     }> = [];
 
     if (subOrden) {
@@ -876,6 +879,7 @@ export async function confirmarOC(
             id: `cargo-oc-${c.id}`,
             concepto: c.concepto || 'Cargo OC',
             monto: c.montoUSD,
+            metodoProrrateo: c.metodoProrrateo,
           });
         }
       }
@@ -885,6 +889,7 @@ export async function confirmarOC(
             id: `desc-oc-${d.id}`,
             concepto: d.concepto || 'Descuento OC',
             monto: -d.montoUSD,
+            metodoProrrateo: d.metodoProrrateo,
           });
         }
       }
@@ -910,9 +915,10 @@ export async function confirmarOC(
           moneda: 'USD',
           montoPEN: item.monto * tc,
           tipoCambio: tc,
-          // Método uniforme `total_por_valor` — refleja la regla del
-          // usuario: "el que más cuesta es el que más descuento absorbe".
-          metodoProrrateo: 'total_por_valor' as any,
+          // BUG-4: propagar el método declarado de cada cargo/descuento
+          // (por_valor/por_peso/por_cantidad). Default total_por_valor para
+          // sub-órdenes consolidadas, impuestos y 'proporcional'.
+          metodoProrrateo: metodoProrrateoMap[item.metodoProrrateo ?? ''] ?? 'total_por_valor',
           pagado: false,
         },
         userId

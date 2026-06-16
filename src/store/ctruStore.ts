@@ -8,6 +8,7 @@ import { esGastoDelBloque, esGastoDeVenta, esGastoDePeriodo, esGastoDistribucion
 import { envioCrudService } from '../services/envio.crud.service';
 import { ProductoService } from '../services/producto.service';
 import { getCTRU, getCostoBasePEN, getTC, calcularGAGOProporcional } from '../utils/ctru.utils';
+import { componentesACapas } from '../utils/costoComponentes.builder';
 import { poolUSDService } from '../services/poolUSD.service';
 import { timed } from '../lib/perf';
 import type { Unidad } from '../types/unidad.types';
@@ -379,34 +380,33 @@ function getUnitCostLayers(
   ocCostBreakdownMap: Map<string, OCCostBreakdown>,
   fleteByUnitMap: Map<string, number>,
   fleteByProductMap: Map<string, number>,
-  totalGAGOPEN: number,
-  costoBaseTotalVendidas: number
+  _totalGAGOPEN: number,
+  _costoBaseTotalVendidas: number
 ): UnitCostLayers {
   const tc = getTC(u);
-  const ocId = u.ordenCompraId || '';
 
+  // CTRU = FUENTE ÚNICA (getCTRU · incluye landed/componentes con signo, descuentos,
+  // recojo). Antes el total era costoBase+GA/GO re-derivado, divergiendo del resumen
+  // que ya usaba getCTRU (BUG-3). GA/GO no toca el CTRU (Acuerdo 3) → gagoPEN = 0.
+  const ctru = getCTRU(u);
+
+  // Modelo adaptativo: si la unidad tiene componentes congelados, las CAPAS derivan
+  // de ellos (su suma == getCTRU · incluye el descuento) y NO se re-deriva de la OC
+  // viva → cierra BUG-1 (descuento perdido) y el agujero de inmutabilidad §1.6.
+  if (u.componentesCosto && u.componentesCosto.length > 0) {
+    const capas = componentesACapas(u.componentesCosto, tc);
+    return { ...capas, gagoPEN: 0, ctru };
+  }
+
+  // Legacy (sin componentes): re-derivar las capas de la OC (comportamiento previo),
+  // pero el total `ctru` viene de getCTRU, no de costoBase+GA/GO.
+  const ocId = u.ordenCompraId || '';
   const originalCostUSD = ocProductCostMap.get(ocId)?.get(u.productoId) ?? u.costoUnitarioUSD;
   const breakdown = ocCostBreakdownMap.get(ocId);
-
   const impuestoUSD = breakdown?.impuestoPerUnit ?? 0;
   const envioUSD = breakdown?.envioPerUnit ?? 0;
   const otrosUSD = breakdown?.otrosPerUnit ?? 0;
-
-  // Flete Internacional USA→Peru
   const fleteIntlUSD = fleteByUnitMap.get(u.id!) ?? u.costoFleteUSD ?? fleteByProductMap.get(u.productoId) ?? 0;
-
-  // GA/GO: solo para unidades vendidas, SIEMPRE proporcional al costo base
-  // Calculamos siempre en el store (no depender de ctruDinamico de Firestore)
-  // para garantizar consistencia. El ctruDinamico puede estar desactualizado.
-  const costoBase = getCostoBasePEN(u);
-  const isVendida = u.estado === 'vendida';
-  let gagoPEN = 0;
-  if (isVendida && costoBaseTotalVendidas > 0 && totalGAGOPEN > 0) {
-    gagoPEN = calcularGAGOProporcional(costoBase, costoBaseTotalVendidas, totalGAGOPEN);
-  }
-
-  // CTRU del store = costo base + GA/GO calculado (no de Firestore)
-  const ctruCalc = costoBase + gagoPEN;
 
   return {
     compraUSD: originalCostUSD,
@@ -419,8 +419,8 @@ function getUnitCostLayers(
     otrosPEN: otrosUSD * tc,
     fleteIntlUSD,
     fleteIntlPEN: fleteIntlUSD * tc,
-    gagoPEN,
-    ctru: ctruCalc
+    gagoPEN: 0,
+    ctru
   };
 }
 

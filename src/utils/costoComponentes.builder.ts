@@ -145,3 +145,42 @@ export function construirComponentesUnidad(
   componentes.push(...landedComponentes);
   return componentes;
 }
+
+/** Capas de costo de una unidad (para el desglose del dashboard CTRU). */
+export interface CapasCostoPEN {
+  compraUSD: number; compraPEN: number;
+  impuestoUSD: number; impuestoPEN: number;
+  envioUSD: number; envioPEN: number;
+  otrosUSD: number; otrosPEN: number;
+  fleteIntlUSD: number; fleteIntlPEN: number;
+}
+
+/**
+ * Mapea los ComponenteCostoUnidad[] congelados a las capas del desglose del
+ * dashboard. INVARIANTE: la suma de las capas PEN == Σ componentes == getCTRU
+ * (incluye descuentos como negativo). Reemplaza la re-derivación desde la OC viva
+ * (que descartaba el descuento · BUG-1) y reconcilia resumen-vs-detalle (BUG-3).
+ */
+export function componentesACapas(componentes: ComponenteCostoUnidad[], tc: number): CapasCostoPEN {
+  let compraPEN = 0, impuestoPEN = 0, envioPEN = 0, otrosPEN = 0, fleteIntlPEN = 0;
+  for (const c of componentes) {
+    const m = c.montoPEN || 0;
+    switch (c.categoria) {
+      case 'producto': compraPEN += m; break;
+      case 'flete': fleteIntlPEN += m; break;
+      case 'impuesto': impuestoPEN += m; break;
+      case 'landed': envioPEN += m; break;
+      case 'recojo': otrosPEN += m; break;
+      case 'descuento': otrosPEN += m; break; // negativo → baja el costo
+      default: otrosPEN += m; break;
+    }
+  }
+  const toUSD = (pen: number) => (tc > 0 ? pen / tc : 0);
+  return {
+    compraUSD: toUSD(compraPEN), compraPEN,
+    impuestoUSD: toUSD(impuestoPEN), impuestoPEN,
+    envioUSD: toUSD(envioPEN), envioPEN,
+    otrosUSD: toUSD(otrosPEN), otrosPEN,
+    fleteIntlUSD: toUSD(fleteIntlPEN), fleteIntlPEN,
+  };
+}
