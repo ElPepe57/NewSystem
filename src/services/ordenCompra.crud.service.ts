@@ -1100,14 +1100,10 @@ async function aplicarRecojoEnOrigen(
       const landedComps = landedComponentesPorUnidad.get(uid) || [];
       const componentes = construirComponentesUnidad({ costoUnitarioUSD, tcCompra }, landedComps, now);
       const costosLandedPEN = sumarComponentesCosto(landedComps);
-      const ctruNuevo = sumarComponentesCosto(componentes);
 
       updateData.componentesCosto = componentes;
       if (costosLandedPEN > 0) updateData.costosLandedPEN = costosLandedPEN;
-      updateData.ctruInicial = ctruNuevo;
-      updateData.ctruDinamico = ctruNuevo;
-      updateData.ctruContable = ctruNuevo;
-      updateData.ctruGerencial = ctruNuevo;
+      // Fase B3 · sin doble-escritura escalar (CTRU = componentesCosto[] · getCTRU prioridad 0).
     }
 
     unidadesBatch.update(doc(db, 'unidades', uid), updateData);

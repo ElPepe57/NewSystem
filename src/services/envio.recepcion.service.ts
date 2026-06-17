@@ -204,15 +204,11 @@ export const envioRecepcionService = {
             : landedComps;
           const componentes = construirComponentesUnidad(unidadData, compsLandedEtapa, now);
           const costosLandedPEN = sumarComponentesCosto(compsLandedEtapa);
-          const ctruNuevo = sumarComponentesCosto(componentes);
 
           updateData.componentesCosto = componentes;
           if (costosLandedPEN > 0) updateData.costosLandedPEN = costosLandedPEN;
-          // Escalares en paralelo (doble escritura transicional) · coherentes con Σ componentes.
-          updateData.ctruInicial = ctruNuevo;
-          updateData.ctruDinamico = ctruNuevo;
-          updateData.ctruContable = ctruNuevo;
-          updateData.ctruGerencial = ctruNuevo;
+          // Fase B3 · sin doble-escritura escalar: el CTRU vive en componentesCosto[] (getCTRU
+          // prioridad 0). Los escalares ctru* quedan solo como fallback para unidades legacy.
 
           // Fecha de vencimiento
           if (ur.fechaVencimiento) {

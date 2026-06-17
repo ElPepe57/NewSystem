@@ -3,7 +3,7 @@ import { db } from '../lib/firebase';
 import { COLLECTIONS } from '../config/collections';
 import { unidadService } from './unidad.service';
 import { ProductoService } from './producto.service';
-import { getCTRU, getCostoBasePEN, getTC } from '../utils/ctru.utils';
+import { getCTRU, getCostoBasePEN } from '../utils/ctru.utils';
 import { ctruLockService } from './ctruLock.service';
 import type { Unidad } from '../types/unidad.types';
 import { ESTADOS_ACTIVOS } from '../types/unidad.types';
@@ -23,63 +23,6 @@ import { logger } from '../lib/logger';
 const BATCH_LIMIT = 450;
 
 export const ctruService = {
-  /**
-   * Calcular CTRU inicial de una unidad al momento de recibirla.
-   * INMUTABLE despues de la recepcion.
-   * Incluye: costo producto en PEN + costos landed prorrateados del Envio
-   */
-  async calcularCTRUInicial(unidad: Unidad): Promise<number> {
-    try {
-      const tc = getTC(unidad);
-      if (tc === 0) {
-        logger.warn(`[CTRU] Unidad ${unidad.id} sin TC - usando costoUnitarioUSD directo`);
-      }
-      const costoBasePEN = unidad.costoUnitarioUSD * (tc || 1);
-      const costoFletePEN = (unidad.costoFleteUSD || 0) * (tc || 1);
-      const costosLanded = (unidad as any).costosLandedPEN || 0;
-
-      return costoBasePEN + costoFletePEN + costosLanded;
-    } catch (error: any) {
-      logger.error('Error al calcular CTRU inicial:', error);
-      throw new Error(`Error al calcular CTRU inicial: ${error.message}`);
-    }
-  },
-
-  /**
-   * Calcular y guardar CTRU inicial para un lote de unidades recien recibidas.
-   */
-  async calcularCTRULote(unidadIds: string[], _ordenCompraId: string): Promise<number> {
-    try {
-      if (unidadIds.length === 0) return 0;
-
-      const primeraUnidad = await unidadService.getById(unidadIds[0]);
-      if (!primeraUnidad) return 0;
-
-      const ctruInicial = await this.calcularCTRUInicial(primeraUnidad);
-
-      for (let i = 0; i < unidadIds.length; i += BATCH_LIMIT) {
-        const batch = writeBatch(db);
-        const chunk = unidadIds.slice(i, i + BATCH_LIMIT);
-
-        for (const id of chunk) {
-          batch.update(doc(db, COLLECTIONS.UNIDADES, id), {
-            ctruInicial,
-            ctruDinamico: ctruInicial,
-            ctruContable: ctruInicial,
-            ctruGerencial: ctruInicial,
-          });
-        }
-
-        await batch.commit();
-      }
-
-      return unidadIds.length;
-    } catch (error: any) {
-      logger.error('Error al calcular CTRU de lote:', error);
-      return 0;
-    }
-  },
-
   /**
    * Recalcular CTRU de todas las unidades.
    * REINGENIERIA: ya no distribuye GA/GO. Solo recalcula costoBase limpio.
