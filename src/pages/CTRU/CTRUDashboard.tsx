@@ -19,10 +19,11 @@ import { HubShell, HubTopBar, HubHeader, HubKpiStrip, HubTabs, HubBody, type Hub
 import { useAuthStore } from '../../store/authStore';
 import { hasRole } from '../../types/auth.types';
 import { LineaDropdown } from '../../components/common/LineaDropdown';
-import { ProductoCTRUDetail, LoteOCTable } from '../../components/modules/ctru';
+import { LoteOCTable } from '../../components/modules/ctru';
 import { PrecioPorCanalTab } from '../../components/modules/ctru/PrecioPorCanalTab';
 import { ReponerCortarTab } from '../../components/modules/ctru/ReponerCortarTab';
 import { ComposicionCostoTab } from '../../components/modules/ctru/ComposicionCostoTab';
+import { ProductoCTRUDossier } from '../../components/modules/ctru/ProductoCTRUDossier';
 import { useCTRUStore } from '../../store/ctruStore';
 import { useCanalVentaStore } from '../../store/canalVentaStore';
 import { useLineaFilter } from '../../hooks/useLineaFilter';
@@ -291,7 +292,7 @@ export const CTRUDashboard: React.FC = () => {
       </HubShell>
 
       {productoSeleccionado && (
-        <ProductoCTRUDetail producto={productoSeleccionado} onClose={() => setProductoSeleccionado(null)} />
+        <ProductoCTRUDossier producto={productoSeleccionado} canales={canalesActivos} onClose={() => setProductoSeleccionado(null)} />
       )}
     </div>
   );
