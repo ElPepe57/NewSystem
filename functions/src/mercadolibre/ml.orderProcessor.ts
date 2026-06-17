@@ -13,6 +13,7 @@ import * as functions from "firebase-functions/v1";
 import { MLOrderSync, MLOrderProduct } from "./ml.types";
 import { getOrder, getShipment } from "./ml.api";
 import { resolverTCVenta } from "../tipoCambio.util";
+import { getCTRUUnidad } from "../ctru.util";
 import { COLLECTIONS } from "../collections";
 // S55 Fase 9-pre — Cuenta Corriente (escritura paralela durante migración).
 import { registrarMovimientoCC_CF } from "../cuentaCorriente.helpers";
@@ -827,14 +828,13 @@ async function asignarInventarioFEFO(
     for (const uDoc of unidadesAReservar) {
       const uData = uDoc.data();
 
-      // Calcular CTRU de la unidad
-      let ctru = 0;
-      if (uData.ctruDinamico) {
-        ctru = uData.ctruDinamico;
-      } else {
-        const costoBase = (uData.costoUnitarioUSD || 0) + (uData.costoFleteUSD || 0);
-        const tcUnidad = uData.tcPago || uData.tcCompra || tc;
-        ctru = costoBase * tcUnidad;
+      // Fase B2 · costo de venta = CTRU 3-cajas (espejo de src getCTRU): prioriza los
+      // componentesCosto[] congelados, con fallback a escalares. SIN truthy-check (un CTRU
+      // 0 legítimo no debe caer al fallback; el bug anterior usaba if(uData.ctruDinamico)).
+      let ctru = getCTRUUnidad(uData);
+      if (!Number.isFinite(ctru) || ctru <= 0) {
+        // Última red para data incompleta (unidad sin tc): estimar con el TC de la orden ML.
+        ctru = ((uData.costoUnitarioUSD || 0) + (uData.costoFleteUSD || 0)) * tc;
       }
 
       costoProducto += ctru;
