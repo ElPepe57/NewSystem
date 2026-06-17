@@ -281,11 +281,13 @@ export const CTRUDashboard: React.FC = () => {
             </div>
           )}
 
-          {/* TAB · ¿Dónde se va la plata? (composición de costo + lotes) */}
+          {/* TAB · ¿Dónde se va la plata? (composición de costo · pixel-perfect mockup).
+              El detalle de lotes/OC NO está en el mockup · solo aparece al entrar por el
+              deep-link de auditoría /ctru?tab=lote&ocId= (desde el detalle de una OC). */}
           {tab === 'fuga' && (
             <div className="p-3 sm:p-4 md:p-6 space-y-4">
               <ComposicionCostoTab productos={productos} onSelectProducto={setProductoSeleccionado} />
-              <LoteOCTable lotes={lotesOC} autoExpandId={ocIdDeURL} />
+              {ocIdDeURL && <LoteOCTable lotes={lotesOC} autoExpandId={ocIdDeURL} />}
             </div>
           )}
         </HubBody>
