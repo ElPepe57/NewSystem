@@ -7,6 +7,7 @@ import type { Envio } from '../types/envio.types';
 import type { Gasto } from '../types/gasto.types';
 import type { InventarioProducto } from '../types/inventario.types';
 import { toDateSafe } from '../utils/dateFormatters';
+import { getCargosEfectivosOC } from '../utils/ordenCompra.helpers';
 
 /**
  * Servicio para exportar datos a Excel
@@ -67,15 +68,17 @@ export const exportService = {
    * Exporta órdenes de compra a Excel
    */
   async exportOrdenesCompra(ordenes: OrdenCompra[], filename = 'ordenes_compra'): Promise<void> {
-    const data = ordenes.map(oc => ({
+    const data = ordenes.map(oc => {
+      const ef = getCargosEfectivosOC(oc);
+      return {
       'N° Orden': oc.numeroOrden,
       'Fecha Creación': oc.fechaCreacion?.toDate?.().toLocaleDateString('es-PE') || '',
       'Proveedor': oc.nombreProveedor,
       'Productos': oc.productos.length,
       'Subtotal USD': oc.subtotalUSD,
-      'Impuesto Compra USD': oc.impuestoCompraUSD ?? 0,
-      'Envío Proveedor USD': oc.costoEnvioProveedorUSD ?? 0,
-      'Otros Gastos USD': oc.otrosGastosCompraUSD ?? 0,
+      'Impuestos USD': ef.impuestos,
+      'Cargos USD': ef.cargos,
+      'Descuentos USD': ef.descuentos,
       'Total USD': oc.totalUSD,
       'TC Compra': oc.tcCompra || 0,
       'TC Pago': oc.tcPago || 0,
@@ -86,7 +89,8 @@ export const exportService = {
       'Tracking': oc.numeroTracking || '',
       'Courier': oc.courier || '',
       'Inventario Generado': oc.inventarioGenerado ? 'Sí' : 'No'
-    }));
+      };
+    });
 
     await this.downloadExcel(data, filename);
   },

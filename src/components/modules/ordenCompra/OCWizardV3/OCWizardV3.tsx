@@ -384,8 +384,8 @@ export const OCWizardV3: React.FC<OCWizardV3Props> = ({
       subtotalUSD: subtotal,
       totalUSD: grandTotal,
       tcCompra: state.tcCompra,
-      ...(totalImpuestos > 0 && { impuestoCompraUSD: totalImpuestos }),
-      ...(totalDescuentos > 0 && { descuentoUSD: totalDescuentos }),
+      // Fase A · v2-puro: el impuesto y el descuento viajan SOLO en los arrays v2
+      // (impuestosOC/descuentosOC abajo). Ya no se re-emiten como escalares de cabecera.
       modoEntrega: config.modoEntrega,
       modoEntregaDetallado: state.modoEntregaDetallado || undefined,
       fleteIncluidoEnPrecio: config.fleteIncluidoEnPrecio,

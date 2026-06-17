@@ -40,6 +40,7 @@ import { COLLECTIONS } from '../config/collections';
 import { ORDENES_COLLECTION, PROVEEDORES_COLLECTION, generateNumeroOrden } from './ordenCompra.shared';
 import { getProveedorById } from './ordenCompra.proveedores.service';
 import { buildProductoSnapshot } from '../utils/producto.helpers';
+import { getCargosEfectivosOC } from '../utils/ordenCompra.helpers';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -152,36 +153,12 @@ export async function create(
     const derivedPaisOrigen =
       mostFrequent(paisesOrigen) ?? (proveedor.pais as string | undefined);
 
-    // Totals — S38-008: soporte unificado para cargos v2 (cargosOC[]) + legacy
-    // Los campos legacy (impuestoCompraUSD, gastosEnvioUSD, otrosGastosUSD, descuentoUSD)
-    // coexisten con las nuevas estructuras (cargosOC[], descuentosOC[], impuestosOC[]).
-    // El wizard V2 usa las estructuras nuevas; flujos antiguos usan los campos legacy.
-    // Sumamos AMBOS para no perder cargos cuando el wizard solo envía cargosOC[].
-
-    // v2 — arrays estructurados
+    // Fase A · v2-puro: el costo de cabecera de la OC = arrays v2 (cargosOC/descuentosOC/impuestosOC), única fuente.
     const cargosV2 = (data.cargosOC ?? []).reduce((s, c) => s + (c.montoUSD || 0), 0);
     const descuentosV2 = (data.descuentosOC ?? []).reduce((s, d) => s + (d.montoUSD || 0), 0);
     const impuestosV2 = (data.impuestosOC ?? []).reduce((s, i) => s + (i.montoUSD || 0), 0);
 
-    // Legacy — campos individuales (solo usar si NO vienen arrays, para evitar doble conteo)
-    const impuestoLegacy = cargosV2 === 0 && impuestosV2 === 0
-      ? (data.impuestoCompraUSD ?? 0)
-      : 0;
-    const gastosEnvioLegacy = cargosV2 === 0
-      ? (data.costoEnvioProveedorUSD ?? 0)
-      : 0;
-    const otrosGastosLegacy = cargosV2 === 0
-      ? (data.otrosGastosCompraUSD ?? 0)
-      : 0;
-    const descuentoLegacy = descuentosV2 === 0 ? (data.descuentoUSD || 0) : 0;
-
-    // Agregados finales (para guardar en campos legacy por retrocompat de lectores)
-    const impuesto = impuestoLegacy + impuestosV2;
-    const gastosEnvio = gastosEnvioLegacy + cargosV2;
-    const otrosGastos = otrosGastosLegacy;
-    const descuento = descuentoLegacy + descuentosV2;
-
-    const totalUSD = subtotalUSD + impuesto + gastosEnvio + otrosGastos - descuento;
+    const totalUSD = subtotalUSD + cargosV2 + impuestosV2 - descuentosV2;
 
     const numeroOrden = await generateNumeroOrden();
 
@@ -200,9 +177,6 @@ export async function create(
     };
 
     if (pesoTotalEstimadoLb > 0) nuevaOrden.pesoTotalEstimadoLb = Math.round(pesoTotalEstimadoLb * 100) / 100;
-    if (impuesto > 0) nuevaOrden.impuestoCompraUSD = impuesto;
-    if (gastosEnvio > 0) nuevaOrden.costoEnvioProveedorUSD = gastosEnvio;
-    if (otrosGastos > 0) nuevaOrden.otrosGastosCompraUSD = otrosGastos;
     if (data.modoEntrega) nuevaOrden.modoEntrega = data.modoEntrega;
     if (data.fleteIncluidoEnPrecio) nuevaOrden.fleteIncluidoEnPrecio = data.fleteIncluidoEnPrecio;
     // Wizard V2 fields (Acuerdos 40-41)
@@ -227,7 +201,6 @@ export async function create(
     if (data.recojoEnOrigen) {
       nuevaOrden.recojoEnOrigen = true;
     }
-    if (descuento > 0) nuevaOrden.descuentoUSD = descuento;
     if (data.tcCompra) {
       nuevaOrden.tcCompra = data.tcCompra;
       nuevaOrden.tcReferencial = data.tcCompra; // Unificacion: tcReferencial = tcCompra al crear
@@ -400,34 +373,12 @@ export async function update(
       updates.productos = productosOrden;
       updates.subtotalUSD = subtotalUSD;
 
-      // S38-008: soporte v2 (cargosOC[]) + legacy unificado
-      const cargosArr = data.cargosOC ?? orden.cargosOC ?? [];
-      const descuentosArr = data.descuentosOC ?? orden.descuentosOC ?? [];
-      const impuestosArr = data.impuestosOC ?? orden.impuestosOC ?? [];
+      // Fase A · v2-puro: el costo de cabecera = arrays v2 (única fuente).
+      const cargosV2 = (data.cargosOC ?? orden.cargosOC ?? []).reduce((s, c) => s + (c.montoUSD || 0), 0);
+      const descuentosV2 = (data.descuentosOC ?? orden.descuentosOC ?? []).reduce((s, d) => s + (d.montoUSD || 0), 0);
+      const impuestosV2 = (data.impuestosOC ?? orden.impuestosOC ?? []).reduce((s, i) => s + (i.montoUSD || 0), 0);
 
-      const cargosV2 = cargosArr.reduce((s, c) => s + (c.montoUSD || 0), 0);
-      const descuentosV2 = descuentosArr.reduce((s, d) => s + (d.montoUSD || 0), 0);
-      const impuestosV2 = impuestosArr.reduce((s, i) => s + (i.montoUSD || 0), 0);
-
-      const impuestoLegacy = cargosV2 === 0 && impuestosV2 === 0
-        ? (data.impuestoCompraUSD ?? orden.impuestoCompraUSD ?? 0)
-        : 0;
-      const gastosEnvioLegacy = cargosV2 === 0
-        ? (data.costoEnvioProveedorUSD ?? orden.costoEnvioProveedorUSD ?? 0)
-        : 0;
-      const otrosGastosLegacy = cargosV2 === 0
-        ? (data.otrosGastosCompraUSD ?? orden.otrosGastosCompraUSD ?? 0)
-        : 0;
-      const descuentoLegacy = descuentosV2 === 0
-        ? (data.descuentoUSD !== undefined ? data.descuentoUSD : orden.descuentoUSD || 0)
-        : 0;
-
-      const impuestoUSD = impuestoLegacy + impuestosV2;
-      const gastosEnvio = gastosEnvioLegacy + cargosV2;
-      const otrosGastos = otrosGastosLegacy;
-      const descuentoOC = descuentoLegacy + descuentosV2;
-
-      updates.totalUSD = subtotalUSD + impuestoUSD + gastosEnvio + otrosGastos - descuentoOC;
+      updates.totalUSD = subtotalUSD + cargosV2 + impuestosV2 - descuentosV2;
     }
 
     if (data.proveedorId && data.proveedorId !== orden.proveedorId) {
@@ -447,9 +398,11 @@ export async function update(
       }
     }
 
-    if (data.impuestoCompraUSD !== undefined) updates.impuestoCompraUSD = data.impuestoCompraUSD;
-    if (data.costoEnvioProveedorUSD !== undefined) updates.costoEnvioProveedorUSD = data.costoEnvioProveedorUSD;
-    if (data.otrosGastosCompraUSD !== undefined) updates.otrosGastosCompraUSD = data.otrosGastosCompraUSD;
+    // Fase A · persistir los arrays v2 editados (gap-edit-path: antes el total se
+    // recomputaba pero los arrays nunca se escribían → doc quedaba desincronizado).
+    if (data.cargosOC !== undefined) updates.cargosOC = data.cargosOC;
+    if (data.descuentosOC !== undefined) updates.descuentosOC = data.descuentosOC;
+    if (data.impuestosOC !== undefined) updates.impuestosOC = data.impuestosOC;
     if (data.modoEntrega !== undefined) updates.modoEntrega = data.modoEntrega;
     if (data.fleteIncluidoEnPrecio !== undefined) updates.fleteIncluidoEnPrecio = data.fleteIncluidoEnPrecio;
     if (data.tcCompra !== undefined) updates.tcCompra = data.tcCompra;
@@ -1190,21 +1143,17 @@ async function aplicarRecojoEnOrigen(
 
   // Sumar valor de inventario — S53.6 incluye impuestos + cargos - descuentos de la OC
   // (total efectivo de la OC en USD) en vez de solo el subtotal base de productos.
-  const subtotalUSD = orden.productos.reduce(
-    (sum, prod) => sum + prod.costoUnitario * prod.cantidad,
-    0
-  );
-  const impuestosUSD = orden.impuestoCompraUSD || 0;
-  const descuentosUSD = orden.descuentoUSD || 0;
-  const cargosOC = (orden.cargosOC || []).reduce((s, c) => s + (c.montoUSD || 0), 0);
-  const valorTotalUSD = subtotalUSD + impuestosUSD + cargosOC - descuentosUSD;
+  // Fase A · valor de inventario vía getCargosEfectivosOC (fuente única v2; antes era
+  // un read híbrido: impuestos/descuentos de escalar + cargos de array).
+  const ef = getCargosEfectivosOC(orden);
+  const valorTotalUSD = ef.subtotalProductos + ef.impuestos + ef.cargos - ef.descuentos;
   await casillaCrudService.actualizarValorInventario(destinoCasillaId, valorTotalUSD);
 
   logger.success(
     `Recojo en origen aplicado: ${cantidadTotal} unidades disponibles en ${casillaNombre}, ` +
-      `valor +$${valorTotalUSD.toFixed(2)} (subtotal $${subtotalUSD.toFixed(2)} + ` +
-      `impuestos $${impuestosUSD.toFixed(2)} + cargos $${cargosOC.toFixed(2)} - ` +
-      `descuentos $${descuentosUSD.toFixed(2)}), CTRU calculado por unidad, ` +
+      `valor +$${valorTotalUSD.toFixed(2)} (subtotal $${ef.subtotalProductos.toFixed(2)} + ` +
+      `impuestos $${ef.impuestos.toFixed(2)} + cargos $${ef.cargos.toFixed(2)} - ` +
+      `descuentos $${ef.descuentos.toFixed(2)}), CTRU calculado por unidad, ` +
       `${enviosDeOC.length} envío(s) marcado(s) como recibidos`
   );
 }

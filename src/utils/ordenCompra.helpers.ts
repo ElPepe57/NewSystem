@@ -131,15 +131,9 @@ export function getCargosEfectivosOC(orden: OrdenCompra): CargosEfectivosOC {
 
   // OC sin sub-órdenes: el borrador padre ES la realidad.
   // Usamos los arrays tipados (v2) si existen; fallback a campos legacy (v1).
-  const cargos =
-    (orden.cargosOC ?? []).reduce((s, c) => s + (c.montoUSD || 0), 0) ||
-    (orden.costoEnvioProveedorUSD ?? 0) + (orden.otrosGastosCompraUSD ?? 0);
-  const descuentos =
-    (orden.descuentosOC ?? []).reduce((s, d) => s + (d.montoUSD || 0), 0) ||
-    (orden.descuentoUSD ?? 0);
-  const impuestos =
-    (orden.impuestosOC ?? []).reduce((s, i) => s + (i.montoUSD || 0), 0) ||
-    (orden.impuestoCompraUSD ?? 0);
+  const cargos = (orden.cargosOC ?? []).reduce((s, c) => s + (c.montoUSD || 0), 0);
+  const descuentos = (orden.descuentosOC ?? []).reduce((s, d) => s + (d.montoUSD || 0), 0);
+  const impuestos = (orden.impuestosOC ?? []).reduce((s, i) => s + (i.montoUSD || 0), 0);
 
   return {
     subtotalProductos: Number((orden.subtotalUSD ?? 0).toFixed(2)),
@@ -314,15 +308,9 @@ export function prorratearCargosOC(orden: OrdenCompra): DesgloseProrrateoOC {
 
   // ─── Caso A: OC sin sub-órdenes → 1 solo bloque ───
   if (!tieneSubOrdenes) {
-    const cargos =
-      (orden.cargosOC ?? []).reduce((s, c) => s + (c.montoUSD || 0), 0) ||
-      (orden.costoEnvioProveedorUSD ?? 0) + (orden.otrosGastosCompraUSD ?? 0);
-    const descuentos =
-      (orden.descuentosOC ?? []).reduce((s, d) => s + (d.montoUSD || 0), 0) ||
-      (orden.descuentoUSD ?? 0);
-    const impuestos =
-      (orden.impuestosOC ?? []).reduce((s, i) => s + (i.montoUSD || 0), 0) ||
-      (orden.impuestoCompraUSD ?? 0);
+    const cargos = (orden.cargosOC ?? []).reduce((s, c) => s + (c.montoUSD || 0), 0);
+    const descuentos = (orden.descuentosOC ?? []).reduce((s, d) => s + (d.montoUSD || 0), 0);
+    const impuestos = (orden.impuestosOC ?? []).reduce((s, i) => s + (i.montoUSD || 0), 0);
 
     const bloque = prorratearBloque(
       'OC',

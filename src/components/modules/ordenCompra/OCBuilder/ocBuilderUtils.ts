@@ -8,7 +8,10 @@ import type {
 } from './ocBuilderTypes';
 import { GROUP_COLORS } from './ocBuilderTypes';
 import type { Requerimiento } from '../../../../types/requerimiento.types';
-import type { OrdenCompraFormData } from '../../../../types/ordenCompra.types';
+import type { OrdenCompraFormData, CargoOC } from '../../../../types/ordenCompra.types';
+
+// Redondeo a centavos · mantiene la SummaryCard y el totalUSD persistido coherentes (Fase A).
+const round2 = (n: number): number => Math.round(n * 100) / 100;
 
 // ============ Pool building ============
 
@@ -106,9 +109,9 @@ export function calcGroupTotals(group: OCDraftGroup): GroupTotals {
   const subtotalUSD = group.productos.reduce(
     (sum, p) => sum + p.cantidad * p.costoUnitarioUSD, 0
   );
-  const impuestoUSD = subtotalUSD * (group.porcentajeTax / 100);
+  const impuestoUSD = round2(subtotalUSD * (group.porcentajeTax / 100));
   const descuentoUSD = group.descuentoUSD || 0;
-  const totalUSD = subtotalUSD + impuestoUSD + group.costoEnvioProveedorUSD + group.otrosGastosCompraUSD - descuentoUSD;
+  const totalUSD = round2(subtotalUSD + impuestoUSD + group.costoEnvioProveedorUSD + group.otrosGastosCompraUSD - descuentoUSD);
   const tc = group.tcCompra || 1;
   const totalPEN = totalUSD * tc;
   const cantidadUnidades = group.productos.reduce((sum, p) => sum + p.cantidad, 0);
@@ -231,9 +234,25 @@ export function groupToFormData(
   const subtotalUSD = group.productos.reduce(
     (sum, p) => sum + p.cantidad * p.costoUnitarioUSD, 0
   );
-  const impuestoUSD = subtotalUSD * (group.porcentajeTax / 100);
+  const impuestoUSD = round2(subtotalUSD * (group.porcentajeTax / 100));
   const descuentoUSD = group.descuentoUSD || 0;
-  const totalUSD = subtotalUSD + impuestoUSD + group.costoEnvioProveedorUSD + group.otrosGastosCompraUSD - descuentoUSD;
+  const totalUSD = round2(subtotalUSD + impuestoUSD + group.costoEnvioProveedorUSD + group.otrosGastosCompraUSD - descuentoUSD);
+
+  // Fase A · v2-puro: el costo de cabecera de la OC viaja en arrays v2 (no escalares).
+  // El % de impuesto se pre-resuelve a montoUSD acá (heredarCargos/getCargosEfectivosOC leen montoUSD).
+  const impuestosOC = group.porcentajeTax > 0 && impuestoUSD > 0
+    ? [{ id: `imp-${group.id}`, concepto: `Tax ${group.porcentajeTax}%`, modo: 'porcentaje' as const, porcentaje: group.porcentajeTax, montoUSD: impuestoUSD }]
+    : undefined;
+  const cargosOC: CargoOC[] = [];
+  if (group.costoEnvioProveedorUSD > 0) {
+    cargosOC.push({ id: `cargo-envio-${group.id}`, concepto: 'Envío del proveedor', montoUSD: round2(group.costoEnvioProveedorUSD), metodoProrrateo: 'por_valor' });
+  }
+  if (group.otrosGastosCompraUSD > 0) {
+    cargosOC.push({ id: `cargo-otros-${group.id}`, concepto: 'Otros gastos de compra', montoUSD: round2(group.otrosGastosCompraUSD), metodoProrrateo: 'por_valor' });
+  }
+  const descuentosOC = descuentoUSD > 0
+    ? [{ id: `desc-${group.id}`, concepto: 'Descuento del proveedor', montoUSD: round2(descuentoUSD), metodoProrrateo: 'por_valor' as const }]
+    : undefined;
 
   // Derive reqIds from the actual product origenes in this group (not from all reqs)
   const reqIdSet = new Set<string>();
@@ -265,11 +284,10 @@ export function groupToFormData(
       return prod;
     }),
     subtotalUSD,
-    impuestoCompraUSD: impuestoUSD > 0 ? impuestoUSD : undefined,
-    costoEnvioProveedorUSD: group.costoEnvioProveedorUSD > 0 ? group.costoEnvioProveedorUSD : undefined,
-    otrosGastosCompraUSD: group.otrosGastosCompraUSD > 0 ? group.otrosGastosCompraUSD : undefined,
-    descuentoUSD: descuentoUSD > 0 ? descuentoUSD : undefined,
     totalUSD,
+    ...(impuestosOC && { impuestosOC }),
+    ...(cargosOC.length > 0 && { cargosOC }),
+    ...(descuentosOC && { descuentosOC }),
     tcCompra: tc,
     almacenDestino: group.almacenDestino!.almacenId,
     observaciones: group.observaciones || undefined,

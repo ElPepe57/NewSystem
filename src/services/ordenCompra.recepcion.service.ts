@@ -18,6 +18,7 @@ import { COLLECTIONS } from '../config/collections';
 import { inventarioService } from './inventario.service';
 import { ORDENES_COLLECTION } from './ordenCompra.shared';
 import { getById } from './ordenCompra.crud.service';
+import { getCargosEfectivosOC } from '../utils/ordenCompra.helpers';
 
 // S40 Bloque E: recibirOrden + recibirOrdenParcial eliminados — la recepción se gestiona
 // ahora desde el Envío asociado vía envio.recepcion.service.ts::registrarRecepcion().
@@ -60,16 +61,10 @@ export async function revertirRecepciones(
 
     // Calculate value to subtract from warehouse
     const totalUnidadesOrden = orden.productos.reduce((sum, p) => sum + p.cantidad, 0);
-    const costoBaseTotal = orden.productos.reduce(
-      (sum, p) => sum + p.costoUnitario * p.cantidad,
-      0
-    );
+    const ef = getCargosEfectivosOC(orden);
     const impuestoPorUnidad =
-      totalUnidadesOrden > 0 ? (orden.impuestoCompraUSD ?? 0) / totalUnidadesOrden : 0;
-    const costosProrrateo =
-      (orden.costoEnvioProveedorUSD ?? 0) +
-      (orden.otrosGastosCompraUSD ?? 0) -
-      (orden.descuentoUSD || 0);
+      totalUnidadesOrden > 0 ? ef.impuestos / totalUnidadesOrden : 0;
+    const costosProrrateo = ef.cargos - ef.descuentos;
 
     const totalUnidadesRecibidas = orden.totalUnidadesRecibidas || 0;
 

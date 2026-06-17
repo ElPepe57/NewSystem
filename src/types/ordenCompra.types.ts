@@ -263,11 +263,8 @@ export interface OrdenCompra {
   
   // Totales
   subtotalUSD: number;                  // Suma de todos los productos (sin impuesto)
-  impuestoCompraUSD?: number;           // Impuesto de compra (sales tax, IVA origen, etc.)
-  costoEnvioProveedorUSD?: number;      // Envío del proveedor al punto de recojo/almacén
-  otrosGastosCompraUSD?: number;        // Otros gastos de la compra (handling, seguros, etc.)
-  descuentoUSD?: number;                // Descuento general
-  totalUSD: number;                     // subtotal + impuesto + envío + otros - descuento
+  // Fase A · el costo de cabecera vive en los arrays v2 (cargosOC/descuentosOC/impuestosOC).
+  totalUSD: number;                     // subtotalUSD + Σcargos + Σimpuestos − Σdescuentos (v2)
   pesoTotalEstimadoLb?: number;         // SUM(pesoLibras × cantidad) de todos los productos
 
   // Modo de entrega
@@ -431,10 +428,6 @@ export interface OrdenCompraFormData {
     viajeroNombre?: string;
   }>;
   subtotalUSD: number;
-  impuestoCompraUSD?: number;           // Impuesto de compra (sales tax, IVA origen)
-  costoEnvioProveedorUSD?: number;      // Envío del proveedor al punto de recojo
-  otrosGastosCompraUSD?: number;        // Otros gastos de la compra
-  descuentoUSD?: number;                // Descuento general
   totalUSD: number;
   tcCompra: number;
   modoEntrega?: 'viajero' | 'envio_directo';

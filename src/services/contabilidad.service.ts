@@ -11,6 +11,7 @@
  */
 
 import { COLLECTIONS } from '../config/collections';
+import { getCargosEfectivosOC } from '../utils/ordenCompra.helpers';
 import {
   collection,
   query,
@@ -448,17 +449,13 @@ function calcularCompras(
       fraccion = totalUnidadesOrden > 0 ? totalRecibido / totalUnidadesOrden : 0;
     }
 
-    // Costo de productos (subtotal)
-    costoProductos += orden.subtotalUSD * tc * fraccion;
-
-    // Impuestos de compra (sales tax, IVA origen, etc.)
-    impuestos += (orden.impuestoCompraUSD ?? 0) * tc * fraccion;
-
-    // Envío del proveedor al punto de recojo
-    otrosGastosImportacion += (orden.costoEnvioProveedorUSD ?? 0) * tc * fraccion;
-
-    // Otros gastos de la compra
-    otrosGastosImportacion += (orden.otrosGastosCompraUSD ?? 0) * tc * fraccion;
+    // Fase A · costo de cabecera vía getCargosEfectivosOC (fuente única v2; agrega
+    // sub-órdenes si la OC se dividió). El descuento de compra REDUCE el costo del
+    // producto (tratamiento consistente con recepción y recojo en origen).
+    const ef = getCargosEfectivosOC(orden);
+    costoProductos += (ef.subtotalProductos - ef.descuentos) * tc * fraccion;
+    impuestos += ef.impuestos * tc * fraccion;
+    otrosGastosImportacion += ef.cargos * tc * fraccion;
 
     // Contar unidades (solo las recibidas para parciales)
     if (fraccion < 1) {
