@@ -13,6 +13,7 @@ import { useProductoStore } from '../../../../store/productoStore';
 import { useToastStore } from '../../../../store/toastStore';
 import { calcularDiasParaVencer } from '../../../../utils/dateFormatters';
 import { formatCurrency } from '../../../../utils/format';
+import { getCTRU } from '../../../../utils/ctru.utils';
 import type { Unidad } from '../../../../types/unidad.types';
 
 type FiltroIncidencia = 'todas' | 'vencidas' | 'danadas';
@@ -83,7 +84,9 @@ export const IncidenciasTab: React.FC<IncidenciasTabProps> = ({
   const totalIncidencias = totalVencidas + totalDanadas;
 
   const costoTotalRiesgo = useMemo(() => {
-    return [...vencidas, ...danadas].reduce((sum, u) => sum + (u.ctruInicial || u.costoUnitarioUSD || 0), 0);
+    // Costo vivo en PEN (getCTRU · 3-cajas). Antes mezclaba ctruInicial (PEN) con
+    // costoUnitarioUSD (USD crudo) en el mismo acumulador — unidades incoherentes.
+    return [...vencidas, ...danadas].reduce((sum, u) => sum + getCTRU(u), 0);
   }, [vencidas, danadas]);
 
   if (loading) {

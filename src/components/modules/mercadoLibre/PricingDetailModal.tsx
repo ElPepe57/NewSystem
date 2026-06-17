@@ -27,14 +27,13 @@ interface PricingDetailModalProps {
 
 // ---- CASCADA DE COSTOS ----
 const CostWaterfall: React.FC<{ ctru: CTRUProductoDetalle }> = ({ ctru }) => {
+  // REINGENIERIA (Acuerdo 3): el CTRU es 3-cajas (capas 1-5 · sin GA/GO ni GV/GD).
   const layers = [
     { label: 'Compra', value: ctru.costoCompraPENProm, pct: ctru.pctCompra, color: 'bg-sky-500' },
     { label: 'Impuesto', value: ctru.costoImpuestoPENProm, pct: ctru.pctImpuesto, color: 'bg-sky-400' },
     { label: 'Envio OC', value: ctru.costoEnvioPENProm, pct: ctru.pctEnvio, color: 'bg-cyan-500' },
     { label: 'Otros OC', value: ctru.costoOtrosPENProm, pct: ctru.pctOtros, color: 'bg-cyan-400' },
     { label: 'Flete Intl', value: ctru.costoFleteIntlPENProm, pct: ctru.pctFleteIntl, color: 'bg-teal-500' },
-    { label: 'Gastos Fijos', value: ctru.gastoGAGOProm || ctru.gastoGAGOEstimado, pct: ctru.pctGAGO, color: 'bg-amber-500' },
-    { label: 'GV/GD', value: ctru.gastoGVGDProm, pct: ctru.pctGVGD, color: 'bg-red-400' },
   ];
 
   return (
@@ -54,19 +53,15 @@ const CostWaterfall: React.FC<{ ctru: CTRUProductoDetalle }> = ({ ctru }) => {
         ))}
       </div>
 
-      {/* Totales */}
+      {/* Totales · 3-cajas (Costo Inventario === CTRU contable) */}
       <div className="border-t border-slate-200 pt-2 space-y-1">
         <div className="flex justify-between text-xs">
           <span className="text-slate-500">Costo Inventario (1-5)</span>
           <span className="font-medium">{fmtPEN(ctru.costoInventarioProm)}</span>
         </div>
-        <div className="flex justify-between text-xs">
-          <span className="text-slate-500">CTRU (1-6)</span>
-          <span className="font-medium">{fmtPEN(ctru.ctruPromedio)}</span>
-        </div>
         <div className="flex justify-between text-xs font-semibold">
-          <span className="text-slate-700">Costo Total Real (1-7)</span>
-          <span>{fmtPEN(ctru.costoTotalRealProm)}</span>
+          <span className="text-slate-700">CTRU</span>
+          <span>{fmtPEN(ctru.ctruContableProm)}</span>
         </div>
       </div>
     </div>

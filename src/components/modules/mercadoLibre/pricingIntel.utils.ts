@@ -42,10 +42,13 @@ export interface PricingIntelRow {
   buyBoxWinnerPrice: number | null;
   buyBoxVisitShare: string | null;
 
-  // Costo (from CTRU, null if unlinked or no data)
+  // Costo (from CTRU 3-cajas · null if unlinked or no data)
+  // REINGENIERIA (Acuerdo 3): el costo es el CTRU contable 3-cajas (capas 1-5 ·
+  // sin GA/GO ni GV/GD). costoInventario === ctru === costoTotal en 3-cajas; se
+  // mantienen los 3 campos por compatibilidad de consumidores (KPIs/sort/modal).
   costoInventario: number | null;  // capas 1-5
-  ctru: number | null;             // capas 1-6
-  costoTotal: number | null;       // capas 1-7
+  ctru: number | null;             // CTRU contable (= capas 1-5)
+  costoTotal: number | null;       // CTRU contable (= capas 1-5 · base de margen neto/pricing)
 
   // Márgenes calculados
   margenBruto: number | null;      // (price - costoInventario) / price * 100
@@ -103,13 +106,13 @@ export function buildPricingIntelRows(
     const hasCatalogo = group.listings.some(l => l.mlListingType === 'catalogo');
     const hasClasica = group.listings.some(l => l.mlListingType !== 'catalogo');
 
-    // CTRU data
+    // CTRU data · 3-cajas: el costo vivo es ctruContableProm (capas 1-5, sin GA/GO ni GV/GD)
     const ctru = group.productoId ? ctruMap.get(group.productoId) : null;
-    const hasCost = ctru && ctru.costoTotalRealProm > 0;
+    const hasCost = ctru && ctru.ctruContableProm > 0;
 
     const costoInventario = hasCost ? ctru.costoInventarioProm : null;
-    const ctruVal = hasCost ? ctru.ctruPromedio : null;
-    const costoTotal = hasCost ? ctru.costoTotalRealProm : null;
+    const ctruVal = hasCost ? ctru.ctruContableProm : null;
+    const costoTotal = hasCost ? ctru.ctruContableProm : null;
 
     const price = primary.mlPrice;
     const margenBruto = costoInventario != null ? calcMargin(price, costoInventario) : null;

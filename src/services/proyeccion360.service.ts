@@ -227,7 +227,7 @@ function calcularInventario(
   return {
     totalDisponibles: productosInv.reduce((s, p) => s + p.disponibles, 0),
     totalEnTransito: productosInv.reduce((s, p) => s + p.enTransito, 0),
-    valorInventarioPEN: productos.reduce((s, p) => s + p.totalUnidades * p.ctruPromedio, 0),
+    valorInventarioPEN: productos.reduce((s, p) => s + p.totalUnidades * p.ctruContableProm, 0),
     productosEnRiesgo: productosInv.filter(p => p.estado !== 'ok').length,
     costoTotalRecompraPEN: productosInv.reduce((s, p) => s + p.costoRecompraPEN, 0),
     productos: productosInv,
@@ -246,7 +246,7 @@ function calcularCostos(
   ventas.productos.forEach(vp => {
     const prod = productos.find(p => p.productoId === vp.productoId);
     if (prod) {
-      costoVentas += vp.unidadesProyectadas * prod.ctruPromedio;
+      costoVentas += vp.unidadesProyectadas * prod.ctruContableProm;
     }
   });
 
@@ -265,7 +265,7 @@ function calcularCostos(
   const gvgdProyectado = gvgdProyMes * periodos;
 
   // Tendencia CTRU
-  const ctruHist = productos.filter(p => p.ctruPromedio > 0).map(p => p.ctruPromedio);
+  const ctruHist = productos.filter(p => p.ctruContableProm > 0).map(p => p.ctruContableProm);
   const ctruProm = ctruHist.length > 0 ? ctruHist.reduce((s, v) => s + v, 0) / ctruHist.length : 0;
 
   // Impacto TC +5%
@@ -418,7 +418,7 @@ function construirTimeline(
   // Meses reales
   hist.forEach(h => {
     const ingresos = h.ventasCount * (h.precioVentaProm || 0);
-    const costosM = h.ventasCount * h.ctruPromedio;
+    const costosM = h.ventasCount * h.ctruContableProm;
     data.push({
       label: h.label,
       tipo: 'real',

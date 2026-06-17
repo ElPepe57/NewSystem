@@ -24,6 +24,8 @@ import { TesoreriaService } from './tesoreria.service';
 import { CotizacionService } from './cotizacion.service';
 import { requerimientoService } from './requerimiento.service';
 import { unidadService } from './unidad.service';
+import { getCostoBasePEN } from '../utils/ctru.utils';
+import type { Unidad } from '../types/unidad.types';
 import { logger } from '../lib/logger';
 
 /**
@@ -589,16 +591,11 @@ export const cuentasPendientesService = {
 
 
       for (const u of unidadesDisponibles) {
-        // Calcular valor de venta estimado:
-        // Costo total = Costo producto + Costo flete (ambos en USD)
-        // SIEMPRE usar la fórmula: (costoProducto + costoFlete) × TC
-        // El ctruDinamico puede no incluir el flete, así que lo calculamos manualmente
-        const costoProductoUSD = (u as any).costoUnitarioUSD || 0;
-        const costoFleteUSD = (u as any).costoFleteUSD || 0;
-        const costoTotalUSD = costoProductoUSD + costoFleteUSD;
-
-        // Calcular costo base en PEN: (costo + flete) × TC
-        const costoBase = costoTotalUSD * tc;
+        // Costo base vivo en PEN (getCostoBasePEN · 3-cajas · componentes/landed/
+        // descuentos/recojo, sin GA/GO). Reemplaza el cálculo manual
+        // (costoProducto + costoFlete) × TC que ignoraba componentes congelados,
+        // descuentos y costo de recojo.
+        const costoBase = getCostoBasePEN(u as Unidad);
         inversionTotalPEN += costoBase; // Acumular inversión (sin margen)
         // Agregar margen de ganancia estimado del 30%
         const valorVentaEstimado = costoBase * 1.3;

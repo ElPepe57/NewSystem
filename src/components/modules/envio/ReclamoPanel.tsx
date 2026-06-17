@@ -63,6 +63,7 @@ import { ReclamoTimeline } from './ReclamoTimeline';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../../../lib/firebase';
 import { COLLECTIONS } from '../../../config/collections';
+import { getCTRU } from '../../../utils/ctru.utils';
 
 interface ReclamoPanelProps {
   /** Si viene: modo ver/avanzar. Si no: modo crear */
@@ -307,7 +308,9 @@ export const ReclamoPanel: React.FC<ReclamoPanelProps> = ({
         const sumFromUnidades = snaps.reduce((s, snap) => {
           if (!snap.exists()) return s;
           const u = snap.data() as Unidad;
-          return s + (u.ctruDinamico || u.ctruInicial || 0);
+          // CTRU vivo en PEN (getCTRU · 3-cajas) en vez del escalar crudo, que
+          // podía arrastrar GA/GO legacy en ctruDinamico.
+          return s + getCTRU(u);
         }, 0);
 
         if (sumFromUnidades > 0) {

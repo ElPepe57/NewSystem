@@ -6,6 +6,7 @@ import { DataTable } from '../../../../design-system';
 import type { DataTableColumn } from '../../../../design-system';
 import type { Unidad, EstadoUnidad } from '../../../../types/unidad.types';
 import { getLabelEstadoUnidad, esEstadoEnOrigen, esEstadoEnTransitoOrigen } from '../../../../utils/multiOrigen.helpers';
+import { getCTRU } from '../../../../utils/ctru.utils';
 
 interface UnidadTableProps {
   unidades: Unidad[];
@@ -103,7 +104,7 @@ export const UnidadTable: React.FC<UnidadTableProps> = ({
           <TrendingUp className="h-4 w-4 text-slate-400 mr-1" />
           <div>
             <div className="text-sm font-medium text-slate-900">
-              S/ {(unidad.ctruDinamico || unidad.ctruInicial || 0).toFixed(2)}
+              S/ {getCTRU(unidad).toFixed(2)}
             </div>
             <div className="text-xs text-slate-500">
               ${unidad.costoUnitarioUSD.toFixed(2)}{unidad.tcPago ? ` × ${unidad.tcPago.toFixed(3)}` : ''}

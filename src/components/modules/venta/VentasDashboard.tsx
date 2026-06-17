@@ -84,8 +84,10 @@ export const VentasDashboard: React.FC<VentasDashboardProps> = ({
   const roiPct = inversionTotal > 0 ? (utilidadNeta / inversionTotal) * 100 : 0;
 
   // CTRU promedio
+  // REINGENIERIA (Acuerdo 3): el CTRU NO incluye GA/GO · totalCostoGAGO es siempre 0
+  // (useRentabilidadVentas fija costoGAGO=0) → se elimina el sumando muerto.
   const ctruPromedio = rentabilidad && rentabilidad.baseUnidades > 0
-    ? (rentabilidad.totalCostoBase + rentabilidad.totalCostoGAGO) / rentabilidad.baseUnidades
+    ? rentabilidad.totalCostoBase / rentabilidad.baseUnidades
     : 0;
 
   // Collection percentage

@@ -33,6 +33,7 @@ import {
   getLabelEstadoUnidad, esEstadoEnOrigen, esEstadoEnTransitoOrigen, getPaisEmoji,
 } from '../../../../utils/multiOrigen.helpers';
 import { getDescripcionProducto } from '../../../../utils/producto.helpers';
+import { getCTRU } from '../../../../utils/ctru.utils';
 import { ProductoAvatar } from '../shell/ProductoAvatar';
 
 interface UnidadDetailsModalProps {
@@ -476,7 +477,8 @@ const MovimientosTab: React.FC<{ unidad: Unidad }> = ({ unidad }) => {
 const CostosTab: React.FC<{ unidad: Unidad }> = ({ unidad }) => {
   const costoBase = unidad.costoUnitarioUSD || 0;
   const flete = unidad.costoFleteUSD || 0;
-  const ctru = unidad.ctruDinamico;
+  // CTRU vivo en PEN (getCTRU · 3-cajas · componentes/landed/descuentos, sin GA/GO).
+  const ctru = getCTRU(unidad);
   const tcPago = unidad.tcPago;
 
   const totalUSD = costoBase + flete;
@@ -503,7 +505,7 @@ const CostosTab: React.FC<{ unidad: Unidad }> = ({ unidad }) => {
         </div>
       </div>
 
-      {ctru !== undefined && (
+      {ctru > 0 && (
         <div>
           <div className="text-[10px] text-slate-500 uppercase tracking-wider mb-2">CTRU final (PEN)</div>
           <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-3 flex items-center justify-between">

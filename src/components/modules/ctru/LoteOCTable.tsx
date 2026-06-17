@@ -146,7 +146,6 @@ export const LoteOCTable: React.FC<LoteOCTableProps> = ({ lotes, autoExpandId })
                 {lote.pctEnvio > 0 && <div className="bg-amber-500" style={{ width: `${lote.pctEnvio}%` }} />}
                 {lote.pctOtros > 0 && <div className="bg-slate-400" style={{ width: `${lote.pctOtros}%` }} />}
                 {lote.pctFleteIntl > 0 && <div className="bg-orange-500" style={{ width: `${lote.pctFleteIntl}%` }} />}
-                {lote.pctGAGO > 0 && <div className="bg-purple-500" style={{ width: `${lote.pctGAGO}%` }} />}
               </div>
             ),
             hideOnMobile: true,
@@ -164,7 +163,7 @@ export const LoteOCTable: React.FC<LoteOCTableProps> = ({ lotes, autoExpandId })
               const tcDiff = lote.tcPago && lote.tcCompra ? lote.tcPago - lote.tcCompra : 0;
               return (
                 <div className="bg-slate-50 p-4">
-                  <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-3 mb-4">
+                  <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-3 mb-4">
                     <div className="bg-white p-3 rounded-lg border border-l-4 border-l-sky-500">
                       <div className="text-xs text-slate-500 mb-1">Compra Prom.</div>
                       <div className="text-sm font-semibold">{formatUSD(lote.costoCompraUSDProm)}</div>
@@ -192,11 +191,6 @@ export const LoteOCTable: React.FC<LoteOCTableProps> = ({ lotes, autoExpandId })
                           ? `${formatCurrency(lote.costoFleteIntlPENProm)} (${lote.pctFleteIntl.toFixed(1)}%)`
                           : 'Sin transferencia'}
                       </div>
-                    </div>
-                    <div className="bg-white p-3 rounded-lg border border-l-4 border-l-purple-500">
-                      <div className="text-xs text-slate-500 mb-1">GA/GO Prom.</div>
-                      <div className="text-sm font-semibold">{formatCurrency(lote.gastoGAGOProm)}</div>
-                      <div className="text-xs text-slate-500">({lote.pctGAGO.toFixed(1)}%)</div>
                     </div>
                     <div className="bg-white p-3 rounded-lg border border-l-4 border-l-gray-400">
                       <div className="text-xs text-slate-500 mb-1">Impacto TC</div>

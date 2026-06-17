@@ -418,7 +418,7 @@ export interface ProyeccionCostosProducto {
 
   /** CTRU proyectado al horizonte. Fuente: costoProyeccion.service.proyectarCTRU() */
   ctruProyectado: number;
-  /** CTRU actual para comparacion. Fuente: CTRUProductoDetalle.ctruPromedio */
+  /** CTRU actual para comparacion. Fuente: CTRUProductoDetalle.ctruContableProm */
   ctruActual: number;
   /** % de variacion: (ctruProyectado - ctruActual) / ctruActual * 100 */
   variacionCTRUPct: number;

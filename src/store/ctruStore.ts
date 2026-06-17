@@ -7,7 +7,7 @@ import { categoriaCostoService } from '../services/categoriaCosto.service';
 import { esGastoDelBloque, esGastoDeVenta, esGastoDePeriodo, esGastoDistribucion, esGastoAdministrativo, type ArbolCategorias } from '../utils/gasto.bloque';
 import { envioCrudService } from '../services/envio.crud.service';
 import { ProductoService } from '../services/producto.service';
-import { getCTRU, getCostoBasePEN, getTC, calcularGAGOProporcional } from '../utils/ctru.utils';
+import { getCTRU, getTC } from '../utils/ctru.utils';
 import { componentesACapas } from '../utils/costoComponentes.builder';
 import { poolUSDService } from '../services/poolUSD.service';
 import { timed } from '../lib/perf';
@@ -26,15 +26,16 @@ const FETCH_TTL_MS = 5 * 60 * 1000;
 
 
 // ============================================
-// INTERFACES - 7 Capas de Costo (CTRU v3)
+// INTERFACES - CTRU 3-cajas (Acuerdo 3 · reingenieria)
 // ============================================
+// El CTRU contable son SOLO las capas landed del producto (1-5):
 // 1. Compra (costo puro producto)
 // 2. Impuesto (Sales Tax OC prorrateado)
 // 3. Envio OC (proveedor→USA courier/envio prorrateado)
 // 4. Otros OC (otros gastos OC prorrateado)
 // 5. Flete Internacional (USA→Peru, de transferencia)
-// 6. GA/GO (gastos admin/operativos prorrateados)
-// 7. GV/GD (gastos venta/distribucion por venta)
+// GA/GO (gastos de período) y GV/GD (gastos de venta) YA NO entran al CTRU:
+// viven en el P&L como gastos del período / de la venta.
 
 // --- Sub-types for product detail ---
 
@@ -114,20 +115,9 @@ export interface CTRUProductoDetalle {
   costoFleteIntlUSDProm: number;
   costoFleteIntlPENProm: number;
 
-  // Capa 6: GA/GO
-  gastoGAGOProm: number;              // Contable: GA/GO solo entre vendidas
-  gastoGAGOGerencialProm: number;     // Gerencial: GA/GO entre todas las unidades
-  gastoGAGOEstimado: number;          // Estimado proyectado para productos sin ventas
-
-  // Capa 7: GV/GD
-  gastoGVGDProm: number;
-
-  // Totales
+  // Totales · REINGENIERIA 3-cajas (Acuerdo 3): el CTRU es capas 1-5 (sin GA/GO ni GV/GD).
   costoInventarioProm: number;  // capas 1-5
-  ctruPromedio: number;         // capas 1-6 (alias de ctruContableProm para backward compat)
-  ctruContableProm: number;     // GA/GO solo entre vendidas
-  ctruGerencialProm: number;    // GA/GO entre todas las unidades
-  costoTotalRealProm: number;   // capas 1-7
+  ctruContableProm: number;     // CTRU contable 3-cajas (= capas 1-5)
 
   // Venta y margen
   precioVentaProm: number;
@@ -135,14 +125,12 @@ export interface CTRUProductoDetalle {
   margenNetoProm: number;
   ventasCount: number;
 
-  // Porcentajes de composicion
+  // Porcentajes de composicion (re-basados sobre el CTRU contable)
   pctCompra: number;
   pctImpuesto: number;
   pctEnvio: number;
   pctOtros: number;
   pctFleteIntl: number;
-  pctGAGO: number;
-  pctGVGD: number;
 
   // Rango
   ctruMinimo: number;
@@ -167,9 +155,9 @@ export interface HistorialCostosMes {
   costoEnvioProm: number;
   costoOtrosProm: number;
   costoFleteIntlProm: number;
-  gastoGAGOProm: number;
-  gastoGVGDProm: number;
-  ctruPromedio: number;
+  // REINGENIERIA 3-cajas: CTRU = capas 1-5 (sin GA/GO). costoTotalProm === ctruContableProm
+  // (sin GV/GD · el costo del mes no incluye gastos de venta · Acuerdo 3).
+  ctruContableProm: number;
   costoTotalProm: number;
   precioVentaProm: number;
   margenProm: number;
@@ -220,14 +208,12 @@ export interface LoteOCDetalle {
   costoOtrosPENProm: number;
   costoFleteIntlUSDProm: number;
   costoFleteIntlPENProm: number;
-  gastoGAGOProm: number;
   ctruPromedio: number;
   pctCompra: number;
   pctImpuesto: number;
   pctEnvio: number;
   pctOtros: number;
   pctFleteIntl: number;
-  pctGAGO: number;
   productos: Array<{
     productoId: string;
     productoNombre: string;
@@ -278,7 +264,6 @@ interface UnitCostLayers {
   otrosPEN: number;
   fleteIntlUSD: number;
   fleteIntlPEN: number;
-  gagoPEN: number;
   ctru: number;
 }
 
@@ -382,15 +367,12 @@ function getUnitCostLayers(
   ocProductCostMap: Map<string, Map<string, number>>,
   ocCostBreakdownMap: Map<string, OCCostBreakdown>,
   fleteByUnitMap: Map<string, number>,
-  fleteByProductMap: Map<string, number>,
-  _totalGAGOPEN: number,
-  _costoBaseTotalVendidas: number
+  fleteByProductMap: Map<string, number>
 ): UnitCostLayers {
   const tc = getTC(u);
 
   // CTRU = FUENTE ÚNICA (getCTRU · incluye landed/componentes con signo, descuentos,
-  // recojo). Antes el total era costoBase+GA/GO re-derivado, divergiendo del resumen
-  // que ya usaba getCTRU (BUG-3). GA/GO no toca el CTRU (Acuerdo 3) → gagoPEN = 0.
+  // recojo). REINGENIERIA 3-cajas (Acuerdo 3): GA/GO no toca el CTRU.
   const ctru = getCTRU(u);
 
   // Modelo adaptativo: si la unidad tiene componentes congelados, las CAPAS derivan
@@ -398,11 +380,11 @@ function getUnitCostLayers(
   // viva → cierra BUG-1 (descuento perdido) y el agujero de inmutabilidad §1.6.
   if (u.componentesCosto && u.componentesCosto.length > 0) {
     const capas = componentesACapas(u.componentesCosto, tc);
-    return { ...capas, gagoPEN: 0, ctru };
+    return { ...capas, ctru };
   }
 
   // Legacy (sin componentes): re-derivar las capas de la OC (comportamiento previo),
-  // pero el total `ctru` viene de getCTRU, no de costoBase+GA/GO.
+  // pero el total `ctru` viene de getCTRU.
   const ocId = u.ordenCompraId || '';
   const originalCostUSD = ocProductCostMap.get(ocId)?.get(u.productoId) ?? u.costoUnitarioUSD;
   const breakdown = ocCostBreakdownMap.get(ocId);
@@ -422,7 +404,6 @@ function getUnitCostLayers(
     otrosPEN: otrosUSD * tc,
     fleteIntlUSD,
     fleteIntlPEN: fleteIntlUSD * tc,
-    gagoPEN: 0,
     ctru
   };
 }
@@ -440,19 +421,14 @@ function processProductosDetalle(
   fleteByUnitMap: Map<string, number>,
   fleteByProductMap: Map<string, number>,
   gastosByVentaId: Map<string, Gasto[]>,
-  totalGAGOPEN: number,
-  costoBaseTotalVendidas: number,
-  gagoEstimadoProyectado: number,
   productosInfoMap: Map<string, Producto>
 ): CTRUProductoDetalle[] {
   // Incluir activas + vendidas (excluir vencida/danada)
   const unidadesRelevantes = todasUnidades.filter(u => RELEVANT_STATES.includes(u.estado));
-  // Costo base total de TODAS las unidades relevantes (para vista gerencial)
-  const costoBaseTotalTodas = unidadesRelevantes.reduce((sum, u) => sum + getCostoBasePEN(u), 0);
 
   const ocById = new Map(todasOCs.map(oc => [oc.id, oc]));
 
-  // Agrupar unidades por producto
+  // Agrupar unidades por producto · REINGENIERIA 3-cajas: sin acumuladores GA/GO.
   const prodMap = new Map<string, {
     id: string; nombre: string; sku: string;
     compraUSD: number[]; compraPEN: number[];
@@ -460,14 +436,14 @@ function processProductosDetalle(
     envioUSD: number[]; envioPEN: number[];
     otrosUSD: number[]; otrosPEN: number[];
     fleteIntlUSD: number[]; fleteIntlPEN: number[];
-    gagoPEN: number[]; gagoPENVendidas: number[]; gagoPENTodas: number[]; ctrus: number[];
+    ctrus: number[];
     activas: number; vendidas: number;
     // Para lotes por producto
     unidadesPorOC: Map<string, Unidad[]>;
   }>();
 
   for (const u of unidadesRelevantes) {
-    const layers = getUnitCostLayers(u, ocProductCostMap, ocCostBreakdownMap, fleteByUnitMap, fleteByProductMap, totalGAGOPEN, costoBaseTotalVendidas);
+    const layers = getUnitCostLayers(u, ocProductCostMap, ocCostBreakdownMap, fleteByUnitMap, fleteByProductMap);
     if (!prodMap.has(u.productoId)) {
       prodMap.set(u.productoId, {
         id: u.productoId, nombre: u.productoNombre, sku: u.productoSKU,
@@ -476,7 +452,7 @@ function processProductosDetalle(
         envioUSD: [], envioPEN: [],
         otrosUSD: [], otrosPEN: [],
         fleteIntlUSD: [], fleteIntlPEN: [],
-        gagoPEN: [], gagoPENVendidas: [], gagoPENTodas: [], ctrus: [],
+        ctrus: [],
         activas: 0, vendidas: 0,
         unidadesPorOC: new Map()
       });
@@ -492,17 +468,6 @@ function processProductosDetalle(
     p.otrosPEN.push(layers.otrosPEN);
     p.fleteIntlUSD.push(layers.fleteIntlUSD);
     p.fleteIntlPEN.push(layers.fleteIntlPEN);
-    p.gagoPEN.push(layers.gagoPEN);
-    if (u.estado === 'vendida') {
-      p.gagoPENVendidas.push(layers.gagoPEN);
-    }
-    // GA/GO gerencial: prorrateo entre TODAS las unidades relevantes
-    if (costoBaseTotalTodas > 0 && totalGAGOPEN > 0) {
-      const costoBase = getCostoBasePEN(u);
-      p.gagoPENTodas.push(calcularGAGOProporcional(costoBase, costoBaseTotalTodas, totalGAGOPEN));
-    } else {
-      p.gagoPENTodas.push(0);
-    }
     p.ctrus.push(layers.ctru);
 
     if (ACTIVE_STATES.includes(u.estado)) {
@@ -531,36 +496,27 @@ function processProductosDetalle(
     const otrosPENProm = avg(data.otrosPEN);
     const fleteIntlUSDProm = avg(data.fleteIntlUSD);
     const fleteIntlPENProm = avg(data.fleteIntlPEN);
-    // GA/GO promedio SOLO de vendidas (sin diluir con ceros de activas)
-    const gagoProm = data.gagoPENVendidas.length > 0 ? avg(data.gagoPENVendidas) : 0;
 
-    // Costo inventario = capas 1-5
+    // REINGENIERIA 3-cajas (Acuerdo 3): GA/GO NO entra al CTRU.
+    // Costo inventario = capas 1-5 · CTRU contable = costo inventario (sin GA/GO).
     const costoInventario = compraPENProm + impuestoPENProm + envioPENProm + otrosPENProm + fleteIntlPENProm;
-    // CTRU Contable = capas 1-6 (GA/GO solo vendidas)
-    const ctruCalc = costoInventario + gagoProm;
-    // CTRU Gerencial = capas 1-6 (GA/GO todas las unidades)
-    const gagoGerencialProm = data.gagoPENTodas.length > 0 ? avg(data.gagoPENTodas) : 0;
-    const ctruGerencialCalc = costoInventario + gagoGerencialProm;
+    const ctruCalc = costoInventario;
 
-    // GV/GD y ventas
+    // Ventas (precio promedio para el margen · GV/GD ya no entra al costo)
     const ventaInfo = getGVGDAndVentasForProduct(data.id, ventas, gastosByVentaId);
-    const gvgdProm = ventaInfo.gvgdProm;
 
-    // Costo total real = capas 1-7
-    const costoTotalReal = ctruCalc + gvgdProm;
-
-    const pctBase = costoTotalReal > 0 ? costoTotalReal : ctruCalc > 0 ? ctruCalc : 1;
+    // Porcentajes de composición · re-basados sobre el CTRU contable 3-cajas.
+    const pctBase = ctruCalc > 0 ? ctruCalc : 1;
     const pctCompra = safeDiv(compraPENProm, pctBase) * 100;
     const pctImpuesto = safeDiv(impuestoPENProm, pctBase) * 100;
     const pctEnvio = safeDiv(envioPENProm, pctBase) * 100;
     const pctOtros = safeDiv(otrosPENProm, pctBase) * 100;
     const pctFleteIntl = safeDiv(fleteIntlPENProm, pctBase) * 100;
-    const pctGAGO = safeDiv(gagoProm, pctBase) * 100;
-    const pctGVGD = safeDiv(gvgdProm, pctBase) * 100;
 
     const precioVenta = ventaInfo.precioVentaProm;
+    // Margen bruto y neto sobre el CTRU contable (sin GA/GO ni GV/GD · Acuerdo 3).
     const margenBruto = precioVenta > 0 ? safeDiv(precioVenta - ctruCalc, precioVenta) * 100 : 0;
-    const margenNeto = precioVenta > 0 ? safeDiv(precioVenta - costoTotalReal, precioVenta) * 100 : 0;
+    const margenNeto = precioVenta > 0 ? safeDiv(precioVenta - ctruCalc, precioVenta) * 100 : 0;
 
     // Estado del producto
     const estadoProducto: 'activo' | 'vendido' | 'mixto' =
@@ -599,12 +555,12 @@ function processProductosDetalle(
     }
     lotes.sort((a, b) => (b.fecha?.getTime() || 0) - (a.fecha?.getTime() || 0));
 
-    // Pricing
-    const costoRefPricing = costoTotalReal > 0 ? costoTotalReal : ctruCalc;
+    // Pricing · 3-cajas: el piso de precio se basa en el CTRU contable (sin GA/GO ni GV/GD).
+    const costoRefPricing = ctruCalc;
     const pricing: PricingProducto = {
       costoInventario,
       ctru: ctruCalc,
-      costoTotal: costoTotalReal,
+      costoTotal: ctruCalc,
       precioMinimo10: costoRefPricing / (1 - 0.10),
       precioMinimo20: costoRefPricing / (1 - 0.20),
       precioMinimo30: costoRefPricing / (1 - 0.30),
@@ -637,20 +593,13 @@ function processProductosDetalle(
       costoOtrosPENProm: otrosPENProm,
       costoFleteIntlUSDProm: fleteIntlUSDProm,
       costoFleteIntlPENProm: fleteIntlPENProm,
-      gastoGAGOProm: gagoProm,
-      gastoGAGOGerencialProm: gagoGerencialProm,
-      gastoGAGOEstimado: data.vendidas === 0 ? gagoEstimadoProyectado : 0,
-      gastoGVGDProm: gvgdProm,
       costoInventarioProm: costoInventario,
-      ctruPromedio: ctruCalc,
       ctruContableProm: ctruCalc,
-      ctruGerencialProm: ctruGerencialCalc,
-      costoTotalRealProm: costoTotalReal,
       precioVentaProm: precioVenta,
       margenBrutoProm: margenBruto,
       margenNetoProm: margenNeto,
       ventasCount: ventaInfo.ventasCount,
-      pctCompra, pctImpuesto, pctEnvio, pctOtros, pctFleteIntl, pctGAGO, pctGVGD,
+      pctCompra, pctImpuesto, pctEnvio, pctOtros, pctFleteIntl,
       ctruMinimo: data.ctrus.length > 0 ? Math.min(...data.ctrus) : 0,
       ctruMaximo: data.ctrus.length > 0 ? Math.max(...data.ctrus) : 0,
       lotes,
@@ -659,7 +608,7 @@ function processProductosDetalle(
     });
   }
 
-  productos.sort((a, b) => b.ctruPromedio - a.ctruPromedio);
+  productos.sort((a, b) => b.ctruContableProm - a.ctruContableProm);
   return productos;
 }
 
@@ -740,13 +689,11 @@ function getGVGDAndVentasForProduct(
 
 function processHistorialMensual(
   todasUnidades: Unidad[],
-  todosGastos: Gasto[],
   ventas: Venta[],
   ocProductCostMap: Map<string, Map<string, number>>,
   ocCostBreakdownMap: Map<string, OCCostBreakdown>,
   fleteByUnitMap: Map<string, number>,
-  fleteByProductMap: Map<string, number>,
-  gastosByVentaId: Map<string, Gasto[]>
+  fleteByProductMap: Map<string, number>
 ): HistorialCostosMes[] {
   const ahora = new Date();
   const entries: HistorialCostosMes[] = [];
@@ -768,60 +715,31 @@ function processHistorialMensual(
       return fc >= inicioMes && fc <= finMes;
     });
 
-    // GA/GO para este mes — solo entre vendidas del mes, proporcional al costo base
-    // chk5.A12 · canon · esGastoDelBloque(_, 'periodo') == GA||GO legacy
-    const gastosGAGOMes = todosGastos.filter(g =>
-      g.mes === mes && g.anio === anio && esGastoDelBloque(g, 'periodo')
-    );
-    const totalGAGOMes = gastosGAGOMes.reduce((sum, g) => sum + g.montoPEN, 0);
-    // Costo base total de vendidas del mes (para prorrateo proporcional)
-    const unidadesVendidasMes = todasUnidades.filter(u => {
-      if (u.estado !== 'vendida') return false;
-      const fv = toDate((u as any).fechaVenta || u.fechaCreacion);
-      if (!fv) return false;
-      return fv >= inicioMes && fv <= finMes;
-    });
-    const costoBaseTotalVendidasMes = unidadesVendidasMes.reduce((sum, u) => sum + getCostoBasePEN(u), 0);
-
     const compras: number[] = [];
     const impuestos: number[] = [];
     const envios: number[] = [];
     const otrosArr: number[] = [];
     const fletesIntl: number[] = [];
-    const gagos: number[] = [];
 
     for (const u of unidadesRecibidasMes) {
-      const layers = getUnitCostLayers(u, ocProductCostMap, ocCostBreakdownMap, fleteByUnitMap, fleteByProductMap, totalGAGOMes, costoBaseTotalVendidasMes);
+      const layers = getUnitCostLayers(u, ocProductCostMap, ocCostBreakdownMap, fleteByUnitMap, fleteByProductMap);
       compras.push(layers.compraPEN);
       impuestos.push(layers.impuestoPEN);
       envios.push(layers.envioPEN);
       otrosArr.push(layers.otrosPEN);
       fletesIntl.push(layers.fleteIntlPEN);
-      gagos.push(layers.gagoPEN);
     }
 
-    // Ventas de este mes
+    // Ventas de este mes (precio promedio para el margen)
     const ventasMes = ventas.filter(v => {
       const fv = toDate(v.fechaCreacion);
       if (!fv) return false;
       return fv >= inicioMes && fv <= finMes;
     });
 
-    const gvgdValues: number[] = [];
     const precioValues: number[] = [];
     for (const v of ventasMes) {
-      let gvgdTotal = v.gastosVentaPEN ?? (
-        (v.costoEnvioNegocio || 0) + (v.comisionML || 0) +
-        (v.costoEnvioML || 0) + (v.otrosGastosVenta || 0)
-      );
-      if (gvgdTotal === 0 && v.id) {
-        const gastosVenta = gastosByVentaId.get(v.id) || [];
-        gvgdTotal = gastosVenta.reduce((sum, g) => sum + g.montoPEN, 0);
-      }
-      const totalCant = v.productos.reduce((sum, p) => sum + p.cantidad, 0);
-      const gvgdPU = safeDiv(gvgdTotal, totalCant);
       for (const p of v.productos) {
-        gvgdValues.push(gvgdPU);
         precioValues.push(p.precioUnitario);
       }
     }
@@ -831,12 +749,11 @@ function processHistorialMensual(
     const envioProm = avg(envios);
     const otrosProm = avg(otrosArr);
     const fleteIntlProm = avg(fletesIntl);
-    const gagoProm = avg(gagos);
-    const gvgdProm = avg(gvgdValues);
-    const ctruProm = compraProm + impuestoProm + envioProm + otrosProm + fleteIntlProm + gagoProm;
-    const costoTotalProm = ctruProm + gvgdProm;
+    // REINGENIERIA 3-cajas: CTRU = capas 1-5 (sin GA/GO). El costo NO incluye GV/GD.
+    const ctruProm = compraProm + impuestoProm + envioProm + otrosProm + fleteIntlProm;
+    const costoTotalProm = ctruProm;
     const ventaProm = avg(precioValues);
-    const margenProm = ventaProm > 0 ? safeDiv(ventaProm - costoTotalProm, ventaProm) * 100 : 0;
+    const margenProm = ventaProm > 0 ? safeDiv(ventaProm - ctruProm, ventaProm) * 100 : 0;
 
     entries.push({
       mes, anio,
@@ -846,9 +763,7 @@ function processHistorialMensual(
       costoEnvioProm: envioProm,
       costoOtrosProm: otrosProm,
       costoFleteIntlProm: fleteIntlProm,
-      gastoGAGOProm: gagoProm,
-      gastoGVGDProm: gvgdProm,
-      ctruPromedio: ctruProm,
+      ctruContableProm: ctruProm,
       costoTotalProm,
       precioVentaProm: ventaProm,
       margenProm,
@@ -902,9 +817,7 @@ function processLotesOC(
   ocProductCostMap: Map<string, Map<string, number>>,
   ocCostBreakdownMap: Map<string, OCCostBreakdown>,
   fleteByUnitMap: Map<string, number>,
-  fleteByProductMap: Map<string, number>,
-  totalGAGOPEN: number,
-  costoBaseTotalVendidas: number
+  fleteByProductMap: Map<string, number>
 ): LoteOCDetalle[] {
   // Incluir activas + vendidas
   const relevantUnits = todasUnidades.filter(u => RELEVANT_STATES.includes(u.estado));
@@ -931,7 +844,6 @@ function processLotesOC(
     const otrosPENs: number[] = [];
     const fleteIntlUSDs: number[] = [];
     const fleteIntlPENs: number[] = [];
-    const gagos: number[] = [];
     const ctrus: number[] = [];
 
     const prodMap = new Map<string, {
@@ -940,7 +852,7 @@ function processLotesOC(
     }>();
 
     for (const u of units) {
-      const layers = getUnitCostLayers(u, ocProductCostMap, ocCostBreakdownMap, fleteByUnitMap, fleteByProductMap, totalGAGOPEN, costoBaseTotalVendidas);
+      const layers = getUnitCostLayers(u, ocProductCostMap, ocCostBreakdownMap, fleteByUnitMap, fleteByProductMap);
       compraUSDs.push(layers.compraUSD);
       compraPENs.push(layers.compraPEN);
       impuestoUSDs.push(layers.impuestoUSD);
@@ -951,7 +863,6 @@ function processLotesOC(
       otrosPENs.push(layers.otrosPEN);
       fleteIntlUSDs.push(layers.fleteIntlUSD);
       fleteIntlPENs.push(layers.fleteIntlPEN);
-      gagos.push(layers.gagoPEN);
       ctrus.push(layers.ctru);
 
       if (!prodMap.has(u.productoId)) {
@@ -970,8 +881,8 @@ function processLotesOC(
     const envioPENProm = avg(envioPENs);
     const otrosPENProm = avg(otrosPENs);
     const fleteIntlPENProm = avg(fleteIntlPENs);
-    const gagoProm = avg(gagos);
-    const total = compraPENProm + impuestoPENProm + envioPENProm + otrosPENProm + fleteIntlPENProm + gagoProm;
+    // REINGENIERIA 3-cajas: total del lote = Σ capas 1-5 (sin GA/GO).
+    const total = compraPENProm + impuestoPENProm + envioPENProm + otrosPENProm + fleteIntlPENProm;
 
     let fechaRec: Date | null = null;
     try {
@@ -998,14 +909,12 @@ function processLotesOC(
       costoOtrosPENProm: otrosPENProm,
       costoFleteIntlUSDProm: avg(fleteIntlUSDs),
       costoFleteIntlPENProm: fleteIntlPENProm,
-      gastoGAGOProm: gagoProm,
       ctruPromedio: avg(ctrus),
       pctCompra: safeDiv(compraPENProm, total) * 100,
       pctImpuesto: safeDiv(impuestoPENProm, total) * 100,
       pctEnvio: safeDiv(envioPENProm, total) * 100,
       pctOtros: safeDiv(otrosPENProm, total) * 100,
       pctFleteIntl: safeDiv(fleteIntlPENProm, total) * 100,
-      pctGAGO: safeDiv(gagoProm, total) * 100,
       productos: Array.from(prodMap.entries()).map(([pid, data]) => ({
         productoId: pid,
         productoNombre: data.nombre,
@@ -1057,7 +966,7 @@ function processResumen(
     totalProductosActivos: productosActivos.length,
     totalVentasAnalizadas: productos.reduce((sum, p) => sum + p.ventasCount, 0),
     tendenciaCostoCompra: historial.map(h => h.costoCompraProm),
-    tendenciaCTRU: historial.map(h => h.ctruPromedio),
+    tendenciaCTRU: historial.map(h => h.ctruContableProm),
     tendenciaMargen: historial.map(h => h.margenProm)
   };
 }
@@ -1171,20 +1080,9 @@ export const useCTRUStore = create<CTRUState>((set, get) => ({
         }
       }
 
-      // GA/GO — total y costo base de vendidas para prorrateo proporcional · canon
-      const gastosGAGO = todosGastos.filter(g => esGastoDelBloque(g, 'periodo', arbolCategorias));
-      const totalGAGOPEN = gastosGAGO.reduce((sum, g) => sum + g.montoPEN, 0);
-      const unidadesVendidasAll = todasUnidades.filter(u => u.estado === 'vendida');
-      // Costo base total de TODAS las unidades vendidas (para prorrateo proporcional)
-      const costoBaseTotalVendidas = unidadesVendidasAll.reduce((sum, u) => sum + getCostoBasePEN(u), 0);
-      // Costo base total de TODAS las unidades relevantes (para vista gerencial)
-      const unidadesRelevantesAll = todasUnidades.filter(u => RELEVANT_STATES.includes(u.estado));
-      const costoBaseTotalTodas = unidadesRelevantesAll.reduce((sum, u) => sum + getCostoBasePEN(u), 0);
-      // Estimado proyectado para productos sin ventas (uniforme como referencia)
-      const relevantesCount = todasUnidades.filter(u => RELEVANT_STATES.includes(u.estado)).length;
-      const gagoEstimadoProyectado = unidadesVendidasAll.length > 0
-        ? totalGAGOPEN / unidadesVendidasAll.length
-        : relevantesCount > 0 ? totalGAGOPEN / relevantesCount : 0;
+      // REINGENIERIA 3-cajas (Acuerdo 3): GA/GO ya NO se prorratea al CTRU, así que
+      // no se computan totales ni bases de prorrateo de período aquí. Los gastos del
+      // período viven en el P&L como "Gastos Fijos del Mes" (fuera del costo unitario).
 
       // ---- Productos info map ----
       const productosInfoMap = new Map<string, Producto>(todosProductos.map(p => [p.id, p]));
@@ -1193,17 +1091,17 @@ export const useCTRUStore = create<CTRUState>((set, get) => ({
 
       const productosDetalle = processProductosDetalle(
         todasUnidades, ventasValidas, todasOCs, ocProductCostMap, ocCostBreakdownMap,
-        fleteByUnitMap, fleteByProductMap, gastosByVentaId, totalGAGOPEN, costoBaseTotalVendidas, gagoEstimadoProyectado,
+        fleteByUnitMap, fleteByProductMap, gastosByVentaId,
         productosInfoMap
       );
       const historialMensual = processHistorialMensual(
-        todasUnidades, todosGastos, ventasValidas, ocProductCostMap, ocCostBreakdownMap,
-        fleteByUnitMap, fleteByProductMap, gastosByVentaId
+        todasUnidades, ventasValidas, ocProductCostMap, ocCostBreakdownMap,
+        fleteByUnitMap, fleteByProductMap
       );
       const historialGastos = processHistorialGastos(todosGastos, arbolCategorias);
       const lotesOC = processLotesOC(
         todasUnidades, todasOCs, ocProductCostMap, ocCostBreakdownMap,
-        fleteByUnitMap, fleteByProductMap, totalGAGOPEN, costoBaseTotalVendidas
+        fleteByUnitMap, fleteByProductMap
       );
       const resumen = processResumen(productosDetalle, historialMensual, todasUnidades);
 
