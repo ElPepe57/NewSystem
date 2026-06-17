@@ -13,7 +13,7 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
   Calculator, RefreshCw, Package, TrendingUp, Wallet, Hourglass, AlertTriangle,
-  Compass, Tag, Repeat, TrendingDown, Inbox, ArrowRight, Construction,
+  Compass, Tag, Repeat, TrendingDown, Inbox, ArrowRight,
 } from 'lucide-react';
 import { HubShell, HubTopBar, HubHeader, HubKpiStrip, HubTabs, HubBody, type HubKpi, type HubTab } from '../../design-system';
 import { useAuthStore } from '../../store/authStore';
@@ -27,7 +27,9 @@ import {
   ProductoCTRUDetail,
   LoteOCTable,
 } from '../../components/modules/ctru';
+import { PrecioPorCanalTab } from '../../components/modules/ctru/PrecioPorCanalTab';
 import { useCTRUStore } from '../../store/ctruStore';
+import { useCanalVentaStore } from '../../store/canalVentaStore';
 import { useLineaFilter } from '../../hooks/useLineaFilter';
 import { calcularCurvaRecuperacion } from '../../utils/recuperacion.utils';
 import { calcularUtilidad3Cajas, type VentaCaja } from '../../utils/utilidadReal.utils';
@@ -62,7 +64,11 @@ export const CTRUDashboard: React.FC = () => {
     if (tabURL && map[tabURL]) setTab(map[tabURL]);
   }, [tabURL]);
 
+  const canalesActivos = useCanalVentaStore((s) => s.canalesActivos);
+  const fetchCanalesActivos = useCanalVentaStore((s) => s.fetchCanalesActivos);
+
   useEffect(() => { fetchAll(); }, [fetchAll]);
+  useEffect(() => { fetchCanalesActivos(); }, [fetchCanalesActivos]);
 
   const productos = useLineaFilter(productosDetalle, (p) => p.lineaNegocioId);
 
@@ -268,7 +274,7 @@ export const CTRUDashboard: React.FC = () => {
           {/* TAB · ¿A cuánto vendo? (precio por canal · 5B) */}
           {tab === 'precio' && (
             <div className="p-3 sm:p-4 md:p-6">
-              <EnConstruccion sub="El piso de precio por canal (Mercado Libre, directo, tienda) se está conectando · sub-fase 5B." />
+              <PrecioPorCanalTab productos={productos} canales={canalesActivos} onSelectProducto={setProductoSeleccionado} />
             </div>
           )}
 
@@ -310,11 +316,3 @@ const EstadoBadge: React.FC<{ estado: string }> = ({ estado }) => {
   const c = cfg[estado] ?? cfg.sano;
   return <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${c.cls}`}>{c.label}</span>;
 };
-
-const EnConstruccion: React.FC<{ sub: string }> = ({ sub }) => (
-  <div className="bg-white border border-slate-200 rounded-2xl p-8 flex flex-col items-center text-center">
-    <div className="w-12 h-12 bg-indigo-50 rounded-xl flex items-center justify-center mb-3"><Construction className="w-6 h-6 text-indigo-400" /></div>
-    <h3 className="text-[15px] font-semibold text-slate-900">En construcción</h3>
-    <p className="text-[12px] text-slate-500 mt-1 max-w-md">{sub}</p>
-  </div>
-);
