@@ -53,10 +53,13 @@ export interface VentaProductoDetalle {
   ventaNumero: string;
   fecha: Date | null;
   cliente: string;
+  canal?: string;                 // Canal de la venta (id · para abrir recuperación/utilidad por canal)
+  canalNombre?: string;           // Nombre legible del canal
   cantidad: number;
   precioUnitario: number;
-  costoUnitario: number;
+  costoUnitario: number;          // SNAPSHOT congelado (costoTotalUnidades/cantidad), NO getCTRU vivo
   gvgdUnitario: number;
+  contribucionUnitaria: number;   // precioUnitario − costoUnitario − gvgdUnitario (numerador de la curva de recuperación)
   margenBruto: number;
   margenNeto: number;
 }
@@ -713,10 +716,13 @@ function getGVGDAndVentasForProduct(
       ventaNumero: v.numeroVenta,
       fecha: toDate(v.fechaCreacion),
       cliente: v.nombreCliente,
+      canal: v.canal,
+      canalNombre: v.canalNombre,
       cantidad: prod.cantidad,
       precioUnitario: prod.precioUnitario,
       costoUnitario,
       gvgdUnitario: gvgdPorUnidad,
+      contribucionUnitaria: prod.precioUnitario - costoUnitario - gvgdPorUnidad,
       margenBruto,
       margenNeto
     });
