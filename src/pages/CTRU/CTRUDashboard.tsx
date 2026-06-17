@@ -19,15 +19,10 @@ import { HubShell, HubTopBar, HubHeader, HubKpiStrip, HubTabs, HubBody, type Hub
 import { useAuthStore } from '../../store/authStore';
 import { hasRole } from '../../types/auth.types';
 import { LineaDropdown } from '../../components/common/LineaDropdown';
-import {
-  CostCompositionChart,
-  CostEvolutionChart,
-  ExpenseTrendChart,
-  ProductoCTRUTable,
-  ProductoCTRUDetail,
-  LoteOCTable,
-} from '../../components/modules/ctru';
+import { ProductoCTRUDetail, LoteOCTable } from '../../components/modules/ctru';
 import { PrecioPorCanalTab } from '../../components/modules/ctru/PrecioPorCanalTab';
+import { ReponerCortarTab } from '../../components/modules/ctru/ReponerCortarTab';
+import { ComposicionCostoTab } from '../../components/modules/ctru/ComposicionCostoTab';
 import { useCTRUStore } from '../../store/ctruStore';
 import { useCanalVentaStore } from '../../store/canalVentaStore';
 import { useLineaFilter } from '../../hooks/useLineaFilter';
@@ -48,7 +43,7 @@ export const CTRUDashboard: React.FC = () => {
   const esAdmin = hasRole(userProfile, 'admin');
 
   const {
-    resumen, productosDetalle, historialMensual, historialGastos, lotesOC,
+    resumen, productosDetalle, historialGastos, lotesOC,
     loading, error, fetchAll,
   } = useCTRUStore();
 
@@ -278,21 +273,17 @@ export const CTRUDashboard: React.FC = () => {
             </div>
           )}
 
-          {/* TAB · ¿Qué repongo / corto? (catálogo · transicional) */}
+          {/* TAB · ¿Qué repongo / corto? (keep-kill · recuperación + utilidad) */}
           {tab === 'reponer' && (
             <div className="p-3 sm:p-4 md:p-6">
-              <ProductoCTRUTable productos={productos} onSelectProducto={setProductoSeleccionado} vistaCosto="contable" />
+              <ReponerCortarTab filas={agg.comparativo} onSelectProducto={setProductoSeleccionado} />
             </div>
           )}
 
-          {/* TAB · ¿Dónde se va la plata? (composición de costo · transicional) */}
+          {/* TAB · ¿Dónde se va la plata? (composición de costo + lotes) */}
           {tab === 'fuga' && (
             <div className="p-3 sm:p-4 md:p-6 space-y-4">
-              <CostCompositionChart productos={productos} />
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                <CostEvolutionChart historialMensual={historialMensual} />
-                <ExpenseTrendChart historialGastos={historialGastos} />
-              </div>
+              <ComposicionCostoTab productos={productos} onSelectProducto={setProductoSeleccionado} />
               <LoteOCTable lotes={lotesOC} autoExpandId={ocIdDeURL} />
             </div>
           )}
