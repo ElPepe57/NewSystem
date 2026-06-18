@@ -22,6 +22,10 @@ export { FilterSection } from './components/FilterSection';
 export { DataTable } from './components/DataTable';
 export type { Column as DataTableColumn } from './components/DataTable';
 export { DataCard } from './components/DataCard';
+// HubCard (canon L3) · card de entidad unificada slot-based · supersede DataCard/CompraCard
+// gradualmente (icon + amount + sub-filas + selectable + estados). Mockup: ds-piezas-compartidas-f2-v1.
+export { HubCard, HubCardSubRow } from './components/HubCard';
+export type { HubCardProps, HubCardColor } from './components/HubCard';
 export { StatCard } from './components/StatCard';
 export { KPIBar } from './components/KPIBar';
 export { StatusBadge } from './components/StatusBadge';
