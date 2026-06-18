@@ -27,6 +27,7 @@ import type { TimelineStep, NextAction } from '../../common';
 import type { OrdenCompra, EstadoOrden, EstadoPagoOC, SubOrdenCompra } from '../../../types/ordenCompra.types';
 import { getDescripcionProducto } from '../../../utils/producto.helpers';
 import { calcularEstadoDerivadoOC, getCargosEfectivosOC, prorratearCargosOC } from '../../../utils/ordenCompra.helpers';
+import { OCLandedCard } from './OCLandedCard';
 // S55 Fase 2 — pagos viven en CC; hook reactivo lee desde movimientosCC
 import { usePagosOC } from '../../../hooks/usePagosOC';
 import { Trash2, Edit3 } from 'lucide-react';
@@ -971,7 +972,7 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
         >
           <Calculator className="w-3.5 h-3.5" />
           <span>
-            Ver CTRU landed histórico de esta OC en el módulo CTRU
+            Ver CTRU por unidad de esta OC en el módulo CTRU
             <span className="text-slate-500 ml-1">→</span>
           </span>
         </Link>
@@ -1068,6 +1069,14 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
             </div>
           </div>
         );
+      })()}
+
+      {/* F3 · Landed total re-home · "¿cuánto gasté en total por esta OC?" (sobre dato saneado A+B).
+          Trae de vuelta al detalle el costo aterrizado que vivía expulsado en el módulo CTRU. */}
+      {(() => {
+        const ef = getCargosEfectivosOC(orden);
+        const tcRefL = orden.tcReferencial || orden.tcCompra || 0;
+        return <OCLandedCard orden={orden} comercialTotalUSD={ef.total} tcRef={tcRefL} />;
       })()}
 
       {/* S54 · T1 — El link al módulo CTRU se movió al tab 'productos' (contexto natural). */}

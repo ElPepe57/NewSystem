@@ -1,5 +1,5 @@
 import type { Unidad } from '../types/unidad.types';
-import type { ComponenteCostoUnidad } from '../types/ctru.types';
+import type { ComponenteCostoUnidad, CategoriaComponenteCosto } from '../types/ctru.types';
 
 /**
  * Sumar los componentes de costo congelados de una unidad (modelo adaptativo).
@@ -59,6 +59,46 @@ export function getCTRU(unidad: Pick<Unidad, 'ctruDinamico' | 'ctruInicial' | 'c
   // Fallback: calculo manual
   const tc = getTC(unidad);
   return (unidad.costoUnitarioUSD || 0) * tc;
+}
+
+/**
+ * Resumen del costo LANDED de una OC (re-home en el detalle de OC · "¿cuánto gasté?").
+ * Suma getCTRU SOLO sobre las unidades ya aterrizadas (con componentesCosto congelados):
+ * las no recibidas aún no tienen costo real, no se cuentan en el landed (quedan "pendientes").
+ * Composición por capa para el desglose "¿dónde se va la plata?".
+ * INVARIANTE: landedTotalPEN === capas.producto + capas.impuesto + capas.flete + capas.otros
+ * (porque getCTRU de una unidad con componentes ES la suma de sus componentesCosto.montoPEN).
+ */
+export interface ResumenLandedOC {
+  landedTotalPEN: number;
+  unidadesConCosto: number;
+  unidadesTotal: number;
+  capas: { producto: number; impuesto: number; flete: number; otros: number };
+}
+
+const CAPA_DE_CATEGORIA: Record<CategoriaComponenteCosto, keyof ResumenLandedOC['capas']> = {
+  producto: 'producto',
+  impuesto: 'impuesto',
+  flete: 'flete',
+  recojo: 'flete',   // logística → flete
+  landed: 'flete',   // cargos comerciales trasvasados → flete
+  descuento: 'otros', // montoPEN negativo · reduce "otros"
+  otro: 'otros',
+};
+
+export function resumirLandedOC(unidades: Unidad[]): ResumenLandedOC {
+  const capas = { producto: 0, impuesto: 0, flete: 0, otros: 0 };
+  let landedTotalPEN = 0;
+  let unidadesConCosto = 0;
+  for (const u of unidades) {
+    if (!u.componentesCosto || u.componentesCosto.length === 0) continue;
+    unidadesConCosto++;
+    landedTotalPEN += getCTRU(u);
+    for (const c of u.componentesCosto) {
+      capas[CAPA_DE_CATEGORIA[c.categoria] ?? 'otros'] += c.montoPEN || 0;
+    }
+  }
+  return { landedTotalPEN, unidadesConCosto, unidadesTotal: unidades.length, capas };
 }
 
 /**

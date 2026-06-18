@@ -1,6 +1,54 @@
 import { describe, it, expect } from 'vitest';
-import { getCTRU, getTC, getCostoBasePEN, getCTRU_Real, calcularGAGOProporcional } from './ctru.utils';
+import { getCTRU, getTC, getCostoBasePEN, getCTRU_Real, calcularGAGOProporcional, resumirLandedOC } from './ctru.utils';
 import type { ComponenteCostoUnidad } from '../types/ctru.types';
+import type { Unidad } from '../types/unidad.types';
+
+// ---------------------------------------------------------------------------
+// resumirLandedOC · re-home del costo landed en el detalle de OC (F3)
+// ---------------------------------------------------------------------------
+describe('resumirLandedOC', () => {
+  const comp = (categoria: ComponenteCostoUnidad['categoria'], montoPEN: number): ComponenteCostoUnidad =>
+    ({ categoria, concepto: categoria, montoPEN, fuente: 'recepcion', ambito: 'envio' });
+  const u = (componentesCosto?: ComponenteCostoUnidad[]) =>
+    ({ componentesCosto } as unknown as Unidad);
+
+  it('suma getCTRU solo sobre unidades aterrizadas (las no recibidas no cuentan)', () => {
+    const r = resumirLandedOC([
+      u([comp('producto', 100), comp('flete', 30), comp('impuesto', 10)]),
+      u([comp('producto', 120), comp('descuento', -20)]),
+      u(undefined), // no recibida → no aterriza
+      u([]),        // sin componentes → no aterriza
+    ]);
+    expect(r.unidadesTotal).toBe(4);
+    expect(r.unidadesConCosto).toBe(2);
+    expect(r.landedTotalPEN).toBeCloseTo(240); // (100+30+10) + (120-20)
+  });
+
+  it('mantiene el INVARIANTE landedTotalPEN === suma de capas', () => {
+    const r = resumirLandedOC([
+      u([comp('producto', 100), comp('flete', 30), comp('recojo', 5), comp('landed', 8), comp('impuesto', 10), comp('descuento', -12), comp('otro', 3)]),
+    ]);
+    const sumaCapas = r.capas.producto + r.capas.impuesto + r.capas.flete + r.capas.otros;
+    expect(sumaCapas).toBeCloseTo(r.landedTotalPEN);
+  });
+
+  it('agrupa capas: flete = flete+recojo+landed · otros = descuento(neg)+otro', () => {
+    const r = resumirLandedOC([
+      u([comp('producto', 100), comp('flete', 30), comp('recojo', 5), comp('landed', 8), comp('impuesto', 10), comp('descuento', -12), comp('otro', 3)]),
+    ]);
+    expect(r.capas.producto).toBeCloseTo(100);
+    expect(r.capas.impuesto).toBeCloseTo(10);
+    expect(r.capas.flete).toBeCloseTo(43);  // 30+5+8
+    expect(r.capas.otros).toBeCloseTo(-9);  // -12+3
+  });
+
+  it('OC sin unidades aterrizadas → landed 0 (empty state)', () => {
+    const r = resumirLandedOC([u(undefined), u([])]);
+    expect(r.landedTotalPEN).toBe(0);
+    expect(r.unidadesConCosto).toBe(0);
+    expect(r.unidadesTotal).toBe(2);
+  });
+});
 
 // ---------------------------------------------------------------------------
 // getTC
