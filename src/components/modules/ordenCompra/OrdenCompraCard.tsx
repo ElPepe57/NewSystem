@@ -1,20 +1,10 @@
 /**
- * REFERENCIA DE DISEÑO CANÓNICA — OrdenCompraCard
+ * OrdenCompraCard — detalle de una OC (hoy en Modal size=full · 9 tabs).
  *
- * Este archivo es la FUENTE DE VERDAD del patrón "detalle de entidad" del sistema.
- * Cualquier modal de detalle equivalente en otro módulo (ventas, cotizaciones,
- * maestros, etc.) DEBE replicar este patrón visual.
- *
- * NO MODIFICAR este archivo sin autorización explícita del usuario. Cualquier
- * cambio aquí propaga implícitamente al resto del sistema y puede introducir
- * regresiones en módulos ya alineados.
- *
- * Ver:
- *   - CLAUDE.md → "ACTUALIZACIÓN v6.1 — REFERENCIAS DE DISEÑO CANÓNICAS"
- *   - docs/DESIGN_PATTERNS.md → "Referencias de Diseño Canónicas (S54.x)"
- *   - docs/REGISTRO_IMPLEMENTACION.md → "SESIÓN S54.x — DECISIÓN ESTRATÉGICA"
- *
- * Decisión registrada en sesión S54.x (2026-04-25).
+ * GOBERNANZA (F0 rework Compras · 2026-06-17): este componente FUE "referencia canónica
+ * S54.x" (v6.1), pero el canon visual vigente es el DESIGN SYSTEM + Hub Kit (CLAUDE.md v7.0+).
+ * El marcador "NO MODIFICAR" quedó DEROGADO. En rework hacia drill full-page + tab Resumen
+ * §A-F + FormModalV2 + lucide (sin emojis) + color Comercial (blue). Validar contra mockup antes de tocar.
  */
 import React, { useMemo, useState, useCallback } from 'react';
 import { formatFecha as formatDate } from '../../../utils/dateFormatters';

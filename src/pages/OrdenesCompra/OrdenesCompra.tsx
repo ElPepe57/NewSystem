@@ -11,7 +11,7 @@ import { useToastStore } from '../../store/toastStore';
 import { OrdenCompraCard } from '../../components/modules/ordenCompra/OrdenCompraCard';
 import { OCWizardV3 } from '../../components/modules/ordenCompra/OCWizardV3/OCWizardV3';
 import { CompraCard } from '../../components/modules/ordenCompra/CompraCard';
-import type { EstadoPipelineCompras, PipelineComprasStage } from '../../components/modules/ordenCompra/PipelineCompras';
+import type { EstadoPipelineCompras, PipelineComprasStage } from '../../components/modules/ordenCompra/PipelineCompras.types';
 import { SubOrdenDetailModal } from '../../components/modules/ordenCompra/SubOrdenDetailModal';
 import { TabResumenCompras } from './components/TabResumenCompras';
 import { TabPendientesCompras } from './components/TabPendientesCompras';
