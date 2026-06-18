@@ -13,18 +13,53 @@
  */
 
 import React from 'react';
-import { Check, CircleDot, Tag, Layers, Download, Archive, X, ChevronDown } from 'lucide-react';
+import { Check, CircleDot, Tag, Layers, Download, Archive, X, ChevronDown, type LucideIcon } from 'lucide-react';
+import type { ColorIdentidad } from '../../grupoColor';
+
+/** Acción genérica para la toolbar (módulos no-Productos · ej. Compras). */
+export interface BulkAction {
+  icon: LucideIcon;
+  label: string;
+  onClick: () => void;
+  hasDropdown?: boolean;
+}
 
 interface BulkActionsToolbarProps {
   selectedCount: number;
   totalCount: number;
   onClear: () => void;
+  // ── API legacy (Productos) · se mantiene intacta ──
   onCambiarEstado?: () => void;
   onEtiquetar?: () => void;
   onCambiarLinea?: () => void;
   onExportar?: () => void;
   onArchivar?: () => void;
+  // ── API genérica (canon · cualquier módulo) ──
+  /** Color de identidad del grupo (gradient + acento). Default 'teal'. */
+  color?: ColorIdentidad;
+  /** Nombre de la entidad en singular (default 'producto'). */
+  entityLabel?: string;
+  /** La entidad es femenina (→ 'seleccionada'). Default false. */
+  entityLabelFem?: boolean;
+  /** Acciones genéricas · si se pasan, reemplazan a las named (Productos). */
+  actions?: BulkAction[];
+  /** Acción destructiva genérica (reemplaza 'Archivar'). */
+  destructiveAction?: { icon: LucideIcon; label: string; onClick: () => void };
 }
+
+const BULK_GRADIENT: Record<ColorIdentidad, string> = {
+  teal: 'from-teal-600 to-teal-700',
+  violet: 'from-violet-600 to-violet-700',
+  blue: 'from-blue-600 to-blue-700',
+  orange: 'from-orange-600 to-orange-700',
+  indigo: 'from-indigo-600 to-indigo-700',
+  slate: 'from-slate-700 to-slate-800',
+};
+
+const BULK_SUBTEXT: Record<ColorIdentidad, string> = {
+  teal: 'text-teal-100', violet: 'text-violet-100', blue: 'text-blue-100',
+  orange: 'text-orange-100', indigo: 'text-indigo-100', slate: 'text-slate-300',
+};
 
 export const BulkActionsToolbar: React.FC<BulkActionsToolbarProps> = ({
   selectedCount,
@@ -35,11 +70,19 @@ export const BulkActionsToolbar: React.FC<BulkActionsToolbarProps> = ({
   onCambiarLinea,
   onExportar,
   onArchivar,
+  color = 'teal',
+  entityLabel = 'producto',
+  entityLabelFem = false,
+  actions,
+  destructiveAction,
 }) => {
   if (selectedCount === 0) return null;
+  const plural = selectedCount === 1 ? '' : 's';
+  const sufFem = entityLabelFem ? 'a' : 'o';
+  const DestIcon = destructiveAction?.icon ?? Archive;
 
   return (
-    <div className="sticky top-0 z-20 bg-gradient-to-r from-teal-600 to-teal-700 text-white rounded-xl shadow-lg mb-3">
+    <div className={`sticky top-0 z-20 bg-gradient-to-r ${BULK_GRADIENT[color]} text-white rounded-xl shadow-lg mb-3`}>
       <div className="px-4 py-3 flex items-center justify-between gap-3 flex-wrap">
         <div className="flex items-center gap-3">
           <div className="bg-white/20 backdrop-blur rounded-lg w-8 h-8 flex items-center justify-center">
@@ -47,30 +90,38 @@ export const BulkActionsToolbar: React.FC<BulkActionsToolbarProps> = ({
           </div>
           <div>
             <div className="text-sm font-bold tabular-nums">
-              {selectedCount} producto{selectedCount === 1 ? '' : 's'} seleccionado{selectedCount === 1 ? '' : 's'}
+              {selectedCount} {entityLabel}{plural} seleccionad{sufFem}{plural}
             </div>
-            <div className="text-[11px] text-teal-100 tabular-nums">de {totalCount} totales</div>
+            <div className={`text-[11px] ${BULK_SUBTEXT[color]} tabular-nums`}>de {totalCount} totales</div>
           </div>
         </div>
 
         <div className="flex items-center gap-1.5 flex-wrap">
-          {onCambiarEstado && (
-            <BulkButton onClick={onCambiarEstado} icon={CircleDot} label="Cambiar estado" hasDropdown />
+          {actions && actions.length > 0 ? (
+            actions.map((act) => (
+              <BulkButton key={act.label} onClick={act.onClick} icon={act.icon} label={act.label} hasDropdown={act.hasDropdown} />
+            ))
+          ) : (
+            <>
+              {onCambiarEstado && (
+                <BulkButton onClick={onCambiarEstado} icon={CircleDot} label="Cambiar estado" hasDropdown />
+              )}
+              {onEtiquetar && <BulkButton onClick={onEtiquetar} icon={Tag} label="Etiquetar" />}
+              {onCambiarLinea && <BulkButton onClick={onCambiarLinea} icon={Layers} label="Cambiar línea" />}
+              {onExportar && <BulkButton onClick={onExportar} icon={Download} label="Exportar" />}
+            </>
           )}
-          {onEtiquetar && <BulkButton onClick={onEtiquetar} icon={Tag} label="Etiquetar" />}
-          {onCambiarLinea && <BulkButton onClick={onCambiarLinea} icon={Layers} label="Cambiar línea" />}
-          {onExportar && <BulkButton onClick={onExportar} icon={Download} label="Exportar" />}
 
-          {onArchivar && (
+          {(destructiveAction || onArchivar) && (
             <>
               <div className="h-6 w-px bg-white/30 mx-1" />
               <button
                 type="button"
-                onClick={onArchivar}
+                onClick={destructiveAction ? destructiveAction.onClick : onArchivar}
                 className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-rose-500/20 hover:bg-rose-500/40 text-rose-100 hover:text-white backdrop-blur rounded-lg transition-all"
               >
-                <Archive className="w-3.5 h-3.5" />
-                Archivar
+                <DestIcon className="w-3.5 h-3.5" />
+                {destructiveAction ? destructiveAction.label : 'Archivar'}
               </button>
             </>
           )}

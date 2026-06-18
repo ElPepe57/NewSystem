@@ -1,9 +1,9 @@
 import React, { useEffect, useState, useMemo, useRef } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
-import { Plus, Package, DollarSign, AlertCircle, Download, ExternalLink, FileText, Truck, CheckCircle, CreditCard, Building2, Search, ShoppingCart, LayoutDashboard, ClipboardList, BrainCircuit } from 'lucide-react';
-import { Button, Card, Modal, useConfirmDialog, ConfirmDialog, useActionModal, ActionModal } from '../../components/common';
+import { Plus, Package, DollarSign, AlertCircle, Download, ExternalLink, FileText, Truck, CheckCircle, CreditCard, Building2, ShoppingCart, LayoutDashboard, ClipboardList, BrainCircuit } from 'lucide-react';
+import { Modal, useConfirmDialog, ConfirmDialog, useActionModal, ActionModal } from '../../components/common';
 // chk5.COMERCIALES-F1 · Compras re-construido como hub del kit (grupo Comercial = blue)
-import { HubShell, HubTopBar, HubHeader, HubKpiStrip, HubTabs, HubBody } from '../../design-system';
+import { HubShell, HubTopBar, HubHeader, HubKpiStrip, HubTabs, HubBody, HubCard, FiltrosBar, BulkActionsToolbar } from '../../design-system';
 import type { StatusVariant, HubTab, HubKpi } from '../../design-system';
 import { useToastStore } from '../../store/toastStore';
 // S53.9 — OrdenCompraForm + OrdenCompraTable ELIMINADOS (legacy).
@@ -183,6 +183,9 @@ export const OrdenesCompra: React.FC = () => {
   const [filtroProveedor, setFiltroProveedor] = useState('');
   const [filtroEstadoPago, setFiltroEstadoPago] = useState('');
   const [itemsVisibles, setItemsVisibles] = useState(10);
+  // F3 · orden (FiltrosBar requiere sort) + selección masiva (BulkActionsToolbar)
+  const [sortValue, setSortValue] = useState('reciente');
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   // Estado para edición
   const [ordenEditando, setOrdenEditando] = useState<OrdenCompra | null>(null);
   // S53.9 — isEditMode eliminado. El wizard detecta edicion por presencia de `ordenEditar`.
@@ -333,12 +336,28 @@ export const OrdenesCompra: React.FC = () => {
       );
     }
 
-    return lista;
-  }, [ordenesLN, filtroEstado, filtroProveedor, filtroEstadoPago, busquedaGlobal]);
+    // F3 · orden
+    const toMs = (f: any): number =>
+      typeof f?.toMillis === 'function' ? f.toMillis()
+      : typeof f?.seconds === 'number' ? f.seconds * 1000
+      : f instanceof Date ? f.getTime()
+      : 0;
+    const sorted = [...lista].sort((a, b) => {
+      switch (sortValue) {
+        case 'antiguo': return toMs(a.fechaCreacion) - toMs(b.fechaCreacion);
+        case 'monto_desc': return (b.totalUSD || 0) - (a.totalUSD || 0);
+        case 'monto_asc': return (a.totalUSD || 0) - (b.totalUSD || 0);
+        case 'reciente':
+        default: return toMs(b.fechaCreacion) - toMs(a.fechaCreacion);
+      }
+    });
+    return sorted;
+  }, [ordenesLN, filtroEstado, filtroProveedor, filtroEstadoPago, busquedaGlobal, sortValue]);
 
-  // Reset paginación cuando cambian filtros
+  // Reset paginación + selección cuando cambian filtros
   useEffect(() => {
     setItemsVisibles(10);
+    setSelectedIds(new Set());
   }, [filtroEstado, filtroProveedor, filtroEstadoPago, busquedaGlobal]);
 
   // Cargar datos al montar
@@ -908,179 +927,187 @@ export const OrdenesCompra: React.FC = () => {
         {/* ═══ TAB ÓRDENES · pipeline + filtros + listado (contenido operativo) ═══ */}
         {tabActiva === 'ordenes' && (
         <div className="p-4 sm:p-6 space-y-4">
-          {/* Buscador (movido del header) */}
-          <div className="relative max-w-md">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
-            <input
-              type="text"
-              value={busquedaGlobal}
-              onChange={(e) => setBusquedaGlobal(e.target.value)}
-              placeholder="Buscar OC, proveedor, número…"
-              className="w-full pl-9 pr-3 py-2 text-[12px] border border-slate-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/40"
-            />
-          </div>
-
-      {/* Alerta si no hay proveedores */}
-      {proveedoresActivos.length === 0 && (
-        <Card padding="md">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <AlertCircle className="h-5 w-5 text-amber-600 mr-3" />
-              <div>
-                <p className="text-sm font-medium text-slate-900">No hay proveedores registrados</p>
-                <p className="text-sm text-slate-600">Crea proveedores desde el Gestor de Maestros antes de hacer órdenes de compra.</p>
+          {/* Alerta de prerequisito · sin proveedores (canon F3) */}
+          {proveedoresActivos.length === 0 && (
+            <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 flex items-start gap-2.5">
+              <AlertCircle className="h-4 w-4 text-amber-600 mt-0.5 flex-shrink-0" />
+              <div className="flex-1">
+                <p className="text-[12px] font-semibold text-amber-900">No hay proveedores registrados</p>
+                <p className="text-[10px] text-amber-700 mt-0.5">Creá proveedores en el Gestor de Maestros antes de hacer órdenes de compra.</p>
+                <button type="button" onClick={() => navigate('/maestros')} className="mt-2 text-[11px] font-bold text-amber-800 border border-amber-300 bg-white rounded-lg px-2.5 py-1 hover:bg-amber-50 inline-flex items-center gap-1.5">
+                  <ExternalLink className="w-3 h-3" /> Ir a Maestros
+                </button>
               </div>
             </div>
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={() => navigate('/maestros')}
-            >
-              <ExternalLink className="h-4 w-4 mr-1" />
-              Ir a Maestros
-            </Button>
-          </div>
-        </Card>
-      )}
+          )}
 
-      {/* KPIs movidos al HubKpiStrip persistente del shell · chk5.COMERCIALES-F1 */}
-
-      {/* chk5.COMERCIALES-F1 · Filtro por etapa UNIFICADO — reemplaza el Pipeline (4 cards)
-          + los pills (Todas/Activas/Completadas). El strip da los KPIs ejecutivos; este
-          control filtra el listado por etapa (canon de no-redundancia · no clona el strip). */}
-      <div className="flex items-center gap-2 flex-wrap">
-        <span className="text-xs text-slate-500 flex-shrink-0">Etapa:</span>
-        <div className="flex gap-1.5 overflow-x-auto pb-0.5 -mx-1 px-1" style={{ scrollbarWidth: 'none' }}>
-          {[{ id: null as string | null, label: 'Todas', count: ordenesLN.length }, ...pipelineComprasStages.map((s) => ({ id: s.id as string | null, label: s.label, count: s.count }))].map((chip) => {
-            const activo = filtroEstado === chip.id;
-            return (
-              <button
-                key={chip.id ?? 'todas'}
-                type="button"
-                onClick={() => setFiltroEstado(chip.id)}
-                className={`whitespace-nowrap inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border transition-colors ${activo ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'}`}
-              >
-                {chip.label}
-                <span className={`tabular-nums ${activo ? 'text-blue-100' : 'text-slate-400'}`}>{chip.count}</span>
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Filtros secundarios — proveedor · estado de pago · línea de negocio */}
-      <div className="flex items-center gap-2 flex-wrap">
-        <select
-          value={filtroProveedor}
-          onChange={(e) => setFiltroProveedor(e.target.value)}
-          className="text-xs border border-slate-300 rounded-lg px-2 py-1 bg-white focus:outline-none focus:ring-1 focus:ring-blue-500"
-        >
-          <option value="">Todos los proveedores</option>
-          {proveedoresActivos.map((p) => (
-            <option key={p.id} value={p.id}>{p.nombre}</option>
-          ))}
-        </select>
-        <select
-          value={filtroEstadoPago}
-          onChange={(e) => setFiltroEstadoPago(e.target.value)}
-          className="text-xs border border-slate-300 rounded-lg px-2 py-1 bg-white focus:outline-none focus:ring-1 focus:ring-blue-500"
-        >
-          <option value="">Todos los estados de pago</option>
-          <option value="pendiente">Pendiente</option>
-          <option value="parcial">Parcial</option>
-          <option value="pagado">Pagado</option>
-        </select>
-        {/* S42al — Dropdown de líneas de negocio (mockup S40 L248-250) */}
-        <select
-          value={lineaFiltroGlobal ?? ''}
-          onChange={(e) => setLineaFiltroGlobal(e.target.value || null)}
-          className="text-xs border border-slate-300 rounded-lg px-2 py-1 bg-white focus:outline-none focus:ring-1 focus:ring-blue-500"
-        >
-          <option value="">Todas las líneas</option>
-          {lineasActivas.map((l) => (
-            <option key={l.id} value={l.id}>
-              {l.nombre}
-            </option>
-          ))}
-        </select>
-        <div className="flex-1" />
-        {(filtroEstado ||
-          filtroProveedor ||
-          filtroEstadoPago ||
-          lineaFiltroGlobal ||
-          busquedaGlobal) && (
-          <button
-            type="button"
-            onClick={() => {
+          {/* FiltrosBar canónica (azul Comercial) · reemplaza buscador + chips etapa + 3 selects (canon F3) */}
+          <FiltrosBar
+            color="blue"
+            leadingFilter={{
+              label: 'Proveedor',
+              icon: Building2,
+              value: filtroProveedor,
+              options: [
+                { value: '', label: 'Todos los proveedores' },
+                ...proveedoresActivos.map((p) => ({ value: p.id, label: p.nombre })),
+              ],
+              onChange: setFiltroProveedor,
+            }}
+            chipGroups={[
+              {
+                key: 'etapa',
+                label: 'Etapa',
+                options: [
+                  { value: 'borrador', label: 'Borrador', variant: 'slate', count: pipelineComprasStages.find((s) => s.id === 'borrador')?.count },
+                  { value: 'confirmada', label: 'Confirmada', variant: 'sky', count: pipelineComprasStages.find((s) => s.id === 'confirmada')?.count },
+                  { value: 'en_despacho', label: 'En Despacho', variant: 'amber', count: pipelineComprasStages.find((s) => s.id === 'en_despacho')?.count },
+                  { value: 'completada', label: 'Completada', variant: 'emerald', count: pipelineComprasStages.find((s) => s.id === 'completada')?.count },
+                ],
+              },
+              {
+                key: 'pago',
+                label: 'Pago',
+                options: [
+                  { value: 'pendiente', label: 'Pendiente', variant: 'amber' },
+                  { value: 'parcial', label: 'Parcial', variant: 'sky' },
+                  { value: 'pagado', label: 'Pagado', variant: 'emerald' },
+                ],
+              },
+              ...(lineasActivas.length > 0
+                ? [{
+                    key: 'linea',
+                    label: 'Línea',
+                    options: lineasActivas.map((l) => ({ value: l.id, label: l.nombre, variant: 'slate' as const })),
+                  }]
+                : []),
+            ]}
+            selecciones={{
+              etapa: filtroEstado ? [filtroEstado] : [],
+              pago: filtroEstadoPago ? [filtroEstadoPago] : [],
+              linea: lineaFiltroGlobal ? [lineaFiltroGlobal] : [],
+            }}
+            onChipToggle={(groupKey, value) => {
+              if (groupKey === 'etapa') setFiltroEstado(filtroEstado === value ? null : value);
+              else if (groupKey === 'pago') setFiltroEstadoPago(filtroEstadoPago === value ? '' : value);
+              else if (groupKey === 'linea') setLineaFiltroGlobal(lineaFiltroGlobal === value ? null : value);
+            }}
+            searchTerm={busquedaGlobal}
+            searchPlaceholder="Buscar OC, proveedor, tracking…"
+            onSearchChange={setBusquedaGlobal}
+            sortValue={sortValue}
+            sortOptions={[
+              { value: 'reciente', label: 'Más reciente' },
+              { value: 'antiguo', label: 'Más antiguo' },
+              { value: 'monto_desc', label: 'Mayor monto' },
+              { value: 'monto_asc', label: 'Menor monto' },
+            ]}
+            onSortChange={setSortValue}
+            hayFiltrosActivos={!!(filtroEstado || filtroProveedor || filtroEstadoPago || lineaFiltroGlobal || busquedaGlobal)}
+            onLimpiarTodo={() => {
               setFiltroEstado(null);
               setFiltroProveedor('');
               setFiltroEstadoPago('');
               setLineaFiltroGlobal(null);
               setBusquedaGlobal('');
             }}
-            className="text-xs text-slate-500 hover:text-slate-700"
-          >
-            Limpiar filtros
-          </button>
-        )}
-        {/* S53.9 — Toggle viewMode ELIMINADO. Vista de tarjetas es la unica. */}
-      </div>
+          />
 
-      {/* Lista de Ordenes — vista de tarjetas unicamente (S53.9) */}
-      {(
-        <div className="bg-slate-50 rounded-xl p-4 md:p-5 space-y-3 border border-slate-100">
-          {ordenesFiltradas.length === 0 ? (
-            <div className="bg-white border border-slate-200 rounded-lg py-16 text-center">
-              <Package className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-              <p className="text-sm font-medium text-slate-700">Sin resultados</p>
-              <p className="text-xs text-slate-500 mt-1">
-                No se encontraron órdenes de compra.
-              </p>
-            </div>
-          ) : (
-            <>
-              {ordenesFiltradas.slice(0, itemsVisibles).map((orden) => (
-                <CompraCard
-                  key={orden.id}
-                  orden={orden}
-                  enviosAsociados={enviosPorOCIndex.get(orden.id) ?? []}
-                  onView={() => handleViewDetails(orden)}
-                  onRegistrarPago={() => {
-                    setSelectedOrdenLocal(orden);
-                    setSubOrdenPago(null);
-                    setIsPagoModalOpen(true);
-                  }}
-                  onRegistrarPagoSubOrden={(subOrdenId) => {
-                    setSelectedOrdenLocal(orden);
-                    setSubOrdenPago(subOrdenId);
-                    setIsPagoModalOpen(true);
-                  }}
-                  onVerSubOrden={(subOrdenId) =>
-                    setSubOrdenDetalle({ ordenId: orden.id, subOrdenId })
-                  }
-                  onVerEnvio={(envioId) => navigate(`/envios?envioId=${envioId}`)}
-                  onVerEnvios={() => navigate(`/envios?ordenCompraId=${orden.id}`)}
-                />
-              ))}
-              {/* S42 Tanda 10 — Footer "Cargar más" (mockup líneas 478-481) */}
-              {ordenesFiltradas.length > itemsVisibles && (
-                <div className="pt-2 text-center">
-                  <span className="text-xs text-slate-500">
-                    + {ordenesFiltradas.length - itemsVisibles} OCs más ·{' '}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => setItemsVisibles((n) => n + 10)}
-                    className="text-xs font-medium text-blue-600 hover:text-blue-700 hover:underline"
-                  >
-                    Cargar más
+          {/* Selección masiva (canon F3 · decisión 3 · aparece al seleccionar) */}
+          <BulkActionsToolbar
+            selectedCount={selectedIds.size}
+            totalCount={ordenesFiltradas.length}
+            onClear={() => setSelectedIds(new Set())}
+            color="blue"
+            entityLabel="OC"
+            entityLabelFem
+            actions={[
+              {
+                icon: Download,
+                label: 'Exportar',
+                onClick: () => exportService.exportOrdenesCompra(ordenes.filter((o) => selectedIds.has(o.id))),
+              },
+            ]}
+          />
+
+          {/* Lista de Órdenes · HubCard (canon F3) · loading / quick-start / sin-resultados / cards */}
+          <div className="bg-slate-50 rounded-xl p-4 md:p-5 space-y-2.5 border border-slate-100">
+            {loading && ordenesFiltradas.length === 0 ? (
+              <>
+                <HubCard loading />
+                <HubCard loading />
+                <HubCard loading />
+              </>
+            ) : ordenesLN.length === 0 ? (
+              <div className="bg-white border border-slate-200 rounded-xl py-8 px-4 text-center">
+                <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mx-auto mb-3">
+                  <ShoppingCart className="w-6 h-6" />
+                </div>
+                <p className="text-[13px] font-semibold text-slate-800">Aún no hay órdenes de compra</p>
+                <p className="text-[11px] text-slate-500 mt-1 mb-4">Empezá por una de estas vías:</p>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 max-w-xl mx-auto text-left">
+                  <button type="button" onClick={() => setIsWizardV2Open(true)} disabled={proveedoresActivos.length === 0} className="bg-white border border-slate-200 rounded-lg p-3 hover:border-blue-300 hover:bg-blue-50/30 transition-colors flex items-start gap-2.5 disabled:opacity-50 disabled:cursor-not-allowed">
+                    <Plus className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
+                    <div><div className="text-[11px] font-bold text-slate-900">Nueva OC</div><div className="text-[10px] text-slate-500">Wizard completo</div></div>
+                  </button>
+                  <button type="button" onClick={() => setTabActiva('pendientes')} className="bg-white border border-slate-200 rounded-lg p-3 hover:border-amber-300 hover:bg-amber-50/30 transition-colors flex items-start gap-2.5">
+                    <ClipboardList className="w-4 h-4 text-amber-600 mt-0.5 flex-shrink-0" />
+                    <div><div className="text-[11px] font-bold text-slate-900">Desde requerimiento</div><div className="text-[10px] text-slate-500">Consolidá pendientes</div></div>
+                  </button>
+                  <button type="button" onClick={() => navigate('/maestros')} className="bg-white border border-slate-200 rounded-lg p-3 hover:border-emerald-300 hover:bg-emerald-50/30 transition-colors flex items-start gap-2.5">
+                    <Building2 className="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0" />
+                    <div><div className="text-[11px] font-bold text-slate-900">Registrar proveedor</div><div className="text-[10px] text-slate-500">Primero el maestro</div></div>
                   </button>
                 </div>
-              )}
-            </>
-          )}
-        </div>
-      )}
+              </div>
+            ) : ordenesFiltradas.length === 0 ? (
+              <div className="bg-white border border-slate-200 rounded-xl py-16 text-center">
+                <Package className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+                <p className="text-sm font-medium text-slate-700">Sin resultados</p>
+                <p className="text-xs text-slate-500 mt-1">No hay OCs que coincidan con los filtros.</p>
+              </div>
+            ) : (
+              <>
+                {ordenesFiltradas.slice(0, itemsVisibles).map((orden) => (
+                  <CompraCard
+                    key={orden.id}
+                    orden={orden}
+                    enviosAsociados={enviosPorOCIndex.get(orden.id) ?? []}
+                    onView={() => handleViewDetails(orden)}
+                    onRegistrarPago={() => {
+                      setSelectedOrdenLocal(orden);
+                      setSubOrdenPago(null);
+                      setIsPagoModalOpen(true);
+                    }}
+                    onRegistrarPagoSubOrden={(subOrdenId) => {
+                      setSelectedOrdenLocal(orden);
+                      setSubOrdenPago(subOrdenId);
+                      setIsPagoModalOpen(true);
+                    }}
+                    onVerSubOrden={(subOrdenId) => setSubOrdenDetalle({ ordenId: orden.id, subOrdenId })}
+                    onVerEnvio={(envioId) => navigate(`/envios?envioId=${envioId}`)}
+                    onVerEnvios={() => navigate(`/envios?ordenCompraId=${orden.id}`)}
+                    selectable
+                    selected={selectedIds.has(orden.id)}
+                    onSelect={(sel) =>
+                      setSelectedIds((prev) => {
+                        const next = new Set(prev);
+                        if (sel) next.add(orden.id);
+                        else next.delete(orden.id);
+                        return next;
+                      })
+                    }
+                  />
+                ))}
+                {ordenesFiltradas.length > itemsVisibles && (
+                  <div className="pt-2 text-center">
+                    <span className="text-xs text-slate-500">+ {ordenesFiltradas.length - itemsVisibles} OCs más · </span>
+                    <button type="button" onClick={() => setItemsVisibles((n) => n + 10)} className="text-xs font-medium text-blue-600 hover:text-blue-700 hover:underline">Cargar más</button>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
         </div>
         )}
 

@@ -28,6 +28,7 @@ export type { ChipActivo, ChipColor } from './ChipsActivos';
 export { FiltrosDrawerMobile } from './FiltrosDrawerMobile';
 
 export { BulkActionsToolbar } from './BulkActionsToolbar';
+export type { BulkAction } from './BulkActionsToolbar';
 
 export { PaginacionFooter } from './PaginacionFooter';
 export { OrdenamientoSelect, type SortKey, type PageSize } from './OrdenamientoSelect';

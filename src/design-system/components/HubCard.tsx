@@ -25,7 +25,7 @@ import type { StatusVariant } from '../tokens';
 // Color tonal del ícono (heredado del grupo del módulo · default blue=Comercial)
 // ════════════════════════════════════════════════════════════════════════════
 
-export type HubCardColor = 'blue' | 'teal' | 'violet' | 'orange' | 'indigo' | 'slate' | 'amber' | 'emerald' | 'rose';
+export type HubCardColor = 'blue' | 'teal' | 'violet' | 'orange' | 'indigo' | 'slate' | 'amber' | 'emerald' | 'rose' | 'sky';
 
 const ICON_TONE: Record<HubCardColor, { bg: string; text: string; ring: string; amount: string }> = {
   blue: { bg: 'bg-blue-50', text: 'text-blue-600', ring: 'ring-blue-500/30 border-blue-300', amount: 'text-blue-700' },
@@ -37,6 +37,7 @@ const ICON_TONE: Record<HubCardColor, { bg: string; text: string; ring: string; 
   amber: { bg: 'bg-amber-50', text: 'text-amber-600', ring: 'ring-amber-500/30 border-amber-300', amount: 'text-amber-700' },
   emerald: { bg: 'bg-emerald-50', text: 'text-emerald-600', ring: 'ring-emerald-500/30 border-emerald-300', amount: 'text-emerald-700' },
   rose: { bg: 'bg-rose-50', text: 'text-rose-600', ring: 'ring-rose-500/30 border-rose-300', amount: 'text-rose-700' },
+  sky: { bg: 'bg-sky-50', text: 'text-sky-600', ring: 'ring-sky-500/30 border-sky-300', amount: 'text-sky-700' },
 };
 
 // ════════════════════════════════════════════════════════════════════════════
