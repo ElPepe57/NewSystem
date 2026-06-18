@@ -8,7 +8,7 @@
  */
 
 import { logger } from '../lib/logger';
-import type { OrdenCompraStats } from '../types/ordenCompra.types';
+import type { OrdenCompraStats, OrdenCompra } from '../types/ordenCompra.types';
 import { getAll } from './ordenCompra.crud.service';
 
 export async function getStats(): Promise<OrdenCompraStats> {
@@ -209,6 +209,43 @@ export async function getInvestigacionMercado(
   }
 
   return resultado;
+}
+
+/**
+ * Referencia de precio EN MEMORIA (pura · sin Firestore) por SKU, a partir de las OCs ya
+ * cargadas en el store. Para el wizard de OC (referencia inline al capturar el precio · F3).
+ * última compra = la más reciente con costo > 0 · promedio = simple sobre esas compras.
+ * Mismo filtro de estados que getPreciosHistoricos (excluye 'cancelada') para no mostrar "dos números".
+ */
+export function getReferenciaPreciosEnMemoria(
+  productoIds: string[],
+  ordenes: OrdenCompra[],
+): Map<string, { ultimaCompra: number | null; promedio: number | null; nMuestras: number }> {
+  const idSet = new Set(productoIds);
+  const acc = new Map<string, { precio: number; fecha: number }[]>();
+  for (const o of ordenes) {
+    if (o.estado === 'cancelada') continue;
+    const fecha = (o.fechaCreacion as { toMillis?: () => number })?.toMillis?.() ?? 0;
+    for (const p of o.productos || []) {
+      const id = p.productoId;
+      if (!id || !idSet.has(id) || !(p.costoUnitario > 0)) continue;
+      const list = acc.get(id) ?? [];
+      list.push({ precio: p.costoUnitario, fecha });
+      acc.set(id, list);
+    }
+  }
+  const res = new Map<string, { ultimaCompra: number | null; promedio: number | null; nMuestras: number }>();
+  for (const id of productoIds) {
+    const list = acc.get(id) ?? [];
+    if (list.length === 0) {
+      res.set(id, { ultimaCompra: null, promedio: null, nMuestras: 0 });
+      continue;
+    }
+    list.sort((a, b) => b.fecha - a.fecha);
+    const promedio = list.reduce((s, x) => s + x.precio, 0) / list.length;
+    res.set(id, { ultimaCompra: list[0].precio, promedio, nMuestras: list.length });
+  }
+  return res;
 }
 
 export async function getProductosProveedor(

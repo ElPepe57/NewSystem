@@ -6,7 +6,8 @@ import { EmptyDashboardSkeleton } from '../../../design-system';
 // chk5.COMERCIALES-F3c · Tab Inteligencia del hub de Compras · vista AGREGADA de compra.
 // Eleva sin duplicar el Resumen (que da concentración por proveedor + FX). Aquí:
 // ranking de SKUs por gasto, variación de precios por SKU, competitividad por proveedor.
-// El análisis profundo por-SKU vive en PriceAdvisor (wizard) y en /intel-productos.
+// F3: la referencia de precio por SKU se muestra inline al crear una OC (wizard · StepProductos);
+// el análisis de costo profundo vive en Cost Intelligence (/intel-productos).
 
 interface Props {
   ordenes: OrdenCompra[];
@@ -207,7 +208,7 @@ export const TabInteligenciaCompras: React.FC<Props> = ({ ordenes, proveedores, 
             <ArrowUpRight className="w-4 h-4 text-indigo-600 flex-shrink-0" />
           </a>
           <div className="bg-gradient-to-r from-blue-50 to-blue-100/20 border border-blue-200 rounded-lg p-3 flex items-center justify-between">
-            <div><div className="text-[12px] font-bold text-slate-900">Price Advisor</div><div className="text-[11px] text-blue-700">asesor de precio por SKU al crear una OC (en el wizard)</div></div>
+            <div><div className="text-[12px] font-bold text-slate-900">Referencia de precio</div><div className="text-[11px] text-blue-700">al cargar el precio en una OC: última compra · promedio · investigado (inline en el wizard)</div></div>
             <BrainCircuit className="w-4 h-4 text-blue-600 flex-shrink-0" />
           </div>
         </div>

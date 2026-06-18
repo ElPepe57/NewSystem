@@ -9,6 +9,12 @@ import {
   X,
   Info,
   Layers,
+  Pill,
+  Sparkles,
+  History,
+  Check,
+  TrendingUp,
+  ArrowDownLeft,
 } from 'lucide-react';
 import { cn } from '../../../../design-system';
 import type { OCWizardState } from './ocWizardTypes';
@@ -18,9 +24,26 @@ import { ProductoAutocomplete } from '../../entidades/ProductoAutocomplete';
 import type { ProductoSnapshot } from '../../entidades/ProductoAutocomplete';
 import { buildProductoSnapshot, getDescripcionProducto } from '../../../../utils/producto.helpers';
 import { useProductoStore } from '../../../../store/productoStore';
+import { useOrdenCompraStore } from '../../../../store/ordenCompraStore';
 import { BarcodeScanner } from '../../../common/BarcodeScanner';
-import { getEmojiPorProducto } from './productoEmoji';
 import { ProductoService } from '../../../../services/producto.service';
+// F3 · referencia de precio inline (histórico en-memoria · sin emojis · canon)
+import { getReferenciaPreciosEnMemoria } from '../../../../services/ordenCompra.stats.service';
+
+// Referencia de precio que recibe cada fila (histórico + investigado del catálogo)
+interface ReferenciaPrecio {
+  ultimaCompra: number | null;
+  promedio: number | null;
+  investigado: number | null;
+  nMuestras: number;
+}
+
+// Ícono tonal por línea (reemplaza el emoji · canon F8 · espejo de ProductoDisplay)
+function iconoDeProducto(p: { atributosSkincare?: unknown; presentacion?: string; dosaje?: string; lineaNegocio?: string }) {
+  if (p.atributosSkincare) return { Icon: Sparkles, bg: 'bg-pink-50', text: 'text-pink-600' };
+  if (p.presentacion || p.dosaje || p.lineaNegocio === 'SUP') return { Icon: Pill, bg: 'bg-teal-50', text: 'text-teal-600' };
+  return { Icon: Package, bg: 'bg-slate-100', text: 'text-slate-500' };
+}
 
 // ════════════════════════════════════════════════════════════════════════════
 // StepProductos — Paso 2 OCWizardV3 (reescritura alineada al mockup S40)
@@ -50,13 +73,17 @@ export const StepProductos: React.FC<StepProductosProps> = ({ state, dispatch })
   const productos = useProductoStore((s) => s.productos);
   const fetchProductos = useProductoStore((s) => s.fetchProductos);
   const loadingProductos = useProductoStore((s) => s.loading);
+  // F3 · histórico de OCs para la referencia de precio inline (en-memoria desde el store)
+  const ordenes = useOrdenCompraStore((s) => s.ordenes);
+  const fetchOrdenes = useOrdenCompraStore((s) => s.fetchOrdenes);
 
   const [searchVisible, setSearchVisible] = useState(false);
   const [scannerVisible, setScannerVisible] = useState(false);
 
-  // Cargar catálogo al montar
+  // Cargar catálogo + historial de OCs al montar (para la referencia de precio)
   useEffect(() => {
     if (productos.length === 0) fetchProductos();
+    if (ordenes.length === 0) fetchOrdenes();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -76,6 +103,20 @@ export const StepProductos: React.FC<StepProductosProps> = ({ state, dispatch })
     const addedIds = new Set(state.productos.map((p) => p.productoId));
     return productos.filter((p) => !addedIds.has(p.id));
   }, [productos, state.productos]);
+
+  // F3 · Referencia de precio por SKU: histórico (OCs en-memoria) + investigado (catálogo)
+  const referencias = useMemo(() => {
+    const ids = state.productos.map((p) => p.productoId).filter(Boolean) as string[];
+    const hist = getReferenciaPreciosEnMemoria(ids, ordenes);
+    const map = new Map<string, ReferenciaPrecio>();
+    for (const id of ids) {
+      const h = hist.get(id) ?? { ultimaCompra: null, promedio: null, nMuestras: 0 };
+      const cat = productos.find((c) => c.id === id);
+      const inv = cat?.investigacion?.precioUSAPromedio ?? null;
+      map.set(id, { ...h, investigado: inv && inv > 0 ? inv : null });
+    }
+    return map;
+  }, [state.productos, ordenes, productos]);
 
   // ─── Handlers ───────────────────────────────────────────────────────────
   const handleAddFromAutocomplete = (snap: ProductoSnapshot | null) => {
@@ -284,6 +325,7 @@ export const StepProductos: React.FC<StepProductosProps> = ({ state, dispatch })
               <ProductoFila
                 key={`${p.productoId}-${idx}`}
                 producto={p}
+                referenciaPrecio={referencias.get(p.productoId)}
                 onUpdateCantidad={(c) => handleUpdateCantidad(idx, c)}
                 onUpdateCosto={(c) => handleUpdateCosto(idx, c)}
                 onRemove={() => handleRemove(idx)}
@@ -347,115 +389,181 @@ export const StepProductos: React.FC<StepProductosProps> = ({ state, dispatch })
 
 const ProductoFila: React.FC<{
   producto: ProductoOrden;
+  referenciaPrecio?: ReferenciaPrecio;
   onUpdateCantidad: (cantidad: number) => void;
   onUpdateCosto: (costo: number) => void;
   onRemove: () => void;
-}> = ({ producto, onUpdateCantidad, onUpdateCosto, onRemove }) => {
-  const emoji = getEmojiPorProducto(producto);
+}> = ({ producto, referenciaPrecio, onUpdateCantidad, onUpdateCosto, onRemove }) => {
+  const ico = iconoDeProducto(producto);
+  const Ico = ico.Icon;
   const descripcion = getDescripcionProducto(producto);
-  const subtotalFila =
-    (producto.cantidad || 0) * (producto.costoUnitario || 0);
+  const subtotalFila = (producto.cantidad || 0) * (producto.costoUnitario || 0);
+
+  // F3 · referencia de precio inline
+  const ref = referenciaPrecio;
+  const costo = producto.costoUnitario || 0;
+  const tieneRef =
+    !!ref && (ref.ultimaCompra != null || ref.promedio != null || ref.investigado != null);
+  const sugerido = ref?.investigado ?? ref?.ultimaCompra ?? null;
+  const base = ref?.promedio ?? ref?.investigado ?? null;
+  const deltaPct = base && costo > 0 ? ((costo - base) / base) * 100 : null;
+  const sobrePrecio = deltaPct != null && deltaPct > 2;
 
   return (
-    <div className="px-4 py-3 flex items-center gap-3 hover:bg-slate-50 transition-colors">
-      {/* Emoji tematizado */}
-      <div
-        className={cn(
-          'w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0',
-          emoji.bgClass
-        )}
-      >
-        <span className="text-lg">{emoji.emoji}</span>
-      </div>
-
-      {/* Nombre + metadata */}
-      <div className="flex-1 min-w-0">
-        <div className="font-medium text-slate-900 text-sm truncate">
-          {producto.nombreComercial}
+    <div className="px-4 pt-3 pb-2.5 hover:bg-slate-50 transition-colors">
+      <div className="flex items-center gap-3">
+        {/* Ícono tonal por línea (canon F8 · sin emoji) */}
+        <div className={cn('w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0', ico.bg, ico.text)}>
+          <Ico className="w-5 h-5" />
         </div>
-        <div className="text-xs text-slate-500 flex items-center gap-1.5 flex-wrap mt-0.5">
-          <span className="font-mono">{producto.sku}</span>
-          {producto.marca && (
-            <>
-              <span>·</span>
-              <span className="px-1.5 py-0.5 bg-sky-50 text-sky-700 rounded text-[10px] font-medium">
-                {producto.marca}
-              </span>
-            </>
-          )}
-          {descripcion && (
-            <>
-              <span>·</span>
-              <span className="text-slate-600">
-                <strong>{descripcion}</strong>
-              </span>
-            </>
-          )}
+
+        {/* Nombre + metadata */}
+        <div className="flex-1 min-w-0">
+          <div className="font-medium text-slate-900 text-sm truncate">
+            {producto.nombreComercial}
+          </div>
+          <div className="text-xs text-slate-500 flex items-center gap-1.5 flex-wrap mt-0.5">
+            <span className="font-mono">{producto.sku}</span>
+            {producto.marca && (
+              <>
+                <span>·</span>
+                <span className="px-1.5 py-0.5 bg-sky-50 text-sky-700 rounded text-[10px] font-medium">
+                  {producto.marca}
+                </span>
+              </>
+            )}
+            {descripcion && (
+              <>
+                <span>·</span>
+                <span className="text-slate-600">
+                  <strong>{descripcion}</strong>
+                </span>
+              </>
+            )}
+          </div>
         </div>
-      </div>
 
-      {/* Stepper cantidad ± */}
-      <div className="flex items-center bg-slate-100 rounded-lg flex-shrink-0">
-        <button
-          type="button"
-          onClick={() => onUpdateCantidad(Math.max(0, (producto.cantidad || 0) - 1))}
-          className="px-2 py-1 text-slate-500 hover:bg-slate-200 rounded-l-lg"
-          aria-label="Disminuir"
-        >
-          <Minus className="w-3 h-3" />
-        </button>
-        <input
-          type="number"
-          value={producto.cantidad || 0}
-          onChange={(e) => onUpdateCantidad(Number(e.target.value) || 0)}
-          className="w-12 text-center text-sm bg-transparent border-0 focus:ring-0 tabular-nums"
-          min={0}
-        />
-        <button
-          type="button"
-          onClick={() => onUpdateCantidad((producto.cantidad || 0) + 1)}
-          className="px-2 py-1 text-slate-500 hover:bg-slate-200 rounded-r-lg"
-          aria-label="Aumentar"
-        >
-          <Plus className="w-3 h-3" />
-        </button>
-      </div>
-
-      {/* Input precio */}
-      <div className="text-right w-20 flex-shrink-0">
-        <div className="text-xs text-slate-500">USD/u</div>
-        <div className="relative">
-          <span className="absolute left-1 top-1/2 -translate-y-1/2 text-xs text-slate-400">
-            $
-          </span>
+        {/* Stepper cantidad ± */}
+        <div className="flex items-center bg-slate-100 rounded-lg flex-shrink-0">
+          <button
+            type="button"
+            onClick={() => onUpdateCantidad(Math.max(0, (producto.cantidad || 0) - 1))}
+            className="px-2 py-1 text-slate-500 hover:bg-slate-200 rounded-l-lg"
+            aria-label="Disminuir"
+          >
+            <Minus className="w-3 h-3" />
+          </button>
           <input
             type="number"
-            value={producto.costoUnitario || 0}
-            onChange={(e) => onUpdateCosto(Number(e.target.value) || 0)}
-            step="0.01"
+            value={producto.cantidad || 0}
+            onChange={(e) => onUpdateCantidad(Number(e.target.value) || 0)}
+            className="w-12 text-center text-sm bg-transparent border-0 focus:ring-0 tabular-nums"
             min={0}
-            className="w-full pl-4 pr-1 text-right text-sm font-semibold text-slate-900 border border-transparent focus:border-slate-300 rounded tabular-nums focus:outline-none focus:bg-white"
           />
+          <button
+            type="button"
+            onClick={() => onUpdateCantidad((producto.cantidad || 0) + 1)}
+            className="px-2 py-1 text-slate-500 hover:bg-slate-200 rounded-r-lg"
+            aria-label="Aumentar"
+          >
+            <Plus className="w-3 h-3" />
+          </button>
         </div>
+
+        {/* Input precio */}
+        <div className="text-right w-20 flex-shrink-0">
+          <div className="text-xs text-slate-500">USD/u</div>
+          <div className="relative">
+            <span className="absolute left-1 top-1/2 -translate-y-1/2 text-xs text-slate-400">$</span>
+            <input
+              type="number"
+              value={producto.costoUnitario || 0}
+              onChange={(e) => onUpdateCosto(Number(e.target.value) || 0)}
+              step="0.01"
+              min={0}
+              className={cn(
+                'w-full pl-4 pr-1 text-right text-sm font-semibold text-slate-900 border rounded tabular-nums focus:outline-none focus:bg-white',
+                sobrePrecio
+                  ? 'border-amber-300 bg-amber-50/40 focus:border-amber-400'
+                  : 'border-transparent focus:border-slate-300',
+              )}
+            />
+          </div>
+        </div>
+
+        {/* Subtotal */}
+        <div className="text-right w-20 flex-shrink-0">
+          <div className="text-xs text-slate-500">Subtotal</div>
+          <div className="text-sm font-bold text-blue-700 tabular-nums">
+            ${subtotalFila.toFixed(2)}
+          </div>
+        </div>
+
+        {/* Trash */}
+        <button
+          type="button"
+          onClick={onRemove}
+          className="p-1 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors flex-shrink-0"
+          aria-label="Eliminar"
+        >
+          <Trash2 className="w-4 h-4" />
+        </button>
       </div>
 
-      {/* Subtotal */}
-      <div className="text-right w-20 flex-shrink-0">
-        <div className="text-xs text-slate-500">Subtotal</div>
-        <div className="text-sm font-bold text-blue-700 tabular-nums">
-          ${subtotalFila.toFixed(2)}
+      {/* F3 · Referencia de precio inline (sin sidebar · canon · histórico + investigado) */}
+      {ref && (
+        <div className="mt-1.5 ml-[52px] flex items-center gap-2 text-[10px] flex-wrap">
+          {tieneRef ? (
+            <>
+              <span className="inline-flex items-center gap-1 text-slate-400 font-semibold uppercase tracking-wider">
+                <History className="w-3 h-3" />Referencia
+              </span>
+              {ref.ultimaCompra != null && (
+                <span className="text-slate-500">últ <b className="text-slate-700 tabular-nums">${ref.ultimaCompra.toFixed(0)}</b></span>
+              )}
+              {ref.promedio != null && (
+                <>
+                  <span className="text-slate-300">·</span>
+                  <span className="text-slate-500">prom <b className="text-slate-700 tabular-nums">${ref.promedio.toFixed(0)}</b></span>
+                </>
+              )}
+              {ref.investigado != null && (
+                <>
+                  <span className="text-slate-300">·</span>
+                  <span className="text-slate-500">invest <b className="text-slate-700 tabular-nums">${ref.investigado.toFixed(0)}</b></span>
+                </>
+              )}
+              {costo === 0 && sugerido != null && (
+                <button
+                  type="button"
+                  onClick={() => onUpdateCosto(Number(sugerido.toFixed(2)))}
+                  className="inline-flex items-center gap-1 ml-1 text-blue-700 font-bold bg-blue-100 hover:bg-blue-200 rounded px-1.5 py-0.5"
+                >
+                  <ArrowDownLeft className="w-3 h-3" />usar ${sugerido.toFixed(0)}
+                </button>
+              )}
+              {costo > 0 && deltaPct != null && (
+                sobrePrecio ? (
+                  <span className="inline-flex items-center gap-1 text-amber-600 font-bold ml-1">
+                    <TrendingUp className="w-3 h-3" />+{Math.round(deltaPct)}% vs prom · caro
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center gap-1 text-emerald-600 font-bold ml-1">
+                    <Check className="w-3 h-3" />{deltaPct < -2 ? `${Math.round(deltaPct)}% vs prom` : 'en rango'}
+                  </span>
+                )
+              )}
+            </>
+          ) : (
+            <>
+              <span className="inline-flex items-center gap-1 text-slate-300 font-semibold uppercase tracking-wider">
+                <History className="w-3 h-3" />Referencia
+              </span>
+              <span className="text-slate-400 italic">sin histórico · primera compra de este SKU</span>
+            </>
+          )}
         </div>
-      </div>
-
-      {/* Trash */}
-      <button
-        type="button"
-        onClick={onRemove}
-        className="p-1 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors flex-shrink-0"
-        aria-label="Eliminar"
-      >
-        <Trash2 className="w-4 h-4" />
-      </button>
+      )}
     </div>
   );
 };
