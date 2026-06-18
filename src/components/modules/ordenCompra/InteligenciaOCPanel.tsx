@@ -179,7 +179,7 @@ export const InteligenciaOCPanel: React.FC<InteligenciaOCPanelProps> = ({ orden 
   return (
     <div className="space-y-4">
       {/* Context banner */}
-      <div className="p-3 bg-purple-50 border border-purple-200 rounded-lg text-xs text-purple-900 flex items-start gap-2">
+      <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg text-xs text-blue-900 flex items-start gap-2">
         <Brain className="w-4 h-4 mt-0.5 flex-shrink-0" />
         <div>
           Análisis cruzado con <b>{sla?.ocsAnalizadas || 0} OCs históricas</b> de{' '}
@@ -214,8 +214,8 @@ const WidgetSLA: React.FC<{ sla: SLAProveedor | null }> = ({ sla }) => {
   const ratioOK = sla?.ratioIncidencias === null || (sla?.ratioIncidencias ?? 0) < 5;
   const healthyBadge =
     leadOK && ratioOK
-      ? { label: '🟢 Al día', color: 'bg-emerald-100 text-emerald-700' }
-      : { label: '🟡 Monitorear', color: 'bg-amber-100 text-amber-700' };
+      ? { label: 'Al día', color: 'bg-emerald-100 text-emerald-700' }
+      : { label: 'Monitorear', color: 'bg-amber-100 text-amber-700' };
 
   return (
     <Widget
@@ -250,10 +250,10 @@ const WidgetPrecios: React.FC<{ precios: PrecioVsHistorico[] }> = ({ precios }) 
 
   const badge =
     subio.length > bajo.length
-      ? { label: '🔴 Subió en promedio', color: 'bg-red-100 text-red-700' }
+      ? { label: 'Subió en promedio', color: 'bg-rose-100 text-rose-700' }
       : bajo.length > subio.length
-        ? { label: '🟢 Bajó en promedio', color: 'bg-emerald-100 text-emerald-700' }
-        : { label: '🟡 Estable', color: 'bg-slate-100 text-slate-700' };
+        ? { label: 'Bajó en promedio', color: 'bg-emerald-100 text-emerald-700' }
+        : { label: 'Estable', color: 'bg-slate-100 text-slate-700' };
 
   return (
     <Widget
@@ -314,10 +314,10 @@ const WidgetFX: React.FC<{
   const badge = sinFX
     ? undefined
     : pctAbs < 1
-      ? { label: '🟢 Estable', color: 'bg-emerald-100 text-emerald-700' }
+      ? { label: 'Estable', color: 'bg-emerald-100 text-emerald-700' }
       : pctAbs < 3
-        ? { label: '🟡 Leve variación', color: 'bg-amber-100 text-amber-700' }
-        : { label: '🔴 Volátil', color: 'bg-red-100 text-red-700' };
+        ? { label: 'Leve variación', color: 'bg-amber-100 text-amber-700' }
+        : { label: 'Volátil', color: 'bg-rose-100 text-rose-700' };
 
   return (
     <Widget
@@ -371,17 +371,17 @@ const WidgetRanking: React.FC<{ ranking: PrecioVsHistorico[] }> = ({ ranking }) 
       ) : (
         <div className="space-y-1 text-xs">
           {ranking.slice(0, 3).map((p, i) => {
-            const medalla = i === 0 ? '🥇' : i === 1 ? '🥈' : '🥉';
             const esGanador = (p.variacionPct ?? 0) < -1;
             return (
               <div key={p.productoId} className="flex items-center justify-between gap-2">
                 <span
                   className={cn(
-                    'truncate flex-1',
+                    'truncate flex-1 inline-flex items-center gap-1.5',
                     esGanador ? 'text-emerald-700 font-semibold' : 'text-slate-700'
                   )}
                 >
-                  {medalla} {p.nombre}
+                  <span className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-slate-100 text-slate-600 text-[9px] font-bold flex-shrink-0">{i + 1}</span>
+                  {p.nombre}
                 </span>
                 <span
                   className={cn(
