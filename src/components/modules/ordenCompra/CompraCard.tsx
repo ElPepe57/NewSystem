@@ -183,7 +183,9 @@ export const CompraCard: React.FC<CompraCardProps> = ({
       envioConCasilla?.destinoCasillaNombre ||
       orden.nombreAlmacenDestino ||
       'Casilla';
-  const destinoPais = esDDP ? 'Peru' : envioConCasilla?.destinoCasillaPais || orden.paisOrigen;
+  // Destino: NO cae a paisOrigen (eso es el país del proveedor · pintaría 'origen → origen').
+  // Si la casilla es desconocida, paisCodigo(undefined) muestra '—' (honesto).
+  const destinoPais = esDDP ? 'Peru' : envioConCasilla?.destinoCasillaPais;
 
   const ruta = (
     <span className="inline-flex items-center gap-1">
@@ -231,6 +233,7 @@ export const CompraCard: React.FC<CompraCardProps> = ({
         key={sub.id || `sub-${idx}`}
         sub={sub}
         onClick={onVerSubOrden ? () => onVerSubOrden(sub.id) : undefined}
+        onRegistrarPago={onRegistrarPagoSubOrden ? () => onRegistrarPagoSubOrden(sub.id) : undefined}
       />
     ));
     return (
@@ -241,7 +244,7 @@ export const CompraCard: React.FC<CompraCardProps> = ({
         title={orden.nombreProveedor}
         meta={
           <span className="inline-flex items-center gap-1.5">
-            <span className="inline-flex items-center gap-1 font-medium text-blue-700">
+            <span className="inline-flex items-center gap-1 font-medium text-slate-600">
               <Layers className="w-2.5 h-2.5" /> {subOrdenes.length} sub-órdenes
             </span>
             {sep} {pagoMeta(estadoPago, pct)} {sep}
@@ -298,8 +301,22 @@ const SUB_ESTADO: Record<string, { dot: string; label: string; variant: StatusVa
   recibida: { dot: 'bg-emerald-500', label: 'Recibida', variant: 'success' },
 };
 
-const SubFila: React.FC<{ sub: SubOrdenCompra; onClick?: () => void }> = ({ sub, onClick }) => {
+// Pago de la sub-orden · eje de DATO distinto al estado logístico → paleta semántica
+// (no viola la gobernanza de color · igual que pagoMeta a nivel OC).
+const SUB_PAGO: Record<string, { dot: string; text: string; label: string }> = {
+  pagado: { dot: 'bg-emerald-500', text: 'text-emerald-600', label: 'Pagada' },
+  parcial: { dot: 'bg-amber-500', text: 'text-amber-600', label: 'Parcial' },
+  pendiente: { dot: 'bg-rose-500', text: 'text-rose-600', label: 'Sin pago' },
+};
+
+const SubFila: React.FC<{ sub: SubOrdenCompra; onClick?: () => void; onRegistrarPago?: () => void }> = ({
+  sub,
+  onClick,
+  onRegistrarPago,
+}) => {
   const e = SUB_ESTADO[sub.estado ?? 'borrador'] ?? SUB_ESTADO.borrador;
+  const pg = SUB_PAGO[sub.estadoPago ?? 'pendiente'] ?? SUB_PAGO.pendiente;
+  const pagada = sub.estadoPago === 'pagado';
   const prods = sub.productos
     .slice(0, 2)
     .map((p) => p.nombreComercial)
@@ -309,14 +326,23 @@ const SubFila: React.FC<{ sub: SubOrdenCompra; onClick?: () => void }> = ({ sub,
     <HubCardSubRow
       dotColor={e.dot}
       label={
-        <span className="truncate">
+        <span className="truncate inline-flex items-center gap-1.5">
           <b className="font-mono">{sub.id}</b>
-          {sub.envioNumero && <span className="text-slate-400 font-mono"> → {sub.envioNumero}</span>}
-          {prods && <span className="text-slate-500"> · {prods}{extra}</span>}
+          {sub.envioNumero && <span className="text-slate-400 font-mono">→ {sub.envioNumero}</span>}
+          <span className={`inline-flex items-center gap-1 font-medium ${pg.text}`}>
+            <span className={`w-1.5 h-1.5 rounded-full ${pg.dot}`} />
+            {pg.label}
+          </span>
+          {prods && <span className="text-slate-500">· {prods}{extra}</span>}
         </span>
       }
       status={{ label: e.label, variant: e.variant }}
       amount={`$${sub.totalUSD.toFixed(2)}`}
+      actions={
+        onRegistrarPago && !pagada ? (
+          <IconBtn icon={DollarSign} title="Registrar pago sub-orden" tone="emerald" onClick={onRegistrarPago} />
+        ) : undefined
+      }
       onClick={onClick}
     />
   );

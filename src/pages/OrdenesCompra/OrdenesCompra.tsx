@@ -354,11 +354,27 @@ export const OrdenesCompra: React.FC = () => {
     return sorted;
   }, [ordenesLN, filtroEstado, filtroProveedor, filtroEstadoPago, busquedaGlobal, sortValue]);
 
-  // Reset paginación + selección cuando cambian filtros
+  // Reset paginación cuando cambian filtros (incl. línea · OC-POB-1)
   useEffect(() => {
     setItemsVisibles(10);
-    setSelectedIds(new Set());
-  }, [filtroEstado, filtroProveedor, filtroEstadoPago, busquedaGlobal]);
+  }, [filtroEstado, filtroProveedor, filtroEstadoPago, busquedaGlobal, lineaFiltroGlobal]);
+
+  // Reconciliar selección ↔ lista visible · depura IDs huérfanos por CUALQUIER causa
+  // (cambio de filtro/línea, cambio de estado de una OC, etc.) · OC-POB-2/3. Preserva
+  // selecciones que siguen visibles (mejor UX que limpiar todo al filtrar).
+  useEffect(() => {
+    setSelectedIds((prev) => {
+      if (prev.size === 0) return prev;
+      const visibles = new Set(ordenesFiltradas.map((o) => o.id));
+      let cambio = false;
+      const next = new Set<string>();
+      prev.forEach((id) => {
+        if (visibles.has(id)) next.add(id);
+        else cambio = true;
+      });
+      return cambio ? next : prev;
+    });
+  }, [ordenesFiltradas]);
 
   // Cargar datos al montar
   useEffect(() => {
@@ -1025,7 +1041,7 @@ export const OrdenesCompra: React.FC = () => {
               {
                 icon: Download,
                 label: 'Exportar',
-                onClick: () => exportService.exportOrdenesCompra(ordenes.filter((o) => selectedIds.has(o.id))),
+                onClick: () => exportService.exportOrdenesCompra(ordenesFiltradas.filter((o) => selectedIds.has(o.id))),
               },
             ]}
           />

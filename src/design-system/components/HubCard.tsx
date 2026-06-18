@@ -223,8 +223,10 @@ export const HubCardSubRow: React.FC<{
   label: React.ReactNode;
   status?: { label: string; variant: StatusVariant };
   amount?: React.ReactNode;
+  /** Acciones a la derecha (botones icónicos). Detienen la propagación del onClick de la fila. */
+  actions?: React.ReactNode;
   onClick?: () => void;
-}> = ({ dotColor = 'bg-slate-400', label, status, amount, onClick }) => (
+}> = ({ dotColor = 'bg-slate-400', label, status, amount, actions, onClick }) => (
   <div
     className={cn('px-3.5 py-2.5 flex items-center gap-3 text-[12px]', onClick && 'cursor-pointer hover:bg-slate-50')}
     onClick={onClick}
@@ -233,5 +235,6 @@ export const HubCardSubRow: React.FC<{
     <span className="text-slate-700 flex-1 min-w-0 truncate">{label}</span>
     {status && <StatusBadge variant={status.variant}>{status.label}</StatusBadge>}
     {amount && <span className="tabular-nums text-slate-600 flex-shrink-0">{amount}</span>}
+    {actions && <div className="flex-shrink-0" onClick={(e) => e.stopPropagation()}>{actions}</div>}
   </div>
 );
