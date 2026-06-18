@@ -339,14 +339,14 @@ export const SubOrdenDetailModal: React.FC<SubOrdenDetailModalProps> = ({
                     label="Ruta"
                     value={
                       envio
-                        ? `${getFlag(envio.origenProveedorPais)} ${
+                        ? `${codigoPais(envio.origenProveedorPais)} ${
                             envio.origenProveedorNombre ??
                             envio.origenCasillaNombre ??
                             'Origen'
-                          } → ${getFlag(envio.destinoCasillaPais)} ${
+                          } → ${codigoPais(envio.destinoCasillaPais)} ${
                             envio.destinoCasillaNombre ?? 'Destino'
                           }`
-                        : `${getFlag(orden.paisOrigen)} → 🇵🇪`
+                        : `${codigoPais(orden.paisOrigen)} → PE`
                     }
                   />
                   <InfoItem
@@ -671,23 +671,24 @@ const CargoDesgloseRow: React.FC<{
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
-function getFlag(pais?: string): string {
-  if (!pais) return '🌐';
-  const flags: Record<string, string> = {
-    USA: '🇺🇸',
-    'Estados Unidos': '🇺🇸',
-    CHINA: '🇨🇳',
-    China: '🇨🇳',
-    COREA: '🇰🇷',
-    Corea: '🇰🇷',
-    'Corea del Sur': '🇰🇷',
-    JAPÓN: '🇯🇵',
-    Japón: '🇯🇵',
-    MÉXICO: '🇲🇽',
-    México: '🇲🇽',
-    PERÚ: '🇵🇪',
-    Perú: '🇵🇪',
-    Peru: '🇵🇪',
+// Código de país de 2 letras (reemplaza banderas emoji · canon F8 · espejo de CompraCard).
+function codigoPais(pais?: string): string {
+  if (!pais) return '—';
+  const codigos: Record<string, string> = {
+    USA: 'US',
+    'Estados Unidos': 'US',
+    CHINA: 'CN',
+    China: 'CN',
+    COREA: 'KR',
+    Corea: 'KR',
+    'Corea del Sur': 'KR',
+    JAPÓN: 'JP',
+    Japón: 'JP',
+    MÉXICO: 'MX',
+    México: 'MX',
+    PERÚ: 'PE',
+    Perú: 'PE',
+    Peru: 'PE',
   };
-  return flags[pais] ?? '🌐';
+  return codigos[pais] ?? pais.slice(0, 2).toUpperCase();
 }

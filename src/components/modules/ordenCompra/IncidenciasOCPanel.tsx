@@ -141,7 +141,7 @@ export const IncidenciasOCPanel: React.FC<IncidenciasOCPanelProps> = ({ orden })
                 key={tipo}
                 active={filtroTipo === tipo}
                 onClick={() => setFiltroTipo(tipo)}
-                label={`${meta.emoji} ${meta.label}`}
+                label={meta.label}
                 count={contadores.porTipo[tipo] || 0}
               />
             );
@@ -305,7 +305,7 @@ const IncidenciaRow: React.FC<{
               {estadoMeta.label}
             </span>
             <span className={cn('text-[10px] px-1.5 py-0.5 rounded font-medium', tipoMeta.colorClass)}>
-              {tipoMeta.emoji} {tipoMeta.label}
+              {tipoMeta.label}
             </span>
             <span className="text-[10px] text-slate-500 font-mono">{incidencia.numero}</span>
           </div>
@@ -360,7 +360,7 @@ const IncidenciaRow: React.FC<{
                       key={acc.id}
                       className="flex items-start gap-2 p-2 bg-white/70 rounded border border-slate-100 text-xs"
                     >
-                      <span className="text-base">{accMeta.emoji}</span>
+                      <span className="w-1.5 h-1.5 rounded-full bg-slate-300 mt-1.5 flex-shrink-0" />
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-1 flex-wrap">
                           <span className="font-semibold">{accMeta.label}</span>
@@ -532,7 +532,7 @@ const NuevaIncidenciaForm: React.FC<{
           >
             {(Object.keys(TIPO_INCIDENCIA_OC_META) as TipoIncidenciaOC[]).map((t) => (
               <option key={t} value={t}>
-                {TIPO_INCIDENCIA_OC_META[t].emoji} {TIPO_INCIDENCIA_OC_META[t].label}
+                {TIPO_INCIDENCIA_OC_META[t].label}
               </option>
             ))}
           </select>
@@ -628,7 +628,7 @@ const AgregarAccionForm: React.FC<{
           >
             {(Object.keys(TIPO_ACCION_META) as TipoAccionIncidenciaOC[]).map((t) => (
               <option key={t} value={t}>
-                {TIPO_ACCION_META[t].emoji} {TIPO_ACCION_META[t].label}
+                {TIPO_ACCION_META[t].label}
               </option>
             ))}
           </select>
