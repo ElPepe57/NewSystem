@@ -2,6 +2,8 @@ import React, { useEffect, useState, useMemo, useRef } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { Plus, Package, DollarSign, AlertCircle, Download, ExternalLink, FileText, Truck, CheckCircle, CreditCard, Building2, ShoppingCart, LayoutDashboard, ClipboardList, BrainCircuit } from 'lucide-react';
 import { Modal, useConfirmDialog, ConfirmDialog, useActionModal, ActionModal } from '../../components/common';
+// Control GLOBAL de línea de negocio (canon · va en el chrome del header · OC-POB-4)
+import { LineaDropdown } from '../../components/common/LineaDropdown';
 // chk5.COMERCIALES-F1 · Compras re-construido como hub del kit (grupo Comercial = blue)
 import { HubShell, HubTopBar, HubHeader, HubKpiStrip, HubTabs, HubBody, HubCard, FiltrosBar, BulkActionsToolbar } from '../../design-system';
 import type { StatusVariant, HubTab, HubKpi } from '../../design-system';
@@ -102,7 +104,6 @@ export const OrdenesCompra: React.FC = () => {
   // S42al — Líneas de negocio para dropdown de filtro (mockup S40 L248-250)
   const lineasActivas = useLineaNegocioStore((s) => s.lineasActivas);
   const lineaFiltroGlobal = useLineaNegocioStore((s) => s.lineaFiltroGlobal);
-  const setLineaFiltroGlobal = useLineaNegocioStore((s) => s.setLineaFiltroGlobal);
   const fetchLineasActivas = useLineaNegocioStore((s) => s.fetchLineasActivas);
   useEffect(() => {
     if (lineasActivas.length === 0) fetchLineasActivas();
@@ -931,6 +932,7 @@ export const OrdenesCompra: React.FC = () => {
           icon={ShoppingCart}
           titulo="Compras"
           subtitulo="Órdenes de compra · proveedores · recepción · pagos · inteligencia de precios"
+          extraActions={<LineaDropdown />}
           acciones={[
             { label: 'Exportar', icon: Download, onClick: () => exportService.exportOrdenesCompra(ordenes), tier: 'neutral', disabled: ordenesLN.length === 0 },
             { label: 'Nueva OC', icon: Plus, onClick: () => setIsWizardV2Open(true), tier: 'primary', disabled: proveedoresActivos.length === 0 },
@@ -990,23 +992,14 @@ export const OrdenesCompra: React.FC = () => {
                   { value: 'pagado', label: 'Pagado', variant: 'emerald' },
                 ],
               },
-              ...(lineasActivas.length > 0
-                ? [{
-                    key: 'linea',
-                    label: 'Línea',
-                    options: lineasActivas.map((l) => ({ value: l.id, label: l.nombre, variant: 'slate' as const })),
-                  }]
-                : []),
             ]}
             selecciones={{
               etapa: filtroEstado ? [filtroEstado] : [],
               pago: filtroEstadoPago ? [filtroEstadoPago] : [],
-              linea: lineaFiltroGlobal ? [lineaFiltroGlobal] : [],
             }}
             onChipToggle={(groupKey, value) => {
               if (groupKey === 'etapa') setFiltroEstado(filtroEstado === value ? null : value);
               else if (groupKey === 'pago') setFiltroEstadoPago(filtroEstadoPago === value ? '' : value);
-              else if (groupKey === 'linea') setLineaFiltroGlobal(lineaFiltroGlobal === value ? null : value);
             }}
             searchTerm={busquedaGlobal}
             searchPlaceholder="Buscar OC, proveedor, tracking…"
@@ -1019,12 +1012,11 @@ export const OrdenesCompra: React.FC = () => {
               { value: 'monto_asc', label: 'Menor monto' },
             ]}
             onSortChange={setSortValue}
-            hayFiltrosActivos={!!(filtroEstado || filtroProveedor || filtroEstadoPago || lineaFiltroGlobal || busquedaGlobal)}
+            hayFiltrosActivos={!!(filtroEstado || filtroProveedor || filtroEstadoPago || busquedaGlobal)}
             onLimpiarTodo={() => {
               setFiltroEstado(null);
               setFiltroProveedor('');
               setFiltroEstadoPago('');
-              setLineaFiltroGlobal(null);
               setBusquedaGlobal('');
             }}
           />
