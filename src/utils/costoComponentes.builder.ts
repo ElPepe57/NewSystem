@@ -92,6 +92,12 @@ export function prorratearLandedAComponentes(
         ambito: esTanda ? 'etapa' : 'envio',
         ...(esTanda ? { tandaId: costo.tandaId } : {}),
         ...(costo.categoriaCostoId ? { categoriaCostoId: costo.categoriaCostoId } : {}),
+        // LLAVE DE IDEMPOTENCIA: marca la procedencia del CostoLanded. Sin esto, el
+        // backfill de confirmación (envio.crud.service.materializarCostoConfirmado) no
+        // reconocería los componentes ya materializados por la recepción y los
+        // DUPLICARÍA. Es invariante de seguridad de plata, no cosmético. Aditivo:
+        // no altera monto ni denominador.
+        ...(costo.id ? { landedCostoId: costo.id } : {}),
         congeladoEn,
       });
     }

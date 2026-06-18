@@ -1,6 +1,6 @@
 import {
   collection, addDoc, getDocs, getDoc, doc, updateDoc,
-  query, where, orderBy, Timestamp, writeBatch
+  query, where, orderBy, Timestamp, writeBatch, type WriteBatch
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { logger } from '../lib/logger';
@@ -18,9 +18,128 @@ import type {
   SubEnvioT1, EstadoSubEnvio,
 } from '../types/envio.types';
 import { TIPOS_ENVIO_INTERNACIONAL } from '../types/envio.types';
+import type { Unidad } from '../types/unidad.types';
+import type { ComponenteCostoUnidad } from '../types/ctru.types';
+import { type ProductoInfo } from '../utils/prorrateoLanded';
+import {
+  buildUnidadesPorTanda,
+  prorratearLandedAComponentes,
+} from '../utils/costoComponentes.builder';
 
 const COLL = COLLECTIONS.ENVIOS;
 const UNIDADES_COLL = COLLECTIONS.UNIDADES;
+const BATCH_LIMIT = 450;
+
+/**
+ * Estados de EnvioUnidad cuyas unidades YA congelaron su componentesCosto[] (pasaron por
+ * una recepción). Solo a estas se les ANEXA por backfill un costo landed tardío; las demás
+ * recogerán su cuota cuando pasen por su propia recepción.
+ */
+const ESTADOS_UNIDAD_CONGELADA: ReadonlyArray<EnvioUnidad['estadoEnvio']> = ['recibida', 'danada'];
+
+/**
+ * Materializa por BACKFILL un único CostoLanded ya 'confirmado' en las unidades del envío
+ * que YA están congeladas (estadoEnvio ∈ {recibida, danada}). APPEND-ONLY + IDEMPOTENTE.
+ *
+ * Reúsa EXACTAMENTE el builder de prorrateo (mismo denominador estable que la recepción) →
+ * no reimplementa el cálculo. Para cada unidad congelada lee su doc FRESCO (los
+ * componentesCosto[] no viven en envio.unidades) y, SI ningún componente existente tiene
+ * `landedCostoId === costo.id`, anexa el nuevo componente dejando los previos intactos
+ * byte a byte. El guard de idempotencia evita duplicar al reabrir+re-confirmar.
+ *
+ * MERMA (decisión del usuario): el denominador del prorrateo scope='envio' es ESTABLE
+ * (todas las unidades del envío). La cuota de una unidad NO congelada (perdida/faltante/
+ * en tránsito) simplemente no se anexa a nadie → esa fracción queda como PÉRDIDA del P&L,
+ * NO se redistribuye a las unidades sanas (no se infla su CTRU).
+ *
+ * Encola los `batch.update` en el `batch` recibido. Si el nº de unidades congeladas a
+ * actualizar excede el límite de Firestore (500 ops/batch, menos el update del envío que
+ * el caller mete en el primer batch), hace flush parcial del batch recibido y continúa en
+ * batches nuevos. Devuelve el WriteBatch "vivo" (el último, donde el caller debe seguir
+ * encolando y hacer el commit final atómico).
+ */
+async function materializarCostoConfirmado(
+  envio: Envio,
+  costo: CostoLanded,
+  now: Timestamp,
+  batch: WriteBatch,
+  opsYaEnBatch: number
+): Promise<{ batch: WriteBatch; ops: number; unidadesAfectadas: number }> {
+  const todasUnidades = envio.unidades;
+  if (todasUnidades.length === 0) {
+    return { batch, ops: opsYaEnBatch, unidadesAfectadas: 0 };
+  }
+
+  // productosInfo: una lectura por productoId único (costoUnitarioUSD real) — igual que
+  // registrarRecepcion, para que total_por_valor/total_por_peso prorrateen bien.
+  const productosInfo = new Map<string, ProductoInfo>();
+  const productoIdsUnicos = Array.from(new Set(todasUnidades.map(u => u.productoId)));
+  for (const pid of productoIdsUnicos) {
+    const primera = todasUnidades.find(u => u.productoId === pid);
+    if (!primera) continue;
+    const snap = await getDoc(doc(db, UNIDADES_COLL, primera.unidadId));
+    if (snap.exists()) {
+      const data = snap.data() as Unidad;
+      productosInfo.set(pid, {
+        costoUSD: data.costoUnitarioUSD || 0,
+        pesoLb: primera.pesoLibras || 0,
+      });
+    }
+  }
+
+  const unidadesPorTanda = buildUnidadesPorTanda(envio.subEnvios, todasUnidades);
+  // UN SOLO costo · el builder decide el universo (scope envio = todas; tanda = su tanda) y
+  // el denominador estable. El componente sale ya con su landedCostoId (Cambio 2).
+  const compsPorUnidad = prorratearLandedAComponentes(
+    [costo],
+    todasUnidades,
+    unidadesPorTanda,
+    productosInfo,
+    now
+  );
+
+  // Particionar por estadoEnvio: solo las CONGELADAS reciben el backfill ahora.
+  const unidadEnvioPorId = new Map(todasUnidades.map(u => [u.unidadId, u]));
+
+  let liveBatch = batch;
+  let ops = opsYaEnBatch;
+  let unidadesAfectadas = 0;
+
+  for (const [unidadId, comps] of compsPorUnidad) {
+    const envioUnidad = unidadEnvioPorId.get(unidadId);
+    if (!envioUnidad) continue;
+    if (!ESTADOS_UNIDAD_CONGELADA.includes(envioUnidad.estadoEnvio)) continue; // omitida → recogerá su cuota al recibirse
+    const nuevoComponente = comps[0];
+    if (!nuevoComponente) continue;
+
+    // Leer el doc FRESCO de la unidad (envio.unidades NO trae componentesCosto[]).
+    const unidadRef = doc(db, UNIDADES_COLL, unidadId);
+    const unidadSnap = await getDoc(unidadRef);
+    if (!unidadSnap.exists()) continue;
+    const unidadData = unidadSnap.data() as Unidad;
+    const existentes = unidadData.componentesCosto || [];
+
+    // IDEMPOTENCIA: si este costo ya fue materializado en la unidad, no duplicar.
+    if (existentes.some(c => c.landedCostoId === costo.id)) continue;
+
+    // APPEND PURO — los componentes previos quedan intactos byte a byte.
+    const nuevos: ComponenteCostoUnidad[] = [...existentes, nuevoComponente];
+
+    // Flush parcial si el batch vivo está por llenarse (reservamos margen para el update
+    // del envío que el caller encola en el primer batch).
+    if (ops >= BATCH_LIMIT) {
+      await liveBatch.commit();
+      liveBatch = writeBatch(db);
+      ops = 0;
+    }
+
+    liveBatch.update(unidadRef, { componentesCosto: nuevos });
+    ops++;
+    unidadesAfectadas++;
+  }
+
+  return { batch: liveBatch, ops, unidadesAfectadas };
+}
 
 /** Elimina recursivamente campos undefined de un objeto (Firestore los rechaza) */
 function removeUndefined<T extends Record<string, unknown>>(obj: T): T {
@@ -277,7 +396,7 @@ export const envioCrudService = {
    * Si el envío ya tiene `costosFinalizados=true`, no se permiten nuevos costos
    * (requiere reabrir con `reabrirCostosLanded()`).
    */
-  async agregarCostoLanded(envioId: string, costo: Omit<CostoLanded, 'id' | 'creadoPor' | 'fechaCreacion'>, userId: string): Promise<void> {
+  async agregarCostoLanded(envioId: string, costo: Omit<CostoLanded, 'id' | 'creadoPor' | 'fechaCreacion'>, userId: string): Promise<string> {
     const envio = await this.getById(envioId);
     if (!envio) throw new Error('Envio no encontrado');
     if (envio.costosFinalizados) {
@@ -320,6 +439,44 @@ export const envioCrudService = {
     logger.info(
       `Costo landed agregado a envio ${envio.numeroEnvio}: ${costo.categoriaCostoNombre} S/${costo.montoPEN.toFixed(2)} · scope=${scope}${costo.tandaId ? ` tanda=${costo.tandaId}` : ''} · estado=${estado}`
     );
+    // Devuelve el id del costo creado (aditivo · callers legacy lo ignoran). Necesario para
+    // que un costo nacido YA 'confirmado' (aduana auto-generada) se pueda materializar.
+    return nuevoCosto.id;
+  },
+
+  /**
+   * Materializa por backfill un CostoLanded YA 'confirmado' que se creó DESPUÉS de que
+   * algunas unidades del envío ya estaban congeladas (caso aduana auto-generada · Cambio 6).
+   *
+   * `agregarCostoLanded` solo muta el doc del envío; cuando el costo nace 'confirmado' tras
+   * una recepción que ya congeló unidades, esas unidades no recibirían el componente. Este
+   * método cierra ese hueco: relee el envío fresco, valida que el costo exista y esté
+   * confirmado, y anexa el componente (append-only + idempotente) a las unidades congeladas,
+   * en una writeBatch atómica. No-op silencioso si no hay unidades congeladas todavía (las
+   * recogerán al recibirse, vía registrarRecepcion sobre costos confirmados · Cambio 3).
+   */
+  async materializarCostoLandedConfirmado(envioId: string, costoId: string, userId: string): Promise<void> {
+    const envio = await this.getById(envioId);
+    if (!envio) throw new Error('Envío no encontrado');
+    const costo = envio.costosLanded.find(c => c.id === costoId);
+    if (!costo) throw new Error(`Costo ${costoId} no encontrado en el envío`);
+    if ((costo.estado ?? 'estimado') !== 'confirmado') {
+      throw new Error(`Costo ${costoId} no está confirmado — no se materializa`);
+    }
+
+    const now = Timestamp.now();
+    let batch = writeBatch(db);
+    const mat = await materializarCostoConfirmado(envio, costo, now, batch, 0);
+    batch = mat.batch;
+    if (mat.unidadesAfectadas > 0) {
+      // Sello de auditoría en el envío + commit conjunto con el backfill.
+      batch.update(doc(db, COLL, envioId), { actualizadoPor: userId, fechaActualizacion: now });
+      await batch.commit();
+      logger.info(
+        `Costo ${costo.categoriaCostoNombre} materializado en ${mat.unidadesAfectadas} unidad(es) congelada(s) del envío ${envio.numeroEnvio}`
+      );
+    }
+    // Si no afectó ninguna, no se commitea nada (no hay write encolado relevante).
   },
 
   /**
@@ -389,15 +546,33 @@ export const envioCrudService = {
     costosActualizados[idx] = costoActualizado;
     const totalPEN = costosActualizados.reduce((sum, c) => sum + c.montoPEN, 0);
 
-    await updateDoc(doc(db, COLL, envioId), {
+    // MATERIALIZACIÓN ATÓMICA (fundación 2026-06-17): el update del envío (estimado→
+    // confirmado) + el backfill del componente en las unidades YA congeladas van en UNA
+    // sola writeBatch. El doc del envío se encola en el PRIMER batch (op #0). El backfill
+    // anexa el componente al monto firme (no al estimado, que nunca se congeló · Cambio 3)
+    // y es idempotente (guard landedCostoId) y append-only (lo congelado es sagrado).
+    const now = Timestamp.now();
+    let batch = writeBatch(db);
+    const envioRef = doc(db, COLL, envioId);
+    batch.update(envioRef, {
       costosLanded: costosActualizados,
       costoLandedTotalPEN: totalPEN,
       actualizadoPor: userId,
-      fechaActualizacion: Timestamp.now(),
+      fechaActualizacion: now,
     });
+    let ops = 1; // el update del envío
+
+    // envio FRESCO ya en memoria (this.getById arriba) — reúsa sus unidades/subEnvios.
+    const mat = await materializarCostoConfirmado(envio, costoActualizado, now, batch, ops);
+    batch = mat.batch;
+    ops = mat.ops;
+
+    await batch.commit();
 
     logger.success(
-      `Costo ${costo.categoriaCostoNombre} confirmado en envío ${envio.numeroEnvio}${datos.facturaReferencia ? ` · factura ${datos.facturaReferencia}` : ''}`
+      `Costo ${costo.categoriaCostoNombre} confirmado en envío ${envio.numeroEnvio}` +
+      `${datos.facturaReferencia ? ` · factura ${datos.facturaReferencia}` : ''}` +
+      ` · backfill a ${mat.unidadesAfectadas} unidad(es) congelada(s)`
     );
   },
 
@@ -1457,49 +1632,84 @@ export const envioCrudService = {
       fechaActualizacion: Timestamp.now(),
     });
 
-    // Si el envio ya fue recibido, propagar flete a las unidades en Firestore
+    // Si el envio ya fue recibido, propagar flete a las unidades CONGELADAS en Firestore.
+    // Cambio 5 (2026-06-17): el flete tardío es otro write-path de costo post-congelación.
+    // ANTES escribía SOLO los escalares ctruInicial/ctruDinamico, que getCTRU (prioridad 0)
+    // IGNORA cuando la unidad tiene componentesCosto[] → fuga de costo idéntica a la del
+    // landed tardío. AHORA materializa un ComponenteCostoUnidad categoria='flete' por
+    // backfill APPEND-ONLY + IDEMPOTENTE. La llave de idempotencia es estable por envío
+    // (`FLETE-ENVIO-{envioId}`) → si el usuario re-edita el flete, la unidad YA congelada
+    // NO se reescribe (lo congelado es sagrado · el primer flete materializado manda; un
+    // cambio de monto exige reabrir/auditar, no mutar el componente). Incluye 'danada'
+    // (antes solo 'recibida'). Las unidades legacy SIN componentesCosto[] mantienen el
+    // fallback escalar (backward-compat).
     const yaRecibida = envio.estado === 'recibida_completa' || envio.estado === 'recibida_parcial';
     if (yaRecibida) {
-      const batch = writeBatch(db);
+      const fleteLandedId = `FLETE-ENVIO-${envioId}`;
+      let batch = writeBatch(db);
       let batchCount = 0;
 
       for (const unidad of unidadesActualizadas) {
-        if (unidad.estadoEnvio !== 'recibida') continue;
+        // Incluir 'danada' además de 'recibida' — ambas ya congelaron componentesCosto[].
+        if (unidad.estadoEnvio !== 'recibida' && unidad.estadoEnvio !== 'danada') continue;
         if (!unidad.costoFleteUSD || unidad.costoFleteUSD <= 0) continue;
 
         const unidadRef = doc(db, UNIDADES_COLL, unidad.unidadId);
         const unidadSnap = await getDoc(unidadRef);
         if (!unidadSnap.exists()) continue;
 
-        const unidadData = unidadSnap.data();
-        const updateData: Record<string, unknown> = {
-          costoFleteUSD: unidad.costoFleteUSD,
-          actualizadoPor: userId,
-          fechaActualizacion: Timestamp.now(),
-        };
-
-        // Recalcular ctruInicial incluyendo flete
+        const unidadData = unidadSnap.data() as Unidad;
         const tc = unidadData.tcPago || unidadData.tcCompra || 0;
-        const costoBasePEN = (unidadData.costoUnitarioUSD || 0) * tc;
         const costoFletePEN = unidad.costoFleteUSD * tc;
-        const nuevoCtruInicial = costoBasePEN + costoFletePEN;
-        updateData.ctruInicial = nuevoCtruInicial;
-        if (!unidadData.costoGAGOAsignado || unidadData.costoGAGOAsignado === 0) {
-          updateData.ctruDinamico = nuevoCtruInicial;
-        }
 
-        batch.update(unidadRef, updateData);
+        const existentes = unidadData.componentesCosto;
+        if (existentes && existentes.length > 0) {
+          // MODELO ADAPTATIVO: anexar componente flete (idempotente por landedCostoId).
+          if (existentes.some(c => c.landedCostoId === fleteLandedId)) continue; // ya materializado
+          const nuevoComponente: ComponenteCostoUnidad = {
+            categoria: 'flete',
+            concepto: 'Flete internacional (asignado tras recepción)',
+            montoPEN: costoFletePEN,
+            montoOrigenUSD: unidad.costoFleteUSD,
+            tc,
+            fuente: 'envio',
+            ambito: 'envio',
+            landedCostoId: fleteLandedId,
+            congeladoEn: Timestamp.now(),
+          };
+          batch.update(unidadRef, {
+            componentesCosto: [...existentes, nuevoComponente],
+            costoFleteUSD: unidad.costoFleteUSD, // trazabilidad (no afecta el CTRU por componentes)
+            actualizadoPor: userId,
+            fechaActualizacion: Timestamp.now(),
+          });
+        } else {
+          // LEGACY (sin componentesCosto[]): fallback escalar como antes.
+          const costoBasePEN = (unidadData.costoUnitarioUSD || 0) * tc;
+          const nuevoCtruInicial = costoBasePEN + costoFletePEN;
+          const updateData: Record<string, unknown> = {
+            costoFleteUSD: unidad.costoFleteUSD,
+            ctruInicial: nuevoCtruInicial,
+            actualizadoPor: userId,
+            fechaActualizacion: Timestamp.now(),
+          };
+          if (!unidadData.costoGAGOAsignado || unidadData.costoGAGOAsignado === 0) {
+            updateData.ctruDinamico = nuevoCtruInicial;
+          }
+          batch.update(unidadRef, updateData);
+        }
         batchCount++;
 
-        if (batchCount >= 490) {
+        if (batchCount >= BATCH_LIMIT) {
           await batch.commit();
+          batch = writeBatch(db);
           batchCount = 0;
         }
       }
 
       if (batchCount > 0) await batch.commit();
 
-      // Trigger recalculo CTRU dinamico si aplica
+      // Trigger recalculo CTRU dinamico si aplica (solo afecta a unidades legacy por escalares).
       try {
         const ctruService = await import('./ctru.service');
         await ctruService.ctruService.recalcularCTRUDinamicoSafe();

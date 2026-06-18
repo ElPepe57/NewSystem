@@ -69,6 +69,18 @@ export interface ComponenteCostoUnidad {
 
   /** Vínculo opcional al árbol de categorías de costo (CategoriaCosto). */
   categoriaCostoId?: string;
+
+  /**
+   * Si el componente nació de un CostoLanded del envío: el `CostoLanded.id` que lo
+   * originó. ES LA LLAVE DE IDEMPOTENCIA del backfill de costos landed tardíos: tanto
+   * el flujo de recepción como la materialización post-confirmación marcan la
+   * procedencia con este id, de modo que un mismo costo NUNCA se congela dos veces en
+   * la misma unidad (guard `componentesCosto.some(c => c.landedCostoId === costo.id)`).
+   * Aditivo · backward-compat: componentes legacy no lo tienen (y un costo sin id queda
+   * sin marcar → se materializa una sola vez por el camino que lo genere).
+   */
+  landedCostoId?: string;
+
   /** Timestamp de la transacción que congeló el componente. */
   congeladoEn?: Timestamp;
 }

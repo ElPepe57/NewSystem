@@ -69,8 +69,21 @@ export const envioRecepcionService = {
     // — así la cuota de cada unidad es igual en cualquier recepción y no se re-toca
     // a las ya congeladas. Los costos scope='tanda' se reparten solo en su tanda.
     // (Arregla además CONT-003 pasando productosInfo real a total_por_valor/peso.)
+    // INVARIANTE DE INMUTABILIDAD (fundación 2026-06-17): solo los costos CONFIRMADOS
+    // se congelan en las unidades. Un costo 'estimado' es un preview financiero (su
+    // monto puede cambiar al llegar la factura firme); si se congelara ahora y luego
+    // cambiara al confirmar, se rompería la inmutabilidad (componente ya escrito ≠
+    // monto firme). Al filtrar aquí, la unidad NUNCA recibe el componente de un
+    // estimado → al confirmarse, el backfill (envio.crud.service.confirmarCostoLanded
+    // → materializarCostoConfirmado) lo materializa al monto CONFIRMADO, sin sub-conteo
+    // del delta. El recojo inline de ESTA recepción (más abajo) es un evento de la
+    // recepción, no un CostoLanded del doc → no se filtra acá.
+    const costosLandedConfirmados = envio.costosLanded.filter(
+      c => (c.estado ?? 'estimado') === 'confirmado'
+    );
+
     const landedComponentesPorUnidad = new Map<string, ComponenteCostoUnidad[]>();
-    if (envio.costosLanded.length > 0) {
+    if (costosLandedConfirmados.length > 0) {
       const todasUnidades = envio.unidades;
 
       // productosInfo leyendo el costoUnitarioUSD real de Firestore (una lectura por
@@ -93,7 +106,7 @@ export const envioRecepcionService = {
 
       const unidadesPorTanda = buildUnidadesPorTanda(envio.subEnvios, todasUnidades);
       const comps = prorratearLandedAComponentes(
-        envio.costosLanded,
+        costosLandedConfirmados,
         todasUnidades,
         unidadesPorTanda,
         productosInfo,
@@ -312,9 +325,13 @@ export const envioRecepcionService = {
     logger.success(`Envio ${envio.numeroEnvio}: recepcion ${nuevaRecepcion.numero} — ${recEnEsta} recibidas, ${faltEnEsta} faltantes, ${danEnEsta} danadas`);
 
     // S40: Registrar gastos de liberación aduanera como CostoLanded categoría Aduana (si vienen)
+    // Cambio 6 (2026-06-17): la aduana que se está pagando es un monto FIRME → nace
+    // estado='confirmado' (no 'estimado') para que materialice en el CTRU. Como las
+    // unidades de ESTA recepción ya quedaron congeladas en el batch de arriba, el
+    // backfill las alcanza vía materializarCostoLandedConfirmado (append-only + idempotente).
     if (extras?.gastosAduanaPEN && extras.gastosAduanaPEN > 0) {
       try {
-        await envioCrudService.agregarCostoLanded(envioId, {
+        const costoId = await envioCrudService.agregarCostoLanded(envioId, {
           categoriaCostoId: 'aduana',
           categoriaCostoNombre: 'Aduana',
           descripcion: extras.gastosAduanaDescripcion || `Gastos de liberación aduanera — Recepción #${nuevaRecepcion.numero}`,
@@ -322,9 +339,11 @@ export const envioRecepcionService = {
           moneda: 'PEN',
           montoPEN: extras.gastosAduanaPEN,
           metodoProrrateo: 'fijo_por_unidad',
+          estado: 'confirmado',
           pagado: false,
         }, userId);
-        logger.info(`Gastos aduana S/ ${extras.gastosAduanaPEN.toFixed(2)} registrados como CostoLanded en envio ${envio.numeroEnvio}`);
+        await envioCrudService.materializarCostoLandedConfirmado(envioId, costoId, userId);
+        logger.info(`Gastos aduana S/ ${extras.gastosAduanaPEN.toFixed(2)} registrados (confirmado) y materializados como CostoLanded en envio ${envio.numeroEnvio}`);
       } catch (err) {
         logger.error('Error registrando gastos aduana como CostoLanded (no bloqueante):', err);
       }
@@ -472,9 +491,14 @@ export const envioRecepcionService = {
     await batch.commit();
 
     // 5. Registrar CostoLanded (fuera de batch — usa updateDoc interno)
+    // Cambio 6 (2026-06-17): monto FIRME de aduana → nace 'confirmado' y se materializa.
+    // Las unidades que se acaban de liberar (retenida→enviada) AÚN NO están congeladas →
+    // recogerán su cuota al recibirse (Cambio 3 sobre costos confirmados). El backfill de
+    // acá alcanza a las unidades del envío que YA estaban congeladas de recepciones previas
+    // (un costo scope='envio' prorratea sobre TODAS · denominador estable).
     if (gastosPEN > 0) {
       try {
-        await envioCrudService.agregarCostoLanded(envioId, {
+        const costoId = await envioCrudService.agregarCostoLanded(envioId, {
           categoriaCostoId: 'aduana',
           categoriaCostoNombre: 'Aduana',
           descripcion: descripcionGastos || `Liberación aduanera — ${unidadIds.length} unidad(es)`,
@@ -482,8 +506,10 @@ export const envioRecepcionService = {
           moneda: 'PEN',
           montoPEN: gastosPEN,
           metodoProrrateo: 'fijo_por_unidad',
+          estado: 'confirmado',
           pagado: false,
         }, userId);
+        await envioCrudService.materializarCostoLandedConfirmado(envioId, costoId, userId);
       } catch (err) {
         logger.error('Error registrando gastos aduana como CostoLanded (no bloqueante):', err);
       }
