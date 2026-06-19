@@ -303,6 +303,28 @@ triple-campo de enlace, camino legacy de cotización, modelo `cantidadAsignada` 
 | BUG-CANCEL-REQ | Cancelar req es cosmético + re-trigger crea duplicado | `Requerimientos.tsx:507` → `:371` · dedup `:166` |
 | BUG-SUBORDEN | `SubOrdenCompra` sin estado `cancelado` | `ordenCompra.types.ts:546` |
 
+### 11.1 · Resultados de la VERIFICACIÓN (gate §13 · wf 2026-06-19 · 4 agentes adversariales)
+- **CONFIRMADOS (bloquean B/C):** BUG-A · BUG-CANCEL-REQ · BUG-RESERVA · BUG-SUBORDEN · BUG-5/7 · BUG-1 (el clamp).
+- **PARCIALES (matiz):**
+  - **BUG-1:** "escalar **mutado in-place**" es INCORRECTO → `cantidadEnOC` se **recomputa** del array `ordenCompraRefs`
+    (dedup EDGE-003 evita doble-conteo). REAL: el clamp `Math.max(0,…)` (:1007/:1025/:1111) borra el exceso de los campos
+    DERIVADOS (pendiente+%); la sobre-compra se ve **completa/Check-verde sin señal de exceso** (el crudo 15/10 sí se ve
+    en DetailModal:377). NO es "<100% cuando no lo está" (eso es sub-cobertura).
+  - **BUG-B:** la línea `:1095` (`_revertirOCEnReq`) es **per-(req,OC) granular**, NO whole-OC. El whole-OC es el loop de
+    `desvincularOCDeRequerimientos:1064`. Bug REAL = **capacidad ausente** (no hay op pública para revertir 1 req · solo
+    vía `deleteOrden`).
+  - **BUG-3:** skew de **atribución** (rounding · último origen absorbe el resto) pero **conserva totales** · guard si
+    origenes≤1 · severidad MEDIA.
+- **SORPRESAS (mejoran el plan de B/C):**
+  1. **El motor de reversión granular YA EXISTE y es reusable** (`_revertirOCEnReq` · recomputa cobertura+estado) → Fase B
+     REUSA (exponer + cablear al soft-cancel de OC y al cancel de req), no reescribe.
+  2. **BUG-RESERVA peor:** los writers planos no escriben NINGÚN expiry en la unidad (vigencia vive en cotización/venta) →
+     falta la **fuente de expiry en la unidad** (modelado · Fase C), no es rename de 1 línea.
+  3. **Causa raíz compartida** BUG-A + BUG-CANCEL-REQ: ninguna cancelación libera vínculos/reservas · solo el DELETE de la
+     OC → la corrección ataca AMBOS caminos.
+- **🟢 FASE A · GO:** `origen`/`tipoSolicitante` = etiqueta muerta downstream (solo display + persistencia + `where('origen')`
+  no-cableado = param muerto · 0 branching de negocio). Re-modelar SEGURO · único riesgo = migración legacy + write-sites.
+
 ---
 
 ## 12 · Decisiones · cerradas y abiertas
@@ -353,7 +375,7 @@ código real (línea exacta) cada **BUG VIVO** de §11, el invariante de cobertu
 
 | Fase | Contenido | Riesgo | Depende de |
 |---|---|---|---|
-| **A** | Re-modelo de origen (taxonomía **2 orígenes**+subtipo · form · chips · tesis triple-candado + límite) | Bajo (no ramifica) | — |
+| **A** ✅ HECHO | Re-modelo de origen (taxonomía **2 orígenes**+subtipo · form · chips · tesis triple-candado + límite) · **commit cfb9e90** · tsc-clean | Bajo (no ramifica) | — |
 | **B** | Motor de cobertura derivada (desde 'enviada') + invariante + alerta sobre-compra + `cancelarReferenciaOC` (3 alcances) + regla del envío | **Alto** (correctitud núcleo) | verificación §13 |
 | **C** | Reservas transversales: schema único + liberación única + reclasificación libre↔reservada + reparar cron (60d) | Alto | B |
 | **D** | OCBuilder: WizardShell + atribución determinística + creación atómica + propagar origen + subsumir asignaciones | Medio | A, B |
