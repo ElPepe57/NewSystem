@@ -35,7 +35,7 @@ export function esFirme(estadoOC?: EstadoOrden | string | null): boolean {
   return ESTADOS_OC_FIRMES.has(estadoOC);
 }
 
-interface RefLike { ordenCompraId?: string; cantidad?: number; estadoOC?: string | null; estado?: 'vigente' | 'cancelada' | null; }
+interface RefLike { ordenCompraId?: string; ordenCompraNumero?: string; cantidad?: number; estadoOC?: string | null; estado?: 'vigente' | 'cancelada' | null; }
 interface ProductoLike { productoId?: string; cantidadSolicitada?: number; ordenCompraRefs?: RefLike[]; [k: string]: unknown; }
 
 export interface CoberturaAgregada {
@@ -134,6 +134,32 @@ export function aplicarCancelacionRef<P extends ProductoLike>(
     // delete
     return { ...p, ordenCompraRefs: refs.filter((_, i) => i !== idx) };
   });
+}
+
+/**
+ * Cancelación TOTAL de un requerimiento sobre TODAS sus OCs (F4 · §6 · B4). Por cada OC referenciada:
+ *  - OC firme    → modo 'soft'   (la ref se marca cancelada · la compra real PROCEDE a stock · §6).
+ *  - OC borrador → modo 'delete' (retrae la ref · el producto vuelve al pool de pendientes · §4.1).
+ * El estado de cada OC se pasa en `estadoOCPorId` (leído del DOC REAL de la OC, no de `ref.estadoOC` →
+ * maneja correctamente refs legacy sin `estadoOC`). PURA. La cobertura se recomputa aparte con
+ * `recomputarCoberturaProductos`; el caller fuerza luego `estado='cancelado'`.
+ */
+export function aplicarCancelacionTotalReq<P extends ProductoLike>(
+  productos: P[],
+  estadoOCPorId: Record<string, string | undefined>
+): P[] {
+  const ocIds = new Set<string>();
+  for (const p of productos) {
+    for (const r of (p.ordenCompraRefs || []) as RefLike[]) {
+      if (r.ordenCompraId) ocIds.add(r.ordenCompraId);
+    }
+  }
+  let out: P[] = productos;
+  for (const ocId of ocIds) {
+    const modo: ModoCancelacionRef = esFirme(estadoOCPorId[ocId]) ? 'soft' : 'delete';
+    out = aplicarCancelacionRef(out, ocId, modo);
+  }
+  return out;
 }
 
 /**

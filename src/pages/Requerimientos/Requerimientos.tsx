@@ -56,7 +56,7 @@ export const Requerimientos: React.FC = () => {
     requerimientos,
     loading: loadingReqs,
     fetchRequerimientos,
-    actualizarEstado: storeActualizarEstado,
+    cancelarRequerimiento: storeCancelarRequerimiento,
     limpiarDatosVinculacion: storeLimpiarDatos
   } = useRequerimientoStore();
 
@@ -513,7 +513,7 @@ export const Requerimientos: React.FC = () => {
     });
     if (!confirmar) return;
     try {
-      await storeActualizarEstado(req.id, 'cancelado', user.uid);
+      await storeCancelarRequerimiento(req.id, user.uid);
       toast.success('Requerimiento cancelado');
       loadData();
     } catch (error: any) {

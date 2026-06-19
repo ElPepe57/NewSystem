@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { esFirme, recomputarCoberturaProductos, aplicarCancelacionRef, aplicarEstadoOCaRefs } from './requerimiento.cobertura';
+import { esFirme, recomputarCoberturaProductos, aplicarCancelacionRef, aplicarEstadoOCaRefs, aplicarCancelacionTotalReq } from './requerimiento.cobertura';
 
 // ── factories ───────────────────────────────────────────────────────────────
 const ref = (cantidad: number, estadoOC?: string, estado?: 'vigente' | 'cancelada') =>
@@ -166,5 +166,51 @@ describe('aplicarEstadoOCaRefs · sincronización de estado (B3)', () => {
     expect(out[0].ordenCompraRefs[0].estadoOC).toBe('enviada');
     expect(out[0].ordenCompraRefs[0].estado).toBe('cancelada');
     expect(recomputarCoberturaProductos(out).productos[0].cantidadEnOC).toBe(0);
+  });
+});
+
+describe('aplicarCancelacionTotalReq · cancelar el requerimiento completo (B4)', () => {
+  // factory con OC explícita por id
+  const refOC = (ocId: string, cantidad: number, estado?: 'vigente' | 'cancelada') =>
+    ({ ordenCompraId: ocId, ordenCompraNumero: ocId, cantidad, estado });
+
+  it('OC borrador → la ref se RETRAE (delete) · el producto vuelve a pendiente', () => {
+    const productos = [{ productoId: 'P', cantidadSolicitada: 10, ordenCompraRefs: [refOC('OC1', 10)] }];
+    const out = aplicarCancelacionTotalReq(productos, { OC1: 'borrador' });
+    expect(out[0].ordenCompraRefs.length).toBe(0); // retraída
+    expect(recomputarCoberturaProductos(out).productos[0].pendienteCompra).toBe(10);
+  });
+
+  it('OC firme → la ref SOBREVIVE marcada cancelada (soft) · la compra procede', () => {
+    const productos = [{ productoId: 'P', cantidadSolicitada: 10, ordenCompraRefs: [refOC('OC1', 10)] }];
+    const out = aplicarCancelacionTotalReq(productos, { OC1: 'enviada' });
+    expect(out[0].ordenCompraRefs.length).toBe(1);
+    expect(out[0].ordenCompraRefs[0].estado).toBe('cancelada');
+    expect(recomputarCoberturaProductos(out).productos[0].cantidadEnOC).toBe(0); // ya no cuenta
+  });
+
+  it('OCs MIXTAS (borrador + firme) → delete la borrador, soft la firme', () => {
+    const productos = [{
+      productoId: 'P', cantidadSolicitada: 20,
+      ordenCompraRefs: [refOC('OCb', 8), refOC('OCf', 12)],
+    }];
+    const out = aplicarCancelacionTotalReq(productos, { OCb: 'borrador', OCf: 'confirmada' });
+    const refs = out[0].ordenCompraRefs;
+    expect(refs.find(r => r.ordenCompraId === 'OCb')).toBeUndefined();       // borrador retraída
+    expect(refs.find(r => r.ordenCompraId === 'OCf')?.estado).toBe('cancelada'); // firme soft
+    expect(recomputarCoberturaProductos(out).productos[0].cantidadEnOC).toBe(0);
+  });
+
+  it('OC sin estado conocido (legacy/ausente) → esFirme(undefined)=true ⇒ soft (no vuelve al pool · edge §5.4)', () => {
+    const productos = [{ productoId: 'P', cantidadSolicitada: 10, ordenCompraRefs: [refOC('OC1', 10)] }];
+    const out = aplicarCancelacionTotalReq(productos, {}); // estado no provisto
+    expect(out[0].ordenCompraRefs[0].estado).toBe('cancelada'); // soft, no delete
+  });
+
+  it('es PURA: no muta la entrada', () => {
+    const input = [{ productoId: 'P', cantidadSolicitada: 10, ordenCompraRefs: [refOC('OC1', 10)] }];
+    const snapshot = JSON.stringify(input);
+    aplicarCancelacionTotalReq(input, { OC1: 'borrador' });
+    expect(JSON.stringify(input)).toBe(snapshot);
   });
 });

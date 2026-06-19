@@ -15,7 +15,7 @@ import {
 } from 'firebase/firestore';
 import { getNextSequenceNumber } from '../lib/sequenceGenerator';
 import { db } from '../lib/firebase';
-import { recomputarCoberturaProductos, aplicarCancelacionRef, aplicarEstadoOCaRefs, esFirme, type ModoCancelacionRef } from './requerimiento.cobertura';
+import { recomputarCoberturaProductos, aplicarCancelacionRef, aplicarEstadoOCaRefs, aplicarCancelacionTotalReq, esFirme, type ModoCancelacionRef } from './requerimiento.cobertura';
 import { ORDENES_COLLECTION } from './ordenCompra.shared';
 import type {
   Requerimiento,
@@ -410,6 +410,66 @@ export const requerimientoService = {
         metadata: { entidadId: requerimientoId, entidadTipo: 'requerimiento' }
       }).catch(() => {});
     }
+  },
+
+  /**
+   * Cancela un requerimiento de forma INTEGRAL (F4 · §6 · B4). En UNA escritura:
+   *  1. Retrae sus OCs en BORRADOR (la ref se borra · el producto vuelve al pool) y marca 'soft' las refs
+   *     de OCs FIRMES (la compra real PROCEDE a stock · §6). El estado de cada OC se lee del doc real.
+   *  2. Recomputa la cobertura derivada y limpia los vínculos a OCs ya no referenciadas.
+   *  3. Fuerza estado='cancelado' y DESVINCULA la cotización (`ventaRelacionadaId=null` · Modelo A) → el req
+   *     cancelado se vuelve invisible a los guardas anti-duplicado, sin recrear duplicados al próximo adelanto.
+   * NO cancela las OCs en sí (solo retrae la ref dentro del req → no re-dispara `cambiarEstado` de la OC).
+   * TODO Fase C: liberar las reservas de unidades de demanda comprometida (BUG-RESERVA · infra pendiente).
+   * Reemplaza al `actualizarEstado(id,'cancelado')` cosmético en todo flujo de cancelación de req.
+   */
+  async cancelarRequerimiento(requerimientoId: string, userId: string): Promise<void> {
+    const reqRef = doc(db, COLLECTION_NAME, requerimientoId);
+    const reqSnap = await getDoc(reqRef);
+    if (!reqSnap.exists()) throw new Error('Requerimiento no encontrado');
+    const reqData = reqSnap.data();
+    if (reqData.estado === 'cancelado') return; // idempotente
+
+    const productos = reqData.productos || [];
+    const ordenCompraIds: string[] = reqData.ordenCompraIds || [];
+
+    // Estado REAL de cada OC del req (del doc, no de ref.estadoOC → maneja refs legacy)
+    const estadoOCPorId: Record<string, string | undefined> = {};
+    if (ordenCompraIds.length > 0) {
+      const ocSnaps = await Promise.all(
+        ordenCompraIds.map((ocId) => getDoc(doc(db, ORDENES_COLLECTION, ocId)))
+      );
+      ocSnaps.forEach((s, i) => { estadoOCPorId[ordenCompraIds[i]] = s.data()?.estado as string | undefined; });
+    }
+
+    // Puro: retraer borrador (delete) / dejar firme (soft) · luego recomputar cobertura derivada
+    const productosCancelados = aplicarCancelacionTotalReq(productos, estadoOCPorId);
+    const { productos: productosFinal, ocCoverage } = recomputarCoberturaProductos(productosCancelados);
+
+    // Vínculos a OCs que SIGUEN referenciadas tras la retracción (la borrador eliminada desaparece)
+    const ocsVigentes = new Map<string, string>();
+    for (const p of productosFinal) {
+      for (const r of (p.ordenCompraRefs || [])) {
+        if (r.ordenCompraId) ocsVigentes.set(r.ordenCompraId, r.ordenCompraNumero || '');
+      }
+    }
+    const idsVigentes = Array.from(ocsVigentes.keys());
+    const numerosVigentes = Array.from(ocsVigentes.values());
+
+    await updateDoc(reqRef, {
+      productos: productosFinal,
+      ocCoverage,
+      estado: 'cancelado',
+      ordenCompraIds: idsVigentes,
+      ordenCompraNumeros: numerosVigentes,
+      ordenCompraId: idsVigentes[0] || null,
+      ordenCompraNumero: numerosVigentes[0] || null,
+      ventaRelacionadaId: null,        // Modelo A · desvincula la cotización (cierra el re-trigger de duplicado)
+      canceladoPor: userId,
+      fechaCancelacion: serverTimestamp(),
+      ultimaEdicion: serverTimestamp(),
+      editadoPor: userId,
+    });
   },
 
   /**
@@ -1128,7 +1188,8 @@ export const requerimientoService = {
    *  - 'porcion'     : N unidades de un producto de un req.
    * Regla de irreversibilidad (leída de oc.estado): borrador → retrae ('delete' · vuelve al pool);
    * firme (enviada+) → 'soft' (marca cancelada · la compra procede a stock). Reutiliza _revertirOCEnReq.
-   * NOTA: aún NO cableado a UI ni a cambiarEstado (eso es B3/B4).
+   * Cableado (B3): `cambiarEstado` de la OC lo invoca con scope 'oc_completa' al cancelar la OC. El cancel
+   * de un REQUERIMIENTO usa `cancelarRequerimiento` (B4), que aplica la retracción total sin pasar por aquí.
    */
   async cancelarReferenciaOC(params: {
     scope: 'oc_completa' | 'req_en_oc' | 'porcion';
@@ -1558,7 +1619,8 @@ export const requerimientoService = {
       for (let i = 1; i < sorted.length; i++) {
         const dup = sorted[i];
         try {
-          await requerimientoService.actualizarEstado(dup.id!, 'cancelado', userId);
+          // Cancelación INTEGRAL (B4): retrae OCs borrador + desvincula la cotización (no solo cosmético)
+          await requerimientoService.cancelarRequerimiento(dup.id!, userId);
           reqsCancelados.push(`${dup.numeroRequerimiento} (${dup.nombreClienteSolicitante || cotId})`);
         } catch (e) {
           logger.error(`Error cancelando ${dup.numeroRequerimiento}:`, e);

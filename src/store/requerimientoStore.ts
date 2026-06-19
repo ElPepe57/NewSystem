@@ -23,6 +23,7 @@ interface RequerimientoState {
   // Acciones - Mutaciones
   crearRequerimiento: (data: RequerimientoFormData, userId: string) => Promise<string>;
   actualizarEstado: (id: string, estado: 'pendiente' | 'aprobado' | 'en_proceso' | 'completado' | 'cancelado', userId: string) => Promise<void>;
+  cancelarRequerimiento: (id: string, userId: string) => Promise<void>;
   limpiarDatosVinculacion: (userId: string) => Promise<{
     reqsCancelados: string[];
     ventasCorregidas: string[];
@@ -72,6 +73,18 @@ export const useRequerimientoStore = create<RequerimientoState>()(
         set({ error: null });
         try {
           await requerimientoService.actualizarEstado(id, estado, userId);
+          await get().fetchRequerimientos();
+        } catch (error: unknown) {
+          const message = error instanceof Error ? error.message : 'Error desconocido';
+          set({ error: message });
+          throw error;
+        }
+      },
+
+      cancelarRequerimiento: async (id: string, userId: string) => {
+        set({ error: null });
+        try {
+          await requerimientoService.cancelarRequerimiento(id, userId);
           await get().fetchRequerimientos();
         } catch (error: unknown) {
           const message = error instanceof Error ? error.message : 'Error desconocido';
