@@ -306,7 +306,7 @@ triple-campo de enlace, camino legacy de cotización, modelo `cantidadAsignada` 
 | BUG-3 | `distributeOrigenes` sesga atribución por req al partir producto | `ocBuilderUtils.ts:319-339` (`:329`) |
 | BUG-5/7 | Creación de OCs no atómica + writeback sin lock (carreras) | `OCBuilderStep3.tsx:144-164` |
 | BUG-RESERVA | Dos schemas de reserva · cron lee uno que nadie escribe → nunca libera | `cotizacion.adelanto.service.ts:148` · `unidad.service.ts:1117` · `functions/index.ts:2166` |
-| BUG-CANCEL-REQ | Cancelar req es cosmético + re-trigger crea duplicado | `Requerimientos.tsx:507` → `:371` · dedup `:166` |
+| ✅ BUG-CANCEL-REQ | ~~Cancelar req es cosmético + re-trigger crea duplicado~~ **RESUELTO B4** (`5f102f3`): `cancelarRequerimiento` retrae OCs + recomputa cobertura · Modelo A `ventaRelacionadaId=null` cierra el re-trigger (`cotizacion.adelanto.service.ts:203`) sin tocar los 4 guardas | `Requerimientos.tsx` · `cotizacion.adelanto.service.ts:203` |
 | BUG-SUBORDEN | `SubOrdenCompra` sin estado `cancelado` | `ordenCompra.types.ts:546` |
 
 ### 11.1 · Resultados de la VERIFICACIÓN (gate §13 · wf 2026-06-19 · 4 agentes adversariales)
@@ -382,7 +382,7 @@ código real (línea exacta) cada **BUG VIVO** de §11, el invariante de cobertu
 | Fase | Contenido | Riesgo | Depende de |
 |---|---|---|---|
 | **A** ✅ HECHO | Re-modelo de origen (taxonomía **2 orígenes**+subtipo · form · chips · tesis triple-candado + límite) · **commit cfb9e90** · tsc-clean | Bajo (no ramifica) | — |
-| **B** 🔣 en curso | Motor de cobertura derivada + invariante + `cancelarReferenciaOC` + regla del envío. **B0–B3 ✅** (`recomputarCoberturaProductos`+`esFirme`+sobrecompra · `aplicarCancelacionRef` 3 modos + `cancelarReferenciaOC` 3 alcances · **`cambiarEstado` sincroniza cobertura** vía `propagarEstadoOCaRequerimientos` (batch) + stamp `estadoOC` al vincular → borrador→firme SUBE la cobertura · cierra **BUG-A/BUG-B** · 23 tests · `07da8ee`+`f550ee8`+`ab7010a`). Pendiente: **B4 `cancelarRequerimiento`** (store + `handleCancelar` + dedup) · B5 UI (badges sobre-compra + modales de cancelación) | **Alto** | §13 ✅ |
+| **B** 🔣 en curso | Motor de cobertura derivada + invariante + `cancelarReferenciaOC` + regla del envío. **B0–B4 ✅** (`recomputarCoberturaProductos`+`esFirme`+sobrecompra · `aplicarCancelacionRef` 3 modos + `cancelarReferenciaOC` 3 alcances · **`cambiarEstado` sincroniza cobertura** vía `propagarEstadoOCaRequerimientos` (batch) → cierra **BUG-A/BUG-B** · **`cancelarRequerimiento` integral** (`aplicarCancelacionTotalReq` puro · retrae borrador/soft firme · 1 write atómico · `estado='cancelado'`) + **fix duplicado Modelo A** (`ventaRelacionadaId=null` → invisible a los 4 guardas anti-dup sin tocarlos · cierra el re-trigger de `cotizacion.adelanto.service.ts:203`) + `limpiarDatos` ruteado al cancel real → cierra **BUG-CANCEL-REQ** · 25 tests · `…`+`ab7010a`+`5f102f3`). Pendiente: **B5 UI** (badges sobre-compra en DetailModal/cards + modales de cancelación parcial/porción OC) | **Alto** | §13 ✅ |
 | **C** | Reservas transversales: schema único + liberación única + reclasificación libre↔reservada + reparar cron (60d) | Alto | B |
 | **D** | OCBuilder: WizardShell + atribución determinística + creación atómica + propagar origen + subsumir asignaciones | Medio | A, B |
 | **E** | Unificar cotización + lead/consulta en Cotizaciones + borrar parches (keystone) · rework Ventas | Medio (greenfield) | B |
