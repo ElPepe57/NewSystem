@@ -1,9 +1,10 @@
 # Modelo Requerimientos ↔ Orden de Compra ↔ Reservas (F4) · Spec consolidado · v2
 
-> **Estado:** v3 · integra 2ª ronda del usuario (2026-06-18): gate de investigación **BLOQUEANTE** · investigación =
-> fase de Cotización/Producto (no atributo del req) · **reservar contra el pipeline (ATP)** · disparador = adelanto
-> **o** compromiso firme validado por el vendedor (role-gated). Pendiente: confirmar taxonomía (¿Investigado deja de
-> ser origen → 2 orígenes?) + ver el OCBuilder mockeado.
+> **Estado:** v4 · modelo cerrado con el usuario (2026-06-18). **2 orígenes** (Administrativo + Demanda comprometida ·
+> Investigado=fase/gate) · gate de investigación BLOQUEANTE · ATP (reservar contra pipeline) · apuesta = decisión
+> pensada (no riesgo alto) informada por margen+interés-cotizaciones+investigación · OCs/reqs nacen en borrador ·
+> OCBuilder = sub-página del hub. **+ §15 expansión** (radar de apuestas · piso aprendido 1-3 · scorecard de desempeño)
+> como capa de inteligencia post-core. Core listo para **Fase A** + verificación §13.
 > **Propósito:** fuente única de verdad del re-modelo de la sección **Comercial** (demanda → requerimiento → compra)
 > en F4. Consolida 3 análisis multi-agente + las decisiones firmes del usuario.
 > **Alcance (point 10/11):** NO es solo Requerimientos — se reorganiza la sección **desde 0** y de forma
@@ -67,8 +68,9 @@ el requerimiento **no carga atributos de investigación** (es solo decisión de 
 gate, "Investigado" no distingue nada → **no es un origen, es una fase upstream**. Quedan **2 orígenes**.
 
 ### 2.2 · Apuesta — definición + bucle de evaluación (🟢 confirmado 2026-06-18)
-**Qué ES una apuesta:** traer un producto con **demanda incierta** (poca info de mercado) "a ver cómo responde".
-Regla precisa:
+**Qué ES una apuesta:** una **decisión PENSADA** de traer un producto cuya demanda **aún no está probada por rotación**
+— **NO** una jugada de riesgo alto/temeraria. La informan señales: **margen**, **interés en cotizaciones/consultas**
+(varios clientes lo piden aunque nadie se comprometa = señal de interés) e **investigación**. Regla precisa:
 - **Producto NUEVO + sin cliente comprometido = SIEMPRE apuesta.**
 - **Producto NUEVO + cliente comprometido = demanda comprometida** (no apuesta).
 - **Producto existente = restock** (por alerta) / **manual** (deliberado).
@@ -351,17 +353,57 @@ código real (línea exacta) cada **BUG VIVO** de §11, el invariante de cobertu
 
 | Fase | Contenido | Riesgo | Depende de |
 |---|---|---|---|
-| **A** | Re-modelo de origen (taxonomía 3+subtipo · form · chips · tesis triple-candado + límite) | Bajo (no ramifica) | — |
+| **A** | Re-modelo de origen (taxonomía **2 orígenes**+subtipo · form · chips · tesis triple-candado + límite) | Bajo (no ramifica) | — |
 | **B** | Motor de cobertura derivada (desde 'enviada') + invariante + alerta sobre-compra + `cancelarReferenciaOC` (3 alcances) + regla del envío | **Alto** (correctitud núcleo) | verificación §13 |
 | **C** | Reservas transversales: schema único + liberación única + reclasificación libre↔reservada + reparar cron (60d) | Alto | B |
 | **D** | OCBuilder: WizardShell + atribución determinística + creación atómica + propagar origen + subsumir asignaciones | Medio | A, B |
 | **E** | Unificar cotización + lead/consulta en Cotizaciones + borrar parches (keystone) · rework Ventas | Medio (greenfield) | B |
 | **F** | Lead/Producto candidato + posición de inventario como servicio + limpieza legacy total | Medio | — |
+| **G** | Capa de inteligencia (§15): radar de apuestas · piso aprendido · scorecard de desempeño del comprador | Medio-alto | C · D · chequeo 360 |
 
 **Recom de arranque:** **Fase A** (visible, seguro, superficie ya validada) · en paralelo correr la
 **verificación §13** que destraba B/C. El mockup del OCBuilder (superficie 2) se dibuja del §5 + §6 tras validar
-este spec.
+este spec. La **Fase G** (inteligencia) va al final, tras el core.
 
 ---
 
-*Fin del spec v2. Validar §1-§7 (modelo) + §14 (secuencia). Cerrar §12 abiertas (sobre todo 12.2). Confirmar ❓.*
+## 15 · Expansión del módulo · capa de INTELIGENCIA (🟡 visión · post-core · pendiente chequeo 360)
+
+Requerimientos resultó ser **el hub de toda la cadena demanda→compra**. Lectura del módulo: **3 fuentes de decisión +
+2 lentes de gestión + Resumen**. Esta capa es **inteligencia que va DESPUÉS del core** (no en Fase A).
+
+- **Fuentes de decisión (de dónde nace el req):** **Apuesta** (frontera · producto nuevo, demanda no probada ·
+  decisión pensada, no temeraria) · **Reabastecimiento** (core probado · producto en rotación) · **Demanda
+  comprometida** (viene de Cotizaciones · cross-link).
+- **Lentes de gestión:** Tablero (lifecycle) · Pendientes (→ OCBuilder).
+- **Arco del ciclo de vida:** `Investigado → APUESTA (nuevo·incierto) → si ROTA orgánicamente → producto probado →
+  RESTOCK (rutina)`. El puente = rotación ORGÁNICA (§2.3); una apuesta que acierta se **gradúa** a producto de rotación.
+
+### 15.1 · Radar de apuestas (sugerencias)
+Tab Apuestas = **portafolio** (apuestas vivas + acierto vía CTRU) + **radar** (productos recién investigados de la
+sección **Productos**, propuestos como apuesta, rankeados por **margen + interés en cotizaciones/consultas +
+completitud de info**). Lee la investigación que YA vive en Productos · no duplica. El comprador revisa, declara
+(tesis), nace el req.
+
+### 15.2 · Reabastecimiento con piso APRENDIDO (no mínimo fijo)
+NO hay `stockMinimo` manual. El sistema **aprende el piso** de cada producto desde su curva de rotación orgánica.
+- **Arranque en frío** (producto sin historia · recién graduado de apuesta): piso **default 1–3 máximo** (bajo · para
+  **no entrampar capital** en un producto no probado). Luego el sistema lo **ajusta** según la rotación real.
+- Mata el `stockMinimo` estático (default=5, era deuda) → **punto de reorden dinámico aprendido**.
+
+### 15.3 · Lente de desempeño del comprador (atribución + reconocimiento)
+Toda compra que **nace de una persona** (apuesta/manual) queda **atribuida** a ella. El sistema evalúa la **rotación de
+sus requerimientos** (¿los productos que trajo se mueven?) → **scorecard de acierto** para **reconocer y CELEBRAR el
+juicio de valor** (framing **positivo**, no punitivo). NO es una entidad "grupo de compras" — es **atribución +
+reconocimiento** de quién encuentra buenos productos.
+- **Visibilidad:** **admin + la propia persona** (transparente) · toca "admin ve todo" + perfiles.
+- **Foco:** el juicio se mide sobre todo en reqs de **producto nuevo/apuesta** (donde "encontrar buenos productos"
+  importa) · el restock es rutina, mide poco juicio.
+
+⚠️ Toda la §15: **pendiente chequeo 360** (no pisar Productos/Stock/CTRU/Intel) + grounding de data (¿existe margen /
+completitud-de-info / rotación-libre / curva CTRU para alimentarla?).
+
+---
+
+*Fin del spec v4 (2026-06-18). Modelo §1-§10 + expansión §15 validados con el usuario. Core listo para Fase A +
+verificación §13. La §15 (inteligencia) va al final, con chequeo 360 previo.*
