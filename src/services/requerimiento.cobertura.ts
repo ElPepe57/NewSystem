@@ -135,3 +135,23 @@ export function aplicarCancelacionRef<P extends ProductoLike>(
     return { ...p, ordenCompraRefs: refs.filter((_, i) => i !== idx) };
   });
 }
+
+/**
+ * Propaga el `estadoOC` (cache denormalizado) a las refs de `ordenCompraId` cuando la OC cambia de estado.
+ * NO toca `cantidad` ni `estado` (cancelada se mantiene). PURA. Al pasar de borrador→firme, la cobertura
+ * recomputada SUBE (la ref ya estaba, ahora `esFirme` la cuenta). Fase B · §4 (B3).
+ */
+export function aplicarEstadoOCaRefs<P extends ProductoLike>(
+  productos: P[],
+  ordenCompraId: string,
+  nuevoEstadoOC: string
+): P[] {
+  return productos.map((p) => {
+    const refs = (p.ordenCompraRefs || []) as RefLike[];
+    if (!refs.some((r) => r.ordenCompraId === ordenCompraId)) return p;
+    return {
+      ...p,
+      ordenCompraRefs: refs.map((r) => (r.ordenCompraId === ordenCompraId ? { ...r, estadoOC: nuevoEstadoOC } : r)),
+    };
+  });
+}

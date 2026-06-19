@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { esFirme, recomputarCoberturaProductos, aplicarCancelacionRef } from './requerimiento.cobertura';
+import { esFirme, recomputarCoberturaProductos, aplicarCancelacionRef, aplicarEstadoOCaRefs } from './requerimiento.cobertura';
 
 // ── factories ───────────────────────────────────────────────────────────────
 const ref = (cantidad: number, estadoOC?: string, estado?: 'vigente' | 'cancelada') =>
@@ -140,5 +140,31 @@ describe('aplicarCancelacionRef · 3 modos (B2)', () => {
       'OC', 'delete'
     );
     expect(out[0].ordenCompraRefs.length).toBe(1);
+  });
+});
+
+describe('aplicarEstadoOCaRefs · sincronización de estado (B3)', () => {
+  it('borrador→enviada hace que la ref CUENTE (la cobertura sube · BUG-A)', () => {
+    const productos = [prod(10, [ref(10, 'borrador')])];
+    expect(recomputarCoberturaProductos(productos).productos[0].cantidadEnOC).toBe(0); // antes: no cuenta
+    const out = aplicarEstadoOCaRefs(productos, 'OC', 'enviada');
+    const { productos: rec, estadoSugerido } = recomputarCoberturaProductos(out);
+    expect(rec[0].cantidadEnOC).toBe(10);
+    expect(estadoSugerido).toBe('en_proceso');
+  });
+
+  it('no toca el estadoOC de refs de OTRA oc', () => {
+    const out = aplicarEstadoOCaRefs(
+      [{ productoId: 'P', cantidadSolicitada: 10, ordenCompraRefs: [{ ordenCompraId: 'OTRA', ordenCompraNumero: 'Y', cantidad: 5, estadoOC: 'borrador' }] }],
+      'OC', 'enviada'
+    );
+    expect(out[0].ordenCompraRefs[0].estadoOC).toBe('borrador');
+  });
+
+  it('cambia estadoOC pero MANTIENE estado=cancelada (sigue sin contar aunque la OC sea firme)', () => {
+    const out = aplicarEstadoOCaRefs([prod(10, [ref(10, 'borrador', 'cancelada')])], 'OC', 'enviada');
+    expect(out[0].ordenCompraRefs[0].estadoOC).toBe('enviada');
+    expect(out[0].ordenCompraRefs[0].estado).toBe('cancelada');
+    expect(recomputarCoberturaProductos(out).productos[0].cantidadEnOC).toBe(0);
   });
 });

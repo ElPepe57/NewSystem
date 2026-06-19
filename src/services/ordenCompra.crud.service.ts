@@ -537,6 +537,24 @@ export async function cambiarEstado(
         logger.error('Error al sincronizar Envíos vinculados (no bloqueante):', envioErr);
       }
     }
+
+    // F4 · B3: sincronizar la cobertura de Requerimientos con el nuevo estado de la OC (no bloqueante).
+    // Es el ÚNICO punto que mueve el cache estadoOC de las refs → borrador→firme hace SUBIR la cobertura.
+    try {
+      if (nuevoEstado === 'cancelada') {
+        // orden.estado = estado PRE-cambio → define la irreversibilidad (borrador retrae · firme deja rastro · §6)
+        await requerimientoService.cancelarReferenciaOC({
+          scope: 'oc_completa',
+          ordenCompraId: id,
+          ordenCompraNumero: orden.numeroOrden || '',
+          ocEstadoActual: orden.estado,
+        });
+      } else {
+        await requerimientoService.propagarEstadoOCaRequerimientos(id, orden.numeroOrden || '', nuevoEstado);
+      }
+    } catch (reqErr) {
+      logger.error('Error al sincronizar cobertura de Requerimientos (no bloqueante):', reqErr);
+    }
   } catch (error: any) {
     logger.error('Error al cambiar estado:', error);
     throw new Error(error.message || 'Error al cambiar estado');

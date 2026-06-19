@@ -10,11 +10,12 @@ import {
   orderBy,
   Timestamp,
   serverTimestamp,
-  arrayUnion
+  arrayUnion,
+  writeBatch
 } from 'firebase/firestore';
 import { getNextSequenceNumber } from '../lib/sequenceGenerator';
 import { db } from '../lib/firebase';
-import { recomputarCoberturaProductos, aplicarCancelacionRef, esFirme, type ModoCancelacionRef } from './requerimiento.cobertura';
+import { recomputarCoberturaProductos, aplicarCancelacionRef, aplicarEstadoOCaRefs, esFirme, type ModoCancelacionRef } from './requerimiento.cobertura';
 import { ORDENES_COLLECTION } from './ordenCompra.shared';
 import type {
   Requerimiento,
@@ -997,6 +998,10 @@ export const requerimientoService = {
     const reqData = reqDoc.data() as any;
     const productos = reqData.productos || [];
 
+    // Estado actual de la OC → se stampa en la ref (gate de cobertura §4 · la OC nace borrador = no cuenta aún)
+    const ocSnap = await getDoc(doc(db, ORDENES_COLLECTION, ordenCompraId));
+    const estadoOC = (ocSnap.data()?.estado as string | undefined) ?? 'borrador';
+
     // Construir/actualizar las refs por producto (EDGE-003: dedup por ordenCompraId · sin doble conteo)
     const productosConRefs = productos.map((p: any) => {
       const ocItem = productosOC.find(o => o.productoId === p.productoId);
@@ -1005,10 +1010,10 @@ export const requerimientoService = {
       const refs: any[] = [...(p.ordenCompraRefs || [])];
       const indiceExistente = refs.findIndex((r) => r.ordenCompraId === ordenCompraId);
       if (indiceExistente >= 0) {
-        // Ya vinculado — actualizar la cantidad en la entrada existente sin duplicar
-        refs[indiceExistente] = { ...refs[indiceExistente], ordenCompraId, ordenCompraNumero, cantidad: ocItem.cantidad };
+        // Ya vinculado — actualizar sin duplicar (re-sincroniza estadoOC + estado)
+        refs[indiceExistente] = { ...refs[indiceExistente], ordenCompraId, ordenCompraNumero, cantidad: ocItem.cantidad, estadoOC, estado: 'vigente' };
       } else {
-        refs.push({ ordenCompraId, ordenCompraNumero, cantidad: ocItem.cantidad });
+        refs.push({ ordenCompraId, ordenCompraNumero, cantidad: ocItem.cantidad, estadoOC, estado: 'vigente' });
       }
       return { ...p, ordenCompraRefs: refs };
     });
@@ -1132,12 +1137,16 @@ export const requerimientoService = {
     requerimientoId?: string;
     productoId?: string;
     cantidadCancelar?: number;
+    ocEstadoActual?: string;   // si se pasa, evita el getDoc (cambiarEstado pasa el estado PRE-cambio)
   }): Promise<void> {
-    const { scope, ordenCompraId, ordenCompraNumero, requerimientoId, productoId, cantidadCancelar } = params;
+    const { scope, ordenCompraId, ordenCompraNumero, requerimientoId, productoId, cantidadCancelar, ocEstadoActual } = params;
 
     // Irreversibilidad: el modo sale del estado de la OC (borrador retractable · firme deja rastro)
-    const ocSnap = await getDoc(doc(db, ORDENES_COLLECTION, ordenCompraId));
-    const ocEstado = ocSnap.exists() ? (ocSnap.data() as any).estado : undefined;
+    let ocEstado = ocEstadoActual;
+    if (ocEstado === undefined) {
+      const ocSnap = await getDoc(doc(db, ORDENES_COLLECTION, ordenCompraId));
+      ocEstado = ocSnap.data()?.estado as string | undefined;
+    }
     const modoBase: ModoCancelacionRef = esFirme(ocEstado) ? 'soft' : 'delete';
 
     if (scope === 'oc_completa') {
@@ -1166,6 +1175,45 @@ export const requerimientoService = {
       throw new Error('cancelarReferenciaOC(porcion): productoId y cantidadCancelar requeridos');
     }
     await requerimientoService._revertirOCEnReq(reqDoc, ordenCompraId, ordenCompraNumero, 'porcion', { productoId, cantidadCancelar });
+  },
+
+  /**
+   * Propaga el nuevo estado de una OC (cache `estadoOC` denormalizado) a TODOS los requerimientos que la
+   * referencian y recomputa su cobertura. Es el ÚNICO sincronizador del denormalizado · lo llama
+   * `cambiarEstado` de la OC (F4 · B3). Al pasar borrador→firme la cobertura SUBE (la ref ya estaba,
+   * ahora `esFirme` la cuenta). Atómico por writeBatch. NO toca refs canceladas (siguen canceladas).
+   */
+  async propagarEstadoOCaRequerimientos(
+    ordenCompraId: string,
+    _ordenCompraNumero: string,
+    nuevoEstadoOC: string
+  ): Promise<void> {
+    const reqsSnap = await getDocs(
+      query(collection(db, COLLECTION_NAME), where('ordenCompraIds', 'array-contains', ordenCompraId))
+    );
+    if (reqsSnap.empty) return;
+
+    const batch = writeBatch(db);
+    for (const reqDoc of reqsSnap.docs) {
+      const reqData = reqDoc.data();
+      const productos = reqData.productos || [];
+      const productosConEstado = aplicarEstadoOCaRefs(productos, ordenCompraId, nuevoEstadoOC);
+      const { productos: productosActualizados, ocCoverage, estadoSugerido } =
+        recomputarCoberturaProductos(productosConEstado);
+
+      // El estado del req SOLO se mueve dentro de los estados de cobertura (no degradar
+      // pendiente/aprobación ni pisar completado/cancelado · la recepción es Fase C).
+      const ESTADOS_COBERTURA = ['aprobado', 'parcial', 'en_proceso'];
+      const estadoFinal = ESTADOS_COBERTURA.includes(reqData.estado) ? estadoSugerido : reqData.estado;
+
+      batch.update(reqDoc.ref, {
+        productos: productosActualizados,
+        ocCoverage,
+        estado: estadoFinal,
+        ultimaEdicion: serverTimestamp(),
+      });
+    }
+    await batch.commit();
   },
 
   /**
