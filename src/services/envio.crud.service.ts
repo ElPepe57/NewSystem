@@ -1693,7 +1693,8 @@ export const envioCrudService = {
             actualizadoPor: userId,
             fechaActualizacion: Timestamp.now(),
           };
-          if (!unidadData.costoGAGOAsignado || unidadData.costoGAGOAsignado === 0) {
+          const gagoAsignado = (unidadData.costoGAAsignado || 0) + (unidadData.costoGOAsignado || 0);
+          if (gagoAsignado === 0) {
             updateData.ctruDinamico = nuevoCtruInicial;
           }
           batch.update(unidadRef, updateData);

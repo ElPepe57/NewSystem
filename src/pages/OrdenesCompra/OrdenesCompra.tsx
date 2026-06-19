@@ -1042,9 +1042,9 @@ export const OrdenesCompra: React.FC = () => {
           <div className="bg-slate-50 rounded-xl p-4 md:p-5 space-y-2.5 border border-slate-100">
             {loading && ordenesFiltradas.length === 0 ? (
               <>
-                <HubCard loading />
-                <HubCard loading />
-                <HubCard loading />
+                <HubCard loading title="" />
+                <HubCard loading title="" />
+                <HubCard loading title="" />
               </>
             ) : ordenesLN.length === 0 ? (
               <div className="bg-white border border-slate-200 rounded-xl py-8 px-4 text-center">
