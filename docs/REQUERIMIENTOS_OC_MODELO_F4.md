@@ -125,16 +125,22 @@ del lead: §12.3.
 
 **Verdad = lista `ordenCompraRefs[]` por (req × producto), cada ref con `estado`.** Derivado, no escalar mutado.
 
-**Invariante maestro** (por tupla req × producto):
+**Invariante maestro** (por tupla req × producto · ✅ CORREGIDO en Fase B):
 
 ```
-cantidadSolicitada = enOC_vigente + cancelado + pendienteCompra
+cantidadSolicitada = enOC_vigente + pendienteCompra        (sin sobre-compra)
+enOC_vigente       = cantidadSolicitada + sobrecompra      (con sobre-compra · pendiente=0)
 
-enOC_vigente   = Σ ref.cantidadPedida   WHERE  OC.estado ≥ 'enviada' (FIRME · 12.9)  AND  ref.estado ≠ cancelada
-recibido       = Σ ref.cantidadRecibida (⊆ enOC_vigente · cobertura CUMPLIDA e inmutable)
-cancelado      = Σ ref.cantidadPedida   WHERE  ref.estado = cancelada   (bucket explícito · hoy NO existe)
-pendienteCompra = cantidadSolicitada − enOC_vigente
+enOC_vigente    = Σ ref.cantidad   WHERE  esFirme(OC.estado) (≥ enviada/confirmada · 12.9)  AND  ref.estado ≠ 'cancelada'
+pendienteCompra = max(0, cantidadSolicitada − enOC_vigente)   ← los BORRADOR y CANCELADOS caen acá
+sobrecompra     = max(0, enOC_vigente − cantidadSolicitada)   ← exceso VISIBLE (no clampeado a silencio)
+recibido        = Σ ref.cantidadRecibida   (Fase C · ⊆ enOC_vigente · cumplida e inmutable)
 ```
+
+> ⚠️ **Corrección de Fase B (07da8ee):** `cancelado` **NO es un término de partición** — los cancelados vuelven a
+> `pendiente` (se re-compran). Es solo una métrica de **auditoría** derivable (`Σ ref cancelada`). El invariante de 3
+> términos anterior doble-contaba. `esFirme()` usa un **set explícito** (EstadoOrden no es ordenable con `≥`).
+> Implementado y testeado (12 tests) en `src/services/requerimiento.cobertura.ts`.
 
 - 🟢 **Una OC en BORRADOR NO cuenta como cobertura** (12.9): su producto sigue `pendiente` y es libremente
   retractable. Solo cuenta desde **enviada**.
@@ -376,7 +382,7 @@ código real (línea exacta) cada **BUG VIVO** de §11, el invariante de cobertu
 | Fase | Contenido | Riesgo | Depende de |
 |---|---|---|---|
 | **A** ✅ HECHO | Re-modelo de origen (taxonomía **2 orígenes**+subtipo · form · chips · tesis triple-candado + límite) · **commit cfb9e90** · tsc-clean | Bajo (no ramifica) | — |
-| **B** | Motor de cobertura derivada (desde 'enviada') + invariante + alerta sobre-compra + `cancelarReferenciaOC` (3 alcances) + regla del envío | **Alto** (correctitud núcleo) | verificación §13 |
+| **B** 🔣 en curso | Motor de cobertura derivada + invariante + `cancelarReferenciaOC` + regla del envío. **B0+B1 ✅ HECHO** (helper puro `recomputarCoberturaProductos` + filtro `esFirme` + sobrecompra · 12 tests · `07da8ee`). Pendiente: B2 `cancelarReferenciaOC` (modos de `_revertirOCEnReq`) · B3 sync `cambiarEstado` (cross-doc) · B4 cancel-req + dedup · B5 UI | **Alto** | verificación §13 ✅ |
 | **C** | Reservas transversales: schema único + liberación única + reclasificación libre↔reservada + reparar cron (60d) | Alto | B |
 | **D** | OCBuilder: WizardShell + atribución determinística + creación atómica + propagar origen + subsumir asignaciones | Medio | A, B |
 | **E** | Unificar cotización + lead/consulta en Cotizaciones + borrar parches (keystone) · rework Ventas | Medio (greenfield) | B |
