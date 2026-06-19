@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { esFirme, recomputarCoberturaProductos } from './requerimiento.cobertura';
+import { esFirme, recomputarCoberturaProductos, aplicarCancelacionRef } from './requerimiento.cobertura';
 
 // ── factories ───────────────────────────────────────────────────────────────
 const ref = (cantidad: number, estadoOC?: string, estado?: 'vigente' | 'cancelada') =>
@@ -96,5 +96,49 @@ describe('recomputarCoberturaProductos · cobertura derivada (§4)', () => {
     const snapshot = JSON.stringify(input);
     recomputarCoberturaProductos(input);
     expect(JSON.stringify(input)).toBe(snapshot);
+  });
+});
+
+describe('aplicarCancelacionRef · 3 modos (B2)', () => {
+  it('delete: quita la ref', () => {
+    const out = aplicarCancelacionRef([prod(10, [ref(10, 'borrador')])], 'OC', 'delete');
+    expect(out[0].ordenCompraRefs.length).toBe(0);
+  });
+
+  it('soft: marca la ref cancelada (la deja) → deja de contar', () => {
+    const out = aplicarCancelacionRef([prod(10, [ref(10, 'enviada')])], 'OC', 'soft');
+    expect(out[0].ordenCompraRefs.length).toBe(1);
+    expect(out[0].ordenCompraRefs[0].estado).toBe('cancelada');
+    const { productos } = recomputarCoberturaProductos(out);
+    expect(productos[0].cantidadEnOC).toBe(0);
+    expect(productos[0].pendienteCompra).toBe(10);
+  });
+
+  it('porcion: reduce la cantidad del producto objetivo · pendiente sube por N', () => {
+    const out = aplicarCancelacionRef([prod(10, [ref(10, 'enviada')])], 'OC', 'porcion', { productoId: 'P', cantidadCancelar: 4 });
+    expect(out[0].ordenCompraRefs[0].cantidad).toBe(6);
+    const { productos } = recomputarCoberturaProductos(out);
+    expect(productos[0].cantidadEnOC).toBe(6);
+    expect(productos[0].pendienteCompra).toBe(4);
+  });
+
+  it('porcion no toca otros productos', () => {
+    const out = aplicarCancelacionRef(
+      [
+        { productoId: 'A', cantidadSolicitada: 10, ordenCompraRefs: [ref(10, 'enviada')] },
+        { productoId: 'B', cantidadSolicitada: 10, ordenCompraRefs: [ref(10, 'enviada')] },
+      ],
+      'OC', 'porcion', { productoId: 'A', cantidadCancelar: 3 }
+    );
+    expect(out[0].ordenCompraRefs[0].cantidad).toBe(7);
+    expect(out[1].ordenCompraRefs[0].cantidad).toBe(10);
+  });
+
+  it('ref de OTRA oc no se toca (scope acotado · BUG-B)', () => {
+    const out = aplicarCancelacionRef(
+      [{ productoId: 'P', cantidadSolicitada: 10, ordenCompraRefs: [{ ordenCompraId: 'OTRA', ordenCompraNumero: 'Y', cantidad: 5 }] }],
+      'OC', 'delete'
+    );
+    expect(out[0].ordenCompraRefs.length).toBe(1);
   });
 });

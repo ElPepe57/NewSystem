@@ -14,7 +14,8 @@ import {
 } from 'firebase/firestore';
 import { getNextSequenceNumber } from '../lib/sequenceGenerator';
 import { db } from '../lib/firebase';
-import { recomputarCoberturaProductos } from './requerimiento.cobertura';
+import { recomputarCoberturaProductos, aplicarCancelacionRef, esFirme, type ModoCancelacionRef } from './requerimiento.cobertura';
+import { ORDENES_COLLECTION } from './ordenCompra.shared';
 import type {
   Requerimiento,
   RequerimientoFormData,
@@ -1075,42 +1076,96 @@ export const requerimientoService = {
   async _revertirOCEnReq(
     reqDoc: any,
     ordenCompraId: string,
-    ordenCompraNumero: string
+    ordenCompraNumero: string,
+    modo: ModoCancelacionRef = 'delete',
+    opts?: { productoId?: string; cantidadCancelar?: number }
   ): Promise<void> {
     const reqData = reqDoc.data() as any;
     const productos = reqData.productos || [];
 
-    // Quitar la ref de esta OC en cada producto (modo delete · retracción/borrado físico)
-    const productosConRefs = productos.map((p: any) => {
-      const refs: any[] = p.ordenCompraRefs || [];
-      const refIdx = refs.findIndex((r: any) => r.ordenCompraId === ordenCompraId);
-      if (refIdx === -1) return p;
-      return { ...p, ordenCompraRefs: refs.filter((_: any, i: number) => i !== refIdx) };
-    });
+    // Mutar la(s) ref(s) de esta OC según el modo (delete/soft/porcion · puro)
+    const productosConRefs = aplicarCancelacionRef(productos, ordenCompraId, modo, opts);
 
-    // Cobertura derivada (mismo motor único que vincular · recomputa del array · §4)
+    // Cobertura derivada (motor único · recomputa del array · §4)
     const { productos: productosActualizados, ocCoverage, estadoSugerido } =
       recomputarCoberturaProductos(productosConRefs);
-    const nuevoEstado = estadoSugerido;
-
-    const ordenCompraIds = (reqData.ordenCompraIds || []).filter((id: string) => id !== ordenCompraId);
-    const ordenCompraNumeros = (reqData.ordenCompraNumeros || []).filter((n: string) => n !== ordenCompraNumero);
 
     const updates: Record<string, any> = {
       productos: productosActualizados,
-      estado: nuevoEstado,
+      estado: estadoSugerido,
       ocCoverage,
-      ordenCompraIds,
-      ordenCompraNumeros,
       ultimaEdicion: serverTimestamp(),
     };
 
-    if (reqData.ordenCompraId === ordenCompraId) {
-      updates.ordenCompraId = ordenCompraIds[0] || null;
-      updates.ordenCompraNumero = ordenCompraNumeros[0] || null;
+    // Si la OC ya no está en ninguna ref tras la mutación (delete la quita · soft/porcion la dejan),
+    // sacarla de los arrays de vínculo del requerimiento.
+    const aunReferenciada = productosActualizados.some((p: any) =>
+      (p.ordenCompraRefs || []).some((r: any) => r.ordenCompraId === ordenCompraId)
+    );
+    if (!aunReferenciada) {
+      const ordenCompraIds = (reqData.ordenCompraIds || []).filter((id: string) => id !== ordenCompraId);
+      const ordenCompraNumeros = (reqData.ordenCompraNumeros || []).filter((n: string) => n !== ordenCompraNumero);
+      updates.ordenCompraIds = ordenCompraIds;
+      updates.ordenCompraNumeros = ordenCompraNumeros;
+      if (reqData.ordenCompraId === ordenCompraId) {
+        updates.ordenCompraId = ordenCompraIds[0] || null;
+        updates.ordenCompraNumero = ordenCompraNumeros[0] || null;
+      }
     }
 
     await updateDoc(doc(db, COLLECTION_NAME, reqDoc.id), updates);
+  },
+
+  /**
+   * Cancela la cobertura de una OC sobre los requerimientos (F4 · §6). 3 alcances:
+   *  - 'oc_completa' : sobre TODOS los reqs que referencian la OC.
+   *  - 'req_en_oc'   : solo el req indicado (la OC consolidada queda viva para los demás · BUG-B).
+   *  - 'porcion'     : N unidades de un producto de un req.
+   * Regla de irreversibilidad (leída de oc.estado): borrador → retrae ('delete' · vuelve al pool);
+   * firme (enviada+) → 'soft' (marca cancelada · la compra procede a stock). Reutiliza _revertirOCEnReq.
+   * NOTA: aún NO cableado a UI ni a cambiarEstado (eso es B3/B4).
+   */
+  async cancelarReferenciaOC(params: {
+    scope: 'oc_completa' | 'req_en_oc' | 'porcion';
+    ordenCompraId: string;
+    ordenCompraNumero: string;
+    requerimientoId?: string;
+    productoId?: string;
+    cantidadCancelar?: number;
+  }): Promise<void> {
+    const { scope, ordenCompraId, ordenCompraNumero, requerimientoId, productoId, cantidadCancelar } = params;
+
+    // Irreversibilidad: el modo sale del estado de la OC (borrador retractable · firme deja rastro)
+    const ocSnap = await getDoc(doc(db, ORDENES_COLLECTION, ordenCompraId));
+    const ocEstado = ocSnap.exists() ? (ocSnap.data() as any).estado : undefined;
+    const modoBase: ModoCancelacionRef = esFirme(ocEstado) ? 'soft' : 'delete';
+
+    if (scope === 'oc_completa') {
+      const reqsSnap = await getDocs(
+        query(collection(db, COLLECTION_NAME), where('ordenCompraIds', 'array-contains', ordenCompraId))
+      );
+      for (const reqDoc of reqsSnap.docs) {
+        await requerimientoService._revertirOCEnReq(reqDoc, ordenCompraId, ordenCompraNumero, modoBase);
+      }
+      return;
+    }
+
+    if (!requerimientoId) {
+      throw new Error(`cancelarReferenciaOC(${scope}): requerimientoId requerido`);
+    }
+    const reqDoc = await getDoc(doc(db, COLLECTION_NAME, requerimientoId));
+    if (!reqDoc.exists()) return;
+
+    if (scope === 'req_en_oc') {
+      await requerimientoService._revertirOCEnReq(reqDoc, ordenCompraId, ordenCompraNumero, modoBase);
+      return;
+    }
+
+    // porcion
+    if (!productoId || cantidadCancelar == null) {
+      throw new Error('cancelarReferenciaOC(porcion): productoId y cantidadCancelar requeridos');
+    }
+    await requerimientoService._revertirOCEnReq(reqDoc, ordenCompraId, ordenCompraNumero, 'porcion', { productoId, cantidadCancelar });
   },
 
   /**

@@ -35,8 +35,8 @@ export function esFirme(estadoOC?: EstadoOrden | string | null): boolean {
   return ESTADOS_OC_FIRMES.has(estadoOC);
 }
 
-interface RefLike { cantidad?: number; estadoOC?: string | null; estado?: 'vigente' | 'cancelada' | null; }
-interface ProductoLike { cantidadSolicitada?: number; ordenCompraRefs?: RefLike[]; [k: string]: unknown; }
+interface RefLike { ordenCompraId?: string; cantidad?: number; estadoOC?: string | null; estado?: 'vigente' | 'cancelada' | null; }
+interface ProductoLike { productoId?: string; cantidadSolicitada?: number; ordenCompraRefs?: RefLike[]; [k: string]: unknown; }
 
 export interface CoberturaAgregada {
   totalProductos: number;
@@ -97,4 +97,41 @@ export function recomputarCoberturaProductos<P extends ProductoLike>(productos: 
     ocCoverage: { totalProductos: actualizados.length, productosEnOC, productosPendientes, porcentaje, tieneSobrecompra },
     estadoSugerido,
   };
+}
+
+/** Modo de cancelación de una ref de OC (Fase B · §6). */
+export type ModoCancelacionRef = 'delete' | 'soft' | 'porcion';
+
+/**
+ * Aplica una mutación a la(s) ref(s) de `ordenCompraId` en los productos. PURA (devuelve copias).
+ *  - 'delete'  : quita la ref (retracción / borrado físico de OC borrador · sin rastro).
+ *  - 'soft'    : marca la ref `estado='cancelada'` (deja rastro · OC firme · la compra procede).
+ *  - 'porcion' : reduce `cantidad` de la ref del producto `opts.productoId` en `opts.cantidadCancelar`.
+ * La cobertura se recomputa aparte con `recomputarCoberturaProductos`.
+ */
+export function aplicarCancelacionRef<P extends ProductoLike>(
+  productos: P[],
+  ordenCompraId: string,
+  modo: ModoCancelacionRef,
+  opts?: { productoId?: string; cantidadCancelar?: number }
+): P[] {
+  return productos.map((p) => {
+    const refs = (p.ordenCompraRefs || []) as RefLike[];
+    const idx = refs.findIndex((r) => r.ordenCompraId === ordenCompraId);
+    if (idx === -1) return p;
+
+    if (modo === 'porcion') {
+      if (opts?.productoId && p.productoId !== opts.productoId) return p;
+      const nuevasRefs = refs.map((r, i) =>
+        i === idx ? { ...r, cantidad: Math.max(0, (r.cantidad || 0) - (opts?.cantidadCancelar || 0)) } : r
+      );
+      return { ...p, ordenCompraRefs: nuevasRefs };
+    }
+    if (modo === 'soft') {
+      const nuevasRefs = refs.map((r, i) => (i === idx ? { ...r, estado: 'cancelada' as const } : r));
+      return { ...p, ordenCompraRefs: nuevasRefs };
+    }
+    // delete
+    return { ...p, ordenCompraRefs: refs.filter((_, i) => i !== idx) };
+  });
 }
