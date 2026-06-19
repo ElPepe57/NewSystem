@@ -543,7 +543,7 @@ export interface SubOrdenCompra {
   impuestoUSD?: number;
   subtotalProductosUSD?: number;
   // Ciclo de vida independiente
-  estado?: 'borrador' | 'en_transito' | 'recibida';
+  estado?: 'borrador' | 'en_transito' | 'recibida' | 'cancelado';
   estadoPago?: 'pendiente' | 'parcial' | 'pagado';
   numeroTracking?: string;
   courier?: string;

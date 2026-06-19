@@ -1,5 +1,6 @@
 import { Timestamp } from 'firebase/firestore';
 import type { AtributosSkincare } from './producto.types';
+import type { EstadoOrden } from './ordenCompra.types';
 
 /**
  * Estado del requerimiento
@@ -125,6 +126,10 @@ export interface OrdenCompraRef {
   ordenCompraId: string;
   ordenCompraNumero: string;
   cantidad: number;
+  /** F4 · estado de la OC denormalizado (cache · lo sincroniza cambiarEstado). Ausente = legacy (se cuenta). */
+  estadoOC?: EstadoOrden;
+  /** F4 · estado propio de la línea (no derivable de la OC). 'cancelada' = línea cancelada (bucket cancelado). */
+  estado?: 'vigente' | 'cancelada';
 }
 
 /**
@@ -135,6 +140,7 @@ export interface OCCoverage {
   productosEnOC: number;            // Productos con cantidadEnOC > 0
   productosPendientes: number;      // Productos con pendienteCompra > 0
   porcentaje: number;               // 0-100, cobertura ponderada por cantidad
+  tieneSobrecompra?: boolean;       // F4 · algún producto con cantidadEnOC > solicitada
 }
 
 /**
@@ -158,8 +164,9 @@ export interface ProductoRequerimiento {
   cantidadPendiente: number;          // cantidadSolicitada - cantidadAsignada
 
   // Tracking OC parcial
-  cantidadEnOC: number;               // Cuánto ya está asignado a OCs creadas
-  pendienteCompra: number;            // cantidadSolicitada - cantidadEnOC
+  cantidadEnOC: number;               // Σ refs FIRMES y no canceladas (cobertura vigente · F4)
+  pendienteCompra: number;            // max(0, cantidadSolicitada - cantidadEnOC)
+  sobrecompra?: number;               // F4 · max(0, cantidadEnOC - cantidadSolicitada) · exceso visible
   ordenCompraRefs?: OrdenCompraRef[]; // A qué OCs fue asignado este producto
 
   // Precios de referencia (de investigación de mercado)

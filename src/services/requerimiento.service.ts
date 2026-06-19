@@ -14,6 +14,7 @@ import {
 } from 'firebase/firestore';
 import { getNextSequenceNumber } from '../lib/sequenceGenerator';
 import { db } from '../lib/firebase';
+import { recomputarCoberturaProductos } from './requerimiento.cobertura';
 import type {
   Requerimiento,
   RequerimientoFormData,
@@ -995,62 +996,31 @@ export const requerimientoService = {
     const reqData = reqDoc.data() as any;
     const productos = reqData.productos || [];
 
-    const productosActualizados = productos.map((p: any) => {
+    // Construir/actualizar las refs por producto (EDGE-003: dedup por ordenCompraId · sin doble conteo)
+    const productosConRefs = productos.map((p: any) => {
       const ocItem = productosOC.find(o => o.productoId === p.productoId);
       if (!ocItem) return p;
 
-      const refs: Array<{ ordenCompraId: string; ordenCompraNumero: string; cantidad: number }> =
-        p.ordenCompraRefs || [];
-
-      // EDGE-003 FIX: deduplicar por ordenCompraId para que un reintento de red
-      // no duplique la entrada ni incremente cantidadEnOC más de una vez.
+      const refs: any[] = [...(p.ordenCompraRefs || [])];
       const indiceExistente = refs.findIndex((r) => r.ordenCompraId === ordenCompraId);
       if (indiceExistente >= 0) {
-        // Ya vinculado — actualizar la cantidad en la entrada existente sin sumar de nuevo
-        refs[indiceExistente] = { ordenCompraId, ordenCompraNumero, cantidad: ocItem.cantidad };
+        // Ya vinculado — actualizar la cantidad en la entrada existente sin duplicar
+        refs[indiceExistente] = { ...refs[indiceExistente], ordenCompraId, ordenCompraNumero, cantidad: ocItem.cantidad };
       } else {
         refs.push({ ordenCompraId, ordenCompraNumero, cantidad: ocItem.cantidad });
       }
-
-      // Recalcular cantidadEnOC sumando todas las refs para evitar doble conteo
-      const cantidadEnOC = refs.reduce((sum, r) => sum + r.cantidad, 0);
-      const pendienteCompra = Math.max(0, (p.cantidadSolicitada || 0) - cantidadEnOC);
-
-      return {
-        ...p,
-        cantidadEnOC,
-        pendienteCompra,
-        ordenCompraRefs: refs,
-      };
+      return { ...p, ordenCompraRefs: refs };
     });
 
-    let totalCantidad = 0;
-    let cantidadCubierta = 0;
-    let productosEnOC = 0;
-    let productosPendientes = 0;
-    for (const p of productosActualizados) {
-      const solicitada = p.cantidadSolicitada || 0;
-      const enOC = p.cantidadEnOC || 0;
-      totalCantidad += solicitada;
-      cantidadCubierta += Math.min(enOC, solicitada);
-      if (enOC > 0) productosEnOC++;
-      if ((p.pendienteCompra ?? solicitada) > 0) productosPendientes++;
-    }
-    const porcentaje = totalCantidad > 0 ? Math.round((cantidadCubierta / totalCantidad) * 100) : 0;
+    // Cobertura derivada (fuente única · cuenta solo OCs firmes y no canceladas · §4)
+    const { productos: productosActualizados, ocCoverage, estadoSugerido } =
+      recomputarCoberturaProductos(productosConRefs);
 
-    const ocCoverage = {
-      totalProductos: productosActualizados.length,
-      productosEnOC,
-      productosPendientes,
-      porcentaje,
-    };
-
-    const allCovered = porcentaje >= 100;
-    const someCovered = porcentaje > 0;
+    // Al vincular solo se SUBE el estado (la baja a 'aprobado' la hace la reversión)
     let nuevoEstado = reqData.estado;
-    if (allCovered) {
+    if (estadoSugerido === 'en_proceso') {
       nuevoEstado = 'en_proceso';
-    } else if (someCovered) {
+    } else if (estadoSugerido === 'parcial') {
       nuevoEstado = 'parcial';
     }
 
@@ -1110,53 +1080,18 @@ export const requerimientoService = {
     const reqData = reqDoc.data() as any;
     const productos = reqData.productos || [];
 
-    const productosActualizados = productos.map((p: any) => {
-      const refs: Array<{ ordenCompraId: string; ordenCompraNumero: string; cantidad: number }> = p.ordenCompraRefs || [];
+    // Quitar la ref de esta OC en cada producto (modo delete · retracción/borrado físico)
+    const productosConRefs = productos.map((p: any) => {
+      const refs: any[] = p.ordenCompraRefs || [];
       const refIdx = refs.findIndex((r: any) => r.ordenCompraId === ordenCompraId);
       if (refIdx === -1) return p;
-
-      const cantidadRevertir = refs[refIdx].cantidad;
-      const newRefs = refs.filter((_: any, i: number) => i !== refIdx);
-      const cantidadEnOC = Math.max(0, (p.cantidadEnOC || 0) - cantidadRevertir);
-      const pendienteCompra = Math.max(0, (p.cantidadSolicitada || 0) - cantidadEnOC);
-
-      return {
-        ...p,
-        cantidadEnOC,
-        pendienteCompra,
-        ordenCompraRefs: newRefs,
-      };
+      return { ...p, ordenCompraRefs: refs.filter((_: any, i: number) => i !== refIdx) };
     });
 
-    let totalCantidad = 0;
-    let cantidadCubierta = 0;
-    let productosEnOC = 0;
-    let productosPendientes = 0;
-    for (const p of productosActualizados) {
-      const solicitada = p.cantidadSolicitada || 0;
-      const enOC = p.cantidadEnOC || 0;
-      totalCantidad += solicitada;
-      cantidadCubierta += Math.min(enOC, solicitada);
-      if (enOC > 0) productosEnOC++;
-      if ((p.pendienteCompra ?? solicitada) > 0) productosPendientes++;
-    }
-    const porcentaje = totalCantidad > 0 ? Math.round((cantidadCubierta / totalCantidad) * 100) : 0;
-
-    const ocCoverage = {
-      totalProductos: productosActualizados.length,
-      productosEnOC,
-      productosPendientes,
-      porcentaje,
-    };
-
-    let nuevoEstado = reqData.estado;
-    if (porcentaje >= 100) {
-      nuevoEstado = 'en_proceso';
-    } else if (porcentaje > 0) {
-      nuevoEstado = 'parcial';
-    } else {
-      nuevoEstado = 'aprobado';
-    }
+    // Cobertura derivada (mismo motor único que vincular · recomputa del array · §4)
+    const { productos: productosActualizados, ocCoverage, estadoSugerido } =
+      recomputarCoberturaProductos(productosConRefs);
+    const nuevoEstado = estadoSugerido;
 
     const ordenCompraIds = (reqData.ordenCompraIds || []).filter((id: string) => id !== ordenCompraId);
     const ordenCompraNumeros = (reqData.ordenCompraNumeros || []).filter((n: string) => n !== ordenCompraNumero);
