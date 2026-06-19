@@ -382,7 +382,7 @@ código real (línea exacta) cada **BUG VIVO** de §11, el invariante de cobertu
 | Fase | Contenido | Riesgo | Depende de |
 |---|---|---|---|
 | **A** ✅ HECHO | Re-modelo de origen (taxonomía **2 orígenes**+subtipo · form · chips · tesis triple-candado + límite) · **commit cfb9e90** · tsc-clean | Bajo (no ramifica) | — |
-| **B** 🔣 en curso | Motor de cobertura derivada + invariante + `cancelarReferenciaOC` + regla del envío. **B0+B1 ✅ HECHO** (helper puro `recomputarCoberturaProductos` + filtro `esFirme` + sobrecompra · 12 tests · `07da8ee`). Pendiente: B2 `cancelarReferenciaOC` (modos de `_revertirOCEnReq`) · B3 sync `cambiarEstado` (cross-doc) · B4 cancel-req + dedup · B5 UI | **Alto** | verificación §13 ✅ |
+| **B** 🔣 en curso | Motor de cobertura derivada + invariante + `cancelarReferenciaOC` + regla del envío. **B0+B1+B2 ✅** (helper puro `recomputarCoberturaProductos` + `esFirme` + sobrecompra · `aplicarCancelacionRef` 3 modos + `cancelarReferenciaOC` 3 alcances · 17 tests · `07da8ee`+`f550ee8`). Pendiente: **B3 sync `cambiarEstado`** (cross-doc · mayor riesgo · cablea cancelarReferenciaOC + propaga estadoOC) · B4 cancel-req + dedup · B5 UI | **Alto** | §13 ✅ |
 | **C** | Reservas transversales: schema único + liberación única + reclasificación libre↔reservada + reparar cron (60d) | Alto | B |
 | **D** | OCBuilder: WizardShell + atribución determinística + creación atómica + propagar origen + subsumir asignaciones | Medio | A, B |
 | **E** | Unificar cotización + lead/consulta en Cotizaciones + borrar parches (keystone) · rework Ventas | Medio (greenfield) | B |
