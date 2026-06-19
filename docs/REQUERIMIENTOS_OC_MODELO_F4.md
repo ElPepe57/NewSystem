@@ -391,12 +391,14 @@ NO hay `stockMinimo` manual. El sistema **aprende el piso** de cada producto des
   **no entrampar capital** en un producto no probado). Luego el sistema lo **ajusta** según la rotación real.
 - Mata el `stockMinimo` estático (default=5, era deuda) → **punto de reorden dinámico aprendido**.
 
-### 15.3 · Lente de desempeño del comprador (atribución + reconocimiento)
-Toda compra que **nace de una persona** (apuesta/manual) queda **atribuida** a ella. El sistema evalúa la **rotación de
-sus requerimientos** (¿los productos que trajo se mueven?) → **scorecard de acierto** para **reconocer y CELEBRAR el
-juicio de valor** (framing **positivo**, no punitivo). NO es una entidad "grupo de compras" — es **atribución +
-reconocimiento** de quién encuentra buenos productos.
-- **Visibilidad:** **admin + la propia persona** (transparente) · toca "admin ve todo" + perfiles.
+### 15.3 · Desempeño del comprador — el DATO vive aquí, la VISTA no (atribución + reconocimiento)
+Toda compra que **nace de una persona** (apuesta/manual) queda **atribuida** a ella. Requerimientos **computa y expone**
+la **rotación orgánica de sus requerimientos** (¿los productos que trajo se mueven?) = el dato del scorecard de acierto.
+NO es una entidad "grupo de compras" — es **atribución + reconocimiento** de quién encuentra buenos productos.
+🟢 **UBICACIÓN (decisión usuario · canon de ubicación):** el scorecard **NO es una tab de Requerimientos** — se muestra
+como **métrica en Mi Perfil** (la propia persona ve su acierto · framing positivo, **celebra** su juicio) **y en
+Usuarios** (admin/Equipo ve el del equipo · quién tiene mejor ojo para productos). Requerimientos **alimenta**; Mi
+Perfil/Usuarios **presentan**. Conecta con [[perfiles-por-rol-plan]] (bloque tipo "ResumenComprador" en su perfil).
 - **Foco:** el juicio se mide sobre todo en reqs de **producto nuevo/apuesta** (donde "encontrar buenos productos"
   importa) · el restock es rutina, mide poco juicio.
 
