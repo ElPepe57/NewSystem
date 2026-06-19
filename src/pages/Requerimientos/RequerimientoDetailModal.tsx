@@ -11,16 +11,15 @@ import {
   UserCheck,
   ExternalLink,
   Users,
-  Building2,
-  Target,
-  Lightbulb
+  Building2
 } from 'lucide-react';
 import { Button, Modal, Badge } from '../../components/common';
 import { formatFecha as formatDate } from '../../utils/dateFormatters';
 import { formatCurrency } from '../../utils/format';
 import { getDescripcionProducto } from '../../utils/producto.helpers';
 import { getLabelEstadoAsignacion } from '../../utils/multiOrigen.helpers';
-import type { Requerimiento, EstadoRequerimiento, TipoSolicitante } from '../../types/requerimiento.types';
+import { getOrigenLabel } from '../../types/requerimiento.types';
+import type { Requerimiento, EstadoRequerimiento } from '../../types/requerimiento.types';
 import type { AsignacionResponsable } from '../../types/requerimiento.types';
 
 interface RequerimientoDetailModalProps {
@@ -70,15 +69,10 @@ const getPrioridadBadge = (prioridad: string) => {
   );
 };
 
-const getSolicitanteIcon = (tipo: TipoSolicitante) => {
-  switch (tipo) {
-    case 'cliente': return <Users className="h-4 w-4 text-sky-500" />;
-    case 'administracion': return <Building2 className="h-4 w-4 text-slate-500" />;
-    case 'ventas': return <Target className="h-4 w-4 text-emerald-500" />;
-    case 'investigacion': return <Lightbulb className="h-4 w-4 text-yellow-500" />;
-    default: return null;
-  }
-};
+const getOrigenIcon = (req: Requerimiento) =>
+  req.origen === 'demanda_comprometida'
+    ? <Users className="h-4 w-4 text-sky-500" />
+    : <Building2 className="h-4 w-4 text-slate-500" />;
 
 const getAsignacionEstadoBadge = (estado: string, paisOrigen?: string) => {
   const variantMap: Record<string, 'warning' | 'info' | 'success' | 'default' | 'danger'> = {
@@ -129,7 +123,9 @@ export const RequerimientoDetailModal: React.FC<RequerimientoDetailModalProps> =
           </div>
           <div>
             <label className="text-sm text-slate-500">Origen</label>
-            <div className="mt-1 font-medium">{req.origen.replace('_', ' ')}</div>
+            <div className="mt-1 font-medium">
+              {req.origen === 'demanda_comprometida' ? 'Demanda comprometida' : `Administrativo${req.subtipo ? ` · ${req.subtipo}` : ''}`}
+            </div>
           </div>
           <div>
             <label className="text-sm text-slate-500">Fecha</label>
@@ -137,20 +133,18 @@ export const RequerimientoDetailModal: React.FC<RequerimientoDetailModalProps> =
           </div>
         </div>
 
-        {/* Solicitante */}
+        {/* Origen / solicitante */}
         <div className="bg-slate-50 p-4 rounded-lg">
           <label className="text-sm text-slate-500">Solicitado por</label>
           <div className="mt-1 font-medium text-slate-900 flex items-center">
-            {getSolicitanteIcon(req.tipoSolicitante)}
-            <span className="ml-2">
-              {req.tipoSolicitante === 'cliente' && req.nombreClienteSolicitante
-                ? `Cliente: ${req.nombreClienteSolicitante}`
-                : req.tipoSolicitante === 'administracion' ? 'Administracion (Stock)'
-                : req.tipoSolicitante === 'ventas' ? 'Equipo de Ventas'
-                : req.tipoSolicitante === 'investigacion' ? 'Investigacion de Mercado'
-                : '-'}
-            </span>
+            {getOrigenIcon(req)}
+            <span className="ml-2">{getOrigenLabel(req)}</span>
           </div>
+          {req.tesis && (
+            <div className="mt-2 text-sm text-slate-600">
+              <span className="font-medium text-slate-500">Tesis: </span>{req.tesis}
+            </div>
+          )}
         </div>
 
         {/* Expectativa financiera */}

@@ -7,14 +7,13 @@ import {
   AlertTriangle,
   Users,
   Building2,
-  Target,
-  Lightbulb,
   CheckSquare,
   Square
 } from 'lucide-react';
 import { Button, LineaNegocioBadge } from '../../components/common';
 import { formatCurrency } from '../../utils/format';
-import type { Requerimiento, TipoSolicitante } from '../../types/requerimiento.types';
+import { getOrigenLabel } from '../../types/requerimiento.types';
+import type { Requerimiento } from '../../types/requerimiento.types';
 
 interface KanbanCardProps {
   req: Requerimiento;
@@ -44,27 +43,10 @@ const getPrioridadBadge = (prioridad: string) => {
   );
 };
 
-const getSolicitanteIcon = (tipo: TipoSolicitante) => {
-  switch (tipo) {
-    case 'cliente': return <Users className="h-4 w-4 text-sky-500" />;
-    case 'administracion': return <Building2 className="h-4 w-4 text-slate-500" />;
-    case 'ventas': return <Target className="h-4 w-4 text-emerald-500" />;
-    case 'investigacion': return <Lightbulb className="h-4 w-4 text-yellow-500" />;
-    default: return null;
-  }
-};
-
-const getSolicitanteLabel = (req: Requerimiento) => {
-  if (req.tipoSolicitante === 'cliente' && req.nombreClienteSolicitante) {
-    return req.nombreClienteSolicitante;
-  }
-  switch (req.tipoSolicitante) {
-    case 'administracion': return 'Administracion';
-    case 'ventas': return 'Ventas';
-    case 'investigacion': return 'Investigacion';
-    default: return req.origen?.replace('_', ' ') || '-';
-  }
-};
+const getOrigenIcon = (req: Requerimiento) =>
+  req.origen === 'demanda_comprometida'
+    ? <Users className="h-4 w-4 text-sky-500" />
+    : <Building2 className="h-4 w-4 text-slate-500" />;
 
 export const KanbanCard: React.FC<KanbanCardProps> = ({
   req,
@@ -109,8 +91,8 @@ export const KanbanCard: React.FC<KanbanCardProps> = ({
 
       {/* Solicitante */}
       <div className="flex items-center text-sm text-slate-600 mb-2">
-        {getSolicitanteIcon(req.tipoSolicitante)}
-        <span className="ml-1.5 truncate">{getSolicitanteLabel(req)}</span>
+        {getOrigenIcon(req)}
+        <span className="ml-1.5 truncate">{getOrigenLabel(req)}</span>
       </div>
 
       {/* Productos + Linea */}

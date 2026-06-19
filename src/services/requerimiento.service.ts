@@ -157,6 +157,11 @@ export const requerimientoService = {
     data: RequerimientoFormData,
     userId: string
   ): Promise<string> {
+    // Candado duro (F4): la tesis es obligatoria para una apuesta
+    if (data.origen === 'administrativo' && data.subtipo === 'apuesta' && !data.tesis?.trim()) {
+      throw new Error('La tesis es obligatoria para un requerimiento de tipo apuesta');
+    }
+
     // Verificar duplicados si viene de una cotización/venta
     if (data.ventaRelacionadaId) {
       const reqsExistentes = await requerimientoService.getRequerimientos();
@@ -238,7 +243,6 @@ export const requerimientoService = {
     const requerimiento: Record<string, any> = {
       numeroRequerimiento,
       origen: data.origen,
-      tipoSolicitante: data.tipoSolicitante,
       productos: productosConInfo,
       asignaciones: [],
       expectativa: {
@@ -291,6 +295,12 @@ export const requerimientoService = {
     if (data.observaciones) {
       requerimiento.observaciones = data.observaciones;
     }
+    if (data.subtipo) {
+      requerimiento.subtipo = data.subtipo;
+    }
+    if (data.tesis?.trim()) {
+      requerimiento.tesis = data.tesis.trim();
+    }
 
     const docRef = await addDoc(collection(db, COLLECTION_NAME), requerimiento);
 
@@ -338,9 +348,8 @@ export const requerimientoService = {
     }
 
     const formData: RequerimientoFormData = {
-      origen: 'venta_pendiente',
+      origen: 'demanda_comprometida',
       ventaRelacionadaId: cotizacionId,
-      tipoSolicitante: 'cliente',
       nombreClienteSolicitante: nombreCliente,
       prioridad: 'alta',
       productos: productos.map(p => ({
@@ -544,7 +553,8 @@ export const requerimientoService = {
       const nuevoRequerimiento: Omit<Requerimiento, 'id'> = {
         numeroRequerimiento,
         origen: data.origen,
-        tipoSolicitante: data.tipoSolicitante,
+        subtipo: data.subtipo,
+        tesis: data.tesis,
         nombreSolicitante: data.nombreSolicitante,
         cotizacionId: data.cotizacionId,
         cotizacionNumero: data.cotizacionNumero,

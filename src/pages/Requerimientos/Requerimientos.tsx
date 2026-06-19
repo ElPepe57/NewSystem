@@ -107,9 +107,9 @@ export const Requerimientos: React.FC = () => {
 
   // Form
   const [formData, setFormData] = useState<Partial<RequerimientoFormData>>({
-    origen: 'manual',
+    origen: 'administrativo',
+    subtipo: 'manual',
     prioridad: 'media',
-    tipoSolicitante: 'administracion',
     productos: []
   });
 
@@ -394,7 +394,7 @@ export const Requerimientos: React.FC = () => {
         user.uid
       );
       setIsModalOpen(false);
-      setFormData({ origen: 'manual', prioridad: 'media', tipoSolicitante: 'administracion', productos: [] });
+      setFormData({ origen: 'administrativo', subtipo: 'manual', prioridad: 'media', productos: [] });
       loadData();
     } catch (error: any) {
       toast.error(error.message, 'Error al crear requerimiento');
@@ -422,8 +422,8 @@ export const Requerimientos: React.FC = () => {
   const handleCrearDesdeSugerencia = async (sugerencia: SugerenciaStock) => {
     const cantidadSugerida = Math.max(sugerencia.stockMinimo * 2, 10);
     setFormData({
-      origen: 'stock_minimo',
-      tipoSolicitante: 'administracion',
+      origen: 'administrativo',
+      subtipo: 'restock',
       prioridad: sugerencia.urgencia === 'critica' ? 'alta' : sugerencia.urgencia === 'alta' ? 'alta' : 'media',
       productos: [{
         productoId: sugerencia.producto.id,
@@ -467,9 +467,8 @@ export const Requerimientos: React.FC = () => {
     });
 
     setFormData({
-      origen: 'venta_pendiente',
+      origen: 'demanda_comprometida',
       ventaRelacionadaId: venta.id,
-      tipoSolicitante: 'cliente',
       nombreClienteSolicitante: venta.nombreCliente,
       prioridad: 'alta',
       productos: productosRequerimiento,

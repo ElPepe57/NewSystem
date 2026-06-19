@@ -25,24 +25,19 @@ export const UMBRAL_APROBACION_DUAL_USD = 1000;
 export type PrioridadRequerimiento = 'baja' | 'normal' | 'media' | 'alta' | 'urgente';
 
 /**
- * Origen del requerimiento
+ * Origen del requerimiento (F4 · 2 orígenes · "Investigado" es fase/gate, no origen)
  */
 export type OrigenRequerimiento =
-  | 'venta_pendiente'     // Desde cotización con productos sin stock
-  | 'stock_minimo'        // Alerta de stock mínimo
-  | 'proyeccion'          // Proyección de demanda
-  | 'manual';             // Creación manual
+  | 'administrativo'         // La empresa decide comprar por su cuenta
+  | 'demanda_comprometida';  // Cliente comprometido (vía cotización)
 
 /**
- * Tipo de solicitante del requerimiento
+ * Subtipo del origen Administrativo
  */
-export type TipoSolicitante =
-  | 'cliente'           // Pedido por un cliente específico
-  | 'interno'           // Interno (administración/equipo)
-  | 'administracion'    // Por administración
-  | 'ventas'            // Por equipo de ventas
-  | 'stock_minimo'      // Por alerta de stock mínimo
-  | 'investigacion';    // Producto encontrado en investigación de mercado
+export type OrigenSubtipo =
+  | 'restock'   // Reposición de producto en rotación (por alerta de stock)
+  | 'manual'    // Decisión deliberada de compra
+  | 'apuesta';  // Producto nuevo sin cliente · demanda incierta (exige tesis)
 
 /**
  * Estado de una asignación de responsable
@@ -209,11 +204,12 @@ export interface Requerimiento {
   id: string;
   numeroRequerimiento: string;        // REQ-YYYY-NNNN
 
-  // Origen y solicitante
+  // Origen (F4 · 2 orígenes + subtipo)
   origen: OrigenRequerimiento;
-  tipoSolicitante: TipoSolicitante;
+  subtipo?: OrigenSubtipo;            // Solo para origen='administrativo'
+  tesis?: string;                     // Obligatoria para subtipo='apuesta'
   nombreSolicitante?: string;         // Nombre del cliente o área
-  nombreClienteSolicitante?: string;  // Alias legacy (si tipoSolicitante === 'cliente')
+  nombreClienteSolicitante?: string;  // Nombre del cliente (demanda_comprometida)
 
   // Referencias
   cotizacionId?: string;              // Cotización que lo originó
@@ -284,9 +280,10 @@ export interface Requerimiento {
  */
 export interface RequerimientoFormData {
   origen: OrigenRequerimiento;
-  tipoSolicitante: TipoSolicitante;
+  subtipo?: OrigenSubtipo;
+  tesis?: string;
   nombreSolicitante?: string;
-  nombreClienteSolicitante?: string;  // Legacy alias
+  nombreClienteSolicitante?: string;
 
   cotizacionId?: string;
   cotizacionNumero?: string;
@@ -423,4 +420,20 @@ export interface RequerimientoResumen {
   fechaSolicitud: Timestamp;
   fechaRequerida?: Timestamp;
   costoEstimadoUSD: number;
+}
+
+/**
+ * Etiqueta legible del origen + subtipo (display · F4).
+ */
+export function getOrigenLabel(
+  req: Pick<Requerimiento, 'origen' | 'subtipo' | 'nombreClienteSolicitante' | 'clienteNombre'>
+): string {
+  if (req.origen === 'demanda_comprometida') {
+    const cli = req.nombreClienteSolicitante || req.clienteNombre;
+    return cli ? `Cliente · ${cli}` : 'Demanda comprometida';
+  }
+  const sub =
+    req.subtipo === 'restock' ? 'Restock' :
+    req.subtipo === 'apuesta' ? 'Apuesta' : 'Manual';
+  return `Administrativo · ${sub}`;
 }

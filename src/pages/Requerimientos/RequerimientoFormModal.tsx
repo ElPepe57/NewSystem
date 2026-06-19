@@ -11,15 +11,13 @@ import {
   AlertCircle,
   TrendingUp,
   Building2,
-  Target,
-  Users,
-  Lightbulb
+  Users
 } from 'lucide-react';
 import { Button, Modal } from '../../components/common';
 import { ProductoSearchRequerimientos, type ProductoRequerimientoSnapshot } from '../../components/modules/entidades/ProductoSearchRequerimientos';
 import { ClienteAutocomplete } from '../../components/modules/entidades/ClienteAutocomplete';
 import type { ClienteSnapshot } from '../../types/entidadesMaestras.types';
-import type { RequerimientoFormData, TipoSolicitante } from '../../types/requerimiento.types';
+import type { RequerimientoFormData, OrigenRequerimiento } from '../../types/requerimiento.types';
 import type { Producto } from '../../types/producto.types';
 import { getDescripcionProducto } from '../../utils/producto.helpers';
 import type { InvestigacionProducto } from './requerimientos.types';
@@ -117,41 +115,87 @@ export const RequerimientoFormModal: React.FC<RequerimientoFormModalProps> = ({
           </div>
         </div>
 
-        {/* Solicitante - Cards visuales */}
+        {/* Origen del requerimiento (F4 · 2 orígenes + subtipo) */}
         <div>
-          <label className="block text-sm font-medium text-slate-700 mb-3">Quien solicita este requerimiento?</label>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2 sm:gap-3">
+          <label className="block text-sm font-medium text-slate-700 mb-3">Origen del requerimiento</label>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
             {[
-              { id: 'administracion', label: 'Administracion', sublabel: 'Mantener stock', icon: <Building2 className="h-5 w-5" />, color: 'gray' },
-              { id: 'ventas', label: 'Ventas', sublabel: 'Equipo comercial', icon: <Target className="h-5 w-5" />, color: 'green' },
-              { id: 'cliente', label: 'Cliente', sublabel: 'Pedido especifico', icon: <Users className="h-5 w-5" />, color: 'blue' },
-              { id: 'investigacion', label: 'Investigacion', sublabel: 'Producto nuevo', icon: <Lightbulb className="h-5 w-5" />, color: 'yellow' }
-            ].map((tipo) => (
+              { id: 'administrativo', label: 'Administrativo', sublabel: 'La empresa decide comprar', icon: <Building2 className="h-5 w-5" /> },
+              { id: 'demanda_comprometida', label: 'Demanda comprometida', sublabel: 'Cliente comprometido', icon: <Users className="h-5 w-5" /> }
+            ].map((o) => (
               <button
-                key={tipo.id}
+                key={o.id}
                 onClick={() => onFormDataChange({
                   ...formData,
-                  tipoSolicitante: tipo.id as TipoSolicitante,
-                  nombreClienteSolicitante: tipo.id !== 'cliente' ? undefined : formData.nombreClienteSolicitante,
-                  clienteId: tipo.id !== 'cliente' ? undefined : formData.clienteId,
-                  clienteNombre: tipo.id !== 'cliente' ? undefined : formData.clienteNombre
+                  origen: o.id as OrigenRequerimiento,
+                  subtipo: o.id === 'administrativo' ? (formData.subtipo || 'restock') : undefined,
+                  tesis: o.id === 'administrativo' ? formData.tesis : undefined,
+                  nombreClienteSolicitante: o.id === 'demanda_comprometida' ? formData.nombreClienteSolicitante : undefined,
+                  clienteId: o.id === 'demanda_comprometida' ? formData.clienteId : undefined,
+                  clienteNombre: o.id === 'demanda_comprometida' ? formData.clienteNombre : undefined
                 })}
                 className={`p-4 rounded-xl border-2 text-left transition-all ${
-                  formData.tipoSolicitante === tipo.id
-                    ? `border-${tipo.color}-500 bg-${tipo.color}-50 shadow-md`
+                  formData.origen === o.id
+                    ? 'border-blue-500 bg-blue-50 shadow-md'
                     : 'border-slate-200 hover:border-slate-300 hover:bg-slate-50'
                 }`}
               >
-                <div className={`${formData.tipoSolicitante === tipo.id ? `text-${tipo.color}-600` : 'text-slate-400'}`}>
-                  {tipo.icon}
+                <div className={formData.origen === o.id ? 'text-blue-600' : 'text-slate-400'}>
+                  {o.icon}
                 </div>
-                <div className="mt-2 font-medium text-slate-900">{tipo.label}</div>
-                <div className="text-xs text-slate-500">{tipo.sublabel}</div>
+                <div className="mt-2 font-medium text-slate-900">{o.label}</div>
+                <div className="text-xs text-slate-500">{o.sublabel}</div>
               </button>
             ))}
           </div>
-          {/* Campo de cliente inteligente con autocompletado */}
-          {formData.tipoSolicitante === 'cliente' && (
+
+          {/* Subtipo (solo Administrativo) */}
+          {formData.origen === 'administrativo' && (
+            <div className="mt-3 flex items-center gap-2 flex-wrap">
+              <span className="text-xs font-medium text-slate-500">Subtipo:</span>
+              {([
+                { id: 'restock', label: 'Restock' },
+                { id: 'manual', label: 'Manual' },
+                { id: 'apuesta', label: 'Apuesta' }
+              ] as const).map((s) => (
+                <button
+                  key={s.id}
+                  onClick={() => onFormDataChange({ ...formData, subtipo: s.id, tesis: s.id === 'apuesta' ? formData.tesis : undefined })}
+                  className={`px-3 py-1 rounded-full text-xs font-medium border transition-all ${
+                    formData.subtipo === s.id
+                      ? 'bg-blue-100 text-blue-700 border-blue-300'
+                      : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
+                  }`}
+                >
+                  {s.label}
+                </button>
+              ))}
+            </div>
+          )}
+
+          {/* Tesis (solo apuesta · obligatoria) */}
+          {formData.origen === 'administrativo' && formData.subtipo === 'apuesta' && (
+            <div className="mt-3">
+              <label className="block text-xs font-medium text-slate-700 mb-1">
+                Tesis de la apuesta <span className="text-rose-500">*</span>
+                <span className="text-slate-400 font-normal ml-1">(obligatoria · por que apostas a este producto)</span>
+              </label>
+              <textarea
+                value={formData.tesis || ''}
+                onChange={(e) => onFormDataChange({ ...formData, tesis: e.target.value })}
+                rows={2}
+                maxLength={400}
+                placeholder="Demanda incierta pero plausible: margen, interes en cotizaciones, tendencia..."
+                className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none resize-none"
+              />
+              <div className="text-[10px] text-slate-400 mt-0.5 text-right">
+                {(formData.tesis || '').trim().split(/\s+/).filter(Boolean).length} palabras (~60 sugerido)
+              </div>
+            </div>
+          )}
+
+          {/* Cliente (solo Demanda comprometida) */}
+          {formData.origen === 'demanda_comprometida' && (
             <div className="mt-3">
               <ClienteAutocomplete
                 value={formData.clienteId ? {
@@ -506,7 +550,7 @@ export const RequerimientoFormModal: React.FC<RequerimientoFormModalProps> = ({
             <Button
               variant="primary"
               onClick={onCrearRequerimiento}
-              disabled={isSubmitting || !formData.productos?.length}
+              disabled={isSubmitting || !formData.productos?.length || (formData.origen === 'administrativo' && formData.subtipo === 'apuesta' && !formData.tesis?.trim())}
               className="px-6"
             >
               {isSubmitting ? (

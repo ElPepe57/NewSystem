@@ -8,7 +8,6 @@ import {
   Link2,
   XCircle,
   Users,
-  ShieldAlert,
   Building2,
   Target,
   Lightbulb,
@@ -19,7 +18,8 @@ import { DataTable } from '../../design-system';
 import type { DataTableColumn } from '../../design-system';
 import { formatFecha as formatDate } from '../../utils/dateFormatters';
 import { formatCurrency } from '../../utils/format';
-import type { Requerimiento, EstadoRequerimiento, TipoSolicitante } from '../../types/requerimiento.types';
+import { getOrigenLabel } from '../../types/requerimiento.types';
+import type { Requerimiento, EstadoRequerimiento } from '../../types/requerimiento.types';
 
 interface RequerimientosListViewProps {
   requerimientos: Requerimiento[];
@@ -63,16 +63,10 @@ const getPrioridadBadge = (prioridad: string) => {
   );
 };
 
-const getSolicitanteIcon = (tipo: TipoSolicitante) => {
-  switch (tipo) {
-    case 'cliente': return <Building2 className="h-4 w-4 text-sky-500" />;
-    case 'ventas': return <Users className="h-4 w-4 text-purple-500" />;
-    case 'administracion': return <ShieldAlert className="h-4 w-4 text-amber-500" />;
-    default: return <Users className="h-4 w-4 text-slate-400" />;
-  }
-};
-
-const getSolicitanteLabel = (req: Requerimiento) => req.nombreSolicitante || req.tipoSolicitante;
+const getOrigenIcon = (req: Requerimiento) =>
+  req.origen === 'demanda_comprometida'
+    ? <Users className="h-4 w-4 text-sky-500" />
+    : <Building2 className="h-4 w-4 text-slate-500" />;
 
 export const RequerimientosListView: React.FC<RequerimientosListViewProps> = ({
   requerimientos, loading, onOpenDetail, onAprobar, onRefresh,
@@ -90,8 +84,8 @@ export const RequerimientosListView: React.FC<RequerimientosListViewProps> = ({
       key: 'solicitante', header: 'Solicitante', hideOnMobile: true,
       render: r => (
         <div className="flex items-center">
-          {getSolicitanteIcon(r.tipoSolicitante)}
-          <span className="ml-2">{getSolicitanteLabel(r)}</span>
+          {getOrigenIcon(r)}
+          <span className="ml-2">{getOrigenLabel(r)}</span>
         </div>
       ),
     },
