@@ -138,6 +138,31 @@ export interface MovimientoUnidad {
 }
 
 /**
+ * Origen de una reserva de unidad (F4 · Fase C). Define el default de vigencia y el ciclo de liberación.
+ * 'requerimiento' = demanda comprometida → NO expira por tiempo (se libera solo al cancelar req/OC).
+ */
+export type OrigenReserva = 'venta' | 'cotizacion' | 'requerimiento' | 'ml';
+
+/**
+ * Schema ÚNICO de reserva de una Unidad (F4 · Fase C · BUG-RESERVA).
+ * Sub-objeto `unidad.reserva` — alinea el DATO con lo que el cron `liberarReservasVencidas` YA lee
+ * (`reserva.vigenciaHasta` / `reserva.estadoPrevio`). Reemplaza los campos planos legacy
+ * (`reservadaPara`/`fechaReserva`/`reservaVigenciaHasta`), que quedan @deprecated hasta C4.
+ */
+export interface ReservaUnidad {
+  /** ID del doc dueño (venta/cotización/requerimiento). Consolida reservadaPara + reservadoPara. */
+  para: string;
+  origen: OrigenReserva;
+  fechaReserva: Timestamp;
+  /** Expiry CONSULTABLE a nivel unidad (lo que el cron debe leer). `null` = no expira (demanda comprometida). */
+  vigenciaHasta: Timestamp | null;
+  /** Estado de la unidad ANTES de reservar → restauración correcta por-país al liberar. */
+  estadoPrevio: EstadoUnidad;
+  /** Solo demanda comprometida. */
+  requerimientoId?: string;
+}
+
+/**
  * Unidad individual de producto
  * Representa cada producto físico con trazabilidad completa
  */
@@ -222,8 +247,13 @@ export interface Unidad {
   precioVentaPEN?: number;
 
   // ========== Reserva de Stock (Pre-Venta) ==========
+  /** Schema ÚNICO de reserva (F4 · Fase C). Lo escriben los writers (C3) y lo lee el cron. */
+  reserva?: ReservaUnidad;
+  /** @deprecated Fase C · campos planos legacy · reemplazados por `reserva{}` · se eliminan en C4. */
   reservadaPara?: string;            // ID de la venta que reservó esta unidad
+  /** @deprecated Fase C · usar `reserva.fechaReserva`. */
   fechaReserva?: Timestamp;          // Cuándo se reservó
+  /** @deprecated Fase C · usar `reserva.vigenciaHasta`. */
   reservaVigenciaHasta?: Timestamp;  // Hasta cuándo está reservada
 
   // ========== Transferencia en curso ==========
