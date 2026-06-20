@@ -25,9 +25,13 @@ import type {
   UnidadStats,
   CrearUnidadesLoteData,
   MovimientoUnidad,
-  TipoMovimiento
+  TipoMovimiento,
+  EstadoUnidad,
+  OrigenReserva,
+  ReservaUnidad
 } from '../types/unidad.types';
 import { ESTADOS_EN_ORIGEN } from '../types/unidad.types';
+import { calcularVigenciaReservaMs } from './reserva.helper';
 import { TIPOS_ENVIO_INTERNACIONAL as TIPOS_TRANSFERENCIA_INTERNACIONAL } from '../types/envio.types';
 import { esEstadoEnOrigen, esEstadoEnTransitoOrigen, esPaisOrigen } from '../utils/multiOrigen.helpers';
 import { resolverEstadoLiberacion } from './reserva.helper';
@@ -51,6 +55,42 @@ export function buildLiberacionReservaFields(unidad?: { reserva?: { estadoPrevio
     reservadoPara: deleteField(),
     fechaReserva: deleteField(),
     reservaVigenciaHasta: deleteField(),
+  };
+}
+
+/**
+ * Campos para RESERVAR una unidad (F4 · Fase C · C3 · fuente ÚNICA · dual de buildLiberacionReservaFields).
+ * Escribe el schema nuevo `reserva{}` (estadoPrevio capturado + vigencia POR ORIGEN · null = no expira ·
+ * demanda comprometida) Y los planos legacy (dual-write · compat con lectores directos · se quitan post
+ * reader-migration). El caller pasa el `estadoPrevio` = estado actual de la unidad ANTES de reservar.
+ */
+export function buildReservaFields(params: {
+  para: string;
+  origen: OrigenReserva;
+  estadoPrevio: EstadoUnidad;
+  requerimientoId?: string;
+  fechaReserva?: Timestamp;
+  /** Override de vigencia (ms de duración). `null` fuerza no-expira. `undefined` usa el default del origen. */
+  vigenciaOverrideMs?: number | null;
+}): { estado: 'reservada'; reserva: ReservaUnidad; reservadaPara: string; fechaReserva: Timestamp; reservaVigenciaHasta: Timestamp | null } {
+  const fechaReserva = params.fechaReserva ?? Timestamp.now();
+  const vigMs = calcularVigenciaReservaMs(fechaReserva.toMillis(), params.origen, params.vigenciaOverrideMs);
+  const vigenciaHasta = vigMs === null ? null : Timestamp.fromMillis(vigMs);
+  const reserva: ReservaUnidad = {
+    para: params.para,
+    origen: params.origen,
+    fechaReserva,
+    vigenciaHasta,
+    estadoPrevio: params.estadoPrevio,
+    ...(params.requerimientoId ? { requerimientoId: params.requerimientoId } : {}),
+  };
+  return {
+    estado: 'reservada',
+    reserva,
+    // dual-write planos (deprecado · compat lectores directos)
+    reservadaPara: params.para,
+    fechaReserva,
+    reservaVigenciaHasta: vigenciaHasta,
   };
 }
 
@@ -1128,10 +1168,9 @@ export const unidadService = {
           };
 
           batch.update(docRef, {
-            estado: 'reservada',
-            reservadaPara: cotizacionId,
-            fechaReserva: Timestamp.now(),
-            requerimientoId,
+            // F4 · Fase C · C3 · demanda comprometida: reserva{} con origen 'requerimiento' (NO expira) · estadoPrevio exacto
+            ...buildReservaFields({ para: cotizacionId, origen: 'requerimiento', estadoPrevio: unidad.estado, requerimientoId }),
+            requerimientoId, // link top-level (compat · lectores directos)
             movimientos: [...unidad.movimientos, movimiento],
             actualizadoPor: userId,
             fechaActualizacion: Timestamp.now()

@@ -33,7 +33,7 @@ import type {
   AdelantoData,
 } from '../types/venta.types';
 import type { Unidad } from '../types/unidad.types';
-import { unidadService, buildLiberacionReservaFields } from './unidad.service';
+import { unidadService, buildLiberacionReservaFields, buildReservaFields } from './unidad.service';
 import { tipoCambioService } from './tipoCambio.service';
 import { tesoreriaService } from './tesoreria.service';
 import { NotificationService } from './notification.service';
@@ -105,11 +105,8 @@ export async function registrarAdelantoConReserva(
 
       for (const { unidad } of unidadesAReservar) {
         const unidadRef = doc(db, COLLECTIONS.UNIDADES, unidad.id);
-        batch.update(unidadRef, {
-          estado: 'reservada',
-          reservadaPara: cotizacionId,
-          fechaReserva: serverTimestamp()
-        });
+        // F4 · Fase C · C3: escribe el schema nuevo reserva{} (+ planos · dual-write) · estadoPrevio exacto
+        batch.update(unidadRef, buildReservaFields({ para: cotizacionId, origen: 'venta', estadoPrevio: unidad.estado }));
         unidadesIds.push(unidad.id);
       }
 
@@ -476,11 +473,8 @@ export async function asignarStockAReservaVirtual(
       for (let i = 0; i < cantidadAsignada; i++) {
         const { unidad } = unidadesDisponibles[i];
         const unidadRef = doc(db, COLLECTIONS.UNIDADES, unidad.id);
-        batch.update(unidadRef, {
-          estado: 'reservada',
-          reservadaPara: ventaId,
-          fechaReserva: serverTimestamp()
-        });
+        // F4 · Fase C · C3: schema nuevo reserva{} (+ planos · dual-write) · estadoPrevio exacto
+        batch.update(unidadRef, buildReservaFields({ para: ventaId, origen: 'venta', estadoPrevio: unidad.estado }));
         unidadesIds.push(unidad.id);
       }
 

@@ -5,11 +5,13 @@
  */
 import {
   doc,
+  getDoc,
   Timestamp,
   serverTimestamp,
   writeBatch
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
+import { buildReservaFields } from './unidad.service';
 import { COLLECTION_NAME } from './cotizacion.shared';
 import type {
   Cotizacion,
@@ -145,11 +147,9 @@ export async function registrarPagoAdelanto(
           const unidadesDeEsteAlmacen = almacenInfo.unidadesIds.slice(0, almacenRec.cantidad);
           for (const unidadId of unidadesDeEsteAlmacen) {
             const unidadRef = doc(db, COLLECTIONS.UNIDADES, unidadId);
-            batch.update(unidadRef, {
-              estado: 'reservada',
-              reservadaPara: id,
-              fechaReserva: serverTimestamp()
-            });
+            const unidadSnap = await getDoc(unidadRef);
+            // F4 · Fase C · C3 · cotización: reserva{} con origen 'cotizacion' (90d) · estadoPrevio leído de la unidad
+            batch.update(unidadRef, buildReservaFields({ para: id, origen: 'cotizacion', estadoPrevio: unidadSnap.data()?.estado ?? 'disponible_peru' }));
             unidadesIds.push(unidadId);
           }
         }
