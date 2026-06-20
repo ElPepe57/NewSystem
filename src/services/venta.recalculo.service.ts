@@ -35,6 +35,7 @@ import { getCTRU } from '../utils/ctru.utils';
 import { tesoreriaService } from './tesoreria.service';
 import { entregaService } from './entrega.service';
 import { unidadService } from './unidad.service';
+import { getReservaPara } from './reserva.helper';
 import { actividadService } from './actividad.service';
 import { ProductoService } from './producto.service';
 import { logger } from '../lib/logger';
@@ -698,10 +699,8 @@ export async function diagnosticarAsignacionesFEFO(): Promise<{
         });
 
         const huerfanas = unidadesReservadasDB.filter(u => {
-          const refs = [u.reservadaPara, (u as unknown as Record<string, unknown>)['reservadoPara'] as string | undefined].filter(Boolean);
-          return refs.some((ref) =>
-            ref === venta.id || ref === venta.cotizacionOrigenId
-          );
+          const ref = getReservaPara(u);
+          return ref === venta.id || ref === venta.cotizacionOrigenId;
         });
 
         if (huerfanas.length > 0) {
@@ -795,10 +794,8 @@ export async function corregirAsignacionFEFO(
     });
 
     const huerfanas = unidadesReservadasDB.filter(u => {
-      const refs = [u.reservadaPara, (u as unknown as Record<string, unknown>)['reservadoPara'] as string | undefined].filter(Boolean);
-      return refs.some((ref) =>
-        ref === ventaId || ref === venta.cotizacionOrigenId
-      );
+      const ref = getReservaPara(u);
+      return ref === ventaId || ref === venta.cotizacionOrigenId;
     });
 
     if (huerfanas.length === 0) {

@@ -65,6 +65,7 @@ import { toMillisSafe } from '../utils/dateFormatters';
 import { ProductoService } from './producto.service';
 import { inventarioService } from './inventario.service';
 import { unidadService, buildLiberacionReservaFields } from './unidad.service';
+import { getReservaPara } from './reserva.helper';
 import { tesoreriaService } from './tesoreria.service';
 import { metricasService } from './metricas.service';
 import { entregaService } from './entrega.service';
@@ -809,12 +810,9 @@ export class VentaService {
           });
 
           const reservadasParaEstaVenta = unidadesReservadasDB.filter(u => {
-            const unidadExtendida = u as any;
-            const refs = [unidadExtendida.reservadaPara, unidadExtendida.reservadoPara].filter(Boolean);
-            const coincide = refs.some(ref =>
-              ref === id || (cotizacionOrigenId && ref === cotizacionOrigenId)
-            );
-            logger.log(`[FEFO] Unidad ${u.id}: reservadaPara=${unidadExtendida.reservadaPara}, reservadoPara=${unidadExtendida.reservadoPara}, match=${coincide}`);
+            const ref = getReservaPara(u);
+            const coincide = ref === id || (!!cotizacionOrigenId && ref === cotizacionOrigenId);
+            logger.log(`[FEFO] Unidad ${u.id}: reservaPara=${ref}, match=${coincide}`);
             return coincide;
           });
 

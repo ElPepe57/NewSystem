@@ -31,10 +31,9 @@ import type {
   ReservaUnidad
 } from '../types/unidad.types';
 import { ESTADOS_EN_ORIGEN } from '../types/unidad.types';
-import { calcularVigenciaReservaMs } from './reserva.helper';
+import { calcularVigenciaReservaMs, getReservaPara, resolverEstadoLiberacion } from './reserva.helper';
 import { TIPOS_ENVIO_INTERNACIONAL as TIPOS_TRANSFERENCIA_INTERNACIONAL } from '../types/envio.types';
 import { esEstadoEnOrigen, esEstadoEnTransitoOrigen, esPaisOrigen } from '../utils/multiOrigen.helpers';
-import { resolverEstadoLiberacion } from './reserva.helper';
 import { logBackgroundError } from '../lib/logger';
 import { logger } from '../lib/logger';
 
@@ -225,10 +224,7 @@ export const unidadService = {
     // 1. Un cliente pagó adelanto y se le reservó stock (reserva legítima)
     // 2. Datos residuales de una operación anterior que no limpió el campo (huérfano)
     // Verificamos si la referencia apunta a una venta/cotización activa con reserva vigente.
-    const unidadesConReserva = unidades.filter(u => {
-      const ext = u as any;
-      return ext.reservadaPara || ext.reservadoPara;
-    });
+    const unidadesConReserva = unidades.filter(u => getReservaPara(u) != null);
 
     if (unidadesConReserva.length > 0) {
       // Verificar cuáles reservas son legítimas (venta activa con stockReservado)
@@ -236,8 +232,7 @@ export const unidadService = {
       const idsReserva = new Set<string>();
 
       for (const u of unidadesConReserva) {
-        const ext = u as any;
-        const refId = ext.reservadaPara || ext.reservadoPara;
+        const refId = getReservaPara(u);
         if (refId) idsReserva.add(refId);
       }
 
@@ -274,8 +269,7 @@ export const unidadService = {
 
       // Solo excluir unidades con reservas genuinamente activas
       unidades = unidades.filter(u => {
-        const ext = u as any;
-        const refId = ext.reservadaPara || ext.reservadoPara;
+        const refId = getReservaPara(u);
         if (!refId) return true; // Sin referencia = disponible
         if (reservasActivas.has(refId)) {
           logger.log(`[FEFO] Excluyendo unidad ${u.id} - reservada activamente para ${refId}`);
