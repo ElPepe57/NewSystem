@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { productoIntelService } from '../services/productoIntel.service';
+import { requerimientoService } from '../services/requerimiento.service';
 import type {
   ProductoIntel,
   ResumenCaja,
@@ -84,8 +85,9 @@ export const useProductoIntelStore = create<ProductoIntelState>((set, get) => ({
       // Generar flujo de caja proyectado
       const flujoCaja = await productoIntelService.generarFlujoCajaProyectado(productosIntel, tc);
 
-      // Generar sugerencias de reposicion
-      const sugerenciasReposicion = productoIntelService.generarSugerenciasReposicion(productosIntel, tc);
+      // Generar sugerencias de reposicion (motor de reorden ROP · netea demanda comprometida)
+      const demandaComprometida = await requerimientoService.getDemandaComprometidaPorProducto();
+      const sugerenciasReposicion = productoIntelService.generarSugerenciasReposicion(productosIntel, tc, demandaComprometida);
 
       // Calcular lead time global
       const leadTimeGlobal = await productoIntelService.calcularLeadTimeGlobal();

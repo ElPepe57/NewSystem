@@ -65,6 +65,29 @@ export const requerimientoService = {
   },
 
   /**
+   * F4 · Mapa de demanda comprometida por producto = Σ pendienteCompra de requerimientos
+   * 'demanda_comprometida' ACTIVOS (excluye borrador/cancelado/completado). Alimenta el motor de
+   * reorden: netea el stock disponible para no sugerir reponer lo que ya está prometido a un cliente.
+   */
+  async getDemandaComprometidaPorProducto(): Promise<Map<string, number>> {
+    const ACTIVOS = new Set(['pendiente', 'pendiente_aprobacion', 'aprobado', 'parcial', 'en_proceso']);
+    const mapa = new Map<string, number>();
+    try {
+      const reqs = await requerimientoService.buscar({ origen: 'demanda_comprometida' });
+      for (const req of reqs) {
+        if (!ACTIVOS.has(req.estado)) continue;
+        for (const p of req.productos || []) {
+          const pendiente = Math.max(0, p.pendienteCompra || 0);
+          if (pendiente > 0) mapa.set(p.productoId, (mapa.get(p.productoId) || 0) + pendiente);
+        }
+      }
+    } catch (error) {
+      logger.error('Error al calcular demanda comprometida por producto:', error);
+    }
+    return mapa;
+  },
+
+  /**
    * Obtener requerimiento por ID
    */
   async getById(id: string): Promise<Requerimiento | null> {

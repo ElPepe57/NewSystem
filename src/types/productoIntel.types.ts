@@ -151,6 +151,8 @@ export interface ProductoIntel {
 
   // Lead time (si tiene OC historicas)
   leadTimePromedioDias?: number;
+  leadTimeDesviacionDias?: number;   // F4 · desviación estándar del lead time → stock de seguridad dinámico
+  leadTimeMuestras?: number;         // F4 · # de OC recibidas (confiabilidad de la desviación)
   ultimaCompraFecha?: Date;
 
   // Alertas
@@ -326,8 +328,14 @@ export interface SugerenciaReposicion {
 
   // Situacion actual
   stockActual: number;
-  stockMinimo: number;
+  stockMinimo: number;            // = puntoReorden (motor de reorden · ya no es el umbral fijo legacy)
   diasParaQuiebre: number;
+
+  // F4 · Motor de reorden (ROP)
+  stockNeto?: number;             // stockDisponible − demandaComprometida
+  demandaComprometida?: number;   // Σ pendienteCompra de reqs demanda_comprometida
+  stockSeguridad?: number;        // Z × velocidad × desviacionLeadTime
+  puntoReorden?: number;          // velocidad × leadTime + stockSeguridad
 
   // Recomendacion
   cantidadSugerida: number;       // Basado en rotacion + lead time

@@ -26,6 +26,12 @@ import type {
   MetricasLeadTime,
   RendimientoProductoCanal
 } from '../types/productoIntel.types';
+import {
+  evaluarReorden,
+  velocidadRobusta,
+  desviacionEstandar,
+  type ReordenInput,
+} from './stockReorden.helper';
 
 // ============================================
 // SERVICIO DE INTELIGENCIA DE PRODUCTOS
@@ -766,6 +772,8 @@ export const productoIntelService = {
         pesoLibras,
         margenPorLibra,
         leadTimePromedioDias: leadTime?.tiempoPromedioTotal,
+        leadTimeDesviacionDias: leadTime?.desviacionEstandar,
+        leadTimeMuestras: leadTime?.muestras,
         ultimaCompraFecha: leadTime?.ultimaCompra,
         alertas,
         lineaNegocioId: producto.lineaNegocioId,
@@ -1055,7 +1063,8 @@ export const productoIntelService = {
    */
   generarSugerenciasReposicion(
     productosIntel: ProductoIntel[],
-    tc: number
+    _tc: number,
+    demandaComprometida?: Map<string, number>
   ): SugerenciaReposicion[] {
     const sugerencias: SugerenciaReposicion[] = [];
 
@@ -1064,89 +1073,61 @@ export const productoIntelService = {
       const rentabilidad = p.rentabilidad;
       const liquidez = p.liquidez;
 
-      // FILTRO CRITICO: Solo sugerir reposicion de productos que:
-      // 1. Tienen historial de ventas (unidadesVendidas90d > 0), O
-      // 2. Tienen stock actual Y rotacion conocida
-      const tieneHistorialVentas = rotacion.unidadesVendidas90d > 0;
-      const tieneStockYRotacion = rotacion.stockTotal > 0 && rotacion.promedioVentasDiarias > 0;
+      // F4 · Motor de reorden (ROP) · reemplaza el umbral fijo (stockMinimo||5) + la demanda fake.
+      // Gate de señal real, piso = velocidad×leadTime + stock de seguridad dinámico, demanda comprometida.
+      const input: ReordenInput = {
+        productoId: p.productoId,
+        sku: p.sku,
+        nombreComercial: p.nombreComercial,
+        marca: p.marca,
+        stockDisponible: rotacion.stockDisponible,
+        stockTotal: rotacion.stockTotal,
+        velocidadDiaria: velocidadRobusta(rotacion.unidadesVendidas30d, rotacion.unidadesVendidas90d),
+        unidadesVendidas90d: rotacion.unidadesVendidas90d,
+        clasificacionRotacion: rotacion.clasificacionRotacion,
+        leadTimeDias: p.leadTimePromedioDias ?? 0,
+        leadTimeDesviacionDias: p.leadTimeDesviacionDias ?? 0,
+        leadTimeMuestras: p.leadTimeMuestras ?? 0,
+        demandaComprometida: demandaComprometida?.get(p.productoId) ?? 0,
+      };
 
-      if (!tieneHistorialVentas && !tieneStockYRotacion) {
-        continue; // Saltar productos sin historial real
-      }
+      const alerta = evaluarReorden(input);
+      if (!alerta.necesitaReposicion) continue;
 
-      // Solo productos con rotacion positiva o stock critico
-      if (rotacion.clasificacionRotacion === 'sin_movimiento' && rotacion.stockTotal > 5) {
-        continue; // No sugerir reponer productos sin movimiento que ya tienen stock
-      }
-
-      // Calcular si necesita reposicion
-      const stockMinimo = rotacion.ventasPorMes > 0 ? Math.max(rotacion.ventasPorMes * 0.5, 3) : 3;
-      const necesitaReposicion =
-        (rotacion.stockDisponible <= stockMinimo && tieneHistorialVentas) ||
-        (rotacion.diasParaQuiebre <= 15 && rotacion.diasParaQuiebre > 0) ||
-        (liquidez.clasificacion === 'alta' && rotacion.stockTotal < rotacion.ventasPorMes * 2);
-
-      if (!necesitaReposicion) continue;
-
-      // Calcular cantidad sugerida (stock para 45 dias de venta)
-      const leadTime = p.leadTimePromedioDias || 30;
-      const stockObjetivo = rotacion.promedioVentasDiarias * (leadTime + 45);
-      const cantidadSugerida = Math.max(
-        Math.ceil(stockObjetivo - rotacion.stockTotal),
-        5 // Minimo 5 unidades
-      );
-
-      // Determinar urgencia
-      let urgencia: 'critica' | 'alta' | 'media' | 'baja';
-      if (rotacion.stockDisponible === 0) urgencia = 'critica';
-      else if (rotacion.diasParaQuiebre <= 7) urgencia = 'critica';
-      else if (rotacion.diasParaQuiebre <= 15) urgencia = 'alta';
-      else if (liquidez.clasificacion === 'alta') urgencia = 'media';
-      else urgencia = 'baja';
-
-      // Razon
-      let razon = '';
-      if (rotacion.stockDisponible === 0) razon = 'Sin stock disponible';
-      else if (rotacion.diasParaQuiebre <= 7) razon = `Stock para ${rotacion.diasParaQuiebre} dias`;
-      else if (liquidez.clasificacion === 'alta') razon = 'Alta rotacion - oportunidad de venta';
-      else razon = 'Stock por debajo del minimo';
-
-      // Proyecciones
-      const inversionEstimadaUSD = cantidadSugerida * rentabilidad.costoPromedioConFlete;
-      const utilidadProyectadaPEN = cantidadSugerida * rentabilidad.utilidadPorUnidad;
+      // Proyecciones económicas (las aporta rentabilidad, no el motor).
+      const inversionEstimadaUSD = alerta.cantidadSugerida * rentabilidad.costoPromedioConFlete;
+      const utilidadProyectadaPEN = alerta.cantidadSugerida * rentabilidad.utilidadPorUnidad;
       const tiempoRecuperacionDias = rotacion.promedioVentasDiarias > 0
-        ? Math.ceil(cantidadSugerida / rotacion.promedioVentasDiarias)
+        ? Math.ceil(alerta.cantidadSugerida / rotacion.promedioVentasDiarias)
         : 999;
 
-      // Score de prioridad (para ordenar)
-      let scorePrioridad = 0;
-      if (urgencia === 'critica') scorePrioridad += 40;
-      else if (urgencia === 'alta') scorePrioridad += 30;
-      else if (urgencia === 'media') scorePrioridad += 20;
-      else scorePrioridad += 10;
-
-      scorePrioridad += liquidez.score * 0.5; // Hasta 50 puntos por liquidez
-      scorePrioridad += Math.min(rentabilidad.roiPromedio * 0.1, 10); // Hasta 10 puntos por ROI
+      // Score: prioridad del motor (urgencia/velocidad/déficit) + peso por liquidez/ROI (ranking de negocio).
+      const scorePrioridad = Math.round(
+        alerta.scorePrioridad + liquidez.score * 0.3 + Math.min(rentabilidad.roiPromedio * 0.1, 10)
+      );
 
       sugerencias.push({
         productoId: p.productoId,
         sku: p.sku,
         nombreComercial: p.nombreComercial,
         marca: p.marca,
-        stockActual: rotacion.stockTotal,
-        stockMinimo: Math.round(stockMinimo),
-        diasParaQuiebre: rotacion.diasParaQuiebre,
-        cantidadSugerida,
-        urgencia,
-        razon,
+        stockActual: alerta.stockTotal,
+        stockMinimo: alerta.puntoReorden,
+        diasParaQuiebre: alerta.diasCobertura,
+        stockNeto: alerta.stockNeto,
+        demandaComprometida: alerta.demandaComprometida,
+        stockSeguridad: alerta.stockSeguridad,
+        puntoReorden: alerta.puntoReorden,
+        cantidadSugerida: alerta.cantidadSugerida,
+        urgencia: alerta.urgencia,
+        razon: alerta.razon,
         inversionEstimadaUSD: Math.round(inversionEstimadaUSD * 100) / 100,
         utilidadProyectadaPEN: Math.round(utilidadProyectadaPEN * 100) / 100,
         tiempoRecuperacionDias,
-        scorePrioridad: Math.round(scorePrioridad)
+        scorePrioridad,
       });
     }
 
-    // Ordenar por score de prioridad (mayor primero)
     return sugerencias.sort((a, b) => b.scorePrioridad - a.scorePrioridad);
   },
 
@@ -1160,7 +1141,7 @@ export const productoIntelService = {
   calcularLeadTimeProducto(
     productoId: string,
     ordenesCompra: OrdenCompra[]
-  ): { tiempoPromedioTotal: number; ultimaCompra?: Date } | null {
+  ): { tiempoPromedioTotal: number; desviacionEstandar: number; muestras: number; ultimaCompra?: Date } | null {
     // Filtrar OC que contengan este producto y esten completadas
     const ocProducto = ordenesCompra.filter(oc =>
       oc.estado === 'recibida' &&
@@ -1190,6 +1171,9 @@ export const productoIntelService = {
 
     return {
       tiempoPromedioTotal: Math.round(tiempoPromedio),
+      // F4 · variabilidad del lead time POR producto → stock de seguridad dinámico (motor de reorden).
+      desviacionEstandar: Math.round(desviacionEstandar(tiempos) * 10) / 10,
+      muestras: tiempos.length,
       ultimaCompra: ultimaOC?.fechaCreacion?.toDate?.()
     };
   },
