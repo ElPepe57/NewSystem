@@ -11,7 +11,6 @@ import { HubShell, HubTopBar, HubHeader, HubKpiStrip, HubTabs, HubBody } from '.
 import type { HubKpi, HubMiniStat, HubTab } from '../../design-system';
 import { ProductoForm } from '../../components/modules/productos/ProductoForm';
 import { AsignacionResponsableForm } from '../../components/modules/requerimiento/AsignacionResponsableForm';
-import { VincularOCModal } from '../../components/modules/requerimiento/VincularOCModal';
 import { OCBuilder, PendientesCompraPanel } from '../../components/modules/ordenCompra';
 import type { ProductoRequerimientoSnapshot } from '../../components/modules/entidades/ProductoSearchRequerimientos';
 import { useProductoStore } from '../../store/productoStore';
@@ -35,7 +34,7 @@ import type { Producto } from '../../types/producto.types';
 import type { Venta } from '../../types/venta.types';
 
 // Sub-components
-import { IntelligencePanel } from './IntelligencePanel';
+import { ResumenRequerimientos } from './ResumenRequerimientos';
 import { TableroRequerimientos } from './TableroRequerimientos';
 import { RequerimientoFormModal } from './RequerimientoFormModal';
 import { RequerimientoDetailModal } from './RequerimientoDetailModal';
@@ -90,8 +89,6 @@ export const Requerimientos: React.FC = () => {
   const [isAsignacionModalOpen, setIsAsignacionModalOpen] = useState(false);
 
   // Modal vincular OC retroactiva
-  const [isVincularOCModalOpen, setIsVincularOCModalOpen] = useState(false);
-  const [ventaParaVincular, setVentaParaVincular] = useState<Venta | null>(null);
 
   // Seleccion multiple para OC consolidada
   const [selectionMode, setSelectionMode] = useState(false);
@@ -124,13 +121,6 @@ export const Requerimientos: React.FC = () => {
   const [investigacionMercado, setInvestigacionMercado] = useState<Map<string, InvestigacionProducto>>(new Map());
   const [loadingInvestigacion, setLoadingInvestigacion] = useState(false);
   const [showHistorial, setShowHistorial] = useState<string | null>(null);
-
-  // Expandir/contraer secciones del panel de inteligencia
-  const [expandedSections, setExpandedSections] = useState({
-    alertas: true,
-    sugerencias: true,
-    cotizaciones: true
-  });
 
   const { dialogProps, confirm } = useConfirmDialog();
 
@@ -549,18 +539,21 @@ export const Requerimientos: React.FC = () => {
     setSelectedReqIds(new Set());
   };
 
-  const handleVincularOC = (venta: Venta) => {
-    setVentaParaVincular(venta);
-    setIsVincularOCModalOpen(true);
-  };
-
   const handleAsignacionCreada = () => {
     loadData();
     setIsAsignacionModalOpen(false);
   };
 
-  const handleToggleSection = (section: keyof typeof expandedSections) => {
-    setExpandedSections(prev => ({ ...prev, [section]: !prev[section] }));
+  const handleNuevaApuesta = () => {
+    setFormData({ origen: 'administrativo', subtipo: 'apuesta', prioridad: 'media', productos: [] });
+    setIsModalOpen(true);
+  };
+
+  const handleGenerarOCAprobados = () => {
+    const aprobados = requerimientosLN.filter(r => r.estado === 'aprobado');
+    if (aprobados.length === 0) return;
+    setOcBuilderReqs(aprobados);
+    setIsOCBuilderOpen(true);
   };
 
   // ─── Chrome del hub (KPIs semánticos · mini-stats · tabs) ───
@@ -615,23 +608,21 @@ export const Requerimientos: React.FC = () => {
         <HubTabs grupo="comercial" tabs={reqTabs} activa={tabActiva} onChange={(id) => setTabActiva(id as typeof tabActiva)} />
         <HubBody flush>
 
-          {/* ═══ TAB RESUMEN ═══ (interim · HUB-2 lo reemplaza por §A→§F) */}
+          {/* ═══ TAB RESUMEN ═══ (§A→§F · dashboard ejecutivo) */}
           {tabActiva === 'resumen' && (
-            <div className="p-4 sm:p-6">
-              <IntelligencePanel
-                sugerenciasStock={sugerenciasStock}
-                cotizacionesConfirmadas={cotizacionesConfirmadas}
-                stats={stats}
-                tcDelDia={tcDelDia}
-                expandedSections={expandedSections}
-                onToggleSection={handleToggleSection}
-                onCrearDesdeSugerencia={handleCrearDesdeSugerencia}
-                onVerTodasSugerencias={() => setIsSugerenciasModalOpen(true)}
-                onVincularOC={handleVincularOC}
-                onCrearDesdeCotizacion={handleCrearDesdeCotizacion}
-                onVerTodasCotizaciones={() => setIsFromCotizacionModalOpen(true)}
-              />
-            </div>
+            <ResumenRequerimientos
+              stats={stats}
+              requerimientos={requerimientosLN}
+              sugerenciasStock={sugerenciasStock}
+              cotizacionesConfirmadas={cotizacionesConfirmadas}
+              onNuevo={() => setIsModalOpen(true)}
+              onApuesta={handleNuevaApuesta}
+              onOCConsolidada={() => { setSelectionMode(true); setTabActiva('tablero'); }}
+              onPendientes={() => setTabActiva('pendientes')}
+              onGenerarOCAprobados={handleGenerarOCAprobados}
+              onCrearDesdeSugerencia={handleCrearDesdeSugerencia}
+              onVerTodasSugerencias={() => setIsSugerenciasModalOpen(true)}
+            />
           )}
 
           {/* ═══ TAB TABLERO ═══ (Lista operativa + acordeón · Kanban retirado · D4) */}
@@ -749,22 +740,6 @@ export const Requerimientos: React.FC = () => {
 
       {/* Dialogo de Confirmacion */}
       <ConfirmDialog {...dialogProps} />
-
-      {/* Modal Vincular OC Retroactiva */}
-      {ventaParaVincular && (
-        <VincularOCModal
-          isOpen={isVincularOCModalOpen}
-          onClose={() => {
-            setIsVincularOCModalOpen(false);
-            setVentaParaVincular(null);
-          }}
-          venta={ventaParaVincular}
-          userId={user?.uid || ''}
-          onSuccess={() => {
-            loadData();
-          }}
-        />
-      )}
 
       {/* Barra flotante de seleccion para OC consolidada */}
       <SelectionFloatingBar
