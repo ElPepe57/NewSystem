@@ -498,25 +498,6 @@ export const stockDisponibilidadService = {
   },
 
   /**
-   * Liberar reserva multi-almacén
-   */
-  async liberarReservaMultiAlmacen(reserva: ReservaStockMultiAlmacen): Promise<void> {
-    for (const producto of reserva.productos) {
-      for (const reservaAlmacen of producto.reservasPorAlmacen) {
-        for (const unidadId of reservaAlmacen.unidadesIds) {
-          // Restaurar estado según ubicación
-          const nuevoEstado = (reservaAlmacen.pais === 'Peru') ? 'disponible_peru' : 'recibida_origen';
-          await unidadService.actualizarEstado(
-            unidadId,
-            nuevoEstado as any,
-            'Liberación de reserva'
-          );
-        }
-      }
-    }
-  },
-
-  /**
    * Verificar si una reserva sigue vigente
    */
   isReservaVigente(reserva: ReservaStockMultiAlmacen): boolean {

@@ -440,12 +440,18 @@ export const unidadService = {
         ...(data.proveedorId && { proveedorId: data.proveedorId }),
         ...(data.proveedorNombre && { proveedorNombre: data.proveedorNombre }),
         ...(data.proveedorPais && { proveedorPais: data.proveedorPais }),
-        // Datos de reserva automática (si aplica)
+        // Datos de reserva automática (si aplica) · F4 · Fase C · C3: schema nuevo reserva{} (+ plano · dual-write)
+        // Born-reserved = demanda comprometida (origen 'requerimiento') → NO expira · estadoPrevio = estado al liberar.
         ...(esReservaAutomatica && {
+          reserva: {
+            para: data.reservadoPara!,
+            origen: 'requerimiento' as const,
+            fechaReserva: now,
+            vigenciaHasta: null,
+            estadoPrevio: resolverEstadoLiberacion(almacenInfo.pais),
+          },
           reservadaPara: data.reservadoPara,
           fechaReserva: now,
-          // Vigencia de 30 días por defecto para reservas de requerimiento
-          reservaVigenciaHasta: Timestamp.fromMillis(now.toMillis() + 30 * 24 * 60 * 60 * 1000)
         })
       };
 
