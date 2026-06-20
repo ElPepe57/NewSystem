@@ -2184,6 +2184,8 @@ export const liberarReservasVencidas = functions.pubsub
 
       const batch = db.batch();
       let liberadas = 0;
+      // F4 · Fase C · C5b: dueños cuya reserva hay que desactivar (para → origen) · bilateral.
+      const ownersToDeactivate = new Map<string, string>();
 
       for (const doc of snapshot.docs) {
         const data = doc.data();
@@ -2203,11 +2205,30 @@ export const liberarReservasVencidas = functions.pubsub
           ultimaEdicion: admin.firestore.FieldValue.serverTimestamp(),
         });
         liberadas++;
-        // TODO F4 · Fase C · C5b (bilateral): desactivar la reserva del doc dueño (data.reserva.para según
-        // data.reserva.origen → venta.stockReservado / cotizacion.reservaStock) para no dejarlo colgado.
+        const para = data.reserva?.para || data.reservadaPara || data.reservadoPara;
+        if (para) ownersToDeactivate.set(para, data.reserva?.origen || "venta");
       }
 
       await batch.commit();
+
+      // F4 · Fase C · C5b (bilateral): desactivar la reserva del doc dueño para no dejarlo colgado
+      // apuntando a una unidad ya liberada. Lee primero · solo desactiva si la reserva sigue activa.
+      for (const [para, origen] of ownersToDeactivate) {
+        try {
+          const esCot = origen === "cotizacion";
+          const ownerRef = db.collection(esCot ? COLLECTIONS.COTIZACIONES : COLLECTIONS.VENTAS).doc(para);
+          const ownerSnap = await ownerRef.get();
+          if (!ownerSnap.exists) continue;
+          const od = ownerSnap.data() || {};
+          if (esCot && od.reservaStock?.activo) {
+            await ownerRef.update({ "reservaStock.activo": false });
+          } else if (!esCot && od.stockReservado?.activo) {
+            await ownerRef.update({ "stockReservado.activo": false });
+          }
+        } catch (e) {
+          functions.logger.warn(`[Reservas] No se pudo desactivar la reserva del dueño ${para}:`, e);
+        }
+      }
 
       // Actualizar stock de los productos afectados
       const productosAfectados = new Set(
