@@ -1,7 +1,7 @@
 import type { Requerimiento } from '../../../types/requerimiento.types';
 
 // chk5.COMERCIALES-F3a · Lógica compartida de "pendientes de compra".
-// Fuente única para PendientesCompraPanel (Requerimientos) y TabPendientesCompras (Compras).
+// Fuente única para PendientesCompraContent (Requerimientos) y TabPendientesCompras (Compras).
 // Calcula los productos de requerimientos aprobados/parciales que aún no están en una OC.
 
 export interface PendienteOrigen {

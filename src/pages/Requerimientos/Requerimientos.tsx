@@ -11,7 +11,7 @@ import { HubShell, HubTopBar, HubHeader, HubKpiStrip, HubTabs, HubBody } from '.
 import type { HubKpi, HubMiniStat, HubTab } from '../../design-system';
 import { ProductoForm } from '../../components/modules/productos/ProductoForm';
 import { AsignacionResponsableForm } from '../../components/modules/requerimiento/AsignacionResponsableForm';
-import { OCBuilder, PendientesCompraPanel } from '../../components/modules/ordenCompra';
+import { OCBuilder } from '../../components/modules/ordenCompra';
 import type { ProductoRequerimientoSnapshot } from '../../components/modules/entidades/ProductoSearchRequerimientos';
 import { useProductoStore } from '../../store/productoStore';
 import { useRequerimientoStore } from '../../store/requerimientoStore';
@@ -36,6 +36,7 @@ import type { Venta } from '../../types/venta.types';
 // Sub-components
 import { ResumenRequerimientos } from './ResumenRequerimientos';
 import { TableroRequerimientos } from './TableroRequerimientos';
+import { PendientesCompraContent } from './PendientesCompraContent';
 import { RequerimientoFormModal } from './RequerimientoFormModal';
 import { RequerimientoDetailModal } from './RequerimientoDetailModal';
 import { SugerenciasStockModal } from './SugerenciasStockModal';
@@ -97,7 +98,6 @@ export const Requerimientos: React.FC = () => {
   // OC Builder wizard
   const [isOCBuilderOpen, setIsOCBuilderOpen] = useState(false);
   const [ocBuilderReqs, setOcBuilderReqs] = useState<Requerimiento[]>([]);
-  const [isPendientesOpen, setIsPendientesOpen] = useState(false);
 
   // Form
   const [formData, setFormData] = useState<Partial<RequerimientoFormData>>({
@@ -641,20 +641,12 @@ export const Requerimientos: React.FC = () => {
             />
           )}
 
-          {/* ═══ TAB PENDIENTES DE COMPRA ═══ (interim · HUB-4 inline-a el panel) */}
+          {/* ═══ TAB PENDIENTES DE COMPRA ═══ (agregado por producto · puente al OC Builder) */}
           {tabActiva === 'pendientes' && (
-            <div className="p-4 sm:p-6">
-              <div className="bg-white border border-slate-200 rounded-xl p-6 flex flex-col items-center justify-center text-center gap-3">
-                <div className="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center"><PackageSearch className="w-6 h-6" /></div>
-                <div>
-                  <p className="text-[14px] font-semibold text-slate-800">Productos pendientes de compra</p>
-                  <p className="text-[12px] text-slate-500 mt-0.5 max-w-md">Vista agregada por producto · puente al generador de órdenes. Abrí el panel para revisarlos y enviarlos al builder.</p>
-                </div>
-                <button type="button" onClick={() => setIsPendientesOpen(true)} className="flex items-center gap-1.5 text-[12px] font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg px-3 py-2">
-                  <PackageSearch className="w-4 h-4" /> Ver pendientes de compra
-                </button>
-              </div>
-            </div>
+            <PendientesCompraContent
+              requerimientos={requerimientosLN}
+              onEnviarAlBuilder={(reqs) => { setOcBuilderReqs(reqs); setIsOCBuilderOpen(true); }}
+            />
           )}
 
         </HubBody>
@@ -765,17 +757,6 @@ export const Requerimientos: React.FC = () => {
           setOcBuilderReqs([]);
           toast.success(`${ordenesCreadas.length} OC(s) creadas exitosamente`);
           loadData();
-        }}
-      />
-
-      <PendientesCompraPanel
-        isOpen={isPendientesOpen}
-        onClose={() => setIsPendientesOpen(false)}
-        requerimientos={requerimientosLN}
-        onEnviarAlBuilder={(reqs) => {
-          setIsPendientesOpen(false);
-          setOcBuilderReqs(reqs);
-          setIsOCBuilderOpen(true);
         }}
       />
     </div>
