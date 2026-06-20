@@ -5,9 +5,9 @@ import {
   AlertOctagon, ShoppingCart, BadgeDollarSign,
   LayoutDashboard, ListChecks, PackageSearch,
 } from 'lucide-react';
-import { ConfirmDialog, Modal, useConfirmDialog } from '../../components/common';
+import { ConfirmDialog, useConfirmDialog } from '../../components/common';
 import { LineaDropdown } from '../../components/common/LineaDropdown';
-import { HubShell, HubTopBar, HubHeader, HubKpiStrip, HubTabs, HubBody } from '../../design-system';
+import { HubShell, HubTopBar, HubHeader, HubKpiStrip, HubTabs, HubBody, FormModalV2 } from '../../design-system';
 import type { HubKpi, HubMiniStat, HubTab } from '../../design-system';
 import { BorradorBanner } from '../../design-system/components/BorradorBanner';
 import { useWizardAutosave } from '../../hooks/useWizardAutosave';
@@ -44,7 +44,6 @@ import { CancelarCoberturaModal, type AlcanceCancelacion } from './CancelarCober
 import { RequerimientoFormModal } from './RequerimientoFormModal';
 import { RequerimientoDetailModal } from './RequerimientoDetailModal';
 import { SugerenciasStockModal } from './SugerenciasStockModal';
-import { CotizacionesFaltanteModal } from './CotizacionesFaltanteModal';
 import { SelectionFloatingBar } from './SelectionFloatingBar';
 import type { InvestigacionProducto, SugerenciaStock } from './requerimientos.types';
 
@@ -81,7 +80,6 @@ export const Requerimientos: React.FC = () => {
   // Modales
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
-  const [isFromCotizacionModalOpen, setIsFromCotizacionModalOpen] = useState(false);
   const [isSugerenciasModalOpen, setIsSugerenciasModalOpen] = useState(false);
   const [selectedRequerimiento, setSelectedRequerimiento] = useState<Requerimiento | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -429,52 +427,6 @@ export const Requerimientos: React.FC = () => {
     setIsModalOpen(true);
   };
 
-  const handleCrearDesdeCotizacion = async (venta: Venta) => {
-    if (!user) return;
-
-    const productosFaltantes = venta.productosConFaltante || [];
-    const productosVenta = venta.productos.filter(p => {
-      const faltante = productosFaltantes.find(f => f.nombre.includes(p.nombreComercial));
-      return faltante && faltante.solicitados > faltante.disponibles;
-    });
-
-    if (productosVenta.length === 0) {
-      toast.warning('No hay productos con faltante de stock en esta venta');
-      return;
-    }
-
-    const productoIds = productosVenta.map(p => p.productoId);
-    const investigacion = await OrdenCompraService.getInvestigacionMercado(productoIds);
-
-    const productosRequerimiento = productosVenta.map(p => {
-      const faltante = productosFaltantes.find(f => f.nombre.includes(p.nombreComercial));
-      const cantidadNecesaria = faltante ? faltante.solicitados - faltante.disponibles : p.cantidad;
-      const info = investigacion.get(p.productoId);
-      return {
-        productoId: p.productoId,
-        cantidadSolicitada: cantidadNecesaria,
-        precioEstimadoUSD: info?.proveedorRecomendado?.ultimoPrecioUSD || info?.ultimoPrecioUSD,
-        proveedorSugerido: info?.proveedorRecomendado?.nombre
-      };
-    });
-
-    setFormData({
-      origen: 'demanda_comprometida',
-      ventaRelacionadaId: venta.id,
-      nombreClienteSolicitante: venta.nombreCliente,
-      prioridad: 'alta',
-      productos: productosRequerimiento,
-      justificacion: `Requerimiento generado desde venta ${venta.numeroVenta} - ${venta.nombreCliente}`
-    });
-
-    investigacion.forEach((value, key) => {
-      setInvestigacionMercado(prev => new Map(prev).set(key, value));
-    });
-
-    setIsFromCotizacionModalOpen(false);
-    setIsModalOpen(true);
-  };
-
   // ---- Handlers de estado ----
 
   const handleAprobar = async (req: Requerimiento) => {
@@ -737,14 +689,6 @@ export const Requerimientos: React.FC = () => {
         onCrearDesdeSugerencia={handleCrearDesdeSugerencia}
       />
 
-      {/* Modal Cotizaciones con Faltante */}
-      <CotizacionesFaltanteModal
-        isOpen={isFromCotizacionModalOpen}
-        onClose={() => setIsFromCotizacionModalOpen(false)}
-        cotizaciones={cotizacionesConfirmadas}
-        onCrearDesdeCotizacion={handleCrearDesdeCotizacion}
-      />
-
       {/* Modal Detalle */}
       <RequerimientoDetailModal
         isOpen={isDetailModalOpen}
@@ -770,11 +714,16 @@ export const Requerimientos: React.FC = () => {
 
       {/* Modal de Crear Producto */}
       {showProductoModal && (
-        <Modal
+        <FormModalV2
           isOpen={showProductoModal}
           onClose={() => setShowProductoModal(false)}
+          onSubmit={() => setShowProductoModal(false)}
           title="Nuevo Producto"
+          subtitle="Crealo sin salir del requerimiento"
+          icon={PackageSearch}
+          iconTone="orange"
           size="xl"
+          hideFooter
         >
           <ProductoForm
             onSubmit={handleCreateProducto}
@@ -782,7 +731,7 @@ export const Requerimientos: React.FC = () => {
             loading={isCreatingProducto}
             productosExistentes={productosStore}
           />
-        </Modal>
+        </FormModalV2>
       )}
 
       {/* Modal de Asignar Responsable/Viajero */}

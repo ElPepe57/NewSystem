@@ -1,6 +1,7 @@
 import React from 'react';
-import { Plus } from 'lucide-react';
-import { Button, Modal } from '../../components/common';
+import { Plus, AlertOctagon } from 'lucide-react';
+import { Button } from '../../components/common';
+import { FormModalV2 } from '../../design-system';
 import type { SugerenciaStock } from './requerimientos.types';
 
 interface SugerenciasStockModalProps {
@@ -17,16 +18,18 @@ export const SugerenciasStockModal: React.FC<SugerenciasStockModalProps> = ({
   onCrearDesdeSugerencia
 }) => {
   return (
-    <Modal
+    <FormModalV2
       isOpen={isOpen}
       onClose={onClose}
+      onSubmit={onClose}
       title="Productos con Stock Bajo"
+      subtitle="Por debajo del stock mínimo · creá requerimientos para reabastecer"
+      icon={AlertOctagon}
+      iconTone="amber"
       size="lg"
+      hideFooter
     >
       <div className="space-y-4">
-        <p className="text-sm text-slate-600">
-          Estos productos estan por debajo del stock minimo. Crea requerimientos para reabastecer.
-        </p>
 
         <div className="divide-y border rounded-lg max-h-96 overflow-y-auto">
           {sugerencias.map((sug, idx) => (
@@ -79,11 +82,7 @@ export const SugerenciasStockModal: React.FC<SugerenciasStockModalProps> = ({
             </div>
           ))}
         </div>
-
-        <div className="flex justify-end pt-4 border-t">
-          <Button variant="ghost" onClick={onClose}>Cerrar</Button>
-        </div>
       </div>
-    </Modal>
+    </FormModalV2>
   );
 };

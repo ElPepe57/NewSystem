@@ -12,9 +12,11 @@ import {
   UserCheck,
   ExternalLink,
   Users,
-  Building2
+  Building2,
+  FileText
 } from 'lucide-react';
-import { Button, Modal, Badge } from '../../components/common';
+import { Button, Badge } from '../../components/common';
+import { FormModalV2 } from '../../design-system';
 import { formatFecha as formatDate } from '../../utils/dateFormatters';
 import { formatCurrency } from '../../utils/format';
 import { getDescripcionProducto } from '../../utils/producto.helpers';
@@ -108,11 +110,16 @@ export const RequerimientoDetailModal: React.FC<RequerimientoDetailModalProps> =
   const req = requerimiento;
 
   return (
-    <Modal
+    <FormModalV2
       isOpen={isOpen}
       onClose={onClose}
+      onSubmit={onClose}
       title={`Requerimiento ${req.numeroRequerimiento || ''}`}
+      subtitle={req.origen === 'demanda_comprometida' ? 'Demanda comprometida' : `Administrativo${req.subtipo ? ` · ${req.subtipo}` : ''}`}
+      icon={FileText}
+      iconTone="blue"
       size="lg"
+      hideFooter
     >
       <div className="space-y-6">
         {/* Info general */}
@@ -468,6 +475,6 @@ export const RequerimientoDetailModal: React.FC<RequerimientoDetailModalProps> =
           )}
         </div>
       </div>
-    </Modal>
+    </FormModalV2>
   );
 };

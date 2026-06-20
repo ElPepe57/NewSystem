@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Users, Package, Calendar, DollarSign, Truck, AlertCircle } from 'lucide-react';
-import { Button, Modal } from '../../common';
+import { Button } from '../../common';
+import { FormModalV2 } from '../../../design-system';
 import { casillaCrudService } from '../../../services/casilla.crud.service';
 import { requerimientoService } from '../../../services/requerimiento.service';
 import { useToastStore } from '../../../store/toastStore';
@@ -143,11 +144,19 @@ export const AsignacionResponsableForm: React.FC<Props> = ({
   const totalUnidadesAsignadas = productosAsignados.reduce((sum, p) => sum + p.cantidad, 0);
 
   return (
-    <Modal
+    <FormModalV2
       isOpen={isOpen}
       onClose={onClose}
+      onSubmit={handleSubmit}
       title="Asignar Responsable/Viajero"
+      subtitle={`Requerimiento ${requerimiento.numeroRequerimiento}`}
+      icon={Truck}
+      iconTone="blue"
       size="lg"
+      submitLabel="Asignar Responsable"
+      submitIcon={Truck}
+      loading={submitting}
+      disabled={!selectedViajeroId || totalUnidadesAsignadas === 0}
     >
       <div className="space-y-6">
         {/* Info del requerimiento */}
@@ -309,27 +318,7 @@ export const AsignacionResponsableForm: React.FC<Props> = ({
           </div>
         )}
 
-        {/* Acciones */}
-        <div className="flex justify-end gap-3 pt-4 border-t">
-          <Button variant="ghost" onClick={onClose}>
-            Cancelar
-          </Button>
-          <Button
-            variant="primary"
-            onClick={handleSubmit}
-            disabled={submitting || !selectedViajeroId || totalUnidadesAsignadas === 0}
-          >
-            {submitting ? (
-              'Asignando...'
-            ) : (
-              <>
-                <Truck className="h-4 w-4 mr-2" />
-                Asignar Responsable
-              </>
-            )}
-          </Button>
-        </div>
       </div>
-    </Modal>
+    </FormModalV2>
   );
 };
