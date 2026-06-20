@@ -393,8 +393,8 @@ const ResumenTab: React.FC<ResumenTabProps> = ({
             {getReservaPara(unidad) && (
               <span className="text-purple-700 ml-1">· cotización <span className="font-mono">{getReservaPara(unidad)}</span></span>
             )}
-            {unidad.fechaReserva && (
-              <span className="text-purple-700 ml-1">· desde {formatFecha(unidad.fechaReserva)}</span>
+            {unidad.reserva?.fechaReserva && (
+              <span className="text-purple-700 ml-1">· desde {formatFecha(unidad.reserva.fechaReserva)}</span>
             )}
           </div>
           {onLiberarReserva && (

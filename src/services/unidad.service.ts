@@ -58,10 +58,10 @@ export function buildLiberacionReservaFields(unidad?: { reserva?: { estadoPrevio
 }
 
 /**
- * Campos para RESERVAR una unidad (F4 · Fase C · C3 · fuente ÚNICA · dual de buildLiberacionReservaFields).
- * Escribe el schema nuevo `reserva{}` (estadoPrevio capturado + vigencia POR ORIGEN · null = no expira ·
- * demanda comprometida) Y los planos legacy (dual-write · compat con lectores directos · se quitan post
- * reader-migration). El caller pasa el `estadoPrevio` = estado actual de la unidad ANTES de reservar.
+ * Campos para RESERVAR una unidad (F4 · Fase C · fuente ÚNICA · dual de buildLiberacionReservaFields).
+ * Escribe SOLO el schema `reserva{}` (estadoPrevio capturado + vigencia POR ORIGEN · null = no expira ·
+ * demanda comprometida). Los lectores usan `getReservaPara`. El caller pasa el `estadoPrevio` = estado
+ * actual de la unidad ANTES de reservar.
  */
 export function buildReservaFields(params: {
   para: string;
@@ -71,7 +71,7 @@ export function buildReservaFields(params: {
   fechaReserva?: Timestamp;
   /** Override de vigencia (ms de duración). `null` fuerza no-expira. `undefined` usa el default del origen. */
   vigenciaOverrideMs?: number | null;
-}): { estado: 'reservada'; reserva: ReservaUnidad; reservadaPara: string; fechaReserva: Timestamp; reservaVigenciaHasta: Timestamp | null } {
+}): { estado: 'reservada'; reserva: ReservaUnidad } {
   const fechaReserva = params.fechaReserva ?? Timestamp.now();
   const vigMs = calcularVigenciaReservaMs(fechaReserva.toMillis(), params.origen, params.vigenciaOverrideMs);
   const vigenciaHasta = vigMs === null ? null : Timestamp.fromMillis(vigMs);
@@ -83,14 +83,8 @@ export function buildReservaFields(params: {
     estadoPrevio: params.estadoPrevio,
     ...(params.requerimientoId ? { requerimientoId: params.requerimientoId } : {}),
   };
-  return {
-    estado: 'reservada',
-    reserva,
-    // dual-write planos (deprecado · compat lectores directos)
-    reservadaPara: params.para,
-    fechaReserva,
-    reservaVigenciaHasta: vigenciaHasta,
-  };
+  // F4 · Fase C · flat-removal: solo el schema nuevo reserva{} (los lectores usan getReservaPara).
+  return { estado: 'reservada', reserva };
 }
 
 export const unidadService = {
@@ -434,7 +428,7 @@ export const unidadService = {
         ...(data.proveedorId && { proveedorId: data.proveedorId }),
         ...(data.proveedorNombre && { proveedorNombre: data.proveedorNombre }),
         ...(data.proveedorPais && { proveedorPais: data.proveedorPais }),
-        // Datos de reserva automática (si aplica) · F4 · Fase C · C3: schema nuevo reserva{} (+ plano · dual-write)
+        // Datos de reserva automática (si aplica) · F4 · Fase C · schema único reserva{} (sin planos)
         // Born-reserved = demanda comprometida (origen 'requerimiento') → NO expira · estadoPrevio = estado al liberar.
         ...(esReservaAutomatica && {
           reserva: {
@@ -444,8 +438,6 @@ export const unidadService = {
             vigenciaHasta: null,
             estadoPrevio: resolverEstadoLiberacion(almacenInfo.pais),
           },
-          reservadaPara: data.reservadoPara,
-          fechaReserva: now,
         })
       };
 

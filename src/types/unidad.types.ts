@@ -247,14 +247,8 @@ export interface Unidad {
   precioVentaPEN?: number;
 
   // ========== Reserva de Stock (Pre-Venta) ==========
-  /** Schema ÚNICO de reserva (F4 · Fase C). Lo escriben los writers (C3) y lo lee el cron. */
+  /** Schema ÚNICO de reserva (F4 · Fase C). Lo escriben los writers y lo leen el cron + getReservaPara. */
   reserva?: ReservaUnidad;
-  /** @deprecated Fase C · campos planos legacy · reemplazados por `reserva{}` · se eliminan en C4. */
-  reservadaPara?: string;            // ID de la venta que reservó esta unidad
-  /** @deprecated Fase C · usar `reserva.fechaReserva`. */
-  fechaReserva?: Timestamp;          // Cuándo se reservó
-  /** @deprecated Fase C · usar `reserva.vigenciaHasta`. */
-  reservaVigenciaHasta?: Timestamp;  // Hasta cuándo está reservada
 
   // ========== Transferencia en curso ==========
   estadoAntesDeTransferencia?: string;  // Estado previo al envío (para rollback en faltante)
@@ -351,6 +345,6 @@ export interface CrearUnidadesLoteData {
   // Si la OC viene de un requerimiento vinculado a una cotización,
   // las unidades se crean ya reservadas para ese cliente
   estadoInicial?: EstadoUnidad;  // Por defecto se calcula según país
-  reservadoPara?: string;        // ID de cotización/venta a reservar (se mapea a reservadaPara en Firestore)
+  reservadoPara?: string;        // ID de cotización/venta a reservar (input · se escribe en reserva.para)
   requerimientoId?: string;      // ID del requerimiento de origen
 }
