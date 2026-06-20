@@ -7,6 +7,7 @@ import {
   TrendingUp,
   ShoppingCart,
   AlertCircle,
+  AlertTriangle,
   Truck,
   UserCheck,
   ExternalLink,
@@ -30,6 +31,8 @@ interface RequerimientoDetailModalProps {
   onGenerarOC: (req: Requerimiento) => void;
   onGenerarOCsPorViajero: (req: Requerimiento) => void;
   onAbrirAsignacion: () => void;
+  /** Abre el modal de cancelar cobertura para una OC del req (B5). */
+  onCancelarCobertura?: (ocId: string, ocNumero: string) => void;
 }
 
 const getEstadoBadge = (estado: EstadoRequerimiento) => {
@@ -97,7 +100,8 @@ export const RequerimientoDetailModal: React.FC<RequerimientoDetailModalProps> =
   onAprobar,
   onGenerarOC,
   onGenerarOCsPorViajero,
-  onAbrirAsignacion
+  onAbrirAsignacion,
+  onCancelarCobertura
 }) => {
   if (!requerimiento) return null;
 
@@ -336,11 +340,24 @@ export const RequerimientoDetailModal: React.FC<RequerimientoDetailModalProps> =
               }
             </h4>
             <div className="mt-2 flex flex-wrap gap-2">
-              {(req.ordenCompraNumeros || [req.ordenCompraNumero]).filter(Boolean).map((num, i) => (
-                <span key={i} className="inline-flex items-center px-3 py-1 rounded-full text-sm font-bold bg-purple-100 text-purple-900">
-                  {num}
-                </span>
-              ))}
+              {(req.ordenCompraNumeros || [req.ordenCompraNumero]).filter(Boolean).map((num, i) => {
+                const ocId = req.ordenCompraIds?.[i] || req.ordenCompraId || '';
+                return (
+                  <span key={i} className="inline-flex items-center gap-1.5 pl-3 pr-1.5 py-1 rounded-full text-sm font-bold bg-purple-100 text-purple-900">
+                    {num}
+                    {onCancelarCobertura && ocId && (
+                      <button
+                        type="button"
+                        onClick={() => onCancelarCobertura(ocId, String(num))}
+                        title="Cancelar cobertura de esta OC"
+                        className="text-purple-400 hover:text-rose-600 hover:bg-white/60 rounded-full p-0.5"
+                      >
+                        <XCircle className="h-3.5 w-3.5" />
+                      </button>
+                    )}
+                  </span>
+                );
+              })}
             </div>
             {/* OC Coverage progress */}
             {req.ocCoverage && req.ocCoverage.porcentaje < 100 && (
@@ -365,14 +382,18 @@ export const RequerimientoDetailModal: React.FC<RequerimientoDetailModalProps> =
                 {req.productos.map((p, idx) => {
                   const enOC = p.cantidadEnOC || 0;
                   const pendiente = p.cantidadSolicitada - enOC;
+                  const sobre = Math.max(0, enOC - p.cantidadSolicitada);
                   return (
                     <div key={idx} className="flex items-center gap-2 text-xs">
                       <span className="text-purple-800 font-medium truncate flex-1">{p.sku}</span>
-                      <span className="text-purple-600">{enOC}/{p.cantidadSolicitada}</span>
+                      <span className="text-purple-600 tabular-nums">{enOC}/{p.cantidadSolicitada}</span>
                       {pendiente > 0 && (
                         <span className="text-amber-600 font-medium">{pendiente} pend.</span>
                       )}
-                      {pendiente <= 0 && (
+                      {sobre > 0 && (
+                        <span className="inline-flex items-center gap-0.5 text-amber-700 font-medium"><AlertTriangle className="h-3 w-3" />+{sobre}</span>
+                      )}
+                      {pendiente <= 0 && sobre === 0 && (
                         <Check className="h-3.5 w-3.5 text-emerald-500" />
                       )}
                     </div>
@@ -380,6 +401,18 @@ export const RequerimientoDetailModal: React.FC<RequerimientoDetailModalProps> =
                 })}
               </div>
             )}
+          </div>
+        )}
+
+        {/* Sobre-compra (B5 · cobertura derivada · exceso visible) */}
+        {(req.ocCoverage?.tieneSobrecompra || req.productos.some(p => (p.cantidadEnOC || 0) > p.cantidadSolicitada)) && (
+          <div className="bg-amber-50 ring-1 ring-amber-200/60 rounded-lg p-4">
+            <h4 className="font-medium text-amber-900 mb-1 flex items-center gap-2 text-sm">
+              <AlertTriangle className="h-4 w-4" /> Sobre-compra detectada
+            </h4>
+            <p className="text-xs text-amber-700">
+              {req.productos.filter(p => (p.cantidadEnOC || 0) > p.cantidadSolicitada).length} producto(s) con más unidades en OC que lo solicitado. La compra procede; el excedente entra a stock libre.
+            </p>
           </div>
         )}
 

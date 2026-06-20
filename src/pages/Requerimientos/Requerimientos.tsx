@@ -37,6 +37,7 @@ import type { Venta } from '../../types/venta.types';
 import { ResumenRequerimientos } from './ResumenRequerimientos';
 import { TableroRequerimientos } from './TableroRequerimientos';
 import { PendientesCompraContent } from './PendientesCompraContent';
+import { CancelarCoberturaModal, type AlcanceCancelacion } from './CancelarCoberturaModal';
 import { RequerimientoFormModal } from './RequerimientoFormModal';
 import { RequerimientoDetailModal } from './RequerimientoDetailModal';
 import { SugerenciasStockModal } from './SugerenciasStockModal';
@@ -81,6 +82,10 @@ export const Requerimientos: React.FC = () => {
   const [isSugerenciasModalOpen, setIsSugerenciasModalOpen] = useState(false);
   const [selectedRequerimiento, setSelectedRequerimiento] = useState<Requerimiento | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Modal cancelar cobertura de OC (B5)
+  const [coberturaACancelar, setCoberturaACancelar] = useState<{ ocId: string; ocNumero: string } | null>(null);
+  const [cancelandoCobertura, setCancelandoCobertura] = useState(false);
 
   // Modal de crear producto
   const [showProductoModal, setShowProductoModal] = useState(false);
@@ -544,6 +549,28 @@ export const Requerimientos: React.FC = () => {
     setIsAsignacionModalOpen(false);
   };
 
+  const handleConfirmCancelarCobertura = async (params: { scope: AlcanceCancelacion; productoId?: string; cantidadCancelar?: number }) => {
+    if (!coberturaACancelar) return;
+    setCancelandoCobertura(true);
+    try {
+      await requerimientoService.cancelarReferenciaOC({
+        scope: params.scope,
+        ordenCompraId: coberturaACancelar.ocId,
+        ordenCompraNumero: coberturaACancelar.ocNumero,
+        requerimientoId: selectedRequerimiento?.id,
+        productoId: params.productoId,
+        cantidadCancelar: params.cantidadCancelar,
+      });
+      toast.success('Cobertura de OC cancelada');
+      setCoberturaACancelar(null);
+      loadData();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Error al cancelar la cobertura');
+    } finally {
+      setCancelandoCobertura(false);
+    }
+  };
+
   const handleNuevaApuesta = () => {
     setFormData({ origen: 'administrativo', subtipo: 'apuesta', prioridad: 'media', productos: [] });
     setIsModalOpen(true);
@@ -700,6 +727,18 @@ export const Requerimientos: React.FC = () => {
         onGenerarOC={handleGenerarOC}
         onGenerarOCsPorViajero={handleGenerarOCsPorViajero}
         onAbrirAsignacion={() => setIsAsignacionModalOpen(true)}
+        onCancelarCobertura={(ocId, ocNumero) => setCoberturaACancelar({ ocId, ocNumero })}
+      />
+
+      {/* Modal Cancelar cobertura de OC (B5) */}
+      <CancelarCoberturaModal
+        isOpen={!!coberturaACancelar}
+        onClose={() => setCoberturaACancelar(null)}
+        req={selectedRequerimiento}
+        ocId={coberturaACancelar?.ocId || ''}
+        ocNumero={coberturaACancelar?.ocNumero || ''}
+        loading={cancelandoCobertura}
+        onConfirm={handleConfirmCancelarCobertura}
       />
 
       {/* Modal de Crear Producto */}
