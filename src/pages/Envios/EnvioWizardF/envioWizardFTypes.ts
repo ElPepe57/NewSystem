@@ -17,6 +17,7 @@
  */
 
 import type { Unidad } from '../../../types/unidad.types';
+import { getReservaPara } from '../../../services/reserva.helper';
 import type { Venta } from '../../../types/venta.types';
 
 // ════════════════════════════════════════════════════════════════════════════
@@ -151,7 +152,7 @@ export function envioWizardFReducer(
     case 'SET_UNIDADES_DISPONIBLES': {
       // Pre-seleccionar las que tienen reservadaPara === ventaId
       const idsReservadas = action.unidades
-        .filter((u) => u.reservadaPara === state.ventaId)
+        .filter((u) => getReservaPara(u) === state.ventaId)
         .map((u) => u.id);
       return {
         ...state,
@@ -172,7 +173,7 @@ export function envioWizardFReducer(
 
     case 'SELECCIONAR_TODAS_RESERVADAS': {
       const idsReservadas = state.unidadesDisponibles
-        .filter((u) => u.reservadaPara === state.ventaId)
+        .filter((u) => getReservaPara(u) === state.ventaId)
         .map((u) => u.id);
       return {
         ...state,
@@ -242,7 +243,7 @@ export function selectProductosCount(state: EnvioWizardFState): number {
 
 export function selectUnidadesReservadasVenta(state: EnvioWizardFState): Unidad[] {
   if (!state.ventaId) return [];
-  return state.unidadesDisponibles.filter((u) => u.reservadaPara === state.ventaId);
+  return state.unidadesDisponibles.filter((u) => getReservaPara(u) === state.ventaId);
 }
 
 export function selectTotalCostosPEN(state: EnvioWizardFState): number {

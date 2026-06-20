@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OC · Detalle de costos (re-home) · Fase C v1</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  body { font-family: 'Inter', system-ui, sans-serif; background: #f1f5f9; color: #0f172a; }
+  .tnum { font-variant-numeric: tabular-nums; }
+</style>
+</head>
+<body class="p-6 md:p-10">
+
+<div class="max-w-5xl mx-auto">
+
+  <!-- HERO -->
+  <div class="bg-white border border-slate-200 rounded-2xl p-6 mb-8">
+    <div class="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-blue-700 mb-2">
+      <span class="bg-blue-50 border border-blue-200 rounded-full px-2 py-0.5">Mockup · especificación</span>
+      <span class="text-slate-400">Fase C · re-home costo por OC</span>
+    </div>
+    <h1 class="text-2xl font-bold tracking-tight text-slate-900">Detalle de OC · tab "Cargos &amp; Totales"</h1>
+    <p class="text-[13px] leading-snug text-slate-500 mt-1 max-w-2xl">
+      El costo por OC deja de vivir en el módulo CTRU y vuelve al detalle de la propia orden, en su tab natural.
+      Dos lentes conviven sobre dato ya saneado (Fase A+B): <b>comercial</b> (lo facturado por el proveedor, prorrateado a
+      productos) y <b>landed total</b> (cuánto gasté en total por esta OC, ya aterrizado).
+    </p>
+    <div class="flex flex-wrap gap-2 mt-3 text-[11px]">
+      <span class="bg-slate-100 text-slate-600 rounded-full px-2 py-1">Color grupo Comercial · blue</span>
+      <span class="bg-slate-100 text-slate-600 rounded-full px-2 py-1">getCargosEfectivosOC + resumirOC (pura)</span>
+      <span class="bg-slate-100 text-slate-600 rounded-full px-2 py-1">OrdenCompraCard = referencia canónica</span>
+    </div>
+  </div>
+
+  <!-- ════════ ACTO 1 · DESKTOP ════════ -->
+  <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-3">Acto 1 · Desktop — tab Cargos &amp; Totales</div>
+
+  <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden mb-10">
+    <!-- mini tab-bar contextual -->
+    <div class="border-b border-slate-200 px-5 flex gap-5 text-[13px]">
+      <div class="py-3 text-slate-400">Productos</div>
+      <div class="py-3 text-blue-700 border-b-2 border-blue-600 font-semibold -mb-px">Cargos &amp; Totales</div>
+      <div class="py-3 text-slate-400">Envío</div>
+      <div class="py-3 text-slate-400">Pagos</div>
+    </div>
+
+    <div class="p-5 space-y-5">
+
+      <!-- ░░ BLOQUE A · TOTAL COMERCIAL (existe hoy · no se toca) ░░ -->
+      <div>
+        <div class="text-[11px] font-semibold text-slate-500 uppercase tracking-wide mb-2">
+          Cargos comerciales <span class="normal-case font-normal text-slate-400">(asignados por el proveedor a esta OC)</span>
+        </div>
+        <div class="bg-slate-50 rounded-xl p-4 space-y-2 text-sm">
+          <div class="flex items-center justify-between"><span class="text-slate-700">Subtotal productos</span><span class="font-semibold text-slate-900 tnum">$1,240.00</span></div>
+          <div class="flex items-center justify-between"><span class="text-slate-700">+ Cargos (shipping/otros)</span><span class="tnum text-slate-900">$85.00</span></div>
+          <div class="flex items-center justify-between"><span class="text-slate-700">− Descuento</span><span class="tnum text-emerald-700">-$40.00</span></div>
+          <div class="flex items-center justify-between"><span class="text-slate-700">+ Impuestos</span><span class="tnum text-slate-900">$96.00</span></div>
+          <div class="border-t border-slate-200 pt-2 flex items-center justify-between"><span class="font-semibold text-slate-900">Total OC</span><span class="text-lg font-bold text-blue-700 tnum">$1,381.00</span></div>
+          <div class="flex items-center justify-between text-[11px] text-slate-500"><span>Equivalente PEN (TC 3.750)</span><span class="tnum">S/ 5,178.75</span></div>
+        </div>
+      </div>
+
+      <!-- separador -->
+      <div class="border-t border-dashed border-slate-200"></div>
+
+      <!-- ░░ LENTE 2 · LANDED TOTAL (nuevo · la pregunta básica) ░░ -->
+      <div>
+        <div class="flex items-center gap-2 mb-2">
+          <span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wide">¿Cuánto gasté en total por esta OC?</span>
+          <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-blue-50 text-blue-700 text-[10px] font-semibold border border-blue-200 normal-case">landed · ya aterrizado</span>
+        </div>
+        <div class="bg-gradient-to-br from-blue-50 to-blue-100/40 ring-1 ring-blue-200/60 rounded-2xl p-4">
+          <div class="flex items-start justify-between gap-4 flex-wrap">
+            <div>
+              <div class="text-[10px] uppercase tracking-wider text-blue-700 font-bold mb-1">Landed total</div>
+              <div class="text-2xl font-bold tnum text-blue-900">S/ 5,612<span class="text-blue-400">.40</span></div>
+              <div class="text-[11px] text-blue-700 mt-1">8 de 8 unidades recibidas</div>
+            </div>
+            <div class="text-right">
+              <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1">Sobrecosto logístico</div>
+              <div class="text-base font-bold tnum text-slate-700 flex items-center justify-end gap-1">
+                <i data-lucide="trending-up" class="w-3.5 h-3.5"></i> +S/ 433.65
+              </div>
+              <div class="text-[11px] text-slate-500 mt-1">vs comercial (flete/aduana/recojo)</div>
+            </div>
+          </div>
+          <!-- mini-desglose por capa -->
+          <div class="mt-3 pt-3 border-t border-blue-200/60">
+            <div class="h-2.5 rounded-full overflow-hidden bg-white/60 flex mb-2">
+              <div class="bg-blue-500" style="width:66%" title="Producto 66%"></div>
+              <div class="bg-amber-500" style="width:7%" title="Impuesto 7%"></div>
+              <div class="bg-indigo-500" style="width:19%" title="Flete intl 19%"></div>
+              <div class="bg-slate-400" style="width:8%" title="Otros/landed 8%"></div>
+            </div>
+            <div class="flex flex-wrap gap-x-4 gap-y-1 text-[10px] text-slate-500">
+              <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span> Producto S/ 3,705</span>
+              <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span> Impuesto S/ 360</span>
+              <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-indigo-500"></span> Flete intl S/ 1,067</span>
+              <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-slate-400"></span> Otros S/ 480</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ░░ LENTE 1 · COMERCIAL POR PRODUCTO (nuevo · DesgloseCTRU re-embebido) ░░ -->
+      <div>
+        <div class="flex items-center gap-2 mb-2">
+          <span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wide">¿Cómo se reparte lo facturado entre los productos?</span>
+          <span class="inline-flex items-center px-1.5 py-0.5 rounded-full bg-slate-100 text-slate-500 text-[10px] font-semibold border border-slate-200 normal-case">comercial · antes del landed</span>
+        </div>
+        <div class="bg-white border border-slate-200 rounded-xl overflow-x-auto">
+          <table class="w-full text-[12px]">
+            <thead><tr class="text-[10px] uppercase tracking-wider text-slate-400 border-b border-slate-200">
+              <th class="text-left font-bold py-2 px-3">Producto</th>
+              <th class="text-right font-bold py-2 px-2">Cant</th>
+              <th class="text-right font-bold py-2 px-2">Subtotal</th>
+              <th class="text-right font-bold py-2 px-2">+Cargo</th>
+              <th class="text-right font-bold py-2 px-2">−Desc</th>
+              <th class="text-right font-bold py-2 px-2">+Imp</th>
+              <th class="text-right font-bold py-2 px-3">CTRU comercial/u</th>
+            </tr></thead>
+            <tbody class="divide-y divide-slate-100 text-slate-700">
+              <tr><td class="py-2 px-3 font-medium text-slate-800">Whey ON 5lb</td><td class="text-right tnum px-2">4</td><td class="text-right tnum px-2">$620</td><td class="text-right tnum px-2">$42</td><td class="text-right tnum px-2 text-emerald-700">-$20</td><td class="text-right tnum px-2">$48</td><td class="text-right tnum px-3 font-bold text-blue-700">$172.50</td></tr>
+              <tr><td class="py-2 px-3 font-medium text-slate-800">ISO 100 3lb</td><td class="text-right tnum px-2">2</td><td class="text-right tnum px-2">$420</td><td class="text-right tnum px-2">$29</td><td class="text-right tnum px-2 text-emerald-700">-$14</td><td class="text-right tnum px-2">$33</td><td class="text-right tnum px-3 font-bold text-blue-700">$234.00</td></tr>
+              <tr><td class="py-2 px-3 font-medium text-slate-800">Creatina 400g</td><td class="text-right tnum px-2">2</td><td class="text-right tnum px-2">$200</td><td class="text-right tnum px-2">$14</td><td class="text-right tnum px-2 text-emerald-700">-$6</td><td class="text-right tnum px-2">$15</td><td class="text-right tnum px-3 font-bold text-blue-700">$111.50</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="text-[10px] text-slate-400 mt-1.5">El CTRU mostrado es el comercial (prorrateo por valor). Al recibir, los costos logísticos se suman en el landed total ↑.</p>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ════════ ACTO 2 · MOBILE 375 + ESTADOS ════════ -->
+  <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-3">Acto 2 · Mobile 375 + estados</div>
+
+  <div class="flex flex-wrap gap-6 items-start">
+
+    <!-- mobile -->
+    <div class="w-[375px] max-w-full bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+      <div class="border-b border-slate-200 px-3 flex gap-3 text-[12px] overflow-x-auto">
+        <div class="py-2.5 text-slate-400 whitespace-nowrap">Productos</div>
+        <div class="py-2.5 text-blue-700 border-b-2 border-blue-600 font-semibold -mb-px whitespace-nowrap">Cargos &amp; Totales</div>
+        <div class="py-2.5 text-slate-400 whitespace-nowrap">Envío</div>
+      </div>
+      <div class="p-3 space-y-3">
+        <div class="bg-slate-50 rounded-xl p-3 space-y-1.5 text-[13px]">
+          <div class="flex justify-between"><span class="text-slate-700">Total OC</span><span class="font-bold text-blue-700 tnum">$1,381.00</span></div>
+          <div class="flex justify-between text-[11px] text-slate-500"><span>Equiv. PEN</span><span class="tnum">S/ 5,178.75</span></div>
+        </div>
+        <div class="bg-gradient-to-br from-blue-50 to-blue-100/40 ring-1 ring-blue-200/60 rounded-2xl p-3">
+          <div class="text-[10px] uppercase tracking-wider text-blue-700 font-bold">Landed total</div>
+          <div class="text-2xl font-bold tnum text-blue-900">S/ 5,612<span class="text-blue-400">.40</span></div>
+          <div class="text-[11px] text-blue-700">8/8 recibidas</div>
+          <div class="mt-2 pt-2 border-t border-blue-200/60 flex justify-between text-[12px]">
+            <span class="text-slate-500">Sobrecosto logístico</span>
+            <span class="font-bold text-slate-700 tnum">+S/ 433.65</span>
+          </div>
+        </div>
+        <div class="bg-white border border-slate-200 rounded-xl p-3">
+          <div class="text-[11px] font-semibold text-slate-500 mb-2">Comercial por producto</div>
+          <div class="space-y-2 text-[12px]">
+            <div class="flex justify-between"><span class="text-slate-700">Whey ON 5lb ×4</span><span class="font-bold text-blue-700 tnum">$172.50/u</span></div>
+            <div class="flex justify-between"><span class="text-slate-700">ISO 100 3lb ×2</span><span class="font-bold text-blue-700 tnum">$234.00/u</span></div>
+            <div class="flex justify-between"><span class="text-slate-700">Creatina 400g ×2</span><span class="font-bold text-blue-700 tnum">$111.50/u</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- estados -->
+    <div class="flex-1 min-w-[280px] space-y-4">
+      <!-- empty -->
+      <div>
+        <div class="text-[10px] uppercase tracking-wider text-slate-400 font-bold mb-1">Empty · OC sin unidades recibidas</div>
+        <div class="bg-white border border-slate-200 rounded-2xl p-5 flex flex-col items-center text-center">
+          <div class="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center mb-2"><i data-lucide="package" class="w-5 h-5 text-blue-400"></i></div>
+          <div class="text-[13px] font-semibold text-slate-900">Costo landed pendiente</div>
+          <div class="text-[11px] text-slate-500 mt-1 max-w-xs">El landed total estará disponible cuando se reciban las unidades de esta OC. Por ahora ves solo el comercial ↑.</div>
+        </div>
+      </div>
+      <!-- loading -->
+      <div>
+        <div class="text-[10px] uppercase tracking-wider text-slate-400 font-bold mb-1">Loading</div>
+        <div class="bg-white border border-slate-200 rounded-2xl p-4 space-y-2">
+          <div class="h-3 w-24 bg-slate-100 rounded animate-pulse"></div>
+          <div class="h-7 w-40 bg-slate-100 rounded animate-pulse"></div>
+          <div class="h-2.5 w-full bg-slate-100 rounded-full animate-pulse"></div>
+        </div>
+      </div>
+      <!-- error -->
+      <div>
+        <div class="text-[10px] uppercase tracking-wider text-slate-400 font-bold mb-1">Error</div>
+        <div class="bg-rose-50 border border-rose-200 rounded-2xl p-4 flex items-center justify-between gap-3">
+          <div class="flex items-center gap-2 text-[12px] text-rose-700"><i data-lucide="alert-triangle" class="w-4 h-4"></i> No se pudo calcular el landed.</div>
+          <button class="text-[12px] font-semibold text-rose-700 border border-rose-300 rounded-lg px-2.5 py-1 hover:bg-rose-100">Reintentar</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- FOOTER checklist -->
+  <div class="mt-10 bg-white border border-slate-200 rounded-2xl p-5">
+    <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2">Cobertura canon</div>
+    <ul class="text-[12px] text-slate-600 space-y-1">
+      <li>✓ Vive en tab existente "Cargos &amp; Totales" (no crea tab nuevo · canon Hub)</li>
+      <li>✓ 2 lentes rotuladas: comercial (antes del landed) vs landed total · sin doble-conteo (el delta = sobrecosto logístico, no suma)</li>
+      <li>✓ Reusa getCargosEfectivosOC (comercial) + función pura resumirOC (landed · mismo filtro de estados que CTRU = cero "dos números")</li>
+      <li>✓ Desktop + mobile 375 + estados loading/empty/error</li>
+      <li>✓ Color grupo Comercial (blue) · Inter · tabular-nums · lucide</li>
+      <li>○ Decisión: lente landed por producto (además del total)? · comercial bruto vs neto en el contraste</li>
+    </ul>
+  </div>
+
+</div>
+
+<script>lucide.createIcons();</script>
+</body>
+</html>

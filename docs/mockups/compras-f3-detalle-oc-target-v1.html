@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Compras · F3 · Detalle de OC (target) — drill full-page + costo re-home</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *{font-family:'Inter',system-ui,sans-serif}.tnum{font-variant-numeric:tabular-nums}body{background:#f1f5f9}
+  .frame{box-shadow:0 1px 3px rgba(15,23,42,.08),0 8px 24px rgba(15,23,42,.06)}
+  .sb-none{scrollbar-width:none}.sb-none::-webkit-scrollbar{display:none}
+</style>
+</head>
+<body class="text-slate-800">
+
+<!-- HERO -->
+<header class="max-w-6xl mx-auto px-6 pt-10 pb-6">
+  <div class="flex items-center gap-2 mb-3 flex-wrap">
+    <span class="text-[10px] font-bold uppercase tracking-wider bg-blue-100 text-blue-700 px-2 py-1 rounded-full">F3 · Especificación target</span>
+    <span class="text-[10px] font-bold uppercase tracking-wider bg-slate-200 text-slate-600 px-2 py-1 rounded-full">Detalle de OC · drill full-page (F6-B)</span>
+    <span class="text-[10px] font-bold uppercase tracking-wider bg-emerald-100 text-emerald-700 px-2 py-1 rounded-full">Costo re-home · tu pregunta</span>
+  </div>
+  <h1 class="text-2xl font-bold tracking-tight text-slate-900">Compras · Detalle de OC — rework al Design System</h1>
+  <p class="text-[13px] text-slate-500 mt-2 max-w-3xl leading-relaxed">
+    Hoy el detalle es un <b>Modal full</b> (OrdenCompraCard · 1377 líneas · 8 tabs · purple/emojis). El target: <b>drill full-page</b>
+    con header banking-grade + pipeline + KPI strip + tabs (1ª = <b>Resumen §A-F</b>), el <b>costo re-home</b> (comercial + landed
+    en su tab natural), paneles al canon (HubCard · sin emojis · azul Comercial) y <b>borrado de la cadena dead-code</b> PriceAdvisor.
+  </p>
+</header>
+
+<!-- BEFORE → AFTER -->
+<section class="max-w-6xl mx-auto px-6 pb-8">
+  <div class="bg-white rounded-2xl border border-slate-200 frame overflow-hidden">
+    <div class="px-5 py-3 border-b border-slate-200 bg-slate-50"><h2 class="text-[13px] font-semibold text-slate-700 flex items-center gap-2"><i data-lucide="git-compare" class="w-4 h-4 text-blue-600"></i> Qué cambia</h2></div>
+    <div class="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-slate-100 text-[12px] text-slate-600">
+      <div class="divide-y divide-slate-100">
+        <div class="px-5 py-3"><b class="text-slate-800">Modal full → drill full-page</b> (canon F6-B): back + breadcrumb OC, header banking-grade, pipeline, KPI strip persistente.</div>
+        <div class="px-5 py-3"><b class="text-slate-800">1ª tab = Resumen §A-F</b> (hoy abre en Productos · sin dashboard ejecutivo de la OC).</div>
+        <div class="px-5 py-3"><b class="text-slate-800">Costo re-home</b>: el landed total deja de estar expulsado a CTRU (link) y vuelve al tab <b>Costos</b> · 2 lentes sin doble-conteo.</div>
+      </div>
+      <div class="divide-y divide-slate-100">
+        <div class="px-5 py-3"><b class="text-slate-800">Paneles al canon</b>: Envíos/Incidencias → HubCard · Inteligencia sin semáforos emoji 🟢🟡🔴🥇 → badges semánticos · Timeline al DS.</div>
+        <div class="px-5 py-3"><b class="text-slate-800">Cero emojis</b> (banderas → código país · F8) · <b>purple → blue</b> (grupo Comercial).</div>
+        <div class="px-5 py-3"><b class="text-rose-700">Borrar dead-code</b>: PriceAdvisor + PriceAdvisorModal + PriceHistoryChart + priceIntelligence.service + rama <code>!embedded</code> de ConfirmarOC.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ACTO 1 · DRILL SHELL -->
+<section class="max-w-6xl mx-auto px-6 pb-3"><h2 class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Acto 1 · Drill full-page — shell (header + pipeline + KPIs + tabs)</h2></section>
+<section class="max-w-6xl mx-auto px-6 pb-10">
+  <div class="bg-white rounded-2xl border border-slate-200 frame overflow-hidden">
+    <!-- top-bar drill: back + breadcrumb -->
+    <div class="border-b border-slate-200 px-6 py-2.5 bg-slate-50 flex items-center justify-between">
+      <div class="flex items-center gap-2 text-[11px] text-slate-500">
+        <button class="inline-flex items-center gap-1 text-slate-600 hover:text-slate-900 font-medium"><i data-lucide="arrow-left" class="w-3.5 h-3.5"></i> Volver</button>
+        <span class="text-slate-300">·</span>
+        <span>Compras</span><i data-lucide="chevron-right" class="w-3 h-3 text-slate-300"></i><span>Órdenes</span><i data-lucide="chevron-right" class="w-3 h-3 text-slate-300"></i>
+        <span class="text-blue-700 font-semibold font-mono">OC-2026-014</span>
+      </div>
+      <div class="flex items-center gap-1.5 text-[11px] font-medium text-blue-700 bg-blue-50 border border-blue-200 rounded-full px-2.5 py-1"><i data-lucide="shield" class="w-3 h-3"></i> Vista ejecutiva · admin</div>
+    </div>
+
+    <!-- header banking-grade -->
+    <div class="px-6 pt-5 pb-4 flex items-start justify-between gap-4 flex-wrap">
+      <div class="flex items-start gap-3">
+        <div class="w-11 h-11 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center flex-shrink-0"><i data-lucide="truck" class="w-6 h-6"></i></div>
+        <div>
+          <div class="flex items-center gap-2 flex-wrap">
+            <h1 class="text-2xl font-bold tracking-tight text-slate-900 font-mono">OC-2026-014</h1>
+            <span class="inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-700"><i data-lucide="dot" class="w-3 h-3"></i>En Despacho</span>
+            <span class="inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-700">60% pagado</span>
+          </div>
+          <p class="text-[13px] text-slate-500 leading-snug mt-0.5">Beauty Supplies Co. · <span class="font-mono text-[10px] font-bold text-slate-400">CN</span> China <i data-lucide="plane" class="w-3 h-3 inline text-slate-400"></i> <span class="font-mono text-[10px] font-bold text-slate-400">US</span> Casilla Miami · creada hace 2 días</p>
+        </div>
+      </div>
+      <!-- acciones 3-tier · gateadas por estado -->
+      <div class="flex items-center gap-2 flex-wrap justify-end">
+        <button class="flex items-center gap-1.5 text-[12px] font-medium text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 rounded-lg px-3 py-2"><i data-lucide="printer" class="w-4 h-4"></i> PDF</button>
+        <button class="flex items-center gap-1.5 text-[12px] font-medium text-emerald-700 bg-emerald-50 border border-emerald-200 hover:bg-emerald-100 rounded-lg px-3 py-2"><i data-lucide="dollar-sign" class="w-4 h-4"></i> Registrar pago</button>
+        <button class="flex items-center gap-1.5 text-[12px] font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg px-3 py-2"><i data-lucide="package-check" class="w-4 h-4"></i> Marcar recibida</button>
+      </div>
+    </div>
+
+    <!-- pipeline 5 estados -->
+    <div class="px-6 pb-4">
+      <div class="flex items-center gap-1.5 flex-wrap">
+        <span class="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-700"><i data-lucide="check" class="w-3 h-3"></i> Borrador</span>
+        <span class="w-5 h-0.5 bg-emerald-400"></span>
+        <span class="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-700"><i data-lucide="check" class="w-3 h-3"></i> Confirmada</span>
+        <span class="w-5 h-0.5 bg-blue-400"></span>
+        <span class="inline-flex items-center gap-1.5 text-[11px] font-bold px-2.5 py-1 rounded-full bg-blue-600 text-white ring-2 ring-blue-100"><i data-lucide="truck" class="w-3 h-3"></i> En Despacho</span>
+        <span class="w-5 h-0.5 bg-slate-200"></span>
+        <span class="inline-flex items-center gap-1.5 text-[11px] font-medium px-2.5 py-1 rounded-full bg-slate-100 text-slate-400">Completada</span>
+      </div>
+    </div>
+
+    <!-- KPI strip · 4 KPIs (sin clonar · cada uno aporta) -->
+    <div class="px-6 pb-4 grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div class="bg-gradient-to-br from-amber-50 to-amber-100/40 ring-1 ring-amber-200/50 rounded-2xl p-3">
+        <div class="flex items-center justify-between mb-1"><span class="text-[10px] uppercase tracking-wider text-amber-700 font-bold">Total OC · comercial</span><i data-lucide="receipt" class="w-3.5 h-3.5 text-amber-700"></i></div>
+        <div class="text-2xl font-bold tnum text-amber-900">$1,381<span class="text-amber-400">.00</span></div>
+        <div class="text-[11px] text-amber-700 mt-0.5">facturado proveedor</div>
+      </div>
+      <div class="bg-gradient-to-br from-blue-50 to-blue-100/40 ring-1 ring-blue-200/50 rounded-2xl p-3">
+        <div class="flex items-center justify-between mb-1"><span class="text-[10px] uppercase tracking-wider text-blue-700 font-bold">Landed total</span><i data-lucide="container" class="w-3.5 h-3.5 text-blue-700"></i></div>
+        <div class="text-2xl font-bold tnum text-blue-900">S/ 5,612<span class="text-blue-400">.40</span></div>
+        <div class="text-[11px] text-blue-700 mt-0.5">+S/ 433 logístico</div>
+      </div>
+      <div class="bg-gradient-to-br from-emerald-50 to-emerald-100/40 ring-1 ring-emerald-200/50 rounded-2xl p-3">
+        <div class="flex items-center justify-between mb-1"><span class="text-[10px] uppercase tracking-wider text-emerald-700 font-bold">Pagado</span><i data-lucide="wallet" class="w-3.5 h-3.5 text-emerald-700"></i></div>
+        <div class="text-2xl font-bold tnum text-emerald-900">60<span class="text-emerald-400">%</span></div>
+        <div class="text-[11px] text-emerald-700 mt-0.5">$828 · saldo $553</div>
+      </div>
+      <div class="bg-gradient-to-br from-slate-50 to-slate-100/40 ring-1 ring-slate-200/50 rounded-2xl p-3">
+        <div class="flex items-center justify-between mb-1"><span class="text-[10px] uppercase tracking-wider text-slate-600 font-bold">Recepción</span><i data-lucide="package" class="w-3.5 h-3.5 text-slate-600"></i></div>
+        <div class="text-2xl font-bold tnum text-slate-800">8<span class="text-slate-400">/8</span></div>
+        <div class="text-[11px] text-slate-500 mt-0.5">3 SKU · recibidas</div>
+      </div>
+    </div>
+
+    <!-- tab bar · 9 tabs (Resumen default) -->
+    <div class="px-6 border-b border-slate-200 flex items-center gap-1 overflow-x-auto sb-none text-[13px]">
+      <button class="flex items-center gap-1.5 px-3 py-2.5 font-semibold text-blue-700 border-b-2 border-blue-600 whitespace-nowrap"><i data-lucide="layout-dashboard" class="w-4 h-4"></i> Resumen</button>
+      <button class="flex items-center gap-1.5 px-3 py-2.5 text-slate-500 whitespace-nowrap"><i data-lucide="boxes" class="w-4 h-4"></i> Productos</button>
+      <button class="flex items-center gap-1.5 px-3 py-2.5 text-slate-500 whitespace-nowrap"><i data-lucide="receipt" class="w-4 h-4"></i> Costos</button>
+      <button class="flex items-center gap-1.5 px-3 py-2.5 text-slate-500 whitespace-nowrap"><i data-lucide="truck" class="w-4 h-4"></i> Envíos</button>
+      <button class="flex items-center gap-1.5 px-3 py-2.5 text-slate-500 whitespace-nowrap"><i data-lucide="wallet" class="w-4 h-4"></i> Pagos</button>
+      <button class="flex items-center gap-1.5 px-3 py-2.5 text-slate-500 whitespace-nowrap"><i data-lucide="alert-triangle" class="w-4 h-4"></i> Incidencias</button>
+      <button class="flex items-center gap-1.5 px-3 py-2.5 text-slate-500 whitespace-nowrap"><i data-lucide="brain-circuit" class="w-4 h-4"></i> Inteligencia</button>
+      <button class="flex items-center gap-1.5 px-3 py-2.5 text-slate-500 whitespace-nowrap"><i data-lucide="history" class="w-4 h-4"></i> Timeline</button>
+      <button class="flex items-center gap-1.5 px-3 py-2.5 text-slate-500 whitespace-nowrap"><i data-lucide="paperclip" class="w-4 h-4"></i> Docs</button>
+    </div>
+
+    <!-- body · TAB RESUMEN §A-F -->
+    <div class="p-4 sm:p-6 bg-slate-50/30 space-y-4">
+      <!-- §A banner estado -->
+      <div class="bg-gradient-to-r from-amber-50 to-amber-100/30 ring-1 ring-amber-200/50 rounded-2xl p-4 flex items-start gap-3">
+        <i data-lucide="truck" class="w-5 h-5 text-amber-600 mt-0.5"></i>
+        <div class="flex-1"><div class="text-[13px] font-semibold text-amber-900">En Despacho · 8/8 unidades recibidas en casilla</div>
+        <div class="text-[12px] text-amber-700 mt-0.5">Falta el tramo casilla → Perú (gestionado en Envíos) y el saldo de pago ($553). Sin incidencias abiertas.</div></div>
+      </div>
+      <!-- §B visualización + §C insights -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="md:col-span-2 bg-white border border-slate-200 rounded-2xl p-4">
+          <div class="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-3">Composición del costo landed</div>
+          <div class="h-3 rounded-full overflow-hidden bg-slate-100 flex mb-2">
+            <div class="bg-blue-500" style="width:66%"></div><div class="bg-amber-500" style="width:7%"></div><div class="bg-indigo-500" style="width:19%"></div><div class="bg-slate-400" style="width:8%"></div>
+          </div>
+          <div class="flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-slate-500">
+            <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span> Producto S/ 3,705</span>
+            <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span> Impuesto S/ 360</span>
+            <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-indigo-500"></span> Flete intl S/ 1,067</span>
+            <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-slate-400"></span> Otros S/ 480</span>
+          </div>
+        </div>
+        <div class="bg-white border border-slate-200 rounded-2xl p-4">
+          <div class="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-2">Insights</div>
+          <ul class="text-[12px] text-slate-600 space-y-1.5">
+            <li class="flex gap-1.5"><i data-lucide="trending-up" class="w-3.5 h-3.5 text-rose-500 mt-0.5"></i> Sobrecosto logístico +31% sobre el comercial.</li>
+            <li class="flex gap-1.5"><i data-lucide="info" class="w-3.5 h-3.5 text-blue-500 mt-0.5"></i> Whey ON: precio 4% sobre tu histórico del proveedor.</li>
+          </ul>
+        </div>
+      </div>
+      <!-- §D acciones + §E cross-links + §F alertas -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="bg-white border border-slate-200 rounded-2xl p-4">
+          <div class="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-2">Acciones rápidas</div>
+          <div class="space-y-1.5">
+            <button class="w-full text-left text-[12px] font-medium text-emerald-700 bg-emerald-50 hover:bg-emerald-100 rounded-lg px-3 py-2 flex items-center gap-2"><i data-lucide="dollar-sign" class="w-4 h-4"></i> Registrar pago del saldo ($553)</button>
+            <button class="w-full text-left text-[12px] font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 rounded-lg px-3 py-2 flex items-center gap-2"><i data-lucide="package-check" class="w-4 h-4"></i> Marcar recibida</button>
+          </div>
+        </div>
+        <div class="bg-white border border-slate-200 rounded-2xl p-4">
+          <div class="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-2">Cross-links 360</div>
+          <div class="space-y-1.5 text-[12px]">
+            <a class="flex items-center justify-between text-slate-600 hover:text-blue-700 cursor-pointer"><span class="flex items-center gap-2"><i data-lucide="truck" class="w-4 h-4 text-slate-400"></i> 1 envío vinculado</span><i data-lucide="chevron-right" class="w-4 h-4"></i></a>
+            <a class="flex items-center justify-between text-slate-600 hover:text-blue-700 cursor-pointer"><span class="flex items-center gap-2"><i data-lucide="bar-chart-3" class="w-4 h-4 text-slate-400"></i> CTRU por unidad (detalle)</span><i data-lucide="chevron-right" class="w-4 h-4"></i></a>
+          </div>
+        </div>
+        <div class="bg-white border border-slate-200 rounded-2xl p-4">
+          <div class="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-2">Alertas</div>
+          <div class="text-[12px] text-slate-500 flex items-center gap-2"><i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-500"></i> Sin incidencias ni vencimientos.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ACTO 2 · TAB COSTOS (re-home · tu pregunta) -->
+<section class="max-w-6xl mx-auto px-6 pb-3"><h2 class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Acto 2 · Tab Costos — re-home (comercial + landed · sin doble-conteo)</h2></section>
+<section class="max-w-6xl mx-auto px-6 pb-10">
+  <div class="bg-white rounded-2xl border border-slate-200 frame overflow-hidden p-5 space-y-5">
+    <!-- comercial -->
+    <div>
+      <div class="text-[11px] font-semibold text-slate-500 uppercase tracking-wide mb-2">Cargos comerciales <span class="normal-case font-normal text-slate-400">(facturado por el proveedor · getCargosEfectivosOC)</span></div>
+      <div class="bg-slate-50 rounded-xl p-4 space-y-2 text-sm">
+        <div class="flex justify-between"><span class="text-slate-700">Subtotal productos</span><span class="font-semibold text-slate-900 tnum">$1,240.00</span></div>
+        <div class="flex justify-between"><span class="text-slate-700">+ Cargos (shipping/otros)</span><span class="tnum text-slate-900">$85.00</span></div>
+        <div class="flex justify-between"><span class="text-slate-700">− Descuento</span><span class="tnum text-emerald-700">-$40.00</span></div>
+        <div class="flex justify-between"><span class="text-slate-700">+ Impuestos</span><span class="tnum text-slate-900">$96.00</span></div>
+        <div class="border-t border-slate-200 pt-2 flex justify-between"><span class="font-semibold text-slate-900">Total OC</span><span class="text-lg font-bold text-amber-700 tnum">$1,381.00</span></div>
+        <div class="flex justify-between text-[11px] text-slate-500"><span>Equivalente PEN (TC 3.750)</span><span class="tnum">S/ 5,178.75</span></div>
+        <div class="text-[10px] text-slate-400 flex items-center gap-1"><i data-lucide="git-merge" class="w-3 h-3"></i> Agregado de 3 sub-órdenes · conciliado con el header</div>
+      </div>
+    </div>
+    <div class="border-t border-dashed border-slate-200"></div>
+    <!-- landed total -->
+    <div>
+      <div class="flex items-center gap-2 mb-2"><span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wide">¿Cuánto gasté en total por esta OC?</span><span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-blue-50 text-blue-700 text-[10px] font-semibold border border-blue-200 normal-case">landed · ya aterrizado</span></div>
+      <div class="bg-gradient-to-br from-blue-50 to-blue-100/40 ring-1 ring-blue-200/60 rounded-2xl p-4">
+        <div class="flex items-start justify-between gap-4 flex-wrap">
+          <div><div class="text-[10px] uppercase tracking-wider text-blue-700 font-bold mb-1">Landed total</div><div class="text-2xl font-bold tnum text-blue-900">S/ 5,612<span class="text-blue-400">.40</span></div><div class="text-[11px] text-blue-700 mt-1">8 de 8 unidades recibidas</div></div>
+          <div class="text-right"><div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1">Sobrecosto logístico</div><div class="text-base font-bold tnum text-slate-700 flex items-center justify-end gap-1"><i data-lucide="trending-up" class="w-3.5 h-3.5"></i> +S/ 433.65</div><div class="text-[11px] text-slate-500 mt-1">vs comercial · NO suma (contraste)</div></div>
+        </div>
+        <div class="mt-3 pt-3 border-t border-blue-200/60">
+          <div class="h-2.5 rounded-full overflow-hidden bg-white/60 flex mb-2"><div class="bg-blue-500" style="width:66%"></div><div class="bg-amber-500" style="width:7%"></div><div class="bg-indigo-500" style="width:19%"></div><div class="bg-slate-400" style="width:8%"></div></div>
+          <div class="flex flex-wrap gap-x-4 gap-y-1 text-[10px] text-slate-500"><span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span> Producto S/ 3,705</span><span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span> Impuesto S/ 360</span><span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-indigo-500"></span> Flete intl S/ 1,067</span><span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-slate-400"></span> Otros S/ 480</span></div>
+        </div>
+      </div>
+    </div>
+    <!-- comercial por producto -->
+    <div>
+      <div class="text-[11px] font-semibold text-slate-500 uppercase tracking-wide mb-2">¿Cómo se reparte lo facturado entre los productos? <span class="normal-case font-normal text-slate-400">comercial · antes del landed</span></div>
+      <div class="bg-white border border-slate-200 rounded-xl overflow-x-auto">
+        <table class="w-full text-[12px]">
+          <thead><tr class="text-[10px] uppercase tracking-wider text-slate-400 border-b border-slate-200"><th class="text-left font-bold py-2 px-3">Producto</th><th class="text-right font-bold py-2 px-2">Cant</th><th class="text-right font-bold py-2 px-2">Subtotal</th><th class="text-right font-bold py-2 px-2">+Cargo</th><th class="text-right font-bold py-2 px-2">−Desc</th><th class="text-right font-bold py-2 px-2">+Imp</th><th class="text-right font-bold py-2 px-3">CTRU comercial/u</th></tr></thead>
+          <tbody class="divide-y divide-slate-100 text-slate-700">
+            <tr><td class="py-2 px-3 font-medium text-slate-800">Whey ON 5lb</td><td class="text-right tnum px-2">4</td><td class="text-right tnum px-2">$620</td><td class="text-right tnum px-2">$42</td><td class="text-right tnum px-2 text-emerald-700">-$20</td><td class="text-right tnum px-2">$48</td><td class="text-right tnum px-3 font-bold text-blue-700">$172.50</td></tr>
+            <tr><td class="py-2 px-3 font-medium text-slate-800">ISO 100 3lb</td><td class="text-right tnum px-2">2</td><td class="text-right tnum px-2">$420</td><td class="text-right tnum px-2">$29</td><td class="text-right tnum px-2 text-emerald-700">-$14</td><td class="text-right tnum px-2">$33</td><td class="text-right tnum px-3 font-bold text-blue-700">$234.00</td></tr>
+            <tr><td class="py-2 px-3 font-medium text-slate-800">Creatina 400g</td><td class="text-right tnum px-2">2</td><td class="text-right tnum px-2">$200</td><td class="text-right tnum px-2">$14</td><td class="text-right tnum px-2 text-emerald-700">-$6</td><td class="text-right tnum px-2">$15</td><td class="text-right tnum px-3 font-bold text-blue-700">$111.50</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="text-[10px] text-slate-400 mt-1.5">El CTRU mostrado es el comercial (prorrateo por valor). Al recibir, lo logístico se suma en el landed ↑. La expulsión "Ver CTRU histórico" sobrevive como drill opcional "ver por unidad".</p>
+    </div>
+  </div>
+</section>
+
+<!-- ACTO 3 · PANELES AL CANON (compacto) -->
+<section class="max-w-6xl mx-auto px-6 pb-3"><h2 class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Acto 3 · Paneles de tab al canon (HubCard · sin emojis)</h2></section>
+<section class="max-w-6xl mx-auto px-6 pb-10 grid grid-cols-1 lg:grid-cols-2 gap-4">
+  <!-- Envíos → HubCard -->
+  <div class="bg-white rounded-2xl border border-slate-200 frame overflow-hidden">
+    <div class="px-4 py-2 bg-slate-50 border-b border-slate-200 text-[11px] font-bold uppercase tracking-wider text-slate-500">Tab Envíos · cards → HubCard</div>
+    <div class="p-4 space-y-2.5">
+      <div class="bg-white border border-slate-200 rounded-xl p-3.5 flex items-center gap-3 hover:border-blue-300 cursor-pointer">
+        <div class="w-10 h-10 rounded-lg bg-sky-50 text-sky-600 flex items-center justify-center"><i data-lucide="truck" class="w-5 h-5"></i></div>
+        <div class="flex-1 min-w-0"><div class="text-[13px] font-semibold text-slate-900">ENV-031 <span class="text-[11px] font-normal text-slate-400">· DHL · TRK48823</span></div><div class="text-[11px] text-slate-500 mt-0.5">8/8 recibidas · sin incidencias</div></div>
+        <span class="inline-flex items-center text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700">Recibido</span>
+        <i data-lucide="chevron-right" class="w-4 h-4 text-slate-300"></i>
+      </div>
+      <div class="bg-sky-50 border border-sky-200 rounded-lg p-2.5 text-[11px] text-sky-700 flex items-center gap-2"><i data-lucide="info" class="w-3.5 h-3.5"></i> El tramo casilla → Perú se gestiona como envío independiente.</div>
+    </div>
+  </div>
+  <!-- Inteligencia → sin semáforos emoji -->
+  <div class="bg-white rounded-2xl border border-slate-200 frame overflow-hidden">
+    <div class="px-4 py-2 bg-slate-50 border-b border-slate-200 text-[11px] font-bold uppercase tracking-wider text-slate-500">Tab Inteligencia · 🟢🟡🔴🥇 → badges semánticos</div>
+    <div class="p-4 grid grid-cols-2 gap-3">
+      <div class="border border-slate-200 rounded-xl p-3"><div class="text-[10px] uppercase tracking-wider text-slate-400 font-bold mb-1">SLA proveedor</div><div class="text-lg font-bold text-emerald-700 tnum">12 días</div><span class="inline-flex text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700">Bueno</span></div>
+      <div class="border border-slate-200 rounded-xl p-3"><div class="text-[10px] uppercase tracking-wider text-slate-400 font-bold mb-1">Precio vs histórico</div><div class="text-lg font-bold text-amber-700 tnum">+4%</div><span class="inline-flex text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-700">Atención</span></div>
+    </div>
+  </div>
+  <!-- Incidencias -->
+  <div class="bg-white rounded-2xl border border-slate-200 frame overflow-hidden">
+    <div class="px-4 py-2 bg-slate-50 border-b border-slate-200 text-[11px] font-bold uppercase tracking-wider text-slate-500">Tab Incidencias · cards → HubCard · sin emojis · forms → FormModalV2</div>
+    <div class="p-4"><div class="bg-white border border-slate-200 rounded-xl py-10 text-center"><i data-lucide="shield-check" class="w-8 h-8 text-emerald-400 mx-auto mb-2"></i><p class="text-[12px] font-medium text-slate-700">Sin incidencias en esta OC</p><button class="mt-2 text-[11px] font-bold text-blue-700 border border-blue-200 bg-blue-50 rounded-lg px-2.5 py-1">Registrar incidencia</button></div></div>
+  </div>
+  <!-- Timeline -->
+  <div class="bg-white rounded-2xl border border-slate-200 frame overflow-hidden">
+    <div class="px-4 py-2 bg-slate-50 border-b border-slate-200 text-[11px] font-bold uppercase tracking-wider text-slate-500">Tab Timeline · al DS</div>
+    <div class="p-4 space-y-3 text-[12px]">
+      <div class="flex gap-3"><div class="flex flex-col items-center"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span><span class="w-px flex-1 bg-slate-200"></span></div><div><div class="font-medium text-slate-800">OC confirmada · 8 unidades creadas</div><div class="text-[11px] text-slate-400">hace 2 días</div></div></div>
+      <div class="flex gap-3"><div class="flex flex-col items-center"><span class="w-2.5 h-2.5 rounded-full bg-blue-600"></span></div><div><div class="font-medium text-slate-800">Despachada · DHL TRK48823</div><div class="text-[11px] text-slate-400">hace 1 día</div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ACTO 4 · MOBILE -->
+<section class="max-w-6xl mx-auto px-6 pb-3"><h2 class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Acto 4 · Mobile 375 — drill + tabs scroll-x + costo</h2></section>
+<section class="max-w-6xl mx-auto px-6 pb-12 flex justify-center">
+  <div class="w-[375px] bg-white rounded-[2rem] border-4 border-slate-800 frame overflow-hidden">
+    <div class="bg-slate-800 h-6 flex items-center justify-center"><div class="w-20 h-1.5 bg-slate-600 rounded-full"></div></div>
+    <div class="border-b border-slate-200 px-3 py-2 bg-slate-50 flex items-center gap-2 text-[10px] text-slate-500"><i data-lucide="arrow-left" class="w-3.5 h-3.5"></i><span class="font-mono text-blue-700 font-semibold">OC-2026-014</span></div>
+    <div class="px-3 pt-3 pb-2 flex items-center gap-2">
+      <div class="w-9 h-9 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center"><i data-lucide="truck" class="w-5 h-5"></i></div>
+      <div class="flex-1 min-w-0"><div class="text-[15px] font-bold text-slate-900 font-mono">OC-2026-014</div><div class="text-[10px] text-slate-500 truncate">Beauty Supplies · En Despacho</div></div>
+    </div>
+    <div class="px-3 pb-2 flex gap-2 overflow-x-auto sb-none">
+      <div class="flex-shrink-0 w-24 bg-gradient-to-br from-amber-50 to-amber-100/40 ring-1 ring-amber-200/50 rounded-xl p-2"><div class="text-[9px] uppercase text-amber-700 font-bold">Total OC</div><div class="text-base font-bold tnum text-amber-900">$1,381</div></div>
+      <div class="flex-shrink-0 w-24 bg-gradient-to-br from-blue-50 to-blue-100/40 ring-1 ring-blue-200/50 rounded-xl p-2"><div class="text-[9px] uppercase text-blue-700 font-bold">Landed</div><div class="text-base font-bold tnum text-blue-900">S/5.6k</div></div>
+      <div class="flex-shrink-0 w-24 bg-gradient-to-br from-emerald-50 to-emerald-100/40 ring-1 ring-emerald-200/50 rounded-xl p-2"><div class="text-[9px] uppercase text-emerald-700 font-bold">Pagado</div><div class="text-base font-bold tnum text-emerald-900">60%</div></div>
+    </div>
+    <div class="px-3 border-b border-slate-200 flex gap-3 overflow-x-auto sb-none text-[12px]">
+      <button class="py-2 font-semibold text-blue-700 border-b-2 border-blue-600 whitespace-nowrap">Resumen</button>
+      <button class="py-2 text-slate-500 whitespace-nowrap">Productos</button>
+      <button class="py-2 text-slate-500 whitespace-nowrap">Costos</button>
+      <button class="py-2 text-slate-500 whitespace-nowrap">Envíos</button>
+    </div>
+    <div class="p-3 bg-slate-50/30 space-y-2.5">
+      <div class="bg-gradient-to-r from-amber-50 to-amber-100/30 ring-1 ring-amber-200/50 rounded-xl p-3 text-[12px] text-amber-800">En Despacho · 8/8 recibidas · saldo $553</div>
+      <div class="bg-white border border-slate-200 rounded-xl p-3">
+        <div class="text-[10px] uppercase text-slate-400 font-bold mb-1.5">Composición landed</div>
+        <div class="h-2.5 rounded-full overflow-hidden bg-slate-100 flex"><div class="bg-blue-500" style="width:66%"></div><div class="bg-amber-500" style="width:7%"></div><div class="bg-indigo-500" style="width:19%"></div><div class="bg-slate-400" style="width:8%"></div></div>
+      </div>
+      <button class="w-full py-2.5 rounded-lg bg-blue-600 text-white text-[12px] font-bold flex items-center justify-center gap-1.5"><i data-lucide="package-check" class="w-4 h-4"></i> Marcar recibida</button>
+    </div>
+  </div>
+</section>
+
+<!-- DEAD-CODE + DECISIONES -->
+<section class="max-w-6xl mx-auto px-6 pb-12 grid grid-cols-1 lg:grid-cols-2 gap-4">
+  <div class="bg-white rounded-2xl border-2 border-rose-200 frame overflow-hidden">
+    <div class="px-5 py-3 bg-rose-50 border-b border-rose-200"><h2 class="text-[13px] font-bold text-rose-900 flex items-center gap-2"><i data-lucide="trash-2" class="w-4 h-4"></i> Dead-code a borrar (junto al rework)</h2></div>
+    <div class="p-5 text-[12px] text-slate-600 space-y-2">
+      <div>· <b>Cadena PriceAdvisor</b>: PriceAdvisor.tsx + PriceAdvisorModal.tsx + PriceHistoryChart.tsx + priceIntelligence.service.ts (0 render sites · enmascarada del knip por el re-export del barrel index.ts).</div>
+      <div>· Rama <code class="bg-slate-100 px-1 rounded">!embedded</code> de <b>ConfirmarOCModal</b> (~150 líneas · el flujo vive embebido en OrdenCompraCard · camino modal-autónomo no alcanzado).</div>
+      <div>· Link "Ver CTRU landed histórico" → degradar a drill opcional "ver por unidad" (no borrar · mantiene trazabilidad).</div>
+    </div>
+  </div>
+  <div class="bg-white rounded-2xl border-2 border-amber-200 frame overflow-hidden">
+    <div class="px-5 py-3 bg-amber-50 border-b border-amber-200"><h2 class="text-[13px] font-bold text-amber-900 flex items-center gap-2"><i data-lucide="help-circle" class="w-4 h-4"></i> Decisiones para vos</h2></div>
+    <div class="p-5 text-[12px] text-slate-600 space-y-2.5">
+      <div><b class="text-slate-800">1 · Landed por sub-orden/producto:</b> ¿el landed se desglosa por sub-orden y/o columna landed/u por producto, o solo el total agregado de la OC? (MVP = total).</div>
+      <div><b class="text-slate-800">2 · Tab Inteligencia en el detalle:</b> ¿se queda (intel de ESTA OC) o se elimina porque ya hay una tab Inteligencia a nivel módulo Compras? (racionalizar 9→8 tabs).</div>
+      <div><b class="text-slate-800">3 · PriceAdvisor:</b> ¿borrar la cadena completa, o rescatar la lógica de asesoría de precios para el wizard de OC?</div>
+      <div><b class="text-slate-800">4 · Fuente del landed:</b> helper pura <code class="bg-slate-100 px-1 rounded">resumirOC(unidades)</code> (recom · cero "dos números" con CTRU) vs reusar el store pesado de CTRU.</div>
+    </div>
+  </div>
+</section>
+
+<!-- CHECKLIST -->
+<section class="max-w-6xl mx-auto px-6 pb-20">
+  <div class="bg-slate-900 rounded-2xl p-6 text-slate-300">
+    <h2 class="text-[13px] font-bold text-white mb-3 flex items-center gap-2"><i data-lucide="check-check" class="w-4 h-4 text-emerald-400"></i> Cobertura canon (detalle de OC)</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-1.5 text-[11px]">
+      <div class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-400"></i> Drill full-page (F6-B) · back + breadcrumb · header banking-grade</div>
+      <div class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-400"></i> Pipeline 5 estados + KPI strip (sin clonar)</div>
+      <div class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-400"></i> 1ª tab Resumen §A-F (banner→viz→insights→acciones→cross-links→alertas)</div>
+      <div class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-400"></i> Tab Costos · re-home comercial + landed (sin doble-conteo)</div>
+      <div class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-400"></i> Paneles → HubCard · Inteligencia sin semáforos emoji</div>
+      <div class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-400"></i> Modales (Despachar/SubOrden) → FormModalV2 / drill canon</div>
+      <div class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-400"></i> Azul Comercial · sin emojis (banderas→código país) · lucide · tabular-nums</div>
+      <div class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-400"></i> Mobile 375 · estados loading/empty/error (costo landed)</div>
+    </div>
+    <p class="text-[10px] text-slate-500 mt-4">Implementación = otra tanda (este mockup la precede · canon M1-M5). Forms internos de Incidencias y el detalle de SubOrden tienen su pasada propia dentro de la implementación del detalle.</p>
+  </div>
+</section>
+
+<script>lucide.createIcons();</script>
+</body>
+</html>

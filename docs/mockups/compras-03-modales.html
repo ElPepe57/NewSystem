@@ -1,0 +1,1080 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Compras · Modales internos — estado ACTUAL (documentación)</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+  body{font-family:'Inter',system-ui,sans-serif; background:#f1f5f9; color:#0f172a;}
+  .tnum{font-variant-numeric:tabular-nums;}
+  .mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;}
+  /* faux overlay backdrops — replican el look real de cada modal */
+  .ov-slate{background:rgba(15,23,42,.40); backdrop-filter:blur(4px);}
+  .ov-black40{background:rgba(0,0,0,.40);}
+  .ov-black30{background:rgba(0,0,0,.30);}
+  .phone{width:375px;}
+  .scrollbar-thin::-webkit-scrollbar{height:6px;width:6px;}
+  .scrollbar-thin::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:9999px;}
+</style>
+</head>
+<body class="text-slate-900">
+
+<!-- ════════════════════════════════════════════════════════════ HERO ═══ -->
+<header class="max-w-6xl mx-auto px-5 pt-10 pb-6">
+  <div class="flex items-center gap-2 text-xs text-slate-500 mb-3">
+    <span class="font-semibold text-blue-700">Comercial</span>
+    <i data-lucide="chevron-right" class="w-3 h-3"></i>
+    <span>Compras</span>
+    <i data-lucide="chevron-right" class="w-3 h-3"></i>
+    <span class="text-slate-700 font-medium">Modales internos</span>
+  </div>
+  <div class="flex items-start justify-between flex-wrap gap-4">
+    <div class="flex items-start gap-4">
+      <div class="w-14 h-14 rounded-2xl bg-blue-100 flex items-center justify-center flex-shrink-0">
+        <i data-lucide="layers" class="w-7 h-7 text-blue-600"></i>
+      </div>
+      <div>
+        <h1 class="text-2xl font-bold tracking-tight text-slate-900">Compras · 5 modales internos</h1>
+        <p class="text-sm text-slate-600 mt-1 max-w-2xl">
+          Documentación FIEL del estado <b>actual</b> de los overlays de la sección Órdenes de Compra.
+          Cada modal poblado con data real: <span class="font-medium">Nutrition Depot USA · OC-2026-014 · TC 3.75</span>.
+        </p>
+      </div>
+    </div>
+    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-100 text-amber-800 text-xs font-semibold border border-amber-200">
+      <i data-lucide="alert-triangle" class="w-3.5 h-3.5"></i>
+      estado actual · documentación
+    </span>
+  </div>
+
+  <!-- Veredicto rápido -->
+  <div class="mt-6 grid grid-cols-1 sm:grid-cols-5 gap-2">
+    <div class="rounded-xl border border-rose-200 bg-rose-50 px-3 py-2">
+      <div class="text-[10px] uppercase tracking-wider text-rose-700 font-bold">FormModalV2</div>
+      <div class="text-sm font-semibold text-rose-900 mt-0.5">0 de 5 lo usan</div>
+    </div>
+    <div class="rounded-xl border border-rose-200 bg-rose-50 px-3 py-2">
+      <div class="text-[10px] uppercase tracking-wider text-rose-700 font-bold">Overlay</div>
+      <div class="text-sm font-semibold text-rose-900 mt-0.5">5 a mano · 3 backdrops distintos</div>
+    </div>
+    <div class="rounded-xl border border-rose-200 bg-rose-50 px-3 py-2">
+      <div class="text-[10px] uppercase tracking-wider text-rose-700 font-bold">Bottom-sheet móvil</div>
+      <div class="text-sm font-semibold text-rose-900 mt-0.5">0 de 5</div>
+    </div>
+    <div class="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2">
+      <div class="text-[10px] uppercase tracking-wider text-amber-700 font-bold">Emojis en chrome</div>
+      <div class="text-sm font-semibold text-amber-900 mt-0.5">4 de 5</div>
+    </div>
+    <div class="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2">
+      <div class="text-[10px] uppercase tracking-wider text-amber-700 font-bold">Color módulo (blue)</div>
+      <div class="text-sm font-semibold text-amber-900 mt-0.5">inconsistente</div>
+    </div>
+  </div>
+
+  <!-- Índice -->
+  <nav class="mt-6 flex flex-wrap gap-2 text-xs">
+    <a href="#m1" class="px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-700 hover:border-blue-300 font-medium">1 · Confirmar OC</a>
+    <a href="#m2" class="px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-700 hover:border-blue-300 font-medium">2 · Despachar OC</a>
+    <a href="#m3" class="px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-700 hover:border-blue-300 font-medium">3 · Detalle Sub-orden</a>
+    <a href="#m4" class="px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-700 hover:border-blue-300 font-medium">4 · Registrar Pago</a>
+    <a href="#m5" class="px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-700 hover:border-blue-300 font-medium">5 · Price Advisor</a>
+  </nav>
+</header>
+
+<!-- helper: chip de estado por superficie -->
+<!-- ══════════════════════════════════════════════════════ MODAL 1 ════ -->
+<section id="m1" class="max-w-6xl mx-auto px-5 py-8">
+  <div class="flex items-center justify-between flex-wrap gap-3 mb-4">
+    <div class="flex items-center gap-3">
+      <span class="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center text-sm font-bold">1</span>
+      <h2 class="text-lg font-bold text-slate-900">Confirmar OC — matriz de sub-órdenes</h2>
+    </div>
+    <div class="flex items-center gap-2">
+      <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-100 text-amber-800 text-[11px] font-semibold border border-amber-200"><i data-lucide="alert-triangle" class="w-3 h-3"></i> legacy pre-DS</span>
+      <span class="text-[11px] text-slate-500 mono">ConfirmarOCModal.tsx</span>
+    </div>
+  </div>
+  <p class="text-sm text-slate-600 mb-4 max-w-3xl">
+    Overlay <code class="text-[11px] bg-slate-100 px-1 rounded">fixed inset-0 bg-slate-900/40 backdrop-blur-sm</code>, contenido <code class="text-[11px] bg-slate-100 px-1 rounded">max-w-6xl</code>.
+    Tablas-matriz con doble validación (productos + cargos). Header <code class="text-[11px] bg-slate-100 px-1 rounded">✓</code> es un <b>carácter emoji literal</b>, los impuestos se pintan <b>purple</b> (no el blue del módulo).
+  </p>
+
+  <!-- DESKTOP -->
+  <div class="text-[11px] uppercase tracking-wider text-slate-400 font-bold mb-2">Desktop · modal centrado</div>
+  <div class="rounded-2xl ov-slate p-6 mb-6 overflow-hidden">
+    <div class="max-w-5xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden border border-slate-200">
+      <!-- header -->
+      <div class="px-6 py-4 bg-slate-50 border-b border-slate-200">
+        <div class="flex items-center justify-between">
+          <div>
+            <div class="text-xs text-slate-500">Confirmar orden</div>
+            <div class="text-lg font-semibold text-slate-800">
+              <span class="mono">OC-2026-014</span> · Nutrition Depot USA · <span class="tnum">$4,182.50</span>
+            </div>
+          </div>
+          <i data-lucide="x" class="w-5 h-5 text-slate-400"></i>
+        </div>
+        <div class="mt-3 flex items-center gap-3 flex-wrap">
+          <span class="text-xs text-slate-500">¿Dividir en sub-órdenes?</span>
+          <button class="px-3 py-1 text-xs font-medium rounded-lg bg-slate-200 text-slate-600">No, mantener como OC única</button>
+          <button class="px-3 py-1 text-xs font-medium rounded-lg bg-blue-600 text-white">Sí, dividir en 2 sub-órdenes</button>
+        </div>
+      </div>
+
+      <div class="p-6 space-y-6">
+        <!-- Sección 1: matriz productos -->
+        <div>
+          <div class="flex items-center justify-between mb-3 flex-wrap gap-2">
+            <div>
+              <div class="text-sm font-semibold text-slate-800">1. Asigna productos a cada sub-orden</div>
+              <div class="text-xs text-slate-500">Las cantidades asignadas deben sumar exactamente las de la OC original</div>
+            </div>
+            <button class="px-2.5 py-1 text-xs text-blue-600 rounded border border-blue-200 flex items-center gap-1 font-medium">
+              <i data-lucide="plus" class="w-3 h-3"></i> Agregar sub-orden
+            </button>
+          </div>
+          <div class="overflow-x-auto scrollbar-thin">
+            <table class="w-full text-xs border border-slate-200 rounded-lg overflow-hidden">
+              <thead class="bg-slate-50 text-slate-600">
+                <tr>
+                  <th class="text-left p-2 font-semibold">Producto</th>
+                  <th class="text-right p-2 font-semibold whitespace-nowrap">OC original</th>
+                  <th class="text-right p-2 font-semibold bg-blue-50 whitespace-nowrap">SUB-A</th>
+                  <th class="text-right p-2 font-semibold bg-blue-50 whitespace-nowrap">SUB-B</th>
+                  <th class="text-right p-2 font-semibold whitespace-nowrap">Asignado</th>
+                  <th class="text-center p-2 font-semibold w-8">✓</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="border-t border-slate-100">
+                  <td class="p-2"><div class="font-medium">Whey Gold Standard 5lb</div><div class="text-[10px] text-slate-500 mono">WHEY-ON-5LB</div></td>
+                  <td class="p-2 text-right text-slate-500 tnum">24</td>
+                  <td class="p-2 text-right"><input value="14" class="w-12 text-right border border-slate-200 rounded px-1 py-0.5 bg-white tnum" /></td>
+                  <td class="p-2 text-right"><input value="10" class="w-12 text-right border border-slate-200 rounded px-1 py-0.5 bg-white tnum" /></td>
+                  <td class="p-2 text-right font-semibold tnum text-emerald-700">24</td>
+                  <td class="p-2 text-center"><i data-lucide="check" class="w-4 h-4 text-emerald-500 mx-auto"></i></td>
+                </tr>
+                <tr class="border-t border-slate-100 bg-red-50">
+                  <td class="p-2"><div class="font-medium">ISO 100 Hydrolyzed 3lb</div><div class="text-[10px] text-slate-500 mono">ISO100-3LB</div></td>
+                  <td class="p-2 text-right text-slate-500 tnum">18</td>
+                  <td class="p-2 text-right"><input value="8" class="w-12 text-right border border-red-300 rounded px-1 py-0.5 bg-white tnum" /></td>
+                  <td class="p-2 text-right"><input value="7" class="w-12 text-right border border-red-300 rounded px-1 py-0.5 bg-white tnum" /></td>
+                  <td class="p-2 text-right font-semibold tnum text-red-700">15 <span class="text-xs ml-1">(-3)</span></td>
+                  <td class="p-2 text-center"><i data-lucide="alert-circle" class="w-4 h-4 text-red-500 mx-auto"></i></td>
+                </tr>
+                <tr class="border-t border-slate-100">
+                  <td class="p-2"><div class="font-medium">Creatina Monohidratada 400g</div><div class="text-[10px] text-slate-500 mono">CREA-400G</div></td>
+                  <td class="p-2 text-right text-slate-500 tnum">30</td>
+                  <td class="p-2 text-right"><input value="20" class="w-12 text-right border border-slate-200 rounded px-1 py-0.5 bg-white tnum" /></td>
+                  <td class="p-2 text-right"><input value="10" class="w-12 text-right border border-slate-200 rounded px-1 py-0.5 bg-white tnum" /></td>
+                  <td class="p-2 text-right font-semibold tnum text-emerald-700">30</td>
+                  <td class="p-2 text-center"><i data-lucide="check" class="w-4 h-4 text-emerald-500 mx-auto"></i></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <!-- banner error -->
+          <div class="mt-3 flex items-start gap-2 text-xs text-red-700 bg-red-50 rounded-lg p-2.5 border border-red-200">
+            <i data-lucide="alert-triangle" class="w-3.5 h-3.5 mt-0.5 flex-shrink-0"></i>
+            <div><strong>Cantidades no cuadran.</strong> <b>ISO 100 Hydrolyzed 3lb</b> (faltan 3). Debes distribuir las cantidades originales exactas.</div>
+          </div>
+        </div>
+
+        <!-- Sección 2: matriz cargos -->
+        <div>
+          <div class="mb-3">
+            <div class="text-sm font-semibold text-slate-800">2. Distribuye los cargos de la OC entre sub-órdenes</div>
+            <div class="text-xs text-slate-500">La suma de cada cargo debe coincidir con el total de la OC original</div>
+          </div>
+          <div class="overflow-x-auto scrollbar-thin">
+            <table class="w-full text-xs border border-slate-200 rounded-lg overflow-hidden">
+              <thead class="bg-slate-50 text-slate-600">
+                <tr>
+                  <th class="text-left p-2 font-semibold">Concepto</th>
+                  <th class="text-right p-2 font-semibold whitespace-nowrap">OC original</th>
+                  <th class="text-right p-2 font-semibold bg-blue-50 whitespace-nowrap">SUB-A</th>
+                  <th class="text-right p-2 font-semibold bg-blue-50 whitespace-nowrap">SUB-B</th>
+                  <th class="text-right p-2 font-semibold whitespace-nowrap">Distribuido</th>
+                  <th class="text-center p-2 font-semibold w-8">✓</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="border-t border-slate-100">
+                  <td class="p-2"><span class="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-semibold bg-sky-100 text-sky-700">Cargo</span> <span class="font-medium ml-1">Shipping internacional</span></td>
+                  <td class="p-2 text-right text-slate-500 tnum">$320.00</td>
+                  <td class="p-2 text-right"><input value="186.67" class="w-20 text-right border border-slate-200 rounded px-1 py-0.5 bg-white tnum" /></td>
+                  <td class="p-2 text-right"><input value="133.33" class="w-20 text-right border border-slate-200 rounded px-1 py-0.5 bg-white tnum" /></td>
+                  <td class="p-2 text-right font-semibold tnum text-emerald-700">$320.00</td>
+                  <td class="p-2 text-center"><i data-lucide="check" class="w-4 h-4 text-emerald-500 mx-auto"></i></td>
+                </tr>
+                <tr class="border-t border-slate-100">
+                  <td class="p-2">
+                    <span class="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-semibold bg-purple-100 text-purple-700">Imp.</span>
+                    <span class="font-medium ml-1">Sales Tax</span>
+                    <span class="inline-flex items-center bg-slate-100 rounded p-0.5 ml-1 align-middle">
+                      <span class="px-1.5 py-0.5 rounded text-[10px] bg-white text-purple-700 shadow-sm inline-flex"><i data-lucide="percent" class="w-2.5 h-2.5"></i></span>
+                      <span class="px-1.5 py-0.5 rounded text-[10px] text-slate-500 inline-flex"><i data-lucide="dollar-sign" class="w-2.5 h-2.5"></i></span>
+                    </span>
+                    <span class="inline-flex items-center gap-1 ml-0.5 align-middle">
+                      <input value="6.5" class="w-14 px-1 py-0.5 text-xs text-right border border-purple-200 rounded bg-white tnum text-purple-900 font-semibold" />
+                      <span class="text-[10px] text-purple-600 font-semibold">%</span>
+                      <span class="px-1.5 py-0.5 rounded-full bg-purple-50 text-purple-700 text-[10px] font-semibold border border-purple-200">auto</span>
+                    </span>
+                  </td>
+                  <td class="p-2 text-right text-slate-500 tnum">$176.13</td>
+                  <td class="p-2 text-right"><div class="w-20 ml-auto text-right border rounded px-1 py-0.5 bg-purple-50 border-purple-200 tnum text-purple-900 font-medium">102.74</div></td>
+                  <td class="p-2 text-right"><div class="w-20 ml-auto text-right border rounded px-1 py-0.5 bg-purple-50 border-purple-200 tnum text-purple-900 font-medium">73.39</div></td>
+                  <td class="p-2 text-right font-semibold tnum text-emerald-700">$176.13</td>
+                  <td class="p-2 text-center"><i data-lucide="check" class="w-4 h-4 text-emerald-500 mx-auto"></i></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Totales + reconciliación -->
+        <div class="bg-slate-50 rounded-xl p-4">
+          <div class="text-xs font-semibold text-slate-500 mb-3 tracking-wide">TOTALES POR SUB-ORDEN</div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div class="bg-white rounded-lg p-3 border border-slate-200">
+              <div class="text-xs text-slate-500 mb-1 mono">SUB-A</div>
+              <div class="text-xs text-slate-400 tnum">$2438 + $186.67 + $102.74 =</div>
+              <div class="text-base font-semibold text-slate-800 tnum">$2,727.41</div>
+            </div>
+            <div class="bg-white rounded-lg p-3 border border-slate-200">
+              <div class="text-xs text-slate-500 mb-1 mono">SUB-B</div>
+              <div class="text-xs text-slate-400 tnum">$1310 + $133.33 + $73.39 =</div>
+              <div class="text-base font-semibold text-slate-800 tnum">$1,516.72</div>
+            </div>
+          </div>
+          <div class="mt-3 flex items-center justify-between rounded-lg p-2.5 border bg-amber-50 border-amber-200">
+            <span class="text-xs font-semibold tracking-wide text-amber-900">SUMA SUB-ÓRDENES:</span>
+            <span class="text-sm font-semibold tnum text-amber-900">$4,244.13 <span class="text-xs font-normal">de $4,182.50 OC</span> <span class="text-xs ml-1">(+61.63)</span></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- footer -->
+      <div class="px-6 py-4 border-t border-slate-200 bg-slate-50 flex items-center justify-between flex-wrap gap-3">
+        <button class="px-4 py-2 text-sm font-medium text-slate-600 rounded-lg">Cancelar</button>
+        <div class="flex items-center gap-3">
+          <div class="text-xs text-red-600 font-medium flex items-center gap-1"><i data-lucide="alert-circle" class="w-3.5 h-3.5"></i> Resolver validaciones para confirmar</div>
+          <button class="px-5 py-2 text-sm font-semibold rounded-lg bg-slate-300 text-white cursor-not-allowed flex items-center gap-2">Confirmar con 2 sub-órdenes</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MOBILE -->
+  <div class="text-[11px] uppercase tracking-wider text-slate-400 font-bold mb-2">Mobile 375px · NO es bottom-sheet (mismo modal centrado encogido)</div>
+  <div class="rounded-2xl ov-slate p-3 flex justify-center overflow-hidden">
+    <div class="phone bg-white rounded-2xl shadow-xl overflow-hidden border border-slate-200">
+      <div class="px-4 py-3 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+        <div>
+          <div class="text-[10px] text-slate-500">Confirmar orden</div>
+          <div class="text-sm font-semibold text-slate-800 mono">OC-2026-014</div>
+        </div>
+        <i data-lucide="x" class="w-5 h-5 text-slate-400"></i>
+      </div>
+      <div class="p-4 space-y-3">
+        <div class="text-sm font-semibold text-slate-800">1. Asigna productos</div>
+        <!-- la tabla se sale de los 375px → scroll horizontal forzado -->
+        <div class="overflow-x-auto scrollbar-thin border border-amber-300 rounded-lg">
+          <table class="text-[11px]" style="width:520px">
+            <thead class="bg-slate-50 text-slate-600">
+              <tr>
+                <th class="text-left p-1.5">Producto</th><th class="text-right p-1.5">OC</th>
+                <th class="text-right p-1.5 bg-blue-50">SUB-A</th><th class="text-right p-1.5 bg-blue-50">SUB-B</th>
+                <th class="text-right p-1.5">Asig.</th><th class="text-center p-1.5">✓</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="border-t border-slate-100"><td class="p-1.5">Whey ON 5lb</td><td class="p-1.5 text-right tnum">24</td><td class="p-1.5"><input value="14" class="w-9 border rounded text-right tnum"/></td><td class="p-1.5"><input value="10" class="w-9 border rounded text-right tnum"/></td><td class="p-1.5 text-right tnum text-emerald-700">24</td><td class="p-1.5 text-center"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-500 mx-auto"></i></td></tr>
+              <tr class="border-t border-slate-100 bg-red-50"><td class="p-1.5">ISO 100 3lb</td><td class="p-1.5 text-right tnum">18</td><td class="p-1.5"><input value="8" class="w-9 border border-red-300 rounded text-right tnum"/></td><td class="p-1.5"><input value="7" class="w-9 border border-red-300 rounded text-right tnum"/></td><td class="p-1.5 text-right tnum text-red-700">15</td><td class="p-1.5 text-center"><i data-lucide="alert-circle" class="w-3.5 h-3.5 text-red-500 mx-auto"></i></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="flex items-center gap-1.5 text-[10px] text-amber-700"><i data-lucide="move-horizontal" class="w-3 h-3"></i> La matriz no entra en 375px · scroll horizontal manual</div>
+        <div class="flex items-center justify-between rounded-lg p-2 border bg-amber-50 border-amber-200">
+          <span class="text-[10px] font-semibold text-amber-900">SUMA:</span>
+          <span class="text-xs font-semibold tnum text-amber-900">$4,244 / $4,182</span>
+        </div>
+        <button class="w-full px-4 py-2.5 text-sm font-semibold rounded-lg bg-slate-300 text-white">Confirmar con 2 sub-órdenes</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-4 grid sm:grid-cols-2 gap-3 text-xs">
+    <div class="rounded-xl border border-rose-200 bg-rose-50/60 p-3">
+      <div class="font-semibold text-rose-800 mb-1 flex items-center gap-1.5"><i data-lucide="x-circle" class="w-3.5 h-3.5"></i> Por qué es legacy</div>
+      <ul class="text-rose-900/90 space-y-0.5 list-disc pl-4">
+        <li>Overlay a mano (<span class="mono">fixed inset-0 bg-slate-900/40</span>), no FormModalV2.</li>
+        <li>Header <span class="mono">✓</span> = carácter emoji literal en el chrome (canon F8 lo prohíbe).</li>
+        <li>Impuestos en <b>purple</b>, ajeno al blue del módulo Comercial.</li>
+        <li>Tabla-matriz inusable en mobile: scroll-x, sin reflow a cards.</li>
+      </ul>
+    </div>
+    <div class="rounded-xl border border-amber-200 bg-amber-50/60 p-3">
+      <div class="font-semibold text-amber-800 mb-1 flex items-center gap-1.5"><i data-lucide="help-circle" class="w-3.5 h-3.5"></i> Qué confunde hoy</div>
+      <ul class="text-amber-900/90 space-y-0.5 list-disc pl-4">
+        <li>El toggle "%/$" + input + pill "auto" del impuesto es muy denso para una celda.</li>
+        <li>Misma pantalla embebida dentro de OrdenCompraCard (<span class="mono">embedded</span>) y como modal autónomo → 2 layouts del mismo componente.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════ MODAL 2 ════ -->
+<section id="m2" class="max-w-6xl mx-auto px-5 py-8 border-t border-slate-200">
+  <div class="flex items-center justify-between flex-wrap gap-3 mb-4">
+    <div class="flex items-center gap-3">
+      <span class="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center text-sm font-bold">2</span>
+      <h2 class="text-lg font-bold text-slate-900">Despachar OC — courier + tracking</h2>
+    </div>
+    <div class="flex items-center gap-2">
+      <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-100 text-amber-800 text-[11px] font-semibold border border-amber-200"><i data-lucide="alert-triangle" class="w-3 h-3"></i> legacy pre-DS</span>
+      <span class="text-[11px] text-slate-500 mono">DespacharOCModal.tsx</span>
+    </div>
+  </div>
+  <p class="text-sm text-slate-600 mb-4 max-w-3xl">
+    Overlay <code class="text-[11px] bg-slate-100 px-1 rounded">fixed inset-0 flex items-center justify-center bg-black/40</code> (backdrop distinto al #1), card <code class="text-[11px] bg-slate-100 px-1 rounded">max-w-md</code>.
+    Autocomplete de courier hecho a mano con dropdown + "crear nuevo". Usa <code class="text-[11px] bg-slate-100 px-1 rounded">Button</code> de <span class="mono">common/</span> (congelado).
+  </p>
+
+  <div class="grid lg:grid-cols-2 gap-6">
+    <!-- DESKTOP -->
+    <div>
+      <div class="text-[11px] uppercase tracking-wider text-slate-400 font-bold mb-2">Desktop · modal centrado · max-w-md</div>
+      <div class="rounded-2xl ov-black40 p-6 flex justify-center overflow-hidden">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
+          <div class="flex items-start justify-between px-6 pt-6 pb-4 border-b border-slate-100">
+            <div class="flex items-start gap-3">
+              <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0"><i data-lucide="truck" class="w-5 h-5 text-blue-600"></i></div>
+              <div>
+                <h3 class="text-base font-semibold text-slate-900">Marcar en tránsito</h3>
+                <p class="text-xs text-slate-500 mt-0.5">Esto activa el Envío vinculado con info real del despacho</p>
+              </div>
+            </div>
+            <i data-lucide="x" class="w-5 h-5 text-slate-400"></i>
+          </div>
+          <div class="px-6 py-3 bg-slate-50/50 grid grid-cols-3 gap-3 text-xs">
+            <div><div class="text-slate-500">Orden</div><div class="font-semibold text-slate-900 mono">OC-2026-014</div></div>
+            <div><div class="text-slate-500">Proveedor</div><div class="font-semibold text-slate-900 truncate">Nutrition Depot USA</div></div>
+            <div><div class="text-slate-500">Total</div><div class="font-semibold text-slate-900 tnum">$4,182.50</div></div>
+          </div>
+          <div class="p-6 space-y-4">
+            <div class="relative">
+              <label class="block text-sm font-medium text-slate-700 mb-1.5">Courier <span class="text-red-500">*</span></label>
+              <div class="relative">
+                <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"></i>
+                <input value="DHL Express" class="w-full pl-9 pr-9 py-2.5 border border-emerald-300 bg-emerald-50 rounded-lg text-sm" />
+                <i data-lucide="x" class="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"></i>
+              </div>
+              <!-- dropdown abierto -->
+              <div class="mt-1 w-full bg-white rounded-lg shadow-lg border border-slate-200 overflow-hidden">
+                <button class="w-full px-3 py-2 flex items-center justify-between hover:bg-slate-50 border-b border-slate-50 text-left">
+                  <span class="flex items-center gap-2"><i data-lucide="package" class="w-4 h-4 text-sky-500"></i><span class="text-sm text-slate-900">DHL Express</span></span>
+                  <span class="text-xs text-slate-400">Internacional</span>
+                </button>
+                <button class="w-full px-3 py-2 flex items-center justify-between hover:bg-slate-50 text-left">
+                  <span class="flex items-center gap-2"><i data-lucide="truck" class="w-4 h-4 text-emerald-500"></i><span class="text-sm text-slate-900">Olva Courier</span></span>
+                  <span class="text-xs text-slate-400">Local</span>
+                </button>
+                <div class="bg-blue-50/50 border-t-2 border-blue-100 px-3 py-2.5">
+                  <div class="flex items-center gap-2 mb-2"><i data-lucide="plus" class="w-4 h-4 text-blue-600"></i><span class="text-sm text-slate-700">Crear <span class="font-semibold text-blue-700">"DHL Express"</span> como:</span></div>
+                  <div class="flex gap-2">
+                    <button class="flex-1 px-3 py-2 rounded-lg text-xs font-medium border bg-sky-100 border-sky-300 text-sky-800"><i data-lucide="package" class="w-3.5 h-3.5 inline mr-1"></i> Internacional</button>
+                    <button class="flex-1 px-3 py-2 rounded-lg text-xs font-medium border bg-white border-slate-200 text-slate-600"><i data-lucide="truck" class="w-3.5 h-3.5 inline mr-1"></i> Local Perú</button>
+                  </div>
+                </div>
+              </div>
+              <p class="mt-1.5 text-xs text-emerald-600 flex items-center gap-1"><i data-lucide="check" class="w-3 h-3"></i> Existente — tipo: internacional</p>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-slate-700 mb-1.5">Número de tracking <span class="text-slate-400 text-xs">(opcional)</span></label>
+              <div class="relative">
+                <i data-lucide="hash" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"></i>
+                <input value="1Z999AA10123456784" class="w-full pl-9 pr-3 py-2.5 border border-slate-300 rounded-lg text-sm tnum" />
+              </div>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-slate-700 mb-1.5">Fecha de despacho</label>
+              <div class="relative">
+                <i data-lucide="calendar" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"></i>
+                <input value="2026-06-17" class="w-full pl-9 pr-3 py-2.5 border border-slate-300 rounded-lg text-sm tnum" />
+              </div>
+            </div>
+            <div class="flex justify-end gap-2 pt-3">
+              <button class="px-4 py-2 rounded-lg border border-slate-200 text-slate-600 text-sm font-medium">Cancelar</button>
+              <button class="px-4 py-2 rounded-lg bg-blue-600 text-white text-sm font-medium">Marcar en tránsito</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MOBILE -->
+    <div>
+      <div class="text-[11px] uppercase tracking-wider text-slate-400 font-bold mb-2">Mobile 375px · NO bottom-sheet · centrado con padding</div>
+      <div class="rounded-2xl ov-black40 p-3 flex justify-center overflow-hidden">
+        <div class="phone bg-white rounded-2xl shadow-2xl overflow-hidden">
+          <div class="flex items-start justify-between px-5 pt-5 pb-3 border-b border-slate-100">
+            <div class="flex items-start gap-2.5">
+              <div class="w-9 h-9 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0"><i data-lucide="truck" class="w-4.5 h-4.5 text-blue-600"></i></div>
+              <div><h3 class="text-sm font-semibold text-slate-900">Marcar en tránsito</h3><p class="text-[11px] text-slate-500">Activa el Envío vinculado</p></div>
+            </div>
+            <i data-lucide="x" class="w-5 h-5 text-slate-400"></i>
+          </div>
+          <div class="px-5 py-2.5 bg-slate-50/50 grid grid-cols-3 gap-2 text-[10px]">
+            <div><div class="text-slate-500">Orden</div><div class="font-semibold mono">OC-2026-014</div></div>
+            <div><div class="text-slate-500">Prov.</div><div class="font-semibold truncate">Nutrition…</div></div>
+            <div><div class="text-slate-500">Total</div><div class="font-semibold tnum">$4,182</div></div>
+          </div>
+          <div class="p-5 space-y-3">
+            <div>
+              <label class="block text-xs font-medium text-slate-700 mb-1">Courier *</label>
+              <div class="relative"><i data-lucide="search" class="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"></i><input value="DHL Express" class="w-full pl-8 pr-3 py-2.5 border border-emerald-300 bg-emerald-50 rounded-lg text-sm" /></div>
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-slate-700 mb-1">Tracking (opcional)</label>
+              <div class="relative"><i data-lucide="hash" class="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"></i><input value="1Z999AA10…" class="w-full pl-8 pr-3 py-2.5 border border-slate-300 rounded-lg text-sm tnum" /></div>
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-slate-700 mb-1">Fecha</label>
+              <div class="relative"><i data-lucide="calendar" class="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"></i><input value="2026-06-17" class="w-full pl-8 pr-3 py-2.5 border border-slate-300 rounded-lg text-sm tnum" /></div>
+            </div>
+            <div class="flex gap-2 pt-2">
+              <button class="flex-1 px-4 py-2.5 rounded-lg border border-slate-200 text-slate-600 text-sm font-medium">Cancelar</button>
+              <button class="flex-1 px-4 py-2.5 rounded-lg bg-blue-600 text-white text-sm font-medium">En tránsito</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-4 grid sm:grid-cols-2 gap-3 text-xs">
+    <div class="rounded-xl border border-rose-200 bg-rose-50/60 p-3">
+      <div class="font-semibold text-rose-800 mb-1 flex items-center gap-1.5"><i data-lucide="x-circle" class="w-3.5 h-3.5"></i> Por qué es legacy</div>
+      <ul class="text-rose-900/90 space-y-0.5 list-disc pl-4">
+        <li>Overlay propio con <span class="mono">bg-black/40</span> (≠ al de los otros modales).</li>
+        <li>Autocomplete + "crear nuevo" hechos a mano: no es el <span class="mono">SmartSearch</span> del DS (mode=select-create).</li>
+        <li>En móvil queda como modal centrado, sin sheet ni safe-area.</li>
+      </ul>
+    </div>
+    <div class="rounded-xl border border-emerald-200 bg-emerald-50/60 p-3">
+      <div class="font-semibold text-emerald-800 mb-1 flex items-center gap-1.5"><i data-lucide="check-circle" class="w-3.5 h-3.5"></i> Lo que ya está bien</div>
+      <ul class="text-emerald-900/90 space-y-0.5 list-disc pl-4">
+        <li>Icono lucide en header (sin emojis aquí).</li>
+        <li>Color de módulo blue correcto en icono y CTA.</li>
+        <li>Tira de contexto (orden / proveedor / total) clara.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════ MODAL 3 ════ -->
+<section id="m3" class="max-w-6xl mx-auto px-5 py-8 border-t border-slate-200">
+  <div class="flex items-center justify-between flex-wrap gap-3 mb-4">
+    <div class="flex items-center gap-3">
+      <span class="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center text-sm font-bold">3</span>
+      <h2 class="text-lg font-bold text-slate-900">Detalle de Sub-orden — pipeline + KPIs</h2>
+    </div>
+    <div class="flex items-center gap-2">
+      <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-100 text-amber-800 text-[11px] font-semibold border border-amber-200"><i data-lucide="alert-triangle" class="w-3 h-3"></i> legacy pre-DS</span>
+      <span class="text-[11px] text-slate-500 mono">SubOrdenDetailModal.tsx</span>
+    </div>
+  </div>
+  <p class="text-sm text-slate-600 mb-4 max-w-3xl">
+    Overlay <code class="text-[11px] bg-slate-100 px-1 rounded">bg-slate-900/40 backdrop-blur-sm</code>, contenido <code class="text-[11px] bg-slate-100 px-1 rounded">max-w-5xl</code>.
+    Pipeline 3-estados dibujado con caracteres <code class="text-[11px] bg-slate-100 px-1 rounded">✓ ● —</code> dentro de los círculos · banderas <code class="text-[11px] bg-slate-100 px-1 rounded">🇺🇸 🇵🇪 🌐</code> emoji · CTA "Registrar pago" en <b>amber</b>.
+  </p>
+
+  <!-- DESKTOP -->
+  <div class="text-[11px] uppercase tracking-wider text-slate-400 font-bold mb-2">Desktop · modal centrado · max-w-5xl</div>
+  <div class="rounded-2xl ov-slate p-6 mb-6 overflow-hidden">
+    <div class="max-w-4xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden border border-slate-200">
+      <!-- header enriquecido -->
+      <div class="p-6 border-b border-slate-200">
+        <div class="flex items-center justify-between mb-3">
+          <div>
+            <div class="flex items-center gap-2 text-xs text-slate-500 mb-1">
+              <span class="text-blue-600 mono">OC-2026-014</span>
+              <i data-lucide="chevron-right" class="w-3 h-3"></i>
+              <span class="mono">SUB-OC-2026-014-A</span>
+            </div>
+            <div class="text-xl font-semibold text-slate-800">Sub-orden SUB-OC-2026-014-A</div>
+            <div class="text-xs text-slate-500 mt-1">Ref. proveedor: <span class="mono">ND-INV-88213</span></div>
+          </div>
+          <div class="flex items-start gap-2">
+            <div class="flex flex-col items-end gap-1">
+              <span class="px-2 py-0.5 rounded-md text-[11px] font-semibold bg-sky-100 text-sky-700">En Tránsito</span>
+              <span class="px-2 py-0.5 rounded-md text-[11px] font-semibold bg-amber-100 text-amber-700">Pago pendiente</span>
+            </div>
+            <i data-lucide="x" class="w-5 h-5 text-slate-400 ml-2"></i>
+          </div>
+        </div>
+        <!-- pipeline 3 (✓ ● — literal) -->
+        <div class="flex items-center gap-0 pt-2">
+          <div class="flex-1 flex items-center">
+            <div class="flex flex-col items-center">
+              <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold bg-emerald-500 text-white">✓</div>
+              <div class="text-xs mt-1 text-slate-600">Confirmada</div>
+              <div class="text-xs text-slate-400">hace 5 días</div>
+            </div>
+            <div class="flex-1 h-0.5 mx-2 bg-emerald-500"></div>
+          </div>
+          <div class="flex-1 flex items-center">
+            <div class="flex flex-col items-center">
+              <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold bg-blue-600 text-white ring-4 ring-blue-100">●</div>
+              <div class="text-xs mt-1 font-semibold text-slate-700">En Tránsito</div>
+              <div class="text-xs text-slate-600">hace 2 días</div>
+            </div>
+            <div class="flex-1 h-0.5 mx-2 bg-slate-200"></div>
+          </div>
+          <div class="flex-1 flex items-center">
+            <div class="flex flex-col items-center">
+              <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold bg-slate-200 text-slate-400">—</div>
+              <div class="text-xs mt-1 text-slate-400">Recibida</div>
+              <div class="text-xs text-slate-400">—</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4 KPIs -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-0 border-b border-slate-200">
+        <div class="p-4 text-center border-r border-slate-100"><div class="text-xs text-slate-400">Total sub-orden</div><div class="text-lg font-semibold mt-0.5 text-slate-800 tnum">$2,727.41</div></div>
+        <div class="p-4 text-center border-r border-slate-100"><div class="text-xs text-slate-400">Productos</div><div class="text-lg font-semibold mt-0.5 text-slate-800">3 SKUs · 54 und</div></div>
+        <div class="p-4 text-center border-r border-slate-100"><div class="text-xs text-slate-400">Envío vinculado</div><div class="text-sm font-semibold mt-0.5 text-blue-600 mono">ENV-2026-031</div></div>
+        <div class="p-4 text-center"><div class="text-xs text-slate-400">Pagos</div><div class="text-lg font-semibold mt-0.5 text-red-600 tnum">$0.00 / $2,727.41</div></div>
+      </div>
+
+      <!-- secciones -->
+      <div class="p-6 space-y-5">
+        <section>
+          <div class="text-xs font-semibold text-slate-500 mb-2 tracking-wide">PRODUCTOS (3)</div>
+          <table class="w-full text-xs border border-slate-200 rounded-lg overflow-hidden">
+            <thead class="bg-slate-50"><tr class="text-slate-600"><th class="text-left p-2 font-semibold">SKU</th><th class="text-left p-2 font-semibold">Producto</th><th class="text-right p-2 font-semibold">Cant.</th><th class="text-right p-2 font-semibold">Precio</th><th class="text-right p-2 font-semibold">Subtotal</th></tr></thead>
+            <tbody>
+              <tr class="border-t border-slate-100"><td class="p-2 mono text-blue-600">WHEY-ON-5LB</td><td class="p-2"><div class="font-medium">Whey Gold Standard 5lb</div><div class="text-slate-500">Optimum Nutrition · Vainilla</div></td><td class="p-2 text-right tnum">14</td><td class="p-2 text-right tnum">$72.00</td><td class="p-2 text-right font-medium tnum">$1,008.00</td></tr>
+              <tr class="border-t border-slate-100"><td class="p-2 mono text-blue-600">ISO100-3LB</td><td class="p-2"><div class="font-medium">ISO 100 Hydrolyzed 3lb</div><div class="text-slate-500">Dymatize · Chocolate</div></td><td class="p-2 text-right tnum">8</td><td class="p-2 text-right tnum">$66.50</td><td class="p-2 text-right font-medium tnum">$532.00</td></tr>
+              <tr class="border-t border-slate-100"><td class="p-2 mono text-blue-600">CREA-400G</td><td class="p-2"><div class="font-medium">Creatina Monohidratada 400g</div><div class="text-slate-500">ON · Sin sabor</div></td><td class="p-2 text-right tnum">20</td><td class="p-2 text-right tnum">$22.00</td><td class="p-2 text-right font-medium tnum">$440.00</td></tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section>
+          <div class="text-xs font-semibold text-slate-500 mb-2 tracking-wide">CARGOS COMERCIALES <span class="font-normal text-slate-400">(asignados por el proveedor a esta sub-orden)</span></div>
+          <div class="bg-slate-50 rounded-lg p-3 space-y-1.5 text-xs">
+            <div class="flex items-center justify-between"><span class="text-slate-600">Subtotal productos</span><span class="font-medium tnum text-slate-800">$1,980.00</span></div>
+            <div class="flex items-center justify-between"><span class="text-slate-600">+ Shipping internacional</span><span class="font-medium tnum text-slate-800">$186.67</span></div>
+            <div class="flex items-center justify-between"><span class="text-slate-600">+ Impuestos</span><span class="font-medium tnum text-slate-800">$102.74</span></div>
+            <div class="flex items-center justify-between pt-2 border-t-2 border-slate-300 mt-2"><span class="font-semibold">Total sub-orden</span><span class="font-semibold text-lg text-slate-800 tnum">$2,269.41</span></div>
+            <div class="flex items-center justify-between"><span class="text-xs text-slate-500">Ajuste proveedor</span><span class="font-medium text-slate-600 tnum">+$458.00</span></div>
+            <div class="flex items-center justify-between pt-2 border-t border-slate-200"><span class="font-semibold text-blue-700">Cobrado</span><span class="font-semibold text-blue-700 tnum">$2,727.41</span></div>
+          </div>
+        </section>
+
+        <section>
+          <div class="text-xs font-semibold text-slate-500 mb-2 tracking-wide">ENVÍO VINCULADO</div>
+          <div class="bg-blue-50 rounded-xl p-4 border border-blue-200">
+            <div class="flex items-center justify-between mb-3 flex-wrap gap-2">
+              <div class="flex items-center gap-2"><span class="font-semibold text-slate-800 mono">ENV-2026-031</span><span class="px-2 py-0.5 rounded-md text-[11px] font-semibold bg-sky-100 text-sky-700">En Tránsito</span></div>
+              <button class="text-xs text-blue-700 font-medium flex items-center gap-1">Ver envío <i data-lucide="external-link" class="w-3 h-3"></i></button>
+            </div>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
+              <div><div class="text-slate-500 text-[10px] uppercase tracking-wide">Ruta</div><div class="font-medium text-slate-800 truncate">🇺🇸 Nutrition Depot → 🇵🇪 Casilla Lima</div></div>
+              <div><div class="text-slate-500 text-[10px] uppercase tracking-wide">Courier</div><div class="font-medium text-slate-800">DHL Express</div></div>
+              <div><div class="text-slate-500 text-[10px] uppercase tracking-wide">Tracking</div><div class="font-medium text-blue-700 mono truncate">1Z999AA10123456784</div></div>
+              <div><div class="text-slate-500 text-[10px] uppercase tracking-wide">Despachado</div><div class="font-medium text-slate-800">hace 2 días</div></div>
+            </div>
+          </div>
+        </section>
+
+        <section>
+          <div class="text-xs font-semibold text-slate-500 mb-2 tracking-wide">PAGOS</div>
+          <div class="bg-amber-50 rounded-xl p-4 border border-amber-200 flex items-center justify-between flex-wrap gap-3">
+            <div>
+              <div class="text-sm text-amber-900 font-medium">Sin pagos registrados</div>
+              <div class="text-xs text-amber-700">Saldo pendiente: <span class="font-semibold tnum">$2,727.41</span> · Deudor: <strong>Nutrition Depot USA</strong></div>
+            </div>
+            <button class="px-4 py-2 text-sm font-medium bg-amber-600 text-white rounded-lg">Registrar pago</button>
+          </div>
+        </section>
+      </div>
+
+      <!-- footer -->
+      <div class="px-6 py-4 border-t border-slate-200 bg-slate-50 flex items-center justify-between flex-wrap gap-3">
+        <button class="text-sm text-slate-600 px-3 py-1.5 rounded-lg flex items-center gap-1.5"><i data-lucide="arrow-left" class="w-4 h-4"></i> Volver a OC-2026-014</button>
+        <div class="flex items-center gap-2 flex-wrap">
+          <button class="px-3 py-1.5 text-sm font-medium text-slate-700 border border-slate-300 rounded-lg flex items-center gap-1.5"><i data-lucide="edit-3" class="w-3.5 h-3.5"></i> Editar cargos</button>
+          <button class="px-3 py-1.5 text-sm font-medium text-white bg-blue-600 rounded-lg flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5"></i> Marcar recibida</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MOBILE -->
+  <div class="text-[11px] uppercase tracking-wider text-slate-400 font-bold mb-2">Mobile 375px · NO bottom-sheet · KPIs 2-col, pipeline apretado</div>
+  <div class="rounded-2xl ov-slate p-3 flex justify-center overflow-hidden">
+    <div class="phone bg-white rounded-2xl shadow-xl overflow-hidden border border-slate-200">
+      <div class="p-4 border-b border-slate-200">
+        <div class="flex items-center justify-between mb-2">
+          <div>
+            <div class="flex items-center gap-1.5 text-[10px] text-slate-500"><span class="text-blue-600 mono">OC-2026-014</span><i data-lucide="chevron-right" class="w-3 h-3"></i><span class="mono">SUB-…-A</span></div>
+            <div class="text-base font-semibold text-slate-800">Sub-orden A</div>
+          </div>
+          <i data-lucide="x" class="w-5 h-5 text-slate-400"></i>
+        </div>
+        <div class="flex gap-1.5">
+          <span class="px-2 py-0.5 rounded-md text-[10px] font-semibold bg-sky-100 text-sky-700">En Tránsito</span>
+          <span class="px-2 py-0.5 rounded-md text-[10px] font-semibold bg-amber-100 text-amber-700">Pago pend.</span>
+        </div>
+        <div class="flex items-center gap-0 pt-3">
+          <div class="flex-1 flex items-center"><div class="flex flex-col items-center"><div class="w-7 h-7 rounded-full bg-emerald-500 text-white flex items-center justify-center text-[11px]">✓</div><div class="text-[9px] mt-0.5 text-slate-600">Conf.</div></div><div class="flex-1 h-0.5 mx-1 bg-emerald-500"></div></div>
+          <div class="flex-1 flex items-center"><div class="flex flex-col items-center"><div class="w-7 h-7 rounded-full bg-blue-600 text-white ring-2 ring-blue-100 flex items-center justify-center text-[11px]">●</div><div class="text-[9px] mt-0.5 font-semibold text-slate-700">Tránsito</div></div><div class="flex-1 h-0.5 mx-1 bg-slate-200"></div></div>
+          <div class="flex-1 flex items-center"><div class="flex flex-col items-center"><div class="w-7 h-7 rounded-full bg-slate-200 text-slate-400 flex items-center justify-center text-[11px]">—</div><div class="text-[9px] mt-0.5 text-slate-400">Recib.</div></div></div>
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-0 border-b border-slate-200">
+        <div class="p-3 text-center border-r border-b border-slate-100"><div class="text-[10px] text-slate-400">Total</div><div class="text-sm font-semibold text-slate-800 tnum">$2,727.41</div></div>
+        <div class="p-3 text-center border-b border-slate-100"><div class="text-[10px] text-slate-400">Productos</div><div class="text-sm font-semibold text-slate-800">3 · 54u</div></div>
+        <div class="p-3 text-center border-r border-slate-100"><div class="text-[10px] text-slate-400">Envío</div><div class="text-xs font-semibold text-blue-600 mono">ENV-031</div></div>
+        <div class="p-3 text-center"><div class="text-[10px] text-slate-400">Pagos</div><div class="text-xs font-semibold text-red-600 tnum">$0 / $2.7k</div></div>
+      </div>
+      <div class="p-4 space-y-3">
+        <div class="text-[11px] font-semibold text-slate-500 tracking-wide">PAGOS</div>
+        <div class="bg-amber-50 rounded-xl p-3 border border-amber-200">
+          <div class="text-xs text-amber-900 font-medium">Sin pagos registrados</div>
+          <div class="text-[11px] text-amber-700">Saldo: <span class="font-semibold tnum">$2,727.41</span></div>
+          <button class="mt-2 w-full px-4 py-2 text-sm font-medium bg-amber-600 text-white rounded-lg">Registrar pago</button>
+        </div>
+        <button class="w-full px-4 py-2.5 text-sm font-medium text-white bg-blue-600 rounded-lg flex items-center justify-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5"></i> Marcar recibida</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-4 grid sm:grid-cols-2 gap-3 text-xs">
+    <div class="rounded-xl border border-rose-200 bg-rose-50/60 p-3">
+      <div class="font-semibold text-rose-800 mb-1 flex items-center gap-1.5"><i data-lucide="x-circle" class="w-3.5 h-3.5"></i> Por qué es legacy</div>
+      <ul class="text-rose-900/90 space-y-0.5 list-disc pl-4">
+        <li>Pipeline dibujado con <b>caracteres</b> <span class="mono">✓ ● —</span> en vez de iconos lucide.</li>
+        <li>Banderas <span class="mono">🇺🇸 🇵🇪 🌐</span> emoji en la ruta del envío (helper <span class="mono">getFlag</span>).</li>
+        <li>"Registrar pago" en amber-600 (no es jerarquía 3-tier del módulo).</li>
+        <li>Sin tabs: todo apilado · en mobile sigue centrado, no sheet.</li>
+      </ul>
+    </div>
+    <div class="rounded-xl border border-amber-200 bg-amber-50/60 p-3">
+      <div class="font-semibold text-amber-800 mb-1 flex items-center gap-1.5"><i data-lucide="help-circle" class="w-3.5 h-3.5"></i> Qué confunde hoy</div>
+      <ul class="text-amber-900/90 space-y-0.5 list-disc pl-4">
+        <li>Estado interno <span class="mono">borrador</span> se rotula "Confirmada" (mapeo no obvio).</li>
+        <li>"Ajuste proveedor" sin explicación de su origen.</li>
+        <li>3 modales pueden encadenarse: OC → Sub-orden → Registrar pago (apilamiento).</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════ MODAL 4 ════ -->
+<section id="m4" class="max-w-6xl mx-auto px-5 py-8 border-t border-slate-200">
+  <div class="flex items-center justify-between flex-wrap gap-3 mb-4">
+    <div class="flex items-center gap-3">
+      <span class="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center text-sm font-bold">4</span>
+      <h2 class="text-lg font-bold text-slate-900">Registrar Pago — PagoUnificadoForm</h2>
+    </div>
+    <div class="flex items-center gap-2">
+      <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-100 text-amber-800 text-[11px] font-semibold border border-amber-200"><i data-lucide="alert-triangle" class="w-3 h-3"></i> legacy pre-DS</span>
+      <span class="text-[11px] text-slate-500 mono">OrdenesCompra.tsx ~1181 + PagoUnificadoForm.tsx</span>
+    </div>
+  </div>
+  <p class="text-sm text-slate-600 mb-4 max-w-3xl">
+    Overlay <b>inline en la página</b> (<code class="text-[11px] bg-slate-100 px-1 rounded">fixed inset-0 flex items-center justify-center bg-black/40</code>), card <code class="text-[11px] bg-slate-100 px-1 rounded">max-w-lg rounded-xl</code> (no rounded-2xl).
+    Dentro va <span class="mono">PagoUnificadoForm</span>, que trae emojis <code class="text-[11px] bg-slate-100 px-1 rounded">👤 🏢 🤝 💡</code>, flechas <code class="text-[11px] bg-slate-100 px-1 rounded">▲▼</code> y botones <b>slate-800</b> (no blue).
+  </p>
+
+  <div class="grid lg:grid-cols-2 gap-6">
+    <!-- DESKTOP -->
+    <div>
+      <div class="text-[11px] uppercase tracking-wider text-slate-400 font-bold mb-2">Desktop · modal centrado · max-w-lg</div>
+      <div class="rounded-2xl ov-black40 p-6 flex justify-center overflow-hidden">
+        <div class="bg-white rounded-xl shadow-xl w-full max-w-lg p-6 space-y-4">
+          <!-- banner destinatario (emoji 🏢) -->
+          <div class="rounded-lg border p-3 bg-slate-50 border-slate-200">
+            <div class="flex items-center gap-2">
+              <div class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 bg-slate-100 text-slate-600 text-base">🏢</div>
+              <div class="flex-1 min-w-0">
+                <div class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Pagando a</div>
+                <div class="text-sm font-semibold text-slate-900 truncate">Nutrition Depot USA <span class="ml-2 px-1.5 py-0.5 rounded text-[10px] font-medium bg-slate-200 text-slate-700">proveedor</span></div>
+              </div>
+            </div>
+          </div>
+          <!-- header rose -->
+          <div class="bg-rose-50/60 border border-rose-200 rounded-xl p-4">
+            <div class="flex items-center justify-between">
+              <div><div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Pago OC-2026-014</div><div class="text-xl font-bold text-slate-900 tnum mt-0.5">$ 4,182.50</div></div>
+              <div class="text-right"><div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Pendiente</div><div class="text-xl font-bold tnum mt-0.5 text-rose-700">$ 4,182.50</div></div>
+            </div>
+            <div class="mt-3 pt-3 border-t border-slate-200">
+              <button class="flex items-center gap-1.5 text-xs text-slate-600 font-semibold"><i data-lucide="history" class="w-3.5 h-3.5"></i> <span class="tnum">1</span> pago(s) anterior(es) <i data-lucide="chevron-down" class="w-3.5 h-3.5"></i></button>
+            </div>
+          </div>
+          <!-- tipo pago -->
+          <div>
+            <label class="block text-[10px] uppercase tracking-wider text-slate-600 font-bold mb-1.5">Tipo de pago</label>
+            <div class="flex gap-2">
+              <button class="flex-1 py-2.5 px-3 rounded-xl text-sm font-bold border-2 bg-emerald-50 border-emerald-500 text-emerald-700 ring-2 ring-emerald-200"><i data-lucide="check" class="w-4 h-4 inline mr-1"></i> Completo</button>
+              <button class="flex-1 py-2.5 px-3 rounded-xl text-sm font-bold border-2 bg-white border-slate-200 text-slate-500"><i data-lucide="arrow-right-left" class="w-4 h-4 inline mr-1"></i> Parcial</button>
+            </div>
+          </div>
+          <!-- moneda (botón activo slate-800) -->
+          <div>
+            <label class="block text-[10px] uppercase tracking-wider text-slate-600 font-bold mb-1.5">Moneda de pago</label>
+            <div class="flex gap-2">
+              <button class="flex-1 py-2.5 rounded-xl text-sm font-bold border-2 bg-white border-slate-200 text-slate-500">S/ Soles</button>
+              <button class="flex-1 py-2.5 rounded-xl text-sm font-bold border-2 bg-slate-800 border-slate-800 text-white">$ Dólares</button>
+            </div>
+          </div>
+          <!-- cuenta -->
+          <div>
+            <label class="block text-[10px] uppercase tracking-wider text-slate-600 font-bold mb-1.5">Cuenta origen</label>
+            <div class="w-full text-left p-3 rounded-lg border-2 border-slate-200 relative">
+              <div class="flex items-start gap-2">
+                <i data-lucide="building-2" class="w-3.5 h-3.5 text-sky-500 mt-0.5"></i>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-1.5 flex-wrap"><span class="text-[10px] px-1 py-0.5 rounded bg-sky-100 text-sky-700 font-medium">BCP</span><span class="font-medium text-slate-800 text-sm">Cuenta USD Empresa</span></div>
+                  <div class="text-[10px] text-slate-400 mt-0.5">Vita Skin SAC · #1942-8830 · Emp.</div>
+                </div>
+                <div class="text-sm font-bold text-slate-800">$ 12,480.00</div>
+              </div>
+              <i data-lucide="chevron-down" class="absolute right-3 top-9 w-4 h-4 text-slate-400"></i>
+            </div>
+          </div>
+          <!-- monto + TC (flecha ▼) -->
+          <div>
+            <div class="flex items-center justify-between mb-1">
+              <label class="text-[10px] uppercase tracking-wider text-slate-600 font-bold">Monto ($)</label>
+              <button class="text-[10px] text-slate-400">TC: 3.750 ▼</button>
+            </div>
+            <input value="4182.50" class="w-full px-3 py-2.5 border rounded-lg text-sm bg-slate-100 tnum" />
+          </div>
+          <!-- fecha + ref -->
+          <div class="grid grid-cols-2 gap-3">
+            <div><label class="block text-[10px] uppercase tracking-wider text-slate-600 font-bold mb-1.5"><i data-lucide="calendar" class="w-3 h-3 inline mr-1"></i> Fecha</label><input value="2026-06-17" class="w-full px-3 py-2 border-2 border-slate-200 rounded-lg text-sm tnum" /></div>
+            <div><label class="block text-[10px] uppercase tracking-wider text-slate-600 font-bold mb-1.5">Referencia</label><input placeholder="Nro. operación" class="w-full px-3 py-2 border-2 border-slate-200 rounded-lg text-sm tnum" /></div>
+          </div>
+          <!-- botones (Button common, primary teal-ish del sistema) -->
+          <div class="flex gap-2 pt-2">
+            <button class="flex-1 min-h-[48px] rounded-lg border border-slate-200 text-slate-600 text-sm font-medium">Cancelar</button>
+            <button class="flex-1 min-h-[48px] rounded-lg bg-teal-600 text-white text-base font-medium flex items-center justify-center"><i data-lucide="credit-card" class="w-4 h-4 mr-1"></i> Registrar Pago</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MOBILE -->
+    <div>
+      <div class="text-[11px] uppercase tracking-wider text-slate-400 font-bold mb-2">Mobile 375px · NO bottom-sheet · form largo con scroll vertical</div>
+      <div class="rounded-2xl ov-black40 p-3 flex justify-center overflow-hidden">
+        <div class="phone bg-white rounded-xl shadow-xl p-5 space-y-3" style="max-height:560px;overflow-y:auto">
+          <div class="rounded-lg border p-2.5 bg-slate-50 border-slate-200 flex items-center gap-2">
+            <div class="w-7 h-7 rounded-full bg-slate-100 flex items-center justify-center text-sm">🏢</div>
+            <div class="min-w-0"><div class="text-[10px] uppercase tracking-wide text-slate-500 font-semibold">Pagando a</div><div class="text-xs font-semibold text-slate-900 truncate">Nutrition Depot USA</div></div>
+          </div>
+          <div class="bg-rose-50/60 border border-rose-200 rounded-xl p-3">
+            <div class="flex items-center justify-between">
+              <div><div class="text-[9px] uppercase tracking-wider text-slate-500 font-bold">Pago OC-014</div><div class="text-lg font-bold text-slate-900 tnum">$ 4,182.50</div></div>
+              <div class="text-right"><div class="text-[9px] uppercase tracking-wider text-slate-500 font-bold">Pend.</div><div class="text-lg font-bold tnum text-rose-700">$ 4,182.50</div></div>
+            </div>
+          </div>
+          <div class="flex gap-2">
+            <button class="flex-1 py-2.5 rounded-xl text-xs font-bold border-2 bg-emerald-50 border-emerald-500 text-emerald-700">Completo</button>
+            <button class="flex-1 py-2.5 rounded-xl text-xs font-bold border-2 bg-white border-slate-200 text-slate-500">Parcial</button>
+          </div>
+          <div class="flex gap-2">
+            <button class="flex-1 py-2.5 rounded-xl text-xs font-bold border-2 bg-white border-slate-200 text-slate-500">S/ Soles</button>
+            <button class="flex-1 py-2.5 rounded-xl text-xs font-bold border-2 bg-slate-800 border-slate-800 text-white">$ Dólares</button>
+          </div>
+          <div class="w-full text-left p-2.5 rounded-lg border-2 border-slate-200 relative">
+            <div class="flex items-center gap-2"><i data-lucide="building-2" class="w-3.5 h-3.5 text-sky-500"></i><span class="text-[10px] px-1 rounded bg-sky-100 text-sky-700 font-medium">BCP</span><span class="text-xs font-medium text-slate-800">Cuenta USD Empresa</span></div>
+            <i data-lucide="chevron-down" class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"></i>
+          </div>
+          <input value="4182.50" class="w-full px-3 py-2.5 border rounded-lg text-sm bg-slate-100 tnum" />
+          <div class="flex gap-2 pt-1">
+            <button class="flex-1 min-h-[44px] rounded-lg border border-slate-200 text-slate-600 text-sm font-medium">Cancelar</button>
+            <button class="flex-1 min-h-[44px] rounded-lg bg-teal-600 text-white text-sm font-medium flex items-center justify-center"><i data-lucide="credit-card" class="w-4 h-4 mr-1"></i> Pagar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-4 grid sm:grid-cols-2 gap-3 text-xs">
+    <div class="rounded-xl border border-rose-200 bg-rose-50/60 p-3">
+      <div class="font-semibold text-rose-800 mb-1 flex items-center gap-1.5"><i data-lucide="x-circle" class="w-3.5 h-3.5"></i> Por qué es legacy</div>
+      <ul class="text-rose-900/90 space-y-0.5 list-disc pl-4">
+        <li>Overlay escrito <b>inline en OrdenesCompra.tsx</b>, no es un componente modal reusable ni FormModalV2.</li>
+        <li>Emojis <span class="mono">🏢 👤 🤝 💡</span> en banners del form + flechas <span class="mono">▲▼</span> de texto en el toggle de TC.</li>
+        <li>Botón moneda activo en <b>slate-800</b> (negro), prohibido por canon N10 / color de módulo.</li>
+        <li>CTA primary en teal (color del <span class="mono">Button</span> common), no en el blue de Comercial.</li>
+        <li>En móvil el form largo scrollea dentro del card centrado · no es sheet con safe-area.</li>
+      </ul>
+    </div>
+    <div class="rounded-xl border border-emerald-200 bg-emerald-50/60 p-3">
+      <div class="font-semibold text-emerald-800 mb-1 flex items-center gap-1.5"><i data-lucide="check-circle" class="w-3.5 h-3.5"></i> Lo que ya está bien</div>
+      <ul class="text-emerald-900/90 space-y-0.5 list-disc pl-4">
+        <li>Componente único de pago para todo el sistema (OC, gasto, venta…) — buena consolidación.</li>
+        <li>Header con tabular-nums, labels uppercase, jerarquía de monto clara (visual S58f).</li>
+        <li>Min-height 48px en botones (touch-target ok).</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════ MODAL 5 ════ -->
+<section id="m5" class="max-w-6xl mx-auto px-5 py-8 border-t border-slate-200">
+  <div class="flex items-center justify-between flex-wrap gap-3 mb-4">
+    <div class="flex items-center gap-3">
+      <span class="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center text-sm font-bold">5</span>
+      <h2 class="text-lg font-bold text-slate-900">Price Advisor — drawer lateral</h2>
+    </div>
+    <div class="flex items-center gap-2">
+      <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-rose-100 text-rose-800 text-[11px] font-semibold border border-rose-200"><i data-lucide="x-circle" class="w-3 h-3"></i> legacy · patrón DESCARTADO</span>
+      <span class="text-[11px] text-slate-500 mono">PriceAdvisorModal.tsx + PriceAdvisor.tsx</span>
+    </div>
+  </div>
+  <p class="text-sm text-slate-600 mb-4 max-w-3xl">
+    No es un modal centrado: es un <b>drawer lateral derecho</b> (<code class="text-[11px] bg-slate-100 px-1 rounded">fixed right-0 top-0 h-full w-full max-w-md animate-slide-in-right</code>) sobre overlay <code class="text-[11px] bg-slate-100 px-1 rounded">bg-black/30</code>.
+    El DS <b>descartó el drawer lateral</b> (chocaba con el sidebar). Adentro: el componente PriceAdvisor con score, tabs internos y paleta <b>verde/amarillo/naranja/rojo</b> ajena al blue del módulo.
+  </p>
+
+  <div class="grid lg:grid-cols-2 gap-6">
+    <!-- DESKTOP DRAWER -->
+    <div>
+      <div class="text-[11px] uppercase tracking-wider text-slate-400 font-bold mb-2">Desktop · drawer pegado a la derecha (toma toda la altura)</div>
+      <div class="rounded-2xl ov-black30 p-0 overflow-hidden relative" style="min-height:520px">
+        <!-- contenido de fondo difuminado simulado -->
+        <div class="absolute inset-0 p-6 text-slate-300 select-none">
+          <div class="text-xs">… formulario OC detrás …</div>
+        </div>
+        <!-- drawer -->
+        <div class="absolute right-0 top-0 h-full w-full max-w-sm bg-white shadow-2xl flex flex-col">
+          <div class="flex items-center justify-between px-4 py-3 border-b border-slate-200 bg-blue-50">
+            <div class="flex items-center gap-3">
+              <div class="p-2 bg-blue-100 rounded-lg"><i data-lucide="lightbulb" class="w-5 h-5 text-blue-600"></i></div>
+              <div><h3 class="font-semibold text-slate-900">Asesor de Precios</h3><p class="text-xs text-slate-500">Optimum Nutrition - Whey Gold Standard 5lb</p></div>
+            </div>
+            <i data-lucide="x" class="w-5 h-5 text-slate-500"></i>
+          </div>
+          <div class="flex-1 overflow-y-auto p-4">
+            <!-- PriceAdvisor expandido -->
+            <div class="rounded-lg border border-yellow-200 overflow-hidden">
+              <div class="px-4 py-3 bg-yellow-50 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                  <div class="p-2 rounded-full bg-white shadow-sm"><i data-lucide="lightbulb" class="w-5 h-5 text-yellow-500"></i></div>
+                  <div><h4 class="font-semibold text-yellow-700">Asesor de Precios</h4><p class="text-xs text-slate-500">ON - Whey Gold Standard 5lb</p></div>
+                </div>
+              </div>
+              <div class="p-4 bg-white border-b border-slate-100">
+                <div class="flex items-center justify-between mb-3">
+                  <span class="text-lg font-bold text-yellow-700">Precio aceptable</span>
+                  <div class="px-3 py-1 rounded-full text-sm font-medium bg-yellow-50 text-yellow-700">68/100</div>
+                </div>
+                <div class="w-full h-2 bg-slate-100 rounded-full mb-3"><div class="h-full rounded-full bg-yellow-500" style="width:68%"></div></div>
+                <p class="text-sm text-slate-600">Está 4.2% sobre tu promedio histórico, pero dentro del rango razonable.</p>
+                <div class="grid grid-cols-3 gap-3 mt-4">
+                  <div class="text-center p-2 bg-slate-50 rounded-lg"><div class="text-xs text-slate-500 mb-1">vs Promedio</div><div class="text-sm font-semibold text-red-600">+4.2%</div></div>
+                  <div class="text-center p-2 bg-slate-50 rounded-lg"><div class="text-xs text-slate-500 mb-1">vs Investig.</div><div class="text-sm font-semibold text-slate-700">-1.0%</div></div>
+                  <div class="text-center p-2 bg-slate-50 rounded-lg"><div class="text-xs text-slate-500 mb-1">Margen Est.</div><div class="text-sm font-semibold text-emerald-600">38.5%</div></div>
+                </div>
+              </div>
+              <!-- tabs internos -->
+              <div class="flex border-b border-slate-200 bg-slate-50">
+                <button class="flex-1 px-3 py-2 text-xs font-medium flex items-center justify-center gap-1 text-blue-600 border-b-2 border-blue-500 bg-white"><i data-lucide="zap" class="w-3.5 h-3.5"></i> Resumen</button>
+                <button class="flex-1 px-3 py-2 text-xs font-medium flex items-center justify-center gap-1 text-slate-500"><i data-lucide="history" class="w-3.5 h-3.5"></i> Histórico</button>
+                <button class="flex-1 px-3 py-2 text-xs font-medium flex items-center justify-center gap-1 text-slate-500"><i data-lucide="users" class="w-3.5 h-3.5"></i> Proveed.</button>
+                <button class="flex-1 px-3 py-2 text-xs font-medium flex items-center justify-center gap-1 text-slate-500"><i data-lucide="target" class="w-3.5 h-3.5"></i> Rentab.</button>
+              </div>
+              <div class="p-4 bg-white space-y-3">
+                <div class="p-3 rounded-lg flex items-start gap-3 bg-yellow-50 border border-yellow-200">
+                  <i data-lucide="alert-triangle" class="w-5 h-5 text-yellow-500 flex-shrink-0"></i>
+                  <div class="flex-1"><p class="text-sm font-medium text-yellow-800">Precio por encima del promedio</p><p class="text-xs text-slate-600 mt-0.5">Considerá negociar o comparar proveedores.</p></div>
+                </div>
+                <div class="p-3 rounded-lg bg-emerald-50 border border-emerald-200">
+                  <div class="flex items-center gap-2 mb-2"><i data-lucide="dollar-sign" class="w-5 h-5 text-emerald-600"></i><span class="text-sm font-semibold text-emerald-800">Oportunidad de ahorro</span></div>
+                  <p class="text-sm text-emerald-700">iHerb tiene este SKU a $68.20 — ahorrarías $3.80/u.</p>
+                  <button class="mt-2 text-xs font-medium text-emerald-700 underline">Usar precio sugerido</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="px-4 py-3 border-t border-slate-200 bg-slate-50">
+            <button class="w-full px-4 py-2 bg-slate-200 text-slate-700 rounded-lg font-medium">Cerrar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MOBILE -->
+    <div>
+      <div class="text-[11px] uppercase tracking-wider text-slate-400 font-bold mb-2">Mobile 375px · el drawer ocupa TODA la pantalla (toma-pantalla completo)</div>
+      <div class="rounded-2xl ov-black30 p-3 flex justify-center overflow-hidden">
+        <div class="phone bg-white shadow-2xl flex flex-col overflow-hidden rounded-none" style="height:540px">
+          <div class="flex items-center justify-between px-4 py-3 border-b border-slate-200 bg-blue-50">
+            <div class="flex items-center gap-2.5">
+              <div class="p-1.5 bg-blue-100 rounded-lg"><i data-lucide="lightbulb" class="w-4.5 h-4.5 text-blue-600"></i></div>
+              <div><h3 class="text-sm font-semibold text-slate-900">Asesor de Precios</h3><p class="text-[11px] text-slate-500 truncate">Whey Gold Standard 5lb</p></div>
+            </div>
+            <i data-lucide="x" class="w-5 h-5 text-slate-500"></i>
+          </div>
+          <div class="flex-1 overflow-y-auto p-4 space-y-3">
+            <div class="p-3 rounded-lg border border-yellow-200 bg-white">
+              <div class="flex items-center justify-between mb-2"><span class="text-base font-bold text-yellow-700">Precio aceptable</span><div class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-50 text-yellow-700">68/100</div></div>
+              <div class="w-full h-2 bg-slate-100 rounded-full"><div class="h-full rounded-full bg-yellow-500" style="width:68%"></div></div>
+            </div>
+            <div class="flex border-b border-slate-200 bg-slate-50 overflow-x-auto scrollbar-thin">
+              <button class="flex-shrink-0 px-3 py-2 text-xs font-medium text-blue-600 border-b-2 border-blue-500 bg-white whitespace-nowrap">Resumen</button>
+              <button class="flex-shrink-0 px-3 py-2 text-xs font-medium text-slate-500 whitespace-nowrap">Histórico</button>
+              <button class="flex-shrink-0 px-3 py-2 text-xs font-medium text-slate-500 whitespace-nowrap">Proveed.</button>
+              <button class="flex-shrink-0 px-3 py-2 text-xs font-medium text-slate-500 whitespace-nowrap">Rentab.</button>
+            </div>
+            <div class="p-3 rounded-lg flex items-start gap-2 bg-yellow-50 border border-yellow-200">
+              <i data-lucide="alert-triangle" class="w-4 h-4 text-yellow-500 flex-shrink-0"></i>
+              <p class="text-xs font-medium text-yellow-800">Precio por encima del promedio</p>
+            </div>
+          </div>
+          <div class="px-4 py-3 border-t border-slate-200 bg-slate-50"><button class="w-full px-4 py-2 bg-slate-200 text-slate-700 rounded-lg font-medium text-sm">Cerrar</button></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-4 grid sm:grid-cols-2 gap-3 text-xs">
+    <div class="rounded-xl border border-rose-200 bg-rose-50/60 p-3">
+      <div class="font-semibold text-rose-800 mb-1 flex items-center gap-1.5"><i data-lucide="x-circle" class="w-3.5 h-3.5"></i> Por qué es legacy</div>
+      <ul class="text-rose-900/90 space-y-0.5 list-disc pl-4">
+        <li><b>Drawer lateral</b> — patrón EXPLÍCITAMENTE descartado por el DS (chocaba con el sidebar; único drawer permitido = navegación).</li>
+        <li>Overlay propio <span class="mono">bg-black/30</span> + animación CSS custom <span class="mono">animate-slide-in-right</span>.</li>
+        <li>Paleta semántica improvisada <b>green/yellow/orange/red</b> (no la paleta fija del DS).</li>
+        <li>En móvil se vuelve un <b>toma-pantalla completo</b> sin ser sheet ni respetar safe-area.</li>
+      </ul>
+    </div>
+    <div class="rounded-xl border border-amber-200 bg-amber-50/60 p-3">
+      <div class="font-semibold text-amber-800 mb-1 flex items-center gap-1.5"><i data-lucide="help-circle" class="w-3.5 h-3.5"></i> Qué confunde hoy</div>
+      <ul class="text-amber-900/90 space-y-0.5 list-disc pl-4">
+        <li>Convive con una variante <span class="mono">compact</span> inline (PriceAdvisor dentro del wizard) → 2 presentaciones del mismo análisis.</li>
+        <li>Score 0-100 + 4 tabs internos es mucha densidad para un drawer angosto.</li>
+        <li>Header del drawer y header interno de PriceAdvisor se duplican ("Asesor de Precios" dos veces).</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════ FOOTER ════ -->
+<footer class="max-w-6xl mx-auto px-5 py-10 border-t border-slate-200">
+  <h2 class="text-lg font-bold text-slate-900 mb-1">Resumen honesto · estado de los 5 modales</h2>
+  <p class="text-sm text-slate-600 mb-5">Ninguno nace del Design System. Todos son overlays a mano, anteriores al Hub Kit.</p>
+
+  <div class="overflow-x-auto scrollbar-thin">
+    <table class="w-full text-xs border border-slate-200 rounded-xl overflow-hidden bg-white">
+      <thead class="bg-slate-50 text-slate-600">
+        <tr>
+          <th class="text-left p-3 font-semibold">Modal</th>
+          <th class="text-left p-3 font-semibold">Patrón overlay</th>
+          <th class="text-center p-3 font-semibold">FormModalV2</th>
+          <th class="text-center p-3 font-semibold">Bottom-sheet móvil</th>
+          <th class="text-center p-3 font-semibold">Emojis</th>
+          <th class="text-center p-3 font-semibold">Color módulo</th>
+          <th class="text-left p-3 font-semibold">Estado</th>
+        </tr>
+      </thead>
+      <tbody class="text-slate-700">
+        <tr class="border-t border-slate-100">
+          <td class="p-3 font-medium">1 · Confirmar OC</td>
+          <td class="p-3 mono text-[11px]">slate-900/40 + blur · max-w-6xl</td>
+          <td class="p-3 text-center"><i data-lucide="x" class="w-4 h-4 text-rose-500 mx-auto"></i></td>
+          <td class="p-3 text-center"><i data-lucide="x" class="w-4 h-4 text-rose-500 mx-auto"></i></td>
+          <td class="p-3 text-center text-amber-700">✓ en thead</td>
+          <td class="p-3 text-center text-amber-700">parcial (imp. purple)</td>
+          <td class="p-3"><span class="px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 font-semibold">legacy</span></td>
+        </tr>
+        <tr class="border-t border-slate-100">
+          <td class="p-3 font-medium">2 · Despachar OC</td>
+          <td class="p-3 mono text-[11px]">black/40 · max-w-md</td>
+          <td class="p-3 text-center"><i data-lucide="x" class="w-4 h-4 text-rose-500 mx-auto"></i></td>
+          <td class="p-3 text-center"><i data-lucide="x" class="w-4 h-4 text-rose-500 mx-auto"></i></td>
+          <td class="p-3 text-center text-emerald-700">sin emoji</td>
+          <td class="p-3 text-center text-emerald-700">ok (blue)</td>
+          <td class="p-3"><span class="px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 font-semibold">legacy</span></td>
+        </tr>
+        <tr class="border-t border-slate-100">
+          <td class="p-3 font-medium">3 · Detalle Sub-orden</td>
+          <td class="p-3 mono text-[11px]">slate-900/40 + blur · max-w-5xl</td>
+          <td class="p-3 text-center"><i data-lucide="x" class="w-4 h-4 text-rose-500 mx-auto"></i></td>
+          <td class="p-3 text-center"><i data-lucide="x" class="w-4 h-4 text-rose-500 mx-auto"></i></td>
+          <td class="p-3 text-center text-amber-700">✓●— + 🇺🇸🇵🇪🌐</td>
+          <td class="p-3 text-center text-amber-700">parcial (CTA amber)</td>
+          <td class="p-3"><span class="px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 font-semibold">legacy</span></td>
+        </tr>
+        <tr class="border-t border-slate-100">
+          <td class="p-3 font-medium">4 · Registrar Pago</td>
+          <td class="p-3 mono text-[11px]">black/40 inline · max-w-lg</td>
+          <td class="p-3 text-center"><i data-lucide="x" class="w-4 h-4 text-rose-500 mx-auto"></i></td>
+          <td class="p-3 text-center"><i data-lucide="x" class="w-4 h-4 text-rose-500 mx-auto"></i></td>
+          <td class="p-3 text-center text-amber-700">🏢👤🤝💡 + ▲▼</td>
+          <td class="p-3 text-center text-rose-700">no (slate-800 / teal)</td>
+          <td class="p-3"><span class="px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 font-semibold">legacy</span></td>
+        </tr>
+        <tr class="border-t border-slate-100">
+          <td class="p-3 font-medium">5 · Price Advisor</td>
+          <td class="p-3 mono text-[11px]">black/30 · DRAWER lateral</td>
+          <td class="p-3 text-center"><i data-lucide="x" class="w-4 h-4 text-rose-500 mx-auto"></i></td>
+          <td class="p-3 text-center"><i data-lucide="x" class="w-4 h-4 text-rose-500 mx-auto"></i></td>
+          <td class="p-3 text-center text-emerald-700">sin emoji</td>
+          <td class="p-3 text-center text-rose-700">no (green/yellow/red)</td>
+          <td class="p-3"><span class="px-2 py-0.5 rounded-full bg-rose-100 text-rose-800 font-semibold">patrón descartado</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Lo que confunde a nivel sistema -->
+  <div class="mt-6 grid md:grid-cols-3 gap-3 text-xs">
+    <div class="rounded-xl border border-slate-200 bg-white p-4">
+      <div class="flex items-center gap-2 mb-2"><i data-lucide="layers" class="w-4 h-4 text-blue-600"></i><span class="font-semibold text-slate-800">3 backdrops distintos</span></div>
+      <p class="text-slate-600">slate-900/40+blur (#1,#3), black/40 (#2,#4), black/30 (#5). El mismo módulo "se ve" diferente según el modal.</p>
+    </div>
+    <div class="rounded-xl border border-slate-200 bg-white p-4">
+      <div class="flex items-center gap-2 mb-2"><i data-lucide="git-merge" class="w-4 h-4 text-blue-600"></i><span class="font-semibold text-slate-800">Modales que se apilan</span></div>
+      <p class="text-slate-600">Detalle OC → Detalle Sub-orden → Registrar Pago pueden abrirse uno sobre otro. ConfirmarOC además vive embebido dentro del card de detalle.</p>
+    </div>
+    <div class="rounded-xl border border-slate-200 bg-white p-4">
+      <div class="flex items-center gap-2 mb-2"><i data-lucide="smartphone" class="w-4 h-4 text-blue-600"></i><span class="font-semibold text-slate-800">Móvil sin diseñar</span></div>
+      <p class="text-slate-600">Ninguno es bottom-sheet. #1 fuerza scroll-x de una tabla; #5 toma toda la pantalla. Ninguno respeta safe-area.</p>
+    </div>
+  </div>
+
+  <!-- destino canon -->
+  <div class="mt-6 rounded-xl border border-blue-200 bg-blue-50 p-4">
+    <div class="flex items-start gap-3">
+      <div class="w-9 h-9 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0"><i data-lucide="flag" class="w-5 h-5 text-blue-600"></i></div>
+      <div class="text-xs text-blue-900">
+        <div class="font-semibold mb-1">Destino canon (referencia, no parte de esta documentación):</div>
+        Los 5 deben migrar a <b>FormModalV2</b> (desktop = modal · mobile = bottom-sheet con <span class="mono">items-end sm:items-center</span> + <span class="mono">rounded-t-2xl</span>), color de módulo <b>blue</b> en chrome, paleta semántica fija para estados, iconos lucide en lugar de <span class="mono">✓ ● — 🇺🇸 🏢 👤 🤝 💡 ▲▼</span>, y el drawer del Price Advisor reconvertido a modal/panel. Tablas-matriz con reflow a cards en &lt;640px.
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-6 text-[11px] text-slate-400">
+    Documentación del estado actual · 2026-06-17 · módulo Comercial (blue) · fuentes: ConfirmarOCModal.tsx · DespacharOCModal.tsx · SubOrdenDetailModal.tsx · OrdenesCompra.tsx (~L1181) · PagoUnificadoForm.tsx · PriceAdvisorModal.tsx · PriceAdvisor.tsx
+  </div>
+</footer>
+
+<script>lucide.createIcons();</script>
+</body>
+</html>

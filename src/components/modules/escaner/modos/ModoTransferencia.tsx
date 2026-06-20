@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useImperativeHandle, forwardRef, useMemo } from 'react';
+import { getReservaPara } from '../../../../services/reserva.helper';
 import { ArrowRightLeft, Warehouse, Package, Trash2, Minus, Plus, AlertTriangle, ChevronDown, ChevronUp } from 'lucide-react';
 import { casillaCrudService } from '../../../../services/casilla.crud.service';
 import { unidadService } from '../../../../services/unidad.service';
@@ -113,7 +114,7 @@ export const ModoTransferencia = forwardRef<ModoTransferenciaHandle>((_props, re
   const reservadasPorProducto = useMemo(() => {
     const map = new Map<string, number>();
     for (const u of unidadesOrigen) {
-      if (u.reservadaPara) {
+      if (getReservaPara(u)) {
         map.set(u.productoId, (map.get(u.productoId) || 0) + 1);
       }
     }

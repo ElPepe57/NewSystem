@@ -21,6 +21,7 @@
  * tal cual y cada uno se referencia a su registro físico.
  */
 import React, { useState, useEffect, useMemo } from 'react';
+import { getReservaPara } from '../../../../../services/reserva.helper';
 import { ChevronRight, Search, Target, Package } from 'lucide-react';
 import { useUnidadStore } from '../../../../../store/unidadStore';
 import { useProductoStore } from '../../../../../store/productoStore';
@@ -87,7 +88,7 @@ export const SeccionUnidades: React.FC<Props> = ({ wizard, disabled }) => {
       const existente = grupoMap.get(u.productoId);
       if (existente) {
         existente.unidadesDisponibles.push(u);
-        if (u.reservadaPara) existente.cantidadPrevendida += 1;
+        if (getReservaPara(u)) existente.cantidadPrevendida += 1;
       } else {
         const producto = productos.find(p => p.id === u.productoId);
         grupoMap.set(u.productoId, {
@@ -95,7 +96,7 @@ export const SeccionUnidades: React.FC<Props> = ({ wizard, disabled }) => {
           productoSKU: u.productoSKU,
           productoNombre: u.productoNombre,
           pesoLibras: producto?.pesoLibras,
-          cantidadPrevendida: u.reservadaPara ? 1 : 0,
+          cantidadPrevendida: getReservaPara(u) ? 1 : 0,
           unidadesDisponibles: [u],
         });
       }
@@ -420,7 +421,7 @@ export const SeccionUnidades: React.FC<Props> = ({ wizard, disabled }) => {
                                   </span>
                                 </div>
                               </div>
-                              {u.reservadaPara && (
+                              {getReservaPara(u) && (
                                 <span
                                   className="inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 bg-amber-100 text-amber-800 rounded whitespace-nowrap"
                                   title="Pre-vendida"

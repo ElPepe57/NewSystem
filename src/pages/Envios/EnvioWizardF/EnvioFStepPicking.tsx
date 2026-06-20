@@ -6,6 +6,7 @@
  * === ventaId. Permite ajustar la selección si hace falta.
  */
 import React, { useEffect, useMemo } from 'react';
+import { getReservaPara } from '../../../services/reserva.helper';
 import { Star } from 'lucide-react';
 import { PaisBadge } from '../EnvioWizard/shared/PaisBadge';
 import { useAlmacenStore } from '../../../store/casillaStore';
@@ -111,8 +112,9 @@ export const EnvioFStepPicking: React.FC<EnvioFStepPickingProps> = ({ state, dis
     }
     for (const [key, arr] of groups.entries()) {
       arr.sort((a, b) => {
-        const aReserva = a.reservadaPara === state.ventaId ? 2 : a.reservadaPara ? 1 : 0;
-        const bReserva = b.reservadaPara === state.ventaId ? 2 : b.reservadaPara ? 1 : 0;
+        const aPara = getReservaPara(a), bPara = getReservaPara(b);
+        const aReserva = aPara === state.ventaId ? 2 : aPara ? 1 : 0;
+        const bReserva = bPara === state.ventaId ? 2 : bPara ? 1 : 0;
         if (aReserva !== bReserva) return bReserva - aReserva;
         const aFecha = a.fechaRecepcion?.toMillis?.() ?? 0;
         const bFecha = b.fechaRecepcion?.toMillis?.() ?? 0;
@@ -225,19 +227,22 @@ export const EnvioFStepPicking: React.FC<EnvioFStepPickingProps> = ({ state, dis
         <div className="space-y-3">
           {productosConUnidades.map(([productoId, unidades]) => {
             const pInfo = productoMap.get(productoId);
-            const unidadesGroup: ProductoPickingGroupUnidad[] = unidades.map((u) => ({
-              unidadId: u.id,
-              codigoUnidad: u.id.slice(-6).toUpperCase(),
-              reservadaParaLabel:
-                u.reservadaPara === state.ventaId
-                  ? 'RESERVADA'
-                  : u.reservadaPara
-                    ? `COT ${u.reservadaPara.slice(0, 8).toUpperCase()}`
-                    : null,
-              fechaRecepcionLabel: formatFecha(u.fechaRecepcion),
-            }));
+            const unidadesGroup: ProductoPickingGroupUnidad[] = unidades.map((u) => {
+              const para = getReservaPara(u);
+              return {
+                unidadId: u.id,
+                codigoUnidad: u.id.slice(-6).toUpperCase(),
+                reservadaParaLabel:
+                  para === state.ventaId
+                    ? 'RESERVADA'
+                    : para
+                      ? `COT ${para.slice(0, 8).toUpperCase()}`
+                      : null,
+                fechaRecepcionLabel: formatFecha(u.fechaRecepcion),
+              };
+            });
             const reservadasEnGrupo = unidades.filter(
-              (u) => u.reservadaPara === state.ventaId
+              (u) => getReservaPara(u) === state.ventaId
             ).length;
             return (
               <ProductoPickingGroup

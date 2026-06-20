@@ -5,6 +5,7 @@
  * desde la venta + KPIs + efectos al confirmar.
  */
 import React from 'react';
+import { getReservaPara } from '../../../services/reserva.helper';
 import { User, MapPin, Phone, Package, Truck } from 'lucide-react';
 import { RouteVisual, type RouteNode, type RouteSegment } from '../../../design-system';
 import { cn } from '../../../design-system';
@@ -29,7 +30,7 @@ export const EnvioFStepConfirm: React.FC<EnvioFStepConfirmProps> = ({ state, dis
   const valorVenta = selectValorVentaPEN(state);
   const reservadasVenta = selectUnidadesReservadasVenta(state).length;
   const reservadasIncluidas = state.unidadesDisponibles.filter(
-    (u) => u.reservadaPara === state.ventaId && state.unidadesIdsSeleccionadas.includes(u.id)
+    (u) => getReservaPara(u) === state.ventaId && state.unidadesIdsSeleccionadas.includes(u.id)
   ).length;
 
   const cliente = state.ventaSnapshot;

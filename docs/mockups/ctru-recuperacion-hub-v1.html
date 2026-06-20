@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CTRU · Hub de Recuperación · v1</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest"></script>
+<script>tailwind.config = { theme: { extend: { fontFamily: { sans: ['Inter','system-ui','sans-serif'] } } } }</script>
+<style>
+  body { font-family:'Inter',system-ui,sans-serif; background:#f1f5f9; }
+  .tabular { font-variant-numeric: tabular-nums; }
+  .frame { box-shadow: 0 1px 3px rgba(0,0,0,.06), 0 8px 24px rgba(0,0,0,.04); }
+</style>
+</head>
+<body class="text-slate-800 pb-24">
+
+<!-- HERO + ÍNDICE -->
+<div class="max-w-6xl mx-auto px-4 pt-8 pb-4">
+  <div class="bg-white rounded-2xl frame p-6 border border-slate-200">
+    <div class="flex items-center gap-2 mb-2">
+      <span class="text-[10px] font-bold uppercase tracking-wider text-indigo-700 bg-indigo-50 ring-1 ring-indigo-200/60 rounded-full px-2.5 py-1">Mockup · rework</span>
+      <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500 bg-slate-100 rounded-full px-2.5 py-1">Grupo Análisis · indigo</span>
+    </div>
+    <h1 class="text-2xl font-bold tracking-tight text-slate-900">CTRU · Hub de Recuperación</h1>
+    <p class="text-[13px] text-slate-500 leading-snug mt-1 max-w-3xl">
+      Re-concepción de CTRU (de catálogo de costo estático → herramienta de decisión de <b>3 patas</b>): <b>Costo</b> (cuánto cuesta) →
+      <b>Precio mínimo</b> (a cuánto vender) → <b>Recuperación</b> (cuánto de lo invertido ya recuperé vendiendo, en el tiempo).
+      Sobre el modelo de 3 cajas · Hub Kit · color indigo. Cobertura total + mobile.
+    </p>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-2 mt-4 text-[12px]">
+      <a href="#a1" class="bg-slate-50 hover:bg-indigo-50 rounded-lg px-3 py-2 font-semibold text-slate-700">1 · Shell + Resumen</a>
+      <a href="#autil" class="bg-slate-50 hover:bg-indigo-50 rounded-lg px-3 py-2 font-semibold text-slate-700">★ Utilidad real (nueva)</a>
+      <a href="#a2" class="bg-slate-50 hover:bg-indigo-50 rounded-lg px-3 py-2 font-semibold text-slate-700">2 · Recuperación ★</a>
+      <a href="#a3" class="bg-slate-50 hover:bg-indigo-50 rounded-lg px-3 py-2 font-semibold text-slate-700">3 · Costo</a>
+      <a href="#a4" class="bg-slate-50 hover:bg-indigo-50 rounded-lg px-3 py-2 font-semibold text-slate-700">4 · Precio mínimo</a>
+      <a href="#a5" class="bg-slate-50 hover:bg-indigo-50 rounded-lg px-3 py-2 font-semibold text-slate-700">5 · Estados</a>
+      <a href="#a6" class="bg-slate-50 hover:bg-indigo-50 rounded-lg px-3 py-2 font-semibold text-slate-700">6 · Mobile</a>
+      <a href="#cambios" class="bg-slate-50 hover:bg-indigo-50 rounded-lg px-3 py-2 font-semibold text-slate-700">7 · Qué cambia</a>
+    </div>
+  </div>
+</div>
+
+<!-- ============ ACTO 1 · SHELL + RESUMEN ============ -->
+<div id="a1" class="max-w-6xl mx-auto px-4 pt-6">
+  <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2">Acto 1 · Shell + tab Resumen (default)</div>
+  <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden frame">
+
+    <!-- top-bar -->
+    <div class="border-b border-slate-200 px-6 py-2.5 bg-slate-50 flex items-center justify-between">
+      <div class="flex items-center gap-1.5 text-[11px] text-slate-500"><span>Inicio</span><i data-lucide="chevron-right" class="w-3 h-3"></i><span class="text-slate-700 font-semibold">CTRU</span></div>
+      <div class="flex items-center gap-1.5 text-[11px] font-semibold text-indigo-700 bg-indigo-50 ring-1 ring-indigo-200/60 rounded-full px-2.5 py-1"><i data-lucide="shield" class="w-3 h-3"></i> Vista ejecutiva · admin</div>
+    </div>
+
+    <!-- header -->
+    <div class="px-6 pt-5 pb-4 flex items-start justify-between gap-4 flex-wrap">
+      <div class="flex items-start gap-3">
+        <div class="w-11 h-11 bg-indigo-100 rounded-xl flex items-center justify-center flex-shrink-0"><i data-lucide="calculator" class="w-5 h-5 text-indigo-700"></i></div>
+        <div>
+          <h1 class="text-2xl font-bold tracking-tight text-slate-900">CTRU</h1>
+          <p class="text-[13px] text-slate-500 leading-snug">Costo real · precio mínimo · y cuánto vas recuperando de lo invertido</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2 flex-wrap">
+        <button class="bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 text-[12px] font-semibold px-3 py-1.5 rounded-lg flex items-center gap-1.5"><i data-lucide="layers" class="w-3.5 h-3.5"></i> Todas las líneas <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-400"></i></button>
+        <button class="bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 text-[12px] font-semibold px-3 py-1.5 rounded-lg flex items-center gap-1.5"><i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Recalcular</button>
+      </div>
+    </div>
+
+    <!-- KPI strip · semántico -->
+    <div class="px-6">
+      <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
+        <div class="bg-gradient-to-br from-blue-50 to-blue-100/40 ring-1 ring-blue-200/50 rounded-2xl p-4">
+          <div class="flex items-center justify-between mb-2"><span class="text-[10px] uppercase tracking-wider text-blue-700 font-bold">Capital invertido</span><i data-lucide="package" class="w-3.5 h-3.5 text-blue-700"></i></div>
+          <div class="text-2xl font-bold tabular text-blue-900">S/ 30.4<span class="text-blue-400">k</span></div>
+          <div class="text-[11px] text-blue-700 mt-1">en inventario activo</div>
+        </div>
+        <div class="bg-gradient-to-br from-emerald-50 to-emerald-100/40 ring-1 ring-emerald-200/50 rounded-2xl p-4">
+          <div class="flex items-center justify-between mb-2"><span class="text-[10px] uppercase tracking-wider text-emerald-700 font-bold">Recuperado</span><i data-lucide="trending-up" class="w-3.5 h-3.5 text-emerald-700"></i></div>
+          <div class="text-2xl font-bold tabular text-emerald-900">60<span class="text-emerald-400">%</span></div>
+          <div class="text-[11px] text-emerald-700 mt-1">S/ 18.2k de vuelta</div>
+        </div>
+        <div class="bg-gradient-to-br from-amber-50 to-amber-100/40 ring-1 ring-amber-200/50 rounded-2xl p-4">
+          <div class="flex items-center justify-between mb-2"><span class="text-[10px] uppercase tracking-wider text-amber-700 font-bold">Por recuperar</span><i data-lucide="hourglass" class="w-3.5 h-3.5 text-amber-700"></i></div>
+          <div class="text-2xl font-bold tabular text-amber-900">S/ 12.2<span class="text-amber-400">k</span></div>
+          <div class="text-[11px] text-amber-700 mt-1">aún atrapado</div>
+        </div>
+        <div class="bg-gradient-to-br from-emerald-50 to-emerald-100/40 ring-1 ring-emerald-200/50 rounded-2xl p-4">
+          <div class="flex items-center justify-between mb-2"><span class="text-[10px] uppercase tracking-wider text-emerald-700 font-bold">En break-even</span><i data-lucide="check-circle" class="w-3.5 h-3.5 text-emerald-700"></i></div>
+          <div class="text-2xl font-bold tabular text-emerald-900">2<span class="text-emerald-400">/4</span></div>
+          <div class="text-[11px] text-emerald-700 mt-1">ya en ganancia</div>
+        </div>
+        <div class="bg-gradient-to-br from-rose-50 to-rose-100/40 ring-1 ring-rose-200/50 rounded-2xl p-4">
+          <div class="flex items-center justify-between mb-2"><span class="text-[10px] uppercase tracking-wider text-rose-700 font-bold">Sin recuperar</span><i data-lucide="alert-triangle" class="w-3.5 h-3.5 text-rose-700"></i></div>
+          <div class="text-2xl font-bold tabular text-rose-900">1</div>
+          <div class="text-[11px] text-rose-700 mt-1">Protector &lt;15%</div>
+        </div>
+      </div>
+      <div class="bg-slate-50/70 border border-slate-200 rounded-xl px-4 py-2 mt-3 flex items-center gap-4 text-[11px] flex-wrap">
+        <span class="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Contexto:</span>
+        <span class="flex items-center gap-1 text-slate-600"><i data-lucide="receipt" class="w-3 h-3 text-slate-400"></i> Gasto fijo del mes: <span class="font-bold tabular">S/ 8.4k</span> (aparte)</span>
+        <span class="flex items-center gap-1 text-slate-600"><i data-lucide="gauge" class="w-3 h-3 text-slate-400"></i> Margen contribución prom: <span class="font-bold text-emerald-600">41%</span></span>
+        <span class="flex items-center gap-1 text-slate-600 ml-auto"><i data-lucide="clock" class="w-3 h-3 text-slate-400"></i> Recalculado 09:14</span>
+      </div>
+    </div>
+
+    <!-- tabs -->
+    <div class="px-6 mt-4 border-b border-slate-200 flex gap-1 overflow-x-auto">
+      <button class="flex items-center gap-1.5 px-3 py-2.5 text-[13px] font-semibold whitespace-nowrap text-indigo-700 border-b-2 border-indigo-600 -mb-px"><i data-lucide="bar-chart-3" class="w-4 h-4"></i> Resumen</button>
+      <button class="flex items-center gap-1.5 px-3 py-2.5 text-[13px] font-medium whitespace-nowrap text-slate-500 hover:text-slate-700"><i data-lucide="wallet" class="w-4 h-4"></i> Utilidad real</button>
+      <button class="flex items-center gap-1.5 px-3 py-2.5 text-[13px] font-medium whitespace-nowrap text-slate-500 hover:text-slate-700"><i data-lucide="trending-up" class="w-4 h-4"></i> Recuperación</button>
+      <button class="flex items-center gap-1.5 px-3 py-2.5 text-[13px] font-medium whitespace-nowrap text-slate-500 hover:text-slate-700"><i data-lucide="dollar-sign" class="w-4 h-4"></i> Costo</button>
+      <button class="flex items-center gap-1.5 px-3 py-2.5 text-[13px] font-medium whitespace-nowrap text-slate-500 hover:text-slate-700"><i data-lucide="tag" class="w-4 h-4"></i> Precio mínimo</button>
+    </div>
+
+    <!-- body Resumen -->
+    <div class="p-3 sm:p-4 md:p-6 bg-slate-50/30 space-y-4">
+      <!-- §A banner -->
+      <div class="bg-gradient-to-r from-indigo-50 to-indigo-100/30 ring-1 ring-indigo-200/60 rounded-2xl p-4 flex items-start gap-3">
+        <div class="w-9 h-9 bg-indigo-100 rounded-lg flex items-center justify-center flex-shrink-0"><i data-lucide="sparkles" class="w-4.5 h-4.5 text-indigo-700"></i></div>
+        <div><div class="text-[13px] font-bold text-slate-900">Recuperaste el 60% de tu capital invertido · 2 de 4 productos ya pasaron break-even</div>
+          <div class="text-[12px] text-slate-600 leading-snug">El Tónico ya está en ganancia (102%). El Protector Solar es el rezagado — recién recuperó 12% y aún no cubre su inversión.</div></div>
+      </div>
+      <!-- §B curva agregada -->
+      <div class="bg-white border border-slate-200 rounded-2xl p-4">
+        <h3 class="text-[14px] font-semibold text-slate-900 mb-1 flex items-center gap-2"><i data-lucide="line-chart" class="w-4 h-4 text-indigo-600"></i> Curva de recuperación del negocio</h3>
+        <p class="text-[11px] text-slate-500 mb-3">Contribución acumulada (lo que vas recuperando) vs. capital invertido + gasto fijo</p>
+        <div class="h-56 relative border-l border-b border-slate-200 px-2">
+          <!-- linea base invertida -->
+          <div class="absolute left-2 right-2" style="top:18%; border-top:2px dashed #f59e0b;"></div>
+          <span class="absolute right-2 text-[9px] text-amber-600 font-bold" style="top:10%;">Base a recuperar S/38.8k</span>
+          <!-- curva acumulada (svg) -->
+          <svg viewBox="0 0 400 200" preserveAspectRatio="none" class="w-full h-full">
+            <defs><linearGradient id="g1" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#10b981" stop-opacity=".25"/><stop offset="100%" stop-color="#10b981" stop-opacity="0"/></linearGradient></defs>
+            <path d="M0,195 C80,180 140,150 200,120 C260,95 320,80 400,70 L400,200 L0,200 Z" fill="url(#g1)"/>
+            <path d="M0,195 C80,180 140,150 200,120 C260,95 320,80 400,70" fill="none" stroke="#10b981" stroke-width="2.5"/>
+          </svg>
+          <span class="absolute left-2 bottom-1 text-[9px] text-slate-400">ene</span>
+          <span class="absolute right-2 bottom-1 text-[9px] text-slate-400">hoy · S/18.2k (60%)</span>
+        </div>
+        <div class="flex items-center gap-4 mt-2 text-[10px] text-slate-500">
+          <span class="flex items-center gap-1"><span class="w-3 h-0.5 bg-emerald-500"></span> contribución acumulada</span>
+          <span class="flex items-center gap-1"><span class="w-3 border-t-2 border-dashed border-amber-500"></span> base (inventario + fijo)</span>
+        </div>
+      </div>
+      <!-- §C utilidad real · 3 cajas -->
+      <div class="bg-white border border-slate-200 rounded-2xl p-4">
+        <div class="flex items-center justify-between mb-1">
+          <h3 class="text-[14px] font-semibold text-slate-900 flex items-center gap-2"><i data-lucide="wallet" class="w-4 h-4 text-emerald-600"></i> Utilidad real del período</h3>
+          <span class="text-[10px] text-slate-400 bg-slate-100 rounded-full px-2 py-0.5">las 3 cajas · lo que de verdad ganaste</span>
+        </div>
+        <p class="text-[11px] text-slate-500 mb-3">No solo el costo del producto — descuenta también los gastos de venta y el gasto fijo del mes.</p>
+        <div class="space-y-1 text-[13px]">
+          <div class="flex justify-between py-1 font-semibold"><span>Ingresos del mes</span><span class="tabular">S/ 42,000</span></div>
+          <div class="flex justify-between py-1"><span class="text-slate-500">(−) Costo de ventas · CTRU <span class="text-[10px] text-blue-600 font-medium">caja producto</span></span><span class="tabular text-rose-500">S/ 22,000</span></div>
+          <div class="flex justify-between py-1 font-semibold border-t border-slate-100 pt-1"><span>= Margen bruto</span><span class="flex items-center gap-2"><span class="tabular">S/ 20,000</span><span class="text-[11px] font-bold text-emerald-600">48%</span></span></div>
+          <div class="flex justify-between py-1"><span class="text-slate-500">(−) Gastos de venta <span class="text-[10px] text-purple-600 font-medium">caja venta</span></span><span class="tabular text-rose-500">S/ 5,200</span></div>
+          <div class="flex justify-between py-1 font-semibold border-t border-slate-100 pt-1"><span>= Margen de contribución</span><span class="flex items-center gap-2"><span class="tabular">S/ 14,800</span><span class="text-[11px] font-bold text-emerald-600">35%</span></span></div>
+          <div class="flex justify-between py-1"><span class="text-slate-500">(−) Gasto fijo del mes <span class="text-[10px] text-amber-600 font-medium">caja periodo</span></span><span class="tabular text-rose-500">S/ 8,400</span></div>
+          <div class="flex justify-between py-1.5 font-bold border-t-2 border-slate-300 mt-1"><span>= Utilidad operativa real</span><span class="flex items-center gap-2"><span class="tabular text-emerald-700">S/ 6,400</span><span class="text-[11px] font-bold text-emerald-600">15%</span></span></div>
+        </div>
+      </div>
+
+      <!-- §F alertas -->
+      <div class="bg-white border border-slate-200 rounded-2xl p-4">
+        <h3 class="text-[14px] font-semibold text-slate-900 mb-3 flex items-center gap-2"><i data-lucide="alert-triangle" class="w-4 h-4 text-rose-500"></i> A vigilar</h3>
+        <div class="space-y-2">
+          <div class="flex items-start gap-3 p-2.5 rounded-lg bg-rose-50 border border-rose-200 text-[13px]"><i data-lucide="alert-circle" class="w-4 h-4 mt-0.5 text-rose-500"></i><div><div class="font-medium text-slate-900">Protector Solar SPF50 — recuperó solo 12% en 5 semanas</div><div class="text-[11px] text-slate-500 mt-0.5">Rota lento · evaluar precio o promoción para acelerar la recuperación</div></div></div>
+          <div class="flex items-start gap-3 p-2.5 rounded-lg bg-emerald-50 border border-emerald-200 text-[13px]"><i data-lucide="check-circle" class="w-4 h-4 mt-0.5 text-emerald-500"></i><div><div class="font-medium text-slate-900">Tónico Facial — recuperó el 100% y ya genera ganancia (102%)</div><div class="text-[11px] text-slate-500 mt-0.5">Producto estrella · considerá reforzar stock</div></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ ACTO · UTILIDAD REAL (nueva) ============ -->
+<div id="autil" class="max-w-6xl mx-auto px-4 pt-10">
+  <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2">Tab Utilidad real ★ (nueva · costos ocultos por producto)</div>
+  <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden frame">
+    <div class="px-6 pt-4 border-b border-slate-200 flex gap-1 overflow-x-auto text-[13px]">
+      <button class="px-3 py-2.5 font-medium text-slate-400">Resumen</button>
+      <button class="px-3 py-2.5 font-semibold text-indigo-700 border-b-2 border-indigo-600 -mb-px flex items-center gap-1.5"><i data-lucide="wallet" class="w-4 h-4"></i> Utilidad real</button>
+      <button class="px-3 py-2.5 font-medium text-slate-400">Recuperación</button>
+      <button class="px-3 py-2.5 font-medium text-slate-400">Costo</button>
+      <button class="px-3 py-2.5 font-medium text-slate-400">Precio mínimo</button>
+    </div>
+    <div class="p-3 sm:p-4 md:p-6 bg-slate-50/30 space-y-4">
+      <!-- búsqueda + filtros · estratégicamente arriba (patrón en todas las tabs de catálogo) -->
+      <div class="bg-white border border-slate-200 rounded-2xl p-3 flex items-center gap-2 flex-wrap">
+        <div class="relative flex-1 min-w-[180px]">
+          <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
+          <input class="w-full pl-9 pr-3 py-2 text-[13px] bg-slate-50 border border-slate-200 rounded-lg" placeholder="Buscar producto o SKU...">
+        </div>
+        <div class="flex gap-1.5 overflow-x-auto">
+          <button class="text-[11px] font-semibold px-2.5 py-1.5 rounded-lg bg-indigo-600 text-white whitespace-nowrap">Todos</button>
+          <button class="text-[11px] font-medium px-2.5 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-600 whitespace-nowrap">Rentables</button>
+          <button class="text-[11px] font-medium px-2.5 py-1.5 rounded-lg bg-white border border-rose-200 text-rose-600 whitespace-nowrap">⚠ Perdedores</button>
+          <button class="text-[11px] font-medium px-2.5 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-600 whitespace-nowrap">Por línea</button>
+        </div>
+        <button class="text-[11px] font-medium px-2.5 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-600 flex items-center gap-1 whitespace-nowrap"><i data-lucide="arrow-up-down" class="w-3.5 h-3.5"></i> Ordenar</button>
+      </div>
+
+      <!-- catálogo de utilidad real por producto -->
+      <div class="bg-white border border-slate-200 rounded-2xl p-4">
+        <div class="flex items-center justify-between mb-1">
+          <h3 class="text-[14px] font-semibold text-slate-900">Utilidad real por producto</h3>
+          <span class="text-[10px] text-slate-400 bg-slate-100 rounded-full px-2 py-0.5">overhead prorrateado por % de ventas</span>
+        </div>
+        <p class="text-[11px] text-slate-500 mb-3">El margen bruto te ilusiona; la utilidad real (tras gastos de venta + cuota de overhead) te dice la verdad.</p>
+        <div class="overflow-x-auto">
+          <table class="w-full text-[12px]">
+            <thead><tr class="text-[10px] uppercase tracking-wider text-slate-400 border-b border-slate-200">
+              <th class="text-left font-bold py-2">Producto</th><th class="text-right font-bold py-2">Precio</th><th class="text-right font-bold py-2">CTRU</th><th class="text-right font-bold py-2">M. bruto</th><th class="text-right font-bold py-2">Gtos venta</th><th class="text-right font-bold py-2">Overhead</th><th class="text-right font-bold py-2">Utilidad real</th>
+            </tr></thead>
+            <tbody class="divide-y divide-slate-100">
+              <tr class="hover:bg-slate-50 cursor-pointer"><td class="py-2 font-medium">Tónico Facial 200ml <span class="text-[9px] text-emerald-600">★</span></td><td class="text-right tabular">S/ 62</td><td class="text-right tabular">S/ 30</td><td class="text-right tabular text-slate-500">52%</td><td class="text-right tabular text-rose-400">−5</td><td class="text-right tabular text-rose-400">−8</td><td class="text-right tabular font-bold text-emerald-700">31%</td></tr>
+              <tr class="hover:bg-slate-50 cursor-pointer"><td class="py-2 font-medium">Serum Vitamina C 30ml</td><td class="text-right tabular">S/ 65</td><td class="text-right tabular">S/ 37</td><td class="text-right tabular text-slate-500">43%</td><td class="text-right tabular text-rose-400">−6</td><td class="text-right tabular text-rose-400">−8</td><td class="text-right tabular font-bold text-emerald-700">22%</td></tr>
+              <tr class="hover:bg-slate-50 cursor-pointer"><td class="py-2 font-medium">Crema Hidratante 50g</td><td class="text-right tabular">S/ 180</td><td class="text-right tabular">S/ 113.55</td><td class="text-right tabular text-slate-500">37%</td><td class="text-right tabular text-rose-400">−18</td><td class="text-right tabular text-rose-400">−22</td><td class="text-right tabular font-bold text-emerald-700">15%</td></tr>
+              <tr class="bg-rose-50/40 cursor-pointer ring-1 ring-rose-200"><td class="py-2 font-medium text-rose-800">Protector Solar SPF50 <span class="text-[9px]">⚠</span></td><td class="text-right tabular">S/ 55</td><td class="text-right tabular">S/ 40</td><td class="text-right tabular text-slate-500">27%</td><td class="text-right tabular text-rose-400">−7</td><td class="text-right tabular text-rose-400">−9</td><td class="text-right tabular font-bold text-rose-600">−2%</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="mt-2 bg-rose-50 border border-rose-200 rounded-lg px-3 py-2 text-[11px] text-rose-800 flex items-center gap-2"><i data-lucide="alert-triangle" class="w-3.5 h-3.5 flex-shrink-0"></i> El <b>Protector</b> tiene 27% de margen bruto pero <b>pierde S/1 por venta</b> — los costos ocultos se lo comen. Subir precio o reducir su overhead.</div>
+      </div>
+      <!-- drill-down · erosión del margen de un producto -->
+      <div class="bg-white border border-indigo-200 rounded-2xl p-4">
+        <h3 class="text-[14px] font-semibold text-slate-900 mb-1 flex items-center gap-2"><i data-lucide="chevron-down" class="w-4 h-4 text-indigo-500"></i> Erosión del margen · Protector Solar SPF50 <span class="text-[10px] font-normal text-slate-400">(fila seleccionada)</span></h3>
+        <p class="text-[11px] text-slate-500 mb-3">Dónde se va cada sol del precio:</p>
+        <div class="flex h-7 rounded-lg overflow-hidden text-[10px] text-white font-semibold mb-1">
+          <div class="bg-blue-500 flex items-center justify-center" style="width:71%">CTRU S/40</div>
+          <div class="bg-purple-500 flex items-center justify-center" style="width:13%">venta S/7</div>
+          <div class="bg-amber-500 flex items-center justify-center" style="width:16%">overhead S/9</div>
+        </div>
+        <div class="text-[11px] text-rose-600 font-bold mb-3">Costo total S/56 &gt; precio S/55 → pierde S/1 por venta (−2%)</div>
+        <div class="flex flex-wrap gap-x-4 gap-y-1 text-[11px]">
+          <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-sm bg-blue-500"></span> CTRU (directo)</span>
+          <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-sm bg-purple-500"></span> gastos de venta <span class="text-slate-400">oculto</span></span>
+          <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-sm bg-amber-500"></span> overhead prorrateado <span class="text-slate-400">oculto</span></span>
+        </div>
+
+        <!-- desglose POR PRODUCTO de sus costos ocultos por categoría -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4 pt-3 border-t border-slate-100">
+          <div>
+            <div class="flex justify-between mb-2"><span class="text-[12px] font-semibold text-purple-700">Sus gastos de venta</span><span class="text-[12px] font-bold tabular">S/ 7.00</span></div>
+            <div class="space-y-1.5 text-[11px]">
+              <div><div class="flex justify-between mb-0.5"><span class="font-medium">Comisión ML</span><span class="tabular text-slate-500">S/ 4.50 · 64%</span></div><div class="h-1.5 bg-slate-100 rounded-full overflow-hidden"><div class="h-full bg-purple-500 rounded-full" style="width:64%"></div></div></div>
+              <div><div class="flex justify-between mb-0.5"><span>Envío</span><span class="tabular text-slate-500">S/ 2.00 · 29%</span></div><div class="h-1.5 bg-slate-100 rounded-full overflow-hidden"><div class="h-full bg-purple-400 rounded-full" style="width:29%"></div></div></div>
+              <div><div class="flex justify-between mb-0.5"><span>Empaque</span><span class="tabular text-slate-500">S/ 0.50 · 7%</span></div><div class="h-1.5 bg-slate-100 rounded-full overflow-hidden"><div class="h-full bg-purple-300 rounded-full" style="width:7%"></div></div></div>
+            </div>
+          </div>
+          <div>
+            <div class="flex justify-between mb-2"><span class="text-[12px] font-semibold text-amber-700">Su cuota de overhead</span><span class="text-[12px] font-bold tabular">S/ 9.00</span></div>
+            <div class="space-y-1.5 text-[11px]">
+              <div><div class="flex justify-between mb-0.5"><span class="font-medium">Sueldos</span><span class="tabular text-slate-500">S/ 4.90 · 54%</span></div><div class="h-1.5 bg-slate-100 rounded-full overflow-hidden"><div class="h-full bg-amber-500 rounded-full" style="width:54%"></div></div></div>
+              <div><div class="flex justify-between mb-0.5"><span>Alquiler</span><span class="tabular text-slate-500">S/ 2.20 · 24%</span></div><div class="h-1.5 bg-slate-100 rounded-full overflow-hidden"><div class="h-full bg-amber-400 rounded-full" style="width:24%"></div></div></div>
+              <div><div class="flex justify-between mb-0.5"><span>Servicios</span><span class="tabular text-slate-500">S/ 1.00 · 11%</span></div><div class="h-1.5 bg-slate-100 rounded-full overflow-hidden"><div class="h-full bg-amber-300 rounded-full" style="width:11%"></div></div></div>
+              <div><div class="flex justify-between mb-0.5"><span>Software + otros</span><span class="tabular text-slate-500">S/ 0.90 · 11%</span></div><div class="h-1.5 bg-slate-100 rounded-full overflow-hidden"><div class="h-full bg-amber-200 rounded-full" style="width:11%"></div></div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-3 text-[12px] bg-amber-50 border border-amber-200 rounded-lg p-2.5 text-amber-800"><b>Ojo:</b> ese desglose es el <b>promedio mezclando canales</b> — y la comisión cambia todo. La verdad, abierta por canal, está acá abajo 👇</div>
+      </div>
+
+      <!-- utilidad real POR CANAL del producto seleccionado -->
+      <div class="bg-white border border-indigo-200 rounded-2xl p-4">
+        <h3 class="text-[14px] font-semibold text-slate-900 mb-1 flex items-center gap-2"><i data-lucide="git-branch" class="w-4 h-4 text-indigo-600"></i> Utilidad real por canal · Protector Solar SPF50</h3>
+        <p class="text-[11px] text-slate-500 mb-3">El mismo producto rinde distinto según dónde lo vendés — la comisión hace toda la diferencia.</p>
+        <div class="overflow-x-auto">
+          <table class="w-full text-[12px]">
+            <thead><tr class="text-[10px] uppercase tracking-wider text-slate-400 border-b border-slate-200">
+              <th class="text-left font-bold py-2">Canal</th><th class="text-right font-bold py-2">Precio</th><th class="text-right font-bold py-2">Comisión</th><th class="text-right font-bold py-2">Envío</th><th class="text-right font-bold py-2">Overhead</th><th class="text-right font-bold py-2">Utilidad real</th>
+            </tr></thead>
+            <tbody class="divide-y divide-slate-100">
+              <tr class="bg-rose-50/40"><td class="py-2 font-medium">🛒 Mercado Libre</td><td class="text-right tabular">S/ 55</td><td class="text-right tabular text-rose-500">13% · S/7.15</td><td class="text-right tabular text-rose-400">−2.00</td><td class="text-right tabular text-rose-400">−9.00</td><td class="text-right tabular font-bold text-rose-600">−6%</td></tr>
+              <tr><td class="py-2 font-medium">👤 Venta directa</td><td class="text-right tabular">S/ 55</td><td class="text-right tabular text-slate-500">5% · S/2.75</td><td class="text-right tabular text-rose-400">−2.00</td><td class="text-right tabular text-rose-400">−9.00</td><td class="text-right tabular font-bold text-amber-600">2%</td></tr>
+              <tr class="bg-emerald-50/40"><td class="py-2 font-medium">🏪 Tienda física</td><td class="text-right tabular">S/ 55</td><td class="text-right tabular text-slate-400">—</td><td class="text-right tabular text-slate-400">—</td><td class="text-right tabular text-rose-400">−9.00</td><td class="text-right tabular font-bold text-emerald-700">11%</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="mt-2 bg-indigo-50 border border-indigo-200 rounded-lg px-3 py-2 text-[11px] text-indigo-800 flex items-center gap-2"><i data-lucide="lightbulb" class="w-3.5 h-3.5 flex-shrink-0"></i> El −2% promedio te ocultaba que <b>pierde 6% en ML pero gana 11% en tienda</b>. Decisión clara: sacarlo de ML, empujarlo en tienda/directo.</div>
+      </div>
+
+      <!-- composición de los costos ocultos · cajas venta + periodo -->
+      <div class="bg-white border border-slate-200 rounded-2xl p-4">
+        <h3 class="text-[14px] font-semibold text-slate-900 mb-1 flex items-center gap-2"><i data-lucide="pie-chart" class="w-4 h-4 text-indigo-600"></i> De dónde vienen tus costos ocultos</h3>
+        <p class="text-[11px] text-slate-500 mb-3">Abrí las cajas <b>venta</b> y <b>periodo</b> del mes para ver dónde está la mayor carga.</p>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+          <!-- caja venta -->
+          <div>
+            <div class="flex items-center justify-between mb-2.5"><span class="text-[12px] font-semibold text-purple-700">Gastos de venta del mes</span><span class="text-[13px] font-bold tabular text-slate-900">S/ 5,200</span></div>
+            <div class="space-y-2 text-[11px]">
+              <div><div class="flex justify-between mb-0.5"><span class="font-medium">Comisión Mercado Libre</span><span class="tabular text-slate-500">S/ 3,200 · 62%</span></div><div class="h-2 bg-slate-100 rounded-full overflow-hidden"><div class="h-full bg-purple-500 rounded-full" style="width:62%"></div></div></div>
+              <div><div class="flex justify-between mb-0.5"><span>Envío / delivery</span><span class="tabular text-slate-500">S/ 1,200 · 23%</span></div><div class="h-2 bg-slate-100 rounded-full overflow-hidden"><div class="h-full bg-purple-400 rounded-full" style="width:23%"></div></div></div>
+              <div><div class="flex justify-between mb-0.5"><span>Empaque</span><span class="tabular text-slate-500">S/ 500 · 10%</span></div><div class="h-2 bg-slate-100 rounded-full overflow-hidden"><div class="h-full bg-purple-300 rounded-full" style="width:10%"></div></div></div>
+              <div><div class="flex justify-between mb-0.5"><span>Comisión vendedor</span><span class="tabular text-slate-500">S/ 300 · 5%</span></div><div class="h-2 bg-slate-100 rounded-full overflow-hidden"><div class="h-full bg-purple-200 rounded-full" style="width:5%"></div></div></div>
+            </div>
+            <div class="mt-2 text-[10px] text-purple-700">La comisión de ML es 62% — la mayor carga de venta.</div>
+          </div>
+          <!-- caja periodo -->
+          <div>
+            <div class="flex items-center justify-between mb-2.5"><span class="text-[12px] font-semibold text-amber-700">Gasto fijo del mes</span><span class="text-[13px] font-bold tabular text-slate-900">S/ 8,400</span></div>
+            <div class="space-y-2 text-[11px]">
+              <div><div class="flex justify-between mb-0.5"><span class="font-medium">Sueldos / nómina</span><span class="tabular text-slate-500">S/ 4,500 · 54%</span></div><div class="h-2 bg-slate-100 rounded-full overflow-hidden"><div class="h-full bg-amber-500 rounded-full" style="width:54%"></div></div></div>
+              <div><div class="flex justify-between mb-0.5"><span>Alquiler</span><span class="tabular text-slate-500">S/ 2,000 · 24%</span></div><div class="h-2 bg-slate-100 rounded-full overflow-hidden"><div class="h-full bg-amber-400 rounded-full" style="width:24%"></div></div></div>
+              <div><div class="flex justify-between mb-0.5"><span>Servicios (luz/agua/internet)</span><span class="tabular text-slate-500">S/ 900 · 11%</span></div><div class="h-2 bg-slate-100 rounded-full overflow-hidden"><div class="h-full bg-amber-300 rounded-full" style="width:11%"></div></div></div>
+              <div><div class="flex justify-between mb-0.5"><span>Software / SaaS</span><span class="tabular text-slate-500">S/ 600 · 7%</span></div><div class="h-2 bg-slate-100 rounded-full overflow-hidden"><div class="h-full bg-amber-200 rounded-full" style="width:7%"></div></div></div>
+              <div><div class="flex justify-between mb-0.5"><span>Otros</span><span class="tabular text-slate-500">S/ 400 · 5%</span></div><div class="h-2 bg-slate-100 rounded-full overflow-hidden"><div class="h-full bg-slate-300 rounded-full" style="width:5%"></div></div></div>
+            </div>
+            <div class="mt-2 text-[10px] text-amber-700">Los sueldos son 54% — la mayor carga fija.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ ACTO 2 · RECUPERACIÓN (alma) ============ -->
+<div id="a2" class="max-w-6xl mx-auto px-4 pt-10">
+  <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2">Acto 2 · Tab Recuperación ★ (el alma · lente nuevo)</div>
+  <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden frame">
+    <div class="px-6 pt-4 border-b border-slate-200 flex gap-1 overflow-x-auto text-[13px]">
+      <button class="px-3 py-2.5 font-medium text-slate-400">Resumen</button>
+      <button class="px-3 py-2.5 font-medium text-slate-400">Utilidad real</button>
+      <button class="px-3 py-2.5 font-semibold text-indigo-700 border-b-2 border-indigo-600 -mb-px flex items-center gap-1.5"><i data-lucide="trending-up" class="w-4 h-4"></i> Recuperación</button>
+      <button class="px-3 py-2.5 font-medium text-slate-400">Costo</button>
+      <button class="px-3 py-2.5 font-medium text-slate-400">Precio mínimo</button>
+    </div>
+    <div class="p-3 sm:p-4 md:p-6 bg-slate-50/30 space-y-4">
+      <!-- tabla recuperación por producto -->
+      <div class="bg-white border border-slate-200 rounded-2xl p-4">
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="text-[14px] font-semibold text-slate-900">Recuperación por producto</h3>
+          <span class="text-[10px] text-slate-400 bg-slate-100 rounded-full px-2 py-0.5">contribución acumulada / capital invertido</span>
+        </div>
+        <div class="space-y-3">
+          <!-- producto en ganancia -->
+          <div class="border border-emerald-200 bg-emerald-50/30 rounded-xl p-3">
+            <div class="flex items-center justify-between mb-1.5"><span class="text-[13px] font-semibold text-slate-900">Tónico Facial 200ml</span><span class="text-[12px] font-bold text-emerald-700 tabular">102% · en ganancia</span></div>
+            <div class="h-3 bg-slate-100 rounded-full overflow-hidden"><div class="h-full bg-emerald-500 rounded-full" style="width:100%"></div></div>
+            <div class="flex items-center justify-between text-[10px] text-slate-500 mt-1"><span>Invertido S/6,000 · recuperado S/6,120</span><span class="text-emerald-600 font-medium">break-even: semana 7</span></div>
+          </div>
+          <!-- producto avanzado -->
+          <div class="border border-slate-200 rounded-xl p-3">
+            <div class="flex items-center justify-between mb-1.5"><span class="text-[13px] font-semibold text-slate-900">Serum Vitamina C 30ml</span><span class="text-[12px] font-bold text-emerald-700 tabular">78%</span></div>
+            <div class="h-3 bg-slate-100 rounded-full overflow-hidden"><div class="h-full bg-emerald-500 rounded-full" style="width:78%"></div></div>
+            <div class="flex items-center justify-between text-[10px] text-slate-500 mt-1"><span>Invertido S/8,880 · recuperado S/6,926</span><span class="text-slate-500">faltan ~32 uds para break-even</span></div>
+          </div>
+          <!-- producto medio -->
+          <div class="border border-slate-200 rounded-xl p-3">
+            <div class="flex items-center justify-between mb-1.5"><span class="text-[13px] font-semibold text-slate-900">Crema Hidratante 50g</span><span class="text-[12px] font-bold text-amber-600 tabular">45%</span></div>
+            <div class="h-3 bg-slate-100 rounded-full overflow-hidden"><div class="h-full bg-amber-400 rounded-full" style="width:45%"></div></div>
+            <div class="flex items-center justify-between text-[10px] text-slate-500 mt-1"><span>Invertido S/11,355 · recuperado S/5,110</span><span class="text-slate-500">ritmo: ~S/1.2k/mes</span></div>
+          </div>
+          <!-- producto rezagado -->
+          <div class="border border-rose-200 bg-rose-50/30 rounded-xl p-3">
+            <div class="flex items-center justify-between mb-1.5"><span class="text-[13px] font-semibold text-slate-900">Protector Solar SPF50</span><span class="text-[12px] font-bold text-rose-600 tabular">12%</span></div>
+            <div class="h-3 bg-slate-100 rounded-full overflow-hidden"><div class="h-full bg-rose-500 rounded-full" style="width:12%"></div></div>
+            <div class="flex items-center justify-between text-[10px] text-slate-500 mt-1"><span>Invertido S/4,200 · recuperado S/504</span><span class="text-rose-600 font-medium">rota lento · revisar</span></div>
+          </div>
+        </div>
+      </div>
+      <!-- curva de UN producto seleccionado -->
+      <div class="bg-white border border-slate-200 rounded-2xl p-4">
+        <div class="flex items-center justify-between mb-1">
+          <h3 class="text-[14px] font-semibold text-slate-900 flex items-center gap-2"><i data-lucide="line-chart" class="w-4 h-4 text-indigo-600"></i> Curva · Serum Vitamina C</h3>
+          <span class="text-[11px] text-slate-400">conforme se va vendiendo</span>
+        </div>
+        <div class="h-48 relative border-l border-b border-slate-200 px-2 mt-2">
+          <div class="absolute left-2 right-2" style="top:20%; border-top:2px dashed #f59e0b;"></div>
+          <span class="absolute right-2 text-[9px] text-amber-600 font-bold" style="top:11%;">invertido S/8,880</span>
+          <svg viewBox="0 0 400 160" preserveAspectRatio="none" class="w-full h-full">
+            <path d="M0,155 C90,140 150,110 230,80 C290,58 350,48 400,42" fill="none" stroke="#10b981" stroke-width="2.5"/>
+          </svg>
+          <span class="absolute left-2 bottom-1 text-[9px] text-slate-400">primera venta</span>
+          <span class="absolute right-2 bottom-1 text-[9px] text-emerald-600 font-bold">78% recuperado</span>
+        </div>
+        <div class="text-[11px] text-slate-500 mt-1">Cada venta aporta su contribución (precio − CTRU − costo de venta) y empuja la curva hacia la línea de inversión. Al cruzarla = break-even.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ ACTO 3 · COSTO ============ -->
+<div id="a3" class="max-w-6xl mx-auto px-4 pt-10">
+  <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2">Acto 3 · Tab Costo (componentes adaptativos · route-aware)</div>
+  <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden frame">
+    <div class="px-6 pt-4 border-b border-slate-200 flex gap-1 overflow-x-auto text-[13px]">
+      <button class="px-3 py-2.5 font-medium text-slate-400">Resumen</button>
+      <button class="px-3 py-2.5 font-medium text-slate-400">Utilidad real</button>
+      <button class="px-3 py-2.5 font-medium text-slate-400">Recuperación</button>
+      <button class="px-3 py-2.5 font-semibold text-indigo-700 border-b-2 border-indigo-600 -mb-px flex items-center gap-1.5"><i data-lucide="dollar-sign" class="w-4 h-4"></i> Costo</button>
+      <button class="px-3 py-2.5 font-medium text-slate-400">Precio mínimo</button>
+    </div>
+    <div class="p-3 sm:p-4 md:p-6 bg-slate-50/30 space-y-4">
+      <!-- CATÁLOGO · todos los productos -->
+      <div class="bg-white border border-slate-200 rounded-2xl p-4">
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="text-[14px] font-semibold text-slate-900">Catálogo de costos · todos los productos</h3>
+          <span class="text-[10px] text-slate-400 bg-slate-100 rounded-full px-2 py-0.5">CTRU por unidad · click para desglosar</span>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-[12px]">
+            <thead><tr class="text-[10px] uppercase tracking-wider text-slate-400 border-b border-slate-200">
+              <th class="text-left font-bold py-2">Producto</th><th class="text-left font-bold py-2">Ruta</th><th class="text-right font-bold py-2">CTRU/u</th><th class="text-left font-bold py-2 pl-3">Composición</th><th class="text-right font-bold py-2">Margen</th>
+            </tr></thead>
+            <tbody class="divide-y divide-slate-100">
+              <tr class="hover:bg-slate-50 cursor-pointer"><td class="py-2 font-medium">Serum Vitamina C 30ml</td><td class="py-2"><span class="text-[10px] text-purple-700">Casilla</span></td><td class="text-right tabular">S/ 37.00</td><td class="py-2 pl-3"><div class="flex h-2.5 rounded-full overflow-hidden w-28"><div class="bg-blue-500" style="width:62%"></div><div class="bg-cyan-500" style="width:28%"></div><div class="bg-slate-300" style="width:10%"></div></div></td><td class="text-right tabular text-emerald-600 font-medium">42%</td></tr>
+              <tr class="bg-indigo-50/40 cursor-pointer ring-1 ring-indigo-200"><td class="py-2 font-medium">Crema Hidratante 50g</td><td class="py-2"><span class="text-[10px] text-purple-700">Casilla</span></td><td class="text-right tabular font-bold">S/ 113.55</td><td class="py-2 pl-3"><div class="flex h-2.5 rounded-full overflow-hidden w-28"><div class="bg-blue-500" style="width:65%"></div><div class="bg-cyan-500" style="width:27%"></div><div class="bg-slate-300" style="width:8%"></div></div></td><td class="text-right tabular text-emerald-600 font-medium">37%</td></tr>
+              <tr class="hover:bg-slate-50 cursor-pointer"><td class="py-2 font-medium">Protector Solar SPF50</td><td class="py-2"><span class="text-[10px] text-blue-700">Directo</span></td><td class="text-right tabular">S/ 40.00</td><td class="py-2 pl-3"><div class="flex h-2.5 rounded-full overflow-hidden w-28"><div class="bg-blue-500" style="width:90%"></div><div class="bg-slate-300" style="width:10%"></div></div></td><td class="text-right tabular text-amber-600 font-medium">28%</td></tr>
+              <tr class="hover:bg-slate-50 cursor-pointer"><td class="py-2 font-medium">Tónico Facial 200ml</td><td class="py-2"><span class="text-[10px] text-purple-700">Casilla</span></td><td class="text-right tabular">S/ 30.00</td><td class="py-2 pl-3"><div class="flex h-2.5 rounded-full overflow-hidden w-28"><div class="bg-blue-500" style="width:58%"></div><div class="bg-cyan-500" style="width:32%"></div><div class="bg-slate-300" style="width:10%"></div></div></td><td class="text-right tabular text-emerald-600 font-medium">51%</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="flex items-center gap-3 mt-2 text-[10px] text-slate-500"><span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-sm bg-blue-500"></span> producto</span><span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-sm bg-cyan-500"></span> flete</span><span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-sm bg-slate-300"></span> tax/aduana/recojo</span></div>
+      </div>
+
+      <!-- DRILL-DOWN · producto seleccionado -->
+      <div class="bg-white border border-indigo-200 rounded-2xl p-4">
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="text-[14px] font-semibold text-slate-900 flex items-center gap-2"><i data-lucide="chevron-down" class="w-4 h-4 text-indigo-500"></i> Desglose · Crema Hidratante 50g <span class="text-[10px] font-normal text-slate-400">(fila seleccionada)</span></h3>
+          <span class="text-[10px] font-bold text-purple-700 bg-purple-50 ring-1 ring-purple-200/60 rounded-full px-2 py-0.5">Ruta: Casilla vía viajero</span>
+        </div>
+        <!-- componentes (lista adaptativa) -->
+        <div class="space-y-1.5 text-[13px]">
+          <div class="flex items-center justify-between py-1"><span class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-blue-500"></span> Producto (directo)</span><span class="tabular">S/ 74.00</span></div>
+          <div class="flex items-center justify-between py-1"><span class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-slate-400"></span> Sales tax CA <span class="text-[10px] text-slate-400">· por valor</span></span><span class="tabular">S/ 5.92</span></div>
+          <div class="flex items-center justify-between py-1"><span class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-cyan-500"></span> Flete → casilla <span class="text-[10px] text-slate-400">· por peso</span></span><span class="tabular">S/ 4.44</span></div>
+          <div class="flex items-center justify-between py-1"><span class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-cyan-600"></span> Viajero (escalonado 0.5–1lb) <span class="text-[10px] text-slate-400">· por tramo</span></span><span class="tabular">S/ 25.90</span></div>
+          <div class="flex items-center justify-between py-1"><span class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-amber-500"></span> Aduana <span class="text-[10px] text-amber-600">· condicional</span></span><span class="tabular">S/ 8.21</span></div>
+          <div class="flex items-center justify-between py-1"><span class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-slate-400"></span> Recojo Lima <span class="text-[10px] text-slate-400">· fijo/ud</span></span><span class="tabular">S/ 1.00</span></div>
+          <div class="flex items-center justify-between py-1.5 font-bold border-t-2 border-slate-300 mt-1"><span>= CTRU /unidad</span><span class="tabular text-indigo-700">S/ 113.55</span></div>
+        </div>
+        <div class="mt-3 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-[11px] text-slate-500 flex items-center gap-2">
+          <i data-lucide="lock" class="w-3.5 h-3.5 text-slate-400"></i> Componentes <b class="text-slate-700">congelados</b> al momento de recibir · cambiar la tarifa del viajero hoy no altera este costo histórico.
+        </div>
+      </div>
+      <!-- variación de costo por origen / viajero -->
+      <div class="bg-white border border-slate-200 rounded-2xl p-4">
+        <div class="flex items-center justify-between mb-1">
+          <h3 class="text-[14px] font-semibold text-slate-900">La misma Crema cuesta distinto según quién la trajo</h3>
+          <span class="text-[10px] text-slate-400 bg-slate-100 rounded-full px-2 py-0.5">cada lote guarda su costo</span>
+        </div>
+        <p class="text-[11px] text-slate-500 mb-3">El CTRU del catálogo es el <b>promedio ponderado</b> de estos orígenes — cada uno con su tarifa de flete propia.</p>
+        <div class="overflow-x-auto">
+          <table class="w-full text-[12px]">
+            <thead><tr class="text-[10px] uppercase tracking-wider text-slate-400 border-b border-slate-200">
+              <th class="text-left font-bold py-2">Origen del lote</th><th class="text-left font-bold py-2">Tarifa de flete</th><th class="text-right font-bold py-2">Uds</th><th class="text-right font-bold py-2">CTRU/u</th>
+            </tr></thead>
+            <tbody class="divide-y divide-slate-100">
+              <tr><td class="py-2 font-medium">Casilla Miami · Viajero <b>Juan</b></td><td class="py-2 text-slate-500">escalonado · 0.5–1lb → $7/ud</td><td class="text-right tabular">40</td><td class="text-right tabular font-medium text-rose-600">S/ 116.20</td></tr>
+              <tr><td class="py-2 font-medium">Casilla Miami · Viajero <b>María</b></td><td class="py-2 text-slate-500">plana · $6/lb</td><td class="text-right tabular">30</td><td class="text-right tabular font-medium text-emerald-600">S/ 111.00</td></tr>
+              <tr><td class="py-2 font-medium">Directo / postal del proveedor</td><td class="py-2 text-slate-500">flete incluido + recojo · aduana cond.</td><td class="text-right tabular">20</td><td class="text-right tabular font-medium">S/ 112.00</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="mt-2 bg-indigo-50 border border-indigo-200 rounded-lg px-3 py-2 text-[11px] text-indigo-800 flex items-center gap-2"><i data-lucide="info" class="w-3.5 h-3.5 flex-shrink-0"></i> 90 uds en stock · CTRU ponderado <b>S/ 113.55</b> · rango <b>S/ 111–116</b> según el origen. María salió más barato; el lote de Juan castiga el promedio.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ ACTO 4 · PRECIO MÍNIMO ============ -->
+<div id="a4" class="max-w-6xl mx-auto px-4 pt-10">
+  <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2">Acto 4 · Tab Precio mínimo (pisos por canal y margen)</div>
+  <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden frame">
+    <div class="px-6 pt-4 border-b border-slate-200 flex gap-1 overflow-x-auto text-[13px]">
+      <button class="px-3 py-2.5 font-medium text-slate-400">Resumen</button>
+      <button class="px-3 py-2.5 font-medium text-slate-400">Utilidad real</button>
+      <button class="px-3 py-2.5 font-medium text-slate-400">Recuperación</button>
+      <button class="px-3 py-2.5 font-medium text-slate-400">Costo</button>
+      <button class="px-3 py-2.5 font-semibold text-indigo-700 border-b-2 border-indigo-600 -mb-px flex items-center gap-1.5"><i data-lucide="tag" class="w-4 h-4"></i> Precio mínimo</button>
+    </div>
+    <div class="p-3 sm:p-4 md:p-6 bg-slate-50/30 space-y-4">
+      <!-- CATÁLOGO · pisos de todos los productos -->
+      <div class="bg-white border border-slate-200 rounded-2xl p-4">
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="text-[14px] font-semibold text-slate-900">Pisos por producto · todos</h3>
+          <span class="text-[10px] text-slate-400 bg-slate-100 rounded-full px-2 py-0.5">click para ver por canal</span>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-[12px]">
+            <thead><tr class="text-[10px] uppercase tracking-wider text-slate-400 border-b border-slate-200">
+              <th class="text-left font-bold py-2">Producto</th><th class="text-right font-bold py-2">CTRU</th><th class="text-right font-bold py-2">Piso abs.</th><th class="text-right font-bold py-2">Piso 20%</th><th class="text-right font-bold py-2">Precio actual</th><th class="text-center font-bold py-2">Estado</th>
+            </tr></thead>
+            <tbody class="divide-y divide-slate-100">
+              <tr class="hover:bg-slate-50 cursor-pointer"><td class="py-2 font-medium">Serum Vitamina C 30ml</td><td class="text-right tabular">S/ 37.00</td><td class="text-right tabular text-rose-600">S/ 40</td><td class="text-right tabular">S/ 47</td><td class="text-right tabular font-medium">S/ 65</td><td class="text-center"><span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 font-medium">43%</span></td></tr>
+              <tr class="bg-indigo-50/40 cursor-pointer ring-1 ring-indigo-200"><td class="py-2 font-medium">Crema Hidratante 50g</td><td class="text-right tabular font-bold">S/ 113.55</td><td class="text-right tabular text-rose-600">S/ 120</td><td class="text-right tabular">S/ 142</td><td class="text-right tabular font-medium">S/ 180</td><td class="text-center"><span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 font-medium">37%</span></td></tr>
+              <tr class="hover:bg-slate-50 cursor-pointer"><td class="py-2 font-medium">Protector Solar SPF50</td><td class="text-right tabular">S/ 40.00</td><td class="text-right tabular text-rose-600">S/ 44</td><td class="text-right tabular">S/ 53</td><td class="text-right tabular font-medium">S/ 55</td><td class="text-center"><span class="text-[10px] px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 font-medium">27% · justo</span></td></tr>
+              <tr class="hover:bg-slate-50 cursor-pointer"><td class="py-2 font-medium">Tónico Facial 200ml</td><td class="text-right tabular">S/ 30.00</td><td class="text-right tabular text-rose-600">S/ 33</td><td class="text-right tabular">S/ 39</td><td class="text-right tabular font-medium">S/ 62</td><td class="text-center"><span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 font-medium">52%</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- DRILL-DOWN · producto seleccionado -->
+      <div class="bg-white border border-indigo-200 rounded-2xl p-4">
+        <h3 class="text-[14px] font-semibold text-slate-900 mb-3 flex items-center gap-2"><i data-lucide="chevron-down" class="w-4 h-4 text-indigo-500"></i> Pisos · Crema Hidratante (CTRU S/113.55) <span class="text-[10px] font-normal text-slate-400">· por canal</span></h3>
+        <!-- regla visual -->
+        <div class="relative h-10 bg-slate-100 rounded-lg overflow-hidden mb-2">
+          <div class="absolute inset-y-0 left-0 bg-rose-200" style="width:30%"></div>
+          <div class="absolute inset-y-0 bg-amber-200" style="left:30%;width:20%"></div>
+          <div class="absolute inset-y-0 bg-emerald-200" style="left:50%;width:50%"></div>
+          <div class="absolute inset-y-0 flex items-center" style="left:62%"><div class="w-0.5 h-full bg-slate-900"></div><span class="text-[10px] font-bold text-slate-900 ml-1">precio actual S/180</span></div>
+        </div>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-3 text-[12px]">
+          <div class="bg-rose-50 border border-rose-200 rounded-xl p-3"><div class="text-[10px] uppercase tracking-wider text-rose-700 font-bold">Piso absoluto</div><div class="text-lg font-bold tabular text-rose-900 mt-0.5">S/ 120</div><div class="text-[10px] text-rose-600">debajo = perdés</div></div>
+          <div class="bg-amber-50 border border-amber-200 rounded-xl p-3"><div class="text-[10px] uppercase tracking-wider text-amber-700 font-bold">Margen 20%</div><div class="text-lg font-bold tabular text-amber-900 mt-0.5">S/ 142</div><div class="text-[10px] text-amber-600">venta directa</div></div>
+          <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-3"><div class="text-[10px] uppercase tracking-wider text-emerald-700 font-bold">Margen 30%</div><div class="text-lg font-bold tabular text-emerald-900 mt-0.5">S/ 162</div><div class="text-[10px] text-emerald-600">venta directa</div></div>
+          <div class="bg-purple-50 border border-purple-200 rounded-xl p-3"><div class="text-[10px] uppercase tracking-wider text-purple-700 font-bold">Margen 20% · ML</div><div class="text-lg font-bold tabular text-purple-900 mt-0.5">S/ 163</div><div class="text-[10px] text-purple-600">+ comisión 13%</div></div>
+        </div>
+        <div class="mt-3 bg-emerald-50 border border-emerald-200 rounded-lg px-3 py-2 text-[12px] text-emerald-800 flex items-center gap-2"><i data-lucide="check-circle" class="w-4 h-4"></i> A S/180 estás <b>37% sobre el CTRU</b> — sano en directo y en ML.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ ACTO 5 · ESTADOS ============ -->
+<div id="a5" class="max-w-6xl mx-auto px-4 pt-10">
+  <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2">Acto 5 · Estados (loading · empty)</div>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden frame">
+      <div class="border-b border-slate-200 px-6 py-2.5 bg-slate-50 text-[11px] text-slate-500">Inicio › CTRU · cargando</div>
+      <div class="p-6 space-y-3"><div class="grid grid-cols-2 md:grid-cols-5 gap-3"><div class="h-20 bg-slate-100 rounded-2xl animate-pulse"></div><div class="h-20 bg-slate-100 rounded-2xl animate-pulse"></div><div class="h-20 bg-slate-100 rounded-2xl animate-pulse"></div><div class="h-20 bg-slate-100 rounded-2xl animate-pulse"></div><div class="h-20 bg-slate-100 rounded-2xl animate-pulse"></div></div><div class="h-48 bg-slate-100 rounded-2xl animate-pulse flex items-center justify-center"><i data-lucide="refresh-cw" class="w-6 h-6 text-indigo-400 animate-spin"></i></div></div>
+    </div>
+    <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden frame">
+      <div class="border-b border-slate-200 px-6 py-2.5 bg-slate-50 text-[11px] text-slate-500">Inicio › CTRU · sin datos</div>
+      <div class="p-10 text-center"><div class="w-14 h-14 bg-indigo-50 rounded-2xl flex items-center justify-center mx-auto mb-3"><i data-lucide="calculator" class="w-7 h-7 text-indigo-300"></i></div><div class="text-[15px] font-bold text-slate-900">Aún no hay productos con costo</div><p class="text-[12px] text-slate-500 mt-1 max-w-sm mx-auto">El CTRU se calcula cuando recibís unidades de una orden de compra. Registrá una recepción para ver costos, pisos y recuperación.</p><button class="mt-4 bg-indigo-600 hover:bg-indigo-700 text-white text-[12px] font-bold px-3.5 py-2 rounded-lg">Ir a Compras</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ ACTO 6 · MOBILE ============ -->
+<div id="a6" class="max-w-6xl mx-auto px-4 pt-10">
+  <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2">Acto 6 · Mobile · 375px (shell + Recuperación)</div>
+  <div class="flex gap-6 flex-wrap">
+    <div class="w-[375px] bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden frame">
+      <div class="border-b border-slate-200 px-4 py-2 bg-slate-50 flex items-center justify-between"><div class="flex items-center gap-1 text-[10px] text-slate-500"><span>Inicio</span><i data-lucide="chevron-right" class="w-2.5 h-2.5"></i><span class="font-semibold text-slate-700">CTRU</span></div><span class="text-[9px] font-bold text-indigo-700 bg-indigo-50 ring-1 ring-indigo-200/60 rounded-full px-2 py-0.5">admin</span></div>
+      <div class="px-4 pt-3 pb-2"><div class="flex items-center gap-2"><div class="w-9 h-9 bg-indigo-100 rounded-lg flex items-center justify-center"><i data-lucide="calculator" class="w-4.5 h-4.5 text-indigo-700"></i></div><div><h1 class="text-lg font-bold tracking-tight text-slate-900">CTRU</h1><p class="text-[11px] text-slate-500 leading-tight">costo · precio · recuperación</p></div></div></div>
+      <div class="px-4 grid grid-cols-2 gap-2">
+        <div class="bg-gradient-to-br from-blue-50 to-blue-100/40 ring-1 ring-blue-200/50 rounded-xl p-3"><div class="text-[9px] uppercase tracking-wider text-blue-700 font-bold">Invertido</div><div class="text-lg font-bold tabular text-blue-900">S/30.4k</div></div>
+        <div class="bg-gradient-to-br from-emerald-50 to-emerald-100/40 ring-1 ring-emerald-200/50 rounded-xl p-3"><div class="text-[9px] uppercase tracking-wider text-emerald-700 font-bold">Recuperado</div><div class="text-lg font-bold tabular text-emerald-900">60%</div></div>
+      </div>
+      <div class="px-4 mt-3 border-b border-slate-200 flex gap-1 overflow-x-auto text-[12px]" style="scrollbar-width:none">
+        <button class="px-2.5 py-2 font-medium text-slate-400 whitespace-nowrap">Resumen</button>
+        <button class="px-2.5 py-2 font-medium text-slate-400 whitespace-nowrap">Utilidad</button>
+        <button class="px-2.5 py-2 font-semibold text-indigo-700 border-b-2 border-indigo-600 -mb-px whitespace-nowrap">Recuperación</button>
+        <button class="px-2.5 py-2 font-medium text-slate-400 whitespace-nowrap">Costo</button>
+        <button class="px-2.5 py-2 font-medium text-slate-400 whitespace-nowrap">Precio</button>
+      </div>
+      <div class="p-3 bg-slate-50/30 space-y-2">
+        <div class="border border-emerald-200 bg-emerald-50/30 rounded-xl p-2.5"><div class="flex justify-between text-[12px] mb-1"><span class="font-semibold">Tónico Facial</span><span class="font-bold text-emerald-700">102%</span></div><div class="h-2.5 bg-slate-100 rounded-full overflow-hidden"><div class="h-full bg-emerald-500" style="width:100%"></div></div></div>
+        <div class="border border-slate-200 rounded-xl p-2.5"><div class="flex justify-between text-[12px] mb-1"><span class="font-semibold">Serum Vit C</span><span class="font-bold text-emerald-700">78%</span></div><div class="h-2.5 bg-slate-100 rounded-full overflow-hidden"><div class="h-full bg-emerald-500" style="width:78%"></div></div></div>
+        <div class="border border-rose-200 bg-rose-50/30 rounded-xl p-2.5"><div class="flex justify-between text-[12px] mb-1"><span class="font-semibold">Protector Solar</span><span class="font-bold text-rose-600">12%</span></div><div class="h-2.5 bg-slate-100 rounded-full overflow-hidden"><div class="h-full bg-rose-500" style="width:12%"></div></div></div>
+      </div>
+    </div>
+    <!-- mobile costo -->
+    <div class="w-[375px] bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden frame self-start">
+      <div class="border-b border-slate-200 px-4 py-2 bg-slate-50 text-[10px] text-slate-500">CTRU · Costo (mobile)</div>
+      <div class="p-3 bg-slate-50/30">
+        <div class="bg-white border border-slate-200 rounded-xl p-3">
+          <div class="flex items-center justify-between mb-2"><span class="text-[12px] font-semibold">Crema 50g</span><span class="text-[9px] font-bold text-purple-700 bg-purple-50 rounded-full px-2 py-0.5">Casilla/viajero</span></div>
+          <div class="space-y-1 text-[11px]">
+            <div class="flex justify-between"><span>Producto</span><span class="tabular">S/74.00</span></div>
+            <div class="flex justify-between text-slate-500"><span>Flete+viajero (peso)</span><span class="tabular">S/30.34</span></div>
+            <div class="flex justify-between text-slate-500"><span>Tax+aduana+recojo</span><span class="tabular">S/15.13</span></div>
+            <div class="flex justify-between font-bold border-t-2 border-slate-300 pt-1"><span>CTRU</span><span class="tabular text-indigo-700">S/113.55</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ QUÉ CAMBIA ============ -->
+<div id="cambios" class="max-w-6xl mx-auto px-4 pt-10">
+  <div class="bg-white border border-slate-200 rounded-2xl frame p-6">
+    <h2 class="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2"><i data-lucide="git-compare" class="w-5 h-5 text-indigo-600"></i> Qué cambia vs. el CTRU de hoy</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-[13px]">
+      <div class="space-y-2">
+        <div class="text-[11px] font-bold uppercase tracking-wider text-rose-500">Antes (catálogo de costo estático)</div>
+        <ul class="space-y-1.5 text-slate-600">
+          <li class="flex gap-2"><i data-lucide="x" class="w-4 h-4 text-rose-400 flex-shrink-0 mt-0.5"></i> Shell legacy · modelo de 7 capas muerto (GA/GO neutralizado)</li>
+          <li class="flex gap-2"><i data-lucide="x" class="w-4 h-4 text-rose-400 flex-shrink-0 mt-0.5"></i> Solo costo (promedios estáticos) · sin recuperación ni break-even</li>
+          <li class="flex gap-2"><i data-lucide="x" class="w-4 h-4 text-rose-400 flex-shrink-0 mt-0.5"></i> Capas hardcodeadas · descuento perdido · recojo no cableado</li>
+          <li class="flex gap-2"><i data-lucide="x" class="w-4 h-4 text-rose-400 flex-shrink-0 mt-0.5"></i> Costo re-derivado de la OC (riesgo de alterar histórico)</li>
+        </ul>
+      </div>
+      <div class="space-y-2">
+        <div class="text-[11px] font-bold uppercase tracking-wider text-emerald-600">Ahora (herramienta de 3 patas)</div>
+        <ul class="space-y-1.5 text-slate-600">
+          <li class="flex gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5"></i> Hub Kit · indigo · 4 tabs (Resumen/Recuperación/Costo/Precio)</li>
+          <li class="flex gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5"></i> <b>Recuperación</b>: curva de amortización + break-even por producto (el alma)</li>
+          <li class="flex gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5"></i> Costo adaptativo por componentes · route/viajero-aware · congelado</li>
+          <li class="flex gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5"></i> Precio mínimo por canal/margen · sobre las 3 cajas</li>
+        </ul>
+      </div>
+    </div>
+    <div class="mt-5 pt-4 border-t border-slate-200">
+      <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2">Checklist canon</div>
+      <div class="flex flex-wrap gap-2 text-[11px]">
+        <span class="bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200/60 rounded-full px-2.5 py-1 font-semibold">✓ Hub anatomy</span>
+        <span class="bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200/60 rounded-full px-2.5 py-1 font-semibold">✓ Indigo grupo Análisis</span>
+        <span class="bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200/60 rounded-full px-2.5 py-1 font-semibold">✓ KPI strip semántico + mini-stats</span>
+        <span class="bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200/60 rounded-full px-2.5 py-1 font-semibold">✓ Resumen default</span>
+        <span class="bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200/60 rounded-full px-2.5 py-1 font-semibold">✓ 3 patas como tabs</span>
+        <span class="bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200/60 rounded-full px-2.5 py-1 font-semibold">✓ Mobile 375px</span>
+        <span class="bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200/60 rounded-full px-2.5 py-1 font-semibold">✓ Estados loading/empty</span>
+        <span class="bg-amber-50 text-amber-700 ring-1 ring-amber-200/60 rounded-full px-2.5 py-1 font-semibold">⚠ overhead por producto = decisión pendiente</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>lucide.createIcons();</script>
+</body>
+</html>

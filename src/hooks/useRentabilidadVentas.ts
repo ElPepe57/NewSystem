@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { gastoService } from '../services/gasto.service';
 import { unidadService } from '../services/unidad.service';
+import { getReservaPara } from '../services/reserva.helper';
 import { categoriaCostoService } from '../services/categoriaCosto.service';
 import { getCostoBasePEN } from '../utils/ctru.utils';
 import { esGastoDePeriodo, getBloqueDelGasto, esGastoDistribucion, type ArbolCategorias } from '../utils/gasto.bloque';
@@ -279,7 +280,7 @@ export function useRentabilidadVentas(ventas: Venta[]) {
       // Incluye vendidas + asignadas/reservadas (que tienen ventaId)
       const unidadesPorVenta = new Map<string, Unidad[]>();
       for (const u of unidadesConVenta) {
-        const vId = u.ventaId || (u as any).reservadaPara;
+        const vId = u.ventaId || getReservaPara(u);
         if (vId) {
           if (!unidadesPorVenta.has(vId)) unidadesPorVenta.set(vId, []);
           unidadesPorVenta.get(vId)!.push(u);

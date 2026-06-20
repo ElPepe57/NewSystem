@@ -19,6 +19,7 @@
  */
 
 import React, { useState } from 'react';
+import { getReservaPara } from '../../../../services/reserva.helper';
 import {
   Info, Route, DollarSign, X, Edit2, AlertTriangle, Unlock, ShoppingCart,
 } from 'lucide-react';
@@ -389,8 +390,8 @@ const ResumenTab: React.FC<ResumenTabProps> = ({
           <ShoppingCart className="w-4 h-4 text-purple-700 flex-shrink-0" />
           <div className="flex-1 text-xs text-purple-900 min-w-0">
             <strong>Unidad reservada</strong>
-            {(unidad as any).reservadaPara && (
-              <span className="text-purple-700 ml-1">· cotización <span className="font-mono">{(unidad as any).reservadaPara}</span></span>
+            {getReservaPara(unidad) && (
+              <span className="text-purple-700 ml-1">· cotización <span className="font-mono">{getReservaPara(unidad)}</span></span>
             )}
             {unidad.fechaReserva && (
               <span className="text-purple-700 ml-1">· desde {formatFecha(unidad.fechaReserva)}</span>

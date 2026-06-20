@@ -2,6 +2,7 @@ import {
   doc, updateDoc, writeBatch, getDoc, Timestamp
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
+import { getReservaPara } from './reserva.helper';
 import { logger } from '../lib/logger';
 import { COLLECTIONS } from '../config/collections';
 import { envioCrudService } from './envio.crud.service';
@@ -179,7 +180,7 @@ export const envioRecepcionService = {
         const unidadData = unidadSnap.data() as Unidad;
 
         if (ur.recibida) {
-          const estabaReservada = (unidadData as any).reservadaPara;
+          const estabaReservada = getReservaPara(unidadData);
           let estadoNuevo: EstadoUnidad;
 
           if (ur.danada) {

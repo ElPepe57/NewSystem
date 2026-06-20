@@ -1,0 +1,1314 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Compras · 04 · Wizards de creación de OC — estado actual</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  body{font-family:'Inter',system-ui,sans-serif; background:#f1f5f9; color:#0f172a;}
+  .tnum{font-variant-numeric:tabular-nums;}
+  /* fake-modal backdrop helper for documentation only */
+  .backdrop{background:rgba(15,23,42,0.40);}
+</style>
+</head>
+<body class="pb-24">
+
+<!-- ════════════════════════════════════════════════════════════════════════ -->
+<!-- HERO                                                                       -->
+<!-- ════════════════════════════════════════════════════════════════════════ -->
+<header class="max-w-6xl mx-auto px-4 sm:px-6 pt-10 pb-6">
+  <div class="flex items-center gap-2 text-[12px] text-slate-500 mb-3">
+    <i data-lucide="home" class="w-3.5 h-3.5"></i>
+    <span>Inicio</span>
+    <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
+    <span>Compras</span>
+    <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
+    <span class="text-slate-700 font-medium">Wizards de creación de OC</span>
+  </div>
+
+  <div class="flex flex-wrap items-start justify-between gap-4">
+    <div class="flex items-start gap-4">
+      <div class="w-12 h-12 rounded-2xl bg-blue-50 border border-blue-100 flex items-center justify-center flex-shrink-0">
+        <i data-lucide="file-plus-2" class="w-6 h-6 text-blue-600"></i>
+      </div>
+      <div>
+        <h1 class="text-2xl font-bold tracking-tight text-slate-900">Los 2 wizards de Nueva OC</h1>
+        <p class="text-[13px] text-slate-500 mt-1 max-w-2xl leading-snug">
+          Documentación fiel del estado <strong>actual</strong> del código. Hoy conviven DOS caminos
+          para crear órdenes de compra: <strong>OCWizardV3</strong> (canon · WizardShell + borrador canónico)
+          y <strong>OCBuilder</strong> (legacy · stepper común, borrador localStorage, campos fijos).
+        </p>
+      </div>
+    </div>
+    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-100 border border-slate-200 text-[11px] font-semibold text-slate-600">
+      <i data-lucide="file-search" class="w-3.5 h-3.5"></i>
+      estado actual · documentación
+    </span>
+  </div>
+
+  <!-- Índice -->
+  <div class="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+    <a href="#acto1" class="bg-white border border-blue-200 rounded-xl p-3 hover:bg-blue-50/40 transition-colors">
+      <div class="flex items-center gap-2">
+        <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-blue-600 text-white text-[11px] font-bold flex-shrink-0">1</span>
+        <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">✓ canon</span>
+      </div>
+      <div class="text-sm font-semibold text-slate-900 mt-1.5">OCWizardV3</div>
+      <div class="text-[11px] text-slate-500">Shell sidebar · 5 pasos · paso Cargos + Confirmar</div>
+    </a>
+    <a href="#acto2" class="bg-white border border-amber-200 rounded-xl p-3 hover:bg-amber-50/40 transition-colors">
+      <div class="flex items-center gap-2">
+        <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-amber-500 text-white text-[11px] font-bold flex-shrink-0">2</span>
+        <span class="text-[10px] font-bold uppercase tracking-wider text-amber-700">legacy</span>
+      </div>
+      <div class="text-sm font-semibold text-slate-900 mt-1.5">OCBuilder</div>
+      <div class="text-[11px] text-slate-500">Stepper 3 pasos · Step2 campos fijos · Step3 N OCs</div>
+    </a>
+    <a href="#mobile" class="bg-white border border-slate-200 rounded-xl p-3 hover:bg-slate-50 transition-colors">
+      <div class="flex items-center gap-2">
+        <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-slate-700 text-white text-[11px] font-bold flex-shrink-0"><i data-lucide="smartphone" class="w-3.5 h-3.5"></i></span>
+      </div>
+      <div class="text-sm font-semibold text-slate-900 mt-1.5">Mobile 375</div>
+      <div class="text-[11px] text-slate-500">Ambos wizards a 375px</div>
+    </a>
+    <a href="#contraste" class="bg-white border border-slate-200 rounded-xl p-3 hover:bg-slate-50 transition-colors">
+      <div class="flex items-center gap-2">
+        <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-slate-700 text-white text-[11px] font-bold flex-shrink-0"><i data-lucide="git-compare" class="w-3.5 h-3.5"></i></span>
+      </div>
+      <div class="text-sm font-semibold text-slate-900 mt-1.5">Contraste</div>
+      <div class="text-[11px] text-slate-500">Canon vs legacy · qué confunde</div>
+    </a>
+  </div>
+</header>
+
+<!-- ════════════════════════════════════════════════════════════════════════ -->
+<!-- ACTO 1 · OCWizardV3 (CANON)                                                -->
+<!-- ════════════════════════════════════════════════════════════════════════ -->
+<section id="acto1" class="max-w-6xl mx-auto px-4 sm:px-6 pt-8">
+  <div class="flex flex-wrap items-center gap-3 mb-4">
+    <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-blue-600 text-white text-sm font-bold">1</span>
+    <h2 class="text-lg font-bold text-slate-900">OCWizardV3 — el wizard canónico</h2>
+    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-[11px] font-bold text-emerald-700">
+      <i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i> ✓ canon · Hub Kit
+    </span>
+    <span class="text-[11px] text-slate-500 tnum">src/components/modules/ordenCompra/OCWizardV3/</span>
+  </div>
+
+  <p class="text-[13px] text-slate-600 mb-5 max-w-3xl leading-relaxed">
+    <code class="text-[12px] bg-slate-200/60 px-1.5 py-0.5 rounded">WizardShell accent="blue"</code> del design-system:
+    header + stepper horizontal (1 a 5) + body en grid <strong>contenido + preview panel lateral 360px</strong> + footer.
+    Pasos: <strong>Ruta → Productos → Cargos → Inteligencia → Confirmar</strong>. Borrador <strong>canónico</strong>
+    (<code class="text-[12px] bg-slate-200/60 px-1.5 py-0.5 rounded">BorradorBanner tipo="oc"</code> 2 capas localStorage+Firestore).
+  </p>
+
+  <!-- ─── 1.A · Banner de borrador canónico (aparece sobre el shell) ─── -->
+  <div class="mb-3">
+    <div class="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-2 flex items-center gap-2">
+      <i data-lucide="corner-down-right" class="w-3.5 h-3.5"></i> 1.A · Banner de borrador canónico (BorradorBanner · sobre el shell)
+    </div>
+    <!-- BorradorBanner: bg-amber-50 border border-amber-200 rounded-xl p-4 -->
+    <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-center gap-4 shadow-sm">
+      <div class="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center flex-shrink-0">
+        <i data-lucide="file-text" class="w-5 h-5 text-amber-700"></i>
+      </div>
+      <div class="flex-1 min-w-0">
+        <div class="text-sm font-semibold text-amber-900">Tienes una Orden de Compra en borrador</div>
+        <div class="text-xs text-amber-800 mt-0.5 truncate">
+          OC Nutrition Depot USA · $487.50
+          <span class="text-amber-600 mx-1.5">·</span>
+          <span>hace 2 horas</span>
+          <span class="text-amber-600 mx-1.5">·</span>
+          <span>Paso 3 de 5</span>
+        </div>
+      </div>
+      <div class="flex items-center gap-2 flex-shrink-0">
+        <button class="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-amber-800 hover:bg-amber-100 rounded-lg">
+          <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Descartar
+        </button>
+        <button class="flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-white bg-amber-600 hover:bg-amber-700 rounded-lg shadow-sm">
+          Continuar <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── 1.B · Shell completo · PASO CARGOS ─── -->
+  <div class="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-2 flex items-center gap-2">
+    <i data-lucide="corner-down-right" class="w-3.5 h-3.5"></i> 1.B · WizardShell · paso <strong>Cargos</strong> (DynamicChargesSection ×3) + preview panel lateral
+  </div>
+
+  <!-- WizardShell: bg-white rounded-2xl shadow-xl border border-slate-200 -->
+  <div class="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
+    <!-- Header: px-6 py-4 border-b border-slate-200 -->
+    <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
+      <div>
+        <h2 class="text-lg font-semibold text-slate-900">Nueva Orden de Compra</h2>
+        <p class="text-xs text-slate-500 mt-0.5">Captura los datos de la orden paso a paso</p>
+      </div>
+      <button class="text-slate-400 hover:text-slate-600 rounded-lg p-2 hover:bg-slate-100">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+    </div>
+
+    <!-- Stepper: px-6 py-5 border-b border-slate-100 bg-slate-50 -->
+    <div class="px-6 py-5 border-b border-slate-100 bg-slate-50">
+      <div class="flex items-center justify-between max-w-4xl mx-auto w-full">
+        <!-- Paso 1 Ruta · done -->
+        <div class="flex flex-col items-center gap-1.5 flex-shrink-0">
+          <div class="w-9 h-9 rounded-full flex items-center justify-center bg-emerald-500 text-white"><i data-lucide="check" class="w-4 h-4"></i></div>
+          <div class="text-xs font-medium text-emerald-700">Ruta</div>
+        </div>
+        <div class="flex-1 h-0.5 mx-2 bg-emerald-500"></div>
+        <!-- Paso 2 Productos · done -->
+        <div class="flex flex-col items-center gap-1.5 flex-shrink-0">
+          <div class="w-9 h-9 rounded-full flex items-center justify-center bg-emerald-500 text-white"><i data-lucide="check" class="w-4 h-4"></i></div>
+          <div class="text-xs font-medium text-emerald-700">Productos</div>
+        </div>
+        <div class="flex-1 h-0.5 mx-2 bg-emerald-500"></div>
+        <!-- Paso 3 Cargos · ACTIVE (blue) -->
+        <div class="flex flex-col items-center gap-1.5 flex-shrink-0">
+          <div class="w-9 h-9 rounded-full flex items-center justify-center text-xs font-semibold bg-blue-600 text-white scale-105 ring-4 ring-blue-100">3</div>
+          <div class="text-xs font-medium text-slate-900">Cargos</div>
+        </div>
+        <div class="flex-1 h-0.5 mx-2 bg-slate-200"></div>
+        <!-- Paso 4 Inteligencia · pending -->
+        <div class="flex flex-col items-center gap-1.5 flex-shrink-0">
+          <div class="w-9 h-9 rounded-full flex items-center justify-center text-xs font-semibold bg-slate-200 text-slate-500">4</div>
+          <div class="text-xs font-medium text-slate-400">Inteligencia</div>
+        </div>
+        <div class="flex-1 h-0.5 mx-2 bg-slate-200"></div>
+        <!-- Paso 5 Confirmar · pending -->
+        <div class="flex flex-col items-center gap-1.5 flex-shrink-0">
+          <div class="w-9 h-9 rounded-full flex items-center justify-center text-xs font-semibold bg-slate-200 text-slate-500">5</div>
+          <div class="text-xs font-medium text-slate-400">Confirmar</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Body: grid 1fr_360px -->
+    <div class="grid grid-cols-1 sm:grid-cols-[1fr_360px]">
+      <!-- MAIN: StepCargos -->
+      <div class="overflow-y-auto p-6">
+        <div class="space-y-6">
+          <!-- Header del paso -->
+          <div>
+            <h3 class="text-base font-semibold text-slate-900">Cargos comerciales</h3>
+            <p class="text-xs text-slate-500 mt-0.5">
+              Ajustes al total que el <strong>proveedor te factura</strong>: shipping, descuentos,
+              impuestos. No incluye costos logísticos del envío (flete internacional, aduana) — esos van en el Envío.
+            </p>
+          </div>
+
+          <!-- ── CARGOS (DynamicChargesSection kind="cargo") ── -->
+          <div class="bg-white border border-slate-200 rounded-xl p-4">
+            <div class="space-y-3">
+              <div class="flex items-start justify-between gap-3">
+                <div class="flex-1">
+                  <div class="text-sm font-semibold text-slate-900">Cargos</div>
+                  <div class="text-xs text-slate-500 mt-0.5">Costos adicionales que cobra el proveedor (shipping, handling, etc.)</div>
+                </div>
+                <button class="px-3 py-1.5 text-xs font-medium text-teal-700 hover:bg-teal-50 rounded-lg border border-teal-200 flex items-center gap-1.5 flex-shrink-0">
+                  <i data-lucide="plus" class="w-3.5 h-3.5"></i> Agregar cargo
+                </button>
+              </div>
+              <!-- ItemRow ×2 -->
+              <div class="space-y-2">
+                <div class="flex items-center gap-2 p-2 bg-white border border-slate-200 rounded-lg">
+                  <span class="px-2 py-0.5 rounded-full text-[10px] font-bold flex-shrink-0 bg-sky-100 text-sky-700">Cargo</span>
+                  <div class="flex-1 min-w-0">
+                    <input value="Shipping internacional" class="w-full px-2 py-1 text-sm border border-slate-200 rounded" readonly>
+                  </div>
+                  <div class="flex items-center gap-1 flex-shrink-0">
+                    <span class="text-xs text-slate-400">$</span>
+                    <input value="42.00" class="w-20 px-1.5 py-1 text-sm text-right border border-slate-200 rounded tnum" readonly>
+                  </div>
+                  <button class="text-slate-400 hover:text-red-600 rounded p-1 flex-shrink-0"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+                </div>
+                <div class="flex items-center gap-2 p-2 bg-white border border-slate-200 rounded-lg">
+                  <span class="px-2 py-0.5 rounded-full text-[10px] font-bold flex-shrink-0 bg-sky-100 text-sky-700">Cargo</span>
+                  <div class="flex-1 min-w-0">
+                    <input value="Handling fee" class="w-full px-2 py-1 text-sm border border-slate-200 rounded" readonly>
+                  </div>
+                  <div class="flex items-center gap-1 flex-shrink-0">
+                    <span class="text-xs text-slate-400">$</span>
+                    <input value="8.50" class="w-20 px-1.5 py-1 text-sm text-right border border-slate-200 rounded tnum" readonly>
+                  </div>
+                  <button class="text-slate-400 hover:text-red-600 rounded p-1 flex-shrink-0"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+                </div>
+              </div>
+              <!-- total -->
+              <div class="flex items-center justify-between py-2 px-3 bg-slate-50 rounded-lg border border-slate-200">
+                <span class="text-xs font-semibold text-slate-600 uppercase tracking-wide">Total cargos</span>
+                <span class="text-sm font-bold tnum text-slate-700">+$50.50</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── DESCUENTOS (kind="descuento") ── -->
+          <div class="bg-white border border-slate-200 rounded-xl p-4">
+            <div class="space-y-3">
+              <div class="flex items-start justify-between gap-3">
+                <div class="flex-1">
+                  <div class="text-sm font-semibold text-slate-900">Descuentos</div>
+                  <div class="text-xs text-slate-500 mt-0.5">Descuentos aplicados por el proveedor (Subscribe &amp; Save, cupones, etc.)</div>
+                </div>
+                <button class="px-3 py-1.5 text-xs font-medium text-teal-700 hover:bg-teal-50 rounded-lg border border-teal-200 flex items-center gap-1.5 flex-shrink-0">
+                  <i data-lucide="plus" class="w-3.5 h-3.5"></i> Agregar descuento
+                </button>
+              </div>
+              <div class="space-y-2">
+                <div class="flex items-center gap-2 p-2 bg-white border border-slate-200 rounded-lg">
+                  <span class="px-2 py-0.5 rounded-full text-[10px] font-bold flex-shrink-0 bg-emerald-100 text-emerald-700">Desc.</span>
+                  <div class="flex-1 min-w-0">
+                    <input value="Subscribe &amp; Save" class="w-full px-2 py-1 text-sm border border-slate-200 rounded" readonly>
+                  </div>
+                  <div class="flex items-center gap-1 flex-shrink-0">
+                    <span class="text-xs text-slate-400">$</span>
+                    <input value="24.38" class="w-20 px-1.5 py-1 text-sm text-right border border-slate-200 rounded tnum" readonly>
+                  </div>
+                  <button class="text-slate-400 hover:text-red-600 rounded p-1 flex-shrink-0"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+                </div>
+              </div>
+              <div class="flex items-center justify-between py-2 px-3 bg-slate-50 rounded-lg border border-slate-200">
+                <span class="text-xs font-semibold text-slate-600 uppercase tracking-wide">Total descuentos</span>
+                <span class="text-sm font-bold tnum text-emerald-700">−$24.38</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── IMPUESTOS (kind="impuesto" · toggle %/$) ── -->
+          <div class="bg-white border border-slate-200 rounded-xl p-4">
+            <div class="space-y-3">
+              <div class="flex items-start justify-between gap-3">
+                <div class="flex-1">
+                  <div class="text-sm font-semibold text-slate-900">Impuestos</div>
+                  <div class="text-xs text-slate-500 mt-0.5">Impuestos aplicables (% sobre base o monto fijo)</div>
+                </div>
+                <button class="px-3 py-1.5 text-xs font-medium text-teal-700 hover:bg-teal-50 rounded-lg border border-teal-200 flex items-center gap-1.5 flex-shrink-0">
+                  <i data-lucide="plus" class="w-3.5 h-3.5"></i> Agregar impuesto
+                </button>
+              </div>
+              <div class="space-y-2">
+                <!-- impuesto modo % -->
+                <div class="flex items-center gap-2 p-2 bg-white border border-slate-200 rounded-lg">
+                  <span class="px-2 py-0.5 rounded-full text-[10px] font-bold flex-shrink-0 bg-purple-100 text-purple-700">Imp.</span>
+                  <div class="flex-1 min-w-0">
+                    <input value="Sales Tax CA" class="w-full px-2 py-1 text-sm border border-slate-200 rounded" readonly>
+                  </div>
+                  <!-- toggle %/$ -->
+                  <div class="flex bg-slate-100 rounded p-0.5 flex-shrink-0">
+                    <button class="px-2 py-0.5 rounded text-xs bg-white text-teal-700 shadow-sm"><i data-lucide="percent" class="w-3 h-3"></i></button>
+                    <button class="px-2 py-0.5 rounded text-xs text-slate-500"><i data-lucide="dollar-sign" class="w-3 h-3"></i></button>
+                  </div>
+                  <div class="flex items-center gap-1 flex-shrink-0">
+                    <input value="7.25" class="w-16 px-1.5 py-1 text-sm text-right border border-slate-200 rounded tnum" readonly>
+                    <span class="text-xs text-slate-500">%</span>
+                  </div>
+                  <div class="flex items-center gap-1 flex-shrink-0">
+                    <span class="text-xs text-slate-400">$</span>
+                    <input value="32.21" class="w-20 px-1.5 py-1 text-sm text-right border border-slate-200 rounded tnum bg-slate-50 text-slate-600" readonly>
+                  </div>
+                  <span class="text-[10px] text-slate-400 hidden md:inline flex-shrink-0 whitespace-nowrap">s/ $444.62</span>
+                  <button class="text-slate-400 hover:text-red-600 rounded p-1 flex-shrink-0"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+                </div>
+              </div>
+              <div class="flex items-center justify-between py-2 px-3 bg-slate-50 rounded-lg border border-slate-200">
+                <span class="text-xs font-semibold text-slate-600 uppercase tracking-wide">Total impuestos</span>
+                <span class="text-sm font-bold tnum text-slate-700">+$32.21</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── Cálculo del total OC (gradient blue→emerald) ── -->
+          <div class="bg-gradient-to-br from-blue-50 to-emerald-50 border border-blue-200 rounded-xl p-4">
+            <div class="text-xs font-semibold text-blue-900 uppercase tracking-wide mb-3">Cálculo del total OC</div>
+            <div class="space-y-1.5 text-sm">
+              <div class="flex items-center justify-between"><span class="text-slate-600">Subtotal productos</span><span class="font-medium tnum">$455.00</span></div>
+              <div class="flex items-center justify-between"><span class="text-slate-600">+ Cargos</span><span class="font-medium tnum">+$50.50</span></div>
+              <div class="flex items-center justify-between"><span class="text-slate-600">− Descuentos</span><span class="font-medium text-emerald-700 tnum">-$24.38</span></div>
+              <div class="flex items-center justify-between"><span class="text-slate-600">+ Impuestos</span><span class="font-medium tnum">+$32.21</span></div>
+              <div class="flex items-center justify-between pt-2 border-t-2 border-blue-300 mt-2">
+                <span class="text-base font-bold text-blue-900">Total OC</span>
+                <span class="text-lg font-bold text-blue-900 tnum">$513.33</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Nota informativa -->
+          <div class="flex items-start gap-2 text-xs text-slate-600 bg-slate-50 rounded-lg p-3 border border-slate-200">
+            <i data-lucide="info" class="w-3.5 h-3.5 text-slate-400 mt-0.5 flex-shrink-0"></i>
+            <div>Los cargos logísticos del envío (flete viajero, aduana, recojo local en Perú) se capturan en el módulo de <strong>Envíos</strong>, no aquí. Esto mantiene separado el plano comercial del plano logístico en el CTRU.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ASIDE: preview panel (OCWizardPreview + OCRutaVerticalSidebar) -->
+      <aside class="hidden sm:block overflow-y-auto border-l border-slate-200 bg-slate-50 p-4">
+        <div class="space-y-4">
+          <!-- chip tipo de ruta -->
+          <div class="rounded-xl px-3 py-2 border bg-sky-50 border-sky-200">
+            <div class="flex items-center gap-2">
+              <span class="text-lg">🏷️</span>
+              <div class="flex-1 min-w-0">
+                <div class="text-[10px] font-semibold uppercase tracking-wider text-sky-700">Tipo de ruta</div>
+                <div class="text-sm font-bold leading-tight text-sky-900">Vía casilla</div>
+                <div class="text-[11px] text-sky-700">Proveedor → Casilla → Perú</div>
+              </div>
+            </div>
+          </div>
+          <!-- ruta vertical 3 bloques -->
+          <div class="bg-white border border-slate-200 rounded-xl p-3">
+            <div class="text-[10px] font-semibold uppercase tracking-wider text-slate-500 mb-2 px-1">Ruta de la OC</div>
+            <div class="space-y-2">
+              <!-- proveedor · complete -->
+              <div class="rounded-xl p-3 border-2 bg-green-50 border-green-500">
+                <div class="flex items-start justify-between mb-1">
+                  <div class="flex items-center gap-1.5">
+                    <span class="text-base">📦</span>
+                    <span class="text-[10px] font-semibold uppercase tracking-wider text-green-700">Proveedor</span>
+                  </div>
+                  <span class="inline-flex items-center justify-center w-5 h-5 rounded-full text-[11px] font-bold bg-green-500 text-white">✓</span>
+                </div>
+                <div class="text-sm text-green-800 font-semibold">Nutrition Depot USA</div>
+                <div class="text-[10px] mt-0.5 text-green-700">🇺🇸 USA</div>
+              </div>
+              <!-- tránsito · complete -->
+              <div class="rounded-xl p-3 border-2 bg-green-50 border-green-500">
+                <div class="flex items-start justify-between mb-1">
+                  <div class="flex items-center gap-1.5">
+                    <span class="text-base">📦</span>
+                    <span class="text-[10px] font-semibold uppercase tracking-wider text-green-700">Tránsito</span>
+                  </div>
+                  <span class="inline-flex items-center justify-center w-5 h-5 rounded-full text-[11px] font-bold bg-green-500 text-white">✓</span>
+                </div>
+                <div class="text-sm text-green-800 font-semibold">Proveedor envía</div>
+                <div class="text-[10px] mt-0.5 text-green-700">El proveedor despacha a la casilla</div>
+              </div>
+              <!-- destino · complete -->
+              <div class="rounded-xl p-3 border-2 bg-green-50 border-green-500">
+                <div class="flex items-start justify-between mb-1">
+                  <div class="flex items-center gap-1.5">
+                    <span class="text-base">🏠</span>
+                    <span class="text-[10px] font-semibold uppercase tracking-wider text-green-700">Destino</span>
+                  </div>
+                  <span class="inline-flex items-center justify-center w-5 h-5 rounded-full text-[11px] font-bold bg-green-500 text-white">✓</span>
+                </div>
+                <div class="text-sm text-green-800 font-semibold">Casilla Miami</div>
+                <div class="text-[10px] mt-0.5 text-green-700">🇺🇸 USA · MIA-204</div>
+              </div>
+            </div>
+          </div>
+          <!-- productos -->
+          <div class="bg-white rounded-xl border border-slate-200 p-3">
+            <div class="flex items-center gap-2 mb-2">
+              <i data-lucide="package" class="w-4 h-4 text-slate-500"></i>
+              <div class="text-xs font-semibold text-slate-600 uppercase tracking-wide">Productos</div>
+            </div>
+            <div class="space-y-1.5">
+              <div class="flex items-center justify-between text-xs"><span class="text-slate-500">SKUs</span><span class="font-medium text-slate-800 tnum">3</span></div>
+              <div class="flex items-center justify-between text-xs"><span class="text-slate-500">Unidades</span><span class="font-medium text-slate-800 tnum">14</span></div>
+              <div class="flex items-center justify-between text-sm pt-1 border-t border-slate-200"><span class="text-slate-600 font-medium">Subtotal</span><span class="font-semibold text-slate-900 tnum">$455.00</span></div>
+            </div>
+          </div>
+          <!-- cargos comerciales -->
+          <div class="bg-white rounded-xl border border-slate-200 p-3">
+            <div class="flex items-center gap-2 mb-2">
+              <i data-lucide="dollar-sign" class="w-4 h-4 text-slate-500"></i>
+              <div class="text-xs font-semibold text-slate-600 uppercase tracking-wide">Cargos comerciales</div>
+            </div>
+            <div class="space-y-1 text-xs">
+              <div class="flex items-center justify-between"><span class="text-slate-500">Cargos</span><span class="text-slate-700 tnum">+$50.50</span></div>
+              <div class="flex items-center justify-between"><span class="text-slate-500">Descuentos</span><span class="text-emerald-700 tnum">-$24.38</span></div>
+              <div class="flex items-center justify-between"><span class="text-slate-500">Impuestos</span><span class="text-slate-700 tnum">+$32.21</span></div>
+            </div>
+          </div>
+          <!-- gran total -->
+          <div class="bg-blue-50 border border-blue-200 rounded-xl p-3">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <i data-lucide="trending-up" class="w-4 h-4 text-blue-600"></i>
+                <span class="text-xs font-semibold text-blue-900 uppercase tracking-wide">Gran total</span>
+              </div>
+              <span class="text-xl font-bold text-blue-900 tnum">$513.33</span>
+            </div>
+            <div class="text-[10px] text-blue-700 mt-1 text-right">≈ S/ 1,924.99 · TC 3.75</div>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <!-- Footer: px-6 py-4 border-t border-slate-200 bg-slate-50 -->
+    <div class="px-6 py-4 border-t border-slate-200 bg-slate-50 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <button class="px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-lg">Cancelar</button>
+        <button class="px-4 py-2 text-sm font-medium text-slate-700 border border-slate-300 hover:bg-slate-100 rounded-lg">← Anterior</button>
+      </div>
+      <div class="flex items-center gap-3">
+        <span class="text-xs text-slate-500 hidden sm:inline">Paso 3 de 5</span>
+        <button class="px-5 py-2 text-sm font-semibold text-white rounded-lg bg-blue-600 hover:bg-blue-700">Siguiente →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── 1.C · PASO CONFIRMAR ─── -->
+  <div class="text-[11px] font-bold uppercase tracking-wider text-slate-500 mt-8 mb-2 flex items-center gap-2">
+    <i data-lucide="corner-down-right" class="w-3.5 h-3.5"></i> 1.C · WizardShell · paso <strong>Confirmar</strong> (StepConfirm · preview consolidado + TC + observaciones)
+  </div>
+
+  <div class="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
+    <!-- Header -->
+    <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
+      <div>
+        <h2 class="text-lg font-semibold text-slate-900">Nueva Orden de Compra</h2>
+        <p class="text-xs text-slate-500 mt-0.5">Captura los datos de la orden paso a paso</p>
+      </div>
+      <button class="text-slate-400 hover:text-slate-600 rounded-lg p-2 hover:bg-slate-100"><i data-lucide="x" class="w-5 h-5"></i></button>
+    </div>
+    <!-- Stepper · paso 5 active, 1-4 done -->
+    <div class="px-6 py-5 border-b border-slate-100 bg-slate-50">
+      <div class="flex items-center justify-between max-w-4xl mx-auto w-full">
+        <div class="flex flex-col items-center gap-1.5 flex-shrink-0"><div class="w-9 h-9 rounded-full flex items-center justify-center bg-emerald-500 text-white"><i data-lucide="check" class="w-4 h-4"></i></div><div class="text-xs font-medium text-emerald-700">Ruta</div></div>
+        <div class="flex-1 h-0.5 mx-2 bg-emerald-500"></div>
+        <div class="flex flex-col items-center gap-1.5 flex-shrink-0"><div class="w-9 h-9 rounded-full flex items-center justify-center bg-emerald-500 text-white"><i data-lucide="check" class="w-4 h-4"></i></div><div class="text-xs font-medium text-emerald-700">Productos</div></div>
+        <div class="flex-1 h-0.5 mx-2 bg-emerald-500"></div>
+        <div class="flex flex-col items-center gap-1.5 flex-shrink-0"><div class="w-9 h-9 rounded-full flex items-center justify-center bg-emerald-500 text-white"><i data-lucide="check" class="w-4 h-4"></i></div><div class="text-xs font-medium text-emerald-700">Cargos</div></div>
+        <div class="flex-1 h-0.5 mx-2 bg-emerald-500"></div>
+        <div class="flex flex-col items-center gap-1.5 flex-shrink-0"><div class="w-9 h-9 rounded-full flex items-center justify-center bg-emerald-500 text-white"><i data-lucide="check" class="w-4 h-4"></i></div><div class="text-xs font-medium text-emerald-700">Inteligencia</div></div>
+        <div class="flex-1 h-0.5 mx-2 bg-emerald-500"></div>
+        <div class="flex flex-col items-center gap-1.5 flex-shrink-0"><div class="w-9 h-9 rounded-full flex items-center justify-center text-xs font-semibold bg-blue-600 text-white scale-105 ring-4 ring-blue-100">5</div><div class="text-xs font-medium text-slate-900">Confirmar</div></div>
+      </div>
+    </div>
+
+    <!-- Body -->
+    <div class="grid grid-cols-1 sm:grid-cols-[1fr_360px]">
+      <div class="overflow-y-auto p-6">
+        <div class="space-y-5">
+          <div>
+            <h3 class="text-base font-semibold text-slate-900">Revisa y confirma</h3>
+            <p class="text-xs text-slate-500 mt-0.5">Valida los datos de la orden antes de crearla. Puedes regresar a pasos anteriores si necesitas corregir algo.</p>
+          </div>
+
+          <!-- Section: Ruta logística -->
+          <div class="bg-white border border-slate-200 rounded-xl p-4">
+            <div class="flex items-center gap-2 mb-3"><i data-lucide="map-pin" class="w-4 h-4 text-slate-500"></i><div class="text-xs font-semibold text-slate-600 uppercase tracking-wide">Ruta logística</div></div>
+            <div class="space-y-3">
+              <div class="flex items-center gap-3"><div class="text-sm font-semibold text-slate-800">Nutrition Depot USA</div><span class="text-xs text-slate-400">USA</span></div>
+              <!-- RouteVisual (simplificado) -->
+              <div class="flex items-center gap-2">
+                <div class="flex flex-col items-center"><div class="w-9 h-9 rounded-full bg-blue-50 border border-blue-200 flex items-center justify-center text-base">🇺🇸</div><div class="text-[10px] text-slate-600 mt-1">Nutrition</div></div>
+                <div class="flex-1 flex flex-col items-center"><div class="text-[10px] text-slate-400">Proveedor envía</div><div class="w-full h-0.5 bg-slate-300 my-0.5"></div></div>
+                <div class="flex flex-col items-center"><div class="w-9 h-9 rounded-full bg-slate-50 border border-slate-200 flex items-center justify-center text-[10px] font-mono text-slate-600">MIA</div><div class="text-[10px] text-slate-600 mt-1">Casilla</div></div>
+              </div>
+              <div class="grid grid-cols-2 gap-3 text-xs pt-2 border-t border-slate-100">
+                <div><div class="text-slate-500">Colaborador</div><div class="text-slate-800 font-medium truncate">— Sin asignar —</div></div>
+                <div><div class="text-slate-500">Deudor del pago</div><div class="text-slate-800 font-medium truncate">Nutrition Depot USA</div></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section: Productos (3) -->
+          <div class="bg-white border border-slate-200 rounded-xl p-4">
+            <div class="flex items-center gap-2 mb-3"><i data-lucide="package" class="w-4 h-4 text-slate-500"></i><div class="text-xs font-semibold text-slate-600 uppercase tracking-wide">Productos (3)</div></div>
+            <div class="divide-y divide-slate-100 -mx-2">
+              <div class="px-2 py-2 flex items-center justify-between gap-3">
+                <div class="flex-1 min-w-0 text-sm text-slate-800">Whey Gold Standard 5lb <span class="text-slate-400 text-xs">· Chocolate</span></div>
+                <div class="flex items-center gap-4 text-xs text-slate-600 flex-shrink-0">
+                  <span>× 6</span><span class="tnum">$42.00</span><span class="font-semibold text-slate-900 tnum w-20 text-right">$252.00</span>
+                </div>
+              </div>
+              <div class="px-2 py-2 flex items-center justify-between gap-3">
+                <div class="flex-1 min-w-0 text-sm text-slate-800">ISO 100 Dymatize 3lb <span class="text-slate-400 text-xs">· Gourmet Vanilla</span></div>
+                <div class="flex items-center gap-4 text-xs text-slate-600 flex-shrink-0">
+                  <span>× 5</span><span class="tnum">$32.00</span><span class="font-semibold text-slate-900 tnum w-20 text-right">$160.00</span>
+                </div>
+              </div>
+              <div class="px-2 py-2 flex items-center justify-between gap-3">
+                <div class="flex-1 min-w-0 text-sm text-slate-800">Creatina Monohidrato 400g</div>
+                <div class="flex items-center gap-4 text-xs text-slate-600 flex-shrink-0">
+                  <span>× 3</span><span class="tnum">$14.33</span><span class="font-semibold text-slate-900 tnum w-20 text-right">$43.00</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section: Resumen financiero -->
+          <div class="bg-white border border-slate-200 rounded-xl p-4">
+            <div class="flex items-center gap-2 mb-3"><i data-lucide="dollar-sign" class="w-4 h-4 text-slate-500"></i><div class="text-xs font-semibold text-slate-600 uppercase tracking-wide">Resumen financiero</div></div>
+            <div class="space-y-1.5 text-sm">
+              <div class="flex items-center justify-between"><span class="text-slate-600">Subtotal productos</span><span class="tnum font-medium text-slate-900">$455.00</span></div>
+              <div class="flex items-center justify-between"><span class="text-slate-600">+ Cargos</span><span class="tnum font-medium text-slate-900">$50.50</span></div>
+              <div class="flex items-center justify-between"><span class="text-slate-600">− Descuentos</span><span class="tnum font-medium text-emerald-700">-$24.38</span></div>
+              <div class="flex items-center justify-between"><span class="text-slate-600">+ Impuestos</span><span class="tnum font-medium text-slate-900">$32.21</span></div>
+              <div class="flex items-center justify-between pt-2 border-t-2 border-slate-200 mt-2">
+                <span class="text-base font-bold text-slate-900">Total USD</span>
+                <span class="text-xl font-bold text-blue-700 tnum">$513.33</span>
+              </div>
+              <div class="flex items-center justify-between text-xs text-slate-500"><span>Equivalente PEN</span><span class="tnum">S/ 1,924.99 · TC 3.75</span></div>
+            </div>
+          </div>
+
+          <!-- Section: Datos finales (TC + observaciones) -->
+          <div class="bg-white border border-slate-200 rounded-xl p-4">
+            <div class="flex items-center gap-2 mb-3"><i data-lucide="file-text" class="w-4 h-4 text-slate-500"></i><div class="text-xs font-semibold text-slate-600 uppercase tracking-wide">Datos finales</div></div>
+            <div class="space-y-3">
+              <div>
+                <div class="text-xs font-medium text-slate-700 mb-1">TC de referencia (USD → PEN)</div>
+                <div class="flex items-center gap-3 py-2 px-3 bg-slate-50 border border-slate-200 rounded-lg">
+                  <span class="text-lg font-bold text-slate-900 tnum">3.7500</span>
+                  <span class="text-xs text-slate-500">PEN por USD</span>
+                  <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 text-[10px] font-semibold border border-blue-200">
+                    <i data-lucide="sparkles" class="w-3 h-3"></i> SUNAT
+                  </span>
+                </div>
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-slate-700 mb-1">Observaciones <span class="text-slate-400 font-normal">(opcional)</span></label>
+                <textarea rows="2" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg" placeholder="Notas sobre la compra, términos especiales del proveedor, etc."></textarea>
+              </div>
+            </div>
+          </div>
+
+          <!-- Confirmación final -->
+          <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-3 flex items-center gap-2">
+            <i data-lucide="check-circle" class="w-4 h-4 text-emerald-600 flex-shrink-0"></i>
+            <span class="text-sm text-emerald-900">Todos los datos están listos. Haz click en <strong>Crear Orden</strong> para confirmar.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ASIDE (mismo preview · ruta complete + gran total) -->
+      <aside class="hidden sm:block overflow-y-auto border-l border-slate-200 bg-slate-50 p-4">
+        <div class="space-y-4">
+          <div class="rounded-xl px-3 py-2 border bg-sky-50 border-sky-200">
+            <div class="flex items-center gap-2">
+              <span class="text-lg">🏷️</span>
+              <div class="flex-1 min-w-0">
+                <div class="text-[10px] font-semibold uppercase tracking-wider text-sky-700">Tipo de ruta</div>
+                <div class="text-sm font-bold leading-tight text-sky-900">Vía casilla</div>
+                <div class="text-[11px] text-sky-700">Proveedor → Casilla → Perú</div>
+              </div>
+            </div>
+          </div>
+          <div class="bg-blue-50 border border-blue-200 rounded-xl p-3">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <i data-lucide="trending-up" class="w-4 h-4 text-blue-600"></i>
+                <span class="text-xs font-semibold text-blue-900 uppercase tracking-wide">Gran total</span>
+              </div>
+              <span class="text-xl font-bold text-blue-900 tnum">$513.33</span>
+            </div>
+            <div class="text-[10px] text-blue-700 mt-1 text-right">≈ S/ 1,924.99 · TC 3.75</div>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <!-- Footer · último paso → Crear Orden -->
+    <div class="px-6 py-4 border-t border-slate-200 bg-slate-50 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <button class="px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-lg">Cancelar</button>
+        <button class="px-4 py-2 text-sm font-medium text-slate-700 border border-slate-300 hover:bg-slate-100 rounded-lg">← Anterior</button>
+      </div>
+      <div class="flex items-center gap-3">
+        <span class="text-xs text-slate-500 hidden sm:inline">Paso 5 de 5</span>
+        <button class="px-5 py-2 text-sm font-semibold text-white rounded-lg bg-blue-600 hover:bg-blue-700">Crear Orden</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Annotation chips OCWizardV3 -->
+  <div class="mt-4 flex flex-wrap gap-2">
+    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-[11px] font-medium text-emerald-700"><i data-lucide="check" class="w-3 h-3"></i> WizardShell del design-system (accent blue)</span>
+    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-[11px] font-medium text-emerald-700"><i data-lucide="check" class="w-3 h-3"></i> BorradorBanner canónico (2 capas)</span>
+    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-[11px] font-medium text-emerald-700"><i data-lucide="check" class="w-3 h-3"></i> Cargos/descuentos/impuestos dinámicos (listas)</span>
+    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-[11px] font-medium text-emerald-700"><i data-lucide="check" class="w-3 h-3"></i> Preview panel lateral en vivo</span>
+    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-50 border border-amber-200 text-[11px] font-medium text-amber-700"><i data-lucide="alert-triangle" class="w-3 h-3"></i> Aún usa emojis 📦🏠🇺🇸 en el sidebar de ruta (no lucide)</span>
+    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-50 border border-amber-200 text-[11px] font-medium text-amber-700"><i data-lucide="alert-triangle" class="w-3 h-3"></i> Botones "Agregar" y toggle %/$ en teal (no blue del módulo)</span>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════════════════ -->
+<!-- ACTO 2 · OCBuilder (LEGACY)                                                -->
+<!-- ════════════════════════════════════════════════════════════════════════ -->
+<section id="acto2" class="max-w-6xl mx-auto px-4 sm:px-6 pt-12">
+  <div class="flex flex-wrap items-center gap-3 mb-4">
+    <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-amber-500 text-white text-sm font-bold">2</span>
+    <h2 class="text-lg font-bold text-slate-900">OCBuilder — el wizard legacy (batch multi-OC)</h2>
+    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-50 border border-amber-200 text-[11px] font-bold text-amber-700">
+      <i data-lucide="alert-triangle" class="w-3.5 h-3.5"></i> legacy · pre-DS
+    </span>
+    <span class="text-[11px] text-slate-500 tnum">src/components/modules/ordenCompra/OCBuilder/</span>
+  </div>
+
+  <p class="text-[13px] text-slate-600 mb-5 max-w-3xl leading-relaxed">
+    Modal <code class="text-[12px] bg-slate-200/60 px-1.5 py-0.5 rounded">common/Modal size="full"</code> +
+    <code class="text-[12px] bg-slate-200/60 px-1.5 py-0.5 rounded">common/Stepper</code> de 3 pasos:
+    <strong>Agrupar productos → Configurar OCs → Revisar y crear</strong>. Toma N requerimientos, los reparte en
+    grupos y crea VARIAS OCs de una. Borrador <strong>localStorage NO-canónico</strong> (key propia
+    <code class="text-[12px] bg-slate-200/60 px-1.5 py-0.5 rounded">oc-builder-draft-*</code>, prompt amber inline).
+    Captura de cargos por <strong>4 campos FIJOS por grupo</strong> (tax% · envío · otros · descuento).
+  </p>
+
+  <!-- ─── 2.A · prompt de borrador NO-canónico ─── -->
+  <div class="mb-3">
+    <div class="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-2 flex items-center gap-2">
+      <i data-lucide="corner-down-right" class="w-3.5 h-3.5"></i> 2.A · Prompt de borrador <strong>NO-canónico</strong> (localStorage propio · banner amber inline)
+    </div>
+    <!-- prompt real: mx-4 mt-3 p-3 bg-amber-50 border border-amber-200 rounded-lg -->
+    <div class="p-3 bg-amber-50 border border-amber-200 rounded-lg flex items-center justify-between gap-3">
+      <div class="flex items-center gap-2 text-sm text-amber-800">
+        <i data-lucide="save" class="w-4 h-4 flex-shrink-0"></i>
+        <span>Tienes una selección guardada del <strong>17 jun, 14:32</strong> (2 grupos, 14 productos)</span>
+      </div>
+      <div class="flex gap-2 flex-shrink-0">
+        <button class="px-3 py-1.5 text-xs font-medium text-slate-600 bg-white border border-slate-300 rounded-md hover:bg-slate-50">Descartar</button>
+        <button class="px-3 py-1.5 text-xs font-medium text-white bg-amber-600 rounded-md hover:bg-amber-700">Restaurar</button>
+      </div>
+    </div>
+    <div class="text-[11px] text-amber-700 mt-1.5 flex items-center gap-1.5">
+      <i data-lucide="alert-triangle" class="w-3.5 h-3.5"></i>
+      Distinto al BorradorBanner canónico: otro layout, otro storage, label "Restaurar" en vez de "Continuar", sin Firestore (no cross-device).
+    </div>
+  </div>
+
+  <!-- ─── 2.B · Modal full · STEP 2 (Configurar OCs · campos fijos) ─── -->
+  <div class="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-2 flex items-center gap-2">
+    <i data-lucide="corner-down-right" class="w-3.5 h-3.5"></i> 2.B · Modal full · paso <strong>2 · Configurar OCs</strong> (4 campos fijos por grupo + summary card oscura)
+  </div>
+
+  <!-- Modal common: rounded-2xl, header propio -->
+  <div class="bg-white rounded-2xl border border-slate-200 shadow-xl overflow-hidden">
+    <!-- Modal header (common/Modal) -->
+    <div class="px-5 py-4 border-b border-slate-200 flex items-center justify-between">
+      <div>
+        <h2 class="text-base font-semibold text-slate-900">OC Builder — 2 Requerimientos</h2>
+        <p class="text-xs text-slate-500 mt-0.5">14 productos · 2 grupo(s) de OC</p>
+      </div>
+      <button class="text-slate-400 hover:text-slate-600 rounded-lg p-2 hover:bg-slate-100"><i data-lucide="x" class="w-5 h-5"></i></button>
+    </div>
+
+    <!-- Stepper común (size sm) -->
+    <div class="px-4 sm:px-6 py-3 border-b border-slate-100 bg-slate-50/50">
+      <div class="flex items-center gap-3 max-w-2xl">
+        <!-- step 1 done -->
+        <div class="flex items-center gap-2">
+          <div class="w-7 h-7 rounded-full bg-blue-600 text-white flex items-center justify-center"><i data-lucide="check" class="w-3.5 h-3.5"></i></div>
+          <span class="text-xs font-medium text-slate-600 flex items-center gap-1"><i data-lucide="package" class="w-3.5 h-3.5"></i> Agrupar Productos</span>
+        </div>
+        <div class="flex-1 h-px bg-slate-200"></div>
+        <!-- step 2 active -->
+        <div class="flex items-center gap-2">
+          <div class="w-7 h-7 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs font-semibold">2</div>
+          <span class="text-xs font-semibold text-slate-900 flex items-center gap-1"><i data-lucide="settings" class="w-3.5 h-3.5"></i> Configurar OCs</span>
+        </div>
+        <div class="flex-1 h-px bg-slate-200"></div>
+        <!-- step 3 pending -->
+        <div class="flex items-center gap-2">
+          <div class="w-7 h-7 rounded-full bg-slate-200 text-slate-500 flex items-center justify-center text-xs font-semibold">3</div>
+          <span class="text-xs font-medium text-slate-400 flex items-center gap-1"><i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i> Revisar y Crear</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step2 body -->
+    <div class="p-4 sm:p-6 space-y-4">
+      <!-- TC toggle global/por OC -->
+      <div class="flex flex-wrap items-center gap-4 p-3 bg-slate-50 rounded-lg border border-slate-200">
+        <i data-lucide="globe" class="w-4 h-4 text-slate-500"></i>
+        <span class="text-sm font-medium text-slate-700">Tipo de Cambio</span>
+        <div class="flex items-center gap-2">
+          <button class="px-3 py-1 rounded-md text-xs font-medium bg-blue-100 text-blue-700">Global</button>
+          <button class="px-3 py-1 rounded-md text-xs font-medium text-slate-500 hover:bg-slate-200">Por OC</button>
+        </div>
+        <input value="3.750" class="w-24 px-3 py-1.5 border border-slate-300 rounded-lg text-sm text-right tnum" readonly>
+      </div>
+
+      <!-- Group tabs (>1 grupo) -->
+      <div class="flex gap-2 overflow-x-auto pb-1">
+        <button class="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium border whitespace-nowrap bg-sky-50 text-sky-700 border-sky-200 shadow-sm">
+          <div class="w-2.5 h-2.5 rounded-full bg-sky-500 flex-shrink-0"></div>
+          <span>Viajero · Carlos M.</span>
+          <span class="text-xs px-1.5 py-0.5 rounded-full bg-white/60">9</span>
+        </button>
+        <button class="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium border whitespace-nowrap bg-white text-slate-600 border-slate-200 hover:bg-slate-50">
+          <div class="w-2.5 h-2.5 rounded-full bg-purple-500 flex-shrink-0"></div>
+          <span>Envío directo · ON</span>
+          <span class="text-xs px-1.5 py-0.5 rounded-full bg-slate-100">5</span>
+        </button>
+      </div>
+
+      <!-- GroupConfigForm -->
+      <div class="space-y-5">
+        <!-- Row 1: Proveedor + Destino -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-1">Proveedor <span class="text-red-500">*</span></label>
+            <div class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm text-slate-800 bg-white">Nutrition Depot USA</div>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-1">Almacén Destino <span class="text-red-500">*</span></label>
+            <div class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm text-slate-800 bg-white">Casilla Miami</div>
+          </div>
+        </div>
+
+        <!-- Products table -->
+        <div>
+          <h4 class="text-sm font-medium text-slate-700 mb-2">Productos (3)</h4>
+          <div class="border border-slate-200 rounded-lg overflow-hidden">
+            <table class="w-full text-sm">
+              <thead class="bg-slate-50 text-slate-600">
+                <tr>
+                  <th class="text-left px-3 py-2 font-medium">#</th>
+                  <th class="text-left px-3 py-2 font-medium">Producto</th>
+                  <th class="text-center px-3 py-2 font-medium w-20">Cant</th>
+                  <th class="text-center px-3 py-2 font-medium w-28">Precio USD</th>
+                  <th class="text-right px-3 py-2 font-medium w-24">Subtotal</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100">
+                <tr class="hover:bg-slate-50">
+                  <td class="px-3 py-2 text-slate-400">1</td>
+                  <td class="px-3 py-2">
+                    <div class="text-xs text-slate-400 font-mono">WHY-ON-5LB-CHO</div>
+                    <div class="text-slate-900 truncate">Optimum Nutrition - Whey Gold Standard 5lb</div>
+                    <div class="text-[10px] text-slate-400 truncate">Chocolate</div>
+                  </td>
+                  <td class="px-3 py-2"><input value="6" class="w-full px-2 py-1 border border-slate-200 rounded text-center text-sm tnum" readonly></td>
+                  <td class="px-3 py-2"><div class="flex items-center gap-1"><span class="text-slate-400 text-xs">$</span><input value="42.00" class="w-full px-2 py-1 border border-slate-200 rounded text-right text-sm tnum" readonly></div></td>
+                  <td class="px-3 py-2 text-right font-medium text-slate-900 tnum">$252.00</td>
+                </tr>
+                <tr class="hover:bg-slate-50">
+                  <td class="px-3 py-2 text-slate-400">2</td>
+                  <td class="px-3 py-2">
+                    <div class="text-xs text-slate-400 font-mono">ISO100-3LB-VAN</div>
+                    <div class="text-slate-900 truncate">Dymatize - ISO 100 3lb</div>
+                    <div class="text-[10px] text-slate-400 truncate">Gourmet Vanilla</div>
+                  </td>
+                  <td class="px-3 py-2"><input value="5" class="w-full px-2 py-1 border border-slate-200 rounded text-center text-sm tnum" readonly></td>
+                  <td class="px-3 py-2"><div class="flex items-center gap-1"><span class="text-slate-400 text-xs">$</span><input value="32.00" class="w-full px-2 py-1 border border-slate-200 rounded text-right text-sm tnum" readonly></div></td>
+                  <td class="px-3 py-2 text-right font-medium text-slate-900 tnum">$160.00</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Modo de entrega (sky card) -->
+        <div class="bg-sky-50 rounded-xl p-3 border border-sky-100">
+          <div class="flex items-center gap-1.5 mb-2">
+            <i data-lucide="truck" class="w-3.5 h-3.5 text-sky-500"></i>
+            <span class="text-xs font-medium text-sky-700 uppercase tracking-wide">Forma de llegada a Perú</span>
+          </div>
+          <div class="flex gap-2">
+            <button class="flex-1 px-3 py-2 rounded-lg text-xs font-medium border bg-sky-600 text-white border-sky-600">Compra vía viajero</button>
+            <button class="flex-1 px-3 py-2 rounded-lg text-xs font-medium border bg-white text-slate-600 border-slate-200">Envío directo del proveedor</button>
+          </div>
+        </div>
+
+        <!-- ★ 4 CAMPOS FIJOS · tax/envío/otros/descuento ★ -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 ring-2 ring-amber-300/60 rounded-2xl p-1">
+          <!-- Tax -->
+          <div class="bg-slate-50 rounded-xl p-3 border border-slate-100">
+            <div class="flex items-center gap-1.5 mb-2"><i data-lucide="percent" class="w-3.5 h-3.5 text-slate-400"></i><span class="text-xs font-medium text-slate-500 uppercase tracking-wide">Tax</span></div>
+            <div class="flex items-center gap-1">
+              <input value="7.25" class="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-sm text-right tnum" readonly>
+              <span class="text-xs text-slate-400 flex-shrink-0">%</span>
+            </div>
+            <p class="text-[10px] text-slate-400 mt-1.5 text-right tnum">$32.21</p>
+          </div>
+          <!-- Envío -->
+          <div class="bg-slate-50 rounded-xl p-3 border border-slate-100">
+            <div class="flex items-center gap-1.5 mb-2"><i data-lucide="truck" class="w-3.5 h-3.5 text-slate-400"></i><span class="text-xs font-medium text-slate-500 uppercase tracking-wide">Envío</span></div>
+            <div class="flex items-center gap-1">
+              <span class="text-xs text-slate-400 flex-shrink-0">$</span>
+              <input value="42.00" class="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-sm text-right tnum" readonly>
+            </div>
+          </div>
+          <!-- Otros -->
+          <div class="bg-slate-50 rounded-xl p-3 border border-slate-100">
+            <div class="flex items-center gap-1.5 mb-2"><i data-lucide="receipt" class="w-3.5 h-3.5 text-slate-400"></i><span class="text-xs font-medium text-slate-500 uppercase tracking-wide">Otros</span></div>
+            <div class="flex items-center gap-1">
+              <span class="text-xs text-slate-400 flex-shrink-0">$</span>
+              <input value="8.50" class="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-sm text-right tnum" readonly>
+            </div>
+          </div>
+          <!-- Descuento -->
+          <div class="bg-emerald-50/60 rounded-xl p-3 border border-emerald-100">
+            <div class="flex items-center gap-1.5 mb-2"><i data-lucide="tag" class="w-3.5 h-3.5 text-emerald-500"></i><span class="text-xs font-medium text-emerald-600 uppercase tracking-wide">Descuento</span></div>
+            <div class="flex items-center gap-1">
+              <span class="text-xs text-emerald-400 flex-shrink-0">-$</span>
+              <input value="24.38" class="w-full px-2.5 py-1.5 bg-white border border-emerald-200 rounded-lg text-sm text-right tnum" readonly>
+            </div>
+          </div>
+        </div>
+        <div class="text-[11px] text-amber-700 -mt-2 flex items-center gap-1.5">
+          <i data-lucide="alert-triangle" class="w-3.5 h-3.5"></i>
+          Captura RÍGIDA: solo 1 valor por categoría (no lista dinámica). Tax sólo %, los demás monto fijo. No hay conceptos ni multi-cargo como en OCWizardV3.
+        </div>
+
+        <!-- Observaciones (collapsible) -->
+        <div class="border border-slate-100 rounded-xl overflow-hidden">
+          <button class="w-full flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-slate-500 hover:bg-slate-50">
+            <i data-lucide="file-text" class="w-4 h-4 text-slate-400"></i>
+            Observaciones
+            <i data-lucide="chevron-down" class="w-4 h-4 ml-auto text-slate-400"></i>
+          </button>
+        </div>
+
+        <!-- Summary card OSCURA (bg-slate-800) -->
+        <div class="bg-slate-800 rounded-xl p-5 text-white">
+          <div class="space-y-2 text-sm">
+            <div class="flex justify-between text-slate-300"><span>Subtotal (11 uds)</span><span class="tnum">$412.00</span></div>
+            <div class="flex justify-between text-slate-400"><span>Tax (7.25%)</span><span class="tnum">+$32.21</span></div>
+            <div class="flex justify-between text-slate-400"><span>Envío</span><span class="tnum">+$42.00</span></div>
+            <div class="flex justify-between text-slate-400"><span>Otros</span><span class="tnum">+$8.50</span></div>
+            <div class="flex justify-between text-emerald-400"><span>Descuento</span><span class="tnum">-$24.38</span></div>
+            <div class="border-t border-slate-600 pt-2 flex justify-between items-baseline">
+              <span class="font-semibold text-base">Total USD</span>
+              <span class="text-xl font-bold tnum">$470.33</span>
+            </div>
+            <div class="flex justify-between items-center text-slate-400 text-xs"><span>Total PEN (TC 3.750)</span><span class="tnum">S/ 1,763.74</span></div>
+            <div class="flex justify-between items-center text-slate-500 text-xs pt-1 border-t border-slate-700"><span>Costo unitario promedio</span><span class="tnum">$42.76/ud</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer · StepNavigation común -->
+    <div class="px-5 py-3 border-t border-slate-200 bg-slate-50 flex items-center justify-between">
+      <button class="px-4 py-2 text-sm font-medium text-slate-700 border border-slate-300 hover:bg-slate-100 rounded-lg">Anterior</button>
+      <button class="px-5 py-2 text-sm font-semibold text-white rounded-lg bg-blue-600 hover:bg-blue-700">Siguiente</button>
+    </div>
+  </div>
+
+  <!-- ─── 2.C · STEP 3 (Revisar y crear N OCs) ─── -->
+  <div class="text-[11px] font-bold uppercase tracking-wider text-slate-500 mt-8 mb-2 flex items-center gap-2">
+    <i data-lucide="corner-down-right" class="w-3.5 h-3.5"></i> 2.C · Modal full · paso <strong>3 · Revisar y crear</strong> (grid de SummaryCard · 1 card por OC · botón "Crear N OCs")
+  </div>
+
+  <div class="bg-white rounded-2xl border border-slate-200 shadow-xl overflow-hidden">
+    <!-- header -->
+    <div class="px-5 py-4 border-b border-slate-200 flex items-center justify-between">
+      <div>
+        <h2 class="text-base font-semibold text-slate-900">OC Builder — 2 Requerimientos</h2>
+        <p class="text-xs text-slate-500 mt-0.5">14 productos · 2 grupo(s) de OC</p>
+      </div>
+      <button class="text-slate-400 hover:text-slate-600 rounded-lg p-2 hover:bg-slate-100"><i data-lucide="x" class="w-5 h-5"></i></button>
+    </div>
+    <!-- stepper · 3 active -->
+    <div class="px-4 sm:px-6 py-3 border-b border-slate-100 bg-slate-50/50">
+      <div class="flex items-center gap-3 max-w-2xl">
+        <div class="flex items-center gap-2"><div class="w-7 h-7 rounded-full bg-blue-600 text-white flex items-center justify-center"><i data-lucide="check" class="w-3.5 h-3.5"></i></div><span class="text-xs font-medium text-slate-600">Agrupar</span></div>
+        <div class="flex-1 h-px bg-slate-200"></div>
+        <div class="flex items-center gap-2"><div class="w-7 h-7 rounded-full bg-blue-600 text-white flex items-center justify-center"><i data-lucide="check" class="w-3.5 h-3.5"></i></div><span class="text-xs font-medium text-slate-600">Configurar</span></div>
+        <div class="flex-1 h-px bg-slate-200"></div>
+        <div class="flex items-center gap-2"><div class="w-7 h-7 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs font-semibold">3</div><span class="text-xs font-semibold text-slate-900">Revisar y Crear</span></div>
+      </div>
+    </div>
+
+    <!-- Step3 body -->
+    <div class="p-4 sm:p-6 space-y-6">
+      <div class="text-center">
+        <h3 class="text-lg font-semibold text-slate-900">Revisar antes de crear</h3>
+        <p class="text-sm text-slate-500 mt-1">Se crearán 2 orden(es) de compra</p>
+      </div>
+
+      <!-- grid de SummaryCards -->
+      <div class="grid grid-cols-1 md:grid-cols-2 max-w-3xl mx-auto gap-4">
+        <!-- card 1 -->
+        <div class="rounded-lg border-l-4 border-sky-400 border border-slate-200 bg-white overflow-hidden">
+          <div class="px-4 py-3 bg-sky-50 flex items-center gap-2">
+            <div class="w-3 h-3 rounded-full bg-sky-500"></div>
+            <h4 class="font-semibold text-slate-900 flex-1">Viajero · Carlos M.</h4>
+          </div>
+          <div class="p-4 space-y-3">
+            <div class="grid grid-cols-2 gap-3 text-sm">
+              <div class="flex items-center gap-2 text-slate-600"><i data-lucide="building-2" class="w-4 h-4 text-slate-400"></i><span class="truncate">Nutrition Depot USA</span></div>
+              <div class="flex items-center gap-2 text-slate-600"><i data-lucide="map-pin" class="w-4 h-4 text-slate-400"></i><span class="truncate">Casilla Miami</span></div>
+            </div>
+            <div class="space-y-1">
+              <div class="flex items-start justify-between text-xs text-slate-600 py-0.5"><div class="truncate flex-1 mr-2">Optimum Nutrition - Whey 5lb</div><span class="text-slate-400 mr-2 flex-shrink-0">6ud</span><span class="font-medium flex-shrink-0 tnum">$252.00</span></div>
+              <div class="flex items-start justify-between text-xs text-slate-600 py-0.5"><div class="truncate flex-1 mr-2">Dymatize - ISO 100 3lb</div><span class="text-slate-400 mr-2 flex-shrink-0">5ud</span><span class="font-medium flex-shrink-0 tnum">$160.00</span></div>
+            </div>
+            <div class="border-t border-slate-200 pt-2 space-y-1 text-sm">
+              <div class="flex justify-between text-slate-500"><span>Subtotal</span><span class="tnum">$412.00</span></div>
+              <div class="flex justify-between text-slate-500"><span>Tax</span><span class="tnum">+$32.21</span></div>
+              <div class="flex justify-between text-slate-500"><span>Envío</span><span class="tnum">+$42.00</span></div>
+              <div class="flex justify-between text-emerald-600"><span>Descuento</span><span class="tnum">-$24.38</span></div>
+              <div class="flex justify-between font-semibold text-slate-900 border-t border-slate-200 pt-1"><span>Total</span><span class="tnum">$470.33</span></div>
+              <div class="flex justify-between text-xs text-slate-400"><span>PEN (TC 3.750)</span><span class="tnum">S/ 1,763.74</span></div>
+            </div>
+          </div>
+        </div>
+        <!-- card 2 -->
+        <div class="rounded-lg border-l-4 border-purple-400 border border-slate-200 bg-white overflow-hidden">
+          <div class="px-4 py-3 bg-purple-50 flex items-center gap-2">
+            <div class="w-3 h-3 rounded-full bg-purple-500"></div>
+            <h4 class="font-semibold text-slate-900 flex-1">Envío directo · ON</h4>
+          </div>
+          <div class="p-4 space-y-3">
+            <div class="grid grid-cols-2 gap-3 text-sm">
+              <div class="flex items-center gap-2 text-slate-600"><i data-lucide="building-2" class="w-4 h-4 text-slate-400"></i><span class="truncate">Nutrition Depot USA</span></div>
+              <div class="flex items-center gap-2 text-slate-600"><i data-lucide="map-pin" class="w-4 h-4 text-slate-400"></i><span class="truncate">Almacén Lima</span></div>
+            </div>
+            <div class="space-y-1">
+              <div class="flex items-start justify-between text-xs text-slate-600 py-0.5"><div class="truncate flex-1 mr-2">Creatina Monohidrato 400g</div><span class="text-slate-400 mr-2 flex-shrink-0">3ud</span><span class="font-medium flex-shrink-0 tnum">$43.00</span></div>
+            </div>
+            <div class="border-t border-slate-200 pt-2 space-y-1 text-sm">
+              <div class="flex justify-between text-slate-500"><span>Subtotal</span><span class="tnum">$43.00</span></div>
+              <div class="flex justify-between font-semibold text-slate-900 border-t border-slate-200 pt-1"><span>Total</span><span class="tnum">$43.00</span></div>
+              <div class="flex justify-between text-xs text-slate-400"><span>PEN (TC 3.750)</span><span class="tnum">S/ 161.25</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- sticky grand total + crear -->
+      <div class="bg-white border-t border-slate-200 -mx-4 sm:-mx-6 px-4 sm:px-6 py-4 mt-4">
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-4 max-w-5xl mx-auto">
+          <div class="flex items-center gap-6 text-sm">
+            <div class="flex items-center gap-2"><i data-lucide="shopping-cart" class="w-4 h-4 text-slate-400"></i><span class="text-slate-600">2 OC(s)</span></div>
+            <div class="flex items-center gap-2"><i data-lucide="package" class="w-4 h-4 text-slate-400"></i><span class="text-slate-600">3 productos, 14 uds</span></div>
+            <div class="text-right"><div class="font-semibold text-slate-900 tnum">$513.33</div><div class="text-xs text-slate-400 tnum">S/ 1,924.99</div></div>
+          </div>
+          <button class="px-6 py-3 text-sm font-semibold text-white rounded-lg bg-blue-600 hover:bg-blue-700 flex items-center gap-2">
+            <i data-lucide="check-circle-2" class="w-4 h-4"></i> Crear 2 OCs
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Annotation chips OCBuilder -->
+  <div class="mt-4 flex flex-wrap gap-2">
+    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-50 border border-amber-200 text-[11px] font-medium text-amber-700"><i data-lucide="alert-triangle" class="w-3 h-3"></i> common/Modal + common/Stepper (no WizardShell)</span>
+    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-50 border border-amber-200 text-[11px] font-medium text-amber-700"><i data-lucide="alert-triangle" class="w-3 h-3"></i> Borrador localStorage propio (no canónico · sin Firestore)</span>
+    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-50 border border-amber-200 text-[11px] font-medium text-amber-700"><i data-lucide="alert-triangle" class="w-3 h-3"></i> 4 campos FIJOS (tax/envío/otros/desc) · no listas dinámicas</span>
+    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-50 border border-amber-200 text-[11px] font-medium text-amber-700"><i data-lucide="alert-triangle" class="w-3 h-3"></i> Summary card bg-slate-800 (oscura · rompe paleta DS)</span>
+    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-50 border border-amber-200 text-[11px] font-medium text-amber-700"><i data-lucide="alert-triangle" class="w-3 h-3"></i> Sin preview panel lateral en vivo</span>
+    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-[11px] font-medium text-emerald-700"><i data-lucide="check" class="w-3 h-3"></i> Único que crea MÚLTIPLES OCs de un batch de requerimientos</span>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════════════════ -->
+<!-- MOBILE 375                                                                 -->
+<!-- ════════════════════════════════════════════════════════════════════════ -->
+<section id="mobile" class="max-w-6xl mx-auto px-4 sm:px-6 pt-12">
+  <div class="flex items-center gap-3 mb-5">
+    <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-slate-700 text-white"><i data-lucide="smartphone" class="w-4 h-4"></i></span>
+    <h2 class="text-lg font-bold text-slate-900">Mobile · 375px</h2>
+    <span class="text-[12px] text-slate-500">Ambos wizards. En mobile el preview panel del V3 desaparece (<code class="text-[11px] bg-slate-200/60 px-1 rounded">hidden sm:block</code>).</span>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-8 justify-items-center">
+
+    <!-- ── Mobile OCWizardV3 (paso Cargos) ── -->
+    <div>
+      <div class="text-center mb-2">
+        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-[11px] font-bold text-emerald-700"><i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i> OCWizardV3 · ✓ canon</span>
+      </div>
+      <div class="mx-auto bg-slate-900 rounded-[2rem] p-2.5 shadow-2xl" style="width:375px;">
+        <div class="bg-white rounded-[1.6rem] overflow-hidden" style="height:760px;">
+          <div class="h-full flex flex-col">
+            <!-- header -->
+            <div class="px-4 py-3 border-b border-slate-200 flex items-center justify-between flex-shrink-0">
+              <div>
+                <h2 class="text-base font-semibold text-slate-900">Nueva Orden de Compra</h2>
+                <p class="text-[11px] text-slate-500">Captura paso a paso</p>
+              </div>
+              <i data-lucide="x" class="w-5 h-5 text-slate-400"></i>
+            </div>
+            <!-- stepper compacto (mismo layout, se aprieta) -->
+            <div class="px-3 py-3 border-b border-slate-100 bg-slate-50 flex-shrink-0">
+              <div class="flex items-center justify-between w-full">
+                <div class="flex flex-col items-center gap-1"><div class="w-7 h-7 rounded-full bg-emerald-500 text-white flex items-center justify-center"><i data-lucide="check" class="w-3.5 h-3.5"></i></div><span class="text-[9px] text-emerald-700">Ruta</span></div>
+                <div class="flex-1 h-0.5 mx-1 bg-emerald-500"></div>
+                <div class="flex flex-col items-center gap-1"><div class="w-7 h-7 rounded-full bg-emerald-500 text-white flex items-center justify-center"><i data-lucide="check" class="w-3.5 h-3.5"></i></div><span class="text-[9px] text-emerald-700">Prod.</span></div>
+                <div class="flex-1 h-0.5 mx-1 bg-emerald-500"></div>
+                <div class="flex flex-col items-center gap-1"><div class="w-7 h-7 rounded-full bg-blue-600 text-white flex items-center justify-center text-[11px] font-semibold ring-2 ring-blue-100">3</div><span class="text-[9px] text-slate-900 font-medium">Cargos</span></div>
+                <div class="flex-1 h-0.5 mx-1 bg-slate-200"></div>
+                <div class="flex flex-col items-center gap-1"><div class="w-7 h-7 rounded-full bg-slate-200 text-slate-500 flex items-center justify-center text-[11px]">4</div><span class="text-[9px] text-slate-400">Intel.</span></div>
+                <div class="flex-1 h-0.5 mx-1 bg-slate-200"></div>
+                <div class="flex flex-col items-center gap-1"><div class="w-7 h-7 rounded-full bg-slate-200 text-slate-500 flex items-center justify-center text-[11px]">5</div><span class="text-[9px] text-slate-400">Conf.</span></div>
+              </div>
+            </div>
+            <!-- body · 1 col (sin aside) -->
+            <div class="flex-1 overflow-y-auto p-4 space-y-4">
+              <div>
+                <h3 class="text-base font-semibold text-slate-900">Cargos comerciales</h3>
+                <p class="text-[11px] text-slate-500 mt-0.5">Ajustes que el proveedor te factura.</p>
+              </div>
+              <!-- cargos -->
+              <div class="bg-white border border-slate-200 rounded-xl p-3 space-y-3">
+                <div class="flex items-start justify-between gap-2">
+                  <div class="text-sm font-semibold text-slate-900">Cargos</div>
+                  <button class="px-2.5 py-1 text-[11px] font-medium text-teal-700 border border-teal-200 rounded-lg flex items-center gap-1"><i data-lucide="plus" class="w-3 h-3"></i> Agregar</button>
+                </div>
+                <div class="flex items-center gap-1.5 p-2 bg-white border border-slate-200 rounded-lg">
+                  <span class="px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-sky-100 text-sky-700">Cargo</span>
+                  <input value="Shipping intl." class="flex-1 min-w-0 px-1.5 py-1 text-[13px] border border-slate-200 rounded" readonly>
+                  <span class="text-[11px] text-slate-400">$</span>
+                  <input value="42.00" class="w-14 px-1 py-1 text-[13px] text-right border border-slate-200 rounded tnum" readonly>
+                  <i data-lucide="trash-2" class="w-3.5 h-3.5 text-slate-400"></i>
+                </div>
+              </div>
+              <!-- total OC -->
+              <div class="bg-gradient-to-br from-blue-50 to-emerald-50 border border-blue-200 rounded-xl p-3">
+                <div class="text-[11px] font-semibold text-blue-900 uppercase tracking-wide mb-2">Cálculo del total OC</div>
+                <div class="space-y-1 text-[13px]">
+                  <div class="flex justify-between"><span class="text-slate-600">Subtotal</span><span class="tnum">$455.00</span></div>
+                  <div class="flex justify-between"><span class="text-slate-600">+ Cargos</span><span class="tnum">+$50.50</span></div>
+                  <div class="flex justify-between"><span class="text-slate-600">− Desc.</span><span class="text-emerald-700 tnum">-$24.38</span></div>
+                  <div class="flex justify-between pt-1.5 border-t-2 border-blue-300 mt-1.5"><span class="font-bold text-blue-900">Total OC</span><span class="font-bold text-blue-900 tnum">$513.33</span></div>
+                </div>
+              </div>
+            </div>
+            <!-- footer -->
+            <div class="px-4 py-3 border-t border-slate-200 bg-slate-50 flex items-center justify-between flex-shrink-0">
+              <button class="px-3 py-2 text-[13px] font-medium text-slate-700 border border-slate-300 rounded-lg">← Atrás</button>
+              <button class="px-4 py-2 text-[13px] font-semibold text-white rounded-lg bg-blue-600">Siguiente →</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Mobile OCBuilder (Step2 campos fijos) ── -->
+    <div>
+      <div class="text-center mb-2">
+        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-50 border border-amber-200 text-[11px] font-bold text-amber-700"><i data-lucide="alert-triangle" class="w-3.5 h-3.5"></i> OCBuilder · legacy</span>
+      </div>
+      <div class="mx-auto bg-slate-900 rounded-[2rem] p-2.5 shadow-2xl" style="width:375px;">
+        <div class="bg-white rounded-[1.6rem] overflow-hidden" style="height:760px;">
+          <div class="h-full flex flex-col">
+            <!-- header -->
+            <div class="px-4 py-3 border-b border-slate-200 flex items-center justify-between flex-shrink-0">
+              <div>
+                <h2 class="text-[15px] font-semibold text-slate-900">OC Builder — 2 Req.</h2>
+                <p class="text-[11px] text-slate-500">14 productos · 2 grupos</p>
+              </div>
+              <i data-lucide="x" class="w-5 h-5 text-slate-400"></i>
+            </div>
+            <!-- draft prompt amber (no canónico) -->
+            <div class="mx-3 mt-2 p-2.5 bg-amber-50 border border-amber-200 rounded-lg flex items-center justify-between gap-2 flex-shrink-0">
+              <div class="flex items-center gap-1.5 text-[11px] text-amber-800"><i data-lucide="save" class="w-3.5 h-3.5 flex-shrink-0"></i><span>Selección guardada (2 grupos)</span></div>
+              <div class="flex gap-1.5 flex-shrink-0">
+                <button class="px-2 py-1 text-[10px] text-slate-600 bg-white border border-slate-300 rounded">Descartar</button>
+                <button class="px-2 py-1 text-[10px] text-white bg-amber-600 rounded">Restaurar</button>
+              </div>
+            </div>
+            <!-- stepper común -->
+            <div class="px-3 py-2.5 border-b border-slate-100 bg-slate-50/50 flex-shrink-0">
+              <div class="flex items-center gap-1.5">
+                <div class="w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center"><i data-lucide="check" class="w-3 h-3"></i></div>
+                <div class="flex-1 h-px bg-slate-200"></div>
+                <div class="w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center text-[11px] font-semibold">2</div>
+                <div class="flex-1 h-px bg-slate-200"></div>
+                <div class="w-6 h-6 rounded-full bg-slate-200 text-slate-500 flex items-center justify-center text-[11px]">3</div>
+              </div>
+              <div class="text-[11px] font-semibold text-slate-900 mt-1.5 flex items-center gap-1"><i data-lucide="settings" class="w-3.5 h-3.5"></i> Configurar OCs</div>
+            </div>
+            <!-- body -->
+            <div class="flex-1 overflow-y-auto p-3 space-y-3">
+              <!-- group tabs scroll-x -->
+              <div class="flex gap-1.5 overflow-x-auto pb-1">
+                <button class="flex items-center gap-1.5 px-3 py-2 rounded-lg text-[12px] font-medium border whitespace-nowrap bg-sky-50 text-sky-700 border-sky-200">
+                  <div class="w-2 h-2 rounded-full bg-sky-500"></div> Carlos M. <span class="text-[10px] px-1 rounded-full bg-white/60">9</span>
+                </button>
+                <button class="flex items-center gap-1.5 px-3 py-2 rounded-lg text-[12px] font-medium border whitespace-nowrap bg-white text-slate-600 border-slate-200">
+                  <div class="w-2 h-2 rounded-full bg-purple-500"></div> Directo ON <span class="text-[10px] px-1 rounded-full bg-slate-100">5</span>
+                </button>
+              </div>
+              <!-- 4 campos fijos · grid-cols-2 en mobile -->
+              <div class="grid grid-cols-2 gap-2.5 ring-2 ring-amber-300/60 rounded-2xl p-1">
+                <div class="bg-slate-50 rounded-xl p-2.5 border border-slate-100">
+                  <div class="flex items-center gap-1 mb-1.5"><i data-lucide="percent" class="w-3 h-3 text-slate-400"></i><span class="text-[10px] font-medium text-slate-500 uppercase">Tax</span></div>
+                  <div class="flex items-center gap-1"><input value="7.25" class="w-full px-2 py-1 bg-white border border-slate-200 rounded-lg text-[13px] text-right tnum" readonly><span class="text-[11px] text-slate-400">%</span></div>
+                </div>
+                <div class="bg-slate-50 rounded-xl p-2.5 border border-slate-100">
+                  <div class="flex items-center gap-1 mb-1.5"><i data-lucide="truck" class="w-3 h-3 text-slate-400"></i><span class="text-[10px] font-medium text-slate-500 uppercase">Envío</span></div>
+                  <div class="flex items-center gap-1"><span class="text-[11px] text-slate-400">$</span><input value="42.00" class="w-full px-2 py-1 bg-white border border-slate-200 rounded-lg text-[13px] text-right tnum" readonly></div>
+                </div>
+                <div class="bg-slate-50 rounded-xl p-2.5 border border-slate-100">
+                  <div class="flex items-center gap-1 mb-1.5"><i data-lucide="receipt" class="w-3 h-3 text-slate-400"></i><span class="text-[10px] font-medium text-slate-500 uppercase">Otros</span></div>
+                  <div class="flex items-center gap-1"><span class="text-[11px] text-slate-400">$</span><input value="8.50" class="w-full px-2 py-1 bg-white border border-slate-200 rounded-lg text-[13px] text-right tnum" readonly></div>
+                </div>
+                <div class="bg-emerald-50/60 rounded-xl p-2.5 border border-emerald-100">
+                  <div class="flex items-center gap-1 mb-1.5"><i data-lucide="tag" class="w-3 h-3 text-emerald-500"></i><span class="text-[10px] font-medium text-emerald-600 uppercase">Desc.</span></div>
+                  <div class="flex items-center gap-1"><span class="text-[11px] text-emerald-400">-$</span><input value="24.38" class="w-full px-2 py-1 bg-white border border-emerald-200 rounded-lg text-[13px] text-right tnum" readonly></div>
+                </div>
+              </div>
+              <!-- summary oscura -->
+              <div class="bg-slate-800 rounded-xl p-4 text-white">
+                <div class="space-y-1.5 text-[13px]">
+                  <div class="flex justify-between text-slate-300"><span>Subtotal (11 uds)</span><span class="tnum">$412.00</span></div>
+                  <div class="flex justify-between text-slate-400"><span>Tax (7.25%)</span><span class="tnum">+$32.21</span></div>
+                  <div class="border-t border-slate-600 pt-1.5 flex justify-between items-baseline"><span class="font-semibold">Total USD</span><span class="text-lg font-bold tnum">$470.33</span></div>
+                  <div class="flex justify-between text-slate-400 text-[11px]"><span>PEN (TC 3.750)</span><span class="tnum">S/ 1,763.74</span></div>
+                </div>
+              </div>
+            </div>
+            <!-- footer -->
+            <div class="px-4 py-3 border-t border-slate-200 bg-slate-50 flex items-center justify-between flex-shrink-0">
+              <button class="px-3 py-2 text-[13px] font-medium text-slate-700 border border-slate-300 rounded-lg">Anterior</button>
+              <button class="px-4 py-2 text-[13px] font-semibold text-white rounded-lg bg-blue-600">Siguiente</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════════════════ -->
+<!-- ESTADOS · loading / empty / error                                          -->
+<!-- ════════════════════════════════════════════════════════════════════════ -->
+<section class="max-w-6xl mx-auto px-4 sm:px-6 pt-12">
+  <div class="flex items-center gap-3 mb-5">
+    <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-slate-700 text-white"><i data-lucide="loader" class="w-4 h-4"></i></span>
+    <h2 class="text-lg font-bold text-slate-900">Estados</h2>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <!-- loading · OCWizardV3 confirm TC resolving -->
+    <div class="bg-white border border-slate-200 rounded-xl p-4">
+      <div class="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-2">Loading · V3 resolviendo TC</div>
+      <div class="flex items-center gap-3 py-2 px-3 bg-slate-50 border border-slate-200 rounded-lg">
+        <span class="text-sm text-slate-400">Resolviendo TC del sistema…</span>
+      </div>
+      <div class="mt-3 px-5 py-2 text-sm font-semibold text-white rounded-lg bg-blue-600 inline-flex items-center gap-2 opacity-80">
+        <span class="inline-block w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+        Guardando...
+      </div>
+    </div>
+
+    <!-- empty · OCBuilder Step1 sin grupos -->
+    <div class="bg-white border border-slate-200 rounded-xl p-4">
+      <div class="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-2">Empty · Builder Step1 sin grupos</div>
+      <div class="flex flex-col items-center justify-center py-8 text-slate-400">
+        <i data-lucide="layers" class="w-10 h-10 mb-3 opacity-40"></i>
+        <p class="text-sm font-medium">Sin grupos</p>
+        <p class="text-xs mt-1 text-center">Usa "Auto-agrupar" o crea un grupo manualmente</p>
+      </div>
+    </div>
+
+    <!-- error · OCBuilder Step3 una OC falló -->
+    <div class="bg-white border border-slate-200 rounded-xl p-4">
+      <div class="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-2">Error · Builder Step3 una OC falló</div>
+      <div class="rounded-lg border-l-4 border-purple-400 border border-slate-200 bg-white overflow-hidden ring-2 ring-red-300">
+        <div class="px-3 py-2 bg-purple-50 flex items-center gap-2">
+          <div class="w-3 h-3 rounded-full bg-purple-500"></div>
+          <h4 class="font-semibold text-slate-900 flex-1 text-sm">Envío directo · ON</h4>
+          <i data-lucide="x-circle" class="w-5 h-5 text-red-500"></i>
+        </div>
+        <div class="p-3">
+          <div class="bg-red-50 text-red-700 text-xs px-3 py-2 rounded-lg">Error: proveedor sin RUC válido</div>
+        </div>
+      </div>
+      <div class="mt-3 inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white rounded-lg bg-amber-500">
+        <i data-lucide="alert-circle" class="w-4 h-4"></i> Cerrar (1 creada, 1 error)
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════════════════ -->
+<!-- CONTRASTE CANON vs LEGACY                                                   -->
+<!-- ════════════════════════════════════════════════════════════════════════ -->
+<section id="contraste" class="max-w-6xl mx-auto px-4 sm:px-6 pt-12">
+  <div class="flex items-center gap-3 mb-5">
+    <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-slate-700 text-white"><i data-lucide="git-compare" class="w-4 h-4"></i></span>
+    <h2 class="text-lg font-bold text-slate-900">Contraste · canon vs legacy</h2>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+    <!-- canon -->
+    <div class="bg-white border-2 border-emerald-200 rounded-2xl overflow-hidden">
+      <div class="px-4 py-3 bg-emerald-50 border-b border-emerald-200 flex items-center gap-2">
+        <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-700"></i>
+        <span class="text-sm font-bold text-emerald-900">OCWizardV3 · ✓ canon (Hub Kit)</span>
+      </div>
+      <div class="p-4 space-y-2.5 text-[13px] text-slate-700">
+        <div class="flex gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5"></i><span>Shell = <strong>WizardShell</strong> del design-system (<code class="text-[11px] bg-slate-100 px-1 rounded">accent="blue"</code>).</span></div>
+        <div class="flex gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5"></i><span>Borrador <strong>canónico</strong> (BorradorBanner · localStorage + Firestore · cross-device).</span></div>
+        <div class="flex gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5"></i><span>Cargos = <strong>listas dinámicas</strong> (DynamicChargesSection · N cargos/descuentos/impuestos con concepto + %/$).</span></div>
+        <div class="flex gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5"></i><span><strong>Preview panel lateral</strong> en vivo (ruta vertical 3 bloques + totales).</span></div>
+        <div class="flex gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5"></i><span>5 pasos: Ruta · Productos · Cargos · Inteligencia · Confirmar. Modal salida con guardar/descartar.</span></div>
+        <div class="flex gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5"></i><span>Crea <strong>1 OC</strong>. TC auto del sistema (solo lectura).</span></div>
+        <div class="flex gap-2"><i data-lucide="alert-triangle" class="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5"></i><span>Deuda menor: emojis 📦🏠🇺🇸 en el sidebar de ruta + botones "Agregar"/toggle en teal (no blue del módulo).</span></div>
+      </div>
+    </div>
+
+    <!-- legacy -->
+    <div class="bg-white border-2 border-amber-200 rounded-2xl overflow-hidden">
+      <div class="px-4 py-3 bg-amber-50 border-b border-amber-200 flex items-center gap-2">
+        <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-700"></i>
+        <span class="text-sm font-bold text-amber-900">OCBuilder · legacy (pre-DS)</span>
+      </div>
+      <div class="p-4 space-y-2.5 text-[13px] text-slate-700">
+        <div class="flex gap-2"><i data-lucide="x" class="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5"></i><span>Shell = <strong>common/Modal</strong> + <strong>common/Stepper</strong> (NO WizardShell).</span></div>
+        <div class="flex gap-2"><i data-lucide="x" class="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5"></i><span>Borrador <strong>localStorage propio</strong> (<code class="text-[11px] bg-slate-100 px-1 rounded">oc-builder-draft-*</code>) · prompt "Restaurar" · sin Firestore.</span></div>
+        <div class="flex gap-2"><i data-lucide="x" class="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5"></i><span>Cargos = <strong>4 campos FIJOS</strong> por grupo (tax% · envío · otros · descuento) · 1 valor cada uno · sin conceptos.</span></div>
+        <div class="flex gap-2"><i data-lucide="x" class="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5"></i><span><strong>Sin preview lateral</strong> · summary en card <code class="text-[11px] bg-slate-100 px-1 rounded">bg-slate-800</code> oscura (rompe paleta DS).</span></div>
+        <div class="flex gap-2"><i data-lucide="x" class="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5"></i><span>3 pasos: Agrupar · Configurar · Revisar. No tiene paso Inteligencia ni ruta logística.</span></div>
+        <div class="flex gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5"></i><span>Su valor único: crea <strong>VARIAS OCs</strong> de un batch de requerimientos (split productos en grupos). El V3 no hace esto.</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════════════════ -->
+<!-- FOOTER · notas honestas                                                     -->
+<!-- ════════════════════════════════════════════════════════════════════════ -->
+<footer class="max-w-6xl mx-auto px-4 sm:px-6 pt-12">
+  <div class="bg-white border border-slate-200 rounded-2xl p-6">
+    <h3 class="text-base font-bold text-slate-900 mb-1 flex items-center gap-2"><i data-lucide="clipboard-check" class="w-4 h-4 text-blue-600"></i> Notas honestas · estado actual</h3>
+    <p class="text-[12px] text-slate-500 mb-5">Lo que documenta este archivo, sin maquillaje. Sacado del código en <code class="text-[11px] bg-slate-100 px-1 rounded">src/components/modules/ordenCompra/</code>.</p>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div>
+        <div class="text-[11px] font-bold uppercase tracking-wider text-emerald-700 mb-2 flex items-center gap-1.5"><i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i> ✓ canon (Hub Kit / DS)</div>
+        <ul class="space-y-1.5 text-[12px] text-slate-600">
+          <li class="flex gap-2"><span class="text-emerald-500">•</span> <strong>OCWizardV3</strong> · WizardShell accent blue + stepper horizontal + preview panel.</li>
+          <li class="flex gap-2"><span class="text-emerald-500">•</span> Borrador canónico (BorradorBanner · 2 capas · ConfirmarSalidaWizardModal).</li>
+          <li class="flex gap-2"><span class="text-emerald-500">•</span> DynamicChargesSection · listas dinámicas concepto + %/$ con base gravable.</li>
+          <li class="flex gap-2"><span class="text-emerald-500">•</span> Separación comercial/logístico declarada (cargos del envío van en /envios).</li>
+        </ul>
+      </div>
+      <div>
+        <div class="text-[11px] font-bold uppercase tracking-wider text-amber-700 mb-2 flex items-center gap-1.5"><i data-lucide="alert-triangle" class="w-3.5 h-3.5"></i> legacy (pre-DS)</div>
+        <ul class="space-y-1.5 text-[12px] text-slate-600">
+          <li class="flex gap-2"><span class="text-amber-500">•</span> <strong>OCBuilder</strong> · common/Modal + common/Stepper · sin WizardShell.</li>
+          <li class="flex gap-2"><span class="text-amber-500">•</span> Borrador localStorage propio (no canónico · sin Firestore · label "Restaurar").</li>
+          <li class="flex gap-2"><span class="text-amber-500">•</span> Captura de cargos por 4 campos fijos · summary card bg-slate-800 oscura.</li>
+          <li class="flex gap-2"><span class="text-amber-500">•</span> Usa common/Button (variants primary/warning/success) en vez de Button 3-tier DS.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="mt-6 pt-5 border-t border-slate-200">
+      <div class="text-[11px] font-bold uppercase tracking-wider text-rose-700 mb-2 flex items-center gap-1.5"><i data-lucide="help-circle" class="w-3.5 h-3.5"></i> qué CONFUNDE hoy</div>
+      <ul class="space-y-1.5 text-[12px] text-slate-600">
+        <li class="flex gap-2"><span class="text-rose-500">•</span> <strong>Dos wizards de "Nueva OC" en paralelo</strong>, con look distinto, distinto modelo de cargos (listas dinámicas vs 4 campos fijos) y distinto borrador. El usuario ve dos UIs para "la misma" tarea.</li>
+        <li class="flex gap-2"><span class="text-rose-500">•</span> El <strong>borrador no se comparte</strong> entre ambos: un draft de OCBuilder (localStorage propio) no aparece en el banner canónico del V3, y viceversa.</li>
+        <li class="flex gap-2"><span class="text-rose-500">•</span> <strong>El modelo de cargos diverge</strong>: lo capturado en los 4 campos fijos del Builder NO mapea 1:1 a los arrays cargosOC/descuentosOC/impuestosOC del V3 → riesgo de inconsistencia en CTRU.</li>
+        <li class="flex gap-2"><span class="text-rose-500">•</span> Solo OCBuilder hace <strong>batch multi-OC</strong> desde requerimientos; el V3 crea 1 sola. No está claro para el usuario cuándo usar cuál.</li>
+        <li class="flex gap-2"><span class="text-rose-500">•</span> Incluso el "canon" V3 arrastra <strong>emojis</strong> en el sidebar de ruta y <strong>teal</strong> en botones de cargos (debería ser blue del módulo Comercial).</li>
+      </ul>
+    </div>
+
+    <div class="mt-5 text-[11px] text-slate-400 flex items-center gap-2">
+      <i data-lucide="file-code-2" class="w-3.5 h-3.5"></i>
+      docs/mockups/compras-04-wizards.html · documentación del estado actual · color módulo BLUE (grupo Comercial)
+    </div>
+  </div>
+</footer>
+
+<script>lucide.createIcons();</script>
+</body>
+</html>

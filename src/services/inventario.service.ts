@@ -3,6 +3,7 @@ import { db } from '../lib/firebase';
 import { COLLECTIONS } from '../config/collections';
 import { unidadService } from './unidad.service';
 import { ProductoService } from './producto.service';
+import { getReservaPara } from './reserva.helper';
 import { envioCrudService } from './envio.crud.service';
 import type {
   InventarioProducto,
@@ -351,7 +352,7 @@ export const inventarioService = {
       return { esValida: true, razon: 'Unidad no está reservada' };
     }
 
-    const referenciaId = unidad.reservadaPara || unidad.ventaId;
+    const referenciaId = getReservaPara(unidad) || unidad.ventaId;
 
     if (!referenciaId) {
       return { esValida: false, razon: 'Unidad reservada sin referencia' };

@@ -1144,8 +1144,7 @@ export const unidadService = {
       const unidades = todasUnidades.filter(u => {
         if (!estadosDisponibles.includes(u.estado)) return false;
         // Excluir unidades que ya tienen reserva para esta cotización
-        const reservada = (u as any).reservadaPara;
-        if (reservada === cotizacionId) return false;
+        if (getReservaPara(u) === cotizacionId) return false;
         return true;
       });
 

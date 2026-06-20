@@ -1,0 +1,1098 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Compras · Listado + Tabs · estado actual (documentación)</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+  body { font-family: 'Inter', system-ui, sans-serif; background: #f1f5f9; color: #0f172a; }
+  .tnum { font-variant-numeric: tabular-nums; }
+  .mono { font-family: ui-monospace, 'SF Mono', Menlo, monospace; }
+  /* scroll-x sin barra visible (canon N6 · igual que el código real) */
+  .no-sb { scrollbar-width: none; }
+  .no-sb::-webkit-scrollbar { display: none; }
+  /* tarjeta de fase del HERO */
+  .anno-ok   { background:#ecfdf5; color:#047857; border:1px solid #a7f3d0; }
+  .anno-warn { background:#fffbeb; color:#b45309; border:1px solid #fde68a; }
+</style>
+</head>
+<body class="text-slate-900">
+
+<!-- ════════════════════════════════════════════════════════════════════════
+     HERO
+     ════════════════════════════════════════════════════════════════════════ -->
+<header class="max-w-6xl mx-auto px-4 sm:px-6 pt-8 pb-2">
+  <div class="flex items-center gap-2 mb-3 flex-wrap">
+    <span class="text-[10px] font-bold uppercase tracking-wider anno-warn px-2 py-1 rounded-md">estado actual · documentación</span>
+    <span class="text-[10px] font-bold uppercase tracking-wider text-blue-700 bg-blue-50 border border-blue-200 px-2 py-1 rounded-md">grupo Comercial · azul</span>
+  </div>
+  <h1 class="text-3xl font-bold tracking-tight text-slate-900">Compras · Shell + Listado + Tabs</h1>
+  <p class="text-[13px] text-slate-500 mt-1 max-w-3xl leading-snug">
+    Reproducción fiel del estado <strong>ACTUAL</strong> del módulo <code class="mono text-blue-700">/compras</code>
+    (<code class="mono">OrdenesCompra.tsx</code>). El shell, el strip de KPIs y los tabs ya están migrados al
+    <strong>Hub Kit</strong> del Design System; el listado usa <code class="mono">CompraCard.tsx</code>, una
+    <strong>referencia de diseño legacy pre-DS</strong> (S54.x) que NO consume los tokens del kit. Mirá las anotaciones
+    verde/ámbar por superficie y la lista de "qué confunde hoy" al final.
+  </p>
+  <nav class="flex flex-wrap gap-2 mt-4 text-[11px]">
+    <a href="#acto1" class="px-2.5 py-1 rounded-lg bg-white border border-slate-200 hover:bg-slate-50">1 · Shell completo</a>
+    <a href="#acto2" class="px-2.5 py-1 rounded-lg bg-white border border-slate-200 hover:bg-slate-50">2 · Tab Órdenes (filtros + cards)</a>
+    <a href="#acto3" class="px-2.5 py-1 rounded-lg bg-white border border-slate-200 hover:bg-slate-50">3 · Tab Resumen §A–F</a>
+    <a href="#acto4" class="px-2.5 py-1 rounded-lg bg-white border border-slate-200 hover:bg-slate-50">4 · Pendientes</a>
+    <a href="#acto5" class="px-2.5 py-1 rounded-lg bg-white border border-slate-200 hover:bg-slate-50">5 · Proveedores</a>
+    <a href="#acto6" class="px-2.5 py-1 rounded-lg bg-white border border-slate-200 hover:bg-slate-50">6 · Inteligencia</a>
+    <a href="#acto7" class="px-2.5 py-1 rounded-lg bg-white border border-slate-200 hover:bg-slate-50">7 · Mobile 375</a>
+    <a href="#acto8" class="px-2.5 py-1 rounded-lg bg-white border border-slate-200 hover:bg-slate-50">8 · Empty / states</a>
+    <a href="#footer" class="px-2.5 py-1 rounded-lg bg-white border border-slate-200 hover:bg-slate-50">Notas DS</a>
+  </nav>
+</header>
+
+<!-- helper: separador de acto -->
+<div class="max-w-6xl mx-auto px-4 sm:px-6">
+
+  <!-- ════════════════════════════════════════════════════════════════════
+       ACTO 1 · SHELL COMPLETO (desktop)
+       ════════════════════════════════════════════════════════════════════ -->
+  <section id="acto1" class="pt-10">
+    <div class="flex items-center gap-2 mb-3">
+      <h2 class="text-lg font-bold text-slate-900">Acto 1 · Shell completo</h2>
+      <span class="text-[10px] font-bold uppercase tracking-wide anno-ok px-2 py-0.5 rounded">✓ canon Hub Kit</span>
+    </div>
+    <p class="text-[12px] text-slate-500 mb-3 max-w-2xl">
+      Top-bar (breadcrumb S9.D1 + chip de rol azul) → header banking-grade (icono ShoppingCart + h1 + acciones 3-tier)
+      → KPI strip 5 columnas semántico → fila de 5 tabs. Todo ensamblado con <code class="mono">HubShell / HubTopBar /
+      HubHeader / HubKpiStrip / HubTabs</code>.
+    </p>
+
+    <!-- SHELL -->
+    <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+
+      <!-- TOP-BAR -->
+      <div class="border-b border-slate-200 px-4 sm:px-6 py-2.5 bg-slate-50 flex items-center justify-between gap-3">
+        <nav class="flex items-center gap-1.5 text-[11px] text-slate-500 min-w-0">
+          <button class="hover:text-slate-700">Inicio</button>
+          <i data-lucide="chevron-right" class="w-3 h-3"></i>
+          <span class="text-slate-900 font-semibold truncate">Compras</span>
+        </nav>
+        <span class="text-[10px] bg-blue-50 text-blue-700 px-2 py-0.5 rounded font-bold inline-flex items-center gap-1 flex-shrink-0">
+          <i data-lucide="shield" class="w-3 h-3"></i> Vista ejecutiva · admin
+        </span>
+      </div>
+
+      <!-- HEADER banking-grade -->
+      <div class="px-4 sm:px-6 py-4 border-b border-slate-100 flex items-start justify-between gap-4 flex-wrap">
+        <div class="flex items-start gap-3 flex-1 min-w-[260px]">
+          <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center text-white flex-shrink-0">
+            <i data-lucide="shopping-cart" class="w-5 h-5"></i>
+          </div>
+          <div class="min-w-0">
+            <h1 class="text-2xl font-bold text-slate-900 tracking-tight">Compras</h1>
+            <p class="text-[13px] text-slate-500 leading-snug max-w-2xl mt-0.5">Órdenes de compra · proveedores · recepción · pagos · inteligencia de precios</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2 flex-wrap justify-end">
+          <!-- tier neutral -->
+          <button class="flex items-center gap-1.5 px-3 py-2 text-xs rounded-lg bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 font-medium">
+            <i data-lucide="download" class="w-3.5 h-3.5"></i><span>Exportar</span>
+          </button>
+          <!-- tier primary (color del módulo · blue) -->
+          <button class="flex items-center gap-1.5 px-3 py-2 text-xs rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold">
+            <i data-lucide="plus" class="w-3.5 h-3.5"></i><span>Nueva OC</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- KPI STRIP · 5 cols semántico -->
+      <div class="px-4 sm:px-6 py-4 border-b border-slate-100">
+        <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
+          <!-- 1 · Comprado mes · amber=dinero -->
+          <div class="bg-gradient-to-br from-amber-50 to-amber-100/40 ring-1 ring-amber-200/50 rounded-2xl p-4">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-[10px] uppercase tracking-wider font-bold text-amber-700">Comprado mes</span>
+              <i data-lucide="dollar-sign" class="w-3.5 h-3.5 text-amber-700"></i>
+            </div>
+            <div class="text-2xl font-bold tnum text-amber-900">$ 18,420</div>
+            <div class="text-[11px] mt-1 text-amber-700">9 OCs este mes</div>
+          </div>
+          <!-- 2 · Borradores · slate=neutral -->
+          <div class="bg-gradient-to-br from-slate-50 to-slate-100/60 ring-1 ring-slate-200/60 rounded-2xl p-4">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-[10px] uppercase tracking-wider font-bold text-slate-600">Borradores</span>
+              <i data-lucide="file-text" class="w-3.5 h-3.5 text-slate-600"></i>
+            </div>
+            <div class="text-2xl font-bold tnum text-slate-900">2</div>
+            <div class="text-[11px] mt-1 text-slate-600">sin confirmar</div>
+          </div>
+          <!-- 3 · En curso · sky=parcial/info -->
+          <div class="bg-gradient-to-br from-sky-50 to-sky-100/40 ring-1 ring-sky-200/50 rounded-2xl p-4">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-[10px] uppercase tracking-wider font-bold text-sky-700">En curso</span>
+              <i data-lucide="truck" class="w-3.5 h-3.5 text-sky-700"></i>
+            </div>
+            <div class="text-2xl font-bold tnum text-sky-900">4</div>
+            <div class="text-[11px] mt-1 text-sky-700">3 envíos activos</div>
+          </div>
+          <!-- 4 · Por pagar · rose=urgencia -->
+          <div class="bg-gradient-to-br from-rose-50 to-rose-100/40 ring-1 ring-rose-200/50 rounded-2xl p-4">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-[10px] uppercase tracking-wider font-bold text-rose-700">Por pagar</span>
+              <i data-lucide="credit-card" class="w-3.5 h-3.5 text-rose-700"></i>
+            </div>
+            <div class="text-2xl font-bold tnum text-rose-900">3</div>
+            <div class="text-[11px] mt-1 text-rose-700">$6,890 pendiente</div>
+          </div>
+          <!-- 5 · Completadas · emerald=positivo -->
+          <div class="bg-gradient-to-br from-emerald-50 to-emerald-100/40 ring-1 ring-emerald-200/50 rounded-2xl p-4">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-[10px] uppercase tracking-wider font-bold text-emerald-700">Completadas</span>
+              <i data-lucide="check-circle" class="w-3.5 h-3.5 text-emerald-700"></i>
+            </div>
+            <div class="text-2xl font-bold tnum text-emerald-900">12</div>
+            <div class="text-[11px] mt-1 text-emerald-700">$24,310</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TABS · 5 sub-secciones · Resumen default activo -->
+      <div class="border-b border-slate-200 px-4 sm:px-6">
+        <div class="flex gap-1 overflow-x-auto -mb-px no-sb">
+          <button class="whitespace-nowrap px-3 py-2.5 text-[13px] border-b-2 flex items-center gap-1.5 border-blue-600 text-blue-700 font-semibold">
+            <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Resumen
+          </button>
+          <button class="whitespace-nowrap px-3 py-2.5 text-[13px] border-b-2 flex items-center gap-1.5 border-transparent text-slate-500 hover:text-slate-700 font-medium">
+            <i data-lucide="package" class="w-4 h-4"></i> Órdenes
+          </button>
+          <button class="whitespace-nowrap px-3 py-2.5 text-[13px] border-b-2 flex items-center gap-1.5 border-transparent text-slate-500 hover:text-slate-700 font-medium">
+            <i data-lucide="clipboard-list" class="w-4 h-4"></i> Pendientes
+          </button>
+          <button class="whitespace-nowrap px-3 py-2.5 text-[13px] border-b-2 flex items-center gap-1.5 border-transparent text-slate-500 hover:text-slate-700 font-medium">
+            <i data-lucide="building-2" class="w-4 h-4"></i> Proveedores
+          </button>
+          <button class="whitespace-nowrap px-3 py-2.5 text-[13px] border-b-2 flex items-center gap-1.5 border-transparent text-slate-500 hover:text-slate-700 font-medium">
+            <i data-lucide="brain-circuit" class="w-4 h-4"></i> Inteligencia
+          </button>
+        </div>
+      </div>
+
+      <!-- body placeholder (en los actos siguientes se muestra cada tab) -->
+      <div class="bg-slate-50/30 px-4 sm:px-6 py-6 text-center text-[12px] text-slate-400">
+        ↓ El cuerpo cambia según la tab activa · ver Actos 2–6
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════════════════════
+       ACTO 2 · TAB ÓRDENES · filtros + listado de CompraCard
+       ════════════════════════════════════════════════════════════════════ -->
+  <section id="acto2" class="pt-12">
+    <div class="flex items-center gap-2 mb-3 flex-wrap">
+      <h2 class="text-lg font-bold text-slate-900">Acto 2 · Tab Órdenes</h2>
+      <span class="text-[10px] font-bold uppercase tracking-wide anno-ok px-2 py-0.5 rounded">✓ filtros canon (clases DS)</span>
+      <span class="text-[10px] font-bold uppercase tracking-wide anno-warn px-2 py-0.5 rounded">legacy · CompraCard pre-DS</span>
+    </div>
+    <p class="text-[12px] text-slate-500 mb-3 max-w-2xl">
+      Buscador + fila de chips de etapa (scroll-x N6) + 3 selects (proveedor · estado de pago · línea) + "Limpiar filtros".
+      El listado es <code class="mono">CompraCard</code>: card <strong>simple</strong> (5 columnas con dividers verticales,
+      avatares de producto, banderas emoji) y card <strong>con sub-órdenes</strong> (header con pills + grid 5-col +
+      desglose anidado). Estas cards son la referencia legacy S54.x — viven en <code class="mono">rounded-xl</code>/<code class="mono">rounded-2xl</code>
+      pero con emojis de bandera y tipografía propia, no los tokens del kit.
+    </p>
+
+    <!-- shell recortado a la tab Órdenes -->
+    <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+      <!-- tabs (Órdenes activo) -->
+      <div class="border-b border-slate-200 px-4 sm:px-6">
+        <div class="flex gap-1 overflow-x-auto -mb-px no-sb">
+          <button class="whitespace-nowrap px-3 py-2.5 text-[13px] border-b-2 flex items-center gap-1.5 border-transparent text-slate-500 font-medium"><i data-lucide="layout-dashboard" class="w-4 h-4"></i> Resumen</button>
+          <button class="whitespace-nowrap px-3 py-2.5 text-[13px] border-b-2 flex items-center gap-1.5 border-blue-600 text-blue-700 font-semibold"><i data-lucide="package" class="w-4 h-4"></i> Órdenes</button>
+          <button class="whitespace-nowrap px-3 py-2.5 text-[13px] border-b-2 flex items-center gap-1.5 border-transparent text-slate-500 font-medium"><i data-lucide="clipboard-list" class="w-4 h-4"></i> Pendientes</button>
+          <button class="whitespace-nowrap px-3 py-2.5 text-[13px] border-b-2 flex items-center gap-1.5 border-transparent text-slate-500 font-medium"><i data-lucide="building-2" class="w-4 h-4"></i> Proveedores</button>
+          <button class="whitespace-nowrap px-3 py-2.5 text-[13px] border-b-2 flex items-center gap-1.5 border-transparent text-slate-500 font-medium"><i data-lucide="brain-circuit" class="w-4 h-4"></i> Inteligencia</button>
+        </div>
+      </div>
+
+      <!-- cuerpo tab Órdenes -->
+      <div class="p-4 sm:p-6 space-y-4">
+
+        <!-- buscador -->
+        <div class="relative max-w-md">
+          <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400"></i>
+          <input type="text" value="" placeholder="Buscar OC, proveedor, número…"
+            class="w-full pl-9 pr-3 py-2 text-[12px] border border-slate-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/40" />
+        </div>
+
+        <!-- chips de etapa -->
+        <div class="flex items-center gap-2 flex-wrap">
+          <span class="text-xs text-slate-500 flex-shrink-0">Etapa:</span>
+          <div class="flex gap-1.5 overflow-x-auto pb-0.5 -mx-1 px-1 no-sb">
+            <button class="whitespace-nowrap inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border bg-blue-600 text-white border-blue-600">Todas <span class="tnum text-blue-100">14</span></button>
+            <button class="whitespace-nowrap inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border bg-white text-slate-600 border-slate-200 hover:bg-slate-50">Borrador <span class="tnum text-slate-400">2</span></button>
+            <button class="whitespace-nowrap inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border bg-white text-slate-600 border-slate-200 hover:bg-slate-50">Confirmada <span class="tnum text-slate-400">4</span></button>
+            <button class="whitespace-nowrap inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border bg-white text-slate-600 border-slate-200 hover:bg-slate-50">En Despacho <span class="tnum text-slate-400">3</span></button>
+            <button class="whitespace-nowrap inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border bg-white text-slate-600 border-slate-200 hover:bg-slate-50">Completada <span class="tnum text-slate-400">12</span></button>
+          </div>
+        </div>
+
+        <!-- selects secundarios -->
+        <div class="flex items-center gap-2 flex-wrap">
+          <select class="text-xs border border-slate-300 rounded-lg px-2 py-1 bg-white"><option>Todos los proveedores</option><option>Nutrition Depot USA</option></select>
+          <select class="text-xs border border-slate-300 rounded-lg px-2 py-1 bg-white"><option>Todos los estados de pago</option><option>Pendiente</option><option>Parcial</option><option>Pagado</option></select>
+          <select class="text-xs border border-slate-300 rounded-lg px-2 py-1 bg-white"><option>Todas las líneas</option><option>Suplementos</option></select>
+          <div class="flex-1"></div>
+          <button class="text-xs text-slate-500 hover:text-slate-700">Limpiar filtros</button>
+        </div>
+
+        <!-- contenedor del listado (bg-slate-50) -->
+        <div class="bg-slate-50 rounded-xl p-4 md:p-5 space-y-3 border border-slate-100">
+
+          <!-- ─────────── CompraCardSimple (WIDE · 5 cols) ─────────── -->
+          <div class="@container bg-white rounded-xl border border-slate-200 p-4 hover:shadow-md hover:border-blue-300 transition-all cursor-pointer">
+            <div class="flex flex-wrap items-start gap-y-3 gap-x-4">
+              <!-- Col 1 · icono estado + N° OC + fecha -->
+              <div class="flex-shrink-0 text-center">
+                <div class="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-sky-50 text-sky-600">
+                  <i data-lucide="check" class="w-5 h-5"></i>
+                </div>
+                <div class="mono font-bold text-slate-900 text-xs mt-1">OC-2026-014</div>
+                <div class="text-[9px] text-slate-400">hace 3 días</div>
+              </div>
+              <div class="w-px bg-slate-200 self-stretch"></div>
+              <!-- Col 2 · sticker pipeline + ruta -->
+              <div class="flex-1 min-w-[180px]">
+                <div class="inline-flex items-center gap-2 rounded-lg px-3 py-1.5 border bg-sky-50 border-sky-200">
+                  <span class="text-[10px] font-bold rounded px-1.5 py-0.5 bg-sky-200 text-sky-900">OC</span>
+                  <span class="text-[12px] font-semibold text-sky-900">Confirmada</span>
+                </div>
+                <div class="flex items-center gap-1 mt-2 text-[11px] flex-wrap">
+                  <span class="text-slate-900 font-medium flex items-center gap-1">
+                    <span class="text-sm">🇺🇸</span><span class="truncate max-w-[160px]">Nutrition Depot USA</span>
+                  </span>
+                  <span class="text-slate-300">—</span>
+                  <span class="text-slate-500 italic flex items-center gap-1"><span>✈️</span><span class="truncate max-w-[100px]">MiamiBox</span></span>
+                  <span class="text-slate-300">—</span>
+                  <span class="text-slate-900 font-medium flex items-center gap-1"><span class="text-sm">🇵🇪</span><span class="truncate max-w-[160px] mono">CAS-204</span></span>
+                </div>
+              </div>
+              <div class="w-px bg-slate-200 self-stretch"></div>
+              <!-- Col 3 · avatares productos -->
+              <div class="w-56 max-w-[224px]">
+                <div class="text-[10px] font-semibold text-slate-500 uppercase mb-1.5 tracking-wider">Productos <span class="text-slate-400 font-normal">(3 SKUs)</span></div>
+                <div class="flex items-center">
+                  <div class="flex -space-x-2">
+                    <div class="w-9 h-9 rounded-full border-2 border-white flex items-center justify-center text-[10px] font-bold bg-amber-100 text-amber-700">W<sup class="ml-0.5 text-[9px]">24</sup></div>
+                    <div class="w-9 h-9 rounded-full border-2 border-white flex items-center justify-center text-[10px] font-bold bg-sky-100 text-sky-700">I<sup class="ml-0.5 text-[9px]">12</sup></div>
+                    <div class="w-9 h-9 rounded-full border-2 border-white flex items-center justify-center text-[10px] font-bold bg-purple-100 text-purple-700">C<sup class="ml-0.5 text-[9px]">30</sup></div>
+                  </div>
+                </div>
+                <div class="text-[10px] text-slate-500 mt-1.5 truncate">Whey · ISO · Creatina</div>
+              </div>
+              <div class="w-px bg-slate-200 self-stretch"></div>
+              <!-- Col 4 · total + barra pago + saldo -->
+              <div class="w-36 max-w-[160px] text-right">
+                <div class="text-xl font-bold text-slate-900 tnum leading-none">$1,284.50</div>
+                <div class="text-[10px] text-slate-500 mt-0.5 mb-1">Total USD</div>
+                <div class="h-1 w-full bg-slate-100 rounded-full overflow-hidden">
+                  <div class="h-full bg-amber-500" style="width:50%"></div>
+                </div>
+                <div class="text-[10px] mt-0.5 font-medium tnum text-amber-700">50% pagado</div>
+                <div class="text-[9px] text-slate-400 mt-0.5 tnum">$642.25 saldo</div>
+                <div class="mt-2 pt-2 border-t border-slate-100"><div class="text-[10px] text-slate-500 tnum">66 und</div></div>
+              </div>
+              <!-- Col 5 · acciones -->
+              <div class="flex-shrink-0 flex flex-col gap-1">
+                <button class="p-1.5 rounded-lg text-blue-600 hover:bg-blue-50" title="Ver detalle"><i data-lucide="eye" class="w-4 h-4"></i></button>
+                <button class="p-1.5 rounded-lg text-emerald-600 hover:bg-emerald-50" title="Registrar pago"><i data-lucide="dollar-sign" class="w-4 h-4"></i></button>
+                <button class="p-1.5 rounded-lg text-sky-600 hover:bg-sky-50" title="Ver envíos"><i data-lucide="truck" class="w-4 h-4"></i></button>
+              </div>
+            </div>
+          </div>
+
+          <!-- ─────────── CompraCardSimple #2 (completada · pagada) ─────────── -->
+          <div class="@container bg-white rounded-xl border border-slate-200 p-4 hover:shadow-md hover:border-blue-300 transition-all cursor-pointer opacity-80">
+            <div class="flex flex-wrap items-start gap-y-3 gap-x-4">
+              <div class="flex-shrink-0 text-center">
+                <div class="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600"><i data-lucide="check-circle-2" class="w-5 h-5"></i></div>
+                <div class="mono font-bold text-slate-900 text-xs mt-1">OC-2026-009</div>
+                <div class="text-[9px] text-slate-400">hace 3 sem</div>
+              </div>
+              <div class="w-px bg-slate-200 self-stretch"></div>
+              <div class="flex-1 min-w-[180px]">
+                <div class="inline-flex items-center gap-2 rounded-lg px-3 py-1.5 border bg-emerald-50 border-emerald-200">
+                  <span class="text-[10px] font-bold rounded px-1.5 py-0.5 bg-emerald-200 text-emerald-900">OC</span>
+                  <span class="text-[12px] font-semibold text-emerald-900">Completada</span>
+                </div>
+                <div class="flex items-center gap-1 mt-2 text-[11px] flex-wrap">
+                  <span class="text-slate-900 font-medium flex items-center gap-1"><span class="text-sm">🇺🇸</span><span class="truncate max-w-[160px]">Nutrition Depot USA</span></span>
+                  <span class="text-slate-300">—</span>
+                  <span class="text-slate-900 font-medium flex items-center gap-1"><span class="text-sm">🇵🇪</span><span class="truncate max-w-[160px]">Perú</span></span>
+                </div>
+              </div>
+              <div class="w-px bg-slate-200 self-stretch"></div>
+              <div class="w-56 max-w-[224px]">
+                <div class="text-[10px] font-semibold text-slate-500 uppercase mb-1.5 tracking-wider">Productos <span class="text-slate-400 font-normal">(1 SKU)</span></div>
+                <div class="flex items-center"><div class="flex -space-x-2">
+                  <div class="w-9 h-9 rounded-full border-2 border-white flex items-center justify-center text-[10px] font-bold bg-amber-100 text-amber-700">W<sup class="ml-0.5 text-[9px]">40</sup></div>
+                </div></div>
+                <div class="text-[10px] text-slate-500 mt-1.5 truncate">Whey</div>
+              </div>
+              <div class="w-px bg-slate-200 self-stretch"></div>
+              <div class="w-36 max-w-[160px] text-right">
+                <div class="text-xl font-bold text-slate-900 tnum leading-none">$2,160.00</div>
+                <div class="text-[10px] text-slate-500 mt-0.5 mb-1">Total USD</div>
+                <div class="h-1 w-full bg-slate-100 rounded-full overflow-hidden"><div class="h-full bg-emerald-500" style="width:100%"></div></div>
+                <div class="text-[10px] mt-0.5 font-medium tnum text-emerald-700">100% pagado</div>
+                <div class="mt-2 pt-2 border-t border-slate-100"><div class="text-[10px] text-slate-500 tnum">40 und</div></div>
+              </div>
+              <div class="flex-shrink-0 flex flex-col gap-1">
+                <button class="p-1.5 rounded-lg text-blue-600 hover:bg-blue-50"><i data-lucide="eye" class="w-4 h-4"></i></button>
+                <button class="p-1.5 rounded-lg text-slate-300 cursor-not-allowed"><i data-lucide="dollar-sign" class="w-4 h-4"></i></button>
+                <button class="p-1.5 rounded-lg text-sky-600 hover:bg-sky-50"><i data-lucide="truck" class="w-4 h-4"></i></button>
+              </div>
+            </div>
+          </div>
+
+          <!-- ─────────── CompraCardConSubOrdenes (desplegada) ─────────── -->
+          <div class="bg-white rounded-2xl border border-slate-200 shadow-sm">
+            <!-- header OC padre -->
+            <div class="p-5 border-b border-slate-100 cursor-pointer hover:bg-slate-50/40 transition-colors">
+              <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center gap-3 flex-wrap">
+                  <span class="text-lg font-semibold text-slate-800 mono">OC-2026-012</span>
+                  <span class="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-700"><span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>En Despacho</span>
+                  <span class="inline-flex items-center text-[10px] font-bold px-2 py-0.5 rounded-full bg-sky-100 text-sky-700">Pago Parcial</span>
+                  <span class="inline-flex items-center gap-1 text-[10px] font-medium text-blue-700 bg-blue-50 border border-blue-200 rounded-full px-2 py-0.5"><i data-lucide="layers" class="w-2.5 h-2.5"></i>2 sub-órdenes</span>
+                </div>
+                <div class="text-right flex-shrink-0">
+                  <div class="text-xs text-slate-400">Total USD</div>
+                  <div class="text-lg font-semibold text-slate-800 tnum">$3,540.00</div>
+                </div>
+              </div>
+              <!-- grid 5-col -->
+              <div class="grid grid-cols-2 md:grid-cols-5 gap-4 text-xs">
+                <div><div class="text-slate-400 mb-1">Proveedor</div><div class="font-medium text-slate-700 flex items-center gap-1"><span>🇺🇸</span><span class="truncate">Nutrition Depot USA</span></div></div>
+                <div><div class="text-slate-400 mb-1">Productos</div><div class="font-medium text-slate-700 truncate">Whey ON 5lb (x30) · ISO 100 3lb (x18) · +2 más</div></div>
+                <div><div class="text-slate-400 mb-1">Ruta</div><div class="font-medium text-slate-700 text-[11px] flex items-center gap-1 flex-wrap"><span>🇺🇸</span><i data-lucide="chevron-right" class="w-3 h-3 text-slate-400"></i><span class="mono">CAS-204</span></div></div>
+                <div><div class="text-slate-400 mb-1">Deudor</div><div class="font-medium truncate text-amber-700">Carlos Ríos (colaborador)</div></div>
+                <div><div class="text-slate-400 mb-1">Fecha</div><div class="font-medium text-slate-700">hace 6 días</div></div>
+              </div>
+            </div>
+            <!-- desglose del proveedor -->
+            <div class="px-5 py-4 bg-slate-50">
+              <div class="text-xs font-semibold text-slate-500 mb-3 flex items-center gap-2 tracking-wide"><i data-lucide="layers" class="w-3 h-3"></i> DESGLOSE DEL PROVEEDOR (2 SUB-ÓRDENES)</div>
+              <div class="space-y-2">
+                <!-- sub-orden colapsada -->
+                <div class="bg-white rounded-xl border border-slate-200 hover:shadow-sm hover:border-blue-300 transition-all">
+                  <button class="w-full p-3 flex items-center justify-between text-left gap-3">
+                    <div class="flex items-center gap-3 flex-wrap flex-1 min-w-0">
+                      <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-slate-400"></i>
+                      <span class="text-sm font-semibold text-slate-700 mono">SUB-012-A</span>
+                      <span class="text-xs text-slate-400 flex items-center gap-1 mono">→ ENV-2026-031</span>
+                      <!-- pipeline 3 dots -->
+                      <span class="inline-flex items-center gap-0.5 ml-2">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500"></span><span class="w-3 h-0.5 bg-emerald-500"></span>
+                        <span class="w-2 h-2 rounded-full bg-blue-600 ring-2 ring-blue-100"></span><span class="w-3 h-0.5 bg-slate-200"></span>
+                        <span class="w-2 h-2 rounded-full bg-slate-200"></span>
+                      </span>
+                      <span class="inline-flex items-center text-[10px] font-bold px-2 py-0.5 rounded-full bg-sky-100 text-sky-700">En Tránsito</span>
+                      <span class="inline-flex items-center text-[10px] font-bold px-2 py-0.5 rounded-full bg-sky-100 text-sky-700">Pago parcial</span>
+                    </div>
+                    <div class="flex items-center gap-4 flex-shrink-0">
+                      <div class="text-right hidden @md:block"><div class="text-[10px] text-slate-400">Productos</div><div class="text-xs font-medium text-slate-600 truncate max-w-[14rem]">Whey ON 5lb (x30)</div></div>
+                      <div class="text-right"><div class="text-[10px] text-slate-400">Total</div><div class="text-sm font-semibold text-slate-800 tnum">$1,950.00</div></div>
+                    </div>
+                  </button>
+                </div>
+                <!-- sub-orden EXPANDIDA -->
+                <div class="bg-white rounded-xl border border-blue-300 shadow-sm">
+                  <button class="w-full p-3 flex items-center justify-between text-left gap-3">
+                    <div class="flex items-center gap-3 flex-wrap flex-1 min-w-0">
+                      <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-blue-600"></i>
+                      <span class="text-sm font-semibold text-slate-700 mono">SUB-012-B</span>
+                      <span class="inline-flex items-center gap-0.5 ml-2">
+                        <span class="w-2 h-2 rounded-full bg-blue-600 ring-2 ring-blue-100"></span><span class="w-3 h-0.5 bg-slate-200"></span>
+                        <span class="w-2 h-2 rounded-full bg-slate-200"></span><span class="w-3 h-0.5 bg-slate-200"></span>
+                        <span class="w-2 h-2 rounded-full bg-slate-200"></span>
+                      </span>
+                      <span class="inline-flex items-center text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">Confirmada</span>
+                      <span class="inline-flex items-center text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-700">Pago pendiente</span>
+                    </div>
+                    <div class="flex items-center gap-4 flex-shrink-0">
+                      <div class="text-right"><div class="text-[10px] text-slate-400">Total</div><div class="text-sm font-semibold text-slate-800 tnum">$1,590.00</div></div>
+                    </div>
+                  </button>
+                  <!-- contenido expandido -->
+                  <div class="border-t border-slate-100 p-4 bg-slate-50 space-y-3">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <div class="bg-white rounded-lg p-3 border border-slate-200">
+                        <div class="text-xs font-semibold text-slate-500 mb-2 tracking-wide">PRODUCTOS</div>
+                        <table class="w-full text-xs"><tbody>
+                          <tr class="border-b border-slate-100"><td class="py-1.5 truncate">ISO 100 3lb</td><td class="py-1.5 text-right text-slate-500 tnum">×18</td><td class="py-1.5 text-right tnum">$58.00</td><td class="py-1.5 text-right font-medium tnum">$1,044.00</td></tr>
+                          <tr class="border-b border-slate-100"><td class="py-1.5 truncate">Creatina 400g</td><td class="py-1.5 text-right text-slate-500 tnum">×30</td><td class="py-1.5 text-right tnum">$15.20</td><td class="py-1.5 text-right font-medium tnum">$456.00</td></tr>
+                          <tr class="border-t-2 border-slate-200"><td colspan="3" class="py-1.5 text-xs text-slate-500">Subtotal productos</td><td class="py-1.5 text-right font-semibold tnum">$1,500.00</td></tr>
+                        </tbody></table>
+                      </div>
+                      <div class="bg-white rounded-lg p-3 border border-slate-200">
+                        <div class="text-xs font-semibold text-slate-500 mb-2 tracking-wide">CARGOS DEL PROVEEDOR <span class="font-normal text-slate-400">(asignados al confirmar)</span></div>
+                        <div class="space-y-1.5 text-xs">
+                          <div class="flex items-center justify-between py-1 border-b border-slate-100"><span class="text-slate-600">+ Shipping</span><span class="font-medium tnum text-slate-700">$90.00</span></div>
+                          <div class="flex items-center justify-between py-2 border-t-2 border-slate-200 mt-2"><span class="font-semibold">Cargos netos</span><span class="font-semibold tnum">$90.00</span></div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="flex items-center justify-between bg-blue-50 rounded-lg p-3 flex-wrap gap-2">
+                      <div>
+                        <div class="text-xs text-blue-700 font-medium">Total sub-orden: <span class="text-slate-800 tnum">$1,590.00</span></div>
+                        <div class="text-[11px] text-slate-500 mt-0.5">Referencia proveedor: INV-88231</div>
+                      </div>
+                      <div class="flex gap-2 flex-wrap">
+                        <button class="px-3 py-1.5 text-xs font-medium text-slate-700 border border-slate-300 rounded-lg hover:bg-slate-50">Ver detalle completo</button>
+                        <button class="px-3 py-1.5 text-xs font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700">Registrar pago</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- footer OC -->
+            <div class="px-5 py-3 border-t border-slate-100 flex items-center justify-between flex-wrap gap-2 rounded-b-2xl">
+              <div class="text-xs text-slate-500 flex items-center gap-1.5"><i data-lucide="info" class="w-3 h-3"></i> Cada sub-orden tiene su ciclo de vida independiente. La OC padre refleja el agregado.</div>
+              <div class="flex gap-2">
+                <button class="px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-100 rounded-lg">Ver detalle completo</button>
+                <button class="px-3 py-1.5 text-xs font-medium text-blue-700 border border-blue-300 rounded-lg hover:bg-blue-50">Registrar pago OC completa</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- footer cargar más -->
+          <div class="pt-2 text-center">
+            <span class="text-xs text-slate-500">+ 4 OCs más · </span>
+            <button class="text-xs font-medium text-blue-600 hover:text-blue-700 hover:underline">Cargar más</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════════════════════
+       ACTO 3 · TAB RESUMEN · dashboard §A→§F
+       ════════════════════════════════════════════════════════════════════ -->
+  <section id="acto3" class="pt-12">
+    <div class="flex items-center gap-2 mb-3 flex-wrap">
+      <h2 class="text-lg font-bold text-slate-900">Acto 3 · Tab Resumen · dashboard §A–F</h2>
+      <span class="text-[10px] font-bold uppercase tracking-wide anno-ok px-2 py-0.5 rounded">✓ canon (orden A→F · no clona el strip)</span>
+    </div>
+    <p class="text-[12px] text-slate-500 mb-3 max-w-2xl">
+      <code class="mono">TabResumenCompras</code>. Sigue el orden canónico: §A banner de salud → §B donut (gasto por proveedor)
+      + barras (tendencia 6m) → §C insights (lead time · concentración · cumplimiento de pago · FX) → §D acciones rápidas →
+      §E cross-links 360 → §F alertas. Aporta análisis que el strip NO da (no re-muestra los 5 KPIs).
+    </p>
+
+    <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+      <div class="border-b border-slate-200 px-4 sm:px-6">
+        <div class="flex gap-1 overflow-x-auto -mb-px no-sb">
+          <button class="whitespace-nowrap px-3 py-2.5 text-[13px] border-b-2 flex items-center gap-1.5 border-blue-600 text-blue-700 font-semibold"><i data-lucide="layout-dashboard" class="w-4 h-4"></i> Resumen</button>
+          <button class="whitespace-nowrap px-3 py-2.5 text-[13px] border-b-2 flex items-center gap-1.5 border-transparent text-slate-500 font-medium"><i data-lucide="package" class="w-4 h-4"></i> Órdenes</button>
+          <button class="whitespace-nowrap px-3 py-2.5 text-[13px] border-b-2 flex items-center gap-1.5 border-transparent text-slate-500 font-medium"><i data-lucide="clipboard-list" class="w-4 h-4"></i> Pendientes</button>
+          <button class="whitespace-nowrap px-3 py-2.5 text-[13px] border-b-2 flex items-center gap-1.5 border-transparent text-slate-500 font-medium"><i data-lucide="building-2" class="w-4 h-4"></i> Proveedores</button>
+          <button class="whitespace-nowrap px-3 py-2.5 text-[13px] border-b-2 flex items-center gap-1.5 border-transparent text-slate-500 font-medium"><i data-lucide="brain-circuit" class="w-4 h-4"></i> Inteligencia</button>
+        </div>
+      </div>
+
+      <div class="bg-slate-50/30 p-4 sm:p-6 space-y-4">
+        <!-- §A banner (amber = atención) -->
+        <div class="bg-gradient-to-r from-amber-50 to-amber-100/30 ring-1 ring-amber-200/60 rounded-2xl p-4">
+          <div class="flex items-center justify-between flex-wrap gap-3">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center flex-shrink-0"><i data-lucide="alert-triangle" class="w-5 h-5 text-amber-600"></i></div>
+              <div>
+                <div class="text-[14px] font-bold text-amber-900">Compras con atención</div>
+                <div class="text-[12px] text-amber-700"><strong>3 OCs</strong> por pagar · <strong>2</strong> borradores sin confirmar</div>
+              </div>
+            </div>
+            <button class="text-[11px] font-bold text-amber-700 border-amber-200 hover:bg-amber-50 bg-white border px-3 py-1.5 rounded-lg">Ver pendientes →</button>
+          </div>
+        </div>
+
+        <!-- §B visualización -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <!-- donut -->
+          <div class="bg-white border border-slate-200 rounded-2xl p-4">
+            <div class="flex items-center justify-between mb-3">
+              <div><div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Gasto por proveedor</div><div class="text-[11px] text-slate-400">concentración de tus compras</div></div>
+              <i data-lucide="pie-chart" class="w-4 h-4 text-slate-400"></i>
+            </div>
+            <div class="flex items-center gap-4">
+              <svg viewBox="0 0 36 36" class="w-24 h-24 flex-shrink-0">
+                <circle cx="18" cy="18" r="15.9" fill="none" stroke="#e2e8f0" stroke-width="3.6"></circle>
+                <circle cx="18" cy="18" r="15.9" fill="none" stroke="#3b82f6" stroke-width="3.6" stroke-dasharray="58 42" stroke-dashoffset="25"></circle>
+                <circle cx="18" cy="18" r="15.9" fill="none" stroke="#8b5cf6" stroke-width="3.6" stroke-dasharray="24 76" stroke-dashoffset="-33"></circle>
+                <circle cx="18" cy="18" r="15.9" fill="none" stroke="#0ea5e9" stroke-width="3.6" stroke-dasharray="18 82" stroke-dashoffset="-57"></circle>
+                <text x="18" y="20" text-anchor="middle" class="tnum" style="font-size:5px;font-weight:700;fill:#0f172a">$42.7k</text>
+              </svg>
+              <div class="flex-1 space-y-1.5 text-[12px]">
+                <div class="flex items-center justify-between"><span class="flex items-center gap-1.5 min-w-0"><span class="w-2 h-2 rounded-full bg-blue-500 flex-shrink-0"></span><span class="truncate">Nutrition Depot USA</span></span><span class="tnum font-semibold text-slate-700">58%</span></div>
+                <div class="flex items-center justify-between"><span class="flex items-center gap-1.5 min-w-0"><span class="w-2 h-2 rounded-full bg-violet-500 flex-shrink-0"></span><span class="truncate">Supps Wholesale</span></span><span class="tnum font-semibold text-slate-700">24%</span></div>
+                <div class="flex items-center justify-between"><span class="flex items-center gap-1.5 min-w-0"><span class="w-2 h-2 rounded-full bg-sky-500 flex-shrink-0"></span><span class="truncate">GymFuel Co</span></span><span class="tnum font-semibold text-slate-700">18%</span></div>
+              </div>
+            </div>
+          </div>
+          <!-- barras -->
+          <div class="bg-white border border-slate-200 rounded-2xl p-4">
+            <div class="flex items-center justify-between mb-3">
+              <div><div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Tendencia de compras · 6 meses</div><div class="text-[11px] text-slate-400">valor importado por mes (USD)</div></div>
+              <i data-lucide="bar-chart-3" class="w-4 h-4 text-slate-400"></i>
+            </div>
+            <div class="flex items-end justify-between gap-2 h-28 pt-2">
+              <div class="flex-1 flex flex-col items-center gap-1"><div class="w-full rounded-t bg-blue-200" style="height:45%"></div><span class="text-[9px] text-slate-400">Ene</span></div>
+              <div class="flex-1 flex flex-col items-center gap-1"><div class="w-full rounded-t bg-blue-200" style="height:62%"></div><span class="text-[9px] text-slate-400">Feb</span></div>
+              <div class="flex-1 flex flex-col items-center gap-1"><div class="w-full rounded-t bg-blue-200" style="height:38%"></div><span class="text-[9px] text-slate-400">Mar</span></div>
+              <div class="flex-1 flex flex-col items-center gap-1"><div class="w-full rounded-t bg-blue-200" style="height:80%"></div><span class="text-[9px] text-slate-400">Abr</span></div>
+              <div class="flex-1 flex flex-col items-center gap-1"><div class="w-full rounded-t bg-blue-200" style="height:55%"></div><span class="text-[9px] text-slate-400">May</span></div>
+              <div class="flex-1 flex flex-col items-center gap-1"><div class="w-full rounded-t bg-blue-600" style="height:72%"></div><span class="text-[9px] text-blue-700 font-bold">Jun</span></div>
+            </div>
+            <div class="mt-2 pt-2 border-t border-slate-100 flex items-center justify-between text-[11px]">
+              <span class="text-slate-500">Promedio $24.5k</span>
+              <span class="text-blue-700 font-semibold tnum">Jun $18.4k · +31%</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- §C insights -->
+        <div>
+          <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-2 ml-1">Insights del mes</div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            <div class="bg-white border border-slate-200 rounded-xl p-3"><div class="flex items-center gap-1.5 mb-1"><i data-lucide="clock" class="w-3.5 h-3.5 text-sky-600"></i><span class="text-[10px] uppercase tracking-wider text-sky-700 font-bold">Lead time</span></div><div class="text-[18px] font-bold tnum text-slate-900">14 días</div><div class="text-[11px] text-slate-500 leading-snug">promedio proveedor → recepción</div></div>
+            <div class="bg-white border border-slate-200 rounded-xl p-3"><div class="flex items-center gap-1.5 mb-1"><i data-lucide="building-2" class="w-3.5 h-3.5 text-blue-600"></i><span class="text-[10px] uppercase tracking-wider text-blue-700 font-bold">Concentración</span></div><div class="text-[18px] font-bold tnum text-slate-900">100<span class="text-slate-400">%</span></div><div class="text-[11px] text-slate-500 leading-snug">en tus top 3 proveedores</div></div>
+            <div class="bg-white border border-slate-200 rounded-xl p-3"><div class="flex items-center gap-1.5 mb-1"><i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-emerald-600"></i><span class="text-[10px] uppercase tracking-wider text-emerald-700 font-bold">Cumplim. pago</span></div><div class="text-[18px] font-bold tnum text-slate-900">63<span class="text-slate-400">%</span></div><div class="text-[11px] text-slate-500 leading-snug">pagado vs total adeudado</div></div>
+            <div class="bg-white border border-slate-200 rounded-xl p-3"><div class="flex items-center gap-1.5 mb-1"><i data-lucide="arrow-left-right" class="w-3.5 h-3.5 text-amber-600"></i><span class="text-[10px] uppercase tracking-wider text-amber-700 font-bold">FX acumulado</span></div><div class="text-[18px] font-bold tnum text-rose-700">− S/ 312</div><div class="text-[11px] text-slate-500 leading-snug">TC compra vs hoy (sin pagar)</div></div>
+          </div>
+        </div>
+
+        <!-- §D acciones rápidas -->
+        <div>
+          <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-2 ml-1">Acciones rápidas</div>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <button class="bg-white border border-slate-200 rounded-lg p-3 hover:border-blue-300 hover:bg-blue-50/30 text-left"><i data-lucide="plus" class="w-4 h-4 text-blue-600 mb-1.5"></i><div class="text-[12px] font-bold text-slate-900">Nueva orden de compra</div><div class="text-[10px] text-slate-500">wizard 5 pasos</div></button>
+            <button class="bg-white border border-slate-200 rounded-lg p-3 hover:border-amber-300 hover:bg-amber-50/30 text-left"><i data-lucide="clipboard-list" class="w-4 h-4 text-amber-600 mb-1.5"></i><div class="text-[12px] font-bold text-slate-900">Ver pendientes de comprar</div><div class="text-[10px] text-slate-500">productos desde requerimientos</div></button>
+            <button class="bg-white border border-slate-200 rounded-lg p-3 hover:border-sky-300 hover:bg-sky-50/30 text-left"><i data-lucide="truck" class="w-4 h-4 text-sky-600 mb-1.5"></i><div class="text-[12px] font-bold text-slate-900">Despachar próximos</div><div class="text-[10px] text-slate-500">4 OCs confirmadas listas</div></button>
+          </div>
+        </div>
+
+        <!-- §E cross-links 360 -->
+        <div>
+          <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-2 ml-1">Conecta con · 360</div>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <a class="bg-gradient-to-r from-orange-50 to-orange-100/20 border border-orange-200 rounded-lg p-3 flex items-center justify-between hover:border-orange-300 cursor-pointer"><div><div class="text-[12px] font-bold text-slate-900">Envíos</div><div class="text-[11px] text-orange-700">3 en tránsito</div></div><i data-lucide="arrow-right" class="w-4 h-4 text-orange-600"></i></a>
+            <a class="bg-gradient-to-r from-orange-50 to-orange-100/20 border border-orange-200 rounded-lg p-3 flex items-center justify-between hover:border-orange-300 cursor-pointer"><div><div class="text-[12px] font-bold text-slate-900">Inventario</div><div class="text-[11px] text-orange-700">128 u. por llegar</div></div><i data-lucide="arrow-right" class="w-4 h-4 text-orange-600"></i></a>
+            <a class="bg-gradient-to-r from-teal-50 to-teal-100/20 border border-teal-200 rounded-lg p-3 flex items-center justify-between hover:border-teal-300 cursor-pointer"><div><div class="text-[12px] font-bold text-slate-900">Finanzas</div><div class="text-[11px] text-teal-700">$6.9k por pagar</div></div><i data-lucide="arrow-right" class="w-4 h-4 text-teal-600"></i></a>
+            <a class="bg-gradient-to-r from-blue-50 to-blue-100/20 border border-blue-200 rounded-lg p-3 flex items-center justify-between hover:border-blue-300 cursor-pointer"><div><div class="text-[12px] font-bold text-slate-900">Requerimientos</div><div class="text-[11px] text-blue-700">por convertir</div></div><i data-lucide="arrow-right" class="w-4 h-4 text-blue-600"></i></a>
+          </div>
+        </div>
+
+        <!-- §F alertas -->
+        <div>
+          <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-2 ml-1">Alertas</div>
+          <div class="space-y-2">
+            <div class="bg-rose-50 ring-1 ring-rose-200 rounded-lg px-3 py-2.5 flex items-center justify-between gap-3"><div class="flex items-center gap-2 min-w-0"><i data-lucide="alert-triangle" class="w-4 h-4 text-rose-600"></i><span class="text-[12px] text-rose-900 truncate"><strong>OC-2026-014 · $642</strong> por pagar (Nutrition Depot USA)</span></div><button class="text-[11px] font-bold text-rose-700 hover:underline whitespace-nowrap">Pagar →</button></div>
+            <div class="bg-amber-50 ring-1 ring-amber-200 rounded-lg px-3 py-2.5 flex items-center justify-between gap-3"><div class="flex items-center gap-2 min-w-0"><i data-lucide="truck" class="w-4 h-4 text-amber-600"></i><span class="text-[12px] text-amber-900 truncate"><strong>OC-2026-012</strong> demorada · 24 días sin completar</span></div><button class="text-[11px] font-bold text-amber-700 hover:underline whitespace-nowrap">Ver →</button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════════════════════
+       ACTO 4 · TAB PENDIENTES
+       ════════════════════════════════════════════════════════════════════ -->
+  <section id="acto4" class="pt-12">
+    <div class="flex items-center gap-2 mb-3 flex-wrap">
+      <h2 class="text-lg font-bold text-slate-900">Acto 4 · Tab Pendientes</h2>
+      <span class="text-[10px] font-bold uppercase tracking-wide anno-ok px-2 py-0.5 rounded">✓ canon (selección masiva DS)</span>
+    </div>
+    <p class="text-[12px] text-slate-500 mb-3 max-w-2xl">
+      <code class="mono">TabPendientesCompras</code>. Productos de requerimientos aprobados sin OC → checkbox por card → barra
+      de selección masiva → "Crear OC consolidada" (lanza el OCBuilder). Header con mini-stats (productos · uds · estimado USD).
+    </p>
+    <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+      <div class="border-b border-slate-200 px-4 sm:px-6">
+        <div class="flex gap-1 overflow-x-auto -mb-px no-sb">
+          <button class="whitespace-nowrap px-3 py-2.5 text-[13px] border-b-2 flex items-center gap-1.5 border-transparent text-slate-500 font-medium"><i data-lucide="layout-dashboard" class="w-4 h-4"></i> Resumen</button>
+          <button class="whitespace-nowrap px-3 py-2.5 text-[13px] border-b-2 flex items-center gap-1.5 border-transparent text-slate-500 font-medium"><i data-lucide="package" class="w-4 h-4"></i> Órdenes</button>
+          <button class="whitespace-nowrap px-3 py-2.5 text-[13px] border-b-2 flex items-center gap-1.5 border-blue-600 text-blue-700 font-semibold"><i data-lucide="clipboard-list" class="w-4 h-4"></i> Pendientes</button>
+          <button class="whitespace-nowrap px-3 py-2.5 text-[13px] border-b-2 flex items-center gap-1.5 border-transparent text-slate-500 font-medium"><i data-lucide="building-2" class="w-4 h-4"></i> Proveedores</button>
+          <button class="whitespace-nowrap px-3 py-2.5 text-[13px] border-b-2 flex items-center gap-1.5 border-transparent text-slate-500 font-medium"><i data-lucide="brain-circuit" class="w-4 h-4"></i> Inteligencia</button>
+        </div>
+      </div>
+      <div class="bg-slate-50/30 p-4 sm:p-6 space-y-4">
+        <div class="flex items-start justify-between flex-wrap gap-3">
+          <div><div class="text-[13px] font-bold text-slate-900">Pendientes de comprar</div><div class="text-[11px] text-slate-500">productos de requerimientos aprobados sin orden de compra</div></div>
+          <div class="flex items-center gap-2 flex-wrap">
+            <span class="inline-flex items-center gap-1.5 text-[11px] bg-white border border-slate-200 rounded-lg px-2.5 py-1.5"><i data-lucide="package" class="w-3.5 h-3.5 text-blue-600"></i><span class="font-semibold text-slate-900 tnum">5</span> <span class="text-slate-500">productos</span></span>
+            <span class="inline-flex items-center gap-1.5 text-[11px] bg-white border border-slate-200 rounded-lg px-2.5 py-1.5"><i data-lucide="boxes" class="w-3.5 h-3.5 text-blue-600"></i><span class="font-semibold text-slate-900 tnum">142</span> <span class="text-slate-500">uds</span></span>
+            <span class="inline-flex items-center gap-1.5 text-[11px] bg-white border border-slate-200 rounded-lg px-2.5 py-1.5"><i data-lucide="dollar-sign" class="w-3.5 h-3.5 text-amber-600"></i><span class="font-semibold text-slate-900 tnum">$4,820</span> <span class="text-slate-500">est.</span></span>
+          </div>
+        </div>
+        <div class="relative max-w-md"><i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400"></i><input placeholder="Buscar por SKU, marca, producto, proveedor…" class="w-full pl-9 pr-3 py-2 text-[12px] border border-slate-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/40" /></div>
+        <!-- barra selección masiva -->
+        <div class="flex items-center justify-between gap-3 flex-wrap">
+          <button class="inline-flex items-center gap-2 text-[12px] text-slate-600 hover:text-blue-600"><i data-lucide="check-square" class="h-4 w-4 text-blue-600"></i> Seleccionar todos <span class="text-[11px] text-slate-400">(5)</span></button>
+          <div class="inline-flex items-center gap-3 bg-blue-50 border border-blue-200 rounded-lg pl-3 pr-1.5 py-1.5">
+            <span class="text-[12px] text-blue-800 font-medium tnum">2 productos · 54 uds</span>
+            <button class="inline-flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white text-[12px] font-semibold px-3 py-1.5 rounded-md"><i data-lucide="layers" class="w-3.5 h-3.5"></i> Crear OC consolidada</button>
+          </div>
+        </div>
+        <!-- cards -->
+        <div class="space-y-2">
+          <!-- seleccionada -->
+          <div class="rounded-xl border p-3 cursor-pointer border-blue-400 bg-blue-50/60 ring-1 ring-blue-200">
+            <div class="flex items-start gap-3">
+              <div class="mt-0.5 flex-shrink-0"><i data-lucide="check-square" class="h-4 w-4 text-blue-600"></i></div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-2 mb-0.5 flex-wrap"><span class="text-[11px] text-slate-400 mono">SKU-WHEY-5LB</span><span class="text-[10px] bg-sky-50 text-sky-700 px-1.5 py-0.5 rounded">Nutrition Depot USA</span></div>
+                <p class="text-[13px] font-medium text-slate-900 truncate">Optimum Nutrition · Whey ON 5lb</p>
+                <div class="flex flex-wrap gap-1.5 mt-1.5">
+                  <span class="inline-flex items-center gap-1 text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full"><span class="font-medium">REQ-2026-077</span><span class="text-slate-400">·</span><span class="tnum">24 ud</span><span class="text-slate-400">·</span><span class="truncate max-w-[90px]">GymPro SAC</span></span>
+                  <span class="inline-flex items-center gap-1 text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full"><span class="font-medium">REQ-2026-081</span><span class="text-slate-400">·</span><span class="tnum">6 ud</span></span>
+                </div>
+              </div>
+              <div class="flex-shrink-0 text-right"><div class="text-[14px] font-bold text-slate-900 tnum">30 <span class="text-[11px] font-normal text-slate-400">ud</span></div><div class="text-[11px] text-amber-700 tnum">~$1,620</div></div>
+            </div>
+          </div>
+          <!-- no seleccionada -->
+          <div class="rounded-xl border p-3 cursor-pointer border-slate-200 bg-white hover:border-slate-300 hover:shadow-sm">
+            <div class="flex items-start gap-3">
+              <div class="mt-0.5 flex-shrink-0"><i data-lucide="square" class="h-4 w-4 text-slate-400"></i></div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-2 mb-0.5 flex-wrap"><span class="text-[11px] text-slate-400 mono">SKU-ISO-3LB</span><span class="text-[10px] bg-sky-50 text-sky-700 px-1.5 py-0.5 rounded">Nutrition Depot USA</span></div>
+                <p class="text-[13px] font-medium text-slate-900 truncate">Dymatize · ISO 100 3lb</p>
+                <div class="flex flex-wrap gap-1.5 mt-1.5"><span class="inline-flex items-center gap-1 text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full"><span class="font-medium">REQ-2026-079</span><span class="text-slate-400">·</span><span class="tnum">18 ud</span></span></div>
+              </div>
+              <div class="flex-shrink-0 text-right"><div class="text-[14px] font-bold text-slate-900 tnum">18 <span class="text-[11px] font-normal text-slate-400">ud</span></div><div class="text-[11px] text-amber-700 tnum">~$1,044</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="pt-1"><button class="inline-flex items-center gap-1.5 text-[11px] font-medium text-blue-600 hover:text-blue-700 hover:underline"><i data-lucide="plus" class="w-3.5 h-3.5"></i> ¿Comprar algo fuera de requerimientos? Crear OC manual <i data-lucide="arrow-right" class="w-3 h-3"></i></button></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════════════════════
+       ACTO 5 · TAB PROVEEDORES
+       ════════════════════════════════════════════════════════════════════ -->
+  <section id="acto5" class="pt-12">
+    <div class="flex items-center gap-2 mb-3 flex-wrap">
+      <h2 class="text-lg font-bold text-slate-900">Acto 5 · Tab Proveedores</h2>
+      <span class="text-[10px] font-bold uppercase tracking-wide anno-ok px-2 py-0.5 rounded">✓ canon (directorio SRM)</span>
+    </div>
+    <p class="text-[12px] text-slate-500 mb-3 max-w-2xl">
+      <code class="mono">TabProveedoresCompras</code>. Evaluación SRM agregada: filtros de clasificación (scroll-x) + buscador +
+      grid de cards con 4 métricas (gasto · OCs · lead · incidencias) + puntuación. CRUD se delega a Maestros (cross-link).
+    </p>
+    <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+      <div class="border-b border-slate-200 px-4 sm:px-6">
+        <div class="flex gap-1 overflow-x-auto -mb-px no-sb">
+          <button class="whitespace-nowrap px-3 py-2.5 text-[13px] border-b-2 flex items-center gap-1.5 border-transparent text-slate-500 font-medium"><i data-lucide="layout-dashboard" class="w-4 h-4"></i> Resumen</button>
+          <button class="whitespace-nowrap px-3 py-2.5 text-[13px] border-b-2 flex items-center gap-1.5 border-transparent text-slate-500 font-medium"><i data-lucide="package" class="w-4 h-4"></i> Órdenes</button>
+          <button class="whitespace-nowrap px-3 py-2.5 text-[13px] border-b-2 flex items-center gap-1.5 border-transparent text-slate-500 font-medium"><i data-lucide="clipboard-list" class="w-4 h-4"></i> Pendientes</button>
+          <button class="whitespace-nowrap px-3 py-2.5 text-[13px] border-b-2 flex items-center gap-1.5 border-blue-600 text-blue-700 font-semibold"><i data-lucide="building-2" class="w-4 h-4"></i> Proveedores</button>
+          <button class="whitespace-nowrap px-3 py-2.5 text-[13px] border-b-2 flex items-center gap-1.5 border-transparent text-slate-500 font-medium"><i data-lucide="brain-circuit" class="w-4 h-4"></i> Inteligencia</button>
+        </div>
+      </div>
+      <div class="bg-slate-50/30 p-4 sm:p-6 space-y-4">
+        <div class="flex items-start justify-between flex-wrap gap-3">
+          <div><div class="text-[13px] font-bold text-slate-900">Evaluación de proveedores · SRM</div><div class="text-[11px] text-slate-500">desempeño, gasto y clasificación · el detalle y CRUD viven en Maestros</div></div>
+          <div class="flex items-center gap-2 flex-wrap">
+            <span class="inline-flex items-center gap-1.5 text-[11px] bg-white border border-slate-200 rounded-lg px-2.5 py-1.5"><i data-lucide="building-2" class="w-3.5 h-3.5 text-blue-600"></i><span class="font-semibold text-slate-900 tnum">3</span> <span class="text-slate-500">proveedores</span></span>
+            <span class="inline-flex items-center gap-1.5 text-[11px] bg-white border border-slate-200 rounded-lg px-2.5 py-1.5"><i data-lucide="award" class="w-3.5 h-3.5 text-blue-600"></i><span class="font-semibold text-slate-900 tnum">1</span> <span class="text-slate-500">preferidos</span></span>
+            <span class="inline-flex items-center gap-1.5 text-[11px] bg-white border border-slate-200 rounded-lg px-2.5 py-1.5"><span class="font-semibold text-slate-900 tnum">$42,710</span> <span class="text-slate-500">gasto acum.</span></span>
+          </div>
+        </div>
+        <div class="flex flex-col sm:flex-row gap-2 sm:items-center">
+          <div class="flex gap-1.5 overflow-x-auto pb-1 -mx-1 px-1 no-sb">
+            <button class="whitespace-nowrap text-[12px] font-medium px-3 py-1.5 rounded-lg border bg-blue-600 text-white border-blue-600">Todos</button>
+            <button class="whitespace-nowrap text-[12px] font-medium px-3 py-1.5 rounded-lg border bg-white text-slate-600 border-slate-200 hover:bg-slate-50">Preferidos</button>
+            <button class="whitespace-nowrap text-[12px] font-medium px-3 py-1.5 rounded-lg border bg-white text-slate-600 border-slate-200 hover:bg-slate-50">Aprobados</button>
+            <button class="whitespace-nowrap text-[12px] font-medium px-3 py-1.5 rounded-lg border bg-white text-slate-600 border-slate-200 hover:bg-slate-50">Condicionales</button>
+            <button class="whitespace-nowrap text-[12px] font-medium px-3 py-1.5 rounded-lg border bg-white text-slate-600 border-slate-200 hover:bg-slate-50">Suspendidos</button>
+          </div>
+          <div class="relative sm:ml-auto sm:w-64"><i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400"></i><input placeholder="Buscar proveedor, código, país…" class="w-full pl-9 pr-3 py-2 text-[12px] border border-slate-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/40" /></div>
+        </div>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-3">
+          <!-- card preferido -->
+          <div class="bg-white border border-slate-200 rounded-xl p-3.5 hover:border-slate-300 hover:shadow-sm">
+            <div class="flex items-start justify-between gap-3 mb-3">
+              <div class="flex items-start gap-2.5 min-w-0">
+                <div class="w-9 h-9 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0"><i data-lucide="building-2" class="w-5 h-5 text-blue-600"></i></div>
+                <div class="min-w-0"><div class="text-[13px] font-bold text-slate-900 truncate">Nutrition Depot USA</div><div class="flex items-center gap-1.5 text-[11px] text-slate-400"><span class="mono">PRV-001</span><span>·</span><i data-lucide="map-pin" class="w-3 h-3"></i><span>USA</span></div></div>
+              </div>
+              <span class="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-1 rounded-full flex-shrink-0 bg-emerald-100 text-emerald-700"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>Preferido</span>
+            </div>
+            <div class="grid grid-cols-4 gap-2 text-center">
+              <div><div class="text-[14px] font-bold text-slate-900 tnum">$24.7k</div><div class="text-[9px] uppercase tracking-wider text-slate-400 font-bold">Gasto</div></div>
+              <div><div class="text-[14px] font-bold text-slate-900 tnum flex items-center justify-center gap-0.5"><i data-lucide="package" class="w-3 h-3 text-slate-400"></i>9</div><div class="text-[9px] uppercase tracking-wider text-slate-400 font-bold">OCs</div></div>
+              <div><div class="text-[14px] font-bold tnum text-slate-900">12d</div><div class="text-[9px] uppercase tracking-wider text-slate-400 font-bold flex items-center justify-center gap-0.5"><i data-lucide="clock" class="w-2.5 h-2.5"></i>Lead</div></div>
+              <div><div class="text-[14px] font-bold tnum text-slate-900">4%</div><div class="text-[9px] uppercase tracking-wider text-slate-400 font-bold flex items-center justify-center gap-0.5"><i data-lucide="alert-triangle" class="w-2.5 h-2.5"></i>Incid.</div></div>
+            </div>
+            <div class="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between">
+              <span class="inline-flex items-center gap-1 text-[11px] text-slate-600"><i data-lucide="star" class="w-3.5 h-3.5 text-amber-500"></i><span class="font-bold tnum text-slate-900">88</span>/100</span>
+              <button class="inline-flex items-center gap-1 text-[11px] font-semibold text-blue-600 hover:text-blue-700 hover:underline">Ver / editar <i data-lucide="arrow-up-right" class="w-3 h-3"></i></button>
+            </div>
+          </div>
+          <!-- card sin evaluar -->
+          <div class="bg-white border border-slate-200 rounded-xl p-3.5 hover:border-slate-300 hover:shadow-sm">
+            <div class="flex items-start justify-between gap-3 mb-3">
+              <div class="flex items-start gap-2.5 min-w-0">
+                <div class="w-9 h-9 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0"><i data-lucide="building-2" class="w-5 h-5 text-blue-600"></i></div>
+                <div class="min-w-0"><div class="text-[13px] font-bold text-slate-900 truncate">GymFuel Co</div><div class="flex items-center gap-1.5 text-[11px] text-slate-400"><span class="mono">PRV-003</span><span>·</span><i data-lucide="map-pin" class="w-3 h-3"></i><span>USA</span></div></div>
+              </div>
+              <span class="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-1 rounded-full flex-shrink-0 bg-slate-100 text-slate-600"><span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>Sin evaluar</span>
+            </div>
+            <div class="grid grid-cols-4 gap-2 text-center">
+              <div><div class="text-[14px] font-bold text-slate-900 tnum">$7.7k</div><div class="text-[9px] uppercase tracking-wider text-slate-400 font-bold">Gasto</div></div>
+              <div><div class="text-[14px] font-bold text-slate-900 tnum flex items-center justify-center gap-0.5"><i data-lucide="package" class="w-3 h-3 text-slate-400"></i>3</div><div class="text-[9px] uppercase tracking-wider text-slate-400 font-bold">OCs</div></div>
+              <div><div class="text-[14px] font-bold tnum text-slate-300">—</div><div class="text-[9px] uppercase tracking-wider text-slate-400 font-bold flex items-center justify-center gap-0.5"><i data-lucide="clock" class="w-2.5 h-2.5"></i>Lead</div></div>
+              <div><div class="text-[14px] font-bold tnum text-slate-300">—</div><div class="text-[9px] uppercase tracking-wider text-slate-400 font-bold flex items-center justify-center gap-0.5"><i data-lucide="alert-triangle" class="w-2.5 h-2.5"></i>Incid.</div></div>
+            </div>
+            <div class="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between">
+              <span class="text-[11px] text-slate-400">Sin puntuación SRM</span>
+              <button class="inline-flex items-center gap-1 text-[11px] font-semibold text-blue-600 hover:text-blue-700 hover:underline">Ver / editar <i data-lucide="arrow-up-right" class="w-3 h-3"></i></button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════════════════════
+       ACTO 6 · TAB INTELIGENCIA
+       ════════════════════════════════════════════════════════════════════ -->
+  <section id="acto6" class="pt-12">
+    <div class="flex items-center gap-2 mb-3 flex-wrap">
+      <h2 class="text-lg font-bold text-slate-900">Acto 6 · Tab Inteligencia</h2>
+      <span class="text-[10px] font-bold uppercase tracking-wide anno-ok px-2 py-0.5 rounded">✓ canon (vista agregada)</span>
+    </div>
+    <p class="text-[12px] text-slate-500 mb-3 max-w-2xl">
+      <code class="mono">TabInteligenciaCompras</code>. Vista agregada de compra: ranking de SKUs por gasto (barras), movimientos
+      de precio (primer vs último costo · semántico rose↑/emerald↓), competitividad SRM por proveedor, cross-links a
+      Cost Intelligence y Price Advisor.
+    </p>
+    <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+      <div class="border-b border-slate-200 px-4 sm:px-6">
+        <div class="flex gap-1 overflow-x-auto -mb-px no-sb">
+          <button class="whitespace-nowrap px-3 py-2.5 text-[13px] border-b-2 flex items-center gap-1.5 border-transparent text-slate-500 font-medium"><i data-lucide="layout-dashboard" class="w-4 h-4"></i> Resumen</button>
+          <button class="whitespace-nowrap px-3 py-2.5 text-[13px] border-b-2 flex items-center gap-1.5 border-transparent text-slate-500 font-medium"><i data-lucide="package" class="w-4 h-4"></i> Órdenes</button>
+          <button class="whitespace-nowrap px-3 py-2.5 text-[13px] border-b-2 flex items-center gap-1.5 border-transparent text-slate-500 font-medium"><i data-lucide="clipboard-list" class="w-4 h-4"></i> Pendientes</button>
+          <button class="whitespace-nowrap px-3 py-2.5 text-[13px] border-b-2 flex items-center gap-1.5 border-transparent text-slate-500 font-medium"><i data-lucide="building-2" class="w-4 h-4"></i> Proveedores</button>
+          <button class="whitespace-nowrap px-3 py-2.5 text-[13px] border-b-2 flex items-center gap-1.5 border-blue-600 text-blue-700 font-semibold"><i data-lucide="brain-circuit" class="w-4 h-4"></i> Inteligencia</button>
+        </div>
+      </div>
+      <div class="bg-slate-50/30 p-4 sm:p-6 space-y-4">
+        <div class="flex items-start justify-between flex-wrap gap-3">
+          <div><div class="text-[13px] font-bold text-slate-900">Inteligencia de compra</div><div class="text-[11px] text-slate-500">qué compras, a qué precio y con qué proveedor · agregado del módulo</div></div>
+          <div class="flex items-center gap-2 flex-wrap">
+            <span class="inline-flex items-center gap-1.5 text-[11px] bg-white border border-slate-200 rounded-lg px-2.5 py-1.5"><i data-lucide="tag" class="w-3.5 h-3.5 text-blue-600"></i><span class="font-semibold text-slate-900 tnum">12</span> <span class="text-slate-500">SKUs</span></span>
+            <span class="inline-flex items-center gap-1.5 text-[11px] bg-white border border-slate-200 rounded-lg px-2.5 py-1.5"><span class="font-semibold text-slate-900 tnum">$42.7k</span> <span class="text-slate-500">comprado</span></span>
+            <span class="inline-flex items-center gap-1.5 text-[11px] bg-white border border-slate-200 rounded-lg px-2.5 py-1.5"><i data-lucide="bar-chart-3" class="w-3.5 h-3.5 text-blue-600"></i><span class="font-semibold text-slate-900 tnum">7</span> <span class="text-slate-500">con histórico</span></span>
+          </div>
+        </div>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <!-- ranking SKU -->
+          <div class="bg-white border border-slate-200 rounded-2xl p-4">
+            <div class="flex items-center justify-between mb-3"><div><div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Top SKUs por gasto</div><div class="text-[11px] text-slate-400">dónde se va tu inversión de compra</div></div><i data-lucide="trophy" class="w-4 h-4 text-slate-400"></i></div>
+            <div class="space-y-2.5">
+              <div><div class="flex items-center justify-between text-[12px] mb-1 gap-2"><span class="flex items-center gap-1.5 min-w-0"><span class="text-[10px] text-slate-400 mono">WHEY-5LB</span><span class="truncate text-slate-700">ON · Whey 5lb</span></span><span class="tnum font-semibold text-slate-900">$18.9k</span></div><div class="flex items-center gap-2"><div class="flex-1 h-1.5 bg-slate-100 rounded-full overflow-hidden"><div class="h-full bg-blue-500 rounded-full" style="width:100%"></div></div><span class="text-[10px] text-slate-400 tnum">312 ud · 6 OC</span></div></div>
+              <div><div class="flex items-center justify-between text-[12px] mb-1 gap-2"><span class="flex items-center gap-1.5 min-w-0"><span class="text-[10px] text-slate-400 mono">ISO-3LB</span><span class="truncate text-slate-700">Dymatize · ISO 100 3lb</span></span><span class="tnum font-semibold text-slate-900">$11.2k</span></div><div class="flex items-center gap-2"><div class="flex-1 h-1.5 bg-slate-100 rounded-full overflow-hidden"><div class="h-full bg-blue-500 rounded-full" style="width:59%"></div></div><span class="text-[10px] text-slate-400 tnum">186 ud · 4 OC</span></div></div>
+              <div><div class="flex items-center justify-between text-[12px] mb-1 gap-2"><span class="flex items-center gap-1.5 min-w-0"><span class="text-[10px] text-slate-400 mono">CREA-400</span><span class="truncate text-slate-700">ON · Creatina 400g</span></span><span class="tnum font-semibold text-slate-900">$5.4k</span></div><div class="flex items-center gap-2"><div class="flex-1 h-1.5 bg-slate-100 rounded-full overflow-hidden"><div class="h-full bg-blue-500 rounded-full" style="width:29%"></div></div><span class="text-[10px] text-slate-400 tnum">356 ud · 5 OC</span></div></div>
+            </div>
+          </div>
+          <!-- movimientos precio -->
+          <div class="bg-white border border-slate-200 rounded-2xl p-4">
+            <div class="flex items-center justify-between mb-3"><div><div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Movimientos de precio</div><div class="text-[11px] text-slate-400">primer vs último costo unitario (USD)</div></div><i data-lucide="trending-up" class="w-4 h-4 text-slate-400"></i></div>
+            <div class="space-y-2">
+              <div class="flex items-center justify-between gap-2 rounded-lg px-2.5 py-2 bg-rose-50"><span class="flex items-center gap-1.5 min-w-0"><span class="text-[10px] text-slate-400 mono">WHEY-5LB</span><span class="truncate text-[12px] text-slate-700">ON · Whey 5lb</span></span><span class="inline-flex items-center gap-1 text-[12px] font-bold tnum flex-shrink-0 text-rose-700"><i data-lucide="trending-up" class="w-3.5 h-3.5"></i>+8% <span class="text-[10px] font-normal text-slate-400">$54.00</span></span></div>
+              <div class="flex items-center justify-between gap-2 rounded-lg px-2.5 py-2 bg-emerald-50"><span class="flex items-center gap-1.5 min-w-0"><span class="text-[10px] text-slate-400 mono">CREA-400</span><span class="truncate text-[12px] text-slate-700">ON · Creatina 400g</span></span><span class="inline-flex items-center gap-1 text-[12px] font-bold tnum flex-shrink-0 text-emerald-700"><i data-lucide="trending-down" class="w-3.5 h-3.5"></i>-6% <span class="text-[10px] font-normal text-slate-400">$15.20</span></span></div>
+              <div class="flex items-center justify-between gap-2 rounded-lg px-2.5 py-2 bg-slate-50"><span class="flex items-center gap-1.5 min-w-0"><span class="text-[10px] text-slate-400 mono">ISO-3LB</span><span class="truncate text-[12px] text-slate-700">Dymatize · ISO 100 3lb</span></span><span class="inline-flex items-center gap-1 text-[12px] font-bold tnum flex-shrink-0 text-slate-500"><i data-lucide="minus" class="w-3.5 h-3.5"></i>+0% <span class="text-[10px] font-normal text-slate-400">$58.00</span></span></div>
+            </div>
+          </div>
+        </div>
+        <!-- competitividad -->
+        <div class="bg-white border border-slate-200 rounded-2xl p-4">
+          <div class="flex items-center justify-between mb-3"><div><div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Competitividad de precios · proveedores</div><div class="text-[11px] text-slate-400">factor SRM de competitividad (0-25)</div></div><i data-lucide="package" class="w-4 h-4 text-slate-400"></i></div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2.5">
+            <div><div class="flex items-center justify-between text-[12px] mb-1"><span class="truncate text-slate-700">Nutrition Depot USA</span><span class="tnum font-semibold text-slate-900">21/25</span></div><div class="h-1.5 bg-slate-100 rounded-full overflow-hidden"><div class="h-full bg-emerald-500 rounded-full" style="width:84%"></div></div></div>
+            <div><div class="flex items-center justify-between text-[12px] mb-1"><span class="truncate text-slate-700">Supps Wholesale</span><span class="tnum font-semibold text-slate-900">17/25</span></div><div class="h-1.5 bg-slate-100 rounded-full overflow-hidden"><div class="h-full bg-emerald-500 rounded-full" style="width:68%"></div></div></div>
+          </div>
+        </div>
+        <!-- cross-links -->
+        <div>
+          <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-2 ml-1">Análisis profundo</div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <a class="bg-gradient-to-r from-indigo-50 to-indigo-100/20 border border-indigo-200 rounded-lg p-3 flex items-center justify-between hover:border-indigo-300 cursor-pointer"><div><div class="text-[12px] font-bold text-slate-900">Cost Intelligence</div><div class="text-[11px] text-indigo-700">rentabilidad, rotación y liquidez por producto</div></div><i data-lucide="arrow-up-right" class="w-4 h-4 text-indigo-600 flex-shrink-0"></i></a>
+            <div class="bg-gradient-to-r from-blue-50 to-blue-100/20 border border-blue-200 rounded-lg p-3 flex items-center justify-between"><div><div class="text-[12px] font-bold text-slate-900">Price Advisor</div><div class="text-[11px] text-blue-700">asesor de precio por SKU al crear una OC (en el wizard)</div></div><i data-lucide="brain-circuit" class="w-4 h-4 text-blue-600 flex-shrink-0"></i></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════════════════════
+       ACTO 7 · MOBILE 375
+       ════════════════════════════════════════════════════════════════════ -->
+  <section id="acto7" class="pt-12">
+    <div class="flex items-center gap-2 mb-3 flex-wrap">
+      <h2 class="text-lg font-bold text-slate-900">Acto 7 · Mobile · 375px</h2>
+      <span class="text-[10px] font-bold uppercase tracking-wide anno-ok px-2 py-0.5 rounded">✓ shell responsive</span>
+      <span class="text-[10px] font-bold uppercase tracking-wide anno-warn px-2 py-0.5 rounded">CompraCard → stack 3 rows</span>
+    </div>
+    <p class="text-[12px] text-slate-500 mb-3 max-w-2xl">
+      El Hub Kit resuelve el mobile solo: KPI strip pasa a 2 columnas, tabs hacen scroll-x. La CompraCard usa
+      <code class="mono">@container</code> y conmuta a su layout NARROW (3 filas apiladas). Acciones como botones circulares.
+    </p>
+    <div class="flex flex-wrap gap-6 items-start">
+
+      <!-- mobile shell + Órdenes -->
+      <div class="w-[375px] flex-shrink-0">
+        <div class="text-[11px] font-bold text-slate-500 mb-2 ml-1">Shell + Tab Órdenes</div>
+        <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+          <div class="border-b border-slate-200 px-4 py-2.5 bg-slate-50 flex items-center justify-between gap-2">
+            <nav class="flex items-center gap-1.5 text-[11px] text-slate-500 min-w-0"><span class="hover:text-slate-700">Inicio</span><i data-lucide="chevron-right" class="w-3 h-3"></i><span class="text-slate-900 font-semibold truncate">Compras</span></nav>
+            <span class="text-[10px] bg-blue-50 text-blue-700 px-2 py-0.5 rounded font-bold inline-flex items-center gap-1 flex-shrink-0"><i data-lucide="shield" class="w-3 h-3"></i> admin</span>
+          </div>
+          <div class="px-4 py-4 border-b border-slate-100 flex items-start justify-between gap-3">
+            <div class="flex items-start gap-3 min-w-0">
+              <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center text-white flex-shrink-0"><i data-lucide="shopping-cart" class="w-5 h-5"></i></div>
+              <div class="min-w-0"><h1 class="text-2xl font-bold text-slate-900 tracking-tight">Compras</h1><p class="text-[13px] text-slate-500 leading-snug mt-0.5">Órdenes · proveedores · pagos</p></div>
+            </div>
+            <button class="flex items-center justify-center w-9 h-9 rounded-lg bg-blue-600 text-white flex-shrink-0"><i data-lucide="plus" class="w-4 h-4"></i></button>
+          </div>
+          <!-- KPI strip 2-col -->
+          <div class="px-4 py-4 border-b border-slate-100">
+            <div class="grid grid-cols-2 gap-3">
+              <div class="bg-gradient-to-br from-amber-50 to-amber-100/40 ring-1 ring-amber-200/50 rounded-2xl p-3"><div class="flex items-center justify-between mb-1"><span class="text-[10px] uppercase tracking-wider font-bold text-amber-700">Comprado</span><i data-lucide="dollar-sign" class="w-3.5 h-3.5 text-amber-700"></i></div><div class="text-2xl font-bold tnum text-amber-900">$18.4k</div></div>
+              <div class="bg-gradient-to-br from-rose-50 to-rose-100/40 ring-1 ring-rose-200/50 rounded-2xl p-3"><div class="flex items-center justify-between mb-1"><span class="text-[10px] uppercase tracking-wider font-bold text-rose-700">Por pagar</span><i data-lucide="credit-card" class="w-3.5 h-3.5 text-rose-700"></i></div><div class="text-2xl font-bold tnum text-rose-900">3</div></div>
+              <div class="bg-gradient-to-br from-sky-50 to-sky-100/40 ring-1 ring-sky-200/50 rounded-2xl p-3"><div class="flex items-center justify-between mb-1"><span class="text-[10px] uppercase tracking-wider font-bold text-sky-700">En curso</span><i data-lucide="truck" class="w-3.5 h-3.5 text-sky-700"></i></div><div class="text-2xl font-bold tnum text-sky-900">4</div></div>
+              <div class="bg-gradient-to-br from-emerald-50 to-emerald-100/40 ring-1 ring-emerald-200/50 rounded-2xl p-3"><div class="flex items-center justify-between mb-1"><span class="text-[10px] uppercase tracking-wider font-bold text-emerald-700">Compl.</span><i data-lucide="check-circle" class="w-3.5 h-3.5 text-emerald-700"></i></div><div class="text-2xl font-bold tnum text-emerald-900">12</div></div>
+            </div>
+          </div>
+          <!-- tabs scroll-x -->
+          <div class="border-b border-slate-200 px-4">
+            <div class="flex gap-1 overflow-x-auto -mb-px no-sb">
+              <button class="whitespace-nowrap px-3 py-2.5 text-[13px] border-b-2 flex items-center gap-1.5 border-transparent text-slate-500 font-medium"><i data-lucide="layout-dashboard" class="w-4 h-4"></i> Resumen</button>
+              <button class="whitespace-nowrap px-3 py-2.5 text-[13px] border-b-2 flex items-center gap-1.5 border-blue-600 text-blue-700 font-semibold"><i data-lucide="package" class="w-4 h-4"></i> Órdenes</button>
+              <button class="whitespace-nowrap px-3 py-2.5 text-[13px] border-b-2 flex items-center gap-1.5 border-transparent text-slate-500 font-medium"><i data-lucide="clipboard-list" class="w-4 h-4"></i> Pend.</button>
+              <button class="whitespace-nowrap px-3 py-2.5 text-[13px] border-b-2 flex items-center gap-1.5 border-transparent text-slate-500 font-medium"><i data-lucide="building-2" class="w-4 h-4"></i> Prov.</button>
+            </div>
+          </div>
+          <div class="p-4 space-y-3">
+            <div class="relative"><i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400"></i><input placeholder="Buscar OC, proveedor…" class="w-full pl-9 pr-3 py-2 text-[12px] border border-slate-200 rounded-lg bg-white" /></div>
+            <div class="flex gap-1.5 overflow-x-auto pb-0.5 no-sb">
+              <button class="whitespace-nowrap inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border bg-blue-600 text-white border-blue-600">Todas <span class="tnum text-blue-100">14</span></button>
+              <button class="whitespace-nowrap inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border bg-white text-slate-600 border-slate-200">Borrador <span class="tnum text-slate-400">2</span></button>
+              <button class="whitespace-nowrap inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border bg-white text-slate-600 border-slate-200">En Despacho <span class="tnum text-slate-400">3</span></button>
+            </div>
+            <!-- contenedor -->
+            <div class="bg-slate-50 rounded-xl p-3 space-y-3 border border-slate-100">
+              <!-- CompraCard NARROW (stack 3 rows) -->
+              <div class="@container bg-white rounded-xl border border-slate-200 p-4">
+                <div class="space-y-3">
+                  <!-- row 1 -->
+                  <div class="flex items-center justify-between gap-2">
+                    <div class="flex items-center gap-2 min-w-0">
+                      <div class="inline-flex items-center justify-center w-8 h-8 rounded-full flex-shrink-0 bg-sky-50 text-sky-600"><i data-lucide="check" class="w-4 h-4"></i></div>
+                      <div class="min-w-0"><div class="mono font-bold text-slate-900 text-sm truncate">OC-2026-014</div><div class="text-[10px] text-slate-400">hace 3 días · Confirmada</div></div>
+                    </div>
+                    <span class="text-[10px] font-bold px-2 py-1 rounded-md border whitespace-nowrap flex-shrink-0 bg-sky-50 border-sky-200 text-sky-900">Confirmada</span>
+                  </div>
+                  <!-- row 2 -->
+                  <div class="bg-slate-50 rounded-lg px-3 py-2">
+                    <div class="flex items-center justify-between gap-2 text-xs">
+                      <div class="flex items-center gap-1 flex-1 min-w-0"><span class="text-sm flex-shrink-0">🇺🇸</span><span class="font-medium truncate">Nutrition Depot USA</span></div>
+                      <div class="flex items-center gap-1 flex-1 min-w-0 justify-end"><span class="text-sm flex-shrink-0">🇵🇪</span><span class="font-medium truncate mono">CAS-204</span></div>
+                    </div>
+                  </div>
+                  <!-- row 3 -->
+                  <div class="flex items-center justify-between gap-3">
+                    <div class="flex items-center gap-2 min-w-0">
+                      <div class="flex -space-x-1.5 flex-shrink-0">
+                        <div class="w-8 h-8 rounded-full border-2 border-white flex items-center justify-center text-[10px] font-bold bg-amber-100 text-amber-700">W<sup class="ml-0.5 text-[8px]">24</sup></div>
+                        <div class="w-8 h-8 rounded-full border-2 border-white flex items-center justify-center text-[10px] font-bold bg-sky-100 text-sky-700">I<sup class="ml-0.5 text-[8px]">12</sup></div>
+                        <div class="w-8 h-8 rounded-full border-2 border-white flex items-center justify-center text-[10px] font-bold bg-purple-100 text-purple-700">C<sup class="ml-0.5 text-[8px]">30</sup></div>
+                      </div>
+                      <div class="text-[10px] text-slate-500 truncate">3 SKUs</div>
+                    </div>
+                    <div class="flex items-center gap-2 flex-shrink-0">
+                      <div class="text-right"><div class="text-base font-bold text-slate-900 tnum leading-none">$1,284.50</div><div class="text-[9px] font-medium mt-0.5 tnum text-amber-700">50% pagado</div></div>
+                      <button class="w-8 h-8 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center flex-shrink-0"><i data-lucide="eye" class="w-4 h-4"></i></button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- mobile Resumen -->
+      <div class="w-[375px] flex-shrink-0">
+        <div class="text-[11px] font-bold text-slate-500 mb-2 ml-1">Tab Resumen (§A–C)</div>
+        <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+          <div class="border-b border-slate-200 px-4"><div class="flex gap-1 overflow-x-auto -mb-px no-sb">
+            <button class="whitespace-nowrap px-3 py-2.5 text-[13px] border-b-2 flex items-center gap-1.5 border-blue-600 text-blue-700 font-semibold"><i data-lucide="layout-dashboard" class="w-4 h-4"></i> Resumen</button>
+            <button class="whitespace-nowrap px-3 py-2.5 text-[13px] border-b-2 flex items-center gap-1.5 border-transparent text-slate-500 font-medium"><i data-lucide="package" class="w-4 h-4"></i> Órdenes</button>
+            <button class="whitespace-nowrap px-3 py-2.5 text-[13px] border-b-2 flex items-center gap-1.5 border-transparent text-slate-500 font-medium"><i data-lucide="clipboard-list" class="w-4 h-4"></i> Pend.</button>
+          </div></div>
+          <div class="bg-slate-50/30 p-4 space-y-4">
+            <div class="bg-gradient-to-r from-amber-50 to-amber-100/30 ring-1 ring-amber-200/60 rounded-2xl p-4">
+              <div class="flex items-center gap-3"><div class="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center flex-shrink-0"><i data-lucide="alert-triangle" class="w-5 h-5 text-amber-600"></i></div><div><div class="text-[14px] font-bold text-amber-900">Compras con atención</div><div class="text-[12px] text-amber-700"><strong>3 OCs</strong> por pagar · <strong>2</strong> borradores</div></div></div>
+            </div>
+            <div class="bg-white border border-slate-200 rounded-2xl p-4">
+              <div class="flex items-center justify-between mb-3"><div><div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Gasto por proveedor</div></div><i data-lucide="pie-chart" class="w-4 h-4 text-slate-400"></i></div>
+              <div class="flex items-center gap-4">
+                <svg viewBox="0 0 36 36" class="w-20 h-20 flex-shrink-0"><circle cx="18" cy="18" r="15.9" fill="none" stroke="#e2e8f0" stroke-width="3.6"></circle><circle cx="18" cy="18" r="15.9" fill="none" stroke="#3b82f6" stroke-width="3.6" stroke-dasharray="58 42" stroke-dashoffset="25"></circle><circle cx="18" cy="18" r="15.9" fill="none" stroke="#8b5cf6" stroke-width="3.6" stroke-dasharray="24 76" stroke-dashoffset="-33"></circle></svg>
+                <div class="flex-1 space-y-1.5 text-[12px]"><div class="flex items-center justify-between"><span class="flex items-center gap-1.5 min-w-0"><span class="w-2 h-2 rounded-full bg-blue-500"></span><span class="truncate">Nutrition Depot</span></span><span class="tnum font-semibold text-slate-700">58%</span></div><div class="flex items-center justify-between"><span class="flex items-center gap-1.5 min-w-0"><span class="w-2 h-2 rounded-full bg-violet-500"></span><span class="truncate">Supps Wholesale</span></span><span class="tnum font-semibold text-slate-700">24%</span></div></div>
+              </div>
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+              <div class="bg-white border border-slate-200 rounded-xl p-3"><div class="flex items-center gap-1.5 mb-1"><i data-lucide="clock" class="w-3.5 h-3.5 text-sky-600"></i><span class="text-[10px] uppercase tracking-wider text-sky-700 font-bold">Lead time</span></div><div class="text-[18px] font-bold tnum text-slate-900">14 días</div></div>
+              <div class="bg-white border border-slate-200 rounded-xl p-3"><div class="flex items-center gap-1.5 mb-1"><i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-emerald-600"></i><span class="text-[10px] uppercase tracking-wider text-emerald-700 font-bold">Cumpl. pago</span></div><div class="text-[18px] font-bold tnum text-slate-900">63<span class="text-slate-400">%</span></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════════════════════
+       ACTO 8 · ESTADOS (empty / loading)
+       ════════════════════════════════════════════════════════════════════ -->
+  <section id="acto8" class="pt-12">
+    <div class="flex items-center gap-2 mb-3 flex-wrap">
+      <h2 class="text-lg font-bold text-slate-900">Acto 8 · Estados · empty / loading</h2>
+      <span class="text-[10px] font-bold uppercase tracking-wide anno-warn px-2 py-0.5 rounded">empty del listado = plano legacy</span>
+      <span class="text-[10px] font-bold uppercase tracking-wide anno-ok px-2 py-0.5 rounded">empty de tabs = EmptyDashboardSkeleton / CTA</span>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+
+      <!-- empty del LISTADO (tab Órdenes · sin resultados) -->
+      <div>
+        <div class="text-[11px] font-bold text-slate-500 mb-2 ml-1">Tab Órdenes · sin resultados (en código real)</div>
+        <div class="bg-slate-50 rounded-xl p-4 border border-slate-100">
+          <div class="bg-white border border-slate-200 rounded-lg py-16 text-center">
+            <i data-lucide="package" class="w-12 h-12 text-slate-300 mx-auto mb-3"></i>
+            <p class="text-sm font-medium text-slate-700">Sin resultados</p>
+            <p class="text-xs text-slate-500 mt-1">No se encontraron órdenes de compra.</p>
+          </div>
+        </div>
+        <p class="text-[11px] text-amber-700 mt-1 ml-1">⚠️ empty plano sin CTA ni quick-start (no cumple canon N9).</p>
+      </div>
+
+      <!-- empty de Pendientes (CTA) -->
+      <div>
+        <div class="text-[11px] font-bold text-slate-500 mb-2 ml-1">Tab Pendientes · todo comprado (CTA)</div>
+        <div class="bg-white border border-slate-200 rounded-2xl p-10 text-center">
+          <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-blue-50 text-blue-600 mb-4 mx-auto"><i data-lucide="check-square" class="w-7 h-7"></i></div>
+          <h3 class="text-base font-semibold text-slate-900">Sin productos pendientes de comprar</h3>
+          <p class="text-[12px] text-slate-500 mt-1 max-w-sm mx-auto">Todos los productos de requerimientos aprobados ya tienen orden de compra.</p>
+          <button class="mt-5 inline-flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white text-[12px] font-semibold px-4 py-2 rounded-lg"><i data-lucide="plus" class="w-4 h-4"></i> Nueva orden de compra</button>
+        </div>
+      </div>
+
+      <!-- empty de Resumen (EmptyDashboardSkeleton · vista previa) -->
+      <div>
+        <div class="text-[11px] font-bold text-slate-500 mb-2 ml-1">Tab Resumen · sin OCs (EmptyDashboardSkeleton)</div>
+        <div class="bg-white border border-slate-200 rounded-2xl p-6 text-center">
+          <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-blue-50 text-blue-600 mb-3 mx-auto"><i data-lucide="shopping-cart" class="w-7 h-7"></i></div>
+          <h3 class="text-base font-semibold text-slate-900">Aún no hay órdenes de compra</h3>
+          <p class="text-[12px] text-slate-500 mt-1">Vista previa · así se verá cuando registres tu primera OC</p>
+          <!-- esqueleto de bloques -->
+          <div class="mt-4 space-y-2 opacity-60">
+            <div class="h-10 bg-slate-100 rounded-xl"></div>
+            <div class="grid grid-cols-2 gap-2"><div class="h-20 bg-slate-100 rounded-xl"></div><div class="h-20 bg-slate-100 rounded-xl"></div></div>
+            <div class="grid grid-cols-4 gap-2"><div class="h-12 bg-slate-100 rounded-lg"></div><div class="h-12 bg-slate-100 rounded-lg"></div><div class="h-12 bg-slate-100 rounded-lg"></div><div class="h-12 bg-slate-100 rounded-lg"></div></div>
+          </div>
+          <div class="mt-4 flex gap-2 justify-center"><button class="inline-flex items-center gap-1.5 bg-blue-600 text-white text-[12px] font-semibold px-4 py-2 rounded-lg"><i data-lucide="plus" class="w-4 h-4"></i> Nueva OC</button><button class="inline-flex items-center gap-1.5 bg-white border border-slate-200 text-slate-600 text-[12px] font-semibold px-4 py-2 rounded-lg"><i data-lucide="clipboard-list" class="w-4 h-4"></i> Ver pendientes</button></div>
+        </div>
+      </div>
+
+      <!-- loading de Pendientes (skeleton pulse) -->
+      <div>
+        <div class="text-[11px] font-bold text-slate-500 mb-2 ml-1">Tab Pendientes · loading (skeleton)</div>
+        <div class="space-y-3">
+          <div class="bg-white border border-slate-200 rounded-xl p-3 animate-pulse"><div class="h-3 w-24 bg-slate-100 rounded mb-2"></div><div class="h-4 w-2/3 bg-slate-100 rounded"></div></div>
+          <div class="bg-white border border-slate-200 rounded-xl p-3 animate-pulse"><div class="h-3 w-24 bg-slate-100 rounded mb-2"></div><div class="h-4 w-2/3 bg-slate-100 rounded"></div></div>
+          <div class="bg-white border border-slate-200 rounded-xl p-3 animate-pulse"><div class="h-3 w-24 bg-slate-100 rounded mb-2"></div><div class="h-4 w-2/3 bg-slate-100 rounded"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- alerta sin proveedores (banner contextual real del tab Órdenes) -->
+    <div class="mt-4">
+      <div class="text-[11px] font-bold text-slate-500 mb-2 ml-1">Tab Órdenes · sin proveedores (banner contextual · usa &lt;Card&gt; legacy)</div>
+      <div class="bg-white border border-slate-200 rounded-lg p-4">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center"><i data-lucide="alert-circle" class="h-5 w-5 text-amber-600 mr-3"></i><div><p class="text-sm font-medium text-slate-900">No hay proveedores registrados</p><p class="text-sm text-slate-600">Crea proveedores desde el Gestor de Maestros antes de hacer órdenes de compra.</p></div></div>
+          <button class="inline-flex items-center text-xs font-medium text-slate-600 border border-slate-200 rounded-lg px-3 py-1.5 hover:bg-slate-50"><i data-lucide="external-link" class="h-4 w-4 mr-1"></i> Ir a Maestros</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════════════════════
+       FOOTER · notas honestas DS
+       ════════════════════════════════════════════════════════════════════ -->
+  <section id="footer" class="pt-12 pb-16">
+    <h2 class="text-lg font-bold text-slate-900 mb-4">Notas honestas · estado Design System por pieza</h2>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+
+      <!-- canon -->
+      <div class="bg-white border border-emerald-200 rounded-2xl p-4">
+        <div class="flex items-center gap-2 mb-3"><i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-600"></i><span class="text-[13px] font-bold text-emerald-900">✓ Canon Hub Kit (migrado · F4)</span></div>
+        <ul class="space-y-1.5 text-[12px] text-slate-600">
+          <li>• <strong>Shell completo</strong> · <code class="mono">HubShell/TopBar/Header/KpiStrip/Tabs/Body</code> del DS. Breadcrumb S9.D1, chip de rol azul, color heredado del grupo Comercial (blue).</li>
+          <li>• <strong>KPI strip</strong> · 5 KPIs semánticos (amber/slate/sky/rose/emerald), gradient + ring, canon N1-N2.</li>
+          <li>• <strong>Tab Resumen</strong> · orden canónico §A→§F, no clona el strip (canon no-redundancia).</li>
+          <li>• <strong>Tabs Pendientes / Proveedores / Inteligencia</strong> · construidos nativos al DS (mini-stats, scroll-x N6, selección masiva, EmptyDashboardSkeleton).</li>
+          <li>• <strong>Filtros de la tab Órdenes</strong> · chips de etapa + selects con clases DS (focus-ring blue, rounded-lg).</li>
+        </ul>
+      </div>
+
+      <!-- legacy -->
+      <div class="bg-white border border-amber-200 rounded-2xl p-4">
+        <div class="flex items-center gap-2 mb-3"><i data-lucide="alert-triangle" class="w-4 h-4 text-amber-600"></i><span class="text-[13px] font-bold text-amber-900">legacy · pre-DS (no consume tokens del kit)</span></div>
+        <ul class="space-y-1.5 text-[12px] text-slate-600">
+          <li>• <strong>CompraCard.tsx</strong> · es la "referencia de diseño canónica S54.x" (v6.1) — anterior al Design System. NO usa HubCard ni los tokens L0. Marcada como NO-MODIFICAR sin permiso.</li>
+          <li>• <strong>Banderas con emoji</strong> (🇺🇸 🇵🇪 ✈️) dentro de las cards · choca con el canon F8 (lucide único, sin emojis en el chrome de UI).</li>
+          <li>• <strong>Empty del listado</strong> (tab Órdenes "Sin resultados") · plano, sin CTA ni quick-start de color (no cumple N9).</li>
+          <li>• <strong>Modal "Detalles de Orden"</strong> · usa <code class="mono">&lt;Modal size="full"&gt;</code> + <code class="mono">OrdenCompraCard</code> (componente legacy con su propio pipeline/tabs). No migrado al FormModalV2 (fuera del alcance de este mockup).</li>
+          <li>• <strong>Alerta "sin proveedores"</strong> · usa <code class="mono">&lt;Card&gt;</code> + <code class="mono">&lt;Button&gt;</code> de <code class="mono">common/</code> (congelado).</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- qué confunde hoy -->
+    <div class="bg-white border border-slate-200 rounded-2xl p-4 mt-4">
+      <div class="flex items-center gap-2 mb-3"><i data-lucide="help-circle" class="w-4 h-4 text-slate-500"></i><span class="text-[13px] font-bold text-slate-900">Qué confunde hoy</span></div>
+      <ul class="space-y-1.5 text-[12px] text-slate-600">
+        <li>• <strong>Dos lenguajes visuales conviviendo</strong>: el chrome del shell ya es Hub Kit pulido (gradients sutiles, ring, tabular-nums), pero al entrar al listado las CompraCard se sienten de otra era (emojis, dividers verticales, tonos propios). El salto es perceptible.</li>
+        <li>• <strong>Dos cards muy distintas</strong> para el mismo concepto "una OC": la simple (5-col horizontal con avatares) vs. la de sub-órdenes (rounded-2xl, grid + acordeón). El usuario ve dos formatos sin entender por qué uno u otro (depende de si tiene <code class="mono">subOrdenes[]</code>).</li>
+        <li>• <strong>El estado se nombra distinto según dónde mires</strong>: el strip dice "En curso", el chip de etapa dice "En Despacho", la pill de la card dice "Confirmada/En Despacho/Completada" y la sub-orden dice "En Tránsito". Hay mapeos legacy (enviada→Confirmada, en_transito→En Despacho) que el usuario no ve, solo siente la inconsistencia de etiquetas.</li>
+        <li>• <strong>Filtros en 3 zonas</strong> (buscador arriba · chips de etapa · 3 selects) sin la <code class="mono">FiltrosBar</code> compositional del DS — funciona, pero no es el patrón único de filtros que el resto del sistema persigue.</li>
+        <li>• <strong>Empty del listado vs. empty de las tabs</strong>: las tabs nuevas tienen empty rico (skeleton + CTA), pero el listado de Órdenes cae a un "Sin resultados" plano. Inconsistencia de calidad dentro del mismo módulo.</li>
+      </ul>
+    </div>
+
+    <p class="text-[11px] text-slate-400 mt-6 text-center">Documentación del estado actual · <code class="mono">docs/mockups/compras-01-listado-y-tabs.html</code> · grupo Comercial (blue) · no es una propuesta de rediseño.</p>
+  </section>
+
+</div>
+
+<script>lucide.createIcons();</script>
+</body>
+</html>

@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Proyección 360 · Hub canónico · v1</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest"></script>
+<script>
+  tailwind.config = { theme: { extend: { fontFamily: { sans: ['Inter','system-ui','sans-serif'] } } } }
+</script>
+<style>
+  body { font-family: 'Inter', system-ui, sans-serif; background: #f1f5f9; }
+  .tabular { font-variant-numeric: tabular-nums; }
+  .frame { box-shadow: 0 1px 3px rgba(0,0,0,.06), 0 8px 24px rgba(0,0,0,.04); }
+</style>
+</head>
+<body class="text-slate-800 pb-24">
+
+<!-- ============ HERO + ÍNDICE ============ -->
+<div class="max-w-6xl mx-auto px-4 pt-8 pb-4">
+  <div class="bg-white rounded-2xl frame p-6 border border-slate-200">
+    <div class="flex items-center gap-2 mb-2">
+      <span class="text-[10px] font-bold uppercase tracking-wider text-indigo-700 bg-indigo-50 ring-1 ring-indigo-200/60 rounded-full px-2.5 py-1">Mockup · rediseño</span>
+      <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500 bg-slate-100 rounded-full px-2.5 py-1">Grupo Análisis · indigo</span>
+    </div>
+    <h1 class="text-2xl font-bold tracking-tight text-slate-900">Proyección 360 · Hub canónico</h1>
+    <p class="text-[13px] text-slate-500 leading-snug mt-1 max-w-3xl">
+      Rework de la página suelta legacy (PageShell + Hero teal con texto violet) → <b>Hub canónico</b> del grupo Análisis (indigo).
+      Resuelve la <b>inconsistencia de Deuda 4</b>: se elimina el tab "Flujo de Caja" (caja sintética que contradecía a Finanzas)
+      <b>sin cross-link</b> (decisión del usuario). Escenarios renombrados a "de utilidad". 5 tabs · cobertura total + mobile.
+    </p>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-2 mt-4 text-[12px]">
+      <a href="#acto1" class="bg-slate-50 hover:bg-indigo-50 rounded-lg px-3 py-2 font-semibold text-slate-700">1 · Shell + Resumen</a>
+      <a href="#acto2" class="bg-slate-50 hover:bg-indigo-50 rounded-lg px-3 py-2 font-semibold text-slate-700">2 · Tab Ventas</a>
+      <a href="#acto3" class="bg-slate-50 hover:bg-indigo-50 rounded-lg px-3 py-2 font-semibold text-slate-700">3 · Tab Inventario</a>
+      <a href="#acto4" class="bg-slate-50 hover:bg-indigo-50 rounded-lg px-3 py-2 font-semibold text-slate-700">4 · Tab Costos</a>
+      <a href="#acto5" class="bg-slate-50 hover:bg-indigo-50 rounded-lg px-3 py-2 font-semibold text-slate-700">5 · Tab Margen</a>
+      <a href="#acto6" class="bg-slate-50 hover:bg-indigo-50 rounded-lg px-3 py-2 font-semibold text-slate-700">6 · Estados</a>
+      <a href="#acto7" class="bg-slate-50 hover:bg-indigo-50 rounded-lg px-3 py-2 font-semibold text-slate-700">7 · Mobile</a>
+      <a href="#cambios" class="bg-slate-50 hover:bg-indigo-50 rounded-lg px-3 py-2 font-semibold text-slate-700">8 · Qué cambia</a>
+    </div>
+  </div>
+</div>
+
+<!-- ============ ACTO 1 · SHELL + RESUMEN ============ -->
+<div id="acto1" class="max-w-6xl mx-auto px-4 pt-6">
+  <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2">Acto 1 · Shell desktop + tab Resumen (default)</div>
+
+  <!-- SHELL FRAME -->
+  <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden frame">
+
+    <!-- TOP-BAR · breadcrumb + chip rol indigo -->
+    <div class="border-b border-slate-200 px-6 py-2.5 bg-slate-50 flex items-center justify-between">
+      <div class="flex items-center gap-1.5 text-[11px] text-slate-500">
+        <span>Inicio</span>
+        <i data-lucide="chevron-right" class="w-3 h-3"></i>
+        <span class="text-slate-700 font-semibold">Proyección</span>
+      </div>
+      <div class="flex items-center gap-1.5 text-[11px] font-semibold text-indigo-700 bg-indigo-50 ring-1 ring-indigo-200/60 rounded-full px-2.5 py-1">
+        <i data-lucide="shield" class="w-3 h-3"></i>
+        Vista ejecutiva · admin
+      </div>
+    </div>
+
+    <!-- HEADER banking-grade -->
+    <div class="px-6 pt-5 pb-4 flex items-start justify-between gap-4 flex-wrap">
+      <div class="flex items-start gap-3">
+        <div class="w-11 h-11 bg-indigo-100 rounded-xl flex items-center justify-center flex-shrink-0">
+          <i data-lucide="trending-up" class="w-5 h-5 text-indigo-700"></i>
+        </div>
+        <div>
+          <h1 class="text-2xl font-bold tracking-tight text-slate-900">Proyección 360</h1>
+          <p class="text-[13px] text-slate-500 leading-snug">Ventas · Inventario · Costos · Margen del negocio · próximos 30 días</p>
+        </div>
+      </div>
+      <!-- acciones 3-tier -->
+      <div class="flex items-center gap-2 flex-wrap">
+        <!-- LineaDropdown (neutral) -->
+        <button class="bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 text-[12px] font-semibold px-3 py-1.5 rounded-lg flex items-center gap-1.5">
+          <i data-lucide="layers" class="w-3.5 h-3.5"></i> Todas las líneas <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-400"></i>
+        </button>
+        <!-- horizonte toggle (view control) -->
+        <div class="flex items-center gap-1 bg-slate-100 rounded-lg p-0.5">
+          <button class="px-3 py-1 rounded-md text-[12px] font-semibold bg-white text-indigo-700 shadow-sm">30 días</button>
+          <button class="px-3 py-1 rounded-md text-[12px] font-semibold text-slate-500">90 días</button>
+        </div>
+        <!-- recalcular (neutral) -->
+        <button class="bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 text-[12px] font-semibold px-3 py-1.5 rounded-lg flex items-center gap-1.5">
+          <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Recalcular
+        </button>
+      </div>
+    </div>
+
+    <!-- KPI STRIP semántico (5) + mini-stats footer integrado -->
+    <div class="px-6">
+      <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
+        <!-- Ingresos · emerald -->
+        <div class="bg-gradient-to-br from-emerald-50 to-emerald-100/40 ring-1 ring-emerald-200/50 rounded-2xl p-4">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-[10px] uppercase tracking-wider text-emerald-700 font-bold">Ingresos</span>
+            <i data-lucide="shopping-cart" class="w-3.5 h-3.5 text-emerald-700"></i>
+          </div>
+          <div class="text-2xl font-bold tabular text-emerald-900">S/ 48.2<span class="text-emerald-400">k</span></div>
+          <div class="text-[11px] text-emerald-700 flex items-center gap-1 mt-1"><i data-lucide="trending-up" class="w-3 h-3"></i> +12.4% vs mes ant.</div>
+        </div>
+        <!-- Costos · amber -->
+        <div class="bg-gradient-to-br from-amber-50 to-amber-100/40 ring-1 ring-amber-200/50 rounded-2xl p-4">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-[10px] uppercase tracking-wider text-amber-700 font-bold">Costos</span>
+            <i data-lucide="dollar-sign" class="w-3.5 h-3.5 text-amber-700"></i>
+          </div>
+          <div class="text-2xl font-bold tabular text-amber-900">S/ 31.5<span class="text-amber-400">k</span></div>
+          <div class="text-[11px] text-amber-700 mt-1">CTRU + GA/GO/GV/GD</div>
+        </div>
+        <!-- Utilidad · emerald -->
+        <div class="bg-gradient-to-br from-emerald-50 to-emerald-100/40 ring-1 ring-emerald-200/50 rounded-2xl p-4">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-[10px] uppercase tracking-wider text-emerald-700 font-bold">Utilidad</span>
+            <i data-lucide="trending-up" class="w-3.5 h-3.5 text-emerald-700"></i>
+          </div>
+          <div class="text-2xl font-bold tabular text-emerald-900">S/ 16.7<span class="text-emerald-400">k</span></div>
+          <div class="text-[11px] text-emerald-700 mt-1">neta proyectada</div>
+        </div>
+        <!-- Margen neto · emerald -->
+        <div class="bg-gradient-to-br from-emerald-50 to-emerald-100/40 ring-1 ring-emerald-200/50 rounded-2xl p-4">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-[10px] uppercase tracking-wider text-emerald-700 font-bold">Margen neto</span>
+            <i data-lucide="target" class="w-3.5 h-3.5 text-emerald-700"></i>
+          </div>
+          <div class="text-2xl font-bold tabular text-emerald-900">34.6<span class="text-emerald-400">%</span></div>
+          <div class="text-[11px] text-emerald-700 mt-1">saludable (&ge;20%)</div>
+        </div>
+        <!-- Alertas · rose -->
+        <div class="bg-gradient-to-br from-rose-50 to-rose-100/40 ring-1 ring-rose-200/50 rounded-2xl p-4">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-[10px] uppercase tracking-wider text-rose-700 font-bold">Alertas</span>
+            <i data-lucide="alert-triangle" class="w-3.5 h-3.5 text-rose-700"></i>
+          </div>
+          <div class="text-2xl font-bold tabular text-rose-900">3</div>
+          <div class="text-[11px] text-rose-700 mt-1">1 crítica</div>
+        </div>
+      </div>
+      <!-- mini-stats footer integrado (canon N3) -->
+      <div class="bg-slate-50/70 border border-slate-200 rounded-xl px-4 py-2 mt-3 flex items-center gap-4 text-[11px] flex-wrap">
+        <span class="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Base del cálculo:</span>
+        <span class="flex items-center gap-1 text-slate-600"><i data-lucide="database" class="w-3 h-3 text-slate-400"></i> 4 meses de historial</span>
+        <span class="flex items-center gap-1 text-slate-600"><i data-lucide="gauge" class="w-3 h-3 text-slate-400"></i> Confianza: <span class="font-bold text-amber-600">media</span></span>
+        <span class="flex items-center gap-1 text-slate-600"><i data-lucide="calendar" class="w-3 h-3 text-slate-400"></i> Horizonte: 30 días</span>
+        <span class="flex items-center gap-1 text-slate-600 ml-auto"><i data-lucide="clock" class="w-3 h-3 text-slate-400"></i> Recalculado 14:32</span>
+      </div>
+    </div>
+
+    <!-- TABS (5) · indigo activo · NO Flujo de Caja -->
+    <div class="px-6 mt-4 border-b border-slate-200 flex gap-1 overflow-x-auto">
+      <button class="flex items-center gap-1.5 px-3 py-2.5 text-[13px] font-semibold whitespace-nowrap text-indigo-700 border-b-2 border-indigo-600 -mb-px">
+        <i data-lucide="bar-chart-3" class="w-4 h-4"></i> Resumen
+      </button>
+      <button class="flex items-center gap-1.5 px-3 py-2.5 text-[13px] font-medium whitespace-nowrap text-slate-500 hover:text-slate-700">
+        <i data-lucide="shopping-cart" class="w-4 h-4"></i> Ventas
+      </button>
+      <button class="flex items-center gap-1.5 px-3 py-2.5 text-[13px] font-medium whitespace-nowrap text-slate-500 hover:text-slate-700">
+        <i data-lucide="package" class="w-4 h-4"></i> Inventario
+      </button>
+      <button class="flex items-center gap-1.5 px-3 py-2.5 text-[13px] font-medium whitespace-nowrap text-slate-500 hover:text-slate-700">
+        <i data-lucide="dollar-sign" class="w-4 h-4"></i> Costos
+      </button>
+      <button class="flex items-center gap-1.5 px-3 py-2.5 text-[13px] font-medium whitespace-nowrap text-slate-500 hover:text-slate-700">
+        <i data-lucide="target" class="w-4 h-4"></i> Margen
+      </button>
+    </div>
+
+    <!-- BODY · Resumen (§A banner → §B visualización → §C insights P&L + escenarios → §F alertas) -->
+    <div class="p-3 sm:p-4 md:p-6 bg-slate-50/30 space-y-4">
+
+      <!-- §A banner estado -->
+      <div class="bg-gradient-to-r from-indigo-50 to-indigo-100/30 ring-1 ring-indigo-200/60 rounded-2xl p-4 flex items-start gap-3">
+        <div class="w-9 h-9 bg-indigo-100 rounded-lg flex items-center justify-center flex-shrink-0">
+          <i data-lucide="sparkles" class="w-4.5 h-4.5 text-indigo-700"></i>
+        </div>
+        <div>
+          <div class="text-[13px] font-bold text-slate-900">Negocio en crecimiento · utilidad neta proyectada S/ 16.7k</div>
+          <div class="text-[12px] text-slate-600 leading-snug">Con el ritmo actual de ventas y los costos de hoy, los próximos 30 días cierran con margen saludable. Hay 1 alerta crítica de stock que conviene atender.</div>
+        </div>
+      </div>
+
+      <!-- §B visualización · timeline ingresos vs costos vs utilidad -->
+      <div class="bg-white border border-slate-200 rounded-2xl p-4">
+        <h3 class="text-[14px] font-semibold text-slate-900 mb-3 flex items-center gap-2"><i data-lucide="layers" class="w-4 h-4 text-indigo-600"></i> Evolución y proyección del negocio</h3>
+        <!-- chart aproximado (barras + línea) -->
+        <div class="h-56 flex items-end gap-4 px-2 border-l border-b border-slate-200 relative">
+          <div class="absolute left-1 top-0 text-[9px] text-slate-400">S/60k</div>
+          <div class="absolute left-1 bottom-0 text-[9px] text-slate-400">S/0</div>
+          <!-- columnas: 3 meses reales + 2 proyectados -->
+          <div class="flex-1 flex items-end justify-center gap-1 h-full"><div class="w-4 bg-blue-500/70 rounded-t" style="height:55%"></div><div class="w-4 bg-orange-400/60 rounded-t" style="height:38%"></div></div>
+          <div class="flex-1 flex items-end justify-center gap-1 h-full"><div class="w-4 bg-blue-500/70 rounded-t" style="height:62%"></div><div class="w-4 bg-orange-400/60 rounded-t" style="height:42%"></div></div>
+          <div class="flex-1 flex items-end justify-center gap-1 h-full"><div class="w-4 bg-blue-500/70 rounded-t" style="height:70%"></div><div class="w-4 bg-orange-400/60 rounded-t" style="height:46%"></div></div>
+          <div class="flex-1 flex items-end justify-center gap-1 h-full bg-indigo-50/40 rounded-t"><div class="w-4 bg-blue-500/40 rounded-t border border-dashed border-blue-400" style="height:78%"></div><div class="w-4 bg-orange-400/30 rounded-t border border-dashed border-orange-300" style="height:50%"></div></div>
+          <div class="flex-1 flex items-end justify-center gap-1 h-full bg-indigo-50/40 rounded-t"><div class="w-4 bg-blue-500/40 rounded-t border border-dashed border-blue-400" style="height:84%"></div><div class="w-4 bg-orange-400/30 rounded-t border border-dashed border-orange-300" style="height:53%"></div></div>
+        </div>
+        <div class="flex items-center justify-between mt-2">
+          <div class="flex items-center gap-3 text-[10px] text-slate-500">
+            <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 bg-blue-500/70 rounded-sm"></span> Ingresos</span>
+            <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 bg-orange-400/60 rounded-sm"></span> Costos</span>
+            <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 bg-emerald-500 rounded-sm"></span> Utilidad</span>
+          </div>
+          <span class="text-[10px] text-slate-400 flex items-center gap-1"><span class="w-3 border-t border-dashed border-indigo-400"></span> proyectado</span>
+        </div>
+      </div>
+
+      <!-- §C insights · P&L + escenarios DE UTILIDAD -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- P&L proyectado (detalle del strip · canon resumen+detalle legítimo) -->
+        <div class="bg-white border border-slate-200 rounded-2xl p-4">
+          <h3 class="text-[14px] font-semibold text-slate-900 mb-3">P&amp;L proyectado (30 días)</h3>
+          <div class="space-y-1 text-[13px]">
+            <div class="flex items-center justify-between py-1 font-semibold"><span>Ingresos por ventas</span><span class="tabular">S/ 48,200</span></div>
+            <div class="flex items-center justify-between py-1"><span class="text-slate-500">(−) Costo de ventas (CTRU)</span><span class="tabular text-rose-500">S/ 22,800</span></div>
+            <div class="flex items-center justify-between py-1 font-semibold border-t border-slate-100 pt-1"><span>= Utilidad bruta</span><span class="flex items-center gap-2"><span class="tabular">S/ 25,400</span><span class="text-[11px] font-bold text-emerald-600 tabular">52.7%</span></span></div>
+            <div class="flex items-center justify-between py-1"><span class="text-slate-500">(−) Gastos operativos (GA/GO/GV/GD)</span><span class="tabular text-rose-500">S/ 8,700</span></div>
+            <div class="flex items-center justify-between py-1.5 font-bold border-t-2 border-slate-300 mt-1"><span>= Utilidad neta</span><span class="flex items-center gap-2"><span class="tabular">S/ 16,700</span><span class="text-[11px] font-bold text-emerald-600 tabular">34.6%</span></span></div>
+          </div>
+        </div>
+        <!-- Escenarios DE UTILIDAD (renombrado · ya no se confunde con caja) -->
+        <div class="bg-white border border-slate-200 rounded-2xl p-4">
+          <div class="flex items-center gap-2 mb-3">
+            <h3 class="text-[14px] font-semibold text-slate-900">Escenarios de utilidad</h3>
+            <span class="text-[10px] text-slate-400 bg-slate-100 rounded-full px-2 py-0.5">±% ventas/TC/gastos</span>
+          </div>
+          <div class="space-y-2.5">
+            <div class="border-l-4 border-emerald-500 bg-slate-50/60 rounded-r-lg p-2.5">
+              <div class="flex items-center justify-between"><span class="text-[12px] font-bold text-slate-700">Optimista <span class="text-slate-400 font-normal">· 25%</span></span><span class="text-[15px] font-bold tabular text-slate-900">S/ 21.4k</span></div>
+              <div class="h-1.5 bg-slate-200 rounded-full overflow-hidden mt-1.5"><div class="h-full bg-emerald-500 rounded-full" style="width:82%"></div></div>
+              <div class="text-[10px] text-slate-500 mt-1">Margen 41.0% · ingresos S/ 52.1k</div>
+            </div>
+            <div class="border-l-4 border-sky-500 bg-slate-50/60 rounded-r-lg p-2.5">
+              <div class="flex items-center justify-between"><span class="text-[12px] font-bold text-slate-700">Base <span class="text-slate-400 font-normal">· 50%</span></span><span class="text-[15px] font-bold tabular text-slate-900">S/ 16.7k</span></div>
+              <div class="h-1.5 bg-slate-200 rounded-full overflow-hidden mt-1.5"><div class="h-full bg-emerald-500 rounded-full" style="width:69%"></div></div>
+              <div class="text-[10px] text-slate-500 mt-1">Margen 34.6% · ingresos S/ 48.2k</div>
+            </div>
+            <div class="border-l-4 border-rose-500 bg-slate-50/60 rounded-r-lg p-2.5">
+              <div class="flex items-center justify-between"><span class="text-[12px] font-bold text-slate-700">Pesimista <span class="text-slate-400 font-normal">· 25%</span></span><span class="text-[15px] font-bold tabular text-slate-900">S/ 11.2k</span></div>
+              <div class="h-1.5 bg-slate-200 rounded-full overflow-hidden mt-1.5"><div class="h-full bg-amber-400 rounded-full" style="width:50%"></div></div>
+              <div class="text-[10px] text-slate-500 mt-1">Margen 25.0% · ingresos S/ 43.1k</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- §F alertas -->
+      <div class="bg-white border border-slate-200 rounded-2xl p-4">
+        <h3 class="text-[14px] font-semibold text-slate-900 mb-3 flex items-center gap-2"><i data-lucide="alert-triangle" class="w-4 h-4 text-rose-500"></i> Alertas (3)</h3>
+        <div class="space-y-2">
+          <div class="flex items-start gap-3 p-2.5 rounded-lg bg-rose-50 border border-rose-200 text-[13px]">
+            <i data-lucide="alert-circle" class="w-4 h-4 mt-0.5 flex-shrink-0 text-rose-500"></i>
+            <div><div class="font-medium text-slate-900">Protector Solar SPF50 — stock crítico, 8 días restantes</div><div class="text-[11px] text-slate-500 mt-0.5">Comprar 120 uds antes del 24/06 — S/ 4,800</div></div>
+          </div>
+          <div class="flex items-start gap-3 p-2.5 rounded-lg bg-amber-50 border border-amber-200 text-[13px]">
+            <i data-lucide="alert-circle" class="w-4 h-4 mt-0.5 flex-shrink-0 text-amber-500"></i>
+            <div><div class="font-medium text-slate-900">Serum Vitamina C — margen bajo (14%)</div><div class="text-[11px] text-slate-500 mt-0.5">Revisar precio de venta o costo de adquisición</div></div>
+          </div>
+          <div class="flex items-start gap-3 p-2.5 rounded-lg bg-sky-50 border border-sky-200 text-[13px]">
+            <i data-lucide="alert-circle" class="w-4 h-4 mt-0.5 flex-shrink-0 text-sky-500"></i>
+            <div><div class="font-medium text-slate-900">Crecimiento sostenido +12% vs mes anterior</div><div class="text-[11px] text-slate-500 mt-0.5">Evaluar reforzar stock de los 3 productos estrella</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ ACTO 2 · TAB VENTAS ============ -->
+<div id="acto2" class="max-w-6xl mx-auto px-4 pt-10">
+  <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2">Acto 2 · Tab Ventas</div>
+  <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden frame">
+    <div class="px-6 pt-4 border-b border-slate-200 flex gap-1 overflow-x-auto text-[13px]">
+      <button class="px-3 py-2.5 font-medium text-slate-400">Resumen</button>
+      <button class="px-3 py-2.5 font-semibold text-indigo-700 border-b-2 border-indigo-600 -mb-px flex items-center gap-1.5"><i data-lucide="shopping-cart" class="w-4 h-4"></i> Ventas</button>
+      <button class="px-3 py-2.5 font-medium text-slate-400">Inventario</button>
+      <button class="px-3 py-2.5 font-medium text-slate-400">Costos</button>
+      <button class="px-3 py-2.5 font-medium text-slate-400">Margen</button>
+    </div>
+    <div class="p-3 sm:p-4 md:p-6 bg-slate-50/30 space-y-4">
+      <!-- mini KPIs -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div class="bg-white border border-slate-200 rounded-xl p-3"><div class="text-[10px] uppercase tracking-wider text-slate-400 font-bold">Unidades proyectadas</div><div class="text-lg font-bold tabular text-slate-900 mt-0.5">612</div></div>
+        <div class="bg-white border border-slate-200 rounded-xl p-3"><div class="text-[10px] uppercase tracking-wider text-slate-400 font-bold">Monto proyectado</div><div class="text-lg font-bold tabular text-slate-900 mt-0.5">S/ 48,200</div></div>
+        <div class="bg-white border border-slate-200 rounded-xl p-3"><div class="text-[10px] uppercase tracking-wider text-slate-400 font-bold">Ticket promedio</div><div class="text-lg font-bold tabular text-slate-900 mt-0.5">S/ 78.8</div></div>
+        <div class="bg-white border border-slate-200 rounded-xl p-3"><div class="text-[10px] uppercase tracking-wider text-slate-400 font-bold">Crecimiento</div><div class="text-lg font-bold tabular text-emerald-600 mt-0.5">+12.4%</div></div>
+      </div>
+      <!-- tabla -->
+      <div class="bg-white border border-slate-200 rounded-2xl p-4">
+        <h3 class="text-[14px] font-semibold text-slate-900 mb-3">Ventas proyectadas por producto</h3>
+        <div class="overflow-x-auto">
+          <table class="w-full text-[12px]">
+            <thead><tr class="text-[10px] uppercase tracking-wider text-slate-400 border-b border-slate-200">
+              <th class="text-left font-bold py-2">Producto</th><th class="text-right font-bold py-2">Vel. venta/mes</th><th class="text-right font-bold py-2">Días stock</th><th class="text-right font-bold py-2">Uds. vendibles</th><th class="text-right font-bold py-2">Ingreso proy.</th><th class="text-center font-bold py-2">Estado</th>
+            </tr></thead>
+            <tbody class="divide-y divide-slate-100">
+              <tr><td class="py-2 font-medium">Serum Vitamina C 30ml</td><td class="text-right tabular">84.0</td><td class="text-right tabular">42d</td><td class="text-right tabular">168</td><td class="text-right tabular font-medium">S/ 14,280</td><td class="text-center"><span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 font-medium">OK</span></td></tr>
+              <tr><td class="py-2 font-medium">Crema Hidratante 50g</td><td class="text-right tabular">62.0</td><td class="text-right tabular">55d</td><td class="text-right tabular">124</td><td class="text-right tabular font-medium">S/ 11,160</td><td class="text-center"><span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 font-medium">OK</span></td></tr>
+              <tr><td class="py-2 font-medium">Protector Solar SPF50</td><td class="text-right tabular">90.0</td><td class="text-right tabular text-rose-600 font-bold">8d</td><td class="text-right tabular">24</td><td class="text-right tabular font-medium">S/ 2,160</td><td class="text-center"><span class="text-[10px] px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 font-medium">Stock limita</span></td></tr>
+              <tr><td class="py-2 font-medium">Tónico Facial 200ml</td><td class="text-right tabular">48.0</td><td class="text-right tabular">68d</td><td class="text-right tabular">96</td><td class="text-right tabular font-medium">S/ 7,680</td><td class="text-center"><span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 font-medium">OK</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ ACTO 3 · TAB INVENTARIO ============ -->
+<div id="acto3" class="max-w-6xl mx-auto px-4 pt-10">
+  <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2">Acto 3 · Tab Inventario</div>
+  <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden frame">
+    <div class="px-6 pt-4 border-b border-slate-200 flex gap-1 overflow-x-auto text-[13px]">
+      <button class="px-3 py-2.5 font-medium text-slate-400">Resumen</button>
+      <button class="px-3 py-2.5 font-medium text-slate-400">Ventas</button>
+      <button class="px-3 py-2.5 font-semibold text-indigo-700 border-b-2 border-indigo-600 -mb-px flex items-center gap-1.5"><i data-lucide="package" class="w-4 h-4"></i> Inventario</button>
+      <button class="px-3 py-2.5 font-medium text-slate-400">Costos</button>
+      <button class="px-3 py-2.5 font-medium text-slate-400">Margen</button>
+    </div>
+    <div class="p-3 sm:p-4 md:p-6 bg-slate-50/30 space-y-4">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div class="bg-white border border-slate-200 rounded-xl p-3"><div class="text-[10px] uppercase tracking-wider text-slate-400 font-bold">Disponibles</div><div class="text-lg font-bold tabular text-slate-900 mt-0.5">1,240 uds</div></div>
+        <div class="bg-white border border-slate-200 rounded-xl p-3"><div class="text-[10px] uppercase tracking-wider text-slate-400 font-bold">Valor inventario</div><div class="text-lg font-bold tabular text-slate-900 mt-0.5">S/ 86,400</div></div>
+        <div class="bg-white border border-slate-200 rounded-xl p-3"><div class="text-[10px] uppercase tracking-wider text-slate-400 font-bold">Productos en riesgo</div><div class="text-lg font-bold tabular text-rose-600 mt-0.5">2</div></div>
+        <div class="bg-white border border-slate-200 rounded-xl p-3"><div class="text-[10px] uppercase tracking-wider text-slate-400 font-bold">Costo recompra total</div><div class="text-lg font-bold tabular text-slate-900 mt-0.5">S/ 18,900</div></div>
+      </div>
+      <div class="bg-white border border-slate-200 rounded-2xl p-4">
+        <h3 class="text-[14px] font-semibold text-slate-900 mb-3">Estado del inventario proyectado</h3>
+        <div class="space-y-3">
+          <!-- crítico -->
+          <div>
+            <div class="flex items-center justify-between text-[13px] mb-1"><span class="font-medium">Protector Solar SPF50</span><div class="flex items-center gap-2"><span class="text-[11px] text-slate-500">24 uds</span><span class="text-[11px] font-bold text-rose-600">8d</span></div></div>
+            <div class="h-3 bg-slate-100 rounded-full overflow-hidden"><div class="h-full bg-rose-500 rounded-full" style="width:9%"></div></div>
+            <div class="text-[10px] text-slate-400 mt-0.5">Comprar 120 uds antes del 24/06/2026 — S/ 4,800</div>
+          </div>
+          <!-- atención -->
+          <div>
+            <div class="flex items-center justify-between text-[13px] mb-1"><span class="font-medium">Serum Vitamina C 30ml</span><div class="flex items-center gap-2"><span class="text-[11px] text-slate-500">168 uds</span><span class="text-[11px] font-bold text-amber-600">42d</span></div></div>
+            <div class="h-3 bg-slate-100 rounded-full overflow-hidden"><div class="h-full bg-amber-400 rounded-full" style="width:47%"></div></div>
+          </div>
+          <!-- ok -->
+          <div>
+            <div class="flex items-center justify-between text-[13px] mb-1"><span class="font-medium">Crema Hidratante 50g</span><div class="flex items-center gap-2"><span class="text-[11px] text-slate-500">124 uds</span><span class="text-[11px] font-bold text-emerald-600">55d</span></div></div>
+            <div class="h-3 bg-slate-100 rounded-full overflow-hidden"><div class="h-full bg-emerald-500 rounded-full" style="width:61%"></div></div>
+          </div>
+          <div>
+            <div class="flex items-center justify-between text-[13px] mb-1"><span class="font-medium">Tónico Facial 200ml</span><div class="flex items-center gap-2"><span class="text-[11px] text-slate-500">96 uds</span><span class="text-[11px] font-bold text-emerald-600">68d</span></div></div>
+            <div class="h-3 bg-slate-100 rounded-full overflow-hidden"><div class="h-full bg-emerald-500 rounded-full" style="width:76%"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ ACTO 4 · TAB COSTOS ============ -->
+<div id="acto4" class="max-w-6xl mx-auto px-4 pt-10">
+  <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2">Acto 4 · Tab Costos</div>
+  <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden frame">
+    <div class="px-6 pt-4 border-b border-slate-200 flex gap-1 overflow-x-auto text-[13px]">
+      <button class="px-3 py-2.5 font-medium text-slate-400">Resumen</button>
+      <button class="px-3 py-2.5 font-medium text-slate-400">Ventas</button>
+      <button class="px-3 py-2.5 font-medium text-slate-400">Inventario</button>
+      <button class="px-3 py-2.5 font-semibold text-indigo-700 border-b-2 border-indigo-600 -mb-px flex items-center gap-1.5"><i data-lucide="dollar-sign" class="w-4 h-4"></i> Costos</button>
+      <button class="px-3 py-2.5 font-medium text-slate-400">Margen</button>
+    </div>
+    <div class="p-3 sm:p-4 md:p-6 bg-slate-50/30 space-y-4">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div class="bg-white border border-slate-200 rounded-xl p-3"><div class="text-[10px] uppercase tracking-wider text-slate-400 font-bold">Costo total</div><div class="text-lg font-bold tabular text-slate-900 mt-0.5">S/ 31,500</div></div>
+        <div class="bg-white border border-slate-200 rounded-xl p-3"><div class="text-[10px] uppercase tracking-wider text-slate-400 font-bold">CTRU promedio</div><div class="text-lg font-bold tabular text-slate-900 mt-0.5">S/ 37.2</div></div>
+        <div class="bg-white border border-slate-200 rounded-xl p-3"><div class="text-[10px] uppercase tracking-wider text-slate-400 font-bold">GA/GO mensual</div><div class="text-lg font-bold tabular text-slate-900 mt-0.5">S/ 5,400</div></div>
+        <div class="bg-white border border-slate-200 rounded-xl p-3"><div class="text-[10px] uppercase tracking-wider text-slate-400 font-bold">Impacto TC +5%</div><div class="text-lg font-bold tabular text-rose-600 mt-0.5">S/ 1,140</div></div>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- donut aproximado -->
+        <div class="bg-white border border-slate-200 rounded-2xl p-4">
+          <h3 class="text-[14px] font-semibold text-slate-900 mb-3">Distribución de costos</h3>
+          <div class="flex items-center justify-center h-48">
+            <div class="w-36 h-36 rounded-full" style="background:conic-gradient(#3b82f6 0% 72%, #8b5cf6 72% 83%, #f59e0b 83% 92%, #06b6d4 92% 100%)">
+              <div class="w-20 h-20 bg-white rounded-full m-8 flex items-center justify-center text-[11px] font-bold text-slate-600 tabular">S/31.5k</div>
+            </div>
+          </div>
+        </div>
+        <!-- desglose -->
+        <div class="bg-white border border-slate-200 rounded-2xl p-4">
+          <h3 class="text-[14px] font-semibold text-slate-900 mb-3">Desglose</h3>
+          <div class="space-y-2 text-[13px]">
+            <div class="flex items-center justify-between"><span class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-blue-500"></span> Costo ventas (CTRU)</span><span class="tabular font-medium">S/ 22,800 <span class="text-slate-400 text-[11px]">72%</span></span></div>
+            <div class="flex items-center justify-between"><span class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-violet-500"></span> GA (Admin)</span><span class="tabular font-medium">S/ 3,465 <span class="text-slate-400 text-[11px]">11%</span></span></div>
+            <div class="flex items-center justify-between"><span class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-amber-500"></span> GO (Operativo)</span><span class="tabular font-medium">S/ 2,835 <span class="text-slate-400 text-[11px]">9%</span></span></div>
+            <div class="flex items-center justify-between"><span class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-cyan-500"></span> GV/GD (Venta)</span><span class="tabular font-medium">S/ 2,400 <span class="text-slate-400 text-[11px]">8%</span></span></div>
+            <div class="border-t border-slate-200 pt-2 flex justify-between font-bold"><span>Total</span><span class="tabular">S/ 31,500</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ ACTO 5 · TAB MARGEN ============ -->
+<div id="acto5" class="max-w-6xl mx-auto px-4 pt-10">
+  <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2">Acto 5 · Tab Margen</div>
+  <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden frame">
+    <div class="px-6 pt-4 border-b border-slate-200 flex gap-1 overflow-x-auto text-[13px]">
+      <button class="px-3 py-2.5 font-medium text-slate-400">Resumen</button>
+      <button class="px-3 py-2.5 font-medium text-slate-400">Ventas</button>
+      <button class="px-3 py-2.5 font-medium text-slate-400">Inventario</button>
+      <button class="px-3 py-2.5 font-medium text-slate-400">Costos</button>
+      <button class="px-3 py-2.5 font-semibold text-indigo-700 border-b-2 border-indigo-600 -mb-px flex items-center gap-1.5"><i data-lucide="target" class="w-4 h-4"></i> Margen</button>
+    </div>
+    <div class="p-3 sm:p-4 md:p-6 bg-slate-50/30 space-y-4">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div class="bg-white border border-slate-200 rounded-xl p-3"><div class="text-[10px] uppercase tracking-wider text-slate-400 font-bold">Margen bruto</div><div class="text-lg font-bold tabular text-emerald-600 mt-0.5">52.7%</div></div>
+        <div class="bg-white border border-slate-200 rounded-xl p-3"><div class="text-[10px] uppercase tracking-wider text-slate-400 font-bold">Margen neto</div><div class="text-lg font-bold tabular text-emerald-600 mt-0.5">34.6%</div></div>
+        <div class="bg-white border border-slate-200 rounded-xl p-3"><div class="text-[10px] uppercase tracking-wider text-slate-400 font-bold">Break-even</div><div class="text-lg font-bold tabular text-slate-900 mt-0.5">284 uds</div></div>
+        <div class="bg-white border border-slate-200 rounded-xl p-3"><div class="text-[10px] uppercase tracking-wider text-slate-400 font-bold">Productos riesgo</div><div class="text-lg font-bold tabular text-amber-600 mt-0.5">1</div></div>
+      </div>
+      <div class="bg-white border border-slate-200 rounded-2xl p-4">
+        <h3 class="text-[14px] font-semibold text-slate-900 mb-3">Cascada: de ingresos a utilidad</h3>
+        <div class="h-56 flex items-end justify-around gap-3 px-2 border-l border-b border-slate-200">
+          <div class="flex flex-col items-center gap-1 flex-1"><div class="w-full max-w-[64px] bg-emerald-500/80 rounded-t" style="height:88%"></div><span class="text-[10px] text-slate-500">Ingresos</span><span class="text-[10px] tabular font-bold text-slate-700">48.2k</span></div>
+          <div class="flex flex-col items-center gap-1 flex-1"><div class="w-full max-w-[64px] bg-rose-500/80 rounded-t" style="height:42%"></div><span class="text-[10px] text-slate-500">CTRU</span><span class="text-[10px] tabular font-bold text-slate-700">−22.8k</span></div>
+          <div class="flex flex-col items-center gap-1 flex-1"><div class="w-full max-w-[64px] bg-orange-500/80 rounded-t" style="height:16%"></div><span class="text-[10px] text-slate-500">GA/GO/GV/GD</span><span class="text-[10px] tabular font-bold text-slate-700">−8.7k</span></div>
+          <div class="flex flex-col items-center gap-1 flex-1"><div class="w-full max-w-[64px] bg-blue-500/80 rounded-t" style="height:31%"></div><span class="text-[10px] text-slate-500">Utilidad</span><span class="text-[10px] tabular font-bold text-slate-700">16.7k</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ ACTO 6 · ESTADOS ============ -->
+<div id="acto6" class="max-w-6xl mx-auto px-4 pt-10">
+  <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2">Acto 6 · Estados (loading · empty)</div>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <!-- loading -->
+    <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden frame">
+      <div class="border-b border-slate-200 px-6 py-2.5 bg-slate-50 text-[11px] text-slate-500">Inicio › Proyección · cargando</div>
+      <div class="p-6 space-y-3">
+        <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
+          <div class="h-20 bg-slate-100 rounded-2xl animate-pulse"></div><div class="h-20 bg-slate-100 rounded-2xl animate-pulse"></div><div class="h-20 bg-slate-100 rounded-2xl animate-pulse"></div><div class="h-20 bg-slate-100 rounded-2xl animate-pulse"></div><div class="h-20 bg-slate-100 rounded-2xl animate-pulse"></div>
+        </div>
+        <div class="h-56 bg-slate-100 rounded-2xl animate-pulse flex items-center justify-center"><i data-lucide="refresh-cw" class="w-6 h-6 text-indigo-400 animate-spin"></i></div>
+      </div>
+    </div>
+    <!-- empty -->
+    <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden frame">
+      <div class="border-b border-slate-200 px-6 py-2.5 bg-slate-50 text-[11px] text-slate-500">Inicio › Proyección · sin datos</div>
+      <div class="p-10 text-center">
+        <div class="w-14 h-14 bg-indigo-50 rounded-2xl flex items-center justify-center mx-auto mb-3"><i data-lucide="trending-up" class="w-7 h-7 text-indigo-300"></i></div>
+        <div class="text-[15px] font-bold text-slate-900">Aún no hay suficiente historial</div>
+        <p class="text-[12px] text-slate-500 mt-1 max-w-sm mx-auto">La proyección necesita al menos <b>1 producto con historial de ventas</b>. Registra ventas o ajusta el filtro de línea de negocio.</p>
+        <div class="flex items-center justify-center gap-2 mt-4">
+          <button class="bg-indigo-600 hover:bg-indigo-700 text-white text-[12px] font-bold px-3.5 py-2 rounded-lg">Ir a Productos</button>
+          <button class="bg-white border border-slate-200 text-slate-600 text-[12px] font-semibold px-3.5 py-2 rounded-lg">Quitar filtro de línea</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ ACTO 7 · MOBILE (375px) ============ -->
+<div id="acto7" class="max-w-6xl mx-auto px-4 pt-10">
+  <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2">Acto 7 · Mobile · 375px (shell + Resumen · tabs scroll-x · KPIs 2-col)</div>
+  <div class="flex gap-6 flex-wrap">
+
+    <!-- mobile shell + resumen -->
+    <div class="w-[375px] bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden frame">
+      <div class="border-b border-slate-200 px-4 py-2 bg-slate-50 flex items-center justify-between">
+        <div class="flex items-center gap-1 text-[10px] text-slate-500"><span>Inicio</span><i data-lucide="chevron-right" class="w-2.5 h-2.5"></i><span class="font-semibold text-slate-700">Proyección</span></div>
+        <span class="text-[9px] font-bold text-indigo-700 bg-indigo-50 ring-1 ring-indigo-200/60 rounded-full px-2 py-0.5">admin</span>
+      </div>
+      <div class="px-4 pt-3 pb-2">
+        <div class="flex items-center gap-2">
+          <div class="w-9 h-9 bg-indigo-100 rounded-lg flex items-center justify-center"><i data-lucide="trending-up" class="w-4.5 h-4.5 text-indigo-700"></i></div>
+          <div><h1 class="text-lg font-bold tracking-tight text-slate-900">Proyección 360</h1><p class="text-[11px] text-slate-500 leading-tight">próximos 30 días</p></div>
+        </div>
+        <div class="flex items-center gap-1 bg-slate-100 rounded-lg p-0.5 mt-3 w-max">
+          <button class="px-3 py-1 rounded-md text-[11px] font-semibold bg-white text-indigo-700 shadow-sm">30d</button>
+          <button class="px-3 py-1 rounded-md text-[11px] font-semibold text-slate-500">90d</button>
+        </div>
+      </div>
+      <!-- KPIs 2-col -->
+      <div class="px-4 grid grid-cols-2 gap-2">
+        <div class="bg-gradient-to-br from-emerald-50 to-emerald-100/40 ring-1 ring-emerald-200/50 rounded-xl p-3"><div class="text-[9px] uppercase tracking-wider text-emerald-700 font-bold">Ingresos</div><div class="text-lg font-bold tabular text-emerald-900">S/48.2k</div></div>
+        <div class="bg-gradient-to-br from-amber-50 to-amber-100/40 ring-1 ring-amber-200/50 rounded-xl p-3"><div class="text-[9px] uppercase tracking-wider text-amber-700 font-bold">Costos</div><div class="text-lg font-bold tabular text-amber-900">S/31.5k</div></div>
+        <div class="bg-gradient-to-br from-emerald-50 to-emerald-100/40 ring-1 ring-emerald-200/50 rounded-xl p-3"><div class="text-[9px] uppercase tracking-wider text-emerald-700 font-bold">Utilidad</div><div class="text-lg font-bold tabular text-emerald-900">S/16.7k</div></div>
+        <div class="bg-gradient-to-br from-rose-50 to-rose-100/40 ring-1 ring-rose-200/50 rounded-xl p-3"><div class="text-[9px] uppercase tracking-wider text-rose-700 font-bold">Alertas</div><div class="text-lg font-bold tabular text-rose-900">3</div></div>
+      </div>
+      <!-- tabs scroll-x -->
+      <div class="px-4 mt-3 border-b border-slate-200 flex gap-1 overflow-x-auto text-[12px]" style="scrollbar-width:none">
+        <button class="px-2.5 py-2 font-semibold text-indigo-700 border-b-2 border-indigo-600 -mb-px whitespace-nowrap">Resumen</button>
+        <button class="px-2.5 py-2 font-medium text-slate-400 whitespace-nowrap">Ventas</button>
+        <button class="px-2.5 py-2 font-medium text-slate-400 whitespace-nowrap">Inventario</button>
+        <button class="px-2.5 py-2 font-medium text-slate-400 whitespace-nowrap">Costos</button>
+        <button class="px-2.5 py-2 font-medium text-slate-400 whitespace-nowrap">Margen</button>
+      </div>
+      <div class="p-3 bg-slate-50/30 space-y-3">
+        <div class="bg-gradient-to-r from-indigo-50 to-indigo-100/30 ring-1 ring-indigo-200/60 rounded-xl p-3 text-[11px] text-slate-700"><b>Negocio en crecimiento</b> · utilidad neta S/16.7k · 1 alerta crítica.</div>
+        <div class="bg-white border border-slate-200 rounded-xl p-3">
+          <div class="text-[12px] font-semibold mb-2">P&amp;L proyectado</div>
+          <div class="space-y-1 text-[11px]">
+            <div class="flex justify-between font-semibold"><span>Ingresos</span><span class="tabular">S/48,200</span></div>
+            <div class="flex justify-between text-slate-500"><span>(−) CTRU</span><span class="tabular text-rose-500">S/22,800</span></div>
+            <div class="flex justify-between text-slate-500"><span>(−) GA/GO/GV/GD</span><span class="tabular text-rose-500">S/8,700</span></div>
+            <div class="flex justify-between font-bold border-t-2 border-slate-300 pt-1"><span>Utilidad neta</span><span class="tabular">S/16,700</span></div>
+          </div>
+        </div>
+        <div class="bg-white border border-slate-200 rounded-xl p-3">
+          <div class="text-[12px] font-semibold mb-2">Escenarios de utilidad</div>
+          <div class="space-y-2 text-[11px]">
+            <div class="flex items-center justify-between border-l-4 border-emerald-500 pl-2"><span class="font-bold">Optimista</span><span class="tabular font-bold">S/21.4k</span></div>
+            <div class="flex items-center justify-between border-l-4 border-sky-500 pl-2"><span class="font-bold">Base</span><span class="tabular font-bold">S/16.7k</span></div>
+            <div class="flex items-center justify-between border-l-4 border-rose-500 pl-2"><span class="font-bold">Pesimista</span><span class="tabular font-bold">S/11.2k</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- mobile tab inventario -->
+    <div class="w-[375px] bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden frame self-start">
+      <div class="border-b border-slate-200 px-4 py-2 bg-slate-50 text-[10px] text-slate-500">Proyección · Inventario (mobile)</div>
+      <div class="px-4 mt-2 border-b border-slate-200 flex gap-1 overflow-x-auto text-[12px]" style="scrollbar-width:none">
+        <button class="px-2.5 py-2 font-medium text-slate-400 whitespace-nowrap">Resumen</button>
+        <button class="px-2.5 py-2 font-medium text-slate-400 whitespace-nowrap">Ventas</button>
+        <button class="px-2.5 py-2 font-semibold text-indigo-700 border-b-2 border-indigo-600 -mb-px whitespace-nowrap">Inventario</button>
+        <button class="px-2.5 py-2 font-medium text-slate-400 whitespace-nowrap">Costos</button>
+      </div>
+      <div class="p-3 bg-slate-50/30 space-y-3">
+        <div class="grid grid-cols-2 gap-2">
+          <div class="bg-white border border-slate-200 rounded-xl p-2.5"><div class="text-[9px] uppercase tracking-wider text-slate-400 font-bold">Disponibles</div><div class="text-base font-bold tabular">1,240</div></div>
+          <div class="bg-white border border-slate-200 rounded-xl p-2.5"><div class="text-[9px] uppercase tracking-wider text-slate-400 font-bold">En riesgo</div><div class="text-base font-bold tabular text-rose-600">2</div></div>
+        </div>
+        <div class="bg-white border border-slate-200 rounded-xl p-3 space-y-3">
+          <div>
+            <div class="flex justify-between text-[12px] mb-1"><span class="font-medium">Protector Solar SPF50</span><span class="text-[11px] font-bold text-rose-600">8d</span></div>
+            <div class="h-2.5 bg-slate-100 rounded-full overflow-hidden"><div class="h-full bg-rose-500 rounded-full" style="width:9%"></div></div>
+          </div>
+          <div>
+            <div class="flex justify-between text-[12px] mb-1"><span class="font-medium">Serum Vitamina C</span><span class="text-[11px] font-bold text-amber-600">42d</span></div>
+            <div class="h-2.5 bg-slate-100 rounded-full overflow-hidden"><div class="h-full bg-amber-400 rounded-full" style="width:47%"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ QUÉ CAMBIA ============ -->
+<div id="cambios" class="max-w-6xl mx-auto px-4 pt-10">
+  <div class="bg-white border border-slate-200 rounded-2xl frame p-6">
+    <h2 class="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2"><i data-lucide="git-compare" class="w-5 h-5 text-indigo-600"></i> Qué cambia vs. hoy</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-[13px]">
+      <div class="space-y-2">
+        <div class="text-[11px] font-bold uppercase tracking-wider text-rose-500">Antes (página suelta legacy)</div>
+        <ul class="space-y-1.5 text-slate-600">
+          <li class="flex gap-2"><i data-lucide="x" class="w-4 h-4 text-rose-400 flex-shrink-0 mt-0.5"></i> PageShell + Hero <b>teal</b> con subtítulo <b>violet-200</b> (color inconsistente)</li>
+          <li class="flex gap-2"><i data-lucide="x" class="w-4 h-4 text-rose-400 flex-shrink-0 mt-0.5"></i> 6 tabs · incluye <b>Flujo de Caja sintético</b> (saldo desde 0, tasa cobro fija 85%) que <b>contradice</b> a Finanzas</li>
+          <li class="flex gap-2"><i data-lucide="x" class="w-4 h-4 text-rose-400 flex-shrink-0 mt-0.5"></i> "Escenarios" sin apellido → se confunden con caja</li>
+          <li class="flex gap-2"><i data-lucide="x" class="w-4 h-4 text-rose-400 flex-shrink-0 mt-0.5"></i> KPIs/tabs estilo legacy · sin anatomía hub</li>
+          <li class="flex gap-2"><i data-lucide="x" class="w-4 h-4 text-rose-400 flex-shrink-0 mt-0.5"></i> <b>@ts-nocheck</b> oculta 3 bugs reales (tcActual fuera de scope · margenNeto fantasma · montoFinanciamiento mal nombrado)</li>
+        </ul>
+      </div>
+      <div class="space-y-2">
+        <div class="text-[11px] font-bold uppercase tracking-wider text-emerald-600">Ahora (Hub canónico)</div>
+        <ul class="space-y-1.5 text-slate-600">
+          <li class="flex gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5"></i> Anatomía hub: shell → top-bar (breadcrumb + chip rol) → header → KPI strip → tabs → body</li>
+          <li class="flex gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5"></i> Color <b>indigo</b> (grupo Análisis) en todo el chrome · semántico en los datos</li>
+          <li class="flex gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5"></i> <b>5 tabs</b> · sin Flujo de Caja (la caja real vive en Finanzas · sin cross-link)</li>
+          <li class="flex gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5"></i> "<b>Escenarios de utilidad</b>" · etiqueta clara (no es caja)</li>
+          <li class="flex gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5"></i> Al implementar: quitar <b>@ts-nocheck</b> + arreglar los 3 bugs + borrar <code class="text-[11px] bg-slate-100 px-1 rounded">calcularFlujoCaja</code> muerto</li>
+        </ul>
+      </div>
+    </div>
+    <div class="mt-5 pt-4 border-t border-slate-200">
+      <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2">Checklist canon</div>
+      <div class="flex flex-wrap gap-2 text-[11px]">
+        <span class="bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200/60 rounded-full px-2.5 py-1 font-semibold">✓ Anatomía hub</span>
+        <span class="bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200/60 rounded-full px-2.5 py-1 font-semibold">✓ Color indigo grupo Análisis</span>
+        <span class="bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200/60 rounded-full px-2.5 py-1 font-semibold">✓ KPI strip semántico + mini-stats N3</span>
+        <span class="bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200/60 rounded-full px-2.5 py-1 font-semibold">✓ Tabs · Resumen default</span>
+        <span class="bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200/60 rounded-full px-2.5 py-1 font-semibold">✓ Layout B (max-w-6xl)</span>
+        <span class="bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200/60 rounded-full px-2.5 py-1 font-semibold">✓ No-redundancia (P&L = detalle del strip)</span>
+        <span class="bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200/60 rounded-full px-2.5 py-1 font-semibold">✓ Sin cross-links</span>
+        <span class="bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200/60 rounded-full px-2.5 py-1 font-semibold">✓ Mobile 375px</span>
+        <span class="bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200/60 rounded-full px-2.5 py-1 font-semibold">✓ Estados loading/empty</span>
+        <span class="bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200/60 rounded-full px-2.5 py-1 font-semibold">✓ Inter + tabular-nums + lucide</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>lucide.createIcons();</script>
+</body>
+</html>
