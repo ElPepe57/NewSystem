@@ -13,7 +13,8 @@ import {
   Building2,
   Users
 } from 'lucide-react';
-import { Button, Modal } from '../../components/common';
+import { Button } from '../../components/common';
+import { FormModalV2 } from '../../design-system';
 import { ProductoSearchRequerimientos, type ProductoRequerimientoSnapshot } from '../../components/modules/entidades/ProductoSearchRequerimientos';
 import { ClienteAutocomplete } from '../../components/modules/entidades/ClienteAutocomplete';
 import type { ClienteSnapshot } from '../../types/entidadesMaestras.types';
@@ -76,29 +77,34 @@ export const RequerimientoFormModal: React.FC<RequerimientoFormModalProps> = ({
     : null;
 
   return (
-    <Modal
+    <FormModalV2
       isOpen={isOpen}
       onClose={onClose}
-      title=""
+      onSubmit={onCrearRequerimiento}
+      title="Nuevo Requerimiento de Compra"
+      subtitle={tcDelDia ? `TC del día: S/ ${tcDelDia.venta.toFixed(3)}` : 'Solicitud de compra · demanda · aprobación'}
+      icon={ClipboardList}
+      iconTone="blue"
       size="xl"
+      submitLabel="Crear Requerimiento"
+      submitIcon={Check}
+      loading={isSubmitting}
+      disabled={!formData.productos?.length || (formData.origen === 'administrativo' && formData.subtipo === 'apuesta' && !formData.tesis?.trim())}
+      footerExtras={
+        formData.productos && formData.productos.length > 0
+          ? <span className="text-[12px] text-slate-500">{formData.productos.length} producto(s) · <strong className="text-slate-900 tabular-nums">$ {formData.productos.reduce((sum, p) => sum + (p.precioEstimadoUSD || 0) * p.cantidadSolicitada, 0).toFixed(2)} USD</strong></span>
+          : <span className="text-[12px] text-amber-600">Agrega al menos un producto</span>
+      }
     >
       <div className="space-y-6">
-        {/* Header con contexto */}
-        <div className="flex items-start justify-between border-b pb-4">
-          <div>
-            <h2 className="text-xl font-bold text-slate-900 flex items-center">
-              <ClipboardList className="h-6 w-6 mr-2 text-teal-600" />
-              Nuevo Requerimiento de Compra
-            </h2>
-            <p className="text-sm text-slate-500 mt-1">
-              {tcDelDia && `TC del dia: S/ ${tcDelDia.venta.toFixed(3)}`}
-            </p>
-          </div>
-          {/* Prioridad visual */}
+        {/* Prioridad */}
+        <div className="flex items-center justify-between gap-3 flex-wrap">
+          <label className="text-sm font-medium text-slate-700">Prioridad</label>
           <div className="flex space-x-2">
             {(['baja', 'media', 'alta'] as const).map((p) => (
               <button
                 key={p}
+                type="button"
                 onClick={() => onFormDataChange({ ...formData, prioridad: p })}
                 className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
                   formData.prioridad === p
@@ -529,45 +535,7 @@ export const RequerimientoFormModal: React.FC<RequerimientoFormModalProps> = ({
           />
         </div>
 
-        {/* Footer con acciones y resumen */}
-        <div className="flex items-center justify-between pt-4 border-t bg-slate-50 -mx-6 -mb-6 px-6 py-4 rounded-b-xl">
-          <div className="text-sm text-slate-500">
-            {formData.productos && formData.productos.length > 0 ? (
-              <span>
-                <strong className="text-slate-900">{formData.productos.length}</strong> producto(s) •
-                <strong className="text-slate-900 ml-1">
-                  ${formData.productos.reduce((sum, p) => sum + (p.precioEstimadoUSD || 0) * p.cantidadSolicitada, 0).toFixed(2)} USD
-                </strong>
-              </span>
-            ) : (
-              <span className="text-amber-600">Agrega al menos un producto</span>
-            )}
-          </div>
-          <div className="flex space-x-3">
-            <Button variant="ghost" onClick={onClose}>
-              Cancelar
-            </Button>
-            <Button
-              variant="primary"
-              onClick={onCrearRequerimiento}
-              disabled={isSubmitting || !formData.productos?.length || (formData.origen === 'administrativo' && formData.subtipo === 'apuesta' && !formData.tesis?.trim())}
-              className="px-6"
-            >
-              {isSubmitting ? (
-                <>
-                  <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
-                  Creando...
-                </>
-              ) : (
-                <>
-                  <Check className="h-4 w-4 mr-2" />
-                  Crear Requerimiento
-                </>
-              )}
-            </Button>
-          </div>
-        </div>
       </div>
-    </Modal>
+    </FormModalV2>
   );
 };
