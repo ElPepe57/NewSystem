@@ -840,10 +840,16 @@ async function asignarInventarioFEFO(
       costoProducto += ctru;
       unidadesIds.push(uDoc.id);
 
+      // F4 · Fase C · C3: schema nuevo reserva{} (origen 'ml' · 60d) + planos (dual-write) · estadoPrevio de la unidad
+      const fechaReservaMl = Timestamp.now();
+      const vigenciaMl = Timestamp.fromMillis(fechaReservaMl.toMillis() + 60 * 24 * 60 * 60 * 1000);
+      const estadoPrevioMl = uDoc.data()?.estado || "disponible_peru";
       batch.update(uDoc.ref, {
         estado: "reservada",
+        reserva: { para: ventaId, origen: "ml", fechaReserva: fechaReservaMl, vigenciaHasta: vigenciaMl, estadoPrevio: estadoPrevioMl },
         reservadaPara: ventaId,
-        fechaReserva: Timestamp.now(),
+        fechaReserva: fechaReservaMl,
+        reservaVigenciaHasta: vigenciaMl,
       });
     }
 

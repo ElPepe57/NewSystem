@@ -2187,14 +2187,24 @@ export const liberarReservasVencidas = functions.pubsub
 
       for (const doc of snapshot.docs) {
         const data = doc.data();
-        const estadoPrevio = data.reserva?.estadoPrevio || "disponible";
+        // F4 · Fase C · C5: restaurar al estadoPrevio capturado al reservar (C3) · fallback por país
+        // (recibida_origen para país de origen · disponible_peru para Perú · NUNCA 'disponible' a secas).
+        const estadoPrevio = data.reserva?.estadoPrevio
+          || (data.pais && data.pais !== "Peru" && data.pais !== "Peru_local" ? "recibida_origen" : "disponible_peru");
 
         batch.update(doc.ref, {
           estado: estadoPrevio,
+          // Limpiar el schema nuevo + los planos legacy (los writers C3 hacen dual-write).
           reserva: admin.firestore.FieldValue.delete(),
+          reservadaPara: admin.firestore.FieldValue.delete(),
+          reservadoPara: admin.firestore.FieldValue.delete(),
+          fechaReserva: admin.firestore.FieldValue.delete(),
+          reservaVigenciaHasta: admin.firestore.FieldValue.delete(),
           ultimaEdicion: admin.firestore.FieldValue.serverTimestamp(),
         });
         liberadas++;
+        // TODO F4 · Fase C · C5b (bilateral): desactivar la reserva del doc dueño (data.reserva.para según
+        // data.reserva.origen → venta.stockReservado / cotizacion.reservaStock) para no dejarlo colgado.
       }
 
       await batch.commit();

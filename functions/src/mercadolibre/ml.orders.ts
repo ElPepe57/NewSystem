@@ -496,9 +496,10 @@ export const mlconsolidatepackorders = functions
             .where("reservadaPara", "==", vdId)
             .get();
           for (const unitDoc of unitsQ.docs) {
-            // Reasignar a la venta principal
+            // Reasignar a la venta principal · F4 · Fase C · re-target del schema nuevo + plano (dual)
             await unitDoc.ref.update({
               reservadaPara: ventaPrincipal.id,
+              "reserva.para": ventaPrincipal.id,
             });
           }
           log.push(`  ${unitsQ.size} unidad(es) reasignadas de ${vdData.numeroVenta} → ${vpData.numeroVenta}`);
