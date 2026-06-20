@@ -420,7 +420,7 @@ export const requerimientoService = {
    *  3. Fuerza estado='cancelado' y DESVINCULA la cotización (`ventaRelacionadaId=null` · Modelo A) → el req
    *     cancelado se vuelve invisible a los guardas anti-duplicado, sin recrear duplicados al próximo adelanto.
    * NO cancela las OCs en sí (solo retrae la ref dentro del req → no re-dispara `cambiarEstado` de la OC).
-   * TODO Fase C: liberar las reservas de unidades de demanda comprometida (BUG-RESERVA · infra pendiente).
+   * Fase C · C6: libera las reservas de unidades de demanda comprometida (query requerimientoId → liberarUnidades).
    * Reemplaza al `actualizarEstado(id,'cancelado')` cosmético en todo flujo de cancelación de req.
    */
   async cancelarRequerimiento(requerimientoId: string, userId: string): Promise<void> {
@@ -470,6 +470,27 @@ export const requerimientoService = {
       ultimaEdicion: serverTimestamp(),
       editadoPor: userId,
     });
+
+    // F4 · Fase C · C6: liberar las unidades de DEMANDA COMPROMETIDA reservadas para este requerimiento
+    // (cierra el gap BUG-RESERVA · antes ninguna cancelación liberaba reservas). No bloqueante.
+    try {
+      const unidadesSnap = await getDocs(
+        query(
+          collection(db, COLLECTIONS.UNIDADES),
+          where('requerimientoId', '==', requerimientoId),
+          where('estado', '==', 'reservada')
+        )
+      );
+      if (!unidadesSnap.empty) {
+        await unidadService.liberarUnidades(
+          unidadesSnap.docs.map((d) => d.id),
+          'Requerimiento cancelado',
+          userId
+        );
+      }
+    } catch (error) {
+      logger.error('Error liberando reservas del requerimiento cancelado (no bloqueante):', error);
+    }
   },
 
   /**
