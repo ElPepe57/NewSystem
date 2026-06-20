@@ -26,7 +26,10 @@ export type TipoBorradorWizard =
   | 'nuevo-empleado'
   // chk5.PERSONAS-v5.8 · E4 (2026-05-28) · Modal "Nuevo socio" desde /inversionistas
   // Reemplaza el wizard largo cuando el tipo es conocido de antemano · ver NuevoSocioModal.tsx
-  | 'nuevo-socio';
+  | 'nuevo-socio'
+  // F4 · HUB-5b (2026-06-20) · form "Nuevo Requerimiento" (decisión D3 · canon F-Borradores)
+  // Form único largo multi-producto · ver RequerimientoFormModal.tsx + Requerimientos.tsx
+  | 'requerimiento';
 
 /**
  * Documento de borrador de wizard almacenado en Firestore.

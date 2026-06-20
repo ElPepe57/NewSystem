@@ -9,6 +9,9 @@ import { ConfirmDialog, Modal, useConfirmDialog } from '../../components/common'
 import { LineaDropdown } from '../../components/common/LineaDropdown';
 import { HubShell, HubTopBar, HubHeader, HubKpiStrip, HubTabs, HubBody } from '../../design-system';
 import type { HubKpi, HubMiniStat, HubTab } from '../../design-system';
+import { BorradorBanner } from '../../design-system/components/BorradorBanner';
+import { useWizardAutosave } from '../../hooks/useWizardAutosave';
+import type { BorradorWizard } from '../../types/borradorWizard.types';
 import { ProductoForm } from '../../components/modules/productos/ProductoForm';
 import { AsignacionResponsableForm } from '../../components/modules/requerimiento/AsignacionResponsableForm';
 import { OCBuilder } from '../../components/modules/ordenCompra';
@@ -110,6 +113,18 @@ export const Requerimientos: React.FC = () => {
     subtipo: 'manual',
     prioridad: 'media',
     productos: []
+  });
+
+  // Borrador del "Nuevo Requerimiento" (canon F-Borradores · D3 · autoguardado 2 capas)
+  const [borradorRefreshKey, setBorradorRefreshKey] = useState(0);
+  const { clearDraft: clearBorrador } = useWizardAutosave<Partial<RequerimientoFormData>>({
+    tipo: 'requerimiento',
+    state: formData,
+    pasoActual: 0,
+    enabled: isModalOpen,
+    isEmpty: (s) => !s.productos?.length,
+    buildResumen: (s) => (s.productos?.length ? `${s.productos.length} producto(s)` : undefined),
+    buildMonto: (s) => s.productos?.reduce((sum, p) => sum + (p.precioEstimadoUSD || 0) * p.cantidadSolicitada, 0),
   });
 
   // Producto temporal para agregar
@@ -354,6 +369,11 @@ export const Requerimientos: React.FC = () => {
     });
   };
 
+  const handleContinuarBorrador = (borrador: BorradorWizard) => {
+    setFormData(borrador.estado as Partial<RequerimientoFormData>);
+    setIsModalOpen(true);
+  };
+
   const handleCrearRequerimiento = async () => {
     if (!user || !formData.productos?.length || isSubmitting) return;
 
@@ -363,8 +383,10 @@ export const Requerimientos: React.FC = () => {
         formData as RequerimientoFormData,
         user.uid
       );
+      await clearBorrador(); // canon F-Borradores · limpia el borrador al confirmar
       setIsModalOpen(false);
       setFormData({ origen: 'administrativo', subtipo: 'manual', prioridad: 'media', productos: [] });
+      setBorradorRefreshKey((k) => k + 1);
       loadData();
     } catch (error: any) {
       toast.error(error.message, 'Error al crear requerimiento');
@@ -635,6 +657,11 @@ export const Requerimientos: React.FC = () => {
         <HubTabs grupo="comercial" tabs={reqTabs} activa={tabActiva} onChange={(id) => setTabActiva(id as typeof tabActiva)} />
         <HubBody flush>
 
+          {/* Banner de borrador del "Nuevo Requerimiento" (canon F-Borradores · siempre visible) */}
+          <div className="px-4 sm:px-6 pt-4 empty:hidden">
+            <BorradorBanner tipo="requerimiento" refreshKey={borradorRefreshKey} onContinuar={handleContinuarBorrador} />
+          </div>
+
           {/* ═══ TAB RESUMEN ═══ (§A→§F · dashboard ejecutivo) */}
           {tabActiva === 'resumen' && (
             <ResumenRequerimientos
@@ -682,7 +709,7 @@ export const Requerimientos: React.FC = () => {
       {/* Modal Nuevo Requerimiento */}
       <RequerimientoFormModal
         isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
+        onClose={() => { setIsModalOpen(false); setBorradorRefreshKey((k) => k + 1); }}
         formData={formData}
         onFormDataChange={setFormData}
         productoSnapshot={productoSnapshot}

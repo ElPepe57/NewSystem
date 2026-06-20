@@ -108,6 +108,12 @@ const LABELS: Record<TipoBorradorWizard, {
     resumenFallback: 'Socio sin terminar',
     totalPasos: 1,
   },
+  // F4 · HUB-5b · form "Nuevo Requerimiento" (form único largo multi-producto · D3)
+  requerimiento: {
+    titulo: 'Tienes un requerimiento en borrador',
+    resumenFallback: 'Requerimiento sin terminar',
+    totalPasos: 1,
+  },
 };
 
 interface BorradorBannerProps {
