@@ -377,7 +377,9 @@ export const devolucionService = {
             ventaNumero: deleteField(),
             fechaVenta: deleteField(),
             precioVentaPEN: deleteField(),
+            reserva: deleteField(),        // F4 · Fase C · limpiar schema nuevo de reserva
             reservadaPara: deleteField(),
+            reservadoPara: deleteField(),  // F4 · Fase C · variante de naming
             fechaReserva: deleteField(),
             reservaVigenciaHasta: deleteField(),
             fechaActualizacion: serverTimestamp(),

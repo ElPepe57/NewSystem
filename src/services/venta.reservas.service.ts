@@ -33,13 +33,12 @@ import type {
   AdelantoData,
 } from '../types/venta.types';
 import type { Unidad } from '../types/unidad.types';
-import { unidadService } from './unidad.service';
+import { unidadService, buildLiberacionReservaFields } from './unidad.service';
 import { tipoCambioService } from './tipoCambio.service';
 import { tesoreriaService } from './tesoreria.service';
 import { NotificationService } from './notification.service';
 import { inventarioService } from './inventario.service';
 import { ProductoService } from './producto.service';
-import { esPaisOrigen } from '../utils/multiOrigen.helpers';
 import { logger } from '../lib/logger';
 
 const COLLECTION_NAME = COLLECTIONS.VENTAS;
@@ -329,14 +328,8 @@ export async function cancelarReserva(
       for (const unidadId of prod.unidadesReservadas) {
         const unidadRef = doc(db, COLLECTIONS.UNIDADES, unidadId);
         const unidadSnap = await getDoc(unidadRef);
-        const unidadData = unidadSnap.data();
-        const estadoLiberado = esPaisOrigen(unidadData?.pais) ? 'recibida_origen' : 'disponible_peru';
-        batch.update(unidadRef, {
-          estado: estadoLiberado,
-          reservadaPara: null,
-          reservadoPara: null,
-          fechaReserva: null
-        });
+        // Liberación canónica (F4 · Fase C · C2): estado por estadoPrevio/país + limpia reserva nuevo + planos
+        batch.update(unidadRef, buildLiberacionReservaFields(unidadSnap.data()));
       }
     }
   }

@@ -18,6 +18,7 @@ import {
   doc,
   getDocs,
   getDoc,
+  deleteField,
   addDoc,
   updateDoc,
   deleteDoc,
@@ -59,12 +60,11 @@ import type {
   EditarVentaData
 } from '../types/venta.types';
 import { ESTADOS_EN_ORIGEN } from '../types/unidad.types';
-import { esPaisOrigen } from '../utils/multiOrigen.helpers';
 import { getCTRU } from '../utils/ctru.utils';
 import { toMillisSafe } from '../utils/dateFormatters';
 import { ProductoService } from './producto.service';
 import { inventarioService } from './inventario.service';
-import { unidadService } from './unidad.service';
+import { unidadService, buildLiberacionReservaFields } from './unidad.service';
 import { tesoreriaService } from './tesoreria.service';
 import { metricasService } from './metricas.service';
 import { entregaService } from './entrega.service';
@@ -1260,16 +1260,12 @@ export class VentaService {
             productosAfectados.add(producto.productoId);
             for (const unidadId of producto.unidadesAsignadas) {
               const unidadSnap = await getDoc(doc(db, COLLECTIONS.UNIDADES, unidadId));
-              const unidadData = unidadSnap.data();
-              const estadoLiberado = esPaisOrigen(unidadData?.pais) ? 'recibida_origen' : 'disponible_peru';
-
               const unidadRef = doc(db, COLLECTIONS.UNIDADES, unidadId);
+              // Liberación canónica (F4 · Fase C · C2) + des-asignación de venta
               batch.update(unidadRef, {
-                estado: estadoLiberado,
-                ventaId: null,
-                fechaAsignacion: null,
-                reservadaPara: null,
-                reservadoPara: null
+                ...buildLiberacionReservaFields(unidadSnap.data()),
+                ventaId: deleteField(),
+                fechaAsignacion: deleteField(),
               });
             }
           }
@@ -1281,16 +1277,9 @@ export class VentaService {
           productosAfectados.add(prod.productoId);
           for (const unidadId of prod.unidadesReservadas) {
             const unidadSnap = await getDoc(doc(db, COLLECTIONS.UNIDADES, unidadId));
-            const unidadData = unidadSnap.data();
-            const estadoLiberado = esPaisOrigen(unidadData?.pais) ? 'recibida_origen' : 'disponible_peru';
-
             const unidadRef = doc(db, COLLECTIONS.UNIDADES, unidadId);
-            batch.update(unidadRef, {
-              estado: estadoLiberado,
-              reservadaPara: null,
-              reservadoPara: null,
-              fechaReserva: null
-            });
+            // Liberación canónica (F4 · Fase C · C2)
+            batch.update(unidadRef, buildLiberacionReservaFields(unidadSnap.data()));
           }
         }
       }

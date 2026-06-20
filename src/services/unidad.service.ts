@@ -30,10 +30,29 @@ import type {
 import { ESTADOS_EN_ORIGEN } from '../types/unidad.types';
 import { TIPOS_ENVIO_INTERNACIONAL as TIPOS_TRANSFERENCIA_INTERNACIONAL } from '../types/envio.types';
 import { esEstadoEnOrigen, esEstadoEnTransitoOrigen, esPaisOrigen } from '../utils/multiOrigen.helpers';
+import { resolverEstadoLiberacion } from './reserva.helper';
 import { logBackgroundError } from '../lib/logger';
 import { logger } from '../lib/logger';
 
 const COLLECTION_NAME = COLLECTIONS.UNIDADES;
+
+/**
+ * Campos canónicos para LIBERAR la reserva de una unidad (F4 · Fase C · C2 · fuente ÚNICA).
+ * Estado de restauración = `reserva.estadoPrevio` capturado al reservar · fallback por país
+ * (recibida_origen | disponible_peru · NUNCA 'disponible' hardcodeado). Limpia el schema nuevo
+ * `reserva` + los planos legacy. Se aplica DENTRO del batch/updateDoc del caller → preserva la
+ * atomicidad con el update del doc dueño (no se delega a liberarUnidades, que hace writes separados).
+ */
+export function buildLiberacionReservaFields(unidad?: { reserva?: { estadoPrevio?: string } | null; pais?: string } | null) {
+  return {
+    estado: unidad?.reserva?.estadoPrevio ?? resolverEstadoLiberacion(unidad?.pais),
+    reserva: deleteField(),
+    reservadaPara: deleteField(),
+    reservadoPara: deleteField(),
+    fechaReserva: deleteField(),
+    reservaVigenciaHasta: deleteField(),
+  };
+}
 
 export const unidadService = {
   /**
@@ -848,8 +867,6 @@ export const unidadService = {
         }
 
         const docRef = doc(db, COLLECTION_NAME, unidadId);
-        // Determinar estado correcto según país (multi-origen)
-        const estadoLiberado = esPaisOrigen(unidad.pais) ? 'recibida_origen' : 'disponible_peru';
 
         const movimientoLiberacion: MovimientoUnidad = {
           id: crypto.randomUUID(),
@@ -860,11 +877,7 @@ export const unidadService = {
         };
 
         await updateDoc(docRef, {
-          estado: estadoLiberado,
-          // Limpiar datos de reserva/venta/asignación
-          reservadaPara: deleteField(),
-          fechaReserva: deleteField(),
-          reservaVigenciaHasta: deleteField(),
+          ...buildLiberacionReservaFields(unidad), // estado (estadoPrevio/país) + limpia reserva nuevo + planos
           ventaId: deleteField(),
           fechaAsignacion: deleteField(),
           movimientos: [...unidad.movimientos, movimientoLiberacion],

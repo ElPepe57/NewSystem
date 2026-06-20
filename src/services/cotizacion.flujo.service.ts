@@ -6,12 +6,14 @@
  */
 import {
   doc,
+  getDoc,
   updateDoc,
   Timestamp,
   serverTimestamp,
   writeBatch
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
+import { buildLiberacionReservaFields } from './unidad.service';
 import { COLLECTION_NAME } from './cotizacion.shared';
 import type {
   Cotizacion,
@@ -247,12 +249,9 @@ export async function rechazar(
       for (const prod of cotizacion.reservaStock.productosReservados) {
         for (const unidadId of prod.unidadesReservadas) {
           const unidadRef = doc(db, COLLECTIONS.UNIDADES, unidadId);
-          batch.update(unidadRef, {
-            estado: 'disponible_peru',
-            reservadaPara: null,
-            reservadoPara: null,
-            fechaReserva: null
-          });
+          const unidadSnap = await getDoc(unidadRef);
+          // Liberación canónica (F4 · Fase C · C2): respeta país + estadoPrevio + limpia reserva (antes hardcodeaba 'disponible_peru')
+          batch.update(unidadRef, buildLiberacionReservaFields(unidadSnap.data()));
         }
       }
     }
