@@ -336,6 +336,7 @@ export interface SugerenciaReposicion {
   demandaComprometida?: number;   // Σ pendienteCompra de reqs demanda_comprometida
   stockSeguridad?: number;        // Z × velocidad × desviacionLeadTime
   puntoReorden?: number;          // velocidad × leadTime + stockSeguridad
+  velocidadDiaria?: number;       // unidades/día (real · max 30d/90d)
 
   // Recomendacion
   cantidadSugerida: number;       // Basado en rotacion + lead time

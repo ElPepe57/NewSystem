@@ -142,7 +142,7 @@ export const ResumenRequerimientos: React.FC<Props> = ({
                       <span className={`w-2 h-2 rounded-full flex-shrink-0 ${DOT_URGENCIA[s.urgencia]}`} />
                       <div className="flex-1 min-w-0">
                         <div className="text-[12px] font-medium text-slate-800 truncate">{s.producto.marca ? `${s.producto.marca} · ` : ''}{s.producto.nombreComercial}</div>
-                        <div className="text-[11px] text-slate-400">Stock: <b className={s.stockActual === 0 ? 'text-rose-600' : 'text-amber-600'}>{s.stockActual}</b> / Mín: {s.stockMinimo}{s.precioEstimadoUSD ? ` · ~$${s.precioEstimadoUSD.toFixed(2)}` : ''}</div>
+                        <div className="text-[11px] text-slate-400">Stock: <b className={s.stockActual === 0 ? 'text-rose-600' : 'text-amber-600'}>{s.stockActual}</b> / Reorden: {s.stockMinimo}{typeof s.cantidadSugerida === 'number' ? ` · pedir ${s.cantidadSugerida}` : ''}</div>
                       </div>
                       <button type="button" onClick={() => onCrearDesdeSugerencia(s)} className="flex items-center gap-1 text-[11px] font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-lg px-2 py-1 flex-shrink-0">
                         <Plus className="w-3 h-3" /> Crear

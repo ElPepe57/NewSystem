@@ -1118,6 +1118,7 @@ export const productoIntelService = {
         demandaComprometida: alerta.demandaComprometida,
         stockSeguridad: alerta.stockSeguridad,
         puntoReorden: alerta.puntoReorden,
+        velocidadDiaria: alerta.velocidadDiaria,
         cantidadSugerida: alerta.cantidadSugerida,
         urgencia: alerta.urgencia,
         razon: alerta.razon,

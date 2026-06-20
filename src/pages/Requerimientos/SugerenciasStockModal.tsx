@@ -53,19 +53,24 @@ export const SugerenciasStockModal: React.FC<SugerenciasStockModalProps> = ({
                       </span>
                     </div>
                     <div>
-                      <span className="text-slate-500">Minimo:</span>
+                      <span className="text-slate-500">Reorden:</span>
                       <span className="ml-1 font-medium">{sug.stockMinimo}</span>
                     </div>
                     <div>
-                      <span className="text-slate-500">Dias:</span>
+                      <span className="text-slate-500">Cobertura:</span>
                       <span className={`ml-1 font-medium ${sug.diasParaAgotarse <= 3 ? 'text-red-600' : ''}`}>
-                        {sug.diasParaAgotarse}
+                        {sug.diasParaAgotarse}d
                       </span>
                     </div>
                   </div>
+                  {sug.razon && (
+                    <div className="mt-1 text-xs text-slate-500">
+                      {sug.razon}{typeof sug.cantidadSugerida === 'number' ? ` · sugerido pedir ${sug.cantidadSugerida} u` : ''}
+                    </div>
+                  )}
                   {sug.precioEstimadoUSD && (
                     <div className="mt-1 text-sm text-slate-500">
-                      Precio estimado: ${sug.precioEstimadoUSD.toFixed(2)}
+                      Costo estimado: ${sug.precioEstimadoUSD.toFixed(2)}/u
                       {sug.proveedorSugerido && ` (${sug.proveedorSugerido})`}
                     </div>
                   )}

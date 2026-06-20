@@ -20,14 +20,16 @@ export interface InvestigacionProducto {
   }>;
 }
 
-// Tipo para sugerencias de stock bajo
+// Tipo para sugerencias de stock bajo · F4 · alimentado por el motor de reorden (ROP) vía productoIntel
 export interface SugerenciaStock {
   producto: Producto;
-  stockActual: number;
-  stockMinimo: number;
-  demandaPromedio: number;
+  stockActual: number;          // stock neto (disponible − comprometido)
+  stockMinimo: number;          // = puntoReorden (motor de reorden · ya no es umbral fijo)
+  demandaPromedio: number;      // velocidad de venta diaria REAL (ya no es el 1 fake)
   diasParaAgotarse: number;
   urgencia: 'critica' | 'alta' | 'media';
+  cantidadSugerida?: number;    // cantidad a pedir calculada por el motor
+  razon?: string;               // por qué necesita reposición
   precioEstimadoUSD?: number;
   proveedorSugerido?: string;
 }

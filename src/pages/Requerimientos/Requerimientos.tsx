@@ -18,12 +18,12 @@ import { OCBuilder } from '../../components/modules/ordenCompra';
 import type { ProductoRequerimientoSnapshot } from '../../components/modules/entidades/ProductoSearchRequerimientos';
 import { useProductoStore } from '../../store/productoStore';
 import { useRequerimientoStore } from '../../store/requerimientoStore';
+import { useProductoIntelStore } from '../../store/productoIntelStore';
 import { requerimientoService } from '../../services/requerimiento.service';
 import type { ProductoFormData } from '../../types/producto.types';
 import { ProductoService } from '../../services/producto.service';
 import { OrdenCompraService } from '../../services/ordenCompra.service';
 import { VentaService } from '../../services/venta.service';
-import { inventarioService } from '../../services/inventario.service';
 import { tipoCambioService } from '../../services/tipoCambio.service';
 import { useAuthStore } from '../../store/authStore';
 import { useToastStore } from '../../store/toastStore';
@@ -197,64 +197,42 @@ export const Requerimientos: React.FC = () => {
 
   const loadSugerenciasStock = async (prods: Producto[]) => {
     try {
-      const inventarioAgregado = await inventarioService.getInventarioAgregado();
-      const inventarioMap = new Map(inventarioAgregado.map((inv: { productoId: string; disponibles: number }) => [inv.productoId, inv]));
-      const demandaHistorica: Map<string, number> = new Map();
-
-      const productosStockBajo: Array<{
-        producto: Producto;
-        stockActual: number;
-        stockMinimo: number;
-        demandaPromedio: number;
-        diasParaAgotarse: number;
-        urgencia: 'critica' | 'alta' | 'media';
-      }> = [];
-
-      for (const producto of prods) {
-        if (producto.estado !== 'activo') continue;
-        const inventario = inventarioMap.get(producto.id);
-        const stockActual = (inventario as { disponibles?: number })?.disponibles || 0;
-        const stockMinimo = producto.stockMinimo || 5;
-
-        if (stockActual <= stockMinimo) {
-          const demandaPromedio = demandaHistorica.get(producto.id) || 1;
-          const diasParaAgotarse = demandaPromedio > 0
-            ? Math.floor(stockActual / demandaPromedio)
-            : stockActual > 0 ? 30 : 0;
-
-          let urgencia: 'critica' | 'alta' | 'media' = 'media';
-          if (stockActual === 0) urgencia = 'critica';
-          else if (diasParaAgotarse <= 3) urgencia = 'alta';
-
-          productosStockBajo.push({ producto, stockActual, stockMinimo, demandaPromedio, diasParaAgotarse, urgencia });
-        }
+      const prodMap = new Map(prods.map(p => [p.id, p]));
+      // F4 · Motor de reorden (ROP) · single source en productoIntelStore. Reemplaza el umbral fijo
+      // (stockMinimo||5) y la demanda fake (=1): gate de señal real (sin historial → sin alerta),
+      // piso = velocidad×leadTime + stock de seguridad dinámico, demanda comprometida neteada.
+      const intelStore = useProductoIntelStore.getState();
+      if (intelStore.sugerenciasReposicion.length === 0 && !intelStore.loading) {
+        await intelStore.cargarDatos();
       }
+      const reposiciones = useProductoIntelStore.getState().sugerenciasReposicion;
 
-      if (productosStockBajo.length === 0) {
-        setSugerenciasStock([]);
-        return;
-      }
+      const sugerencias: SugerenciaStock[] = reposiciones
+        .map((r): SugerenciaStock | null => {
+          const producto = prodMap.get(r.productoId);
+          if (!producto) return null;
+          const costoUnitarioUSD = r.cantidadSugerida && r.inversionEstimadaUSD
+            ? Math.round((r.inversionEstimadaUSD / r.cantidadSugerida) * 100) / 100
+            : undefined;
+          return {
+            producto,
+            stockActual: r.stockNeto ?? r.stockActual,
+            stockMinimo: r.puntoReorden ?? r.stockMinimo,
+            demandaPromedio: r.velocidadDiaria ?? 0,
+            diasParaAgotarse: r.diasParaQuiebre,
+            urgencia: r.urgencia === 'baja' ? 'media' : r.urgencia,
+            cantidadSugerida: r.cantidadSugerida,
+            razon: r.razon,
+            precioEstimadoUSD: costoUnitarioUSD,
+          };
+        })
+        .filter((s): s is SugerenciaStock => s !== null)
+        .slice(0, 10); // ya vienen ordenadas por prioridad desde el motor
 
-      const productosIds = productosStockBajo.map(p => p.producto.id);
-      const investigacionMercadoMap = await OrdenCompraService.getInvestigacionMercado(productosIds);
-
-      const sugerencias: SugerenciaStock[] = productosStockBajo.map(item => {
-        const info = investigacionMercadoMap.get(item.producto.id);
-        return {
-          ...item,
-          precioEstimadoUSD: info?.proveedorRecomendado?.ultimoPrecioUSD || info?.ultimoPrecioUSD,
-          proveedorSugerido: info?.proveedorRecomendado?.nombre
-        };
-      });
-
-      sugerencias.sort((a, b) => {
-        const orden = { critica: 0, alta: 1, media: 2 };
-        return orden[a.urgencia] - orden[b.urgencia];
-      });
-
-      setSugerenciasStock(sugerencias.slice(0, 10));
+      setSugerenciasStock(sugerencias);
     } catch (error) {
-      console.error('Error al cargar sugerencias:', error);
+      console.error('Error al cargar sugerencias de stock:', error);
+      setSugerenciasStock([]);
     }
   };
 
@@ -413,7 +391,8 @@ export const Requerimientos: React.FC = () => {
   };
 
   const handleCrearDesdeSugerencia = async (sugerencia: SugerenciaStock) => {
-    const cantidadSugerida = Math.max(sugerencia.stockMinimo * 2, 10);
+    // Cantidad calculada por el motor de reorden (lleva el stock al objetivo); fallback defensivo.
+    const cantidadSugerida = sugerencia.cantidadSugerida ?? Math.max(sugerencia.stockMinimo - sugerencia.stockActual, 10);
     setFormData({
       origen: 'administrativo',
       subtipo: 'restock',
@@ -424,7 +403,7 @@ export const Requerimientos: React.FC = () => {
         precioEstimadoUSD: sugerencia.precioEstimadoUSD,
         proveedorSugerido: sugerencia.proveedorSugerido
       }],
-      justificacion: `Stock bajo: ${sugerencia.stockActual} unidades disponibles (minimo: ${sugerencia.stockMinimo})`
+      justificacion: `${sugerencia.razon ?? 'Reposición'}: ${sugerencia.stockActual} disponibles · punto de reorden ${sugerencia.stockMinimo}`
     });
     setIsSugerenciasModalOpen(false);
     setIsModalOpen(true);
