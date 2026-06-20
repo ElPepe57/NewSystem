@@ -1,15 +1,14 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import {
-  Plus,
-  Zap,
-  RefreshCw,
-  AlertCircle,
-  Layers,
-  CheckSquare,
-  ClipboardList
+  Plus, RefreshCw, Layers, CheckSquare, ClipboardList,
+  Clock, AlertTriangle, CheckCircle, Link2, DollarSign,
+  AlertOctagon, ShoppingCart, BadgeDollarSign,
+  LayoutDashboard, ListChecks, PackageSearch,
 } from 'lucide-react';
-import { Button, ConfirmDialog, Modal, useConfirmDialog } from '../../components/common';
-import { PageShell, PageHeader } from '../../design-system';
+import { ConfirmDialog, Modal, useConfirmDialog } from '../../components/common';
+import { LineaDropdown } from '../../components/common/LineaDropdown';
+import { HubShell, HubTopBar, HubHeader, HubKpiStrip, HubTabs, HubBody } from '../../design-system';
+import type { HubKpi, HubMiniStat, HubTab } from '../../design-system';
 import { ProductoForm } from '../../components/modules/productos/ProductoForm';
 import { AsignacionResponsableForm } from '../../components/modules/requerimiento/AsignacionResponsableForm';
 import { VincularOCModal } from '../../components/modules/requerimiento/VincularOCModal';
@@ -27,19 +26,17 @@ import { tipoCambioService } from '../../services/tipoCambio.service';
 import { useAuthStore } from '../../store/authStore';
 import { useToastStore } from '../../store/toastStore';
 import { useLineaFilter } from '../../hooks/useLineaFilter';
+import { hasRole } from '../../types/auth.types';
 import type {
   Requerimiento,
-  RequerimientoFormData,
-  EstadoRequerimiento
+  RequerimientoFormData
 } from '../../types/requerimiento.types';
 import type { Producto } from '../../types/producto.types';
 import type { Venta } from '../../types/venta.types';
 
 // Sub-components
-import { RequerimientosKPIGrid } from './RequerimientosKPIGrid';
 import { IntelligencePanel } from './IntelligencePanel';
-import { KanbanBoard } from './KanbanBoard';
-import { RequerimientosListView } from './RequerimientosListView';
+import { TableroRequerimientos } from './TableroRequerimientos';
 import { RequerimientoFormModal } from './RequerimientoFormModal';
 import { RequerimientoDetailModal } from './RequerimientoDetailModal';
 import { SugerenciasStockModal } from './SugerenciasStockModal';
@@ -73,9 +70,9 @@ export const Requerimientos: React.FC = () => {
   const [cotizacionesConfirmadas, setCotizacionesConfirmadas] = useState<Venta[]>([]);
   const [sugerenciasStock, setSugerenciasStock] = useState<SugerenciaStock[]>([]);
 
-  // Vista
-  const [viewMode, setViewMode] = useState<'kanban' | 'list'>('kanban');
-  const [showIntelligencePanel, setShowIntelligencePanel] = useState(true);
+  // Vista · tab activa del hub (Resumen default · canon hub)
+  const [tabActiva, setTabActiva] = useState<'resumen' | 'tablero' | 'pendientes'>('resumen');
+  const esAdmin = hasRole(userProfile, 'admin'); // canon "admin ve todo" · chip contextual al rol
 
   // Modales
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -249,28 +246,6 @@ export const Requerimientos: React.FC = () => {
       console.error('Error al cargar sugerencias:', error);
     }
   };
-
-  // Agrupar requerimientos por estado para Kanban
-  const requerimientosPorEstado = useMemo(() => {
-    const grouped: Record<EstadoRequerimiento, Requerimiento[]> = {
-      borrador: [],
-      pendiente: [],
-      pendiente_aprobacion: [],
-      aprobado: [],
-      parcial: [],
-      en_proceso: [],
-      completado: [],
-      cancelado: []
-    };
-
-    requerimientosLN.forEach(req => {
-      if (grouped[req.estado]) {
-        grouped[req.estado].push(req);
-      }
-    });
-
-    return grouped;
-  }, [requerimientosLN]);
 
   // Estadisticas calculadas
   const stats = useMemo(() => {
@@ -588,134 +563,111 @@ export const Requerimientos: React.FC = () => {
     setExpandedSections(prev => ({ ...prev, [section]: !prev[section] }));
   };
 
+  // ─── Chrome del hub (KPIs semánticos · mini-stats · tabs) ───
+  const reqKpis: HubKpi[] = [
+    { label: 'Pendientes', valor: String(stats.pendientes), tono: 'amber', icon: Clock, delta: 'por aprobar' },
+    { label: 'Urgentes', valor: String(stats.urgentes), tono: 'rose', icon: AlertTriangle, delta: 'prioridad alta' },
+    { label: 'Aprobados', valor: String(stats.aprobados), tono: 'emerald', icon: CheckCircle, delta: 'listos p/ OC' },
+    { label: 'En proceso', valor: String(stats.enProceso), tono: 'sky', icon: Link2, delta: 'con OC vinculada' },
+    { label: 'Por comprar', valor: `$ ${stats.costoEstimadoPendiente.toLocaleString('en-US', { maximumFractionDigits: 0 })}`, tono: 'indigo', icon: DollarSign, delta: 'estimado USD' },
+  ];
+  const reqMiniStats: HubMiniStat[] = [
+    { label: <>Alertas de stock: <b className="text-slate-800">{stats.alertasStock}</b></>, icon: AlertOctagon },
+    { label: <>Cotizaciones c/ faltante: <b className="text-slate-800">{cotizacionesConfirmadas.length}</b></>, icon: ShoppingCart },
+    ...(tcDelDia ? [{ label: <>TC del día: <b className="text-slate-800 tabular-nums">S/ {tcDelDia.venta.toFixed(2)}</b></>, icon: BadgeDollarSign }] : []),
+  ];
+  const reqTabs: HubTab[] = [
+    { id: 'resumen', label: 'Resumen', icon: LayoutDashboard },
+    { id: 'tablero', label: 'Tablero', icon: ListChecks, badge: stats.activos || undefined, badgeTono: 'rose' },
+    { id: 'pendientes', label: 'Pendientes de compra', icon: PackageSearch },
+  ];
+  const breadcrumbLeaf = tabActiva === 'resumen' ? null : (reqTabs.find(t => t.id === tabActiva)?.label ?? null);
+
+  const abrirDetalle = (req: Requerimiento) => {
+    setSelectedRequerimiento(req);
+    setIsDetailModalOpen(true);
+  };
+
   return (
-    <PageShell>
-      <PageHeader
-        title="Requerimientos"
-        subtitle="Gestion de solicitudes de compra"
-        icon={ClipboardList}
-        actions={
-          <>
-            {/* Toggle de vista */}
-            <div className="bg-slate-100 rounded-lg p-1 flex">
-              <button
-                onClick={() => setViewMode('kanban')}
-                className={`px-2 sm:px-3 py-1.5 rounded-md text-xs sm:text-sm font-medium transition-colors ${
-                  viewMode === 'kanban' ? 'bg-white shadow text-slate-900' : 'text-slate-600 hover:text-slate-900'
-                }`}
-              >
-                Kanban
-              </button>
-              <button
-                onClick={() => setViewMode('list')}
-                className={`px-2 sm:px-3 py-1.5 rounded-md text-xs sm:text-sm font-medium transition-colors ${
-                  viewMode === 'list' ? 'bg-white shadow text-slate-900' : 'text-slate-600 hover:text-slate-900'
-                }`}
-              >
-                Lista
-              </button>
+    <div className="max-w-6xl mx-auto p-3 sm:p-4 md:p-6">
+      <HubShell>
+        <HubTopBar grupo="comercial" modulo="Requerimientos" leaf={breadcrumbLeaf} esAdmin={esAdmin} onModulo={() => setTabActiva('resumen')} />
+        <HubHeader
+          grupo="comercial"
+          icon={ClipboardList}
+          titulo="Requerimientos"
+          subtitulo="Solicitudes de compra · demanda · aprobación · generación de OC"
+          extraActions={<LineaDropdown />}
+          acciones={[
+            ...(cotizacionesConfirmadas.length > 0
+              ? [{ label: 'Limpiar datos', icon: RefreshCw, onClick: handleLimpiarDatos, tier: 'config' as const }]
+              : []),
+            {
+              label: selectionMode ? 'Cancelar selección' : 'OC Consolidada',
+              icon: selectionMode ? CheckSquare : Layers,
+              onClick: () => { setSelectionMode(!selectionMode); if (selectionMode) setSelectedReqIds(new Set()); },
+              tier: 'neutral' as const,
+            },
+            { label: 'Nuevo Requerimiento', icon: Plus, onClick: () => setIsModalOpen(true), tier: 'primary' as const },
+          ]}
+        />
+        <HubKpiStrip cols={5} kpis={reqKpis} miniStats={reqMiniStats} />
+        <HubTabs grupo="comercial" tabs={reqTabs} activa={tabActiva} onChange={(id) => setTabActiva(id as typeof tabActiva)} />
+        <HubBody flush>
+
+          {/* ═══ TAB RESUMEN ═══ (interim · HUB-2 lo reemplaza por §A→§F) */}
+          {tabActiva === 'resumen' && (
+            <div className="p-4 sm:p-6">
+              <IntelligencePanel
+                sugerenciasStock={sugerenciasStock}
+                cotizacionesConfirmadas={cotizacionesConfirmadas}
+                stats={stats}
+                tcDelDia={tcDelDia}
+                expandedSections={expandedSections}
+                onToggleSection={handleToggleSection}
+                onCrearDesdeSugerencia={handleCrearDesdeSugerencia}
+                onVerTodasSugerencias={() => setIsSugerenciasModalOpen(true)}
+                onVincularOC={handleVincularOC}
+                onCrearDesdeCotizacion={handleCrearDesdeCotizacion}
+                onVerTodasCotizaciones={() => setIsFromCotizacionModalOpen(true)}
+              />
             </div>
+          )}
 
-            <Button
-              variant="ghost"
-              onClick={() => setShowIntelligencePanel(!showIntelligencePanel)}
-              className="hidden sm:flex"
-            >
-              <Zap className={`h-5 w-5 ${showIntelligencePanel ? 'text-yellow-500' : 'text-slate-400'}`} />
-            </Button>
+          {/* ═══ TAB TABLERO ═══ (Lista operativa + acordeón · Kanban retirado · D4) */}
+          {tabActiva === 'tablero' && (
+            <TableroRequerimientos
+              requerimientos={requerimientosLN}
+              loading={loading}
+              selectionMode={selectionMode}
+              selectedReqIds={selectedReqIds}
+              onToggleSelection={toggleReqSelection}
+              onOpenDetail={abrirDetalle}
+              onAprobar={handleAprobar}
+              onCancelar={handleCancelar}
+              onGenerarOC={handleGenerarOC}
+              onGenerarOCConsolidada={handleGenerarOCConsolidada}
+            />
+          )}
 
-            {cotizacionesConfirmadas.length > 0 && (
-              <Button
-                variant="ghost"
-                onClick={handleLimpiarDatos}
-                className="hidden sm:flex text-red-500 hover:text-red-700"
-                title="Limpiar duplicados y corregir datos"
-              >
-                <RefreshCw className="h-4 w-4" />
-              </Button>
-            )}
+          {/* ═══ TAB PENDIENTES DE COMPRA ═══ (interim · HUB-4 inline-a el panel) */}
+          {tabActiva === 'pendientes' && (
+            <div className="p-4 sm:p-6">
+              <div className="bg-white border border-slate-200 rounded-xl p-6 flex flex-col items-center justify-center text-center gap-3">
+                <div className="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center"><PackageSearch className="w-6 h-6" /></div>
+                <div>
+                  <p className="text-[14px] font-semibold text-slate-800">Productos pendientes de compra</p>
+                  <p className="text-[12px] text-slate-500 mt-0.5 max-w-md">Vista agregada por producto · puente al generador de órdenes. Abrí el panel para revisarlos y enviarlos al builder.</p>
+                </div>
+                <button type="button" onClick={() => setIsPendientesOpen(true)} className="flex items-center gap-1.5 text-[12px] font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg px-3 py-2">
+                  <PackageSearch className="w-4 h-4" /> Ver pendientes de compra
+                </button>
+              </div>
+            </div>
+          )}
 
-            <Button
-              variant="outline"
-              onClick={() => setIsPendientesOpen(true)}
-              className="hidden sm:flex"
-              title="Ver productos pendientes de compra"
-            >
-              <AlertCircle className="h-4 w-4 mr-1 text-teal-500" />
-              Pendientes
-            </Button>
-
-            <Button
-              variant={selectionMode ? 'warning' : 'outline'}
-              onClick={() => {
-                setSelectionMode(!selectionMode);
-                if (selectionMode) setSelectedReqIds(new Set());
-              }}
-              className="hidden sm:flex"
-            >
-              {selectionMode ? <CheckSquare className="h-4 w-4 mr-1" /> : <Layers className="h-4 w-4 mr-1" />}
-              {selectionMode ? 'Cancelar' : 'OC Consolidada'}
-            </Button>
-
-            <Button variant="primary" onClick={() => setIsModalOpen(true)} className="flex-1 sm:flex-none">
-              <Plus className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2" />
-              <span className="hidden sm:inline">Nuevo Requerimiento</span>
-              <span className="sm:hidden">Nuevo</span>
-            </Button>
-          </>
-        }
-      />
-
-      {/* KPIs */}
-      <RequerimientosKPIGrid stats={stats} />
-
-      {/* Panel de Inteligencia */}
-      {showIntelligencePanel && (
-        <IntelligencePanel
-          sugerenciasStock={sugerenciasStock}
-          cotizacionesConfirmadas={cotizacionesConfirmadas}
-          stats={stats}
-          tcDelDia={tcDelDia}
-          expandedSections={expandedSections}
-          onToggleSection={handleToggleSection}
-          onCrearDesdeSugerencia={handleCrearDesdeSugerencia}
-          onVerTodasSugerencias={() => setIsSugerenciasModalOpen(true)}
-          onVincularOC={handleVincularOC}
-          onCrearDesdeCotizacion={handleCrearDesdeCotizacion}
-          onVerTodasCotizaciones={() => setIsFromCotizacionModalOpen(true)}
-        />
-      )}
-
-      {/* Filtro de línea de negocio */}
-
-      {/* Vista Kanban o Lista */}
-      {viewMode === 'kanban' ? (
-        <KanbanBoard
-          requerimientosPorEstado={requerimientosPorEstado}
-          loading={loading}
-          selectionMode={selectionMode}
-          selectedReqIds={selectedReqIds}
-          onToggleSelection={toggleReqSelection}
-          onOpenDetail={(req) => {
-            setSelectedRequerimiento(req);
-            setIsDetailModalOpen(true);
-          }}
-          onAprobar={handleAprobar}
-          onCancelar={handleCancelar}
-          onGenerarOC={handleGenerarOC}
-        />
-      ) : (
-        <RequerimientosListView
-          requerimientos={requerimientosLN}
-          loading={loading}
-          onOpenDetail={(req) => {
-            setSelectedRequerimiento(req);
-            setIsDetailModalOpen(true);
-          }}
-          onAprobar={handleAprobar}
-          onRefresh={loadData}
-        />
-      )}
+        </HubBody>
+      </HubShell>
 
       {/* Modal Nuevo Requerimiento */}
       <RequerimientoFormModal
@@ -851,6 +803,6 @@ export const Requerimientos: React.FC = () => {
           setIsOCBuilderOpen(true);
         }}
       />
-    </PageShell>
+    </div>
   );
 };
