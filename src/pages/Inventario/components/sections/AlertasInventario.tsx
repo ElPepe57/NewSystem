@@ -1,5 +1,6 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { StatCard as DSStatCard } from '../../../../design-system';
+import { useProductoIntelStore } from '../../../../store/productoIntelStore';
 import { calcularDiasParaVencer } from '../../../../utils/dateFormatters';
 import { formatCurrency } from '../../../../utils/format';
 import {
@@ -125,6 +126,18 @@ export const AlertasInventario: React.FC<AlertasInventarioProps> = ({
   const [filtroPrioridad, setFiltroPrioridad] = useState<PrioridadAlerta | ''>('');
   const [busqueda, setBusqueda] = useState('');
 
+  // F4 · Motor de reorden (ROP) · single source compartido (de-dup con Requerimientos §C y Dashboard).
+  const sugerenciasReposicion = useProductoIntelStore(s => s.sugerenciasReposicion);
+  const cargarIntel = useProductoIntelStore(s => s.cargarDatos);
+  const intelLoading = useProductoIntelStore(s => s.loading);
+  useEffect(() => {
+    if (sugerenciasReposicion.length === 0 && !intelLoading) cargarIntel();
+  }, [sugerenciasReposicion.length, intelLoading, cargarIntel]);
+  const reordenMap = useMemo(
+    () => new Map(sugerenciasReposicion.map(s => [s.productoId, s])),
+    [sugerenciasReposicion]
+  );
+
   // Filtrar solo unidades activas
   const unidadesActivas = useMemo(() =>
     unidades.filter(u => u.estado !== 'vendida'),
@@ -203,8 +216,12 @@ export const AlertasInventario: React.FC<AlertasInventarioProps> = ({
         });
       }
 
-      // Alertas de stock crítico
-      if (producto?.stockMinimo !== undefined && uds.length <= producto.stockMinimo) {
+      // Alertas de stock crítico · F4 · motor de reorden (ROP) · de-dup con Requerimientos §C y Dashboard.
+      // El piso ya NO es el umbral fijo: es velocidad×leadTime + stock de seguridad, con gate de señal real.
+      const reorden = reordenMap.get(productoId);
+      if (reorden) {
+        const disp = reorden.stockNeto ?? reorden.stockActual;
+        const punto = reorden.puntoReorden ?? reorden.stockMinimo;
         resultado.push({
           id: `stock-${productoId}`,
           productoId,
@@ -212,11 +229,12 @@ export const AlertasInventario: React.FC<AlertasInventarioProps> = ({
           nombre,
           marca,
           tipo: 'stock_critico',
-          prioridad: uds.length === 0 ? 'alta' : 'media',
-          mensaje: uds.length === 0
+          prioridad: reorden.urgencia === 'critica' || reorden.urgencia === 'alta' ? 'alta'
+            : reorden.urgencia === 'media' ? 'media' : 'baja',
+          mensaje: disp <= 0
             ? 'Sin stock disponible. Reordenar urgente'
-            : `Stock por debajo del mínimo (${producto.stockMinimo})`,
-          detalle: `${uds.length} de ${producto.stockMinimo} unidades mínimas`,
+            : `Bajo el punto de reorden (${punto})`,
+          detalle: `${disp} disp · reorden ${punto}${reorden.cantidadSugerida ? ` · sugerido pedir ${reorden.cantidadSugerida}` : ''}`,
           unidadesAfectadas: uds.length,
           valorAfectado: valorTotal
         });
@@ -254,7 +272,7 @@ export const AlertasInventario: React.FC<AlertasInventarioProps> = ({
       const tipoOrder = { vencimiento: 0, stock_critico: 1, sin_movimiento: 2 };
       return tipoOrder[a.tipo] - tipoOrder[b.tipo];
     });
-  }, [unidadesActivas, productos]);
+  }, [unidadesActivas, productos, reordenMap]);
 
   // Filtrar alertas
   const alertasFiltradas = useMemo(() => {

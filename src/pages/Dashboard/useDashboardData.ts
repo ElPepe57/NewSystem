@@ -8,6 +8,7 @@ import { useTipoCambioStore } from '../../store/tipoCambioStore';
 import { useAuthStore } from '../../store/authStore';
 import { hasRole } from '../../types/auth.types';
 import { useLineaNegocioStore } from '../../store/lineaNegocioStore';
+import { useProductoIntelStore } from '../../store/productoIntelStore';
 import { useLineaFilter } from '../../hooks/useLineaFilter';
 import { cuentasPendientesService } from '../../services/cuentasPendientes.service';
 import { gastoService } from '../../services/gasto.service';
@@ -457,33 +458,47 @@ export function useDashboardData(): DashboardData {
     return (inventario || []).filter(inv => productoIdsLN.has(inv.productoId));
   }, [inventario, productosLN]);
 
+  // F4 · Motor de reorden (ROP) · single source compartido (de-dup con Requerimientos §C e Inventario).
+  // Mata el recompute del umbral fantasma (producto.stockMinimo) aquí. Trigger no-bloqueante: el dashboard
+  // muestra el flag pre-agregado de inmediato y refina al conteo del motor cuando llega.
+  const sugerenciasReposicion = useProductoIntelStore(s => s.sugerenciasReposicion);
+  const cargarIntel = useProductoIntelStore(s => s.cargarDatos);
+  const intelLoading = useProductoIntelStore(s => s.loading);
+  useEffect(() => {
+    if (sugerenciasReposicion.length === 0 && !intelLoading) cargarIntel();
+  }, [sugerenciasReposicion.length, intelLoading, cargarIntel]);
+  const reordenMap = useMemo(
+    () => new Map(sugerenciasReposicion.map(s => [s.productoId, s])),
+    [sugerenciasReposicion]
+  );
+  const intelDisponible = reordenMap.size > 0;
+
   // Métricas derivadas
   const productosActivos = productosLN.filter(p => p.estado === 'activo').length || 0;
 
-  const stockCritico = inventarioLN.filter(inv => {
-    const producto = productosLN.find(p => p.id === inv.productoId);
-    return inv.stockCritico || (inv.disponibles > 0 && producto?.stockMinimo && inv.disponibles <= producto.stockMinimo);
-  }).length || 0;
+  const necesitaReorden = (inv: { productoId: string; stockCritico?: boolean }): boolean =>
+    intelDisponible ? reordenMap.has(inv.productoId) : !!inv.stockCritico;
+
+  const stockCritico = inventarioLN.filter(necesitaReorden).length || 0;
 
   const stockCriticoItems = useMemo((): StockCriticoItem[] => {
     return inventarioLN
-      .filter(inv => {
-        const producto = productosLN.find(p => p.id === inv.productoId);
-        return inv.stockCritico || (inv.disponibles > 0 && producto?.stockMinimo && inv.disponibles <= producto.stockMinimo);
-      })
+      .filter(necesitaReorden)
       .map(inv => {
         const producto = productosLN.find(p => p.id === inv.productoId);
+        const reorden = reordenMap.get(inv.productoId);
         return {
           productoId: inv.productoId,
           sku: producto?.sku ?? inv.productoId,
           nombre: [producto?.marca, producto?.nombreComercial].filter(Boolean).join(' ') || inv.productoId,
           disponibles: inv.disponibles ?? 0,
-          stockMinimo: producto?.stockMinimo ?? 0,
+          stockMinimo: reorden?.puntoReorden ?? reorden?.stockMinimo ?? producto?.stockMinimo ?? 0,
           almacenNombre: inv.almacenNombre
         };
       })
       .sort((a, b) => a.disponibles - b.disponibles);
-  }, [inventarioLN, productosLN]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [inventarioLN, productosLN, reordenMap, intelDisponible]);
 
   // KPIs del mes actual
   const ahora = new Date();
