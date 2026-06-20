@@ -68,6 +68,7 @@ export const Requerimientos: React.FC = () => {
 
   // Estados principales
   const [loadingLocal, setLoadingLocal] = useState(true);
+  const [errorCarga, setErrorCarga] = useState(false);
   const loading = loadingReqs || loadingLocal;
   const [productos, setProductos] = useState<Producto[]>([]);
   const [cotizacionesConfirmadas, setCotizacionesConfirmadas] = useState<Venta[]>([]);
@@ -160,6 +161,7 @@ export const Requerimientos: React.FC = () => {
 
   const loadData = async () => {
     setLoadingLocal(true);
+    setErrorCarga(false);
     try {
       const [, prods, ventas] = await Promise.all([
         fetchRequerimientos(),
@@ -187,6 +189,7 @@ export const Requerimientos: React.FC = () => {
       await loadSugerenciasStock(prods);
     } catch (error) {
       console.error('Error al cargar datos:', error);
+      setErrorCarga(true);
     } finally {
       setLoadingLocal(false);
     }
@@ -613,6 +616,21 @@ export const Requerimientos: React.FC = () => {
           <div className="px-4 sm:px-6 pt-4 empty:hidden">
             <BorradorBanner tipo="requerimiento" refreshKey={borradorRefreshKey} onContinuar={handleContinuarBorrador} />
           </div>
+
+          {/* Error state · fallo de carga (canon · con retry) */}
+          {errorCarga && (
+            <div className="px-4 sm:px-6 pt-4">
+              <div className="bg-rose-50 border border-rose-200 rounded-xl p-4 flex items-center justify-between gap-3 flex-wrap">
+                <div className="flex items-center gap-2.5 text-[12px] text-rose-800">
+                  <AlertTriangle className="w-4 h-4 text-rose-600 flex-shrink-0" />
+                  <span>No se pudieron cargar los requerimientos. Revisá tu conexión e intentá de nuevo.</span>
+                </div>
+                <button type="button" onClick={loadData} className="flex items-center gap-1.5 text-[12px] font-semibold text-white bg-rose-600 hover:bg-rose-700 rounded-lg px-3 py-2 flex-shrink-0">
+                  <RefreshCw className="w-3.5 h-3.5" /> Reintentar
+                </button>
+              </div>
+            </div>
+          )}
 
           {/* ═══ TAB RESUMEN ═══ (§A→§F · dashboard ejecutivo) */}
           {tabActiva === 'resumen' && (
