@@ -809,6 +809,11 @@ export interface Producto {
   stockPendienteML?: number;    // Unidades comprometidas en órdenes ML no procesadas aún
   stockEfectivoML?: number;     // stockDisponiblePeru - stockPendienteML (lo que se pushea a ML)
 
+  /**
+   * Hint manual suave (informativo). F4 · YA NO dispara las alertas de stock: el punto de reorden lo
+   * calcula el motor (stockReorden.helper · velocidad×leadTime + stock de seguridad dinámico) y lo
+   * consumen Requerimientos §C, Inventario y Dashboard. Reservado para un override manual explícito futuro.
+   */
   stockMinimo: number;
   stockMaximo: number;
 

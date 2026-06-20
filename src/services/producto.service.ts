@@ -328,7 +328,7 @@ export class ProductoService {
         stockReservado: 0,
         stockDisponible: 0,
 
-        stockMinimo: data.stockMinimo || 10,
+        stockMinimo: data.stockMinimo ?? 10,
         stockMaximo: data.stockMaximo || 100,
 
         rotacionPromedio: 0,
