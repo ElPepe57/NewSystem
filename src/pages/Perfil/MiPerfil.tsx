@@ -93,6 +93,7 @@ import {
 import type { SesionActiva } from '../../types/sesion.types';
 // chk5.AUTH-LINK (2026-05-28) · sección Métodos de inicio de sesión
 import { MetodosInicioSesion } from '../../components/auth/MetodosInicioSesion';
+import { MiPlanillaPersonal } from './sub/MiPlanillaPersonal';
 import { MiHistorialPersonal } from './sub/MiHistorialPersonal';
 import { MiCapitalPersonal } from './sub/MiCapitalPersonal';
 
@@ -104,7 +105,7 @@ interface ActividadReciente {
   modulo?: string;
 }
 
-type TabActiva = 'resumen' | 'info' | 'actividad' | 'mi-historial' | 'mi-capital';
+type TabActiva = 'resumen' | 'info' | 'actividad' | 'mi-planilla' | 'mi-historial' | 'mi-capital';
 
 // Canon mockup ACTO 1 · líneas 142-150 · labels + icons literales
 const TABS: Array<{ id: TabActiva; label: string; breadcrumb: string; icon: React.ElementType }> = [
@@ -146,7 +147,7 @@ export const MiPerfil: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const tabInicialUrl = searchParams.get('tab');
   const [tabActiva, setTabActiva] = useState<TabActiva>(
-    (['resumen', 'info', 'actividad', 'mi-historial', 'mi-capital'].includes(tabInicialUrl || '') ? tabInicialUrl : 'resumen') as TabActiva,
+    (['resumen', 'info', 'actividad', 'mi-planilla', 'mi-historial', 'mi-capital'].includes(tabInicialUrl || '') ? tabInicialUrl : 'resumen') as TabActiva,
   );
 
   // Editar nombre
@@ -292,6 +293,7 @@ export const MiPerfil: React.FC = () => {
     const empleado = datosLaborales !== null;
     const visible =
       tabActiva === 'resumen' || tabActiva === 'info' || tabActiva === 'actividad' ||
+      (tabActiva === 'mi-planilla' && empleado) ||
       (tabActiva === 'mi-historial' && empleado) ||
       (tabActiva === 'mi-capital' && isSocio);
     if (!visible) setTabActiva('resumen');
@@ -386,6 +388,7 @@ export const MiPerfil: React.FC = () => {
   // F4 · tabs role-adaptivas: las 3 reales + las sub-páginas montadas como tabs (mismo gating que el sidebar · useMiEspacioItems).
   const tabsVisibles: Array<{ id: TabActiva; label: string; breadcrumb: string; icon: React.ElementType }> = [
     ...TABS,
+    ...(tieneRolEmpleado ? [{ id: 'mi-planilla' as TabActiva, label: 'Mi planilla', breadcrumb: 'Mi planilla', icon: Briefcase }] : []),
     ...(tieneRolEmpleado ? [{ id: 'mi-historial' as TabActiva, label: 'Mi histórico', breadcrumb: 'Mi histórico', icon: TrendingUp }] : []),
     ...(isSocio ? [{ id: 'mi-capital' as TabActiva, label: 'Mi capital', breadcrumb: 'Mi capital', icon: Coins }] : []),
   ];
@@ -960,6 +963,7 @@ export const MiPerfil: React.FC = () => {
             </div>
           )}
           {/* F4 · sub-páginas montadas como tabs (embedded · sin shell propio) */}
+          {tabActiva === 'mi-planilla' && <MiPlanillaPersonal embedded />}
           {tabActiva === 'mi-historial' && <MiHistorialPersonal embedded />}
           {tabActiva === 'mi-capital' && <MiCapitalPersonal embedded />}
         </div>

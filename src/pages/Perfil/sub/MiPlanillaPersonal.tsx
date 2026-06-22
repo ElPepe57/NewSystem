@@ -54,7 +54,7 @@ const SUB_TABS: Array<{ id: SubTab; label: string; icon: React.ElementType; getC
 const fmtMoney = (n: number): string =>
   n.toLocaleString('es-PE', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
 
-export const MiPlanillaPersonal: React.FC = () => {
+export const MiPlanillaPersonal: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
   const navigate = useNavigate();
   const { profile } = usePermissions();
   const [subTab, setSubTab] = useState<SubTab>('boletas');
@@ -91,42 +91,58 @@ export const MiPlanillaPersonal: React.FC = () => {
     };
   }, [profile?.uid]);
 
-  if (!profile) {
-    return (
-      <div className="max-w-6xl mx-auto p-6 text-center text-slate-400 text-[12px]">
-        Cargando perfil...
+  // F4 · embedded (tab del hub Mi Espacio) → sin shell · standalone → con shell + BackArrowHeader.
+  const wrap = (content: React.ReactNode, subtitulo?: string, acciones?: React.ReactNode): React.ReactElement =>
+    embedded ? (
+      <>
+        {(subtitulo || acciones) && (
+          <div className="px-4 sm:px-5 md:px-6 pt-3 flex items-center justify-between gap-2 flex-wrap">
+            {subtitulo && <div className="text-[12px] text-slate-500">{subtitulo}</div>}
+            <div className="flex items-center gap-1.5 flex-wrap">{acciones}</div>
+          </div>
+        )}
+        {content}
+      </>
+    ) : (
+      <div className="max-w-6xl mx-auto p-3 sm:p-4 md:p-6">
+        <div className="bg-white rounded-2xl ring-1 ring-slate-200 overflow-hidden">
+          <BackArrowHeader seccionLabel="Mi planilla" icon={BriefcaseBusiness} colorTone="sky" subtitulo={subtitulo} acciones={acciones} />
+          {content}
+        </div>
       </div>
     );
+
+  if (!profile) {
+    return embedded
+      ? <div className="p-6 text-center text-slate-400 text-[12px]">Cargando perfil...</div>
+      : (
+        <div className="max-w-6xl mx-auto p-6 text-center text-slate-400 text-[12px]">
+          Cargando perfil...
+        </div>
+      );
   }
 
   if (!loading && !datosLaborales) {
     // Empty state pedagógico · no tiene datosLaborales
-    return (
-      <div className="max-w-6xl mx-auto p-3 sm:p-4 md:p-6">
-        <div className="bg-white rounded-2xl ring-1 ring-slate-200 overflow-hidden">
-          <BackArrowHeader
-            seccionLabel="Mi planilla"
-            icon={BriefcaseBusiness}
-            colorTone="sky"
-            subtitulo="Vista personal de tu planilla · boletas · adelantos · incentivos"
-          />
-          <div className="p-8 text-center">
-            <BriefcaseBusiness className="w-16 h-16 mx-auto mb-3 text-slate-300" />
-            <h2 className="text-[15px] font-bold text-slate-900 mb-2">Sin datos laborales registrados</h2>
-            <p className="text-[12px] text-slate-600 mb-4 max-w-md mx-auto">
-              Tu cuenta aún no tiene un perfil laboral configurado. Si trabajás en el negocio,
-              contactá al admin de RRHH para que asiente tus datos (cargo, área, sueldo, contrato).
-            </p>
-            <button
-              type="button"
-              onClick={() => navigate('/perfil')}
-              className="text-[12px] font-bold text-white bg-violet-600 hover:bg-violet-700 px-4 py-2 rounded-lg inline-flex items-center gap-1.5"
-            >
-              Volver al perfil
-            </button>
-          </div>
-        </div>
-      </div>
+    return wrap(
+      <div className="p-8 text-center">
+        <BriefcaseBusiness className="w-16 h-16 mx-auto mb-3 text-slate-300" />
+        <h2 className="text-[15px] font-bold text-slate-900 mb-2">Sin datos laborales registrados</h2>
+        <p className="text-[12px] text-slate-600 mb-4 max-w-md mx-auto">
+          Tu cuenta aún no tiene un perfil laboral configurado. Si trabajás en el negocio,
+          contactá al admin de RRHH para que asiente tus datos (cargo, área, sueldo, contrato).
+        </p>
+        {!embedded && (
+          <button
+            type="button"
+            onClick={() => navigate('/perfil')}
+            className="text-[12px] font-bold text-white bg-violet-600 hover:bg-violet-700 px-4 py-2 rounded-lg inline-flex items-center gap-1.5"
+          >
+            Volver al perfil
+          </button>
+        )}
+      </div>,
+      'Vista personal de tu planilla · boletas · adelantos · incentivos',
     );
   }
 
@@ -142,35 +158,30 @@ export const MiPlanillaPersonal: React.FC = () => {
   const ultimoDia = new Date(hoy.getFullYear(), hoy.getMonth() + 1, 0);
   const diasHastaProxBoleta = Math.max(0, Math.ceil((ultimoDia.getTime() - hoy.getTime()) / (1000 * 60 * 60 * 24)));
 
-  return (
-    <div className="max-w-6xl mx-auto p-3 sm:p-4 md:p-6">
-      <div className="bg-white rounded-2xl ring-1 ring-slate-200 overflow-hidden">
-        <BackArrowHeader
-          seccionLabel="Mi planilla"
-          icon={BriefcaseBusiness}
-          colorTone="sky"
-          subtitulo="Vista personal · boletas · adelantos · incentivos · vacaciones · gratificaciones"
-          acciones={
-            <>
-              <button
-                type="button"
-                className="text-[11px] font-medium text-slate-600 hover:bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-lg inline-flex items-center gap-1.5"
-              >
-                <Download className="w-3.5 h-3.5" />
-                Exportar PDF
-              </button>
-              <button
-                type="button"
-                onClick={() => setShowSolicitarAdelanto(true)}
-                className="text-[11px] font-bold text-white bg-sky-600 hover:bg-sky-700 px-3 py-1.5 rounded-lg inline-flex items-center gap-1.5"
-              >
-                <Plus className="w-3.5 h-3.5" />
-                Solicitar adelanto
-              </button>
-            </>
-          }
-        />
+  const accionesPlanilla = (
+    <>
+      <button
+        type="button"
+        className="text-[11px] font-medium text-slate-600 hover:bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-lg inline-flex items-center gap-1.5"
+      >
+        <Download className="w-3.5 h-3.5" />
+        Exportar PDF
+      </button>
+      <button
+        type="button"
+        onClick={() => setShowSolicitarAdelanto(true)}
+        className="text-[11px] font-bold text-white bg-sky-600 hover:bg-sky-700 px-3 py-1.5 rounded-lg inline-flex items-center gap-1.5"
+      >
+        <Plus className="w-3.5 h-3.5" />
+        Solicitar adelanto
+      </button>
+    </>
+  );
 
+  return (
+    <>
+      {wrap(
+        <>
         {/* Sub-tabs internos · canon mockup v5.5 línea 1085-1102 */}
         <div className="px-6 border-b border-slate-200 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
           <div className="flex gap-1 whitespace-nowrap">
@@ -313,7 +324,10 @@ export const MiPlanillaPersonal: React.FC = () => {
             </div>
           )}
         </div>
-      </div>
+        </>,
+        'Vista personal · boletas · adelantos · incentivos · vacaciones · gratificaciones',
+        accionesPlanilla,
+      )}
 
       {/* F10.F.1.N · Modal solicitar adelanto canon */}
       <SolicitarAdelantoModal
@@ -331,7 +345,7 @@ export const MiPlanillaPersonal: React.FC = () => {
           </button>
         </div>
       )}
-    </div>
+    </>
   );
 };
 
