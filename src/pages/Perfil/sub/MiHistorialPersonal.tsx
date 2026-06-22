@@ -34,7 +34,7 @@ const RAZON_LABEL: Record<RazonVariacionSalarial, { label: string; bg: string; t
   otro: { label: 'OTRO', bg: 'bg-slate-100', text: 'text-slate-700' },
 };
 
-export const MiHistorialPersonal: React.FC = () => {
+export const MiHistorialPersonal: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
   const navigate = useNavigate();
   const { profile } = usePermissions();
   const [historial, setHistorial] = useState<HistorialSalarial[]>([]);
@@ -64,26 +64,41 @@ export const MiHistorialPersonal: React.FC = () => {
     };
   }, [profile?.uid]);
 
+  // F4 · embedded (tab del hub Mi Espacio) → sin shell · standalone → con shell + BackArrowHeader.
+  const wrap = (content: React.ReactNode, subtitulo?: string): React.ReactElement =>
+    embedded ? (
+      <>
+        {subtitulo && <div className="px-4 sm:px-5 md:px-6 pt-3 text-[12px] text-slate-500">{subtitulo}</div>}
+        {content}
+      </>
+    ) : (
+      <div className="max-w-6xl mx-auto p-3 sm:p-4 md:p-6">
+        <div className="bg-white rounded-2xl ring-1 ring-slate-200 overflow-hidden">
+          <BackArrowHeader seccionLabel="Mi histórico salarial" icon={TrendingUp} colorTone="emerald" subtitulo={subtitulo} />
+          {content}
+        </div>
+      </div>
+    );
+
   if (!profile) {
-    return <div className="max-w-6xl mx-auto p-6 text-center text-slate-400 text-[12px]">Cargando perfil...</div>;
+    return embedded
+      ? <div className="p-6 text-center text-slate-400 text-[12px]">Cargando perfil...</div>
+      : <div className="max-w-6xl mx-auto p-6 text-center text-slate-400 text-[12px]">Cargando perfil...</div>;
   }
 
   if (!loading && !datosLaborales) {
-    return (
-      <div className="max-w-6xl mx-auto p-3 sm:p-4 md:p-6">
-        <div className="bg-white rounded-2xl ring-1 ring-slate-200 overflow-hidden">
-          <BackArrowHeader seccionLabel="Mi histórico salarial" icon={TrendingUp} colorTone="emerald" />
-          <div className="p-8 text-center">
-            <TrendingUp className="w-16 h-16 mx-auto mb-3 text-slate-300" />
-            <h2 className="text-[15px] font-bold text-slate-900 mb-2">Sin datos laborales</h2>
-            <p className="text-[12px] text-slate-600 mb-4 max-w-md mx-auto">
-              Tu cuenta no tiene perfil laboral · contactá al admin de RRHH.
-            </p>
-            <button onClick={() => navigate('/perfil')} className="text-[12px] font-bold text-white bg-violet-600 hover:bg-violet-700 px-4 py-2 rounded-lg">
-              Volver al perfil
-            </button>
-          </div>
-        </div>
+    return wrap(
+      <div className="p-8 text-center">
+        <TrendingUp className="w-16 h-16 mx-auto mb-3 text-slate-300" />
+        <h2 className="text-[15px] font-bold text-slate-900 mb-2">Sin datos laborales</h2>
+        <p className="text-[12px] text-slate-600 mb-4 max-w-md mx-auto">
+          Tu cuenta no tiene perfil laboral · contactá al admin de RRHH.
+        </p>
+        {!embedded && (
+          <button onClick={() => navigate('/perfil')} className="text-[12px] font-bold text-white bg-violet-600 hover:bg-violet-700 px-4 py-2 rounded-lg">
+            Volver al perfil
+          </button>
+        )}
       </div>
     );
   }
@@ -105,21 +120,13 @@ export const MiHistorialPersonal: React.FC = () => {
       })()
     : { label: '—', meses: 0 };
 
-  return (
-    <div className="max-w-6xl mx-auto p-3 sm:p-4 md:p-6">
-      <div className="bg-white rounded-2xl ring-1 ring-slate-200 overflow-hidden">
-        <BackArrowHeader
-          seccionLabel="Mi histórico salarial"
-          icon={TrendingUp}
-          colorTone="emerald"
-          subtitulo={
-            historial.length > 0
-              ? `${historial.length} cambio${historial.length > 1 ? 's' : ''} documentado${historial.length > 1 ? 's' : ''} · ${acumuladoPct >= 0 ? '+' : ''}${acumuladoPct.toFixed(1)}% acumulado desde alta`
-              : 'Sin cambios registrados aún'
-          }
-        />
+  const subtituloHist =
+    historial.length > 0
+      ? `${historial.length} cambio${historial.length > 1 ? 's' : ''} documentado${historial.length > 1 ? 's' : ''} · ${acumuladoPct >= 0 ? '+' : ''}${acumuladoPct.toFixed(1)}% acumulado desde alta`
+      : 'Sin cambios registrados aún';
 
-        <div className="p-4 sm:p-5 md:p-6 space-y-4 bg-slate-50/30">
+  return wrap(
+    <div className="p-4 sm:p-5 md:p-6 space-y-4 bg-slate-50/30">
           {/* KPIs · canon mockup v5.5 ACTO 6 línea 1455-1488 */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             <div className="bg-gradient-to-br from-emerald-50 to-emerald-100/40 ring-1 ring-emerald-200/50 rounded-2xl p-3">
@@ -232,9 +239,8 @@ export const MiHistorialPersonal: React.FC = () => {
               </div>
             )}
           </div>
-        </div>
-      </div>
-    </div>
+        </div>,
+    subtituloHist,
   );
 };
 

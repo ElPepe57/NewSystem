@@ -19,6 +19,7 @@
  *  - Body: contextual por rol y tab activo
  */
 import React, { useState, useEffect, useMemo } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import {
   Camera,
   Save,
@@ -32,6 +33,7 @@ import {
   X,
   ChevronRight,
   LayoutDashboard,
+  TrendingUp,
   User,
   Briefcase,
   AlertTriangle,
@@ -90,6 +92,7 @@ import {
 import type { SesionActiva } from '../../types/sesion.types';
 // chk5.AUTH-LINK (2026-05-28) · sección Métodos de inicio de sesión
 import { MetodosInicioSesion } from '../../components/auth/MetodosInicioSesion';
+import { MiHistorialPersonal } from './sub/MiHistorialPersonal';
 
 interface ActividadReciente {
   id: string;
@@ -99,7 +102,7 @@ interface ActividadReciente {
   modulo?: string;
 }
 
-type TabActiva = 'resumen' | 'info' | 'actividad';
+type TabActiva = 'resumen' | 'info' | 'actividad' | 'mi-historial';
 
 // Canon mockup ACTO 1 · líneas 142-150 · labels + icons literales
 const TABS: Array<{ id: TabActiva; label: string; breadcrumb: string; icon: React.ElementType }> = [
@@ -137,7 +140,12 @@ export const MiPerfil: React.FC = () => {
   const fetchUserProfile = useAuthStore((state) => state.fetchUserProfile);
 
   // ─── State · UI ────────────────────────────────────────────────────────
-  const [tabActiva, setTabActiva] = useState<TabActiva>('resumen');
+  // F4 · tab activa vive en la URL (?tab=) · preserva F5/bookmark + habilita los redirects de /perfil/mi-X.
+  const [searchParams, setSearchParams] = useSearchParams();
+  const tabInicialUrl = searchParams.get('tab');
+  const [tabActiva, setTabActiva] = useState<TabActiva>(
+    (['resumen', 'info', 'actividad', 'mi-historial'].includes(tabInicialUrl || '') ? tabInicialUrl : 'resumen') as TabActiva,
+  );
 
   // Editar nombre
   const [editingName, setEditingName] = useState(false);
@@ -263,6 +271,29 @@ export const MiPerfil: React.FC = () => {
     };
   }, [profile?.uid]);
 
+  // F4 · sincronizar la tab activa con la URL (?tab=) · replace para no ensuciar el history.
+  useEffect(() => {
+    setSearchParams(
+      (prev) => {
+        const p = new URLSearchParams(prev);
+        if (tabActiva === 'resumen') p.delete('tab');
+        else p.set('tab', tabActiva);
+        return p;
+      },
+      { replace: true },
+    );
+  }, [tabActiva, setSearchParams]);
+
+  // F4 · si la tab de la URL no es visible para el rol (ej. mi-historial sin datos laborales), volver a Resumen.
+  useEffect(() => {
+    if (loadingDatos) return;
+    const empleado = datosLaborales !== null;
+    const visible =
+      tabActiva === 'resumen' || tabActiva === 'info' || tabActiva === 'actividad' ||
+      (tabActiva === 'mi-historial' && empleado);
+    if (!visible) setTabActiva('resumen');
+  }, [tabActiva, datosLaborales, loadingDatos]);
+
   // ─── Construir lista de pendientes contextual al rol ───────────────────
   const pendientes = useMemo<PendienteItem[]>(() => {
     if (!profile) return [];
@@ -348,8 +379,13 @@ export const MiPerfil: React.FC = () => {
     );
   }
 
-  const tabActivaCfg = TABS.find((t) => t.id === tabActiva)!;
   const tieneRolEmpleado = datosLaborales !== null;
+  // F4 · tabs role-adaptivas: las 3 reales + las sub-páginas montadas como tabs (mismo gating que el sidebar · useMiEspacioItems).
+  const tabsVisibles: Array<{ id: TabActiva; label: string; breadcrumb: string; icon: React.ElementType }> = [
+    ...TABS,
+    ...(tieneRolEmpleado ? [{ id: 'mi-historial' as TabActiva, label: 'Mi histórico', breadcrumb: 'Mi histórico', icon: TrendingUp }] : []),
+  ];
+  const tabActivaCfg = tabsVisibles.find((t) => t.id === tabActiva) ?? tabsVisibles[0];
   const iniciales = getIniciales(displayName);
 
   // "Activo desde mar 2024" · canon mockup línea 115
@@ -519,7 +555,7 @@ export const MiPerfil: React.FC = () => {
           style={{ scrollbarWidth: 'none' }}
         >
           <div className="flex gap-1 whitespace-nowrap">
-            {TABS.map((t) => {
+            {tabsVisibles.map((t) => {
               const Icon = t.icon;
               const active = tabActiva === t.id;
               return (
@@ -919,6 +955,8 @@ export const MiPerfil: React.FC = () => {
               )}
             </div>
           )}
+          {/* F4 · tab Mi histórico · sub-página montada como tab (embedded · sin shell propio) */}
+          {tabActiva === 'mi-historial' && <MiHistorialPersonal embedded />}
         </div>
       </div>
 
