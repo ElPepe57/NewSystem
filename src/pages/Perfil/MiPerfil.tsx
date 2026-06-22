@@ -34,6 +34,7 @@ import {
   ChevronRight,
   LayoutDashboard,
   TrendingUp,
+  Coins,
   User,
   Briefcase,
   AlertTriangle,
@@ -93,6 +94,7 @@ import type { SesionActiva } from '../../types/sesion.types';
 // chk5.AUTH-LINK (2026-05-28) · sección Métodos de inicio de sesión
 import { MetodosInicioSesion } from '../../components/auth/MetodosInicioSesion';
 import { MiHistorialPersonal } from './sub/MiHistorialPersonal';
+import { MiCapitalPersonal } from './sub/MiCapitalPersonal';
 
 interface ActividadReciente {
   id: string;
@@ -102,7 +104,7 @@ interface ActividadReciente {
   modulo?: string;
 }
 
-type TabActiva = 'resumen' | 'info' | 'actividad' | 'mi-historial';
+type TabActiva = 'resumen' | 'info' | 'actividad' | 'mi-historial' | 'mi-capital';
 
 // Canon mockup ACTO 1 · líneas 142-150 · labels + icons literales
 const TABS: Array<{ id: TabActiva; label: string; breadcrumb: string; icon: React.ElementType }> = [
@@ -144,7 +146,7 @@ export const MiPerfil: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const tabInicialUrl = searchParams.get('tab');
   const [tabActiva, setTabActiva] = useState<TabActiva>(
-    (['resumen', 'info', 'actividad', 'mi-historial'].includes(tabInicialUrl || '') ? tabInicialUrl : 'resumen') as TabActiva,
+    (['resumen', 'info', 'actividad', 'mi-historial', 'mi-capital'].includes(tabInicialUrl || '') ? tabInicialUrl : 'resumen') as TabActiva,
   );
 
   // Editar nombre
@@ -290,9 +292,10 @@ export const MiPerfil: React.FC = () => {
     const empleado = datosLaborales !== null;
     const visible =
       tabActiva === 'resumen' || tabActiva === 'info' || tabActiva === 'actividad' ||
-      (tabActiva === 'mi-historial' && empleado);
+      (tabActiva === 'mi-historial' && empleado) ||
+      (tabActiva === 'mi-capital' && isSocio);
     if (!visible) setTabActiva('resumen');
-  }, [tabActiva, datosLaborales, loadingDatos]);
+  }, [tabActiva, datosLaborales, loadingDatos, isSocio]);
 
   // ─── Construir lista de pendientes contextual al rol ───────────────────
   const pendientes = useMemo<PendienteItem[]>(() => {
@@ -384,6 +387,7 @@ export const MiPerfil: React.FC = () => {
   const tabsVisibles: Array<{ id: TabActiva; label: string; breadcrumb: string; icon: React.ElementType }> = [
     ...TABS,
     ...(tieneRolEmpleado ? [{ id: 'mi-historial' as TabActiva, label: 'Mi histórico', breadcrumb: 'Mi histórico', icon: TrendingUp }] : []),
+    ...(isSocio ? [{ id: 'mi-capital' as TabActiva, label: 'Mi capital', breadcrumb: 'Mi capital', icon: Coins }] : []),
   ];
   const tabActivaCfg = tabsVisibles.find((t) => t.id === tabActiva) ?? tabsVisibles[0];
   const iniciales = getIniciales(displayName);
@@ -955,8 +959,9 @@ export const MiPerfil: React.FC = () => {
               )}
             </div>
           )}
-          {/* F4 · tab Mi histórico · sub-página montada como tab (embedded · sin shell propio) */}
+          {/* F4 · sub-páginas montadas como tabs (embedded · sin shell propio) */}
           {tabActiva === 'mi-historial' && <MiHistorialPersonal embedded />}
+          {tabActiva === 'mi-capital' && <MiCapitalPersonal embedded />}
         </div>
       </div>
 
