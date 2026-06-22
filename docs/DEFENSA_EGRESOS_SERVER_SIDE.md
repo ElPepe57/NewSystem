@@ -143,12 +143,19 @@ Modelo **híbrido en 3 capas**, cada una defensa-en-profundidad de la siguiente:
 - **Rollback:** `firebase deploy --only firestore:rules` con el archivo previo (1 archivo versionado).
 
 ### Fase 2 — CF `autorizarEgreso` + `rechazarEgreso` (únicas escritoras del campo)
-- Callable con: whitelist de colección (#10), monto server-side per-colección fail-closed (#4),
-  `evaluarFirmaSocio` endurecido (#5 · admin short-circuit), pin contra `creadoPor` persistido (#6),
-  camino de rechazo (#11). Migrar `gasto.autorizarGasto`/`ordenCompra.autorizarOC`/`requerimiento.aprobar`
-  a invocar la callable en vez de `updateDoc`.
-- **Done:** casos CF verdes (socio aprueba >umbral en 2 firmas · creador no firma · no-socio bloqueado ·
-  admin solo aprueba · sub-reporte de monto neutralizado · rechazo end-to-end).
+- ✅ **F2a · núcleo de equity portado** a `functions/src/egresos/autorizacionEgreso.helper.ts` (mirror · tsc-clean).
+- ✅ **F2b-server · callables construidos** (`functions/src/egresos/autorizarEgreso.ts` · tsc-clean · exportados):
+  whitelist de colección (#10) · monto server-side per-colección recomputado fail-closed (#4 · `montoUSDDeGasto`
+  para gastos) · `evaluarAprobacionEgreso` quórum por equity (#5 · admin short-circuit §0.1) · segregación contra
+  `creadoPor` persistido (#6) · `rechazarEgreso` (#11) · resolver socios (users rol socio + `users/{uid}/private/
+  datosSocio.porcentajeParticipacion`) + delegaciones vigentes · transacción sobre el doc.
+- ⬜ **F2c · migrar cliente:** `gasto.autorizarGasto`/`ordenCompra.autorizarOC`/`requerimiento.aprobar` (+ rechazos)
+  a invocar la callable (`httpsCallable`) en vez de `updateDoc`. AQUÍ cambia el comportamiento del cliente.
+- ⚠️ **GATE pre-deploy:** `functions/` no tiene runner · el callable está tsc-clean pero **sin probar en runtime**.
+  Antes del deploy acoplado F1+F2: test con **emulador de functions** (sembrar users/socios/datosSocio/delegaciones
+  + un egreso · invocar autorizarEgreso con auth · assert el write + los rechazos). La lógica pura ya tiene 18 tests app-side.
+- **Done:** casos CF verdes en emulador (socio mayoría aprueba · creador no firma · no-socio bloqueado ·
+  admin solo aprueba · monto fail-closed · rechazo end-to-end) + cliente migrado.
 - **Rollback fail-CLOSED:** si la CF falla, las aprobaciones quedan **bloqueadas** (no se reabre el
   write directo del cliente). F1+F2 se despliegan **acopladas**.
 

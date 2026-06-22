@@ -76,6 +76,11 @@ export { geocodificaCoordenadasVenta } from "./geocoding.functions";
 export { generarDescripcionProducto } from "./productos/generarDescripcionProducto";
 
 // ============================================================
+// EGRESOS — Autorización server-side (F2 · quórum por equity)
+// ============================================================
+export { autorizarEgreso, rechazarEgreso } from "./egresos/autorizarEgreso";
+
+// ============================================================
 // chk5.F4-USERS (2026-05-25) · MÓDULO /usuarios completo
 // 10 Cloud Functions · invitaciones · signup · aprobación · sesiones · cron
 // ============================================================

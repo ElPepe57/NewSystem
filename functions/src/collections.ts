@@ -22,6 +22,9 @@ export const COLLECTIONS = {
   ORDENES_COMPRA: "ordenesCompra",
   PROVEEDORES: "proveedores",
 
+  // === Autorización de egresos (F2) ===
+  DELEGACIONES_AUTORIZACION: "delegacionesAutorizacion",
+
   // === Inventario ===
   PRODUCTOS: "productos",
   UNIDADES: "unidades",
