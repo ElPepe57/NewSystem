@@ -28,7 +28,8 @@ import { tipoCambioService } from '../../services/tipoCambio.service';
 import { useAuthStore } from '../../store/authStore';
 import { useToastStore } from '../../store/toastStore';
 import { useLineaFilter } from '../../hooks/useLineaFilter';
-import { hasRole } from '../../types/auth.types';
+import { hasRole, getRolPrincipal } from '../../types/auth.types';
+import { usePermissions } from '../../hooks/usePermissions';
 import type {
   Requerimiento,
   RequerimientoFormData
@@ -77,6 +78,7 @@ export const Requerimientos: React.FC = () => {
   // Vista · tab activa del hub (Resumen default · canon hub)
   const [tabActiva, setTabActiva] = useState<'resumen' | 'tablero' | 'pendientes'>('resumen');
   const esAdmin = hasRole(userProfile, 'admin'); // canon "admin ve todo" · chip contextual al rol
+  const { canApproveRequerimiento } = usePermissions(); // blindaje · solo APROBAR_REQUERIMIENTO aprueba
 
   // Modales
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -413,8 +415,13 @@ export const Requerimientos: React.FC = () => {
 
   const handleAprobar = async (req: Requerimiento) => {
     if (!user || !userProfile) return;
+    // Blindaje · gating por permiso: ventas (sin APROBAR_REQUERIMIENTO) no puede aprobar.
+    if (!canApproveRequerimiento) {
+      toast.error('No tenés permiso para aprobar requerimientos.');
+      return;
+    }
     try {
-      const result = await requerimientoService.aprobar(req.id, user.uid, userProfile.role);
+      const result = await requerimientoService.aprobar(req.id, user.uid, getRolPrincipal(userProfile) || userProfile.role);
 
       if (result.completa) {
         toast.success('Requerimiento aprobado');

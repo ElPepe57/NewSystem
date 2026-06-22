@@ -1,4 +1,5 @@
 import React from 'react';
+import { usePermissions } from '../../hooks/usePermissions';
 import {
   Check,
   XCircle,
@@ -105,6 +106,7 @@ export const RequerimientoDetailModal: React.FC<RequerimientoDetailModalProps> =
   onAbrirAsignacion,
   onCancelarCobertura
 }) => {
+  const { canApproveRequerimiento } = usePermissions(); // blindaje · gating del botón Aprobar
   if (!requerimiento) return null;
 
   const req = requerimiento;
@@ -458,7 +460,7 @@ export const RequerimientoDetailModal: React.FC<RequerimientoDetailModalProps> =
             </Button>
           )}
 
-          {req.estado === 'pendiente' && (
+          {req.estado === 'pendiente' && canApproveRequerimiento && (
             <Button variant="primary" onClick={() => {
               onAprobar(req);
               onClose();

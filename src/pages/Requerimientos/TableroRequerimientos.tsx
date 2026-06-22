@@ -16,6 +16,7 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 import { formatCurrency } from '../../utils/format';
+import { usePermissions } from '../../hooks/usePermissions';
 import { getOrigenLabel } from '../../types/requerimiento.types';
 import type { Requerimiento, EstadoRequerimiento } from '../../types/requerimiento.types';
 
@@ -389,7 +390,11 @@ const AccionGatillo: React.FC<{
   onGenerarOC: (req: Requerimiento) => void;
   onOpenDetail: (req: Requerimiento) => void;
 }> = ({ req, etapa, onAprobar, onGenerarOC }) => {
+  const { canApproveRequerimiento } = usePermissions(); // blindaje · solo aprobadores ven Aprobar/Firmar
   if (etapa === 'pendiente') {
+    if (!canApproveRequerimiento) {
+      return <span className="text-[11px] text-slate-400 italic px-2 flex-shrink-0">Pendiente de aprobación</span>;
+    }
     return (
       <button type="button" onClick={() => onAprobar(req)} className="flex items-center gap-1.5 text-[12px] font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-lg px-3 py-2 flex-shrink-0">
         <Check className="w-4 h-4" /> Aprobar
@@ -397,6 +402,9 @@ const AccionGatillo: React.FC<{
     );
   }
   if (etapa === 'pendiente_aprobacion') {
+    if (!canApproveRequerimiento) {
+      return <span className="text-[11px] text-violet-400 italic px-2 flex-shrink-0">Esperando firma</span>;
+    }
     return (
       <button type="button" onClick={() => onAprobar(req)} className="flex items-center gap-1.5 text-[12px] font-semibold text-white bg-violet-600 hover:bg-violet-700 rounded-lg px-3 py-2 flex-shrink-0">
         <PenLine className="w-4 h-4" /> Firmar
