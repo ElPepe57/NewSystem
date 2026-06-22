@@ -35,6 +35,7 @@ import {
   LayoutDashboard,
   TrendingUp,
   Coins,
+  ShieldCheck,
   User,
   Briefcase,
   AlertTriangle,
@@ -96,6 +97,7 @@ import { MetodosInicioSesion } from '../../components/auth/MetodosInicioSesion';
 import { MiPlanillaPersonal } from './sub/MiPlanillaPersonal';
 import { MiHistorialPersonal } from './sub/MiHistorialPersonal';
 import { MiCapitalPersonal } from './sub/MiCapitalPersonal';
+import { MiBandejaPersonal } from './sub/MiBandejaPersonal';
 
 interface ActividadReciente {
   id: string;
@@ -105,7 +107,7 @@ interface ActividadReciente {
   modulo?: string;
 }
 
-type TabActiva = 'resumen' | 'info' | 'actividad' | 'mi-planilla' | 'mi-historial' | 'mi-capital';
+type TabActiva = 'resumen' | 'info' | 'actividad' | 'mi-planilla' | 'mi-historial' | 'mi-capital' | 'mi-bandeja';
 
 // Canon mockup ACTO 1 · líneas 142-150 · labels + icons literales
 const TABS: Array<{ id: TabActiva; label: string; breadcrumb: string; icon: React.ElementType }> = [
@@ -147,7 +149,7 @@ export const MiPerfil: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const tabInicialUrl = searchParams.get('tab');
   const [tabActiva, setTabActiva] = useState<TabActiva>(
-    (['resumen', 'info', 'actividad', 'mi-planilla', 'mi-historial', 'mi-capital'].includes(tabInicialUrl || '') ? tabInicialUrl : 'resumen') as TabActiva,
+    (['resumen', 'info', 'actividad', 'mi-planilla', 'mi-historial', 'mi-capital', 'mi-bandeja'].includes(tabInicialUrl || '') ? tabInicialUrl : 'resumen') as TabActiva,
   );
 
   // Editar nombre
@@ -295,9 +297,10 @@ export const MiPerfil: React.FC = () => {
       tabActiva === 'resumen' || tabActiva === 'info' || tabActiva === 'actividad' ||
       (tabActiva === 'mi-planilla' && empleado) ||
       (tabActiva === 'mi-historial' && empleado) ||
-      (tabActiva === 'mi-capital' && isSocio);
+      (tabActiva === 'mi-capital' && isSocio) ||
+      (tabActiva === 'mi-bandeja' && (canManageUsers || isSocio));
     if (!visible) setTabActiva('resumen');
-  }, [tabActiva, datosLaborales, loadingDatos, isSocio]);
+  }, [tabActiva, datosLaborales, loadingDatos, isSocio, canManageUsers]);
 
   // ─── Construir lista de pendientes contextual al rol ───────────────────
   const pendientes = useMemo<PendienteItem[]>(() => {
@@ -391,6 +394,7 @@ export const MiPerfil: React.FC = () => {
     ...(tieneRolEmpleado ? [{ id: 'mi-planilla' as TabActiva, label: 'Mi planilla', breadcrumb: 'Mi planilla', icon: Briefcase }] : []),
     ...(tieneRolEmpleado ? [{ id: 'mi-historial' as TabActiva, label: 'Mi histórico', breadcrumb: 'Mi histórico', icon: TrendingUp }] : []),
     ...(isSocio ? [{ id: 'mi-capital' as TabActiva, label: 'Mi capital', breadcrumb: 'Mi capital', icon: Coins }] : []),
+    ...((canManageUsers || isSocio) ? [{ id: 'mi-bandeja' as TabActiva, label: 'Bandeja', breadcrumb: 'Bandeja', icon: ShieldCheck }] : []),
   ];
   const tabActivaCfg = tabsVisibles.find((t) => t.id === tabActiva) ?? tabsVisibles[0];
   const iniciales = getIniciales(displayName);
@@ -966,6 +970,7 @@ export const MiPerfil: React.FC = () => {
           {tabActiva === 'mi-planilla' && <MiPlanillaPersonal embedded />}
           {tabActiva === 'mi-historial' && <MiHistorialPersonal embedded />}
           {tabActiva === 'mi-capital' && <MiCapitalPersonal embedded />}
+          {tabActiva === 'mi-bandeja' && <MiBandejaPersonal embedded />}
         </div>
       </div>
 

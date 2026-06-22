@@ -87,7 +87,7 @@ const fechaRelativa = (d: Date | undefined): string => {
   return `hace ${dias}d`;
 };
 
-export const MiBandejaPersonal: React.FC = () => {
+export const MiBandejaPersonal: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
   const navigate = useNavigate();
   const { canManageUsers, isSocio, isAdmin } = usePermissions();
   const user = useAuthStore((s) => s.user);
@@ -249,69 +249,85 @@ export const MiBandejaPersonal: React.FC = () => {
     };
   }, [canManageUsers]);
 
-  if (!canManageUsers && !verEgresos) {
-    return (
+  // F4 · embedded (tab del hub Mi Espacio) → sin shell · standalone → con shell + BackArrowHeader.
+  const wrap = (
+    content: React.ReactNode,
+    opts: { subtitulo?: string; acciones?: React.ReactNode; colorTone?: 'amber' | 'violet'; seccionLabel?: string } = {},
+  ): React.ReactElement =>
+    embedded ? (
+      <>
+        {(opts.subtitulo || opts.acciones) && (
+          <div className="px-4 sm:px-5 md:px-6 pt-3 flex items-center justify-between gap-2 flex-wrap">
+            {opts.subtitulo && <div className="text-[12px] text-slate-500">{opts.subtitulo}</div>}
+            {opts.acciones && <div className="flex items-center gap-1.5 flex-wrap">{opts.acciones}</div>}
+          </div>
+        )}
+        {content}
+      </>
+    ) : (
       <div className="max-w-6xl mx-auto p-3 sm:p-4 md:p-6">
         <div className="bg-white rounded-2xl ring-1 ring-slate-200 overflow-hidden">
-          <BackArrowHeader seccionLabel="Mi bandeja" icon={ShieldCheck} colorTone="amber" />
-          <div className="p-8 text-center">
-            <ShieldCheck className="w-16 h-16 mx-auto mb-3 text-slate-300" />
-            <h2 className="text-[15px] font-bold text-slate-900 mb-2">Vista no disponible</h2>
-            <p className="text-[12px] text-slate-600 mb-4 max-w-md mx-auto">
-              Esta vista es para admin/gerente (aprobaciones del equipo) o socios (autorización de egresos).
-            </p>
-            <button onClick={() => navigate('/perfil')} className="text-[12px] font-bold text-white bg-violet-600 hover:bg-violet-700 px-4 py-2 rounded-lg">
-              Volver al perfil
-            </button>
-          </div>
+          <BackArrowHeader
+            seccionLabel={opts.seccionLabel ?? 'Mi bandeja'}
+            icon={ShieldCheck}
+            colorTone={opts.colorTone ?? 'amber'}
+            subtitulo={opts.subtitulo}
+            acciones={opts.acciones}
+          />
+          {content}
         </div>
+      </div>
+    );
+
+  if (!canManageUsers && !verEgresos) {
+    return wrap(
+      <div className="p-8 text-center">
+        <ShieldCheck className="w-16 h-16 mx-auto mb-3 text-slate-300" />
+        <h2 className="text-[15px] font-bold text-slate-900 mb-2">Vista no disponible</h2>
+        <p className="text-[12px] text-slate-600 mb-4 max-w-md mx-auto">
+          Esta vista es para admin/gerente (aprobaciones del equipo) o socios (autorización de egresos).
+        </p>
+        {!embedded && (
+          <button onClick={() => navigate('/perfil')} className="text-[12px] font-bold text-white bg-violet-600 hover:bg-violet-700 px-4 py-2 rounded-lg">
+            Volver al perfil
+          </button>
+        )}
       </div>
     );
   }
 
   // F4 · socio PURO (no admin/gerente): bandeja SOLO de egresos · no usa la maquinaria RRHH.
   if (!canManageUsers && verEgresos) {
-    return (
-      <div className="max-w-6xl mx-auto p-3 sm:p-4 md:p-6">
-        <div className="bg-white rounded-2xl ring-1 ring-slate-200 overflow-hidden">
-          <BackArrowHeader
-            seccionLabel="Mi bandeja · Egresos"
-            icon={ShieldCheck}
-            colorTone="violet"
-            subtitulo={
-              egresosLoading
-                ? 'Cargando…'
-                : `${egresosCount} esperan tu firma · $${egresosTotalUSD.toLocaleString('en-US', { maximumFractionDigits: 0 })} USD pendiente`
-            }
-          />
-          <div className="p-4 sm:p-5 md:p-6 space-y-3 bg-slate-50/30">
-            {egresosLoading ? (
-              <div className="text-center text-slate-400 text-[12px] py-8">Cargando egresos…</div>
-            ) : egresos.length === 0 ? (
-              <div className="p-8 text-center">
-                <div className="w-16 h-16 bg-gradient-to-br from-emerald-100 to-emerald-200 rounded-2xl flex items-center justify-center mx-auto mb-3">
-                  <CheckSquare className="w-8 h-8 text-emerald-600" />
-                </div>
-                <h2 className="text-[15px] font-bold text-slate-900 mb-1">Sin egresos pendientes</h2>
-                <p className="text-[12px] text-slate-600">No hay egresos esperando tu firma de socio.</p>
-              </div>
-            ) : (
-              egresos.map(renderEgreso)
-            )}
+    return wrap(
+      <div className="p-4 sm:p-5 md:p-6 space-y-3 bg-slate-50/30">
+        {egresosLoading ? (
+          <div className="text-center text-slate-400 text-[12px] py-8">Cargando egresos…</div>
+        ) : egresos.length === 0 ? (
+          <div className="p-8 text-center">
+            <div className="w-16 h-16 bg-gradient-to-br from-emerald-100 to-emerald-200 rounded-2xl flex items-center justify-center mx-auto mb-3">
+              <CheckSquare className="w-8 h-8 text-emerald-600" />
+            </div>
+            <h2 className="text-[15px] font-bold text-slate-900 mb-1">Sin egresos pendientes</h2>
+            <p className="text-[12px] text-slate-600">No hay egresos esperando tu firma de socio.</p>
           </div>
-        </div>
-      </div>
+        ) : (
+          egresos.map(renderEgreso)
+        )}
+      </div>,
+      {
+        seccionLabel: 'Mi bandeja · Egresos',
+        colorTone: 'violet',
+        subtitulo: egresosLoading
+          ? 'Cargando…'
+          : `${egresosCount} esperan tu firma · $${egresosTotalUSD.toLocaleString('en-US', { maximumFractionDigits: 0 })} USD pendiente`,
+      },
     );
   }
 
   if (loading || !data) {
-    return (
-      <div className="max-w-6xl mx-auto p-3 sm:p-4 md:p-6">
-        <div className="bg-white rounded-2xl ring-1 ring-slate-200 overflow-hidden">
-          <BackArrowHeader seccionLabel="Mi bandeja" icon={ShieldCheck} colorTone="amber" subtitulo="Cargando..." />
-          <div className="p-8 text-center text-slate-400 text-[12px]">Cargando aprobaciones pendientes...</div>
-        </div>
-      </div>
+    return wrap(
+      <div className="p-8 text-center text-slate-400 text-[12px]">Cargando aprobaciones pendientes...</div>,
+      { subtitulo: 'Cargando...' },
     );
   }
 
@@ -336,50 +352,35 @@ export const MiBandejaPersonal: React.FC = () => {
 
   // Empty state global (incluye egresos para no decir "todo al día" si hay egresos pendientes o cargando)
   if (totalPendientes === 0 && !(verEgresos && (egresosLoading || egresos.length > 0))) {
-    return (
-      <div className="max-w-6xl mx-auto p-3 sm:p-4 md:p-6">
-        <div className="bg-white rounded-2xl ring-1 ring-slate-200 overflow-hidden">
-          <BackArrowHeader
-            seccionLabel="Mi bandeja"
-            icon={ShieldCheck}
-            colorTone="amber"
-            subtitulo="Centro de mando · estado al día"
-          />
-          <div className="p-8 text-center">
-            <div className="w-20 h-20 bg-gradient-to-br from-emerald-100 to-emerald-200 rounded-2xl flex items-center justify-center mx-auto mb-4">
-              <CheckSquare className="w-10 h-10 text-emerald-600" />
-            </div>
-            <h2 className="text-[16px] font-bold text-slate-900 mb-1">¡Todo al día!</h2>
-            <p className="text-[12px] text-slate-600 max-w-sm mx-auto">
-              No hay aprobaciones pendientes en tu bandeja. Excelente trabajo manteniendo el ritmo del equipo.
-            </p>
-          </div>
+    return wrap(
+      <div className="p-8 text-center">
+        <div className="w-20 h-20 bg-gradient-to-br from-emerald-100 to-emerald-200 rounded-2xl flex items-center justify-center mx-auto mb-4">
+          <CheckSquare className="w-10 h-10 text-emerald-600" />
         </div>
-      </div>
+        <h2 className="text-[16px] font-bold text-slate-900 mb-1">¡Todo al día!</h2>
+        <p className="text-[12px] text-slate-600 max-w-sm mx-auto">
+          No hay aprobaciones pendientes en tu bandeja. Excelente trabajo manteniendo el ritmo del equipo.
+        </p>
+      </div>,
+      { subtitulo: 'Centro de mando · estado al día' },
     );
   }
 
-  return (
-    <div className="max-w-6xl mx-auto p-3 sm:p-4 md:p-6">
-      <div className="bg-white rounded-2xl ring-1 ring-slate-200 overflow-hidden">
-        <BackArrowHeader
-          seccionLabel="Mi bandeja · Centro de mando"
-          icon={ShieldCheck}
-          colorTone="amber"
-          subtitulo={`${totalPendientes} aprobacion${totalPendientes !== 1 ? 'es' : ''} esperando tu acción · revisar antes del cierre`}
-          acciones={
-            <>
-              <button className="text-[11px] font-medium text-slate-600 hover:bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-lg inline-flex items-center gap-1.5">
-                <Download className="w-3.5 h-3.5" />
-                Exportar
-              </button>
-              <button className="text-[11px] font-bold text-white bg-emerald-600 hover:bg-emerald-700 px-3 py-1.5 rounded-lg inline-flex items-center gap-1.5">
-                <CheckSquare className="w-3.5 h-3.5" />
-                Aprobar todo ({totalPendientes})
-              </button>
-            </>
-          }
-        />
+  const accionesBandeja = (
+    <>
+      <button className="text-[11px] font-medium text-slate-600 hover:bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-lg inline-flex items-center gap-1.5">
+        <Download className="w-3.5 h-3.5" />
+        Exportar
+      </button>
+      <button className="text-[11px] font-bold text-white bg-emerald-600 hover:bg-emerald-700 px-3 py-1.5 rounded-lg inline-flex items-center gap-1.5">
+        <CheckSquare className="w-3.5 h-3.5" />
+        Aprobar todo ({totalPendientes})
+      </button>
+    </>
+  );
+
+  return wrap(
+    <>
 
         {/* KPI strip 4 cards · canon mockup v5.7 ACTO 1 */}
         <div className="px-6 py-4 border-b border-slate-100 grid grid-cols-2 md:grid-cols-4 gap-3 bg-slate-50/30">
@@ -697,9 +698,13 @@ export const MiBandejaPersonal: React.FC = () => {
             )
           )}
         </div>
-      </div>
-    </div>
-  );
+        </>,
+        {
+          seccionLabel: 'Mi bandeja · Centro de mando',
+          subtitulo: `${totalPendientes} aprobacion${totalPendientes !== 1 ? 'es' : ''} esperando tu acción · revisar antes del cierre`,
+          acciones: accionesBandeja,
+        },
+      );
 };
 
 export default MiBandejaPersonal;

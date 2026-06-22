@@ -68,8 +68,8 @@ const ProductosIntel = React.lazy(() => import('./pages/ProductosIntel/Productos
 const IntelProductosPage = React.lazy(() => import('./pages/IntelProductos').then(m => ({ default: m.IntelProductosPage })));
 const MiPerfil = React.lazy(() => import('./pages/Perfil/MiPerfil').then(m => ({ default: m.MiPerfil })));
 // F10.F.1.J-SIDEBAR · sub-páginas dedicadas /perfil/mi-{seccion} · canon Opción C drill-down
-// F4 · MiHistorialPersonal ya NO se importa acá · se renderiza como tab del hub (MiPerfil) · la ruta redirige.
-const MiBandejaPersonal = React.lazy(() => import('./pages/Perfil/sub/MiBandejaPersonal').then(m => ({ default: m.MiBandejaPersonal })));
+// F4 · Las 4 sub-páginas de /perfil (planilla/histórico/capital/bandeja) ya NO se importan acá ·
+// se renderizan como tabs del hub (MiPerfil) · sus rutas /perfil/mi-X redirigen a /perfil?tab=mi-X.
 const Escaner = React.lazy(() => import('./pages/Escaner/Escaner').then(m => ({ default: m.Escaner })));
 const MercadoLibre = React.lazy(() => import('./pages/MercadoLibre/MercadoLibre').then(m => ({ default: m.MercadoLibre })));
 const NotasIA = React.lazy(() => import('./pages/NotasIA/NotasIA').then(m => ({ default: m.NotasIA })));
@@ -283,7 +283,7 @@ function App() {
               <Route path="perfil/mi-capital" element={<Navigate to="/perfil?tab=mi-capital" replace />} />
               {/* F4 · migrada a tab del hub · redirect deep-link */}
               <Route path="perfil/mi-historial" element={<Navigate to="/perfil?tab=mi-historial" replace />} />
-              <Route path="perfil/mi-bandeja" element={<MiBandejaPersonal />} />
+              <Route path="perfil/mi-bandeja" element={<Navigate to="/perfil?tab=mi-bandeja" replace />} />
 
               {/* Utilidades */}
             </Route>
