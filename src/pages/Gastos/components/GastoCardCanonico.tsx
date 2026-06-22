@@ -14,11 +14,12 @@ import React from 'react';
 import {
   Check, Clock, Hourglass, XCircle, AlertTriangle,
   Package, ShoppingBag, Calendar, CircleDollarSign,
-  ChevronRight, Edit3, Truck, ExternalLink,
+  ChevronRight, Edit3, Truck, ExternalLink, PenLine, ShieldAlert,
 } from 'lucide-react';
 import type { Gasto, EstadoGasto } from '../../../types/gasto.types';
 import type { BloqueCosto } from '../../../types/categoriaCosto.types';
 import { getOrigenGasto, type OrigenGasto } from '../utils/origenGasto';
+import { requiereAutorizacionSocio } from '../../../services/autorizacionEgreso.helper';
 
 interface GastoCardCanonicoProps {
   gasto: Gasto;
@@ -27,6 +28,10 @@ interface GastoCardCanonicoProps {
   // Acciones
   onEditar: (g: Gasto) => void;
   onPagar?: (g: Gasto) => void;
+  /** F4 · firma de socio para autorizar un gasto > umbral antes de pagarse. */
+  onAutorizar?: (g: Gasto) => void;
+  /** F4 · ¿el usuario actual es socio? (puede autorizar egresos > umbral). */
+  esSocio?: boolean;
   /** chk5.C4 · navegación a doc origen (OC/Envío/Venta) · null = origen manual */
   onVerDocOrigen?: (g: Gasto, origen: OrigenGasto) => void;
   // Multi-select (opcional para F4 bulk)
@@ -104,12 +109,19 @@ export const GastoCardCanonico: React.FC<GastoCardCanonicoProps> = ({
   breadcrumb,
   onEditar,
   onPagar,
+  onAutorizar,
+  esSocio = false,
   onVerDocOrigen,
   seleccionado = false,
   onToggleSeleccion,
   mostrarCheckbox = false,
 }) => {
   const estadoConf = getEstadoConfig(gasto.estado);
+  // F4 · ¿este gasto requiere autorización de socio antes de pagarse? (> umbral USD y aún sin aprobar)
+  const montoUSDGasto = gasto.moneda === 'USD'
+    ? gasto.montoOriginal
+    : (gasto.tipoCambio ? gasto.montoPEN / gasto.tipoCambio : 0);
+  const necesitaAutorizacion = requiereAutorizacionSocio(montoUSDGasto) && gasto.autorizacion?.estado !== 'aprobado';
   const bloqueConf = getBloqueConfig(breadcrumb?.bloque);
   const origen = getOrigenGasto(gasto);
   const origenConf = getOrigenConfig(origen);
@@ -286,20 +298,40 @@ export const GastoCardCanonico: React.FC<GastoCardCanonicoProps> = ({
               )}
             </div>
             {(gasto.estado === 'pendiente' || gasto.estado === 'parcial') && onPagar ? (
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onPagar(gasto);
-                }}
-                className={`text-[10px] font-bold px-2.5 py-1 rounded-lg shadow-sm transition-colors ${
-                  esVencido
-                    ? 'bg-rose-600 hover:bg-rose-700 text-white animate-pulse'
-                    : 'bg-amber-100 hover:bg-amber-200 text-amber-800'
-                }`}
-              >
-                {esVencido ? 'Pagar HOY' : 'Pagar →'}
-              </button>
+              necesitaAutorizacion ? (
+                esSocio && onAutorizar ? (
+                  <button
+                    type="button"
+                    onClick={(e) => { e.stopPropagation(); onAutorizar(gasto); }}
+                    className="inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-1 rounded-lg shadow-sm transition-colors bg-violet-600 hover:bg-violet-700 text-white"
+                    title="Este egreso supera el umbral · firma de socio"
+                  >
+                    <PenLine className="w-3 h-3" /> Autorizar
+                  </button>
+                ) : (
+                  <span
+                    className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-1 rounded-full bg-violet-50 text-violet-700 border border-violet-200"
+                    title="Requiere autorización de 2 socios antes de pagarse"
+                  >
+                    <ShieldAlert className="w-3 h-3" /> Pendiente de socio
+                  </span>
+                )
+              ) : (
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onPagar(gasto);
+                  }}
+                  className={`text-[10px] font-bold px-2.5 py-1 rounded-lg shadow-sm transition-colors ${
+                    esVencido
+                      ? 'bg-rose-600 hover:bg-rose-700 text-white animate-pulse'
+                      : 'bg-amber-100 hover:bg-amber-200 text-amber-800'
+                  }`}
+                >
+                  {esVencido ? 'Pagar HOY' : 'Pagar →'}
+                </button>
+              )
             ) : (
               <button
                 type="button"

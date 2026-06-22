@@ -44,6 +44,8 @@ interface GastoState {
   actualizarGasto: (id: string, data: Partial<GastoFormData>, userId: string) => Promise<void>;
   eliminarGasto: (id: string) => Promise<void>;
   registrarPagoGasto: (gastoId: string, datoPago: PagoGastoData, userId: string) => Promise<void>;
+  /** F4 · firma de socio para autorizar un gasto > umbral antes de pagarse. */
+  autorizarGasto: (gastoId: string, userId: string, userRoles: string[]) => Promise<{ completa: boolean; faltanFirmas?: number }>;
   getGastosPendientesRecalculo: () => Promise<Gasto[]>;
   fetchGastosPendientesYParciales: () => Promise<void>;
   setViewMode: (mode: ViewMode, mes?: number, anio?: number) => void;
@@ -208,6 +210,19 @@ export const useGastoStore = create<GastoState>((set, get) => ({
       await get().reloadCurrentView();
       await get().fetchStats();
       set({ loading: false });
+    } catch (error: any) {
+      set({ error: error.message, loading: false });
+      throw error;
+    }
+  },
+
+  autorizarGasto: async (gastoId: string, userId: string, userRoles: string[]) => {
+    set({ loading: true, error: null });
+    try {
+      const res = await gastoService.autorizarGasto(gastoId, userId, userRoles);
+      await get().reloadCurrentView();
+      set({ loading: false });
+      return res;
     } catch (error: any) {
       set({ error: error.message, loading: false });
       throw error;

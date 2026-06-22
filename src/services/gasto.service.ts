@@ -35,8 +35,22 @@ import { COLLECTIONS } from '../config/collections';
 import { getNextSequenceNumber } from '../lib/sequenceGenerator';
 import { logBackgroundError } from '../lib/logger';
 import { logger } from '../lib/logger';
+import { requiereAutorizacionSocio, evaluarFirmaSocio } from './autorizacionEgreso.helper';
+import { userService } from './user.service';
+import { NotificationService } from './notification.service';
+import { tipoCambioService } from './tipoCambio.service';
 
 const GASTOS_COLLECTION = COLLECTIONS.GASTOS;
+
+/** F4 · monto USD landed del gasto · base del tramo de autorización (≤$1k directo · >$1k 2 socios). */
+function montoUSDDeGasto(
+  g: { moneda: string; montoOriginal: number; montoPEN: number; tipoCambio?: number },
+  tcFallback?: number,
+): number {
+  if (g.moneda === 'USD') return g.montoOriginal;
+  const tc = g.tipoCambio || tcFallback;
+  return tc && tc > 0 ? g.montoPEN / tc : 0;
+}
 
 export const gastoService = {
   /**
@@ -54,6 +68,24 @@ export const gastoService = {
           throw new Error('Debe proporcionar el tipo de cambio para gastos en USD');
         }
         montoPEN = data.montoOriginal * data.tipoCambio;
+      }
+
+      // F4 · GATE de autorización: un gasto > umbral USD landed NO puede nacer 'pagado'
+      // (sería un egreso sin firma de socio). Debe crearse pendiente y autorizarse primero.
+      if (data.estado === 'pagado') {
+        // Para PEN sin TC en el form, usar el TC del día (no dejar colar PEN grandes con USD=0).
+        let tcGate = data.tipoCambio;
+        if (data.moneda === 'PEN' && !tcGate) {
+          const tcDia = await tipoCambioService.getTCDelDia();
+          tcGate = tcDia?.venta || tcDia?.compra || undefined;
+        }
+        const montoUSDCreate = montoUSDDeGasto(
+          { moneda: data.moneda, montoOriginal: data.montoOriginal, montoPEN, tipoCambio: data.tipoCambio },
+          tcGate,
+        );
+        if (requiereAutorizacionSocio(montoUSDCreate)) {
+          throw new Error('Un gasto superior al umbral no puede registrarse como pagado · primero deben autorizarlo 2 socios. Registralo como pendiente.');
+        }
       }
 
       // chk5.A15 · CIRUGÍA FINAL · stop persistir categoria/claseGasto legacy.
@@ -241,6 +273,79 @@ export const gastoService = {
     } catch (error: any) {
       logger.error('Error al crear gasto:', error);
       throw new Error(`Error al crear gasto: ${error.message}`);
+    }
+  },
+
+  /**
+   * F4 · Autorizar un gasto (firma de socio). Gastos cuyo total supera el umbral USD landed
+   * requieren 2 socios distintos (doble firma) antes de poder pagarse. Usa autorizacionEgreso.helper
+   * como fuente única. Segregación: el creador no firma lo suyo.
+   * @param userRoles roles del usuario (debe incluir 'socio').
+   */
+  async autorizarGasto(gastoId: string, userId: string, userRoles: string[]): Promise<{ completa: boolean; faltanFirmas?: number }> {
+    try {
+      const gasto = await this.getById(gastoId);
+      if (!gasto) throw new Error('Gasto no encontrado');
+      if (gasto.estado === 'cancelado') throw new Error('No se puede autorizar un gasto cancelado');
+
+      const montoUSDTotal = montoUSDDeGasto(gasto);
+      if (!requiereAutorizacionSocio(montoUSDTotal)) {
+        throw new Error('Este gasto no requiere autorización de socio (≤ umbral · pago directo).');
+      }
+      if (gasto.autorizacion?.estado === 'aprobado') {
+        throw new Error('Este gasto ya está autorizado.');
+      }
+
+      const firmas = gasto.autorizacion?.firmas || [];
+      const evalFirma = evaluarFirmaSocio({
+        montoUSD: montoUSDTotal,
+        firmas,
+        userId,
+        esSocio: userRoles.includes('socio'),
+        creadorId: gasto.creadoPor,
+      });
+      if (!evalFirma.ok) throw new Error(evalFirma.error || 'No podés autorizar este gasto.');
+
+      // Timestamp.now() (no serverTimestamp): las firmas viven en un array.
+      const nuevasFirmas = [...firmas, { usuarioId: userId, fecha: Timestamp.now() }];
+      await updateDoc(doc(db, GASTOS_COLLECTION, gastoId), {
+        autorizacion: {
+          estado: evalFirma.completa ? 'aprobado' : 'pendiente',
+          firmas: nuevasFirmas,
+          ...(gasto.autorizacion?.solicitadaPor ? { solicitadaPor: gasto.autorizacion.solicitadaPor } : {}),
+          ...(evalFirma.completa ? { fechaAprobacion: Timestamp.now() } : {}),
+        },
+        ultimaEdicion: Timestamp.now(),
+        editadoPor: userId,
+      });
+
+      // Notificar a los OTROS socios (distintos del firmante y del creador) si falta firma.
+      if (!evalFirma.completa) {
+        try {
+          const socios = await userService.getByRole('socio' as any);
+          const otros = socios.filter(u => u.activo && u.uid !== userId && u.uid !== gasto.creadoPor);
+          for (const socio of otros) {
+            await NotificationService.crear({
+              tipo: 'aprobacion_pendiente',
+              prioridad: 'alta',
+              titulo: `Firma de socio pendiente — ${gasto.numeroGasto}`,
+              mensaje: `Otro socio ya firmó. Falta tu firma para autorizar este gasto de $${montoUSDTotal.toFixed(0)} USD.`,
+              usuarioId: socio.uid,
+              entidadTipo: 'usuario',
+              entidadId: gastoId,
+              creadoPor: 'sistema',
+              metadata: { montoUSD: montoUSDTotal },
+            });
+          }
+        } catch (notifError) {
+          logger.warn('Error notificando socios (autorizarGasto):', notifError);
+        }
+      }
+
+      return { completa: evalFirma.completa, faltanFirmas: evalFirma.faltanFirmas };
+    } catch (error: any) {
+      logger.error('Error al autorizar gasto:', error);
+      throw new Error(error.message || 'Error al autorizar gasto');
     }
   },
 
@@ -966,6 +1071,13 @@ export const gastoService = {
 
       if (data.montoPago <= 0) {
         throw new Error('El monto debe ser mayor a 0');
+      }
+
+      // F4 · GATE de autorización: un gasto cuyo TOTAL supera el umbral USD landed no egresa
+      // plata hasta que 2 socios lo firmen (autorizacionEgreso.helper · fuente única).
+      const montoUSDTotalPago = montoUSDDeGasto(gasto, data.tipoCambio);
+      if (requiereAutorizacionSocio(montoUSDTotalPago) && gasto.autorizacion?.estado !== 'aprobado') {
+        throw new Error('Este gasto supera el umbral · requiere la autorización de 2 socios antes de pagarse.');
       }
 
       // Calcular monto pendiente actual desde pagos existentes

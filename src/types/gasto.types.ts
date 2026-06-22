@@ -208,6 +208,17 @@ export interface Gasto {
   montoPagado?: number;            // Suma de todos los pagos en PEN
   montoPendiente?: number;         // montoPEN - montoPagado
 
+  // F4 · Autorización de egreso por SOCIO. Un gasto cuyo total supera el umbral USD landed
+  // (autorizacionEgreso.helper) requiere doble firma de 2 socios distintos ANTES de poder
+  // pagarse. ≤ umbral = directo (sin este bloque). Mismo modelo que requerimientos.
+  autorizacion?: {
+    estado: 'pendiente' | 'aprobado';
+    firmas: { usuarioId: string; nombre?: string; fecha: Timestamp }[];
+    solicitadaPor?: string;
+    fechaSolicitud?: Timestamp;
+    fechaAprobacion?: Timestamp;
+  };
+
   // Impacto en CTRU
   impactaCTRU: boolean;            // Si afecta el cálculo de CTRU
   ctruRecalculado: boolean;        // Si ya se recalculó el CTRU

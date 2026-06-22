@@ -19,7 +19,7 @@ import { LineaDropdown } from '../../components/common/LineaDropdown';
 import { useToastStore } from '../../store/toastStore';
 import { useGastoStore } from '../../store/gastoStore';
 import { useAuthStore } from '../../store/authStore';
-import { hasRole } from '../../types/auth.types';
+import { hasRole, getUserRoles } from '../../types/auth.types';
 import { ctruService } from '../../services/ctru.service';
 import { GastoForm } from './GastoForm';
 import { PagoUnificadoForm } from '../../components/modules/pagos/PagoUnificadoForm';
@@ -67,13 +67,14 @@ export const Gastos: React.FC = () => {
   // DS Fase 4 · Hub Kit · chip de rol en el top-bar (canon "admin ve todo")
   const userProfile = useAuthStore((s) => s.userProfile);
   const esAdmin = hasRole(userProfile, 'admin');
+  const esSocio = hasRole(userProfile, 'socio'); // F4 · autoridad de autorización de egresos > umbral
   const navigate = useNavigate();
   const {
     gastos, stats, loading,
     fetchGastos, fetchGastosMes, buscarGastos,
     fetchStats, setViewMode: storeSetViewMode, reloadCurrentView,
     fetchGastosPendientesYParciales, eliminarGasto,
-    registrarPagoGasto
+    registrarPagoGasto, autorizarGasto
   } = useGastoStore();
 
   const [showModal, setShowModal] = useState(false);
@@ -606,6 +607,30 @@ export const Gastos: React.FC = () => {
       toast.success(`Gasto ${gasto.numeroGasto} eliminado`, 'Gasto eliminado');
     } catch (error: any) {
       toast.error(error.message, 'Error al eliminar');
+    }
+  };
+
+  // F4 · firma de socio para autorizar un gasto > umbral antes de pagarse.
+  const handleAutorizarGasto = async (gasto: Gasto) => {
+    if (!user || !userProfile) return;
+    const confirmed = await confirm({
+      title: 'Autorizar egreso',
+      message: `Vas a firmar como socio la autorización del gasto ${gasto.numeroGasto} ("${gasto.descripcion}"). Supera el umbral y requiere 2 socios distintos.`,
+      confirmText: 'Firmar como socio',
+      variant: 'info'
+    });
+    if (!confirmed) return;
+    try {
+      const res = await autorizarGasto(gasto.id, user.uid, getUserRoles(userProfile));
+      if (res.completa) {
+        toast.success(`Gasto ${gasto.numeroGasto} autorizado · ya puede pagarse`, 'Egreso autorizado');
+      } else {
+        toast.warning(
+          `Tu firma fue registrada. Falta ${res.faltanFirmas === 1 ? 'la firma de otro socio' : `${res.faltanFirmas} firmas de socios`} para autorizar.`
+        );
+      }
+    } catch (error: any) {
+      toast.error(error.message, 'Error al autorizar');
     }
   };
 
@@ -1430,6 +1455,8 @@ export const Gastos: React.FC = () => {
                   breadcrumb={resolveBreadcrumb(gasto.categoriaCostoId)}
                   onEditar={handleEditarGasto}
                   onPagar={(g) => setGastoParaPago(g)}
+                  onAutorizar={handleAutorizarGasto}
+                  esSocio={esSocio}
                   /* chk5.C4 · D-GR-8 · CTA al doc origen (OC/Envío/Venta).
                      Las listas son modal-based · pasamos query ?highlight=ID
                      para que el módulo destino pueda abrir el detalle. */
