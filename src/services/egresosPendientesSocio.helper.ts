@@ -103,6 +103,21 @@ export function puedoFirmar(e: EgresoPendiente, userId: string, esSocio: boolean
   return evaluarFirmaSocio({ montoUSD: e.montoUSD, firmas: e.firmas, userId, esSocio, creadorId: e.creadoPor }).ok;
 }
 
+/** ¿el usuario ya firmó este egreso? (para "Mis aprobaciones dadas" · query reversa). */
+export function firmadoPorMi(e: EgresoPendiente, userId: string): boolean {
+  return e.firmas.some((f) => f.usuarioId === userId);
+}
+
+/** ¿el egreso quedó totalmente autorizado? (todas las firmas de socio requeridas presentes). */
+export function autorizacionCompleta(e: EgresoPendiente): boolean {
+  return e.faltanFirmas === 0;
+}
+
+/** Fecha (Timestamp opaco) de la firma de ESTE usuario, si existe. */
+export function fechaMiFirma(e: EgresoPendiente, userId: string): unknown {
+  return e.firmas.find((f) => f.usuarioId === userId)?.fecha;
+}
+
 /** Texto del chip de progreso. Ej: "Falta tu firma (0/2)" · "Falta 1 socio (1/2)". */
 export function chipFirma(e: EgresoPendiente): string {
   const req = firmasSocioRequeridas(e.montoUSD);

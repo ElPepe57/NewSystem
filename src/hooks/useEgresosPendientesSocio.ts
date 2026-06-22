@@ -20,7 +20,9 @@ import {
   ocAEgreso,
   esPendienteDeFirma,
   puedoFirmar,
+  firmadoPorMi,
 } from '../services/egresosPendientesSocio.helper';
+import { requiereAutorizacionSocio } from '../services/autorizacionEgreso.helper';
 
 export interface EgresoPendienteConAccion extends EgresoPendiente {
   /** ¿el usuario actual puede firmar este egreso ahora? (socio · no creador · no firmó). */
@@ -29,6 +31,8 @@ export interface EgresoPendienteConAccion extends EgresoPendiente {
 
 export interface UseEgresosPendientesSocioResult {
   egresos: EgresoPendienteConAccion[];
+  /** F4 · "Mis aprobaciones dadas": egresos donde YA firmé (completos o esperando 2º socio). */
+  dadas: EgresoPendiente[];
   /** Cuántos puedo firmar yo (para badge / CTA). */
   count: number;
   /** Suma USD de todos los pendientes (para el KPI). */
@@ -41,6 +45,7 @@ export function useEgresosPendientesSocio(): UseEgresosPendientesSocioResult {
   const user = useAuthStore((s) => s.user);
   const { isSocio } = usePermissions();
   const [egresos, setEgresos] = useState<EgresoPendienteConAccion[]>([]);
+  const [dadas, setDadas] = useState<EgresoPendiente[]>([]);
   const [loading, setLoading] = useState(false);
 
   const cargar = useCallback(async () => {
@@ -53,18 +58,26 @@ export function useEgresosPendientesSocio(): UseEgresosPendientesSocioResult {
         getAllOC().catch(() => []),
       ]);
 
-      const pendientes: EgresoPendiente[] = [
+      // Todos los egresos que requieren socio (pendientes o ya firmados).
+      const todos: EgresoPendiente[] = [
         ...reqs.map(requerimientoAEgreso),
         ...gastos.map(gastoAEgreso),
         ...ocs.map(ocAEgreso),
-      ].filter(esPendienteDeFirma);
+      ].filter((e) => requiereAutorizacionSocio(e.montoUSD));
 
-      const conAccion: EgresoPendienteConAccion[] = pendientes
+      const conAccion: EgresoPendienteConAccion[] = todos
+        .filter(esPendienteDeFirma)
         .map((e) => ({ ...e, puedeFirmar: !!uid && puedoFirmar(e, uid, isSocio) }))
         // los que puedo firmar primero · luego por monto desc
         .sort((a, b) => Number(b.puedeFirmar) - Number(a.puedeFirmar) || b.montoUSD - a.montoUSD);
 
+      // Mis aprobaciones dadas: donde YA firmé · más recientes (mayor monto) primero.
+      const misDadas = uid
+        ? todos.filter((e) => firmadoPorMi(e, uid)).sort((a, b) => b.montoUSD - a.montoUSD)
+        : [];
+
       setEgresos(conAccion);
+      setDadas(misDadas);
     } finally {
       setLoading(false);
     }
@@ -77,5 +90,5 @@ export function useEgresosPendientesSocio(): UseEgresosPendientesSocioResult {
   const count = egresos.reduce((n, e) => n + (e.puedeFirmar ? 1 : 0), 0);
   const totalUSD = egresos.reduce((s, e) => s + e.montoUSD, 0);
 
-  return { egresos, count, totalUSD, loading, reload: cargar };
+  return { egresos, dadas, count, totalUSD, loading, reload: cargar };
 }

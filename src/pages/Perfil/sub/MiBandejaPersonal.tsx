@@ -40,7 +40,7 @@ import { getUserRoles } from '../../../types/auth.types';
 import { useEgresosPendientesSocio, type EgresoPendienteConAccion } from '../../../hooks/useEgresosPendientesSocio';
 import { firmarEgreso } from '../../../services/firmarEgreso.service';
 import { useBandejaSignal } from '../../../store/bandejaSignalStore';
-import { chipFirma, LABEL_ORIGEN, type OrigenEgreso } from '../../../services/egresosPendientesSocio.helper';
+import { chipFirma, LABEL_ORIGEN, autorizacionCompleta, fechaMiFirma, type OrigenEgreso, type EgresoPendiente } from '../../../services/egresosPendientesSocio.helper';
 import { BackArrowHeader } from '../../../components/common/BackArrowHeader';
 import {
   collection,
@@ -99,7 +99,9 @@ export const MiBandejaPersonal: React.FC<{ embedded?: boolean }> = ({ embedded =
 
   // F4 · bandeja unificada de egresos · admin VE (admin-ve-todo) · firmar exige rol socio.
   const verEgresos = isSocio || isAdmin;
-  const { egresos, count: egresosCount, totalUSD: egresosTotalUSD, loading: egresosLoading, reload: reloadEgresos } = useEgresosPendientesSocio();
+  const { egresos, dadas, count: egresosCount, totalUSD: egresosTotalUSD, loading: egresosLoading, reload: reloadEgresos } = useEgresosPendientesSocio();
+  // F4 · toggle dentro de la sub-tab Egresos: lo que espera mi firma vs lo que YA firmé.
+  const [egresosVista, setEgresosVista] = useState<'por-firmar' | 'dadas'>('por-firmar');
 
   const handleFirmarEgreso = async (e: EgresoPendienteConAccion) => {
     if (!user || !userProfile) return;
@@ -157,6 +159,101 @@ export const MiBandejaPersonal: React.FC<{ embedded?: boolean }> = ({ embedded =
       </div>
     );
   };
+
+  // F4 · "Mis aprobaciones dadas" · card read-only de un egreso que YA firmé.
+  const renderEgresoDado = (e: EgresoPendiente) => {
+    const Icon = ICONO_ORIGEN[e.origen];
+    const completo = autorizacionCompleta(e);
+    const f = fechaMiFirma(e, user?.uid || '');
+    const fechaDate = f && typeof f === 'object' && 'toDate' in (f as object) ? (f as { toDate: () => Date }).toDate() : undefined;
+    return (
+      <div key={`dada-${e.origen}-${e.id}`} className="bg-white border border-slate-200 rounded-xl p-3 flex items-center justify-between gap-3 flex-wrap">
+        <div className="flex items-center gap-3 min-w-[220px] flex-1">
+          <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-slate-400 to-slate-600 flex items-center justify-center text-white flex-shrink-0">
+            <Icon className="w-4 h-4" />
+          </div>
+          <div className="min-w-0">
+            <div className="flex items-center gap-1.5">
+              <span className="text-[9px] font-bold uppercase text-slate-600 bg-slate-100 rounded px-1.5 py-0.5">{LABEL_ORIGEN[e.origen]}</span>
+              <span className="text-[12px] font-bold text-slate-900 truncate">{e.numero}</span>
+            </div>
+            <div className="text-[10px] text-slate-500 truncate">
+              {e.descripcion || '—'}{fechaDate ? ` · firmaste ${fechaRelativa(fechaDate)}` : ''}
+            </div>
+          </div>
+        </div>
+        <div className="text-right flex-shrink-0">
+          <div className="text-[14px] font-bold tabular-nums text-slate-700">${e.montoUSD.toLocaleString('en-US', { maximumFractionDigits: 0 })}</div>
+          <div className="text-[9px] text-slate-400 uppercase">USD landed</div>
+        </div>
+        <div className="inline-flex items-center gap-1.5 flex-shrink-0">
+          {completo ? (
+            <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-full px-2 py-0.5 inline-flex items-center gap-1">
+              <CheckSquare className="w-3 h-3" /> Autorizado
+            </span>
+          ) : (
+            <span className="text-[10px] font-medium text-amber-700 bg-amber-50 border border-amber-200 rounded-full px-2 py-0.5">
+              Tu firma · falta {e.faltanFirmas} socio{e.faltanFirmas === 1 ? '' : 's'}
+            </span>
+          )}
+        </div>
+      </div>
+    );
+  };
+
+  // F4 · vista de Egresos con toggle "Por firmar / Mis aprobaciones dadas" · reusada en el main (admin/socio)
+  // y en el early-return del socio puro. El toggle es MISMA data, dos lentes (canon TABS-vs-TOGGLE).
+  const renderEgresosVista = () => (
+    <>
+      <div className="flex items-center gap-1.5 flex-wrap">
+        {([
+          { id: 'por-firmar' as const, label: 'Por firmar', count: egresos.length },
+          { id: 'dadas' as const, label: 'Mis aprobaciones dadas', count: dadas.length },
+        ]).map((v) => {
+          const active = egresosVista === v.id;
+          return (
+            <button
+              key={v.id}
+              type="button"
+              onClick={() => setEgresosVista(v.id)}
+              className={`text-[11px] font-semibold px-2.5 py-1 rounded-full inline-flex items-center gap-1.5 ${
+                active ? 'bg-violet-600 text-white' : 'text-slate-600 border border-slate-200 hover:bg-slate-50'
+              }`}
+            >
+              {v.label}
+              {v.count > 0 && (
+                <span className={`text-[9px] font-bold rounded-full px-1.5 ${active ? 'bg-white/25' : 'bg-slate-100'}`}>{v.count}</span>
+              )}
+            </button>
+          );
+        })}
+      </div>
+
+      {egresosVista === 'por-firmar' ? (
+        egresos.length === 0 ? (
+          <div className="p-8 text-center">
+            <div className="w-16 h-16 bg-gradient-to-br from-emerald-100 to-emerald-200 rounded-2xl flex items-center justify-center mx-auto mb-3">
+              <CheckSquare className="w-8 h-8 text-emerald-600" />
+            </div>
+            <h2 className="text-[15px] font-bold text-slate-900 mb-1">Sin egresos pendientes</h2>
+            <p className="text-[12px] text-slate-600">No hay egresos esperando firma de socio.</p>
+          </div>
+        ) : (
+          egresos.map(renderEgreso)
+        )
+      ) : dadas.length === 0 ? (
+        <div className="p-8 text-center">
+          <div className="w-16 h-16 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-3">
+            <PenLine className="w-8 h-8 text-slate-400" />
+          </div>
+          <h2 className="text-[15px] font-bold text-slate-900 mb-1">Todavía no firmaste egresos</h2>
+          <p className="text-[12px] text-slate-600">Acá quedan registradas las autorizaciones que vayas dando.</p>
+        </div>
+      ) : (
+        dadas.map(renderEgresoDado)
+      )}
+    </>
+  );
 
   useEffect(() => {
     if (!canManageUsers) return;
@@ -302,16 +399,8 @@ export const MiBandejaPersonal: React.FC<{ embedded?: boolean }> = ({ embedded =
       <div className="p-4 sm:p-5 md:p-6 space-y-3 bg-slate-50/30">
         {egresosLoading ? (
           <div className="text-center text-slate-400 text-[12px] py-8">Cargando egresos…</div>
-        ) : egresos.length === 0 ? (
-          <div className="p-8 text-center">
-            <div className="w-16 h-16 bg-gradient-to-br from-emerald-100 to-emerald-200 rounded-2xl flex items-center justify-center mx-auto mb-3">
-              <CheckSquare className="w-8 h-8 text-emerald-600" />
-            </div>
-            <h2 className="text-[15px] font-bold text-slate-900 mb-1">Sin egresos pendientes</h2>
-            <p className="text-[12px] text-slate-600">No hay egresos esperando tu firma de socio.</p>
-          </div>
         ) : (
-          egresos.map(renderEgreso)
+          renderEgresosVista()
         )}
       </div>,
       {
@@ -351,7 +440,7 @@ export const MiBandejaPersonal: React.FC<{ embedded?: boolean }> = ({ embedded =
   ];
 
   // Empty state global (incluye egresos para no decir "todo al día" si hay egresos pendientes o cargando)
-  if (totalPendientes === 0 && !(verEgresos && (egresosLoading || egresos.length > 0))) {
+  if (totalPendientes === 0 && !(verEgresos && (egresosLoading || egresos.length > 0 || dadas.length > 0))) {
     return wrap(
       <div className="p-8 text-center">
         <div className="w-20 h-20 bg-gradient-to-br from-emerald-100 to-emerald-200 rounded-2xl flex items-center justify-center mx-auto mb-4">
@@ -684,19 +773,7 @@ export const MiBandejaPersonal: React.FC<{ embedded?: boolean }> = ({ embedded =
           })}
 
           {/* ─── Sub-tab EGRESOS · autorización de socio (F4) ─── */}
-          {subTab === 'egresos' && (
-            egresos.length === 0 ? (
-              <div className="p-8 text-center">
-                <div className="w-16 h-16 bg-gradient-to-br from-emerald-100 to-emerald-200 rounded-2xl flex items-center justify-center mx-auto mb-3">
-                  <CheckSquare className="w-8 h-8 text-emerald-600" />
-                </div>
-                <h2 className="text-[15px] font-bold text-slate-900 mb-1">Sin egresos pendientes</h2>
-                <p className="text-[12px] text-slate-600">No hay egresos esperando firma de socio.</p>
-              </div>
-            ) : (
-              egresos.map(renderEgreso)
-            )
-          )}
+          {subTab === 'egresos' && renderEgresosVista()}
         </div>
         </>,
         {

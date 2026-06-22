@@ -6,10 +6,13 @@ import {
   esPendienteDeFirma,
   puedoFirmar,
   chipFirma,
+  firmadoPorMi,
+  autorizacionCompleta,
   type EgresoPendiente,
 } from './egresosPendientesSocio.helper';
 
 const socioA = 'socio-A';
+const socioB = 'socio-B';
 const creador = 'gerente-C';
 
 describe('mapeo · normaliza la divergencia req/gasto/OC', () => {
@@ -73,6 +76,18 @@ describe('puedoFirmar · segregación + socio', () => {
   });
   it('socio que ya firmó NO puede de nuevo', () => {
     expect(puedoFirmar({ ...e, firmas: [{ usuarioId: socioA }] }, socioA, true)).toBe(false);
+  });
+});
+
+describe('firmadoPorMi + autorizacionCompleta · Mis aprobaciones dadas', () => {
+  const base: EgresoPendiente = { origen: 'oc', id: 'x', numero: 'X', montoUSD: 2000, firmas: [{ usuarioId: socioA }], faltanFirmas: 1, creadoPor: creador };
+  it('firmadoPorMi: true si mi uid está en las firmas', () => {
+    expect(firmadoPorMi(base, socioA)).toBe(true);
+    expect(firmadoPorMi(base, socioB)).toBe(false);
+  });
+  it('autorizacionCompleta: false si falta firma · true si 0 faltan', () => {
+    expect(autorizacionCompleta(base)).toBe(false);
+    expect(autorizacionCompleta({ ...base, firmas: [{ usuarioId: socioA }, { usuarioId: socioB }], faltanFirmas: 0 })).toBe(true);
   });
 });
 
