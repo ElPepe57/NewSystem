@@ -104,41 +104,36 @@ export function useMiEspacioItems(): {
   // Fetch badge de Mi bandeja · solo si es admin/gerente
   // Lazy load · separado para no bloquear el sidebar
   useEffect(() => {
-    if (!canManageUsers || !profile?.uid) {
+    if ((!canManageUsers && !isSocio) || !profile?.uid) {
       setBandejaCount(0);
       return;
     }
     let cancelled = false;
+    const contar = (q: ReturnType<typeof query>): Promise<number> =>
+      getCountFromServer(q).then((s) => s.data().count).catch(() => 0);
     const cargarContador = async () => {
       try {
-        // Aprobaciones agregadas: usuarios pendientes + adelantos pendientes + bonos calculados + liquidaciones aprobadas
-        const usersQ = query(
-          collection(db, COLLECTIONS.USERS),
-          where('estado', 'in', ['pendiente_aprobacion', 'invitado_no_registrado']),
-        );
-        const adelantosQ = query(
-          collection(db, COLLECTIONS.ADELANTOS_NOMINA),
-          where('estado', '==', 'pendiente'),
-        );
-        const bonosQ = query(
-          collection(db, COLLECTIONS.CALCULOS_INCENTIVO),
-          where('estado', '==', 'calculado'),
-        );
-        const liquidQ = query(
-          collection(db, COLLECTIONS.LIQUIDACIONES_EMPLEADO),
-          where('estado', '==', 'aprobada'),
-        );
-        const [u, a, b, l] = await Promise.all([
-          getCountFromServer(usersQ).catch(() => null),
-          getCountFromServer(adelantosQ).catch(() => null),
-          getCountFromServer(bonosQ).catch(() => null),
-          getCountFromServer(liquidQ).catch(() => null),
-        ]);
-        const total =
-          (u?.data().count ?? 0) +
-          (a?.data().count ?? 0) +
-          (b?.data().count ?? 0) +
-          (l?.data().count ?? 0);
+        const promesas: Promise<number>[] = [];
+        // RRHH (admin/gerente): usuarios + adelantos + bonos + liquidaciones
+        if (canManageUsers) {
+          promesas.push(
+            contar(query(collection(db, COLLECTIONS.USERS), where('estado', 'in', ['pendiente_aprobacion', 'invitado_no_registrado']))),
+            contar(query(collection(db, COLLECTIONS.ADELANTOS_NOMINA), where('estado', '==', 'pendiente'))),
+            contar(query(collection(db, COLLECTIONS.CALCULOS_INCENTIVO), where('estado', '==', 'calculado'))),
+            contar(query(collection(db, COLLECTIONS.LIQUIDACIONES_EMPLEADO), where('estado', '==', 'aprobada'))),
+          );
+        }
+        // Egresos pendientes de firma de socio (F4 · aprox · cuenta los que ya tienen el flujo iniciado ·
+        // los >umbral recién creados aparecen en la bandeja vía el hook · deuda: notificar al crear).
+        if (isSocio) {
+          promesas.push(
+            contar(query(collection(db, COLLECTIONS.REQUERIMIENTOS), where('estado', '==', 'pendiente_aprobacion'))),
+            contar(query(collection(db, COLLECTIONS.GASTOS), where('autorizacion.estado', '==', 'pendiente'))),
+            contar(query(collection(db, COLLECTIONS.ORDENES_COMPRA), where('autorizacion.estado', '==', 'pendiente'))),
+          );
+        }
+        const counts = await Promise.all(promesas);
+        const total = counts.reduce((s, n) => s + n, 0);
         if (!cancelled) setBandejaCount(total);
       } catch {
         if (!cancelled) setBandejaCount(0);
@@ -148,7 +143,7 @@ export function useMiEspacioItems(): {
     return () => {
       cancelled = true;
     };
-  }, [canManageUsers, profile?.uid]);
+  }, [canManageUsers, isSocio, profile?.uid]);
 
   // Construir items según contexto
   const items = useMemo<MiEspacioItem[]>(() => {
@@ -197,8 +192,8 @@ export function useMiEspacioItems(): {
       });
     }
 
-    // Admin · bandeja
-    if (canManageUsers) {
+    // Bandeja · admin/gerente (RRHH) o socio (egresos · F4)
+    if (canManageUsers || isSocio) {
       lista.push({
         id: 'mi-bandeja',
         icon: ShieldCheck,

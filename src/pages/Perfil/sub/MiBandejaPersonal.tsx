@@ -27,8 +27,19 @@ import {
   UserMinus,
   ArrowRight,
   AlertTriangle,
+  Wallet,
+  PenLine,
+  ClipboardList,
+  Banknote,
+  Package,
 } from 'lucide-react';
 import { usePermissions } from '../../../hooks/usePermissions';
+import { useAuthStore } from '../../../store/authStore';
+import { useToastStore } from '../../../store/toastStore';
+import { getUserRoles } from '../../../types/auth.types';
+import { useEgresosPendientesSocio, type EgresoPendienteConAccion } from '../../../hooks/useEgresosPendientesSocio';
+import { firmarEgreso } from '../../../services/firmarEgreso.service';
+import { chipFirma, LABEL_ORIGEN, type OrigenEgreso } from '../../../services/egresosPendientesSocio.helper';
 import { BackArrowHeader } from '../../../components/common/BackArrowHeader';
 import {
   collection,
@@ -40,7 +51,14 @@ import {
 import { db } from '../../../lib/firebase';
 import { COLLECTIONS } from '../../../config/collections';
 
-type SubTab = 'todos' | 'usuarios' | 'adelantos' | 'bonos' | 'liquidaciones';
+type SubTab = 'todos' | 'usuarios' | 'adelantos' | 'bonos' | 'liquidaciones' | 'egresos';
+
+/** F4 · icono por origen del egreso (semántico cross-módulo). */
+const ICONO_ORIGEN: Record<OrigenEgreso, React.ElementType> = {
+  requerimiento: ClipboardList,
+  gasto: Banknote,
+  oc: Package,
+};
 
 interface BandejaData {
   usuariosPendientes: Array<{ id: string; nombre: string; email: string; origen: string; fechaInvitacion?: Date; rol?: string }>;
@@ -70,10 +88,73 @@ const fechaRelativa = (d: Date | undefined): string => {
 
 export const MiBandejaPersonal: React.FC = () => {
   const navigate = useNavigate();
-  const { canManageUsers } = usePermissions();
+  const { canManageUsers, isSocio, isAdmin } = usePermissions();
+  const user = useAuthStore((s) => s.user);
+  const userProfile = useAuthStore((s) => s.userProfile);
+  const toast = useToastStore();
   const [subTab, setSubTab] = useState<SubTab>('todos');
   const [data, setData] = useState<BandejaData | null>(null);
   const [loading, setLoading] = useState(true);
+
+  // F4 · bandeja unificada de egresos · admin VE (admin-ve-todo) · firmar exige rol socio.
+  const verEgresos = isSocio || isAdmin;
+  const { egresos, count: egresosCount, totalUSD: egresosTotalUSD, loading: egresosLoading, reload: reloadEgresos } = useEgresosPendientesSocio();
+
+  const handleFirmarEgreso = async (e: EgresoPendienteConAccion) => {
+    if (!user || !userProfile) return;
+    try {
+      const res = await firmarEgreso(e.origen, e.id, user.uid, getUserRoles(userProfile));
+      if (res.completa) {
+        toast.success(`${LABEL_ORIGEN[e.origen]} ${e.numero} autorizado`, 'Egreso autorizado');
+      } else {
+        toast.warning(
+          `Tu firma fue registrada. Falta ${res.faltanFirmas === 1 ? 'la firma de otro socio' : `${res.faltanFirmas} firmas de socios`} para autorizar.`,
+        );
+      }
+      reloadEgresos();
+    } catch (error: any) {
+      toast.error(error.message, 'Error al firmar');
+    }
+  };
+
+  // Card de egreso · reusada en el early-return (socio puro) y en la sub-tab Egresos (admin/gerente).
+  const renderEgreso = (e: EgresoPendienteConAccion) => {
+    const Icon = ICONO_ORIGEN[e.origen];
+    return (
+      <div key={`${e.origen}-${e.id}`} className="bg-white border border-violet-200 rounded-xl p-3 flex items-center justify-between gap-3 flex-wrap">
+        <div className="flex items-center gap-3 min-w-[220px] flex-1">
+          <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-violet-500 to-violet-700 flex items-center justify-center text-white flex-shrink-0">
+            <Icon className="w-4 h-4" />
+          </div>
+          <div className="min-w-0">
+            <div className="flex items-center gap-1.5">
+              <span className="text-[9px] font-bold uppercase text-violet-700 bg-violet-50 rounded px-1.5 py-0.5">{LABEL_ORIGEN[e.origen]}</span>
+              <span className="text-[12px] font-bold text-slate-900 truncate">{e.numero}</span>
+            </div>
+            <div className="text-[10px] text-slate-500 truncate">
+              {e.descripcion || '—'} · <span className="text-violet-600 font-medium">{chipFirma(e)}</span>
+            </div>
+          </div>
+        </div>
+        <div className="text-right flex-shrink-0">
+          <div className="text-[14px] font-bold tabular-nums text-amber-900">${e.montoUSD.toLocaleString('en-US', { maximumFractionDigits: 0 })}</div>
+          <div className="text-[9px] text-slate-400 uppercase">USD landed</div>
+        </div>
+        <div className="inline-flex items-center gap-1.5 flex-shrink-0">
+          {e.puedeFirmar ? (
+            <button
+              onClick={() => handleFirmarEgreso(e)}
+              className="text-[11px] font-bold text-white bg-violet-600 hover:bg-violet-700 px-2.5 py-1 rounded inline-flex items-center gap-1"
+            >
+              <PenLine className="w-3 h-3" /> Firmar
+            </button>
+          ) : (
+            <span className="text-[10px] text-slate-400 italic px-2">{!isSocio ? 'Autoridad del socio' : 'Esperando otro socio'}</span>
+          )}
+        </div>
+      </div>
+    );
+  };
 
   useEffect(() => {
     if (!canManageUsers) return;
@@ -166,7 +247,7 @@ export const MiBandejaPersonal: React.FC = () => {
     };
   }, [canManageUsers]);
 
-  if (!canManageUsers) {
+  if (!canManageUsers && !verEgresos) {
     return (
       <div className="max-w-6xl mx-auto p-3 sm:p-4 md:p-6">
         <div className="bg-white rounded-2xl ring-1 ring-slate-200 overflow-hidden">
@@ -175,11 +256,46 @@ export const MiBandejaPersonal: React.FC = () => {
             <ShieldCheck className="w-16 h-16 mx-auto mb-3 text-slate-300" />
             <h2 className="text-[15px] font-bold text-slate-900 mb-2">Vista no disponible</h2>
             <p className="text-[12px] text-slate-600 mb-4 max-w-md mx-auto">
-              Esta vista es para admin/gerente · centro de mando de aprobaciones del sistema.
+              Esta vista es para admin/gerente (aprobaciones del equipo) o socios (autorización de egresos).
             </p>
             <button onClick={() => navigate('/perfil')} className="text-[12px] font-bold text-white bg-violet-600 hover:bg-violet-700 px-4 py-2 rounded-lg">
               Volver al perfil
             </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // F4 · socio PURO (no admin/gerente): bandeja SOLO de egresos · no usa la maquinaria RRHH.
+  if (!canManageUsers && verEgresos) {
+    return (
+      <div className="max-w-6xl mx-auto p-3 sm:p-4 md:p-6">
+        <div className="bg-white rounded-2xl ring-1 ring-slate-200 overflow-hidden">
+          <BackArrowHeader
+            seccionLabel="Mi bandeja · Egresos"
+            icon={ShieldCheck}
+            colorTone="violet"
+            subtitulo={
+              egresosLoading
+                ? 'Cargando…'
+                : `${egresosCount} esperan tu firma · $${egresosTotalUSD.toLocaleString('en-US', { maximumFractionDigits: 0 })} USD pendiente`
+            }
+          />
+          <div className="p-4 sm:p-5 md:p-6 space-y-3 bg-slate-50/30">
+            {egresosLoading ? (
+              <div className="text-center text-slate-400 text-[12px] py-8">Cargando egresos…</div>
+            ) : egresos.length === 0 ? (
+              <div className="p-8 text-center">
+                <div className="w-16 h-16 bg-gradient-to-br from-emerald-100 to-emerald-200 rounded-2xl flex items-center justify-center mx-auto mb-3">
+                  <CheckSquare className="w-8 h-8 text-emerald-600" />
+                </div>
+                <h2 className="text-[15px] font-bold text-slate-900 mb-1">Sin egresos pendientes</h2>
+                <p className="text-[12px] text-slate-600">No hay egresos esperando tu firma de socio.</p>
+              </div>
+            ) : (
+              egresos.map(renderEgreso)
+            )}
           </div>
         </div>
       </div>
@@ -213,10 +329,11 @@ export const MiBandejaPersonal: React.FC = () => {
     { id: 'adelantos', label: 'Adelantos', icon: ArrowDownCircle, count: data.adelantosPendientes.length },
     { id: 'bonos', label: 'Bonos', icon: Trophy, count: data.bonosCalculados.length },
     { id: 'liquidaciones', label: 'Liquidaciones', icon: UserMinus, count: data.liquidacionesAprobadas.length },
+    ...(verEgresos ? [{ id: 'egresos' as SubTab, label: 'Egresos', icon: Wallet, count: egresos.length }] : []),
   ];
 
-  // Empty state global
-  if (totalPendientes === 0) {
+  // Empty state global (incluye egresos para no decir "todo al día" si hay egresos pendientes o cargando)
+  if (totalPendientes === 0 && !(verEgresos && (egresosLoading || egresos.length > 0))) {
     return (
       <div className="max-w-6xl mx-auto p-3 sm:p-4 md:p-6">
         <div className="bg-white rounded-2xl ring-1 ring-slate-200 overflow-hidden">
@@ -296,6 +413,18 @@ export const MiBandejaPersonal: React.FC = () => {
             <div className="text-2xl font-bold tabular-nums text-rose-900">{data.liquidacionesAprobadas.length}</div>
             <div className="text-[10px] text-rose-700">{fmtMoney(totalLiquidaciones)} a pagar</div>
           </div>
+          {verEgresos && (
+            <div className="bg-gradient-to-br from-violet-50 to-violet-100/40 ring-1 ring-violet-200/50 rounded-2xl p-3">
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-[10px] uppercase tracking-wider text-violet-700 font-bold">EGRESOS</span>
+                <Wallet className="w-3.5 h-3.5 text-violet-700" />
+              </div>
+              <div className="text-2xl font-bold tabular-nums text-violet-900">{egresos.length}</div>
+              <div className="text-[10px] text-violet-700">
+                ${egresosTotalUSD.toLocaleString('en-US', { maximumFractionDigits: 0 })} USD · {egresosCount} firmables
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Sub-tabs · canon mockup v5.7 ACTO 1 */}
@@ -550,6 +679,21 @@ export const MiBandejaPersonal: React.FC = () => {
               </div>
             );
           })}
+
+          {/* ─── Sub-tab EGRESOS · autorización de socio (F4) ─── */}
+          {subTab === 'egresos' && (
+            egresos.length === 0 ? (
+              <div className="p-8 text-center">
+                <div className="w-16 h-16 bg-gradient-to-br from-emerald-100 to-emerald-200 rounded-2xl flex items-center justify-center mx-auto mb-3">
+                  <CheckSquare className="w-8 h-8 text-emerald-600" />
+                </div>
+                <h2 className="text-[15px] font-bold text-slate-900 mb-1">Sin egresos pendientes</h2>
+                <p className="text-[12px] text-slate-600">No hay egresos esperando firma de socio.</p>
+              </div>
+            ) : (
+              egresos.map(renderEgreso)
+            )
+          )}
         </div>
       </div>
     </div>
