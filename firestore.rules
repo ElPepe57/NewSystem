@@ -56,6 +56,30 @@ service cloud.firestore {
       return isActiveUser() && userHasAnyRole(roles);
     }
 
+    // ════════════════════════════════════════════════════════════════
+    // F1 · CONGELADO DE CAMPOS DE AUTORIZACIÓN DE EGRESOS
+    // El campo de aprobación lo escribe SOLO la Cloud Function (admin SDK ·
+    // ignora estas reglas). Para el cliente queda CONGELADO → no se puede forjar
+    // una aprobación (gastos/OC: `autorizacion` · requerimientos: estado→aprobado
+    // + aprobaciones). Ver docs/DEFENSA_EGRESOS_SERVER_SIDE.md.
+    // ════════════════════════════════════════════════════════════════
+    // El write del cliente NO toca `autorizacion` (gastos/OC).
+    function autorizacionIntacta() {
+      return !request.resource.data.diff(resource.data).affectedKeys().hasAny(['autorizacion']);
+    }
+    // `creadoPor` es inmutable post-create (segregación · evita re-asignar el creador).
+    function creadoPorIntacto() {
+      return request.resource.data.get('creadoPor', '') == resource.data.get('creadoPor', '');
+    }
+    // Requerimientos (modelo estado+aprobaciones · NO congela todo el estado: tiene
+    // lifecycle legítimo cancelado/en_proceso/parcial) · bloquea SOLO la transición a
+    // 'aprobado' y congela aprobaciones/aprobadoPor.
+    function reqAprobacionIntacta() {
+      let keys = request.resource.data.diff(resource.data).affectedKeys();
+      return !keys.hasAny(['aprobaciones', 'aprobadoPor'])
+        && ( !keys.hasAny(['estado']) || request.resource.data.estado != 'aprobado' );
+    }
+
     // ============================================================
     // USUARIOS
     // chk5.F4-USERS (2026-05-25) · ampliado para multi-rol + estado + audit
@@ -127,7 +151,15 @@ service cloud.firestore {
 
     match /requerimientos/{docId} {
       allow read: if isActiveUser();
-      allow write: if hasAnyRole(['admin', 'gerente', 'vendedor', 'comprador']);
+      // F1 · create-safe: nace sin estado='aprobado' · creador pineado a quien escribe.
+      allow create: if hasAnyRole(['admin', 'gerente', 'vendedor', 'comprador'])
+                    && request.resource.data.creadoPor == request.auth.uid
+                    && request.resource.data.estado != 'aprobado';
+      // F1 · update: admin root (canon) · no-admin no transiciona a 'aprobado' ni toca aprobaciones/creadoPor.
+      allow update: if isAdmin()
+                    || ( hasAnyRole(['admin', 'gerente', 'vendedor', 'comprador'])
+                         && reqAprobacionIntacta() && creadoPorIntacto() );
+      allow delete: if hasAnyRole(['admin', 'gerente', 'vendedor', 'comprador']);
     }
 
     // F4 · delegaciones de autoridad de autorización de egresos · solo el dueño (socio) o admin
@@ -211,7 +243,16 @@ service cloud.firestore {
     match /ordenesCompra/{docId} {
       // Vendedor/comprador crea OC desde requerimientos, almacenero recibe
       allow read: if isActiveUser();
-      allow write: if hasAnyRole(['admin', 'gerente', 'vendedor', 'almacenero', 'comprador']);
+      // F1 · create-safe: nace sin autorizacion='aprobado' · creador pineado.
+      allow create: if hasAnyRole(['admin', 'gerente', 'vendedor', 'almacenero', 'comprador'])
+                    && request.resource.data.creadoPor == request.auth.uid
+                    && ( !('autorizacion' in request.resource.data)
+                         || request.resource.data.autorizacion.get('estado', '') != 'aprobado' );
+      // F1 · update: admin root (canon) · no-admin no toca `autorizacion` ni `creadoPor`.
+      allow update: if isAdmin()
+                    || ( hasAnyRole(['admin', 'gerente', 'vendedor', 'almacenero', 'comprador'])
+                         && autorizacionIntacta() && creadoPorIntacto() );
+      allow delete: if hasAnyRole(['admin', 'gerente', 'vendedor', 'almacenero', 'comprador']);
     }
 
     match /ordenesCompraArchivo/{docId} {
@@ -235,7 +276,18 @@ service cloud.firestore {
     // ============================================================
     match /gastos/{docId} {
       allow read: if isActiveUser();
-      allow write: if hasAnyRole(['admin', 'gerente', 'finanzas', 'vendedor']);
+      // F1 · create-safe: nace sin autorizacion='aprobado' · creador pineado · el cliente NO
+      // puede marcar origen='sistema_ml' (reservado al admin SDK del pipeline ML).
+      allow create: if hasAnyRole(['admin', 'gerente', 'finanzas', 'vendedor'])
+                    && request.resource.data.creadoPor == request.auth.uid
+                    && ( !('autorizacion' in request.resource.data)
+                         || request.resource.data.autorizacion.get('estado', '') != 'aprobado' )
+                    && request.resource.data.get('origen', '') != 'sistema_ml';
+      // F1 · update: admin root (canon) · no-admin no toca `autorizacion` ni `creadoPor`.
+      allow update: if isAdmin()
+                    || ( hasAnyRole(['admin', 'gerente', 'finanzas', 'vendedor'])
+                         && autorizacionIntacta() && creadoPorIntacto() );
+      allow delete: if hasAnyRole(['admin', 'gerente', 'finanzas', 'vendedor']);
     }
 
     // ============================================================

@@ -1,11 +1,11 @@
 /**
- * firestore.rules · suite de seguridad (emulador) · F0b del proyecto defensa-server-side-egresos.
+ * firestore.rules · suite de seguridad (emulador) · proyecto defensa-server-side-egresos.
  *
- * Corre contra el emulador Firestore (`npm run test:rules` lo arranca). Dos bloques:
- *   1. BASELINE SEGURO · comportamiento que YA se cumple (regresión · verde permanente).
- *   2. VULNERABILIDAD ACTUAL · prueba EN VIVO que hoy un cliente forja una aprobación de egreso.
- *      Estos usan assertSucceeds AHORA (documentan la realidad) · F1 los INVIERTE a assertFails
- *      cuando las reglas congelen el campo `autorizacion`. Ver docs/DEFENSA_EGRESOS_SERVER_SIDE.md.
+ * Corre contra el emulador Firestore (`npm run test:rules` lo arranca). Bloques:
+ *   1. BASELINE SEGURO · regresión (verde permanente).
+ *   2. F1 · ENFORCE · el cliente NO puede forjar una aprobación (gastos/OC/requerimientos).
+ *   3. 🟠 ABIERTO HASTA F3 · el pago (cash ledger) aún no está gateado · lo cierra F3.
+ * Ver docs/DEFENSA_EGRESOS_SERVER_SIDE.md.
  */
 import { readFileSync } from 'fs';
 import { resolve, dirname } from 'path';
@@ -48,10 +48,10 @@ async function seedUser(uid: string, roles: string[]) {
   });
 }
 
-/** Siembra un gasto cualquiera (bypass de reglas) para los tests de update. */
-async function seedGasto(id: string, data: Record<string, unknown>) {
+/** Siembra un doc cualquiera (bypass de reglas) para los tests de update. */
+async function seed(col: string, id: string, data: Record<string, unknown>) {
   await testEnv.withSecurityRulesDisabled(async (ctx) => {
-    await setDoc(doc(ctx.firestore(), 'gastos', id), data);
+    await setDoc(doc(ctx.firestore(), col, id), data);
   });
 }
 
@@ -59,7 +59,7 @@ function db(uid: string) {
   return testEnv.authenticatedContext(uid).firestore();
 }
 
-describe('BASELINE SEGURO · comportamiento que YA se cumple (regresión)', () => {
+describe('BASELINE SEGURO · regresión (verde permanente)', () => {
   it('usuario NO autenticado no puede leer gastos', async () => {
     const unauth = testEnv.unauthenticatedContext().firestore();
     await assertFails(getDoc(doc(unauth, 'gastos', 'g1')));
@@ -81,11 +81,15 @@ describe('BASELINE SEGURO · comportamiento que YA se cumple (regresión)', () =
   });
 });
 
-describe('🔴 VULNERABILIDAD ACTUAL · hoy un cliente forja la aprobación (F1 invierte a assertFails)', () => {
-  it('FORJA A · un vendedor crea un gasto YA aprobado, con firmas vacías', async () => {
+describe('F1 · GASTOS · el cliente no forja aprobación', () => {
+  it('create-safe: nace sin `autorizacion` → permitido', async () => {
     await seedUser('vend', ['vendedor']);
-    // 🔴 Hoy PASA · F1 (regla create-safe + congelar autorizacion) lo debe volver assertFails.
-    await assertSucceeds(
+    await assertSucceeds(setDoc(doc(db('vend'), 'gastos', 'g1'), { montoPEN: 5000, creadoPor: 'vend', estado: 'pendiente' }));
+  });
+
+  it('🔒 FORJA A (create): crear un gasto YA aprobado → DENEGADO', async () => {
+    await seedUser('vend', ['vendedor']);
+    await assertFails(
       setDoc(doc(db('vend'), 'gastos', 'g1'), {
         montoPEN: 50000, creadoPor: 'vend', estado: 'pendiente',
         autorizacion: { estado: 'aprobado', firmas: [] },
@@ -93,23 +97,98 @@ describe('🔴 VULNERABILIDAD ACTUAL · hoy un cliente forja la aprobación (F1 
     );
   });
 
-  it('FORJA B · un vendedor lleva autorizacion→aprobado con una firma de socio que NO es suya', async () => {
+  it('🔒 creador forjado (create con creadoPor ≠ quien escribe) → DENEGADO', async () => {
     await seedUser('vend', ['vendedor']);
-    await seedGasto('g2', { montoPEN: 50000, creadoPor: 'vend', estado: 'pendiente', autorizacion: { estado: 'pendiente', firmas: [] } });
-    // 🔴 Hoy PASA · el usuarioId de la firma lo pone el cliente · F1 lo congela.
-    await assertSucceeds(
-      updateDoc(doc(db('vend'), 'gastos', 'g2'), {
-        autorizacion: { estado: 'aprobado', firmas: [{ usuarioId: 'socio-ajeno' }] },
-      }),
+    await assertFails(setDoc(doc(db('vend'), 'gastos', 'g1'), { montoPEN: 100, creadoPor: 'otro-socio', estado: 'pendiente' }));
+  });
+
+  it('🔒 origen `sistema_ml` desde cliente → DENEGADO', async () => {
+    await seedUser('vend', ['vendedor']);
+    await assertFails(setDoc(doc(db('vend'), 'gastos', 'g1'), { montoPEN: 100, creadoPor: 'vend', origen: 'sistema_ml', estado: 'pagado' }));
+  });
+
+  it('🔒 FORJA A/B (update): llevar `autorizacion`→aprobado con firma ajena → DENEGADO', async () => {
+    await seedUser('vend', ['vendedor']);
+    await seed('gastos', 'g2', { montoPEN: 50000, creadoPor: 'vend', estado: 'pendiente', autorizacion: { estado: 'pendiente', firmas: [] } });
+    await assertFails(
+      updateDoc(doc(db('vend'), 'gastos', 'g2'), { autorizacion: { estado: 'aprobado', firmas: [{ usuarioId: 'socio-ajeno' }] } }),
     );
   });
 
-  it('FORJA C · un vendedor marca un gasto como pagado directamente', async () => {
+  it('🔒 re-asignar `creadoPor` en update → DENEGADO', async () => {
     await seedUser('vend', ['vendedor']);
-    await seedGasto('g3', { montoPEN: 50000, creadoPor: 'vend', estado: 'pendiente' });
-    // 🔴 Hoy PASA · F3 (gatear cash ledger) + F1 lo cierran.
-    await assertSucceeds(
-      updateDoc(doc(db('vend'), 'gastos', 'g3'), { estado: 'pagado', pagos: [{ monto: 50000 }] }),
+    await seed('gastos', 'g3', { montoPEN: 100, creadoPor: 'vend', estado: 'pendiente' });
+    await assertFails(updateDoc(doc(db('vend'), 'gastos', 'g3'), { creadoPor: 'otro' }));
+  });
+
+  it('✅ edición legítima de campo no-monetario (sin tocar autorizacion/creadoPor) → permitido', async () => {
+    await seedUser('vend', ['vendedor']);
+    await seed('gastos', 'g4', { montoPEN: 100, creadoPor: 'vend', estado: 'pendiente', descripcion: 'a' });
+    await assertSucceeds(updateDoc(doc(db('vend'), 'gastos', 'g4'), { descripcion: 'corregida' }));
+  });
+
+  it('✅ ADMIN escribe `autorizacion` directo (escape hatch · canon admin=root) → permitido', async () => {
+    await seedUser('adm', ['admin']);
+    await seed('gastos', 'g5', { montoPEN: 50000, creadoPor: 'otro', estado: 'pendiente', autorizacion: { estado: 'pendiente', firmas: [] } });
+    await assertSucceeds(updateDoc(doc(db('adm'), 'gastos', 'g5'), { autorizacion: { estado: 'aprobado', firmas: [{ usuarioId: 'adm' }] } }));
+  });
+});
+
+describe('F1 · ORDENES DE COMPRA · el cliente no forja aprobación', () => {
+  it('create-safe: nace sin autorizacion aprobada → permitido', async () => {
+    await seedUser('comp', ['comprador']);
+    await assertSucceeds(setDoc(doc(db('comp'), 'ordenesCompra', 'oc1'), { totalUSD: 5000, creadoPor: 'comp', estadoPago: 'pendiente' }));
+  });
+
+  it('🔒 FORJA (create): OC ya aprobada → DENEGADO', async () => {
+    await seedUser('comp', ['comprador']);
+    await assertFails(
+      setDoc(doc(db('comp'), 'ordenesCompra', 'oc1'), { totalUSD: 50000, creadoPor: 'comp', autorizacion: { estado: 'aprobado', firmas: [] } }),
     );
+  });
+
+  it('🔒 FORJA (update): llevar OC `autorizacion`→aprobado → DENEGADO', async () => {
+    await seedUser('comp', ['comprador']);
+    await seed('ordenesCompra', 'oc2', { totalUSD: 50000, creadoPor: 'comp', autorizacion: { estado: 'pendiente', firmas: [] } });
+    await assertFails(updateDoc(doc(db('comp'), 'ordenesCompra', 'oc2'), { autorizacion: { estado: 'aprobado', firmas: [{ usuarioId: 'x' }] } }));
+  });
+});
+
+describe('F1 · REQUERIMIENTOS · estado→aprobado solo por CF', () => {
+  it('create-safe: nace sin estado=aprobado → permitido', async () => {
+    await seedUser('vend', ['vendedor']);
+    await assertSucceeds(setDoc(doc(db('vend'), 'requerimientos', 'r1'), { creadoPor: 'vend', estado: 'pendiente' }));
+  });
+
+  it('🔒 FORJA (create): requerimiento ya aprobado → DENEGADO', async () => {
+    await seedUser('vend', ['vendedor']);
+    await assertFails(setDoc(doc(db('vend'), 'requerimientos', 'r1'), { creadoPor: 'vend', estado: 'aprobado' }));
+  });
+
+  it('🔒 FORJA (update): transicionar estado→aprobado → DENEGADO', async () => {
+    await seedUser('comp', ['comprador']);
+    await seed('requerimientos', 'r2', { creadoPor: 'comp', estado: 'pendiente_aprobacion' });
+    await assertFails(updateDoc(doc(db('comp'), 'requerimientos', 'r2'), { estado: 'aprobado', aprobaciones: { firmas: [] } }));
+  });
+
+  it('✅ lifecycle legítimo (estado→en_proceso al vincular OC) → permitido', async () => {
+    await seedUser('comp', ['comprador']);
+    await seed('requerimientos', 'r3', { creadoPor: 'comp', estado: 'pendiente' });
+    await assertSucceeds(updateDoc(doc(db('comp'), 'requerimientos', 'r3'), { estado: 'en_proceso' }));
+  });
+
+  it('✅ lifecycle legítimo (cancelar) → permitido', async () => {
+    await seedUser('vend', ['vendedor']);
+    await seed('requerimientos', 'r4', { creadoPor: 'vend', estado: 'pendiente' });
+    await assertSucceeds(updateDoc(doc(db('vend'), 'requerimientos', 'r4'), { estado: 'cancelado' }));
+  });
+});
+
+describe('🟠 ABIERTO HASTA F3 · el pago (cash ledger) aún no está gateado', () => {
+  it('un vendedor marca un gasto como pagado (denormalizado) · F1 no lo cierra · lo cierra F3', async () => {
+    await seedUser('vend', ['vendedor']);
+    await seed('gastos', 'g6', { montoPEN: 50000, creadoPor: 'vend', estado: 'pendiente' });
+    // F1 congela `autorizacion`, no el flag de pago · el dinero real (movimientosFinancieros) lo gatea F3.
+    await assertSucceeds(updateDoc(doc(db('vend'), 'gastos', 'g6'), { estado: 'pagado', pagos: [{ monto: 50000 }] }));
   });
 });

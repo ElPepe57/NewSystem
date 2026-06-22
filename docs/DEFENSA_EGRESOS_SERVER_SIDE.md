@@ -122,20 +122,24 @@ Modelo **híbrido en 3 capas**, cada una defensa-en-profundidad de la siguiente:
 
 ## 6 · Plan fasado (done + rollback fail-closed por fase)
 
-### Fase 0 — Cimientos seguros (no toca enforce · riesgo ~cero)
-- 0a. Fix cosmético del comentario `firestore.rules:9` (+`socio`).
-- 0b. Stand-up del harness de emulador (`@firebase/rules-unit-testing`) + primeros tests ROJOS que
-  PRUEBAN la vulnerabilidad actual (forjar aprobación tiene éxito hoy).
-- 0c. Resolver decisiones §5 con el usuario (al menos #1 y #2, que destraban F1/F2).
-- **Done:** harness corre, tests rojos demuestran las forjas A/B/C, decisiones §5.1/§5.2 tomadas.
-- **Rollback:** N/A (no toca prod).
+### Fase 0 — Cimientos seguros (no toca enforce · riesgo ~cero) ✅ HECHA
+- 0a. ✅ Fix cosmético del comentario `firestore.rules:9` (+`socio`).
+- 0b. ✅ Harness de emulador (`@firebase/rules-unit-testing` · `npm run test:rules`) + tests que prueban
+  EN VIVO las forjas A/B/C (assertSucceeds hoy · commit `44efe59`).
+- 0c. ✅ Decisiones §5 resueltas (modelo de equity §0.3 · admin §0.1).
+- **Done:** ✅ harness corre, vulnerabilidad probada, decisiones tomadas, núcleo de equity implementado+18 tests.
 
-### Fase 1 — Rules defensivas (create-safe) · enforce de CAMPO
-- Rules corregidas: create-safe (#1), pin `creadoPor` (#6), req sin congelar `estado` (#2), prohibir
-  `origen:'sistema_ml'` del cliente (#9), congelar `autorizacion`/`aprobaciones` para escritura
-  directa del cliente. Admin conserva escritura del campo (decisión §0.1).
-- **Prerequisito:** F2 lista en paralelo (al congelar el campo, la aprobación legítima debe ir por CF).
-- **Done:** tests emulador verdes (create de gasto/OC/req pasa · forja A/B negada · req→OC linking pasa).
+### Fase 1 — Rules defensivas (create-safe) · enforce de CAMPO ✅ HECHA (escrita + emulador-verificada · NO deployada)
+- ✅ Rules corregidas (gastos/ordenesCompra/requerimientos): create-safe (#1), pin `creadoPor` (#6),
+  req sin congelar `estado` (#2 · solo bloquea →'aprobado'), prohibir `origen:'sistema_ml'` del cliente
+  (#9), congelar `autorizacion`/`aprobaciones` para el cliente no-admin. Admin conserva escritura (§0.1).
+- ✅ **21 tests emulador verdes**: baseline + forja A/B (create+update) DENIEGAN · creadoPor-forge DENIEGA ·
+  origen-ml DENIEGA · edición no-monetaria PASA · lifecycle req (en_proceso/cancelar) PASA · admin escape PASA.
+- ✅ **Pre-deploy verificado:** TODOS los caminos de create de cliente (gasto :141/:1349 · OC :253 · req
+  :335/:702) setean `creadoPor: userId` → el pin no rompe creates. ML va por admin SDK (ignora reglas).
+- ⚠️ **NO DEPLOYADA · acoplada a F2:** al congelar el campo, el socio no-admin no puede aprobar por `updateDoc`
+  → debe ir por la CF (F2). Solo el admin puede aprobar directo (escape hatch) hasta que F2 exista.
+- 🟠 Forja C (marcar pagado) sigue abierta · la cierra F3 (cash ledger), no F1.
 - **Rollback:** `firebase deploy --only firestore:rules` con el archivo previo (1 archivo versionado).
 
 ### Fase 2 — CF `autorizarEgreso` + `rechazarEgreso` (únicas escritoras del campo)
