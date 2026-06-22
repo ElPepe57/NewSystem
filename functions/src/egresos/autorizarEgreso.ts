@@ -133,11 +133,19 @@ function validarInput(data: InputEgreso): { coleccion: string; docId: string } {
 // ════════════════════════════════════════════════════════════════════════════════
 // autorizarEgreso · firma de socio (quórum por equity) · única escritora del campo
 // ════════════════════════════════════════════════════════════════════════════════
-export const autorizarEgreso = functions.https.onCall(async (data: InputEgreso, context) => {
-  if (!context.auth) throw err("unauthenticated", "Debe estar autenticado.");
-  const { coleccion, docId } = validarInput(data);
-  const db = admin.firestore();
-  const uid = context.auth.uid;
+export interface ResultadoAutorizacion {
+  completa: boolean;
+  equityFirmado: number;
+  equityElegible: number;
+  equityFaltante: number;
+}
+
+/** Core testeable (sin transporte onCall) · lo invocan el wrapper y el test de emulador. */
+export async function autorizarEgresoCore(
+  db: admin.firestore.Firestore,
+  params: { coleccion: string; docId: string; uid: string },
+): Promise<ResultadoAutorizacion> {
+  const { coleccion, docId, uid } = params;
 
   const actorSnap = await db.collection(COLLECTIONS.USERS).doc(uid).get();
   if (!actorSnap.exists) throw err("permission-denied", "Usuario no encontrado.");
@@ -218,17 +226,22 @@ export const autorizarEgreso = functions.https.onCall(async (data: InputEgreso, 
       equityFaltante: evalR.equityFaltante,
     };
   });
+}
+
+export const autorizarEgreso = functions.https.onCall(async (data: InputEgreso, context) => {
+  if (!context.auth) throw err("unauthenticated", "Debe estar autenticado.");
+  const { coleccion, docId } = validarInput(data);
+  return autorizarEgresoCore(admin.firestore(), { coleccion, docId, uid: context.auth.uid });
 });
 
 // ════════════════════════════════════════════════════════════════════════════════
 // rechazarEgreso · un socio/delegado/admin rechaza (cierra el hueco #11 · sin camino CF)
 // ════════════════════════════════════════════════════════════════════════════════
-export const rechazarEgreso = functions.https.onCall(async (data: InputEgreso, context) => {
-  if (!context.auth) throw err("unauthenticated", "Debe estar autenticado.");
-  const { coleccion, docId } = validarInput(data);
-  const motivo = data?.motivo ? String(data.motivo) : undefined;
-  const db = admin.firestore();
-  const uid = context.auth.uid;
+export async function rechazarEgresoCore(
+  db: admin.firestore.Firestore,
+  params: { coleccion: string; docId: string; uid: string; motivo?: string },
+): Promise<{ ok: true }> {
+  const { coleccion, docId, uid, motivo } = params;
 
   const actorSnap = await db.collection(COLLECTIONS.USERS).doc(uid).get();
   const roles = rolesDe(actorSnap.data());
@@ -276,4 +289,11 @@ export const rechazarEgreso = functions.https.onCall(async (data: InputEgreso, c
   });
 
   return { ok: true };
+}
+
+export const rechazarEgreso = functions.https.onCall(async (data: InputEgreso, context) => {
+  if (!context.auth) throw err("unauthenticated", "Debe estar autenticado.");
+  const { coleccion, docId } = validarInput(data);
+  const motivo = data?.motivo ? String(data.motivo) : undefined;
+  return rechazarEgresoCore(admin.firestore(), { coleccion, docId, uid: context.auth.uid, motivo });
 });

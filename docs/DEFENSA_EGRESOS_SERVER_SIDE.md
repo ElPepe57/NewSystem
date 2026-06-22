@@ -151,11 +151,14 @@ Modelo **híbrido en 3 capas**, cada una defensa-en-profundidad de la siguiente:
   datosSocio.porcentajeParticipacion`) + delegaciones vigentes · transacción sobre el doc.
 - ⬜ **F2c · migrar cliente:** `gasto.autorizarGasto`/`ordenCompra.autorizarOC`/`requerimiento.aprobar` (+ rechazos)
   a invocar la callable (`httpsCallable`) en vez de `updateDoc`. AQUÍ cambia el comportamiento del cliente.
-- ⚠️ **GATE pre-deploy:** `functions/` no tiene runner · el callable está tsc-clean pero **sin probar en runtime**.
-  Antes del deploy acoplado F1+F2: test con **emulador de functions** (sembrar users/socios/datosSocio/delegaciones
-  + un egreso · invocar autorizarEgreso con auth · assert el write + los rechazos). La lógica pura ya tiene 18 tests app-side.
-- **Done:** casos CF verdes en emulador (socio mayoría aprueba · creador no firma · no-socio bloqueado ·
-  admin solo aprueba · monto fail-closed · rechazo end-to-end) + cliente migrado.
+- ✅ **GATE pre-deploy CUMPLIDO:** refactor a core+wrapper (`autorizarEgresoCore`/`rechazarEgresoCore` testeables) +
+  `functions/scripts/test-autorizarEgreso.cjs` contra el emulador Firestore (`npm run test:egresos`) · **16/16 verdes**:
+  segregación · no-socio bloqueado · quórum equity (50% no · 80% sí · 2 firmas persistidas→aprobado) · ya-aprobado ·
+  doble-firma · admin override · ≤umbral · monto fail-closed · delegación (carga % del socio) · rechazo · OC + req.
+- ⬜ **F2c · migrar cliente (PENDIENTE · cambia prod):** `gasto.autorizarGasto`/`ordenCompra.autorizarOC`/`requerimiento.aprobar`
+  (+ rechazos) a `httpsCallable` en vez de `updateDoc`. RIPPLE: el contrato de retorno pasa de "faltanFirmas" (conteo) a
+  EQUITY (equityFirmado/equityFaltante) → la bandeja debe mostrar progreso por % de equity, no por nº de firmas.
+- **Done:** ✅ CF emulador-verificada · ⬜ cliente migrado + bandeja adaptada al modelo de equity.
 - **Rollback fail-CLOSED:** si la CF falla, las aprobaciones quedan **bloqueadas** (no se reabre el
   write directo del cliente). F1+F2 se despliegan **acopladas**.
 
