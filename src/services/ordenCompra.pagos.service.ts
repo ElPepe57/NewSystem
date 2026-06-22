@@ -33,6 +33,7 @@ import {
 import { requiereAutorizacionSocio, evaluarFirmaSocio } from './autorizacionEgreso.helper';
 import { userService } from './user.service';
 import { NotificationService } from './notification.service';
+import { delegacionAutorizacionService } from './delegacionAutorizacion.service';
 
 export async function registrarPago(
   id: string,
@@ -341,11 +342,13 @@ export async function autorizarOC(
   }
 
   const firmas = orden.autorizacion?.firmas || [];
+  // F4 · autoridad = socio O delegado vigente (la regla de doble firma se mantiene · pool ampliado).
+  const esSocioODelegado = userRoles.includes('socio') || await delegacionAutorizacionService.tieneAutoridadDelegada(userId, userRoles);
   const evalFirma = evaluarFirmaSocio({
     montoUSD,
     firmas,
     userId,
-    esSocio: userRoles.includes('socio'),
+    esSocio: esSocioODelegado,
     creadorId: orden.creadoPor,
   });
   if (!evalFirma.ok) throw new Error(evalFirma.error || 'No podés autorizar esta OC.');
@@ -396,7 +399,8 @@ export async function autorizarOC(
 export async function rechazarOC(ocId: string, userId: string, userRoles: string[], motivo?: string): Promise<void> {
   const orden = await getById(ocId);
   if (!orden) throw new Error('Orden no encontrada');
-  if (!userRoles.includes('socio')) throw new Error('Solo los socios (dueños) pueden rechazar egresos.');
+  const puedeRechazar = userRoles.includes('socio') || await delegacionAutorizacionService.tieneAutoridadDelegada(userId, userRoles);
+  if (!puedeRechazar) throw new Error('Solo los socios (o sus delegados) pueden rechazar egresos.');
   if (orden.autorizacion?.estado === 'aprobado') throw new Error('Esta OC ya está autorizada · no se puede rechazar.');
 
   await updateDoc(doc(db, ORDENES_COLLECTION, ocId), {

@@ -8,6 +8,7 @@ export { default as MisDatosLaboralesCard } from './MisDatosLaboralesCard';
 export { default as MisBoletasRecientes } from './MisBoletasRecientes';
 export { default as MisIncentivos } from './MisIncentivos';
 export { default as MiCapitalSocio } from './MiCapitalSocio';
+export { DelegacionAutorizacionCard } from './DelegacionAutorizacionCard';
 export { default as MisSesionesActivas } from './MisSesionesActivas';
 
 // F10.F.1.J · Resumenes contextuales por rol

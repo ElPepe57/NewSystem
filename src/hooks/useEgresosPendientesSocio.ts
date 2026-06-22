@@ -23,6 +23,7 @@ import {
   firmadoPorMi,
 } from '../services/egresosPendientesSocio.helper';
 import { requiereAutorizacionSocio } from '../services/autorizacionEgreso.helper';
+import { delegacionAutorizacionService } from '../services/delegacionAutorizacion.service';
 
 export interface EgresoPendienteConAccion extends EgresoPendiente {
   /** ¿el usuario actual puede firmar este egreso ahora? (socio · no creador · no firmó). */
@@ -43,7 +44,7 @@ export interface UseEgresosPendientesSocioResult {
 
 export function useEgresosPendientesSocio(): UseEgresosPendientesSocioResult {
   const user = useAuthStore((s) => s.user);
-  const { isSocio } = usePermissions();
+  const { isSocio, roles } = usePermissions();
   const [egresos, setEgresos] = useState<EgresoPendienteConAccion[]>([]);
   const [dadas, setDadas] = useState<EgresoPendiente[]>([]);
   const [loading, setLoading] = useState(false);
@@ -58,6 +59,9 @@ export function useEgresosPendientesSocio(): UseEgresosPendientesSocioResult {
         getAllOC().catch(() => []),
       ]);
 
+      // F4 · autoridad efectiva = socio O delegado vigente (el delegado entra al pool de firmantes).
+      const esSocioODelegado = isSocio || (!!uid && (await delegacionAutorizacionService.tieneAutoridadDelegada(uid, roles).catch(() => false)));
+
       // Todos los egresos que requieren socio (pendientes o ya firmados).
       const todos: EgresoPendiente[] = [
         ...reqs.map(requerimientoAEgreso),
@@ -67,7 +71,7 @@ export function useEgresosPendientesSocio(): UseEgresosPendientesSocioResult {
 
       const conAccion: EgresoPendienteConAccion[] = todos
         .filter(esPendienteDeFirma)
-        .map((e) => ({ ...e, puedeFirmar: !!uid && puedoFirmar(e, uid, isSocio) }))
+        .map((e) => ({ ...e, puedeFirmar: !!uid && puedoFirmar(e, uid, esSocioODelegado) }))
         // los que puedo firmar primero · luego por monto desc
         .sort((a, b) => Number(b.puedeFirmar) - Number(a.puedeFirmar) || b.montoUSD - a.montoUSD);
 
@@ -81,7 +85,7 @@ export function useEgresosPendientesSocio(): UseEgresosPendientesSocioResult {
     } finally {
       setLoading(false);
     }
-  }, [user?.uid, isSocio]);
+  }, [user?.uid, isSocio, roles]);
 
   useEffect(() => {
     cargar();

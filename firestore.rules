@@ -130,6 +130,13 @@ service cloud.firestore {
       allow write: if hasAnyRole(['admin', 'gerente', 'vendedor', 'comprador']);
     }
 
+    // F4 · delegaciones de autoridad de autorización de egresos · solo el dueño (socio) o admin
+    // crean/revocan · todos los activos leen (el chequeo de autoridad delegada necesita leerlas).
+    match /delegacionesAutorizacion/{docId} {
+      allow read: if isActiveUser();
+      allow write: if hasAnyRole(['admin', 'socio']);
+    }
+
     match /clientes/{docId} {
       allow read: if isActiveUser();
       allow write: if hasAnyRole(['admin', 'gerente', 'vendedor']);

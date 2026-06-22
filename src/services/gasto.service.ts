@@ -39,6 +39,7 @@ import { requiereAutorizacionSocio, evaluarFirmaSocio } from './autorizacionEgre
 import { userService } from './user.service';
 import { NotificationService } from './notification.service';
 import { tipoCambioService } from './tipoCambio.service';
+import { delegacionAutorizacionService } from './delegacionAutorizacion.service';
 
 const GASTOS_COLLECTION = COLLECTIONS.GASTOS;
 
@@ -297,11 +298,13 @@ export const gastoService = {
       }
 
       const firmas = gasto.autorizacion?.firmas || [];
+      // F4 · autoridad = socio O delegado vigente (la regla de doble firma se mantiene · pool ampliado).
+      const esSocioODelegado = userRoles.includes('socio') || await delegacionAutorizacionService.tieneAutoridadDelegada(userId, userRoles);
       const evalFirma = evaluarFirmaSocio({
         montoUSD: montoUSDTotal,
         firmas,
         userId,
-        esSocio: userRoles.includes('socio'),
+        esSocio: esSocioODelegado,
         creadorId: gasto.creadoPor,
       });
       if (!evalFirma.ok) throw new Error(evalFirma.error || 'No podés autorizar este gasto.');
@@ -357,7 +360,8 @@ export const gastoService = {
     try {
       const gasto = await this.getById(gastoId);
       if (!gasto) throw new Error('Gasto no encontrado');
-      if (!userRoles.includes('socio')) throw new Error('Solo los socios (dueños) pueden rechazar egresos.');
+      const puedeRechazar = userRoles.includes('socio') || await delegacionAutorizacionService.tieneAutoridadDelegada(userId, userRoles);
+      if (!puedeRechazar) throw new Error('Solo los socios (o sus delegados) pueden rechazar egresos.');
       if (gasto.autorizacion?.estado === 'aprobado') throw new Error('Este gasto ya está autorizado · no se puede rechazar.');
 
       await updateDoc(doc(db, GASTOS_COLLECTION, gastoId), {

@@ -68,6 +68,7 @@ import {
   MisBoletasRecientes,
   MisIncentivos,
   MiCapitalSocio,
+  DelegacionAutorizacionCard,
   MisSesionesActivas,
   ResumenEmpleado,
   ResumenAdmin,
@@ -756,6 +757,9 @@ export const MiPerfil: React.FC = () => {
               {/* Sub-perfiles · vista resumida (drill profundo vive en sub-páginas /perfil/mi-X) */}
               {tieneRolEmpleado && <MisDatosLaboralesCard datos={datosLaborales} mostrarSueldo />}
               {isSocio && <MiCapitalSocio datos={datosSocio} />}
+
+              {/* F4 · delegación de autoridad de autorización de egresos (solo socios) */}
+              {isSocio && <DelegacionAutorizacionCard />}
 
               {/* Card "Permisos efectivos" · canon mockup ACTO 8 · líneas 931-989 */}
               <div className="bg-white border border-slate-200 rounded-xl p-5 space-y-3">

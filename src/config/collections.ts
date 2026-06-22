@@ -237,6 +237,9 @@ export const COLLECTIONS = {
    * Ver eventoServicioRecaudador.types.ts::LiquidacionRecaudadora.
    */
   LIQUIDACIONES_RECAUDADORA: 'liquidacionesRecaudadora',
+
+  /** F4 · delegaciones de autoridad de autorización de egresos (socio → usuario/rol). */
+  DELEGACIONES_AUTORIZACION: 'delegacionesAutorizacion',
 } as const;
 
 /** Tipo union de todos los nombres de colección */

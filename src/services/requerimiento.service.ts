@@ -40,6 +40,7 @@ import { actividadService } from './actividad.service';
 import { NotificationService } from './notification.service';
 import { userService } from './user.service';
 import { requiereAutorizacionSocio, evaluarFirmaSocio } from './autorizacionEgreso.helper';
+import { delegacionAutorizacionService } from './delegacionAutorizacion.service';
 
 const COLLECTION_NAME = COLLECTIONS.REQUERIMIENTOS;
 
@@ -565,11 +566,13 @@ export const requerimientoService = {
 
       // ── Tramo DOBLE SOCIO (> umbral) · 2 socios distintos · helper = fuente única. ──
       const firmas = requerimiento.aprobaciones?.firmas || [];
+      // F4 · autoridad = socio O delegado vigente (la regla de doble firma se mantiene · pool ampliado).
+      const esSocioODelegado = userRoles.includes('socio') || await delegacionAutorizacionService.tieneAutoridadDelegada(userId, userRoles);
       const evalFirma = evaluarFirmaSocio({
         montoUSD,
         firmas,
         userId,
-        esSocio: userRoles.includes('socio'),
+        esSocio: esSocioODelegado,
         creadorId,
       });
       if (!evalFirma.ok) {
