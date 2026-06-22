@@ -280,6 +280,8 @@ export const requerimientoService = {
         costoTotalEstimadoUSD,
         costoTotalEstimadoPEN
       },
+      // Blindaje · monto que dispara la doble firma (>$1k) = LANDED (compromiso real de plata · decisión usuario).
+      montoEstimadoUSD: costoTotalEstimadoUSD,
       prioridad: data.prioridad,
       estado: 'pendiente',
       solicitadoPor: userId,
@@ -530,6 +532,12 @@ export const requerimientoService = {
 
       if (requerimiento.estado !== 'pendiente' && requerimiento.estado !== 'pendiente_aprobacion') {
         throw new Error('Solo se pueden aprobar requerimientos pendientes');
+      }
+
+      // Blindaje · Segregación de funciones: el que SOLICITA no aprueba lo suyo. Admin = root (excepción).
+      const creadorId = requerimiento.creadoPor || (requerimiento as any).solicitadoPor;
+      if (creadorId && creadorId === userId && userRole !== 'admin') {
+        throw new Error('No podés aprobar tu propio requerimiento. Debe aprobarlo otra persona con permiso de aprobación.');
       }
 
       const montoUSD = requerimiento.montoEstimadoUSD || 0;
