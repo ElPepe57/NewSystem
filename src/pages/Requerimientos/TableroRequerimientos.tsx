@@ -390,9 +390,10 @@ const AccionGatillo: React.FC<{
   onGenerarOC: (req: Requerimiento) => void;
   onOpenDetail: (req: Requerimiento) => void;
 }> = ({ req, etapa, onAprobar, onGenerarOC }) => {
-  const { canApproveEgreso } = usePermissions(); // blindaje · solo aprobadores ven Aprobar/Firmar
+  const { canApproveEgresoDe } = usePermissions(); // F4 · gating amount-aware (≤$1k cargo · >$1k socio)
+  const puedeAutorizar = canApproveEgresoDe(req.montoEstimadoUSD || 0);
   if (etapa === 'pendiente') {
-    if (!canApproveEgreso) {
+    if (!puedeAutorizar) {
       return <span className="text-[11px] text-slate-400 italic px-2 flex-shrink-0">Pendiente de aprobación</span>;
     }
     return (
@@ -402,7 +403,7 @@ const AccionGatillo: React.FC<{
     );
   }
   if (etapa === 'pendiente_aprobacion') {
-    if (!canApproveEgreso) {
+    if (!puedeAutorizar) {
       return <span className="text-[11px] text-violet-400 italic px-2 flex-shrink-0">Esperando firma</span>;
     }
     return (

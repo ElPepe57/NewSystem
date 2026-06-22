@@ -8,6 +8,7 @@ import {
   getUserRoles,
   type UserRole,
 } from '../types/auth.types';
+import { puedeAutorizarEgreso } from '../services/autorizacionEgreso.helper';
 
 export function usePermissions() {
   const userProfile = useAuthStore(state => state.userProfile);
@@ -69,6 +70,12 @@ export function usePermissions() {
     // F4 · autoridad de aprobación de EGRESOS = SOCIO (dueño). "Pura autoridad del socio": los cargos
     // (gerente/comprador/admin) crean y operan, pero la firma que libera la plata es del dueño.
     canApproveEgreso: hasRole(userProfile, 'socio'),
+    // F4 · gating AMOUNT-AWARE: ≤ umbral → autoridad del cargo (APROBAR_REQUERIMIENTO) · > umbral → socio.
+    canApproveEgresoDe: (montoUSD: number) => puedeAutorizarEgreso({
+      montoUSD,
+      esSocio: hasRole(userProfile, 'socio'),
+      tieneAutoridadCargo: userService.hasPermiso(userProfile, PERMISOS.APROBAR_REQUERIMIENTO),
+    }),
     canViewOC: userService.hasPermiso(userProfile, PERMISOS.VER_ORDENES_COMPRA),
     canCreateOC: userService.hasPermiso(userProfile, PERMISOS.CREAR_OC),
     canReceiveOC: userService.hasPermiso(userProfile, PERMISOS.RECIBIR_OC),

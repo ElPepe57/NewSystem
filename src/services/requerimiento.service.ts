@@ -39,6 +39,7 @@ import { unidadService } from './unidad.service';
 import { actividadService } from './actividad.service';
 import { NotificationService } from './notification.service';
 import { userService } from './user.service';
+import { requiereAutorizacionSocio, evaluarFirmaSocio } from './autorizacionEgreso.helper';
 
 const COLLECTION_NAME = COLLECTIONS.REQUERIMIENTOS;
 
@@ -536,31 +537,48 @@ export const requerimientoService = {
         throw new Error('Solo se pueden aprobar requerimientos pendientes');
       }
 
-      // F4 · Autoridad de aprobación de egresos = SOCIO (dueño). "Pura autoridad del socio": los cargos
-      // (gerente/comprador/admin) crean y operan, pero la firma que libera la plata es del dueño.
-      if (!userRoles.includes('socio')) {
-        throw new Error('Solo los socios (dueños) pueden autorizar egresos.');
-      }
-
-      // Segregación de funciones: el que SOLICITA no firma lo suyo.
-      const creadorId = requerimiento.creadoPor || (requerimiento as any).solicitadoPor;
-      if (creadorId && creadorId === userId) {
-        throw new Error('No podés autorizar tu propio requerimiento · debe firmarlo otro socio.');
-      }
-
       const montoUSD = requerimiento.montoEstimadoUSD || 0;
-      // > UMBRAL_APROBACION_DUAL_USD ($1,000 landed) → 2 socios distintos · ≤ → 1 socio.
-      const firmasRequeridas = montoUSD > 1000 ? 2 : 1;
+      const creadorId = requerimiento.creadoPor || (requerimiento as any).solicitadoPor;
 
+      // ── Tramo DIRECTO (≤ umbral) · autoridad del cargo · sin firma de socio. ──
+      // El gating de permiso (APROBAR_REQUERIMIENTO) vive en la UI · acá solo segregación.
+      if (!requiereAutorizacionSocio(montoUSD)) {
+        if (creadorId && creadorId === userId && !userRoles.includes('admin')) {
+          throw new Error('No podés aprobar tu propio requerimiento · debe aprobarlo otra persona.');
+        }
+        await updateDoc(doc(db, COLLECTION_NAME, id), {
+          estado: 'aprobado',
+          aprobadoPor: userId,
+          fechaAprobacion: serverTimestamp(),
+          ultimaEdicion: serverTimestamp(),
+          editadoPor: userId,
+        });
+        actividadService.registrar({
+          tipo: 'requerimiento_aprobado',
+          mensaje: `Requerimiento ${id} aprobado (≤ umbral · autoridad del cargo)`,
+          userId,
+          displayName: userId,
+          metadata: { entidadId: id, entidadTipo: 'requerimiento' }
+        }).catch(() => {});
+        return { completa: true };
+      }
+
+      // ── Tramo DOBLE SOCIO (> umbral) · 2 socios distintos · helper = fuente única. ──
       const firmas = requerimiento.aprobaciones?.firmas || [];
-      if (firmas.some(f => f.usuarioId === userId)) {
-        throw new Error('Ya firmaste este requerimiento.');
+      const evalFirma = evaluarFirmaSocio({
+        montoUSD,
+        firmas,
+        userId,
+        esSocio: userRoles.includes('socio'),
+        creadorId,
+      });
+      if (!evalFirma.ok) {
+        throw new Error(evalFirma.error || 'No podés autorizar este egreso.');
       }
       // Timestamp.now() (no serverTimestamp): va dentro de un array · Firestore no permite sentinels ahí.
       const nuevasFirmas = [...firmas, { usuarioId: userId, fecha: Timestamp.now() }];
 
-      if (nuevasFirmas.length >= firmasRequeridas) {
-        // Firmas de socios completas → autorizado.
+      if (evalFirma.completa) {
         await updateDoc(doc(db, COLLECTION_NAME, id), {
           estado: 'aprobado',
           aprobaciones: { firmas: nuevasFirmas },
@@ -569,15 +587,13 @@ export const requerimientoService = {
           ultimaEdicion: serverTimestamp(),
           editadoPor: userId,
         });
-
         actividadService.registrar({
           tipo: 'requerimiento_aprobado',
-          mensaje: `Requerimiento ${id} autorizado por socio${firmasRequeridas > 1 ? 's (doble firma)' : ''}`,
+          mensaje: `Requerimiento ${id} autorizado por socios (doble firma)`,
           userId,
           displayName: userId,
           metadata: { entidadId: id, entidadTipo: 'requerimiento' }
         }).catch(() => {});
-
         return { completa: true };
       }
 
@@ -612,7 +628,7 @@ export const requerimientoService = {
         logger.warn('Error al enviar notificación de aprobación de socio:', notifError);
       }
 
-      return { completa: false, faltanFirmas: firmasRequeridas - nuevasFirmas.length };
+      return { completa: false, faltanFirmas: evalFirma.faltanFirmas };
     } catch (error: any) {
       logger.error('Error al aprobar requerimiento:', error);
       throw new Error(error.message || 'Error al aprobar requerimiento');

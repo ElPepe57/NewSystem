@@ -78,7 +78,7 @@ export const Requerimientos: React.FC = () => {
   // Vista · tab activa del hub (Resumen default · canon hub)
   const [tabActiva, setTabActiva] = useState<'resumen' | 'tablero' | 'pendientes'>('resumen');
   const esAdmin = hasRole(userProfile, 'admin'); // canon "admin ve todo" · chip contextual al rol
-  const { canApproveEgreso } = usePermissions(); // F4 · solo SOCIOS (dueños) autorizan egresos
+  const { canApproveEgresoDe } = usePermissions(); // F4 · gating amount-aware (≤$1k cargo · >$1k socio)
 
   // Modales
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -415,9 +415,14 @@ export const Requerimientos: React.FC = () => {
 
   const handleAprobar = async (req: Requerimiento) => {
     if (!user || !userProfile) return;
-    // F4 · gating: solo los socios (dueños) autorizan egresos.
-    if (!canApproveEgreso) {
-      toast.error('Solo los socios (dueños) pueden autorizar egresos.');
+    // F4 · gating amount-aware: ≤$1k autoridad del cargo · >$1k solo socios.
+    const montoUSD = req.montoEstimadoUSD || 0;
+    if (!canApproveEgresoDe(montoUSD)) {
+      toast.error(
+        montoUSD > 1000
+          ? 'Este egreso supera el umbral · solo un socio (dueño) puede autorizarlo.'
+          : 'No tenés permiso para aprobar requerimientos.'
+      );
       return;
     }
     try {
