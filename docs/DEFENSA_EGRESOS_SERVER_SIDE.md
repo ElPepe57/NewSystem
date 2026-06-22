@@ -15,6 +15,14 @@
    (1 firma de admin → `completa`).
 2. **Arrancar el proyecto completo, fasado.** Se construye la defensa real (no solo congelar el
    campo) en fases a lo largo de varias sesiones, con emulador y rollback fail-closed.
+3. **Modelo de autorización >umbral = QUÓRUM PONDERADO POR EQUITY (no "2 firmas").** Las firmas de
+   socios deben sumar **> 50% del equity elegible** (mayoría simple fija). El **creador queda excluido**:
+   su % no cuenta · la mayoría se mide sobre el equity de los *demás* socios. Un **delegado** carga el
+   % del socio que lo delegó (varios socios pueden delegar en la misma persona · acumula · sin
+   doble-conteo). **Admin** sigue como override root (aprueba solo). Fuente del equity:
+   `datosSocio.porcentajeParticipacion`. ✅ Implementado puro + 18 tests: `evaluarAprobacionEgreso` +
+   `sociosRepresentados` en `autorizacionEgreso.helper.ts` (la count-based `evaluarFirmaSocio` queda
+   `@deprecated` hasta el cableado de F2).
 
 ---
 
@@ -73,7 +81,7 @@ Modelo **híbrido en 3 capas**, cada una defensa-en-profundidad de la siguiente:
 | 2 | **Req rompe-prod:** congelar `estado` top-level del requerimiento mata sus transiciones legítimas (cancelado/en_proceso/parcial · comprador vincula OC, `requerimiento.service.ts:489,1094,1162`) | 🔴 P0 | unificar req al sub-objeto `autorizacion` (decisión §5) **o** gatear solo `estado→'aprobado'` (no congelar todo el campo) | F1 |
 | 3 | **Cash ledger nunca gateado** (§1) — el dinero se mueve sin tocar aprobación | 🔴 crítico | gatear el create de `movimientosFinancieros`/`movimientosCC` de egreso vía CF en transacción contra el egreso referenciado | F3 |
 | 4 | **CF lee `totalUSD` que gastos NO tienen** (gasto tiene `montoUSD`) → `undefined→0→directo→sin firma` · aprobaría $50k como sub-umbral | 🔴 crítico | CF computa monto per-colección: `montoUSDDeGasto(g, tcServer)` / `orden.totalUSD` / `montoEstimadoUSD` · **fail-CLOSED** si da 0 con monto>0 | F2 |
-| 5 | **Delegación colapsa doble firma a 1 persona** — `evaluarFirmaSocio` exige 2 uids distintos, no 2 SOCIOS distintos · socio + su delegado, o 2 delegados de rol = "completa" | 🔴 crítico | **DECISIÓN §5** (choca con el modelo "delegar en 2" del usuario) | F2 |
+| 5 | **Delegación colapsa doble firma a 1 persona** — el conteo de 2 uids no garantiza 2 socios reales | 🔴 crítico | **RESUELTO por modelo de equity (§0.3):** el quórum se mide en % de equity, no en nº de firmas · un delegado solo carga el % real del socio que lo delegó · el creador no cuenta · imposible "fabricar" mayoría con cuentas vacías | F2 (✅ helper hecho) |
 | 6 | **`creadoPor` forjable al crear** → atacante pone a otro como creador y firma su propio egreso | 🟠 alto | regla create: `request.resource.data.creadoPor == request.auth.uid` + freeze de `creadoPor` en update | F1 |
 | 7 | **Admin = bypass de actor único** | — | **RESUELTO por decisión §0.1** (admin solo basta · excepción declarada · canon admin=root) | — |
 | 8 | **Umbral troceable** — 6×$900 = $5k, cada uno "directo", cero firmas · el gateo por-doc no ve el agregado | 🟠 alto | control de velocidad/agregación server-side (suma por proveedor/período) **o** riesgo residual declarado (decisión §5) | F4 |
@@ -98,14 +106,10 @@ Modelo **híbrido en 3 capas**, cada una defensa-en-profundidad de la siguiente:
 
 ## 5 · Decisiones PENDIENTES (destraban fases · NO se codean sin respuesta)
 
-1. **Slots de delegación (choca con el modelo del usuario).** El usuario diseñó "el delegado entra
-   al pool · delegar en 2 para cubrir >$1k ausente". El adversario probó que eso permite a un
-   operador con 2 cuentas de rol-delegado (o socio+su delegado) colapsar la doble firma a una
-   persona. Opciones: **(a)** delegación llena **a lo sumo 1** de los 2 slots (siempre ≥1 socio
-   genuino) — más seguro, pero rompe "delegar en 2 estando ausente"; **(b)** mantener "delegar en 2"
-   y aceptar el riesgo como residual declarado; **(c)** "delegar en 2" pero exigir 2 delegados
-   distintos nominados explícitamente por el socio + ninguno = creador (mitiga, no cierra). Requiere
-   que cada firma persista `tipo: 'socio'|'delegado'` + a quién sustituye.
+1. ~~**Slots de delegación**~~ ✅ **RESUELTO (§0.3 · modelo de equity).** No hay "slots": el quórum se
+   mide en % de equity. Un delegado solo carga el % real del socio que lo delegó · varios socios
+   pueden delegar en la misma persona (potestad plena · acumula su equity real, sin doble-conteo). El
+   creador no cuenta. La firma persiste `representaSocios: string[]` (los socios cuyo equity carga).
 2. **Unificar requerimientos al sub-objeto `autorizacion`** (vs proteger `estado`/`aprobaciones` por
    separado). Unificar = una sola regla protege los 3 tipos de egreso · recomendado.
 3. **¿Mover el umbral ($1000) a config server** (leído por la CF) para que un cliente comprometido no
