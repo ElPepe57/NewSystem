@@ -12,6 +12,7 @@
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:rules": "firebase emulators:exec --only firestore --project demo-rules \"vitest run --config vitest.rules.config.ts\"",
     "emulators": "npx firebase emulators:start --only auth,firestore,storage",
     "emulators:seed": "node scripts/seed-test-data.mjs",
     "test:entregas": "start /B npx firebase emulators:start --only auth,firestore,storage && timeout /T 5 && vite --mode test",
@@ -40,6 +41,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
+    "@firebase/rules-unit-testing": "^5.0.1",
     "@tailwindcss/container-queries": "^0.1.1",
     "@testing-library/jest-dom": "^6.9.1",
     "@types/google.maps": "^3.58.1",
