@@ -42,6 +42,11 @@ import { firmarEgreso } from '../../../services/firmarEgreso.service';
 import { useBandejaSignal } from '../../../store/bandejaSignalStore';
 import { chipFirma, LABEL_ORIGEN, autorizacionCompleta, fechaMiFirma, type OrigenEgreso, type EgresoPendiente } from '../../../services/egresosPendientesSocio.helper';
 import { BackArrowHeader } from '../../../components/common/BackArrowHeader';
+import { useConfirmDialog, ConfirmDialog } from '../../../components/common';
+import { calculoIncentivoService } from '../../../services/calculoIncentivo.service';
+import { planillaService } from '../../../services/planilla.service';
+import { userService } from '../../../services/user.service';
+import type { UserRole } from '../../../types/auth.types';
 import {
   collection,
   query,
@@ -93,9 +98,54 @@ export const MiBandejaPersonal: React.FC<{ embedded?: boolean }> = ({ embedded =
   const user = useAuthStore((s) => s.user);
   const userProfile = useAuthStore((s) => s.userProfile);
   const toast = useToastStore();
+  const { dialogProps, confirm } = useConfirmDialog();
   const [subTab, setSubTab] = useState<SubTab>('todos');
   const [data, setData] = useState<BandejaData | null>(null);
   const [loading, setLoading] = useState(true);
+  // F4 · bump para recargar la data RRHH tras una acción (aprobar/rechazar).
+  const [reloadKey, setReloadKey] = useState(0);
+  const recargarRRHH = () => setReloadKey((k) => k + 1);
+
+  // F4 · handlers RRHH · wirean los botones (antes inertes · DEUDA-F10.A) a los servicios que ya existen.
+  const handleAprobarBono = async (id: string, nombre: string) => {
+    if (!user) return;
+    const ok = await confirm({ title: 'Aprobar bono', message: `¿Aprobar el bono de ${nombre}?`, confirmText: 'Aprobar', variant: 'success' });
+    if (!ok) return;
+    try {
+      await calculoIncentivoService.aprobar(id, user.uid);
+      toast.success(`Bono de ${nombre} aprobado`);
+      recargarRRHH();
+    } catch (e: any) { toast.error(e.message, 'Error al aprobar'); }
+  };
+  const handleRechazarBono = async (id: string, nombre: string) => {
+    if (!user) return;
+    const ok = await confirm({ title: 'Rechazar bono', message: `¿Rechazar el bono de ${nombre}? Esta acción queda registrada.`, confirmText: 'Rechazar', variant: 'danger' });
+    if (!ok) return;
+    try {
+      await calculoIncentivoService.rechazar(id, user.uid, 'Rechazado por el aprobador desde la bandeja');
+      toast.success(`Bono de ${nombre} rechazado`);
+      recargarRRHH();
+    } catch (e: any) { toast.error(e.message, 'Error al rechazar'); }
+  };
+  const handleAprobarUsuario = async (uid: string, nombre: string, rol?: string) => {
+    if (!rol) { toast.warning(`${nombre} no tiene rol solicitado · asignalo desde Usuarios`); return; }
+    const ok = await confirm({ title: 'Aprobar usuario', message: `¿Dar de alta a ${nombre} con rol "${rol}"?`, confirmText: 'Aprobar', variant: 'success' });
+    if (!ok) return;
+    try {
+      await userService.aprobarUsuario(uid, rol as UserRole);
+      toast.success(`${nombre} dado de alta`);
+      recargarRRHH();
+    } catch (e: any) { toast.error(e.message, 'Error al aprobar'); }
+  };
+  const handleRechazarAdelanto = async (id: string, nombre: string) => {
+    const ok = await confirm({ title: 'Rechazar adelanto', message: `¿Anular el adelanto de ${nombre}?`, confirmText: 'Anular', variant: 'danger' });
+    if (!ok) return;
+    try {
+      await planillaService.anularAdelanto(id);
+      toast.success(`Adelanto de ${nombre} anulado`);
+      recargarRRHH();
+    } catch (e: any) { toast.error(e.message, 'Error al anular'); }
+  };
 
   // F4 · bandeja unificada de egresos · admin VE (admin-ve-todo) · firmar exige rol socio.
   const verEgresos = isSocio || isAdmin;
@@ -344,7 +394,7 @@ export const MiBandejaPersonal: React.FC<{ embedded?: boolean }> = ({ embedded =
     return () => {
       cancelled = true;
     };
-  }, [canManageUsers]);
+  }, [canManageUsers, reloadKey]);
 
   // F4 · embedded (tab del hub Mi Espacio) → sin shell · standalone → con shell + BackArrowHeader.
   const wrap = (
@@ -677,8 +727,8 @@ export const MiBandejaPersonal: React.FC<{ embedded?: boolean }> = ({ embedded =
                   )}
                 </div>
                 <div className="flex items-center gap-1.5 flex-shrink-0">
-                  <button className="text-[11px] font-medium text-rose-700 hover:bg-rose-50 border border-rose-200 px-3 py-1.5 rounded">Rechazar</button>
-                  <button className="text-[11px] font-bold text-white bg-emerald-600 hover:bg-emerald-700 px-3 py-1.5 rounded">Aprobar</button>
+                  <button onClick={() => navigate('/usuarios')} className="text-[11px] font-medium text-rose-700 hover:bg-rose-50 border border-rose-200 px-3 py-1.5 rounded">Rechazar</button>
+                  <button onClick={() => handleAprobarUsuario(u.id, u.nombre, u.rol)} className="text-[11px] font-bold text-white bg-emerald-600 hover:bg-emerald-700 px-3 py-1.5 rounded">Aprobar</button>
                 </div>
               </div>
             </div>
@@ -702,8 +752,8 @@ export const MiBandejaPersonal: React.FC<{ embedded?: boolean }> = ({ embedded =
                 <div className="text-[14px] font-bold tabular-nums text-amber-900">{fmtMoney(a.montoPEN)}</div>
               </div>
               <div className="inline-flex items-center gap-1.5 flex-shrink-0">
-                <button className="text-[11px] font-medium text-rose-700 hover:bg-rose-50 border border-rose-200 px-2 py-1 rounded">Rechazar</button>
-                <button className="text-[11px] font-bold text-white bg-emerald-600 hover:bg-emerald-700 px-2 py-1 rounded">Aprobar</button>
+                <button onClick={() => handleRechazarAdelanto(a.id, a.empleadoNombre)} className="text-[11px] font-medium text-rose-700 hover:bg-rose-50 border border-rose-200 px-2 py-1 rounded">Rechazar</button>
+                <button onClick={() => navigate('/planilla')} className="text-[11px] font-bold text-white bg-emerald-600 hover:bg-emerald-700 px-2 py-1 rounded">Pagar</button>
               </div>
             </div>
           ))}
@@ -725,8 +775,8 @@ export const MiBandejaPersonal: React.FC<{ embedded?: boolean }> = ({ embedded =
                 </div>
               </div>
               <div className="flex items-center justify-end gap-2">
-                <button className="text-[11px] font-medium text-rose-700 hover:bg-rose-50 border border-rose-200 px-3 py-1.5 rounded">Rechazar</button>
-                <button className="text-[11px] font-bold text-white bg-emerald-600 hover:bg-emerald-700 px-3 py-1.5 rounded">Aprobar</button>
+                <button onClick={() => handleRechazarBono(b.id, b.empleadoNombre)} className="text-[11px] font-medium text-rose-700 hover:bg-rose-50 border border-rose-200 px-3 py-1.5 rounded">Rechazar</button>
+                <button onClick={() => handleAprobarBono(b.id, b.empleadoNombre)} className="text-[11px] font-bold text-white bg-emerald-600 hover:bg-emerald-700 px-3 py-1.5 rounded">Aprobar</button>
               </div>
             </div>
           ))}
@@ -765,8 +815,8 @@ export const MiBandejaPersonal: React.FC<{ embedded?: boolean }> = ({ embedded =
                   </div>
                 </div>
                 <div className="flex items-center justify-end gap-2">
-                  <button className="text-[11px] font-medium text-slate-600 hover:bg-slate-50 border border-slate-200 px-3 py-1.5 rounded">Ver acta</button>
-                  <button className="text-[11px] font-bold text-white bg-rose-600 hover:bg-rose-700 px-3 py-1.5 rounded">Registrar pago</button>
+                  <button onClick={() => navigate('/planilla')} className="text-[11px] font-medium text-slate-600 hover:bg-slate-50 border border-slate-200 px-3 py-1.5 rounded">Ver acta</button>
+                  <button onClick={() => navigate('/planilla')} className="text-[11px] font-bold text-white bg-rose-600 hover:bg-rose-700 px-3 py-1.5 rounded">Registrar pago</button>
                 </div>
               </div>
             );
@@ -775,6 +825,7 @@ export const MiBandejaPersonal: React.FC<{ embedded?: boolean }> = ({ embedded =
           {/* ─── Sub-tab EGRESOS · autorización de socio (F4) ─── */}
           {subTab === 'egresos' && renderEgresosVista()}
         </div>
+        <ConfirmDialog {...dialogProps} />
         </>,
         {
           seccionLabel: 'Mi bandeja · Centro de mando',

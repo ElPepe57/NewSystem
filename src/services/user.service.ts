@@ -244,7 +244,10 @@ export const userService = {
       await updateDoc(docRef, {
         activo: true,
         role,
-        permisos: DEFAULT_PERMISOS[role]
+        permisos: DEFAULT_PERMISOS[role],
+        // F4 · transicionar el estado queryable a 'activo' · si no, el usuario aprobado queda
+        // en la lista de pendientes (la bandeja filtra por estado='pendiente_aprobacion').
+        estado: 'activo',
       });
     } catch (error) {
       logger.error('Error al aprobar usuario:', error);
