@@ -33,7 +33,7 @@ import { useProveedorStore } from '../../store/proveedorStore';
 import { useProductoStore } from '../../store/productoStore';
 import { useTipoCambioStore } from '../../store/tipoCambioStore';
 import { useAuthStore } from '../../store/authStore';
-import { hasRole } from '../../types/auth.types';
+import { hasRole, getUserRoles } from '../../types/auth.types';
 import { useColaboradorStore } from '../../store/colaboradorStore';
 import { exportService } from '../../services/export.service';
 import type { OrdenCompra, OrdenCompraFormData, EstadoOrden } from '../../types/ordenCompra.types';
@@ -89,6 +89,7 @@ export const OrdenesCompra: React.FC = () => {
   const user = useAuthStore(state => state.user);
   const userProfile = useAuthStore((s) => s.userProfile);
   const esAdmin = hasRole(userProfile, 'admin'); // canon "admin ve todo" · chip contextual al rol
+  const esSocio = hasRole(userProfile, 'socio'); // F4 · autoridad de autorización de egresos > umbral
   const toast = useToastStore();
   const { productos, fetchProductos } = useProductoStore();
   const { getTCDelDia } = useTipoCambioStore();
@@ -133,6 +134,7 @@ export const OrdenesCompra: React.FC = () => {
     cambiarEstadoOrden,
     confirmarOC,
     registrarPago,
+    autorizarOC,
     deleteOrden,
     fetchStats
   } = useOrdenCompraStore();
@@ -225,6 +227,30 @@ export const OrdenesCompra: React.FC = () => {
   // Hook para dialogo de confirmacion
   const { dialogProps, confirm } = useConfirmDialog();
   const { modalProps: actionModalProps, open: openActionModal } = useActionModal();
+
+  // F4 · firma de socio para autorizar una OC > umbral antes de pagarse.
+  const handleAutorizarOC = async (orden: OrdenCompra) => {
+    if (!user || !userProfile) return;
+    const confirmado = await confirm({
+      title: 'Autorizar egreso',
+      message: `Vas a firmar como socio la autorización de pago de la OC ${orden.numeroOrden} ($${(orden.totalUSD || 0).toFixed(0)} USD). Supera el umbral y requiere 2 socios distintos.`,
+      confirmText: 'Firmar como socio',
+      variant: 'info',
+    });
+    if (!confirmado) return;
+    try {
+      const res = await autorizarOC(orden.id, user.uid, getUserRoles(userProfile));
+      if (res.completa) {
+        toast.success(`OC ${orden.numeroOrden} autorizada · ya puede pagarse`, 'Egreso autorizado');
+      } else {
+        toast.warning(
+          `Tu firma fue registrada. Falta ${res.faltanFirmas === 1 ? 'la firma de otro socio' : `${res.faltanFirmas} firmas de socios`} para autorizar.`
+        );
+      }
+    } catch (error: any) {
+      toast.error(error.message, 'Error al autorizar');
+    }
+  };
 
   // Pipeline stages para filtrado visual
   // S41 — Pipeline Opción B: 4 estados (Borrador → Confirmada → En Despacho → Completada)
@@ -1082,6 +1108,8 @@ export const OrdenesCompra: React.FC = () => {
                     orden={orden}
                     enviosAsociados={enviosPorOCIndex.get(orden.id) ?? []}
                     onView={() => handleViewDetails(orden)}
+                    onAutorizar={() => handleAutorizarOC(orden)}
+                    esSocio={esSocio}
                     onRegistrarPago={() => {
                       setSelectedOrdenLocal(orden);
                       setSubOrdenPago(null);
@@ -1204,6 +1232,8 @@ export const OrdenesCompra: React.FC = () => {
             // Detalles (ver OrdenCompraCard: vistaInterna === 'confirmar').
             onRegistrarPago={handleRegistrarPago}
             onPagarSubOrden={handlePagarSubOrden}
+            onAutorizar={() => handleAutorizarOC(selectedOrden)}
+            esSocio={esSocio}
             onRefresh={() => { fetchOrdenes(); if (selectedOrden) refreshSelectedOrden(selectedOrden.id); }}
             // S53.9 — Editar y Eliminar solo visibles en borrador (dentro del card)
             onEditarOC={() => handleEditOrden(selectedOrden)}

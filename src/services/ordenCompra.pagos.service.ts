@@ -30,6 +30,9 @@ import {
   getPagosOC,
   type PagoOCLegacy,
 } from './cuentaCorriente.adaptadores';
+import { requiereAutorizacionSocio, evaluarFirmaSocio } from './autorizacionEgreso.helper';
+import { userService } from './user.service';
+import { NotificationService } from './notification.service';
 
 export async function registrarPago(
   id: string,
@@ -56,6 +59,14 @@ export async function registrarPago(
   }
   if (!orden.proveedorId) {
     throw new Error('OC sin proveedorId — no se puede registrar pago en CC');
+  }
+
+  // F4 · GATE de autorización de socio: una OC cuyo TOTAL (totalUSD landed) supera el umbral no
+  // egresa plata hasta que 2 socios la firmen (autorizacionEgreso.helper · fuente única). El pago
+  // necesita firma propia aunque el requerimiento de origen ya esté aprobado. El throw acá lo hereda
+  // el pago masivo automáticamente (ejecutarPagoIndividual llama a registrarPago directo).
+  if (requiereAutorizacionSocio(orden.totalUSD || 0) && orden.autorizacion?.estado !== 'aprobado') {
+    throw new Error('Esta OC supera el umbral · requiere la autorización de 2 socios antes de pagarse.');
   }
 
   const {
@@ -302,4 +313,78 @@ export async function registrarPago(
     fechaRegistro: Timestamp.now(),
   };
   return pagoLegacy;
+}
+
+/**
+ * F4 · Autorizar una OC para pago (firma de socio). Una OC cuyo total (totalUSD landed) supera el
+ * umbral requiere 2 socios distintos (doble firma) antes de poder pagarse. Usa autorizacionEgreso.helper
+ * como fuente única. Segregación: el creador de la OC no firma lo suyo.
+ * @param userRoles roles del usuario (debe incluir 'socio').
+ */
+export async function autorizarOC(
+  ocId: string,
+  userId: string,
+  userRoles: string[],
+): Promise<{ completa: boolean; faltanFirmas?: number }> {
+  const orden = await getById(ocId);
+  if (!orden) throw new Error('Orden no encontrada');
+  if (orden.estado === 'cancelada') throw new Error('No se puede autorizar una OC cancelada');
+  // F4 · no se autoriza una OC en borrador: su total todavía puede cambiar (evita "autorizar barato → inflar").
+  if (orden.estado === 'borrador') throw new Error('No se puede autorizar una OC en borrador · confirmala primero.');
+
+  const montoUSD = orden.totalUSD || 0;
+  if (!requiereAutorizacionSocio(montoUSD)) {
+    throw new Error('Esta OC no requiere autorización de socio (≤ umbral · pago directo).');
+  }
+  if (orden.autorizacion?.estado === 'aprobado') {
+    throw new Error('Esta OC ya está autorizada.');
+  }
+
+  const firmas = orden.autorizacion?.firmas || [];
+  const evalFirma = evaluarFirmaSocio({
+    montoUSD,
+    firmas,
+    userId,
+    esSocio: userRoles.includes('socio'),
+    creadorId: orden.creadoPor,
+  });
+  if (!evalFirma.ok) throw new Error(evalFirma.error || 'No podés autorizar esta OC.');
+
+  // Timestamp.now() (no serverTimestamp): las firmas viven en un array.
+  const nuevasFirmas = [...firmas, { usuarioId: userId, fecha: Timestamp.now() }];
+  await updateDoc(doc(db, ORDENES_COLLECTION, ocId), {
+    autorizacion: {
+      estado: evalFirma.completa ? 'aprobado' : 'pendiente',
+      firmas: nuevasFirmas,
+      ...(orden.autorizacion?.solicitadaPor ? { solicitadaPor: orden.autorizacion.solicitadaPor } : {}),
+      ...(evalFirma.completa ? { fechaAprobacion: serverTimestamp() } : {}),
+    },
+    ultimaEdicion: serverTimestamp(),
+    editadoPor: userId,
+  });
+
+  // Notificar a los OTROS socios (distintos del firmante y del creador) si falta firma.
+  if (!evalFirma.completa) {
+    try {
+      const socios = await userService.getByRole('socio' as any);
+      const otros = socios.filter((u) => u.activo && u.uid !== userId && u.uid !== orden.creadoPor);
+      for (const socio of otros) {
+        await NotificationService.crear({
+          tipo: 'aprobacion_pendiente',
+          prioridad: 'alta',
+          titulo: `Firma de socio pendiente — ${orden.numeroOrden || ocId}`,
+          mensaje: `Otro socio ya firmó. Falta tu firma para autorizar el pago de esta OC de $${montoUSD.toFixed(0)} USD.`,
+          usuarioId: socio.uid,
+          entidadTipo: 'usuario',
+          entidadId: ocId,
+          creadoPor: 'sistema',
+          metadata: { montoUSD },
+        });
+      }
+    } catch (notifError) {
+      logger.warn('Error notificando socios (autorizarOC):', notifError);
+    }
+  }
+
+  return { completa: evalFirma.completa, faltanFirmas: evalFirma.faltanFirmas };
 }

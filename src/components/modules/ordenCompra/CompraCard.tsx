@@ -15,13 +15,14 @@
  */
 import React from 'react';
 import {
-  Eye, DollarSign, Truck, Plane, Layers, FileText, Check, CheckCircle2, AlertCircle, Ban,
+  Eye, DollarSign, Truck, Plane, Layers, FileText, Check, CheckCircle2, AlertCircle, Ban, PenLine, ShieldAlert,
   type LucideIcon,
 } from 'lucide-react';
 import { HubCard, HubCardSubRow, formatFechaRelativa } from '../../../design-system';
 import type { HubCardColor, StatusVariant } from '../../../design-system';
 import type { OrdenCompra, SubOrdenCompra } from '../../../types/ordenCompra.types';
 import { calcularEstadoDerivadoOC } from '../../../utils/ordenCompra.helpers';
+import { requiereAutorizacionSocio } from '../../../services/autorizacionEgreso.helper';
 import type { Envio } from '../../../types/envio.types';
 
 // ════════════════════════════════════════════════════════════════════════════
@@ -34,6 +35,10 @@ interface CompraCardProps {
   onView: () => void;
   onRegistrarPago?: () => void;
   onRegistrarPagoSubOrden?: (subOrdenId: string) => void;
+  /** F4 · firma de socio para autorizar una OC > umbral antes de pagarse. */
+  onAutorizar?: () => void;
+  /** F4 · ¿el usuario actual es socio? (puede autorizar egresos > umbral). */
+  esSocio?: boolean;
   onVerSubOrden?: (subOrdenId: string) => void;
   onVerEnvios?: () => void;
   onVerEnvio?: (envioId: string) => void;
@@ -112,7 +117,7 @@ function calcPago(orden: OrdenCompra) {
 const IconBtn: React.FC<{
   icon: LucideIcon;
   title: string;
-  tone: 'blue' | 'emerald' | 'sky';
+  tone: 'blue' | 'emerald' | 'sky' | 'violet';
   onClick?: () => void;
   disabled?: boolean;
 }> = ({ icon: Icon, title, tone, onClick, disabled }) => {
@@ -120,6 +125,7 @@ const IconBtn: React.FC<{
     blue: 'text-blue-600 hover:bg-blue-50',
     emerald: 'text-emerald-600 hover:bg-emerald-50',
     sky: 'text-sky-600 hover:bg-sky-50',
+    violet: 'text-violet-600 hover:bg-violet-50',
   }[tone];
   return (
     <button
@@ -153,6 +159,8 @@ export const CompraCard: React.FC<CompraCardProps> = ({
   onView,
   onRegistrarPago,
   onRegistrarPagoSubOrden,
+  onAutorizar,
+  esSocio = false,
   onVerSubOrden,
   onVerEnvios,
   onVerEnvio,
@@ -168,6 +176,10 @@ export const CompraCard: React.FC<CompraCardProps> = ({
   const { pct } = calcPago(orden);
   const estadoPago = orden.estadoPago;
   const pagado = estadoPago === 'pagado';
+  // F4 · ¿esta OC requiere autorización de socio antes de pagarse? (> umbral USD landed · aún sin aprobar · ya confirmada)
+  const necesitaAutorizacion = orden.estado !== 'borrador'
+    && requiereAutorizacionSocio(orden.totalUSD || 0)
+    && orden.autorizacion?.estado !== 'aprobado';
 
   const totalSKUs = orden.productos.length;
   const totalUnidades = orden.productos.reduce((s, p) => s + (p.cantidad || 0), 0);
@@ -200,13 +212,26 @@ export const CompraCard: React.FC<CompraCardProps> = ({
   const acciones = (
     <div className="flex items-center gap-0.5">
       <IconBtn icon={Eye} title="Ver detalle" tone="blue" onClick={onView} />
-      <IconBtn
-        icon={DollarSign}
-        title={pagado ? 'Pagado' : 'Registrar pago'}
-        tone="emerald"
-        onClick={onRegistrarPago}
-        disabled={pagado || !onRegistrarPago}
-      />
+      {necesitaAutorizacion ? (
+        esSocio && onAutorizar ? (
+          <IconBtn icon={PenLine} title="Autorizar (firma de socio · supera el umbral)" tone="violet" onClick={onAutorizar} />
+        ) : (
+          <span
+            title="Requiere autorización de 2 socios antes de pagarse"
+            className="p-1.5 rounded-lg text-violet-400 cursor-default inline-flex"
+          >
+            <ShieldAlert className="w-4 h-4" />
+          </span>
+        )
+      ) : (
+        <IconBtn
+          icon={DollarSign}
+          title={pagado ? 'Pagado' : 'Registrar pago'}
+          tone="emerald"
+          onClick={onRegistrarPago}
+          disabled={pagado || !onRegistrarPago}
+        />
+      )}
       {!tieneSub && (
         <IconBtn
           icon={Truck}

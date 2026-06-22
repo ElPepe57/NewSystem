@@ -306,6 +306,18 @@ export interface OrdenCompra {
   estado: EstadoOrden;              // Estado logístico
   estadoPago: EstadoPagoOC;           // Estado de pago (independiente)
 
+  // F4 · Autorización de egreso por SOCIO. Una OC cuyo total (totalUSD landed) supera el umbral
+  // requiere doble firma de 2 socios distintos ANTES de poder pagarse (aunque el requerimiento de
+  // origen ya esté aprobado · "el pago también necesita firma"). ≤ umbral = directo (sin este bloque).
+  // Mismo modelo que Gastos/Requerimientos · autorizacionEgreso.helper como fuente única.
+  autorizacion?: {
+    estado: 'pendiente' | 'aprobado';
+    firmas: { usuarioId: string; nombre?: string; fecha: Timestamp }[];
+    solicitadaPor?: string;
+    fechaSolicitud?: Timestamp;
+    fechaAprobacion?: Timestamp;
+  };
+
   // Fechas logísticas
   fechaCreacion: Timestamp;
   fechaEnviada?: Timestamp;

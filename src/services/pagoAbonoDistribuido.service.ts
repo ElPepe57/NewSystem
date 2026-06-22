@@ -55,6 +55,8 @@ import {
   getPagosGasto,
 } from './cuentaCorriente.adaptadores';
 import { normalizarEstadoPagoOC } from '../types/ordenCompra.types';
+import { requiereAutorizacionSocio } from './autorizacionEgreso.helper';
+import { montoUSDDeGasto } from './gasto.service';
 
 // ═════════════════════════════════════════════════════════════════════════
 // CONSTANTES
@@ -859,6 +861,10 @@ export async function ejecutar(
       if (oc.estado === 'cancelada') {
         throw new Error(`OC ${oc.numeroOrden} está cancelada — no se puede pagar`);
       }
+      // F4 · GATE de autorización de socio (mismo que registrarPago · cierra esta vía de egreso paralela).
+      if (requiereAutorizacionSocio(oc.totalUSD || 0) && oc.autorizacion?.estado !== 'aprobado') {
+        throw new Error(`OC ${oc.numeroOrden}: supera el umbral · requiere la autorización de 2 socios antes de pagarse.`);
+      }
       const pendienteUSD = await calcularPendienteOCDesdeCC(oc);
       if (montoAplicadoUSD > pendienteUSD + TOLERANCIA) {
         throw new Error(
@@ -909,6 +915,13 @@ export async function ejecutar(
       }
       if (gasto.estado === 'pagado') {
         throw new Error(`Gasto ${gasto.numeroGasto} ya está pagado`);
+      }
+      // F4 · GATE de autorización de socio (mismo que gasto.service.registrarPago · cierra esta vía paralela).
+      if (
+        requiereAutorizacionSocio(montoUSDDeGasto(gasto, input.tipoCambio)) &&
+        gasto.autorizacion?.estado !== 'aprobado'
+      ) {
+        throw new Error(`Gasto ${gasto.numeroGasto}: supera el umbral · requiere la autorización de 2 socios antes de pagarse.`);
       }
       if (!gasto.proveedorId) {
         throw new Error(

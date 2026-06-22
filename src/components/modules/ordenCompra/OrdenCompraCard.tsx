@@ -8,7 +8,8 @@
  */
 import React, { useMemo, useState, useCallback } from 'react';
 import { formatFecha as formatDate } from '../../../utils/dateFormatters';
-import { Package, Truck, CreditCard, ChevronLeft, ChevronRight, Layers, Send, Plane, PersonStanding, PackageOpen, Receipt, TriangleAlert, Brain, History, FolderOpen } from 'lucide-react';
+import { Package, Truck, CreditCard, ChevronLeft, ChevronRight, Layers, Send, Plane, PersonStanding, PackageOpen, Receipt, TriangleAlert, Brain, History, FolderOpen, PenLine, ShieldAlert } from 'lucide-react';
+import { requiereAutorizacionSocio } from '../../../services/autorizacionEgreso.helper';
 import { Button } from '../../common';
 import { StatusBadge, cn } from '../../../design-system';
 // S52 — Capa 3: plantillas canónicas del ERP (ver docs/DESIGN_PATTERNS.md)
@@ -51,6 +52,10 @@ interface OrdenCompraCardProps {
   onSolicitarConfirmacion?: () => void;
   onRegistrarPago?: () => void;
   onPagarSubOrden?: (subOrdenId: string) => void;
+  /** F4 · firma de socio para autorizar una OC > umbral antes de pagarse. */
+  onAutorizar?: () => void;
+  /** F4 · ¿el usuario actual es socio? (puede autorizar egresos > umbral). */
+  esSocio?: boolean;
   onRefresh?: () => void;
   /** S53.9 — Editar OC borrador. Solo se muestra cuando orden.estado === 'borrador'. */
   onEditarOC?: () => void;
@@ -108,6 +113,8 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
   onSolicitarConfirmacion,
   onRegistrarPago,
   onPagarSubOrden,
+  onAutorizar,
+  esSocio = false,
   onRefresh,
   onEditarOC,
   onEliminarOC,
@@ -197,6 +204,8 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
 
   const estadoInfo = estadoLabels[orden.estado] ?? { label: orden.estado || 'Desconocido', variant: 'secondary' as const, icon: null };
   const estadoPagoInfo = estadoPagoLabels[orden.estadoPago as EstadoPagoOC] ?? estadoPagoLabels.pendiente;
+  // F4 · ¿esta OC requiere autorización de socio antes de pagarse? (> umbral USD landed y aún sin aprobar)
+  const necesitaAutorizacion = requiereAutorizacionSocio(orden.totalUSD || 0) && orden.autorizacion?.estado !== 'aprobado';
 
   // Generar pasos del timeline (soporta estados nuevos + legacy)
   const timelineSteps: TimelineStep[] = useMemo(() => {
@@ -1235,14 +1244,30 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
                 </tbody>
               </table>
             )}
-            {onRegistrarPago && orden.estadoPago !== 'pagado' && orden.estado !== 'borrador' && (
+            {(necesitaAutorizacion && orden.estado !== 'borrador' && orden.estadoPago !== 'pagado') ? (
+              <div className="p-2 border-t border-slate-200">
+                {esSocio && onAutorizar ? (
+                  <button
+                    type="button"
+                    onClick={onAutorizar}
+                    className="w-full inline-flex items-center justify-center gap-2 text-[13px] font-semibold text-white bg-violet-600 hover:bg-violet-700 rounded-lg py-2 transition-colors"
+                  >
+                    <PenLine className="h-4 w-4" /> Autorizar pago (firma de socio)
+                  </button>
+                ) : (
+                  <div className="w-full inline-flex items-center justify-center gap-2 text-[12px] font-semibold text-violet-700 bg-violet-50 border border-violet-200 rounded-lg py-2">
+                    <ShieldAlert className="h-4 w-4" /> Pendiente de autorización de 2 socios
+                  </div>
+                )}
+              </div>
+            ) : (onRegistrarPago && orden.estadoPago !== 'pagado' && orden.estado !== 'borrador' && (
               <div className="p-2 border-t border-slate-200">
                 <Button variant="primary" onClick={onRegistrarPago} className="w-full">
                   <CreditCard className="h-4 w-4 mr-2" />
                   {orden.estadoPago === 'parcial' ? 'Registrar pago adicional' : 'Registrar pago'}
                 </Button>
               </div>
-            )}
+            ))}
           </div>
         </div>
       )}

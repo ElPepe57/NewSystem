@@ -50,7 +50,7 @@ import {
   deleteOrden
 } from './ordenCompra.crud.service';
 
-import { registrarPago } from './ordenCompra.pagos.service';
+import { registrarPago, autorizarOC } from './ordenCompra.pagos.service';
 
 // S40: recibirOrden + recibirOrdenParcial eliminados. revertirRecepciones preservado para scripts/admin.
 import {
@@ -158,6 +158,15 @@ export class OrdenCompraService {
     userId: string
   ): Promise<PagoOCLegacy> {
     return registrarPago(id, datos, userId);
+  }
+
+  /** F4 · firma de socio para autorizar una OC > umbral antes de pagarse. */
+  static async autorizarOC(
+    ocId: string,
+    userId: string,
+    userRoles: string[]
+  ): Promise<{ completa: boolean; faltanFirmas?: number }> {
+    return autorizarOC(ocId, userId, userRoles);
   }
 
   // S40: recibirOrden + recibirOrdenParcial eliminados — flujo canónico vía Envío.

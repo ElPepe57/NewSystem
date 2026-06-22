@@ -43,7 +43,7 @@ import { tipoCambioService } from './tipoCambio.service';
 const GASTOS_COLLECTION = COLLECTIONS.GASTOS;
 
 /** F4 · monto USD landed del gasto · base del tramo de autorización (≤$1k directo · >$1k 2 socios). */
-function montoUSDDeGasto(
+export function montoUSDDeGasto(
   g: { moneda: string; montoOriginal: number; montoPEN: number; tipoCambio?: number },
   tcFallback?: number,
 ): number {

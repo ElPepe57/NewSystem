@@ -45,6 +45,8 @@ interface OrdenCompraState {
     notas?: string;
     subOrdenId?: string;
   }, userId: string) => Promise<PagoOrdenCompra>;
+  /** F4 · firma de socio para autorizar una OC > umbral antes de pagarse. */
+  autorizarOC: (ocId: string, userId: string, userRoles: string[]) => Promise<{ completa: boolean; faltanFirmas?: number }>;
   // S40: recibirOrden y recibirOrdenParcial eliminados — la recepción se gestiona desde el Envío asociado.
   deleteOrden: (id: string) => Promise<void>;
   fetchStats: () => Promise<void>;
@@ -254,6 +256,22 @@ export const useOrdenCompraStore = create<OrdenCompraState>((set, get) => ({
 
       set({ loading: false });
       return pago;
+    } catch (error: any) {
+      set({ error: error.message, loading: false });
+      throw error;
+    }
+  },
+
+  autorizarOC: async (ocId: string, userId: string, userRoles: string[]) => {
+    set({ loading: true, error: null });
+    try {
+      const res = await OrdenCompraService.autorizarOC(ocId, userId, userRoles);
+      await get().fetchOrdenes();
+      if (get().selectedOrden?.id === ocId) {
+        await get().fetchOrdenById(ocId);
+      }
+      set({ loading: false });
+      return res;
     } catch (error: any) {
       set({ error: error.message, loading: false });
       throw error;
