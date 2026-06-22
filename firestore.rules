@@ -6,7 +6,7 @@ service cloud.firestore {
     // FUNCIONES HELPER
     // ============================================================
     // Nota: get() al mismo path se cachea dentro de la misma evaluacion.
-    // Roles: admin, gerente, vendedor, comprador, almacenero, finanzas, supervisor, invitado
+    // Roles: admin, gerente, socio, vendedor, comprador, almacenero, finanzas, supervisor, invitado
 
     function getUserData() {
       return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
