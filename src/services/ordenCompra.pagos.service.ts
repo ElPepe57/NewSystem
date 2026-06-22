@@ -388,3 +388,27 @@ export async function autorizarOC(
 
   return { completa: evalFirma.completa, faltanFirmas: evalFirma.faltanFirmas };
 }
+
+/**
+ * F4 · Rechazar la autorización de pago de una OC (decisión de socio). La OC queda no-pagable
+ * (el gate exige estado 'aprobado') y sale de la bandeja de pendientes.
+ */
+export async function rechazarOC(ocId: string, userId: string, userRoles: string[], motivo?: string): Promise<void> {
+  const orden = await getById(ocId);
+  if (!orden) throw new Error('Orden no encontrada');
+  if (!userRoles.includes('socio')) throw new Error('Solo los socios (dueños) pueden rechazar egresos.');
+  if (orden.autorizacion?.estado === 'aprobado') throw new Error('Esta OC ya está autorizada · no se puede rechazar.');
+
+  await updateDoc(doc(db, ORDENES_COLLECTION, ocId), {
+    autorizacion: {
+      estado: 'rechazado',
+      firmas: orden.autorizacion?.firmas || [],
+      ...(orden.autorizacion?.solicitadaPor ? { solicitadaPor: orden.autorizacion.solicitadaPor } : {}),
+      rechazadoPor: userId,
+      fechaRechazo: serverTimestamp(),
+      ...(motivo ? { motivoRechazo: motivo } : {}),
+    },
+    ultimaEdicion: serverTimestamp(),
+    editadoPor: userId,
+  });
+}

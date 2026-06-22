@@ -350,6 +350,35 @@ export const gastoService = {
   },
 
   /**
+   * F4 · Rechazar la autorización de un gasto (decisión de socio). El gasto queda no-pagable
+   * (el gate exige estado 'aprobado') y sale de la bandeja de pendientes.
+   */
+  async rechazarGasto(gastoId: string, userId: string, userRoles: string[], motivo?: string): Promise<void> {
+    try {
+      const gasto = await this.getById(gastoId);
+      if (!gasto) throw new Error('Gasto no encontrado');
+      if (!userRoles.includes('socio')) throw new Error('Solo los socios (dueños) pueden rechazar egresos.');
+      if (gasto.autorizacion?.estado === 'aprobado') throw new Error('Este gasto ya está autorizado · no se puede rechazar.');
+
+      await updateDoc(doc(db, GASTOS_COLLECTION, gastoId), {
+        autorizacion: {
+          estado: 'rechazado',
+          firmas: gasto.autorizacion?.firmas || [],
+          ...(gasto.autorizacion?.solicitadaPor ? { solicitadaPor: gasto.autorizacion.solicitadaPor } : {}),
+          rechazadoPor: userId,
+          fechaRechazo: Timestamp.now(),
+          ...(motivo ? { motivoRechazo: motivo } : {}),
+        },
+        ultimaEdicion: Timestamp.now(),
+        editadoPor: userId,
+      });
+    } catch (error: any) {
+      logger.error('Error al rechazar gasto:', error);
+      throw new Error(error.message || 'Error al rechazar gasto');
+    }
+  },
+
+  /**
    * Generar número de gasto usando contador atómico.
    * Formato: GAS-NNNN (ej: GAS-0043)
    * Usa runTransaction para evitar duplicados en acceso concurrente.

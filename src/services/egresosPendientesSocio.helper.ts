@@ -38,6 +38,8 @@ export interface EgresoPendiente {
   creadoPor?: string;
   /** Firmas de socio que faltan para autorizar. */
   faltanFirmas: number;
+  /** El egreso fue rechazado o cancelado · NO es pendiente (sale de la bandeja). */
+  descartado: boolean;
   /** Timestamp de creación (opaco · para fechaRelativa en la UI). */
   fecha?: unknown;
 }
@@ -57,6 +59,7 @@ export function requerimientoAEgreso(r: Requerimiento): EgresoPendiente {
     firmas,
     creadoPor: r.creadoPor || (r as { solicitadoPor?: string }).solicitadoPor,
     faltanFirmas: faltan(montoUSD, firmas),
+    descartado: r.estado === 'cancelado',
     fecha: (r as { fechaCreacion?: unknown }).fechaCreacion,
   };
 }
@@ -73,6 +76,7 @@ export function gastoAEgreso(g: Gasto): EgresoPendiente {
     firmas,
     creadoPor: g.creadoPor,
     faltanFirmas: faltan(montoUSD, firmas),
+    descartado: g.autorizacion?.estado === 'rechazado' || g.estado === 'cancelado',
     fecha: g.fechaCreacion,
   };
 }
@@ -89,13 +93,14 @@ export function ocAEgreso(o: OrdenCompra): EgresoPendiente {
     firmas,
     creadoPor: o.creadoPor,
     faltanFirmas: faltan(montoUSD, firmas),
+    descartado: o.autorizacion?.estado === 'rechazado' || o.estado === 'cancelada',
     fecha: o.fechaCreacion,
   };
 }
 
 /** ¿este egreso requiere firma de socio y aún le falta alguna? (filtro de la bandeja). */
 export function esPendienteDeFirma(e: EgresoPendiente): boolean {
-  return requiereAutorizacionSocio(e.montoUSD) && e.faltanFirmas > 0;
+  return requiereAutorizacionSocio(e.montoUSD) && e.faltanFirmas > 0 && !e.descartado;
 }
 
 /** ¿este usuario puede firmar este egreso AHORA? (socio · no creador · no firmó ya). */

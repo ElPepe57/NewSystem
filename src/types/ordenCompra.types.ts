@@ -311,11 +311,14 @@ export interface OrdenCompra {
   // origen ya esté aprobado · "el pago también necesita firma"). ≤ umbral = directo (sin este bloque).
   // Mismo modelo que Gastos/Requerimientos · autorizacionEgreso.helper como fuente única.
   autorizacion?: {
-    estado: 'pendiente' | 'aprobado';
+    estado: 'pendiente' | 'aprobado' | 'rechazado';
     firmas: { usuarioId: string; nombre?: string; fecha: Timestamp }[];
     solicitadaPor?: string;
     fechaSolicitud?: Timestamp;
     fechaAprobacion?: Timestamp;
+    rechazadoPor?: string;
+    motivoRechazo?: string;
+    fechaRechazo?: Timestamp;
   };
 
   // Fechas logísticas

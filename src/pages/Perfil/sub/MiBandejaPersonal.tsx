@@ -38,7 +38,7 @@ import { useAuthStore } from '../../../store/authStore';
 import { useToastStore } from '../../../store/toastStore';
 import { getUserRoles } from '../../../types/auth.types';
 import { useEgresosPendientesSocio, type EgresoPendienteConAccion } from '../../../hooks/useEgresosPendientesSocio';
-import { firmarEgreso } from '../../../services/firmarEgreso.service';
+import { firmarEgreso, rechazarEgreso } from '../../../services/firmarEgreso.service';
 import { useBandejaSignal } from '../../../store/bandejaSignalStore';
 import { chipFirma, LABEL_ORIGEN, autorizacionCompleta, fechaMiFirma, type OrigenEgreso, type EgresoPendiente } from '../../../services/egresosPendientesSocio.helper';
 import { BackArrowHeader } from '../../../components/common/BackArrowHeader';
@@ -171,6 +171,26 @@ export const MiBandejaPersonal: React.FC<{ embedded?: boolean }> = ({ embedded =
     }
   };
 
+  // F4 · rechazar un egreso (decisión de socio · lo deniega · queda no-pagable y sale de la bandeja).
+  const handleRechazarEgreso = async (e: EgresoPendienteConAccion) => {
+    if (!user || !userProfile) return;
+    const ok = await confirm({
+      title: 'Rechazar egreso',
+      message: `¿Rechazar ${LABEL_ORIGEN[e.origen]} ${e.numero}? Queda no-pagable y sale de la bandeja.`,
+      confirmText: 'Rechazar',
+      variant: 'danger',
+    });
+    if (!ok) return;
+    try {
+      await rechazarEgreso(e.origen, e.id, user.uid, getUserRoles(userProfile), 'Rechazado por el socio desde la bandeja');
+      toast.success(`${LABEL_ORIGEN[e.origen]} ${e.numero} rechazado`);
+      reloadEgresos();
+      useBandejaSignal.getState().bump();
+    } catch (error: any) {
+      toast.error(error.message, 'Error al rechazar');
+    }
+  };
+
   // Card de egreso · reusada en el early-return (socio puro) y en la sub-tab Egresos (admin/gerente).
   const renderEgreso = (e: EgresoPendienteConAccion) => {
     const Icon = ICONO_ORIGEN[e.origen];
@@ -196,12 +216,20 @@ export const MiBandejaPersonal: React.FC<{ embedded?: boolean }> = ({ embedded =
         </div>
         <div className="inline-flex items-center gap-1.5 flex-shrink-0">
           {e.puedeFirmar ? (
-            <button
-              onClick={() => handleFirmarEgreso(e)}
-              className="text-[11px] font-bold text-white bg-violet-600 hover:bg-violet-700 px-2.5 py-1 rounded inline-flex items-center gap-1"
-            >
-              <PenLine className="w-3 h-3" /> Firmar
-            </button>
+            <>
+              <button
+                onClick={() => handleRechazarEgreso(e)}
+                className="text-[11px] font-medium text-rose-700 hover:bg-rose-50 border border-rose-200 px-2.5 py-1 rounded"
+              >
+                Rechazar
+              </button>
+              <button
+                onClick={() => handleFirmarEgreso(e)}
+                className="text-[11px] font-bold text-white bg-violet-600 hover:bg-violet-700 px-2.5 py-1 rounded inline-flex items-center gap-1"
+              >
+                <PenLine className="w-3 h-3" /> Firmar
+              </button>
+            </>
           ) : (
             <span className="text-[10px] text-slate-400 italic px-2">{!isSocio ? 'Autoridad del socio' : 'Esperando otro socio'}</span>
           )}

@@ -26,3 +26,24 @@ export function firmarEgreso(
       return OrdenCompraService.autorizarOC(id, userId, userRoles);
   }
 }
+
+/**
+ * F4 · rechazar un egreso (decisión de socio · deniega la autorización). Enruta por origen:
+ * el requerimiento se cancela · gasto/OC quedan con autorizacion.estado='rechazado' (no-pagables).
+ */
+export function rechazarEgreso(
+  origen: OrigenEgreso,
+  id: string,
+  userId: string,
+  userRoles: string[],
+  motivo?: string,
+): Promise<void> {
+  switch (origen) {
+    case 'requerimiento':
+      return requerimientoService.cancelarRequerimiento(id, userId);
+    case 'gasto':
+      return gastoService.rechazarGasto(id, userId, userRoles, motivo);
+    case 'oc':
+      return OrdenCompraService.rechazarOC(id, userId, userRoles, motivo);
+  }
+}

@@ -50,7 +50,7 @@ import {
   deleteOrden
 } from './ordenCompra.crud.service';
 
-import { registrarPago, autorizarOC } from './ordenCompra.pagos.service';
+import { registrarPago, autorizarOC, rechazarOC } from './ordenCompra.pagos.service';
 
 // S40: recibirOrden + recibirOrdenParcial eliminados. revertirRecepciones preservado para scripts/admin.
 import {
@@ -167,6 +167,11 @@ export class OrdenCompraService {
     userRoles: string[]
   ): Promise<{ completa: boolean; faltanFirmas?: number }> {
     return autorizarOC(ocId, userId, userRoles);
+  }
+
+  /** F4 · rechazar la autorización de pago de una OC (socio). */
+  static async rechazarOC(ocId: string, userId: string, userRoles: string[], motivo?: string): Promise<void> {
+    return rechazarOC(ocId, userId, userRoles, motivo);
   }
 
   // S40: recibirOrden + recibirOrdenParcial eliminados — flujo canónico vía Envío.

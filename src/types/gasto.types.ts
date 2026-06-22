@@ -212,11 +212,14 @@ export interface Gasto {
   // (autorizacionEgreso.helper) requiere doble firma de 2 socios distintos ANTES de poder
   // pagarse. ≤ umbral = directo (sin este bloque). Mismo modelo que requerimientos.
   autorizacion?: {
-    estado: 'pendiente' | 'aprobado';
+    estado: 'pendiente' | 'aprobado' | 'rechazado';
     firmas: { usuarioId: string; nombre?: string; fecha: Timestamp }[];
     solicitadaPor?: string;
     fechaSolicitud?: Timestamp;
     fechaAprobacion?: Timestamp;
+    rechazadoPor?: string;
+    motivoRechazo?: string;
+    fechaRechazo?: Timestamp;
   };
 
   // Impacto en CTRU

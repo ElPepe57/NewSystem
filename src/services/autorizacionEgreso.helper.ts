@@ -20,7 +20,7 @@
 export const UMBRAL_AUTORIZACION_SOCIO_USD = 1000;
 
 /** Nº de firmas de socio para el tramo de doble firma. */
-export const FIRMAS_SOCIO_REQUERIDAS = 2;
+const FIRMAS_SOCIO_REQUERIDAS = 2;
 
 export type TramoEgreso = 'directo' | 'doble_socio';
 
