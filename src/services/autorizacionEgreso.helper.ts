@@ -147,6 +147,14 @@ export function puedeAutorizarEgreso(params: {
 /** Umbral de mayoría sobre el equity elegible · mayoría simple (estrictamente > 50%). */
 export const UMBRAL_MAYORIA_EQUITY = 0.5;
 
+/** Resultado que devuelve la Cloud Function `autorizarEgreso` al cliente (F2). */
+export interface ResultadoAutorizacionCF {
+  completa: boolean;
+  equityFirmado: number;
+  equityElegible: number;
+  equityFaltante: number;
+}
+
 export interface SocioEquity {
   uid: string;
   /** % de participación societaria. La lógica usa RATIOS → es unit-agnóstica (0-100 o 0-1 dan igual). */

@@ -19,6 +19,7 @@ import {
   Timestamp,
   serverTimestamp,
 } from 'firebase/firestore';
+import { getFunctions, httpsCallable } from 'firebase/functions';
 import { db } from '../lib/firebase';
 import { logger } from '../lib/logger';
 import type { MetodoTesoreria } from '../types/tesoreria.types';
@@ -30,10 +31,11 @@ import {
   getPagosOC,
   type PagoOCLegacy,
 } from './cuentaCorriente.adaptadores';
-import { requiereAutorizacionSocio, evaluarFirmaSocio } from './autorizacionEgreso.helper';
+import { requiereAutorizacionSocio, type ResultadoAutorizacionCF } from './autorizacionEgreso.helper';
 import { userService } from './user.service';
 import { NotificationService } from './notification.service';
-import { delegacionAutorizacionService } from './delegacionAutorizacion.service';
+
+const functions = getFunctions();
 
 export async function registrarPago(
   id: string,
@@ -326,57 +328,26 @@ export async function autorizarOC(
   ocId: string,
   userId: string,
   userRoles: string[],
-): Promise<{ completa: boolean; faltanFirmas?: number }> {
-  const orden = await getById(ocId);
-  if (!orden) throw new Error('Orden no encontrada');
-  if (orden.estado === 'cancelada') throw new Error('No se puede autorizar una OC cancelada');
-  // F4 · no se autoriza una OC en borrador: su total todavía puede cambiar (evita "autorizar barato → inflar").
-  if (orden.estado === 'borrador') throw new Error('No se puede autorizar una OC en borrador · confirmala primero.');
+): Promise<ResultadoAutorizacionCF> {
+  // F2 · la firma de socio (quórum por equity) la enforza la Cloud Function `autorizarEgreso`
+  // (admin SDK · ÚNICA escritora del campo · ver functions/src/egresos/autorizarEgreso.ts).
+  void userRoles;
+  const fn = httpsCallable<{ coleccion: string; docId: string }, ResultadoAutorizacionCF>(functions, 'autorizarEgreso');
+  const { data } = await fn({ coleccion: ORDENES_COLLECTION, docId: ocId });
 
-  const montoUSD = orden.totalUSD || 0;
-  if (!requiereAutorizacionSocio(montoUSD)) {
-    throw new Error('Esta OC no requiere autorización de socio (≤ umbral · pago directo).');
-  }
-  if (orden.autorizacion?.estado === 'aprobado') {
-    throw new Error('Esta OC ya está autorizada.');
-  }
-
-  const firmas = orden.autorizacion?.firmas || [];
-  // F4 · autoridad = socio O delegado vigente (la regla de doble firma se mantiene · pool ampliado).
-  const esSocioODelegado = userRoles.includes('socio') || await delegacionAutorizacionService.tieneAutoridadDelegada(userId, userRoles);
-  const evalFirma = evaluarFirmaSocio({
-    montoUSD,
-    firmas,
-    userId,
-    esSocio: esSocioODelegado,
-    creadorId: orden.creadoPor,
-  });
-  if (!evalFirma.ok) throw new Error(evalFirma.error || 'No podés autorizar esta OC.');
-
-  // Timestamp.now() (no serverTimestamp): las firmas viven en un array.
-  const nuevasFirmas = [...firmas, { usuarioId: userId, fecha: Timestamp.now() }];
-  await updateDoc(doc(db, ORDENES_COLLECTION, ocId), {
-    autorizacion: {
-      estado: evalFirma.completa ? 'aprobado' : 'pendiente',
-      firmas: nuevasFirmas,
-      ...(orden.autorizacion?.solicitadaPor ? { solicitadaPor: orden.autorizacion.solicitadaPor } : {}),
-      ...(evalFirma.completa ? { fechaAprobacion: serverTimestamp() } : {}),
-    },
-    ultimaEdicion: serverTimestamp(),
-    editadoPor: userId,
-  });
-
-  // Notificar a los OTROS socios (distintos del firmante y del creador) si falta firma.
-  if (!evalFirma.completa) {
+  // Notificar a los OTROS socios si aún falta para la mayoría (preserva comportamiento).
+  if (!data.completa) {
     try {
+      const orden = await getById(ocId);
+      const montoUSD = orden?.totalUSD || 0;
       const socios = await userService.getByRole('socio' as any);
-      const otros = socios.filter((u) => u.activo && u.uid !== userId && u.uid !== orden.creadoPor);
+      const otros = socios.filter((u) => u.activo && u.uid !== userId && u.uid !== orden?.creadoPor);
       for (const socio of otros) {
         await NotificationService.crear({
           tipo: 'aprobacion_pendiente',
           prioridad: 'alta',
-          titulo: `Firma de socio pendiente — ${orden.numeroOrden || ocId}`,
-          mensaje: `Otro socio ya firmó. Falta tu firma para autorizar el pago de esta OC de $${montoUSD.toFixed(0)} USD.`,
+          titulo: `Firma de socio pendiente — ${orden?.numeroOrden || ocId}`,
+          mensaje: `Otro socio ya firmó. Falta alcanzar la mayoría de socios para autorizar el pago de esta OC de $${montoUSD.toFixed(0)} USD.`,
           usuarioId: socio.uid,
           entidadTipo: 'usuario',
           entidadId: ocId,
@@ -389,7 +360,7 @@ export async function autorizarOC(
     }
   }
 
-  return { completa: evalFirma.completa, faltanFirmas: evalFirma.faltanFirmas };
+  return data;
 }
 
 /**
@@ -397,22 +368,8 @@ export async function autorizarOC(
  * (el gate exige estado 'aprobado') y sale de la bandeja de pendientes.
  */
 export async function rechazarOC(ocId: string, userId: string, userRoles: string[], motivo?: string): Promise<void> {
-  const orden = await getById(ocId);
-  if (!orden) throw new Error('Orden no encontrada');
-  const puedeRechazar = userRoles.includes('socio') || await delegacionAutorizacionService.tieneAutoridadDelegada(userId, userRoles);
-  if (!puedeRechazar) throw new Error('Solo los socios (o sus delegados) pueden rechazar egresos.');
-  if (orden.autorizacion?.estado === 'aprobado') throw new Error('Esta OC ya está autorizada · no se puede rechazar.');
-
-  await updateDoc(doc(db, ORDENES_COLLECTION, ocId), {
-    autorizacion: {
-      estado: 'rechazado',
-      firmas: orden.autorizacion?.firmas || [],
-      ...(orden.autorizacion?.solicitadaPor ? { solicitadaPor: orden.autorizacion.solicitadaPor } : {}),
-      rechazadoPor: userId,
-      fechaRechazo: serverTimestamp(),
-      ...(motivo ? { motivoRechazo: motivo } : {}),
-    },
-    ultimaEdicion: serverTimestamp(),
-    editadoPor: userId,
-  });
+  // F2 · el rechazo lo enforza la Cloud Function `rechazarEgreso` (admin SDK · única escritora).
+  void userId; void userRoles;
+  const fn = httpsCallable<{ coleccion: string; docId: string; motivo?: string }, { ok: true }>(functions, 'rechazarEgreso');
+  await fn({ coleccion: ORDENES_COLLECTION, docId: ocId, motivo });
 }

@@ -16,7 +16,7 @@ export function firmarEgreso(
   id: string,
   userId: string,
   userRoles: string[],
-): Promise<{ completa: boolean; faltanFirmas?: number }> {
+): Promise<{ completa: boolean; faltanFirmas?: number; equityFirmado?: number; equityElegible?: number; equityFaltante?: number }> {
   switch (origen) {
     case 'requerimiento':
       return requerimientoService.aprobar(id, userId, userRoles);

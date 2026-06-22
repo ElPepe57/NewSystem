@@ -13,6 +13,7 @@ import {
   writeBatch,
   limit
 } from 'firebase/firestore';
+import { getFunctions, httpsCallable } from 'firebase/functions';
 import { db } from '../lib/firebase';
 import type {
   Gasto,
@@ -35,13 +36,13 @@ import { COLLECTIONS } from '../config/collections';
 import { getNextSequenceNumber } from '../lib/sequenceGenerator';
 import { logBackgroundError } from '../lib/logger';
 import { logger } from '../lib/logger';
-import { requiereAutorizacionSocio, evaluarFirmaSocio } from './autorizacionEgreso.helper';
+import { requiereAutorizacionSocio, type ResultadoAutorizacionCF } from './autorizacionEgreso.helper';
 import { userService } from './user.service';
 import { NotificationService } from './notification.service';
 import { tipoCambioService } from './tipoCambio.service';
-import { delegacionAutorizacionService } from './delegacionAutorizacion.service';
 
 const GASTOS_COLLECTION = COLLECTIONS.GASTOS;
+const functions = getFunctions();
 
 /** F4 · monto USD landed del gasto · base del tramo de autorización (≤$1k directo · >$1k 2 socios). */
 export function montoUSDDeGasto(
@@ -283,56 +284,28 @@ export const gastoService = {
    * como fuente única. Segregación: el creador no firma lo suyo.
    * @param userRoles roles del usuario (debe incluir 'socio').
    */
-  async autorizarGasto(gastoId: string, userId: string, userRoles: string[]): Promise<{ completa: boolean; faltanFirmas?: number }> {
+  async autorizarGasto(gastoId: string, userId: string, userRoles: string[]): Promise<ResultadoAutorizacionCF> {
     try {
-      const gasto = await this.getById(gastoId);
-      if (!gasto) throw new Error('Gasto no encontrado');
-      if (gasto.estado === 'cancelado') throw new Error('No se puede autorizar un gasto cancelado');
+      // F2 · la firma de socio (quórum por equity) la enforza la Cloud Function `autorizarEgreso`
+      // (admin SDK · ÚNICA escritora del campo · el cliente ya no puede forjar la aprobación · ver
+      // functions/src/egresos/autorizarEgreso.ts). `userRoles` ya no se usa acá (la CF lee context.auth).
+      void userRoles;
+      const fn = httpsCallable<{ coleccion: string; docId: string }, ResultadoAutorizacionCF>(functions, 'autorizarEgreso');
+      const { data } = await fn({ coleccion: GASTOS_COLLECTION, docId: gastoId });
 
-      const montoUSDTotal = montoUSDDeGasto(gasto);
-      if (!requiereAutorizacionSocio(montoUSDTotal)) {
-        throw new Error('Este gasto no requiere autorización de socio (≤ umbral · pago directo).');
-      }
-      if (gasto.autorizacion?.estado === 'aprobado') {
-        throw new Error('Este gasto ya está autorizado.');
-      }
-
-      const firmas = gasto.autorizacion?.firmas || [];
-      // F4 · autoridad = socio O delegado vigente (la regla de doble firma se mantiene · pool ampliado).
-      const esSocioODelegado = userRoles.includes('socio') || await delegacionAutorizacionService.tieneAutoridadDelegada(userId, userRoles);
-      const evalFirma = evaluarFirmaSocio({
-        montoUSD: montoUSDTotal,
-        firmas,
-        userId,
-        esSocio: esSocioODelegado,
-        creadorId: gasto.creadoPor,
-      });
-      if (!evalFirma.ok) throw new Error(evalFirma.error || 'No podés autorizar este gasto.');
-
-      // Timestamp.now() (no serverTimestamp): las firmas viven en un array.
-      const nuevasFirmas = [...firmas, { usuarioId: userId, fecha: Timestamp.now() }];
-      await updateDoc(doc(db, GASTOS_COLLECTION, gastoId), {
-        autorizacion: {
-          estado: evalFirma.completa ? 'aprobado' : 'pendiente',
-          firmas: nuevasFirmas,
-          ...(gasto.autorizacion?.solicitadaPor ? { solicitadaPor: gasto.autorizacion.solicitadaPor } : {}),
-          ...(evalFirma.completa ? { fechaAprobacion: Timestamp.now() } : {}),
-        },
-        ultimaEdicion: Timestamp.now(),
-        editadoPor: userId,
-      });
-
-      // Notificar a los OTROS socios (distintos del firmante y del creador) si falta firma.
-      if (!evalFirma.completa) {
+      // Notificar a los OTROS socios si aún falta para la mayoría (preserva comportamiento).
+      if (!data.completa) {
         try {
+          const gasto = await this.getById(gastoId);
+          const montoUSDTotal = gasto ? montoUSDDeGasto(gasto) : 0;
           const socios = await userService.getByRole('socio' as any);
-          const otros = socios.filter(u => u.activo && u.uid !== userId && u.uid !== gasto.creadoPor);
+          const otros = socios.filter(u => u.activo && u.uid !== userId && u.uid !== gasto?.creadoPor);
           for (const socio of otros) {
             await NotificationService.crear({
               tipo: 'aprobacion_pendiente',
               prioridad: 'alta',
-              titulo: `Firma de socio pendiente — ${gasto.numeroGasto}`,
-              mensaje: `Otro socio ya firmó. Falta tu firma para autorizar este gasto de $${montoUSDTotal.toFixed(0)} USD.`,
+              titulo: `Firma de socio pendiente — ${gasto?.numeroGasto || gastoId}`,
+              mensaje: `Otro socio ya firmó. Falta alcanzar la mayoría de socios para autorizar este gasto de $${montoUSDTotal.toFixed(0)} USD.`,
               usuarioId: socio.uid,
               entidadTipo: 'usuario',
               entidadId: gastoId,
@@ -345,7 +318,7 @@ export const gastoService = {
         }
       }
 
-      return { completa: evalFirma.completa, faltanFirmas: evalFirma.faltanFirmas };
+      return data;
     } catch (error: any) {
       logger.error('Error al autorizar gasto:', error);
       throw new Error(error.message || 'Error al autorizar gasto');
@@ -358,24 +331,10 @@ export const gastoService = {
    */
   async rechazarGasto(gastoId: string, userId: string, userRoles: string[], motivo?: string): Promise<void> {
     try {
-      const gasto = await this.getById(gastoId);
-      if (!gasto) throw new Error('Gasto no encontrado');
-      const puedeRechazar = userRoles.includes('socio') || await delegacionAutorizacionService.tieneAutoridadDelegada(userId, userRoles);
-      if (!puedeRechazar) throw new Error('Solo los socios (o sus delegados) pueden rechazar egresos.');
-      if (gasto.autorizacion?.estado === 'aprobado') throw new Error('Este gasto ya está autorizado · no se puede rechazar.');
-
-      await updateDoc(doc(db, GASTOS_COLLECTION, gastoId), {
-        autorizacion: {
-          estado: 'rechazado',
-          firmas: gasto.autorizacion?.firmas || [],
-          ...(gasto.autorizacion?.solicitadaPor ? { solicitadaPor: gasto.autorizacion.solicitadaPor } : {}),
-          rechazadoPor: userId,
-          fechaRechazo: Timestamp.now(),
-          ...(motivo ? { motivoRechazo: motivo } : {}),
-        },
-        ultimaEdicion: Timestamp.now(),
-        editadoPor: userId,
-      });
+      // F2 · el rechazo lo enforza la Cloud Function `rechazarEgreso` (admin SDK · única escritora).
+      void userId; void userRoles;
+      const fn = httpsCallable<{ coleccion: string; docId: string; motivo?: string }, { ok: true }>(functions, 'rechazarEgreso');
+      await fn({ coleccion: GASTOS_COLLECTION, docId: gastoId, motivo });
     } catch (error: any) {
       logger.error('Error al rechazar gasto:', error);
       throw new Error(error.message || 'Error al rechazar gasto');

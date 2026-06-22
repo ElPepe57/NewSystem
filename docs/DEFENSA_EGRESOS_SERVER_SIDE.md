@@ -155,9 +155,16 @@ Modelo **híbrido en 3 capas**, cada una defensa-en-profundidad de la siguiente:
   `functions/scripts/test-autorizarEgreso.cjs` contra el emulador Firestore (`npm run test:egresos`) · **16/16 verdes**:
   segregación · no-socio bloqueado · quórum equity (50% no · 80% sí · 2 firmas persistidas→aprobado) · ya-aprobado ·
   doble-firma · admin override · ≤umbral · monto fail-closed · delegación (carga % del socio) · rechazo · OC + req.
-- ⬜ **F2c · migrar cliente (PENDIENTE · cambia prod):** `gasto.autorizarGasto`/`ordenCompra.autorizarOC`/`requerimiento.aprobar`
-  (+ rechazos) a `httpsCallable` en vez de `updateDoc`. RIPPLE: el contrato de retorno pasa de "faltanFirmas" (conteo) a
-  EQUITY (equityFirmado/equityFaltante) → la bandeja debe mostrar progreso por % de equity, no por nº de firmas.
+- 🔵 **F2c · migrar cliente (EN CURSO):**
+  - ✅ **gasto + OC** (`autorizarGasto`/`autorizarOC` + rechazos) migrados a `httpsCallable('autorizarEgreso'/'rechazarEgreso')`.
+    Imports muertos quitados (evaluarFirmaSocio/delegacion) · notificación a socios preservada · toast equity-aware · build+44 tests+preview OK.
+  - ⬜ **requerimiento** PENDIENTE · WRINKLE: F1 congela `estado→aprobado` para el cliente, pero el req ≤umbral aprueba DIRECTO
+    por autoridad de CARGO (no socio). El CF maneja el req >umbral (socio · verificado) pero THROWS en ≤umbral → falta un camino
+    CARGO-DIRECTO en el CF (chequear permiso `APROBAR_REQUERIMIENTO` + segregación, set estado=aprobado). Decisión latente: ¿req
+    sigue en el sistema socio, o su aprobación es cargo-workflow y el control de dinero vive solo en el pago OC/gasto?
+  - ⬜ **display de equity en la bandeja** PENDIENTE · `egresosPendientesSocio.helper` aún determina estado por nº-de-firmas
+    (latente-impreciso bajo equity · sin data que lo dispare aún) → keyear estado en el `estado` persistido (CF-autoritativo) +
+    barra de progreso por % equity (el hook cargaría socios+%).
 - **Done:** ✅ CF emulador-verificada · ⬜ cliente migrado + bandeja adaptada al modelo de equity.
 - **Rollback fail-CLOSED:** si la CF falla, las aprobaciones quedan **bloqueadas** (no se reabre el
   write directo del cliente). F1+F2 se despliegan **acopladas**.

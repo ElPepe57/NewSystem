@@ -160,9 +160,10 @@ export const MiBandejaPersonal: React.FC<{ embedded?: boolean }> = ({ embedded =
       if (res.completa) {
         toast.success(`${LABEL_ORIGEN[e.origen]} ${e.numero} autorizado`, 'Egreso autorizado');
       } else {
-        toast.warning(
-          `Tu firma fue registrada. Falta ${res.faltanFirmas === 1 ? 'la firma de otro socio' : `${res.faltanFirmas} firmas de socios`} para autorizar.`,
-        );
+        const faltaPct = typeof res.equityFaltante === 'number' && res.equityFaltante > 0
+          ? ` (falta ${res.equityFaltante.toFixed(0)}% de participación para la mayoría)`
+          : '';
+        toast.warning(`Tu firma fue registrada. Falta que más socios alcancen la mayoría para autorizar${faltaPct}.`);
       }
       reloadEgresos();
       useBandejaSignal.getState().bump(); // refresca el badge del sidebar
