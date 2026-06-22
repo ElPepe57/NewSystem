@@ -1080,6 +1080,13 @@ export const requerimientoService = {
       logger.warn('vincularConOC: no se pudo obtener OC para coverage, usando legacy:', error);
     }
 
+    // Blindaje · enforce de aprobación también en el fallback legacy.
+    const reqSnap = await getDoc(doc(db, COLLECTION_NAME, requerimientoId));
+    const estadoReq = reqSnap.data()?.estado as string | undefined;
+    if (!['aprobado', 'parcial', 'en_proceso'].includes(estadoReq || '')) {
+      throw new Error(`Requerimiento ${requerimientoId} sin aprobar (estado: ${estadoReq}) · no puede vincularse a una OC.`);
+    }
+
     // Fallback legacy: marcar como en_proceso
     await updateDoc(doc(db, COLLECTION_NAME, requerimientoId), {
       estado: 'en_proceso',
@@ -1108,6 +1115,13 @@ export const requerimientoService = {
       return;
     }
     const reqData = reqDoc.data() as any;
+
+    // Blindaje · enforce de aprobación en el SERVICIO: no se vincula a OC un requerimiento que no pasó
+    // por aprobación (antes solo lo filtraba la UI · bypass posible vía servicio/API).
+    if (!['aprobado', 'parcial', 'en_proceso'].includes(reqData.estado)) {
+      throw new Error(`Requerimiento ${requerimientoId} sin aprobar (estado: ${reqData.estado}) · no puede vincularse a una OC.`);
+    }
+
     const productos = reqData.productos || [];
 
     // Estado actual de la OC → se stampa en la ref (gate de cobertura §4 · la OC nace borrador = no cuenta aún)
