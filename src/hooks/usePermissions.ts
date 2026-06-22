@@ -66,6 +66,9 @@ export function usePermissions() {
     canViewRequerimientos: userService.hasPermiso(userProfile, PERMISOS.VER_REQUERIMIENTOS),
     canCreateRequerimiento: userService.hasPermiso(userProfile, PERMISOS.CREAR_REQUERIMIENTO),
     canApproveRequerimiento: userService.hasPermiso(userProfile, PERMISOS.APROBAR_REQUERIMIENTO),
+    // F4 · autoridad de aprobación de EGRESOS = SOCIO (dueño). "Pura autoridad del socio": los cargos
+    // (gerente/comprador/admin) crean y operan, pero la firma que libera la plata es del dueño.
+    canApproveEgreso: hasRole(userProfile, 'socio'),
     canViewOC: userService.hasPermiso(userProfile, PERMISOS.VER_ORDENES_COMPRA),
     canCreateOC: userService.hasPermiso(userProfile, PERMISOS.CREAR_OC),
     canReceiveOC: userService.hasPermiso(userProfile, PERMISOS.RECIBIR_OC),

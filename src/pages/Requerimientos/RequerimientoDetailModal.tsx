@@ -106,7 +106,7 @@ export const RequerimientoDetailModal: React.FC<RequerimientoDetailModalProps> =
   onAbrirAsignacion,
   onCancelarCobertura
 }) => {
-  const { canApproveRequerimiento } = usePermissions(); // blindaje · gating del botón Aprobar
+  const { canApproveEgreso } = usePermissions(); // blindaje · gating del botón Aprobar
   if (!requerimiento) return null;
 
   const req = requerimiento;
@@ -460,7 +460,7 @@ export const RequerimientoDetailModal: React.FC<RequerimientoDetailModalProps> =
             </Button>
           )}
 
-          {req.estado === 'pendiente' && canApproveRequerimiento && (
+          {req.estado === 'pendiente' && canApproveEgreso && (
             <Button variant="primary" onClick={() => {
               onAprobar(req);
               onClose();

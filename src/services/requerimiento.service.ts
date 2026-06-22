@@ -519,11 +519,13 @@ export const requerimientoService = {
   },
 
   /**
-   * Aprobar requerimiento con lógica de aprobación dual
-   * - Monto <= $1,000: aprobación directa
-   * - Monto > $1,000: requiere aprobación de gerente Y admin
+   * Autorizar egreso (requerimiento) · F4 · autoridad del SOCIO (dueño).
+   * - Solo los socios firman (los cargos crean/operan, el dueño autoriza la plata).
+   * - El que solicita no firma lo suyo (segregación de funciones).
+   * - Monto landed <= $1,000: 1 firma de socio · > $1,000: 2 socios distintos (doble firma).
+   * @param userRoles roles del usuario (debe incluir 'socio').
    */
-  async aprobar(id: string, userId: string, userRole: string): Promise<{ completa: boolean; pendiente?: 'gerente' | 'admin' }> {
+  async aprobar(id: string, userId: string, userRoles: string[]): Promise<{ completa: boolean; faltanFirmas?: number }> {
     try {
       const requerimiento = await requerimientoService.getById(id);
       if (!requerimiento) {
@@ -534,44 +536,34 @@ export const requerimientoService = {
         throw new Error('Solo se pueden aprobar requerimientos pendientes');
       }
 
-      // Blindaje · Segregación de funciones: el que SOLICITA no aprueba lo suyo. Admin = root (excepción).
+      // F4 · Autoridad de aprobación de egresos = SOCIO (dueño). "Pura autoridad del socio": los cargos
+      // (gerente/comprador/admin) crean y operan, pero la firma que libera la plata es del dueño.
+      if (!userRoles.includes('socio')) {
+        throw new Error('Solo los socios (dueños) pueden autorizar egresos.');
+      }
+
+      // Segregación de funciones: el que SOLICITA no firma lo suyo.
       const creadorId = requerimiento.creadoPor || (requerimiento as any).solicitadoPor;
-      if (creadorId && creadorId === userId && userRole !== 'admin') {
-        throw new Error('No podés aprobar tu propio requerimiento. Debe aprobarlo otra persona con permiso de aprobación.');
+      if (creadorId && creadorId === userId) {
+        throw new Error('No podés autorizar tu propio requerimiento · debe firmarlo otro socio.');
       }
 
       const montoUSD = requerimiento.montoEstimadoUSD || 0;
-      const requiereDual = montoUSD > 1000;
+      // > UMBRAL_APROBACION_DUAL_USD ($1,000 landed) → 2 socios distintos · ≤ → 1 socio.
+      const firmasRequeridas = montoUSD > 1000 ? 2 : 1;
 
-      if (!requiereDual) {
-        // Aprobación directa para montos <= $1,000
-        await requerimientoService.actualizarEstado(id, 'aprobado', userId);
-        return { completa: true };
+      const firmas = requerimiento.aprobaciones?.firmas || [];
+      if (firmas.some(f => f.usuarioId === userId)) {
+        throw new Error('Ya firmaste este requerimiento.');
       }
+      // Timestamp.now() (no serverTimestamp): va dentro de un array · Firestore no permite sentinels ahí.
+      const nuevasFirmas = [...firmas, { usuarioId: userId, fecha: Timestamp.now() }];
 
-      // Aprobación dual: verificar rol y registrar firma
-      const aprobaciones = requerimiento.aprobaciones || {};
-      const rolAprobacion = userRole === 'admin' ? 'admin' : 'gerente';
-
-      if (rolAprobacion !== 'admin' && rolAprobacion !== 'gerente') {
-        throw new Error('Solo gerentes y administradores pueden aprobar requerimientos > $1,000');
-      }
-
-      // Registrar esta aprobación
-      aprobaciones[rolAprobacion] = {
-        aprobadoPor: userId,
-        fecha: serverTimestamp() as any,
-      };
-
-      // Verificar si ambas firmas están
-      const tieneGerente = !!aprobaciones.gerente;
-      const tieneAdmin = !!aprobaciones.admin;
-
-      if (tieneGerente && tieneAdmin) {
-        // Ambas firmas: aprobar completamente
+      if (nuevasFirmas.length >= firmasRequeridas) {
+        // Firmas de socios completas → autorizado.
         await updateDoc(doc(db, COLLECTION_NAME, id), {
           estado: 'aprobado',
-          aprobaciones,
+          aprobaciones: { firmas: nuevasFirmas },
           aprobadoPor: userId,
           fechaAprobacion: serverTimestamp(),
           ultimaEdicion: serverTimestamp(),
@@ -580,55 +572,47 @@ export const requerimientoService = {
 
         actividadService.registrar({
           tipo: 'requerimiento_aprobado',
-          mensaje: `Requerimiento ${id} aprobado (dual)`,
+          mensaje: `Requerimiento ${id} autorizado por socio${firmasRequeridas > 1 ? 's (doble firma)' : ''}`,
           userId,
           displayName: userId,
           metadata: { entidadId: id, entidadTipo: 'requerimiento' }
         }).catch(() => {});
 
         return { completa: true };
-      } else {
-        // Falta una firma: marcar como pendiente_aprobacion
-        const pendiente = !tieneGerente ? 'gerente' : 'admin';
-        await updateDoc(doc(db, COLLECTION_NAME, id), {
-          estado: 'pendiente_aprobacion',
-          aprobaciones,
-          requiereAprobacionDual: true,
-          ultimaEdicion: serverTimestamp(),
-          editadoPor: userId,
-        });
-
-        // Notificar al rol pendiente
-        try {
-          const rolPendienteLabel = pendiente === 'admin' ? 'Administrador' : 'Gerente';
-          const rolFirmoLabel = pendiente === 'admin' ? 'Gerente' : 'Administrador';
-          const usuarios = await userService.getByRole(pendiente as any);
-          const activos = usuarios.filter(u => u.activo);
-
-          for (const usuario of activos) {
-            await NotificationService.crear({
-              tipo: 'aprobacion_pendiente',
-              prioridad: 'alta',
-              titulo: `Firma pendiente — ${requerimiento.numeroRequerimiento || id}`,
-              mensaje: `${rolFirmoLabel} ya firmó. Falta tu firma como ${rolPendienteLabel} para aprobar este requerimiento de $${(montoUSD || 0).toFixed(0)} USD.`,
-              usuarioId: usuario.uid,
-              requerimientoId: id,
-              entidadTipo: 'usuario',
-              entidadId: id,
-              creadoPor: 'sistema',
-              metadata: {
-                montoUSD,
-                rolPendiente: pendiente,
-                rolFirmo: rolAprobacion,
-              },
-            });
-          }
-        } catch (notifError) {
-          logger.warn('Error al enviar notificación de aprobación dual:', notifError);
-        }
-
-        return { completa: false, pendiente };
       }
+
+      // Falta la firma de otro socio → pendiente_aprobacion.
+      await updateDoc(doc(db, COLLECTION_NAME, id), {
+        estado: 'pendiente_aprobacion',
+        aprobaciones: { firmas: nuevasFirmas },
+        requiereAprobacionDual: true,
+        ultimaEdicion: serverTimestamp(),
+        editadoPor: userId,
+      });
+
+      // Notificar a los OTROS socios (distintos del firmante y del creador).
+      try {
+        const socios = await userService.getByRole('socio' as any);
+        const otrosSocios = socios.filter(u => u.activo && u.uid !== userId && u.uid !== creadorId);
+        for (const socio of otrosSocios) {
+          await NotificationService.crear({
+            tipo: 'aprobacion_pendiente',
+            prioridad: 'alta',
+            titulo: `Firma de socio pendiente — ${requerimiento.numeroRequerimiento || id}`,
+            mensaje: `Otro socio ya firmó. Falta tu firma para autorizar este egreso de $${(montoUSD || 0).toFixed(0)} USD.`,
+            usuarioId: socio.uid,
+            requerimientoId: id,
+            entidadTipo: 'usuario',
+            entidadId: id,
+            creadoPor: 'sistema',
+            metadata: { montoUSD },
+          });
+        }
+      } catch (notifError) {
+        logger.warn('Error al enviar notificación de aprobación de socio:', notifError);
+      }
+
+      return { completa: false, faltanFirmas: firmasRequeridas - nuevasFirmas.length };
     } catch (error: any) {
       logger.error('Error al aprobar requerimiento:', error);
       throw new Error(error.message || 'Error al aprobar requerimiento');

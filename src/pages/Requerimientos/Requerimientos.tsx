@@ -28,7 +28,7 @@ import { tipoCambioService } from '../../services/tipoCambio.service';
 import { useAuthStore } from '../../store/authStore';
 import { useToastStore } from '../../store/toastStore';
 import { useLineaFilter } from '../../hooks/useLineaFilter';
-import { hasRole, getRolPrincipal } from '../../types/auth.types';
+import { hasRole, getUserRoles } from '../../types/auth.types';
 import { usePermissions } from '../../hooks/usePermissions';
 import type {
   Requerimiento,
@@ -78,7 +78,7 @@ export const Requerimientos: React.FC = () => {
   // Vista · tab activa del hub (Resumen default · canon hub)
   const [tabActiva, setTabActiva] = useState<'resumen' | 'tablero' | 'pendientes'>('resumen');
   const esAdmin = hasRole(userProfile, 'admin'); // canon "admin ve todo" · chip contextual al rol
-  const { canApproveRequerimiento } = usePermissions(); // blindaje · solo APROBAR_REQUERIMIENTO aprueba
+  const { canApproveEgreso } = usePermissions(); // F4 · solo SOCIOS (dueños) autorizan egresos
 
   // Modales
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -415,19 +415,20 @@ export const Requerimientos: React.FC = () => {
 
   const handleAprobar = async (req: Requerimiento) => {
     if (!user || !userProfile) return;
-    // Blindaje · gating por permiso: ventas (sin APROBAR_REQUERIMIENTO) no puede aprobar.
-    if (!canApproveRequerimiento) {
-      toast.error('No tenés permiso para aprobar requerimientos.');
+    // F4 · gating: solo los socios (dueños) autorizan egresos.
+    if (!canApproveEgreso) {
+      toast.error('Solo los socios (dueños) pueden autorizar egresos.');
       return;
     }
     try {
-      const result = await requerimientoService.aprobar(req.id, user.uid, getRolPrincipal(userProfile) || userProfile.role);
+      const result = await requerimientoService.aprobar(req.id, user.uid, getUserRoles(userProfile));
 
       if (result.completa) {
-        toast.success('Requerimiento aprobado');
+        toast.success('Egreso autorizado');
       } else {
-        const rolPendiente = result.pendiente === 'admin' ? 'Administrador' : 'Gerente General';
-        toast.warning(`Tu firma fue registrada. Falta la firma del ${rolPendiente} para completar la aprobación.`);
+        toast.warning(
+          `Tu firma fue registrada. Falta ${result.faltanFirmas === 1 ? 'la firma de otro socio' : `${result.faltanFirmas} firmas de socios`} para autorizar.`
+        );
       }
       loadData();
     } catch (error: any) {

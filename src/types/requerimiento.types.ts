@@ -276,7 +276,12 @@ export interface Requerimiento {
   // Aprobación dual (para montos > UMBRAL_APROBACION_DUAL_USD)
   requiereAprobacionDual?: boolean;
   aprobaciones?: {
+    // F4 · firmas de SOCIOS (dueños) · autoridad de aprobación de egresos (pura autoridad del socio ·
+    // ≤ umbral = 1 socio · > umbral = 2 socios distintos). Reemplaza los role-slots gerente/admin.
+    firmas?: { usuarioId: string; nombre?: string; fecha: Timestamp }[];
+    /** @deprecated F4 · role-slots legacy · reemplazados por firmas[] de socios. */
     gerente?: { aprobadoPor: string; fecha: Timestamp };
+    /** @deprecated F4 · role-slots legacy · reemplazados por firmas[] de socios. */
     admin?: { aprobadoPor: string; fecha: Timestamp };
   };
   montoEstimadoUSD?: number;
