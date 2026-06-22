@@ -17,6 +17,7 @@ import {
 import { Card, useConfirmDialog, ConfirmDialog, ListSummary, EmptyStateAction, GastosSkeleton } from '../../components/common';
 import { LineaDropdown } from '../../components/common/LineaDropdown';
 import { useToastStore } from '../../store/toastStore';
+import { useBandejaSignal } from '../../store/bandejaSignalStore';
 import { useGastoStore } from '../../store/gastoStore';
 import { useAuthStore } from '../../store/authStore';
 import { hasRole, getUserRoles } from '../../types/auth.types';
@@ -629,6 +630,7 @@ export const Gastos: React.FC = () => {
           `Tu firma fue registrada. Falta ${res.faltanFirmas === 1 ? 'la firma de otro socio' : `${res.faltanFirmas} firmas de socios`} para autorizar.`
         );
       }
+      useBandejaSignal.getState().bump(); // refresca el badge del sidebar
     } catch (error: any) {
       toast.error(error.message, 'Error al autorizar');
     }

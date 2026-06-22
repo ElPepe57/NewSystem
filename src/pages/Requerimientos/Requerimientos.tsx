@@ -30,6 +30,7 @@ import { useToastStore } from '../../store/toastStore';
 import { useLineaFilter } from '../../hooks/useLineaFilter';
 import { hasRole, getUserRoles } from '../../types/auth.types';
 import { usePermissions } from '../../hooks/usePermissions';
+import { useBandejaSignal } from '../../store/bandejaSignalStore';
 import type {
   Requerimiento,
   RequerimientoFormData
@@ -436,6 +437,7 @@ export const Requerimientos: React.FC = () => {
         );
       }
       loadData();
+      useBandejaSignal.getState().bump(); // refresca el badge del sidebar
     } catch (error: any) {
       console.error('Error al aprobar:', error);
       toast.error(error.message || 'Error al aprobar el requerimiento');

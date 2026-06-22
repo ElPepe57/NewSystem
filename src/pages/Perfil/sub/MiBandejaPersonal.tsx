@@ -39,6 +39,7 @@ import { useToastStore } from '../../../store/toastStore';
 import { getUserRoles } from '../../../types/auth.types';
 import { useEgresosPendientesSocio, type EgresoPendienteConAccion } from '../../../hooks/useEgresosPendientesSocio';
 import { firmarEgreso } from '../../../services/firmarEgreso.service';
+import { useBandejaSignal } from '../../../store/bandejaSignalStore';
 import { chipFirma, LABEL_ORIGEN, type OrigenEgreso } from '../../../services/egresosPendientesSocio.helper';
 import { BackArrowHeader } from '../../../components/common/BackArrowHeader';
 import {
@@ -112,6 +113,7 @@ export const MiBandejaPersonal: React.FC = () => {
         );
       }
       reloadEgresos();
+      useBandejaSignal.getState().bump(); // refresca el badge del sidebar
     } catch (error: any) {
       toast.error(error.message, 'Error al firmar');
     }

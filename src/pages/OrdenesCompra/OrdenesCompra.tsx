@@ -8,6 +8,7 @@ import { LineaDropdown } from '../../components/common/LineaDropdown';
 import { HubShell, HubTopBar, HubHeader, HubKpiStrip, HubTabs, HubBody, HubCard, FiltrosBar, BulkActionsToolbar } from '../../design-system';
 import type { StatusVariant, HubTab, HubKpi } from '../../design-system';
 import { useToastStore } from '../../store/toastStore';
+import { useBandejaSignal } from '../../store/bandejaSignalStore';
 // S53.9 — OrdenCompraForm + OrdenCompraTable ELIMINADOS (legacy).
 // Toda la creacion/edicion de OC pasa por OCWizardV3. Lista en tarjetas unicamente.
 import { OrdenCompraCard } from '../../components/modules/ordenCompra/OrdenCompraCard';
@@ -247,6 +248,7 @@ export const OrdenesCompra: React.FC = () => {
           `Tu firma fue registrada. Falta ${res.faltanFirmas === 1 ? 'la firma de otro socio' : `${res.faltanFirmas} firmas de socios`} para autorizar.`
         );
       }
+      useBandejaSignal.getState().bump(); // refresca el badge del sidebar
     } catch (error: any) {
       toast.error(error.message, 'Error al autorizar');
     }

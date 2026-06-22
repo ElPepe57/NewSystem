@@ -29,6 +29,7 @@ import {
   ShieldCheck,
 } from 'lucide-react';
 import { usePermissions } from './usePermissions';
+import { useBandejaSignal } from '../store/bandejaSignalStore';
 import {
   collection,
   doc,
@@ -67,6 +68,8 @@ export function useMiEspacioItems(): {
   loading: boolean;
 } {
   const { profile, isSocio, canManageUsers } = usePermissions();
+  // F4 · señal de re-fetch del badge tras una firma (no es reactivo · ver bandejaSignalStore).
+  const bandejaVersion = useBandejaSignal((s) => s.version);
   const [hasDatosLaborales, setHasDatosLaborales] = useState<boolean | null>(null);
   const [bandejaCount, setBandejaCount] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(true);
@@ -143,7 +146,7 @@ export function useMiEspacioItems(): {
     return () => {
       cancelled = true;
     };
-  }, [canManageUsers, isSocio, profile?.uid]);
+  }, [canManageUsers, isSocio, profile?.uid, bandejaVersion]);
 
   // Construir items según contexto
   const items = useMemo<MiEspacioItem[]>(() => {
