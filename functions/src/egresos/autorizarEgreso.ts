@@ -31,6 +31,7 @@ import {
 const COLECCIONES_VALIDAS: string[] = [
   COLLECTIONS.GASTOS,
   COLLECTIONS.ORDENES_COMPRA,
+  COLLECTIONS.RETIROS_CAPITAL, // F3c · retiro de socio >$1k · quórum por equity (autorización standalone)
 ];
 
 type Code = functions.https.FunctionsErrorCode;
@@ -87,6 +88,11 @@ function montoDelEgreso(coleccion: string, data: admin.firestore.DocumentData): 
     });
   } else if (coleccion === COLLECTIONS.ORDENES_COMPRA) {
     m = Number(data.totalUSD ?? 0);
+  } else if (coleccion === COLLECTIONS.RETIROS_CAPITAL) {
+    // F3c · el retiro lleva monto/moneda/tipoCambio (no totalUSD/montoUSD) · recomputar el USD landed.
+    const monto = Number(data.monto ?? 0);
+    const tc = Number(data.tipoCambio ?? 0);
+    m = data.moneda === "USD" ? monto : tc > 0 ? monto / tc : 0;
   } else {
     m = Number(data.montoEstimadoUSD ?? 0);
   }

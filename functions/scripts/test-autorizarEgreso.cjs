@@ -99,6 +99,14 @@ async function main() {
   const roc2 = await autorizarEgresoCore(db, { coleccion: "ordenesCompra", docId: "oc1", uid: "B" });
   ok("OC: A+B(80%) completa → autorizacion aprobada", roc2.completa === true && (await db.collection("ordenesCompra").doc("oc1").get()).data().autorizacion.estado === "aprobado");
 
+  console.log("\n=== F3c · RETIRO DE SOCIO (autorización standalone · mismo quórum de equity) ===");
+  await db.collection("retirosCapital").doc("ret1").set({ monto: 5000, moneda: "USD", tipoCambio: 3.7, creadoPor: "vend", autorizacion: { estado: "pendiente", firmas: [] } });
+  await autorizarEgresoCore(db, { coleccion: "retirosCapital", docId: "ret1", uid: "A" });
+  const rret = await autorizarEgresoCore(db, { coleccion: "retirosCapital", docId: "ret1", uid: "B" });
+  ok("Retiro >$1k: A+B(80%) completa → autorizacion aprobada", rret.completa === true && (await db.collection("retirosCapital").doc("ret1").get()).data().autorizacion.estado === "aprobado");
+  await db.collection("retirosCapital").doc("ret2").set({ monto: 500, moneda: "USD", tipoCambio: 3.7, creadoPor: "vend", autorizacion: { estado: "pendiente", firmas: [] } });
+  await expectThrow("Retiro ≤$1k → no requiere socio (directo)", () => autorizarEgresoCore(db, { coleccion: "retirosCapital", docId: "ret2", uid: "A" }), "no requiere");
+
   console.log(`\n=== RESULTADO: ${pass} pass · ${fail} fail ===\n`);
   if (fail > 0) process.exit(1);
 }
