@@ -20,7 +20,7 @@ function err(code: Code, msg: string): functions.https.HttpsError {
   return new functions.https.HttpsError(code, msg);
 }
 
-type RefTipo = "oc" | "gasto";
+type RefTipo = "oc" | "gasto" | "envio";
 type Moneda = "USD" | "PEN";
 
 export interface RegistrarEgresoCashInput {
@@ -50,6 +50,7 @@ export interface RegistrarEgresoCashResult {
 const COL_EGRESO: Record<RefTipo, string> = {
   oc: COLLECTIONS.ORDENES_COMPRA,
   gasto: COLLECTIONS.GASTOS,
+  envio: COLLECTIONS.ENVIOS, // F3c · pago de flete · el monto USD = costoFleteTotal del envío
 };
 
 /** Monto USD landed del egreso referenciado (recomputado · no se confía en el input). null = no resoluble. */
@@ -62,6 +63,9 @@ function montoUSDDelEgreso(tipo: RefTipo, data: admin.firestore.DocumentData): n
       montoPEN: Number(data.montoPEN ?? 0),
       tipoCambio: data.tipoCambio,
     });
+  } else if (tipo === "envio") {
+    // F3c · el flete (costoFleteTotal) se trata como USD por convención del negocio.
+    m = Number(data.costoFleteTotal ?? 0);
   } else {
     m = Number(data.totalUSD ?? 0);
   }

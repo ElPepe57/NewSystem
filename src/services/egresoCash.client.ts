@@ -14,7 +14,7 @@ import { getFunctions, httpsCallable } from 'firebase/functions';
 const functions = getFunctions();
 
 export interface EgresoCashInput {
-  refDocumentoTipo: 'oc' | 'gasto';
+  refDocumentoTipo: 'oc' | 'gasto' | 'envio';
   refDocumentoId: string;
   refDocumentoNumero?: string;
   categoria: string;
@@ -83,7 +83,7 @@ export interface EgresoCashLoteInput {
   metodo?: string;
   referencia?: string;
   notas?: string;
-  refs: { tipo: 'oc' | 'gasto'; id: string; montoAplicadoUSD: number }[];
+  refs: { tipo: 'oc' | 'gasto' | 'envio'; id: string; montoAplicadoUSD: number }[];
 }
 
 /** F3 · registra el cash de un pago MASIVO (lote · cubre N egresos) vía la CF · valida cada ref aprobado. */

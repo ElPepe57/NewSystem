@@ -32,6 +32,7 @@ const COLECCIONES_VALIDAS: string[] = [
   COLLECTIONS.GASTOS,
   COLLECTIONS.ORDENES_COMPRA,
   COLLECTIONS.RETIROS_CAPITAL, // F3c · retiro de socio >$1k · quórum por equity (autorización standalone)
+  COLLECTIONS.ENVIOS, // F3c · pago de flete >$1k · egreso referenciado (autorizacion en el doc · como gasto/OC)
 ];
 
 type Code = functions.https.FunctionsErrorCode;
@@ -93,6 +94,9 @@ function montoDelEgreso(coleccion: string, data: admin.firestore.DocumentData): 
     const monto = Number(data.monto ?? 0);
     const tc = Number(data.tipoCambio ?? 0);
     m = data.moneda === "USD" ? monto : tc > 0 ? monto / tc : 0;
+  } else if (coleccion === COLLECTIONS.ENVIOS) {
+    // F3c · el flete del envío (costoFleteTotal) se trata como USD por convención del negocio.
+    m = Number(data.costoFleteTotal ?? 0);
   } else {
     m = Number(data.montoEstimadoUSD ?? 0);
   }

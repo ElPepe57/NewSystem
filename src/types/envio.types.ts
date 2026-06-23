@@ -349,6 +349,19 @@ export interface Envio {
   monedaFlete?: 'USD' | 'PEN';
   costoFletePorLibra?: number;
 
+  // F3c · autorización de socio del pago de flete (egreso referenciado · modelo gasto/OC · quórum por
+  // equity si el flete supera el umbral · la escribe la CF autorizarEgreso · el cliente NO la forja).
+  autorizacion?: {
+    estado: 'pendiente' | 'aprobado' | 'rechazado';
+    firmas: { usuarioId: string; nombre?: string; fecha: Timestamp }[];
+    solicitadaPor?: string;
+    fechaSolicitud?: Timestamp;
+    fechaAprobacion?: Timestamp;
+    rechazadoPor?: string;
+    motivoRechazo?: string;
+    fechaRechazo?: Timestamp;
+  };
+
   // ── Pago al colaborador (viajero/courier) — denormalizado · derivado de CC ──
   // S55 Fase 4: la fuente de verdad es la Cuenta Corriente del colaborador.
   // Estos campos se actualizan al registrar pagos via `registrarPagoColaborador`.

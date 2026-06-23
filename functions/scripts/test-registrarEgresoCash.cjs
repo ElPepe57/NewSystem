@@ -66,6 +66,17 @@ async function main() {
   const r7 = await registrarEgresoCashCore(db, input({ refDocumentoTipo: "oc", refDocumentoId: "oc-aprob", categoria: "pago_orden_compra", monto: 1000, idempotencyKey: "k-oc" }), "f");
   ok("OC aprobada → desembolsa (otra colección)", !!r7.movimientoId);
 
+  // F3c · envío (flete · refTipo='envio' · monto USD = costoFleteTotal)
+  const seedEnvio = (id, over) => db.collection("envios").doc(id).set({ costoFleteTotal: 2000, autorizacion: { estado: "aprobado", firmas: [] }, ...over });
+  await seedEnvio("env-aprob", { autorizacion: { estado: "aprobado", firmas: [] } });
+  const re1 = await registrarEgresoCashCore(db, input({ refDocumentoTipo: "envio", refDocumentoId: "env-aprob", categoria: "pago_viajero", monto: 2000, idempotencyKey: "k-env" }), "f");
+  ok("envío >$1k APROBADO → desembolsa el flete", !!re1.movimientoId);
+  await seedEnvio("env-pend", { autorizacion: { estado: "pendiente", firmas: [] } });
+  await expectThrow("envío >$1k NO aprobado → bloqueado", () => registrarEgresoCashCore(db, input({ refDocumentoTipo: "envio", refDocumentoId: "env-pend", categoria: "pago_viajero", monto: 2000, idempotencyKey: "k-env2" }), "f"), "no está autorizado");
+  await seedEnvio("env-chico", { costoFleteTotal: 500, autorizacion: { estado: "pendiente", firmas: [] } });
+  const re3 = await registrarEgresoCashCore(db, input({ refDocumentoTipo: "envio", refDocumentoId: "env-chico", categoria: "pago_viajero", monto: 500, idempotencyKey: "k-env3" }), "f");
+  ok("envío ≤$1k → directo sin firma", !!re3.movimientoId);
+
   await seedProducto("caja-pen", { moneda: "PEN" });
   await expectThrow("moneda del pago ≠ cuenta (mono) → DENY", () => registrarEgresoCashCore(db, input({ refDocumentoId: "g-aprob", productoOrigenId: "caja-pen", moneda: "USD", idempotencyKey: "k-mon" }), "f"), "no coincide");
 

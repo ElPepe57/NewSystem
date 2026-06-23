@@ -107,6 +107,14 @@ async function main() {
   await db.collection("retirosCapital").doc("ret2").set({ monto: 500, moneda: "USD", tipoCambio: 3.7, creadoPor: "vend", autorizacion: { estado: "pendiente", firmas: [] } });
   await expectThrow("Retiro ≤$1k → no requiere socio (directo)", () => autorizarEgresoCore(db, { coleccion: "retirosCapital", docId: "ret2", uid: "A" }), "no requiere");
 
+  console.log("\n=== F3c · ENVÍO (flete · egreso referenciado · mismo quórum de equity) ===");
+  await db.collection("envios").doc("env1").set({ costoFleteTotal: 2000, creadoPor: "vend", autorizacion: { estado: "pendiente", firmas: [] } });
+  await autorizarEgresoCore(db, { coleccion: "envios", docId: "env1", uid: "A" });
+  const renv = await autorizarEgresoCore(db, { coleccion: "envios", docId: "env1", uid: "B" });
+  ok("Envío flete >$1k: A+B(80%) completa → autorizacion aprobada", renv.completa === true && (await db.collection("envios").doc("env1").get()).data().autorizacion.estado === "aprobado");
+  await db.collection("envios").doc("env2").set({ costoFleteTotal: 500, creadoPor: "vend", autorizacion: { estado: "pendiente", firmas: [] } });
+  await expectThrow("Envío flete ≤$1k → no requiere socio", () => autorizarEgresoCore(db, { coleccion: "envios", docId: "env2", uid: "A" }), "no requiere");
+
   console.log(`\n=== RESULTADO: ${pass} pass · ${fail} fail ===\n`);
   if (fail > 0) process.exit(1);
 }
