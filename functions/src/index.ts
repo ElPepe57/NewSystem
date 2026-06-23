@@ -81,6 +81,11 @@ export { generarDescripcionProducto } from "./productos/generarDescripcionProduc
 export { autorizarEgreso, rechazarEgreso } from "./egresos/autorizarEgreso";
 
 // ============================================================
+// EGRESOS — Cash ledger gate (F3 · única escritora del cash de egreso referenciado)
+// ============================================================
+export { registrarEgresoCash } from "./egresos/registrarEgresoCash";
+
+// ============================================================
 // chk5.F4-USERS (2026-05-25) · MÓDULO /usuarios completo
 // 10 Cloud Functions · invitaciones · signup · aprobación · sesiones · cron
 // ============================================================

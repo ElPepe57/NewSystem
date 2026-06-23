@@ -13,7 +13,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:rules": "firebase emulators:exec --only firestore --project demo-rules \"vitest run --config vitest.rules.config.ts\"",
-    "test:egresos": "npm --prefix functions run build && firebase emulators:exec --only firestore --project demo-rules \"node functions/scripts/test-autorizarEgreso.cjs\"",
+    "test:egresos": "npm --prefix functions run build && firebase emulators:exec --only firestore --project demo-rules \"node functions/scripts/test-autorizarEgreso.cjs && node functions/scripts/test-registrarEgresoCash.cjs\"",
     "emulators": "npx firebase emulators:start --only auth,firestore,storage",
     "emulators:seed": "node scripts/seed-test-data.mjs",
     "test:entregas": "start /B npx firebase emulators:start --only auth,firestore,storage && timeout /T 5 && vite --mode test",
