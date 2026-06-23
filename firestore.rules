@@ -87,6 +87,14 @@ service cloud.firestore {
              && request.resource.data.get('moneda', '') == resource.data.get('moneda', '')
              && request.resource.data.get('tipoCambio', 0) == resource.data.get('tipoCambio', 0) );
     }
+    // F3c · análogo para el flete del envío: una vez que la firma de socio arrancó, costoFleteTotal queda
+    // CONGELADO para el cliente (evita aprobar un flete barato y luego inflarlo antes de pagarlo).
+    function fleteCongeladoSiAutorizando() {
+      let auth = resource.data.get('autorizacion', {});
+      let enProceso = auth.get('estado', '') == 'aprobado' || auth.get('firmas', []).size() > 0;
+      return !enProceso
+        || request.resource.data.get('costoFleteTotal', 0) == resource.data.get('costoFleteTotal', 0);
+    }
     // `creadoPor` es inmutable post-create (segregación · evita re-asignar el creador).
     function creadoPorIntacto() {
       return request.resource.data.get('creadoPor', '') == resource.data.get('creadoPor', '');
@@ -246,7 +254,17 @@ service cloud.firestore {
 
     match /envios/{docId} {
       allow read: if isActiveUser();
-      allow write: if hasAnyRole(['admin', 'gerente', 'almacenero', 'comprador']);
+      // F3c · el flete del envío es un egreso referenciado (autorizacion en el doc · como gasto/OC). El
+      // cliente NO nace/forja autorizacion='aprobado' (la firma de socio la escribe la CF autorizarEgreso) y
+      // el flete queda congelado una vez que la firma arrancó. NO se pinea creadoPor (los envíos se
+      // auto-crean desde la confirmación de OC · distinto a gasto/OC creados por el usuario).
+      allow create: if hasAnyRole(['admin', 'gerente', 'almacenero', 'comprador'])
+                    && ( !('autorizacion' in request.resource.data)
+                         || request.resource.data.autorizacion.get('estado', '') != 'aprobado' );
+      allow update: if isAdmin()
+                    || ( hasAnyRole(['admin', 'gerente', 'almacenero', 'comprador'])
+                         && autorizacionIntacta() && fleteCongeladoSiAutorizando() );
+      allow delete: if hasAnyRole(['admin', 'gerente', 'almacenero', 'comprador']);
     }
 
     // === Reingenieria: Costos y Finanzas ===
@@ -806,12 +824,14 @@ service cloud.firestore {
       // la Cloud Function registrarEgresoCash (admin SDK · ignora estas reglas) tras validar la aprobación.
       // Se gatea por CATEGORÍA (no por refDocumentoTipo) para atrapar el pago MASIVO (agregado · sin ref).
       // El cliente sí crea ingresos (cobros), conversiones, transferencias internas.
-      // F3c · defensa-en-profundidad: se cierran también las categorías sin-ref de egreso que NO tienen un
-      // flujo legítimo en este libro (el retiro vive en movimientosTesoreria · nómina/adelanto/ajuste no
-      // escriben acá). reembolso_cliente y pago_viajero (envío) SÍ tienen flujo real → se migran aparte.
+      // F3c · se cierra también pago_viajero (flete de envío): sus 3 escritores (envio.pagos individual +
+      // reconciliar + pagoAbonoDistribuido masivo) ya pasan por la CF registrarEgresoCash[Lote] (refTipo
+      // 'envio'). Y por defensa-en-profundidad las categorías sin-ref sin flujo real en este libro (el retiro
+      // vive en movimientosTesoreria · nómina/adelanto/ajuste no escriben acá). reembolso_cliente sigue ABIERTO
+      // (flujo real · gate de aprobación pendiente · migración aparte).
       allow create: if hasAnyRole(['admin', 'gerente', 'finanzas'])
                     && !( request.resource.data.get('categoria', '') in
-                          ['gasto_operativo', 'pago_orden_compra', 'retiro_socio', 'pago_nomina', 'adelanto_empleado', 'ajuste_negativo'] );
+                          ['gasto_operativo', 'pago_orden_compra', 'pago_viajero', 'retiro_socio', 'pago_nomina', 'adelanto_empleado', 'ajuste_negativo'] );
       allow update: if hasAnyRole(['admin', 'gerente', 'finanzas']);
       allow delete: if false;
     }

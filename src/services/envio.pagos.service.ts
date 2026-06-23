@@ -115,7 +115,33 @@ export const envioPagosService = {
     if (referencia) nuevoPago.referencia = referencia;
     if (notas) nuevoPago.notas = notas;
 
-    // S55 Fase 4 — Solo actualiza denormalizados del envío.
+    // ========== F3c · CASH DEL FLETE VÍA LA CF (gateada) ==========
+    // El cash lo escribe la CF registrarEgresoCash (admin SDK · única escritora): exige la autorización del
+    // envío APROBADA si el flete >$1k (≤$1k directo). Va ANTES del update denormalizado: si la CF rechaza
+    // (envío no autorizado / monto excede / cancelado) LANZA y el envío NO queda marcado como pagado.
+    // Requiere cuenta de origen (la CF mueve su saldo · ya no se permite el pago "sin cuenta" del path legacy).
+    if (!cuentaOrigenId) throw new Error('Seleccioná la cuenta de origen del pago del flete.');
+    const { registrarEgresoCashFn } = await import('./egresoCash.client');
+    const { movimientoId } = await registrarEgresoCashFn({
+      refDocumentoTipo: 'envio',
+      refDocumentoId: envioId,
+      refDocumentoNumero: envio.numeroEnvio,
+      categoria: 'pago_viajero',
+      productoOrigenId: cuentaOrigenId,
+      moneda: monedaPago,
+      monto: montoOriginal,
+      tipoCambio,
+      concepto: `Pago ${esPagoCompleto ? '' : 'parcial '}flete ${envio.numeroEnvio} - Colaborador: ${envio.colaboradorNombre || 'Sin nombre'}`,
+      fecha: fechaPago,
+      metodo: metodoPago,
+      referencia,
+      notas: notas || `Envio ${envio.numeroEnvio}. ${monedaPago === 'USD' ? `aprox. S/ ${montoPEN.toFixed(2)}` : `aprox. $${montoUSD.toFixed(2)} USD`}`,
+    });
+    const movimientoTesoreriaId: string | undefined = movimientoId;
+    nuevoPago.movimientoTesoreriaId = movimientoTesoreriaId;
+    logger.success(`Pago colaborador registrado (CF): ${monedaPago} ${montoOriginal} para ${envio.numeroEnvio}`);
+
+    // S55 Fase 4 — denormalizados del envío (DESPUÉS del cash · si el cash falló, ya lanzó arriba).
     await updateDoc(ref, {
       estadoPagoColaborador: nuevoEstado,
       montoPagadoUSD: nuevoMontoPagadoUSD,
@@ -123,39 +149,6 @@ export const envioPagosService = {
       actualizadoPor: userId,
       fechaActualizacion: Timestamp.now(),
     });
-
-    // ========== REGISTRAR EN LIBRO MAYOR FINANCIERO (F4a · ADR-PF-001) ==========
-    let movimientoTesoreriaId: string | undefined;
-    try {
-      const { registrarMovimientoFinanciero } = await import(
-        './movimientoFinanciero.service'
-      );
-      movimientoTesoreriaId = await registrarMovimientoFinanciero(
-        {
-          categoria: 'pago_viajero',
-          moneda: monedaPago,
-          monto: montoOriginal,
-          tipoCambio,
-          metodo: metodoPago,
-          concepto: `Pago ${esPagoCompleto ? '' : 'parcial '}flete ${envio.numeroEnvio} - Colaborador: ${envio.colaboradorNombre || 'Sin nombre'}`,
-          notas: notas || `Envio ${envio.numeroEnvio}. ${monedaPago === 'USD' ? `aprox. S/ ${montoPEN.toFixed(2)}` : `aprox. $${montoUSD.toFixed(2)} USD`}`,
-          fecha: fechaPago,
-          referencia,
-          productoOrigenId: cuentaOrigenId,
-          refDocumentoTipo: 'envio',
-          refDocumentoId: envioId,
-          refDocumentoNumero: envio.numeroEnvio,
-        },
-        userId,
-      );
-      nuevoPago.movimientoTesoreriaId = movimientoTesoreriaId;
-
-      logger.success(`Pago colaborador registrado en libro mayor: ${monedaPago} ${montoOriginal} para ${envio.numeroEnvio}`);
-    } catch (tesoreriaError) {
-      logger.error('Error registrando pago colaborador en libro mayor:', tesoreriaError);
-      nuevoPago.errorTesoreria = true;
-      nuevoPago.errorTesoreriaMsg = tesoreriaError instanceof Error ? tesoreriaError.message : 'Error desconocido';
-    }
 
     // S55 Fase 4 — Crear movimiento `credito_pago_envio` en CC del colaborador.
     // No bloqueante: si falla, el pago queda registrado y se puede ajustar manual.
@@ -227,28 +220,24 @@ export const envioPagosService = {
       throw new Error('Todos los pagos ya tienen sus movimientos de tesoreria vinculados correctamente');
     }
 
-    // F4a.4 · ADR-PF-001 · reconciliación al libro mayor unificado
-    const { registrarMovimientoFinanciero } = await import(
-      './movimientoFinanciero.service'
-    );
-    const movimientoId = await registrarMovimientoFinanciero(
-      {
-        categoria: 'pago_viajero',
-        moneda: pago.monedaPago,
-        monto: pago.montoOriginal,
-        tipoCambio: pago.tipoCambio,
-        metodo: pago.metodoPago,
-        concepto: `Pago flete ${envio.numeroEnvio} - Colaborador: ${envio.colaboradorNombre || 'Sin nombre'}`,
-        notas: `[Reconciliado] Envio ${envio.numeroEnvio}.`,
-        fecha: pago.fecha.toDate(),
-        referencia: pago.referencia,
-        productoOrigenId: pago.cuentaOrigenId,
-        refDocumentoTipo: 'envio',
-        refDocumentoId: envioId,
-        refDocumentoNumero: envio.numeroEnvio,
-      },
-      userId,
-    );
+    // F3c · reconciliación vía la CF (gateada · exige la autorización del envío si el flete >$1k).
+    if (!pago.cuentaOrigenId) throw new Error('El pago no tiene cuenta de origen · no se puede reconciliar por la CF.');
+    const { registrarEgresoCashFn } = await import('./egresoCash.client');
+    const { movimientoId } = await registrarEgresoCashFn({
+      refDocumentoTipo: 'envio',
+      refDocumentoId: envioId,
+      refDocumentoNumero: envio.numeroEnvio,
+      categoria: 'pago_viajero',
+      productoOrigenId: pago.cuentaOrigenId,
+      moneda: pago.monedaPago,
+      monto: pago.montoOriginal,
+      tipoCambio: pago.tipoCambio,
+      concepto: `Pago flete ${envio.numeroEnvio} - Colaborador: ${envio.colaboradorNombre || 'Sin nombre'}`,
+      fecha: pago.fecha.toDate(),
+      metodo: pago.metodoPago,
+      referencia: pago.referencia,
+      notas: `[Reconciliado] Envio ${envio.numeroEnvio}.`,
+    });
 
     // S55 Fase 4 — El movimientoTesoreriaId vive en el doc MovimientoCC.
     // Como los movimientos CC son inmutables, no actualizamos el doc viejo;

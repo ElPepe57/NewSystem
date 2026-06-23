@@ -281,7 +281,37 @@ describe('F3c · RETIRO DE SOCIO · gate sin-ref (movimientosTesoreria + retiros
   });
 });
 
-describe('🟠 ABIERTO · sin-ref con flujo real en movimientosFinancieros (reembolso_cliente · pago_viajero/envío)', () => {
+describe('F3c · ENVÍO (flete) · cash gateado + el cliente no forja la autorización', () => {
+  it('🔒 cliente NO crea el cash del flete (movimientosFinancieros pago_viajero) → DENEGADO', async () => {
+    await seedUser('fin', ['finanzas']);
+    await assertFails(setDoc(doc(db('fin'), 'movimientosFinancieros', 'mf-flete'), { categoria: 'pago_viajero', monto: 2000, refDocumentoTipo: 'envio', refDocumentoId: 'e1', productoOrigenId: 'caja' }));
+  });
+  it('✅ cliente crea un envío normal (sin autorizacion=aprobado) → permitido', async () => {
+    await seedUser('alm', ['almacenero']);
+    await assertSucceeds(setDoc(doc(db('alm'), 'envios', 'e1'), { numeroEnvio: 'ENV-1', creadoPor: 'alm', estado: 'borrador', costoFleteTotal: 2000 }));
+  });
+  it('🔒 cliente NO nace un envío con autorizacion=aprobado (forja del quórum) → DENEGADO', async () => {
+    await seedUser('alm', ['almacenero']);
+    await assertFails(setDoc(doc(db('alm'), 'envios', 'e2'), { numeroEnvio: 'ENV-2', creadoPor: 'alm', estado: 'confirmado', costoFleteTotal: 2000, autorizacion: { estado: 'aprobado', firmas: [] } }));
+  });
+  it('🔒 cliente NO forja la autorización del envío en un update → DENEGADO', async () => {
+    await seed('envios', 'e3', { numeroEnvio: 'ENV-3', creadoPor: 'alm', estado: 'confirmado', costoFleteTotal: 2000, autorizacion: { estado: 'pendiente', firmas: [] } });
+    await seedUser('alm', ['almacenero']);
+    await assertFails(updateDoc(doc(db('alm'), 'envios', 'e3'), { autorizacion: { estado: 'aprobado', firmas: [{ usuarioId: 'alm' }] } }));
+  });
+  it('🔒 cliente NO infla el flete con la firma en proceso (flete congelado) → DENEGADO', async () => {
+    await seed('envios', 'e4', { numeroEnvio: 'ENV-4', creadoPor: 'alm', estado: 'confirmado', costoFleteTotal: 2000, autorizacion: { estado: 'pendiente', firmas: [{ usuarioId: 's1' }] } });
+    await seedUser('alm', ['almacenero']);
+    await assertFails(updateDoc(doc(db('alm'), 'envios', 'e4'), { costoFleteTotal: 9000 }));
+  });
+  it('✅ cliente actualiza el estado del envío (sin tocar autorizacion ni flete) → permitido', async () => {
+    await seed('envios', 'e5', { numeroEnvio: 'ENV-5', creadoPor: 'alm', estado: 'confirmado', costoFleteTotal: 2000, autorizacion: { estado: 'pendiente', firmas: [{ usuarioId: 's1' }] } });
+    await seedUser('alm', ['almacenero']);
+    await assertSucceeds(updateDoc(doc(db('alm'), 'envios', 'e5'), { estado: 'en_transito' }));
+  });
+});
+
+describe('🟠 ABIERTO · sin-ref con flujo real en movimientosFinancieros (reembolso_cliente)', () => {
   it('reembolso_cliente · flujo real · hoy permitido · pendiente de gate de aprobación (migración aparte)', async () => {
     await seedUser('fin', ['finanzas']);
     await assertSucceeds(setDoc(doc(db('fin'), 'movimientosFinancieros', 'mf-reemb'), { categoria: 'reembolso_cliente', monto: 50000, productoOrigenId: 'caja' }));

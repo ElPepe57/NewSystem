@@ -984,7 +984,8 @@ export async function ejecutar(
       .join(', ');
 
   let movimientoTesoreriaId: string;
-  const esEgresoGateado = tipoMov === 'gasto_operativo' || tipoMov === 'pago_orden_compra';
+  // F3c · pago_viajero (flete de envío) también se gatea por la CF · cierra el lote all-envíos y el MIXTO.
+  const esEgresoGateado = tipoMov === 'gasto_operativo' || tipoMov === 'pago_orden_compra' || tipoMov === 'pago_viajero';
   if (esEgresoGateado) {
     // F3 · el cash del pago MASIVO de egreso lo escribe la CF registrarEgresoCashLote (valida CADA egreso
     // del lote · si uno no está aprobado, TODO el lote falla). Si rechaza LANZA → el lote no se desembolsa.
@@ -1001,18 +1002,19 @@ export async function ejecutar(
       metodo: input.metodo,
       referencia: input.referencia,
       notas: notasFinales,
-      // Solo oc/gasto se validan acá (la CF aún no maneja envío · F3c) · el saldo total igual cubre el lote.
+      // F3c · la CF valida cada egreso referenciado del lote: oc/gasto/envío (el flete del envío exige su
+      // autorización aprobada si >$1k · cierra el lote MIXTO que antes dejaba la porción de envío sin gatear).
       refs: input.distribucion
-        .filter((d) => d.tipo === 'oc' || d.tipo === 'gasto')
+        .filter((d) => d.tipo === 'oc' || d.tipo === 'gasto' || d.tipo === 'envio')
         .map((d) => ({
-          tipo: d.tipo as 'oc' | 'gasto',
+          tipo: d.tipo as 'oc' | 'gasto' | 'envio',
           id: d.documentoId,
           montoAplicadoUSD: input.monedaAbono === 'USD' ? d.montoAplicado : d.montoAplicado / input.tipoCambio,
         })),
     });
     movimientoTesoreriaId = res.movimientoId;
   } else {
-    // Ingreso (cobranza) o pago_viajero (envío · F3c) → directo (la regla F3a no bloquea estas categorías).
+    // Solo ingreso (cobranza · ingreso_venta) cae acá → directo (no es egreso · no se gatea).
     try {
       const { registrarMovimientoFinanciero } = await import(
         './movimientoFinanciero.service'
