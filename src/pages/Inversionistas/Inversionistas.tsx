@@ -426,7 +426,7 @@ export default function Inversionistas() {
           tipoCambio={data.tipoCambio}
           socios={data.socios.map((s) => ({ id: s.id, nombre: s.nombre }))}
           onClose={() => setMovOpen(false)}
-          onSuccess={() => { setMovOpen(false); setToastMsg('Movimiento de capital registrado'); cargarDatos(); }}
+          onSuccess={(requiereAut) => { setMovOpen(false); setToastMsg(requiereAut ? 'Retiro >$1k enviado a aprobación de socios · el cash se mueve al aprobarse' : 'Movimiento de capital registrado'); cargarDatos(); }}
           onRegistrarTC={(sid) => { setMovOpen(false); setTcWizardSocioId(sid); setTcWizardOpen(true); }}
         />
       )}

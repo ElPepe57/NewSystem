@@ -473,14 +473,12 @@ export const tesoreriaService = {
   async registrarRetiroCapital(
     data: RetiroCapitalFormData,
     userId: string
-  ): Promise<string> {
+  ): Promise<{ retiroId: string; requiereAutorizacion: boolean }> {
+    // F3c · el cash lo mueve la CF (registrarRetiroCashTesoreria) · el service ya no inyecta las fns de cash.
     return _registrarRetiroCapital(
       data,
       userId,
-      (id) => this.getCuentaById(id),
-      () => this.generateNumeroMovimiento(),
-      (cuentaId, diff, mon) => this.actualizarSaldoCuenta(cuentaId, diff, mon),
-      (mov, esAnulacion) => this.actualizarEstadisticasPorMovimiento(mov, esAnulacion)
+      (id) => this.getCuentaById(id)
     );
   },
 

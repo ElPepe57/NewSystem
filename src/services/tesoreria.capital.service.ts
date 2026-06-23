@@ -14,6 +14,8 @@ import { db } from '../lib/firebase';
 import { COLLECTIONS } from '../config/collections';
 import { logger } from '../lib/logger';
 import { MOVIMIENTOS_COLLECTION } from './tesoreria.shared';
+import { requiereAutorizacionSocio } from './autorizacionEgreso.helper';
+import { registrarRetiroCashTesoreriaFn } from './retiroCash.client';
 import type {
   CuentaCaja,
   TransferenciaEntreCuentasFormData,
@@ -233,11 +235,8 @@ export async function registrarAporteCapital(
 export async function registrarRetiroCapital(
   data: RetiroCapitalFormData,
   userId: string,
-  getCuentaByIdFn: (id: string) => Promise<CuentaCaja | null>,
-  generateNumeroMovimientoFn: () => Promise<string>,
-  actualizarSaldoCuentaFn: (cuentaId: string, diferencia: number, moneda?: MonedaTesoreria) => Promise<void>,
-  actualizarEstadisticasPorMovimientoFn: (mov: any, esAnulacion?: boolean) => Promise<void>
-): Promise<string> {
+  getCuentaByIdFn: (id: string) => Promise<CuentaCaja | null>
+): Promise<{ retiroId: string; requiereAutorizacion: boolean }> {
   if (data.monto <= 0) {
     throw new Error('El monto debe ser mayor a 0');
   }
@@ -255,7 +254,6 @@ export async function registrarRetiroCapital(
     throw new Error(`Saldo insuficiente. Disponible: ${saldoDisponible.toFixed(2)} ${data.moneda}`);
   }
 
-  const numeroMovimiento = await generateNumeroMovimientoFn();
   const tipoRetiroLabel = data.tipoRetiro === 'utilidades' ? 'utilidades' :
                          data.tipoRetiro === 'capital' ? 'capital' : 'préstamo a socio';
   const concepto = data.concepto || `Retiro de ${tipoRetiroLabel} - ${data.socioNombre}`;
@@ -264,64 +262,47 @@ export async function registrarRetiroCapital(
   const montoEquivalentePEN = data.moneda === 'USD' ? data.monto * data.tipoCambio : data.monto;
   const montoEquivalenteUSD = data.moneda === 'USD' ? data.monto : data.monto / data.tipoCambio;
 
-  // Crear movimiento de tesorería
-  const movimiento: Record<string, any> = {
-    numeroMovimiento,
-    tipo: 'retiro_socio' as TipoMovimientoTesoreria,
-    estado: 'ejecutado',
-    moneda: data.moneda,
+  // F3c · el cliente ya NO mueve el cash del retiro · lo hace la CF registrarRetiroCashTesoreria (única
+  // escritora · las rules bloquean el create de movimientosTesoreria tipo:'retiro_socio'). El service crea
+  // el doc retirosCapital y delega el cash: ≤$1k directo (la CF lo mueve ya) · >$1k queda PENDIENTE de
+  // quórum de socios (aparece en la bandeja · la CF mueve el cash recién tras la aprobación).
+  const requiereAutorizacion = requiereAutorizacionSocio(montoEquivalenteUSD);
+
+  const retiroDoc: Record<string, any> = {
+    estado: 'pendiente',
     monto: data.monto,
+    moneda: data.moneda,
     tipoCambio: data.tipoCambio,
     montoEquivalentePEN,
     montoEquivalenteUSD,
+    cuentaOrigenId: data.cuentaOrigenId,
     metodo: data.metodo,
     concepto,
-    cuentaOrigen: data.cuentaOrigenId,
     fecha: Timestamp.fromDate(data.fecha),
-    creadoPor: userId,
-    fechaCreacion: Timestamp.now(),
-    // Metadata específica de retiro
     socioNombre: data.socioNombre,
     tipoRetiro: data.tipoRetiro,
-    esRetiroCapital: true
-  };
-  if (data.socioId) movimiento.socioId = data.socioId;
-  if (data.referencia) movimiento.referencia = data.referencia;
-  if (data.notas) movimiento.notas = data.notas;
-
-  const docRef = await addDoc(collection(db, MOVIMIENTOS_COLLECTION), movimiento);
-
-  // Actualizar saldo de cuenta origen (resta)
-  await actualizarSaldoCuentaFn(data.cuentaOrigenId, -data.monto, data.moneda);
-
-  // Actualizar estadísticas
-  await actualizarEstadisticasPorMovimientoFn({
-    tipo: 'retiro_socio',
-    moneda: data.moneda,
-    monto: data.monto,
-    tipoCambio: data.tipoCambio,
-    cuentaOrigen: data.cuentaOrigenId
-  }).catch(err => logger.warn('Error actualizando estadísticas:', err));
-
-  // Registrar también en colección de retiros para contabilidad
-  await addDoc(collection(db, COLLECTIONS.RETIROS_CAPITAL), {
-    movimientoId: docRef.id,
-    numeroMovimiento,
-    socioNombre: data.socioNombre,
-    socioId: data.socioId || null,
-    tipoRetiro: data.tipoRetiro,
-    monto: data.monto,
-    moneda: data.moneda,
-    montoEquivalentePEN,
-    tipoCambio: data.tipoCambio,
-    fecha: Timestamp.fromDate(data.fecha),
     creadoPor: userId,
     fechaCreacion: Timestamp.now()
-  });
+  };
+  if (data.socioId) retiroDoc.socioId = data.socioId;
+  if (data.referencia) retiroDoc.referencia = data.referencia;
+  if (data.notas) retiroDoc.notas = data.notas;
+  if (requiereAutorizacion) {
+    // nace pendiente de firma · la CF de aprobación (autorizarEgreso · colección retirosCapital) la completa.
+    retiroDoc.autorizacion = { estado: 'pendiente', firmas: [], solicitadaPor: userId };
+  }
 
+  const retiroRef = await addDoc(collection(db, COLLECTIONS.RETIROS_CAPITAL), retiroDoc);
+
+  if (requiereAutorizacion) {
+    logger.info(`Retiro de ${tipoRetiroLabel} >$1k · pendiente de aprobación de socios: ${data.monto} ${data.moneda} por ${data.socioNombre}`);
+    return { retiroId: retiroRef.id, requiereAutorizacion: true };
+  }
+
+  // ≤$1k · directo: la CF mueve el cash ahora (mismo backstop que F3a · única escritora).
+  await registrarRetiroCashTesoreriaFn(retiroRef.id);
   logger.success(`Retiro de ${tipoRetiroLabel} registrado: ${data.monto} ${data.moneda} por ${data.socioNombre}`);
-
-  return docRef.id;
+  return { retiroId: retiroRef.id, requiereAutorizacion: false };
 }
 
 /**

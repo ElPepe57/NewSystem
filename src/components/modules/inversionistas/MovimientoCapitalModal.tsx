@@ -57,7 +57,8 @@ interface Props {
   /** Catálogo de socios para el selector (acceso desde el header). */
   socios: SocioOpt[];
   onClose: () => void;
-  onSuccess: () => void;
+  /** F3c · `requiereAutorizacion=true` cuando el retiro >$1k quedó pendiente de aprobación de socios. */
+  onSuccess: (requiereAutorizacion?: boolean) => void;
   /** Tarjeta de crédito → abre el CuentaWizard pre-contextualizado. */
   onRegistrarTC: (socioId: string, socioNombre: string) => void;
 }
@@ -126,6 +127,8 @@ export default function MovimientoCapitalModal({
     setSaving(true); setError(null);
     const tc = moneda === 'USD' ? tipoCambio : 1;
     try {
+      // F3c · un retiro >$1k no mueve cash al instante · queda pendiente de aprobación de socios.
+      let requiereAutorizacion = false;
       if (vista === 'aporte') {
         const data: AporteCapitalFormData = {
           monto: montoNum, moneda, tipoCambio: tc, cuentaDestinoId: cuentaId,
@@ -139,9 +142,10 @@ export default function MovimientoCapitalModal({
           socioNombre: socioNombreSel, socioId: socioSel, tipoRetiro, metodo, fecha: new Date(fecha),
           ...(referencia.trim() ? { referencia: referencia.trim() } : {}),
         };
-        await tesoreriaService.registrarRetiroCapital(data, userId);
+        const res = await tesoreriaService.registrarRetiroCapital(data, userId);
+        requiereAutorizacion = res.requiereAutorizacion;
       }
-      onSuccess();
+      onSuccess(requiereAutorizacion);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'No se pudo registrar.');
       setSaving(false);
