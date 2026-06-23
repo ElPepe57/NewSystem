@@ -38,12 +38,17 @@ export interface EgresoCashResult {
 
 /** Registra el cash de un egreso referenciado vía la CF. Lanza si la CF rechaza (bloquea el pago). */
 export async function registrarEgresoCashFn(input: EgresoCashInput): Promise<EgresoCashResult> {
+  // Identidad lógica del pago · incluye método/moneda/TC para que una EDICIÓN (CASO C · anula viejo +
+  // crea nuevo) que cambie solo el método no colisione con el movimiento original. Retry exacto = misma key.
   const idempotencyKey = [
     input.refDocumentoTipo,
     input.refDocumentoId,
     Math.round(input.monto * 100),
+    input.moneda,
+    Math.round(input.tipoCambio * 10000),
     input.fecha.getTime(),
     input.productoOrigenId,
+    input.metodo || '',
   ].join('-');
 
   const fn = httpsCallable<Record<string, unknown>, EgresoCashResult>(functions, 'registrarEgresoCash');

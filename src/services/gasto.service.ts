@@ -191,24 +191,23 @@ export const gastoService = {
       if (data.estado === 'pagado' && data.cuentaOrigenId) {
         try {
           const monedaPago: MonedaTesoreria = (data.moneda === 'USD' ? 'USD' : 'PEN') as MonedaTesoreria;
-          const { registrarMovimientoFinanciero } = await import(
-            './movimientoFinanciero.service'
-          );
-          const movimientoId = await registrarMovimientoFinanciero({
-            categoria: 'gasto_operativo',
-            moneda: monedaPago,
-            monto: data.montoOriginal,
-            tipoCambio: data.tipoCambio || 1,
-            metodo: (data.metodoPago || 'efectivo') as string,
-            concepto: `Pago ${numeroGasto}: ${data.descripcion}`,
-            fecha: data.fecha,
-            productoOrigenId: data.cuentaOrigenId,
+          // F3 · el cash lo escribe la CF registrarEgresoCash (valida la aprobación · única escritora).
+          const { registrarEgresoCashFn } = await import('./egresoCash.client');
+          const { movimientoId } = await registrarEgresoCashFn({
             refDocumentoTipo: 'gasto',
             refDocumentoId: docRef.id,
             refDocumentoNumero: numeroGasto,
+            categoria: 'gasto_operativo',
+            productoOrigenId: data.cuentaOrigenId,
+            moneda: data.moneda === 'USD' ? 'USD' : 'PEN',
+            monto: data.montoOriginal,
+            tipoCambio: data.tipoCambio || 1,
+            concepto: `Pago ${numeroGasto}: ${data.descripcion}`,
+            fecha: data.fecha,
+            metodo: (data.metodoPago || 'efectivo') as string,
             referencia: data.referenciaPago,
-            notas: data.notas
-          }, userId);
+            notas: data.notas,
+          });
 
           // Crear registro de pago en el gasto
           const pagoId = `PAG-GAS-${Date.now()}-${Math.random().toString(36).substr(2, 6)}`;
@@ -471,24 +470,24 @@ export const gastoService = {
 
         if (cuentaOrigenId) {
           const monedaPago: MonedaTesoreria = (moneda === 'USD' ? 'USD' : 'PEN') as MonedaTesoreria;
-          const { registrarMovimientoFinanciero } = await import(
-            './movimientoFinanciero.service'
-          );
-          const movimientoId = await registrarMovimientoFinanciero({
-            categoria: 'gasto_operativo',
-            moneda: monedaPago,
-            monto: montoOriginal,
-            tipoCambio: tipoCambio || 1,
-            metodo: (data.metodoPago || 'efectivo') as string,
-            concepto: `Pago ${gastoActual.numeroGasto}: ${data.descripcion ?? gastoActual.descripcion}`,
-            fecha: data.fecha ?? gastoActual.fecha.toDate(),
-            productoOrigenId: cuentaOrigenId,
+          // F3 · el cash lo escribe la CF registrarEgresoCash (valida la aprobación · única escritora ·
+          // si rechaza LANZA → el método throw antes del updateDoc → el gasto NO transiciona a pagado).
+          const { registrarEgresoCashFn } = await import('./egresoCash.client');
+          const { movimientoId } = await registrarEgresoCashFn({
             refDocumentoTipo: 'gasto',
             refDocumentoId: id,
             refDocumentoNumero: gastoActual.numeroGasto,
+            categoria: 'gasto_operativo',
+            productoOrigenId: cuentaOrigenId,
+            moneda: moneda === 'USD' ? 'USD' : 'PEN',
+            monto: montoOriginal,
+            tipoCambio: tipoCambio || 1,
+            concepto: `Pago ${gastoActual.numeroGasto}: ${data.descripcion ?? gastoActual.descripcion}`,
+            fecha: data.fecha ?? gastoActual.fecha.toDate(),
+            metodo: (data.metodoPago || 'efectivo') as string,
             referencia: referenciaPago,
-            notas: data.notas ?? gastoActual.notas
-          }, userId);
+            notas: data.notas ?? gastoActual.notas,
+          });
 
           const nuevoPago = this._buildPagoGasto({
             monedaPago, montoOriginal, montoPEN, moneda, tipoCambio: tipoCambio || 1,
@@ -546,24 +545,23 @@ export const gastoService = {
           const cuentaFinal = cuentaOrigenId || pagoExistente?.cuentaOrigenId;
           if (cuentaFinal) {
             const monedaPago: MonedaTesoreria = (moneda === 'USD' ? 'USD' : 'PEN') as MonedaTesoreria;
-            const { registrarMovimientoFinanciero } = await import(
-              './movimientoFinanciero.service'
-            );
-            const nuevoMovId = await registrarMovimientoFinanciero({
-              categoria: 'gasto_operativo',
-              moneda: monedaPago,
-              monto: montoOriginal,
-              tipoCambio: tipoCambio || 1,
-              metodo: (data.metodoPago || pagoExistente?.metodoPago || 'efectivo') as string,
-              concepto: `Pago ${gastoActual.numeroGasto}: ${data.descripcion ?? gastoActual.descripcion}`,
-              fecha: data.fecha ?? gastoActual.fecha.toDate(),
-              productoOrigenId: cuentaFinal,
+            // F3 · el cash lo escribe la CF registrarEgresoCash (valida la aprobación · única escritora).
+            const { registrarEgresoCashFn } = await import('./egresoCash.client');
+            const { movimientoId: nuevoMovId } = await registrarEgresoCashFn({
               refDocumentoTipo: 'gasto',
               refDocumentoId: id,
               refDocumentoNumero: gastoActual.numeroGasto,
+              categoria: 'gasto_operativo',
+              productoOrigenId: cuentaFinal,
+              moneda: moneda === 'USD' ? 'USD' : 'PEN',
+              monto: montoOriginal,
+              tipoCambio: tipoCambio || 1,
+              concepto: `Pago ${gastoActual.numeroGasto}: ${data.descripcion ?? gastoActual.descripcion}`,
+              fecha: data.fecha ?? gastoActual.fecha.toDate(),
+              metodo: (data.metodoPago || pagoExistente?.metodoPago || 'efectivo') as string,
               referencia: referenciaPago || pagoExistente?.referencia,
-              notas: data.notas ?? gastoActual.notas
-            }, userId);
+              notas: data.notas ?? gastoActual.notas,
+            });
 
             const nuevoPago = this._buildPagoGasto({
               monedaPago, montoOriginal, montoPEN, moneda, tipoCambio: tipoCambio || 1,
