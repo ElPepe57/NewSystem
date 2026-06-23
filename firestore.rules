@@ -76,6 +76,17 @@ service cloud.firestore {
       return !enProceso
         || request.resource.data.get('totalUSD', 0) == resource.data.get('totalUSD', 0);
     }
+    // F3c · análogo para el retiro de socio (retirosCapital): una vez que la autorización ARRANCÓ, su
+    // USD landed queda CONGELADO para el cliente · evita "aprobar $999 → inflar a $5000 antes de ejecutar".
+    // Congela los 3 campos que componen el USD landed (monto · moneda · tipoCambio).
+    function montoCongeladoSiAutorizando() {
+      let auth = resource.data.get('autorizacion', {});
+      let enProceso = auth.get('estado', '') == 'aprobado' || auth.get('firmas', []).size() > 0;
+      return !enProceso
+        || ( request.resource.data.get('monto', 0) == resource.data.get('monto', 0)
+             && request.resource.data.get('moneda', '') == resource.data.get('moneda', '')
+             && request.resource.data.get('tipoCambio', 0) == resource.data.get('tipoCambio', 0) );
+    }
     // `creadoPor` es inmutable post-create (segregación · evita re-asignar el creador).
     function creadoPorIntacto() {
       return request.resource.data.get('creadoPor', '') == resource.data.get('creadoPor', '');
@@ -315,7 +326,12 @@ service cloud.firestore {
     // ============================================================
     match /movimientosTesoreria/{docId} {
       allow read: if hasAnyRole(['admin', 'gerente', 'finanzas', 'supervisor']);
-      allow write: if hasAnyRole(['admin', 'gerente', 'finanzas']);
+      // F3c · el cliente NO crea el cash de un retiro de socio · lo escribe la CF registrarRetiroCashTesoreria
+      // (admin SDK · única escritora · tras el quórum de equity). El resto de movimientos de tesorería
+      // (ingresos, conversiones, aportes, transferencias) sigue libre para los roles financieros.
+      allow create: if hasAnyRole(['admin', 'gerente', 'finanzas'])
+                    && request.resource.data.get('tipo', '') != 'retiro_socio';
+      allow update, delete: if hasAnyRole(['admin', 'gerente', 'finanzas']);
     }
 
     match /cuentasCaja/{docId} {
@@ -335,7 +351,17 @@ service cloud.firestore {
 
     match /retirosCapital/{docId} {
       allow read: if hasAnyRole(['admin', 'gerente', 'finanzas', 'supervisor']);
-      allow write: if hasAnyRole(['admin', 'gerente', 'finanzas']);
+      // F3c · create-safe: nace sin autorizacion='aprobado' · creador pineado (el quórum lo escribe la CF).
+      allow create: if hasAnyRole(['admin', 'gerente', 'finanzas'])
+                    && request.resource.data.creadoPor == request.auth.uid
+                    && ( !('autorizacion' in request.resource.data)
+                         || request.resource.data.autorizacion.get('estado', '') != 'aprobado' );
+      // F3c · update: admin root (canon) · no-admin NO toca `autorizacion` ni `creadoPor`, y el USD landed
+      // queda congelado una vez que la autorización arrancó. El estado→'ejecutado' lo escribe la CF (admin SDK).
+      allow update: if isAdmin()
+                    || ( hasAnyRole(['admin', 'gerente', 'finanzas'])
+                         && autorizacionIntacta() && creadoPorIntacto() && montoCongeladoSiAutorizando() );
+      allow delete: if false;
     }
 
     match /registrosTCTransaccion/{docId} {
@@ -779,9 +805,13 @@ service cloud.firestore {
       // F3 · el cliente NO crea el cash de un egreso de gasto/OC (pago single NI masivo) · eso lo escribe
       // la Cloud Function registrarEgresoCash (admin SDK · ignora estas reglas) tras validar la aprobación.
       // Se gatea por CATEGORÍA (no por refDocumentoTipo) para atrapar el pago MASIVO (agregado · sin ref).
-      // El cliente sí crea ingresos (cobros), conversiones, transferencias internas. envío + sin-ref = F3c.
+      // El cliente sí crea ingresos (cobros), conversiones, transferencias internas.
+      // F3c · defensa-en-profundidad: se cierran también las categorías sin-ref de egreso que NO tienen un
+      // flujo legítimo en este libro (el retiro vive en movimientosTesoreria · nómina/adelanto/ajuste no
+      // escriben acá). reembolso_cliente y pago_viajero (envío) SÍ tienen flujo real → se migran aparte.
       allow create: if hasAnyRole(['admin', 'gerente', 'finanzas'])
-                    && !( request.resource.data.get('categoria', '') in ['gasto_operativo', 'pago_orden_compra'] );
+                    && !( request.resource.data.get('categoria', '') in
+                          ['gasto_operativo', 'pago_orden_compra', 'retiro_socio', 'pago_nomina', 'adelanto_empleado', 'ajuste_negativo'] );
       allow update: if hasAnyRole(['admin', 'gerente', 'finanzas']);
       allow delete: if false;
     }

@@ -244,9 +244,46 @@ describe('F3 · CASH LEDGER · el cliente no crea el cash de un egreso referenci
   });
 });
 
-describe('🟠 ABIERTO HASTA F3c · egresos SIN referencia (retiro socio, nómina…)', () => {
-  it('un finanzas crea un egreso sin ref · hoy permitido · lo cierra F3c (autorización standalone)', async () => {
+describe('F3c · RETIRO DE SOCIO · gate sin-ref (movimientosTesoreria + retirosCapital)', () => {
+  it('🔒 cliente NO crea el cash de un retiro (movimientosTesoreria tipo=retiro_socio) → DENEGADO', async () => {
     await seedUser('fin', ['finanzas']);
-    await assertSucceeds(setDoc(doc(db('fin'), 'movimientosFinancieros', 'm5'), { categoria: 'retiro_socio', monto: 50000, productoOrigenId: 'caja' }));
+    await assertFails(setDoc(doc(db('fin'), 'movimientosTesoreria', 'mt1'), { tipo: 'retiro_socio', monto: 5000, cuentaOrigen: 'caja', estado: 'ejecutado' }));
+  });
+  it('✅ cliente SÍ crea otros movimientos de tesorería (aporte/ingreso/conversión) → permitido', async () => {
+    await seedUser('fin', ['finanzas']);
+    await assertSucceeds(setDoc(doc(db('fin'), 'movimientosTesoreria', 'mt2'), { tipo: 'aporte_socio', monto: 5000, cuentaDestino: 'caja', estado: 'ejecutado' }));
+  });
+  it('🔒 defensa-en-profundidad · retiro_socio en movimientosFinancieros (no es su libro) → DENEGADO', async () => {
+    await seedUser('fin', ['finanzas']);
+    await assertFails(setDoc(doc(db('fin'), 'movimientosFinancieros', 'mf-ret'), { categoria: 'retiro_socio', monto: 50000, productoOrigenId: 'caja' }));
+  });
+  it('✅ create-safe · cliente crea un retiro PENDIENTE (sin autorizacion=aprobado · creador pineado) → permitido', async () => {
+    await seedUser('fin', ['finanzas']);
+    await assertSucceeds(setDoc(doc(db('fin'), 'retirosCapital', 'r1'), { creadoPor: 'fin', monto: 5000, moneda: 'USD', tipoCambio: 3.7, estado: 'pendiente', autorizacion: { estado: 'pendiente', firmas: [] } }));
+  });
+  it('🔒 cliente NO crea un retiro ya APROBADO (forja del quórum) → DENEGADO', async () => {
+    await seedUser('fin', ['finanzas']);
+    await assertFails(setDoc(doc(db('fin'), 'retirosCapital', 'r2'), { creadoPor: 'fin', monto: 5000, estado: 'pendiente', autorizacion: { estado: 'aprobado', firmas: [] } }));
+  });
+  it('🔒 cliente NO pinea otro creador en el retiro (segregación) → DENEGADO', async () => {
+    await seedUser('fin', ['finanzas']);
+    await assertFails(setDoc(doc(db('fin'), 'retirosCapital', 'r3'), { creadoPor: 'otro', monto: 5000, estado: 'pendiente' }));
+  });
+  it('🔒 cliente NO infla el monto del retiro con la autorización en proceso (USD landed congelado) → DENEGADO', async () => {
+    await seed('retirosCapital', 'r4', { creadoPor: 'fin', monto: 999, moneda: 'USD', tipoCambio: 3.7, estado: 'pendiente', autorizacion: { estado: 'pendiente', firmas: [{ usuarioId: 's1' }] } });
+    await seedUser('fin', ['finanzas']);
+    await assertFails(updateDoc(doc(db('fin'), 'retirosCapital', 'r4'), { monto: 5000 }));
+  });
+  it('🔒 cliente NO forja la autorización del retiro en un update → DENEGADO', async () => {
+    await seed('retirosCapital', 'r5', { creadoPor: 'fin', monto: 5000, estado: 'pendiente', autorizacion: { estado: 'pendiente', firmas: [] } });
+    await seedUser('fin', ['finanzas']);
+    await assertFails(updateDoc(doc(db('fin'), 'retirosCapital', 'r5'), { autorizacion: { estado: 'aprobado', firmas: [{ usuarioId: 'fin' }] } }));
+  });
+});
+
+describe('🟠 ABIERTO · sin-ref con flujo real en movimientosFinancieros (reembolso_cliente · pago_viajero/envío)', () => {
+  it('reembolso_cliente · flujo real · hoy permitido · pendiente de gate de aprobación (migración aparte)', async () => {
+    await seedUser('fin', ['finanzas']);
+    await assertSucceeds(setDoc(doc(db('fin'), 'movimientosFinancieros', 'mf-reemb'), { categoria: 'reembolso_cliente', monto: 50000, productoOrigenId: 'caja' }));
   });
 });
