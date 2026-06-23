@@ -79,7 +79,7 @@ export const Requerimientos: React.FC = () => {
   // Vista · tab activa del hub (Resumen default · canon hub)
   const [tabActiva, setTabActiva] = useState<'resumen' | 'tablero' | 'pendientes'>('resumen');
   const esAdmin = hasRole(userProfile, 'admin'); // canon "admin ve todo" · chip contextual al rol
-  const { canApproveEgresoDe } = usePermissions(); // F4 · gating amount-aware (≤$1k cargo · >$1k socio)
+  const { canApproveRequerimiento } = usePermissions(); // F2 · req = autoridad de cargo (permiso · el control de socio vive en la OC)
 
   // Modales
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -416,14 +416,10 @@ export const Requerimientos: React.FC = () => {
 
   const handleAprobar = async (req: Requerimiento) => {
     if (!user || !userProfile) return;
-    // F4 · gating amount-aware: ≤$1k autoridad del cargo · >$1k solo socios.
-    const montoUSD = req.montoEstimadoUSD || 0;
-    if (!canApproveEgresoDe(montoUSD)) {
-      toast.error(
-        montoUSD > 1000
-          ? 'Este egreso supera el umbral · solo un socio (dueño) puede autorizarlo.'
-          : 'No tenés permiso para aprobar requerimientos.'
-      );
+    // F2 · el requerimiento es AUTORIDAD DE CARGO (permiso APROBAR_REQUERIMIENTO · enforzado server-side
+    // por firestore.rules). El control de socio NO vive acá sino en la OC sobre el total consolidado.
+    if (!canApproveRequerimiento) {
+      toast.error('No tenés permiso para aprobar requerimientos.');
       return;
     }
     try {

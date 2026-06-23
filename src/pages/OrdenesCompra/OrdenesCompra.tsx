@@ -245,7 +245,9 @@ export const OrdenesCompra: React.FC = () => {
         toast.success(`OC ${orden.numeroOrden} autorizada · ya puede pagarse`, 'Egreso autorizado');
       } else {
         toast.warning(
-          `Tu firma fue registrada. Falta ${res.faltanFirmas === 1 ? 'la firma de otro socio' : `${res.faltanFirmas} firmas de socios`} para autorizar.`
+          typeof res.equityFaltante === 'number' && res.equityFaltante > 0
+            ? `Tu firma fue registrada. Falta ${res.equityFaltante.toFixed(0)}% de participación para la mayoría.`
+            : 'Tu firma fue registrada. Falta que más socios alcancen la mayoría para autorizar.'
         );
       }
       useBandejaSignal.getState().bump(); // refresca el badge del sidebar

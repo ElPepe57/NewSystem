@@ -11,6 +11,7 @@ import type {
 } from '../types/ordenCompra.types';
 import type { MetodoTesoreria } from '../types/tesoreria.types';
 import { OrdenCompraService } from '../services/ordenCompra.service';
+import type { ResultadoAutorizacionCF } from '../services/autorizacionEgreso.helper';
 
 interface OrdenCompraState {
   ordenes: OrdenCompra[];
@@ -46,7 +47,7 @@ interface OrdenCompraState {
     subOrdenId?: string;
   }, userId: string) => Promise<PagoOrdenCompra>;
   /** F4 · firma de socio para autorizar una OC > umbral antes de pagarse. */
-  autorizarOC: (ocId: string, userId: string, userRoles: string[]) => Promise<{ completa: boolean; faltanFirmas?: number }>;
+  autorizarOC: (ocId: string, userId: string, userRoles: string[]) => Promise<ResultadoAutorizacionCF>;
   // S40: recibirOrden y recibirOrdenParcial eliminados — la recepción se gestiona desde el Envío asociado.
   deleteOrden: (id: string) => Promise<void>;
   fetchStats: () => Promise<void>;

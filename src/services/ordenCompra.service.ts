@@ -51,6 +51,7 @@ import {
 } from './ordenCompra.crud.service';
 
 import { registrarPago, autorizarOC, rechazarOC } from './ordenCompra.pagos.service';
+import type { ResultadoAutorizacionCF } from './autorizacionEgreso.helper';
 
 // S40: recibirOrden + recibirOrdenParcial eliminados. revertirRecepciones preservado para scripts/admin.
 import {
@@ -160,12 +161,12 @@ export class OrdenCompraService {
     return registrarPago(id, datos, userId);
   }
 
-  /** F4 · firma de socio para autorizar una OC > umbral antes de pagarse. */
+  /** F2 · firma de socio (quórum por equity · vía Cloud Function) para autorizar una OC > umbral. */
   static async autorizarOC(
     ocId: string,
     userId: string,
     userRoles: string[]
-  ): Promise<{ completa: boolean; faltanFirmas?: number }> {
+  ): Promise<ResultadoAutorizacionCF> {
     return autorizarOC(ocId, userId, userRoles);
   }
 

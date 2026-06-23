@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { gastoService } from '../services/gasto.service';
+import type { ResultadoAutorizacionCF } from '../services/autorizacionEgreso.helper';
 import type {
   Gasto,
   GastoFormData,
@@ -45,7 +46,7 @@ interface GastoState {
   eliminarGasto: (id: string) => Promise<void>;
   registrarPagoGasto: (gastoId: string, datoPago: PagoGastoData, userId: string) => Promise<void>;
   /** F4 · firma de socio para autorizar un gasto > umbral antes de pagarse. */
-  autorizarGasto: (gastoId: string, userId: string, userRoles: string[]) => Promise<{ completa: boolean; faltanFirmas?: number }>;
+  autorizarGasto: (gastoId: string, userId: string, userRoles: string[]) => Promise<ResultadoAutorizacionCF>;
   getGastosPendientesRecalculo: () => Promise<Gasto[]>;
   fetchGastosPendientesYParciales: () => Promise<void>;
   setViewMode: (mode: ViewMode, mes?: number, anio?: number) => void;
