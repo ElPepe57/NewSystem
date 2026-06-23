@@ -9,6 +9,7 @@
 import { requerimientoService } from './requerimiento.service';
 import { gastoService } from './gasto.service';
 import { OrdenCompraService } from './ordenCompra.service';
+import { autorizarRetiroCapital, rechazarRetiroCapital } from './retiroCash.client';
 import type { OrigenEgreso } from './egresosPendientesSocio.helper';
 
 export function firmarEgreso(
@@ -24,6 +25,10 @@ export function firmarEgreso(
       return gastoService.autorizarGasto(id, userId, userRoles);
     case 'oc':
       return OrdenCompraService.autorizarOC(id, userId, userRoles);
+    case 'retiro':
+      // F3c · sin método de módulo · va directo a la CF autorizarEgreso (colección retirosCapital) y, al
+      // completarse el quórum, encadena el desembolso (el retiro ES el pago).
+      return autorizarRetiroCapital(id);
   }
 }
 
@@ -45,5 +50,7 @@ export function rechazarEgreso(
       return gastoService.rechazarGasto(id, userId, userRoles, motivo);
     case 'oc':
       return OrdenCompraService.rechazarOC(id, userId, userRoles, motivo);
+    case 'retiro':
+      return rechazarRetiroCapital(id, motivo);
   }
 }

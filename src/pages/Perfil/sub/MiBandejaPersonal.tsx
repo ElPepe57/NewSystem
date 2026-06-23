@@ -32,6 +32,7 @@ import {
   ClipboardList,
   Banknote,
   Package,
+  ArrowUpFromLine,
 } from 'lucide-react';
 import { usePermissions } from '../../../hooks/usePermissions';
 import { useAuthStore } from '../../../store/authStore';
@@ -64,6 +65,7 @@ const ICONO_ORIGEN: Record<OrigenEgreso, React.ElementType> = {
   requerimiento: ClipboardList,
   gasto: Banknote,
   oc: Package,
+  retiro: ArrowUpFromLine,
 };
 
 interface BandejaData {

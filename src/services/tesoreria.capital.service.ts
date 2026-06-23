@@ -16,6 +16,7 @@ import { logger } from '../lib/logger';
 import { MOVIMIENTOS_COLLECTION } from './tesoreria.shared';
 import { requiereAutorizacionSocio } from './autorizacionEgreso.helper';
 import { registrarRetiroCashTesoreriaFn } from './retiroCash.client';
+import type { RetiroCapitalDoc } from './egresosPendientesSocio.helper';
 import type {
   CuentaCaja,
   TransferenciaEntreCuentasFormData,
@@ -303,6 +304,15 @@ export async function registrarRetiroCapital(
   await registrarRetiroCashTesoreriaFn(retiroRef.id);
   logger.success(`Retiro de ${tipoRetiroLabel} registrado: ${data.monto} ${data.moneda} por ${data.socioNombre}`);
   return { retiroId: retiroRef.id, requiereAutorizacion: false };
+}
+
+/**
+ * F3c · lista los retiros de capital como docs individuales (la bandeja de socio los agrega como 4ª
+ * fuente). inversionista.service solo AGREGA por socio · esto trae los docs con su autorización/estado.
+ */
+export async function getAllRetirosCapital(): Promise<RetiroCapitalDoc[]> {
+  const snap = await getDocs(collection(db, COLLECTIONS.RETIROS_CAPITAL));
+  return snap.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<RetiroCapitalDoc, 'id'>) }));
 }
 
 /**

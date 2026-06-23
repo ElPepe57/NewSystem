@@ -24,7 +24,22 @@ import type { Requerimiento } from '../types/requerimiento.types';
 import type { Gasto } from '../types/gasto.types';
 import type { OrdenCompra } from '../types/ordenCompra.types';
 
-export type OrigenEgreso = 'requerimiento' | 'gasto' | 'oc';
+export type OrigenEgreso = 'requerimiento' | 'gasto' | 'oc' | 'retiro';
+
+/** Shape mínimo del doc retirosCapital que la bandeja necesita (F3c · sin-ref · autorización standalone). */
+export interface RetiroCapitalDoc {
+  id: string;
+  numeroMovimiento?: string;
+  monto: number;
+  moneda: string;
+  tipoCambio: number;
+  tipoRetiro?: string;
+  socioNombre?: string;
+  creadoPor?: string;
+  estado?: string;
+  autorizacion?: { estado?: string; firmas?: FirmaSocio[] };
+  fechaCreacion?: unknown;
+}
 
 export interface EgresoPendiente {
   origen: OrigenEgreso;
@@ -93,6 +108,27 @@ export function ocAEgreso(o: OrdenCompra): EgresoPendiente {
   };
 }
 
+/**
+ * F3c · retiro de socio (sin-ref · autorización standalone). El USD landed se recomputa de monto/moneda/TC
+ * (igual que la CF autorizarEgreso). Un retiro 'ejecutado' ya movió cash → descartado (sale de la bandeja).
+ * El número definitivo (MOV-) recién existe al ejecutar · mientras pende usa un RET- derivado del id.
+ */
+export function retiroAEgreso(r: RetiroCapitalDoc): EgresoPendiente {
+  const montoUSD = r.moneda === 'USD' ? r.monto : r.tipoCambio > 0 ? r.monto / r.tipoCambio : 0;
+  return {
+    origen: 'retiro',
+    id: r.id,
+    numero: r.numeroMovimiento ?? `RET-${r.id.slice(0, 6)}`,
+    descripcion: `${r.tipoRetiro ?? 'retiro'} · ${r.socioNombre ?? ''}`.trim(),
+    montoUSD,
+    firmas: r.autorizacion?.firmas || [],
+    creadoPor: r.creadoPor,
+    aprobado: r.autorizacion?.estado === 'aprobado',
+    descartado: r.autorizacion?.estado === 'rechazado' || r.estado === 'cancelado' || r.estado === 'ejecutado',
+    fecha: r.fechaCreacion,
+  };
+}
+
 /** ¿este egreso requiere firma de socio y aún está pendiente? (filtro de la bandeja). */
 export function esPendienteDeFirma(e: EgresoPendiente): boolean {
   return requiereAutorizacionSocio(e.montoUSD) && !e.aprobado && !e.descartado;
@@ -158,4 +194,5 @@ export const LABEL_ORIGEN: Record<OrigenEgreso, string> = {
   requerimiento: 'Requerimiento',
   gasto: 'Gasto',
   oc: 'Orden de compra',
+  retiro: 'Retiro de socio',
 };
