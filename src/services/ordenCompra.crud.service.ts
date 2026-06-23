@@ -24,6 +24,7 @@ import {
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { logger } from '../lib/logger';
+import { requiereAutorizacionSocio } from './autorizacionEgreso.helper';
 import type {
   OrdenCompra,
   OrdenCompraFormData,
@@ -646,6 +647,15 @@ export async function confirmarOC(
 
   if (orden.estado !== 'borrador') {
     throw new Error('Solo se pueden confirmar ordenes en estado borrador');
+  }
+
+  // F2 · GATE DE COMPROMISO (decisión usuario "ambos puntos"): una OC cuyo total consolidado supera el
+  // umbral NO se puede confirmar/comprometer con el proveedor sin la firma de socio (la misma autorización
+  // que exige el pago). El socio bendice el compromiso ANTES de obligarse · el total ya quedó congelado.
+  if (requiereAutorizacionSocio(orden.totalUSD || 0) && orden.autorizacion?.estado !== 'aprobado') {
+    throw new Error(
+      `Esta OC ($${(orden.totalUSD || 0).toFixed(0)} USD) supera el umbral · requiere la firma de socio ANTES de comprometerla. Autorizala primero.`,
+    );
   }
 
   const batch = createBatch(db);

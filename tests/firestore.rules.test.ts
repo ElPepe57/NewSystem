@@ -152,6 +152,30 @@ describe('F1 · ORDENES DE COMPRA · el cliente no forja aprobación', () => {
     await seed('ordenesCompra', 'oc2', { totalUSD: 50000, creadoPor: 'comp', autorizacion: { estado: 'pendiente', firmas: [] } });
     await assertFails(updateDoc(doc(db('comp'), 'ordenesCompra', 'oc2'), { autorizacion: { estado: 'aprobado', firmas: [{ usuarioId: 'x' }] } }));
   });
+
+  it('✅ editar totalUSD de una OC SIN firmas (armando) → permitido', async () => {
+    await seedUser('comp', ['comprador']);
+    await seed('ordenesCompra', 'oc3', { totalUSD: 1000, creadoPor: 'comp', autorizacion: { estado: 'pendiente', firmas: [] } });
+    await assertSucceeds(updateDoc(doc(db('comp'), 'ordenesCompra', 'oc3'), { totalUSD: 3000 }));
+  });
+
+  it('🔒 F2 freeze: inflar totalUSD de una OC con firma (autorizando) → DENEGADO', async () => {
+    await seedUser('comp', ['comprador']);
+    await seed('ordenesCompra', 'oc4', { totalUSD: 3000, creadoPor: 'comp', autorizacion: { estado: 'pendiente', firmas: [{ usuarioId: 'A' }] } });
+    await assertFails(updateDoc(doc(db('comp'), 'ordenesCompra', 'oc4'), { totalUSD: 5000 }));
+  });
+
+  it('🔒 F2 freeze: inflar totalUSD de una OC ya aprobada → DENEGADO', async () => {
+    await seedUser('comp', ['comprador']);
+    await seed('ordenesCompra', 'oc5', { totalUSD: 3000, creadoPor: 'comp', autorizacion: { estado: 'aprobado', firmas: [{ usuarioId: 'A' }, { usuarioId: 'B' }] } });
+    await assertFails(updateDoc(doc(db('comp'), 'ordenesCompra', 'oc5'), { totalUSD: 5000 }));
+  });
+
+  it('✅ editar un campo NO-total de una OC aprobada (sin tocar totalUSD) → permitido', async () => {
+    await seedUser('comp', ['comprador']);
+    await seed('ordenesCompra', 'oc6', { totalUSD: 3000, creadoPor: 'comp', notas: 'a', autorizacion: { estado: 'aprobado', firmas: [{ usuarioId: 'A' }, { usuarioId: 'B' }] } });
+    await assertSucceeds(updateDoc(doc(db('comp'), 'ordenesCompra', 'oc6'), { notas: 'actualizada' }));
+  });
 });
 
 describe('F2 · REQUERIMIENTOS · estado→aprobado = autoridad de cargo (permiso + segregación)', () => {

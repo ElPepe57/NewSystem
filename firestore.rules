@@ -67,6 +67,15 @@ service cloud.firestore {
     function autorizacionIntacta() {
       return !request.resource.data.diff(resource.data).affectedKeys().hasAny(['autorizacion']);
     }
+    // F2 · una vez que la autorización de la OC ARRANCÓ (hay ≥1 firma o ya está aprobada), su
+    // `totalUSD` queda CONGELADO para el cliente · evita "autorizar barato → inflar antes de
+    // comprometer/pagar" (decisión usuario · firma sobre el total consolidado FINAL).
+    function totalCongeladoSiAutorizando() {
+      let auth = resource.data.get('autorizacion', {});
+      let enProceso = auth.get('estado', '') == 'aprobado' || auth.get('firmas', []).size() > 0;
+      return !enProceso
+        || request.resource.data.get('totalUSD', 0) == resource.data.get('totalUSD', 0);
+    }
     // `creadoPor` es inmutable post-create (segregación · evita re-asignar el creador).
     function creadoPorIntacto() {
       return request.resource.data.get('creadoPor', '') == resource.data.get('creadoPor', '');
@@ -258,10 +267,11 @@ service cloud.firestore {
                     && request.resource.data.creadoPor == request.auth.uid
                     && ( !('autorizacion' in request.resource.data)
                          || request.resource.data.autorizacion.get('estado', '') != 'aprobado' );
-      // F1 · update: admin root (canon) · no-admin no toca `autorizacion` ni `creadoPor`.
+      // F1/F2 · update: admin root (canon) · no-admin no toca `autorizacion` ni `creadoPor` · y el
+      // `totalUSD` queda congelado una vez que la autorización arrancó (F2 · evita inflar post-firma).
       allow update: if isAdmin()
                     || ( hasAnyRole(['admin', 'gerente', 'vendedor', 'almacenero', 'comprador'])
-                         && autorizacionIntacta() && creadoPorIntacto() );
+                         && autorizacionIntacta() && creadoPorIntacto() && totalCongeladoSiAutorizando() );
       allow delete: if hasAnyRole(['admin', 'gerente', 'vendedor', 'almacenero', 'comprador']);
     }
 

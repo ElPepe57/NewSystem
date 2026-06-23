@@ -163,6 +163,10 @@ Modelo **híbrido en 3 capas**, cada una defensa-en-profundidad de la siguiente:
     + segregación creador≠writer · admin root). `requerimiento.aprobar` simplificado a cargo (sin quórum/firmas) · req sacado del whitelist
     de la CF + de la bandeja de socio (es cargo, se aprueba en su módulo). rules emulator +3 tests (sin permiso DENY · con permiso+no-creador
     ALLOW · creador DENY). Split principista: permiso simple→reglas · quórum equity→CF.
+  - ✅ **gate de COMPROMISO de OC** (decisión "ambos puntos"): `confirmarOC` exige `autorizacion.estado==='aprobado'` para OCs >umbral ANTES
+    de comprometer/enviar (no solo al pagar · firma sobre el total CONSOLIDADO) + F1 rule `totalCongeladoSiAutorizando` congela `totalUSD`
+    una vez que arranca la autorización (≥1 firma o aprobada · evita inflar post-firma) + la CF ya autoriza OC en borrador (firma ANTES de
+    confirmar). rules emulator +4 tests freeze. Admin bypassa el freeze (canon root).
   - ⬜ **display de equity en la bandeja** PENDIENTE · `egresosPendientesSocio.helper` aún determina estado por nº-de-firmas
     (latente-impreciso bajo equity · sin data que lo dispare aún) → keyear estado en el `estado` persistido (CF-autoritativo) +
     barra de progreso por % equity (el hook cargaría socios+%).
