@@ -33,6 +33,7 @@ import {
   Banknote,
   Package,
   ArrowUpFromLine,
+  Truck,
 } from 'lucide-react';
 import { usePermissions } from '../../../hooks/usePermissions';
 import { useAuthStore } from '../../../store/authStore';
@@ -66,6 +67,7 @@ const ICONO_ORIGEN: Record<OrigenEgreso, React.ElementType> = {
   gasto: Banknote,
   oc: Package,
   retiro: ArrowUpFromLine,
+  envio: Truck,
 };
 
 interface BandejaData {

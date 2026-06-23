@@ -10,6 +10,7 @@ import { requerimientoService } from './requerimiento.service';
 import { gastoService } from './gasto.service';
 import { OrdenCompraService } from './ordenCompra.service';
 import { autorizarRetiroCapital, rechazarRetiroCapital } from './retiroCash.client';
+import { autorizarEnvioFlete, rechazarEnvioFlete } from './egresoCash.client';
 import type { OrigenEgreso } from './egresosPendientesSocio.helper';
 
 export function firmarEgreso(
@@ -29,6 +30,10 @@ export function firmarEgreso(
       // F3c · sin método de módulo · va directo a la CF autorizarEgreso (colección retirosCapital) y, al
       // completarse el quórum, encadena el desembolso (el retiro ES el pago).
       return autorizarRetiroCapital(id);
+    case 'envio':
+      // F3c · flete · va a la CF autorizarEgreso (colección envios) · NO encadena cash (el flete se paga
+      // aparte por envio.pagos · gateado por registrarEgresoCash).
+      return autorizarEnvioFlete(id);
   }
 }
 
@@ -52,5 +57,7 @@ export function rechazarEgreso(
       return OrdenCompraService.rechazarOC(id, userId, userRoles, motivo);
     case 'retiro':
       return rechazarRetiroCapital(id, motivo);
+    case 'envio':
+      return rechazarEnvioFlete(id, motivo);
   }
 }

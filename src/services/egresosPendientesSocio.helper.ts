@@ -23,8 +23,9 @@ import { montoUSDDeGasto } from './gasto.service';
 import type { Requerimiento } from '../types/requerimiento.types';
 import type { Gasto } from '../types/gasto.types';
 import type { OrdenCompra } from '../types/ordenCompra.types';
+import type { Envio } from '../types/envio.types';
 
-export type OrigenEgreso = 'requerimiento' | 'gasto' | 'oc' | 'retiro';
+export type OrigenEgreso = 'requerimiento' | 'gasto' | 'oc' | 'retiro' | 'envio';
 
 /** Shape mínimo del doc retirosCapital que la bandeja necesita (F3c · sin-ref · autorización standalone). */
 export interface RetiroCapitalDoc {
@@ -129,6 +130,26 @@ export function retiroAEgreso(r: RetiroCapitalDoc): EgresoPendiente {
   };
 }
 
+/**
+ * F3c · pago de flete de un envío (egreso referenciado · USD = costoFleteTotal por convención). Sale de la
+ * bandeja cuando se aprueba, se paga (estadoPagoColaborador='pagado'), se cancela, o si aún es borrador
+ * (no comprometido). La autorización la inicializa la CF en la primera firma (como gasto/OC).
+ */
+export function envioAEgreso(e: Envio): EgresoPendiente {
+  return {
+    origen: 'envio',
+    id: e.id,
+    numero: e.numeroEnvio,
+    descripcion: `Flete · ${e.colaboradorNombre ?? 'colaborador'}`,
+    montoUSD: e.costoFleteTotal || 0,
+    firmas: e.autorizacion?.firmas || [],
+    creadoPor: e.creadoPor,
+    aprobado: e.autorizacion?.estado === 'aprobado',
+    descartado: e.autorizacion?.estado === 'rechazado' || e.estadoPagoColaborador === 'pagado' || e.estado === 'borrador' || e.estado === 'cancelada',
+    fecha: e.fechaCreacion,
+  };
+}
+
 /** ¿este egreso requiere firma de socio y aún está pendiente? (filtro de la bandeja). */
 export function esPendienteDeFirma(e: EgresoPendiente): boolean {
   return requiereAutorizacionSocio(e.montoUSD) && !e.aprobado && !e.descartado;
@@ -195,4 +216,5 @@ export const LABEL_ORIGEN: Record<OrigenEgreso, string> = {
   gasto: 'Gasto',
   oc: 'Orden de compra',
   retiro: 'Retiro de socio',
+  envio: 'Flete de envío',
 };

@@ -10,8 +10,27 @@
  * y la CF devuelve el mismo movimiento sin doble desembolso. Ver docs/DEFENSA_EGRESOS_F3_CASH_LEDGER.md.
  */
 import { getFunctions, httpsCallable } from 'firebase/functions';
+import { COLLECTIONS } from '../config/collections';
+import type { ResultadoAutorizacionCF } from './autorizacionEgreso.helper';
 
 const functions = getFunctions();
+
+/**
+ * F3c · firma de socio sobre el flete de un envío >$1k (bandeja). La CF autorizarEgreso aplica el quórum
+ * por equity sobre la colección envios (autorizacion en el doc · como gasto/OC). A diferencia del retiro,
+ * el envío NO mueve cash al aprobarse: el flete se paga aparte (envio.pagos · gateado por registrarEgresoCash).
+ */
+export async function autorizarEnvioFlete(envioId: string): Promise<ResultadoAutorizacionCF> {
+  const fn = httpsCallable<{ coleccion: string; docId: string }, ResultadoAutorizacionCF>(functions, 'autorizarEgreso');
+  const { data } = await fn({ coleccion: COLLECTIONS.ENVIOS, docId: envioId });
+  return data;
+}
+
+/** F3c · rechazo de socio sobre el flete de un envío · la CF deja autorizacion.estado='rechazado'. */
+export async function rechazarEnvioFlete(envioId: string, motivo?: string): Promise<void> {
+  const fn = httpsCallable<{ coleccion: string; docId: string; motivo?: string }, { ok: true }>(functions, 'rechazarEgreso');
+  await fn({ coleccion: COLLECTIONS.ENVIOS, docId: envioId, motivo });
+}
 
 export interface EgresoCashInput {
   refDocumentoTipo: 'oc' | 'gasto' | 'envio';
