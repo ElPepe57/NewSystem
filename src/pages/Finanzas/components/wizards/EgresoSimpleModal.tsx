@@ -23,6 +23,7 @@ import { ArrowUpCircle, AlertCircle, ExternalLink } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { FormModalV2 } from '../../../../design-system/components/FormModalV2';
 import { tesoreriaService } from '../../../../services/tesoreria.service';
+import { requiereAutorizacionSocio } from '../../../../services/autorizacionEgreso.helper';
 import { useTipoCambio } from '../../../../hooks/useTipoCambio';
 import { useAuthStore } from '../../../../store/authStore';
 import type {
@@ -177,6 +178,12 @@ export const EgresoSimpleModal: React.FC<EgresoSimpleModalProps> = ({
     if (montoNum <= 0) return 'El monto debe ser mayor a 0.';
     if (!concepto.trim()) return 'El concepto es obligatorio.';
     if (moneda === 'USD' && tcEfectivo <= 0) return 'El tipo de cambio debe ser mayor a 0 para USD.';
+    // F3 (D2) · la caja directa es solo para montos menores · sobre el umbral se exige un egreso
+    // referenciado y aprobado (gasto/OC), no un egreso de caja libre sin autorización.
+    const montoUSD = moneda === 'USD' ? montoNum : (tcEfectivo > 0 ? montoNum / tcEfectivo : montoNum);
+    if (requiereAutorizacionSocio(montoUSD)) {
+      return 'Para egresos sobre $1.000 USD creá un gasto o una orden de compra y aprobalo · la caja directa es solo para montos menores.';
+    }
     return null;
   };
 
