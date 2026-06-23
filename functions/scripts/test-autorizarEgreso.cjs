@@ -91,15 +91,13 @@ async function main() {
   ok("socio rechaza → autorizacion.estado='rechazado'", (await getGasto("g_rej")).autorizacion.estado === "rechazado");
   await expectThrow("no-socio no puede rechazar", () => rechazarEgresoCore(db, { coleccion: "gastos", docId: "g_rej", uid: "empleado" }), "socios");
 
-  console.log("\n=== OC + Requerimiento (otras colecciones) ===");
+  // Requerimiento NO pasa por la CF (autoridad de cargo · enforzado por firestore.rules) · ver rules test.
+  console.log("\n=== OC (otra colección · mismo quórum de equity) ===");
   await db.collection("ordenesCompra").doc("oc1").set({ totalUSD: 5000, creadoPor: "vend", autorizacion: { estado: "pendiente", firmas: [] } });
   const roc = await autorizarEgresoCore(db, { coleccion: "ordenesCompra", docId: "oc1", uid: "A" });
   ok("OC: A(50%) parcial", roc.completa === false && roc.equityElegible === 100);
-  await db.collection("requerimientos").doc("r1").set({ montoEstimadoUSD: 5000, creadoPor: "vend", estado: "pendiente_aprobacion", aprobaciones: { firmas: [] } });
-  await autorizarEgresoCore(db, { coleccion: "requerimientos", docId: "r1", uid: "A" });
-  const rreq = await autorizarEgresoCore(db, { coleccion: "requerimientos", docId: "r1", uid: "B" });
-  ok("Req: A+B completa → estado 'aprobado'", rreq.completa === true);
-  ok("Req escribió estado='aprobado'", (await db.collection("requerimientos").doc("r1").get()).data().estado === "aprobado");
+  const roc2 = await autorizarEgresoCore(db, { coleccion: "ordenesCompra", docId: "oc1", uid: "B" });
+  ok("OC: A+B(80%) completa → autorizacion aprobada", roc2.completa === true && (await db.collection("ordenesCompra").doc("oc1").get()).data().autorizacion.estado === "aprobado");
 
   console.log(`\n=== RESULTADO: ${pass} pass · ${fail} fail ===\n`);
   if (fail > 0) process.exit(1);

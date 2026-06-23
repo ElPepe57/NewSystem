@@ -158,10 +158,11 @@ Modelo **híbrido en 3 capas**, cada una defensa-en-profundidad de la siguiente:
 - 🔵 **F2c · migrar cliente (EN CURSO):**
   - ✅ **gasto + OC** (`autorizarGasto`/`autorizarOC` + rechazos) migrados a `httpsCallable('autorizarEgreso'/'rechazarEgreso')`.
     Imports muertos quitados (evaluarFirmaSocio/delegacion) · notificación a socios preservada · toast equity-aware · build+44 tests+preview OK.
-  - ⬜ **requerimiento** PENDIENTE · WRINKLE: F1 congela `estado→aprobado` para el cliente, pero el req ≤umbral aprueba DIRECTO
-    por autoridad de CARGO (no socio). El CF maneja el req >umbral (socio · verificado) pero THROWS en ≤umbral → falta un camino
-    CARGO-DIRECTO en el CF (chequear permiso `APROBAR_REQUERIMIENTO` + segregación, set estado=aprobado). Decisión latente: ¿req
-    sigue en el sistema socio, o su aprobación es cargo-workflow y el control de dinero vive solo en el pago OC/gasto?
+  - ✅ **requerimiento = AUTORIDAD DE CARGO** (decisión user: el control de socio vive en la OC sobre el total CONSOLIDADO, no en el
+    req suelto · la OC puede crecer / incluir compras sin req). NO va por la CF: se enforza por **firestore.rules** (`hasPermiso('aprobar_requerimiento')`
+    + segregación creador≠writer · admin root). `requerimiento.aprobar` simplificado a cargo (sin quórum/firmas) · req sacado del whitelist
+    de la CF + de la bandeja de socio (es cargo, se aprueba en su módulo). rules emulator +3 tests (sin permiso DENY · con permiso+no-creador
+    ALLOW · creador DENY). Split principista: permiso simple→reglas · quórum equity→CF.
   - ⬜ **display de equity en la bandeja** PENDIENTE · `egresosPendientesSocio.helper` aún determina estado por nº-de-firmas
     (latente-impreciso bajo equity · sin data que lo dispare aún) → keyear estado en el `estado` persistido (CF-autoritativo) +
     barra de progreso por % equity (el hook cargaría socios+%).

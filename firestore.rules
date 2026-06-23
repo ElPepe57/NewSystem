@@ -71,13 +71,22 @@ service cloud.firestore {
     function creadoPorIntacto() {
       return request.resource.data.get('creadoPor', '') == resource.data.get('creadoPor', '');
     }
-    // Requerimientos (modelo estado+aprobaciones · NO congela todo el estado: tiene
-    // lifecycle legítimo cancelado/en_proceso/parcial) · bloquea SOLO la transición a
-    // 'aprobado' y congela aprobaciones/aprobadoPor.
-    function reqAprobacionIntacta() {
+    // ¿el usuario tiene un permiso concreto? (lee permisos/permisosCustom del doc · ambos
+    // auto-protegidos · el user no puede modificarlos · solo admin los setea).
+    function hasPermiso(p) {
+      let data = getUserData();
+      return ('permisos' in data && data.permisos is list && p in data.permisos)
+        || ('permisosCustom' in data && data.permisosCustom is list && p in data.permisosCustom);
+    }
+    // Requerimientos (modelo CARGO · decisión 2026-06-22): la aprobación es AUTORIDAD DE CARGO (no
+    // socio · el control de socio vive en la OC sobre el total consolidado). El write puede llevar
+    // estado→'aprobado' SOLO si tiene el permiso APROBAR_REQUERIMIENTO y NO es el creador (segregación).
+    // El resto del lifecycle (cancelado/en_proceso/parcial) queda libre.
+    function reqAprobacionAutorizada() {
       let keys = request.resource.data.diff(resource.data).affectedKeys();
-      return !keys.hasAny(['aprobaciones', 'aprobadoPor'])
-        && ( !keys.hasAny(['estado']) || request.resource.data.estado != 'aprobado' );
+      let transicionaAprobado = keys.hasAny(['estado']) && request.resource.data.estado == 'aprobado';
+      return !transicionaAprobado
+        || ( hasPermiso('aprobar_requerimiento') && resource.data.get('creadoPor', '') != request.auth.uid );
     }
 
     // ============================================================
@@ -155,10 +164,11 @@ service cloud.firestore {
       allow create: if hasAnyRole(['admin', 'gerente', 'vendedor', 'comprador'])
                     && request.resource.data.creadoPor == request.auth.uid
                     && request.resource.data.estado != 'aprobado';
-      // F1 · update: admin root (canon) · no-admin no transiciona a 'aprobado' ni toca aprobaciones/creadoPor.
+      // F2 · update: admin root (canon) · estado→'aprobado' SOLO con permiso APROBAR_REQUERIMIENTO +
+      // segregación (autoridad de cargo · decisión 2026-06-22) · creadoPor inmutable.
       allow update: if isAdmin()
                     || ( hasAnyRole(['admin', 'gerente', 'vendedor', 'comprador'])
-                         && reqAprobacionIntacta() && creadoPorIntacto() );
+                         && reqAprobacionAutorizada() && creadoPorIntacto() );
       allow delete: if hasAnyRole(['admin', 'gerente', 'vendedor', 'comprador']);
     }
 

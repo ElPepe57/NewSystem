@@ -10,12 +10,10 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useAuthStore } from '../store/authStore';
 import { usePermissions } from './usePermissions';
-import { requerimientoService } from '../services/requerimiento.service';
 import { gastoService } from '../services/gasto.service';
 import { getAll as getAllOC } from '../services/ordenCompra.crud.service';
 import {
   type EgresoPendiente,
-  requerimientoAEgreso,
   gastoAEgreso,
   ocAEgreso,
   esPendienteDeFirma,
@@ -53,8 +51,9 @@ export function useEgresosPendientesSocio(): UseEgresosPendientesSocioResult {
     const uid = user?.uid;
     setLoading(true);
     try {
-      const [reqs, gastos, ocs] = await Promise.all([
-        requerimientoService.getAll().catch(() => []),
+      // F2 · la bandeja de SOCIO solo agrega gasto + OC (quórum de equity). El requerimiento es
+      // autoridad de CARGO (se aprueba en su módulo · decisión 2026-06-22) · NO en la bandeja de socio.
+      const [gastos, ocs] = await Promise.all([
         gastoService.getAll().catch(() => []),
         getAllOC().catch(() => []),
       ]);
@@ -64,7 +63,6 @@ export function useEgresosPendientesSocio(): UseEgresosPendientesSocioResult {
 
       // Todos los egresos que requieren socio (pendientes o ya firmados).
       const todos: EgresoPendiente[] = [
-        ...reqs.map(requerimientoAEgreso),
         ...gastos.map(gastoAEgreso),
         ...ocs.map(ocAEgreso),
       ].filter((e) => requiereAutorizacionSocio(e.montoUSD));

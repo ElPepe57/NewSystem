@@ -41,10 +41,10 @@ beforeEach(async () => {
   await testEnv.clearFirestore();
 });
 
-/** Siembra el doc users/{uid} (bypass de reglas) para que los get(/users) de rol funcionen. */
-async function seedUser(uid: string, roles: string[]) {
+/** Siembra el doc users/{uid} (bypass de reglas) para que los get(/users) de rol/permiso funcionen. */
+async function seedUser(uid: string, roles: string[], permisos: string[] = []) {
   await testEnv.withSecurityRulesDisabled(async (ctx) => {
-    await setDoc(doc(ctx.firestore(), 'users', uid), { roles, activo: true, estado: 'activo' });
+    await setDoc(doc(ctx.firestore(), 'users', uid), { roles, activo: true, estado: 'activo', permisos });
   });
 }
 
@@ -154,7 +154,7 @@ describe('F1 · ORDENES DE COMPRA · el cliente no forja aprobación', () => {
   });
 });
 
-describe('F1 · REQUERIMIENTOS · estado→aprobado solo por CF', () => {
+describe('F2 · REQUERIMIENTOS · estado→aprobado = autoridad de cargo (permiso + segregación)', () => {
   it('create-safe: nace sin estado=aprobado → permitido', async () => {
     await seedUser('vend', ['vendedor']);
     await assertSucceeds(setDoc(doc(db('vend'), 'requerimientos', 'r1'), { creadoPor: 'vend', estado: 'pendiente' }));
@@ -165,10 +165,22 @@ describe('F1 · REQUERIMIENTOS · estado→aprobado solo por CF', () => {
     await assertFails(setDoc(doc(db('vend'), 'requerimientos', 'r1'), { creadoPor: 'vend', estado: 'aprobado' }));
   });
 
-  it('🔒 FORJA (update): transicionar estado→aprobado → DENEGADO', async () => {
-    await seedUser('comp', ['comprador']);
-    await seed('requerimientos', 'r2', { creadoPor: 'comp', estado: 'pendiente_aprobacion' });
-    await assertFails(updateDoc(doc(db('comp'), 'requerimientos', 'r2'), { estado: 'aprobado', aprobaciones: { firmas: [] } }));
+  it('🔒 estado→aprobado SIN permiso APROBAR_REQUERIMIENTO → DENEGADO', async () => {
+    await seedUser('vendsin', ['vendedor']); // rol sin el permiso
+    await seed('requerimientos', 'r2', { creadoPor: 'otro', estado: 'pendiente_aprobacion' });
+    await assertFails(updateDoc(doc(db('vendsin'), 'requerimientos', 'r2'), { estado: 'aprobado' }));
+  });
+
+  it('✅ estado→aprobado CON permiso (no creador) → permitido (autoridad de cargo)', async () => {
+    await seedUser('compP', ['comprador'], ['aprobar_requerimiento']);
+    await seed('requerimientos', 'r2b', { creadoPor: 'otro', estado: 'pendiente_aprobacion' });
+    await assertSucceeds(updateDoc(doc(db('compP'), 'requerimientos', 'r2b'), { estado: 'aprobado', aprobadoPor: 'compP' }));
+  });
+
+  it('🔒 estado→aprobado CON permiso pero ES el creador → DENEGADO (segregación)', async () => {
+    await seedUser('compP2', ['comprador'], ['aprobar_requerimiento']);
+    await seed('requerimientos', 'r2c', { creadoPor: 'compP2', estado: 'pendiente_aprobacion' });
+    await assertFails(updateDoc(doc(db('compP2'), 'requerimientos', 'r2c'), { estado: 'aprobado' }));
   });
 
   it('✅ lifecycle legítimo (estado→en_proceso al vincular OC) → permitido', async () => {

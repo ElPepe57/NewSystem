@@ -26,10 +26,11 @@ import {
   type DelegacionLite,
 } from "./autorizacionEgreso.helper";
 
+// Solo gasto + OC: necesitan el QUÓRUM DE EQUITY (que las rules no pueden computar). El requerimiento
+// es autoridad de CARGO (permiso APROBAR_REQUERIMIENTO) y se enforza por firestore.rules · NO por la CF.
 const COLECCIONES_VALIDAS: string[] = [
   COLLECTIONS.GASTOS,
   COLLECTIONS.ORDENES_COMPRA,
-  COLLECTIONS.REQUERIMIENTOS,
 ];
 
 type Code = functions.https.FunctionsErrorCode;

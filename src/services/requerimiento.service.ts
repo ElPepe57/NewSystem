@@ -37,10 +37,6 @@ import { tipoCambioService } from './tipoCambio.service';
 import { ProductoService } from './producto.service';
 import { unidadService } from './unidad.service';
 import { actividadService } from './actividad.service';
-import { NotificationService } from './notification.service';
-import { userService } from './user.service';
-import { requiereAutorizacionSocio, evaluarFirmaSocio } from './autorizacionEgreso.helper';
-import { delegacionAutorizacionService } from './delegacionAutorizacion.service';
 
 const COLLECTION_NAME = COLLECTIONS.REQUERIMIENTOS;
 
@@ -521,11 +517,12 @@ export const requerimientoService = {
   },
 
   /**
-   * Autorizar egreso (requerimiento) · F4 · autoridad del SOCIO (dueño).
-   * - Solo los socios firman (los cargos crean/operan, el dueño autoriza la plata).
-   * - El que solicita no firma lo suyo (segregación de funciones).
-   * - Monto landed <= $1,000: 1 firma de socio · > $1,000: 2 socios distintos (doble firma).
-   * @param userRoles roles del usuario (debe incluir 'socio').
+   * Aprobar un requerimiento · F2 · AUTORIDAD DE CARGO (decisión 2026-06-22).
+   * - El permiso APROBAR_REQUERIMIENTO se enforza server-side por firestore.rules (reqAprobacionAutorizada).
+   * - Segregación: el que solicita no aprueba lo suyo (admin excepción).
+   * - NO hay quórum de socio acá: el control de socio vive en la OC sobre el total consolidado (la OC
+   *   puede crecer / incluir compras sin requerimiento · ahí firma el socio).
+   * @param userRoles roles del usuario (para la excepción admin de segregación).
    */
   async aprobar(id: string, userId: string, userRoles: string[]): Promise<{ completa: boolean; faltanFirmas?: number }> {
     try {
@@ -538,100 +535,29 @@ export const requerimientoService = {
         throw new Error('Solo se pueden aprobar requerimientos pendientes');
       }
 
-      const montoUSD = requerimiento.montoEstimadoUSD || 0;
-      const creadorId = requerimiento.creadoPor || (requerimiento as any).solicitadoPor;
-
-      // ── Tramo DIRECTO (≤ umbral) · autoridad del cargo · sin firma de socio. ──
-      // El gating de permiso (APROBAR_REQUERIMIENTO) vive en la UI · acá solo segregación.
-      if (!requiereAutorizacionSocio(montoUSD)) {
-        if (creadorId && creadorId === userId && !userRoles.includes('admin')) {
-          throw new Error('No podés aprobar tu propio requerimiento · debe aprobarlo otra persona.');
-        }
-        await updateDoc(doc(db, COLLECTION_NAME, id), {
-          estado: 'aprobado',
-          aprobadoPor: userId,
-          fechaAprobacion: serverTimestamp(),
-          ultimaEdicion: serverTimestamp(),
-          editadoPor: userId,
-        });
-        actividadService.registrar({
-          tipo: 'requerimiento_aprobado',
-          mensaje: `Requerimiento ${id} aprobado (≤ umbral · autoridad del cargo)`,
-          userId,
-          displayName: userId,
-          metadata: { entidadId: id, entidadTipo: 'requerimiento' }
-        }).catch(() => {});
-        return { completa: true };
+      // F2 · MODELO CARGO (decisión 2026-06-22): la aprobación del requerimiento es AUTORIDAD DE CARGO
+      // (permiso APROBAR_REQUERIMIENTO · enforzado server-side por firestore.rules). El control de socio
+      // NO vive en el requerimiento suelto sino en la OC sobre el total CONSOLIDADO (puede crecer · incluir
+      // compras sin requerimiento). Acá: segregación (el creador no aprueba lo suyo · admin excepción).
+      const creadorId = requerimiento.creadoPor || (requerimiento as { solicitadoPor?: string }).solicitadoPor;
+      if (creadorId && creadorId === userId && !userRoles.includes('admin')) {
+        throw new Error('No podés aprobar tu propio requerimiento · debe aprobarlo otra persona.');
       }
-
-      // ── Tramo DOBLE SOCIO (> umbral) · 2 socios distintos · helper = fuente única. ──
-      const firmas = requerimiento.aprobaciones?.firmas || [];
-      // F4 · autoridad = socio O delegado vigente (la regla de doble firma se mantiene · pool ampliado).
-      const esSocioODelegado = userRoles.includes('socio') || await delegacionAutorizacionService.tieneAutoridadDelegada(userId, userRoles);
-      const evalFirma = evaluarFirmaSocio({
-        montoUSD,
-        firmas,
-        userId,
-        esSocio: esSocioODelegado,
-        creadorId,
-      });
-      if (!evalFirma.ok) {
-        throw new Error(evalFirma.error || 'No podés autorizar este egreso.');
-      }
-      // Timestamp.now() (no serverTimestamp): va dentro de un array · Firestore no permite sentinels ahí.
-      const nuevasFirmas = [...firmas, { usuarioId: userId, fecha: Timestamp.now() }];
-
-      if (evalFirma.completa) {
-        await updateDoc(doc(db, COLLECTION_NAME, id), {
-          estado: 'aprobado',
-          aprobaciones: { firmas: nuevasFirmas },
-          aprobadoPor: userId,
-          fechaAprobacion: serverTimestamp(),
-          ultimaEdicion: serverTimestamp(),
-          editadoPor: userId,
-        });
-        actividadService.registrar({
-          tipo: 'requerimiento_aprobado',
-          mensaje: `Requerimiento ${id} autorizado por socios (doble firma)`,
-          userId,
-          displayName: userId,
-          metadata: { entidadId: id, entidadTipo: 'requerimiento' }
-        }).catch(() => {});
-        return { completa: true };
-      }
-
-      // Falta la firma de otro socio → pendiente_aprobacion.
       await updateDoc(doc(db, COLLECTION_NAME, id), {
-        estado: 'pendiente_aprobacion',
-        aprobaciones: { firmas: nuevasFirmas },
-        requiereAprobacionDual: true,
+        estado: 'aprobado',
+        aprobadoPor: userId,
+        fechaAprobacion: serverTimestamp(),
         ultimaEdicion: serverTimestamp(),
         editadoPor: userId,
       });
-
-      // Notificar a los OTROS socios (distintos del firmante y del creador).
-      try {
-        const socios = await userService.getByRole('socio' as any);
-        const otrosSocios = socios.filter(u => u.activo && u.uid !== userId && u.uid !== creadorId);
-        for (const socio of otrosSocios) {
-          await NotificationService.crear({
-            tipo: 'aprobacion_pendiente',
-            prioridad: 'alta',
-            titulo: `Firma de socio pendiente — ${requerimiento.numeroRequerimiento || id}`,
-            mensaje: `Otro socio ya firmó. Falta tu firma para autorizar este egreso de $${(montoUSD || 0).toFixed(0)} USD.`,
-            usuarioId: socio.uid,
-            requerimientoId: id,
-            entidadTipo: 'usuario',
-            entidadId: id,
-            creadoPor: 'sistema',
-            metadata: { montoUSD },
-          });
-        }
-      } catch (notifError) {
-        logger.warn('Error al enviar notificación de aprobación de socio:', notifError);
-      }
-
-      return { completa: false, faltanFirmas: evalFirma.faltanFirmas };
+      actividadService.registrar({
+        tipo: 'requerimiento_aprobado',
+        mensaje: `Requerimiento ${id} aprobado (autoridad de cargo)`,
+        userId,
+        displayName: userId,
+        metadata: { entidadId: id, entidadTipo: 'requerimiento' }
+      }).catch(() => {});
+      return { completa: true };
     } catch (error: any) {
       logger.error('Error al aprobar requerimiento:', error);
       throw new Error(error.message || 'Error al aprobar requerimiento');
