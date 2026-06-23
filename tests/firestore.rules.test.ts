@@ -220,11 +220,28 @@ describe('F2 · REQUERIMIENTOS · estado→aprobado = autoridad de cargo (permis
   });
 });
 
-describe('🟠 ABIERTO HASTA F3 · el pago (cash ledger) aún no está gateado', () => {
-  it('un vendedor marca un gasto como pagado (denormalizado) · F1 no lo cierra · lo cierra F3', async () => {
-    await seedUser('vend', ['vendedor']);
-    await seed('gastos', 'g6', { montoPEN: 50000, creadoPor: 'vend', estado: 'pendiente' });
-    // F1 congela `autorizacion`, no el flag de pago · el dinero real (movimientosFinancieros) lo gatea F3.
-    await assertSucceeds(updateDoc(doc(db('vend'), 'gastos', 'g6'), { estado: 'pagado', pagos: [{ monto: 50000 }] }));
+describe('F3 · CASH LEDGER · el cliente no crea el cash de un egreso referenciado', () => {
+  it('🔒 cliente NO crea movimientosFinancieros de pago de GASTO (refDocumentoTipo=gasto) → DENEGADO', async () => {
+    await seedUser('fin', ['finanzas']);
+    await assertFails(setDoc(doc(db('fin'), 'movimientosFinancieros', 'm1'), { categoria: 'gasto_operativo', monto: 50000, refDocumentoTipo: 'gasto', refDocumentoId: 'g1', productoOrigenId: 'caja' }));
+  });
+  it('🔒 cliente NO crea cash de pago de OC (refDocumentoTipo=oc) → DENEGADO', async () => {
+    await seedUser('fin', ['finanzas']);
+    await assertFails(setDoc(doc(db('fin'), 'movimientosFinancieros', 'm2'), { categoria: 'pago_orden_compra', monto: 30000, refDocumentoTipo: 'oc', refDocumentoId: 'oc1', productoOrigenId: 'caja' }));
+  });
+  it('✅ cliente SÍ crea un INGRESO (cobro · ref a venta, no a egreso) → permitido', async () => {
+    await seedUser('fin', ['finanzas']);
+    await assertSucceeds(setDoc(doc(db('fin'), 'movimientosFinancieros', 'm3'), { categoria: 'ingreso_venta', monto: 1000, refDocumentoTipo: 'venta', refDocumentoId: 'v1', productoDestinoId: 'caja' }));
+  });
+  it('✅ cliente SÍ crea una conversión/transferencia interna (sin ref a oc/gasto) → permitido', async () => {
+    await seedUser('fin', ['finanzas']);
+    await assertSucceeds(setDoc(doc(db('fin'), 'movimientosFinancieros', 'm4'), { categoria: 'conversion_salida', monto: 1000, productoOrigenId: 'caja-usd', productoDestinoId: 'caja-pen' }));
+  });
+});
+
+describe('🟠 ABIERTO HASTA F3c · egresos SIN referencia (retiro socio, nómina…)', () => {
+  it('un finanzas crea un egreso sin ref · hoy permitido · lo cierra F3c (autorización standalone)', async () => {
+    await seedUser('fin', ['finanzas']);
+    await assertSucceeds(setDoc(doc(db('fin'), 'movimientosFinancieros', 'm5'), { categoria: 'retiro_socio', monto: 50000, productoOrigenId: 'caja' }));
   });
 });
