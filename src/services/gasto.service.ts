@@ -1118,38 +1118,28 @@ export const gastoService = {
       if (data.referenciaPago) nuevoPago.referencia = data.referenciaPago;
       if (data.notas) nuevoPago.notas = data.notas;
 
-      // Registrar movimiento financiero (F4a.5 · libro mayor unificado)
-      try {
-        const { registrarMovimientoFinanciero } = await import(
-          './movimientoFinanciero.service'
-        );
-        const movimientoId = await registrarMovimientoFinanciero({
-          categoria: 'gasto_operativo',
-          moneda: data.monedaPago,
-          monto: data.montoPago,
-          tipoCambio: data.tipoCambio,
-          metodo: data.metodoPago,
-          concepto: `Pago ${esPagoCompleto ? '' : 'parcial '}${gasto.numeroGasto}: ${gasto.descripcion}`,
-          fecha: data.fechaPago,
-          productoOrigenId: data.cuentaOrigenId,
-          refDocumentoTipo: 'gasto',
-          refDocumentoId: gastoId,
-          refDocumentoNumero: gasto.numeroGasto,
-          referencia: data.referenciaPago,
-          notas: data.notas,
-          loteId: data.loteId,
-          loteNumero: data.loteNumero,
-        }, userId);
-
-        if (movimientoId) {
-          nuevoPago.movimientoTesoreriaId = movimientoId;
-        }
-      } catch (tesoreriaError) {
-        logger.error('Error registrando movimiento financiero:', tesoreriaError);
-        // No bloquear el pago — marcar para reconciliación posterior
-        nuevoPago.errorTesoreria = true;
-        nuevoPago.errorTesoreriaMsg = tesoreriaError instanceof Error ? tesoreriaError.message : 'Error desconocido';
-      }
+      // F3 · el cash del pago lo escribe la Cloud Function registrarEgresoCash (valida la aprobación
+      // server-side · única escritora del cash de egreso). Si la CF rechaza (no autorizado / excede /
+      // cancelado) LANZA → el pago NO se registra (atómico-con-autorización · ya no se marca errorTesoreria
+      // y se sigue, que dejaría plata sin aprobar).
+      if (!data.cuentaOrigenId) throw new Error('Falta la cuenta de origen del pago.');
+      const { registrarEgresoCashFn } = await import('./egresoCash.client');
+      const { movimientoId } = await registrarEgresoCashFn({
+        refDocumentoTipo: 'gasto',
+        refDocumentoId: gastoId,
+        refDocumentoNumero: gasto.numeroGasto,
+        categoria: 'gasto_operativo',
+        productoOrigenId: data.cuentaOrigenId,
+        moneda: data.monedaPago,
+        monto: data.montoPago,
+        tipoCambio: data.tipoCambio,
+        concepto: `Pago ${esPagoCompleto ? '' : 'parcial '}${gasto.numeroGasto}: ${gasto.descripcion}`,
+        fecha: data.fechaPago,
+        metodo: data.metodoPago,
+        referencia: data.referenciaPago,
+        notas: data.notas,
+      });
+      nuevoPago.movimientoTesoreriaId = movimientoId;
 
       // Pool USD: NO registrar aquí — tesorería.movimientos.service lo hace automáticamente
       // al recibir un movimiento tipo 'gasto_operativo' en USD.

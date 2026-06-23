@@ -118,46 +118,30 @@ export async function registrarPago(
     ? `${destinatarioNombre} (adelantó pago a ${orden.nombreProveedor})`
     : destinatarioNombre;
 
-  // ─── 1. Registrar movimiento en libro mayor unificado (F4a · ADR-PF-001) ───
-  let movimientoTesoreriaId: string | undefined;
-  let errorTesoreria = false;
-  let errorTesoreriaMsg: string | undefined;
-
-  try {
-    const { registrarMovimientoFinanciero } = await import(
-      './movimientoFinanciero.service'
-    );
-    movimientoTesoreriaId = await registrarMovimientoFinanciero(
-      {
-        categoria: 'pago_orden_compra',
-        moneda: monedaPago,
-        monto: montoOriginal,
-        tipoCambio,
-        metodo: metodoPago,
-        referencia,
-        concepto: `Pago OC ${orden.numeroOrden} - ${conceptoSufijo}`,
-        productoOrigenId: cuentaOrigenId,
-        refDocumentoTipo: 'oc',
-        refDocumentoId: id,
-        refDocumentoNumero: orden.numeroOrden,
-        notas:
-          notas ||
-          `${monedaPago === 'USD' ? `≈ S/ ${montoPEN.toFixed(2)}` : `≈ $${montoUSD.toFixed(2)} USD`}`,
-        fecha: fechaPago,
-        loteId,
-        loteNumero,
-      },
-      userId,
-    );
-  } catch (tesoreriaError) {
-    logger.error('Error registrando pago OC en libro mayor financiero:', tesoreriaError);
-    errorTesoreria = true;
-    errorTesoreriaMsg =
-      tesoreriaError instanceof Error
-        ? tesoreriaError.message
-        : 'Error desconocido';
-    // Continuamos: el movimiento CC se crea igual, marcado con error
-  }
+  // ─── 1. F3 · el cash del pago lo escribe la Cloud Function registrarEgresoCash (valida la aprobación
+  //         server-side · única escritora del cash de egreso). Si rechaza (no autorizado / excede /
+  //         cancelado) LANZA → el pago NO se registra (atómico-con-autorización · ya no se sigue con la
+  //         CC marcada con error, que dejaría plata comprometida sin aprobar). ───
+  if (!cuentaOrigenId) throw new Error('Falta la cuenta de origen del pago.');
+  const { registrarEgresoCashFn } = await import('./egresoCash.client');
+  const cashResult = await registrarEgresoCashFn({
+    refDocumentoTipo: 'oc',
+    refDocumentoId: id,
+    refDocumentoNumero: orden.numeroOrden,
+    categoria: 'pago_orden_compra',
+    productoOrigenId: cuentaOrigenId,
+    moneda: monedaPago as 'USD' | 'PEN',
+    monto: montoOriginal,
+    tipoCambio,
+    concepto: `Pago OC ${orden.numeroOrden} - ${conceptoSufijo}`,
+    fecha: fechaPago,
+    metodo: metodoPago,
+    referencia,
+    notas: notas || `${monedaPago === 'USD' ? `≈ S/ ${montoPEN.toFixed(2)}` : `≈ $${montoUSD.toFixed(2)} USD`}`,
+  });
+  const movimientoTesoreriaId: string | undefined = cashResult.movimientoId;
+  const errorTesoreria = false;
+  const errorTesoreriaMsg: string | undefined = undefined;
 
   // ─── 2. Registrar movimiento en CC del proveedor (libro contable) ──────
   // Para deudor alternativo (colaborador adelantó pago), el crédito va a
