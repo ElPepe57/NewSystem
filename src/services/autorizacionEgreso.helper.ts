@@ -39,6 +39,8 @@ export interface FirmaSocio {
   nombre?: string;
   /** Timestamp de la firma (Firestore Timestamp · opaco para la lógica pura). */
   fecha?: unknown;
+  /** F2 · socios cuyo equity representa esta firma (lo escribe la CF · para el progreso por equity). */
+  representaSocios?: string[];
 }
 
 /** Tramo de autorización según el monto USD landed. */

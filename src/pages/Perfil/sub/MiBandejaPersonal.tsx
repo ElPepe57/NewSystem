@@ -40,7 +40,7 @@ import { getUserRoles } from '../../../types/auth.types';
 import { useEgresosPendientesSocio, type EgresoPendienteConAccion } from '../../../hooks/useEgresosPendientesSocio';
 import { firmarEgreso, rechazarEgreso } from '../../../services/firmarEgreso.service';
 import { useBandejaSignal } from '../../../store/bandejaSignalStore';
-import { chipFirma, LABEL_ORIGEN, autorizacionCompleta, fechaMiFirma, type OrigenEgreso, type EgresoPendiente } from '../../../services/egresosPendientesSocio.helper';
+import { chipFirma, progresoEquity, LABEL_ORIGEN, autorizacionCompleta, fechaMiFirma, type OrigenEgreso, type EgresoPendiente } from '../../../services/egresosPendientesSocio.helper';
 import { BackArrowHeader } from '../../../components/common/BackArrowHeader';
 import { useConfirmDialog, ConfirmDialog } from '../../../components/common';
 import { calculoIncentivoService } from '../../../services/calculoIncentivo.service';
@@ -149,7 +149,7 @@ export const MiBandejaPersonal: React.FC<{ embedded?: boolean }> = ({ embedded =
 
   // F4 · bandeja unificada de egresos · admin VE (admin-ve-todo) · firmar exige rol socio.
   const verEgresos = isSocio || isAdmin;
-  const { egresos, dadas, count: egresosCount, totalUSD: egresosTotalUSD, loading: egresosLoading, reload: reloadEgresos } = useEgresosPendientesSocio();
+  const { egresos, dadas, socios: sociosEquity, count: egresosCount, totalUSD: egresosTotalUSD, loading: egresosLoading, reload: reloadEgresos } = useEgresosPendientesSocio();
   // F4 · toggle dentro de la sub-tab Egresos: lo que espera mi firma vs lo que YA firmé.
   const [egresosVista, setEgresosVista] = useState<'por-firmar' | 'dadas'>('por-firmar');
 
@@ -207,7 +207,7 @@ export const MiBandejaPersonal: React.FC<{ embedded?: boolean }> = ({ embedded =
               <span className="text-[12px] font-bold text-slate-900 truncate">{e.numero}</span>
             </div>
             <div className="text-[10px] text-slate-500 truncate">
-              {e.descripcion || '—'} · <span className="text-violet-600 font-medium">{chipFirma(e)}</span>
+              {e.descripcion || '—'} · <span className="text-violet-600 font-medium">{chipFirma(e, sociosEquity)}</span>
             </div>
           </div>
         </div>
@@ -272,7 +272,7 @@ export const MiBandejaPersonal: React.FC<{ embedded?: boolean }> = ({ embedded =
             </span>
           ) : (
             <span className="text-[10px] font-medium text-amber-700 bg-amber-50 border border-amber-200 rounded-full px-2 py-0.5">
-              Tu firma · falta {e.faltanFirmas} socio{e.faltanFirmas === 1 ? '' : 's'}
+              Tu firma · {progresoEquity(e, sociosEquity).pctFirmado.toFixed(0)}% del equity · falta la mayoría
             </span>
           )}
         </div>

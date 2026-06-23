@@ -1,104 +1,111 @@
 import { describe, it, expect } from 'vitest';
 import {
-  requerimientoAEgreso,
   gastoAEgreso,
   ocAEgreso,
   esPendienteDeFirma,
   puedoFirmar,
   chipFirma,
+  progresoEquity,
   firmadoPorMi,
   autorizacionCompleta,
   type EgresoPendiente,
 } from './egresosPendientesSocio.helper';
+import type { SocioEquity } from './autorizacionEgreso.helper';
 
 const socioA = 'socio-A';
 const socioB = 'socio-B';
 const creador = 'gerente-C';
+const socios: SocioEquity[] = [{ uid: socioA, participacion: 50 }, { uid: socioB, participacion: 50 }];
 
-describe('mapeo · normaliza la divergencia req/gasto/OC', () => {
-  it('requerimiento → firmas desde aprobaciones.firmas', () => {
-    const e = requerimientoAEgreso({
-      id: 'r1', numeroRequerimiento: 'REQ-1', montoEstimadoUSD: 2340,
-      creadoPor: creador, aprobaciones: { firmas: [{ usuarioId: socioA }] },
-    } as any);
-    expect(e.origen).toBe('requerimiento');
-    expect(e.montoUSD).toBe(2340);
-    expect(e.firmas).toHaveLength(1);
-    expect(e.faltanFirmas).toBe(1); // requiere 2, tiene 1
-    expect(e.creadoPor).toBe(creador);
-  });
+const egreso = (over: Partial<EgresoPendiente> = {}): EgresoPendiente => ({
+  origen: 'oc', id: 'x', numero: 'X', montoUSD: 2000, firmas: [], creadoPor: creador, aprobado: false, descartado: false, ...over,
+});
 
-  it('gasto (USD) → firmas desde autorizacion.firmas', () => {
+describe('mapeo · estado por campo PERSISTIDO (no por conteo de firmas)', () => {
+  it('gasto (USD) → aprobado desde autorizacion.estado', () => {
     const e = gastoAEgreso({
       id: 'g1', numeroGasto: 'GAS-1', descripcion: 'Alquiler', moneda: 'USD',
       montoOriginal: 1500, montoPEN: 5550, creadoPor: creador,
-      autorizacion: { estado: 'pendiente', firmas: [] },
+      autorizacion: { estado: 'aprobado', firmas: [] },
     } as any);
     expect(e.origen).toBe('gasto');
     expect(e.montoUSD).toBe(1500);
-    expect(e.faltanFirmas).toBe(2); // 0 firmas
+    expect(e.aprobado).toBe(true);
     expect(e.descripcion).toBe('Alquiler');
   });
-
-  it('OC → montoUSD = totalUSD (ya landed)', () => {
-    const e = ocAEgreso({
-      id: 'o1', numeroOrden: 'OC-1', totalUSD: 800, creadoPor: creador, nombreProveedor: 'iHerb',
-    } as any);
-    expect(e.origen).toBe('oc');
-    expect(e.montoUSD).toBe(800);
-    expect(e.faltanFirmas).toBe(0); // ≤ umbral → no requiere socio
+  it('OC pendiente → aprobado false · montoUSD = totalUSD', () => {
+    const e = ocAEgreso({ id: 'o1', numeroOrden: 'OC-1', totalUSD: 2000, creadoPor: creador, nombreProveedor: 'iHerb', autorizacion: { estado: 'pendiente', firmas: [] } } as any);
+    expect(e.montoUSD).toBe(2000);
+    expect(e.aprobado).toBe(false);
+  });
+  it('OC rechazada → descartado', () => {
+    const e = ocAEgreso({ id: 'o2', numeroOrden: 'OC-2', totalUSD: 2000, creadoPor: creador, autorizacion: { estado: 'rechazado', firmas: [] } } as any);
+    expect(e.descartado).toBe(true);
   });
 });
 
-describe('esPendienteDeFirma · filtro de la bandeja', () => {
-  const base: EgresoPendiente = { origen: 'oc', id: 'x', numero: 'X', montoUSD: 2000, firmas: [], faltanFirmas: 2, creadoPor: creador, descartado: false };
-  it('> umbral con firmas faltantes → pendiente', () => {
-    expect(esPendienteDeFirma(base)).toBe(true);
+describe('esPendienteDeFirma · filtro (estado persistido)', () => {
+  it('> umbral y no aprobado → pendiente', () => {
+    expect(esPendienteDeFirma(egreso())).toBe(true);
   });
   it('≤ umbral → NO pendiente', () => {
-    expect(esPendienteDeFirma({ ...base, montoUSD: 900, faltanFirmas: 0 })).toBe(false);
+    expect(esPendienteDeFirma(egreso({ montoUSD: 900 }))).toBe(false);
   });
-  it('> umbral pero ya completas (2 firmas) → NO pendiente', () => {
-    expect(esPendienteDeFirma({ ...base, firmas: [{ usuarioId: 'a' }, { usuarioId: 'b' }], faltanFirmas: 0 })).toBe(false);
+  it('aprobado → NO pendiente', () => {
+    expect(esPendienteDeFirma(egreso({ aprobado: true }))).toBe(false);
   });
-  it('descartado (rechazado/cancelado) → NO pendiente · sale de la bandeja', () => {
-    expect(esPendienteDeFirma({ ...base, descartado: true })).toBe(false);
+  it('descartado → NO pendiente · sale de la bandeja', () => {
+    expect(esPendienteDeFirma(egreso({ descartado: true }))).toBe(false);
   });
 });
 
-describe('puedoFirmar · segregación + socio', () => {
-  const e: EgresoPendiente = { origen: 'oc', id: 'x', numero: 'X', montoUSD: 2000, firmas: [], faltanFirmas: 2, creadoPor: creador, descartado: false };
+describe('puedoFirmar · segregación + socio + estado', () => {
   it('socio que no es creador → puede', () => {
-    expect(puedoFirmar(e, socioA, true)).toBe(true);
+    expect(puedoFirmar(egreso(), socioA, true)).toBe(true);
   });
   it('el creador NO puede (segregación)', () => {
-    expect(puedoFirmar({ ...e, creadoPor: socioA }, socioA, true)).toBe(false);
+    expect(puedoFirmar(egreso({ creadoPor: socioA }), socioA, true)).toBe(false);
   });
   it('no-socio NO puede', () => {
-    expect(puedoFirmar(e, socioA, false)).toBe(false);
+    expect(puedoFirmar(egreso(), socioA, false)).toBe(false);
   });
   it('socio que ya firmó NO puede de nuevo', () => {
-    expect(puedoFirmar({ ...e, firmas: [{ usuarioId: socioA }] }, socioA, true)).toBe(false);
+    expect(puedoFirmar(egreso({ firmas: [{ usuarioId: socioA }] }), socioA, true)).toBe(false);
+  });
+  it('aprobado → nadie firma más', () => {
+    expect(puedoFirmar(egreso({ aprobado: true }), socioA, true)).toBe(false);
   });
 });
 
-describe('firmadoPorMi + autorizacionCompleta · Mis aprobaciones dadas', () => {
-  const base: EgresoPendiente = { origen: 'oc', id: 'x', numero: 'X', montoUSD: 2000, firmas: [{ usuarioId: socioA }], faltanFirmas: 1, creadoPor: creador, descartado: false };
+describe('firmadoPorMi + autorizacionCompleta', () => {
   it('firmadoPorMi: true si mi uid está en las firmas', () => {
-    expect(firmadoPorMi(base, socioA)).toBe(true);
-    expect(firmadoPorMi(base, socioB)).toBe(false);
+    const e = egreso({ firmas: [{ usuarioId: socioA }] });
+    expect(firmadoPorMi(e, socioA)).toBe(true);
+    expect(firmadoPorMi(e, socioB)).toBe(false);
   });
-  it('autorizacionCompleta: false si falta firma · true si 0 faltan', () => {
-    expect(autorizacionCompleta(base)).toBe(false);
-    expect(autorizacionCompleta({ ...base, firmas: [{ usuarioId: socioA }, { usuarioId: socioB }], faltanFirmas: 0 })).toBe(true);
+  it('autorizacionCompleta = aprobado (estado persistido)', () => {
+    expect(autorizacionCompleta(egreso())).toBe(false);
+    expect(autorizacionCompleta(egreso({ aprobado: true }))).toBe(true);
   });
 });
 
-describe('chipFirma · progreso', () => {
-  it('0 firmas → "Falta tu firma (0/2)"', () => {
-    expect(chipFirma({ origen: 'oc', id: 'x', numero: 'X', montoUSD: 2000, firmas: [], faltanFirmas: 2, descartado: false })).toBe('Falta tu firma (0/2)');
+describe('progresoEquity + chipFirma · por equity', () => {
+  // creador externo (gerente-C) · electorado = A(50)+B(50) = 100 · mayoría > 50.
+  it('1 firma de A (representa 50%) → 50% firmado · no completa', () => {
+    const e = egreso({ firmas: [{ usuarioId: socioA, representaSocios: [socioA] }] });
+    const p = progresoEquity(e, socios);
+    expect(p.equityFirmado).toBe(50);
+    expect(p.pctFirmado).toBe(50);
+    expect(p.completa).toBe(false);
   });
-  it('1 firma → "Falta 1 socio (1/2)"', () => {
-    expect(chipFirma({ origen: 'oc', id: 'x', numero: 'X', montoUSD: 2000, firmas: [{ usuarioId: 'a' }], faltanFirmas: 1, descartado: false })).toBe('Falta 1 socio (1/2)');
+  it('chipFirma: aprobado → "Autorizado"', () => {
+    expect(chipFirma(egreso({ aprobado: true }), socios)).toBe('Autorizado');
+  });
+  it('chipFirma: 0 firmas → falta la mayoría', () => {
+    expect(chipFirma(egreso(), socios)).toMatch(/mayor[ií]a/i);
+  });
+  it('chipFirma: 1 firma → muestra el % del equity', () => {
+    const e = egreso({ firmas: [{ usuarioId: socioA, representaSocios: [socioA] }] });
+    expect(chipFirma(e, socios)).toMatch(/50%/);
   });
 });

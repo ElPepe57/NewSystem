@@ -167,9 +167,10 @@ Modelo **híbrido en 3 capas**, cada una defensa-en-profundidad de la siguiente:
     de comprometer/enviar (no solo al pagar · firma sobre el total CONSOLIDADO) + F1 rule `totalCongeladoSiAutorizando` congela `totalUSD`
     una vez que arranca la autorización (≥1 firma o aprobada · evita inflar post-firma) + la CF ya autoriza OC en borrador (firma ANTES de
     confirmar). rules emulator +4 tests freeze. Admin bypassa el freeze (canon root).
-  - ⬜ **display de equity en la bandeja** PENDIENTE · `egresosPendientesSocio.helper` aún determina estado por nº-de-firmas
-    (latente-impreciso bajo equity · sin data que lo dispare aún) → keyear estado en el `estado` persistido (CF-autoritativo) +
-    barra de progreso por % equity (el hook cargaría socios+%).
+  - ✅ **display de equity en la bandeja**: `egresosPendientesSocio.helper` ahora keyea el estado en el campo PERSISTIDO (`aprobado` ·
+    CF-autoritativo) en vez de contar firmas + `progresoEquity`/`chipFirma(e, socios)` muestran el % del equity firmado (firma carga
+    `representaSocios`). El hook `useEgresosPendientesSocio` carga los socios (`socio.service.getAll` → `{uid, participacion}`). req sacado
+    del helper-aggregation. 47 tests del helper · build + preview limpios. **F2c COMPLETO.**
 - **Done:** ✅ CF emulador-verificada · ⬜ cliente migrado + bandeja adaptada al modelo de equity.
 - **Rollback fail-CLOSED:** si la CF falla, las aprobaciones quedan **bloqueadas** (no se reabre el
   write directo del cliente). F1+F2 se despliegan **acopladas**.

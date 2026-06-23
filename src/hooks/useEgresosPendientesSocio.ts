@@ -20,7 +20,8 @@ import {
   puedoFirmar,
   firmadoPorMi,
 } from '../services/egresosPendientesSocio.helper';
-import { requiereAutorizacionSocio } from '../services/autorizacionEgreso.helper';
+import { requiereAutorizacionSocio, type SocioEquity } from '../services/autorizacionEgreso.helper';
+import { socioService } from '../services/socio.service';
 import { delegacionAutorizacionService } from '../services/delegacionAutorizacion.service';
 
 export interface EgresoPendienteConAccion extends EgresoPendiente {
@@ -36,6 +37,8 @@ export interface UseEgresosPendientesSocioResult {
   count: number;
   /** Suma USD de todos los pendientes (para el KPI). */
   totalUSD: number;
+  /** Socios con su % de participación (para el progreso por equity de cada egreso · `chipFirma`). */
+  socios: SocioEquity[];
   loading: boolean;
   reload: () => Promise<void>;
 }
@@ -45,6 +48,7 @@ export function useEgresosPendientesSocio(): UseEgresosPendientesSocioResult {
   const { isSocio, roles } = usePermissions();
   const [egresos, setEgresos] = useState<EgresoPendienteConAccion[]>([]);
   const [dadas, setDadas] = useState<EgresoPendiente[]>([]);
+  const [socios, setSocios] = useState<SocioEquity[]>([]);
   const [loading, setLoading] = useState(false);
 
   const cargar = useCallback(async () => {
@@ -53,10 +57,12 @@ export function useEgresosPendientesSocio(): UseEgresosPendientesSocioResult {
     try {
       // F2 · la bandeja de SOCIO solo agrega gasto + OC (quórum de equity). El requerimiento es
       // autoridad de CARGO (se aprueba en su módulo · decisión 2026-06-22) · NO en la bandeja de socio.
-      const [gastos, ocs] = await Promise.all([
+      const [gastos, ocs, sociosRaw] = await Promise.all([
         gastoService.getAll().catch(() => []),
         getAllOC().catch(() => []),
+        socioService.getAll().catch(() => []),
       ]);
+      const sociosEquity: SocioEquity[] = sociosRaw.map((s) => ({ uid: s.id, participacion: s.porcentajeParticipacion }));
 
       // F4 · autoridad efectiva = socio O delegado vigente (el delegado entra al pool de firmantes).
       const esSocioODelegado = isSocio || (!!uid && (await delegacionAutorizacionService.tieneAutoridadDelegada(uid, roles).catch(() => false)));
@@ -80,6 +86,7 @@ export function useEgresosPendientesSocio(): UseEgresosPendientesSocioResult {
 
       setEgresos(conAccion);
       setDadas(misDadas);
+      setSocios(sociosEquity);
     } finally {
       setLoading(false);
     }
@@ -92,5 +99,5 @@ export function useEgresosPendientesSocio(): UseEgresosPendientesSocioResult {
   const count = egresos.reduce((n, e) => n + (e.puedeFirmar ? 1 : 0), 0);
   const totalUSD = egresos.reduce((s, e) => s + e.montoUSD, 0);
 
-  return { egresos, dadas, count, totalUSD, loading, reload: cargar };
+  return { egresos, dadas, count, totalUSD, socios, loading, reload: cargar };
 }

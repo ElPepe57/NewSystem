@@ -1,21 +1,23 @@
 /**
- * egresosPendientesSocio.helper · F4 · NORMALIZADOR de egresos pendientes de firma de socio.
+ * egresosPendientesSocio.helper · F2 · NORMALIZADOR de egresos pendientes de firma de socio.
  *
- * La bandeja unificada de autorizaciones NO reinventa lógica: AGREGA los egresos de los 3
- * módulos (requerimientos, gastos, OC) a un shape único `EgresoPendiente` y delega la regla de
- * firma al helper ya existente (autorizacionEgreso.helper · evaluarFirmaSocio). Acá solo se
- * absorbe la DIVERGENCIA de campos:
- *   - Requerimientos: firmas en `aprobaciones.firmas` · estado 'pendiente'/'pendiente_aprobacion'.
- *   - Gastos / OC:     firmas en `autorizacion.firmas` · `autorizacion.estado` 'pendiente'/'aprobado'.
+ * La bandeja unificada de autorizaciones de SOCIO agrega los egresos de gastos + OC (quórum de equity)
+ * a un shape único `EgresoPendiente` y delega la regla al helper puro (autorizacionEgreso.helper ·
+ * evaluarAprobacionEgreso). El requerimiento NO está acá: es autoridad de CARGO (se aprueba en su
+ * módulo · decisión 2026-06-22).
+ *
+ * El estado (pendiente/aprobado/rechazado) se lee del campo PERSISTIDO que la CF setea (autoritativo),
+ * NO se recomputa por conteo de firmas (bajo el modelo de equity el conteo no determina la mayoría).
  *
  * Sin I/O · puro · testeable.
  */
 
 import {
   type FirmaSocio,
+  type SocioEquity,
+  type FirmaEgreso,
   requiereAutorizacionSocio,
-  firmasSocioRequeridas,
-  evaluarFirmaSocio,
+  evaluarAprobacionEgreso,
 } from './autorizacionEgreso.helper';
 import { montoUSDDeGasto } from './gasto.service';
 import type { Requerimiento } from '../types/requerimiento.types';
@@ -32,33 +34,28 @@ export interface EgresoPendiente {
   descripcion?: string;
   /** Monto USD landed (base del tramo de autorización). */
   montoUSD: number;
-  /** Firmas de socio ya registradas. */
+  /** Firmas de socio ya registradas (con `representaSocios` · escritas por la CF). */
   firmas: FirmaSocio[];
   /** Quién creó/solicitó el egreso (para segregación). */
   creadoPor?: string;
-  /** Firmas de socio que faltan para autorizar. */
-  faltanFirmas: number;
+  /** El egreso ya quedó autorizado (estado PERSISTIDO · la CF lo setea al alcanzar la mayoría de equity). */
+  aprobado: boolean;
   /** El egreso fue rechazado o cancelado · NO es pendiente (sale de la bandeja). */
   descartado: boolean;
   /** Timestamp de creación (opaco · para fechaRelativa en la UI). */
   fecha?: unknown;
 }
 
-function faltan(montoUSD: number, firmas: FirmaSocio[]): number {
-  return Math.max(0, firmasSocioRequeridas(montoUSD) - firmas.length);
-}
-
 export function requerimientoAEgreso(r: Requerimiento): EgresoPendiente {
   const montoUSD = r.montoEstimadoUSD || 0;
-  const firmas = r.aprobaciones?.firmas || [];
   return {
     origen: 'requerimiento',
     id: r.id,
     numero: r.numeroRequerimiento,
     montoUSD,
-    firmas,
+    firmas: r.aprobaciones?.firmas || [],
     creadoPor: r.creadoPor || (r as { solicitadoPor?: string }).solicitadoPor,
-    faltanFirmas: faltan(montoUSD, firmas),
+    aprobado: r.estado === 'aprobado',
     descartado: r.estado === 'cancelado',
     fecha: (r as { fechaCreacion?: unknown }).fechaCreacion,
   };
@@ -66,16 +63,15 @@ export function requerimientoAEgreso(r: Requerimiento): EgresoPendiente {
 
 export function gastoAEgreso(g: Gasto): EgresoPendiente {
   const montoUSD = montoUSDDeGasto(g);
-  const firmas = g.autorizacion?.firmas || [];
   return {
     origen: 'gasto',
     id: g.id,
     numero: g.numeroGasto,
     descripcion: g.descripcion,
     montoUSD,
-    firmas,
+    firmas: g.autorizacion?.firmas || [],
     creadoPor: g.creadoPor,
-    faltanFirmas: faltan(montoUSD, firmas),
+    aprobado: g.autorizacion?.estado === 'aprobado',
     descartado: g.autorizacion?.estado === 'rechazado' || g.estado === 'cancelado',
     fecha: g.fechaCreacion,
   };
@@ -83,29 +79,28 @@ export function gastoAEgreso(g: Gasto): EgresoPendiente {
 
 export function ocAEgreso(o: OrdenCompra): EgresoPendiente {
   const montoUSD = o.totalUSD || 0;
-  const firmas = o.autorizacion?.firmas || [];
   return {
     origen: 'oc',
     id: o.id,
     numero: o.numeroOrden,
     descripcion: o.nombreProveedor,
     montoUSD,
-    firmas,
+    firmas: o.autorizacion?.firmas || [],
     creadoPor: o.creadoPor,
-    faltanFirmas: faltan(montoUSD, firmas),
+    aprobado: o.autorizacion?.estado === 'aprobado',
     descartado: o.autorizacion?.estado === 'rechazado' || o.estado === 'cancelada',
     fecha: o.fechaCreacion,
   };
 }
 
-/** ¿este egreso requiere firma de socio y aún le falta alguna? (filtro de la bandeja). */
+/** ¿este egreso requiere firma de socio y aún está pendiente? (filtro de la bandeja). */
 export function esPendienteDeFirma(e: EgresoPendiente): boolean {
-  return requiereAutorizacionSocio(e.montoUSD) && e.faltanFirmas > 0 && !e.descartado;
+  return requiereAutorizacionSocio(e.montoUSD) && !e.aprobado && !e.descartado;
 }
 
-/** ¿este usuario puede firmar este egreso AHORA? (socio · no creador · no firmó ya). */
+/** ¿este usuario puede firmar este egreso AHORA? (socio · no creador · no firmó · no completo/descartado). */
 export function puedoFirmar(e: EgresoPendiente, userId: string, esSocio: boolean): boolean {
-  return evaluarFirmaSocio({ montoUSD: e.montoUSD, firmas: e.firmas, userId, esSocio, creadorId: e.creadoPor }).ok;
+  return esSocio && !e.aprobado && !e.descartado && e.creadoPor !== userId && !firmadoPorMi(e, userId);
 }
 
 /** ¿el usuario ya firmó este egreso? (para "Mis aprobaciones dadas" · query reversa). */
@@ -113,9 +108,9 @@ export function firmadoPorMi(e: EgresoPendiente, userId: string): boolean {
   return e.firmas.some((f) => f.usuarioId === userId);
 }
 
-/** ¿el egreso quedó totalmente autorizado? (todas las firmas de socio requeridas presentes). */
+/** ¿el egreso quedó totalmente autorizado? (estado persistido · la CF lo setea al alcanzar la mayoría). */
 export function autorizacionCompleta(e: EgresoPendiente): boolean {
-  return e.faltanFirmas === 0;
+  return e.aprobado;
 }
 
 /** Fecha (Timestamp opaco) de la firma de ESTE usuario, si existe. */
@@ -123,14 +118,39 @@ export function fechaMiFirma(e: EgresoPendiente, userId: string): unknown {
   return e.firmas.find((f) => f.usuarioId === userId)?.fecha;
 }
 
-/** Texto del chip de progreso. Ej: "Falta tu firma (0/2)" · "Falta 1 socio (1/2)". */
-export function chipFirma(e: EgresoPendiente): string {
-  const req = firmasSocioRequeridas(e.montoUSD);
-  const hechas = e.firmas.length;
-  const detalle = e.faltanFirmas >= req
-    ? 'Falta tu firma'
-    : `Falta ${e.faltanFirmas} socio${e.faltanFirmas === 1 ? '' : 's'}`;
-  return `${detalle} (${hechas}/${req})`;
+export interface ProgresoEquity {
+  equityFirmado: number;
+  equityElegible: number;
+  equityFaltante: number;
+  /** % del equity elegible ya firmado (0-100). */
+  pctFirmado: number;
+  completa: boolean;
+}
+
+/** Progreso de autorización por EQUITY (mayoría >50% del equity elegible · creador excluido). */
+export function progresoEquity(e: EgresoPendiente, socios: SocioEquity[]): ProgresoEquity {
+  const firmas: FirmaEgreso[] = e.firmas.map((f) => ({
+    usuarioId: f.usuarioId,
+    representaSocios: f.representaSocios ?? [f.usuarioId],
+  }));
+  const r = evaluarAprobacionEgreso({ montoUSD: e.montoUSD, socios, creadorId: e.creadoPor, firmas });
+  const pctFirmado = r.equityElegible > 0 ? (r.equityFirmado / r.equityElegible) * 100 : 0;
+  return {
+    equityFirmado: r.equityFirmado,
+    equityElegible: r.equityElegible,
+    equityFaltante: r.equityFaltante,
+    pctFirmado,
+    completa: r.completa,
+  };
+}
+
+/** Texto del chip de progreso por equity (para la card de la bandeja). */
+export function chipFirma(e: EgresoPendiente, socios: SocioEquity[]): string {
+  if (e.aprobado) return 'Autorizado';
+  const p = progresoEquity(e, socios);
+  if (p.equityElegible <= 0) return 'Requiere aprobación de admin';
+  if (p.equityFirmado <= 0) return 'Falta firma de socios · mayoría >50%';
+  return `${p.pctFirmado.toFixed(0)}% del equity firmado · falta la mayoría (>50%)`;
 }
 
 /** Etiqueta legible del origen para la card. */
