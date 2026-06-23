@@ -776,11 +776,12 @@ service cloud.firestore {
     // audit trail con estado='anulado', no borra). Delete prohibido.
     match /movimientosFinancieros/{docId} {
       allow read: if hasAnyRole(['admin', 'gerente', 'finanzas', 'supervisor']);
-      // F3 · el cliente NO crea el cash de un egreso REFERENCIADO (pago de gasto/OC) · eso lo escribe la
-      // Cloud Function registrarEgresoCash (admin SDK · ignora estas reglas) tras validar la aprobación.
-      // El cliente sí crea ingresos (cobros), conversiones, transferencias internas y egresos sin-ref (F3c).
+      // F3 · el cliente NO crea el cash de un egreso de gasto/OC (pago single NI masivo) · eso lo escribe
+      // la Cloud Function registrarEgresoCash (admin SDK · ignora estas reglas) tras validar la aprobación.
+      // Se gatea por CATEGORÍA (no por refDocumentoTipo) para atrapar el pago MASIVO (agregado · sin ref).
+      // El cliente sí crea ingresos (cobros), conversiones, transferencias internas. envío + sin-ref = F3c.
       allow create: if hasAnyRole(['admin', 'gerente', 'finanzas'])
-                    && !( request.resource.data.get('refDocumentoTipo', '') in ['oc', 'gasto'] );
+                    && !( request.resource.data.get('categoria', '') in ['gasto_operativo', 'pago_orden_compra'] );
       allow update: if hasAnyRole(['admin', 'gerente', 'finanzas']);
       allow delete: if false;
     }

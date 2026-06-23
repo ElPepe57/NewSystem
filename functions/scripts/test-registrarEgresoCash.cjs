@@ -8,7 +8,7 @@ process.env.GCLOUD_PROJECT = process.env.GCLOUD_PROJECT || "demo-rules";
 const admin = require("firebase-admin");
 if (!admin.apps.length) admin.initializeApp({ projectId: process.env.GCLOUD_PROJECT });
 const db = admin.firestore();
-const { registrarEgresoCashCore } = require("../lib/egresos/registrarEgresoCash.js");
+const { registrarEgresoCashCore, registrarEgresoCashLoteCore } = require("../lib/egresos/registrarEgresoCash.js");
 
 let pass = 0, fail = 0;
 function ok(name, cond) {
@@ -68,6 +68,28 @@ async function main() {
 
   await seedProducto("caja-pen", { moneda: "PEN" });
   await expectThrow("moneda del pago ≠ cuenta (mono) → DENY", () => registrarEgresoCashCore(db, input({ refDocumentoId: "g-aprob", productoOrigenId: "caja-pen", moneda: "USD", idempotencyKey: "k-mon" }), "f"), "no coincide");
+
+  console.log("\n=== F3a · registrarEgresoCashLote (pago masivo) ===");
+  await seedProducto("caja-lote", { saldoActual: 20000 });
+  await seedGasto("gl-1", { autorizacion: { estado: "aprobado", firmas: [] } });
+  await seedGasto("gl-2", { montoOriginal: 4000, autorizacion: { estado: "aprobado", firmas: [] } });
+  const loteInput = (over) => ({
+    categoria: "gasto_operativo", productoOrigenId: "caja-lote", moneda: "USD", monto: 3000, tipoCambio: 3.7,
+    concepto: "lote", fechaMs: 1700000000000, idempotencyKey: "kl", refs: [], ...over,
+  });
+  const rl1 = await registrarEgresoCashLoteCore(db, loteInput({
+    monto: 3000, idempotencyKey: "kl-ok",
+    refs: [{ tipo: "gasto", id: "gl-1", montoAplicadoUSD: 2000 }, { tipo: "gasto", id: "gl-2", montoAplicadoUSD: 1000 }],
+  }), "fin");
+  ok("lote de 2 gastos APROBADOS → desembolsa", !!rl1.movimientoId);
+  ok("saldo del lote bajó 3000 (20000→17000)", (await saldo("caja-lote")) === 17000);
+
+  await seedGasto("gl-pend", { autorizacion: { estado: "pendiente", firmas: [] } });
+  await expectThrow("lote con 1 egreso NO aprobado → TODO el lote falla (atómico)", () => registrarEgresoCashLoteCore(db, loteInput({
+    monto: 2000, idempotencyKey: "kl-pend",
+    refs: [{ tipo: "gasto", id: "gl-1", montoAplicadoUSD: 1000 }, { tipo: "gasto", id: "gl-pend", montoAplicadoUSD: 1000 }],
+  }), "fin"), "no está autorizado");
+  ok("saldo del lote NO cambió tras el rechazo atómico", (await saldo("caja-lote")) === 17000);
 
   console.log(`\n=== RESULTADO F3a: ${pass} pass · ${fail} fail ===\n`);
   if (fail > 0) process.exit(1);

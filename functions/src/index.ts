@@ -83,7 +83,7 @@ export { autorizarEgreso, rechazarEgreso } from "./egresos/autorizarEgreso";
 // ============================================================
 // EGRESOS — Cash ledger gate (F3 · única escritora del cash de egreso referenciado)
 // ============================================================
-export { registrarEgresoCash } from "./egresos/registrarEgresoCash";
+export { registrarEgresoCash, registrarEgresoCashLote } from "./egresos/registrarEgresoCash";
 
 // ============================================================
 // chk5.F4-USERS (2026-05-25) · MÓDULO /usuarios completo

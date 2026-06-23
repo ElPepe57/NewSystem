@@ -984,42 +984,62 @@ export async function ejecutar(
       .join(', ');
 
   let movimientoTesoreriaId: string;
-  try {
-    const { registrarMovimientoFinanciero } = await import(
-      './movimientoFinanciero.service'
-    );
-    movimientoTesoreriaId = await registrarMovimientoFinanciero(
-      {
-        categoria: tipoMov as
-          | 'ingreso_venta'
-          | 'pago_viajero'
-          | 'gasto_operativo'
-          | 'pago_orden_compra',
-        moneda: input.monedaAbono,
-        monto: input.montoAbono,
-        tipoCambio: input.tipoCambio,
-        metodo: input.metodo,
-        concepto: conceptoTesoreria,
-        fecha: input.fecha,
-        referencia: input.referencia,
-        notas: notasFinales,
-        idempotencyKey,
-        // Origen vs destino según tipo de entidad
-        productoOrigenId: input.entidadTipo === 'cliente' ? undefined : input.cuentaId,
-        productoDestinoId: input.entidadTipo === 'cliente' ? input.cuentaId : undefined,
-      },
-      userId,
-    );
-  } catch (err) {
-    logger.error(
-      '[PagoAbonoDistribuido] Error creando movimiento financiero — abortando',
-      err,
-    );
-    throw new Error(
-      `No se pudo registrar el movimiento financiero: ${
-        err instanceof Error ? err.message : 'desconocido'
-      }`,
-    );
+  const esEgresoGateado = tipoMov === 'gasto_operativo' || tipoMov === 'pago_orden_compra';
+  if (esEgresoGateado) {
+    // F3 · el cash del pago MASIVO de egreso lo escribe la CF registrarEgresoCashLote (valida CADA egreso
+    // del lote · si uno no está aprobado, TODO el lote falla). Si rechaza LANZA → el lote no se desembolsa.
+    if (!input.cuentaId) throw new Error('Falta la cuenta de origen del pago masivo.');
+    const { registrarEgresoCashLoteFn } = await import('./egresoCash.client');
+    const res = await registrarEgresoCashLoteFn({
+      categoria: tipoMov,
+      productoOrigenId: input.cuentaId,
+      moneda: input.monedaAbono === 'USD' ? 'USD' : 'PEN',
+      monto: input.montoAbono,
+      tipoCambio: input.tipoCambio,
+      concepto: conceptoTesoreria,
+      fecha: input.fecha,
+      metodo: input.metodo,
+      referencia: input.referencia,
+      notas: notasFinales,
+      // Solo oc/gasto se validan acá (la CF aún no maneja envío · F3c) · el saldo total igual cubre el lote.
+      refs: input.distribucion
+        .filter((d) => d.tipo === 'oc' || d.tipo === 'gasto')
+        .map((d) => ({
+          tipo: d.tipo as 'oc' | 'gasto',
+          id: d.documentoId,
+          montoAplicadoUSD: input.monedaAbono === 'USD' ? d.montoAplicado : d.montoAplicado / input.tipoCambio,
+        })),
+    });
+    movimientoTesoreriaId = res.movimientoId;
+  } else {
+    // Ingreso (cobranza) o pago_viajero (envío · F3c) → directo (la regla F3a no bloquea estas categorías).
+    try {
+      const { registrarMovimientoFinanciero } = await import(
+        './movimientoFinanciero.service'
+      );
+      movimientoTesoreriaId = await registrarMovimientoFinanciero(
+        {
+          categoria: tipoMov as 'ingreso_venta' | 'pago_viajero' | 'gasto_operativo' | 'pago_orden_compra',
+          moneda: input.monedaAbono,
+          monto: input.montoAbono,
+          tipoCambio: input.tipoCambio,
+          metodo: input.metodo,
+          concepto: conceptoTesoreria,
+          fecha: input.fecha,
+          referencia: input.referencia,
+          notas: notasFinales,
+          idempotencyKey,
+          productoOrigenId: input.entidadTipo === 'cliente' ? undefined : input.cuentaId,
+          productoDestinoId: input.entidadTipo === 'cliente' ? input.cuentaId : undefined,
+        },
+        userId,
+      );
+    } catch (err) {
+      logger.error('[PagoAbonoDistribuido] Error creando movimiento financiero — abortando', err);
+      throw new Error(
+        `No se pudo registrar el movimiento financiero: ${err instanceof Error ? err.message : 'desconocido'}`,
+      );
+    }
   }
 
   // ─── 4. Crear N movimientos CC (1 por documento) ────────────────────

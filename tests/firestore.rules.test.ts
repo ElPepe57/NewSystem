@@ -229,6 +229,11 @@ describe('F3 · CASH LEDGER · el cliente no crea el cash de un egreso referenci
     await seedUser('fin', ['finanzas']);
     await assertFails(setDoc(doc(db('fin'), 'movimientosFinancieros', 'm2'), { categoria: 'pago_orden_compra', monto: 30000, refDocumentoTipo: 'oc', refDocumentoId: 'oc1', productoOrigenId: 'caja' }));
   });
+  it('🔒 cliente NO crea el cash MASIVO (categoría de egreso · SIN refDocumentoTipo) → DENEGADO', async () => {
+    await seedUser('fin', ['finanzas']);
+    // pagoAbonoDistribuido crea UN movimiento agregado sin refDocumentoTipo · el gate por categoría lo atrapa.
+    await assertFails(setDoc(doc(db('fin'), 'movimientosFinancieros', 'm2b'), { categoria: 'gasto_operativo', monto: 90000, productoOrigenId: 'caja' }));
+  });
   it('✅ cliente SÍ crea un INGRESO (cobro · ref a venta, no a egreso) → permitido', async () => {
     await seedUser('fin', ['finanzas']);
     await assertSucceeds(setDoc(doc(db('fin'), 'movimientosFinancieros', 'm3'), { categoria: 'ingreso_venta', monto: 1000, refDocumentoTipo: 'venta', refDocumentoId: 'v1', productoDestinoId: 'caja' }));

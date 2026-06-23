@@ -196,3 +196,111 @@ export const registrarEgresoCash = functions.https.onCall(async (data: Registrar
   if (!context.auth) throw err("unauthenticated", "Debe estar autenticado.");
   return registrarEgresoCashCore(admin.firestore(), data, context.auth.uid);
 });
+
+// ════════════════════════════════════════════════════════════════════════════════
+// MODO LOTE · F3a · pagoAbonoDistribuido (UN movimiento agregado cubre N egresos)
+// ════════════════════════════════════════════════════════════════════════════════
+
+/** Re-lee y valida un egreso referenciado dentro de una tx · devuelve su montoUSD (o lanza). */
+async function validarEgresoEnTx(
+  tx: admin.firestore.Transaction,
+  db: admin.firestore.Firestore,
+  tipo: RefTipo,
+  id: string,
+): Promise<number> {
+  const snap = await tx.get(db.collection(COL_EGRESO[tipo]).doc(id));
+  if (!snap.exists) throw err("not-found", `Egreso ${tipo}/${id} no encontrado.`);
+  const egreso = snap.data() as admin.firestore.DocumentData;
+  if (egreso.estado === "cancelado" || egreso.estado === "cancelada") {
+    throw err("failed-precondition", `Egreso ${id} cancelado · no se puede pagar.`);
+  }
+  const montoUSD = montoUSDDelEgreso(tipo, egreso);
+  if (montoUSD == null) throw err("failed-precondition", `Monto del egreso ${id} no resoluble (fail-closed).`);
+  if (requiereAutorizacionSocio(montoUSD) && egreso.autorizacion?.estado !== "aprobado") {
+    throw err("permission-denied", `El egreso ${id} supera el umbral y no está autorizado por socios.`);
+  }
+  return montoUSD;
+}
+
+export interface RegistrarEgresoCashLoteInput {
+  categoria: string;
+  productoOrigenId: string;
+  moneda: Moneda;
+  monto: number; // total del lote (lo que sale de la cuenta)
+  tipoCambio: number;
+  concepto: string;
+  fechaMs: number;
+  metodo?: string;
+  referencia?: string;
+  notas?: string;
+  idempotencyKey: string;
+  refs: { tipo: RefTipo; id: string; montoAplicadoUSD: number }[];
+}
+
+export async function registrarEgresoCashLoteCore(
+  db: admin.firestore.Firestore,
+  input: RegistrarEgresoCashLoteInput,
+  userId: string,
+): Promise<RegistrarEgresoCashResult> {
+  if (!input.refs?.length) throw err("invalid-argument", "El lote no tiene egresos.");
+  if (!input.productoOrigenId) throw err("invalid-argument", "Falta la cuenta de origen.");
+  if (!input.idempotencyKey) throw err("invalid-argument", "Falta idempotencyKey.");
+  if (!(input.monto > 0)) throw err("invalid-argument", "Monto inválido.");
+  if (!(input.tipoCambio > 0)) throw err("invalid-argument", "Tipo de cambio inválido.");
+  if (input.moneda !== "USD" && input.moneda !== "PEN") throw err("invalid-argument", "Moneda inválida.");
+
+  const dup = await db.collection(COLLECTIONS.MOVIMIENTOS_FINANCIEROS).where("idempotencyKey", "==", input.idempotencyKey).limit(1).get();
+  if (!dup.empty) return { movimientoId: dup.docs[0].id, saldoNuevo: null, idempotente: true };
+
+  const fecha = admin.firestore.Timestamp.fromMillis(input.fechaMs);
+  const numeroMovimiento = await generarNumeroMovimiento(db, fecha.toDate().getFullYear());
+  const productoRef = db.collection(COLLECTIONS.PRODUCTOS_FINANCIEROS).doc(input.productoOrigenId);
+  const movRef = db.collection(COLLECTIONS.MOVIMIENTOS_FINANCIEROS).doc();
+
+  return db.runTransaction(async (tx) => {
+    // valida CADA egreso del lote · si UNO no está aprobado, TODO el lote falla (atómico).
+    for (const r of input.refs) {
+      const montoUSD = await validarEgresoEnTx(tx, db, r.tipo, r.id);
+      if (r.montoAplicadoUSD > montoUSD + 0.01) {
+        throw err("failed-precondition", `El monto aplicado al egreso ${r.id} excede su monto autorizado.`);
+      }
+    }
+
+    const prodSnap = await tx.get(productoRef);
+    if (!prodSnap.exists) throw err("not-found", "Cuenta de origen no encontrada.");
+    const prod = prodSnap.data() as admin.firestore.DocumentData;
+    const saldoUpdate: Record<string, unknown> = { saldoActualizadoEn: admin.firestore.Timestamp.now(), actualizadoPor: userId };
+    let saldoNuevo: number;
+    if (prod.esBiMoneda) {
+      const campo = input.moneda === "USD" ? "saldoUSD" : "saldoPEN";
+      saldoNuevo = Number(prod[campo] ?? 0) - input.monto;
+      saldoUpdate[campo] = saldoNuevo;
+    } else {
+      if (input.moneda !== prod.moneda) throw err("failed-precondition", `La moneda del pago (${input.moneda}) no coincide con la cuenta (${prod.moneda}).`);
+      saldoNuevo = Number(prod.saldoActual ?? 0) - input.monto;
+      saldoUpdate.saldoActual = saldoNuevo;
+    }
+
+    const montoEquivalentePEN = input.moneda === "PEN" ? input.monto : input.monto * input.tipoCambio;
+    const montoEquivalenteUSD = input.moneda === "USD" ? input.monto : input.monto / input.tipoCambio;
+    const docData: Record<string, unknown> = {
+      numeroMovimiento, categoria: input.categoria, estado: "ejecutado",
+      moneda: input.moneda, monto: input.monto, tipoCambio: input.tipoCambio, montoEquivalentePEN, montoEquivalenteUSD,
+      concepto: input.concepto.trim(), fecha, productoOrigenId: input.productoOrigenId,
+      idempotencyKey: input.idempotencyKey, creadoPor: userId, fechaCreacion: admin.firestore.Timestamp.now(),
+      loteRefs: input.refs.map((r) => ({ tipo: r.tipo, id: r.id })),
+    };
+    if (input.metodo?.trim()) docData.metodo = input.metodo.trim();
+    if (input.referencia?.trim()) docData.referencia = input.referencia.trim();
+    if (input.notas?.trim()) docData.notas = input.notas.trim();
+
+    tx.set(movRef, docData);
+    tx.update(productoRef, saldoUpdate);
+    return { movimientoId: movRef.id, saldoNuevo };
+  });
+}
+
+export const registrarEgresoCashLote = functions.https.onCall(async (data: RegistrarEgresoCashLoteInput, context) => {
+  if (!context.auth) throw err("unauthenticated", "Debe estar autenticado.");
+  return registrarEgresoCashLoteCore(admin.firestore(), data, context.auth.uid);
+});

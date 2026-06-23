@@ -71,3 +71,47 @@ export async function registrarEgresoCashFn(input: EgresoCashInput): Promise<Egr
   });
   return data;
 }
+
+export interface EgresoCashLoteInput {
+  categoria: string;
+  productoOrigenId: string;
+  moneda: 'USD' | 'PEN';
+  monto: number;
+  tipoCambio: number;
+  concepto: string;
+  fecha: Date;
+  metodo?: string;
+  referencia?: string;
+  notas?: string;
+  refs: { tipo: 'oc' | 'gasto'; id: string; montoAplicadoUSD: number }[];
+}
+
+/** F3 · registra el cash de un pago MASIVO (lote · cubre N egresos) vía la CF · valida cada ref aprobado. */
+export async function registrarEgresoCashLoteFn(input: EgresoCashLoteInput): Promise<EgresoCashResult> {
+  const idempotencyKey = [
+    'lote',
+    input.categoria,
+    Math.round(input.monto * 100),
+    input.moneda,
+    input.fecha.getTime(),
+    input.productoOrigenId,
+    input.refs.map((r) => `${r.tipo}:${r.id}`).join('|'),
+  ].join('-');
+
+  const fn = httpsCallable<Record<string, unknown>, EgresoCashResult>(functions, 'registrarEgresoCashLote');
+  const { data } = await fn({
+    categoria: input.categoria,
+    productoOrigenId: input.productoOrigenId,
+    moneda: input.moneda,
+    monto: input.monto,
+    tipoCambio: input.tipoCambio,
+    concepto: input.concepto,
+    fechaMs: input.fecha.getTime(),
+    metodo: input.metodo,
+    referencia: input.referencia,
+    notas: input.notas,
+    idempotencyKey,
+    refs: input.refs,
+  });
+  return data;
+}
