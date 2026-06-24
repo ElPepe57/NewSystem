@@ -122,7 +122,7 @@ export const envioPagosService = {
     // Requiere cuenta de origen (la CF mueve su saldo · ya no se permite el pago "sin cuenta" del path legacy).
     if (!cuentaOrigenId) throw new Error('Seleccioná la cuenta de origen del pago del flete.');
     const { registrarEgresoCashFn } = await import('./egresoCash.client');
-    const { movimientoId } = await registrarEgresoCashFn({
+    const { movimientoId, idempotente } = await registrarEgresoCashFn({
       refDocumentoTipo: 'envio',
       refDocumentoId: envioId,
       refDocumentoNumero: envio.numeroEnvio,
@@ -139,6 +139,13 @@ export const envioPagosService = {
     });
     const movimientoTesoreriaId: string | undefined = movimientoId;
     nuevoPago.movimientoTesoreriaId = movimientoTesoreriaId;
+    // review migracion-envio#3 · si el pago fue idempotente (retry exacto · misma key), el cash YA se movió
+    // y el estado denormalizado + el crédito en CC ya se avanzaron en la 1ª llamada → NO re-aplicar (si no,
+    // los libros marcarían el doble de lo que salió de la cuenta).
+    if (idempotente) {
+      logger.warn(`Pago de flete idempotente (retry) · no se re-aplica el estado: ${envio.numeroEnvio}`);
+      return nuevoPago;
+    }
     logger.success(`Pago colaborador registrado (CF): ${monedaPago} ${montoOriginal} para ${envio.numeroEnvio}`);
 
     // S55 Fase 4 — denormalizados del envío (DESPUÉS del cash · si el cash falló, ya lanzó arriba).

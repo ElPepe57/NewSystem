@@ -265,6 +265,15 @@ describe('F3c · RETIRO DE SOCIO · gate sin-ref (movimientosTesoreria + retiros
     await seedUser('fin', ['finanzas']);
     await assertFails(setDoc(doc(db('fin'), 'retirosCapital', 'r2'), { creadoPor: 'fin', monto: 5000, estado: 'pendiente', autorizacion: { estado: 'aprobado', firmas: [] } }));
   });
+  it('🔒 cliente NO nace un retiro estado=ejecutado (saltarse la bandeja de socios) → DENEGADO', async () => {
+    await seedUser('fin', ['finanzas']);
+    await assertFails(setDoc(doc(db('fin'), 'retirosCapital', 'r-ej'), { creadoPor: 'fin', monto: 5000, estado: 'ejecutado' }));
+  });
+  it('🔒 cliente NO transiciona un retiro a estado=ejecutado en update (solo la CF) → DENEGADO', async () => {
+    await seed('retirosCapital', 'r-ej2', { creadoPor: 'fin', monto: 5000, estado: 'pendiente', autorizacion: { estado: 'aprobado', firmas: [] } });
+    await seedUser('fin', ['finanzas']);
+    await assertFails(updateDoc(doc(db('fin'), 'retirosCapital', 'r-ej2'), { estado: 'ejecutado' }));
+  });
   it('🔒 cliente NO pinea otro creador en el retiro (segregación) → DENEGADO', async () => {
     await seedUser('fin', ['finanzas']);
     await assertFails(setDoc(doc(db('fin'), 'retirosCapital', 'r3'), { creadoPor: 'otro', monto: 5000, estado: 'pendiente' }));

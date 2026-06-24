@@ -88,7 +88,8 @@ export function gastoAEgreso(g: Gasto): EgresoPendiente {
     firmas: g.autorizacion?.firmas || [],
     creadoPor: g.creadoPor,
     aprobado: g.autorizacion?.estado === 'aprobado',
-    descartado: g.autorizacion?.estado === 'rechazado' || g.estado === 'cancelado',
+    // review chaining-edges#3 · un gasto ya pagado sale de la bandeja (no reaparece pidiendo firma).
+    descartado: g.autorizacion?.estado === 'rechazado' || g.estado === 'cancelado' || g.estado === 'pagado',
     fecha: g.fechaCreacion,
   };
 }
@@ -104,7 +105,8 @@ export function ocAEgreso(o: OrdenCompra): EgresoPendiente {
     firmas: o.autorizacion?.firmas || [],
     creadoPor: o.creadoPor,
     aprobado: o.autorizacion?.estado === 'aprobado',
-    descartado: o.autorizacion?.estado === 'rechazado' || o.estado === 'cancelada',
+    // review chaining-edges#3 · una OC ya pagada sale de la bandeja (no reaparece pidiendo firma).
+    descartado: o.autorizacion?.estado === 'rechazado' || o.estado === 'cancelada' || o.estadoPago === 'pagado',
     fecha: o.fechaCreacion,
   };
 }

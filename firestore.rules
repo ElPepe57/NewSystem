@@ -369,16 +369,21 @@ service cloud.firestore {
 
     match /retirosCapital/{docId} {
       allow read: if hasAnyRole(['admin', 'gerente', 'finanzas', 'supervisor']);
-      // F3c · create-safe: nace sin autorizacion='aprobado' · creador pineado (el quórum lo escribe la CF).
+      // F3c · create-safe: nace sin autorizacion='aprobado' NI estado='ejecutado' (eso lo escribe la CF) ·
+      // creador pineado. Sin esto, el cliente marcaba el retiro 'ejecutado' para que NO apareciera en la
+      // bandeja de socios (la normalización lo trata como descartado) · review cf-retiro#2.
       allow create: if hasAnyRole(['admin', 'gerente', 'finanzas'])
                     && request.resource.data.creadoPor == request.auth.uid
+                    && request.resource.data.get('estado', '') != 'ejecutado'
                     && ( !('autorizacion' in request.resource.data)
                          || request.resource.data.autorizacion.get('estado', '') != 'aprobado' );
-      // F3c · update: admin root (canon) · no-admin NO toca `autorizacion` ni `creadoPor`, y el USD landed
-      // queda congelado una vez que la autorización arrancó. El estado→'ejecutado' lo escribe la CF (admin SDK).
+      // F3c · update: admin root (canon) · no-admin NO toca `autorizacion` ni `creadoPor`, NO marca
+      // estado='ejecutado' (solo la CF ejecuta · admin SDK), y el USD landed queda congelado una vez que la
+      // autorización arrancó.
       allow update: if isAdmin()
                     || ( hasAnyRole(['admin', 'gerente', 'finanzas'])
-                         && autorizacionIntacta() && creadoPorIntacto() && montoCongeladoSiAutorizando() );
+                         && autorizacionIntacta() && creadoPorIntacto() && montoCongeladoSiAutorizando()
+                         && request.resource.data.get('estado', '') != 'ejecutado' );
       allow delete: if false;
     }
 
