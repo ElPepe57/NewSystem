@@ -10,7 +10,7 @@ process.env.GCLOUD_PROJECT = process.env.GCLOUD_PROJECT || "demo-rules";
 const admin = require("firebase-admin");
 if (!admin.apps.length) admin.initializeApp({ projectId: process.env.GCLOUD_PROJECT });
 const db = admin.firestore();
-const { registrarMovimientoCashCore } = require("../lib/egresos/registrarMovimientoCash.js");
+const { registrarMovimientoCashCore, anularMovimientoCashCore } = require("../lib/egresos/registrarMovimientoCash.js");
 
 let pass = 0, fail = 0;
 function ok(name, cond) {
@@ -72,6 +72,17 @@ async function main() {
 
   // sin producto → DENY
   await expectThrow("sin producto origen ni destino → DENY", () => registrarMovimientoCashCore(db, base({ categoria: "ingreso_venta" }), "fin"), "producto");
+
+  // ANULAR · revierte el saldo (origen recibe · destino devuelve) + marca anulado · idempotente
+  await seedProd("caja-anul");
+  const ra = await registrarMovimientoCashCore(db, base({ categoria: "reembolso_cliente", productoOrigenId: "caja-anul", monto: 2000 }), "fin");
+  ok("egreso para anular resta (10000→8000)", (await saldo("caja-anul")) === 8000);
+  await anularMovimientoCashCore(db, { movimientoId: ra.movimientoId, motivo: "error de carga" }, "fin");
+  ok("anular REVIERTE el saldo del origen (8000→10000)", (await saldo("caja-anul")) === 10000);
+  ok("el movimiento quedó estado='anulado'", (await db.collection("movimientosFinancieros").doc(ra.movimientoId).get()).data().estado === "anulado");
+  const ra2 = await anularMovimientoCashCore(db, { movimientoId: ra.movimientoId, motivo: "otra vez" }, "fin");
+  ok("anular idempotente (ya anulado) · saldo NO cambia", ra2.idempotente === true && (await saldo("caja-anul")) === 10000);
+  await expectThrow("anular sin motivo → DENY", () => anularMovimientoCashCore(db, { movimientoId: ra.movimientoId, motivo: "" }, "fin"), "motivo");
 
   console.log(`\n=== RESULTADO F3.5-mov-cash: ${pass} pass · ${fail} fail ===\n`);
   if (fail > 0) process.exit(1);

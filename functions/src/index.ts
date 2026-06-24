@@ -86,7 +86,7 @@ export { autorizarEgreso, rechazarEgreso } from "./egresos/autorizarEgreso";
 export { registrarEgresoCash, registrarEgresoCashLote } from "./egresos/registrarEgresoCash";
 export { registrarRetiroCashTesoreria } from "./egresos/registrarRetiroCashTesoreria";
 export { onRetiroCapitalEjecutable } from "./egresos/onRetiroCapitalEjecutable";
-export { registrarMovimientoCash } from "./egresos/registrarMovimientoCash";
+export { registrarMovimientoCash, anularMovimientoCash } from "./egresos/registrarMovimientoCash";
 
 // ============================================================
 // chk5.F4-USERS (2026-05-25) · MÓDULO /usuarios completo

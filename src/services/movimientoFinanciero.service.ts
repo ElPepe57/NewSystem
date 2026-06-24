@@ -28,7 +28,6 @@ import {
   addDoc,
   getDoc,
   getDocs,
-  updateDoc,
   query,
   where,
   orderBy,
@@ -54,7 +53,6 @@ import {
   esInterno,
   CATEGORIA_LABEL,
 } from '../types/movimientoFinanciero.types';
-import { aplicarDeltaSaldo } from './productoFinanciero.service';
 
 const COL = COLLECTIONS.MOVIMIENTOS_FINANCIEROS;
 
@@ -200,27 +198,8 @@ export async function registrarMovimientoFinanciero(
   return ref.id;
 }
 
-/**
- * Helper: aplica los deltas de saldo a los productos de origen y/o destino.
- * - Origen: -monto
- * - Destino: +monto
- */
-async function aplicarDeltasASaldos(
-  productoOrigenId: string | undefined,
-  productoDestinoId: string | undefined,
-  monto: number,
-  moneda: MonedaPF,
-  userId: string,
-): Promise<void> {
-  const tasks: Promise<void>[] = [];
-  if (productoOrigenId) {
-    tasks.push(aplicarDeltaSaldo(productoOrigenId, -monto, moneda, userId));
-  }
-  if (productoDestinoId) {
-    tasks.push(aplicarDeltaSaldo(productoDestinoId, monto, moneda, userId));
-  }
-  await Promise.all(tasks);
-}
+// F3.5 Fase A · aplicarDeltasASaldos se eliminó: la mutación de saldo es ahora CF-only (registrarMovimientoCash
+// para el create · anularMovimientoCash para la reversa). El cliente ya no muta el saldo de productosFinancieros.
 
 // ═════════════════════════════════════════════════════════════════════════
 // CONVERSIÓN CAMBIARIA (par de movimientos · P-2)
@@ -477,33 +456,13 @@ export async function anularMovimientoFinanciero(
   motivo: string,
   userId: string,
 ): Promise<void> {
-  const mov = await getMovimientoFinanciero(id);
-  if (!mov) throw new Error(`Movimiento ${id} no existe`);
-  if (mov.estado === 'anulado') {
-    throw new Error('El movimiento ya está anulado');
-  }
-  if (!motivo?.trim()) {
-    throw new Error('El motivo de anulación es obligatorio');
-  }
-
-  // Si estaba ejecutado, revertir saldos
-  if (mov.estado === 'ejecutado') {
-    await aplicarDeltasASaldos(
-      // Invertir: el destino "devuelve" y el origen "recibe"
-      mov.productoDestinoId,
-      mov.productoOrigenId,
-      mov.monto,
-      mov.moneda,
-      userId,
-    );
-  }
-
-  await updateDoc(doc(db, COL, id), {
-    estado: 'anulado',
-    anuladoPor: userId,
-    fechaAnulacion: Timestamp.now(),
-    motivoAnulacion: motivo.trim(),
-  });
+  // F3.5 Fase A · la anulación (revertir el saldo + marcar 'anulado') la hace la CF anularMovimientoCash
+  // (admin SDK · única escritora del saldo · la regla saldoIntacto lo congela para el cliente). La CF re-lee
+  // el movimiento, valida (existe · no anulado · motivo) y revierte en una tx (origen recibe · destino devuelve).
+  void userId;
+  const { anularMovimientoCashFn } = await import('./movimientoCash.client');
+  await anularMovimientoCashFn(id, motivo);
+  void notificarCambioContable(new Date());
 }
 
 // ═════════════════════════════════════════════════════════════════════════

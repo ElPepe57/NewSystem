@@ -193,3 +193,63 @@ export const registrarMovimientoCash = functions.https.onCall(
     return registrarMovimientoCashCore(admin.firestore(), data, context.auth.uid);
   },
 );
+
+// ════════════════════════════════════════════════════════════════════════════════
+// ANULAR · F3.5 · revierte el saldo de un movimiento ejecutado (otra escritura de saldo · CF-only)
+// ════════════════════════════════════════════════════════════════════════════════
+
+export interface AnularMovimientoCashInput {
+  movimientoId: string;
+  motivo: string;
+}
+
+/** Anula un movimiento: revierte su delta de saldo (origen recibe, destino devuelve) + marca 'anulado'. */
+export async function anularMovimientoCashCore(
+  db: admin.firestore.Firestore,
+  input: AnularMovimientoCashInput,
+  userId: string,
+): Promise<{ anulado: boolean; idempotente?: boolean }> {
+  if (!input.movimientoId) throw err("invalid-argument", "Falta el movimiento.");
+  if (!input.motivo?.trim()) throw err("invalid-argument", "El motivo de anulación es obligatorio.");
+
+  const movRef = db.collection(COLLECTIONS.MOVIMIENTOS_FINANCIEROS).doc(input.movimientoId);
+
+  return db.runTransaction(async (tx) => {
+    const movSnap = await tx.get(movRef);
+    if (!movSnap.exists) throw err("not-found", "Movimiento no encontrado.");
+    const mov = movSnap.data() as admin.firestore.DocumentData;
+    if (mov.estado === "anulado") return { anulado: true, idempotente: true };
+
+    // si estaba ejecutado, revertir el saldo: origen RECIBE (+monto) · destino DEVUELVE (-monto).
+    if (mov.estado === "ejecutado") {
+      const moneda: Moneda = mov.moneda;
+      const monto = Number(mov.monto ?? 0);
+      if (mov.productoOrigenId) {
+        const ref = db.collection(COLLECTIONS.PRODUCTOS_FINANCIEROS).doc(mov.productoOrigenId);
+        const snap = await tx.get(ref);
+        if (snap.exists) deltaSaldoEnTx(tx, ref, snap.data()!, monto, moneda, userId);
+      }
+      if (mov.productoDestinoId) {
+        const ref = db.collection(COLLECTIONS.PRODUCTOS_FINANCIEROS).doc(mov.productoDestinoId);
+        const snap = await tx.get(ref);
+        if (snap.exists) deltaSaldoEnTx(tx, ref, snap.data()!, -monto, moneda, userId);
+      }
+    }
+
+    tx.update(movRef, {
+      estado: "anulado",
+      anuladoPor: userId,
+      fechaAnulacion: admin.firestore.Timestamp.now(),
+      motivoAnulacion: input.motivo.trim(),
+    });
+    return { anulado: true };
+  });
+}
+
+export const anularMovimientoCash = functions.https.onCall(
+  async (data: AnularMovimientoCashInput, context) => {
+    if (!context.auth) throw err("unauthenticated", "Debe estar autenticado.");
+    await assertRolCash(admin.firestore(), context.auth.uid);
+    return anularMovimientoCashCore(admin.firestore(), data, context.auth.uid);
+  },
+);

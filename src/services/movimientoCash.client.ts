@@ -45,3 +45,9 @@ export async function registrarMovimientoCashFn(data: MovimientoFinancieroFormDa
   const { data: res } = await fn(payload);
   return res.movimientoId;
 }
+
+/** F3.5 · anula un movimiento vía la CF (revierte el saldo · única escritora). Lanza si la CF rechaza. */
+export async function anularMovimientoCashFn(movimientoId: string, motivo: string): Promise<void> {
+  const fn = httpsCallable<{ movimientoId: string; motivo: string }, { anulado: boolean }>(functions, 'anularMovimientoCash');
+  await fn({ movimientoId, motivo });
+}
