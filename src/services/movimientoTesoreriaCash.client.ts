@@ -50,3 +50,9 @@ export async function registrarMovimientoTesoreriaCashFn(
   const { data: res } = await fn(payload);
   return res;
 }
+
+/** F3.5 · elimina un movimiento de tesorería vía la CF (revierte saldo + archiva + borra). Lanza si rechaza. */
+export async function eliminarMovimientoTesoreriaCashFn(movimientoId: string): Promise<void> {
+  const fn = httpsCallable<{ movimientoId: string }, { eliminado: boolean }>(functions, 'eliminarMovimientoTesoreriaCash');
+  await fn({ movimientoId });
+}

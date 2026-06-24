@@ -8,7 +8,7 @@ process.env.GCLOUD_PROJECT = process.env.GCLOUD_PROJECT || "demo-rules";
 const admin = require("firebase-admin");
 if (!admin.apps.length) admin.initializeApp({ projectId: process.env.GCLOUD_PROJECT });
 const db = admin.firestore();
-const { registrarMovimientoTesoreriaCashCore } = require("../lib/egresos/registrarMovimientoTesoreriaCash.js");
+const { registrarMovimientoTesoreriaCashCore, eliminarMovimientoTesoreriaCashCore } = require("../lib/egresos/registrarMovimientoTesoreriaCash.js");
 
 let pass = 0, fail = 0;
 function ok(name, cond) { if (cond) { pass++; console.log("  ✅", name); } else { fail++; console.error("  ❌", name); } }
@@ -58,6 +58,17 @@ async function main() {
   ok("idempotencia: saldo NO se aplica dos veces", (await saldo("c-idem")) === sIdem);
 
   await expectThrow("sin cuenta origen ni destino → DENY", () => registrarMovimientoTesoreriaCashCore(db, base({ tipo: "ingreso_venta" }), "fin"), "cuenta");
+
+  // ELIMINAR · revierte el saldo (incondicional · undo del create) + archiva + borra · idempotente
+  await seedCuenta("c-del");
+  const rd = await registrarMovimientoTesoreriaCashCore(db, base({ tipo: "gasto_operativo", cuentaOrigen: "c-del", monto: 2000 }), "fin");
+  ok("egreso para eliminar resta (10000→8000)", (await saldo("c-del")) === 8000);
+  await eliminarMovimientoTesoreriaCashCore(db, { movimientoId: rd.movimientoId }, "fin");
+  ok("eliminar REVIERTE el saldo del origen (8000→10000)", (await saldo("c-del")) === 10000);
+  ok("el movimiento activo fue borrado", !(await db.collection("movimientosTesoreria").doc(rd.movimientoId).get()).exists);
+  ok("se archivó en movimientosAnulados", !(await db.collection("movimientosAnulados").where("movimientoOriginalId", "==", rd.movimientoId).limit(1).get()).empty);
+  const rd2 = await eliminarMovimientoTesoreriaCashCore(db, { movimientoId: rd.movimientoId }, "fin");
+  ok("eliminar idempotente (ya no existe) · saldo no cambia", rd2.idempotente === true && (await saldo("c-del")) === 10000);
 
   console.log(`\n=== RESULTADO F3.5-tesoreria-cash: ${pass} pass · ${fail} fail ===\n`);
   if (fail > 0) process.exit(1);

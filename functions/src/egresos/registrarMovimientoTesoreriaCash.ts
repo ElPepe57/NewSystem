@@ -179,3 +179,62 @@ export const registrarMovimientoTesoreriaCash = functions.https.onCall(
     return registrarMovimientoTesoreriaCashCore(admin.firestore(), data, context.auth.uid);
   },
 );
+
+// ════════════════════════════════════════════════════════════════════════════════
+// ELIMINAR · F3.5 Fase B · revierte el saldo de un movimiento de tesorería + archiva + borra (CF-only)
+// ════════════════════════════════════════════════════════════════════════════════
+
+export interface EliminarMovimientoTesoreriaInput {
+  movimientoId: string;
+}
+
+/**
+ * Elimina un movimiento de tesorería: revierte su delta de saldo (reversa INCONDICIONAL del create · origen
+ * recibe +monto · destino devuelve -monto · igual que registrarMovimiento muta incondicional), archiva a
+ * movimientosAnulados (trazabilidad) y borra el doc activo. Todo en una tx (reads antes de writes).
+ */
+export async function eliminarMovimientoTesoreriaCashCore(
+  db: admin.firestore.Firestore,
+  input: EliminarMovimientoTesoreriaInput,
+  userId: string,
+): Promise<{ eliminado: boolean; idempotente?: boolean }> {
+  if (!input.movimientoId) throw err("invalid-argument", "Falta el movimiento.");
+  const movRef = db.collection(COLLECTIONS.MOVIMIENTOS_TESORERIA).doc(input.movimientoId);
+
+  return db.runTransaction(async (tx) => {
+    const movSnap = await tx.get(movRef);
+    if (!movSnap.exists) return { eliminado: true, idempotente: true }; // ya no existe · idempotente
+    const mov = movSnap.data() as admin.firestore.DocumentData;
+    const moneda: Moneda = mov.moneda;
+    const monto = Number(mov.monto ?? 0);
+
+    const origenRef = mov.cuentaOrigen ? db.collection(COLLECTIONS.CUENTAS_CAJA).doc(mov.cuentaOrigen) : null;
+    const destinoRef = mov.cuentaDestino ? db.collection(COLLECTIONS.CUENTAS_CAJA).doc(mov.cuentaDestino) : null;
+    const origenSnap = origenRef ? await tx.get(origenRef) : null; // reads antes de writes
+    const destinoSnap = destinoRef ? await tx.get(destinoRef) : null;
+
+    // reversa incondicional (undo del create)
+    if (origenRef && origenSnap?.exists) deltaSaldoCajaEnTx(tx, origenRef, origenSnap.data()!, monto, moneda);
+    if (destinoRef && destinoSnap?.exists) deltaSaldoCajaEnTx(tx, destinoRef, destinoSnap.data()!, -monto, moneda);
+
+    // archivar + borrar el activo
+    const archRef = db.collection("movimientosAnulados").doc();
+    tx.set(archRef, {
+      ...mov,
+      estado: "anulado",
+      anuladoPor: userId,
+      fechaAnulacion: admin.firestore.Timestamp.now(),
+      movimientoOriginalId: input.movimientoId,
+    });
+    tx.delete(movRef);
+    return { eliminado: true };
+  });
+}
+
+export const eliminarMovimientoTesoreriaCash = functions.https.onCall(
+  async (data: EliminarMovimientoTesoreriaInput, context) => {
+    if (!context.auth) throw err("unauthenticated", "Debe estar autenticado.");
+    await assertRolCash(admin.firestore(), context.auth.uid);
+    return eliminarMovimientoTesoreriaCashCore(admin.firestore(), data, context.auth.uid);
+  },
+);

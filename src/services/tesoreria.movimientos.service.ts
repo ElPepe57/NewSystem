@@ -6,7 +6,6 @@
  */
 import {
   collection,
-  addDoc,
   getDocs,
   getDoc,
   doc,
@@ -147,6 +146,19 @@ export async function actualizarMovimiento(
   const movimientoActual = await getMovimientoById(id);
   if (!movimientoActual) {
     throw new Error('Movimiento no encontrado');
+  }
+
+  // F3.5 Fase B · el saldo de cuentasCaja es CF-only · editar monto/moneda/cuenta in-place cambiaría el saldo
+  // sin pasar por una CF (lo bloquearía la regla saldoIntactoCaja). Para esos cambios: eliminá y recreá el
+  // movimiento (mantiene el saldo consistente vía las CFs). El resto de campos (no tocan el saldo) se editan
+  // directo. Este guard deja INALCANZABLE el ajuste de saldo de más abajo (se conserva para no refactorizar 120
+  // líneas riesgosas · diferenciaMonto siempre será 0 y los cambios de cuenta nunca pasan el guard).
+  const cambiaSaldo = (data.monto !== undefined && data.monto !== movimientoActual.monto)
+    || (data.moneda !== undefined && data.moneda !== movimientoActual.moneda)
+    || (data.cuentaOrigen !== undefined && data.cuentaOrigen !== movimientoActual.cuentaOrigen)
+    || (data.cuentaDestino !== undefined && data.cuentaDestino !== movimientoActual.cuentaDestino);
+  if (cambiaSaldo) {
+    throw new Error('Para cambiar monto, moneda o cuenta de un movimiento, eliminá y recreá el movimiento (el saldo es CF-only · F3.5).');
   }
 
   const updates: Record<string, any> = {
@@ -302,38 +314,13 @@ export async function eliminarMovimiento(
     throw new Error('Movimiento no encontrado');
   }
 
-  // Revertir efecto en saldos
-  if (movimiento.cuentaOrigen) {
-    const esEgreso = esMovimientoEgreso(movimiento.tipo, movimiento);
-    // Si era egreso, al eliminarlo devolvemos el dinero (suma)
-    await actualizarSaldoCuenta(
-      movimiento.cuentaOrigen,
-      esEgreso ? movimiento.monto : -movimiento.monto,
-      movimiento.moneda
-    );
-  }
-  if (movimiento.cuentaDestino) {
-    const esIngreso = esMovimientoIngreso(movimiento.tipo, movimiento);
-    // Si era ingreso, al eliminarlo quitamos el dinero (resta)
-    await actualizarSaldoCuenta(
-      movimiento.cuentaDestino,
-      esIngreso ? -movimiento.monto : movimiento.monto,
-      movimiento.moneda
-    );
-  }
-
-  // Copiar a colección de archivo antes de eliminar (trazabilidad)
-  const archivoData: Record<string, any> = { ...movimiento };
-  delete archivoData.id; // No duplicar el id como campo
-  archivoData.estado = 'anulado';
-  archivoData.anuladoPor = userId;
-  archivoData.fechaAnulacion = Timestamp.now();
-  archivoData.movimientoOriginalId = id;
-  await addDoc(collection(db, MOVIMIENTOS_ANULADOS_COLLECTION), archivoData);
-
-  // Eliminar de la colección activa (datos limpios para cálculos)
-  const { deleteDoc: _deleteDoc } = await import('firebase/firestore');
-  await _deleteDoc(doc(db, MOVIMIENTOS_COLLECTION, id));
+  // F3.5 Fase B · la reversa del saldo + el archivo a movimientosAnulados + el borrado del doc activo los hace
+  // la CF eliminarMovimientoTesoreriaCash (admin SDK · ÚNICA escritora del saldo · atómico en una tx · reversa
+  // INCONDICIONAL = undo del create). Las estadísticas + la propagación a venta/OC/gasto siguen client-side
+  // (no tocan el saldo de cuentasCaja).
+  void actualizarSaldoCuenta; // la CF revierte el saldo · se conserva en la firma por compat del facade
+  const { eliminarMovimientoTesoreriaCashFn } = await import('./movimientoTesoreriaCash.client');
+  await eliminarMovimientoTesoreriaCashFn(id);
 
   // Actualizar estadísticas agregadas (revertir el movimiento)
   await actualizarEstadisticasPorMovimiento({
