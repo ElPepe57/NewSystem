@@ -35,6 +35,7 @@ import {
   ArrowUpFromLine,
   Truck,
   Undo2,
+  Scale,
 } from 'lucide-react';
 import { usePermissions } from '../../../hooks/usePermissions';
 import { useAuthStore } from '../../../store/authStore';
@@ -70,6 +71,7 @@ const ICONO_ORIGEN: Record<OrigenEgreso, React.ElementType> = {
   retiro: ArrowUpFromLine,
   envio: Truck,
   devolucion: Undo2,
+  ajuste: Scale,
 };
 
 interface BandejaData {

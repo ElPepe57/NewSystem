@@ -718,6 +718,22 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
+    // A.2 · ajuste de conciliación standalone (ajuste_negativo >$1k · doc de autorización · clon de retirosCapital).
+    match /ajustesConciliacion/{docId} {
+      allow read: if hasAnyRole(['admin', 'gerente', 'finanzas', 'supervisor']);
+      // create-safe: no nace 'aprobado' · creador pineado (la firma de socio la escribe la CF).
+      allow create: if hasAnyRole(['admin', 'gerente', 'finanzas'])
+                    && request.resource.data.creadoPor == request.auth.uid
+                    && ( !('autorizacion' in request.resource.data)
+                         || request.resource.data.autorizacion.get('estado', '') != 'aprobado' );
+      // update: admin root · no-admin NO toca autorizacion ni creadoPor · montoEstimadoUSD congelado tras la firma.
+      // El estado→'ejecutado' lo setea el service tras mover el cash (gateado por la CF) · marcarlo no mueve plata.
+      allow update: if isAdmin()
+                    || ( hasAnyRole(['admin', 'gerente', 'finanzas'])
+                         && autorizacionIntacta() && creadoPorIntacto() && montoEstimadoCongeladoSiAutorizando() );
+      allow delete: if false;
+    }
+
     // ============================================================
     // PLANILLA + SUB-PERFILES — Datos privados del user (subcoleccion)
     // chk5.F2-SUB-PERFILES (2026-05-24) · agregados:

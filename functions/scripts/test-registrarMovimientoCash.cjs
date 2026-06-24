@@ -105,6 +105,13 @@ async function main() {
   await seedProd("caja-a2c");
   const rgate3 = await registrarMovimientoCashCore(db, base({ categoria: "ingreso_venta", productoDestinoId: "caja-a2c", monto: 5000 }), "fin");
   ok("ingreso >$1k → NO se gatea (no es egreso sin-ref)", !!rgate3.movimientoId);
+  // ajuste_negativo >$1k · standalone · sin aprobar → bloqueado · aprobado → desembolsa
+  await seedProd("caja-aju");
+  await db.collection("ajustesConciliacion").doc("aju-pend").set({ autorizacion: { estado: "pendiente", firmas: [] } });
+  await expectThrow("ajuste_negativo >$1k · NO aprobado → bloqueado", () => registrarMovimientoCashCore(db, base({ categoria: "ajuste_negativo", productoOrigenId: "caja-aju", monto: 3000, refDocumentoTipo: "ajuste", refDocumentoId: "aju-pend" }), "fin"), "no está autorizado");
+  await db.collection("ajustesConciliacion").doc("aju-ok").set({ autorizacion: { estado: "aprobado", firmas: [] } });
+  const rgate4 = await registrarMovimientoCashCore(db, base({ categoria: "ajuste_negativo", productoOrigenId: "caja-aju", monto: 3000, refDocumentoTipo: "ajuste", refDocumentoId: "aju-ok" }), "fin");
+  ok("ajuste_negativo >$1k · APROBADO → desembolsa", !!rgate4.movimientoId && (await saldo("caja-aju")) === 7000);
 
   console.log(`\n=== RESULTADO F3.5-mov-cash: ${pass} pass · ${fail} fail ===\n`);
   if (fail > 0) process.exit(1);

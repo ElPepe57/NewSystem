@@ -15,6 +15,7 @@ import { getAll as getAllOC } from '../services/ordenCompra.crud.service';
 import { getAllRetirosCapital } from '../services/tesoreria.capital.service';
 import { envioCrudService } from '../services/envio.crud.service';
 import { devolucionService } from '../services/devolucion.service';
+import { getAllAjustesConciliacion } from '../services/tesoreria.ajustes.service';
 import {
   type EgresoPendiente,
   gastoAEgreso,
@@ -22,6 +23,7 @@ import {
   retiroAEgreso,
   envioAEgreso,
   devolucionAEgreso,
+  ajusteAEgreso,
   esPendienteDeFirma,
   puedoFirmar,
   firmadoPorMi,
@@ -63,12 +65,13 @@ export function useEgresosPendientesSocio(): UseEgresosPendientesSocioResult {
     try {
       // F2 · la bandeja de SOCIO solo agrega gasto + OC (quórum de equity). El requerimiento es
       // autoridad de CARGO (se aprueba en su módulo · decisión 2026-06-22) · NO en la bandeja de socio.
-      const [gastos, ocs, retiros, envios, devoluciones, sociosRaw] = await Promise.all([
+      const [gastos, ocs, retiros, envios, devoluciones, ajustes, sociosRaw] = await Promise.all([
         gastoService.getAll().catch(() => []),
         getAllOC().catch(() => []),
         getAllRetirosCapital().catch(() => []),
         envioCrudService.getAll().catch(() => []),
         devolucionService.getAll().catch(() => []),
+        getAllAjustesConciliacion().catch(() => []),
         socioService.getAll().catch(() => []),
       ]);
       const sociosEquity: SocioEquity[] = sociosRaw.map((s) => ({ uid: s.id, participacion: s.porcentajeParticipacion }));
@@ -83,6 +86,7 @@ export function useEgresosPendientesSocio(): UseEgresosPendientesSocioResult {
         ...retiros.map(retiroAEgreso),
         ...envios.map(envioAEgreso),
         ...devoluciones.map(devolucionAEgreso),
+        ...ajustes.map(ajusteAEgreso),
       ].filter((e) => requiereAutorizacionSocio(e.montoUSD));
 
       const conAccion: EgresoPendienteConAccion[] = todos

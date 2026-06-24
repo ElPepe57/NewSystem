@@ -25,8 +25,9 @@ import type { Gasto } from '../types/gasto.types';
 import type { OrdenCompra } from '../types/ordenCompra.types';
 import type { Envio } from '../types/envio.types';
 import type { Devolucion } from '../types/devolucion.types';
+import type { AjusteConciliacionDoc } from './tesoreria.ajustes.service';
 
-export type OrigenEgreso = 'requerimiento' | 'gasto' | 'oc' | 'retiro' | 'envio' | 'devolucion';
+export type OrigenEgreso = 'requerimiento' | 'gasto' | 'oc' | 'retiro' | 'envio' | 'devolucion' | 'ajuste';
 
 /** Shape mínimo del doc retirosCapital que la bandeja necesita (F3c · sin-ref · autorización standalone). */
 export interface RetiroCapitalDoc {
@@ -158,6 +159,25 @@ export function devolucionAEgreso(d: Devolucion): EgresoPendiente {
   };
 }
 
+/**
+ * A.2 · ajuste de conciliación negativo >$1k (standalone · como retiro). USD = montoEstimadoUSD. Sale de la
+ * bandeja al aprobarse+ejecutarse o cancelarse. La autorización la inicializa la CF en la 1ª firma.
+ */
+export function ajusteAEgreso(a: AjusteConciliacionDoc): EgresoPendiente {
+  return {
+    origen: 'ajuste',
+    id: a.id,
+    numero: `AJU-${a.id.slice(0, 6)}`,
+    descripcion: `Ajuste · ${a.razon ?? 'conciliación'}`,
+    montoUSD: a.montoEstimadoUSD || 0,
+    firmas: a.autorizacion?.firmas || [],
+    creadoPor: a.creadoPor,
+    aprobado: a.autorizacion?.estado === 'aprobado',
+    descartado: a.autorizacion?.estado === 'rechazado' || a.estado === 'ejecutado' || a.estado === 'cancelado',
+    fecha: a.fechaCreacion,
+  };
+}
+
 export function envioAEgreso(e: Envio): EgresoPendiente {
   return {
     origen: 'envio',
@@ -241,4 +261,5 @@ export const LABEL_ORIGEN: Record<OrigenEgreso, string> = {
   retiro: 'Retiro de socio',
   envio: 'Flete de envío',
   devolucion: 'Reembolso a cliente',
+  ajuste: 'Ajuste de conciliación',
 };

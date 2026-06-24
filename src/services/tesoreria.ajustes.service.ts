@@ -20,6 +20,11 @@
 
 import {
   doc,
+  collection,
+  addDoc,
+  getDoc,
+  getDocs,
+  updateDoc,
   runTransaction,
   Timestamp,
   type Transaction,
@@ -28,6 +33,7 @@ import { db } from '../lib/firebase';
 import { COLLECTIONS } from '../config/collections';
 import { logger } from '../lib/logger';
 import { registrarMovimientoFinanciero } from './movimientoFinanciero.service';
+import { requiereAutorizacionSocio, type FirmaSocio, type ResultadoAutorizacionCF } from './autorizacionEgreso.helper';
 import type {
   CuentaCaja,
   VerificacionSaldoSnapshot,
@@ -52,8 +58,120 @@ export interface AplicarAjusteInput {
 }
 
 export interface AplicarAjusteResult {
-  movimientoId: string;
-  snapshotActualizado: VerificacionSaldoSnapshot;
+  /** A.2 · true cuando el ajuste_negativo >$1k quedó PENDIENTE de aprobación de socios (no se ejecutó). */
+  pendienteAprobacion?: boolean;
+  /** id del doc ajustesConciliacion (solo en el caso pendiente). */
+  ajusteId?: string;
+  movimientoId?: string;
+  snapshotActualizado?: VerificacionSaldoSnapshot;
+}
+
+// ════════════════════════════════════════════════════════════════════════════════
+// A.2 · AJUSTE STANDALONE · ajuste_negativo >$1k requiere aprobación de socios (clon del retiro)
+// ════════════════════════════════════════════════════════════════════════════════
+
+/** Doc del ajuste de conciliación pendiente de aprobación (sobre el que la CF autorizarEgreso aplica el quórum). */
+export interface AjusteConciliacionDoc {
+  id: string;
+  cuentaId: string;
+  montoAbs: number;
+  moneda: 'USD' | 'PEN';
+  tipoCambio: number;
+  razon?: string;
+  montoEstimadoUSD: number;
+  estado: 'pendiente' | 'ejecutado' | 'cancelado';
+  autorizacion?: { estado: 'pendiente' | 'aprobado' | 'rechazado'; firmas: FirmaSocio[] };
+  creadoPor: string;
+  movimientoId?: string;
+  fechaCreacion?: unknown;
+}
+
+/** A.2 · crea el doc de ajuste pendiente (NO mueve cash · aparece en la bandeja · la CF lo ejecuta tras quórum). */
+export async function solicitarAjusteConciliacion(input: {
+  cuentaId: string; montoAbs: number; moneda: 'USD' | 'PEN'; tipoCambio: number;
+  razon?: string; montoEstimadoUSD: number; userId: string;
+}): Promise<string> {
+  const docData: Record<string, unknown> = {
+    cuentaId: input.cuentaId,
+    montoAbs: input.montoAbs,
+    moneda: input.moneda,
+    tipoCambio: input.tipoCambio,
+    montoEstimadoUSD: input.montoEstimadoUSD,
+    estado: 'pendiente',
+    autorizacion: { estado: 'pendiente', firmas: [], solicitadaPor: input.userId },
+    creadoPor: input.userId,
+    fechaCreacion: Timestamp.now(),
+  };
+  if (input.razon?.trim()) docData.razon = input.razon.trim();
+  const ref = await addDoc(collection(db, COLLECTIONS.AJUSTES_CONCILIACION), docData);
+  logger.info('[Ajuste] solicitud >$1k creada · pendiente de aprobación de socios', { ajusteId: ref.id });
+  return ref.id;
+}
+
+/** A.2 · ejecuta el ajuste aprobado: mueve el cash vía la CF (que re-valida la aprobación · gate) y marca ejecutado. */
+export async function ejecutarAjusteConciliacion(ajusteId: string, userId: string): Promise<string> {
+  const snap = await getDoc(doc(db, COLLECTIONS.AJUSTES_CONCILIACION, ajusteId));
+  if (!snap.exists()) throw new Error('Ajuste no encontrado');
+  const a = snap.data() as Omit<AjusteConciliacionDoc, 'id'>;
+  if (a.estado === 'ejecutado') return a.movimientoId ?? ''; // idempotente
+  if (a.estado === 'cancelado') throw new Error('El ajuste está cancelado');
+
+  // El cash · la CF registrarMovimientoCash re-valida autorizacion=aprobado (gate >$1k) antes de mover el saldo.
+  const movimientoId = await registrarMovimientoFinanciero(
+    {
+      categoria: 'ajuste_negativo',
+      moneda: a.moneda,
+      monto: a.montoAbs,
+      tipoCambio: a.tipoCambio,
+      metodo: 'otro',
+      concepto: a.razon?.trim() ? `Ajuste de saldo por verificación · ${a.razon.trim()}` : 'Ajuste de saldo por verificación bancaria',
+      fecha: new Date(),
+      productoOrigenId: a.cuentaId,
+      refDocumentoTipo: 'ajuste',
+      refDocumentoId: ajusteId,
+    },
+    userId,
+  );
+  await updateDoc(doc(db, COLLECTIONS.AJUSTES_CONCILIACION, ajusteId), {
+    estado: 'ejecutado',
+    movimientoId,
+    ejecutadoPor: userId,
+    fechaEjecucion: Timestamp.now(),
+  });
+  return movimientoId;
+}
+
+/** A.2 · lista los ajustes de conciliación (la bandeja de socio los agrega como 7ª fuente). */
+export async function getAllAjustesConciliacion(): Promise<AjusteConciliacionDoc[]> {
+  const snap = await getDocs(collection(db, COLLECTIONS.AJUSTES_CONCILIACION));
+  return snap.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<AjusteConciliacionDoc, 'id'>) }));
+}
+
+/**
+ * A.2 · firma de socio sobre un ajuste >$1k (bandeja). La CF autorizarEgreso aplica el quórum por equity sobre
+ * ajustesConciliacion. Al COMPLETARSE, encadena la ejecución del cash (el ajuste ES el egreso · como el retiro ·
+ * la CF de cash re-valida la aprobación · idempotente).
+ */
+export async function autorizarAjusteConciliacion(ajusteId: string, userId: string): Promise<ResultadoAutorizacionCF> {
+  const { getFunctions, httpsCallable } = await import('firebase/functions');
+  const fn = httpsCallable<{ coleccion: string; docId: string }, ResultadoAutorizacionCF>(getFunctions(), 'autorizarEgreso');
+  const { data } = await fn({ coleccion: COLLECTIONS.AJUSTES_CONCILIACION, docId: ajusteId });
+  if (data.completa) {
+    try {
+      await ejecutarAjusteConciliacion(ajusteId, userId);
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      throw new Error(`El ajuste fue aprobado pero no se pudo ejecutar: ${msg}. La aprobación quedó registrada · reintentá.`);
+    }
+  }
+  return data;
+}
+
+/** A.2 · rechazo de socio sobre un ajuste · la CF deja autorizacion.estado='rechazado'. */
+export async function rechazarAjusteConciliacion(ajusteId: string, motivo?: string): Promise<void> {
+  const { getFunctions, httpsCallable } = await import('firebase/functions');
+  const fn = httpsCallable<{ coleccion: string; docId: string; motivo?: string }, { ok: true }>(getFunctions(), 'rechazarEgreso');
+  await fn({ coleccion: COLLECTIONS.AJUSTES_CONCILIACION, docId: ajusteId, motivo });
 }
 
 /**
@@ -90,6 +208,15 @@ export async function aplicarAjustePorVerificacion(
   const categoria: CategoriaMovimientoFinanciero = esPositivo
     ? 'ajuste_positivo'
     : 'ajuste_negativo';
+
+  // A.2 · un ajuste_negativo >$1k (saca dinero · vector para "tapar un faltante") requiere aprobación de socios.
+  // Se crea un doc PENDIENTE y NO se mueve cash · aparece en la bandeja · la CF lo ejecuta tras el quórum. El
+  // ajuste_positivo (suma · ingreso) y los ≤$1k siguen directos. La CF igual bloquea fail-closed un >$1k sin aprobar.
+  const montoUSDAjuste = moneda === 'USD' ? montoAbs : montoAbs / tipoCambio;
+  if (!esPositivo && requiereAutorizacionSocio(montoUSDAjuste)) {
+    const ajusteId = await solicitarAjusteConciliacion({ cuentaId, montoAbs, moneda, tipoCambio, razon, montoEstimadoUSD: montoUSDAjuste, userId });
+    return { pendienteAprobacion: true, ajusteId };
+  }
 
   const formData: MovimientoFinancieroFormData = {
     categoria,

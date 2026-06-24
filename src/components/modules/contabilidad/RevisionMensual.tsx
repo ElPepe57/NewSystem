@@ -873,7 +873,7 @@ function AplicarAjusteModal({
     setSubmitting(true);
     setErrorMsg(null);
     try {
-      await aplicarAjustePorVerificacion({
+      const res = await aplicarAjustePorVerificacion({
         cuentaId: cuenta.cuentaId,
         montoAjuste,
         moneda: monedaAjuste,
@@ -882,6 +882,12 @@ function AplicarAjusteModal({
         userId: userProfile.uid,
         userNombre: userProfile.displayName,
       });
+      // A.2 · un ajuste negativo >$1k no se aplica al instante · queda pendiente de aprobación de socios.
+      if (res.pendienteAprobacion) {
+        setErrorMsg('✓ Ajuste >$1.000 enviado a aprobación de socios · se aplica al aprobarse en la bandeja.');
+        setSubmitting(false);
+        return;
+      }
       onSuccess();
     } catch (err) {
       setErrorMsg(err instanceof Error ? err.message : 'Error aplicando ajuste');

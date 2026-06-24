@@ -403,3 +403,23 @@ describe('A.2 · REEMBOLSO (devolución) · cash gateado + el cliente no forja l
     await assertSucceeds(updateDoc(doc(db('vend'), 'devoluciones', 'd5'), { estado: 'aprobada' }));
   });
 });
+
+describe('A.2 · AJUSTE standalone (ajuste_negativo) · cash gateado + create-safe/freeze', () => {
+  it('🔒 cliente NO crea el cash de un ajuste (movimientosFinancieros ajuste_negativo) → DENEGADO', async () => {
+    await seedUser('fin', ['finanzas']);
+    await assertFails(setDoc(doc(db('fin'), 'movimientosFinancieros', 'mf-aju'), { categoria: 'ajuste_negativo', monto: 50000, refDocumentoTipo: 'ajuste', refDocumentoId: 'a1', productoOrigenId: 'caja' }));
+  });
+  it('✅ create-safe · cliente crea un ajuste pendiente (creador pineado · no aprobado) → permitido', async () => {
+    await seedUser('fin', ['finanzas']);
+    await assertSucceeds(setDoc(doc(db('fin'), 'ajustesConciliacion', 'a1'), { creadoPor: 'fin', montoEstimadoUSD: 3000, estado: 'pendiente', autorizacion: { estado: 'pendiente', firmas: [] } }));
+  });
+  it('🔒 cliente NO nace un ajuste con autorizacion=aprobado → DENEGADO', async () => {
+    await seedUser('fin', ['finanzas']);
+    await assertFails(setDoc(doc(db('fin'), 'ajustesConciliacion', 'a2'), { creadoPor: 'fin', montoEstimadoUSD: 3000, estado: 'pendiente', autorizacion: { estado: 'aprobado', firmas: [] } }));
+  });
+  it('🔒 cliente NO infla montoEstimadoUSD con la firma en proceso → DENEGADO', async () => {
+    await seed('ajustesConciliacion', 'a3', { creadoPor: 'fin', montoEstimadoUSD: 999, estado: 'pendiente', autorizacion: { estado: 'pendiente', firmas: [{ usuarioId: 's1' }] } });
+    await seedUser('fin', ['finanzas']);
+    await assertFails(updateDoc(doc(db('fin'), 'ajustesConciliacion', 'a3'), { montoEstimadoUSD: 9000 }));
+  });
+});

@@ -11,6 +11,7 @@ import { gastoService } from './gasto.service';
 import { OrdenCompraService } from './ordenCompra.service';
 import { autorizarRetiroCapital, rechazarRetiroCapital } from './retiroCash.client';
 import { autorizarEnvioFlete, rechazarEnvioFlete, autorizarDevolucionReembolso, rechazarDevolucionReembolso } from './egresoCash.client';
+import { autorizarAjusteConciliacion, rechazarAjusteConciliacion } from './tesoreria.ajustes.service';
 import type { OrigenEgreso } from './egresosPendientesSocio.helper';
 
 export function firmarEgreso(
@@ -38,6 +39,10 @@ export function firmarEgreso(
       // A.2 · reembolso · va a la CF autorizarEgreso (colección devoluciones) · NO encadena cash (el reembolso
       // se paga aparte por devolucion.devolverDinero · gateado por registrarMovimientoCash).
       return autorizarDevolucionReembolso(id);
+    case 'ajuste':
+      // A.2 · ajuste standalone · va a la CF autorizarEgreso (colección ajustesConciliacion) y, al completarse,
+      // ENCADENA la ejecución del cash (el ajuste ES el egreso · como el retiro).
+      return autorizarAjusteConciliacion(id, userId);
   }
 }
 
@@ -65,5 +70,7 @@ export function rechazarEgreso(
       return rechazarEnvioFlete(id, motivo);
     case 'devolucion':
       return rechazarDevolucionReembolso(id, motivo);
+    case 'ajuste':
+      return rechazarAjusteConciliacion(id, motivo);
   }
 }
