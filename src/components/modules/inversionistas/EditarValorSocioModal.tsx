@@ -21,6 +21,8 @@ interface Props {
   /** uid del UserProfile del socio (panelUid). */
   userId: string;
   socioNombre: string;
+  /** Tope de % asignable a este socio (= 100 − suma de los demás · evita pasar de 100% el cap table). */
+  maxPct?: number;
   onClose: () => void;
   onSuccess: () => void;
 }
@@ -29,6 +31,7 @@ export default function EditarValorSocioModal({
   isOpen,
   userId,
   socioNombre,
+  maxPct = 100,
   onClose,
   onSuccess,
 }: Props) {
@@ -61,6 +64,11 @@ export default function EditarValorSocioModal({
   const handleSubmit = async () => {
     if (!formData || !isValid) {
       setError('Completá los campos requeridos (participación y, si aplica, el aporte de valor).');
+      return;
+    }
+    // Tope societario · defensa-en-profundidad (el form ya lo bloquea, pero re-validamos antes de persistir).
+    if (formData.porcentajeParticipacion > maxPct + 0.001) {
+      setError(`La participación supera el tope: máximo ${maxPct}% disponible (los demás socios ya suman ${+(100 - maxPct).toFixed(2)}%).`);
       return;
     }
     if (!actorUid) {
@@ -105,6 +113,7 @@ export default function EditarValorSocioModal({
         <DatosSocioForm
           key={userId}
           initialData={initialData ?? undefined}
+          maxPct={maxPct}
           onChange={(d, v) => {
             setFormData(d);
             setIsValid(v);

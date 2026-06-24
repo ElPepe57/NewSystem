@@ -42,6 +42,8 @@ interface Props {
   initialData?: DatosSocio;
   /** Notify cambios al padre · usado para guardar */
   onChange: (data: DatosSocioFormData | null, isValid: boolean) => void;
+  /** Tope de % asignable a ESTE socio (= 100 − suma de los demás · default 100). Bloquea pasar de 100% el cap table. */
+  maxPct?: number;
 }
 
 // Mapa de iconos · necesario porque no podemos pasar componentes por string
@@ -61,7 +63,7 @@ const TIPOS_VALOR_ORDEN: TipoAporteValor[] = [
   'idea_original_ip', 'tiempo_dedicacion', 'activos_no_monetarios', 'otro',
 ];
 
-export default function DatosSocioForm({ initialData, onChange }: Props) {
+export default function DatosSocioForm({ initialData, onChange, maxPct = 100 }: Props) {
   const [porcentaje, setPorcentaje] = useState<string>(initialData?.porcentajeParticipacion?.toString() ?? '');
   const [fechaIngreso, setFechaIngreso] = useState<string>(() => {
     if (initialData?.fechaIngresoNegocio) {
@@ -95,7 +97,7 @@ export default function DatosSocioForm({ initialData, onChange }: Props) {
   useEffect(() => {
     const pct = parseFloat(porcentaje);
     const valid =
-      !isNaN(pct) && pct >= 0 && pct <= 100 &&
+      !isNaN(pct) && pct >= 0 && pct <= 100 && pct <= maxPct &&
       fechaIngreso.trim() !== '' &&
       (tipoParticipacion === 'cash_puro' ||
         (tiposValor.length > 0 && descripcionValor.trim() !== ''));
@@ -140,7 +142,7 @@ export default function DatosSocioForm({ initialData, onChange }: Props) {
   }, [
     porcentaje, fechaIngreso, rolNegocio, tipoParticipacion,
     tiposValor, descripcionValor, valuacionStr, notas,
-    vestingTipo, vestingMeses, vestingCliff,
+    vestingTipo, vestingMeses, vestingCliff, maxPct,
   ]);
 
   const toggleTipoValor = (tipo: TipoAporteValor) => {
@@ -151,6 +153,10 @@ export default function DatosSocioForm({ initialData, onChange }: Props) {
 
   const valuacionNum = parseFloat(valuacionStr) || 0;
   const showValorSection = tipoParticipacion !== 'cash_puro';
+  // Tope societario · cuánto queda libre para este socio (maxPct) y si lo está superando.
+  const pctNum = parseFloat(porcentaje);
+  const excedeTope = !isNaN(pctNum) && pctNum > maxPct + 0.001;
+  const otrosSuman = +(100 - maxPct).toFixed(2);
 
   return (
     <div className="space-y-3">
@@ -166,17 +172,28 @@ export default function DatosSocioForm({ initialData, onChange }: Props) {
 
       {/* Datos básicos · L2 del kit · tone violet (chrome del módulo) */}
       <div className="grid grid-cols-2 gap-3">
-        <TextField
-          label="% Participación *"
-          tone="violet"
-          type="number"
-          min={0}
-          max={100}
-          step="0.01"
-          value={porcentaje}
-          onChange={setPorcentaje}
-          placeholder="ej: 60"
-        />
+        <div>
+          <TextField
+            label="% Participación *"
+            tone="violet"
+            type="number"
+            min={0}
+            max={maxPct}
+            step="0.01"
+            value={porcentaje}
+            onChange={setPorcentaje}
+            placeholder="ej: 60"
+          />
+          {excedeTope ? (
+            <div className="text-[10px] text-rose-600 mt-1 font-medium">
+              Supera el tope · máximo {maxPct}% (los demás socios ya suman {otrosSuman}%).
+            </div>
+          ) : maxPct < 100 ? (
+            <div className="text-[10px] text-slate-400 mt-1">
+              Disponible: {maxPct}% · los demás suman {otrosSuman}%.
+            </div>
+          ) : null}
+        </div>
         <DateField
           label="Fecha ingreso al negocio *"
           tone="violet"

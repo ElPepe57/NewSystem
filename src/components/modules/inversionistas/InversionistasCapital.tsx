@@ -19,10 +19,14 @@ import {
   UsersRound,
   UserPlus,
   Pencil,
+  Check,
+  AlertTriangle,
+  CircleDashed,
 } from 'lucide-react';
 import { formatCurrencyPEN } from '../../../utils/format';
 import { formatFechaCorta } from './shared';
 import { DataCard } from '../../../design-system/components/DataCard';
+import { sumaParticipacion, disponibleParaSocio, estadoCapTable } from '../../../services/participacionSocietaria.helper';
 import type { StatusVariant } from '../../../design-system/tokens';
 import type { ResumenInversionista } from '../../../types/inversionista.types';
 import type { TipoParticipacionSocio } from '../../../types/datosSocio.types';
@@ -67,6 +71,15 @@ export default function InversionistasCapital({ data, onRefetch, onAbrirMovimien
   // useSocioStore NO se carga en Inversionistas (fetchSocios nunca se llama acá),
   // por eso la lista de socios salía vacía aunque hubiera socios.
   const socios = data.socios;
+
+  // Tope societario · suma de participaciones + estado (=100 ✓ · >100 ⚠ · <100 sin asignar).
+  // partList se llavea por uid (= userId del socio) para alinear con el panelUid del modal.
+  const partList = useMemo(
+    () => socios.map((s) => ({ uid: s.userId ?? s.id, porcentajeParticipacion: s.porcentajeParticipacion })),
+    [socios],
+  );
+  const totalParticipacion = useMemo(() => +sumaParticipacion(partList).toFixed(2), [partList]);
+  const estadoPart = estadoCapTable(totalParticipacion);
 
   // Map { socioId → userId } para lookup rápido en el render
   const userIdBySocioId = useMemo(() => {
@@ -171,8 +184,37 @@ export default function InversionistasCapital({ data, onRefetch, onAbrirMovimien
           DataCard del kit · todos los socios aparecen aunque no hayan puesto cash. */}
       <div className="border-2 border-violet-200 rounded-2xl overflow-hidden">
         <div className="px-4 py-2.5 bg-violet-50/60 border-b border-violet-100 flex items-center justify-between gap-2">
-          <div className="flex items-center gap-2 text-[12px] font-bold text-violet-900">
-            <UsersRound className="w-4 h-4" /> Socios del negocio · {socios.length}
+          <div className="flex items-center gap-2 flex-wrap text-[12px] font-bold text-violet-900">
+            <span className="flex items-center gap-2"><UsersRound className="w-4 h-4" /> Socios del negocio · {socios.length}</span>
+            {socios.length > 0 && (
+              <span
+                className={`inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                  estadoPart === 'completo'
+                    ? 'bg-emerald-100 text-emerald-700'
+                    : estadoPart === 'excedido'
+                      ? 'bg-rose-100 text-rose-700'
+                      : 'bg-amber-100 text-amber-700'
+                }`}
+                title={
+                  estadoPart === 'completo'
+                    ? 'El cap table suma exactamente 100%.'
+                    : estadoPart === 'excedido'
+                      ? `El cap table SUPERA el 100% (${totalParticipacion}%) · revisá las participaciones.`
+                      : `Falta asignar ${+(100 - totalParticipacion).toFixed(2)}% para llegar al 100%.`
+                }
+              >
+                {estadoPart === 'completo' ? (
+                  <Check className="w-3 h-3" />
+                ) : estadoPart === 'excedido' ? (
+                  <AlertTriangle className="w-3 h-3" />
+                ) : (
+                  <CircleDashed className="w-3 h-3" />
+                )}
+                Participación total: {totalParticipacion}%
+                {estadoPart === 'excedido' && ' · excede 100%'}
+                {estadoPart === 'incompleto' && ` · falta ${+(100 - totalParticipacion).toFixed(2)}%`}
+              </span>
+            )}
           </div>
           {onNuevoSocio && (
             <button
@@ -482,6 +524,7 @@ export default function InversionistasCapital({ data, onRefetch, onAbrirMovimien
             isOpen={valorModalOpen}
             userId={panelUid}
             socioNombre={panelSocioNombre}
+            maxPct={disponibleParaSocio(partList, panelUid)}
             onClose={() => setValorModalOpen(false)}
             onSuccess={() => { setValorModalOpen(false); onRefetch?.(); }}
           />
