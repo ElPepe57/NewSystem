@@ -33,6 +33,7 @@ const COLECCIONES_VALIDAS: string[] = [
   COLLECTIONS.ORDENES_COMPRA,
   COLLECTIONS.RETIROS_CAPITAL, // F3c · retiro de socio >$1k · quórum por equity (autorización standalone)
   COLLECTIONS.ENVIOS, // F3c · pago de flete >$1k · egreso referenciado (autorizacion en el doc · como gasto/OC)
+  COLLECTIONS.DEVOLUCIONES, // A.2 · reembolso a cliente >$1k · egreso referenciado (montoEstimadoUSD vía catch-all)
 ];
 
 type Code = functions.https.FunctionsErrorCode;

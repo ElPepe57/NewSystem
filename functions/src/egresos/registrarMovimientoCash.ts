@@ -22,6 +22,16 @@ import * as functions from "firebase-functions/v1";
 import * as admin from "firebase-admin";
 import { COLLECTIONS } from "../collections";
 import { assertRolCash } from "./registrarEgresoCash";
+import { requiereAutorizacionSocio } from "./autorizacionEgreso.helper";
+
+// A.2 · egresos sin-ref que SÍ requieren aprobación de socio >$1k (cierran el último hueco del programa).
+// El gate lee la autorización del doc PADRE (referenciado por refDocumentoTipo/refDocumentoId): la devolución
+// para reembolso_cliente · el doc standalone ajustesConciliacion para ajuste_negativo.
+const CATEGORIAS_GATEADAS = ["reembolso_cliente", "ajuste_negativo"];
+const COL_PADRE_GATE: Record<string, string> = {
+  devolucion: COLLECTIONS.DEVOLUCIONES,
+  ajuste: COLLECTIONS.AJUSTES_CONCILIACION,
+};
 
 type Code = functions.https.FunctionsErrorCode;
 function err(code: Code, msg: string): functions.https.HttpsError {
@@ -145,6 +155,24 @@ export async function registrarMovimientoCashCore(
     const destinoSnap = destinoRef ? await tx.get(destinoRef) : null;
     if (origenRef && !origenSnap!.exists) throw err("not-found", "Producto origen no encontrado.");
     if (destinoRef && !destinoSnap!.exists) throw err("not-found", "Producto destino no encontrado.");
+
+    // A.2 · gate de aprobación de los egresos sin-ref gateados (reembolso_cliente / ajuste_negativo). Si el
+    // USD landed supera el umbral, el cash NO se mueve salvo que el doc PADRE (devolución / ajuste standalone)
+    // esté aprobado por socios. Recomputado server-side · fail-closed · leído DENTRO de la tx (antes de writes).
+    if (CATEGORIAS_GATEADAS.includes(input.categoria)) {
+      const montoUSD = input.moneda === "USD" ? input.monto : input.monto / input.tipoCambio;
+      if (requiereAutorizacionSocio(montoUSD)) {
+        const col = input.refDocumentoTipo ? COL_PADRE_GATE[input.refDocumentoTipo] : undefined;
+        if (!col || !input.refDocumentoId) {
+          throw err("failed-precondition", `Egreso ${input.categoria} >$1k sin doc de autorización referenciado (fail-closed).`);
+        }
+        const padreSnap = await tx.get(db.collection(col).doc(input.refDocumentoId));
+        const padre = padreSnap.exists ? (padreSnap.data() as admin.firestore.DocumentData) : null;
+        if (!padre || padre.autorizacion?.estado !== "aprobado") {
+          throw err("permission-denied", `El ${input.categoria} supera el umbral y no está autorizado por socios.`);
+        }
+      }
+    }
 
     const montoEquivalentePEN = input.moneda === "PEN" ? input.monto : input.monto * input.tipoCambio;
     const montoEquivalenteUSD = input.moneda === "USD" ? input.monto : input.monto / input.tipoCambio;

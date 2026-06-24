@@ -41,9 +41,9 @@ async function main() {
 
   // EGRESO sin-ref · resta del saldo del producto origen
   await seedProd("caja-out");
-  const r2 = await registrarMovimientoCashCore(db, base({ categoria: "reembolso_cliente", productoOrigenId: "caja-out", monto: 1500 }), "fin");
-  ok("egreso sin-ref → crea movimiento", !!r2.movimientoId);
-  ok("egreso resta del saldo origen (10000→8500)", (await saldo("caja-out")) === 8500);
+  const r2 = await registrarMovimientoCashCore(db, base({ categoria: "reembolso_cliente", productoOrigenId: "caja-out", monto: 500 }), "fin");
+  ok("egreso sin-ref ≤$1k → crea movimiento (directo)", !!r2.movimientoId);
+  ok("egreso resta del saldo origen (10000→9500)", (await saldo("caja-out")) === 9500);
 
   // TRANSFERENCIA interna · origen resta + destino suma (net-zero)
   await seedProd("caja-a", { saldoActual: 5000 });
@@ -75,14 +75,36 @@ async function main() {
 
   // ANULAR · revierte el saldo (origen recibe · destino devuelve) + marca anulado · idempotente
   await seedProd("caja-anul");
-  const ra = await registrarMovimientoCashCore(db, base({ categoria: "reembolso_cliente", productoOrigenId: "caja-anul", monto: 2000 }), "fin");
-  ok("egreso para anular resta (10000→8000)", (await saldo("caja-anul")) === 8000);
+  const ra = await registrarMovimientoCashCore(db, base({ categoria: "reembolso_cliente", productoOrigenId: "caja-anul", monto: 500 }), "fin");
+  ok("egreso para anular resta (10000→9500)", (await saldo("caja-anul")) === 9500);
   await anularMovimientoCashCore(db, { movimientoId: ra.movimientoId, motivo: "error de carga" }, "fin");
-  ok("anular REVIERTE el saldo del origen (8000→10000)", (await saldo("caja-anul")) === 10000);
+  ok("anular REVIERTE el saldo del origen (9500→10000)", (await saldo("caja-anul")) === 10000);
   ok("el movimiento quedó estado='anulado'", (await db.collection("movimientosFinancieros").doc(ra.movimientoId).get()).data().estado === "anulado");
   const ra2 = await anularMovimientoCashCore(db, { movimientoId: ra.movimientoId, motivo: "otra vez" }, "fin");
   ok("anular idempotente (ya anulado) · saldo NO cambia", ra2.idempotente === true && (await saldo("caja-anul")) === 10000);
   await expectThrow("anular sin motivo → DENY", () => anularMovimientoCashCore(db, { movimientoId: ra.movimientoId, motivo: "" }, "fin"), "motivo");
+
+  // A.2 · gate de reembolso_cliente / ajuste_negativo >$1k (referenciado al doc padre)
+  console.log("\n=== A.2 · gate de reembolso/ajuste >$1k ===");
+  await seedProd("caja-a2");
+  // reembolso >$1k SIN devolución aprobada → bloqueado
+  await db.collection("devoluciones").doc("dev-pend").set({ autorizacion: { estado: "pendiente", firmas: [] } });
+  await expectThrow("reembolso >$1k · devolución NO aprobada → bloqueado", () => registrarMovimientoCashCore(db, base({ categoria: "reembolso_cliente", productoOrigenId: "caja-a2", monto: 2000, refDocumentoTipo: "devolucion", refDocumentoId: "dev-pend" }), "fin"), "no está autorizado");
+  ok("saldo NO cambió tras el bloqueo", (await saldo("caja-a2")) === 10000);
+  // reembolso >$1k CON devolución aprobada → desembolsa
+  await db.collection("devoluciones").doc("dev-ok").set({ autorizacion: { estado: "aprobado", firmas: [] } });
+  const rgate1 = await registrarMovimientoCashCore(db, base({ categoria: "reembolso_cliente", productoOrigenId: "caja-a2", monto: 2000, refDocumentoTipo: "devolucion", refDocumentoId: "dev-ok" }), "fin");
+  ok("reembolso >$1k · devolución APROBADA → desembolsa", !!rgate1.movimientoId && (await saldo("caja-a2")) === 8000);
+  // reembolso ≤$1k → directo (sin gate)
+  await seedProd("caja-a2b");
+  const rgate2 = await registrarMovimientoCashCore(db, base({ categoria: "reembolso_cliente", productoOrigenId: "caja-a2b", monto: 500, refDocumentoTipo: "devolucion", refDocumentoId: "dev-pend" }), "fin");
+  ok("reembolso ≤$1k → directo (sin firma)", !!rgate2.movimientoId);
+  // reembolso >$1k SIN ref → fail-closed
+  await expectThrow("reembolso >$1k sin doc de autorización → fail-closed", () => registrarMovimientoCashCore(db, base({ categoria: "reembolso_cliente", productoOrigenId: "caja-a2", monto: 2000 }), "fin"), "sin doc de autorización");
+  // ingreso/otra categoría >$1k → NO se gatea
+  await seedProd("caja-a2c");
+  const rgate3 = await registrarMovimientoCashCore(db, base({ categoria: "ingreso_venta", productoDestinoId: "caja-a2c", monto: 5000 }), "fin");
+  ok("ingreso >$1k → NO se gatea (no es egreso sin-ref)", !!rgate3.movimientoId);
 
   console.log(`\n=== RESULTADO F3.5-mov-cash: ${pass} pass · ${fail} fail ===\n`);
   if (fail > 0) process.exit(1);

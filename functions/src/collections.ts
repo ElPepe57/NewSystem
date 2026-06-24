@@ -104,6 +104,9 @@ export const COLLECTIONS = {
   // === Devoluciones ===
   DEVOLUCIONES: "devoluciones",
 
+  // === A.2 · autorización standalone de ajuste de conciliación (ajuste_negativo >$1k) ===
+  AJUSTES_CONCILIACION: "ajustesConciliacion",
+
   // === Contabilidad ===
   CIERRES_CONTABLES: "cierresContables",
 
