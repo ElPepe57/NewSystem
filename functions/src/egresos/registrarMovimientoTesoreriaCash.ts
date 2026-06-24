@@ -53,6 +53,7 @@ export interface RegistrarMovimientoTesoreriaCashInput {
 
 export interface RegistrarMovimientoTesoreriaCashResult {
   movimientoId: string;
+  numeroMovimiento: string;
   idempotente?: boolean;
 }
 
@@ -115,7 +116,7 @@ export async function registrarMovimientoTesoreriaCashCore(
       return (x.cuentaOrigen ?? null) === (input.cuentaOrigen ?? null)
         && (x.cuentaDestino ?? null) === (input.cuentaDestino ?? null);
     });
-    if (ya) return { movimientoId: ya.id, idempotente: true };
+    if (ya) return { movimientoId: ya.id, numeroMovimiento: String(ya.data().numeroMovimiento ?? ""), idempotente: true };
   }
 
   const fecha = admin.firestore.Timestamp.fromMillis(input.fechaMs);
@@ -167,7 +168,7 @@ export async function registrarMovimientoTesoreriaCashCore(
     if (destinoRef && destinoSnap) deltaSaldoCajaEnTx(tx, destinoRef, destinoSnap.data()!, input.monto, input.moneda);
 
     tx.set(movRef, docData);
-    return { movimientoId: movRef.id };
+    return { movimientoId: movRef.id, numeroMovimiento };
   });
 }
 

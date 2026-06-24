@@ -58,63 +58,13 @@ export async function registrarMovimiento(
   actualizarSaldoCuenta: (cuentaId: string, diferencia: number, moneda?: any) => Promise<void>,
   actualizarEstadisticasPorMovimiento: (mov: any, esAnulacion?: boolean) => Promise<void>
 ): Promise<string> {
-  const numeroMovimiento = await generateNumeroMovimiento();
-
-  // Calcular equivalentes
-  let montoEquivalentePEN = data.monto;
-  let montoEquivalenteUSD = data.monto;
-
-  if (data.moneda === 'USD') {
-    montoEquivalentePEN = data.monto * data.tipoCambio;
-    montoEquivalenteUSD = data.monto;
-  } else {
-    montoEquivalentePEN = data.monto;
-    montoEquivalenteUSD = data.monto / data.tipoCambio;
-  }
-
-  // Construir objeto base (solo campos requeridos)
-  const movimiento: Record<string, any> = {
-    numeroMovimiento,
-    tipo: data.tipo,
-    estado: 'ejecutado',
-    moneda: data.moneda,
-    monto: data.monto,
-    tipoCambio: data.tipoCambio,
-    montoEquivalentePEN,
-    montoEquivalenteUSD,
-    metodo: data.metodo,
-    concepto: data.concepto,
-    fecha: Timestamp.fromDate(data.fecha),
-    creadoPor: userId,
-    fechaCreacion: Timestamp.now()
-  };
-
-  // Agregar campos opcionales solo si tienen valor (Firebase no acepta undefined)
-  if (data.referencia) movimiento.referencia = data.referencia;
-  if (data.notas) movimiento.notas = data.notas;
-  if (data.ordenCompraId) movimiento.ordenCompraId = data.ordenCompraId;
-  if (data.ordenCompraNumero) movimiento.ordenCompraNumero = data.ordenCompraNumero;
-  if (data.ventaId) movimiento.ventaId = data.ventaId;
-  if (data.ventaNumero) movimiento.ventaNumero = data.ventaNumero;
-  if (data.gastoId) movimiento.gastoId = data.gastoId;
-  if (data.gastoNumero) movimiento.gastoNumero = data.gastoNumero;
-  if (data.cotizacionId) movimiento.cotizacionId = data.cotizacionId;
-  if (data.cotizacionNumero) movimiento.cotizacionNumero = data.cotizacionNumero;
-  if (data.transferenciaId) movimiento.transferenciaId = data.transferenciaId;
-  if (data.transferenciaNumero) movimiento.transferenciaNumero = data.transferenciaNumero;
-  if (data.cuentaOrigen) movimiento.cuentaOrigen = data.cuentaOrigen;
-  if (data.cuentaDestino) movimiento.cuentaDestino = data.cuentaDestino;
-
-  const docRef = await addDoc(collection(db, MOVIMIENTOS_COLLECTION), movimiento);
-
-  // Actualizar saldos de cuentas si aplica
-  // Pasamos la moneda del movimiento para cuentas bi-moneda
-  if (data.cuentaOrigen) {
-    await actualizarSaldoCuenta(data.cuentaOrigen, -data.monto, data.moneda);
-  }
-  if (data.cuentaDestino) {
-    await actualizarSaldoCuenta(data.cuentaDestino, data.monto, data.moneda);
-  }
+  // F3.5 Fase B · el cash (movimiento en movimientosTesoreria + saldo de cuentasCaja) lo escribe la CF
+  // registrarMovimientoTesoreriaCash (admin SDK · ÚNICA escritora del saldo · la regla saldoIntactoCaja lo
+  // congela para el cliente). El cliente ya no hace addDoc + actualizarSaldoCuenta directo. El poolUSD +
+  // estadísticas + actividad de abajo siguen client-side (otro sub-ledger / fire-and-forget · no tocan el saldo).
+  void actualizarSaldoCuenta; // la CF muta el saldo · se conserva en la firma por compat del facade
+  const { registrarMovimientoTesoreriaCashFn } = await import('./movimientoTesoreriaCash.client');
+  const { movimientoId, numeroMovimiento } = await registrarMovimientoTesoreriaCashFn(data);
 
   // Actualizar estadísticas agregadas
   await actualizarEstadisticasPorMovimiento({
@@ -148,7 +98,7 @@ export async function registrarMovimiento(
     const tipoPool = tipoPoolMap[data.tipo];
     if (tipoPool) {
       const refNumero = data.ordenCompraNumero || data.ventaNumero || data.gastoNumero || numeroMovimiento;
-      const refId = data.ordenCompraId || data.ventaId || data.gastoId || docRef.id;
+      const refId = data.ordenCompraId || data.ventaId || data.gastoId || movimientoId;
       import('../services/poolUSD.service').then(({ poolUSDService }) => {
         poolUSDService.registrarMovimiento(
           {
@@ -176,10 +126,10 @@ export async function registrarMovimiento(
     mensaje: `Movimiento ${numeroMovimiento} registrado: ${data.concepto} - ${data.moneda} ${data.monto.toFixed(2)}`,
     userId,
     displayName: userId,
-    metadata: { entidadId: docRef.id, entidadTipo: 'movimientoTesoreria', monto: data.monto, moneda: data.moneda }
+    metadata: { entidadId: movimientoId, entidadTipo: 'movimientoTesoreria', monto: data.monto, moneda: data.moneda }
   }).catch(() => {});
 
-  return docRef.id;
+  return movimientoId;
 }
 
 /**
