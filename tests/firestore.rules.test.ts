@@ -347,6 +347,33 @@ describe('F3.5 · SALDO de productosFinancieros · CF-only (saldoIntacto)', () =
   });
 });
 
+describe('F3.5 Fase B · SALDO de cuentasCaja · CF-only (saldoIntacto)', () => {
+  it('🔒 cliente NO muta el saldo de una cuentaCaja (saldoActual) en update → DENEGADO', async () => {
+    await seed('cuentasCaja', 'cc1', { moneda: 'USD', esBiMoneda: false, saldoActual: 10000, activa: true, nombre: 'Caja' });
+    await seedUser('fin', ['finanzas']);
+    await assertFails(updateDoc(doc(db('fin'), 'cuentasCaja', 'cc1'), { saldoActual: 999999 }));
+  });
+  it('🔒 cliente NO muta saldoUSD (bi-moneda) en update → DENEGADO', async () => {
+    await seed('cuentasCaja', 'cc2', { esBiMoneda: true, saldoUSD: 5000, saldoPEN: 10000, activa: true, nombre: 'Banco' });
+    await seedUser('fin', ['finanzas']);
+    await assertFails(updateDoc(doc(db('fin'), 'cuentasCaja', 'cc2'), { saldoUSD: 999999 }));
+  });
+  it('✅ cliente SÍ edita campos no-saldo (nombre/config) → permitido', async () => {
+    await seed('cuentasCaja', 'cc3', { moneda: 'USD', esBiMoneda: false, saldoActual: 10000, activa: true, nombre: 'Caja' });
+    await seedUser('fin', ['finanzas']);
+    await assertSucceeds(updateDoc(doc(db('fin'), 'cuentasCaja', 'cc3'), { nombre: 'Caja Chica' }));
+  });
+  it('✅ cliente crea una cuenta con saldo inicial (apertura) → permitido', async () => {
+    await seedUser('fin', ['finanzas']);
+    await assertSucceeds(setDoc(doc(db('fin'), 'cuentasCaja', 'cc4'), { moneda: 'USD', esBiMoneda: false, saldoActual: 5000, activa: true, nombre: 'Nueva' }));
+  });
+  it('🔒 admin TAMPOCO muta el saldo directo (integridad · usa la CF) → DENEGADO', async () => {
+    await seed('cuentasCaja', 'cc5', { moneda: 'USD', esBiMoneda: false, saldoActual: 10000, activa: true, nombre: 'Caja' });
+    await seedUser('adm', ['admin']);
+    await assertFails(updateDoc(doc(db('adm'), 'cuentasCaja', 'cc5'), { saldoActual: 0 }));
+  });
+});
+
 describe('🟠 ABIERTO · sin-ref con flujo real en movimientosFinancieros (reembolso_cliente)', () => {
   it('reembolso_cliente · flujo real · hoy permitido · pendiente de gate de aprobación (migración aparte)', async () => {
     await seedUser('fin', ['finanzas']);

@@ -363,7 +363,13 @@ service cloud.firestore {
 
     match /cuentasCaja/{docId} {
       allow read: if hasAnyRole(['admin', 'gerente', 'finanzas', 'supervisor']);
-      allow write: if hasAnyRole(['admin', 'gerente', 'finanzas']);
+      // create: la cuenta puede nacer con saldo inicial (balance de apertura).
+      allow create: if hasAnyRole(['admin', 'gerente', 'finanzas']);
+      // F3.5 Fase B · el saldo de cuentasCaja es CF-only (reusa saldoIntacto · mismos campos saldoActual/
+      // saldoUSD/saldoPEN) · lo mutan SOLO las CFs (registrarMovimientoTesoreriaCash · eliminarMovimientoTesoreria
+      // Cash · registrarRetiroCashTesoreria · admin SDK). El resto del doc (nombre, config) se edita libre.
+      allow update: if hasAnyRole(['admin', 'gerente', 'finanzas']) && saldoIntacto();
+      allow delete: if hasAnyRole(['admin', 'gerente', 'finanzas']);
     }
 
     match /conversionesCambiarias/{docId} {
