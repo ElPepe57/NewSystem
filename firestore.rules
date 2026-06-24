@@ -95,6 +95,15 @@ service cloud.firestore {
       return !enProceso
         || request.resource.data.get('costoFleteTotal', 0) == resource.data.get('costoFleteTotal', 0);
     }
+    // F3.5 · el SALDO de un producto financiero es CF-only: en un update del cliente NO puede cambiar
+    // (saldoActual/saldoUSD/saldoPEN). Lo mutan SOLO las CFs (registrarEgresoCash/Lote · registrarMovimiento
+    // Cash · anularMovimientoCash · el trigger de retiro · admin SDK · ignoran estas reglas). Así cada cambio
+    // de saldo tiene SIEMPRE un movimiento detrás (integridad del libro · cierra el bypass review cf-retiro#1).
+    function saldoIntacto() {
+      return request.resource.data.get('saldoActual', 0) == resource.data.get('saldoActual', 0)
+        && request.resource.data.get('saldoUSD', 0) == resource.data.get('saldoUSD', 0)
+        && request.resource.data.get('saldoPEN', 0) == resource.data.get('saldoPEN', 0);
+    }
     // `creadoPor` es inmutable post-create (segregación · evita re-asignar el creador).
     function creadoPorIntacto() {
       return request.resource.data.get('creadoPor', '') == resource.data.get('creadoPor', '');
@@ -812,7 +821,12 @@ service cloud.firestore {
     // ============================================================
     match /productosFinancieros/{docId} {
       allow read: if hasAnyRole(['admin', 'gerente', 'finanzas', 'supervisor']);
-      allow write: if hasAnyRole(['admin', 'gerente', 'finanzas']);
+      // create: el producto puede nacer con saldo inicial (cuenta con balance de apertura).
+      allow create: if hasAnyRole(['admin', 'gerente', 'finanzas']);
+      // F3.5 · update: el saldo es CF-only (saldoIntacto) · el resto del doc (nombre, config) se edita libre.
+      // Incluso admin pasa por la CF para mover saldo (integridad: todo cambio de saldo lleva un movimiento).
+      allow update: if hasAnyRole(['admin', 'gerente', 'finanzas']) && saldoIntacto();
+      allow delete: if hasAnyRole(['admin', 'gerente', 'finanzas']);
     }
 
     // RelacionBancaria — vínculo titular ↔ banco
