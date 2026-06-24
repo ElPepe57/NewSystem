@@ -118,6 +118,17 @@ export async function registrarMovimientoFinanciero(
 
   const estado = opts.estado ?? 'ejecutado';
 
+  // F3.5 Fase A · el movimiento EJECUTADO (movimiento + saldo) lo escribe la CF registrarMovimientoCash
+  // (admin SDK · ÚNICA escritora del saldo de productosFinancieros · la regla saldoIntacto lo congela para
+  // el cliente). El cliente ya no hace addDoc + aplicarDeltasASaldos directo. notificarCambioContable se
+  // mantiene client-side. El caso 'programado' (sin saldo · ningún flujo lo usa hoy) conserva el path local.
+  if (estado === 'ejecutado') {
+    const { registrarMovimientoCashFn } = await import('./movimientoCash.client');
+    const movimientoId = await registrarMovimientoCashFn(data);
+    void notificarCambioContable(data.fecha);
+    return movimientoId;
+  }
+
   // Generar numeroMovimiento (MF-2026-001)
   const numeroMovimiento = await generarNumeroMovimiento();
 
@@ -177,23 +188,14 @@ export async function registrarMovimientoFinanciero(
   // Idempotencia (P-2: par de conversiones comparte clave)
   if (data.idempotencyKey) docData.idempotencyKey = data.idempotencyKey;
 
-  // ─── Insertar el movimiento ───────────────────────────────────────
+  // ─── Insertar el movimiento (solo 'programado'/'pendiente' · SIN saldo) ──────
+  // F3.5 · el caso 'ejecutado' (con saldo) ya retornó arriba vía la CF. Acá solo llega un movimiento sin
+  // mutación de saldo (programado/pendiente), que no afecta productosFinancieros.
   const ref = await addDoc(collection(db, COL), docData);
 
   // chk5.PERF-INVALIDACION · el movimiento puede afectar el P&L del mes (gastos,
   // otros ingresos) → invalidar cache/snapshot contable (fire-and-forget).
   void notificarCambioContable(data.fecha);
-
-  // ─── Aplicar delta de saldo (solo si ejecutado) ──────────────────
-  if (estado === 'ejecutado') {
-    await aplicarDeltasASaldos(
-      data.productoOrigenId,
-      data.productoDestinoId,
-      data.monto,
-      data.moneda,
-      userId,
-    );
-  }
 
   return ref.id;
 }
