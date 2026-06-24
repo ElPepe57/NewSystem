@@ -19,6 +19,7 @@ import * as functions from "firebase-functions/v1";
 import * as admin from "firebase-admin";
 import { COLLECTIONS } from "../collections";
 import { requiereAutorizacionSocio } from "./autorizacionEgreso.helper";
+import { assertRolCash } from "./registrarEgresoCash";
 
 type Code = functions.https.FunctionsErrorCode;
 function err(code: Code, msg: string): functions.https.HttpsError {
@@ -182,6 +183,7 @@ export async function registrarRetiroCashCore(
 export const registrarRetiroCashTesoreria = functions.https.onCall(
   async (data: RegistrarRetiroCashInput, context) => {
     if (!context.auth) throw err("unauthenticated", "Debe estar autenticado.");
+    await assertRolCash(admin.firestore(), context.auth.uid);
     return registrarRetiroCashCore(admin.firestore(), data, context.auth.uid);
   },
 );

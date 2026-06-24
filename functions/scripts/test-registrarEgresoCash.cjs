@@ -102,6 +102,20 @@ async function main() {
   }), "fin"), "no está autorizado");
   ok("saldo del lote NO cambió tras el rechazo atómico", (await saldo("caja-lote")) === 17000);
 
+  // F3c-fix · el desembolso del lote DEBE coincidir con Σ refs (cierra el bypass "sacar 50k con un ref chico")
+  await seedGasto("gl-3", { autorizacion: { estado: "aprobado", firmas: [] } });
+  await expectThrow("lote: desembolso 50k respaldado por 1 ref chico (100) → DENY (bypass cerrado)", () => registrarEgresoCashLoteCore(db, loteInput({
+    monto: 50000, idempotencyKey: "kl-bypass",
+    refs: [{ tipo: "gasto", id: "gl-3", montoAplicadoUSD: 100 }],
+  }), "fin"), "no coincide");
+  ok("saldo del lote NO cambió tras el bypass bloqueado", (await saldo("caja-lote")) === 17000);
+  // F3c-fix · el lote no re-paga un egreso ya pagado (pagadoUSD + aplicado <= monto)
+  await seedGasto("gl-pagado", { montoOriginal: 2000, montoPagadoUSD: 2000, autorizacion: { estado: "aprobado", firmas: [] } });
+  await expectThrow("lote: egreso ya pagado → DENY (no re-paga)", () => registrarEgresoCashLoteCore(db, loteInput({
+    monto: 2000, idempotencyKey: "kl-repago",
+    refs: [{ tipo: "gasto", id: "gl-pagado", montoAplicadoUSD: 2000 }],
+  }), "fin"), "ya está pagado");
+
   console.log(`\n=== RESULTADO F3a: ${pass} pass · ${fail} fail ===\n`);
   if (fail > 0) process.exit(1);
 }

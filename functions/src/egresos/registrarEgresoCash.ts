@@ -20,6 +20,20 @@ function err(code: Code, msg: string): functions.https.HttpsError {
   return new functions.https.HttpsError(code, msg);
 }
 
+// El cash de egreso lo dispara un operador de confianza (no cualquier autenticado): finanzas/gerente/admin
+// (pagan) o socio (encadena el cash de un retiro tras aprobarlo). La CF usa admin SDK e ignora las rules,
+// así que el rol se chequea acá en el wrapper (el core queda puro/testeable). Defensa-en-profundidad: el
+// gate real sigue siendo la aprobación del egreso · esto cierra "cualquier usuario autenticado invoca la CF".
+const ROLES_CASH = ["admin", "gerente", "finanzas", "socio"];
+export async function assertRolCash(db: admin.firestore.Firestore, uid: string): Promise<void> {
+  const snap = await db.collection(COLLECTIONS.USERS).doc(uid).get();
+  const data = snap.exists ? (snap.data() as admin.firestore.DocumentData) : {};
+  const roles: string[] = Array.isArray(data.roles) ? data.roles : data.role ? [data.role] : [];
+  if (!roles.some((r) => ROLES_CASH.includes(r))) {
+    throw err("permission-denied", "No tenés permiso para mover cash (se requiere rol financiero o socio).");
+  }
+}
+
 type RefTipo = "oc" | "gasto" | "envio";
 type Moneda = "USD" | "PEN";
 
@@ -198,6 +212,7 @@ export async function registrarEgresoCashCore(
 
 export const registrarEgresoCash = functions.https.onCall(async (data: RegistrarEgresoCashInput, context) => {
   if (!context.auth) throw err("unauthenticated", "Debe estar autenticado.");
+  await assertRolCash(admin.firestore(), context.auth.uid);
   return registrarEgresoCashCore(admin.firestore(), data, context.auth.uid);
 });
 
@@ -211,7 +226,7 @@ async function validarEgresoEnTx(
   db: admin.firestore.Firestore,
   tipo: RefTipo,
   id: string,
-): Promise<number> {
+): Promise<{ montoUSD: number; pagadoUSD: number }> {
   const snap = await tx.get(db.collection(COL_EGRESO[tipo]).doc(id));
   if (!snap.exists) throw err("not-found", `Egreso ${tipo}/${id} no encontrado.`);
   const egreso = snap.data() as admin.firestore.DocumentData;
@@ -223,7 +238,7 @@ async function validarEgresoEnTx(
   if (requiereAutorizacionSocio(montoUSD) && egreso.autorizacion?.estado !== "aprobado") {
     throw err("permission-denied", `El egreso ${id} supera el umbral y no está autorizado por socios.`);
   }
-  return montoUSD;
+  return { montoUSD, pagadoUSD: Number(egreso.montoPagadoUSD ?? 0) };
 }
 
 export interface RegistrarEgresoCashLoteInput {
@@ -263,11 +278,23 @@ export async function registrarEgresoCashLoteCore(
 
   return db.runTransaction(async (tx) => {
     // valida CADA egreso del lote · si UNO no está aprobado, TODO el lote falla (atómico).
+    let sumaRefsUSD = 0;
     for (const r of input.refs) {
-      const montoUSD = await validarEgresoEnTx(tx, db, r.tipo, r.id);
-      if (r.montoAplicadoUSD > montoUSD + 0.01) {
-        throw err("failed-precondition", `El monto aplicado al egreso ${r.id} excede su monto autorizado.`);
+      if (!(r.montoAplicadoUSD > 0)) throw err("invalid-argument", `Monto aplicado inválido en el egreso ${r.id}.`);
+      const { montoUSD, pagadoUSD } = await validarEgresoEnTx(tx, db, r.tipo, r.id);
+      // no re-pagar: lo ya pagado + lo aplicado no puede exceder el monto del egreso (igual que el single · D5).
+      if (pagadoUSD + r.montoAplicadoUSD > montoUSD + 0.01) {
+        throw err("failed-precondition", `El egreso ${r.id} ya está pagado o el monto aplicado excede su saldo autorizado.`);
       }
+      sumaRefsUSD += r.montoAplicadoUSD;
+    }
+    // El cash que sale (input.monto) DEBE coincidir con la suma de los refs validados · evita el bypass
+    // "desembolsar 50k respaldado por un ref chico bajo-umbral". El gate de socios va por ref, así que el
+    // desembolso total no puede superar lo que los refs validados cubren.
+    const montoUSDLote = input.moneda === "USD" ? input.monto : input.monto / input.tipoCambio;
+    const tol = Math.max(1, montoUSDLote * 0.005);
+    if (Math.abs(montoUSDLote - sumaRefsUSD) > tol) {
+      throw err("failed-precondition", `El monto del lote (${montoUSDLote.toFixed(2)} USD) no coincide con la suma de los egresos referenciados (${sumaRefsUSD.toFixed(2)} USD).`);
     }
 
     const prodSnap = await tx.get(productoRef);
@@ -306,5 +333,6 @@ export async function registrarEgresoCashLoteCore(
 
 export const registrarEgresoCashLote = functions.https.onCall(async (data: RegistrarEgresoCashLoteInput, context) => {
   if (!context.auth) throw err("unauthenticated", "Debe estar autenticado.");
+  await assertRolCash(admin.firestore(), context.auth.uid);
   return registrarEgresoCashLoteCore(admin.firestore(), data, context.auth.uid);
 });
