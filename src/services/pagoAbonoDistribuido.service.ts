@@ -984,6 +984,7 @@ export async function ejecutar(
       .join(', ');
 
   let movimientoTesoreriaId: string;
+  let cashIdempotente = false; // review migracion-envio#4 · retry exacto del lote (la CF no re-desembolsa)
   // F3c · pago_viajero (flete de envío) también se gatea por la CF · cierra el lote all-envíos y el MIXTO.
   const esEgresoGateado = tipoMov === 'gasto_operativo' || tipoMov === 'pago_orden_compra' || tipoMov === 'pago_viajero';
   if (esEgresoGateado) {
@@ -1013,6 +1014,7 @@ export async function ejecutar(
         })),
     });
     movimientoTesoreriaId = res.movimientoId;
+    cashIdempotente = res.idempotente ?? false;
   } else {
     // Solo ingreso (cobranza · ingreso_venta) cae acá → directo (no es egreso · no se gatea).
     try {
@@ -1042,6 +1044,14 @@ export async function ejecutar(
         `No se pudo registrar el movimiento financiero: ${err instanceof Error ? err.message : 'desconocido'}`,
       );
     }
+  }
+
+  // review migracion-envio#4 · si el lote fue idempotente (retry exacto · la CF no re-desembolsó), el cash
+  // YA salió y las denormalizaciones (MovCC + estado/montoPagado de cada documento) ya se aplicaron en la 1ª
+  // llamada → NO re-aplicar (si no, se re-avanzan estados sobre un cash que no volvió a salir).
+  if (cashIdempotente) {
+    logger.warn(`[PagoAbonoDistribuido] Lote idempotente (retry) · no se re-aplican denormalizaciones · TX ${movimientoTesoreriaId}`);
+    return { movimientoTesoreriaId, movimientosCCIds: [], documentosActualizados: 0, saldoAFavor: 0, idempotencyKey, errores: [] };
   }
 
   // ─── 4. Crear N movimientos CC (1 por documento) ────────────────────

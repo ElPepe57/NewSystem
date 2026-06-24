@@ -41,7 +41,9 @@ export async function autorizarRetiroCapital(retiroId: string): Promise<Resultad
       await registrarRetiroCashTesoreriaFn(retiroId);
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
-      throw new Error(`El retiro fue aprobado pero no se pudo ejecutar el desembolso: ${msg}. La aprobación quedó registrada · reintentá la ejecución.`);
+      // La aprobación ya quedó registrada · el trigger onRetiroCapitalEjecutable reintenta el desembolso
+      // automáticamente (failurePolicy) cuando se resuelva la causa (ej. saldo) · no queda estancado.
+      throw new Error(`El retiro fue aprobado pero el desembolso no se pudo completar ahora: ${msg}. Se reintentará automáticamente.`);
     }
   }
   return data;
