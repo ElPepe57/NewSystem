@@ -95,6 +95,14 @@ service cloud.firestore {
       return !enProceso
         || request.resource.data.get('costoFleteTotal', 0) == resource.data.get('costoFleteTotal', 0);
     }
+    // A.2 · análogo para el reembolso (devolución): una vez que la firma de socio arrancó, montoEstimadoUSD
+    // (el USD landed · base del tramo) queda CONGELADO para el cliente (evita aprobar barato e inflar después).
+    function montoEstimadoCongeladoSiAutorizando() {
+      let auth = resource.data.get('autorizacion', {});
+      let enProceso = auth.get('estado', '') == 'aprobado' || auth.get('firmas', []).size() > 0;
+      return !enProceso
+        || request.resource.data.get('montoEstimadoUSD', 0) == resource.data.get('montoEstimadoUSD', 0);
+    }
     // F3.5 · el SALDO de un producto financiero es CF-only: en un update del cliente NO puede cambiar
     // (saldoActual/saldoUSD/saldoPEN). Lo mutan SOLO las CFs (registrarEgresoCash/Lote · registrarMovimiento
     // Cash · anularMovimientoCash · el trigger de retiro · admin SDK · ignoran estas reglas). Así cada cambio
@@ -698,8 +706,15 @@ service cloud.firestore {
     // ============================================================
     match /devoluciones/{docId} {
       allow read: if isActiveUser();
-      allow create: if hasAnyRole(['admin', 'gerente', 'vendedor', 'almacenero']);
-      allow update: if hasAnyRole(['admin', 'gerente', 'vendedor', 'almacenero']);
+      // A.2 · create-safe: no nace 'aprobado' · creador pineado (segregación · la firma de socio la escribe la CF).
+      allow create: if hasAnyRole(['admin', 'gerente', 'vendedor', 'almacenero'])
+                    && request.resource.data.creadoPor == request.auth.uid
+                    && ( !('autorizacion' in request.resource.data)
+                         || request.resource.data.autorizacion.get('estado', '') != 'aprobado' );
+      // A.2 · update: admin root · no-admin NO toca autorizacion ni creadoPor · montoEstimadoUSD congelado tras la firma.
+      allow update: if isAdmin()
+                    || ( hasAnyRole(['admin', 'gerente', 'vendedor', 'almacenero'])
+                         && autorizacionIntacta() && creadoPorIntacto() && montoEstimadoCongeladoSiAutorizando() );
       allow delete: if isAdmin();
     }
 
@@ -856,7 +871,7 @@ service cloud.firestore {
       // (flujo real · gate de aprobación pendiente · migración aparte).
       allow create: if hasAnyRole(['admin', 'gerente', 'finanzas'])
                     && !( request.resource.data.get('categoria', '') in
-                          ['gasto_operativo', 'pago_orden_compra', 'pago_viajero', 'retiro_socio', 'pago_nomina', 'adelanto_empleado', 'ajuste_negativo'] );
+                          ['gasto_operativo', 'pago_orden_compra', 'pago_viajero', 'retiro_socio', 'pago_nomina', 'adelanto_empleado', 'ajuste_negativo', 'reembolso_cliente'] );
       allow update: if hasAnyRole(['admin', 'gerente', 'finanzas']);
       allow delete: if false;
     }

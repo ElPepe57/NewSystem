@@ -24,8 +24,9 @@ import type { Requerimiento } from '../types/requerimiento.types';
 import type { Gasto } from '../types/gasto.types';
 import type { OrdenCompra } from '../types/ordenCompra.types';
 import type { Envio } from '../types/envio.types';
+import type { Devolucion } from '../types/devolucion.types';
 
-export type OrigenEgreso = 'requerimiento' | 'gasto' | 'oc' | 'retiro' | 'envio';
+export type OrigenEgreso = 'requerimiento' | 'gasto' | 'oc' | 'retiro' | 'envio' | 'devolucion';
 
 /** Shape mínimo del doc retirosCapital que la bandeja necesita (F3c · sin-ref · autorización standalone). */
 export interface RetiroCapitalDoc {
@@ -137,6 +138,26 @@ export function retiroAEgreso(r: RetiroCapitalDoc): EgresoPendiente {
  * bandeja cuando se aprueba, se paga (estadoPagoColaborador='pagado'), se cancela, o si aún es borrador
  * (no comprometido). La autorización la inicializa la CF en la primera firma (como gasto/OC).
  */
+/**
+ * A.2 · reembolso a cliente (egreso referenciado a la devolución). El USD landed = montoEstimadoUSD (montoDevolucion/TC,
+ * guardado al crear). Sale de la bandeja cuando se aprueba, se completa (cash pagado), se cancela o se rechaza.
+ * La autorización la inicializa la CF en la 1ª firma (como envío).
+ */
+export function devolucionAEgreso(d: Devolucion): EgresoPendiente {
+  return {
+    origen: 'devolucion',
+    id: d.id,
+    numero: d.numeroDevolucion,
+    descripcion: `Reembolso · ${d.clienteNombre ?? 'cliente'}`,
+    montoUSD: d.montoEstimadoUSD || 0,
+    firmas: d.autorizacion?.firmas || [],
+    creadoPor: d.creadoPor,
+    aprobado: d.autorizacion?.estado === 'aprobado',
+    descartado: d.autorizacion?.estado === 'rechazado' || d.estado === 'completada' || d.estado === 'cancelada' || d.estado === 'rechazada',
+    fecha: d.fechaCreacion,
+  };
+}
+
 export function envioAEgreso(e: Envio): EgresoPendiente {
   return {
     origen: 'envio',
@@ -219,4 +240,5 @@ export const LABEL_ORIGEN: Record<OrigenEgreso, string> = {
   oc: 'Orden de compra',
   retiro: 'Retiro de socio',
   envio: 'Flete de envío',
+  devolucion: 'Reembolso a cliente',
 };

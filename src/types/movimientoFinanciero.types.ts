@@ -99,7 +99,8 @@ export type RefDocumentoTipo =
   | 'cargo_tc'
   | 'pago_tc'
   | 'lote_masivo'
-  | 'transferencia';
+  | 'transferencia'
+  | 'devolucion'; // A.2 · reembolso a cliente referenciado a la devolución (gate de aprobación)
 
 // ═════════════════════════════════════════════════════════════════════════
 // MOVIMIENTO FINANCIERO (entidad principal)

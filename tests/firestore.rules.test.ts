@@ -374,9 +374,32 @@ describe('F3.5 Fase B · SALDO de cuentasCaja · CF-only (saldoIntacto)', () => 
   });
 });
 
-describe('🟠 ABIERTO · sin-ref con flujo real en movimientosFinancieros (reembolso_cliente)', () => {
-  it('reembolso_cliente · flujo real · hoy permitido · pendiente de gate de aprobación (migración aparte)', async () => {
+describe('A.2 · REEMBOLSO (devolución) · cash gateado + el cliente no forja la autorización', () => {
+  it('🔒 cliente NO crea el cash de un reembolso (movimientosFinancieros reembolso_cliente) → DENEGADO', async () => {
     await seedUser('fin', ['finanzas']);
-    await assertSucceeds(setDoc(doc(db('fin'), 'movimientosFinancieros', 'mf-reemb'), { categoria: 'reembolso_cliente', monto: 50000, productoOrigenId: 'caja' }));
+    await assertFails(setDoc(doc(db('fin'), 'movimientosFinancieros', 'mf-reemb'), { categoria: 'reembolso_cliente', monto: 50000, refDocumentoTipo: 'devolucion', refDocumentoId: 'd1', productoOrigenId: 'caja' }));
+  });
+  it('✅ create-safe · cliente crea una devolución (sin autorizacion=aprobado · creador pineado) → permitido', async () => {
+    await seedUser('vend', ['vendedor']);
+    await assertSucceeds(setDoc(doc(db('vend'), 'devoluciones', 'd1'), { creadoPor: 'vend', numeroDevolucion: 'DEV-1', montoEstimadoUSD: 2000, estado: 'solicitada' }));
+  });
+  it('🔒 cliente NO nace una devolución con autorizacion=aprobado → DENEGADO', async () => {
+    await seedUser('vend', ['vendedor']);
+    await assertFails(setDoc(doc(db('vend'), 'devoluciones', 'd2'), { creadoPor: 'vend', numeroDevolucion: 'DEV-2', montoEstimadoUSD: 2000, estado: 'solicitada', autorizacion: { estado: 'aprobado', firmas: [] } }));
+  });
+  it('🔒 cliente NO forja la autorización de la devolución en un update → DENEGADO', async () => {
+    await seed('devoluciones', 'd3', { creadoPor: 'vend', numeroDevolucion: 'DEV-3', montoEstimadoUSD: 2000, estado: 'solicitada', autorizacion: { estado: 'pendiente', firmas: [] } });
+    await seedUser('vend', ['vendedor']);
+    await assertFails(updateDoc(doc(db('vend'), 'devoluciones', 'd3'), { autorizacion: { estado: 'aprobado', firmas: [{ usuarioId: 'vend' }] } }));
+  });
+  it('🔒 cliente NO infla montoEstimadoUSD con la firma en proceso → DENEGADO', async () => {
+    await seed('devoluciones', 'd4', { creadoPor: 'vend', numeroDevolucion: 'DEV-4', montoEstimadoUSD: 999, estado: 'solicitada', autorizacion: { estado: 'pendiente', firmas: [{ usuarioId: 's1' }] } });
+    await seedUser('vend', ['vendedor']);
+    await assertFails(updateDoc(doc(db('vend'), 'devoluciones', 'd4'), { montoEstimadoUSD: 9000 }));
+  });
+  it('✅ cliente actualiza el estado de la devolución (sin tocar autorizacion ni monto) → permitido', async () => {
+    await seed('devoluciones', 'd5', { creadoPor: 'vend', numeroDevolucion: 'DEV-5', montoEstimadoUSD: 2000, estado: 'solicitada', autorizacion: { estado: 'pendiente', firmas: [{ usuarioId: 's1' }] } });
+    await seedUser('vend', ['vendedor']);
+    await assertSucceeds(updateDoc(doc(db('vend'), 'devoluciones', 'd5'), { estado: 'aprobada' }));
   });
 });

@@ -14,12 +14,14 @@ import { gastoService } from '../services/gasto.service';
 import { getAll as getAllOC } from '../services/ordenCompra.crud.service';
 import { getAllRetirosCapital } from '../services/tesoreria.capital.service';
 import { envioCrudService } from '../services/envio.crud.service';
+import { devolucionService } from '../services/devolucion.service';
 import {
   type EgresoPendiente,
   gastoAEgreso,
   ocAEgreso,
   retiroAEgreso,
   envioAEgreso,
+  devolucionAEgreso,
   esPendienteDeFirma,
   puedoFirmar,
   firmadoPorMi,
@@ -61,11 +63,12 @@ export function useEgresosPendientesSocio(): UseEgresosPendientesSocioResult {
     try {
       // F2 · la bandeja de SOCIO solo agrega gasto + OC (quórum de equity). El requerimiento es
       // autoridad de CARGO (se aprueba en su módulo · decisión 2026-06-22) · NO en la bandeja de socio.
-      const [gastos, ocs, retiros, envios, sociosRaw] = await Promise.all([
+      const [gastos, ocs, retiros, envios, devoluciones, sociosRaw] = await Promise.all([
         gastoService.getAll().catch(() => []),
         getAllOC().catch(() => []),
         getAllRetirosCapital().catch(() => []),
         envioCrudService.getAll().catch(() => []),
+        devolucionService.getAll().catch(() => []),
         socioService.getAll().catch(() => []),
       ]);
       const sociosEquity: SocioEquity[] = sociosRaw.map((s) => ({ uid: s.id, participacion: s.porcentajeParticipacion }));
@@ -79,6 +82,7 @@ export function useEgresosPendientesSocio(): UseEgresosPendientesSocioResult {
         ...ocs.map(ocAEgreso),
         ...retiros.map(retiroAEgreso),
         ...envios.map(envioAEgreso),
+        ...devoluciones.map(devolucionAEgreso),
       ].filter((e) => requiereAutorizacionSocio(e.montoUSD));
 
       const conAccion: EgresoPendienteConAccion[] = todos

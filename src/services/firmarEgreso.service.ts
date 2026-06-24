@@ -10,7 +10,7 @@ import { requerimientoService } from './requerimiento.service';
 import { gastoService } from './gasto.service';
 import { OrdenCompraService } from './ordenCompra.service';
 import { autorizarRetiroCapital, rechazarRetiroCapital } from './retiroCash.client';
-import { autorizarEnvioFlete, rechazarEnvioFlete } from './egresoCash.client';
+import { autorizarEnvioFlete, rechazarEnvioFlete, autorizarDevolucionReembolso, rechazarDevolucionReembolso } from './egresoCash.client';
 import type { OrigenEgreso } from './egresosPendientesSocio.helper';
 
 export function firmarEgreso(
@@ -34,6 +34,10 @@ export function firmarEgreso(
       // F3c · flete · va a la CF autorizarEgreso (colección envios) · NO encadena cash (el flete se paga
       // aparte por envio.pagos · gateado por registrarEgresoCash).
       return autorizarEnvioFlete(id);
+    case 'devolucion':
+      // A.2 · reembolso · va a la CF autorizarEgreso (colección devoluciones) · NO encadena cash (el reembolso
+      // se paga aparte por devolucion.devolverDinero · gateado por registrarMovimientoCash).
+      return autorizarDevolucionReembolso(id);
   }
 }
 
@@ -59,5 +63,7 @@ export function rechazarEgreso(
       return rechazarRetiroCapital(id, motivo);
     case 'envio':
       return rechazarEnvioFlete(id, motivo);
+    case 'devolucion':
+      return rechazarDevolucionReembolso(id, motivo);
   }
 }

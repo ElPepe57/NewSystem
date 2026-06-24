@@ -104,9 +104,23 @@ export interface Devolucion {
   montoDevolucion: number;
   /** Monto efectivamente devuelto (se establece al completar) */
   montoDevuelto: number;
+  /** A.2 · USD landed estimado (montoDevolucion / TC) · base del tramo de autorización de socio >$1k. */
+  montoEstimadoUSD?: number;
 
   // === Estado ===
   estado: EstadoDevolucion;
+
+  // === A.2 · autorización de socio del reembolso >$1k (egreso referenciado · la escribe la CF autorizarEgreso) ===
+  autorizacion?: {
+    estado: 'pendiente' | 'aprobado' | 'rechazado';
+    firmas: { usuarioId: string; nombre?: string; fecha: Timestamp }[];
+    solicitadaPor?: string;
+    fechaSolicitud?: Timestamp;
+    fechaAprobacion?: Timestamp;
+    rechazadoPor?: string;
+    motivoRechazo?: string;
+    fechaRechazo?: Timestamp;
+  };
 
   // === Fechas del flujo ===
   fechaCreacion: Timestamp;

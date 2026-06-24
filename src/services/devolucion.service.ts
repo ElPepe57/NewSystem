@@ -24,7 +24,7 @@ import {
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { COLLECTIONS } from '../config/collections';
-import { logger, logBackgroundError } from '../lib/logger';
+import { logger } from '../lib/logger';
 import { getNextSequenceNumber } from '../lib/sequenceGenerator';
 import { tipoCambioService } from './tipoCambio.service';
 import { actividadService } from './actividad.service';
@@ -152,6 +152,10 @@ export const devolucionService = {
         0
       );
 
+      // A.2 · USD landed estimado (montoDevolucion está en PEN) · base del tramo de autorización de socio >$1k.
+      const tcVentaDev = await tipoCambioService.resolverTCVenta();
+      const montoEstimadoUSD = tcVentaDev > 0 ? montoDevolucion / tcVentaDev : montoDevolucion;
+
       const nuevaDevolucion: Omit<Devolucion, 'id'> = {
         numeroDevolucion,
         ventaId: data.ventaId,
@@ -163,6 +167,7 @@ export const devolucionService = {
         ...(data.detalleMotivo ? { detalleMotivo: data.detalleMotivo } : {}),
         montoDevolucion,
         montoDevuelto: 0,
+        montoEstimadoUSD,
         estado: 'solicitada',
         fechaCreacion: serverTimestamp() as Timestamp,
         creadoPor: userId,
@@ -542,28 +547,20 @@ export const devolucionService = {
             fecha: new Date(),
             referencia: data.referencia,
             notas: data.notas ?? `Devolución de dinero al cliente ${devolucion.clienteNombre}`,
-            refDocumentoTipo: 'venta',
-            refDocumentoId: devolucion.ventaId,
-            refDocumentoNumero: devolucion.ventaNumero,
+            // A.2 · la ref apunta a la DEVOLUCIÓN (no a la venta) · la CF lee su autorizacion para gatear >$1k.
+            refDocumentoTipo: 'devolucion',
+            refDocumentoId: data.devolucionId,
+            refDocumentoNumero: devolucion.numeroDevolucion,
             productoOrigenId: data.cuentaOrigenId,
           },
           userId
         );
       } catch (tesoreriaError: any) {
-        logBackgroundError(
-          'tesoreria.devolverDinero',
-          tesoreriaError,
-          'critical',
-          {
-            devolucionId: data.devolucionId,
-            devolucionNumero: devolucion.numeroDevolucion,
-            monto: data.monto,
-            accionRequerida: 'Registrar egreso manualmente en tesorería',
-          }
-        );
-        logger.error('[devolverDinero] Error registrando en tesorería:', tesoreriaError);
-        // No relanzo: el negocio puede querer marcar la devolución como completada
-        // aunque tesorería falle; el error queda en _errorLog para revisión.
+        logger.error('[devolverDinero] Error registrando el reembolso en tesorería:', tesoreriaError);
+        // A.2 · NO se traga: si la CF rechaza (reembolso >$1k no aprobado por socios · o cualquier fallo de
+        // tesorería) el cash NO salió → la devolución NO debe quedar 'completada' (atómico-con-cash · como
+        // gasto/OC). Se relanza para bloquear el cierre de la devolución.
+        throw new Error(tesoreriaError?.message || 'No se pudo registrar el reembolso en tesorería · la devolución no se completó.');
       }
 
       await updateDoc(doc(db, COLLECTION_NAME, data.devolucionId), {

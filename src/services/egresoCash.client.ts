@@ -32,6 +32,23 @@ export async function rechazarEnvioFlete(envioId: string, motivo?: string): Prom
   await fn({ coleccion: COLLECTIONS.ENVIOS, docId: envioId, motivo });
 }
 
+/**
+ * A.2 · firma de socio sobre un reembolso a cliente >$1k (bandeja). La CF autorizarEgreso aplica el quórum
+ * por equity sobre la devolución (autorizacion en el doc · como gasto/OC/envío). NO encadena cash: el reembolso
+ * se paga aparte (devolucion.devolverDinero · gateado por la CF registrarMovimientoCash que valida aprobado).
+ */
+export async function autorizarDevolucionReembolso(devolucionId: string): Promise<ResultadoAutorizacionCF> {
+  const fn = httpsCallable<{ coleccion: string; docId: string }, ResultadoAutorizacionCF>(functions, 'autorizarEgreso');
+  const { data } = await fn({ coleccion: COLLECTIONS.DEVOLUCIONES, docId: devolucionId });
+  return data;
+}
+
+/** A.2 · rechazo de socio sobre un reembolso · la CF deja autorizacion.estado='rechazado'. */
+export async function rechazarDevolucionReembolso(devolucionId: string, motivo?: string): Promise<void> {
+  const fn = httpsCallable<{ coleccion: string; docId: string; motivo?: string }, { ok: true }>(functions, 'rechazarEgreso');
+  await fn({ coleccion: COLLECTIONS.DEVOLUCIONES, docId: devolucionId, motivo });
+}
+
 export interface EgresoCashInput {
   refDocumentoTipo: 'oc' | 'gasto' | 'envio';
   refDocumentoId: string;
