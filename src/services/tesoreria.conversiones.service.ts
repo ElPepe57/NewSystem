@@ -16,15 +16,15 @@ import { db } from '../lib/firebase';
 import { logger, logBackgroundError } from '../lib/logger';
 import { tipoCambioService } from './tipoCambio.service';
 import {
-  CONVERSIONES_COLLECTION,
-  MOVIMIENTOS_COLLECTION
+  CONVERSIONES_COLLECTION
 } from './tesoreria.shared';
 import type {
   ConversionCambiaria,
   ConversionCambiariaFormData,
   ConversionCambiariaFiltros,
   TipoMovimientoTesoreria,
-  MonedaTesoreria
+  MonedaTesoreria,
+  MetodoTesoreria
 } from '../types/tesoreria.types';
 import { actividadService } from './actividad.service';
 
@@ -133,56 +133,24 @@ export async function registrarConversion(
 
     const conceptoConversion = `Conversión ${numeroConversion}: ${data.monedaOrigen} ${data.montoOrigen.toFixed(2)} → ${monedaDestino} ${montoDestino.toFixed(2)} (TC: ${data.tipoCambio.toFixed(3)})`;
 
-    // Registrar movimiento de salida (moneda origen)
+    // F3.5 Fase B · el cash de cada pata (movimiento + saldo) lo escribe la CF registrarMovimientoTesoreriaCash
+    // (admin SDK · única escritora del saldo) · SALIDA en monedaOrigen (resta) + ENTRADA en monedaDestino
+    // (suma · monedas distintas → 1 llamada por pata). El cliente ya no hace addDoc + actualizarSaldoCuenta directo.
+    void generateNumeroMovimientoFn; void actualizarSaldoCuenta; // la CF los hace · compat del facade
+    const { registrarMovimientoTesoreriaCashFn } = await import('./movimientoTesoreriaCash.client');
     if (data.cuentaOrigenId) {
-      const movSalida: Record<string, any> = {
-        numeroMovimiento: await generateNumeroMovimientoFn(),
-        tipo: tipoMovimiento,
-        estado: 'ejecutado',
-        moneda: data.monedaOrigen,
-        monto: data.montoOrigen,
-        tipoCambio: data.tipoCambio,
-        montoEquivalentePEN: data.monedaOrigen === 'PEN' ? data.montoOrigen : data.montoOrigen * data.tipoCambio,
-        montoEquivalenteUSD: data.monedaOrigen === 'USD' ? data.montoOrigen : data.montoOrigen / data.tipoCambio,
-        metodo: 'conversion',
-        concepto: conceptoConversion,
-        cuentaOrigen: data.cuentaOrigenId,
-        fecha: Timestamp.fromDate(data.fecha),
-        creadoPor: userId,
-        fechaCreacion: Timestamp.now(),
-        conversionId // Vincular al registro de conversión
-      };
-
-      await addDoc(collection(db, MOVIMIENTOS_COLLECTION), movSalida);
-
-      // Actualizar saldo de cuenta origen (resta)
-      await actualizarSaldoCuenta(data.cuentaOrigenId, -data.montoOrigen, data.monedaOrigen);
+      await registrarMovimientoTesoreriaCashFn({
+        tipo: tipoMovimiento, moneda: data.monedaOrigen, monto: data.montoOrigen, tipoCambio: data.tipoCambio,
+        metodo: 'conversion' as MetodoTesoreria, concepto: conceptoConversion, fecha: data.fecha,
+        cuentaOrigen: data.cuentaOrigenId, conversionId,
+      });
     }
-
-    // Registrar movimiento de entrada (moneda destino)
     if (data.cuentaDestinoId) {
-      const movEntrada: Record<string, any> = {
-        numeroMovimiento: await generateNumeroMovimientoFn(),
-        tipo: tipoMovimiento,
-        estado: 'ejecutado',
-        moneda: monedaDestino,
-        monto: montoDestino,
-        tipoCambio: data.tipoCambio,
-        montoEquivalentePEN: monedaDestino === 'PEN' ? montoDestino : montoDestino * data.tipoCambio,
-        montoEquivalenteUSD: monedaDestino === 'USD' ? montoDestino : montoDestino / data.tipoCambio,
-        metodo: 'conversion',
-        concepto: conceptoConversion,
-        cuentaDestino: data.cuentaDestinoId,
-        fecha: Timestamp.fromDate(data.fecha),
-        creadoPor: userId,
-        fechaCreacion: Timestamp.now(),
-        conversionId // Vincular al registro de conversión
-      };
-
-      await addDoc(collection(db, MOVIMIENTOS_COLLECTION), movEntrada);
-
-      // Actualizar saldo de cuenta destino (suma)
-      await actualizarSaldoCuenta(data.cuentaDestinoId, montoDestino, monedaDestino);
+      await registrarMovimientoTesoreriaCashFn({
+        tipo: tipoMovimiento, moneda: monedaDestino, monto: montoDestino, tipoCambio: data.tipoCambio,
+        metodo: 'conversion' as MetodoTesoreria, concepto: conceptoConversion, fecha: data.fecha,
+        cuentaDestino: data.cuentaDestinoId, conversionId,
+      });
     }
   }
 

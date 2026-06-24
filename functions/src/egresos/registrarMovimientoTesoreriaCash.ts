@@ -48,6 +48,7 @@ export interface RegistrarMovimientoTesoreriaCashInput {
   cotizacionNumero?: string;
   transferenciaId?: string;
   transferenciaNumero?: string;
+  conversionId?: string;
   idempotencyKey?: string;
 }
 
@@ -162,6 +163,7 @@ export async function registrarMovimientoTesoreriaCashCore(
     if (input.cotizacionNumero) docData.cotizacionNumero = input.cotizacionNumero;
     if (input.transferenciaId) docData.transferenciaId = input.transferenciaId;
     if (input.transferenciaNumero) docData.transferenciaNumero = input.transferenciaNumero;
+    if (input.conversionId) docData.conversionId = input.conversionId;
     if (input.idempotencyKey) docData.idempotencyKey = input.idempotencyKey;
 
     if (origenRef && origenSnap) deltaSaldoCajaEnTx(tx, origenRef, origenSnap.data()!, -input.monto, input.moneda);

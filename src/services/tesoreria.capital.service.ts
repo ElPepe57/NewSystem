@@ -6,14 +6,11 @@ import {
   collection,
   addDoc,
   getDocs,
-  doc,
-  Timestamp,
-  writeBatch
+  Timestamp
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { COLLECTIONS } from '../config/collections';
 import { logger } from '../lib/logger';
-import { MOVIMIENTOS_COLLECTION } from './tesoreria.shared';
 import { requiereAutorizacionSocio } from './autorizacionEgreso.helper';
 import { registrarRetiroCashTesoreriaFn } from './retiroCash.client';
 import type { RetiroCapitalDoc } from './egresosPendientesSocio.helper';
@@ -23,7 +20,8 @@ import type {
   AporteCapitalFormData,
   RetiroCapitalFormData,
   TipoMovimientoTesoreria,
-  MonedaTesoreria
+  MonedaTesoreria,
+  MetodoTesoreria
 } from '../types/tesoreria.types';
 
 /**
@@ -75,71 +73,31 @@ export async function transferirEntreCuentas(
   }
 
   const concepto = data.concepto || `Transferencia de ${cuentaOrigen.nombre} a ${cuentaDestino.nombre}`;
-  const numeroSalida = await generateNumeroMovimientoFn();
-  const numeroEntrada = await generateNumeroMovimientoFn();
-
-  // Calcular equivalentes
-  const montoEquivalentePEN = data.moneda === 'USD' ? data.monto * data.tipoCambio : data.monto;
-  const montoEquivalenteUSD = data.moneda === 'USD' ? data.monto : data.monto / data.tipoCambio;
-
-  // Movimiento de SALIDA (desde cuenta origen)
-  const movimientoSalida: Record<string, any> = {
-    numeroMovimiento: numeroSalida,
-    tipo: 'transferencia_interna',
-    estado: 'ejecutado',
-    moneda: data.moneda,
-    monto: data.monto,
-    tipoCambio: data.tipoCambio,
-    montoEquivalentePEN,
-    montoEquivalenteUSD,
-    metodo: 'transferencia_interna',
-    concepto: `[SALIDA] ${concepto}`,
-    cuentaOrigen: data.cuentaOrigenId,
-    fecha: Timestamp.fromDate(data.fecha),
-    creadoPor: userId,
-    fechaCreacion: Timestamp.now()
-  };
-  if (data.notas) movimientoSalida.notas = data.notas;
-
-  // Movimiento de ENTRADA (hacia cuenta destino)
-  const movimientoEntrada: Record<string, any> = {
-    numeroMovimiento: numeroEntrada,
-    tipo: 'transferencia_interna',
-    estado: 'ejecutado',
-    moneda: data.moneda,
-    monto: data.monto,
-    tipoCambio: data.tipoCambio,
-    montoEquivalentePEN,
-    montoEquivalenteUSD,
-    metodo: 'transferencia_interna',
-    concepto: `[ENTRADA] ${concepto}`,
-    cuentaDestino: data.cuentaDestinoId,
-    fecha: Timestamp.fromDate(data.fecha),
-    creadoPor: userId,
-    fechaCreacion: Timestamp.now()
-  };
-  if (data.notas) movimientoEntrada.notas = data.notas;
-
-  // Ejecutar en batch
-  const batch = writeBatch(db);
-
-  const salidaRef = doc(collection(db, MOVIMIENTOS_COLLECTION));
-  const entradaRef = doc(collection(db, MOVIMIENTOS_COLLECTION));
-
-  batch.set(salidaRef, movimientoSalida);
-  batch.set(entradaRef, movimientoEntrada);
-
-  await batch.commit();
-
-  // Actualizar saldos de cuentas
-  await actualizarSaldoCuentaFn(data.cuentaOrigenId, -data.monto, data.moneda);
-  await actualizarSaldoCuentaFn(data.cuentaDestinoId, data.monto, data.moneda);
+  // F3.5 Fase B · el cash (los 2 movimientos + los 2 saldos) lo escribe la CF registrarMovimientoTesoreriaCash
+  // (admin SDK · única escritora del saldo) · una llamada por pata: SALIDA desde la cuenta origen (resta) +
+  // ENTRADA hacia la cuenta destino (suma). El cliente ya no hace batch + actualizarSaldoCuenta directo.
+  void generateNumeroMovimientoFn; void actualizarSaldoCuentaFn; // la CF los hace · compat del facade
+  const { registrarMovimientoTesoreriaCashFn } = await import('./movimientoTesoreriaCash.client');
+  const salida = await registrarMovimientoTesoreriaCashFn({
+    tipo: 'transferencia_interna' as TipoMovimientoTesoreria,
+    moneda: data.moneda, monto: data.monto, tipoCambio: data.tipoCambio,
+    metodo: 'transferencia_interna' as MetodoTesoreria, concepto: `[SALIDA] ${concepto}`,
+    fecha: data.fecha, cuentaOrigen: data.cuentaOrigenId,
+    ...(data.notas ? { notas: data.notas } : {}),
+  });
+  const entrada = await registrarMovimientoTesoreriaCashFn({
+    tipo: 'transferencia_interna' as TipoMovimientoTesoreria,
+    moneda: data.moneda, monto: data.monto, tipoCambio: data.tipoCambio,
+    metodo: 'transferencia_interna' as MetodoTesoreria, concepto: `[ENTRADA] ${concepto}`,
+    fecha: data.fecha, cuentaDestino: data.cuentaDestinoId,
+    ...(data.notas ? { notas: data.notas } : {}),
+  });
 
   logger.success(`Transferencia completada: ${data.monto} ${data.moneda} de ${cuentaOrigen.nombre} a ${cuentaDestino.nombre}`);
 
   return {
-    movimientoSalidaId: salidaRef.id,
-    movimientoEntradaId: entradaRef.id
+    movimientoSalidaId: salida.movimientoId,
+    movimientoEntradaId: entrada.movimientoId
   };
 }
 
@@ -164,41 +122,26 @@ export async function registrarAporteCapital(
   if (!cuentaDestino) throw new Error('Cuenta de destino no encontrada');
   if (!cuentaDestino.activa) throw new Error('La cuenta de destino está inactiva');
 
-  const numeroMovimiento = await generateNumeroMovimientoFn();
   const concepto = data.concepto || `Aporte de capital - ${data.socioNombre}`;
-
-  // Calcular equivalentes
   const montoEquivalentePEN = data.moneda === 'USD' ? data.monto * data.tipoCambio : data.monto;
-  const montoEquivalenteUSD = data.moneda === 'USD' ? data.monto : data.monto / data.tipoCambio;
 
-  // Crear movimiento de tesorería
-  const movimiento: Record<string, any> = {
-    numeroMovimiento,
+  // F3.5 Fase B · el cash (movimiento + saldo · suma a la cuenta destino) lo escribe la CF
+  // registrarMovimientoTesoreriaCash (admin SDK · única escritora del saldo). El cliente ya no hace addDoc +
+  // actualizarSaldoCuenta directo. El doc de aportesCapital (contabilidad) se mantiene abajo.
+  void actualizarSaldoCuentaFn; void generateNumeroMovimientoFn; // la CF los hace · compat del facade
+  const { registrarMovimientoTesoreriaCashFn } = await import('./movimientoTesoreriaCash.client');
+  const { movimientoId, numeroMovimiento } = await registrarMovimientoTesoreriaCashFn({
     tipo: 'aporte_capital' as TipoMovimientoTesoreria,
-    estado: 'ejecutado',
     moneda: data.moneda,
     monto: data.monto,
     tipoCambio: data.tipoCambio,
-    montoEquivalentePEN,
-    montoEquivalenteUSD,
     metodo: data.metodo,
     concepto,
+    fecha: data.fecha,
     cuentaDestino: data.cuentaDestinoId,
-    fecha: Timestamp.fromDate(data.fecha),
-    creadoPor: userId,
-    fechaCreacion: Timestamp.now(),
-    // Metadata específica de aporte
-    socioNombre: data.socioNombre,
-    esAporteCapital: true
-  };
-  if (data.socioId) movimiento.socioId = data.socioId;
-  if (data.referencia) movimiento.referencia = data.referencia;
-  if (data.notas) movimiento.notas = data.notas;
-
-  const docRef = await addDoc(collection(db, MOVIMIENTOS_COLLECTION), movimiento);
-
-  // Actualizar saldo de cuenta destino
-  await actualizarSaldoCuentaFn(data.cuentaDestinoId, data.monto, data.moneda);
+    ...(data.referencia ? { referencia: data.referencia } : {}),
+    ...(data.notas ? { notas: data.notas } : {}),
+  });
 
   // Actualizar estadísticas
   await actualizarEstadisticasPorMovimientoFn({
@@ -211,7 +154,7 @@ export async function registrarAporteCapital(
 
   // Registrar también en colección de aportes para contabilidad
   await addDoc(collection(db, COLLECTIONS.APORTES_CAPITAL), {
-    movimientoId: docRef.id,
+    movimientoId,
     numeroMovimiento,
     socioNombre: data.socioNombre,
     socioId: data.socioId || null,
@@ -226,7 +169,7 @@ export async function registrarAporteCapital(
 
   logger.success(`Aporte de capital registrado: ${data.monto} ${data.moneda} por ${data.socioNombre}`);
 
-  return docRef.id;
+  return movimientoId;
 }
 
 /**

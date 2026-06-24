@@ -18,7 +18,7 @@ export interface TesoreriaCashResult {
 
 /** Registra el cash de un movimiento de tesorería vía la CF. Devuelve id + número. Lanza si rechaza. */
 export async function registrarMovimientoTesoreriaCashFn(
-  data: MovimientoTesoreriaFormData,
+  data: MovimientoTesoreriaFormData & { conversionId?: string },
   idempotencyKey?: string,
 ): Promise<TesoreriaCashResult> {
   const payload: Record<string, unknown> = {
@@ -44,6 +44,7 @@ export async function registrarMovimientoTesoreriaCashFn(
   if (data.cotizacionNumero) payload.cotizacionNumero = data.cotizacionNumero;
   if (data.transferenciaId) payload.transferenciaId = data.transferenciaId;
   if (data.transferenciaNumero) payload.transferenciaNumero = data.transferenciaNumero;
+  if (data.conversionId) payload.conversionId = data.conversionId;
   if (idempotencyKey) payload.idempotencyKey = idempotencyKey;
 
   const fn = httpsCallable<Record<string, unknown>, TesoreriaCashResult>(functions, 'registrarMovimientoTesoreriaCash');
