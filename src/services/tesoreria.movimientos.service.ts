@@ -298,6 +298,77 @@ export async function getMovimientoById(id: string): Promise<MovimientoTesoreria
 }
 
 /**
+ * ANULACION_PAGO_OC — Helper compartido: revierte el `credito_pago_oc` que un
+ * movimiento de cash anulado había generado en la CC del proveedor.
+ *
+ * La CC es APPEND-ONLY: no se borra ni anula el crédito, se emite el INVERSO
+ * (`reversa_pago_oc`, un DÉBITO que restaura la deuda). Simétrico a registrarPago.
+ *
+ * - Busca el `credito_pago_oc` por `movimientoTesoreriaId`. Si no existe o el
+ *   `tipo` no es `credito_pago_oc` → return null (nada que revertir).
+ * - Lee la CC raíz (`cuentaCorrienteId`) para emitir la reversa en la MISMA CC
+ *   que el crédito original (robusto ante deudor alternativo: colaborador que
+ *   adelantó el pago). Si no existe → warn + return null.
+ * - Emite `reversa_pago_oc` (idempotencyKey `reversa_pago_{cashMovId}` · monto/
+ *   moneda/notas del crédito · refDocumentoId = el ocId).
+ * - RETORNA el `ocId` (`refDocumentoId` del crédito) para que el CALLER recompute
+ *   el estadoPago/montoPendiente denormalizado (`recalcularEstadoPagoOCDesdeCC`).
+ *   El recompute NO se hace acá a propósito: así el caller puede batchear varios
+ *   huérfanos de la misma OC y recomputar una sola vez.
+ *
+ * La idempotencyKey garantiza que re-correr (ej. reconciliación tras el fix de
+ * anulación) NO duplica la reversa.
+ */
+export async function revertirPagoOCDeCash(
+  cashMovId: string,
+  userId: string,
+): Promise<string | null> {
+  const { cuentaCorrienteService } = await import('./cuentaCorriente.service');
+  const movCC = await cuentaCorrienteService.getMovimientoByTesoreriaId(cashMovId);
+  // El discriminador del movimiento es `tipo` (no `tipoMovimiento`).
+  if (!movCC || movCC.tipo !== 'credito_pago_oc') return null;
+
+  const ocId = movCC.refDocumentoId;
+  if (!ocId) {
+    logger.warn(`[Reversa pago OC] credito_pago_oc del cash ${cashMovId} sin refDocumentoId — no se revierte.`);
+    return null;
+  }
+
+  // La identidad de la entidad (id/tipo/nombre) NO vive en el movimiento — vive en
+  // su CC raíz (`cuentaCorrienteId`). La leemos para emitir la reversa en la MISMA
+  // CC que el crédito original.
+  const ccRaiz = await cuentaCorrienteService.getById(movCC.cuentaCorrienteId);
+  if (!ccRaiz) {
+    logger.warn(`[Reversa pago OC] CC raíz ${movCC.cuentaCorrienteId} no encontrada para la reversa de pago de OC ${ocId}.`);
+    return null;
+  }
+
+  await cuentaCorrienteService.registrarMovimiento(
+    {
+      entidadId: ccRaiz.entidadId,
+      tipo: ccRaiz.tipo,
+      entidadNombre: ccRaiz.entidadNombre,
+      tipoMovimiento: 'reversa_pago_oc',
+      descripcion: `Reversa de pago · OC ${ocId}`,
+      moneda: movCC.moneda,
+      monto: movCC.monto,
+      refDocumentoTipo: 'oc',
+      refDocumentoId: ocId,
+      refDocumentoNumero: movCC.refDocumentoNumero,
+      movimientoTesoreriaId: cashMovId,
+      // Heurística de sub-orden: el pago original guarda `subOrdenId=...` en notas.
+      // Lo propagamos a la reversa para que el netting por sub-orden la empareje.
+      notas: movCC.notas,
+      // Idempotencia: 1 reversa por movimiento de cash anulado (scoped por CC).
+      idempotencyKey: `reversa_pago_${cashMovId}`,
+    },
+    userId,
+  );
+
+  return ocId;
+}
+
+/**
  * Eliminar un movimiento de tesorería
  * Solo para administradores - Revierte el efecto en saldos
  */
@@ -365,51 +436,19 @@ export async function eliminarMovimiento(
         // DÉBITO que restaura la deuda) — la CC es APPEND-ONLY, no se borra/anula — y
         // recomputar el estadoPago/montoPendiente denormalizado de la OC desde la CC
         // (helper compartido con registrarPago, por TOTAL NETO). Simétrico a registrarPago.
-        const { cuentaCorrienteService } = await import('./cuentaCorriente.service');
-        const movCC = await cuentaCorrienteService.getMovimientoByTesoreriaId(id);
-        // El discriminador del movimiento es `tipo` (no `tipoMovimiento`). La identidad
-        // de la entidad (id/tipo/nombre) NO vive en el movimiento — vive en su CC raíz
-        // (`cuentaCorrienteId`). La leemos para emitir la reversa en la MISMA CC que el
-        // crédito original (robusto ante deudor alternativo: colaborador que adelantó pago).
-        if (movCC && movCC.tipo === 'credito_pago_oc') {
-          const ccRaiz = await cuentaCorrienteService.getById(movCC.cuentaCorrienteId);
-          if (!ccRaiz) {
-            logger.warn(`[Anulación] CC raíz ${movCC.cuentaCorrienteId} no encontrada para la reversa de pago de OC ${movimiento.ordenCompraId}.`);
+        const ocId = await revertirPagoOCDeCash(id, userId);
+        if (ocId) {
+          const { getById } = await import('./ordenCompra.crud.service');
+          const { recalcularEstadoPagoOCDesdeCC } = await import('./ordenCompra.pagos.service');
+          const orden = await getById(ocId);
+          if (orden) {
+            await recalcularEstadoPagoOCDesdeCC(orden, userId);
+            logger.info(`[Anulación] Reversa de pago aplicada a OC ${ocId} (CC mov inverso emitido)`);
           } else {
-            await cuentaCorrienteService.registrarMovimiento(
-              {
-                entidadId: ccRaiz.entidadId,
-                tipo: ccRaiz.tipo,
-                entidadNombre: ccRaiz.entidadNombre,
-                tipoMovimiento: 'reversa_pago_oc',
-                descripcion: `Reversa de pago · OC ${movimiento.ordenCompraId}`,
-                moneda: movCC.moneda,
-                monto: movCC.monto,
-                refDocumentoTipo: 'oc',
-                refDocumentoId: movimiento.ordenCompraId,
-                refDocumentoNumero: movCC.refDocumentoNumero,
-                movimientoTesoreriaId: id,
-                // Heurística de sub-orden: el pago original guarda `subOrdenId=...` en notas.
-                // Lo propagamos a la reversa para que el netting por sub-orden la empareje.
-                notas: movCC.notas,
-                // Idempotencia: 1 reversa por movimiento de cash anulado (scoped por CC).
-                idempotencyKey: `reversa_pago_${id}`,
-              },
-              userId,
-            );
-
-            const { getById } = await import('./ordenCompra.crud.service');
-            const { recalcularEstadoPagoOCDesdeCC } = await import('./ordenCompra.pagos.service');
-            const orden = await getById(movimiento.ordenCompraId);
-            if (orden) {
-              await recalcularEstadoPagoOCDesdeCC(orden, userId);
-              logger.info(`[Anulación] Reversa de pago aplicada a OC ${movimiento.ordenCompraId} (CC mov inverso emitido)`);
-            } else {
-              logger.warn(`[Anulación] OC ${movimiento.ordenCompraId} no encontrada para recomputar estado de pago tras la reversa.`);
-            }
+            logger.warn(`[Anulación] OC ${ocId} no encontrada para recomputar estado de pago tras la reversa.`);
           }
         } else {
-          logger.warn(`[Anulación] Mov de tesorería ${id} con ordenCompraId pero sin MovimientoCC credito_pago_oc vinculado — no se revierte la CC.`);
+          logger.warn(`[Anulación] Mov de tesorería ${id} con ordenCompraId pero sin reversa de CC aplicable — no se revierte la CC.`);
         }
       }
       if (movimiento.gastoId) {
@@ -620,8 +659,12 @@ export async function getMovimientos(filtros?: MovimientoTesoreriaFiltros): Prom
  * Reconciliar pagos huérfanos: busca pagos en ventas/OC/gastos cuyo
  * movimiento de tesorería fue anulado, y los limpia del documento origen.
  * Ejecutar una vez para corregir datos históricos previos al fix de propagación.
+ *
+ * `userId` se usa como `registradoPor` de las reversas de CC que emite el bloque
+ * de OC (audit trail). Es seguro re-correr: las reversas son idempotentes
+ * (idempotencyKey `reversa_pago_{cashId}`).
  */
-export async function reconciliarPagosHuerfanos(): Promise<{
+export async function reconciliarPagosHuerfanos(userId: string): Promise<{
   ventasCorregidas: number;
   ocCorregidas: number;
   gastosCorregidos: number;
@@ -703,34 +746,34 @@ export async function reconciliarPagosHuerfanos(): Promise<{
   }
 
   // 2. Órdenes de Compra
+  // El pago de OC NO vive en `oc.historialPagos[]` (campo MUERTO desde S55-F2):
+  // la verdad es un MovimientoCC `credito_pago_oc` en la CC del proveedor. Un pago
+  // HUÉRFANO = un `credito_pago_oc` cuyo movimiento de cash fue anulado pero al que
+  // nunca se le emitió la reversa (datos previos al fix de propagación). Reconciliar
+  // = emitir el INVERSO que faltó (`reversa_pago_oc`) vía el helper compartido —
+  // idempotente, así que re-correr NO duplica — y recomputar el estado denormalizado
+  // de la OC desde la CC una sola vez por OC.
   try {
+    const { getById } = await import('./ordenCompra.crud.service');
+    const { recalcularEstadoPagoOCDesdeCC } = await import('./ordenCompra.pagos.service');
+    const { getPagosOC } = await import('./cuentaCorriente.adaptadores');
     const ocSnap = await getDocs(collection(db, 'ordenesCompra'));
     for (const ocDoc of ocSnap.docs) {
-      const data = ocDoc.data();
-      const historial: any[] = data.historialPagos || [];
-      if (historial.length === 0) continue;
-
-      const pagosHuerfanos = historial.filter((p: any) =>
-        p.movimientoTesoreriaId && idsAnulados.has(p.movimientoTesoreriaId)
+      const pagos = await getPagosOC(ocDoc.id);
+      const pagosHuerfanos = pagos.filter(
+        (p) => p.movimientoTesoreriaId && idsAnulados.has(p.movimientoTesoreriaId),
       );
+      if (pagosHuerfanos.length === 0) continue;
 
-      if (pagosHuerfanos.length > 0) {
-        const nuevoHistorial = historial.filter((p: any) =>
-          !p.movimientoTesoreriaId || !idsAnulados.has(p.movimientoTesoreriaId)
-        );
-        const totalUSD = data.totalUSD || 0;
-        const totalPagadoUSD = nuevoHistorial.reduce((s: number, p: any) => s + (p.montoUSD || 0), 0);
-        const estadoPago = totalPagadoUSD <= 0.01 ? 'pendiente'
-          : totalPagadoUSD >= totalUSD - 0.01 ? 'pagado' : 'parcial';
-
-        await updateDoc(doc(db, 'ordenesCompra', ocDoc.id), {
-          historialPagos: nuevoHistorial,
-          estadoPago,
-          montoPendiente: Math.max(0, totalUSD - totalPagadoUSD),
-        });
-        ocCorregidas++;
-        logger.info(`[Reconciliación] OC ${ocDoc.id}: eliminados ${pagosHuerfanos.length} pagos huérfanos`);
+      for (const huerfano of pagosHuerfanos) {
+        // movimientoTesoreriaId está garantizado por el filtro de arriba.
+        await revertirPagoOCDeCash(huerfano.movimientoTesoreriaId!, userId);
       }
+
+      const orden = await getById(ocDoc.id);
+      if (orden) await recalcularEstadoPagoOCDesdeCC(orden, userId);
+      ocCorregidas++;
+      logger.info(`[Reconciliación] OC ${ocDoc.id}: ${pagosHuerfanos.length} pago(s) huérfano(s) revertidos en la CC`);
     }
   } catch (err) {
     errores.push(`OC: ${err instanceof Error ? err.message : 'Error desconocido'}`);
