@@ -32,7 +32,7 @@ import type {
   ProductoOrden
 } from '../types/ordenCompra.types';
 import type { ComponenteCostoUnidad } from '../types/ctru.types';
-import type { MetodoProrrateo } from '../types/envio.types';
+import type { MetodoProrrateo, EstadoEnvio } from '../types/envio.types';
 import { ProductoService } from './producto.service';
 import { requerimientoService } from './requerimiento.service';
 import { actividadService } from './actividad.service';
@@ -455,6 +455,80 @@ export async function update(
 }
 
 /**
+ * CANCELACION_OC · F4 · REVERSA DE ENVÍO.
+ *
+ * Al confirmar una OC, `confirmarOC` genera 1 o varios Envíos T1 vinculados por
+ * `ordenCompraId` (1 por sub-orden si la OC es consolidada · 1 en el caso normal).
+ * Si la OC se cancela y nadie cancela esos envíos, quedan VIVOS apuntando a una
+ * OC cancelada (un T1 fantasma que infla pendientes/recepción).
+ *
+ * Esta función busca los envíos de la OC (query canónica `getByFiltros({ ordenCompraId })`,
+ * la MISMA que el sync de despacho usa en `cambiarEstado`) y aplica el corte clave
+ * del modelo ("¿la mercadería va a llegar?"):
+ *  - Envío CANCELABLE ('borrador' / 'confirmado' · aún no salió) → `envioCrudService.cancelar`.
+ *    Es la lista que el propio `envioCrudService.cancelar` permite (envio.crud:1557).
+ *  - Envío NO cancelable ('en_transito' / 'retenida_aduana' / 'recibida_*' / etc. · ya en
+ *    camino o recibido) → NO se toca · se LOGUEA un warning para derivar a DEVOLUCIÓN
+ *    (la mercadería ya va a llegar → no es cancelación, es otro flujo · §1 del spec).
+ *
+ * Robusto a múltiples envíos: error por-envío NO frena el loop (se captura y loguea).
+ *
+ * No bloqueante en el caller: si falla, la cancelación de la OC queda aplicada igual.
+ *
+ * @returns `{ enviosCancelados, enviosNoCancelables }`. Si la OC no generó envíos
+ *   (ej. era borrador · `confirmarOC` no corrió), retorna ambos en 0 (no-op).
+ */
+export async function cancelarEnviosDeOC(
+  ordenId: string,
+  motivo: string | undefined,
+  userId: string,
+): Promise<{ enviosCancelados: number; enviosNoCancelables: number }> {
+  const { envioCrudService } = await import('./envio.crud.service');
+
+  // Query canónica · MISMA que el sync de despacho de `cambiarEstado` (envíos por OC).
+  const enviosDeOC = await envioCrudService.getByFiltros({ ordenCompraId: ordenId });
+
+  if (enviosDeOC.length === 0) {
+    return { enviosCancelados: 0, enviosNoCancelables: 0 };
+  }
+
+  // Estados que `envioCrudService.cancelar` ACEPTA (envio.crud:1557). Cualquier otro
+  // ('en_transito', 'retenida_aduana', 'recibida_parcial', 'recibida_completa', ...) =
+  // ya en camino/recibido → derivar a devolución, NO cancelar.
+  const CANCELABLES: EstadoEnvio[] = ['borrador', 'confirmado'];
+
+  let enviosCancelados = 0;
+  let enviosNoCancelables = 0;
+
+  for (const envio of enviosDeOC) {
+    // Un envío ya cancelado no cuenta como "no cancelable a revisar" (idempotencia).
+    if (envio.estado === 'cancelada') continue;
+
+    if (CANCELABLES.includes(envio.estado)) {
+      try {
+        await envioCrudService.cancelar(envio.id, motivo || 'OC cancelada', userId);
+        enviosCancelados++;
+      } catch (envErr) {
+        // No frenar el loop: otros envíos de la misma OC deben intentarse igual.
+        logger.error(
+          `[CANCELACION_OC] ⚠️ FALLÓ cancelar el envío ${envio.numeroEnvio || envio.id} ` +
+            `(estado ${envio.estado}) de la OC ${ordenId} (no bloqueante · revisar manualmente):`,
+          envErr,
+        );
+      }
+    } else {
+      enviosNoCancelables++;
+      logger.warn(
+        `[CANCELACION_OC] Envío ${envio.numeroEnvio || envio.id} en estado '${envio.estado}' ` +
+          `· ya en camino/recibido · NO se cancela · revisar para DEVOLUCIÓN (la mercadería ya va a llegar).`,
+      );
+    }
+  }
+
+  return { enviosCancelados, enviosNoCancelables };
+}
+
+/**
  * CANCELACION_OC · F3a · REVERSA FINANCIERA (deuda).
  *
  * Al confirmar una OC, `confirmarOC` registra en la CC del proveedor un movimiento
@@ -725,6 +799,29 @@ export async function cambiarEstado(
             deudaErr,
           );
         }
+      }
+
+      // CANCELACION_OC · F4 · REVERSA DE ENVÍO: cancelar el/los Envío(s) T1 que `confirmarOC`
+      // generó (vinculados por ordenCompraId). Los CANCELABLES (borrador/confirmado · aún no
+      // salieron) se cancelan; los que ya están en_transito/recibidos se LOGUEAN para derivar
+      // a devolución (la mercadería ya va a llegar). No bloqueante (mismo patrón que la reversa
+      // física/financiera): si falla, la OC YA quedó cancelada. No-op si la OC no generó envíos
+      // (ej. era borrador → confirmarOC no corrió).
+      try {
+        const reversaEnvios = await cancelarEnviosDeOC(id, datos?.motivo, userId);
+        if (reversaEnvios.enviosCancelados > 0 || reversaEnvios.enviosNoCancelables > 0) {
+          logger.info(
+            `[CANCELACION_OC] OC ${orden.numeroOrden || id} reversa de envíos: ` +
+              `${reversaEnvios.enviosCancelados} envío(s) cancelado(s) · ` +
+              `${reversaEnvios.enviosNoCancelables} no cancelable(s) (ya en camino/recibido · revisar para devolución).`,
+          );
+        }
+      } catch (envioReversaErr) {
+        logger.error(
+          `[CANCELACION_OC] ⚠️ FALLÓ la reversa de envíos de la OC ${orden.numeroOrden || id} (no bloqueante · ` +
+            `la cancelación SÍ se aplicó · pueden quedar envíos T1 vivos apuntando a la OC cancelada · revisar manualmente):`,
+          envioReversaErr,
+        );
       }
     }
   } catch (error: any) {
