@@ -92,7 +92,8 @@ export interface OCBuilderState {
   isCreating: boolean;
   creationProgress: { completed: number; total: number; currentName: string } | null;
   creationErrors: Array<{ groupId: string; groupName: string; error: string }>;
-  createdOCs: Array<{ id: string; numeroOrden: string; groupName: string }>;
+  // groupId permite el retry idempotente: handleCreateAll salta las ya creadas.
+  createdOCs: Array<{ id: string; numeroOrden: string; groupName: string; groupId?: string }>;
 }
 
 // ============ Actions ============
@@ -144,7 +145,7 @@ export type OCBuilderAction =
   | { type: 'START_CREATION' }
   | { type: 'CREATION_PROGRESS'; payload: { completed: number; total: number; currentName: string } }
   | { type: 'CREATION_ERROR'; payload: { groupId: string; groupName: string; error: string } }
-  | { type: 'CREATION_SUCCESS'; payload: { id: string; numeroOrden: string; groupName: string } }
+  | { type: 'CREATION_SUCCESS'; payload: { id: string; numeroOrden: string; groupName: string; groupId?: string } }
   | { type: 'CREATION_COMPLETE' };
 
 // ============ Props ============
@@ -154,7 +155,7 @@ export interface OCBuilderProps {
   onClose: () => void;
   requerimientos: Requerimiento[];
   tcSugerido?: number;
-  onComplete: (ordenesCreadas: Array<{ id: string; numeroOrden: string; groupName: string }>) => void;
+  onComplete: (ordenesCreadas: Array<{ id: string; numeroOrden: string; groupName: string; groupId?: string }>) => void;
 }
 
 // ============ Computed helpers ============

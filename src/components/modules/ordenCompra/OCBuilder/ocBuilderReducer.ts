@@ -405,7 +405,10 @@ export function ocBuilderReducer(state: OCBuilderState, action: OCBuilderAction)
 
     // ============ CREATION ============
     case 'START_CREATION':
-      return { ...state, isCreating: true, creationProgress: null, creationErrors: [], createdOCs: [] };
+      // NO se resetea createdOCs: en un reintento de fallidas, las OCs ya creadas
+      // deben conservarse para que handleCreateAll las salte (retry idempotente).
+      // En el primer run createdOCs ya viene vacío (INIT), así que es seguro.
+      return { ...state, isCreating: true, creationProgress: null, creationErrors: [] };
 
     case 'CREATION_PROGRESS':
       return { ...state, creationProgress: action.payload };

@@ -1,7 +1,7 @@
 import React, { useMemo, useCallback } from 'react';
 import {
   CheckCircle2, XCircle, Loader2, Package, MapPin, Building2,
-  ShoppingCart, AlertCircle,
+  ShoppingCart, AlertCircle, RefreshCw,
 } from 'lucide-react';
 import { Button } from '../../../common/Button';
 import { OrdenCompraService } from '../../../../services/ordenCompra.service';
@@ -32,8 +32,8 @@ const SummaryCard: React.FC<{ group: OCDraftGroup; state: OCBuilderState }> = ({
   const totals = calcGroupTotals(group);
   const tc = state.tcMode === 'global' ? state.tcGlobal : group.tcCompra;
 
-  // Check if this OC was already created
-  const created = state.createdOCs.find(oc => oc.groupName === group.nombre);
+  // Check if this OC was already created (por groupId · robusto ante nombres repetidos)
+  const created = state.createdOCs.find(oc => oc.groupId === group.id);
   const error = state.creationErrors.find(e => e.groupId === group.id);
 
   return (
@@ -139,10 +139,15 @@ export const OCBuilderStep3: React.FC<Props> = ({ state, dispatch, onComplete })
     if (!user?.uid) return;
     dispatch({ type: 'START_CREATION' });
 
-    const total = state.groups.length;
+    // Retry idempotente: saltar los grupos cuya OC YA fue creada (por groupId).
+    // En el primer run createdOCs viene vacío → se crean todos. En un reintento de
+    // fallidas, solo se procesan los grupos sin OC creada (evita drafts duplicados).
+    const yaCreados = new Set(state.createdOCs.map(oc => oc.groupId));
+    const gruposACrear = state.groups.filter(g => !yaCreados.has(g.id));
+    const total = gruposACrear.length;
 
-    for (let i = 0; i < state.groups.length; i++) {
-      const group = state.groups[i];
+    for (let i = 0; i < gruposACrear.length; i++) {
+      const group = gruposACrear[i];
       dispatch({
         type: 'CREATION_PROGRESS',
         payload: { completed: i, total, currentName: group.nombre },
@@ -153,7 +158,7 @@ export const OCBuilderStep3: React.FC<Props> = ({ state, dispatch, onComplete })
         const result = await OrdenCompraService.create(formData, user.uid);
         dispatch({
           type: 'CREATION_SUCCESS',
-          payload: { id: result.id, numeroOrden: result.numeroOrden, groupName: group.nombre },
+          payload: { id: result.id, numeroOrden: result.numeroOrden, groupName: group.nombre, groupId: group.id },
         });
       } catch (err: any) {
         dispatch({
@@ -164,7 +169,7 @@ export const OCBuilderStep3: React.FC<Props> = ({ state, dispatch, onComplete })
     }
 
     dispatch({ type: 'CREATION_COMPLETE' });
-  }, [state.groups, state.requerimientos, state.tcMode, state.tcGlobal, user, dispatch]);
+  }, [state.groups, state.createdOCs, state.requerimientos, state.tcMode, state.tcGlobal, user, dispatch]);
 
   const isComplete = !state.isCreating && state.createdOCs.length > 0;
   const hasErrors = state.creationErrors.length > 0;
@@ -236,23 +241,34 @@ export const OCBuilderStep3: React.FC<Props> = ({ state, dispatch, onComplete })
                 </>
               )}
             </Button>
+          ) : hasErrors ? (
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+              <Button
+                variant="primary"
+                size="lg"
+                onClick={handleCreateAll}
+                disabled={state.isCreating}
+              >
+                <RefreshCw className="h-4 w-4 mr-2" />
+                Reintentar {state.creationErrors.length} fallida{state.creationErrors.length > 1 ? 's' : ''}
+              </Button>
+              <Button
+                variant="warning"
+                size="lg"
+                onClick={() => onComplete(state.createdOCs)}
+              >
+                <AlertCircle className="h-4 w-4 mr-2" />
+                Cerrar ({state.createdOCs.length} creada{state.createdOCs.length > 1 ? 's' : ''})
+              </Button>
+            </div>
           ) : (
             <Button
-              variant={hasErrors ? 'warning' : 'success'}
+              variant="success"
               size="lg"
               onClick={() => onComplete(state.createdOCs)}
             >
-              {hasErrors ? (
-                <>
-                  <AlertCircle className="h-4 w-4 mr-2" />
-                  Cerrar ({state.createdOCs.length} creadas, {state.creationErrors.length} error{state.creationErrors.length > 1 ? 'es' : ''})
-                </>
-              ) : (
-                <>
-                  <CheckCircle2 className="h-4 w-4 mr-2" />
-                  Listo
-                </>
-              )}
+              <CheckCircle2 className="h-4 w-4 mr-2" />
+              Listo
             </Button>
           )}
         </div>

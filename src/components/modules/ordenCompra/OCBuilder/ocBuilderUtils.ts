@@ -319,7 +319,15 @@ export function generateGroupId(): string {
   return `group-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
 }
 
-/** Distribute origenes proportionally when splitting a product across groups */
+/**
+ * Distribute origenes proportionally when splitting a product across groups.
+ *
+ * Usa el método del **resto mayor** (Hamilton): cada origen recibe el piso de su
+ * cuota proporcional y el sobrante de redondeo se reparte de a una unidad a los
+ * origenes con mayor parte fraccionaria. Antes el último origen absorbía TODO el
+ * remanente (BUG-3 skew) → sesgaba la cobertura por requerimiento en el caso
+ * borde de un producto multi-req partido entre OCs. La suma siempre = `cantidad`.
+ */
 export function distributeOrigenes(
   origenes: ProductoOrigen[],
   cantidad: number,
@@ -328,17 +336,26 @@ export function distributeOrigenes(
   if (origenes.length <= 1) {
     return origenes.map(o => ({ ...o, cantidad }));
   }
-  // Proportional distribution
+  if (totalOriginal <= 0) {
+    return origenes.map(o => ({ ...o, cantidad: 0 }));
+  }
   const ratio = cantidad / totalOriginal;
-  let remaining = cantidad;
-  return origenes.map((o, i) => {
-    if (i === origenes.length - 1) {
-      return { ...o, cantidad: remaining };
-    }
-    const assigned = Math.round(o.cantidad * ratio);
-    remaining -= assigned;
-    return { ...o, cantidad: assigned };
+  // Piso de la cuota exacta + parte fraccionaria de cada origen.
+  const shares = origenes.map(o => {
+    const exacto = o.cantidad * ratio;
+    const base = Math.floor(exacto);
+    return { base, frac: exacto - base };
   });
+  const leftover = cantidad - shares.reduce((s, x) => s + x.base, 0);
+  // Índices ordenados por parte fraccionaria descendente (los que más "merecen" +1).
+  const orden = shares
+    .map((s, i) => ({ i, frac: s.frac }))
+    .sort((a, b) => b.frac - a.frac);
+  const result = origenes.map((o, i) => ({ ...o, cantidad: shares[i].base }));
+  for (let k = 0; k < leftover; k++) {
+    result[orden[k % orden.length].i].cantidad += 1;
+  }
+  return result;
 }
 
 /** Format product detail subtitle from available fields */
