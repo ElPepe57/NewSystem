@@ -36,6 +36,7 @@ export type TipoActividad =
   // Ordenes de Compra
   | 'oc_creada'
   | 'oc_recibida'
+  | 'oc_cancelada'
   // Entregas
   | 'entrega_programada'
   | 'entrega_completada'
@@ -147,6 +148,7 @@ export const ACTIVIDAD_CONFIG: Record<TipoActividad, { emoji: string; color: str
   requerimiento_aprobado:{ emoji: '👍', color: 'text-orange-700' },
   oc_creada:             { emoji: '🏷️', color: 'text-teal-600' },
   oc_recibida:           { emoji: '📥', color: 'text-teal-700' },
+  oc_cancelada:          { emoji: '🚫', color: 'text-red-600' },
   entrega_programada:    { emoji: '🚚', color: 'text-cyan-600' },
   entrega_completada:    { emoji: '🎉', color: 'text-cyan-700' },
   entrega_fallida:       { emoji: '⚠️', color: 'text-red-500' },

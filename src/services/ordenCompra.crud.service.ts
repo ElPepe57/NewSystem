@@ -556,6 +556,30 @@ export async function cambiarEstado(
     } catch (reqErr) {
       logger.error('Error al sincronizar cobertura de Requerimientos (no bloqueante):', reqErr);
     }
+
+    // CANCELACION_OC · F2 · REVERSA FÍSICA: al cancelar, borrar las unidades 'pedida' huérfanas
+    // que confirmarOC creó + contar las reservas que colgaban de ellas. No bloqueante (mismo
+    // patrón que cancelarReferenciaOC arriba): si falla, la OC YA quedó cancelada y se loguea fuerte.
+    // El filtro por-unidad dentro de revertirFisicoOC garantiza que SOLO se borran 'pedida' (no
+    // inventario recibido) y el guard (a) cubre el caso borrador (sin unidadesGeneradas → no-op).
+    if (nuevoEstado === 'cancelada') {
+      try {
+        // Import dinámico: ordenCompra.recepcion.service importa estáticamente de este módulo
+        // (getById) → usar import() evita el ciclo, igual que confirmarOC con envio.crud.service.
+        const { revertirFisicoOC } = await import('./ordenCompra.recepcion.service');
+        const reversa = await revertirFisicoOC(id, datos?.motivo, userId);
+        logger.info(
+          `[CANCELACION_OC] OC ${orden.numeroOrden || id} reversa física aplicada: ` +
+            `${reversa.unidadesBorradas} unidades borradas · ${reversa.reservasLiberadas} reservas liberadas.`,
+        );
+      } catch (fisicoErr) {
+        logger.error(
+          `[CANCELACION_OC] ⚠️ FALLÓ la reversa física de la OC ${orden.numeroOrden || id} (no bloqueante · ` +
+            `la cancelación SÍ se aplicó · pueden quedar unidades 'pedida' huérfanas · revisar manualmente):`,
+          fisicoErr,
+        );
+      }
+    }
   } catch (error: any) {
     logger.error('Error al cambiar estado:', error);
     throw new Error(error.message || 'Error al cambiar estado');
