@@ -454,6 +454,128 @@ export async function update(
   }
 }
 
+/**
+ * CANCELACION_OC · F3a · REVERSA FINANCIERA (deuda).
+ *
+ * Al confirmar una OC, `confirmarOC` registra en la CC del proveedor un movimiento
+ * `debito_oc` por `orden.totalUSD` ("le DEBÉS el total de la OC"). Si la OC se
+ * cancela, esa deuda queda VIVA → **deuda fantasma**. Esta función emite el
+ * movimiento INVERSO: un crédito dedicado `reversa_debito_oc` que neutraliza el
+ * débito original.
+ *
+ * Detalles de diseño:
+ *  - **Lookup de la CC**: EXACTAMENTE el mismo que `confirmarOC` →
+ *    `entidadId: orden.proveedorId`, `tipo: 'proveedor'`, `entidadNombre:
+ *    orden.nombreProveedor`. La CC no se referencia por id en la OC: el id es
+ *    determinístico `proveedor_{proveedorId}`.
+ *  - **Tipo dedicado** (no `ajusteManual`): el modelo de saldo clasifica por
+ *    DIRECCIÓN (`esCredito` lee de `TIPOS_CREDITO`), no por un switch hardcodeado
+ *    por tipo. Agregar `reversa_debito_oc` como crédito basta para que reste del
+ *    saldo · más trazable e idempotente que un ajuste genérico.
+ *  - **Monto**: se lee el `debito_oc` REAL de esta OC (maneja OCs editadas cuyo
+ *    `totalUSD` cambió después de confirmar). Fallback a `orden.totalUSD` (lo que
+ *    `confirmarOC` usó) si no se encuentra el movimiento.
+ *  - **Idempotencia**: `idempotencyKey: cancelar_oc_{ocId}` → re-cancelar NO
+ *    duplica la reversa (mismo patrón que `confirmar_oc_{ocId}`).
+ *  - **Edge · OC YA PAGADA** (F3b): si la OC tenía pagos (`credito_pago_oc`),
+ *    revertir SOLO la deuda dejaría la CC mostrando un sobre-pago. Para F3a se
+ *    revierte la deuda IGUAL y se LOGUEA un warning fuerte · la reversa del pago
+ *    (cash + crédito inverso) se maneja en F3b. NO se toca el pago acá.
+ *
+ * No bloqueante en el caller: si falla, la cancelación queda aplicada igual.
+ *
+ * @returns `{ montoRevertido, movimientoId? }`. Si la OC no tiene deuda que
+ *   revertir (sin proveedorId / total 0), retorna `{ montoRevertido: 0 }`.
+ */
+export async function revertirDeudaOC(
+  orden: OrdenCompra,
+  motivo: string | undefined,
+  userId: string,
+): Promise<{ montoRevertido: number; movimientoId?: string }> {
+  // Sin proveedor o sin monto → no hubo debito_oc que revertir.
+  if (!orden.proveedorId) {
+    logger.warn(
+      `[CANCELACION_OC] OC ${orden.numeroOrden || orden.id} sin proveedorId · no hay deuda en CC que revertir.`,
+    );
+    return { montoRevertido: 0 };
+  }
+
+  const { cuentaCorrienteService } = await import('./cuentaCorriente.service');
+
+  // ── Monto a revertir: leer el debito_oc REAL de esta OC (maneja OCs cuyo total
+  //    cambió por edición post-confirmación). Fallback a orden.totalUSD. ──
+  let montoRevertido = orden.totalUSD || 0;
+  try {
+    const movsOC = await cuentaCorrienteService.getMovimientosByFiltros({
+      refDocumentoId: orden.id,
+      tipoMovimiento: 'debito_oc',
+    });
+    const debitoReal = movsOC.find((m) => m.tipo === 'debito_oc');
+    if (debitoReal) montoRevertido = debitoReal.monto;
+  } catch (lookupErr) {
+    logger.warn(
+      `[CANCELACION_OC] No se pudo leer el debito_oc real de ${orden.numeroOrden || orden.id} · ` +
+        `uso orden.totalUSD=${montoRevertido}.`,
+      lookupErr,
+    );
+  }
+
+  if (montoRevertido <= 0) {
+    logger.warn(
+      `[CANCELACION_OC] OC ${orden.numeroOrden || orden.id} sin monto de deuda (>0) · nada que revertir.`,
+    );
+    return { montoRevertido: 0 };
+  }
+
+  // ── EDGE · OC YA PAGADA: detectar pagos (credito_pago_oc) y/o estadoPago. La
+  //    reversa del PAGO es F3b — acá solo se LOGUEA un warning fuerte. ──
+  try {
+    const { getPagosOC } = await import('./cuentaCorriente.adaptadores');
+    const pagos = await getPagosOC(orden.id);
+    const tienePago = pagos.length > 0 || (orden.estadoPago && orden.estadoPago !== 'pendiente');
+    if (tienePago) {
+      const totalPagado = pagos.reduce((s, p) => s + (p.montoUSD || 0), 0);
+      logger.warn(
+        `[CANCELACION_OC] ⚠️⚠️ OC ${orden.numeroOrden || orden.id} CANCELADA TENÍA PAGO REGISTRADO ` +
+          `(${pagos.length} pago(s) · ~$${totalPagado.toFixed(2)} USD · estadoPago=${orden.estadoPago}). ` +
+          `La reversa de la DEUDA se aplica igual, pero la reversa del PAGO (cash + crédito inverso en CC) ` +
+          `se maneja en F3b · la CC del proveedor puede quedar mostrando un sobre-pago hasta entonces. ` +
+          `Revisar manualmente.`,
+      );
+    }
+  } catch (pagoErr) {
+    logger.warn(
+      `[CANCELACION_OC] No se pudo verificar si la OC ${orden.numeroOrden || orden.id} tenía pagos (edge F3b):`,
+      pagoErr,
+    );
+  }
+
+  // ── Emitir el crédito inverso (idempotente) ──
+  const descripcion =
+    `Reversa de deuda · OC ${orden.numeroOrden || orden.id} cancelada` +
+    (motivo ? ` · ${motivo}` : '');
+  const result = await cuentaCorrienteService.registrarMovimiento(
+    {
+      entidadId: orden.proveedorId,
+      tipo: 'proveedor',
+      entidadNombre: orden.nombreProveedor,
+      tipoMovimiento: 'reversa_debito_oc',
+      descripcion,
+      moneda: 'USD',
+      monto: montoRevertido,
+      refDocumentoTipo: 'oc',
+      refDocumentoId: orden.id,
+      refDocumentoNumero: orden.numeroOrden,
+      // Idempotencia: re-cancelar NO duplica la reversa (mismo patrón que confirmar_oc_).
+      idempotencyKey: `cancelar_oc_${orden.id}`,
+      ...(motivo ? { notas: motivo } : {}),
+    },
+    userId,
+  );
+
+  return { montoRevertido, movimientoId: result.movimientoId };
+}
+
 export async function cambiarEstado(
   id: string,
   nuevoEstado: EstadoOrden,
@@ -578,6 +700,31 @@ export async function cambiarEstado(
             `la cancelación SÍ se aplicó · pueden quedar unidades 'pedida' huérfanas · revisar manualmente):`,
           fisicoErr,
         );
+      }
+
+      // CANCELACION_OC · F3a · REVERSA FINANCIERA (deuda): emitir el crédito inverso del
+      // debito_oc que confirmarOC creó en la CC del proveedor. Solo si la OC era FIRME:
+      // `confirmarOC` solo corre el debito_oc al salir de 'borrador' → un borrador no tiene
+      // deuda que revertir. `orden.estado` es el estado PRE-cambio (getById antes del update).
+      // No bloqueante (mismo patrón que la reversa física): si falla, la OC YA quedó cancelada.
+      const ocEraFirme = orden.estado !== 'borrador';
+      if (ocEraFirme) {
+        try {
+          const reversaDeuda = await revertirDeudaOC(orden, datos?.motivo, userId);
+          if (reversaDeuda.montoRevertido > 0) {
+            logger.info(
+              `[CANCELACION_OC] OC ${orden.numeroOrden || id} reversa financiera aplicada: ` +
+                `deuda revertida $${reversaDeuda.montoRevertido.toFixed(2)} USD en CC del proveedor ` +
+                `(mov=${reversaDeuda.movimientoId ?? 'reutilizado'}).`,
+            );
+          }
+        } catch (deudaErr) {
+          logger.error(
+            `[CANCELACION_OC] ⚠️ FALLÓ la reversa financiera de la OC ${orden.numeroOrden || id} (no bloqueante · ` +
+              `la cancelación SÍ se aplicó · puede quedar DEUDA FANTASMA en la CC del proveedor · revisar manualmente):`,
+            deudaErr,
+          );
+        }
       }
     }
   } catch (error: any) {

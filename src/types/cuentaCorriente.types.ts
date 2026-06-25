@@ -102,6 +102,7 @@ export type TipoMovimientoCC =
   | 'credito_anticipo'
   | 'credito_pago_estado_cuenta_tc'    // S58d v2 · pago al banco / reembolso titular
   | 'credito_aplicacion_cargo_tc'      // S58d v2 · aplicación de cargo a docs (saldo doc baja)
+  | 'reversa_debito_oc'                // CANCELACION_OC · F3a · revierte el debito_oc al cancelar la OC (neutraliza la deuda fantasma)
   // Aplicaciones / especiales
   | 'aplicacion_saldo'
   | 'devolucion_cash'
@@ -278,6 +279,10 @@ export const TIPOS_CREDITO: TipoMovimientoCC[] = [
   'credito_anticipo',
   'credito_pago_estado_cuenta_tc',
   'credito_aplicacion_cargo_tc',
+  // CANCELACION_OC · F3a — reversa del debito_oc al cancelar la OC. Es un CRÉDITO:
+  // resta del saldo (neutraliza la deuda que el debito_oc había sumado). El modelo
+  // de saldo lo trata por DIRECCIÓN (esCredito), sin hardcodear el tipo en el cálculo.
+  'reversa_debito_oc',
 ];
 
 /**
@@ -440,6 +445,7 @@ export const TIPO_MOVIMIENTO_CC_LABELS: Record<TipoMovimientoCC, string> = {
   credito_anticipo: 'Anticipo del cliente (sobre-cobro)',
   credito_pago_estado_cuenta_tc: 'Pago al banco emisor / reembolso al titular',
   credito_aplicacion_cargo_tc: 'Documento cancelado con cargo a TC',
+  reversa_debito_oc: 'Reversa de deuda por OC cancelada',
   // Aplicaciones / especiales
   aplicacion_saldo: 'Aplicación de saldo a favor',
   devolucion_cash: 'Devolución de dinero',
