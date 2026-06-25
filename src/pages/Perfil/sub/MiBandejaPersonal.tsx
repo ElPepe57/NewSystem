@@ -29,7 +29,6 @@ import {
   AlertTriangle,
   Wallet,
   PenLine,
-  ClipboardList,
   Banknote,
   Package,
   ArrowUpFromLine,
@@ -65,7 +64,6 @@ type SubTab = 'todos' | 'usuarios' | 'adelantos' | 'bonos' | 'liquidaciones' | '
 
 /** F4 · icono por origen del egreso (semántico cross-módulo). */
 const ICONO_ORIGEN: Record<OrigenEgreso, React.ElementType> = {
-  requerimiento: ClipboardList,
   gasto: Banknote,
   oc: Package,
   retiro: ArrowUpFromLine,

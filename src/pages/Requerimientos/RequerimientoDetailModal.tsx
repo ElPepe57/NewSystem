@@ -42,7 +42,6 @@ const getEstadoBadge = (estado: EstadoRequerimiento) => {
   const config: Record<EstadoRequerimiento, { color: string; icon: React.ReactNode }> = {
     borrador: { color: 'bg-slate-100 text-slate-800', icon: <Clock className="h-3 w-3" /> },
     pendiente: { color: 'bg-yellow-100 text-yellow-800', icon: <Clock className="h-3 w-3" /> },
-    pendiente_aprobacion: { color: 'bg-amber-100 text-amber-800', icon: <Clock className="h-3 w-3" /> },
     aprobado: { color: 'bg-sky-100 text-sky-800', icon: <Check className="h-3 w-3" /> },
     parcial: { color: 'bg-teal-100 text-teal-800', icon: <Link2 className="h-3 w-3" /> },
     en_proceso: { color: 'bg-purple-100 text-purple-800', icon: <Link2 className="h-3 w-3" /> },
@@ -106,7 +105,7 @@ export const RequerimientoDetailModal: React.FC<RequerimientoDetailModalProps> =
   onAbrirAsignacion,
   onCancelarCobertura
 }) => {
-  const { canApproveEgresoDe } = usePermissions(); // F4 · gating amount-aware (≤$1k cargo · >$1k socio)
+  const { canApproveRequerimiento } = usePermissions(); // req = autoridad de cargo · el socio gatea en la OC
   if (!requerimiento) return null;
 
   const req = requerimiento;
@@ -460,7 +459,7 @@ export const RequerimientoDetailModal: React.FC<RequerimientoDetailModalProps> =
             </Button>
           )}
 
-          {(req.estado === 'pendiente' || req.estado === 'pendiente_aprobacion') && canApproveEgresoDe(req.montoEstimadoUSD || 0) && (
+          {req.estado === 'pendiente' && canApproveRequerimiento && (
             <Button variant="primary" onClick={() => {
               onAprobar(req);
               onClose();

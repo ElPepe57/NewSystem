@@ -11,7 +11,7 @@
 import React, { useMemo, useState } from 'react';
 import {
   Search, ArrowUpDown, List, LayoutList, ChevronDown, ChevronRight,
-  Clock, PenLine, CheckCircle, Target, Truck, CheckCircle2, Building2,
+  Clock, CheckCircle, Target, Truck, CheckCircle2, Building2,
   Package, Eye, Check, ShoppingCart, AlertTriangle, XCircle, Sparkles, Layers,
   type LucideIcon,
 } from 'lucide-react';
@@ -33,8 +33,8 @@ interface Props {
   onGenerarOCConsolidada: () => void;
 }
 
-type Etapa = 'pendiente' | 'pendiente_aprobacion' | 'aprobado' | 'parcial' | 'en_proceso' | 'completado';
-const ETAPA_ORDER: Etapa[] = ['pendiente', 'pendiente_aprobacion', 'aprobado', 'parcial', 'en_proceso', 'completado'];
+type Etapa = 'pendiente' | 'aprobado' | 'parcial' | 'en_proceso' | 'completado';
+const ETAPA_ORDER: Etapa[] = ['pendiente', 'aprobado', 'parcial', 'en_proceso', 'completado'];
 
 interface EtapaCfg {
   label: string;
@@ -47,7 +47,6 @@ interface EtapaCfg {
 
 const ETAPA_CFG: Record<Etapa, EtapaCfg> = {
   pendiente:            { label: 'Pendientes',      dot: 'bg-amber-500',  icon: Clock,        iconBox: 'bg-amber-50 text-amber-600',     badge: 'bg-amber-100 text-amber-700',     count: 'text-amber-600' },
-  pendiente_aprobacion: { label: 'Esperando firma', dot: 'bg-violet-500', icon: PenLine,      iconBox: 'bg-violet-50 text-violet-600',   badge: 'bg-violet-100 text-violet-700',   count: 'text-violet-600' },
   aprobado:             { label: 'Aprobados',       dot: 'bg-emerald-500', icon: CheckCircle, iconBox: 'bg-emerald-50 text-emerald-600', badge: 'bg-emerald-100 text-emerald-700', count: 'text-emerald-600' },
   parcial:              { label: 'OC Parcial',      dot: 'bg-sky-500',    icon: Target,       iconBox: 'bg-sky-50 text-sky-600',         badge: 'bg-sky-100 text-sky-700',         count: 'text-sky-600' },
   en_proceso:           { label: 'En proceso',      dot: 'bg-blue-500',   icon: Truck,        iconBox: 'bg-blue-50 text-blue-600',       badge: 'bg-blue-100 text-blue-700',       count: 'text-blue-600' },
@@ -58,7 +57,6 @@ function etapaDe(estado: EstadoRequerimiento): Etapa | null {
   switch (estado) {
     case 'pendiente':
     case 'borrador': return 'pendiente';
-    case 'pendiente_aprobacion': return 'pendiente_aprobacion';
     case 'aprobado': return 'aprobado';
     case 'parcial': return 'parcial';
     case 'en_proceso': return 'en_proceso';
@@ -308,7 +306,7 @@ const CardOperativa: React.FC<{
   const Icono = cfg.icon;
   const sobreCompra = req.ocCoverage?.tieneSobrecompra === true;
   const seleccionable = selectionMode && etapa === 'aprobado';
-  const ring = etapa === 'pendiente_aprobacion' ? 'border-violet-200 ring-1 ring-violet-100' : sobreCompra ? 'border-amber-200 ring-1 ring-amber-100' : 'border-slate-200';
+  const ring = sobreCompra ? 'border-amber-200 ring-1 ring-amber-100' : 'border-slate-200';
 
   const handleCardClick = () => {
     if (seleccionable) onToggleSelection(req.id!);
@@ -351,11 +349,6 @@ const CardOperativa: React.FC<{
                 <span className="text-[10px] text-slate-400">{req.ocCoverage.porcentaje}% · {req.ocCoverage.productosPendientes} pend.</span>
               </span>
             )}
-            {etapa === 'pendiente_aprobacion' && (
-              <span className="inline-flex items-center gap-1 bg-violet-50 text-violet-700 px-1.5 py-0.5 rounded text-[10px] font-medium">
-                <PenLine className="w-3 h-3" /> Falta firma
-              </span>
-            )}
             {sobreCompra && (
               <span className="inline-flex items-center gap-0.5 bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-full text-[9px] font-bold uppercase">
                 <AlertTriangle className="w-2.5 h-2.5" /> Sobre-compra
@@ -371,7 +364,7 @@ const CardOperativa: React.FC<{
           <span className={`text-[10px] font-medium ${cfg.badge} px-2 py-0.5 rounded-full`}>{cfg.label.replace(/s$/, '')}</span>
         </div>
         <AccionGatillo req={req} etapa={etapa} onAprobar={onAprobar} onGenerarOC={onGenerarOC} onOpenDetail={onOpenDetail} />
-        {(etapa === 'pendiente' || etapa === 'pendiente_aprobacion' || etapa === 'aprobado' || etapa === 'parcial') && (
+        {(etapa === 'pendiente' || etapa === 'aprobado' || etapa === 'parcial') && (
           <button type="button" onClick={() => onCancelar(req)} title="Cancelar requerimiento" className="text-slate-300 hover:text-rose-600 hover:bg-rose-50 rounded-lg p-1.5 flex-shrink-0">
             <XCircle className="w-4 h-4" />
           </button>
@@ -390,8 +383,8 @@ const AccionGatillo: React.FC<{
   onGenerarOC: (req: Requerimiento) => void;
   onOpenDetail: (req: Requerimiento) => void;
 }> = ({ req, etapa, onAprobar, onGenerarOC }) => {
-  const { canApproveEgresoDe } = usePermissions(); // F4 · gating amount-aware (≤$1k cargo · >$1k socio)
-  const puedeAutorizar = canApproveEgresoDe(req.montoEstimadoUSD || 0);
+  const { canApproveRequerimiento } = usePermissions(); // req = autoridad de cargo · el socio gatea en la OC
+  const puedeAutorizar = canApproveRequerimiento;
   if (etapa === 'pendiente') {
     if (!puedeAutorizar) {
       return <span className="text-[11px] text-slate-400 italic px-2 flex-shrink-0">Pendiente de aprobación</span>;
@@ -399,16 +392,6 @@ const AccionGatillo: React.FC<{
     return (
       <button type="button" onClick={() => onAprobar(req)} className="flex items-center gap-1.5 text-[12px] font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-lg px-3 py-2 flex-shrink-0">
         <Check className="w-4 h-4" /> Aprobar
-      </button>
-    );
-  }
-  if (etapa === 'pendiente_aprobacion') {
-    if (!puedeAutorizar) {
-      return <span className="text-[11px] text-violet-400 italic px-2 flex-shrink-0">Esperando firma</span>;
-    }
-    return (
-      <button type="button" onClick={() => onAprobar(req)} className="flex items-center gap-1.5 text-[12px] font-semibold text-white bg-violet-600 hover:bg-violet-700 rounded-lg px-3 py-2 flex-shrink-0">
-        <PenLine className="w-4 h-4" /> Firmar
       </button>
     );
   }
@@ -439,7 +422,7 @@ const FilaAcordeon: React.FC<{
 }> = ({ req, etapa, onOpenDetail, onAprobar, onGenerarOC }) => {
   const cfg = ETAPA_CFG[etapa];
   const Icono = cfg.icon;
-  const ring = etapa === 'pendiente_aprobacion' ? 'border-violet-200' : 'border-slate-200';
+  const ring = 'border-slate-200';
   return (
     <div className={`bg-white border ${ring} rounded-xl p-3 flex items-center gap-3`}>
       <div className={`w-9 h-9 rounded-lg ${cfg.iconBox} flex items-center justify-center flex-shrink-0`}><Icono className="w-4 h-4" /></div>

@@ -423,15 +423,8 @@ export const Requerimientos: React.FC = () => {
       return;
     }
     try {
-      const result = await requerimientoService.aprobar(req.id, user.uid, getUserRoles(userProfile));
-
-      if (result.completa) {
-        toast.success('Egreso autorizado');
-      } else {
-        toast.warning(
-          `Tu firma fue registrada. Falta ${result.faltanFirmas === 1 ? 'la firma de otro socio' : `${result.faltanFirmas} firmas de socios`} para autorizar.`
-        );
-      }
+      await requerimientoService.aprobar(req.id, user.uid, getUserRoles(userProfile));
+      toast.success('Requerimiento aprobado');
       loadData();
       useBandejaSignal.getState().bump(); // refresca el badge del sidebar
     } catch (error: any) {

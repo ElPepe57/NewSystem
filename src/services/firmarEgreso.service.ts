@@ -6,7 +6,6 @@
  * Solo enruta y propaga el resultado { completa, faltanFirmas? }.
  */
 
-import { requerimientoService } from './requerimiento.service';
 import { gastoService } from './gasto.service';
 import { OrdenCompraService } from './ordenCompra.service';
 import { autorizarRetiroCapital, rechazarRetiroCapital } from './retiroCash.client';
@@ -21,8 +20,6 @@ export function firmarEgreso(
   userRoles: string[],
 ): Promise<{ completa: boolean; faltanFirmas?: number; equityFirmado?: number; equityElegible?: number; equityFaltante?: number }> {
   switch (origen) {
-    case 'requerimiento':
-      return requerimientoService.aprobar(id, userId, userRoles);
     case 'gasto':
       return gastoService.autorizarGasto(id, userId, userRoles);
     case 'oc':
@@ -58,8 +55,6 @@ export function rechazarEgreso(
   motivo?: string,
 ): Promise<void> {
   switch (origen) {
-    case 'requerimiento':
-      return requerimientoService.cancelarRequerimiento(id, userId);
     case 'gasto':
       return gastoService.rechazarGasto(id, userId, userRoles, motivo);
     case 'oc':

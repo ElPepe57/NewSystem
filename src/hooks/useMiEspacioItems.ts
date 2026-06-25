@@ -130,7 +130,6 @@ export function useMiEspacioItems(): {
         // los >umbral recién creados aparecen en la bandeja vía el hook · deuda: notificar al crear).
         if (isSocio) {
           promesas.push(
-            contar(query(collection(db, COLLECTIONS.REQUERIMIENTOS), where('estado', '==', 'pendiente_aprobacion'))),
             contar(query(collection(db, COLLECTIONS.GASTOS), where('autorizacion.estado', '==', 'pendiente'))),
             contar(query(collection(db, COLLECTIONS.ORDENES_COMPRA), where('autorizacion.estado', '==', 'pendiente'))),
           );

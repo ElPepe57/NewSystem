@@ -55,7 +55,7 @@ export const ResumenRequerimientos: React.FC<Props> = ({
 
   const completados = requerimientos.filter(r => r.estado === 'completado').length;
   const urgentesSinAprobar = requerimientos.filter(
-    r => (r.estado === 'pendiente' || r.estado === 'pendiente_aprobacion') && (r.prioridad === 'alta' || r.prioridad === 'urgente')
+    r => r.estado === 'pendiente' && (r.prioridad === 'alta' || r.prioridad === 'urgente')
   ).length;
   const aprobadosSinViajero = requerimientos.filter(
     r => r.estado === 'aprobado' && (r.asignaciones?.length ?? 0) === 0

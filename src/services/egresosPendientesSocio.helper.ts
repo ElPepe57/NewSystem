@@ -20,14 +20,13 @@ import {
   evaluarAprobacionEgreso,
 } from './autorizacionEgreso.helper';
 import { montoUSDDeGasto } from './gasto.service';
-import type { Requerimiento } from '../types/requerimiento.types';
 import type { Gasto } from '../types/gasto.types';
 import type { OrdenCompra } from '../types/ordenCompra.types';
 import type { Envio } from '../types/envio.types';
 import type { Devolucion } from '../types/devolucion.types';
 import type { AjusteConciliacionDoc } from './tesoreria.ajustes.service';
 
-export type OrigenEgreso = 'requerimiento' | 'gasto' | 'oc' | 'retiro' | 'envio' | 'devolucion' | 'ajuste';
+export type OrigenEgreso = 'gasto' | 'oc' | 'retiro' | 'envio' | 'devolucion' | 'ajuste';
 
 /** Shape mínimo del doc retirosCapital que la bandeja necesita (F3c · sin-ref · autorización standalone). */
 export interface RetiroCapitalDoc {
@@ -62,21 +61,6 @@ export interface EgresoPendiente {
   descartado: boolean;
   /** Timestamp de creación (opaco · para fechaRelativa en la UI). */
   fecha?: unknown;
-}
-
-export function requerimientoAEgreso(r: Requerimiento): EgresoPendiente {
-  const montoUSD = r.montoEstimadoUSD || 0;
-  return {
-    origen: 'requerimiento',
-    id: r.id,
-    numero: r.numeroRequerimiento,
-    montoUSD,
-    firmas: r.aprobaciones?.firmas || [],
-    creadoPor: r.creadoPor || (r as { solicitadoPor?: string }).solicitadoPor,
-    aprobado: r.estado === 'aprobado',
-    descartado: r.estado === 'cancelado',
-    fecha: (r as { fechaCreacion?: unknown }).fechaCreacion,
-  };
 }
 
 export function gastoAEgreso(g: Gasto): EgresoPendiente {
@@ -255,7 +239,6 @@ export function chipFirma(e: EgresoPendiente, socios: SocioEquity[]): string {
 
 /** Etiqueta legible del origen para la card. */
 export const LABEL_ORIGEN: Record<OrigenEgreso, string> = {
-  requerimiento: 'Requerimiento',
   gasto: 'Gasto',
   oc: 'Orden de compra',
   retiro: 'Retiro de socio',

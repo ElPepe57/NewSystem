@@ -8,7 +8,6 @@ import type { EstadoOrden } from './ordenCompra.types';
 export type EstadoRequerimiento =
   | 'borrador'              // En proceso de creación
   | 'pendiente'             // Recién creado, sin asignar
-  | 'pendiente_aprobacion'  // Monto > $1,000 — requiere aprobación dual (gerente + admin)
   | 'aprobado'              // Aprobado para compra
   | 'parcial'               // Algunos productos en OC, otros pendientes
   | 'en_proceso'            // En proceso de compra/envío (todos los productos en OC)

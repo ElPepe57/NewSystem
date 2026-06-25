@@ -68,7 +68,7 @@ export const requerimientoService = {
    * reorden: netea el stock disponible para no sugerir reponer lo que ya está prometido a un cliente.
    */
   async getDemandaComprometidaPorProducto(): Promise<Map<string, number>> {
-    const ACTIVOS = new Set(['pendiente', 'pendiente_aprobacion', 'aprobado', 'parcial', 'en_proceso']);
+    const ACTIVOS = new Set(['pendiente', 'aprobado', 'parcial', 'en_proceso']);
     const mapa = new Map<string, number>();
     try {
       const reqs = await requerimientoService.buscar({ origen: 'demanda_comprometida' });
@@ -405,7 +405,7 @@ export const requerimientoService = {
    */
   async actualizarEstado(
     requerimientoId: string,
-    nuevoEstado: 'pendiente' | 'pendiente_aprobacion' | 'aprobado' | 'en_proceso' | 'completado' | 'cancelado',
+    nuevoEstado: 'pendiente' | 'aprobado' | 'en_proceso' | 'completado' | 'cancelado',
     userId: string
   ): Promise<void> {
     const updateData: Record<string, any> = {
@@ -531,7 +531,7 @@ export const requerimientoService = {
         throw new Error('Requerimiento no encontrado');
       }
 
-      if (requerimiento.estado !== 'pendiente' && requerimiento.estado !== 'pendiente_aprobacion') {
+      if (requerimiento.estado !== 'pendiente') {
         throw new Error('Solo se pueden aprobar requerimientos pendientes');
       }
 
