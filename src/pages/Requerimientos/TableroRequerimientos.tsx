@@ -192,7 +192,7 @@ export const TableroRequerimientos: React.FC<Props> = ({
             onClick={onGenerarOCConsolidada}
             className="flex items-center gap-1.5 text-[12px] font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg px-3 py-2 flex-shrink-0"
           >
-            <Layers className="w-4 h-4" /> Generar OC Consolidada
+            <Layers className="w-4 h-4" /> Generar compra
           </button>
         </div>
       )}

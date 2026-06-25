@@ -9,6 +9,7 @@ import type {
 import { GROUP_COLORS } from './ocBuilderTypes';
 import type { Requerimiento } from '../../../../types/requerimiento.types';
 import type { OrdenCompraFormData, CargoOC } from '../../../../types/ordenCompra.types';
+import { esRequerimientoElegibleParaOC } from '../../../../services/requerimiento.cobertura';
 
 // Redondeo a centavos · mantiene la SummaryCard y el totalUSD persistido coherentes (Fase A).
 const round2 = (n: number): number => Math.round(n * 100) / 100;
@@ -25,6 +26,8 @@ export function buildPool(requerimientos: Requerimiento[]): PoolProducto[] {
 
   for (const req of requerimientos) {
     if (!req.productos) continue;
+    // Defensa final: ningún req sin aprobar aporta al pool, aunque se haya colado al builder.
+    if (!esRequerimientoElegibleParaOC(req.estado)) continue;
     for (const p of req.productos) {
       // Calculate available quantity (subtract what's already in OCs)
       const cantidadEnOC = p.cantidadEnOC || 0;

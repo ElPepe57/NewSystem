@@ -20,6 +20,7 @@ import { useProductoStore } from '../../store/productoStore';
 import { useRequerimientoStore } from '../../store/requerimientoStore';
 import { useProductoIntelStore } from '../../store/productoIntelStore';
 import { requerimientoService } from '../../services/requerimiento.service';
+import { esRequerimientoElegibleParaOC } from '../../services/requerimiento.cobertura';
 import type { ProductoFormData } from '../../types/producto.types';
 import { ProductoService } from '../../services/producto.service';
 import { OrdenCompraService } from '../../services/ordenCompra.service';
@@ -473,17 +474,31 @@ export const Requerimientos: React.FC = () => {
 
   // ---- Handlers de OC ----
 
+  // Gate duro: ningún requerimiento sin aprobar entra al builder de compra (§A.2 blindaje · fuente única).
+  const MENSAJE_NO_ELEGIBLE = 'Solo se puede generar compra de requerimientos aprobados.';
+
   const handleGenerarOC = (req: Requerimiento) => {
+    if (!esRequerimientoElegibleParaOC(req.estado)) {
+      toast.error(MENSAJE_NO_ELEGIBLE);
+      return;
+    }
     setOcBuilderReqs([req]);
     setIsOCBuilderOpen(true);
   };
 
   const handleGenerarOCsPorViajero = (req: Requerimiento) => {
+    if (!esRequerimientoElegibleParaOC(req.estado)) {
+      toast.error(MENSAJE_NO_ELEGIBLE);
+      return;
+    }
     setOcBuilderReqs([req]);
     setIsOCBuilderOpen(true);
   };
 
   const toggleReqSelection = (reqId: string) => {
+    // Gate de selección: un req no elegible ni se puede marcar.
+    const req = requerimientosLN.find(r => r.id === reqId);
+    if (req && !esRequerimientoElegibleParaOC(req.estado)) return;
     setSelectedReqIds(prev => {
       const next = new Set(prev);
       if (next.has(reqId)) {
@@ -496,9 +511,17 @@ export const Requerimientos: React.FC = () => {
   };
 
   const handleGenerarOCConsolidada = () => {
-    const selectedReqs = requerimientosLN.filter(r => selectedReqIds.has(r.id!));
-    if (selectedReqs.length === 0) return;
-    setOcBuilderReqs(selectedReqs);
+    const seleccionados = requerimientosLN.filter(r => selectedReqIds.has(r.id!));
+    const elegibles = seleccionados.filter(r => esRequerimientoElegibleParaOC(r.estado));
+    const omitidos = seleccionados.length - elegibles.length;
+    if (elegibles.length === 0) {
+      toast.error(MENSAJE_NO_ELEGIBLE);
+      return;
+    }
+    if (omitidos > 0) {
+      toast.warning(`${omitidos} requerimiento(s) sin aprobar fueron omitidos.`);
+    }
+    setOcBuilderReqs(elegibles);
     setIsOCBuilderOpen(true);
     setSelectionMode(false);
     setSelectedReqIds(new Set());
@@ -583,7 +606,7 @@ export const Requerimientos: React.FC = () => {
               ? [{ label: 'Limpiar datos', icon: RefreshCw, onClick: handleLimpiarDatos, tier: 'config' as const }]
               : []),
             {
-              label: selectionMode ? 'Cancelar selección' : 'OC Consolidada',
+              label: selectionMode ? 'Cancelar selección' : 'Generar compra',
               icon: selectionMode ? CheckSquare : Layers,
               onClick: () => { setSelectionMode(!selectionMode); if (selectionMode) setSelectedReqIds(new Set()); },
               tier: 'neutral' as const,

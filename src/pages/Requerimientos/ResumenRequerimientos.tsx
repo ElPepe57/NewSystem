@@ -90,7 +90,7 @@ export const ResumenRequerimientos: React.FC<Props> = ({
                 </div>
               </div>
               <button type="button" onClick={onGenerarOCAprobados} className="flex items-center gap-1.5 text-[12px] font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg px-3 py-2 flex-shrink-0">
-                <Layers className="w-3.5 h-3.5" /> Generar OC Consolidada
+                <Layers className="w-3.5 h-3.5" /> Generar compra
               </button>
             </div>
           )}
@@ -190,7 +190,7 @@ export const ResumenRequerimientos: React.FC<Props> = ({
             <h3 className="text-[12px] font-semibold text-slate-700 mb-3">Acciones rápidas</h3>
             <div className="grid grid-cols-2 gap-2">
               <button type="button" onClick={onNuevo} className="flex flex-col items-start gap-1 p-2.5 rounded-lg border border-slate-200 hover:border-blue-300 hover:bg-blue-50/40 text-left"><Plus className="w-4 h-4 text-blue-600" /><span className="text-[11px] font-semibold text-slate-800">Nuevo</span></button>
-              <button type="button" onClick={onOCConsolidada} className="flex flex-col items-start gap-1 p-2.5 rounded-lg border border-slate-200 hover:border-blue-300 hover:bg-blue-50/40 text-left"><Layers className="w-4 h-4 text-blue-600" /><span className="text-[11px] font-semibold text-slate-800">OC Consolidada</span></button>
+              <button type="button" onClick={onOCConsolidada} className="flex flex-col items-start gap-1 p-2.5 rounded-lg border border-slate-200 hover:border-blue-300 hover:bg-blue-50/40 text-left"><Layers className="w-4 h-4 text-blue-600" /><span className="text-[11px] font-semibold text-slate-800">Generar compra</span></button>
               <button type="button" onClick={onPendientes} className="flex flex-col items-start gap-1 p-2.5 rounded-lg border border-slate-200 hover:border-blue-300 hover:bg-blue-50/40 text-left"><PackageSearch className="w-4 h-4 text-blue-600" /><span className="text-[11px] font-semibold text-slate-800">Pendientes</span></button>
               <button type="button" onClick={onApuesta} className="flex flex-col items-start gap-1 p-2.5 rounded-lg border border-slate-200 hover:border-blue-300 hover:bg-blue-50/40 text-left"><Dice5 className="w-4 h-4 text-blue-600" /><span className="text-[11px] font-semibold text-slate-800">Apuesta</span></button>
             </div>

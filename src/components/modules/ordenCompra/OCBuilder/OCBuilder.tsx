@@ -1,5 +1,5 @@
 import React, { useReducer, useEffect, useCallback, useRef, useState } from 'react';
-import { Package, Settings, CheckCircle2, Save } from 'lucide-react';
+import { Package, Settings, CheckCircle2, Save, ChevronRight } from 'lucide-react';
 import { Modal } from '../../../common/Modal';
 import { Stepper, StepContent, StepNavigation } from '../../../common/Stepper';
 import type { Step } from '../../../common/Stepper';
@@ -181,13 +181,14 @@ export const OCBuilder: React.FC<OCBuilderProps> = ({
     setShowDraftPrompt(false);
   }, [reqIds]);
 
-  // Build title
+  // Build title + subtitle (el detalle de requerimientos va al subtitle · canon "Generar compra")
   const reqNumbers = requerimientos.map(r => r.numeroRequerimiento).join(', ');
-  const title = requerimientos.length === 1
-    ? `OC Builder — ${reqNumbers}`
-    : `OC Builder — ${requerimientos.length} Requerimientos`;
+  const title = 'Generar compra';
+  const detalleReqs = requerimientos.length === 1
+    ? reqNumbers
+    : `${requerimientos.length} requerimientos`;
 
-  const subtitle = `${state.pool.length} productos · ${state.groups.length} grupo(s) de OC`;
+  const subtitle = `${detalleReqs} · ${state.pool.length} productos · ${state.groups.length} grupo(s) de OC`;
 
   if (!isOpen) return null;
 
@@ -214,6 +215,18 @@ export const OCBuilder: React.FC<OCBuilderProps> = ({
         ) : undefined
       }
     >
+      {/* Breadcrumb de contexto del hub · S9.D1 (Inicio › Requerimientos › Generar compra) */}
+      <nav
+        className="flex-shrink-0 flex items-center gap-1.5 px-4 sm:px-6 py-2 border-b border-slate-100 bg-slate-50/50 text-[11px] text-slate-500"
+        aria-label="Breadcrumb"
+      >
+        <span className="flex-shrink-0">Inicio</span>
+        <ChevronRight className="w-3 h-3 flex-shrink-0" />
+        <span className="flex-shrink-0">Requerimientos</span>
+        <ChevronRight className="w-3 h-3 flex-shrink-0" />
+        <span className="text-slate-900 font-medium truncate">Generar compra</span>
+      </nav>
+
       {/* Draft restore prompt */}
       {showDraftPrompt && savedDraft && (
         <div className="flex-shrink-0 mx-4 sm:mx-6 mt-3 p-3 bg-amber-50 border border-amber-200 rounded-lg flex items-center justify-between gap-3">

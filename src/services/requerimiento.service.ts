@@ -15,7 +15,7 @@ import {
 } from 'firebase/firestore';
 import { getNextSequenceNumber } from '../lib/sequenceGenerator';
 import { db } from '../lib/firebase';
-import { recomputarCoberturaProductos, aplicarCancelacionRef, aplicarEstadoOCaRefs, aplicarCancelacionTotalReq, esFirme, type ModoCancelacionRef } from './requerimiento.cobertura';
+import { recomputarCoberturaProductos, aplicarCancelacionRef, aplicarEstadoOCaRefs, aplicarCancelacionTotalReq, esFirme, esRequerimientoElegibleParaOC, type ModoCancelacionRef } from './requerimiento.cobertura';
 import { ORDENES_COLLECTION } from './ordenCompra.shared';
 import type {
   Requerimiento,
@@ -1012,7 +1012,7 @@ export const requerimientoService = {
     // Blindaje · enforce de aprobación también en el fallback legacy.
     const reqSnap = await getDoc(doc(db, COLLECTION_NAME, requerimientoId));
     const estadoReq = reqSnap.data()?.estado as string | undefined;
-    if (!['aprobado', 'parcial', 'en_proceso'].includes(estadoReq || '')) {
+    if (!esRequerimientoElegibleParaOC(estadoReq)) {
       throw new Error(`Requerimiento ${requerimientoId} sin aprobar (estado: ${estadoReq}) · no puede vincularse a una OC.`);
     }
 
@@ -1047,7 +1047,7 @@ export const requerimientoService = {
 
     // Blindaje · enforce de aprobación en el SERVICIO: no se vincula a OC un requerimiento que no pasó
     // por aprobación (antes solo lo filtraba la UI · bypass posible vía servicio/API).
-    if (!['aprobado', 'parcial', 'en_proceso'].includes(reqData.estado)) {
+    if (!esRequerimientoElegibleParaOC(reqData.estado)) {
       throw new Error(`Requerimiento ${requerimientoId} sin aprobar (estado: ${reqData.estado}) · no puede vincularse a una OC.`);
     }
 
@@ -1259,8 +1259,8 @@ export const requerimientoService = {
 
       // El estado del req SOLO se mueve dentro de los estados de cobertura (no degradar
       // pendiente/aprobación ni pisar completado/cancelado · la recepción es Fase C).
-      const ESTADOS_COBERTURA = ['aprobado', 'parcial', 'en_proceso'];
-      const estadoFinal = ESTADOS_COBERTURA.includes(reqData.estado) ? estadoSugerido : reqData.estado;
+      // Los estados de cobertura == los estados elegibles para OC (misma fuente única).
+      const estadoFinal = esRequerimientoElegibleParaOC(reqData.estado) ? estadoSugerido : reqData.estado;
 
       batch.update(reqDoc.ref, {
         productos: productosActualizados,

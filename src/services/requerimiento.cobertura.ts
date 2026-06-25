@@ -35,6 +35,23 @@ export function esFirme(estadoOC?: EstadoOrden | string | null): boolean {
   return ESTADOS_OC_FIRMES.has(estadoOC);
 }
 
+/**
+ * Estados de requerimiento ELEGIBLES para generar/vincular una OC.
+ * Un req solo puede entrar al builder o vincularse a una OC si pasó por aprobación.
+ * Fuente única consumida por `vincularConOC`/`vincularConOCParcial` (enforce de servicio)
+ * y por el gate de UI en los handlers de Requerimientos (gate duro · que nada sin aprobar entre).
+ */
+const ESTADOS_REQ_ELEGIBLES_OC: ReadonlySet<string> = new Set<string>([
+  'aprobado', 'parcial', 'en_proceso',
+]);
+
+/**
+ * ¿El requerimiento es elegible para generar/vincular una OC? (debe estar aprobado · §A.2 blindaje).
+ */
+export function esRequerimientoElegibleParaOC(estado?: string | null): boolean {
+  return estado != null && ESTADOS_REQ_ELEGIBLES_OC.has(estado);
+}
+
 interface RefLike { ordenCompraId?: string; ordenCompraNumero?: string; cantidad?: number; estadoOC?: string | null; estado?: 'vigente' | 'cancelada' | null; }
 interface ProductoLike { productoId?: string; cantidadSolicitada?: number; ordenCompraRefs?: RefLike[]; [k: string]: unknown; }
 

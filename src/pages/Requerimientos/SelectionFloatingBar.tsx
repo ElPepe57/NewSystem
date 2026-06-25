@@ -26,7 +26,7 @@ export const SelectionFloatingBar: React.FC<SelectionFloatingBarProps> = ({
         onClick={onGenerarOCConsolidada}
       >
         <Layers className="h-4 w-4 mr-2" />
-        Generar OC Consolidada
+        Generar compra
       </Button>
       <Button
         variant="ghost"

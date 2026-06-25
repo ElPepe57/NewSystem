@@ -147,7 +147,7 @@ export const PendientesCompraContent: React.FC<Props> = ({ requerimientos, onEnv
           <div className="flex items-center gap-2">
             <button type="button" onClick={() => setSelectedProductIds(new Set())} className="text-[12px] font-medium text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 rounded-lg px-3 py-2">Cancelar</button>
             <button type="button" onClick={handleEnviar} className="text-[12px] font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg px-3 py-2 flex items-center gap-1.5">
-              <ArrowRight className="w-4 h-4" /> Enviar al OC Builder
+              <ArrowRight className="w-4 h-4" /> Enviar a Generar compra
             </button>
           </div>
         </div>
