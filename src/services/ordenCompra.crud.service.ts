@@ -33,6 +33,7 @@ import type {
 } from '../types/ordenCompra.types';
 import type { ComponenteCostoUnidad } from '../types/ctru.types';
 import type { MetodoProrrateo, EstadoEnvio } from '../types/envio.types';
+import type { MotivoCancelacionOC } from '../types/requerimiento.types';
 import { ProductoService } from './producto.service';
 import { requerimientoService } from './requerimiento.service';
 import { actividadService } from './actividad.service';
@@ -455,6 +456,151 @@ export async function update(
 }
 
 /**
+ * CANCELACION_OC · F5 · PREVIEW de las consecuencias (NO muta nada).
+ *
+ * Lee la OC y COMPUTA, sin escribir, lo que `cambiarEstado('cancelada')` haría:
+ * libera reservas · borra unidades 'pedida' · revierte la deuda en la CC del
+ * proveedor · cancela los envíos T1 cancelables. Es la fuente de verdad del cuerpo
+ * del `CancelarOCModal` (typed-confirm) → lo que el usuario ve == lo que va a pasar.
+ *
+ * Espeja EXACTAMENTE los criterios del motor:
+ *  - `unidadesPedidas` / `reservasAfectadas`: query unidades por `ordenCompraId` en
+ *    estado EXACTO 'pedida' (el mismo guard de `revertirFisicoOC`). De esas, cuántas
+ *    tienen reserva (mismo triple-check `reserva || reservadaPara || reservadoPara`).
+ *  - `deudaUSD`: el `debito_oc` REAL de esta OC (mismo lookup que `revertirDeudaOC`),
+ *    fallback a `orden.totalUSD`. SOLO si la OC era firme (un borrador no tiene deuda).
+ *  - `enviosCancelables` / `enviosNoCancelables`: por `ordenCompraId`, mismo corte
+ *    ('borrador'/'confirmado' = cancelable · resto = ya va a llegar → devolución).
+ *  - `tienePago` / `refundUSD`: la OC fue pagada → el proveedor te deberá ese reembolso.
+ *  - `esRecibida`: tiene unidades en estado ≠ 'pedida' (inventario real) → ADVERTIR que
+ *    eso NO se cancela, es devolución (§1 del spec).
+ *
+ * Best-effort: cada bloque de lectura está aislado · si una query falla, el campo cae a
+ * su default y la preview sigue (nunca tira · el modal igual debe poder abrir).
+ *
+ * @returns objeto con las consecuencias computadas (todo en 0 / false si no aplica).
+ */
+export interface PreviewCancelacionOC {
+  /** Unidades en estado EXACTO 'pedida' que se borrarían. */
+  unidadesPedidas: number;
+  /** De esas 'pedida', cuántas tienen una reserva que se liberaría. */
+  reservasAfectadas: number;
+  /** Monto del debito_oc que se revertiría en la CC del proveedor (0 si la OC era borrador). */
+  deudaUSD: number;
+  /** ¿La OC era firme (tenía debito_oc que revertir)? */
+  ocEraFirme: boolean;
+  /** Envíos T1 'borrador'/'confirmado' que se cancelarían. */
+  enviosCancelables: number;
+  /** Envíos T1 ya en camino/recibidos que NO se cancelan (derivan a devolución). */
+  enviosNoCancelables: number;
+  /** ¿La OC tenía pagos registrados / estadoPago ≠ pendiente? */
+  tienePago: boolean;
+  /** Reembolso que el proveedor te deberá si la OC estaba pagada. */
+  refundUSD: number;
+  /** ¿La OC tiene unidades ya recibidas (inventario real · NO se cancela · es devolución)? */
+  esRecibida: boolean;
+}
+
+export async function previewCancelacionOC(orden: OrdenCompra): Promise<PreviewCancelacionOC> {
+  const ocEraFirme = orden.estado !== 'borrador';
+
+  const preview: PreviewCancelacionOC = {
+    unidadesPedidas: 0,
+    reservasAfectadas: 0,
+    deudaUSD: 0,
+    ocEraFirme,
+    enviosCancelables: 0,
+    enviosNoCancelables: 0,
+    tienePago: false,
+    refundUSD: 0,
+    esRecibida: false,
+  };
+
+  // ── Físico: unidades 'pedida' + reservas + ¿hay inventario recibido? ──
+  // Espeja revertirFisicoOC: SOLO 'pedida' se borra · cualquier otro estado es inventario
+  // real → esRecibida=true (territorio de devolución).
+  try {
+    const idsGenerados = orden.unidadesGeneradas || [];
+    for (const unidadId of idsGenerados) {
+      const snap = await getDoc(doc(db, COLLECTIONS.UNIDADES, unidadId));
+      if (!snap.exists()) continue;
+      const unidad = snap.data() as {
+        estado?: string;
+        reserva?: unknown;
+        reservadaPara?: string;
+        reservadoPara?: string;
+      };
+      if (unidad.estado === 'pedida') {
+        preview.unidadesPedidas++;
+        const tieneReserva = !!unidad.reserva || !!unidad.reservadaPara || !!unidad.reservadoPara;
+        if (tieneReserva) preview.reservasAfectadas++;
+      } else {
+        // Inventario real (recibido/arribado/asignado/…) → NO se cancela · es devolución.
+        preview.esRecibida = true;
+      }
+    }
+  } catch (fisicoErr) {
+    logger.warn(
+      `[CANCELACION_OC] preview · no se pudo leer el físico de la OC ${orden.numeroOrden || orden.id}:`,
+      fisicoErr,
+    );
+  }
+
+  // ── Deuda: el debito_oc REAL (solo si la OC era firme · un borrador no lo tiene). ──
+  if (ocEraFirme && orden.proveedorId) {
+    preview.deudaUSD = orden.totalUSD || 0;
+    try {
+      const { cuentaCorrienteService } = await import('./cuentaCorriente.service');
+      const movsOC = await cuentaCorrienteService.getMovimientosByFiltros({
+        refDocumentoId: orden.id,
+        tipoMovimiento: 'debito_oc',
+      });
+      const debitoReal = movsOC.find((m) => m.tipo === 'debito_oc');
+      if (debitoReal) preview.deudaUSD = debitoReal.monto;
+    } catch (deudaErr) {
+      logger.warn(
+        `[CANCELACION_OC] preview · no se pudo leer el debito_oc de la OC ${orden.numeroOrden || orden.id} · uso totalUSD:`,
+        deudaErr,
+      );
+    }
+  }
+
+  // ── Pago: ¿la OC fue pagada? → el proveedor te deberá un reembolso. ──
+  try {
+    const { getPagosOC } = await import('./cuentaCorriente.adaptadores');
+    const pagos = await getPagosOC(orden.id);
+    const totalPagado = pagos.reduce((s, p) => s + (p.montoUSD || 0), 0);
+    preview.tienePago =
+      pagos.length > 0 || (!!orden.estadoPago && orden.estadoPago !== 'pendiente');
+    preview.refundUSD = totalPagado;
+  } catch (pagoErr) {
+    logger.warn(
+      `[CANCELACION_OC] preview · no se pudo verificar el pago de la OC ${orden.numeroOrden || orden.id}:`,
+      pagoErr,
+    );
+  }
+
+  // ── Envíos: cancelables ('borrador'/'confirmado') vs ya en camino (devolución). ──
+  try {
+    const { envioCrudService } = await import('./envio.crud.service');
+    const enviosDeOC = await envioCrudService.getByFiltros({ ordenCompraId: orden.id });
+    const CANCELABLES: EstadoEnvio[] = ['borrador', 'confirmado'];
+    for (const envio of enviosDeOC) {
+      if (envio.estado === 'cancelada') continue; // idempotencia
+      if (CANCELABLES.includes(envio.estado)) preview.enviosCancelables++;
+      else preview.enviosNoCancelables++;
+    }
+  } catch (envioErr) {
+    logger.warn(
+      `[CANCELACION_OC] preview · no se pudieron leer los envíos de la OC ${orden.numeroOrden || orden.id}:`,
+      envioErr,
+    );
+  }
+
+  return preview;
+}
+
+/**
  * CANCELACION_OC · F4 · REVERSA DE ENVÍO.
  *
  * Al confirmar una OC, `confirmarOC` genera 1 o varios Envíos T1 vinculados por
@@ -660,7 +806,11 @@ export async function cambiarEstado(
     courier?: string;                  // Nombre del courier (string libre o derivado del colaborador)
     courierColaboradorId?: string;     // S38-011: ID del colaborador (Red Logística) si fue seleccionado
     fechaDespacho?: Date;
-    motivo?: string;
+    motivo?: string;                   // motivo libre (log de las reversas físico/deuda/envío)
+    /** F1 cancelación · motivo ESTRUCTURADO · se persiste en las refs soft-canceladas (scorecard de proveedor). */
+    motivoCancelacion?: MotivoCancelacionOC;
+    /** F1 cancelación · detalle libre opcional que el usuario tipeó junto al motivo estructurado. */
+    motivoDetalle?: string;
     observaciones?: string;
   }
 ): Promise<void> {
@@ -745,6 +895,10 @@ export async function cambiarEstado(
           ordenCompraId: id,
           ordenCompraNumero: orden.numeroOrden || '',
           ocEstadoActual: orden.estado,
+          // F1 · forwardear el motivo ESTRUCTURADO → se persiste en las refs soft-canceladas
+          // (alimenta el scorecard de proveedor). El `motivo` libre sigue yendo a los logs.
+          motivo: datos?.motivoCancelacion,
+          motivoDetalle: datos?.motivoDetalle,
         });
       } else {
         await requerimientoService.propagarEstadoOCaRequerimientos(id, orden.numeroOrden || '', nuevoEstado);

@@ -31,7 +31,7 @@ import { calcularEstadoDerivadoOC, getCargosEfectivosOC, prorratearCargosOC } fr
 import { OCLandedCard } from './OCLandedCard';
 // S55 Fase 2 — pagos viven en CC; hook reactivo lee desde movimientosCC
 import { usePagosOC } from '../../../hooks/usePagosOC';
-import { Trash2, Edit3 } from 'lucide-react';
+import { Trash2, Edit3, Ban } from 'lucide-react';
 import { SubOrdenCard } from './SubOrdenCard';
 import { EnviosDeOC } from './EnviosDeOC';
 import { ConfirmarOCModal } from './ConfirmarOCModal';
@@ -61,6 +61,9 @@ interface OrdenCompraCardProps {
   onEditarOC?: () => void;
   /** S53.9 — Eliminar OC. Solo visible en borrador (para no romper trazabilidad). */
   onEliminarOC?: () => void;
+  /** CANCELACION_OC · F5 — Abre el CancelarOCModal. El padre lo gatea por permiso (canCreateOC)
+   *  y solo lo pasa cuando la OC está en un estado cancelable (NO cancelada ni completada). */
+  onCancelarOC?: () => void;
 }
 
 const estadoLabels: Record<string, { label: string; variant: 'success' | 'warning' | 'danger' | 'info' | 'default' }> = {
@@ -118,6 +121,7 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
   onRefresh,
   onEditarOC,
   onEliminarOC,
+  onCancelarOC,
 }) => {
   const [showHistory, setShowHistory] = useState(false);
   // Sub-orden lifecycle state: trackingDraft[subId] = { tracking, courier }
@@ -1330,6 +1334,20 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
             {accion.label}
           </Button>
         ))}
+
+        {/* CANCELACION_OC · F5 — Cancelar OC (danger). Solo en estados cancelables:
+            el padre gatea por permiso + estado y solo pasa onCancelarOC entonces.
+            Guard defensivo: nunca para 'cancelada' ni 'completada'/'recibida'. */}
+        {onCancelarOC && orden.estado !== 'cancelada' && orden.estado !== 'completada' && orden.estado !== 'recibida' && (
+          <button
+            type="button"
+            onClick={onCancelarOC}
+            className="ml-auto inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-red-700 bg-red-50 hover:bg-red-100 border border-red-200 rounded-lg transition-colors"
+          >
+            <Ban className="w-3.5 h-3.5" />
+            Cancelar OC
+          </button>
+        )}
 
         {/* S54 · T1 — Botón "Registrar Pago" del footer ELIMINADO.
              Redundante: el CTA ahora vive dentro del tab "Pagos" junto

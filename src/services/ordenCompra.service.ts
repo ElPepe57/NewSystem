@@ -47,8 +47,11 @@ import {
   create,
   update,
   cambiarEstado,
-  deleteOrden
+  deleteOrden,
+  previewCancelacionOC
 } from './ordenCompra.crud.service';
+import type { PreviewCancelacionOC } from './ordenCompra.crud.service';
+import type { MotivoCancelacionOC } from '../types/requerimiento.types';
 
 import { registrarPago, autorizarOC, rechazarOC } from './ordenCompra.pagos.service';
 import type { ResultadoAutorizacionCF } from './autorizacionEgreso.helper';
@@ -138,10 +141,17 @@ export class OrdenCompraService {
       numeroTracking?: string;
       courier?: string;
       motivo?: string;
+      motivoCancelacion?: MotivoCancelacionOC;
+      motivoDetalle?: string;
       observaciones?: string;
     }
   ): Promise<void> {
     return cambiarEstado(id, nuevoEstado, userId, datos);
+  }
+
+  /** CANCELACION_OC · F5 · preview de las consecuencias de cancelar (NO muta). */
+  static async previewCancelacionOC(orden: OrdenCompra): Promise<PreviewCancelacionOC> {
+    return previewCancelacionOC(orden);
   }
 
   static async registrarPago(

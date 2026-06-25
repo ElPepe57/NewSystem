@@ -12,6 +12,7 @@ import { useBandejaSignal } from '../../store/bandejaSignalStore';
 // S53.9 — OrdenCompraForm + OrdenCompraTable ELIMINADOS (legacy).
 // Toda la creacion/edicion de OC pasa por OCWizardV3. Lista en tarjetas unicamente.
 import { OrdenCompraCard } from '../../components/modules/ordenCompra/OrdenCompraCard';
+import { CancelarOCModal } from '../../components/modules/ordenCompra/CancelarOCModal';
 import { OCWizardV3 } from '../../components/modules/ordenCompra/OCWizardV3/OCWizardV3';
 import { CompraCard } from '../../components/modules/ordenCompra/CompraCard';
 import type { EstadoPipelineCompras, PipelineComprasStage } from '../../components/modules/ordenCompra/PipelineCompras.types';
@@ -34,6 +35,7 @@ import { useProveedorStore } from '../../store/proveedorStore';
 import { useProductoStore } from '../../store/productoStore';
 import { useTipoCambioStore } from '../../store/tipoCambioStore';
 import { useAuthStore } from '../../store/authStore';
+import { usePermissions } from '../../hooks/usePermissions';
 import { hasRole, getUserRoles } from '../../types/auth.types';
 import { useColaboradorStore } from '../../store/colaboradorStore';
 import { exportService } from '../../services/export.service';
@@ -91,6 +93,9 @@ export const OrdenesCompra: React.FC = () => {
   const userProfile = useAuthStore((s) => s.userProfile);
   const esAdmin = hasRole(userProfile, 'admin'); // canon "admin ve todo" · chip contextual al rol
   const esSocio = hasRole(userProfile, 'socio'); // F4 · autoridad de autorización de egresos > umbral
+  // CANCELACION_OC · F5 — gating del botón Cancelar OC: mismo permiso que gestiona/crea OCs
+  // (admin lo hereda por Object.values(PERMISOS) · canon "admin ve todo").
+  const { canCreateOC } = usePermissions();
   const toast = useToastStore();
   const { productos, fetchProductos } = useProductoStore();
   const { getTCDelDia } = useTipoCambioStore();
@@ -171,6 +176,8 @@ export const OrdenesCompra: React.FC = () => {
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const [isPagoModalOpen, setIsPagoModalOpen] = useState(false);
   const [isConfirmarModalOpen, setIsConfirmarModalOpen] = useState(false);
+  // CANCELACION_OC · F5 — modal de cancelación de OC (preview de consecuencias + typed-confirm).
+  const [isCancelarOCModalOpen, setIsCancelarOCModalOpen] = useState(false);
   // S38-011: estado para el modal custom de despacho
   const [despacharCtx, setDespacharCtx] = useState<{ estadoTarget: EstadoOrden; titulo: string } | null>(null);
   const [selectedOrden, setSelectedOrdenLocal] = useState<OrdenCompra | null>(null);
@@ -1242,9 +1249,32 @@ export const OrdenesCompra: React.FC = () => {
             // S53.9 — Editar y Eliminar solo visibles en borrador (dentro del card)
             onEditarOC={() => handleEditOrden(selectedOrden)}
             onEliminarOC={() => handleDelete(selectedOrden)}
+            // CANCELACION_OC · F5 — Cancelar OC. Gateado por permiso (canCreateOC · admin lo hereda) +
+            // estado cancelable (NO ya cancelada ni completada/recibida). El card hace su propio guard.
+            onCancelarOC={
+              canCreateOC &&
+              selectedOrden.estado !== 'cancelada' &&
+              selectedOrden.estado !== 'completada' &&
+              selectedOrden.estado !== 'recibida'
+                ? () => setIsCancelarOCModalOpen(true)
+                : undefined
+            }
           />
         )}
       </Modal>
+
+      {/* CANCELACION_OC · F5 — Modal Cancelar OC (preview de consecuencias + motivo + typed-confirm).
+          Dispara el motor `cambiarEstado('cancelada')` que ya orquesta la reversa atómica. */}
+      <CancelarOCModal
+        isOpen={isCancelarOCModalOpen}
+        orden={selectedOrden}
+        onClose={() => setIsCancelarOCModalOpen(false)}
+        onCancelada={() => {
+          fetchOrdenes();
+          if (selectedOrden) refreshSelectedOrden(selectedOrden.id);
+          setIsDetailsModalOpen(false);
+        }}
+      />
 
       {/* Modal Registrar Pago */}
       {isPagoModalOpen && selectedOrden && (
