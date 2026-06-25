@@ -359,21 +359,57 @@ export async function eliminarMovimiento(
         }
       }
       if (movimiento.ordenCompraId) {
-        const ocSnap = await getDoc(doc(db, 'ordenesCompra', movimiento.ordenCompraId));
-        if (ocSnap.exists()) {
-          const historial: any[] = ocSnap.data().historialPagos || [];
-          const pagoVinculado = historial.find((p: any) => p.movimientoTesoreriaId === id);
-          if (pagoVinculado) {
-            const nuevoHistorial = historial.filter((p: any) => p.id !== pagoVinculado.id);
-            const totalPagadoUSD = nuevoHistorial.reduce((s: number, p: any) => s + (p.montoUSD || 0), 0);
-            const totalUSD = ocSnap.data().totalUSD || 0;
-            const estadoPago = totalPagadoUSD <= 0.01 ? 'pendiente' : totalPagadoUSD >= totalUSD - 0.01 ? 'pagado' : 'parcial';
-            await updateDoc(doc(db, 'ordenesCompra', movimiento.ordenCompraId), {
-              historialPagos: nuevoHistorial, estadoPago,
-              montoPendiente: Math.max(0, totalUSD - totalPagadoUSD),
-            });
-            logger.info(`[Anulación] Pago eliminado de OC ${movimiento.ordenCompraId}`);
+        // ANULACION_PAGO_OC — el pago de OC NO vive en `oc.historialPagos[]` (campo
+        // MUERTO desde S55-F2). La verdad del pago es un MovimientoCC `credito_pago_oc`
+        // en la CC del proveedor. Revertir = emitir el INVERSO (`reversa_pago_oc`, un
+        // DÉBITO que restaura la deuda) — la CC es APPEND-ONLY, no se borra/anula — y
+        // recomputar el estadoPago/montoPendiente denormalizado de la OC desde la CC
+        // (helper compartido con registrarPago, por TOTAL NETO). Simétrico a registrarPago.
+        const { cuentaCorrienteService } = await import('./cuentaCorriente.service');
+        const movCC = await cuentaCorrienteService.getMovimientoByTesoreriaId(id);
+        // El discriminador del movimiento es `tipo` (no `tipoMovimiento`). La identidad
+        // de la entidad (id/tipo/nombre) NO vive en el movimiento — vive en su CC raíz
+        // (`cuentaCorrienteId`). La leemos para emitir la reversa en la MISMA CC que el
+        // crédito original (robusto ante deudor alternativo: colaborador que adelantó pago).
+        if (movCC && movCC.tipo === 'credito_pago_oc') {
+          const ccRaiz = await cuentaCorrienteService.getById(movCC.cuentaCorrienteId);
+          if (!ccRaiz) {
+            logger.warn(`[Anulación] CC raíz ${movCC.cuentaCorrienteId} no encontrada para la reversa de pago de OC ${movimiento.ordenCompraId}.`);
+          } else {
+            await cuentaCorrienteService.registrarMovimiento(
+              {
+                entidadId: ccRaiz.entidadId,
+                tipo: ccRaiz.tipo,
+                entidadNombre: ccRaiz.entidadNombre,
+                tipoMovimiento: 'reversa_pago_oc',
+                descripcion: `Reversa de pago · OC ${movimiento.ordenCompraId}`,
+                moneda: movCC.moneda,
+                monto: movCC.monto,
+                refDocumentoTipo: 'oc',
+                refDocumentoId: movimiento.ordenCompraId,
+                refDocumentoNumero: movCC.refDocumentoNumero,
+                movimientoTesoreriaId: id,
+                // Heurística de sub-orden: el pago original guarda `subOrdenId=...` en notas.
+                // Lo propagamos a la reversa para que el netting por sub-orden la empareje.
+                notas: movCC.notas,
+                // Idempotencia: 1 reversa por movimiento de cash anulado (scoped por CC).
+                idempotencyKey: `reversa_pago_${id}`,
+              },
+              userId,
+            );
+
+            const { getById } = await import('./ordenCompra.crud.service');
+            const { recalcularEstadoPagoOCDesdeCC } = await import('./ordenCompra.pagos.service');
+            const orden = await getById(movimiento.ordenCompraId);
+            if (orden) {
+              await recalcularEstadoPagoOCDesdeCC(orden, userId);
+              logger.info(`[Anulación] Reversa de pago aplicada a OC ${movimiento.ordenCompraId} (CC mov inverso emitido)`);
+            } else {
+              logger.warn(`[Anulación] OC ${movimiento.ordenCompraId} no encontrada para recomputar estado de pago tras la reversa.`);
+            }
           }
+        } else {
+          logger.warn(`[Anulación] Mov de tesorería ${id} con ordenCompraId pero sin MovimientoCC credito_pago_oc vinculado — no se revierte la CC.`);
         }
       }
       if (movimiento.gastoId) {

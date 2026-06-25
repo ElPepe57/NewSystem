@@ -29,8 +29,11 @@ import { getById } from './ordenCompra.crud.service';
 import { cuentaCorrienteService } from './cuentaCorriente.service';
 import {
   getPagosOC,
+  getReversasPagoOC,
+  getTotalPagadoNetoOC_USD,
   type PagoOCLegacy,
 } from './cuentaCorriente.adaptadores';
+import type { OrdenCompra } from '../types/ordenCompra.types';
 import { requiereAutorizacionSocio, type ResultadoAutorizacionCF } from './autorizacionEgreso.helper';
 import { userService } from './user.service';
 import { NotificationService } from './notification.service';
@@ -187,86 +190,11 @@ export async function registrarPago(
   );
 
   // ─── 3. Recalcular estado de pago denormalizado en OC ──────────────────
-  // Lee TODOS los pagos de la OC desde CC (incluye el recién creado).
-  const pagosCC = await getPagosOC(id);
-  const totalPagadoUSD = pagosCC.reduce((s, p) => s + p.montoUSD, 0);
-  const pendienteUSD = orden.totalUSD - totalPagadoUSD;
-
-  const tieneSubOrdenes = !!(orden.subOrdenes && orden.subOrdenes.length > 0);
-
-  const updates: Record<string, unknown> = {
-    tcPago: tipoCambio,
-    montoPendiente: Math.max(0, pendienteUSD * tipoCambio),
-    ultimaEdicion: serverTimestamp(),
-    editadoPor: userId,
-  };
-
-  if (tieneSubOrdenes) {
-    // BUG-002-PAG: cuando hay sub-órdenes, el estadoPago de la OC SE DERIVA ÚNICAMENTE
-    // desde los estados de las sub-órdenes (consistencia entre niveles).
-    updates.subOrdenes = orden.subOrdenes!.map((sub) => {
-      // Pagos de esta sub-orden (filtrar por subOrdenId en notas — heurística
-      // legacy hasta que se agregue refSubDocumentoId al tipo MovimientoCC)
-      const pagosSub = pagosCC.filter(
-        (p) => p.subOrdenId === sub.id || (p.notas && p.notas.includes(`subOrdenId=${sub.id}`)),
-      );
-      const totalPagadoSub = pagosSub.reduce((s, p) => s + p.montoUSD, 0);
-
-      let estadoPagoSub: 'pendiente' | 'parcial' | 'pagado';
-      if (totalPagadoSub >= sub.totalUSD - 0.01) estadoPagoSub = 'pagado';
-      else if (totalPagadoSub > 0.01) estadoPagoSub = 'parcial';
-      else estadoPagoSub = 'pendiente';
-
-      return {
-        ...sub,
-        estadoPago: estadoPagoSub,
-      };
-    });
-
-    const subOrdenesArr = updates.subOrdenes as Array<{ estadoPago: string }>;
-    const todasPagadas = subOrdenesArr.every((s) => s.estadoPago === 'pagado');
-    const algunaConPago = subOrdenesArr.some(
-      (s) => s.estadoPago === 'pagado' || s.estadoPago === 'parcial',
-    );
-    updates.estadoPago = todasPagadas ? 'pagado' : algunaConPago ? 'parcial' : 'pendiente';
-  } else {
-    // Sin sub-órdenes: derivación clásica por total agregado
-    updates.estadoPago =
-      pendienteUSD <= 0.01 ? 'pagado' : totalPagadoUSD > 0.01 ? 'parcial' : 'pendiente';
-  }
-
-  // Si OC pasa a 'pagado', registrar diferencia cambiaria
-  if (updates.estadoPago === 'pagado') {
-    updates.totalPEN = orden.totalUSD * tipoCambio;
-    if (orden.tcCompra) {
-      const costoEnCompra = orden.totalUSD * orden.tcCompra;
-      const costoEnPago = orden.totalUSD * tipoCambio;
-      updates.diferenciaCambiaria = costoEnPago - costoEnCompra;
-    }
-  }
-
-  // Limpieza de undefined antes de Firestore
-  const removeUndefined = (obj: unknown): unknown => {
-    if (Array.isArray(obj)) return obj.map(removeUndefined);
-    if (
-      obj &&
-      typeof obj === 'object' &&
-      !(obj as { toDate?: () => Date }).toDate &&
-      !(obj instanceof Date)
-    ) {
-      const result: Record<string, unknown> = {};
-      for (const [k, v] of Object.entries(obj as Record<string, unknown>)) {
-        if (v !== undefined) result[k] = removeUndefined(v);
-      }
-      return result;
-    }
-    return obj;
-  };
-
-  await updateDoc(
-    doc(db, ORDENES_COLLECTION, id),
-    removeUndefined(updates) as Record<string, unknown>,
-  );
+  // Helper compartido: lee TODOS los pagos/reversas de la OC desde CC (incluye el
+  // recién creado) y deriva estadoPago/montoPendiente (+ sub-órdenes) por TOTAL NETO.
+  // Pasamos `tipoCambio` como TC de contexto del evento de pago: preserva 1:1 el
+  // comportamiento previo (tcPago, montoPendiente PEN, totalPEN/diferenciaCambiaria).
+  await recalcularEstadoPagoOCDesdeCC(orden, userId, tipoCambio);
 
   if (errorTesoreria) {
     logger.warn(
@@ -300,6 +228,130 @@ export async function registrarPago(
     fechaRegistro: Timestamp.now(),
   };
   return pagoLegacy;
+}
+
+/**
+ * Recalcula el estado de pago DENORMALIZADO de una OC (`estadoPago`,
+ * `montoPendiente`, y `subOrdenes[].estadoPago`) leyendo la verdad desde la CC.
+ *
+ * Fuente única de la derivación: usa el TOTAL NETO pagado (credito_pago_oc menos
+ * reversa_pago_oc), de modo que tanto registrar un pago como anularlo converjan
+ * al mismo cálculo. Hace el `updateDoc` de la OC.
+ *
+ * **TC de contexto (`tcContexto`)** — distingue los dos llamadores:
+ *  - `registrarPago` pasa el TC del pago → comportamiento 1:1 con el legacy:
+ *    sella `tcPago`, denomina `montoPendiente` en PEN con ese TC, y si la OC
+ *    queda 'pagado' sella `totalPEN` + `diferenciaCambiaria`.
+ *  - La anulación de pago pasa `undefined` → NO inventa un evento cambiario:
+ *    para la denominación PEN cae a `orden.tcPago ?? orden.tcCompra ?? 1` y NO
+ *    toca `tcPago`/`totalPEN`/`diferenciaCambiaria` (son artefactos del pago).
+ *
+ * BACKWARD-COMPAT: sin reversas, `neto == suma(credito_pago_oc)` → idéntico al
+ * bloque inline anterior. Con `tcContexto` provisto, los campos sellados son los
+ * mismos que producía `registrarPago`.
+ */
+export async function recalcularEstadoPagoOCDesdeCC(
+  orden: OrdenCompra,
+  userId: string,
+  tcContexto?: number,
+): Promise<void> {
+  const id = orden.id;
+
+  // Pagos y reversas crudos (para netting por sub-orden vía heurística de notas).
+  const [pagosCC, reversasCC, totalPagadoNetoUSD] = await Promise.all([
+    getPagosOC(id),
+    getReversasPagoOC(id),
+    getTotalPagadoNetoOC_USD(id),
+  ]);
+
+  const pendienteUSD = orden.totalUSD - totalPagadoNetoUSD;
+
+  // TC para denominar el pendiente en PEN. Con contexto (pago) usa ese TC; sin
+  // contexto (reversa) cae al TC del último pago sellado, luego al de compra, luego 1.
+  const tcDenominacion = tcContexto ?? orden.tcPago ?? orden.tcCompra ?? 1;
+
+  const tieneSubOrdenes = !!(orden.subOrdenes && orden.subOrdenes.length > 0);
+
+  const updates: Record<string, unknown> = {
+    montoPendiente: Math.max(0, pendienteUSD * tcDenominacion),
+    ultimaEdicion: serverTimestamp(),
+    editadoPor: userId,
+  };
+
+  // Solo el evento de pago sella el TC del pago (tcPago). La reversa no fabrica TC.
+  if (tcContexto !== undefined) {
+    updates.tcPago = tcContexto;
+  }
+
+  if (tieneSubOrdenes) {
+    // BUG-002-PAG: cuando hay sub-órdenes, el estadoPago de la OC SE DERIVA ÚNICAMENTE
+    // desde los estados de las sub-órdenes (consistencia entre niveles).
+    updates.subOrdenes = orden.subOrdenes!.map((sub) => {
+      // Pagos/reversas de esta sub-orden (filtrar por subOrdenId en notas — heurística
+      // legacy hasta que se agregue refSubDocumentoId al tipo MovimientoCC)
+      const matchSub = (p: PagoOCLegacy) =>
+        p.subOrdenId === sub.id || (p.notas != null && p.notas.includes(`subOrdenId=${sub.id}`));
+      const totalPagadoSub = pagosCC.filter(matchSub).reduce((s, p) => s + p.montoUSD, 0);
+      const totalReversaSub = reversasCC.filter(matchSub).reduce((s, p) => s + p.montoUSD, 0);
+      const netoSub = totalPagadoSub - totalReversaSub;
+
+      let estadoPagoSub: 'pendiente' | 'parcial' | 'pagado';
+      if (netoSub >= sub.totalUSD - 0.01) estadoPagoSub = 'pagado';
+      else if (netoSub > 0.01) estadoPagoSub = 'parcial';
+      else estadoPagoSub = 'pendiente';
+
+      return {
+        ...sub,
+        estadoPago: estadoPagoSub,
+      };
+    });
+
+    const subOrdenesArr = updates.subOrdenes as Array<{ estadoPago: string }>;
+    const todasPagadas = subOrdenesArr.every((s) => s.estadoPago === 'pagado');
+    const algunaConPago = subOrdenesArr.some(
+      (s) => s.estadoPago === 'pagado' || s.estadoPago === 'parcial',
+    );
+    updates.estadoPago = todasPagadas ? 'pagado' : algunaConPago ? 'parcial' : 'pendiente';
+  } else {
+    // Sin sub-órdenes: derivación clásica por total neto agregado
+    updates.estadoPago =
+      pendienteUSD <= 0.01 ? 'pagado' : totalPagadoNetoUSD > 0.01 ? 'parcial' : 'pendiente';
+  }
+
+  // Si OC pasa a 'pagado' POR UN EVENTO DE PAGO, sellar diferencia cambiaria.
+  // En la reversa no se sella (no hay TC de evento) — además una reversa rara vez
+  // deja la OC en 'pagado'.
+  if (updates.estadoPago === 'pagado' && tcContexto !== undefined) {
+    updates.totalPEN = orden.totalUSD * tcContexto;
+    if (orden.tcCompra) {
+      const costoEnCompra = orden.totalUSD * orden.tcCompra;
+      const costoEnPago = orden.totalUSD * tcContexto;
+      updates.diferenciaCambiaria = costoEnPago - costoEnCompra;
+    }
+  }
+
+  // Limpieza de undefined antes de Firestore
+  const removeUndefined = (obj: unknown): unknown => {
+    if (Array.isArray(obj)) return obj.map(removeUndefined);
+    if (
+      obj &&
+      typeof obj === 'object' &&
+      !(obj as { toDate?: () => Date }).toDate &&
+      !(obj instanceof Date)
+    ) {
+      const result: Record<string, unknown> = {};
+      for (const [k, v] of Object.entries(obj as Record<string, unknown>)) {
+        if (v !== undefined) result[k] = removeUndefined(v);
+      }
+      return result;
+    }
+    return obj;
+  };
+
+  await updateDoc(
+    doc(db, ORDENES_COLLECTION, id),
+    removeUndefined(updates) as Record<string, unknown>,
+  );
 }
 
 /**

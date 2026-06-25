@@ -147,6 +147,52 @@ export async function getPagosSubOrden(
 }
 
 /**
+ * ANULACION_PAGO_OC — Lee las REVERSAS de pago de una OC desde `movimientosCC`
+ * (movimientos `tipo: 'reversa_pago_oc'`, emitidos al anular un pago de cash).
+ *
+ * Espeja a `getPagosOC` (misma query, distinto `tipo`). Devuelve el mismo shape
+ * `PagoOCLegacy[]` para que el `notas` (con la heurística `subOrdenId=...`) viaje
+ * y el netting por sub-orden pueda filtrar igual que los pagos. NO se mezcla con
+ * `getPagosOC`, que sigue siendo la lista cruda de `credito_pago_oc` para display.
+ */
+export async function getReversasPagoOC(ocId: string): Promise<PagoOCLegacy[]> {
+  if (!ocId) return [];
+
+  const q = query(
+    collection(db, COLLECTIONS.MOVIMIENTOS_CC),
+    where('refDocumentoTipo', '==', 'oc'),
+    where('refDocumentoId', '==', ocId),
+    where('tipo', '==', 'reversa_pago_oc'),
+    orderBy('fecha', 'asc'),
+  );
+  const snap = await getDocs(q);
+  return snap.docs.map((d) => {
+    const mov = { id: d.id, ...d.data() } as MovimientoCC;
+    return movimientoCCAPagoOCLegacy(mov);
+  });
+}
+
+/** Total de reversas de pago de una OC en USD desde sus movimientos CC. */
+export async function getReversasPagoOC_USD(ocId: string): Promise<number> {
+  const reversas = await getReversasPagoOC(ocId);
+  return reversas.reduce((sum, r) => sum + r.montoUSD, 0);
+}
+
+/**
+ * Total NETO pagado de una OC en USD = pagos (credito_pago_oc) − reversas
+ * (reversa_pago_oc). Cuando NO hay reversas, es idéntico a `getTotalPagadoOC_USD`
+ * (backward-compat). Es el número que debe gobernar el estadoPago/montoPendiente
+ * denormalizado de la OC.
+ */
+export async function getTotalPagadoNetoOC_USD(ocId: string): Promise<number> {
+  const [pagado, reversas] = await Promise.all([
+    getTotalPagadoOC_USD(ocId),
+    getReversasPagoOC_USD(ocId),
+  ]);
+  return pagado - reversas;
+}
+
+/**
  * Helper genérico para queries por documento. Retorna movimientos crudos
  * (no convertidos a legacy). Útil para nuevos consumidores que prefieren
  * el modelo directo.
