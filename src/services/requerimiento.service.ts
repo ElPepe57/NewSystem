@@ -1150,9 +1150,14 @@ export const requerimientoService = {
     const { productos: productosActualizados, ocCoverage, estadoSugerido } =
       recomputarCoberturaProductos(productosConRefs);
 
+    // F0 · guard de estados-cobertura (espejo de propagarEstadoOCaRequerimientos): solo se RE-DERIVA el
+    // estado si el req está en un estado de cobertura (aprobado/parcial/en_proceso). Si ya era 'completado'
+    // o 'cancelado', NO se pisa al cancelar la cobertura de una OC (bug: revivía reqs cerrados a aprobado/parcial).
+    const estadoFinal = esRequerimientoElegibleParaOC(reqData.estado) ? estadoSugerido : reqData.estado;
+
     const updates: Record<string, any> = {
       productos: productosActualizados,
-      estado: estadoSugerido,
+      estado: estadoFinal,
       ocCoverage,
       ultimaEdicion: serverTimestamp(),
     };
