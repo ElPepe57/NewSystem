@@ -28,7 +28,8 @@ import type {
   ProductoAsignado,
   RequerimientoFiltros,
   RequerimientoStats,
-  ResumenAsignaciones
+  ResumenAsignaciones,
+  MotivoCancelacionOC
 } from '../types/requerimiento.types';
 import { casillaCrudService } from './casilla.crud.service';
 import { COLLECTIONS } from '../config/collections';
@@ -1138,12 +1139,13 @@ export const requerimientoService = {
     ordenCompraId: string,
     ordenCompraNumero: string,
     modo: ModoCancelacionRef = 'delete',
-    opts?: { productoId?: string; cantidadCancelar?: number }
+    opts?: { productoId?: string; cantidadCancelar?: number; motivo?: MotivoCancelacionOC; motivoDetalle?: string }
   ): Promise<void> {
     const reqData = reqDoc.data() as any;
     const productos = reqData.productos || [];
 
     // Mutar la(s) ref(s) de esta OC según el modo (delete/soft/porcion · puro)
+    // El motivo (F1) solo se persiste en modo 'soft' (la ref soft-cancelada lo registra).
     const productosConRefs = aplicarCancelacionRef(productos, ordenCompraId, modo, opts);
 
     // Cobertura derivada (motor único · recomputa del array · §4)
@@ -1198,9 +1200,11 @@ export const requerimientoService = {
     requerimientoId?: string;
     productoId?: string;
     cantidadCancelar?: number;
+    motivo?: MotivoCancelacionOC;      // F1 · motivo estructurado (se persiste en la ref soft-cancelada)
+    motivoDetalle?: string;            // F1 · detalle libre opcional
     ocEstadoActual?: string;   // si se pasa, evita el getDoc (cambiarEstado pasa el estado PRE-cambio)
   }): Promise<void> {
-    const { scope, ordenCompraId, ordenCompraNumero, requerimientoId, productoId, cantidadCancelar, ocEstadoActual } = params;
+    const { scope, ordenCompraId, ordenCompraNumero, requerimientoId, productoId, cantidadCancelar, motivo, motivoDetalle, ocEstadoActual } = params;
 
     // Irreversibilidad: el modo sale del estado de la OC (borrador retractable · firme deja rastro)
     let ocEstado = ocEstadoActual;
@@ -1215,7 +1219,7 @@ export const requerimientoService = {
         query(collection(db, COLLECTION_NAME), where('ordenCompraIds', 'array-contains', ordenCompraId))
       );
       for (const reqDoc of reqsSnap.docs) {
-        await requerimientoService._revertirOCEnReq(reqDoc, ordenCompraId, ordenCompraNumero, modoBase);
+        await requerimientoService._revertirOCEnReq(reqDoc, ordenCompraId, ordenCompraNumero, modoBase, { motivo, motivoDetalle });
       }
       return;
     }
@@ -1227,7 +1231,7 @@ export const requerimientoService = {
     if (!reqDoc.exists()) return;
 
     if (scope === 'req_en_oc') {
-      await requerimientoService._revertirOCEnReq(reqDoc, ordenCompraId, ordenCompraNumero, modoBase);
+      await requerimientoService._revertirOCEnReq(reqDoc, ordenCompraId, ordenCompraNumero, modoBase, { motivo, motivoDetalle });
       return;
     }
 
@@ -1235,6 +1239,7 @@ export const requerimientoService = {
     if (!productoId || cantidadCancelar == null) {
       throw new Error('cancelarReferenciaOC(porcion): productoId y cantidadCancelar requeridos');
     }
+    // 'porcion' deja la ref VIVA (cantidad reducida) → NO se le adjunta motivo (no es cancelación de línea).
     await requerimientoService._revertirOCEnReq(reqDoc, ordenCompraId, ordenCompraNumero, 'porcion', { productoId, cantidadCancelar });
   },
 

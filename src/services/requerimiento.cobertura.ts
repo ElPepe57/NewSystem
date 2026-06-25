@@ -15,6 +15,7 @@
  * Spec: docs/REQUERIMIENTOS_OC_MODELO_F4.md §4.
  */
 import type { EstadoOrden } from '../types/ordenCompra.types';
+import type { MotivoCancelacionOC } from '../types/requerimiento.types';
 
 /**
  * Estados de OC que cuentan como cobertura FIRME (de 'enviada'/'confirmada' en adelante).
@@ -52,7 +53,7 @@ export function esRequerimientoElegibleParaOC(estado?: string | null): boolean {
   return estado != null && ESTADOS_REQ_ELEGIBLES_OC.has(estado);
 }
 
-interface RefLike { ordenCompraId?: string; ordenCompraNumero?: string; cantidad?: number; estadoOC?: string | null; estado?: 'vigente' | 'cancelada' | null; }
+interface RefLike { ordenCompraId?: string; ordenCompraNumero?: string; cantidad?: number; estadoOC?: string | null; estado?: 'vigente' | 'cancelada' | null; motivoCancelacion?: MotivoCancelacionOC; motivoDetalle?: string; }
 interface ProductoLike { productoId?: string; cantidadSolicitada?: number; ordenCompraRefs?: RefLike[]; [k: string]: unknown; }
 
 export interface CoberturaAgregada {
@@ -123,14 +124,16 @@ export type ModoCancelacionRef = 'delete' | 'soft' | 'porcion';
  * Aplica una mutación a la(s) ref(s) de `ordenCompraId` en los productos. PURA (devuelve copias).
  *  - 'delete'  : quita la ref (retracción / borrado físico de OC borrador · sin rastro).
  *  - 'soft'    : marca la ref `estado='cancelada'` (deja rastro · OC firme · la compra procede).
+ *               Si `opts.motivo` viene, lo persiste en la ref (motivoCancelacion + motivoDetalle).
  *  - 'porcion' : reduce `cantidad` de la ref del producto `opts.productoId` en `opts.cantidadCancelar`.
+ *               NO recibe motivo: la ref sigue VIVA (cantidad reducida), no es una cancelación de línea.
  * La cobertura se recomputa aparte con `recomputarCoberturaProductos`.
  */
 export function aplicarCancelacionRef<P extends ProductoLike>(
   productos: P[],
   ordenCompraId: string,
   modo: ModoCancelacionRef,
-  opts?: { productoId?: string; cantidadCancelar?: number }
+  opts?: { productoId?: string; cantidadCancelar?: number; motivo?: MotivoCancelacionOC; motivoDetalle?: string }
 ): P[] {
   return productos.map((p) => {
     const refs = (p.ordenCompraRefs || []) as RefLike[];
@@ -145,7 +148,16 @@ export function aplicarCancelacionRef<P extends ProductoLike>(
       return { ...p, ordenCompraRefs: nuevasRefs };
     }
     if (modo === 'soft') {
-      const nuevasRefs = refs.map((r, i) => (i === idx ? { ...r, estado: 'cancelada' as const } : r));
+      const nuevasRefs = refs.map((r, i) =>
+        i === idx
+          ? {
+              ...r,
+              estado: 'cancelada' as const,
+              ...(opts?.motivo ? { motivoCancelacion: opts.motivo } : {}),
+              ...(opts?.motivoDetalle ? { motivoDetalle: opts.motivoDetalle } : {}),
+            }
+          : r
+      );
       return { ...p, ordenCompraRefs: nuevasRefs };
     }
     // delete

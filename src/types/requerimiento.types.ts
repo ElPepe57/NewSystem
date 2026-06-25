@@ -119,6 +119,42 @@ export interface AsignacionResponsable {
 }
 
 /**
+ * Motivo ESTRUCTURADO de cancelación de cobertura de OC (F1 · spec docs/CANCELACION_OC_MODELO.md).
+ * Alimenta un futuro scorecard de PROVEEDOR. Dos grupos conceptuales: del proveedor vs interno.
+ */
+export type MotivoCancelacionOC =
+  | 'sin_stock'               // proveedor no tiene stock
+  | 'sin_capacidad_logistica' // proveedor no puede despachar
+  | 'pago_no_entro'           // el pago al proveedor no se efectivizó
+  | 'proveedor_otro'          // otro motivo del proveedor
+  | 'error_carga'             // se cargó por error / confusión
+  | 'urgencia'                // urgencia operativa
+  | 'cambio_decision'         // cambio de decisión interno
+  | 'interno_otro';           // otro motivo interno
+
+/** Labels legibles para la UI (selector + lectura del rastro). */
+export const LABEL_MOTIVO_CANCELACION_OC: Record<MotivoCancelacionOC, string> = {
+  sin_stock: 'Proveedor sin stock',
+  sin_capacidad_logistica: 'Proveedor sin capacidad logística',
+  pago_no_entro: 'El pago no se efectivizó',
+  proveedor_otro: 'Otro (proveedor)',
+  error_carga: 'Error / confusión',
+  urgencia: 'Urgencia',
+  cambio_decision: 'Cambio de decisión',
+  interno_otro: 'Otro (interno)',
+};
+
+/** Motivos atribuibles al PROVEEDOR (no cumple). */
+export const GRUPO_MOTIVO_PROVEEDOR: MotivoCancelacionOC[] = [
+  'sin_stock', 'sin_capacidad_logistica', 'pago_no_entro', 'proveedor_otro',
+];
+
+/** Motivos INTERNOS (tu lado). */
+export const GRUPO_MOTIVO_INTERNO: MotivoCancelacionOC[] = [
+  'error_carga', 'urgencia', 'cambio_decision', 'interno_otro',
+];
+
+/**
  * Referencia de una OC vinculada a un producto
  */
 export interface OrdenCompraRef {
@@ -129,6 +165,10 @@ export interface OrdenCompraRef {
   estadoOC?: EstadoOrden;
   /** F4 · estado propio de la línea (no derivable de la OC). 'cancelada' = línea cancelada (bucket cancelado). */
   estado?: 'vigente' | 'cancelada';
+  /** F1 cancelación · motivo estructurado · solo se setea cuando `estado` pasa a 'cancelada' (modo soft). */
+  motivoCancelacion?: MotivoCancelacionOC;
+  /** F1 cancelación · detalle libre opcional que el usuario tipea junto al motivo. */
+  motivoDetalle?: string;
 }
 
 /**

@@ -34,7 +34,8 @@ import { usePermissions } from '../../hooks/usePermissions';
 import { useBandejaSignal } from '../../store/bandejaSignalStore';
 import type {
   Requerimiento,
-  RequerimientoFormData
+  RequerimientoFormData,
+  MotivoCancelacionOC
 } from '../../types/requerimiento.types';
 import type { Producto } from '../../types/producto.types';
 import type { Venta } from '../../types/venta.types';
@@ -532,7 +533,7 @@ export const Requerimientos: React.FC = () => {
     setIsAsignacionModalOpen(false);
   };
 
-  const handleConfirmCancelarCobertura = async (params: { scope: AlcanceCancelacion; productoId?: string; cantidadCancelar?: number }) => {
+  const handleConfirmCancelarCobertura = async (params: { scope: AlcanceCancelacion; productoId?: string; cantidadCancelar?: number; motivo: MotivoCancelacionOC; motivoDetalle?: string }) => {
     if (!coberturaACancelar) return;
     setCancelandoCobertura(true);
     try {
@@ -543,6 +544,8 @@ export const Requerimientos: React.FC = () => {
         requerimientoId: selectedRequerimiento?.id,
         productoId: params.productoId,
         cantidadCancelar: params.cantidadCancelar,
+        motivo: params.motivo,
+        motivoDetalle: params.motivoDetalle,
       });
       toast.success('Cobertura de OC cancelada');
       setCoberturaACancelar(null);

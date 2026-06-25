@@ -8,10 +8,11 @@
  * La irreversibilidad la fija el estado de la OC (borrador retrae al pool · firme deja rastro y la
  * compra procede). FormModalV2 (canon · grupo Comercial). Spec: mockup Acto 7.
  */
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { XCircle, AlertTriangle } from 'lucide-react';
-import { FormModalV2 } from '../../design-system';
-import type { Requerimiento } from '../../types/requerimiento.types';
+import { FormModalV2, Combobox, type ComboboxGroup } from '../../design-system';
+import type { Requerimiento, MotivoCancelacionOC } from '../../types/requerimiento.types';
+import { LABEL_MOTIVO_CANCELACION_OC, GRUPO_MOTIVO_PROVEEDOR, GRUPO_MOTIVO_INTERNO } from '../../types/requerimiento.types';
 
 export type AlcanceCancelacion = 'req_en_oc' | 'porcion' | 'oc_completa';
 
@@ -22,8 +23,20 @@ interface Props {
   ocId: string;
   ocNumero: string;
   loading?: boolean;
-  onConfirm: (params: { scope: AlcanceCancelacion; productoId?: string; cantidadCancelar?: number }) => void;
+  onConfirm: (params: {
+    scope: AlcanceCancelacion;
+    productoId?: string;
+    cantidadCancelar?: number;
+    motivo: MotivoCancelacionOC;
+    motivoDetalle?: string;
+  }) => void;
 }
+
+/** Motivos agrupados (proveedor / interno) para el Combobox del DS. */
+const MOTIVO_GROUPS: ComboboxGroup<MotivoCancelacionOC>[] = [
+  { label: 'El proveedor no cumple', options: GRUPO_MOTIVO_PROVEEDOR.map(m => ({ value: m, label: LABEL_MOTIVO_CANCELACION_OC[m] })) },
+  { label: 'Tu lado (interno)', options: GRUPO_MOTIVO_INTERNO.map(m => ({ value: m, label: LABEL_MOTIVO_CANCELACION_OC[m] })) },
+];
 
 const OPCIONES: Array<{ value: AlcanceCancelacion; label: string; desc: string }> = [
   { value: 'req_en_oc', label: 'Solo este requerimiento', desc: 'Retrae las refs de este req · la OC consolidada sigue viva para los demás.' },
@@ -35,6 +48,19 @@ export const CancelarCoberturaModal: React.FC<Props> = ({ isOpen, onClose, req, 
   const [scope, setScope] = useState<AlcanceCancelacion>('req_en_oc');
   const [productoId, setProductoId] = useState('');
   const [cantidad, setCantidad] = useState(1);
+  const [motivo, setMotivo] = useState<MotivoCancelacionOC | undefined>(undefined);
+  const [motivoDetalle, setMotivoDetalle] = useState('');
+
+  // Reset del form en cada apertura (la instancia se mantiene montada · evita arrastrar selección previa).
+  useEffect(() => {
+    if (isOpen) {
+      setScope('req_en_oc');
+      setProductoId('');
+      setCantidad(1);
+      setMotivo(undefined);
+      setMotivoDetalle('');
+    }
+  }, [isOpen]);
 
   // Productos del req que tienen una ref a ESTA OC (para el alcance 'porcion')
   const productosEnOC = useMemo(
@@ -48,13 +74,16 @@ export const CancelarCoberturaModal: React.FC<Props> = ({ isOpen, onClose, req, 
     : 0;
 
   const porcionInvalida = scope === 'porcion' && (!productoId || cantidad < 1 || cantidad > maxCantidad);
+  const motivoFaltante = !motivo;
+  const submitInvalido = porcionInvalida || motivoFaltante;
 
   const handleSubmit = () => {
-    if (porcionInvalida) return;
+    if (submitInvalido || !motivo) return;
+    const detalle = motivoDetalle.trim() || undefined;
     onConfirm(
       scope === 'porcion'
-        ? { scope, productoId, cantidadCancelar: cantidad }
-        : { scope }
+        ? { scope, productoId, cantidadCancelar: cantidad, motivo, motivoDetalle: detalle }
+        : { scope, motivo, motivoDetalle: detalle }
     );
   };
 
@@ -71,7 +100,7 @@ export const CancelarCoberturaModal: React.FC<Props> = ({ isOpen, onClose, req, 
       submitLabel="Cancelar cobertura"
       submitIcon={XCircle}
       loading={loading}
-      disabled={porcionInvalida}
+      disabled={submitInvalido}
     >
       <div className="space-y-3">
         <p className="text-[12px] text-slate-500">Elegí el alcance. La <b>irreversibilidad</b> la fija el estado de la OC.</p>
@@ -125,6 +154,29 @@ export const CancelarCoberturaModal: React.FC<Props> = ({ isOpen, onClose, req, 
             {productosEnOC.length === 0 && <p className="text-[11px] text-amber-600">Este req no tiene productos con refs a esta OC.</p>}
           </div>
         )}
+
+        {/* F1 · Motivo estructurado (obligatorio) + detalle opcional. Alimenta el scorecard de proveedor. */}
+        <div className="space-y-2.5">
+          <Combobox<MotivoCancelacionOC>
+            label="Motivo de la cancelación"
+            required
+            value={motivo}
+            onChange={setMotivo}
+            groups={MOTIVO_GROUPS}
+            placeholder="Elegí el motivo…"
+            emptyMessage="Sin motivos"
+          />
+          <div>
+            <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Detalle (opcional)</label>
+            <textarea
+              value={motivoDetalle}
+              onChange={e => setMotivoDetalle(e.target.value)}
+              rows={2}
+              placeholder="Contexto adicional del motivo…"
+              className="mt-1 w-full px-2 py-1.5 text-[12px] bg-white border border-slate-200 rounded-lg resize-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
+            />
+          </div>
+        </div>
 
         <div className="flex items-start gap-2 text-[11px] text-amber-800 bg-amber-50 rounded-lg px-3 py-2">
           <AlertTriangle className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
