@@ -19,6 +19,13 @@ import { formatCurrency } from '../../utils/format';
 import { usePermissions } from '../../hooks/usePermissions';
 import { getOrigenLabel } from '../../types/requerimiento.types';
 import type { Requerimiento, EstadoRequerimiento } from '../../types/requerimiento.types';
+import { OrigenBadge } from './components/OrigenBadge';
+import { DriverChip } from './components/DriverChip';
+
+/** Apuesta sin tesis = señal de higiene invisible hoy (indicador amber). */
+function esApuestaSinTesis(req: Requerimiento): boolean {
+  return req.origen === 'administrativo' && req.subtipo === 'apuesta' && !req.tesis?.trim();
+}
 
 interface Props {
   requerimientos: Requerimiento[];
@@ -337,6 +344,13 @@ const CardOperativa: React.FC<{
             </span>
           </div>
           <div className="flex items-center gap-2 mt-1 text-[11px] text-slate-500 flex-wrap">
+            <OrigenBadge origen={req.origen} subtipo={req.subtipo} size="xs" />
+            {req.driverDemanda && <DriverChip driver={req.driverDemanda} size="xs" />}
+            {esApuestaSinTesis(req) && (
+              <span className="inline-flex items-center gap-0.5 bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-full text-[9px] font-bold uppercase">
+                <AlertTriangle className="w-2.5 h-2.5" /> Sin tesis
+              </span>
+            )}
             {(req.prioridad === 'alta' || req.prioridad === 'urgente') && (
               <span className="inline-flex items-center gap-0.5 bg-rose-100 text-rose-700 px-1.5 py-0.5 rounded-full text-[9px] font-bold uppercase">
                 <AlertTriangle className="w-2.5 h-2.5" /> {req.prioridad}
@@ -428,7 +442,16 @@ const FilaAcordeon: React.FC<{
       <div className={`w-9 h-9 rounded-lg ${cfg.iconBox} flex items-center justify-center flex-shrink-0`}><Icono className="w-4 h-4" /></div>
       <button type="button" onClick={() => onOpenDetail(req)} className="min-w-0 flex-1 text-left">
         <div className="text-[13px]"><span className="font-semibold text-slate-900">{req.numeroRequerimiento}</span> <span className="text-slate-300">·</span> <span className="text-slate-600">{getOrigenLabel(req)}</span></div>
-        <div className="text-[11px] text-slate-500 mt-0.5">{req.productos.length} prod · {formatCurrency(req.expectativa?.costoTotalEstimadoUSD || 0)}</div>
+        <div className="flex items-center gap-1.5 mt-1 flex-wrap">
+          <OrigenBadge origen={req.origen} subtipo={req.subtipo} size="xs" />
+          {req.driverDemanda && <DriverChip driver={req.driverDemanda} size="xs" />}
+          {esApuestaSinTesis(req) && (
+            <span className="inline-flex items-center gap-0.5 bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-full text-[9px] font-bold uppercase">
+              <AlertTriangle className="w-2.5 h-2.5" /> Sin tesis
+            </span>
+          )}
+          <span className="text-[11px] text-slate-500">{req.productos.length} prod · {formatCurrency(req.expectativa?.costoTotalEstimadoUSD || 0)}</span>
+        </div>
       </button>
       <AccionGatillo req={req} etapa={etapa} onAprobar={onAprobar} onGenerarOC={onGenerarOC} onOpenDetail={onOpenDetail} />
     </div>

@@ -12,6 +12,8 @@ import React, { useMemo, useState } from 'react';
 import { Search, Package, ArrowRight } from 'lucide-react';
 import type { Requerimiento } from '../../types/requerimiento.types';
 import { calcularPendientesCompra, requerimientosDeProductos, type PendienteItem } from '../../components/modules/ordenCompra/pendientesCompra.helper';
+import { OrigenBadge } from './components/OrigenBadge';
+import { DriverChip } from './components/DriverChip';
 
 interface Props {
   requerimientos: Requerimiento[];
@@ -125,9 +127,13 @@ export const PendientesCompraContent: React.FC<Props> = ({ requerimientos, onEnv
                   <td className="px-3 py-3 text-center"><span className="font-bold tabular-nums text-amber-700">{item.pendienteTotal} ud</span></td>
                   <td className="px-3 py-3 text-right tabular-nums text-slate-700 hidden sm:table-cell">{item.costoEstimadoUSD > 0 ? `$ ${(item.pendienteTotal * item.costoEstimadoUSD).toFixed(2)}` : '—'}</td>
                   <td className="px-3 py-3 hidden md:table-cell">
-                    <div className="flex flex-wrap gap-1">
+                    <div className="flex flex-col gap-1">
                       {item.origenes.map((o, i) => (
-                        <span key={i} className="text-[10px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded">{o.requerimientoNumero}</span>
+                        <div key={i} className="flex items-center gap-1 flex-wrap">
+                          <span className="text-[10px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded">{o.requerimientoNumero}</span>
+                          <OrigenBadge origen={o.origen} subtipo={o.subtipo} size="xs" />
+                          {o.driverDemanda && <DriverChip driver={o.driverDemanda} size="xs" />}
+                        </div>
                       ))}
                     </div>
                   </td>

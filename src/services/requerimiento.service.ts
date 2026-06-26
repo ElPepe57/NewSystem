@@ -255,6 +255,9 @@ export const requerimientoService = {
         if (p.precioEstimadoUSD !== undefined && p.precioEstimadoUSD !== null) {
           producto.precioEstimadoUSD = p.precioEstimadoUSD;
         }
+        if (p.precioVentaPEN !== undefined && p.precioVentaPEN !== null) {
+          producto.precioVentaPEN = p.precioVentaPEN;
+        }
         if (p.proveedorSugerido) {
           producto.proveedorSugerido = p.proveedorSugerido;
         }
@@ -328,6 +331,10 @@ export const requerimientoService = {
     }
     if (data.tesis?.trim()) {
       requerimiento.tesis = data.tesis.trim();
+    }
+    // F4 · driver fuera-de-sistema (solo subtipo='manual') · alimenta el scorecard de acierto.
+    if (data.subtipo === 'manual' && data.driverDemanda) {
+      requerimiento.driverDemanda = data.driverDemanda;
     }
 
     const docRef = await addDoc(collection(db, COLLECTION_NAME), requerimiento);

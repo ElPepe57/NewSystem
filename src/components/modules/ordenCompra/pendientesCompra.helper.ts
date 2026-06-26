@@ -1,4 +1,4 @@
-import type { Requerimiento } from '../../../types/requerimiento.types';
+import type { Requerimiento, OrigenRequerimiento, OrigenSubtipo, DriverDemanda } from '../../../types/requerimiento.types';
 
 // chk5.COMERCIALES-F3a · Lógica compartida de "pendientes de compra".
 // Fuente única para PendientesCompraContent (Requerimientos) y TabPendientesCompras (Compras).
@@ -10,6 +10,10 @@ export interface PendienteOrigen {
   clienteNombre: string;
   cantidad: number;
   cotizacionId?: string;
+  // F4 · trazabilidad del modelo (capa de medición #4) · alimenta OrigenBadge/DriverChip en la lista.
+  origen: OrigenRequerimiento;
+  subtipo?: OrigenSubtipo;
+  driverDemanda?: DriverDemanda;
 }
 
 export interface PendienteItem {
@@ -43,6 +47,9 @@ export function calcularPendientesCompra(requerimientos: Requerimiento[]): Pendi
         clienteNombre: req.nombreSolicitante || req.nombreClienteSolicitante || 'Admin',
         cantidad: pendiente,
         cotizacionId: req.cotizacionId || (req as any).ventaRelacionadaId,
+        origen: req.origen,
+        subtipo: req.subtipo,
+        driverDemanda: req.driverDemanda,
       };
 
       const existing = map.get(p.productoId);

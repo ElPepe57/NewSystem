@@ -137,6 +137,7 @@ export const Requerimientos: React.FC = () => {
     productoId: '',
     cantidadSolicitada: 1,
     precioEstimadoUSD: 0,
+    precioVentaPEN: 0,
     proveedorSugerido: '',
     urlReferencia: ''
   });
@@ -331,6 +332,7 @@ export const Requerimientos: React.FC = () => {
           productoId: productoTemp.productoId,
           cantidadSolicitada: productoTemp.cantidadSolicitada,
           precioEstimadoUSD: productoTemp.precioEstimadoUSD || undefined,
+          precioVentaPEN: productoTemp.precioVentaPEN || undefined,
           proveedorSugerido: productoTemp.proveedorSugerido || undefined,
           urlReferencia: productoTemp.urlReferencia || undefined
         }
@@ -341,6 +343,7 @@ export const Requerimientos: React.FC = () => {
       productoId: '',
       cantidadSolicitada: 1,
       precioEstimadoUSD: 0,
+      precioVentaPEN: 0,
       proveedorSugerido: '',
       urlReferencia: ''
     });

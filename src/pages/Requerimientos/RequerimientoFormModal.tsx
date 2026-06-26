@@ -11,12 +11,14 @@ import {
   AlertCircle,
   TrendingUp,
   Building2,
-  Users
+  Users,
+  Zap
 } from 'lucide-react';
 import { Button } from '../../components/common';
 import { FormModalV2 } from '../../design-system';
 import { ProductoSearchRequerimientos, type ProductoRequerimientoSnapshot } from '../../components/modules/entidades/ProductoSearchRequerimientos';
 import { ClienteAutocomplete } from '../../components/modules/entidades/ClienteAutocomplete';
+import { DriverSelector } from './components/DriverSelector';
 import type { ClienteSnapshot } from '../../types/entidadesMaestras.types';
 import type { RequerimientoFormData, OrigenRequerimiento } from '../../types/requerimiento.types';
 import type { Producto } from '../../types/producto.types';
@@ -34,6 +36,7 @@ interface RequerimientoFormModalProps {
     productoId: string;
     cantidadSolicitada: number;
     precioEstimadoUSD: number;
+    precioVentaPEN: number;
     proveedorSugerido: string;
     urlReferencia: string;
   };
@@ -131,15 +134,19 @@ export const RequerimientoFormModal: React.FC<RequerimientoFormModalProps> = ({
             ].map((o) => (
               <button
                 key={o.id}
-                onClick={() => onFormDataChange({
-                  ...formData,
-                  origen: o.id as OrigenRequerimiento,
-                  subtipo: o.id === 'administrativo' ? (formData.subtipo || 'restock') : undefined,
-                  tesis: o.id === 'administrativo' ? formData.tesis : undefined,
-                  nombreClienteSolicitante: o.id === 'demanda_comprometida' ? formData.nombreClienteSolicitante : undefined,
-                  clienteId: o.id === 'demanda_comprometida' ? formData.clienteId : undefined,
-                  clienteNombre: o.id === 'demanda_comprometida' ? formData.clienteNombre : undefined
-                })}
+                onClick={() => {
+                  const nuevoSubtipo = o.id === 'administrativo' ? (formData.subtipo || 'restock') : undefined;
+                  onFormDataChange({
+                    ...formData,
+                    origen: o.id as OrigenRequerimiento,
+                    subtipo: nuevoSubtipo,
+                    tesis: o.id === 'administrativo' ? formData.tesis : undefined,
+                    driverDemanda: nuevoSubtipo === 'manual' ? formData.driverDemanda : undefined,
+                    nombreClienteSolicitante: o.id === 'demanda_comprometida' ? formData.nombreClienteSolicitante : undefined,
+                    clienteId: o.id === 'demanda_comprometida' ? formData.clienteId : undefined,
+                    clienteNombre: o.id === 'demanda_comprometida' ? formData.clienteNombre : undefined
+                  });
+                }}
                 className={`p-4 rounded-xl border-2 text-left transition-all ${
                   formData.origen === o.id
                     ? 'border-blue-500 bg-blue-50 shadow-md'
@@ -166,7 +173,7 @@ export const RequerimientoFormModal: React.FC<RequerimientoFormModalProps> = ({
               ] as const).map((s) => (
                 <button
                   key={s.id}
-                  onClick={() => onFormDataChange({ ...formData, subtipo: s.id, tesis: s.id === 'apuesta' ? formData.tesis : undefined })}
+                  onClick={() => onFormDataChange({ ...formData, subtipo: s.id, tesis: s.id === 'apuesta' ? formData.tesis : undefined, driverDemanda: s.id === 'manual' ? formData.driverDemanda : undefined })}
                   className={`px-3 py-1 rounded-full text-xs font-medium border transition-all ${
                     formData.subtipo === s.id
                       ? 'bg-blue-100 text-blue-700 border-blue-300'
@@ -197,6 +204,21 @@ export const RequerimientoFormModal: React.FC<RequerimientoFormModalProps> = ({
               <div className="text-[10px] text-slate-400 mt-0.5 text-right">
                 {(formData.tesis || '').trim().split(/\s+/).filter(Boolean).length} palabras (~60 sugerido)
               </div>
+            </div>
+          )}
+
+          {/* Driver de demanda (solo manual · capa de medición #4) */}
+          {formData.origen === 'administrativo' && formData.subtipo === 'manual' && (
+            <div className="mt-3">
+              <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2 flex items-center gap-1">
+                <Zap className="h-3 w-3" />
+                Driver de demanda
+                <span className="ml-1 text-[9px] text-slate-400 normal-case font-normal">(¿qué lo generó? · opcional)</span>
+              </label>
+              <DriverSelector
+                value={formData.driverDemanda}
+                onChange={(d) => onFormDataChange({ ...formData, driverDemanda: d })}
+              />
             </div>
           )}
 
@@ -419,6 +441,23 @@ export const RequerimientoFormModal: React.FC<RequerimientoFormModalProps> = ({
                     </div>
                   </div>
                   <div>
+                    <label className="block text-xs font-medium text-slate-600 mb-1">
+                      Precio venta
+                      <span className="text-slate-400 font-normal ml-1">(opcional)</span>
+                    </label>
+                    <div className="relative">
+                      <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400">S/</span>
+                      <input
+                        type="number"
+                        step="0.01"
+                        value={productoTemp.precioVentaPEN || ''}
+                        onChange={(e) => onProductoTempChange({ ...productoTemp, precioVentaPEN: parseFloat(e.target.value) || 0 })}
+                        className="w-full pl-9 pr-3 py-2 rounded-lg border border-slate-300 focus:border-teal-500 focus:ring-0"
+                        placeholder="0.00"
+                      />
+                    </div>
+                  </div>
+                  <div>
                     <label className="block text-xs font-medium text-slate-600 mb-1">Proveedor</label>
                     <input
                       type="text"
@@ -428,18 +467,25 @@ export const RequerimientoFormModal: React.FC<RequerimientoFormModalProps> = ({
                       placeholder="Amazon, iHerb..."
                     />
                   </div>
-                  <div className="flex items-end">
-                    <Button
-                      variant="primary"
-                      onClick={onAgregarProducto}
-                      disabled={!productoTemp.productoId}
-                      className="w-full"
-                    >
-                      <Plus className="h-4 w-4 mr-1" />
-                      Agregar
-                    </Button>
-                  </div>
                 </div>
+
+                {/* Hint de margen en vivo (precio venta − costo landed estimado) */}
+                {(() => {
+                  if (!productoTemp.precioVentaPEN || !productoTemp.precioEstimadoUSD || !tcDelDia) return null;
+                  const costoLandedPEN = productoTemp.precioEstimadoUSD * tcDelDia.venta;
+                  const utilidadPEN = productoTemp.precioVentaPEN - costoLandedPEN;
+                  const margenPct = productoTemp.precioVentaPEN > 0 ? (utilidadPEN / productoTemp.precioVentaPEN) * 100 : 0;
+                  const negativo = utilidadPEN < 0;
+                  return (
+                    <div className={`mt-3 text-xs flex items-center gap-1.5 ${negativo ? 'text-rose-600' : 'text-emerald-700'}`}>
+                      <TrendingUp className="h-3.5 w-3.5" />
+                      Margen estimado: <span className="font-semibold tabular-nums">S/ {utilidadPEN.toFixed(2)}</span>
+                      <span className="text-slate-400">·</span>
+                      <span className="font-semibold tabular-nums">{margenPct.toFixed(0)}%</span>
+                      <span className="text-slate-400 font-normal">(vs. costo S/ {costoLandedPEN.toFixed(2)} c/u · sin flete/impuesto)</span>
+                    </div>
+                  );
+                })()}
 
                 {/* URL opcional */}
                 <div className="mt-3">
@@ -451,6 +497,18 @@ export const RequerimientoFormModal: React.FC<RequerimientoFormModalProps> = ({
                     className="w-full px-3 py-2 rounded-lg border border-slate-300 focus:border-teal-500 focus:ring-0 text-sm"
                     placeholder="https://www.amazon.com/..."
                   />
+                </div>
+
+                {/* Botón agregar */}
+                <div className="mt-3 flex justify-end">
+                  <Button
+                    variant="primary"
+                    onClick={onAgregarProducto}
+                    disabled={!productoTemp.productoId}
+                  >
+                    <Plus className="h-4 w-4 mr-1" />
+                    Agregar producto
+                  </Button>
                 </div>
               </div>
             </div>
@@ -505,6 +563,9 @@ export const RequerimientoFormModal: React.FC<RequerimientoFormModalProps> = ({
                         {prod.precioEstimadoUSD && (
                           <div className="text-xs text-slate-500">${prod.precioEstimadoUSD} c/u</div>
                         )}
+                        {prod.precioVentaPEN ? (
+                          <div className="text-xs text-emerald-600">Venta S/ {prod.precioVentaPEN} c/u</div>
+                        ) : null}
                       </div>
                       <button
                         onClick={() => onRemoverProducto(index)}
