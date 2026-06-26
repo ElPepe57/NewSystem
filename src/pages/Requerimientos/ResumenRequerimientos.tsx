@@ -18,6 +18,11 @@ import type { Requerimiento } from '../../types/requerimiento.types';
 import type { Venta } from '../../types/venta.types';
 import type { SugerenciaStock } from './requerimientos.types';
 import { esRequerimientoElegibleParaOC } from '../../services/requerimiento.cobertura';
+import { analizarCola } from './colaRequerimientos.helper';
+import { useCajaDisponible } from './useCajaDisponible';
+import { SaludColaWidget } from './components/SaludColaWidget';
+import { AnticipacionQuiebresWidget } from './components/AnticipacionQuiebresWidget';
+import { PresionCajaBanner } from './components/PresionCajaBanner';
 
 interface ResumenStats {
   pendientes: number;
@@ -53,6 +58,11 @@ export const ResumenRequerimientos: React.FC<Props> = ({
   onCrearDesdeSugerencia, onVerTodasSugerencias,
 }) => {
   const navigate = useNavigate();
+
+  // CAJA · saldo consolidado de tesorería (async · null mientras carga / si no se pudo leer).
+  const cajaDisponiblePEN = useCajaDisponible();
+  // §B/§C/§F · análisis de la cola (presión de caja · mix de riesgo · higiene). PURO.
+  const analisisCola = analizarCola(requerimientos, cajaDisponiblePEN);
 
   const completados = requerimientos.filter(r => r.estado === 'completado').length;
   const urgentesSinAprobar = requerimientos.filter(
@@ -108,6 +118,12 @@ export const ResumenRequerimientos: React.FC<Props> = ({
               </button>
             </div>
           )}
+
+          {/* §B · D1 · Salud de la cola (composición por origen + ratio + higiene) */}
+          <SaludColaWidget analisis={analisisCola} />
+
+          {/* §C · C1 · Anticipación de quiebres (productoIntel · diasParaQuiebre < leadTime) */}
+          <AnticipacionQuiebresWidget />
 
           {/* §B · embudo por estado */}
           <div className="bg-white rounded-2xl border border-slate-200 p-4">
@@ -219,6 +235,9 @@ export const ResumenRequerimientos: React.FC<Props> = ({
               <button type="button" onClick={() => navigate('/ventas')} className="w-full flex items-center justify-between p-2 rounded-lg hover:bg-slate-50 text-[12px] text-slate-700"><span className="flex items-center gap-2"><ShoppingBag className="w-4 h-4 text-blue-600" /> Ventas / Cotizaciones</span><ChevronRight className="w-3.5 h-3.5 text-slate-300" /></button>
             </div>
           </div>
+
+          {/* §F · A2 · Presión de caja (enciende solo cuando la cola supera la caja libre) */}
+          <PresionCajaBanner analisis={analisisCola} />
 
           {/* §F · alertas */}
           {(urgentesSinAprobar > 0 || aprobadosSinViajero > 0) && (
