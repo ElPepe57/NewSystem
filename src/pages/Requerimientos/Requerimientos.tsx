@@ -3,7 +3,7 @@ import {
   Plus, RefreshCw, Layers, CheckSquare, ClipboardList,
   Clock, AlertTriangle, CheckCircle, Link2, DollarSign,
   AlertOctagon, ShoppingCart, BadgeDollarSign,
-  LayoutDashboard, ListChecks, PackageSearch,
+  LayoutDashboard, ListChecks, PackageSearch, Wallet,
 } from 'lucide-react';
 import { ConfirmDialog, useConfirmDialog } from '../../components/common';
 import { LineaDropdown } from '../../components/common/LineaDropdown';
@@ -44,6 +44,7 @@ import type { Venta } from '../../types/venta.types';
 import { ResumenRequerimientos } from './ResumenRequerimientos';
 import { TableroRequerimientos } from './TableroRequerimientos';
 import { PendientesCompraContent } from './PendientesCompraContent';
+import { PlanCompraTab } from './PlanCompraTab';
 import { CancelarCoberturaModal, type AlcanceCancelacion } from './CancelarCoberturaModal';
 import { RequerimientoFormModal } from './RequerimientoFormModal';
 import { RequerimientoDetailModal } from './RequerimientoDetailModal';
@@ -79,7 +80,7 @@ export const Requerimientos: React.FC = () => {
   const [sugerenciasStock, setSugerenciasStock] = useState<SugerenciaStock[]>([]);
 
   // Vista · tab activa del hub (Resumen default · canon hub)
-  const [tabActiva, setTabActiva] = useState<'resumen' | 'tablero' | 'pendientes'>('resumen');
+  const [tabActiva, setTabActiva] = useState<'resumen' | 'tablero' | 'plan-compra' | 'pendientes'>('resumen');
   const esAdmin = hasRole(userProfile, 'admin'); // canon "admin ve todo" · chip contextual al rol
   const { canApproveRequerimiento } = usePermissions(); // F2 · req = autoridad de cargo (permiso · el control de socio vive en la OC)
 
@@ -572,6 +573,25 @@ export const Requerimientos: React.FC = () => {
     setIsOCBuilderOpen(true);
   };
 
+  // A1 · Plan de compra · C2 consolidación → abre el OCBuilder con los reqs de la oportunidad.
+  // Reusa el MISMO camino que handleGenerarOCConsolidada (setOcBuilderReqs + setIsOCBuilderOpen):
+  // resuelve los reqs por id, aplica el gate de elegibilidad (solo aprobados entran al builder) y
+  // avisa si alguno se omite. No bloquea: el plan recomienda agrupar, el builder hace la OC.
+  const handleAgrupar = (reqsIds: string[]) => {
+    const seleccionados = requerimientosLN.filter(r => reqsIds.includes(r.id!));
+    const elegibles = seleccionados.filter(r => esRequerimientoElegibleParaOC(r.estado));
+    const omitidos = seleccionados.length - elegibles.length;
+    if (elegibles.length === 0) {
+      toast.error(MENSAJE_NO_ELEGIBLE);
+      return;
+    }
+    if (omitidos > 0) {
+      toast.warning(`${omitidos} requerimiento(s) sin aprobar fueron omitidos.`);
+    }
+    setOcBuilderReqs(elegibles);
+    setIsOCBuilderOpen(true);
+  };
+
   // ─── Chrome del hub (KPIs semánticos · mini-stats · tabs) ───
   const reqKpis: HubKpi[] = [
     { label: 'Pendientes', valor: String(stats.pendientes), tono: 'amber', icon: Clock, delta: 'por aprobar' },
@@ -588,6 +608,7 @@ export const Requerimientos: React.FC = () => {
   const reqTabs: HubTab[] = [
     { id: 'resumen', label: 'Resumen', icon: LayoutDashboard },
     { id: 'tablero', label: 'Tablero', icon: ListChecks, badge: stats.activos || undefined, badgeTono: 'rose' },
+    { id: 'plan-compra', label: 'Plan de compra', icon: Wallet },
     { id: 'pendientes', label: 'Pendientes de compra', icon: PackageSearch },
   ];
   const breadcrumbLeaf = tabActiva === 'resumen' ? null : (reqTabs.find(t => t.id === tabActiva)?.label ?? null);
@@ -675,6 +696,11 @@ export const Requerimientos: React.FC = () => {
               onGenerarOC={handleGenerarOC}
               onGenerarOCConsolidada={handleGenerarOCConsolidada}
             />
+          )}
+
+          {/* ═══ TAB PLAN DE COMPRA ═══ (A1 héroe · convergencia demanda×caja a portafolio · waterline) */}
+          {tabActiva === 'plan-compra' && (
+            <PlanCompraTab requerimientos={requerimientosLN} onAgrupar={handleAgrupar} />
           )}
 
           {/* ═══ TAB PENDIENTES DE COMPRA ═══ (agregado por producto · puente al OC Builder) */}
