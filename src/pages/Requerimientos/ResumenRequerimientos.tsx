@@ -17,6 +17,7 @@ import {
 import type { Requerimiento } from '../../types/requerimiento.types';
 import type { Venta } from '../../types/venta.types';
 import type { SugerenciaStock } from './requerimientos.types';
+import { esRequerimientoElegibleParaOC } from '../../services/requerimiento.cobertura';
 
 interface ResumenStats {
   pendientes: number;
@@ -61,6 +62,13 @@ export const ResumenRequerimientos: React.FC<Props> = ({
     r => r.estado === 'aprobado' && (r.asignaciones?.length ?? 0) === 0
   ).length;
 
+  // M2 · gate visual: solo se genera compra de requerimientos elegibles (aprobado/parcial/en_proceso).
+  const hayElegiblesParaOC = requerimientos.some(r => esRequerimientoElegibleParaOC(r.estado));
+  const handleGenerarCompra = () => {
+    if (!hayElegiblesParaOC) return; // check defensivo (además del gating visual)
+    onGenerarOCAprobados();
+  };
+
   // §B · embudo (flujo, no conteo · barras proporcionales)
   const embudo = [
     { label: 'Pendiente', count: stats.pendientes, valor: 'text-amber-700', bar: 'bg-amber-400/80' },
@@ -89,7 +97,13 @@ export const ResumenRequerimientos: React.FC<Props> = ({
                   <div className="text-[12px] text-slate-500 mt-0.5">Agrúpalos por viajero y emite las OCs en una sola pasada.</div>
                 </div>
               </div>
-              <button type="button" onClick={onGenerarOCAprobados} className="flex items-center gap-1.5 text-[12px] font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg px-3 py-2 flex-shrink-0">
+              <button
+                type="button"
+                onClick={handleGenerarCompra}
+                disabled={!hayElegiblesParaOC}
+                title={hayElegiblesParaOC ? undefined : 'Solo requerimientos aprobados'}
+                className="flex items-center gap-1.5 text-[12px] font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg px-3 py-2 flex-shrink-0 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-blue-600"
+              >
                 <Layers className="w-3.5 h-3.5" /> Generar compra
               </button>
             </div>

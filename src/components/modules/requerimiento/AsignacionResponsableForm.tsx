@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Users, Package, Calendar, DollarSign, Truck, AlertCircle } from 'lucide-react';
 import { Button } from '../../common';
-import { FormModalV2 } from '../../../design-system';
+import { FormModalV2, Combobox } from '../../../design-system';
 import { casillaCrudService } from '../../../services/casilla.crud.service';
 import { requerimientoService } from '../../../services/requerimiento.service';
 import { useToastStore } from '../../../store/toastStore';
@@ -177,30 +177,34 @@ export const AsignacionResponsableForm: React.FC<Props> = ({
 
         {/* Selector de viajero */}
         <div>
-          <label className="block text-sm font-medium text-slate-700 mb-2">
-            <Users className="inline h-4 w-4 mr-1" />
-            Viajero/Responsable
-          </label>
           {loading ? (
-            <div className="text-slate-500 text-sm">Cargando viajeros...</div>
+            <>
+              <label className="block text-sm font-medium text-slate-700 mb-2">
+                <Users className="inline h-4 w-4 mr-1" />
+                Viajero/Responsable
+              </label>
+              <div className="text-slate-500 text-sm">Cargando viajeros...</div>
+            </>
           ) : viajeros.length === 0 ? (
-            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-yellow-800">
-              <AlertCircle className="inline h-4 w-4 mr-2" />
-              No hay viajeros activos registrados. Crea uno en el módulo de Transferencias.
-            </div>
+            <>
+              <label className="block text-sm font-medium text-slate-700 mb-2">
+                <Users className="inline h-4 w-4 mr-1" />
+                Viajero/Responsable
+              </label>
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-yellow-800">
+                <AlertCircle className="inline h-4 w-4 mr-2" />
+                No hay viajeros activos registrados. Crea uno en el módulo de Transferencias.
+              </div>
+            </>
           ) : (
-            <select
-              value={selectedViajeroId}
-              onChange={(e) => setSelectedViajeroId(e.target.value)}
-              className="w-full px-4 py-3 rounded-lg border border-slate-300 focus:border-teal-500 focus:ring-0"
-            >
-              <option value="">Seleccionar viajero...</option>
-              {viajeros.map(v => (
-                <option key={v.id} value={v.id}>
-                  {v.codigo} - {v.nombre}
-                </option>
-              ))}
-            </select>
+            <Combobox<string>
+              label="Viajero/Responsable"
+              value={selectedViajeroId || undefined}
+              onChange={setSelectedViajeroId}
+              groups={[{ options: viajeros.map(v => ({ value: v.id, label: `${v.codigo} - ${v.nombre}` })) }]}
+              placeholder="Seleccionar viajero..."
+              emptyMessage="Sin viajeros"
+            />
           )}
         </div>
 

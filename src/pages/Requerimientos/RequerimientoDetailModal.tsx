@@ -22,9 +22,9 @@ import { formatFecha as formatDate } from '../../utils/dateFormatters';
 import { formatCurrency } from '../../utils/format';
 import { getDescripcionProducto } from '../../utils/producto.helpers';
 import { getLabelEstadoAsignacion } from '../../utils/multiOrigen.helpers';
-import { getOrigenLabel } from '../../types/requerimiento.types';
+import { getOrigenLabel, LABEL_MOTIVO_CANCELACION_OC } from '../../types/requerimiento.types';
 import type { Requerimiento, EstadoRequerimiento } from '../../types/requerimiento.types';
-import type { AsignacionResponsable } from '../../types/requerimiento.types';
+import type { AsignacionResponsable, OrdenCompraRef } from '../../types/requerimiento.types';
 
 interface RequerimientoDetailModalProps {
   isOpen: boolean;
@@ -38,40 +38,40 @@ interface RequerimientoDetailModalProps {
   onCancelarCobertura?: (ocId: string, ocNumero: string) => void;
 }
 
+type BadgeVariant = 'success' | 'warning' | 'danger' | 'info' | 'default' | 'neutral';
+
 const getEstadoBadge = (estado: EstadoRequerimiento) => {
-  const config: Record<EstadoRequerimiento, { color: string; icon: React.ReactNode }> = {
-    borrador: { color: 'bg-slate-100 text-slate-800', icon: <Clock className="h-3 w-3" /> },
-    pendiente: { color: 'bg-yellow-100 text-yellow-800', icon: <Clock className="h-3 w-3" /> },
-    aprobado: { color: 'bg-sky-100 text-sky-800', icon: <Check className="h-3 w-3" /> },
-    parcial: { color: 'bg-teal-100 text-teal-800', icon: <Link2 className="h-3 w-3" /> },
-    en_proceso: { color: 'bg-purple-100 text-purple-800', icon: <Link2 className="h-3 w-3" /> },
-    completado: { color: 'bg-emerald-100 text-emerald-800', icon: <Check className="h-3 w-3" /> },
-    cancelado: { color: 'bg-red-100 text-red-800', icon: <XCircle className="h-3 w-3" /> }
+  // Color SEMÁNTICO por estado (mapeado a las variantes del DS · canon: aprobado=emerald · parcial/en_proceso=sky).
+  const config: Record<EstadoRequerimiento, { variant: BadgeVariant; icon: React.ReactNode }> = {
+    borrador: { variant: 'neutral', icon: <Clock className="h-3 w-3" /> },
+    pendiente: { variant: 'warning', icon: <Clock className="h-3 w-3" /> },
+    aprobado: { variant: 'success', icon: <Check className="h-3 w-3" /> },
+    parcial: { variant: 'info', icon: <Link2 className="h-3 w-3" /> },
+    en_proceso: { variant: 'info', icon: <Link2 className="h-3 w-3" /> },
+    completado: { variant: 'success', icon: <Check className="h-3 w-3" /> },
+    cancelado: { variant: 'danger', icon: <XCircle className="h-3 w-3" /> }
   };
 
-  const { color, icon } = config[estado];
+  const { variant, icon } = config[estado];
   return (
-    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${color}`}>
+    <Badge variant={variant}>
       {icon}
       <span className="ml-1">{estado.replace('_', ' ')}</span>
-    </span>
+    </Badge>
   );
 };
 
 const getPrioridadBadge = (prioridad: string) => {
-  const config: Record<string, string> = {
-    urgente: 'bg-red-200 text-red-900 border-red-300',
-    alta: 'bg-red-100 text-red-800 border-red-200',
-    media: 'bg-yellow-100 text-yellow-800 border-yellow-200',
-    normal: 'bg-yellow-100 text-yellow-800 border-yellow-200',
-    baja: 'bg-slate-100 text-slate-800 border-slate-200'
+  // Color SEMÁNTICO por urgencia (urgente/alta=rojo · media/normal=amber · baja=neutro).
+  const config: Record<string, BadgeVariant> = {
+    urgente: 'danger',
+    alta: 'danger',
+    media: 'warning',
+    normal: 'warning',
+    baja: 'neutral'
   };
 
-  return (
-    <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border ${config[prioridad] || config.baja}`}>
-      {prioridad}
-    </span>
-  );
+  return <Badge variant={config[prioridad] || 'neutral'}>{prioridad}</Badge>;
 };
 
 const getOrigenIcon = (req: Requerimiento) =>
@@ -109,6 +109,13 @@ export const RequerimientoDetailModal: React.FC<RequerimientoDetailModalProps> =
   if (!requerimiento) return null;
 
   const req = requerimiento;
+
+  // M5 · trazabilidad de auditoría · refs de OC canceladas (motivo se persiste pero no se veía).
+  const refsCanceladas: Array<{ sku: string; ref: OrdenCompraRef }> = req.productos.flatMap((p) =>
+    (p.ordenCompraRefs || [])
+      .filter((r) => r.estado === 'cancelada')
+      .map((ref) => ({ sku: p.sku, ref }))
+  );
 
   return (
     <FormModalV2
@@ -300,8 +307,8 @@ export const RequerimientoDetailModal: React.FC<RequerimientoDetailModalProps> =
 
         {/* OC(s) vinculada(s) */}
         {(req.ordenCompraIds?.length || req.ordenCompraId) && (
-          <div className="bg-purple-50 p-4 rounded-lg">
-            <h4 className="font-medium text-purple-900 flex items-center">
+          <div className="bg-blue-50 p-4 rounded-lg">
+            <h4 className="font-medium text-blue-900 flex items-center">
               <Link2 className="h-5 w-5 mr-2" />
               {(req.ordenCompraIds?.length || 0) > 1
                 ? `Ordenes de Compra (${req.ordenCompraIds!.length})`
@@ -312,14 +319,14 @@ export const RequerimientoDetailModal: React.FC<RequerimientoDetailModalProps> =
               {(req.ordenCompraNumeros || [req.ordenCompraNumero]).filter(Boolean).map((num, i) => {
                 const ocId = req.ordenCompraIds?.[i] || req.ordenCompraId || '';
                 return (
-                  <span key={i} className="inline-flex items-center gap-1.5 pl-3 pr-1.5 py-1 rounded-full text-sm font-bold bg-purple-100 text-purple-900">
+                  <span key={i} className="inline-flex items-center gap-1.5 pl-3 pr-1.5 py-1 rounded-full text-sm font-bold bg-blue-100 text-blue-900">
                     {num}
                     {onCancelarCobertura && ocId && (
                       <button
                         type="button"
                         onClick={() => onCancelarCobertura(ocId, String(num))}
                         title="Cancelar cobertura de esta OC"
-                        className="text-purple-400 hover:text-rose-600 hover:bg-white/60 rounded-full p-0.5"
+                        className="text-blue-400 hover:text-rose-600 hover:bg-white/60 rounded-full p-0.5"
                       >
                         <XCircle className="h-3.5 w-3.5" />
                       </button>
@@ -331,16 +338,16 @@ export const RequerimientoDetailModal: React.FC<RequerimientoDetailModalProps> =
             {/* OC Coverage progress */}
             {req.ocCoverage && req.ocCoverage.porcentaje < 100 && (
               <div className="mt-3 space-y-1">
-                <div className="flex items-center gap-2 text-xs text-purple-700">
-                  <div className="flex-1 bg-purple-200 rounded-full h-2">
+                <div className="flex items-center gap-2 text-xs text-blue-700">
+                  <div className="flex-1 bg-blue-200 rounded-full h-2">
                     <div
-                      className="bg-purple-600 rounded-full h-2 transition-all"
+                      className="bg-blue-600 rounded-full h-2 transition-all"
                       style={{ width: `${req.ocCoverage.porcentaje}%` }}
                     />
                   </div>
                   <span className="font-medium">{req.ocCoverage.porcentaje}% cubierto</span>
                 </div>
-                <p className="text-xs text-purple-600">
+                <p className="text-xs text-blue-600">
                   {req.ocCoverage.productosPendientes} producto(s) pendientes de compra
                 </p>
               </div>
@@ -354,8 +361,8 @@ export const RequerimientoDetailModal: React.FC<RequerimientoDetailModalProps> =
                   const sobre = Math.max(0, enOC - p.cantidadSolicitada);
                   return (
                     <div key={idx} className="flex items-center gap-2 text-xs">
-                      <span className="text-purple-800 font-medium truncate flex-1">{p.sku}</span>
-                      <span className="text-purple-600 tabular-nums">{enOC}/{p.cantidadSolicitada}</span>
+                      <span className="text-blue-800 font-medium truncate flex-1">{p.sku}</span>
+                      <span className="text-blue-600 tabular-nums">{enOC}/{p.cantidadSolicitada}</span>
                       {pendiente > 0 && (
                         <span className="text-amber-600 font-medium">{pendiente} pend.</span>
                       )}
@@ -370,6 +377,33 @@ export const RequerimientoDetailModal: React.FC<RequerimientoDetailModalProps> =
                 })}
               </div>
             )}
+          </div>
+        )}
+
+        {/* Cancelaciones (M5 · trazabilidad de auditoría · motivo persistido ahora visible) */}
+        {refsCanceladas.length > 0 && (
+          <div className="bg-rose-50 ring-1 ring-rose-200/60 rounded-lg p-4">
+            <h4 className="font-medium text-rose-900 mb-2 flex items-center gap-2 text-sm">
+              <XCircle className="h-4 w-4" /> Cancelaciones ({refsCanceladas.length})
+            </h4>
+            <div className="space-y-2">
+              {refsCanceladas.map(({ sku, ref }, idx) => (
+                <div key={`${ref.ordenCompraId}-${sku}-${idx}`} className="flex items-start gap-2 text-xs">
+                  <span className="text-rose-800 font-medium tabular-nums flex-shrink-0">{ref.ordenCompraNumero}</span>
+                  <div className="min-w-0 flex-1">
+                    <div className="text-rose-700">
+                      <span className="text-rose-500">{sku}</span>
+                      {ref.motivoCancelacion && (
+                        <span className="ml-1.5 font-medium">{LABEL_MOTIVO_CANCELACION_OC[ref.motivoCancelacion]}</span>
+                      )}
+                    </div>
+                    {ref.motivoDetalle && (
+                      <div className="text-rose-600 mt-0.5">{ref.motivoDetalle}</div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         )}
 

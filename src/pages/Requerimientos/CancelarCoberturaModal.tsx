@@ -125,19 +125,14 @@ export const CancelarCoberturaModal: React.FC<Props> = ({ isOpen, onClose, req, 
 
         {scope === 'porcion' && (
           <div className="bg-slate-50 border border-slate-200 rounded-lg p-3 space-y-2.5">
-            <div>
-              <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Producto</label>
-              <select
-                value={productoId}
-                onChange={e => { setProductoId(e.target.value); setCantidad(1); }}
-                className="mt-1 w-full px-2 py-1.5 text-[12px] bg-white border border-slate-200 rounded-lg focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
-              >
-                <option value="">Seleccionar producto…</option>
-                {productosEnOC.map(p => (
-                  <option key={p.productoId} value={p.productoId}>{p.nombreComercial} ({p.marca})</option>
-                ))}
-              </select>
-            </div>
+            <Combobox<string>
+              label="Producto"
+              value={productoId || undefined}
+              onChange={(v) => { setProductoId(v); setCantidad(1); }}
+              groups={[{ options: productosEnOC.map(p => ({ value: p.productoId, label: `${p.nombreComercial} (${p.marca})` })) }]}
+              placeholder="Seleccionar producto…"
+              emptyMessage="Sin productos con refs a esta OC"
+            />
             {productoId && (
               <div>
                 <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Cantidad a cancelar (máx {maxCantidad})</label>
