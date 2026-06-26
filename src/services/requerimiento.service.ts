@@ -29,7 +29,8 @@ import type {
   RequerimientoFiltros,
   RequerimientoStats,
   ResumenAsignaciones,
-  MotivoCancelacionOC
+  MotivoCancelacionOC,
+  DriverDemanda
 } from '../types/requerimiento.types';
 import { casillaCrudService } from './casilla.crud.service';
 import { COLLECTIONS } from '../config/collections';
@@ -563,6 +564,39 @@ export const requerimientoService = {
       logger.error('Error al aprobar requerimiento:', error);
       throw new Error(error.message || 'Error al aprobar requerimiento');
     }
+  },
+
+  /**
+   * F4 · capa de medición #4 · persiste la CAPTURA INLINE del Panel Recomendador.
+   * - `driverDemanda`: driver fuera-de-sistema del subtipo='manual' (alimenta el scorecard de acierto).
+   * - `productos`: actualiza el `precioVentaPEN` del/los producto(s) por id (lente apuesta/manual · margen).
+   * Lee el req, mapea el array de productos (no toca el resto) y escribe en UNA llamada.
+   */
+  async actualizarCamposDecision(
+    reqId: string,
+    campos: { driverDemanda?: DriverDemanda; productos?: { productoId: string; precioVentaPEN: number }[] }
+  ): Promise<void> {
+    const req = await requerimientoService.getById(reqId);
+    if (!req) throw new Error('Requerimiento no encontrado');
+
+    const update: Record<string, unknown> = {
+      ultimaEdicion: serverTimestamp(),
+    };
+
+    if (campos.driverDemanda !== undefined) {
+      update.driverDemanda = campos.driverDemanda;
+    }
+
+    if (campos.productos && campos.productos.length > 0) {
+      const precioPorId = new Map(campos.productos.map((p) => [p.productoId, p.precioVentaPEN]));
+      update.productos = (req.productos || []).map((p) =>
+        precioPorId.has(p.productoId)
+          ? { ...p, precioVentaPEN: precioPorId.get(p.productoId)! }
+          : p
+      );
+    }
+
+    await updateDoc(doc(db, COLLECTION_NAME, reqId), update);
   },
 
   /**

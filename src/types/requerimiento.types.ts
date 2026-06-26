@@ -40,6 +40,27 @@ export type OrigenSubtipo =
   | 'apuesta';  // Producto nuevo sin cliente · demanda incierta (exige tesis)
 
 /**
+ * Driver de demanda (F4 · capa de medición #4) · solo subtipo='manual'.
+ * Qué variable FUERA DEL SISTEMA hizo que el vendedor intuya demanda > forecast.
+ * Estructurado (no texto libre) para alimentar el scorecard de acierto por driver.
+ */
+export type DriverDemanda =
+  | 'tiktok'
+  | 'facebook'
+  | 'marketplace'
+  | 'promocion'
+  | 'otro';
+
+/** Labels legibles del driver de demanda (selector + lectura). */
+export const LABEL_DRIVER_DEMANDA: Record<DriverDemanda, string> = {
+  tiktok: 'TikTok',
+  facebook: 'Facebook',
+  marketplace: 'Marketplace',
+  promocion: 'Promoción',
+  otro: 'Otro',
+};
+
+/**
  * Estado de una asignación de responsable
  */
 export type EstadoAsignacion =
@@ -254,6 +275,7 @@ export interface Requerimiento {
   origen: OrigenRequerimiento;
   subtipo?: OrigenSubtipo;            // Solo para origen='administrativo'
   tesis?: string;                     // Obligatoria para subtipo='apuesta'
+  driverDemanda?: DriverDemanda;      // F4 · solo subtipo='manual' · driver fuera de sistema (capa de medición #4)
   nombreSolicitante?: string;         // Nombre del cliente o área
   nombreClienteSolicitante?: string;  // Nombre del cliente (demanda_comprometida)
 
@@ -333,6 +355,7 @@ export interface RequerimientoFormData {
   origen: OrigenRequerimiento;
   subtipo?: OrigenSubtipo;
   tesis?: string;
+  driverDemanda?: DriverDemanda;
   nombreSolicitante?: string;
   nombreClienteSolicitante?: string;
 

@@ -5,7 +5,6 @@ import {
   XCircle,
   Link2,
   Clock,
-  TrendingUp,
   ShoppingCart,
   AlertCircle,
   AlertTriangle,
@@ -16,6 +15,7 @@ import {
   Building2,
   FileText
 } from 'lucide-react';
+import { PanelDecisionRequerimiento } from './PanelDecisionRequerimiento';
 import { Button, Badge } from '../../components/common';
 import { FormModalV2 } from '../../design-system';
 import { formatFecha as formatDate } from '../../utils/dateFormatters';
@@ -159,48 +159,6 @@ export const RequerimientoDetailModal: React.FC<RequerimientoDetailModalProps> =
           )}
         </div>
 
-        {/* Expectativa financiera */}
-        <div className="bg-sky-50 p-4 rounded-lg">
-          <h4 className="font-medium text-sky-900 mb-3 flex items-center">
-            <TrendingUp className="h-5 w-5 mr-2" />
-            Expectativa Financiera
-          </h4>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-4 text-sm">
-            <div>
-              <label className="text-sky-600">TC Investigacion</label>
-              <div className="font-bold text-sky-900">
-                S/ {req.expectativa?.tcInvestigacion?.toFixed(3) || '-'}
-              </div>
-            </div>
-            <div>
-              <label className="text-sky-600">Costo Est. USD</label>
-              <div className="font-bold text-sky-900">
-                {formatCurrency(req.expectativa?.costoTotalEstimadoUSD || 0)}
-              </div>
-            </div>
-            <div>
-              <label className="text-sky-600">Costo Est. PEN</label>
-              <div className="font-bold text-sky-900">
-                {formatCurrency(req.expectativa?.costoTotalEstimadoPEN || 0, 'PEN')}
-              </div>
-            </div>
-          </div>
-          <div className="grid grid-cols-2 gap-2 sm:gap-4 mt-3 text-sm">
-            <div>
-              <label className="text-sky-600">Impuesto Est.</label>
-              <div className="font-medium text-sky-900">
-                {formatCurrency(req.expectativa?.impuestoEstimadoUSD || 0)}
-              </div>
-            </div>
-            <div>
-              <label className="text-sky-600">Flete Est.</label>
-              <div className="font-medium text-sky-900">
-                {formatCurrency(req.expectativa?.fleteEstimadoUSD || 0)}
-              </div>
-            </div>
-          </div>
-        </div>
-
         {/* Productos */}
         <div>
           <h4 className="font-medium text-slate-900 mb-2">Productos ({req.productos.length})</h4>
@@ -249,6 +207,9 @@ export const RequerimientoDetailModal: React.FC<RequerimientoDetailModalProps> =
             })}
           </div>
         </div>
+
+        {/* Panel Recomendador · F4 · capa de medición #4 · solo en la decisión de aprobar (pendiente) */}
+        {req.estado === 'pendiente' && <PanelDecisionRequerimiento key={req.id} req={req} />}
 
         {/* Asignaciones de Responsables/Viajeros */}
         {(req as any).asignaciones && (req as any).asignaciones.length > 0 && (
