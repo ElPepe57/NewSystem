@@ -12,12 +12,8 @@ export type EstadoRequerimiento =
   | 'parcial'               // Algunos productos en OC, otros pendientes
   | 'en_proceso'            // En proceso de compra/envío (todos los productos en OC)
   | 'completado'            // Todos los productos recibidos en Perú
-  | 'cancelado';            // Cancelado
-
-/**
- * Umbral de monto que requiere aprobación dual (en USD)
- */
-export const UMBRAL_APROBACION_DUAL_USD = 1000;
+  | 'cancelado'             // Cancelado (circunstancias · después de aprobar)
+  | 'rechazado';            // F4 · rechazado en la DECISIÓN de aprobación (con motivo · ≠ cancelado · alimenta el scorecard)
 
 /**
  * Prioridad del requerimiento
@@ -57,6 +53,28 @@ export const LABEL_DRIVER_DEMANDA: Record<DriverDemanda, string> = {
   facebook: 'Facebook',
   marketplace: 'Marketplace',
   promocion: 'Promoción',
+  otro: 'Otro',
+};
+
+/**
+ * Motivo ESTRUCTURADO del RECHAZO de un requerimiento en la decisión de aprobación (F4 · B2).
+ * Distinto de cancelar (circunstancias posteriores). "Rechazado" = el aprobador (cargo) dijo NO,
+ * con motivo · alimenta el scorecard de mérito por solicitante.
+ */
+export type MotivoRechazoRequerimiento =
+  | 'sin_caja'
+  | 'margen_insuficiente'
+  | 'tesis_debil'
+  | 'cantidad_excesiva'
+  | 'duplicado'
+  | 'otro';
+
+export const LABEL_MOTIVO_RECHAZO_REQ: Record<MotivoRechazoRequerimiento, string> = {
+  sin_caja: 'Sin caja disponible',
+  margen_insuficiente: 'Margen insuficiente',
+  tesis_debil: 'Tesis débil',
+  cantidad_excesiva: 'Cantidad excesiva',
+  duplicado: 'Duplicado',
   otro: 'Otro',
 };
 
@@ -334,17 +352,11 @@ export interface Requerimiento {
   actualizadoPor?: string;
   fechaActualizacion?: Timestamp;
 
-  // Aprobación dual (para montos > UMBRAL_APROBACION_DUAL_USD)
-  requiereAprobacionDual?: boolean;
-  aprobaciones?: {
-    // F4 · firmas de SOCIOS (dueños) · autoridad de aprobación de egresos (pura autoridad del socio ·
-    // ≤ umbral = 1 socio · > umbral = 2 socios distintos). Reemplaza los role-slots gerente/admin.
-    firmas?: { usuarioId: string; nombre?: string; fecha: Timestamp }[];
-    /** @deprecated F4 · role-slots legacy · reemplazados por firmas[] de socios. */
-    gerente?: { aprobadoPor: string; fecha: Timestamp };
-    /** @deprecated F4 · role-slots legacy · reemplazados por firmas[] de socios. */
-    admin?: { aprobadoPor: string; fecha: Timestamp };
-  };
+  // F4 · rechazo en la decisión de aprobación (estado='rechazado' · autoridad de cargo).
+  motivoRechazo?: MotivoRechazoRequerimiento;
+  motivoRechazoDetalle?: string;
+  rechazadoPor?: string;
+  fechaRechazo?: Timestamp;
   montoEstimadoUSD?: number;
 }
 

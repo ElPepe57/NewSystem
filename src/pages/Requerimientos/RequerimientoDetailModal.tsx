@@ -49,7 +49,8 @@ const getEstadoBadge = (estado: EstadoRequerimiento) => {
     parcial: { variant: 'info', icon: <Link2 className="h-3 w-3" /> },
     en_proceso: { variant: 'info', icon: <Link2 className="h-3 w-3" /> },
     completado: { variant: 'success', icon: <Check className="h-3 w-3" /> },
-    cancelado: { variant: 'danger', icon: <XCircle className="h-3 w-3" /> }
+    cancelado: { variant: 'danger', icon: <XCircle className="h-3 w-3" /> },
+    rechazado: { variant: 'danger', icon: <XCircle className="h-3 w-3" /> }
   };
 
   const { variant, icon } = config[estado];

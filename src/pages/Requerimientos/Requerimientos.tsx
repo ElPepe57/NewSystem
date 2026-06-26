@@ -1,9 +1,10 @@
 import React, { useEffect, useState, useMemo } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import {
   Plus, RefreshCw, Layers, CheckSquare, ClipboardList,
   Clock, AlertTriangle, CheckCircle, Link2, DollarSign,
   AlertOctagon, ShoppingCart, BadgeDollarSign,
-  LayoutDashboard, ListChecks, PackageSearch, Wallet,
+  LayoutDashboard, ListChecks, PackageSearch, Wallet, Inbox,
 } from 'lucide-react';
 import { ConfirmDialog, useConfirmDialog } from '../../components/common';
 import { LineaDropdown } from '../../components/common/LineaDropdown';
@@ -35,7 +36,8 @@ import { useBandejaSignal } from '../../store/bandejaSignalStore';
 import type {
   Requerimiento,
   RequerimientoFormData,
-  MotivoCancelacionOC
+  MotivoCancelacionOC,
+  MotivoRechazoRequerimiento
 } from '../../types/requerimiento.types';
 import type { Producto } from '../../types/producto.types';
 import type { Venta } from '../../types/venta.types';
@@ -45,6 +47,8 @@ import { ResumenRequerimientos } from './ResumenRequerimientos';
 import { TableroRequerimientos } from './TableroRequerimientos';
 import { PendientesCompraContent } from './PendientesCompraContent';
 import { PlanCompraTab } from './PlanCompraTab';
+import { BandejaTab } from './BandejaTab';
+import { RechazarReqModal } from './RechazarReqModal';
 import { CancelarCoberturaModal, type AlcanceCancelacion } from './CancelarCoberturaModal';
 import { RequerimientoFormModal } from './RequerimientoFormModal';
 import { RequerimientoDetailModal } from './RequerimientoDetailModal';
@@ -80,7 +84,15 @@ export const Requerimientos: React.FC = () => {
   const [sugerenciasStock, setSugerenciasStock] = useState<SugerenciaStock[]>([]);
 
   // Vista · tab activa del hub (Resumen default · canon hub)
-  const [tabActiva, setTabActiva] = useState<'resumen' | 'tablero' | 'plan-compra' | 'pendientes'>('resumen');
+  // Deep-link ?tab=bandeja → el teaser de Mi Espacio (próxima tarea) puede aterrizar en la Bandeja.
+  const [searchParams] = useSearchParams();
+  const TABS_VALIDAS = ['resumen', 'bandeja', 'tablero', 'plan-compra', 'pendientes'] as const;
+  type TabActiva = (typeof TABS_VALIDAS)[number];
+  const tabInicial: TabActiva = (() => {
+    const t = searchParams.get('tab');
+    return t && (TABS_VALIDAS as readonly string[]).includes(t) ? (t as TabActiva) : 'resumen';
+  })();
+  const [tabActiva, setTabActiva] = useState<TabActiva>(tabInicial);
   const esAdmin = hasRole(userProfile, 'admin'); // canon "admin ve todo" · chip contextual al rol
   const { canApproveRequerimiento } = usePermissions(); // F2 · req = autoridad de cargo (permiso · el control de socio vive en la OC)
 
@@ -94,6 +106,10 @@ export const Requerimientos: React.FC = () => {
   // Modal cancelar cobertura de OC (B5)
   const [coberturaACancelar, setCoberturaACancelar] = useState<{ ocId: string; ocNumero: string } | null>(null);
   const [cancelandoCobertura, setCancelandoCobertura] = useState(false);
+
+  // Modal rechazar requerimiento con motivo (B2)
+  const [reqARechazar, setReqARechazar] = useState<Requerimiento | null>(null);
+  const [rechazando, setRechazando] = useState(false);
 
   // Modal de crear producto
   const [showProductoModal, setShowProductoModal] = useState(false);
@@ -439,6 +455,29 @@ export const Requerimientos: React.FC = () => {
     }
   };
 
+  // B2 · rechazo con motivo. Mismo patrón que handleAprobar: gate del humano (canApproveRequerimiento),
+  // service.rechazar (solo pendiente · escribe estado='rechazado' + motivo), toast, recarga, bump del badge.
+  const handleRechazar = async (req: Requerimiento, motivo: MotivoRechazoRequerimiento, detalle: string | undefined) => {
+    if (!user) return;
+    if (!canApproveRequerimiento) {
+      toast.error('No tenés permiso para rechazar requerimientos.');
+      return;
+    }
+    setRechazando(true);
+    try {
+      await requerimientoService.rechazar(req.id, motivo, detalle, user.uid);
+      toast.success('Requerimiento rechazado', `${req.numeroRequerimiento} archivado con motivo`);
+      setReqARechazar(null);
+      loadData();
+      useBandejaSignal.getState().bump(); // refresca el badge del sidebar
+    } catch (error: any) {
+      console.error('Error al rechazar:', error);
+      toast.error(error.message || 'Error al rechazar el requerimiento');
+    } finally {
+      setRechazando(false);
+    }
+  };
+
   const handleCancelar = async (req: Requerimiento) => {
     if (!user) return;
     const confirmar = await confirm({
@@ -607,6 +646,7 @@ export const Requerimientos: React.FC = () => {
   ];
   const reqTabs: HubTab[] = [
     { id: 'resumen', label: 'Resumen', icon: LayoutDashboard },
+    { id: 'bandeja', label: 'Bandeja', icon: Inbox, badge: stats.pendientes || undefined, badgeTono: 'amber' },
     { id: 'tablero', label: 'Tablero', icon: ListChecks, badge: stats.activos || undefined, badgeTono: 'rose' },
     { id: 'plan-compra', label: 'Plan de compra', icon: Wallet },
     { id: 'pendientes', label: 'Pendientes de compra', icon: PackageSearch },
@@ -679,6 +719,18 @@ export const Requerimientos: React.FC = () => {
               onGenerarOCAprobados={handleGenerarOCAprobados}
               onCrearDesdeSugerencia={handleCrearDesdeSugerencia}
               onVerTodasSugerencias={() => setIsSugerenciasModalOpen(true)}
+            />
+          )}
+
+          {/* ═══ TAB BANDEJA ═══ (B1 · cockpit del aprobador · SLA + panel inline on-expand) */}
+          {tabActiva === 'bandeja' && (
+            <BandejaTab
+              requerimientos={requerimientosLN}
+              onAprobar={handleAprobar}
+              onRechazar={(req) => setReqARechazar(req)}
+              onVerDetalle={abrirDetalle}
+              onAgrupar={handleAgrupar}
+              canAprobar={canApproveRequerimiento}
             />
           )}
 
@@ -755,6 +807,17 @@ export const Requerimientos: React.FC = () => {
         onGenerarOCsPorViajero={handleGenerarOCsPorViajero}
         onAbrirAsignacion={() => setIsAsignacionModalOpen(true)}
         onCancelarCobertura={(ocId, ocNumero) => setCoberturaACancelar({ ocId, ocNumero })}
+      />
+
+      {/* Modal Rechazar requerimiento con motivo (B2) */}
+      <RechazarReqModal
+        isOpen={!!reqARechazar}
+        onClose={() => setReqARechazar(null)}
+        req={reqARechazar}
+        loading={rechazando}
+        onConfirmar={(motivo, detalle) => {
+          if (reqARechazar) handleRechazar(reqARechazar, motivo, detalle);
+        }}
       />
 
       {/* Modal Cancelar cobertura de OC (B5) */}

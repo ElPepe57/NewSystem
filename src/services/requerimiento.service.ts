@@ -30,7 +30,8 @@ import type {
   RequerimientoStats,
   ResumenAsignaciones,
   MotivoCancelacionOC,
-  DriverDemanda
+  DriverDemanda,
+  MotivoRechazoRequerimiento
 } from '../types/requerimiento.types';
 import { casillaCrudService } from './casilla.crud.service';
 import { COLLECTIONS } from '../config/collections';
@@ -570,6 +571,41 @@ export const requerimientoService = {
     } catch (error: any) {
       logger.error('Error al aprobar requerimiento:', error);
       throw new Error(error.message || 'Error al aprobar requerimiento');
+    }
+  },
+
+  /**
+   * Rechazar un requerimiento en la decisión de aprobación · F4 · B2 · AUTORIDAD DE CARGO.
+   * Distinto de CANCELAR (circunstancias posteriores): 'rechazado' = el aprobador dijo NO, con motivo
+   * estructurado (alimenta el scorecard de mérito por solicitante). Solo aplica a un req PENDIENTE.
+   */
+  async rechazar(
+    id: string,
+    motivo: MotivoRechazoRequerimiento,
+    detalle: string | undefined,
+    userId: string,
+  ): Promise<void> {
+    try {
+      const requerimiento = await requerimientoService.getById(id);
+      if (!requerimiento) {
+        throw new Error('Requerimiento no encontrado');
+      }
+      if (requerimiento.estado !== 'pendiente') {
+        throw new Error('Solo se pueden rechazar requerimientos pendientes');
+      }
+      const update: Record<string, unknown> = {
+        estado: 'rechazado',
+        motivoRechazo: motivo,
+        rechazadoPor: userId,
+        fechaRechazo: serverTimestamp(),
+        ultimaEdicion: serverTimestamp(),
+        editadoPor: userId,
+      };
+      if (detalle?.trim()) update.motivoRechazoDetalle = detalle.trim();
+      await updateDoc(doc(db, COLLECTION_NAME, id), update);
+    } catch (error: any) {
+      logger.error('Error al rechazar requerimiento:', error);
+      throw new Error(error.message || 'Error al rechazar requerimiento');
     }
   },
 
