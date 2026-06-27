@@ -50,7 +50,8 @@ import { PlanCompraTab } from './PlanCompraTab';
 import { BandejaTab } from './BandejaTab';
 import { RechazarReqModal } from './RechazarReqModal';
 import { CancelarCoberturaModal, type AlcanceCancelacion } from './CancelarCoberturaModal';
-import { RequerimientoFormModal } from './RequerimientoFormModal';
+import { CreacionGuiadaModal, type ModoCreacion } from './CreacionGuiada';
+import { useCajaDisponible } from './useCajaDisponible';
 import { RequerimientoDetailModal } from './RequerimientoDetailModal';
 import { SugerenciasStockModal } from './SugerenciasStockModal';
 import { SelectionFloatingBar } from './SelectionFloatingBar';
@@ -98,6 +99,9 @@ export const Requerimientos: React.FC = () => {
 
   // Modales
   const [isModalOpen, setIsModalOpen] = useState(false);
+  // Creación guiada · modo inicial al abrir (§C "Crear apuesta" abre en apuesta, etc.)
+  const [modoInicialModal, setModoInicialModal] = useState<ModoCreacion>('restock');
+  const cajaDisponiblePEN = useCajaDisponible(); // strip banking-grade · impacto en caja
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [isSugerenciasModalOpen, setIsSugerenciasModalOpen] = useState(false);
   const [selectedRequerimiento, setSelectedRequerimiento] = useState<Requerimiento | null>(null);
@@ -375,6 +379,7 @@ export const Requerimientos: React.FC = () => {
 
   const handleContinuarBorrador = (borrador: BorradorWizard) => {
     setFormData(borrador.estado as Partial<RequerimientoFormData>);
+    setModoInicialModal('manual'); // el borrador es del modo Manual (único con captura en formData)
     setIsModalOpen(true);
   };
 
@@ -399,6 +404,35 @@ export const Requerimientos: React.FC = () => {
     }
   };
 
+  // Creación guiada · abre el modal en un modo concreto (restock por defecto · recomendación primero).
+  const handleAbrirCreacion = (modo: ModoCreacion = 'restock') => {
+    setModoInicialModal(modo);
+    setIsModalOpen(true);
+  };
+
+  // Creación guiada · crea uno o varios reqs desde forms ya armados (restock/apuesta/comprometida).
+  // El modo Manual sigue por handleCrearRequerimiento (usa formData + borrador). Acá NO hay borrador
+  // que limpiar porque estos modos no autoguardan formData.
+  const handleCrearDesdeForms = async (forms: RequerimientoFormData[]) => {
+    if (!user || forms.length === 0 || isSubmitting) return;
+    setIsSubmitting(true);
+    try {
+      for (const form of forms) {
+        await useRequerimientoStore.getState().crearRequerimiento(form, user.uid);
+      }
+      toast.success(
+        forms.length === 1 ? 'Requerimiento creado' : `${forms.length} requerimientos creados`
+      );
+      setIsModalOpen(false);
+      loadData();
+      useBandejaSignal.getState().bump();
+    } catch (error: any) {
+      toast.error(error.message, 'Error al crear requerimiento');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   const handleCreateProducto = async (data: ProductoFormData) => {
     if (!user) return;
     setIsCreatingProducto(true);
@@ -415,23 +449,24 @@ export const Requerimientos: React.FC = () => {
     }
   };
 
+  // Atajo "Crear" de una sugerencia (§C / modal sugerencias): crea el restock de UN producto
+  // directamente (mismo subtipo/justificación que el modo Restock guiado · sin pasar por la lista).
   const handleCrearDesdeSugerencia = async (sugerencia: SugerenciaStock) => {
     // Cantidad calculada por el motor de reorden (lleva el stock al objetivo); fallback defensivo.
     const cantidadSugerida = sugerencia.cantidadSugerida ?? Math.max(sugerencia.stockMinimo - sugerencia.stockActual, 10);
-    setFormData({
+    setIsSugerenciasModalOpen(false);
+    await handleCrearDesdeForms([{
       origen: 'administrativo',
       subtipo: 'restock',
-      prioridad: sugerencia.urgencia === 'critica' ? 'alta' : sugerencia.urgencia === 'alta' ? 'alta' : 'media',
+      prioridad: sugerencia.urgencia === 'critica' || sugerencia.urgencia === 'alta' ? 'alta' : 'media',
       productos: [{
         productoId: sugerencia.producto.id,
         cantidadSolicitada: cantidadSugerida,
         precioEstimadoUSD: sugerencia.precioEstimadoUSD,
-        proveedorSugerido: sugerencia.proveedorSugerido
+        proveedorSugerido: sugerencia.proveedorSugerido,
       }],
-      justificacion: `${sugerencia.razon ?? 'Reposición'}: ${sugerencia.stockActual} disponibles · punto de reorden ${sugerencia.stockMinimo}`
-    });
-    setIsSugerenciasModalOpen(false);
-    setIsModalOpen(true);
+      justificacion: `${sugerencia.razon ?? 'Reposición'}: ${sugerencia.stockActual} disponibles · punto de reorden ${sugerencia.stockMinimo}`,
+    }]);
   };
 
   // ---- Handlers de estado ----
@@ -601,8 +636,7 @@ export const Requerimientos: React.FC = () => {
   };
 
   const handleNuevaApuesta = () => {
-    setFormData({ origen: 'administrativo', subtipo: 'apuesta', prioridad: 'media', productos: [] });
-    setIsModalOpen(true);
+    handleAbrirCreacion('apuesta');
   };
 
   // A1 · Plan de compra · C2 consolidación → abre el OCBuilder con los reqs de la oportunidad.
@@ -671,7 +705,7 @@ export const Requerimientos: React.FC = () => {
               onClick: () => { setSelectionMode(!selectionMode); if (selectionMode) setSelectedReqIds(new Set()); },
               tier: 'neutral' as const,
             },
-            { label: 'Nuevo Requerimiento', icon: Plus, onClick: () => setIsModalOpen(true), tier: 'primary' as const },
+            { label: 'Nuevo Requerimiento', icon: Plus, onClick: () => handleAbrirCreacion('restock'), tier: 'primary' as const },
           ]}
         />
         <HubKpiStrip cols={5} kpis={reqKpis} miniStats={reqMiniStats} />
@@ -705,7 +739,7 @@ export const Requerimientos: React.FC = () => {
               requerimientos={requerimientosLN}
               sugerenciasStock={sugerenciasStock}
               cotizacionesConfirmadas={cotizacionesConfirmadas}
-              onNuevo={() => setIsModalOpen(true)}
+              onNuevo={() => handleAbrirCreacion('restock')}
               onApuesta={handleNuevaApuesta}
               onPendientes={() => setTabActiva('pendientes')}
               onIrABandeja={() => setTabActiva('bandeja')}
@@ -759,10 +793,18 @@ export const Requerimientos: React.FC = () => {
         </HubBody>
       </HubShell>
 
-      {/* Modal Nuevo Requerimiento */}
-      <RequerimientoFormModal
+      {/* Modal Nuevo Requerimiento · creación guiada por recomendaciones · 4 modos */}
+      <CreacionGuiadaModal
         isOpen={isModalOpen}
         onClose={() => { setIsModalOpen(false); setBorradorRefreshKey((k) => k + 1); }}
+        modoInicial={modoInicialModal}
+        sugerenciasStock={sugerenciasStock}
+        loadingSugerencias={loading}
+        candidatosProductos={productos}
+        requerimientos={requerimientosLN}
+        cotizacionesConfirmadas={cotizacionesConfirmadas}
+        cajaDisponiblePEN={cajaDisponiblePEN}
+        tcDelDia={tcDelDia}
         formData={formData}
         onFormDataChange={setFormData}
         productoSnapshot={productoSnapshot}
@@ -774,12 +816,14 @@ export const Requerimientos: React.FC = () => {
         loadingInvestigacion={loadingInvestigacion}
         showHistorial={showHistorial}
         onShowHistorialChange={setShowHistorial}
-        tcDelDia={tcDelDia}
-        isSubmitting={isSubmitting}
         onAgregarProducto={handleAgregarProducto}
         onRemoverProducto={handleRemoverProducto}
-        onCrearRequerimiento={handleCrearRequerimiento}
         onAbrirCrearProducto={() => setShowProductoModal(true)}
+        isSubmitting={isSubmitting}
+        onCrearManual={handleCrearRequerimiento}
+        onCrearDesdeForms={handleCrearDesdeForms}
+        onGuardarBorrador={() => { setIsModalOpen(false); setBorradorRefreshKey((k) => k + 1); }}
+        onInvestigar={() => setShowProductoModal(true)}
       />
 
       {/* Modal Sugerencias de Stock */}

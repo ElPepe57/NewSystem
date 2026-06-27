@@ -28,7 +28,7 @@ export type TipoBorradorWizard =
   // Reemplaza el wizard largo cuando el tipo es conocido de antemano · ver NuevoSocioModal.tsx
   | 'nuevo-socio'
   // F4 · HUB-5b (2026-06-20) · form "Nuevo Requerimiento" (decisión D3 · canon F-Borradores)
-  // Form único largo multi-producto · ver RequerimientoFormModal.tsx + Requerimientos.tsx
+  // Modo Manual de la creación guiada · ver CreacionGuiada/ModoManual.tsx + Requerimientos.tsx
   | 'requerimiento';
 
 /**
