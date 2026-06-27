@@ -4,7 +4,7 @@ import {
   Plus, RefreshCw, Layers, CheckSquare, ClipboardList,
   Clock, AlertTriangle, CheckCircle, Link2, DollarSign,
   AlertOctagon, ShoppingCart, BadgeDollarSign,
-  LayoutDashboard, ListChecks, PackageSearch, Wallet, Inbox,
+  LayoutDashboard, ListChecks, PackageSearch, Wallet, Inbox, Target,
 } from 'lucide-react';
 import { ConfirmDialog, useConfirmDialog } from '../../components/common';
 import { LineaDropdown } from '../../components/common/LineaDropdown';
@@ -55,6 +55,7 @@ import { useCajaDisponible } from './useCajaDisponible';
 import { RequerimientoDetailModal } from './RequerimientoDetailModal';
 import { SugerenciasStockModal } from './SugerenciasStockModal';
 import { SelectionFloatingBar } from './SelectionFloatingBar';
+import { RadarApuestasTab } from './RadarApuestasTab';
 import type { InvestigacionProducto, SugerenciaStock } from './requerimientos.types';
 
 export const Requerimientos: React.FC = () => {
@@ -87,7 +88,7 @@ export const Requerimientos: React.FC = () => {
   // Vista · tab activa del hub (Resumen default · canon hub)
   // Deep-link ?tab=bandeja → el teaser de Mi Espacio (próxima tarea) puede aterrizar en la Bandeja.
   const [searchParams] = useSearchParams();
-  const TABS_VALIDAS = ['resumen', 'bandeja', 'tablero', 'plan-compra', 'pendientes'] as const;
+  const TABS_VALIDAS = ['resumen', 'bandeja', 'tablero', 'plan-compra', 'pendientes', 'apuestas'] as const;
   type TabActiva = (typeof TABS_VALIDAS)[number];
   const tabInicial: TabActiva = (() => {
     const t = searchParams.get('tab');
@@ -273,6 +274,10 @@ export const Requerimientos: React.FC = () => {
       (sum, r) => sum + (r.expectativa?.costoTotalEstimadoUSD || 0), 0
     );
     const reqUrgentes = activos.filter(r => r.prioridad === 'alta').length;
+    // Apuestas vivas: subtipo='apuesta' que el radar trackea (≠ cancelado/rechazado) · badge de la tab.
+    const apuestasVivas = requerimientosLN.filter(
+      r => r.subtipo === 'apuesta' && r.estado !== 'cancelado' && r.estado !== 'rechazado'
+    ).length;
 
     return {
       total: requerimientosLN.length,
@@ -281,6 +286,7 @@ export const Requerimientos: React.FC = () => {
       aprobados: aprobados.length,
       enProceso: enProceso.length,
       urgentes: reqUrgentes,
+      apuestasVivas,
       costoEstimadoPendiente,
       alertasStock: sugerenciasStock.filter(s => s.urgencia === 'critica' || s.urgencia === 'alta').length
     };
@@ -677,6 +683,7 @@ export const Requerimientos: React.FC = () => {
     { id: 'tablero', label: 'Tablero', icon: ListChecks, badge: stats.activos || undefined, badgeTono: 'rose' },
     { id: 'plan-compra', label: 'Plan de compra', icon: Wallet },
     { id: 'pendientes', label: 'Pendientes de compra', icon: PackageSearch },
+    { id: 'apuestas', label: 'Apuestas', icon: Target, badge: stats.apuestasVivas || undefined, badgeTono: 'amber' },
   ];
   const breadcrumbLeaf = tabActiva === 'resumen' ? null : (reqTabs.find(t => t.id === tabActiva)?.label ?? null);
 
@@ -788,6 +795,11 @@ export const Requerimientos: React.FC = () => {
               requerimientos={requerimientosLN}
               onEnviarAlBuilder={(reqs) => { setOcBuilderReqs(reqs); setIsOCBuilderOpen(true); }}
             />
+          )}
+
+          {/* ═══ TAB APUESTAS ═══ (Radar de Apuestas · cierra el bucle · 100% derivado · cero schema) */}
+          {tabActiva === 'apuestas' && (
+            <RadarApuestasTab requerimientos={requerimientosLN} />
           )}
 
         </HubBody>
