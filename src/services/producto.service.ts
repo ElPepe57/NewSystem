@@ -655,6 +655,26 @@ export class ProductoService {
   }
 
   /**
+   * Descontinuar producto · F4 Radar de Apuestas (veredicto 'fallida').
+   * Saca el producto del catálogo ACTIVO (estado='descontinuado') SIN borrarlo (≠ soft-delete
+   * que pone 'eliminado' y decrementa métricas de marca). Actualiza SOLO el estado · no muta
+   * el resto del producto ni toca contadores de marca (el producto sigue existiendo, solo deja
+   * de comercializarse).
+   */
+  static async descontinuar(id: string): Promise<void> {
+    try {
+      const docRef = doc(db, COLLECTION_NAME, id);
+      await updateDoc(docRef, {
+        estado: 'descontinuado',
+        ultimaEdicion: serverTimestamp()
+      });
+    } catch (error: any) {
+      logger.error('Error al descontinuar producto:', error);
+      throw new Error(`Error al descontinuar producto: ${error.message || 'Error desconocido'}`);
+    }
+  }
+
+  /**
    * Reactivar producto (revertir soft delete)
    */
   static async reactivar(id: string): Promise<void> {

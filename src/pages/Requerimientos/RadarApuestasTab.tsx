@@ -9,15 +9,19 @@
  * Acciones por veredicto (acto 6):
  *   - Ver        (en evaluación) → abre el dossier de recuperación REUSANDO ProductoCTRUDossier (read-only).
  *   - Graduar    (acierto)       → abre el dossier · NO muta (no existe un camino limpio estado='catálogo'
- *                                  sin inventar schema · decisión pendiente · ver reporte).
- *   - Descontinuar (fallida)     → abre el dossier · NO muta (el único soft-delete existente marca
- *                                  estado='eliminado' ≠ 'descontinuado' y toca métricas de marca · no es
- *                                  el camino semánticamente correcto · decisión pendiente · ver reporte).
+ *                                  sin inventar schema · decisión pendiente del usuario · ver reporte).
+ *   - Descontinuar (fallida)     → ConfirmDialog (DS · danger) + ProductoService.descontinuar(id):
+ *                                  setea estado='descontinuado' (sale del catálogo activo · NO es el
+ *                                  soft-delete 'eliminado' que toca métricas de marca). Refresca el intel.
  */
 import React, { useState } from 'react';
 import { Trophy, Loader, TrendingDown, Award, Archive, Info, Target, Eye } from 'lucide-react';
 import { ProductoCTRUDossier } from '../../components/modules/ctru/ProductoCTRUDossier';
+import { ConfirmDialog } from '../../components/common/ConfirmDialog';
 import { useCanalVentaStore } from '../../store/canalVentaStore';
+import { useProductoIntelStore } from '../../store/productoIntelStore';
+import { useToastStore } from '../../store/toastStore';
+import { ProductoService } from '../../services/producto.service';
 import { tonoRecuperacion, type FilaApuesta, type VeredictoApuesta } from './radarApuestas.helper';
 import { useRadarApuestas } from './useRadarApuestas';
 import type { CTRUProductoDetalle } from '../../store/ctruStore';
@@ -79,7 +83,12 @@ export const RadarApuestasTab: React.FC<Props> = ({ requerimientos }) => {
   const { filas, resumen, loading, detallePorProducto } = useRadarApuestas(requerimientos);
   const canalesActivos = useCanalVentaStore((s) => s.canalesActivos);
   const fetchCanalesActivos = useCanalVentaStore((s) => s.fetchCanalesActivos);
+  const recargarIntel = useProductoIntelStore((s) => s.cargarDatos);
+  const toast = useToastStore();
   const [productoDossier, setProductoDossier] = useState<CTRUProductoDetalle | null>(null);
+  // Confirmación de descontinuar (veredicto 'fallida'): la fila en curso + estado de guardado.
+  const [filaADescontinuar, setFilaADescontinuar] = useState<FilaApuesta | null>(null);
+  const [descontinuando, setDescontinuando] = useState(false);
 
   // Abre el dossier de recuperación del producto (read-only) · carga los canales si hicieran falta.
   const abrirDossier = (productoId: string) => {
@@ -87,6 +96,22 @@ export const RadarApuestasTab: React.FC<Props> = ({ requerimientos }) => {
     if (!detalle) return;
     if (canalesActivos.length === 0) void fetchCanalesActivos();
     setProductoDossier(detalle);
+  };
+
+  // Confirma el descontinuado: setea estado='descontinuado' (NO soft-delete) y refresca el intel.
+  const confirmarDescontinuar = async () => {
+    if (!filaADescontinuar || !filaADescontinuar.productoId) return;
+    setDescontinuando(true);
+    try {
+      await ProductoService.descontinuar(filaADescontinuar.productoId);
+      toast.success(`${filaADescontinuar.nombre} fue descontinuado · sale del catálogo activo.`);
+      setFilaADescontinuar(null);
+      await recargarIntel(); // refresca la data derivada del catálogo
+    } catch (error: any) {
+      toast.error(error?.message || 'No se pudo descontinuar el producto.');
+    } finally {
+      setDescontinuando(false);
+    }
   };
 
   // ── Loading · motor calculando (acto 7) ──
@@ -135,7 +160,7 @@ export const RadarApuestasTab: React.FC<Props> = ({ requerimientos }) => {
       return (
         <button
           type="button"
-          onClick={() => abrirDossier(fila.productoId)}
+          onClick={() => setFilaADescontinuar(fila)}
           className="text-[11px] font-semibold text-rose-700 bg-rose-50 border border-rose-200 hover:bg-rose-100 rounded-lg px-2.5 py-1 inline-flex items-center gap-1"
         >
           <Archive className="w-3 h-3" /> Descontinuar
@@ -232,7 +257,7 @@ export const RadarApuestasTab: React.FC<Props> = ({ requerimientos }) => {
                     <Award className="w-3 h-3" /> Graduar a catálogo
                   </button>
                 ) : f.veredicto === 'fallida' ? (
-                  <button type="button" onClick={() => abrirDossier(f.productoId)} className="w-full text-[11px] font-semibold text-rose-700 bg-rose-50 border border-rose-200 rounded-lg py-1.5 inline-flex items-center justify-center gap-1">
+                  <button type="button" onClick={() => setFilaADescontinuar(f)} className="w-full text-[11px] font-semibold text-rose-700 bg-rose-50 border border-rose-200 rounded-lg py-1.5 inline-flex items-center justify-center gap-1">
                     <Archive className="w-3 h-3" /> Descontinuar
                   </button>
                 ) : (
@@ -259,6 +284,19 @@ export const RadarApuestasTab: React.FC<Props> = ({ requerimientos }) => {
           onClose={() => setProductoDossier(null)}
         />
       )}
+
+      {/* Confirmación de descontinuar (veredicto 'fallida' · DS · danger) */}
+      <ConfirmDialog
+        isOpen={filaADescontinuar !== null}
+        onClose={() => { if (!descontinuando) setFilaADescontinuar(null); }}
+        onConfirm={() => void confirmarDescontinuar()}
+        title={filaADescontinuar ? `¿Descontinuar ${filaADescontinuar.nombre}?` : 'Descontinuar producto'}
+        message="El producto sale del catálogo activo y deja de comercializarse. No se elimina — su historial y su trazabilidad de CTRU se conservan. Podés reactivarlo más adelante."
+        confirmText="Descontinuar"
+        variant="danger"
+        icon={<Archive className="h-6 w-6" />}
+        loading={descontinuando}
+      />
     </div>
   );
 };

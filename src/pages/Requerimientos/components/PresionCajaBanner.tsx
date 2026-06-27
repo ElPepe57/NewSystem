@@ -13,11 +13,13 @@ import type { AnalisisCola } from '../colaRequerimientos.helper';
 
 interface Props {
   analisis: AnalisisCola;
+  /** Navega a la tab "Plan de compra" del hub (lugar canónico para priorizar). */
+  onIrAPlanCompra?: () => void;
 }
 
 const fmtPEN = (n: number): string => `S/ ${n.toLocaleString('en-US', { maximumFractionDigits: 0 })}`;
 
-export const PresionCajaBanner: React.FC<Props> = ({ analisis }) => {
+export const PresionCajaBanner: React.FC<Props> = ({ analisis, onIrAPlanCompra }) => {
   // Solo enciende cuando la cola supera la caja libre (caja conocida + total > caja).
   if (!analisis.enPresion || analisis.cajaDisponiblePEN == null) return null;
 
@@ -44,15 +46,17 @@ export const PresionCajaBanner: React.FC<Props> = ({ analisis }) => {
           <span className="font-semibold text-rose-800">Exceso</span>
           <span className="font-bold tabular-nums text-rose-700 text-[15px]">{fmtPEN(analisis.excesoPEN)}</span>
         </div>
-        <div className="pt-1">
-          {/* TODO: link a tab Plan de compra cuando exista */}
-          <button
-            type="button"
-            className="text-[12px] font-semibold text-rose-700 flex items-center gap-1 hover:text-rose-900"
-          >
-            <ArrowRight className="w-3.5 h-3.5" /> Ir a Plan de compra para priorizar
-          </button>
-        </div>
+        {onIrAPlanCompra && (
+          <div className="pt-1">
+            <button
+              type="button"
+              onClick={onIrAPlanCompra}
+              className="text-[12px] font-semibold text-rose-700 flex items-center gap-1 hover:text-rose-900"
+            >
+              <ArrowRight className="w-3.5 h-3.5" /> Ir a Plan de compra para priorizar
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

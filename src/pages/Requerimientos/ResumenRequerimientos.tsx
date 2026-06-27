@@ -273,7 +273,7 @@ export const ResumenRequerimientos: React.FC<Props> = ({
           </div>
 
           {/* §F · A2 · Presión de caja (enciende solo cuando la cola supera la caja libre) */}
-          <PresionCajaBanner analisis={analisisCola} />
+          <PresionCajaBanner analisis={analisisCola} onIrAPlanCompra={onIrAPlanCompra} />
 
           {/* §F · alertas */}
           {(urgentesSinAprobar > 0 || aprobadosSinViajero > 0) && (

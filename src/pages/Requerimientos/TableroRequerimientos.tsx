@@ -17,7 +17,7 @@ import {
 } from 'lucide-react';
 import { formatCurrency } from '../../utils/format';
 import { usePermissions } from '../../hooks/usePermissions';
-import { getOrigenLabel } from '../../types/requerimiento.types';
+import { getOrigenLabel, LABEL_MOTIVO_RECHAZO_REQ } from '../../types/requerimiento.types';
 import type { Requerimiento, EstadoRequerimiento } from '../../types/requerimiento.types';
 import { OrigenBadge } from './components/OrigenBadge';
 import { DriverChip } from './components/DriverChip';
@@ -40,7 +40,8 @@ interface Props {
   onGenerarOCConsolidada: () => void;
 }
 
-type Etapa = 'pendiente' | 'aprobado' | 'parcial' | 'en_proceso' | 'completado';
+type Etapa = 'pendiente' | 'aprobado' | 'parcial' | 'en_proceso' | 'completado' | 'rechazado';
+// Flujo ACTIVO del tablero (no incluye 'rechazado' · ese vive aparte tras el toggle "Ver rechazados").
 const ETAPA_ORDER: Etapa[] = ['pendiente', 'aprobado', 'parcial', 'en_proceso', 'completado'];
 
 interface EtapaCfg {
@@ -58,6 +59,7 @@ const ETAPA_CFG: Record<Etapa, EtapaCfg> = {
   parcial:              { label: 'OC Parcial',      dot: 'bg-sky-500',    icon: Target,       iconBox: 'bg-sky-50 text-sky-600',         badge: 'bg-sky-100 text-sky-700',         count: 'text-sky-600' },
   en_proceso:           { label: 'En proceso',      dot: 'bg-blue-500',   icon: Truck,        iconBox: 'bg-blue-50 text-blue-600',       badge: 'bg-blue-100 text-blue-700',       count: 'text-blue-600' },
   completado:           { label: 'Completados',     dot: 'bg-slate-300',  icon: CheckCircle2, iconBox: 'bg-slate-100 text-slate-400',    badge: 'bg-slate-100 text-slate-500',     count: 'text-slate-500' },
+  rechazado:            { label: 'Rechazados',      dot: 'bg-rose-500',   icon: XCircle,      iconBox: 'bg-rose-50 text-rose-600',       badge: 'bg-rose-100 text-rose-700',       count: 'text-rose-600' },
 };
 
 function etapaDe(estado: EstadoRequerimiento): Etapa | null {
@@ -68,7 +70,8 @@ function etapaDe(estado: EstadoRequerimiento): Etapa | null {
     case 'parcial': return 'parcial';
     case 'en_proceso': return 'en_proceso';
     case 'completado': return 'completado';
-    case 'cancelado': return null; // los cancelados no aparecen en el tablero operativo
+    case 'rechazado': return 'rechazado'; // el aprobador dijo NO (con motivo) · visible tras el toggle
+    case 'cancelado': return null;         // los cancelados no aparecen en el tablero operativo
     default: return null;
   }
 }
@@ -83,22 +86,36 @@ export const TableroRequerimientos: React.FC<Props> = ({
   const [filtroEtapa, setFiltroEtapa] = useState<Etapa | 'todas'>('todas');
   const [busqueda, setBusqueda] = useState('');
   const [porUrgencia, setPorUrgencia] = useState(true);
-  const [colapsadas, setColapsadas] = useState<Set<Etapa>>(new Set(['en_proceso', 'completado']));
+  const [verRechazados, setVerRechazados] = useState(false);
+  const [colapsadas, setColapsadas] = useState<Set<Etapa>>(new Set(['en_proceso', 'completado', 'rechazado']));
 
-  // Operativos = no cancelados (con su etapa derivada)
+  // Cuántos rechazados hay (para el badge del toggle · independiente de verRechazados).
+  const rechazadosCount = useMemo(
+    () => requerimientos.filter(r => r.estado === 'rechazado').length,
+    [requerimientos]
+  );
+
+  // Etapas visibles ahora mismo: flujo activo + (rechazado solo si el toggle está encendido).
+  const etapasVisibles = useMemo<Etapa[]>(
+    () => (verRechazados ? [...ETAPA_ORDER, 'rechazado'] : ETAPA_ORDER),
+    [verRechazados]
+  );
+
+  // Operativos = etapa derivada ≠ null, excluyendo rechazados cuando el toggle está apagado.
   const operativos = useMemo(
     () => requerimientos
       .map(r => ({ req: r, etapa: etapaDe(r.estado) }))
-      .filter((x): x is { req: Requerimiento; etapa: Etapa } => x.etapa !== null),
-    [requerimientos]
+      .filter((x): x is { req: Requerimiento; etapa: Etapa } =>
+        x.etapa !== null && (verRechazados || x.etapa !== 'rechazado')),
+    [requerimientos, verRechazados]
   );
 
   const conteoPorEtapa = useMemo(() => {
     const m = {} as Record<Etapa, number>;
-    for (const e of ETAPA_ORDER) m[e] = 0;
+    for (const e of etapasVisibles) m[e] = 0;
     for (const { etapa } of operativos) m[etapa]++;
     return m;
-  }, [operativos]);
+  }, [operativos, etapasVisibles]);
 
   const aprobadosListos = conteoPorEtapa.aprobado;
 
@@ -146,7 +163,7 @@ export const TableroRequerimientos: React.FC<Props> = ({
             >
               Todas <span className="tabular-nums">{operativos.length}</span>
             </button>
-            {ETAPA_ORDER.map(e => {
+            {etapasVisibles.map(e => {
               const cfg = ETAPA_CFG[e];
               const active = filtroEtapa === e;
               return (
@@ -162,6 +179,24 @@ export const TableroRequerimientos: React.FC<Props> = ({
                 </button>
               );
             })}
+            {/* Toggle "Ver rechazados" · saca a los rechazados del flujo activo por defecto (no lo ensucia). */}
+            {rechazadosCount > 0 && (
+              <button
+                type="button"
+                onClick={() => {
+                  setVerRechazados(v => {
+                    const next = !v;
+                    if (!next && filtroEtapa === 'rechazado') setFiltroEtapa('todas');
+                    return next;
+                  });
+                }}
+                className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-bold ${
+                  verRechazados ? 'bg-rose-100 text-rose-700 ring-2 ring-rose-300' : 'bg-white text-rose-600 border border-rose-200 hover:bg-rose-50'
+                }`}
+              >
+                <XCircle className="w-3 h-3" /> {verRechazados ? 'Ocultar' : 'Ver'} rechazados <span className="tabular-nums">{rechazadosCount}</span>
+              </button>
+            )}
           </div>
         </div>
         <div className="border-t border-slate-100" />
@@ -255,7 +290,7 @@ export const TableroRequerimientos: React.FC<Props> = ({
         </div>
       ) : (
         <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden divide-y divide-slate-100">
-          {ETAPA_ORDER.filter(e => conteoPorEtapa[e] > 0).map(e => {
+          {etapasVisibles.filter(e => conteoPorEtapa[e] > 0).map(e => {
             const cfg = ETAPA_CFG[e];
             const items = filtrados.filter(x => x.etapa === e);
             if (items.length === 0) return null;
@@ -371,6 +406,12 @@ const CardOperativa: React.FC<{
             {etapa === 'en_proceso' && req.ordenCompraNumeros && req.ordenCompraNumeros.length > 0 && (
               <span className="inline-flex items-center gap-1 text-blue-600"><ShoppingCart className="w-3 h-3" /> {req.ordenCompraNumeros.join(', ')}</span>
             )}
+            {etapa === 'rechazado' && req.motivoRechazo && (
+              <span className="inline-flex items-center gap-1 text-rose-600">
+                <XCircle className="w-3 h-3" /> {LABEL_MOTIVO_RECHAZO_REQ[req.motivoRechazo]}
+                {req.motivoRechazoDetalle ? ` · ${req.motivoRechazoDetalle}` : ''}
+              </span>
+            )}
           </div>
         </button>
         <div className="text-right flex-shrink-0">
@@ -451,6 +492,11 @@ const FilaAcordeon: React.FC<{
             </span>
           )}
           <span className="text-[11px] text-slate-500">{req.productos.length} prod · {formatCurrency(req.expectativa?.costoTotalEstimadoUSD || 0)}</span>
+          {etapa === 'rechazado' && req.motivoRechazo && (
+            <span className="inline-flex items-center gap-1 text-[11px] text-rose-600">
+              <XCircle className="w-3 h-3" /> {LABEL_MOTIVO_RECHAZO_REQ[req.motivoRechazo]}
+            </span>
+          )}
         </div>
       </button>
       <AccionGatillo req={req} etapa={etapa} onAprobar={onAprobar} onGenerarOC={onGenerarOC} onOpenDetail={onOpenDetail} />
