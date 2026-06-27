@@ -605,13 +605,6 @@ export const Requerimientos: React.FC = () => {
     setIsModalOpen(true);
   };
 
-  const handleGenerarOCAprobados = () => {
-    const aprobados = requerimientosLN.filter(r => r.estado === 'aprobado');
-    if (aprobados.length === 0) return;
-    setOcBuilderReqs(aprobados);
-    setIsOCBuilderOpen(true);
-  };
-
   // A1 · Plan de compra · C2 consolidación → abre el OCBuilder con los reqs de la oportunidad.
   // Reusa el MISMO camino que handleGenerarOCConsolidada (setOcBuilderReqs + setIsOCBuilderOpen):
   // resuelve los reqs por id, aplica el gate de elegibilidad (solo aprobados entran al builder) y
@@ -714,9 +707,9 @@ export const Requerimientos: React.FC = () => {
               cotizacionesConfirmadas={cotizacionesConfirmadas}
               onNuevo={() => setIsModalOpen(true)}
               onApuesta={handleNuevaApuesta}
-              onOCConsolidada={() => { setSelectionMode(true); setTabActiva('tablero'); }}
               onPendientes={() => setTabActiva('pendientes')}
-              onGenerarOCAprobados={handleGenerarOCAprobados}
+              onIrABandeja={() => setTabActiva('bandeja')}
+              onIrAPlanCompra={() => setTabActiva('plan-compra')}
               onCrearDesdeSugerencia={handleCrearDesdeSugerencia}
               onVerTodasSugerencias={() => setIsSugerenciasModalOpen(true)}
             />

@@ -21,6 +21,15 @@ interface FilaQuiebre {
   brecha: number;
 }
 
+interface Props {
+  /**
+   * `embedded` → rinde SIN su card exterior (sin `bg-white border rounded-xl`): solo el
+   * panel rose highlight, para insertarse DENTRO del panel "Inteligencia de demanda" (§C)
+   * como primera sección. Por defecto (false) rinde como widget autónomo con su card.
+   */
+  embedded?: boolean;
+}
+
 const TOP_N = 6;
 
 /** Color por urgencia de la ventana: ≤7d cerrándose = rose · resto = amber. */
@@ -29,7 +38,7 @@ const tono = (dias: number) =>
     ? { valor: 'text-rose-700', sub: 'text-rose-500' }
     : { valor: 'text-amber-700', sub: 'text-amber-500' };
 
-export const AnticipacionQuiebresWidget: React.FC = () => {
+export const AnticipacionQuiebresWidget: React.FC<Props> = ({ embedded = false }) => {
   const productosIntel = useProductoIntelStore((s) => s.productosIntel);
   const leadTimeGlobal = useProductoIntelStore((s) => s.leadTimeGlobal);
 
@@ -61,6 +70,42 @@ export const AnticipacionQuiebresWidget: React.FC = () => {
   // Sin productos en riesgo → no renderiza (no ocupa espacio en el Resumen).
   if (filas.length === 0) return null;
 
+  // ── EMBEDDED · panel rose highlight dentro del panel "Inteligencia de demanda" (§C) ──
+  if (embedded) {
+    return (
+      <div className="mx-4 mt-4 mb-3 bg-rose-50 border border-rose-200 rounded-xl overflow-hidden">
+        <div className="px-3 py-2.5 border-b border-rose-100 flex items-center gap-2">
+          <PackageX className="w-4 h-4 text-rose-600" />
+          <span className="text-[12px] font-semibold text-rose-800">Quiebres críticos — se agotan antes de poder reponer</span>
+          <span className="ml-auto text-[9px] bg-rose-600 text-white px-1.5 py-0.5 rounded-full font-bold tabular-nums">{filas.length}</span>
+        </div>
+        <div className="px-3 py-2.5 space-y-2">
+          <div className="text-[11px] text-rose-700 mb-1">Ya vas tarde aunque compres hoy · leadTime largo = margen de reacción mínimo</div>
+          {filas.map((f, i) => {
+            const t = tono(f.diasParaQuiebre);
+            const ultima = i === filas.length - 1;
+            return (
+              <div key={f.productoId} className={`flex items-center justify-between py-1 ${ultima ? '' : 'border-b border-rose-100'}`}>
+                <div>
+                  <div className="text-[12px] font-semibold text-slate-800">{f.nombre}</div>
+                  <div className="text-[10px] text-slate-500">leadTime {f.leadTime} días</div>
+                </div>
+                <div className="text-right">
+                  <div className={`text-[11px] font-bold tabular-nums ${t.valor}`}>quiebra en {f.diasParaQuiebre} días</div>
+                  <div className={`text-[10px] ${t.sub}`}>{f.brecha} días de brecha</div>
+                </div>
+              </div>
+            );
+          })}
+          <div className="flex items-center gap-1.5 pt-1 text-[11px] text-rose-600 font-semibold">
+            <AlertTriangle className="w-3 h-3" /> Crítico en importación
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ── AUTÓNOMO · widget con su propia card (uso suelto fuera del panel §C) ──
   return (
     <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
       <div className="px-4 py-3 border-b border-slate-100 flex items-center gap-2">
