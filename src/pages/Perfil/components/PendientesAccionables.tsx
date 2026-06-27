@@ -27,6 +27,7 @@ import {
   FileText,
   Calendar,
   Coins,
+  ClipboardCheck,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
@@ -40,7 +41,8 @@ export interface PendienteItem {
     | 'bono_sin_aprobar'
     | 'datos_socio_incompleto'
     | 'adelanto_solicitado'
-    | 'comision_calculada';
+    | 'comision_calculada'
+    | 'requerimiento_aprobar';
   titulo: string;
   descripcion: string;
   /** Texto del chip top-right · ej: "PENDIENTE" · "CALCULADO" · uppercase */
@@ -64,6 +66,7 @@ const ICON_POR_TIPO: Record<PendienteItem['tipo'], LucideIcon> = {
   datos_socio_incompleto: Coins,
   adelanto_solicitado: ArrowDownCircle,
   comision_calculada: Trophy,
+  requerimiento_aprobar: ClipboardCheck,
 };
 
 const TINTE_CLASSES: Record<

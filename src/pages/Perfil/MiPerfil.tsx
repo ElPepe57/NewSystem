@@ -19,7 +19,7 @@
  *  - Body: contextual por rol y tab activo
  */
 import React, { useState, useEffect, useMemo } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import {
   Camera,
   Save,
@@ -49,6 +49,7 @@ import { getDatosLaboralesView } from '../../services/perfilPersona.adapter';
 import { datosSocioService } from '../../services/datosSocio.service';
 import { planillaService } from '../../services/planilla.service';
 import { calculoIncentivoService } from '../../services/calculoIncentivo.service';
+import { requerimientoService } from '../../services/requerimiento.service';
 import { ROLE_LABELS } from '../../types/auth.types';
 import {
   collection,
@@ -142,8 +143,9 @@ const getIniciales = (nombre?: string): string => {
 };
 
 export const MiPerfil: React.FC = () => {
-  const { profile, roles, displayName, isAdmin, isSocio, isVendedor, canManageUsers } = usePermissions();
+  const { profile, roles, displayName, isAdmin, isSocio, isVendedor, canManageUsers, canApproveRequerimiento } = usePermissions();
   const fetchUserProfile = useAuthStore((state) => state.fetchUserProfile);
+  const navigate = useNavigate();
 
   // ─── State · UI ────────────────────────────────────────────────────────
   // F4 · tab activa vive en la URL (?tab=) · preserva F5/bookmark + habilita los redirects de /perfil/mi-X.
@@ -183,6 +185,9 @@ export const MiPerfil: React.FC = () => {
   const [loadingDatos, setLoadingDatos] = useState(true);
   const [loadingActividades, setLoadingActividades] = useState(true);
   const [contadorAdelantosPendientes, setContadorAdelantosPendientes] = useState(0);
+  // Teaser de aprobación de requerimientos · req = autoridad de cargo · su cockpit es la Bandeja de
+  // Requerimientos. Mi Espacio NO procesa reqs · solo AVISA con un teaser + deep-link a /requerimientos?tab=bandeja.
+  const [contadorReqsPendientes, setContadorReqsPendientes] = useState(0);
 
   // ─── Auto-hide mensajes ────────────────────────────────────────────────
   useEffect(() => {
@@ -227,6 +232,17 @@ export const MiPerfil: React.FC = () => {
             /* silent */
           }
         }
+
+        // Requerimientos pendientes de aprobación · solo si el user tiene la autoridad de cargo.
+        // Query liviana: buscar() es un where('estado','==','pendiente') directo (no carga todos · no es getStats).
+        if (canApproveRequerimiento) {
+          try {
+            const pendientes = await requerimientoService.buscar({ estado: 'pendiente' });
+            if (!cancelled) setContadorReqsPendientes(pendientes.length);
+          } catch {
+            /* silent */
+          }
+        }
       } finally {
         if (!cancelled) setLoadingDatos(false);
       }
@@ -235,7 +251,7 @@ export const MiPerfil: React.FC = () => {
     return () => {
       cancelled = true;
     };
-  }, [profile?.uid, isSocio, canManageUsers]);
+  }, [profile?.uid, isSocio, canManageUsers, canApproveRequerimiento]);
 
   // ─── Cargar actividad reciente ─────────────────────────────────────────
   useEffect(() => {
@@ -347,8 +363,22 @@ export const MiPerfil: React.FC = () => {
       });
     }
 
+    // Teaser de requerimientos · req = AUTORIDAD DE CARGO · gateado por canApproveRequerimiento.
+    // Mi Espacio NO procesa la cola · solo avisa + deep-linkea a su cockpit (Bandeja de Requerimientos).
+    if (canApproveRequerimiento && contadorReqsPendientes > 0) {
+      items.push({
+        id: 'requerimientos_pendientes',
+        tipo: 'requerimiento_aprobar',
+        titulo: `${contadorReqsPendientes} requerimiento${contadorReqsPendientes > 1 ? 's' : ''} por aprobar`,
+        descripcion: 'Esperan tu autorización · revisá la cola en la Bandeja',
+        chipLabel: 'POR APROBAR',
+        tinte: 'amber',
+        onAction: () => navigate('/requerimientos?tab=bandeja'),
+      });
+    }
+
     return items;
-  }, [profile, boletas, isSocio, datosSocio, loadingDatos, canManageUsers, contadorAdelantosPendientes]);
+  }, [profile, boletas, isSocio, datosSocio, loadingDatos, canManageUsers, contadorAdelantosPendientes, canApproveRequerimiento, contadorReqsPendientes, navigate]);
 
   // ─── Handlers ──────────────────────────────────────────────────────────
   const handleStartEditName = () => {
