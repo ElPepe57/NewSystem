@@ -99,6 +99,20 @@ export const ReclamosDeEntidadTab: React.FC<ReclamosDeEntidadTabProps> = ({
     ['borrador', 'enviado', 'en_disputa', 'aceptado'].includes(r.estado)
   ).length;
 
+  // Ola 0 · Scorecard de recuperación — la responsabilidad REAL de la entidad ante pérdidas/daños.
+  // Tasa = cuánto de lo reclamado efectivamente recuperaste (cobrado). 100% derivable de los reclamos
+  // que el tab ya carga · sin schema nuevo. (La política declarada "dice que reembolsa" es Ola 4.)
+  const tasaRecuperacion = totalReclamado > 0 ? (totalCobrado / totalReclamado) * 100 : null;
+  const distResolucion = useMemo(() => {
+    const d = { reembolso: 0, reemplazo: 0, merma: 0 };
+    for (const r of reclamos) {
+      if (r.tipoResolucion) d[r.tipoResolucion] += 1;
+    }
+    return d;
+  }, [reclamos]);
+  const recTone: 'emerald' | 'amber' | 'red' | 'slate' =
+    tasaRecuperacion == null ? 'slate' : tasaRecuperacion >= 80 ? 'emerald' : tasaRecuperacion >= 50 ? 'amber' : 'red';
+
   if (loading) {
     return (
       <div className="text-center py-8 text-sm text-slate-500">
@@ -129,6 +143,33 @@ export const ReclamosDeEntidadTab: React.FC<ReclamosDeEntidadTabProps> = ({
 
   return (
     <div className="space-y-4">
+      {/* Ola 0 · Recuperación — qué tanto cubre realmente esta entidad las pérdidas que se le reclaman */}
+      {tasaRecuperacion != null && (
+        <div className={`rounded-xl p-3 border ${TONE_CLASSES[recTone].bg} ${TONE_CLASSES[recTone].border}`}>
+          <div className="flex items-start justify-between gap-3 flex-wrap">
+            <div>
+              <div className={`text-[10px] uppercase tracking-wider font-bold ${TONE_CLASSES[recTone].text}`}>
+                Tasa de recuperación
+              </div>
+              <div className={`text-2xl font-bold tabular-nums ${TONE_CLASSES[recTone].text}`}>
+                {tasaRecuperacion.toFixed(0)}<span className="opacity-50">%</span>
+              </div>
+              <div className="text-[11px] text-slate-600 mt-0.5 tabular-nums">
+                de S/ {totalReclamado.toFixed(0)} reclamado, recuperaste S/ {totalCobrado.toFixed(0)}
+              </div>
+            </div>
+            {(distResolucion.reembolso + distResolucion.reemplazo + distResolucion.merma) > 0 && (
+              <div className="text-[11px] text-right space-y-0.5">
+                <div className="text-[10px] uppercase tracking-wider text-slate-400 font-bold">Cómo resolvió</div>
+                {distResolucion.reembolso > 0 && <div className="text-emerald-700 tabular-nums">{distResolucion.reembolso} reembolso{distResolucion.reembolso !== 1 ? 's' : ''}</div>}
+                {distResolucion.reemplazo > 0 && <div className="text-sky-700 tabular-nums">{distResolucion.reemplazo} reemplazo{distResolucion.reemplazo !== 1 ? 's' : ''}</div>}
+                {distResolucion.merma > 0 && <div className="text-red-700 tabular-nums">{distResolucion.merma} merma{distResolucion.merma !== 1 ? 's' : ''} · no asumió</div>}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* KPIs rápidos */}
       <div className="grid grid-cols-3 gap-3">
         <div className="bg-slate-50 rounded-lg p-3 border border-slate-200">
