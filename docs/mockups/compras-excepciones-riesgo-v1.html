@@ -1,0 +1,1068 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Hub Compras · tab Excepciones / Riesgo · Vita Skin ERP</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+  * { font-family: 'Inter', system-ui, sans-serif; }
+  .tabular-nums { font-variant-numeric: tabular-nums; }
+  body { background: #f1f5f9; }
+  .frame { box-shadow: 0 1px 3px rgba(15,23,42,.08), 0 8px 24px rgba(15,23,42,.06); }
+  .modal-sh { box-shadow: 0 10px 15px -3px rgba(15,23,42,.18), 0 20px 50px -12px rgba(15,23,42,.30); }
+  .scrollbar-none { scrollbar-width: none; }
+  .scrollbar-none::-webkit-scrollbar { display: none; }
+  .acto-sep { letter-spacing: 0.10em; }
+  .badge { display: inline-flex; align-items: center; gap: 3px; border-radius: 999px; padding: 1px 7px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; }
+  .progress-fill { transition: width 0.4s ease; }
+  @keyframes skeleton-pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+  .skeleton { animation: skeleton-pulse 1.5s ease-in-out infinite; background: #e2e8f0; border-radius: 6px; }
+  .pin { background-image: radial-gradient(circle, #cbd5e1 1px, transparent 1px); background-size: 14px 14px; }
+</style>
+</head>
+<body class="text-slate-900">
+
+<div class="max-w-6xl mx-auto px-4 sm:px-6 py-10 space-y-14">
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- HERO -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<header class="bg-white border border-slate-200 rounded-2xl shadow-sm p-6 sm:p-8">
+  <div class="flex flex-wrap gap-2 mb-5">
+    <span class="text-[10px] font-bold uppercase tracking-wider text-blue-700 bg-blue-50 border border-blue-200 px-2.5 py-1 rounded-full">Especificación · build-ready</span>
+    <span class="text-[10px] font-bold uppercase tracking-wider text-blue-700 bg-blue-50 border border-blue-200 px-2.5 py-1 rounded-full">Grupo Comercial · azul</span>
+    <span class="text-[10px] font-bold uppercase tracking-wider text-rose-700 bg-rose-50 border border-rose-200 px-2.5 py-1 rounded-full">6ª tab · cierra el unhappy path</span>
+    <span class="text-[10px] font-bold uppercase tracking-wider text-slate-600 bg-slate-100 border border-slate-200 px-2.5 py-1 rounded-full">v1 · 2026-06-28</span>
+    <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-full">Cobertura total + mobile incluido</span>
+  </div>
+  <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 mb-2">Hub Compras · tab Excepciones / Riesgo <span class="text-slate-400 font-semibold">(cobertura + mobile)</span></h1>
+  <p class="text-[13px] text-slate-600 max-w-3xl leading-relaxed mb-5">
+    La <b>6ª tab</b> del hub Compras (hoy 5: Resumen · Órdenes · Pendientes · Proveedores · Inteligencia). Es la
+    <span class="text-rose-700 font-semibold">palanca #1 del análisis</span>: junta en UN lugar lo que hoy está atrapado en el
+    detalle de cada OC — atrasados en vuelo, incidencias cross-OC, reclamos por cobrar y el capital en tránsito en riesgo.
+    Cierra el <span class="text-rose-700 font-semibold">unhappy path</span> que ningún tab cubre. Anatomía hub intacta:
+    top-bar → header → KPI strip → 6 tabs (esta ACTIVA) → body Layout A <code class="bg-slate-100 px-1 rounded text-blue-700">max-w-6xl</code>.
+  </p>
+  <!-- Mapa de tabs -->
+  <div class="bg-slate-50 border border-slate-200 rounded-xl p-4">
+    <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-3 acto-sep">Mapa de tabs del hub · Excepciones / Riesgo es la 6ª</div>
+    <div class="flex flex-wrap gap-2 text-[12px]">
+      <div class="flex items-center gap-1.5 bg-white border border-slate-200 rounded-lg px-3 py-1.5"><i data-lucide="layout-dashboard" class="w-3.5 h-3.5 text-blue-600"></i><span class="font-medium text-slate-700">Resumen</span></div>
+      <div class="flex items-center gap-1.5 bg-white border border-slate-200 rounded-lg px-3 py-1.5"><i data-lucide="package" class="w-3.5 h-3.5 text-blue-600"></i><span class="font-medium text-slate-700">Órdenes</span></div>
+      <div class="flex items-center gap-1.5 bg-white border border-slate-200 rounded-lg px-3 py-1.5"><i data-lucide="clipboard-list" class="w-3.5 h-3.5 text-blue-600"></i><span class="font-medium text-slate-700">Pendientes</span></div>
+      <div class="flex items-center gap-1.5 bg-white border border-slate-200 rounded-lg px-3 py-1.5"><i data-lucide="building-2" class="w-3.5 h-3.5 text-blue-600"></i><span class="font-medium text-slate-700">Proveedores</span></div>
+      <div class="flex items-center gap-1.5 bg-white border border-slate-200 rounded-lg px-3 py-1.5"><i data-lucide="brain-circuit" class="w-3.5 h-3.5 text-blue-600"></i><span class="font-medium text-slate-700">Inteligencia</span></div>
+      <div class="flex items-center gap-1.5 bg-blue-600 border border-blue-700 rounded-lg px-3 py-1.5">
+        <i data-lucide="shield-alert" class="w-3.5 h-3.5 text-white"></i>
+        <span class="font-medium text-white">Excepciones / Riesgo</span>
+        <span class="text-[10px] bg-white/20 text-white rounded-full px-1.5 py-0.5 font-bold">activa · nueva</span>
+      </div>
+    </div>
+    <div class="mt-3 flex flex-wrap gap-2 text-[11px]">
+      <span class="badge bg-emerald-50 text-emerald-700 border border-emerald-200"><i data-lucide="check-circle" class="w-2.5 h-2.5"></i> Derivable hoy: capital en tránsito · reclamos (modelo maduro)</span>
+      <span class="badge bg-amber-50 text-amber-700 border border-amber-200"><i data-lucide="plug" class="w-2.5 h-2.5"></i> Requiere cableado: radar helper · incidenciaOC.listAll · marcarEnvioPerdidoTotal</span>
+      <span class="badge bg-slate-100 text-slate-600 border border-slate-200"><i data-lucide="lock" class="w-2.5 h-2.5"></i> NO listo: write-off del efectivo pagado = Fase 4 (deuda F3b tesorería)</span>
+    </div>
+  </div>
+</header>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- INDICE DE ACTOS -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-5">
+  <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4 acto-sep">Índice de actos · cobertura total + mobile</div>
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 text-[12px]">
+    <div class="flex items-start gap-3 bg-blue-50 border border-blue-200 rounded-xl px-3 py-2.5"><span class="w-7 h-7 rounded-lg bg-blue-600 text-white text-[11px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">1</span><div><div class="font-semibold text-blue-900">Acto 1 · Shell hub + tab activa</div><div class="text-blue-700 text-[11px]">Top-bar + header + strip + tabs + 4 mini-KPIs de la tab</div></div></div>
+    <div class="flex items-start gap-3 bg-rose-50 border border-rose-200 rounded-xl px-3 py-2.5"><span class="w-7 h-7 rounded-lg bg-rose-600 text-white text-[11px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">2</span><div><div class="font-semibold text-rose-900">Acto 2 · Radar de atrasados (C3)</div><div class="text-rose-700 text-[11px]">Pieza central · gravedad graduada + última señal (C4)</div></div></div>
+    <div class="flex items-start gap-3 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5"><span class="w-7 h-7 rounded-lg bg-slate-600 text-white text-[11px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">3</span><div><div class="font-semibold text-slate-800">Acto 3 · Incidencias cross-OC (C5)</div><div class="text-slate-600 text-[11px]">6 tipos · severidad · acción en curso · estado</div></div></div>
+    <div class="flex items-start gap-3 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5"><span class="w-7 h-7 rounded-lg bg-slate-600 text-white text-[11px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">4</span><div><div class="font-semibold text-slate-800">Acto 4 · Reclamos + Capital en tránsito</div><div class="text-slate-600 text-[11px]">Reclamos por cobrar + composición N1 en-riesgo/normal</div></div></div>
+    <div class="flex items-start gap-3 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5"><span class="w-7 h-7 rounded-lg bg-slate-600 text-white text-[11px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">5</span><div><div class="font-semibold text-slate-800">Acto 5 · Marcar perdido (modal C2)</div><div class="text-slate-600 text-[11px]">setter perdida_total + nota honesta F4 write-off</div></div></div>
+    <div class="flex items-start gap-3 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5"><span class="w-7 h-7 rounded-lg bg-slate-600 text-white text-[11px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">6</span><div><div class="font-semibold text-slate-800">Acto 6 · Estados</div><div class="text-slate-600 text-[11px]">empty (buena señal) · loading · error + retry</div></div></div>
+    <div class="flex items-start gap-3 bg-violet-50 border border-violet-200 rounded-xl px-3 py-2.5"><span class="w-7 h-7 rounded-lg bg-violet-600 text-white text-[11px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">7</span><div><div class="font-semibold text-violet-900">Acto 7 · Mobile shell + KPIs + radar</div><div class="text-violet-700 text-[11px]">375px · strip 2×2 · radar como cards por gravedad</div></div></div>
+    <div class="flex items-start gap-3 bg-violet-50 border border-violet-200 rounded-xl px-3 py-2.5"><span class="w-7 h-7 rounded-lg bg-violet-600 text-white text-[11px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">8</span><div><div class="font-semibold text-violet-900">Acto 8 · Mobile incidencias + modal</div><div class="text-violet-700 text-[11px]">Cards apiladas + bottom-sheet · touch ≥44px</div></div></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- ACTO 1 · SHELL HUB DESKTOP · TAB EXCEPCIONES ACTIVA + 4 MINI-KPIS -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<section class="space-y-4">
+  <div class="flex items-center gap-3">
+    <span class="w-8 h-8 rounded-lg bg-blue-600 text-white text-[13px] font-bold flex items-center justify-center flex-shrink-0">1</span>
+    <div>
+      <div class="text-[17px] font-bold text-slate-900">Shell hub · desktop · tab Excepciones / Riesgo ACTIVA</div>
+      <div class="text-[12px] text-slate-500">Top-bar (breadcrumb S9.D1 + chip rol) → header banking-grade → KPI strip persistente (5 KPIs del hub) → 6 tabs (Excepciones activa) → header de la tab con 4 mini-KPIs</div>
+    </div>
+  </div>
+
+  <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden frame">
+    <!-- TOP-BAR -->
+    <div class="border-b border-slate-200 px-6 py-2.5 bg-slate-50 flex items-center justify-between">
+      <div class="flex items-center gap-1 text-[11px] text-slate-500">
+        <span>Inicio</span>
+        <i data-lucide="chevron-right" class="w-3 h-3 text-slate-400"></i>
+        <span class="font-semibold text-slate-700">Compras</span>
+      </div>
+      <div class="flex items-center gap-1.5 bg-blue-50 border border-blue-200 px-2.5 py-1 rounded-full">
+        <i data-lucide="shield" class="w-3 h-3 text-blue-600"></i>
+        <span class="text-[10px] font-bold text-blue-700">Vista ejecutiva · admin</span>
+      </div>
+    </div>
+
+    <!-- HEADER BANKING-GRADE -->
+    <div class="px-6 py-5 border-b border-slate-200">
+      <div class="flex items-start justify-between gap-4 flex-wrap">
+        <div class="flex items-start gap-3">
+          <div class="w-11 h-11 rounded-xl bg-blue-50 border border-blue-200 flex items-center justify-center flex-shrink-0">
+            <i data-lucide="shopping-cart" class="w-5 h-5 text-blue-600"></i>
+          </div>
+          <div>
+            <h1 class="text-2xl font-bold tracking-tight text-slate-900">Compras</h1>
+            <p class="text-[13px] text-slate-500 mt-0.5">Órdenes de compra · proveedores · recepción · pagos · inteligencia de precios</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2 flex-wrap">
+          <button class="flex items-center gap-1.5 bg-white text-slate-700 border border-slate-200 hover:bg-slate-50 text-[12px] font-medium px-3 py-2 rounded-lg">
+            <i data-lucide="layers" class="w-3.5 h-3.5 text-blue-600"></i> Todas las líneas <i data-lucide="chevron-down" class="w-3 h-3 text-slate-400"></i>
+          </button>
+          <span class="w-px h-7 bg-slate-200 mx-0.5"></span>
+          <button class="flex items-center gap-1.5 bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 text-[12px] font-medium px-3 py-2 rounded-lg">
+            <i data-lucide="download" class="w-3.5 h-3.5"></i> Exportar
+          </button>
+          <button class="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white text-[12px] font-semibold px-3.5 py-2 rounded-lg shadow-sm">
+            <i data-lucide="plus" class="w-4 h-4"></i> Nueva OC
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- KPI STRIP PERSISTENTE · 5 KPIs DEL HUB (no se tocan · contexto) -->
+    <div class="px-6 pt-4 bg-white">
+      <div class="border border-slate-200 rounded-2xl overflow-hidden">
+        <div class="grid grid-cols-2 lg:grid-cols-5 gap-3 p-3">
+          <div class="bg-gradient-to-br from-amber-50 to-amber-100/40 ring-1 ring-amber-200/50 rounded-2xl p-4">
+            <div class="flex items-center justify-between mb-2"><span class="text-[10px] uppercase tracking-wider text-amber-700 font-bold">Comprado mes</span><i data-lucide="dollar-sign" class="w-3.5 h-3.5 text-amber-700"></i></div>
+            <div class="text-2xl font-bold tabular-nums text-amber-900">$42,180<span class="text-amber-400">.00</span></div>
+            <div class="text-[11px] text-amber-700 flex items-center gap-1 mt-1"><i data-lucide="trending-up" class="w-3 h-3"></i> 6 OCs este mes</div>
+          </div>
+          <div class="bg-gradient-to-br from-sky-50 to-sky-100/40 ring-1 ring-sky-200/50 rounded-2xl p-4">
+            <div class="flex items-center justify-between mb-2"><span class="text-[10px] uppercase tracking-wider text-sky-700 font-bold">En curso</span><i data-lucide="truck" class="w-3.5 h-3.5 text-sky-700"></i></div>
+            <div class="text-2xl font-bold tabular-nums text-sky-900">7</div>
+            <div class="text-[11px] text-sky-700 flex items-center gap-1 mt-1"><i data-lucide="ship" class="w-3 h-3"></i> 3 envíos activos</div>
+          </div>
+          <div class="bg-gradient-to-br from-rose-50 to-rose-100/40 ring-1 ring-rose-200/50 rounded-2xl p-4">
+            <div class="flex items-center justify-between mb-2"><span class="text-[10px] uppercase tracking-wider text-rose-700 font-bold">Por pagar</span><i data-lucide="credit-card" class="w-3.5 h-3.5 text-rose-700"></i></div>
+            <div class="text-2xl font-bold tabular-nums text-rose-900">4</div>
+            <div class="text-[11px] text-rose-700 flex items-center gap-1 mt-1"><i data-lucide="clock" class="w-3 h-3"></i> $23,940 pendiente</div>
+          </div>
+          <div class="bg-gradient-to-br from-sky-50 to-sky-100/40 ring-1 ring-sky-200/50 rounded-2xl p-4">
+            <div class="flex items-center justify-between mb-2"><span class="text-[10px] uppercase tracking-wider text-sky-700 font-bold">Lead time</span><i data-lucide="timer" class="w-3.5 h-3.5 text-sky-700"></i></div>
+            <div class="text-2xl font-bold tabular-nums text-sky-900">38<span class="text-sky-400"> días</span></div>
+            <div class="text-[11px] text-sky-700 flex items-center gap-1 mt-1"><i data-lucide="route" class="w-3 h-3"></i> proveedor → recepción</div>
+          </div>
+          <div class="bg-gradient-to-br from-emerald-50 to-emerald-100/40 ring-1 ring-emerald-200/50 rounded-2xl p-4">
+            <div class="flex items-center justify-between mb-2"><span class="text-[10px] uppercase tracking-wider text-emerald-700 font-bold">Completadas</span><i data-lucide="check-circle" class="w-3.5 h-3.5 text-emerald-700"></i></div>
+            <div class="text-2xl font-bold tabular-nums text-emerald-900">12</div>
+            <div class="text-[11px] text-emerald-700 flex items-center gap-1 mt-1"><i data-lucide="package-check" class="w-3 h-3"></i> $128,400 recibidas</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TABS · 6ª ACTIVA -->
+    <div class="px-6 mt-3 border-b border-slate-200 flex items-center gap-1 overflow-x-auto scrollbar-none">
+      <button class="px-3.5 py-3 text-[13px] font-medium text-slate-500 hover:text-slate-700 whitespace-nowrap flex items-center gap-1.5"><i data-lucide="layout-dashboard" class="w-3.5 h-3.5"></i> Resumen</button>
+      <button class="px-3.5 py-3 text-[13px] font-medium text-slate-500 hover:text-slate-700 whitespace-nowrap flex items-center gap-1.5"><i data-lucide="package" class="w-3.5 h-3.5"></i> Órdenes <span class="text-[10px] bg-slate-100 text-slate-500 rounded-full px-1.5 py-0.5 font-bold tabular-nums">24</span></button>
+      <button class="px-3.5 py-3 text-[13px] font-medium text-slate-500 hover:text-slate-700 whitespace-nowrap flex items-center gap-1.5"><i data-lucide="clipboard-list" class="w-3.5 h-3.5"></i> Pendientes <span class="text-[10px] bg-amber-100 text-amber-700 rounded-full px-1.5 py-0.5 font-bold tabular-nums">9</span></button>
+      <button class="px-3.5 py-3 text-[13px] font-medium text-slate-500 hover:text-slate-700 whitespace-nowrap flex items-center gap-1.5"><i data-lucide="building-2" class="w-3.5 h-3.5"></i> Proveedores</button>
+      <button class="px-3.5 py-3 text-[13px] font-medium text-slate-500 hover:text-slate-700 whitespace-nowrap flex items-center gap-1.5"><i data-lucide="brain-circuit" class="w-3.5 h-3.5"></i> Inteligencia</button>
+      <button class="px-3.5 py-3 text-[13px] font-semibold text-blue-700 border-b-2 border-blue-600 whitespace-nowrap flex items-center gap-1.5" title="Excepciones que requieren acción = 3 incidencias abiertas + 2 atrasados severo/crítico"><i data-lucide="shield-alert" class="w-3.5 h-3.5"></i> Excepciones / Riesgo <span class="text-[10px] bg-rose-100 text-rose-700 rounded-full px-1.5 py-0.5 font-bold tabular-nums">5</span></button>
+    </div>
+
+    <!-- HEADER DE LA TAB + 4 MINI-KPIS -->
+    <div class="bg-slate-50/30 p-3 sm:p-4 md:p-6 space-y-4">
+      <!-- intro de la tab -->
+      <div class="flex items-start justify-between gap-4 flex-wrap">
+        <div class="flex items-start gap-3">
+          <div class="w-10 h-10 rounded-xl bg-rose-50 border border-rose-200 flex items-center justify-center flex-shrink-0"><i data-lucide="shield-alert" class="w-5 h-5 text-rose-600"></i></div>
+          <div>
+            <div class="text-[15px] font-bold text-slate-900">Excepciones / Riesgo</div>
+            <div class="text-[12px] text-slate-500 max-w-xl">El unhappy path en un lugar · atrasados en vuelo · incidencias de todas las OCs · reclamos por cobrar · capital en tránsito en riesgo</div>
+          </div>
+        </div>
+        <button class="flex items-center gap-1.5 bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 text-[12px] font-medium px-3 py-2 rounded-lg flex-shrink-0">
+          <i data-lucide="sliders-horizontal" class="w-3.5 h-3.5 text-blue-600"></i> Filtrar por tipo
+        </button>
+      </div>
+
+      <!-- 4 MINI-KPIS DE LA TAB (semánticos · NO clonan el strip · son riesgo agregado) -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <!-- 1 · Incidencias abiertas · rose -->
+        <div class="bg-gradient-to-br from-rose-50 to-rose-100/40 ring-1 ring-rose-200/50 rounded-2xl p-4">
+          <div class="flex items-center justify-between mb-2"><span class="text-[10px] uppercase tracking-wider text-rose-700 font-bold">Incidencias abiertas</span><i data-lucide="alert-octagon" class="w-3.5 h-3.5 text-rose-700"></i></div>
+          <div class="text-2xl font-bold tabular-nums text-rose-900">3</div>
+          <div class="text-[11px] text-rose-700 flex items-center gap-1 mt-1"><i data-lucide="circle-dollar-sign" class="w-3 h-3"></i> <span class="tabular-nums">$3,210 en disputa</span></div>
+        </div>
+        <!-- 2 · Atrasados en vuelo · amber -->
+        <div class="bg-gradient-to-br from-amber-50 to-amber-100/40 ring-1 ring-amber-200/50 rounded-2xl p-4">
+          <div class="flex items-center justify-between mb-2"><span class="text-[10px] uppercase tracking-wider text-amber-700 font-bold">Atrasados en vuelo</span><i data-lucide="plane" class="w-3.5 h-3.5 text-amber-700"></i></div>
+          <div class="text-2xl font-bold tabular-nums text-amber-900">3</div>
+          <div class="text-[11px] text-amber-700 flex items-center gap-1 mt-1"><i data-lucide="landmark" class="w-3 h-3"></i> <span class="tabular-nums">$18,640 comprometido</span></div>
+        </div>
+        <!-- 3 · Reclamos por cobrar · sky -->
+        <div class="bg-gradient-to-br from-sky-50 to-sky-100/40 ring-1 ring-sky-200/50 rounded-2xl p-4">
+          <div class="flex items-center justify-between mb-2"><span class="text-[10px] uppercase tracking-wider text-sky-700 font-bold">Reclamos por cobrar</span><i data-lucide="hand-coins" class="w-3.5 h-3.5 text-sky-700"></i></div>
+          <div class="text-2xl font-bold tabular-nums text-sky-900">2</div>
+          <div class="text-[11px] text-sky-700 flex items-center gap-1 mt-1"><i data-lucide="clock" class="w-3 h-3"></i> <span class="tabular-nums">S/ 1,180 + $ 320 por cobrar</span></div>
+        </div>
+        <!-- 4 · Capital en tránsito en riesgo · rose fuerte -->
+        <div class="bg-gradient-to-br from-rose-100 to-rose-200/40 ring-1 ring-rose-300/60 rounded-2xl p-4">
+          <div class="flex items-center justify-between mb-2"><span class="text-[10px] uppercase tracking-wider text-rose-800 font-bold">Capital en riesgo</span><i data-lucide="alert-triangle" class="w-3.5 h-3.5 text-rose-800"></i></div>
+          <div class="text-2xl font-bold tabular-nums text-rose-900">$11,720</div>
+          <div class="text-[11px] text-rose-800 flex items-center gap-1 mt-1"><i data-lucide="ship" class="w-3 h-3"></i> de $42,180 en el aire</div>
+        </div>
+      </div>
+
+      <div class="text-[10px] text-slate-400 flex items-start gap-1.5"><i data-lucide="info" class="w-3 h-3 flex-shrink-0 mt-0.5"></i><span>Los 4 mini-KPIs son <b class="text-slate-500">riesgo agregado de la sección</b> (no clonan el strip persistente · canon no-redundancia). Body Layout A: main = radar + incidencias · aside = reclamos + capital en tránsito. El cuerpo se especifica en los Actos 2–5.</span></div>
+
+      <!-- DEFINICIÓN DEL CONTADOR DE LA TAB · honestidad de conteo -->
+      <div class="bg-blue-50/50 border border-blue-200 rounded-xl px-3 py-2 flex items-start gap-2">
+        <i data-lucide="badge-alert" class="w-3.5 h-3.5 text-blue-600 flex-shrink-0 mt-0.5"></i>
+        <div class="text-[11px] text-slate-600">
+          <b class="text-blue-800">El badge "5" de la tab = excepciones que REQUIEREN ACCIÓN</b>, no el total de filas de la sección. Cómputo exacto:
+          <code class="bg-white border border-blue-100 px-1 rounded">incidencias.estado≠resuelta (3)</code> +
+          <code class="bg-white border border-blue-100 px-1 rounded">atrasados con gravedad severo|crítico (2)</code> = <b class="tabular-nums">5</b>.
+          <span class="text-slate-500">Quedan FUERA del contador (no demandan acción): el atrasado <b>leve</b> con señal viva (1) y los <b>reclamos por cobrar</b> (2 · espera pasiva). El mini-KPI "Atrasados en vuelo" sí cuenta los 3; el badge solo los accionables.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- ACTO 2 · RADAR DE ATRASADOS EN VUELO (C3) · PIEZA CENTRAL -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<section class="space-y-4">
+  <div class="flex items-center gap-3">
+    <span class="w-8 h-8 rounded-lg bg-rose-600 text-white text-[13px] font-bold flex items-center justify-center flex-shrink-0">2</span>
+    <div>
+      <div class="text-[17px] font-bold text-slate-900">Radar de atrasados en vuelo (C3) · pieza central</div>
+      <div class="text-[12px] text-slate-500">OCs/envíos en vuelo que van tarde · gravedad graduada · capital comprometido · ÚLTIMA SEÑAL (C4) · ordenado por gravedad</div>
+    </div>
+  </div>
+
+  <!-- callout de cómputo / fuente -->
+  <div class="bg-white border border-amber-200 rounded-2xl p-4">
+    <div class="flex items-center gap-2 mb-2"><i data-lucide="plug" class="w-4 h-4 text-amber-600"></i><span class="text-[12px] font-bold text-amber-900">Requiere helper de radar · cómputo NUEVO sobre datos existentes</span></div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-[12px]">
+      <div class="bg-amber-50/60 border border-amber-100 rounded-xl p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 acto-sep mb-1">Cómputo de gravedad</div>
+        <p class="text-slate-600 tabular-nums"><code class="bg-white border border-slate-200 px-1 rounded">diasEnVuelo = hoy − fechaSalida</code> contra <code class="bg-white border border-slate-200 px-1 rounded">leadTimePromedioDias</code> aprendido del proveedor. <b class="text-slate-800">Leve</b> &gt;1× (amber) · <b class="text-slate-800">Severo</b> &gt;1.5× (rose) · <b class="text-slate-800">Crítico</b> &gt;2× (rose fuerte).</p>
+      </div>
+      <div class="bg-amber-50/60 border border-amber-100 rounded-xl p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 acto-sep mb-1">Última señal (C4)</div>
+        <p class="text-slate-600">Días desde la última actualización del envío (tracking / sub-tanda / nota). <b class="text-emerald-700">señal hace 2d</b> emerald = vivo · <b class="text-rose-700">MUDO hace 20d</b> rose = candidato a pérdida → CTA "Marcar perdido". Fuente: <code class="bg-white border border-slate-200 px-1 rounded">fechaActualizacion</code> del Envio + estado en vuelo.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden frame">
+    <!-- breadcrumb tab mini -->
+    <div class="px-6 py-2.5 border-b border-slate-200 bg-slate-50 flex items-center gap-2 text-[11px]">
+      <i data-lucide="shield-alert" class="w-3.5 h-3.5 text-blue-600"></i>
+      <span class="font-semibold text-blue-700">Excepciones / Riesgo</span>
+      <span class="text-slate-400">· radar de atrasados en vuelo</span>
+    </div>
+
+    <div class="bg-slate-50/30 p-3 sm:p-4 md:p-6">
+      <!-- encabezado del radar -->
+      <div class="flex items-center justify-between mb-3 flex-wrap gap-2">
+        <div class="flex items-center gap-2">
+          <i data-lucide="radar" class="w-4 h-4 text-rose-600"></i>
+          <span class="text-[13px] font-bold text-slate-900">3 envíos atrasados en vuelo</span>
+          <span class="badge bg-rose-100 text-rose-700 border border-rose-200"><i data-lucide="alert-triangle" class="w-2.5 h-2.5"></i> ordenado por gravedad</span>
+        </div>
+        <div class="flex items-center gap-1.5 text-[10px]">
+          <span class="badge bg-amber-50 text-amber-700 border border-amber-200">leve &gt;1×</span>
+          <span class="badge bg-rose-50 text-rose-700 border border-rose-200">severo &gt;1.5×</span>
+          <span class="badge bg-rose-100 text-rose-800 border border-rose-300">crítico &gt;2×</span>
+        </div>
+      </div>
+
+      <!-- TABLA-CARDS DEL RADAR -->
+      <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden">
+        <!-- head (desktop) -->
+        <div class="hidden lg:grid grid-cols-[1.4fr_1.4fr_1.3fr_1fr_1.2fr_0.9fr] gap-3 px-4 py-2.5 bg-slate-50 border-b border-slate-200 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+          <span>OC / envío</span><span>Proveedor</span><span>Días en vuelo vs lead-time</span><span class="text-right">Capital comprometido</span><span>Última señal</span><span class="text-right">Acción</span>
+        </div>
+
+        <!-- FILA 1 · CRÍTICO + MUDO (candidato a pérdida) -->
+        <div class="grid grid-cols-1 lg:grid-cols-[1.4fr_1.4fr_1.3fr_1fr_1.2fr_0.9fr] gap-3 px-4 py-3.5 border-b border-slate-100 hover:bg-rose-50/30 transition-colors border-l-4 border-l-rose-500">
+          <div class="flex items-center gap-2 min-w-0">
+            <i data-lucide="ship" class="w-4 h-4 text-rose-500 flex-shrink-0"></i>
+            <div class="min-w-0">
+              <div class="text-[13px] font-bold text-slate-900 truncate">ENV-2026-188</div>
+              <div class="text-[11px] text-slate-500 tabular-nums">OC-2390 · Corea del Sur</div>
+            </div>
+          </div>
+          <div class="flex items-center"><div><div class="text-[12px] font-semibold text-slate-700">Beauty of Joseon</div><div class="text-[11px] text-slate-400">viajero · courier KR</div></div></div>
+          <div class="flex items-center">
+            <div class="w-full">
+              <div class="flex items-baseline gap-1.5"><span class="text-[18px] font-bold tabular-nums text-rose-900">62</span><span class="text-[11px] text-slate-400 tabular-nums">/ 28d esperados</span><span class="badge bg-rose-100 text-rose-800 border border-rose-300 ml-1">crítico 2.2×</span></div>
+              <div class="mt-1 h-1.5 bg-slate-100 rounded-full overflow-hidden"><div class="h-full bg-rose-500 rounded-full" style="width:100%"></div></div>
+            </div>
+          </div>
+          <div class="flex items-center lg:justify-end"><span class="text-[14px] font-bold tabular-nums text-slate-900">$6,820</span></div>
+          <div class="flex items-center"><span class="inline-flex items-center gap-1.5 text-[11px] font-bold text-rose-700 bg-rose-50 border border-rose-200 px-2 py-1 rounded-lg"><i data-lucide="volume-x" class="w-3 h-3"></i> MUDO hace 20d</span></div>
+          <div class="flex items-center gap-1.5 lg:justify-end">
+            <button class="text-[11px] font-semibold text-slate-600 border border-slate-200 hover:bg-slate-50 px-2.5 py-1.5 rounded-lg">Ver</button>
+            <button class="text-[11px] font-semibold text-white bg-rose-600 hover:bg-rose-700 px-2.5 py-1.5 rounded-lg flex items-center gap-1"><i data-lucide="package-x" class="w-3 h-3"></i> Marcar perdido</button>
+          </div>
+        </div>
+
+        <!-- FILA 2 · SEVERO -->
+        <div class="grid grid-cols-1 lg:grid-cols-[1.4fr_1.4fr_1.3fr_1fr_1.2fr_0.9fr] gap-3 px-4 py-3.5 border-b border-slate-100 hover:bg-rose-50/20 transition-colors border-l-4 border-l-rose-400">
+          <div class="flex items-center gap-2 min-w-0">
+            <i data-lucide="ship" class="w-4 h-4 text-rose-400 flex-shrink-0"></i>
+            <div class="min-w-0">
+              <div class="text-[13px] font-bold text-slate-900 truncate">ENV-2026-191</div>
+              <div class="text-[11px] text-slate-500 tabular-nums">OC-2402 · Corea del Sur</div>
+            </div>
+          </div>
+          <div class="flex items-center"><div><div class="text-[12px] font-semibold text-slate-700">COSRX Co.</div><div class="text-[11px] text-slate-400">consolidado · viajero</div></div></div>
+          <div class="flex items-center">
+            <div class="w-full">
+              <div class="flex items-baseline gap-1.5"><span class="text-[18px] font-bold tabular-nums text-rose-900">46</span><span class="text-[11px] text-slate-400 tabular-nums">/ 28d esperados</span><span class="badge bg-rose-50 text-rose-700 border border-rose-200 ml-1">severo 1.6×</span></div>
+              <div class="mt-1 h-1.5 bg-slate-100 rounded-full overflow-hidden"><div class="h-full bg-rose-400 rounded-full" style="width:82%"></div></div>
+            </div>
+          </div>
+          <div class="flex items-center lg:justify-end"><span class="text-[14px] font-bold tabular-nums text-slate-900">$4,900</span></div>
+          <div class="flex items-center"><span class="inline-flex items-center gap-1.5 text-[11px] font-bold text-amber-700 bg-amber-50 border border-amber-200 px-2 py-1 rounded-lg"><i data-lucide="activity" class="w-3 h-3"></i> señal hace 6d</span></div>
+          <div class="flex items-center gap-1.5 lg:justify-end">
+            <button class="text-[11px] font-semibold text-slate-600 border border-slate-200 hover:bg-slate-50 px-2.5 py-1.5 rounded-lg">Ver</button>
+            <button class="text-[11px] font-semibold text-rose-600 border border-rose-200 hover:bg-rose-50 px-2.5 py-1.5 rounded-lg flex items-center gap-1"><i data-lucide="package-x" class="w-3 h-3"></i> Perdido</button>
+          </div>
+        </div>
+
+        <!-- FILA 3 · LEVE + señal viva -->
+        <div class="grid grid-cols-1 lg:grid-cols-[1.4fr_1.4fr_1.3fr_1fr_1.2fr_0.9fr] gap-3 px-4 py-3.5 hover:bg-amber-50/20 transition-colors border-l-4 border-l-amber-400">
+          <div class="flex items-center gap-2 min-w-0">
+            <i data-lucide="ship" class="w-4 h-4 text-amber-500 flex-shrink-0"></i>
+            <div class="min-w-0">
+              <div class="text-[13px] font-bold text-slate-900 truncate">ENV-2026-195</div>
+              <div class="text-[11px] text-slate-500 tabular-nums">OC-2411 · EE.UU.</div>
+            </div>
+          </div>
+          <div class="flex items-center"><div><div class="text-[12px] font-semibold text-slate-700">Anua USA</div><div class="text-[11px] text-slate-400">courier internacional</div></div></div>
+          <div class="flex items-center">
+            <div class="w-full">
+              <div class="flex items-baseline gap-1.5"><span class="text-[18px] font-bold tabular-nums text-amber-900">24</span><span class="text-[11px] text-slate-400 tabular-nums">/ 20d esperados</span><span class="badge bg-amber-50 text-amber-700 border border-amber-200 ml-1">leve 1.2×</span></div>
+              <div class="mt-1 h-1.5 bg-slate-100 rounded-full overflow-hidden"><div class="h-full bg-amber-400 rounded-full" style="width:52%"></div></div>
+            </div>
+          </div>
+          <div class="flex items-center lg:justify-end"><span class="text-[14px] font-bold tabular-nums text-slate-900">$6,920</span></div>
+          <div class="flex items-center"><span class="inline-flex items-center gap-1.5 text-[11px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-1 rounded-lg"><i data-lucide="activity" class="w-3 h-3"></i> señal hace 2d</span></div>
+          <div class="flex items-center gap-1.5 lg:justify-end">
+            <button class="text-[11px] font-semibold text-slate-600 border border-slate-200 hover:bg-slate-50 px-2.5 py-1.5 rounded-lg">Ver</button>
+            <button class="text-[11px] font-semibold text-slate-400 border border-slate-200 px-2.5 py-1.5 rounded-lg cursor-default">Perdido</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-2 text-[10px] text-slate-400 flex items-start gap-1.5"><i data-lucide="info" class="w-3 h-3 flex-shrink-0 mt-0.5"></i><span>El borde izquierdo de cada fila refuerza la gravedad (rose fuerte / rose / amber). La fila CRÍTICA + MUDA propone "Marcar perdido" en primary; en severo/leve queda como acción secundaria. La barra muestra <code class="bg-slate-100 px-1 rounded">diasEnVuelo / (leadTime × 2)</code> clamp a 100%.</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- ACTO 3 · INCIDENCIAS ABIERTAS CROSS-OC (C5) -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<section class="space-y-4">
+  <div class="flex items-center gap-3">
+    <span class="w-8 h-8 rounded-lg bg-slate-600 text-white text-[13px] font-bold flex items-center justify-center flex-shrink-0">3</span>
+    <div>
+      <div class="text-[17px] font-bold text-slate-900">Incidencias abiertas cross-OC (C5)</div>
+      <div class="text-[12px] text-slate-500">Incidencias de TODAS las OCs · 6 tipos reales · severidad · $ impacto · acción en curso · estado · ordenado por $ impacto</div>
+    </div>
+  </div>
+
+  <!-- callout fuente -->
+  <div class="bg-white border border-amber-200 rounded-2xl p-4 flex items-start gap-3">
+    <i data-lucide="plug" class="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5"></i>
+    <div class="text-[12px] text-slate-600">
+      <span class="font-bold text-amber-900">Requiere <code class="bg-amber-50 border border-amber-100 px-1 rounded">incidenciaOC.listAll</code></span> — hoy el servicio solo expone <code class="bg-white border border-slate-200 px-1 rounded">subscribeByOC(ocId)</code> (incidencias de UNA OC). Para la vista cross-OC se agrega un query agregado (~10 líneas · índice <code class="bg-white border border-slate-200 px-1 rounded">(estado, fechaCreacion desc)</code> ya existe). Tipos, estados y acciones salen tal cual del modelo <code class="bg-white border border-slate-200 px-1 rounded">incidenciaOC.types.ts</code>.
+    </div>
+  </div>
+
+  <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden frame">
+    <div class="px-6 py-2.5 border-b border-slate-200 bg-slate-50 flex items-center gap-2 text-[11px]">
+      <i data-lucide="shield-alert" class="w-3.5 h-3.5 text-blue-600"></i>
+      <span class="font-semibold text-blue-700">Excepciones / Riesgo</span>
+      <span class="text-slate-400">· incidencias abiertas de todas las OCs</span>
+    </div>
+
+    <div class="bg-slate-50/30 p-3 sm:p-4 md:p-6">
+      <!-- filtros chip por tipo (6) · scroll-x -->
+      <div class="flex items-center gap-1.5 overflow-x-auto scrollbar-none pb-2 mb-3">
+        <button class="whitespace-nowrap text-[11px] font-semibold text-white bg-slate-800 px-3 py-1.5 rounded-full">Todas <span class="tabular-nums opacity-70">3</span></button>
+        <button class="whitespace-nowrap text-[11px] font-medium text-red-700 bg-red-50 border border-red-200 px-3 py-1.5 rounded-full flex items-center gap-1"><i data-lucide="package" class="w-3 h-3"></i> Recepción</button>
+        <button class="whitespace-nowrap text-[11px] font-medium text-amber-700 bg-amber-50 border border-amber-200 px-3 py-1.5 rounded-full flex items-center gap-1"><i data-lucide="receipt" class="w-3 h-3"></i> Facturación</button>
+        <button class="whitespace-nowrap text-[11px] font-medium text-purple-700 bg-purple-50 border border-purple-200 px-3 py-1.5 rounded-full flex items-center gap-1"><i data-lucide="handshake" class="w-3 h-3"></i> Proveedor</button>
+        <button class="whitespace-nowrap text-[11px] font-medium text-sky-700 bg-sky-50 border border-sky-200 px-3 py-1.5 rounded-full flex items-center gap-1"><i data-lucide="truck" class="w-3 h-3"></i> Logística</button>
+        <button class="whitespace-nowrap text-[11px] font-medium text-slate-700 bg-slate-100 border border-slate-200 px-3 py-1.5 rounded-full flex items-center gap-1"><i data-lucide="file-text" class="w-3 h-3"></i> Impuestos</button>
+        <button class="whitespace-nowrap text-[11px] font-medium text-teal-700 bg-teal-50 border border-teal-200 px-3 py-1.5 rounded-full flex items-center gap-1"><i data-lucide="scale" class="w-3 h-3"></i> Compliance</button>
+      </div>
+
+      <!-- LISTA DE INCIDENCIAS (cards apiladas) -->
+      <div class="space-y-2.5">
+        <!-- INC 1 · recepción · crítica · retención de pago · en gestión -->
+        <div class="bg-white border border-slate-200 rounded-2xl p-4 hover:border-slate-300 transition-colors border-l-4 border-l-rose-500">
+          <div class="flex items-start justify-between gap-3 flex-wrap">
+            <div class="flex items-start gap-3 min-w-0">
+              <div class="w-9 h-9 rounded-xl bg-red-50 border border-red-100 flex items-center justify-center flex-shrink-0"><i data-lucide="package" class="w-4 h-4 text-red-600"></i></div>
+              <div class="min-w-0">
+                <div class="flex items-center gap-2 flex-wrap">
+                  <span class="text-[13px] font-bold text-slate-900">8 unidades dañadas en recepción</span>
+                  <span class="badge bg-red-100 text-red-800 border border-red-200">recepción</span>
+                  <span class="badge bg-rose-100 text-rose-700 border border-rose-200"><i data-lucide="flame" class="w-2.5 h-2.5"></i> crítica</span>
+                </div>
+                <div class="text-[11px] text-slate-500 mt-0.5 tabular-nums">INC-OC-20260626-014 · OC-2402 · COSRX Co. · ENV-2026-191</div>
+                <div class="mt-2 inline-flex items-center gap-1.5 text-[11px] font-semibold text-amber-700 bg-amber-50 border border-amber-200 px-2 py-1 rounded-lg"><i data-lucide="lock" class="w-3 h-3"></i> Acción: retención de pago</div>
+              </div>
+            </div>
+            <div class="flex flex-col items-end gap-1.5 flex-shrink-0">
+              <div class="text-[16px] font-bold tabular-nums text-violet-700">$1,640</div>
+              <div class="text-[10px] uppercase tracking-wider text-violet-500 font-bold">impacto</div>
+              <span class="badge bg-amber-100 text-amber-700 border border-amber-200"><span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span> En gestión</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- INC 2 · facturación · media · reclamo proveedor · abierta -->
+        <div class="bg-white border border-slate-200 rounded-2xl p-4 hover:border-slate-300 transition-colors border-l-4 border-l-amber-400">
+          <div class="flex items-start justify-between gap-3 flex-wrap">
+            <div class="flex items-start gap-3 min-w-0">
+              <div class="w-9 h-9 rounded-xl bg-amber-50 border border-amber-100 flex items-center justify-center flex-shrink-0"><i data-lucide="receipt" class="w-4 h-4 text-amber-600"></i></div>
+              <div class="min-w-0">
+                <div class="flex items-center gap-2 flex-wrap">
+                  <span class="text-[13px] font-bold text-slate-900">Descuento por volumen no aplicado en factura</span>
+                  <span class="badge bg-amber-100 text-amber-800 border border-amber-200">facturación</span>
+                  <span class="badge bg-amber-50 text-amber-700 border border-amber-200">media</span>
+                </div>
+                <div class="text-[11px] text-slate-500 mt-0.5 tabular-nums">INC-OC-20260624-009 · OC-2390 · Beauty of Joseon</div>
+                <div class="mt-2 inline-flex items-center gap-1.5 text-[11px] font-semibold text-purple-700 bg-purple-50 border border-purple-200 px-2 py-1 rounded-lg"><i data-lucide="megaphone" class="w-3 h-3"></i> Acción: reclamo al proveedor</div>
+              </div>
+            </div>
+            <div class="flex flex-col items-end gap-1.5 flex-shrink-0">
+              <div class="text-[16px] font-bold tabular-nums text-violet-700">$980</div>
+              <div class="text-[10px] uppercase tracking-wider text-violet-500 font-bold">impacto</div>
+              <span class="badge bg-red-100 text-red-700 border border-red-200"><span class="w-1.5 h-1.5 rounded-full bg-red-500"></span> Abierta</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- INC 3 · logística · alta · nota de crédito · escalada -->
+        <div class="bg-white border border-slate-200 rounded-2xl p-4 hover:border-slate-300 transition-colors border-l-4 border-l-rose-400">
+          <div class="flex items-start justify-between gap-3 flex-wrap">
+            <div class="flex items-start gap-3 min-w-0">
+              <div class="w-9 h-9 rounded-xl bg-sky-50 border border-sky-100 flex items-center justify-center flex-shrink-0"><i data-lucide="truck" class="w-4 h-4 text-sky-600"></i></div>
+              <div class="min-w-0">
+                <div class="flex items-center gap-2 flex-wrap">
+                  <span class="text-[13px] font-bold text-slate-900">Retención en aduana · sobrecosto de liberación</span>
+                  <span class="badge bg-sky-100 text-sky-800 border border-sky-200">logística</span>
+                  <span class="badge bg-rose-50 text-rose-700 border border-rose-200">alta</span>
+                </div>
+                <div class="text-[11px] text-slate-500 mt-0.5 tabular-nums">INC-OC-20260622-006 · OC-2411 · Anua USA · ENV-2026-195</div>
+                <div class="mt-2 inline-flex items-center gap-1.5 text-[11px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-1 rounded-lg"><i data-lucide="file-check" class="w-3 h-3"></i> Acción: nota de crédito en gestión</div>
+              </div>
+            </div>
+            <div class="flex flex-col items-end gap-1.5 flex-shrink-0">
+              <div class="text-[16px] font-bold tabular-nums text-violet-700">$590</div>
+              <div class="text-[10px] uppercase tracking-wider text-violet-500 font-bold">impacto</div>
+              <span class="badge bg-purple-100 text-purple-700 border border-purple-200"><span class="w-1.5 h-1.5 rounded-full bg-purple-500"></span> Escalada</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-3 text-[10px] text-slate-400 flex items-start gap-1.5"><i data-lucide="info" class="w-3 h-3 flex-shrink-0 mt-0.5"></i><span>El $ impacto se pinta en <b class="text-violet-600">violet</b> (semántico = dinero en disputa). El borde izquierdo refuerza la severidad. Estados (Abierta / En gestión / Resuelta / Escalada) y acciones (reclamo / NC / retención / merma / reemplazo) son literales del modelo. Esta vista oculta <code class="bg-slate-100 px-1 rounded">resuelta</code> por default (toggle "ver resueltas").</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- ACTO 4 · RECLAMOS PENDIENTES DE COBRO + CAPITAL EN TRÁNSITO (N1) -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<section class="space-y-4">
+  <div class="flex items-center gap-3">
+    <span class="w-8 h-8 rounded-lg bg-slate-600 text-white text-[13px] font-bold flex items-center justify-center flex-shrink-0">4</span>
+    <div>
+      <div class="text-[17px] font-bold text-slate-900">Reclamos por cobrar + Capital en tránsito (N1)</div>
+      <div class="text-[12px] text-slate-500">El aside del Layout A · reclamos al courier/proveedor esperando NC/reembolso · y el total USD "en el aire" con su composición en-riesgo vs en-curso</div>
+    </div>
+  </div>
+
+  <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden frame">
+    <div class="px-6 py-2.5 border-b border-slate-200 bg-slate-50 flex items-center gap-2 text-[11px]">
+      <i data-lucide="shield-alert" class="w-3.5 h-3.5 text-blue-600"></i>
+      <span class="font-semibold text-blue-700">Excepciones / Riesgo</span>
+      <span class="text-slate-400">· aside · reclamos + capital en tránsito</span>
+    </div>
+
+    <div class="bg-slate-50/30 p-3 sm:p-4 md:p-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+        <!-- RECLAMOS PENDIENTES DE COBRO -->
+        <div class="bg-white border border-slate-200 rounded-2xl p-4">
+          <div class="flex items-center justify-between mb-3">
+            <div>
+              <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Reclamos pendientes de cobro</div>
+              <div class="text-[11px] text-slate-400">al courier / proveedor · esperando NC o reembolso</div>
+            </div>
+            <span class="badge bg-emerald-50 text-emerald-700 border border-emerald-200"><i data-lucide="check-circle" class="w-2.5 h-2.5"></i> modelo maduro</span>
+          </div>
+
+          <div class="space-y-2.5">
+            <!-- reclamo 1 · pendiente -->
+            <div class="bg-sky-50/50 border border-sky-100 rounded-xl p-3">
+              <div class="flex items-start justify-between gap-2">
+                <div class="min-w-0">
+                  <div class="text-[12px] font-semibold text-slate-800">Faltante reclamado al viajero</div>
+                  <div class="text-[11px] text-slate-500 tabular-nums">ENV-2026-191 · COSRX · viajero KR</div>
+                </div>
+                <div class="text-right flex-shrink-0">
+                  <div class="text-[14px] font-bold tabular-nums text-sky-800">S/ 1,180</div>
+                  <span class="badge bg-amber-100 text-amber-700 border border-amber-200 mt-0.5">pendiente</span>
+                </div>
+              </div>
+            </div>
+            <!-- reclamo 2 · aceptado, por cobrar -->
+            <div class="bg-sky-50/50 border border-sky-100 rounded-xl p-3">
+              <div class="flex items-start justify-between gap-2">
+                <div class="min-w-0">
+                  <div class="text-[12px] font-semibold text-slate-800">Daño en tránsito · NC acordada</div>
+                  <div class="text-[11px] text-slate-500 tabular-nums">ENV-2026-188 · Beauty of Joseon</div>
+                </div>
+                <div class="text-right flex-shrink-0">
+                  <div class="text-[14px] font-bold tabular-nums text-sky-800">$ 320</div>
+                  <span class="badge bg-emerald-100 text-emerald-700 border border-emerald-200 mt-0.5">aceptado</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-3 pt-3 border-t border-slate-100 flex items-start justify-between gap-2">
+            <div>
+              <span class="text-[11px] text-slate-500">Total por cobrar · por moneda</span>
+              <div class="text-[10px] text-slate-400 mt-0.5">2 reclamos no cobrados · no se suman entre monedas</div>
+            </div>
+            <div class="text-right flex-shrink-0">
+              <div class="text-[13px] font-bold tabular-nums text-sky-800">S/ 1,180</div>
+              <div class="text-[13px] font-bold tabular-nums text-sky-800">$ 320</div>
+            </div>
+          </div>
+          <div class="mt-2 pt-2 border-t border-slate-100 flex items-center justify-between">
+            <span class="text-[11px] text-slate-500 flex items-center gap-1"><i data-lucide="equal" class="w-3 h-3 text-slate-400"></i> Consolidado a PEN <span class="text-[10px] text-slate-400 tabular-nums">(TC 3.69)</span></span>
+            <span class="text-[13px] font-bold tabular-nums text-sky-800">≈ S/ 2,361</span>
+          </div>
+          <div class="mt-1.5 text-[10px] text-slate-400 flex items-start gap-1.5"><i data-lucide="info" class="w-3 h-3 flex-shrink-0 mt-0.5"></i><span>El estado del reclamo (<code class="bg-slate-100 px-1 rounded">pendiente / aceptado / rechazado / cobrado</code>) ya existe en <code class="bg-slate-100 px-1 rounded">IncidenciaEnvio.estadoReclamo</code>. Acá se listan los NO cobrados de todos los envíos. El total por moneda es el dato DURO (no mezcla PEN+USD); el consolidado a PEN usa el TC de <code class="bg-slate-100 px-1 rounded">tipoCambioService.resolverTCVenta()</code> y se marca con <code class="bg-slate-100 px-1 rounded">≈</code> + el TC visible — nunca un número fabricado sin TC declarado.</span></div>
+        </div>
+
+        <!-- CAPITAL EN TRÁNSITO (N1) -->
+        <div class="bg-white border border-slate-200 rounded-2xl p-4">
+          <div class="flex items-center justify-between mb-3">
+            <div>
+              <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Capital en tránsito</div>
+              <div class="text-[11px] text-slate-400">Σ totalUSD de OCs en curso no recibidas</div>
+            </div>
+            <span class="badge bg-emerald-50 text-emerald-700 border border-emerald-200"><i data-lucide="check-circle" class="w-2.5 h-2.5"></i> derivable hoy</span>
+          </div>
+
+          <div class="text-[28px] font-bold tabular-nums text-slate-900 leading-none">$42,180<span class="text-slate-300 text-[18px]">.00</span></div>
+          <div class="text-[11px] text-slate-500 mt-1">en el aire · 7 OCs / envíos en vuelo</div>
+
+          <!-- barra de composición · en-riesgo (atrasado severo+) vs en-curso normal -->
+          <div class="mt-4">
+            <div class="flex h-3 rounded-full overflow-hidden">
+              <div class="bg-rose-500" style="width:28%" title="en riesgo"></div>
+              <div class="bg-sky-400" style="width:72%" title="en curso normal"></div>
+            </div>
+            <div class="mt-2 grid grid-cols-2 gap-2 text-[11px]">
+              <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span><span class="text-slate-600">En riesgo (atrasado severo+)</span></div>
+              <div class="text-right font-bold tabular-nums text-rose-700">$11,720</div>
+              <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-sky-400"></span><span class="text-slate-600">En curso normal</span></div>
+              <div class="text-right font-bold tabular-nums text-sky-700">$30,460</div>
+            </div>
+          </div>
+
+          <div class="mt-3 pt-3 border-t border-slate-100 text-[10px] text-slate-400 flex items-start gap-1.5"><i data-lucide="info" class="w-3 h-3 flex-shrink-0 mt-0.5"></i><span>"En riesgo" = subconjunto del radar con gravedad severo/crítico (cruza con C3). El total es la suma de <code class="bg-slate-100 px-1 rounded">totalUSD</code> de las OCs cuyo envío sigue en vuelo (no recibido). Cero data inventada: ambos números derivan de OCs reales.</span></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- ACTO 5 · ACCIÓN "MARCAR ENVÍO PERDIDO TOTAL" (C2 · MODAL) + NOTA F4 -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<section class="space-y-4">
+  <div class="flex items-center gap-3">
+    <span class="w-8 h-8 rounded-lg bg-slate-600 text-white text-[13px] font-bold flex items-center justify-center flex-shrink-0">5</span>
+    <div>
+      <div class="text-[17px] font-bold text-slate-900">Modal · Marcar envío perdido total (C2)</div>
+      <div class="text-[12px] text-slate-500">FormModalV2 · typed-confirm destructivo · el estado <code class="bg-slate-100 px-1 rounded text-rose-700">perdida_total</code> existe sin setter · dispara reclamo + libera reservas + reconoce la pérdida</div>
+    </div>
+  </div>
+
+  <!-- callout setter -->
+  <div class="bg-white border border-amber-200 rounded-2xl p-4 flex items-start gap-3">
+    <i data-lucide="plug" class="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5"></i>
+    <div class="text-[12px] text-slate-600">
+      <span class="font-bold text-amber-900">Requiere <code class="bg-amber-50 border border-amber-100 px-1 rounded">marcarEnvioPerdidoTotal(envioId, motivo)</code></span> — el valor <code class="bg-white border border-slate-200 px-1 rounded">EstadoEnvio = 'perdida_total'</code> ya está declarado en <code class="bg-white border border-slate-200 px-1 rounded">envio.types.ts</code> pero <b>ningún setter lo escribe hoy</b>. El nuevo setter: (1) transiciona el envío a <code class="bg-white border border-slate-200 px-1 rounded">perdida_total</code> · (2) abre un reclamo al transportista/proveedor · (3) libera las reservas de las unidades (punto único de liberación) · (4) reconoce la pérdida operativa.
+    </div>
+  </div>
+
+  <!-- overlay del modal -->
+  <div class="bg-slate-200/60 pin rounded-2xl p-6 sm:p-10 flex items-start justify-center">
+    <div class="bg-white rounded-2xl w-full max-w-md modal-sh overflow-hidden">
+      <!-- header -->
+      <div class="px-5 py-4 border-b border-slate-200 flex items-start justify-between gap-3">
+        <div class="flex items-start gap-3">
+          <div class="w-10 h-10 rounded-xl bg-rose-50 border border-rose-200 flex items-center justify-center flex-shrink-0"><i data-lucide="package-x" class="w-5 h-5 text-rose-600"></i></div>
+          <div>
+            <div class="text-[15px] font-bold text-slate-900">Marcar envío perdido total</div>
+            <div class="text-[12px] text-slate-500 tabular-nums">ENV-2026-188 · Beauty of Joseon</div>
+          </div>
+        </div>
+        <button class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+
+      <!-- body -->
+      <div class="px-5 py-4 space-y-4">
+        <!-- aviso destructivo -->
+        <div class="bg-rose-50 border border-rose-200 rounded-xl p-3 flex items-start gap-2.5">
+          <i data-lucide="alert-triangle" class="w-4 h-4 text-rose-600 flex-shrink-0 mt-0.5"></i>
+          <div class="text-[12px] text-rose-800">Esta acción es <b>irreversible</b>. El envío se cerrará como pérdida y sus unidades dejarán de estar reservadas.</div>
+        </div>
+
+        <!-- qué dispara -->
+        <div>
+          <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-2 acto-sep">Al confirmar se dispara</div>
+          <div class="space-y-1.5 text-[12px]">
+            <div class="flex items-center gap-2 text-slate-600"><i data-lucide="ship" class="w-3.5 h-3.5 text-rose-500"></i> Envío → <span class="font-semibold text-rose-700">perdida_total</span></div>
+            <div class="flex items-center gap-2 text-slate-600"><i data-lucide="megaphone" class="w-3.5 h-3.5 text-purple-500"></i> Abrir reclamo al transportista <span class="text-slate-400 tabular-nums">($6,820)</span></div>
+            <div class="flex items-center gap-2 text-slate-600"><i data-lucide="unlock" class="w-3.5 h-3.5 text-sky-500"></i> Liberar reservas <span class="text-slate-400 tabular-nums">(36 unidades)</span></div>
+            <div class="flex items-center gap-2 text-slate-600"><i data-lucide="trending-down" class="w-3.5 h-3.5 text-amber-500"></i> Reconocer la pérdida operativa</div>
+          </div>
+        </div>
+
+        <!-- motivo -->
+        <div>
+          <label class="text-[11px] font-semibold text-slate-600 mb-1 block">Motivo de la pérdida</label>
+          <textarea rows="2" placeholder="Ej. courier confirmó extravío · 20 días sin señal de tracking…" class="w-full text-[12px] border border-slate-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-rose-500/40 focus:border-rose-300 resize-none"></textarea>
+        </div>
+
+        <!-- typed-confirm -->
+        <div>
+          <label class="text-[11px] font-semibold text-slate-600 mb-1 block">Escribe <code class="bg-slate-100 px-1 rounded text-rose-700">PERDIDO</code> para confirmar</label>
+          <input type="text" placeholder="PERDIDO" class="w-full text-[12px] tabular-nums border border-slate-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-rose-500/40 focus:border-rose-300" />
+        </div>
+
+        <!-- NOTA HONESTA F4 · write-off del efectivo -->
+        <div class="bg-slate-100 border border-slate-200 rounded-xl p-3 flex items-start gap-2.5">
+          <i data-lucide="lock" class="w-4 h-4 text-slate-500 flex-shrink-0 mt-0.5"></i>
+          <div class="text-[11px] text-slate-600">La pérdida del <b>EFECTIVO ya pagado</b> (write-off) es un build financiero acoplado a la <b>deuda F3b de tesorería</b> · <span class="text-slate-500">no se representa acá como listo</span> (Fase 4). Este modal reconoce la pérdida OPERATIVA · el asiento financiero del cash se cablea después.</div>
+        </div>
+      </div>
+
+      <!-- footer -->
+      <div class="px-5 py-4 border-t border-slate-200 bg-slate-50 flex items-center justify-end gap-2">
+        <button class="text-[12px] font-medium text-slate-600 border border-slate-200 bg-white hover:bg-slate-50 px-3.5 py-2 rounded-lg">Cancelar</button>
+        <button class="text-[12px] font-semibold text-white bg-rose-600 hover:bg-rose-700 px-3.5 py-2 rounded-lg flex items-center gap-1.5"><i data-lucide="package-x" class="w-4 h-4"></i> Confirmar pérdida total</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- ACTO 6 · ESTADOS · EMPTY (buena señal) + LOADING SKELETON -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<section class="space-y-4">
+  <div class="flex items-center gap-3">
+    <span class="w-8 h-8 rounded-lg bg-slate-600 text-white text-[13px] font-bold flex items-center justify-center flex-shrink-0">6</span>
+    <div>
+      <div class="text-[17px] font-bold text-slate-900">Estados · empty + loading + error</div>
+      <div class="text-[12px] text-slate-500">Empty = buena señal (no es vacío "frío") · loading = skeleton del radar + incidencias · error = retry sobre las 3 fuentes async (radar helper · incidenciaOC.listAll · reclamos)</div>
+    </div>
+  </div>
+
+  <!-- nota: 3 fuentes async → el error state es obligatorio (canon Bloque A punto 10) -->
+  <div class="bg-white border border-rose-200 rounded-2xl p-4 flex items-start gap-3">
+    <i data-lucide="alert-triangle" class="w-4 h-4 text-rose-600 flex-shrink-0 mt-0.5"></i>
+    <div class="text-[12px] text-slate-600">
+      <span class="font-bold text-rose-900">La tab depende de 3 queries async</span> — <code class="bg-rose-50 border border-rose-100 px-1 rounded">radar helper</code> (envíos en vuelo), <code class="bg-rose-50 border border-rose-100 px-1 rounded">incidenciaOC.listAll</code> y <code class="bg-rose-50 border border-rose-100 px-1 rounded">reclamos (IncidenciaEnvio)</code>. Si cualquiera falla, se muestra el <b>error state con retry</b> (no un vacío silencioso que se confunda con "Todo en orden"). El retry re-dispara <code class="bg-white border border-slate-200 px-1 rounded">cargarDatos()</code> de las 3 fuentes.
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+    <!-- EMPTY · BUENA SEÑAL -->
+    <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden frame">
+      <div class="px-6 py-2.5 border-b border-slate-200 bg-slate-50 flex items-center gap-2 text-[11px]">
+        <i data-lucide="shield-alert" class="w-3.5 h-3.5 text-blue-600"></i>
+        <span class="font-semibold text-blue-700">Excepciones / Riesgo</span>
+        <span class="text-slate-400">· empty · sin excepciones</span>
+      </div>
+      <div class="bg-gradient-to-b from-emerald-50/40 to-white p-8 sm:p-12 text-center">
+        <div class="w-16 h-16 rounded-2xl bg-emerald-50 border border-emerald-200 flex items-center justify-center mx-auto mb-4"><i data-lucide="shield-check" class="w-8 h-8 text-emerald-600"></i></div>
+        <div class="text-[16px] font-bold text-slate-900 mb-1">Todo en orden</div>
+        <div class="text-[13px] text-slate-500 max-w-xs mx-auto leading-relaxed">Sin atrasados en vuelo ni incidencias abiertas. El capital en tránsito está dentro de los lead-times esperados.</div>
+        <div class="mt-5 inline-flex items-center gap-4 flex-wrap justify-center">
+          <span class="inline-flex items-center gap-1.5 text-[11px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-full"><i data-lucide="plane" class="w-3.5 h-3.5"></i> 0 atrasados</span>
+          <span class="inline-flex items-center gap-1.5 text-[11px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-full"><i data-lucide="alert-octagon" class="w-3.5 h-3.5"></i> 0 incidencias</span>
+          <span class="inline-flex items-center gap-1.5 text-[11px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-full"><i data-lucide="hand-coins" class="w-3.5 h-3.5"></i> 0 reclamos</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- LOADING · SKELETON -->
+    <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden frame">
+      <div class="px-6 py-2.5 border-b border-slate-200 bg-slate-50 flex items-center gap-2 text-[11px]">
+        <i data-lucide="shield-alert" class="w-3.5 h-3.5 text-blue-600"></i>
+        <span class="font-semibold text-blue-700">Excepciones / Riesgo</span>
+        <span class="text-slate-400">· loading · skeleton</span>
+      </div>
+      <div class="bg-slate-50/30 p-4 sm:p-6 space-y-3">
+        <!-- skeleton mini-kpis -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          <div class="skeleton h-20 rounded-2xl"></div>
+          <div class="skeleton h-20 rounded-2xl"></div>
+          <div class="skeleton h-20 rounded-2xl"></div>
+          <div class="skeleton h-20 rounded-2xl"></div>
+        </div>
+        <!-- skeleton radar -->
+        <div class="bg-white border border-slate-200 rounded-2xl p-4 space-y-3">
+          <div class="skeleton h-4 w-40 rounded"></div>
+          <div class="flex items-center gap-3"><div class="skeleton w-8 h-8 rounded-lg"></div><div class="flex-1 space-y-1.5"><div class="skeleton h-3 w-1/2 rounded"></div><div class="skeleton h-2.5 w-1/3 rounded"></div></div><div class="skeleton h-3 w-16 rounded"></div></div>
+          <div class="flex items-center gap-3"><div class="skeleton w-8 h-8 rounded-lg"></div><div class="flex-1 space-y-1.5"><div class="skeleton h-3 w-2/3 rounded"></div><div class="skeleton h-2.5 w-1/4 rounded"></div></div><div class="skeleton h-3 w-16 rounded"></div></div>
+          <div class="flex items-center gap-3"><div class="skeleton w-8 h-8 rounded-lg"></div><div class="flex-1 space-y-1.5"><div class="skeleton h-3 w-1/2 rounded"></div><div class="skeleton h-2.5 w-1/3 rounded"></div></div><div class="skeleton h-3 w-16 rounded"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ERROR · RETRY (canon Bloque A · punto 10) -->
+    <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden frame">
+      <div class="px-6 py-2.5 border-b border-slate-200 bg-slate-50 flex items-center gap-2 text-[11px]">
+        <i data-lucide="shield-alert" class="w-3.5 h-3.5 text-blue-600"></i>
+        <span class="font-semibold text-blue-700">Excepciones / Riesgo</span>
+        <span class="text-slate-400">· error · no se pudo cargar</span>
+      </div>
+      <div class="bg-gradient-to-b from-rose-50/40 to-white p-8 sm:p-10 text-center">
+        <div class="w-16 h-16 rounded-2xl bg-rose-50 border border-rose-200 flex items-center justify-center mx-auto mb-4"><i data-lucide="cloud-off" class="w-8 h-8 text-rose-600"></i></div>
+        <div class="text-[16px] font-bold text-slate-900 mb-1">No se pudieron cargar las excepciones</div>
+        <div class="text-[13px] text-slate-500 max-w-xs mx-auto leading-relaxed">Falló alguna de las 3 fuentes (radar de envíos · incidencias cross-OC · reclamos). Esto NO significa que no haya riesgo — solo que no pudimos leerlo.</div>
+        <!-- detalle por fuente -->
+        <div class="mt-5 max-w-xs mx-auto space-y-1.5 text-left">
+          <div class="flex items-center justify-between text-[11px] bg-rose-50 border border-rose-200 rounded-lg px-2.5 py-1.5"><span class="flex items-center gap-1.5 text-rose-700"><i data-lucide="x-circle" class="w-3 h-3"></i> Radar de atrasados</span><span class="font-semibold text-rose-700">error</span></div>
+          <div class="flex items-center justify-between text-[11px] bg-emerald-50 border border-emerald-200 rounded-lg px-2.5 py-1.5"><span class="flex items-center gap-1.5 text-emerald-700"><i data-lucide="check-circle" class="w-3 h-3"></i> Incidencias cross-OC</span><span class="font-semibold text-emerald-700">ok</span></div>
+          <div class="flex items-center justify-between text-[11px] bg-emerald-50 border border-emerald-200 rounded-lg px-2.5 py-1.5"><span class="flex items-center gap-1.5 text-emerald-700"><i data-lucide="check-circle" class="w-3 h-3"></i> Reclamos por cobrar</span><span class="font-semibold text-emerald-700">ok</span></div>
+        </div>
+        <div class="mt-5 flex items-center justify-center gap-2 flex-wrap">
+          <button class="inline-flex items-center gap-1.5 text-[12px] font-semibold text-white bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg"><i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Reintentar</button>
+          <button class="inline-flex items-center gap-1.5 text-[12px] font-medium text-slate-600 border border-slate-200 bg-white hover:bg-slate-50 px-4 py-2 rounded-lg"><i data-lucide="life-buoy" class="w-3.5 h-3.5"></i> Reportar</button>
+        </div>
+        <div class="mt-4 text-[10px] text-slate-400 flex items-start gap-1.5 max-w-xs mx-auto text-left"><i data-lucide="info" class="w-3 h-3 flex-shrink-0 mt-0.5"></i><span>"Reintentar" re-dispara <code class="bg-slate-100 px-1 rounded">cargarDatos()</code> de las 3 fuentes. El desglose por fuente permite distinguir un fallo parcial (1 query) de un fallo total (red/auth). Las fuentes OK pueden renderizarse igual mientras la fallida muestra su propio inline-error.</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- ACTO 7 · MOBILE · SHELL + KPIS 2×2 + RADAR COMO CARDS POR GRAVEDAD -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<section class="space-y-4">
+  <div class="flex items-center gap-3">
+    <span class="w-8 h-8 rounded-lg bg-violet-600 text-white text-[13px] font-bold flex items-center justify-center flex-shrink-0">7</span>
+    <div>
+      <div class="text-[17px] font-bold text-slate-900">Mobile · 375px · shell + KPIs 2×2 + radar como cards</div>
+      <div class="text-[12px] text-slate-500">Tabs scroll-x (Excepciones activa) · 4 mini-KPIs en grid 2×2 · radar = cards apiladas con gravedad · touch ≥44px</div>
+    </div>
+  </div>
+
+  <div class="flex justify-center">
+    <!-- frame 375px -->
+    <div class="w-[375px] bg-white border border-slate-200 rounded-[28px] overflow-hidden frame">
+      <!-- top-bar mobile -->
+      <div class="px-4 py-2.5 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+        <div class="flex items-center gap-1 text-[11px] text-slate-500"><span>Inicio</span><i data-lucide="chevron-right" class="w-3 h-3"></i><span class="font-semibold text-slate-700">Compras</span></div>
+        <div class="flex items-center gap-1 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded-full"><i data-lucide="shield" class="w-2.5 h-2.5 text-blue-600"></i><span class="text-[9px] font-bold text-blue-700">admin</span></div>
+      </div>
+      <!-- header mobile -->
+      <div class="px-4 py-3 border-b border-slate-200 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <div class="w-9 h-9 rounded-xl bg-blue-50 border border-blue-200 flex items-center justify-center"><i data-lucide="shopping-cart" class="w-4 h-4 text-blue-600"></i></div>
+          <div><h1 class="text-[18px] font-bold tracking-tight text-slate-900 leading-none">Compras</h1><div class="text-[10px] text-slate-400 mt-0.5">excepciones · riesgo</div></div>
+        </div>
+        <button class="w-11 h-11 flex items-center justify-center bg-blue-600 rounded-lg"><i data-lucide="plus" class="w-5 h-5 text-white"></i></button>
+      </div>
+      <!-- tabs scroll-x -->
+      <div class="px-4 border-b border-slate-200 flex items-center gap-1 overflow-x-auto scrollbar-none">
+        <button class="px-2.5 py-3 text-[12px] font-medium text-slate-400 whitespace-nowrap">Resumen</button>
+        <button class="px-2.5 py-3 text-[12px] font-medium text-slate-400 whitespace-nowrap">Órdenes</button>
+        <button class="px-2.5 py-3 text-[12px] font-medium text-slate-400 whitespace-nowrap">Pendientes</button>
+        <button class="px-2.5 py-3 text-[12px] font-medium text-slate-400 whitespace-nowrap">Proveedores</button>
+        <button class="px-2.5 py-3 text-[12px] font-medium text-slate-400 whitespace-nowrap">Intel.</button>
+        <button class="px-2.5 py-3 text-[12px] font-semibold text-blue-700 border-b-2 border-blue-600 whitespace-nowrap flex items-center gap-1" title="Excepciones que requieren acción = 3 incidencias abiertas + 2 atrasados severo/crítico">Excepciones <span class="text-[9px] bg-rose-100 text-rose-700 rounded-full px-1.5 font-bold">5</span></button>
+      </div>
+
+      <!-- body mobile -->
+      <div class="bg-slate-50/40 p-3 space-y-3">
+        <!-- 4 mini-kpis 2×2 -->
+        <div class="grid grid-cols-2 gap-2.5">
+          <div class="bg-gradient-to-br from-rose-50 to-rose-100/40 ring-1 ring-rose-200/50 rounded-2xl p-3">
+            <div class="text-[9px] uppercase tracking-wider text-rose-700 font-bold mb-1">Incidencias</div>
+            <div class="text-[20px] font-bold tabular-nums text-rose-900">3</div>
+            <div class="text-[10px] text-rose-700 tabular-nums">$3,210 disputa</div>
+          </div>
+          <div class="bg-gradient-to-br from-amber-50 to-amber-100/40 ring-1 ring-amber-200/50 rounded-2xl p-3">
+            <div class="text-[9px] uppercase tracking-wider text-amber-700 font-bold mb-1">Atrasados</div>
+            <div class="text-[20px] font-bold tabular-nums text-amber-900">3</div>
+            <div class="text-[10px] text-amber-700 tabular-nums">$18,640 comp.</div>
+          </div>
+          <div class="bg-gradient-to-br from-sky-50 to-sky-100/40 ring-1 ring-sky-200/50 rounded-2xl p-3">
+            <div class="text-[9px] uppercase tracking-wider text-sky-700 font-bold mb-1">Reclamos</div>
+            <div class="text-[20px] font-bold tabular-nums text-sky-900">2</div>
+            <div class="text-[10px] text-sky-700 tabular-nums">S/ 1,180 + $ 320</div>
+          </div>
+          <div class="bg-gradient-to-br from-rose-100 to-rose-200/40 ring-1 ring-rose-300/60 rounded-2xl p-3">
+            <div class="text-[9px] uppercase tracking-wider text-rose-800 font-bold mb-1">En riesgo</div>
+            <div class="text-[20px] font-bold tabular-nums text-rose-900">$11.7k</div>
+            <div class="text-[10px] text-rose-800">de $42.2k</div>
+          </div>
+        </div>
+
+        <!-- radar header -->
+        <div class="flex items-center gap-2 pt-1"><i data-lucide="radar" class="w-4 h-4 text-rose-600"></i><span class="text-[13px] font-bold text-slate-900">Atrasados en vuelo</span><span class="badge bg-rose-100 text-rose-700 border border-rose-200 ml-auto">por gravedad</span></div>
+
+        <!-- radar card 1 · CRÍTICO + MUDO -->
+        <div class="bg-white border border-slate-200 rounded-2xl p-3.5 border-l-4 border-l-rose-500">
+          <div class="flex items-start justify-between gap-2 mb-2">
+            <div class="flex items-center gap-2 min-w-0"><i data-lucide="ship" class="w-4 h-4 text-rose-500 flex-shrink-0"></i><div class="min-w-0"><div class="text-[13px] font-bold text-slate-900 truncate">ENV-2026-188</div><div class="text-[10px] text-slate-500 tabular-nums">Beauty of Joseon · KR</div></div></div>
+            <span class="badge bg-rose-100 text-rose-800 border border-rose-300 flex-shrink-0">crítico 2.2×</span>
+          </div>
+          <div class="flex items-baseline gap-1.5 mb-1"><span class="text-[16px] font-bold tabular-nums text-rose-900">62</span><span class="text-[10px] text-slate-400 tabular-nums">/ 28d</span><span class="ml-auto text-[13px] font-bold tabular-nums text-slate-900">$6,820</span></div>
+          <div class="h-1.5 bg-slate-100 rounded-full overflow-hidden mb-2.5"><div class="h-full bg-rose-500 rounded-full" style="width:100%"></div></div>
+          <div class="flex items-center gap-2">
+            <span class="inline-flex items-center gap-1 text-[10px] font-bold text-rose-700 bg-rose-50 border border-rose-200 px-2 py-1 rounded-lg"><i data-lucide="volume-x" class="w-3 h-3"></i> MUDO 20d</span>
+            <button class="ml-auto h-9 px-3 text-[11px] font-semibold text-white bg-rose-600 rounded-lg flex items-center gap-1"><i data-lucide="package-x" class="w-3.5 h-3.5"></i> Perdido</button>
+          </div>
+        </div>
+
+        <!-- radar card 2 · SEVERO -->
+        <div class="bg-white border border-slate-200 rounded-2xl p-3.5 border-l-4 border-l-rose-400">
+          <div class="flex items-start justify-between gap-2 mb-2">
+            <div class="flex items-center gap-2 min-w-0"><i data-lucide="ship" class="w-4 h-4 text-rose-400 flex-shrink-0"></i><div class="min-w-0"><div class="text-[13px] font-bold text-slate-900 truncate">ENV-2026-191</div><div class="text-[10px] text-slate-500 tabular-nums">COSRX Co. · KR</div></div></div>
+            <span class="badge bg-rose-50 text-rose-700 border border-rose-200 flex-shrink-0">severo 1.6×</span>
+          </div>
+          <div class="flex items-baseline gap-1.5 mb-1"><span class="text-[16px] font-bold tabular-nums text-rose-900">46</span><span class="text-[10px] text-slate-400 tabular-nums">/ 28d</span><span class="ml-auto text-[13px] font-bold tabular-nums text-slate-900">$4,900</span></div>
+          <div class="h-1.5 bg-slate-100 rounded-full overflow-hidden mb-2.5"><div class="h-full bg-rose-400 rounded-full" style="width:82%"></div></div>
+          <div class="flex items-center gap-2">
+            <span class="inline-flex items-center gap-1 text-[10px] font-bold text-amber-700 bg-amber-50 border border-amber-200 px-2 py-1 rounded-lg"><i data-lucide="activity" class="w-3 h-3"></i> señal 6d</span>
+            <button class="ml-auto h-9 px-3 text-[11px] font-semibold text-slate-600 border border-slate-200 rounded-lg">Ver</button>
+          </div>
+        </div>
+
+        <!-- radar card 3 · LEVE -->
+        <div class="bg-white border border-slate-200 rounded-2xl p-3.5 border-l-4 border-l-amber-400">
+          <div class="flex items-start justify-between gap-2 mb-2">
+            <div class="flex items-center gap-2 min-w-0"><i data-lucide="ship" class="w-4 h-4 text-amber-500 flex-shrink-0"></i><div class="min-w-0"><div class="text-[13px] font-bold text-slate-900 truncate">ENV-2026-195</div><div class="text-[10px] text-slate-500 tabular-nums">Anua USA · EE.UU.</div></div></div>
+            <span class="badge bg-amber-50 text-amber-700 border border-amber-200 flex-shrink-0">leve 1.2×</span>
+          </div>
+          <div class="flex items-baseline gap-1.5 mb-1"><span class="text-[16px] font-bold tabular-nums text-amber-900">24</span><span class="text-[10px] text-slate-400 tabular-nums">/ 20d</span><span class="ml-auto text-[13px] font-bold tabular-nums text-slate-900">$6,920</span></div>
+          <div class="h-1.5 bg-slate-100 rounded-full overflow-hidden mb-2.5"><div class="h-full bg-amber-400 rounded-full" style="width:52%"></div></div>
+          <div class="flex items-center gap-2">
+            <span class="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-1 rounded-lg"><i data-lucide="activity" class="w-3 h-3"></i> señal 2d</span>
+            <button class="ml-auto h-9 px-3 text-[11px] font-semibold text-slate-600 border border-slate-200 rounded-lg">Ver</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- ACTO 8 · MOBILE · INCIDENCIAS + CAPITAL EN TRÁNSITO + MODAL BOTTOM-SHEET -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<section class="space-y-4">
+  <div class="flex items-center gap-3">
+    <span class="w-8 h-8 rounded-lg bg-violet-600 text-white text-[13px] font-bold flex items-center justify-center flex-shrink-0">8</span>
+    <div>
+      <div class="text-[17px] font-bold text-slate-900">Mobile · incidencias + capital + modal bottom-sheet</div>
+      <div class="text-[12px] text-slate-500">Incidencias = cards apiladas · capital con barra de composición · "Marcar perdido" como bottom-sheet (items-end + rounded-t)</div>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 justify-items-center">
+
+    <!-- COL A · incidencias + capital -->
+    <div class="w-[375px] bg-white border border-slate-200 rounded-[28px] overflow-hidden frame">
+      <div class="px-4 py-2.5 bg-slate-50 border-b border-slate-200 flex items-center gap-2 text-[11px]"><i data-lucide="shield-alert" class="w-3.5 h-3.5 text-blue-600"></i><span class="font-semibold text-blue-700">Excepciones</span><span class="text-slate-400">· incidencias + capital</span></div>
+      <div class="bg-slate-50/40 p-3 space-y-3">
+        <!-- chips tipo scroll-x -->
+        <div class="flex items-center gap-1.5 overflow-x-auto scrollbar-none pb-1">
+          <button class="whitespace-nowrap text-[11px] font-semibold text-white bg-slate-800 px-3 py-1.5 rounded-full">Todas 3</button>
+          <button class="whitespace-nowrap text-[11px] font-medium text-red-700 bg-red-50 border border-red-200 px-3 py-1.5 rounded-full">Recepción</button>
+          <button class="whitespace-nowrap text-[11px] font-medium text-amber-700 bg-amber-50 border border-amber-200 px-3 py-1.5 rounded-full">Facturación</button>
+          <button class="whitespace-nowrap text-[11px] font-medium text-sky-700 bg-sky-50 border border-sky-200 px-3 py-1.5 rounded-full">Logística</button>
+        </div>
+        <!-- inc card 1 -->
+        <div class="bg-white border border-slate-200 rounded-2xl p-3.5 border-l-4 border-l-rose-500">
+          <div class="flex items-start justify-between gap-2">
+            <div class="flex items-center gap-2 min-w-0"><div class="w-8 h-8 rounded-lg bg-red-50 border border-red-100 flex items-center justify-center flex-shrink-0"><i data-lucide="package" class="w-4 h-4 text-red-600"></i></div><span class="badge bg-red-100 text-red-800 border border-red-200">recepción</span></div>
+            <div class="text-[14px] font-bold tabular-nums text-violet-700 flex-shrink-0">$1,640</div>
+          </div>
+          <div class="text-[12px] font-bold text-slate-900 mt-2">8 unidades dañadas en recepción</div>
+          <div class="text-[10px] text-slate-500 tabular-nums">OC-2402 · COSRX · ENV-2026-191</div>
+          <div class="flex items-center justify-between mt-2">
+            <span class="inline-flex items-center gap-1 text-[10px] font-semibold text-amber-700 bg-amber-50 border border-amber-200 px-2 py-1 rounded-lg"><i data-lucide="lock" class="w-3 h-3"></i> retención pago</span>
+            <span class="badge bg-amber-100 text-amber-700 border border-amber-200"><span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span> En gestión</span>
+          </div>
+        </div>
+        <!-- inc card 2 -->
+        <div class="bg-white border border-slate-200 rounded-2xl p-3.5 border-l-4 border-l-amber-400">
+          <div class="flex items-start justify-between gap-2">
+            <div class="flex items-center gap-2 min-w-0"><div class="w-8 h-8 rounded-lg bg-amber-50 border border-amber-100 flex items-center justify-center flex-shrink-0"><i data-lucide="receipt" class="w-4 h-4 text-amber-600"></i></div><span class="badge bg-amber-100 text-amber-800 border border-amber-200">facturación</span></div>
+            <div class="text-[14px] font-bold tabular-nums text-violet-700 flex-shrink-0">$980</div>
+          </div>
+          <div class="text-[12px] font-bold text-slate-900 mt-2">Descuento por volumen no aplicado</div>
+          <div class="text-[10px] text-slate-500 tabular-nums">OC-2390 · Beauty of Joseon</div>
+          <div class="flex items-center justify-between mt-2">
+            <span class="inline-flex items-center gap-1 text-[10px] font-semibold text-purple-700 bg-purple-50 border border-purple-200 px-2 py-1 rounded-lg"><i data-lucide="megaphone" class="w-3 h-3"></i> reclamo</span>
+            <span class="badge bg-red-100 text-red-700 border border-red-200"><span class="w-1.5 h-1.5 rounded-full bg-red-500"></span> Abierta</span>
+          </div>
+        </div>
+        <!-- capital en tránsito mobile -->
+        <div class="bg-white border border-slate-200 rounded-2xl p-3.5">
+          <div class="flex items-center justify-between mb-1"><span class="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Capital en tránsito</span><span class="badge bg-emerald-50 text-emerald-700 border border-emerald-200">derivable</span></div>
+          <div class="text-[24px] font-bold tabular-nums text-slate-900 leading-none">$42,180</div>
+          <div class="flex h-2.5 rounded-full overflow-hidden mt-3"><div class="bg-rose-500" style="width:28%"></div><div class="bg-sky-400" style="width:72%"></div></div>
+          <div class="flex items-center justify-between text-[10px] mt-2"><span class="flex items-center gap-1 text-slate-600"><span class="w-2 h-2 rounded-full bg-rose-500"></span> En riesgo</span><span class="font-bold tabular-nums text-rose-700">$11,720</span></div>
+          <div class="flex items-center justify-between text-[10px] mt-1"><span class="flex items-center gap-1 text-slate-600"><span class="w-2 h-2 rounded-full bg-sky-400"></span> En curso</span><span class="font-bold tabular-nums text-sky-700">$30,460</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- COL B · modal bottom-sheet -->
+    <div class="w-[375px] h-[640px] bg-slate-100 border border-slate-200 rounded-[28px] overflow-hidden relative">
+      <div class="absolute inset-0 bg-slate-900/40"></div>
+      <!-- bottom sheet -->
+      <div class="absolute inset-x-0 bottom-0 bg-white rounded-t-2xl max-h-[90%] overflow-y-auto modal-sh">
+        <!-- grabber -->
+        <div class="pt-2 pb-1 flex justify-center"><div class="w-10 h-1 bg-slate-300 rounded-full"></div></div>
+        <div class="px-4 pb-2 flex items-start justify-between gap-2 border-b border-slate-200">
+          <div class="flex items-center gap-2.5 pb-3">
+            <div class="w-10 h-10 rounded-xl bg-rose-50 border border-rose-200 flex items-center justify-center flex-shrink-0"><i data-lucide="package-x" class="w-5 h-5 text-rose-600"></i></div>
+            <div><div class="text-[14px] font-bold text-slate-900">Marcar perdido total</div><div class="text-[11px] text-slate-500 tabular-nums">ENV-2026-188 · Beauty of Joseon</div></div>
+          </div>
+          <button class="w-11 h-11 flex items-center justify-center text-slate-400"><i data-lucide="x" class="w-5 h-5"></i></button>
+        </div>
+        <div class="px-4 py-3 space-y-3">
+          <div class="bg-rose-50 border border-rose-200 rounded-xl p-3 flex items-start gap-2 text-[11px] text-rose-800"><i data-lucide="alert-triangle" class="w-4 h-4 text-rose-600 flex-shrink-0 mt-0.5"></i> Irreversible. Cierra el envío como pérdida y libera sus reservas.</div>
+          <div class="space-y-1.5 text-[11px]">
+            <div class="flex items-center gap-2 text-slate-600"><i data-lucide="ship" class="w-3.5 h-3.5 text-rose-500"></i> Envío → <span class="font-semibold text-rose-700">perdida_total</span></div>
+            <div class="flex items-center gap-2 text-slate-600"><i data-lucide="megaphone" class="w-3.5 h-3.5 text-purple-500"></i> Reclamo al transportista <span class="text-slate-400 tabular-nums">($6,820)</span></div>
+            <div class="flex items-center gap-2 text-slate-600"><i data-lucide="unlock" class="w-3.5 h-3.5 text-sky-500"></i> Liberar reservas <span class="text-slate-400 tabular-nums">(36 u.)</span></div>
+          </div>
+          <input type="text" placeholder="Escribe PERDIDO" class="w-full h-11 text-[12px] border border-slate-200 rounded-lg px-3 focus:outline-none focus:ring-2 focus:ring-rose-500/40" />
+          <div class="bg-slate-100 border border-slate-200 rounded-xl p-3 flex items-start gap-2 text-[10px] text-slate-600"><i data-lucide="lock" class="w-3.5 h-3.5 text-slate-500 flex-shrink-0 mt-0.5"></i> El write-off del EFECTIVO pagado es Fase 4 (deuda F3b tesorería) · acá solo la pérdida OPERATIVA.</div>
+        </div>
+        <div class="px-4 py-3 border-t border-slate-200 bg-slate-50 flex flex-col gap-2 sticky bottom-0">
+          <button class="w-full h-11 text-[13px] font-semibold text-white bg-rose-600 rounded-lg flex items-center justify-center gap-1.5"><i data-lucide="package-x" class="w-4 h-4"></i> Confirmar pérdida total</button>
+          <button class="w-full h-11 text-[13px] font-medium text-slate-600 border border-slate-200 bg-white rounded-lg">Cancelar</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- FOOTER · CHECKLIST CANON + NOTAS DE HONESTIDAD -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<footer class="bg-white border border-slate-200 rounded-2xl shadow-sm p-6 sm:p-8 space-y-6">
+  <div>
+    <h2 class="text-[17px] font-bold text-slate-900 mb-1">Checklist de cobertura + honestidad de cableado</h2>
+    <p class="text-[12px] text-slate-500">Qué está listo para derivar hoy · qué requiere cableado · qué NO se representa como listo (Fase 4)</p>
+  </div>
+
+  <!-- honestidad: 3 columnas -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <!-- derivable hoy -->
+    <div class="bg-emerald-50/50 border border-emerald-200 rounded-2xl p-4">
+      <div class="flex items-center gap-2 mb-3"><i data-lucide="check-circle" class="w-4 h-4 text-emerald-600"></i><span class="text-[12px] font-bold text-emerald-900">Derivable HOY (cero cableado nuevo)</span></div>
+      <ul class="space-y-2 text-[11px] text-slate-600">
+        <li class="flex items-start gap-2"><i data-lucide="dot" class="w-3 h-3 text-emerald-500 flex-shrink-0 mt-0.5"></i><span><b>Capital en tránsito (N1):</b> Σ <code class="bg-white border border-emerald-100 px-1 rounded">totalUSD</code> de OCs en curso no recibidas + composición en-riesgo/normal.</span></li>
+        <li class="flex items-start gap-2"><i data-lucide="dot" class="w-3 h-3 text-emerald-500 flex-shrink-0 mt-0.5"></i><span><b>Reclamos por cobrar:</b> <code class="bg-white border border-emerald-100 px-1 rounded">IncidenciaEnvio.estadoReclamo</code> filtrado a no-cobrados. Modelo de reclamo maduro.</span></li>
+      </ul>
+    </div>
+    <!-- requiere cableado -->
+    <div class="bg-amber-50/50 border border-amber-200 rounded-2xl p-4">
+      <div class="flex items-center gap-2 mb-3"><i data-lucide="plug" class="w-4 h-4 text-amber-600"></i><span class="text-[12px] font-bold text-amber-900">Requiere cableado / cómputo</span></div>
+      <ul class="space-y-2 text-[11px] text-slate-600">
+        <li class="flex items-start gap-2"><i data-lucide="dot" class="w-3 h-3 text-amber-500 flex-shrink-0 mt-0.5"></i><span><b>Radar helper (C3/C4):</b> cómputo nuevo sobre datos existentes · <code class="bg-white border border-amber-100 px-1 rounded">diasEnVuelo = hoy − fechaSalida</code> vs <code class="bg-white border border-amber-100 px-1 rounded">leadTimePromedioDias</code> + última señal de <code class="bg-white border border-amber-100 px-1 rounded">fechaActualizacion</code>.</span></li>
+        <li class="flex items-start gap-2"><i data-lucide="dot" class="w-3 h-3 text-amber-500 flex-shrink-0 mt-0.5"></i><span><b><code class="bg-white border border-amber-100 px-1 rounded">incidenciaOC.listAll</code>:</b> hoy solo existe <code class="bg-white border border-amber-100 px-1 rounded">subscribeByOC</code> · query cross-OC ~10 líneas (índice ya existe).</span></li>
+        <li class="flex items-start gap-2"><i data-lucide="dot" class="w-3 h-3 text-amber-500 flex-shrink-0 mt-0.5"></i><span><b><code class="bg-white border border-amber-100 px-1 rounded">marcarEnvioPerdidoTotal</code>:</b> estado <code class="bg-white border border-amber-100 px-1 rounded">perdida_total</code> existe sin setter · dispara reclamo + libera reservas + reconoce pérdida operativa.</span></li>
+      </ul>
+    </div>
+    <!-- NO listo · Fase 4 -->
+    <div class="bg-slate-100 border border-slate-200 rounded-2xl p-4">
+      <div class="flex items-center gap-2 mb-3"><i data-lucide="lock" class="w-4 h-4 text-slate-500"></i><span class="text-[12px] font-bold text-slate-800">NO representado como listo · Fase 4</span></div>
+      <ul class="space-y-2 text-[11px] text-slate-600">
+        <li class="flex items-start gap-2"><i data-lucide="dot" class="w-3 h-3 text-slate-400 flex-shrink-0 mt-0.5"></i><span><b>Write-off del EFECTIVO pagado:</b> build financiero acoplado a la <b>deuda F3b de tesorería</b>. El modal reconoce la pérdida OPERATIVA · el asiento del cash se cablea después. Nada de pérdida-del-efectivo como si estuviera listo.</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- checklist canon de mockups -->
+  <div class="border-t border-slate-200 pt-5">
+    <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-3 acto-sep">Checklist canon · cobertura total + mobile-included</div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-2 text-[12px]">
+      <div class="flex items-center gap-2 text-slate-600"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i> Shell hub + tab activa (top-bar · header · strip · tabs)</div>
+      <div class="flex items-center gap-2 text-slate-600"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i> 4 mini-KPIs del header de la tab</div>
+      <div class="flex items-center gap-2 text-slate-600"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i> Radar atrasados · gravedad graduada + última señal</div>
+      <div class="flex items-center gap-2 text-slate-600"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i> Incidencias cross-OC · 6 tipos reales · ordenado por $</div>
+      <div class="flex items-center gap-2 text-slate-600"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i> Reclamos por cobrar + Capital en tránsito (N1)</div>
+      <div class="flex items-center gap-2 text-slate-600"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i> Modal Marcar perdido · typed-confirm + nota F4</div>
+      <div class="flex items-center gap-2 text-slate-600"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i> Empty (buena señal) + loading skeleton + error (retry · 3 fuentes)</div>
+      <div class="flex items-center gap-2 text-slate-600"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i> Mobile 375px · KPIs 2×2 · radar cards · touch ≥44px</div>
+      <div class="flex items-center gap-2 text-slate-600"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i> Modal mobile = bottom-sheet (items-end · rounded-t)</div>
+      <div class="flex items-center gap-2 text-slate-600"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i> Chrome BLUE · semántico en el dato</div>
+      <div class="flex items-center gap-2 text-slate-600"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i> Inter · tabular-nums · lucide sin emojis</div>
+      <div class="flex items-center gap-2 text-slate-600"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i> radios 2xl/xl/lg · max-w-6xl · body dentro del shell</div>
+    </div>
+  </div>
+
+  <!-- gobernanza color -->
+  <div class="border-t border-slate-200 pt-5">
+    <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-3 acto-sep">Gobernanza de color · chrome vs semántico</div>
+    <div class="flex flex-wrap gap-2 text-[11px]">
+      <span class="badge bg-blue-50 text-blue-700 border border-blue-200">chrome BLUE · Comercial (tab activa · primary · ícono)</span>
+      <span class="badge bg-rose-50 text-rose-700 border border-rose-200">rose · urgencia / atraso / crítico</span>
+      <span class="badge bg-amber-50 text-amber-700 border border-amber-200">amber · alerta / leve</span>
+      <span class="badge bg-emerald-50 text-emerald-700 border border-emerald-200">emerald · ok / señal viva</span>
+      <span class="badge bg-sky-50 text-sky-700 border border-sky-200">sky · en-curso</span>
+      <span class="badge bg-violet-50 text-violet-700 border border-violet-200">violet · $ en disputa</span>
+    </div>
+  </div>
+</footer>
+
+</div>
+
+<script>lucide.createIcons();</script>
+</body>
+</html>
