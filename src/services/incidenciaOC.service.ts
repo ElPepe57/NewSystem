@@ -113,6 +113,25 @@ export const incidenciaOCService = {
     });
   },
 
+  /**
+   * F1 (Llegadas + scoring de proveedor) · lista TODAS las incidencias (cross-OC) en una lectura.
+   * Habilita la agregación de sección (counts del teaser de Llegadas) y el scoring REAL de proveedor
+   * (reemplaza el stub `calcularIncidencias()=[]`). La colección es chica (importador) → getDocs directo.
+   */
+  async listAll(): Promise<IncidenciaOC[]> {
+    const snap = await getDocs(collection(db, COL));
+    const items = snap.docs.map((d) => ({
+      id: d.id,
+      ...(d.data() as Omit<IncidenciaOC, 'id'>),
+    }));
+    items.sort((a, b) => {
+      const ta = (a.fechaCreacion as Timestamp)?.toMillis?.() ?? 0;
+      const tb = (b.fechaCreacion as Timestamp)?.toMillis?.() ?? 0;
+      return tb - ta;
+    });
+    return items;
+  },
+
   /** Cambia el estado de una incidencia. */
   async actualizarEstado(id: string, nuevoEstado: EstadoIncidenciaOC): Promise<void> {
     await updateDoc(doc(db, COL, id), {

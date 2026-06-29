@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo, useRef } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
-import { Plus, Package, DollarSign, AlertCircle, Download, ExternalLink, FileText, Truck, CheckCircle, CreditCard, Building2, ShoppingCart, LayoutDashboard, ClipboardList, BrainCircuit } from 'lucide-react';
+import { Plus, Package, DollarSign, AlertCircle, Download, ExternalLink, FileText, Truck, CheckCircle, CreditCard, Building2, ShoppingCart, LayoutDashboard, ClipboardList, BrainCircuit, PlaneLanding } from 'lucide-react';
 import { Modal, useConfirmDialog, ConfirmDialog, useActionModal, ActionModal } from '../../components/common';
 // Control GLOBAL de línea de negocio (canon · va en el chrome del header · OC-POB-4)
 import { LineaDropdown } from '../../components/common/LineaDropdown';
@@ -21,6 +21,8 @@ import { TabResumenCompras } from './components/TabResumenCompras';
 import { TabPendientesCompras } from './components/TabPendientesCompras';
 import { TabProveedoresCompras } from './components/TabProveedoresCompras';
 import { TabInteligenciaCompras } from './components/TabInteligenciaCompras';
+import { TabLlegadas } from './components/TabLlegadas';
+import { useRadarAtrasados } from './useRadarAtrasados';
 import { OCBuilder } from '../../components/modules/ordenCompra/OCBuilder/OCBuilder';
 import { useRequerimientoStore } from '../../store/requerimientoStore';
 import type { Requerimiento } from '../../types/requerimiento.types';
@@ -40,6 +42,7 @@ import { hasRole, getUserRoles } from '../../types/auth.types';
 import { useColaboradorStore } from '../../store/colaboradorStore';
 import { exportService } from '../../services/export.service';
 import type { OrdenCompra, OrdenCompraFormData, EstadoOrden } from '../../types/ordenCompra.types';
+import type { MetricasLeadTime } from '../../types/productoIntel.types';
 import { useLineaFilter } from '../../hooks/useLineaFilter';
 // S55 Fase 2 — pagos viven en CC; hook reactivo lee desde movimientosCC
 import { usePagosOC } from '../../hooks/usePagosOC';
@@ -186,9 +189,13 @@ export const OrdenesCompra: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [filtroEstado, setFiltroEstado] = useState<string | null>(null);
   // chk5.COMERCIALES-F1 · tab activa del hub · default 'ordenes' hasta que la Fase 1b construya el Resumen §A→§F
-  const [tabActiva, setTabActiva] = useState<'resumen' | 'ordenes' | 'pendientes' | 'proveedores' | 'inteligencia'>('resumen');
+  // COMERCIALES · Fase 1 (Llegadas) · 6ª tab agregada.
+  const [tabActiva, setTabActiva] = useState<'resumen' | 'ordenes' | 'pendientes' | 'proveedores' | 'inteligencia' | 'llegadas'>('resumen');
   const [isOCBuilderOpen, setIsOCBuilderOpen] = useState(false);
   const [ocBuilderReqs, setOcBuilderReqs] = useState<Requerimiento[]>([]);
+  // COMERCIALES · Fase 1 (Llegadas) · lead-time global aprendido (baseline del radar de atrasados).
+  // Carga lazy al abrir la tab Llegadas · evita el cargarDatos() pesado de productoIntelStore.
+  const [leadTimeGlobal, setLeadTimeGlobal] = useState<MetricasLeadTime | null>(null);
   // S42 Tanda 10 — Filtros adicionales vista Compras (mockup s40 líneas 235-254)
   const [busquedaGlobal, setBusquedaGlobal] = useState('');
   const [filtroProveedor, setFiltroProveedor] = useState('');
@@ -473,6 +480,18 @@ export const OrdenesCompra: React.FC = () => {
     if (tabActiva === 'pendientes' && requerimientos.length === 0) {
       fetchRequerimientos().catch(() => {});
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tabActiva]);
+
+  // Lazy: lead-time global aprendido al abrir la tab Llegadas (baseline del radar · COMERCIALES F1).
+  useEffect(() => {
+    if (tabActiva !== 'llegadas' || leadTimeGlobal !== null) return;
+    let cancelado = false;
+    import('../../services/productoIntel.service')
+      .then(({ productoIntelService }) => productoIntelService.calcularLeadTimeGlobal())
+      .then((m) => { if (!cancelado) setLeadTimeGlobal(m); })
+      .catch(() => { if (!cancelado) setLeadTimeGlobal(null); });
+    return () => { cancelado = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tabActiva]);
 
@@ -971,6 +990,9 @@ export const OrdenesCompra: React.FC = () => {
     return map[estado] ?? 'neutral';
   };
 
+  // COMERCIALES · Fase 1 (Llegadas) · ensamblado del radar de atrasados en vuelo + cross-links read-only.
+  const radar = useRadarAtrasados({ ordenes: ordenesLN, envios, proveedores: proveedoresActivos, leadTimeGlobal });
+
   // chk5.COMERCIALES-F1 · derivados del hub (tabs · KPI strip semántico · breadcrumb)
   const comprasTabs: HubTab[] = [
     { id: 'resumen', label: 'Resumen', icon: LayoutDashboard },
@@ -978,6 +1000,8 @@ export const OrdenesCompra: React.FC = () => {
     { id: 'pendientes', label: 'Pendientes', icon: ClipboardList },
     { id: 'proveedores', label: 'Proveedores', icon: Building2 },
     { id: 'inteligencia', label: 'Inteligencia', icon: BrainCircuit },
+    // 6ª tab · badge = atrasados severo+crítico (los que demandan acción · resumen.badge).
+    { id: 'llegadas', label: 'Llegadas', icon: PlaneLanding, badge: radar.resumen.badge || undefined },
   ];
   const breadcrumbLeaf = tabActiva === 'resumen' ? null : (comprasTabs.find((t) => t.id === tabActiva)?.label ?? null);
   // A1/A2 · el strip deriva de statsExtra (sobre ordenesLN · respeta el filtro de Línea · "Comprado mes" del mes en curso, no del acumulado histórico).
@@ -1232,6 +1256,11 @@ export const OrdenesCompra: React.FC = () => {
             proveedores={proveedoresActivos}
             navigate={navigate}
           />
+        )}
+
+        {/* ═══ TAB LLEGADAS · torre de control logística (radar de atrasados OPERABLE + cross-links read-only) ═══ */}
+        {tabActiva === 'llegadas' && (
+          <TabLlegadas radar={radar} navigate={navigate} />
         )}
 
         </HubBody>
