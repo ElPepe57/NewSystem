@@ -301,16 +301,39 @@ export const OrdenesCompra: React.FC = () => {
   // S42 Tanda 10 — Stats derivados para KPIs enriquecidos (mockup s40 líneas 128-178)
   const statsExtra = useMemo(() => {
     const estadosCompletados = ['completada', 'recibida'];
+    // A1 · "Comprado mes" = OCs creadas en el mes en curso (no el acumulado histórico que daba getStats).
+    const inicioMes = new Date();
+    inicioMes.setDate(1);
+    inicioMes.setHours(0, 0, 0, 0);
+    const inicioMesMs = inicioMes.getTime();
 
     let montoPendienteUSD = 0;
     let ocsConPagoPendiente = 0;
     let montoCompletadasUSD = 0;
+    // A1/A2 · contadores del strip derivados de ordenesLN (respetan el filtro de Línea) · canceladas fuera.
+    let compradoMesUSD = 0;
+    let compradoMesCount = 0;
+    let borradores = 0;
+    let enCurso = 0;
+    let completadas = 0;
 
     for (const o of ordenesLN) {
+      if (o.estado === 'cancelada') continue; // canceladas no cuentan en ningún KPI del strip
       if (estadosCompletados.includes(o.estado)) {
         montoCompletadasUSD += (o.totalUSD || 0);
+        completadas++;
+      } else if (o.estado === 'borrador') {
+        borradores++;
+      } else {
+        enCurso++; // residual in-flight: confirmada/en_proceso/despachada/en_transito/recibida_parcial
       }
-      if (o.estado !== 'cancelada' && (o.estadoPago === 'pendiente' || o.estadoPago === 'parcial')) {
+      // Comprado en el mes en curso (A1)
+      const fechaMs = (o.fechaCreacion as { toMillis?: () => number })?.toMillis?.() ?? 0;
+      if (fechaMs >= inicioMesMs) {
+        compradoMesUSD += (o.totalUSD || 0);
+        compradoMesCount++;
+      }
+      if (o.estadoPago === 'pendiente' || o.estadoPago === 'parcial') {
         // S55 Fase 2 — usamos `montoPendiente` denormalizado (mantenido por
         // ordenCompra.pagos.service al registrar pagos). Si no está, asumimos
         // total pendiente. Para detalle de pagos individuales se consulta CC.
@@ -340,6 +363,11 @@ export const OrdenesCompra: React.FC = () => {
       ocsConPagoPendiente,
       montoCompletadasUSD,
       enviosActivosVinculados,
+      compradoMesUSD,
+      compradoMesCount,
+      borradores,
+      enCurso,
+      completadas,
     };
   }, [ordenesLN, envios]);
 
@@ -952,12 +980,13 @@ export const OrdenesCompra: React.FC = () => {
     { id: 'inteligencia', label: 'Inteligencia', icon: BrainCircuit },
   ];
   const breadcrumbLeaf = tabActiva === 'resumen' ? null : (comprasTabs.find((t) => t.id === tabActiva)?.label ?? null);
+  // A1/A2 · el strip deriva de statsExtra (sobre ordenesLN · respeta el filtro de Línea · "Comprado mes" del mes en curso, no del acumulado histórico).
   const comprasKpis: HubKpi[] = stats ? [
-    { label: 'Comprado mes', valor: `$ ${stats.valorTotalUSD.toLocaleString('en-US', { maximumFractionDigits: 0 })}`, tono: 'amber', icon: DollarSign, delta: `${stats.totalOrdenes} OCs este mes` },
-    { label: 'Borradores', valor: String(stats.borradores), tono: 'slate', icon: FileText, delta: 'sin confirmar' },
-    { label: 'En curso', valor: String(stats.enviadas + stats.pagadas + stats.enTransito + (stats.recibidasParcial || 0)), tono: 'sky', icon: Truck, delta: statsExtra.enviosActivosVinculados > 0 ? `${statsExtra.enviosActivosVinculados} envíos activos` : 'en tránsito / parcial' },
+    { label: 'Comprado mes', valor: `$ ${statsExtra.compradoMesUSD.toLocaleString('en-US', { maximumFractionDigits: 0 })}`, tono: 'amber', icon: DollarSign, delta: `${statsExtra.compradoMesCount} OC${statsExtra.compradoMesCount === 1 ? '' : 's'} este mes` },
+    { label: 'Borradores', valor: String(statsExtra.borradores), tono: 'slate', icon: FileText, delta: 'sin confirmar' },
+    { label: 'En curso', valor: String(statsExtra.enCurso), tono: 'sky', icon: Truck, delta: statsExtra.enviosActivosVinculados > 0 ? `${statsExtra.enviosActivosVinculados} envíos activos` : 'en tránsito / parcial' },
     { label: 'Por pagar', valor: String(statsExtra.ocsConPagoPendiente), tono: 'rose', icon: CreditCard, delta: statsExtra.montoPendienteUSD > 0 ? `$${statsExtra.montoPendienteUSD.toLocaleString('en-US', { maximumFractionDigits: 0 })} pendiente` : 'al día' },
-    { label: 'Completadas', valor: String(stats.recibidas), tono: 'emerald', icon: CheckCircle, delta: statsExtra.montoCompletadasUSD > 0 ? `$${statsExtra.montoCompletadasUSD.toLocaleString('en-US', { maximumFractionDigits: 0 })}` : 'recibidas' },
+    { label: 'Completadas', valor: String(statsExtra.completadas), tono: 'emerald', icon: CheckCircle, delta: statsExtra.montoCompletadasUSD > 0 ? `$${statsExtra.montoCompletadasUSD.toLocaleString('en-US', { maximumFractionDigits: 0 })}` : 'recibidas' },
   ] : [];
 
   return (

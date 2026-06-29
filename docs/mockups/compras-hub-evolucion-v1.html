@@ -1,0 +1,1413 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Hub Compras · evolución · Vita Skin ERP</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+  * { font-family: 'Inter', system-ui, sans-serif; }
+  .tabular-nums { font-variant-numeric: tabular-nums; }
+  body { background: #f1f5f9; }
+  .frame { box-shadow: 0 1px 3px rgba(15,23,42,.08), 0 8px 24px rgba(15,23,42,.06); }
+  .modal-sh { box-shadow: 0 10px 15px -3px rgba(15,23,42,.18), 0 20px 50px -12px rgba(15,23,42,.30); }
+  .scrollbar-none { scrollbar-width: none; }
+  .scrollbar-none::-webkit-scrollbar { display: none; }
+  .acto-sep { letter-spacing: 0.10em; }
+  .badge { display: inline-flex; align-items: center; gap: 3px; border-radius: 999px; padding: 1px 7px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; }
+  .progress-fill { transition: width 0.4s ease; }
+  @keyframes skeleton-pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+  .skeleton { animation: skeleton-pulse 1.5s ease-in-out infinite; background: #e2e8f0; border-radius: 6px; }
+</style>
+</head>
+<body class="text-slate-900">
+
+<div class="max-w-6xl mx-auto px-4 sm:px-6 py-10 space-y-14">
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- HERO -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<header class="bg-white border border-slate-200 rounded-2xl shadow-sm p-6 sm:p-8">
+  <div class="flex flex-wrap gap-2 mb-5">
+    <span class="text-[10px] font-bold uppercase tracking-wider text-blue-700 bg-blue-50 border border-blue-200 px-2.5 py-1 rounded-full">Especificación · build-ready</span>
+    <span class="text-[10px] font-bold uppercase tracking-wider text-blue-700 bg-blue-50 border border-blue-200 px-2.5 py-1 rounded-full">Grupo Comercial · azul</span>
+    <span class="text-[10px] font-bold uppercase tracking-wider text-slate-600 bg-slate-100 border border-slate-200 px-2.5 py-1 rounded-full">v1 · 2026-06-28 · evolución honesta</span>
+    <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-full">Cobertura total + mobile incluido</span>
+  </div>
+  <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 mb-2">Hub Compras · evolución <span class="text-slate-400 font-semibold">(cobertura total + mobile)</span></h1>
+  <p class="text-[13px] text-slate-600 max-w-3xl leading-relaxed mb-5">
+    El hub Compras <b>YA está bien</b> (shell Hub Kit · <code class="bg-slate-100 px-1 rounded text-blue-700">TabResumenCompras</code> es un §A–F sólido con donut/tendencia/lead-time/FX/cross-links reales).
+    Esta evolución <b>NO rediseña de cero</b>: corrige <span class="text-rose-700 font-semibold">2 bugs del strip</span>, agrega la
+    <span class="text-blue-700 font-semibold">inteligencia de sección que falta</span> (cola de firmas · pipeline de abastecimiento · calendario de caja · scorecard SLA · incidencias agregadas) y pule la presentación.
+    Anatomía hub intacta: top-bar → header banking-grade → KPI strip → 5 tabs (default Resumen §A–F) → body Layout A
+    <code class="bg-slate-100 px-1 rounded text-blue-700">max-w-6xl</code>.
+  </p>
+  <!-- Mapa de tabs -->
+  <div class="bg-slate-50 border border-slate-200 rounded-xl p-4">
+    <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-3 acto-sep">Mapa de tabs del hub</div>
+    <div class="flex flex-wrap gap-2 text-[12px]">
+      <div class="flex items-center gap-1.5 bg-blue-600 border border-blue-700 rounded-lg px-3 py-1.5">
+        <i data-lucide="layout-dashboard" class="w-3.5 h-3.5 text-white"></i>
+        <span class="font-medium text-white">Resumen</span>
+        <span class="text-[10px] bg-white/20 text-white rounded-full px-1.5 py-0.5 font-bold">default · §A–F</span>
+      </div>
+      <div class="flex items-center gap-1.5 bg-white border border-slate-200 rounded-lg px-3 py-1.5"><i data-lucide="package" class="w-3.5 h-3.5 text-blue-600"></i><span class="font-medium text-slate-700">Órdenes</span></div>
+      <div class="flex items-center gap-1.5 bg-white border border-slate-200 rounded-lg px-3 py-1.5"><i data-lucide="clipboard-list" class="w-3.5 h-3.5 text-blue-600"></i><span class="font-medium text-slate-700">Pendientes</span></div>
+      <div class="flex items-center gap-1.5 bg-white border border-slate-200 rounded-lg px-3 py-1.5"><i data-lucide="building-2" class="w-3.5 h-3.5 text-blue-600"></i><span class="font-medium text-slate-700">Proveedores</span></div>
+      <div class="flex items-center gap-1.5 bg-white border border-slate-200 rounded-lg px-3 py-1.5"><i data-lucide="brain-circuit" class="w-3.5 h-3.5 text-blue-600"></i><span class="font-medium text-slate-700">Inteligencia</span></div>
+    </div>
+    <div class="mt-3 flex flex-wrap gap-2 text-[11px]">
+      <span class="badge bg-emerald-50 text-emerald-700 border border-emerald-200"><i data-lucide="check-circle" class="w-2.5 h-2.5"></i> Preservado: donut · tendencia · lead-time · FX · cross-links</span>
+      <span class="badge bg-blue-50 text-blue-700 border border-blue-200"><i data-lucide="sparkles" class="w-2.5 h-2.5"></i> Nuevo: cola de firmas · pipeline · calendario caja · scorecard SLA · incidencias</span>
+      <span class="badge bg-amber-50 text-amber-700 border border-amber-200"><i data-lucide="plug" class="w-2.5 h-2.5"></i> Lo que requiere cableado lleva badge "fuente: X"</span>
+    </div>
+  </div>
+</header>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- INDICE DE ACTOS -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-5">
+  <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4 acto-sep">Índice de actos · cobertura total + mobile</div>
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 text-[12px]">
+    <div class="flex items-start gap-3 bg-blue-50 border border-blue-200 rounded-xl px-3 py-2.5"><span class="w-7 h-7 rounded-lg bg-blue-600 text-white text-[11px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">1</span><div><div class="font-semibold text-blue-900">Acto 1 · Shell hub</div><div class="text-blue-700 text-[11px]">Top-bar + header + strip CORREGIDO + tabs</div></div></div>
+    <div class="flex items-start gap-3 bg-blue-50 border border-blue-200 rounded-xl px-3 py-2.5"><span class="w-7 h-7 rounded-lg bg-blue-600 text-white text-[11px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">2</span><div><div class="font-semibold text-blue-900">Acto 2 · Tab Resumen §A–F</div><div class="text-blue-700 text-[11px]">El dashboard · centerpiece de la evolución</div></div></div>
+    <div class="flex items-start gap-3 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5"><span class="w-7 h-7 rounded-lg bg-slate-600 text-white text-[11px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">3</span><div><div class="font-semibold text-slate-800">Acto 3 · Tab Órdenes</div><div class="text-slate-600 text-[11px]">Listado + barra-resumen + toggle pipeline</div></div></div>
+    <div class="flex items-start gap-3 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5"><span class="w-7 h-7 rounded-lg bg-slate-600 text-white text-[11px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">4</span><div><div class="font-semibold text-slate-800">Acto 4 · Tab Pendientes</div><div class="text-slate-600 text-[11px]">Demanda→compra + teaser ROP</div></div></div>
+    <div class="flex items-start gap-3 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5"><span class="w-7 h-7 rounded-lg bg-slate-600 text-white text-[11px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">5</span><div><div class="font-semibold text-slate-800">Acto 5 · Tab Proveedores</div><div class="text-slate-600 text-[11px]">Scorecard SLA + concentración × riesgo</div></div></div>
+    <div class="flex items-start gap-3 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5"><span class="w-7 h-7 rounded-lg bg-slate-600 text-white text-[11px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">6</span><div><div class="font-semibold text-slate-800">Acto 6 · Tab Inteligencia</div><div class="text-slate-600 text-[11px]">Incidencias agregadas + lead/precio roll-up</div></div></div>
+    <div class="flex items-start gap-3 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5"><span class="w-7 h-7 rounded-lg bg-slate-600 text-white text-[11px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">7</span><div><div class="font-semibold text-slate-800">Acto 7 · Estados</div><div class="text-slate-600 text-[11px]">Empty · loading · error</div></div></div>
+    <div class="flex items-start gap-3 bg-violet-50 border border-violet-200 rounded-xl px-3 py-2.5"><span class="w-7 h-7 rounded-lg bg-violet-600 text-white text-[11px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">8</span><div><div class="font-semibold text-violet-900">Acto 8 · Mobile shell</div><div class="text-violet-700 text-[11px]">375px · strip 2×2 · tabs scroll-x</div></div></div>
+    <div class="flex items-start gap-3 bg-violet-50 border border-violet-200 rounded-xl px-3 py-2.5"><span class="w-7 h-7 rounded-lg bg-violet-600 text-white text-[11px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">9</span><div><div class="font-semibold text-violet-900">Acto 9 · Mobile dashboard</div><div class="text-violet-700 text-[11px]">§A–F apilado · pipeline scroll-x · donut+línea</div></div></div>
+    <div class="flex items-start gap-3 bg-violet-50 border border-violet-200 rounded-xl px-3 py-2.5"><span class="w-7 h-7 rounded-lg bg-violet-600 text-white text-[11px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">10</span><div><div class="font-semibold text-violet-900">Acto 10 · Mobile tabs/pipeline</div><div class="text-violet-700 text-[11px]">Órdenes cards + toggle Kanban + scorecard</div></div></div>
+    <div class="flex items-start gap-3 bg-violet-50 border border-violet-200 rounded-xl px-3 py-2.5"><span class="w-7 h-7 rounded-lg bg-violet-600 text-white text-[11px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">11</span><div><div class="font-semibold text-violet-900">Acto 11 · Mobile Pendientes + Inteligencia</div><div class="text-violet-700 text-[11px]">Selección→compra + ROP · incidencias 4-stats + mix</div></div></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- ACTO 1 · SHELL HUB DESKTOP · STRIP CORREGIDO -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<section class="space-y-4">
+  <div class="flex items-center gap-3">
+    <span class="w-8 h-8 rounded-lg bg-blue-600 text-white text-[13px] font-bold flex items-center justify-center flex-shrink-0">1</span>
+    <div>
+      <div class="text-[17px] font-bold text-slate-900">Shell hub · desktop · strip CORREGIDO</div>
+      <div class="text-[12px] text-slate-500">Top-bar (breadcrumb S9.D1 + chip rol) → header banking-grade (icono blue + h1 + acciones 3-tier) → KPI strip 5 cards (2 bugs corregidos) → tabs</div>
+    </div>
+  </div>
+
+  <!-- callout de los 2 bugs corregidos del strip -->
+  <div class="bg-white border border-rose-200 rounded-2xl p-4">
+    <div class="flex items-center gap-2 mb-3"><i data-lucide="bug" class="w-4 h-4 text-rose-600"></i><span class="text-[12px] font-bold text-rose-900">2 bugs del strip que esta evolución corrige</span></div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-[12px]">
+      <div class="bg-rose-50/60 border border-rose-100 rounded-xl p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 acto-sep mb-1">Bug 1 · "Comprado mes" no es del mes (valor Y delta)</div>
+        <p class="text-slate-600"><b class="text-slate-800">1·valor:</b> hoy el KPI A1 usa <code class="bg-white border border-slate-200 px-1 rounded">stats.valorTotalUSD</code> = acumulado histórico → usar <code class="bg-white border border-slate-200 px-1 rounded">tendencia.actual.monto</code> (mes corriente). <b class="text-slate-800">2·delta:</b> hoy el delta es <code class="bg-white border border-slate-200 px-1 rounded">stats.totalOrdenes</code> = total histórico de OCs (mal etiquetado "este mes") → recontar las OCs <b>del mes corriente</b> (mismo set que <code class="bg-white border border-slate-200 px-1 rounded">tendencia.actual</code>). El fix cubre AMBOS.</p>
+      </div>
+      <div class="bg-rose-50/60 border border-rose-100 rounded-xl p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 acto-sep mb-1">Bug 2 · el strip ignora la Línea</div>
+        <p class="text-slate-600">Hoy los 5 KPIs se calculan de <code class="bg-white border border-slate-200 px-1 rounded">stats</code> global y NO respetan el filtro de Línea de Negocio. <b class="text-slate-800">Fix:</b> recomputar sobre el set filtrado (como ya hace <code class="bg-white border border-slate-200 px-1 rounded">statsExtra</code>) → cambiar de línea cambia el strip.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden frame">
+    <!-- TOP-BAR -->
+    <div class="border-b border-slate-200 px-6 py-2.5 bg-slate-50 flex items-center justify-between">
+      <div class="flex items-center gap-1 text-[11px] text-slate-500">
+        <span>Inicio</span>
+        <i data-lucide="chevron-right" class="w-3 h-3 text-slate-400"></i>
+        <span class="font-semibold text-slate-700">Compras</span>
+      </div>
+      <div class="flex items-center gap-1.5 bg-blue-50 border border-blue-200 px-2.5 py-1 rounded-full">
+        <i data-lucide="shield" class="w-3 h-3 text-blue-600"></i>
+        <span class="text-[10px] font-bold text-blue-700">Vista ejecutiva · admin</span>
+      </div>
+    </div>
+
+    <!-- HEADER BANKING-GRADE -->
+    <div class="px-6 py-5 border-b border-slate-200">
+      <div class="flex items-start justify-between gap-4 flex-wrap">
+        <div class="flex items-start gap-3">
+          <div class="w-11 h-11 rounded-xl bg-blue-50 border border-blue-200 flex items-center justify-center flex-shrink-0">
+            <i data-lucide="shopping-cart" class="w-5 h-5 text-blue-600"></i>
+          </div>
+          <div>
+            <h1 class="text-2xl font-bold tracking-tight text-slate-900">Compras</h1>
+            <p class="text-[13px] text-slate-500 mt-0.5">Órdenes de compra · proveedores · recepción · pagos · inteligencia de precios</p>
+          </div>
+        </div>
+        <!-- ACCIONES 3-TIER + control de línea (chrome) -->
+        <div class="flex items-center gap-2 flex-wrap">
+          <!-- control global de línea · vive en el chrome (extraActions) -->
+          <button class="flex items-center gap-1.5 bg-white text-slate-700 border border-slate-200 hover:bg-slate-50 text-[12px] font-medium px-3 py-2 rounded-lg">
+            <i data-lucide="layers" class="w-3.5 h-3.5 text-blue-600"></i> Todas las líneas <i data-lucide="chevron-down" class="w-3 h-3 text-slate-400"></i>
+          </button>
+          <span class="w-px h-7 bg-slate-200 mx-0.5"></span>
+          <!-- neutral -->
+          <button class="flex items-center gap-1.5 bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 text-[12px] font-medium px-3 py-2 rounded-lg">
+            <i data-lucide="download" class="w-3.5 h-3.5"></i> Exportar
+          </button>
+          <!-- primary = Nueva OC (color del módulo · blue) -->
+          <button class="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white text-[12px] font-semibold px-3.5 py-2 rounded-lg shadow-sm">
+            <i data-lucide="plus" class="w-4 h-4"></i> Nueva OC
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- KPI STRIP · 5 CARDS · 2 BUGS CORREGIDOS -->
+    <div class="px-6 pt-4 bg-white">
+      <div class="border border-slate-200 rounded-2xl overflow-hidden">
+        <div class="grid grid-cols-2 lg:grid-cols-5 gap-3 p-3">
+          <!-- A1 · Comprado mes · CORREGIDO: monto del MES (tendencia.actual.monto) · amber -->
+          <div class="bg-gradient-to-br from-amber-50 to-amber-100/40 ring-1 ring-amber-200/50 rounded-2xl p-4">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-[10px] uppercase tracking-wider text-amber-700 font-bold">Comprado mes</span>
+              <i data-lucide="dollar-sign" class="w-3.5 h-3.5 text-amber-700"></i>
+            </div>
+            <div class="text-2xl font-bold tabular-nums text-amber-900">$42,180<span class="text-amber-400">.00</span></div>
+            <div class="text-[11px] text-amber-700 flex items-center gap-1 mt-1"><i data-lucide="trending-up" class="w-3 h-3"></i> 6 OCs este mes</div>
+            <div class="mt-1.5 inline-flex items-center gap-1 text-[9px] font-bold text-emerald-600 bg-white/60 border border-emerald-200 px-1.5 py-0.5 rounded"><i data-lucide="check" class="w-2.5 h-2.5"></i> fix: valor=tendencia.actual.monto · delta=conteo del mes (no stats.totalOrdenes)</div>
+          </div>
+          <!-- A2 · En curso · sky -->
+          <div class="bg-gradient-to-br from-sky-50 to-sky-100/40 ring-1 ring-sky-200/50 rounded-2xl p-4">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-[10px] uppercase tracking-wider text-sky-700 font-bold">En curso</span>
+              <i data-lucide="truck" class="w-3.5 h-3.5 text-sky-700"></i>
+            </div>
+            <div class="text-2xl font-bold tabular-nums text-sky-900">7</div>
+            <div class="text-[11px] text-sky-700 flex items-center gap-1 mt-1"><i data-lucide="ship" class="w-3 h-3"></i> 3 envíos activos</div>
+          </div>
+          <!-- A3 · Por pagar · rose -->
+          <div class="bg-gradient-to-br from-rose-50 to-rose-100/40 ring-1 ring-rose-200/50 rounded-2xl p-4">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-[10px] uppercase tracking-wider text-rose-700 font-bold">Por pagar</span>
+              <i data-lucide="credit-card" class="w-3.5 h-3.5 text-rose-700"></i>
+            </div>
+            <div class="text-2xl font-bold tabular-nums text-rose-900">4</div>
+            <div class="text-[11px] text-rose-700 flex items-center gap-1 mt-1"><i data-lucide="clock" class="w-3 h-3"></i> $23,940 pendiente</div>
+          </div>
+          <!-- A4 · Lead time · DECIDIDO: vive en el strip (Borradores baja a mini-stat) · NO hay versión alterna · sky -->
+          <div class="bg-gradient-to-br from-sky-50 to-sky-100/40 ring-1 ring-sky-200/50 rounded-2xl p-4">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-[10px] uppercase tracking-wider text-sky-700 font-bold">Lead time</span>
+              <i data-lucide="timer" class="w-3.5 h-3.5 text-sky-700"></i>
+            </div>
+            <div class="text-2xl font-bold tabular-nums text-sky-900">38<span class="text-sky-400"> días</span></div>
+            <div class="text-[11px] text-sky-700 flex items-center gap-1 mt-1"><i data-lucide="route" class="w-3 h-3"></i> proveedor → recepción</div>
+            <div class="mt-1.5 inline-flex items-center gap-1 text-[9px] font-bold text-blue-600 bg-white/60 border border-blue-200 px-1.5 py-0.5 rounded"><i data-lucide="check" class="w-2.5 h-2.5"></i> decidido: lead-time al strip · Borradores → mini-stat</div>
+          </div>
+          <!-- A5 · Completadas · emerald -->
+          <div class="bg-gradient-to-br from-emerald-50 to-emerald-100/40 ring-1 ring-emerald-200/50 rounded-2xl p-4">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-[10px] uppercase tracking-wider text-emerald-700 font-bold">Completadas</span>
+              <i data-lucide="check-circle" class="w-3.5 h-3.5 text-emerald-700"></i>
+            </div>
+            <div class="text-2xl font-bold tabular-nums text-emerald-900">12</div>
+            <div class="text-[11px] text-emerald-700 flex items-center gap-1 mt-1"><i data-lucide="package-check" class="w-3 h-3"></i> $128,400 recibidas</div>
+          </div>
+        </div>
+        <!-- MINI-STATS FOOTER · integrado al MISMO bloque (canon N3) · aquí vive "Borradores" degradado -->
+        <div class="bg-slate-50/50 border-t border-slate-200 px-4 py-2 flex items-center gap-4 text-[11px] flex-wrap">
+          <span class="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Mini-stats:</span>
+          <span class="flex items-center gap-1.5 text-slate-600"><i data-lucide="file-text" class="w-3 h-3 text-slate-400"></i> 2 borradores sin confirmar</span>
+          <span class="text-slate-300">·</span>
+          <span class="flex items-center gap-1.5 text-slate-600"><i data-lucide="building-2" class="w-3 h-3 text-slate-400"></i> Top proveedor: <b class="text-slate-700">COSRX 38%</b></span>
+          <span class="text-slate-300">·</span>
+          <span class="flex items-center gap-1.5 text-violet-600"><i data-lucide="user-check" class="w-3 h-3"></i> 2 OCs esperan firma de socio</span>
+        </div>
+      </div>
+      <div class="mt-2 text-[10px] text-slate-400 flex items-start gap-1.5"><i data-lucide="info" class="w-3 h-3 flex-shrink-0 mt-0.5"></i><span>Los 5 KPIs recomputan sobre el set filtrado por Línea (igual que <code class="bg-slate-100 px-1 rounded">statsExtra</code>) · cambiar de línea en el dropdown del header cambia los 5 números. Mantenemos 5 KPIs (canon no-redundancia · NO se agregan). <b class="text-slate-500">Strip cerrado (1 sola versión):</b> A1 Comprado mes · A2 En curso · A3 Por pagar · A4 Lead time · A5 Completadas. Borradores ya NO es KPI: baja a mini-stat. Como Lead time pasa al strip, su tarjeta de §C deja de DAR el número y pasa a DARLE contexto (ver nota en §C).</span></div>
+    </div>
+
+    <!-- TABS -->
+    <div class="px-6 mt-3 border-b border-slate-200 flex items-center gap-1 overflow-x-auto scrollbar-none">
+      <button class="px-3.5 py-3 text-[13px] font-semibold text-blue-700 border-b-2 border-blue-600 whitespace-nowrap flex items-center gap-1.5"><i data-lucide="layout-dashboard" class="w-3.5 h-3.5"></i> Resumen</button>
+      <button class="px-3.5 py-3 text-[13px] font-medium text-slate-500 hover:text-slate-700 whitespace-nowrap flex items-center gap-1.5"><i data-lucide="package" class="w-3.5 h-3.5"></i> Órdenes <span class="text-[10px] bg-slate-100 text-slate-500 rounded-full px-1.5 py-0.5 font-bold tabular-nums">24</span></button>
+      <button class="px-3.5 py-3 text-[13px] font-medium text-slate-500 hover:text-slate-700 whitespace-nowrap flex items-center gap-1.5"><i data-lucide="clipboard-list" class="w-3.5 h-3.5"></i> Pendientes <span class="text-[10px] bg-amber-100 text-amber-700 rounded-full px-1.5 py-0.5 font-bold tabular-nums">9</span></button>
+      <button class="px-3.5 py-3 text-[13px] font-medium text-slate-500 hover:text-slate-700 whitespace-nowrap flex items-center gap-1.5"><i data-lucide="building-2" class="w-3.5 h-3.5"></i> Proveedores</button>
+      <button class="px-3.5 py-3 text-[13px] font-medium text-slate-500 hover:text-slate-700 whitespace-nowrap flex items-center gap-1.5"><i data-lucide="brain-circuit" class="w-3.5 h-3.5"></i> Inteligencia</button>
+    </div>
+
+    <!-- BODY placeholder -->
+    <div class="bg-slate-50/30 px-6 py-8 text-center">
+      <div class="inline-flex items-center gap-2 text-[12px] text-slate-400">
+        <i data-lucide="arrow-down" class="w-4 h-4"></i> El cuerpo de cada tab se especifica en los Actos 2–6 (body Layout A · max-w-6xl interno)
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- ACTO 2 · TAB RESUMEN · §A → §F EVOLUCIONADO · CENTERPIECE -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<section class="space-y-4">
+  <div class="flex items-center gap-3">
+    <span class="w-8 h-8 rounded-lg bg-blue-600 text-white text-[13px] font-bold flex items-center justify-center flex-shrink-0">2</span>
+    <div>
+      <div class="text-[17px] font-bold text-slate-900">Tab Resumen · §A → §F · el dashboard evolucionado</div>
+      <div class="text-[12px] text-slate-500">Preserva donut/tendencia/FX/cross-links · agrega cola de firmas (§A) · pipeline de abastecimiento (§B) · calendario de caja + concentración×riesgo + mix origen (§C) · ROP (§E) · incidencias (§F). NO clona el strip.</div>
+    </div>
+  </div>
+
+  <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden frame">
+    <!-- breadcrumb tab activa mini -->
+    <div class="px-6 py-2.5 border-b border-slate-200 bg-slate-50 flex items-center gap-2 text-[11px]">
+      <i data-lucide="layout-dashboard" class="w-3.5 h-3.5 text-blue-600"></i>
+      <span class="font-semibold text-blue-700">Resumen</span>
+      <span class="text-slate-400">· dashboard ejecutivo de la sección</span>
+    </div>
+
+    <!-- Layout A · main(2) + aside(1) -->
+    <div class="bg-slate-50/30 p-3 sm:p-4 md:p-6">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <!-- ═════════ MAIN (col-span-2) ═════════ -->
+        <div class="md:col-span-2 space-y-4">
+
+          <!-- §A · COLA DE FIRMAS DE SOCIO (A3) · ROI máximo · de autorizacion.estado===pendiente sobre OCs >$1000 -->
+          <div class="bg-gradient-to-r from-violet-50 to-violet-100/30 ring-1 ring-violet-200/60 rounded-2xl p-4">
+            <div class="flex items-start justify-between gap-4 flex-wrap">
+              <div class="flex items-start gap-3">
+                <div class="w-10 h-10 rounded-xl bg-violet-100 flex items-center justify-center flex-shrink-0"><i data-lucide="user-check" class="w-5 h-5 text-violet-600"></i></div>
+                <div>
+                  <div class="text-[14px] font-bold text-violet-900">2 OCs · $9,840 esperan tu firma de socio</div>
+                  <div class="text-[12px] text-violet-700">Superan el umbral de doble firma · quien entra al hub es quien firma</div>
+                </div>
+              </div>
+              <button class="flex items-center gap-1.5 bg-violet-600 hover:bg-violet-700 text-white text-[12px] font-semibold px-3.5 py-2 rounded-lg shadow-sm flex-shrink-0">
+                <i data-lucide="pen-line" class="w-4 h-4"></i> Revisar firmas
+              </button>
+            </div>
+            <div class="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <div class="bg-white/70 border border-violet-100 rounded-lg px-3 py-2 flex items-center justify-between text-[12px]">
+                <span class="text-slate-700 tabular-nums">OC-2418 · COSRX <span class="text-slate-400">·</span> $5,420</span>
+                <a class="text-[11px] font-bold text-violet-700 hover:underline">Firmar →</a>
+              </div>
+              <div class="bg-white/70 border border-violet-100 rounded-lg px-3 py-2 flex items-center justify-between text-[12px]">
+                <span class="text-slate-700 tabular-nums">OC-2421 · Beauty of Joseon <span class="text-slate-400">·</span> $4,420</span>
+                <a class="text-[11px] font-bold text-violet-700 hover:underline">Firmar →</a>
+              </div>
+            </div>
+          </div>
+
+          <!-- §A · BANNER DE SALUD DE LA SECCIÓN (preservado · ahora amber por borradores+pagos) -->
+          <div class="bg-gradient-to-r from-amber-50 to-amber-100/30 ring-1 ring-amber-200/60 rounded-2xl p-4">
+            <div class="flex items-center justify-between flex-wrap gap-3">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center flex-shrink-0"><i data-lucide="alert-triangle" class="w-5 h-5 text-amber-600"></i></div>
+                <div>
+                  <div class="text-[14px] font-bold text-amber-900">Compras con atención</div>
+                  <div class="text-[12px] text-amber-700"><strong>4 OCs</strong> por pagar · <strong>1</strong> envío demorado · <strong>2</strong> borradores sin confirmar</div>
+                </div>
+              </div>
+              <button class="text-[11px] font-bold text-amber-700 border-amber-200 hover:bg-amber-50 bg-white border px-3 py-1.5 rounded-lg">Ver pendientes →</button>
+            </div>
+          </div>
+
+          <!-- §B · BANDA "PIPELINE DE ABASTECIMIENTO" (B2) · 5 estaciones · clickable · cuello en rose -->
+          <div class="bg-white border border-slate-200 rounded-2xl p-4">
+            <div class="flex items-center justify-between mb-3">
+              <div>
+                <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Pipeline de abastecimiento</div>
+                <div class="text-[11px] text-slate-400">de la demanda al pago · clic en una estación filtra Órdenes</div>
+              </div>
+              <i data-lucide="git-merge" class="w-4 h-4 text-slate-400"></i>
+            </div>
+            <div class="flex items-stretch gap-1.5 overflow-x-auto scrollbar-none pb-1">
+              <!-- 1 Requerimiento -->
+              <button class="flex-1 min-w-[110px] bg-blue-50 border border-blue-200 rounded-xl p-3 text-left hover:border-blue-300 transition-colors">
+                <div class="flex items-center gap-1.5 mb-1.5"><i data-lucide="clipboard-list" class="w-3.5 h-3.5 text-blue-600"></i><span class="text-[10px] font-bold uppercase tracking-wider text-blue-700">Requerim.</span></div>
+                <div class="text-xl font-bold tabular-nums text-blue-900">9</div>
+                <div class="text-[10px] text-blue-700 tabular-nums">$18.4k por convertir</div>
+              </button>
+              <div class="flex items-center"><i data-lucide="chevron-right" class="w-4 h-4 text-slate-300"></i></div>
+              <!-- 2 Borrador -->
+              <button class="flex-1 min-w-[110px] bg-slate-50 border border-slate-200 rounded-xl p-3 text-left hover:border-slate-300 transition-colors">
+                <div class="flex items-center gap-1.5 mb-1.5"><i data-lucide="file-text" class="w-3.5 h-3.5 text-slate-500"></i><span class="text-[10px] font-bold uppercase tracking-wider text-slate-600">Borrador</span></div>
+                <div class="text-xl font-bold tabular-nums text-slate-900">2</div>
+                <div class="text-[10px] text-slate-500 tabular-nums">$6.2k sin confirmar</div>
+              </button>
+              <div class="flex items-center"><i data-lucide="chevron-right" class="w-4 h-4 text-slate-300"></i></div>
+              <!-- 3 En curso -->
+              <button class="flex-1 min-w-[110px] bg-sky-50 border border-sky-200 rounded-xl p-3 text-left hover:border-sky-300 transition-colors">
+                <div class="flex items-center gap-1.5 mb-1.5"><i data-lucide="truck" class="w-3.5 h-3.5 text-sky-600"></i><span class="text-[10px] font-bold uppercase tracking-wider text-sky-700">En curso</span></div>
+                <div class="text-xl font-bold tabular-nums text-sky-900">7</div>
+                <div class="text-[10px] text-sky-700 tabular-nums">$42.2k en tránsito</div>
+              </button>
+              <div class="flex items-center"><i data-lucide="chevron-right" class="w-4 h-4 text-slate-300"></i></div>
+              <!-- 4 Por recibir · CUELLO DE BOTELLA (rose) -->
+              <button class="flex-1 min-w-[110px] bg-rose-50 border border-rose-300 ring-1 ring-rose-200 rounded-xl p-3 text-left hover:border-rose-400 transition-colors">
+                <div class="flex items-center gap-1.5 mb-1.5"><i data-lucide="package-search" class="w-3.5 h-3.5 text-rose-600"></i><span class="text-[10px] font-bold uppercase tracking-wider text-rose-700">Por recibir</span></div>
+                <div class="text-xl font-bold tabular-nums text-rose-900">5</div>
+                <div class="text-[10px] text-rose-700 tabular-nums flex items-center gap-1"><i data-lucide="alert-triangle" class="w-2.5 h-2.5"></i> cuello · 3 demoradas</div>
+              </button>
+              <div class="flex items-center"><i data-lucide="chevron-right" class="w-4 h-4 text-slate-300"></i></div>
+              <!-- 5 Por pagar -->
+              <button class="flex-1 min-w-[110px] bg-amber-50 border border-amber-200 rounded-xl p-3 text-left hover:border-amber-300 transition-colors">
+                <div class="flex items-center gap-1.5 mb-1.5"><i data-lucide="credit-card" class="w-3.5 h-3.5 text-amber-600"></i><span class="text-[10px] font-bold uppercase tracking-wider text-amber-700">Por pagar</span></div>
+                <div class="text-xl font-bold tabular-nums text-amber-900">4</div>
+                <div class="text-[10px] text-amber-700 tabular-nums">$23.9k saldo</div>
+              </button>
+            </div>
+            <div class="mt-2 text-[10px] text-slate-400 flex items-start gap-1.5"><i data-lucide="info" class="w-3 h-3 flex-shrink-0 mt-0.5"></i><span>Todos los conteos + montos ya existen (calcularPendientesCompra · stats por estado · montoPendiente). El cuello de botella se pinta en la estación con más demoradas.</span></div>
+          </div>
+
+          <!-- §B · DONUT (B1) CLICKABLE + TENDENCIA (B4) LÍNEA/ÁREA -->
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <!-- DONUT · gasto por proveedor · CLICKABLE (preservado · ahora cada segmento drillea) -->
+            <div class="bg-white border border-slate-200 rounded-2xl p-4">
+              <div class="flex items-center justify-between mb-3">
+                <div>
+                  <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Gasto por proveedor</div>
+                  <div class="text-[11px] text-slate-400">clic en un segmento → Órdenes filtrado</div>
+                </div>
+                <i data-lucide="pie-chart" class="w-4 h-4 text-slate-400"></i>
+              </div>
+              <div class="flex items-center gap-4">
+                <svg viewBox="0 0 36 36" class="w-24 h-24 flex-shrink-0">
+                  <circle cx="18" cy="18" r="15.9" fill="none" stroke="#e2e8f0" stroke-width="3.6" />
+                  <circle cx="18" cy="18" r="15.9" fill="none" stroke="#3b82f6" stroke-width="3.6" stroke-dasharray="38 62" stroke-dashoffset="25" class="cursor-pointer hover:opacity-80" />
+                  <circle cx="18" cy="18" r="15.9" fill="none" stroke="#8b5cf6" stroke-width="3.6" stroke-dasharray="27 73" stroke-dashoffset="-13" class="cursor-pointer hover:opacity-80" />
+                  <circle cx="18" cy="18" r="15.9" fill="none" stroke="#0ea5e9" stroke-width="3.6" stroke-dasharray="18 82" stroke-dashoffset="-40" class="cursor-pointer hover:opacity-80" />
+                  <circle cx="18" cy="18" r="15.9" fill="none" stroke="#94a3b8" stroke-width="3.6" stroke-dasharray="17 83" stroke-dashoffset="-58" class="cursor-pointer hover:opacity-80" />
+                  <text x="18" y="20" text-anchor="middle" class="tabular-nums" style="font-size:5px;font-weight:700;fill:#0f172a">$211k</text>
+                </svg>
+                <div class="flex-1 space-y-1.5 text-[12px]">
+                  <button class="w-full flex items-center justify-between hover:bg-slate-50 rounded px-1 py-0.5"><span class="flex items-center gap-1.5 min-w-0"><span class="w-2 h-2 rounded-full bg-blue-500 flex-shrink-0"></span><span class="truncate">COSRX Co.</span></span><span class="tabular-nums font-semibold text-slate-700 flex-shrink-0">38%</span></button>
+                  <button class="w-full flex items-center justify-between hover:bg-slate-50 rounded px-1 py-0.5"><span class="flex items-center gap-1.5 min-w-0"><span class="w-2 h-2 rounded-full bg-violet-500 flex-shrink-0"></span><span class="truncate">Beauty of Joseon</span></span><span class="tabular-nums font-semibold text-slate-700 flex-shrink-0">27%</span></button>
+                  <button class="w-full flex items-center justify-between hover:bg-slate-50 rounded px-1 py-0.5"><span class="flex items-center gap-1.5 min-w-0"><span class="w-2 h-2 rounded-full bg-sky-500 flex-shrink-0"></span><span class="truncate">Anua USA</span></span><span class="tabular-nums font-semibold text-slate-700 flex-shrink-0">18%</span></button>
+                  <button class="w-full flex items-center justify-between hover:bg-slate-50 rounded px-1 py-0.5"><span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-slate-400"></span> Otros (4)</span><span class="tabular-nums font-semibold text-slate-700">17%</span></button>
+                </div>
+              </div>
+            </div>
+            <!-- TENDENCIA 6m · LÍNEA/ÁREA + línea de promedio (B4 · era barras) -->
+            <div class="bg-white border border-slate-200 rounded-2xl p-4">
+              <div class="flex items-center justify-between mb-3">
+                <div>
+                  <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Tendencia de compras · 6 meses</div>
+                  <div class="text-[11px] text-slate-400">valor importado por mes (USD)</div>
+                </div>
+                <i data-lucide="activity" class="w-4 h-4 text-slate-400"></i>
+              </div>
+              <!-- área + línea + promedio -->
+              <svg viewBox="0 0 300 100" class="w-full h-28" preserveAspectRatio="none">
+                <defs><linearGradient id="areaFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#3b82f6" stop-opacity="0.25"/><stop offset="100%" stop-color="#3b82f6" stop-opacity="0"/></linearGradient></defs>
+                <!-- área -->
+                <path d="M0,72 L60,60 L120,66 L180,40 L240,52 L300,28 L300,100 L0,100 Z" fill="url(#areaFill)"/>
+                <!-- línea -->
+                <path d="M0,72 L60,60 L120,66 L180,40 L240,52 L300,28" fill="none" stroke="#3b82f6" stroke-width="2"/>
+                <!-- línea de promedio (dashed) -->
+                <line x1="0" y1="53" x2="300" y2="53" stroke="#f59e0b" stroke-width="1" stroke-dasharray="4 3"/>
+                <!-- punto del mes actual -->
+                <circle cx="300" cy="28" r="3" fill="#3b82f6"/>
+              </svg>
+              <div class="flex items-center justify-between text-[9px] text-slate-400 -mt-1">
+                <span>Ene</span><span>Feb</span><span>Mar</span><span>Abr</span><span>May</span><span class="text-blue-700 font-bold">Jun</span>
+              </div>
+              <div class="mt-2 pt-2 border-t border-slate-100 flex items-center justify-between text-[11px]">
+                <span class="text-amber-600 flex items-center gap-1"><span class="w-3 h-px bg-amber-400 inline-block"></span> Promedio $35.1k</span>
+                <span class="text-blue-700 font-semibold tabular-nums">Jun $42.2k · +18%</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- §C · INSIGHTS · row 1: lead/concentración/cumplimiento/FX (preservados) -->
+          <div>
+            <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-2 ml-1">Insights del mes</div>
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+              <!-- Lead time · el NÚMERO ya vive en el strip (A4) · acá NO se clona: aporta CONTEXTO (desglose por tramo + vs trimestre) · canon no-redundancia -->
+              <div class="bg-white border border-slate-200 rounded-xl p-3">
+                <div class="flex items-center gap-1.5 mb-1"><i data-lucide="clock" class="w-3.5 h-3.5 text-sky-600"></i><span class="text-[10px] uppercase tracking-wider text-sky-700 font-bold">Lead time · desglose</span></div>
+                <div class="text-[11px] text-slate-600 leading-snug tabular-nums"><b class="text-slate-800">29d</b> tránsito + <b class="text-slate-800">9d</b> aduana/recepción</div>
+                <div class="text-[11px] text-rose-600 leading-snug flex items-center gap-1 mt-0.5"><i data-lucide="trending-up" class="w-3 h-3"></i> +4d vs trimestre previo</div>
+              </div>
+              <div class="bg-white border border-slate-200 rounded-xl p-3">
+                <div class="flex items-center gap-1.5 mb-1"><i data-lucide="building-2" class="w-3.5 h-3.5 text-blue-600"></i><span class="text-[10px] uppercase tracking-wider text-blue-700 font-bold">Concentración</span></div>
+                <div class="text-[18px] font-bold tabular-nums text-slate-900">83<span class="text-slate-400">%</span></div>
+                <div class="text-[11px] text-slate-500 leading-snug">en tus top 3 proveedores</div>
+              </div>
+              <div class="bg-white border border-slate-200 rounded-xl p-3">
+                <div class="flex items-center gap-1.5 mb-1"><i data-lucide="check-circle" class="w-3.5 h-3.5 text-emerald-600"></i><span class="text-[10px] uppercase tracking-wider text-emerald-700 font-bold">Cumplim. pago</span></div>
+                <div class="text-[18px] font-bold tabular-nums text-slate-900">81<span class="text-slate-400">%</span></div>
+                <div class="text-[11px] text-slate-500 leading-snug">pagado vs total adeudado</div>
+              </div>
+              <div class="bg-white border border-slate-200 rounded-xl p-3">
+                <div class="flex items-center gap-1.5 mb-1"><i data-lucide="arrow-left-right" class="w-3.5 h-3.5 text-amber-600"></i><span class="text-[10px] uppercase tracking-wider text-amber-700 font-bold">FX acumulado</span></div>
+                <div class="text-[18px] font-bold tabular-nums text-rose-700">− S/ 1,240</div>
+                <div class="text-[11px] text-slate-500 leading-snug">TC compra vs hoy (sin pagar)</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- §C · INSIGHTS · row 2 · NUEVOS · calendario de caja + concentración×riesgo + mix origen -->
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-3">
+            <!-- A4 · CALENDARIO/ESCALONADO DE CAJA · de montoPendiente+estado+lead · requiere agregación -->
+            <div class="bg-white border border-slate-200 rounded-xl p-4">
+              <div class="flex items-center justify-between mb-2">
+                <div class="flex items-center gap-1.5"><i data-lucide="calendar-clock" class="w-3.5 h-3.5 text-amber-600"></i><span class="text-[10px] uppercase tracking-wider text-amber-700 font-bold">Próximas salidas de caja</span></div>
+                <span class="text-[9px] font-bold text-amber-600 bg-amber-50 border border-amber-200 px-1.5 py-0.5 rounded inline-flex items-center gap-1"><i data-lucide="plug" class="w-2.5 h-2.5"></i> requiere agregación</span>
+              </div>
+              <div class="space-y-1.5">
+                <div class="flex items-center justify-between"><span class="text-[11px] text-slate-600">Próximos <b class="text-slate-800">7d</b></span><span class="text-[13px] font-bold tabular-nums text-rose-700">$8,420</span></div>
+                <div class="h-1.5 bg-slate-100 rounded-full overflow-hidden"><div class="h-full bg-rose-400 rounded-full" style="width:35%"></div></div>
+                <div class="flex items-center justify-between"><span class="text-[11px] text-slate-600"><b class="text-slate-800">15d</b></span><span class="text-[13px] font-bold tabular-nums text-amber-700">$6,100</span></div>
+                <div class="h-1.5 bg-slate-100 rounded-full overflow-hidden"><div class="h-full bg-amber-400 rounded-full" style="width:25%"></div></div>
+                <div class="flex items-center justify-between"><span class="text-[11px] text-slate-600"><b class="text-slate-800">30d</b></span><span class="text-[13px] font-bold tabular-nums text-slate-700">$9,420</span></div>
+                <div class="h-1.5 bg-slate-100 rounded-full overflow-hidden"><div class="h-full bg-slate-400 rounded-full" style="width:40%"></div></div>
+              </div>
+            </div>
+            <!-- A7 · CONCENTRACIÓN × RIESGO · TEASER comprimido (solo 22% + barra riesgo/ok) · el donut 4-clases + leyenda viven en tab Proveedores · canon no-redundancia -->
+            <div class="bg-white border border-slate-200 rounded-xl p-4">
+              <div class="flex items-center gap-1.5 mb-2"><i data-lucide="shield-alert" class="w-3.5 h-3.5 text-rose-600"></i><span class="text-[10px] uppercase tracking-wider text-rose-700 font-bold">Compra × riesgo SRM</span></div>
+              <div class="text-2xl font-bold tabular-nums text-rose-900">22<span class="text-rose-300">%</span></div>
+              <div class="text-[11px] text-slate-500 leading-snug mb-2">del gasto en proveedores condicionales / sin evaluar</div>
+              <!-- barra 2-tramos (riesgo vs ok) · NO el donut de 4 clases del tab Proveedores -->
+              <div class="flex h-2.5 rounded-full overflow-hidden">
+                <div class="bg-rose-400" style="width:22%" title="En riesgo (condic. + sin evaluar)"></div>
+                <div class="bg-emerald-200" style="width:78%" title="OK (preferido + aprobado)"></div>
+              </div>
+              <a class="mt-2 inline-flex items-center gap-1 text-[11px] font-bold text-rose-700 hover:underline">Ver desglose en Proveedores <i data-lucide="arrow-right" class="w-3 h-3"></i></a>
+            </div>
+            <!-- A9 · MIX apuesta/restock/comprometida · de Requerimiento.origen vía requerimientoId -->
+            <div class="bg-white border border-slate-200 rounded-xl p-4">
+              <div class="flex items-center justify-between mb-2">
+                <div class="flex items-center gap-1.5"><i data-lucide="layers" class="w-3.5 h-3.5 text-blue-600"></i><span class="text-[10px] uppercase tracking-wider text-blue-700 font-bold">Mix del gasto</span></div>
+                <span class="text-[9px] font-bold text-amber-600 bg-amber-50 border border-amber-200 px-1.5 py-0.5 rounded inline-flex items-center gap-1"><i data-lucide="plug" class="w-2.5 h-2.5"></i> vía requerimientoId</span>
+              </div>
+              <div class="space-y-2 text-[11px]">
+                <div><div class="flex justify-between mb-0.5"><span class="flex items-center gap-1.5 text-slate-600"><span class="w-2 h-2 rounded-full bg-emerald-500"></span> Restock</span><span class="tabular-nums font-bold text-slate-800">58%</span></div><div class="h-1.5 bg-slate-100 rounded-full overflow-hidden"><div class="h-full bg-emerald-500 rounded-full" style="width:58%"></div></div></div>
+                <div><div class="flex justify-between mb-0.5"><span class="flex items-center gap-1.5 text-slate-600"><span class="w-2 h-2 rounded-full bg-purple-500"></span> Apuesta</span><span class="tabular-nums font-bold text-slate-800">29%</span></div><div class="h-1.5 bg-slate-100 rounded-full overflow-hidden"><div class="h-full bg-purple-500 rounded-full" style="width:29%"></div></div></div>
+                <div><div class="flex justify-between mb-0.5"><span class="flex items-center gap-1.5 text-slate-600"><span class="w-2 h-2 rounded-full bg-sky-500"></span> Comprometida</span><span class="tabular-nums font-bold text-slate-800">13%</span></div><div class="h-1.5 bg-slate-100 rounded-full overflow-hidden"><div class="h-full bg-sky-500 rounded-full" style="width:13%"></div></div></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- §D · ACCIONES RÁPIDAS (preservado · +revisar firmas) -->
+          <div>
+            <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-2 ml-1">Acciones rápidas</div>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <button class="bg-white border border-slate-200 rounded-lg p-3 hover:border-blue-300 hover:bg-blue-50/30 text-left transition-colors"><i data-lucide="plus" class="w-4 h-4 text-blue-600 mb-1.5"></i><div class="text-[12px] font-bold text-slate-900">Nueva orden de compra</div><div class="text-[10px] text-slate-500">wizard 5 pasos</div></button>
+              <button class="bg-white border border-slate-200 rounded-lg p-3 hover:border-amber-300 hover:bg-amber-50/30 text-left transition-colors"><i data-lucide="shopping-cart" class="w-4 h-4 text-amber-600 mb-1.5"></i><div class="text-[12px] font-bold text-slate-900">Generar compra</div><div class="text-[10px] text-slate-500">consolida requerimientos pendientes</div></button>
+              <button class="bg-white border border-slate-200 rounded-lg p-3 hover:border-violet-300 hover:bg-violet-50/30 text-left transition-colors"><i data-lucide="pen-line" class="w-4 h-4 text-violet-600 mb-1.5"></i><div class="text-[12px] font-bold text-slate-900">Revisar firmas</div><div class="text-[10px] text-slate-500">2 OCs esperan tu firma</div></button>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- ═════════ ASIDE (col-span-1) · contexto persistente ═════════ -->
+        <aside class="md:col-span-1 space-y-4">
+
+          <!-- §F · ALERTAS · INCIDENCIAS ABIERTAS + $ en disputa (A6) + demoradas + cola firmas -->
+          <div class="bg-white border border-slate-200 rounded-2xl p-4">
+            <div class="flex items-center justify-between mb-3">
+              <span class="text-[10px] uppercase tracking-wider text-slate-500 font-bold acto-sep">§F · Alertas</span>
+              <i data-lucide="bell" class="w-4 h-4 text-slate-400"></i>
+            </div>
+            <div class="space-y-2">
+              <!-- incidencias agregadas + $ disputa (A6) -->
+              <div class="bg-rose-50 ring-1 ring-rose-200 rounded-lg px-3 py-2.5">
+                <div class="flex items-center gap-2"><i data-lucide="alert-triangle" class="w-4 h-4 text-rose-600 flex-shrink-0"></i><span class="text-[12px] font-semibold text-rose-900">3 incidencias abiertas</span></div>
+                <div class="text-[11px] text-rose-700 mt-0.5 ml-6">$2,180 en disputa (retención + NC)</div>
+                <div class="mt-1.5 ml-6"><a class="text-[11px] font-bold text-rose-700 hover:underline">Ver en Inteligencia →</a></div>
+                <div class="mt-1 ml-6 text-[9px] text-amber-600 inline-flex items-center gap-1"><i data-lucide="plug" class="w-2.5 h-2.5"></i> requiere incidenciaOC.listAll</div>
+              </div>
+              <!-- demoradas -->
+              <div class="bg-amber-50 ring-1 ring-amber-200 rounded-lg px-3 py-2.5 flex items-center justify-between gap-2">
+                <div class="flex items-center gap-2 min-w-0"><i data-lucide="truck" class="w-4 h-4 text-amber-600 flex-shrink-0"></i><span class="text-[12px] text-amber-900 truncate"><strong>OC-2402</strong> demorada · 27 días</span></div>
+                <a class="text-[11px] font-bold text-amber-700 hover:underline whitespace-nowrap">Ver →</a>
+              </div>
+              <!-- por pagar -->
+              <div class="bg-rose-50 ring-1 ring-rose-200 rounded-lg px-3 py-2.5 flex items-center justify-between gap-2">
+                <div class="flex items-center gap-2 min-w-0"><i data-lucide="credit-card" class="w-4 h-4 text-rose-600 flex-shrink-0"></i><span class="text-[12px] text-rose-900 truncate"><strong>OC-2418 · $7,420</strong></span></div>
+                <a class="text-[11px] font-bold text-rose-700 hover:underline whitespace-nowrap">Pagar →</a>
+              </div>
+            </div>
+          </div>
+
+          <!-- §E · CROSS-LINKS 360 · con cifras pobladas + ROP teaser -->
+          <div class="bg-white border border-slate-200 rounded-2xl p-4">
+            <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold acto-sep mb-3">§E · Conecta con · 360</div>
+            <div class="space-y-2">
+              <!-- A8 · Requerimientos por convertir · POBLADO (era placeholder) -->
+              <a class="bg-gradient-to-r from-blue-50 to-blue-100/20 border border-blue-200 rounded-lg p-3 flex items-center justify-between hover:border-blue-300 cursor-pointer">
+                <div><div class="text-[12px] font-bold text-slate-900">Requerimientos</div><div class="text-[11px] text-blue-700 tabular-nums">9 por convertir · $18.4k</div></div><i data-lucide="arrow-right" class="w-4 h-4 text-blue-600"></i>
+              </a>
+              <!-- A10 · TEASER señal de reorden ROP · linkea el motor (NO duplica) -->
+              <a class="bg-gradient-to-r from-orange-50 to-orange-100/20 border border-orange-200 rounded-lg p-3 flex items-center justify-between hover:border-orange-300 cursor-pointer">
+                <div><div class="text-[12px] font-bold text-slate-900">Stock · reorden</div><div class="text-[11px] text-orange-700 tabular-nums">7 SKUs bajo punto de reorden</div></div><i data-lucide="arrow-right" class="w-4 h-4 text-orange-600"></i>
+              </a>
+              <a class="bg-gradient-to-r from-orange-50 to-orange-100/20 border border-orange-200 rounded-lg p-3 flex items-center justify-between hover:border-orange-300 cursor-pointer">
+                <div><div class="text-[12px] font-bold text-slate-900">Envíos</div><div class="text-[11px] text-orange-700 tabular-nums">3 en tránsito</div></div><i data-lucide="arrow-right" class="w-4 h-4 text-orange-600"></i>
+              </a>
+              <a class="bg-gradient-to-r from-orange-50 to-orange-100/20 border border-orange-200 rounded-lg p-3 flex items-center justify-between hover:border-orange-300 cursor-pointer">
+                <div><div class="text-[12px] font-bold text-slate-900">Inventario</div><div class="text-[11px] text-orange-700 tabular-nums">2,840 u. por llegar</div></div><i data-lucide="arrow-right" class="w-4 h-4 text-orange-600"></i>
+              </a>
+              <a class="bg-gradient-to-r from-teal-50 to-teal-100/20 border border-teal-200 rounded-lg p-3 flex items-center justify-between hover:border-teal-300 cursor-pointer">
+                <div><div class="text-[12px] font-bold text-slate-900">Finanzas</div><div class="text-[11px] text-teal-700 tabular-nums">$23.9k por pagar</div></div><i data-lucide="arrow-right" class="w-4 h-4 text-teal-600"></i>
+              </a>
+            </div>
+            <div class="mt-2 text-[9px] text-slate-400 flex items-start gap-1.5"><i data-lucide="info" class="w-3 h-3 flex-shrink-0 mt-0.5"></i><span>Requerimientos (A8) = calcularPendientesCompra · ROP (A10) = motor stockReorden · cifras reales, no placeholders.</span></div>
+          </div>
+
+        </aside>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- ACTO 3 · TAB ÓRDENES · LISTADO + BARRA-RESUMEN + TOGGLE PIPELINE -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<section class="space-y-4">
+  <div class="flex items-center gap-3">
+    <span class="w-8 h-8 rounded-lg bg-blue-600 text-white text-[13px] font-bold flex items-center justify-center flex-shrink-0">3</span>
+    <div>
+      <div class="text-[17px] font-bold text-slate-900">Tab Órdenes · listado + barra-resumen + toggle Pipeline</div>
+      <div class="text-[12px] text-slate-500">Preserva CompraCard/FiltrosBar/BulkActions · agrega barra-resumen del subconjunto filtrado (B3) + toggle Lista/Kanban DENTRO del tab (B6 · misma data · canon HUB toggle, NO tab nueva)</div>
+    </div>
+  </div>
+
+  <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden frame">
+    <div class="px-6 py-2.5 border-b border-slate-200 bg-slate-50 flex items-center gap-2 text-[11px]">
+      <i data-lucide="package" class="w-3.5 h-3.5 text-blue-600"></i>
+      <span class="font-semibold text-blue-700">Órdenes</span>
+      <span class="text-slate-400">· registros individuales · operar</span>
+    </div>
+
+    <div class="bg-slate-50/30 p-3 sm:p-4 md:p-6 space-y-4">
+      <!-- FiltrosBar (preservado · esquema) -->
+      <div class="bg-white border border-slate-200 rounded-xl p-2.5 flex items-center gap-2 flex-wrap">
+        <button class="flex items-center gap-1.5 bg-white text-slate-700 border border-slate-200 hover:bg-slate-50 text-[12px] font-medium px-2.5 py-1.5 rounded-lg"><i data-lucide="building-2" class="w-3.5 h-3.5 text-blue-600"></i> Proveedor <i data-lucide="chevron-down" class="w-3 h-3 text-slate-400"></i></button>
+        <span class="w-px h-5 bg-slate-200"></span>
+        <span class="badge bg-blue-100 text-blue-700 border border-blue-200 cursor-pointer">Confirmada <span class="tabular-nums">7</span></span>
+        <span class="badge bg-amber-50 text-amber-600 border border-amber-200 cursor-pointer">En Despacho <span class="tabular-nums">5</span></span>
+        <span class="badge bg-slate-100 text-slate-500 border border-slate-200 cursor-pointer">Pago: Parcial</span>
+        <div class="flex-1"></div>
+        <div class="flex items-center gap-2 border border-slate-200 rounded-lg px-2.5 py-1.5 bg-white"><i data-lucide="search" class="w-3.5 h-3.5 text-slate-400"></i><input class="text-[12px] outline-none w-36" placeholder="Buscar OC, proveedor…" /></div>
+        <!-- TOGGLE Lista/Kanban · DENTRO del tab (B6) -->
+        <div class="flex items-center gap-0.5 bg-slate-100 rounded-lg p-0.5">
+          <button class="flex items-center gap-1 bg-white text-blue-700 shadow-sm text-[11px] font-semibold px-2.5 py-1.5 rounded-md"><i data-lucide="list" class="w-3.5 h-3.5"></i> Lista</button>
+          <button class="flex items-center gap-1 text-slate-500 hover:text-slate-700 text-[11px] font-medium px-2.5 py-1.5 rounded-md"><i data-lucide="kanban" class="w-3.5 h-3.5"></i> Pipeline</button>
+        </div>
+      </div>
+
+      <!-- B3 · BARRA-RESUMEN del subconjunto filtrado · aparece cuando hay filtro activo -->
+      <div class="bg-blue-50 border border-blue-200 rounded-xl px-4 py-2.5 flex items-center justify-between gap-3 flex-wrap">
+        <div class="flex items-center gap-2 text-[12px] flex-wrap">
+          <span class="badge bg-blue-100 text-blue-700"><i data-lucide="filter" class="w-2.5 h-2.5"></i> Filtro: Confirmada</span>
+          <span class="text-slate-700"><b class="tabular-nums text-slate-900">12 OCs</b></span>
+          <span class="text-slate-300">·</span>
+          <span class="text-slate-700">total <b class="tabular-nums text-amber-700">$84,320</b></span>
+          <span class="text-slate-300">·</span>
+          <span class="text-slate-700"><b class="tabular-nums text-rose-700">$31,210</b> por pagar</span>
+        </div>
+        <button class="text-[11px] font-semibold text-blue-700 hover:underline flex items-center gap-1"><i data-lucide="x" class="w-3 h-3"></i> Limpiar filtro</button>
+      </div>
+
+      <!-- VISTA LISTA · CompraCard (preservado · 2 ejemplos) -->
+      <div class="bg-slate-50 rounded-xl p-4 md:p-5 space-y-2.5 border border-slate-100">
+        <!-- Card 1 · con sub-órdenes + envíos + pago parcial -->
+        <div class="bg-white border border-slate-200 rounded-xl p-4 hover:border-blue-300 transition-colors cursor-pointer">
+          <div class="flex items-start justify-between gap-3 flex-wrap">
+            <div class="flex items-start gap-3">
+              <div class="w-10 h-10 rounded-xl bg-blue-50 border border-blue-200 flex items-center justify-center flex-shrink-0"><i data-lucide="package" class="w-5 h-5 text-blue-600"></i></div>
+              <div>
+                <div class="flex items-center gap-2 flex-wrap"><span class="text-[14px] font-bold text-slate-900 tabular-nums">OC-2418</span><span class="badge bg-sky-100 text-sky-700"><i data-lucide="truck" class="w-2.5 h-2.5"></i> En despacho</span><span class="badge bg-amber-100 text-amber-700">Pago parcial</span><span class="badge bg-violet-100 text-violet-700"><i data-lucide="user-check" class="w-2.5 h-2.5"></i> Espera firma</span></div>
+                <div class="text-[12px] text-slate-500 mt-0.5">COSRX Co. · Corea del Sur <span class="text-slate-300">·</span> 3 sub-órdenes · 2 envíos · 8 SKUs</div>
+              </div>
+            </div>
+            <div class="text-right">
+              <div class="text-[16px] font-bold tabular-nums text-amber-900">$18,420</div>
+              <div class="text-[11px] text-rose-600 tabular-nums">$7,420 por pagar</div>
+            </div>
+          </div>
+          <!-- sub-filas (sub-órdenes) -->
+          <div class="mt-3 pt-3 border-t border-slate-100 space-y-1.5">
+            <div class="flex items-center justify-between text-[11px]"><span class="flex items-center gap-1.5 text-slate-600"><i data-lucide="split" class="w-3 h-3 text-slate-400"></i> SUB-1 · marítimo · 320 un</span><span class="badge bg-emerald-100 text-emerald-700">Recibida</span></div>
+            <div class="flex items-center justify-between text-[11px]"><span class="flex items-center gap-1.5 text-slate-600"><i data-lucide="split" class="w-3 h-3 text-slate-400"></i> SUB-2 · marítimo · 220 un</span><span class="badge bg-sky-100 text-sky-700">En tránsito · ETA 4 jul</span></div>
+            <div class="flex items-center justify-between text-[11px]"><span class="flex items-center gap-1.5 text-slate-600"><i data-lucide="split" class="w-3 h-3 text-slate-400"></i> SUB-3 · pendiente · 100 un</span><span class="badge bg-slate-100 text-slate-500">Por despachar</span></div>
+          </div>
+          <div class="mt-3 flex items-center gap-2 flex-wrap">
+            <button class="flex items-center gap-1.5 bg-blue-600 text-white text-[11px] font-semibold px-3 py-1.5 rounded-lg"><i data-lucide="package-check" class="w-3.5 h-3.5"></i> Registrar recepción</button>
+            <button class="flex items-center gap-1.5 bg-white text-slate-600 border border-slate-200 text-[11px] font-medium px-3 py-1.5 rounded-lg"><i data-lucide="credit-card" class="w-3.5 h-3.5"></i> Pagar</button>
+            <button class="flex items-center gap-1.5 bg-white text-slate-600 border border-slate-200 text-[11px] font-medium px-3 py-1.5 rounded-lg"><i data-lucide="eye" class="w-3.5 h-3.5"></i> Ver detalle</button>
+          </div>
+        </div>
+        <!-- Card 2 · simple -->
+        <div class="bg-white border border-slate-200 rounded-xl p-4 hover:border-blue-300 transition-colors cursor-pointer">
+          <div class="flex items-start justify-between gap-3 flex-wrap">
+            <div class="flex items-start gap-3">
+              <div class="w-10 h-10 rounded-xl bg-blue-50 border border-blue-200 flex items-center justify-center flex-shrink-0"><i data-lucide="package" class="w-5 h-5 text-blue-600"></i></div>
+              <div>
+                <div class="flex items-center gap-2 flex-wrap"><span class="text-[14px] font-bold text-slate-900 tabular-nums">OC-2421</span><span class="badge bg-blue-100 text-blue-700">Confirmada</span><span class="badge bg-rose-100 text-rose-700">Pago pendiente</span></div>
+                <div class="text-[12px] text-slate-500 mt-0.5">Beauty of Joseon · Corea del Sur <span class="text-slate-300">·</span> 4 SKUs · 240 un</div>
+              </div>
+            </div>
+            <div class="text-right">
+              <div class="text-[16px] font-bold tabular-nums text-amber-900">$8,840</div>
+              <div class="text-[11px] text-rose-600 tabular-nums">$8,840 por pagar</div>
+            </div>
+          </div>
+          <div class="mt-3 flex items-center gap-2 flex-wrap">
+            <button class="flex items-center gap-1.5 bg-blue-600 text-white text-[11px] font-semibold px-3 py-1.5 rounded-lg"><i data-lucide="truck" class="w-3.5 h-3.5"></i> Despachar</button>
+            <button class="flex items-center gap-1.5 bg-white text-slate-600 border border-slate-200 text-[11px] font-medium px-3 py-1.5 rounded-lg"><i data-lucide="eye" class="w-3.5 h-3.5"></i> Ver detalle</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- VISTA PIPELINE/KANBAN · misma data (B6) · mini-preview de cómo se ve el toggle -->
+      <div class="bg-white border border-dashed border-slate-300 rounded-xl p-4">
+        <div class="flex items-center gap-1.5 mb-3"><i data-lucide="kanban" class="w-3.5 h-3.5 text-slate-400"></i><span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 acto-sep">Toggle "Pipeline" · misma data en vista de etapas (B6 · canon HUB toggle)</span></div>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-2.5">
+          <div class="bg-slate-50 border border-slate-200 rounded-lg p-2.5">
+            <div class="flex items-center justify-between mb-2"><span class="text-[10px] font-bold uppercase tracking-wider text-slate-600">Borrador</span><span class="text-[10px] tabular-nums bg-white border border-slate-200 px-1.5 rounded-full font-bold text-slate-500">2</span></div>
+            <div class="space-y-1.5"><div class="bg-white border border-slate-200 rounded p-2 text-[11px]"><div class="font-semibold text-slate-800 tabular-nums">OC-2430</div><div class="text-slate-500 tabular-nums">Anua · $3,200</div></div></div>
+          </div>
+          <div class="bg-blue-50 border border-blue-200 rounded-lg p-2.5">
+            <div class="flex items-center justify-between mb-2"><span class="text-[10px] font-bold uppercase tracking-wider text-blue-700">Confirmada</span><span class="text-[10px] tabular-nums bg-white border border-blue-200 px-1.5 rounded-full font-bold text-blue-600">7</span></div>
+            <div class="space-y-1.5"><div class="bg-white border border-slate-200 rounded p-2 text-[11px]"><div class="font-semibold text-slate-800 tabular-nums">OC-2421</div><div class="text-slate-500 tabular-nums">B. of Joseon · $8,840</div></div></div>
+          </div>
+          <div class="bg-amber-50 border border-amber-200 rounded-lg p-2.5">
+            <div class="flex items-center justify-between mb-2"><span class="text-[10px] font-bold uppercase tracking-wider text-amber-700">En Despacho</span><span class="text-[10px] tabular-nums bg-white border border-amber-200 px-1.5 rounded-full font-bold text-amber-600">5</span></div>
+            <div class="space-y-1.5"><div class="bg-white border border-slate-200 rounded p-2 text-[11px]"><div class="font-semibold text-slate-800 tabular-nums">OC-2418</div><div class="text-slate-500 tabular-nums">COSRX · $18,420</div></div></div>
+          </div>
+          <div class="bg-emerald-50 border border-emerald-200 rounded-lg p-2.5">
+            <div class="flex items-center justify-between mb-2"><span class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Completada</span><span class="text-[10px] tabular-nums bg-white border border-emerald-200 px-1.5 rounded-full font-bold text-emerald-600">12</span></div>
+            <div class="space-y-1.5"><div class="bg-white border border-slate-200 rounded p-2 text-[11px]"><div class="font-semibold text-slate-800 tabular-nums">OC-2390</div><div class="text-slate-500 tabular-nums">COSRX · $12,100</div></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- ACTO 4 · TAB PENDIENTES · DEMANDA→COMPRA + TEASER ROP -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<section class="space-y-4">
+  <div class="flex items-center gap-3">
+    <span class="w-8 h-8 rounded-lg bg-blue-600 text-white text-[13px] font-bold flex items-center justify-center flex-shrink-0">4</span>
+    <div>
+      <div class="text-[17px] font-bold text-slate-900">Tab Pendientes · demanda → compra + teaser ROP</div>
+      <div class="text-[12px] text-slate-500">Preserva la selección de requerimientos aprobados por convertir → OC consolidada · agrega el teaser de reorden ROP (A10 · linkea a Stock, NO duplica el motor)</div>
+    </div>
+  </div>
+
+  <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden frame">
+    <div class="px-6 py-2.5 border-b border-slate-200 bg-slate-50 flex items-center gap-2 text-[11px]">
+      <i data-lucide="clipboard-list" class="w-3.5 h-3.5 text-blue-600"></i>
+      <span class="font-semibold text-blue-700">Pendientes</span>
+      <span class="text-slate-400">· productos de requerimientos sin OC</span>
+    </div>
+
+    <div class="bg-slate-50/30 p-3 sm:p-4 md:p-6 space-y-4">
+      <!-- A10 · TEASER de reorden ROP · linkea a Stock (NO duplica el motor) -->
+      <div class="bg-gradient-to-r from-orange-50 to-orange-100/30 border border-orange-200 rounded-xl p-4 flex items-start justify-between gap-3 flex-wrap">
+        <div class="flex items-start gap-3">
+          <div class="w-10 h-10 rounded-xl bg-orange-100 flex items-center justify-center flex-shrink-0"><i data-lucide="package-search" class="w-5 h-5 text-orange-600"></i></div>
+          <div>
+            <div class="text-[13px] font-bold text-orange-900">7 SKUs bajo punto de reorden</div>
+            <div class="text-[12px] text-orange-700">El motor de reorden (ROP) detectó faltantes. Generá los requerimientos desde Stock · acá los comprás.</div>
+          </div>
+        </div>
+        <a class="flex items-center gap-1.5 bg-white text-orange-700 border border-orange-200 hover:bg-orange-50 text-[12px] font-semibold px-3 py-2 rounded-lg flex-shrink-0"><i data-lucide="external-link" class="w-3.5 h-3.5"></i> Ver señal en Stock</a>
+      </div>
+      <div class="text-[10px] text-slate-400 flex items-start gap-1.5 -mt-1 ml-1"><i data-lucide="info" class="w-3 h-3 flex-shrink-0 mt-0.5"></i><span>El teaser linkea al motor <code class="bg-slate-100 px-1 rounded">stockReorden.helper</code> (single source en el store) · NO recalcula ROP acá · canon de no-duplicar.</span></div>
+
+      <!-- resumen + buscador (preservado) -->
+      <div class="bg-white border border-slate-200 rounded-xl p-3 flex items-center justify-between gap-3 flex-wrap">
+        <div class="flex items-center gap-4 text-[12px] flex-wrap">
+          <span class="text-slate-700"><b class="tabular-nums text-slate-900">9</b> productos</span>
+          <span class="text-slate-300">·</span>
+          <span class="text-slate-700"><b class="tabular-nums text-slate-900">1,240</b> unidades</span>
+          <span class="text-slate-300">·</span>
+          <span class="text-slate-700">estimado <b class="tabular-nums text-amber-700">$18,420</b></span>
+        </div>
+        <div class="flex items-center gap-2 border border-slate-200 rounded-lg px-2.5 py-1.5"><i data-lucide="search" class="w-3.5 h-3.5 text-slate-400"></i><input class="text-[12px] outline-none w-40" placeholder="Buscar SKU, marca…" /></div>
+      </div>
+
+      <!-- barra de selección (preservado) -->
+      <div class="bg-blue-600 rounded-xl px-4 py-2.5 flex items-center justify-between gap-3 flex-wrap">
+        <div class="flex items-center gap-2 text-[12px] text-white"><i data-lucide="check-square" class="w-4 h-4"></i><span class="font-semibold">3 productos seleccionados · 420 un</span></div>
+        <button class="flex items-center gap-1.5 bg-white text-blue-700 text-[12px] font-semibold px-3 py-1.5 rounded-lg"><i data-lucide="shopping-cart" class="w-3.5 h-3.5"></i> Generar compra consolidada</button>
+      </div>
+
+      <!-- lista de productos pendientes (preservado) -->
+      <div class="bg-slate-50 rounded-xl p-4 border border-slate-100 space-y-2">
+        <div class="bg-white border border-blue-300 ring-1 ring-blue-200 rounded-lg p-3 flex items-center gap-3">
+          <i data-lucide="check-square" class="w-4 h-4 text-blue-600 flex-shrink-0"></i>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2 flex-wrap"><span class="text-[12px] font-bold text-slate-900">Snail 96 Mucin Essence</span><span class="badge bg-emerald-100 text-emerald-700">Restock</span></div>
+            <div class="text-[11px] text-slate-500 tabular-nums">COSRX · SKU CSX-096 · de REQ-0318 · proveedor sugerido: COSRX Co.</div>
+          </div>
+          <div class="text-right"><div class="text-[13px] font-bold tabular-nums text-slate-900">240 un</div><div class="text-[11px] text-slate-500 tabular-nums">~$3,120</div></div>
+        </div>
+        <div class="bg-white border border-blue-300 ring-1 ring-blue-200 rounded-lg p-3 flex items-center gap-3">
+          <i data-lucide="check-square" class="w-4 h-4 text-blue-600 flex-shrink-0"></i>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2 flex-wrap"><span class="text-[12px] font-bold text-slate-900">Relief Sun Rice + Probiotics</span><span class="badge bg-purple-100 text-purple-700">Apuesta</span></div>
+            <div class="text-[11px] text-slate-500 tabular-nums">Beauty of Joseon · SKU BOJ-RS · de REQ-0321 · stock libre (sin cliente)</div>
+          </div>
+          <div class="text-right"><div class="text-[13px] font-bold tabular-nums text-slate-900">120 un</div><div class="text-[11px] text-slate-500 tabular-nums">~$2,040</div></div>
+        </div>
+        <div class="bg-white border border-slate-200 rounded-lg p-3 flex items-center gap-3">
+          <i data-lucide="square" class="w-4 h-4 text-slate-300 flex-shrink-0"></i>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2 flex-wrap"><span class="text-[12px] font-bold text-slate-900">Heartleaf 77 Toner</span><span class="badge bg-sky-100 text-sky-700">Comprometida</span></div>
+            <div class="text-[11px] text-slate-500 tabular-nums">Anua · SKU ANU-77 · de REQ-0322 · cliente: D. Quispe (reserva)</div>
+          </div>
+          <div class="text-right"><div class="text-[13px] font-bold tabular-nums text-slate-900">60 un</div><div class="text-[11px] text-slate-500 tabular-nums">~$1,080</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- ACTO 5 · TAB PROVEEDORES · SCORECARD SLA + CONCENTRACIÓN × RIESGO -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<section class="space-y-4">
+  <div class="flex items-center gap-3">
+    <span class="w-8 h-8 rounded-lg bg-blue-600 text-white text-[13px] font-bold flex items-center justify-center flex-shrink-0">5</span>
+    <div>
+      <div class="text-[17px] font-bold text-slate-900">Tab Proveedores · scorecard SLA + concentración × riesgo</div>
+      <div class="text-[12px] text-slate-500">Preserva el directorio SRM (gasto/#OCs/clasificación) · agrega SCORECARD DE CONFIABILIDAD/SLA en vivo (A5 · quién cumple fechas / quién genera incidencias)</div>
+    </div>
+  </div>
+
+  <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden frame">
+    <div class="px-6 py-2.5 border-b border-slate-200 bg-slate-50 flex items-center gap-2 text-[11px]">
+      <i data-lucide="building-2" class="w-3.5 h-3.5 text-blue-600"></i>
+      <span class="font-semibold text-blue-700">Proveedores</span>
+      <span class="text-slate-400">· SRM · confiabilidad · evaluación</span>
+    </div>
+
+    <div class="bg-slate-50/30 p-3 sm:p-4 md:p-6 space-y-4">
+      <!-- A5 · SCORECARD DE CONFIABILIDAD / SLA EN VIVO -->
+      <div class="bg-white border border-slate-200 rounded-xl p-4">
+        <div class="flex items-center justify-between mb-3">
+          <div>
+            <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold acto-sep">Scorecard de confiabilidad · SLA en vivo</div>
+            <div class="text-[11px] text-slate-400">% on-time (fechaEnviada → fechaRecibida vs ETA) · # incidencias por proveedor</div>
+          </div>
+          <span class="text-[9px] font-bold text-amber-600 bg-amber-50 border border-amber-200 px-1.5 py-0.5 rounded inline-flex items-center gap-1"><i data-lucide="plug" class="w-2.5 h-2.5"></i> requiere incidenciaOC.listAll (~10 líneas)</span>
+        </div>
+        <div class="space-y-2">
+          <!-- header de columnas -->
+          <div class="hidden md:grid grid-cols-12 gap-2 px-3 text-[9px] font-bold uppercase tracking-wider text-slate-400">
+            <div class="col-span-4">Proveedor</div><div class="col-span-2 text-center">On-time</div><div class="col-span-2 text-center">Lead real</div><div class="col-span-2 text-center">Incidencias</div><div class="col-span-2 text-center">Clasificación</div>
+          </div>
+          <!-- fila 1 · top performer -->
+          <div class="bg-white border border-slate-200 rounded-lg p-3 grid grid-cols-2 md:grid-cols-12 gap-2 items-center">
+            <div class="md:col-span-4 flex items-center gap-2"><span class="w-6 h-6 rounded-lg bg-emerald-100 text-emerald-700 text-[10px] font-bold flex items-center justify-center tabular-nums">1</span><div><div class="text-[12px] font-bold text-slate-900">COSRX Co.</div><div class="text-[10px] text-slate-500 tabular-nums">12 OCs · $80.2k</div></div></div>
+            <div class="md:col-span-2 text-center"><div class="text-[14px] font-bold tabular-nums text-emerald-700">96%</div><div class="h-1.5 bg-slate-100 rounded-full overflow-hidden mt-0.5"><div class="h-full bg-emerald-500" style="width:96%"></div></div></div>
+            <div class="md:col-span-2 text-center text-[12px] font-semibold tabular-nums text-slate-700">34 días</div>
+            <div class="md:col-span-2 text-center"><span class="badge bg-emerald-100 text-emerald-700 tabular-nums">0 abiertas</span></div>
+            <div class="md:col-span-2 text-center"><span class="badge bg-emerald-100 text-emerald-700"><i data-lucide="award" class="w-2.5 h-2.5"></i> Preferido</span></div>
+          </div>
+          <!-- fila 2 -->
+          <div class="bg-white border border-slate-200 rounded-lg p-3 grid grid-cols-2 md:grid-cols-12 gap-2 items-center">
+            <div class="md:col-span-4 flex items-center gap-2"><span class="w-6 h-6 rounded-lg bg-sky-100 text-sky-700 text-[10px] font-bold flex items-center justify-center tabular-nums">2</span><div><div class="text-[12px] font-bold text-slate-900">Beauty of Joseon</div><div class="text-[10px] text-slate-500 tabular-nums">8 OCs · $57.0k</div></div></div>
+            <div class="md:col-span-2 text-center"><div class="text-[14px] font-bold tabular-nums text-sky-700">88%</div><div class="h-1.5 bg-slate-100 rounded-full overflow-hidden mt-0.5"><div class="h-full bg-sky-500" style="width:88%"></div></div></div>
+            <div class="md:col-span-2 text-center text-[12px] font-semibold tabular-nums text-slate-700">41 días</div>
+            <div class="md:col-span-2 text-center"><span class="badge bg-amber-100 text-amber-700 tabular-nums">1 abierta</span></div>
+            <div class="md:col-span-2 text-center"><span class="badge bg-sky-100 text-sky-700">Aprobado</span></div>
+          </div>
+          <!-- fila 3 · peor SLA (rose) -->
+          <div class="bg-rose-50/40 border border-rose-200 rounded-lg p-3 grid grid-cols-2 md:grid-cols-12 gap-2 items-center">
+            <div class="md:col-span-4 flex items-center gap-2"><span class="w-6 h-6 rounded-lg bg-rose-100 text-rose-700 text-[10px] font-bold flex items-center justify-center tabular-nums">3</span><div><div class="text-[12px] font-bold text-slate-900">Anua USA</div><div class="text-[10px] text-slate-500 tabular-nums">4 OCs · $38.0k</div></div></div>
+            <div class="md:col-span-2 text-center"><div class="text-[14px] font-bold tabular-nums text-rose-700">62%</div><div class="h-1.5 bg-slate-100 rounded-full overflow-hidden mt-0.5"><div class="h-full bg-rose-500" style="width:62%"></div></div></div>
+            <div class="md:col-span-2 text-center text-[12px] font-semibold tabular-nums text-rose-700">58 días</div>
+            <div class="md:col-span-2 text-center"><span class="badge bg-rose-100 text-rose-700 tabular-nums">2 abiertas</span></div>
+            <div class="md:col-span-2 text-center"><span class="badge bg-amber-100 text-amber-700">Condicional</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- concentración × riesgo SRM · DESGLOSE FORMAL (donut 4 clases + leyenda) · el Resumen §C solo muestra el teaser comprimido 22% + barra 2-tramos · misma fuente, distinto nivel · canon no-redundancia (teaser vs desglose) -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div class="bg-white border border-slate-200 rounded-xl p-4">
+          <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-3 acto-sep">Concentración × riesgo SRM</div>
+          <div class="flex items-center gap-4">
+            <svg viewBox="0 0 36 36" class="w-24 h-24 flex-shrink-0">
+              <circle cx="18" cy="18" r="15.9" fill="none" stroke="#e2e8f0" stroke-width="3.6" />
+              <circle cx="18" cy="18" r="15.9" fill="none" stroke="#10b981" stroke-width="3.6" stroke-dasharray="55 45" stroke-dashoffset="25" />
+              <circle cx="18" cy="18" r="15.9" fill="none" stroke="#0ea5e9" stroke-width="3.6" stroke-dasharray="23 77" stroke-dashoffset="-30" />
+              <circle cx="18" cy="18" r="15.9" fill="none" stroke="#f59e0b" stroke-width="3.6" stroke-dasharray="14 86" stroke-dashoffset="-53" />
+              <circle cx="18" cy="18" r="15.9" fill="none" stroke="#94a3b8" stroke-width="3.6" stroke-dasharray="8 92" stroke-dashoffset="-67" />
+              <text x="18" y="20" text-anchor="middle" class="tabular-nums" style="font-size:4.5px;font-weight:700;fill:#dc2626">22% riesgo</text>
+            </svg>
+            <div class="flex-1 space-y-1.5 text-[12px]">
+              <div class="flex items-center justify-between"><span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-emerald-500"></span> Preferido</span><span class="tabular-nums font-semibold text-slate-700">55%</span></div>
+              <div class="flex items-center justify-between"><span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-sky-500"></span> Aprobado</span><span class="tabular-nums font-semibold text-slate-700">23%</span></div>
+              <div class="flex items-center justify-between"><span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-amber-500"></span> Condicional</span><span class="tabular-nums font-semibold text-slate-700">14%</span></div>
+              <div class="flex items-center justify-between"><span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-slate-400"></span> Sin evaluar</span><span class="tabular-nums font-semibold text-slate-700">8%</span></div>
+            </div>
+          </div>
+        </div>
+        <!-- directorio SRM filtros + 1 card (preservado · esquema) -->
+        <div class="bg-white border border-slate-200 rounded-xl p-4">
+          <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-3 acto-sep">Directorio · filtros por clasificación</div>
+          <div class="flex items-center gap-1.5 flex-wrap mb-3">
+            <span class="badge bg-blue-100 text-blue-700">Todos</span>
+            <span class="badge bg-slate-100 text-slate-500 cursor-pointer">Preferidos</span>
+            <span class="badge bg-slate-100 text-slate-500 cursor-pointer">Aprobados</span>
+            <span class="badge bg-slate-100 text-slate-500 cursor-pointer">Condicionales</span>
+          </div>
+          <div class="bg-slate-50 border border-slate-200 rounded-lg p-3 flex items-center justify-between gap-3">
+            <div class="flex items-center gap-2.5"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span><div><div class="text-[12px] font-bold text-slate-900">COSRX Co.</div><div class="text-[10px] text-slate-500 flex items-center gap-1"><i data-lucide="map-pin" class="w-2.5 h-2.5"></i> Corea del Sur · CSX-001</div></div></div>
+            <a class="text-[11px] font-semibold text-blue-700 hover:underline flex items-center gap-1">Maestros <i data-lucide="external-link" class="w-3 h-3"></i></a>
+          </div>
+          <div class="mt-2 text-[10px] text-slate-400">CRUD de proveedores vive en Maestros · este tab es vista SRM analítica (cross-link, no edición).</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- ACTO 6 · TAB INTELIGENCIA · INCIDENCIAS AGREGADAS + ROLL-UP -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<section class="space-y-4">
+  <div class="flex items-center gap-3">
+    <span class="w-8 h-8 rounded-lg bg-blue-600 text-white text-[13px] font-bold flex items-center justify-center flex-shrink-0">6</span>
+    <div>
+      <div class="text-[17px] font-bold text-slate-900">Tab Inteligencia · incidencias agregadas + lead/precio roll-up</div>
+      <div class="text-[12px] text-slate-500">Preserva la inteligencia agregada (ranking SKU por gasto · variación de precio) · agrega INCIDENCIAS AGREGADAS (A6 · # abiertas · $ en disputa · mix por tipo/severidad) a nivel sección</div>
+    </div>
+  </div>
+
+  <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden frame">
+    <div class="px-6 py-2.5 border-b border-slate-200 bg-slate-50 flex items-center gap-2 text-[11px]">
+      <i data-lucide="brain-circuit" class="w-3.5 h-3.5 text-blue-600"></i>
+      <span class="font-semibold text-blue-700">Inteligencia</span>
+      <span class="text-slate-400">· agregados · analizar (no operar)</span>
+    </div>
+
+    <div class="bg-slate-50/30 p-3 sm:p-4 md:p-6 space-y-4">
+      <!-- A6 · INCIDENCIAS AGREGADAS · # abiertas · $ disputa · mix tipo/severidad -->
+      <div class="bg-white border border-rose-200 rounded-xl p-4">
+        <div class="flex items-center justify-between mb-3">
+          <div>
+            <div class="text-[10px] uppercase tracking-wider text-rose-700 font-bold acto-sep">Incidencias agregadas</div>
+            <div class="text-[11px] text-slate-400">faltantes · daños · retención · NC · agregadas de todas las OCs</div>
+          </div>
+          <span class="text-[9px] font-bold text-amber-600 bg-amber-50 border border-amber-200 px-1.5 py-0.5 rounded inline-flex items-center gap-1"><i data-lucide="plug" class="w-2.5 h-2.5"></i> requiere incidenciaOC.listAll</span>
+        </div>
+        <!-- 4 stats -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
+          <div class="bg-rose-50 border border-rose-100 rounded-lg p-3"><div class="text-[10px] uppercase tracking-wider text-rose-700 font-bold mb-1">Abiertas</div><div class="text-2xl font-bold tabular-nums text-rose-900">3</div><div class="text-[10px] text-rose-600">de 14 históricas</div></div>
+          <div class="bg-amber-50 border border-amber-100 rounded-lg p-3"><div class="text-[10px] uppercase tracking-wider text-amber-700 font-bold mb-1">En disputa</div><div class="text-2xl font-bold tabular-nums text-amber-900">$2,180</div><div class="text-[10px] text-amber-600">retención + NC</div></div>
+          <div class="bg-slate-50 border border-slate-100 rounded-lg p-3"><div class="text-[10px] uppercase tracking-wider text-slate-600 font-bold mb-1">Tasa</div><div class="text-2xl font-bold tabular-nums text-slate-900">12<span class="text-slate-400">%</span></div><div class="text-[10px] text-slate-500">OCs con incidencia</div></div>
+          <div class="bg-emerald-50 border border-emerald-100 rounded-lg p-3"><div class="text-[10px] uppercase tracking-wider text-emerald-700 font-bold mb-1">Resueltas</div><div class="text-2xl font-bold tabular-nums text-emerald-900">11</div><div class="text-[10px] text-emerald-600">cerradas a favor</div></div>
+        </div>
+        <!-- mix por tipo + severidad -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-2">Por tipo</div>
+            <div class="space-y-1.5 text-[11px]">
+              <div><div class="flex justify-between mb-0.5"><span class="text-slate-600">Faltante</span><span class="tabular-nums font-bold text-slate-800">6</span></div><div class="h-1.5 bg-slate-100 rounded-full overflow-hidden"><div class="h-full bg-rose-400 rounded-full" style="width:60%"></div></div></div>
+              <div><div class="flex justify-between mb-0.5"><span class="text-slate-600">Daño</span><span class="tabular-nums font-bold text-slate-800">4</span></div><div class="h-1.5 bg-slate-100 rounded-full overflow-hidden"><div class="h-full bg-amber-400 rounded-full" style="width:40%"></div></div></div>
+              <div><div class="flex justify-between mb-0.5"><span class="text-slate-600">Calidad / NC</span><span class="tabular-nums font-bold text-slate-800">4</span></div><div class="h-1.5 bg-slate-100 rounded-full overflow-hidden"><div class="h-full bg-sky-400 rounded-full" style="width:40%"></div></div></div>
+            </div>
+          </div>
+          <div>
+            <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-2">Por severidad</div>
+            <div class="flex items-center gap-2 flex-wrap">
+              <span class="badge bg-rose-100 text-rose-700 tabular-nums">Alta · 2</span>
+              <span class="badge bg-amber-100 text-amber-700 tabular-nums">Media · 5</span>
+              <span class="badge bg-slate-100 text-slate-600 tabular-nums">Baja · 7</span>
+            </div>
+            <div class="mt-3"><a class="text-[11px] font-bold text-rose-700 hover:underline flex items-center gap-1"><i data-lucide="arrow-right" class="w-3 h-3"></i> Ver incidencias abiertas (drill por OC)</a></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- grid 2 · ranking SKU por gasto + variación de precio (preservado · roll-up sección) -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div class="bg-white border border-slate-200 rounded-xl p-4">
+          <div class="flex items-center justify-between mb-3"><div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold acto-sep">Top SKUs por gasto</div><i data-lucide="bar-chart-3" class="w-4 h-4 text-slate-400"></i></div>
+          <div class="space-y-2 text-[12px]">
+            <div><div class="flex justify-between mb-0.5"><span class="text-slate-700 truncate">Snail 96 Essence</span><span class="tabular-nums font-bold text-slate-800">$24.2k</span></div><div class="h-2 bg-slate-100 rounded-full overflow-hidden"><div class="h-full bg-blue-500 rounded-full" style="width:100%"></div></div></div>
+            <div><div class="flex justify-between mb-0.5"><span class="text-slate-700 truncate">Relief Sun Rice</span><span class="tabular-nums font-bold text-slate-800">$18.4k</span></div><div class="h-2 bg-slate-100 rounded-full overflow-hidden"><div class="h-full bg-blue-500 rounded-full" style="width:76%"></div></div></div>
+            <div><div class="flex justify-between mb-0.5"><span class="text-slate-700 truncate">Heartleaf 77 Toner</span><span class="tabular-nums font-bold text-slate-800">$12.1k</span></div><div class="h-2 bg-slate-100 rounded-full overflow-hidden"><div class="h-full bg-blue-500 rounded-full" style="width:50%"></div></div></div>
+          </div>
+        </div>
+        <div class="bg-white border border-slate-200 rounded-xl p-4">
+          <div class="flex items-center justify-between mb-3"><div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold acto-sep">Mayor variación de precio</div><i data-lucide="trending-up" class="w-4 h-4 text-slate-400"></i></div>
+          <div class="space-y-2 text-[12px]">
+            <div class="flex items-center justify-between"><div><div class="text-slate-700">Snail 96 Essence</div><div class="text-[10px] text-slate-400 tabular-nums">$12.40 → $13.00</div></div><span class="badge bg-rose-100 text-rose-700"><i data-lucide="trending-up" class="w-2.5 h-2.5"></i> +4.8%</span></div>
+            <div class="flex items-center justify-between"><div><div class="text-slate-700">Relief Sun Rice</div><div class="text-[10px] text-slate-400 tabular-nums">$17.00 → $16.50</div></div><span class="badge bg-emerald-100 text-emerald-700"><i data-lucide="trending-down" class="w-2.5 h-2.5"></i> −2.9%</span></div>
+            <div class="flex items-center justify-between"><div><div class="text-slate-700">Heartleaf 77 Toner</div><div class="text-[10px] text-slate-400 tabular-nums">$18.00 → $18.00</div></div><span class="badge bg-slate-100 text-slate-500"><i data-lucide="minus" class="w-2.5 h-2.5"></i> 0%</span></div>
+          </div>
+          <div class="mt-3 pt-2 border-t border-slate-100 text-[10px] text-slate-400">El análisis de costo profundo vive en Cost Intelligence (/intel-productos) · este tab agrega lo de la sección.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- ACTO 7 · ESTADOS · EMPTY / LOADING / ERROR -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<section class="space-y-4">
+  <div class="flex items-center gap-3">
+    <span class="w-8 h-8 rounded-lg bg-blue-600 text-white text-[13px] font-bold flex items-center justify-center flex-shrink-0">7</span>
+    <div>
+      <div class="text-[17px] font-bold text-slate-900">Estados · empty / loading / error</div>
+      <div class="text-[12px] text-slate-500">Nivel dashboard: el Resumen vacío usa EmptyDashboardSkeleton (preservado) · loading skeleton · error con retry. Nivel bloque NUEVO (fila 2): empty propio de scorecard SLA · pipeline por estación · calendario de caja (canon cobertura total · cada superficie nueva trae su vacío)</div>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+    <!-- EMPTY · esqueleto estructural + quick-start (canon N9) -->
+    <div class="bg-white border border-slate-200 rounded-2xl p-5 frame">
+      <div class="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-3 acto-sep">Empty · sin OCs</div>
+      <div class="text-center py-2">
+        <div class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mx-auto mb-3"><i data-lucide="shopping-cart" class="w-6 h-6"></i></div>
+        <p class="text-[13px] font-semibold text-slate-800">Aún no hay órdenes de compra</p>
+        <p class="text-[11px] text-slate-500 mt-1 mb-4">Vista previa · así se verá cuando registres tu primera OC</p>
+      </div>
+      <div class="grid grid-cols-3 gap-2">
+        <button class="bg-white border border-slate-200 rounded-lg p-2.5 hover:border-blue-300 hover:bg-blue-50/30 text-left transition-colors"><i data-lucide="plus" class="w-4 h-4 text-blue-600 mb-1"></i><div class="text-[10px] font-bold text-slate-900">Nueva OC</div></button>
+        <button class="bg-white border border-slate-200 rounded-lg p-2.5 hover:border-amber-300 hover:bg-amber-50/30 text-left transition-colors"><i data-lucide="clipboard-list" class="w-4 h-4 text-amber-600 mb-1"></i><div class="text-[10px] font-bold text-slate-900">Desde req.</div></button>
+        <button class="bg-white border border-slate-200 rounded-lg p-2.5 hover:border-emerald-300 hover:bg-emerald-50/30 text-left transition-colors"><i data-lucide="building-2" class="w-4 h-4 text-emerald-600 mb-1"></i><div class="text-[10px] font-bold text-slate-900">Proveedor</div></button>
+      </div>
+      <!-- esqueleto de los bloques del dashboard (preview muted) -->
+      <div class="mt-4 space-y-2 opacity-50">
+        <div class="h-8 bg-slate-100 rounded-lg"></div>
+        <div class="grid grid-cols-2 gap-2"><div class="h-16 bg-slate-100 rounded-lg"></div><div class="h-16 bg-slate-100 rounded-lg"></div></div>
+      </div>
+    </div>
+
+    <!-- LOADING · skeleton -->
+    <div class="bg-white border border-slate-200 rounded-2xl p-5 frame">
+      <div class="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-3 acto-sep">Loading · skeleton</div>
+      <div class="space-y-3">
+        <div class="skeleton h-10 w-full rounded-xl"></div>
+        <div class="grid grid-cols-2 gap-2"><div class="skeleton h-20 rounded-xl"></div><div class="skeleton h-20 rounded-xl"></div></div>
+        <div class="skeleton h-14 w-full rounded-xl"></div>
+        <div class="skeleton h-14 w-full rounded-xl"></div>
+      </div>
+    </div>
+
+    <!-- ERROR · retry -->
+    <div class="bg-white border border-slate-200 rounded-2xl p-5 frame">
+      <div class="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-3 acto-sep">Error · retry</div>
+      <div class="text-center py-6">
+        <div class="w-12 h-12 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center mx-auto mb-3"><i data-lucide="wifi-off" class="w-6 h-6"></i></div>
+        <p class="text-[13px] font-semibold text-slate-800">No se pudieron cargar las compras</p>
+        <p class="text-[11px] text-slate-500 mt-1 mb-4">Revisá tu conexión e intentá de nuevo.</p>
+        <button class="inline-flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white text-[12px] font-semibold px-3.5 py-2 rounded-lg"><i data-lucide="refresh-cw" class="w-4 h-4"></i> Reintentar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- FILA 2 · estados de los BLOQUES NUEVOS (cada superficie nueva trae su vacío · canon cobertura total) -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+    <!-- EMPTY · scorecard SLA sin incidencias / sin recepciones cerradas -->
+    <div class="bg-white border border-slate-200 rounded-2xl p-5 frame">
+      <div class="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-3 acto-sep">Empty · scorecard SLA</div>
+      <div class="text-center py-6">
+        <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto mb-3"><i data-lucide="shield-check" class="w-6 h-6"></i></div>
+        <p class="text-[13px] font-semibold text-slate-800">Sin SLA que medir todavía</p>
+        <p class="text-[11px] text-slate-500 mt-1">El % on-time y las incidencias aparecen cuando cierres tu primera recepción (<code class="bg-slate-100 px-1 rounded">fechaRecibida</code>). Sin incidencias = 0 abiertas, no es error.</p>
+      </div>
+      <div class="mt-1 space-y-1.5 opacity-50">
+        <div class="h-9 bg-slate-100 rounded-lg"></div>
+        <div class="h-9 bg-slate-100 rounded-lg"></div>
+      </div>
+    </div>
+
+    <!-- EMPTY · pipeline sin OCs por estación -->
+    <div class="bg-white border border-slate-200 rounded-2xl p-5 frame">
+      <div class="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-3 acto-sep">Empty · pipeline por estación</div>
+      <div class="text-center py-3">
+        <div class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mx-auto mb-3"><i data-lucide="git-merge" class="w-6 h-6"></i></div>
+        <p class="text-[13px] font-semibold text-slate-800">Pipeline vacío</p>
+        <p class="text-[11px] text-slate-500 mt-1 mb-3">Las estaciones muestran 0 hasta que haya requerimientos u OCs. Las estaciones SIEMPRE se ven (en 0), el cuello de botella no se pinta.</p>
+      </div>
+      <!-- las 5 estaciones en cero (no se ocultan) -->
+      <div class="flex gap-1 overflow-x-auto scrollbar-none">
+        <div class="flex-1 min-w-[56px] bg-slate-50 border border-slate-200 rounded-lg p-2 text-center"><div class="text-[8px] font-bold uppercase text-slate-400">Req.</div><div class="text-[15px] font-bold tabular-nums text-slate-300">0</div></div>
+        <div class="flex-1 min-w-[56px] bg-slate-50 border border-slate-200 rounded-lg p-2 text-center"><div class="text-[8px] font-bold uppercase text-slate-400">Borr.</div><div class="text-[15px] font-bold tabular-nums text-slate-300">0</div></div>
+        <div class="flex-1 min-w-[56px] bg-slate-50 border border-slate-200 rounded-lg p-2 text-center"><div class="text-[8px] font-bold uppercase text-slate-400">Curso</div><div class="text-[15px] font-bold tabular-nums text-slate-300">0</div></div>
+        <div class="flex-1 min-w-[56px] bg-slate-50 border border-slate-200 rounded-lg p-2 text-center"><div class="text-[8px] font-bold uppercase text-slate-400">Recib.</div><div class="text-[15px] font-bold tabular-nums text-slate-300">0</div></div>
+        <div class="flex-1 min-w-[56px] bg-slate-50 border border-slate-200 rounded-lg p-2 text-center"><div class="text-[8px] font-bold uppercase text-slate-400">Pagar</div><div class="text-[15px] font-bold tabular-nums text-slate-300">0</div></div>
+      </div>
+    </div>
+
+    <!-- EMPTY · calendario de caja sin salidas -->
+    <div class="bg-white border border-slate-200 rounded-2xl p-5 frame">
+      <div class="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-3 acto-sep">Empty · calendario de caja</div>
+      <div class="text-center py-6">
+        <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto mb-3"><i data-lucide="calendar-check" class="w-6 h-6"></i></div>
+        <p class="text-[13px] font-semibold text-slate-800">Sin salidas de caja previstas</p>
+        <p class="text-[11px] text-slate-500 mt-1">No hay OCs con saldo por pagar en los próximos 30 días. Estado positivo, no error.</p>
+      </div>
+      <div class="mt-1 space-y-1.5">
+        <div class="flex items-center justify-between text-[11px]"><span class="text-slate-400">7d / 15d / 30d</span><span class="tabular-nums font-bold text-emerald-600">$0</span></div>
+        <div class="h-1.5 bg-slate-100 rounded-full overflow-hidden"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- ACTO 8 · MOBILE · SHELL 375px · STRIP 2×2 · TABS SCROLL-X -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<section class="space-y-4">
+  <div class="flex items-center gap-3">
+    <span class="w-8 h-8 rounded-lg bg-violet-600 text-white text-[13px] font-bold flex items-center justify-center flex-shrink-0">8</span>
+    <div>
+      <div class="text-[17px] font-bold text-slate-900">Mobile · shell 375px · strip 2×2 · tabs scroll-x</div>
+      <div class="text-[12px] text-slate-500">Top-bar compacta · header con primary · KPI strip 2×2 (Borradores como mini-stat al pie) · tabs scroll-x (canon N6) · touch ≥44px</div>
+    </div>
+  </div>
+  <div class="flex justify-center">
+    <div style="max-width:375px;width:100%;">
+      <div class="bg-slate-800 rounded-[2rem] p-2.5 shadow-2xl">
+        <div class="bg-white rounded-[1.5rem] overflow-hidden">
+          <!-- top-bar -->
+          <div class="px-3 py-2 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+            <div class="flex items-center gap-1 text-[10px] text-slate-500"><span>Inicio</span><i data-lucide="chevron-right" class="w-2.5 h-2.5"></i><span class="font-semibold text-slate-700">Compras</span></div>
+            <div class="flex items-center gap-1 bg-blue-50 border border-blue-200 px-1.5 py-0.5 rounded-full"><i data-lucide="shield" class="w-2.5 h-2.5 text-blue-600"></i><span class="text-[9px] font-bold text-blue-700">admin</span></div>
+          </div>
+          <!-- header -->
+          <div class="px-3 py-3 border-b border-slate-200">
+            <div class="flex items-center gap-2 mb-2">
+              <div class="w-9 h-9 rounded-xl bg-blue-50 border border-blue-200 flex items-center justify-center flex-shrink-0"><i data-lucide="shopping-cart" class="w-4.5 h-4.5 text-blue-600"></i></div>
+              <div><h1 class="text-[17px] font-bold tracking-tight text-slate-900 leading-tight">Compras</h1><p class="text-[10px] text-slate-500">Órdenes · proveedores · pagos</p></div>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <button class="flex-1 flex items-center justify-center gap-1.5 bg-blue-600 text-white text-[12px] font-semibold py-2.5 rounded-lg" style="min-height:44px;"><i data-lucide="plus" class="w-4 h-4"></i> Nueva OC</button>
+              <button class="flex items-center justify-center bg-white text-slate-600 border border-slate-200 w-11 h-11 rounded-lg"><i data-lucide="layers" class="w-4 h-4 text-blue-600"></i></button>
+              <button class="flex items-center justify-center bg-white text-slate-600 border border-slate-200 w-11 h-11 rounded-lg"><i data-lucide="download" class="w-4 h-4"></i></button>
+            </div>
+          </div>
+          <!-- KPI strip 2×2 -->
+          <div class="p-3 space-y-2">
+            <div class="grid grid-cols-2 gap-2">
+              <div class="bg-gradient-to-br from-amber-50 to-amber-100/40 ring-1 ring-amber-200/50 rounded-xl p-2.5"><div class="flex items-center justify-between mb-1"><span class="text-[9px] uppercase tracking-wider text-amber-700 font-bold">Comprado mes</span><i data-lucide="dollar-sign" class="w-3 h-3 text-amber-700"></i></div><div class="text-[18px] font-bold tabular-nums text-amber-900">$42.2k</div><div class="text-[9px] text-amber-700">6 OCs este mes</div></div>
+              <div class="bg-gradient-to-br from-rose-50 to-rose-100/40 ring-1 ring-rose-200/50 rounded-xl p-2.5"><div class="flex items-center justify-between mb-1"><span class="text-[9px] uppercase tracking-wider text-rose-700 font-bold">Por pagar</span><i data-lucide="credit-card" class="w-3 h-3 text-rose-700"></i></div><div class="text-[18px] font-bold tabular-nums text-rose-900">4</div><div class="text-[9px] text-rose-700">$23.9k pend.</div></div>
+              <div class="bg-gradient-to-br from-sky-50 to-sky-100/40 ring-1 ring-sky-200/50 rounded-xl p-2.5"><div class="flex items-center justify-between mb-1"><span class="text-[9px] uppercase tracking-wider text-sky-700 font-bold">En curso</span><i data-lucide="truck" class="w-3 h-3 text-sky-700"></i></div><div class="text-[18px] font-bold tabular-nums text-sky-900">7</div><div class="text-[9px] text-sky-700">3 envíos</div></div>
+              <div class="bg-gradient-to-br from-emerald-50 to-emerald-100/40 ring-1 ring-emerald-200/50 rounded-xl p-2.5"><div class="flex items-center justify-between mb-1"><span class="text-[9px] uppercase tracking-wider text-emerald-700 font-bold">Completadas</span><i data-lucide="check-circle" class="w-3 h-3 text-emerald-700"></i></div><div class="text-[18px] font-bold tabular-nums text-emerald-900">12</div><div class="text-[9px] text-emerald-700">$128k</div></div>
+            </div>
+            <!-- mini-stats al pie (Borradores degradado · Lead time) -->
+            <div class="bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 flex items-center gap-2 text-[10px] overflow-x-auto scrollbar-none whitespace-nowrap">
+              <span class="text-slate-600 flex items-center gap-1"><i data-lucide="file-text" class="w-3 h-3 text-slate-400"></i> 2 borradores</span>
+              <span class="text-slate-300">·</span>
+              <span class="text-slate-600 flex items-center gap-1"><i data-lucide="timer" class="w-3 h-3 text-slate-400"></i> lead 38d</span>
+              <span class="text-slate-300">·</span>
+              <span class="text-violet-600 flex items-center gap-1"><i data-lucide="user-check" class="w-3 h-3"></i> 2 firmas</span>
+            </div>
+          </div>
+          <!-- tabs scroll-x -->
+          <div class="border-b border-slate-200 flex items-center gap-1 px-3 overflow-x-auto scrollbar-none">
+            <button class="px-2.5 py-2.5 text-[12px] font-semibold text-blue-700 border-b-2 border-blue-600 whitespace-nowrap flex items-center gap-1"><i data-lucide="layout-dashboard" class="w-3.5 h-3.5"></i> Resumen</button>
+            <button class="px-2.5 py-2.5 text-[12px] font-medium text-slate-500 whitespace-nowrap flex items-center gap-1"><i data-lucide="package" class="w-3.5 h-3.5"></i> Órdenes</button>
+            <button class="px-2.5 py-2.5 text-[12px] font-medium text-slate-500 whitespace-nowrap flex items-center gap-1"><i data-lucide="clipboard-list" class="w-3.5 h-3.5"></i> Pend.</button>
+            <button class="px-2.5 py-2.5 text-[12px] font-medium text-slate-500 whitespace-nowrap flex items-center gap-1"><i data-lucide="building-2" class="w-3.5 h-3.5"></i> Prov.</button>
+            <button class="px-2.5 py-2.5 text-[12px] font-medium text-slate-500 whitespace-nowrap flex items-center gap-1"><i data-lucide="brain-circuit" class="w-3.5 h-3.5"></i> Intel.</button>
+          </div>
+          <div class="bg-slate-50/30 px-3 py-6 text-center text-[10px] text-slate-400">El §A–F apilado se ve en el Acto 9</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- ACTO 9 · MOBILE · DASHBOARD §A–F APILADO -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<section class="space-y-4">
+  <div class="flex items-center gap-3">
+    <span class="w-8 h-8 rounded-lg bg-violet-600 text-white text-[13px] font-bold flex items-center justify-center flex-shrink-0">9</span>
+    <div>
+      <div class="text-[17px] font-bold text-slate-900">Mobile · dashboard §A–F apilado</div>
+      <div class="text-[12px] text-slate-500">Cola de firmas → banner → pipeline scroll-x → donut + tendencia línea → insights → caja escalonada → alertas. El aside se apila DEBAJO del main.</div>
+    </div>
+  </div>
+  <div class="flex justify-center">
+    <div style="max-width:375px;width:100%;">
+      <div class="bg-slate-800 rounded-[2rem] p-2.5 shadow-2xl">
+        <div class="bg-white rounded-[1.5rem] overflow-hidden">
+          <div class="bg-slate-50/30 p-3 space-y-3" style="max-height:620px;overflow-y:auto;">
+            <!-- §A cola firmas -->
+            <div class="bg-gradient-to-r from-violet-50 to-violet-100/30 ring-1 ring-violet-200/60 rounded-xl p-3">
+              <div class="flex items-center gap-2 mb-1.5"><div class="w-8 h-8 rounded-lg bg-violet-100 flex items-center justify-center flex-shrink-0"><i data-lucide="user-check" class="w-4 h-4 text-violet-600"></i></div><div class="text-[12px] font-bold text-violet-900 leading-tight">2 OCs · $9,840 esperan tu firma</div></div>
+              <button class="w-full bg-violet-600 text-white text-[11px] font-semibold py-2.5 rounded-lg flex items-center justify-center gap-1.5" style="min-height:44px;"><i data-lucide="pen-line" class="w-3.5 h-3.5"></i> Revisar firmas</button>
+            </div>
+            <!-- §A banner -->
+            <div class="bg-gradient-to-r from-amber-50 to-amber-100/30 ring-1 ring-amber-200/60 rounded-xl p-3 flex items-center gap-2">
+              <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-600 flex-shrink-0"></i><div class="text-[11px] text-amber-800"><b class="text-amber-900">4 OCs</b> por pagar · <b class="text-amber-900">1</b> demorado · <b class="text-amber-900">2</b> borradores</div>
+            </div>
+            <!-- §B pipeline scroll-x -->
+            <div class="bg-white border border-slate-200 rounded-xl p-3">
+              <div class="text-[9px] uppercase tracking-wider text-slate-500 font-bold mb-2">Pipeline de abastecimiento</div>
+              <div class="flex gap-1.5 overflow-x-auto scrollbar-none pb-1">
+                <div class="flex-shrink-0 w-24 bg-blue-50 border border-blue-200 rounded-lg p-2"><div class="text-[9px] font-bold uppercase text-blue-700">Requerim.</div><div class="text-base font-bold tabular-nums text-blue-900">9</div><div class="text-[9px] text-blue-700">$18.4k</div></div>
+                <div class="flex-shrink-0 w-24 bg-slate-50 border border-slate-200 rounded-lg p-2"><div class="text-[9px] font-bold uppercase text-slate-600">Borrador</div><div class="text-base font-bold tabular-nums text-slate-900">2</div><div class="text-[9px] text-slate-500">$6.2k</div></div>
+                <div class="flex-shrink-0 w-24 bg-sky-50 border border-sky-200 rounded-lg p-2"><div class="text-[9px] font-bold uppercase text-sky-700">En curso</div><div class="text-base font-bold tabular-nums text-sky-900">7</div><div class="text-[9px] text-sky-700">$42.2k</div></div>
+                <div class="flex-shrink-0 w-24 bg-rose-50 border border-rose-300 ring-1 ring-rose-200 rounded-lg p-2"><div class="text-[9px] font-bold uppercase text-rose-700">Por recibir</div><div class="text-base font-bold tabular-nums text-rose-900">5</div><div class="text-[9px] text-rose-700">cuello</div></div>
+                <div class="flex-shrink-0 w-24 bg-amber-50 border border-amber-200 rounded-lg p-2"><div class="text-[9px] font-bold uppercase text-amber-700">Por pagar</div><div class="text-base font-bold tabular-nums text-amber-900">4</div><div class="text-[9px] text-amber-700">$23.9k</div></div>
+              </div>
+            </div>
+            <!-- §B donut -->
+            <div class="bg-white border border-slate-200 rounded-xl p-3">
+              <div class="text-[9px] uppercase tracking-wider text-slate-500 font-bold mb-2">Gasto por proveedor</div>
+              <div class="flex items-center gap-3">
+                <svg viewBox="0 0 36 36" class="w-16 h-16 flex-shrink-0"><circle cx="18" cy="18" r="15.9" fill="none" stroke="#e2e8f0" stroke-width="3.6"/><circle cx="18" cy="18" r="15.9" fill="none" stroke="#3b82f6" stroke-width="3.6" stroke-dasharray="38 62" stroke-dashoffset="25"/><circle cx="18" cy="18" r="15.9" fill="none" stroke="#8b5cf6" stroke-width="3.6" stroke-dasharray="27 73" stroke-dashoffset="-13"/><circle cx="18" cy="18" r="15.9" fill="none" stroke="#0ea5e9" stroke-width="3.6" stroke-dasharray="18 82" stroke-dashoffset="-40"/></svg>
+                <div class="flex-1 space-y-1 text-[11px]">
+                  <div class="flex justify-between"><span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-blue-500"></span>COSRX</span><span class="tabular-nums font-semibold">38%</span></div>
+                  <div class="flex justify-between"><span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-violet-500"></span>B. of Joseon</span><span class="tabular-nums font-semibold">27%</span></div>
+                  <div class="flex justify-between"><span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-sky-500"></span>Anua</span><span class="tabular-nums font-semibold">18%</span></div>
+                </div>
+              </div>
+            </div>
+            <!-- §B tendencia línea -->
+            <div class="bg-white border border-slate-200 rounded-xl p-3">
+              <div class="text-[9px] uppercase tracking-wider text-slate-500 font-bold mb-2">Tendencia · 6 meses</div>
+              <svg viewBox="0 0 300 80" class="w-full h-16" preserveAspectRatio="none"><defs><linearGradient id="areaFillM" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#3b82f6" stop-opacity="0.25"/><stop offset="100%" stop-color="#3b82f6" stop-opacity="0"/></linearGradient></defs><path d="M0,58 L60,48 L120,53 L180,32 L240,42 L300,22 L300,80 L0,80 Z" fill="url(#areaFillM)"/><path d="M0,58 L60,48 L120,53 L180,32 L240,42 L300,22" fill="none" stroke="#3b82f6" stroke-width="2"/><line x1="0" y1="43" x2="300" y2="43" stroke="#f59e0b" stroke-width="1" stroke-dasharray="4 3"/></svg>
+              <div class="flex justify-between text-[10px] mt-1"><span class="text-amber-600">Prom $35.1k</span><span class="text-blue-700 font-semibold tabular-nums">Jun $42.2k · +18%</span></div>
+            </div>
+            <!-- §C insights 2×2 -->
+            <div class="grid grid-cols-2 gap-2">
+              <div class="bg-white border border-slate-200 rounded-lg p-2.5"><div class="text-[9px] uppercase tracking-wider text-sky-700 font-bold">Lead time</div><div class="text-[15px] font-bold tabular-nums text-slate-900">38 días</div></div>
+              <div class="bg-white border border-slate-200 rounded-lg p-2.5"><div class="text-[9px] uppercase tracking-wider text-rose-700 font-bold">× riesgo SRM</div><div class="text-[15px] font-bold tabular-nums text-rose-900">22%</div></div>
+            </div>
+            <!-- §C caja escalonada -->
+            <div class="bg-white border border-slate-200 rounded-xl p-3">
+              <div class="text-[9px] uppercase tracking-wider text-amber-700 font-bold mb-2">Próximas salidas de caja</div>
+              <div class="space-y-1 text-[11px]"><div class="flex justify-between"><span class="text-slate-600">7d</span><span class="tabular-nums font-bold text-rose-700">$8,420</span></div><div class="flex justify-between"><span class="text-slate-600">15d</span><span class="tabular-nums font-bold text-amber-700">$6,100</span></div><div class="flex justify-between"><span class="text-slate-600">30d</span><span class="tabular-nums font-bold text-slate-700">$9,420</span></div></div>
+            </div>
+            <!-- §F alerta -->
+            <div class="bg-rose-50 ring-1 ring-rose-200 rounded-xl px-3 py-2.5"><div class="flex items-center gap-2"><i data-lucide="alert-triangle" class="w-4 h-4 text-rose-600 flex-shrink-0"></i><span class="text-[11px] font-semibold text-rose-900">3 incidencias · $2,180 en disputa</span></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- ACTO 10 · MOBILE · TABS / PIPELINE / SCORECARD -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<section class="space-y-4">
+  <div class="flex items-center gap-3">
+    <span class="w-8 h-8 rounded-lg bg-violet-600 text-white text-[13px] font-bold flex items-center justify-center flex-shrink-0">10</span>
+    <div>
+      <div class="text-[17px] font-bold text-slate-900">Mobile · Órdenes (cards + toggle Kanban) · Scorecard SLA</div>
+      <div class="text-[12px] text-slate-500">Listado → cards 1-col · toggle Lista/Pipeline scroll-x · barra-resumen del filtro · scorecard SLA en cards apiladas · touch ≥44px</div>
+    </div>
+  </div>
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 justify-items-center">
+    <!-- Órdenes mobile -->
+    <div style="max-width:375px;width:100%;">
+      <div class="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-2 acto-sep">Órdenes · cards + toggle</div>
+      <div class="bg-slate-800 rounded-[2rem] p-2.5 shadow-2xl"><div class="bg-white rounded-[1.5rem] overflow-hidden">
+        <div class="p-3 space-y-2.5" style="max-height:560px;overflow-y:auto;">
+          <!-- toggle + buscador -->
+          <div class="flex items-center gap-2">
+            <div class="flex items-center gap-1 border border-slate-200 rounded-lg px-2.5 py-2 flex-1" style="min-height:44px;"><i data-lucide="search" class="w-3.5 h-3.5 text-slate-400"></i><input class="text-[12px] outline-none flex-1" placeholder="Buscar OC…" /></div>
+            <div class="flex items-center gap-0.5 bg-slate-100 rounded-lg p-0.5"><button class="bg-white text-blue-700 shadow-sm w-9 h-9 rounded-md flex items-center justify-center"><i data-lucide="list" class="w-4 h-4"></i></button><button class="text-slate-500 w-9 h-9 rounded-md flex items-center justify-center"><i data-lucide="kanban" class="w-4 h-4"></i></button></div>
+          </div>
+          <!-- chips scroll-x -->
+          <div class="flex gap-1.5 overflow-x-auto scrollbar-none pb-0.5">
+            <span class="badge bg-blue-100 text-blue-700 whitespace-nowrap flex-shrink-0">Confirmada 7</span>
+            <span class="badge bg-amber-50 text-amber-600 border border-amber-200 whitespace-nowrap flex-shrink-0">En Despacho 5</span>
+            <span class="badge bg-slate-100 text-slate-500 whitespace-nowrap flex-shrink-0">Pago: Parcial</span>
+          </div>
+          <!-- barra-resumen filtro -->
+          <div class="bg-blue-50 border border-blue-200 rounded-lg px-2.5 py-2 text-[11px] text-slate-700">12 OCs · <b class="tabular-nums text-amber-700">$84.3k</b> · <b class="tabular-nums text-rose-700">$31.2k</b> por pagar</div>
+          <!-- card 1 -->
+          <div class="bg-white border border-slate-200 rounded-xl p-3">
+            <div class="flex items-start justify-between gap-2"><div><div class="flex items-center gap-1.5 flex-wrap"><span class="text-[13px] font-bold text-slate-900 tabular-nums">OC-2418</span><span class="badge bg-sky-100 text-sky-700">En despacho</span></div><div class="text-[10px] text-slate-500 mt-0.5">COSRX · 3 sub-órd · 8 SKUs</div></div><div class="text-right"><div class="text-[14px] font-bold tabular-nums text-amber-900">$18.4k</div><div class="text-[9px] text-rose-600 tabular-nums">$7.4k pend.</div></div></div>
+            <div class="mt-2 flex gap-1.5"><button class="flex-1 bg-blue-600 text-white text-[11px] font-semibold py-2 rounded-lg" style="min-height:44px;">Recepción</button><button class="bg-white text-slate-600 border border-slate-200 text-[11px] font-medium px-3 rounded-lg" style="min-height:44px;">Pagar</button></div>
+          </div>
+          <!-- card 2 -->
+          <div class="bg-white border border-slate-200 rounded-xl p-3">
+            <div class="flex items-start justify-between gap-2"><div><div class="flex items-center gap-1.5 flex-wrap"><span class="text-[13px] font-bold text-slate-900 tabular-nums">OC-2421</span><span class="badge bg-blue-100 text-blue-700">Confirmada</span></div><div class="text-[10px] text-slate-500 mt-0.5">B. of Joseon · 4 SKUs</div></div><div class="text-right"><div class="text-[14px] font-bold tabular-nums text-amber-900">$8.8k</div><div class="text-[9px] text-rose-600 tabular-nums">$8.8k pend.</div></div></div>
+            <div class="mt-2 flex gap-1.5"><button class="flex-1 bg-blue-600 text-white text-[11px] font-semibold py-2 rounded-lg" style="min-height:44px;">Despachar</button></div>
+          </div>
+        </div>
+      </div></div>
+    </div>
+    <!-- Scorecard SLA mobile -->
+    <div style="max-width:375px;width:100%;">
+      <div class="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-2 acto-sep">Proveedores · scorecard SLA (cards)</div>
+      <div class="bg-slate-800 rounded-[2rem] p-2.5 shadow-2xl"><div class="bg-white rounded-[1.5rem] overflow-hidden">
+        <div class="p-3 space-y-2.5" style="max-height:560px;overflow-y:auto;">
+          <div class="text-[9px] uppercase tracking-wider text-slate-500 font-bold acto-sep">Scorecard · SLA en vivo</div>
+          <!-- card SLA 1 -->
+          <div class="bg-white border border-slate-200 rounded-xl p-3">
+            <div class="flex items-center justify-between mb-2"><div class="flex items-center gap-2"><span class="w-6 h-6 rounded-lg bg-emerald-100 text-emerald-700 text-[10px] font-bold flex items-center justify-center tabular-nums">1</span><span class="text-[12px] font-bold text-slate-900">COSRX Co.</span></div><span class="badge bg-emerald-100 text-emerald-700"><i data-lucide="award" class="w-2.5 h-2.5"></i> Pref.</span></div>
+            <div class="grid grid-cols-3 gap-2 text-center text-[10px]"><div><div class="text-[14px] font-bold tabular-nums text-emerald-700">96%</div><div class="text-slate-400">on-time</div></div><div><div class="text-[14px] font-bold tabular-nums text-slate-700">34d</div><div class="text-slate-400">lead</div></div><div><div class="text-[14px] font-bold tabular-nums text-emerald-700">0</div><div class="text-slate-400">incid.</div></div></div>
+          </div>
+          <!-- card SLA 2 -->
+          <div class="bg-white border border-slate-200 rounded-xl p-3">
+            <div class="flex items-center justify-between mb-2"><div class="flex items-center gap-2"><span class="w-6 h-6 rounded-lg bg-sky-100 text-sky-700 text-[10px] font-bold flex items-center justify-center tabular-nums">2</span><span class="text-[12px] font-bold text-slate-900">B. of Joseon</span></div><span class="badge bg-sky-100 text-sky-700">Aprob.</span></div>
+            <div class="grid grid-cols-3 gap-2 text-center text-[10px]"><div><div class="text-[14px] font-bold tabular-nums text-sky-700">88%</div><div class="text-slate-400">on-time</div></div><div><div class="text-[14px] font-bold tabular-nums text-slate-700">41d</div><div class="text-slate-400">lead</div></div><div><div class="text-[14px] font-bold tabular-nums text-amber-700">1</div><div class="text-slate-400">incid.</div></div></div>
+          </div>
+          <!-- card SLA 3 · peor -->
+          <div class="bg-rose-50/40 border border-rose-200 rounded-xl p-3">
+            <div class="flex items-center justify-between mb-2"><div class="flex items-center gap-2"><span class="w-6 h-6 rounded-lg bg-rose-100 text-rose-700 text-[10px] font-bold flex items-center justify-center tabular-nums">3</span><span class="text-[12px] font-bold text-slate-900">Anua USA</span></div><span class="badge bg-amber-100 text-amber-700">Condic.</span></div>
+            <div class="grid grid-cols-3 gap-2 text-center text-[10px]"><div><div class="text-[14px] font-bold tabular-nums text-rose-700">62%</div><div class="text-slate-400">on-time</div></div><div><div class="text-[14px] font-bold tabular-nums text-rose-700">58d</div><div class="text-slate-400">lead</div></div><div><div class="text-[14px] font-bold tabular-nums text-rose-700">2</div><div class="text-slate-400">incid.</div></div></div>
+          </div>
+        </div>
+      </div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- ACTO 11 · MOBILE · TAB PENDIENTES + TAB INTELIGENCIA -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<section class="space-y-4">
+  <div class="flex items-center gap-3">
+    <span class="w-8 h-8 rounded-lg bg-violet-600 text-white text-[13px] font-bold flex items-center justify-center flex-shrink-0">11</span>
+    <div>
+      <div class="text-[17px] font-bold text-slate-900">Mobile · Pendientes (selección → compra) · Inteligencia (incidencias + mix)</div>
+      <div class="text-[12px] text-slate-500">Cierra los 2 tabs críticos que faltaban en mobile: Pendientes con teaser ROP + barra de selección azul sticky + cards 1-col · Inteligencia con incidencias 4-stats 2×2 + mix por tipo. Touch ≥44px.</div>
+    </div>
+  </div>
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 justify-items-center">
+    <!-- Pendientes mobile -->
+    <div style="max-width:375px;width:100%;">
+      <div class="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-2 acto-sep">Pendientes · demanda → compra</div>
+      <div class="bg-slate-800 rounded-[2rem] p-2.5 shadow-2xl"><div class="bg-white rounded-[1.5rem] overflow-hidden">
+        <div class="p-3 space-y-2.5" style="max-height:560px;overflow-y:auto;">
+          <!-- teaser ROP -->
+          <div class="bg-gradient-to-r from-orange-50 to-orange-100/30 border border-orange-200 rounded-xl p-3">
+            <div class="flex items-center gap-2 mb-1.5"><div class="w-8 h-8 rounded-lg bg-orange-100 flex items-center justify-center flex-shrink-0"><i data-lucide="package-search" class="w-4 h-4 text-orange-600"></i></div><div class="text-[12px] font-bold text-orange-900 leading-tight">7 SKUs bajo punto de reorden</div></div>
+            <a class="w-full bg-white text-orange-700 border border-orange-200 text-[11px] font-semibold py-2.5 rounded-lg flex items-center justify-center gap-1.5" style="min-height:44px;"><i data-lucide="external-link" class="w-3.5 h-3.5"></i> Ver señal en Stock</a>
+          </div>
+          <!-- resumen -->
+          <div class="bg-white border border-slate-200 rounded-lg px-2.5 py-2 text-[11px] text-slate-700 flex items-center gap-2 overflow-x-auto scrollbar-none whitespace-nowrap"><b class="tabular-nums text-slate-900">9</b> prod. <span class="text-slate-300">·</span> <b class="tabular-nums text-slate-900">1,240</b> un <span class="text-slate-300">·</span> est. <b class="tabular-nums text-amber-700">$18.4k</b></div>
+          <!-- cards seleccionables 1-col -->
+          <div class="bg-white border border-blue-300 ring-1 ring-blue-200 rounded-lg p-2.5 flex items-center gap-2">
+            <i data-lucide="check-square" class="w-4 h-4 text-blue-600 flex-shrink-0"></i>
+            <div class="flex-1 min-w-0"><div class="flex items-center gap-1.5 flex-wrap"><span class="text-[12px] font-bold text-slate-900 truncate">Snail 96 Mucin</span><span class="badge bg-emerald-100 text-emerald-700">Restock</span></div><div class="text-[10px] text-slate-500 tabular-nums">COSRX · de REQ-0318</div></div>
+            <div class="text-right flex-shrink-0"><div class="text-[12px] font-bold tabular-nums text-slate-900">240 un</div><div class="text-[10px] text-slate-500 tabular-nums">~$3.1k</div></div>
+          </div>
+          <div class="bg-white border border-blue-300 ring-1 ring-blue-200 rounded-lg p-2.5 flex items-center gap-2">
+            <i data-lucide="check-square" class="w-4 h-4 text-blue-600 flex-shrink-0"></i>
+            <div class="flex-1 min-w-0"><div class="flex items-center gap-1.5 flex-wrap"><span class="text-[12px] font-bold text-slate-900 truncate">Relief Sun Rice</span><span class="badge bg-purple-100 text-purple-700">Apuesta</span></div><div class="text-[10px] text-slate-500 tabular-nums">B. of Joseon · stock libre</div></div>
+            <div class="text-right flex-shrink-0"><div class="text-[12px] font-bold tabular-nums text-slate-900">120 un</div><div class="text-[10px] text-slate-500 tabular-nums">~$2.0k</div></div>
+          </div>
+          <div class="bg-white border border-slate-200 rounded-lg p-2.5 flex items-center gap-2">
+            <i data-lucide="square" class="w-4 h-4 text-slate-300 flex-shrink-0"></i>
+            <div class="flex-1 min-w-0"><div class="flex items-center gap-1.5 flex-wrap"><span class="text-[12px] font-bold text-slate-900 truncate">Heartleaf 77</span><span class="badge bg-sky-100 text-sky-700">Comprom.</span></div><div class="text-[10px] text-slate-500 tabular-nums">Anua · cliente: D. Quispe</div></div>
+            <div class="text-right flex-shrink-0"><div class="text-[12px] font-bold tabular-nums text-slate-900">60 un</div><div class="text-[10px] text-slate-500 tabular-nums">~$1.1k</div></div>
+          </div>
+          <!-- barra de selección azul · sticky al pie (mobile) -->
+          <div class="sticky bottom-0 bg-blue-600 rounded-xl px-3 py-2.5 flex items-center justify-between gap-2 shadow-lg">
+            <div class="flex items-center gap-1.5 text-[11px] text-white min-w-0"><i data-lucide="check-square" class="w-4 h-4 flex-shrink-0"></i><span class="font-semibold truncate">3 sel · 420 un</span></div>
+            <button class="bg-white text-blue-700 text-[11px] font-semibold px-3 rounded-lg flex items-center gap-1.5 flex-shrink-0" style="min-height:44px;"><i data-lucide="shopping-cart" class="w-3.5 h-3.5"></i> Generar compra</button>
+          </div>
+        </div>
+      </div></div>
+    </div>
+    <!-- Inteligencia mobile -->
+    <div style="max-width:375px;width:100%;">
+      <div class="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-2 acto-sep">Inteligencia · incidencias + mix</div>
+      <div class="bg-slate-800 rounded-[2rem] p-2.5 shadow-2xl"><div class="bg-white rounded-[1.5rem] overflow-hidden">
+        <div class="p-3 space-y-2.5" style="max-height:560px;overflow-y:auto;">
+          <div class="text-[9px] uppercase tracking-wider text-rose-700 font-bold acto-sep">Incidencias agregadas</div>
+          <!-- 4 stats 2×2 -->
+          <div class="grid grid-cols-2 gap-2">
+            <div class="bg-rose-50 border border-rose-100 rounded-lg p-2.5"><div class="text-[9px] uppercase tracking-wider text-rose-700 font-bold mb-0.5">Abiertas</div><div class="text-[18px] font-bold tabular-nums text-rose-900">3</div><div class="text-[9px] text-rose-600">de 14 hist.</div></div>
+            <div class="bg-amber-50 border border-amber-100 rounded-lg p-2.5"><div class="text-[9px] uppercase tracking-wider text-amber-700 font-bold mb-0.5">En disputa</div><div class="text-[18px] font-bold tabular-nums text-amber-900">$2.2k</div><div class="text-[9px] text-amber-600">ret. + NC</div></div>
+            <div class="bg-slate-50 border border-slate-100 rounded-lg p-2.5"><div class="text-[9px] uppercase tracking-wider text-slate-600 font-bold mb-0.5">Tasa</div><div class="text-[18px] font-bold tabular-nums text-slate-900">12<span class="text-slate-400">%</span></div><div class="text-[9px] text-slate-500">OCs c/incid.</div></div>
+            <div class="bg-emerald-50 border border-emerald-100 rounded-lg p-2.5"><div class="text-[9px] uppercase tracking-wider text-emerald-700 font-bold mb-0.5">Resueltas</div><div class="text-[18px] font-bold tabular-nums text-emerald-900">11</div><div class="text-[9px] text-emerald-600">a favor</div></div>
+          </div>
+          <!-- mix por tipo -->
+          <div class="bg-white border border-slate-200 rounded-xl p-3">
+            <div class="text-[9px] uppercase tracking-wider text-slate-500 font-bold mb-2">Por tipo</div>
+            <div class="space-y-1.5 text-[11px]">
+              <div><div class="flex justify-between mb-0.5"><span class="text-slate-600">Faltante</span><span class="tabular-nums font-bold text-slate-800">6</span></div><div class="h-1.5 bg-slate-100 rounded-full overflow-hidden"><div class="h-full bg-rose-400 rounded-full" style="width:60%"></div></div></div>
+              <div><div class="flex justify-between mb-0.5"><span class="text-slate-600">Daño</span><span class="tabular-nums font-bold text-slate-800">4</span></div><div class="h-1.5 bg-slate-100 rounded-full overflow-hidden"><div class="h-full bg-amber-400 rounded-full" style="width:40%"></div></div></div>
+              <div><div class="flex justify-between mb-0.5"><span class="text-slate-600">Calidad / NC</span><span class="tabular-nums font-bold text-slate-800">4</span></div><div class="h-1.5 bg-slate-100 rounded-full overflow-hidden"><div class="h-full bg-sky-400 rounded-full" style="width:40%"></div></div></div>
+            </div>
+          </div>
+          <!-- severidad + drill -->
+          <div class="bg-white border border-slate-200 rounded-xl p-3">
+            <div class="text-[9px] uppercase tracking-wider text-slate-500 font-bold mb-2">Por severidad</div>
+            <div class="flex items-center gap-1.5 flex-wrap"><span class="badge bg-rose-100 text-rose-700 tabular-nums">Alta · 2</span><span class="badge bg-amber-100 text-amber-700 tabular-nums">Media · 5</span><span class="badge bg-slate-100 text-slate-600 tabular-nums">Baja · 7</span></div>
+            <a class="mt-2.5 w-full bg-rose-50 text-rose-700 border border-rose-200 text-[11px] font-semibold py-2.5 rounded-lg flex items-center justify-center gap-1.5" style="min-height:44px;"><i data-lucide="arrow-right" class="w-3.5 h-3.5"></i> Ver incidencias abiertas</a>
+          </div>
+        </div>
+      </div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- FOOTER · CHECKLIST CANON + NOTAS DE HONESTIDAD -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<footer class="space-y-6">
+  <!-- Mapa de mejoras (qué se preservó / qué se evolucionó) -->
+  <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden frame">
+    <div class="px-5 py-3 border-b border-slate-200 bg-slate-50 flex items-center gap-2"><i data-lucide="sparkles" class="w-4 h-4 text-blue-600"></i><span class="text-[13px] font-semibold text-slate-800">Mapa de la evolución · preservado vs nuevo</span></div>
+    <div class="p-5 grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2 text-[12px]">
+      <div class="md:col-span-2 text-[10px] font-bold uppercase tracking-wider text-emerald-600 acto-sep mt-1">Preservado (no se rediseña)</div>
+      <div class="flex items-start gap-2 text-slate-600"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600 flex-shrink-0 mt-0.5"></i> Shell Hub Kit · §A banner salud · §B donut + tendencia · §C lead/concentración/cumplimiento/FX</div>
+      <div class="flex items-start gap-2 text-slate-600"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600 flex-shrink-0 mt-0.5"></i> §D acciones · §E cross-links · §F alertas · CompraCard/FiltrosBar/BulkActions · directorio SRM · ranking SKU/variación</div>
+      <div class="md:col-span-2 text-[10px] font-bold uppercase tracking-wider text-blue-600 acto-sep mt-2">Evolucionado</div>
+      <div class="flex items-start gap-2 text-slate-600"><i data-lucide="bug" class="w-3.5 h-3.5 text-rose-600 flex-shrink-0 mt-0.5"></i> Strip: A1 "Comprado mes" = mes real (tendencia.actual.monto) · 5 KPIs respetan Línea · Borradores→mini-stat · lead-time promovido</div>
+      <div class="flex items-start gap-2 text-slate-600"><i data-lucide="plus" class="w-3.5 h-3.5 text-blue-600 flex-shrink-0 mt-0.5"></i> §A cola de firmas socio (A3) · §B pipeline de abastecimiento (B2) + donut clickable (B1) + tendencia línea/área (B4)</div>
+      <div class="flex items-start gap-2 text-slate-600"><i data-lucide="plus" class="w-3.5 h-3.5 text-blue-600 flex-shrink-0 mt-0.5"></i> §C calendario de caja (A4) + concentración×riesgo (A7) + mix origen (A9) · §E Requerimientos poblado (A8) + ROP (A10)</div>
+      <div class="flex items-start gap-2 text-slate-600"><i data-lucide="plus" class="w-3.5 h-3.5 text-blue-600 flex-shrink-0 mt-0.5"></i> Órdenes: barra-resumen del filtro (B3) + toggle Pipeline (B6) · Proveedores: scorecard SLA (A5) · Inteligencia: incidencias agregadas (A6)</div>
+    </div>
+  </div>
+
+  <!-- Checklist canon -->
+  <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden frame">
+    <div class="px-5 py-3 border-b border-slate-200 bg-slate-50 flex items-center gap-2"><i data-lucide="check-square" class="w-4 h-4 text-blue-600"></i><span class="text-[13px] font-semibold text-slate-800">Checklist canon · cobertura total + mobile + DS</span></div>
+    <div class="p-5 grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2 text-[12px]">
+      <div class="md:col-span-2 text-[10px] font-bold uppercase tracking-wider text-slate-400 acto-sep mt-1">Superficies + anatomía hub</div>
+      <div class="flex items-center gap-2 text-emerald-700"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i> Shell hub (top-bar S9.D1 + chip rol + header 3-tier + strip + tabs) · Acto 1</div>
+      <div class="flex items-center gap-2 text-emerald-700"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i> Tab Resumen §A→§F (default) · Acto 2 · centerpiece</div>
+      <div class="flex items-center gap-2 text-emerald-700"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i> Cada tab (Órdenes/Pendientes/Proveedores/Inteligencia) · Actos 3-6</div>
+      <div class="flex items-center gap-2 text-emerald-700"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i> Toggle "misma data" DENTRO de tab (Pipeline en Órdenes) · no tab del shell</div>
+      <div class="flex items-center gap-2 text-emerald-700"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i> Cards internas con datos + acciones (CompraCard · scorecard · SKU)</div>
+      <div class="flex items-center gap-2 text-emerald-700"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i> Banners contextuales (cola firmas · §A salud · §F alertas)</div>
+      <div class="flex items-center gap-2 text-emerald-700"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i> Empty / loading / error · Acto 7</div>
+      <div class="flex items-center gap-2 text-emerald-700"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i> Cross-links 360 con cifras pobladas (no placeholders)</div>
+      <div class="md:col-span-2 text-[10px] font-bold uppercase tracking-wider text-slate-400 acto-sep mt-2">Mobile 375px</div>
+      <div class="flex items-center gap-2 text-emerald-700"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i> Mobile shell · strip 2×2 · tabs scroll-x (N6) · Acto 8</div>
+      <div class="flex items-center gap-2 text-emerald-700"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i> Mobile dashboard §A–F apilado · pipeline scroll-x · donut+línea · Acto 9</div>
+      <div class="flex items-center gap-2 text-emerald-700"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i> Mobile Órdenes cards + toggle · scorecard SLA cards · Acto 10</div>
+      <div class="flex items-center gap-2 text-emerald-700"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i> Mobile Pendientes (selección sticky + ROP) · Inteligencia (incidencias + mix) · Acto 11</div>
+      <div class="flex items-center gap-2 text-emerald-700"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i> Empty de bloques nuevos (scorecard / pipeline / caja) · Acto 7 fila 2</div>
+      <div class="flex items-center gap-2 text-emerald-700"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i> Touch targets ≥44px declarados · Actos 8-11</div>
+      <div class="md:col-span-2 text-[10px] font-bold uppercase tracking-wider text-slate-400 acto-sep mt-2">Design System</div>
+      <div class="flex items-center gap-2 text-emerald-700"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i> Chrome BLUE (Comercial) · semántico en el dato (amber/emerald/rose/sky/violet)</div>
+      <div class="flex items-center gap-2 text-emerald-700"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i> Inter · tabular-nums · lucide (sin emojis) · radios 2xl/xl/lg · max-w-6xl · body dentro del shell</div>
+      <div class="flex items-center gap-2 text-emerald-700"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i> NO-REDUNDANCIA: el Resumen NO clona el strip (lo desglosa: pipeline/caja/mix/concentración)</div>
+      <div class="flex items-center gap-2 text-emerald-700"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i> 5 KPIs en el strip (NO se agregan · canon)</div>
+    </div>
+  </div>
+
+  <!-- Notas de honestidad · qué requiere cableado / qué NO se hizo -->
+  <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-5 frame">
+    <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 acto-sep mb-3">Notas de honestidad · fuente de cada dato</div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-[12px] text-slate-600">
+      <div class="flex items-start gap-2"><i data-lucide="check-circle" class="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5"></i><div><b class="text-slate-800">Ya computado (sin cableado):</b> strip corregido · pipeline (calcularPendientesCompra + stats por estado + montoPendiente) · donut/tendencia/lead/concentración/cumplimiento/FX · cola de firmas (autorizacion.estado) · cross-links (A8 reqs · A10 ROP motor stockReorden).</div></div>
+      <div class="flex items-start gap-2"><i data-lucide="plug" class="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5"></i><div><b class="text-slate-800">Requiere cableado (badge "fuente: X"):</b> calendario de caja (A4 · agregación montoPendiente+lead) · mix origen (A9 · join vía requerimientoId) · scorecard SLA (A5) e incidencias agregadas (A6) · ambas necesitan <code class="bg-slate-100 px-1 rounded">incidenciaOC.listAll</code> (~10 líneas · la lógica por-OC ya existe en InteligenciaOCPanel).</div></div>
+      <div class="flex items-start gap-2"><i data-lucide="x-circle" class="w-4 h-4 text-rose-600 flex-shrink-0 mt-0.5"></i><div><b class="text-slate-800">NO se hizo (honestidad):</b> NADA de "presupuestado vs comprado" vía <code class="bg-slate-100 px-1 rounded">comparacionExpectativa</code> (schema MUERTO verificado) · NADA de sobrecosto landed agregado (data sucia hasta cerrar el seam ③) · NO se agregaron KPIs nuevos al strip (sigue en 5).</div></div>
+      <div class="flex items-start gap-2"><i data-lucide="copy-minus" class="w-4 h-4 text-blue-600 flex-shrink-0 mt-0.5"></i><div><b class="text-slate-800">No-duplicación:</b> el teaser ROP (A10) LINKEA al motor <code class="bg-slate-100 px-1 rounded">stockReorden.helper</code> (no recalcula) · el toggle Pipeline (B6) es la MISMA data de Órdenes en otra vista (no una tab nueva) · concentración×riesgo: el Resumen §C es teaser COMPRIMIDO (22% + barra de 2 tramos) y el tab Proveedores tiene el desglose formal (donut 4 clases + leyenda) — distinto nivel, no se clona · Lead time: el NÚMERO vive solo en el strip (A4); su tarjeta de §C aporta CONTEXTO (desglose por tramo + vs trimestre), no repite el dato.</div></div>
+    </div>
+  </div>
+</footer>
+
+</div><!-- /max-w-6xl -->
+
+<script>lucide.createIcons();</script>
+</body>
+</html>
