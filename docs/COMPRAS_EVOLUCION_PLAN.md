@@ -70,3 +70,26 @@
 ## Secuencia recomendada
 **Fase 0 (bugs · ✅ A1/A2 desplegado · C6→F1) → mockear tab Llegadas (en progreso) → Fase 1 (Llegadas + C6 + campos de proveedor) → Fase 2 (detalle OC) → Fase 3 (hub dashboard) → Fase 4 (financieros, con sus deudas) → Fase 5 (nice-to-haves).**
 Es un programa multi-sesión. Fase 0 es inmediata y barata. Las Fases 2-3 ya tienen su mockup validado. Las Fases 1 y 4 necesitan mockup primero. Cada fase: verificar (tsc + build) + desplegar + validación visual M4 del usuario.
+
+---
+
+## Sub-programa · SCORECARD DE PROVEEDOR/VIAJERO (Fase 1 ampliada · redefinido 2026-06-29)
+
+El user redefinió "términos de proveedor": NO campos fijos (plazo de pago / MOQ son variables · no encasillan) sino **MÉTRICAS medidas**. Lo que importa: las **2 piernas de entrega** (proveedor + viajero · dueños distintos), el **impacto en caja** (matiz privado: todo con tarjeta → el cash sale en el ciclo, no en la compra), la **responsabilidad por pérdidas**, + otras.
+
+**Hallazgo estructural (4 análisis 360 + grounding en Envíos):** el documento dueño de la responsabilidad por pierna es el **ENVÍO**, no la OC → agregar por `origenProveedorId` (pierna A) + `colaboradorId` (pierna B). `ReclamosDeEntidadTab` es el **embrión** del scorecard (ya pullea por `destinatarioId`).
+
+**3 hallazgos que mandan:**
+1. La **fecha-bisagra ya existe** (`SubEnvioT1.fechaEntrega`) pero **T1 y T2 son 2 `Envio` SIN FK que los una** (`crearEnvioT2` no guarda `ordenCompraId`) → cadena end-to-end NO reconstruible hasta cerrar ese seam. Nunca asumir 1 OC = 1 envío (`getByOrdenCompra`, jamás `[0]`).
+2. **BUG doble-fuente-de-tiempo** (mismo patrón que el Seam ③ de CTRU): `proveedor.analytics` calcula lead-time a nivel OC (`fechaRecibida−fechaEnviada` · ignora sub-órdenes/tandas) mientras el radar usa fechas del Envío → el scorecard DEBE consolidar sobre Envíos y DEPRECAR el OC-level.
+3. **No hay política/SLA** — solo histórico (el "2-8 semanas" es texto hardcoded). La capa de política es greenfield.
+
+**OLAS (derivable-primero · principio: cerrar el DATO antes que la PRESENTACIÓN):**
+- ✅ **Ola 0 DESPLEGADA (`97544ba`):** tasa de recuperación (cobrado/reclamado · color de calidad) + distribución resolución (reembolso/reemplazo/merma) por entidad en `ReclamosDeEntidadTab` · cero schema · surfacea por proveedor + viajero.
+- **Ola 1:** Pierna B (viajero) puntualidad + lead-time por `colaboradorId` (`diasEnTransito` ya existe · `TabRendimiento` agrupa por nombre no id → cambiar la clave). Derivable.
+- **Ola 2:** Pierna A (proveedor) lead-time ponderado por unidades (`SubEnvioT1.fechaEntrega`) · consolidar en Envíos · DEPRECAR el OC-level de `proveedor.analytics`. Derivable c/tandas.
+- **Ola 3 (cerrar 3 seams de DATO):** (3a) FK T1↔T2 en `crearEnvioT2` · (3b) `responsable` en captura de incidencia (hoy sesgado a `sin_responsable`) · (3c) `destinatario` derivado del `responsable` (extraer `mapResponsableToDestinatario` de `ReclamoPanel.tsx:96` a un helper de dominio).
+- **Ola 4:** integridad por pierna (faltantes/dañadas proveedor vs viajero · depende de 3b) + **política declarada** (`Proveedor.responsabilidadPerdidas` · contraste declarado-vs-real). 🔴 dato nuevo.
+- **Ola 5:** end-to-end OC→Perú (depende de 3a) + **impacto en caja con tarjeta** (wiring OC→`CargoTarjeta` · el modelo de diferimiento existe pero desconectado · bifurcación UX "¿caja hoy o tarjeta?"). 🔴 toca el flujo de pago.
+
+**Solo 3 datos nuevos en todo el sub-programa:** fecha-bisagra (Ola 3a · ya existe en sub-envíos) · `Proveedor.responsabilidadPerdidas` (Ola 4) · re-flete del reemplazo (diferido). Todo lo demás es plomería. Dónde surfacea: ficha Proveedor (scorecard) · ficha Viajero · radar Llegadas (dual baseline) · detalle OC.
