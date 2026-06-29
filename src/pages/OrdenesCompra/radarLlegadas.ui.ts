@@ -5,7 +5,8 @@
  * El chrome del módulo (blue · Comercial) NO pinta el dato. Pixel del mockup compras-llegadas-v1.html.
  */
 
-import type { GravedadAtraso } from './radarAtrasados.helper';
+import type { GravedadAtraso, CulpableAtraso, LeadTimeFuenteFila } from './radarAtrasados.helper';
+import { Factory, Plane, type LucideIcon } from 'lucide-react';
 
 export interface GravedadMeta {
   label: string;
@@ -71,3 +72,43 @@ export function barWidthPct(ratio: number): number {
   // leve (1-1.5)→ ~50-75% · severo (1.5-2)→ ~75-100% · crítico (>2)→ 100%
   return Math.min(100, Math.max(40, Math.round((ratio / 2) * 100)));
 }
+
+/**
+ * Meta del "a quién empujar" (la pierna donde la OC está en curso · doble baseline).
+ * Color cross-módulo (canon v8.0 N4): PROVEEDOR (origen / pre-despacho) = blue (capital · entrada) ·
+ * VIAJERO (logística / tránsito) = purple (movimiento físico). NO es el color de gravedad (eso vive
+ * en GRAVEDAD_META · el dato del atraso) · esto identifica al RESPONSABLE.
+ */
+export interface CulpableMeta {
+  label: string;        // "empujar proveedor" / "empujar viajero"
+  pierna: string;       // "proveedor → origen" / "origen → Perú"
+  icon: LucideIcon;
+  /** Chip en la fila (bg + texto + borde). */
+  chip: string;
+  /** Color del icono del chip. */
+  iconColor: string;
+}
+
+export const CULPABLE_META: Record<CulpableAtraso, CulpableMeta> = {
+  proveedor: {
+    label: 'empujar proveedor',
+    pierna: 'pierna proveedor · pre-despacho',
+    icon: Factory,
+    chip: 'text-blue-700 bg-blue-50 border border-blue-200',
+    iconColor: 'text-blue-600',
+  },
+  viajero: {
+    label: 'empujar viajero',
+    pierna: 'pierna viajero · en tránsito',
+    icon: Plane,
+    chip: 'text-purple-700 bg-purple-50 border border-purple-200',
+    iconColor: 'text-purple-600',
+  },
+};
+
+/** Rótulo HONESTO de la fuente del baseline de la pierna (de dónde salió el lead-time esperado). */
+export const LEAD_FUENTE_LABEL: Record<LeadTimeFuenteFila, string> = {
+  entidad: 'histórico propio',
+  'global-pierna': 'promedio de la pierna',
+  global: 'promedio general (sin histórico de pierna)',
+};

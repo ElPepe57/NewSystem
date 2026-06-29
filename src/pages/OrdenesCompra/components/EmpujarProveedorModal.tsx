@@ -1,13 +1,16 @@
 /**
  * EmpujarProveedorModal · Fase 1 (Llegadas) · la ÚNICA acción de CAPTURA propia del módulo.
  *
- * Lo que abre el botón "Empujar" del radar de atrasados. Registra un seguimiento sobre el
- * proveedor (Contactar / Escalar / registrar Promesa de fecha) cuando un envío en vuelo va tarde.
+ * Lo que abre el botón "Empujar" del radar de atrasados. Registra un seguimiento sobre el RESPONSABLE
+ * de la pierna en curso — PROVEEDOR (envío aún no despachado) o VIAJERO (envío en tránsito) —
+ * (Contactar / Escalar / registrar Promesa de fecha) cuando una OC en vuelo va tarde.
  *
  * PERSISTENCIA (camino más limpio · NO se inventa colección nueva): escribe una entrada en
  * `ordenesCompra/{ocId}.comentariosInternos[]` vía `arrayUnion` — el MISMO campo y patrón que
  * usa `TimelineOCPanel.agregarComentario`, de modo que el "empujón" queda en el HISTORIAL de la OC
- * (Timeline) sin tocar nada más. El texto codifica tipo + canal + fecha-promesa + nota.
+ * (Timeline) sin tocar nada más. El texto codifica A QUIÉN se empujó (proveedor/viajero + nombre) +
+ * tipo + canal + fecha-promesa + nota. El viajero NO tiene colección propia donde persistir limpio
+ * → se anota igual en el comentario de la OC indicando "viajero: {nombre}".
  *
  * FormModalV2 resuelve desktop=modal / mobile=bottom-sheet automáticamente (vía el Modal base).
  */
@@ -22,7 +25,7 @@ import {
   Megaphone, Phone, TrendingUp, CalendarClock, AlertTriangle, Calendar, ChevronDown, History,
 } from 'lucide-react';
 import type { FilaRadarLlegada } from '../useRadarAtrasados';
-import { GRAVEDAD_META } from '../radarLlegadas.ui';
+import { GRAVEDAD_META, CULPABLE_META } from '../radarLlegadas.ui';
 
 type TipoEmpuje = 'contactar' | 'escalar' | 'promesa';
 type CanalEmpuje = 'WhatsApp' | 'Email' | 'Llamada' | 'Plataforma del courier';
@@ -72,6 +75,12 @@ export const EmpujarProveedorModal: React.FC<EmpujarProveedorModalProps> = ({
   if (!fila) return null;
 
   const meta = GRAVEDAD_META[fila.gravedad];
+  const culp = CULPABLE_META[fila.culpable];
+  // A quién se empuja: nombre del responsable de la pierna en curso (proveedor o viajero).
+  const targetNombre = fila.responsableNombre || fila.proveedor;
+  // Etiqueta para el comentario · "proveedor" o "viajero: {nombre}" (el viajero no tiene colección propia).
+  const targetTraza =
+    fila.culpable === 'viajero' ? `viajero: ${targetNombre}` : `proveedor: ${targetNombre}`;
 
   const handleSubmit = async () => {
     if (!user) {
@@ -81,9 +90,10 @@ export const EmpujarProveedorModal: React.FC<EmpujarProveedorModalProps> = ({
     setGuardando(true);
     try {
       // Texto del comentario interno = traza del empujón en el Timeline de la OC.
+      // Codifica A QUIÉN se empujó (proveedor/viajero + nombre) · la pierna en curso del atraso.
       const partes = [
-        `Empuje a proveedor · ${TIPO_LABEL[tipo]} (${canal})`,
-        `${fila.numero} · ${fila.proveedor} · atraso ${fila.diasEnVuelo}/${fila.leadTimeEsperado}d (${fila.gravedad})`,
+        `Empuje a ${targetTraza} · ${TIPO_LABEL[tipo]} (${canal})`,
+        `${fila.numero} · ${fila.proveedor} · pierna ${fila.culpable} · atraso ${fila.diasEnVuelo}/${fila.leadTimeEsperado}d (${fila.gravedad})`,
         tipo === 'promesa' && promesaFecha ? `Nueva fecha prometida: ${promesaFecha}` : '',
         nota.trim() ? `Nota: ${nota.trim()}` : '',
       ].filter(Boolean);
@@ -117,8 +127,8 @@ export const EmpujarProveedorModal: React.FC<EmpujarProveedorModalProps> = ({
       isOpen={!!fila}
       onClose={onClose}
       onSubmit={handleSubmit}
-      title="Empujar proveedor"
-      subtitle={`${fila.numero} · ${fila.proveedor}`}
+      title={fila.culpable === 'viajero' ? 'Empujar viajero' : 'Empujar proveedor'}
+      subtitle={`${fila.numero} · ${culp.label.replace('empujar ', '')}: ${targetNombre}`}
       icon={Megaphone}
       iconTone="red"
       size="sm"
@@ -128,11 +138,18 @@ export const EmpujarProveedorModal: React.FC<EmpujarProveedorModalProps> = ({
       loading={guardando}
       footerExtras={
         <span className="flex items-center gap-1 text-[10px] text-slate-400">
-          <History className="w-3 h-3" /> Queda en el historial del envío
+          <History className="w-3 h-3" /> Queda en el historial de la OC
         </span>
       }
     >
       <div className="space-y-4">
+        {/* a quién se empuja · la pierna en curso del atraso (color cross-módulo N4) */}
+        <div className={`rounded-xl px-3 py-2 flex items-center gap-2 text-[11px] ${culp.chip}`}>
+          <culp.icon className={`w-3.5 h-3.5 ${culp.iconColor} flex-shrink-0`} />
+          <span className="font-semibold">{culp.label} · <b>{targetNombre}</b></span>
+          <span className="ml-auto text-[10px] font-medium opacity-80">{culp.pierna}</span>
+        </div>
+
         {/* contexto rápido del atraso (read-only · semántico) */}
         <div className={`${meta.banner} rounded-xl px-3 py-2.5 flex items-center gap-2 text-[11px]`}>
           <AlertTriangle className={`w-3.5 h-3.5 ${meta.bannerIcon} flex-shrink-0`} />

@@ -20,6 +20,12 @@ export const RATIO_CRITICO = 2.0;
 /** Sin señal de tracking hace más de esto = "mudo" (candidato a pérdida). */
 export const DIAS_MUDO = 7;
 
+/** A quién hay que empujar para destrabar el atraso (la pierna donde la OC está en curso). */
+export type CulpableAtraso = 'proveedor' | 'viajero';
+
+/** De dónde salió el baseline de la pierna (honestidad sobre la fuente · no inventa). */
+export type LeadTimeFuenteFila = 'entidad' | 'global-pierna' | 'global';
+
 export interface FilaAtraso {
   id: string;
   numero: string;
@@ -33,6 +39,16 @@ export interface FilaAtraso {
   /** Días desde la última señal de tracking · null = sin tracking conocido. */
   diasUltimaSenal: number | null;
   mudo: boolean;
+  /**
+   * A quién empujar: la OC está en curso en UNA pierna a la vez.
+   *   · 'proveedor' → el envío AÚN no salió (esperando despacho del proveedor a origen).
+   *   · 'viajero'   → el envío YA salió (en tránsito origen→Perú a cargo del transportador).
+   */
+  culpable: CulpableAtraso;
+  /** Nombre del responsable a empujar (proveedor o colaborador/viajero · para la UI y el modal). */
+  responsableNombre?: string;
+  /** Honestidad: el baseline de esta pierna salió del histórico de la entidad, del global por pierna, o del global crudo. */
+  leadTimeFuente?: LeadTimeFuenteFila;
 }
 
 /**

@@ -19,7 +19,7 @@ import {
   PlaneLanding, Boxes, AlertOctagon, HandCoins, ShieldCheck, Plane,
 } from 'lucide-react';
 import type { RadarAtrasadosResult, FilaRadarLlegada } from '../useRadarAtrasados';
-import { GRAVEDAD_META, barWidthPct } from '../radarLlegadas.ui';
+import { GRAVEDAD_META, barWidthPct, CULPABLE_META, LEAD_FUENTE_LABEL } from '../radarLlegadas.ui';
 import { EmpujarProveedorModal } from './EmpujarProveedorModal';
 
 interface TabLlegadasProps {
@@ -131,11 +131,14 @@ export const TabLlegadas: React.FC<TabLlegadasProps> = ({ radar, navigate }) => 
                 {/* ── Desktop: tabla ── */}
                 <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden">
                   <div className="hidden lg:grid grid-cols-[1.4fr_1.3fr_1.4fr_1fr_1.2fr_1fr] gap-3 px-4 py-2.5 bg-slate-50 border-b border-slate-200 text-[10px] font-bold uppercase tracking-wider text-slate-500">
-                    <span>OC / envío</span><span>Proveedor</span><span>Días en vuelo vs lead-time</span><span className="text-right">Capital</span><span>Última señal</span><span className="text-right">Acción</span>
+                    <span>OC / envío</span><span>A quién empujar</span><span>Días en pierna vs baseline</span><span className="text-right">Capital</span><span>Baseline · señal</span><span className="text-right">Acción</span>
                   </div>
                   {filas.map((fila, i) => {
                     const meta = GRAVEDAD_META[fila.gravedad];
                     const accionable = fila.gravedad !== 'leve';
+                    const culp = CULPABLE_META[fila.culpable];
+                    const CulpIcon = culp.icon;
+                    const fuenteLabel = fila.leadTimeFuente ? LEAD_FUENTE_LABEL[fila.leadTimeFuente] : null;
                     return (
                       <div key={fila.id} className={`grid grid-cols-1 lg:grid-cols-[1.4fr_1.3fr_1.4fr_1fr_1.2fr_1fr] gap-3 px-4 py-3.5 ${i < filas.length - 1 ? 'border-b border-slate-100' : ''} ${meta.hover} transition-colors border-l-4 ${meta.borderL}`}>
                         {/* OC / envío */}
@@ -146,13 +149,16 @@ export const TabLlegadas: React.FC<TabLlegadasProps> = ({ radar, navigate }) => 
                             <div className="text-[11px] text-slate-500 tabular-nums truncate">{fila.orden.numeroOrden} · {fila.paisOrigen}</div>
                           </div>
                         </div>
-                        {/* proveedor */}
-                        <div className="flex items-center">
+                        {/* a quién empujar · chip con la pierna en curso (color cross-módulo N4) */}
+                        <div className="flex items-center min-w-0">
                           <div className="min-w-0">
-                            <div className="text-[12px] font-semibold text-slate-700 truncate">{fila.proveedor}</div>
+                            <span className={`inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full ${culp.chip}`}>
+                              <CulpIcon className={`w-2.5 h-2.5 ${culp.iconColor}`} /> {culp.label}
+                            </span>
+                            <div className="text-[12px] font-semibold text-slate-700 truncate mt-0.5">{fila.responsableNombre || fila.proveedor}</div>
                           </div>
                         </div>
-                        {/* días vs lead-time */}
+                        {/* días en pierna vs baseline de la pierna */}
                         <div className="flex items-center">
                           <div className="w-full">
                             <div className="flex items-baseline gap-1.5 flex-wrap">
@@ -165,11 +171,16 @@ export const TabLlegadas: React.FC<TabLlegadasProps> = ({ radar, navigate }) => 
                         </div>
                         {/* capital */}
                         <div className="flex items-center lg:justify-end"><span className="text-[14px] font-bold tabular-nums text-slate-900">{fmtUSD(fila.capitalUSD)}</span></div>
-                        {/* última señal · HONESTO: no hay dato de tracking (gap C4) */}
+                        {/* baseline (fuente honesta) + señal de tracking (gap C4 · pendiente) */}
                         <div className="flex items-center">
-                          <span className="inline-flex items-center gap-1.5 text-[11px] font-medium text-slate-500 bg-slate-50 border border-slate-200 px-2 py-1 rounded-lg">
-                            <Info className="w-3 h-3" /> tracking pendiente
-                          </span>
+                          <div className="min-w-0">
+                            {fuenteLabel && (
+                              <span className={`inline-flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded-lg ${fila.leadTimeFuente === 'entidad' ? 'text-emerald-700 bg-emerald-50 border border-emerald-200' : 'text-amber-700 bg-amber-50 border border-amber-200'}`} title={`Baseline de la pierna ${fila.culpable}: ${fuenteLabel}`}>
+                                {fila.leadTimeFuente === 'entidad' ? <ShieldCheck className="w-2.5 h-2.5" /> : <Info className="w-2.5 h-2.5" />} {fuenteLabel}
+                              </span>
+                            )}
+                            <div className="text-[10px] text-slate-400 flex items-center gap-1 mt-0.5"><Info className="w-3 h-3" /> tracking pendiente</div>
+                          </div>
                         </div>
                         {/* acción */}
                         <div className="flex items-center gap-1.5 lg:justify-end">
@@ -194,7 +205,7 @@ export const TabLlegadas: React.FC<TabLlegadasProps> = ({ radar, navigate }) => 
 
                 <div className="mt-2 text-[10px] text-slate-400 flex items-start gap-1.5">
                   <Info className="w-3 h-3 flex-shrink-0 mt-0.5" />
-                  <span>Borde izquierdo refuerza la gravedad. <b className="text-slate-500">Empujar proveedor</b> abre un mini-form (contactar / escalar / registrar promesa) que queda en el historial de la OC — la única acción PROPIA de Compras. "Ver" abre el envío en Envíos. El badge "{resumen.badge}" de la tab = filas severo+crítico.</span>
+                  <span>Doble baseline por pierna: la OC en vuelo se mide contra el lead-time de la pierna donde está en curso (<b className="text-blue-600">proveedor</b> si aún no despachó · <b className="text-purple-600">viajero</b> si ya salió). <b className="text-slate-500">Empujar</b> abre un mini-form (contactar / escalar / registrar promesa) que queda en el historial de la OC — la única acción PROPIA de Compras. "Ver" abre el envío en Envíos. El badge "{resumen.badge}" de la tab = filas severo+crítico.</span>
                 </div>
               </div>
             )}
@@ -286,7 +297,7 @@ export const TabLlegadas: React.FC<TabLlegadasProps> = ({ radar, navigate }) => 
       {/* nota de ownership · cierra la regla (cross-link vs operable) */}
       <div className="text-[10px] text-slate-400 flex items-start gap-1.5">
         <Info className="w-3 h-3 flex-shrink-0 mt-0.5" />
-        <span>Lo que <b className="text-slate-500">se opera</b> (radar + empujar proveedor) vive en Compras; lo que <b className="text-slate-500">es de otro dueño</b> (capital · unidades · incidencias · reclamos) se muestra read-only y se OPERA en su módulo (Envíos · Stock · Finanzas). Cero duplicación.</span>
+        <span>Lo que <b className="text-slate-500">se opera</b> (radar + empujar proveedor/viajero) vive en Compras; lo que <b className="text-slate-500">es de otro dueño</b> (capital · unidades · incidencias · reclamos) se muestra read-only y se OPERA en su módulo (Envíos · Stock · Finanzas). Cero duplicación.</span>
       </div>
     </div>
   );

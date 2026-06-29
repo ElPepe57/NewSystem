@@ -3,9 +3,21 @@
  *
  * Une las piezas que el helper PURO `radarAtrasados.helper` necesita y NO sabe leer:
  *   · OCs EN VUELO (estado in-flight) desde las `ordenes` ya filtradas por línea.
- *   · `diasEnVuelo` = hoy − fechaSalida del Envío vinculado (fallback: fechaCreacion de la OC).
- *   · `leadTimeEsperado` = lead-time aprendido (proveedor.metricas.tiempoEntregaPromedioDias si
- *      existe · si no, el `leadTimeGlobal.tiempoPromedioTotal` de productoIntelStore). ANOTADO abajo.
+ *   · LEG-AWARE (doble baseline por pierna · decisión user 2026-06-29): la OC en vuelo está en UNA
+ *      pierna a la vez. Si el envío YA salió (tiene fechaSalida) → pierna VIAJERO en curso
+ *      (diasEnVuelo desde fechaSalida · baseline = viajero · culpable='viajero'). Si AÚN no salió
+ *      (sin fechaSalida) → pierna PROVEEDOR en curso (diasEnVuelo desde fechaEnviada/fechaCreacion
+ *      de la OC · baseline = proveedor · culpable='proveedor'). Se compara contra el baseline DE ESA
+ *      pierna · ya no contra `prov.metricas.tiempoEntregaPromedioDias` (baseline de cadena entera,
+ *      denormalizado y ROTO · misma familia OC-level deprecada).
+ *   · BASELINES POR PIERNA, computados IN-MEMORY desde los `envios` (que el hook YA recibe = TODOS
+ *      los envíos · `envioCrudService.getAll()`). Sin queries extra:
+ *        - VIAJERO por colaboradorId: `resumirLeadTime` de `leadTimePiernaB` sobre envíos COMPLETADOS
+ *          del viajero → promedio.
+ *        - PROVEEDOR por origenProveedorId: `resumirLeadTime` de `leadTimePiernaA(envio.subEnvios)`
+ *          sobre envíos COMPLETADOS del proveedor → promedio.
+ *      Fallback por pierna (promedio global de esa pierna) si la entidad no tiene histórico · y el
+ *      `leadTimeGlobal` (cadena entera · productoIntelStore) si NADA. Se ANOTA la fuente por fila.
  *   · `capitalUSD` = totalUSD de la OC (el dato de capital · LECTURA · vive en Envíos/Finanzas).
  *   · `diasUltimaSenal` = null SIEMPRE · NO existe campo de "última señal de tracking" (gap C4
  *      diferido) · no se inventa el dato → `esMudo` = false. La UI lo rotula como pendiente.
@@ -33,7 +45,14 @@ import {
   resumirRadar,
   type FilaAtraso,
   type ResumenRadar,
+  type CulpableAtraso,
+  type LeadTimeFuenteFila,
 } from './radarAtrasados.helper';
+import {
+  leadTimePiernaA,
+  leadTimePiernaB,
+  resumirLeadTime,
+} from '../../utils/leadTimePiernas.helper';
 
 // Estados logísticos de OC "en vuelo" (in-flight): confirmada/en_proceso/despachada + legacy.
 // NO borrador/completada/recibida/cancelada. String[] para incluir estados legacy de Firestore.
@@ -57,6 +76,14 @@ const ESTADOS_ENVIO_EN_VUELO: string[] = [
   // logística local
   'programada',
   'en_camino',
+];
+
+// Estados de Envío "completado" — los que ya tienen lead-time real de cierre, base de los baselines
+// por pierna aprendidos (la mercadería llegó · hay fechaLlegadaReal / tandas entregadas).
+const ESTADOS_ENVIO_COMPLETADO: string[] = [
+  'recibida_completa',
+  'recibida_parcial', // parcial ya tiene primera entrega real → su lead-time de pierna es medible
+  'entregada',
 ];
 
 const MS_DIA = 86_400_000;
@@ -116,8 +143,15 @@ export interface RadarAtrasadosResult {
   capital: CapitalTransito;
   unidades: UnidadesPorLlegar;
   teaser: TeaserExcepciones;
-  /** Fuente del lead-time usado por fila (para honestidad/debug). */
-  leadTimeFuente: 'proveedor' | 'global' | 'mixto' | 'sin-baseline';
+  /**
+   * Fuente AGREGADA del lead-time usado por las filas (para honestidad/debug).
+   *   · 'entidad'       → todas las filas usaron el baseline histórico de su propia entidad (pierna).
+   *   · 'global-pierna' → al menos una cayó al promedio global de su pierna (sin histórico propio).
+   *   · 'global'        → al menos una cayó al leadTimeGlobal de cadena entera (sin histórico de pierna).
+   *   · 'mixto'         → mezcla de las anteriores.
+   *   · 'sin-baseline'  → no había baseline computable (radar vacío de filas).
+   */
+  leadTimeFuente: LeadTimeFuenteFila | 'mixto' | 'sin-baseline';
   loading: boolean;
   error: boolean;
   /** Re-dispara la carga del teaser async (incidencias). El radar se recalcula con los props. */
@@ -203,6 +237,56 @@ export function useRadarAtrasados({
     [ordenes],
   );
 
+  // ─── BASELINES POR PIERNA · aprendidos IN-MEMORY desde los envíos COMPLETADOS ─────────────
+  // Se computa una sola pasada sobre TODOS los envíos (ya cargados · sin queries extra):
+  //   · Pierna VIAJERO (B) por colaboradorId · leadTimePiernaB (días en tránsito real).
+  //   · Pierna PROVEEDOR (A) por origenProveedorId · leadTimePiernaA(subEnvios) (despacho→entrega).
+  // Promedio por entidad + promedio GLOBAL de cada pierna como fallback honesto.
+  const baselines = useMemo(() => {
+    const viajeroVals = new Map<string, number[]>();
+    const proveedorVals = new Map<string, number[]>();
+    const viajeroGlobal: number[] = [];
+    const proveedorGlobal: number[] = [];
+
+    for (const e of envios) {
+      if (!ESTADOS_ENVIO_COMPLETADO.includes(e.estado)) continue;
+
+      // Pierna VIAJERO (B): días en tránsito reales del envío completado.
+      const b = leadTimePiernaB(e);
+      if (b != null && e.colaboradorId) {
+        const arr = viajeroVals.get(e.colaboradorId) ?? [];
+        arr.push(b);
+        viajeroVals.set(e.colaboradorId, arr);
+        viajeroGlobal.push(b);
+      }
+
+      // Pierna PROVEEDOR (A): despacho→entrega de las tandas del proveedor.
+      const a = leadTimePiernaA(e.subEnvios);
+      if (a != null && e.origenProveedorId) {
+        const arr = proveedorVals.get(e.origenProveedorId) ?? [];
+        arr.push(a);
+        proveedorVals.set(e.origenProveedorId, arr);
+        proveedorGlobal.push(a);
+      }
+    }
+
+    const promedioPor = (m: Map<string, number[]>) => {
+      const out = new Map<string, number>();
+      for (const [k, v] of m) {
+        const stat = resumirLeadTime(v);
+        if (stat) out.set(k, stat.promedio);
+      }
+      return out;
+    };
+
+    return {
+      viajeroPorId: promedioPor(viajeroVals),
+      proveedorPorId: promedioPor(proveedorVals),
+      viajeroGlobal: resumirLeadTime(viajeroGlobal)?.promedio ?? 0,
+      proveedorGlobal: resumirLeadTime(proveedorGlobal)?.promedio ?? 0,
+    };
+  }, [envios]);
+
   // ─── Filas del radar (clasificadas por gravedad) ─────────────────────────
   const leadGlobal = leadTimeGlobal?.tiempoPromedioTotal ?? 0;
   // "hoy" estable por el ciclo de vida del componente (lazy initializer · impureza permitida en
@@ -211,46 +295,73 @@ export function useRadarAtrasados({
 
   const { filas, leadTimeFuente } = useMemo(() => {
     const out: FilaRadarLlegada[] = [];
-    const fuentes = new Set<'proveedor' | 'global' | 'sin-baseline'>();
+    const fuentes = new Set<LeadTimeFuenteFila>();
 
     for (const orden of ordenesEnVuelo) {
       const envio = envioEnVueloPorOC.get(orden.id) ?? null;
-      // diasEnVuelo: desde la salida del envío · fallback a la creación de la OC.
-      const salidaMs =
-        toMs(envio?.fechaSalida) ?? toMs(orden.fechaCreacion);
-      if (salidaMs == null) continue;
-      const diasEnVuelo = Math.floor((hoy - salidaMs) / MS_DIA);
-
-      // leadTimeEsperado: por proveedor (aprendido) si está · si no, el global.
       const prov = proveedorIndex.get(orden.proveedorId);
-      const leadProv = prov?.metricas?.tiempoEntregaPromedioDias ?? 0;
+
+      // LEG-AWARE: ¿en qué pierna está la OC en vuelo? El envío YA salió ⇒ pierna VIAJERO en curso;
+      // si NO salió aún ⇒ pierna PROVEEDOR en curso (esperando que despache a origen).
+      const salidaMs = toMs(envio?.fechaSalida);
+      const enViajero = salidaMs != null;
+
+      // diasEnVuelo: cuenta desde el inicio de la PIERNA en curso.
+      //   · viajero  → desde fechaSalida del envío.
+      //   · proveedor → desde que la OC se confirmó/envió al proveedor (fechaEnviada · fallback creación).
+      const inicioMs = enViajero
+        ? salidaMs
+        : (toMs(orden.fechaEnviada) ?? toMs(orden.fechaCreacion));
+      if (inicioMs == null) continue;
+      const diasEnVuelo = Math.floor((hoy - inicioMs) / MS_DIA);
+
+      // Baseline de ESA pierna (entidad → global de pierna → leadTimeGlobal de cadena).
+      const culpable: CulpableAtraso = enViajero ? 'viajero' : 'proveedor';
+      const entidadId = enViajero ? envio?.colaboradorId : orden.proveedorId;
+      const baseEntidad = enViajero
+        ? (entidadId ? baselines.viajeroPorId.get(entidadId) : undefined)
+        : (entidadId ? baselines.proveedorPorId.get(entidadId) : undefined);
+      const baseGlobalPierna = enViajero ? baselines.viajeroGlobal : baselines.proveedorGlobal;
+
       let leadTimeEsperado = 0;
-      if (leadProv > 0) {
-        leadTimeEsperado = leadProv;
-        fuentes.add('proveedor');
+      let leadTimeFuenteFila: LeadTimeFuenteFila;
+      if (baseEntidad != null && baseEntidad > 0) {
+        leadTimeEsperado = baseEntidad;
+        leadTimeFuenteFila = 'entidad';
+      } else if (baseGlobalPierna > 0) {
+        leadTimeEsperado = baseGlobalPierna;
+        leadTimeFuenteFila = 'global-pierna';
       } else if (leadGlobal > 0) {
+        // Último recurso HONESTO: no hay histórico de pierna → baseline de cadena entera.
         leadTimeEsperado = leadGlobal;
-        fuentes.add('global');
+        leadTimeFuenteFila = 'global';
       } else {
-        fuentes.add('sin-baseline');
-        continue; // sin baseline NO se puede afirmar "va tarde" · helper devolvería null igual.
+        continue; // sin baseline NO se puede afirmar "va tarde" (no se inventa un número).
       }
+      fuentes.add(leadTimeFuenteFila);
 
       const clas = clasificarAtraso(diasEnVuelo, leadTimeEsperado);
       if (!clas) continue; // no atrasado (ratio ≤ 1)
+
+      const responsableNombre = enViajero
+        ? (envio?.colaboradorNombre || 'Viajero')
+        : (orden.nombreProveedor || prov?.nombre || 'Proveedor');
 
       out.push({
         id: orden.id,
         numero: envio?.numeroEnvio || orden.numeroOrden,
         proveedor: orden.nombreProveedor,
         diasEnVuelo,
-        leadTimeEsperado,
+        leadTimeEsperado: Math.round(leadTimeEsperado),
         ratio: clas.ratio,
         gravedad: clas.gravedad,
         capitalUSD: orden.totalUSD || 0,
         // HONESTIDAD: no existe campo de última señal de tracking (gap C4) → null → no-mudo.
         diasUltimaSenal: null,
         mudo: false,
+        culpable,
+        responsableNombre,
+        leadTimeFuente: leadTimeFuenteFila,
         orden,
         envio,
         paisOrigen: orden.paisOrigen || envio?.origenProveedorPais || '—',
@@ -260,16 +371,12 @@ export function useRadarAtrasados({
     const fuente: RadarAtrasadosResult['leadTimeFuente'] =
       fuentes.size === 0
         ? 'sin-baseline'
-        : fuentes.has('proveedor') && fuentes.has('global')
+        : fuentes.size > 1
           ? 'mixto'
-          : fuentes.has('proveedor')
-            ? 'proveedor'
-            : fuentes.has('global')
-              ? 'global'
-              : 'sin-baseline';
+          : ([...fuentes][0] as LeadTimeFuenteFila);
 
     return { filas: ordenarRadar(out) as FilaRadarLlegada[], leadTimeFuente: fuente };
-  }, [ordenesEnVuelo, envioEnVueloPorOC, proveedorIndex, leadGlobal, hoy]);
+  }, [ordenesEnVuelo, envioEnVueloPorOC, proveedorIndex, baselines, leadGlobal, hoy]);
 
   const resumen = useMemo(() => resumirRadar(filas), [filas]);
 

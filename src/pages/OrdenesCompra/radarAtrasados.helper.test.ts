@@ -10,7 +10,8 @@ import {
 const fila = (p: Partial<FilaAtraso>): FilaAtraso =>
   ({
     id: 'X', numero: 'OC-1', proveedor: 'COSRX', diasEnVuelo: 10, leadTimeEsperado: 14,
-    ratio: 0.7, gravedad: 'leve', capitalUSD: 1000, diasUltimaSenal: 2, mudo: false, ...p,
+    ratio: 0.7, gravedad: 'leve', capitalUSD: 1000, diasUltimaSenal: 2, mudo: false,
+    culpable: 'proveedor', ...p,
   });
 
 describe('clasificarAtraso', () => {
@@ -66,5 +67,15 @@ describe('ordenarRadar', () => {
       fila({ id: 'S', gravedad: 'severo', ratio: 1.7 }),
     ];
     expect(ordenarRadar(filas).map((f) => f.id)).toEqual(['C', 'S', 'L']);
+  });
+  it('conserva el culpable por pierna (proveedor vs viajero) al ordenar', () => {
+    const filas = [
+      fila({ id: 'P', gravedad: 'severo', ratio: 1.6, culpable: 'proveedor' }),
+      fila({ id: 'V', gravedad: 'critico', ratio: 2.3, culpable: 'viajero' }),
+    ];
+    const ordenadas = ordenarRadar(filas);
+    expect(ordenadas.map((f) => f.id)).toEqual(['V', 'P']);
+    expect(ordenadas[0].culpable).toBe('viajero');
+    expect(ordenadas[1].culpable).toBe('proveedor');
   });
 });
