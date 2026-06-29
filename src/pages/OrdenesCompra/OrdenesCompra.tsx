@@ -394,9 +394,12 @@ export const OrdenesCompra: React.FC = () => {
       lista = lista.filter(o => o.proveedorId === filtroProveedor);
     }
 
-    // Filtro por estado de pago
+    // Filtro por estado de pago · '__por_pagar__' = pendiente + parcial (ambos tienen saldo · alinea
+    // con el conteo de la estación "Por pagar" del pipeline = ocsConPagoPendiente, que cuenta ambos).
     if (filtroEstadoPago) {
-      lista = lista.filter(o => o.estadoPago === filtroEstadoPago);
+      lista = filtroEstadoPago === '__por_pagar__'
+        ? lista.filter(o => o.estadoPago === 'pendiente' || o.estadoPago === 'parcial')
+        : lista.filter(o => o.estadoPago === filtroEstadoPago);
     }
 
     // Búsqueda global (número OC, proveedor, tracking)
@@ -475,9 +478,10 @@ export const OrdenesCompra: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Lazy: cargar requerimientos al abrir la tab Pendientes (chk5.COMERCIALES-F3a)
+  // Lazy: cargar requerimientos al abrir la tab Pendientes (chk5.COMERCIALES-F3a) o el Resumen
+  // (el §B pipeline + §C mix del gasto + §E cross-link los necesitan · misma fuente que Pendientes).
   useEffect(() => {
-    if (tabActiva === 'pendientes' && requerimientos.length === 0) {
+    if ((tabActiva === 'pendientes' || tabActiva === 'resumen') && requerimientos.length === 0) {
       fetchRequerimientos().catch(() => {});
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -1085,7 +1089,7 @@ export const OrdenesCompra: React.FC = () => {
             ]}
             selecciones={{
               etapa: filtroEstado ? [filtroEstado] : [],
-              pago: filtroEstadoPago ? [filtroEstadoPago] : [],
+              pago: filtroEstadoPago === '__por_pagar__' ? ['pendiente', 'parcial'] : (filtroEstadoPago ? [filtroEstadoPago] : []),
             }}
             onChipToggle={(groupKey, value) => {
               if (groupKey === 'etapa') setFiltroEstado(filtroEstado === value ? null : value);
@@ -1218,12 +1222,20 @@ export const OrdenesCompra: React.FC = () => {
             stats={stats}
             statsExtra={statsExtra}
             tcHoy={tcSugerido}
+            requerimientos={requerimientos}
+            proveedores={proveedoresActivos}
+            radar={radar}
+            esSocio={esSocio}
             onNuevaOC={() => setIsWizardV2Open(true)}
             onIrTab={(tab) => setTabActiva(tab)}
             onFiltrarEstado={(estado) => {
               setTabActiva('ordenes');
-              if (estado === '__por_pagar__') { setFiltroEstadoPago('pendiente'); }
+              if (estado === '__por_pagar__') { setFiltroEstadoPago('__por_pagar__'); }
               else { setFiltroEstado(estado); }
+            }}
+            onFiltrarProveedor={(proveedorId) => {
+              setTabActiva('ordenes');
+              setFiltroProveedor(proveedorId);
             }}
             onVerOC={(oc) => { setSelectedOrdenLocal(oc); setIsDetailsModalOpen(true); }}
             navigate={navigate}
