@@ -370,19 +370,28 @@ export const ProveedorDetailView: React.FC<ProveedorDetailViewProps> = ({
                   variant="neutral"
                   size="sm"
                 />
+                {/* Lead-time PIERNA A (proveedor) · sobre ENVÍOS (fuente real de las fechas).
+                    Reemplaza el "Tiempo Entrega" OC-level roto. Sin SLA → no "puntualidad %";
+                    solo lead-time real + consistencia (desviación). null = "sin datos". */}
                 <DSStatCard
-                  label="Tiempo Entrega"
-                  value={`${analytics.tiempoEntregaPromedio.toFixed(1)} dias`}
-                  subtitle={`+/- ${analytics.desviacionTiempoEntrega.toFixed(1)}d`}
+                  label="Lead time proveedor"
+                  value={analytics.leadTimeProveedor ? `${analytics.leadTimeProveedor.promedio.toFixed(1)} dias` : 'Sin datos'}
+                  subtitle={analytics.leadTimeProveedor ? `despacho → casilla · ${analytics.leadTimeProveedor.n} envío(s)` : 'sin tandas con fechas'}
                   icon={Truck}
-                  variant="neutral"
+                  variant={analytics.leadTimeProveedor ? 'neutral' : 'neutral'}
                   size="sm"
                 />
                 <DSStatCard
-                  label="Puntualidad"
-                  value={`${analytics.tasaPuntualidad.toFixed(0)}%`}
-                  icon={CheckCircle}
-                  variant={analytics.tasaPuntualidad >= 80 ? 'success' : analytics.tasaPuntualidad >= 60 ? 'warning' : 'danger'}
+                  label="Consistencia"
+                  value={analytics.leadTimeProveedor ? `+/- ${analytics.leadTimeProveedor.desviacion.toFixed(1)}d` : 'Sin datos'}
+                  subtitle={analytics.leadTimeProveedor ? `rango ${analytics.leadTimeProveedor.min}-${analytics.leadTimeProveedor.max}d` : 'sin muestras'}
+                  icon={Clock}
+                  variant={
+                    !analytics.leadTimeProveedor ? 'neutral'
+                    : analytics.leadTimeProveedor.desviacion <= 3 ? 'success'
+                    : analytics.leadTimeProveedor.desviacion <= 7 ? 'warning'
+                    : 'danger'
+                  }
                   size="sm"
                 />
               </DSKPIBar>

@@ -29,6 +29,7 @@ import { StatCard } from '../../design-system';
 import { useEnvioStore } from '../../store/envioStore';
 import { useReclamoStore } from '../../store/reclamoStore';
 import { formatCurrency } from '../../utils/format';
+import { leadTimePiernaB, resumirLeadTime } from '../../utils/leadTimePiernas.helper';
 
 type Periodo = 'ultimo_mes' | 'ultimos_3_meses' | 'ultimos_6_meses' | 'anio_actual' | 'todos';
 
@@ -174,27 +175,41 @@ export const TabRendimiento: React.FC = () => {
       .slice(0, 5);
   }, [enviosPeriodo]);
 
-  // Ranking de couriers por on-time
+  // Ranking de viajeros · lead-time PIERNA B (origen → Perú) por colaboradorId.
+  // Clave = colaboradorId (estable), no el nombre (frágil · string). El lead-time sale del
+  // helper `leadTimePiernaB` (diasEnTransito o fechaLlegadaReal−fechaSalida) y `resumirLeadTime`
+  // agrega promedio + desviación (consistencia). HONESTO: sin SLA → no "puntualidad %"; si un
+  // viajero no tiene envíos medibles, su lead-time = null = "sin datos".
   const rankingCouriers = useMemo(() => {
-    const byCourier = new Map<string, { total: number; aTiempo: number; retenciones: number }>();
+    const byViajero = new Map<string, {
+      nombre: string;
+      total: number;
+      retenciones: number;
+      leadTimes: number[];
+    }>();
     for (const e of enviosPeriodo) {
-      const nombre = e.colaboradorNombre || '—';
-      const curr = byCourier.get(nombre) || { total: 0, aTiempo: 0, retenciones: 0 };
+      const id = e.colaboradorId;
+      if (!id) continue; // sin viajero identificado → no se rankea (no inventamos clave)
+      const curr = byViajero.get(id) || {
+        nombre: e.colaboradorNombre || id,
+        total: 0,
+        retenciones: 0,
+        leadTimes: [],
+      };
       curr.total++;
-      if (e.fechaLlegadaReal && e.fechaLlegadaEstimada
-        && e.fechaLlegadaReal.toMillis() <= e.fechaLlegadaEstimada.toMillis()) {
-        curr.aTiempo++;
-      }
+      if (e.colaboradorNombre) curr.nombre = e.colaboradorNombre;
       if ((e.incidencias || []).some(i => i.tipo === 'aduana')) curr.retenciones++;
-      byCourier.set(nombre, curr);
+      const lt = leadTimePiernaB(e);
+      if (lt != null) curr.leadTimes.push(lt);
+      byViajero.set(id, curr);
     }
-    return [...byCourier.entries()]
-      .filter(([nombre]) => nombre !== '—')
-      .map(([nombre, stats]) => ({
-        nombre,
+    return [...byViajero.entries()]
+      .map(([id, stats]) => ({
+        id,
+        nombre: stats.nombre,
         total: stats.total,
-        onTimeRate: stats.total > 0 ? (stats.aTiempo / stats.total) * 100 : 0,
         retenciones: stats.retenciones,
+        leadTime: resumirLeadTime(stats.leadTimes),
       }))
       .sort((a, b) => b.total - a.total)
       .slice(0, 5);
@@ -316,31 +331,38 @@ export const TabRendimiento: React.FC = () => {
           )}
         </div>
 
-        {/* Ranking couriers */}
+        {/* Ranking viajeros · lead-time PIERNA B (origen → Perú) por colaboradorId */}
         <div className="bg-white border border-slate-200 rounded-lg p-4">
           <div className="flex items-center gap-2 mb-3">
             <Truck className="w-4 h-4 text-sky-600" />
-            <h4 className="text-sm font-semibold text-slate-900">Top couriers por volumen</h4>
+            <h4 className="text-sm font-semibold text-slate-900">Top viajeros · lead-time</h4>
           </div>
           {rankingCouriers.length === 0 ? (
-            <div className="text-xs text-slate-500 py-4 text-center">Sin datos de couriers en el período.</div>
+            <div className="text-xs text-slate-500 py-4 text-center">Sin datos de viajeros en el período.</div>
           ) : (
             <div className="space-y-2">
               {rankingCouriers.map(r => (
-                <div key={r.nombre} className="flex items-center justify-between gap-2 p-2 bg-slate-50 border border-slate-200 rounded-lg text-xs">
+                <div key={r.id} className="flex items-center justify-between gap-2 p-2 bg-slate-50 border border-slate-200 rounded-lg text-xs">
                   <div className="min-w-0 flex-1">
                     <div className="font-medium text-slate-900 truncate">{r.nombre}</div>
                     <div className="text-slate-500">{r.total} envío(s){r.retenciones > 0 && ` · ${r.retenciones} con aduana`}</div>
                   </div>
                   <div className="text-right flex-shrink-0">
-                    <div className={`font-semibold ${
-                      r.onTimeRate >= 80 ? 'text-emerald-700'
-                      : r.onTimeRate >= 60 ? 'text-amber-700'
-                      : 'text-red-700'
-                    }`}>
-                      {r.onTimeRate.toFixed(0)}%
-                    </div>
-                    <div className="text-[10px] text-slate-500">on-time</div>
+                    {r.leadTime ? (
+                      <>
+                        <div className="font-semibold tabular-nums text-sky-700">
+                          {r.leadTime.promedio.toFixed(1)}d
+                        </div>
+                        <div className="text-[10px] text-slate-500 tabular-nums">
+                          +/- {r.leadTime.desviacion.toFixed(1)}d · {r.leadTime.n} med.
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <div className="font-semibold text-slate-300">—</div>
+                        <div className="text-[10px] text-slate-400">sin datos</div>
+                      </>
+                    )}
                   </div>
                 </div>
               ))}

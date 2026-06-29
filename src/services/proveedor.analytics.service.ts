@@ -7,7 +7,10 @@
 import type { Proveedor, OrdenCompra, ClasificacionProveedor } from '../types/ordenCompra.types';
 import type { Producto } from '../types/producto.types';
 import type { IncidenciaOC } from '../types/incidenciaOC.types';
+import type { Envio } from '../types/envio.types';
 import { incidenciaOCService } from './incidenciaOC.service';
+import { envioCrudService } from './envio.crud.service';
+import { leadTimePiernaA, resumirLeadTime } from '../utils/leadTimePiernas.helper';
 
 // ============================================
 // INTERFACES DE ANALYTICS
@@ -165,11 +168,28 @@ export interface ProveedorAnalytics {
     unidades: number;
   };
 
-  // Tiempos de entrega
+  // Lead-time · PIERNA A (proveedor) — consolidado sobre ENVÍOS (fuente real de las fechas).
+  // Desde que el proveedor despacha la tanda hasta que llega a la casilla de origen.
+  // null = "sin datos" (ningún envío con tandas medibles) → NO se inventa 0.
+  leadTimeProveedor: {
+    promedio: number;
+    min: number;
+    max: number;
+    desviacion: number; // consistencia (más bajo = más predecible)
+    n: number;          // # de envíos medibles
+  } | null;
+
+  /** @deprecated OC-level (fechaRecibida−fechaEnviada) · fusiona proveedor+viajero+aduana e
+   *  ignora sub-órdenes/tandas. Sustituido por `leadTimeProveedor` (Pierna A sobre Envíos).
+   *  Se conserva como fallback explícito hasta retirar consumidores legacy. */
   tiempoEntregaPromedio: number;
+  /** @deprecated ver `leadTimeProveedor`. */
   tiempoEntregaMinimo: number;
+  /** @deprecated ver `leadTimeProveedor`. */
   tiempoEntregaMaximo: number;
+  /** @deprecated ver `leadTimeProveedor`. */
   desviacionTiempoEntrega: number;
+  /** @deprecated OC-level · no hay SLA/objetivo real (greenfield · Ola 4). NO surfacear como "puntualidad %". */
   tasaPuntualidad: number; // % entregas a tiempo
 
   // Calidad e incidencias
@@ -240,7 +260,10 @@ export const ProveedorAnalyticsService = {
       allProveedores
     );
 
-    // Calcular tiempos de entrega
+    // Lead-time PIERNA A (proveedor) · consolidado sobre ENVÍOS (dueño de las fechas reales).
+    // Reemplaza el cálculo OC-level roto. `calcularTiemposEntrega` (deprecado) se conserva como
+    // fallback explícito para los campos legacy del contrato hasta retirar consumidores viejos.
+    const leadTimeProveedor = await this.calcularLeadTimePiernaA(proveedor.id, ordenesProveedor);
     const tiemposEntrega = this.calcularTiemposEntrega(ordenesProveedor);
 
     // C6 · incidencias REALES (colección incidenciasOC · cross-OC) — reemplaza el stub que mentía.
@@ -280,7 +303,8 @@ export const ProveedorAnalyticsService = {
             unidades: productosComprados[0].unidadesCompradas
           }
         : undefined,
-      // Tiempos de entrega
+      // Lead-time Pierna A (proveedor · sobre Envíos) + campos OC-level legacy (deprecados)
+      leadTimeProveedor,
       ...tiemposEntrega,
       // Incidencias
       incidencias,
@@ -549,7 +573,51 @@ export const ProveedorAnalyticsService = {
   },
 
   /**
-   * Calcula tiempos de entrega
+   * Lead-time PIERNA A (proveedor) consolidado sobre los ENVÍOS de este proveedor.
+   *
+   * Envíos es el DUEÑO de las fechas reales: por cada envío con tandas medibles
+   * `leadTimePiernaA(envio.subEnvios)` da el lead-time ponderado (fechaEntrega −
+   * fechaDespachoProveedor) y `resumirLeadTime` agrega el conjunto. HONESTO: si ningún
+   * envío tiene tandas con ambas fechas → null = "sin datos" (NO inventa 0).
+   *
+   * Trae los envíos por DOS caminos y deduplica por id (NO asume 1 OC = 1 envío):
+   *  1. `getByProveedor` — query directa por `origenProveedorId` (link autoritativo).
+   *  2. `getByOrdenCompra` por cada OC del proveedor — captura envíos que no tengan
+   *     poblado `origenProveedorId` pero sí estén vinculados a una OC suya.
+   */
+  async calcularLeadTimePiernaA(
+    proveedorId: string,
+    ordenesProveedor: OrdenCompra[]
+  ): Promise<ProveedorAnalytics['leadTimeProveedor']> {
+    const enviosPorId = new Map<string, Envio>();
+    try {
+      const directos = await envioCrudService.getByProveedor(proveedorId);
+      for (const e of directos) enviosPorId.set(e.id, e);
+
+      const porOC = await Promise.all(
+        ordenesProveedor.map((oc) => envioCrudService.getByOrdenCompra(oc.id))
+      );
+      for (const lista of porOC) {
+        for (const e of lista) enviosPorId.set(e.id, e);
+      }
+    } catch (err) {
+      console.error('Error trayendo envíos del proveedor para lead-time Pierna A:', err);
+    }
+
+    const valores: number[] = [];
+    for (const envio of enviosPorId.values()) {
+      const lt = leadTimePiernaA(envio.subEnvios);
+      if (lt != null) valores.push(lt);
+    }
+    return resumirLeadTime(valores);
+  },
+
+  /**
+   * @deprecated OC-level (fechaRecibida − fechaEnviada) · FUSIONA proveedor + viajero + aduana
+   * en una sola cifra a nivel OC e IGNORA sub-órdenes/tandas (bug de doble-fuente). Sustituido
+   * por `calcularLeadTimePiernaA` (Pierna A real sobre Envíos). Se conserva SOLO para alimentar
+   * los campos legacy del contrato (`tiempoEntrega*`/`tasaPuntualidad`) hasta retirar consumidores.
+   * NO surfacear `tasaPuntualidad`: no hay SLA/objetivo real (greenfield · Ola 4).
    */
   calcularTiemposEntrega(ordenes: OrdenCompra[]) {
     const tiemposEntrega: number[] = [];

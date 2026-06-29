@@ -172,6 +172,18 @@ export const envioCrudService = {
     return snap.docs.map(d => ({ id: d.id, ...d.data() } as Envio));
   },
 
+  /**
+   * Envíos cuyo ORIGEN es este proveedor (`origenTipo='proveedor'` + `origenProveedorId`).
+   * Es la fuente AUTORITATIVA de las fechas reales por pierna (despacho proveedor → entrega
+   * en casilla) que consolida el scorecard de lead-time. Envíos es el dueño de las fechas;
+   * `proveedor.analytics` solo LEE/CONSOLIDA esta data. NO asume 1 OC = 1 envío.
+   */
+  async getByProveedor(origenProveedorId: string): Promise<Envio[]> {
+    const q = query(collection(db, COLL), where('origenProveedorId', '==', origenProveedorId));
+    const snap = await getDocs(q);
+    return snap.docs.map(d => ({ id: d.id, ...d.data() } as Envio));
+  },
+
   async getByFiltros(filtros: EnvioFiltros): Promise<Envio[]> {
     let q = query(collection(db, COLL));
 
