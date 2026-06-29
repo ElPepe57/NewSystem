@@ -6,6 +6,8 @@
 
 import type { Proveedor, OrdenCompra, ClasificacionProveedor } from '../types/ordenCompra.types';
 import type { Producto } from '../types/producto.types';
+import type { IncidenciaOC } from '../types/incidenciaOC.types';
+import { incidenciaOCService } from './incidenciaOC.service';
 
 // ============================================
 // INTERFACES DE ANALYTICS
@@ -218,7 +220,8 @@ export const ProveedorAnalyticsService = {
     proveedor: Proveedor,
     ordenesCompra: OrdenCompra[],
     productos: Producto[],
-    allProveedores: Proveedor[]
+    allProveedores: Proveedor[],
+    incidenciasOCRaw?: IncidenciaOC[]
   ): Promise<ProveedorAnalytics> {
     // Filtrar órdenes de este proveedor
     const ordenesProveedor = ordenesCompra.filter(oc => oc.proveedorId === proveedor.id);
@@ -240,11 +243,14 @@ export const ProveedorAnalyticsService = {
     // Calcular tiempos de entrega
     const tiemposEntrega = this.calcularTiemposEntrega(ordenesProveedor);
 
-    // Simular incidencias (en producción vendrían de la base de datos)
-    const incidencias = this.calcularIncidencias(ordenesProveedor);
+    // C6 · incidencias REALES (colección incidenciasOC · cross-OC) — reemplaza el stub que mentía.
+    // El caller (detalle de UN proveedor a la vez) hace listAll directo barato; se puede pasar
+    // `incidenciasOCRaw` para batchear si en el futuro se analiza la lista completa de proveedores.
+    const incidenciasOC = incidenciasOCRaw ?? await incidenciaOCService.listAll();
+    const incidencias = this.calcularIncidencias(ordenesProveedor, incidenciasOC);
 
-    // Calcular predicciones
-    const predicciones = this.calcularPredicciones(ordenesProveedor, metricas);
+    // Calcular predicciones (el riesgo de incidencia sale de las incidencias reales)
+    const predicciones = this.calcularPredicciones(ordenesProveedor, metricas, incidencias);
 
     // Generar alertas
     const alertas = this.generarAlertas(proveedor, metricas, incidencias, tiemposEntrega);
@@ -587,12 +593,34 @@ export const ProveedorAnalyticsService = {
   },
 
   /**
-   * Calcula incidencias (simuladas - en producción vendrían de BD)
+   * C6 · Mapea las incidencias REALES (colección `incidenciasOC` · cross-OC) a `IncidenciaProveedor`
+   * para las OCs de este proveedor. Reemplaza el stub que devolvía `[]` (el scoring mentía: 0 incidencias
+   * y riesgo bajo aunque hubiera problemas reales).
    */
-  calcularIncidencias(ordenes: OrdenCompra[]): IncidenciaProveedor[] {
-    // Por ahora retornamos array vacío
-    // En producción esto vendría de una colección de incidencias
-    return [];
+  calcularIncidencias(ordenes: OrdenCompra[], incidenciasOC: IncidenciaOC[]): IncidenciaProveedor[] {
+    const ocIds = new Set(ordenes.map((o) => o.id));
+    const sevMap: Record<NonNullable<IncidenciaOC['severidad']>, IncidenciaProveedor['severidad']> = {
+      baja: 'leve', media: 'moderada', alta: 'grave', critica: 'grave',
+    };
+    const tipoMap: Record<IncidenciaOC['tipo'], IncidenciaProveedor['tipo']> = {
+      recepcion: 'producto_danado', facturacion: 'precio_incorrecto', proveedor: 'calidad',
+      logistica: 'demora', impuestos: 'otro', compliance: 'otro',
+    };
+    return incidenciasOC
+      .filter((i) => i.ocId && ocIds.has(i.ocId))
+      .map((i): IncidenciaProveedor => ({
+        id: i.id,
+        fecha: i.fechaCreacion?.toDate?.() ?? new Date(),
+        tipo: tipoMap[i.tipo] ?? 'otro',
+        severidad: i.severidad ? sevMap[i.severidad] : 'leve',
+        ordenCompraId: i.ocId,
+        numeroOrden: i.ocNumero,
+        descripcion: i.titulo,
+        impactoUSD: i.impactoRealUSD ?? i.impactoEstimadoUSD,
+        resuelta: i.estado === 'resuelta',
+        fechaResolucion: i.fechaResolucion?.toDate?.(),
+        resolucion: i.resolucion,
+      }));
   },
 
   /**
@@ -614,7 +642,7 @@ export const ProveedorAnalyticsService = {
   /**
    * Calcula predicciones
    */
-  calcularPredicciones(ordenes: OrdenCompra[], metricas: any): PrediccionesProveedor {
+  calcularPredicciones(ordenes: OrdenCompra[], metricas: any, incidencias: IncidenciaProveedor[] = []): PrediccionesProveedor {
     const ahora = new Date();
 
     // Días estimados para próxima compra basado en frecuencia
@@ -641,13 +669,19 @@ export const ProveedorAnalyticsService = {
       metricas.diasDesdeUltimaOrden > 30 ? 25 : 10
     );
 
+    // C6 · riesgo de incidencia derivado de las incidencias REALES (antes hardcoded 10 = mentía).
+    const tasaIncidenciasPct = ordenes.length > 0 ? (incidencias.length / ordenes.length) * 100 : 0;
+    const incidenciasAbiertas = incidencias.filter((i) => !i.resuelta).length;
+    const incidenciasGraves = incidencias.filter((i) => i.severidad === 'grave').length;
+    const riesgoIncidencia = Math.min(100, Math.round(tasaIncidenciasPct) + incidenciasAbiertas * 8 + incidenciasGraves * 12);
+
     return {
       diasEstimadosProximaCompra: diasEstimados,
       fechaEstimadaProximaCompra: new Date(ahora.getTime() + diasEstimados * 24 * 60 * 60 * 1000),
       montoEstimadoProximaCompra: montoEstimado,
       tendenciaVolumen,
       tendenciaPrecios: 'estable',
-      riesgoIncidencia: 10, // Bajo por defecto sin datos
+      riesgoIncidencia,
       riesgoInactividad,
       valorAnualEstimado: metricas.montoUltimos365DiasUSD,
       valorTotalHistorico: metricas.montoTotalUSD
