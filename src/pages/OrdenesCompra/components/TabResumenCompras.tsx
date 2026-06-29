@@ -568,11 +568,25 @@ export const TabResumenCompras: React.FC<TabResumenComprasProps> = ({
           <div>
             <div className="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-2 ml-1">Insights del mes</div>
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-              {/* Lead time */}
+              {/* Lead time · desglose REAL por pierna (proveedor + viajero · del scorecard leadTimePiernas
+                  que el radar ya computa). El mockup pedía tránsito/aduana pero ese corte NO es computable
+                  (sin timestamp de aduana) → proveedor/viajero es el desglose honesto con el dato que existe.
+                  Fallback al span único creación→recepción si aún no hay envíos cerrados medibles. */}
               <div className="bg-white border border-slate-200 rounded-xl p-3">
-                <div className="flex items-center gap-1.5 mb-1"><Clock className="w-3.5 h-3.5 text-sky-600" /><span className="text-[10px] uppercase tracking-wider text-sky-700 font-bold">Lead time</span></div>
-                <div className="text-[18px] font-bold tabular-nums text-slate-900">{leadTime.promedio !== null ? `${leadTime.promedio} días` : '—'}</div>
-                <div className="text-[11px] text-slate-500 leading-snug">{leadTime.promedio !== null ? 'promedio proveedor → recepción' : 'sin recepciones registradas aún'}</div>
+                <div className="flex items-center gap-1.5 mb-1"><Clock className="w-3.5 h-3.5 text-sky-600" /><span className="text-[10px] uppercase tracking-wider text-sky-700 font-bold">Lead time · desglose</span></div>
+                {(radar.leadTimePierna.proveedor || radar.leadTimePierna.viajero) ? (
+                  <>
+                    <div className="text-[13px] text-slate-600 leading-snug tabular-nums">
+                      <b className="text-slate-800">{radar.leadTimePierna.proveedor ? `${radar.leadTimePierna.proveedor.promedio}d` : '—'}</b> proveedor + <b className="text-slate-800">{radar.leadTimePierna.viajero ? `${radar.leadTimePierna.viajero.promedio}d` : '—'}</b> viajero
+                    </div>
+                    <div className="text-[11px] text-slate-500 leading-snug mt-0.5">promedio sobre {Math.max(radar.leadTimePierna.proveedor?.n ?? 0, radar.leadTimePierna.viajero?.n ?? 0)} envío(s) cerrado(s)</div>
+                  </>
+                ) : (
+                  <>
+                    <div className="text-[18px] font-bold tabular-nums text-slate-900">{leadTime.promedio !== null ? `${leadTime.promedio} días` : '—'}</div>
+                    <div className="text-[11px] text-slate-500 leading-snug">{leadTime.promedio !== null ? 'creación → recepción' : 'sin recepciones registradas aún'}</div>
+                  </>
+                )}
               </div>
               {/* Concentración */}
               <div className="bg-white border border-slate-200 rounded-xl p-3">

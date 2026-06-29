@@ -52,6 +52,7 @@ import {
   leadTimePiernaA,
   leadTimePiernaB,
   resumirLeadTime,
+  type LeadTimeStats,
 } from '../../utils/leadTimePiernas.helper';
 
 // Estados logísticos de OC "en vuelo" (in-flight): confirmada/en_proceso/despachada + legacy.
@@ -152,6 +153,12 @@ export interface RadarAtrasadosResult {
    *   · 'sin-baseline'  → no había baseline computable (radar vacío de filas).
    */
   leadTimeFuente: LeadTimeFuenteFila | 'mixto' | 'sin-baseline';
+  /**
+   * Lead-time global por pierna (proveedor + viajero) sobre envíos CERRADOS · para el desglose REAL
+   * de la card de lead-time del Resumen (Fase 3). null por pierna = sin muestras medibles
+   * (envíos planos / sin tandas con fechas). Reúsa los promedios que el radar ya computa.
+   */
+  leadTimePierna: { proveedor: LeadTimeStats | null; viajero: LeadTimeStats | null };
   loading: boolean;
   error: boolean;
   /** Re-dispara la carga del teaser async (incidencias). El radar se recalcula con los props. */
@@ -279,11 +286,16 @@ export function useRadarAtrasados({
       return out;
     };
 
+    // Stats globales por pierna · base del desglose REAL de la card del Resumen (no se descartan).
+    const piernaProveedor = resumirLeadTime(proveedorGlobal);
+    const piernaViajero = resumirLeadTime(viajeroGlobal);
     return {
       viajeroPorId: promedioPor(viajeroVals),
       proveedorPorId: promedioPor(proveedorVals),
-      viajeroGlobal: resumirLeadTime(viajeroGlobal)?.promedio ?? 0,
-      proveedorGlobal: resumirLeadTime(proveedorGlobal)?.promedio ?? 0,
+      viajeroGlobal: piernaViajero?.promedio ?? 0,
+      proveedorGlobal: piernaProveedor?.promedio ?? 0,
+      piernaProveedor,
+      piernaViajero,
     };
   }, [envios]);
 
@@ -460,6 +472,7 @@ export function useRadarAtrasados({
     unidades,
     teaser,
     leadTimeFuente,
+    leadTimePierna: { proveedor: baselines.piernaProveedor, viajero: baselines.piernaViajero },
     // El radar (cómputo síncrono) nunca está "loading"; el async es el teaser.
     loading: false,
     error: false,
